@@ -193,6 +193,36 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // AI Model Training API
+  app.post('/api/start-model-training', isAuthenticated, async (req: any, res) => {
+    try {
+      const userId = req.user.claims.sub;
+      const { selfieImages } = req.body;
+      
+      if (!selfieImages || selfieImages.length < 10) {
+        return res.status(400).json({ message: "At least 10 selfie images are required" });
+      }
+      
+      // Generate unique trigger word
+      const triggerWord = `user${userId}`;
+      
+      // TODO: Implement actual model training with Replicate
+      // For now, just create a placeholder model entry
+      const modelData = {
+        userId,
+        triggerWord,
+        status: 'training',
+        imageCount: selfieImages.length
+      };
+      
+      const model = await storage.createUserModel(modelData);
+      res.json({ message: "Model training started", model });
+    } catch (error) {
+      console.error("Error starting model training:", error);
+      res.status(500).json({ message: "Failed to start model training" });
+    }
+  });
+
   // TODO: Add Stripe integration endpoints
   // app.post('/api/create-subscription', isAuthenticated, async (req: any, res) => {
   //   // Stripe subscription creation logic

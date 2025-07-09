@@ -86,21 +86,27 @@ export default function Workspace() {
         fullHeight={false}
       />
 
-      {/* STUDIO Tabs */}
+      {/* STUDIO Tabs - Simplified */}
       <div className="bg-white border-b border-[#e5e5e5]">
         <div className="max-w-7xl mx-auto px-6">
           <nav className="flex space-x-8">
-            {['overview', 'themes', 'images', 'moodboard', 'tools', 'settings'].map((tab) => (
+            {[
+              { id: 'overview', label: 'Overview' },
+              { id: 'ai-photoshoot', label: 'AI Photoshoot' },
+              { id: 'gallery', label: 'Gallery' }, 
+              { id: 'landing-builder', label: 'Landing Builder' },
+              { id: 'sandra-ai', label: 'Sandra AI' }
+            ].map((tab) => (
               <button
-                key={tab}
-                onClick={() => setActiveTab(tab)}
+                key={tab.id}
+                onClick={() => setActiveTab(tab.id)}
                 className={`py-4 px-2 border-b-2 transition-colors text-sm uppercase tracking-wider ${
-                  activeTab === tab
+                  activeTab === tab.id
                     ? 'border-[#0a0a0a] text-[#0a0a0a]'
                     : 'border-transparent text-[#666666] hover:text-[#0a0a0a]'
                 }`}
               >
-                {tab}
+                {tab.label}
               </button>
             ))}
           </nav>
@@ -133,151 +139,206 @@ export default function Workspace() {
           </section>
         )}
 
-        {activeTab === 'themes' && (
+        {activeTab === 'ai-photoshoot' && (
           <section>
             <div className="mb-8">
               <h2 className="text-3xl font-light text-[#0a0a0a] mb-4" style={{ fontFamily: 'Times New Roman, serif' }}>
-                STUDIO Themes
+                AI Photoshoot
               </h2>
               <p className="text-lg text-[#666666] max-w-3xl font-light">
-                Choose your aesthetic. Switch anytime. Each theme uses different moodboard collections for that perfect vibe.
+                Generate 300 professional AI photos monthly. Each photo costs us $0.038 to create for you.
               </p>
             </div>
             
-            <StudioThemeSelector 
-              currentTheme={selectedTheme}
-              onThemeChange={handleThemeChange}
-            />
-          </section>
-        )}
-
-        {activeTab === 'images' && (
-          <section>
-            <div className="mb-8">
-              <h2 className="text-3xl font-light text-[#0a0a0a] mb-4" style={{ fontFamily: 'Times New Roman, serif' }}>
-                Your AI Images
-              </h2>
-              <p className="text-lg text-[#666666] max-w-3xl font-light">
-                Your personalized AI SSELFIE collection. Use these for your hero backgrounds, brandbooks, and landing pages.
-              </p>
-            </div>
-            
-            {aiImages.length > 0 ? (
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                {aiImages.map((image: any) => (
-                  <div key={image.id} className="relative aspect-[4/3] overflow-hidden border border-[#e5e5e5] group cursor-pointer">
-                    <img 
-                      src={image.imageUrl}
-                      alt="Your AI SSELFIE"
-                      className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
-                    />
-                    <div className="absolute inset-0 bg-gradient-to-t from-[#0a0a0a]/80 via-[#0a0a0a]/40 to-transparent opacity-0 group-hover:opacity-100 transition-opacity"></div>
-                    <div className="absolute bottom-0 left-0 right-0 p-4 opacity-0 group-hover:opacity-100 transition-opacity">
-                      <button 
-                        onClick={() => setHeroBackground('ai')}
-                        className="bg-white text-[#0a0a0a] px-4 py-2 text-xs uppercase tracking-wider hover:bg-[#f5f5f5] transition-colors"
-                      >
-                        Use as Hero
-                      </button>
-                    </div>
-                  </div>
-                ))}
+            <div className="bg-gray-50 p-8 max-w-2xl">
+              <h3 className="text-xl font-light mb-4" style={{ fontFamily: 'Times New Roman, serif' }}>
+                Your Monthly Allowance
+              </h3>
+              <div className="space-y-2">
+                <div className="flex justify-between">
+                  <span>Plan</span>
+                  <span>SSELFIE STUDIO</span>
+                </div>
+                <div className="flex justify-between">
+                  <span>Monthly Generations</span>
+                  <span>300</span>
+                </div>
+                <div className="flex justify-between">
+                  <span>Used This Month</span>
+                  <span>0</span>
+                </div>
+                <div className="flex justify-between">
+                  <span>Remaining</span>
+                  <span>300</span>
+                </div>
               </div>
-            ) : (
-              <div className="text-center py-16">
-                <p className="text-[#666666] mb-8">No AI images yet. Train your model first.</p>
-                <Link href="/model-training">
-                  <button className="bg-[#0a0a0a] text-white px-8 py-3 text-xs uppercase tracking-wider hover:bg-[#333] transition-colors">
-                    Train AI Model
-                  </button>
+              
+              <div className="mt-6">
+                <Link href="/ai-generator" className="bg-black text-white px-6 py-3 text-xs uppercase tracking-wider hover:bg-gray-800 transition-colors">
+                  GENERATE PHOTOS
                 </Link>
               </div>
-            )}
-          </section>
-        )}
-
-        {activeTab === 'moodboard' && (
-          <section>
-            <div className="mb-8">
-              <h2 className="text-3xl font-light text-[#0a0a0a] mb-4" style={{ fontFamily: 'Times New Roman, serif' }}>
-                Moodboard Collections
-              </h2>
-              <p className="text-lg text-[#666666] max-w-3xl font-light">
-                Professional curated images that complement your AI SSELFIES. Perfect for landing pages and brandbooks.
-              </p>
-            </div>
-            
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-              {MoodboardCollections.slice(0, 4).map((collection) => (
-                <div key={collection.id} className="bg-white border border-[#e5e5e5] p-6">
-                  <h3 className="text-lg font-light mb-2" style={{ fontFamily: 'Times New Roman, serif' }}>
-                    {collection.name}
-                  </h3>
-                  <p className="text-sm text-[#666666] mb-4">
-                    {collection.description}
-                  </p>
-                  <div className="text-xs text-[#999] uppercase tracking-wider">
-                    {collection.images.length} Images
-                  </div>
-                </div>
-              ))}
             </div>
           </section>
         )}
 
-        {activeTab === 'tools' && (
+        {activeTab === 'gallery' && (
           <section>
             <div className="mb-8">
               <h2 className="text-3xl font-light text-[#0a0a0a] mb-4" style={{ fontFamily: 'Times New Roman, serif' }}>
-                Business Tools
+                Your Gallery
               </h2>
               <p className="text-lg text-[#666666] max-w-3xl font-light">
-                Everything you need to build and launch your personal brand business.
+                Your saved AI photos are automatically stored here. Download, share, or use them in your landing pages.
               </p>
             </div>
             
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-              <Link href="/ai-generator">
-                <div className="bg-white border border-[#e5e5e5] p-8 hover:border-[#0a0a0a] transition-colors">
-                  <h3 className="text-lg font-light mb-3" style={{ fontFamily: 'Times New Roman, serif' }}>
-                    AI Generator
-                  </h3>
-                  <p className="text-sm text-[#666666] mb-4">
-                    Generate professional AI images for your brand
-                  </p>
-                  <div className="text-xs uppercase tracking-wider text-[#0a0a0a] border-b border-[#0a0a0a] pb-1 inline-block">
-                    Open Tool
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+              {aiImages.length > 0 ? (
+                aiImages.map((image, index) => (
+                  <div key={index} className="bg-white border border-[#e5e5e5] overflow-hidden group">
+                    <img 
+                      src={image.imageUrl} 
+                      alt={`AI generated image ${index + 1}`}
+                      className="w-full h-64 object-cover"
+                    />
+                    <div className="p-4">
+                      <p className="text-sm text-[#666666] mb-2">{image.prompt}</p>
+                      <p className="text-xs text-[#999999]">
+                        Generated: {new Date(image.createdAt).toLocaleDateString()}
+                      </p>
+                      <div className="mt-2">
+                        <button className="text-xs uppercase tracking-wider text-black hover:underline mr-4">
+                          Download
+                        </button>
+                        <button className="text-xs uppercase tracking-wider text-black hover:underline">
+                          Use in Landing Page
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+                ))
+              ) : (
+                <div className="col-span-full text-center py-16">
+                  <p className="text-[#666666] mb-4">No saved photos yet</p>
+                  <Link href="/ai-generator" className="text-sm uppercase tracking-wider text-black hover:underline">
+                    Generate Your First Photos
+                  </Link>
+                </div>
+              )}
+            </div>
+          </section>
+        )}
+
+        {activeTab === 'landing-builder' && (
+          <section>
+            <div className="mb-8">
+              <h2 className="text-3xl font-light text-[#0a0a0a] mb-4" style={{ fontFamily: 'Times New Roman, serif' }}>
+                Landing Page Builder
+              </h2>
+              <p className="text-lg text-[#666666] max-w-3xl font-light">
+                Chat with Sandra AI to build conversion-optimized landing pages using your onboarding data and AI photos.
+              </p>
+            </div>
+            
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+              <div className="bg-gray-50 p-8">
+                <h3 className="text-xl font-light mb-4" style={{ fontFamily: 'Times New Roman, serif' }}>
+                  Available Templates
+                </h3>
+                <div className="space-y-3">
+                  <div className="flex items-center justify-between">
+                    <span>Service Provider Page</span>
+                    <button className="text-xs uppercase tracking-wider text-black hover:underline">
+                      Create
+                    </button>
+                  </div>
+                  <div className="flex items-center justify-between">
+                    <span>Coach/Consultant Page</span>
+                    <button className="text-xs uppercase tracking-wider text-black hover:underline">
+                      Create
+                    </button>
+                  </div>
+                  <div className="flex items-center justify-between">
+                    <span>Portfolio Page</span>
+                    <button className="text-xs uppercase tracking-wider text-black hover:underline">
+                      Create
+                    </button>
                   </div>
                 </div>
-              </Link>
+              </div>
               
-              <Link href="/brandbook-onboarding">
-                <div className="bg-white border border-[#e5e5e5] p-8 hover:border-[#0a0a0a] transition-colors">
-                  <h3 className="text-lg font-light mb-3" style={{ fontFamily: 'Times New Roman, serif' }}>
-                    Brandbook Designer
-                  </h3>
-                  <p className="text-sm text-[#666666] mb-4">
-                    Create your luxury brand identity system
-                  </p>
-                  <div className="text-xs uppercase tracking-wider text-[#0a0a0a] border-b border-[#0a0a0a] pb-1 inline-block">
-                    Open Tool
+              <div className="bg-white border border-gray-200 p-8">
+                <h3 className="text-xl font-light mb-4" style={{ fontFamily: 'Times New Roman, serif' }}>
+                  Sandra AI Builder
+                </h3>
+                <p className="text-sm text-gray-600 mb-6">
+                  Sandra AI knows your brand story, goals, and style from onboarding. Just tell her what you want to build.
+                </p>
+                <Link href="/landing-builder" className="bg-black text-white px-6 py-3 text-xs uppercase tracking-wider hover:bg-gray-800 transition-colors">
+                  Chat with Sandra AI
+                </Link>
+              </div>
+            </div>
+          </section>
+        )}
+
+        {activeTab === 'sandra-ai' && (
+          <section>
+            <div className="mb-8">
+              <h2 className="text-3xl font-light text-[#0a0a0a] mb-4" style={{ fontFamily: 'Times New Roman, serif' }}>
+                Sandra AI
+              </h2>
+              <p className="text-lg text-[#666666] max-w-3xl font-light">
+                Your personal AI assistant that knows your brand story, goals, and style. Chat with Sandra about anything related to your business.
+              </p>
+            </div>
+            
+            <div className="bg-white border border-gray-200 p-8 max-w-4xl">
+              <div className="mb-6">
+                <h3 className="text-xl font-light mb-4" style={{ fontFamily: 'Times New Roman, serif' }}>
+                  What Sandra AI Knows About You
+                </h3>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6 text-sm">
+                  <div>
+                    <div className="font-medium mb-2">Your Brand Story</div>
+                    <div className="text-gray-600">Your personal journey and mission</div>
+                  </div>
+                  <div>
+                    <div className="font-medium mb-2">Business Goals</div>
+                    <div className="text-gray-600">Your objectives and target audience</div>
+                  </div>
+                  <div>
+                    <div className="font-medium mb-2">Brand Voice</div>
+                    <div className="text-gray-600">Your communication style and tone</div>
+                  </div>
+                  <div>
+                    <div className="font-medium mb-2">Style Preferences</div>
+                    <div className="text-gray-600">Your visual aesthetic and brand direction</div>
                   </div>
                 </div>
-              </Link>
+              </div>
               
-              <Link href="/landing-builder">
-                <div className="bg-white border border-[#e5e5e5] p-8 hover:border-[#0a0a0a] transition-colors">
-                  <h3 className="text-lg font-light mb-3" style={{ fontFamily: 'Times New Roman, serif' }}>
-                    Landing Pages
-                  </h3>
-                  <p className="text-sm text-[#666666] mb-4">
-                    Build conversion-optimized landing pages
+              <div className="border-t pt-6">
+                <h3 className="text-xl font-light mb-4" style={{ fontFamily: 'Times New Roman, serif' }}>
+                  Chat with Sandra
+                </h3>
+                <div className="bg-gray-50 p-4 rounded-none min-h-[300px] mb-4">
+                  <p className="text-gray-500 text-sm">
+                    Sandra AI chat interface will be available here. Ask about content creation, marketing strategies, or anything else related to your personal brand.
                   </p>
-                  <div className="text-xs uppercase tracking-wider text-[#0a0a0a] border-b border-[#0a0a0a] pb-1 inline-block">
-                    Open Tool
-                  </div>
                 </div>
-              </Link>
+                <div className="flex space-x-4">
+                  <input 
+                    type="text"
+                    placeholder="Ask Sandra anything about your brand..."
+                    className="flex-1 p-3 border border-gray-300 rounded-none focus:outline-none focus:border-black"
+                  />
+                  <button className="bg-black text-white px-6 py-3 text-xs uppercase tracking-wider hover:bg-gray-800 transition-colors">
+                    Send
+                  </button>
+                </div>
+              </div>
             </div>
           </section>
         )}

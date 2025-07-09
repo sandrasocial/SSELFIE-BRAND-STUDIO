@@ -18,13 +18,12 @@ export default function Pricing() {
   const completedPlan = urlParams.get('plan');
 
   const handlePricing = (plan: string) => {
-    // Direct mapping since we're now using standardized plan names
-    const planType = plan || 'ai-pack';
-    setLocation(`/checkout?plan=${planType}`);
+    // Single product pricing
+    setLocation(`/checkout?plan=sselfie-studio`);
   };
 
   const handleGetStarted = () => {
-    handlePricing("ai-pack");
+    handlePricing("sselfie-studio");
   };
 
   return (
@@ -71,40 +70,22 @@ export default function Pricing() {
           </p>
         </section>
 
-        {/* Pricing Cards */}
-        <section className="grid grid-cols-1 md:grid-cols-3 gap-8 mb-20">
-          <PricingCard
-            title="SSELFIE AI"
-            price="€47"
-            period="one-time"
-            description="Upload your selfies, get gorgeous AI images back. You need to see this to believe it."
-            imageUrl={SandraImages.editorial.phone1}
-            ctaText="Show me the magic"
-            onCtaClick={() => handlePricing('ai-pack')}
-          />
-          
-          <PricingCard
-            title="STUDIO Founding"
-            price="€97"
-            period="per month"
-            description="Everything you need to build your personal brand in 20 minutes. AI images, templates, the whole thing."
-            imageUrl={SandraImages.editorial.laptop1}
-            ctaText="I'm ready"
-            onCtaClick={() => handlePricing('studio-founding')}
-            isPopular={true}
-            badge="Most Popular"
-            className="bg-[var(--editorial-gray)]"
-          />
-          
-          <PricingCard
-            title="STUDIO Pro"
-            price="€147"
-            period="per month"
-            description="Full platform access. For when you're ready to show up, get seen, and finally get paid for being you."
-            imageUrl={SandraImages.hero.pricing}
-            ctaText="Get Started"
-            onCtaClick={() => handlePricing('studio-standard')}
-          />
+        {/* Single Product Pricing */}
+        <section className="flex justify-center mb-20">
+          <div className="max-w-md">
+            <PricingCard
+              title="SSELFIE STUDIO"
+              price="€97"
+              period="per month"
+              description="The world's first AI selfie personal branding system. Train your AI, generate 300 photos monthly, build your brand with Sandra AI. Everything you need in one place."
+              imageUrl={SandraImages.editorial.laptop1}
+              ctaText="START YOUR TRANSFORMATION"
+              onCtaClick={() => handlePricing('sselfie-studio')}
+              isPopular={true}
+              badge="Complete System"
+              className="bg-[var(--editorial-gray)]"
+            />
+          </div>
         </section>
 
         {/* FAQ Section */}

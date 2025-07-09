@@ -19,14 +19,7 @@ export default function Landing() {
   };
 
   const handlePricing = (plan: string) => {
-    const planMap: { [key: string]: string } = {
-      'ai-pack': 'ai-pack',
-      'studio-founding': 'studio-founding',
-      'studio-standard': 'studio-standard'
-    };
-    
-    const planType = planMap[plan] || 'ai-pack';
-    setLocation(`/checkout?plan=${planType}`);
+    setLocation(`/checkout?plan=sselfie-studio`);
   };
 
   const moodboardItems = [
@@ -191,38 +184,20 @@ export default function Landing() {
           </div>
           
           <div className="feature-grid-responsive lg:grid-cols-3 gap-6 lg:gap-8">
-            <PricingCard
-              title="SSELFIE AI"
-              price="€47"
-              period="one-time"
-              description="Upload 10-15 selfies. Get 30 images that actually look like you. See the magic before you believe it."
-              imageUrl={SandraImages.editorial.phone1}
-              ctaText="START HERE"
-              onCtaClick={() => handlePricing('ai-pack')}
-            />
-            
-            <PricingCard
-              title="STUDIO FOUNDING"
-              price="€97"
-              period="per month"
-              description="Your phone becomes your business. AI images, templates, everything connected. 20 minutes to launch."
-              imageUrl={SandraImages.editorial.laptop1}
-              ctaText="BEGIN"
-              onCtaClick={() => handlePricing('studio-founding')}
-              isPopular={true}
-              badge="For the brave ones"
-              className="bg-[var(--editorial-gray)]"
-            />
-            
-            <PricingCard
-              title="STUDIO Pro"
-              price="€147"
-              period="per month"
-              description="When you're ready to show up, get seen, and finally get paid for being you."
-              imageUrl={SandraImages.hero.pricing}
-              ctaText="BEGIN"
-              onCtaClick={() => handlePricing('studio-standard')}
-            />
+            <div className="flex justify-center">
+              <PricingCard
+                title="SSELFIE STUDIO"
+                price="€97"
+                period="per month"
+                description="The world's first AI selfie personal branding system. Train your AI, generate 300 photos monthly, build your brand with Sandra AI. Everything you need in one place."
+                imageUrl={SandraImages.editorial.laptop1}
+                ctaText="START YOUR TRANSFORMATION"
+                onCtaClick={() => handlePricing('sselfie-studio')}
+                isPopular={true}
+                badge="Complete System"
+                className="bg-[var(--editorial-gray)]"
+              />
+            </div>
           </div>
         </div>
       </section>
@@ -257,18 +232,12 @@ export default function Landing() {
             This isn't just a business. This is the future of how women build brands and businesses.
           </p>
           
-          <div className="flex flex-col md:flex-row gap-8 justify-center items-center">
+          <div className="flex justify-center">
             <button 
-              onClick={() => handlePricing('ai-pack')}
-              className="luxury-button text-white/90 border-white/30 hover:border-white system-text"
-            >
-              Try SSELFIE AI (€47)
-            </button>
-            <button 
-              onClick={() => handlePricing('studio-founding')}
+              onClick={() => handlePricing('sselfie-studio')}
               className="bg-white text-[var(--luxury-black)] px-8 py-4 eyebrow-text hover:bg-white/90 transition-all duration-300 system-text"
             >
-              Launch Your Business (€97)
+              Start Your Transformation (€97)
             </button>
           </div>
         </div>

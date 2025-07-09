@@ -73,19 +73,19 @@ const CheckoutForm = ({ planType }: { planType: string }) => {
 export default function Checkout() {
   const { isAuthenticated } = useAuth();
   const [clientSecret, setClientSecret] = useState("");
-  const [planType, setPlanType] = useState("ai-pack");
+  const [planType, setPlanType] = useState("sselfie-studio");
   const [, setLocation] = useLocation();
 
   useEffect(() => {
-    // Get plan from URL params
+    // Get plan from URL params (always sselfie-studio now)
     const urlParams = new URLSearchParams(window.location.search);
-    const plan = urlParams.get('plan') || 'ai-pack';
-    setPlanType(plan);
+    const plan = urlParams.get('plan') || 'sselfie-studio';
+    setPlanType('sselfie-studio');
 
     // No authentication required for checkout - users can purchase before login
 
-    // Create payment intent
-    const amount = plan === 'ai-pack' ? 47 : plan === 'studio-founding' ? 97 : plan === 'studio-standard' ? 147 : 47;
+    // Single product pricing
+    const amount = 97;
     
     apiRequest("POST", "/api/create-payment-intent", { 
       amount: amount,
@@ -108,16 +108,11 @@ export default function Checkout() {
   }, [isAuthenticated, setLocation]);
 
   const getPlanDetails = (plan: string) => {
-    switch (plan) {
-      case 'ai-pack':
-        return { name: 'SSELFIE AI', price: '€47', description: 'AI image generation pack' };
-      case 'studio-founding':
-        return { name: 'STUDIO Founding', price: '€97', description: 'Complete brand building platform' };
-      case 'studio-standard':
-        return { name: 'STUDIO Pro', price: '€147', description: 'Full platform with priority support' };
-      default:
-        return { name: 'SSELFIE AI', price: '€47', description: 'AI image generation pack' };
-    }
+    return { 
+      name: 'SSELFIE STUDIO', 
+      price: '€97', 
+      description: 'Complete AI selfie personal branding system with 300 monthly AI generations' 
+    };
   };
 
   const planDetails = getPlanDetails(planType);

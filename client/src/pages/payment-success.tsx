@@ -34,12 +34,12 @@ export default function PaymentSuccess() {
             setLocation('/workspace');
           } else {
             // New user, go to onboarding
-            setLocation('/onboarding?plan=' + (plan || 'ai-pack'));
+            setLocation('/onboarding');
           }
         })
         .catch(() => {
           // If error checking, default to onboarding for safety
-          setLocation('/onboarding?plan=' + (plan || 'ai-pack'));
+          setLocation('/onboarding');
         });
     }, 3000);
   }, [toast, setLocation]);
@@ -74,10 +74,10 @@ export default function PaymentSuccess() {
               if (data && data.completed) {
                 setLocation('/workspace');
               } else {
-                setLocation('/onboarding?plan=' + plan);
+                setLocation('/onboarding');
               }
             })
-            .catch(() => setLocation('/onboarding?plan=' + plan));
+            .catch(() => setLocation('/onboarding'));
         }}
         fullHeight={false}
       />
