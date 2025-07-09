@@ -13,9 +13,8 @@ export default function Landing() {
   const [, setLocation] = useLocation();
 
   const handleGetStarted = () => {
-    // For now, direct users to choose a plan since checkout is working
-    // Full login integration will be added later
-    setLocation('/pricing');
+    // Direct users to login first, then they'll go through the proper flow
+    window.location.href = '/api/login';
   };
 
   const handlePricing = (plan: string) => {
