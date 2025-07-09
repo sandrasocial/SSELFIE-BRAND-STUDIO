@@ -362,6 +362,67 @@ You help users design and customize their ${context === 'dashboard-builder' ? 'p
     }
   });
 
+  // Brandbook API endpoints
+  app.post('/api/brandbooks', isAuthenticated, async (req: any, res) => {
+    try {
+      const userId = req.user.claims.sub;
+      const brandbookData = req.body;
+      
+      // Create new brandbook
+      const brandbook = await storage.createBrandbook({ userId, ...brandbookData });
+      res.json(brandbook);
+    } catch (error) {
+      console.error("Error creating brandbook:", error);
+      res.status(500).json({ message: "Failed to create brandbook" });
+    }
+  });
+
+  app.get('/api/brandbooks/:userId', isAuthenticated, async (req: any, res) => {
+    try {
+      const userId = req.user.claims.sub;
+      
+      // Get user's brandbook
+      const brandbook = await storage.getUserBrandbook(userId);
+      if (!brandbook) {
+        return res.status(404).json({ message: "Brandbook not found" });
+      }
+      
+      res.json(brandbook);
+    } catch (error) {
+      console.error("Error fetching brandbook:", error);
+      res.status(500).json({ message: "Failed to fetch brandbook" });
+    }
+  });
+
+  app.put('/api/brandbooks/:id', isAuthenticated, async (req: any, res) => {
+    try {
+      const { id } = req.params;
+      const userId = req.user.claims.sub;
+      const updateData = req.body;
+      
+      // Update brandbook
+      const brandbook = await storage.updateBrandbook(userId, parseInt(id), updateData);
+      res.json(brandbook);
+    } catch (error) {
+      console.error("Error updating brandbook:", error);
+      res.status(500).json({ message: "Failed to update brandbook" });
+    }
+  });
+
+  // Sandra AI Brandbook Designer endpoint
+  app.post('/api/sandra-ai/brandbook-designer', isAuthenticated, async (req: any, res) => {
+    try {
+      const { message, context } = req.body;
+      const userId = req.user.claims.sub;
+      
+      const response = generateBrandbookDesignerResponse(message, context.brandbook, context.onboardingData, context.chatHistory);
+      res.json(response);
+    } catch (error) {
+      console.error("Error in Sandra AI brandbook designer:", error);
+      res.status(500).json({ message: "Failed to get Sandra AI response" });
+    }
+  });
+
   // Dashboard and Landing Page API endpoints
   app.post('/api/dashboard', isAuthenticated, async (req: any, res) => {
     try {
@@ -988,6 +1049,121 @@ You help users design and customize their ${context === 'dashboard-builder' ? 'p
   return httpServer;
 }
 
+function generateBrandbookDesignerResponse(message: string, brandbook: any, onboardingData: any, chatHistory: any[]): { message: string, brandbookUpdates?: any, templateSuggestion?: string } {
+  const lowerMessage = message.toLowerCase();
+  
+  // Handle template switching
+  if (lowerMessage.includes('template') || lowerMessage.includes('style') || lowerMessage.includes('different')) {
+    if (lowerMessage.includes('minimal') || lowerMessage.includes('executive') || lowerMessage.includes('clean')) {
+      return {
+        message: "Perfect! I'm switching you to the Executive Essence template. This gives you that sophisticated, minimal look that's perfect for established businesses and high-end services. The clean lines and typography will make your brand feel premium and trustworthy.",
+        templateSuggestion: 'executive-essence'
+      };
+    }
+    if (lowerMessage.includes('bold') || lowerMessage.includes('femme') || lowerMessage.includes('nature') || lowerMessage.includes('green')) {
+      return {
+        message: "Love it! The Bold Femme template is gorgeous for your brand. This template combines feminine strength with nature-inspired elegance - think emerald greens and sophisticated earth tones. It's perfect if you want your brand to feel both powerful and connected to nature.",
+        templateSuggestion: 'bold-femme'
+      };
+    }
+    if (lowerMessage.includes('luxe') || lowerMessage.includes('feminine') || lowerMessage.includes('burgundy') || lowerMessage.includes('romantic')) {
+      return {
+        message: "Oh, this is going to be stunning! The Luxe Feminine template is all about sophisticated femininity with those gorgeous burgundy and plum tones. It's perfect for beauty, wellness, or luxury lifestyle brands. Your clients will feel the elegance immediately.",
+        templateSuggestion: 'luxe-feminine'
+      };
+    }
+    if (lowerMessage.includes('refined') || lowerMessage.includes('magazine') || lowerMessage.includes('editorial')) {
+      return {
+        message: "Excellent choice! The Refined Minimalist template gives you that high-end magazine editorial look. Clean, sophisticated, with perfect typography balance. This is ideal if you want your brand to feel like it belongs in Vogue or Harper's Bazaar.",
+        templateSuggestion: 'refined-minimalist'
+      };
+    }
+  }
+  
+  // Handle color changes
+  if (lowerMessage.includes('color') || lowerMessage.includes('palette') || lowerMessage.includes('change colors')) {
+    if (lowerMessage.includes('warm') || lowerMessage.includes('gold') || lowerMessage.includes('cream') || lowerMessage.includes('beige')) {
+      return {
+        message: "Beautiful! I'm updating your color palette to include warm, luxurious tones. Think creamy whites, soft golds, and warm grays. This palette feels inviting and premium - perfect for service-based businesses where trust and warmth matter.",
+        brandbookUpdates: {
+          primaryColor: '#8B7355',
+          secondaryColor: '#F5F2E8',
+          accentColor: '#D4AF37'
+        }
+      };
+    }
+    if (lowerMessage.includes('cool') || lowerMessage.includes('blue') || lowerMessage.includes('gray') || lowerMessage.includes('navy')) {
+      return {
+        message: "Perfect! Cool tones are so sophisticated. I'm updating your palette to include crisp blues and grays - this feels modern, trustworthy, and professional. It's excellent for consulting, tech, or any business where expertise and reliability are key.",
+        brandbookUpdates: {
+          primaryColor: '#2C3E50',
+          secondaryColor: '#ECF0F1',
+          accentColor: '#3498DB'
+        }
+      };
+    }
+    if (lowerMessage.includes('pink') || lowerMessage.includes('blush') || lowerMessage.includes('rose')) {
+      return {
+        message: "Gorgeous choice! I'm updating your palette with sophisticated pinks and blush tones. This isn't little-girl pink - this is confident, feminine, and powerful. Perfect for beauty, coaching, or lifestyle brands.",
+        brandbookUpdates: {
+          primaryColor: '#B8860B',
+          secondaryColor: '#F8F4F0',
+          accentColor: '#E8B5CE'
+        }
+      };
+    }
+  }
+  
+  // Handle personality and elegance adjustments
+  if (lowerMessage.includes('elegant') || lowerMessage.includes('sophisticated') || lowerMessage.includes('luxury') || lowerMessage.includes('more elegant')) {
+    return {
+      message: "Yes! I'm elevating your brand's elegance factor. Adding more sophisticated typography, refined color transitions, and premium styling throughout. This will make your brand feel like it belongs in the luxury market.",
+      brandbookUpdates: {
+        primaryFont: 'Times New Roman',
+        secondaryFont: 'Inter',
+        voiceTone: "Sophisticated, refined, and effortlessly elegant. Speaks with understated confidence.",
+        keyPhrases: "Timeless elegance, refined luxury, sophisticated solutions, elevated experience"
+      }
+    };
+  }
+  
+  if (lowerMessage.includes('personality') || lowerMessage.includes('add personality') || lowerMessage.includes('more personality')) {
+    return {
+      message: "Perfect! Let's add some personality to your brand. I'm infusing more warmth, authenticity, and approachable expertise. Your brand will feel professional but never stuffy - like chatting with a trusted expert friend.",
+      brandbookUpdates: {
+        voiceTone: "Warm, authentic, and genuinely helpful. Expert advice delivered with personality and heart.",
+        keyPhrases: "Authentic expertise, genuine care, real solutions, personal approach, trusted guidance"
+      }
+    };
+  }
+  
+  // Handle font requests
+  if (lowerMessage.includes('font') || lowerMessage.includes('typography')) {
+    return {
+      message: "Great question! I'm optimizing your typography for maximum sophistication. Times New Roman for headlines gives you that editorial luxury feel, while Inter for body text keeps everything clean and readable. This combination screams premium.",
+      brandbookUpdates: {
+        primaryFont: 'Times New Roman',
+        secondaryFont: 'Inter'
+      }
+    };
+  }
+  
+  // Generic helpful responses based on current context
+  const businessType = onboardingData?.businessType || '';
+  const brandVibe = onboardingData?.brandVibe || '';
+  
+  const contextualResponses = [
+    `Your ${brandVibe} brand is looking fantastic! What specific aspect would you like to adjust? I can help with colors, typography, template style, or the overall personality.`,
+    `I love the direction we're going with your ${businessType} brand! Tell me more about what you'd like to change - different colors, new template style, or maybe adjusting the brand personality?`,
+    `Your brandbook is coming together beautifully! What's not feeling quite right? Too conservative? Need more warmth? Want a completely different vibe? I can adjust anything.`,
+    `This is going to be amazing for your business! What would make your brandbook feel more authentically 'you'? I can adjust everything from colors to the entire aesthetic.`
+  ];
+  
+  return {
+    message: contextualResponses[Math.floor(Math.random() * contextualResponses.length)]
+  };
+}
+
 function generateSandraResponse(message: string, context: string): string {
   const lowerInput = message.toLowerCase();
   
@@ -1105,116 +1281,4 @@ function generateCustomPromptFromMessage(message: string, onboardingData: any): 
   return prompt;
 }
 
-function generateBrandbookDesignerResponse(message: string, brandbook: any, onboardingData: any, chatHistory: any[]): { message: string, brandbookUpdates?: any, templateSuggestion?: string } {
-  const lowerMessage = message.toLowerCase();
-  let updates = null;
-  let response = "";
-  let templateSuggestion = null;
 
-  // Handle color requests
-  if (lowerMessage.includes('color') || lowerMessage.includes('palette')) {
-    if (lowerMessage.includes('darker') || lowerMessage.includes('black')) {
-      updates = {
-        primaryColor: '#000000',
-        secondaryColor: '#ffffff',
-        accentColor: '#f5f5f5'
-      };
-      response = "Perfect! I've made the colors darker and more dramatic. This gives your brand such a sophisticated, luxury feel. What do you think?";
-    } else if (lowerMessage.includes('softer') || lowerMessage.includes('lighter')) {
-      updates = {
-        primaryColor: '#4a5568',
-        secondaryColor: '#f7fafc',
-        accentColor: '#e2e8f0'
-      };
-      response = "Beautiful! I've softened the palette for a more approachable feel. This will connect beautifully with your audience.";
-    } else if (lowerMessage.includes('warm')) {
-      updates = {
-        primaryColor: '#8b5a3c',
-        secondaryColor: '#f4f1eb',
-        accentColor: '#deb887'
-      };
-      response = "Yes! These warm earth tones are absolutely gorgeous and will make your brand feel so inviting and trustworthy.";
-    } else if (lowerMessage.includes('blue')) {
-      updates = {
-        primaryColor: '#2c3e50',
-        secondaryColor: '#ecf0f1',
-        accentColor: '#3498db'
-      };
-      response = "Love this choice! Blue communicates trust and professionalism - perfect for building authority in your industry.";
-    }
-  }
-
-  // Handle font requests
-  if (lowerMessage.includes('font') || lowerMessage.includes('typography')) {
-    if (lowerMessage.includes('modern') || lowerMessage.includes('clean')) {
-      updates = {
-        ...updates,
-        primaryFont: 'Inter',
-        secondaryFont: 'Source Sans Pro'
-      };
-      response = "Gorgeous! These modern fonts will give your brand such a clean, contemporary feel. Your ideal clients will love this aesthetic.";
-    } else if (lowerMessage.includes('elegant') || lowerMessage.includes('luxury')) {
-      updates = {
-        ...updates,
-        primaryFont: 'Playfair Display',
-        secondaryFont: 'Source Sans Pro'
-      };
-      response = "Stunning choice! Playfair Display adds such elegance and luxury to your brand. This will definitely attract your premium clients.";
-    } else if (lowerMessage.includes('classic') || lowerMessage.includes('traditional')) {
-      updates = {
-        ...updates,
-        primaryFont: 'Times New Roman',
-        secondaryFont: 'Georgia'
-      };
-      response = "Perfect! Classic fonts never go out of style and give your brand such timeless sophistication.";
-    }
-  }
-
-  // Handle style requests
-  if (lowerMessage.includes('luxury') || lowerMessage.includes('premium')) {
-    updates = {
-      ...updates,
-      primaryColor: '#0a0a0a',
-      secondaryColor: '#ffffff',
-      accentColor: '#f5f5f5',
-      primaryFont: 'Times New Roman',
-      secondaryFont: 'Inter'
-    };
-    response = "YES! This luxury aesthetic is absolutely perfect for attracting high-end clients. The black and white with Times New Roman screams premium quality.";
-  }
-
-  // Handle business name/tagline requests
-  if (lowerMessage.includes('name') || lowerMessage.includes('tagline')) {
-    response = `Your business name "${brandbook.businessName}" is perfect! It's memorable and professional. If you want to explore tagline options, I can suggest a few based on your ${onboardingData.industry} background and ${onboardingData.primaryGoal} goals.`;
-  }
-
-  // Handle template suggestions
-  if (lowerMessage.includes('template') || lowerMessage.includes('style') || lowerMessage.includes('design')) {
-    if (lowerMessage.includes('minimal') || lowerMessage.includes('clean') || lowerMessage.includes('refined')) {
-      templateSuggestion = 'refined-minimalist';
-      response = "I think the Refined Minimalist template would be perfect for you! It has that sophisticated editorial feel with subtle animations and clean typography. It's perfect for creatives who want to look established and premium. Would you like me to switch you to that template?";
-    } else if (lowerMessage.includes('executive') || lowerMessage.includes('professional') || lowerMessage.includes('luxury')) {
-      templateSuggestion = 'executive-essence';
-      response = "The Executive Essence template sounds like exactly what you need! It's got that quiet luxury vibe - sophisticated without trying too hard. Perfect for building premium authority. Should I switch you to that template?";
-    } else if (lowerMessage.includes('bold') || lowerMessage.includes('emerald') || lowerMessage.includes('nature') || lowerMessage.includes('wellness') || lowerMessage.includes('femme')) {
-      templateSuggestion = 'bold-femme';
-      response = "The Bold Femme template would be absolutely perfect for you! That gorgeous emerald palette with nature-inspired sophistication - it's grounded but powerful, nurturing yet commanding. Perfect for someone ready to take up space with elegance. Want me to switch you to that template?";
-    } else if (lowerMessage.includes('luxe') || lowerMessage.includes('feminine') || lowerMessage.includes('pink') || lowerMessage.includes('burgundy') || lowerMessage.includes('beauty') || lowerMessage.includes('elegant')) {
-      templateSuggestion = 'luxe-feminine';
-      response = "YES! The Luxe Feminine template is absolutely stunning - this is for the woman who knows that pink can be powerful. The burgundy with soft blush tones? It's femininity with confidence, elegance with edge. Perfect for luxury lifestyle brands, beauty businesses, and any woman who wants to embrace her feminine power unapologetically. Should I switch you to this gorgeous template?";
-    }
-  }
-
-  // Default responses
-  if (!response) {
-    const defaultResponses = [
-      `I love how your brand is coming together! Based on your ${onboardingData.stylePreference} preferences, we're creating something really special. What specific aspect would you like me to adjust?`,
-      `Your brand identity is looking absolutely gorgeous! The combination of your story and this visual direction is so powerful. Tell me what feels right and what needs tweaking.`,
-      `This brandbook is going to help you attract your dream clients! I can see your ${onboardingData.targetAudience} absolutely loving this aesthetic. What changes are you feeling?`,
-      `Perfect! Your brand has such a clear personality now. Let's make sure every detail feels authentically you. What would you like me to refine?`
-    ];
-    response = defaultResponses[Math.floor(Math.random() * defaultResponses.length)];
-  }
-
-  return { message: response, brandbookUpdates: updates, templateSuggestion };
-}

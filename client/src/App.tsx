@@ -29,7 +29,7 @@ import LandingBuilder from "@/pages/landing-builder";
 import Profile from "@/pages/profile";
 import PaymentSuccess from "@/pages/payment-success";
 
-import BrandbookDesigner from "@/pages/brandbook-designer";
+import BrandbookDesigner from "@/pages/brandbook-designer-new";
 import AdminRoadmap from "@/pages/admin-roadmap";
 import Checkout from "@/pages/checkout";
 import ThankYou from "@/pages/thank-you";
