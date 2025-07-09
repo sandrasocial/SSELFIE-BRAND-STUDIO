@@ -448,16 +448,16 @@ export class DatabaseStorage implements IStorage {
     const [dashboard] = await db
       .insert(dashboards)
       .values({
-        userId,
+        user_id: userId,
         config: dashboardData.config,
-        onboardingData: dashboardData.onboardingData,
+        onboarding_data: dashboardData.onboardingData,
       })
       .onConflictDoUpdate({
         target: [dashboards.userId],
         set: {
           config: dashboardData.config,
-          onboardingData: dashboardData.onboardingData,
-          updatedAt: new Date(),
+          onboarding_data: dashboardData.onboardingData,
+          updated_at: new Date(),
         },
       })
       .returning();
@@ -519,12 +519,12 @@ export class DatabaseStorage implements IStorage {
   }
 
   async getUserUsageHistory(userId: string, days?: number): Promise<UsageHistory[]> {
-    const query = db.select().from(usageHistory).where(eq(usageHistory.userId, userId));
+    let query = db.select().from(usageHistory).where(eq(usageHistory.userId, userId));
     
     if (days) {
       const cutoffDate = new Date();
       cutoffDate.setDate(cutoffDate.getDate() - days);
-      return await query.where(and(eq(usageHistory.userId, userId), gte(usageHistory.createdAt, cutoffDate))).orderBy(desc(usageHistory.createdAt));
+      query = db.select().from(usageHistory).where(and(eq(usageHistory.userId, userId), gte(usageHistory.createdAt, cutoffDate)));
     }
     
     return await query.orderBy(desc(usageHistory.createdAt));
