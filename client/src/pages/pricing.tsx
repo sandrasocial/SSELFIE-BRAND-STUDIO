@@ -11,6 +11,11 @@ export default function Pricing() {
   const { user } = useAuth();
   const { toast } = useToast();
   const [, setLocation] = useLocation();
+  
+  // Check for success parameter from payment completion
+  const urlParams = new URLSearchParams(window.location.search);
+  const success = urlParams.get('success');
+  const completedPlan = urlParams.get('plan');
 
   const handlePricing = (plan: string) => {
     // Direct mapping since we're now using standardized plan names
@@ -38,6 +43,21 @@ export default function Pricing() {
 
       {/* Main Content */}
       <main className="max-w-7xl mx-auto px-8 py-16">
+        {/* Success Message */}
+        {success && (
+          <div className="bg-green-50 border border-green-200 p-6 mb-12 text-center">
+            <div className="text-green-800 text-sm uppercase tracking-wider mb-2">
+              PAYMENT SUCCESSFUL
+            </div>
+            <h3 className="text-xl font-light text-green-900 mb-2" style={{ fontFamily: 'Times New Roman, serif' }}>
+              Welcome to SSELFIE Studio!
+            </h3>
+            <p className="text-green-700">
+              Your {completedPlan === 'ai-pack' ? 'SSELFIE AI' : completedPlan === 'studio-founding' ? 'STUDIO Founding' : 'STUDIO Pro'} access is now active. Check your email for next steps.
+            </p>
+          </div>
+        )}
+        
         {/* Header Section */}
         <section className="text-center mb-20">
           <p className="eyebrow-text text-[var(--soft-gray)] mb-8 system-text">
