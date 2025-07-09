@@ -77,6 +77,7 @@ export default function OnboardingNew() {
   // Load existing data into form when available
   React.useEffect(() => {
     if (existingData) {
+      console.log('Loading existing data:', existingData);
       setFormData(prev => ({
         ...prev,
         brandStory: existingData.brandStory || '',
@@ -123,10 +124,11 @@ export default function OnboardingNew() {
 
   // Auto-save whenever form data changes
   React.useEffect(() => {
-    if (!isLoading && formData.brandStory) { // Only auto-save if form has content
+    if (!isLoading && existingData && (formData.brandStory || formData.personalMission)) { 
+      console.log('Auto-saving form data:', formData);
       autoSave(formData);
     }
-  }, [formData, isLoading, autoSave]);
+  }, [formData, isLoading, autoSave, existingData]);
 
   const startModelTrainingMutation = useMutation({
     mutationFn: async (selfieImages: string[]) => {
