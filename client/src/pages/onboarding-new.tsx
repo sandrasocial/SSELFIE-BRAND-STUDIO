@@ -78,8 +78,9 @@ export default function OnboardingNew() {
   React.useEffect(() => {
     if (existingData) {
       console.log('Loading existing data:', existingData);
-      setFormData(prev => ({
-        ...prev,
+      
+      // Pre-populate form with your saved data
+      const savedFormData = {
         brandStory: existingData.brandStory || '',
         personalMission: existingData.personalMission || '',
         businessGoals: existingData.businessGoals || '',
@@ -91,7 +92,10 @@ export default function OnboardingNew() {
         aiTrainingStatus: existingData.aiTrainingStatus || 'not_started',
         currentStep: existingData.currentStep || 1,
         completed: existingData.completed || false
-      }));
+      };
+      
+      console.log('Setting form data:', savedFormData);
+      setFormData(savedFormData);
       setCurrentStep(existingData.currentStep || 1);
     }
     setIsLoading(false);
