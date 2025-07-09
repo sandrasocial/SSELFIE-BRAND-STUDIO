@@ -1,12 +1,24 @@
 import React, { useState, useRef } from 'react';
 import { Navigation } from '@/components/navigation';
 import { useAuth } from '@/hooks/useAuth';
-import { useMutation } from '@tanstack/react-query';
+import { useMutation, useQuery } from '@tanstack/react-query';
 import { apiRequest } from '@/lib/queryClient';
 import { useLocation } from 'wouter';
 import { SandraImages } from '@/lib/sandra-images';
 import { HeroFullBleed } from '@/components/HeroFullBleed';
 import { useToast } from '@/hooks/use-toast';
+
+// Simple debounce function
+function debounce<T extends (...args: any[]) => any>(
+  func: T,
+  wait: number
+): (...args: Parameters<T>) => void {
+  let timeout: NodeJS.Timeout;
+  return (...args: Parameters<T>) => {
+    clearTimeout(timeout);
+    timeout = setTimeout(() => func(...args), wait);
+  };
+}
 
 interface OnboardingFormData {
   // Step 1: Brand Story
@@ -38,6 +50,7 @@ export default function OnboardingNew() {
   const [currentStep, setCurrentStep] = useState(1);
   const [uploadedFiles, setUploadedFiles] = useState<File[]>([]);
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const [isLoading, setIsLoading] = useState(true);
   
   const [formData, setFormData] = useState<OnboardingFormData>({
     brandStory: '',
@@ -55,6 +68,34 @@ export default function OnboardingNew() {
 
   const totalSteps = 6;
 
+  // Load existing onboarding data
+  const { data: existingData } = useQuery({
+    queryKey: ['/api/onboarding'],
+    retry: false,
+  });
+
+  // Load existing data into form when available
+  React.useEffect(() => {
+    if (existingData) {
+      setFormData(prev => ({
+        ...prev,
+        brandStory: existingData.brandStory || '',
+        personalMission: existingData.personalMission || '',
+        businessGoals: existingData.businessGoals || '',
+        targetAudience: existingData.targetAudience || '',
+        businessType: existingData.businessType || '',
+        brandVoice: existingData.brandVoice || '',
+        stylePreferences: existingData.stylePreferences || '',
+        selfieUploadStatus: existingData.selfieUploadStatus || 'pending',
+        aiTrainingStatus: existingData.aiTrainingStatus || 'not_started',
+        currentStep: existingData.currentStep || 1,
+        completed: existingData.completed || false
+      }));
+      setCurrentStep(existingData.currentStep || 1);
+    }
+    setIsLoading(false);
+  }, [existingData]);
+
   const saveOnboardingMutation = useMutation({
     mutationFn: async (data: Partial<OnboardingFormData>) => {
       return apiRequest('POST', '/api/onboarding', data);
@@ -71,6 +112,21 @@ export default function OnboardingNew() {
       });
     }
   });
+
+  // Auto-save function with debouncing
+  const autoSave = React.useCallback(
+    debounce((data: OnboardingFormData) => {
+      saveOnboardingMutation.mutate(data);
+    }, 1000),
+    [saveOnboardingMutation]
+  );
+
+  // Auto-save whenever form data changes
+  React.useEffect(() => {
+    if (!isLoading && formData.brandStory) { // Only auto-save if form has content
+      autoSave(formData);
+    }
+  }, [formData, isLoading, autoSave]);
 
   const startModelTrainingMutation = useMutation({
     mutationFn: async (selfieImages: string[]) => {
@@ -411,6 +467,17 @@ export default function OnboardingNew() {
     );
   }
 
+  if (isLoading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="text-center">
+          <div className="animate-spin w-8 h-8 border-4 border-black border-t-transparent rounded-full mx-auto mb-4"></div>
+          <p className="text-lg">Loading your progress...</p>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="min-h-screen bg-white">
       <Navigation />
@@ -420,7 +487,15 @@ export default function OnboardingNew() {
         <div className="mb-12">
           <div className="flex items-center justify-between mb-4">
             <span className="text-sm text-gray-500">Step {currentStep} of {totalSteps}</span>
-            <span className="text-sm text-gray-500">{Math.round((currentStep / totalSteps) * 100)}% complete</span>
+            <div className="flex items-center space-x-4">
+              {saveOnboardingMutation.isPending && (
+                <span className="text-sm text-gray-500 flex items-center">
+                  <div className="animate-spin w-4 h-4 border-2 border-gray-400 border-t-transparent rounded-full mr-2"></div>
+                  Saving...
+                </span>
+              )}
+              <span className="text-sm text-gray-500">{Math.round((currentStep / totalSteps) * 100)}% complete</span>
+            </div>
           </div>
           <div className="w-full bg-gray-200 rounded-full h-2">
             <div 
