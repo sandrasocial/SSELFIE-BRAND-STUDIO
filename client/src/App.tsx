@@ -1,4 +1,5 @@
-import { Switch, Route } from "wouter";
+import React from "react";
+import { Switch, Route, useLocation } from "wouter";
 import { queryClient } from "./lib/queryClient";
 import { QueryClientProvider } from "@tanstack/react-query";
 import { Toaster } from "@/components/ui/toaster";
@@ -30,6 +31,7 @@ import Profile from "@/pages/profile";
 import PaymentSuccess from "@/pages/payment-success";
 
 import BrandbookDesigner from "@/pages/brandbook-designer-new";
+import OnboardingNew from "@/pages/onboarding-new";
 import AdminRoadmap from "@/pages/admin-roadmap";
 import Checkout from "@/pages/checkout";
 import ThankYou from "@/pages/thank-you";
@@ -40,6 +42,7 @@ import SandraChat from "@/pages/sandra-chat";
 
 // Smart Home component that routes based on onboarding status
 function SmartHome() {
+  const [, setLocation] = useLocation();
   const { data: onboardingData, isLoading } = useQuery({
     queryKey: ['/api/onboarding'],
     retry: false,
@@ -55,7 +58,10 @@ function SmartHome() {
 
   // Always show STUDIO workspace as the home page for authenticated users
   // Onboarding is only shown once via direct navigation after first login/payment
-  window.location.href = '/workspace';
+  React.useEffect(() => {
+    setLocation('/workspace');
+  }, [setLocation]);
+  
   return null;
 }
 
