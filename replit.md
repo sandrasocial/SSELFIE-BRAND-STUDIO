@@ -345,6 +345,21 @@ The platform foundation is rock-solid with four professional brandbook templates
 
 ## Recent Changes
 
+### July 09, 2025 - Simple AI Training Page & Timing Correction
+
+**✓ Created Simplified AI Training Interface**
+- Built dedicated `/simple-training` page with clean, drag-and-drop interface
+- Removed complex onboarding flow requirements for testing AI model training
+- Simple photo upload (10+ selfies) → Start Training → Done approach
+- Clear visual feedback with photo thumbnails and progress tracking
+- No complex forms or questionnaires - pure simplicity for testing
+
+**✓ CRITICAL TIMING CORRECTION: AI Training Takes 20 Minutes (Not 24-48 Hours)**
+- Updated all platform messaging to reflect accurate 20-minute training time
+- Fixed user expectations across simple training page and onboarding flow
+- Corrected documentation and user interface copy throughout platform
+- More realistic timeline improves user experience and reduces confusion
+
 ### July 09, 2025 - Simplified User Experience & Automatic AI Model Configuration
 
 **✓ Removed All Popup Notifications from Onboarding**
