@@ -48,6 +48,14 @@ function SmartHome() {
     retry: false,
   });
 
+  // Always show STUDIO workspace as the home page for authenticated users
+  // Onboarding is only shown once via direct navigation after first login/payment
+  React.useEffect(() => {
+    if (!isLoading) {
+      setLocation('/workspace');
+    }
+  }, [isLoading, setLocation]);
+
   if (isLoading) {
     return (
       <div className="min-h-screen flex items-center justify-center">
@@ -55,12 +63,6 @@ function SmartHome() {
       </div>
     );
   }
-
-  // Always show STUDIO workspace as the home page for authenticated users
-  // Onboarding is only shown once via direct navigation after first login/payment
-  React.useEffect(() => {
-    setLocation('/workspace');
-  }, [setLocation]);
   
   return null;
 }
