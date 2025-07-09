@@ -13,44 +13,35 @@ export default function PaymentSuccess() {
   const [, setLocation] = useLocation();
 
   useEffect(() => {
-    if (!isAuthenticated) {
-      setLocation('/pricing');
-      return;
-    }
-
-    // Show success message
+    // Get plan from URL params
+    const urlParams = new URLSearchParams(window.location.search);
+    const plan = urlParams.get('plan');
+    
+    // Show success message regardless of auth status
     toast({
       title: "Payment Successful!",
       description: "Welcome to SSELFIE Studio! Let's get you set up.",
     });
 
-    // Redirect to onboarding after showing success
+    // For now, redirect to pricing with success message since full auth isn't implemented
+    // Later this will redirect to onboarding after proper login
     setTimeout(() => {
-      setLocation('/onboarding');
-    }, 2000);
-  }, [isAuthenticated, toast, setLocation]);
+      setLocation('/pricing?success=true&plan=' + (plan || 'ai-pack'));
+    }, 3000);
+  }, [toast, setLocation]);
 
-  if (!isAuthenticated) {
-    return (
-      <div className="min-h-screen bg-white">
-        <Navigation />
-        <div className="max-w-4xl mx-auto px-4 py-16 text-center">
-          <h1 className="text-3xl font-light mb-4" style={{ fontFamily: 'Times New Roman, serif' }}>
-            Please Sign In
-          </h1>
-          <p className="text-gray-600 mb-8">
-            You need to be signed in to continue.
-          </p>
-          <a
-            href="/api/login"
-            className="text-xs uppercase tracking-wider text-black hover:underline"
-          >
-            SIGN IN
-          </a>
-        </div>
-      </div>
-    );
-  }
+  // Get plan details from URL
+  const urlParams = new URLSearchParams(window.location.search);
+  const plan = urlParams.get('plan') || 'ai-pack';
+  
+  const getPlanName = (planType: string) => {
+    switch (planType) {
+      case 'ai-pack': return 'SSELFIE AI';
+      case 'studio-founding': return 'STUDIO Founding';
+      case 'studio-standard': return 'STUDIO Pro';
+      default: return 'SSELFIE AI';
+    }
+  };
 
   return (
     <div className="min-h-screen bg-white">
@@ -60,13 +51,16 @@ export default function PaymentSuccess() {
         backgroundImage={SandraImages.editorial.luxury1}
         tagline="Welcome to your transformation"
         title="PAYMENT SUCCESSFUL"
-        ctaText="Continue Setup"
-        onCtaClick={() => setLocation('/onboarding')}
+        ctaText="Continue"
+        onCtaClick={() => setLocation('/pricing?success=true&plan=' + plan)}
         fullHeight={false}
       />
 
       <main className="max-w-4xl mx-auto px-8 py-16">
         <div className="text-center mb-16">
+          <div className="inline-block bg-green-50 text-green-800 px-6 py-2 text-sm uppercase tracking-wider mb-6">
+            {getPlanName(plan)} PURCHASED
+          </div>
           <h2 className="text-3xl font-light mb-6" style={{ fontFamily: 'Times New Roman, serif' }}>
             Your Journey Begins Now
           </h2>
