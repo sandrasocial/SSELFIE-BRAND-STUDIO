@@ -205,12 +205,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
       
       // Check if user already has a model
       const existingModel = await storage.getUserModelByUserId(userId);
-      if (existingModel) {
-        // Update existing model with new training data
-        const updatedModel = await storage.updateUserModel(userId, {
-          trainingStatus: 'training'
-        });
-        return res.json({ message: "Model training restarted", model: updatedModel });
+      if (existingModel && existingModel.trainingStatus === 'completed') {
+        // For testing: Allow creating a new model even if one exists
+        // In production, you might want to replace or retrain the existing model
+        console.log(`User ${userId} already has a completed model, but allowing new training for testing`);
       }
       
       // Generate unique trigger word
