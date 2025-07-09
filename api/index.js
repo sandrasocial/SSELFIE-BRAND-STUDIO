@@ -1,5 +1,7 @@
 // Vercel serverless API handler
 module.exports = async (req, res) => {
+  console.log('API Request:', req.method, req.url);
+  
   // Set CORS headers
   res.setHeader('Access-Control-Allow-Origin', '*');
   res.setHeader('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS');
@@ -15,7 +17,12 @@ module.exports = async (req, res) => {
   try {
     // Health check endpoint
     if (url === '/api/health') {
-      return res.json({ status: 'ok', timestamp: new Date().toISOString() });
+      return res.json({ 
+        status: 'ok', 
+        timestamp: new Date().toISOString(),
+        version: '2.0-auth-fixed',
+        deployment: 'vercel-live'
+      });
     }
 
     // Auth user endpoint - return test user data
