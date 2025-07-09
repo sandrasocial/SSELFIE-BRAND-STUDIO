@@ -33,11 +33,13 @@ export function useAuth() {
       if (typeof window !== 'undefined') {
         localStorage.setItem('temp_auth', 'true');
       }
+      // Generate a random test user ID for new user testing
+      const testUserId = "test" + Math.floor(Math.random() * 100000);
       const tempUser = {
-        id: "42585527",
-        email: "ssa@ssasocial.com",
-        firstName: "Sandra",
-        lastName: "Sigurjonsdottir",
+        id: testUserId,
+        email: "testuser@example.com",
+        firstName: "Test",
+        lastName: "User",
         profileImageUrl: null
       };
       

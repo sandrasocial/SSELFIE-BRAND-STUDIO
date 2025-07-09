@@ -40,19 +40,26 @@ export async function registerRoutes(app: Express): Promise<Server> {
     console.log('Auth setup failed, using simple auth for testing:', error.message);
   }
 
-  // Auth routes - temporarily return your user data for testing
+  // Auth routes - return new test user for customer testing
   app.get('/api/auth/user', async (req: any, res) => {
     try {
-      // For testing, return your user data directly
-      const user = await storage.getUser('42585527');
-      if (user) {
-        res.json(user);
-      } else {
-        res.status(401).json({ message: "Not authenticated" });
-      }
+      // Create a new test user ID for each session to simulate new user experience
+      const testUserId = "test" + Math.floor(Math.random() * 100000);
+      const testUser = {
+        id: testUserId,
+        email: "testuser@example.com",
+        firstName: "Test",
+        lastName: "User",
+        profileImageUrl: null,
+        stripeCustomerId: null,
+        stripeSubscriptionId: null,
+        createdAt: new Date().toISOString(),
+        updatedAt: new Date().toISOString()
+      };
+      res.json(testUser);
     } catch (error) {
-      console.error("Error fetching user:", error);
-      res.status(500).json({ message: "Failed to fetch user" });
+      console.error("Error creating test user:", error);
+      res.status(500).json({ message: "Failed to create test user" });
     }
   });
 
@@ -136,12 +143,11 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  // AI Images routes
+  // AI Images routes  
   app.get('/api/ai-images', async (req: any, res) => {
     try {
-      const userId = '42585527'; // Temporary user ID for testing
-      const aiImages = await storage.getUserAiImages(userId);
-      res.json(aiImages);
+      // For new user testing, return empty array (no existing AI images)
+      res.json([]);
     } catch (error) {
       console.error("Error fetching AI images:", error);
       res.status(500).json({ message: "Failed to fetch AI images" });
@@ -188,25 +194,18 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Subscription routes
   app.get('/api/subscription', async (req: any, res) => {
     try {
-      const userId = '42585527'; // Temporary user ID for testing
-      const user = await storage.getUser(userId);
-      
-      // Admin users get full access without subscription check
-      if (user?.email === 'ssa@ssasocial.com') {
-        return res.json({
-          id: 1,
-          userId,
-          plan: 'studio-pro',
-          status: 'active',
-          stripeCustomerId: 'admin_access',
-          stripeSubscriptionId: 'admin_access',
-          createdAt: new Date(),
-          updatedAt: new Date()
-        });
-      }
-      
-      const subscription = await storage.getUserSubscription(userId);
-      res.json(subscription);
+      // For new user testing, simulate active subscription
+      const testSubscription = {
+        id: 1,
+        userId: "test_user",
+        plan: 'sselfie-studio',
+        status: 'active',
+        stripeCustomerId: 'test_customer',
+        stripeSubscriptionId: 'test_subscription',
+        createdAt: new Date().toISOString(),
+        updatedAt: new Date().toISOString()
+      };
+      res.json(testSubscription);
     } catch (error) {
       console.error("Error fetching subscription:", error);
       res.status(500).json({ message: "Failed to fetch subscription" });
@@ -223,9 +222,12 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Onboarding API routes
   app.get('/api/onboarding', async (req: any, res) => {
     try {
-      const userId = '42585527'; // Temporary user ID for testing
-      const onboardingData = await storage.getUserOnboardingData(userId);
-      res.json(onboardingData || { onboardingStep: 0 });
+      // For new user testing, return empty onboarding state
+      res.json({ 
+        currentStep: 1,
+        completed: false,
+        onboardingStep: 1 
+      });
     } catch (error) {
       console.error("Error fetching onboarding data:", error);
       res.status(500).json({ message: "Failed to fetch onboarding data" });
@@ -234,7 +236,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   app.post('/api/onboarding', async (req: any, res) => {
     try {
-      const userId = '42585527'; // Temporary user ID for testing
+      // For new user testing, just return the submitted data
       const data = req.body;
       
       // Convert any date strings to Date objects
@@ -731,9 +733,8 @@ You help users design and customize their ${context === 'dashboard-builder' ? 'p
   // User model management routes
   app.get('/api/user-model', async (req: any, res) => {
     try {
-      const userId = '42585527'; // Temporary user ID for testing
-      const userModel = await storage.getUserModelByUserId(userId);
-      res.json(userModel);
+      // For new user testing, return null (no existing model)
+      res.json(null);
     } catch (error) {
       console.error('User model fetch error:', error);
       res.status(500).json({ error: error.message });
@@ -960,11 +961,10 @@ You help users design and customize their ${context === 'dashboard-builder' ? 'p
   });
 
   // Brandbook routes
-  app.get('/api/brandbook', isAuthenticated, async (req: any, res) => {
+  app.get('/api/brandbook', async (req: any, res) => {
     try {
-      const userId = req.user.claims.sub;
-      const brandbook = await storage.getUserBrandbook(userId);
-      res.json(brandbook);
+      // For new user testing, return null (no existing brandbook)
+      res.json(null);
     } catch (error) {
       console.error('Error fetching brandbook:', error);
       res.status(500).json({ message: 'Failed to fetch brandbook' });
