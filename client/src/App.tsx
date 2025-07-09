@@ -53,13 +53,8 @@ function SmartHome() {
     );
   }
 
-  // If user hasn't completed onboarding, redirect to onboarding
-  if (!onboardingData || !onboardingData.completed) {
-    window.location.href = '/onboarding';
-    return null;
-  }
-
-  // Otherwise, show STUDIO workspace
+  // Always show STUDIO workspace as the home page for authenticated users
+  // Onboarding is only shown once via direct navigation after first login/payment
   window.location.href = '/workspace';
   return null;
 }

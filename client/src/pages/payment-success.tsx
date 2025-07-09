@@ -23,9 +23,24 @@ export default function PaymentSuccess() {
       description: "Welcome to SSELFIE Studio! Let's get you set up.",
     });
 
-    // Redirect to onboarding after showing success
+    // For first-time users, redirect to onboarding; for returning users, go to STUDIO
     setTimeout(() => {
-      setLocation('/onboarding?plan=' + (plan || 'ai-pack'));
+      // Check if user has completed onboarding before
+      apiRequest('GET', '/api/onboarding')
+        .then(response => response.json())
+        .then(data => {
+          if (data && data.completed) {
+            // User already completed onboarding, go to STUDIO
+            setLocation('/workspace');
+          } else {
+            // New user, go to onboarding
+            setLocation('/onboarding?plan=' + (plan || 'ai-pack'));
+          }
+        })
+        .catch(() => {
+          // If error checking, default to onboarding for safety
+          setLocation('/onboarding?plan=' + (plan || 'ai-pack'));
+        });
     }, 3000);
   }, [toast, setLocation]);
 
@@ -51,7 +66,19 @@ export default function PaymentSuccess() {
         tagline="Welcome to your transformation"
         title="PAYMENT SUCCESSFUL"
         ctaText="Continue"
-        onCtaClick={() => setLocation('/onboarding?plan=' + plan)}
+        onCtaClick={() => {
+          // Smart redirect based on onboarding status
+          apiRequest('GET', '/api/onboarding')
+            .then(response => response.json())
+            .then(data => {
+              if (data && data.completed) {
+                setLocation('/workspace');
+              } else {
+                setLocation('/onboarding?plan=' + plan);
+              }
+            })
+            .catch(() => setLocation('/onboarding?plan=' + plan));
+        }}
         fullHeight={false}
       />
 
