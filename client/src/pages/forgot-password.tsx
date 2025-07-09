@@ -1,0 +1,54 @@
+import React from 'react';
+import { Navigation } from '@/components/navigation';
+import { ForgotPassword } from '@/components/forgot-password';
+import { SandraImages } from '@/lib/sandra-images';
+
+export default function ForgotPasswordPage() {
+  return (
+    <>
+      <Navigation />
+      <div className="min-h-screen bg-[#0a0a0a]">
+        <div className="min-h-screen grid md:grid-cols-2">
+          {/* Left side - Image and Headline */}
+          <div className="relative hidden md:flex flex-col justify-center p-12 lg:p-20">
+            <div className="relative z-10 max-w-lg">
+              <h1 className="font-serif text-5xl md:text-6xl font-light tracking-[-0.03em] text-[#f5f5f5] mb-4">
+                No worries.
+              </h1>
+              <p className="text-xl text-[#f5f5f5]/80 mb-10 font-inter">
+                We all forget sometimes.
+              </p>
+            </div>
+
+            {/* Background image with overlay */}
+            <div className="absolute inset-0">
+              <img
+                src={SandraImages.editorial.laptop1}
+                alt="Sandra workspace"
+                className="w-full h-full object-cover opacity-60"
+              />
+              <div className="absolute inset-0 bg-gradient-to-br from-[#0a0a0a]/90 to-[#0a0a0a]/70" />
+            </div>
+          </div>
+
+          {/* Right side - Form */}
+          <div className="flex items-center justify-center px-6 py-16 md:py-0 md:px-12 lg:px-20 bg-[#0a0a0a]">
+            <div className="w-full max-w-md">
+              {/* Mobile only headline */}
+              <div className="mb-12 md:hidden">
+                <h1 className="font-serif text-4xl font-light tracking-[-0.02em] text-[#f5f5f5] mb-3">
+                  No worries.
+                </h1>
+                <p className="text-lg text-[#f5f5f5]/80 font-inter">
+                  We all forget sometimes.
+                </p>
+              </div>
+              
+              <ForgotPassword />
+            </div>
+          </div>
+        </div>
+      </div>
+    </>
+  );
+}
