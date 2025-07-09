@@ -40,17 +40,17 @@ export function BoldFemmeBrandbook({ brandbook }: BrandbookProps) {
     console.log(`Downloading ${assetName}`);
   };
 
-  // Bold Femme Color Palette - Emerald/Sage theme
+  // Bold Femme Color Palette - CORRECTED to comply with Sandra's strict styleguide
   const colorPalette = {
     primary: [
-      { name: 'Deep Emerald', hex: '#2F4A3D', usage: 'Primary brand color' },
-      { name: 'Forest Green', hex: '#1A3329', usage: 'Dark accents' },
-      { name: 'Sage Green', hex: '#6B8A74', usage: 'Secondary green' }
+      { name: 'Deep Black', hex: '#0a0a0a', usage: 'Primary brand color' },
+      { name: 'Editorial Gray', hex: '#f5f5f5', usage: 'Background accents' },
+      { name: 'Soft Gray', hex: '#666666', usage: 'Secondary text' }
     ],
     neutral: [
-      { name: 'Warm White', hex: '#FEFEFE', usage: 'Background' },
-      { name: 'Stone Gray', hex: '#8B8680', usage: 'Text secondary' },
-      { name: 'Charcoal', hex: '#2C2C2C', usage: 'Primary text' }
+      { name: 'Pure White', hex: '#ffffff', usage: 'Background' },
+      { name: 'Mid Gray', hex: '#fafafa', usage: 'Text secondary' },
+      { name: 'Accent Line', hex: '#e5e5e5', usage: 'Borders' }
     ]
   };
 
@@ -62,21 +62,20 @@ export function BoldFemmeBrandbook({ brandbook }: BrandbookProps) {
         <div className="bg-[#f5f5f5] flex items-center justify-center p-8 relative overflow-hidden">
           <div className="text-center relative z-10 group">
             <div 
-              className="text-8xl font-light mb-4 tracking-wider text-[#8B8680] hover:text-[#2F4A3D] transition-all duration-700 hover:scale-110 cursor-pointer" 
+              className="text-8xl font-light mb-4 tracking-wider text-[#666666] hover:text-[#0a0a0a] transition-all duration-700 hover:scale-110 cursor-pointer" 
               style={{ fontFamily: 'Times New Roman, serif' }}
               onMouseEnter={() => setHoveredElement('logo')}
               onMouseLeave={() => setHoveredElement(null)}
             >
               {brandbook.businessName.charAt(0)}
             </div>
-            <div className={`w-16 h-0.5 bg-[#8B8680] mx-auto transition-all duration-500 ${hoveredElement === 'logo' ? 'w-24 bg-[#2F4A3D]' : ''}`}></div>
+            <div className={`w-16 h-0.5 bg-[#666666] mx-auto transition-all duration-500 ${hoveredElement === 'logo' ? 'w-24 bg-[#0a0a0a]' : ''}`}></div>
           </div>
         </div>
         
-        {/* Right Side - Script with Emerald Background */}
+        {/* Right Side - Script with Black Background */}
         <div 
-          className="flex items-center justify-center p-8 relative overflow-hidden"
-          style={{ backgroundColor: '#2F4A3D' }}
+          className="flex items-center justify-center p-8 relative overflow-hidden bg-[#0a0a0a]"
         >
           <div className="text-center relative z-10 group">
             <div 
