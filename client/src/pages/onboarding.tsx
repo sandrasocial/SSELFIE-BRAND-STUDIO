@@ -18,7 +18,6 @@ interface OnboardingData {
   brandedPhotosDetails?: string;
   completedSteps: string[];
   planType?: string;
-  triggerWord?: string;
 }
 
 export default function Onboarding() {
@@ -35,8 +34,7 @@ export default function Onboarding() {
     photoSourceType: '',
     ownPhotosUploaded: [],
     brandedPhotosDetails: '',
-    completedSteps: [],
-    triggerWord: ''
+    completedSteps: []
   });
   
   const [uploadedFiles, setUploadedFiles] = useState<File[]>([]);
@@ -70,12 +68,6 @@ export default function Onboarding() {
     const userPlan = planFromUrl || subscription?.plan || 'ai-pack';
     setPlanType(userPlan);
 
-    // Show welcome message for new users
-    toast({
-      title: "Welcome to SSELFIE Studio!",
-      description: "Let's build your personal brand together.",
-    });
-
     // Set existing data if available
     if (existingOnboarding) {
       setData({
@@ -93,7 +85,7 @@ export default function Onboarding() {
       };
       setCurrentStep(stepMap[existingOnboarding.currentStep as keyof typeof stepMap] || 1);
     }
-  }, [existingOnboarding, subscription, setLocation, toast]);
+  }, [existingOnboarding, subscription, setLocation]);
 
   const saveOnboardingMutation = useMutation({
     mutationFn: async (onboardingData: any) => {
@@ -103,17 +95,11 @@ export default function Onboarding() {
       });
     },
     onSuccess: () => {
-      toast({
-        title: "Progress saved!",
-        description: "Your onboarding progress has been saved.",
-      });
+      // Progress saved silently
     },
     onError: (error) => {
-      toast({
-        title: "Save failed",
-        description: "Failed to save your progress. Please try again.",
-        variant: "destructive",
-      });
+      // Silent error handling - only show critical errors
+      console.error('Failed to save onboarding progress:', error);
     }
   });
 
@@ -122,14 +108,11 @@ export default function Onboarding() {
       return apiRequest('POST', '/api/selfie-upload', formData);
     },
     onSuccess: () => {
-      toast({
-        title: "Selfies uploaded!",
-        description: "Starting AI model training...",
-      });
-      // Start AI model training
+      // Start AI model training silently
       startModelTraining();
     },
     onError: (error) => {
+      // Only show critical upload errors
       toast({
         title: "Upload failed",
         description: "Failed to upload selfies. Please try again.",
@@ -145,13 +128,10 @@ export default function Onboarding() {
       });
     },
     onSuccess: () => {
-      toast({
-        title: "AI training started!",
-        description: "Your personal AI model is being created.",
-      });
       nextStep(); // Go to AI generation step
     },
     onError: (error) => {
+      // Only show critical training errors
       toast({
         title: "Training failed",
         description: "Failed to start AI training. Please try again.",
@@ -241,6 +221,7 @@ export default function Onboarding() {
     });
 
     if (validFiles.length !== files.length) {
+      // Only show critical file validation errors
       toast({
         title: "Invalid files",
         description: "Please upload only image files under 10MB.",
@@ -440,21 +421,7 @@ export default function Onboarding() {
                 </div>
               </div>
 
-              <div>
-                <label className="block text-lg font-light mb-4" style={{ fontFamily: 'Times New Roman, serif' }}>
-                  Choose your AI trigger word
-                </label>
-                <p className="text-sm text-gray-600 mb-4">
-                  This special word will generate images of you in your AI photoshoots. Choose something memorable and unique to you.
-                </p>
-                <input
-                  type="text"
-                  className="w-full p-4 border border-gray-200 bg-white focus:outline-none focus:border-black transition-colors"
-                  placeholder="e.g., your name, nickname, or 'subject'"
-                  value={data.triggerWord || ''}
-                  onChange={(e) => updateData('triggerWord', e.target.value)}
-                />
-              </div>
+
             </div>
           </div>
         )}

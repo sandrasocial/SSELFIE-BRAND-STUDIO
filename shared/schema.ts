@@ -139,7 +139,7 @@ export const onboardingData = pgTable("onboarding_data", {
   photoSourceType: varchar("photo_source_type"), // 'ai-model', 'own-photos', 'branded-photos'
   ownPhotosUploaded: jsonb("own_photos_uploaded"), // Array of uploaded photo URLs
   brandedPhotosDetails: text("branded_photos_details"), // Description of existing branded photos
-  triggerWord: varchar("trigger_word"), // User's selected trigger word for AI generation
+  // triggerWord is now auto-generated based on user ID in the backend
   onboardingStep: serial("onboarding_step"),
   completedAt: timestamp("completed_at"),
   createdAt: timestamp("created_at").defaultNow(),
