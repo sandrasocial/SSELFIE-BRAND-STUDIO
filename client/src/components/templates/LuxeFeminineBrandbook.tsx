@@ -88,14 +88,14 @@ export function LuxeFeminineBrandbook({ brandbook }: BrandbookProps) {
     },
     colors: {
       primary: [
-        { name: 'Burgundy', hex: brandbook.primaryColor || '#6B2D5C', code: brandbook.primaryColor || '#6B2D5C', usage: 'Primary brand color' },
-        { name: 'Plum', hex: brandbook.secondaryColor || '#4A1E3A', code: brandbook.secondaryColor || '#4A1E3A', usage: 'Secondary brand color' },
-        { name: 'Deep Rose', hex: '#8B4B6B', code: '#8B4B6B', usage: 'Accent color' }
+        { name: 'Deep Black', hex: '#0a0a0a', code: '#0a0a0a', usage: 'Primary brand color' },
+        { name: 'Soft Gray', hex: '#666666', code: '#666666', usage: 'Secondary text' },
+        { name: 'Editorial Gray', hex: '#f5f5f5', code: '#f5f5f5', usage: 'Background accents' }
       ],
       neutral: [
-        { name: 'Blush', hex: brandbook.accentColor || '#E8C4B8', code: brandbook.accentColor || '#E8C4B8', usage: 'Background, subtle accents' },
-        { name: 'Pearl', hex: '#F5E6D3', code: '#F5E6D3', usage: 'Light backgrounds' },
-        { name: 'Soft Gray', hex: '#F8F8F8', code: '#F8F8F8', usage: 'Text, borders' }
+        { name: 'Pure White', hex: '#ffffff', code: '#ffffff', usage: 'Background' },
+        { name: 'Mid Gray', hex: '#fafafa', code: '#fafafa', usage: 'Light backgrounds' },
+        { name: 'Accent Line', hex: '#e5e5e5', code: '#e5e5e5', usage: 'Borders, separators' }
       ]
     },
     applications: {
@@ -175,8 +175,8 @@ export function LuxeFeminineBrandbook({ brandbook }: BrandbookProps) {
           </div>
           <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
             {brandData.voice.personality.map((trait, index) => (
-              <div key={index} className="text-center p-4 bg-pink-50 hover:bg-pink-100 transition-colors duration-300 group">
-                <div className="w-4 h-4 mx-auto mb-2 bg-pink-400 group-hover:bg-pink-600 transition-colors duration-300"></div>
+              <div key={index} className="text-center p-4 bg-[#f5f5f5] hover:bg-[#fafafa] transition-colors duration-300 group">
+                <div className="w-4 h-4 mx-auto mb-2 bg-[#666666] group-hover:bg-[#0a0a0a] transition-colors duration-300"></div>
                 <div className="text-sm text-gray-700">{trait}</div>
               </div>
             ))}
@@ -185,7 +185,7 @@ export function LuxeFeminineBrandbook({ brandbook }: BrandbookProps) {
       </div>
 
       {/* Logo Variations Grid */}
-      <div className={`py-24 px-8 bg-gradient-to-b from-white to-pink-50 relative transition-all duration-1500 delay-300 ${isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-12'}`}>
+      <div className={`py-24 px-8 bg-gradient-to-b from-white to-[#f5f5f5] relative transition-all duration-1500 delay-300 ${isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-12'}`}>
         <div className="absolute inset-0 opacity-3">
           <img 
             src={userImages.flatlays[1]} 
@@ -207,7 +207,7 @@ export function LuxeFeminineBrandbook({ brandbook }: BrandbookProps) {
             >
               <div className="absolute top-4 right-4 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
                 <span 
-                  className="text-white hover:text-pink-200 cursor-pointer text-sm" 
+                  className="text-white hover:text-[#e5e5e5] cursor-pointer text-sm" 
                   onClick={() => downloadAsset('primary-logo')}
                 >
                   ↓
@@ -250,7 +250,7 @@ export function LuxeFeminineBrandbook({ brandbook }: BrandbookProps) {
           {/* Secondary Logos */}
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
             {/* Monogram */}
-            <div className="bg-white p-12 shadow-lg hover:shadow-xl transition-all duration-500 hover:scale-105 group border border-pink-100 relative">
+            <div className="bg-white p-12 shadow-lg hover:shadow-xl transition-all duration-500 hover:scale-105 group border border-[#e5e5e5] relative">
               <div className="absolute top-4 right-4 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
                 <span 
                   className="text-gray-400 hover:text-gray-600 cursor-pointer text-sm"
@@ -267,7 +267,7 @@ export function LuxeFeminineBrandbook({ brandbook }: BrandbookProps) {
             </div>
             
             {/* Icon Mark */}
-            <div className="bg-white p-12 shadow-lg hover:shadow-xl transition-all duration-500 hover:scale-105 group border border-pink-100">
+            <div className="bg-white p-12 shadow-lg hover:shadow-xl transition-all duration-500 hover:scale-105 group border border-[#e5e5e5]">
               <div className="text-center">
                 <div className="w-16 h-16 mx-auto rounded-full flex items-center justify-center group-hover:scale-110 transition-transform duration-300" style={{ backgroundColor: brandData.colors.primary[0].hex }}>
                   <span className="text-white text-2xl">♥</span>
@@ -276,7 +276,7 @@ export function LuxeFeminineBrandbook({ brandbook }: BrandbookProps) {
             </div>
             
             {/* Circular Logo */}
-            <div className="bg-white p-12 shadow-lg hover:shadow-xl transition-all duration-500 hover:scale-105 group border border-pink-100">
+            <div className="bg-white p-12 shadow-lg hover:shadow-xl transition-all duration-500 hover:scale-105 group border border-[#e5e5e5]">
               <div className="text-center">
                 <div 
                   className="w-20 h-20 mx-auto rounded-full border-2 flex items-center justify-center group-hover:scale-110 transition-transform duration-300"
@@ -349,7 +349,7 @@ export function LuxeFeminineBrandbook({ brandbook }: BrandbookProps) {
       </div>
 
       {/* Brand Story Section */}
-      <div className={`py-24 px-8 bg-gradient-to-b from-pink-50 to-white transition-all duration-1500 delay-700 ${isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-12'}`}>
+      <div className={`py-24 px-8 bg-gradient-to-b from-[#f5f5f5] to-white transition-all duration-1500 delay-700 ${isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-12'}`}>
         <div className="max-w-6xl mx-auto grid grid-cols-1 md:grid-cols-2 gap-16 items-center">
           {/* Portrait with Overlay */}
           <div className="relative group">
@@ -373,7 +373,7 @@ export function LuxeFeminineBrandbook({ brandbook }: BrandbookProps) {
           {/* Brand Story */}
           <div>
             <h2 className="text-4xl font-thin mb-8 tracking-wide flex items-center" style={{ fontFamily: 'serif', color: brandData.colors.primary[0].hex }}>
-              <span className="mr-4 text-pink-400">♥</span>
+              <span className="mr-4 text-[#666666]">♥</span>
               Brand Story
             </h2>
             <div className="text-2xl font-light leading-relaxed text-gray-700 mb-8 italic">
@@ -381,7 +381,7 @@ export function LuxeFeminineBrandbook({ brandbook }: BrandbookProps) {
             </div>
             <div className="flex items-center space-x-4 mb-8">
               {brandData.voice.personality.map((trait, index) => (
-                <div key={index} className="px-4 py-2 bg-pink-100 text-pink-800 text-sm hover:bg-pink-200 transition-colors duration-300">
+                <div key={index} className="px-4 py-2 bg-[#f5f5f5] text-[#0a0a0a] text-sm hover:bg-[#fafafa] transition-colors duration-300">
                   {trait}
                 </div>
               ))}
