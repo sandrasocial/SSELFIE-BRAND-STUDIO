@@ -12,7 +12,8 @@
       "src": "api/index.js",
       "use": "@vercel/node",
       "config": {
-        "includeFiles": ["server/**", "shared/**"]
+        "includeFiles": ["server/**", "shared/**"],
+        "maxDuration": 10
       }
     }
   ],

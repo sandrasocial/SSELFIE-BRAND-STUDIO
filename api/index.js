@@ -1,54 +1,65 @@
-// Vercel serverless API handler - simplified approach
-const express = require('express');
-const Stripe = require('stripe');
+// Vercel serverless API handler
+module.exports = async (req, res) => {
+  // Set CORS headers
+  res.setHeader('Access-Control-Allow-Origin', '*');
+  res.setHeader('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS');
+  res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization');
 
-// Initialize Stripe
-const stripe = new Stripe(process.env.STRIPE_SECRET_KEY || '', {
-  apiVersion: "2023-10-16",
-});
-
-// Create Express app for this serverless function
-const app = express();
-app.use(express.json({ limit: '50mb' }));
-app.use(express.urlencoded({ extended: false, limit: '50mb' }));
-
-// Core checkout endpoint
-app.post("/api/create-payment-intent", async (req, res) => {
-  try {
-    const { amount, plan, currency = 'eur' } = req.body;
-    
-    if (!amount || !plan) {
-      return res.status(400).json({ message: 'Amount and plan are required' });
-    }
-
-    if (!process.env.STRIPE_SECRET_KEY) {
-      console.error('Missing STRIPE_SECRET_KEY');
-      return res.status(500).json({ message: 'Payment configuration error' });
-    }
-
-    const paymentIntent = await stripe.paymentIntents.create({
-      amount: Math.round(amount * 100), // Convert to cents
-      currency,
-      metadata: { plan },
-      description: `SSELFIE ${plan} subscription`,
-    });
-
-    res.json({ clientSecret: paymentIntent.client_secret });
-  } catch (error) {
-    console.error('Payment intent creation error:', error);
-    res.status(500).json({ message: "Error creating payment intent: " + error.message });
+  // Handle preflight requests
+  if (req.method === 'OPTIONS') {
+    return res.status(200).end();
   }
-});
 
-// Health check endpoint
-app.get("/api/health", (req, res) => {
-  res.json({ status: 'ok', timestamp: new Date().toISOString() });
-});
+  const { url, method } = req;
 
-// Auth user endpoint (simplified)
-app.get("/api/auth/user", (req, res) => {
-  // For now, return unauthorized - auth system needs full implementation
-  res.status(401).json({ message: "Unauthorized" });
-});
+  try {
+    // Health check endpoint
+    if (url === '/api/health') {
+      return res.json({ status: 'ok', timestamp: new Date().toISOString() });
+    }
 
-module.exports = app;
+    // Auth user endpoint
+    if (url === '/api/auth/user') {
+      return res.status(401).json({ message: "Unauthorized" });
+    }
+
+    // Payment intent creation
+    if (url === '/api/create-payment-intent' && method === 'POST') {
+      const Stripe = require('stripe');
+      
+      if (!process.env.STRIPE_SECRET_KEY) {
+        console.error('Missing STRIPE_SECRET_KEY');
+        return res.status(500).json({ message: 'Payment configuration error' });
+      }
+
+      const stripe = new Stripe(process.env.STRIPE_SECRET_KEY, {
+        apiVersion: "2023-10-16",
+      });
+
+      const { amount, plan, currency = 'eur' } = req.body;
+      
+      if (!amount || !plan) {
+        return res.status(400).json({ message: 'Amount and plan are required' });
+      }
+
+      const paymentIntent = await stripe.paymentIntents.create({
+        amount: Math.round(amount * 100), // Convert to cents
+        currency,
+        metadata: { plan },
+        description: `SSELFIE ${plan} subscription`,
+      });
+
+      return res.json({ clientSecret: paymentIntent.client_secret });
+    }
+
+    // Default 404 for unknown routes
+    return res.status(404).json({ message: 'Not found' });
+
+  } catch (error) {
+    console.error('API Error:', error);
+    return res.status(500).json({ 
+      error: 'Server error',
+      message: error.message
+    });
+  }
+};
