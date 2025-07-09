@@ -36,7 +36,7 @@ export const HeroFullBleed: React.FC<HeroFullBleedProps> = ({
 
   return (
     <section 
-      className={`relative w-screen ${fullHeight ? 'h-screen' : 'min-h-[600px]'} flex items-center overflow-hidden`}
+      className={`relative w-screen ${fullHeight ? 'h-screen' : 'min-h-[500px] sm:min-h-[600px] md:min-h-[700px]'} flex items-center overflow-hidden`}
       style={{ 
         marginLeft: 'calc(-50vw + 50%)',
         marginRight: 'calc(-50vw + 50%)',
@@ -48,41 +48,44 @@ export const HeroFullBleed: React.FC<HeroFullBleedProps> = ({
         <img 
           src={backgroundImage} 
           alt=""
-          className="w-full h-full object-cover"
+          className="w-full h-full object-cover editorial-hover"
         />
       </div>
       
       {/* Gradient Overlay */}
-      <div className="absolute inset-0 z-10 bg-black/50" />
+      <div 
+        className="absolute inset-0 z-10 bg-black"
+        style={{ opacity: overlay }}
+      />
       
-      {/* Content Container - positioned lower */}
+      {/* Content Container - positioned lower with responsive spacing */}
       <div className="relative z-20 w-full h-full flex items-end justify-center">
-        <div className={`max-w-[1200px] mx-auto px-8 md:px-16 lg:px-24 ${alignment === 'center' ? 'text-center' : ''} pb-16 md:pb-24 lg:pb-32`}>
+        <div className={`container-editorial ${alignment === 'center' ? 'text-center' : 'text-left-desktop'} pb-12 sm:pb-16 md:pb-24 lg:pb-32`}>
           
           {/* Top Tagline */}
           {tagline && (
-            <p className="text-[11px] md:text-xs tracking-[0.4em] uppercase text-white mb-6 font-light font-inter">
+            <p className="eyebrow-responsive text-white/60 mb-4 sm:mb-6 font-light font-inter">
               {tagline}
             </p>
           )}
           
-          {/* Main Title - HUGE & STRETCHED */}
-          <h1 className="text-[clamp(3.5rem,10vw,8rem)] leading-[0.9] font-light text-white mb-4 tracking-[0.3em] md:tracking-[0.4em] break-words" style={{ fontFamily: 'Times New Roman, serif', fontWeight: 300 }}>
+          {/* Main Title - HUGE & STRETCHED with responsive scaling */}
+          <h1 className="hero-title-responsive text-white mb-2 sm:mb-4 break-words">
             {title}
           </h1>
           
-          {/* Subtitle - Bigger and more prominent */}
+          {/* Subtitle - Responsive scaling */}
           {subtitle && (
-            <h2 className="text-[clamp(2rem,6vw,4rem)] leading-[0.9] font-light text-white mb-10 tracking-[0.2em] md:tracking-[0.3em]" style={{ fontFamily: 'Times New Roman, serif', fontWeight: 300 }}>
+            <h2 className="editorial-subhead-responsive text-white mb-8 sm:mb-10 lg:mb-12">
               {subtitle}
             </h2>
           )}
           
-          {/* CTA - Minimal Line Style */}
+          {/* CTA - Responsive button styling */}
           {ctaText && (ctaLink || onCtaClick) && (
             <button 
               onClick={handleCtaClick}
-              className="inline-block font-inter text-xs tracking-[0.3em] uppercase text-white/90 pb-2 border-b border-white/30 transition-all duration-300 hover:border-white hover:tracking-[0.35em] bg-transparent cursor-pointer"
+              className="cta-button-responsive border-none bg-transparent text-white/90 border-b border-white/30 transition-all duration-300 hover:border-white hover:tracking-[0.35em] cursor-pointer"
             >
               {ctaText}
             </button>

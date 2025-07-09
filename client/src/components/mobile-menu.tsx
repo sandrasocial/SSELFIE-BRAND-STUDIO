@@ -26,64 +26,64 @@ export const MobileMenu: React.FC<MobileMenuProps> = ({
   };
 
   return (
-    <div className="fixed inset-0 z-[1001] bg-black bg-opacity-95 backdrop-blur-sm">
+    <div className="mobile-overlay">
       <div className="flex flex-col h-full">
         {/* Header */}
-        <div className="flex justify-between items-center p-6 border-b border-white/10">
-          <span className="text-white text-sm tracking-[0.3em] uppercase font-inter font-light">
+        <div className="flex justify-between items-center p-4 sm:p-6 border-b border-white/10">
+          <span className="text-white text-xs sm:text-sm tracking-[0.3em] uppercase font-inter font-light">
             SSELFIE STUDIO
           </span>
           <button
             onClick={onClose}
             className="text-white text-xs tracking-[0.3em] uppercase hover:opacity-70 transition-opacity font-inter font-light"
           >
-            CLOSE
+            ×
           </button>
         </div>
 
         {/* Menu Items */}
-        <nav className="flex-1 flex flex-col justify-center px-6">
-          <ul className="space-y-8">
+        <nav className="flex-1 flex flex-col justify-center px-4 sm:px-6">
+          <ul className="space-y-6 sm:space-y-8">
             {isAuthenticated ? (
               <>
                 <li>
                   <Link href="/workspace" onClick={onClose}>
-                    <span className="text-white text-2xl tracking-[0.2em] uppercase font-inter font-light hover:opacity-70 transition-opacity">
+                    <span className="text-white text-xl sm:text-2xl tracking-[0.2em] uppercase font-inter font-light hover:opacity-70 transition-opacity">
                       STUDIO
                     </span>
                   </Link>
                 </li>
                 <li>
                   <Link href="/ai-generator" onClick={onClose}>
-                    <span className="text-white text-2xl tracking-[0.2em] uppercase font-inter font-light hover:opacity-70 transition-opacity">
+                    <span className="text-white text-xl sm:text-2xl tracking-[0.2em] uppercase font-inter font-light hover:opacity-70 transition-opacity">
                       AI GENERATOR
                     </span>
                   </Link>
                 </li>
                 <li>
                   <Link href="/brandbook-designer" onClick={onClose}>
-                    <span className="text-white text-2xl tracking-[0.2em] uppercase font-inter font-light hover:opacity-70 transition-opacity">
+                    <span className="text-white text-xl sm:text-2xl tracking-[0.2em] uppercase font-inter font-light hover:opacity-70 transition-opacity">
                       BRANDBOOK
                     </span>
                   </Link>
                 </li>
                 <li>
                   <Link href="/landing-builder" onClick={onClose}>
-                    <span className="text-white text-2xl tracking-[0.2em] uppercase font-inter font-light hover:opacity-70 transition-opacity">
+                    <span className="text-white text-xl sm:text-2xl tracking-[0.2em] uppercase font-inter font-light hover:opacity-70 transition-opacity">
                       LANDING PAGES
                     </span>
                   </Link>
                 </li>
                 <li>
                   <Link href="/onboarding" onClick={onClose}>
-                    <span className="text-white text-2xl tracking-[0.2em] uppercase font-inter font-light hover:opacity-70 transition-opacity">
+                    <span className="text-white text-xl sm:text-2xl tracking-[0.2em] uppercase font-inter font-light hover:opacity-70 transition-opacity">
                       AI TRAINING
                     </span>
                   </Link>
                 </li>
                 <li>
                   <Link href="/profile" onClick={onClose}>
-                    <span className="text-white text-2xl tracking-[0.2em] uppercase font-inter font-light hover:opacity-70 transition-opacity">
+                    <span className="text-white text-xl sm:text-2xl tracking-[0.2em] uppercase font-inter font-light hover:opacity-70 transition-opacity">
                       PROFILE
                     </span>
                   </Link>

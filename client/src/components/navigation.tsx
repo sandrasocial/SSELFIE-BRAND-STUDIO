@@ -63,12 +63,12 @@ export const Navigation: React.FC = () => {
       <nav className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${
         scrolled ? 'bg-white/10 backdrop-blur-md' : 'bg-transparent'
       }`}>
-        <div className="max-w-7xl mx-auto px-8">
-          <div className="flex items-center justify-between h-20">
-            <div className="text-white text-sm tracking-[0.3em] uppercase font-inter font-light">
+        <div className="container-editorial">
+          <div className="flex items-center justify-between h-16 sm:h-20">
+            <div className="text-white text-xs sm:text-sm tracking-[0.3em] uppercase font-inter font-light">
               SSELFIE STUDIO
             </div>
-            <div className="w-6 h-6 bg-white/20 animate-pulse"></div>
+            <div className="w-4 h-4 sm:w-6 sm:h-6 bg-white/20 animate-pulse"></div>
           </div>
         </div>
       </nav>
@@ -80,17 +80,17 @@ export const Navigation: React.FC = () => {
       <nav className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${
         scrolled ? 'bg-white/10 backdrop-blur-md' : 'bg-transparent'
       }`}>
-        <div className="max-w-7xl mx-auto px-8">
-          <div className="flex items-center justify-between h-20">
+        <div className="container-editorial">
+          <div className="flex items-center justify-between h-16 sm:h-20">
             {/* Logo */}
             <Link href="/">
-              <div className="text-white text-sm tracking-[0.3em] uppercase cursor-pointer font-inter font-light hover:opacity-80 transition-opacity">
+              <div className="text-white text-xs sm:text-sm tracking-[0.3em] uppercase cursor-pointer font-inter font-light hover:opacity-80 transition-opacity">
                 SSELFIE STUDIO
               </div>
             </Link>
 
             {/* Desktop Navigation */}
-            <div className="hidden lg:flex items-center space-x-12">
+            <div className="nav-mobile-hidden items-center space-x-8 lg:space-x-12">
               {navItems.map((item) => (
                 <Link key={item.path} href={item.path}>
                   <span className={`text-white text-xs tracking-[0.2em] uppercase cursor-pointer transition-opacity font-inter font-light ${
@@ -108,7 +108,7 @@ export const Navigation: React.FC = () => {
                     <img 
                       src={user.profileImageUrl} 
                       alt="Profile" 
-                      className="w-8 h-8 object-cover"
+                      className="w-6 h-6 lg:w-8 lg:h-8 object-cover"
                       style={{ objectFit: 'cover' }}
                     />
                   )}
@@ -131,7 +131,7 @@ export const Navigation: React.FC = () => {
 
             {/* Mobile Menu Button */}
             <button
-              className="lg:hidden text-white text-xs tracking-[0.3em] uppercase hover:opacity-80 transition-opacity font-inter font-light"
+              className="nav-desktop-hidden text-white text-xs tracking-[0.3em] uppercase hover:opacity-80 transition-opacity font-inter font-light"
               onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
               aria-label="Toggle mobile menu"
             >
