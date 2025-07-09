@@ -32,6 +32,7 @@ import PaymentSuccess from "@/pages/payment-success";
 
 import BrandbookDesigner from "@/pages/brandbook-designer-new";
 import OnboardingNew from "@/pages/onboarding-new";
+import SimpleAITraining from "@/pages/simple-ai-training";
 import AdminRoadmap from "@/pages/admin-roadmap";
 import Checkout from "@/pages/checkout";
 import ThankYou from "@/pages/thank-you";
@@ -112,6 +113,7 @@ function Router() {
           <Route path="/pricing" component={Pricing} />
           <Route path="/workspace" component={Workspace} />
           <Route path="/onboarding" component={Onboarding} />
+          <Route path="/simple-training" component={SimpleAITraining} />
           <Route path="/ai-generator" component={AIGenerator} />
           <Route path="/sandra-chat" component={SandraChat} />
           <Route path="/brandbook-designer" component={BrandbookDesigner} />
