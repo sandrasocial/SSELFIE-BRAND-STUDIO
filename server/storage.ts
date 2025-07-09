@@ -94,7 +94,8 @@ export interface IStorage {
   getUserModel(id: number): Promise<UserModel | undefined>;
   getUserModelByUserId(userId: string): Promise<UserModel | undefined>;
   createUserModel(model: InsertUserModel): Promise<UserModel>;
-  updateUserModel(id: number, updates: Partial<UserModel>): Promise<UserModel>;
+  updateUserModel(userId: string, updates: Partial<UserModel>): Promise<UserModel>;
+  updateUserModelById(id: number, updates: Partial<UserModel>): Promise<UserModel>;
   
   // Generated image operations
   getUserGeneratedImages(userId: string): Promise<GeneratedImage[]>;
@@ -370,7 +371,15 @@ export class DatabaseStorage implements IStorage {
     return model;
   }
 
-  async updateUserModel(id: number, updates: Partial<UserModel>): Promise<UserModel> {
+  async updateUserModel(userId: string, updates: Partial<UserModel>): Promise<UserModel> {
+    const [model] = await db.update(userModels)
+      .set(updates)
+      .where(eq(userModels.userId, userId))
+      .returning();
+    return model;
+  }
+
+  async updateUserModelById(id: number, updates: Partial<UserModel>): Promise<UserModel> {
     const [model] = await db.update(userModels)
       .set(updates)
       .where(eq(userModels.id, id))

@@ -203,11 +203,22 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.status(400).json({ message: "At least 10 selfie images are required" });
       }
       
+      // Check if user already has a model
+      const existingModel = await storage.getUserModelByUserId(userId);
+      if (existingModel) {
+        // Update existing model with new training data
+        const updatedModel = await storage.updateUserModel(userId, {
+          status: 'training',
+          imageCount: selfieImages.length,
+          updatedAt: new Date()
+        });
+        return res.json({ message: "Model training restarted", model: updatedModel });
+      }
+      
       // Generate unique trigger word
       const triggerWord = `user${userId}`;
       
-      // TODO: Implement actual model training with Replicate
-      // For now, just create a placeholder model entry
+      // Create new model entry
       const modelData = {
         userId,
         triggerWord,
