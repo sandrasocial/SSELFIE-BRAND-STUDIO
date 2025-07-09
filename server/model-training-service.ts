@@ -76,9 +76,8 @@ const GENERATION_SETTINGS = {
 export class ModelTrainingService {
   // Generate unique trigger word for user
   static generateTriggerWord(userId: string): string {
-    // Create unique trigger based on user ID
-    const userSuffix = userId.slice(-6);
-    return `user_${userSuffix}_trigger`;
+    // Generate a unique trigger word based on user ID to prevent AI model confusion
+    return `user${userId}`;
   }
 
   // Start model training for user
@@ -220,11 +219,11 @@ export class ModelTrainingService {
     // Get user profile for styling
     const userProfile = await storage.getUserOnboardingData(userId);
     
-    // Get user's trigger word from onboarding data (preferred) or fall back to model trigger word
-    const triggerWord = userProfile?.triggerWord || userModel.triggerWord;
+    // Use the model's trigger word (auto-generated based on user ID)
+    const triggerWord = userModel.triggerWord;
     
     if (!triggerWord) {
-      throw new Error('No trigger word found. Please complete onboarding first.');
+      throw new Error('No trigger word found. Please complete AI training first.');
     }
 
     // Generate prompt
@@ -309,12 +308,11 @@ export class ModelTrainingService {
         throw new Error('User model not found or not completed training');
       }
 
-      // Get user profile for context
-      const userProfile = await storage.getUserOnboardingData(userId);
-      const triggerWord = userProfile?.triggerWord || userModel.triggerWord;
+      // Use the model's trigger word (auto-generated based on user ID)
+      const triggerWord = userModel.triggerWord;
       
       if (!triggerWord) {
-        throw new Error('No trigger word found. Please complete onboarding first.');
+        throw new Error('No trigger word found. Please complete AI training first.');
       }
 
       // Replace {triggerWord} with user's actual trigger word
