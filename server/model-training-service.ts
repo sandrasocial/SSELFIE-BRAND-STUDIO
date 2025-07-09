@@ -89,13 +89,25 @@ export class ModelTrainingService {
     const triggerWord = this.generateTriggerWord(userId);
     const modelName = `user-${userId}-selfie-lora`;
 
-    // Create user model record
-    const userModel = await storage.createUserModel({
-      userId,
-      triggerWord,
-      modelName,
-      trainingStatus: 'pending'
-    });
+    // Check if user already has a model
+    const existingModel = await storage.getUserModelByUserId(userId);
+    let userModel;
+    
+    if (existingModel) {
+      // Update existing model for retraining
+      userModel = await storage.updateUserModel(userId, {
+        modelName,
+        trainingStatus: 'pending'
+      });
+    } else {
+      // Create new user model record
+      userModel = await storage.createUserModel({
+        userId,
+        triggerWord,
+        modelName,
+        trainingStatus: 'pending'
+      });
+    }
 
     try {
       // Call Replicate training API
@@ -121,7 +133,7 @@ export class ModelTrainingService {
       const trainingData = await trainingResponse.json();
       
       // Update model with training ID
-      await storage.updateUserModel(userModel.id, {
+      await storage.updateUserModelById(userModel.id, {
         replicateModelId: trainingData.id,
         trainingStatus: 'training'
       });
@@ -129,7 +141,7 @@ export class ModelTrainingService {
       return { modelId: userModel.id, triggerWord };
     } catch (error) {
       // Update status to failed
-      await storage.updateUserModel(userModel.id, {
+      await storage.updateUserModelById(userModel.id, {
         trainingStatus: 'failed'
       });
       throw error;
