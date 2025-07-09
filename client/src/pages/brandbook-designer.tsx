@@ -13,6 +13,7 @@ import { RefinedMinimalistBrandbook } from '@/components/templates/RefinedMinima
 import { BoldFemmeBrandbook } from '@/components/templates/BoldFemmeBrandbook';
 import { LuxeFeminineBrandbook } from '@/components/templates/LuxeFeminineBrandbook';
 import { executiveEssenceConfig, refinedMinimalistConfig, boldFemmeConfig, luxeFeminineConfig, sandraAIPrompts } from '@/components/templates/template-configs';
+import { MagicBrandButton } from '@/components/MagicBrandButton';
 
 // Template selection and preview component
 const TemplateSelector = ({ selectedTemplate, onTemplateChange }: { selectedTemplate: string; onTemplateChange: (template: string) => void }) => {
