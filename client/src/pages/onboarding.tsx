@@ -87,6 +87,17 @@ export default function Onboarding() {
     }
   }, [existingOnboarding, subscription, setLocation]);
 
+  // Auto-advance Step 5 (AI Generation) after 3 seconds
+  useEffect(() => {
+    if (currentStep === 5) {
+      const timer = setTimeout(() => {
+        nextStep();
+      }, 3000); // 3 second delay to show the loading animation
+      
+      return () => clearTimeout(timer);
+    }
+  }, [currentStep]);
+
   const saveOnboardingMutation = useMutation({
     mutationFn: async (onboardingData: any) => {
       return apiRequest('POST', '/api/onboarding', {
@@ -188,7 +199,7 @@ export default function Onboarding() {
       
       // Redirect based on plan type
       if (planType === 'ai-pack') {
-        setLocation('/ai-images');
+        setLocation('/ai-generator');
       } else {
         setLocation('/workspace');
       }
@@ -668,15 +679,15 @@ export default function Onboarding() {
                   {data.photoSourceType === 'ai-model' ? (
                     <>
                       <div className="flex items-center">
-                        <span className="w-2 h-2 bg-green-500 rounded-full mr-3"></span>
+                        <span className="w-2 h-2 bg-black rounded-full mr-3"></span>
                         <span>Studying your gorgeous face</span>
                       </div>
                       <div className="flex items-center">
-                        <span className="w-2 h-2 bg-green-500 rounded-full mr-3"></span>
+                        <span className="w-2 h-2 bg-black rounded-full mr-3"></span>
                         <span>Training your personal AI model</span>
                       </div>
                       <div className="flex items-center">
-                        <span className="w-2 h-2 bg-yellow-400 rounded-full mr-3"></span>
+                        <span className="w-2 h-2 bg-gray-400 rounded-full mr-3"></span>
                         <span>Learning your unique features</span>
                       </div>
                       <div className="flex items-center">
@@ -687,15 +698,15 @@ export default function Onboarding() {
                   ) : (
                     <>
                       <div className="flex items-center">
-                        <span className="w-2 h-2 bg-green-500 rounded-full mr-3"></span>
+                        <span className="w-2 h-2 bg-black rounded-full mr-3"></span>
                         <span>Processing your photos</span>
                       </div>
                       <div className="flex items-center">
-                        <span className="w-2 h-2 bg-green-500 rounded-full mr-3"></span>
+                        <span className="w-2 h-2 bg-black rounded-full mr-3"></span>
                         <span>Organizing for your workspace</span>
                       </div>
                       <div className="flex items-center">
-                        <span className="w-2 h-2 bg-yellow-400 rounded-full mr-3"></span>
+                        <span className="w-2 h-2 bg-gray-400 rounded-full mr-3"></span>
                         <span>Setting up your brand library</span>
                       </div>
                       <div className="flex items-center">
@@ -731,11 +742,11 @@ export default function Onboarding() {
             </p>
             
             <div className="space-y-6">
-              <div className="bg-green-50 border border-green-200 p-6 max-w-lg mx-auto">
-                <h3 className="font-medium text-green-800 mb-2">
+              <div className="bg-gray-50 border border-gray-200 p-6 max-w-lg mx-auto">
+                <h3 className="font-medium text-black mb-2">
                   What happens next:
                 </h3>
-                <div className="space-y-1 text-sm text-green-700 text-left">
+                <div className="space-y-1 text-sm text-gray-700 text-left">
                   <p>• Your gorgeous AI images are being created right now</p>
                   <p>• I'll email you when they're ready (usually 2-3 minutes)</p>
                   {planType !== 'ai-pack' && (
@@ -748,7 +759,7 @@ export default function Onboarding() {
                 onClick={nextStep}
                 className="px-8 py-4 bg-black text-white hover:bg-gray-800 transition-colors"
               >
-                {planType === 'ai-pack' ? 'Go to AI Images' : 'Go to Workspace'}
+                {planType === 'ai-pack' ? 'Go to AI Generator' : 'Go to Workspace'}
               </button>
             </div>
           </div>
