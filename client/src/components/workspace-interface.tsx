@@ -26,48 +26,50 @@ export const WorkspaceInterface: React.FC<WorkspaceInterfaceProps> = ({
   ];
 
   return (
-    <div className="workspace-preview shadow-2xl overflow-hidden max-w-6xl mx-auto">
+    <div className="workspace-preview shadow-2xl overflow-hidden container-editorial">
       {/* Header Bar */}
-      <div className="bg-[var(--luxury-black)] text-white p-4 border-b border-[var(--accent-line)]">
-        <div className="flex items-center justify-between">
-          <div className="flex items-center space-x-4">
-            <span className="eyebrow-text text-white system-text">SSELFIE Studio</span>
-            <span className="text-xs text-white/60 system-text">→ Your Brand Workspace</span>
+      <div className="bg-[var(--luxury-black)] text-white card-padding-responsive border-b border-[var(--accent-line)]">
+        <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 sm:gap-0">
+          <div className="flex flex-col sm:flex-row sm:items-center gap-1 sm:gap-4">
+            <span className="eyebrow-responsive text-white">SSELFIE Studio</span>
+            <span className="text-[10px] sm:text-xs text-white/60 hidden sm:block">→ Your Brand Workspace</span>
           </div>
-          <div className="flex items-center space-x-2">
+          <div className="flex items-center gap-2 w-full sm:w-auto">
             <button 
               onClick={onPreview}
-              className="luxury-button text-white border-white/30 hover:border-white system-text"
+              className="cta-button-responsive text-white border-white/30 hover:border-white bg-transparent flex-1 sm:flex-none"
             >
-              Preview Live
+              <span className="hidden sm:inline">Preview Live</span>
+              <span className="sm:hidden">Preview</span>
             </button>
             <button 
               onClick={onLaunch}
-              className="px-4 py-2 text-xs tracking-wide uppercase bg-white text-[var(--luxury-black)] hover:bg-white/90 transition-colors system-text"
+              className="cta-button-responsive bg-white text-[var(--luxury-black)] hover:bg-white/90 border-none flex-1 sm:flex-none"
             >
-              Launch Business
+              <span className="hidden sm:inline">Launch Business</span>
+              <span className="sm:hidden">Launch</span>
             </button>
           </div>
         </div>
       </div>
       
       {/* Workspace Content */}
-      <div className="grid grid-cols-12 min-h-[600px]">
-        {/* Left Sidebar - Tools */}
-        <div className="col-span-3 bg-[var(--editorial-gray)] border-r border-[var(--accent-line)] p-6">
-          <h3 className="eyebrow-text text-[var(--soft-gray)] mb-6 system-text">
+      <div className="grid grid-cols-1 lg:grid-cols-12 min-h-[400px] sm:min-h-[500px] lg:min-h-[600px]">
+        {/* Left Sidebar - Tools (Mobile: Full width, Desktop: 3 cols) */}
+        <div className="lg:col-span-3 bg-[var(--editorial-gray)] border-b lg:border-b-0 lg:border-r border-[var(--accent-line)] card-padding-responsive">
+          <h3 className="eyebrow-responsive text-[var(--soft-gray)] mb-4 lg:mb-6">
             Brand Builder
           </h3>
-          <div className="space-y-4">
+          <div className="grid grid-cols-2 lg:grid-cols-1 gap-3 lg:gap-4">
             {steps.map((step) => (
               <div 
                 key={step.id}
-                className={`p-4 bg-white border border-[var(--accent-line)] cursor-pointer transition-all
+                className={`p-3 lg:p-4 bg-white border border-[var(--accent-line)] cursor-pointer transition-all
                   ${activeStep === step.id ? 'border-[var(--luxury-black)]' : 'hover:border-[var(--soft-gray)]'}`}
                 onClick={() => setActiveStep(step.id)}
               >
-                <div className="flex items-center justify-between mb-2">
-                  <p className="text-xs tracking-wide uppercase text-[var(--luxury-black)] system-text">
+                <div className="flex items-center justify-between mb-1 lg:mb-2">
+                  <p className="eyebrow-responsive text-[var(--luxury-black)]">
                     {String(step.id).padStart(2, '0')}. {step.title}
                   </p>
                   <div className={`w-2 h-2 rounded-full ${
@@ -76,7 +78,7 @@ export const WorkspaceInterface: React.FC<WorkspaceInterfaceProps> = ({
                     'bg-gray-300'
                   }`} />
                 </div>
-                <p className="text-sm text-[var(--soft-gray)] system-text font-light">
+                <p className="body-text-responsive text-[var(--soft-gray)] font-light">
                   {step.description}
                 </p>
               </div>
@@ -84,13 +86,13 @@ export const WorkspaceInterface: React.FC<WorkspaceInterfaceProps> = ({
           </div>
         </div>
         
-        {/* Main Canvas Area */}
-        <div className="col-span-6 bg-white p-8">
-          <div className="text-center mb-8">
-            <h3 className="editorial-headline text-3xl font-light text-[var(--luxury-black)] mb-4">
+        {/* Main Canvas Area (Mobile: Full width, Desktop: 6 cols) */}
+        <div className="lg:col-span-6 bg-white card-padding-responsive">
+          <div className="text-center-mobile mb-6 lg:mb-8">
+            <h3 className="editorial-subhead-responsive text-[var(--luxury-black)] mb-3 lg:mb-4">
               Your Brand Preview
             </h3>
-            <p className="text-sm text-[var(--soft-gray)] system-text font-light">
+            <p className="body-text-responsive text-[var(--soft-gray)] font-light">
               Watch your business come to life in real-time
             </p>
           </div>
@@ -103,28 +105,28 @@ export const WorkspaceInterface: React.FC<WorkspaceInterfaceProps> = ({
               className="w-full h-full object-cover"
             />
             <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent"></div>
-            <div className="absolute bottom-6 left-6 text-white">
-              <h4 className="editorial-headline text-2xl font-light mb-2">Your Brand</h4>
-              <p className="text-sm opacity-80 system-text">Coming to life...</p>
+            <div className="absolute bottom-4 sm:bottom-6 left-4 sm:left-6 text-white">
+              <h4 className="editorial-subhead-responsive font-light mb-1 sm:mb-2">Your Brand</h4>
+              <p className="body-text-responsive opacity-80">Coming to life...</p>
             </div>
           </div>
         </div>
         
-        {/* Right Sidebar - AI Assistant */}
-        <div className="col-span-3 bg-[var(--luxury-black)] text-white p-6">
-          <h3 className="eyebrow-text text-white/60 mb-6 system-text">
+        {/* Right Sidebar - AI Assistant (Mobile: Full width, Desktop: 3 cols) */}
+        <div className="lg:col-span-3 bg-[var(--luxury-black)] text-white card-padding-responsive">
+          <h3 className="eyebrow-responsive text-white/60 mb-4 lg:mb-6">
             Sandra AI
           </h3>
-          <div className="space-y-4">
+          <div className="grid grid-cols-1 gap-3 lg:gap-4">
             {aiMessages.map((message, index) => (
               <div 
                 key={index}
-                className={`p-4 ${index === 0 ? 'bg-white/10' : 'bg-white/5'}`}
+                className={`p-3 lg:p-4 ${index === 0 ? 'bg-white/10' : 'bg-white/5'}`}
               >
-                <p className="text-sm system-text font-light mb-2">
+                <p className="body-text-responsive font-light mb-2">
                   "{message.text}"
                 </p>
-                <p className="text-xs text-white/60 system-text">
+                <p className="text-[10px] sm:text-xs text-white/60">
                   Sandra AI • {message.time}
                 </p>
               </div>

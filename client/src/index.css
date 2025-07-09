@@ -264,4 +264,149 @@
   .scale-editorial {
     transform: scale(1.05);
   }
+
+  /* SSELFIE Mobile-First Responsive System */
+  
+  /* Typography Responsive Scaling */
+  .hero-title-responsive {
+    @apply text-4xl sm:text-5xl md:text-6xl lg:text-7xl xl:text-8xl;
+    font-family: 'Times New Roman', Times, serif;
+    font-weight: 300;
+    letter-spacing: 0.4em;
+    line-height: 0.9;
+  }
+  
+  .editorial-headline-responsive {
+    @apply text-2xl sm:text-3xl md:text-4xl lg:text-5xl;
+    font-family: 'Times New Roman', Times, serif;
+    font-weight: 300;
+    letter-spacing: -0.01em;
+  }
+  
+  .editorial-subhead-responsive {
+    @apply text-lg sm:text-xl md:text-2xl;
+    font-family: 'Times New Roman', Times, serif;
+    font-weight: 300;
+  }
+  
+  .body-text-responsive {
+    @apply text-sm sm:text-base md:text-lg;
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    font-weight: 300;
+  }
+  
+  .eyebrow-responsive {
+    @apply text-xs sm:text-sm;
+    font-size: 11px;
+    letter-spacing: 0.4em;
+    text-transform: uppercase;
+    font-weight: 300;
+  }
+
+  /* Container Responsive Widths */
+  .container-editorial {
+    @apply max-w-5xl mx-auto px-4 sm:px-6 lg:px-8;
+  }
+  
+  .container-moodboard {
+    @apply max-w-6xl mx-auto px-4 sm:px-6 lg:px-8;
+  }
+  
+  .container-cta {
+    @apply max-w-3xl mx-auto px-4 sm:px-6 lg:px-8;
+  }
+
+  /* Grid Responsive Systems */
+  .portfolio-grid-responsive {
+    @apply grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4;
+    gap: 2px;
+  }
+  
+  @media (min-width: 640px) {
+    .portfolio-grid-responsive {
+      gap: 4px;
+    }
+  }
+  
+  @media (min-width: 1024px) {
+    .portfolio-grid-responsive {
+      gap: 6px;
+    }
+  }
+  
+  .editorial-grid-responsive {
+    @apply grid grid-cols-1 md:grid-cols-2 lg:grid-cols-12 gap-4 md:gap-6 lg:gap-8;
+  }
+  
+  .feature-grid-responsive {
+    @apply grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-12;
+  }
+
+  /* Button Responsive Styling */
+  .cta-button-responsive {
+    @apply px-6 py-3 md:px-8 md:py-4 text-xs md:text-sm;
+    text-transform: uppercase;
+    letter-spacing: 0.3em;
+    font-weight: 300;
+    transition: all 300ms ease;
+  }
+
+  /* Navigation Responsive */
+  .nav-mobile-hidden {
+    @apply hidden lg:flex;
+  }
+  
+  .nav-desktop-hidden {
+    @apply flex lg:hidden;
+  }
+
+  /* Image Responsive Aspect Ratios */
+  .aspect-editorial-responsive {
+    @apply aspect-[4/3] md:aspect-[5/4] lg:aspect-[4/3];
+  }
+  
+  .aspect-portfolio-responsive {
+    @apply aspect-square md:aspect-[4/5];
+  }
+  
+  .aspect-hero-responsive {
+    @apply aspect-[3/4] sm:aspect-[4/3] md:aspect-[16/9] lg:aspect-[21/9];
+  }
+
+  /* Card Responsive Padding */
+  .card-padding-responsive {
+    @apply p-4 sm:p-6 lg:p-8;
+  }
+  
+  .card-padding-sm-responsive {
+    @apply p-3 sm:p-4 lg:p-6;
+  }
+
+  /* Section Padding Override for Consistent Responsive Spacing */
+  .section-padding-responsive {
+    @apply py-8 md:py-16 lg:py-20 xl:py-24;
+  }
+  
+  .section-padding-sm-responsive {
+    @apply py-6 md:py-12 lg:py-16;
+  }
+
+  /* Form Responsive Styling */
+  .form-responsive {
+    @apply w-full max-w-xs sm:max-w-sm md:max-w-md lg:max-w-lg mx-auto;
+  }
+
+  /* Mobile Menu Utilities */
+  .mobile-overlay {
+    @apply fixed inset-0 z-[1001] bg-black/95 backdrop-blur-sm;
+  }
+
+  /* Responsive Text Alignment */
+  .text-center-mobile {
+    @apply text-center md:text-left;
+  }
+  
+  .text-left-desktop {
+    @apply text-center sm:text-left;
+  }
 }

@@ -34,31 +34,31 @@ export const PricingCard: React.FC<PricingCardProps> = ({
   };
 
   return (
-    <div className={`relative bg-white p-8 border ${isPopular ? 'border-2 border-[var(--luxury-black)]' : 'border-[var(--accent-line)]'} ${className}`}>
+    <div className={`relative bg-white card-padding-responsive border ${isPopular ? 'border-2 border-[var(--luxury-black)]' : 'border-[var(--accent-line)]'} ${className}`}>
       {badge && (
-        <div className="absolute -top-4 left-8">
-          <span className="bg-[var(--luxury-black)] text-white px-4 py-2 eyebrow-text system-text">
+        <div className="absolute -top-3 sm:-top-4 left-4 sm:left-8">
+          <span className="bg-[var(--luxury-black)] text-white px-3 py-2 sm:px-4 eyebrow-responsive">
             {badge}
           </span>
         </div>
       )}
       
-      <div className={`mb-8 ${badge ? 'pt-4' : ''}`}>
-        <p className="eyebrow-text text-[var(--soft-gray)] mb-4 system-text">
+      <div className={`mb-6 lg:mb-8 ${badge ? 'pt-3 sm:pt-4' : ''}`}>
+        <p className="eyebrow-responsive text-[var(--soft-gray)] mb-3 lg:mb-4">
           {title}
         </p>
-        <h3 className="editorial-headline text-3xl font-light text-[var(--luxury-black)] mb-4">
+        <h3 className="editorial-subhead-responsive text-[var(--luxury-black)] mb-3 lg:mb-4">
           {title}
         </h3>
-        <p className="text-4xl font-light text-[var(--luxury-black)] mb-6 system-text">
+        <p className="text-2xl sm:text-3xl lg:text-4xl font-light text-[var(--luxury-black)] mb-4 lg:mb-6">
           {price}
         </p>
-        <p className="text-sm text-[var(--soft-gray)] system-text font-light">
+        <p className="body-text-responsive text-[var(--soft-gray)] font-light">
           {period}
         </p>
       </div>
       
-      <div className="aspect-square mb-8 overflow-hidden">
+      <div className="aspect-editorial-responsive mb-6 lg:mb-8 overflow-hidden">
         <img 
           src={imageUrl}
           alt={`${title} preview`}
@@ -66,17 +66,17 @@ export const PricingCard: React.FC<PricingCardProps> = ({
         />
       </div>
       
-      <p className="text-[var(--soft-gray)] mb-8 system-text font-light leading-relaxed">
+      <p className="body-text-responsive text-[var(--soft-gray)] mb-6 lg:mb-8 font-light leading-relaxed">
         {description}
       </p>
       
       <button 
         onClick={handleClick}
-        className={`luxury-button w-full text-center ${
+        className={`cta-button-responsive w-full text-center border ${
           isPopular 
             ? 'text-[var(--luxury-black)] border-[var(--luxury-black)] hover:border-[var(--luxury-black)]/60' 
             : 'text-[var(--luxury-black)] border-[var(--accent-line)] hover:border-[var(--luxury-black)]'
-        } system-text block`}
+        } bg-transparent block`}
       >
         {ctaText}
       </button>

@@ -80,16 +80,17 @@ export default function Landing() {
       <MoodboardGallery items={moodboardItems} />
 
       {/* How It Works Section */}
-      <section className="bg-[var(--mid-gray)] section-padding">
-        <div className="max-w-7xl mx-auto px-8">
-          <div className="text-center mb-20">
-            <p className="eyebrow-text text-[var(--soft-gray)] mb-8 system-text">
+      <section className="bg-[var(--mid-gray)] section-padding-responsive">
+        <div className="container-editorial">
+          <div className="text-center mb-12 lg:mb-20">
+            <p className="eyebrow-responsive text-[var(--soft-gray)] mb-6 lg:mb-8">
               HERE'S THE THING
             </p>
-            <h2 className="editorial-headline text-5xl md:text-7xl text-[var(--luxury-black)] mb-8" style={{ fontWeight: 300, letterSpacing: '-0.01em' }}>
-              No fancy equipment.<br />No design degree.
+            <h2 className="editorial-headline-responsive text-[var(--luxury-black)] mb-6 lg:mb-8">
+              No fancy equipment.<br className="hidden sm:block" />
+              <span className="sm:hidden"> </span>No design degree.
             </h2>
-            <p className="text-xl text-[var(--soft-gray)] max-w-2xl mx-auto system-text font-light">
+            <p className="body-text-responsive text-[var(--soft-gray)] container-cta font-light">
               Just strategy that actually works.
             </p>
           </div>
@@ -106,65 +107,66 @@ export default function Landing() {
       />
 
       {/* Simple Process Section */}
-      <section className="bg-white section-padding">
-        <div className="max-w-6xl mx-auto px-8">
-          <div className="text-center mb-20">
-            <p className="eyebrow-text text-[var(--soft-gray)] mb-8 system-text">
+      <section className="bg-white section-padding-responsive">
+        <div className="container-moodboard">
+          <div className="text-center mb-12 lg:mb-20">
+            <p className="eyebrow-responsive text-[var(--soft-gray)] mb-6 lg:mb-8">
               HOW IT WORKS
             </p>
-            <h2 className="editorial-headline text-6xl md:text-8xl text-[var(--luxury-black)] mb-12" style={{ fontWeight: 300, letterSpacing: '-0.01em' }}>
-              You don't need a plan.<br />You need one brave post.
+            <h2 className="editorial-headline-responsive text-[var(--luxury-black)] mb-8 lg:mb-12">
+              You don't need a plan.<br className="hidden sm:block" />
+              <span className="sm:hidden"> </span>You need one brave post.
             </h2>
           </div>
           
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-16">
+          <div className="feature-grid-responsive lg:grid-cols-3 gap-8 lg:gap-16">
             {/* Step 1 */}
-            <div className="text-center">
-              <div className="aspect-square mb-8 overflow-hidden">
+            <div className="text-center-mobile">
+              <div className="aspect-editorial-responsive mb-6 lg:mb-8 overflow-hidden">
                 <img 
                   src={SandraImages.editorial.phone2}
                   alt="Just your phone" 
                   className="w-full h-full object-cover editorial-hover"
                 />
               </div>
-              <h3 className="editorial-headline text-3xl text-[var(--luxury-black)] mb-4" style={{ fontWeight: 300, letterSpacing: '-0.01em' }}>
+              <h3 className="editorial-subhead-responsive text-[var(--luxury-black)] mb-3 lg:mb-4">
                 Just your phone
               </h3>
-              <p className="text-[var(--soft-gray)] system-text font-light leading-relaxed">
+              <p className="body-text-responsive text-[var(--soft-gray)] font-light leading-relaxed">
                 Upload 10-15 selfies. AI creates 30 editorial images that actually look like you.
               </p>
             </div>
             
             {/* Step 2 */}
-            <div className="text-center">
-              <div className="aspect-square mb-8 overflow-hidden">
+            <div className="text-center-mobile">
+              <div className="aspect-editorial-responsive mb-6 lg:mb-8 overflow-hidden">
                 <img 
                   src={SandraImages.editorial.laptop2}
                   alt="Your story matters" 
                   className="w-full h-full object-cover editorial-hover"
                 />
               </div>
-              <h3 className="editorial-headline text-3xl text-[var(--luxury-black)] mb-4" style={{ fontWeight: 300, letterSpacing: '-0.01em' }}>
+              <h3 className="editorial-subhead-responsive text-[var(--luxury-black)] mb-3 lg:mb-4">
                 Your story matters
               </h3>
-              <p className="text-[var(--soft-gray)] system-text font-light leading-relaxed">
+              <p className="body-text-responsive text-[var(--soft-gray)] font-light leading-relaxed">
                 Pick a template. Add your story. Everything else is handled.
               </p>
             </div>
             
             {/* Step 3 */}
-            <div className="text-center">
-              <div className="aspect-square mb-8 overflow-hidden">
+            <div className="text-center-mobile">
+              <div className="aspect-editorial-responsive mb-6 lg:mb-8 overflow-hidden">
                 <img 
                   src={SandraImages.editorial.laughing}
                   alt="Show up as her" 
                   className="w-full h-full object-cover editorial-hover"
                 />
               </div>
-              <h3 className="editorial-headline text-3xl text-[var(--luxury-black)] mb-4" style={{ fontWeight: 300, letterSpacing: '-0.01em' }}>
+              <h3 className="editorial-subhead-responsive text-[var(--luxury-black)] mb-3 lg:mb-4">
                 Show up as her
               </h3>
-              <p className="text-[var(--soft-gray)] system-text font-light leading-relaxed">
+              <p className="body-text-responsive text-[var(--soft-gray)] font-light leading-relaxed">
                 Your business is live. You focus on what you do best - being yourself.
               </p>
             </div>
@@ -176,18 +178,19 @@ export default function Landing() {
       <MoodboardGallery items={aiGalleryItems} />
 
       {/* Pricing Section */}
-      <section className="bg-[var(--luxury-black)] section-padding">
-        <div className="max-w-6xl mx-auto px-8">
-          <div className="text-center mb-20">
-            <p className="eyebrow-text text-white/60 mb-8 system-text">
+      <section className="bg-[var(--luxury-black)] section-padding-responsive">
+        <div className="container-moodboard">
+          <div className="text-center mb-12 lg:mb-20">
+            <p className="eyebrow-responsive text-white/60 mb-6 lg:mb-8">
               START HERE
             </p>
-            <h2 className="editorial-headline text-6xl md:text-8xl text-white mb-12" style={{ fontWeight: 300, letterSpacing: '-0.01em' }}>
-              Your mess is your message.<br />Let's turn it into money.
+            <h2 className="editorial-headline-responsive text-white mb-8 lg:mb-12">
+              Your mess is your message.<br className="hidden sm:block" />
+              <span className="sm:hidden"> </span>Let's turn it into money.
             </h2>
           </div>
           
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+          <div className="feature-grid-responsive lg:grid-cols-3 gap-6 lg:gap-8">
             <PricingCard
               title="SSELFIE AI"
               price="€47"
