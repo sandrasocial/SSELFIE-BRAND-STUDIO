@@ -33,7 +33,6 @@ export const Navigation: React.FC = () => {
     { path: '/sandra-chat', label: 'SANDRA CHAT' },
     { path: '/brandbook-designer', label: 'BRANDBOOK' },
     { path: '/landing-builder', label: 'LANDING PAGES' },
-    { path: '/onboarding', label: 'AI TRAINING' },
     { path: '/profile', label: 'PROFILE' },
     ...(isAdmin ? [{ path: '/admin', label: 'ADMIN' }] : []),
   ];
