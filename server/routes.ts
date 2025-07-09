@@ -193,50 +193,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  // AI Model Training API
-  app.post('/api/start-model-training', isAuthenticated, async (req: any, res) => {
-    try {
-      const userId = req.user.claims.sub;
-      const { selfieImages } = req.body;
-      
-      if (!selfieImages || selfieImages.length < 10) {
-        return res.status(400).json({ message: "At least 10 selfie images are required" });
-      }
-      
-      // Check if user already has a model
-      const existingModel = await storage.getUserModelByUserId(userId);
-      if (existingModel) {
-        // User already has a model - either retrain or update existing one
-        if (existingModel.trainingStatus === 'completed') {
-          // For users who want to retrain with new photos
-          const updatedModel = await storage.updateUserModel(userId, {
-            trainingStatus: 'training'
-          });
-          console.log(`Retraining existing model for user ${userId}`);
-          return res.json({ message: "Model retraining started", model: updatedModel });
-        } else {
-          // Model is already in training or pending
-          return res.json({ message: "Model training already in progress", model: existingModel });
-        }
-      }
-      
-      // Generate unique trigger word for new users
-      const triggerWord = `user${userId}`;
-      
-      // Create new model entry for new users
-      const modelData = {
-        userId,
-        triggerWord,
-        trainingStatus: 'training'
-      };
-      
-      const model = await storage.createUserModel(modelData);
-      res.json({ message: "Model training started", model });
-    } catch (error) {
-      console.error("Error starting model training:", error);
-      res.status(500).json({ message: "Failed to start model training" });
-    }
-  });
+  // NOTE: AI Model Training API moved to line 766 with full ModelTrainingService implementation
 
   // TODO: Add Stripe integration endpoints
   // app.post('/api/create-subscription', isAuthenticated, async (req: any, res) => {
