@@ -26,7 +26,7 @@ export default function SimpleAITraining() {
       setIsTraining(true);
       toast({
         title: "Training Started!",
-        description: "Your AI model is now training. This takes 24-48 hours.",
+        description: "Your AI model is now training. This takes about 20 minutes.",
       });
     },
     onError: (error) => {
@@ -207,7 +207,7 @@ export default function SimpleAITraining() {
             
             {uploadedFiles.length >= 10 && !isTraining && (
               <p className="text-sm text-gray-600 mt-4">
-                Training takes 24-48 hours. You'll be notified when it's complete.
+                Training takes about 20 minutes. You'll be notified when it's complete.
               </p>
             )}
           </div>
@@ -219,7 +219,7 @@ export default function SimpleAITraining() {
                 Training In Progress
               </h3>
               <p className="text-yellow-700">
-                Your AI model is being trained with your selfies. This process takes 24-48 hours.
+                Your AI model is being trained with your selfies. This process takes about 20 minutes.
                 We'll notify you when it's ready!
               </p>
             </div>
