@@ -25,18 +25,19 @@ module.exports = async (req, res) => {
       });
     }
 
-    // Auth user endpoint - return test user data
+    // Auth user endpoint - return new test user data for customer testing
     if (url === '/api/auth/user') {
+      const testUserId = "test" + Math.floor(Math.random() * 100000);
       return res.json({
-        id: "42585527",
-        email: "ssa@ssasocial.com", 
-        firstName: "Sandra",
-        lastName: "Sigurjonsdottir",
+        id: testUserId,
+        email: "testuser@example.com", 
+        firstName: "Test",
+        lastName: "User",
         profileImageUrl: null,
         stripeCustomerId: null,
         stripeSubscriptionId: null,
-        createdAt: "2025-07-07T13:15:00.000Z",
-        updatedAt: "2025-07-07T13:15:00.000Z"
+        createdAt: new Date().toISOString(),
+        updatedAt: new Date().toISOString()
       });
     }
 
