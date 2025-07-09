@@ -30,6 +30,69 @@ module.exports = async (req, res) => {
       return res.redirect('/?login=required');
     }
 
+    // Stripe webhook handler
+    if (url === '/api/stripe-webhook' && method === 'POST') {
+      const Stripe = require('stripe');
+      const { Resend } = require('resend');
+      
+      if (!process.env.STRIPE_SECRET_KEY || !process.env.RESEND_API_KEY) {
+        console.error('Missing Stripe or Resend API keys');
+        return res.status(500).json({ message: 'Configuration error' });
+      }
+
+      const stripe = new Stripe(process.env.STRIPE_SECRET_KEY);
+      const resend = new Resend(process.env.RESEND_API_KEY);
+
+      try {
+        const event = stripe.webhooks.constructEvent(
+          req.body,
+          req.headers['stripe-signature'],
+          process.env.STRIPE_WEBHOOK_SECRET
+        );
+
+        if (event.type === 'payment_intent.succeeded') {
+          const paymentIntent = event.data.object;
+          const plan = paymentIntent.metadata.plan;
+          
+          // Send welcome email
+          await resend.emails.send({
+            from: 'hello@sselfie.ai',
+            to: paymentIntent.receipt_email || 'customer@example.com',
+            subject: 'Welcome to SSELFIE Studio! Your journey begins now.',
+            html: `
+              <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
+                <h1 style="font-family: 'Times New Roman', serif; font-size: 32px; font-weight: 300; text-align: center; margin-bottom: 30px;">
+                  Welcome to SSELFIE Studio
+                </h1>
+                <p>Thank you for investing in yourself and your personal brand transformation.</p>
+                <p>Your ${plan === 'ai-pack' ? 'SSELFIE AI' : plan === 'studio-founding' ? 'STUDIO Founding' : 'STUDIO Pro'} access is now active.</p>
+                <p><strong>Next Steps:</strong></p>
+                <ol>
+                  <li>Complete your brand questionnaire</li>
+                  <li>Upload your selfies for AI training</li>
+                  <li>Build your professional brandbook</li>
+                  <li>Launch your business in 20 minutes</li>
+                </ol>
+                <div style="text-align: center; margin: 30px 0;">
+                  <a href="https://www.sselfie.ai/onboarding" style="background: #000; color: #fff; padding: 15px 30px; text-decoration: none; font-size: 12px; text-transform: uppercase; letter-spacing: 1px;">
+                    START YOUR TRANSFORMATION
+                  </a>
+                </div>
+                <p style="color: #666; font-size: 14px;">
+                  Questions? Reply to this email - Sandra reads every single one.
+                </p>
+              </div>
+            `
+          });
+        }
+
+        return res.json({ received: true });
+      } catch (err) {
+        console.error('Webhook error:', err.message);
+        return res.status(400).json({ error: 'Webhook error' });
+      }
+    }
+
     // Payment intent creation
     if (url === '/api/create-payment-intent' && method === 'POST') {
       const Stripe = require('stripe');

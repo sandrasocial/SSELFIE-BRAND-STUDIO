@@ -23,10 +23,9 @@ export default function PaymentSuccess() {
       description: "Welcome to SSELFIE Studio! Let's get you set up.",
     });
 
-    // For now, redirect to pricing with success message since full auth isn't implemented
-    // Later this will redirect to onboarding after proper login
+    // Redirect to onboarding after showing success
     setTimeout(() => {
-      setLocation('/pricing?success=true&plan=' + (plan || 'ai-pack'));
+      setLocation('/onboarding?plan=' + (plan || 'ai-pack'));
     }, 3000);
   }, [toast, setLocation]);
 
@@ -52,7 +51,7 @@ export default function PaymentSuccess() {
         tagline="Welcome to your transformation"
         title="PAYMENT SUCCESSFUL"
         ctaText="Continue"
-        onCtaClick={() => setLocation('/pricing?success=true&plan=' + plan)}
+        onCtaClick={() => setLocation('/onboarding?plan=' + plan)}
         fullHeight={false}
       />
 
