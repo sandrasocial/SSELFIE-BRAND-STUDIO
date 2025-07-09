@@ -88,6 +88,7 @@ function Router() {
           <Route path="/checkout" component={Checkout} />
           <Route path="/thank-you" component={ThankYou} />
           <Route path="/payment-success" component={PaymentSuccess} />
+          <Route path="/onboarding" component={Onboarding} />
         </>
       ) : (
         <>
