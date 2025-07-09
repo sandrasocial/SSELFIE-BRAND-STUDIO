@@ -83,7 +83,7 @@ export const templates = pgTable("templates", {
 export const subscriptions = pgTable("subscriptions", {
   id: serial("id").primaryKey(),
   userId: varchar("user_id").references(() => users.id).notNull(),
-  plan: varchar("plan").notNull(), // ai-pack, studio-founding, studio-standard
+  plan: varchar("plan").notNull(), // sselfie-studio (simplified to single product)
   status: varchar("status").notNull(), // active, cancelled, expired
   stripeSubscriptionId: varchar("stripe_subscription_id"),
   currentPeriodStart: timestamp("current_period_start"),
@@ -96,11 +96,11 @@ export const subscriptions = pgTable("subscriptions", {
 export const userUsage = pgTable("user_usage", {
   id: serial("id").primaryKey(),
   userId: varchar("user_id").references(() => users.id).notNull(),
-  plan: varchar("plan").notNull(), // ai-pack, studio-founding, studio-standard
+  plan: varchar("plan").notNull(), // sselfie-studio (simplified to single product)
   // AI Generation limits and usage
-  totalGenerationsAllowed: integer("total_generations_allowed").notNull(), // 250 for AI pack, 100/250 monthly for Studio
+  totalGenerationsAllowed: integer("total_generations_allowed").notNull(), // 300 monthly for SSELFIE Studio
   totalGenerationsUsed: integer("total_generations_used").default(0),
-  monthlyGenerationsAllowed: integer("monthly_generations_allowed"), // null for one-time AI pack
+  monthlyGenerationsAllowed: integer("monthly_generations_allowed").default(300), // 300 monthly for SSELFIE Studio
   monthlyGenerationsUsed: integer("monthly_generations_used").default(0),
   // Cost tracking
   totalCostIncurred: decimal("total_cost_incurred", { precision: 10, scale: 4 }).default("0.0000"), // Track actual API costs
@@ -126,22 +126,33 @@ export const usageHistory = pgTable("usage_history", {
   createdAt: timestamp("created_at").defaultNow(),
 });
 
-// Onboarding data table
+// Onboarding data table - simplified for streamlined vision
 export const onboardingData = pgTable("onboarding_data", {
   id: serial("id").primaryKey(),
   userId: varchar("user_id").references(() => users.id).notNull(),
-  selfieUploadStatus: varchar("selfie_upload_status").default("pending"), // pending, processing, completed
-  brandVibe: varchar("brand_vibe"),
+  
+  // Step 1: Brand Story
   brandStory: text("brand_story"),
-  targetClient: text("target_client"),
+  personalMission: text("personal_mission"),
+  
+  // Step 2: Business Goals
+  businessGoals: text("business_goals"),
+  targetAudience: text("target_audience"),
   businessType: varchar("business_type"),
+  
+  // Step 3: Voice & Style
+  brandVoice: text("brand_voice"),
   stylePreferences: varchar("style_preferences"),
-  photoSourceType: varchar("photo_source_type"), // 'ai-model', 'own-photos', 'branded-photos'
-  ownPhotosUploaded: jsonb("own_photos_uploaded"), // Array of uploaded photo URLs
-  brandedPhotosDetails: text("branded_photos_details"), // Description of existing branded photos
-  // triggerWord is now auto-generated based on user ID in the backend
-  onboardingStep: serial("onboarding_step"),
+  
+  // Step 4: AI Training
+  selfieUploadStatus: varchar("selfie_upload_status").default("pending"), // pending, processing, completed
+  aiTrainingStatus: varchar("ai_training_status").default("not_started"), // not_started, in_progress, completed
+  
+  // Progress tracking
+  currentStep: integer("current_step").default(1),
+  completed: boolean("completed").default(false),
   completedAt: timestamp("completed_at"),
+  
   createdAt: timestamp("created_at").defaultNow(),
   updatedAt: timestamp("updated_at").defaultNow(),
 });

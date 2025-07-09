@@ -1,132 +1,72 @@
-import React, { useState, useRef, useEffect } from 'react';
+import React, { useState, useRef } from 'react';
 import { Navigation } from '@/components/navigation';
 import { useAuth } from '@/hooks/useAuth';
-import { useMutation, useQuery } from '@tanstack/react-query';
+import { useMutation } from '@tanstack/react-query';
 import { apiRequest } from '@/lib/queryClient';
-import { Link, useLocation } from 'wouter';
+import { useLocation } from 'wouter';
 import { SandraImages } from '@/lib/sandra-images';
 import { HeroFullBleed } from '@/components/HeroFullBleed';
 import { useToast } from '@/hooks/use-toast';
 
-interface OnboardingData {
-  currentStep: string;
-  brandVibe: string;
-  targetClient: string;
-  businessGoal: string;
-  photoSourceType?: string;
-  ownPhotosUploaded?: string[];
-  brandedPhotosDetails?: string;
-  completedSteps: string[];
-  planType?: string;
+interface OnboardingFormData {
+  // Step 1: Brand Story
+  brandStory: string;
+  personalMission: string;
+  
+  // Step 2: Business Goals
+  businessGoals: string;
+  targetAudience: string;
+  businessType: string;
+  
+  // Step 3: Voice & Style
+  brandVoice: string;
+  stylePreferences: string;
+  
+  // Step 4: AI Training
+  selfieUploadStatus: string;
+  aiTrainingStatus: string;
+  
+  // Progress tracking
+  currentStep: number;
+  completed: boolean;
 }
 
-export default function Onboarding() {
+export default function OnboardingNew() {
   const { user, isAuthenticated } = useAuth();
   const { toast } = useToast();
   const [, setLocation] = useLocation();
   const [currentStep, setCurrentStep] = useState(1);
-  const [planType, setPlanType] = useState<string>('ai-pack');
-  const [data, setData] = useState<OnboardingData>({
-    currentStep: 'welcome',
-    brandVibe: '',
-    targetClient: '',
-    businessGoal: '',
-    photoSourceType: '',
-    ownPhotosUploaded: [],
-    brandedPhotosDetails: '',
-    completedSteps: []
-  });
-  
   const [uploadedFiles, setUploadedFiles] = useState<File[]>([]);
   const fileInputRef = useRef<HTMLInputElement>(null);
-  const [selectedOptions, setSelectedOptions] = useState<{[key: string]: string}>({});
+  
+  const [formData, setFormData] = useState<OnboardingFormData>({
+    brandStory: '',
+    personalMission: '',
+    businessGoals: '',
+    targetAudience: '',
+    businessType: '',
+    brandVoice: '',
+    stylePreferences: '',
+    selfieUploadStatus: 'pending',
+    aiTrainingStatus: 'not_started',
+    currentStep: 1,
+    completed: false
+  });
 
   const totalSteps = 6;
 
-  const getPlanTitle = (plan: string) => {
-    switch (plan) {
-      case 'ai-pack':
-        return 'SSELFIE AI';
-      case 'studio-monthly':
-        return 'SSELFIE Studio';
-      case 'studio-annual':
-        return 'SSELFIE Studio Pro';
-      default:
-        return 'SSELFIE AI';
-    }
-  };
-
-  // For now, skip authentication-dependent queries since users come from payment flow
-  // These will be implemented when full authentication system is ready
-  const existingOnboarding = null;
-  const subscription = null;
-
-  useEffect(() => {
-    // Get plan from URL parameters (coming from payment success)
-    const urlParams = new URLSearchParams(window.location.search);
-    const planFromUrl = urlParams.get('plan');
-    const userPlan = planFromUrl || subscription?.plan || 'ai-pack';
-    setPlanType(userPlan);
-
-    // Set existing data if available
-    if (existingOnboarding) {
-      setData({
-        ...existingOnboarding,
-        completedSteps: existingOnboarding.completedSteps || []
-      });
-      // Set current step based on progress
-      const stepMap = {
-        'welcome': 1,
-        'brand-questionnaire': 2,
-        'photo-source-selection': 3,
-        'photo-upload': 4,
-        'ai-generation': 5,
-        'completion': 6
-      };
-      setCurrentStep(stepMap[existingOnboarding.currentStep as keyof typeof stepMap] || 1);
-    }
-  }, [existingOnboarding, subscription, setLocation]);
-
-  // Auto-advance Step 5 (AI Generation) after 3 seconds
-  useEffect(() => {
-    if (currentStep === 5) {
-      const timer = setTimeout(() => {
-        nextStep();
-      }, 3000); // 3 second delay to show the loading animation
-      
-      return () => clearTimeout(timer);
-    }
-  }, [currentStep]);
-
   const saveOnboardingMutation = useMutation({
-    mutationFn: async (onboardingData: any) => {
-      return apiRequest('POST', '/api/onboarding', {
-        ...onboardingData,
-        planType
-      });
+    mutationFn: async (data: Partial<OnboardingFormData>) => {
+      return apiRequest('POST', '/api/onboarding', data);
     },
     onSuccess: () => {
-      // Progress saved silently
+      console.log('Onboarding data saved successfully');
     },
     onError: (error) => {
-      // Silent error handling - only show critical errors
-      console.error('Failed to save onboarding progress:', error);
-    }
-  });
-
-  const uploadSelfiesMutation = useMutation({
-    mutationFn: async (formData: FormData) => {
-      return apiRequest('POST', '/api/selfie-upload', formData);
-    },
-    onSuccess: () => {
-      // Start AI model training silently
-      startModelTraining();
-    },
-    onError: (error) => {
-      // Only show critical upload errors
+      console.error('Failed to save onboarding data:', error);
       toast({
-        title: "Upload failed",
-        description: "Failed to upload selfies. Please try again.",
+        title: "Save failed",
+        description: "Failed to save your progress. Please try again.",
         variant: "destructive",
       });
     }
@@ -134,15 +74,13 @@ export default function Onboarding() {
 
   const startModelTrainingMutation = useMutation({
     mutationFn: async (selfieImages: string[]) => {
-      return apiRequest('POST', '/api/start-model-training', {
-        selfieImages
-      });
+      return apiRequest('POST', '/api/start-model-training', { selfieImages });
     },
     onSuccess: () => {
-      nextStep(); // Go to AI generation step
+      setFormData(prev => ({ ...prev, aiTrainingStatus: 'in_progress' }));
+      nextStep();
     },
     onError: (error) => {
-      // Only show critical training errors
       toast({
         title: "Training failed",
         description: "Failed to start AI training. Please try again.",
@@ -151,80 +89,45 @@ export default function Onboarding() {
     }
   });
 
-  const startModelTraining = () => {
-    if (data.photoSourceType === 'ai-model' && uploadedFiles.length >= 10) {
-      // Convert uploaded files to base64 strings for training
-      const promises = uploadedFiles.map(file => {
-        return new Promise<string>((resolve) => {
-          const reader = new FileReader();
-          reader.onloadend = () => resolve(reader.result as string);
-          reader.readAsDataURL(file);
-        });
-      });
-      
-      Promise.all(promises).then(base64Images => {
-        startModelTrainingMutation.mutate(base64Images);
-      });
-    } else {
-      // For other photo types, skip training and go to next step
-      nextStep();
-    }
-  };
-
   const nextStep = () => {
     if (currentStep < totalSteps) {
-      // Update current step in data
-      const stepNames = ['welcome', 'brand-questionnaire', 'selfie-upload', 'ai-generation', 'completion'];
-      const nextStepName = stepNames[currentStep];
+      const nextStepNum = currentStep + 1;
+      setCurrentStep(nextStepNum);
+      setFormData(prev => ({ ...prev, currentStep: nextStepNum }));
       
       // Save progress
-      const updatedData = {
-        ...data,
-        currentStep: nextStepName,
-        completedSteps: [...(data.completedSteps || []), stepNames[currentStep - 1]]
-      };
-      
-      setData(updatedData);
-      saveOnboardingMutation.mutate(updatedData);
-      setCurrentStep(currentStep + 1);
+      saveOnboardingMutation.mutate({
+        ...formData,
+        currentStep: nextStepNum
+      });
     } else {
-      // Complete onboarding and redirect
+      // Complete onboarding
       const completedData = {
-        ...data,
-        currentStep: 'completed',
-        completedSteps: [...(data.completedSteps || []), 'completion']
+        ...formData,
+        completed: true,
+        currentStep: totalSteps
       };
       
       saveOnboardingMutation.mutate(completedData);
-      
-      // Redirect based on plan type
-      if (planType === 'ai-pack') {
-        setLocation('/ai-generator');
-      } else {
-        setLocation('/workspace');
-      }
+      setLocation('/workspace');
     }
   };
 
   const prevStep = () => {
     if (currentStep > 1) {
-      setCurrentStep(currentStep - 1);
+      const prevStepNum = currentStep - 1;
+      setCurrentStep(prevStepNum);
+      setFormData(prev => ({ ...prev, currentStep: prevStepNum }));
     }
   };
 
-  const updateData = (field: keyof OnboardingData, value: string) => {
-    setData(prev => ({ ...prev, [field]: value }));
-  };
-
-  const selectOption = (category: string, value: string) => {
-    setSelectedOptions(prev => ({ ...prev, [category]: value }));
-    updateData(category as keyof OnboardingData, value);
+  const updateFormData = (field: keyof OnboardingFormData, value: string) => {
+    setFormData(prev => ({ ...prev, [field]: value }));
   };
 
   const handleFileUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
     const files = Array.from(event.target.files || []);
     
-    // Validate file types and sizes
     const validFiles = files.filter(file => {
       const isValidType = file.type.startsWith('image/');
       const isValidSize = file.size <= 10 * 1024 * 1024; // 10MB
@@ -232,7 +135,6 @@ export default function Onboarding() {
     });
 
     if (validFiles.length !== files.length) {
-      // Only show critical file validation errors
       toast({
         title: "Invalid files",
         description: "Please upload only image files under 10MB.",
@@ -247,27 +149,31 @@ export default function Onboarding() {
     setUploadedFiles(prev => prev.filter((_, i) => i !== index));
   };
 
-  const handleSelfieUpload = () => {
-    if (uploadedFiles.length === 0) {
+  const handleAITraining = () => {
+    if (uploadedFiles.length < 10) {
       toast({
-        title: "No files selected",
-        description: "Please upload at least one selfie to continue.",
+        title: "Not enough photos",
+        description: "Please upload at least 10 selfies for AI training.",
         variant: "destructive",
       });
       return;
     }
 
-    const formData = new FormData();
-    uploadedFiles.forEach(file => {
-      formData.append('selfies', file);
+    // Convert files to base64
+    const promises = uploadedFiles.map(file => {
+      return new Promise<string>((resolve) => {
+        const reader = new FileReader();
+        reader.onloadend = () => resolve(reader.result as string);
+        reader.readAsDataURL(file);
+      });
     });
     
-    uploadSelfiesMutation.mutate(formData);
+    Promise.all(promises).then(base64Images => {
+      startModelTrainingMutation.mutate(base64Images);
+    });
   };
 
   const progress = (currentStep / totalSteps) * 100;
-
-
 
   if (!isAuthenticated) {
     return (
@@ -278,12 +184,9 @@ export default function Onboarding() {
             Please Sign In
           </h1>
           <p className="text-gray-600 mb-8">
-            You need to be signed in to access your onboarding.
+            You need to be signed in to complete onboarding.
           </p>
-          <a
-            href="/api/login"
-            className="text-xs uppercase tracking-wider text-black hover:underline"
-          >
+          <a href="/api/login" className="text-xs uppercase tracking-wider text-black hover:underline">
             SIGN IN
           </a>
         </div>
@@ -297,501 +200,336 @@ export default function Onboarding() {
       
       <HeroFullBleed
         backgroundImage={SandraImages.journey.onboarding}
-        title="ONBOARDING"
-        tagline={`Welcome to ${getPlanTitle(planType)}`}
+        title="WELCOME TO SSELFIE STUDIO"
+        tagline="Let's build your personal brand"
         alignment="center"
       />
 
       <div className="max-w-4xl mx-auto px-6 py-16">
         {/* Progress Bar */}
-        <div className="w-full h-0.5 bg-[#f5f5f5] mb-16">
+        <div className="w-full h-0.5 bg-gray-200 mb-16">
           <div 
-            className="h-full bg-[#0a0a0a] transition-all duration-700 ease-out"
+            className="h-full bg-black transition-all duration-700 ease-out"
             style={{ width: `${progress}%` }}
           />
         </div>
 
-        {/* Step 1: Welcome */}
+        {/* Step 1: Welcome & Brand Story */}
         {currentStep === 1 && (
-          <div className="text-center">
+          <div className="text-center max-w-2xl mx-auto">
             <h1 className="text-4xl font-light mb-6" style={{ fontFamily: 'Times New Roman, serif' }}>
-              Hey beautiful! You're in {getPlanTitle(planType)}
+              Hey beautiful! Let's start with your story.
             </h1>
-            <p className="text-lg text-gray-600 mb-12 max-w-2xl mx-auto">
-              {planType === 'ai-pack' 
-                ? "Let's get your AI selfies set up in 5 quick steps. This'll take about 3 minutes and we're gonna create the most gorgeous AI images of you."
-                : "Let's get your entire business set up in 5 quick steps. We're gonna create stunning AI images AND build your business platform."
-              }
+            <p className="text-lg text-gray-600 mb-12">
+              Your personal brand starts with your unique story. Tell me about yourself and what drives you.
             </p>
             
-            <div className="bg-gray-50 p-8 max-w-2xl mx-auto mb-12">
-              <h3 className="text-xl font-light mb-4" style={{ fontFamily: 'Times New Roman, serif' }}>
-                What you'll get:
-              </h3>
-              <div className="space-y-3 text-left">
-                {planType === 'ai-pack' ? (
-                  <>
-                    <div className="flex items-center">
-                      <span className="w-2 h-2 bg-black rounded-full mr-3"></span>
-                      <span>50 professional AI images that look like you</span>
-                    </div>
-                    <div className="flex items-center">
-                      <span className="w-2 h-2 bg-black rounded-full mr-3"></span>
-                      <span>Editorial-quality photos ready for social media</span>
-                    </div>
-                  </>
-                ) : (
-                  <>
-                    <div className="flex items-center">
-                      <span className="w-2 h-2 bg-black rounded-full mr-3"></span>
-                      <span>Everything in AI Pack plus business builder</span>
-                    </div>
-                    <div className="flex items-center">
-                      <span className="w-2 h-2 bg-black rounded-full mr-3"></span>
-                      <span>Professional landing page templates</span>
-                    </div>
-                    <div className="flex items-center">
-                      <span className="w-2 h-2 bg-black rounded-full mr-3"></span>
-                      <span>Booking system and payment integration</span>
-                    </div>
-                  </>
-                )}
-              </div>
-            </div>
-            
-            <p className="text-gray-600 mb-8">
-              Ready to turn your selfies into money? Let's do this thing.
-            </p>
-          </div>
-        )}
-
-        {/* Step 2: Brand Questionnaire */}
-        {currentStep === 2 && (
-          <div className="max-w-2xl mx-auto">
-            <div className="text-center mb-10">
-              <h2 className="text-3xl font-light mb-4" style={{ fontFamily: 'Times New Roman, serif' }}>
-                Let's talk about your vibe
-              </h2>
-              <p className="text-gray-600">
-                I need to know your style so we can create AI images that actually look like YOU, not some random model
-              </p>
-            </div>
-            
-            <div className="space-y-8">
+            <div className="space-y-6 text-left">
               <div>
-                <label className="block text-lg font-light mb-4" style={{ fontFamily: 'Times New Roman, serif' }}>
-                  What's your vibe? (Be honest)
-                </label>
-                <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
-                  {['Luxury & Elegant', 'Warm & Approachable', 'Bold & Creative', 'Professional & Polished', 'Fun & Playful', 'Minimalist & Clean'].map((option) => (
-                    <button
-                      key={option}
-                      onClick={() => selectOption('brandVibe', option)}
-                      className={`p-4 text-sm border transition-colors ${
-                        selectedOptions.brandVibe === option 
-                          ? 'bg-black text-white border-black' 
-                          : 'bg-white text-black border-gray-200 hover:border-black'
-                      }`}
-                    >
-                      {option}
-                    </button>
-                  ))}
-                </div>
-              </div>
-
-              <div>
-                <label className="block text-lg font-light mb-4" style={{ fontFamily: 'Times New Roman, serif' }}>
-                  Who do you want to work with?
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  Your Brand Story
                 </label>
                 <textarea
-                  className="w-full p-4 border border-gray-200 bg-white min-h-[100px] resize-none focus:outline-none focus:border-black transition-colors"
-                  placeholder="Tell me about your dream client. Are they busy moms? Ambitious entrepreneurs? Creative souls? What keeps them up at night?"
-                  value={data.targetClient}
-                  onChange={(e) => updateData('targetClient', e.target.value)}
+                  value={formData.brandStory}
+                  onChange={(e) => updateFormData('brandStory', e.target.value)}
+                  placeholder="Tell me about your journey. What led you here? What's your story?"
+                  className="w-full h-32 p-3 border border-gray-300 rounded-none resize-none focus:outline-none focus:border-black"
                 />
               </div>
-
+              
               <div>
-                <label className="block text-lg font-light mb-4" style={{ fontFamily: 'Times New Roman, serif' }}>
-                  What's your main business goal?
-                </label>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-                  {['Book more clients', 'Build my following', 'Launch a product', 'Grow my business', 'Start freelancing', 'Create content'].map((option) => (
-                    <button
-                      key={option}
-                      onClick={() => selectOption('businessGoal', option)}
-                      className={`p-4 text-sm border transition-colors text-left ${
-                        selectedOptions.businessGoal === option 
-                          ? 'bg-black text-white border-black' 
-                          : 'bg-white text-black border-gray-200 hover:border-black'
-                      }`}
-                    >
-                      {option}
-                    </button>
-                  ))}
-                </div>
-              </div>
-
-
-            </div>
-          </div>
-        )}
-
-        {/* Step 3: Photo Source Selection */}
-        {currentStep === 3 && (
-          <div className="max-w-2xl mx-auto">
-            <div className="text-center mb-10">
-              <h2 className="text-3xl font-light mb-4" style={{ fontFamily: 'Times New Roman, serif' }}>
-                How do you want to create your brand photos?
-              </h2>
-              <p className="text-gray-600">
-                Choose the approach that works best for your brand vision
-              </p>
-            </div>
-            
-            <div className="space-y-4">
-              {/* AI Model Option */}
-              <button
-                onClick={() => updateData('photoSourceType', 'ai-model')}
-                className={`w-full p-6 border-2 text-left transition-all ${
-                  data.photoSourceType === 'ai-model' 
-                    ? 'border-black bg-gray-50' 
-                    : 'border-gray-200 hover:border-gray-400'
-                }`}
-              >
-                <div className="flex items-start justify-between">
-                  <div className="flex-1">
-                    <h3 className="text-lg font-medium mb-2" style={{ fontFamily: 'Times New Roman, serif' }}>
-                      Create with SSELFIE AI Model
-                    </h3>
-                    <p className="text-sm text-gray-600 mb-3">
-                      Upload 10-15 selfies and I'll train a custom AI model that creates unlimited professional photos of you in any style or setting.
-                    </p>
-                    <div className="text-xs text-gray-500 space-y-1">
-                      <div>• Unlimited AI photos</div>
-                      <div>• Any style or location</div>
-                      <div>• Perfect for content creation</div>
-                    </div>
-                  </div>
-                  <div className={`ml-4 w-4 h-4 rounded-full border-2 ${
-                    data.photoSourceType === 'ai-model' ? 'bg-black border-black' : 'border-gray-300'
-                  }`} />
-                </div>
-              </button>
-
-              {/* Own Photos Option */}
-              <button
-                onClick={() => updateData('photoSourceType', 'own-photos')}
-                className={`w-full p-6 border-2 text-left transition-all ${
-                  data.photoSourceType === 'own-photos' 
-                    ? 'border-black bg-gray-50' 
-                    : 'border-gray-200 hover:border-gray-400'
-                }`}
-              >
-                <div className="flex items-start justify-between">
-                  <div className="flex-1">
-                    <h3 className="text-lg font-medium mb-2" style={{ fontFamily: 'Times New Roman, serif' }}>
-                      Upload My Own Photos
-                    </h3>
-                    <p className="text-sm text-gray-600 mb-3">
-                      Use photos you already have - selfies, professional shots, or any images you want to include in your brand.
-                    </p>
-                    <div className="text-xs text-gray-500 space-y-1">
-                      <div>• Use existing photos</div>
-                      <div>• Complete control</div>
-                      <div>• Quick setup</div>
-                    </div>
-                  </div>
-                  <div className={`ml-4 w-4 h-4 rounded-full border-2 ${
-                    data.photoSourceType === 'own-photos' ? 'bg-black border-black' : 'border-gray-300'
-                  }`} />
-                </div>
-              </button>
-
-              {/* Branded Photos Option */}
-              <button
-                onClick={() => updateData('photoSourceType', 'branded-photos')}
-                className={`w-full p-6 border-2 text-left transition-all ${
-                  data.photoSourceType === 'branded-photos' 
-                    ? 'border-black bg-gray-50' 
-                    : 'border-gray-200 hover:border-gray-400'
-                }`}
-              >
-                <div className="flex items-start justify-between">
-                  <div className="flex-1">
-                    <h3 className="text-lg font-medium mb-2" style={{ fontFamily: 'Times New Roman, serif' }}>
-                      I Have Professional Branded Photos
-                    </h3>
-                    <p className="text-sm text-gray-600 mb-3">
-                      Already have professional photos from a brand photoshoot? Perfect! Tell me about them and we'll integrate them into your platform.
-                    </p>
-                    <div className="text-xs text-gray-500 space-y-1">
-                      <div>• Professional quality</div>
-                      <div>• Brand consistency</div>
-                      <div>• Ready to use</div>
-                    </div>
-                  </div>
-                  <div className={`ml-4 w-4 h-4 rounded-full border-2 ${
-                    data.photoSourceType === 'branded-photos' ? 'bg-black border-black' : 'border-gray-300'
-                  }`} />
-                </div>
-              </button>
-            </div>
-
-            {/* Additional input for branded photos */}
-            {data.photoSourceType === 'branded-photos' && (
-              <div className="mt-6">
-                <label className="block text-sm font-medium mb-2">
-                  Tell me about your existing branded photos
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  Your Personal Mission
                 </label>
                 <textarea
-                  className="w-full p-4 border border-gray-200 bg-white min-h-[100px] resize-none focus:outline-none focus:border-black transition-colors"
-                  placeholder="Describe your existing photos - what style, how many, where they're stored, what you love about them..."
-                  value={data.brandedPhotosDetails || ''}
-                  onChange={(e) => updateData('brandedPhotosDetails', e.target.value)}
+                  value={formData.personalMission}
+                  onChange={(e) => updateFormData('personalMission', e.target.value)}
+                  placeholder="What's your mission? What do you want to be known for?"
+                  className="w-full h-24 p-3 border border-gray-300 rounded-none resize-none focus:outline-none focus:border-black"
                 />
               </div>
-            )}
-          </div>
-        )}
-
-        {/* Step 4: Photo Upload (formerly Step 3) */}
-        {currentStep === 4 && (
-          <div className="max-w-2xl mx-auto">
-            <div className="text-center mb-10">
-              <h2 className="text-3xl font-light mb-4" style={{ fontFamily: 'Times New Roman, serif' }}>
-                {data.photoSourceType === 'ai-model' && 'Time for your selfies'}
-                {data.photoSourceType === 'own-photos' && 'Upload your photos'}
-                {data.photoSourceType === 'branded-photos' && 'Upload your branded photos'}
-              </h2>
-              <p className="text-gray-600 mb-6">
-                {data.photoSourceType === 'ai-model' && 'Upload 10-15 selfies where you look like yourself on a good day. Check out my '}
-                {data.photoSourceType === 'own-photos' && 'Upload any photos you want to use for your brand - selfies, professional shots, or anything that represents you.'}
-                {data.photoSourceType === 'branded-photos' && 'Upload your existing professional branded photos so we can integrate them into your platform.'}
-                {data.photoSourceType === 'ai-model' && <Link href="/selfie-guide" className="underline">selfie guide</Link>}
-                {data.photoSourceType === 'ai-model' && ' if you need help.'}
-              </p>
-              <p className="text-sm text-gray-500">
-                {data.photoSourceType === 'ai-model' && 'Good lighting, clear face, different angles. If you can text, you can do this.'}
-                {data.photoSourceType === 'own-photos' && 'Any image format, up to 10MB each. Choose photos that represent your brand.'}
-                {data.photoSourceType === 'branded-photos' && 'Professional quality photos that match your brand aesthetic.'}
-              </p>
-            </div>
-
-            <div 
-              className="border-2 border-dashed border-gray-300 rounded-lg p-8 text-center mb-6 hover:border-black transition-colors cursor-pointer"
-              onClick={() => fileInputRef.current?.click()}
-            >
-              <div className="space-y-4">
-                <div className="text-4xl font-light" style={{ fontFamily: 'Times New Roman, serif' }}>+</div>
-                <div>
-                  <p className="text-lg font-medium mb-2">
-                    Click to upload selfies
-                  </p>
-                  <p className="text-sm text-gray-500">
-                    JPG, PNG files up to 10MB each
-                  </p>
-                </div>
-              </div>
-              <input
-                ref={fileInputRef}
-                type="file"
-                multiple
-                accept="image/*"
-                onChange={handleFileUpload}
-                className="hidden"
-              />
-            </div>
-
-            {uploadedFiles.length > 0 && (
-              <div className="space-y-3 mb-8">
-                <h3 className="font-medium">Uploaded files ({uploadedFiles.length})</h3>
-                <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
-                  {uploadedFiles.map((file, index) => (
-                    <div key={index} className="relative">
-                      <div className="aspect-square bg-gray-100 rounded border flex items-center justify-center text-sm p-2">
-                        <span className="text-center break-all">
-                          {file.name}
-                        </span>
-                      </div>
-                      <button
-                        onClick={() => removeFile(index)}
-                        className="absolute -top-2 -right-2 w-6 h-6 bg-black text-white rounded-full text-xs hover:bg-gray-800"
-                      >
-                        ×
-                      </button>
-                    </div>
-                  ))}
-                </div>
-              </div>
-            )}
-
-            {uploadedFiles.length > 0 && (
-              <div className="text-center">
-                <button
-                  onClick={handleSelfieUpload}
-                  disabled={uploadSelfiesMutation.isPending || startModelTrainingMutation.isPending}
-                  className="px-8 py-3 bg-black text-white hover:bg-gray-800 transition-colors disabled:opacity-50 text-xs uppercase tracking-wider"
-                >
-                  {uploadSelfiesMutation.isPending 
-                    ? 'UPLOADING...' 
-                    : startModelTrainingMutation.isPending 
-                    ? 'STARTING AI TRAINING...'
-                    : data.photoSourceType === 'ai-model' 
-                    ? 'START AI TRAINING' 
-                    : 'UPLOAD PHOTOS'
-                  }
-                </button>
-                {data.photoSourceType === 'ai-model' && uploadedFiles.length < 10 && (
-                  <p className="text-sm text-gray-500 mt-3">
-                    Upload at least 10 selfies for AI training ({uploadedFiles.length}/10)
-                  </p>
-                )}
-              </div>
-            )}
-          </div>
-        )}
-
-        {/* Step 5: AI Generation */}
-        {currentStep === 5 && (
-          <div className="text-center">
-            <h2 className="text-3xl font-light mb-6" style={{ fontFamily: 'Times New Roman, serif' }}>
-              {data.photoSourceType === 'ai-model' 
-                ? 'Working my magic on your selfies'
-                : 'Processing your photos'
-              }
-            </h2>
-            <p className="text-gray-600 mb-12">
-              {data.photoSourceType === 'ai-model' 
-                ? "I'm analyzing your gorgeous face and training your personal AI model. This usually takes 24-48 hours, but the results will be stunning."
-                : "I'm processing and organizing your photos for your brand workspace."
-              }
-            </p>
-            
-            <div className="space-y-8">
-              <div className="w-16 h-16 border-4 border-gray-200 border-t-black rounded-full animate-spin mx-auto"></div>
-              
-              <div className="bg-gray-50 p-6 max-w-lg mx-auto">
-                <h3 className="font-medium mb-3" style={{ fontFamily: 'Times New Roman, serif' }}>
-                  What I'm doing right now:
-                </h3>
-                <div className="space-y-2 text-sm text-left">
-                  {data.photoSourceType === 'ai-model' ? (
-                    <>
-                      <div className="flex items-center">
-                        <span className="w-2 h-2 bg-black rounded-full mr-3"></span>
-                        <span>Studying your gorgeous face</span>
-                      </div>
-                      <div className="flex items-center">
-                        <span className="w-2 h-2 bg-black rounded-full mr-3"></span>
-                        <span>Training your personal AI model</span>
-                      </div>
-                      <div className="flex items-center">
-                        <span className="w-2 h-2 bg-gray-400 rounded-full mr-3"></span>
-                        <span>Learning your unique features</span>
-                      </div>
-                      <div className="flex items-center">
-                        <span className="w-2 h-2 bg-gray-300 rounded-full mr-3"></span>
-                        <span>Creating sample images</span>
-                      </div>
-                    </>
-                  ) : (
-                    <>
-                      <div className="flex items-center">
-                        <span className="w-2 h-2 bg-black rounded-full mr-3"></span>
-                        <span>Processing your photos</span>
-                      </div>
-                      <div className="flex items-center">
-                        <span className="w-2 h-2 bg-black rounded-full mr-3"></span>
-                        <span>Organizing for your workspace</span>
-                      </div>
-                      <div className="flex items-center">
-                        <span className="w-2 h-2 bg-gray-400 rounded-full mr-3"></span>
-                        <span>Setting up your brand library</span>
-                      </div>
-                      <div className="flex items-center">
-                        <span className="w-2 h-2 bg-gray-300 rounded-full mr-3"></span>
-                        <span>Preparing templates</span>
-                      </div>
-                    </>
-                  )}
-                </div>
-              </div>
             </div>
             
-            <p className="text-sm text-gray-500 mt-8">
-              {data.photoSourceType === 'ai-model' 
-                ? "I'll email you when your AI model is ready. Feel free to close this page."
-                : "This will just take a moment..."
-              }
-            </p>
-          </div>
-        )}
-
-        {/* Step 6: Completion */}
-        {currentStep === 6 && (
-          <div className="text-center">
-            <h1 className="text-4xl font-light mb-6" style={{ fontFamily: 'Times New Roman, serif' }}>
-              You're officially in, gorgeous!
-            </h1>
-            <p className="text-lg text-gray-600 mb-12 max-w-2xl mx-auto">
-              {planType === 'ai-pack' 
-                ? "Your AI images are being created right now and they're going to be stunning. I'll email you when they're ready."
-                : "Your AI images are being created and your business workspace is ready to customize. Time to build your empire."
-              }
-            </p>
-            
-            <div className="space-y-6">
-              <div className="bg-gray-50 border border-gray-200 p-6 max-w-lg mx-auto">
-                <h3 className="font-medium text-black mb-2">
-                  What happens next:
-                </h3>
-                <div className="space-y-1 text-sm text-gray-700 text-left">
-                  <p>• Your gorgeous AI images are being created right now</p>
-                  <p>• I'll email you when they're ready (usually 2-3 minutes)</p>
-                  {planType !== 'ai-pack' && (
-                    <p>• You can start building your business page immediately</p>
-                  )}
-                </div>
-              </div>
-              
+            <div className="mt-12">
               <button
                 onClick={nextStep}
-                className="px-8 py-4 bg-black text-white hover:bg-gray-800 transition-colors"
+                disabled={!formData.brandStory || !formData.personalMission}
+                className="bg-black text-white px-8 py-3 text-xs uppercase tracking-wider hover:bg-gray-800 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
               >
-                {planType === 'ai-pack' ? 'Go to AI Generator' : 'Go to Workspace'}
+                CONTINUE
               </button>
             </div>
           </div>
         )}
 
-        {/* Navigation */}
-        <div className="flex justify-between items-center mt-16 gap-5">
-          <button 
-            onClick={prevStep}
-            disabled={currentStep === 1}
-            className="px-8 py-4 border border-gray-200 bg-white text-black disabled:opacity-50 disabled:cursor-not-allowed hover:border-black transition-colors text-sm font-medium tracking-wide uppercase"
-          >
-            Previous
-          </button>
-          
-          <div className="flex-1 text-center">
-            <span className="text-sm text-gray-600">
-              Step {currentStep} of {totalSteps}
-            </span>
+        {/* Step 2: Business Goals */}
+        {currentStep === 2 && (
+          <div className="text-center max-w-2xl mx-auto">
+            <h1 className="text-4xl font-light mb-6" style={{ fontFamily: 'Times New Roman, serif' }}>
+              What are your business goals?
+            </h1>
+            <p className="text-lg text-gray-600 mb-12">
+              Understanding your goals helps Sandra AI create the perfect brand strategy for you.
+            </p>
+            
+            <div className="space-y-6 text-left">
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  Business Goals
+                </label>
+                <textarea
+                  value={formData.businessGoals}
+                  onChange={(e) => updateFormData('businessGoals', e.target.value)}
+                  placeholder="What do you want to achieve? Launch a business? Grow your following? Something else?"
+                  className="w-full h-32 p-3 border border-gray-300 rounded-none resize-none focus:outline-none focus:border-black"
+                />
+              </div>
+              
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  Target Audience
+                </label>
+                <textarea
+                  value={formData.targetAudience}
+                  onChange={(e) => updateFormData('targetAudience', e.target.value)}
+                  placeholder="Who do you want to reach? Describe your ideal client or audience."
+                  className="w-full h-24 p-3 border border-gray-300 rounded-none resize-none focus:outline-none focus:border-black"
+                />
+              </div>
+              
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  Business Type
+                </label>
+                <select
+                  value={formData.businessType}
+                  onChange={(e) => updateFormData('businessType', e.target.value)}
+                  className="w-full p-3 border border-gray-300 rounded-none focus:outline-none focus:border-black"
+                >
+                  <option value="">Select business type</option>
+                  <option value="coach">Coach/Consultant</option>
+                  <option value="service-provider">Service Provider</option>
+                  <option value="creator">Content Creator</option>
+                  <option value="entrepreneur">Entrepreneur</option>
+                  <option value="freelancer">Freelancer</option>
+                  <option value="other">Other</option>
+                </select>
+              </div>
+            </div>
+            
+            <div className="mt-12 flex justify-between">
+              <button
+                onClick={prevStep}
+                className="border border-gray-300 text-gray-700 px-8 py-3 text-xs uppercase tracking-wider hover:bg-gray-50 transition-colors"
+              >
+                BACK
+              </button>
+              <button
+                onClick={nextStep}
+                disabled={!formData.businessGoals || !formData.targetAudience || !formData.businessType}
+                className="bg-black text-white px-8 py-3 text-xs uppercase tracking-wider hover:bg-gray-800 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+              >
+                CONTINUE
+              </button>
+            </div>
           </div>
-          
-          <button 
-            onClick={nextStep}
-            disabled={saveOnboardingMutation.isPending || 
-              (currentStep === 3 && !data.photoSourceType) || 
-              (currentStep === 4 && data.photoSourceType === 'ai-model' && uploadedFiles.length < 10) ||
-              (currentStep === 4 && data.photoSourceType !== 'ai-model' && uploadedFiles.length === 0)}
-            className="px-8 py-4 bg-black text-white hover:bg-gray-800 transition-colors text-sm font-medium tracking-wide uppercase disabled:opacity-50"
-          >
-            {currentStep === totalSteps ? 'COMPLETE SETUP' : 'NEXT'}
-          </button>
-        </div>
+        )}
+
+        {/* Step 3: Voice & Style */}
+        {currentStep === 3 && (
+          <div className="text-center max-w-2xl mx-auto">
+            <h1 className="text-4xl font-light mb-6" style={{ fontFamily: 'Times New Roman, serif' }}>
+              Your voice and style
+            </h1>
+            <p className="text-lg text-gray-600 mb-12">
+              This helps Sandra AI understand how to communicate like you and create content that feels authentic.
+            </p>
+            
+            <div className="space-y-6 text-left">
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  Brand Voice
+                </label>
+                <textarea
+                  value={formData.brandVoice}
+                  onChange={(e) => updateFormData('brandVoice', e.target.value)}
+                  placeholder="How do you speak? Are you casual or formal? Funny or serious? Describe your communication style."
+                  className="w-full h-32 p-3 border border-gray-300 rounded-none resize-none focus:outline-none focus:border-black"
+                />
+              </div>
+              
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  Style Preferences
+                </label>
+                <select
+                  value={formData.stylePreferences}
+                  onChange={(e) => updateFormData('stylePreferences', e.target.value)}
+                  className="w-full p-3 border border-gray-300 rounded-none focus:outline-none focus:border-black"
+                >
+                  <option value="">Select style preference</option>
+                  <option value="luxury-minimal">Luxury Minimal</option>
+                  <option value="editorial-magazine">Editorial Magazine</option>
+                  <option value="business-professional">Business Professional</option>
+                  <option value="creative-artistic">Creative Artistic</option>
+                  <option value="feminine-soft">Feminine Soft</option>
+                  <option value="bold-confident">Bold Confident</option>
+                </select>
+              </div>
+            </div>
+            
+            <div className="mt-12 flex justify-between">
+              <button
+                onClick={prevStep}
+                className="border border-gray-300 text-gray-700 px-8 py-3 text-xs uppercase tracking-wider hover:bg-gray-50 transition-colors"
+              >
+                BACK
+              </button>
+              <button
+                onClick={nextStep}
+                disabled={!formData.brandVoice || !formData.stylePreferences}
+                className="bg-black text-white px-8 py-3 text-xs uppercase tracking-wider hover:bg-gray-800 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+              >
+                CONTINUE
+              </button>
+            </div>
+          </div>
+        )}
+
+        {/* Step 4: AI Training */}
+        {currentStep === 4 && (
+          <div className="text-center max-w-2xl mx-auto">
+            <h1 className="text-4xl font-light mb-6" style={{ fontFamily: 'Times New Roman, serif' }}>
+              Train your AI
+            </h1>
+            <p className="text-lg text-gray-600 mb-12">
+              Upload 10-15 selfies to train your personal AI model. This creates images that actually look like you.
+            </p>
+            
+            <div className="border-2 border-dashed border-gray-300 p-12 mb-6">
+              <input
+                type="file"
+                ref={fileInputRef}
+                onChange={handleFileUpload}
+                multiple
+                accept="image/*"
+                className="hidden"
+              />
+              <button
+                onClick={() => fileInputRef.current?.click()}
+                className="bg-gray-100 text-gray-700 px-8 py-3 text-xs uppercase tracking-wider hover:bg-gray-200 transition-colors"
+              >
+                Upload Selfies
+              </button>
+              <p className="text-sm text-gray-500 mt-4">
+                {uploadedFiles.length} photos uploaded (minimum 10 required)
+              </p>
+            </div>
+            
+            {uploadedFiles.length > 0 && (
+              <div className="grid grid-cols-4 gap-4 mb-6">
+                {uploadedFiles.map((file, index) => (
+                  <div key={index} className="relative">
+                    <img
+                      src={URL.createObjectURL(file)}
+                      alt={`Upload ${index + 1}`}
+                      className="w-full h-20 object-cover"
+                    />
+                    <button
+                      onClick={() => removeFile(index)}
+                      className="absolute -top-2 -right-2 bg-red-500 text-white rounded-full w-5 h-5 text-xs"
+                    >
+                      ×
+                    </button>
+                  </div>
+                ))}
+              </div>
+            )}
+            
+            <div className="mt-12 flex justify-between">
+              <button
+                onClick={prevStep}
+                className="border border-gray-300 text-gray-700 px-8 py-3 text-xs uppercase tracking-wider hover:bg-gray-50 transition-colors"
+              >
+                BACK
+              </button>
+              <button
+                onClick={handleAITraining}
+                disabled={uploadedFiles.length < 10 || startModelTrainingMutation.isPending}
+                className="bg-black text-white px-8 py-3 text-xs uppercase tracking-wider hover:bg-gray-800 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+              >
+                {startModelTrainingMutation.isPending ? 'STARTING TRAINING...' : 'START AI TRAINING'}
+              </button>
+            </div>
+          </div>
+        )}
+
+        {/* Step 5: AI Training in Progress */}
+        {currentStep === 5 && (
+          <div className="text-center max-w-2xl mx-auto">
+            <h1 className="text-4xl font-light mb-6" style={{ fontFamily: 'Times New Roman, serif' }}>
+              Your AI is training
+            </h1>
+            <p className="text-lg text-gray-600 mb-12">
+              This takes 24-48 hours. You'll get an email when it's ready. Let's set up the rest of your STUDIO.
+            </p>
+            
+            <div className="animate-pulse">
+              <div className="w-16 h-16 bg-gray-200 rounded-full mx-auto mb-6"></div>
+              <p className="text-sm text-gray-500">Processing your photos...</p>
+            </div>
+            
+            <div className="mt-12">
+              <button
+                onClick={nextStep}
+                className="bg-black text-white px-8 py-3 text-xs uppercase tracking-wider hover:bg-gray-800 transition-colors"
+              >
+                CONTINUE TO STUDIO
+              </button>
+            </div>
+          </div>
+        )}
+
+        {/* Step 6: Complete */}
+        {currentStep === 6 && (
+          <div className="text-center max-w-2xl mx-auto">
+            <h1 className="text-4xl font-light mb-6" style={{ fontFamily: 'Times New Roman, serif' }}>
+              Welcome to your STUDIO!
+            </h1>
+            <p className="text-lg text-gray-600 mb-12">
+              Everything is set up. You now have access to your AI photoshoot, gallery, and Sandra AI to help you build your brand.
+            </p>
+            
+            <div className="bg-gray-50 p-8 mb-8">
+              <h3 className="text-xl font-light mb-4" style={{ fontFamily: 'Times New Roman, serif' }}>
+                What's next:
+              </h3>
+              <div className="space-y-3 text-left">
+                <div className="flex items-center">
+                  <span className="w-2 h-2 bg-black rounded-full mr-3"></span>
+                  <span>Generate 300 AI photos monthly</span>
+                </div>
+                <div className="flex items-center">
+                  <span className="w-2 h-2 bg-black rounded-full mr-3"></span>
+                  <span>Save your favorites to your gallery</span>
+                </div>
+                <div className="flex items-center">
+                  <span className="w-2 h-2 bg-black rounded-full mr-3"></span>
+                  <span>Chat with Sandra AI to build your landing page</span>
+                </div>
+              </div>
+            </div>
+            
+            <div className="mt-12">
+              <button
+                onClick={() => setLocation('/workspace')}
+                className="bg-black text-white px-8 py-3 text-xs uppercase tracking-wider hover:bg-gray-800 transition-colors"
+              >
+                ENTER YOUR STUDIO
+              </button>
+            </div>
+          </div>
+        )}
       </div>
     </div>
   );
