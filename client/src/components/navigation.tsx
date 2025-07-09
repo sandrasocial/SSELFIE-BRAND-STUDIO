@@ -49,7 +49,9 @@ export const Navigation: React.FC = () => {
   const navItems = isAuthenticated ? memberNavItems : publicNavItems;
 
   const handleLogin = () => {
-    window.location.href = '/api/login';
+    // For now, direct to pricing since checkout is working
+    // Full login integration will be added later
+    window.location.href = '/pricing';
   };
 
   const handleLogout = () => {

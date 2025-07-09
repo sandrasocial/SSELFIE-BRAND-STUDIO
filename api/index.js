@@ -23,6 +23,13 @@ module.exports = async (req, res) => {
       return res.status(401).json({ message: "Unauthorized" });
     }
 
+    // Login endpoint - redirect to Replit Auth
+    if (url === '/api/login') {
+      // For now, redirect to a simple auth flow
+      // This will need full Replit Auth integration later
+      return res.redirect('/?login=required');
+    }
+
     // Payment intent creation
     if (url === '/api/create-payment-intent' && method === 'POST') {
       const Stripe = require('stripe');
