@@ -208,9 +208,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       if (existingModel) {
         // Update existing model with new training data
         const updatedModel = await storage.updateUserModel(userId, {
-          status: 'training',
-          imageCount: selfieImages.length,
-          updatedAt: new Date()
+          trainingStatus: 'training'
         });
         return res.json({ message: "Model training restarted", model: updatedModel });
       }
@@ -222,8 +220,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const modelData = {
         userId,
         triggerWord,
-        status: 'training',
-        imageCount: selfieImages.length
+        trainingStatus: 'training'
       };
       
       const model = await storage.createUserModel(modelData);

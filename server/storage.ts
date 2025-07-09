@@ -524,7 +524,7 @@ export class DatabaseStorage implements IStorage {
     if (days) {
       const cutoffDate = new Date();
       cutoffDate.setDate(cutoffDate.getDate() - days);
-      return await query.where(gte(usageHistory.createdAt, cutoffDate)).orderBy(desc(usageHistory.createdAt));
+      return await query.where(and(eq(usageHistory.userId, userId), gte(usageHistory.createdAt, cutoffDate))).orderBy(desc(usageHistory.createdAt));
     }
     
     return await query.orderBy(desc(usageHistory.createdAt));
