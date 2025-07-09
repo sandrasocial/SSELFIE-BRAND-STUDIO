@@ -1,6 +1,6 @@
 import * as React from "react"
 import * as DropdownMenuPrimitive from "@radix-ui/react-dropdown-menu"
-import { Check, ChevronRight, Circle } from "lucide-react"
+// Removed Lucide React icons to comply with Sandra's no-icons styleguide
 
 import { cn } from "@/lib/utils"
 
@@ -32,7 +32,7 @@ const DropdownMenuSubTrigger = React.forwardRef<
     {...props}
   >
     {children}
-    <ChevronRight className="ml-auto" />
+    <span className="ml-auto text-xs">›</span>
   </DropdownMenuPrimitive.SubTrigger>
 ))
 DropdownMenuSubTrigger.displayName =
@@ -105,7 +105,7 @@ const DropdownMenuCheckboxItem = React.forwardRef<
   >
     <span className="absolute left-2 flex h-3.5 w-3.5 items-center justify-center">
       <DropdownMenuPrimitive.ItemIndicator>
-        <Check className="h-4 w-4" />
+        <span className="text-xs">✓</span>
       </DropdownMenuPrimitive.ItemIndicator>
     </span>
     {children}
@@ -128,7 +128,7 @@ const DropdownMenuRadioItem = React.forwardRef<
   >
     <span className="absolute left-2 flex h-3.5 w-3.5 items-center justify-center">
       <DropdownMenuPrimitive.ItemIndicator>
-        <Circle className="h-2 w-2 fill-current" />
+        <span className="w-2 h-2 bg-current rounded-full"></span>
       </DropdownMenuPrimitive.ItemIndicator>
     </span>
     {children}

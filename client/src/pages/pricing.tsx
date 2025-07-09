@@ -45,14 +45,14 @@ export default function Pricing() {
       <main className="max-w-7xl mx-auto px-8 py-16">
         {/* Success Message */}
         {success && (
-          <div className="bg-green-50 border border-green-200 p-6 mb-12 text-center">
-            <div className="text-green-800 text-sm uppercase tracking-wider mb-2">
+          <div className="bg-[var(--editorial-gray)] border border-[var(--accent-line)] p-6 mb-12 text-center">
+            <div className="text-[var(--luxury-black)] text-sm uppercase tracking-wider mb-2">
               PAYMENT SUCCESSFUL
             </div>
-            <h3 className="text-xl font-light text-green-900 mb-2" style={{ fontFamily: 'Times New Roman, serif' }}>
+            <h3 className="text-xl font-light text-[var(--luxury-black)] mb-2" style={{ fontFamily: 'Times New Roman, serif' }}>
               Welcome to SSELFIE Studio!
             </h3>
-            <p className="text-green-700">
+            <p className="text-[var(--soft-gray)]">
               Your {completedPlan === 'ai-pack' ? 'SSELFIE AI' : completedPlan === 'studio-founding' ? 'STUDIO Founding' : 'STUDIO Pro'} access is now active. Check your email for next steps.
             </p>
           </div>

@@ -131,11 +131,11 @@ export const Navigation: React.FC = () => {
 
             {/* Mobile Menu Button */}
             <button
-              className="lg:hidden text-white text-xl hover:opacity-80 transition-opacity"
+              className="lg:hidden text-white text-xs tracking-[0.3em] uppercase hover:opacity-80 transition-opacity font-inter font-light"
               onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
               aria-label="Toggle mobile menu"
             >
-              ☰
+              MENU
             </button>
           </div>
         </div>

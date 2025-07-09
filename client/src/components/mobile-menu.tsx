@@ -35,9 +35,9 @@ export const MobileMenu: React.FC<MobileMenuProps> = ({
           </span>
           <button
             onClick={onClose}
-            className="text-white text-2xl hover:opacity-70 transition-opacity"
+            className="text-white text-xs tracking-[0.3em] uppercase hover:opacity-70 transition-opacity font-inter font-light"
           >
-            ×
+            CLOSE
           </button>
         </div>
 

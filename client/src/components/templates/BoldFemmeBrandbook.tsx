@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Download, Copy, Check } from 'lucide-react';
+// Removed Lucide React icons to comply with Sandra's no-icons styleguide
 import { SandraImages } from '@/lib/sandra-images';
 
 interface BrandbookProps {
