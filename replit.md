@@ -365,6 +365,12 @@ The platform foundation is rock-solid with four professional brandbook templates
 - Handles both new user model creation and existing user retraining
 - 20-minute training time accurately reflected throughout platform
 
+**✓ Fixed Duplicate Training Endpoint Issue**
+- Removed duplicate `/api/start-model-training` endpoint causing database constraint errors
+- Now using single ModelTrainingService endpoint with proper existing user handling
+- System correctly identifies existing users and prevents duplicate model creation
+- Ready for new user testing with individual model training
+
 ### July 09, 2025 - Simplified User Experience & Automatic AI Model Configuration
 
 **✓ Removed All Popup Notifications from Onboarding**
