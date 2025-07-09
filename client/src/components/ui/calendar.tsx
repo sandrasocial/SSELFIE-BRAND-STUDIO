@@ -1,5 +1,5 @@
 import * as React from "react"
-import { ChevronLeft, ChevronRight } from "lucide-react"
+// Removed Lucide React icons to comply with Sandra's no-icons styleguide
 import { DayPicker } from "react-day-picker"
 
 import { cn } from "@/lib/utils"
@@ -53,10 +53,10 @@ function Calendar({
       }}
       components={{
         IconLeft: ({ className, ...props }) => (
-          <ChevronLeft className={cn("h-4 w-4", className)} {...props} />
+          <span className={cn("text-xs", className)} {...props}>‹</span>
         ),
         IconRight: ({ className, ...props }) => (
-          <ChevronRight className={cn("h-4 w-4", className)} {...props} />
+          <span className={cn("text-xs", className)} {...props}>›</span>
         ),
       }}
       {...props}

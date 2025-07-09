@@ -57,7 +57,7 @@ export default function PaymentSuccess() {
 
       <main className="max-w-4xl mx-auto px-8 py-16">
         <div className="text-center mb-16">
-          <div className="inline-block bg-green-50 text-green-800 px-6 py-2 text-sm uppercase tracking-wider mb-6">
+          <div className="inline-block bg-[var(--editorial-gray)] text-[var(--luxury-black)] px-6 py-2 text-sm uppercase tracking-wider mb-6">
             {getPlanName(plan)} PURCHASED
           </div>
           <h2 className="text-3xl font-light mb-6" style={{ fontFamily: 'Times New Roman, serif' }}>
