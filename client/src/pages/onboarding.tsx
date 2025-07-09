@@ -58,31 +58,23 @@ export default function Onboarding() {
     }
   };
 
-  // Fetch existing onboarding data
-  const { data: existingOnboarding } = useQuery({
-    queryKey: ['/api/onboarding'],
-    retry: false,
-    enabled: isAuthenticated
-  });
-
-  // Fetch user's subscription to determine plan
-  const { data: subscription } = useQuery({
-    queryKey: ['/api/subscription'],
-    retry: false,
-    enabled: isAuthenticated
-  });
+  // For now, skip authentication-dependent queries since users come from payment flow
+  // These will be implemented when full authentication system is ready
+  const existingOnboarding = null;
+  const subscription = null;
 
   useEffect(() => {
-    if (!isAuthenticated) {
-      setLocation('/pricing');
-      return;
-    }
-
-    // Get plan from URL or subscription
+    // Get plan from URL parameters (coming from payment success)
     const urlParams = new URLSearchParams(window.location.search);
     const planFromUrl = urlParams.get('plan');
     const userPlan = planFromUrl || subscription?.plan || 'ai-pack';
     setPlanType(userPlan);
+
+    // Show welcome message for new users
+    toast({
+      title: "Welcome to SSELFIE Studio!",
+      description: "Let's build your personal brand together.",
+    });
 
     // Set existing data if available
     if (existingOnboarding) {
@@ -101,7 +93,7 @@ export default function Onboarding() {
       };
       setCurrentStep(stepMap[existingOnboarding.currentStep as keyof typeof stepMap] || 1);
     }
-  }, [isAuthenticated, existingOnboarding, subscription, setLocation]);
+  }, [existingOnboarding, subscription, setLocation, toast]);
 
   const saveOnboardingMutation = useMutation({
     mutationFn: async (onboardingData: any) => {
