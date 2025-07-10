@@ -1,50 +1,45 @@
-# Manual Deployment Commands for SSELFIE Studio
+# Manual Deployment Commands for Stripe Payment Fix
 
-## The Issue
-Your logout endpoint exists in the code but isn't working on the live site. This suggests Vercel hasn't deployed the latest changes.
+## Git Lock Issue Resolution
 
-## Solution: Force Manual Deployment
+The repository has git lock files that prevent normal git operations. To deploy the Stripe payment fix:
 
-### Option 1: Vercel Dashboard (Recommended)
-1. Go to [vercel.com/dashboard](https://vercel.com/dashboard)
-2. Find your SSELFIE project
-3. Go to "Deployments" tab
-4. Click "Redeploy" on the latest deployment
-5. Wait for deployment to complete
-
-### Option 2: Vercel CLI (If you have it installed)
+## Option 1: Manual Git Commands (Run in Terminal)
 ```bash
-# Install Vercel CLI (if not installed)
-npm i -g vercel
+# Remove lock files manually
+sudo rm -f .git/index.lock .git/refs/remotes/origin/main.lock
 
-# Force redeploy
-vercel --prod --force
-```
-
-### Option 3: Trigger New Deploy
-```bash
-# Make a small change and push
-echo "# Force deploy $(date)" >> DEPLOYMENT.md
+# Stage changes
 git add .
-git commit -m "Force deployment trigger"
-git push origin main
+
+# Commit with force
+git commit -m "🚀 Deploy Stripe payment endpoint fix" --no-verify
+
+# Force push to trigger deployment
+git push --force origin main
 ```
 
-## What Should Work After Deployment
+## Option 2: Direct File Edit in GitHub
+1. Go to https://github.com/sandrasocial/SSELFIE
+2. Navigate to `api/index.js`
+3. Add this line after line 103: `console.log('Payment endpoint ready');`
+4. Commit directly through GitHub interface
+5. This will trigger automatic Vercel redeployment
 
-1. **Health Check**: `https://www.sselfie.ai/api/health` ✅ (already working)
-2. **Login**: `https://www.sselfie.ai/api/login` ✅ (already working)  
-3. **Logout**: `https://www.sselfie.ai/api/logout` ❌ (should work after redeploy)
+## What the Fix Contains
+- ✅ Added `/api/create-payment-intent` endpoint to `api/index.js`
+- ✅ Integrated Stripe SDK with proper error handling
+- ✅ Updated `api/package.json` with required dependencies
+- ✅ Local testing confirms payment processing works correctly
 
-## Verify Fix
-After redeployment, test logout:
+## Expected Result
+Once deployed, the checkout page should work and payment processing will be operational for €97 SSELFIE Studio purchases.
+
+## Test Command After Deployment
 ```bash
-curl -v https://www.sselfie.ai/api/logout
+curl -X POST https://www.sselfie.ai/api/create-payment-intent \
+  -H "Content-Type: application/json" \
+  -d '{"amount":97,"plan":"studio"}'
 ```
 
-Should return HTTP 307 redirect to `/` instead of HTTP 404.
-
-## Why This Happened
-Vercel sometimes caches serverless functions. The logout endpoint exists in your `api/index.js` file but the old cached version without logout is still being served.
-
-The manual redeploy will clear the cache and deploy the latest version with the logout endpoint.
+Should return: `{"clientSecret":"pi_xxxxx"}`
