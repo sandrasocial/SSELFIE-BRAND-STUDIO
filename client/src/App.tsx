@@ -26,11 +26,9 @@ import SelfieGuide from "@/pages/selfie-guide";
 import AdminDashboard from "@/pages/admin-dashboard";
 import AdminProgress from "@/pages/admin-progress";
 import AgentSandbox from "@/pages/agent-sandbox";
-import LandingBuilder from "@/pages/landing-builder";
 import Profile from "@/pages/profile";
 import PaymentSuccess from "@/pages/payment-success";
 
-import BrandbookDesigner from "@/pages/brandbook-designer-new";
 import OnboardingNew from "@/pages/onboarding-new";
 import SimpleAITraining from "@/pages/simple-ai-training";
 import AdminRoadmap from "@/pages/admin-roadmap";
@@ -125,10 +123,6 @@ function Router() {
           <Route path="/simple-training" component={SimpleAITraining} />
           <Route path="/ai-generator" component={AIGenerator} />
           <Route path="/sandra-chat" component={SandraChat} />
-          <Route path="/brandbook-designer" component={BrandbookDesigner} />
-          <Route path="/brandbook" component={BrandbookDesigner} />
-          <Route path="/landing-builder" component={LandingBuilder} />
-          <Route path="/landing-pages" component={LandingBuilder} />
           <Route path="/profile" component={Profile} />
           <Route path="/checkout" component={Checkout} />
           <Route path="/thank-you" component={ThankYou} />

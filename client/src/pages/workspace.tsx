@@ -95,7 +95,7 @@ export default function Workspace() {
               { id: 'overview', label: 'Overview' },
               { id: 'ai-photoshoot', label: 'AI Photoshoot' },
               { id: 'gallery', label: 'Gallery' }, 
-              { id: 'landing-builder', label: 'Landing Builder' },
+              { id: 'styleguide', label: 'Styleguide' },
               { id: 'sandra-ai', label: 'Sandra AI' }
             ].map((tab) => (
               <button
@@ -231,55 +231,61 @@ export default function Workspace() {
           </section>
         )}
 
-        {activeTab === 'landing-builder' && (
+        {activeTab === 'styleguide' && (
           <section>
             <div className="mb-8">
               <h2 className="text-3xl font-light text-[#0a0a0a] mb-4" style={{ fontFamily: 'Times New Roman, serif' }}>
-                Landing Page Builder
+                Personal Styleguide
               </h2>
               <p className="text-lg text-[#666666] max-w-3xl font-light">
-                Chat with Sandra AI to build conversion-optimized landing pages using your onboarding data and AI photos.
+                Your personalized brand bible created by SANDRA AI using your story, AI images, and preferences.
               </p>
             </div>
             
             <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
               <div className="bg-gray-50 p-8">
                 <h3 className="text-xl font-light mb-4" style={{ fontFamily: 'Times New Roman, serif' }}>
-                  Available Templates
+                  Styleguide System
                 </h3>
-                <div className="space-y-3">
-                  <div className="flex items-center justify-between">
-                    <span>Service Provider Page</span>
-                    <button className="text-xs uppercase tracking-wider text-black hover:underline">
-                      Create
-                    </button>
+                <div className="space-y-4">
+                  <div>
+                    <div className="font-medium mb-2">Your Visual Identity</div>
+                    <div className="text-sm text-gray-600">Colors, typography, and aesthetic direction</div>
                   </div>
-                  <div className="flex items-center justify-between">
-                    <span>Coach/Consultant Page</span>
-                    <button className="text-xs uppercase tracking-wider text-black hover:underline">
-                      Create
-                    </button>
+                  <div>
+                    <div className="font-medium mb-2">Brand Voice Guidelines</div>
+                    <div className="text-sm text-gray-600">Tone, messaging, and communication style</div>
                   </div>
-                  <div className="flex items-center justify-between">
-                    <span>Portfolio Page</span>
-                    <button className="text-xs uppercase tracking-wider text-black hover:underline">
-                      Create
-                    </button>
+                  <div>
+                    <div className="font-medium mb-2">AI Image Integration</div>
+                    <div className="text-sm text-gray-600">Your AI selfies incorporated into your brand system</div>
                   </div>
                 </div>
               </div>
               
               <div className="bg-white border border-gray-200 p-8">
                 <h3 className="text-xl font-light mb-4" style={{ fontFamily: 'Times New Roman, serif' }}>
-                  Sandra AI Builder
+                  Create Your Styleguide
                 </h3>
                 <p className="text-sm text-gray-600 mb-6">
-                  Sandra AI knows your brand story, goals, and style from onboarding. Just tell her what you want to build.
+                  SANDRA AI creates a personalized styleguide using your story, AI images, and business goals. Perfect for consistent branding.
                 </p>
-                <Link href="/landing-builder" className="bg-black text-white px-6 py-3 text-xs uppercase tracking-wider hover:bg-gray-800 transition-colors">
-                  Chat with Sandra AI
+                <Link href="/styleguide-demo" className="bg-black text-white px-6 py-3 text-xs uppercase tracking-wider hover:bg-gray-800 transition-colors">
+                  Create Styleguide
                 </Link>
               </div>
+            </div>
+            
+            <div className="mt-8 p-6 bg-[#f5f5f5]">
+              <h4 className="text-lg font-light mb-4" style={{ fontFamily: 'Times New Roman, serif' }}>
+                Landing Pages + Styleguide
+              </h4>
+              <p className="text-sm text-gray-600 mb-4">
+                Once your styleguide is ready, create landing pages that automatically inherit your colors, fonts, and aesthetic for perfect brand consistency.
+              </p>
+              <Link href="/styleguide-landing-builder" className="text-xs uppercase tracking-wider text-black hover:underline">
+                Build Landing Page →
+              </Link>
             </div>
           </section>
         )}
