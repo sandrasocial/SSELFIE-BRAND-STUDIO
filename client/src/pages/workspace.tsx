@@ -428,7 +428,7 @@ export default function Workspace() {
                 }}
                 className="tool-card">
                   <img 
-                    src={SandraImages.portraits.sandra2}
+                    src={SandraImages.portraits.professional[0]}
                     alt="AI Photoshoot"
                     style={{
                       width: '100%',
