@@ -412,14 +412,13 @@ export default function Workspace() {
             {/* Tools Grid */}
             <div style={{
               display: 'grid',
-              gridTemplateColumns: 'repeat(12, 1fr)',
+              gridTemplateColumns: 'repeat(4, 1fr)',
               gap: '30px'
             }}
             className="tools-grid">
               {/* AI Photoshoot */}
               <Link href="/ai-generator">
                 <div style={{
-                  gridColumn: 'span 3',
                   position: 'relative',
                   overflow: 'hidden',
                   background: '#f5f5f5',
@@ -483,7 +482,7 @@ export default function Workspace() {
               </Link>
 
               {/* Styleguide Card */}
-              <div style={{ gridColumn: 'span 3' }} className="tool-card">
+              <div className="tool-card">
                 <Link href="/styleguide-demo">
                   <div style={{
                     background: '#ffffff',
@@ -538,7 +537,6 @@ export default function Workspace() {
               {/* Landing Pages */}
               <Link href="/styleguide-landing-builder">
                 <div style={{
-                  gridColumn: 'span 3',
                   position: 'relative',
                   overflow: 'hidden',
                   background: '#f5f5f5',
@@ -602,7 +600,7 @@ export default function Workspace() {
               </Link>
 
               {/* Sandra AI Card */}
-              <div style={{ gridColumn: 'span 3' }} className="tool-card">
+              <div className="tool-card">
                 <Link href="/sandra-chat">
                   <div style={{
                     background: '#0a0a0a',
@@ -867,13 +865,19 @@ export default function Workspace() {
         
         {/* Mobile & Desktop Responsive CSS */}
         <style>{`
-          /* Mobile optimizations */
-          @media (max-width: 1024px) {
+          /* Desktop optimization - 4 cards in a row */
+          @media (min-width: 1025px) {
             .tools-grid {
-              grid-template-columns: repeat(6, 1fr) !important;
+              grid-template-columns: repeat(4, 1fr) !important;
+              gap: 30px !important;
             }
-            .tool-card {
-              grid-column: span 6 !important;
+          }
+          
+          /* Tablet optimization - 2 cards per row */
+          @media (max-width: 1024px) and (min-width: 769px) {
+            .tools-grid {
+              grid-template-columns: repeat(2, 1fr) !important;
+              gap: 25px !important;
             }
             .main-grid {
               grid-template-columns: 1fr !important;
@@ -886,18 +890,26 @@ export default function Workspace() {
               grid-column: span 1 !important;
             }
             .stats-grid {
-              grid-template-columns: 1fr !important;
+              grid-template-columns: repeat(2, 1fr) !important;
               gap: 20px !important;
+            }
+            section {
+              padding: 100px 0 !important;
+            }
+            section > div {
+              padding: 0 30px !important;
             }
           }
           
+          /* Mobile optimization - 1 card per row */
           @media (max-width: 768px) {
             .tools-grid {
               grid-template-columns: 1fr !important;
               gap: 20px !important;
             }
-            .tool-card {
-              grid-column: span 1 !important;
+            .stats-grid {
+              grid-template-columns: 1fr !important;
+              gap: 20px !important;
             }
             section {
               padding: 80px 0 !important;
@@ -905,20 +917,15 @@ export default function Workspace() {
             section > div {
               padding: 0 20px !important;
             }
-            .hero-section {
-              padding: 60px 0 !important;
-            }
           }
           
+          /* Small mobile optimization */
           @media (max-width: 480px) {
             section {
               padding: 60px 0 !important;
             }
             section > div {
               padding: 0 20px !important;
-            }
-            .hero-section {
-              padding: 40px 0 !important;
             }
           }
         `}</style>
