@@ -398,6 +398,12 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
       console.log(`Starting model training for user ${userId} with ${selfieImages.length} images`);
 
+      // Ensure user exists in database first
+      await storage.upsertUser({
+        id: userId,
+        email: `${userId}@example.com`
+      });
+
       // Generate unique trigger word for this user
       const triggerWord = `user${userId.replace(/[^0-9]/g, '')}`;
       const modelName = `${userId}-selfie-lora`;
@@ -417,14 +423,38 @@ export async function registerRoutes(app: Express): Promise<Server> {
         console.log('Updated existing model for retraining');
       } else {
         // Create new user model
-        userModel = await storage.createUserModel({
-          userId,
-          triggerWord,
-          modelName,
-          trainingStatus: 'training',
-          startedAt: new Date()
-        });
-        console.log('Created new user model');
+        console.log('Creating new user model for user:', userId);
+        try {
+          userModel = await storage.createUserModel({
+            userId,
+            triggerWord,
+            modelName,
+            trainingStatus: 'training',
+            startedAt: new Date()
+          });
+          console.log('Created new user model:', userModel);
+        } catch (createError) {
+          console.error('Failed to create user model:', createError);
+          // Try to create user record if foreign key constraint failed
+          if (createError.code === '23503') {
+            console.log('Foreign key constraint failed, ensuring user exists...');
+            await storage.upsertUser({
+              id: userId,
+              email: `${userId}@example.com`
+            });
+            // Retry model creation
+            userModel = await storage.createUserModel({
+              userId,
+              triggerWord,
+              modelName,
+              trainingStatus: 'training',
+              startedAt: new Date()
+            });
+            console.log('Successfully created user model after ensuring user exists');
+          } else {
+            throw createError;
+          }
+        }
       }
 
       // TODO: Integrate with real Replicate API when REPLICATE_API_TOKEN is available
@@ -551,6 +581,12 @@ export async function registerRoutes(app: Express): Promise<Server> {
       console.log('Received data:', JSON.stringify(req.body, null, 2));
       
       try {
+        // Ensure user exists in database first
+        await storage.upsertUser({
+          id: userId,
+          email: `${userId}@example.com`
+        });
+        
         // Check if user already has onboarding data
         const existingData = await storage.getUserOnboardingData(userId);
         console.log('Existing data check result:', existingData ? 'found' : 'not found');

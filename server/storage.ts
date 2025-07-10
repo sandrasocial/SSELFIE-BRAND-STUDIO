@@ -335,69 +335,30 @@ export class DatabaseStorage implements IStorage {
     return updatedSubscription;
   }
 
-  // Onboarding operations with error handling for missing tables
+  // Onboarding operations - production ready
   async getUserOnboardingData(userId: string): Promise<OnboardingData | undefined> {
-    try {
-      const [data] = await db
-        .select()
-        .from(onboardingData)
-        .where(eq(onboardingData.userId, userId));
-      return data;
-    } catch (error: any) {
-      console.error('getUserOnboardingData error:', error.message);
-      if (error.message.includes('relation') && error.message.includes('does not exist')) {
-        console.log('Onboarding table does not exist yet');
-        return undefined;
-      }
-      throw error;
-    }
+    const [data] = await db
+      .select()
+      .from(onboardingData)
+      .where(eq(onboardingData.userId, userId));
+    return data;
   }
 
   async createOnboardingData(data: InsertOnboardingData): Promise<OnboardingData> {
-    try {
-      const [onboarding] = await db
-        .insert(onboardingData)
-        .values(data)
-        .returning();
-      return onboarding;
-    } catch (error: any) {
-      console.error('createOnboardingData error:', error.message);
-      if (error.message.includes('relation') && error.message.includes('does not exist')) {
-        console.log('Onboarding table does not exist - returning mock data for now');
-        return {
-          id: 1,
-          userId: data.userId,
-          ...data,
-          createdAt: new Date(),
-          updatedAt: new Date()
-        } as OnboardingData;
-      }
-      throw error;
-    }
+    const [onboarding] = await db
+      .insert(onboardingData)
+      .values(data)
+      .returning();
+    return onboarding;
   }
 
   async updateOnboardingData(userId: string, updates: Partial<OnboardingData>): Promise<OnboardingData> {
-    try {
-      const [onboarding] = await db
-        .update(onboardingData)
-        .set({ ...updates, updatedAt: new Date() })
-        .where(eq(onboardingData.userId, userId))
-        .returning();
-      return onboarding;
-    } catch (error: any) {
-      console.error('updateOnboardingData error:', error.message);
-      if (error.message.includes('relation') && error.message.includes('does not exist')) {
-        console.log('Onboarding table does not exist - returning mock data for now');
-        return {
-          id: 1,
-          userId,
-          ...updates,
-          createdAt: new Date(),
-          updatedAt: new Date()
-        } as OnboardingData;
-      }
-      throw error;
-    }
+    const [onboarding] = await db
+      .update(onboardingData)
+      .set({ ...updates, updatedAt: new Date() })
+      .where(eq(onboardingData.userId, userId))
+      .returning();
+    return onboarding;
   }
 
   // Selfie upload operations
@@ -433,62 +394,23 @@ export class DatabaseStorage implements IStorage {
   }
 
   async getUserModelByUserId(userId: string): Promise<UserModel | undefined> {
-    try {
-      const [model] = await db.select().from(userModels).where(eq(userModels.userId, userId));
-      return model;
-    } catch (error: any) {
-      console.error('getUserModelByUserId error:', error.message);
-      if (error.message.includes('relation') && error.message.includes('does not exist')) {
-        console.log('User models table does not exist yet');
-        return undefined;
-      }
-      throw error;
-    }
+    const [model] = await db.select().from(userModels).where(eq(userModels.userId, userId));
+    return model;
   }
 
   async createUserModel(modelData: InsertUserModel): Promise<UserModel> {
-    try {
-      const [model] = await db.insert(userModels)
-        .values(modelData)
-        .returning();
-      return model;
-    } catch (error: any) {
-      console.error('createUserModel error:', error.message);
-      if (error.message.includes('relation') && error.message.includes('does not exist')) {
-        console.log('User models table does not exist - returning mock data for now');
-        return {
-          id: 1,
-          userId: modelData.userId,
-          ...modelData,
-          createdAt: new Date(),
-          updatedAt: new Date()
-        } as UserModel;
-      }
-      throw error;
-    }
+    const [model] = await db.insert(userModels)
+      .values(modelData)
+      .returning();
+    return model;
   }
 
   async updateUserModel(userId: string, updates: Partial<UserModel>): Promise<UserModel> {
-    try {
-      const [model] = await db.update(userModels)
-        .set(updates)
-        .where(eq(userModels.userId, userId))
-        .returning();
-      return model;
-    } catch (error: any) {
-      console.error('updateUserModel error:', error.message);
-      if (error.message.includes('relation') && error.message.includes('does not exist')) {
-        console.log('User models table does not exist - returning mock data for now');
-        return {
-          id: 1,
-          userId,
-          ...updates,
-          createdAt: new Date(),
-          updatedAt: new Date()
-        } as UserModel;
-      }
-      throw error;
-    }
+    const [model] = await db.update(userModels)
+      .set(updates)
+      .where(eq(userModels.userId, userId))
+      .returning();
+    return model;
   }
 
   async updateUserModelById(id: number, updates: Partial<UserModel>): Promise<UserModel> {

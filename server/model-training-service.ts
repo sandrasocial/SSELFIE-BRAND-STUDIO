@@ -110,7 +110,7 @@ export class ModelTrainingService {
     }
 
     try {
-      // Call Replicate training API
+      // Call Replicate training API with the actual working model
       const trainingResponse = await fetch('https://api.replicate.com/v1/trainings', {
         method: 'POST',
         headers: {
@@ -118,22 +118,24 @@ export class ModelTrainingService {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
-          version: "ostris/flux-dev-lora-trainer:...", // Training model version
+          version: "ostris/flux-dev-lora-trainer:e440909d3512c31646ee2e0c7d6f6f4923224863a6a10c494606e79fb5844497",
           input: {
-            input_images: selfieImages, // Base64 images
+            input_images: selfieImages.map(img => `data:image/jpeg;base64,${img}`).join(','),
             trigger_word: triggerWord,
             steps: 1000,
-            learning_rate: 1e-4,
-            resolution: 512
+            lr: 1e-4,
+            resolution: 512,
+            autocaption: true,
+            trigger_word_in_caption: true
           },
-          webhook: `${process.env.WEBHOOK_URL}/api/training-webhook/${userModel.id}`
+          webhook: `https://${process.env.REPLIT_DOMAINS?.split(',')[0] || 'localhost:5000'}/api/training-webhook/${userModel.id}`
         })
       });
 
       const trainingData = await trainingResponse.json();
       
       // Update model with training ID
-      await storage.updateUserModelById(userModel.id, {
+      await storage.updateUserModel(userId, {
         replicateModelId: trainingData.id,
         trainingStatus: 'training'
       });
@@ -141,7 +143,7 @@ export class ModelTrainingService {
       return { modelId: userModel.id, triggerWord };
     } catch (error) {
       // Update status to failed
-      await storage.updateUserModelById(userModel.id, {
+      await storage.updateUserModel(userId, {
         trainingStatus: 'failed'
       });
       throw error;
@@ -166,8 +168,9 @@ export class ModelTrainingService {
       
       // Update local status
       if (data.status === 'succeeded') {
-        await storage.updateUserModel(modelId, {
+        await storage.updateUserModel(userModel.userId, {
           trainingStatus: 'completed',
+          modelUrl: data.output?.weights || data.urls?.get
           completedAt: new Date()
         });
       } else if (data.status === 'failed') {
