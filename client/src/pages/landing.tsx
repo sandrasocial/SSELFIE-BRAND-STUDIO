@@ -27,19 +27,17 @@ export default function Landing() {
           <p className="text-[11px] tracking-[0.4em] uppercase mb-8 opacity-70 font-light">
             Hey gorgeous, it's Sandra
           </p>
-          <h1 
-            className="text-6xl md:text-8xl lg:text-9xl font-light mb-6 tracking-[-0.01em] leading-[0.9]"
-            style={{ fontFamily: 'Times New Roman, serif' }}
-          >
-            SSELFIE<br />
-            <span className="text-4xl md:text-6xl lg:text-7xl opacity-80 tracking-[0.2em]">
+          <div className="mb-12">
+            <h1 
+              className="text-[5rem] md:text-[8rem] lg:text-[10rem] font-light mb-4 tracking-[0.5em] leading-[1]"
+              style={{ fontFamily: 'Times New Roman, serif' }}
+            >
+              SSELFIE
+            </h1>
+            <p className="text-[12px] tracking-[0.5em] uppercase text-white/80 font-light">
               AI BRAND PHOTOSHOOT
-            </span>
-          </h1>
-          <p className="text-lg md:text-xl mb-12 opacity-90 font-light max-w-2xl mx-auto leading-relaxed">
-            Your selfies become professional brand photos in 20 minutes. 
-            No photographer, no props, just your phone and AI magic.
-          </p>
+            </p>
+          </div>
           <button 
             onClick={handleGetStarted}
             className="bg-transparent border border-white text-white px-8 py-4 text-[11px] tracking-[0.3em] uppercase hover:bg-white hover:text-[#0a0a0a] transition-all duration-300"
