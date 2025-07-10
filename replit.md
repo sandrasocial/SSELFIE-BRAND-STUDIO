@@ -281,12 +281,19 @@ The platform has become overly complex with multiple pricing tiers, broken onboa
 
 ### 🚧 IN PROGRESS / NEXT PRIORITIES
 
-#### 1. **SSELFIE STUDIO Theme System Enhancement** (Newly Built)
-- Beautiful theme selection system with 4 pre-designed aesthetic themes now complete
-- Users can switch between themes and use AI portraits as hero backgrounds
-- Widget system automatically adapts to selected theme's moodboard images
-- Complete STUDIO workspace with organized tabs and business tools
-- Focus shifted from custom dashboard building to pre-designed simplicity
+#### 1. **SANDRA AI Personal Styleguide System** (Revolutionary Concept)
+- Complete styleguide system where SANDRA AI creates personalized visual brand bibles
+- Uses user's story, AI images, and preferences to generate unique styleguides
+- 5 professional templates: Refined Minimal, Luxe Feminine, Bold Femme, Executive Essence, Creative Bold
+- Chat interface for styleguide creation and editing with SANDRA AI
+- Mock API built for demo testing without database conflicts
+
+#### 2. **Styleguide-Matched Landing Pages** (New Enhancement)
+- Landing pages automatically match user's personal styleguide design
+- Same colors, typography, layout style as their styleguide
+- SANDRA AI helps connect Stripe, Calendly, and customize content
+- Live preview in STUDIO workspace with edit capabilities
+- One-click publishing when ready to go live
 
 #### 2. **Enhanced Sandra AI Context** (Image Integration Complete)
 - Sandra AI Designer now has access to user's complete image library
