@@ -39,7 +39,11 @@ app.get('/api/login', (req, res) => {
   req.session.createdAt = new Date().toISOString();
   
   console.log('Vercel Login: Created test user session:', testUserId);
-  res.redirect('/workspace');
+  
+  // Check for redirect parameter
+  const redirectTo = req.query.redirect || '/workspace';
+  console.log('Redirecting to:', redirectTo);
+  res.redirect(redirectTo);
 });
 
 app.get('/api/logout', (req, res) => {
