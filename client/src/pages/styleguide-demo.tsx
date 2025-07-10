@@ -4,7 +4,7 @@ import UserStyleguide from "./user-styleguide";
 // Demo data for testing SANDRA AI styleguide concept
 const demoStyleguide = {
   userId: "demo123",
-  templateId: "refined-minimal",
+  templateId: "minimalistic",
   title: "Sarah Johnson",
   subtitle: "Strategic Brand Consultant",
   personalMission: "Empowering women entrepreneurs to build authentic, profitable brands that reflect their true essence and create meaningful impact in the world.",
@@ -12,16 +12,18 @@ const demoStyleguide = {
   targetAudience: "Ambitious women entrepreneurs ready to elevate their brand and scale their business with authentic, strategic positioning.",
   visualStyle: "Refined minimal with editorial sophistication",
   colorPalette: {
-    primary: "#0a0a0a",
-    secondary: "#ffffff",
-    accent: "#f5f5f5",
-    neutral: "#666666"
+    primary: "#1a1a1a",
+    secondary: "#666666",
+    accent: "#f8f8f8",
+    text: "#1a1a1a",
+    background: "#fefefe",
+    border: "#f0f0f0"
   },
   typography: {
-    headline: "Times New Roman",
-    subheading: "Times New Roman", 
-    body: "System Sans-Serif",
-    accent: "System Sans-Serif"
+    headline: "Helvetica Neue, sans-serif",
+    subheading: "Helvetica Neue, sans-serif", 
+    body: "Helvetica Neue, sans-serif",
+    accent: "Helvetica Neue, sans-serif"
   },
   imageSelections: {
     heroImage: "https://i.postimg.cc/VLCFmXVr/1.png",
@@ -100,8 +102,8 @@ export default function StyleguideDemo() {
                 that become each user's visual brand bible.
               </p>
               <p>
-                Using onboarding data, AI-generated portraits, uploaded images, and flatlay 
-                collections, SANDRA builds beautiful, magazine-quality brand presentations.
+                <strong>First Template Integrated:</strong> "Refined Minimalist" - Clean, 
+                sophisticated design with generous white space and Helvetica Neue typography.
               </p>
               <p>
                 Users can chat with SANDRA to request changes, try different templates, 
