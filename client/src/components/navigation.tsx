@@ -1,7 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { Link, useLocation } from 'wouter';
-import { useAuth } from '@/hooks/use-auth';
-import { MobileMenu } from './mobile-menu';
+import { useAuth } from '@/hooks/useAuth';
 
 export const Navigation: React.FC = () => {
   const { user, isAuthenticated, isLoading } = useAuth();
@@ -29,26 +28,24 @@ export const Navigation: React.FC = () => {
   // Member navigation - only authenticated pages
   const memberNavItems = [
     { path: '/workspace', label: 'STUDIO' },
-    { path: '/ai-generator', label: 'AI GENERATOR' },
+    { path: '/ai-generator', label: 'AI PHOTOSHOOT' },
     { path: '/styleguide-demo', label: 'STYLEGUIDE' },
     { path: '/styleguide-landing-builder', label: 'LANDING PAGES' },
-    { path: '/sandra-chat', label: 'SANDRA CHAT' },
-    { path: '/profile', label: 'PROFILE' },
+    { path: '/sandra-chat', label: 'SANDRA AI' },
     ...(isAdmin ? [{ path: '/admin', label: 'ADMIN' }] : []),
   ];
 
   // Pre-login navigation - public pages
   const publicNavItems = [
-    { path: '/about', label: 'About' },
-    { path: '/how-it-works', label: 'How It Works' },
-    { path: '/blog', label: 'Blog' },
-    { path: '/pricing', label: 'Pricing' },
+    { path: '/about', label: 'ABOUT' },
+    { path: '/how-it-works', label: 'HOW IT WORKS' },
+    { path: '/blog', label: 'BLOG' },
+    { path: '/pricing', label: 'PRICING' },
   ];
 
   const navItems = isAuthenticated ? memberNavItems : publicNavItems;
 
   const handleLogin = () => {
-    // Use proper Replit Auth login endpoint
     window.location.href = '/api/login';
   };
 
@@ -58,16 +55,41 @@ export const Navigation: React.FC = () => {
 
   if (isLoading) {
     return (
-      <nav className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${
-        scrolled ? 'bg-white/10 backdrop-blur-md' : 'bg-transparent'
-      }`}>
-        <div className="container-editorial">
-          <div className="flex items-center justify-between h-16 sm:h-20">
-            <div className="text-white text-xs sm:text-sm tracking-[0.3em] uppercase font-inter font-light">
-              SSELFIE STUDIO
-            </div>
-            <div className="w-4 h-4 sm:w-6 sm:h-6 bg-white/20 animate-pulse"></div>
+      <nav style={{
+        position: 'fixed',
+        top: 0,
+        left: 0,
+        right: 0,
+        zIndex: 1000,
+        background: scrolled ? 'rgba(255, 255, 255, 0.95)' : 'rgba(255, 255, 255, 0.95)',
+        backdropFilter: 'blur(10px)',
+        borderBottom: '1px solid #e5e5e5',
+        padding: '20px 0',
+        transition: 'all 300ms ease'
+      }}>
+        <div style={{
+          maxWidth: '1400px',
+          margin: '0 auto',
+          padding: '0 40px',
+          display: 'flex',
+          justifyContent: 'space-between',
+          alignItems: 'center'
+        }}>
+          <div style={{
+            fontFamily: 'Times New Roman, serif',
+            fontSize: '20px',
+            fontWeight: 400,
+            letterSpacing: '-0.01em',
+            color: '#0a0a0a'
+          }}>
+            SSELFIE
           </div>
+          <div style={{
+            width: '20px',
+            height: '20px',
+            background: '#f5f5f5',
+            borderRadius: '2px'
+          }} />
         </div>
       </nav>
     );
@@ -75,77 +97,289 @@ export const Navigation: React.FC = () => {
 
   return (
     <>
-      <nav className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${
-        scrolled ? 'bg-white/10 backdrop-blur-md' : 'bg-transparent'
-      }`}>
-        <div className="container-editorial">
-          <div className="flex items-center justify-between h-16 sm:h-20">
-            {/* Logo */}
-            <Link href="/">
-              <div className="text-white text-xs sm:text-sm tracking-[0.3em] uppercase cursor-pointer font-inter font-light hover:opacity-80 transition-opacity">
-                SSELFIE STUDIO
-              </div>
-            </Link>
+      <nav style={{
+        position: 'fixed',
+        top: 0,
+        left: 0,
+        right: 0,
+        zIndex: 1000,
+        background: scrolled ? 'rgba(255, 255, 255, 0.95)' : 'rgba(255, 255, 255, 0.95)',
+        backdropFilter: 'blur(10px)',
+        borderBottom: '1px solid #e5e5e5',
+        padding: '20px 0',
+        transition: 'all 300ms ease'
+      }}>
+        <div style={{
+          maxWidth: '1400px',
+          margin: '0 auto',
+          padding: '0 40px',
+          display: 'flex',
+          justifyContent: 'space-between',
+          alignItems: 'center'
+        }}>
+          {/* Logo */}
+          <Link href="/">
+            <div style={{
+              fontFamily: 'Times New Roman, serif',
+              fontSize: '20px',
+              fontWeight: 400,
+              letterSpacing: '-0.01em',
+              color: '#0a0a0a',
+              cursor: 'pointer',
+              transition: 'opacity 300ms ease'
+            }}
+            onMouseEnter={(e) => e.target.style.opacity = '0.6'}
+            onMouseLeave={(e) => e.target.style.opacity = '1'}>
+              SSELFIE
+            </div>
+          </Link>
 
-            {/* Desktop Navigation */}
-            <div className="nav-mobile-hidden items-center space-x-8 lg:space-x-12">
-              {navItems.map((item) => (
-                <Link key={item.path} href={item.path}>
-                  <span className={`text-white text-xs tracking-[0.2em] uppercase cursor-pointer transition-opacity font-inter font-light ${
-                    isActive(item.path) ? 'opacity-100' : 'opacity-80 hover:opacity-100'
-                  }`}>
-                    {item.label}
-                  </span>
-                </Link>
-              ))}
-              
-              {/* Auth Button */}
+          {/* Desktop Navigation */}
+          <div style={{
+            display: 'flex',
+            alignItems: 'center',
+            gap: '40px'
+          }}
+          className="nav-desktop-only">
+            {navItems.map((item) => (
+              <Link key={item.path} href={item.path}>
+                <span style={{
+                  color: isActive(item.path) ? '#0a0a0a' : '#666666',
+                  fontSize: '11px',
+                  fontWeight: 400,
+                  letterSpacing: '0.3em',
+                  textTransform: 'uppercase',
+                  textDecoration: 'none',
+                  cursor: 'pointer',
+                  transition: 'opacity 300ms ease',
+                  opacity: isActive(item.path) ? 1 : 0.8
+                }}
+                onMouseEnter={(e) => e.target.style.opacity = '1'}
+                onMouseLeave={(e) => e.target.style.opacity = isActive(item.path) ? '1' : '0.8'}>
+                  {item.label}
+                </span>
+              </Link>
+            ))}
+            
+            {/* Auth Button */}
+            {isAuthenticated ? (
+              <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
+                {user?.profileImageUrl && (
+                  <img 
+                    src={user.profileImageUrl} 
+                    alt="Profile" 
+                    style={{
+                      width: '32px',
+                      height: '32px',
+                      objectFit: 'cover',
+                      border: '1px solid #e5e5e5'
+                    }}
+                  />
+                )}
+                <button 
+                  onClick={handleLogout}
+                  style={{
+                    color: '#666666',
+                    fontSize: '11px',
+                    fontWeight: 400,
+                    letterSpacing: '0.3em',
+                    textTransform: 'uppercase',
+                    background: 'transparent',
+                    border: 'none',
+                    cursor: 'pointer',
+                    transition: 'opacity 300ms ease',
+                    opacity: 0.8
+                  }}
+                  onMouseEnter={(e) => e.target.style.opacity = '1'}
+                  onMouseLeave={(e) => e.target.style.opacity = '0.8'}
+                >
+                  LOGOUT
+                </button>
+              </div>
+            ) : (
+              <button 
+                onClick={handleLogin}
+                style={{
+                  display: 'inline-block',
+                  padding: '16px 32px',
+                  fontSize: '11px',
+                  fontWeight: 400,
+                  letterSpacing: '0.3em',
+                  textTransform: 'uppercase',
+                  textDecoration: 'none',
+                  border: '1px solid #0a0a0a',
+                  color: '#0a0a0a',
+                  background: 'transparent',
+                  transition: 'all 300ms ease',
+                  cursor: 'pointer'
+                }}
+                onMouseEnter={(e) => {
+                  e.target.style.background = '#0a0a0a';
+                  e.target.style.color = '#ffffff';
+                }}
+                onMouseLeave={(e) => {
+                  e.target.style.background = 'transparent';
+                  e.target.style.color = '#0a0a0a';
+                }}
+              >
+                LOGIN
+              </button>
+            )}
+          </div>
+
+          {/* Mobile Menu Button */}
+          <button
+            style={{
+              color: '#0a0a0a',
+              fontSize: '11px',
+              fontWeight: 400,
+              letterSpacing: '0.3em',
+              textTransform: 'uppercase',
+              background: 'transparent',
+              border: 'none',
+              cursor: 'pointer',
+              transition: 'opacity 300ms ease',
+              opacity: 0.8
+            }}
+            className="nav-mobile-only"
+            onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+            onMouseEnter={(e) => e.target.style.opacity = '1'}
+            onMouseLeave={(e) => e.target.style.opacity = '0.8'}
+          >
+            MENU
+          </button>
+        </div>
+      </nav>
+
+      {/* Mobile Menu */}
+      {mobileMenuOpen && (
+        <div style={{
+          position: 'fixed',
+          top: 0,
+          left: 0,
+          right: 0,
+          bottom: 0,
+          zIndex: 999,
+          background: '#ffffff',
+          padding: '100px 40px 40px 40px'
+        }}
+        className="nav-mobile-only">
+          <div style={{
+            display: 'flex',
+            flexDirection: 'column',
+            gap: '40px',
+            textAlign: 'center'
+          }}>
+            {navItems.map((item) => (
+              <Link key={item.path} href={item.path}>
+                <span 
+                  style={{
+                    color: isActive(item.path) ? '#0a0a0a' : '#666666',
+                    fontSize: '16px',
+                    fontWeight: 400,
+                    letterSpacing: '0.3em',
+                    textTransform: 'uppercase',
+                    textDecoration: 'none',
+                    cursor: 'pointer',
+                    transition: 'opacity 300ms ease',
+                    display: 'block',
+                    padding: '20px 0',
+                    borderBottom: '1px solid #e5e5e5'
+                  }}
+                  onClick={() => setMobileMenuOpen(false)}
+                >
+                  {item.label}
+                </span>
+              </Link>
+            ))}
+            
+            <div style={{ marginTop: '40px' }}>
               {isAuthenticated ? (
-                <div className="flex items-center space-x-4">
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '20px', alignItems: 'center' }}>
                   {user?.profileImageUrl && (
                     <img 
                       src={user.profileImageUrl} 
                       alt="Profile" 
-                      className="w-6 h-6 lg:w-8 lg:h-8 object-cover"
-                      style={{ objectFit: 'cover' }}
+                      style={{
+                        width: '64px',
+                        height: '64px',
+                        objectFit: 'cover',
+                        border: '1px solid #e5e5e5'
+                      }}
                     />
                   )}
                   <button 
                     onClick={handleLogout}
-                    className="text-white text-xs tracking-[0.2em] uppercase opacity-80 hover:opacity-100 transition-opacity font-inter font-light"
+                    style={{
+                      color: '#666666',
+                      fontSize: '14px',
+                      fontWeight: 400,
+                      letterSpacing: '0.3em',
+                      textTransform: 'uppercase',
+                      background: 'transparent',
+                      border: '1px solid #666666',
+                      padding: '16px 32px',
+                      cursor: 'pointer',
+                      transition: 'all 300ms ease'
+                    }}
+                    onMouseEnter={(e) => {
+                      e.target.style.background = '#666666';
+                      e.target.style.color = '#ffffff';
+                    }}
+                    onMouseLeave={(e) => {
+                      e.target.style.background = 'transparent';
+                      e.target.style.color = '#666666';
+                    }}
                   >
-                    Logout
+                    LOGOUT
                   </button>
                 </div>
               ) : (
                 <button 
                   onClick={handleLogin}
-                  className="text-white text-xs tracking-[0.2em] uppercase opacity-80 hover:opacity-100 transition-opacity font-inter font-light"
+                  style={{
+                    display: 'inline-block',
+                    padding: '20px 40px',
+                    fontSize: '14px',
+                    fontWeight: 400,
+                    letterSpacing: '0.3em',
+                    textTransform: 'uppercase',
+                    textDecoration: 'none',
+                    border: '1px solid #0a0a0a',
+                    color: '#0a0a0a',
+                    background: 'transparent',
+                    transition: 'all 300ms ease',
+                    cursor: 'pointer'
+                  }}
+                  onMouseEnter={(e) => {
+                    e.target.style.background = '#0a0a0a';
+                    e.target.style.color = '#ffffff';
+                  }}
+                  onMouseLeave={(e) => {
+                    e.target.style.background = 'transparent';
+                    e.target.style.color = '#0a0a0a';
+                  }}
                 >
-                  Login
+                  LOGIN
                 </button>
               )}
             </div>
-
-            {/* Mobile Menu Button */}
-            <button
-              className="nav-desktop-hidden text-white text-xs tracking-[0.3em] uppercase hover:opacity-80 transition-opacity font-inter font-light"
-              onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-              aria-label="Toggle mobile menu"
-            >
-              MENU
-            </button>
           </div>
         </div>
-      </nav>
-
-      {/* Mobile Menu */}
-      <MobileMenu
-        isOpen={mobileMenuOpen}
-        onClose={() => setMobileMenuOpen(false)}
-        isAuthenticated={isAuthenticated}
-        user={user}
-      />
+      )}
+      
+      {/* CSS for responsive classes */}
+      <style>{`
+        @media (max-width: 1024px) {
+          .nav-desktop-only { display: none !important; }
+          .nav-mobile-only { display: block !important; }
+        }
+        
+        @media (min-width: 1025px) {
+          .nav-desktop-only { display: flex !important; }
+          .nav-mobile-only { display: none !important; }
+        }
+      `}</style>
     </>
   );
 };
