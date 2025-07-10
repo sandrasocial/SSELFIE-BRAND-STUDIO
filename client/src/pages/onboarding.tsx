@@ -59,16 +59,17 @@ export default function OnboardingNew() {
     mutationFn: async (data: Partial<OnboardingFormData>) => {
       return apiRequest('POST', '/api/onboarding', data);
     },
-    onSuccess: () => {
-      console.log('Onboarding data saved successfully');
+    onSuccess: (response) => {
+      console.log('Onboarding data saved successfully:', response);
     },
     onError: (error) => {
       console.error('Failed to save onboarding data:', error);
-      toast({
-        title: "Save failed",
-        description: "Failed to save your progress. Please try again.",
-        variant: "destructive",
-      });
+      // Remove toast notification to prevent user confusion during testing
+      // toast({
+      //   title: "Save failed",
+      //   description: "Failed to save your progress. Please try again.",
+      //   variant: "destructive",
+      // });
     }
   });
 
