@@ -76,6 +76,25 @@ app.get('/api/auth/user', (req, res) => {
   res.json(testUser);
 });
 
+// Clear session endpoint for testing
+app.post('/api/clear-session', (req, res) => {
+  console.log('Clear session request received');
+  
+  if (req.session) {
+    req.session.destroy((err) => {
+      if (err) {
+        console.error('Session clear error:', err);
+        return res.status(500).json({ message: 'Session clear failed' });
+      }
+      
+      console.log('Session cleared successfully');
+      res.json({ message: 'Session cleared - you can now test as a new user' });
+    });
+  } else {
+    res.json({ message: 'No session to clear' });
+  }
+});
+
 // Stripe payment endpoint
 app.post("/api/create-payment-intent", async (req, res) => {
   try {

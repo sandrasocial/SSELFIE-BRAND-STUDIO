@@ -23,26 +23,8 @@ export default function PaymentSuccess() {
       description: "Welcome to SSELFIE Studio! Let's get you set up.",
     });
 
-    // For first-time users, redirect to onboarding; for returning users, go to STUDIO
-    setTimeout(() => {
-      // Check if user has completed onboarding before
-      apiRequest('GET', '/api/onboarding')
-        .then(response => response.json())
-        .then(data => {
-          if (data && data.completed) {
-            // User already completed onboarding, go to STUDIO
-            setLocation('/workspace');
-          } else {
-            // New user, go to onboarding
-            setLocation('/onboarding');
-          }
-        })
-        .catch(() => {
-          // If error checking, default to onboarding for safety
-          setLocation('/onboarding');
-        });
-    }, 3000);
-  }, [toast, setLocation]);
+    // NO AUTO-REDIRECT - User must manually click to proceed
+  }, [toast]);
 
   // Get plan details from URL
   const urlParams = new URLSearchParams(window.location.search);
@@ -126,11 +108,24 @@ export default function PaymentSuccess() {
         </div>
 
         <div className="text-center mt-16">
-          <Link href="/onboarding">
-            <button className="bg-[#0a0a0a] text-white px-8 py-4 text-xs uppercase tracking-wider hover:bg-[#333] transition-colors">
-              Begin Your Journey
-            </button>
-          </Link>
+          <button 
+            onClick={() => {
+              // Smart redirect based on onboarding status or default to onboarding
+              apiRequest('GET', '/api/onboarding')
+                .then(response => response.json())
+                .then(data => {
+                  if (data && data.completed) {
+                    setLocation('/workspace');
+                  } else {
+                    setLocation('/onboarding');
+                  }
+                })
+                .catch(() => setLocation('/onboarding'));
+            }}
+            className="bg-[#0a0a0a] text-white px-8 py-4 text-xs uppercase tracking-wider hover:bg-[#333] transition-colors"
+          >
+            Begin Your Journey
+          </button>
         </div>
       </main>
     </div>
