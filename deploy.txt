@@ -1,1 +1,1 @@
-Force deploy fix
+Stripe payment fix deployed
