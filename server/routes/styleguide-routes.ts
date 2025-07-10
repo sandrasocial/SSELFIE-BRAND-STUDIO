@@ -3,6 +3,7 @@ import { storage } from "../storage";
 import { isAuthenticated } from "../replitAuth";
 import { minimalisticTemplate } from "../../shared/templates/template-minimalistic";
 import { boldTemplate } from "../../shared/templates/template-bold";
+import { sophisticatedTemplate } from "../../shared/templates/template-sophisticated";
 
 export function registerStyleguideRoutes(app: Express) {
   // Get user's styleguide - DEMO VERSION with mock data
@@ -98,7 +99,8 @@ export function registerStyleguideRoutes(app: Express) {
     try {
       const templates = [
         minimalisticTemplate,
-        boldTemplate
+        boldTemplate,
+        sophisticatedTemplate
         // Add more templates as they are implemented
       ];
       res.json(templates);
@@ -127,7 +129,7 @@ export function registerStyleguideRoutes(app: Express) {
         userId,
         onboardingData,
         currentStyleguide,
-        availableTemplates: [minimalisticTemplate, boldTemplate]
+        availableTemplates: [minimalisticTemplate, boldTemplate, sophisticatedTemplate]
       });
       
       res.json(response);
@@ -195,6 +197,12 @@ function selectTemplateForUser(onboardingData: any, templates: any[]): any {
   if (lowerInput.includes('bold') || lowerInput.includes('strong') || lowerInput.includes('confident') || 
       lowerInput.includes('powerful') || lowerInput.includes('fitness') || lowerInput.includes('leader')) {
     return templates.find(t => t.id === 'bold') || templates[0];
+  }
+  
+  if (lowerInput.includes('sophisticated') || lowerInput.includes('luxury') || lowerInput.includes('elegant') || 
+      lowerInput.includes('coastal') || lowerInput.includes('premium') || lowerInput.includes('serene') ||
+      lowerInput.includes('consultant') || lowerInput.includes('timeless')) {
+    return templates.find(t => t.id === 'sophisticated') || templates[0];
   }
   
   if (lowerInput.includes('minimal') || lowerInput.includes('clean') || lowerInput.includes('simple') || 

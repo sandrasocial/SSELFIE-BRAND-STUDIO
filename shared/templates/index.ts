@@ -1,11 +1,13 @@
 // Export all styleguide templates
 export { minimalisticTemplate } from './template-minimalistic';
 export { boldTemplate } from './template-bold';
+export { sophisticatedTemplate } from './template-sophisticated';
 
 // Template registry for easy access
 export const STYLEGUIDE_TEMPLATES = {
   minimalistic: () => import('./template-minimalistic').then(m => m.minimalisticTemplate),
   bold: () => import('./template-bold').then(m => m.boldTemplate),
+  sophisticated: () => import('./template-sophisticated').then(m => m.sophisticatedTemplate),
   // Add more templates as they are created
 };
 
@@ -26,6 +28,14 @@ export const TEMPLATE_METADATA = [
     category: "bold",
     previewImage: "/images/templates/bold-preview.jpg",
     bestFor: ["business leaders", "fitness coaches", "entrepreneurs", "speakers"]
+  },
+  {
+    id: "sophisticated",
+    name: "Coastal Luxury",
+    description: "Elegant coastal sophistication with refined typography and serene color palette",
+    category: "luxury",
+    previewImage: "/images/templates/sophisticated-preview.jpg",
+    bestFor: ["luxury brands", "consultants", "premium service providers", "lifestyle coaches"]
   }
   // Add more template metadata as they are created
 ];
