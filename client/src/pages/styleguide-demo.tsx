@@ -102,8 +102,8 @@ export default function StyleguideDemo() {
                 that become each user's visual brand bible.
               </p>
               <p>
-                <strong>First Template Integrated:</strong> "Refined Minimalist" - Clean, 
-                sophisticated design with generous white space and Helvetica Neue typography.
+                <strong>Two Templates Integrated:</strong> "Refined Minimalist" (clean sophistication) 
+                and "Bold Femme" (strong, confident design with earthy tones and Impact typography).
               </p>
               <p>
                 Users can chat with SANDRA to request changes, try different templates, 
@@ -119,7 +119,7 @@ export default function StyleguideDemo() {
               <div className="space-y-4 text-base font-light">
                 <div className="flex items-start">
                   <div className="w-4 h-4 bg-black mr-4 mt-1 flex-shrink-0"></div>
-                  <div>5 different styleguide templates as starting points</div>
+                  <div>2 of 5 styleguide templates operational (Refined Minimalist, Bold Femme)</div>
                 </div>
                 <div className="flex items-start">
                   <div className="w-4 h-4 bg-black mr-4 mt-1 flex-shrink-0"></div>

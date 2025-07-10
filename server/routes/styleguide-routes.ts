@@ -2,6 +2,7 @@ import type { Express } from "express";
 import { storage } from "../storage";
 import { isAuthenticated } from "../replitAuth";
 import { minimalisticTemplate } from "../../shared/templates/template-minimalistic";
+import { boldTemplate } from "../../shared/templates/template-bold";
 
 export function registerStyleguideRoutes(app: Express) {
   // Get user's styleguide - DEMO VERSION with mock data
@@ -96,7 +97,8 @@ export function registerStyleguideRoutes(app: Express) {
   app.get("/api/styleguide-templates", async (req, res) => {
     try {
       const templates = [
-        minimalisticTemplate
+        minimalisticTemplate,
+        boldTemplate
         // Add more templates as they are implemented
       ];
       res.json(templates);
@@ -125,7 +127,7 @@ export function registerStyleguideRoutes(app: Express) {
         userId,
         onboardingData,
         currentStyleguide,
-        availableTemplates: [minimalisticTemplate]
+        availableTemplates: [minimalisticTemplate, boldTemplate]
       });
       
       res.json(response);
@@ -146,8 +148,8 @@ function generateSandraStyleguideResponse(context: any) {
                            message.toLowerCase().includes('generate');
   
   if (isCreationRequest) {
-    // Use minimalistic template as default
-    const template = availableTemplates[0];
+    // Intelligent template selection based on user preferences
+    const template = selectTemplateForUser(onboardingData, availableTemplates);
     
     return {
       type: 'styleguide_created',
@@ -177,4 +179,29 @@ function generateSandraStyleguideResponse(context: any) {
       "What information do you need?"
     ]
   };
+}
+
+// Intelligent template selection based on user preferences
+function selectTemplateForUser(onboardingData: any, templates: any[]): any {
+  if (!onboardingData?.brandVoice && !onboardingData?.stylePreferences) {
+    // Default to minimalistic for users without preferences
+    return templates.find(t => t.id === 'minimalistic') || templates[0];
+  }
+  
+  const userInput = (onboardingData.brandVoice || '') + ' ' + (onboardingData.stylePreferences || '');
+  const lowerInput = userInput.toLowerCase();
+  
+  // Template matching logic
+  if (lowerInput.includes('bold') || lowerInput.includes('strong') || lowerInput.includes('confident') || 
+      lowerInput.includes('powerful') || lowerInput.includes('fitness') || lowerInput.includes('leader')) {
+    return templates.find(t => t.id === 'bold') || templates[0];
+  }
+  
+  if (lowerInput.includes('minimal') || lowerInput.includes('clean') || lowerInput.includes('simple') || 
+      lowerInput.includes('wellness') || lowerInput.includes('calm') || lowerInput.includes('refined')) {
+    return templates.find(t => t.id === 'minimalistic') || templates[0];
+  }
+  
+  // Default to minimalistic
+  return templates.find(t => t.id === 'minimalistic') || templates[0];
 }
