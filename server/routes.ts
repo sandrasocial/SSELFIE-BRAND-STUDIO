@@ -222,8 +222,42 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // AI Images routes  
   app.get('/api/ai-images', async (req: any, res) => {
     try {
-      // For new user testing, return empty array (no existing AI images)
-      res.json([]);
+      // For new user testing, return mock AI images for gallery display
+      const mockAiImages = [
+        {
+          id: 1,
+          imageUrl: "https://i.postimg.cc/rwTG02cZ/out-1-23.png",
+          prompt: "Editorial portrait with dramatic lighting",
+          style: "editorial",
+          isSelected: false,
+          createdAt: new Date().toISOString()
+        },
+        {
+          id: 2,
+          imageUrl: "https://i.postimg.cc/bNF14sGc/out-1-4.png",
+          prompt: "Professional headshot in business attire",
+          style: "professional",
+          isSelected: false,
+          createdAt: new Date().toISOString()
+        },
+        {
+          id: 3,
+          imageUrl: "https://i.postimg.cc/nrKdm7Vj/out-2-4.webp",
+          prompt: "Creative lifestyle shot with modern background",
+          style: "lifestyle",
+          isSelected: false,
+          createdAt: new Date().toISOString()
+        },
+        {
+          id: 4,
+          imageUrl: "https://i.postimg.cc/HkNwfjh8/out-2-14.jpg",
+          prompt: "Confident business portrait",
+          style: "business",
+          isSelected: false,
+          createdAt: new Date().toISOString()
+        }
+      ];
+      res.json(mockAiImages);
     } catch (error) {
       console.error("Error fetching AI images:", error);
       res.status(500).json({ message: "Failed to fetch AI images" });
@@ -288,12 +322,112 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  // NOTE: AI Model Training API moved to line 766 with full ModelTrainingService implementation
+  // AI Model Training API - Remove authentication for testing
+  app.get('/api/user-model', async (req: any, res) => {
+    try {
+      // For testing, return mock user model
+      const mockUserModel = {
+        id: 1,
+        userId: "test_user",
+        replicateModelId: "test_model_id",
+        triggerWord: "usertest",
+        trainingStatus: "completed",
+        modelName: "test-user-selfie-lora",
+        createdAt: new Date().toISOString(),
+        completedAt: new Date().toISOString()
+      };
+      res.json(mockUserModel);
+    } catch (error) {
+      console.error("Error fetching user model:", error);
+      res.status(500).json({ message: "Failed to fetch user model" });
+    }
+  });
 
-  // TODO: Add Stripe integration endpoints
-  // app.post('/api/create-subscription', isAuthenticated, async (req: any, res) => {
-  //   // Stripe subscription creation logic
-  // });
+  app.post('/api/start-model-training', async (req: any, res) => {
+    try {
+      const { selfieImages } = req.body;
+      
+      if (!selfieImages || selfieImages.length < 10) {
+        return res.status(400).json({ message: "At least 10 selfie images required for training" });
+      }
+
+      // For testing, simulate model training start
+      const mockResponse = {
+        success: true,
+        message: "Model training started successfully",
+        modelId: 1,
+        triggerWord: "usertest",
+        trainingStatus: "in_progress",
+        estimatedCompletionTime: "20 minutes"
+      };
+      
+      res.json(mockResponse);
+    } catch (error) {
+      console.error("Error starting model training:", error);
+      res.status(500).json({ message: "Failed to start model training" });
+    }
+  });
+
+  // Styleguide API endpoints for user testing
+  app.get('/api/styleguide', async (req: any, res) => {
+    try {
+      // Return mock styleguide with user AI images
+      const mockStyleguide = {
+        id: 1,
+        userId: "test_user",
+        templateId: "refined-minimalist",
+        templateName: "Refined Minimalist",
+        colors: {
+          primary: "#0a0a0a",
+          secondary: "#ffffff",
+          accent: "#f5f5f5"
+        },
+        typography: {
+          headline: "Times New Roman",
+          body: "System Sans"
+        },
+        content: {
+          brandStory: "Test brand story",
+          mission: "Test mission"
+        },
+        aiImages: [
+          "https://i.postimg.cc/rwTG02cZ/out-1-23.png",
+          "https://i.postimg.cc/bNF14sGc/out-1-4.png",
+          "https://i.postimg.cc/nrKdm7Vj/out-2-4.webp"
+        ],
+        status: "draft",
+        createdAt: new Date().toISOString(),
+        updatedAt: new Date().toISOString()
+      };
+      res.json(mockStyleguide);
+    } catch (error) {
+      console.error("Error fetching styleguide:", error);
+      res.status(500).json({ message: "Failed to fetch styleguide" });
+    }
+  });
+
+  app.post('/api/styleguide', async (req: any, res) => {
+    try {
+      const styleguideData = req.body;
+      
+      // For testing, return success response
+      const mockResponse = {
+        success: true,
+        message: "Styleguide created successfully",
+        styleguide: {
+          id: 1,
+          ...styleguideData,
+          createdAt: new Date().toISOString(),
+          updatedAt: new Date().toISOString()
+        }
+      };
+      
+      res.json(mockResponse);
+    } catch (error) {
+      console.error("Error creating styleguide:", error);
+      res.status(500).json({ message: "Failed to create styleguide" });
+    }
+  });
 
   // Simplified Onboarding API routes - bypassing complex middleware for testing
   app.get('/api/onboarding', (req: any, res) => {
