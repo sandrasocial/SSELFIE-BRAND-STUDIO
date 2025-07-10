@@ -76,7 +76,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     res.redirect('/workspace');
   });
 
-  // Simple logout endpoint
+  // Enhanced logout endpoints for testing
   app.get('/api/logout', (req: any, res) => {
     // Clear the test user session
     if (req.session) {
@@ -85,10 +85,43 @@ export async function registerRoutes(app: Express): Promise<Server> {
         if (err) {
           console.error('Session destruction error:', err);
         }
+        // Clear the cookie completely
+        res.clearCookie('connect.sid', {
+          path: '/',
+          httpOnly: true,
+          secure: false
+        });
         res.redirect('/');
       });
     } else {
       res.redirect('/');
+    }
+  });
+
+  // API endpoint for clearing session (for testing)
+  app.post('/api/clear-session', (req: any, res) => {
+    console.log('Clear session request received');
+    
+    if (req.session) {
+      req.session.destroy((err: any) => {
+        if (err) {
+          console.error('Session clear error:', err);
+          return res.status(500).json({ message: 'Session clear failed' });
+        }
+        
+        // Clear the session cookie completely
+        res.clearCookie('connect.sid', {
+          path: '/',
+          httpOnly: true,
+          secure: false,
+          sameSite: 'lax'
+        });
+        
+        console.log('Session cleared successfully');
+        res.json({ message: 'Session cleared - you can now test as a new user' });
+      });
+    } else {
+      res.json({ message: 'No session to clear' });
     }
   });
 
