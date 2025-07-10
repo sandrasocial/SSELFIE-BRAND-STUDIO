@@ -38,6 +38,7 @@ import Checkout from "@/pages/checkout";
 import ThankYou from "@/pages/thank-you";
 import AIGenerator from "@/pages/ai-generator";
 import SandraChat from "@/pages/sandra-chat";
+import AdminStyleguide from "@/pages/admin-styleguide";
 
 
 
@@ -109,6 +110,7 @@ function Router() {
           <Route path="/admin" component={AdminDashboard} />
           <Route path="/admin/progress" component={AdminProgress} />
           <Route path="/admin/roadmap" component={AdminRoadmap} />
+          <Route path="/admin/styleguide" component={AdminStyleguide} />
           <Route path="/sandbox" component={AgentSandbox} />
           <Route path="/pricing" component={Pricing} />
           <Route path="/workspace" component={Workspace} />
