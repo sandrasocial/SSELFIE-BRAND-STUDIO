@@ -2,6 +2,7 @@ import type { Express } from "express";
 import { createServer, type Server } from "http";
 import { storage } from "./storage";
 import { setupAuth, isAuthenticated } from "./replitAuth";
+import { registerStyleguideRoutes } from "./routes/styleguide-routes";
 import { UsageService } from './usage-service';
 import Anthropic from '@anthropic-ai/sdk';
 import { AgentSystem } from "./agents/agent-system";
@@ -558,6 +559,9 @@ You help users design and customize their ${context === 'dashboard-builder' ? 'p
 
   // Register Automation routes
   registerAutomationRoutes(app);
+
+  // Register Styleguide routes
+  registerStyleguideRoutes(app);
 
   // Test email endpoint (for development)
   app.post('/api/test-email', isAuthenticated, async (req: any, res) => {

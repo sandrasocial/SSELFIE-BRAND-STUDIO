@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { useAuth } from '@/hooks/useAuth';
+import StyleguidePreview from "@/components/styleguide-preview";
 import { useQuery } from '@tanstack/react-query';
 import { Link } from 'wouter';
 import { useToast } from '@/hooks/use-toast';

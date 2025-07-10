@@ -39,6 +39,8 @@ import ThankYou from "@/pages/thank-you";
 import AIGenerator from "@/pages/ai-generator";
 import SandraChat from "@/pages/sandra-chat";
 import AdminStyleguide from "@/pages/admin-styleguide";
+import UserStyleguide from "@/pages/user-styleguide";
+import StyleguideDemo from "@/pages/styleguide-demo";
 
 
 
@@ -111,6 +113,9 @@ function Router() {
           <Route path="/admin/progress" component={AdminProgress} />
           <Route path="/admin/roadmap" component={AdminRoadmap} />
           <Route path="/admin/styleguide" component={AdminStyleguide} />
+          <Route path="/styleguide" component={UserStyleguide} />
+          <Route path="/styleguide/:userId" component={UserStyleguide} />
+          <Route path="/styleguide-demo" component={StyleguideDemo} />
           <Route path="/sandbox" component={AgentSandbox} />
           <Route path="/pricing" component={Pricing} />
           <Route path="/workspace" component={Workspace} />

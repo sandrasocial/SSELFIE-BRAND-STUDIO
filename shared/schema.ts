@@ -346,3 +346,6 @@ export type UserUsage = typeof userUsage.$inferSelect;
 export type InsertUserUsage = typeof userUsage.$inferInsert;
 export type UsageHistory = typeof usageHistory.$inferSelect;
 export type InsertUsageHistory = typeof usageHistory.$inferInsert;
+
+// Export styleguide tables and types
+export * from "./styleguide-schema";
