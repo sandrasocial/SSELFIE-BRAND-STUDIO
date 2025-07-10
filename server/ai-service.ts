@@ -62,8 +62,8 @@ export class AIService {
 
     try {
       // Call FLUX model API
-      const fluxPrompt = this.buildFluxPrompt(style, prompt, userId);
-      const predictionId = await this.callFluxAPI(imageBase64, fluxPrompt);
+      const fluxPrompt = await this.buildFluxPrompt(style, prompt, userId);
+      const predictionId = await this.callFluxAPI(imageBase64, fluxPrompt, userId);
       
       // Update with prediction ID
       await storage.updateGeneratedImage(generatedImage.id, { 
@@ -187,14 +187,23 @@ export class AIService {
     console.log('Force updated generation with completed images:', aiImageId);
   }
 
-  private static buildFluxPrompt(style: string, customPrompt?: string, userId?: string): string {
+  private static async buildFluxPrompt(style: string, customPrompt?: string, userId?: string): Promise<string> {
     const basePrompt = FLUX_MODEL_CONFIG.styles[style] || FLUX_MODEL_CONFIG.styles.editorial;
     const qualityPrompt = FLUX_MODEL_CONFIG.qualityPrompts[style] || FLUX_MODEL_CONFIG.qualityPrompts.editorial;
     
-    // For demo: Use Sandra's trigger word "subject"
-    // For production: Each user would have unique trigger word like "user123" 
-    const triggerWord = FLUX_MODEL_CONFIG.demoTriggerWord;
-    // Production: const triggerWord = `user${userId.slice(-6)}`; // Unique per user
+    // Get user's trained model trigger word if available
+    let triggerWord = FLUX_MODEL_CONFIG.demoTriggerWord; // Default fallback
+    
+    if (userId) {
+      try {
+        const userModel = await storage.getUserModelByUserId(userId);
+        if (userModel && userModel.trainingStatus === 'completed') {
+          triggerWord = userModel.triggerWord; // Use user's unique trigger word
+        }
+      } catch (error) {
+        console.log('Using demo trigger word, user model not available:', error.message);
+      }
+    }
     
     const triggerPrompt = `${triggerWord}, SSELFIE style transformation`;
     
@@ -205,9 +214,23 @@ export class AIService {
     return `${triggerPrompt}, ${basePrompt}, ${qualityPrompt}`;
   }
 
-  private static async callFluxAPI(imageBase64: string, prompt: string): Promise<string> {
+  private static async callFluxAPI(imageBase64: string, prompt: string, userId?: string): Promise<string> {
     if (!process.env.REPLICATE_API_TOKEN) {
       throw new Error('REPLICATE_API_TOKEN not configured');
+    }
+
+    // Determine which model to use
+    let modelId = FLUX_MODEL_CONFIG.demoModelId; // Default to Sandra's model
+    
+    if (userId) {
+      try {
+        const userModel = await storage.getUserModelByUserId(userId);
+        if (userModel && userModel.trainingStatus === 'completed' && userModel.modelUrl) {
+          modelId = userModel.modelUrl; // Use user's trained model
+        }
+      } catch (error) {
+        console.log('Using demo model, user model not available:', error.message);
+      }
     }
 
     const response = await fetch(FLUX_MODEL_CONFIG.apiUrl, {
@@ -217,17 +240,17 @@ export class AIService {
         'Content-Type': 'application/json',
       },
       body: JSON.stringify({
-        model: FLUX_MODEL_CONFIG.demoModelId, // Currently Sandra's model for demo
+        version: "a31d246656f2cec416d6d895d11cbb0b4b7b8eb2719fac75cf7d73c441b08f36", // FLUX.1 dev
         input: {
           image: `data:image/jpeg;base64,${imageBase64}`,
           prompt: prompt,
-          guidance_scale: 3.5, // Lower value for more realistic images
-          num_inference_steps: 28, // Optimal for dev model
+          guidance_scale: 2.7, // Optimal for photorealistic results
+          num_inference_steps: 32, // Better quality
           num_outputs: 4, // Generate multiple options for user selection
-          lora_scale: 0.8, // Good balance for LoRA application
+          lora_scale: 1.0, // Full LoRA application
           aspect_ratio: "1:1", // Square format for SSELFIE
-          output_format: "webp",
-          output_quality: 90,
+          output_format: "png",
+          output_quality: 100,
           model: "dev", // Use dev model for better quality
           seed: Math.floor(Math.random() * 1000000)
         }
