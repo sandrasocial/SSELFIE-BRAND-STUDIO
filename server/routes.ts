@@ -550,26 +550,42 @@ export async function registerRoutes(app: Express): Promise<Server> {
       console.log('POST /api/onboarding - saving data for user:', userId);
       console.log('Received data:', JSON.stringify(req.body, null, 2));
       
-      // Check if user already has onboarding data
-      const existingData = await storage.getUserOnboardingData(userId);
-      
-      let savedData;
-      if (existingData) {
-        // Update existing onboarding data
-        savedData = await storage.updateOnboardingData(userId, req.body);
-        console.log('Updated existing onboarding data');
-      } else {
-        // Create new onboarding data
-        const onboardingData = {
-          userId,
-          ...req.body
-        };
-        savedData = await storage.createOnboardingData(onboardingData);
-        console.log('Created new onboarding data');
+      try {
+        // Check if user already has onboarding data
+        const existingData = await storage.getUserOnboardingData(userId);
+        console.log('Existing data check result:', existingData ? 'found' : 'not found');
+        
+        let savedData;
+        if (existingData) {
+          // Update existing onboarding data
+          console.log('Updating existing onboarding data...');
+          savedData = await storage.updateOnboardingData(userId, req.body);
+          console.log('Updated existing onboarding data successfully');
+        } else {
+          // Create new onboarding data
+          console.log('Creating new onboarding data...');
+          const onboardingData = {
+            userId,
+            ...req.body
+          };
+          savedData = await storage.createOnboardingData(onboardingData);
+          console.log('Created new onboarding data successfully');
+        }
+        
+        console.log('Onboarding data saved successfully:', savedData);
+        res.json(savedData);
+      } catch (dbError) {
+        console.error('Database operation failed:', dbError);
+        console.error('Error details:', dbError.message);
+        console.error('Stack trace:', dbError.stack);
+        
+        // Return detailed error for debugging
+        res.status(500).json({ 
+          message: "Database save failed", 
+          error: dbError.message,
+          details: process.env.NODE_ENV === 'development' ? dbError.stack : undefined
+        });
       }
-      
-      console.log('Onboarding data saved successfully:', savedData);
-      res.json(savedData);
     } catch (error) {
       console.error('Error saving onboarding data:', error);
       res.status(500).json({ message: "Failed to save onboarding data" });
