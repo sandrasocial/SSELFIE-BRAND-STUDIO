@@ -37,6 +37,7 @@ export const Navigation: React.FC = () => {
 
   // Pre-login navigation - public pages
   const publicNavItems = [
+    { path: '/', label: 'HOME' },
     { path: '/about', label: 'ABOUT' },
     { path: '/how-it-works', label: 'HOW IT WORKS' },
     { path: '/blog', label: 'BLOG' },
