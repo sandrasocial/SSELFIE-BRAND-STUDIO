@@ -81,12 +81,12 @@ export function EnhancedNavigation() {
                 <div className="text-xs text-[#666666]">
                   {user?.firstName || 'Member'}
                 </div>
-                <a
-                  href="/api/logout"
-                  className="text-xs uppercase tracking-wider text-[#666666] hover:text-[#0a0a0a] transition-colors"
+                <button
+                  onClick={() => window.location.href = '/api/logout'}
+                  className="text-xs uppercase tracking-wider text-[#666666] hover:text-[#0a0a0a] transition-colors bg-transparent border-none cursor-pointer"
                 >
                   Logout
-                </a>
+                </button>
               </div>
             ) : (
               <div className="flex items-center space-x-6">
@@ -149,12 +149,12 @@ export function EnhancedNavigation() {
                   <div className="text-xs text-[#666666] mb-2">
                     {user?.firstName || 'Member'}
                   </div>
-                  <a
-                    href="/api/logout"
-                    className="block text-xs uppercase tracking-wider text-[#666666]"
+                  <button
+                    onClick={() => window.location.href = '/api/logout'}
+                    className="block text-xs uppercase tracking-wider text-[#666666] bg-transparent border-none cursor-pointer text-left w-full"
                   >
                     Logout
-                  </a>
+                  </button>
                 </div>
               ) : (
                 <div className="pt-4 border-t border-[#e5e5e5] space-y-2">
