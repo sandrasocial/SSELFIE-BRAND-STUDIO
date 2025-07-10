@@ -2,7 +2,7 @@ import React, { useEffect } from 'react';
 import { Navigation } from '@/components/navigation';
 import { HeroFullBleed } from '@/components/HeroFullBleed';
 import { SandraImages } from '@/lib/sandra-images';
-import { useAuth } from '@/hooks/useAuth';
+import { useAuth } from '@/hooks/use-auth';
 import { Link, useLocation } from 'wouter';
 import { useToast } from '@/hooks/use-toast';
 import { apiRequest } from '@/lib/queryClient';

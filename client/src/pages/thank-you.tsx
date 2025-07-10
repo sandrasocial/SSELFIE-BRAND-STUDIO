@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react';
 import { Navigation } from '@/components/navigation';
 import { HeroFullBleed } from '@/components/HeroFullBleed';
 import { SandraImages } from '@/lib/sandra-images';
-import { useAuth } from '@/hooks/useAuth';
+import { useAuth } from '@/hooks/use-auth';
 import { Link } from 'wouter';
 
 export default function ThankYou() {

@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { Navigation } from '@/components/navigation';
-import { useAuth } from '@/hooks/useAuth';
+import { useAuth } from '@/hooks/use-auth';
 
 interface AgentResponse {
   agent: string;

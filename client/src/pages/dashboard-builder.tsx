@@ -6,7 +6,7 @@ import { SandraAiChat } from '@/components/sandra-ai-chat';
 import { SandraImages } from '@/lib/sandra-images';
 import { DashboardPreview, TemplateSelector, dashboardTemplates } from '@/components/dashboard/DashboardTemplates';
 import { WidgetSelector, PhotoUpload, availableWidgets } from '@/components/dashboard/DashboardWidgets';
-import { useAuth } from '@/hooks/useAuth';
+import { useAuth } from '@/hooks/use-auth';
 
 interface DashboardBuilderProps {}
 
