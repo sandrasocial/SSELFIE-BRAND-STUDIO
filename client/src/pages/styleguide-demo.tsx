@@ -102,8 +102,8 @@ export default function StyleguideDemo() {
                 that become each user's visual brand bible.
               </p>
               <p>
-                <strong>Three Templates Integrated:</strong> "Refined Minimalist" (clean sophistication), 
-                "Bold Femme" (strong, confident design with earthy tones), and "Coastal Luxury" (elegant coastal sophistication with Playfair Display typography).
+                <strong>Four Templates Integrated:</strong> "Refined Minimalist" (clean sophistication), 
+                "Bold Femme" (strong, confident design), "Coastal Luxury" (elegant coastal sophistication), and "Cozy Comfort" (warm, nurturing design with soft beige tones).
               </p>
               <p>
                 Users can chat with SANDRA to request changes, try different templates, 
@@ -119,7 +119,7 @@ export default function StyleguideDemo() {
               <div className="space-y-4 text-base font-light">
                 <div className="flex items-start">
                   <div className="w-4 h-4 bg-black mr-4 mt-1 flex-shrink-0"></div>
-                  <div>3 of 5 styleguide templates operational (Refined Minimalist, Bold Femme, Coastal Luxury)</div>
+                  <div>4 of 5 styleguide templates operational (Refined Minimalist, Bold Femme, Coastal Luxury, Cozy Comfort)</div>
                 </div>
                 <div className="flex items-start">
                   <div className="w-4 h-4 bg-black mr-4 mt-1 flex-shrink-0"></div>

@@ -4,6 +4,7 @@ import { isAuthenticated } from "../replitAuth";
 import { minimalisticTemplate } from "../../shared/templates/template-minimalistic";
 import { boldTemplate } from "../../shared/templates/template-bold";
 import { sophisticatedTemplate } from "../../shared/templates/template-sophisticated";
+import { warmBeigeTemplate } from "../../shared/templates/template-warm-beige";
 
 export function registerStyleguideRoutes(app: Express) {
   // Get user's styleguide - DEMO VERSION with mock data
@@ -100,7 +101,8 @@ export function registerStyleguideRoutes(app: Express) {
       const templates = [
         minimalisticTemplate,
         boldTemplate,
-        sophisticatedTemplate
+        sophisticatedTemplate,
+        warmBeigeTemplate
         // Add more templates as they are implemented
       ];
       res.json(templates);
@@ -129,7 +131,7 @@ export function registerStyleguideRoutes(app: Express) {
         userId,
         onboardingData,
         currentStyleguide,
-        availableTemplates: [minimalisticTemplate, boldTemplate, sophisticatedTemplate]
+        availableTemplates: [minimalisticTemplate, boldTemplate, sophisticatedTemplate, warmBeigeTemplate]
       });
       
       res.json(response);
@@ -203,6 +205,12 @@ function selectTemplateForUser(onboardingData: any, templates: any[]): any {
       lowerInput.includes('coastal') || lowerInput.includes('premium') || lowerInput.includes('serene') ||
       lowerInput.includes('consultant') || lowerInput.includes('timeless')) {
     return templates.find(t => t.id === 'sophisticated') || templates[0];
+  }
+  
+  if (lowerInput.includes('warm') || lowerInput.includes('cozy') || lowerInput.includes('nurturing') || 
+      lowerInput.includes('comfortable') || lowerInput.includes('homey') || lowerInput.includes('gentle') ||
+      lowerInput.includes('lifestyle') || lowerInput.includes('inviting') || lowerInput.includes('supportive')) {
+    return templates.find(t => t.id === 'warm-beige') || templates[0];
   }
   
   if (lowerInput.includes('minimal') || lowerInput.includes('clean') || lowerInput.includes('simple') || 
