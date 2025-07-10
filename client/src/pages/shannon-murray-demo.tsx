@@ -12,21 +12,13 @@ export default function ShannonMurrayDemo() {
   };
 
   const coastalImages = {
-    hero: 'https://i.postimg.cc/FsJFsKvn/115.png',
-    portrait1: 'https://i.postimg.cc/sXqXwGy7/131.png',
-    portrait2: 'https://i.postimg.cc/JhyCK6hY/148.png',
-    meditation1: 'https://i.postimg.cc/httBQPRB/147.png',
-    lifestyle1: 'https://i.postimg.cc/DyzjqW0B/175.png',
-    lifestyle2: 'https://i.postimg.cc/nV3p1DFW/3.png',
-    soundbowl1: 'https://i.postimg.cc/ZRvSVfwK/423.png',
-    nature1: 'https://i.postimg.cc/KYpCMnr7/46.png',
-    nature2: 'https://i.postimg.cc/FFLwYkfc/50.png',
-    flatlay1: 'https://i.postimg.cc/0yQfJht3/72.png',
-    flatlay2: 'https://i.postimg.cc/d0Zj5rcj/75.png',
-    peaceful1: 'https://i.postimg.cc/MpCQKLg1/94.png',
-    peaceful2: 'https://i.postimg.cc/rw04TTZ8/92.png',
-    serene: 'https://i.postimg.cc/qvXDHWmZ/20.png',
-    background: 'https://i.postimg.cc/NG79bW1J/92.png'
+    hero: 'https://i.postimg.cc/2SFWHG1Y/11.png',
+    portrait1: 'https://i.postimg.cc/qvXDHWmZ/20.png',
+    meditation1: 'https://i.postimg.cc/CK7jK707/3.png',
+    lifestyle1: 'https://i.postimg.cc/m2ZtSHvz/56.png',
+    peaceful1: 'https://i.postimg.cc/jSL2prdR/58.png',
+    nature1: 'https://i.postimg.cc/hGmjGbdw/60.png',
+    flatlay1: 'https://i.postimg.cc/pL4rx1pz/59.png'
   };
 
   if (isSubmitted) {
@@ -83,62 +75,104 @@ export default function ShannonMurrayDemo() {
     <div className="min-h-screen bg-white">
       <Navigation />
       
-      {/* Hero Section */}
-      <section className="relative min-h-screen flex items-center">
+      {/* Full-Bleed Hero Section */}
+      <section className="relative h-screen overflow-hidden">
         <div 
           className="absolute inset-0 bg-cover bg-center bg-no-repeat"
           style={{ backgroundImage: `url(${coastalImages.hero})` }}
         >
-          <div className="absolute inset-0 bg-white bg-opacity-40"></div>
+          <div className="absolute inset-0 bg-black bg-opacity-30"></div>
         </div>
         
-        <div className="relative z-10 max-w-6xl mx-auto px-4 py-20">
-          <div className="max-w-3xl">
-            <div className="mb-8">
-              <div className="text-xs uppercase tracking-[0.3em] text-[#7ba3a0] mb-4 font-light">
-                SHANNON MURRAY
-              </div>
-              
-              <h1 className="text-5xl md:text-7xl font-light mb-8 text-[#2c5f5d] leading-none" style={{ fontFamily: 'Times New Roman, serif' }}>
-                SOUL RESETS
-              </h1>
-              
-              <p className="text-xl md:text-2xl font-light text-[#5a7c7a] mb-12 leading-relaxed">
-                Transform your sleep and mornings with guided sound healing meditations. 
-                Find peace in the chaos, one breath at a time.
-              </p>
+        {/* Hero Content */}
+        <div className="relative z-10 h-full flex flex-col justify-center items-center text-center px-4">
+          <div className="max-w-5xl mx-auto">
+            <div className="text-xs uppercase tracking-[0.4em] text-white mb-6 font-light opacity-90">
+              SHANNON MURRAY
             </div>
             
-            {/* Email Capture Form */}
-            <div className="bg-white bg-opacity-90 p-8 max-w-md">
-              <h3 className="text-2xl font-light mb-4 text-[#2c5f5d]" style={{ fontFamily: 'Times New Roman, serif' }}>
-                GET YOUR FREE MEDITATION BUNDLE
-              </h3>
+            <h1 className="text-8xl md:text-9xl font-light text-white leading-none mb-12" style={{ fontFamily: 'Times New Roman, serif', letterSpacing: '0.1em' }}>
+              SOUL RESETS
+            </h1>
+            
+            <p className="text-xl md:text-2xl font-light text-white mb-16 leading-relaxed opacity-95 max-w-3xl mx-auto">
+              Transform your sleep and mornings with guided sound healing meditations
+            </p>
+          </div>
+        </div>
+        
+        {/* Scroll Indicator */}
+        <div className="absolute bottom-8 left-1/2 transform -translate-x-1/2">
+          <div className="text-white text-xs uppercase tracking-wider opacity-70">
+            SCROLL TO TRANSFORM
+          </div>
+        </div>
+      </section>
+
+      {/* Email Capture Section with Image Overlay */}
+      <section className="relative py-0">
+        <div className="grid md:grid-cols-2 min-h-screen">
+          {/* Left - Image */}
+          <div 
+            className="relative bg-cover bg-center"
+            style={{ backgroundImage: `url(${coastalImages.meditation1})` }}
+          >
+            <div className="absolute inset-0 bg-black bg-opacity-20"></div>
+          </div>
+          
+          {/* Right - Form */}
+          <div className="bg-[#f8faf9] flex items-center justify-center p-8 md:p-16">
+            <div className="max-w-md w-full">
+              <h2 className="text-4xl md:text-5xl font-light mb-6 text-[#2c5f5d] leading-tight" style={{ fontFamily: 'Times New Roman, serif' }}>
+                YOUR FREE MEDITATION BUNDLE
+              </h2>
               
-              <p className="text-sm text-[#5a7c7a] mb-6 font-light">
-                Download my signature sleep & morning meditations. No spam, just healing.
+              <p className="text-lg text-[#5a7c7a] mb-8 font-light leading-relaxed">
+                Download my signature sleep & morning meditations. 
+                <br />No spam, just healing.
               </p>
               
-              <form onSubmit={handleSubmit} className="space-y-4">
+              <form onSubmit={handleSubmit} className="space-y-6">
                 <input
                   type="email"
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
                   placeholder="Enter your email address"
                   required
-                  className="w-full px-4 py-3 border border-[#e0e8e7] focus:outline-none focus:border-[#7ba3a0] text-[#2c5f5d]"
+                  className="w-full px-6 py-4 text-lg border-0 border-b-2 border-[#e0e8e7] focus:outline-none focus:border-[#2c5f5d] bg-transparent text-[#2c5f5d] placeholder-[#7ba3a0]"
                 />
                 
                 <button
                   type="submit"
-                  className="w-full bg-[#2c5f5d] text-white py-3 px-6 text-sm uppercase tracking-wider font-light hover:bg-[#1e4341] transition-colors"
+                  className="w-full bg-[#2c5f5d] text-white py-4 px-8 text-sm uppercase tracking-[0.2em] font-light hover:bg-[#1e4341] transition-all duration-300"
                 >
-                  SEND MY MEDITATIONS
+                  DOWNLOAD FREE MEDITATIONS
                 </button>
               </form>
               
-              <div className="mt-4 text-xs text-[#7ba3a0] font-light">
+              <div className="mt-6 text-sm text-[#7ba3a0] font-light">
                 Join 2,000+ souls finding peace through sound healing
+              </div>
+              
+              {/* What's Included */}
+              <div className="mt-12 pt-8 border-t border-[#e0e8e7]">
+                <h3 className="text-lg font-light mb-4 text-[#2c5f5d]" style={{ fontFamily: 'Times New Roman, serif' }}>
+                  What You'll Receive:
+                </h3>
+                <div className="space-y-3">
+                  <div className="flex items-center">
+                    <div className="w-1 h-1 bg-[#7ba3a0] mr-4"></div>
+                    <span className="text-[#5a7c7a] font-light">Sleep Meditation (20 minutes)</span>
+                  </div>
+                  <div className="flex items-center">
+                    <div className="w-1 h-1 bg-[#7ba3a0] mr-4"></div>
+                    <span className="text-[#5a7c7a] font-light">Morning Meditation (15 minutes)</span>
+                  </div>
+                  <div className="flex items-center">
+                    <div className="w-1 h-1 bg-[#7ba3a0] mr-4"></div>
+                    <span className="text-[#5a7c7a] font-light">Bonus: 5-Minute Reset</span>
+                  </div>
+                </div>
               </div>
             </div>
           </div>
@@ -146,15 +180,32 @@ export default function ShannonMurrayDemo() {
       </section>
 
       {/* About Section */}
-      <section className="py-20 bg-[#f8faf9]">
+      <section className="py-32">
         <div className="max-w-6xl mx-auto px-4">
-          <div className="grid md:grid-cols-2 gap-16 items-center">
+          <div className="grid md:grid-cols-2 gap-24 items-center">
+            <div className="space-y-8">
+              <img 
+                src={coastalImages.portrait1} 
+                alt="Shannon Murray" 
+                className="w-full h-96 object-cover"
+              />
+              <img 
+                src={coastalImages.nature1} 
+                alt="Sound healing practice" 
+                className="w-full h-64 object-cover"
+              />
+            </div>
+            
             <div>
-              <h2 className="text-4xl font-light mb-8 text-[#2c5f5d]" style={{ fontFamily: 'Times New Roman, serif' }}>
+              <div className="text-xs uppercase tracking-[0.3em] text-[#7ba3a0] mb-6 font-light">
+                THE HEALER
+              </div>
+              
+              <h2 className="text-5xl font-light mb-12 text-[#2c5f5d] leading-tight" style={{ fontFamily: 'Times New Roman, serif' }}>
                 HEALING THROUGH SOUND
               </h2>
               
-              <div className="space-y-6 text-[#5a7c7a] font-light leading-relaxed">
+              <div className="space-y-8 text-lg text-[#5a7c7a] font-light leading-relaxed">
                 <p>
                   After years of struggling with anxiety and sleepless nights, I discovered the 
                   transformative power of sound healing. Now I guide others to find their own 
@@ -167,57 +218,55 @@ export default function ShannonMurrayDemo() {
                   recordings will become your daily sanctuary.
                 </p>
                 
-                <div className="pt-4">
-                  <div className="text-sm uppercase tracking-wider text-[#7ba3a0] mb-2">
+                <div className="pt-8 border-t border-[#e0e8e7]">
+                  <div className="text-sm uppercase tracking-[0.2em] text-[#7ba3a0] mb-2 font-light">
                     SHANNON MURRAY
                   </div>
-                  <div className="text-sm text-[#5a7c7a]">
+                  <div className="text-base text-[#5a7c7a] font-light">
                     Certified Sound Healer & Meditation Guide
                   </div>
                 </div>
               </div>
             </div>
-            
-            <div className="space-y-6">
-              <img 
-                src={coastalImages.portrait1} 
-                alt="Shannon Murray" 
-                className="w-full h-64 object-cover"
-              />
-              <img 
-                src={coastalImages.soundbowl1} 
-                alt="Sound healing tools" 
-                className="w-full h-48 object-cover"
-              />
-            </div>
           </div>
         </div>
       </section>
 
-      {/* What You'll Receive */}
-      <section className="py-20">
-        <div className="max-w-6xl mx-auto px-4">
-          <div className="text-center mb-16">
-            <h2 className="text-4xl font-light mb-6 text-[#2c5f5d]" style={{ fontFamily: 'Times New Roman, serif' }}>
+      {/* Meditation Bundle Grid */}
+      <section className="py-32 bg-[#f8faf9]">
+        <div className="max-w-7xl mx-auto px-4">
+          <div className="text-center mb-20">
+            <div className="text-xs uppercase tracking-[0.3em] text-[#7ba3a0] mb-6 font-light">
+              THE BUNDLE
+            </div>
+            <h2 className="text-5xl md:text-6xl font-light mb-8 text-[#2c5f5d] leading-tight" style={{ fontFamily: 'Times New Roman, serif' }}>
               YOUR MEDITATION BUNDLE
             </h2>
-            <p className="text-lg text-[#5a7c7a] max-w-2xl mx-auto font-light">
+            <p className="text-xl text-[#5a7c7a] max-w-3xl mx-auto font-light leading-relaxed">
               Three carefully crafted meditations to transform your sleep and morning routine
             </p>
           </div>
           
-          <div className="grid md:grid-cols-3 gap-8">
+          <div className="grid md:grid-cols-3 gap-12">
             {/* Sleep Meditation */}
-            <div className="text-center">
-              <img 
-                src={coastalImages.meditation1} 
-                alt="Sleep meditation" 
-                className="w-full h-48 object-cover mb-6"
-              />
-              <h3 className="text-xl font-light mb-4 text-[#2c5f5d]" style={{ fontFamily: 'Times New Roman, serif' }}>
+            <div className="group">
+              <div className="relative overflow-hidden mb-8">
+                <img 
+                  src={coastalImages.lifestyle1} 
+                  alt="Sleep meditation" 
+                  className="w-full h-80 object-cover transition-transform duration-500 group-hover:scale-105"
+                />
+                <div className="absolute inset-0 bg-black bg-opacity-20"></div>
+                <div className="absolute top-6 left-6">
+                  <div className="text-xs uppercase tracking-[0.2em] text-white font-light opacity-90">
+                    01
+                  </div>
+                </div>
+              </div>
+              <h3 className="text-2xl font-light mb-4 text-[#2c5f5d]" style={{ fontFamily: 'Times New Roman, serif' }}>
                 DEEP SLEEP MEDITATION
               </h3>
-              <div className="text-sm uppercase tracking-wider text-[#7ba3a0] mb-3">
+              <div className="text-sm uppercase tracking-[0.2em] text-[#7ba3a0] mb-4 font-light">
                 20 MINUTES
               </div>
               <p className="text-[#5a7c7a] font-light leading-relaxed">
@@ -226,16 +275,24 @@ export default function ShannonMurrayDemo() {
             </div>
             
             {/* Morning Meditation */}
-            <div className="text-center">
-              <img 
-                src={coastalImages.peaceful1} 
-                alt="Morning meditation" 
-                className="w-full h-48 object-cover mb-6"
-              />
-              <h3 className="text-xl font-light mb-4 text-[#2c5f5d]" style={{ fontFamily: 'Times New Roman, serif' }}>
+            <div className="group">
+              <div className="relative overflow-hidden mb-8">
+                <img 
+                  src={coastalImages.peaceful1} 
+                  alt="Morning meditation" 
+                  className="w-full h-80 object-cover transition-transform duration-500 group-hover:scale-105"
+                />
+                <div className="absolute inset-0 bg-black bg-opacity-20"></div>
+                <div className="absolute top-6 left-6">
+                  <div className="text-xs uppercase tracking-[0.2em] text-white font-light opacity-90">
+                    02
+                  </div>
+                </div>
+              </div>
+              <h3 className="text-2xl font-light mb-4 text-[#2c5f5d]" style={{ fontFamily: 'Times New Roman, serif' }}>
                 MORNING AWAKENING
               </h3>
-              <div className="text-sm uppercase tracking-wider text-[#7ba3a0] mb-3">
+              <div className="text-sm uppercase tracking-[0.2em] text-[#7ba3a0] mb-4 font-light">
                 15 MINUTES
               </div>
               <p className="text-[#5a7c7a] font-light leading-relaxed">
@@ -244,17 +301,25 @@ export default function ShannonMurrayDemo() {
             </div>
             
             {/* Bonus Reset */}
-            <div className="text-center">
-              <img 
-                src={coastalImages.nature1} 
-                alt="Quick reset" 
-                className="w-full h-48 object-cover mb-6"
-              />
-              <h3 className="text-xl font-light mb-4 text-[#2c5f5d]" style={{ fontFamily: 'Times New Roman, serif' }}>
+            <div className="group">
+              <div className="relative overflow-hidden mb-8">
+                <img 
+                  src={coastalImages.flatlay1} 
+                  alt="Quick reset" 
+                  className="w-full h-80 object-cover transition-transform duration-500 group-hover:scale-105"
+                />
+                <div className="absolute inset-0 bg-black bg-opacity-20"></div>
+                <div className="absolute top-6 left-6">
+                  <div className="text-xs uppercase tracking-[0.2em] text-white font-light opacity-90">
+                    BONUS
+                  </div>
+                </div>
+              </div>
+              <h3 className="text-2xl font-light mb-4 text-[#2c5f5d]" style={{ fontFamily: 'Times New Roman, serif' }}>
                 INSTANT RESET
               </h3>
-              <div className="text-sm uppercase tracking-wider text-[#7ba3a0] mb-3">
-                5 MINUTES • BONUS
+              <div className="text-sm uppercase tracking-[0.2em] text-[#7ba3a0] mb-4 font-light">
+                5 MINUTES
               </div>
               <p className="text-[#5a7c7a] font-light leading-relaxed">
                 Quick centering practice for overwhelming moments throughout your day
@@ -265,77 +330,23 @@ export default function ShannonMurrayDemo() {
       </section>
 
       {/* Testimonial Section */}
-      <section className="py-20 bg-[#f8faf9]">
-        <div className="max-w-4xl mx-auto px-4 text-center">
-          <div className="mb-8">
-            <img 
-              src={coastalImages.lifestyle1} 
-              alt="Peaceful moment" 
-              className="w-24 h-24 object-cover mx-auto mb-8"
-              style={{ clipPath: 'circle(50%)' }}
-            />
+      <section className="py-32">
+        <div className="max-w-5xl mx-auto px-4 text-center">
+          <div className="mb-16">
+            <div className="text-xs uppercase tracking-[0.3em] text-[#7ba3a0] mb-6 font-light">
+              CLIENT LOVE
+            </div>
           </div>
           
-          <blockquote className="text-2xl font-light text-[#2c5f5d] mb-8 leading-relaxed" style={{ fontFamily: 'Times New Roman, serif' }}>
+          <blockquote className="text-3xl md:text-4xl font-light text-[#2c5f5d] mb-12 leading-relaxed max-w-4xl mx-auto" style={{ fontFamily: 'Times New Roman, serif' }}>
             "Shannon's meditations have transformed my relationship with sleep. I actually look forward to bedtime now."
           </blockquote>
           
-          <div className="text-sm uppercase tracking-wider text-[#7ba3a0] mb-2">
+          <div className="text-sm uppercase tracking-[0.2em] text-[#7ba3a0] mb-2 font-light">
             SARAH M.
           </div>
-          <div className="text-sm text-[#5a7c7a]">
+          <div className="text-base text-[#5a7c7a] font-light">
             Busy Mom & Entrepreneur
-          </div>
-        </div>
-      </section>
-
-      {/* Final CTA */}
-      <section className="py-20">
-        <div className="max-w-4xl mx-auto px-4 text-center">
-          <h2 className="text-4xl font-light mb-6 text-[#2c5f5d]" style={{ fontFamily: 'Times New Roman, serif' }}>
-            READY TO TRANSFORM YOUR SLEEP?
-          </h2>
-          
-          <p className="text-lg text-[#5a7c7a] mb-12 font-light max-w-2xl mx-auto">
-            Join thousands who've discovered the power of sound healing. Your free meditation bundle is waiting.
-          </p>
-          
-          <div className="bg-white border border-[#e0e8e7] p-8 max-w-md mx-auto">
-            <form onSubmit={handleSubmit} className="space-y-4">
-              <input
-                type="email"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                placeholder="Enter your email address"
-                required
-                className="w-full px-4 py-3 border border-[#e0e8e7] focus:outline-none focus:border-[#7ba3a0] text-[#2c5f5d]"
-              />
-              
-              <button
-                type="submit"
-                className="w-full bg-[#2c5f5d] text-white py-3 px-6 text-sm uppercase tracking-wider font-light hover:bg-[#1e4341] transition-colors"
-              >
-                DOWNLOAD FREE MEDITATIONS
-              </button>
-            </form>
-            
-            <div className="mt-4 text-xs text-[#7ba3a0] font-light">
-              No spam. Just healing. Unsubscribe anytime.
-            </div>
-          </div>
-        </div>
-      </section>
-
-      {/* Image Gallery Footer */}
-      <section className="py-12 bg-[#f8faf9]">
-        <div className="max-w-6xl mx-auto px-4">
-          <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-4">
-            <img src={coastalImages.nature2} alt="Gallery 1" className="w-full h-24 object-cover" />
-            <img src={coastalImages.flatlay1} alt="Gallery 2" className="w-full h-24 object-cover" />
-            <img src={coastalImages.peaceful2} alt="Gallery 3" className="w-full h-24 object-cover" />
-            <img src={coastalImages.serene} alt="Gallery 4" className="w-full h-24 object-cover" />
-            <img src={coastalImages.lifestyle2} alt="Gallery 5" className="w-full h-24 object-cover" />
-            <img src={coastalImages.flatlay2} alt="Gallery 6" className="w-full h-24 object-cover" />
           </div>
         </div>
       </section>
