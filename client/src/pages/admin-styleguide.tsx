@@ -88,7 +88,7 @@ export default function AdminStyleguide() {
                   <div>
                     <div className="text-xs uppercase tracking-widest text-white/60 mb-4">ALWAYS USE</div>
                     <ul className="space-y-2">
-                      <li>✓ Text characters (×, +, >, •)</li>
+                      <li>✓ Text characters (×, +, &gt;, •)</li>
                       <li>✓ Sharp edges</li>
                       <li>✓ Flat design</li>
                       <li>✓ Black/white palette</li>
@@ -266,7 +266,7 @@ export default function AdminStyleguide() {
                       <div className="text-xs">Add/Expand</div>
                     </div>
                     <div className="text-center">
-                      <div className="text-2xl mb-2">›</div>
+                      <div className="text-2xl mb-2">&rsaquo;</div>
                       <div className="text-xs">Next/Forward</div>
                     </div>
                     <div className="text-center">

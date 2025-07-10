@@ -10,6 +10,8 @@ import {
   generatedImages,
   brandbooks,
   userProfiles,
+  userStyleguides,
+  styleguideTemplates,
   type User,
   type UpsertUser,
   type Project,
@@ -32,6 +34,8 @@ import {
   type InsertBrandbook,
   type UserProfile,
   type InsertUserProfile,
+  type UserStyleguide,
+  type StyleguideTemplate,
   dashboards,
   type Dashboard,
   type UpsertDashboard,
@@ -50,6 +54,12 @@ import { eq, and, desc, gte } from "drizzle-orm";
 
 // Interface for storage operations
 export interface IStorage {
+  // Styleguide operations
+  getUserStyleguide(userId: string): Promise<UserStyleguide | undefined>;
+  createOrUpdateStyleguide(userId: string, styleguideData: any): Promise<UserStyleguide>;
+  getStyleguideTemplates(): Promise<StyleguideTemplate[]>;
+  getUserAIImages(userId: string): Promise<any[]>;
+  getUserUploadedImages(userId: string): Promise<any[]>;
   // User operations (required for Replit Auth)
   getUser(id: string): Promise<User | undefined>;
   upsertUser(user: UpsertUser): Promise<User>;
@@ -126,6 +136,50 @@ export interface IStorage {
 }
 
 export class DatabaseStorage implements IStorage {
+  // Styleguide operations
+  async getUserStyleguide(userId: string): Promise<UserStyleguide | undefined> {
+    const [styleguide] = await db.select().from(userStyleguides).where(eq(userStyleguides.userId, userId));
+    return styleguide;
+  }
+
+  async createOrUpdateStyleguide(userId: string, styleguideData: any): Promise<UserStyleguide> {
+    const existingStyleguide = await this.getUserStyleguide(userId);
+    
+    if (existingStyleguide) {
+      // Update existing styleguide
+      const [updated] = await db
+        .update(userStyleguides)
+        .set({
+          ...styleguideData,
+          updatedAt: new Date(),
+        })
+        .where(eq(userStyleguides.userId, userId))
+        .returning();
+      return updated;
+    } else {
+      // Create new styleguide
+      const [created] = await db
+        .insert(userStyleguides)
+        .values({
+          userId,
+          ...styleguideData,
+        })
+        .returning();
+      return created;
+    }
+  }
+
+  async getStyleguideTemplates(): Promise<StyleguideTemplate[]> {
+    return await db.select().from(styleguideTemplates);
+  }
+
+  async getUserAIImages(userId: string): Promise<any[]> {
+    return await db.select().from(generatedImages).where(eq(generatedImages.userId, userId));
+  }
+
+  async getUserUploadedImages(userId: string): Promise<any[]> {
+    return await db.select().from(selfieUploads).where(eq(selfieUploads.userId, userId));
+  }
   // User operations (required for Replit Auth)
   async getUser(id: string): Promise<User | undefined> {
     const [user] = await db.select().from(users).where(eq(users.id, id));
