@@ -49,17 +49,8 @@ export default function PaymentSuccess() {
         title="PAYMENT SUCCESSFUL"
         ctaText="Continue"
         onCtaClick={() => {
-          // Smart redirect based on onboarding status
-          apiRequest('GET', '/api/onboarding')
-            .then(response => response.json())
-            .then(data => {
-              if (data && data.completed) {
-                setLocation('/workspace');
-              } else {
-                setLocation('/onboarding');
-              }
-            })
-            .catch(() => setLocation('/onboarding'));
+          // After payment, users must complete onboarding before accessing studio
+          setLocation('/onboarding');
         }}
         fullHeight={false}
       />
@@ -110,17 +101,8 @@ export default function PaymentSuccess() {
         <div className="text-center mt-16">
           <button 
             onClick={() => {
-              // Smart redirect based on onboarding status or default to onboarding
-              apiRequest('GET', '/api/onboarding')
-                .then(response => response.json())
-                .then(data => {
-                  if (data && data.completed) {
-                    setLocation('/workspace');
-                  } else {
-                    setLocation('/onboarding');
-                  }
-                })
-                .catch(() => setLocation('/onboarding'));
+              // After payment, users must complete onboarding before accessing studio
+              setLocation('/onboarding');
             }}
             className="bg-[#0a0a0a] text-white px-8 py-4 text-xs uppercase tracking-wider hover:bg-[#333] transition-colors"
           >
