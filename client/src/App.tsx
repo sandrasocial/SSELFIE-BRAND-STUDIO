@@ -42,6 +42,7 @@ import UserStyleguide from "@/pages/user-styleguide";
 import StyleguideDemo from "@/pages/styleguide-demo";
 import StyleguideLandingBuilder from "@/pages/styleguide-landing-builder";
 import TemplateShowcase from "@/pages/template-showcase";
+import ShannonMurrayDemo from "@/pages/shannon-murray-demo";
 
 
 
@@ -139,6 +140,9 @@ function Router() {
       <Route path="/admin/roadmap" component={(props) => <ProtectedRoute component={AdminRoadmap} {...props} />} />
       <Route path="/admin/styleguide" component={(props) => <ProtectedRoute component={AdminStyleguide} {...props} />} />
       <Route path="/sandbox" component={(props) => <ProtectedRoute component={AgentSandbox} {...props} />} />
+      
+      {/* Demo Landing Pages */}
+      <Route path="/demo/shannon-murray" component={ShannonMurrayDemo} />
 
       <Route component={NotFound} />
     </Switch>
