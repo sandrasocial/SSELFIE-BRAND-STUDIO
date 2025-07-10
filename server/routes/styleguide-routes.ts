@@ -3,17 +3,75 @@ import { storage } from "../storage";
 import { isAuthenticated } from "../replitAuth";
 
 export function registerStyleguideRoutes(app: Express) {
-  // Get user's styleguide
+  // Get user's styleguide - DEMO VERSION with mock data
   app.get("/api/styleguide/:userId", async (req, res) => {
     try {
       const { userId } = req.params;
-      const styleguide = await storage.getUserStyleguide(userId);
       
-      if (!styleguide) {
-        return res.status(404).json({ message: "Styleguide not found" });
+      // Return demo styleguide for testing
+      if (userId === "demo123") {
+        const demoStyleguide = {
+          id: 1,
+          userId: "demo123",
+          templateId: "refined-minimal",
+          title: "Sarah Johnson",
+          subtitle: "Strategic Brand Consultant",
+          personalMission: "Empowering women entrepreneurs to build authentic, profitable brands that reflect their true essence and create meaningful impact in the world.",
+          brandVoice: "Warm, professional, and inspiring with an authentic, conversational tone that makes complex business concepts feel accessible and achievable.",
+          targetAudience: "Ambitious women entrepreneurs ready to elevate their brand and scale their business with authentic, strategic positioning.",
+          visualStyle: "Refined minimal with editorial sophistication",
+          colorPalette: {
+            primary: "#0a0a0a",
+            secondary: "#ffffff",
+            accent: "#f5f5f5",
+            neutral: "#666666"
+          },
+          typography: {
+            headline: "Times New Roman",
+            subheading: "Times New Roman", 
+            body: "System Sans-Serif",
+            accent: "System Sans-Serif"
+          },
+          imageSelections: {
+            heroImage: "https://i.postimg.cc/VLCFmXVr/1.png",
+            portraitImages: [
+              "https://i.postimg.cc/VLCFmXVr/1.png",
+              "https://i.postimg.cc/WpDyqFyj/10.png",
+              "https://i.postimg.cc/SRz1B3Hk/11.png"
+            ],
+            lifestyleImages: [
+              "https://i.postimg.cc/VLCFmXVr/1.png",
+              "https://i.postimg.cc/WpDyqFyj/10.png",
+              "https://i.postimg.cc/SRz1B3Hk/11.png",
+              "https://i.postimg.cc/VLCFmXVr/1.png"
+            ]
+          },
+          brandPersonality: {
+            traits: ["Authentic", "Professional", "Inspiring", "Strategic", "Warm", "Confident"],
+            keywords: ["Authentic", "Strategic", "Inspiring"],
+            vibe: "Refined Minimal Professional"
+          },
+          businessApplications: {
+            primaryService: "Strategic Brand Consulting",
+            priceRange: "Premium Investment",
+            clientExperience: "Transformational & Personal"
+          },
+          isActive: true,
+          createdAt: new Date().toISOString(),
+          updatedAt: new Date().toISOString()
+        };
+        
+        return res.json(demoStyleguide);
       }
       
-      res.json(styleguide);
+      // For real database when ready
+      // const styleguide = await storage.getUserStyleguide(userId);
+      // if (!styleguide) {
+      //   return res.status(404).json({ message: "Styleguide not found" });
+      // }
+      // res.json(styleguide);
+      
+      res.status(404).json({ message: "Styleguide not found" });
     } catch (error) {
       console.error("Error fetching styleguide:", error);
       res.status(500).json({ message: "Failed to fetch styleguide" });
