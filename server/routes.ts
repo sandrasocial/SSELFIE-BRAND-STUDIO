@@ -7,6 +7,7 @@ import { UsageService } from './usage-service';
 import Anthropic from '@anthropic-ai/sdk';
 import { AgentSystem } from "./agents/agent-system";
 import { insertProjectSchema, insertAiImageSchema } from "@shared/schema";
+import session from 'express-session';
 
 import { registerAiImageRoutes } from './routes/ai-images';
 import { registerCheckoutRoutes } from './routes/checkout';
@@ -22,16 +23,46 @@ const anthropic = new Anthropic({
 const DEFAULT_MODEL_STR = "claude-sonnet-4-20250514";
 
 export async function registerRoutes(app: Express): Promise<Server> {
+  // Set up basic session middleware FIRST for testing
+  app.use(session({
+    secret: process.env.SESSION_SECRET || 'test-secret-key-for-development',
+    resave: false,
+    saveUninitialized: false,
+    cookie: {
+      secure: false, // Allow HTTP for development
+      httpOnly: true,
+      maxAge: 24 * 60 * 60 * 1000 // 24 hours
+    }
+  }));
+
   // Temporary simple login endpoint for testing
-  app.get('/api/login', (req, res) => {
-    // For testing, directly redirect to workspace
-    // This bypasses the complex Replit Auth setup temporarily
+  app.get('/api/login', (req: any, res) => {
+    // Create test user session for authentication testing
+    const testUserId = "test" + Math.floor(Math.random() * 100000);
+    req.session.userId = testUserId;
+    req.session.userEmail = "testuser@example.com";
+    req.session.firstName = "Test";
+    req.session.lastName = "User";
+    req.session.createdAt = new Date().toISOString();
+    
+    console.log('Login: Created test user session:', testUserId);
     res.redirect('/workspace');
   });
 
   // Simple logout endpoint
-  app.get('/api/logout', (req, res) => {
-    res.redirect('/');
+  app.get('/api/logout', (req: any, res) => {
+    // Clear the test user session
+    if (req.session) {
+      console.log('Logout: Destroying session for user:', req.session.userId);
+      req.session.destroy((err: any) => {
+        if (err) {
+          console.error('Session destruction error:', err);
+        }
+        res.redirect('/');
+      });
+    } else {
+      res.redirect('/');
+    }
   });
 
   // Try to setup auth, but don't fail if it errors
@@ -41,26 +72,30 @@ export async function registerRoutes(app: Express): Promise<Server> {
     console.log('Auth setup failed, using simple auth for testing:', error.message);
   }
 
-  // Auth routes - return new test user for customer testing
+  // Auth routes - consistent test user with session management
   app.get('/api/auth/user', async (req: any, res) => {
     try {
-      // Create a new test user ID for each session to simulate new user experience
-      const testUserId = "test" + Math.floor(Math.random() * 100000);
+      // Check if user is in session - if not, they're not "logged in"
+      if (!req.session?.userId) {
+        return res.status(401).json({ message: "Not authenticated" });
+      }
+
+      // Return consistent test user from session
       const testUser = {
-        id: testUserId,
-        email: "testuser@example.com",
-        firstName: "Test",
-        lastName: "User",
+        id: req.session.userId,
+        email: req.session.userEmail || "testuser@example.com",
+        firstName: req.session.firstName || "Test",
+        lastName: req.session.lastName || "User", 
         profileImageUrl: null,
         stripeCustomerId: null,
         stripeSubscriptionId: null,
-        createdAt: new Date().toISOString(),
+        createdAt: req.session.createdAt || new Date().toISOString(),
         updatedAt: new Date().toISOString()
       };
       res.json(testUser);
     } catch (error) {
-      console.error("Error creating test user:", error);
-      res.status(500).json({ message: "Failed to create test user" });
+      console.error("Error fetching authenticated user:", error);
+      res.status(500).json({ message: "Failed to fetch user" });
     }
   });
 
