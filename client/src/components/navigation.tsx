@@ -53,8 +53,29 @@ export const Navigation: React.FC = () => {
     window.location.href = '/api/login';
   };
 
-  const handleLogout = () => {
-    window.location.href = '/api/logout';
+  const handleLogout = async () => {
+    try {
+      // Try POST logout first, fallback to GET
+      const response = await fetch('/api/logout', {
+        method: 'POST',
+        credentials: 'include',
+        headers: {
+          'Content-Type': 'application/json'
+        }
+      });
+      
+      if (response.ok) {
+        // Force page reload to clear all state
+        window.location.href = '/';
+      } else {
+        // Fallback to GET logout
+        window.location.href = '/api/logout';
+      }
+    } catch (error) {
+      console.error('Logout error:', error);
+      // Fallback to GET logout
+      window.location.href = '/api/logout';
+    }
   };
 
   if (isLoading) {
