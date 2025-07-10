@@ -7,7 +7,7 @@ import { UsageService } from './usage-service';
 import Anthropic from '@anthropic-ai/sdk';
 import { AgentSystem } from "./agents/agent-system";
 import { insertProjectSchema, insertAiImageSchema } from "@shared/schema";
-import { registerSandraDesignerRoutes } from './routes/sandra-designer';
+
 import { registerAiImageRoutes } from './routes/ai-images';
 import { registerCheckoutRoutes } from './routes/checkout';
 import { registerAutomationRoutes } from './routes/automation';
@@ -547,9 +547,6 @@ You help users design and customize their ${context === 'dashboard-builder' ? 'p
       res.status(500).json({ error: 'Failed to fetch stats' });
     }
   });
-
-  // Register Sandra Designer routes
-  registerSandraDesignerRoutes(app);
 
   // Register AI Images routes
   registerAiImageRoutes(app);

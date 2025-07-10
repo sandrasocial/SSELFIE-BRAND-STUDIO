@@ -8,7 +8,6 @@ import {
   selfieUploads,
   userModels,
   generatedImages,
-  brandbooks,
   userProfiles,
   userStyleguides,
   styleguideTemplates,
@@ -30,18 +29,11 @@ import {
   type InsertUserModel,
   type GeneratedImage,
   type InsertGeneratedImage,
-  type Brandbook,
-  type InsertBrandbook,
   type UserProfile,
   type InsertUserProfile,
   type UserStyleguide,
   type StyleguideTemplate,
-  dashboards,
-  type Dashboard,
-  type UpsertDashboard,
-  landingPages,
-  type LandingPage,
-  type UpsertLandingPage,
+
   userUsage,
   usageHistory,
   type UserUsage,
@@ -113,19 +105,7 @@ export interface IStorage {
   updateGeneratedImage(id: number, updates: Partial<GeneratedImage>): Promise<GeneratedImage>;
   saveGeneratedImage(id: number, selectedUrl: string): Promise<GeneratedImage>;
   
-  // Brandbook operations
-  getUserBrandbook(userId: string): Promise<Brandbook | undefined>;
-  createBrandbook(brandbook: InsertBrandbook): Promise<Brandbook>;
-  updateBrandbook(userId: string, updates: Partial<Brandbook>): Promise<Brandbook>;
-  
-  // Dashboard operations
-  saveDashboard(userId: string, dashboardData: any): Promise<Dashboard>;
-  getDashboard(userId: string): Promise<Dashboard | undefined>;
-  
-  // Landing page operations
-  saveLandingPage(userId: string, landingPageData: any): Promise<LandingPage>;
-  getLandingPage(userId: string): Promise<LandingPage | undefined>;
-  getUserLandingPages(userId: string): Promise<LandingPage[]>;
+
   
   // Usage tracking operations
   getUserUsage(userId: string): Promise<UserUsage | undefined>;
@@ -471,81 +451,7 @@ export class DatabaseStorage implements IStorage {
     return image;
   }
 
-  // Brandbook operations
-  async getUserBrandbook(userId: string): Promise<Brandbook | undefined> {
-    const [brandbook] = await db
-      .select()
-      .from(brandbooks)
-      .where(eq(brandbooks.userId, userId));
-    return brandbook;
-  }
 
-  async createBrandbook(brandbookData: InsertBrandbook): Promise<Brandbook> {
-    const [brandbook] = await db
-      .insert(brandbooks)
-      .values(brandbookData)
-      .returning();
-    return brandbook;
-  }
-
-  async updateBrandbook(userId: string, updates: Partial<Brandbook>): Promise<Brandbook> {
-    const [brandbook] = await db
-      .update(brandbooks)
-      .set({ ...updates, updatedAt: new Date() })
-      .where(eq(brandbooks.userId, userId))
-      .returning();
-    return brandbook;
-  }
-
-  // Dashboard operations
-  async saveDashboard(userId: string, dashboardData: any): Promise<Dashboard> {
-    const [dashboard] = await db
-      .insert(dashboards)
-      .values({
-        user_id: userId,
-        config: dashboardData.config,
-        onboarding_data: dashboardData.onboardingData,
-      })
-      .onConflictDoUpdate({
-        target: [dashboards.userId],
-        set: {
-          config: dashboardData.config,
-          onboarding_data: dashboardData.onboardingData,
-          updated_at: new Date(),
-        },
-      })
-      .returning();
-    return dashboard;
-  }
-
-  async getDashboard(userId: string): Promise<Dashboard | undefined> {
-    const [dashboard] = await db.select().from(dashboards).where(eq(dashboards.userId, userId));
-    return dashboard;
-  }
-
-  // Landing page operations
-  async saveLandingPage(userId: string, landingPageData: any): Promise<LandingPage> {
-    const [landingPage] = await db
-      .insert(landingPages)
-      .values({
-        userId,
-        template: landingPageData.template,
-        config: landingPageData.config,
-        onboardingData: landingPageData.onboardingData,
-        isPublished: false,
-      })
-      .returning();
-    return landingPage;
-  }
-
-  async getLandingPage(userId: string): Promise<LandingPage | undefined> {
-    const [landingPage] = await db.select().from(landingPages).where(eq(landingPages.userId, userId));
-    return landingPage;
-  }
-
-  async getUserLandingPages(userId: string): Promise<LandingPage[]> {
-    return await db.select().from(landingPages).where(eq(landingPages.userId, userId)).orderBy(desc(landingPages.createdAt));
-  }
 
   // Usage tracking operations
   async getUserUsage(userId: string): Promise<UserUsage | undefined> {

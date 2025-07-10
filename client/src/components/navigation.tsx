@@ -30,9 +30,9 @@ export const Navigation: React.FC = () => {
   const memberNavItems = [
     { path: '/workspace', label: 'STUDIO' },
     { path: '/ai-generator', label: 'AI GENERATOR' },
+    { path: '/styleguide-demo', label: 'STYLEGUIDE' },
+    { path: '/styleguide-landing-builder', label: 'LANDING PAGES' },
     { path: '/sandra-chat', label: 'SANDRA CHAT' },
-    { path: '/brandbook-designer', label: 'BRANDBOOK' },
-    { path: '/landing-builder', label: 'LANDING PAGES' },
     { path: '/profile', label: 'PROFILE' },
     ...(isAdmin ? [{ path: '/admin', label: 'ADMIN' }] : []),
   ];

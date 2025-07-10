@@ -206,35 +206,7 @@ export const insertSelfieUploadSchema = createInsertSchema(selfieUploads).omit({
 export const insertUserModelSchema = createInsertSchema(userModels).omit({ id: true, createdAt: true });
 export const insertGeneratedImageSchema = createInsertSchema(generatedImages).omit({ id: true, createdAt: true });
 
-// Brandbook table for complete brand identity
-export const brandbooks = pgTable("brandbooks", {
-  id: serial("id").primaryKey(),
-  userId: varchar("user_id").notNull().unique(),
-  businessName: varchar("business_name").notNull(),
-  tagline: varchar("tagline"),
-  story: text("story"),
-  primaryFont: varchar("primary_font").default("Times New Roman"),
-  secondaryFont: varchar("secondary_font").default("Inter"),
-  primaryColor: varchar("primary_color").default("#0a0a0a"),
-  secondaryColor: varchar("secondary_color").default("#ffffff"),
-  accentColor: varchar("accent_color").default("#f5f5f5"),
-  logoType: varchar("logo_type").notNull(), // 'ai-generated' or 'upload'
-  logoUrl: varchar("logo_url"),
-  logoPrompt: text("logo_prompt"),
-  moodboardStyle: varchar("moodboard_style").notNull(),
-  voiceTone: text("voice_tone"),
-  voicePersonality: text("voice_personality"),
-  keyPhrases: text("key_phrases"),
-  isPublished: boolean("is_published").default(false),
-  brandbookUrl: varchar("brandbook_url"), // URL to generated brandbook page
-  templateType: varchar("template_type").default("minimal-executive"), // 'minimal-executive', 'creative-entrepreneur', etc.
-  customDomain: varchar("custom_domain"), // user's custom domain or subdomain.sselfie.com
-  isLive: boolean("is_live").default(false), // whether the brandbook page is publicly accessible
-  createdAt: timestamp("created_at").defaultNow(),
-  updatedAt: timestamp("updated_at").defaultNow(),
-});
 
-export const insertBrandbookSchema = createInsertSchema(brandbooks).omit({ id: true, createdAt: true, updatedAt: true });
 
 // Type exports
 export type UpsertUser = z.infer<typeof upsertUserSchema>;
@@ -279,49 +251,13 @@ export type InsertUserModel = z.infer<typeof insertUserModelSchema>;
 export type UserModel = typeof userModels.$inferSelect;
 export type InsertGeneratedImage = z.infer<typeof insertGeneratedImageSchema>;
 export type GeneratedImage = typeof generatedImages.$inferSelect;
-export type InsertBrandbook = z.infer<typeof insertBrandbookSchema>;
-export type Brandbook = typeof brandbooks.$inferSelect;
 
-// Dashboard configurations table
-export const dashboards = pgTable("dashboards", {
-  id: serial("id").primaryKey(),
-  userId: varchar("user_id").notNull().unique(),
-  templateType: varchar("template_type").notNull(), // 'minimal-executive', 'creative-entrepreneur', 'service-provider', 'product-business', 'coach-consultant'
-  config: jsonb("config").notNull(),
-  onboardingData: jsonb("onboarding_data"),
-  quickLinks: jsonb("quick_links"), // User's custom quick links
-  customUrl: varchar("custom_url"), // user's custom dashboard URL or username.sselfie.com/dashboard
-  isPublished: boolean("is_published").default(false),
-  backgroundColor: varchar("background_color").default("#ffffff"),
-  accentColor: varchar("accent_color").default("#0a0a0a"),
-  isLive: boolean("is_live").default(false), // whether dashboard is publicly accessible
-  createdAt: timestamp("created_at").defaultNow(),
-  updatedAt: timestamp("updated_at").defaultNow(),
-});
 
-export type Dashboard = typeof dashboards.$inferSelect;
-export type UpsertDashboard = typeof dashboards.$inferInsert;
 
-// Landing pages table
-export const landingPages = pgTable("landing_pages", {
-  id: serial("id").primaryKey(),
-  userId: varchar("user_id").notNull(),
-  template: varchar("template").notNull(), // 'booking', 'service', 'product', 'portfolio'
-  config: jsonb("config").notNull(),
-  onboardingData: jsonb("onboarding_data"),
-  isPublished: boolean("is_published").default(false),
-  customUrl: varchar("custom_url"), // user's custom landing page URL
-  customDomain: varchar("custom_domain"), // user's own domain or subdomain.sselfie.com
-  isLive: boolean("is_live").default(false), // whether page is publicly accessible with custom domain
-  seoTitle: varchar("seo_title"),
-  seoDescription: text("seo_description"),
-  url: varchar("url"),
-  createdAt: timestamp("created_at").defaultNow(),
-  updatedAt: timestamp("updated_at").defaultNow(),
-});
 
-export type LandingPage = typeof landingPages.$inferSelect;
-export type UpsertLandingPage = typeof landingPages.$inferInsert;
+
+
+
 
 // Domain management table
 export const domains = pgTable("domains", {
@@ -332,7 +268,7 @@ export const domains = pgTable("domains", {
   isVerified: boolean("is_verified").default(false),
   dnsRecords: jsonb("dns_records"), // Required DNS settings
   sslStatus: varchar("ssl_status").default("pending"), // pending, active, failed
-  connectedTo: varchar("connected_to"), // 'brandbook', 'dashboard', 'landing-page'
+  connectedTo: varchar("connected_to"), // 'styleguide', 'landing-page'
   resourceId: integer("resource_id"), // ID of connected resource
   createdAt: timestamp("created_at").defaultNow(),
   updatedAt: timestamp("updated_at").defaultNow(),
