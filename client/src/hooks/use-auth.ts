@@ -32,8 +32,10 @@ export function useAuth() {
     }
   });
 
-  // User is authenticated if data exists and is not null
-  const isAuthenticated = !!user;
+  // User is authenticated only if data exists, is not null, and has valid user properties
+  const isAuthenticated = !!(user && user.id);
+
+  console.log('useAuth debug:', { user, isAuthenticated, isLoading });
 
   return {
     user,
