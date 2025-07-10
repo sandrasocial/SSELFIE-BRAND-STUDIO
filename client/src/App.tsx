@@ -76,61 +76,67 @@ function Router() {
 
   return (
     <Switch>
-      {isLoading || !isAuthenticated ? (
-        <>
-          <Route path="/" component={Landing} />
-          <Route path="/about" component={About} />
-          <Route path="/how-it-works" component={HowItWorks} />
-          <Route path="/selfie-guide" component={SelfieGuide} />
-          <Route path="/blog" component={Blog} />
-          <Route path="/contact" component={Contact} />
-          <Route path="/faq" component={FAQ} />
-          <Route path="/terms" component={Terms} />
-          <Route path="/privacy" component={Privacy} />
-          <Route path="/pricing" component={Pricing} />
+      {/* PUBLIC PAGES - ALWAYS ACCESSIBLE TO EVERYONE (NO AUTHENTICATION REQUIRED) */}
+      <Route path="/about" component={About} />
+      <Route path="/how-it-works" component={HowItWorks} />
+      <Route path="/selfie-guide" component={SelfieGuide} />
+      <Route path="/blog" component={Blog} />
+      <Route path="/contact" component={Contact} />
+      <Route path="/faq" component={FAQ} />
+      <Route path="/terms" component={Terms} />
+      <Route path="/privacy" component={Privacy} />
+      <Route path="/pricing" component={Pricing} />
 
-          <Route path="/login" component={Login} />
-          <Route path="/signup" component={SignUp} />
-          <Route path="/forgot-password" component={ForgotPasswordPage} />
-          <Route path="/checkout" component={Checkout} />
-          <Route path="/thank-you" component={ThankYou} />
-          <Route path="/payment-success" component={PaymentSuccess} />
-          <Route path="/onboarding" component={Onboarding} />
-        </>
-      ) : (
+      {/* PAYMENT FLOW - NO AUTHENTICATION REQUIRED FOR CUSTOMER ACQUISITION */}
+      <Route path="/checkout" component={Checkout} />
+      <Route path="/thank-you" component={ThankYou} />
+      <Route path="/payment-success" component={PaymentSuccess} />
+
+      {/* AUTH PAGES - ACCESSIBLE TO EVERYONE */}
+      <Route path="/login" component={Login} />
+      <Route path="/signup" component={SignUp} />
+      <Route path="/forgot-password" component={ForgotPasswordPage} />
+
+      {/* HOME PAGE ROUTING LOGIC */}
+      {isLoading ? (
+        <Route path="/">
+          {() => (
+            <div className="min-h-screen flex items-center justify-center">
+              <div className="animate-spin w-8 h-8 border-4 border-black border-t-transparent rounded-full" />
+            </div>
+          )}
+        </Route>
+      ) : isAuthenticated ? (
         <>
+          {/* AUTHENTICATED USER ROUTES - STUDIO ACCESS AFTER PAYMENT */}
           <Route path="/" component={SmartHome} />
-          <Route path="/welcome" component={Welcome} />
-          <Route path="/about" component={About} />
-          <Route path="/how-it-works" component={HowItWorks} />
-          <Route path="/selfie-guide" component={SelfieGuide} />
-          <Route path="/blog" component={Blog} />
-          <Route path="/contact" component={Contact} />
-          <Route path="/faq" component={FAQ} />
-          <Route path="/terms" component={Terms} />
-          <Route path="/privacy" component={Privacy} />
-          <Route path="/admin" component={AdminDashboard} />
-          <Route path="/admin/progress" component={AdminProgress} />
-          <Route path="/admin/roadmap" component={AdminRoadmap} />
-          <Route path="/admin/styleguide" component={AdminStyleguide} />
+          <Route path="/workspace" component={Workspace} />
+          <Route path="/onboarding" component={Onboarding} />
+          <Route path="/profile" component={Profile} />
+          <Route path="/ai-generator" component={AIGenerator} />
+          <Route path="/sandra-chat" component={SandraChat} />
+          <Route path="/simple-training" component={SimpleAITraining} />
+          <Route path="/user-styleguide" component={UserStyleguide} />
           <Route path="/styleguide" component={UserStyleguide} />
           <Route path="/styleguide/:userId" component={UserStyleguide} />
           <Route path="/styleguide-demo" component={StyleguideDemo} />
           <Route path="/styleguide-landing-builder" component={StyleguideLandingBuilder} />
           <Route path="/template-showcase" component={TemplateShowcase} />
+          
+          {/* Admin routes */}
+          <Route path="/admin" component={AdminDashboard} />
+          <Route path="/admin/progress" component={AdminProgress} />
+          <Route path="/admin/roadmap" component={AdminRoadmap} />
+          <Route path="/admin/styleguide" component={AdminStyleguide} />
           <Route path="/sandbox" component={AgentSandbox} />
-          <Route path="/pricing" component={Pricing} />
-          <Route path="/workspace" component={Workspace} />
-          <Route path="/onboarding" component={Onboarding} />
-          <Route path="/simple-training" component={SimpleAITraining} />
-          <Route path="/ai-generator" component={AIGenerator} />
-          <Route path="/sandra-chat" component={SandraChat} />
-          <Route path="/profile" component={Profile} />
-          <Route path="/checkout" component={Checkout} />
-          <Route path="/thank-you" component={ThankYou} />
-          <Route path="/payment-success" component={PaymentSuccess} />
+        </>
+      ) : (
+        <>
+          {/* NON-AUTHENTICATED USERS - LANDING PAGE FOR CUSTOMER ACQUISITION */}
+          <Route path="/" component={Landing} />
         </>
       )}
+
       <Route component={NotFound} />
     </Switch>
   );
