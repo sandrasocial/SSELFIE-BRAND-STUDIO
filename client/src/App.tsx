@@ -31,6 +31,7 @@ import PaymentSuccess from "@/pages/payment-success";
 
 import OnboardingNew from "@/pages/onboarding-new";
 import SimpleAITraining from "@/pages/simple-ai-training";
+import SimpleTraining from "@/pages/simple-training";
 import AdminRoadmap from "@/pages/admin-roadmap";
 import Checkout from "@/pages/checkout";
 import ThankYou from "@/pages/thank-you";
@@ -111,6 +112,7 @@ function Router() {
       <Route path="/checkout" component={Checkout} />
       <Route path="/thank-you" component={ThankYou} />
       <Route path="/payment-success" component={PaymentSuccess} />
+      <Route path="/simple-training" component={(props) => <ProtectedRoute component={SimpleTraining} {...props} />} />
 
       {/* AUTH PAGES - ACCESSIBLE TO EVERYONE */}
       <Route path="/login" component={Login} />
