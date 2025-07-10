@@ -71,12 +71,32 @@ function SmartHome() {
   return null;
 }
 
-function Router() {
+// Protected wrapper component that handles authentication
+function ProtectedRoute({ component: Component, ...props }) {
   const { isAuthenticated, isLoading } = useAuth();
+  
+  if (isLoading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="animate-spin w-8 h-8 border-4 border-black border-t-transparent rounded-full" />
+      </div>
+    );
+  }
+  
+  if (!isAuthenticated) {
+    // Redirect to login for protected routes
+    window.location.href = '/api/login';
+    return null;
+  }
+  
+  return <Component {...props} />;
+}
 
+function Router() {
   return (
     <Switch>
       {/* PUBLIC PAGES - ALWAYS ACCESSIBLE TO EVERYONE (NO AUTHENTICATION REQUIRED) */}
+      <Route path="/" component={Landing} />
       <Route path="/about" component={About} />
       <Route path="/how-it-works" component={HowItWorks} />
       <Route path="/selfie-guide" component={SelfieGuide} />
@@ -97,45 +117,26 @@ function Router() {
       <Route path="/signup" component={SignUp} />
       <Route path="/forgot-password" component={ForgotPasswordPage} />
 
-      {/* HOME PAGE ROUTING LOGIC */}
-      {isLoading ? (
-        <Route path="/">
-          {() => (
-            <div className="min-h-screen flex items-center justify-center">
-              <div className="animate-spin w-8 h-8 border-4 border-black border-t-transparent rounded-full" />
-            </div>
-          )}
-        </Route>
-      ) : isAuthenticated ? (
-        <>
-          {/* AUTHENTICATED USER ROUTES - STUDIO ACCESS AFTER PAYMENT */}
-          <Route path="/" component={SmartHome} />
-          <Route path="/workspace" component={Workspace} />
-          <Route path="/onboarding" component={Onboarding} />
-          <Route path="/profile" component={Profile} />
-          <Route path="/ai-generator" component={AIGenerator} />
-          <Route path="/sandra-chat" component={SandraChat} />
-          <Route path="/simple-training" component={SimpleAITraining} />
-          <Route path="/user-styleguide" component={UserStyleguide} />
-          <Route path="/styleguide" component={UserStyleguide} />
-          <Route path="/styleguide/:userId" component={UserStyleguide} />
-          <Route path="/styleguide-demo" component={StyleguideDemo} />
-          <Route path="/styleguide-landing-builder" component={StyleguideLandingBuilder} />
-          <Route path="/template-showcase" component={TemplateShowcase} />
-          
-          {/* Admin routes */}
-          <Route path="/admin" component={AdminDashboard} />
-          <Route path="/admin/progress" component={AdminProgress} />
-          <Route path="/admin/roadmap" component={AdminRoadmap} />
-          <Route path="/admin/styleguide" component={AdminStyleguide} />
-          <Route path="/sandbox" component={AgentSandbox} />
-        </>
-      ) : (
-        <>
-          {/* NON-AUTHENTICATED USERS - LANDING PAGE FOR CUSTOMER ACQUISITION */}
-          <Route path="/" component={Landing} />
-        </>
-      )}
+      {/* PROTECTED ROUTES - REQUIRE AUTHENTICATION */}
+      <Route path="/workspace" component={(props) => <ProtectedRoute component={Workspace} {...props} />} />
+      <Route path="/onboarding" component={(props) => <ProtectedRoute component={Onboarding} {...props} />} />
+      <Route path="/profile" component={(props) => <ProtectedRoute component={Profile} {...props} />} />
+      <Route path="/ai-generator" component={(props) => <ProtectedRoute component={AIGenerator} {...props} />} />
+      <Route path="/sandra-chat" component={(props) => <ProtectedRoute component={SandraChat} {...props} />} />
+      <Route path="/simple-training" component={(props) => <ProtectedRoute component={SimpleAITraining} {...props} />} />
+      <Route path="/user-styleguide" component={(props) => <ProtectedRoute component={UserStyleguide} {...props} />} />
+      <Route path="/styleguide" component={(props) => <ProtectedRoute component={UserStyleguide} {...props} />} />
+      <Route path="/styleguide/:userId" component={(props) => <ProtectedRoute component={UserStyleguide} {...props} />} />
+      <Route path="/styleguide-demo" component={(props) => <ProtectedRoute component={StyleguideDemo} {...props} />} />
+      <Route path="/styleguide-landing-builder" component={(props) => <ProtectedRoute component={StyleguideLandingBuilder} {...props} />} />
+      <Route path="/template-showcase" component={(props) => <ProtectedRoute component={TemplateShowcase} {...props} />} />
+      
+      {/* Admin routes */}
+      <Route path="/admin" component={(props) => <ProtectedRoute component={AdminDashboard} {...props} />} />
+      <Route path="/admin/progress" component={(props) => <ProtectedRoute component={AdminProgress} {...props} />} />
+      <Route path="/admin/roadmap" component={(props) => <ProtectedRoute component={AdminRoadmap} {...props} />} />
+      <Route path="/admin/styleguide" component={(props) => <ProtectedRoute component={AdminStyleguide} {...props} />} />
+      <Route path="/sandbox" component={(props) => <ProtectedRoute component={AgentSandbox} {...props} />} />
 
       <Route component={NotFound} />
     </Switch>
