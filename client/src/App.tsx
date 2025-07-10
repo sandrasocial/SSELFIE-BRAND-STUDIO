@@ -41,6 +41,7 @@ import SandraChat from "@/pages/sandra-chat";
 import AdminStyleguide from "@/pages/admin-styleguide";
 import UserStyleguide from "@/pages/user-styleguide";
 import StyleguideDemo from "@/pages/styleguide-demo";
+import StyleguideLandingBuilder from "@/pages/styleguide-landing-builder";
 
 
 
@@ -116,6 +117,7 @@ function Router() {
           <Route path="/styleguide" component={UserStyleguide} />
           <Route path="/styleguide/:userId" component={UserStyleguide} />
           <Route path="/styleguide-demo" component={StyleguideDemo} />
+          <Route path="/styleguide-landing-builder" component={StyleguideLandingBuilder} />
           <Route path="/sandbox" component={AgentSandbox} />
           <Route path="/pricing" component={Pricing} />
           <Route path="/workspace" component={Workspace} />
