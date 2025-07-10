@@ -47,36 +47,13 @@ export default function ThankYou() {
   };
 
   const getPlanDetails = (plan: string) => {
-    switch (plan) {
-      case 'ai-pack':
-        return {
-          name: 'SSELFIE AI Pack',
-          nextStep: 'Upload your selfies to start generating professional images',
-          ctaText: 'START GENERATING',
-          ctaLink: '/ai-images'
-        };
-      case 'studio':
-        return {
-          name: 'SSELFIE Studio',
-          nextStep: 'Complete your onboarding to build your business',
-          ctaText: 'START BUILDING',
-          ctaLink: '/onboarding'
-        };
-      case 'studio-pro':
-        return {
-          name: 'SSELFIE Studio Pro',
-          nextStep: 'Schedule your 1:1 setup call and complete onboarding',
-          ctaText: 'BOOK YOUR CALL',
-          ctaLink: '/onboarding'
-        };
-      default:
-        return {
-          name: 'SSELFIE AI Pack',
-          nextStep: 'Upload your selfies to start generating professional images',
-          ctaText: 'START GENERATING',
-          ctaLink: '/ai-images'
-        };
-    }
+    // For immediate revenue focus: direct all users to AI training
+    return {
+      name: 'SSELFIE STUDIO',
+      nextStep: 'Train your personal AI model with your selfies to start generating professional brand photos',
+      ctaText: 'START AI TRAINING',
+      ctaLink: '/simple-training'
+    };
   };
 
   const planDetails = getPlanDetails(planType);
@@ -123,15 +100,15 @@ export default function ThankYou() {
             <div className="flex items-start">
               <div className="text-xs uppercase tracking-wider text-gray-500 mr-4 mt-1">02</div>
               <div>
-                <div className="font-medium mb-2">Access Your Account</div>
-                <div className="text-gray-600">Your SSELFIE dashboard is ready with all your tools</div>
+                <div className="font-medium mb-2">Train Your AI Model</div>
+                <div className="text-gray-600">Upload 10+ selfies to create your personal AI model (takes 20 minutes)</div>
               </div>
             </div>
             <div className="flex items-start">
               <div className="text-xs uppercase tracking-wider text-gray-500 mr-4 mt-1">03</div>
               <div>
-                <div className="font-medium mb-2">Start Your Transformation</div>
-                <div className="text-gray-600">{planDetails.nextStep}</div>
+                <div className="font-medium mb-2">Generate Professional Photos</div>
+                <div className="text-gray-600">Start creating your brand photoshoot with 300 monthly AI generations</div>
               </div>
             </div>
           </div>
