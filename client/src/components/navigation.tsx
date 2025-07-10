@@ -44,6 +44,9 @@ export const Navigation: React.FC = () => {
     { path: '/pricing', label: 'PRICING' },
   ];
 
+  // Debug the navigation logic
+  console.log('Navigation debug:', { isAuthenticated, isLoading, user });
+  
   const navItems = isAuthenticated ? memberNavItems : publicNavItems;
 
   const handleLogin = () => {
