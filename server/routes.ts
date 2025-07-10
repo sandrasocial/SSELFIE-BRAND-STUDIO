@@ -35,17 +35,44 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   }));
 
-  // Temporary simple login endpoint for testing
+  // Test login endpoint with different user types
   app.get('/api/login', (req: any, res) => {
-    // Create test user session for authentication testing
-    const testUserId = "test" + Math.floor(Math.random() * 100000);
-    req.session.userId = testUserId;
-    req.session.userEmail = "testuser@example.com";
-    req.session.firstName = "Test";
-    req.session.lastName = "User";
+    const userType = req.query.user || 'new';
+    let testUser;
+
+    if (userType === 'new') {
+      // Create a completely new user for testing
+      testUser = {
+        userId: "newuser" + Math.floor(Math.random() * 100000),
+        userEmail: "newuser" + Math.floor(Math.random() * 1000) + "@example.com",
+        firstName: "New",
+        lastName: "User"
+      };
+    } else if (userType === 'existing') {
+      // Create a returning user with completed onboarding
+      testUser = {
+        userId: "existinguser42585527",
+        userEmail: "existing@example.com", 
+        firstName: "Existing",
+        lastName: "User"
+      };
+    } else {
+      // Default test user
+      testUser = {
+        userId: "test" + Math.floor(Math.random() * 100000),
+        userEmail: "testuser@example.com",
+        firstName: "Test",
+        lastName: "User"
+      };
+    }
+
+    req.session.userId = testUser.userId;
+    req.session.userEmail = testUser.userEmail;
+    req.session.firstName = testUser.firstName;
+    req.session.lastName = testUser.lastName;
     req.session.createdAt = new Date().toISOString();
     
-    console.log('Login: Created test user session:', testUserId);
+    console.log(`Login: Created ${userType} user session:`, testUser.userId, testUser.userEmail);
     res.redirect('/workspace');
   });
 
