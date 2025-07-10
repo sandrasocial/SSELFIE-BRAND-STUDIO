@@ -414,7 +414,8 @@ export default function Workspace() {
               display: 'grid',
               gridTemplateColumns: 'repeat(12, 1fr)',
               gap: '30px'
-            }}>
+            }}
+            className="tools-grid">
               {/* AI Photoshoot */}
               <Link href="/ai-generator">
                 <div style={{
@@ -424,7 +425,8 @@ export default function Workspace() {
                   background: '#f5f5f5',
                   aspectRatio: '4/5',
                   cursor: 'pointer'
-                }}>
+                }}
+                className="tool-card">
                   <img 
                     src={SandraImages.portraits.sandra2}
                     alt="AI Photoshoot"
@@ -481,7 +483,7 @@ export default function Workspace() {
               </Link>
 
               {/* Styleguide Card */}
-              <div style={{ gridColumn: 'span 3' }}>
+              <div style={{ gridColumn: 'span 3' }} className="tool-card">
                 <Link href="/styleguide-demo">
                   <div style={{
                     background: '#ffffff',
@@ -542,7 +544,8 @@ export default function Workspace() {
                   background: '#f5f5f5',
                   aspectRatio: '4/5',
                   cursor: 'pointer'
-                }}>
+                }}
+                className="tool-card">
                   <img 
                     src={SandraImages.flatlays.workspace1}
                     alt="Landing Pages"
@@ -599,7 +602,7 @@ export default function Workspace() {
               </Link>
 
               {/* Sandra AI Card */}
-              <div style={{ gridColumn: 'span 3' }}>
+              <div style={{ gridColumn: 'span 3' }} className="tool-card">
                 <Link href="/sandra-chat">
                   <div style={{
                     background: '#0a0a0a',
@@ -687,8 +690,9 @@ export default function Workspace() {
               display: 'grid',
               gridTemplateColumns: 'repeat(12, 1fr)',
               gap: '30px'
-            }}>
-              <div style={{ gridColumn: 'span 8' }}>
+            }}
+            className="main-grid">
+              <div style={{ gridColumn: 'span 8' }} className="stats-content">
                 <div style={{
                   fontSize: '11px',
                   fontWeight: 400,
@@ -716,7 +720,8 @@ export default function Workspace() {
                   gridTemplateColumns: 'repeat(3, 1fr)',
                   gap: '30px',
                   marginTop: '80px'
-                }}>
+                }}
+                className="stats-grid">
                   <div style={{
                     background: '#ffffff',
                     padding: '60px',
@@ -797,7 +802,7 @@ export default function Workspace() {
                 </div>
               </div>
               
-              <div style={{ gridColumn: 'span 4' }}>
+              <div style={{ gridColumn: 'span 4' }} className="activity-sidebar">
                 <div style={{
                   fontSize: '11px',
                   fontWeight: 400,
@@ -859,6 +864,64 @@ export default function Workspace() {
             </div>
           </div>
         </section>
+        
+        {/* Mobile & Desktop Responsive CSS */}
+        <style>{`
+          /* Mobile optimizations */
+          @media (max-width: 1024px) {
+            .tools-grid {
+              grid-template-columns: repeat(6, 1fr) !important;
+            }
+            .tool-card {
+              grid-column: span 6 !important;
+            }
+            .main-grid {
+              grid-template-columns: 1fr !important;
+              gap: 20px !important;
+            }
+            .stats-content {
+              grid-column: span 1 !important;
+            }
+            .activity-sidebar {
+              grid-column: span 1 !important;
+            }
+            .stats-grid {
+              grid-template-columns: 1fr !important;
+              gap: 20px !important;
+            }
+          }
+          
+          @media (max-width: 768px) {
+            .tools-grid {
+              grid-template-columns: 1fr !important;
+              gap: 20px !important;
+            }
+            .tool-card {
+              grid-column: span 1 !important;
+            }
+            section {
+              padding: 80px 0 !important;
+            }
+            section > div {
+              padding: 0 20px !important;
+            }
+            .hero-section {
+              padding: 60px 0 !important;
+            }
+          }
+          
+          @media (max-width: 480px) {
+            section {
+              padding: 60px 0 !important;
+            }
+            section > div {
+              padding: 0 20px !important;
+            }
+            .hero-section {
+              padding: 40px 0 !important;
+            }
+          }
+        `}</style>
       </div>
     </PaymentVerification>
   );
