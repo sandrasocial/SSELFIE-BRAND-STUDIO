@@ -5,6 +5,8 @@ import { minimalisticTemplate } from "../../shared/templates/template-minimalist
 import { boldTemplate } from "../../shared/templates/template-bold";
 import { sophisticatedTemplate } from "../../shared/templates/template-sophisticated";
 import { warmBeigeTemplate } from "../../shared/templates/template-warm-beige";
+import { moodyTemplate } from "../../shared/templates/template-moody";
+import { goldenTemplate } from "../../shared/templates/template-golden";
 
 export function registerStyleguideRoutes(app: Express) {
   // Get user's styleguide - DEMO VERSION with mock data
@@ -102,7 +104,9 @@ export function registerStyleguideRoutes(app: Express) {
         minimalisticTemplate,
         boldTemplate,
         sophisticatedTemplate,
-        warmBeigeTemplate
+        warmBeigeTemplate,
+        moodyTemplate,
+        goldenTemplate
         // Add more templates as they are implemented
       ];
       res.json(templates);
@@ -131,7 +135,7 @@ export function registerStyleguideRoutes(app: Express) {
         userId,
         onboardingData,
         currentStyleguide,
-        availableTemplates: [minimalisticTemplate, boldTemplate, sophisticatedTemplate, warmBeigeTemplate]
+        availableTemplates: [minimalisticTemplate, boldTemplate, sophisticatedTemplate, warmBeigeTemplate, moodyTemplate, goldenTemplate]
       });
       
       res.json(response);
@@ -211,6 +215,18 @@ function selectTemplateForUser(onboardingData: any, templates: any[]): any {
       lowerInput.includes('comfortable') || lowerInput.includes('homey') || lowerInput.includes('gentle') ||
       lowerInput.includes('lifestyle') || lowerInput.includes('inviting') || lowerInput.includes('supportive')) {
     return templates.find(t => t.id === 'warm-beige') || templates[0];
+  }
+  
+  if (lowerInput.includes('mysterious') || lowerInput.includes('deep') || lowerInput.includes('artistic') || 
+      lowerInput.includes('moody') || lowerInput.includes('dramatic') || lowerInput.includes('shadows') ||
+      lowerInput.includes('creative') || lowerInput.includes('photographer') || lowerInput.includes('intimate')) {
+    return templates.find(t => t.id === 'moody') || templates[0];
+  }
+  
+  if (lowerInput.includes('golden') || lowerInput.includes('luxurious') || lowerInput.includes('glowing') || 
+      lowerInput.includes('magical') || lowerInput.includes('radiant') || lowerInput.includes('feminine') ||
+      lowerInput.includes('travel') || lowerInput.includes('sunset') || lowerInput.includes('luminous')) {
+    return templates.find(t => t.id === 'golden') || templates[0];
   }
   
   if (lowerInput.includes('minimal') || lowerInput.includes('clean') || lowerInput.includes('simple') || 
