@@ -13,8 +13,8 @@ export default function Landing() {
   const [, setLocation] = useLocation();
 
   const handleGetStarted = () => {
-    // Direct users to login first, then they'll go through the proper flow
-    window.location.href = '/api/login';
+    // Direct users to pricing/checkout first (payment-first journey)
+    setLocation('/pricing');
   };
 
   const handlePricing = (plan: string) => {
@@ -87,7 +87,7 @@ export default function Landing() {
             </p>
           </div>
           
-          <WorkspaceInterface onLaunch={handleGetStarted} />
+          <WorkspaceInterface onLaunch={() => setLocation('/pricing')} />
         </div>
       </section>
 
