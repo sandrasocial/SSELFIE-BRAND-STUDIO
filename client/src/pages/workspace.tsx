@@ -39,38 +39,46 @@ export default function Workspace() {
   const getBusinessProgress = () => {
     const steps = [
       {
+        id: 'onboarding',
+        label: 'Complete Your Story',
+        status: onboardingData?.completed ? 'complete' : 'progress',
+        detail: onboardingData?.completed ? 'Story captured' : 'Tell us about your brand vision and goals',
+        link: '/onboarding',
+        priority: true
+      },
+      {
         id: 'ai-model',
         label: 'AI Model Trained',
         status: userModel?.status === 'completed' ? 'complete' : userModel?.status === 'training' ? 'progress' : 'pending',
-        detail: aiImages.length > 0 ? `${aiImages.length} images ready` : 'Ready to train',
+        detail: aiImages.length > 0 ? `${aiImages.length} images ready` : 'Upload selfies to train your AI',
         link: '/ai-generator'
       },
       {
         id: 'styleguide',
         label: 'Styleguide Created',
         status: brandbook ? 'complete' : onboardingData?.completed ? 'progress' : 'pending',
-        detail: brandbook?.templateId ? brandbook.templateId.replace('-', ' ') : 'Choose your style',
+        detail: brandbook?.templateId ? brandbook.templateId.replace('-', ' ') : 'Design your brand identity',
         link: '/styleguide-demo'
       },
       {
         id: 'landing-page',
         label: 'Landing Page',
         status: 'progress',
-        detail: 'In Progress',
+        detail: 'Build your business website',
         link: '/styleguide-landing-builder'
       },
       {
         id: 'payment-setup',
         label: 'Payment Setup',
         status: 'pending',
-        detail: 'Coming Next',
+        detail: 'Connect Stripe for payments',
         link: '/workspace'
       },
       {
         id: 'domain',
         label: 'Custom Domain',
         status: 'pending',
-        detail: 'Coming Next',
+        detail: 'Launch with your own domain',
         link: '/workspace'
       }
     ];
@@ -297,27 +305,52 @@ export default function Workspace() {
               {businessProgress.map((step, index) => (
                 <Link key={step.id} href={step.link}>
                   <div style={{
-                    background: '#ffffff',
+                    background: step.priority && !onboardingData?.completed ? '#0a0a0a' : '#ffffff',
+                    color: step.priority && !onboardingData?.completed ? '#ffffff' : '#0a0a0a',
                     position: 'relative',
                     transition: 'all 500ms ease',
                     cursor: 'pointer',
-                    border: '1px solid #e5e5e5'
+                    border: step.priority && !onboardingData?.completed ? '2px solid #0a0a0a' : '1px solid #e5e5e5',
+                    transform: step.priority && !onboardingData?.completed ? 'scale(1.02)' : 'scale(1)',
+                    zIndex: step.priority && !onboardingData?.completed ? 10 : 1
                   }}
                   onMouseEnter={(e) => {
-                    e.currentTarget.style.background = '#0a0a0a';
-                    e.currentTarget.style.color = '#ffffff';
+                    if (!(step.priority && !onboardingData?.completed)) {
+                      e.currentTarget.style.background = '#0a0a0a';
+                      e.currentTarget.style.color = '#ffffff';
+                    }
                   }}
                   onMouseLeave={(e) => {
-                    e.currentTarget.style.background = '#ffffff';
-                    e.currentTarget.style.color = '#0a0a0a';
+                    if (!(step.priority && !onboardingData?.completed)) {
+                      e.currentTarget.style.background = '#ffffff';
+                      e.currentTarget.style.color = '#0a0a0a';
+                    }
                   }}>
+                    {/* Priority Badge for Onboarding */}
+                    {step.priority && !onboardingData?.completed && (
+                      <div style={{
+                        position: 'absolute',
+                        top: '20px',
+                        left: '20px',
+                        background: '#ffffff',
+                        color: '#0a0a0a',
+                        padding: '8px 16px',
+                        fontSize: '10px',
+                        fontWeight: 400,
+                        letterSpacing: '0.2em',
+                        textTransform: 'uppercase'
+                      }}>
+                        START HERE
+                      </div>
+                    )}
+                    
                     <div style={{ padding: '60px' }}>
                       <div style={{
                         fontSize: '11px',
                         fontWeight: 400,
                         letterSpacing: '0.3em',
                         textTransform: 'uppercase',
-                        color: '#666666',
+                        color: step.priority && !onboardingData?.completed ? 'rgba(255, 255, 255, 0.7)' : '#666666',
                         marginBottom: '20px'
                       }}>
                         Step {index + 1}
@@ -342,7 +375,8 @@ export default function Workspace() {
                         fontSize: '16px',
                         lineHeight: 1.6,
                         fontWeight: 300,
-                        marginBottom: '24px'
+                        marginBottom: '24px',
+                        opacity: step.priority && !onboardingData?.completed ? 0.9 : 1
                       }}>
                         {step.detail}
                       </p>
