@@ -1,8 +1,17 @@
 import express from 'express';
 import session from 'express-session';
 import cors from 'cors';
+import Stripe from 'stripe';
 
 const app = express();
+
+// Initialize Stripe
+if (!process.env.STRIPE_SECRET_KEY) {
+  throw new Error('Missing required Stripe secret: STRIPE_SECRET_KEY');
+}
+const stripe = new Stripe(process.env.STRIPE_SECRET_KEY, {
+  apiVersion: "2023-10-16",
+});
 
 // Middleware
 app.use(cors());
@@ -67,6 +76,32 @@ app.get('/api/auth/user', (req, res) => {
   res.json(testUser);
 });
 
+// Stripe payment endpoint
+app.post("/api/create-payment-intent", async (req, res) => {
+  try {
+    const { amount, plan, currency = 'eur' } = req.body;
+    
+    if (!amount || !plan) {
+      return res.status(400).json({ message: 'Amount and plan are required' });
+    }
+
+    const paymentIntent = await stripe.paymentIntents.create({
+      amount: Math.round(amount * 100), // Convert to cents
+      currency,
+      metadata: {
+        plan,
+      },
+      description: `SSELFIE ${plan} subscription`,
+    });
+
+    console.log(`Payment intent created for ${plan}: ${paymentIntent.id}`);
+    res.json({ clientSecret: paymentIntent.client_secret });
+  } catch (error) {
+    console.error('Payment intent creation error:', error);
+    res.status(500).json({ message: "Error creating payment intent: " + error.message });
+  }
+});
+
 app.get('/api/health', (req, res) => {
   res.json({ 
     status: 'OK', 
@@ -75,7 +110,8 @@ app.get('/api/health', (req, res) => {
     endpoints: {
       login: '/api/login',
       logout: '/api/logout',
-      auth: '/api/auth/user'
+      auth: '/api/auth/user',
+      payment: '/api/create-payment-intent'
     }
   });
 });
