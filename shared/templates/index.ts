@@ -3,6 +3,8 @@ export { minimalisticTemplate } from './template-minimalistic';
 export { boldTemplate } from './template-bold';
 export { sophisticatedTemplate } from './template-sophisticated';
 export { warmBeigeTemplate } from './template-warm-beige';
+export { moodyTemplate } from './template-moody';
+export { goldenTemplate } from './template-golden';
 
 // Template registry for easy access
 export const STYLEGUIDE_TEMPLATES = {
@@ -10,6 +12,8 @@ export const STYLEGUIDE_TEMPLATES = {
   bold: () => import('./template-bold').then(m => m.boldTemplate),
   sophisticated: () => import('./template-sophisticated').then(m => m.sophisticatedTemplate),
   warmBeige: () => import('./template-warm-beige').then(m => m.warmBeigeTemplate),
+  moody: () => import('./template-moody').then(m => m.moodyTemplate),
+  golden: () => import('./template-golden').then(m => m.goldenTemplate),
   // Add more templates as they are created
 };
 
@@ -46,6 +50,22 @@ export const TEMPLATE_METADATA = [
     category: "nurturing",
     previewImage: "/images/templates/warm-beige-preview.jpg",
     bestFor: ["lifestyle coaches", "home brands", "nurturing service providers", "wellness coaches"]
+  },
+  {
+    id: "moody",
+    name: "Executive Essence",
+    description: "Deep, mysterious design with rich dark tones and sophisticated typography",
+    category: "artistic",
+    previewImage: "/images/templates/moody-preview.jpg",
+    bestFor: ["photographers", "artists", "creative professionals", "luxury service providers"]
+  },
+  {
+    id: "golden",
+    name: "Luxe Feminine",
+    description: "Warm, glowing design inspired by golden hour magic",
+    category: "luxurious",
+    previewImage: "/images/templates/golden-preview.jpg",
+    bestFor: ["sunset lovers", "travel bloggers", "luxury lifestyle brands", "feminine entrepreneurs"]
   }
   // Add more template metadata as they are created
 ];
