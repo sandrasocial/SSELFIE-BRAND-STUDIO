@@ -170,7 +170,7 @@ export class ModelTrainingService {
       if (data.status === 'succeeded') {
         await storage.updateUserModel(userModel.userId, {
           trainingStatus: 'completed',
-          modelUrl: data.output?.weights || data.urls?.get
+          modelUrl: data.output?.weights || data.urls?.get,
           completedAt: new Date()
         });
       } else if (data.status === 'failed') {
