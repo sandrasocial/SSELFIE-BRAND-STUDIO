@@ -65,21 +65,17 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  // POST logout endpoint for better compatibility
-  app.post('/api/logout', (req: any, res) => {
-    console.log('POST logout: Destroying session for user:', req.session?.userId);
-    if (req.session) {
-      req.session.destroy((err: any) => {
-        if (err) {
-          console.error('Session destruction error:', err);
-          return res.status(500).json({ message: 'Failed to logout' });
-        }
-        res.clearCookie('connect.sid');
-        res.json({ message: 'Logged out successfully' });
-      });
-    } else {
-      res.json({ message: 'Already logged out' });
-    }
+  // Health check endpoint to verify API is working
+  app.get('/api/health', (req, res) => {
+    res.json({ 
+      status: 'OK', 
+      timestamp: new Date().toISOString(),
+      endpoints: {
+        login: '/api/login',
+        logout: '/api/logout',
+        auth: '/api/auth/user'
+      }
+    });
   });
 
   // Try to setup auth, but don't fail if it errors
