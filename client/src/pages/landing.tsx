@@ -15,7 +15,7 @@ export default function Landing() {
       <Navigation />
       
       {/* Hero Section - Full Bleed */}
-      <section className="relative min-h-screen flex items-center justify-center bg-[#0a0a0a] overflow-hidden">
+      <section className="relative min-h-screen flex items-end justify-center bg-[#0a0a0a] overflow-hidden">
         <div className="absolute inset-0">
           <img 
             src={SandraImages.hero.ai}
@@ -23,7 +23,7 @@ export default function Landing() {
             className="w-full h-full object-cover opacity-40"
           />
         </div>
-        <div className="relative z-10 text-center text-white px-6 md:px-12">
+        <div className="relative z-10 text-center text-white px-6 md:px-12 pb-20 md:pb-32">
           <p className="text-[11px] tracking-[0.4em] uppercase mb-8 opacity-70 font-light">
             Hey gorgeous, it's Sandra
           </p>
