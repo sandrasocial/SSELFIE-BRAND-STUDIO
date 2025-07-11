@@ -36,6 +36,18 @@ export default function SSELFIEGallery() {
     }
   });
 
+  // Delete image mutation
+  const deleteImageMutation = useMutation({
+    mutationFn: async (imageId: number) => {
+      return await apiRequest('DELETE', `/api/ai-images/${imageId}`);
+    },
+    onSuccess: () => {
+      // Refresh AI images data
+      queryClient.invalidateQueries({ queryKey: ['/api/ai-images'] });
+      queryClient.invalidateQueries({ queryKey: ['/api/images/favorites'] });
+    }
+  });
+
   const downloadImage = async (imageUrl: string, filename: string) => {
     try {
       const response = await fetch(imageUrl);
@@ -68,6 +80,12 @@ export default function SSELFIEGallery() {
 
   const toggleFavorite = (imageId: number) => {
     toggleFavoriteMutation.mutate(imageId);
+  };
+
+  const deleteImage = (imageId: number) => {
+    if (confirm('Are you sure you want to delete this photo? This action cannot be undone.')) {
+      deleteImageMutation.mutate(imageId);
+    }
   };
 
   const filteredImages = showFavoritesOnly ? 
@@ -458,33 +476,62 @@ export default function SSELFIEGallery() {
                               {image.prompt ? image.prompt.substring(0, 40) + '...' : 'Professional brand photo'}
                             </p>
                           </div>
-                          <button
-                            onClick={(e) => {
-                              e.stopPropagation();
-                              downloadImage(image.imageUrl, `sselfie-${index + 1}.jpg`);
-                            }}
-                            style={{
-                              background: 'rgba(255, 255, 255, 0.2)',
-                              border: '1px solid rgba(255, 255, 255, 0.3)',
-                              color: '#ffffff',
-                              padding: '8px 12px',
-                              fontSize: '10px',
-                              letterSpacing: '0.2em',
-                              textTransform: 'uppercase',
-                              cursor: 'pointer',
-                              transition: 'all 300ms ease'
-                            }}
-                            onMouseEnter={(e) => {
-                              e.target.style.background = '#ffffff';
-                              e.target.style.color = '#0a0a0a';
-                            }}
-                            onMouseLeave={(e) => {
-                              e.target.style.background = 'rgba(255, 255, 255, 0.2)';
-                              e.target.style.color = '#ffffff';
-                            }}
-                          >
-                            Download
-                          </button>
+                          <div style={{ display: 'flex', gap: '8px' }}>
+                            <button
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                downloadImage(image.imageUrl, `sselfie-${index + 1}.jpg`);
+                              }}
+                              style={{
+                                background: 'rgba(255, 255, 255, 0.2)',
+                                border: '1px solid rgba(255, 255, 255, 0.3)',
+                                color: '#ffffff',
+                                padding: '8px 12px',
+                                fontSize: '10px',
+                                letterSpacing: '0.2em',
+                                textTransform: 'uppercase',
+                                cursor: 'pointer',
+                                transition: 'all 300ms ease'
+                              }}
+                              onMouseEnter={(e) => {
+                                e.target.style.background = '#ffffff';
+                                e.target.style.color = '#0a0a0a';
+                              }}
+                              onMouseLeave={(e) => {
+                                e.target.style.background = 'rgba(255, 255, 255, 0.2)';
+                                e.target.style.color = '#ffffff';
+                              }}
+                            >
+                              Download
+                            </button>
+                            <button
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                deleteImage(image.id);
+                              }}
+                              style={{
+                                background: 'rgba(255, 68, 68, 0.2)',
+                                border: '1px solid rgba(255, 68, 68, 0.4)',
+                                color: '#ff4444',
+                                padding: '8px 12px',
+                                fontSize: '10px',
+                                letterSpacing: '0.2em',
+                                textTransform: 'uppercase',
+                                cursor: 'pointer',
+                                transition: 'all 300ms ease'
+                              }}
+                              onMouseEnter={(e) => {
+                                e.target.style.background = '#ff4444';
+                                e.target.style.color = '#ffffff';
+                              }}
+                              onMouseLeave={(e) => {
+                                e.target.style.background = 'rgba(255, 68, 68, 0.2)';
+                                e.target.style.color = '#ff4444';
+                              }}
+                            >
+                              Delete
+                            </button>
+                          </div>
                         </div>
                       </div>
                     </div>

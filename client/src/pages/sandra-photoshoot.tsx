@@ -74,6 +74,7 @@ export default function SandraPhotoshoot() {
   const [generatedImages, setGeneratedImages] = useState<string[]>([]);
   const [selectedImages, setSelectedImages] = useState<string[]>([]);
   const [showSelectionMode, setShowSelectionMode] = useState(false);
+  const [selectedImagePreview, setSelectedImagePreview] = useState<string | null>(null);
   const [generationProgress, setGenerationProgress] = useState<{
     isGenerating: boolean;
     predictionId: string | null;
@@ -918,11 +919,9 @@ export default function SandraPhotoshoot() {
                       position: 'relative',
                       aspectRatio: '3/4',
                       overflow: 'hidden',
-                      cursor: 'pointer',
                       border: selectedImages.includes(imageUrl) ? '3px solid #0a0a0a' : '3px solid transparent',
                       transition: 'all 300ms ease'
                     }}
-                    onClick={() => toggleImageSelection(imageUrl)}
                   >
                     <img
                       src={imageUrl}
@@ -931,8 +930,10 @@ export default function SandraPhotoshoot() {
                         width: '100%',
                         height: '100%',
                         objectFit: 'cover',
-                        transition: 'transform 300ms ease'
+                        transition: 'transform 300ms ease',
+                        cursor: 'pointer'
                       }}
+                      onClick={() => setSelectedImagePreview(imageUrl)}
                       onMouseEnter={(e) => {
                         e.target.style.transform = 'scale(1.02)';
                       }}
@@ -941,24 +942,89 @@ export default function SandraPhotoshoot() {
                       }}
                     />
                     
-                    {/* Selection Indicator */}
+                    {/* Selection Checkbox */}
+                    <button
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        toggleImageSelection(imageUrl);
+                      }}
+                      style={{
+                        position: 'absolute',
+                        top: '16px',
+                        right: '16px',
+                        width: '32px',
+                        height: '32px',
+                        borderRadius: '50%',
+                        background: selectedImages.includes(imageUrl) ? '#0a0a0a' : 'rgba(255, 255, 255, 0.9)',
+                        border: '2px solid #ffffff',
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        fontSize: '14px',
+                        color: selectedImages.includes(imageUrl) ? '#ffffff' : '#0a0a0a',
+                        fontWeight: 'bold',
+                        cursor: 'pointer',
+                        transition: 'all 300ms ease',
+                        backdropFilter: 'blur(10px)'
+                      }}
+                      onMouseEnter={(e) => {
+                        e.target.style.transform = 'scale(1.1)';
+                      }}
+                      onMouseLeave={(e) => {
+                        e.target.style.transform = 'scale(1)';
+                      }}
+                    >
+                      {selectedImages.includes(imageUrl) ? '✓' : '○'}
+                    </button>
+                    
+                    {/* Preview Button */}
+                    <button
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        setSelectedImagePreview(imageUrl);
+                      }}
+                      style={{
+                        position: 'absolute',
+                        top: '16px',
+                        left: '16px',
+                        background: 'rgba(0, 0, 0, 0.7)',
+                        border: '1px solid rgba(255, 255, 255, 0.3)',
+                        color: '#ffffff',
+                        padding: '8px 12px',
+                        fontSize: '10px',
+                        letterSpacing: '0.2em',
+                        textTransform: 'uppercase',
+                        cursor: 'pointer',
+                        transition: 'all 300ms ease',
+                        backdropFilter: 'blur(10px)'
+                      }}
+                      onMouseEnter={(e) => {
+                        e.target.style.background = 'rgba(255, 255, 255, 0.9)';
+                        e.target.style.color = '#0a0a0a';
+                      }}
+                      onMouseLeave={(e) => {
+                        e.target.style.background = 'rgba(0, 0, 0, 0.7)';
+                        e.target.style.color = '#ffffff';
+                      }}
+                    >
+                      Full Size
+                    </button>
+                    
+                    {/* Photo Number */}
                     <div style={{
                       position: 'absolute',
-                      top: '16px',
-                      right: '16px',
-                      width: '24px',
-                      height: '24px',
-                      borderRadius: '50%',
-                      background: selectedImages.includes(imageUrl) ? '#0a0a0a' : 'rgba(255, 255, 255, 0.8)',
-                      border: '2px solid #ffffff',
-                      display: 'flex',
-                      alignItems: 'center',
-                      justifyContent: 'center',
-                      fontSize: '12px',
-                      color: selectedImages.includes(imageUrl) ? '#ffffff' : '#0a0a0a',
-                      fontWeight: 'bold'
+                      bottom: '16px',
+                      left: '16px',
+                      background: 'rgba(0, 0, 0, 0.7)',
+                      color: '#ffffff',
+                      padding: '6px 12px',
+                      fontSize: '11px',
+                      fontWeight: 400,
+                      letterSpacing: '0.2em',
+                      textTransform: 'uppercase',
+                      backdropFilter: 'blur(10px)'
                     }}>
-                      {selectedImages.includes(imageUrl) ? '✓' : (index + 1)}
+                      Photo {index + 1}
                     </div>
                     
                     {/* Selection Overlay */}
@@ -966,7 +1032,7 @@ export default function SandraPhotoshoot() {
                       <div style={{
                         position: 'absolute',
                         inset: 0,
-                        background: 'rgba(10, 10, 10, 0.2)',
+                        background: 'rgba(10, 10, 10, 0.15)',
                         display: 'flex',
                         alignItems: 'center',
                         justifyContent: 'center'
@@ -974,13 +1040,14 @@ export default function SandraPhotoshoot() {
                         <div style={{
                           background: 'rgba(10, 10, 10, 0.9)',
                           color: '#ffffff',
-                          padding: '8px 16px',
-                          fontSize: '11px',
+                          padding: '12px 20px',
+                          fontSize: '12px',
                           fontWeight: 400,
                           letterSpacing: '0.2em',
-                          textTransform: 'uppercase'
+                          textTransform: 'uppercase',
+                          backdropFilter: 'blur(10px)'
                         }}>
-                          Selected
+                          ✓ Selected for Gallery
                         </div>
                       </div>
                     )}
@@ -1098,6 +1165,107 @@ export default function SandraPhotoshoot() {
             </a>
           </div>
         </section>
+
+        {/* Image Lightbox */}
+        {selectedImagePreview && (
+          <div 
+            style={{
+              position: 'fixed',
+              inset: 0,
+              background: 'rgba(0, 0, 0, 0.95)',
+              zIndex: 1000,
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              padding: '40px'
+            }}
+            onClick={() => setSelectedImagePreview(null)}
+          >
+            <div style={{
+              position: 'relative',
+              maxWidth: '90vw',
+              maxHeight: '90vh'
+            }}>
+              <img 
+                src={selectedImagePreview}
+                alt="Full size preview"
+                style={{
+                  width: '100%',
+                  height: 'auto',
+                  objectFit: 'contain',
+                  maxWidth: '90vw',
+                  maxHeight: '90vh'
+                }}
+              />
+              
+              {/* Close Button */}
+              <button
+                onClick={() => setSelectedImagePreview(null)}
+                style={{
+                  position: 'absolute',
+                  top: '-50px',
+                  right: '0',
+                  background: 'rgba(255, 255, 255, 0.1)',
+                  border: '1px solid rgba(255, 255, 255, 0.3)',
+                  color: '#ffffff',
+                  padding: '12px 16px',
+                  fontSize: '11px',
+                  letterSpacing: '0.2em',
+                  textTransform: 'uppercase',
+                  cursor: 'pointer',
+                  transition: 'all 300ms ease',
+                  backdropFilter: 'blur(10px)'
+                }}
+                onMouseEnter={(e) => {
+                  e.target.style.background = 'rgba(255, 255, 255, 0.9)';
+                  e.target.style.color = '#0a0a0a';
+                }}
+                onMouseLeave={(e) => {
+                  e.target.style.background = 'rgba(255, 255, 255, 0.1)';
+                  e.target.style.color = '#ffffff';
+                }}
+              >
+                × Close
+              </button>
+              
+              {/* Select Button */}
+              <button
+                onClick={(e) => {
+                  e.stopPropagation();
+                  toggleImageSelection(selectedImagePreview);
+                }}
+                style={{
+                  position: 'absolute',
+                  bottom: '-60px',
+                  left: '50%',
+                  transform: 'translateX(-50%)',
+                  background: selectedImages.includes(selectedImagePreview) ? '#0a0a0a' : 'rgba(255, 255, 255, 0.1)',
+                  border: '1px solid rgba(255, 255, 255, 0.3)',
+                  color: selectedImages.includes(selectedImagePreview) ? '#ffffff' : '#ffffff',
+                  padding: '16px 32px',
+                  fontSize: '11px',
+                  letterSpacing: '0.3em',
+                  textTransform: 'uppercase',
+                  cursor: 'pointer',
+                  transition: 'all 300ms ease',
+                  backdropFilter: 'blur(10px)'
+                }}
+                onMouseEnter={(e) => {
+                  if (!selectedImages.includes(selectedImagePreview)) {
+                    e.target.style.background = 'rgba(255, 255, 255, 0.2)';
+                  }
+                }}
+                onMouseLeave={(e) => {
+                  if (!selectedImages.includes(selectedImagePreview)) {
+                    e.target.style.background = 'rgba(255, 255, 255, 0.1)';
+                  }
+                }}
+              >
+                {selectedImages.includes(selectedImagePreview) ? '✓ Selected for Gallery' : 'Select for Gallery'}
+              </button>
+            </div>
+          </div>
+        )}
       </div>
     </PaymentVerification>
   );

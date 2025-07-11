@@ -461,6 +461,36 @@ The more specific you are, the better prompt I can create! ✨`;
     }
   });
 
+  // Delete AI image route
+  app.delete('/api/ai-images/:id', async (req: any, res) => {
+    try {
+      const imageId = parseInt(req.params.id);
+      const userId = req.user?.claims?.sub || req.session?.userId || 'sandra_test_user_2025';
+      
+      console.log(`Deleting AI image ${imageId} for user ${userId}...`);
+      
+      // Direct database query to delete the image
+      const { db } = await import('./db');
+      const { aiImages } = await import('../shared/schema-simplified');
+      const { eq, and } = await import('drizzle-orm');
+      
+      const result = await db
+        .delete(aiImages)
+        .where(and(
+          eq(aiImages.id, imageId),
+          eq(aiImages.userId, userId)
+        ));
+      
+      console.log(`Image deletion result:`, result);
+      
+      res.json({ success: true, message: "Image deleted successfully" });
+      
+    } catch (error) {
+      console.error("Error deleting AI image:", error);
+      res.status(500).json({ message: "Failed to delete image", error: error?.message });
+    }
+  });
+
   app.post('/api/ai-images', isAuthenticated, async (req: any, res) => {
     try {
       const userId = req.user.claims.sub;
