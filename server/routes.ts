@@ -1756,6 +1756,94 @@ Respond as Sandra with a helpful prompt suggestion and encouragement. If the use
     }
   });
 
+  // Marketing automation endpoints
+  app.post('/api/marketing/launch', async (req: any, res) => {
+    try {
+      const { type } = req.body;
+      
+      // Import marketing orchestrator
+      const { MarketingOrchestrator } = await import('./marketing-automation/marketing-orchestrator');
+      
+      let result;
+      switch (type) {
+        case 'complete':
+          await MarketingOrchestrator.executeFullAutomation();
+          result = { message: 'Complete marketing automation launched', status: 'active' };
+          break;
+        case 'content':
+          await MarketingOrchestrator.automateContentCreation();
+          result = { message: 'Content automation activated', status: 'active' };
+          break;
+        case 'email':
+          await MarketingOrchestrator.automateEmailMarketing();
+          result = { message: 'Email automation activated', status: 'active' };
+          break;
+        case 'social':
+          const { AgentSystem } = await import('./agents/agent-system');
+          await AgentSystem.askAgent('sophia', 'Activate social media automation for SSELFIE AI launch');
+          result = { message: 'Social media automation activated', status: 'active' };
+          break;
+        case 'ads':
+          await MarketingOrchestrator.optimizeRevenue();
+          result = { message: 'Ad automation activated', status: 'active' };
+          break;
+        case 'seo':
+          await MarketingOrchestrator.automateSEO();
+          result = { message: 'SEO automation activated', status: 'active' };
+          break;
+        case 'integration':
+          await MarketingOrchestrator.integrateExistingSubscribers();
+          result = { message: 'Subscriber integration activated', status: 'active' };
+          break;
+        default:
+          result = { message: 'Unknown automation type', status: 'error' };
+      }
+      
+      res.json(result);
+    } catch (error) {
+      console.error('Marketing launch error:', error);
+      res.status(500).json({ message: 'Failed to launch marketing automation' });
+    }
+  });
+
+  app.get('/api/marketing/metrics', async (req: any, res) => {
+    try {
+      // Mock metrics for demo - replace with real analytics
+      const metrics = {
+        totalReach: 125000,
+        totalEngagement: 12500,
+        conversions: 15,
+        revenue: 1455, // €97 * 15 conversions
+        roi: 245,
+        activeSubscribers: 8200
+      };
+      
+      res.json(metrics);
+    } catch (error) {
+      console.error('Metrics fetch error:', error);
+      res.status(500).json({ message: 'Failed to fetch metrics' });
+    }
+  });
+
+  app.get('/api/marketing/automations', async (req: any, res) => {
+    try {
+      // Mock automation status - replace with real data
+      const automations = [
+        { id: 'content', status: 'active', progress: 75, lastUpdate: new Date() },
+        { id: 'email', status: 'active', progress: 60, lastUpdate: new Date() },
+        { id: 'social', status: 'active', progress: 90, lastUpdate: new Date() },
+        { id: 'ads', status: 'pending', progress: 0, lastUpdate: new Date() },
+        { id: 'seo', status: 'active', progress: 45, lastUpdate: new Date() },
+        { id: 'integration', status: 'completed', progress: 100, lastUpdate: new Date() }
+      ];
+      
+      res.json(automations);
+    } catch (error) {
+      console.error('Automations fetch error:', error);
+      res.status(500).json({ message: 'Failed to fetch automations' });
+    }
+  });
+
   const httpServer = createServer(app);
   return httpServer;
 }
