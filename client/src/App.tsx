@@ -24,6 +24,8 @@ import PaymentSuccess from "@/pages/payment-success";
 import Checkout from "@/pages/checkout";
 import SimpleCheckout from "@/pages/simple-checkout";
 import ThankYou from "@/pages/thank-you";
+import SandraPhotoshoot from "@/pages/sandra-photoshoot";
+import SSELFIEGallery from "@/pages/sselfie-gallery";
 
 // Removed duplicate photoshoot imports - using existing system
 
@@ -103,8 +105,8 @@ function Router() {
       {/* PROTECTED ROUTES */}
       <Route path="/workspace" component={(props) => <ProtectedRoute component={Workspace} {...props} />} />
       <Route path="/onboarding" component={(props) => <ProtectedRoute component={Onboarding} {...props} />} />
-      <Route path="/sandra-photoshoot" component={(props) => <ProtectedRoute component={lazy(() => import('./pages/sandra-photoshoot'))} {...props} />} />
-      <Route path="/sselfie-gallery" component={(props) => <ProtectedRoute component={lazy(() => import('./pages/sselfie-gallery'))} {...props} />} />
+      <Route path="/sandra-photoshoot" component={(props) => <ProtectedRoute component={SandraPhotoshoot} {...props} />} />
+      <Route path="/sselfie-gallery" component={(props) => <ProtectedRoute component={SSELFIEGallery} {...props} />} />
       <Route path="/profile" component={(props) => <ProtectedRoute component={Profile} {...props} />} />
 
       <Route component={NotFound} />

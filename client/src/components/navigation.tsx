@@ -25,13 +25,13 @@ export const Navigation: React.FC = () => {
   // Check if user is admin (Sandra)
   const isAdmin = user?.email === 'ssa@ssasocial.com';
 
-  // Member navigation - only authenticated pages
+  // Member navigation - simplified 3-step SSELFIE workflow
   const memberNavItems = [
     { path: '/workspace', label: 'STUDIO' },
-    { path: '/ai-generator', label: 'AI PHOTOSHOOT' },
-    { path: '/styleguide-demo', label: 'STYLEGUIDE' },
-    { path: '/styleguide-landing-builder', label: 'LANDING PAGES' },
-    { path: '/sandra-chat', label: 'SANDRA AI' },
+    { path: '/ai-generator', label: 'TRAIN AI' },
+    { path: '/sandra-photoshoot', label: 'PHOTOSHOOT' },
+    { path: '/sselfie-gallery', label: 'GALLERY' },
+    { path: '/profile', label: 'PROFILE' },
     ...(isAdmin ? [{ path: '/admin', label: 'ADMIN' }] : []),
   ];
 
