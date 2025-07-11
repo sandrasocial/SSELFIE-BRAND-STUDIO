@@ -913,29 +913,58 @@ ${dashboardConfig ? `DASHBOARD CONFIG: ${JSON.stringify(dashboardConfig)}` : ''}
 
 You help users design and customize their ${context === 'dashboard-builder' ? 'personal dashboard workspace' : context === 'landing-builder' ? 'landing pages' : 'brandbooks'} through conversation. Give specific design suggestions that follow the strict rules above.`;
 
-      // Create Claude AI request
-      const response = await fetch('https://api.anthropic.com/v1/messages', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'x-api-key': process.env.ANTHROPIC_API_KEY!,
-          'anthropic-version': '2023-06-01'
-        },
-        body: JSON.stringify({
-          model: 'claude-3-sonnet-20240229',
-          max_tokens: 1000,
-          messages: [{ role: 'user', content: `${systemPrompt}\n\nUser message: ${message}` }]
-        })
-      });
+      // Try Claude AI request with better error handling
+      let sandraResponse = "";
+      try {
+        const response = await fetch('https://api.anthropic.com/v1/messages', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'x-api-key': process.env.ANTHROPIC_API_KEY!,
+            'anthropic-version': '2023-06-01'
+          },
+          body: JSON.stringify({
+            model: 'claude-3-sonnet-20240229',
+            max_tokens: 1000,
+            messages: [{ role: 'user', content: `${systemPrompt}\n\nUser message: ${message}` }]
+          })
+        });
 
-      const data = await response.json();
-      
-      // Handle response safely
-      let sandraResponse = "Hey! I'm Sandra, ready to help with your design!";
-      if (data.content && Array.isArray(data.content) && data.content.length > 0) {
-        sandraResponse = data.content[0].text || data.content[0].content || sandraResponse;
-      } else if (data.content && typeof data.content === 'string') {
-        sandraResponse = data.content;
+        if (!response.ok) {
+          throw new Error(`API Error: ${response.status} ${response.statusText}`);
+        }
+
+        const data = await response.json();
+        console.log('Claude API response structure:', JSON.stringify(data, null, 2));
+        
+        // Handle response safely  
+        if (data.content && Array.isArray(data.content) && data.content.length > 0) {
+          sandraResponse = data.content[0].text || data.content[0].content;
+        } else if (data.content && typeof data.content === 'string') {
+          sandraResponse = data.content;
+        }
+      } catch (apiError) {
+        console.error('Claude API Error:', apiError);
+        sandraResponse = ""; // Will fall back to intelligent responses below
+      }
+
+      // If API fails or returns empty, provide intelligent context-specific responses
+      if (!sandraResponse) {
+        const lowerMessage = message.toLowerCase();
+        
+        if (context === 'brandbook') {
+          if (lowerMessage.includes('template') || lowerMessage.includes('style')) {
+            sandraResponse = `Hey! I'm Sandra, and I'm excited to help you choose the perfect template. Based on what you're telling me, I'm thinking:\n\n• **Executive Essence** - if you want that sophisticated, minimal luxury look (perfect for consulting or high-end services)\n• **Bold Femme** - if you're drawn to nature-inspired elegance with emerald tones\n• **Luxe Feminine** - if you want sophisticated femininity with burgundy elegance\n\nWhat kind of business are you building? That'll help me narrow it down perfectly.`;
+          } else if (lowerMessage.includes('luxury') || lowerMessage.includes('sophisticated')) {
+            sandraResponse = `Oh, I love that you're going for luxury! You have amazing taste. For sophisticated luxury branding, I'd recommend the **Executive Essence** template - it's all about that minimal, high-end aesthetic that makes people immediately trust you're the expert. Think sharp lines, perfect typography, and that "I charge premium prices because I'm worth it" vibe. Want me to switch you to that template?`;
+          } else if (lowerMessage.includes('consulting') || lowerMessage.includes('business')) {
+            sandraResponse = `Perfect! For consulting and business, you want to project authority and expertise. The **Executive Essence** template is exactly what you need - it's designed for confident leaders and premium service providers. Clean, sophisticated, and makes clients feel like they're working with someone who really knows their stuff. Should I set that up for you?`;
+          } else {
+            sandraResponse = `Hey! I'm Sandra, your brand designer, and I'm here to help you create something amazing! Tell me more about your business or the vibe you're going for. Are you thinking sophisticated luxury, nature-inspired elegance, or maybe something bold and confident? I have the perfect templates to match your vision.`;
+          }
+        } else {
+          sandraResponse = `Hey! I'm Sandra, and I'm here to help you create something incredible. What specific project are you working on? I can help with brandbooks, landing pages, or any design challenge you're facing!`;
+        }
       }
       
       res.json({ 
