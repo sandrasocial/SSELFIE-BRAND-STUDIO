@@ -26,6 +26,7 @@ import SimpleCheckout from "@/pages/simple-checkout";
 import ThankYou from "@/pages/thank-you";
 import SandraPhotoshoot from "@/pages/sandra-photoshoot";
 import RachelChat from "@/pages/rachel-chat";
+import RachelActivation from "@/pages/rachel-activation";
 import SSELFIEGallery from "@/pages/sselfie-gallery";
 import AIGenerator from "@/pages/ai-generator";
 import SimpleTraining from "@/pages/simple-training";
@@ -135,6 +136,7 @@ function Router() {
       <Route path="/admin" component={AdminDashboard} />
       <Route path="/sandra-admin" component={AdminDashboard} />
       <Route path="/rachel-chat" component={(props) => <ProtectedRoute component={RachelChat} {...props} />} />
+      <Route path="/rachel-activation" component={(props) => <ProtectedRoute component={RachelActivation} {...props} />} />
       
       {/* ADMIN MARKETING AUTOMATION */}
       <Route path="/marketing-automation" component={(props) => <ProtectedRoute component={lazy(() => import('@/pages/marketing-automation'))} {...props} />} />
