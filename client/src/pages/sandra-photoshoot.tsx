@@ -92,10 +92,15 @@ export default function SandraPhotoshoot() {
   // Generate images mutation
   const generateImagesMutation = useMutation({
     mutationFn: async (prompt: string) => {
-      return await apiRequest('POST', '/api/generate-images', { 
+      const response = await apiRequest('POST', '/api/generate-images', { 
         prompt,
         count: 4 
       });
+      // Parse the response as JSON if it's a Response object
+      if (response instanceof Response) {
+        return await response.json();
+      }
+      return response;
     },
     onSuccess: (data) => {
       console.log('Generation success data:', data);
