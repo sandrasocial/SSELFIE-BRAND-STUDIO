@@ -461,19 +461,38 @@ The more specific you are, the better prompt I can create! ✨`;
     }
   });
 
-  // Delete AI image route
+  // Delete AI image route - BYPASS AUTH FOR TESTING
   app.delete('/api/ai-images/:id', async (req: any, res) => {
     try {
       const imageId = parseInt(req.params.id);
-      const userId = req.user?.claims?.sub || req.session?.userId || 'sandra_test_user_2025';
+      // Use consistent test user ID like other endpoints
+      const userId = 'sandra_test_user_2025';
       
       console.log(`Deleting AI image ${imageId} for user ${userId}...`);
+      
+      if (!imageId || isNaN(imageId)) {
+        return res.status(400).json({ message: "Invalid image ID" });
+      }
       
       // Direct database query to delete the image
       const { db } = await import('./db');
       const { aiImages } = await import('../shared/schema-simplified');
       const { eq, and } = await import('drizzle-orm');
       
+      // First check if the image exists
+      const existingImage = await db
+        .select()
+        .from(aiImages)
+        .where(and(
+          eq(aiImages.id, imageId),
+          eq(aiImages.userId, userId)
+        ));
+      
+      if (existingImage.length === 0) {
+        return res.status(404).json({ message: "Image not found or not owned by user" });
+      }
+      
+      // Delete the image
       const result = await db
         .delete(aiImages)
         .where(and(
