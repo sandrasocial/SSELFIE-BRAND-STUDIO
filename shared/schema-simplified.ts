@@ -66,6 +66,17 @@ export const onboardingData = pgTable("onboarding_data", {
   updatedAt: timestamp("updated_at").defaultNow(),
 });
 
+// Sandra AI conversation history table
+export const sandraConversations = pgTable("sandra_conversations", {
+  id: serial("id").primaryKey(),
+  userId: varchar("user_id").references(() => users.id).notNull(),
+  message: text("message").notNull(),
+  response: text("response").notNull(),
+  userStylePreferences: jsonb("user_style_preferences"), // Extracted style info
+  suggestedPrompt: text("suggested_prompt"),
+  createdAt: timestamp("created_at").defaultNow(),
+});
+
 // AI generated images table
 export const aiImages = pgTable("ai_images", {
   id: serial("id").primaryKey(),
@@ -145,6 +156,8 @@ export type Subscription = typeof subscriptions.$inferSelect;
 export type InsertSubscription = typeof subscriptions.$inferInsert;
 export type UserUsage = typeof userUsage.$inferSelect;
 export type InsertUserUsage = typeof userUsage.$inferInsert;
+export type SandraConversation = typeof sandraConversations.$inferSelect;
+export type InsertSandraConversation = typeof sandraConversations.$inferInsert;
 
 // Insert schemas with Zod validation
 export const insertOnboardingDataSchema = createInsertSchema(onboardingData);
@@ -153,3 +166,4 @@ export const insertUserModelSchema = createInsertSchema(userModels);
 export const insertSelfieUploadSchema = createInsertSchema(selfieUploads);
 export const insertSubscriptionSchema = createInsertSchema(subscriptions);
 export const insertUserUsageSchema = createInsertSchema(userUsage);
+export const insertSandraConversationSchema = createInsertSchema(sandraConversations);
