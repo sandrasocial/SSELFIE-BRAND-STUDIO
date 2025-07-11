@@ -33,7 +33,7 @@ const CheckoutForm = ({ planType }: { planType: string }) => {
       const { error } = await stripe.confirmPayment({
         elements,
         confirmParams: {
-          return_url: `${window.location.origin}/thank-you?plan=${planType}`,
+          return_url: `${window.location.origin}/payment-success?plan=${planType}`,
         },
       });
 
