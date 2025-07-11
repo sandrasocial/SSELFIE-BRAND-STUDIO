@@ -115,31 +115,12 @@ export class ModelTrainingService {
       
       console.log('ZIP file created successfully:', zipPath);
       
-      // Upload your real ZIP file to S3 (no ACL since bucket has public read policy)
-      const zipFileName = `training-zips/user_${userId}_${Date.now()}.zip`;
-      const fileContent = fs.readFileSync(zipPath);
+      // For now, serve the ZIP directly from our server to avoid S3 region issues
+      // Keep the ZIP file in temp directory for serving
+      const localZipUrl = `https://${process.env.REPLIT_DOMAINS?.split(',')[0] || 'localhost:5000'}/training-zip/${path.basename(zipPath)}`;
       
-      const uploadParams = {
-        Bucket: process.env.AWS_S3_BUCKET!,
-        Key: zipFileName,
-        Body: fileContent,
-        ContentType: 'application/zip'
-      };
-      
-      const uploadResult = await this.s3.upload(uploadParams).promise();
-      
-      // Generate presigned URL for Replicate access (24 hour expiry)
-      const presignedUrl = this.s3.getSignedUrl('getObject', {
-        Bucket: process.env.AWS_S3_BUCKET!,
-        Key: zipFileName,
-        Expires: 86400 // 24 hours
-      });
-      
-      // Clean up temp file
-      fs.unlinkSync(zipPath);
-      
-      console.log('Your real ZIP uploaded to S3 with presigned URL:', presignedUrl);
-      return presignedUrl;
+      console.log('Training ZIP ready for Replicate access:', localZipUrl);
+      return localZipUrl;
       
     } catch (error) {
       console.error('Error creating/uploading ZIP:', error);

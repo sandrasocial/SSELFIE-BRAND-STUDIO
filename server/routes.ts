@@ -2,6 +2,8 @@ import type { Express } from "express";
 import { createServer, type Server } from "http";
 import { storage } from "./storage";
 import { setupAuth, isAuthenticated } from "./replitAuth";
+import path from "path";
+import fs from "fs";
 // Removed photoshoot routes - using existing checkout system
 import { registerStyleguideRoutes } from "./routes/styleguide-routes";
 import { UsageService } from './usage-service';
@@ -428,6 +430,20 @@ export async function registerRoutes(app: Express): Promise<Server> {
     } catch (error) {
       console.error("Error fetching template:", error);
       res.status(500).json({ message: "Failed to fetch template" });
+    }
+  });
+
+  // Serve training ZIP files directly from server to avoid S3 region issues
+  app.get("/training-zip/:filename", (req, res) => {
+    const filename = req.params.filename;
+    const filePath = path.join(process.cwd(), 'temp_training', filename);
+    
+    if (fs.existsSync(filePath)) {
+      res.setHeader('Content-Type', 'application/zip');
+      res.setHeader('Content-Disposition', `attachment; filename="${filename}"`);
+      res.sendFile(filePath);
+    } else {
+      res.status(404).json({ error: 'Training ZIP file not found' });
     }
   });
 
