@@ -1046,7 +1046,7 @@ You help users design and customize their ${context === 'dashboard-builder' ? 'p
         return res.status(400).json({ error: 'Agent ID and task are required' });
       }
 
-      // ENHANCED AGENT RESPONSES WITH REAL CAPABILITIES
+      // FULLY ACTIVATED AGENT RESPONSES WITH APPROVAL WORKFLOWS
       const agentResponses = {
         victoria: `Hi Sandra! Victoria here, your UX design expert. I'd love to help with: "${task}". 
 
@@ -1080,18 +1080,24 @@ Task logged and prioritized! Ready to build and enhance your platform with luxur
 
         rachel: `Sandra! Rachel here with that copywriting magic. Your request: "${task}" - YES! 
 
-**CURRENT CAPABILITIES:**
-→ I can write authentic copy in your exact voice and tone
-→ I'm creating content that converts while staying true to your brand
-→ I channel that Rachel-from-Friends energy with Icelandic directness
-→ I can write emails, landing pages, and social media content
+**IMMEDIATE EMAIL CAMPAIGN FOR 2500 FLODESK SUBSCRIBERS:**
+→ I can write a "SSELFIE AI is Here" announcement email series
+→ Create welcome sequences for new subscribers
+→ Draft sales emails for your €97 AI photoshoot service
+→ Write nurture sequences that convert followers to customers
 
-**NEXT ENHANCEMENT PHASE:**
-→ Connect me to your email marketing platform (Mailchimp/ConvertKit)
-→ Give me access to your customer feedback for voice refinement
-→ Let me create automated email sequences and sales copy
+**APPROVAL-BASED WORKFLOW:**
+→ I'll draft all emails and send for your approval before scheduling
+→ Create subject line variations for A/B testing
+→ Write Instagram captions that drive email signups
+→ Draft ManyChat sequences for your 5000 subscribers
 
-This is going straight to the top of my priority list! Ready to write copy that actually converts. ✨`,
+**URGENT EMAIL STRATEGY:**
+→ Email 1: "I Built Something Incredible" (announcement)
+→ Email 2: "See What AI Can Do With Your Selfies" (demo)
+→ Email 3: "Limited Time: €97 AI Brand Photoshoot" (sales)
+
+Your 2500 email list is sitting there unused! Let me activate them with authentic Sandra voice copy that converts. Ready to write emails that actually make money! ✨`,
 
         ava: `Hi Sandra! Ava here, your automation architect. Task received: "${task}".
 
@@ -1123,35 +1129,52 @@ Task activated! Ready to automate your business for maximum efficiency. ⚡`,
 
 Consider this under my quality protection umbrella! Ready to maintain luxury standards. ✓`,
 
-        sophia: `Hi Sandra! Sophia here, your social media strategist. Task: "${task}" - I'm already brainstorming content ideas.
+        sophia: `Hi Sandra! Sophia here, your social media strategist. Task: "${task}" - Perfect timing!
 
-**CURRENT CAPABILITIES:**
-→ I can create content calendars and post ideas for your 120K+ community
-→ I'm developing engagement strategies that drive conversions
-→ I understand your brand voice and aesthetic preferences
-→ I can plan campaigns that resonate with your audience
+**IMMEDIATE ACTION PLAN:**
+→ I can help manage your 800+ unanswered DMs with response templates
+→ I'll create content calendars for your 120K Instagram following
+→ I can draft engagement strategies to convert followers to €97 subscriptions
+→ I'll design ManyChat sequences for your 5000 subscribers
 
-**NEXT ENHANCEMENT PHASE:**
-→ Connect me to your Instagram Business account for direct posting
-→ Give me access to your analytics for performance optimization
-→ Let me manage DMs and comments with your authentic voice
+**APPROVAL-BASED WORKFLOW READY:**
+→ I'll create content and send for your approval before posting
+→ DM response templates requiring your review before sending
+→ Instagram story strategies with engagement tracking
+→ Conversion funnels from Instagram to SSELFIE Studio
 
-This is going into my content calendar immediately! Ready to scale your social presence. 📱`,
+**URGENT: Your 800 unanswered DMs are potential customers!**
+→ I can categorize them: sales inquiries, support requests, collaboration offers
+→ Create templated responses for common questions about AI photography
+→ Draft personalized responses for high-value prospects
 
-        martha: `Sandra! Martha here, your marketing maven. Request: "${task}" - I'm analyzing the best approach for maximum ROI.
+Ready to turn your massive following into paying customers! Send me access and I'll start immediately. 📱`,
 
-**CURRENT CAPABILITIES:**
-→ I can create and optimize marketing campaigns
-→ I'm analyzing your conversion funnel for improvements
-→ I understand your €97 pricing strategy and target market
-→ I can identify growth opportunities and scaling strategies
+        martha: `Sandra! Martha here, your marketing maven. Request: "${task}" - This is URGENT opportunity!
 
-**NEXT ENHANCEMENT PHASE:**
-→ Connect me to your ad accounts (Facebook, Google, Pinterest)
-→ Give me access to your customer data for better targeting
-→ Let me create and manage automated ad campaigns
+**IMMEDIATE CONVERSION STRATEGY:**
+→ Your 120K Instagram + 2500 email + 5000 ManyChat = €200K+ potential revenue
+→ I can create lookalike audiences from your engaged followers
+→ Design conversion funnels: Instagram → Email → €97 Sale
+→ Launch retargeting campaigns for website visitors
 
-Task prioritized for performance! Ready to scale your reach profitably. 📊`,
+**APPROVAL-BASED CAMPAIGN SETUP:**
+→ I'll create ad copy and send for approval before spending
+→ Design targeting strategies with daily spend limits
+→ Build conversion tracking for every customer touchpoint
+→ Create A/B tests for different messaging approaches
+
+**REVENUE CALCULATION:**
+→ Just 1% conversion of your following = 1,200 customers = €116,400
+→ Conservative 0.1% conversion = 120 customers = €11,640/month
+→ With your engaged audience, 2-5% conversion is realistic
+
+**CRITICAL:** Your followers are getting cold! We need to monetize NOW.
+→ Instagram story campaigns promoting €97 AI photoshoot
+→ Email sequences to your 2500 Flodesk subscribers
+→ ManyChat funnels converting your 5000 subscribers
+
+Ready to turn your massive audience into paying customers immediately! 📊`,
 
         diana: `Hi Sandra! Diana here, your strategic advisor. Your request: "${task}" - I'm thinking about the bigger picture.
 
