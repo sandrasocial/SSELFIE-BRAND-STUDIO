@@ -124,6 +124,11 @@ export class DatabaseStorage implements IStorage {
     return saved;
   }
 
+  async createAIImage(data: InsertAIImage): Promise<AIImage> {
+    // Alias for saveAIImage for compatibility
+    return this.saveAIImage(data);
+  }
+
   // User Model operations
   async getUserModel(userId: string): Promise<UserModel | undefined> {
     const [model] = await db

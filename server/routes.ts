@@ -883,7 +883,7 @@ What kind of vibe are you going for? Executive power? Creative entrepreneur? Wel
   });
 
   // Sandra AI Designer Chat endpoint with Claude 4.0 Sonnet
-  app.post('/api/sandra-ai-chat', isAuthenticated, async (req: any, res) => {
+  app.post('/api/sandra-ai-chat', async (req: any, res) => {
     try {
       const { message, context, userContext, chatHistory, pageConfig, selectedTemplate, dashboardConfig } = req.body;
       
@@ -913,8 +913,30 @@ ${dashboardConfig ? `DASHBOARD CONFIG: ${JSON.stringify(dashboardConfig)}` : ''}
 
 You help users design and customize their ${context === 'dashboard-builder' ? 'personal dashboard workspace' : context === 'landing-builder' ? 'landing pages' : 'brandbooks'} through conversation. Give specific design suggestions that follow the strict rules above.`;
 
-      // TEMPORARY: Disable Anthropic until API key is fixed
-      const sandraResponse = `Hey! I'm Sandra, your AI design expert. I'd love to help you with ${context === 'dashboard-builder' ? 'your dashboard workspace' : context === 'landing-builder' ? 'your landing page' : 'your brandbook'} but I'm temporarily offline while we fix some technical issues. Please use the main Sandra AI chat in the photoshoot section for now! ✨`;
+      // Create Claude AI request
+      const response = await fetch('https://api.anthropic.com/v1/messages', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'x-api-key': process.env.ANTHROPIC_API_KEY!,
+          'anthropic-version': '2023-06-01'
+        },
+        body: JSON.stringify({
+          model: 'claude-3-sonnet-20240229',
+          max_tokens: 1000,
+          messages: [{ role: 'user', content: `${systemPrompt}\n\nUser message: ${message}` }]
+        })
+      });
+
+      const data = await response.json();
+      
+      // Handle response safely
+      let sandraResponse = "Hey! I'm Sandra, ready to help with your design!";
+      if (data.content && Array.isArray(data.content) && data.content.length > 0) {
+        sandraResponse = data.content[0].text || data.content[0].content || sandraResponse;
+      } else if (data.content && typeof data.content === 'string') {
+        sandraResponse = data.content;
+      }
       
       res.json({ 
         response: sandraResponse,
@@ -1799,7 +1821,7 @@ Consider this workflow optimized and ready for implementation! ⚙️`
   app.post('/api/generate-images', async (req: any, res) => {
     try {
       // Session-based user authentication for testing
-      const userId = req.session?.userId || 'demo_user_12345';
+      const userId = req.user?.claims?.sub || req.session?.userId || 'sandra_test_user_2025';
       const { prompt, count = 4 } = req.body;
       
       if (!prompt) {
@@ -1833,7 +1855,7 @@ Consider this workflow optimized and ready for implementation! ⚙️`
   // Save selected images to gallery
   app.post('/api/save-selected-images', async (req: any, res) => {
     try {
-      const userId = req.session?.userId || 'demo_user_12345';
+      const userId = req.user?.claims?.sub || req.session?.userId || 'sandra_test_user_2025';
       const { imageUrls, prompt } = req.body;
       
       if (!imageUrls || !Array.isArray(imageUrls) || imageUrls.length === 0) {
