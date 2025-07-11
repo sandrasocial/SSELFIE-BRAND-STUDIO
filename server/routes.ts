@@ -195,7 +195,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       } else if (userModel.replicateModelId) {
         // Check real Replicate status
         try {
-          const response = await fetch(`https://api.replicate.com/v1/predictions/${userModel.replicateModelId}`, {
+          const response = await fetch(`https://api.replicate.com/v1/trainings/${userModel.replicateModelId}`, {
             headers: {
               'Authorization': `Token ${process.env.REPLICATE_API_TOKEN}`
             }
@@ -209,11 +209,24 @@ export async function registerRoutes(app: Express): Promise<Server> {
             // Calculate progress based on Replicate status
             if (status === 'succeeded') {
               progress = 100;
+              // Update our database if training completed
+              await storage.updateUserModel(userId, {
+                trainingStatus: 'completed',
+                replicateVersionId: replicateData.output?.version || null
+              });
+            } else if (status === 'failed') {
+              progress = 0;
+              await storage.updateUserModel(userId, {
+                trainingStatus: 'failed',
+                failureReason: replicateData.error || 'Training failed'
+              });
             } else if (status === 'processing') {
               progress = 50; // Estimate
             } else if (status === 'starting') {
               progress = 10;
             }
+            
+            console.log(`Training ${userModel.replicateModelId}: ${status} (${progress}%)`);
           }
         } catch (error) {
           console.error('Error checking Replicate status:', error);
