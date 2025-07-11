@@ -6,61 +6,79 @@ import { PaymentVerification } from '@/components/payment-verification';
 import { useToast } from '@/hooks/use-toast';
 import { apiRequest } from '@/lib/queryClient';
 
-// European Street Luxury - Model-Off-Duty in Paris/Milan Aesthetic
+// SSELFIE AI™ HIGH FASHION MODEL PROMPT COLLECTION - STUDIO BEAUTY PORTRAITS
 const SANDRA_PROMPTS = [
   {
-    id: 'milan-boutique-stroll',
-    title: 'Milan Boutique Stroll',
-    description: 'European street luxury - Walking past designer stores effortlessly',
-    prompt: '{trigger_word} woman walking past luxury boutique in Milan, black strapless top, white tailored trousers, small designer bag, adjusting sunglasses while walking, European street architecture, natural midday light, shot on iPhone street style, film aesthetic, environmental candid'
+    id: 'vogue-beauty-classic',
+    title: 'Vogue Beauty Classic',
+    description: 'Timeless studio beauty - Hair in messy bun with minimal makeup',
+    prompt: '{trigger_word} woman, hair in high messy bun with face-framing pieces, minimal makeup with glossy lips, bare shoulders, seamless gray backdrop, shot on Hasselblad X2D, single beauty dish lighting, black and white photography, visible skin texture and freckles, film grain, high fashion beauty portrait'
   },
   {
-    id: 'parisian-coffee-run',
-    title: 'Parisian Coffee Run',
-    description: 'Casual luxury moment - Morning coffee with effortless style',
-    prompt: '{trigger_word} woman exiting cafe with coffee, oversized black blazer as dress, Nike sneakers, baseball cap, layered gold necklaces, urban European street, morning light, candid lifestyle moment, influencer street style photography'
+    id: 'harpers-intimate-portrait',
+    title: 'Harper\'s Intimate Portrait',
+    description: 'Natural editorial beauty - Looking over bare shoulder',
+    prompt: '{trigger_word} woman, tousled hair falling naturally, looking over bare shoulder, minimal jewelry, neutral backdrop, shot on Canon 5DS R, soft window light from left, black and white editorial, natural skin with visible pores, medium format aesthetic'
   },
   {
-    id: 'ornate-doorway-moment',
-    title: 'Ornate Doorway Moment',
-    description: 'Architectural elegance - Leaning against European heritage',
-    prompt: '{trigger_word} woman leaning against ornate European door, black tube top, oversized denim, small structured bag, looking away from camera, architectural details visible, natural street photography, film grain, fashion influencer aesthetic'
+    id: 'elle-fresh-face',
+    title: 'Elle Fresh Face',
+    description: 'Clean editorial simplicity - Sitting on stool relaxed',
+    prompt: '{trigger_word} woman sitting on stool, white tank top, denim, relaxed pose with hands clasped, hair air-dried and natural, minimal studio setup, shot on Phase One, clean beauty lighting, black and white portrait, authentic skin texture, editorial simplicity'
   },
   {
-    id: 'european-street-crossing',
-    title: 'European Street Crossing',
-    description: 'City confidence - Mid-stride urban sophistication',
-    prompt: '{trigger_word} woman mid-stride crossing European street, black vest top, sage green wide pants, designer bag swinging, confident walk, city life in background, candid street capture, natural movement, lifestyle influencer photography'
+    id: 'window-shadow-play',
+    title: 'Window Shadow Play',
+    description: 'Dramatic lighting - Blinds creating shadow stripes',
+    prompt: '{trigger_word} woman, dramatic window blinds creating shadow stripes across face and body, eyes closed in serene expression, black slip dress, shot on Leica M11 Monochrom, natural harsh light, high contrast black and white, visible skin detail in light strips'
   },
   {
-    id: 'stone-wall-attitude',
-    title: 'Stone Wall Attitude',
-    description: 'Architectural lean - All black confidence against history',
-    prompt: '{trigger_word} woman against stone building wall, all black outfit leather jacket and pants, arms crossed, sunglasses on, European architecture visible, natural shadow play, street style photography, confident energy, film aesthetic'
+    id: 'rembrandt-lighting-mood',
+    title: 'Rembrandt Lighting Mood',
+    description: 'Classic portrait lighting - Triangle of light on cheek',
+    prompt: '{trigger_word} woman, single dramatic light source creating triangle of light on cheek, deep shadows, black turtleneck, moody expression, shot on Hasselblad, classic portrait lighting, black and white fine art photography, natural skin texture emphasized by light'
   },
   {
-    id: 'cobblestone-wandering',
-    title: 'Cobblestone Wandering',
-    description: 'Old world luxury - Strolling through historic European streets',
-    prompt: '{trigger_word} woman walking on cobblestone street, cream oversized coat, black jeans, white sneakers, designer bag, European old town backdrop, natural afternoon light, candid street photography, effortless luxury aesthetic'
+    id: 'hair-toss-energy',
+    title: 'Hair Toss Energy',
+    description: 'Natural movement captured - Mid hair flip motion',
+    prompt: '{trigger_word} woman, mid hair flip movement, natural motion blur in hair, black tank top, genuine expression, shot on Nikon Z9, studio strobe to freeze motion, black and white action portrait, authentic moment captured'
   },
   {
-    id: 'plaza-phone-moment',
-    title: 'Plaza Phone Moment',
-    description: 'European plaza elegance - Caught in natural conversation',
-    prompt: '{trigger_word} woman on phone in European plaza, beige trench coat, black turtleneck, minimal jewelry, fountain in background, natural gesture, street photography, film grain, sophisticated lifestyle moment'
+    id: 'casual-lean-portrait',
+    title: 'Casual Lean Portrait',
+    description: 'Confident relaxed pose - Leaning against white wall',
+    prompt: '{trigger_word} woman leaning against white wall, arms crossed, black blazer open, confident relaxed pose, natural hair texture, shot on Sony A7R V, available light, black and white lifestyle portrait, real skin detail'
   },
   {
-    id: 'luxury-district-stride',
-    title: 'Luxury District Stride',
-    description: 'Designer avenue walk - Power walking through high-end shopping',
-    prompt: '{trigger_word} woman walking luxury shopping avenue, black turtleneck, wide-leg trousers, structured bag, European luxury storefronts, confident stride, natural street lighting, fashion week street style, candid movement'
+    id: 'chair-authority',
+    title: 'Chair Authority',
+    description: 'Editorial power pose - Sitting backwards on chair',
+    prompt: '{trigger_word} woman sitting backwards on chair, arms resting on chair back, black outfit, direct powerful gaze, shot on Phase One, dramatic studio lighting, black and white power portrait, strong presence, editorial fashion'
   },
   {
-    id: 'bridge-contemplation',
-    title: 'Bridge Contemplation',
-    description: 'European bridge moment - Thoughtful pause over historic waters',
-    prompt: '{trigger_word} woman on European bridge, white button-down, dark denim, looking at cityscape, historic bridge architecture, river below, natural wind movement, street photography, contemplative lifestyle moment'
+    id: 'dewy-skin-glow',
+    title: 'Dewy Skin Glow',
+    description: 'Artistic intimate shot - Water droplets with moody lighting',
+    prompt: '{trigger_word} woman, skin with water droplets or oil for dewy effect, black bralette, artistic shadows from venetian blinds, shot on Canon 5DS R, moody lighting, intimate portrait photography, visible skin texture with moisture'
+  },
+  {
+    id: 'freckles-and-texture',
+    title: 'Freckles and Texture',
+    description: 'Extreme beauty close-up - Natural freckles visible',
+    prompt: '{trigger_word} woman, extreme close-up beauty shot, natural freckles visible, glossy lips slightly parted, messy bun with loose strands, shot on Phase One with 120mm macro, ring light, black and white beauty portrait, every pore visible'
+  },
+  {
+    id: 'side-glance-beauty',
+    title: 'Side Glance Beauty',
+    description: 'Glamour portrait - Looking over shoulder with statement earrings',
+    prompt: '{trigger_word} woman looking over shoulder, wavy hair cascading, statement earrings, bare shoulders, shot on Canon 5DS R, beauty dish with fill, black and white glamour portrait, skin texture in high detail'
+  },
+  {
+    id: 'minimalist-beauty',
+    title: 'Minimalist Beauty',
+    description: 'Clean beauty shot - Slicked back hair, no makeup look',
+    prompt: '{trigger_word} woman, straight-on beauty shot, slicked back hair, no makeup makeup look, black top, shot on Hasselblad, single softbox, black and white minimalist portrait, natural skin imperfections visible'
   }
 ];
 
