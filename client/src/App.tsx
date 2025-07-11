@@ -34,6 +34,7 @@ import SimpleAITraining from "@/pages/simple-ai-training";
 import SimpleTraining from "@/pages/simple-training";
 import AdminRoadmap from "@/pages/admin-roadmap";
 import Checkout from "@/pages/checkout";
+import SimpleCheckout from "@/pages/simple-checkout";
 import ThankYou from "@/pages/thank-you";
 import AIGenerator from "@/pages/ai-generator";
 import SandraChat from "@/pages/sandra-chat";
@@ -115,6 +116,7 @@ function Router() {
 
       {/* PAYMENT FLOW - NO AUTHENTICATION REQUIRED FOR CUSTOMER ACQUISITION */}
       <Route path="/checkout" component={Checkout} />
+      <Route path="/simple-checkout" component={SimpleCheckout} />
       <Route path="/thank-you" component={ThankYou} />
       <Route path="/payment-success" component={PaymentSuccess} />
       <Route path="/simple-training" component={(props) => <ProtectedRoute component={SimpleTraining} {...props} />} />
