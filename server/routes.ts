@@ -1311,6 +1311,95 @@ You help users design and customize their ${context === 'dashboard-builder' ? 'p
     }
   });
 
+  // Save selected images to gallery
+  app.post('/api/save-selected-images', async (req: any, res) => {
+    try {
+      const userId = req.session?.userId || 'demo_user_12345';
+      const { imageUrls, prompt } = req.body;
+      
+      if (!imageUrls || !Array.isArray(imageUrls) || imageUrls.length === 0) {
+        return res.status(400).json({ error: 'At least one image URL is required' });
+      }
+      
+      console.log('Saving selected images:', { userId, count: imageUrls.length, prompt });
+      
+      const savedImages = [];
+      for (const imageUrl of imageUrls) {
+        const aiImage = await storage.createAIImage({
+          userId,
+          imageUrl,
+          prompt: prompt || 'Custom photoshoot',
+          status: 'completed',
+          generatedAt: new Date()
+        });
+        savedImages.push(aiImage);
+      }
+      
+      res.json({ 
+        success: true,
+        savedCount: savedImages.length,
+        images: savedImages
+      });
+      
+    } catch (error) {
+      console.error('Save selected images error:', error);
+      res.status(500).json({ error: error.message });
+    }
+  });
+
+  // Chat with Sandra AI for photoshoot prompts
+  app.post('/api/sandra-chat', async (req: any, res) => {
+    try {
+      const { message, history } = req.body;
+      
+      if (!message) {
+        return res.status(400).json({ error: 'Message is required' });
+      }
+      
+      // Use Anthropic for Sandra AI responses
+      const { default: Anthropic } = await import('@anthropic-ai/sdk');
+      const anthropic = new Anthropic({
+        apiKey: process.env.ANTHROPIC_API_KEY,
+      });
+      
+      const contextPrompt = `You are Sandra, the founder of SSELFIE Studio. You help women create perfect AI photoshoot prompts for their personal brand. 
+
+Your personality:
+- Confident, direct, and encouraging like Rachel from Friends
+- Expert in photography, branding, and AI prompts
+- Help create specific, detailed prompts for professional brand photos
+- Always mention trigger words like "subject" or the user's model name
+- Focus on professional lighting, poses, backgrounds, and styling
+
+User's message: "${message}"
+
+Chat history: ${JSON.stringify(history)}
+
+Respond as Sandra with a helpful prompt suggestion and encouragement. If the user wants specific types of photos, create a detailed AI prompt they can use.`;
+
+      const response = await anthropic.messages.create({
+        model: "claude-sonnet-4-20250514",
+        max_tokens: 1024,
+        messages: [{ role: 'user', content: contextPrompt }],
+      });
+      
+      const sandraResponse = response.content[0].text;
+      
+      // Extract any suggested prompt from Sandra's response
+      const promptMatch = sandraResponse.match(/(?:prompt|try this|use this):\s*"([^"]+)"/i);
+      const suggestedPrompt = promptMatch ? promptMatch[1] : null;
+      
+      res.json({
+        response: sandraResponse,
+        suggestedPrompt
+      });
+      
+    } catch (error) {
+      console.error('Sandra chat error:', error);
+      res.status(500).json({ error: error.message });
+    }
+  });
+
   // Generate user images using trained model (legacy endpoint)
   app.post('/api/generate-user-images', isAuthenticated, async (req: any, res) => {
     try {

@@ -54,6 +54,8 @@ export default function SandraPhotoshoot() {
   const [chatHistory, setChatHistory] = useState<Array<{role: 'user' | 'sandra', message: string}>>([]);
   const [activeTab, setActiveTab] = useState<'prompts' | 'chat'>('prompts');
   const [generatedImages, setGeneratedImages] = useState<string[]>([]);
+  const [selectedImages, setSelectedImages] = useState<string[]>([]);
+  const [showSelectionMode, setShowSelectionMode] = useState(false);
   const { toast } = useToast();
   const queryClient = useQueryClient();
 
@@ -73,9 +75,11 @@ export default function SandraPhotoshoot() {
     },
     onSuccess: (data) => {
       setGeneratedImages(data.images);
+      setSelectedImages([]);
+      setShowSelectionMode(true);
       toast({
         title: "Photos Generated!",
-        description: "4 new SSELFIE photos are ready for preview.",
+        description: "Select the photos you love to save them to your gallery.",
       });
     },
     onError: (error: any) => {
@@ -87,10 +91,10 @@ export default function SandraPhotoshoot() {
     }
   });
 
-  // Save images mutation
-  const saveImagesMutation = useMutation({
+  // Save selected images mutation
+  const saveSelectedImagesMutation = useMutation({
     mutationFn: async (imageUrls: string[]) => {
-      return await apiRequest('POST', '/api/save-images', { 
+      return await apiRequest('POST', '/api/save-selected-images', { 
         imageUrls,
         prompt: activeTab === 'prompts' ? selectedPrompts.join(', ') : customPrompt || chatHistory[chatHistory.length - 1]?.message
       });
@@ -99,9 +103,11 @@ export default function SandraPhotoshoot() {
       queryClient.invalidateQueries({ queryKey: ['/api/ai-images'] });
       toast({
         title: "Images Saved!",
-        description: "Your favorite photos have been added to your SSELFIE Gallery.",
+        description: `${selectedImages.length} photos added to your SSELFIE Gallery.`,
       });
       setGeneratedImages([]);
+      setSelectedImages([]);
+      setShowSelectionMode(false);
       setSelectedPrompts([]);
       setCustomPrompt('');
     },
@@ -188,16 +194,34 @@ export default function SandraPhotoshoot() {
     chatMutation.mutate(chatMessage);
   };
 
-  const handleSaveSelected = (imageUrls: string[]) => {
-    if (imageUrls.length === 0) {
+  const toggleImageSelection = (imageUrl: string) => {
+    setSelectedImages(prev => 
+      prev.includes(imageUrl) 
+        ? prev.filter(url => url !== imageUrl)
+        : [...prev, imageUrl]
+    );
+  };
+
+  const handleSaveSelected = () => {
+    if (selectedImages.length === 0) {
       toast({
         title: "No Images Selected",
-        description: "Please select at least one image to save.",
+        description: "Please select at least one image to save to your gallery.",
         variant: "destructive",
       });
       return;
     }
-    saveImagesMutation.mutate(imageUrls);
+    saveSelectedImagesMutation.mutate(selectedImages);
+  };
+
+  const handleDiscardAll = () => {
+    setGeneratedImages([]);
+    setSelectedImages([]);
+    setShowSelectionMode(false);
+    toast({
+      title: "Images Discarded",
+      description: "All generated images have been discarded.",
+    });
   };
 
   if (!isAuthenticated) {
@@ -700,34 +724,89 @@ export default function SandraPhotoshoot() {
                     key={index}
                     style={{
                       position: 'relative',
-                      overflow: 'hidden',
-                      background: '#ffffff',
                       aspectRatio: '3/4',
+                      overflow: 'hidden',
                       cursor: 'pointer',
-                      border: '2px solid transparent',
+                      border: selectedImages.includes(imageUrl) ? '3px solid #0a0a0a' : '3px solid transparent',
                       transition: 'all 300ms ease'
                     }}
-                    onClick={() => {
-                      // Toggle selection logic could be added here
-                    }}
+                    onClick={() => toggleImageSelection(imageUrl)}
                   >
-                    <img 
+                    <img
                       src={imageUrl}
                       alt={`Preview ${index + 1}`}
                       style={{
                         width: '100%',
                         height: '100%',
-                        objectFit: 'cover'
+                        objectFit: 'cover',
+                        transition: 'transform 300ms ease'
+                      }}
+                      onMouseEnter={(e) => {
+                        e.target.style.transform = 'scale(1.02)';
+                      }}
+                      onMouseLeave={(e) => {
+                        e.target.style.transform = 'scale(1)';
                       }}
                     />
+                    
+                    {/* Selection Indicator */}
+                    <div style={{
+                      position: 'absolute',
+                      top: '16px',
+                      right: '16px',
+                      width: '24px',
+                      height: '24px',
+                      borderRadius: '50%',
+                      background: selectedImages.includes(imageUrl) ? '#0a0a0a' : 'rgba(255, 255, 255, 0.8)',
+                      border: '2px solid #ffffff',
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      fontSize: '12px',
+                      color: selectedImages.includes(imageUrl) ? '#ffffff' : '#0a0a0a',
+                      fontWeight: 'bold'
+                    }}>
+                      {selectedImages.includes(imageUrl) ? '✓' : (index + 1)}
+                    </div>
+                    
+                    {/* Selection Overlay */}
+                    {selectedImages.includes(imageUrl) && (
+                      <div style={{
+                        position: 'absolute',
+                        inset: 0,
+                        background: 'rgba(10, 10, 10, 0.2)',
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center'
+                      }}>
+                        <div style={{
+                          background: 'rgba(10, 10, 10, 0.9)',
+                          color: '#ffffff',
+                          padding: '8px 16px',
+                          fontSize: '11px',
+                          fontWeight: 400,
+                          letterSpacing: '0.2em',
+                          textTransform: 'uppercase'
+                        }}>
+                          Selected
+                        </div>
+                      </div>
+                    )}
                   </div>
                 ))}
               </div>
               
-              <div style={{ textAlign: 'center' }}>
+              {/* Action Buttons */}
+              <div style={{ 
+                textAlign: 'center',
+                display: 'flex',
+                gap: '20px',
+                justifyContent: 'center',
+                alignItems: 'center'
+              }}>
                 <button
-                  onClick={() => handleSaveSelected(generatedImages)}
-                  disabled={saveImagesMutation.isPending}
+                  onClick={handleSaveSelected}
+                  disabled={selectedImages.length === 0 || saveSelectedImagesMutation.isPending}
                   style={{
                     padding: '20px 40px',
                     fontSize: '11px',
@@ -736,13 +815,37 @@ export default function SandraPhotoshoot() {
                     textTransform: 'uppercase',
                     border: '1px solid #0a0a0a',
                     color: '#ffffff',
-                    background: '#0a0a0a',
-                    cursor: 'pointer',
+                    background: selectedImages.length > 0 ? '#0a0a0a' : '#cccccc',
+                    cursor: selectedImages.length > 0 ? 'pointer' : 'not-allowed',
                     transition: 'all 300ms ease',
-                    opacity: saveImagesMutation.isPending ? 0.5 : 1
+                    opacity: saveSelectedImagesMutation.isPending ? 0.5 : 1
                   }}
                 >
-                  {saveImagesMutation.isPending ? 'Saving...' : 'Save All to Gallery'}
+                  {saveSelectedImagesMutation.isPending ? 'Saving...' : `Save ${selectedImages.length} Selected`}
+                </button>
+                
+                <button
+                  onClick={handleDiscardAll}
+                  style={{
+                    padding: '20px 40px',
+                    fontSize: '11px',
+                    fontWeight: 400,
+                    letterSpacing: '0.3em',
+                    textTransform: 'uppercase',
+                    border: '1px solid #cccccc',
+                    color: '#666666',
+                    background: 'transparent',
+                    cursor: 'pointer',
+                    transition: 'all 300ms ease'
+                  }}
+                  onMouseEnter={(e) => {
+                    e.target.style.background = '#f5f5f5';
+                  }}
+                  onMouseLeave={(e) => {
+                    e.target.style.background = 'transparent';
+                  }}
+                >
+                  Discard All
                 </button>
               </div>
             </div>
