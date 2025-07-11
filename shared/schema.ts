@@ -64,6 +64,7 @@ export const aiImages = pgTable("ai_images", {
   predictionId: varchar("prediction_id"), // FLUX model prediction tracking
   generationStatus: varchar("generation_status").default("pending"), // pending, processing, completed, failed
   isSelected: boolean("is_selected").default(false),
+  isFavorite: boolean("is_favorite").default(false),
   createdAt: timestamp("created_at").defaultNow(),
 });
 

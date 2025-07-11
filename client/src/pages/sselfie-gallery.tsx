@@ -1,17 +1,39 @@
 import React, { useState } from 'react';
 import { useAuth } from '@/hooks/use-auth';
-import { useQuery } from '@tanstack/react-query';
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { Navigation } from '@/components/navigation';
 import { PaymentVerification } from '@/components/payment-verification';
+import { apiRequest } from '@/lib/queryClient';
 
 export default function SSELFIEGallery() {
   const { user, isAuthenticated } = useAuth();
   const [selectedImage, setSelectedImage] = useState<string | null>(null);
+  const [showFavoritesOnly, setShowFavoritesOnly] = useState(false);
+  const queryClient = useQueryClient();
 
   // Fetch user's AI images
   const { data: aiImages = [], isLoading } = useQuery({
     queryKey: ['/api/ai-images'],
     enabled: isAuthenticated
+  });
+
+  // Fetch user's favorites
+  const { data: favoritesData } = useQuery({
+    queryKey: ['/api/images/favorites'],
+    enabled: isAuthenticated
+  });
+
+  const favorites = favoritesData?.favorites || [];
+
+  // Toggle favorite mutation
+  const toggleFavoriteMutation = useMutation({
+    mutationFn: async (imageId: number) => {
+      return await apiRequest('POST', `/api/images/${imageId}/favorite`);
+    },
+    onSuccess: () => {
+      // Refresh favorites data
+      queryClient.invalidateQueries({ queryKey: ['/api/images/favorites'] });
+    }
   });
 
   const downloadImage = async (imageUrl: string, filename: string) => {
@@ -32,13 +54,25 @@ export default function SSELFIEGallery() {
   };
 
   const downloadAllImages = async () => {
-    for (let i = 0; i < aiImages.length; i++) {
-      const image = aiImages[i];
+    const imagesToDownload = showFavoritesOnly ? 
+      aiImages.filter(img => favorites.includes(img.id)) : 
+      aiImages;
+      
+    for (let i = 0; i < imagesToDownload.length; i++) {
+      const image = imagesToDownload[i];
       await downloadImage(image.imageUrl, `sselfie-${i + 1}.jpg`);
       // Small delay between downloads
       await new Promise(resolve => setTimeout(resolve, 500));
     }
   };
+
+  const toggleFavorite = (imageId: number) => {
+    toggleFavoriteMutation.mutate(imageId);
+  };
+
+  const filteredImages = showFavoritesOnly ? 
+    aiImages.filter(img => favorites.includes(img.id)) : 
+    aiImages;
 
   if (!isAuthenticated) {
     return (
@@ -189,6 +223,50 @@ export default function SSELFIEGallery() {
                 </button>
               )}
             </div>
+
+            {/* Filter Controls */}
+            <div style={{
+              display: 'flex',
+              gap: '20px',
+              alignItems: 'center',
+              marginBottom: '60px'
+            }}>
+              <button
+                onClick={() => setShowFavoritesOnly(false)}
+                style={{
+                  padding: '12px 24px',
+                  fontSize: '11px',
+                  fontWeight: 400,
+                  letterSpacing: '0.3em',
+                  textTransform: 'uppercase',
+                  border: showFavoritesOnly ? '1px solid #cccccc' : '1px solid #0a0a0a',
+                  color: showFavoritesOnly ? '#666666' : '#0a0a0a',
+                  background: showFavoritesOnly ? 'transparent' : '#0a0a0a',
+                  cursor: 'pointer',
+                  transition: 'all 300ms ease'
+                }}
+              >
+                All Photos ({aiImages.length})
+              </button>
+              
+              <button
+                onClick={() => setShowFavoritesOnly(true)}
+                style={{
+                  padding: '12px 24px',
+                  fontSize: '11px',
+                  fontWeight: 400,
+                  letterSpacing: '0.3em',
+                  textTransform: 'uppercase',
+                  border: showFavoritesOnly ? '1px solid #0a0a0a' : '1px solid #cccccc',
+                  color: showFavoritesOnly ? '#ffffff' : '#666666',
+                  background: showFavoritesOnly ? '#0a0a0a' : 'transparent',
+                  cursor: 'pointer',
+                  transition: 'all 300ms ease'
+                }}
+              >
+                ♥ Favorites ({favorites.length})
+              </button>
+            </div>
           </div>
         </section>
 
@@ -278,7 +356,7 @@ export default function SSELFIEGallery() {
                 gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))',
                 gap: '30px'
               }}>
-                {aiImages.map((image, index) => (
+                {filteredImages.map((image, index) => (
                   <div
                     key={image.id}
                     style={{
@@ -306,6 +384,39 @@ export default function SSELFIEGallery() {
                         e.target.style.transform = 'scale(1)';
                       }}
                     />
+                    
+                    {/* Favorite Heart Button */}
+                    <button
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        toggleFavorite(image.id);
+                      }}
+                      style={{
+                        position: 'absolute',
+                        top: '16px',
+                        right: '16px',
+                        background: 'rgba(0, 0, 0, 0.6)',
+                        border: 'none',
+                        color: favorites.includes(image.id) ? '#ff4444' : '#ffffff',
+                        fontSize: '20px',
+                        padding: '8px 10px',
+                        cursor: 'pointer',
+                        borderRadius: '50%',
+                        transition: 'all 300ms ease',
+                        backdropFilter: 'blur(10px)'
+                      }}
+                      onMouseEnter={(e) => {
+                        e.target.style.background = 'rgba(0, 0, 0, 0.8)';
+                        e.target.style.transform = 'scale(1.1)';
+                      }}
+                      onMouseLeave={(e) => {
+                        e.target.style.background = 'rgba(0, 0, 0, 0.6)';
+                        e.target.style.transform = 'scale(1)';
+                      }}
+                    >
+                      {favorites.includes(image.id) ? '♥' : '♡'}
+                    </button>
+                    
                     <div style={{
                       position: 'absolute',
                       inset: 0,

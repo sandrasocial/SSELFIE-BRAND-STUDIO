@@ -1479,6 +1479,52 @@ You help users design and customize their ${context === 'dashboard-builder' ? 'p
     }
   });
 
+  // Favorites functionality - toggle favorite status
+  app.post('/api/images/:imageId/favorite', async (req: any, res) => {
+    try {
+      const { imageId } = req.params;
+      const userId = req.session?.userId || 'demo_user_12345';
+      
+      // For now, store favorites in session until database is updated
+      if (!req.session.favorites) {
+        req.session.favorites = [];
+      }
+      
+      const imageIdNum = parseInt(imageId);
+      const isCurrentlyFavorite = req.session.favorites.includes(imageIdNum);
+      
+      if (isCurrentlyFavorite) {
+        req.session.favorites = req.session.favorites.filter(id => id !== imageIdNum);
+      } else {
+        req.session.favorites.push(imageIdNum);
+      }
+      
+      res.json({ 
+        success: true, 
+        isFavorite: !isCurrentlyFavorite,
+        message: !isCurrentlyFavorite ? "Added to favorites" : "Removed from favorites"
+      });
+    } catch (error) {
+      console.error("Error toggling favorite:", error);
+      res.status(500).json({ message: "Failed to update favorite" });
+    }
+  });
+
+  // Get user's favorite images
+  app.get('/api/images/favorites', async (req: any, res) => {
+    try {
+      const favorites = req.session?.favorites || [];
+      
+      res.json({ 
+        favorites,
+        count: favorites.length
+      });
+    } catch (error) {
+      console.error("Error fetching favorites:", error);
+      res.status(500).json({ message: "Failed to fetch favorites" });
+    }
+  });
+
   const httpServer = createServer(app);
   return httpServer;
 }
