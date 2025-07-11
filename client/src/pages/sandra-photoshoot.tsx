@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useAuth } from '@/hooks/use-auth';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { Navigation } from '@/components/navigation';
@@ -74,8 +74,39 @@ export default function SandraPhotoshoot() {
   const [generatedImages, setGeneratedImages] = useState<string[]>([]);
   const [selectedImages, setSelectedImages] = useState<string[]>([]);
   const [showSelectionMode, setShowSelectionMode] = useState(false);
+  const [generationProgress, setGenerationProgress] = useState<{
+    isGenerating: boolean;
+    predictionId: string | null;
+    status: string;
+    timeElapsed: number;
+  }>({
+    isGenerating: false,
+    predictionId: null,
+    status: '',
+    timeElapsed: 0
+  });
   const { toast } = useToast();
   const queryClient = useQueryClient();
+
+  // Timer effect for generation progress tracking
+  useEffect(() => {
+    let interval: NodeJS.Timeout;
+    if (generationProgress.isGenerating) {
+      interval = setInterval(() => {
+        setGenerationProgress(prev => ({
+          ...prev,
+          timeElapsed: prev.timeElapsed + 1,
+          status: prev.timeElapsed < 10 ? 'Processing dynamic scenes...' :
+                  prev.timeElapsed < 30 ? 'Generating lifestyle content...' :
+                  prev.timeElapsed < 45 ? 'Applying editorial style...' :
+                  'Finalizing your images...'
+        }));
+      }, 1000);
+    }
+    return () => {
+      if (interval) clearInterval(interval);
+    };
+  }, [generationProgress.isGenerating]);
 
   // Fetch user model status
   const { data: userModel } = useQuery({
@@ -86,6 +117,14 @@ export default function SandraPhotoshoot() {
   // Generate images mutation
   const generateImagesMutation = useMutation({
     mutationFn: async (prompt: string) => {
+      // Start progress tracking
+      setGenerationProgress({
+        isGenerating: true,
+        predictionId: null,
+        status: 'Starting generation...',
+        timeElapsed: 0
+      });
+
       const response = await apiRequest('POST', '/api/generate-images', { 
         prompt,
         count: 4 
@@ -106,9 +145,15 @@ export default function SandraPhotoshoot() {
         setGeneratedImages(data.images);
         setSelectedImages([]);
         setShowSelectionMode(true);
+        setGenerationProgress({
+          isGenerating: false,
+          predictionId: null,
+          status: 'Completed',
+          timeElapsed: 0
+        });
         toast({
-          title: "Images Generated Successfully",
-          description: `Generated ${data.images.length} images using your trained model`,
+          title: "Dynamic Lifestyle Images Generated!",
+          description: `Successfully generated ${data.images.length} environmental scene images.`,
         });
       } else {
         console.error('No images in success data:', data);
@@ -120,9 +165,21 @@ export default function SandraPhotoshoot() {
           if (Array.isArray(data)) {
             setGeneratedImages(data);
             setShowSelectionMode(true);
+            setGenerationProgress({
+              isGenerating: false,
+              predictionId: null,
+              status: 'Completed',
+              timeElapsed: 0
+            });
             return;
           }
         }
+        setGenerationProgress({
+          isGenerating: false,
+          predictionId: null,
+          status: 'Failed',
+          timeElapsed: 0
+        });
         toast({
           title: "Generation Issue", 
           description: "Images generated but not properly returned. Please try again.",
@@ -132,6 +189,12 @@ export default function SandraPhotoshoot() {
     },
     onError: (error: any) => {
       console.error('Image generation failed:', error);
+      setGenerationProgress({
+        isGenerating: false,
+        predictionId: null,
+        status: 'Failed',
+        timeElapsed: 0
+      });
       toast({
         title: "Generation Failed",
         description: error.message || "Failed to generate images. Please try again.",
@@ -545,11 +608,77 @@ export default function SandraPhotoshoot() {
                   ))}
                 </div>
                 
+                {/* Generation Progress Display */}
+                {generationProgress.isGenerating && (
+                  <div style={{
+                    maxWidth: '600px',
+                    margin: '0 auto 60px auto',
+                    padding: '32px',
+                    background: '#f8f8f8',
+                    border: '1px solid #e5e5e5',
+                    textAlign: 'center'
+                  }}>
+                    <div style={{
+                      fontSize: '14px',
+                      fontWeight: 400,
+                      letterSpacing: '0.3em',
+                      textTransform: 'uppercase',
+                      color: '#666666',
+                      marginBottom: '16px'
+                    }}>
+                      GENERATING DYNAMIC LIFESTYLE IMAGES
+                    </div>
+                    
+                    <div style={{
+                      fontSize: '24px',
+                      fontFamily: 'Times New Roman, serif',
+                      fontWeight: 300,
+                      marginBottom: '16px',
+                      color: '#0a0a0a'
+                    }}>
+                      {generationProgress.status}
+                    </div>
+                    
+                    <div style={{
+                      fontSize: '18px',
+                      fontWeight: 300,
+                      color: '#0a0a0a',
+                      marginBottom: '20px'
+                    }}>
+                      {Math.floor(generationProgress.timeElapsed / 60)}:{(generationProgress.timeElapsed % 60).toString().padStart(2, '0')}
+                    </div>
+                    
+                    <div style={{
+                      width: '100%',
+                      height: '2px',
+                      background: '#e5e5e5',
+                      borderRadius: '1px',
+                      overflow: 'hidden'
+                    }}>
+                      <div style={{
+                        height: '100%',
+                        background: '#0a0a0a',
+                        width: `${Math.min((generationProgress.timeElapsed / 60) * 100, 100)}%`,
+                        transition: 'width 1s ease-in-out'
+                      }} />
+                    </div>
+                    
+                    <div style={{
+                      fontSize: '12px',
+                      color: '#666666',
+                      marginTop: '12px',
+                      letterSpacing: '0.1em'
+                    }}>
+                      Average generation time: 45-60 seconds
+                    </div>
+                  </div>
+                )}
+
                 {/* Generate Button */}
                 <div style={{ textAlign: 'center' }}>
                   <button
                     onClick={handleGenerateFromPrompts}
-                    disabled={selectedPrompts.length === 0 || generateImagesMutation.isPending}
+                    disabled={selectedPrompts.length === 0 || generateImagesMutation.isPending || generationProgress.isGenerating}
                     style={{
                       padding: '20px 40px',
                       fontSize: '11px',
@@ -557,9 +686,9 @@ export default function SandraPhotoshoot() {
                       letterSpacing: '0.3em',
                       textTransform: 'uppercase',
                       border: '1px solid #0a0a0a',
-                      color: selectedPrompts.length > 0 ? '#ffffff' : '#666666',
-                      background: selectedPrompts.length > 0 ? '#0a0a0a' : '#f5f5f5',
-                      cursor: selectedPrompts.length > 0 ? 'pointer' : 'default',
+                      color: selectedPrompts.length > 0 && !generationProgress.isGenerating ? '#ffffff' : '#666666',
+                      background: selectedPrompts.length > 0 && !generationProgress.isGenerating ? '#0a0a0a' : '#f5f5f5',
+                      cursor: selectedPrompts.length > 0 && !generationProgress.isGenerating ? 'pointer' : 'default',
                       transition: 'all 300ms ease',
                       opacity: generateImagesMutation.isPending ? 0.5 : 1
                     }}

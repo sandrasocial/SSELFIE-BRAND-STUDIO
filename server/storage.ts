@@ -118,7 +118,9 @@ export class DatabaseStorage implements IStorage {
   }
 
   async saveAIImage(data: InsertAIImage): Promise<AIImage> {
-    const [saved] = await db.insert(aiImages).values(data).returning();
+    // Remove project_id from data since we're not using projects table
+    const { projectId, ...imageData } = data as any;
+    const [saved] = await db.insert(aiImages).values(imageData).returning();
     return saved;
   }
 
