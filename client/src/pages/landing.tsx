@@ -7,7 +7,7 @@ export default function Landing() {
   const [, setLocation] = useLocation();
 
   const handleGetStarted = () => {
-    setLocation('/checkout?plan=sselfie-ai');
+    setLocation('/simple-checkout');
   };
 
   return (
