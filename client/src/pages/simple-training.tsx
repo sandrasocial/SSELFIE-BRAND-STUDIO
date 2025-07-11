@@ -114,7 +114,7 @@ export default function SimpleTraining() {
               opacity: 0.4
             }}>
               <img 
-                src={SandraImages.ai.professional1}
+                src={SandraImages.editorial.aiSuccess}
                 alt=""
                 style={{
                   width: '100%',
@@ -286,7 +286,7 @@ export default function SimpleTraining() {
             opacity: 0.4
           }}>
             <img 
-              src={SandraImages.ai.editorial2}
+              src={SandraImages.hero.ai}
               alt=""
               style={{
                 width: '100%',
