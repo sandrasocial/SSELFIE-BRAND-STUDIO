@@ -18,12 +18,12 @@ const FLUX_MODEL_CONFIG = {
     lifestyle: 'lifestyle photography, natural lighting, authentic moment, personal brand aesthetic', 
     luxury: 'luxury brand photography, sophisticated aesthetic, premium quality, high-end fashion'
   },
-  // Proven prompts for better results
+  // Film-grained, matte quality prompts for authentic look
   qualityPrompts: {
-    editorial: 'shot on medium format camera, professional studio lighting, magazine quality, sharp focus, detailed',
-    business: 'professional headshot, corporate photography, clean composition, confident expression',
-    lifestyle: 'natural portrait, lifestyle photography, authentic expression, soft natural lighting',
-    luxury: 'luxury portrait, high-end photography, sophisticated styling, premium aesthetic'
+    editorial: 'shot on 35mm film, heavy film grain, matte skin finish, natural skin texture, raw unprocessed look, authentic film photography, visible pores and imperfections, no digital enhancement',
+    business: 'shot on film camera, natural matte finish, authentic skin texture, film grain, professional but natural lighting, no glossy skin',
+    lifestyle: 'film photography, heavy grain, matte finish, natural skin texture, authentic moment, raw film look, visible skin imperfections, no digital retouching',
+    luxury: 'analog film photography, pronounced film grain, matte skin finish, natural texture, authentic luxury aesthetic, film negative quality'
   }
 };
 
@@ -247,11 +247,12 @@ export class AIService {
     let requestBody;
     
     if (isSandraModel) {
-      // Sandra's newer model - use version from database with optimized settings
+      // Sandra's newer model - use version from database with matte film-grained settings
       requestBody = {
         version: FLUX_MODEL_CONFIG.sandraVersionId,
         input: {
           prompt: prompt,
+          negative_prompt: "glossy skin, shiny skin, oily skin, plastic skin, fake skin, digital enhancement, airbrushed, over-processed, smooth skin, perfect skin, retouched, digital makeup, artificial lighting, studio perfection, polished skin, magazine retouching",
           go_fast: false,
           lora_scale: 1,
           num_outputs: 4,
