@@ -30,21 +30,26 @@ const CheckoutForm = ({ planType }: { planType: string }) => {
     setIsProcessing(true);
 
     try {
-      const { error } = await stripe.confirmPayment({
+      const result = await stripe.confirmPayment({
         elements,
         confirmParams: {
           return_url: `${window.location.origin}/payment-success?plan=${planType}`,
         },
       });
 
-      if (error) {
-        console.error('Stripe payment error:', error);
+      console.log('Stripe confirmation result:', result);
+
+      if (result.error) {
+        console.error('Stripe payment error:', result.error);
         toast({
           title: "Payment Failed",
-          description: error.message || "There was an issue processing your payment. Please try again.",
+          description: result.error.message || "There was an issue processing your payment. Please try again.",
           variant: "destructive",
         });
         setIsProcessing(false);
+      } else {
+        // Payment succeeded - will redirect automatically
+        console.log('Payment successful, redirecting...');
       }
     } catch (err) {
       console.error('Payment confirmation error:', err);
