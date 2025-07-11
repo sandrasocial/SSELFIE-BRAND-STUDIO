@@ -875,7 +875,7 @@ export default function Workspace() {
                       lineHeight: 1,
                       marginBottom: '20px'
                     }}>
-                      {businessProgress.filter(s => s.status === 'complete').length}
+                      {photoshootProgress.filter(s => s.status === 'complete').length}
                     </div>
                     <div style={{
                       fontSize: '11px',
