@@ -20,8 +20,8 @@ REPLICATE_API_TOKEN=your_replicate_token
 ANTHROPIC_API_KEY=your_anthropic_key
 
 # AWS S3 Storage
-AWS_ACCESS_KEY_ID=AKIAWNHRSQGE5ZUBW2NM
-AWS_SECRET_ACCESS_KEY=Kp52UAeS7VPthyrUPRzrrcgO5VxY8TLklAB4QJob
+AWS_ACCESS_KEY_ID=your_aws_access_key
+AWS_SECRET_ACCESS_KEY=your_aws_secret_key
 AWS_S3_BUCKET=sselfie-training-zips
 
 # Authentication
