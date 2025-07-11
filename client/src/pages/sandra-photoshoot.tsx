@@ -12,37 +12,37 @@ const SANDRA_PROMPTS = [
     id: 'executive-portrait',
     title: 'Executive Portrait',
     description: 'Sophisticated business portrait for LinkedIn and professional profiles',
-    prompt: 'Professional executive portrait, user{userId} wearing elegant business attire, sitting confidently in a modern office setting, soft natural lighting, minimal background, high-end commercial photography style'
+    prompt: 'Professional executive portrait, {trigger_word} wearing elegant business attire, sitting confidently in a modern office setting, soft natural lighting, minimal background, high-end commercial photography style'
   },
   {
     id: 'editorial-fashion',
     title: 'Editorial Fashion',
     description: 'High-fashion editorial style for premium brand positioning',
-    prompt: 'Editorial fashion portrait, user{userId} in sophisticated designer clothing, dramatic lighting, magazine-quality photography, elegant pose, minimalist background, Vogue-style composition'
+    prompt: 'Editorial fashion portrait, {trigger_word} in sophisticated designer clothing, dramatic lighting, magazine-quality photography, elegant pose, minimalist background, Vogue-style composition'
   },
   {
     id: 'lifestyle-brand',
     title: 'Lifestyle Brand',
     description: 'Approachable lifestyle shots for social media and marketing',
-    prompt: 'Lifestyle brand portrait, user{userId} in casual chic outfit, natural lighting, warm and inviting atmosphere, authentic smile, modern minimalist setting, approachable yet professional'
+    prompt: 'Lifestyle brand portrait, {trigger_word} in casual chic outfit, natural lighting, warm and inviting atmosphere, authentic smile, modern minimalist setting, approachable yet professional'
   },
   {
     id: 'speaker-author',
     title: 'Speaker & Author',
     description: 'Authoritative shots perfect for speaking engagements and book covers',
-    prompt: 'Professional speaker portrait, user{userId} in confident pose, looking directly at camera, sophisticated business attire, clean background, inspirational lighting, authority and trustworthiness'
+    prompt: 'Professional speaker portrait, {trigger_word} in confident pose, looking directly at camera, sophisticated business attire, clean background, inspirational lighting, authority and trustworthiness'
   },
   {
     id: 'creative-entrepreneur',
     title: 'Creative Entrepreneur',
     description: 'Artistic and innovative shots for creative businesses',
-    prompt: 'Creative entrepreneur portrait, user{userId} in stylish contemporary outfit, artistic lighting, creative workspace background, confident expression, modern professional aesthetic'
+    prompt: 'Creative entrepreneur portrait, {trigger_word} in stylish contemporary outfit, artistic lighting, creative workspace background, confident expression, modern professional aesthetic'
   },
   {
     id: 'wellness-coach',
     title: 'Wellness Coach',
     description: 'Serene and approachable shots for wellness and coaching brands',
-    prompt: 'Wellness coach portrait, user{userId} in comfortable elegant attire, soft natural lighting, peaceful expression, clean serene background, authentic and trustworthy, calming atmosphere'
+    prompt: 'Wellness coach portrait, {trigger_word} in comfortable elegant attire, soft natural lighting, peaceful expression, clean serene background, authentic and trustworthy, calming atmosphere'
   }
 ];
 

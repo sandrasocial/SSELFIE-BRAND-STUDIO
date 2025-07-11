@@ -187,7 +187,7 @@ export default function SimpleTraining() {
                   textTransform: 'uppercase',
                   opacity: 0.7
                 }}>
-                  Processing your photos...
+                  Creating your personal AI model...
                 </div>
               </div>
               

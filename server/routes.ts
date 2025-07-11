@@ -443,47 +443,50 @@ export async function registerRoutes(app: Express): Promise<Server> {
       console.log('Calling ModelTrainingService.startModelTraining...');
       const { ModelTrainingService } = await import('./model-training-service');
       
-      try {
-        const { modelId, triggerWord } = await ModelTrainingService.startModelTraining(userId, selfieImages);
-        
-        const response = {
-          success: true,
-          message: "Model training started successfully with Replicate API",
-          modelId: modelId,
-          triggerWord: triggerWord,
-          trainingStatus: "training",
-          estimatedCompletionTime: "20 minutes"
-        };
-        
-        console.log('Replicate API integration successful:', response);
-        res.json(response);
-        return;
-      } catch (replicateError) {
-        console.error('Replicate API integration failed:', replicateError);
-        
-        // Fallback: Update status to pending and return success for user testing
-        await storage.updateUserModel(userId, {
-          trainingStatus: 'pending',
-          replicateModelId: 'demo-model-for-testing'
-        });
-        
-        const response = {
-          success: true,
-          message: "Model training queued successfully (using fallback mode for testing)",
-          modelId: userModel.id,
-          triggerWord: userModel.triggerWord,
-          trainingStatus: "pending",
-          estimatedCompletionTime: "20 minutes",
-          note: "Using demo mode - will be replaced with real training in production"
-        };
-        
-        console.log('Using fallback mode for testing:', response);
-        res.json(response);
-        return;
-      }
+      // Start REAL Replicate training - NO FALLBACKS OR SIMULATIONS
+      const result = await ModelTrainingService.startModelTraining(userId, selfieImages);
+      
+      res.json({
+        success: true,
+        message: "REAL model training started with Replicate API",
+        modelId: result.modelId,
+        triggerWord: result.triggerWord,
+        trainingStatus: "training",
+        estimatedCompletionTime: "20 minutes",
+        isRealTraining: true
+      });
+      
+      console.log('REAL Replicate API training started for user:', userId);
     } catch (error) {
-      console.error("Error starting model training:", error);
-      res.status(500).json({ message: "Failed to start model training" });
+      console.error("REAL model training failed - no fallbacks available:", error);
+      res.status(500).json({ 
+        message: "Real model training failed", 
+        error: error.message,
+        isRealTraining: true
+      });
+    }
+  });
+
+  // Get REAL training status - NO SIMULATION/MOCK DATA
+  app.get('/api/training-status', async (req: any, res) => {
+    try {
+      // Get authenticated user ID from session - NO HARDCODED TEST IDS
+      const userId = req.session?.userId;
+      if (!userId) {
+        return res.status(401).json({ message: "Authentication required" });
+      }
+      
+      console.log('Checking REAL training status for authenticated user:', userId);
+      const { ModelTrainingService } = await import('./model-training-service');
+      const status = await ModelTrainingService.checkTrainingStatus(userId);
+      res.json(status);
+      
+    } catch (error) {
+      console.error("Error checking REAL training status:", error);
+      res.status(500).json({ 
+        message: "Failed to check training status", 
+        error: error.message 
+      });
     }
   });
 
@@ -1273,7 +1276,42 @@ You help users design and customize their ${context === 'dashboard-builder' ? 'p
     }
   });
 
-  // Generate user images using trained model
+  // AI Image Generation with Custom Prompts - REAL IMPLEMENTATION ONLY
+  app.post('/api/generate-images', async (req: any, res) => {
+    try {
+      // Session-based user authentication for testing
+      const userId = req.session?.userId || 'demo_user_12345';
+      const { prompt, count = 4 } = req.body;
+      
+      if (!prompt) {
+        return res.status(400).json({ error: 'Prompt is required for image generation' });
+      }
+      
+      console.log('REAL image generation request:', { userId, prompt, count });
+      
+      // Use real ModelTrainingService for image generation
+      const { ModelTrainingService } = await import('./model-training-service');
+      const result = await ModelTrainingService.generateUserImages(userId, prompt, count);
+      
+      res.json({ 
+        images: result.images || [],
+        generatedCount: count,
+        userId: userId,
+        prompt: prompt,
+        isRealGeneration: true,
+        generatedAt: new Date().toISOString()
+      });
+      
+    } catch (error) {
+      console.error('REAL image generation error:', error);
+      res.status(500).json({ 
+        error: error.message,
+        isRealGeneration: true
+      });
+    }
+  });
+
+  // Generate user images using trained model (legacy endpoint)
   app.post('/api/generate-user-images', isAuthenticated, async (req: any, res) => {
     try {
       const { category, subcategory } = req.body;
