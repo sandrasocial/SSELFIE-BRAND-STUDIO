@@ -28,6 +28,7 @@ import SandraPhotoshoot from "@/pages/sandra-photoshoot";
 import SSELFIEGallery from "@/pages/sselfie-gallery";
 import AIGenerator from "@/pages/ai-generator";
 import SimpleTraining from "@/pages/simple-training";
+import TestLogin from "@/pages/test-login";
 import { lazy } from "react";
 
 // Removed duplicate photoshoot imports - using existing system
@@ -74,9 +75,17 @@ function ProtectedRoute({ component: Component, ...props }) {
   }
   
   if (!isAuthenticated) {
-    // Redirect to login for protected routes
+    // For debugging - let's show what's happening
+    console.log('Authentication failed, redirecting to login');
     window.location.href = '/api/login';
-    return null;
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="text-center">
+          <div className="animate-spin w-8 h-8 border-4 border-black border-t-transparent rounded-full mb-4 mx-auto" />
+          <p>Redirecting to login...</p>
+        </div>
+      </div>
+    );
   }
   
   return <Component {...props} />;
@@ -122,6 +131,9 @@ function Router() {
       
       {/* ADMIN MARKETING AUTOMATION */}
       <Route path="/marketing-automation" component={(props) => <ProtectedRoute component={lazy(() => import('@/pages/marketing-automation'))} {...props} />} />
+      
+      {/* DEBUGGING */}
+      <Route path="/test-login" component={TestLogin} />
 
       <Route component={NotFound} />
     </Switch>
