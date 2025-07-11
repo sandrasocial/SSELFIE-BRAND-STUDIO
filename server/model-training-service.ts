@@ -325,9 +325,9 @@ export class ModelTrainingService {
         console.log('Using demo model for user without trained model');
       }
       
-      // Replace {trigger_word} placeholder and add realistic photo additions
-      const realisticAdditions = ", raw photo, visible skin pores, film grain, unretouched natural skin texture, subsurface scattering, photographed on film";
-      const finalPrompt = customPrompt.replace('{trigger_word}', triggerWord) + realisticAdditions;
+      // Replace {trigger_word} placeholder and add premium photo quality enhancements
+      const qualityEnhancements = ", professional photography, high-end portrait, crisp focus, premium lighting, magazine quality, detailed skin texture, natural beauty, editorial style, shot with professional camera, luxury aesthetic";
+      const finalPrompt = customPrompt.replace('{trigger_word}', triggerWord) + qualityEnhancements;
 
       // Call REAL Replicate API for image generation with optimal realistic settings
       const requestBody = {
@@ -337,9 +337,9 @@ export class ModelTrainingService {
           num_outputs: count,
           aspect_ratio: "3:4",
           output_format: "jpg",
-          output_quality: 90,
-          guidance_scale: 2.8, // Lower guidance for more realistic results
-          num_inference_steps: 30, // Optimal quality
+          output_quality: 95,
+          guidance_scale: 3.5, // Better prompt adherence and style control
+          num_inference_steps: 50, // Higher quality with more detailed rendering
           go_fast: false, // Quality over speed
           seed: Math.floor(Math.random() * 1000000)
         }

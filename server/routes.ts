@@ -1467,12 +1467,10 @@ You help users design and customize their ${context === 'dashboard-builder' ? 'p
       
       const savedImages = [];
       for (const imageUrl of imageUrls) {
-        const aiImage = await storage.createAIImage({
+        const aiImage = await storage.saveAIImage({
           userId,
           imageUrl,
-          prompt: prompt || 'Custom photoshoot',
-          status: 'completed',
-          generatedAt: new Date()
+          prompt: prompt || 'Custom photoshoot'
         });
         savedImages.push(aiImage);
       }
