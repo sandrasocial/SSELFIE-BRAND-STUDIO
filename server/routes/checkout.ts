@@ -13,7 +13,39 @@ const stripe = new Stripe(process.env.STRIPE_SECRET_KEY, {
 });
 
 export function registerCheckoutRoutes(app: Express) {
-  // Create payment intent for one-time payments (no authentication required for pre-login purchases)
+  // Create Stripe Checkout Session (simpler and more reliable)
+  app.post("/api/create-checkout-session", async (req: any, res) => {
+    try {
+      const { successUrl, cancelUrl } = req.body;
+      
+      const session = await stripe.checkout.sessions.create({
+        payment_method_types: ['card'],
+        line_items: [
+          {
+            price_data: {
+              currency: 'eur',
+              product_data: {
+                name: 'SSELFIE AI Brand Photoshoot',
+                description: '300 monthly AI-generated professional photos',
+              },
+              unit_amount: 9700, // €97.00 in cents
+            },
+            quantity: 1,
+          },
+        ],
+        mode: 'payment',
+        success_url: successUrl,
+        cancel_url: cancelUrl,
+      });
+
+      res.json({ url: session.url });
+    } catch (error: any) {
+      console.error('Checkout session creation error:', error);
+      res.status(500).json({ message: "Error creating checkout session: " + error.message });
+    }
+  });
+
+  // Keep the old payment intent endpoint for backward compatibility
   app.post("/api/create-payment-intent", async (req: any, res) => {
     try {
       const { amount, plan, currency = 'eur' } = req.body;
