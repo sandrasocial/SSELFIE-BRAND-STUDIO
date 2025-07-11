@@ -264,14 +264,15 @@ export class AIService {
         }
       };
     } else {
-      // Other users' models or fallback
+      // Other users' models or fallback - apply same film-grained, matte settings
       const isUserModel = modelId.includes('sandrasocial') || modelId.includes('user');
       requestBody = {
         model: isUserModel ? modelId : "black-forest-labs/flux-dev-lora",
         input: {
           prompt: prompt,
-          guidance_scale: 3, // Standard setting for other models
-          num_inference_steps: 28, 
+          negative_prompt: "glossy skin, shiny skin, oily skin, plastic skin, fake skin, digital enhancement, airbrushed, over-processed, smooth skin, perfect skin, retouched, digital makeup, artificial lighting, studio perfection, polished skin, magazine retouching",
+          guidance_scale: 2.5, // Use optimized setting for all users
+          num_inference_steps: 32, // High quality for all users
           num_outputs: 4,
           lora_scale: isUserModel ? 1.0 : undefined,
           aspect_ratio: "4:3",
