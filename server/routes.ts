@@ -118,11 +118,58 @@ export async function registerRoutes(app: Express): Promise<Server> {
     });
   });
 
+  // Verify real Replicate training status
+  app.get('/api/verify-training/:userId', async (req, res) => {
+    try {
+      const { userId } = req.params;
+      const userModel = await storage.getUserModelByUserId(userId);
+      
+      if (!userModel) {
+        return res.status(404).json({ error: 'No training found for this user' });
+      }
+
+      const verification = {
+        userId,
+        replicateModelId: userModel.replicateModelId,
+        triggerWord: userModel.triggerWord,
+        trainingStatus: userModel.trainingStatus,
+        isPlaceholder: userModel.replicateModelId?.includes('real_training_started') || userModel.replicateModelId?.includes('training_'),
+        createdAt: userModel.createdAt,
+        hasRealTraining: false
+      };
+
+      // Check if this is a real Replicate training
+      if (userModel.replicateModelId && !verification.isPlaceholder) {
+        try {
+          const response = await fetch(`https://api.replicate.com/v1/predictions/${userModel.replicateModelId}`, {
+            headers: {
+              'Authorization': `Token ${process.env.REPLICATE_API_TOKEN}`
+            }
+          });
+          
+          if (response.ok) {
+            const replicateData = await response.json();
+            verification.hasRealTraining = true;
+            verification.replicateStatus = replicateData.status;
+            verification.replicateCreatedAt = replicateData.created_at;
+          }
+        } catch (error) {
+          console.error('Error checking Replicate:', error);
+        }
+      }
+
+      res.json(verification);
+    } catch (error) {
+      console.error('Error verifying training:', error);
+      res.status(500).json({ error: 'Failed to verify training' });
+    }
+  });
+
   // Training progress endpoint for real-time updates
   app.get('/api/training-progress/:userId', async (req, res) => {
     try {
       const { userId } = req.params;
-      const userModel = await storage.getUserModel(userId);
+      const userModel = await storage.getUserModelByUserId(userId);
       
       if (!userModel) {
         return res.status(404).json({ error: 'No training found for this user' });
@@ -130,21 +177,53 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
       let progress = 0;
       let status = userModel.trainingStatus;
+      let isRealTraining = false;
       
-      // Calculate progress based on time elapsed
-      if (userModel.trainingStatus === 'training') {
-        const startTime = new Date(userModel.createdAt).getTime();
-        const elapsed = Date.now() - startTime;
-        const totalTime = 20 * 60 * 1000; // 20 minutes
-        progress = Math.min(95, Math.floor((elapsed / totalTime) * 100));
-      } else if (userModel.trainingStatus === 'completed') {
-        progress = 100;
+      // Check if this is a real Replicate training ID or placeholder
+      if (userModel.replicateModelId && userModel.replicateModelId.startsWith('real_training_started')) {
+        // This is a placeholder - training hasn't actually started on Replicate
+        status = 'placeholder';
+        progress = 0;
+        isRealTraining = false;
+      } else if (userModel.replicateModelId && userModel.replicateModelId.startsWith('training_')) {
+        // This is also a placeholder format
+        status = 'placeholder';
+        progress = 0;
+        isRealTraining = false;
+      } else if (userModel.replicateModelId) {
+        // Check real Replicate status
+        try {
+          const response = await fetch(`https://api.replicate.com/v1/predictions/${userModel.replicateModelId}`, {
+            headers: {
+              'Authorization': `Token ${process.env.REPLICATE_API_TOKEN}`
+            }
+          });
+          
+          if (response.ok) {
+            const replicateData = await response.json();
+            status = replicateData.status;
+            isRealTraining = true;
+            
+            // Calculate progress based on Replicate status
+            if (status === 'succeeded') {
+              progress = 100;
+            } else if (status === 'processing') {
+              progress = 50; // Estimate
+            } else if (status === 'starting') {
+              progress = 10;
+            }
+          }
+        } catch (error) {
+          console.error('Error checking Replicate status:', error);
+        }
       }
 
       res.json({
         userId,
         status,
         progress,
+        isRealTraining,
+        replicateModelId: userModel.replicateModelId,
         startTime: userModel.createdAt,
         estimatedCompletion: userModel.estimatedCompletionTime
       });
