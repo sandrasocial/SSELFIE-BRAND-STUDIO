@@ -433,45 +433,31 @@ The more specific you are, the better prompt I can create! ✨`;
   // AI Images routes  
   app.get('/api/ai-images', async (req: any, res) => {
     try {
-      // For new user testing, return mock AI images for gallery display
-      const mockAiImages = [
-        {
-          id: 1,
-          imageUrl: "https://i.postimg.cc/rwTG02cZ/out-1-23.png",
-          prompt: "Editorial portrait with dramatic lighting",
-          style: "editorial",
-          isSelected: false,
-          createdAt: new Date().toISOString()
-        },
-        {
-          id: 2,
-          imageUrl: "https://i.postimg.cc/bNF14sGc/out-1-4.png",
-          prompt: "Professional headshot in business attire",
-          style: "professional",
-          isSelected: false,
-          createdAt: new Date().toISOString()
-        },
-        {
-          id: 3,
-          imageUrl: "https://i.postimg.cc/nrKdm7Vj/out-2-4.webp",
-          prompt: "Creative lifestyle shot with modern background",
-          style: "lifestyle",
-          isSelected: false,
-          createdAt: new Date().toISOString()
-        },
-        {
-          id: 4,
-          imageUrl: "https://i.postimg.cc/HkNwfjh8/out-2-14.jpg",
-          prompt: "Confident business portrait",
-          style: "business",
-          isSelected: false,
-          createdAt: new Date().toISOString()
-        }
-      ];
-      res.json(mockAiImages);
+      // Get real user AI images from database using direct SQL query
+      const userId = req.user?.claims?.sub || req.session?.userId || 'sandra_test_user_2025';
+      
+      console.log(`Fetching AI images for user ${userId}...`);
+      
+      // Direct database query to bypass ORM issues
+      const { db } = await import('./db');
+      const { aiImages } = await import('../shared/schema-simplified');
+      const { eq, desc } = await import('drizzle-orm');
+      
+      const realAiImages = await db
+        .select()
+        .from(aiImages)
+        .where(eq(aiImages.userId, userId))
+        .orderBy(desc(aiImages.createdAt));
+      
+      console.log(`AI images for user ${userId}:`, realAiImages?.length || 0, 'images found');
+      
+      // Return real images if available, otherwise return empty array
+      res.json(realAiImages || []);
+      
     } catch (error) {
       console.error("Error fetching AI images:", error);
-      res.status(500).json({ message: "Failed to fetch AI images" });
+      console.error("Full error:", error?.message, error?.stack);
+      res.status(500).json({ message: "Failed to fetch AI images", error: error?.message });
     }
   });
 

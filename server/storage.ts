@@ -37,6 +37,7 @@ export interface IStorage {
   
   // AI Image operations
   getAIImages(userId: string): Promise<AIImage[]>;
+  getUserAIImages(userId: string): Promise<AIImage[]>;
   saveAIImage(data: InsertAIImage): Promise<AIImage>;
   
   // User Model operations
@@ -115,6 +116,11 @@ export class DatabaseStorage implements IStorage {
       .from(aiImages)
       .where(eq(aiImages.userId, userId))
       .orderBy(desc(aiImages.createdAt));
+  }
+
+  async getUserAIImages(userId: string): Promise<AIImage[]> {
+    // Alias for getAIImages - same functionality
+    return this.getAIImages(userId);
   }
 
   async saveAIImage(data: InsertAIImage): Promise<AIImage> {
