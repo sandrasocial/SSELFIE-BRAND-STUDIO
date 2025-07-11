@@ -55,48 +55,54 @@ export async function registerRoutes(app: Express): Promise<Server> {
       let sandraResponse;
       let suggestedPrompt = null;
       
-      // Intelligent prompt generation from B&W Studio Beauty Portraits collection
-      if (message.toLowerCase().includes('beauty') || message.toLowerCase().includes('makeup') || message.toLowerCase().includes('studio') || message.toLowerCase().includes('portrait')) {
-        suggestedPrompt = `${triggerWord} woman, hair in high messy bun with face-framing pieces, minimal makeup with glossy lips, bare shoulders, seamless gray backdrop, shot on Hasselblad X2D, single beauty dish lighting, black and white photography, visible skin texture and freckles, film grain, high fashion beauty portrait`;
-        sandraResponse = `OMG yes! Beauty portraits are EVERYTHING for that high-fashion model aesthetic! I've selected the perfect "Vogue Beauty Classic" prompt - it captures that timeless editorial beauty with minimal makeup and natural skin texture that converts like crazy! 
+      // Intelligent prompt generation from The Vulnerability Series collection
+      if (message.toLowerCase().includes('vulnerable') || message.toLowerCase().includes('emotional') || message.toLowerCase().includes('raw') || message.toLowerCase().includes('authentic')) {
+        suggestedPrompt = `${triggerWord} woman in bed looking directly at camera, no makeup, hair spread on pillow, white sheets, natural morning vulnerability, black and white photography, raw intimate portrait, honest beauty`;
+        sandraResponse = `OMG yes! Raw vulnerability is EVERYTHING for authentic storytelling! I've selected the perfect "Morning Truth" prompt - it captures that honest, unguarded beauty that creates deep emotional connection with your audience! 
 
 Click "Generate From Custom Prompt" below to create 4 preview photos. ✨`;
         
-      } else if (message.toLowerCase().includes('dramatic') || message.toLowerCase().includes('lighting') || message.toLowerCase().includes('shadow') || message.toLowerCase().includes('moody')) {
-        suggestedPrompt = `${triggerWord} woman, dramatic window blinds creating shadow stripes across face and body, eyes closed in serene expression, black slip dress, shot on Leica M11 Monochrom, natural harsh light, high contrast black and white, visible skin detail in light strips`;
-        sandraResponse = `Perfect! For dramatic editorial power, you need that cinematic lighting energy! I've crafted the ultimate "Window Shadow Play" prompt that creates stunning contrast and artistic shadows. This is fine art photography meets high fashion! 
+      } else if (message.toLowerCase().includes('tired') || message.toLowerCase().includes('exhausted') || message.toLowerCase().includes('overwhelmed') || message.toLowerCase().includes('struggle')) {
+        suggestedPrompt = `${triggerWord} woman leaning forehead against textured wall, eyes closed, hair falling naturally, wearing simple knit sweater, exhausted or overwhelmed posture, available light only, black and white intimate portrait, unguarded moment`;
+        sandraResponse = `Perfect! For showing strength through struggle, you need that raw exhaustion energy! I've crafted the ultimate "Against the Wall" prompt that captures authentic overwhelm and vulnerability. This is the content that creates real connection! 
 
 Click "Generate From Custom Prompt" below to see your preview photos. 🚀`;
         
-      } else if (message.toLowerCase().includes('natural') || message.toLowerCase().includes('movement') || message.toLowerCase().includes('hair') || message.toLowerCase().includes('authentic')) {
-        suggestedPrompt = `${triggerWord} woman, mid hair flip movement, natural motion blur in hair, black tank top, genuine expression, shot on Nikon Z9, studio strobe to freeze motion, black and white action portrait, authentic moment captured`;
-        sandraResponse = `OH MY GOD yes! Natural movement shots are so editorial and powerful! I've selected the "Hair Toss Energy" prompt that captures authentic movement and genuine expression. This is the content that stops scrolls instantly! 
+      } else if (message.toLowerCase().includes('coffee') || message.toLowerCase().includes('contemplation') || message.toLowerCase().includes('quiet') || message.toLowerCase().includes('peaceful')) {
+        suggestedPrompt = `${triggerWord} woman with coffee mug, both hands wrapped around it, looking into distance, kitchen or cafe setting, natural light, black and white quiet moment, finding peace`;
+        sandraResponse = `OH MY GOD yes! Quiet contemplative moments are so powerful for storytelling! I've selected the "Coffee Contemplation" prompt that captures that peaceful strength and self-reflection. This is the content that speaks to souls! 
 
 Click "Generate From Custom Prompt" below to create your aesthetic photos. 📸`;
         
-      } else if (message.toLowerCase().includes('power') || message.toLowerCase().includes('confident') || message.toLowerCase().includes('strong') || message.toLowerCase().includes('authority')) {
-        suggestedPrompt = `${triggerWord} woman sitting backwards on chair, arms resting on chair back, black outfit, direct powerful gaze, shot on Phase One, dramatic studio lighting, black and white power portrait, strong presence, editorial fashion`;
-        sandraResponse = `YES! Power portraits with that confident editorial energy are absolutely iconic! I've chosen the "Chair Authority" prompt that captures pure confidence and strong presence. This is editorial fashion meets business authority! 
+      } else if (message.toLowerCase().includes('power') || message.toLowerCase().includes('strong') || message.toLowerCase().includes('reclaimed') || message.toLowerCase().includes('confident')) {
+        suggestedPrompt = `${triggerWord} woman standing tall in empty space, arms crossed or hands on hips, direct gaze at camera, simple all black, dramatic single light source, black and white portrait of reclaimed power`;
+        sandraResponse = `YES! Reclaimed power portraits are absolutely iconic! I've chosen the "Power Stance" prompt that captures pure determination and inner strength. This is transformation story meets authentic authority! 
 
 Click "Generate From Custom Prompt" below to create your power photos. 💫`;
         
+      } else if (message.toLowerCase().includes('transformation') || message.toLowerCase().includes('journey') || message.toLowerCase().includes('rising') || message.toLowerCase().includes('phoenix')) {
+        suggestedPrompt = `${triggerWord} woman in flowing fabric or dress, movement captured, hair in motion, dramatic lighting from below or behind, black and white artistic portrait, resurrection metaphor`;
+        sandraResponse = `INCREDIBLE! Transformation stories are the most powerful content! I've selected the "Phoenix Rising" prompt that captures movement, rebirth, and emerging strength. This is pure storytelling magic! 
+
+Click "Generate From Custom Prompt" below to create your transformation photos. ✨`;
+        
       } else if (message.toLowerCase().includes('create') || message.toLowerCase().includes('generate') || message.toLowerCase().includes('make') || message.toLowerCase().includes('photos') || message.toLowerCase().includes('images')) {
-        suggestedPrompt = `${triggerWord} woman, tousled hair falling naturally, looking over bare shoulder, minimal jewelry, neutral backdrop, shot on Canon 5DS R, soft window light from left, black and white editorial, natural skin with visible pores, medium format aesthetic`;
-        sandraResponse = `Hey gorgeous! I'm SO excited to help you create amazing high-fashion model photos! I've selected the perfect "Harper's Intimate Portrait" prompt that captures that raw beauty and editorial simplicity. This is model test shot perfection! 
+        suggestedPrompt = `${triggerWord} woman profile silhouette against bright window, hair up showing neck curve, wrapped in blanket or oversized sweater, contemplative moment, black and white photography, soft grain, visible emotion in posture, raw documentary style`;
+        sandraResponse = `Hey gorgeous! I'm SO excited to help you create amazing vulnerability series photos! I've selected the perfect "Silhouette of Strength" prompt that captures raw emotional storytelling. This is authentic narrative photography! 
 
 The prompt is ready below - just click "Generate From Custom Prompt" to create 4 preview photos! ✨`;
         
       } else {
-        sandraResponse = `Hey gorgeous! I'm Sandra, and I'm SO excited to help you create amazing high-fashion model photos! Tell me what kind of photos you want and I'll select the perfect prompt from my comprehensive B&W studio beauty collection. 
+        sandraResponse = `Hey gorgeous! I'm Sandra, and I'm SO excited to help you create powerful vulnerability series photos! Tell me what kind of story you want to tell and I'll select the perfect prompt from my comprehensive raw storytelling collection. 
 
 Try saying things like:
-• "Natural beauty portrait with minimal makeup"
-• "Dramatic lighting with shadows" 
-• "Hair movement and authentic energy"
-• "Powerful editorial chair pose"
-• "Intimate studio beauty shot"
+• "Raw vulnerable moment with authentic emotion"
+• "Exhausted but strong after struggle" 
+• "Quiet contemplation with coffee"
+• "Reclaimed power and confidence"
+• "Transformation and rising again"
 
-I have the complete high-fashion model collection ready - from Vogue beauty classics to dramatic window lighting! ✨`;
+I have the complete vulnerability series ready - from raw morning truth to phoenix rising transformations! ✨`;
       }
       
       res.json({
