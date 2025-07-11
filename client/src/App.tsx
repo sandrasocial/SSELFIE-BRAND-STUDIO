@@ -8,10 +8,6 @@ import { useAuth } from "@/hooks/use-auth";
 import { useQuery } from "@tanstack/react-query";
 import NotFound from "@/pages/not-found";
 import Landing from "@/pages/landing";
-import Welcome from "@/pages/welcome";
-import Login from "@/pages/login";
-import SignUp from "@/pages/signup";
-import ForgotPasswordPage from "@/pages/forgot-password";
 import Pricing from "@/pages/pricing";
 import Workspace from "@/pages/workspace";
 import Onboarding from "@/pages/onboarding";
@@ -23,27 +19,11 @@ import Terms from "@/pages/terms";
 import Privacy from "@/pages/privacy";
 import HowItWorks from "@/pages/how-it-works";
 import SelfieGuide from "@/pages/selfie-guide";
-import AdminDashboard from "@/pages/admin-dashboard";
-import AdminProgress from "@/pages/admin-progress";
-import AgentSandbox from "@/pages/agent-sandbox";
 import Profile from "@/pages/profile";
 import PaymentSuccess from "@/pages/payment-success";
-
-import OnboardingNew from "@/pages/onboarding-new";
-import SimpleAITraining from "@/pages/simple-ai-training";
-import SimpleTraining from "@/pages/simple-training";
-import AdminRoadmap from "@/pages/admin-roadmap";
 import Checkout from "@/pages/checkout";
 import SimpleCheckout from "@/pages/simple-checkout";
 import ThankYou from "@/pages/thank-you";
-import AIGenerator from "@/pages/ai-generator";
-import SandraChat from "@/pages/sandra-chat";
-import AdminStyleguide from "@/pages/admin-styleguide";
-import UserStyleguide from "@/pages/user-styleguide";
-import StyleguideDemo from "@/pages/styleguide-demo";
-import StyleguideLandingBuilder from "@/pages/styleguide-landing-builder";
-import TemplateShowcase from "@/pages/template-showcase";
-import ShannonMurrayDemo from "@/pages/shannon-murray-demo";
 
 // Removed duplicate photoshoot imports - using existing system
 
@@ -100,9 +80,9 @@ function ProtectedRoute({ component: Component, ...props }) {
 function Router() {
   return (
     <Switch>
-      {/* REMOVED DUPLICATE PHOTOSHOOT SYSTEM - USING EXISTING FLOW */}
+      {/* STREAMLINED USER JOURNEY: Landing → Simple Checkout → Payment Success → Onboarding → Workspace */}
 
-      {/* PUBLIC PAGES - ALWAYS ACCESSIBLE TO EVERYONE (NO AUTHENTICATION REQUIRED) */}
+      {/* PUBLIC PAGES */}
       <Route path="/" component={Landing} />
       <Route path="/about" component={About} />
       <Route path="/how-it-works" component={HowItWorks} />
@@ -114,41 +94,16 @@ function Router() {
       <Route path="/privacy" component={Privacy} />
       <Route path="/pricing" component={Pricing} />
 
-      {/* PAYMENT FLOW - NO AUTHENTICATION REQUIRED FOR CUSTOMER ACQUISITION */}
+      {/* PAYMENT FLOW */}
       <Route path="/checkout" component={Checkout} />
       <Route path="/simple-checkout" component={SimpleCheckout} />
       <Route path="/thank-you" component={ThankYou} />
       <Route path="/payment-success" component={PaymentSuccess} />
-      <Route path="/simple-training" component={(props) => <ProtectedRoute component={SimpleTraining} {...props} />} />
 
-      {/* AUTH PAGES - ACCESSIBLE TO EVERYONE */}
-      <Route path="/login" component={Login} />
-      <Route path="/signup" component={SignUp} />
-      <Route path="/forgot-password" component={ForgotPasswordPage} />
-
-      {/* PROTECTED ROUTES - REQUIRE AUTHENTICATION */}
+      {/* PROTECTED ROUTES */}
       <Route path="/workspace" component={(props) => <ProtectedRoute component={Workspace} {...props} />} />
       <Route path="/onboarding" component={(props) => <ProtectedRoute component={Onboarding} {...props} />} />
       <Route path="/profile" component={(props) => <ProtectedRoute component={Profile} {...props} />} />
-      <Route path="/ai-generator" component={(props) => <ProtectedRoute component={AIGenerator} {...props} />} />
-      <Route path="/sandra-chat" component={(props) => <ProtectedRoute component={SandraChat} {...props} />} />
-      <Route path="/simple-training" component={(props) => <ProtectedRoute component={SimpleAITraining} {...props} />} />
-      <Route path="/user-styleguide" component={(props) => <ProtectedRoute component={UserStyleguide} {...props} />} />
-      <Route path="/styleguide" component={(props) => <ProtectedRoute component={UserStyleguide} {...props} />} />
-      <Route path="/styleguide/:userId" component={(props) => <ProtectedRoute component={UserStyleguide} {...props} />} />
-      <Route path="/styleguide-demo" component={(props) => <ProtectedRoute component={StyleguideDemo} {...props} />} />
-      <Route path="/styleguide-landing-builder" component={(props) => <ProtectedRoute component={StyleguideLandingBuilder} {...props} />} />
-      <Route path="/template-showcase" component={(props) => <ProtectedRoute component={TemplateShowcase} {...props} />} />
-      
-      {/* Admin routes */}
-      <Route path="/admin" component={(props) => <ProtectedRoute component={AdminDashboard} {...props} />} />
-      <Route path="/admin/progress" component={(props) => <ProtectedRoute component={AdminProgress} {...props} />} />
-      <Route path="/admin/roadmap" component={(props) => <ProtectedRoute component={AdminRoadmap} {...props} />} />
-      <Route path="/admin/styleguide" component={(props) => <ProtectedRoute component={AdminStyleguide} {...props} />} />
-      <Route path="/sandbox" component={(props) => <ProtectedRoute component={AgentSandbox} {...props} />} />
-      
-      {/* Demo Landing Pages */}
-      <Route path="/demo/shannon-murray" component={ShannonMurrayDemo} />
 
       <Route component={NotFound} />
     </Switch>
