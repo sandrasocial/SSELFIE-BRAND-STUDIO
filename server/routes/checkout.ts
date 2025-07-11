@@ -25,6 +25,9 @@ export function registerCheckoutRoutes(app: Express) {
       const paymentIntent = await stripe.paymentIntents.create({
         amount: Math.round(amount * 100), // Convert to cents
         currency,
+        automatic_payment_methods: {
+          enabled: true,
+        },
         metadata: {
           plan,
           // userId will be added later during onboarding after successful payment
