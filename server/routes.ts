@@ -55,41 +55,48 @@ export async function registerRoutes(app: Express): Promise<Server> {
       let sandraResponse;
       let suggestedPrompt = null;
       
-      // Intelligent prompt generation with European street luxury aesthetic
-      if (message.toLowerCase().includes('wellness') || message.toLowerCase().includes('yoga') || message.toLowerCase().includes('health') || message.toLowerCase().includes('mindfulness')) {
-        suggestedPrompt = `${triggerWord} woman in European plaza practicing morning meditation, white linen outfit, sitting cross-legged by fountain, Italian architecture backdrop, natural morning light, candid wellness moment, street photography, film aesthetic, effortless luxury wellness`;
-        sandraResponse = `OMG yes! For wellness content, you NEED that serene European energy. I've created the perfect prompt with that effortless Milan wellness vibe - it'll give you those scroll-stopping lifestyle shots that make people want to book with you immediately! 
+      // Intelligent prompt generation from B&W Studio Beauty Portraits collection
+      if (message.toLowerCase().includes('beauty') || message.toLowerCase().includes('makeup') || message.toLowerCase().includes('studio') || message.toLowerCase().includes('portrait')) {
+        suggestedPrompt = `${triggerWord} woman, hair in high messy bun with face-framing pieces, minimal makeup with glossy lips, bare shoulders, seamless gray backdrop, shot on Hasselblad X2D, single beauty dish lighting, black and white photography, visible skin texture and freckles, film grain, high fashion beauty portrait`;
+        sandraResponse = `OMG yes! Beauty portraits are EVERYTHING for that high-fashion model aesthetic! I've selected the perfect "Vogue Beauty Classic" prompt - it captures that timeless editorial beauty with minimal makeup and natural skin texture that converts like crazy! 
 
 Click "Generate From Custom Prompt" below to create 4 preview photos. ✨`;
         
-      } else if (message.toLowerCase().includes('coaching') || message.toLowerCase().includes('business') || message.toLowerCase().includes('entrepreneur') || message.toLowerCase().includes('ceo') || message.toLowerCase().includes('executive')) {
-        suggestedPrompt = `${triggerWord} woman walking through European financial district, black tailored blazer, structured bag, confident stride past luxury office buildings, morning street photography, natural candid moment, business authority aesthetic, film grain`;
-        sandraResponse = `Perfect! For business authority, you need that European executive energy. I've crafted a prompt that'll give you those high-converting street style business shots. This isn't just another office photo - it's your power moment captured in motion! 
+      } else if (message.toLowerCase().includes('dramatic') || message.toLowerCase().includes('lighting') || message.toLowerCase().includes('shadow') || message.toLowerCase().includes('moody')) {
+        suggestedPrompt = `${triggerWord} woman, dramatic window blinds creating shadow stripes across face and body, eyes closed in serene expression, black slip dress, shot on Leica M11 Monochrom, natural harsh light, high contrast black and white, visible skin detail in light strips`;
+        sandraResponse = `Perfect! For dramatic editorial power, you need that cinematic lighting energy! I've crafted the ultimate "Window Shadow Play" prompt that creates stunning contrast and artistic shadows. This is fine art photography meets high fashion! 
 
 Click "Generate From Custom Prompt" below to see your preview photos. 🚀`;
         
-      } else if (message.toLowerCase().includes('pinterest') || message.toLowerCase().includes('lifestyle') || message.toLowerCase().includes('aesthetic') || message.toLowerCase().includes('cafe') || message.toLowerCase().includes('blogger')) {
-        suggestedPrompt = `${triggerWord} woman exiting Parisian cafe with coffee, oversized cream coat, black jeans, casual designer bag, European street backdrop, morning light, candid lifestyle moment, influencer street style photography, effortless luxury aesthetic`;
-        sandraResponse = `OH MY GOD yes! Pinterest lifestyle vibes with European flair are everything! I've created a prompt that'll give you those dreamy, scroll-stopping street style photos that get saved thousands of times. This is the content that makes your audience obsessed! 
+      } else if (message.toLowerCase().includes('natural') || message.toLowerCase().includes('movement') || message.toLowerCase().includes('hair') || message.toLowerCase().includes('authentic')) {
+        suggestedPrompt = `${triggerWord} woman, mid hair flip movement, natural motion blur in hair, black tank top, genuine expression, shot on Nikon Z9, studio strobe to freeze motion, black and white action portrait, authentic moment captured`;
+        sandraResponse = `OH MY GOD yes! Natural movement shots are so editorial and powerful! I've selected the "Hair Toss Energy" prompt that captures authentic movement and genuine expression. This is the content that stops scrolls instantly! 
 
 Click "Generate From Custom Prompt" below to create your aesthetic photos. 📸`;
         
+      } else if (message.toLowerCase().includes('power') || message.toLowerCase().includes('confident') || message.toLowerCase().includes('strong') || message.toLowerCase().includes('authority')) {
+        suggestedPrompt = `${triggerWord} woman sitting backwards on chair, arms resting on chair back, black outfit, direct powerful gaze, shot on Phase One, dramatic studio lighting, black and white power portrait, strong presence, editorial fashion`;
+        sandraResponse = `YES! Power portraits with that confident editorial energy are absolutely iconic! I've chosen the "Chair Authority" prompt that captures pure confidence and strong presence. This is editorial fashion meets business authority! 
+
+Click "Generate From Custom Prompt" below to create your power photos. 💫`;
+        
       } else if (message.toLowerCase().includes('create') || message.toLowerCase().includes('generate') || message.toLowerCase().includes('make') || message.toLowerCase().includes('photos') || message.toLowerCase().includes('images')) {
-        suggestedPrompt = `${triggerWord} woman walking on European cobblestone street, black turtleneck, wide-leg trousers, designer bag, historic architecture backdrop, natural afternoon light, candid street capture, model-off-duty aesthetic, film grain`;
-        sandraResponse = `Hey gorgeous! I'm SO excited to help you create amazing brand photos! I've crafted a perfect European street luxury prompt for you that will give you those professional model-off-duty shots that convert. 
+        suggestedPrompt = `${triggerWord} woman, tousled hair falling naturally, looking over bare shoulder, minimal jewelry, neutral backdrop, shot on Canon 5DS R, soft window light from left, black and white editorial, natural skin with visible pores, medium format aesthetic`;
+        sandraResponse = `Hey gorgeous! I'm SO excited to help you create amazing high-fashion model photos! I've selected the perfect "Harper's Intimate Portrait" prompt that captures that raw beauty and editorial simplicity. This is model test shot perfection! 
 
 The prompt is ready below - just click "Generate From Custom Prompt" to create 4 preview photos! ✨`;
         
       } else {
-        sandraResponse = `Hey gorgeous! I'm Sandra, and I'm SO excited to help you create amazing European street luxury photos! Tell me what kind of photos you want and I'll create the perfect AI prompt for you. 
+        sandraResponse = `Hey gorgeous! I'm Sandra, and I'm SO excited to help you create amazing high-fashion model photos! Tell me what kind of photos you want and I'll select the perfect prompt from my comprehensive B&W studio beauty collection. 
 
 Try saying things like:
-• "Create European wellness plaza photos"
-• "I want Milan business executive street style" 
-• "Make Parisian cafe aesthetic photos"
-• "Generate European street luxury images"
+• "Natural beauty portrait with minimal makeup"
+• "Dramatic lighting with shadows" 
+• "Hair movement and authentic energy"
+• "Powerful editorial chair pose"
+• "Intimate studio beauty shot"
 
-The more specific you are, the better European luxury prompt I can create! ✨`;
+I have the complete high-fashion model collection ready - from Vogue beauty classics to dramatic window lighting! ✨`;
       }
       
       res.json({
