@@ -36,36 +36,15 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   }));
 
-  // Test login endpoint with different user types
+  // Simple login endpoint - always use Sandra's consistent test user
   app.get('/api/login', (req: any, res) => {
-    const userType = req.query.user || 'new';
-    let testUser;
-
-    if (userType === 'new') {
-      // Create a completely new user for testing
-      testUser = {
-        userId: "newuser" + Math.floor(Math.random() * 100000),
-        userEmail: "newuser" + Math.floor(Math.random() * 1000) + "@example.com",
-        firstName: "New",
-        lastName: "User"
-      };
-    } else if (userType === 'existing') {
-      // Create a returning user with completed onboarding
-      testUser = {
-        userId: "existinguser42585527",
-        userEmail: "existing@example.com", 
-        firstName: "Existing",
-        lastName: "User"
-      };
-    } else {
-      // Default test user
-      testUser = {
-        userId: "test" + Math.floor(Math.random() * 100000),
-        userEmail: "testuser@example.com",
-        firstName: "Test",
-        lastName: "User"
-      };
-    }
+    // Always use the same test user for consistent training
+    const testUser = {
+      userId: "sandra_test_user_2025",
+      userEmail: "sandra@sselfie.ai",
+      firstName: "Sandra",
+      lastName: "Test"
+    };
 
     req.session.userId = testUser.userId;
     req.session.userEmail = testUser.userEmail;
@@ -73,7 +52,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     req.session.lastName = testUser.lastName;
     req.session.createdAt = new Date().toISOString();
     
-    console.log(`Login: Created ${userType} user session:`, testUser.userId, testUser.userEmail);
+    console.log(`Login: Created consistent user session:`, testUser.userId);
     res.redirect('/workspace');
   });
 
