@@ -962,8 +962,54 @@ I have ALL collections ready - just tell me your mood! ✨`;
     }
   });
 
-  // Sandra AI Designer Chat endpoint with Claude 4.0 Sonnet
+  // Enhanced Sandra AI Chat with Memory and Custom Prompt Generation
   app.post('/api/sandra-ai-chat', async (req: any, res) => {
+    try {
+      const { message } = req.body;
+      const userId = req.session?.userId || req.user?.claims?.sub || '42585527'; // Use session or authenticated user
+      
+      console.log(`Sandra AI chat request from user ${userId}: "${message}"`);
+      
+      // Import the enhanced Sandra AI service
+      const { SandraAIService } = await import('./sandra-ai-service');
+      
+      // Get conversational response with memory and custom prompt generation
+      const response = await SandraAIService.chatWithUser(userId, message);
+      
+      res.json({
+        message: response.response,
+        suggestedPrompt: response.suggestedPrompt,
+        styleInsights: response.styleInsights,
+        timestamp: new Date().toISOString()
+      });
+      
+    } catch (error) {
+      console.error("Enhanced Sandra AI error:", error);
+      res.status(500).json({ 
+        message: "OMG, I'm having a moment! Try asking me again - I'm so excited to help you create stunning photos! ✨",
+        error: error.message 
+      });
+    }
+  });
+
+  // Get user's Sandra AI conversation history and style evolution
+  app.get('/api/sandra-ai/style-evolution', async (req: any, res) => {
+    try {
+      const userId = req.session?.userId || req.user?.claims?.sub || '42585527';
+      
+      const { SandraAIService } = await import('./sandra-ai-service');
+      const evolution = await SandraAIService.getUserStyleEvolution(userId);
+      
+      res.json(evolution);
+      
+    } catch (error) {
+      console.error("Style evolution error:", error);
+      res.status(500).json({ message: "Failed to get style evolution" });
+    }
+  });
+
+  // Legacy Sandra AI Designer endpoint for backward compatibility
+  app.post('/api/sandra-ai/chat', async (req: any, res) => {
     try {
       const { message, context, userContext, chatHistory, pageConfig, selectedTemplate, dashboardConfig } = req.body;
       

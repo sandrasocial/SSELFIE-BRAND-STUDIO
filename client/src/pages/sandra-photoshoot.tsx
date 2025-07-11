@@ -315,22 +315,18 @@ export default function SandraPhotoshoot() {
     }
   });
 
-  // Chat with Sandra AI mutation
+  // Enhanced Chat with Sandra AI mutation with Memory and Custom Prompts
   const chatMutation = useMutation({
     mutationFn: async (message: string) => {
-      const response = await apiRequest('POST', '/api/sandra-chat', { 
-        message,
-        history: chatHistory
+      const response = await apiRequest('POST', '/api/sandra-ai-chat', { 
+        message
       });
-      console.log('Raw API response:', response);
-      const data = await response.json();
-      console.log('Parsed response data:', data);
-      return data;
+      return response;
     },
     onSuccess: (data) => {
-      console.log('Chat success data:', data);
+      console.log('Enhanced Sandra AI response:', data);
       
-      const sandraMessage = data.response || data.message || 'I understand! Let me help you with that.';
+      const sandraMessage = data.message || 'I understand! Let me help you create stunning photos for your brand.';
       
       setChatHistory(prev => [...prev, 
         { role: 'user', message: chatMessage },
@@ -338,9 +334,18 @@ export default function SandraPhotoshoot() {
       ]);
       setChatMessage('');
       
-      // If Sandra suggested a prompt, extract it
+      // If Sandra created a custom prompt with camera specs and film texture
       if (data.suggestedPrompt) {
         setCustomPrompt(data.suggestedPrompt);
+        toast({
+          title: "Sandra Created a Custom Prompt!",
+          description: "Check the custom prompt section - Sandra included specific camera details and film texture.",
+        });
+      }
+      
+      // Display style insights if Sandra learned something new about user's vision
+      if (data.styleInsights && Object.keys(data.styleInsights).length > 0) {
+        console.log('Sandra learned about your style:', data.styleInsights);
       }
     },
     onError: (error: any) => {
@@ -893,10 +898,13 @@ export default function SandraPhotoshoot() {
                         textTransform: 'uppercase',
                         marginBottom: '16px'
                       }}>
-                        Chat with Sandra AI
+                        Chat with Sandra AI - Your Personal Photo Stylist
                       </h3>
-                      <p>
-                        Tell Sandra what kind of photos you want and she'll create the perfect prompts for you.
+                      <p style={{ marginBottom: '12px' }}>
+                        Tell Sandra your vision and she'll remember everything to create increasingly perfect prompts with specific camera details and film texture.
+                      </p>
+                      <p style={{ fontSize: '12px', color: '#666666', fontStyle: 'italic' }}>
+                        Sandra learns from every conversation to understand your unique style and brand vision.
                       </p>
                     </div>
                   ) : (
@@ -947,7 +955,7 @@ export default function SandraPhotoshoot() {
                     type="text"
                     value={chatMessage}
                     onChange={(e) => setChatMessage(e.target.value)}
-                    placeholder="Describe the style of photos you want..."
+                    placeholder="Tell Sandra about your vision, style preferences, or the story you want to tell..."
                     style={{
                       flex: 1,
                       padding: '16px 20px',
@@ -999,7 +1007,7 @@ export default function SandraPhotoshoot() {
                       marginBottom: '16px',
                       color: '#666666'
                     }}>
-                      Sandra's Suggested Prompt:
+                      Sandra's Custom Prompt with Camera Specs & Film Texture:
                     </h4>
                     <p style={{
                       fontSize: '14px',

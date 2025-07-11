@@ -6,6 +6,7 @@ import {
   selfieUploads,
   subscriptions,
   userUsage,
+  sandraConversations,
   type User,
   type UpsertUser,
   type OnboardingData,
@@ -20,6 +21,8 @@ import {
   type InsertSubscription,
   type UserUsage,
   type InsertUserUsage,
+  type SandraConversation,
+  type InsertSandraConversation,
 } from "@shared/schema-simplified";
 import { db } from "./db";
 import { eq, and, desc, gte } from "drizzle-orm";
@@ -58,6 +61,10 @@ export interface IStorage {
   getUserUsage(userId: string): Promise<UserUsage | undefined>;
   createUserUsage(data: InsertUserUsage): Promise<UserUsage>;
   updateUserUsage(userId: string, data: Partial<UserUsage>): Promise<UserUsage>;
+  
+  // Sandra AI conversation operations
+  getSandraConversations(userId: string): Promise<SandraConversation[]>;
+  saveSandraConversation(data: InsertSandraConversation): Promise<SandraConversation>;
 }
 
 export class DatabaseStorage implements IStorage {
@@ -218,6 +225,20 @@ export class DatabaseStorage implements IStorage {
       .where(eq(userUsage.userId, userId))
       .returning();
     return updated;
+  }
+
+  // Sandra AI conversation operations
+  async getSandraConversations(userId: string): Promise<SandraConversation[]> {
+    return await db
+      .select()
+      .from(sandraConversations)
+      .where(eq(sandraConversations.userId, userId))
+      .orderBy(desc(sandraConversations.createdAt));
+  }
+
+  async saveSandraConversation(data: InsertSandraConversation): Promise<SandraConversation> {
+    const [conversation] = await db.insert(sandraConversations).values(data).returning();
+    return conversation;
   }
 }
 
