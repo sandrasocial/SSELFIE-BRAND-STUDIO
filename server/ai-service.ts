@@ -233,6 +233,9 @@ export class AIService {
       }
     }
 
+    // Use the correct implementation based on official FLUX repository
+    const isUserModel = modelId.includes('sandrasocial');
+    
     const response = await fetch(FLUX_MODEL_CONFIG.apiUrl, {
       method: 'POST',
       headers: {
@@ -240,20 +243,22 @@ export class AIService {
         'Content-Type': 'application/json',
       },
       body: JSON.stringify({
-        model: "black-forest-labs/flux-dev-lora", // Use the correct high-quality FLUX model
+        model: isUserModel ? modelId : "black-forest-labs/flux-dev-lora",
         input: {
           prompt: prompt,
-          guidance: 3, // Optimal guidance setting from documentation
-          num_inference_steps: 28, // Recommended range 28-50
+          guidance_scale: 3.5, // Correct parameter name for FLUX-dev (not just 'guidance')
+          num_inference_steps: 28, // Optimal for FLUX-dev
           num_outputs: 4, // Generate multiple options for user selection
-          lora_scale: 1.0, // Full LoRA application for best quality
+          lora_scale: isUserModel ? undefined : 1.0, // Only use lora_scale for external LoRAs
           aspect_ratio: "4:3", // Better aspect ratio for portraits
           output_format: "jpg", // JPG format
-          output_quality: 95, // High quality (95 is very good without being too large)
+          output_quality: 95, // High quality
           go_fast: false, // Disable go_fast for maximum quality
-          megapixels: "1", // 1 megapixel for good quality
+          megapixels: 1.0, // Float value as per official implementation
           seed: Math.floor(Math.random() * 1000000),
-          lora_weights: modelId.includes('sandrasocial') ? modelId : undefined // Use user's trained model as LoRA weights
+          max_sequence_length: 512, // FLUX-dev default
+          // For external LoRAs (not user's trained model)
+          lora_weights: !isUserModel ? modelId : undefined
         }
       })
     });
