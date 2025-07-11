@@ -104,6 +104,9 @@ export default function SandraPhotoshoot() {
     },
     onSuccess: (data) => {
       console.log('Generation success data:', data);
+      console.log('Data type:', typeof data);
+      console.log('Data properties:', Object.keys(data || {}));
+      
       if (data && data.images && data.images.length > 0) {
         console.log('Setting generated images:', data.images);
         setGeneratedImages(data.images);
@@ -115,8 +118,19 @@ export default function SandraPhotoshoot() {
         });
       } else {
         console.error('No images in success data:', data);
+        console.log('Expected format: { images: [...] }');
+        // Try to set some test images for debugging
+        if (data && !data.images) {
+          console.log('Trying alternate data structures...');
+          // Check if images are at root level
+          if (Array.isArray(data)) {
+            setGeneratedImages(data);
+            setShowSelectionMode(true);
+            return;
+          }
+        }
         toast({
-          title: "Generation Issue",
+          title: "Generation Issue", 
           description: "Images generated but not properly returned. Please try again.",
           variant: "destructive",
         });
