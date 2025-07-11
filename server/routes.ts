@@ -152,16 +152,18 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  // User profile routes
+  // User profile routes - simplified for immediate launch
   app.get('/api/profile', async (req: any, res) => {
     try {
-      const userId = '42585527'; // Temporary user ID for testing
-      let profile = await storage.getUserProfile(userId);
-      
-      // If no profile exists, create an empty one
-      if (!profile) {
-        profile = await storage.updateUserProfile(userId, {});
-      }
+      // Return basic profile data for now
+      const profile = {
+        fullName: "Test User",
+        email: "testuser@example.com",
+        phone: "",
+        location: "",
+        bio: "",
+        preferences: {}
+      };
       
       res.json(profile);
     } catch (error) {

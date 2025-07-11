@@ -757,7 +757,7 @@ export default function SandraPhotoshoot() {
             padding: '0 40px'
           }}>
             <a
-              href="/workspace"
+              href="/studio"
               style={{
                 display: 'inline-block',
                 padding: '16px 32px',
@@ -784,7 +784,7 @@ export default function SandraPhotoshoot() {
               Back to Studio
             </a>
             <a
-              href="/sselfie-gallery"
+              href="/gallery"
               style={{
                 display: 'inline-block',
                 padding: '16px 32px',
