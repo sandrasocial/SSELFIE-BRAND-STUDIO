@@ -28,7 +28,7 @@ export const Navigation: React.FC = () => {
   // Member navigation - simplified 3-step SSELFIE workflow
   const memberNavItems = [
     { path: '/workspace', label: 'STUDIO' },
-    { path: '/ai-generator', label: 'TRAIN AI' },
+    { path: '/simple-training', label: 'TRAIN AI' },
     { path: '/sandra-photoshoot', label: 'PHOTOSHOOT' },
     { path: '/sselfie-gallery', label: 'GALLERY' },
     { path: '/profile', label: 'PROFILE' },

@@ -43,7 +43,7 @@ export default function Workspace() {
         label: 'Train Your SSELFIE AI',
         status: userModel?.trainingStatus === 'completed' ? 'complete' : userModel?.trainingStatus === 'training' ? 'progress' : 'pending',
         detail: userModel?.trainingStatus === 'completed' ? 'AI model ready for photoshoots' : userModel?.trainingStatus === 'training' ? 'Training in progress (20 minutes)' : 'Upload 10+ selfies to start training',
-        link: '/ai-generator',
+        link: '/simple-training',
         priority: !userModel || userModel.trainingStatus === 'not_started'
       },
       {
