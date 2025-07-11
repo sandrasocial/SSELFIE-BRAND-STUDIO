@@ -2000,27 +2000,27 @@ function generateSandraResponse(message: string, context: string): string {
 function generateSandraPhotoshootResponse(message: string, chatHistory: any[], onboardingData: any): any {
   const lowerMessage = message.toLowerCase();
   
-  // Professional business headshots
-  if (lowerMessage.includes('business') || lowerMessage.includes('professional') || lowerMessage.includes('headshot')) {
+  // Professional business scenes
+  if (lowerMessage.includes('business') || lowerMessage.includes('professional') || lowerMessage.includes('meeting')) {
     return {
-      response: "Okay, business headshots - but let's make them actually convert clients! I'm thinking sharp professional look with that confident 'I know what I'm doing' vibe. Want to try something with dramatic lighting and a clean background?",
-      prompt: "subject, professional business portrait, Canon 5D Mark IV, 85mm lens, confident business look, professional attire, soft natural lighting, clean background, executive style, sharp professional focus, raw photo, visible skin pores, film grain, unretouched natural skin texture, subsurface scattering, photographed on film, professional photography"
+      response: "Business energy - but let's make it dynamic! Instead of static headshots, let's capture you in action. Leading meetings, making deals, being the CEO you are. Real business moments that show your authority.",
+      prompt: "subject woman at head of conference table, modern office, city skyline view, black power suit, leading meeting, golden hour light through windows, full scene visible, environmental context, lifestyle photography not portrait, candid business moment"
     };
   }
   
   // Editorial magazine style
   if (lowerMessage.includes('magazine') || lowerMessage.includes('editorial') || lowerMessage.includes('vogue')) {
     return {
-      response: "Magazine cover energy! I love this. Let's create something that looks like it belongs on the cover of Vogue. Think dramatic lighting, striking pose, and that editorial makeup look that screams 'I'm the main character'.",
-      prompt: "subject, magazine cover photo, professional studio lighting, Hasselblad H6D-100c camera, 85mm lens, striking pose, confident expression, designer clothing, dramatic lighting, editorial makeup, magazine quality, sharp focus, raw photo, visible skin pores, film grain, unretouched natural skin texture, subsurface scattering, photographed on film"
+      response: "Editorial magazine realness! But let's make it lifestyle editorial - think Vogue meets real life. You working, you traveling, you living your best life. Environmental editorial that tells your story.",
+      prompt: "subject woman working on laptop at beachfront cafe, Mediterranean view, morning golden hour, white linen outfit, coffee on marble table, full scene visible, environmental context, lifestyle photography not portrait, editorial lifestyle moment"
     };
   }
   
   // Lifestyle and natural
   if (lowerMessage.includes('lifestyle') || lowerMessage.includes('natural') || lowerMessage.includes('casual')) {
     return {
-      response: "Natural lifestyle vibes - this is what converts because it feels authentic! People want to see the real you, not some perfect robot. Let's capture that effortless confidence.",
-      prompt: "subject, lifestyle photography, natural lighting, Leica M11 camera, 35mm lens, authentic moment, relaxed expression, casual elegant style, environmental portrait, raw photo, visible skin pores, film grain, unretouched natural skin texture, subsurface scattering, photographed on film"
+      response: "Natural lifestyle vibes - this is what converts because it feels authentic! Let's capture you in your element. Working from your favorite cafe, morning routine, real life moments that show who you are.",
+      prompt: "subject woman with coffee cup, cozy luxury setting, oversized black sweater, natural morning light, minimal styling, full scene visible, environmental context, lifestyle photography not portrait, authentic lifestyle moment"
     };
   }
   

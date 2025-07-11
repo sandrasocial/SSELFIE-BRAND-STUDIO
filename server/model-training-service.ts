@@ -15,19 +15,19 @@ export const IMAGE_CATEGORIES = {
 
 export const PROMPT_TEMPLATES = {
   editorial: {
-    portrait: "Editorial portrait of {trigger_word}, high fashion magazine style, dramatic lighting, sophisticated styling, professional photography",
-    lifestyle: "Editorial lifestyle shot of {trigger_word}, modern setting, natural pose, high-end commercial photography",
-    artistic: "Artistic portrait of {trigger_word}, creative composition, dramatic shadows, magazine quality"
+    lifestyle: "{trigger_word} woman working at luxury cafe, laptop open, coffee nearby, natural candid moment, environmental context, lifestyle photography not portrait",
+    business: "{trigger_word} woman in boardroom meeting, leading discussion, natural office environment, professional interaction, lifestyle photography not portrait",
+    creative: "{trigger_word} woman in art studio, creative process, hands working, artistic environment, lifestyle photography not portrait"
   },
   professional: {
-    headshot: "Professional headshot of {trigger_word}, clean background, business attire, confident expression",
-    business: "Professional business portrait of {trigger_word}, office setting, corporate style",
-    corporate: "Corporate portrait of {trigger_word}, executive presence, professional lighting"
+    workspace: "{trigger_word} woman at aesthetic desk setup, organized workspace, natural work moment, environmental context, lifestyle photography not portrait",
+    conference: "{trigger_word} woman speaking at conference, audience in background, stage setting, professional event, lifestyle photography not portrait",
+    networking: "{trigger_word} woman at networking event, natural conversation, social business setting, lifestyle photography not portrait"
   },
-  creative: {
-    artistic: "Creative artistic portrait of {trigger_word}, avant-garde styling, unique composition",
-    concept: "Conceptual portrait of {trigger_word}, artistic vision, creative interpretation",
-    'avant-garde': "Avant-garde portrait of {trigger_word}, experimental styling, bold composition"
+  lifestyle: {
+    morning: "{trigger_word} woman morning routine, cozy luxury setting, natural light, domestic lifestyle, environmental context, lifestyle photography not portrait",
+    wellness: "{trigger_word} woman yoga practice, luxury apartment, morning sun, wellness lifestyle, environmental context, lifestyle photography not portrait",
+    travel: "{trigger_word} woman at beachfront cafe, Mediterranean setting, vacation lifestyle, environmental context, lifestyle photography not portrait"
   }
 };
 
@@ -187,7 +187,13 @@ export class ModelTrainingService {
             input_images: zipUrl,
             trigger_word: triggerWord,
             steps: 1000,
-            autocaptioning: true
+            lora_rank: 32, // Higher for more complex poses/movements
+            batch_size: 1,
+            learning_rate: 1e-4, // Lower than default for better quality
+            caption_prefix: "photo of",
+            autocaptioning: true,
+            caption_dropout_rate: 0.1, // Add variety to prevent overfitting
+            noise_offset: 0.1 // Helps with dynamic range
           },
           destination: `sandrasocial/${modelName}`
         })
@@ -325,21 +331,22 @@ export class ModelTrainingService {
         console.log('Using demo model for user without trained model');
       }
       
-      // Replace {trigger_word} placeholder and add premium photo quality enhancements
-      const qualityEnhancements = ", professional photography, high-end portrait, crisp focus, premium lighting, magazine quality, detailed skin texture, natural beauty, editorial style, shot with professional camera, luxury aesthetic";
-      const finalPrompt = customPrompt.replace('{trigger_word}', triggerWord) + qualityEnhancements;
+      // Replace {trigger_word} placeholder and add dynamic lifestyle enhancements
+      const dynamicEnhancements = ", full scene visible, environmental context, lifestyle photography not portrait, candid moment, raw photo, film grain, photojournalistic style, not headshot, captured in motion";
+      const finalPrompt = customPrompt.replace('{trigger_word}', triggerWord) + dynamicEnhancements;
 
       // Call REAL Replicate API for image generation with optimal realistic settings
       const requestBody = {
         version: modelToUse,
         input: {
           prompt: finalPrompt,
+          negative_prompt: "portrait, headshot, passport photo, studio shot, centered face, isolated subject, corporate headshot, ID photo, school photo, posed",
           num_outputs: count,
-          aspect_ratio: "3:4",
+          aspect_ratio: "4:3", // Wider aspect for environmental scenes
           output_format: "jpg",
           output_quality: 95,
-          guidance_scale: 3.5, // Better prompt adherence and style control
-          num_inference_steps: 50, // Higher quality with more detailed rendering
+          guidance_scale: 2.5, // CRITICAL - lower for more realistic/dynamic results
+          num_inference_steps: 32, // Optimal for lifestyle photography
           go_fast: false, // Quality over speed
           seed: Math.floor(Math.random() * 1000000)
         }

@@ -9,64 +9,58 @@ import { apiRequest } from '@/lib/queryClient';
 // Built-in Sandra-style prompts - Professional Magazine-Worthy Templates
 const SANDRA_PROMPTS = [
   {
-    id: 'vogue-power-portrait',
-    title: 'VOGUE Power Portrait',
-    description: 'Editorial portrait for Vogue cover - Ultimate power shot',
-    prompt: '{trigger_word} woman, editorial portrait for Vogue cover, wearing black power blazer, direct confident gaze at camera, luxury studio backdrop, shot on Hasselblad H6D-100c with 80mm lens, soft beauty dish lighting, raw photo, visible skin pores, film grain, unretouched natural skin texture, high-end editorial photography'
-  },
-  {
-    id: 'elle-minimalist',
-    title: 'ELLE Minimalist',
-    description: 'Clean, sophisticated minimalist portrait - Editorial simplicity',
-    prompt: '{trigger_word} woman, minimalist portrait, black turtleneck, clean white background, natural makeup, shot on Canon 5DS R with 85mm f/1.2L lens, window light with reflector, raw photo, authentic skin texture, film grain, editorial simplicity, magazine quality'
-  },
-  {
-    id: 'harpers-ceo-energy',
-    title: 'Harper\'s CEO Energy',
-    description: 'Executive portrait with powerful stance - Luxury editorial confidence',
-    prompt: '{trigger_word} woman, executive portrait, structured black suit, neutral backdrop, powerful stance, shot on Phase One XF IQ4 with 110mm lens, three-point studio lighting, raw photo, natural skin detail, film grain, unretouched confidence, luxury editorial'
-  },
-  {
     id: 'boardroom-dominance',
     title: 'Boardroom Dominance',
-    description: 'Leading the meeting - Corporate editorial photography',
-    prompt: '{trigger_word} woman at head of conference table, modern office, city skyline view, black power suit, leading meeting, golden hour light through windows, raw photo, confident expression, natural skin texture, film grain, corporate editorial photography'
+    description: 'Leading the meeting - Corporate editorial photography in action',
+    prompt: '{trigger_word} woman at head of conference table, modern office, city skyline view, black power suit, leading meeting, golden hour light through windows, full scene visible, environmental context, lifestyle photography not portrait'
   },
   {
     id: 'keynote-speaker',
     title: 'Keynote Speaker',
-    description: 'On stage commanding attention - Professional event photography',
-    prompt: '{trigger_word} woman on stage at luxury conference, speaking to audience, professional outfit, stage lighting, confident gesture, audience in soft focus, raw photo, natural skin under stage lights, film grain, event photography editorial style'
+    description: 'On stage commanding attention - Event photography editorial style',
+    prompt: '{trigger_word} woman on stage at luxury conference, speaking to audience, professional outfit, stage lighting, confident gesture, audience in soft focus, full scene visible, environmental context, lifestyle photography not portrait'
   },
   {
-    id: 'morning-coffee-aesthetic',
+    id: 'marbella-morning',
+    title: 'Marbella Morning',
+    description: 'Working at beachfront cafe - Mediterranean lifestyle photography',
+    prompt: '{trigger_word} woman working on laptop at beachfront cafe, Mediterranean view, morning golden hour, white linen outfit, coffee on marble table, full scene visible, environmental context, lifestyle photography not portrait'
+  },
+  {
+    id: 'coffee-aesthetic',
     title: 'Morning Coffee Aesthetic',
-    description: 'Pinterest-worthy lifestyle moment - Cozy luxury setting',
-    prompt: '{trigger_word} woman with coffee cup, cozy luxury setting, oversized black sweater, natural morning light, minimal styling, raw photo, relaxed beauty, natural skin texture, film grain, Pinterest lifestyle photography'
+    description: 'Pinterest-worthy lifestyle moments with cozy luxury',
+    prompt: '{trigger_word} woman with coffee cup, cozy luxury setting, oversized black sweater, natural morning light, minimal styling, full scene visible, environmental context, lifestyle photography not portrait'
+  },
+  {
+    id: 'workspace-goals',
+    title: 'Workspace Goals',
+    description: 'Aesthetic desk setup - Pinterest office aesthetic',
+    prompt: '{trigger_word} woman at aesthetic desk setup, fresh flowers, laptop, organized luxury, black outfit, bright natural light, inspiring workspace, full scene visible, environmental context, lifestyle photography not portrait'
   },
   {
     id: 'studio-session',
     title: 'Studio Session',
     description: 'Behind-the-scenes content creation - Authentic work moment',
-    prompt: '{trigger_word} woman in modern photo studio, adjusting ring light, all black outfit, creative process, professional equipment visible, raw photo, natural skin texture, film grain, behind-the-scenes editorial, authentic work moment'
+    prompt: '{trigger_word} woman in modern photo studio, adjusting ring light, all black outfit, creative process, professional equipment visible, full scene visible, environmental context, lifestyle photography not portrait'
   },
   {
     id: 'wellness-elevation',
     title: 'Wellness Elevation',
     description: 'Morning ritual luxury - Mind, body, success aesthetic',
-    prompt: '{trigger_word} woman on yoga mat, luxury apartment, morning sun streaming in, black activewear, meditation pose, city view, raw photo, natural morning glow, visible skin texture, film grain, wellness editorial photography'
+    prompt: '{trigger_word} woman on yoga mat, luxury apartment, morning sun streaming in, black activewear, meditation pose, city view, full scene visible, environmental context, lifestyle photography not portrait'
   },
   {
     id: 'victory-celebration',
     title: 'Victory Celebration',
     description: 'Celebrating success - Achievement editorial moment',
-    prompt: '{trigger_word} woman celebrating success, champagne toast, penthouse setting, black dress, genuine joy, city lights, raw photo, authentic happiness, natural skin detail, film grain, achievement editorial'
+    prompt: '{trigger_word} woman celebrating success, champagne toast, penthouse setting, black dress, genuine joy, city lights, full scene visible, environmental context, lifestyle photography not portrait'
   },
   {
     id: 'future-vision',
     title: 'Future Vision',
     description: 'Aspirational horizon shot - Contemplative power pose',
-    prompt: '{trigger_word} woman on infinity balcony, looking at horizon, flowing black outfit, sunset light, contemplative power pose, raw photo, visible skin texture, film grain, aspirational editorial photography'
+    prompt: '{trigger_word} woman on infinity balcony, looking at horizon, flowing black outfit, sunset light, contemplative power pose, full scene visible, environmental context, lifestyle photography not portrait'
   }
 ];
 
