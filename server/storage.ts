@@ -90,6 +90,10 @@ export class DatabaseStorage implements IStorage {
     return data;
   }
 
+  async getUserOnboardingData(userId: string): Promise<OnboardingData | undefined> {
+    return this.getOnboardingData(userId);
+  }
+
   async saveOnboardingData(data: InsertOnboardingData): Promise<OnboardingData> {
     const [saved] = await db.insert(onboardingData).values(data).returning();
     return saved;
