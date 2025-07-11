@@ -103,6 +103,8 @@ function Router() {
       {/* PROTECTED ROUTES */}
       <Route path="/workspace" component={(props) => <ProtectedRoute component={Workspace} {...props} />} />
       <Route path="/onboarding" component={(props) => <ProtectedRoute component={Onboarding} {...props} />} />
+      <Route path="/sandra-photoshoot" component={(props) => <ProtectedRoute component={lazy(() => import('./pages/sandra-photoshoot'))} {...props} />} />
+      <Route path="/sselfie-gallery" component={(props) => <ProtectedRoute component={lazy(() => import('./pages/sselfie-gallery'))} {...props} />} />
       <Route path="/profile" component={(props) => <ProtectedRoute component={Profile} {...props} />} />
 
       <Route component={NotFound} />
