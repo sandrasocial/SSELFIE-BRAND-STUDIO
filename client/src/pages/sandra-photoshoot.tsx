@@ -6,43 +6,67 @@ import { PaymentVerification } from '@/components/payment-verification';
 import { useToast } from '@/hooks/use-toast';
 import { apiRequest } from '@/lib/queryClient';
 
-// Built-in Sandra-style prompts
+// Built-in Sandra-style prompts - Professional Magazine-Worthy Templates
 const SANDRA_PROMPTS = [
   {
-    id: 'executive-portrait',
-    title: 'Executive Portrait',
-    description: 'Sophisticated business portrait for LinkedIn and professional profiles',
-    prompt: 'Professional executive portrait, {trigger_word} wearing elegant business attire, sitting confidently in a modern office setting, soft natural lighting, minimal background, high-end commercial photography style'
+    id: 'vogue-power-portrait',
+    title: 'VOGUE Power Portrait',
+    description: 'Editorial portrait for Vogue cover - Ultimate power shot',
+    prompt: '{trigger_word} woman, editorial portrait for Vogue cover, wearing black power blazer, direct confident gaze at camera, luxury studio backdrop, shot on Hasselblad H6D-100c with 80mm lens, soft beauty dish lighting, raw photo, visible skin pores, film grain, unretouched natural skin texture, high-end editorial photography'
   },
   {
-    id: 'editorial-fashion',
-    title: 'Editorial Fashion',
-    description: 'High-fashion editorial style for premium brand positioning',
-    prompt: 'Editorial fashion portrait, {trigger_word} in sophisticated designer clothing, dramatic lighting, magazine-quality photography, elegant pose, minimalist background, Vogue-style composition'
+    id: 'elle-minimalist',
+    title: 'ELLE Minimalist',
+    description: 'Clean, sophisticated minimalist portrait - Editorial simplicity',
+    prompt: '{trigger_word} woman, minimalist portrait, black turtleneck, clean white background, natural makeup, shot on Canon 5DS R with 85mm f/1.2L lens, window light with reflector, raw photo, authentic skin texture, film grain, editorial simplicity, magazine quality'
   },
   {
-    id: 'lifestyle-brand',
-    title: 'Lifestyle Brand',
-    description: 'Approachable lifestyle shots for social media and marketing',
-    prompt: 'Lifestyle brand portrait, {trigger_word} in casual chic outfit, natural lighting, warm and inviting atmosphere, authentic smile, modern minimalist setting, approachable yet professional'
+    id: 'harpers-ceo-energy',
+    title: 'Harper\'s CEO Energy',
+    description: 'Executive portrait with powerful stance - Luxury editorial confidence',
+    prompt: '{trigger_word} woman, executive portrait, structured black suit, neutral backdrop, powerful stance, shot on Phase One XF IQ4 with 110mm lens, three-point studio lighting, raw photo, natural skin detail, film grain, unretouched confidence, luxury editorial'
   },
   {
-    id: 'speaker-author',
-    title: 'Speaker & Author',
-    description: 'Authoritative shots perfect for speaking engagements and book covers',
-    prompt: 'Professional speaker portrait, {trigger_word} in confident pose, looking directly at camera, sophisticated business attire, clean background, inspirational lighting, authority and trustworthiness'
+    id: 'boardroom-dominance',
+    title: 'Boardroom Dominance',
+    description: 'Leading the meeting - Corporate editorial photography',
+    prompt: '{trigger_word} woman at head of conference table, modern office, city skyline view, black power suit, leading meeting, golden hour light through windows, raw photo, confident expression, natural skin texture, film grain, corporate editorial photography'
   },
   {
-    id: 'creative-entrepreneur',
-    title: 'Creative Entrepreneur',
-    description: 'Artistic and innovative shots for creative businesses',
-    prompt: 'Creative entrepreneur portrait, {trigger_word} in stylish contemporary outfit, artistic lighting, creative workspace background, confident expression, modern professional aesthetic'
+    id: 'keynote-speaker',
+    title: 'Keynote Speaker',
+    description: 'On stage commanding attention - Professional event photography',
+    prompt: '{trigger_word} woman on stage at luxury conference, speaking to audience, professional outfit, stage lighting, confident gesture, audience in soft focus, raw photo, natural skin under stage lights, film grain, event photography editorial style'
   },
   {
-    id: 'wellness-coach',
-    title: 'Wellness Coach',
-    description: 'Serene and approachable shots for wellness and coaching brands',
-    prompt: 'Wellness coach portrait, {trigger_word} in comfortable elegant attire, soft natural lighting, peaceful expression, clean serene background, authentic and trustworthy, calming atmosphere'
+    id: 'morning-coffee-aesthetic',
+    title: 'Morning Coffee Aesthetic',
+    description: 'Pinterest-worthy lifestyle moment - Cozy luxury setting',
+    prompt: '{trigger_word} woman with coffee cup, cozy luxury setting, oversized black sweater, natural morning light, minimal styling, raw photo, relaxed beauty, natural skin texture, film grain, Pinterest lifestyle photography'
+  },
+  {
+    id: 'studio-session',
+    title: 'Studio Session',
+    description: 'Behind-the-scenes content creation - Authentic work moment',
+    prompt: '{trigger_word} woman in modern photo studio, adjusting ring light, all black outfit, creative process, professional equipment visible, raw photo, natural skin texture, film grain, behind-the-scenes editorial, authentic work moment'
+  },
+  {
+    id: 'wellness-elevation',
+    title: 'Wellness Elevation',
+    description: 'Morning ritual luxury - Mind, body, success aesthetic',
+    prompt: '{trigger_word} woman on yoga mat, luxury apartment, morning sun streaming in, black activewear, meditation pose, city view, raw photo, natural morning glow, visible skin texture, film grain, wellness editorial photography'
+  },
+  {
+    id: 'victory-celebration',
+    title: 'Victory Celebration',
+    description: 'Celebrating success - Achievement editorial moment',
+    prompt: '{trigger_word} woman celebrating success, champagne toast, penthouse setting, black dress, genuine joy, city lights, raw photo, authentic happiness, natural skin detail, film grain, achievement editorial'
+  },
+  {
+    id: 'future-vision',
+    title: 'Future Vision',
+    description: 'Aspirational horizon shot - Contemplative power pose',
+    prompt: '{trigger_word} woman on infinity balcony, looking at horizon, flowing black outfit, sunset light, contemplative power pose, raw photo, visible skin texture, film grain, aspirational editorial photography'
   }
 ];
 
