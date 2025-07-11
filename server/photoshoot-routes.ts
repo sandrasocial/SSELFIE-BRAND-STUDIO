@@ -174,17 +174,17 @@ export function registerPhotoshootRoutes(app: Express) {
       }
 
       // TODO: Integrate with actual AI generation service
-      // For now, return demo images
-      const generatedImages = [
-        "https://images.unsplash.com/photo-1580489944761-15a19d654956?w=800&h=1000&fit=crop&crop=face",
-        "https://images.unsplash.com/photo-1544005313-94ddf0286df2?w=800&h=1000&fit=crop&crop=face",
-        "https://images.unsplash.com/photo-1488426862026-3ee34a7d66df?w=800&h=1000&fit=crop&crop=face",
-        "https://images.unsplash.com/photo-1506794778202-cad84cf45f1d?w=800&h=1000&fit=crop&crop=face"
+      // For now, return Sandra's authentic AI gallery images
+      const sandraImages = [
+        "https://i.postimg.cc/sgmtqFrQ/out-0-1.webp",
+        "https://i.postimg.cc/hPSswXPs/out-0-10.webp",
+        "https://i.postimg.cc/fRVcnm4c/out-0-11.webp",
+        "https://i.postimg.cc/fLc7qNG1/out-0-12.webp"
       ];
 
       res.json({
         success: true,
-        images: generatedImages,
+        images: sandraImages,
         prompt,
         style,
         generatedAt: new Date().toISOString()

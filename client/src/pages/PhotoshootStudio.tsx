@@ -1,6 +1,7 @@
 import React from 'react';
 import { Link, useLocation } from 'wouter';
 import { useQuery } from '@tanstack/react-query';
+import { SandraImages } from '@/lib/sandra-images';
 
 export default function PhotoshootStudio() {
   const [, navigate] = useLocation();
@@ -73,7 +74,7 @@ export default function PhotoshootStudio() {
         {/* Background Image */}
         <div className="absolute inset-0 opacity-30">
           <img 
-            src="https://images.unsplash.com/photo-1580489944761-15a19d654956?w=1600&h=1200&fit=crop&crop=face" 
+            src={SandraImages.hero.dashboard}
             alt="Studio dashboard" 
             className="w-full h-full object-cover"
           />
@@ -161,7 +162,7 @@ export default function PhotoshootStudio() {
               <div className="bg-white border border-gray-200 overflow-hidden hover:bg-black hover:text-white transition-all duration-500">
                 <div className="aspect-square bg-gray-100 relative overflow-hidden">
                   <img 
-                    src="https://images.unsplash.com/photo-1580489944761-15a19d654956?w=400&h=400&fit=crop&crop=face" 
+                    src={SandraImages.editorial.firstAI}
                     alt="AI Training"
                     className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700"
                   />
@@ -183,7 +184,7 @@ export default function PhotoshootStudio() {
               <div className="bg-white border border-gray-200 overflow-hidden hover:bg-black hover:text-white transition-all duration-500">
                 <div className="aspect-square bg-gray-100 relative overflow-hidden">
                   <img 
-                    src="https://images.unsplash.com/photo-1544005313-94ddf0286df2?w=400&h=400&fit=crop&crop=face" 
+                    src={SandraImages.portraits.professional[0]}
                     alt="Sandra Chat"
                     className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700"
                   />
@@ -205,7 +206,7 @@ export default function PhotoshootStudio() {
               <div className="bg-white border border-gray-200 overflow-hidden hover:bg-black hover:text-white transition-all duration-500">
                 <div className="aspect-square bg-gray-100 relative overflow-hidden">
                   <img 
-                    src="https://images.unsplash.com/photo-1488426862026-3ee34a7d66df?w=400&h=400&fit=crop&crop=face" 
+                    src={SandraImages.editorial.aiSuccess}
                     alt="Generate Images"
                     className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700"
                   />
@@ -227,7 +228,7 @@ export default function PhotoshootStudio() {
               <div className="bg-white border border-gray-200 overflow-hidden hover:bg-black hover:text-white transition-all duration-500">
                 <div className="aspect-square bg-gray-100 relative overflow-hidden">
                   <img 
-                    src="https://images.unsplash.com/photo-1506794778202-cad84cf45f1d?w=400&h=400&fit=crop&crop=face" 
+                    src={SandraImages.flatlays.workspace1}
                     alt="Gallery"
                     className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700"
                   />
