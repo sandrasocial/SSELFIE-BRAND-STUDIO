@@ -46,22 +46,50 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.status(400).json({ error: 'Message is required' });
       }
 
-      // TEMPORARY: Simple response while we fix Anthropic API key
+      // Get user info for personalized responses
+      const userId = req.user?.claims?.sub || 'sandra_test_user_2025';
+      const user = await storage.getUser(userId);
+      const userModel = await storage.getUserModel(userId);
+      const triggerWord = userModel?.triggerWord || 'subject';
+      
       let sandraResponse;
       let suggestedPrompt = null;
       
-      if (message.toLowerCase().includes('coaching') || message.toLowerCase().includes('business')) {
-        sandraResponse = `OMG yes! For coaching business photos, you NEED that boss energy. Let me suggest this perfect prompt for you:
+      // Intelligent prompt generation based on user message
+      if (message.toLowerCase().includes('wellness') || message.toLowerCase().includes('yoga') || message.toLowerCase().includes('health') || message.toLowerCase().includes('mindfulness')) {
+        suggestedPrompt = `${triggerWord} wellness lifestyle photography, practicing yoga in bright studio space, wearing comfortable activewear, shot with Canon 5DS R, natural window lighting with soft shadows, magazine-quality editorial, raw unretouched photo with visible skin texture, film grain, peaceful expression, luxury wellness environment`;
+        sandraResponse = `OMG yes! For wellness content, you NEED that serene boss energy. I've created the perfect prompt for your wellness guru brand - it'll give you those Pinterest-worthy lifestyle shots that make people want to book with you immediately! 
 
-"{trigger_word} professional lifestyle photography, confident coach sitting at modern desk, wearing sophisticated blazer, shot with Canon 5DS R, natural window lighting with soft shadows, magazine-quality editorial, raw unretouched photo with visible skin texture, film grain, commanding presence, luxury office environment"
-
-This gives you that executive authority look while keeping it approachable. The lifestyle elements make it feel authentic, not like a stock photo. Want me to suggest more variations?`;
+Click "Generate From Custom Prompt" below to create 4 preview photos. ✨`;
         
-        suggestedPrompt = "{trigger_word} professional lifestyle photography, confident coach sitting at modern desk, wearing sophisticated blazer, shot with Canon 5DS R, natural window lighting with soft shadows, magazine-quality editorial, raw unretouched photo with visible skin texture, film grain, commanding presence, luxury office environment";
-      } else {
-        sandraResponse = `Hey gorgeous! I'm Sandra, and I'm SO excited to help you create amazing brand photos! Tell me more about your business or brand vision, and I'll create the perfect AI prompt for you. 
+      } else if (message.toLowerCase().includes('coaching') || message.toLowerCase().includes('business') || message.toLowerCase().includes('entrepreneur') || message.toLowerCase().includes('ceo') || message.toLowerCase().includes('executive')) {
+        suggestedPrompt = `${triggerWord} professional lifestyle photography, confident coach sitting at modern desk, wearing sophisticated blazer, shot with Canon 5DS R, natural window lighting with soft shadows, magazine-quality editorial, raw unretouched photo with visible skin texture, film grain, commanding presence, luxury office environment`;
+        sandraResponse = `Perfect! For business authority, you need that executive power look. I've crafted a prompt that'll give you those high-converting professional lifestyle shots. This isn't just another headshot - it's your CEO moment captured! 
 
-What kind of vibe are you going for? Executive power? Creative entrepreneur? Wellness guru? The more you tell me, the better prompt I can create for your photoshoot! ✨`;
+Click "Generate From Custom Prompt" below to see your preview photos. 🚀`;
+        
+      } else if (message.toLowerCase().includes('pinterest') || message.toLowerCase().includes('lifestyle') || message.toLowerCase().includes('aesthetic') || message.toLowerCase().includes('cafe') || message.toLowerCase().includes('blogger')) {
+        suggestedPrompt = `${triggerWord} aesthetic lifestyle photography, sitting in beautiful cafe with laptop, wearing stylish casual outfit, shot with Canon 5DS R, golden hour lighting filtering through windows, magazine-quality editorial, raw unretouched photo with visible skin texture, film grain, authentic moment, Instagram-worthy scene`;
+        sandraResponse = `OH MY GOD yes! Pinterest lifestyle vibes are everything! I've created a prompt that'll give you those dreamy, scroll-stopping lifestyle photos that get saved thousands of times. This is the content that makes your audience obsessed! 
+
+Click "Generate From Custom Prompt" below to create your aesthetic photos. 📸`;
+        
+      } else if (message.toLowerCase().includes('create') || message.toLowerCase().includes('generate') || message.toLowerCase().includes('make') || message.toLowerCase().includes('photos') || message.toLowerCase().includes('images')) {
+        suggestedPrompt = `${triggerWord} professional lifestyle photography, natural candid moment in beautiful setting, wearing stylish outfit, shot with Canon 5DS R, soft natural lighting, magazine-quality editorial, raw unretouched photo with visible skin texture, film grain, authentic expression, luxury environment`;
+        sandraResponse = `Hey gorgeous! I'm SO excited to help you create amazing brand photos! I've crafted a perfect prompt for you that will give you those professional lifestyle shots that convert. 
+
+The prompt is ready below - just click "Generate From Custom Prompt" to create 4 preview photos! ✨`;
+        
+      } else {
+        sandraResponse = `Hey gorgeous! I'm Sandra, and I'm SO excited to help you create amazing brand photos! Tell me what kind of photos you want and I'll create the perfect AI prompt for you. 
+
+Try saying things like:
+• "Create lifestyle wellness photos for me"
+• "I want business executive shots" 
+• "Make Pinterest aesthetic photos"
+• "Generate coaching authority images"
+
+The more specific you are, the better prompt I can create! ✨`;
       }
       
       res.json({
