@@ -98,13 +98,22 @@ export default function SandraPhotoshoot() {
       });
     },
     onSuccess: (data) => {
-      if (data.images && data.images.length > 0) {
+      console.log('Generation success data:', data);
+      if (data && data.images && data.images.length > 0) {
+        console.log('Setting generated images:', data.images);
         setGeneratedImages(data.images);
         setSelectedImages([]);
         setShowSelectionMode(true);
         toast({
           title: "Images Generated Successfully",
           description: `Generated ${data.images.length} images using your trained model`,
+        });
+      } else {
+        console.error('No images in success data:', data);
+        toast({
+          title: "Generation Issue",
+          description: "Images generated but not properly returned. Please try again.",
+          variant: "destructive",
         });
       }
     },
