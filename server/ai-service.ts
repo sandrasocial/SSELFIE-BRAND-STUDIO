@@ -3,10 +3,11 @@ import { UsageService, API_COSTS } from './usage-service';
 
 // FLUX model configuration for SSELFIE generation
 const FLUX_MODEL_CONFIG = {
-  // Sandra's high-quality trained model
-  sandraModelId: 'sandrasocial/sseelfie-ai',
-  sandraTriggerWord: 'subject',
+  // Sandra's high-quality trained model (updated to newer model)
+  sandraModelId: 'sandrasocial/sandra_test_user_2025-selfie-lora',
+  sandraTriggerWord: 'usersandra_test_user_2025',
   sandraUserId: '42585527', // Sandra's user ID
+  sandraVersionId: 'a53fd9255ecba80d99eaab4706c698f861fd47b098012607557385416e46aae5',
   // For other users: individual trained models
   demoModelId: 'sandrasocial/sseelfie-ai', // Fallback while user models train
   demoTriggerWord: 'subject',
@@ -246,20 +247,19 @@ export class AIService {
     let requestBody;
     
     if (isSandraModel) {
-      // Sandra's model - use direct model call with exact settings from her test
+      // Sandra's newer model - use version from database with optimized settings
       requestBody = {
-        version: "a31d246656f2cec416d6d895d11cbb0b4b7b8eb2719fac75cf7d73c441b08f36", // Sandra's model version
+        version: FLUX_MODEL_CONFIG.sandraVersionId,
         input: {
-          model: "dev",
           prompt: prompt,
           go_fast: false,
           lora_scale: 1,
           num_outputs: 4,
-          aspect_ratio: "16:9", // Same as Sandra's successful test
-          output_format: "png", // Same as Sandra's test
-          guidance_scale: 2.7, // Same as Sandra's test
-          output_quality: 100, // Maximum quality like Sandra's test
-          num_inference_steps: 32 // Same as Sandra's test
+          aspect_ratio: "4:3", // Optimal for portraits
+          output_format: "jpg", 
+          guidance_scale: 2.5, // Optimized setting
+          output_quality: 95, // High quality
+          num_inference_steps: 32 // High quality setting
         }
       };
     } else {

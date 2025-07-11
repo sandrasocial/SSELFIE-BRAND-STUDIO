@@ -25,6 +25,9 @@ export default function SimpleTraining() {
     enabled: isAuthenticated
   });
 
+  // State for retraining mode
+  const [isRetrainingMode, setIsRetrainingMode] = useState(false);
+
   // Poll for training status updates with progress
   useEffect(() => {
     if (isTrainingStarted || (userModel && userModel.trainingStatus === 'training')) {
@@ -374,6 +377,165 @@ export default function SimpleTraining() {
     );
   }
 
+  // Show model completed view with retrain option
+  if (userModel && userModel.trainingStatus === 'completed' && !isRetrainingMode) {
+    return (
+      <PaymentVerification>
+        <div style={{ 
+          minHeight: '100vh', 
+          background: '#ffffff',
+          fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif',
+          fontWeight: 300,
+          color: '#0a0a0a'
+        }}>
+          <Navigation />
+          
+          {/* Hero Section */}
+          <section style={{
+            minHeight: '100vh',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            background: '#0a0a0a',
+            color: '#ffffff',
+            position: 'relative',
+            overflow: 'hidden'
+          }}>
+            <div style={{
+              position: 'absolute',
+              inset: 0,
+              opacity: 0.4
+            }}>
+              <img 
+                src={SandraImages.editorial.aiSuccess}
+                alt=""
+                style={{
+                  width: '100%',
+                  height: '100%',
+                  objectFit: 'cover'
+                }}
+              />
+            </div>
+            
+            <div style={{
+              position: 'relative',
+              zIndex: 2,
+              textAlign: 'center',
+              maxWidth: '800px',
+              padding: '0 40px'
+            }}>
+              <div style={{
+                fontSize: '11px',
+                letterSpacing: '0.4em',
+                textTransform: 'uppercase',
+                color: 'rgba(255, 255, 255, 0.7)',
+                marginBottom: '40px',
+                fontWeight: 300
+              }}>
+                AI MODEL READY
+              </div>
+              
+              <h1 style={{
+                fontFamily: 'Times New Roman, serif',
+                fontSize: 'clamp(4rem, 8vw, 8rem)',
+                lineHeight: 0.9,
+                fontWeight: 200,
+                letterSpacing: '-0.01em',
+                textTransform: 'uppercase',
+                marginBottom: '32px'
+              }}>
+                YOUR AI IS READY
+              </h1>
+              
+              <p style={{
+                fontSize: '20px',
+                lineHeight: 1.5,
+                fontWeight: 300,
+                maxWidth: '600px',
+                margin: '0 auto 40px auto',
+                opacity: 0.9
+              }}>
+                Your personal SSELFIE AI model "{userModel.modelName}" is trained and ready to create stunning professional images.
+              </p>
+
+              <div style={{
+                display: 'flex',
+                justifyContent: 'center',
+                gap: '20px',
+                flexWrap: 'wrap',
+                marginBottom: '40px'
+              }}>
+                <Link href="/sandra-photoshoot">
+                  <div style={{
+                    display: 'inline-block',
+                    padding: '16px 32px',
+                    fontSize: '11px',
+                    fontWeight: 400,
+                    letterSpacing: '0.3em',
+                    textTransform: 'uppercase',
+                    textDecoration: 'none',
+                    border: '1px solid #ffffff',
+                    color: '#0a0a0a',
+                    background: '#ffffff',
+                    transition: 'all 300ms ease',
+                    cursor: 'pointer'
+                  }}
+                  onMouseEnter={(e) => {
+                    e.target.style.background = 'transparent';
+                    e.target.style.color = '#ffffff';
+                  }}
+                  onMouseLeave={(e) => {
+                    e.target.style.background = '#ffffff';
+                    e.target.style.color = '#0a0a0a';
+                  }}
+                  >
+                    START AI PHOTOSHOOT
+                  </div>
+                </Link>
+
+                <div 
+                  onClick={() => setIsRetrainingMode(true)}
+                  style={{
+                    display: 'inline-block',
+                    padding: '16px 32px',
+                    fontSize: '11px',
+                    fontWeight: 400,
+                    letterSpacing: '0.3em',
+                    textTransform: 'uppercase',
+                    textDecoration: 'none',
+                    border: '1px solid #ffffff',
+                    color: '#ffffff',
+                    background: 'transparent',
+                    transition: 'all 300ms ease',
+                    cursor: 'pointer'
+                  }}
+                  onMouseEnter={(e) => {
+                    e.target.style.background = '#ffffff';
+                    e.target.style.color = '#0a0a0a';
+                  }}
+                  onMouseLeave={(e) => {
+                    e.target.style.background = 'transparent';
+                    e.target.style.color = '#ffffff';
+                  }}
+                >
+                  RETRAIN MY MODEL
+                </div>
+              </div>
+
+              <div style={{
+                fontSize: '14px',
+                opacity: 0.7,
+                marginTop: '20px'
+              }}>
+                Model: {userModel.replicateModelId} • Trigger: {userModel.triggerWord}
+              </div>
+            </div>
+          </section>
+        </div>
+      </PaymentVerification>
+    );
+  }
+
   return (
     <PaymentVerification>
       <div style={{ 
@@ -427,7 +589,7 @@ export default function SimpleTraining() {
               marginBottom: '40px',
               fontWeight: 300
             }}>
-              STEP ONE OF THREE
+              {isRetrainingMode ? 'RETRAIN YOUR MODEL' : 'STEP ONE OF THREE'}
             </div>
             
             <h1 style={{
@@ -439,7 +601,7 @@ export default function SimpleTraining() {
               textTransform: 'uppercase',
               marginBottom: '20px'
             }}>
-              TRAIN
+              {isRetrainingMode ? 'RETRAIN' : 'TRAIN'}
             </h1>
             
             <div style={{
@@ -464,7 +626,7 @@ export default function SimpleTraining() {
               maxWidth: '600px',
               margin: '0 auto'
             }}>
-              Upload 10+ selfies to create your personal AI model
+              {isRetrainingMode ? 'Upload 10+ new selfies to retrain your AI model with better accuracy' : 'Upload 10+ selfies to create your personal AI model'}
             </p>
           </div>
         </section>
