@@ -3,12 +3,13 @@ import { UsageService, API_COSTS } from './usage-service';
 
 // FLUX model configuration for SSELFIE generation
 const FLUX_MODEL_CONFIG = {
-  // For demo: Sandra's trained model (will need individual user models in production)
-  demoModelId: 'sandrasocial/sseelfie-ai',
-  demoTriggerWord: 'subject', // Sandra's model trigger word
-  // For production: Each user would need their own trained model
-  // userModelFormat: 'sselfie/{userId}/personal-lora',
-  // userTriggerFormat: 'user{userIdSuffix}', // Unique trigger per user
+  // Sandra's high-quality trained model
+  sandraModelId: 'sandrasocial/sseelfie-ai',
+  sandraTriggerWord: 'subject',
+  sandraUserId: '42585527', // Sandra's user ID
+  // For other users: individual trained models
+  demoModelId: 'sandrasocial/sseelfie-ai', // Fallback while user models train
+  demoTriggerWord: 'subject',
   apiUrl: 'https://api.replicate.com/v1/predictions',
   styles: {
     editorial: 'luxury editorial magazine style, high-end fashion photography, professional lighting, magazine cover quality',
@@ -191,10 +192,13 @@ export class AIService {
     const basePrompt = FLUX_MODEL_CONFIG.styles[style] || FLUX_MODEL_CONFIG.styles.editorial;
     const qualityPrompt = FLUX_MODEL_CONFIG.qualityPrompts[style] || FLUX_MODEL_CONFIG.qualityPrompts.editorial;
     
-    // Get user's trained model trigger word if available
+    // Get trigger word - Sandra gets her special model, others get individual models
     let triggerWord = FLUX_MODEL_CONFIG.demoTriggerWord; // Default fallback
     
-    if (userId) {
+    if (userId === FLUX_MODEL_CONFIG.sandraUserId) {
+      // Sandra uses her high-quality model
+      triggerWord = FLUX_MODEL_CONFIG.sandraTriggerWord;
+    } else if (userId) {
       try {
         const userModel = await storage.getUserModelByUserId(userId);
         if (userModel && userModel.trainingStatus === 'completed') {
@@ -220,21 +224,63 @@ export class AIService {
     }
 
     // Determine which model to use
-    let modelId = FLUX_MODEL_CONFIG.demoModelId; // Default to Sandra's model
+    let modelId = FLUX_MODEL_CONFIG.demoModelId; // Default fallback
     
-    if (userId) {
+    if (userId === FLUX_MODEL_CONFIG.sandraUserId) {
+      // Sandra gets her high-quality trained model
+      modelId = FLUX_MODEL_CONFIG.sandraModelId;
+    } else if (userId) {
       try {
         const userModel = await storage.getUserModelByUserId(userId);
         if (userModel && userModel.trainingStatus === 'completed' && userModel.modelUrl) {
           modelId = userModel.modelUrl; // Use user's trained model
         }
       } catch (error) {
-        console.log('Using demo model, user model not available:', error.message);
+        console.log('Using fallback model, user model not available:', error.message);
       }
     }
 
-    // Use the correct implementation based on official FLUX repository
-    const isUserModel = modelId.includes('sandrasocial');
+    // Use Sandra's model with the exact same parameters from her successful test
+    const isSandraModel = modelId === FLUX_MODEL_CONFIG.sandraModelId;
+    
+    let requestBody;
+    
+    if (isSandraModel) {
+      // Sandra's model - use direct model call with exact settings from her test
+      requestBody = {
+        version: "a31d246656f2cec416d6d895d11cbb0b4b7b8eb2719fac75cf7d73c441b08f36", // Sandra's model version
+        input: {
+          model: "dev",
+          prompt: prompt,
+          go_fast: false,
+          lora_scale: 1,
+          num_outputs: 4,
+          aspect_ratio: "16:9", // Same as Sandra's successful test
+          output_format: "png", // Same as Sandra's test
+          guidance_scale: 2.7, // Same as Sandra's test
+          output_quality: 100, // Maximum quality like Sandra's test
+          num_inference_steps: 32 // Same as Sandra's test
+        }
+      };
+    } else {
+      // Other users' models or fallback
+      const isUserModel = modelId.includes('sandrasocial') || modelId.includes('user');
+      requestBody = {
+        model: isUserModel ? modelId : "black-forest-labs/flux-dev-lora",
+        input: {
+          prompt: prompt,
+          guidance_scale: 3, // Standard setting for other models
+          num_inference_steps: 28, 
+          num_outputs: 4,
+          lora_scale: isUserModel ? 1.0 : undefined,
+          aspect_ratio: "4:3",
+          output_format: "jpg",
+          output_quality: 95,
+          go_fast: false,
+          megapixels: "1"
+        }
+      };
+    }
     
     const response = await fetch(FLUX_MODEL_CONFIG.apiUrl, {
       method: 'POST',
@@ -242,25 +288,7 @@ export class AIService {
         'Authorization': `Token ${process.env.REPLICATE_API_TOKEN}`,
         'Content-Type': 'application/json',
       },
-      body: JSON.stringify({
-        model: isUserModel ? modelId : "black-forest-labs/flux-dev-lora",
-        input: {
-          prompt: prompt,
-          guidance_scale: 3.5, // Correct parameter name for FLUX-dev (not just 'guidance')
-          num_inference_steps: 28, // Optimal for FLUX-dev
-          num_outputs: 4, // Generate multiple options for user selection
-          lora_scale: isUserModel ? undefined : 1.0, // Only use lora_scale for external LoRAs
-          aspect_ratio: "4:3", // Better aspect ratio for portraits
-          output_format: "jpg", // JPG format
-          output_quality: 95, // High quality
-          go_fast: false, // Disable go_fast for maximum quality
-          megapixels: 1.0, // Float value as per official implementation
-          seed: Math.floor(Math.random() * 1000000),
-          max_sequence_length: 512, // FLUX-dev default
-          // For external LoRAs (not user's trained model)
-          lora_weights: !isUserModel ? modelId : undefined
-        }
-      })
+      body: JSON.stringify(requestBody)
     });
 
     if (!response.ok) {
