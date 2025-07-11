@@ -28,6 +28,7 @@ import SandraPhotoshoot from "@/pages/sandra-photoshoot";
 import SSELFIEGallery from "@/pages/sselfie-gallery";
 import AIGenerator from "@/pages/ai-generator";
 import SimpleTraining from "@/pages/simple-training";
+import { lazy } from "react";
 
 // Removed duplicate photoshoot imports - using existing system
 
@@ -118,6 +119,9 @@ function Router() {
       <Route path="/gallery" component={(props) => <ProtectedRoute component={SSELFIEGallery} {...props} />} />
       <Route path="/sselfie-gallery" component={(props) => <ProtectedRoute component={SSELFIEGallery} {...props} />} />
       <Route path="/profile" component={(props) => <ProtectedRoute component={Profile} {...props} />} />
+      
+      {/* ADMIN MARKETING AUTOMATION */}
+      <Route path="/marketing-automation" component={(props) => <ProtectedRoute component={lazy(() => import('@/pages/marketing-automation'))} {...props} />} />
 
       <Route component={NotFound} />
     </Switch>
