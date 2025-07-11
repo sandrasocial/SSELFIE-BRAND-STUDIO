@@ -44,6 +44,13 @@ import StyleguideLandingBuilder from "@/pages/styleguide-landing-builder";
 import TemplateShowcase from "@/pages/template-showcase";
 import ShannonMurrayDemo from "@/pages/shannon-murray-demo";
 
+// New Photoshoot Pages
+import PhotoshootLanding from "@/pages/PhotoshootLanding";
+import PhotoshootCheckout from "@/pages/PhotoshootCheckout";
+import PhotoshootThankYou from "@/pages/PhotoshootThankYou";
+import PhotoshootStudio from "@/pages/PhotoshootStudio";
+import SimpleLogin from "@/pages/SimpleLogin";
+
 
 
 // Smart Home component that routes based on onboarding status
@@ -97,6 +104,13 @@ function ProtectedRoute({ component: Component, ...props }) {
 function Router() {
   return (
     <Switch>
+      {/* NEW PHOTOSHOOT PAGES - MINIMAL REVENUE SYSTEM */}
+      <Route path="/photoshoot" component={PhotoshootLanding} />
+      <Route path="/photoshoot/checkout" component={PhotoshootCheckout} />
+      <Route path="/photoshoot/thank-you" component={PhotoshootThankYou} />
+      <Route path="/photoshoot/login" component={SimpleLogin} />
+      <Route path="/studio" component={(props) => <ProtectedRoute component={PhotoshootStudio} {...props} />} />
+
       {/* PUBLIC PAGES - ALWAYS ACCESSIBLE TO EVERYONE (NO AUTHENTICATION REQUIRED) */}
       <Route path="/" component={Landing} />
       <Route path="/about" component={About} />
