@@ -14,23 +14,26 @@ async function testSandraModel() {
     console.log('API not available yet:', error.message);
   }
   
-  // Test the model configuration
+  // Test the updated model configuration
   const FLUX_MODEL_CONFIG = {
-    sandraModelId: 'sandrasocial/sseelfie-ai',
-    sandraTriggerWord: 'subject',
-    sandraUserId: '42585527'
+    sandraModelId: 'sandrasocial/sandra_test_user_2025-selfie-lora',
+    sandraTriggerWord: 'usersandra_test_user_2025',
+    sandraUserId: '42585527',
+    sandraVersionId: 'a53fd9255ecba80d99eaab4706c698f861fd47b098012607557385416e46aae5'
   };
   
-  console.log('Sandra model config:');
+  console.log('Sandra UPDATED model config:');
   console.log('- Model ID:', FLUX_MODEL_CONFIG.sandraModelId);
   console.log('- Trigger word:', FLUX_MODEL_CONFIG.sandraTriggerWord);
   console.log('- User ID:', FLUX_MODEL_CONFIG.sandraUserId);
+  console.log('- Version ID:', FLUX_MODEL_CONFIG.sandraVersionId);
   
   // Test model selection logic
   if (userId === FLUX_MODEL_CONFIG.sandraUserId) {
-    console.log('✅ Sandra detected - using high-quality model');
+    console.log('✅ Sandra detected - using NEWER high-quality model');
     console.log('- Using model:', FLUX_MODEL_CONFIG.sandraModelId);
     console.log('- Using trigger:', FLUX_MODEL_CONFIG.sandraTriggerWord);
+    console.log('- Using version:', FLUX_MODEL_CONFIG.sandraVersionId);
   } else {
     console.log('❌ Not Sandra - would use individual model');
   }
