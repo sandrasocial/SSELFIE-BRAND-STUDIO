@@ -6,79 +6,79 @@ import { PaymentVerification } from '@/components/payment-verification';
 import { useToast } from '@/hooks/use-toast';
 import { apiRequest } from '@/lib/queryClient';
 
-// SSELFIE AI™ HIGH FASHION MODEL PROMPT COLLECTION - STUDIO BEAUTY PORTRAITS
+// SSELFIE AI™ THE VULNERABILITY SERIES - RAW STORYTELLING PORTRAITS
 const SANDRA_PROMPTS = [
   {
-    id: 'vogue-beauty-classic',
-    title: 'Vogue Beauty Classic',
-    description: 'Timeless studio beauty - Hair in messy bun with minimal makeup',
-    prompt: '{trigger_word} woman, hair in high messy bun with face-framing pieces, minimal makeup with glossy lips, bare shoulders, seamless gray backdrop, shot on Hasselblad X2D, single beauty dish lighting, black and white photography, visible skin texture and freckles, film grain, high fashion beauty portrait'
+    id: 'silhouette-of-strength',
+    title: 'Silhouette of Strength',
+    description: 'Profile silhouette - Contemplative moment against bright window',
+    prompt: '{trigger_word} woman profile silhouette against bright window, hair up showing neck curve, wrapped in blanket or oversized sweater, contemplative moment, black and white photography, soft grain, visible emotion in posture, raw documentary style'
   },
   {
-    id: 'harpers-intimate-portrait',
-    title: 'Harper\'s Intimate Portrait',
-    description: 'Natural editorial beauty - Looking over bare shoulder',
-    prompt: '{trigger_word} woman, tousled hair falling naturally, looking over bare shoulder, minimal jewelry, neutral backdrop, shot on Canon 5DS R, soft window light from left, black and white editorial, natural skin with visible pores, medium format aesthetic'
+    id: 'against-the-wall',
+    title: 'Against the Wall',
+    description: 'Vulnerable exhaustion - Forehead against textured wall',
+    prompt: '{trigger_word} woman leaning forehead against textured wall, eyes closed, hair falling naturally, wearing simple knit sweater, exhausted or overwhelmed posture, available light only, black and white intimate portrait, unguarded moment'
   },
   {
-    id: 'elle-fresh-face',
-    title: 'Elle Fresh Face',
-    description: 'Clean editorial simplicity - Sitting on stool relaxed',
-    prompt: '{trigger_word} woman sitting on stool, white tank top, denim, relaxed pose with hands clasped, hair air-dried and natural, minimal studio setup, shot on Phase One, clean beauty lighting, black and white portrait, authentic skin texture, editorial simplicity'
+    id: 'morning-truth',
+    title: 'Morning Truth',
+    description: 'Raw intimate beauty - No makeup vulnerability in bed',
+    prompt: '{trigger_word} woman in bed looking directly at camera, no makeup, hair spread on pillow, white sheets, natural morning vulnerability, black and white photography, raw intimate portrait, honest beauty'
   },
   {
-    id: 'window-shadow-play',
-    title: 'Window Shadow Play',
-    description: 'Dramatic lighting - Blinds creating shadow stripes',
-    prompt: '{trigger_word} woman, dramatic window blinds creating shadow stripes across face and body, eyes closed in serene expression, black slip dress, shot on Leica M11 Monochrom, natural harsh light, high contrast black and white, visible skin detail in light strips'
+    id: 'floor-moments',
+    title: 'Floor Moments',
+    description: 'Emotional authenticity - Sitting on floor against wall',
+    prompt: '{trigger_word} woman sitting on floor against wall, knees drawn up, oversized sweater, looking down or away, natural light from window, black and white documentary, capturing real emotion, unposed authenticity'
   },
   {
-    id: 'rembrandt-lighting-mood',
-    title: 'Rembrandt Lighting Mood',
-    description: 'Classic portrait lighting - Triangle of light on cheek',
-    prompt: '{trigger_word} woman, single dramatic light source creating triangle of light on cheek, deep shadows, black turtleneck, moody expression, shot on Hasselblad, classic portrait lighting, black and white fine art photography, natural skin texture emphasized by light'
+    id: 'mirror-reflection',
+    title: 'Mirror Reflection',
+    description: 'Self-confrontation - Looking at self in bathroom mirror',
+    prompt: '{trigger_word} woman looking at self in bathroom mirror, hands on sink, questioning expression, simple clothing, harsh bathroom light, black and white self-confrontation portrait, raw personal moment'
   },
   {
-    id: 'hair-toss-energy',
-    title: 'Hair Toss Energy',
-    description: 'Natural movement captured - Mid hair flip motion',
-    prompt: '{trigger_word} woman, mid hair flip movement, natural motion blur in hair, black tank top, genuine expression, shot on Nikon Z9, studio strobe to freeze motion, black and white action portrait, authentic moment captured'
+    id: 'window-watcher',
+    title: 'Window Watcher',
+    description: 'Melancholic hope - Coffee cup and contemplation',
+    prompt: '{trigger_word} woman by window looking out, coffee cup in hands, messy hair, oversized sweater, rain or city view outside, black and white melancholic portrait, waiting or hoping'
   },
   {
-    id: 'casual-lean-portrait',
-    title: 'Casual Lean Portrait',
-    description: 'Confident relaxed pose - Leaning against white wall',
-    prompt: '{trigger_word} woman leaning against white wall, arms crossed, black blazer open, confident relaxed pose, natural hair texture, shot on Sony A7R V, available light, black and white lifestyle portrait, real skin detail'
+    id: 'power-stance',
+    title: 'Power Stance',
+    description: 'Reclaimed authority - Standing tall with determination',
+    prompt: '{trigger_word} woman standing tall in empty space, arms crossed or hands on hips, direct gaze at camera, simple all black, dramatic single light source, black and white portrait of reclaimed power'
   },
   {
-    id: 'chair-authority',
-    title: 'Chair Authority',
-    description: 'Editorial power pose - Sitting backwards on chair',
-    prompt: '{trigger_word} woman sitting backwards on chair, arms resting on chair back, black outfit, direct powerful gaze, shot on Phase One, dramatic studio lighting, black and white power portrait, strong presence, editorial fashion'
+    id: 'walking-away',
+    title: 'Walking Away',
+    description: 'Leaving the past - Purposeful stride forward',
+    prompt: '{trigger_word} woman walking away from camera down hallway or street, purposeful stride, looking forward not back, simple outfit, black and white documentary, leaving the past behind'
   },
   {
-    id: 'dewy-skin-glow',
-    title: 'Dewy Skin Glow',
-    description: 'Artistic intimate shot - Water droplets with moody lighting',
-    prompt: '{trigger_word} woman, skin with water droplets or oil for dewy effect, black bralette, artistic shadows from venetian blinds, shot on Canon 5DS R, moody lighting, intimate portrait photography, visible skin texture with moisture'
+    id: 'coffee-contemplation',
+    title: 'Coffee Contemplation',
+    description: 'Quiet strength - Finding peace in solitude',
+    prompt: '{trigger_word} woman with coffee mug, both hands wrapped around it, looking into distance, kitchen or cafe setting, natural light, black and white quiet moment, finding peace'
   },
   {
-    id: 'freckles-and-texture',
-    title: 'Freckles and Texture',
-    description: 'Extreme beauty close-up - Natural freckles visible',
-    prompt: '{trigger_word} woman, extreme close-up beauty shot, natural freckles visible, glossy lips slightly parted, messy bun with loose strands, shot on Phase One with 120mm macro, ring light, black and white beauty portrait, every pore visible'
+    id: 'exhausted-beauty',
+    title: 'Exhausted Beauty',
+    description: 'Raw truth - After long day vulnerability',
+    prompt: '{trigger_word} woman after long day, makeup smudged, hair disheveled, sitting on bathroom floor or bed edge, raw exhaustion visible, black and white truth portrait'
   },
   {
-    id: 'side-glance-beauty',
-    title: 'Side Glance Beauty',
-    description: 'Glamour portrait - Looking over shoulder with statement earrings',
-    prompt: '{trigger_word} woman looking over shoulder, wavy hair cascading, statement earrings, bare shoulders, shot on Canon 5DS R, beauty dish with fill, black and white glamour portrait, skin texture in high detail'
+    id: 'tears-and-triumph',
+    title: 'Tears and Triumph',
+    description: 'Emotional complexity - Strength through struggle',
+    prompt: '{trigger_word} woman with tear-stained face but slight smile, emotional complexity, natural light, close portrait, black and white raw emotion, strength through struggle'
   },
   {
-    id: 'minimalist-beauty',
-    title: 'Minimalist Beauty',
-    description: 'Clean beauty shot - Slicked back hair, no makeup look',
-    prompt: '{trigger_word} woman, straight-on beauty shot, slicked back hair, no makeup makeup look, black top, shot on Hasselblad, single softbox, black and white minimalist portrait, natural skin imperfections visible'
+    id: 'phoenix-rising',
+    title: 'Phoenix Rising',
+    description: 'Resurrection metaphor - Movement and dramatic lighting',
+    prompt: '{trigger_word} woman in flowing fabric or dress, movement captured, hair in motion, dramatic lighting from below or behind, black and white artistic portrait, resurrection metaphor'
   }
 ];
 
