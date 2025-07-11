@@ -118,6 +118,42 @@ export async function registerRoutes(app: Express): Promise<Server> {
     });
   });
 
+  // Training progress endpoint for real-time updates
+  app.get('/api/training-progress/:userId', async (req, res) => {
+    try {
+      const { userId } = req.params;
+      const userModel = await storage.getUserModel(userId);
+      
+      if (!userModel) {
+        return res.status(404).json({ error: 'No training found for this user' });
+      }
+
+      let progress = 0;
+      let status = userModel.trainingStatus;
+      
+      // Calculate progress based on time elapsed
+      if (userModel.trainingStatus === 'training') {
+        const startTime = new Date(userModel.createdAt).getTime();
+        const elapsed = Date.now() - startTime;
+        const totalTime = 20 * 60 * 1000; // 20 minutes
+        progress = Math.min(95, Math.floor((elapsed / totalTime) * 100));
+      } else if (userModel.trainingStatus === 'completed') {
+        progress = 100;
+      }
+
+      res.json({
+        userId,
+        status,
+        progress,
+        startTime: userModel.createdAt,
+        estimatedCompletion: userModel.estimatedCompletionTime
+      });
+    } catch (error) {
+      console.error('Error fetching training progress:', error);
+      res.status(500).json({ error: 'Failed to fetch training progress' });
+    }
+  });
+
   // Try to setup auth, but don't fail if it errors
   try {
     await setupAuth(app);

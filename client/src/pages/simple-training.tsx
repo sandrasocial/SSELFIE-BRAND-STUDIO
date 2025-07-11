@@ -1,4 +1,4 @@
-import React, { useState, useRef } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import { Navigation } from '@/components/navigation';
 import { PaymentVerification } from '@/components/payment-verification';
 import { SandraImages } from '@/lib/sandra-images';
@@ -13,14 +13,56 @@ export default function SimpleTraining() {
   const { toast } = useToast();
   const [selfieImages, setSelfieImages] = useState<File[]>([]);
   const [isTrainingStarted, setIsTrainingStarted] = useState(false);
+  const [trainingProgress, setTrainingProgress] = useState(0);
+  const [startTime, setStartTime] = useState<Date | null>(null);
+  const [estimatedTimeRemaining, setEstimatedTimeRemaining] = useState<string>('');
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   // Check if user already has a model
-  const { data: userModel } = useQuery({
+  const { data: userModel, refetch: refetchUserModel } = useQuery({
     queryKey: ['/api/user-model'],
     retry: false,
     enabled: isAuthenticated
   });
+
+  // Poll for training status updates with progress
+  useEffect(() => {
+    if (isTrainingStarted || (userModel && userModel.trainingStatus === 'training')) {
+      const interval = setInterval(async () => {
+        // Update user model data
+        refetchUserModel();
+        
+        // Get progress data if we have user ID
+        if (userModel?.userId) {
+          try {
+            const progressResponse = await fetch(`/api/training-progress/${userModel.userId}`);
+            if (progressResponse.ok) {
+              const progressData = await progressResponse.json();
+              setTrainingProgress(progressData.progress);
+            }
+          } catch (error) {
+            console.error('Failed to fetch training progress:', error);
+          }
+        }
+      }, 5000); // Poll every 5 seconds
+
+      return () => clearInterval(interval);
+    }
+  }, [isTrainingStarted, userModel, refetchUserModel]);
+
+  // Calculate progress and time remaining
+  useEffect(() => {
+    if (startTime && trainingProgress > 0) {
+      const elapsed = Date.now() - startTime.getTime();
+      const totalEstimatedTime = 20 * 60 * 1000; // 20 minutes in milliseconds
+      const remaining = Math.max(0, totalEstimatedTime - elapsed);
+      
+      const minutes = Math.floor(remaining / 60000);
+      const seconds = Math.floor((remaining % 60000) / 1000);
+      
+      setEstimatedTimeRemaining(`${minutes}:${seconds.toString().padStart(2, '0')}`);
+    }
+  }, [trainingProgress, startTime]);
 
   // Start model training mutation
   const startTraining = useMutation({
@@ -32,12 +74,18 @@ export default function SimpleTraining() {
     },
     onSuccess: () => {
       setIsTrainingStarted(true);
+      setStartTime(new Date());
+      setTrainingProgress(5); // Initial progress
+      toast({
+        title: "Training Started!",
+        description: "Your AI model is now training. This takes about 20 minutes.",
+      });
     },
     onError: (error) => {
       console.error('Training failed:', error);
       toast({
         title: "Training Failed",
-        description: "Something went wrong. Please try again.",
+        description: "Images too large or network error. Please try again.",
         variant: "destructive",
       });
     }
@@ -57,6 +105,46 @@ export default function SimpleTraining() {
     setSelfieImages(prev => prev.filter((_, i) => i !== index));
   };
 
+  // Compress image to reduce file size
+  const compressImage = (file: File): Promise<string> => {
+    return new Promise((resolve) => {
+      const canvas = document.createElement('canvas');
+      const ctx = canvas.getContext('2d');
+      const img = new Image();
+      
+      img.onload = () => {
+        // Set max dimensions to reduce file size
+        const maxWidth = 800;
+        const maxHeight = 800;
+        
+        let { width, height } = img;
+        
+        // Calculate new dimensions
+        if (width > height) {
+          if (width > maxWidth) {
+            height = (height * maxWidth) / width;
+            width = maxWidth;
+          }
+        } else {
+          if (height > maxHeight) {
+            width = (width * maxHeight) / height;
+            height = maxHeight;
+          }
+        }
+        
+        canvas.width = width;
+        canvas.height = height;
+        
+        // Draw and compress
+        ctx?.drawImage(img, 0, 0, width, height);
+        const compressedBase64 = canvas.toDataURL('image/jpeg', 0.7); // 70% quality
+        resolve(compressedBase64.split(',')[1]);
+      };
+      
+      img.src = URL.createObjectURL(file);
+    });
+  };
+
   const handleStartTraining = async () => {
     if (selfieImages.length < 10) {
       toast({
@@ -67,21 +155,17 @@ export default function SimpleTraining() {
       return;
     }
 
-    // Convert files to base64
-    const imageStrings = await Promise.all(
-      selfieImages.map(file => 
-        new Promise<string>((resolve) => {
-          const reader = new FileReader();
-          reader.onload = () => {
-            const base64 = (reader.result as string).split(',')[1];
-            resolve(base64);
-          };
-          reader.readAsDataURL(file);
-        })
-      )
+    toast({
+      title: "Compressing Images",
+      description: "Preparing your photos for training...",
+    });
+
+    // Compress images to reduce file size
+    const compressedImages = await Promise.all(
+      selfieImages.map(file => compressImage(file))
     );
 
-    startTraining.mutate(imageStrings);
+    startTraining.mutate(compressedImages);
   };
 
   // Training completed view
@@ -159,12 +243,44 @@ export default function SimpleTraining() {
                 lineHeight: 1.5,
                 fontWeight: 300,
                 maxWidth: '600px',
-                margin: '0 auto 60px auto',
+                margin: '0 auto 40px auto',
                 opacity: 0.9
               }}>
                 Your personal SSELFIE AI model is being created. This process takes approximately 20 minutes. 
                 You'll receive an email when it's ready.
               </p>
+              
+              {/* Progress Bar */}
+              <div style={{
+                maxWidth: '400px',
+                margin: '0 auto 20px auto',
+                background: 'rgba(255, 255, 255, 0.1)',
+                borderRadius: '12px',
+                overflow: 'hidden',
+                height: '8px'
+              }}>
+                <div style={{
+                  width: `${Math.max(5, trainingProgress)}%`,
+                  height: '100%',
+                  background: '#ffffff',
+                  transition: 'width 0.3s ease'
+                }}></div>
+              </div>
+              
+              {/* Training Stats */}
+              <div style={{
+                display: 'flex',
+                justifyContent: 'center',
+                gap: '40px',
+                fontSize: '14px',
+                opacity: 0.8,
+                marginBottom: '20px'
+              }}>
+                <div>Progress: {Math.max(5, trainingProgress)}%</div>
+                {estimatedTimeRemaining && (
+                  <div>Time Remaining: {estimatedTimeRemaining}</div>
+                )}
+              </div>
               
               <div style={{
                 display: 'flex',
