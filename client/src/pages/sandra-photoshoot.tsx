@@ -235,16 +235,23 @@ export default function SandraPhotoshoot() {
   // Chat with Sandra AI mutation
   const chatMutation = useMutation({
     mutationFn: async (message: string) => {
-      return await apiRequest('POST', '/api/sandra-chat', { 
+      const response = await apiRequest('POST', '/api/sandra-chat', { 
         message,
         history: chatHistory
       });
+      console.log('Raw API response:', response);
+      const data = await response.json();
+      console.log('Parsed response data:', data);
+      return data;
     },
     onSuccess: (data) => {
       console.log('Chat success data:', data);
+      
+      const sandraMessage = data.response || data.message || 'I understand! Let me help you with that.';
+      
       setChatHistory(prev => [...prev, 
         { role: 'user', message: chatMessage },
-        { role: 'sandra', message: data.response || data.message || 'I understand! Let me help you with that.' }
+        { role: 'sandra', message: sandraMessage }
       ]);
       setChatMessage('');
       
@@ -254,8 +261,14 @@ export default function SandraPhotoshoot() {
       }
     },
     onError: (error: any) => {
+      console.error('Chat error:', error);
+      setChatHistory(prev => [...prev, 
+        { role: 'user', message: chatMessage },
+        { role: 'sandra', message: "Sorry, I'm having a technical issue right now. Can you try asking me that again?" }
+      ]);
+      setChatMessage('');
       toast({
-        title: "Chat Error",
+        title: "Chat Error", 
         description: error.message || "Failed to chat with Sandra AI. Please try again.",
         variant: "destructive",
       });
