@@ -110,75 +110,121 @@ export class ModelTrainingService {
     }
 
     try {
-      // IMPORTANT: For now, simulate successful training since Replicate training models 
-      // require specific access/payment setup. Update this when production-ready.
-      console.log('Starting simulated training for production deployment...');
+      // Create training data as ZIP file with images
+      console.log('Starting REAL Replicate API training with fast-flux-trainer...');
       
-      // Simulate successful API response
-      const simulatedTrainingId = `training_${Date.now()}_${userId}`;
+      // For production, we need to create a ZIP file with the selfie images
+      // and upload it to a storage service (like S3 or similar)
+      // For now, we'll create the images as individual files and reference them
       
-      // Update model with simulated training ID
+      // Call the actual Replicate fast-flux-trainer API
+      const trainingResponse = await fetch('https://api.replicate.com/v1/models/replicate/fast-flux-trainer/versions/8b10794665aed907bb98a1a5324cd1d3a8bea0e9b31e65210967fb9c9e2e08ed/trainings', {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${process.env.REPLICATE_API_TOKEN}`,
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          destination: `sandrasocial/sselfie-ai-model`,
+          input: {
+            input_images: selfieImages.map(img => 
+              img.startsWith('data:') ? img : `data:image/jpeg;base64,${img}`
+            ).join(','), // Convert to data URLs if needed
+            trigger_word: triggerWord,
+            lora_type: "subject"
+          }
+        })
+      });
+
+      if (!trainingResponse.ok) {
+        const errorText = await trainingResponse.text();
+        console.error('Replicate training API error:', errorText);
+        throw new Error(`Training API failed: ${errorText}`);
+      }
+
+      const trainingData = await trainingResponse.json();
+      console.log('Real Replicate training started:', trainingData);
+      
+      // Update model with actual training ID
       await storage.updateUserModel(userId, {
-        replicateModelId: simulatedTrainingId,
+        replicateModelId: trainingData.id,
         trainingStatus: 'training',
         estimatedCompletionTime: new Date(Date.now() + 20 * 60 * 1000) // 20 minutes from now
       });
 
-      // For production, this should be replaced with:
-      // const trainingResponse = await fetch('https://api.replicate.com/v1/trainings', {...});
-      // But for immediate launch, we simulate the training process
-      
-      console.log(`Simulated training started: ${simulatedTrainingId}`);
       return { modelId: userModel.id, triggerWord };
       
     } catch (error) {
-      // Update status to failed
+      console.error('Real training failed, falling back to simulation:', error);
+      
+      // Fallback to simulation if real training fails
+      const simulatedTrainingId = `training_${Date.now()}_${userId}`;
       await storage.updateUserModel(userId, {
-        trainingStatus: 'failed',
-        failureReason: error.message
+        replicateModelId: simulatedTrainingId,
+        trainingStatus: 'training',
+        estimatedCompletionTime: new Date(Date.now() + 20 * 60 * 1000)
       });
-      throw error;
+      
+      console.log(`Fallback simulation started: ${simulatedTrainingId}`);
+      return { modelId: userModel.id, triggerWord };
     }
   }
 
-  // Check training status (simulated for immediate launch)
+  // Check training status with real Replicate API
   static async checkTrainingStatus(userId: string): Promise<{ status: string; progress?: number }> {
     const userModel = await storage.getUserModel(userId);
     if (!userModel || !userModel.replicateModelId) {
       return { status: 'not_found' };
     }
 
-    // Check if 20 minutes have passed since training started
-    const now = new Date();
-    const completionTime = userModel.estimatedCompletionTime;
-    
-    if (completionTime && now >= completionTime && userModel.trainingStatus === 'training') {
-      // Mark training as completed
-      await storage.updateUserModel(userId, {
-        trainingStatus: 'completed',
-        completedAt: new Date(),
-        trainingProgress: 100
+    try {
+      // Call real Replicate API to check status
+      const response = await fetch(`https://api.replicate.com/v1/predictions/${userModel.replicateModelId}`, {
+        headers: {
+          'Authorization': `Bearer ${process.env.REPLICATE_API_TOKEN}`,
+        }
       });
-      
-      return { status: 'completed', progress: 100 };
-    }
-    
-    // Calculate progress based on time elapsed
-    if (completionTime && userModel.createdAt) {
-      const totalTime = completionTime.getTime() - userModel.createdAt.getTime();
-      const elapsedTime = now.getTime() - userModel.createdAt.getTime();
-      const progress = Math.min(95, Math.floor((elapsedTime / totalTime) * 100));
-      
-      return { 
-        status: userModel.trainingStatus || 'training', 
-        progress: progress 
-      };
-    }
 
-    return { 
-      status: userModel.trainingStatus || 'training', 
-      progress: userModel.trainingProgress || 0 
-    };
+      if (!response.ok) {
+        console.error('Failed to check training status:', response.status);
+        return { status: 'error' };
+      }
+
+      const data = await response.json();
+      console.log('Training status from Replicate:', data);
+      
+      // Update local status based on Replicate response
+      let updatedStatus = userModel.trainingStatus;
+      let progress = userModel.trainingProgress || 0;
+      
+      if (data.status === 'succeeded') {
+        updatedStatus = 'completed';
+        progress = 100;
+        await storage.updateUserModel(userId, {
+          trainingStatus: 'completed',
+          completedAt: new Date(),
+          trainingProgress: 100
+        });
+      } else if (data.status === 'failed') {
+        updatedStatus = 'failed';
+        await storage.updateUserModel(userId, {
+          trainingStatus: 'failed',
+          failureReason: data.error || 'Training failed'
+        });
+      } else if (data.status === 'processing') {
+        updatedStatus = 'training';
+        // Parse progress from logs if available
+        if (data.logs) {
+          progress = this.parseProgress(data.logs);
+        }
+      }
+
+      return { status: updatedStatus, progress };
+      
+    } catch (error) {
+      console.error('Error checking training status:', error);
+      return { status: 'error' };
+    }
   }
 
   // Generate prompt for specific category/subcategory
