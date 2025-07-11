@@ -236,6 +236,12 @@ export default function AdminDashboard() {
               </h2>
             </div>
             <div className="p-4 space-y-4">
+              <div className="bg-yellow-50 border border-yellow-200 p-4 mb-4">
+                <h3 className="font-medium text-yellow-800 mb-2">Status: SANDBOX MODE</h3>
+                <p className="text-sm text-yellow-700">
+                  Your agents are operational but in testing mode. They can respond to tasks and provide guidance, but cannot make real changes to your business systems yet.
+                </p>
+              </div>
               {agents.map((agent) => (
                 <div key={agent.id} className="border border-gray-200 p-4 hover:border-gray-300 transition-colors">
                   <div className="flex justify-between items-start mb-2">
@@ -290,7 +296,7 @@ export default function AdminDashboard() {
                 <textarea
                   value={task}
                   onChange={(e) => setTask(e.target.value)}
-                  placeholder="What do you need this agent to work on?"
+                  placeholder="Example: 'Create 3 Instagram posts about AI brand photography' or 'Optimize checkout page for mobile'"
                   className="w-full border border-gray-300 p-2 h-24 focus:border-gray-500 focus:outline-none resize-none"
                 />
               </div>
@@ -321,6 +327,79 @@ export default function AdminDashboard() {
                 </div>
               )}
             </div>
+          </div>
+        </div>
+
+        {/* Agent Enhancement Guide */}
+        <div className="bg-white border border-gray-200 p-6 mb-8">
+          <h2 className="text-2xl font-light mb-4" style={{ fontFamily: 'Times New Roman, serif' }}>
+            How to Enhance Your AI Agent Team
+          </h2>
+          
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div className="space-y-4">
+              <h3 className="text-lg font-medium">Current Capabilities</h3>
+              <div className="space-y-3">
+                <div className="flex items-start space-x-3">
+                  <div className="w-2 h-2 bg-green-500 rounded-full mt-2 flex-shrink-0"></div>
+                  <div>
+                    <div className="font-medium">Task Communication</div>
+                    <div className="text-sm text-gray-600">All agents can receive and respond to tasks</div>
+                  </div>
+                </div>
+                <div className="flex items-start space-x-3">
+                  <div className="w-2 h-2 bg-green-500 rounded-full mt-2 flex-shrink-0"></div>
+                  <div>
+                    <div className="font-medium">Specialized Expertise</div>
+                    <div className="text-sm text-gray-600">Each agent has unique skills and personality</div>
+                  </div>
+                </div>
+                <div className="flex items-start space-x-3">
+                  <div className="w-2 h-2 bg-green-500 rounded-full mt-2 flex-shrink-0"></div>
+                  <div>
+                    <div className="font-medium">Strategic Guidance</div>
+                    <div className="text-sm text-gray-600">Agents provide actionable business advice</div>
+                  </div>
+                </div>
+              </div>
+            </div>
+            
+            <div className="space-y-4">
+              <h3 className="text-lg font-medium">Next Enhancement Phase</h3>
+              <div className="space-y-3">
+                <div className="flex items-start space-x-3">
+                  <div className="w-2 h-2 bg-yellow-500 rounded-full mt-2 flex-shrink-0"></div>
+                  <div>
+                    <div className="font-medium">Real API Connections</div>
+                    <div className="text-sm text-gray-600">Connect agents to Instagram, Stripe, email platforms</div>
+                  </div>
+                </div>
+                <div className="flex items-start space-x-3">
+                  <div className="w-2 h-2 bg-yellow-500 rounded-full mt-2 flex-shrink-0"></div>
+                  <div>
+                    <div className="font-medium">Automated Actions</div>
+                    <div className="text-sm text-gray-600">Allow agents to make real business changes</div>
+                  </div>
+                </div>
+                <div className="flex items-start space-x-3">
+                  <div className="w-2 h-2 bg-yellow-500 rounded-full mt-2 flex-shrink-0"></div>
+                  <div>
+                    <div className="font-medium">Data Integration</div>
+                    <div className="text-sm text-gray-600">Connect to real analytics and customer data</div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div className="mt-6 p-4 bg-gray-50 border border-gray-200">
+            <h4 className="font-medium mb-2">Best Practices for Agent Communication</h4>
+            <ul className="text-sm text-gray-600 space-y-1">
+              <li>• Be specific with tasks - "Create 5 Instagram posts about AI photography" vs "Make social media content"</li>
+              <li>• Include context when needed - mention deadlines, target audience, or specific requirements</li>
+              <li>• Use the right agent for each task - Victoria for design, Rachel for copywriting, Sophia for social media</li>
+              <li>• Start with simple tasks to understand each agent's capabilities</li>
+            </ul>
           </div>
         </div>
       </div>
