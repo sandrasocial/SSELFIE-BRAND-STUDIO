@@ -345,20 +345,24 @@ Only include elements specifically mentioned or strongly implied. Return empty a
       .map(([keyword]) => keyword);
   }
 
-  // Fallback Sandra AI response system for when API key is not configured
+  // Enhanced Sandra AI response system with conversation memory and personalization
   private static async fallbackSandraResponse(message: string, userId: string): Promise<any> {
     const lowerMessage = message.toLowerCase();
     
-    // Analyze message for style keywords
+    // Get conversation history for context
+    const recentConversations = await storage.getSandraConversations(userId);
+    const onboardingData = await storage.getOnboardingData(userId);
+    
+    // Enhanced keyword detection
     const styleKeywords = {
-      editorial: ['editorial', 'magazine', 'vogue', 'fashion', 'model'],
-      blackWhite: ['black and white', 'b&w', 'monochrome', 'bw'],
-      luxury: ['luxury', 'expensive', 'high-end', 'premium', 'elegant'],
-      vintage: ['vintage', 'retro', 'film', 'analog', 'kodak'],
-      street: ['street', 'urban', 'candid', 'lifestyle', 'natural'],
+      editorial: ['editorial', 'magazine', 'vogue', 'fashion', 'model', 'kate moss', 'editorial style'],
+      blackWhite: ['black and white', 'b&w', 'monochrome', 'bw', 'black white', 'b & w'],
+      luxury: ['luxury', 'expensive', 'high-end', 'premium', 'elegant', 'sophisticated', 'designer'],
+      vintage: ['vintage', 'retro', 'film', 'analog', 'kodak', '35mm', 'film grain'],
+      street: ['street', 'urban', 'candid', 'lifestyle', 'natural', 'casual'],
       studio: ['studio', 'controlled', 'lighting', 'portrait', 'beauty'],
-      moody: ['moody', 'dramatic', 'dark', 'shadows', 'mysterious'],
-      bright: ['bright', 'airy', 'light', 'sunny', 'fresh']
+      moody: ['moody', 'dramatic', 'dark', 'shadows', 'mysterious', 'intense'],
+      bright: ['bright', 'airy', 'light', 'sunny', 'fresh', 'glowing']
     };
     
     let detectedStyles = [];
@@ -379,46 +383,118 @@ Only include elements specifically mentioned or strongly implied. Return empty a
       detectedKeywords: detectedStyles
     };
     
-    // Generate custom prompt based on detected style
+    // Check conversation history for personalization
+    const hasConversationHistory = recentConversations.length > 0;
+    const userName = onboardingData?.firstName || 'gorgeous';
+    
+    // Generate custom prompt based on detected style with personalization
     let suggestedPrompt = '';
     let sandraResponse = '';
     
     if (detectedStyles.includes('editorial') && detectedStyles.includes('blackWhite')) {
-      sandraResponse = `OMG, editorial B&W like Kate Moss? That's absolutely gorgeous! I can already envision the dramatic contrast and raw sophistication. 
-
-For that iconic Kate Moss editorial vibe, we need to think about:
-- Raw, unretouched beauty with visible skin texture
-- Dramatic lighting that creates striking shadows
-- Effortless hair that looks perfectly imperfect
-- Minimal makeup with focus on natural features
-- That slightly undone, just-woke-up-gorgeous energy
-
-What specific mood are you going for? More vulnerable and intimate, or powerful and commanding?`;
+      const memoryContext = hasConversationHistory ? 
+        `I remember you love that sophisticated editorial vibe! ` : '';
       
-      suggestedPrompt = `usersandra_test_user_2025 woman, editorial black and white portrait, shot on Hasselblad X2D 100C with 80mm lens, dramatic studio lighting, visible skin texture and pores, messy hair with face-framing pieces, minimal makeup with natural lip gloss, direct intense gaze, raw unretouched beauty, high contrast monochrome, heavy 35mm film grain, matte skin finish, no glossy or plastic appearance, Kate Moss editorial inspiration`;
-    } else if (detectedStyles.includes('luxury') || detectedStyles.includes('expensive')) {
-      sandraResponse = `Yes! Luxury vibes are everything - that expensive girl energy is exactly what transforms ordinary photos into brand gold! 
+      sandraResponse = `${memoryContext}OMG yes, ${userName}! Editorial B&W like Kate Moss is absolutely iconic! I can already see you channeling that raw, unretouched supermodel energy.
 
-For that high-end luxury aesthetic, I'm thinking:
-- Sophisticated color palettes that scream quality
-- Impeccable styling with designer details
-- Professional lighting that makes everything look editorial
-- Confident body language that commands attention
-- Settings that feel exclusive and aspirational
+Let's create something stunning with:
+• Dramatic studio lighting that creates those signature shadow plays
+• Hair that's effortlessly imperfect - think messy but intentional
+• Minimal makeup focusing on your natural features
+• That raw, authentic beauty with visible skin texture
+• The confidence that made Kate Moss legendary
 
-What's your luxury story? Are you the approachable luxury girl-next-door, or the untouchable high-fashion icon?`;
+Are you feeling more powerful and commanding, or vulnerable and intimate for this shoot?`;
       
-      suggestedPrompt = `usersandra_test_user_2025 woman, luxury editorial portrait, shot on Canon EOS R5 with 85mm f/1.4 lens, sophisticated lighting, wearing designer black blazer, gold jewelry accents, perfect makeup with subtle highlight, confident expression, luxury apartment background, editorial color grading, heavy 35mm film grain, matte skin texture, expensive aesthetic, high-end fashion photography`;
+      suggestedPrompt = `user${userId} woman, editorial black and white portrait, shot on Hasselblad X2D 100C with 80mm lens, dramatic studio lighting, visible skin texture and pores, messy hair with face-framing pieces, minimal makeup with natural lip gloss, direct intense gaze, raw unretouched beauty, high contrast monochrome, heavy 35mm film grain, matte skin finish, no glossy or plastic appearance, Kate Moss editorial inspiration`;
+      
+    } else if (detectedStyles.includes('editorial')) {
+      const memoryContext = hasConversationHistory ? 
+        `Building on our previous conversation about your style... ` : '';
+        
+      sandraResponse = `${memoryContext}Editorial is everything, ${userName}! That high-fashion magazine energy is exactly what creates those jaw-dropping brand photos.
+
+I'm seeing:
+• Professional studio lighting that makes everything look expensive
+• Fashion-forward styling with sophisticated details
+• Confident poses that command attention
+• That editorial quality that separates you from everyone else
+
+What's your vision - are we going bold and dramatic, or soft and sophisticated?`;
+      
+      suggestedPrompt = `user${userId} woman, editorial fashion portrait, shot on Canon EOS R5 with 85mm f/1.4 lens, professional studio lighting, sophisticated styling, confident expression, high-fashion editorial quality, heavy 35mm film grain, matte skin texture, editorial magazine aesthetic`;
+      
+    } else if (detectedStyles.includes('luxury')) {
+      sandraResponse = `Yes, ${userName}! Luxury vibes are exactly what transforms ordinary photos into business gold! That expensive girl energy is your secret weapon.
+
+For that high-end aesthetic:
+• Color palettes that scream sophistication
+• Designer details and impeccable styling
+• Lighting that makes everything look editorial
+• Confident energy that says "I belong here"
+• Settings that feel exclusive and aspirational
+
+Tell me - are you the approachable luxury queen, or the untouchable high-fashion icon?`;
+      
+      suggestedPrompt = `user${userId} woman, luxury editorial portrait, shot on Canon EOS R5 with 85mm f/1.4 lens, sophisticated lighting, wearing designer black blazer, gold jewelry accents, perfect makeup with subtle highlight, confident expression, luxury apartment background, editorial color grading, heavy 35mm film grain, matte skin texture, expensive aesthetic, high-end fashion photography`;
+      
     } else {
-      sandraResponse = `I love your vision! Tell me more about what you're imagining - I want to understand your exact aesthetic goals so I can create the perfect prompts for you.
+      // Check if this is a follow-up to previous conversation
+      const lastConversation = recentConversations[recentConversations.length - 1];
+      const isFollowUp = hasConversationHistory && lastConversation && 
+        (lowerMessage.includes('powerful') || lowerMessage.includes('commanding') || 
+         lowerMessage.includes('vulnerable') || lowerMessage.includes('intimate') ||
+         lowerMessage.includes('dramatic') || lowerMessage.includes('soft'));
+      
+      if (isFollowUp && lastConversation.suggestedPrompt) {
+        // Extract previous style from last conversation
+        const wasPreviouslyEditorial = lastConversation.suggestedPrompt.includes('editorial');
+        const wasPreviouslyBW = lastConversation.suggestedPrompt.includes('black and white');
+        
+        if (wasPreviouslyEditorial && wasPreviouslyBW) {
+          if (lowerMessage.includes('powerful') || lowerMessage.includes('commanding')) {
+            sandraResponse = `Perfect, ${userName}! Powerful and commanding it is! For that Kate Moss editorial energy with serious authority:
 
-Are you thinking more:
-- Editorial magazine vibes or lifestyle candid moments?
-- Black and white drama or rich color storytelling?
-- Studio perfection or natural environmental settings?
-- Moody and mysterious or bright and fresh?
+• Strong direct gaze that commands attention
+• Confident jaw line and posture
+• Dramatic high-contrast lighting
+• Sharp shadows for that powerful mood
+• Hair that looks effortlessly fierce
+• Minimal makeup but with defined eyes
 
-The more you share about your style dreams, the better I can craft prompts that capture exactly what you're envisioning! ✨`;
+This is going to be absolutely stunning - that commanding supermodel presence!`;
+
+            suggestedPrompt = `user${userId} woman, powerful editorial black and white portrait, shot on Hasselblad X2D 100C with 80mm lens, dramatic high-contrast studio lighting, strong direct commanding gaze, confident posture, sharp jawline, defined eyes with minimal makeup, fierce messy hair, powerful presence, high contrast monochrome, heavy 35mm film grain, matte skin finish, commanding supermodel energy, Kate Moss editorial inspiration`;
+          } else {
+            sandraResponse = `Beautiful choice, ${userName}! Vulnerable and intimate editorial B&W has such raw power:
+
+• Softer, more introspective gaze
+• Natural expressions that tell a story
+• Gentle lighting with subtle shadows
+• Hair that looks naturally tousled
+• Authentic emotions captured
+• That raw, unguarded beauty
+
+This vulnerability creates the most compelling editorial stories!`;
+
+            suggestedPrompt = `user${userId} woman, vulnerable editorial black and white portrait, shot on Hasselblad X2D 100C with 80mm lens, soft dramatic studio lighting, introspective gaze, vulnerable expression, natural emotion, gently tousled hair, minimal makeup, authentic vulnerability, high contrast monochrome, heavy 35mm film grain, matte skin finish, intimate editorial mood, Kate Moss editorial inspiration`;
+          }
+        } else {
+          sandraResponse = `I love that direction, ${userName}! Based on what we discussed, let me create the perfect prompt for your vision.
+
+Tell me a bit more about the specific mood you're feeling - are we going bold and dramatic, or soft and sophisticated?`;
+        }
+      } else {
+        sandraResponse = `I love your vision, ${userName}! Let's dig deeper so I can create the perfect prompts for your brand photoshoot.
+
+Tell me more about:
+• Editorial magazine vibes or lifestyle moments?
+• Dramatic black and white or rich color storytelling?
+• Studio perfection or natural environmental settings?
+• Moody and mysterious or bright and fresh energy?
+
+The more you share about your style dreams, the better I can customize everything to match your exact vision!`;
+      }
     }
     
     // Save conversation to memory
