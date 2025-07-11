@@ -26,6 +26,7 @@ import SimpleCheckout from "@/pages/simple-checkout";
 import ThankYou from "@/pages/thank-you";
 import SandraPhotoshoot from "@/pages/sandra-photoshoot";
 import SSELFIEGallery from "@/pages/sselfie-gallery";
+import AIGenerator from "@/pages/ai-generator";
 
 // Removed duplicate photoshoot imports - using existing system
 
@@ -105,6 +106,7 @@ function Router() {
       {/* PROTECTED ROUTES */}
       <Route path="/workspace" component={(props) => <ProtectedRoute component={Workspace} {...props} />} />
       <Route path="/onboarding" component={(props) => <ProtectedRoute component={Onboarding} {...props} />} />
+      <Route path="/ai-generator" component={(props) => <ProtectedRoute component={AIGenerator} {...props} />} />
       <Route path="/sandra-photoshoot" component={(props) => <ProtectedRoute component={SandraPhotoshoot} {...props} />} />
       <Route path="/sselfie-gallery" component={(props) => <ProtectedRoute component={SSELFIEGallery} {...props} />} />
       <Route path="/profile" component={(props) => <ProtectedRoute component={Profile} {...props} />} />
