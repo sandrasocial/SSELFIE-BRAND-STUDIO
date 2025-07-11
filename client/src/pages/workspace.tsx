@@ -35,51 +35,32 @@ export default function Workspace() {
     enabled: isAuthenticated
   });
 
-  // Business progress calculation
-  const getBusinessProgress = () => {
+  // SSELFIE Photoshoot Progress - Simplified 3-step process
+  const getPhotoshootProgress = () => {
     const steps = [
       {
-        id: 'onboarding',
-        label: 'Complete Your Story',
-        status: onboardingData?.completed ? 'complete' : 'progress',
-        detail: onboardingData?.completed ? 'Story captured' : 'Tell us about your brand vision and goals',
-        link: '/onboarding',
-        priority: true
+        id: 'train-ai',
+        label: 'Train Your SSELFIE AI',
+        status: userModel?.trainingStatus === 'completed' ? 'complete' : userModel?.trainingStatus === 'training' ? 'progress' : 'pending',
+        detail: userModel?.trainingStatus === 'completed' ? 'AI model ready for photoshoots' : userModel?.trainingStatus === 'training' ? 'Training in progress (20 minutes)' : 'Upload 10+ selfies to start training',
+        link: '/ai-generator',
+        priority: !userModel || userModel.trainingStatus === 'not_started'
       },
       {
-        id: 'ai-model',
-        label: 'AI Model Trained',
-        status: userModel?.status === 'completed' ? 'complete' : userModel?.status === 'training' ? 'progress' : 'pending',
-        detail: aiImages.length > 0 ? `${aiImages.length} images ready` : 'Upload selfies to train your AI',
-        link: '/ai-generator'
+        id: 'plan-photoshoot',
+        label: 'Plan Your Photoshoot with Sandra AI',
+        status: userModel?.trainingStatus === 'completed' ? 'ready' : 'pending',
+        detail: userModel?.trainingStatus === 'completed' ? 'Chat with Sandra AI or use built-in prompts' : 'Complete AI training first',
+        link: userModel?.trainingStatus === 'completed' ? '/sandra-photoshoot' : '#',
+        priority: false
       },
       {
-        id: 'styleguide',
-        label: 'Styleguide Created',
-        status: brandbook ? 'complete' : onboardingData?.completed ? 'progress' : 'pending',
-        detail: brandbook?.templateId ? brandbook.templateId.replace('-', ' ') : 'Design your brand identity',
-        link: '/styleguide-demo'
-      },
-      {
-        id: 'landing-page',
-        label: 'Landing Page',
-        status: 'progress',
-        detail: 'Build your business website',
-        link: '/styleguide-landing-builder'
-      },
-      {
-        id: 'payment-setup',
-        label: 'Payment Setup',
-        status: 'pending',
-        detail: 'Connect Stripe for payments',
-        link: '/workspace'
-      },
-      {
-        id: 'domain',
-        label: 'Custom Domain',
-        status: 'pending',
-        detail: 'Launch with your own domain',
-        link: '/workspace'
+        id: 'sselfie-gallery',
+        label: 'Your SSELFIE Gallery',
+        status: aiImages.length > 0 ? 'active' : 'pending',
+        detail: aiImages.length > 0 ? `${aiImages.length} photos in your gallery` : 'Generate photos to build your gallery',
+        link: aiImages.length > 0 ? '/sselfie-gallery' : '#',
+        priority: false
       }
     ];
     
@@ -164,7 +145,7 @@ export default function Workspace() {
     );
   }
 
-  const businessProgress = getBusinessProgress();
+  const photoshootProgress = getPhotoshootProgress();
   const usageStats = getUsageStats();
 
   return (
@@ -229,7 +210,7 @@ export default function Workspace() {
               textTransform: 'uppercase',
               marginBottom: '20px'
             }}>
-              STUDIO
+              SSELFIE
             </h1>
             <div style={{
               fontFamily: 'Times New Roman, serif',
@@ -241,7 +222,7 @@ export default function Workspace() {
               opacity: 0.8,
               marginBottom: '60px'
             }}>
-              COMMAND CENTER
+              STUDIO
             </div>
             <div style={{
               fontSize: '16px',
@@ -257,7 +238,7 @@ export default function Workspace() {
           </div>
         </section>
 
-        {/* Business Progress Section */}
+        {/* SSELFIE Photoshoot Progress Section */}
         <section style={{ padding: '120px 0', background: '#f5f5f5' }}>
           <div style={{
             maxWidth: '1400px',
@@ -272,7 +253,7 @@ export default function Workspace() {
               color: '#666666',
               marginBottom: '24px'
             }}>
-              FOUNDATION
+              YOUR PHOTOSHOOT JOURNEY
             </div>
             <h2 style={{
               fontFamily: 'Times New Roman, serif',
@@ -283,7 +264,7 @@ export default function Workspace() {
               marginBottom: '32px',
               lineHeight: 1
             }}>
-              Business Progress
+              3 Simple Steps
             </h2>
             <p style={{
               fontSize: '20px',
@@ -292,42 +273,43 @@ export default function Workspace() {
               maxWidth: '600px',
               marginBottom: '80px'
             }}>
-              Every step builds your empire. Track your journey from selfie to CEO.
+              From selfie to stunning brand photos in 20 minutes. Let's create your professional image library.
             </p>
             
-            {/* Progress Grid */}
+            {/* Photoshoot Steps Grid */}
             <div style={{
               display: 'grid',
-              gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))',
+              gridTemplateColumns: 'repeat(auto-fit, minmax(350px, 1fr))',
               gap: '8px',
               margin: '80px 0'
             }}>
-              {businessProgress.map((step, index) => (
+              {photoshootProgress.map((step, index) => (
                 <Link key={step.id} href={step.link}>
                   <div style={{
-                    background: step.priority && !onboardingData?.completed ? '#0a0a0a' : '#ffffff',
-                    color: step.priority && !onboardingData?.completed ? '#ffffff' : '#0a0a0a',
+                    background: step.priority ? '#0a0a0a' : step.status === 'complete' ? '#f5f5f5' : '#ffffff',
+                    color: step.priority ? '#ffffff' : '#0a0a0a',
                     position: 'relative',
                     transition: 'all 500ms ease',
-                    cursor: 'pointer',
-                    border: step.priority && !onboardingData?.completed ? '2px solid #0a0a0a' : '1px solid #e5e5e5',
-                    transform: step.priority && !onboardingData?.completed ? 'scale(1.02)' : 'scale(1)',
-                    zIndex: step.priority && !onboardingData?.completed ? 10 : 1
+                    cursor: step.link !== '#' ? 'pointer' : 'default',
+                    border: step.priority ? '2px solid #0a0a0a' : '1px solid #e5e5e5',
+                    transform: step.priority ? 'scale(1.02)' : 'scale(1)',
+                    zIndex: step.priority ? 10 : 1,
+                    opacity: step.status === 'pending' && !step.priority ? 0.5 : 1
                   }}
                   onMouseEnter={(e) => {
-                    if (!(step.priority && !onboardingData?.completed)) {
+                    if (!step.priority && step.link !== '#') {
                       e.currentTarget.style.background = '#0a0a0a';
                       e.currentTarget.style.color = '#ffffff';
                     }
                   }}
                   onMouseLeave={(e) => {
-                    if (!(step.priority && !onboardingData?.completed)) {
-                      e.currentTarget.style.background = '#ffffff';
+                    if (!step.priority && step.link !== '#') {
+                      e.currentTarget.style.background = step.status === 'complete' ? '#f5f5f5' : '#ffffff';
                       e.currentTarget.style.color = '#0a0a0a';
                     }
                   }}>
-                    {/* Priority Badge for Onboarding */}
-                    {step.priority && !onboardingData?.completed && (
+                    {/* Priority Badge */}
+                    {step.priority && (
                       <div style={{
                         position: 'absolute',
                         top: '20px',
@@ -341,6 +323,24 @@ export default function Workspace() {
                         textTransform: 'uppercase'
                       }}>
                         START HERE
+                      </div>
+                    )}
+                    
+                    {/* Status Badge */}
+                    {step.status === 'pending' && !step.priority && (
+                      <div style={{
+                        position: 'absolute',
+                        top: '20px',
+                        right: '20px',
+                        background: '#f5f5f5',
+                        color: '#666666',
+                        padding: '8px 16px',
+                        fontSize: '10px',
+                        fontWeight: 400,
+                        letterSpacing: '0.2em',
+                        textTransform: 'uppercase'
+                      }}>
+                        LOCKED
                       </div>
                     )}
                     
@@ -515,61 +515,8 @@ export default function Workspace() {
                 </div>
               </Link>
 
-              {/* Styleguide Card */}
-              <div className="tool-card">
-                <Link href="/styleguide-demo">
-                  <div style={{
-                    background: '#ffffff',
-                    position: 'relative',
-                    transition: 'all 500ms ease',
-                    cursor: 'pointer',
-                    aspectRatio: '4/5'
-                  }}
-                  onMouseEnter={(e) => {
-                    e.currentTarget.style.background = '#0a0a0a';
-                    e.currentTarget.style.color = '#ffffff';
-                  }}
-                  onMouseLeave={(e) => {
-                    e.currentTarget.style.background = '#ffffff';
-                    e.currentTarget.style.color = '#0a0a0a';
-                  }}>
-                    <div style={{ padding: '60px' }}>
-                      <h3 style={{
-                        fontFamily: 'Times New Roman, serif',
-                        fontSize: 'clamp(2rem, 4vw, 4rem)',
-                        fontWeight: 200,
-                        letterSpacing: '-0.01em',
-                        textTransform: 'uppercase',
-                        marginBottom: '24px',
-                        lineHeight: 1
-                      }}>
-                        STYLE<br/>GUIDE
-                      </h3>
-                      <p style={{
-                        fontSize: '16px',
-                        lineHeight: 1.6,
-                        fontWeight: 300
-                      }}>
-                        {brandbook?.templateId ? brandbook.templateId.replace('-', ' ') : 'Create your brand bible'}
-                      </p>
-                    </div>
-                    <div style={{
-                      fontFamily: 'Times New Roman, serif',
-                      fontSize: '120px',
-                      position: 'absolute',
-                      top: '20px',
-                      right: '30px',
-                      opacity: 0.1,
-                      lineHeight: 1
-                    }}>
-                      02
-                    </div>
-                  </div>
-                </Link>
-              </div>
-
-              {/* Landing Pages */}
-              <Link href="/styleguide-landing-builder">
+              {/* SSELFIE Gallery - Active */}
+              <Link href="/sselfie-gallery">
                 <div style={{
                   position: 'relative',
                   overflow: 'hidden',
@@ -579,8 +526,8 @@ export default function Workspace() {
                 }}
                 className="tool-card">
                   <img 
-                    src={SandraImages.flatlays.workspace1}
-                    alt="Landing Pages"
+                    src={aiImages.length > 0 ? aiImages[0].imageUrl : SandraImages.flatlays.workspace1}
+                    alt="SSELFIE Gallery"
                     style={{
                       width: '100%',
                       height: '100%',
@@ -619,65 +566,200 @@ export default function Workspace() {
                         textTransform: 'uppercase',
                         marginBottom: '8px'
                       }}>
-                        LANDING PAGES
+                        SSELFIE GALLERY
                       </h4>
                       <p style={{
                         color: 'rgba(255, 255, 255, 0.8)',
                         fontSize: '14px',
                         margin: 0
                       }}>
-                        Build sales pages
+                        {aiImages.length} photos saved
                       </p>
                     </div>
                   </div>
                 </div>
               </Link>
 
-              {/* Sandra AI Card */}
+              {/* Sandra AI Photoshoot Planning - Available after AI training */}
               <div className="tool-card">
-                <Link href="/sandra-chat">
-                  <div style={{
-                    background: '#0a0a0a',
-                    color: '#ffffff',
-                    position: 'relative',
-                    transition: 'all 500ms ease',
-                    cursor: 'pointer',
-                    aspectRatio: '4/5'
-                  }}>
-                    <div style={{ padding: '60px' }}>
-                      <h3 style={{
-                        fontFamily: 'Times New Roman, serif',
-                        fontSize: 'clamp(2rem, 4vw, 4rem)',
-                        fontWeight: 200,
-                        letterSpacing: '-0.01em',
-                        textTransform: 'uppercase',
-                        marginBottom: '24px',
-                        lineHeight: 1
-                      }}>
-                        SANDRA<br/>AI
-                      </h3>
-                      <p style={{
-                        fontSize: '16px',
-                        lineHeight: 1.6,
-                        fontWeight: 300,
-                        color: 'rgba(255, 255, 255, 0.8)'
-                      }}>
-                        Your personal brand builder
-                      </p>
-                    </div>
+                <div style={{
+                  background: userModel?.trainingStatus === 'completed' ? '#0a0a0a' : '#f5f5f5',
+                  color: userModel?.trainingStatus === 'completed' ? '#ffffff' : '#666666',
+                  position: 'relative',
+                  transition: 'all 500ms ease',
+                  cursor: userModel?.trainingStatus === 'completed' ? 'pointer' : 'default',
+                  aspectRatio: '4/5',
+                  opacity: userModel?.trainingStatus === 'completed' ? 1 : 0.5
+                }}
+                onClick={() => {
+                  if (userModel?.trainingStatus === 'completed') {
+                    window.location.href = '/sandra-photoshoot';
+                  }
+                }}>
+                  {userModel?.trainingStatus !== 'completed' && (
                     <div style={{
-                      fontFamily: 'Times New Roman, serif',
-                      fontSize: '120px',
                       position: 'absolute',
                       top: '20px',
-                      right: '30px',
-                      opacity: 0.1,
+                      right: '20px',
+                      background: '#ffffff',
+                      color: '#666666',
+                      padding: '8px 16px',
+                      fontSize: '10px',
+                      fontWeight: 400,
+                      letterSpacing: '0.2em',
+                      textTransform: 'uppercase'
+                    }}>
+                      TRAIN AI FIRST
+                    </div>
+                  )}
+                  <div style={{ padding: '60px' }}>
+                    <h3 style={{
+                      fontFamily: 'Times New Roman, serif',
+                      fontSize: 'clamp(1.8rem, 3.5vw, 3.5rem)',
+                      fontWeight: 200,
+                      letterSpacing: '-0.01em',
+                      textTransform: 'uppercase',
+                      marginBottom: '24px',
                       lineHeight: 1
                     }}>
-                      04
-                    </div>
+                      SANDRA<br/>PHOTO<br/>SHOOT
+                    </h3>
+                    <p style={{
+                      fontSize: '16px',
+                      lineHeight: 1.6,
+                      fontWeight: 300
+                    }}>
+                      {userModel?.trainingStatus === 'completed' ? 'Plan your perfect photoshoot' : 'Complete AI training to unlock'}
+                    </p>
                   </div>
-                </Link>
+                  <div style={{
+                    fontFamily: 'Times New Roman, serif',
+                    fontSize: '120px',
+                    position: 'absolute',
+                    top: '20px',
+                    right: '30px',
+                    opacity: 0.1,
+                    lineHeight: 1
+                  }}>
+                    02
+                  </div>
+                </div>
+              </div>
+
+              {/* Business Setup - Coming Soon */}
+              <div className="tool-card">
+                <div style={{
+                  background: '#f5f5f5',
+                  color: '#666666',
+                  position: 'relative',
+                  aspectRatio: '4/5',
+                  opacity: 0.5,
+                  cursor: 'default'
+                }}>
+                  <div style={{
+                    position: 'absolute',
+                    top: '20px',
+                    right: '20px',
+                    background: '#ffffff',
+                    color: '#666666',
+                    padding: '8px 16px',
+                    fontSize: '10px',
+                    fontWeight: 400,
+                    letterSpacing: '0.2em',
+                    textTransform: 'uppercase'
+                  }}>
+                    COMING SOON
+                  </div>
+                  <div style={{ padding: '60px' }}>
+                    <h3 style={{
+                      fontFamily: 'Times New Roman, serif',
+                      fontSize: 'clamp(2rem, 4vw, 4rem)',
+                      fontWeight: 200,
+                      letterSpacing: '-0.01em',
+                      textTransform: 'uppercase',
+                      marginBottom: '24px',
+                      lineHeight: 1
+                    }}>
+                      BUSINESS<br/>SETUP
+                    </h3>
+                    <p style={{
+                      fontSize: '16px',
+                      lineHeight: 1.6,
+                      fontWeight: 300
+                    }}>
+                      Landing pages & payment setup
+                    </p>
+                  </div>
+                  <div style={{
+                    fontFamily: 'Times New Roman, serif',
+                    fontSize: '120px',
+                    position: 'absolute',
+                    top: '20px',
+                    right: '30px',
+                    opacity: 0.1,
+                    lineHeight: 1
+                  }}>
+                    03
+                  </div>
+                </div>
+              </div>
+
+              {/* Settings - Coming Soon */}
+              <div className="tool-card">
+                <div style={{
+                  background: '#f5f5f5',
+                  color: '#666666',
+                  position: 'relative',
+                  aspectRatio: '4/5',
+                  opacity: 0.5,
+                  cursor: 'default'
+                }}>
+                  <div style={{
+                    position: 'absolute',
+                    top: '20px',
+                    right: '20px',
+                    background: '#ffffff',
+                    color: '#666666',
+                    padding: '8px 16px',
+                    fontSize: '10px',
+                    fontWeight: 400,
+                    letterSpacing: '0.2em',
+                    textTransform: 'uppercase'
+                  }}>
+                    COMING SOON
+                  </div>
+                  <div style={{ padding: '60px' }}>
+                    <h3 style={{
+                      fontFamily: 'Times New Roman, serif',
+                      fontSize: 'clamp(2rem, 4vw, 4rem)',
+                      fontWeight: 200,
+                      letterSpacing: '-0.01em',
+                      textTransform: 'uppercase',
+                      marginBottom: '24px',
+                      lineHeight: 1
+                    }}>
+                      CUSTOM<br/>DOMAINS
+                    </h3>
+                    <p style={{
+                      fontSize: '16px',
+                      lineHeight: 1.6,
+                      fontWeight: 300
+                    }}>
+                      Launch with your own domain
+                    </p>
+                  </div>
+                  <div style={{
+                    fontFamily: 'Times New Roman, serif',
+                    fontSize: '120px',
+                    position: 'absolute',
+                    top: '20px',
+                    right: '30px',
+                    opacity: 0.1,
+                    lineHeight: 1
+                  }}>
+                    04
+                  </div>
+                </div>
               </div>
             </div>
           </div>
