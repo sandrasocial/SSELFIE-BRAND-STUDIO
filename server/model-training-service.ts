@@ -4,6 +4,7 @@ import fs from 'fs';
 import path from 'path';
 import { fileURLToPath } from 'url';
 import { storage } from './storage';
+import AWS from 'aws-sdk';
 
 // Image categories and prompt templates
 export const IMAGE_CATEGORIES = {
@@ -39,7 +40,13 @@ export const GENERATION_SETTINGS = {
 };
 
 export class ModelTrainingService {
-  
+  // Configure AWS S3
+  private static s3 = new AWS.S3({
+    accessKeyId: process.env.AWS_ACCESS_KEY_ID,
+    secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY,
+    region: 'us-east-1'
+  });
+
   // Generate unique trigger word for user
   static generateTriggerWord(userId: string): string {
     return `user${userId}`;
@@ -82,26 +89,25 @@ export class ModelTrainingService {
       
       console.log('ZIP file created successfully:', zipPath);
       
-      // Upload to file hosting (using real file hosting service)
-      const formData = new FormData();
-      formData.append('file', fs.createReadStream(zipPath));
+      // Upload to AWS S3 using existing credentials
+      const zipFileName = `training-zips/user_${userId}_${Date.now()}.zip`;
+      const fileContent = fs.readFileSync(zipPath);
       
-      const uploadResponse = await fetch('https://file.io', {
-        method: 'POST',
-        body: formData
-      });
+      const uploadParams = {
+        Bucket: process.env.AWS_S3_BUCKET!,
+        Key: zipFileName,
+        Body: fileContent,
+        ContentType: 'application/zip',
+        ACL: 'public-read'
+      };
       
-      const uploadResult = await uploadResponse.json();
+      const uploadResult = await this.s3.upload(uploadParams).promise();
       
       // Clean up temp file
       fs.unlinkSync(zipPath);
       
-      if (uploadResult.success) {
-        console.log('ZIP uploaded successfully to:', uploadResult.link);
-        return uploadResult.link;
-      } else {
-        throw new Error('Failed to upload ZIP file');
-      }
+      console.log('ZIP uploaded successfully to S3:', uploadResult.Location);
+      return uploadResult.Location;
       
     } catch (error) {
       console.error('Error creating/uploading ZIP:', error);
@@ -110,7 +116,7 @@ export class ModelTrainingService {
   }
 
   // Start training a new model for user
-  static async startTraining(userId: string, selfieImages: string[]): Promise<{ trainingId: string; status: string }> {
+  static async startModelTraining(userId: string, selfieImages: string[]): Promise<{ trainingId: string; status: string }> {
     console.log('Starting REAL model training for user:', userId);
     
     try {
@@ -129,20 +135,35 @@ export class ModelTrainingService {
       // Once we resolve the API destination issue, this will be replaced with real training
       console.log('REAL training files created, setting up model record for user:', userId);
       
-      // Create the actual ZIP file upload for future real training
+      // Create the actual ZIP file for training
+      console.log('Creating training ZIP file for', selfieImages.length, 'images');
       const zipUrl = await this.createImageZip(selfieImages, userId);
-      console.log('Training ZIP uploaded to:', zipUrl);
+      console.log('Training ZIP uploaded to S3:', zipUrl);
       
-      // Create a training response that we'll update when API works
-      const trainingData = {
-        id: `temp_training_${Date.now()}`,
-        status: 'training',
-        input: {
-          input_images: zipUrl,
-          trigger_word: triggerWord,
-          lora_type: "subject"
-        }
-      };
+      // Start real Replicate training
+      const trainingResponse = await fetch('https://api.replicate.com/v1/models/ostris/flux-dev-lora-trainer/versions/e440909d3512c31646ee2e0c7d6f6f4923224863a6a10c494606e79fb5844497/predictions', {
+        method: 'POST',
+        headers: {
+          'Authorization': `Token ${process.env.REPLICATE_API_TOKEN}`,
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          input: {
+            input_images: zipUrl,
+            trigger_word: triggerWord,
+            lora_type: "subject",
+            max_train_steps: 1000,
+            autocaption: true,
+            input_images_filetype: "zip"
+          }
+        })
+      });
+
+      const trainingData = await trainingResponse.json();
+      
+      if (!trainingResponse.ok) {
+        throw new Error(`Replicate training failed: ${JSON.stringify(trainingData)}`);
+      }
 
       console.log('Training setup completed for user:', userId, 'with trigger word:', triggerWord);
       
@@ -153,6 +174,8 @@ export class ModelTrainingService {
         trainingStatus: 'training',
         trainingProgress: 0
       });
+      
+      console.log('REAL Replicate training started:', trainingData.id);
       
       return {
         trainingId: trainingData.id,

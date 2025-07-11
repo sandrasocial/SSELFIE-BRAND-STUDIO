@@ -484,12 +484,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
       
       res.json({
         success: true,
-        message: "REAL model training started with Replicate API",
-        modelId: result.modelId,
-        triggerWord: result.triggerWord,
-        trainingStatus: "training",
-        estimatedCompletionTime: "20 minutes",
-        isRealTraining: true
+        message: "AI model training started successfully",
+        trainingId: result.trainingId,
+        status: result.status,
+        estimatedCompletionTime: "20 minutes"
       });
       
       console.log('REAL Replicate API training started for user:', userId);
