@@ -55,41 +55,41 @@ export async function registerRoutes(app: Express): Promise<Server> {
       let sandraResponse;
       let suggestedPrompt = null;
       
-      // Intelligent prompt generation based on user message
+      // Intelligent prompt generation with European street luxury aesthetic
       if (message.toLowerCase().includes('wellness') || message.toLowerCase().includes('yoga') || message.toLowerCase().includes('health') || message.toLowerCase().includes('mindfulness')) {
-        suggestedPrompt = `${triggerWord} wellness lifestyle photography, practicing yoga in bright studio space, wearing comfortable activewear, shot with Canon 5DS R, natural window lighting with soft shadows, magazine-quality editorial, raw unretouched photo with visible skin texture, film grain, peaceful expression, luxury wellness environment`;
-        sandraResponse = `OMG yes! For wellness content, you NEED that serene boss energy. I've created the perfect prompt for your wellness guru brand - it'll give you those Pinterest-worthy lifestyle shots that make people want to book with you immediately! 
+        suggestedPrompt = `${triggerWord} woman in European plaza practicing morning meditation, white linen outfit, sitting cross-legged by fountain, Italian architecture backdrop, natural morning light, candid wellness moment, street photography, film aesthetic, effortless luxury wellness`;
+        sandraResponse = `OMG yes! For wellness content, you NEED that serene European energy. I've created the perfect prompt with that effortless Milan wellness vibe - it'll give you those scroll-stopping lifestyle shots that make people want to book with you immediately! 
 
 Click "Generate From Custom Prompt" below to create 4 preview photos. ✨`;
         
       } else if (message.toLowerCase().includes('coaching') || message.toLowerCase().includes('business') || message.toLowerCase().includes('entrepreneur') || message.toLowerCase().includes('ceo') || message.toLowerCase().includes('executive')) {
-        suggestedPrompt = `${triggerWord} professional lifestyle photography, confident coach sitting at modern desk, wearing sophisticated blazer, shot with Canon 5DS R, natural window lighting with soft shadows, magazine-quality editorial, raw unretouched photo with visible skin texture, film grain, commanding presence, luxury office environment`;
-        sandraResponse = `Perfect! For business authority, you need that executive power look. I've crafted a prompt that'll give you those high-converting professional lifestyle shots. This isn't just another headshot - it's your CEO moment captured! 
+        suggestedPrompt = `${triggerWord} woman walking through European financial district, black tailored blazer, structured bag, confident stride past luxury office buildings, morning street photography, natural candid moment, business authority aesthetic, film grain`;
+        sandraResponse = `Perfect! For business authority, you need that European executive energy. I've crafted a prompt that'll give you those high-converting street style business shots. This isn't just another office photo - it's your power moment captured in motion! 
 
 Click "Generate From Custom Prompt" below to see your preview photos. 🚀`;
         
       } else if (message.toLowerCase().includes('pinterest') || message.toLowerCase().includes('lifestyle') || message.toLowerCase().includes('aesthetic') || message.toLowerCase().includes('cafe') || message.toLowerCase().includes('blogger')) {
-        suggestedPrompt = `${triggerWord} aesthetic lifestyle photography, sitting in beautiful cafe with laptop, wearing stylish casual outfit, shot with Canon 5DS R, golden hour lighting filtering through windows, magazine-quality editorial, raw unretouched photo with visible skin texture, film grain, authentic moment, Instagram-worthy scene`;
-        sandraResponse = `OH MY GOD yes! Pinterest lifestyle vibes are everything! I've created a prompt that'll give you those dreamy, scroll-stopping lifestyle photos that get saved thousands of times. This is the content that makes your audience obsessed! 
+        suggestedPrompt = `${triggerWord} woman exiting Parisian cafe with coffee, oversized cream coat, black jeans, casual designer bag, European street backdrop, morning light, candid lifestyle moment, influencer street style photography, effortless luxury aesthetic`;
+        sandraResponse = `OH MY GOD yes! Pinterest lifestyle vibes with European flair are everything! I've created a prompt that'll give you those dreamy, scroll-stopping street style photos that get saved thousands of times. This is the content that makes your audience obsessed! 
 
 Click "Generate From Custom Prompt" below to create your aesthetic photos. 📸`;
         
       } else if (message.toLowerCase().includes('create') || message.toLowerCase().includes('generate') || message.toLowerCase().includes('make') || message.toLowerCase().includes('photos') || message.toLowerCase().includes('images')) {
-        suggestedPrompt = `${triggerWord} professional lifestyle photography, natural candid moment in beautiful setting, wearing stylish outfit, shot with Canon 5DS R, soft natural lighting, magazine-quality editorial, raw unretouched photo with visible skin texture, film grain, authentic expression, luxury environment`;
-        sandraResponse = `Hey gorgeous! I'm SO excited to help you create amazing brand photos! I've crafted a perfect prompt for you that will give you those professional lifestyle shots that convert. 
+        suggestedPrompt = `${triggerWord} woman walking on European cobblestone street, black turtleneck, wide-leg trousers, designer bag, historic architecture backdrop, natural afternoon light, candid street capture, model-off-duty aesthetic, film grain`;
+        sandraResponse = `Hey gorgeous! I'm SO excited to help you create amazing brand photos! I've crafted a perfect European street luxury prompt for you that will give you those professional model-off-duty shots that convert. 
 
 The prompt is ready below - just click "Generate From Custom Prompt" to create 4 preview photos! ✨`;
         
       } else {
-        sandraResponse = `Hey gorgeous! I'm Sandra, and I'm SO excited to help you create amazing brand photos! Tell me what kind of photos you want and I'll create the perfect AI prompt for you. 
+        sandraResponse = `Hey gorgeous! I'm Sandra, and I'm SO excited to help you create amazing European street luxury photos! Tell me what kind of photos you want and I'll create the perfect AI prompt for you. 
 
 Try saying things like:
-• "Create lifestyle wellness photos for me"
-• "I want business executive shots" 
-• "Make Pinterest aesthetic photos"
-• "Generate coaching authority images"
+• "Create European wellness plaza photos"
+• "I want Milan business executive street style" 
+• "Make Parisian cafe aesthetic photos"
+• "Generate European street luxury images"
 
-The more specific you are, the better prompt I can create! ✨`;
+The more specific you are, the better European luxury prompt I can create! ✨`;
       }
       
       res.json({

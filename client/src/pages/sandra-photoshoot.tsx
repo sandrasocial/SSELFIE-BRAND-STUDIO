@@ -6,61 +6,61 @@ import { PaymentVerification } from '@/components/payment-verification';
 import { useToast } from '@/hooks/use-toast';
 import { apiRequest } from '@/lib/queryClient';
 
-// Built-in Sandra-style prompts - Professional Magazine-Worthy Templates
+// European Street Luxury - Model-Off-Duty in Paris/Milan Aesthetic
 const SANDRA_PROMPTS = [
   {
-    id: 'boardroom-dominance',
-    title: 'Boardroom Dominance',
-    description: 'Leading the meeting - Corporate editorial photography in action',
-    prompt: '{trigger_word} woman at head of conference table, modern office, city skyline view, black power suit, leading meeting, golden hour light through windows, full scene visible, environmental context, lifestyle photography not portrait'
+    id: 'milan-boutique-stroll',
+    title: 'Milan Boutique Stroll',
+    description: 'European street luxury - Walking past designer stores effortlessly',
+    prompt: '{trigger_word} woman walking past luxury boutique in Milan, black strapless top, white tailored trousers, small designer bag, adjusting sunglasses while walking, European street architecture, natural midday light, shot on iPhone street style, film aesthetic, environmental candid'
   },
   {
-    id: 'keynote-speaker',
-    title: 'Keynote Speaker',
-    description: 'On stage commanding attention - Event photography editorial style',
-    prompt: '{trigger_word} woman on stage at luxury conference, speaking to audience, professional outfit, stage lighting, confident gesture, audience in soft focus, full scene visible, environmental context, lifestyle photography not portrait'
+    id: 'parisian-coffee-run',
+    title: 'Parisian Coffee Run',
+    description: 'Casual luxury moment - Morning coffee with effortless style',
+    prompt: '{trigger_word} woman exiting cafe with coffee, oversized black blazer as dress, Nike sneakers, baseball cap, layered gold necklaces, urban European street, morning light, candid lifestyle moment, influencer street style photography'
   },
   {
-    id: 'marbella-morning',
-    title: 'Marbella Morning',
-    description: 'Working at beachfront cafe - Mediterranean lifestyle photography',
-    prompt: '{trigger_word} woman working on laptop at beachfront cafe, Mediterranean view, morning golden hour, white linen outfit, coffee on marble table, full scene visible, environmental context, lifestyle photography not portrait'
+    id: 'ornate-doorway-moment',
+    title: 'Ornate Doorway Moment',
+    description: 'Architectural elegance - Leaning against European heritage',
+    prompt: '{trigger_word} woman leaning against ornate European door, black tube top, oversized denim, small structured bag, looking away from camera, architectural details visible, natural street photography, film grain, fashion influencer aesthetic'
   },
   {
-    id: 'coffee-aesthetic',
-    title: 'Morning Coffee Aesthetic',
-    description: 'Pinterest-worthy lifestyle moments with cozy luxury',
-    prompt: '{trigger_word} woman with coffee cup, cozy luxury setting, oversized black sweater, natural morning light, minimal styling, full scene visible, environmental context, lifestyle photography not portrait'
+    id: 'european-street-crossing',
+    title: 'European Street Crossing',
+    description: 'City confidence - Mid-stride urban sophistication',
+    prompt: '{trigger_word} woman mid-stride crossing European street, black vest top, sage green wide pants, designer bag swinging, confident walk, city life in background, candid street capture, natural movement, lifestyle influencer photography'
   },
   {
-    id: 'workspace-goals',
-    title: 'Workspace Goals',
-    description: 'Aesthetic desk setup - Pinterest office aesthetic',
-    prompt: '{trigger_word} woman at aesthetic desk setup, fresh flowers, laptop, organized luxury, black outfit, bright natural light, inspiring workspace, full scene visible, environmental context, lifestyle photography not portrait'
+    id: 'stone-wall-attitude',
+    title: 'Stone Wall Attitude',
+    description: 'Architectural lean - All black confidence against history',
+    prompt: '{trigger_word} woman against stone building wall, all black outfit leather jacket and pants, arms crossed, sunglasses on, European architecture visible, natural shadow play, street style photography, confident energy, film aesthetic'
   },
   {
-    id: 'studio-session',
-    title: 'Studio Session',
-    description: 'Behind-the-scenes content creation - Authentic work moment',
-    prompt: '{trigger_word} woman in modern photo studio, adjusting ring light, all black outfit, creative process, professional equipment visible, full scene visible, environmental context, lifestyle photography not portrait'
+    id: 'cobblestone-wandering',
+    title: 'Cobblestone Wandering',
+    description: 'Old world luxury - Strolling through historic European streets',
+    prompt: '{trigger_word} woman walking on cobblestone street, cream oversized coat, black jeans, white sneakers, designer bag, European old town backdrop, natural afternoon light, candid street photography, effortless luxury aesthetic'
   },
   {
-    id: 'wellness-elevation',
-    title: 'Wellness Elevation',
-    description: 'Morning ritual luxury - Mind, body, success aesthetic',
-    prompt: '{trigger_word} woman on yoga mat, luxury apartment, morning sun streaming in, black activewear, meditation pose, city view, full scene visible, environmental context, lifestyle photography not portrait'
+    id: 'plaza-phone-moment',
+    title: 'Plaza Phone Moment',
+    description: 'European plaza elegance - Caught in natural conversation',
+    prompt: '{trigger_word} woman on phone in European plaza, beige trench coat, black turtleneck, minimal jewelry, fountain in background, natural gesture, street photography, film grain, sophisticated lifestyle moment'
   },
   {
-    id: 'victory-celebration',
-    title: 'Victory Celebration',
-    description: 'Celebrating success - Achievement editorial moment',
-    prompt: '{trigger_word} woman celebrating success, champagne toast, penthouse setting, black dress, genuine joy, city lights, full scene visible, environmental context, lifestyle photography not portrait'
+    id: 'luxury-district-stride',
+    title: 'Luxury District Stride',
+    description: 'Designer avenue walk - Power walking through high-end shopping',
+    prompt: '{trigger_word} woman walking luxury shopping avenue, black turtleneck, wide-leg trousers, structured bag, European luxury storefronts, confident stride, natural street lighting, fashion week street style, candid movement'
   },
   {
-    id: 'future-vision',
-    title: 'Future Vision',
-    description: 'Aspirational horizon shot - Contemplative power pose',
-    prompt: '{trigger_word} woman on infinity balcony, looking at horizon, flowing black outfit, sunset light, contemplative power pose, full scene visible, environmental context, lifestyle photography not portrait'
+    id: 'bridge-contemplation',
+    title: 'Bridge Contemplation',
+    description: 'European bridge moment - Thoughtful pause over historic waters',
+    prompt: '{trigger_word} woman on European bridge, white button-down, dark denim, looking at cityscape, historic bridge architecture, river below, natural wind movement, street photography, contemplative lifestyle moment'
   }
 ];
 
