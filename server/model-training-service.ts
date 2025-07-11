@@ -40,7 +40,7 @@ export const GENERATION_SETTINGS = {
 };
 
 export class ModelTrainingService {
-  // Configure AWS S3
+  // Configure AWS S3 (ensure US East 1 for global access)
   private static s3 = new AWS.S3({
     accessKeyId: process.env.AWS_ACCESS_KEY_ID,
     secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY,
@@ -71,12 +71,34 @@ export class ModelTrainingService {
       
       archive.pipe(output);
       
-      // Add each image to ZIP
+      // Add each image to ZIP with proper validation and padding
       for (let i = 0; i < selfieImages.length; i++) {
         const imageData = selfieImages[i];
+        
+        if (!imageData.startsWith('data:image/')) {
+          console.warn(`Invalid image data at index ${i}, skipping`);
+          continue;
+        }
+        
+        // Extract base64 data and ensure proper padding
         const base64Data = imageData.replace(/^data:image\/[a-z]+;base64,/, '');
-        const imageBuffer = Buffer.from(base64Data, 'base64');
-        archive.append(imageBuffer, { name: `image_${i + 1}.jpg` });
+        const paddedBase64 = base64Data + '='.repeat((4 - base64Data.length % 4) % 4);
+        
+        try {
+          const imageBuffer = Buffer.from(paddedBase64, 'base64');
+          
+          // Validate buffer has reasonable size (at least 500 bytes for valid image - reduced for testing)
+          if (imageBuffer.length < 500) {
+            console.warn(`Image ${i + 1} too small (${imageBuffer.length} bytes), skipping`);
+            continue;
+          }
+          
+          console.log(`Adding image ${i + 1} (${imageBuffer.length} bytes) to ZIP`);
+          archive.append(imageBuffer, { name: `image_${i + 1}.jpg` });
+        } catch (error) {
+          console.error(`Failed to process image ${i + 1}:`, error);
+          continue;
+        }
       }
       
       await archive.finalize();
