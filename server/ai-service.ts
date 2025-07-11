@@ -240,19 +240,20 @@ export class AIService {
         'Content-Type': 'application/json',
       },
       body: JSON.stringify({
-        version: "a31d246656f2cec416d6d895d11cbb0b4b7b8eb2719fac75cf7d73c441b08f36", // FLUX.1 dev
+        model: "black-forest-labs/flux-dev-lora", // Use the correct high-quality FLUX model
         input: {
-          image: `data:image/jpeg;base64,${imageBase64}`,
           prompt: prompt,
-          guidance_scale: 2.7, // Optimal for photorealistic results
-          num_inference_steps: 32, // Better quality
+          guidance: 3, // Optimal guidance setting from documentation
+          num_inference_steps: 28, // Recommended range 28-50
           num_outputs: 4, // Generate multiple options for user selection
-          lora_scale: 1.0, // Full LoRA application
-          aspect_ratio: "1:1", // Square format for SSELFIE
-          output_format: "png",
-          output_quality: 100,
-          model: "dev", // Use dev model for better quality
-          seed: Math.floor(Math.random() * 1000000)
+          lora_scale: 1.0, // Full LoRA application for best quality
+          aspect_ratio: "4:3", // Better aspect ratio for portraits
+          output_format: "jpg", // JPG format
+          output_quality: 95, // High quality (95 is very good without being too large)
+          go_fast: false, // Disable go_fast for maximum quality
+          megapixels: "1", // 1 megapixel for good quality
+          seed: Math.floor(Math.random() * 1000000),
+          lora_weights: modelId.includes('sandrasocial') ? modelId : undefined // Use user's trained model as LoRA weights
         }
       })
     });

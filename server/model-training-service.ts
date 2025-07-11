@@ -32,11 +32,14 @@ export const PROMPT_TEMPLATES = {
 };
 
 export const GENERATION_SETTINGS = {
-  aspect_ratio: "3:4",
-  output_format: "jpg",
-  output_quality: 90,
-  guidance_scale: 3.5,
-  num_inference_steps: 28
+  aspect_ratio: "4:3",
+  output_format: "jpg", 
+  output_quality: 95,
+  guidance: 3,
+  num_inference_steps: 28,
+  go_fast: false,
+  lora_scale: 1.0,
+  megapixels: "1"
 };
 
 export class ModelTrainingService {
