@@ -89,16 +89,27 @@ export class ModelTrainingService {
       
       console.log('ZIP file created successfully:', zipPath);
       
-      // Temporarily skip S3 upload and use working demo URL to confirm training pipeline
-      // This validates the complete Replicate API integration works
-      console.log('Skipping S3 upload, using demo training ZIP for pipeline validation');
-      const presignedUrl = "https://replicate.delivery/pbxt/JqVVWtFe5AZMFOVKCWHggTH4ggSEm7KRhizkRNVqkZDzSmejA/training_images.zip";
+      // Upload your real ZIP file to S3 (no ACL since bucket has public read policy)
+      const zipFileName = `training-zips/user_${userId}_${Date.now()}.zip`;
+      const fileContent = fs.readFileSync(zipPath);
+      
+      const uploadParams = {
+        Bucket: process.env.AWS_S3_BUCKET!,
+        Key: zipFileName,
+        Body: fileContent,
+        ContentType: 'application/zip'
+      };
+      
+      const uploadResult = await this.s3.upload(uploadParams).promise();
+      
+      // Use direct S3 URL - bucket has public read policy
+      const directS3Url = `https://${process.env.AWS_S3_BUCKET}.s3.amazonaws.com/${zipFileName}`;
       
       // Clean up temp file
       fs.unlinkSync(zipPath);
       
-      console.log('Using demo training ZIP for validation:', presignedUrl);
-      return presignedUrl;
+      console.log('Your real ZIP uploaded to S3:', directS3Url);
+      return directS3Url;
       
     } catch (error) {
       console.error('Error creating/uploading ZIP:', error);
@@ -208,29 +219,49 @@ export class ModelTrainingService {
         throw new Error('No training found for user');
       }
       
-      // For now, simulate training completion after some time
-      // In production, this would check actual Replicate API status
-      const trainingStartTime = new Date(userModel.createdAt || new Date()).getTime();
-      const now = Date.now();
-      const trainingDuration = now - trainingStartTime;
-      const twentyMinutes = 20 * 60 * 1000; // 20 minutes in milliseconds
+      // Check REAL Replicate API training status
+      const trainingStatusResponse = await fetch(`https://api.replicate.com/v1/trainings/${userModel.replicateModelId}`, {
+        headers: {
+          'Authorization': `Token ${process.env.REPLICATE_API_TOKEN}`,
+          'Content-Type': 'application/json'
+        }
+      });
       
-      if (trainingDuration >= twentyMinutes) {
-        // Mark as completed after 20 minutes
-        await storage.updateUserModel(userId, {
-          trainingStatus: 'completed',
-          trainingProgress: 100
-        });
-        return { status: 'completed', progress: 100 };
-      } else {
-        // Calculate progress based on time elapsed
-        const progress = Math.min(Math.round((trainingDuration / twentyMinutes) * 100), 99);
-        await storage.updateUserModel(userId, {
-          trainingStatus: 'training',
-          trainingProgress: progress
-        });
-        return { status: 'training', progress };
+      if (!trainingStatusResponse.ok) {
+        throw new Error(`Failed to check training status: ${trainingStatusResponse.status}`);
       }
+      
+      const trainingData = await trainingStatusResponse.json();
+      console.log('Real Replicate training status:', trainingData.status);
+      
+      let progress = 0;
+      let status = 'training';
+      
+      if (trainingData.status === 'succeeded') {
+        progress = 100;
+        status = 'completed';
+      } else if (trainingData.status === 'failed') {
+        status = 'failed';
+        progress = 0;
+      } else if (trainingData.status === 'canceled') {
+        status = 'cancelled';
+        progress = 0;
+      } else {
+        // Training in progress - estimate progress based on time
+        const trainingStartTime = new Date(userModel.createdAt || new Date()).getTime();
+        const now = Date.now();
+        const trainingDuration = now - trainingStartTime;
+        const twentyMinutes = 20 * 60 * 1000; // 20 minutes typical training time
+        progress = Math.min(Math.round((trainingDuration / twentyMinutes) * 100), 99);
+      }
+      
+      // Update model with real status
+      await storage.updateUserModel(userId, {
+        trainingStatus: status,
+        trainingProgress: progress
+      });
+      
+      return { status, progress };
       
     } catch (error) {
       console.error('Error checking REAL training status:', error);
