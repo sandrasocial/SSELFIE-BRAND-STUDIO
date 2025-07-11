@@ -57,7 +57,6 @@ export const projects = pgTable("projects", {
 export const aiImages = pgTable("ai_images", {
   id: serial("id").primaryKey(),
   userId: varchar("user_id").references(() => users.id).notNull(),
-  projectId: serial("project_id").references(() => projects.id),
   imageUrl: varchar("image_url").notNull(),
   prompt: text("prompt"),
   style: varchar("style"), // editorial, business, lifestyle, luxury
