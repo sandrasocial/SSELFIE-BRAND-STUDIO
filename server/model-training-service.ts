@@ -102,14 +102,18 @@ export class ModelTrainingService {
       
       const uploadResult = await this.s3.upload(uploadParams).promise();
       
-      // Use direct S3 URL - bucket has public read policy
-      const directS3Url = `https://${process.env.AWS_S3_BUCKET}.s3.amazonaws.com/${zipFileName}`;
+      // Generate presigned URL for Replicate access (24 hour expiry)
+      const presignedUrl = this.s3.getSignedUrl('getObject', {
+        Bucket: process.env.AWS_S3_BUCKET!,
+        Key: zipFileName,
+        Expires: 86400 // 24 hours
+      });
       
       // Clean up temp file
       fs.unlinkSync(zipPath);
       
-      console.log('Your real ZIP uploaded to S3:', directS3Url);
-      return directS3Url;
+      console.log('Your real ZIP uploaded to S3 with presigned URL:', presignedUrl);
+      return presignedUrl;
       
     } catch (error) {
       console.error('Error creating/uploading ZIP:', error);
