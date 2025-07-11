@@ -13,17 +13,22 @@ const FLUX_MODEL_CONFIG = {
   demoTriggerWord: 'subject',
   apiUrl: 'https://api.replicate.com/v1/predictions',
   styles: {
-    editorial: 'luxury editorial magazine style, high-end fashion photography, professional lighting, magazine cover quality',
-    business: 'professional business portrait, corporate headshot style, clean background, executive presence',
-    lifestyle: 'lifestyle photography, natural lighting, authentic moment, personal brand aesthetic', 
-    luxury: 'luxury brand photography, sophisticated aesthetic, premium quality, high-end fashion'
+    editorial: 'luxury editorial magazine style, high-end fashion photography, designer clothing, sophisticated styling, elegant feminine outfits, Milan street style inspiration',
+    business: 'professional executive style, tailored designer pieces, sophisticated business attire, luxury professional wear, elegant and polished',
+    lifestyle: 'chic lifestyle photography, designer casual wear, effortless luxury style, sophisticated everyday fashion, elegant feminine aesthetic', 
+    luxury: 'high fashion luxury photography, designer outfits, sophisticated styling, premium fashion pieces, elegant and refined feminine style'
   },
-  // Film-grained, matte quality prompts for authentic look
+  // Film-grained, matte quality prompts with high fashion styling
   qualityPrompts: {
-    editorial: 'shot on 35mm film, heavy film grain, matte skin finish, natural skin texture, raw unprocessed look, authentic film photography, visible pores and imperfections, no digital enhancement',
-    business: 'shot on film camera, natural matte finish, authentic skin texture, film grain, professional but natural lighting, no glossy skin',
-    lifestyle: 'film photography, heavy grain, matte finish, natural skin texture, authentic moment, raw film look, visible skin imperfections, no digital retouching',
-    luxury: 'analog film photography, pronounced film grain, matte skin finish, natural texture, authentic luxury aesthetic, film negative quality'
+    editorial: 'shot on 35mm film, heavy film grain, matte skin finish, natural skin texture, wearing designer clothing, tailored pieces, sophisticated styling, elegant feminine fashion, high-end materials, no cheap or basic clothing',
+    business: 'shot on film camera, natural matte finish, authentic skin texture, film grain, wearing luxury professional attire, tailored blazers, sophisticated business wear, elegant executive style',
+    lifestyle: 'film photography, heavy grain, matte finish, natural skin texture, wearing chic casual designer pieces, effortless luxury style, sophisticated everyday fashion, elegant feminine aesthetic',
+    luxury: 'analog film photography, pronounced film grain, matte skin finish, wearing high fashion designer outfits, luxury materials, sophisticated styling, elegant and refined feminine pieces, premium fashion'
+  },
+  // High fashion outfit specifications to avoid basic clothing
+  fashionPrompts: {
+    outfits: 'wearing designer pieces, tailored clothing, luxury materials, sophisticated styling, elegant feminine fashion, high-end accessories, refined aesthetic',
+    avoidBasic: 'no basic t-shirts, no plain casual wear, no cheap materials, no unflattering cuts, no frumpy clothing, no outdated styles'
   }
 };
 
@@ -247,12 +252,12 @@ export class AIService {
     let requestBody;
     
     if (isSandraModel) {
-      // Sandra's newer model - use version from database with matte film-grained settings
+      // Sandra's newer model - use version from database with matte film-grained settings and high fashion styling
       requestBody = {
         version: FLUX_MODEL_CONFIG.sandraVersionId,
         input: {
           prompt: prompt,
-          negative_prompt: "glossy skin, shiny skin, oily skin, plastic skin, fake skin, digital enhancement, airbrushed, over-processed, smooth skin, perfect skin, retouched, digital makeup, artificial lighting, studio perfection, polished skin, magazine retouching",
+          negative_prompt: "glossy skin, shiny skin, oily skin, plastic skin, fake skin, digital enhancement, airbrushed, over-processed, smooth skin, perfect skin, retouched, digital makeup, artificial lighting, studio perfection, polished skin, magazine retouching, basic t-shirts, plain casual wear, cheap materials, unflattering cuts, frumpy clothing, outdated styles, old woman clothes, unfashionable outfits, basic clothing, cheap accessories",
           go_fast: false,
           lora_scale: 1,
           num_outputs: 4,
@@ -264,13 +269,13 @@ export class AIService {
         }
       };
     } else {
-      // Other users' models or fallback - apply same film-grained, matte settings
+      // Other users' models or fallback - apply same film-grained, matte settings and high fashion styling
       const isUserModel = modelId.includes('sandrasocial') || modelId.includes('user');
       requestBody = {
         model: isUserModel ? modelId : "black-forest-labs/flux-dev-lora",
         input: {
           prompt: prompt,
-          negative_prompt: "glossy skin, shiny skin, oily skin, plastic skin, fake skin, digital enhancement, airbrushed, over-processed, smooth skin, perfect skin, retouched, digital makeup, artificial lighting, studio perfection, polished skin, magazine retouching",
+          negative_prompt: "glossy skin, shiny skin, oily skin, plastic skin, fake skin, digital enhancement, airbrushed, over-processed, smooth skin, perfect skin, retouched, digital makeup, artificial lighting, studio perfection, polished skin, magazine retouching, basic t-shirts, plain casual wear, cheap materials, unflattering cuts, frumpy clothing, outdated styles, old woman clothes, unfashionable outfits, basic clothing, cheap accessories",
           guidance_scale: 2.5, // Use optimized setting for all users
           num_inference_steps: 32, // High quality for all users
           num_outputs: 4,
