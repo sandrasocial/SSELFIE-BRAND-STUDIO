@@ -48,13 +48,17 @@ export default function AdminDashboard() {
     retry: false
   });
 
-  // Fetch AI agents with simple fallback
-  const { data: agents = [] } = useQuery<Agent[]>({
+  // Fetch AI agents with proper error handling
+  const { data: agents = [], isLoading: agentsLoading } = useQuery<Agent[]>({
     queryKey: ['/api/agents'],
     queryFn: async () => {
       try {
-        return await apiRequest('GET', '/api/agents');
+        const response = await apiRequest('GET', '/api/agents');
+        const data = await response.json();
+        console.log('Agents API response:', data);
+        return Array.isArray(data) ? data : [];
       } catch (error) {
+        console.error('Agent fetch error:', error);
         // Fallback to static agent data if API fails
         return [
           {
@@ -112,7 +116,8 @@ export default function AdminDashboard() {
   const askAgentMutation = useMutation({
     mutationFn: async ({ agentId, task, context }: { agentId: string; task: string; context?: string }) => {
       try {
-        return await apiRequest('POST', '/api/agents/ask', { agentId, task, context });
+        const response = await apiRequest('POST', '/api/agents/ask', { agentId, task, context });
+        return await response.json();
       } catch (error) {
         // Fallback response if API fails
         const agent = agents.find(a => a.id === agentId);
@@ -154,6 +159,18 @@ export default function AdminDashboard() {
     conversionRate: 18.4,
     agentTasks: 342
   };
+
+  // Show loading state
+  if (agentsLoading) {
+    return (
+      <div className="min-h-screen bg-white flex items-center justify-center">
+        <div className="text-center">
+          <div className="animate-spin w-8 h-8 border-4 border-black border-t-transparent rounded-full mb-4 mx-auto" />
+          <div className="text-gray-600">Loading Sandra's AI Agent Team...</div>
+        </div>
+      </div>
+    );
+  }
 
   const displayStats = stats || defaultStats;
 
