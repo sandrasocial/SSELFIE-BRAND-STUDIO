@@ -1,5 +1,6 @@
 import React, { useEffect } from 'react';
 import { useLocation } from 'wouter';
+import { SandraImages } from '@/lib/sandra-images';
 
 export default function PhotoshootThankYou() {
   const [, navigate] = useLocation();
