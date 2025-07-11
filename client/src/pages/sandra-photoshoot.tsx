@@ -271,7 +271,7 @@ export default function SandraPhotoshoot() {
               You need to complete your AI model training before planning photoshoots.
             </p>
             <a
-              href="/ai-generator"
+              href="/simple-training"
               style={{
                 display: 'inline-block',
                 padding: '16px 32px',

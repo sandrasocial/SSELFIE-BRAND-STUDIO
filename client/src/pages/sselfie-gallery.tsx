@@ -239,7 +239,7 @@ export default function SSELFIEGallery() {
                 Generate your first SSELFIE photos to start building your professional image library.
               </p>
               <a
-                href="/ai-generator"
+                href="/sandra-photoshoot"
                 style={{
                   display: 'inline-block',
                   padding: '16px 32px',
