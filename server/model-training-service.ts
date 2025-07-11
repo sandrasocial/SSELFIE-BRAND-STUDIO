@@ -266,11 +266,19 @@ export class ModelTrainingService {
         progress = Math.min(Math.round((trainingDuration / twentyMinutes) * 100), 99);
       }
       
-      // Update model with real status
-      await storage.updateUserModel(userId, {
+      // Update model with real status and version ID when training completes
+      const updateData: any = {
         trainingStatus: status,
         trainingProgress: progress
-      });
+      };
+      
+      // Extract and save the model version when training succeeds
+      if (status === 'completed' && trainingData.output?.version) {
+        updateData.replicateVersionId = trainingData.output.version;
+        console.log('Saving completed model version:', trainingData.output.version);
+      }
+      
+      await storage.updateUserModel(userId, updateData);
       
       return { status, progress };
       
@@ -294,10 +302,15 @@ export class ModelTrainingService {
       let modelToUse = 'a31d246656f2cec416d6d895d11cbb0b4b7b8eb2719fac75cf7d73c441b08f36'; // Default FLUX model
       let triggerWord = 'subject'; // Default trigger for demo model
       
-      if (userModel && userModel.trainingStatus === 'completed' && userModel.replicateModelId) {
-        modelToUse = userModel.replicateModelId;
+      if (userModel && userModel.trainingStatus === 'completed' && userModel.replicateVersionId) {
+        // Use the proper model version for inference, not the training ID
+        modelToUse = userModel.replicateVersionId;
         triggerWord = userModel.triggerWord || `user${userId}`;
-        console.log('Using trained model:', modelToUse, 'with trigger:', triggerWord);
+        console.log('Using trained model version:', modelToUse, 'with trigger:', triggerWord);
+      } else if (userModel && userModel.trainingStatus === 'completed' && userModel.replicateModelId) {
+        // For now, use demo model since the user version isn't accessible yet
+        console.log('User model trained but version not accessible, using demo model with custom trigger');
+        triggerWord = userModel.triggerWord || `user${userId}`;
       } else {
         console.log('Using demo model for user without trained model');
       }
