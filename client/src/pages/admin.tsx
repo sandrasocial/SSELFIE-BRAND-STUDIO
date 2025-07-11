@@ -401,6 +401,7 @@ export default function AdminDashboard() {
               <div>
                 <div className="font-medium text-blue-800">Rachel (Email)</div>
                 <div className="text-blue-600">"Write launch email series for 2500 Flodesk subscribers about €97 AI photoshoot"</div>
+                <a href="/rachel-chat" className="text-xs text-blue-800 underline">→ Advanced Rachel Chat Interface</a>
               </div>
               <div>
                 <div className="font-medium text-blue-800">Sophia (Instagram)</div>
