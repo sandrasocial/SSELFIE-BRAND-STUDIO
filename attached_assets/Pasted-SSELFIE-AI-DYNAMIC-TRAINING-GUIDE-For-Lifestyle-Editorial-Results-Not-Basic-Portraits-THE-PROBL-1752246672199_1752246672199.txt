@@ -1,0 +1,198 @@
+SSELFIE AI™ DYNAMIC TRAINING GUIDE
+For Lifestyle & Editorial Results (Not Basic Portraits)
+THE PROBLEM WITH CURRENT TRAINING
+Most LoRA models default to portrait-style outputs because:
+
+Training images are too similar (all headshots)
+AI learns "face = portrait photo"
+Lacks environmental and movement context
+
+DYNAMIC TRAINING PHOTO GUIDE
+CATEGORY 1: MOVEMENT & ACTION (4 photos)
+Walking Shot:
+
+Full body, mid-stride
+Natural arm swing
+Looking ahead (not at camera)
+Outdoor setting visible
+Caption: "[triggerword] woman walking confidently, full body in motion, street photography style"
+
+Working in Context:
+
+At desk/cafe with laptop
+Hands visible on keyboard
+Environment in frame
+Natural concentration face
+Caption: "[triggerword] woman working at laptop, lifestyle scene, candid moment"
+
+Gesture While Speaking:
+
+Using hands expressively
+Phone call or conversation
+3/4 body visible
+Real engagement
+Caption: "[triggerword] woman in conversation, natural gestures, documentary style"
+
+Reaching/Interacting:
+
+Reaching for coffee cup
+Adjusting bag/jacket
+Natural daily movement
+Environment visible
+Caption: "[triggerword] woman reaching for coffee, everyday moment, lifestyle photography"
+
+CATEGORY 2: ENVIRONMENTAL CONTEXT (4 photos)
+Wide Environmental Portrait:
+
+You small in frame
+Location is 70% of image
+Standing in interesting space
+Caption: "[triggerword] woman in luxury hotel lobby, wide environmental portrait, architectural context"
+
+Seated in Scene:
+
+Restaurant/cafe setting
+Full table/surroundings visible
+Natural dining/working pose
+Caption: "[triggerword] woman at restaurant, full scene visible, lifestyle dining"
+
+Outdoor Full Scene:
+
+Beach/park/city street
+You're part of larger scene
+Other people/elements visible
+Caption: "[triggerword] woman at beach, full environment, vacation lifestyle"
+
+Interior Lifestyle:
+
+In kitchen/living room
+Doing real activity
+Home context visible
+Caption: "[triggerword] woman in modern kitchen, morning routine, domestic lifestyle"
+
+CATEGORY 3: VARIED ANGLES (3 photos)
+From Above (Bird's Eye):
+
+Looking down at you working
+Desk/table visible
+Hands in action
+Caption: "[triggerword] woman from above angle, working at desk, overhead lifestyle shot"
+
+Low Angle Power:
+
+Camera below eye level
+Full body or 3/4
+Confident stance
+Caption: "[triggerword] woman from low angle, power pose, architectural photography"
+
+Side Profile Activity:
+
+Complete profile
+Doing something (not just standing)
+Environment visible
+Caption: "[triggerword] woman profile view, reading book, candid side angle"
+
+CATEGORY 4: AUTHENTIC MOMENTS (4 photos)
+Real Laughter:
+
+Genuine laugh (not posed smile)
+Natural body position
+Candid moment
+Caption: "[triggerword] woman laughing genuinely, candid joy, unposed moment"
+
+Contemplative Look:
+
+Looking out window/distance
+Thoughtful expression
+Not engaging camera
+Caption: "[triggerword] woman looking away thoughtfully, contemplative mood, artistic lifestyle"
+
+Mid-Action:
+
+Putting on jacket
+Hair tuck gesture
+Natural transition moment
+Caption: "[triggerword] woman adjusting jacket, transitional moment, fashion lifestyle"
+
+Interaction Shot:
+
+Handing/receiving something
+Natural exchange
+Hands and arms visible
+Caption: "[triggerword] woman receiving coffee, service interaction, daily life moment"
+
+OPTIMAL TRAINING SETTINGS
+python# Replicate LoRA Training Configuration
+{
+    "input_images": "your_15_dynamic_photos.zip",
+    "trigger_word": "your_trigger_word",
+    "steps": 1000,
+    "lora_rank": 32,  # Higher for more complex poses
+    "batch_size": 1,
+    "learning_rate": 1e-4,  # Lower than default
+    "wandb_project": "sselfie_dynamic",
+    "caption_prefix": "photo of",  # Consistent prefix
+    "validation_prompt": "photo of [triggerword] woman at cafe working on laptop, lifestyle photography",
+    "validation_num_images": 4
+}
+GENERATION SETTINGS FOR DYNAMIC OUTPUTS
+javascript// Optimal for lifestyle/editorial results
+const dynamicSettings = {
+    prompt: "[full scene description] + raw photo, not portrait, environmental context, lifestyle photography",
+    negative_prompt: "portrait, headshot, passport photo, studio shot, centered face, isolated subject",
+    num_inference_steps: 32,
+    guidance_scale: 2.5,  // CRITICAL - keep low
+    sampler: "DPM++ 2M Karras",
+    clip_skip: 1,
+    width: 1024,
+    height: 768,  // Wider aspect for scenes
+    lora_strength: 0.85
+}
+PROMPT FORMULA FOR DYNAMIC RESULTS
+[triggerword] woman + [ACTION VERB] + [LOCATION/CONTEXT] + [STYLE DESCRIPTORS]
+
+Examples:
+- "walking through" + "luxury hotel lobby" + "full body in motion, architectural photography"
+- "working at" + "beachfront cafe" + "lifestyle scene with environment, not portrait"
+- "celebrating at" + "rooftop party" + "candid social moment, event photography"
+COMMON FIXES FOR BASIC OUTPUTS
+If still getting portraits:
+
+Add "full scene visible, environmental context" to every prompt
+Use negative prompts aggressively
+Lower guidance scale to 2.0-2.5
+Generate in landscape format (1024x768)
+Add movement descriptors: "in motion", "mid-gesture", "transitional moment"
+
+Advanced technique:
+javascript// Use img2img with composition reference
+{
+    init_image: "reference_lifestyle_photo.jpg",
+    strength: 0.6,  // Keeps composition, changes face
+    prompt: "[triggerword] woman in same pose and setting..."
+}
+TRAINING CHECKLIST
+✓ 15 photos minimum (not 10)
+✓ Only 3-4 close face shots (not all portraits)
+✓ Mostly full/3/4 body with context
+✓ Variety of activities not just standing
+✓ Different locations visible in frame
+✓ Natural expressions during activities
+✓ Some motion blur is actually good
+✓ Include hands/gestures in most shots
+CAPTIONS THAT CREATE DYNAMIC RESULTS
+❌ Bad: "photo of [triggerword] woman"
+✅ Good: "photo of [triggerword] woman walking in city, full body street photography"
+❌ Bad: "portrait of [triggerword] woman smiling"
+✅ Good: "photo of [triggerword] woman laughing at cafe, lifestyle scene with environment"
+❌ Bad: "[triggerword] woman headshot"
+✅ Good: "photo of [triggerword] woman working at desk, overhead angle workspace visible"
+FINAL TIPS
+
+Think "movie still" not "photo shoot" - capture moments, not poses
+You should be 30-50% of frame - not 90% like portraits
+Include props and environment - they give context
+Movement is key - even subtle motion prevents static outputs
+Test prompt: If it could be a LinkedIn photo, it's too basic
+
+This approach will give you dynamic, editorial, lifestyle results instead of basic headshots!
