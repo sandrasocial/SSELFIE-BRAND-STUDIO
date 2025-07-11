@@ -163,6 +163,12 @@ export class DatabaseStorage implements IStorage {
     return updated;
   }
 
+  // Add methods to work with actual database columns
+  async getUserModelByDatabaseUserId(userId: string): Promise<any> {
+    const result = await db.select().from(userModels).where(eq(userModels.userId, userId));
+    return result[0];
+  }
+
   // Selfie Upload operations
   async getSelfieUploads(userId: string): Promise<SelfieUpload[]> {
     return await db
