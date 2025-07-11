@@ -241,9 +241,10 @@ export default function SandraPhotoshoot() {
       });
     },
     onSuccess: (data) => {
+      console.log('Chat success data:', data);
       setChatHistory(prev => [...prev, 
         { role: 'user', message: chatMessage },
-        { role: 'sandra', message: data.response }
+        { role: 'sandra', message: data.response || data.message || 'I understand! Let me help you with that.' }
       ]);
       setChatMessage('');
       
