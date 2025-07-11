@@ -74,15 +74,18 @@ export default function SandraPhotoshoot() {
       });
     },
     onSuccess: (data) => {
-      setGeneratedImages(data.images);
-      setSelectedImages([]);
-      setShowSelectionMode(true);
-      toast({
-        title: "Photos Generated!",
-        description: "Select the photos you love to save them to your gallery.",
-      });
+      if (data.images && data.images.length > 0) {
+        setGeneratedImages(data.images);
+        setSelectedImages([]);
+        setShowSelectionMode(true);
+        toast({
+          title: "Images Generated Successfully",
+          description: `Generated ${data.images.length} images using your trained model`,
+        });
+      }
     },
     onError: (error: any) => {
+      console.error('Image generation failed:', error);
       toast({
         title: "Generation Failed",
         description: error.message || "Failed to generate images. Please try again.",
@@ -683,7 +686,7 @@ export default function SandraPhotoshoot() {
         </section>
 
         {/* Generated Images Preview */}
-        {generatedImages.length > 0 && (
+        {generatedImages && generatedImages.length > 0 && (
           <section style={{ padding: '80px 0', background: '#f5f5f5' }}>
             <div style={{
               maxWidth: '1400px',
