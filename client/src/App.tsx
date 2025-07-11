@@ -106,10 +106,16 @@ function Router() {
 
       {/* PROTECTED ROUTES */}
       <Route path="/workspace" component={(props) => <ProtectedRoute component={Workspace} {...props} />} />
+      <Route path="/studio" component={(props) => <ProtectedRoute component={Workspace} {...props} />} />
       <Route path="/onboarding" component={(props) => <ProtectedRoute component={Onboarding} {...props} />} />
+      
+      {/* AI TRAINING & PHOTOSHOOT WORKFLOW */}
+      <Route path="/ai-training" component={(props) => <ProtectedRoute component={SimpleTraining} {...props} />} />
       <Route path="/simple-training" component={(props) => <ProtectedRoute component={SimpleTraining} {...props} />} />
-      <Route path="/ai-generator" component={(props) => <ProtectedRoute component={AIGenerator} {...props} />} />
+      <Route path="/ai-photoshoot" component={(props) => <ProtectedRoute component={SandraPhotoshoot} {...props} />} />
       <Route path="/sandra-photoshoot" component={(props) => <ProtectedRoute component={SandraPhotoshoot} {...props} />} />
+      <Route path="/ai-generator" component={(props) => <ProtectedRoute component={AIGenerator} {...props} />} />
+      <Route path="/gallery" component={(props) => <ProtectedRoute component={SSELFIEGallery} {...props} />} />
       <Route path="/sselfie-gallery" component={(props) => <ProtectedRoute component={SSELFIEGallery} {...props} />} />
       <Route path="/profile" component={(props) => <ProtectedRoute component={Profile} {...props} />} />
 

@@ -191,7 +191,7 @@ export default function SimpleTraining() {
                 </div>
               </div>
               
-              <Link href="/workspace">
+              <Link href="/studio">
                 <div style={{
                   display: 'inline-block',
                   padding: '16px 32px',

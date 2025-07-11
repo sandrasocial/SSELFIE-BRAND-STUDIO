@@ -43,7 +43,7 @@ export default function Workspace() {
         label: 'Train Your SSELFIE AI',
         status: userModel?.trainingStatus === 'completed' ? 'complete' : userModel?.trainingStatus === 'training' ? 'progress' : 'pending',
         detail: userModel?.trainingStatus === 'completed' ? 'AI model ready for photoshoots' : userModel?.trainingStatus === 'training' ? 'Training in progress (20 minutes)' : 'Upload 10+ selfies to start training',
-        link: '/simple-training',
+        link: '/ai-training',
         priority: !userModel || userModel.trainingStatus === 'not_started'
       },
       {
@@ -51,7 +51,7 @@ export default function Workspace() {
         label: 'Plan Your Photoshoot with Sandra AI',
         status: userModel?.trainingStatus === 'completed' ? 'ready' : 'pending',
         detail: userModel?.trainingStatus === 'completed' ? 'Chat with Sandra AI or use built-in prompts' : 'Complete AI training first',
-        link: userModel?.trainingStatus === 'completed' ? '/sandra-photoshoot' : '#',
+        link: userModel?.trainingStatus === 'completed' ? '/ai-photoshoot' : '#',
         priority: false
       },
       {
@@ -59,7 +59,7 @@ export default function Workspace() {
         label: 'Your SSELFIE Gallery',
         status: aiImages.length > 0 ? 'active' : 'pending',
         detail: aiImages.length > 0 ? `${aiImages.length} photos in your gallery` : 'Generate photos to build your gallery',
-        link: aiImages.length > 0 ? '/sselfie-gallery' : '#',
+        link: aiImages.length > 0 ? '/gallery' : '#',
         priority: false
       }
     ];
