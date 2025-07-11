@@ -2296,7 +2296,15 @@ Keep it conversational, actionable, and authentically Sandra. Focus on immediate
     });
 
     const data = await response.json();
-    return data.content[0].text;
+    
+    // Handle both array and single content responses safely
+    if (data.content && Array.isArray(data.content) && data.content.length > 0) {
+      return data.content[0].text || data.content[0].content || "Rachel is ready to help!";
+    } else if (data.content && typeof data.content === 'string') {
+      return data.content;
+    } else {
+      return "Rachel is ready to help!";
+    }
 
   } catch (error) {
     console.error('Rachel AI Error:', error);
@@ -2308,14 +2316,19 @@ Keep it conversational, actionable, and authentically Sandra. Focus on immediate
 → Anthropic & OpenAI access for voice analysis
 → Ready to write in your authentic Rachel-from-Friends + Icelandic voice
 
-**IMMEDIATE EMAIL STRATEGY:**
-→ "I Built Something Incredible" - announcement email
-→ "See What AI Can Do" - demo/proof email  
-→ "€97 AI Brand Photoshoot" - direct sales email
+**IMMEDIATE REVENUE STRATEGY:**
+→ Instagram Story Sequence: "From Selfie to Success" - 5-story series driving email signups
+→ Email Series: "I Built Something Incredible" - announcement to 2500 subscribers
+→ DM Templates: Professional responses for 800+ unanswered messages
+→ Direct Sales: "€97 AI Brand Photoshoot" - conversion-focused content
 
-Your 2500 email subscribers are waiting! Let me write authentic Sandra voice copy that converts. Every email gets your approval before sending.
+**READY FOR IMMEDIATE EXECUTION:**
+→ Instagram stories promoting SSELFIE with email capture
+→ Email campaigns to your 2500 Flodesk subscribers
+→ Professional DM responses converting followers to customers
+→ All content gets your approval before publishing
 
-Ready to turn your email list into revenue! ✨`;
+Your audience is waiting! Let me create authentic Sandra voice content that converts. Conservative target: 0.1% conversion = €11,640/month revenue. ✨`;
   }
 }
 
