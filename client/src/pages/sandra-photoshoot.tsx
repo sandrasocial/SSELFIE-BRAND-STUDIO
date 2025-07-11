@@ -6,84 +6,145 @@ import { PaymentVerification } from '@/components/payment-verification';
 import { useToast } from '@/hooks/use-toast';
 import { apiRequest } from '@/lib/queryClient';
 
-// SSELFIE AI™ THE VULNERABILITY SERIES - RAW STORYTELLING PORTRAITS
-const SANDRA_PROMPTS = [
-  {
-    id: 'silhouette-of-strength',
-    title: 'Silhouette of Strength',
-    description: 'Profile silhouette - Contemplative moment against bright window',
-    prompt: '{trigger_word} woman profile silhouette against bright window, hair up showing neck curve, wrapped in blanket or oversized sweater, contemplative moment, black and white photography, soft grain, visible emotion in posture, raw documentary style'
+// SSELFIE AI™ PROMPT COLLECTIONS
+const PROMPT_COLLECTIONS = {
+  'european-street-luxury': {
+    name: 'European Street Luxury',
+    description: 'Model-off-duty in Paris/Milan - Expensive girl running errands energy',
+    prompts: [
+      {
+        id: 'parisian-cafe-exit',
+        title: 'Parisian Café Exit',
+        description: 'Morning coffee run - Stepping out with effortless luxury',
+        prompt: '{trigger_word} woman stepping out of Parisian cafe holding coffee cup, oversized black blazer over mini dress, Prada bag, morning sunlight on cobblestone street, natural stride, other cafe patrons blurred in background, iPhone street photography aesthetic, film grain, candid lifestyle moment'
+      },
+      {
+        id: 'milan-coffee-walk',
+        title: 'Milan Coffee Walk',
+        description: 'Italian espresso style - Walking with morning confidence',
+        prompt: '{trigger_word} woman walking with espresso cup, black cropped tank, high-waisted cream trousers, small Bottega Veneta bag, Italian architecture behind, adjusting sunglasses with free hand, natural morning light, street style candid, film photography mood'
+      },
+      {
+        id: 'avenue-montaigne-stroll',
+        title: 'Avenue Montaigne Stroll',
+        description: 'Luxury shopping district - Past Dior with confidence',
+        prompt: '{trigger_word} woman walking past Dior boutique, black strapless top, white wide-leg pants, Hermès Kelly bag, mid-stride confident walk, Parisian Haussmann architecture, natural daylight, street style photography, film aesthetic, movement captured'
+      },
+      {
+        id: 'zebra-crossing-power',
+        title: 'Zebra Crossing Power',
+        description: 'Street crossing dynamics - Mid-stride confidence',
+        prompt: '{trigger_word} woman mid-stride on crosswalk, black bodysuit, oversized blazer flowing, small bag across body, city traffic blurred behind, confident walk, natural daylight, street photography style, movement captured, film aesthetic'
+      }
+    ]
   },
-  {
-    id: 'against-the-wall',
-    title: 'Against the Wall',
-    description: 'Vulnerable exhaustion - Forehead against textured wall',
-    prompt: '{trigger_word} woman leaning forehead against textured wall, eyes closed, hair falling naturally, wearing simple knit sweater, exhausted or overwhelmed posture, available light only, black and white intimate portrait, unguarded moment'
+  'bw-studio-beauty': {
+    name: 'B&W Studio Beauty Portraits',
+    description: 'High-fashion model test shots - Raw beauty and artistic simplicity',
+    prompts: [
+      {
+        id: 'vogue-beauty-classic',
+        title: 'Vogue Beauty Classic',
+        description: 'Timeless studio beauty - Hair in messy bun with minimal makeup',
+        prompt: '{trigger_word} woman, hair in high messy bun with face-framing pieces, minimal makeup with glossy lips, bare shoulders, seamless gray backdrop, shot on Hasselblad X2D, single beauty dish lighting, black and white photography, visible skin texture and freckles, film grain, high fashion beauty portrait'
+      },
+      {
+        id: 'window-shadow-play',
+        title: 'Window Shadow Play',
+        description: 'Dramatic lighting - Blinds creating shadow stripes',
+        prompt: '{trigger_word} woman, dramatic window blinds creating shadow stripes across face and body, eyes closed in serene expression, black slip dress, shot on Leica M11 Monochrom, natural harsh light, high contrast black and white, visible skin detail in light strips'
+      },
+      {
+        id: 'hair-toss-energy',
+        title: 'Hair Toss Energy',
+        description: 'Natural movement captured - Mid hair flip motion',
+        prompt: '{trigger_word} woman, mid hair flip movement, natural motion blur in hair, black tank top, genuine expression, shot on Nikon Z9, studio strobe to freeze motion, black and white action portrait, authentic moment captured'
+      },
+      {
+        id: 'chair-authority',
+        title: 'Chair Authority',
+        description: 'Editorial power pose - Sitting backwards on chair',
+        prompt: '{trigger_word} woman sitting backwards on chair, arms resting on chair back, black outfit, direct powerful gaze, shot on Phase One, dramatic studio lighting, black and white power portrait, strong presence, editorial fashion'
+      }
+    ]
   },
-  {
-    id: 'morning-truth',
-    title: 'Morning Truth',
-    description: 'Raw intimate beauty - No makeup vulnerability in bed',
-    prompt: '{trigger_word} woman in bed looking directly at camera, no makeup, hair spread on pillow, white sheets, natural morning vulnerability, black and white photography, raw intimate portrait, honest beauty'
+  'vulnerability-series': {
+    name: 'The Vulnerability Series',
+    description: 'Raw storytelling portraits - From breakdown to breakthrough',
+    prompts: [
+      {
+        id: 'silhouette-of-strength',
+        title: 'Silhouette of Strength',
+        description: 'Profile silhouette - Contemplative moment against bright window',
+        prompt: '{trigger_word} woman profile silhouette against bright window, hair up showing neck curve, wrapped in blanket or oversized sweater, contemplative moment, black and white photography, soft grain, visible emotion in posture, raw documentary style'
+      },
+      {
+        id: 'morning-truth',
+        title: 'Morning Truth',
+        description: 'Raw intimate beauty - No makeup vulnerability in bed',
+        prompt: '{trigger_word} woman in bed looking directly at camera, no makeup, hair spread on pillow, white sheets, natural morning vulnerability, black and white photography, raw intimate portrait, honest beauty'
+      },
+      {
+        id: 'power-stance',
+        title: 'Power Stance',
+        description: 'Reclaimed authority - Standing tall with determination',
+        prompt: '{trigger_word} woman standing tall in empty space, arms crossed or hands on hips, direct gaze at camera, simple all black, dramatic single light source, black and white portrait of reclaimed power'
+      },
+      {
+        id: 'phoenix-rising',
+        title: 'Phoenix Rising',
+        description: 'Resurrection metaphor - Movement and dramatic lighting',
+        prompt: '{trigger_word} woman in flowing fabric or dress, movement captured, hair in motion, dramatic lighting from below or behind, black and white artistic portrait, resurrection metaphor'
+      }
+    ]
   },
-  {
-    id: 'floor-moments',
-    title: 'Floor Moments',
-    description: 'Emotional authenticity - Sitting on floor against wall',
-    prompt: '{trigger_word} woman sitting on floor against wall, knees drawn up, oversized sweater, looking down or away, natural light from window, black and white documentary, capturing real emotion, unposed authenticity'
-  },
-  {
-    id: 'mirror-reflection',
-    title: 'Mirror Reflection',
-    description: 'Self-confrontation - Looking at self in bathroom mirror',
-    prompt: '{trigger_word} woman looking at self in bathroom mirror, hands on sink, questioning expression, simple clothing, harsh bathroom light, black and white self-confrontation portrait, raw personal moment'
-  },
-  {
-    id: 'window-watcher',
-    title: 'Window Watcher',
-    description: 'Melancholic hope - Coffee cup and contemplation',
-    prompt: '{trigger_word} woman by window looking out, coffee cup in hands, messy hair, oversized sweater, rain or city view outside, black and white melancholic portrait, waiting or hoping'
-  },
-  {
-    id: 'power-stance',
-    title: 'Power Stance',
-    description: 'Reclaimed authority - Standing tall with determination',
-    prompt: '{trigger_word} woman standing tall in empty space, arms crossed or hands on hips, direct gaze at camera, simple all black, dramatic single light source, black and white portrait of reclaimed power'
-  },
-  {
-    id: 'walking-away',
-    title: 'Walking Away',
-    description: 'Leaving the past - Purposeful stride forward',
-    prompt: '{trigger_word} woman walking away from camera down hallway or street, purposeful stride, looking forward not back, simple outfit, black and white documentary, leaving the past behind'
-  },
-  {
-    id: 'coffee-contemplation',
-    title: 'Coffee Contemplation',
-    description: 'Quiet strength - Finding peace in solitude',
-    prompt: '{trigger_word} woman with coffee mug, both hands wrapped around it, looking into distance, kitchen or cafe setting, natural light, black and white quiet moment, finding peace'
-  },
-  {
-    id: 'exhausted-beauty',
-    title: 'Exhausted Beauty',
-    description: 'Raw truth - After long day vulnerability',
-    prompt: '{trigger_word} woman after long day, makeup smudged, hair disheveled, sitting on bathroom floor or bed edge, raw exhaustion visible, black and white truth portrait'
-  },
-  {
-    id: 'tears-and-triumph',
-    title: 'Tears and Triumph',
-    description: 'Emotional complexity - Strength through struggle',
-    prompt: '{trigger_word} woman with tear-stained face but slight smile, emotional complexity, natural light, close portrait, black and white raw emotion, strength through struggle'
-  },
-  {
-    id: 'phoenix-rising',
-    title: 'Phoenix Rising',
-    description: 'Resurrection metaphor - Movement and dramatic lighting',
-    prompt: '{trigger_word} woman in flowing fabric or dress, movement captured, hair in motion, dramatic lighting from below or behind, black and white artistic portrait, resurrection metaphor'
+  'healing-mindset': {
+    name: 'Healing & Mindset Collection',
+    description: 'Journey from pain to peace - Wellness and transformation energy',
+    prompts: [
+      {
+        id: 'arms-to-the-sky',
+        title: 'Arms to the Sky',
+        description: 'Ocean healing - Release and liberation at water\'s edge',
+        prompt: '{trigger_word} woman standing at ocean edge, arms raised to sky in release, waves washing over feet, wearing flowing earth-toned top and cream pants, overcast moody sky, muted color palette, emotional liberation moment, healing journey photography'
+      },
+      {
+        id: 'sunset-contemplation',
+        title: 'Sunset Contemplation',
+        description: 'Beach mindfulness - Golden hour peaceful reflection',
+        prompt: '{trigger_word} woman sitting on beach at golden hour, off-shoulder white dress, looking at horizon, hair flowing in ocean breeze, warm sunset glow on skin, peaceful expression, mindfulness moment, coastal healing aesthetic'
+      },
+      {
+        id: 'candlelit-meditation',
+        title: 'Candlelit Meditation',
+        description: 'Inner peace - Surrounded by warm candlelight glow',
+        prompt: '{trigger_word} woman in meditation pose, black tank and leggings, surrounded by candles, indoor zen space, warm candlelight glow on face, eyes closed in peace, healing sanctuary, mindfulness photography'
+      },
+      {
+        id: 'forest-grounding',
+        title: 'Forest Grounding',
+        description: 'Nature connection - Earthing practice among trees',
+        prompt: '{trigger_word} woman standing among trees, touching tree trunk, earthing practice, natural clothing, dappled forest light, connection with nature, grounding energy, forest therapy moment'
+      },
+      {
+        id: 'yoga-flow',
+        title: 'Yoga Flow',
+        description: 'Movement medicine - Graceful strength in motion',
+        prompt: '{trigger_word} woman in yoga pose, flowing movement captured, natural light studio, black yoga wear, graceful strength, moving meditation, healing through movement, wellness photography'
+      },
+      {
+        id: 'heart-opening',
+        title: 'Heart Opening',
+        description: 'Self-love ritual - Hands on heart compassion gesture',
+        prompt: '{trigger_word} woman with both hands on heart, eyes closed, self-compassion gesture, warm lighting, healing heart space, self-love meditation, emotional healing moment'
+      }
+    ]
   }
-];
+};
 
 export default function SandraPhotoshoot() {
   const { user, isAuthenticated } = useAuth();
+  const [selectedCollection, setSelectedCollection] = useState<keyof typeof PROMPT_COLLECTIONS>('healing-mindset');
   const [selectedPrompts, setSelectedPrompts] = useState<string[]>([]);
   const [customPrompt, setCustomPrompt] = useState('');
   const [chatMessage, setChatMessage] = useState('');
@@ -93,6 +154,9 @@ export default function SandraPhotoshoot() {
   const [selectedImages, setSelectedImages] = useState<string[]>([]);
   const [showSelectionMode, setShowSelectionMode] = useState(false);
   const [selectedImagePreview, setSelectedImagePreview] = useState<string | null>(null);
+  
+  // Get current collection prompts
+  const SANDRA_PROMPTS = PROMPT_COLLECTIONS[selectedCollection].prompts;
   const [generationProgress, setGenerationProgress] = useState<{
     isGenerating: boolean;
     predictionId: string | null;
@@ -577,6 +641,83 @@ export default function SandraPhotoshoot() {
           }}>
             {activeTab === 'prompts' ? (
               <div>
+                {/* Collection Selector */}
+                <div style={{
+                  marginBottom: '40px',
+                  borderBottom: '1px solid #e5e5e5',
+                  paddingBottom: '40px'
+                }}>
+                  <h3 style={{
+                    fontFamily: 'Times New Roman, serif',
+                    fontSize: '24px',
+                    fontWeight: 300,
+                    marginBottom: '16px',
+                    textTransform: 'uppercase',
+                    letterSpacing: '0.1em'
+                  }}>
+                    Choose Your Aesthetic Collection
+                  </h3>
+                  <div style={{
+                    display: 'grid',
+                    gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))',
+                    gap: '20px',
+                    marginBottom: '20px'
+                  }}>
+                    {Object.entries(PROMPT_COLLECTIONS).map(([key, collection]) => (
+                      <div
+                        key={key}
+                        onClick={() => {
+                          setSelectedCollection(key as keyof typeof PROMPT_COLLECTIONS);
+                          setSelectedPrompts([]); // Reset selections when changing collection
+                        }}
+                        style={{
+                          background: selectedCollection === key ? '#0a0a0a' : '#ffffff',
+                          color: selectedCollection === key ? '#ffffff' : '#0a0a0a',
+                          border: '1px solid ' + (selectedCollection === key ? '#0a0a0a' : '#e5e5e5'),
+                          padding: '24px',
+                          cursor: 'pointer',
+                          transition: 'all 300ms ease'
+                        }}
+                        onMouseEnter={(e) => {
+                          if (selectedCollection !== key) {
+                            e.currentTarget.style.background = '#f5f5f5';
+                          }
+                        }}
+                        onMouseLeave={(e) => {
+                          if (selectedCollection !== key) {
+                            e.currentTarget.style.background = '#ffffff';
+                          }
+                        }}
+                      >
+                        <h4 style={{
+                          fontSize: '16px',
+                          fontWeight: 400,
+                          marginBottom: '8px',
+                          textTransform: 'uppercase',
+                          letterSpacing: '0.1em'
+                        }}>
+                          {collection.name}
+                        </h4>
+                        <p style={{
+                          fontSize: '14px',
+                          fontWeight: 300,
+                          lineHeight: 1.4,
+                          opacity: 0.8
+                        }}>
+                          {collection.description}
+                        </p>
+                      </div>
+                    ))}
+                  </div>
+                  <div style={{
+                    fontSize: '14px',
+                    color: '#666666',
+                    fontWeight: 300
+                  }}>
+                    Currently showing: <strong>{PROMPT_COLLECTIONS[selectedCollection].name}</strong> ({SANDRA_PROMPTS.length} prompts available)
+                  </div>
+                </div>
+
                 {/* Built-in Prompts Grid */}
                 <div style={{
                   display: 'grid',
