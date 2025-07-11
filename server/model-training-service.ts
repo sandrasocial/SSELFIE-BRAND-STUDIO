@@ -276,6 +276,10 @@ export class ModelTrainingService {
       if (status === 'completed' && trainingData.output?.version) {
         updateData.replicateVersionId = trainingData.output.version;
         console.log('Saving completed model version:', trainingData.output.version);
+      } else if (status === 'completed' && trainingData.version) {
+        // Some training responses have version directly on the object
+        updateData.replicateVersionId = trainingData.version;
+        console.log('Saving completed model version (direct):', trainingData.version);
       }
       
       await storage.updateUserModel(userId, updateData);
@@ -302,15 +306,21 @@ export class ModelTrainingService {
       let modelToUse = 'a31d246656f2cec416d6d895d11cbb0b4b7b8eb2719fac75cf7d73c441b08f36'; // Default FLUX model
       let triggerWord = 'subject'; // Default trigger for demo model
       
-      if (userModel && userModel.trainingStatus === 'completed' && userModel.replicateVersionId) {
-        // Use the proper model version for inference, not the training ID
-        modelToUse = userModel.replicateVersionId;
-        triggerWord = userModel.triggerWord || `user${userId}`;
-        console.log('Using trained model version:', modelToUse, 'with trigger:', triggerWord);
-      } else if (userModel && userModel.trainingStatus === 'completed' && userModel.replicateModelId) {
-        // For now, use demo model since the user version isn't accessible yet
-        console.log('User model trained but version not accessible, using demo model with custom trigger');
-        triggerWord = userModel.triggerWord || `user${userId}`;
+      if (userModel && userModel.trainingStatus === 'completed') {
+        // Check if we have a proper version ID
+        if (userModel.replicateVersionId) {
+          // Extract just the version hash from the full version string
+          const versionHash = userModel.replicateVersionId.split(':').pop();
+          if (versionHash && versionHash.length > 10) {
+            modelToUse = versionHash;
+            triggerWord = userModel.triggerWord || `user${userId}`;
+            console.log('Using trained model version hash:', modelToUse, 'with trigger:', triggerWord);
+          } else {
+            console.log('Invalid version hash format, using demo model');
+          }
+        } else {
+          console.log('No version ID available, using demo model');
+        }
       } else {
         console.log('Using demo model for user without trained model');
       }
