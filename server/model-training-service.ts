@@ -97,8 +97,8 @@ export class ModelTrainingService {
         Bucket: process.env.AWS_S3_BUCKET!,
         Key: zipFileName,
         Body: fileContent,
-        ContentType: 'application/zip',
-        ACL: 'public-read'
+        ContentType: 'application/zip'
+        // Removed ACL: 'public-read' - bucket doesn't allow ACLs
       };
       
       const uploadResult = await this.s3.upload(uploadParams).promise();
