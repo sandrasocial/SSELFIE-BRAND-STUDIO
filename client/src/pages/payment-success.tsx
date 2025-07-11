@@ -49,8 +49,8 @@ export default function PaymentSuccess() {
         title="PAYMENT SUCCESSFUL"
         ctaText="Continue"
         onCtaClick={() => {
-          // Since onboarding is protected, need to login first then redirect to onboarding
-          window.location.href = '/api/login?redirect=/onboarding';
+          // Direct redirect to login, which will redirect to workspace
+          window.location.href = '/api/login';
         }}
         fullHeight={false}
       />
