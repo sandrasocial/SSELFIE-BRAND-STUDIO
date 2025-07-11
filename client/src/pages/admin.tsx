@@ -236,11 +236,14 @@ export default function AdminDashboard() {
               </h2>
             </div>
             <div className="p-4 space-y-4">
-              <div className="bg-yellow-50 border border-yellow-200 p-4 mb-4">
-                <h3 className="font-medium text-yellow-800 mb-2">Status: SANDBOX MODE</h3>
-                <p className="text-sm text-yellow-700">
-                  Your agents are operational but in testing mode. They can respond to tasks and provide guidance, but cannot make real changes to your business systems yet.
+              <div className="bg-green-50 border border-green-200 p-4 mb-4">
+                <h3 className="font-medium text-green-800 mb-2">Status: APPROVAL-BASED ACTIVATION</h3>
+                <p className="text-sm text-green-700">
+                  Your agents are now fully activated with approval workflows. They can create real marketing materials, emails, and strategies that require your approval before implementation.
                 </p>
+                <div className="mt-2 text-xs text-green-600">
+                  ✓ Ready to manage 120K Instagram followers ✓ Ready to activate 2500 email subscribers ✓ Ready to convert 5000 ManyChat subscribers
+                </div>
               </div>
               {agents.map((agent) => (
                 <div key={agent.id} className="border border-gray-200 p-4 hover:border-gray-300 transition-colors">
@@ -338,68 +341,76 @@ export default function AdminDashboard() {
           
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             <div className="space-y-4">
-              <h3 className="text-lg font-medium">Current Capabilities</h3>
+              <h3 className="text-lg font-medium">Now Activated - Immediate Actions</h3>
               <div className="space-y-3">
                 <div className="flex items-start space-x-3">
                   <div className="w-2 h-2 bg-green-500 rounded-full mt-2 flex-shrink-0"></div>
                   <div>
-                    <div className="font-medium">Task Communication</div>
-                    <div className="text-sm text-gray-600">All agents can receive and respond to tasks</div>
+                    <div className="font-medium">Email Campaign Creation</div>
+                    <div className="text-sm text-gray-600">Rachel can write emails for your 2500 Flodesk subscribers</div>
                   </div>
                 </div>
                 <div className="flex items-start space-x-3">
                   <div className="w-2 h-2 bg-green-500 rounded-full mt-2 flex-shrink-0"></div>
                   <div>
-                    <div className="font-medium">Specialized Expertise</div>
-                    <div className="text-sm text-gray-600">Each agent has unique skills and personality</div>
+                    <div className="font-medium">Instagram Content Strategy</div>
+                    <div className="text-sm text-gray-600">Sophia can manage 800 DMs and create conversion content</div>
                   </div>
                 </div>
                 <div className="flex items-start space-x-3">
                   <div className="w-2 h-2 bg-green-500 rounded-full mt-2 flex-shrink-0"></div>
                   <div>
-                    <div className="font-medium">Strategic Guidance</div>
-                    <div className="text-sm text-gray-600">Agents provide actionable business advice</div>
+                    <div className="font-medium">Revenue Optimization</div>
+                    <div className="text-sm text-gray-600">Martha can design conversion funnels for immediate sales</div>
                   </div>
                 </div>
               </div>
             </div>
             
             <div className="space-y-4">
-              <h3 className="text-lg font-medium">Next Enhancement Phase</h3>
+              <h3 className="text-lg font-medium">Approval-Based Workflow</h3>
               <div className="space-y-3">
                 <div className="flex items-start space-x-3">
-                  <div className="w-2 h-2 bg-yellow-500 rounded-full mt-2 flex-shrink-0"></div>
+                  <div className="w-2 h-2 bg-blue-500 rounded-full mt-2 flex-shrink-0"></div>
                   <div>
-                    <div className="font-medium">Real API Connections</div>
-                    <div className="text-sm text-gray-600">Connect agents to Instagram, Stripe, email platforms</div>
+                    <div className="font-medium">Content Review Required</div>
+                    <div className="text-sm text-gray-600">All emails, posts, and campaigns need your approval</div>
                   </div>
                 </div>
                 <div className="flex items-start space-x-3">
-                  <div className="w-2 h-2 bg-yellow-500 rounded-full mt-2 flex-shrink-0"></div>
+                  <div className="w-2 h-2 bg-blue-500 rounded-full mt-2 flex-shrink-0"></div>
                   <div>
-                    <div className="font-medium">Automated Actions</div>
-                    <div className="text-sm text-gray-600">Allow agents to make real business changes</div>
+                    <div className="font-medium">Spending Controls</div>
+                    <div className="text-sm text-gray-600">All ad spend and purchases require authorization</div>
                   </div>
                 </div>
                 <div className="flex items-start space-x-3">
-                  <div className="w-2 h-2 bg-yellow-500 rounded-full mt-2 flex-shrink-0"></div>
+                  <div className="w-2 h-2 bg-blue-500 rounded-full mt-2 flex-shrink-0"></div>
                   <div>
-                    <div className="font-medium">Data Integration</div>
-                    <div className="text-sm text-gray-600">Connect to real analytics and customer data</div>
+                    <div className="font-medium">Safety Override</div>
+                    <div className="text-sm text-gray-600">You can pause any agent activity instantly</div>
                   </div>
                 </div>
               </div>
             </div>
           </div>
 
-          <div className="mt-6 p-4 bg-gray-50 border border-gray-200">
-            <h4 className="font-medium mb-2">Best Practices for Agent Communication</h4>
-            <ul className="text-sm text-gray-600 space-y-1">
-              <li>• Be specific with tasks - "Create 5 Instagram posts about AI photography" vs "Make social media content"</li>
-              <li>• Include context when needed - mention deadlines, target audience, or specific requirements</li>
-              <li>• Use the right agent for each task - Victoria for design, Rachel for copywriting, Sophia for social media</li>
-              <li>• Start with simple tasks to understand each agent's capabilities</li>
-            </ul>
+          <div className="mt-6 p-4 bg-blue-50 border border-blue-200">
+            <h4 className="font-medium mb-2">URGENT: Revenue Generation Tasks</h4>
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4 text-sm">
+              <div>
+                <div className="font-medium text-blue-800">Rachel (Email)</div>
+                <div className="text-blue-600">"Write launch email series for 2500 Flodesk subscribers about €97 AI photoshoot"</div>
+              </div>
+              <div>
+                <div className="font-medium text-blue-800">Sophia (Instagram)</div>
+                <div className="text-blue-600">"Create DM response templates and Instagram story sequence to promote SSELFIE"</div>
+              </div>
+              <div>
+                <div className="font-medium text-blue-800">Martha (Marketing)</div>
+                <div className="text-blue-600">"Design conversion funnel from 120K Instagram followers to €97 sales"</div>
+              </div>
+            </div>
           </div>
         </div>
       </div>
