@@ -1,5 +1,4 @@
-import React from 'react';
-import { Navigation } from '@/components/navigation';
+import React, { useState, useEffect } from 'react';
 import { HeroFullBleed } from '@/components/hero-full-bleed';
 import { SandraImages } from '@/components/sandra-image-library';
 import { Link } from 'wouter';
@@ -65,9 +64,52 @@ const faqs = [
 ];
 
 export default function HowItWorksPage() {
+  const [scrolled, setScrolled] = useState(false);
+
+  // Scroll effect for navigation
+  useEffect(() => {
+    const handleScroll = () => {
+      setScrolled(window.scrollY > 50);
+    };
+    window.addEventListener('scroll', handleScroll);
+    return () => window.removeEventListener('scroll', handleScroll);
+  }, []);
+
   return (
     <div className="bg-white">
-      <Navigation />
+      {/* Navigation with scroll effect */}
+      <nav className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${
+        scrolled ? 'bg-black/80 backdrop-blur-md' : 'bg-transparent'
+      }`}>
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="flex justify-between items-center h-20">
+            <Link href="/" className="text-white text-lg font-light tracking-wider hover:opacity-80 transition-opacity">
+              SSELFIE STUDIO
+            </Link>
+            
+            <div className="hidden md:flex space-x-12">
+              <Link href="/how-it-works" className="text-white hover:text-white text-sm uppercase tracking-wider transition-colors">
+                How It Works
+              </Link>
+              <Link href="/pricing" className="text-white/80 hover:text-white text-sm uppercase tracking-wider transition-colors">
+                Pricing
+              </Link>
+              <Link href="/blog" className="text-white/80 hover:text-white text-sm uppercase tracking-wider transition-colors">
+                Blog
+              </Link>
+              <Link href="/api/login" className="text-white/80 hover:text-white text-sm uppercase tracking-wider transition-colors">
+                Login
+              </Link>
+            </div>
+            
+            <div className="md:hidden">
+              <button className="text-white text-sm uppercase tracking-wider">
+                Menu
+              </button>
+            </div>
+          </div>
+        </div>
+      </nav>
       
       <main>
         {/* Hero Section */}
