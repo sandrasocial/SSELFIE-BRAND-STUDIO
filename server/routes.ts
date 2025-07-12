@@ -2050,9 +2050,6 @@ Consider this workflow optimized and ready for implementation! ⚙️`
       
       console.log('REAL image generation request:', { userId, prompt, count });
       
-      // Deactivate any existing session images before generating new ones
-      await storage.deactivateSessionImages(userId);
-      
       // Use real ModelTrainingService for image generation
       const { ModelTrainingService } = await import('./model-training-service');
       const result = await ModelTrainingService.generateUserImages(userId, prompt, count);
