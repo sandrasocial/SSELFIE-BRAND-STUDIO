@@ -35,6 +35,7 @@ import SimpleTraining from "@/pages/simple-training";
 import TestLogin from "@/pages/test-login";
 import AdminDashboard from "@/pages/admin";
 import CustomPhotoshootLibrary from "@/pages/custom-photoshoot-library";
+import FlatlayLibrary from "@/pages/flatlay-library";
 import { lazy } from "react";
 
 // Removed duplicate photoshoot imports - using existing system
@@ -131,6 +132,7 @@ function Router() {
       <Route path="/ai-photoshoot" component={(props) => <ProtectedRoute component={AIPhotoshoot} {...props} />} />
       <Route path="/sandra-photoshoot" component={(props) => <ProtectedRoute component={SandraPhotoshoot} {...props} />} />
       <Route path="/custom-photoshoot-library" component={(props) => <ProtectedRoute component={CustomPhotoshootLibrary} {...props} />} />
+      <Route path="/flatlay-library" component={(props) => <ProtectedRoute component={FlatlayLibrary} {...props} />} />
       <Route path="/sandra-ai" component={(props) => <ProtectedRoute component={SandraAI} {...props} />} />
       <Route path="/ai-generator" component={(props) => <ProtectedRoute component={AIGenerator} {...props} />} />
       <Route path="/gallery" component={(props) => <ProtectedRoute component={SSELFIEGallery} {...props} />} />
