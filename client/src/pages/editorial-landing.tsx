@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useLocation } from "wouter";
 import { SandraImages } from "@/lib/sandra-images";
 import { PortfolioSection } from "@/components/portfolio-section";
@@ -6,6 +6,17 @@ import { PortfolioSection } from "@/components/portfolio-section";
 export default function EditorialLanding() {
   const [, setLocation] = useLocation();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const [scrolled, setScrolled] = useState(false);
+
+  useEffect(() => {
+    const handleScroll = () => {
+      const isScrolled = window.scrollY > 50;
+      setScrolled(isScrolled);
+    };
+
+    window.addEventListener('scroll', handleScroll);
+    return () => window.removeEventListener('scroll', handleScroll);
+  }, []);
 
   const handleGetStarted = (plan: string) => {
     localStorage.setItem('selectedPlan', plan);
@@ -15,8 +26,10 @@ export default function EditorialLanding() {
   return (
     <div className="min-h-screen bg-white">
       {/* Navigation */}
-      <nav className="fixed top-0 left-0 right-0 z-50 bg-transparent">
-        <div className="max-w-7xl mx-auto px-8 py-6">
+      <nav className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${
+        scrolled ? 'bg-black/80 backdrop-blur-md' : 'bg-transparent'
+      }`}>
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 sm:py-6">
           <div className="flex items-center justify-between">
             <button 
               onClick={() => setLocation("/")}
@@ -24,7 +37,7 @@ export default function EditorialLanding() {
             >
               SSELFIE
             </button>
-            <div className="hidden md:flex items-center space-x-10">
+            <div className="hidden md:flex items-center space-x-6 lg:space-x-10">
               <button 
                 onClick={() => setLocation("/about")}
                 className="text-xs uppercase tracking-[0.4em] text-white/80 hover:text-white transition-all duration-300"
@@ -138,22 +151,22 @@ export default function EditorialLanding() {
         </div>
         
         {/* Hero Content - Positioned Lower */}
-        <div className="relative z-10 text-center max-w-4xl px-8 pb-24">
-          <p className="text-xs uppercase tracking-[0.4em] text-white/70 mb-6 font-light">
+        <div className="relative z-10 text-center max-w-6xl px-4 sm:px-6 lg:px-8 pb-16 sm:pb-20 md:pb-24">
+          <p className="text-[10px] sm:text-xs uppercase tracking-[0.3em] sm:tracking-[0.4em] text-white/70 mb-4 sm:mb-6 font-light">
             IT STARTS WITH YOUR SELFIES
           </p>
           
-          <h1 className="font-serif text-7xl md:text-9xl lg:text-[10rem] font-extralight text-white tracking-[0.5em] mb-4 leading-none">
+          <h1 className="font-serif text-4xl sm:text-6xl md:text-8xl lg:text-9xl xl:text-[10rem] font-extralight text-white tracking-[0.3em] sm:tracking-[0.4em] md:tracking-[0.5em] mb-2 sm:mb-4 leading-none">
             SSELFIE
           </h1>
           
-          <p className="text-xs md:text-sm uppercase tracking-[0.4em] text-white/70 mb-10 font-light">
+          <p className="text-[10px] sm:text-xs md:text-sm uppercase tracking-[0.3em] sm:tracking-[0.4em] text-white/70 mb-8 sm:mb-10 font-light">
             STUDIO
           </p>
           
           <button
             onClick={() => handleGetStarted('sselfie-studio-pro')}
-            className="inline-block text-xs uppercase tracking-[0.3em] text-white border-b border-white/30 pb-2 hover:border-white hover:tracking-[0.35em] transition-all duration-300"
+            className="inline-block text-[10px] sm:text-xs uppercase tracking-[0.25em] sm:tracking-[0.3em] text-white border-b border-white/30 pb-1 sm:pb-2 hover:border-white hover:tracking-[0.3em] sm:hover:tracking-[0.35em] transition-all duration-300"
           >
             START YOUR JOURNEY
           </button>
@@ -161,20 +174,20 @@ export default function EditorialLanding() {
       </section>
 
       {/* Story Section - Editorial Style */}
-      <section className="py-32 bg-white">
-        <div className="max-w-4xl mx-auto px-8">
-          <div className="text-center mb-20">
-            <div className="text-xs uppercase tracking-[0.4em] text-gray-500 mb-8">
+      <section className="py-16 sm:py-24 md:py-32 bg-white">
+        <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="text-center mb-12 sm:mb-16 md:mb-20">
+            <div className="text-xs uppercase tracking-[0.4em] text-gray-500 mb-6 sm:mb-8">
               The Story
             </div>
-            <blockquote className="font-serif text-3xl md:text-4xl lg:text-5xl font-light italic text-black leading-tight">
-              "This didn't start as a business.<br />
-              It started as survival."
+            <blockquote className="font-serif text-xl sm:text-2xl md:text-3xl lg:text-4xl xl:text-5xl font-light italic text-black leading-tight px-4">
+              "This didn't start as a business.<br className="hidden sm:block" />
+              <span className="sm:hidden"> </span>It started as survival."
             </blockquote>
           </div>
           
-          <div className="grid md:grid-cols-2 gap-16 items-center">
-            <div className="space-y-6 text-gray-700 leading-relaxed">
+          <div className="grid md:grid-cols-2 gap-8 sm:gap-12 md:gap-16 items-center">
+            <div className="space-y-4 sm:space-y-6 text-gray-700 leading-relaxed text-sm sm:text-base">
               <p>
                 One year ago, I hit rock bottom. Divorced. Three kids. No backup plan.
               </p>
@@ -202,18 +215,18 @@ export default function EditorialLanding() {
       </section>
 
       {/* Features Section - Editorial Grid */}
-      <section className="py-32 bg-gray-50">
-        <div className="max-w-6xl mx-auto px-8">
-          <div className="text-center mb-20">
-            <div className="text-xs uppercase tracking-[0.4em] text-gray-500 mb-8">
+      <section className="py-16 sm:py-24 md:py-32 bg-gray-50">
+        <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="text-center mb-12 sm:mb-16 md:mb-20">
+            <div className="text-xs uppercase tracking-[0.4em] text-gray-500 mb-6 sm:mb-8">
               What I Do
             </div>
-            <h2 className="font-serif text-4xl md:text-5xl font-light text-black mb-8">
+            <h2 className="font-serif text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-light text-black mb-6 sm:mb-8 px-4">
               Your complete<br />personal brand transformation
             </h2>
           </div>
           
-          <div className="grid md:grid-cols-3 gap-8">
+          <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-6 sm:gap-8">
             {/* AI Photoshoot */}
             <div className="bg-white group hover:bg-black hover:text-white transition-all duration-500">
               <div className="aspect-square bg-gray-100 overflow-hidden relative">
@@ -229,9 +242,9 @@ export default function EditorialLanding() {
                   </div>
                 </div>
               </div>
-              <div className="p-8">
-                <div className="text-8xl font-serif font-extralight opacity-10 absolute">01</div>
-                <h3 className="font-serif text-2xl font-light mb-4 relative z-10">AI Photoshoot</h3>
+              <div className="p-6 sm:p-8">
+                <div className="text-6xl sm:text-8xl font-serif font-extralight opacity-10 absolute">01</div>
+                <h3 className="font-serif text-xl sm:text-2xl font-light mb-3 sm:mb-4 relative z-10">AI Photoshoot</h3>
                 <p className="text-sm text-gray-600 group-hover:text-white/80 leading-relaxed">
                   Upload your selfies, get professional brand photos that look like you hired a photographer.
                 </p>
@@ -253,9 +266,9 @@ export default function EditorialLanding() {
                   </div>
                 </div>
               </div>
-              <div className="p-8">
-                <div className="text-8xl font-serif font-extralight opacity-10 absolute">02</div>
-                <h3 className="font-serif text-2xl font-light mb-4 relative z-10">Luxury Flatlays</h3>
+              <div className="p-6 sm:p-8">
+                <div className="text-6xl sm:text-8xl font-serif font-extralight opacity-10 absolute">02</div>
+                <h3 className="font-serif text-xl sm:text-2xl font-light mb-3 sm:mb-4 relative z-10">Luxury Flatlays</h3>
                 <p className="text-sm text-gray-600 group-hover:text-white/80 leading-relaxed">
                   Professional flatlay collections to elevate your brand with that expensive aesthetic.
                 </p>
@@ -277,9 +290,9 @@ export default function EditorialLanding() {
                   </div>
                 </div>
               </div>
-              <div className="p-8">
-                <div className="text-8xl font-serif font-extralight opacity-10 absolute">03</div>
-                <h3 className="font-serif text-2xl font-light mb-4 relative z-10">Sandra Personal Brand AI Agent</h3>
+              <div className="p-6 sm:p-8">
+                <div className="text-6xl sm:text-8xl font-serif font-extralight opacity-10 absolute">03</div>
+                <h3 className="font-serif text-xl sm:text-2xl font-light mb-3 sm:mb-4 relative z-10">Sandra Personal Brand AI Agent</h3>
                 <p className="text-sm text-gray-600 group-hover:text-white/80 leading-relaxed">
                   Get personal brand strategy and content ideas from my AI twin who knows exactly how I built this.
                 </p>
@@ -290,24 +303,24 @@ export default function EditorialLanding() {
       </section>
 
       {/* Pricing Section - Editorial Layout */}
-      <section className="py-32 bg-white">
-        <div className="max-w-4xl mx-auto px-8">
-          <div className="text-center mb-20">
-            <div className="text-xs uppercase tracking-[0.4em] text-gray-500 mb-8">
+      <section className="py-16 sm:py-24 md:py-32 bg-white">
+        <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="text-center mb-12 sm:mb-16 md:mb-20">
+            <div className="text-xs uppercase tracking-[0.4em] text-gray-500 mb-6 sm:mb-8">
               Choose Your Journey
             </div>
-            <h2 className="font-serif text-4xl md:text-5xl font-light text-black">
+            <h2 className="font-serif text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-light text-black px-4">
               Simple. Powerful.
             </h2>
           </div>
 
-          <div className="grid md:grid-cols-2 gap-12">
+          <div className="grid md:grid-cols-2 gap-8 sm:gap-10 md:gap-12">
             {/* SSELFIE Studio */}
-            <div className="bg-gray-50 p-12 text-center group hover:bg-black hover:text-white transition-all duration-500">
-              <h3 className="font-serif text-3xl font-light mb-6">SSELFIE Studio</h3>
-              <div className="text-5xl font-light mb-8">$29<span className="text-lg text-gray-500 group-hover:text-white/60">/month</span></div>
+            <div className="bg-gray-50 p-8 sm:p-10 md:p-12 text-center group hover:bg-black hover:text-white transition-all duration-500">
+              <h3 className="font-serif text-2xl sm:text-3xl font-light mb-4 sm:mb-6">SSELFIE Studio</h3>
+              <div className="text-3xl sm:text-4xl md:text-5xl font-light mb-6 sm:mb-8">$29<span className="text-sm sm:text-base md:text-lg text-gray-500 group-hover:text-white/60">/month</span></div>
               
-              <div className="space-y-4 mb-12 text-left">
+              <div className="space-y-3 sm:space-y-4 mb-8 sm:mb-10 md:mb-12 text-left">
                 <div className="flex items-start">
                   <span className="text-black group-hover:text-white mr-3">•</span>
                   <span className="text-sm">Personal AI photoshoot (100 images/month)</span>
@@ -335,17 +348,17 @@ export default function EditorialLanding() {
             </div>
 
             {/* SSELFIE Studio PRO */}
-            <div className="bg-black text-white p-12 text-center relative">
-              <div className="absolute -top-4 left-1/2 transform -translate-x-1/2">
-                <div className="bg-white text-black px-6 py-2 text-xs uppercase tracking-[0.3em]">
+            <div className="bg-black text-white p-8 sm:p-10 md:p-12 text-center relative">
+              <div className="absolute -top-3 sm:-top-4 left-1/2 transform -translate-x-1/2">
+                <div className="bg-white text-black px-4 sm:px-6 py-1 sm:py-2 text-xs uppercase tracking-[0.3em]">
                   Most Popular
                 </div>
               </div>
               
-              <h3 className="font-serif text-3xl font-light mb-6">SSELFIE Studio PRO</h3>
-              <div className="text-5xl font-light mb-8">$67<span className="text-lg text-gray-400">/month</span></div>
+              <h3 className="font-serif text-2xl sm:text-3xl font-light mb-4 sm:mb-6">SSELFIE Studio PRO</h3>
+              <div className="text-3xl sm:text-4xl md:text-5xl font-light mb-6 sm:mb-8">$67<span className="text-sm sm:text-base md:text-lg text-gray-400">/month</span></div>
               
-              <div className="space-y-4 mb-12 text-left">
+              <div className="space-y-3 sm:space-y-4 mb-8 sm:mb-10 md:mb-12 text-left">
                 <div className="flex items-start">
                   <span className="text-white mr-3">•</span>
                   <span className="text-sm">Everything in Studio</span>
@@ -377,8 +390,8 @@ export default function EditorialLanding() {
             </div>
           </div>
           
-          <div className="text-center mt-12">
-            <p className="text-sm text-gray-500">
+          <div className="text-center mt-8 sm:mt-10 md:mt-12">
+            <p className="text-sm text-gray-500 px-4">
               No contracts. Cancel anytime. 30-day money-back guarantee.
             </p>
           </div>
@@ -386,13 +399,13 @@ export default function EditorialLanding() {
       </section>
 
       {/* Portfolio Gallery Section */}
-      <section className="py-32 bg-white">
-        <div className="max-w-6xl mx-auto px-8">
-          <div className="text-center mb-20">
-            <div className="text-xs uppercase tracking-[0.4em] text-gray-500 mb-8">
+      <section className="py-16 sm:py-24 md:py-32 bg-white">
+        <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="text-center mb-12 sm:mb-16 md:mb-20">
+            <div className="text-xs uppercase tracking-[0.4em] text-gray-500 mb-6 sm:mb-8">
               My AI Portfolio
             </div>
-            <h2 className="font-serif text-4xl md:text-5xl font-light text-black">
+            <h2 className="font-serif text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-light text-black px-4">
               Real results from<br />my personal brand
             </h2>
           </div>
@@ -402,13 +415,13 @@ export default function EditorialLanding() {
       </section>
 
       {/* Testimonial Section */}
-      <section className="py-32 bg-gray-50">
-        <div className="max-w-4xl mx-auto px-8 text-center">
-          <div className="text-xs uppercase tracking-[0.4em] text-gray-500 mb-8">
+      <section className="py-16 sm:py-24 md:py-32 bg-gray-50">
+        <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
+          <div className="text-xs uppercase tracking-[0.4em] text-gray-500 mb-6 sm:mb-8">
             Real Stories
           </div>
           
-          <blockquote className="font-serif text-2xl md:text-3xl font-light italic text-black leading-tight mb-8">
+          <blockquote className="font-serif text-xl sm:text-2xl md:text-3xl font-light italic text-black leading-tight mb-6 sm:mb-8 px-4">
             "Sandra's approach changed everything for me. I went from feeling invisible to having 
             clients reach out daily. Her AI photoshoot gave me the confidence to finally show up."
           </blockquote>
@@ -420,22 +433,22 @@ export default function EditorialLanding() {
       </section>
 
       {/* Email Optin Section */}
-      <section className="py-32 bg-black text-white">
-        <div className="max-w-4xl mx-auto px-8 text-center">
-          <div className="text-xs uppercase tracking-[0.4em] text-white/60 mb-8">
+      <section className="py-16 sm:py-24 md:py-32 bg-black text-white">
+        <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
+          <div className="text-xs uppercase tracking-[0.4em] text-white/60 mb-6 sm:mb-8">
             Free Gift
           </div>
           
-          <h2 className="font-serif text-4xl md:text-5xl font-light mb-8">
+          <h2 className="font-serif text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-light mb-6 sm:mb-8 px-4">
             Get my personal brand<br />blueprint for free
           </h2>
           
-          <p className="text-lg leading-relaxed mb-12 max-w-2xl mx-auto opacity-80">
+          <p className="text-base sm:text-lg leading-relaxed mb-8 sm:mb-10 md:mb-12 max-w-2xl mx-auto opacity-80 px-4">
             The exact strategy I used to build 120K followers and a real business. 
             Plus weekly personal brand tips that actually work.
           </p>
           
-          <div className="flex flex-col sm:flex-row gap-4 max-w-md mx-auto">
+          <div className="flex flex-col sm:flex-row gap-3 sm:gap-4 max-w-md mx-auto px-4">
             <input
               type="email"
               placeholder="Your email address"
