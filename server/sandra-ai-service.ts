@@ -1,4 +1,5 @@
 import Anthropic from '@anthropic-ai/sdk';
+import OpenAI from 'openai';
 import { storage } from './storage';
 
 /*
@@ -13,8 +14,14 @@ When copying code from this code snippet, ensure you also include this informati
 const DEFAULT_MODEL_STR = "claude-sonnet-4-20250514";
 // </important_do_not_delete>
 
+// Initialize AI clients with proper configuration
 const anthropic = new Anthropic({
   apiKey: process.env.ANTHROPIC_API_KEY,
+});
+
+// OpenAI as backup when Anthropic fails
+const openai = new OpenAI({
+  apiKey: process.env.OPENAI_API_KEY,
 });
 
 // Camera and lens specifications for professional results
@@ -139,12 +146,11 @@ Current user message: "${message}"
 
 Respond with enthusiasm and ask specific questions to understand their vision. If you have enough information, suggest a custom prompt with camera specs and film texture.`;
 
-    // Use real Anthropic API with ANTHROPIC_API_KEY
-    try {
-      const conversationContext = recentConversations.length > 0 ? 
-        `\n\nPREVIOUS CONVERSATION CONTEXT:\n${recentConversations.map(c => `User: ${c.message}\nSandra: ${c.response}`).join('\n')}\n\n` : '';
+    // Try multiple AI providers for real Sandra conversations
+    const conversationContext = recentConversations.length > 0 ? 
+      `\n\nPREVIOUS CONVERSATION CONTEXT:\n${recentConversations.map(c => `User: ${c.message}\nSandra: ${c.response}`).join('\n')}\n\n` : '';
 
-      const fullPrompt = `${contextPrompt}${conversationContext}Current user message: "${message}"
+    const fullPrompt = `${contextPrompt}${conversationContext}Current user message: "${message}"
 
 ${systemPrompt}
 
@@ -169,6 +175,8 @@ Please respond in this JSON format:
   ]
 }`;
 
+    // Try Anthropic first
+    try {
       const response = await anthropic.messages.create({
         model: DEFAULT_MODEL_STR,
         max_tokens: 2000,
@@ -179,15 +187,7 @@ Please respond in this JSON format:
       });
 
       const responseText = response.content[0].text;
-      let parsedResponse;
-      
-      try {
-        parsedResponse = JSON.parse(responseText);
-      } catch (parseError) {
-        console.error('Failed to parse Sandra AI response as JSON:', responseText);
-        // Fallback to the previous system if JSON parsing fails
-        return this.fallbackSandraResponse(message, userId);
-      }
+      const parsedResponse = JSON.parse(responseText);
 
       // Generate proper style buttons with IDs
       const styleButtons = parsedResponse.styleButtons?.map((button: any, index: number) => ({
@@ -208,6 +208,7 @@ Please respond in this JSON format:
         userStylePreferences: { detectedKeywords: [] },
       });
 
+      console.log('✅ Sandra AI real conversation successful with Anthropic');
       return {
         response: parsedResponse.message,
         styleButtons,
@@ -215,10 +216,61 @@ Please respond in this JSON format:
         styleInsights: { detectedKeywords: [] }
       };
 
-    } catch (error) {
-      console.error('Sandra AI API error:', error);
-      console.log('Falling back to intelligent Sandra AI system');
-      return this.fallbackSandraResponse(message, userId);
+    } catch (anthropicError) {
+      console.error('Anthropic API error:', anthropicError);
+      
+      // Try OpenAI as backup
+      try {
+        const response = await openai.chat.completions.create({
+          model: "gpt-4o", // The newest OpenAI model is "gpt-4o" which was released May 13, 2024. do not change this unless explicitly requested by the user
+          max_tokens: 2000,
+          messages: [
+            { role: 'system', content: "You are Sandra, an expert AI photographer and style consultant. Always respond in valid JSON format." },
+            { role: 'user', content: fullPrompt }
+          ],
+        });
+
+        let responseText = response.choices[0].message.content;
+        
+        // Clean up OpenAI response if it includes markdown formatting
+        if (responseText.includes('```json')) {
+          responseText = responseText.replace(/```json\s*/, '').replace(/```\s*$/, '').trim();
+        }
+        
+        const parsedResponse = JSON.parse(responseText);
+
+        // Generate proper style buttons with IDs
+        const styleButtons = parsedResponse.styleButtons?.map((button: any, index: number) => ({
+          id: `sandra-${Date.now()}-${index}`,
+          name: button.name,
+          description: button.description,
+          prompt: button.prompt.replace('user{userId}', `user${userId}`),
+          camera: button.camera,
+          texture: button.texture
+        })) || [];
+
+        // Save conversation to memory
+        await storage.saveSandraConversation({
+          userId,
+          message,
+          response: parsedResponse.message,
+          suggestedPrompt: null,
+          userStylePreferences: { detectedKeywords: [] },
+        });
+
+        console.log('✅ Sandra AI real conversation successful with OpenAI backup');
+        return {
+          response: parsedResponse.message,
+          styleButtons,
+          isFollowUp: recentConversations.length > 0,
+          styleInsights: { detectedKeywords: [] }
+        };
+
+      } catch (openaiError) {
+        console.error('OpenAI API error:', openaiError);
+        console.log('Both AI APIs failed, using intelligent fallback system');
+        return this.fallbackSandraResponse(message, userId);
+      }
     }
   }
 
@@ -449,15 +501,28 @@ Only include elements specifically mentioned or strongly implied. Return empty a
       }
     }
     
-    // Sandra's personalized conversation responses
+    // Sandra's personalized conversation responses with memory
     let sandraResponse = '';
     let styleButtons: StyleButton[] = [];
     
-    if (isFollowUp) {
-      // Handle refinement requests with conversation memory
-      sandraResponse = `Perfect! So you want that lifestyle vibe where you're not staring at the camera - love that! Like when someone catches you being gorgeous without trying.
+    // Check for Pinterest-specific requests
+    const isPinterestStyle = lowerMessage.includes('pinterest') || 
+                            (lowerMessage.includes('whole scenery') && lowerMessage.includes('not looking'));
+    
+    if (isPinterestStyle) {
+      // Handle Pinterest-style requests specifically
+      sandraResponse = `Oh I love Pinterest vibes! Okay so you want those dreamy lifestyle shots where you're not looking at the camera and we see the whole scene? That's like my favorite aesthetic.
 
-Let's do this:`;
+Let me give you some options that'll look amazing:`;
+      
+      styleButtons = this.createPinterestStyleButtons(userId, detectedStyles);
+      
+    } else if (isFollowUp) {
+      // Handle refinement requests with conversation memory
+      const previousStyle = recentConversations[0]?.userStylePreferences?.detectedKeywords || [];
+      sandraResponse = `Got it! So you want to adjust the ${previousStyle.join(' ')} vibe we talked about. Let me create something different for you.
+
+Here are some new options:`;
       
       styleButtons = this.createLifestyleStyleButtons(userId, detectedStyles);
       
@@ -503,6 +568,68 @@ What vibe are we creating today?`;
       isFollowUp,
       styleInsights: { detectedKeywords: detectedStyles }
     };
+  }
+  
+  // Create Pinterest-style buttons - Environmental shots, not looking at camera
+  private static createPinterestStyleButtons(userId: string, detectedStyles: string[]): StyleButton[] {
+    const randomId = Math.random().toString(36).substr(2, 9);
+    const cameras = this.getRandomCameras('lifestyle', 3);
+    const textures = this.getRandomTextures(3);
+    
+    // Pinterest-specific environmental settings
+    const pinterestSettings = [
+      {
+        name: "Sunset Contemplation",
+        description: "Golden hour magic, whole scenery, natural pose",
+        scene: "full body environmental shot, sunset beach setting, looking away from camera, long dark wavy hair flowing",
+        lighting: "dramatic golden hour backlighting, warm atmospheric glow",
+        styling: "flowing maxi dress, natural makeup, barefoot elegance",
+        pose: "contemplative pose looking at horizon, not facing camera, serene moment"
+      },
+      {
+        name: "Garden Wanderer", 
+        description: "Natural beauty, morning light, peaceful energy",
+        scene: "full body lifestyle shot, walking through luxury garden path, not looking at camera",
+        lighting: "soft morning light filtering through leaves, natural daylight",
+        styling: "flowing midi dress, natural textures, effortless styling",
+        pose: "gentle walk among flowers, looking forward, peaceful movement"
+      },
+      {
+        name: "City Dreamer",
+        description: "Urban lifestyle, architectural beauty, confident energy", 
+        scene: "full body street photography, city architectural backdrop, walking away from camera",
+        lighting: "natural city daylight, dramatic shadows and highlights",
+        styling: "chic urban outfit, designer accessories, sophisticated styling",
+        pose: "confident walking pose, looking ahead, urban exploration"
+      }
+    ];
+    
+    return [
+      {
+        id: `pinterest-${randomId}-1`,
+        name: pinterestSettings[0].name,
+        description: pinterestSettings[0].description,
+        prompt: `user${userId} woman, ${pinterestSettings[0].scene}, ${cameras[0]}, ${pinterestSettings[0].lighting}, ${pinterestSettings[0].styling}, ${pinterestSettings[0].pose}, ${textures[0]}`,
+        camera: cameras[0].split(',')[0],
+        texture: textures[0]
+      },
+      {
+        id: `pinterest-${randomId}-2`,
+        name: pinterestSettings[1].name,
+        description: pinterestSettings[1].description,
+        prompt: `user${userId} woman, ${pinterestSettings[1].scene}, ${cameras[1]}, ${pinterestSettings[1].lighting}, ${pinterestSettings[1].styling}, ${pinterestSettings[1].pose}, ${textures[1]}`,
+        camera: cameras[1].split(',')[0],
+        texture: textures[1]
+      },
+      {
+        id: `pinterest-${randomId}-3`,
+        name: pinterestSettings[2].name,
+        description: pinterestSettings[2].description,
+        prompt: `user${userId} woman, ${pinterestSettings[2].scene}, ${cameras[2]}, ${pinterestSettings[2].lighting}, ${pinterestSettings[2].styling}, ${pinterestSettings[2].pose}, ${textures[2]}`,
+        camera: cameras[2].split(',')[0],
+        texture: textures[2]
+      }
+    ];
   }
   
   // Create Editorial B&W style buttons - DYNAMIC generation
