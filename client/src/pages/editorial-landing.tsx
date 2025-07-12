@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import { useLocation } from "wouter";
 import { SandraImages } from "@/lib/sandra-images";
 import { PortfolioSection } from "@/components/portfolio-section";
+import SignupGift from "@/components/signup-gift";
 
 export default function EditorialLanding() {
   const [, setLocation] = useLocation();
@@ -432,38 +433,8 @@ export default function EditorialLanding() {
         </div>
       </section>
 
-      {/* Email Optin Section */}
-      <section className="py-16 sm:py-24 md:py-32 bg-black text-white">
-        <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-          <div className="text-xs uppercase tracking-[0.4em] text-white/60 mb-6 sm:mb-8">
-            Free Gift
-          </div>
-          
-          <h2 className="font-serif text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-light mb-6 sm:mb-8 px-4">
-            Get my personal brand<br />blueprint for free
-          </h2>
-          
-          <p className="text-base sm:text-lg leading-relaxed mb-8 sm:mb-10 md:mb-12 max-w-2xl mx-auto opacity-80 px-4">
-            The exact strategy I used to build 120K followers and a real business. 
-            Plus weekly personal brand tips that actually work.
-          </p>
-          
-          <div className="flex flex-col sm:flex-row gap-3 sm:gap-4 max-w-md mx-auto px-4">
-            <input
-              type="email"
-              placeholder="Your email address"
-              className="flex-1 px-6 py-4 bg-white text-black text-sm border-0 focus:outline-none"
-            />
-            <button className="px-8 py-4 border border-white text-white text-xs uppercase tracking-[0.3em] hover:bg-white hover:text-black transition-all duration-300 whitespace-nowrap">
-              Send It To Me
-            </button>
-          </div>
-          
-          <p className="text-xs text-white/60 mt-6">
-            No spam. Unsubscribe anytime.
-          </p>
-        </div>
-      </section>
+      {/* SignupGift Component */}
+      <SignupGift />
 
       {/* Quote Section - Editorial */}
       <section className="py-32 bg-black text-white text-center">
