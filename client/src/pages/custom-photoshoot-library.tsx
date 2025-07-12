@@ -320,7 +320,7 @@ export default function CustomPhotoshootLibrary() {
                     e.currentTarget.style.borderColor = '#e5e5e5';
                     e.currentTarget.style.transform = 'translateY(0)';
                   }}
-                  onClick={() => generateFromSavedPrompt(prompt)}
+
                 >
                   <div style={{
                     display: 'flex',
