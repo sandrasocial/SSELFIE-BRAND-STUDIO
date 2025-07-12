@@ -2380,11 +2380,14 @@ Consider this workflow optimized and ready for implementation! ⚙️`
   // Get user's favorite images
   app.get('/api/images/favorites', async (req: any, res) => {
     try {
-      const favorites = req.session?.favorites || [];
+      const userId = req.user?.claims?.sub || req.session?.userId || 'sandra_test_user_2025';
+      const userFavorites = req.session?.favorites?.[userId] || [];
+      
+      console.log('Getting favorites for user:', userId, 'favorites:', userFavorites);
       
       res.json({ 
-        favorites,
-        count: favorites.length
+        favorites: userFavorites,
+        count: userFavorites.length
       });
     } catch (error) {
       console.error("Error fetching favorites:", error);
