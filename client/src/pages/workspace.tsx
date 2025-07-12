@@ -24,7 +24,7 @@ export default function Workspace() {
     enabled: isAuthenticated
   });
 
-  // User Journey Steps - Starting with AI Training as #1
+  // User Journey Steps - 8 Steps as requested
   const getUserJourneySteps = () => [
     {
       id: 'train-ai',
@@ -39,19 +39,39 @@ export default function Workspace() {
       image: SandraImages.editorial.laptop1
     },
     {
-      id: 'photoshoot',
+      id: 'sandra-photoshoot',
       number: '02', 
+      title: 'Photoshoot with Sandra',
+      subtitle: 'Chat with Sandra for custom prompts',
+      status: userModel?.trainingStatus === 'completed' ? 'ready' : 'locked',
+      statusText: userModel?.trainingStatus === 'completed' ? 'Chat with Sandra' : 'Complete Step 1',
+      link: userModel?.trainingStatus === 'completed' ? '/sandra-photoshoot' : '#',
+      image: SandraImages.editorial.phone1
+    },
+    {
+      id: 'ai-photoshoot',
+      number: '03',
       title: 'AI Photoshoot',
-      subtitle: 'Generate stunning brand photos',
+      subtitle: 'Use built-in professional prompts',
       status: userModel?.trainingStatus === 'completed' ? 'ready' : 'locked',
       statusText: userModel?.trainingStatus === 'completed' ? 'Generate Photos' : 'Complete Step 1',
-      link: userModel?.trainingStatus === 'completed' ? '/sandra-photoshoot' : '#',
+      link: userModel?.trainingStatus === 'completed' ? '/ai-photoshoot' : '#',
       image: SandraImages.flatlays.workspace1
     },
     {
+      id: 'custom-library',
+      number: '04',
+      title: 'Your Custom Photoshoot Library',
+      subtitle: 'Save Sandra\'s prompts as favorites',
+      status: 'ready',
+      statusText: 'Organize Prompts',
+      link: '/prompt-library',
+      image: SandraImages.flatlays.beauty
+    },
+    {
       id: 'gallery',
-      number: '03',
-      title: 'Your Gallery', 
+      number: '05',
+      title: 'Gallery', 
       subtitle: 'View and download your photos',
       status: aiImages.length > 0 ? 'active' : 'locked',
       statusText: aiImages.length > 0 ? `${aiImages.length} Photos` : 'No Photos Yet',
@@ -59,60 +79,94 @@ export default function Workspace() {
       image: SandraImages.editorial.thinking
     },
     {
+      id: 'sandra-mentor',
+      number: '06',
+      title: 'Sandra Personal Brand Mentor',
+      subtitle: 'AI guidance for your brand journey',
+      status: 'ready',
+      statusText: 'Get Guidance',
+      link: '/sandra-ai',
+      image: SandraImages.editorial.laptop2
+    },
+    {
       id: 'business',
-      number: '04',
-      title: 'Build Business',
+      number: '07',
+      title: 'Build Your Business',
       subtitle: 'Landing pages, booking, payments',
       status: 'coming-soon',
       statusText: 'Coming Soon',
       link: '#',
       image: SandraImages.flatlays.planning
+    },
+    {
+      id: 'profile',
+      number: '08',
+      title: 'Your Profile',
+      subtitle: 'Account settings and preferences',
+      status: 'ready',
+      statusText: 'Manage Account',
+      link: '/settings',
+      image: SandraImages.flatlays.workspace2
     }
   ];
 
-  // Quick Tools Grid
+  // Quick Tools Grid - Matching the 8 steps without duplicates
   const getQuickTools = () => [
     {
-      title: 'Sandra AI',
-      subtitle: 'Personal brand mentor',
-      link: '/sandra-ai',
-      status: 'active',
-      image: SandraImages.editorial.laptop2
+      title: 'Train Your AI',
+      subtitle: 'Upload selfies, train model',
+      link: '/ai-training',
+      status: userModel?.trainingStatus === 'completed' ? 'complete' : 'active',
+      image: SandraImages.editorial.laptop1
+    },
+    {
+      title: 'Photoshoot with Sandra',
+      subtitle: 'Chat for custom prompts',
+      link: '/sandra-photoshoot',
+      status: userModel?.trainingStatus === 'completed' ? 'active' : 'disabled',
+      image: SandraImages.editorial.phone1
     },
     {
       title: 'AI Photoshoot',
-      subtitle: 'Built-in prompts & Sandra chat',
+      subtitle: 'Built-in professional prompts',
       link: '/ai-photoshoot',
       status: userModel?.trainingStatus === 'completed' ? 'active' : 'disabled',
       image: SandraImages.editorial.thinking
     },
     {
-      title: 'Sandra AI Chat',
-      subtitle: 'Custom prompts with Sandra',
-      link: '/sandra-photoshoot',
+      title: 'Custom Photoshoot Library',
+      subtitle: 'Save favorite prompts',
+      link: '/prompt-library',
       status: 'active',
-      image: SandraImages.editorial.phone1
-    },
-    {
-      title: 'Image Gallery',
-      subtitle: 'Browse and download photos',
-      link: '/sselfie-gallery',
-      status: aiImages.length > 0 ? 'active' : 'disabled',
       image: SandraImages.flatlays.beauty
     },
     {
-      title: 'Image Library',
-      subtitle: 'All your photos',
+      title: 'Gallery',
+      subtitle: 'View and download photos',
       link: '/gallery',
       status: aiImages.length > 0 ? 'active' : 'disabled',
-      image: SandraImages.flatlays.workspace2
+      image: SandraImages.flatlays.workspace1
     },
     {
-      title: 'Settings',
-      subtitle: 'Account preferences',
+      title: 'Sandra Personal Brand Mentor',
+      subtitle: 'AI guidance for your brand',
+      link: '/sandra-ai',
+      status: 'active',
+      image: SandraImages.editorial.laptop2
+    },
+    {
+      title: 'Build Your Business',
+      subtitle: 'Coming soon',
+      link: '#',
+      status: 'disabled',
+      image: SandraImages.flatlays.planning
+    },
+    {
+      title: 'Your Profile',
+      subtitle: 'Account settings',
       link: '/settings',
       status: 'active',
-      image: SandraImages.flatlays.planning
+      image: SandraImages.flatlays.workspace2
     }
   ];
 
