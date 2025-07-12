@@ -1,8 +1,11 @@
-import React, { useState } from 'react';
+import React, { useState, useCallback } from 'react';
 import { Navigation } from '@/components/navigation';
 import { HeroFullBleed } from '@/components/hero-full-bleed';
 import { SandraImages } from '@/lib/sandra-images';
-import { useQuery } from '@tanstack/react-query';
+import { useQuery, useQueryClient } from '@tanstack/react-query';
+import { useToast } from '@/hooks/use-toast';
+import { useAuth } from '@/hooks/useAuth';
+import { apiRequest } from '@/lib/queryClient';
 
 interface SavedPrompt {
   id: string;
@@ -16,8 +19,111 @@ interface SavedPrompt {
 }
 
 export default function CustomPhotoshootLibrary() {
+  const { isAuthenticated } = useAuth();
+  const { toast } = useToast();
+  const queryClient = useQueryClient();
+  
   const [selectedPrompt, setSelectedPrompt] = useState<SavedPrompt | null>(null);
   const [isGenerating, setIsGenerating] = useState(false);
+  const [generatingImages, setGeneratingImages] = useState(false);
+  const [generationProgress, setGenerationProgress] = useState(0);
+  const [selectedImages, setSelectedImages] = useState<string[]>([]);
+  const [fullSizeImage, setFullSizeImage] = useState<string | null>(null);
+
+  // Fetch user model for trigger word
+  const { data: userModel } = useQuery({
+    queryKey: ['/api/user-model'],
+    enabled: isAuthenticated
+  });
+
+  // Save image to gallery function (selective saving)
+  const saveToGallery = useCallback(async (imageUrl: string) => {
+    try {
+      const mutation = await apiRequest('POST', '/api/ai-images', {
+        imageUrl,
+        prompt: selectedPrompt?.prompt || '',
+        camera: selectedPrompt?.camera || '',
+        texture: selectedPrompt?.texture || ''
+      });
+      
+      toast({
+        title: "Image Saved",
+        description: "Added to your gallery successfully",
+      });
+      
+      // Invalidate AI images cache to show new image
+      queryClient.invalidateQueries({ queryKey: ['/api/ai-images'] });
+    } catch (error) {
+      console.error('Error saving image:', error);
+      toast({
+        title: "Save Failed",
+        description: "Could not save image to gallery",
+        variant: "destructive",
+      });
+    }
+  }, [selectedPrompt, queryClient, toast]);
+
+  // Generate images from saved prompt
+  const generateFromSavedPrompt = useCallback(async (prompt: SavedPrompt) => {
+    setSelectedPrompt(prompt);
+    setGeneratingImages(true);
+    setGenerationProgress(0);
+    setSelectedImages([]); // Clear previous images
+    
+    // Progress simulation for user feedback
+    const progressInterval = setInterval(() => {
+      setGenerationProgress(prev => {
+        if (prev >= 90) return prev;
+        return prev + Math.random() * 8;
+      });
+    }, 1000);
+    
+    try {
+      // Use same pattern as working ai-photoshoot page
+      const response = await fetch('/api/generate-images', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          prompt: prompt.prompt,
+          userId: 'sandra_test_user_2025'
+        }),
+      });
+
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+
+      const data = await response.json();
+      console.log('Generated images from saved prompt:', data);
+      
+      clearInterval(progressInterval);
+      setGenerationProgress(100);
+      
+      if (data.images && data.images.length > 0) {
+        setSelectedImages(data.images);
+        
+        toast({
+          title: "Images Generated!",
+          description: `${data.images.length} new photos ready for preview`,
+        });
+      }
+    } catch (error) {
+      console.error('Error generating images from saved prompt:', error);
+      clearInterval(progressInterval);
+      toast({
+        title: "Generation Failed",
+        description: "Something went wrong with image generation",
+        variant: "destructive",
+      });
+    } finally {
+      setTimeout(() => {
+        setGeneratingImages(false);
+        setGenerationProgress(0);
+      }, 1000);
+    }
+  }, [userModel, toast]);
 
   // Mock data for saved prompts - this will be replaced with real data
   const savedPrompts: SavedPrompt[] = [
@@ -53,36 +159,7 @@ export default function CustomPhotoshootLibrary() {
     }
   ];
 
-  const generateFromPrompt = async (prompt: SavedPrompt) => {
-    setIsGenerating(true);
-    try {
-      const response = await fetch('/api/generate-images', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          prompt: prompt.prompt,
-          numImages: 4
-        }),
-      });
 
-      if (!response.ok) {
-        throw new Error(`HTTP error! status: ${response.status}`);
-      }
-
-      const data = await response.json();
-      console.log('Generated images from saved prompt:', data);
-      
-      // Redirect to gallery to view new images
-      window.location.href = '/sselfie-gallery';
-      
-    } catch (error) {
-      console.error('Error generating from prompt:', error);
-    } finally {
-      setIsGenerating(false);
-    }
-  };
 
   // Group prompts by collection
   const groupedPrompts = savedPrompts.reduce((acc, prompt) => {
@@ -100,6 +177,16 @@ export default function CustomPhotoshootLibrary() {
       minHeight: '100vh'
     }}>
       <Navigation />
+      
+      {/* Generation Progress Bar */}
+      {generatingImages && (
+        <div className="fixed top-0 left-0 right-0 h-0.5 bg-gray-100 z-50">
+          <div 
+            className="h-full bg-black transition-all duration-300 ease-out"
+            style={{ width: `${generationProgress}%` }}
+          />
+        </div>
+      )}
       
       {/* Hero Section using HeroFullBleed component */}
       <HeroFullBleed
@@ -233,7 +320,7 @@ export default function CustomPhotoshootLibrary() {
                     e.currentTarget.style.borderColor = '#e5e5e5';
                     e.currentTarget.style.transform = 'translateY(0)';
                   }}
-                  onClick={() => setSelectedPrompt(prompt)}
+                  onClick={() => generateFromSavedPrompt(prompt)}
                 >
                   <div style={{
                     display: 'flex',
@@ -287,34 +374,34 @@ export default function CustomPhotoshootLibrary() {
                   <button
                     onClick={(e) => {
                       e.stopPropagation();
-                      generateFromPrompt(prompt);
+                      generateFromSavedPrompt(prompt);
                     }}
-                    disabled={isGenerating}
+                    disabled={generatingImages}
                     style={{
                       width: '100%',
                       padding: '12px 20px',
-                      background: isGenerating ? '#cccccc' : '#0a0a0a',
+                      background: generatingImages ? '#cccccc' : '#0a0a0a',
                       color: '#ffffff',
                       border: 'none',
                       fontSize: '0.9rem',
                       fontWeight: 400,
                       letterSpacing: '0.05em',
                       textTransform: 'uppercase',
-                      cursor: isGenerating ? 'not-allowed' : 'pointer',
+                      cursor: generatingImages ? 'not-allowed' : 'pointer',
                       transition: 'all 300ms ease'
                     }}
                     onMouseEnter={(e) => {
-                      if (!isGenerating) {
+                      if (!generatingImages) {
                         e.target.style.background = '#333333';
                       }
                     }}
                     onMouseLeave={(e) => {
-                      if (!isGenerating) {
+                      if (!generatingImages) {
                         e.target.style.background = '#0a0a0a';
                       }
                     }}
                   >
-                    {isGenerating ? 'Generating...' : 'Generate Again'}
+                    {generatingImages && selectedPrompt?.id === prompt.id ? 'Generating...' : 'Generate Again'}
                   </button>
                 </div>
               ))}
@@ -365,6 +452,92 @@ export default function CustomPhotoshootLibrary() {
             >
               Start Creating Prompts
             </a>
+          </div>
+        )}
+
+        {/* Generated Images Preview - Same style as ai-photoshoot */}
+        {selectedImages.length > 0 && (
+          <div className="mt-12 sm:mt-16">
+            <div className="text-center mb-8 sm:mb-12">
+              <h3 className="font-times text-[clamp(1.5rem,5vw,4rem)] font-light tracking-[-0.01em] mb-4">
+                Your Story, Captured
+              </h3>
+              <p className="text-xs sm:text-sm font-light tracking-[0.15em] sm:tracking-[0.2em] uppercase text-[#666666]">
+                {selectedImages.length} Images from this session
+              </p>
+            </div>
+            
+            <div className="grid grid-cols-2 md:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6 lg:gap-8 max-w-6xl mx-auto">
+              {selectedImages.map((imageUrl, index) => (
+                <div key={index} className="group">
+                  <div className="aspect-[4/5] overflow-hidden bg-[#f8f8f8] relative mb-3 sm:mb-4">
+                    <img
+                      src={imageUrl}
+                      alt={`Your story ${index + 1}`}
+                      className="w-full h-full object-cover cursor-pointer transition-all duration-500 group-hover:scale-105 touch-manipulation"
+                      onClick={() => setFullSizeImage(imageUrl)}
+                    />
+                    {/* Minimal overlay */}
+                    <div className="absolute inset-0 bg-black/0 group-hover:bg-black/20 transition-all duration-300"></div>
+                  </div>
+                  <div className="text-center">
+                    <div className="text-[10px] sm:text-xs tracking-[0.2em] sm:tracking-[0.3em] uppercase font-light text-[#666666] mb-1 sm:mb-2">
+                      Image {index + 1}
+                    </div>
+                    <div className="flex justify-center gap-2 sm:gap-3">
+                      <button
+                        onClick={() => setFullSizeImage(imageUrl)}
+                        className="text-[10px] sm:text-xs tracking-[0.15em] sm:tracking-[0.2em] uppercase font-light text-black hover:text-[#666666] transition-colors touch-manipulation"
+                      >
+                        View
+                      </button>
+                      <span className="text-[#e0e0e0] text-xs">•</span>
+                      <button
+                        onClick={() => saveToGallery(imageUrl)}
+                        className="text-[10px] sm:text-xs tracking-[0.15em] sm:tracking-[0.2em] uppercase font-light text-black hover:text-[#666666] transition-colors touch-manipulation"
+                      >
+                        Save
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
+
+        {/* Full Size Image Modal */}
+        {fullSizeImage && (
+          <div className="fixed inset-0 bg-black bg-opacity-90 z-50 flex items-center justify-center p-2 sm:p-4" onClick={() => setFullSizeImage(null)}>
+            <div className="relative max-w-full max-h-full">
+              <img
+                src={fullSizeImage}
+                alt="Full size photo"
+                className="max-w-full max-h-full object-contain"
+                onClick={(e) => e.stopPropagation()}
+              />
+              <div className="absolute top-2 sm:top-4 right-2 sm:right-4 flex flex-col sm:flex-row space-y-2 sm:space-y-0 sm:space-x-2">
+                <button
+                  onClick={() => saveToGallery(fullSizeImage)}
+                  className="px-3 sm:px-4 py-2 bg-white text-black font-light hover:bg-[#f0f0f0] transition-colors text-xs sm:text-sm touch-manipulation"
+                >
+                  Save to Gallery
+                </button>
+                <a
+                  href={fullSizeImage}
+                  download={`custom-photoshoot-${Date.now()}.jpg`}
+                  className="px-3 sm:px-4 py-2 bg-[#0a0a0a] text-white font-light hover:bg-[#333333] transition-colors inline-block text-xs sm:text-sm touch-manipulation text-center"
+                >
+                  Download
+                </a>
+                <button
+                  onClick={() => setFullSizeImage(null)}
+                  className="px-3 sm:px-4 py-2 bg-[#666666] text-white font-light hover:bg-[#888888] transition-colors text-xs sm:text-sm touch-manipulation"
+                >
+                  Close
+                </button>
+              </div>
+            </div>
           </div>
         )}
       </div>
