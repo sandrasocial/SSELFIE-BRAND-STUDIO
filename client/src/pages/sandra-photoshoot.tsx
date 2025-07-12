@@ -1087,6 +1087,75 @@ export default function SandraPhotoshoot() {
                       </div>
                     </div>
                   )}
+                  
+                  {/* Generation Progress Display - Sandra AI Tab */}
+                  {generationProgress.isGenerating && (
+                    <div style={{
+                      maxWidth: '600px',
+                      margin: '0 auto 30px auto',
+                      padding: '32px',
+                      background: '#ffffff',
+                      border: '1px solid #e5e5e5',
+                      textAlign: 'center'
+                    }}>
+                      <div style={{
+                        fontSize: '11px',
+                        fontWeight: 400,
+                        letterSpacing: '0.3em',
+                        textTransform: 'uppercase',
+                        color: '#666666',
+                        marginBottom: '16px'
+                      }}>
+                        SANDRA AI PHOTOSHOOT GENERATION
+                      </div>
+                      
+                      <div style={{
+                        fontSize: '20px',
+                        fontFamily: 'Times New Roman, serif',
+                        fontWeight: 300,
+                        marginBottom: '16px',
+                        color: '#0a0a0a'
+                      }}>
+                        {generationProgress.status}
+                      </div>
+                      
+                      <div style={{
+                        fontSize: '16px',
+                        fontWeight: 300,
+                        color: '#0a0a0a',
+                        marginBottom: '20px'
+                      }}>
+                        {Math.floor(generationProgress.timeElapsed / 60)}:{(generationProgress.timeElapsed % 60).toString().padStart(2, '0')}
+                      </div>
+                      
+                      <div style={{
+                        width: '100%',
+                        height: '2px',
+                        background: '#f5f5f5',
+                        marginBottom: '16px',
+                        position: 'relative',
+                        overflow: 'hidden'
+                      }}>
+                        <div style={{
+                          position: 'absolute',
+                          top: 0,
+                          left: 0,
+                          height: '100%',
+                          width: `${Math.min(100, (generationProgress.timeElapsed / 60) * 100)}%`,
+                          background: '#0a0a0a',
+                          transition: 'width 1s ease'
+                        }} />
+                      </div>
+                      
+                      <div style={{
+                        fontSize: '12px',
+                        color: '#666666',
+                        fontWeight: 300
+                      }}>
+                        Generating 4 professional images with Sandra's specifications
+                      </div>
+                    </div>
+                  )}
                 </div>
                 
                 {/* Chat Input */}
