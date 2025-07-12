@@ -110,65 +110,7 @@ export default function Workspace() {
     }
   ];
 
-  // Quick Tools Grid - Matching the 8 steps without duplicates
-  const getQuickTools = () => [
-    {
-      title: 'Train Your AI',
-      subtitle: 'Upload selfies, train model',
-      link: '/ai-training',
-      status: userModel?.trainingStatus === 'completed' ? 'complete' : 'active',
-      image: SandraImages.editorial.laptop1
-    },
-    {
-      title: 'Photoshoot with Sandra',
-      subtitle: 'Chat for custom prompts',
-      link: '/sandra-photoshoot',
-      status: userModel?.trainingStatus === 'completed' ? 'active' : 'disabled',
-      image: SandraImages.editorial.phone1
-    },
-    {
-      title: 'AI Photoshoot',
-      subtitle: 'Built-in professional prompts',
-      link: '/ai-photoshoot',
-      status: userModel?.trainingStatus === 'completed' ? 'active' : 'disabled',
-      image: SandraImages.editorial.thinking
-    },
-    {
-      title: 'Custom Photoshoot Library',
-      subtitle: 'Save favorite prompts',
-      link: '/prompt-library',
-      status: 'active',
-      image: SandraImages.flatlays.beauty
-    },
-    {
-      title: 'Gallery',
-      subtitle: 'View and download photos',
-      link: '/gallery',
-      status: aiImages.length > 0 ? 'active' : 'disabled',
-      image: SandraImages.flatlays.workspace1
-    },
-    {
-      title: 'Sandra Personal Brand Mentor',
-      subtitle: 'AI guidance for your brand',
-      link: '/sandra-ai',
-      status: 'active',
-      image: SandraImages.editorial.laptop2
-    },
-    {
-      title: 'Build Your Business',
-      subtitle: 'Coming soon',
-      link: '#',
-      status: 'disabled',
-      image: SandraImages.flatlays.planning
-    },
-    {
-      title: 'Your Profile',
-      subtitle: 'Account settings',
-      link: '/settings',
-      status: 'active',
-      image: SandraImages.flatlays.workspace2
-    }
-  ];
+
 
   const getUsageStats = () => {
     const monthlyLimit = 300; // €97 plan includes 300 monthly generations
@@ -202,7 +144,6 @@ export default function Workspace() {
   }
 
   const journeySteps = getUserJourneySteps();
-  const quickTools = getQuickTools();
   const usageStats = getUsageStats();
 
   return (
@@ -292,7 +233,7 @@ export default function Workspace() {
                 Your Journey
               </p>
               <h2 className="font-times text-[clamp(2rem,4vw,4rem)] font-extralight tracking-[-0.01em] uppercase leading-none">
-                Four Steps to Empire
+                Eight Steps to Empire
               </h2>
             </div>
 
@@ -391,73 +332,7 @@ export default function Workspace() {
             </div>
           </div>
 
-          {/* Quick Tools Grid */}
-          <div className="mb-20">
-            <div className="text-center mb-16">
-              <p className="text-xs font-normal tracking-[0.4em] uppercase text-[#666666] mb-6">
-                Quick Access
-              </p>
-              <h2 className="font-times text-[clamp(2rem,4vw,4rem)] font-extralight tracking-[-0.01em] uppercase leading-none">
-                Your Toolkit
-              </h2>
-            </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6 gap-6">
-              {quickTools.map((tool, index) => (
-                <Link key={tool.title} href={tool.link} className={tool.status === 'disabled' ? 'pointer-events-none' : ''}>
-                  <div className={`group relative bg-white border border-[#e0e0e0] transition-all duration-500 ${
-                    tool.status === 'disabled' ? 'opacity-50' : 'hover:border-black hover:shadow-lg'
-                  }`}>
-                    {/* Tool Image with Overlay */}
-                    <div className="relative aspect-square overflow-hidden bg-[#f5f5f5]">
-                      <img 
-                        src={tool.image}
-                        alt={tool.title}
-                        className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
-                      />
-                      {/* Subtle Dark Overlay */}
-                      <div className="absolute inset-0 bg-black/15 transition-opacity duration-300 group-hover:bg-black/25"></div>
-                      
-                      {/* Text Overlay for Sandra AI and Built-in Prompts */}
-                      {(index === 0 || index === 1) && (
-                        <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/30 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500">
-                          <div className="absolute bottom-6 left-6 right-6 text-center">
-                            <h3 className="font-times text-lg font-light tracking-[-0.01em] text-white mb-2">
-                              {tool.title}
-                            </h3>
-                            <p className="text-sm font-light text-white/80 leading-relaxed">
-                              {tool.subtitle}
-                            </p>
-                          </div>
-                        </div>
-                      )}
-                    </div>
-                    
-                    {/* Tool Content - Hidden for overlay tools */}
-                    {!(index === 0 || index === 1) && (
-                      <div className="p-6 text-center">
-                        <h3 className="font-times text-lg font-light tracking-[-0.01em] mb-2">
-                          {tool.title}
-                        </h3>
-                        <p className="text-sm font-light text-[#666666] leading-relaxed">
-                          {tool.subtitle}
-                        </p>
-                      </div>
-                    )}
-
-                    {/* Minimal Content for Overlay Tools */}
-                    {(index === 0 || index === 1) && (
-                      <div className="p-4 text-center">
-                        <h3 className="font-times text-base font-light tracking-[-0.01em] text-black">
-                          {tool.title}
-                        </h3>
-                      </div>
-                    )}
-                  </div>
-                </Link>
-              ))}
-            </div>
-          </div>
 
           {/* Usage Overview - Editorial Card Style */}
           <div className="text-center">
