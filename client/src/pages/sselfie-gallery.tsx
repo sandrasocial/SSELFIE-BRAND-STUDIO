@@ -147,10 +147,10 @@ export default function SSELFIEGallery() {
         
         {/* Full Bleed Hero Section */}
         <HeroFullBleed
+          backgroundImage="https://i.postimg.cc/sgmtqFrQ/out-0-1.webp"
           title="SSELFIE GALLERY"
           subtitle="Your Professional Photo Library"
           tagline="This is where your mess becomes your message"
-          image="https://i.postimg.cc/sgmtqFrQ/out-0-1.webp"
           alignment="center"
           overlay={0.4}
         />
