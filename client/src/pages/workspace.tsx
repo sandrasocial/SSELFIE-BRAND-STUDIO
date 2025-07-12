@@ -80,25 +80,39 @@ export default function Workspace() {
       image: SandraImages.editorial.laptop2
     },
     {
-      title: 'AI Photographer',
-      subtitle: 'Create custom prompts',
+      title: 'Built-in Prompts',
+      subtitle: 'Professional photo styles',
+      link: '/ai-generator',
+      status: userModel?.trainingStatus === 'completed' ? 'active' : 'disabled',
+      image: SandraImages.editorial.thinking
+    },
+    {
+      title: 'Custom Photoshoot',
+      subtitle: 'Chat with Sandra for custom prompts',
       link: '/sandra-photoshoot',
       status: 'active',
       image: SandraImages.editorial.phone1
     },
     {
-      title: 'Image Library',
-      subtitle: 'Browse your photos',
-      link: '/gallery',
+      title: 'Image Gallery',
+      subtitle: 'Browse and download photos',
+      link: '/sselfie-gallery',
       status: aiImages.length > 0 ? 'active' : 'disabled',
       image: SandraImages.flatlays.beauty
     },
     {
+      title: 'Image Library',
+      subtitle: 'All your photos',
+      link: '/gallery',
+      status: aiImages.length > 0 ? 'active' : 'disabled',
+      image: SandraImages.flatlays.workspace2
+    },
+    {
       title: 'Settings',
-      subtitle: 'Account and preferences',
+      subtitle: 'Account preferences',
       link: '/settings',
       status: 'active',
-      image: SandraImages.flatlays.workspace2
+      image: SandraImages.flatlays.planning
     }
   ];
 
@@ -334,7 +348,7 @@ export default function Workspace() {
               </h2>
             </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6 gap-6">
               {quickTools.map((tool, index) => (
                 <Link key={tool.title} href={tool.link} className={tool.status === 'disabled' ? 'pointer-events-none' : ''}>
                   <div className={`group relative bg-white border border-[#e0e0e0] transition-all duration-500 ${
@@ -350,8 +364,8 @@ export default function Workspace() {
                       {/* Subtle Dark Overlay */}
                       <div className="absolute inset-0 bg-black/15 transition-opacity duration-300 group-hover:bg-black/25"></div>
                       
-                      {/* Text Overlay for Sandra AI and Image Library */}
-                      {(index === 0 || index === 2) && (
+                      {/* Text Overlay for Sandra AI and Built-in Prompts */}
+                      {(index === 0 || index === 1) && (
                         <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/30 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500">
                           <div className="absolute bottom-6 left-6 right-6 text-center">
                             <h3 className="font-times text-lg font-light tracking-[-0.01em] text-white mb-2">
@@ -366,7 +380,7 @@ export default function Workspace() {
                     </div>
                     
                     {/* Tool Content - Hidden for overlay tools */}
-                    {!(index === 0 || index === 2) && (
+                    {!(index === 0 || index === 1) && (
                       <div className="p-6 text-center">
                         <h3 className="font-times text-lg font-light tracking-[-0.01em] mb-2">
                           {tool.title}
@@ -378,7 +392,7 @@ export default function Workspace() {
                     )}
 
                     {/* Minimal Content for Overlay Tools */}
-                    {(index === 0 || index === 2) && (
+                    {(index === 0 || index === 1) && (
                       <div className="p-4 text-center">
                         <h3 className="font-times text-base font-light tracking-[-0.01em] text-black">
                           {tool.title}
