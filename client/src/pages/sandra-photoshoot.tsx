@@ -31,6 +31,7 @@ What kind of mood are you going for today?`,
   const [inputMessage, setInputMessage] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [selectedImages, setSelectedImages] = useState<string[]>([]);
+  const [fullSizeImage, setFullSizeImage] = useState<string | null>(null);
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
   const scrollToBottom = () => {
@@ -117,7 +118,7 @@ What kind of mood are you going for today?`,
         
         const successMessage: ChatMessage = {
           type: 'sandra',
-          message: `Beautiful! I just generated ${data.images.length} stunning photos for you. These have that Pinterest-style environmental vibe you wanted - check them out below! ✨`,
+          message: `Beautiful! I just generated ${data.images.length} stunning photos for you. These have that Pinterest-style environmental vibe you wanted - check them out below! Click any photo to view full size or save to your gallery. ✨`,
           timestamp: new Date().toISOString()
         };
         setMessages(prev => [...prev, successMessage]);
@@ -132,6 +133,32 @@ What kind of mood are you going for today?`,
       setMessages(prev => [...prev, errorMessage]);
     } finally {
       setIsLoading(false);
+    }
+  };
+
+  const saveToGallery = async (imageUrl: string) => {
+    try {
+      const response = await fetch('/api/save-to-gallery', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          imageUrl: imageUrl,
+          userId: 'sandra_test_user_2025'
+        }),
+      });
+
+      if (response.ok) {
+        const successMessage: ChatMessage = {
+          type: 'sandra',
+          message: "Perfect! I saved that gorgeous photo to your gallery. You can view all your saved photos anytime! 💫",
+          timestamp: new Date().toISOString()
+        };
+        setMessages(prev => [...prev, successMessage]);
+      }
+    } catch (error) {
+      console.error('Error saving to gallery:', error);
     }
   };
 
@@ -153,6 +180,14 @@ What kind of mood are you going for today?`,
           <p className="text-base text-[#666666] font-light">
             Pinterest-Style Environmental Photoshoots • Not Looking at Camera • Whole Scenery Visible
           </p>
+          <div className="mt-4">
+            <button
+              onClick={() => window.open('/gallery', '_blank')}
+              className="px-4 py-2 border border-[#e0e0e0] text-[#0a0a0a] font-light hover:bg-[#f8f8f8] transition-colors"
+            >
+              View My Gallery
+            </button>
+          </div>
         </div>
       </div>
 
@@ -235,17 +270,76 @@ What kind of mood are you going for today?`,
             </h3>
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
               {selectedImages.map((imageUrl, index) => (
-                <div key={index} className="aspect-[3/4] overflow-hidden bg-[#f8f8f8]">
+                <div key={index} className="aspect-[3/4] overflow-hidden bg-[#f8f8f8] relative group">
                   <img
                     src={imageUrl}
                     alt={`Generated photo ${index + 1}`}
-                    className="w-full h-full object-cover hover:scale-105 transition-transform duration-300"
+                    className="w-full h-full object-cover hover:scale-105 transition-transform duration-300 cursor-pointer"
+                    onClick={() => setFullSizeImage(imageUrl)}
                   />
+                  {/* Hover overlay with actions */}
+                  <div className="absolute inset-0 bg-black bg-opacity-0 group-hover:bg-opacity-40 transition-all duration-300 flex items-center justify-center opacity-0 group-hover:opacity-100">
+                    <div className="flex space-x-2">
+                      <button
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          setFullSizeImage(imageUrl);
+                        }}
+                        className="px-3 py-1 bg-white text-black text-sm font-light hover:bg-[#f0f0f0] transition-colors"
+                      >
+                        View Full Size
+                      </button>
+                      <button
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          saveToGallery(imageUrl);
+                        }}
+                        className="px-3 py-1 bg-[#0a0a0a] text-white text-sm font-light hover:bg-[#333333] transition-colors"
+                      >
+                        Save to Gallery
+                      </button>
+                    </div>
+                  </div>
                 </div>
               ))}
             </div>
             <div className="mt-4 text-sm text-[#666666] font-light">
-              Click any style button above to generate more photos in that aesthetic
+              Click any photo to view full size or save to your gallery • Generate more by clicking style buttons above
+            </div>
+          </div>
+        )}
+
+        {/* Full Size Image Modal */}
+        {fullSizeImage && (
+          <div className="fixed inset-0 bg-black bg-opacity-90 z-50 flex items-center justify-center p-4" onClick={() => setFullSizeImage(null)}>
+            <div className="relative max-w-full max-h-full">
+              <img
+                src={fullSizeImage}
+                alt="Full size photo"
+                className="max-w-full max-h-full object-contain"
+                onClick={(e) => e.stopPropagation()}
+              />
+              <div className="absolute top-4 right-4 flex space-x-2">
+                <button
+                  onClick={() => saveToGallery(fullSizeImage)}
+                  className="px-4 py-2 bg-white text-black font-light hover:bg-[#f0f0f0] transition-colors"
+                >
+                  Save to Gallery
+                </button>
+                <a
+                  href={fullSizeImage}
+                  download={`sandra-photoshoot-${Date.now()}.jpg`}
+                  className="px-4 py-2 bg-[#0a0a0a] text-white font-light hover:bg-[#333333] transition-colors inline-block"
+                >
+                  Download
+                </a>
+                <button
+                  onClick={() => setFullSizeImage(null)}
+                  className="px-4 py-2 bg-[#666666] text-white font-light hover:bg-[#888888] transition-colors"
+                >
+                  Close
+                </button>
+              </div>
             </div>
           </div>
         )}
