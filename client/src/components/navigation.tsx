@@ -29,7 +29,8 @@ export const Navigation: React.FC = () => {
   const memberNavItems = [
     { path: '/studio', label: 'STUDIO' },
     { path: '/ai-training', label: 'TRAIN AI' },
-    { path: '/ai-photoshoot', label: 'PHOTOSHOOT' },
+    { path: '/sandra-photoshoot', label: 'PHOTOSHOOT' },
+    { path: '/custom-photoshoot-library', label: 'LIBRARY' },
     { path: '/gallery', label: 'GALLERY' },
     { path: '/profile', label: 'PROFILE' },
     ...(isAdmin ? [{ path: '/admin', label: 'ADMIN' }] : []),
