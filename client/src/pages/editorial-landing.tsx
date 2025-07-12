@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { useLocation } from "wouter";
 import { SandraImages } from "@/lib/sandra-images";
+import { PortfolioSection } from "@/components/portfolio-section";
 
 export default function EditorialLanding() {
   const [, setLocation] = useLocation();
@@ -20,16 +21,28 @@ export default function EditorialLanding() {
               SSELFIE
             </div>
             <div className="hidden md:flex items-center space-x-8">
-              <button className="text-xs uppercase tracking-[0.3em] text-gray-600 hover:text-black transition-colors">
+              <button 
+                onClick={() => setLocation("/about")}
+                className="text-xs uppercase tracking-[0.3em] text-gray-600 hover:text-black transition-colors"
+              >
                 About
               </button>
-              <button className="text-xs uppercase tracking-[0.3em] text-gray-600 hover:text-black transition-colors">
+              <button 
+                onClick={() => setLocation("/how-it-works")}
+                className="text-xs uppercase tracking-[0.3em] text-gray-600 hover:text-black transition-colors"
+              >
                 How It Works
               </button>
-              <button className="text-xs uppercase tracking-[0.3em] text-gray-600 hover:text-black transition-colors">
+              <button 
+                onClick={() => setLocation("/pricing")}
+                className="text-xs uppercase tracking-[0.3em] text-gray-600 hover:text-black transition-colors"
+              >
                 Pricing
               </button>
-              <button className="text-xs uppercase tracking-[0.3em] text-gray-600 hover:text-black transition-colors">
+              <button 
+                onClick={() => setLocation("/blog")}
+                className="text-xs uppercase tracking-[0.3em] text-gray-600 hover:text-black transition-colors"
+              >
                 Blog
               </button>
               <button
@@ -43,7 +56,7 @@ export default function EditorialLanding() {
               onClick={() => handleGetStarted('sselfie-studio-pro')}
               className="px-6 py-3 border border-black text-black text-xs uppercase tracking-[0.3em] hover:bg-black hover:text-white transition-all duration-300"
             >
-              Start Your Journey
+              Get Started
             </button>
           </div>
         </div>
@@ -65,12 +78,16 @@ export default function EditorialLanding() {
             Your Personal Brand Starts Here
           </div>
           
-          <h1 className="font-serif text-5xl md:text-7xl lg:text-8xl font-extralight uppercase tracking-[0.3em] leading-none mb-4">
-            It starts with<br />your selfies
+          <h1 className="font-serif text-5xl md:text-7xl lg:text-8xl font-extralight uppercase tracking-[0.3em] leading-none mb-2">
+            STUDIO
           </h1>
           
-          <p className="text-base tracking-wide uppercase opacity-70 font-light max-w-2xl mx-auto leading-relaxed mt-8">
-            One year ago my marriage ended. Today? A business that actually works.
+          <h2 className="font-serif text-2xl md:text-3xl lg:text-4xl font-thin uppercase tracking-[0.5em] leading-none mb-8 opacity-80">
+            S S E L F I E
+          </h2>
+          
+          <p className="text-base tracking-wide uppercase opacity-70 font-light max-w-2xl mx-auto leading-relaxed">
+            IT STARTS WITH YOUR SELFIES
           </p>
         </div>
       </section>
@@ -91,17 +108,14 @@ export default function EditorialLanding() {
           <div className="grid md:grid-cols-2 gap-16 items-center">
             <div className="space-y-6 text-gray-700 leading-relaxed">
               <p>
-                One year ago, I hit rock bottom. Divorced. Three kids. No backup plan. 
-                I was heartbroken, exhausted, and completely disconnected from the woman I used to be.
+                One year ago, I hit rock bottom. Divorced. Three kids. No backup plan.
               </p>
               <p>
-                And one day, in the middle of all that mess—I picked up my phone. Took a selfie. 
-                Posted something honest. Not perfect. Just true.
+                I picked up my phone. Took a selfie. Posted something honest. Not perfect. Just true.
               </p>
               <p>
-                That one moment sparked something. From there, I kept showing up—camera in one hand, 
-                coffee in the other. And over time, I built a real audience, a real brand, and eventually, 
-                a real business.
+                From there, I kept showing up—camera in one hand, coffee in the other. 
+                Built a real audience, a real brand, and eventually, a real business.
               </p>
               <p className="font-medium text-black">
                 Your mess is your message. Let's turn it into money.
@@ -124,10 +138,10 @@ export default function EditorialLanding() {
         <div className="max-w-6xl mx-auto px-8">
           <div className="text-center mb-20">
             <div className="text-xs uppercase tracking-[0.4em] text-gray-500 mb-8">
-              What We Do
+              What I Do
             </div>
             <h2 className="font-serif text-4xl md:text-5xl font-light text-black mb-8">
-              Your complete<br />brand transformation
+              Your complete<br />personal brand transformation
             </h2>
           </div>
           
@@ -180,26 +194,26 @@ export default function EditorialLanding() {
               </div>
             </div>
 
-            {/* Brand Builder */}
+            {/* Sandra Personal Brand AI Agent */}
             <div className="bg-white group hover:bg-black hover:text-white transition-all duration-500">
               <div className="aspect-square bg-gray-100 overflow-hidden relative">
                 <img
                   src={SandraImages.hero.dashboard}
-                  alt="Brand Builder"
+                  alt="Sandra AI Agent"
                   className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
                 />
                 <div className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity duration-500 flex items-end p-8">
                   <div className="text-white">
-                    <h4 className="text-xs uppercase tracking-[0.3em] mb-2">Brand Builder</h4>
-                    <p className="text-sm opacity-80">Professional landing pages in minutes</p>
+                    <h4 className="text-xs uppercase tracking-[0.3em] mb-2">Sandra AI Agent</h4>
+                    <p className="text-sm opacity-80">Your personal brand strategist</p>
                   </div>
                 </div>
               </div>
               <div className="p-8">
                 <div className="text-8xl font-serif font-extralight opacity-10 absolute">03</div>
-                <h3 className="font-serif text-2xl font-light mb-4 relative z-10">Brand Builder</h3>
+                <h3 className="font-serif text-2xl font-light mb-4 relative z-10">Sandra Personal Brand AI Agent</h3>
                 <p className="text-sm text-gray-600 group-hover:text-white/80 leading-relaxed">
-                  Build your business with professional templates that actually convert.
+                  Get personal brand strategy and content ideas from my AI twin who knows exactly how I built this.
                 </p>
               </div>
             </div>
@@ -248,7 +262,7 @@ export default function EditorialLanding() {
                 onClick={() => handleGetStarted('sselfie-studio')}
                 className="w-full py-4 border border-black group-hover:border-white text-black group-hover:text-white text-xs uppercase tracking-[0.3em] hover:bg-black hover:text-white group-hover:hover:bg-white group-hover:hover:text-black transition-all duration-300"
               >
-                Start Your Journey
+                Get Started
               </button>
             </div>
 
@@ -290,7 +304,7 @@ export default function EditorialLanding() {
                 onClick={() => handleGetStarted('sselfie-studio-pro')}
                 className="w-full py-4 border border-white text-white text-xs uppercase tracking-[0.3em] hover:bg-white hover:text-black transition-all duration-300"
               >
-                Unlock Everything
+                Get Started
               </button>
             </div>
           </div>
@@ -300,6 +314,73 @@ export default function EditorialLanding() {
               No contracts. Cancel anytime. 30-day money-back guarantee.
             </p>
           </div>
+        </div>
+      </section>
+
+      {/* Portfolio Gallery Section */}
+      <section className="py-32 bg-white">
+        <div className="max-w-6xl mx-auto px-8">
+          <div className="text-center mb-20">
+            <div className="text-xs uppercase tracking-[0.4em] text-gray-500 mb-8">
+              My AI Portfolio
+            </div>
+            <h2 className="font-serif text-4xl md:text-5xl font-light text-black">
+              Real results from<br />my personal brand
+            </h2>
+          </div>
+          
+          <PortfolioSection />
+        </div>
+      </section>
+
+      {/* Testimonial Section */}
+      <section className="py-32 bg-gray-50">
+        <div className="max-w-4xl mx-auto px-8 text-center">
+          <div className="text-xs uppercase tracking-[0.4em] text-gray-500 mb-8">
+            Real Stories
+          </div>
+          
+          <blockquote className="font-serif text-2xl md:text-3xl font-light italic text-black leading-tight mb-8">
+            "Sandra's approach changed everything for me. I went from feeling invisible to having 
+            clients reach out daily. Her AI photoshoot gave me the confidence to finally show up."
+          </blockquote>
+          
+          <div className="text-sm text-gray-600 uppercase tracking-wide">
+            — MARIA K., WELLNESS COACH
+          </div>
+        </div>
+      </section>
+
+      {/* Email Optin Section */}
+      <section className="py-32 bg-black text-white">
+        <div className="max-w-4xl mx-auto px-8 text-center">
+          <div className="text-xs uppercase tracking-[0.4em] text-white/60 mb-8">
+            Free Gift
+          </div>
+          
+          <h2 className="font-serif text-4xl md:text-5xl font-light mb-8">
+            Get my personal brand<br />blueprint for free
+          </h2>
+          
+          <p className="text-lg leading-relaxed mb-12 max-w-2xl mx-auto opacity-80">
+            The exact strategy I used to build 120K followers and a real business. 
+            Plus weekly personal brand tips that actually work.
+          </p>
+          
+          <div className="flex flex-col sm:flex-row gap-4 max-w-md mx-auto">
+            <input
+              type="email"
+              placeholder="Your email address"
+              className="flex-1 px-6 py-4 bg-white text-black text-sm border-0 focus:outline-none"
+            />
+            <button className="px-8 py-4 border border-white text-white text-xs uppercase tracking-[0.3em] hover:bg-white hover:text-black transition-all duration-300 whitespace-nowrap">
+              Send It To Me
+            </button>
+          </div>
+          
+          <p className="text-xs text-white/60 mt-6">
+            No spam. Unsubscribe anytime.
+          </p>
         </div>
       </section>
 
@@ -315,7 +396,7 @@ export default function EditorialLanding() {
             onClick={() => handleGetStarted('sselfie-studio-pro')}
             className="inline-block px-12 py-6 border border-white text-white text-xs uppercase tracking-[0.3em] hover:bg-white hover:text-black transition-all duration-300"
           >
-            Start Your Transformation
+            Get Started
           </button>
         </div>
       </section>
