@@ -30,6 +30,7 @@ import RachelChat from "@/pages/rachel-chat";
 import RachelActivation from "@/pages/rachel-activation";
 import SSELFIEGallery from "@/pages/sselfie-gallery";
 import AIGenerator from "@/pages/ai-generator";
+import AIPhotoshoot from "@/pages/ai-photoshoot";
 import SimpleTraining from "@/pages/simple-training";
 import TestLogin from "@/pages/test-login";
 import AdminDashboard from "@/pages/admin";
@@ -126,7 +127,7 @@ function Router() {
       {/* AI TRAINING & PHOTOSHOOT WORKFLOW */}
       <Route path="/ai-training" component={(props) => <ProtectedRoute component={SimpleTraining} {...props} />} />
       <Route path="/simple-training" component={(props) => <ProtectedRoute component={SimpleTraining} {...props} />} />
-      <Route path="/ai-photoshoot" component={(props) => <ProtectedRoute component={SandraPhotoshoot} {...props} />} />
+      <Route path="/ai-photoshoot" component={(props) => <ProtectedRoute component={AIPhotoshoot} {...props} />} />
       <Route path="/sandra-photoshoot" component={(props) => <ProtectedRoute component={SandraPhotoshoot} {...props} />} />
       <Route path="/sandra-ai" component={(props) => <ProtectedRoute component={SandraAI} {...props} />} />
       <Route path="/ai-generator" component={(props) => <ProtectedRoute component={AIGenerator} {...props} />} />
