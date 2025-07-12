@@ -1,4 +1,5 @@
 import React, { useState, useRef, useEffect } from 'react';
+import SandraNavigation from '@/components/SandraNavigation';
 import { Button } from "@/components/ui/button";
 
 interface ChatMessage {
@@ -94,6 +95,9 @@ What's your biggest dream for your personal brand right now?`,
 
   return (
     <div className="min-h-screen bg-white">
+      {/* Navigation */}
+      <SandraNavigation />
+
       {/* Full Bleed Hero Section */}
       <section className="relative min-h-screen flex items-center justify-center bg-black text-white overflow-hidden">
         {/* Background Image */}
