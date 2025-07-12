@@ -171,6 +171,13 @@ export default function SandraPhotoshoot() {
   const { toast } = useToast();
   const queryClient = useQueryClient();
 
+  // Sandra AI progress tracking
+  const [sandraProgress, setSandraProgress] = useState({
+    isThinking: false,
+    status: '',
+    timeElapsed: 0
+  });
+
   // Timer effect for generation progress tracking
   useEffect(() => {
     let interval: NodeJS.Timeout;
@@ -190,6 +197,26 @@ export default function SandraPhotoshoot() {
       if (interval) clearInterval(interval);
     };
   }, [generationProgress.isGenerating]);
+
+  // Sandra AI progress timer effect
+  useEffect(() => {
+    let interval: NodeJS.Timeout;
+    if (sandraProgress.isThinking) {
+      interval = setInterval(() => {
+        setSandraProgress(prev => ({
+          ...prev,
+          timeElapsed: prev.timeElapsed + 1,
+          status: prev.timeElapsed < 2 ? 'Understanding your vision...' :
+                  prev.timeElapsed < 4 ? 'Analyzing style preferences...' :
+                  prev.timeElapsed < 6 ? 'Creating camera specifications...' :
+                  'Finalizing style options...'
+        }));
+      }, 1000);
+    }
+    return () => {
+      if (interval) clearInterval(interval);
+    };
+  }, [sandraProgress.isThinking]);
 
   // Fetch user model status
   const { data: userModel } = useQuery({
@@ -321,6 +348,13 @@ export default function SandraPhotoshoot() {
   
   const chatMutation = useMutation({
     mutationFn: async (message: string) => {
+      // Start Sandra's thinking progress
+      setSandraProgress({
+        isThinking: true,
+        status: 'Understanding your vision...',
+        timeElapsed: 0
+      });
+      
       const response = await apiRequest('POST', '/api/sandra-ai-chat', { 
         message
       });
@@ -330,6 +364,13 @@ export default function SandraPhotoshoot() {
       console.log('Sandra AI specialist response:', data);
       console.log('Style buttons received:', data.styleButtons);
       console.log('Style buttons length:', data.styleButtons?.length);
+      
+      // Stop Sandra's thinking progress
+      setSandraProgress({
+        isThinking: false,
+        status: '',
+        timeElapsed: 0
+      });
       
       const sandraMessage = data.message || 'I understand! Let me help you create stunning photos for your brand.';
       
@@ -358,6 +399,14 @@ export default function SandraPhotoshoot() {
     },
     onError: (error: any) => {
       console.error('Chat error:', error);
+      
+      // Stop Sandra's thinking progress
+      setSandraProgress({
+        isThinking: false,
+        status: '',
+        timeElapsed: 0
+      });
+      
       setChatHistory(prev => [...prev, 
         { role: 'user', message: chatMessage },
         { role: 'sandra', message: "Sorry, I'm having a technical issue right now. Can you try asking me that again?" }
@@ -967,6 +1016,57 @@ export default function SandraPhotoshoot() {
                           </div>
                         </div>
                       ))}
+                    </div>
+                  )}
+                  
+                  {/* Sandra AI Progress Display */}
+                  {sandraProgress.isThinking && (
+                    <div style={{
+                      padding: '20px',
+                      background: '#e5e5e5',
+                      marginBottom: '20px',
+                      textAlign: 'center'
+                    }}>
+                      <div style={{
+                        fontSize: '12px',
+                        fontWeight: 400,
+                        letterSpacing: '0.2em',
+                        textTransform: 'uppercase',
+                        color: '#666666',
+                        marginBottom: '12px'
+                      }}>
+                        SANDRA IS CREATING YOUR STYLE OPTIONS
+                      </div>
+                      
+                      <div style={{
+                        fontSize: '16px',
+                        fontWeight: 300,
+                        marginBottom: '12px',
+                        color: '#0a0a0a'
+                      }}>
+                        {sandraProgress.status}
+                      </div>
+                      
+                      <div style={{
+                        fontSize: '12px',
+                        color: '#666666',
+                        fontWeight: 300
+                      }}>
+                        {sandraProgress.timeElapsed}s • Creating 3 professional style alternatives with camera specs
+                      </div>
+                      
+                      {/* Progress Indicator */}
+                      <div style={{
+                        display: 'flex',
+                        justifyContent: 'center',
+                        alignItems: 'center',
+                        gap: '4px',
+                        marginTop: '16px',
+                        fontSize: '16px',
+                        color: '#666666'
+                      }}>
+                        ⟨ Sandra thinking ⟩
+                      </div>
                     </div>
                   )}
                 </div>
