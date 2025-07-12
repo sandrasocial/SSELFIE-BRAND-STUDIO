@@ -353,7 +353,7 @@ Only include elements specifically mentioned or strongly implied. Return empty a
     const recentConversations = await storage.getSandraConversations(userId);
     const onboardingData = await storage.getOnboardingData(userId);
     
-    // Enhanced keyword detection
+    // Enhanced keyword detection with lifestyle and location triggers
     const styleKeywords = {
       editorial: ['editorial', 'magazine', 'vogue', 'fashion', 'model', 'kate moss', 'editorial style'],
       blackWhite: ['black and white', 'b&w', 'monochrome', 'bw', 'black white', 'b & w'],
@@ -362,7 +362,10 @@ Only include elements specifically mentioned or strongly implied. Return empty a
       street: ['street', 'urban', 'candid', 'lifestyle', 'natural', 'casual'],
       studio: ['studio', 'controlled', 'lighting', 'portrait', 'beauty'],
       moody: ['moody', 'dramatic', 'dark', 'shadows', 'mysterious', 'intense'],
-      bright: ['bright', 'airy', 'light', 'sunny', 'fresh', 'glowing']
+      bright: ['bright', 'airy', 'light', 'sunny', 'fresh', 'glowing'],
+      lifestyle: ['lifestyle', 'beach', 'club', 'restaurant', 'cafe', 'travel', 'vacation', 'marbella', 'ibiza', 'miami'],
+      business: ['business', 'professional', 'corporate', 'office', 'linkedin', 'executive', 'meeting'],
+      natural: ['natural', 'realistic', 'authentic', 'candid', 'unposed', 'real', 'retouch', 'retouching']
     };
     
     let detectedStyles = [];
@@ -428,6 +431,26 @@ Are you going for approachable luxury or untouchable high-fashion?`;
       
       suggestedPrompt = `user${userId} woman, luxury editorial portrait, shot on Canon EOS R5 with 85mm f/1.4 lens, sophisticated lighting, wearing designer black blazer, gold jewelry accents, perfect makeup with subtle highlight, confident expression, luxury apartment background, editorial color grading, heavy 35mm film grain, matte skin texture, expensive aesthetic, high-end fashion photography`;
       
+    } else if (detectedStyles.includes('lifestyle')) {
+      sandraResponse = `Beach club in Marbella? Okay, I'm totally here for this lifestyle vibe. 
+
+Here's what I'm thinking:
+• Natural lighting (that golden hour magic)
+• Effortless but put-together styling
+• Confident but relaxed energy
+• Real skin texture, slightly retouched but still authentic
+
+What's the mood - glamorous beach goddess or effortlessly chic?`;
+
+      suggestedPrompt = `user${userId} woman, lifestyle beach club photography, shot on Canon EOS R5 with 35mm f/1.4 lens, natural golden hour lighting, Marbella beach club setting, effortless chic styling, relaxed confident pose, slight skin retouching while maintaining natural texture, authentic vacation vibes, heavy 35mm film grain, matte skin finish, luxury lifestyle photography, Mediterranean summer aesthetic`;
+      
+    } else if (detectedStyles.includes('natural')) {
+      sandraResponse = `Natural and realistic with slight skin retouching? Perfect. That's exactly what good photos should be - you, but the best version.
+
+Let me create something that feels authentic but polished.`;
+
+      suggestedPrompt = `user${userId} woman, natural lifestyle portrait, shot on Canon EOS R5 with 50mm f/1.8 lens, soft natural lighting, minimal professional retouching, authentic skin texture with subtle smoothing, realistic color grading, confident natural expression, effortless styling, heavy 35mm film grain, matte skin finish, authentic lifestyle photography`;
+      
     } else {
       // Check if this is a follow-up to previous conversation
       const lastConversation = recentConversations[recentConversations.length - 1];
@@ -469,14 +492,10 @@ Raw vulnerability is so much harder to fake than "fierce."`;
           sandraResponse = `Got it. So based on what we talked about... tell me more about the vibe you want. Bold and dramatic? Or more soft and sophisticated?`;
         }
       } else {
-        sandraResponse = `Okay, so tell me more about what you're picturing. Are we going:
-
-• Editorial magazine vibes?
-• Dramatic B&W or rich colors?
-• Studio lighting or natural?
-• Moody or bright?
-
-The more you tell me, the better I can make your prompt.`;
+        // Generate a generic but useful prompt for any request
+        sandraResponse = `Let me create a custom prompt for you based on what you described.`;
+        
+        suggestedPrompt = `user${userId} woman, lifestyle portrait photography, shot on Canon EOS R5 with 50mm f/1.8 lens, natural lighting, confident expression, stylish contemporary outfit, professional quality, heavy 35mm film grain, matte skin texture, authentic lifestyle photography`;
       }
     }
     
