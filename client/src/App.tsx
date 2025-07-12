@@ -8,6 +8,7 @@ import { useAuth } from "@/hooks/use-auth";
 import { useQuery } from "@tanstack/react-query";
 import NotFound from "@/pages/not-found";
 import Landing from "@/pages/landing";
+import NewLanding from "@/pages/new-landing";
 import Pricing from "@/pages/pricing";
 import Workspace from "@/pages/workspace";
 import Onboarding from "@/pages/onboarding";
@@ -104,7 +105,8 @@ function Router() {
       {/* STREAMLINED USER JOURNEY: Landing → Simple Checkout → Payment Success → Onboarding → Workspace */}
 
       {/* PUBLIC PAGES */}
-      <Route path="/" component={Landing} />
+      <Route path="/" component={NewLanding} />
+      <Route path="/old-landing" component={Landing} />
       <Route path="/about" component={About} />
       <Route path="/how-it-works" component={HowItWorks} />
       <Route path="/selfie-guide" component={SelfieGuide} />

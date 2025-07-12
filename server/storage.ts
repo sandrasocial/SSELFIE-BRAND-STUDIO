@@ -230,6 +230,25 @@ export class DatabaseStorage implements IStorage {
     return updated;
   }
 
+  // Plan-based access control methods
+  async getUserPlan(userId: string): Promise<string | null> {
+    const subscription = await this.getSubscription(userId);
+    return subscription?.plan || null;
+  }
+
+  async hasSandraAIAccess(userId: string): Promise<boolean> {
+    const usage = await this.getUserUsage(userId);
+    return usage?.sandraAIAccess || false;
+  }
+
+  async getGenerationLimits(userId: string): Promise<{ allowed: number; used: number }> {
+    const usage = await this.getUserUsage(userId);
+    return {
+      allowed: usage?.monthlyGenerationsAllowed || 0,
+      used: usage?.monthlyGenerationsUsed || 0
+    };
+  }
+
   // Photoshoot session operations
   async savePhotoshootSession(data: InsertPhotoshootSession): Promise<PhotoshootSession> {
     // First deactivate any existing active sessions for this user
