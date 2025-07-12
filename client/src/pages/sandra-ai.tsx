@@ -47,14 +47,13 @@ What's your biggest dream for your personal brand right now?`,
     setIsLoading(true);
 
     try {
-      const response = await fetch('/api/sandra-ai-chat', {
+      const response = await fetch('/api/personal-branding-sandra', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
-          message: inputMessage,
-          context: 'general-chat'
+          message: inputMessage
         }),
       });
 
@@ -66,7 +65,7 @@ What's your biggest dream for your personal brand right now?`,
 
       const sandraMessage: ChatMessage = {
         type: 'sandra',
-        message: data.response || "I'm here to help! Tell me more about your goals.",
+        message: data.message || "I'm here to help! Tell me more about your goals.",
         timestamp: new Date().toISOString()
       };
 
