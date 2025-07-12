@@ -4,6 +4,7 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { Navigation } from '@/components/navigation';
 import { PaymentVerification } from '@/components/payment-verification';
 import { HeroFullBleed } from '@/components/hero-full-bleed';
+import { SandraImages } from '@/lib/sandra-images';
 import { apiRequest } from '@/lib/queryClient';
 
 export default function SSELFIEGallery() {
@@ -149,7 +150,7 @@ export default function SSELFIEGallery() {
           title="SSELFIE GALLERY"
           subtitle="Your Professional Photo Library"
           tagline="This is where your mess becomes your message"
-          image="https://replicate.delivery/czjl/jXpnhNlmJCnKEhC6l8xOPvFPLBQDvdMCwX6Eh6J1ZAhNqr2TB/out-0.jpg"
+          image={SandraImages.hero.aiImages}
           alignment="center"
           overlay={0.4}
         />
