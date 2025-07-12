@@ -406,56 +406,33 @@ Only include elements specifically mentioned or strongly implied. Return empty a
     
     if (isFollowUp) {
       // Handle refinement requests with conversation memory
-      sandraResponse = `Got it! Let me adjust that vision. You want more lifestyle energy with full body shots where you're not directly engaging the camera - perfect! That's that effortless, caught-in-the-moment vibe.
+      sandraResponse = `Perfect! So you want that lifestyle vibe where you're not staring at the camera - love that! Like when someone catches you being gorgeous without trying.
 
-I'm thinking:
-• Natural, candid moments 
-• Full environmental shots
-• Looking away or mid-action
-• That "paparazzi caught me being fabulous" energy
-
-Here are 3 refined styles:`;
+Let's do this:`;
       
       styleButtons = this.createLifestyleStyleButtons(userId, detectedStyles);
       
     } else if (detectedStyles.includes('editorial') && detectedStyles.includes('blackWhite')) {
       // Editorial B&W specialist response
-      sandraResponse = `Editorial B&W like Kate Moss? OMG yes! That raw, unfiltered sophistication is everything. You know what makes those shots iconic? The imperfections that tell a story.
+      sandraResponse = `Okay yes! Editorial black and white is so good. Like Kate Moss but make it you.
 
-I'm seeing:
-• Messy hair with perfect imperfection
-• Dramatic shadows and light play  
-• Real skin texture, not retouched perfection
-• That intense, direct gaze that speaks volumes
-
-Which energy feels most like you?`;
+Here's what I'm thinking:`;
       
       styleButtons = this.createEditorialBWButtons(userId);
       
     } else if (detectedStyles.includes('lifestyle')) {
       // Lifestyle specialist response
-      sandraResponse = `Beach club vibes? I'm totally here for this! That effortless luxury where you look expensive without trying too hard.
+      sandraResponse = `Beach club vibes? Girl, yes! That effortless "I'm expensive but make it look easy" energy.
 
-Thinking:
-• Golden hour magic lighting
-• Natural, candid moments
-• Sophisticated but relaxed styling
-• Environmental storytelling
-
-What's the mood we're capturing?`;
+I've got some ideas:`;
       
       styleButtons = this.createLifestyleStyleButtons(userId, detectedStyles);
       
     } else {
       // General photoshoot consultation
-      sandraResponse = `Hey ${userName}! Tell me about your vision - what kind of energy are we going for? I specialize in creating custom prompts that capture your unique aesthetic.
+      sandraResponse = `Hey ${userName}! Okay so tell me what you're going for. I'm like your personal photographer friend who knows exactly what looks good.
 
-• Editorial fashion model vibes?
-• Lifestyle candid moments?  
-• Professional business shots?
-• Artistic black & white portraits?
-
-Give me some keywords and I'll create the perfect prompts with specific camera specs and styling details!`;
+What vibe are we creating today?`;
       
       styleButtons = this.createGeneralStyleButtons(userId);
     }
@@ -468,6 +445,8 @@ Give me some keywords and I'll create the perfect prompts with specific camera s
       suggestedPrompt: null, // No single prompt anymore - using style buttons
       userStylePreferences: { detectedKeywords: detectedStyles },
     });
+    
+    console.log(`Sandra AI fallback returning ${styleButtons.length} style buttons for user ${userId}`);
     
     return {
       response: sandraResponse,

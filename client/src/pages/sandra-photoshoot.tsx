@@ -328,6 +328,8 @@ export default function SandraPhotoshoot() {
     },
     onSuccess: (data) => {
       console.log('Sandra AI specialist response:', data);
+      console.log('Style buttons received:', data.styleButtons);
+      console.log('Style buttons length:', data.styleButtons?.length);
       
       const sandraMessage = data.message || 'I understand! Let me help you create stunning photos for your brand.';
       
@@ -339,11 +341,14 @@ export default function SandraPhotoshoot() {
       
       // Sandra now creates 3 style button alternatives instead of text prompts
       if (data.styleButtons && data.styleButtons.length > 0) {
+        console.log('Setting style buttons:', data.styleButtons);
         setStyleButtons(data.styleButtons);
         toast({
           title: "Sandra Created Style Options!",
           description: `${data.styleButtons.length} custom styles with camera specs ready to generate.`,
         });
+      } else {
+        console.log('No style buttons received or empty array');
       }
       
       // Display style insights if Sandra learned something new
