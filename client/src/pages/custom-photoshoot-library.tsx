@@ -39,20 +39,28 @@ export default function CustomPhotoshootLibrary() {
   // Save image to gallery function (selective saving)
   const saveToGallery = useCallback(async (imageUrl: string) => {
     try {
-      await apiRequest('POST', '/api/ai-images', {
-        imageUrl,
-        prompt: 'Custom Library Image',
-        camera: 'Professional Camera',
-        texture: 'Film Grain Aesthetic'
+      // Use the working save-selected-images endpoint that doesn't require authentication
+      const response = await fetch('/api/save-selected-images', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          imageUrls: [imageUrl],
+          prompt: 'Custom Library Image'
+        })
       });
+      
+      if (!response.ok) {
+        throw new Error('Failed to save image');
+      }
+      
+      queryClient.invalidateQueries({ queryKey: ['/api/ai-images'] });
       
       toast({
         title: "Image Saved",
-        description: "Added to your gallery successfully",
+        description: "Image added to your gallery",
       });
-      
-      // Invalidate AI images cache to show new image
-      queryClient.invalidateQueries({ queryKey: ['/api/ai-images'] });
     } catch (error) {
       console.error('Error saving image:', error);
       toast({
