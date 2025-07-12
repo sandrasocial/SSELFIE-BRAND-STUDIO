@@ -150,7 +150,7 @@ export default function SSELFIEGallery() {
           title="SSELFIE GALLERY"
           subtitle="Your Professional Photo Library"
           tagline="This is where your mess becomes your message"
-          image={SandraImages.hero.aiImages}
+          image="https://i.postimg.cc/sgmtqFrQ/out-0-1.webp"
           alignment="center"
           overlay={0.4}
         />
