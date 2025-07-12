@@ -80,15 +80,15 @@ export default function Workspace() {
       image: SandraImages.editorial.laptop2
     },
     {
-      title: 'Built-in Prompts',
-      subtitle: 'Professional photo styles',
+      title: 'AI Photoshoot',
+      subtitle: 'Built-in professional styles',
       link: '/ai-generator',
       status: userModel?.trainingStatus === 'completed' ? 'active' : 'disabled',
       image: SandraImages.editorial.thinking
     },
     {
-      title: 'Custom Photoshoot',
-      subtitle: 'Chat with Sandra for custom prompts',
+      title: 'Sandra AI Chat',
+      subtitle: 'Custom prompts with Sandra',
       link: '/sandra-photoshoot',
       status: 'active',
       image: SandraImages.editorial.phone1
