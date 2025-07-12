@@ -1,12 +1,21 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { useAuth } from '@/hooks/use-auth';
 import { useQuery } from '@tanstack/react-query';
 import { Link } from 'wouter';
-import { Navigation } from '@/components/navigation';
 import { SandraImages } from '@/lib/sandra-images';
 
 export default function Workspace() {
   const { user, isAuthenticated } = useAuth();
+  const [scrolled, setScrolled] = useState(false);
+
+  // Scroll effect for navigation
+  useEffect(() => {
+    const handleScroll = () => {
+      setScrolled(window.scrollY > 50);
+    };
+    window.addEventListener('scroll', handleScroll);
+    return () => window.removeEventListener('scroll', handleScroll);
+  }, []);
 
   // Fetch user data
   const { data: aiImages = [] } = useQuery({
@@ -133,21 +142,56 @@ export default function Workspace() {
 
   if (!isAuthenticated) {
     return (
-      <div className="min-h-screen bg-white touch-manipulation">
-        <Navigation />
-        <div className="max-w-4xl mx-auto px-6 sm:px-8 md:px-12 py-32 text-center">
-          <h1 className="font-times text-[clamp(2rem,5vw,6rem)] font-extralight tracking-[0.05em] sm:tracking-[0.1em] md:tracking-[-0.01em] uppercase mb-6 leading-none px-2">
-            Please Sign In
-          </h1>
-          <p className="text-base font-light text-[#666666] max-w-lg mx-auto mb-10 leading-relaxed">
-            You need to be signed in to access your STUDIO.
-          </p>
-          <a
-            href="/api/login"
-            className="inline-block px-8 py-4 text-xs font-normal tracking-[0.3em] uppercase border border-black hover:bg-black hover:text-white transition-all duration-300"
-          >
-            Sign In
-          </a>
+      <div className="min-h-screen bg-white">
+        {/* Navigation with scroll effect */}
+        <nav className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${
+          scrolled ? 'bg-black/80 backdrop-blur-md' : 'bg-transparent'
+        }`}>
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div className="flex justify-between items-center h-20">
+              <Link href="/" className="text-white text-lg font-light tracking-wider hover:opacity-80 transition-opacity">
+                SSELFIE STUDIO
+              </Link>
+              
+              <div className="hidden md:flex space-x-12">
+                <Link href="/how-it-works" className="text-white/80 hover:text-white text-sm uppercase tracking-wider transition-colors">
+                  How It Works
+                </Link>
+                <Link href="/pricing" className="text-white/80 hover:text-white text-sm uppercase tracking-wider transition-colors">
+                  Pricing
+                </Link>
+                <Link href="/blog" className="text-white/80 hover:text-white text-sm uppercase tracking-wider transition-colors">
+                  Blog
+                </Link>
+                <Link href="/api/logout" className="text-white/80 hover:text-white text-sm uppercase tracking-wider transition-colors">
+                  Logout
+                </Link>
+              </div>
+              
+              <div className="md:hidden">
+                <button className="text-white text-sm uppercase tracking-wider">
+                  Menu
+                </button>
+              </div>
+            </div>
+          </div>
+        </nav>
+
+        <div className="pt-32 pb-16 px-4 sm:px-6 lg:px-8 text-center">
+          <div className="max-w-4xl mx-auto">
+            <h1 className="font-serif text-4xl sm:text-5xl md:text-6xl font-light text-black mb-6">
+              Please Sign In
+            </h1>
+            <p className="text-lg text-gray-600 max-w-lg mx-auto mb-10">
+              You need to be signed in to access your STUDIO.
+            </p>
+            <a
+              href="/api/login"
+              className="inline-block px-8 py-4 text-xs uppercase tracking-[0.3em] border border-black hover:bg-black hover:text-white transition-all duration-300"
+            >
+              Sign In
+            </a>
+          </div>
         </div>
       </div>
     );
@@ -157,8 +201,40 @@ export default function Workspace() {
   const usageStats = getUsageStats();
 
   return (
-    <div className="min-h-screen bg-white touch-manipulation">
-      <Navigation />
+    <div className="min-h-screen bg-white">
+      {/* Navigation with scroll effect */}
+      <nav className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${
+        scrolled ? 'bg-black/80 backdrop-blur-md' : 'bg-transparent'
+      }`}>
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="flex justify-between items-center h-20">
+            <Link href="/" className="text-white text-lg font-light tracking-wider hover:opacity-80 transition-opacity">
+              SSELFIE STUDIO
+            </Link>
+            
+            <div className="hidden md:flex space-x-12">
+              <Link href="/workspace" className="text-white hover:text-white text-sm uppercase tracking-wider transition-colors">
+                Studio
+              </Link>
+              <Link href="/ai-photoshoot" className="text-white/80 hover:text-white text-sm uppercase tracking-wider transition-colors">
+                AI Photoshoot
+              </Link>
+              <Link href="/gallery" className="text-white/80 hover:text-white text-sm uppercase tracking-wider transition-colors">
+                Gallery
+              </Link>
+              <Link href="/api/logout" className="text-white/80 hover:text-white text-sm uppercase tracking-wider transition-colors">
+                Logout
+              </Link>
+            </div>
+            
+            <div className="md:hidden">
+              <button className="text-white text-sm uppercase tracking-wider">
+                Menu
+              </button>
+            </div>
+          </div>
+        </div>
+      </nav>
       
       {/* Full Bleed Hero Section */}
       <section className="relative min-h-screen flex items-center justify-center bg-black text-white overflow-hidden">
@@ -172,37 +248,36 @@ export default function Workspace() {
         </div>
         
         {/* Hero Content */}
-        <div className="relative z-10 text-center max-w-5xl mx-auto px-6 sm:px-8 md:px-12">
-          <p className="text-[10px] sm:text-xs font-light tracking-[0.3em] sm:tracking-[0.4em] uppercase text-white/70 mb-8 sm:mb-10">
+        <div className="relative z-10 text-center max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="text-xs tracking-[0.4em] uppercase text-white/60 mb-8">
             Your Personal Brand Empire
-          </p>
+          </div>
           
-          <div className="mb-16">
-            <h1 className="font-times text-[clamp(2.5rem,9vw,9rem)] leading-[0.9] font-extralight tracking-[0.05em] sm:tracking-[0.2em] md:tracking-[0.4em] uppercase mb-5 px-2">
+          <div className="mb-12">
+            <h1 className="font-serif text-4xl sm:text-6xl md:text-8xl lg:text-9xl xl:text-[10rem] font-light tracking-wide sm:tracking-wider md:tracking-widest uppercase leading-none mb-4">
               SSELFIE
             </h1>
-            <h2 className="font-times text-[clamp(1.2rem,3.5vw,3rem)] leading-none font-extralight tracking-[0.1em] sm:tracking-[0.2em] md:tracking-[0.3em] uppercase opacity-80 px-2">
+            <h2 className="font-serif text-xl sm:text-2xl md:text-4xl lg:text-5xl font-light tracking-wider uppercase text-white/90">
               STUDIO
             </h2>
           </div>
           
-          <p className="text-base tracking-[0.1em] uppercase opacity-80 font-light max-w-2xl mx-auto leading-relaxed mb-16">
-            This is where magic happens. Where one selfie becomes a business. 
-            Where you stop playing small and start building empire.
+          <p className="text-base sm:text-lg text-white/80 max-w-2xl mx-auto mb-12">
+            Where one selfie becomes a business.
           </p>
 
           {/* Quick Stats in Hero */}
-          <div className="flex justify-center gap-12 text-center">
+          <div className="flex flex-col sm:flex-row justify-center gap-8 sm:gap-12 text-center">
             <div>
-              <div className="text-3xl font-times mb-2">{usageStats.used}</div>
+              <div className="text-2xl sm:text-3xl font-serif mb-2">{usageStats.used}</div>
               <div className="text-xs tracking-[0.2em] uppercase opacity-60">Photos Generated</div>
             </div>
             <div>
-              <div className="text-3xl font-times mb-2">{journeySteps.filter(s => s.status === 'complete').length}</div>
+              <div className="text-2xl sm:text-3xl font-serif mb-2">{journeySteps.filter(s => s.status === 'complete').length}</div>
               <div className="text-xs tracking-[0.2em] uppercase opacity-60">Steps Complete</div>
             </div>
             <div>
-              <div className="text-3xl font-times mb-2">{usageStats.total - usageStats.used}</div>
+              <div className="text-2xl sm:text-3xl font-serif mb-2">{usageStats.total - usageStats.used}</div>
               <div className="text-xs tracking-[0.2em] uppercase opacity-60">Remaining This Month</div>
             </div>
           </div>
@@ -210,23 +285,16 @@ export default function Workspace() {
       </section>
 
       {/* Editorial Quote Section */}
-      <section className="relative py-32 px-8 bg-[#f5f5f5] text-center overflow-hidden">
-        {/* Subtle Background Pattern */}
-        <div className="absolute inset-0 opacity-5">
-          <div className="absolute top-20 left-20 w-px h-40 bg-black"></div>
-          <div className="absolute top-40 right-32 w-px h-60 bg-black"></div>
-          <div className="absolute bottom-20 left-1/3 w-px h-32 bg-black"></div>
-        </div>
-        
-        <div className="relative max-w-4xl mx-auto">
-          <div className="text-xs font-normal tracking-[0.4em] uppercase text-[#666666] mb-12">
+      <section className="py-20 sm:py-32 px-4 sm:px-6 lg:px-8 bg-gray-50 text-center">
+        <div className="max-w-4xl mx-auto">
+          <div className="text-xs tracking-[0.4em] uppercase text-gray-500 mb-8">
             Sandra's Philosophy
           </div>
-          <blockquote className="font-times text-[clamp(28px,4vw,56px)] italic leading-[1.3] tracking-[-0.02em] text-black mb-8">
-            "Your mess is your message. Your story is your strategy. 
-            Your authenticity is your algorithm. Let's build something real."
+          <blockquote className="font-serif text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-light italic leading-tight text-black mb-8">
+            "Your mess is your message.<br />
+            Let's build something real."
           </blockquote>
-          <cite className="block text-xs tracking-[0.3em] uppercase font-light text-[#666666]">
+          <cite className="text-xs tracking-[0.3em] uppercase text-gray-500">
             Sandra Sigurjónsdóttir, Founder
           </cite>
         </div>
@@ -239,10 +307,10 @@ export default function Workspace() {
           {/* Your Journey - Step Cards */}
           <div className="mb-20">
             <div className="text-center mb-16">
-              <p className="text-xs font-normal tracking-[0.4em] uppercase text-[#666666] mb-6">
+              <div className="text-xs tracking-[0.4em] uppercase text-gray-500 mb-6">
                 Your Journey
-              </p>
-              <h2 className="font-times text-[clamp(2rem,4vw,4rem)] font-extralight tracking-[-0.01em] uppercase leading-none">
+              </div>
+              <h2 className="font-serif text-3xl sm:text-4xl md:text-5xl font-light tracking-wide uppercase">
                 Nine Steps to Empire
               </h2>
             </div>
@@ -346,26 +414,26 @@ export default function Workspace() {
 
           {/* Usage Overview - Editorial Card Style */}
           <div className="text-center">
-            <div className="bg-[#f5f5f5] p-16 max-w-3xl mx-auto border border-[#e0e0e0]">
-              <div className="text-xs font-normal tracking-[0.4em] uppercase text-[#666666] mb-8">
+            <div className="bg-gray-50 p-12 sm:p-16 max-w-3xl mx-auto">
+              <div className="text-xs tracking-[0.4em] uppercase text-gray-500 mb-8">
                 Monthly Analytics
               </div>
-              <h3 className="font-times text-[clamp(1.5rem,3vw,2.5rem)] font-extralight tracking-[-0.01em] uppercase mb-12">
+              <h3 className="font-serif text-2xl sm:text-3xl md:text-4xl font-light uppercase mb-12">
                 Usage Overview
               </h3>
               
-              <div className="grid grid-cols-3 gap-12 mb-12">
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-8 sm:gap-12 mb-12">
                 <div className="text-center">
-                  <div className="font-times text-[clamp(2rem,4vw,3rem)] font-extralight mb-3">{usageStats.used}</div>
-                  <div className="text-xs tracking-[0.3em] uppercase font-light text-[#666666]">Generated</div>
+                  <div className="font-serif text-3xl sm:text-4xl md:text-5xl font-light mb-3">{usageStats.used}</div>
+                  <div className="text-xs tracking-[0.3em] uppercase text-gray-600">Generated</div>
                 </div>
                 <div className="text-center">
-                  <div className="font-times text-[clamp(2rem,4vw,3rem)] font-extralight mb-3">{usageStats.total - usageStats.used}</div>
-                  <div className="text-xs tracking-[0.3em] uppercase font-light text-[#666666]">Remaining</div>
+                  <div className="font-serif text-3xl sm:text-4xl md:text-5xl font-light mb-3">{usageStats.total - usageStats.used}</div>
+                  <div className="text-xs tracking-[0.3em] uppercase text-gray-600">Remaining</div>
                 </div>
                 <div className="text-center">
-                  <div className="font-times text-[clamp(2rem,4vw,3rem)] font-extralight mb-3">{usageStats.percentage}%</div>
-                  <div className="text-xs tracking-[0.3em] uppercase font-light text-[#666666]">Used</div>
+                  <div className="font-serif text-3xl sm:text-4xl md:text-5xl font-light mb-3">{usageStats.percentage}%</div>
+                  <div className="text-xs tracking-[0.3em] uppercase text-gray-600">Used</div>
                 </div>
               </div>
 
