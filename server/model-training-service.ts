@@ -394,8 +394,8 @@ export class ModelTrainingService {
         basePrompt = `${triggerWord} ${customPrompt}`;
       }
       
-      // Enhanced prompt with film aesthetics and professional specifications
-      const filmEnhancement = "shot on Hasselblad X2D 100C, 90mm lens, heavy 35mm film grain, matte skin finish, authentic skin texture with visible pores, natural imperfections, analog film photography aesthetic, raw film negative quality, no glossy skin, no shiny skin, no oily skin, natural matte complexion";
+      // Enhanced prompt with film aesthetics and professional specifications (ANTI-GLOSSY)
+      const filmEnhancement = "shot on Hasselblad X2D 100C, 90mm lens, heavy 35mm film grain, matte skin finish, authentic skin texture with visible pores, natural imperfections, analog film photography aesthetic, raw film negative quality, no glossy skin, no shiny skin, no oily skin, natural matte complexion, dry skin texture, non-reflective skin, natural skin oils minimal, authentic film grain texture, pronounced grain structure, Kodak Portra 400 film aesthetic";
       const fashionEnhancement = "wearing designer pieces, tailored clothing, luxury materials, sophisticated styling, elegant feminine fashion, high-end accessories, refined aesthetic";
       const environmentalEnhancement = "full scene visible, environmental context, lifestyle photography not portrait, editorial lifestyle moment";
       // Get user-specific hair characteristics
@@ -418,13 +418,13 @@ export class ModelTrainingService {
         version: modelToUse,
         input: {
           prompt: finalPrompt,
-          negative_prompt: "portrait, headshot, passport photo, studio shot, centered face, isolated subject, corporate headshot, ID photo, school photo, posed, glossy skin, plastic skin, overly polished, artificial lighting, fake appearance, heavily airbrushed, perfect skin, flawless complexion, heavy digital enhancement, strong beauty filter, unrealistic skin texture, synthetic appearance, smooth skin, airbrushed, retouched, magazine retouching, digital perfection, waxy skin, doll-like skin, porcelain skin, flawless makeup, heavy foundation, concealer, smooth face, perfect complexion, digital smoothing, beauty app filter, Instagram filter, snapchat filter, face tune, photoshop skin, inconsistent hair color, wrong hair color, blonde hair, light hair, short hair, straight hair",
+          negative_prompt: "portrait, headshot, passport photo, studio shot, centered face, isolated subject, corporate headshot, ID photo, school photo, posed, glossy skin, shiny skin, oily skin, plastic skin, overly polished, artificial lighting, fake appearance, heavily airbrushed, perfect skin, flawless complexion, heavy digital enhancement, strong beauty filter, unrealistic skin texture, synthetic appearance, smooth skin, airbrushed, retouched, magazine retouching, digital perfection, waxy skin, doll-like skin, porcelain skin, flawless makeup, heavy foundation, concealer, smooth face, perfect complexion, digital smoothing, beauty app filter, Instagram filter, snapchat filter, face tune, photoshop skin, shiny face, polished skin, reflective skin, wet skin, slick skin, lacquered skin, varnished skin, glossy finish, artificial shine, digital glow, skin blur, inconsistent hair color, wrong hair color, blonde hair, light hair, short hair, straight hair",
           num_outputs: count,
           aspect_ratio: "4:3", // Wider aspect for environmental scenes
           output_format: "jpg",
           output_quality: 95,
-          guidance_scale: 2.5, // CRITICAL - lower for more realistic/dynamic results
-          num_inference_steps: 32, // Optimal for lifestyle photography
+          guidance_scale: 3, // CRITICAL - higher for more realistic/less fake results
+          num_inference_steps: 28, // Optimal for film-like quality (same as AI Photoshoot)
           go_fast: false, // Quality over speed
           seed: Math.floor(Math.random() * 1000000)
         }
