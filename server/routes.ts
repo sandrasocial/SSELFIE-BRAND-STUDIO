@@ -2057,9 +2057,15 @@ Consider this workflow optimized and ready for implementation! ⚙️`
       const { ModelTrainingService } = await import('./model-training-service');
       const result = await ModelTrainingService.generateUserImages(userId, prompt, count);
       
-      // Save new session images for persistence
+      // Save new images to AI gallery
       for (const imageUrl of result.images || []) {
-        await storage.saveSessionImage(userId, imageUrl, prompt);
+        await storage.saveAIImage({
+          userId,
+          imageUrl,
+          prompt,
+          style: 'photoshoot',
+          generationStatus: 'completed'
+        });
       }
       
       res.json({ 
@@ -2080,17 +2086,18 @@ Consider this workflow optimized and ready for implementation! ⚙️`
     }
   });
 
-  // Get current session images endpoint
+  // Get current session images endpoint - use existing AI images
   app.get('/api/current-session-images', async (req: any, res) => {
     try {
       const userId = req.user?.claims?.sub || req.session?.userId || 'sandra_test_user_2025';
       
-      // Get current session images
-      const sessionImages = await storage.getCurrentSessionImages(userId);
+      // Use existing working getAIImages method
+      const aiImages = await storage.getAIImages(userId);
+      const recentImages = aiImages.slice(0, 20); // Get latest 20
       
       res.json({ 
-        images: sessionImages.map(img => img.imageUrl),
-        count: sessionImages.length 
+        images: recentImages.map(img => img.imageUrl),
+        count: recentImages.length 
       });
     } catch (error) {
       console.error('Get session images error:', error);
