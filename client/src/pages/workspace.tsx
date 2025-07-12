@@ -113,10 +113,10 @@ export default function Workspace() {
 
   if (!isAuthenticated) {
     return (
-      <div className="min-h-screen bg-white">
+      <div className="min-h-screen bg-white touch-manipulation">
         <Navigation />
-        <div className="max-w-4xl mx-auto px-8 py-32 text-center">
-          <h1 className="font-times text-[clamp(3rem,6vw,6rem)] font-extralight tracking-[-0.01em] uppercase mb-6 leading-none">
+        <div className="max-w-4xl mx-auto px-6 sm:px-8 md:px-12 py-32 text-center">
+          <h1 className="font-times text-[clamp(2rem,5vw,6rem)] font-extralight tracking-[0.05em] sm:tracking-[0.1em] md:tracking-[-0.01em] uppercase mb-6 leading-none px-2">
             Please Sign In
           </h1>
           <p className="text-base font-light text-[#666666] max-w-lg mx-auto mb-10 leading-relaxed">
@@ -138,7 +138,7 @@ export default function Workspace() {
   const usageStats = getUsageStats();
 
   return (
-    <div className="min-h-screen bg-white">
+    <div className="min-h-screen bg-white touch-manipulation">
       <Navigation />
       
       {/* Full Bleed Hero Section */}
@@ -153,16 +153,16 @@ export default function Workspace() {
         </div>
         
         {/* Hero Content */}
-        <div className="relative z-10 text-center max-w-5xl mx-auto px-8">
-          <p className="text-xs font-light tracking-[0.4em] uppercase text-white/70 mb-10">
+        <div className="relative z-10 text-center max-w-5xl mx-auto px-6 sm:px-8 md:px-12">
+          <p className="text-[10px] sm:text-xs font-light tracking-[0.3em] sm:tracking-[0.4em] uppercase text-white/70 mb-8 sm:mb-10">
             Your Personal Brand Empire
           </p>
           
           <div className="mb-16">
-            <h1 className="font-times text-[clamp(4rem,10vw,9rem)] leading-[0.9] font-extralight tracking-[0.5em] uppercase mb-5">
+            <h1 className="font-times text-[clamp(2.5rem,9vw,9rem)] leading-[0.9] font-extralight tracking-[0.05em] sm:tracking-[0.2em] md:tracking-[0.4em] uppercase mb-5 px-2">
               SSELFIE
             </h1>
-            <h2 className="font-times text-[clamp(1.5rem,4vw,3rem)] leading-none font-extralight tracking-[0.3em] uppercase opacity-80">
+            <h2 className="font-times text-[clamp(1.2rem,3.5vw,3rem)] leading-none font-extralight tracking-[0.1em] sm:tracking-[0.2em] md:tracking-[0.3em] uppercase opacity-80 px-2">
               STUDIO
             </h2>
           </div>
