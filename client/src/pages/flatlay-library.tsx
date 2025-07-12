@@ -4,6 +4,7 @@ import { useToast } from "@/hooks/use-toast";
 import { useQueryClient } from "@tanstack/react-query";
 import { HeroFullBleed } from '@/components/HeroFullBleed';
 import { Navigation } from '@/components/navigation';
+import { SandraImages } from '@/lib/sandra-images';
 
 interface FlatlayImage {
   id: string;
@@ -18,6 +19,7 @@ interface FlatlayCollection {
   name: string;
   description: string;
   aesthetic: string;
+  backgroundImage: string;
   images: FlatlayImage[];
 }
 
@@ -28,29 +30,42 @@ const flatlayCollections: FlatlayCollection[] = [
     name: 'Luxury Minimal',
     description: 'Clean white backgrounds, designer accessories, minimal styling',
     aesthetic: 'Clean sophistication with generous white space',
-    images: [
-      // Images will be added here - placeholder structure
-      {
-        id: 'lm-1',
-        url: '/api/placeholder/400/500',
-        title: 'Designer Accessories',
-        category: 'Luxury Minimal',
-        description: 'Clean white background with luxury accessories'
-      }
-    ]
+    backgroundImage: SandraImages.flatlays.workspace1,
+    images: SandraImages.flatlays.luxuryMinimal.map((url, index) => ({
+      id: `lm-${index + 1}`,
+      url,
+      title: ['Clean Workspace', 'Minimal Setup', 'Beauty Minimal', 'Planning Flatlay', 'Executive Setup', 'Content Creation', 'Laptop Workspace'][index] || 'Luxury Minimal',
+      category: 'Luxury Minimal',
+      description: 'Clean sophisticated lifestyle flatlay'
+    }))
   },
   {
     id: 'editorial-magazine',
     name: 'Editorial Magazine',
     description: 'Dark moody flatlays, fashion magazines, coffee aesthetic',
     aesthetic: 'Magazine-worthy editorial sophistication',
+    backgroundImage: SandraImages.editorial.laptop1,
     images: [
       {
         id: 'em-1',
-        url: '/api/placeholder/400/500',
-        title: 'Magazine Mood',
+        url: SandraImages.editorial.laptop1,
+        title: 'Editorial Workspace',
         category: 'Editorial Magazine',
-        description: 'Dark moody flatlay with fashion magazines'
+        description: 'Dark moody editorial flatlay'
+      },
+      {
+        id: 'em-2',
+        url: SandraImages.editorial.thinking,
+        title: 'Creative Process',
+        category: 'Editorial Magazine',
+        description: 'Magazine-worthy editorial moment'
+      },
+      {
+        id: 'em-3',
+        url: SandraImages.flatlays.planning,
+        title: 'Editorial Planning',
+        category: 'Editorial Magazine',
+        description: 'Dark sophisticated planning setup'
       }
     ]
   },
@@ -59,13 +74,28 @@ const flatlayCollections: FlatlayCollection[] = [
     name: 'European Luxury',
     description: 'Parisian cafe tables, designer bags, sophisticated lifestyle',
     aesthetic: 'Effortless European sophistication',
+    backgroundImage: SandraImages.editorial.laptop2,
     images: [
       {
         id: 'el-1',
-        url: '/api/placeholder/400/500',
+        url: SandraImages.editorial.laptop2,
         title: 'Parisian Lifestyle',
         category: 'European Luxury',
         description: 'Sophisticated cafe table setup'
+      },
+      {
+        id: 'el-2',
+        url: SandraImages.flatlays.workspace2,
+        title: 'European Workspace',
+        category: 'European Luxury',
+        description: 'Effortless luxury lifestyle'
+      },
+      {
+        id: 'el-3',
+        url: SandraImages.editorial.phone1,
+        title: 'Content Creation',
+        category: 'European Luxury',
+        description: 'Sophisticated content lifestyle'
       }
     ]
   },
@@ -74,13 +104,28 @@ const flatlayCollections: FlatlayCollection[] = [
     name: 'Wellness & Mindset',
     description: 'Natural textures, crystals, journals, self-care items',
     aesthetic: 'Healing and mindful living',
+    backgroundImage: SandraImages.editorial.thinking,
     images: [
       {
         id: 'wm-1',
-        url: '/api/placeholder/400/500',
+        url: SandraImages.editorial.thinking,
         title: 'Self-Care Ritual',
         category: 'Wellness & Mindset',
         description: 'Natural textures and mindful items'
+      },
+      {
+        id: 'wm-2',
+        url: SandraImages.flatlays.beauty,
+        title: 'Wellness Beauty',
+        category: 'Wellness & Mindset',
+        description: 'Mindful beauty routine setup'
+      },
+      {
+        id: 'wm-3',
+        url: SandraImages.journey.building,
+        title: 'Growth Journey',
+        category: 'Wellness & Mindset',
+        description: 'Personal development aesthetic'
       }
     ]
   },
@@ -89,13 +134,28 @@ const flatlayCollections: FlatlayCollection[] = [
     name: 'Business Professional',
     description: 'Laptop flatlays, planning materials, office aesthetics',
     aesthetic: 'Professional productivity with style',
+    backgroundImage: SandraImages.flatlays.workspace1,
     images: [
       {
         id: 'bp-1',
-        url: '/api/placeholder/400/500',
+        url: SandraImages.flatlays.workspace1,
         title: 'Business Setup',
         category: 'Business Professional',
         description: 'Stylish productivity flatlay'
+      },
+      {
+        id: 'bp-2',
+        url: SandraImages.flatlays.planning,
+        title: 'Strategic Planning',
+        category: 'Business Professional',
+        description: 'Professional planning materials'
+      },
+      {
+        id: 'bp-3',
+        url: SandraImages.editorial.laptop1,
+        title: 'Executive Workspace',
+        category: 'Business Professional',
+        description: 'Professional laptop workspace'
       }
     ]
   },
@@ -104,13 +164,28 @@ const flatlayCollections: FlatlayCollection[] = [
     name: 'Pink & Girly',
     description: 'Soft feminine flatlays, beauty products, flowers',
     aesthetic: 'Feminine and romantic styling',
+    backgroundImage: SandraImages.flatlays.beauty,
     images: [
       {
         id: 'pg-1',
-        url: '/api/placeholder/400/500',
+        url: SandraImages.flatlays.beauty,
         title: 'Feminine Beauty',
         category: 'Pink & Girly',
         description: 'Soft pink feminine flatlay'
+      },
+      {
+        id: 'pg-2',
+        url: SandraImages.editorial.laughing,
+        title: 'Joy & Confidence',
+        category: 'Pink & Girly',
+        description: 'Feminine confidence energy'
+      },
+      {
+        id: 'pg-3',
+        url: SandraImages.editorial.mirror,
+        title: 'Beauty Transformation',
+        category: 'Pink & Girly',
+        description: 'Feminine transformation moment'
       }
     ]
   }
@@ -181,7 +256,7 @@ export default function FlatlayLibrary() {
         title="FLATLAYS"
         tagline="Brand Library"
         description="CURATED LIFESTYLE IMAGES THAT MATCH YOUR AESTHETIC. BECAUSE YOUR BRAND NEEDS MORE THAN JUST SELFIES."
-        backgroundImage="https://images.unsplash.com/photo-1586953208448-b95a79798f07?w=1200&h=800&fit=crop"
+        backgroundImage={SandraImages.flatlays.workspace1}
       />
 
       {/* Collection Selector */}
@@ -220,53 +295,106 @@ export default function FlatlayLibrary() {
             </p>
           </div>
 
-          {/* Collection Grid */}
+          {/* Collection Grid - Image Buttons with Text Overlay */}
           <div style={{
             display: 'grid',
-            gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))',
+            gridTemplateColumns: 'repeat(auto-fit, minmax(320px, 1fr))',
             gap: '30px',
             marginBottom: '80px'
           }}>
             {flatlayCollections.map((collection) => (
-              <div
+              <button
                 key={collection.id}
                 onClick={() => setSelectedCollection(collection)}
                 style={{
-                  background: selectedCollection.id === collection.id ? '#0a0a0a' : '#ffffff',
-                  color: selectedCollection.id === collection.id ? '#ffffff' : '#0a0a0a',
-                  border: '1px solid #e5e5e5',
-                  padding: '40px',
+                  position: 'relative',
+                  height: '280px',
+                  border: selectedCollection.id === collection.id ? '3px solid #0a0a0a' : '1px solid #e5e5e5',
                   cursor: 'pointer',
                   transition: 'all 300ms ease',
-                  textAlign: 'center'
+                  background: 'transparent',
+                  padding: '0',
+                  overflow: 'hidden'
+                }}
+                onMouseEnter={(e) => {
+                  e.currentTarget.style.transform = 'scale(1.02)';
+                }}
+                onMouseLeave={(e) => {
+                  e.currentTarget.style.transform = 'scale(1)';
                 }}
               >
-                <h3 style={{
-                  fontFamily: 'Times New Roman, serif',
-                  fontSize: '1.5rem',
-                  fontWeight: 200,
-                  letterSpacing: '0.1em',
-                  textTransform: 'uppercase',
-                  marginBottom: '15px'
-                }}>
-                  {collection.name}
-                </h3>
-                <p style={{
-                  fontSize: '14px',
-                  opacity: 0.8,
-                  marginBottom: '15px',
-                  lineHeight: 1.5
-                }}>
-                  {collection.description}
-                </p>
+                {/* Background Image */}
                 <div style={{
-                  fontSize: '12px',
-                  opacity: 0.6,
-                  fontStyle: 'italic'
+                  position: 'absolute',
+                  top: '0',
+                  left: '0',
+                  width: '100%',
+                  height: '100%',
+                  backgroundImage: `url(${collection.backgroundImage})`,
+                  backgroundSize: 'cover',
+                  backgroundPosition: 'center',
+                  filter: selectedCollection.id === collection.id ? 'brightness(1)' : 'brightness(0.75)'
+                }} />
+                
+                {/* Text Overlay */}
+                <div style={{
+                  position: 'absolute',
+                  bottom: '0',
+                  left: '0',
+                  right: '0',
+                  background: 'linear-gradient(transparent, rgba(0,0,0,0.85))',
+                  padding: '50px 30px 25px',
+                  color: '#ffffff',
+                  textAlign: 'center'
                 }}>
-                  {collection.aesthetic}
+                  <h3 style={{
+                    fontFamily: 'Times New Roman, serif',
+                    fontSize: '1.5rem',
+                    fontWeight: 200,
+                    letterSpacing: '0.1em',
+                    textTransform: 'uppercase',
+                    marginBottom: '12px',
+                    color: '#ffffff'
+                  }}>
+                    {collection.name}
+                  </h3>
+                  <p style={{
+                    fontSize: '14px',
+                    opacity: 0.9,
+                    marginBottom: '8px',
+                    lineHeight: 1.4,
+                    color: '#ffffff'
+                  }}>
+                    {collection.description}
+                  </p>
+                  <div style={{
+                    fontSize: '12px',
+                    opacity: 0.7,
+                    fontStyle: 'italic',
+                    color: '#ffffff'
+                  }}>
+                    {collection.aesthetic}
+                  </div>
                 </div>
-              </div>
+                
+                {/* Selection Indicator */}
+                {selectedCollection.id === collection.id && (
+                  <div style={{
+                    position: 'absolute',
+                    top: '15px',
+                    right: '15px',
+                    background: '#ffffff',
+                    color: '#0a0a0a',
+                    padding: '5px 12px',
+                    fontSize: '12px',
+                    fontWeight: 600,
+                    letterSpacing: '0.1em',
+                    textTransform: 'uppercase'
+                  }}>
+                    SELECTED
+                  </div>
+                )}
+              </button>
             ))}
           </div>
         </div>
@@ -312,7 +440,7 @@ export default function FlatlayLibrary() {
               textAlign: 'center',
               border: '1px solid #e5e5e5'
             }}>
-              📦 <strong>Upload Location:</strong> Create folder: <code>/public/flatlays/{selectedCollection.id}/</code>
+              <strong>Upload Location:</strong> Create folder: <code>/public/flatlays/{selectedCollection.id}/</code>
               <br />
               Add your flatlay images here and update the collection data below
             </div>
