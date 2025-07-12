@@ -1,5 +1,5 @@
 import React, { useState, useRef, useEffect } from 'react';
-import SandraNavigation from '@/components/SandraNavigation';
+import { Navigation } from '@/components/navigation';
 import { SandraImages } from '@/lib/sandra-images';
 
 interface StyleButton {
@@ -194,7 +194,7 @@ Your mess is your message. Let's capture both. Tell me what chapter you're writi
   return (
     <div className="min-h-screen bg-white">
       {/* Navigation */}
-      <SandraNavigation />
+      <Navigation />
 
       {/* Full Bleed Hero Section */}
       <section className="relative min-h-screen flex items-center justify-center bg-black text-white overflow-hidden">
@@ -214,17 +214,14 @@ Your mess is your message. Let's capture both. Tell me what chapter you're writi
           </div>
           
           <div className="mb-16">
-            <h1 className="font-times text-[clamp(4rem,10vw,9rem)] leading-[1] font-extralight tracking-[0.5em] uppercase mb-4">
-              SANDRA
+            <h1 className="font-times text-[clamp(3rem,8vw,7rem)] leading-[0.9] font-extralight tracking-[0.4em] uppercase">
+              PERSONAL BRAND<br />
+              PHOTOSHOOT
             </h1>
-            <h2 className="font-times text-[clamp(2.5rem,6vw,5rem)] leading-[1] font-extralight tracking-[0.3em] uppercase text-white/90">
-              SIGURJÓNSDÓTTIR
-            </h2>
           </div>
           
-          <p className="text-base font-light max-w-3xl mx-auto leading-relaxed mb-16 tracking-[0.02em] text-white/80">
-            Your mess is your message. I figured out how to capture the real you—not the perfect version, 
-            but the authentic one building something meaningful. Let's turn your story into your strategy.
+          <p className="text-base font-light max-w-2xl mx-auto leading-relaxed mb-16 tracking-[0.02em] text-white/80">
+            Your mess is your message. Let's capture the real you building something meaningful.
           </p>
 
           <div className="flex justify-center">
