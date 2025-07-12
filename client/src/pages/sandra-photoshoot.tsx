@@ -1,5 +1,5 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { Navigation } from '@/components/navigation';
+import { WorkspaceNavigation } from '@/components/workspace-navigation';
 import { SandraImages } from '@/lib/sandra-images';
 import { useToast } from '@/hooks/use-toast';
 
@@ -385,7 +385,7 @@ Here are some starter prompts to get you going, or tell me what mood you're feel
   return (
     <div className="min-h-screen bg-white touch-manipulation">
       {/* Navigation */}
-      <Navigation />
+      <WorkspaceNavigation />
 
       {/* Full Bleed Hero Section */}
       <section className="relative min-h-screen flex items-center justify-center bg-black text-white overflow-hidden">

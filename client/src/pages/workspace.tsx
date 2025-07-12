@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useAuth } from '@/hooks/use-auth';
 import { useQuery } from '@tanstack/react-query';
 import { Link } from 'wouter';
+import { WorkspaceNavigation } from '@/components/workspace-navigation';
 import { SandraImages } from '@/lib/sandra-images';
 
 export default function Workspace() {
@@ -202,83 +203,42 @@ export default function Workspace() {
 
   return (
     <div className="min-h-screen bg-white">
-      {/* Navigation with scroll effect */}
-      <nav className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${
-        scrolled ? 'bg-black/80 backdrop-blur-md' : 'bg-transparent'
-      }`}>
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex justify-between items-center h-20">
-            <Link href="/" className="text-white text-lg font-light tracking-wider hover:opacity-80 transition-opacity">
-              SSELFIE STUDIO
-            </Link>
-            
-            <div className="hidden md:flex space-x-12">
-              <Link href="/workspace" className="text-white hover:text-white text-sm uppercase tracking-wider transition-colors">
-                Studio
-              </Link>
-              <Link href="/ai-photoshoot" className="text-white/80 hover:text-white text-sm uppercase tracking-wider transition-colors">
-                AI Photoshoot
-              </Link>
-              <Link href="/gallery" className="text-white/80 hover:text-white text-sm uppercase tracking-wider transition-colors">
-                Gallery
-              </Link>
-              <Link href="/api/logout" className="text-white/80 hover:text-white text-sm uppercase tracking-wider transition-colors">
-                Logout
-              </Link>
-            </div>
-            
-            <div className="md:hidden">
-              <button className="text-white text-sm uppercase tracking-wider">
-                Menu
-              </button>
-            </div>
-          </div>
-        </div>
-      </nav>
+      {/* Minimalistic Navigation */}
+      <WorkspaceNavigation />
       
-      {/* Full Bleed Hero Section */}
-      <section className="relative min-h-screen flex items-center justify-center bg-black text-white overflow-hidden">
-        {/* Background Image */}
-        <div className="absolute inset-0 opacity-30">
-          <img 
-            src="https://replicate.delivery/xezq/tIR9rofcvTxuE61uMrnnMufXCv7A8aAaMtQpIQkvYej8YhfTB/out-0.jpg"
-            alt="Your SSELFIE Studio"
-            className="w-full h-full object-cover"
-          />
-        </div>
-        
-        {/* Hero Content */}
-        <div className="relative z-10 text-center max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="text-xs tracking-[0.4em] uppercase text-white/60 mb-8">
+      {/* Hero Section - Minimalistic with Padding for Navigation */}
+      <section className="pt-32 pb-20 px-4 sm:px-6 lg:px-8 text-center bg-white">
+        <div className="max-w-6xl mx-auto">
+          <div className="text-xs tracking-[0.4em] uppercase text-gray-500 mb-8">
             Your Personal Brand Empire
           </div>
           
           <div className="mb-12">
-            <h1 className="font-serif text-4xl sm:text-6xl md:text-8xl lg:text-9xl xl:text-[10rem] font-light tracking-wide sm:tracking-wider md:tracking-widest uppercase leading-none mb-4">
+            <h1 className="font-serif text-4xl sm:text-6xl md:text-8xl lg:text-9xl font-light tracking-wide sm:tracking-wider md:tracking-widest uppercase leading-none mb-4 text-black">
               SSELFIE
             </h1>
-            <h2 className="font-serif text-xl sm:text-2xl md:text-4xl lg:text-5xl font-light tracking-wider uppercase text-white/90">
+            <h2 className="font-serif text-xl sm:text-2xl md:text-4xl lg:text-5xl font-light tracking-wider uppercase text-gray-600">
               STUDIO
             </h2>
           </div>
           
-          <p className="text-base sm:text-lg text-white/80 max-w-2xl mx-auto mb-12">
+          <p className="text-base sm:text-lg text-gray-600 max-w-2xl mx-auto mb-12">
             Where one selfie becomes a business.
           </p>
 
-          {/* Quick Stats in Hero */}
+          {/* Quick Stats */}
           <div className="flex flex-col sm:flex-row justify-center gap-8 sm:gap-12 text-center">
             <div>
-              <div className="text-2xl sm:text-3xl font-serif mb-2">{usageStats.used}</div>
-              <div className="text-xs tracking-[0.2em] uppercase opacity-60">Photos Generated</div>
+              <div className="text-2xl sm:text-3xl font-serif mb-2 text-black">{usageStats.used}</div>
+              <div className="text-xs tracking-[0.2em] uppercase text-gray-500">Photos Generated</div>
             </div>
             <div>
-              <div className="text-2xl sm:text-3xl font-serif mb-2">{journeySteps.filter(s => s.status === 'complete').length}</div>
-              <div className="text-xs tracking-[0.2em] uppercase opacity-60">Steps Complete</div>
+              <div className="text-2xl sm:text-3xl font-serif mb-2 text-black">{journeySteps.filter(s => s.status === 'complete').length}</div>
+              <div className="text-xs tracking-[0.2em] uppercase text-gray-500">Steps Complete</div>
             </div>
             <div>
-              <div className="text-2xl sm:text-3xl font-serif mb-2">{usageStats.total - usageStats.used}</div>
-              <div className="text-xs tracking-[0.2em] uppercase opacity-60">Remaining This Month</div>
+              <div className="text-2xl sm:text-3xl font-serif mb-2 text-black">{usageStats.total - usageStats.used}</div>
+              <div className="text-xs tracking-[0.2em] uppercase text-gray-500">Remaining This Month</div>
             </div>
           </div>
         </div>

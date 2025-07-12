@@ -3,7 +3,7 @@ import { useAuth } from '@/hooks/useAuth';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { apiRequest } from '@/lib/queryClient';
 import { useToast } from '@/hooks/use-toast';
-import { Navigation } from '@/components/navigation';
+import { WorkspaceNavigation } from '@/components/workspace-navigation';
 import { HeroFullBleed } from '@/components/hero-full-bleed';
 import { SandraImages } from '@/lib/sandra-images';
 
@@ -427,7 +427,7 @@ export default function AIPhotoshootPage() {
         fontWeight: 300,
         color: '#0a0a0a'
       }}>
-        <Navigation />
+        <WorkspaceNavigation />
         <div style={{
           maxWidth: '1400px',
           margin: '0 auto',
@@ -480,7 +480,7 @@ export default function AIPhotoshootPage() {
 
   return (
     <div className="min-h-screen bg-white">
-      <Navigation />
+      <WorkspaceNavigation />
       
       {/* Generation Progress Bar */}
       {generatingImages && (
