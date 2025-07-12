@@ -267,6 +267,65 @@ I have ALL collections ready - just tell me your mood! ✨`;
     }
   });
 
+  // Upload inspiration photo for style reference
+  app.post('/api/upload-inspiration', async (req, res) => {
+    try {
+      const { imageUrl, description, tags, source } = req.body;
+      const userId = req.user?.claims?.sub || req.session?.userId || 'sandra_test_user_2025';
+      
+      if (!imageUrl) {
+        return res.status(400).json({ error: 'Image URL is required' });
+      }
+
+      const inspirationPhoto = await storage.saveInspirationPhoto({
+        userId,
+        imageUrl,
+        description: description || '',
+        tags: tags || [],
+        source: source || 'upload',
+        isActive: true,
+        createdAt: new Date()
+      });
+      
+      console.log(`Inspiration photo saved for user ${userId}`);
+      res.json({ 
+        success: true, 
+        photo: inspirationPhoto,
+        message: 'Inspiration photo saved successfully'
+      });
+      
+    } catch (error) {
+      console.error('Upload inspiration error:', error);
+      res.status(500).json({ error: 'Failed to save inspiration photo' });
+    }
+  });
+
+  // Get user's inspiration photos
+  app.get('/api/inspiration-photos', async (req, res) => {
+    try {
+      const userId = req.user?.claims?.sub || req.session?.userId || 'sandra_test_user_2025';
+      const photos = await storage.getInspirationPhotos(userId);
+      res.json(photos);
+    } catch (error) {
+      console.error('Get inspiration photos error:', error);
+      res.status(500).json({ error: 'Failed to get inspiration photos' });
+    }
+  });
+
+  // Delete inspiration photo
+  app.delete('/api/inspiration-photos/:id', async (req, res) => {
+    try {
+      const { id } = req.params;
+      const userId = req.user?.claims?.sub || req.session?.userId || 'sandra_test_user_2025';
+      
+      await storage.deleteInspirationPhoto(parseInt(id), userId);
+      res.json({ success: true, message: 'Inspiration photo deleted' });
+    } catch (error) {
+      console.error('Delete inspiration photo error:', error);
+      res.status(500).json({ error: 'Failed to delete inspiration photo' });
+    }
+  });
+
   // Plan setup endpoint - called after checkout
   app.post('/api/setup-plan', async (req: any, res) => {
     try {

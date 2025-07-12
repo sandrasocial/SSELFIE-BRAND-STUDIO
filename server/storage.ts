@@ -8,6 +8,8 @@ import {
   userUsage,
   sandraConversations,
   photoshootSessions,
+  savedPrompts,
+  inspirationPhotos,
   type User,
   type UpsertUser,
   type OnboardingData,
@@ -26,6 +28,10 @@ import {
   type InsertSandraConversation,
   type PhotoshootSession,
   type InsertPhotoshootSession,
+  type SavedPrompt,
+  type InsertSavedPrompt,
+  type InspirationPhoto,
+  type InsertInspirationPhoto,
 } from "@shared/schema-simplified";
 import { db } from "./db";
 import { eq, and, desc, gte } from "drizzle-orm";
@@ -68,6 +74,15 @@ export interface IStorage {
   // Sandra AI conversation operations
   getSandraConversations(userId: string): Promise<SandraConversation[]>;
   saveSandraConversation(data: InsertSandraConversation): Promise<SandraConversation>;
+  
+  // Saved prompts operations
+  savePromptToLibrary(data: InsertSavedPrompt): Promise<SavedPrompt>;
+  getSavedPrompts(userId: string): Promise<SavedPrompt[]>;
+  
+  // Inspiration photos operations
+  saveInspirationPhoto(data: InsertInspirationPhoto): Promise<InspirationPhoto>;
+  getInspirationPhotos(userId: string): Promise<InspirationPhoto[]>;
+  deleteInspirationPhoto(id: number, userId: string): Promise<void>;
 }
 
 export class DatabaseStorage implements IStorage {
@@ -295,6 +310,47 @@ export class DatabaseStorage implements IStorage {
   async saveSandraConversation(data: InsertSandraConversation): Promise<SandraConversation> {
     const [conversation] = await db.insert(sandraConversations).values(data).returning();
     return conversation;
+  }
+
+  // Saved prompts operations
+  async savePromptToLibrary(data: InsertSavedPrompt): Promise<SavedPrompt> {
+    const [savedPrompt] = await db
+      .insert(savedPrompts)
+      .values(data)
+      .returning();
+    return savedPrompt;
+  }
+
+  async getSavedPrompts(userId: string): Promise<SavedPrompt[]> {
+    return await db
+      .select()
+      .from(savedPrompts)
+      .where(eq(savedPrompts.userId, userId))
+      .orderBy(desc(savedPrompts.createdAt));
+  }
+
+  // Inspiration photos operations
+  async saveInspirationPhoto(data: InsertInspirationPhoto): Promise<InspirationPhoto> {
+    const [photo] = await db
+      .insert(inspirationPhotos)
+      .values(data)
+      .returning();
+    return photo;
+  }
+
+  async getInspirationPhotos(userId: string): Promise<InspirationPhoto[]> {
+    return await db
+      .select()
+      .from(inspirationPhotos)
+      .where(and(eq(inspirationPhotos.userId, userId), eq(inspirationPhotos.isActive, true)))
+      .orderBy(desc(inspirationPhotos.createdAt));
+  }
+
+  async deleteInspirationPhoto(id: number, userId: string): Promise<void> {
+    await db
+      .update(inspirationPhotos)
+      .set({ isActive: false })
+      .where(and(eq(inspirationPhotos.id, id), eq(inspirationPhotos.userId, userId)));
   }
 }
 

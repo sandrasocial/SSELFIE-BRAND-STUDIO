@@ -159,6 +159,31 @@ export const photoshootSessions = pgTable("photoshoot_sessions", {
   updatedAt: timestamp("updated_at").defaultNow(),
 });
 
+// Saved prompts library table
+export const savedPrompts = pgTable("saved_prompts", {
+  id: serial("id").primaryKey(),
+  userId: varchar("user_id").references(() => users.id).notNull(),
+  name: varchar("name").notNull(),
+  description: text("description"),
+  prompt: text("prompt").notNull(),
+  camera: varchar("camera"),
+  texture: varchar("texture"),
+  collection: varchar("collection").default("My Prompts"),
+  createdAt: timestamp("created_at").defaultNow(),
+});
+
+// Inspiration photos uploaded by users for style reference
+export const inspirationPhotos = pgTable("inspiration_photos", {
+  id: serial("id").primaryKey(),
+  userId: varchar("user_id").references(() => users.id).notNull(),
+  imageUrl: varchar("image_url").notNull(),
+  description: text("description"), // User's description of what they like about the image
+  tags: jsonb("tags"), // Array of style tags extracted from the image
+  source: varchar("source").default("upload"), // upload, pinterest, url
+  isActive: boolean("is_active").default(true),
+  createdAt: timestamp("created_at").defaultNow(),
+});
+
 // Type definitions
 export type UpsertUser = typeof users.$inferInsert;
 export type User = typeof users.$inferSelect;
@@ -178,6 +203,10 @@ export type SandraConversation = typeof sandraConversations.$inferSelect;
 export type InsertSandraConversation = typeof sandraConversations.$inferInsert;
 export type PhotoshootSession = typeof photoshootSessions.$inferSelect;
 export type InsertPhotoshootSession = typeof photoshootSessions.$inferInsert;
+export type SavedPrompt = typeof savedPrompts.$inferSelect;
+export type InsertSavedPrompt = typeof savedPrompts.$inferInsert;
+export type InspirationPhoto = typeof inspirationPhotos.$inferSelect;
+export type InsertInspirationPhoto = typeof inspirationPhotos.$inferInsert;
 
 // Insert schemas with Zod validation
 export const insertOnboardingDataSchema = createInsertSchema(onboardingData);
@@ -188,3 +217,5 @@ export const insertSubscriptionSchema = createInsertSchema(subscriptions);
 export const insertUserUsageSchema = createInsertSchema(userUsage);
 export const insertSandraConversationSchema = createInsertSchema(sandraConversations);
 export const insertPhotoshootSessionSchema = createInsertSchema(photoshootSessions);
+export const insertSavedPromptSchema = createInsertSchema(savedPrompts);
+export const insertInspirationPhotoSchema = createInsertSchema(inspirationPhotos);
