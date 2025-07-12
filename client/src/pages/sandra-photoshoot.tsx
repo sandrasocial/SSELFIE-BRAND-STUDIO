@@ -214,10 +214,12 @@ Your mess is your message. Let's capture both. Tell me what chapter you're writi
           </div>
           
           <div className="mb-16">
-            <h1 className="font-times text-[clamp(3rem,8vw,7rem)] leading-[0.9] font-extralight tracking-[0.4em] uppercase">
-              PERSONAL BRAND<br />
+            <h1 className="font-times text-[clamp(4rem,10vw,9rem)] leading-[1] font-extralight tracking-[0.5em] uppercase mb-4">
               PHOTOSHOOT
             </h1>
+            <h2 className="text-xs font-light tracking-[0.4em] uppercase text-white/70">
+              WITH SANDRA
+            </h2>
           </div>
           
           <p className="text-base font-light max-w-2xl mx-auto leading-relaxed mb-16 tracking-[0.02em] text-white/80">
