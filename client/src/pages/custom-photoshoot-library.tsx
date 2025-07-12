@@ -104,14 +104,9 @@ export default function CustomPhotoshootLibrary() {
       {/* Hero Section using HeroFullBleed component */}
       <HeroFullBleed
         backgroundImage={SandraImages.editorial.laptop1}
-        tagline="Your Personal Archive"
-        title={
-          <>
-            YOUR CUSTOM<br />
-            PHOTOSHOOT LIBRARY
-          </>
-        }
-        subtitle="All your saved prompts in one place. Generate again, refine, or create new variations."
+        tagline="Custom Prompts"
+        title="LIBRARY"
+        subtitle="Your saved prompts and favorites"
         overlay={0.6}
         fullHeight={false}
       />
