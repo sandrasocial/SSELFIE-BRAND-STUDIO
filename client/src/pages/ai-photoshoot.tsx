@@ -422,6 +422,28 @@ What kind of mood are you going for today?`,
     }}>
       <Navigation />
       
+      {/* Generation Progress Bar */}
+      {generatingImages && (
+        <div style={{
+          position: 'fixed',
+          top: 0,
+          left: 0,
+          right: 0,
+          height: '2px',
+          backgroundColor: '#f5f5f5',
+          zIndex: 9999
+        }}>
+          <div 
+            style={{
+              height: '100%',
+              backgroundColor: '#000000',
+              width: `${generationProgress}%`,
+              transition: 'width 0.3s ease'
+            }}
+          />
+        </div>
+      )}
+      
       {/* Full Bleed Hero */}
       <div style={{
         width: '100vw',

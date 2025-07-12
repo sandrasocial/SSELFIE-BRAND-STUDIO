@@ -262,30 +262,7 @@ export class DatabaseStorage implements IStorage {
       .where(eq(photoshootSessions.userId, userId));
   }
 
-  // Use existing AI images functionality - no separate session tracking needed
-  async getCurrentSessionImages(userId: string): Promise<AIImage[]> {
-    return await db
-      .select()
-      .from(aiImages)
-      .where(eq(aiImages.userId, userId))
-      .orderBy(desc(aiImages.createdAt))
-      .limit(20); // Return latest 20 images
-  }
-
-  async deactivateSessionImages(userId: string): Promise<void> {
-    // Not needed - we'll just use the existing AI images
-    return;
-  }
-
-  async saveSessionImage(userId: string, imageUrl: string, prompt: string): Promise<AIImage> {
-    return await this.saveAIImage({
-      userId: userId,
-      imageUrl: imageUrl,
-      prompt: prompt,
-      style: 'current-session',
-      generationStatus: 'completed'
-    });
-  }
+  // Removed session methods - use existing getAIImages() instead
 
   // Sandra AI conversation operations
   async getSandraConversations(userId: string): Promise<SandraConversation[]> {
