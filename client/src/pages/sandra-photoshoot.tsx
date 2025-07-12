@@ -208,13 +208,13 @@ Your mess is your message. Let's capture both. Tell me what chapter you're writi
         </div>
         
         {/* Hero Content */}
-        <div className="relative z-10 text-center max-w-6xl mx-auto px-4 sm:px-6 md:px-8">
+        <div className="relative z-10 text-center max-w-6xl mx-auto px-6 sm:px-8 md:px-12">
           <div className="text-[10px] sm:text-xs font-normal tracking-[0.3em] sm:tracking-[0.4em] uppercase text-white/70 mb-8 sm:mb-12">
             AI Photography That Gets You
           </div>
           
           <div className="mb-12 sm:mb-16">
-            <h1 className="font-times text-[clamp(2.5rem,12vw,9rem)] leading-[0.9] font-extralight tracking-[0.3em] sm:tracking-[0.5em] uppercase mb-2 sm:mb-4">
+            <h1 className="font-times text-[clamp(2.2rem,10vw,9rem)] leading-[0.9] font-extralight tracking-[0.05em] sm:tracking-[0.2em] md:tracking-[0.4em] uppercase mb-2 sm:mb-4 px-2">
               PHOTOSHOOT
             </h1>
             <h2 className="text-[10px] sm:text-xs font-light tracking-[0.3em] sm:tracking-[0.4em] uppercase text-white/70">
