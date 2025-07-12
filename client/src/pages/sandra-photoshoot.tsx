@@ -425,30 +425,7 @@ What kind of mood are you going for today?`,
             </div>
           )}
 
-          {/* Quick Start Examples */}
-          <div className="mt-8 bg-white border border-[#e0e0e0] p-6">
-            <h3 className="text-lg font-light mb-4" style={{ fontFamily: 'Times New Roman, serif' }}>
-              Try These Pinterest-Style Requests:
-            </h3>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-              {[
-                "Pinterest vibes with sunset and flowing dress",
-                "Garden walk, not looking at camera, whole scenery",
-                "City lifestyle, walking away, architectural backdrop",
-                "Beach contemplation, golden hour, natural pose",
-                "Luxury cafe exit, full body environmental shot",
-                "Morning light through trees, peaceful energy"
-              ].map((example, index) => (
-                <button
-                  key={index}
-                  onClick={() => setInputMessage(example)}
-                  className="text-left p-3 border border-[#e0e0e0] hover:bg-[#f8f8f8] transition-colors text-sm font-light"
-                >
-                  "{example}"
-                </button>
-              ))}
-            </div>
-          </div>
+
         </div>
       </section>
     </div>
