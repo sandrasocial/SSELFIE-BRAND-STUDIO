@@ -321,7 +321,7 @@ export default function SandraPhotoshoot() {
       const response = await apiRequest('POST', '/api/sandra-ai-chat', { 
         message
       });
-      return response;
+      return response.json();
     },
     onSuccess: (data) => {
       console.log('Enhanced Sandra AI response:', data);
