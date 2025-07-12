@@ -334,9 +334,22 @@ export class ModelTrainingService {
         console.log('Using demo model for user without trained model');
       }
       
-      // Replace {trigger_word} placeholder and add dynamic lifestyle enhancements
-      const dynamicEnhancements = ", full scene visible, environmental context, lifestyle photography not portrait, candid moment, raw photo, film grain, photojournalistic style, not headshot, captured in motion";
-      const finalPrompt = customPrompt.replace('{trigger_word}', triggerWord) + dynamicEnhancements;
+      // Handle prompt formatting - Sandra's prompts already contain trigger words
+      let finalPrompt;
+      
+      if (customPrompt.includes('{trigger_word}')) {
+        // Legacy prompt format with placeholder
+        finalPrompt = customPrompt.replace('{trigger_word}', triggerWord);
+      } else if (customPrompt.startsWith(triggerWord)) {
+        // Sandra's custom prompts already start with trigger word - use as-is
+        finalPrompt = customPrompt;
+      } else {
+        // Add trigger word to beginning if not present
+        finalPrompt = `${triggerWord} ${customPrompt}`;
+      }
+      
+      console.log('Original prompt:', customPrompt);
+      console.log('Final prompt for generation:', finalPrompt);
 
       // Call REAL Replicate API for image generation with optimal realistic settings
       const requestBody = {
