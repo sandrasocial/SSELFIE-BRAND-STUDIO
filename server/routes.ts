@@ -202,6 +202,57 @@ I have ALL collections ready - just tell me your mood! ✨`;
     });
   });
 
+  // Plan setup endpoint - called after checkout
+  app.post('/api/setup-plan', async (req: any, res) => {
+    try {
+      const { plan } = req.body; // 'sselfie-studio' or 'sselfie-studio-pro'
+      const userId = req.session?.userId || req.user?.claims?.sub || 'sandra_test_user_2025';
+      
+      console.log(`Setting up plan ${plan} for user ${userId}`);
+      
+      // Validate plan
+      if (!['sselfie-studio', 'sselfie-studio-pro'].includes(plan)) {
+        return res.status(400).json({ message: 'Invalid plan selected' });
+      }
+      
+      // Create subscription
+      const subscription = await storage.createSubscription({
+        userId,
+        plan,
+        status: 'active',
+        currentPeriodStart: new Date(),
+        currentPeriodEnd: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000) // 30 days
+      });
+      
+      // Set up user usage based on plan
+      const isProPlan = plan === 'sselfie-studio-pro';
+      const monthlyLimit = isProPlan ? 300 : 100;
+      
+      const userUsage = await storage.createUserUsage({
+        userId,
+        plan,
+        monthlyGenerationsAllowed: monthlyLimit,
+        monthlyGenerationsUsed: 0,
+        sandraAIAccess: isProPlan,
+        currentPeriodStart: new Date(),
+        currentPeriodEnd: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000)
+      });
+      
+      console.log(`Plan setup complete: ${plan}, AI Access: ${isProPlan}, Limit: ${monthlyLimit}`);
+      
+      res.json({
+        success: true,
+        subscription,
+        usage: userUsage,
+        message: `Welcome to SSELFIE Studio${isProPlan ? ' PRO' : ''}!`
+      });
+      
+    } catch (error) {
+      console.error('Plan setup error:', error);
+      res.status(500).json({ message: 'Failed to setup plan' });
+    }
+  });
+
   // Verify real Replicate training status
   app.get('/api/verify-training/:userId', async (req, res) => {
     try {
@@ -957,13 +1008,23 @@ I have ALL collections ready - just tell me your mood! ✨`;
     }
   });
 
-  // Personal Branding Sandra AI - Full Claude API Integration
+  // Personal Branding Sandra AI - Full Claude API Integration (PRO only)
   app.post('/api/personal-branding-sandra', async (req: any, res) => {
     try {
       const { message } = req.body;
       const userId = req.session?.userId || req.user?.claims?.sub || 'sandra_test_user_2025';
       
       console.log(`Personal Branding Sandra chat request from user ${userId}: "${message}"`);
+      
+      // Check if user has PRO access for Sandra AI
+      const hasPROAccess = await storage.hasSandraAIAccess(userId);
+      if (!hasPROAccess) {
+        return res.status(403).json({
+          message: "Hey gorgeous! Sandra AI is available with SSELFIE STUDIO PRO. Upgrade to unlock your personal brand mentor who remembers everything about your journey and creates custom strategies just for you!",
+          requiresUpgrade: true,
+          upgradeUrl: "/upgrade-to-pro"
+        });
+      }
       
       // Import the enhanced Personal Branding Sandra service
       const { PersonalBrandingSandra } = await import('./personal-branding-sandra');

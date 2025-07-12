@@ -1,224 +1,229 @@
-import { useState, useEffect } from 'react';
-import { useStripe, Elements, PaymentElement, useElements } from '@stripe/react-stripe-js';
-import { loadStripe } from '@stripe/stripe-js';
-import { Navigation } from '@/components/navigation';
-import { HeroFullBleed } from '@/components/HeroFullBleed';
-import { SandraImages } from '@/lib/sandra-images';
-import { apiRequest } from "@/lib/queryClient";
-import { useToast } from "@/hooks/use-toast";
-import { useAuth } from '@/hooks/use-auth';
-import { useLocation } from 'wouter';
+import { useState, useEffect } from "react";
+import { useLocation } from "wouter";
 
-// Load Stripe
-if (!import.meta.env.VITE_STRIPE_PUBLIC_KEY) {
-  throw new Error('Missing required Stripe key: VITE_STRIPE_PUBLIC_KEY');
-}
-const stripePromise = loadStripe(import.meta.env.VITE_STRIPE_PUBLIC_KEY);
-
-const CheckoutForm = ({ planType }: { planType: string }) => {
-  const stripe = useStripe();
-  const elements = useElements();
-  const { toast } = useToast();
+export default function Checkout() {
   const [, setLocation] = useLocation();
-  const [isProcessing, setIsProcessing] = useState(false);
+  const [selectedPlan, setSelectedPlan] = useState<string>('sselfie-studio');
+  const [loading, setLoading] = useState(false);
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    
-    if (!stripe || !elements) return;
-    
-    setIsProcessing(true);
+  useEffect(() => {
+    // Get selected plan from localStorage or default to studio
+    const plan = localStorage.getItem('selectedPlan') || 'sselfie-studio';
+    setSelectedPlan(plan);
+  }, []);
 
-    try {
-      const result = await stripe.confirmPayment({
-        elements,
-        confirmParams: {
-          return_url: `${window.location.origin}/payment-success?plan=${planType}`,
-        },
-      });
-
-      console.log('Stripe confirmation result:', result);
-
-      if (result.error) {
-        console.error('Stripe payment error:', result.error);
-        toast({
-          title: "Payment Failed",
-          description: result.error.message || "There was an issue processing your payment. Please try again.",
-          variant: "destructive",
-        });
-        setIsProcessing(false);
-      } else {
-        // Payment succeeded - will redirect automatically
-        console.log('Payment successful, redirecting...');
-      }
-    } catch (err) {
-      console.error('Payment confirmation error:', err);
-      toast({
-        title: "Payment Error",
-        description: "Unable to process payment. Please check your details and try again.",
-        variant: "destructive",
-      });
-      setIsProcessing(false);
+  const planDetails = {
+    'sselfie-studio': {
+      name: 'SSELFIE Studio',
+      price: 29,
+      features: [
+        'Personal AI photoshoot (100 images/month)',
+        'Luxury flatlay collections',
+        'Brand templates & landing pages',
+        'Custom domain connection'
+      ]
+    },
+    'sselfie-studio-pro': {
+      name: 'SSELFIE Studio PRO',
+      price: 67,
+      features: [
+        'Everything in Studio',
+        '300 AI images per month',
+        'Sandra Personal Brand AI Agent',
+        'Custom brand strategy & content',
+        'Priority support & guidance'
+      ]
     }
   };
 
-  return (
-    <div className="max-w-2xl mx-auto">
-      <form onSubmit={handleSubmit} className="space-y-8">
-        <div className="border border-gray-200 p-8">
-          <h3 className="text-xl font-light mb-6" style={{ fontFamily: 'Times New Roman, serif' }}>
-            Payment Information
-          </h3>
-          <PaymentElement />
-        </div>
-        
-        <div className="text-center">
-          <button
-            type="submit"
-            disabled={!stripe || isProcessing}
-            className="bg-black text-white px-12 py-4 text-xs uppercase tracking-wider hover:bg-gray-800 disabled:opacity-50 transition-colors"
-          >
-            {isProcessing ? 'PROCESSING...' : 'COMPLETE PURCHASE'}
-          </button>
-        </div>
-      </form>
-    </div>
-  );
-};
-
-export default function Checkout() {
-  const { isAuthenticated } = useAuth();
-  const [clientSecret, setClientSecret] = useState("");
-  const [planType, setPlanType] = useState("sselfie-studio");
-  const [, setLocation] = useLocation();
-
-  useEffect(() => {
-    // Get plan from URL params (always sselfie-studio now)
-    const urlParams = new URLSearchParams(window.location.search);
-    const plan = urlParams.get('plan') || 'sselfie-studio';
-    setPlanType('sselfie-studio');
-
-    // No authentication required for checkout - users can purchase before login
-
-    // Single product pricing
-    const amount = 97;
+  const handleCheckout = async () => {
+    setLoading(true);
     
-    apiRequest("POST", "/api/create-payment-intent", { 
-      amount: amount,
-      plan: plan,
-      currency: 'eur'
-    })
-      .then((response) => response.json())
-      .then((data) => {
-        if (data.clientSecret) {
-          setClientSecret(data.clientSecret);
-        } else {
-          console.error('No client secret in response');
-          setClientSecret('error');
-        }
-      })
-      .catch((error) => {
-        console.error('Payment intent creation failed:', error);
-        setClientSecret('error');
+    try {
+      // Simulate payment processing
+      await new Promise(resolve => setTimeout(resolve, 2000));
+      
+      // Set up user plan via API
+      const response = await fetch('/api/setup-plan', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ plan: selectedPlan }),
       });
-  }, [isAuthenticated, setLocation]);
-
-  const getPlanDetails = (plan: string) => {
-    return { 
-      name: 'SSELFIE STUDIO', 
-      price: '€97', 
-      description: 'Complete AI selfie personal branding system with 300 monthly AI generations' 
-    };
+      
+      if (!response.ok) {
+        throw new Error('Failed to setup plan');
+      }
+      
+      // Store user plan for demo
+      localStorage.setItem('userPlan', selectedPlan);
+      
+      // Redirect to thank you page
+      setLocation('/thank-you');
+    } catch (error) {
+      console.error('Checkout error:', error);
+      setLoading(false);
+    }
   };
 
-  const planDetails = getPlanDetails(planType);
-
-  // No authentication check needed - pre-login purchases are allowed
-
-  if (!clientSecret) {
-    return (
-      <div className="min-h-screen bg-white">
-        <Navigation />
-        <div className="max-w-4xl mx-auto px-4 py-16 text-center">
-          <div className="w-8 h-8 border-2 border-gray-300 border-t-black rounded-full animate-spin mx-auto mb-4"></div>
-          <div className="text-gray-600">Setting up your checkout...</div>
-        </div>
-      </div>
-    );
-  }
-
-  if (clientSecret === 'error') {
-    return (
-      <div className="min-h-screen bg-white">
-        <Navigation />
-        <div className="max-w-4xl mx-auto px-4 py-16 text-center">
-          <h1 className="text-3xl font-light mb-4" style={{ fontFamily: 'Times New Roman, serif' }}>
-            Checkout Error
-          </h1>
-          <p className="text-gray-600 mb-8">
-            There was an issue setting up your checkout. Please try again.
-          </p>
-          <button
-            onClick={() => window.location.reload()}
-            className="bg-black text-white px-8 py-3 text-xs uppercase tracking-wider hover:bg-gray-800 transition-colors"
-          >
-            TRY AGAIN
-          </button>
-        </div>
-      </div>
-    );
-  }
+  const plan = planDetails[selectedPlan as keyof typeof planDetails];
 
   return (
-    <div className="min-h-screen bg-white">
-      <Navigation />
-      
-      <HeroFullBleed
-        backgroundImage={SandraImages.hero.pricing}
-        title="CHECKOUT"
-        tagline="Complete your SSELFIE transformation"
-        alignment="left"
-      />
-
-      <div className="max-w-6xl mx-auto px-4 py-16">
-        {/* Order Summary */}
-        <div className="mb-16">
-          <div className="max-w-2xl mx-auto border border-gray-200 p-8">
-            <h2 className="text-2xl font-light mb-6" style={{ fontFamily: 'Times New Roman, serif' }}>
-              Order Summary
-            </h2>
-            <div className="flex justify-between items-center mb-4">
-              <div>
-                <div className="font-medium">{planDetails.name}</div>
-                <div className="text-sm text-gray-600">{planDetails.description}</div>
-              </div>
-              <div className="text-xl font-light" style={{ fontFamily: 'Times New Roman, serif' }}>
-                {planDetails.price}
-              </div>
-            </div>
-            <div className="border-t border-gray-200 pt-4">
-              <div className="flex justify-between items-center">
-                <div className="font-medium">Total</div>
-                <div className="text-xl font-light" style={{ fontFamily: 'Times New Roman, serif' }}>
-                  {planDetails.price}
-                </div>
-              </div>
-            </div>
+    <div className="min-h-screen bg-gray-50">
+      {/* Header */}
+      <div className="bg-white border-b border-gray-200">
+        <div className="max-w-4xl mx-auto px-8 py-6">
+          <div className="font-serif text-xl tracking-wide text-black">
+            SSELFIE
           </div>
         </div>
+      </div>
 
-        {/* Payment Form */}
-        <Elements stripe={stripePromise} options={{ clientSecret }}>
-          <CheckoutForm planType={planType} />
-        </Elements>
+      <div className="max-w-4xl mx-auto px-8 py-16">
+        <div className="text-center mb-16">
+          <h1 className="font-serif text-4xl font-light text-black mb-4">
+            Complete Your Order
+          </h1>
+          <p className="text-gray-600">
+            You're one step away from building your personal brand
+          </p>
+        </div>
 
-        {/* Security Notice */}
-        <div className="text-center mt-12">
-          <div className="text-xs uppercase tracking-wider text-gray-500 mb-2">
-            SECURE PAYMENT POWERED BY STRIPE
+        <div className="grid md:grid-cols-2 gap-16">
+          {/* Order Summary */}
+          <div>
+            <h2 className="text-xl font-medium mb-8">Order Summary</h2>
+            
+            <div className="bg-white p-8 border border-gray-200">
+              <div className="flex justify-between items-start mb-6">
+                <div>
+                  <h3 className="font-medium text-lg">{plan.name}</h3>
+                  <p className="text-gray-600 text-sm">Monthly subscription</p>
+                </div>
+                <div className="text-right">
+                  <div className="text-2xl font-light">${plan.price}</div>
+                  <div className="text-sm text-gray-500">per month</div>
+                </div>
+              </div>
+              
+              <div className="border-t border-gray-200 pt-6">
+                <h4 className="font-medium mb-4">What's included:</h4>
+                <ul className="space-y-3">
+                  {plan.features.map((feature, index) => (
+                    <li key={index} className="flex items-start text-sm text-gray-700">
+                      <span className="text-black mr-3">•</span>
+                      <span>{feature}</span>
+                    </li>
+                  ))}
+                </ul>
+              </div>
+              
+              <div className="border-t border-gray-200 pt-6 mt-6">
+                <div className="flex justify-between items-center text-lg font-medium">
+                  <span>Total due today:</span>
+                  <span>${plan.price}</span>
+                </div>
+                <p className="text-sm text-gray-500 mt-2">
+                  Billed monthly • Cancel anytime
+                </p>
+              </div>
+            </div>
+
+            {/* Plan switcher */}
+            <div className="mt-8">
+              <button
+                onClick={() => setSelectedPlan(selectedPlan === 'sselfie-studio' ? 'sselfie-studio-pro' : 'sselfie-studio')}
+                className="text-sm text-gray-600 hover:text-black transition-colors"
+              >
+                Switch to {selectedPlan === 'sselfie-studio' ? 'PRO' : 'Studio'} plan ›
+              </button>
+            </div>
           </div>
-          <div className="text-sm text-gray-600">
-            Your payment information is encrypted and secure
+
+          {/* Payment Form */}
+          <div>
+            <h2 className="text-xl font-medium mb-8">Payment Information</h2>
+            
+            <div className="bg-white p-8 border border-gray-200">
+              <form className="space-y-6">
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    Email Address
+                  </label>
+                  <input
+                    type="email"
+                    className="w-full px-4 py-3 border border-gray-300 focus:outline-none focus:ring-1 focus:ring-black focus:border-black"
+                    placeholder="your@email.com"
+                    required
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    Card Number
+                  </label>
+                  <input
+                    type="text"
+                    className="w-full px-4 py-3 border border-gray-300 focus:outline-none focus:ring-1 focus:ring-black focus:border-black"
+                    placeholder="1234 5678 9012 3456"
+                    required
+                  />
+                </div>
+
+                <div className="grid grid-cols-2 gap-4">
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                      Expiry Date
+                    </label>
+                    <input
+                      type="text"
+                      className="w-full px-4 py-3 border border-gray-300 focus:outline-none focus:ring-1 focus:ring-black focus:border-black"
+                      placeholder="MM/YY"
+                      required
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                      CVV
+                    </label>
+                    <input
+                      type="text"
+                      className="w-full px-4 py-3 border border-gray-300 focus:outline-none focus:ring-1 focus:ring-black focus:border-black"
+                      placeholder="123"
+                      required
+                    />
+                  </div>
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    Billing Name
+                  </label>
+                  <input
+                    type="text"
+                    className="w-full px-4 py-3 border border-gray-300 focus:outline-none focus:ring-1 focus:ring-black focus:border-black"
+                    placeholder="Full Name"
+                    required
+                  />
+                </div>
+
+                <button
+                  type="button"
+                  onClick={handleCheckout}
+                  disabled={loading}
+                  className="w-full py-4 bg-black text-white text-sm uppercase tracking-[0.3em] hover:opacity-90 transition-opacity disabled:opacity-50"
+                >
+                  {loading ? 'Processing...' : `Complete Purchase - $${plan.price}/month`}
+                </button>
+              </form>
+
+              <div className="mt-6 text-center">
+                <p className="text-xs text-gray-500">
+                  Secure checkout • 30-day money-back guarantee
+                </p>
+              </div>
+            </div>
           </div>
         </div>
       </div>

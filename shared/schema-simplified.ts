@@ -115,11 +115,11 @@ export const selfieUploads = pgTable("selfie_uploads", {
   createdAt: timestamp("created_at").defaultNow(),
 });
 
-// User subscriptions table - simplified to single €97 product
+// User subscriptions table - two-tier pricing system
 export const subscriptions = pgTable("subscriptions", {
   id: serial("id").primaryKey(),
   userId: varchar("user_id").references(() => users.id).notNull(),
-  plan: varchar("plan").notNull().default("sselfie-studio"), // Single product: €97 SSELFIE Studio
+  plan: varchar("plan").notNull(), // 'sselfie-studio' ($29) or 'sselfie-studio-pro' ($67)
   status: varchar("status").notNull(), // active, cancelled, expired
   stripeSubscriptionId: varchar("stripe_subscription_id"),
   currentPeriodStart: timestamp("current_period_start"),
@@ -128,12 +128,14 @@ export const subscriptions = pgTable("subscriptions", {
   updatedAt: timestamp("updated_at").defaultNow(),
 });
 
-// User usage tracking table - simplified for 300 monthly generations
+// User usage tracking table - plan-based limits
 export const userUsage = pgTable("user_usage", {
   id: serial("id").primaryKey(),
   userId: varchar("user_id").references(() => users.id).notNull(),
-  monthlyGenerationsAllowed: integer("monthly_generations_allowed").default(300), // 300 monthly for €97 Studio
+  plan: varchar("plan").notNull(), // 'sselfie-studio' or 'sselfie-studio-pro'
+  monthlyGenerationsAllowed: integer("monthly_generations_allowed").notNull(), // 100 for Studio, 300 for Pro
   monthlyGenerationsUsed: integer("monthly_generations_used").default(0),
+  sandraAIAccess: boolean("sandra_ai_access").default(false), // false for Studio, true for Pro
   currentPeriodStart: timestamp("current_period_start"),
   currentPeriodEnd: timestamp("current_period_end"),
   lastGenerationAt: timestamp("last_generation_at"),

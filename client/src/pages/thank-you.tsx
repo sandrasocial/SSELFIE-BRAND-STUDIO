@@ -1,137 +1,86 @@
-import { useEffect, useState } from 'react';
-import { Navigation } from '@/components/navigation';
-import { HeroFullBleed } from '@/components/HeroFullBleed';
-import { SandraImages } from '@/lib/sandra-images';
-import { useAuth } from '@/hooks/use-auth';
-import { Link } from 'wouter';
+import { useEffect } from "react";
+import { useLocation } from "wouter";
 
 export default function ThankYou() {
-  const { isAuthenticated } = useAuth();
-  const [planType, setPlanType] = useState('ai-pack');
+  const [, setLocation] = useLocation();
 
   useEffect(() => {
-    // Get plan from URL params
-    const urlParams = new URLSearchParams(window.location.search);
-    const plan = urlParams.get('plan') || 'ai-pack';
-    setPlanType(plan);
+    // Auto-redirect to onboarding after 5 seconds
+    const timer = setTimeout(() => {
+      setLocation('/onboarding');
+    }, 5000);
 
-    // Trigger automation workflows
-    triggerAutomation(plan);
-  }, []);
+    return () => clearTimeout(timer);
+  }, [setLocation]);
 
-  const triggerAutomation = async (plan: string) => {
-    try {
-      // Send welcome email
-      await fetch('/api/automation/welcome-email', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ plan })
-      });
-
-      // Setup user onboarding
-      await fetch('/api/automation/setup-onboarding', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ plan })
-      });
-
-      // Update user subscription
-      await fetch('/api/automation/update-subscription', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ plan })
-      });
-    } catch (error) {
-      console.error('Automation trigger failed:', error);
-    }
-  };
-
-  const getPlanDetails = (plan: string) => {
-    // For immediate revenue focus: direct all users to AI training
-    return {
-      name: 'SSELFIE STUDIO',
-      nextStep: 'Train your personal AI model with your selfies to start generating professional brand photos',
-      ctaText: 'START AI TRAINING',
-      ctaLink: '/simple-training'
-    };
-  };
-
-  const planDetails = getPlanDetails(planType);
+  const plan = localStorage.getItem('userPlan') || 'sselfie-studio';
+  const isPro = plan === 'sselfie-studio-pro';
 
   return (
-    <div className="min-h-screen bg-white">
-      <Navigation />
-      
-      <HeroFullBleed
-        backgroundImage={SandraImages.journey.success}
-        title="WELCOME TO SSELFIE"
-        tagline="Your transformation starts now"
-        alignment="center"
-      />
+    <div className="min-h-screen bg-black text-white flex items-center justify-center">
+      <div className="max-w-4xl mx-auto px-8 text-center">
+        {/* Success Icon */}
+        <div className="w-20 h-20 border-2 border-white rounded-full flex items-center justify-center mx-auto mb-12">
+          <div className="w-8 h-8 border-b-2 border-r-2 border-white transform rotate-45 translate-x-1"></div>
+        </div>
 
-      <div className="max-w-4xl mx-auto px-4 py-16 text-center">
-        {/* Success Message */}
-        <div className="mb-16">
-          <h2 className="text-3xl font-light mb-6" style={{ fontFamily: 'Times New Roman, serif' }}>
-            Payment Successful!
-          </h2>
-          <p className="text-xl text-gray-700 mb-8">
-            Thank you for choosing {planDetails.name}
-          </p>
-          <div className="text-lg text-gray-600 max-w-2xl mx-auto leading-relaxed">
-            You're about to join thousands of women who've transformed their personal brand 
-            and launched their businesses with SSELFIE. Let's get you started.
+        <h1 className="font-serif text-4xl md:text-6xl font-light mb-8 leading-tight">
+          Welcome to SSELFIE Studio{isPro ? ' PRO' : ''}
+        </h1>
+
+        <p className="text-xl mb-12 opacity-80 max-w-2xl mx-auto leading-relaxed">
+          Your payment was successful! You're about to build something incredible. 
+          Let's get your personal brand started.
+        </p>
+
+        <div className="space-y-6 mb-16">
+          <div className="text-sm uppercase tracking-[0.3em] opacity-60">
+            What happens next:
+          </div>
+          
+          <div className="space-y-4 max-w-md mx-auto text-left">
+            <div className="flex items-start">
+              <span className="text-white mr-4 mt-1">1.</span>
+              <span>Complete your brand onboarding (5 minutes)</span>
+            </div>
+            <div className="flex items-start">
+              <span className="text-white mr-4 mt-1">2.</span>
+              <span>Upload your selfies for AI training</span>
+            </div>
+            <div className="flex items-start">
+              <span className="text-white mr-4 mt-1">3.</span>
+              <span>Generate your first professional photos</span>
+            </div>
+            {isPro && (
+              <div className="flex items-start">
+                <span className="text-white mr-4 mt-1">4.</span>
+                <span>Meet Sandra, your personal brand AI mentor</span>
+              </div>
+            )}
           </div>
         </div>
 
-        {/* Next Steps */}
-        <div className="border border-gray-200 p-8 mb-12">
-          <h3 className="text-xl font-light mb-4" style={{ fontFamily: 'Times New Roman, serif' }}>
-            What Happens Next
-          </h3>
-          <div className="space-y-6 text-left max-w-2xl mx-auto">
-            <div className="flex items-start">
-              <div className="text-xs uppercase tracking-wider text-gray-500 mr-4 mt-1">01</div>
-              <div>
-                <div className="font-medium mb-2">Email Confirmation</div>
-                <div className="text-gray-600">Check your inbox for your welcome email with login details</div>
-              </div>
-            </div>
-            <div className="flex items-start">
-              <div className="text-xs uppercase tracking-wider text-gray-500 mr-4 mt-1">02</div>
-              <div>
-                <div className="font-medium mb-2">Train Your AI Model</div>
-                <div className="text-gray-600">Upload 10+ selfies to create your personal AI model (takes 20 minutes)</div>
-              </div>
-            </div>
-            <div className="flex items-start">
-              <div className="text-xs uppercase tracking-wider text-gray-500 mr-4 mt-1">03</div>
-              <div>
-                <div className="font-medium mb-2">Generate Professional Photos</div>
-                <div className="text-gray-600">Start creating your brand photoshoot with 300 monthly AI generations</div>
-              </div>
-            </div>
+        <button
+          onClick={() => setLocation('/onboarding')}
+          className="inline-block px-12 py-4 border-2 border-white text-white text-sm uppercase tracking-[0.3em] hover:bg-white hover:text-black transition-all duration-300"
+        >
+          Start Building Your Brand
+        </button>
+
+        <div className="mt-12 text-sm opacity-60">
+          You'll be redirected automatically in a few seconds...
+        </div>
+
+        {isPro && (
+          <div className="mt-16 p-8 border border-white/20 bg-white/5">
+            <h3 className="font-serif text-2xl mb-4">PRO Member Benefits</h3>
+            <p className="text-sm opacity-80 leading-relaxed">
+              As a PRO member, you get access to Sandra AI - your personal brand mentor who learns 
+              your story, remembers your goals, and creates custom strategies just for you. 
+              She'll be waiting for you in your workspace!
+            </p>
           </div>
-        </div>
-
-        {/* CTA */}
-        <div className="mb-16">
-          <Link href={planDetails.ctaLink}>
-            <button className="bg-black text-white px-12 py-4 text-xs uppercase tracking-wider hover:bg-gray-800 transition-colors">
-              {planDetails.ctaText}
-            </button>
-          </Link>
-        </div>
-
-        {/* Support */}
-        <div className="text-sm text-gray-600">
-          <p className="mb-2">Need help getting started?</p>
-          <Link href="/contact">
-            <span className="text-black hover:underline cursor-pointer">
-              Contact our support team
-            </span>
-          </Link>
-        </div>
+        )}
       </div>
     </div>
   );
