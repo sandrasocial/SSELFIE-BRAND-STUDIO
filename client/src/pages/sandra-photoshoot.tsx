@@ -488,96 +488,160 @@ Here are some starter prompts to get you going, or tell me what mood you're feel
             </p>
           </div>
 
-          {/* Chat Container */}
-          <div className="bg-white border border-[#e0e0e0] max-w-4xl mx-auto">
-            <div className="min-h-[500px] sm:min-h-[600px] flex flex-col">
-              {/* Messages */}
-              <div className="flex-1 p-4 sm:p-6 md:p-8 overflow-y-auto max-h-[400px] sm:max-h-[500px] space-y-6 sm:space-y-8">
+          {/* Editorial Chat Studio */}
+          <div className="bg-white max-w-6xl mx-auto overflow-hidden">
+            <div className="min-h-[600px] sm:min-h-[700px] flex flex-col">
+              {/* Studio Header */}
+              <div className="bg-[#0a0a0a] text-white p-4 sm:p-6">
+                <div className="flex items-center justify-between">
+                  <div>
+                    <div className="text-[10px] tracking-[0.3em] uppercase font-light text-white/60 mb-1">
+                      Photography Studio
+                    </div>
+                    <div className="font-times text-lg sm:text-xl font-light tracking-[0.1em]">
+                      SANDRA SESSION
+                    </div>
+                  </div>
+                  <div className="text-right">
+                    <div className="text-[10px] tracking-[0.2em] uppercase font-light text-white/60">
+                      Live Session
+                    </div>
+                    <div className="w-2 h-2 bg-green-400 rounded-full mt-1 ml-auto"></div>
+                  </div>
+                </div>
+              </div>
+
+              {/* Conversation Flow */}
+              <div className="flex-1 p-6 sm:p-8 md:p-12 overflow-y-auto max-h-[500px] sm:max-h-[600px] space-y-12 sm:space-y-16">
                 {messages.map((message, index) => (
-                  <div key={index} className={`${message.type === 'user' ? 'text-right' : 'text-left'}`}>
-                    <div className={`inline-block max-w-[90%] sm:max-w-[80%] p-3 sm:p-4 ${
-                      message.type === 'user' 
-                        ? 'bg-[#0a0a0a] text-white' 
-                        : 'bg-[#f8f8f8] text-[#0a0a0a]'
-                    }`}>
-                      <div className="whitespace-pre-wrap font-light leading-relaxed text-sm sm:text-base">
-                        {message.message}
+                  <div key={index} className={`${message.type === 'user' ? 'ml-auto max-w-2xl' : 'mr-auto max-w-4xl'}`}>
+                    {message.type === 'sandra' && (
+                      <div className="flex items-start space-x-4 sm:space-x-6 mb-6">
+                        <div className="w-12 h-12 sm:w-16 sm:h-16 bg-[#0a0a0a] flex items-center justify-center flex-shrink-0">
+                          <div className="text-white text-xs sm:text-sm font-times font-light">S</div>
+                        </div>
+                        <div className="flex-1">
+                          <div className="text-[10px] tracking-[0.2em] uppercase font-light text-[#666666] mb-2">
+                            Sandra • {new Date(message.timestamp).toLocaleTimeString()}
+                          </div>
+                          <div className="font-light leading-relaxed text-sm sm:text-base text-[#0a0a0a] whitespace-pre-wrap">
+                            {message.message}
+                          </div>
+                        </div>
                       </div>
-                      
-                      {/* Style Buttons */}
-                      {message.styleButtons && message.styleButtons.length > 0 && (
-                        <div className="mt-4 space-y-2 sm:space-y-3">
-                          <div className="text-xs sm:text-sm font-medium mb-2">Choose Your Style:</div>
+                    )}
+                    
+                    {message.type === 'user' && (
+                      <div className="text-right">
+                        <div className="text-[10px] tracking-[0.2em] uppercase font-light text-[#666666] mb-2">
+                          You • {new Date(message.timestamp).toLocaleTimeString()}
+                        </div>
+                        <div className="inline-block bg-[#f8f8f8] p-4 sm:p-6 max-w-lg">
+                          <div className="font-light leading-relaxed text-sm sm:text-base text-[#0a0a0a] whitespace-pre-wrap">
+                            {message.message}
+                          </div>
+                        </div>
+                      </div>
+                    )}
+                    
+                    {/* Editorial Style Cards */}
+                    {message.styleButtons && message.styleButtons.length > 0 && (
+                      <div className="mt-8 sm:mt-12">
+                        <div className="text-[10px] tracking-[0.3em] uppercase font-light text-[#666666] mb-6 sm:mb-8">
+                          Photography Collections
+                        </div>
+                        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
                           {message.styleButtons.map((button) => (
-                            <div key={button.id} className="border border-[#e0e0e0] p-2 sm:p-3 hover:bg-[#f0f0f0] transition-colors">
-                              <div className="font-medium text-xs sm:text-sm mb-1">{button.name}</div>
-                              <div className="text-[10px] sm:text-xs text-[#666666] mb-1 sm:mb-2">{button.description}</div>
-                              <div className="text-[10px] sm:text-xs text-[#999999] mb-2">
-                                {button.camera} • {button.texture}
+                            <div key={button.id} className="bg-white border border-[#e0e0e0] overflow-hidden hover:border-[#0a0a0a] transition-all duration-300 group">
+                              {/* Card Header */}
+                              <div className="p-4 sm:p-6 border-b border-[#f0f0f0]">
+                                <div className="font-times text-lg sm:text-xl font-light tracking-[0.05em] text-[#0a0a0a] mb-2">
+                                  {button.name}
+                                </div>
+                                <div className="text-xs sm:text-sm font-light text-[#666666] leading-relaxed mb-4">
+                                  {button.description}
+                                </div>
+                                <div className="text-[10px] tracking-[0.15em] uppercase font-light text-[#999999] leading-relaxed">
+                                  {button.camera}
+                                </div>
+                                <div className="text-[10px] tracking-[0.15em] uppercase font-light text-[#999999] mt-1">
+                                  {button.texture}
+                                </div>
                               </div>
                               
-                              {/* Action Buttons */}
-                              <div className="flex flex-col sm:flex-row gap-2 mt-2">
-                                <button
-                                  onClick={() => generateImages(button.prompt)}
-                                  className="flex-1 px-3 py-2 bg-[#0a0a0a] text-white text-[10px] sm:text-xs font-medium tracking-[0.1em] uppercase hover:bg-[#333333] transition-colors touch-manipulation"
-                                >
-                                  Generate Now
-                                </button>
-                                <button
-                                  onClick={() => savePromptToLibrary(button)}
-                                  className="flex-1 px-3 py-2 border border-[#0a0a0a] text-[#0a0a0a] text-[10px] sm:text-xs font-medium tracking-[0.1em] uppercase hover:bg-[#f0f0f0] transition-colors touch-manipulation"
-                                >
-                                  Save to Library
-                                </button>
+                              {/* Action Area */}
+                              <div className="p-4 sm:p-6 bg-[#f8f8f8] group-hover:bg-[#f0f0f0] transition-colors">
+                                <div className="space-y-3">
+                                  <button
+                                    onClick={() => generateImages(button.prompt)}
+                                    className="w-full px-4 py-3 bg-[#0a0a0a] text-white text-[10px] sm:text-xs font-medium tracking-[0.2em] uppercase hover:bg-[#333333] transition-colors touch-manipulation"
+                                  >
+                                    Capture This Moment
+                                  </button>
+                                  <button
+                                    onClick={() => savePromptToLibrary(button)}
+                                    className="w-full px-4 py-3 border border-[#0a0a0a] text-[#0a0a0a] text-[10px] sm:text-xs font-medium tracking-[0.2em] uppercase hover:bg-[#f0f0f0] transition-colors touch-manipulation"
+                                  >
+                                    Save to Collection
+                                  </button>
+                                </div>
                               </div>
                             </div>
                           ))}
                         </div>
-                      )}
-                    </div>
-                    <div className="text-[10px] sm:text-xs text-[#999999] mt-1">
-                      {new Date(message.timestamp).toLocaleTimeString()}
-                    </div>
+                      </div>
+                    )}
                   </div>
                 ))}
                 {isLoading && (
-                  <div className="text-left">
-                    <div className="inline-block bg-[#f8f8f8] text-[#0a0a0a] p-4">
-                      <div className="animate-pulse">Sandra is thinking...</div>
+                  <div className="mr-auto max-w-4xl">
+                    <div className="flex items-start space-x-4 sm:space-x-6">
+                      <div className="w-12 h-12 sm:w-16 sm:h-16 bg-[#0a0a0a] flex items-center justify-center flex-shrink-0">
+                        <div className="text-white text-xs sm:text-sm font-times font-light">S</div>
+                      </div>
+                      <div className="flex-1">
+                        <div className="text-[10px] tracking-[0.2em] uppercase font-light text-[#666666] mb-2">
+                          Sandra • Creating...
+                        </div>
+                        <div className="font-light leading-relaxed text-sm sm:text-base text-[#0a0a0a] animate-pulse">
+                          Analyzing your vision and preparing the perfect shot...
+                        </div>
+                      </div>
                     </div>
                   </div>
                 )}
                 <div ref={messagesEndRef} />
               </div>
 
-              {/* Input */}
-              <div className="border-t border-[#e0e0e0] p-3 sm:p-4">
-                {/* Inspiration Photos Gallery */}
+              {/* Editorial Input Studio */}
+              <div className="border-t border-[#e0e0e0] bg-[#f8f8f8] p-6 sm:p-8">
+                {/* Inspiration Mood Board */}
                 {inspirationPhotos.length > 0 && (
-                  <div className="mb-4 p-3 bg-[#f8f8f8] border border-[#e0e0e0]">
-                    <div className="flex items-center justify-between mb-2">
-                      <span className="text-xs tracking-[0.15em] uppercase font-light text-[#666666]">Style Inspiration</span>
+                  <div className="mb-6 sm:mb-8">
+                    <div className="flex items-center justify-between mb-4">
+                      <div className="text-[10px] tracking-[0.3em] uppercase font-light text-[#0a0a0a]">
+                        Mood Board
+                      </div>
                       <button
                         onClick={() => setShowInspirationUpload(!showInspirationUpload)}
-                        className="text-[10px] tracking-[0.1em] uppercase font-light text-[#0a0a0a] hover:text-[#666666] transition-colors"
+                        className="text-[10px] tracking-[0.2em] uppercase font-light text-[#666666] hover:text-[#0a0a0a] transition-colors"
                       >
-                        {showInspirationUpload ? 'Hide Upload' : 'Add More'}
+                        {showInspirationUpload ? 'Hide Upload' : 'Add References'}
                       </button>
                     </div>
-                    <div className="flex gap-2 overflow-x-auto">
+                    <div className="grid grid-cols-4 sm:grid-cols-6 lg:grid-cols-8 gap-2 sm:gap-3">
                       {inspirationPhotos.map((photo, index) => (
-                        <div key={index} className="relative flex-shrink-0">
-                          <div className="w-12 h-12 sm:w-16 sm:h-16 overflow-hidden bg-[#f0f0f0]">
+                        <div key={index} className="relative group">
+                          <div className="aspect-square overflow-hidden bg-white border border-[#e0e0e0] hover:border-[#0a0a0a] transition-colors">
                             <img
                               src={photo}
-                              alt={`Inspiration ${index + 1}`}
+                              alt={`Reference ${index + 1}`}
                               className="w-full h-full object-cover"
                             />
                           </div>
                           <button
                             onClick={() => removeInspirationPhoto(index)}
-                            className="absolute -top-1 -right-1 w-4 h-4 bg-[#0a0a0a] text-white text-[10px] flex items-center justify-center hover:bg-[#333333] transition-colors"
+                            className="absolute -top-1 -right-1 w-5 h-5 bg-[#0a0a0a] text-white text-[10px] flex items-center justify-center hover:bg-[#333333] transition-colors opacity-0 group-hover:opacity-100"
                           >
                             ×
                           </button>
@@ -587,65 +651,66 @@ Here are some starter prompts to get you going, or tell me what mood you're feel
                   </div>
                 )}
                 
-                {/* Upload Inspiration Section */}
+                {/* Style Reference Upload */}
                 {(showInspirationUpload || inspirationPhotos.length === 0) && (
-                  <div className="mb-4 p-3 border border-[#e0e0e0] bg-white">
-                    <div className="flex items-center justify-between mb-2">
-                      <span className="text-xs tracking-[0.15em] uppercase font-light text-[#0a0a0a]">Upload Style Inspiration</span>
-                      {inspirationPhotos.length > 0 && (
-                        <button
-                          onClick={() => setShowInspirationUpload(false)}
-                          className="text-[10px] tracking-[0.1em] uppercase font-light text-[#666666] hover:text-[#0a0a0a] transition-colors"
-                        >
-                          Hide
-                        </button>
-                      )}
+                  <div className="mb-6 sm:mb-8 bg-white border border-[#e0e0e0] p-6 sm:p-8">
+                    <div className="text-center">
+                      <div className="text-[10px] tracking-[0.3em] uppercase font-light text-[#0a0a0a] mb-4">
+                        Style Reference Upload
+                      </div>
+                      <p className="text-xs sm:text-sm font-light text-[#666666] mb-6 leading-relaxed max-w-md mx-auto">
+                        Share your Pinterest inspiration, lifestyle photos, or any visual references. 
+                        Sandra will analyze your aesthetic and create images that match your unique style.
+                      </p>
+                      <button
+                        onClick={triggerFileUpload}
+                        disabled={isUploadingInspiration}
+                        className="inline-block px-6 py-3 border border-[#0a0a0a] text-[#0a0a0a] text-[10px] sm:text-xs font-medium tracking-[0.2em] uppercase hover:bg-[#0a0a0a] hover:text-white disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-300"
+                      >
+                        {isUploadingInspiration ? 'Processing...' : 'Choose Reference Images'}
+                      </button>
+                      <input
+                        ref={fileInputRef}
+                        type="file"
+                        accept="image/*"
+                        onChange={handleFileChange}
+                        className="hidden"
+                      />
                     </div>
-                    <p className="text-[10px] sm:text-xs font-light text-[#666666] mb-3 leading-relaxed">
-                      Upload Pinterest inspiration, pet photos, or any reference images so Sandra can match your aesthetic perfectly.
-                    </p>
-                    <button
-                      onClick={triggerFileUpload}
-                      disabled={isUploadingInspiration}
-                      className="w-full px-4 py-2 border border-[#0a0a0a] text-[#0a0a0a] text-[10px] sm:text-xs font-light tracking-[0.1em] uppercase hover:bg-[#f0f0f0] disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
-                    >
-                      {isUploadingInspiration ? 'Uploading...' : 'Choose Inspiration Photo'}
-                    </button>
-                    <input
-                      ref={fileInputRef}
-                      type="file"
-                      accept="image/*"
-                      onChange={handleFileChange}
-                      className="hidden"
-                    />
                   </div>
                 )}
                 
-                <div className="flex flex-col sm:flex-row space-y-3 sm:space-y-0 sm:space-x-3">
-                  <textarea
-                    value={inputMessage}
-                    onChange={(e) => setInputMessage(e.target.value)}
-                    onKeyPress={handleKeyPress}
-                    placeholder="Tell Sandra about your story, your current chapter, where you're going..."
-                    className="flex-1 p-3 sm:p-4 border border-[#e0e0e0] resize-none focus:outline-none focus:border-[#0a0a0a] font-light text-sm sm:text-base"
-                    rows={2}
-                    disabled={isLoading}
-                  />
-                  <div className="flex flex-col space-y-2 sm:space-y-0 sm:flex-row sm:space-x-2">
-                    <button
-                      onClick={() => setShowInspirationUpload(!showInspirationUpload)}
-                      className="px-4 py-3 border border-[#e0e0e0] text-[#666666] text-[10px] sm:text-xs font-light tracking-[0.1em] uppercase hover:bg-[#f0f0f0] transition-colors touch-manipulation"
-                      title="Upload inspiration photo"
-                    >
-                      Photo
-                    </button>
-                    <button
-                      onClick={sendMessage}
-                      disabled={!inputMessage.trim() || isLoading}
-                      className="px-6 sm:px-8 py-3 sm:py-4 bg-[#0a0a0a] text-white font-light tracking-[0.1em] uppercase disabled:opacity-50 disabled:cursor-not-allowed hover:bg-[#333333] transition-colors touch-manipulation text-xs sm:text-sm"
-                    >
-                      Share
-                    </button>
+                {/* Conversation Input */}
+                <div className="bg-white border border-[#e0e0e0] p-6 sm:p-8">
+                  <div className="text-[10px] tracking-[0.3em] uppercase font-light text-[#666666] mb-4">
+                    Direct Sandra
+                  </div>
+                  <div className="space-y-4">
+                    <textarea
+                      value={inputMessage}
+                      onChange={(e) => setInputMessage(e.target.value)}
+                      onKeyPress={handleKeyPress}
+                      placeholder="Tell Sandra about your story, your current chapter, where you're going..."
+                      className="w-full p-4 sm:p-6 border border-[#e0e0e0] resize-none focus:outline-none focus:border-[#0a0a0a] font-light text-sm sm:text-base leading-relaxed bg-white"
+                      rows={3}
+                      disabled={isLoading}
+                    />
+                    <div className="flex flex-col space-y-2 sm:space-y-0 sm:flex-row sm:space-x-3">
+                      <button
+                        onClick={() => setShowInspirationUpload(!showInspirationUpload)}
+                        className="px-4 py-3 border border-[#e0e0e0] text-[#666666] text-[10px] sm:text-xs font-light tracking-[0.15em] uppercase hover:bg-[#f0f0f0] transition-colors touch-manipulation"
+                        title="Upload inspiration photo"
+                      >
+                        Add Reference
+                      </button>
+                      <button
+                        onClick={sendMessage}
+                        disabled={!inputMessage.trim() || isLoading}
+                        className="flex-1 px-6 sm:px-8 py-3 sm:py-4 bg-[#0a0a0a] text-white font-light tracking-[0.15em] uppercase disabled:opacity-50 disabled:cursor-not-allowed hover:bg-[#333333] transition-colors touch-manipulation text-xs sm:text-sm"
+                      >
+                        {isLoading ? 'Directing...' : 'Direct Sandra'}
+                      </button>
+                    </div>
                   </div>
                 </div>
               </div>
