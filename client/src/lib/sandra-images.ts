@@ -5,7 +5,7 @@
 export const SandraImages = {
   // HERO IMAGES (Full-bleed, dramatic)
   hero: {
-    homepage: "https://i.postimg.cc/rwTG02cZ/out-1-23.png", // Power pose
+    homepage: "@assets/out-1 (1)_1752344371746.jpg", // Power pose
     about: "https://i.postimg.cc/bNF14sGc/out-1-4.png", // Vulnerable but strong
     pricing: "https://i.postimg.cc/nrKdm7Vj/out-2-4.webp", // Confident business
     method: "https://i.postimg.cc/HkNwfjh8/out-2-14.jpg", // Teaching mode
