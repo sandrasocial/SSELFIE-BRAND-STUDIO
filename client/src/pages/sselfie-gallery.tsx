@@ -80,6 +80,17 @@ export default function SSELFIEGallery() {
     }
   };
 
+  // Migration to permanent storage
+  const migrateMutation = useMutation({
+    mutationFn: async () => {
+      return await apiRequest('POST', '/api/migrate-images-to-s3');
+    },
+    onSuccess: () => {
+      // Refresh images after migration
+      queryClient.invalidateQueries({ queryKey: ['/api/ai-images'] });
+    }
+  });
+
   const toggleFavorite = (imageId: number) => {
     toggleFavoriteMutation.mutate(imageId);
   };
@@ -257,6 +268,41 @@ export default function SSELFIEGallery() {
                   }}
                 >
                   Download All Photos
+                </button>
+              )}
+              
+              {aiImages.length > 0 && (
+                <button
+                  onClick={() => migrateMutation.mutate()}
+                  disabled={migrateMutation.isPending}
+                  style={{
+                    padding: '16px 32px',
+                    fontSize: '11px',
+                    fontWeight: 400,
+                    letterSpacing: '0.3em',
+                    textTransform: 'uppercase',
+                    textDecoration: 'none',
+                    border: '1px solid #0a0a0a',
+                    color: '#0a0a0a',
+                    background: migrateMutation.isPending ? '#f5f5f5' : 'transparent',
+                    transition: 'all 300ms ease',
+                    cursor: migrateMutation.isPending ? 'not-allowed' : 'pointer',
+                    opacity: migrateMutation.isPending ? 0.5 : 1
+                  }}
+                  onMouseEnter={(e) => {
+                    if (!migrateMutation.isPending) {
+                      e.target.style.background = '#0a0a0a';
+                      e.target.style.color = '#ffffff';
+                    }
+                  }}
+                  onMouseLeave={(e) => {
+                    if (!migrateMutation.isPending) {
+                      e.target.style.background = 'transparent';
+                      e.target.style.color = '#0a0a0a';
+                    }
+                  }}
+                >
+                  {migrateMutation.isPending ? 'Fixing Images...' : 'Fix Broken Images'}
                 </button>
               )}
             </div>
