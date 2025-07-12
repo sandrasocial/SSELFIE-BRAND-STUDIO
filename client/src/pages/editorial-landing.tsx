@@ -138,22 +138,25 @@ export default function EditorialLanding() {
         </div>
         
         {/* Hero Content - Positioned Lower */}
-        <div className="relative z-10 text-center max-w-4xl px-8 pb-32">
-          <div className="text-xs uppercase tracking-[0.4em] text-white/60 mb-8 font-light">
-            Your Personal Brand Starts Here
-          </div>
-          
-          <h1 className="font-serif text-5xl md:text-7xl lg:text-8xl font-extralight uppercase tracking-[0.3em] leading-none mb-2">
-            STUDIO
-          </h1>
-          
-          <h2 className="font-serif text-2xl md:text-3xl lg:text-4xl font-thin uppercase tracking-[0.5em] leading-none mb-8 opacity-80">
-            S S E L F I E
-          </h2>
-          
-          <p className="text-base tracking-wide uppercase opacity-70 font-light max-w-2xl mx-auto leading-relaxed">
+        <div className="relative z-10 text-center max-w-4xl px-8 pb-24">
+          <p className="text-xs uppercase tracking-[0.4em] text-white/70 mb-6 font-light">
             IT STARTS WITH YOUR SELFIES
           </p>
+          
+          <h1 className="font-serif text-7xl md:text-9xl lg:text-[10rem] font-extralight text-white tracking-[0.5em] mb-4 leading-none">
+            SSELFIE
+          </h1>
+          
+          <p className="text-xs md:text-sm uppercase tracking-[0.4em] text-white/70 mb-10 font-light">
+            STUDIO
+          </p>
+          
+          <button
+            onClick={() => handleGetStarted('sselfie-studio-pro')}
+            className="inline-block text-xs uppercase tracking-[0.3em] text-white border-b border-white/30 pb-2 hover:border-white hover:tracking-[0.35em] transition-all duration-300"
+          >
+            START YOUR JOURNEY
+          </button>
         </div>
       </section>
 
