@@ -2341,21 +2341,30 @@ Consider this workflow optimized and ready for implementation! ⚙️`
   app.post('/api/images/:imageId/favorite', async (req: any, res) => {
     try {
       const { imageId } = req.params;
-      const userId = req.session?.userId || 'demo_user_12345';
+      const userId = req.user?.claims?.sub || req.session?.userId || 'sandra_test_user_2025';
       
-      // For now, store favorites in session until database is updated
+      console.log('Toggle favorite for user:', userId, 'image:', imageId);
+      
+      // Use session-based favorites with user-specific storage
       if (!req.session.favorites) {
-        req.session.favorites = [];
+        req.session.favorites = {};
+      }
+      
+      if (!req.session.favorites[userId]) {
+        req.session.favorites[userId] = [];
       }
       
       const imageIdNum = parseInt(imageId);
-      const isCurrentlyFavorite = req.session.favorites.includes(imageIdNum);
+      const userFavorites = req.session.favorites[userId];
+      const isCurrentlyFavorite = userFavorites.includes(imageIdNum);
       
       if (isCurrentlyFavorite) {
-        req.session.favorites = req.session.favorites.filter(id => id !== imageIdNum);
+        req.session.favorites[userId] = userFavorites.filter(id => id !== imageIdNum);
       } else {
-        req.session.favorites.push(imageIdNum);
+        req.session.favorites[userId].push(imageIdNum);
       }
+      
+      console.log('Updated favorites for user:', userId, 'favorites:', req.session.favorites[userId]);
       
       res.json({ 
         success: true, 
