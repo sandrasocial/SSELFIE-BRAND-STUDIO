@@ -5,6 +5,7 @@ import { PortfolioSection } from "@/components/portfolio-section";
 
 export default function EditorialLanding() {
   const [, setLocation] = useLocation();
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
   const handleGetStarted = (plan: string) => {
     localStorage.setItem('selectedPlan', plan);
@@ -17,9 +18,12 @@ export default function EditorialLanding() {
       <nav className="fixed top-0 left-0 right-0 z-50 bg-white/95 backdrop-blur-sm border-b border-gray-200">
         <div className="max-w-7xl mx-auto px-8 py-5">
           <div className="flex items-center justify-between">
-            <div className="font-serif text-xl font-light tracking-wide text-black">
+            <button 
+              onClick={() => setLocation("/")}
+              className="font-serif text-xl font-light tracking-wide text-black hover:opacity-60 transition-opacity"
+            >
               SSELFIE
-            </div>
+            </button>
             <div className="hidden md:flex items-center space-x-8">
               <button 
                 onClick={() => setLocation("/about")}
@@ -46,21 +50,84 @@ export default function EditorialLanding() {
                 Blog
               </button>
               <button
-                onClick={() => setLocation("/login")}
+                onClick={() => window.location.href = '/api/login'}
                 className="text-xs uppercase tracking-[0.3em] text-gray-600 hover:text-black transition-colors"
               >
                 Login
               </button>
             </div>
+            
+            {/* Mobile Menu Button */}
+            <button
+              onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+              className="md:hidden text-black"
+            >
+              <span className="block w-6 h-0.5 bg-current mb-1"></span>
+              <span className="block w-6 h-0.5 bg-current mb-1"></span>
+              <span className="block w-6 h-0.5 bg-current"></span>
+            </button>
+            
             <button
               onClick={() => handleGetStarted('sselfie-studio-pro')}
-              className="px-6 py-3 border border-black text-black text-xs uppercase tracking-[0.3em] hover:bg-black hover:text-white transition-all duration-300"
+              className="hidden md:block px-6 py-3 border border-black text-black text-xs uppercase tracking-[0.3em] hover:bg-black hover:text-white transition-all duration-300"
             >
               Get Started
             </button>
           </div>
         </div>
       </nav>
+
+      {/* Mobile Menu */}
+      {mobileMenuOpen && (
+        <div className="fixed inset-0 z-40 bg-white md:hidden">
+          <div className="flex flex-col items-center justify-center min-h-screen space-y-8">
+            <button 
+              onClick={() => { setLocation("/about"); setMobileMenuOpen(false); }}
+              className="text-lg uppercase tracking-[0.3em] text-gray-600 hover:text-black transition-colors"
+            >
+              About
+            </button>
+            <button 
+              onClick={() => { setLocation("/how-it-works"); setMobileMenuOpen(false); }}
+              className="text-lg uppercase tracking-[0.3em] text-gray-600 hover:text-black transition-colors"
+            >
+              How It Works
+            </button>
+            <button 
+              onClick={() => { setLocation("/pricing"); setMobileMenuOpen(false); }}
+              className="text-lg uppercase tracking-[0.3em] text-gray-600 hover:text-black transition-colors"
+            >
+              Pricing
+            </button>
+            <button 
+              onClick={() => { setLocation("/blog"); setMobileMenuOpen(false); }}
+              className="text-lg uppercase tracking-[0.3em] text-gray-600 hover:text-black transition-colors"
+            >
+              Blog
+            </button>
+            <button
+              onClick={() => { window.location.href = '/api/login'; setMobileMenuOpen(false); }}
+              className="text-lg uppercase tracking-[0.3em] text-gray-600 hover:text-black transition-colors"
+            >
+              Login
+            </button>
+            <button
+              onClick={() => { handleGetStarted('sselfie-studio-pro'); setMobileMenuOpen(false); }}
+              className="px-8 py-4 border border-black text-black text-xs uppercase tracking-[0.3em] hover:bg-black hover:text-white transition-all duration-300 mt-8"
+            >
+              Get Started
+            </button>
+            
+            {/* Close Button */}
+            <button
+              onClick={() => setMobileMenuOpen(false)}
+              className="absolute top-8 right-8 text-2xl text-black"
+            >
+              ×
+            </button>
+          </div>
+        </div>
+      )}
 
       {/* Hero Section - Full Bleed Editorial */}
       <section className="relative min-h-screen flex items-end justify-center bg-black text-white overflow-hidden">
