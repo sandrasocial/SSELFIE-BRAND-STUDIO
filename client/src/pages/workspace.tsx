@@ -191,14 +191,24 @@ export default function Workspace() {
       </section>
 
       {/* Editorial Quote Section */}
-      <section className="py-32 px-8 bg-[#f5f5f5] text-center">
-        <div className="max-w-4xl mx-auto">
-          <blockquote className="font-times text-[clamp(28px,4vw,56px)] italic leading-[1.3] tracking-[-0.02em] text-black">
+      <section className="relative py-32 px-8 bg-[#f5f5f5] text-center overflow-hidden">
+        {/* Subtle Background Pattern */}
+        <div className="absolute inset-0 opacity-5">
+          <div className="absolute top-20 left-20 w-px h-40 bg-black"></div>
+          <div className="absolute top-40 right-32 w-px h-60 bg-black"></div>
+          <div className="absolute bottom-20 left-1/3 w-px h-32 bg-black"></div>
+        </div>
+        
+        <div className="relative max-w-4xl mx-auto">
+          <div className="text-xs font-normal tracking-[0.4em] uppercase text-[#666666] mb-12">
+            Sandra's Philosophy
+          </div>
+          <blockquote className="font-times text-[clamp(28px,4vw,56px)] italic leading-[1.3] tracking-[-0.02em] text-black mb-8">
             "Your mess is your message. Your story is your strategy. 
             Your authenticity is your algorithm. Let's build something real."
           </blockquote>
-          <cite className="block mt-8 text-xs tracking-[0.3em] uppercase font-light text-[#666666]">
-            Sandra Sigurjónsdóttir
+          <cite className="block text-xs tracking-[0.3em] uppercase font-light text-[#666666]">
+            Sandra Sigurjónsdóttir, Founder
           </cite>
         </div>
       </section>
@@ -224,46 +234,87 @@ export default function Workspace() {
                   <div className={`group relative bg-white border border-[#e0e0e0] transition-all duration-500 ${
                     step.status === 'locked' ? 'opacity-50' : 'hover:border-black hover:shadow-lg'
                   }`}>
-                    {/* Step Image */}
-                    <div className="aspect-[4/5] overflow-hidden bg-[#f5f5f5]">
+                    {/* Step Image with Overlay */}
+                    <div className="relative aspect-[4/5] overflow-hidden bg-[#f5f5f5]">
                       <img 
                         src={step.image}
                         alt={step.title}
                         className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
                       />
+                      {/* Subtle Dark Overlay */}
+                      <div className="absolute inset-0 bg-black/20 transition-opacity duration-300 group-hover:bg-black/30"></div>
+                      
+                      {/* Text Overlay for Steps 01 and 03 */}
+                      {(index === 0 || index === 2) && (
+                        <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500">
+                          <div className="absolute bottom-6 left-6 right-6">
+                            <div className="text-xs tracking-[0.3em] uppercase font-light text-white/70 mb-2">
+                              Step {step.number}
+                            </div>
+                            <h3 className="font-times text-lg font-light tracking-[-0.01em] text-white mb-2">
+                              {step.title}
+                            </h3>
+                            <p className="text-sm font-light text-white/80 leading-relaxed">
+                              {step.subtitle}
+                            </p>
+                          </div>
+                        </div>
+                      )}
                     </div>
                     
-                    {/* Step Content */}
-                    <div className="p-6">
-                      <div className="flex items-center justify-between mb-4">
-                        <span className="text-xs tracking-[0.3em] uppercase font-light text-[#666666]">
-                          Step {step.number}
-                        </span>
-                        <span className={`text-xs tracking-[0.2em] uppercase font-light ${
-                          step.status === 'complete' ? 'text-black' :
-                          step.status === 'progress' ? 'text-[#666666]' :
-                          step.status === 'ready' ? 'text-black' :
-                          step.status === 'locked' ? 'text-[#999999]' :
-                          'text-[#666666]'
-                        }`}>
-                          {step.statusText}
-                        </span>
+                    {/* Step Content - Hidden for overlay cards */}
+                    {!(index === 0 || index === 2) && (
+                      <div className="p-6">
+                        <div className="flex items-center justify-between mb-4">
+                          <span className="text-xs tracking-[0.3em] uppercase font-light text-[#666666]">
+                            Step {step.number}
+                          </span>
+                          <span className={`text-xs tracking-[0.2em] uppercase font-light ${
+                            step.status === 'complete' ? 'text-black' :
+                            step.status === 'progress' ? 'text-[#666666]' :
+                            step.status === 'ready' ? 'text-black' :
+                            step.status === 'locked' ? 'text-[#999999]' :
+                            'text-[#666666]'
+                          }`}>
+                            {step.statusText}
+                          </span>
+                        </div>
+                        
+                        <h3 className="font-times text-xl font-light tracking-[-0.01em] mb-2">
+                          {step.title}
+                        </h3>
+                        
+                        <p className="text-sm font-light text-[#666666] leading-relaxed">
+                          {step.subtitle}
+                        </p>
                       </div>
-                      
-                      <h3 className="font-times text-xl font-light tracking-[-0.01em] mb-2">
-                        {step.title}
-                      </h3>
-                      
-                      <p className="text-sm font-light text-[#666666] leading-relaxed">
-                        {step.subtitle}
-                      </p>
-                    </div>
+                    )}
+
+                    {/* Minimal Content for Overlay Cards */}
+                    {(index === 0 || index === 2) && (
+                      <div className="p-6">
+                        <div className="flex items-center justify-between">
+                          <span className="text-xs tracking-[0.3em] uppercase font-light text-[#666666]">
+                            Step {step.number}
+                          </span>
+                          <span className={`text-xs tracking-[0.2em] uppercase font-light ${
+                            step.status === 'complete' ? 'text-black' :
+                            step.status === 'progress' ? 'text-[#666666]' :
+                            step.status === 'ready' ? 'text-black' :
+                            step.status === 'locked' ? 'text-[#999999]' :
+                            'text-[#666666]'
+                          }`}>
+                            {step.statusText}
+                          </span>
+                        </div>
+                      </div>
+                    )}
 
                     {/* Status Indicator */}
                     <div className={`absolute top-6 right-6 w-2 h-2 ${
-                      step.status === 'complete' ? 'bg-black' :
-                      step.status === 'progress' ? 'bg-[#666666] opacity-80' :
-                      step.status === 'ready' ? 'bg-black' :
+                      step.status === 'complete' ? 'bg-white shadow-md' :
+                      step.status === 'progress' ? 'bg-white/80 shadow-md' :
+                      step.status === 'ready' ? 'bg-white shadow-md' :
                       'bg-[#e0e0e0]'
                     }`}></div>
                   </div>
@@ -289,59 +340,130 @@ export default function Workspace() {
                   <div className={`group relative bg-white border border-[#e0e0e0] transition-all duration-500 ${
                     tool.status === 'disabled' ? 'opacity-50' : 'hover:border-black hover:shadow-lg'
                   }`}>
-                    {/* Tool Image */}
-                    <div className="aspect-square overflow-hidden bg-[#f5f5f5]">
+                    {/* Tool Image with Overlay */}
+                    <div className="relative aspect-square overflow-hidden bg-[#f5f5f5]">
                       <img 
                         src={tool.image}
                         alt={tool.title}
                         className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
                       />
+                      {/* Subtle Dark Overlay */}
+                      <div className="absolute inset-0 bg-black/15 transition-opacity duration-300 group-hover:bg-black/25"></div>
+                      
+                      {/* Text Overlay for Sandra AI and Image Library */}
+                      {(index === 0 || index === 2) && (
+                        <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/30 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500">
+                          <div className="absolute bottom-6 left-6 right-6 text-center">
+                            <h3 className="font-times text-lg font-light tracking-[-0.01em] text-white mb-2">
+                              {tool.title}
+                            </h3>
+                            <p className="text-sm font-light text-white/80 leading-relaxed">
+                              {tool.subtitle}
+                            </p>
+                          </div>
+                        </div>
+                      )}
                     </div>
                     
-                    {/* Tool Content */}
-                    <div className="p-6 text-center">
-                      <h3 className="font-times text-lg font-light tracking-[-0.01em] mb-2">
-                        {tool.title}
-                      </h3>
-                      <p className="text-sm font-light text-[#666666] leading-relaxed">
-                        {tool.subtitle}
-                      </p>
-                    </div>
+                    {/* Tool Content - Hidden for overlay tools */}
+                    {!(index === 0 || index === 2) && (
+                      <div className="p-6 text-center">
+                        <h3 className="font-times text-lg font-light tracking-[-0.01em] mb-2">
+                          {tool.title}
+                        </h3>
+                        <p className="text-sm font-light text-[#666666] leading-relaxed">
+                          {tool.subtitle}
+                        </p>
+                      </div>
+                    )}
+
+                    {/* Minimal Content for Overlay Tools */}
+                    {(index === 0 || index === 2) && (
+                      <div className="p-4 text-center">
+                        <h3 className="font-times text-base font-light tracking-[-0.01em] text-black">
+                          {tool.title}
+                        </h3>
+                      </div>
+                    )}
                   </div>
                 </Link>
               ))}
             </div>
           </div>
 
-          {/* Usage Overview */}
+          {/* Usage Overview - Editorial Card Style */}
           <div className="text-center">
-            <div className="bg-[#f5f5f5] p-12 max-w-2xl mx-auto">
-              <h3 className="font-times text-2xl font-light tracking-[-0.01em] mb-6">
-                This Month's Usage
+            <div className="bg-[#f5f5f5] p-16 max-w-3xl mx-auto border border-[#e0e0e0]">
+              <div className="text-xs font-normal tracking-[0.4em] uppercase text-[#666666] mb-8">
+                Monthly Analytics
+              </div>
+              <h3 className="font-times text-[clamp(1.5rem,3vw,2.5rem)] font-extralight tracking-[-0.01em] uppercase mb-12">
+                Usage Overview
               </h3>
               
-              <div className="flex justify-center items-center gap-8 mb-6">
+              <div className="grid grid-cols-3 gap-12 mb-12">
                 <div className="text-center">
-                  <div className="text-4xl font-times mb-2">{usageStats.used}</div>
-                  <div className="text-xs tracking-[0.2em] uppercase text-[#666666]">Used</div>
+                  <div className="font-times text-[clamp(2rem,4vw,3rem)] font-extralight mb-3">{usageStats.used}</div>
+                  <div className="text-xs tracking-[0.3em] uppercase font-light text-[#666666]">Generated</div>
                 </div>
-                <div className="text-[#e0e0e0] text-2xl">/</div>
                 <div className="text-center">
-                  <div className="text-4xl font-times mb-2">{usageStats.total}</div>
-                  <div className="text-xs tracking-[0.2em] uppercase text-[#666666]">Total</div>
+                  <div className="font-times text-[clamp(2rem,4vw,3rem)] font-extralight mb-3">{usageStats.total - usageStats.used}</div>
+                  <div className="text-xs tracking-[0.3em] uppercase font-light text-[#666666]">Remaining</div>
+                </div>
+                <div className="text-center">
+                  <div className="font-times text-[clamp(2rem,4vw,3rem)] font-extralight mb-3">{usageStats.percentage}%</div>
+                  <div className="text-xs tracking-[0.3em] uppercase font-light text-[#666666]">Used</div>
                 </div>
               </div>
 
-              <div className="w-full bg-[#e0e0e0] h-2 mb-4">
+              <div className="w-full bg-[#e0e0e0] h-1 mb-6">
                 <div 
-                  className="bg-black h-full transition-all duration-500"
+                  className="bg-black h-full transition-all duration-1000 ease-out"
                   style={{ width: `${usageStats.percentage}%` }}
                 ></div>
               </div>
 
-              <p className="text-sm font-light text-[#666666]">
-                {usageStats.total - usageStats.used} generations remaining
+              <p className="text-sm font-light text-[#666666] tracking-[0.1em] uppercase">
+                €97 SSELFIE Studio Subscription
               </p>
+            </div>
+          </div>
+
+          {/* Additional Editorial Elements */}
+          <div className="mt-32 text-center">
+            <div className="max-w-4xl mx-auto">
+              <div className="text-xs font-normal tracking-[0.4em] uppercase text-[#666666] mb-8">
+                System Status
+              </div>
+              
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+                <div className="p-8 border border-[#e0e0e0] bg-white">
+                  <div className="font-times text-xl font-light mb-3">
+                    {userModel?.trainingStatus === 'completed' ? 'Active' : 'Training'}
+                  </div>
+                  <div className="text-xs tracking-[0.3em] uppercase font-light text-[#666666]">
+                    AI Model Status
+                  </div>
+                </div>
+                
+                <div className="p-8 border border-[#e0e0e0] bg-white">
+                  <div className="font-times text-xl font-light mb-3">
+                    {aiImages.length > 0 ? 'Ready' : 'Empty'}
+                  </div>
+                  <div className="text-xs tracking-[0.3em] uppercase font-light text-[#666666]">
+                    Gallery Status
+                  </div>
+                </div>
+                
+                <div className="p-8 border border-[#e0e0e0] bg-white">
+                  <div className="font-times text-xl font-light mb-3">
+                    Active
+                  </div>
+                  <div className="text-xs tracking-[0.3em] uppercase font-light text-[#666666]">
+                    Subscription
+                  </div>
+                </div>
+              </div>
             </div>
           </div>
 
