@@ -217,24 +217,45 @@ export default function Workspace() {
           />
         </div>
         
-        {/* Hero Content */}
-        <div className="relative z-10 text-center max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="text-xs tracking-[0.4em] uppercase text-white/60 mb-8">
+        {/* Hero Content - Positioned Low */}
+        <div className="relative z-10 text-center max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col justify-end min-h-screen pb-16 sm:pb-20">
+          {/* Tagline */}
+          <div style={{
+            fontSize: 'clamp(9px, 2vw, 11px)',
+            letterSpacing: 'clamp(0.3em, 0.8vw, 0.4em)',
+            textTransform: 'uppercase',
+            color: 'rgba(255,255,255,0.7)',
+            marginBottom: 'clamp(16px, 3vw, 24px)'
+          }}>
             Your Personal Brand Empire
           </div>
           
-          <div className="mb-12">
-            <h1 className="font-serif text-4xl sm:text-6xl md:text-8xl lg:text-9xl xl:text-[10rem] font-light tracking-wide sm:tracking-wider md:tracking-widest uppercase leading-none mb-4">
-              SSELFIE
-            </h1>
-            <h2 className="font-serif text-xl sm:text-2xl md:text-4xl lg:text-5xl font-light tracking-wider uppercase text-white/90">
-              STUDIO
-            </h2>
-          </div>
+          {/* Main Title */}
+          <h1 style={{
+            fontSize: 'clamp(3rem, 8vw, 8rem)',
+            lineHeight: 0.9,
+            fontWeight: 200,
+            color: 'white',
+            marginBottom: 'clamp(16px, 3vw, 24px)',
+            fontFamily: 'Times New Roman, serif',
+            letterSpacing: 'clamp(0.02em, 0.5vw, 0.05em)',
+            textTransform: 'uppercase',
+            maxWidth: '100%',
+            overflowWrap: 'break-word'
+          }}>
+            SSELFIE
+          </h1>
           
-          <p className="text-base sm:text-lg text-white/80 max-w-2xl mx-auto mb-12">
-            Where one selfie becomes a business.
-          </p>
+          {/* Subtitle */}
+          <div style={{
+            fontSize: 'clamp(9px, 2vw, 11px)',
+            letterSpacing: 'clamp(0.3em, 0.8vw, 0.4em)',
+            textTransform: 'uppercase',
+            color: 'rgba(255,255,255,0.7)',
+            marginBottom: 'clamp(24px, 5vw, 40px)'
+          }}>
+            STUDIO
+          </div>
 
           {/* Quick Stats in Hero */}
           <div className="flex flex-col sm:flex-row justify-center gap-8 sm:gap-12 text-center">
