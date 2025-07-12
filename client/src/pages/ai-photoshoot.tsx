@@ -237,57 +237,7 @@ What kind of mood are you going for today?`,
     enabled: isAuthenticated
   });
 
-  // Generate images mutation with progress tracking
-  const generateImagesMutation = useMutation({
-    mutationFn: async (prompt: string) => {
-      setGenerationProgress(0);
-      setGeneratingImages(true);
-      
-      // Progress simulation - typical generation takes 15-30 seconds
-      const progressInterval = setInterval(() => {
-        setGenerationProgress(prev => {
-          if (prev >= 90) return prev;
-          return prev + Math.random() * 10;
-        });
-      }, 1000);
-      
-      try {
-        const response = await apiRequest('POST', '/api/generate-images', {
-          prompt: prompt.replace('[triggerword]', userModel?.triggerWord || 'subject'),
-          category: 'custom',
-          count: 4
-        });
-        
-        clearInterval(progressInterval);
-        setGenerationProgress(100);
-        setTimeout(() => {
-          setGeneratingImages(false);
-          setGenerationProgress(0);
-        }, 1000);
-        
-        return response;
-      } catch (error) {
-        clearInterval(progressInterval);
-        setGeneratingImages(false);
-        setGenerationProgress(0);
-        throw error;
-      }
-    },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['/api/ai-images'] });
-      toast({
-        title: "Images Generated!",
-        description: "Your new photos are ready in the gallery",
-      });
-    },
-    onError: (error: any) => {
-      toast({
-        title: "Generation Failed",
-        description: error.message || "Something went wrong",
-        variant: "destructive",
-      });
-    }
-  });
+  // Using direct fetch pattern from working sandra-photoshoot page instead of mutation
 
   // Sandra AI chat
   const sendSandraMessage = useCallback(async () => {
@@ -329,28 +279,109 @@ What kind of mood are you going for today?`,
     }
   }, [sandraInput]);
 
-  // Generate from built-in prompt
+  // Generate from built-in prompt using working sandra-photoshoot pattern
   const generateFromPrompt = useCallback(async (prompt: any) => {
     setSelectedPrompt(prompt);
     setGeneratingImages(true);
+    setGenerationProgress(0);
+    
+    // Progress simulation for user feedback
+    const progressInterval = setInterval(() => {
+      setGenerationProgress(prev => {
+        if (prev >= 90) return prev;
+        return prev + Math.random() * 8;
+      });
+    }, 1000);
     
     try {
-      await generateImagesMutation.mutateAsync(prompt.prompt);
-    } finally {
-      setGeneratingImages(false);
-    }
-  }, [generateImagesMutation]);
+      // Use same pattern as working sandra-photoshoot page
+      const response = await fetch('/api/sandra-prompt-generate', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          prompt: prompt.prompt.replace('[triggerword]', userModel?.triggerWord || 'subject'),
+          userId: 'sandra_test_user_2025'
+        }),
+      });
 
-  // Generate from Sandra's custom prompt
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+
+      const data = await response.json();
+      
+      clearInterval(progressInterval);
+      setGenerationProgress(100);
+      
+      if (data.images && data.images.length > 0) {
+        // Invalidate AI images cache to show new images
+        queryClient.invalidateQueries({ queryKey: ['/api/ai-images'] });
+        
+        toast({
+          title: "Images Generated!",
+          description: `${data.images.length} new photos ready in your gallery`,
+        });
+      }
+    } catch (error) {
+      console.error('Error generating images:', error);
+      clearInterval(progressInterval);
+      toast({
+        title: "Generation Failed",
+        description: "Something went wrong with image generation",
+        variant: "destructive",
+      });
+    } finally {
+      setTimeout(() => {
+        setGeneratingImages(false);
+        setGenerationProgress(0);
+      }, 1000);
+    }
+  }, [userModel, queryClient, toast]);
+
+  // Generate from Sandra's custom prompt using working pattern
   const generateFromSandraPrompt = useCallback(async (prompt: string) => {
     setSandraGenerating(true);
     
     try {
-      await generateImagesMutation.mutateAsync(prompt);
+      // Use same working pattern from sandra-photoshoot
+      const response = await fetch('/api/sandra-prompt-generate', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          prompt: prompt.replace('[triggerword]', userModel?.triggerWord || 'subject'),
+          userId: 'sandra_test_user_2025'
+        }),
+      });
+
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+
+      const data = await response.json();
+      
+      if (data.images && data.images.length > 0) {
+        queryClient.invalidateQueries({ queryKey: ['/api/ai-images'] });
+        
+        toast({
+          title: "Images Generated!",
+          description: `${data.images.length} new photos ready`,
+        });
+      }
+    } catch (error) {
+      console.error('Error generating images:', error);
+      toast({
+        title: "Generation Failed",
+        description: "Something went wrong",
+        variant: "destructive",
+      });
     } finally {
       setSandraGenerating(false);
     }
-  }, [generateImagesMutation]);
+  }, [userModel, queryClient, toast]);
 
   if (!isAuthenticated) {
     return (
