@@ -16,6 +16,13 @@ export const Navigation: React.FC = () => {
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
 
+  // Ensure authenticated pages start at top
+  useEffect(() => {
+    if (isAuthenticated) {
+      window.scrollTo(0, 0);
+    }
+  }, [isAuthenticated]);
+
   const isActive = (path: string) => {
     if (path === '/' && location === '/') return true;
     if (path !== '/' && location.startsWith(path)) return true;
@@ -120,8 +127,8 @@ export const Navigation: React.FC = () => {
           justifyContent: 'space-between',
           alignItems: 'center'
         }}>
-          {/* Logo */}
-          <Link href="/">
+          {/* Logo - routes to workspace for authenticated users, homepage for guests */}
+          <Link href={isAuthenticated ? "/workspace" : "/"}>
             <div style={{
               fontFamily: 'Times New Roman, serif',
               fontSize: '20px',
