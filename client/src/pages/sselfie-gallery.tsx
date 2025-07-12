@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { useAuth } from '@/hooks/use-auth';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { Navigation } from '@/components/navigation';
+import { WorkspaceNavigation } from '@/components/workspace-navigation';
 import { PaymentVerification } from '@/components/payment-verification';
 import { HeroFullBleed } from '@/components/hero-full-bleed';
 import { SandraImages } from '@/lib/sandra-images';
@@ -175,7 +175,7 @@ export default function SSELFIEGallery() {
         fontWeight: 300,
         color: '#0a0a0a'
       }}>
-        <Navigation />
+        <WorkspaceNavigation />
         
         {/* Full Bleed Hero Section */}
         <HeroFullBleed

@@ -1,5 +1,5 @@
 import React, { useState, useCallback } from 'react';
-import { Navigation } from '@/components/navigation';
+import { WorkspaceNavigation } from '@/components/workspace-navigation';
 import { HeroFullBleed } from '@/components/hero-full-bleed';
 import { SandraImages } from '@/lib/sandra-images';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
@@ -184,7 +184,7 @@ export default function CustomPhotoshootLibrary() {
       background: '#ffffff',
       minHeight: '100vh'
     }}>
-      <Navigation />
+      <WorkspaceNavigation />
       
       {/* Generation Progress Bar */}
       {generatingImages && (

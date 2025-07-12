@@ -150,7 +150,7 @@ export const Navigation: React.FC = () => {
             alignItems: 'center',
             gap: '40px'
           }}
-          className="nav-desktop-only">
+          className="hidden md:flex">
             {navItems.map((item) => (
               <Link key={item.path} href={item.path}>
                 <span style={{
@@ -251,7 +251,7 @@ export const Navigation: React.FC = () => {
               transition: 'opacity 300ms ease',
               opacity: 0.8
             }}
-            className="nav-mobile-only"
+            className="md:hidden"
             onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
             onMouseEnter={(e) => e.target.style.opacity = '1'}
             onMouseLeave={(e) => e.target.style.opacity = '0.8'}
@@ -273,7 +273,7 @@ export const Navigation: React.FC = () => {
           background: '#ffffff',
           padding: '100px 40px 40px 40px'
         }}
-        className="nav-mobile-only">
+        className="md:hidden">
           <div style={{
             display: 'flex',
             flexDirection: 'column',
@@ -377,19 +377,7 @@ export const Navigation: React.FC = () => {
           </div>
         </div>
       )}
-      
-      {/* CSS for responsive classes */}
-      <style>{`
-        @media (max-width: 1024px) {
-          .nav-desktop-only { display: none !important; }
-          .nav-mobile-only { display: block !important; }
-        }
-        
-        @media (min-width: 1025px) {
-          .nav-desktop-only { display: flex !important; }
-          .nav-mobile-only { display: none !important; }
-        }
-      `}</style>
+
     </>
   );
 };
