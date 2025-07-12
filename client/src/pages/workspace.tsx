@@ -81,8 +81,8 @@ export default function Workspace() {
     },
     {
       title: 'AI Photoshoot',
-      subtitle: 'Built-in professional styles',
-      link: '/ai-generator',
+      subtitle: 'Built-in prompts & Sandra chat',
+      link: '/ai-photoshoot',
       status: userModel?.trainingStatus === 'completed' ? 'active' : 'disabled',
       image: SandraImages.editorial.thinking
     },
