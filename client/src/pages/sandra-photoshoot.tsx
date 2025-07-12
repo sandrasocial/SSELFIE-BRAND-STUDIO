@@ -66,7 +66,11 @@ Here are some starter prompts to get you going, or tell me what mood you're feel
   const [isLoading, setIsLoading] = useState(false);
   const [selectedImages, setSelectedImages] = useState<string[]>([]);
   const [fullSizeImage, setFullSizeImage] = useState<string | null>(null);
+  const [inspirationPhotos, setInspirationPhotos] = useState<string[]>([]);
+  const [isUploadingInspiration, setIsUploadingInspiration] = useState(false);
+  const [showInspirationUpload, setShowInspirationUpload] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
@@ -259,6 +263,94 @@ Here are some starter prompts to get you going, or tell me what mood you're feel
     }
   };
 
+  const handleInspirationUpload = async (file: File) => {
+    if (!file || !file.type.startsWith('image/')) {
+      toast({
+        title: "Invalid File",
+        description: "Please upload a valid image file (JPG, PNG, etc.)",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    setIsUploadingInspiration(true);
+
+    try {
+      // Convert file to base64 for demo purposes
+      const reader = new FileReader();
+      reader.onload = async (e) => {
+        const imageDataUrl = e.target?.result as string;
+        
+        try {
+          const response = await fetch('/api/upload-inspiration', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+              imageUrl: imageDataUrl,
+              description: 'User uploaded inspiration',
+              source: 'upload'
+            }),
+          });
+
+          if (response.ok) {
+            setInspirationPhotos(prev => [...prev, imageDataUrl]);
+            toast({
+              title: "Inspiration Added",
+              description: "Sandra can now see your style inspiration and will customize your images accordingly!",
+            });
+            
+            const successMessage: ChatMessage = {
+              type: 'sandra',
+              message: "Perfect! I can see your inspiration photo now. I love your style! This will help me create AI images that match your aesthetic perfectly. What kind of photoshoot vibe are you feeling?",
+              timestamp: new Date().toISOString()
+            };
+            setMessages(prev => [...prev, successMessage]);
+          } else {
+            throw new Error('Upload failed');
+          }
+        } catch (error) {
+          console.error('Error uploading inspiration:', error);
+          toast({
+            title: "Upload Failed",
+            description: "There was an issue uploading your inspiration photo. Please try again.",
+            variant: "destructive",
+          });
+        }
+      };
+      reader.readAsDataURL(file);
+    } catch (error) {
+      console.error('Error processing file:', error);
+      toast({
+        title: "Upload Failed",
+        description: "There was an issue processing your file. Please try again.",
+        variant: "destructive",
+      });
+    } finally {
+      setIsUploadingInspiration(false);
+    }
+  };
+
+  const triggerFileUpload = () => {
+    fileInputRef.current?.click();
+  };
+
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      handleInspirationUpload(file);
+    }
+  };
+
+  const removeInspirationPhoto = (index: number) => {
+    setInspirationPhotos(prev => prev.filter((_, i) => i !== index));
+    toast({
+      title: "Inspiration Removed",
+      description: "Inspiration photo has been removed from your reference gallery.",
+    });
+  };
+
   const handleKeyPress = (e: React.KeyboardEvent) => {
     if (e.key === 'Enter' && !e.shiftKey) {
       e.preventDefault();
@@ -449,6 +541,74 @@ Here are some starter prompts to get you going, or tell me what mood you're feel
 
               {/* Input */}
               <div className="border-t border-[#e0e0e0] p-3 sm:p-4">
+                {/* Inspiration Photos Gallery */}
+                {inspirationPhotos.length > 0 && (
+                  <div className="mb-4 p-3 bg-[#f8f8f8] border border-[#e0e0e0]">
+                    <div className="flex items-center justify-between mb-2">
+                      <span className="text-xs tracking-[0.15em] uppercase font-light text-[#666666]">Style Inspiration</span>
+                      <button
+                        onClick={() => setShowInspirationUpload(!showInspirationUpload)}
+                        className="text-[10px] tracking-[0.1em] uppercase font-light text-[#0a0a0a] hover:text-[#666666] transition-colors"
+                      >
+                        {showInspirationUpload ? 'Hide Upload' : 'Add More'}
+                      </button>
+                    </div>
+                    <div className="flex gap-2 overflow-x-auto">
+                      {inspirationPhotos.map((photo, index) => (
+                        <div key={index} className="relative flex-shrink-0">
+                          <div className="w-12 h-12 sm:w-16 sm:h-16 overflow-hidden bg-[#f0f0f0]">
+                            <img
+                              src={photo}
+                              alt={`Inspiration ${index + 1}`}
+                              className="w-full h-full object-cover"
+                            />
+                          </div>
+                          <button
+                            onClick={() => removeInspirationPhoto(index)}
+                            className="absolute -top-1 -right-1 w-4 h-4 bg-[#0a0a0a] text-white text-[10px] flex items-center justify-center hover:bg-[#333333] transition-colors"
+                          >
+                            ×
+                          </button>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
+                
+                {/* Upload Inspiration Section */}
+                {(showInspirationUpload || inspirationPhotos.length === 0) && (
+                  <div className="mb-4 p-3 border border-[#e0e0e0] bg-white">
+                    <div className="flex items-center justify-between mb-2">
+                      <span className="text-xs tracking-[0.15em] uppercase font-light text-[#0a0a0a]">Upload Style Inspiration</span>
+                      {inspirationPhotos.length > 0 && (
+                        <button
+                          onClick={() => setShowInspirationUpload(false)}
+                          className="text-[10px] tracking-[0.1em] uppercase font-light text-[#666666] hover:text-[#0a0a0a] transition-colors"
+                        >
+                          Hide
+                        </button>
+                      )}
+                    </div>
+                    <p className="text-[10px] sm:text-xs font-light text-[#666666] mb-3 leading-relaxed">
+                      Upload Pinterest inspiration, pet photos, or any reference images so Sandra can match your aesthetic perfectly.
+                    </p>
+                    <button
+                      onClick={triggerFileUpload}
+                      disabled={isUploadingInspiration}
+                      className="w-full px-4 py-2 border border-[#0a0a0a] text-[#0a0a0a] text-[10px] sm:text-xs font-light tracking-[0.1em] uppercase hover:bg-[#f0f0f0] disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                    >
+                      {isUploadingInspiration ? 'Uploading...' : 'Choose Inspiration Photo'}
+                    </button>
+                    <input
+                      ref={fileInputRef}
+                      type="file"
+                      accept="image/*"
+                      onChange={handleFileChange}
+                      className="hidden"
+                    />
+                  </div>
+                )}
+                
                 <div className="flex flex-col sm:flex-row space-y-3 sm:space-y-0 sm:space-x-3">
                   <textarea
                     value={inputMessage}
@@ -459,13 +619,22 @@ Here are some starter prompts to get you going, or tell me what mood you're feel
                     rows={2}
                     disabled={isLoading}
                   />
-                  <button
-                    onClick={sendMessage}
-                    disabled={!inputMessage.trim() || isLoading}
-                    className="px-6 sm:px-8 py-3 sm:py-4 bg-[#0a0a0a] text-white font-light tracking-[0.1em] uppercase disabled:opacity-50 disabled:cursor-not-allowed hover:bg-[#333333] transition-colors touch-manipulation text-xs sm:text-sm"
-                  >
-                    Share
-                  </button>
+                  <div className="flex flex-col space-y-2 sm:space-y-0 sm:flex-row sm:space-x-2">
+                    <button
+                      onClick={() => setShowInspirationUpload(!showInspirationUpload)}
+                      className="px-4 py-3 border border-[#e0e0e0] text-[#666666] text-[10px] sm:text-xs font-light tracking-[0.1em] uppercase hover:bg-[#f0f0f0] transition-colors touch-manipulation"
+                      title="Upload inspiration photo"
+                    >
+                      Photo
+                    </button>
+                    <button
+                      onClick={sendMessage}
+                      disabled={!inputMessage.trim() || isLoading}
+                      className="px-6 sm:px-8 py-3 sm:py-4 bg-[#0a0a0a] text-white font-light tracking-[0.1em] uppercase disabled:opacity-50 disabled:cursor-not-allowed hover:bg-[#333333] transition-colors touch-manipulation text-xs sm:text-sm"
+                    >
+                      Share
+                    </button>
+                  </div>
                 </div>
               </div>
             </div>
