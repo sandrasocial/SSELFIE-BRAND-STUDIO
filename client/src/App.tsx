@@ -25,6 +25,7 @@ import Checkout from "@/pages/checkout";
 import SimpleCheckout from "@/pages/simple-checkout";
 import ThankYou from "@/pages/thank-you";
 import SandraPhotoshoot from "@/pages/sandra-photoshoot";
+import SandraAI from "@/pages/sandra-ai";
 import RachelChat from "@/pages/rachel-chat";
 import RachelActivation from "@/pages/rachel-activation";
 import SSELFIEGallery from "@/pages/sselfie-gallery";
@@ -127,6 +128,7 @@ function Router() {
       <Route path="/simple-training" component={(props) => <ProtectedRoute component={SimpleTraining} {...props} />} />
       <Route path="/ai-photoshoot" component={(props) => <ProtectedRoute component={SandraPhotoshoot} {...props} />} />
       <Route path="/sandra-photoshoot" component={(props) => <ProtectedRoute component={SandraPhotoshoot} {...props} />} />
+      <Route path="/sandra-ai" component={(props) => <ProtectedRoute component={SandraAI} {...props} />} />
       <Route path="/ai-generator" component={(props) => <ProtectedRoute component={AIGenerator} {...props} />} />
       <Route path="/gallery" component={(props) => <ProtectedRoute component={SSELFIEGallery} {...props} />} />
       <Route path="/sselfie-gallery" component={(props) => <ProtectedRoute component={SSELFIEGallery} {...props} />} />
