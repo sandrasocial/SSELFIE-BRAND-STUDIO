@@ -15,19 +15,19 @@ export const IMAGE_CATEGORIES = {
 
 export const PROMPT_TEMPLATES = {
   editorial: {
-    lifestyle: "{trigger_word} woman working at luxury cafe, laptop open, coffee nearby, natural candid moment, environmental context, lifestyle photography not portrait",
-    business: "{trigger_word} woman in boardroom meeting, leading discussion, natural office environment, professional interaction, lifestyle photography not portrait",
-    creative: "{trigger_word} woman in art studio, creative process, hands working, artistic environment, lifestyle photography not portrait"
+    lifestyle: "{trigger_word} woman working at luxury cafe, laptop open, designer coffee cup nearby, shot on Hasselblad X2D 100C with 90mm lens, natural window lighting, wearing oversized designer sweater, sophisticated work environment, marble table surface, environmental context, lifestyle photography not portrait, heavy 35mm film grain, matte skin finish, authentic skin texture, luxury materials, editorial lifestyle moment",
+    business: "{trigger_word} woman in boardroom meeting, leading discussion, head of conference table, shot on Canon EOS R5 with 85mm f/1.2L lens, professional window lighting, black power suit, modern luxury office environment, confident leadership presence, environmental context, lifestyle photography not portrait, pronounced film grain, natural skin texture, executive styling, commanding authority",
+    creative: "{trigger_word} woman in art studio, creative process, hands working on project, shot on Leica SL2 with 90mm APO-Summicron lens, natural creative lighting, artistic clothing, sophisticated workspace, environmental context, lifestyle photography not portrait, raw film negative quality, visible grain structure, authentic creative styling, artistic professional environment"
   },
   professional: {
-    workspace: "{trigger_word} woman at aesthetic desk setup, organized workspace, natural work moment, environmental context, lifestyle photography not portrait",
-    conference: "{trigger_word} woman speaking at conference, audience in background, stage setting, professional event, lifestyle photography not portrait",
-    networking: "{trigger_word} woman at networking event, natural conversation, social business setting, lifestyle photography not portrait"
+    workspace: "{trigger_word} woman at aesthetic desk setup, organized luxury workspace, natural work moment, shot on Nikon Z9 with 50mm f/1.2S lens, soft morning light, elegant work attire, modern office environment, environmental context, lifestyle photography not portrait, Kodak Portra 400 film aesthetic, matte complexion, professional luxury styling, sophisticated work setting",
+    conference: "{trigger_word} woman speaking at conference, audience in background, professional stage setting, shot on Sony A7R V with 85mm f/1.4 GM lens, dramatic stage lighting, sophisticated presentation attire, luxury venue environment, environmental context, lifestyle photography not portrait, analog film photography aesthetic, natural skin imperfections, executive presence, professional authority",
+    networking: "{trigger_word} woman at networking event, natural conversation, upscale business setting, shot on Fujifilm GFX100S with 110mm f/2 lens, ambient event lighting, professional cocktail attire, luxury venue atmosphere, environmental context, lifestyle photography not portrait, heavy film grain, pronounced texture, elegant networking styling, social business environment"
   },
   lifestyle: {
-    morning: "{trigger_word} woman morning routine, cozy luxury setting, natural light, domestic lifestyle, environmental context, lifestyle photography not portrait",
-    wellness: "{trigger_word} woman yoga practice, luxury apartment, morning sun, wellness lifestyle, environmental context, lifestyle photography not portrait",
-    travel: "{trigger_word} woman at beachfront cafe, Mediterranean setting, vacation lifestyle, environmental context, lifestyle photography not portrait"
+    morning: "{trigger_word} woman morning routine, cozy luxury home setting, natural domestic light, shot on Leica Q2 with 28mm f/1.7 lens, soft golden hour lighting, elegant loungewear, luxury apartment environment, environmental context, lifestyle photography not portrait, film negative quality, authentic grain pattern, comfortable luxury styling, intimate home moment",
+    wellness: "{trigger_word} woman yoga practice, luxury apartment studio, morning sun streaming, shot on Canon R6 Mark II with 35mm f/1.8 lens, natural wellness lighting, sophisticated activewear, serene home environment, environmental context, lifestyle photography not portrait, visible grain structure, matte skin finish, wellness luxury styling, peaceful practice moment",
+    travel: "{trigger_word} woman at beachfront cafe, Mediterranean coastal setting, vacation lifestyle moment, shot on Hasselblad X2D with 90mm lens, golden hour ocean lighting, flowing designer resort wear, luxury coastal environment, environmental context, lifestyle photography not portrait, Kodak Portra 400 film aesthetic, natural skin texture, vacation luxury styling, coastal sophistication"
   }
 };
 
@@ -299,6 +299,52 @@ export class ModelTrainingService {
       console.error('Error checking REAL training status:', error);
       throw error;
     }
+  }
+
+  // Convert category/subcategory to professional prompt using templates
+  static getPromptFromCategorySubcategory(category: string, subcategory: string): string {
+    const categoryLower = category.toLowerCase();
+    const subcategoryLower = subcategory.toLowerCase();
+    
+    // Try to find exact match in PROMPT_TEMPLATES
+    if (PROMPT_TEMPLATES[categoryLower] && PROMPT_TEMPLATES[categoryLower][subcategoryLower]) {
+      return PROMPT_TEMPLATES[categoryLower][subcategoryLower];
+    }
+    
+    // Fallback mapping for common subcategories
+    const fallbackMappings: Record<string, string> = {
+      'magazine cover': PROMPT_TEMPLATES.editorial.business,
+      'fashion': PROMPT_TEMPLATES.editorial.creative,
+      'business': PROMPT_TEMPLATES.editorial.business,
+      'working': PROMPT_TEMPLATES.lifestyle.morning,
+      'travel': PROMPT_TEMPLATES.lifestyle.travel,
+      'home': PROMPT_TEMPLATES.lifestyle.morning,
+      'social': PROMPT_TEMPLATES.professional.networking,
+      'headshot': PROMPT_TEMPLATES.professional.workspace,
+      'creative': PROMPT_TEMPLATES.editorial.creative,
+      'professional': PROMPT_TEMPLATES.professional.conference,
+      'yacht': PROMPT_TEMPLATES.lifestyle.travel,
+      'villa': PROMPT_TEMPLATES.lifestyle.morning,
+      'shopping': PROMPT_TEMPLATES.editorial.lifestyle,
+      'events': PROMPT_TEMPLATES.professional.networking
+    };
+    
+    return fallbackMappings[subcategoryLower] || PROMPT_TEMPLATES.editorial.lifestyle;
+  }
+
+  // Generate images from category/subcategory (AI Generator usage)
+  static async generateUserImagesFromCategory(
+    userId: string,
+    category: string,
+    subcategory: string,
+    count: number = 4
+  ): Promise<{ images: string[]; generatedImageId?: number; predictionId?: string }> {
+    // Convert category/subcategory to professional prompt
+    const promptTemplate = this.getPromptFromCategorySubcategory(category, subcategory);
+    console.log(`Converting ${category}/${subcategory} to prompt:`, promptTemplate);
+    
+    // Use the custom prompt generation method
+    return this.generateUserImages(userId, promptTemplate, count);
   }
 
   // REAL IMAGE GENERATION - NO SIMULATION
