@@ -19,14 +19,43 @@ interface ChatMessage {
 }
 
 export default function SandraPhotoshootPage() {
+  // Pinterest starter prompts for immediate use
+  const pinterestStarterPrompts: StyleButton[] = [
+    {
+      id: 'pinterest-starter-1',
+      name: 'Sunset Contemplation',
+      description: 'Golden hour magic, whole scenery, natural pose',
+      prompt: 'usersandra_test_user_2025 woman, full body environmental shot, sunset beach setting, looking away from camera, long dark wavy hair flowing, shot on Nikon Z9 with 50mm f/1.2S lens, dramatic golden hour backlighting, warm atmospheric glow, flowing maxi dress, natural makeup, barefoot elegance, contemplative pose looking at horizon, not facing camera, serene moment, heavy 35mm film grain, pronounced texture',
+      camera: 'Nikon Z9 with 50mm f/1.2S lens',
+      texture: 'heavy 35mm film grain, pronounced texture'
+    },
+    {
+      id: 'pinterest-starter-2',
+      name: 'Garden Wanderer',
+      description: 'Natural beauty, morning light, peaceful energy',
+      prompt: 'usersandra_test_user_2025 woman, full body lifestyle shot, walking through luxury garden path, not looking at camera, shot on Sony A7R V with 55mm f/1.8 Zeiss lens, soft morning light filtering through leaves, natural daylight, flowing midi dress, natural textures, effortless styling, gentle walk among flowers, looking forward, peaceful movement, Kodak Portra 400 film aesthetic, visible grain structure',
+      camera: 'Sony A7R V with 55mm f/1.8 Zeiss lens',
+      texture: 'Kodak Portra 400 film aesthetic, visible grain structure'
+    },
+    {
+      id: 'pinterest-starter-3',
+      name: 'City Dreamer',
+      description: 'Urban lifestyle, architectural beauty, confident energy',
+      prompt: 'usersandra_test_user_2025 woman, full body street photography, city architectural backdrop, walking away from camera, shot on Leica Q2 with 28mm f/1.7 lens, natural city daylight, dramatic shadows and highlights, chic urban outfit, designer accessories, sophisticated styling, confident walking pose, looking ahead, urban exploration, analog film photography, raw grain texture',
+      camera: 'Leica Q2 with 28mm f/1.7 lens',
+      texture: 'analog film photography, raw grain texture'
+    }
+  ];
+
   const [messages, setMessages] = useState<ChatMessage[]>([
     {
       type: 'sandra',
-      message: `Hey! I'm Sandra, and I get it.
+      message: `Hey gorgeous! I'm Sandra, your AI photographer and style consultant. 
 
-This whole photography thing? It's not about perfect poses or magazine-worthy shots. It's about capturing YOU right now—the messy, beautiful, real version who's building something meaningful.
+I specialize in creating Pinterest-style environmental shots where you're not looking at the camera and we can see the whole beautiful scenery. Think dreamy lifestyle vibes, luxury settings, and natural poses that look effortlessly expensive.
 
-Your mess is your message. Let's capture both. Tell me what chapter you're writing in your story right now.`,
+Here are some starter prompts to get you going, or tell me what mood you're feeling:`,
+      styleButtons: pinterestStarterPrompts,
       timestamp: new Date().toISOString()
     }
   ]);
