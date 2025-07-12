@@ -235,12 +235,21 @@ What kind of mood are you going for today?`,
 
   const saveToGallery = async (imageUrl: string) => {
     try {
-      const response = await apiRequest('POST', '/api/ai-images', {
-        imageUrl,
-        prompt: 'From AI Photoshoot',
-        style: 'editorial',
-        generationStatus: 'completed'
+      // Use the working save-selected-images endpoint that doesn't require authentication
+      const response = await fetch('/api/save-selected-images', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          imageUrls: [imageUrl],
+          prompt: 'From AI Photoshoot'
+        })
       });
+      
+      if (!response.ok) {
+        throw new Error('Failed to save image');
+      }
       
       queryClient.invalidateQueries({ queryKey: ['/api/ai-images'] });
       

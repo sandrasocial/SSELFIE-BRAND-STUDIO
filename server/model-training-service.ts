@@ -334,19 +334,26 @@ export class ModelTrainingService {
         console.log('Using demo model for user without trained model');
       }
       
-      // Handle prompt formatting - Sandra's prompts already contain trigger words
-      let finalPrompt;
+      // Handle prompt formatting and enhancement
+      let basePrompt;
       
       if (customPrompt.includes('{trigger_word}')) {
         // Legacy prompt format with placeholder
-        finalPrompt = customPrompt.replace('{trigger_word}', triggerWord);
+        basePrompt = customPrompt.replace('{trigger_word}', triggerWord);
       } else if (customPrompt.startsWith(triggerWord)) {
         // Sandra's custom prompts already start with trigger word - use as-is
-        finalPrompt = customPrompt;
+        basePrompt = customPrompt;
       } else {
         // Add trigger word to beginning if not present
-        finalPrompt = `${triggerWord} ${customPrompt}`;
+        basePrompt = `${triggerWord} ${customPrompt}`;
       }
+      
+      // Enhanced prompt with film aesthetics and professional specifications
+      const filmEnhancement = "shot on Hasselblad X2D 100C, 90mm lens, heavy 35mm film grain, matte skin finish, authentic skin texture with visible pores, natural imperfections, analog film photography aesthetic, raw film negative quality";
+      const fashionEnhancement = "wearing designer pieces, tailored clothing, luxury materials, sophisticated styling, elegant feminine fashion, high-end accessories, refined aesthetic";
+      const environmentalEnhancement = "full scene visible, environmental context, lifestyle photography not portrait, editorial lifestyle moment";
+      
+      finalPrompt = `${basePrompt}, ${filmEnhancement}, ${fashionEnhancement}, ${environmentalEnhancement}`;
       
       console.log('Original prompt:', customPrompt);
       console.log('Final prompt for generation:', finalPrompt);
@@ -356,7 +363,7 @@ export class ModelTrainingService {
         version: modelToUse,
         input: {
           prompt: finalPrompt,
-          negative_prompt: "portrait, headshot, passport photo, studio shot, centered face, isolated subject, corporate headshot, ID photo, school photo, posed",
+          negative_prompt: "portrait, headshot, passport photo, studio shot, centered face, isolated subject, corporate headshot, ID photo, school photo, posed, glossy skin, plastic skin, digital perfection, overly polished, artificial lighting, fake appearance, retouched skin, airbrushed, perfect skin, flawless complexion, digital enhancement, beauty filter, smoothed skin, unrealistic skin texture, synthetic appearance",
           num_outputs: count,
           aspect_ratio: "4:3", // Wider aspect for environmental scenes
           output_format: "jpg",
