@@ -315,7 +315,10 @@ export default function SandraPhotoshoot() {
     }
   });
 
-  // Enhanced Chat with Sandra AI mutation with Memory and Custom Prompts
+  // Sandra AI Photoshoot Agent - creates 3 style button alternatives
+  const [styleButtons, setStyleButtons] = useState<any[]>([]);
+  const [savedPromptLibrary, setSavedPromptLibrary] = useState<any[]>([]);
+  
   const chatMutation = useMutation({
     mutationFn: async (message: string) => {
       const response = await apiRequest('POST', '/api/sandra-ai-chat', { 
@@ -324,7 +327,7 @@ export default function SandraPhotoshoot() {
       return response.json();
     },
     onSuccess: (data) => {
-      console.log('Enhanced Sandra AI response:', data);
+      console.log('Sandra AI specialist response:', data);
       
       const sandraMessage = data.message || 'I understand! Let me help you create stunning photos for your brand.';
       
@@ -334,16 +337,16 @@ export default function SandraPhotoshoot() {
       ]);
       setChatMessage('');
       
-      // If Sandra created a custom prompt with camera specs and film texture
-      if (data.suggestedPrompt) {
-        setCustomPrompt(data.suggestedPrompt);
+      // Sandra now creates 3 style button alternatives instead of text prompts
+      if (data.styleButtons && data.styleButtons.length > 0) {
+        setStyleButtons(data.styleButtons);
         toast({
-          title: "Sandra Created a Custom Prompt!",
-          description: "Check the custom prompt section - Sandra included specific camera details and film texture.",
+          title: "Sandra Created Style Options!",
+          description: `${data.styleButtons.length} custom styles with camera specs ready to generate.`,
         });
       }
       
-      // Display style insights if Sandra learned something new about user's vision
+      // Display style insights if Sandra learned something new
       if (data.styleInsights && Object.keys(data.styleInsights).length > 0) {
         console.log('Sandra learned about your style:', data.styleInsights);
       }
@@ -409,6 +412,21 @@ export default function SandraPhotoshoot() {
   const handleSendMessage = () => {
     if (!chatMessage.trim()) return;
     chatMutation.mutate(chatMessage);
+  };
+
+  // Handle style button click - generate from Sandra's custom style
+  const handleStyleButtonGenerate = (styleButton: any) => {
+    const finalPrompt = styleButton.prompt.replace('user{userId}', user?.id || 'subject');
+    generateImagesMutation.mutate(finalPrompt);
+  };
+
+  // Save style button to user's custom library
+  const handleSaveStyleButton = (styleButton: any) => {
+    setSavedPromptLibrary(prev => [...prev, styleButton]);
+    toast({
+      title: "Style Saved!",
+      description: `"${styleButton.name}" added to your custom photoshoot library.`,
+    });
   };
 
   const toggleImageSelection = (imageUrl: string) => {
@@ -901,13 +919,13 @@ export default function SandraPhotoshoot() {
                         textTransform: 'uppercase',
                         marginBottom: '16px'
                       }}>
-                        Chat with Sandra AI - Your Personal Photo Stylist
+                        Sandra AI - Specialized Photoshoot Agent
                       </h3>
                       <p style={{ marginBottom: '12px' }}>
-                        Tell Sandra your vision and she'll remember everything to create increasingly perfect prompts with specific camera details and film texture.
+                        Tell Sandra your vision and she'll create 3 custom style alternatives with professional camera specs and film texture details. No more text prompts - just click and generate.
                       </p>
                       <p style={{ fontSize: '12px', color: '#666666', fontStyle: 'italic' }}>
-                        Sandra learns from every conversation to understand your unique style and brand vision.
+                        Sandra specializes in photoshoots, poses, fashion, makeup & hair. Each conversation builds your custom photoshoot library.
                       </p>
                     </div>
                   ) : (
@@ -994,6 +1012,214 @@ export default function SandraPhotoshoot() {
                     {chatMutation.isPending ? 'Sending...' : 'Send'}
                   </button>
                 </div>
+                
+                {/* Custom Photoshoot Library */}
+                {savedPromptLibrary.length > 0 && (
+                  <div style={{
+                    background: '#ffffff',
+                    border: '1px solid #e5e5e5',
+                    padding: '40px',
+                    marginBottom: '40px'
+                  }}>
+                    <h4 style={{
+                      fontSize: '11px',
+                      fontWeight: 400,
+                      letterSpacing: '0.3em',
+                      textTransform: 'uppercase',
+                      marginBottom: '20px',
+                      color: '#0a0a0a'
+                    }}>
+                      Your Custom Photoshoot Library
+                    </h4>
+                    <p style={{
+                      fontSize: '14px',
+                      lineHeight: 1.6,
+                      marginBottom: '30px',
+                      color: '#666666'
+                    }}>
+                      Your saved styles from conversations with Sandra. These become your go-to photoshoot templates.
+                    </p>
+                    
+                    <div style={{
+                      display: 'grid',
+                      gridTemplateColumns: 'repeat(auto-fit, minmax(250px, 1fr))',
+                      gap: '16px'
+                    }}>
+                      {savedPromptLibrary.map((prompt, index) => (
+                        <div key={index} style={{
+                          background: '#f5f5f5',
+                          padding: '20px',
+                          border: '1px solid #e5e5e5'
+                        }}>
+                          <h6 style={{
+                            fontSize: '14px',
+                            fontWeight: 400,
+                            marginBottom: '8px',
+                            color: '#0a0a0a'
+                          }}>
+                            {prompt.name}
+                          </h6>
+                          <p style={{
+                            fontSize: '11px',
+                            color: '#666666',
+                            marginBottom: '16px'
+                          }}>
+                            {prompt.camera} • {prompt.texture}
+                          </p>
+                          <button
+                            onClick={() => handleStyleButtonGenerate(prompt)}
+                            disabled={generationProgress.isGenerating}
+                            style={{
+                              width: '100%',
+                              padding: '12px',
+                              fontSize: '10px',
+                              fontWeight: 400,
+                              letterSpacing: '0.2em',
+                              textTransform: 'uppercase',
+                              border: '1px solid #0a0a0a',
+                              color: '#ffffff',
+                              background: '#0a0a0a',
+                              cursor: 'pointer',
+                              transition: 'all 300ms ease',
+                              opacity: generationProgress.isGenerating ? 0.5 : 1
+                            }}
+                          >
+                            Generate
+                          </button>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
+                
+                {/* Sandra's Style Buttons - Revolutionary Photoshoot Agent */}
+                {styleButtons.length > 0 && (
+                  <div style={{
+                    background: '#f5f5f5',
+                    padding: '40px',
+                    marginBottom: '40px'
+                  }}>
+                    <h4 style={{
+                      fontSize: '11px',
+                      fontWeight: 400,
+                      letterSpacing: '0.3em',
+                      textTransform: 'uppercase',
+                      marginBottom: '20px',
+                      color: '#0a0a0a'
+                    }}>
+                      Sandra's Style Recommendations
+                    </h4>
+                    <p style={{
+                      fontSize: '14px',
+                      lineHeight: 1.6,
+                      marginBottom: '30px',
+                      color: '#666666'
+                    }}>
+                      Sandra created {styleButtons.length} custom photoshoot styles with professional camera specs and film texture details. Click to generate or save to your library.
+                    </p>
+                    
+                    <div style={{
+                      display: 'grid',
+                      gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))',
+                      gap: '20px',
+                      marginBottom: '30px'
+                    }}>
+                      {styleButtons.map((button, index) => (
+                        <div key={button.id} style={{
+                          background: '#ffffff',
+                          border: '1px solid #e5e5e5',
+                          padding: '30px',
+                          transition: 'all 300ms ease'
+                        }}>
+                          <h5 style={{
+                            fontSize: '16px',
+                            fontWeight: 400,
+                            marginBottom: '12px',
+                            color: '#0a0a0a'
+                          }}>
+                            {button.name}
+                          </h5>
+                          <p style={{
+                            fontSize: '12px',
+                            color: '#666666',
+                            marginBottom: '16px',
+                            lineHeight: 1.5
+                          }}>
+                            {button.description}
+                          </p>
+                          
+                          {/* Camera & Texture Details */}
+                          <div style={{
+                            display: 'grid',
+                            gridTemplateColumns: '1fr 1fr',
+                            gap: '16px',
+                            marginBottom: '24px',
+                            fontSize: '10px',
+                            letterSpacing: '0.1em',
+                            textTransform: 'uppercase'
+                          }}>
+                            <div>
+                              <span style={{ color: '#666666' }}>Camera:</span>
+                              <div style={{ color: '#0a0a0a', fontWeight: 400, marginTop: '4px' }}>
+                                {button.camera}
+                              </div>
+                            </div>
+                            <div>
+                              <span style={{ color: '#666666' }}>Texture:</span>
+                              <div style={{ color: '#0a0a0a', fontWeight: 400, marginTop: '4px' }}>
+                                {button.texture}
+                              </div>
+                            </div>
+                          </div>
+                          
+                          {/* Action Buttons */}
+                          <div style={{
+                            display: 'flex',
+                            gap: '12px'
+                          }}>
+                            <button
+                              onClick={() => handleStyleButtonGenerate(button)}
+                              disabled={generationProgress.isGenerating}
+                              style={{
+                                flex: 1,
+                                padding: '16px 24px',
+                                fontSize: '10px',
+                                fontWeight: 400,
+                                letterSpacing: '0.2em',
+                                textTransform: 'uppercase',
+                                border: '1px solid #0a0a0a',
+                                color: '#ffffff',
+                                background: '#0a0a0a',
+                                cursor: 'pointer',
+                                transition: 'all 300ms ease',
+                                opacity: generationProgress.isGenerating ? 0.5 : 1
+                              }}
+                            >
+                              Generate
+                            </button>
+                            <button
+                              onClick={() => handleSaveStyleButton(button)}
+                              style={{
+                                padding: '16px',
+                                fontSize: '10px',
+                                fontWeight: 400,
+                                letterSpacing: '0.2em',
+                                textTransform: 'uppercase',
+                                border: '1px solid #e5e5e5',
+                                color: '#666666',
+                                background: '#ffffff',
+                                cursor: 'pointer',
+                                transition: 'all 300ms ease'
+                              }}
+                            >
+                              Save
+                            </button>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
                 
                 {/* Custom Prompt Display */}
                 {customPrompt && (
