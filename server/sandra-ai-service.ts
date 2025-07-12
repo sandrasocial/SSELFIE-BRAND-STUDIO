@@ -84,7 +84,7 @@ interface StyleButton {
 
 export class SandraAIService {
   // Sandra AI as specialized photoshoot agent - creates 3 style alternatives
-  static async chatWithUser(userId: string, message: string): Promise<{ 
+  static async chatWithUser(userId: string, message: string, inspirationPhotos: any[] = []): Promise<{ 
     response: string; 
     styleButtons?: StyleButton[]; 
     isFollowUp?: boolean;
@@ -98,8 +98,10 @@ export class SandraAIService {
     // Get user's onboarding data for additional context
     const onboardingData = await storage.getOnboardingData(userId);
     
-    // Build context for Sandra AI
+    // Build context for Sandra AI including inspiration photos
     const contextPrompt = this.buildContextPrompt(recentConversations, onboardingData);
+    const inspirationContext = inspirationPhotos.length > 0 ? 
+      `\n\nUSER'S INSPIRATION PHOTOS:\nThe user has uploaded ${inspirationPhotos.length} inspiration photo(s) for reference. When they mention matching an aesthetic or style, acknowledge these inspiration images and offer to create photos in a similar style. Say something like "I can see your inspiration photo(s) and I absolutely love this aesthetic! Let me create some options that match this vibe perfectly."\n` : '';
     
     const systemPrompt = `You are Sandra, an expert AI photographer and style consultant who creates stunning, personalized brand photoshoots. Your mission is to understand each user's unique vision and create custom prompts that generate breathtaking, professional images.
 
@@ -140,7 +142,7 @@ MEMORY & LEARNING:
 - Notice patterns in what they love vs. what they want to change
 - Become their personal AI photographer who knows their taste perfectly
 
-${contextPrompt}
+${contextPrompt}${inspirationContext}
 
 Current user message: "${message}"
 

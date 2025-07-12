@@ -73,7 +73,9 @@ Here are some starter prompts to get you going, or tell me what mood you're feel
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const scrollToBottom = () => {
-    messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
+    setTimeout(() => {
+      messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
+    }, 100);
   };
 
   useEffect(() => {
@@ -480,7 +482,7 @@ Here are some starter prompts to get you going, or tell me what mood you're feel
           <div className="bg-white border border-[#e0e0e0] max-w-4xl mx-auto">
             <div className="min-h-[500px] sm:min-h-[600px] flex flex-col">
               {/* Messages */}
-              <div className="flex-1 p-4 sm:p-6 md:p-8 overflow-y-auto max-h-[400px] sm:max-h-[500px] space-y-6 sm:space-y-8">
+              <div className="flex-1 p-4 sm:p-6 md:p-8 overflow-y-auto max-h-[400px] sm:max-h-[500px] space-y-6 sm:space-y-8" style={{ display: 'flex', flexDirection: 'column' }}>
                 {messages.map((message, index) => (
                   <div key={index} className={`${message.type === 'user' ? 'text-right' : 'text-left'}`}>
                     <div className={`inline-block max-w-[90%] sm:max-w-[80%] p-3 sm:p-4 ${
