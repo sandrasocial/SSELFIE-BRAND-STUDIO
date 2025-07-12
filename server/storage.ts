@@ -7,6 +7,7 @@ import {
   subscriptions,
   userUsage,
   sandraConversations,
+  photoshootSessions,
   type User,
   type UpsertUser,
   type OnboardingData,
@@ -23,6 +24,8 @@ import {
   type InsertUserUsage,
   type SandraConversation,
   type InsertSandraConversation,
+  type PhotoshootSession,
+  type InsertPhotoshootSession,
 } from "@shared/schema-simplified";
 import { db } from "./db";
 import { eq, and, desc, gte } from "drizzle-orm";
@@ -225,6 +228,70 @@ export class DatabaseStorage implements IStorage {
       .where(eq(userUsage.userId, userId))
       .returning();
     return updated;
+  }
+
+  // Photoshoot session operations
+  async savePhotoshootSession(data: InsertPhotoshootSession): Promise<PhotoshootSession> {
+    // First deactivate any existing active sessions for this user
+    await db
+      .update(photoshootSessions)
+      .set({ isActive: false })
+      .where(eq(photoshootSessions.userId, data.userId));
+    
+    // Create new active session
+    const [session] = await db.insert(photoshootSessions).values(data).returning();
+    return session;
+  }
+
+  async getActivePhotoshootSession(userId: string): Promise<PhotoshootSession | undefined> {
+    const [session] = await db
+      .select()
+      .from(photoshootSessions)
+      .where(and(
+        eq(photoshootSessions.userId, userId),
+        eq(photoshootSessions.isActive, true)
+      ))
+      .orderBy(desc(photoshootSessions.createdAt));
+    return session;
+  }
+
+  async deactivatePhotoshootSession(userId: string): Promise<void> {
+    await db
+      .update(photoshootSessions)
+      .set({ isActive: false })
+      .where(eq(photoshootSessions.userId, userId));
+  }
+
+  // Session-based image persistence using existing aiImages table
+  async getCurrentSessionImages(userId: string): Promise<AIImage[]> {
+    return await db
+      .select()
+      .from(aiImages)
+      .where(and(
+        eq(aiImages.userId, userId),
+        eq(aiImages.status, 'session-active')
+      ))
+      .orderBy(desc(aiImages.createdAt));
+  }
+
+  async deactivateSessionImages(userId: string): Promise<void> {
+    await db
+      .update(aiImages)
+      .set({ status: 'session-inactive' })
+      .where(and(
+        eq(aiImages.userId, userId),
+        eq(aiImages.status, 'session-active')
+      ));
+  }
+
+  async saveSessionImage(userId: string, imageUrl: string, prompt: string): Promise<AIImage> {
+    return await this.saveAIImage({
+      userId: userId,
+      imageUrl: imageUrl,
+      prompt: prompt,
+      style: 'current-session',
+      status: 'session-active'
+    });
   }
 
   // Sandra AI conversation operations

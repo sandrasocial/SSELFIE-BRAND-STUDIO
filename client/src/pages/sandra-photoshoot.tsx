@@ -42,6 +42,26 @@ What kind of mood are you going for today?`,
     scrollToBottom();
   }, [messages]);
 
+  // Load existing session images on component mount
+  useEffect(() => {
+    const loadSessionImages = async () => {
+      try {
+        const response = await fetch('/api/current-session-images');
+        if (response.ok) {
+          const data = await response.json();
+          if (data.images && data.images.length > 0) {
+            setSelectedImages(data.images);
+            console.log('Loaded existing session images:', data.images.length);
+          }
+        }
+      } catch (error) {
+        console.error('Error loading session images:', error);
+      }
+    };
+
+    loadSessionImages();
+  }, []);
+
   const sendMessage = async () => {
     if (!inputMessage.trim() || isLoading) return;
 

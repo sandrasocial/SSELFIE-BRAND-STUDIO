@@ -141,6 +141,22 @@ export const userUsage = pgTable("user_usage", {
   updatedAt: timestamp("updated_at").defaultNow(),
 });
 
+// Current photoshoot session images - persist until user generates new ones
+export const photoshootSessions = pgTable("photoshoot_sessions", {
+  id: serial("id").primaryKey(),
+  userId: varchar("user_id").references(() => users.id).notNull(),
+  sessionId: varchar("session_id").notNull(), // unique session identifier
+  
+  imageUrls: jsonb("image_urls").notNull(), // array of image URLs from current generation
+  prompt: text("prompt"),
+  style: varchar("style"),
+  
+  isActive: boolean("is_active").default(true), // false when user generates new images
+  
+  createdAt: timestamp("created_at").defaultNow(),
+  updatedAt: timestamp("updated_at").defaultNow(),
+});
+
 // Type definitions
 export type UpsertUser = typeof users.$inferInsert;
 export type User = typeof users.$inferSelect;
@@ -158,6 +174,8 @@ export type UserUsage = typeof userUsage.$inferSelect;
 export type InsertUserUsage = typeof userUsage.$inferInsert;
 export type SandraConversation = typeof sandraConversations.$inferSelect;
 export type InsertSandraConversation = typeof sandraConversations.$inferInsert;
+export type PhotoshootSession = typeof photoshootSessions.$inferSelect;
+export type InsertPhotoshootSession = typeof photoshootSessions.$inferInsert;
 
 // Insert schemas with Zod validation
 export const insertOnboardingDataSchema = createInsertSchema(onboardingData);
@@ -167,3 +185,4 @@ export const insertSelfieUploadSchema = createInsertSchema(selfieUploads);
 export const insertSubscriptionSchema = createInsertSchema(subscriptions);
 export const insertUserUsageSchema = createInsertSchema(userUsage);
 export const insertSandraConversationSchema = createInsertSchema(sandraConversations);
+export const insertPhotoshootSessionSchema = createInsertSchema(photoshootSessions);
