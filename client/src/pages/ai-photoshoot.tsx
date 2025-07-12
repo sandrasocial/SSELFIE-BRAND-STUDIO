@@ -230,6 +230,32 @@ What kind of mood are you going for today?`,
   const [sandraInput, setSandraInput] = useState('');
   const [sandraGenerating, setSandraGenerating] = useState(false);
   const [generationProgress, setGenerationProgress] = useState(0);
+  const [selectedImages, setSelectedImages] = useState<string[]>([]);
+  const [fullSizeImage, setFullSizeImage] = useState<string | null>(null);
+
+  const saveToGallery = async (imageUrl: string) => {
+    try {
+      const response = await apiRequest('POST', '/api/ai-images', {
+        imageUrl,
+        prompt: 'From AI Photoshoot',
+        style: 'editorial',
+        generationStatus: 'completed'
+      });
+      
+      queryClient.invalidateQueries({ queryKey: ['/api/ai-images'] });
+      
+      toast({
+        title: "Image Saved",
+        description: "Image added to your gallery",
+      });
+    } catch (error) {
+      toast({
+        title: "Save Failed",
+        description: "Could not save image to gallery",
+        variant: "destructive",
+      });
+    }
+  };
 
   // Fetch user model for trigger word
   const { data: userModel } = useQuery({
@@ -316,12 +342,14 @@ What kind of mood are you going for today?`,
       setGenerationProgress(100);
       
       if (data.images && data.images.length > 0) {
+        setSelectedImages(data.images);
+        
         // Invalidate AI images cache to show new images
         queryClient.invalidateQueries({ queryKey: ['/api/ai-images'] });
         
         toast({
           title: "Images Generated!",
-          description: `${data.images.length} new photos ready in your gallery`,
+          description: `${data.images.length} new photos ready for preview`,
         });
       }
     } catch (error) {
@@ -364,11 +392,13 @@ What kind of mood are you going for today?`,
       const data = await response.json();
       
       if (data.images && data.images.length > 0) {
+        setSelectedImages(data.images);
+        
         queryClient.invalidateQueries({ queryKey: ['/api/ai-images'] });
         
         toast({
           title: "Images Generated!",
-          description: `${data.images.length} new photos ready`,
+          description: `${data.images.length} new photos ready for preview`,
         });
       }
     } catch (error) {
@@ -964,6 +994,93 @@ What kind of mood are you going for today?`,
             </div>
           </TabsContent>
         </Tabs>
+
+        {/* Generated Images - Lookbook Style */}
+        {selectedImages.length > 0 && (
+          <div className="mt-12 sm:mt-16">
+            <div className="text-center mb-8 sm:mb-12">
+              <h3 className="font-times text-[clamp(1.5rem,5vw,4rem)] font-light tracking-[-0.01em] mb-4">
+                Your Story, Captured
+              </h3>
+              <p className="text-xs sm:text-sm font-light tracking-[0.15em] sm:tracking-[0.2em] uppercase text-[#666666]">
+                {selectedImages.length} Images from this session
+              </p>
+            </div>
+            
+            <div className="grid grid-cols-2 md:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6 lg:gap-8 max-w-6xl mx-auto">
+              {selectedImages.map((imageUrl, index) => (
+                <div key={index} className="group">
+                  <div className="aspect-[4/5] overflow-hidden bg-[#f8f8f8] relative mb-3 sm:mb-4">
+                    <img
+                      src={imageUrl}
+                      alt={`Your story ${index + 1}`}
+                      className="w-full h-full object-cover cursor-pointer transition-all duration-500 group-hover:scale-105 touch-manipulation"
+                      onClick={() => setFullSizeImage(imageUrl)}
+                    />
+                    {/* Minimal overlay */}
+                    <div className="absolute inset-0 bg-black/0 group-hover:bg-black/20 transition-all duration-300"></div>
+                  </div>
+                  <div className="text-center">
+                    <div className="text-[10px] sm:text-xs tracking-[0.2em] sm:tracking-[0.3em] uppercase font-light text-[#666666] mb-1 sm:mb-2">
+                      Image {index + 1}
+                    </div>
+                    <div className="flex justify-center gap-2 sm:gap-3">
+                      <button
+                        onClick={() => setFullSizeImage(imageUrl)}
+                        className="text-[10px] sm:text-xs tracking-[0.15em] sm:tracking-[0.2em] uppercase font-light text-black hover:text-[#666666] transition-colors touch-manipulation"
+                      >
+                        View
+                      </button>
+                      <span className="text-[#e0e0e0] text-xs">•</span>
+                      <button
+                        onClick={() => saveToGallery(imageUrl)}
+                        className="text-[10px] sm:text-xs tracking-[0.15em] sm:tracking-[0.2em] uppercase font-light text-black hover:text-[#666666] transition-colors touch-manipulation"
+                      >
+                        Save
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
+
+        {/* Full Size Image Modal */}
+        {fullSizeImage && (
+          <div className="fixed inset-0 bg-black bg-opacity-90 z-50 flex items-center justify-center p-2 sm:p-4" onClick={() => setFullSizeImage(null)}>
+            <div className="relative max-w-full max-h-full">
+              <img
+                src={fullSizeImage}
+                alt="Full size photo"
+                className="max-w-full max-h-full object-contain"
+                onClick={(e) => e.stopPropagation()}
+              />
+              <div className="absolute top-2 sm:top-4 right-2 sm:right-4 flex flex-col sm:flex-row space-y-2 sm:space-y-0 sm:space-x-2">
+                <button
+                  onClick={() => saveToGallery(fullSizeImage)}
+                  className="px-3 sm:px-4 py-2 bg-white text-black font-light hover:bg-[#f0f0f0] transition-colors text-xs sm:text-sm touch-manipulation"
+                >
+                  Save to Gallery
+                </button>
+                <a
+                  href={fullSizeImage}
+                  download={`ai-photoshoot-${Date.now()}.jpg`}
+                  className="px-3 sm:px-4 py-2 bg-[#0a0a0a] text-white font-light hover:bg-[#333333] transition-colors inline-block text-xs sm:text-sm touch-manipulation text-center"
+                >
+                  Download
+                </a>
+                <button
+                  onClick={() => setFullSizeImage(null)}
+                  className="px-3 sm:px-4 py-2 bg-[#666666] text-white font-light hover:bg-[#888888] transition-colors text-xs sm:text-sm touch-manipulation"
+                >
+                  Close
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
+
       </div>
     </div>
   );
