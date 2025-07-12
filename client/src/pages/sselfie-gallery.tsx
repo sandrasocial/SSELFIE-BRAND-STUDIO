@@ -3,6 +3,7 @@ import { useAuth } from '@/hooks/use-auth';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { Navigation } from '@/components/navigation';
 import { PaymentVerification } from '@/components/payment-verification';
+import { HeroFullBleed } from '@/components/hero-full-bleed';
 import { apiRequest } from '@/lib/queryClient';
 
 export default function SSELFIEGallery() {
@@ -136,68 +137,66 @@ export default function SSELFIEGallery() {
 
   return (
     <PaymentVerification>
-      <div style={{ 
-        minHeight: '100vh', 
-        background: '#ffffff',
+      <div className="min-h-screen bg-white touch-manipulation" style={{ 
         fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif',
         fontWeight: 300,
         color: '#0a0a0a'
       }}>
         <Navigation />
         
-        {/* Hero Section */}
+        {/* Full Bleed Hero Section */}
+        <HeroFullBleed
+          title="SSELFIE GALLERY"
+          subtitle="Your Professional Photo Library"
+          tagline="This is where your mess becomes your message"
+          image="https://replicate.delivery/czjl/jXpnhNlmJCnKEhC6l8xOPvFPLBQDvdMCwX6Eh6J1ZAhNqr2TB/out-0.jpg"
+          alignment="center"
+          overlay={0.4}
+        />
+        
+        {/* Gallery Statistics & Controls Section */}
         <section style={{
-          padding: '120px 0 80px 0'
+          padding: '80px 0 60px 0',
+          background: '#ffffff'
         }}>
           <div style={{
             maxWidth: '1400px',
             margin: '0 auto',
-            padding: '0 40px'
+            padding: '0 6vw'
           }}>
             <div style={{
-              fontSize: '11px',
-              fontWeight: 400,
-              letterSpacing: '0.4em',
-              textTransform: 'uppercase',
-              color: '#666666',
-              marginBottom: '24px'
+              textAlign: 'center',
+              marginBottom: '60px'
             }}>
-              YOUR PROFESSIONAL PHOTOS
+              <p style={{
+                fontSize: '20px',
+                lineHeight: 1.5,
+                fontWeight: 300,
+                maxWidth: '700px',
+                margin: '0 auto 40px auto',
+                color: '#666666'
+              }}>
+                Every photo here is you, just elevated. Download what serves your brand, delete what doesn't. 
+                This is your professional arsenal ready for anything.
+              </p>
             </div>
-            <h1 style={{
-              fontFamily: 'Times New Roman, serif',
-              fontSize: 'clamp(4rem, 8vw, 8rem)',
-              fontWeight: 200,
-              letterSpacing: '-0.01em',
-              textTransform: 'uppercase',
-              marginBottom: '32px',
-              lineHeight: 1
-            }}>
-              SSELFIE GALLERY
-            </h1>
-            <p style={{
-              fontSize: '20px',
-              lineHeight: 1.5,
-              fontWeight: 300,
-              maxWidth: '600px',
-              marginBottom: '40px'
-            }}>
-              Your professional brand photos, ready to download and use across all your marketing.
-            </p>
             
-            {/* Gallery Stats */}
+            {/* Gallery Stats - Centered Layout */}
             <div style={{
               display: 'flex',
-              gap: '60px',
+              justifyContent: 'center',
+              gap: '80px',
               alignItems: 'center',
-              marginBottom: '80px'
+              marginBottom: '60px',
+              flexWrap: 'wrap'
             }}>
-              <div>
+              <div style={{ textAlign: 'center' }}>
                 <div style={{
                   fontFamily: 'Times New Roman, serif',
-                  fontSize: '48px',
+                  fontSize: '64px',
                   fontWeight: 200,
-                  lineHeight: 1
+                  lineHeight: 1,
+                  marginBottom: '8px'
                 }}>
                   {aiImages.length}
                 </div>
@@ -205,10 +204,29 @@ export default function SSELFIEGallery() {
                   fontSize: '11px',
                   letterSpacing: '0.3em',
                   textTransform: 'uppercase',
-                  color: '#666666',
-                  marginTop: '8px'
+                  color: '#666666'
                 }}>
-                  Photos Generated
+                  Professional Photos
+                </div>
+              </div>
+              
+              <div style={{ textAlign: 'center' }}>
+                <div style={{
+                  fontFamily: 'Times New Roman, serif',
+                  fontSize: '64px',
+                  fontWeight: 200,
+                  lineHeight: 1,
+                  marginBottom: '8px'
+                }}>
+                  {favorites.length}
+                </div>
+                <div style={{
+                  fontSize: '11px',
+                  letterSpacing: '0.3em',
+                  textTransform: 'uppercase',
+                  color: '#666666'
+                }}>
+                  Favorites Saved
                 </div>
               </div>
               
@@ -242,23 +260,25 @@ export default function SSELFIEGallery() {
               )}
             </div>
 
-            {/* Filter Controls */}
+            {/* Filter Controls - Centered */}
             <div style={{
               display: 'flex',
+              justifyContent: 'center',
               gap: '20px',
               alignItems: 'center',
-              marginBottom: '60px'
+              marginBottom: '60px',
+              flexWrap: 'wrap'
             }}>
               <button
                 onClick={() => setShowFavoritesOnly(false)}
                 style={{
-                  padding: '12px 24px',
+                  padding: '16px 32px',
                   fontSize: '11px',
                   fontWeight: 400,
                   letterSpacing: '0.3em',
                   textTransform: 'uppercase',
                   border: showFavoritesOnly ? '1px solid #cccccc' : '1px solid #0a0a0a',
-                  color: showFavoritesOnly ? '#666666' : '#0a0a0a',
+                  color: showFavoritesOnly ? '#666666' : '#ffffff',
                   background: showFavoritesOnly ? 'transparent' : '#0a0a0a',
                   cursor: 'pointer',
                   transition: 'all 300ms ease'
@@ -270,7 +290,7 @@ export default function SSELFIEGallery() {
               <button
                 onClick={() => setShowFavoritesOnly(true)}
                 style={{
-                  padding: '12px 24px',
+                  padding: '16px 32px',
                   fontSize: '11px',
                   fontWeight: 400,
                   letterSpacing: '0.3em',
@@ -288,18 +308,19 @@ export default function SSELFIEGallery() {
           </div>
         </section>
 
-        {/* Gallery Grid */}
+        {/* Gallery Grid Section */}
         {isLoading ? (
-          <section style={{ padding: '80px 0' }}>
+          <section style={{ padding: '80px 0', background: '#f5f5f5' }}>
             <div style={{
               maxWidth: '1400px',
               margin: '0 auto',
-              padding: '0 40px',
+              padding: '0 6vw',
               textAlign: 'center'
             }}>
               <div style={{
                 fontSize: '16px',
-                color: '#666666'
+                color: '#666666',
+                fontWeight: 300
               }}>
                 Loading your gallery...
               </div>
@@ -310,7 +331,7 @@ export default function SSELFIEGallery() {
             <div style={{
               maxWidth: '1400px',
               margin: '0 auto',
-              padding: '0 40px',
+              padding: '0 6vw',
               textAlign: 'center'
             }}>
               <h2 style={{
@@ -319,55 +340,59 @@ export default function SSELFIEGallery() {
                 fontWeight: 200,
                 letterSpacing: '-0.01em',
                 textTransform: 'uppercase',
-                marginBottom: '24px',
+                marginBottom: '32px',
                 lineHeight: 1
               }}>
-                No Photos Yet
+                Your Gallery Awaits
               </h2>
               <p style={{
-                fontSize: '18px',
+                fontSize: '20px',
                 lineHeight: 1.6,
                 fontWeight: 300,
-                maxWidth: '500px',
-                margin: '0 auto 40px auto',
+                maxWidth: '600px',
+                margin: '0 auto 48px auto',
                 color: '#666666'
               }}>
-                Generate your first SSELFIE photos to start building your professional image library.
+                This is where your professional brand photos will live. Ready to see what happens when AI meets your selfies? 
+                Spoiler: it's magic.
               </p>
               <a
                 href="/sandra-photoshoot"
                 style={{
                   display: 'inline-block',
-                  padding: '16px 32px',
+                  padding: '20px 40px',
                   fontSize: '11px',
                   fontWeight: 400,
                   letterSpacing: '0.3em',
                   textTransform: 'uppercase',
                   textDecoration: 'none',
                   border: '1px solid #0a0a0a',
-                  color: '#0a0a0a',
-                  background: 'transparent',
+                  color: '#ffffff',
+                  background: '#0a0a0a',
                   transition: 'all 300ms ease'
                 }}
                 onMouseEnter={(e) => {
-                  e.target.style.background = '#0a0a0a';
-                  e.target.style.color = '#ffffff';
-                }}
-                onMouseLeave={(e) => {
                   e.target.style.background = 'transparent';
                   e.target.style.color = '#0a0a0a';
                 }}
+                onMouseLeave={(e) => {
+                  e.target.style.background = '#0a0a0a';
+                  e.target.style.color = '#ffffff';
+                }}
               >
-                Start AI Photoshoot
+                Start Your First Photoshoot
               </a>
             </div>
           </section>
         ) : (
-          <section style={{ padding: '80px 0' }}>
+          <section style={{ 
+            padding: '0 0 100px 0',
+            background: '#ffffff'
+          }}>
             <div style={{
               maxWidth: '1400px',
               margin: '0 auto',
-              padding: '0 40px'
+              padding: '0 6vw'
             }}>
               <div style={{
                 display: 'grid',
@@ -591,18 +616,55 @@ export default function SSELFIEGallery() {
           </div>
         )}
 
+        {/* Editorial Quote Section - Only show if user has images */}
+        {aiImages.length > 0 && (
+          <section style={{
+            padding: '100px 0',
+            background: '#f5f5f5'
+          }}>
+            <div style={{
+              maxWidth: '800px',
+              margin: '0 auto',
+              padding: '0 6vw',
+              textAlign: 'center'
+            }}>
+              <blockquote style={{
+                fontFamily: 'Times New Roman, serif',
+                fontSize: 'clamp(1.5rem, 3vw, 2.5rem)',
+                fontWeight: 200,
+                lineHeight: 1.4,
+                marginBottom: '40px',
+                fontStyle: 'italic',
+                color: '#0a0a0a'
+              }}>
+                "Every photo in your gallery tells a story. Some whisper confidence, others shout CEO energy. 
+                Your job? Choose the ones that match where you're going, not where you've been."
+              </blockquote>
+              <cite style={{
+                fontSize: '11px',
+                letterSpacing: '0.3em',
+                textTransform: 'uppercase',
+                color: '#666666',
+                fontStyle: 'normal'
+              }}>
+                Sandra's Gallery Philosophy
+              </cite>
+            </div>
+          </section>
+        )}
+        
         {/* Navigation Back to Studio */}
-        <section style={{ padding: '80px 0', background: '#f5f5f5', textAlign: 'center' }}>
+        <section style={{ padding: '60px 0', background: '#ffffff', textAlign: 'center' }}>
           <div style={{
             maxWidth: '1400px',
             margin: '0 auto',
-            padding: '0 40px'
+            padding: '0 6vw'
           }}>
             <a
               href="/workspace"
               style={{
                 display: 'inline-block',
-                padding: '16px 32px',
+                padding: '20px 40px',
                 fontSize: '11px',
                 fontWeight: 400,
                 letterSpacing: '0.3em',
@@ -622,7 +684,7 @@ export default function SSELFIEGallery() {
                 e.target.style.color = '#0a0a0a';
               }}
             >
-              Back to Studio
+              Back to STUDIO
             </a>
           </div>
         </section>
