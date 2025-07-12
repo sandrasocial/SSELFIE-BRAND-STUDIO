@@ -103,7 +103,7 @@ export default function CustomPhotoshootLibrary() {
       
       {/* Hero Section using HeroFullBleed component */}
       <HeroFullBleed
-        backgroundImage={SandraImages.editorialMagazineCollection[2]}
+        backgroundImage={SandraImages.editorial.laptop1}
         tagline="Your Personal Archive"
         title={
           <>
