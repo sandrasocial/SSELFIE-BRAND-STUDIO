@@ -2003,7 +2003,7 @@ Consider this workflow optimized and ready for implementation! ⚙️`
     }
   });
 
-  // AI Image Generation with Custom Prompts - REAL IMPLEMENTATION ONLY
+  // AI Image Generation with Custom Prompts and Session Persistence
   app.post('/api/generate-images', async (req: any, res) => {
     try {
       // Session-based user authentication for testing
@@ -2016,9 +2016,17 @@ Consider this workflow optimized and ready for implementation! ⚙️`
       
       console.log('REAL image generation request:', { userId, prompt, count });
       
+      // Deactivate any existing session images before generating new ones
+      await storage.deactivateSessionImages(userId);
+      
       // Use real ModelTrainingService for image generation
       const { ModelTrainingService } = await import('./model-training-service');
       const result = await ModelTrainingService.generateUserImages(userId, prompt, count);
+      
+      // Save new session images for persistence
+      for (const imageUrl of result.images || []) {
+        await storage.saveSessionImage(userId, imageUrl, prompt);
+      }
       
       res.json({ 
         images: result.images || [],
@@ -2034,6 +2042,27 @@ Consider this workflow optimized and ready for implementation! ⚙️`
       res.status(500).json({ 
         error: error.message,
         isRealGeneration: true
+      });
+    }
+  });
+
+  // Get current session images endpoint
+  app.get('/api/current-session-images', async (req: any, res) => {
+    try {
+      const userId = req.user?.claims?.sub || req.session?.userId || 'sandra_test_user_2025';
+      
+      // Get current session images
+      const sessionImages = await storage.getCurrentSessionImages(userId);
+      
+      res.json({ 
+        images: sessionImages.map(img => img.imageUrl),
+        count: sessionImages.length 
+      });
+    } catch (error) {
+      console.error('Get session images error:', error);
+      res.status(500).json({ 
+        message: 'Failed to get session images',
+        error: error.message 
       });
     }
   });
