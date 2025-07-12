@@ -1,1915 +1,280 @@
-import React, { useState, useEffect } from 'react';
-import { useAuth } from '@/hooks/use-auth';
-import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { Navigation } from '@/components/navigation';
-import { PaymentVerification } from '@/components/payment-verification';
-import { useToast } from '@/hooks/use-toast';
-import { apiRequest } from '@/lib/queryClient';
+import React, { useState, useRef, useEffect } from 'react';
 
-// SSELFIE AI™ PROMPT COLLECTIONS
-const PROMPT_COLLECTIONS = {
-  'european-street-luxury': {
-    name: 'European Street Luxury',
-    description: 'Model-off-duty in Paris/Milan - Expensive girl running errands energy',
-    prompts: [
-      {
-        id: 'parisian-cafe-exit',
-        title: 'Parisian Café Exit',
-        description: 'Morning coffee run - Stepping out with effortless luxury',
-        prompt: '{trigger_word} woman stepping out of Parisian cafe holding coffee cup, oversized black blazer over mini dress, Prada bag, morning sunlight on cobblestone street, natural stride, other cafe patrons blurred in background, iPhone street photography aesthetic, film grain, candid lifestyle moment'
-      },
-      {
-        id: 'milan-coffee-walk',
-        title: 'Milan Coffee Walk',
-        description: 'Italian espresso style - Walking with morning confidence',
-        prompt: '{trigger_word} woman walking with espresso cup, black cropped tank, high-waisted cream trousers, small Bottega Veneta bag, Italian architecture behind, adjusting sunglasses with free hand, natural morning light, street style candid, film photography mood'
-      },
-      {
-        id: 'avenue-montaigne-stroll',
-        title: 'Avenue Montaigne Stroll',
-        description: 'Luxury shopping district - Past Dior with confidence',
-        prompt: '{trigger_word} woman walking past Dior boutique, black strapless top, white wide-leg pants, Hermès Kelly bag, mid-stride confident walk, Parisian Haussmann architecture, natural daylight, street style photography, film aesthetic, movement captured'
-      },
-      {
-        id: 'zebra-crossing-power',
-        title: 'Zebra Crossing Power',
-        description: 'Street crossing dynamics - Mid-stride confidence',
-        prompt: '{trigger_word} woman mid-stride on crosswalk, black bodysuit, oversized blazer flowing, small bag across body, city traffic blurred behind, confident walk, natural daylight, street photography style, movement captured, film aesthetic'
-      }
-    ]
-  },
-  'bw-studio-beauty': {
-    name: 'B&W Studio Beauty Portraits',
-    description: 'High-fashion model test shots - Raw beauty and artistic simplicity',
-    prompts: [
-      {
-        id: 'vogue-beauty-classic',
-        title: 'Vogue Beauty Classic',
-        description: 'Timeless studio beauty - Hair in messy bun with minimal makeup',
-        prompt: '{trigger_word} woman, hair in high messy bun with face-framing pieces, minimal makeup with glossy lips, bare shoulders, seamless gray backdrop, shot on Hasselblad X2D, single beauty dish lighting, black and white photography, visible skin texture and freckles, film grain, high fashion beauty portrait'
-      },
-      {
-        id: 'window-shadow-play',
-        title: 'Window Shadow Play',
-        description: 'Dramatic lighting - Blinds creating shadow stripes',
-        prompt: '{trigger_word} woman, dramatic window blinds creating shadow stripes across face and body, eyes closed in serene expression, black slip dress, shot on Leica M11 Monochrom, natural harsh light, high contrast black and white, visible skin detail in light strips'
-      },
-      {
-        id: 'hair-toss-energy',
-        title: 'Hair Toss Energy',
-        description: 'Natural movement captured - Mid hair flip motion',
-        prompt: '{trigger_word} woman, mid hair flip movement, natural motion blur in hair, black tank top, genuine expression, shot on Nikon Z9, studio strobe to freeze motion, black and white action portrait, authentic moment captured'
-      },
-      {
-        id: 'chair-authority',
-        title: 'Chair Authority',
-        description: 'Editorial power pose - Sitting backwards on chair',
-        prompt: '{trigger_word} woman sitting backwards on chair, arms resting on chair back, black outfit, direct powerful gaze, shot on Phase One, dramatic studio lighting, black and white power portrait, strong presence, editorial fashion'
-      }
-    ]
-  },
-  'vulnerability-series': {
-    name: 'The Vulnerability Series',
-    description: 'Raw storytelling portraits - From breakdown to breakthrough',
-    prompts: [
-      {
-        id: 'silhouette-of-strength',
-        title: 'Silhouette of Strength',
-        description: 'Profile silhouette - Contemplative moment against bright window',
-        prompt: '{trigger_word} woman profile silhouette against bright window, hair up showing neck curve, wrapped in blanket or oversized sweater, contemplative moment, black and white photography, soft grain, visible emotion in posture, raw documentary style'
-      },
-      {
-        id: 'morning-truth',
-        title: 'Morning Truth',
-        description: 'Raw intimate beauty - No makeup vulnerability in bed',
-        prompt: '{trigger_word} woman in bed looking directly at camera, no makeup, hair spread on pillow, white sheets, natural morning vulnerability, black and white photography, raw intimate portrait, honest beauty'
-      },
-      {
-        id: 'power-stance',
-        title: 'Power Stance',
-        description: 'Reclaimed authority - Standing tall with determination',
-        prompt: '{trigger_word} woman standing tall in empty space, arms crossed or hands on hips, direct gaze at camera, simple all black, dramatic single light source, black and white portrait of reclaimed power'
-      },
-      {
-        id: 'phoenix-rising',
-        title: 'Phoenix Rising',
-        description: 'Resurrection metaphor - Movement and dramatic lighting',
-        prompt: '{trigger_word} woman in flowing fabric or dress, movement captured, hair in motion, dramatic lighting from below or behind, black and white artistic portrait, resurrection metaphor'
-      }
-    ]
-  },
-  'healing-mindset': {
-    name: 'Healing & Mindset Collection',
-    description: 'Journey from pain to peace - Wellness and transformation energy',
-    prompts: [
-      {
-        id: 'arms-to-the-sky',
-        title: 'Arms to the Sky',
-        description: 'Ocean healing - Release and liberation at water\'s edge',
-        prompt: '{trigger_word} woman standing at ocean edge, arms raised to sky in release, waves washing over feet, wearing flowing earth-toned top and cream pants, overcast moody sky, muted color palette, emotional liberation moment, healing journey photography'
-      },
-      {
-        id: 'sunset-contemplation',
-        title: 'Sunset Contemplation',
-        description: 'Beach mindfulness - Golden hour peaceful reflection',
-        prompt: '{trigger_word} woman sitting on beach at golden hour, off-shoulder white dress, looking at horizon, hair flowing in ocean breeze, warm sunset glow on skin, peaceful expression, mindfulness moment, coastal healing aesthetic'
-      },
-      {
-        id: 'candlelit-meditation',
-        title: 'Candlelit Meditation',
-        description: 'Inner peace - Surrounded by warm candlelight glow',
-        prompt: '{trigger_word} woman in meditation pose, black tank and leggings, surrounded by candles, indoor zen space, warm candlelight glow on face, eyes closed in peace, healing sanctuary, mindfulness photography'
-      },
-      {
-        id: 'forest-grounding',
-        title: 'Forest Grounding',
-        description: 'Nature connection - Earthing practice among trees',
-        prompt: '{trigger_word} woman standing among trees, touching tree trunk, earthing practice, natural clothing, dappled forest light, connection with nature, grounding energy, forest therapy moment'
-      },
-      {
-        id: 'yoga-flow',
-        title: 'Yoga Flow',
-        description: 'Movement medicine - Graceful strength in motion',
-        prompt: '{trigger_word} woman in yoga pose, flowing movement captured, natural light studio, black yoga wear, graceful strength, moving meditation, healing through movement, wellness photography'
-      },
-      {
-        id: 'heart-opening',
-        title: 'Heart Opening',
-        description: 'Self-love ritual - Hands on heart compassion gesture',
-        prompt: '{trigger_word} woman with both hands on heart, eyes closed, self-compassion gesture, warm lighting, healing heart space, self-love meditation, emotional healing moment'
-      }
-    ]
-  }
-};
+interface StyleButton {
+  id: string;
+  name: string;
+  description: string;
+  prompt: string;
+  camera: string;
+  texture: string;
+}
 
-export default function SandraPhotoshoot() {
-  const { user, isAuthenticated } = useAuth();
-  const [selectedCollection, setSelectedCollection] = useState<keyof typeof PROMPT_COLLECTIONS>('healing-mindset');
-  const [selectedPrompts, setSelectedPrompts] = useState<string[]>([]);
-  const [customPrompt, setCustomPrompt] = useState('');
-  const [chatMessage, setChatMessage] = useState('');
-  const [chatHistory, setChatHistory] = useState<Array<{role: 'user' | 'sandra', message: string}>>([]);
-  const [activeTab, setActiveTab] = useState<'prompts' | 'chat'>('prompts');
-  const [generatedImages, setGeneratedImages] = useState<string[]>([]);
+interface ChatMessage {
+  type: 'user' | 'sandra';
+  message: string;
+  styleButtons?: StyleButton[];
+  timestamp: string;
+}
+
+export default function SandraPhotoshootPage() {
+  const [messages, setMessages] = useState<ChatMessage[]>([
+    {
+      type: 'sandra',
+      message: `Hey gorgeous! I'm Sandra, your AI photographer and style consultant. 
+
+I specialize in creating Pinterest-style environmental shots where you're not looking at the camera and we can see the whole beautiful scenery. Think dreamy lifestyle vibes, luxury settings, and natural poses that look effortlessly expensive.
+
+What kind of mood are you going for today?`,
+      timestamp: new Date().toISOString()
+    }
+  ]);
+  const [inputMessage, setInputMessage] = useState('');
+  const [isLoading, setIsLoading] = useState(false);
   const [selectedImages, setSelectedImages] = useState<string[]>([]);
-  const [showSelectionMode, setShowSelectionMode] = useState(false);
-  const [selectedImagePreview, setSelectedImagePreview] = useState<string | null>(null);
-  
-  // Get current collection prompts
-  const SANDRA_PROMPTS = PROMPT_COLLECTIONS[selectedCollection].prompts;
-  const [generationProgress, setGenerationProgress] = useState<{
-    isGenerating: boolean;
-    predictionId: string | null;
-    status: string;
-    timeElapsed: number;
-  }>({
-    isGenerating: false,
-    predictionId: null,
-    status: '',
-    timeElapsed: 0
-  });
-  const { toast } = useToast();
-  const queryClient = useQueryClient();
+  const messagesEndRef = useRef<HTMLDivElement>(null);
 
-  // Sandra AI progress tracking
-  const [sandraProgress, setSandraProgress] = useState({
-    isThinking: false,
-    status: '',
-    timeElapsed: 0
-  });
+  const scrollToBottom = () => {
+    messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
+  };
 
-  // Timer effect for generation progress tracking with Sandra AI context
   useEffect(() => {
-    let interval: NodeJS.Timeout;
-    if (generationProgress.isGenerating) {
-      interval = setInterval(() => {
-        setGenerationProgress(prev => {
-          const isStyleGeneration = prev.status.includes('Generating "');
-          const newStatus = prev.timeElapsed < 10 ? 
-            (isStyleGeneration ? 'Processing custom style settings...' : 'Processing dynamic scenes...') :
-            prev.timeElapsed < 20 ? 
-            (isStyleGeneration ? 'Applying camera specifications...' : 'Generating lifestyle content...') :
-            prev.timeElapsed < 35 ? 
-            (isStyleGeneration ? 'Adding film grain and texture...' : 'Applying editorial style...') :
-            (isStyleGeneration ? 'Finalizing Sandra\'s vision...' : 'Finalizing your images...');
-            
-          return {
-            ...prev,
-            timeElapsed: prev.timeElapsed + 1,
-            status: newStatus
-          };
-        });
-      }, 1000);
-    }
-    return () => {
-      if (interval) clearInterval(interval);
+    scrollToBottom();
+  }, [messages]);
+
+  const sendMessage = async () => {
+    if (!inputMessage.trim() || isLoading) return;
+
+    const userMessage: ChatMessage = {
+      type: 'user',
+      message: inputMessage,
+      timestamp: new Date().toISOString()
     };
-  }, [generationProgress.isGenerating]);
 
-  // Sandra AI progress timer effect
-  useEffect(() => {
-    let interval: NodeJS.Timeout;
-    if (sandraProgress.isThinking) {
-      interval = setInterval(() => {
-        setSandraProgress(prev => ({
-          ...prev,
-          timeElapsed: prev.timeElapsed + 1,
-          status: prev.timeElapsed < 2 ? 'Understanding your vision...' :
-                  prev.timeElapsed < 4 ? 'Analyzing style preferences...' :
-                  prev.timeElapsed < 6 ? 'Creating camera specifications...' :
-                  'Finalizing style options...'
-        }));
-      }, 1000);
-    }
-    return () => {
-      if (interval) clearInterval(interval);
-    };
-  }, [sandraProgress.isThinking]);
+    setMessages(prev => [...prev, userMessage]);
+    setInputMessage('');
+    setIsLoading(true);
 
-  // Fetch user model status
-  const { data: userModel } = useQuery({
-    queryKey: ['/api/user-model'],
-    enabled: isAuthenticated
-  });
-
-  // Generate images mutation
-  const generateImagesMutation = useMutation({
-    mutationFn: async (prompt: string) => {
-      // Start progress tracking
-      setGenerationProgress({
-        isGenerating: true,
-        predictionId: null,
-        status: 'Starting generation...',
-        timeElapsed: 0
+    try {
+      const response = await fetch('/api/sandra-ai-chat', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          message: inputMessage
+        }),
       });
 
-      const response = await apiRequest('POST', '/api/generate-images', { 
-        prompt,
-        count: 4 
-      });
-      // Parse the response as JSON if it's a Response object
-      if (response instanceof Response) {
-        return await response.json();
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
       }
-      return response;
-    },
-    onSuccess: (data) => {
-      console.log('Generation success data:', data);
-      console.log('Data type:', typeof data);
-      console.log('Data properties:', Object.keys(data || {}));
-      
-      if (data && data.images && data.images.length > 0) {
-        console.log('Setting generated images:', data.images);
-        setGeneratedImages(data.images);
-        setSelectedImages([]);
-        setShowSelectionMode(true);
-        setGenerationProgress({
-          isGenerating: false,
-          predictionId: null,
-          status: 'Completed',
-          timeElapsed: 0
-        });
-        const isStyleGeneration = generationProgress.status.includes('Generating "');
-        toast({
-          title: isStyleGeneration ? "Sandra's Custom Style Complete!" : "Dynamic Lifestyle Images Generated!",
-          description: isStyleGeneration ? 
-            `Successfully generated ${data.images.length} images with custom camera specs and styling.` :
-            `Successfully generated ${data.images.length} environmental scene images.`,
-        });
-      } else {
-        console.error('No images in success data:', data);
-        console.log('Expected format: { images: [...] }');
-        // Try to set some test images for debugging
-        if (data && !data.images) {
-          console.log('Trying alternate data structures...');
-          // Check if images are at root level
-          if (Array.isArray(data)) {
-            setGeneratedImages(data);
-            setShowSelectionMode(true);
-            setGenerationProgress({
-              isGenerating: false,
-              predictionId: null,
-              status: 'Completed',
-              timeElapsed: 0
-            });
-            return;
-          }
-        }
-        setGenerationProgress({
-          isGenerating: false,
-          predictionId: null,
-          status: 'Failed',
-          timeElapsed: 0
-        });
-        toast({
-          title: "Generation Issue", 
-          description: "Images generated but not properly returned. Please try again.",
-          variant: "destructive",
-        });
+
+      const data = await response.json();
+
+      const sandraMessage: ChatMessage = {
+        type: 'sandra',
+        message: data.message,
+        styleButtons: data.styleButtons || [],
+        timestamp: data.timestamp
+      };
+
+      setMessages(prev => [...prev, sandraMessage]);
+    } catch (error) {
+      console.error('Error sending message:', error);
+      const errorMessage: ChatMessage = {
+        type: 'sandra',
+        message: "Sorry babe, I'm having a tech moment! Try asking me again - I'm excited to help with your photoshoot vision! 💫",
+        timestamp: new Date().toISOString()
+      };
+      setMessages(prev => [...prev, errorMessage]);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const generateImages = async (prompt: string) => {
+    setIsLoading(true);
+    try {
+      const response = await fetch('/api/generate-images', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          prompt: prompt,
+          userId: 'sandra_test_user_2025'
+        }),
+      });
+
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
       }
-    },
-    onError: (error: any) => {
-      console.error('Image generation failed:', error);
-      setGenerationProgress({
-        isGenerating: false,
-        predictionId: null,
-        status: 'Failed',
-        timeElapsed: 0
-      });
-      toast({
-        title: "Generation Failed",
-        description: error.message || "Failed to generate images. Please try again.",
-        variant: "destructive",
-      });
-    }
-  });
 
-  // Save selected images mutation
-  const saveSelectedImagesMutation = useMutation({
-    mutationFn: async (imageUrls: string[]) => {
-      return await apiRequest('POST', '/api/save-selected-images', { 
-        imageUrls,
-        prompt: activeTab === 'prompts' ? selectedPrompts.join(', ') : customPrompt || chatHistory[chatHistory.length - 1]?.message
-      });
-    },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['/api/ai-images'] });
-      toast({
-        title: "Images Saved!",
-        description: `${selectedImages.length} photos added to your SSELFIE Gallery.`,
-      });
-      setGeneratedImages([]);
-      setSelectedImages([]);
-      setShowSelectionMode(false);
-      setSelectedPrompts([]);
-      setCustomPrompt('');
-    },
-    onError: (error: any) => {
-      toast({
-        title: "Save Failed",
-        description: error.message || "Failed to save images. Please try again.",
-        variant: "destructive",
-      });
-    }
-  });
-
-  // Sandra AI Photoshoot Agent - creates 3 style button alternatives
-  const [styleButtons, setStyleButtons] = useState<any[]>([]);
-  const [savedPromptLibrary, setSavedPromptLibrary] = useState<any[]>([]);
-  
-  const chatMutation = useMutation({
-    mutationFn: async (message: string) => {
-      // Start Sandra's thinking progress
-      setSandraProgress({
-        isThinking: true,
-        status: 'Understanding your vision...',
-        timeElapsed: 0
-      });
+      const data = await response.json();
       
-      const response = await apiRequest('POST', '/api/sandra-ai-chat', { 
-        message
-      });
-      return response.json();
-    },
-    onSuccess: (data) => {
-      console.log('Sandra AI specialist response:', data);
-      console.log('Style buttons received:', data.styleButtons);
-      console.log('Style buttons length:', data.styleButtons?.length);
-      
-      // Stop Sandra's thinking progress
-      setSandraProgress({
-        isThinking: false,
-        status: '',
-        timeElapsed: 0
-      });
-      
-      const sandraMessage = data.message || 'I understand! Let me help you create stunning photos for your brand.';
-      
-      setChatHistory(prev => [...prev, 
-        { role: 'user', message: chatMessage },
-        { role: 'sandra', message: sandraMessage }
-      ]);
-      setChatMessage('');
-      
-      // Sandra now creates 3 style button alternatives instead of text prompts
-      if (data.styleButtons && data.styleButtons.length > 0) {
-        console.log('Setting style buttons:', data.styleButtons);
-        setStyleButtons(data.styleButtons);
-        toast({
-          title: "Sandra Created Style Options!",
-          description: `${data.styleButtons.length} custom styles with camera specs ready to generate.`,
-        });
-      } else {
-        console.log('No style buttons received or empty array');
+      if (data.images && data.images.length > 0) {
+        setSelectedImages(data.images);
+        
+        const successMessage: ChatMessage = {
+          type: 'sandra',
+          message: `Beautiful! I just generated ${data.images.length} stunning photos for you. These have that Pinterest-style environmental vibe you wanted - check them out below! ✨`,
+          timestamp: new Date().toISOString()
+        };
+        setMessages(prev => [...prev, successMessage]);
       }
-      
-      // Display style insights if Sandra learned something new
-      if (data.styleInsights && Object.keys(data.styleInsights).length > 0) {
-        console.log('Sandra learned about your style:', data.styleInsights);
-      }
-    },
-    onError: (error: any) => {
-      console.error('Chat error:', error);
-      
-      // Stop Sandra's thinking progress
-      setSandraProgress({
-        isThinking: false,
-        status: '',
-        timeElapsed: 0
-      });
-      
-      setChatHistory(prev => [...prev, 
-        { role: 'user', message: chatMessage },
-        { role: 'sandra', message: "Sorry, I'm having a technical issue right now. Can you try asking me that again?" }
-      ]);
-      setChatMessage('');
-      toast({
-        title: "Chat Error", 
-        description: error.message || "Failed to chat with Sandra AI. Please try again.",
-        variant: "destructive",
-      });
+    } catch (error) {
+      console.error('Error generating images:', error);
+      const errorMessage: ChatMessage = {
+        type: 'sandra',
+        message: "Oops! Something went wrong with the photoshoot generation. Let me know if you want to try again!",
+        timestamp: new Date().toISOString()
+      };
+      setMessages(prev => [...prev, errorMessage]);
+    } finally {
+      setIsLoading(false);
     }
-  });
-
-  const handlePromptToggle = (promptId: string) => {
-    setSelectedPrompts(prev => 
-      prev.includes(promptId) 
-        ? prev.filter(id => id !== promptId)
-        : [...prev, promptId]
-    );
   };
 
-  const handleGenerateFromPrompts = () => {
-    if (selectedPrompts.length === 0) {
-      toast({
-        title: "No Prompts Selected",
-        description: "Please select at least one prompt style.",
-        variant: "destructive",
-      });
-      return;
+  const handleKeyPress = (e: React.KeyboardEvent) => {
+    if (e.key === 'Enter' && !e.shiftKey) {
+      e.preventDefault();
+      sendMessage();
     }
-    
-    const selectedPromptTexts = SANDRA_PROMPTS
-      .filter(p => selectedPrompts.includes(p.id))
-      .map(p => p.prompt.replace('user{userId}', user?.id || 'subject'))
-      .join(' | ');
-    
-    generateImagesMutation.mutate(selectedPromptTexts);
   };
-
-  const handleGenerateFromCustom = () => {
-    if (!customPrompt.trim()) {
-      toast({
-        title: "No Prompt Entered",
-        description: "Please enter a custom prompt or chat with Sandra AI.",
-        variant: "destructive",
-      });
-      return;
-    }
-    
-    // Start progress tracking for Sandra Chat generation
-    setGenerationProgress({ isGenerating: true, status: 'Starting generation...', timeElapsed: 0 });
-    
-    const finalPrompt = customPrompt.replace('user{userId}', user?.id || 'subject');
-    generateImagesMutation.mutate(finalPrompt);
-  };
-
-  const handleSendMessage = () => {
-    if (!chatMessage.trim()) return;
-    chatMutation.mutate(chatMessage);
-  };
-
-  // Handle style button click - generate from Sandra's custom style
-  const handleStyleButtonGenerate = (styleButton: any) => {
-    // Start progress tracking for Sandra AI style generation
-    setGenerationProgress({ 
-      isGenerating: true, 
-      status: `Generating "${styleButton.name}" style...`, 
-      timeElapsed: 0 
-    });
-    
-    const finalPrompt = styleButton.prompt.replace('user{userId}', user?.id || 'subject');
-    generateImagesMutation.mutate(finalPrompt);
-  };
-
-  // Save style button to user's custom library
-  const handleSaveStyleButton = (styleButton: any) => {
-    setSavedPromptLibrary(prev => [...prev, styleButton]);
-    toast({
-      title: "Style Saved!",
-      description: `"${styleButton.name}" added to your custom photoshoot library.`,
-    });
-  };
-
-  const toggleImageSelection = (imageUrl: string) => {
-    setSelectedImages(prev => 
-      prev.includes(imageUrl) 
-        ? prev.filter(url => url !== imageUrl)
-        : [...prev, imageUrl]
-    );
-  };
-
-  const handleSaveSelected = () => {
-    if (selectedImages.length === 0) {
-      toast({
-        title: "No Images Selected",
-        description: "Please select at least one image to save to your gallery.",
-        variant: "destructive",
-      });
-      return;
-    }
-    saveSelectedImagesMutation.mutate(selectedImages);
-  };
-
-  const handleDiscardAll = () => {
-    setGeneratedImages([]);
-    setSelectedImages([]);
-    setShowSelectionMode(false);
-    toast({
-      title: "Images Discarded",
-      description: "All generated images have been discarded.",
-    });
-  };
-
-  if (!isAuthenticated) {
-    return (
-      <div style={{ 
-        minHeight: '100vh', 
-        background: '#ffffff',
-        fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif',
-        fontWeight: 300,
-        color: '#0a0a0a'
-      }}>
-        <Navigation />
-        <div style={{
-          maxWidth: '1400px',
-          margin: '0 auto',
-          padding: '120px 40px',
-          textAlign: 'center'
-        }}>
-          <h1 style={{
-            fontFamily: 'Times New Roman, serif',
-            fontSize: 'clamp(3rem, 6vw, 6rem)',
-            fontWeight: 200,
-            letterSpacing: '-0.01em',
-            textTransform: 'uppercase',
-            marginBottom: '24px',
-            lineHeight: 1
-          }}>
-            Please Sign In
-          </h1>
-        </div>
-      </div>
-    );
-  }
-
-  if (userModel?.trainingStatus !== 'completed') {
-    return (
-      <PaymentVerification>
-        <div style={{ 
-          minHeight: '100vh', 
-          background: '#ffffff',
-          fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif',
-          fontWeight: 300,
-          color: '#0a0a0a'
-        }}>
-          <Navigation />
-          <div style={{
-            maxWidth: '1400px',
-            margin: '0 auto',
-            padding: '120px 40px',
-            textAlign: 'center'
-          }}>
-            <h1 style={{
-              fontFamily: 'Times New Roman, serif',
-              fontSize: 'clamp(3rem, 6vw, 6rem)',
-              fontWeight: 200,
-              letterSpacing: '-0.01em',
-              textTransform: 'uppercase',
-              marginBottom: '32px',
-              lineHeight: 1
-            }}>
-              AI Training Required
-            </h1>
-            <p style={{
-              fontSize: '18px',
-              lineHeight: 1.6,
-              fontWeight: 300,
-              maxWidth: '600px',
-              margin: '0 auto 40px auto',
-              color: '#666666'
-            }}>
-              You need to complete your AI model training before planning photoshoots.
-            </p>
-            <a
-              href="/simple-training"
-              style={{
-                display: 'inline-block',
-                padding: '16px 32px',
-                fontSize: '11px',
-                fontWeight: 400,
-                letterSpacing: '0.3em',
-                textTransform: 'uppercase',
-                textDecoration: 'none',
-                border: '1px solid #0a0a0a',
-                color: '#0a0a0a',
-                background: 'transparent',
-                transition: 'all 300ms ease'
-              }}
-              onMouseEnter={(e) => {
-                e.target.style.background = '#0a0a0a';
-                e.target.style.color = '#ffffff';
-              }}
-              onMouseLeave={(e) => {
-                e.target.style.background = 'transparent';
-                e.target.style.color = '#0a0a0a';
-              }}
-            >
-              Train Your AI
-            </a>
-          </div>
-        </div>
-      </PaymentVerification>
-    );
-  }
 
   return (
-    <PaymentVerification>
-      <div style={{ 
-        minHeight: '100vh', 
-        background: '#ffffff',
-        fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif',
-        fontWeight: 300,
-        color: '#0a0a0a'
-      }}>
-        <Navigation />
-        
-        {/* Hero Section */}
-        <section style={{
-          padding: '120px 0 80px 0'
-        }}>
-          <div style={{
-            maxWidth: '1400px',
-            margin: '0 auto',
-            padding: '0 40px'
-          }}>
-            <div style={{
-              fontSize: '11px',
-              fontWeight: 400,
-              letterSpacing: '0.4em',
-              textTransform: 'uppercase',
-              color: '#666666',
-              marginBottom: '24px'
-            }}>
-              STEP 2: PLAN YOUR PHOTOSHOOT
-            </div>
-            <h1 style={{
-              fontFamily: 'Times New Roman, serif',
-              fontSize: 'clamp(4rem, 8vw, 8rem)',
-              fontWeight: 200,
-              letterSpacing: '-0.01em',
-              textTransform: 'uppercase',
-              marginBottom: '32px',
-              lineHeight: 1
-            }}>
-              SANDRA PHOTOSHOOT
-            </h1>
-            <p style={{
-              fontSize: '20px',
-              lineHeight: 1.5,
-              fontWeight: 300,
-              maxWidth: '600px',
-              marginBottom: '60px'
-            }}>
-              Choose from Sandra's curated prompts or chat with Sandra AI to create the perfect photoshoot concept.
-            </p>
-            
-            {/* Tab Navigation */}
-            <div style={{
-              display: 'flex',
-              gap: '40px',
-              marginBottom: '60px'
-            }}>
-              <button
-                onClick={() => setActiveTab('prompts')}
-                style={{
-                  background: 'transparent',
-                  border: 'none',
-                  fontSize: '16px',
-                  fontWeight: activeTab === 'prompts' ? 400 : 300,
-                  letterSpacing: '0.1em',
-                  textTransform: 'uppercase',
-                  color: activeTab === 'prompts' ? '#0a0a0a' : '#666666',
-                  borderBottom: activeTab === 'prompts' ? '2px solid #0a0a0a' : '2px solid transparent',
-                  paddingBottom: '8px',
-                  cursor: 'pointer',
-                  transition: 'all 300ms ease'
-                }}
-              >
-                Built-in Prompts
-              </button>
-              <button
-                onClick={() => setActiveTab('chat')}
-                style={{
-                  background: 'transparent',
-                  border: 'none',
-                  fontSize: '16px',
-                  fontWeight: activeTab === 'chat' ? 400 : 300,
-                  letterSpacing: '0.1em',
-                  textTransform: 'uppercase',
-                  color: activeTab === 'chat' ? '#0a0a0a' : '#666666',
-                  borderBottom: activeTab === 'chat' ? '2px solid #0a0a0a' : '2px solid transparent',
-                  paddingBottom: '8px',
-                  cursor: 'pointer',
-                  transition: 'all 300ms ease'
-                }}
-              >
-                Chat with Sandra AI
-              </button>
-            </div>
-          </div>
-        </section>
+    <div className="min-h-screen bg-[#f5f5f5] text-[#0a0a0a]">
+      {/* Header */}
+      <div className="bg-white border-b border-[#e0e0e0]">
+        <div className="max-w-4xl mx-auto p-6">
+          <h1 className="text-3xl tracking-[-0.02em] font-light mb-2" style={{ fontFamily: 'Times New Roman, serif' }}>
+            SANDRA AI PHOTOGRAPHER
+          </h1>
+          <p className="text-base text-[#666666] font-light">
+            Pinterest-Style Environmental Photoshoots • Not Looking at Camera • Whole Scenery Visible
+          </p>
+        </div>
+      </div>
 
-        {/* Content Section */}
-        <section style={{ padding: '0 0 80px 0' }}>
-          <div style={{
-            maxWidth: '1400px',
-            margin: '0 auto',
-            padding: '0 40px'
-          }}>
-            {activeTab === 'prompts' ? (
-              <div>
-                {/* Collection Selector */}
-                <div style={{
-                  marginBottom: '40px',
-                  borderBottom: '1px solid #e5e5e5',
-                  paddingBottom: '40px'
-                }}>
-                  <h3 style={{
-                    fontFamily: 'Times New Roman, serif',
-                    fontSize: '24px',
-                    fontWeight: 300,
-                    marginBottom: '16px',
-                    textTransform: 'uppercase',
-                    letterSpacing: '0.1em'
-                  }}>
-                    Choose Your Aesthetic Collection
-                  </h3>
-                  <div style={{
-                    display: 'grid',
-                    gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))',
-                    gap: '20px',
-                    marginBottom: '20px'
-                  }}>
-                    {Object.entries(PROMPT_COLLECTIONS).map(([key, collection]) => (
-                      <div
-                        key={key}
-                        onClick={() => {
-                          setSelectedCollection(key as keyof typeof PROMPT_COLLECTIONS);
-                          setSelectedPrompts([]); // Reset selections when changing collection
-                        }}
-                        style={{
-                          background: selectedCollection === key ? '#0a0a0a' : '#ffffff',
-                          color: selectedCollection === key ? '#ffffff' : '#0a0a0a',
-                          border: '1px solid ' + (selectedCollection === key ? '#0a0a0a' : '#e5e5e5'),
-                          padding: '24px',
-                          cursor: 'pointer',
-                          transition: 'all 300ms ease'
-                        }}
-                        onMouseEnter={(e) => {
-                          if (selectedCollection !== key) {
-                            e.currentTarget.style.background = '#f5f5f5';
-                          }
-                        }}
-                        onMouseLeave={(e) => {
-                          if (selectedCollection !== key) {
-                            e.currentTarget.style.background = '#ffffff';
-                          }
-                        }}
-                      >
-                        <h4 style={{
-                          fontSize: '16px',
-                          fontWeight: 400,
-                          marginBottom: '8px',
-                          textTransform: 'uppercase',
-                          letterSpacing: '0.1em'
-                        }}>
-                          {collection.name}
-                        </h4>
-                        <p style={{
-                          fontSize: '14px',
-                          fontWeight: 300,
-                          lineHeight: 1.4,
-                          opacity: 0.8
-                        }}>
-                          {collection.description}
-                        </p>
-                      </div>
-                    ))}
+      {/* Chat Container */}
+      <div className="max-w-4xl mx-auto p-6">
+        <div className="bg-white border border-[#e0e0e0] min-h-[600px] flex flex-col">
+          {/* Messages */}
+          <div className="flex-1 p-6 overflow-y-auto max-h-[500px] space-y-6">
+            {messages.map((message, index) => (
+              <div key={index} className={`${message.type === 'user' ? 'text-right' : 'text-left'}`}>
+                <div className={`inline-block max-w-[80%] p-4 ${
+                  message.type === 'user' 
+                    ? 'bg-[#0a0a0a] text-white' 
+                    : 'bg-[#f8f8f8] text-[#0a0a0a]'
+                }`}>
+                  <div className="whitespace-pre-wrap font-light leading-relaxed">
+                    {message.message}
                   </div>
-                  <div style={{
-                    fontSize: '14px',
-                    color: '#666666',
-                    fontWeight: 300
-                  }}>
-                    Currently showing: <strong>{PROMPT_COLLECTIONS[selectedCollection].name}</strong> ({SANDRA_PROMPTS.length} prompts available)
-                  </div>
-                </div>
-
-                {/* Built-in Prompts Grid */}
-                <div style={{
-                  display: 'grid',
-                  gridTemplateColumns: 'repeat(auto-fit, minmax(350px, 1fr))',
-                  gap: '30px',
-                  marginBottom: '60px'
-                }}>
-                  {SANDRA_PROMPTS.map((prompt) => (
-                    <div
-                      key={prompt.id}
-                      onClick={() => handlePromptToggle(prompt.id)}
-                      style={{
-                        background: selectedPrompts.includes(prompt.id) ? '#0a0a0a' : '#ffffff',
-                        color: selectedPrompts.includes(prompt.id) ? '#ffffff' : '#0a0a0a',
-                        border: '1px solid ' + (selectedPrompts.includes(prompt.id) ? '#0a0a0a' : '#e5e5e5'),
-                        padding: '40px',
-                        cursor: 'pointer',
-                        transition: 'all 300ms ease',
-                        position: 'relative'
-                      }}
-                      onMouseEnter={(e) => {
-                        if (!selectedPrompts.includes(prompt.id)) {
-                          e.currentTarget.style.background = '#f5f5f5';
-                        }
-                      }}
-                      onMouseLeave={(e) => {
-                        if (!selectedPrompts.includes(prompt.id)) {
-                          e.currentTarget.style.background = '#ffffff';
-                        }
-                      }}
-                    >
-                      <h3 style={{
-                        fontSize: '18px',
-                        fontWeight: 400,
-                        letterSpacing: '0.1em',
-                        textTransform: 'uppercase',
-                        marginBottom: '16px',
-                        lineHeight: 1
-                      }}>
-                        {prompt.title}
-                      </h3>
-                      <p style={{
-                        fontSize: '14px',
-                        lineHeight: 1.6,
-                        fontWeight: 300,
-                        marginBottom: '0',
-                        opacity: selectedPrompts.includes(prompt.id) ? 0.9 : 0.7
-                      }}>
-                        {prompt.description}
-                      </p>
-                      {selectedPrompts.includes(prompt.id) && (
-                        <div style={{
-                          position: 'absolute',
-                          top: '20px',
-                          right: '20px',
-                          fontSize: '18px'
-                        }}>
-                          ✓
+                  
+                  {/* Style Buttons */}
+                  {message.styleButtons && message.styleButtons.length > 0 && (
+                    <div className="mt-4 space-y-3">
+                      <div className="text-sm font-medium mb-2">Choose Your Style:</div>
+                      {message.styleButtons.map((button) => (
+                        <div key={button.id} className="border border-[#e0e0e0] p-3 hover:bg-[#f0f0f0] transition-colors cursor-pointer"
+                             onClick={() => generateImages(button.prompt)}>
+                          <div className="font-medium text-sm mb-1">{button.name}</div>
+                          <div className="text-xs text-[#666666] mb-2">{button.description}</div>
+                          <div className="text-xs text-[#999999]">
+                            {button.camera} • {button.texture}
+                          </div>
                         </div>
-                      )}
+                      ))}
                     </div>
-                  ))}
+                  )}
                 </div>
-                
-                {/* Generation Progress Display */}
-                {generationProgress.isGenerating && (
-                  <div style={{
-                    maxWidth: '600px',
-                    margin: '0 auto 60px auto',
-                    padding: '32px',
-                    background: '#f8f8f8',
-                    border: '1px solid #e5e5e5',
-                    textAlign: 'center'
-                  }}>
-                    <div style={{
-                      fontSize: '14px',
-                      fontWeight: 400,
-                      letterSpacing: '0.3em',
-                      textTransform: 'uppercase',
-                      color: '#666666',
-                      marginBottom: '16px'
-                    }}>
-                      GENERATING DYNAMIC LIFESTYLE IMAGES
-                    </div>
-                    
-                    <div style={{
-                      fontSize: '24px',
-                      fontFamily: 'Times New Roman, serif',
-                      fontWeight: 300,
-                      marginBottom: '16px',
-                      color: '#0a0a0a'
-                    }}>
-                      {generationProgress.status}
-                    </div>
-                    
-                    <div style={{
-                      fontSize: '18px',
-                      fontWeight: 300,
-                      color: '#0a0a0a',
-                      marginBottom: '20px'
-                    }}>
-                      {Math.floor(generationProgress.timeElapsed / 60)}:{(generationProgress.timeElapsed % 60).toString().padStart(2, '0')}
-                    </div>
-                    
-                    <div style={{
-                      width: '100%',
-                      height: '2px',
-                      background: '#e5e5e5',
-                      borderRadius: '1px',
-                      overflow: 'hidden'
-                    }}>
-                      <div style={{
-                        height: '100%',
-                        background: '#0a0a0a',
-                        width: `${Math.min((generationProgress.timeElapsed / 60) * 100, 100)}%`,
-                        transition: 'width 1s ease-in-out'
-                      }} />
-                    </div>
-                    
-                    <div style={{
-                      fontSize: '12px',
-                      color: '#666666',
-                      marginTop: '12px',
-                      letterSpacing: '0.1em'
-                    }}>
-                      Average generation time: 45-60 seconds
-                    </div>
-                  </div>
-                )}
-
-                {/* Generate Button */}
-                <div style={{ textAlign: 'center' }}>
-                  <button
-                    onClick={handleGenerateFromPrompts}
-                    disabled={selectedPrompts.length === 0 || generateImagesMutation.isPending || generationProgress.isGenerating}
-                    style={{
-                      padding: '20px 40px',
-                      fontSize: '11px',
-                      fontWeight: 400,
-                      letterSpacing: '0.3em',
-                      textTransform: 'uppercase',
-                      border: '1px solid #0a0a0a',
-                      color: selectedPrompts.length > 0 && !generationProgress.isGenerating ? '#ffffff' : '#666666',
-                      background: selectedPrompts.length > 0 && !generationProgress.isGenerating ? '#0a0a0a' : '#f5f5f5',
-                      cursor: selectedPrompts.length > 0 && !generationProgress.isGenerating ? 'pointer' : 'default',
-                      transition: 'all 300ms ease',
-                      opacity: generateImagesMutation.isPending ? 0.5 : 1
-                    }}
-                  >
-                    {generateImagesMutation.isPending ? 'Generating...' : 'Generate 4 Preview Photos'}
-                  </button>
+                <div className="text-xs text-[#999999] mt-1">
+                  {new Date(message.timestamp).toLocaleTimeString()}
                 </div>
               </div>
-            ) : (
-              <div>
-                {/* Chat Interface */}
-                <div style={{
-                  background: '#f5f5f5',
-                  padding: '40px',
-                  marginBottom: '40px',
-                  minHeight: '400px'
-                }}>
-                  {chatHistory.length === 0 ? (
-                    <div style={{
-                      textAlign: 'center',
-                      color: '#666666',
-                      padding: '60px 0'
-                    }}>
-                      <h3 style={{
-                        fontSize: '18px',
-                        fontWeight: 400,
-                        letterSpacing: '0.1em',
-                        textTransform: 'uppercase',
-                        marginBottom: '16px'
-                      }}>
-                        Sandra AI - Specialized Photoshoot Agent
-                      </h3>
-                      <p style={{ marginBottom: '12px' }}>
-                        Tell Sandra your vision and she'll create 3 custom style alternatives with professional camera specs and film texture details. No more text prompts - just click and generate.
-                      </p>
-                      <p style={{ fontSize: '12px', color: '#666666', fontStyle: 'italic' }}>
-                        Sandra specializes in photoshoots, poses, fashion, makeup & hair. Each conversation builds your custom photoshoot library.
-                      </p>
-                    </div>
-                  ) : (
-                    <div style={{ marginBottom: '40px' }}>
-                      {chatHistory.map((msg, index) => (
-                        <div key={index} style={{
-                          marginBottom: '20px',
-                          textAlign: msg.role === 'user' ? 'right' : 'left'
-                        }}>
-                          <div style={{
-                            display: 'inline-block',
-                            background: msg.role === 'user' ? '#0a0a0a' : '#ffffff',
-                            color: msg.role === 'user' ? '#ffffff' : '#0a0a0a',
-                            padding: '16px 20px',
-                            maxWidth: '70%',
-                            border: msg.role === 'sandra' ? '1px solid #e5e5e5' : 'none'
-                          }}>
-                            <div style={{
-                              fontSize: '10px',
-                              letterSpacing: '0.2em',
-                              textTransform: 'uppercase',
-                              marginBottom: '8px',
-                              opacity: 0.7
-                            }}>
-                              {msg.role === 'user' ? 'You' : 'Sandra AI'}
-                            </div>
-                            <p style={{
-                              fontSize: '14px',
-                              lineHeight: 1.6,
-                              margin: 0
-                            }}>
-                              {msg.message}
-                            </p>
-                          </div>
-                        </div>
-                      ))}
-                    </div>
-                  )}
-                  
-                  {/* Sandra AI Progress Display */}
-                  {sandraProgress.isThinking && (
-                    <div style={{
-                      padding: '20px',
-                      background: '#e5e5e5',
-                      marginBottom: '20px',
-                      textAlign: 'center'
-                    }}>
-                      <div style={{
-                        fontSize: '12px',
-                        fontWeight: 400,
-                        letterSpacing: '0.2em',
-                        textTransform: 'uppercase',
-                        color: '#666666',
-                        marginBottom: '12px'
-                      }}>
-                        SANDRA IS CREATING YOUR STYLE OPTIONS
-                      </div>
-                      
-                      <div style={{
-                        fontSize: '16px',
-                        fontWeight: 300,
-                        marginBottom: '12px',
-                        color: '#0a0a0a'
-                      }}>
-                        {sandraProgress.status}
-                      </div>
-                      
-                      <div style={{
-                        fontSize: '12px',
-                        color: '#666666',
-                        fontWeight: 300
-                      }}>
-                        {sandraProgress.timeElapsed}s • Creating 3 professional style alternatives with camera specs
-                      </div>
-                      
-                      {/* Progress Indicator */}
-                      <div style={{
-                        display: 'flex',
-                        justifyContent: 'center',
-                        alignItems: 'center',
-                        gap: '4px',
-                        marginTop: '16px',
-                        fontSize: '16px',
-                        color: '#666666'
-                      }}>
-                        ⟨ Sandra thinking ⟩
-                      </div>
-                    </div>
-                  )}
-                  
-                  {/* Generation Progress Display - Sandra AI Tab */}
-                  {generationProgress.isGenerating && (
-                    <div style={{
-                      maxWidth: '600px',
-                      margin: '0 auto 30px auto',
-                      padding: '32px',
-                      background: '#ffffff',
-                      border: '1px solid #e5e5e5',
-                      textAlign: 'center'
-                    }}>
-                      <div style={{
-                        fontSize: '11px',
-                        fontWeight: 400,
-                        letterSpacing: '0.3em',
-                        textTransform: 'uppercase',
-                        color: '#666666',
-                        marginBottom: '16px'
-                      }}>
-                        SANDRA AI PHOTOSHOOT GENERATION
-                      </div>
-                      
-                      <div style={{
-                        fontSize: '20px',
-                        fontFamily: 'Times New Roman, serif',
-                        fontWeight: 300,
-                        marginBottom: '16px',
-                        color: '#0a0a0a'
-                      }}>
-                        {generationProgress.status}
-                      </div>
-                      
-                      <div style={{
-                        fontSize: '16px',
-                        fontWeight: 300,
-                        color: '#0a0a0a',
-                        marginBottom: '20px'
-                      }}>
-                        {Math.floor(generationProgress.timeElapsed / 60)}:{(generationProgress.timeElapsed % 60).toString().padStart(2, '0')}
-                      </div>
-                      
-                      <div style={{
-                        width: '100%',
-                        height: '2px',
-                        background: '#f5f5f5',
-                        marginBottom: '16px',
-                        position: 'relative',
-                        overflow: 'hidden'
-                      }}>
-                        <div style={{
-                          position: 'absolute',
-                          top: 0,
-                          left: 0,
-                          height: '100%',
-                          width: `${Math.min(100, (generationProgress.timeElapsed / 60) * 100)}%`,
-                          background: '#0a0a0a',
-                          transition: 'width 1s ease'
-                        }} />
-                      </div>
-                      
-                      <div style={{
-                        fontSize: '12px',
-                        color: '#666666',
-                        fontWeight: 300
-                      }}>
-                        Generating 4 professional images with Sandra's specifications
-                      </div>
-                    </div>
-                  )}
+            ))}
+            {isLoading && (
+              <div className="text-left">
+                <div className="inline-block bg-[#f8f8f8] text-[#0a0a0a] p-4">
+                  <div className="animate-pulse">Sandra is thinking...</div>
                 </div>
-                
-                {/* Chat Input */}
-                <div style={{
-                  display: 'flex',
-                  gap: '20px',
-                  marginBottom: '40px'
-                }}>
-                  <input
-                    type="text"
-                    value={chatMessage}
-                    onChange={(e) => setChatMessage(e.target.value)}
-                    placeholder="Tell Sandra about your vision, style preferences, or the story you want to tell..."
-                    style={{
-                      flex: 1,
-                      padding: '16px 20px',
-                      fontSize: '16px',
-                      border: '1px solid #e5e5e5',
-                      background: '#ffffff',
-                      fontFamily: 'inherit',
-                      fontWeight: 300
-                    }}
-                    onKeyPress={(e) => {
-                      if (e.key === 'Enter') {
-                        handleSendMessage();
-                      }
-                    }}
-                  />
-                  <button
-                    onClick={handleSendMessage}
-                    disabled={!chatMessage.trim() || chatMutation.isPending}
-                    style={{
-                      padding: '16px 32px',
-                      fontSize: '11px',
-                      fontWeight: 400,
-                      letterSpacing: '0.3em',
-                      textTransform: 'uppercase',
-                      border: '1px solid #0a0a0a',
-                      color: '#ffffff',
-                      background: '#0a0a0a',
-                      cursor: 'pointer',
-                      transition: 'all 300ms ease',
-                      opacity: chatMutation.isPending ? 0.5 : 1
-                    }}
-                  >
-                    {chatMutation.isPending ? 'Sending...' : 'Send'}
-                  </button>
-                </div>
-                
-                {/* Custom Photoshoot Library */}
-                {savedPromptLibrary.length > 0 && (
-                  <div style={{
-                    background: '#ffffff',
-                    border: '1px solid #e5e5e5',
-                    padding: '40px',
-                    marginBottom: '40px'
-                  }}>
-                    <h4 style={{
-                      fontSize: '11px',
-                      fontWeight: 400,
-                      letterSpacing: '0.3em',
-                      textTransform: 'uppercase',
-                      marginBottom: '20px',
-                      color: '#0a0a0a'
-                    }}>
-                      Your Custom Photoshoot Library
-                    </h4>
-                    <p style={{
-                      fontSize: '14px',
-                      lineHeight: 1.6,
-                      marginBottom: '30px',
-                      color: '#666666'
-                    }}>
-                      Your saved styles from conversations with Sandra. These become your go-to photoshoot templates.
-                    </p>
-                    
-                    <div style={{
-                      display: 'grid',
-                      gridTemplateColumns: 'repeat(auto-fit, minmax(250px, 1fr))',
-                      gap: '16px'
-                    }}>
-                      {savedPromptLibrary.map((prompt, index) => (
-                        <div key={index} style={{
-                          background: '#f5f5f5',
-                          padding: '20px',
-                          border: '1px solid #e5e5e5'
-                        }}>
-                          <h6 style={{
-                            fontSize: '14px',
-                            fontWeight: 400,
-                            marginBottom: '8px',
-                            color: '#0a0a0a'
-                          }}>
-                            {prompt.name}
-                          </h6>
-                          <p style={{
-                            fontSize: '11px',
-                            color: '#666666',
-                            marginBottom: '16px'
-                          }}>
-                            {prompt.camera} • {prompt.texture}
-                          </p>
-                          <button
-                            onClick={() => handleStyleButtonGenerate(prompt)}
-                            disabled={generationProgress.isGenerating}
-                            style={{
-                              width: '100%',
-                              padding: '12px',
-                              fontSize: '10px',
-                              fontWeight: 400,
-                              letterSpacing: '0.2em',
-                              textTransform: 'uppercase',
-                              border: '1px solid #0a0a0a',
-                              color: '#ffffff',
-                              background: '#0a0a0a',
-                              cursor: 'pointer',
-                              transition: 'all 300ms ease',
-                              opacity: generationProgress.isGenerating ? 0.5 : 1
-                            }}
-                          >
-                            Generate
-                          </button>
-                        </div>
-                      ))}
-                    </div>
-                  </div>
-                )}
-                
-                {/* Sandra's Style Buttons - Revolutionary Photoshoot Agent */}
-                {styleButtons.length > 0 && (
-                  <div style={{
-                    background: '#f5f5f5',
-                    padding: '40px',
-                    marginBottom: '40px'
-                  }}>
-                    <h4 style={{
-                      fontSize: '11px',
-                      fontWeight: 400,
-                      letterSpacing: '0.3em',
-                      textTransform: 'uppercase',
-                      marginBottom: '20px',
-                      color: '#0a0a0a'
-                    }}>
-                      Sandra's Style Recommendations
-                    </h4>
-                    <p style={{
-                      fontSize: '14px',
-                      lineHeight: 1.6,
-                      marginBottom: '30px',
-                      color: '#666666'
-                    }}>
-                      Sandra created {styleButtons.length} custom photoshoot styles with professional camera specs and film texture details. Click to generate or save to your library.
-                    </p>
-                    
-                    <div style={{
-                      display: 'grid',
-                      gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))',
-                      gap: '20px',
-                      marginBottom: '30px'
-                    }}>
-                      {styleButtons.map((button, index) => (
-                        <div key={button.id} style={{
-                          background: '#ffffff',
-                          border: '1px solid #e5e5e5',
-                          padding: '30px',
-                          transition: 'all 300ms ease'
-                        }}>
-                          <h5 style={{
-                            fontSize: '16px',
-                            fontWeight: 400,
-                            marginBottom: '12px',
-                            color: '#0a0a0a'
-                          }}>
-                            {button.name}
-                          </h5>
-                          <p style={{
-                            fontSize: '12px',
-                            color: '#666666',
-                            marginBottom: '16px',
-                            lineHeight: 1.5
-                          }}>
-                            {button.description}
-                          </p>
-                          
-                          {/* Camera & Texture Details */}
-                          <div style={{
-                            display: 'grid',
-                            gridTemplateColumns: '1fr 1fr',
-                            gap: '16px',
-                            marginBottom: '24px',
-                            fontSize: '10px',
-                            letterSpacing: '0.1em',
-                            textTransform: 'uppercase'
-                          }}>
-                            <div>
-                              <span style={{ color: '#666666' }}>Camera:</span>
-                              <div style={{ color: '#0a0a0a', fontWeight: 400, marginTop: '4px' }}>
-                                {button.camera}
-                              </div>
-                            </div>
-                            <div>
-                              <span style={{ color: '#666666' }}>Texture:</span>
-                              <div style={{ color: '#0a0a0a', fontWeight: 400, marginTop: '4px' }}>
-                                {button.texture}
-                              </div>
-                            </div>
-                          </div>
-                          
-                          {/* Action Buttons */}
-                          <div style={{
-                            display: 'flex',
-                            gap: '12px'
-                          }}>
-                            <button
-                              onClick={() => handleStyleButtonGenerate(button)}
-                              disabled={generationProgress.isGenerating}
-                              style={{
-                                flex: 1,
-                                padding: '16px 24px',
-                                fontSize: '10px',
-                                fontWeight: 400,
-                                letterSpacing: '0.2em',
-                                textTransform: 'uppercase',
-                                border: '1px solid #0a0a0a',
-                                color: '#ffffff',
-                                background: '#0a0a0a',
-                                cursor: 'pointer',
-                                transition: 'all 300ms ease',
-                                opacity: generationProgress.isGenerating ? 0.5 : 1
-                              }}
-                            >
-                              Generate
-                            </button>
-                            <button
-                              onClick={() => handleSaveStyleButton(button)}
-                              style={{
-                                padding: '16px',
-                                fontSize: '10px',
-                                fontWeight: 400,
-                                letterSpacing: '0.2em',
-                                textTransform: 'uppercase',
-                                border: '1px solid #e5e5e5',
-                                color: '#666666',
-                                background: '#ffffff',
-                                cursor: 'pointer',
-                                transition: 'all 300ms ease'
-                              }}
-                            >
-                              Save
-                            </button>
-                          </div>
-                        </div>
-                      ))}
-                    </div>
-                  </div>
-                )}
-                
-                {/* Custom Prompt Display */}
-                {customPrompt && (
-                  <div style={{
-                    background: '#f5f5f5',
-                    padding: '30px',
-                    marginBottom: '40px'
-                  }}>
-                    <h4 style={{
-                      fontSize: '11px',
-                      fontWeight: 400,
-                      letterSpacing: '0.3em',
-                      textTransform: 'uppercase',
-                      marginBottom: '16px',
-                      color: '#666666'
-                    }}>
-                      Sandra's Custom Prompt with Camera Specs & Film Texture:
-                    </h4>
-                    <p style={{
-                      fontSize: '14px',
-                      lineHeight: 1.6,
-                      marginBottom: '20px'
-                    }}>
-                      {customPrompt}
-                    </p>
-                    
-                    {/* Generation Progress Display for Sandra Chat */}
-                    {generationProgress.isGenerating && (
-                      <div style={{
-                        padding: '20px',
-                        background: '#e5e5e5',
-                        marginBottom: '20px',
-                        textAlign: 'center'
-                      }}>
-                        <div style={{
-                          fontSize: '12px',
-                          fontWeight: 400,
-                          letterSpacing: '0.2em',
-                          textTransform: 'uppercase',
-                          color: '#666666',
-                          marginBottom: '12px'
-                        }}>
-                          SANDRA'S CREATING YOUR PHOTOS
-                        </div>
-                        
-                        <div style={{
-                          fontSize: '16px',
-                          fontWeight: 300,
-                          marginBottom: '12px',
-                          color: '#0a0a0a'
-                        }}>
-                          {generationProgress.status}
-                        </div>
-                        
-                        <div style={{
-                          fontSize: '14px',
-                          fontWeight: 300,
-                          color: '#0a0a0a',
-                          marginBottom: '16px'
-                        }}>
-                          {Math.floor(generationProgress.timeElapsed / 60)}:{(generationProgress.timeElapsed % 60).toString().padStart(2, '0')}
-                        </div>
-                        
-                        <div style={{
-                          width: '100%',
-                          height: '2px',
-                          background: '#ccc',
-                          borderRadius: '1px',
-                          overflow: 'hidden'
-                        }}>
-                          <div style={{
-                            height: '100%',
-                            background: '#0a0a0a',
-                            width: `${Math.min((generationProgress.timeElapsed / 60) * 100, 100)}%`,
-                            transition: 'width 1s ease-in-out'
-                          }} />
-                        </div>
-                      </div>
-                    )}
-                    
-                    <button
-                      onClick={handleGenerateFromCustom}
-                      disabled={generateImagesMutation.isPending || generationProgress.isGenerating}
-                      style={{
-                        padding: '16px 32px',
-                        fontSize: '11px',
-                        fontWeight: 400,
-                        letterSpacing: '0.3em',
-                        textTransform: 'uppercase',
-                        border: '1px solid #0a0a0a',
-                        color: '#ffffff',
-                        background: '#0a0a0a',
-                        cursor: 'pointer',
-                        transition: 'all 300ms ease',
-                        opacity: (generateImagesMutation.isPending || generationProgress.isGenerating) ? 0.5 : 1
-                      }}
-                    >
-                      {generationProgress.isGenerating ? 'Generating...' : 'Generate 4 Preview Photos'}
-                    </button>
-                  </div>
-                )}
               </div>
             )}
+            <div ref={messagesEndRef} />
           </div>
-        </section>
 
-        {/* Generated Images Preview */}
-        {generatedImages && generatedImages.length > 0 && (
-          <section style={{ padding: '80px 0', background: '#f5f5f5' }}>
-            <div style={{
-              maxWidth: '1400px',
-              margin: '0 auto',
-              padding: '0 40px'
-            }}>
-              <h2 style={{
-                fontFamily: 'Times New Roman, serif',
-                fontSize: 'clamp(2rem, 4vw, 4rem)',
-                fontWeight: 200,
-                letterSpacing: '-0.01em',
-                textTransform: 'uppercase',
-                marginBottom: '40px',
-                lineHeight: 1,
-                textAlign: 'center'
-              }}>
-                Your Preview Photos
-              </h2>
-              <p style={{
-                fontSize: '16px',
-                lineHeight: 1.6,
-                fontWeight: 300,
-                textAlign: 'center',
-                marginBottom: '60px',
-                color: '#666666'
-              }}>
-                Select your favorites to save to your SSELFIE Gallery
-              </p>
-              
-              <div style={{
-                display: 'grid',
-                gridTemplateColumns: 'repeat(auto-fit, minmax(250px, 1fr))',
-                gap: '30px',
-                marginBottom: '60px'
-              }}>
-                {generatedImages.map((imageUrl, index) => (
-                  <div
-                    key={index}
-                    style={{
-                      position: 'relative',
-                      aspectRatio: '3/4',
-                      overflow: 'hidden',
-                      border: selectedImages.includes(imageUrl) ? '3px solid #0a0a0a' : '3px solid transparent',
-                      transition: 'all 300ms ease'
-                    }}
-                  >
-                    <img
-                      src={imageUrl}
-                      alt={`Preview ${index + 1}`}
-                      style={{
-                        width: '100%',
-                        height: '100%',
-                        objectFit: 'cover',
-                        transition: 'transform 300ms ease',
-                        cursor: 'pointer'
-                      }}
-                      onClick={() => setSelectedImagePreview(imageUrl)}
-                      onMouseEnter={(e) => {
-                        e.target.style.transform = 'scale(1.02)';
-                      }}
-                      onMouseLeave={(e) => {
-                        e.target.style.transform = 'scale(1)';
-                      }}
-                    />
-                    
-                    {/* Selection Checkbox */}
-                    <button
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        toggleImageSelection(imageUrl);
-                      }}
-                      style={{
-                        position: 'absolute',
-                        top: '16px',
-                        right: '16px',
-                        width: '32px',
-                        height: '32px',
-                        borderRadius: '50%',
-                        background: selectedImages.includes(imageUrl) ? '#0a0a0a' : 'rgba(255, 255, 255, 0.9)',
-                        border: '2px solid #ffffff',
-                        display: 'flex',
-                        alignItems: 'center',
-                        justifyContent: 'center',
-                        fontSize: '14px',
-                        color: selectedImages.includes(imageUrl) ? '#ffffff' : '#0a0a0a',
-                        fontWeight: 'bold',
-                        cursor: 'pointer',
-                        transition: 'all 300ms ease',
-                        backdropFilter: 'blur(10px)'
-                      }}
-                      onMouseEnter={(e) => {
-                        e.target.style.transform = 'scale(1.1)';
-                      }}
-                      onMouseLeave={(e) => {
-                        e.target.style.transform = 'scale(1)';
-                      }}
-                    >
-                      {selectedImages.includes(imageUrl) ? '✓' : '○'}
-                    </button>
-                    
-                    {/* Preview Button */}
-                    <button
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        setSelectedImagePreview(imageUrl);
-                      }}
-                      style={{
-                        position: 'absolute',
-                        top: '16px',
-                        left: '16px',
-                        background: 'rgba(0, 0, 0, 0.7)',
-                        border: '1px solid rgba(255, 255, 255, 0.3)',
-                        color: '#ffffff',
-                        padding: '8px 12px',
-                        fontSize: '10px',
-                        letterSpacing: '0.2em',
-                        textTransform: 'uppercase',
-                        cursor: 'pointer',
-                        transition: 'all 300ms ease',
-                        backdropFilter: 'blur(10px)'
-                      }}
-                      onMouseEnter={(e) => {
-                        e.target.style.background = 'rgba(255, 255, 255, 0.9)';
-                        e.target.style.color = '#0a0a0a';
-                      }}
-                      onMouseLeave={(e) => {
-                        e.target.style.background = 'rgba(0, 0, 0, 0.7)';
-                        e.target.style.color = '#ffffff';
-                      }}
-                    >
-                      Full Size
-                    </button>
-                    
-                    {/* Photo Number */}
-                    <div style={{
-                      position: 'absolute',
-                      bottom: '16px',
-                      left: '16px',
-                      background: 'rgba(0, 0, 0, 0.7)',
-                      color: '#ffffff',
-                      padding: '6px 12px',
-                      fontSize: '11px',
-                      fontWeight: 400,
-                      letterSpacing: '0.2em',
-                      textTransform: 'uppercase',
-                      backdropFilter: 'blur(10px)'
-                    }}>
-                      Photo {index + 1}
-                    </div>
-                    
-                    {/* Selection Overlay */}
-                    {selectedImages.includes(imageUrl) && (
-                      <div style={{
-                        position: 'absolute',
-                        inset: 0,
-                        background: 'rgba(10, 10, 10, 0.15)',
-                        display: 'flex',
-                        alignItems: 'center',
-                        justifyContent: 'center'
-                      }}>
-                        <div style={{
-                          background: 'rgba(10, 10, 10, 0.9)',
-                          color: '#ffffff',
-                          padding: '12px 20px',
-                          fontSize: '12px',
-                          fontWeight: 400,
-                          letterSpacing: '0.2em',
-                          textTransform: 'uppercase',
-                          backdropFilter: 'blur(10px)'
-                        }}>
-                          ✓ Selected for Gallery
-                        </div>
-                      </div>
-                    )}
-                  </div>
-                ))}
-              </div>
-              
-              {/* Action Buttons */}
-              <div style={{ 
-                textAlign: 'center',
-                display: 'flex',
-                gap: '20px',
-                justifyContent: 'center',
-                alignItems: 'center'
-              }}>
-                <button
-                  onClick={handleSaveSelected}
-                  disabled={selectedImages.length === 0 || saveSelectedImagesMutation.isPending}
-                  style={{
-                    padding: '20px 40px',
-                    fontSize: '11px',
-                    fontWeight: 400,
-                    letterSpacing: '0.3em',
-                    textTransform: 'uppercase',
-                    border: '1px solid #0a0a0a',
-                    color: '#ffffff',
-                    background: selectedImages.length > 0 ? '#0a0a0a' : '#cccccc',
-                    cursor: selectedImages.length > 0 ? 'pointer' : 'not-allowed',
-                    transition: 'all 300ms ease',
-                    opacity: saveSelectedImagesMutation.isPending ? 0.5 : 1
-                  }}
-                >
-                  {saveSelectedImagesMutation.isPending ? 'Saving...' : `Save ${selectedImages.length} Selected`}
-                </button>
-                
-                <button
-                  onClick={handleDiscardAll}
-                  style={{
-                    padding: '20px 40px',
-                    fontSize: '11px',
-                    fontWeight: 400,
-                    letterSpacing: '0.3em',
-                    textTransform: 'uppercase',
-                    border: '1px solid #cccccc',
-                    color: '#666666',
-                    background: 'transparent',
-                    cursor: 'pointer',
-                    transition: 'all 300ms ease'
-                  }}
-                  onMouseEnter={(e) => {
-                    e.target.style.background = '#f5f5f5';
-                  }}
-                  onMouseLeave={(e) => {
-                    e.target.style.background = 'transparent';
-                  }}
-                >
-                  Discard All
-                </button>
-              </div>
-            </div>
-          </section>
-        )}
-
-        {/* Navigation */}
-        <section style={{ padding: '80px 0', textAlign: 'center' }}>
-          <div style={{
-            maxWidth: '1400px',
-            margin: '0 auto',
-            padding: '0 40px'
-          }}>
-            <a
-              href="/studio"
-              style={{
-                display: 'inline-block',
-                padding: '16px 32px',
-                fontSize: '11px',
-                fontWeight: 400,
-                letterSpacing: '0.3em',
-                textTransform: 'uppercase',
-                textDecoration: 'none',
-                border: '1px solid #0a0a0a',
-                color: '#0a0a0a',
-                background: 'transparent',
-                transition: 'all 300ms ease',
-                marginRight: '20px'
-              }}
-              onMouseEnter={(e) => {
-                e.target.style.background = '#0a0a0a';
-                e.target.style.color = '#ffffff';
-              }}
-              onMouseLeave={(e) => {
-                e.target.style.background = 'transparent';
-                e.target.style.color = '#0a0a0a';
-              }}
-            >
-              Back to Studio
-            </a>
-            <a
-              href="/gallery"
-              style={{
-                display: 'inline-block',
-                padding: '16px 32px',
-                fontSize: '11px',
-                fontWeight: 400,
-                letterSpacing: '0.3em',
-                textTransform: 'uppercase',
-                textDecoration: 'none',
-                border: '1px solid #0a0a0a',
-                color: '#ffffff',
-                background: '#0a0a0a',
-                transition: 'all 300ms ease'
-              }}
-            >
-              View Gallery
-            </a>
-          </div>
-        </section>
-
-        {/* Image Lightbox */}
-        {selectedImagePreview && (
-          <div 
-            style={{
-              position: 'fixed',
-              inset: 0,
-              background: 'rgba(0, 0, 0, 0.95)',
-              zIndex: 1000,
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              padding: '40px'
-            }}
-            onClick={() => setSelectedImagePreview(null)}
-          >
-            <div style={{
-              position: 'relative',
-              maxWidth: '90vw',
-              maxHeight: '90vh'
-            }}>
-              <img 
-                src={selectedImagePreview}
-                alt="Full size preview"
-                style={{
-                  width: '100%',
-                  height: 'auto',
-                  objectFit: 'contain',
-                  maxWidth: '90vw',
-                  maxHeight: '90vh'
-                }}
+          {/* Input */}
+          <div className="border-t border-[#e0e0e0] p-4">
+            <div className="flex space-x-3">
+              <textarea
+                value={inputMessage}
+                onChange={(e) => setInputMessage(e.target.value)}
+                onKeyPress={handleKeyPress}
+                placeholder="Tell Sandra about your photoshoot vision..."
+                className="flex-1 p-3 border border-[#e0e0e0] resize-none focus:outline-none focus:border-[#0a0a0a] font-light"
+                rows={2}
+                disabled={isLoading}
               />
-              
-              {/* Close Button */}
               <button
-                onClick={() => setSelectedImagePreview(null)}
-                style={{
-                  position: 'absolute',
-                  top: '-50px',
-                  right: '0',
-                  background: 'rgba(255, 255, 255, 0.1)',
-                  border: '1px solid rgba(255, 255, 255, 0.3)',
-                  color: '#ffffff',
-                  padding: '12px 16px',
-                  fontSize: '11px',
-                  letterSpacing: '0.2em',
-                  textTransform: 'uppercase',
-                  cursor: 'pointer',
-                  transition: 'all 300ms ease',
-                  backdropFilter: 'blur(10px)'
-                }}
-                onMouseEnter={(e) => {
-                  e.target.style.background = 'rgba(255, 255, 255, 0.9)';
-                  e.target.style.color = '#0a0a0a';
-                }}
-                onMouseLeave={(e) => {
-                  e.target.style.background = 'rgba(255, 255, 255, 0.1)';
-                  e.target.style.color = '#ffffff';
-                }}
+                onClick={sendMessage}
+                disabled={!inputMessage.trim() || isLoading}
+                className="px-6 py-3 bg-[#0a0a0a] text-white font-light disabled:opacity-50 disabled:cursor-not-allowed hover:bg-[#333333] transition-colors"
               >
-                × Close
-              </button>
-              
-              {/* Select Button */}
-              <button
-                onClick={(e) => {
-                  e.stopPropagation();
-                  toggleImageSelection(selectedImagePreview);
-                }}
-                style={{
-                  position: 'absolute',
-                  bottom: '-60px',
-                  left: '50%',
-                  transform: 'translateX(-50%)',
-                  background: selectedImages.includes(selectedImagePreview) ? '#0a0a0a' : 'rgba(255, 255, 255, 0.1)',
-                  border: '1px solid rgba(255, 255, 255, 0.3)',
-                  color: selectedImages.includes(selectedImagePreview) ? '#ffffff' : '#ffffff',
-                  padding: '16px 32px',
-                  fontSize: '11px',
-                  letterSpacing: '0.3em',
-                  textTransform: 'uppercase',
-                  cursor: 'pointer',
-                  transition: 'all 300ms ease',
-                  backdropFilter: 'blur(10px)'
-                }}
-                onMouseEnter={(e) => {
-                  if (!selectedImages.includes(selectedImagePreview)) {
-                    e.target.style.background = 'rgba(255, 255, 255, 0.2)';
-                  }
-                }}
-                onMouseLeave={(e) => {
-                  if (!selectedImages.includes(selectedImagePreview)) {
-                    e.target.style.background = 'rgba(255, 255, 255, 0.1)';
-                  }
-                }}
-              >
-                {selectedImages.includes(selectedImagePreview) ? '✓ Selected for Gallery' : 'Select for Gallery'}
+                Send
               </button>
             </div>
           </div>
+        </div>
+
+        {/* Generated Images */}
+        {selectedImages.length > 0 && (
+          <div className="mt-8 bg-white border border-[#e0e0e0] p-6">
+            <h3 className="text-xl font-light mb-4" style={{ fontFamily: 'Times New Roman, serif' }}>
+              Your Pinterest-Style Photoshoot
+            </h3>
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+              {selectedImages.map((imageUrl, index) => (
+                <div key={index} className="aspect-[3/4] overflow-hidden bg-[#f8f8f8]">
+                  <img
+                    src={imageUrl}
+                    alt={`Generated photo ${index + 1}`}
+                    className="w-full h-full object-cover hover:scale-105 transition-transform duration-300"
+                  />
+                </div>
+              ))}
+            </div>
+            <div className="mt-4 text-sm text-[#666666] font-light">
+              Click any style button above to generate more photos in that aesthetic
+            </div>
+          </div>
         )}
+
+        {/* Quick Start Examples */}
+        <div className="mt-8 bg-white border border-[#e0e0e0] p-6">
+          <h3 className="text-lg font-light mb-4" style={{ fontFamily: 'Times New Roman, serif' }}>
+            Try These Pinterest-Style Requests:
+          </h3>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+            {[
+              "Pinterest vibes with sunset and flowing dress",
+              "Garden walk, not looking at camera, whole scenery",
+              "City lifestyle, walking away, architectural backdrop",
+              "Beach contemplation, golden hour, natural pose",
+              "Luxury cafe exit, full body environmental shot",
+              "Morning light through trees, peaceful energy"
+            ].map((example, index) => (
+              <button
+                key={index}
+                onClick={() => setInputMessage(example)}
+                className="text-left p-3 border border-[#e0e0e0] hover:bg-[#f8f8f8] transition-colors text-sm font-light"
+              >
+                "{example}"
+              </button>
+            ))}
+          </div>
+        </div>
       </div>
-    </PaymentVerification>
+    </div>
   );
 }
