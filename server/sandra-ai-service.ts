@@ -65,13 +65,28 @@ interface StylePreferences {
   pose?: string[];
 }
 
+// Specialized photoshoot style button interface
+interface StyleButton {
+  id: string;
+  name: string;
+  description: string;
+  prompt: string;
+  camera: string;
+  texture: string;
+}
+
 export class SandraAIService {
-  // Enhanced conversational Sandra AI with memory and custom prompt generation
-  static async chatWithUser(userId: string, message: string): Promise<{ response: string; suggestedPrompt?: string; styleInsights?: StylePreferences }> {
+  // Sandra AI as specialized photoshoot agent - creates 3 style alternatives
+  static async chatWithUser(userId: string, message: string): Promise<{ 
+    response: string; 
+    styleButtons?: StyleButton[]; 
+    isFollowUp?: boolean;
+    styleInsights?: StylePreferences 
+  }> {
     
-    // Get conversation history for context
+    // Get conversation history for context and learning
     const conversationHistory = await storage.getSandraConversations(userId);
-    const recentConversations = conversationHistory.slice(0, 5); // Last 5 conversations
+    const recentConversations = conversationHistory.slice(0, 3); // Last 3 for context
     
     // Get user's onboarding data for additional context
     const onboardingData = await storage.getOnboardingData(userId);
@@ -345,27 +360,37 @@ Only include elements specifically mentioned or strongly implied. Return empty a
       .map(([keyword]) => keyword);
   }
 
-  // Enhanced Sandra AI response system with conversation memory and personalization
+  // Sandra AI as specialized photoshoot agent - creates 3 style button alternatives
   private static async fallbackSandraResponse(message: string, userId: string): Promise<any> {
     const lowerMessage = message.toLowerCase();
     
-    // Get conversation history for context
+    // Get conversation history for learning user preferences
     const recentConversations = await storage.getSandraConversations(userId);
     const onboardingData = await storage.getOnboardingData(userId);
+    const userName = onboardingData?.firstName || 'gorgeous';
     
-    // Enhanced keyword detection with lifestyle and location triggers
+    // Detect if this is a follow-up conversation (refinement request)
+    const isFollowUp = recentConversations.length > 0 && (
+      lowerMessage.includes('more') || 
+      lowerMessage.includes('change') || 
+      lowerMessage.includes('different') ||
+      lowerMessage.includes('not looking at camera') ||
+      lowerMessage.includes('full body') ||
+      lowerMessage.includes('lifestyle')
+    );
+    
+    // Enhanced keyword detection for photoshoot expertise
     const styleKeywords = {
-      editorial: ['editorial', 'magazine', 'vogue', 'fashion', 'model', 'kate moss', 'editorial style'],
-      blackWhite: ['black and white', 'b&w', 'monochrome', 'bw', 'black white', 'b & w'],
-      luxury: ['luxury', 'expensive', 'high-end', 'premium', 'elegant', 'sophisticated', 'designer'],
-      vintage: ['vintage', 'retro', 'film', 'analog', 'kodak', '35mm', 'film grain'],
-      street: ['street', 'urban', 'candid', 'lifestyle', 'natural', 'casual'],
-      studio: ['studio', 'controlled', 'lighting', 'portrait', 'beauty'],
-      moody: ['moody', 'dramatic', 'dark', 'shadows', 'mysterious', 'intense'],
-      bright: ['bright', 'airy', 'light', 'sunny', 'fresh', 'glowing'],
-      lifestyle: ['lifestyle', 'beach', 'club', 'restaurant', 'cafe', 'travel', 'vacation', 'marbella', 'ibiza', 'miami'],
-      business: ['business', 'professional', 'corporate', 'office', 'linkedin', 'executive', 'meeting'],
-      natural: ['natural', 'realistic', 'authentic', 'candid', 'unposed', 'real', 'retouch', 'retouching']
+      editorial: ['editorial', 'magazine', 'vogue', 'fashion', 'model', 'kate moss'],
+      blackWhite: ['black and white', 'b&w', 'monochrome', 'bw'],
+      luxury: ['luxury', 'expensive', 'high-end', 'premium', 'elegant', 'sophisticated'],
+      lifestyle: ['lifestyle', 'beach', 'club', 'restaurant', 'cafe', 'natural', 'candid'],
+      business: ['business', 'professional', 'corporate', 'office', 'linkedin'],
+      street: ['street', 'urban', 'walking', 'city', 'paris', 'milan'],
+      studio: ['studio', 'portrait', 'beauty', 'headshot'],
+      moody: ['moody', 'dramatic', 'dark', 'shadows', 'mysterious'],
+      fullBody: ['full body', 'full length', 'whole body', 'body shot'],
+      notLooking: ['not looking', 'away from camera', 'looking away', 'not at camera']
     };
     
     let detectedStyles = [];
@@ -375,143 +400,170 @@ Only include elements specifically mentioned or strongly implied. Return empty a
       }
     }
     
-    // Create style insights
-    const styleInsights = {
-      aesthetic: detectedStyles.includes('editorial') ? ['editorial'] : ['lifestyle'],
-      mood: detectedStyles.includes('moody') ? ['dramatic'] : ['natural'],
-      setting: detectedStyles.includes('studio') ? ['studio'] : ['environmental'],
-      outfit: detectedStyles.includes('luxury') ? ['designer clothing'] : ['stylish attire'],
-      lighting: detectedStyles.includes('moody') ? ['dramatic lighting'] : ['natural lighting'],
-      pose: ['confident pose'],
-      detectedKeywords: detectedStyles
-    };
-    
-    // Check conversation history for personalization
-    const hasConversationHistory = recentConversations.length > 0;
-    const userName = onboardingData?.firstName || 'gorgeous';
-    
-    // Generate custom prompt based on detected style with personalization
-    let suggestedPrompt = '';
+    // Sandra's personalized conversation responses
     let sandraResponse = '';
+    let styleButtons: StyleButton[] = [];
     
-    if (detectedStyles.includes('editorial') && detectedStyles.includes('blackWhite')) {
-      sandraResponse = `Okay, so Kate Moss editorial B&W? Yeah, that's everything. You know what makes those photos so good? They're raw. No perfect lighting, no fake smoothness.
+    if (isFollowUp) {
+      // Handle refinement requests with conversation memory
+      sandraResponse = `Got it! Let me adjust that vision. You want more lifestyle energy with full body shots where you're not directly engaging the camera - perfect! That's that effortless, caught-in-the-moment vibe.
 
-Here's what we're doing:
-• That messy-but-perfect hair
-• Minimal makeup, like you just woke up gorgeous  
-• Dramatic shadows that tell a story
-• Real skin texture - pores and all
+I'm thinking:
+• Natural, candid moments 
+• Full environmental shots
+• Looking away or mid-action
+• That "paparazzi caught me being fabulous" energy
 
-Are we going powerful and commanding, or more vulnerable and intimate?`;
+Here are 3 refined styles:`;
       
-      suggestedPrompt = `user${userId} woman, editorial black and white portrait, shot on Hasselblad X2D 100C with 80mm lens, dramatic studio lighting, visible skin texture and pores, messy hair with face-framing pieces, minimal makeup with natural lip gloss, direct intense gaze, raw unretouched beauty, high contrast monochrome, heavy 35mm film grain, matte skin finish, no glossy or plastic appearance, Kate Moss editorial inspiration`;
+      styleButtons = this.createLifestyleStyleButtons(userId, detectedStyles);
       
-    } else if (detectedStyles.includes('editorial')) {
-      sandraResponse = `Editorial vibes, I love it! You know what makes editorial photos different? They tell a story. Not just "look at me" but "here's who I am."
+    } else if (detectedStyles.includes('editorial') && detectedStyles.includes('blackWhite')) {
+      // Editorial B&W specialist response
+      sandraResponse = `Editorial B&W like Kate Moss? OMG yes! That raw, unfiltered sophistication is everything. You know what makes those shots iconic? The imperfections that tell a story.
 
-What's your story - are we going:
-• Bold and dramatic with strong lighting?
-• Soft and sophisticated with natural vibes?
-• Moody and mysterious?
+I'm seeing:
+• Messy hair with perfect imperfection
+• Dramatic shadows and light play  
+• Real skin texture, not retouched perfection
+• That intense, direct gaze that speaks volumes
 
-Tell me more about the feeling you want.`;
+Which energy feels most like you?`;
       
-      suggestedPrompt = `user${userId} woman, editorial fashion portrait, shot on Canon EOS R5 with 85mm f/1.4 lens, professional studio lighting, sophisticated styling, confident expression, high-fashion editorial quality, heavy 35mm film grain, matte skin texture, editorial magazine aesthetic`;
-      
-    } else if (detectedStyles.includes('luxury')) {
-      sandraResponse = `Okay, so luxury vibes. I get it. You want photos that look like they cost money, right? 
-
-Here's the thing about expensive-looking photos - it's not about the stuff, it's about the energy:
-• Confident posture (like you belong everywhere)
-• Good lighting that makes skin look amazing
-• Simple but expensive-looking outfits
-
-Are you going for approachable luxury or untouchable high-fashion?`;
-      
-      suggestedPrompt = `user${userId} woman, luxury editorial portrait, shot on Canon EOS R5 with 85mm f/1.4 lens, sophisticated lighting, wearing designer black blazer, gold jewelry accents, perfect makeup with subtle highlight, confident expression, luxury apartment background, editorial color grading, heavy 35mm film grain, matte skin texture, expensive aesthetic, high-end fashion photography`;
+      styleButtons = this.createEditorialBWButtons(userId);
       
     } else if (detectedStyles.includes('lifestyle')) {
-      sandraResponse = `Beach club in Marbella? Okay, I'm totally here for this lifestyle vibe. 
+      // Lifestyle specialist response
+      sandraResponse = `Beach club vibes? I'm totally here for this! That effortless luxury where you look expensive without trying too hard.
 
-Here's what I'm thinking:
-• Natural lighting (that golden hour magic)
-• Effortless but put-together styling
-• Confident but relaxed energy
-• Real skin texture, slightly retouched but still authentic
+Thinking:
+• Golden hour magic lighting
+• Natural, candid moments
+• Sophisticated but relaxed styling
+• Environmental storytelling
 
-What's the mood - glamorous beach goddess or effortlessly chic?`;
-
-      suggestedPrompt = `user${userId} woman, lifestyle beach club photography, shot on Canon EOS R5 with 35mm f/1.4 lens, natural golden hour lighting, Marbella beach club setting, effortless chic styling, relaxed confident pose, slight skin retouching while maintaining natural texture, authentic vacation vibes, heavy 35mm film grain, matte skin finish, luxury lifestyle photography, Mediterranean summer aesthetic`;
+What's the mood we're capturing?`;
       
-    } else if (detectedStyles.includes('natural')) {
-      sandraResponse = `Natural and realistic with slight skin retouching? Perfect. That's exactly what good photos should be - you, but the best version.
-
-Let me create something that feels authentic but polished.`;
-
-      suggestedPrompt = `user${userId} woman, natural lifestyle portrait, shot on Canon EOS R5 with 50mm f/1.8 lens, soft natural lighting, minimal professional retouching, authentic skin texture with subtle smoothing, realistic color grading, confident natural expression, effortless styling, heavy 35mm film grain, matte skin finish, authentic lifestyle photography`;
+      styleButtons = this.createLifestyleStyleButtons(userId, detectedStyles);
       
     } else {
-      // Check if this is a follow-up to previous conversation
-      const lastConversation = recentConversations[recentConversations.length - 1];
-      const isFollowUp = hasConversationHistory && lastConversation && 
-        (lowerMessage.includes('powerful') || lowerMessage.includes('commanding') || 
-         lowerMessage.includes('vulnerable') || lowerMessage.includes('intimate') ||
-         lowerMessage.includes('dramatic') || lowerMessage.includes('soft'));
+      // General photoshoot consultation
+      sandraResponse = `Hey ${userName}! Tell me about your vision - what kind of energy are we going for? I specialize in creating custom prompts that capture your unique aesthetic.
+
+• Editorial fashion model vibes?
+• Lifestyle candid moments?  
+• Professional business shots?
+• Artistic black & white portraits?
+
+Give me some keywords and I'll create the perfect prompts with specific camera specs and styling details!`;
       
-      if (isFollowUp && lastConversation.suggestedPrompt) {
-        // Extract previous style from last conversation
-        const wasPreviouslyEditorial = lastConversation.suggestedPrompt.includes('editorial');
-        const wasPreviouslyBW = lastConversation.suggestedPrompt.includes('black and white');
-        
-        if (wasPreviouslyEditorial && wasPreviouslyBW) {
-          if (lowerMessage.includes('powerful') || lowerMessage.includes('commanding')) {
-            sandraResponse = `Perfect! Powerful and commanding B&W is everything. Here's what we're doing:
-
-• That strong direct gaze (like you own the room)
-• Sharp jawline and confident posture
-• Dramatic lighting with real shadows
-• Hair that looks fierce but effortless
-
-This is gonna be so good.`;
-
-            suggestedPrompt = `user${userId} woman, powerful editorial black and white portrait, shot on Hasselblad X2D 100C with 80mm lens, dramatic high-contrast studio lighting, strong direct commanding gaze, confident posture, sharp jawline, defined eyes with minimal makeup, fierce messy hair, powerful presence, high contrast monochrome, heavy 35mm film grain, matte skin finish, commanding supermodel energy, Kate Moss editorial inspiration`;
-          } else {
-            sandraResponse = `Okay, vulnerable and intimate. I love that. Sometimes the most powerful photos are the quiet ones.
-
-• Soft, introspective gaze
-• Natural expressions (like you're thinking about something)  
-• Gentle lighting
-• Hair that looks naturally tousled
-
-Raw vulnerability is so much harder to fake than "fierce."`;
-
-            suggestedPrompt = `user${userId} woman, vulnerable editorial black and white portrait, shot on Hasselblad X2D 100C with 80mm lens, soft dramatic studio lighting, introspective gaze, vulnerable expression, natural emotion, gently tousled hair, minimal makeup, authentic vulnerability, high contrast monochrome, heavy 35mm film grain, matte skin finish, intimate editorial mood, Kate Moss editorial inspiration`;
-          }
-        } else {
-          sandraResponse = `Got it. So based on what we talked about... tell me more about the vibe you want. Bold and dramatic? Or more soft and sophisticated?`;
-        }
-      } else {
-        // Generate a generic but useful prompt for any request
-        sandraResponse = `Let me create a custom prompt for you based on what you described.`;
-        
-        suggestedPrompt = `user${userId} woman, lifestyle portrait photography, shot on Canon EOS R5 with 50mm f/1.8 lens, natural lighting, confident expression, stylish contemporary outfit, professional quality, heavy 35mm film grain, matte skin texture, authentic lifestyle photography`;
-      }
+      styleButtons = this.createGeneralStyleButtons(userId);
     }
     
-    // Save conversation to memory
+    // Save conversation for learning
     await storage.saveSandraConversation({
       userId,
       message,
       response: sandraResponse,
-      suggestedPrompt: suggestedPrompt || null,
-      userStylePreferences: styleInsights,
+      suggestedPrompt: null, // No single prompt anymore - using style buttons
+      userStylePreferences: { detectedKeywords: detectedStyles },
     });
     
     return {
       response: sandraResponse,
-      suggestedPrompt: suggestedPrompt || null,
-      styleInsights
+      styleButtons,
+      isFollowUp,
+      styleInsights: { detectedKeywords: detectedStyles }
     };
+  }
+  
+  // Create Editorial B&W style buttons
+  private static createEditorialBWButtons(userId: string): StyleButton[] {
+    return [
+      {
+        id: 'kate-moss-raw',
+        name: 'Raw & Powerful',
+        description: 'Intense gaze, dramatic shadows, messy hair perfection',
+        prompt: `user${userId} woman, editorial black and white portrait, shot on Hasselblad X2D with 80mm lens, dramatic studio lighting, messy hair with face-framing pieces, minimal makeup, direct intense gaze, visible skin texture and pores, high contrast monochrome, heavy 35mm film grain, matte skin finish, Kate Moss editorial inspiration`,
+        camera: 'Hasselblad X2D + 80mm',
+        texture: 'Heavy film grain, high contrast'
+      },
+      {
+        id: 'window-light-soft',
+        name: 'Soft & Intimate', 
+        description: 'Window light, vulnerable expression, authentic beauty',
+        prompt: `user${userId} woman, natural window light portrait, shot on Leica M11 Monochrom with 50mm lens, soft directional lighting, eyes closed or looking down, serene expression, natural hair texture, bare shoulders, black and white film aesthetic, visible skin detail, authentic moment captured`,
+        camera: 'Leica M11 Monochrom + 50mm',
+        texture: 'Soft film grain, natural contrast'
+      },
+      {
+        id: 'artistic-shadows',
+        name: 'Artistic & Mysterious',
+        description: 'Shadow play, blinds pattern, dramatic mood',
+        prompt: `user${userId} woman, dramatic shadow portrait, shot on Canon EOS R5 with 85mm lens, venetian blinds creating shadow stripes, mysterious expression, black outfit, artistic lighting patterns, high contrast black and white, shadow and light interplay, editorial fashion mood`,
+        camera: 'Canon EOS R5 + 85mm',
+        texture: 'Pronounced grain, artistic contrast'
+      }
+    ];
+  }
+  
+  // Create Lifestyle style buttons  
+  private static createLifestyleStyleButtons(userId: string, detectedStyles: string[]): StyleButton[] {
+    return [
+      {
+        id: 'beach-club-candid',
+        name: 'Effortless Beach Goddess',
+        description: 'Full body, walking away, not looking at camera',
+        prompt: `user${userId} woman, full body lifestyle shot, walking away from camera at luxury beach club, shot on Canon EOS R5 with 35mm lens, natural golden hour lighting, flowing summer dress, hair moving in breeze, Mediterranean setting, candid moment captured, not looking at camera, heavy 35mm film grain, matte skin finish`,
+        camera: 'Canon EOS R5 + 35mm',
+        texture: 'Natural film grain, golden hour'
+      },
+      {
+        id: 'cafe-street-style',
+        name: 'European Street Chic',
+        description: 'Full body street style, mid-stride confidence',
+        prompt: `user${userId} woman, full body street style, walking past European cafe, shot on Leica Q2 with 28mm lens, natural daylight, oversized blazer, confident stride, looking ahead not at camera, cobblestone street setting, candid lifestyle moment, sophisticated casual styling, film photography aesthetic`,
+        camera: 'Leica Q2 + 28mm',
+        texture: 'Street photography grain'
+      },
+      {
+        id: 'rooftop-sunset',
+        name: 'Sunset Contemplation',
+        description: 'Looking at view, atmospheric lighting, full environmental',
+        prompt: `user${userId} woman, full body environmental shot, looking at sunset view, shot on Sony A7R V with 50mm lens, rooftop or balcony setting, golden hour atmospheric lighting, silhouette with warm backlighting, contemplative pose, not facing camera, luxury lifestyle setting, cinematic mood, film grain texture`,
+        camera: 'Sony A7R V + 50mm', 
+        texture: 'Cinematic film grain'
+      }
+    ];
+  }
+  
+  // Create General style buttons
+  private static createGeneralStyleButtons(userId: string): StyleButton[] {
+    return [
+      {
+        id: 'editorial-chic',
+        name: 'Editorial Sophistication',
+        description: 'High fashion magazine vibe, professional styling',
+        prompt: `user${userId} woman, editorial fashion portrait, shot on Hasselblad X2D with 80mm lens, professional studio lighting, sophisticated styling, designer clothing, confident pose, high fashion aesthetic, heavy 35mm film grain, matte skin finish, editorial sophistication`,
+        camera: 'Hasselblad X2D + 80mm',
+        texture: 'Professional film grain'
+      },
+      {
+        id: 'lifestyle-natural',
+        name: 'Natural Lifestyle',
+        description: 'Candid moments, environmental storytelling',
+        prompt: `user${userId} woman, natural lifestyle photography, shot on Canon EOS R5 with 50mm lens, natural lighting, environmental setting, authentic candid moment, relaxed styling, storytelling composition, heavy 35mm film grain, matte skin finish, lifestyle photography`,
+        camera: 'Canon EOS R5 + 50mm',
+        texture: 'Natural film grain'
+      },
+      {
+        id: 'business-professional',
+        name: 'Business Professional',
+        description: 'Corporate confidence, professional styling',
+        prompt: `user${userId} woman, professional business portrait, shot on Sony A7R V with 85mm lens, clean professional lighting, business attire, confident professional pose, corporate setting, sophisticated styling, heavy 35mm film grain, matte skin finish, business photography`,
+        camera: 'Sony A7R V + 85mm',
+        texture: 'Clean film grain'
+      }
+    ];
   }
 }
