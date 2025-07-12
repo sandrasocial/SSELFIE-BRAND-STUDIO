@@ -291,10 +291,15 @@ The platform has become overly complex with multiple pricing tiers, broken onboa
 
 **New Editorial Landing Page with Vogue/Pinterest Aesthetic:**
 - Full-bleed hero image using Sandra's approved image library (SandraImages.hero.homepage)
-- Tagline "It starts with your selfies" prominently featured
+- Hero text repositioned lower to avoid covering Sandra's face
+- Tagline "It starts with your selfies" prominently featured as main headline
+- Pre-login navigation with About, How It Works, Pricing, Blog sections
+- Editorial story section with Sandra's authentic voice and journey
+- Feature cards with hover effects and magazine-style numbering
 - Two-tier pricing presentation with clear value propositions
 - No stock photos, emojis, icons, or bright colors - strict design compliance
-- Times New Roman typography and luxury editorial spacing
+- Times New Roman typography and luxury editorial spacing throughout
+- Complete editorial aesthetic matching luxury personal brand style
 
 **Complete Checkout Flow with Plan Selection:**
 - User journey without authentication before purchase
