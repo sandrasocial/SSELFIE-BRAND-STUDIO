@@ -36,7 +36,7 @@ export default function Workspace() {
       statusText: userModel?.trainingStatus === 'completed' ? 'Ready to Generate' :
                   userModel?.trainingStatus === 'training' ? 'Training...' : 'Start Here',
       link: '/ai-training',
-      image: 'https://replicate.delivery/xezq/tIR9rofcvTxuE61uMrnnMufXCv7A8aAaMtQpIQkvYej8YhfTB/out-0.jpg'
+      image: SandraImages.editorial.laptop1
     },
     {
       id: 'photoshoot',
@@ -46,7 +46,7 @@ export default function Workspace() {
       status: userModel?.trainingStatus === 'completed' ? 'ready' : 'locked',
       statusText: userModel?.trainingStatus === 'completed' ? 'Generate Photos' : 'Complete Step 1',
       link: userModel?.trainingStatus === 'completed' ? '/sandra-photoshoot' : '#',
-      image: 'https://replicate.delivery/xezq/GdKc1-ELrOTMv0JdOx_jjfyJn_fCXp5nAYJjFCdRB7fIYhfTB/out-0.jpg'
+      image: SandraImages.flatlays.workspace1
     },
     {
       id: 'gallery',
@@ -56,7 +56,7 @@ export default function Workspace() {
       status: aiImages.length > 0 ? 'active' : 'locked',
       statusText: aiImages.length > 0 ? `${aiImages.length} Photos` : 'No Photos Yet',
       link: aiImages.length > 0 ? '/gallery' : '#',
-      image: 'https://replicate.delivery/xezq/tIR9rofcvTxuE61uMrnnMufXCv7A8aAaMtQpIQkvYej8YhfTB/out-0.jpg'
+      image: SandraImages.editorial.thinking
     },
     {
       id: 'business',
@@ -66,7 +66,7 @@ export default function Workspace() {
       status: 'coming-soon',
       statusText: 'Coming Soon',
       link: '#',
-      image: 'https://replicate.delivery/xezq/GdKc1-ELrOTMv0JdOx_jjfyJn_fCXp5nAYJjFCdRB7fIYhfTB/out-0.jpg'
+      image: SandraImages.flatlays.planning
     }
   ];
 
@@ -76,29 +76,29 @@ export default function Workspace() {
       title: 'Sandra AI',
       subtitle: 'Personal brand mentor',
       link: '/sandra-ai',
-      icon: '✦',
-      status: 'active'
+      status: 'active',
+      image: SandraImages.editorial.laptop2
     },
     {
       title: 'AI Photographer',
       subtitle: 'Create custom prompts',
-      link: '/sandra-photoshoot', 
-      icon: '◐',
-      status: 'active'
+      link: '/sandra-photoshoot',
+      status: 'active',
+      image: SandraImages.editorial.phone1
     },
     {
       title: 'Image Library',
       subtitle: 'Browse your photos',
       link: '/gallery',
-      icon: '◆',
-      status: aiImages.length > 0 ? 'active' : 'disabled'
+      status: aiImages.length > 0 ? 'active' : 'disabled',
+      image: SandraImages.flatlays.beauty
     },
     {
       title: 'Settings',
       subtitle: 'Account and preferences',
       link: '/settings',
-      icon: '◇',
-      status: 'active'
+      status: 'active',
+      image: SandraImages.flatlays.workspace2
     }
   ];
 
@@ -240,8 +240,8 @@ export default function Workspace() {
                           Step {step.number}
                         </span>
                         <span className={`text-xs tracking-[0.2em] uppercase font-light ${
-                          step.status === 'complete' ? 'text-green-600' :
-                          step.status === 'progress' ? 'text-blue-600' :
+                          step.status === 'complete' ? 'text-black' :
+                          step.status === 'progress' ? 'text-[#666666]' :
                           step.status === 'ready' ? 'text-black' :
                           step.status === 'locked' ? 'text-[#999999]' :
                           'text-[#666666]'
@@ -260,9 +260,9 @@ export default function Workspace() {
                     </div>
 
                     {/* Status Indicator */}
-                    <div className={`absolute top-4 right-4 w-3 h-3 rounded-full ${
-                      step.status === 'complete' ? 'bg-green-500' :
-                      step.status === 'progress' ? 'bg-blue-500 animate-pulse' :
+                    <div className={`absolute top-6 right-6 w-2 h-2 ${
+                      step.status === 'complete' ? 'bg-black' :
+                      step.status === 'progress' ? 'bg-[#666666] opacity-80' :
                       step.status === 'ready' ? 'bg-black' :
                       'bg-[#e0e0e0]'
                     }`}></div>
@@ -283,21 +283,30 @@ export default function Workspace() {
               </h2>
             </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
               {quickTools.map((tool, index) => (
                 <Link key={tool.title} href={tool.link} className={tool.status === 'disabled' ? 'pointer-events-none' : ''}>
-                  <div className={`group p-8 bg-white border border-[#e0e0e0] text-center transition-all duration-300 ${
-                    tool.status === 'disabled' ? 'opacity-50' : 'hover:bg-black hover:text-white hover:border-black'
+                  <div className={`group relative bg-white border border-[#e0e0e0] transition-all duration-500 ${
+                    tool.status === 'disabled' ? 'opacity-50' : 'hover:border-black hover:shadow-lg'
                   }`}>
-                    <div className="text-3xl mb-6 transition-transform duration-300 group-hover:scale-110">
-                      {tool.icon}
+                    {/* Tool Image */}
+                    <div className="aspect-square overflow-hidden bg-[#f5f5f5]">
+                      <img 
+                        src={tool.image}
+                        alt={tool.title}
+                        className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
+                      />
                     </div>
-                    <h3 className="font-times text-lg font-light tracking-[-0.01em] mb-2">
-                      {tool.title}
-                    </h3>
-                    <p className="text-sm font-light opacity-60 group-hover:opacity-80">
-                      {tool.subtitle}
-                    </p>
+                    
+                    {/* Tool Content */}
+                    <div className="p-6 text-center">
+                      <h3 className="font-times text-lg font-light tracking-[-0.01em] mb-2">
+                        {tool.title}
+                      </h3>
+                      <p className="text-sm font-light text-[#666666] leading-relaxed">
+                        {tool.subtitle}
+                      </p>
+                    </div>
                   </div>
                 </Link>
               ))}
