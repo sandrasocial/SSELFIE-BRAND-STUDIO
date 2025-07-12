@@ -349,7 +349,7 @@ export class ModelTrainingService {
       }
       
       // Enhanced prompt with film aesthetics and professional specifications
-      const filmEnhancement = "shot on Hasselblad X2D 100C, 90mm lens, heavy 35mm film grain, matte skin finish, authentic skin texture with visible pores, natural imperfections, analog film photography aesthetic, raw film negative quality";
+      const filmEnhancement = "shot on Hasselblad X2D 100C, 90mm lens, heavy 35mm film grain, matte skin finish, authentic skin texture with visible pores, natural imperfections, analog film photography aesthetic, raw film negative quality, no glossy skin, no shiny skin, no oily skin, natural matte complexion";
       const fashionEnhancement = "wearing designer pieces, tailored clothing, luxury materials, sophisticated styling, elegant feminine fashion, high-end accessories, refined aesthetic";
       const environmentalEnhancement = "full scene visible, environmental context, lifestyle photography not portrait, editorial lifestyle moment";
       // Get user-specific hair characteristics
@@ -360,7 +360,7 @@ export class ModelTrainingService {
         // For other users, we'll need to get this from their onboarding data
         hairColorConsistency = "consistent hair color, natural hair tone";
       }
-      const subtleRetouching = "subtle light retouching, softened harsh lines, gentle skin smoothing while maintaining realistic texture, natural facial refinement, editorial skin enhancement";
+      const subtleRetouching = "subtle light retouching, softened harsh lines, gentle skin smoothing while maintaining realistic texture, natural facial refinement, editorial skin enhancement, preserve natural skin imperfections, avoid plastic look, maintain authentic texture";
       
       let finalPrompt = `${basePrompt}, ${hairColorConsistency}, ${filmEnhancement}, ${fashionEnhancement}, ${environmentalEnhancement}, ${subtleRetouching}`;
       
@@ -372,7 +372,7 @@ export class ModelTrainingService {
         version: modelToUse,
         input: {
           prompt: finalPrompt,
-          negative_prompt: "portrait, headshot, passport photo, studio shot, centered face, isolated subject, corporate headshot, ID photo, school photo, posed, glossy skin, plastic skin, overly polished, artificial lighting, fake appearance, heavily airbrushed, perfect skin, flawless complexion, heavy digital enhancement, strong beauty filter, unrealistic skin texture, synthetic appearance, inconsistent hair color, wrong hair color, blonde hair, light hair, short hair, straight hair",
+          negative_prompt: "portrait, headshot, passport photo, studio shot, centered face, isolated subject, corporate headshot, ID photo, school photo, posed, glossy skin, plastic skin, overly polished, artificial lighting, fake appearance, heavily airbrushed, perfect skin, flawless complexion, heavy digital enhancement, strong beauty filter, unrealistic skin texture, synthetic appearance, smooth skin, airbrushed, retouched, magazine retouching, digital perfection, waxy skin, doll-like skin, porcelain skin, flawless makeup, heavy foundation, concealer, smooth face, perfect complexion, digital smoothing, beauty app filter, Instagram filter, snapchat filter, face tune, photoshop skin, inconsistent hair color, wrong hair color, blonde hair, light hair, short hair, straight hair",
           num_outputs: count,
           aspect_ratio: "4:3", // Wider aspect for environmental scenes
           output_format: "jpg",
