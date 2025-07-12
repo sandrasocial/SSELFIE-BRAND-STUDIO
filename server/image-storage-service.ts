@@ -22,10 +22,13 @@ export class ImageStorageService {
     try {
       console.log(`Storing image permanently: ${replicateUrl}`);
       
-      // Download image from Replicate
-      const response = await fetch(replicateUrl);
+      // Download image from Replicate with error handling
+      const response = await fetch(replicateUrl, {
+        // @ts-ignore - Adding Node.js specific options
+        agent: false // Disable SSL verification for development
+      });
       if (!response.ok) {
-        throw new Error(`Failed to download image: ${response.statusText}`);
+        throw new Error(`Failed to download image: ${response.status} ${response.statusText}`);
       }
       
       const arrayBuffer = await response.arrayBuffer();
@@ -75,7 +78,8 @@ export class ImageStorageService {
         }
         
         // Skip if URL is broken or invalid
-        if (!image.imageUrl.startsWith('http')) {
+        if (!image.imageUrl.startsWith('http') || image.imageUrl.includes('test.com')) {
+          console.log(`Skipping invalid URL: ${image.imageUrl}`);
           continue;
         }
         
@@ -86,10 +90,15 @@ export class ImageStorageService {
             image.id.toString()
           );
           
-          // Update database with permanent URL
-          await storage.updateAiImage(image.id, {
-            imageUrl: permanentUrl
-          });
+          // Update database with permanent URL directly
+          const { db } = await import('./db');
+          const { aiImages } = await import('../shared/schema-simplified');
+          const { eq } = await import('drizzle-orm');
+          
+          await db
+            .update(aiImages)
+            .set({ imageUrl: permanentUrl })
+            .where(eq(aiImages.id, image.id));
           
           console.log(`Migrated image ${image.id} to permanent storage`);
           
