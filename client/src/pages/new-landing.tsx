@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { useLocation } from "wouter";
+import { SandraImages } from "@/lib/sandra-images";
 
 export default function NewLanding() {
   const [, setLocation] = useLocation();
@@ -34,7 +35,7 @@ export default function NewLanding() {
         {/* Background Image */}
         <div className="absolute inset-0 opacity-40">
           <img
-            src="https://images.unsplash.com/photo-1580489944761-15a19d654956?w=1200&h=800&fit=crop&crop=face"
+            src={SandraImages.hero.homepage}
             alt="Sandra"
             className="w-full h-full object-cover"
           />
@@ -124,7 +125,7 @@ export default function NewLanding() {
             <div className="group">
               <div className="aspect-square bg-gray-100 overflow-hidden mb-6 relative">
                 <img
-                  src="https://images.unsplash.com/photo-1580489944761-15a19d654956?w=400&h=400&fit=crop&crop=face"
+                  src={SandraImages.portraits.professional[0]}
                   alt="AI Photoshoot"
                   className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
                 />
@@ -141,7 +142,7 @@ export default function NewLanding() {
             <div className="group">
               <div className="aspect-square bg-gray-100 overflow-hidden mb-6 relative">
                 <img
-                  src="https://images.unsplash.com/photo-1586282391129-76a6df230234?w=400&h=400&fit=crop"
+                  src={SandraImages.flatlays.workspace1}
                   alt="Flatlay Collections"
                   className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
                 />
@@ -158,7 +159,7 @@ export default function NewLanding() {
             <div className="group">
               <div className="aspect-square bg-gray-100 overflow-hidden mb-6 relative">
                 <img
-                  src="https://images.unsplash.com/photo-1586282391129-76a6df230234?w=400&h=400&fit=crop"
+                  src={SandraImages.hero.dashboard}
                   alt="Brand Builder"
                   className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
                 />
