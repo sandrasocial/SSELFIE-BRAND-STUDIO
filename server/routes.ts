@@ -933,7 +933,41 @@ I have ALL collections ready - just tell me your mood! ✨`;
     }
   });
 
-  // Sandra AI Chat API
+  // Personal Branding Sandra AI - Full Claude API Integration
+  app.post('/api/personal-branding-sandra', async (req: any, res) => {
+    try {
+      const { message } = req.body;
+      const userId = req.session?.userId || req.user?.claims?.sub || 'sandra_test_user_2025';
+      
+      console.log(`Personal Branding Sandra chat request from user ${userId}: "${message}"`);
+      
+      // Import the enhanced Personal Branding Sandra service
+      const { PersonalBrandingSandra } = await import('./personal-branding-sandra');
+      
+      // Get conversation history for context
+      const conversationHistory = await storage.getSandraConversations(userId);
+      
+      // Get full response with Claude API integration
+      const response = await PersonalBrandingSandra.chatWithUser(userId, message, conversationHistory);
+      
+      res.json({
+        message: response.message,
+        artifacts: response.artifacts || [],
+        userUpdates: response.userUpdates,
+        suggestions: response.suggestions || [],
+        timestamp: new Date().toISOString()
+      });
+      
+    } catch (error) {
+      console.error("Personal Branding Sandra error:", error);
+      res.status(500).json({ 
+        message: "I'm having a technical moment, but I'm here for you! Try asking me again - I'm excited to help you build your personal brand.",
+        error: error.message 
+      });
+    }
+  });
+
+  // Sandra AI Chat API - Legacy Endpoint for Brandbook Designer
   app.post('/api/sandra-ai/chat', isAuthenticated, async (req: any, res) => {
     try {
       const { message, context, userContext, brandbook, onboardingData, chatHistory } = req.body;
