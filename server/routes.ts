@@ -962,31 +962,33 @@ I have ALL collections ready - just tell me your mood! ✨`;
     }
   });
 
-  // Enhanced Sandra AI Chat with Memory and Custom Prompt Generation
+  // Sandra AI Photoshoot Agent - creates 3 style button alternatives
   app.post('/api/sandra-ai-chat', async (req: any, res) => {
     try {
       const { message } = req.body;
-      const userId = req.session?.userId || req.user?.claims?.sub || '42585527'; // Use session or authenticated user
+      const userId = req.session?.userId || req.user?.claims?.sub || '42585527';
       
       console.log(`Sandra AI chat request from user ${userId}: "${message}"`);
+      console.log('Using intelligent Sandra AI fallback system for immediate functionality');
       
-      // Import the enhanced Sandra AI service
+      // Import the enhanced Sandra AI service with style buttons
       const { SandraAIService } = await import('./sandra-ai-service');
       
-      // Get conversational response with memory and custom prompt generation
+      // Get response with style buttons instead of text prompts
       const response = await SandraAIService.chatWithUser(userId, message);
       
       res.json({
         message: response.response,
-        suggestedPrompt: response.suggestedPrompt,
+        styleButtons: response.styleButtons || [],
         styleInsights: response.styleInsights,
+        isFollowUp: response.isFollowUp || false,
         timestamp: new Date().toISOString()
       });
       
     } catch (error) {
-      console.error("Enhanced Sandra AI error:", error);
+      console.error("Sandra AI error:", error);
       res.status(500).json({ 
-        message: "OMG, I'm having a moment! Try asking me again - I'm so excited to help you create stunning photos! ✨",
+        message: "Hey! I'm having a tech moment. Try asking me again - I'm excited to help!",
         error: error.message 
       });
     }
