@@ -1205,7 +1205,7 @@ I have ALL collections ready - just tell me your mood! ✨`;
     }
   });
 
-  // Sandra AI Photoshoot Agent - creates 3 style button alternatives
+  // Sandra AI Photoshoot Agent - creates 3 style button alternatives with inspiration photo awareness
   app.post('/api/sandra-ai-chat', async (req: any, res) => {
     try {
       const { message } = req.body;
@@ -1213,11 +1213,14 @@ I have ALL collections ready - just tell me your mood! ✨`;
       
       console.log(`Sandra AI chat request from user ${userId}: "${message}"`);
       
+      // Get user's inspiration photos for visual context
+      const inspirationPhotos = await storage.getInspirationPhotos(userId);
+      
       // Import the enhanced Sandra AI service with style buttons
       const { SandraAIService } = await import('./sandra-ai-service');
       
-      // Get response with style buttons instead of text prompts
-      const response = await SandraAIService.chatWithUser(userId, message);
+      // Get response with style buttons including inspiration photo context
+      const response = await SandraAIService.chatWithUser(userId, message, inspirationPhotos);
       
       res.json({
         message: response.response,
