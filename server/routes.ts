@@ -233,6 +233,40 @@ I have ALL collections ready - just tell me your mood! ✨`;
     }
   });
 
+  // Save Prompt to Library (session-based for testing)
+  app.post('/api/save-prompt-to-library', async (req, res) => {
+    try {
+      const { name, description, prompt, camera, texture, collection } = req.body;
+      const userId = req.user?.claims?.sub || req.session?.userId || 'sandra_test_user_2025';
+      
+      if (!name || !prompt) {
+        return res.status(400).json({ error: 'Name and prompt are required' });
+      }
+
+      const savedPrompt = await storage.savePromptToLibrary({
+        userId,
+        name,
+        description: description || '',
+        prompt,
+        camera: camera || '',
+        texture: texture || '',
+        collection: collection || 'My Prompts',
+        createdAt: new Date()
+      });
+      
+      console.log(`Prompt "${name}" saved to library for user ${userId}`);
+      res.json({ 
+        success: true, 
+        prompt: savedPrompt,
+        message: 'Prompt saved to library successfully'
+      });
+      
+    } catch (error) {
+      console.error('Save prompt error:', error);
+      res.status(500).json({ error: 'Failed to save prompt to library' });
+    }
+  });
+
   // Plan setup endpoint - called after checkout
   app.post('/api/setup-plan', async (req: any, res) => {
     try {
