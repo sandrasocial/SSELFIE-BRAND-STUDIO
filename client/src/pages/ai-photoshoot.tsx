@@ -20,35 +20,35 @@ const PROMPT_COLLECTIONS = {
         name: 'Arms to the Sky',
         category: 'Ocean Healing',
         description: "Perfect for when you need that emotional release moment. Think ocean waves, arms stretched toward the sky, letting everything go.",
-        prompt: '[triggerword] woman standing at ocean edge, voluminous hair flowing with natural body and movement, arms raised to sky in release, waves washing over feet, wearing flowing earth-toned top and cream pants, overcast moody sky, muted color palette, emotional liberation moment, shot on Hasselblad X2D 100C with 90mm lens, natural ocean lighting with dramatic sky, healing journey photography, heavy 35mm film grain, matte skin finish, authentic skin texture with visible pores, pronounced grain structure, gentle skin smoothing while maintaining realistic texture, natural facial refinement, editorial skin enhancement'
+        prompt: '[triggerword] woman standing at ocean edge, voluminous hair flowing with natural body and movement, arms raised to sky in release, waves washing over feet, wearing flowing linen button-down shirt and wide-leg cream trousers, overcast moody sky, muted color palette, emotional liberation moment, shot on Hasselblad X2D 100C with 90mm lens, natural ocean lighting with dramatic sky, healing journey photography, heavy 35mm film grain, matte skin finish, authentic skin texture with visible pores, pronounced grain structure, gentle skin smoothing while maintaining realistic texture, natural facial refinement, editorial skin enhancement'
       },
       {
         id: 'sunset-contemplation',
         name: 'Sunset Contemplation',
         category: 'Ocean Healing',
         description: "That golden hour magic where you're just... peaceful. Beach vibes, flowing dress, looking toward your future.",
-        prompt: '[triggerword] woman sitting on beach at golden hour, voluminous hair flowing beautifully in ocean breeze with natural body and movement, off-shoulder white dress, looking at horizon, warm sunset glow on skin, peaceful expression, mindfulness moment, shot on Canon EOS R5 with 85mm f/1.2L lens, dramatic golden hour backlighting, coastal healing aesthetic, heavy 35mm film grain, matte complexion, authentic grain pattern, gentle skin smoothing while maintaining realistic texture, natural facial refinement, editorial skin enhancement'
+        prompt: '[triggerword] woman sitting on beach at golden hour, voluminous hair flowing beautifully in ocean breeze with natural body and movement, white linen midi dress with subtle texture, looking at horizon, warm sunset glow on skin, peaceful expression, mindfulness moment, shot on Canon EOS R5 with 85mm f/1.2L lens, dramatic golden hour backlighting, coastal healing aesthetic, heavy 35mm film grain, matte complexion, authentic grain pattern, gentle skin smoothing while maintaining realistic texture, natural facial refinement, editorial skin enhancement'
       },
       {
         id: 'wave-surrender',
         name: 'Wave Surrender',
         category: 'Ocean Healing',
         description: "The ultimate letting go shot. You're in the waves, dress flowing, completely surrendering to the healing power of water.",
-        prompt: '[triggerword] woman in ocean waves, voluminous hair wild with salt water showing natural body and movement, white flowing dress getting wet, arms spread in surrender, sunset backlighting, letting go moment, shot on Leica SL2 with 90mm APO-Summicron lens, dramatic sunset ocean lighting, therapeutic ocean photography, healing journey, heavy 35mm film grain, raw film negative quality, visible grain structure, gentle skin smoothing while maintaining realistic texture, natural facial refinement, editorial skin enhancement'
+        prompt: '[triggerword] woman in ocean waves, voluminous hair wild with salt water showing natural body and movement, white silk slip dress getting wet, arms spread in surrender, sunset backlighting, letting go moment, shot on Leica SL2 with 90mm APO-Summicron lens, dramatic sunset ocean lighting, therapeutic ocean photography, healing journey, heavy 35mm film grain, raw film negative quality, visible grain structure, gentle skin smoothing while maintaining realistic texture, natural facial refinement, editorial skin enhancement'
       },
       {
         id: 'beach-meditation',
         name: 'Beach Meditation',
         category: 'Ocean Healing',
         description: "Peaceful meditation by the ocean. Lotus pose, waves in background, that zen moment where everything feels aligned.",
-        prompt: '[triggerword] woman in lotus pose on sand, voluminous hair with natural body and movement, black outfit, eyes closed in meditation, ocean waves in background, golden hour side lighting, serene expression, mindfulness practice, shot on Nikon Z9 with 50mm f/1.2S lens, soft golden hour lighting, beach yoga aesthetic, heavy 35mm film grain, Kodak Portra 400 film aesthetic, matte complexion, gentle skin smoothing while maintaining realistic texture, natural facial refinement, editorial skin enhancement'
+        prompt: '[triggerword] woman in lotus pose on sand, voluminous hair with natural body and movement, black ribbed bodysuit or fitted long-sleeve top, eyes closed in meditation, ocean waves in background, golden hour side lighting, serene expression, mindfulness practice, shot on Nikon Z9 with 50mm f/1.2S lens, soft golden hour lighting, beach yoga aesthetic, heavy 35mm film grain, Kodak Portra 400 film aesthetic, matte complexion, gentle skin smoothing while maintaining realistic texture, natural facial refinement, editorial skin enhancement'
       },
       {
         id: 'candlelit-meditation',
         name: 'Candlelit Meditation',
         category: 'Inner Peace',
         description: "Sacred space vibes. Surrounded by candlelight, finding your center in the most beautiful healing sanctuary.",
-        prompt: '[triggerword] woman in meditation pose, voluminous hair with natural body and movement, black tank and leggings, surrounded by candles, indoor zen space, warm candlelight glow on face, eyes closed in peace, healing sanctuary, shot on Sony A7R V with 85mm f/1.4 GM lens, intimate candlelight illumination, mindfulness photography, heavy 35mm film grain, analog film photography aesthetic, natural skin imperfections, gentle skin smoothing while maintaining realistic texture, natural facial refinement, editorial skin enhancement'
+        prompt: '[triggerword] woman in meditation pose, voluminous hair with natural body and movement, black ribbed bodysuit or fitted long-sleeve top, surrounded by candles, indoor zen space, warm candlelight glow on face, eyes closed in peace, healing sanctuary, shot on Sony A7R V with 85mm f/1.4 GM lens, intimate candlelight illumination, mindfulness photography, heavy 35mm film grain, analog film photography aesthetic, natural skin imperfections, gentle skin smoothing while maintaining realistic texture, natural facial refinement, editorial skin enhancement'
       },
       {
         id: 'morning-ritual',
@@ -62,14 +62,78 @@ const PROMPT_COLLECTIONS = {
         name: 'Forest Grounding',
         category: 'Nature Connection',
         description: "Connecting with Mother Earth. Standing among trees, touching bark, grounding yourself in nature's healing energy.",
-        prompt: '[triggerword] woman standing among trees, voluminous hair with natural body and movement, touching tree trunk, earthing practice, natural clothing, dappled forest light, connection with nature, grounding energy, shot on Leica Q2 with 28mm f/1.7 lens, natural forest lighting with dappled shadows, forest therapy moment, heavy 35mm film grain, film negative quality, visible grain structure, gentle skin smoothing while maintaining realistic texture, natural facial refinement, editorial skin enhancement'
+        prompt: '[triggerword] woman standing among trees, voluminous hair with natural body and movement, touching tree trunk, earthing practice, wearing linen button-down shirt and wide-leg trousers in earth tones, dappled forest light, connection with nature, grounding energy, shot on Leica Q2 with 28mm f/1.7 lens, natural forest lighting with dappled shadows, forest therapy moment, heavy 35mm film grain, film negative quality, visible grain structure, gentle skin smoothing while maintaining realistic texture, natural facial refinement, editorial skin enhancement'
       },
       {
         id: 'yoga-flow',
         name: 'Yoga Flow',
         category: 'Movement Medicine',
         description: "Movement as medicine. Captured mid-flow, showing your strength and grace through mindful movement.",
-        prompt: '[triggerword] woman in yoga pose, voluminous hair with natural body and movement, flowing movement captured, natural light studio, black yoga wear, graceful strength, moving meditation, healing through movement, shot on Canon R6 Mark II with 35mm f/1.8 lens, soft natural studio lighting, wellness photography, heavy 35mm film grain, matte skin finish, authentic texture with visible pores, gentle skin smoothing while maintaining realistic texture, natural facial refinement, editorial skin enhancement'
+        prompt: '[triggerword] woman in yoga pose, voluminous hair with natural body and movement, flowing movement captured, natural light studio, black ribbed bodysuit or fitted athletic wear, graceful strength, moving meditation, healing through movement, shot on Canon R6 Mark II with 35mm f/1.8 lens, soft natural studio lighting, wellness photography, heavy 35mm film grain, matte skin finish, authentic texture with visible pores, gentle skin smoothing while maintaining realistic texture, natural facial refinement, editorial skin enhancement'
+      }
+    ]
+  },
+  'effortless-chic': {
+    id: 'effortless-chic',
+    name: 'Effortless Chic',
+    description: 'Lazy Sunday vibes that still look incredibly expensive. Milan street style meets cozy luxury.',
+    preview: SandraImages.portraits.professional[1],
+    prompts: [
+      {
+        id: 'oversized-sweater-luxury',
+        name: 'Oversized Cashmere Dreams',
+        category: 'Lazy Sunday Luxury',
+        description: "That perfect lazy Sunday look - oversized cashmere sweater, messy hair, but you still look like you stepped out of a magazine.",
+        prompt: '[triggerword] woman in oversized cream cashmere sweater, hair perfectly imperfect with lived-in texture, minimal makeup with dewy skin, sitting in luxury apartment with natural light, designer jeans or leggings, bare feet on marble floor, shot on Hasselblad X2D 100C with 90mm lens, soft morning window lighting, cozy luxury aesthetic, heavy 35mm film grain, matte skin finish, authentic texture, effortless expensive styling, comfortable elegance'
+      },
+      {
+        id: 'milan-coffee-run',
+        name: 'Milan Coffee Run',
+        category: 'European Street Style',
+        description: "Model-off-duty vibes. Cropped blazer, straight-leg trousers, designer sneakers, and that effortless hair that looks expensive.",
+        prompt: '[triggerword] woman walking with coffee cup, oversized beige blazer over white tank, high-waisted straight-leg trousers, designer white sneakers, messy bun with face-framing pieces, minimal gold jewelry, architectural European street backdrop, shot on Canon EOS R5 with 85mm f/1.2L lens, natural street lighting, model-off-duty energy, heavy 35mm film grain, pronounced texture, effortless luxury styling, expensive casual aesthetic'
+      },
+      {
+        id: 'silk-slip-layering',
+        name: 'Silk & Layers',
+        category: 'Elevated Basics',
+        description: "The art of expensive layering - silk slip dress over fitted long sleeve, perfect proportions, looks effortless but costs a fortune.",
+        prompt: '[triggerword] woman in silk slip dress layered over fitted black long-sleeve top, hair in low bun with texture, delicate gold jewelry, sitting at marble cafe table, designer leather bag nearby, shot on Leica SL2 with 90mm APO-Summicron lens, soft natural lighting, elegant layering aesthetic, heavy 35mm film grain, raw film negative quality, luxury minimalist styling, sophisticated casual elegance'
+      },
+      {
+        id: 'trench-coat-moment',
+        name: 'Classic Trench Mastery',
+        category: 'Timeless Luxury',
+        description: "The perfect trench coat moment - oversized, perfectly styled, hair blowing in the wind, classic but never boring.",
+        prompt: '[triggerword] woman in oversized beige trench coat, white t-shirt underneath, high-waisted dark jeans, hair flowing naturally in breeze, minimal makeup with fresh skin, standing on European street, shot on Nikon Z9 with 50mm f/1.2S lens, dramatic natural lighting, classic luxury styling, heavy 35mm film grain, Kodak Portra 400 film aesthetic, timeless elegance, expensive simplicity'
+      },
+      {
+        id: 'knit-set-luxury',
+        name: 'Matching Knit Perfection',
+        category: 'Coordinated Luxury',
+        description: "Matching knit set but make it expensive - perfectly fitted, beautiful texture, styled to perfection.",
+        prompt: '[triggerword] woman in matching knit set (cropped cardigan and fitted skirt), hair in loose waves, gold accessories, sitting in designer chair with natural light, luxury home setting, shot on Sony A7R V with 85mm f/1.4 GM lens, soft window lighting, coordinated luxury aesthetic, heavy 35mm film grain, analog film photography, expensive knitwear styling, sophisticated comfort'
+      },
+      {
+        id: 'denim-on-denim-elevated',
+        name: 'Elevated Denim Story',
+        category: 'Denim Done Right',
+        description: "Double denim but make it editorial - different washes, perfect fits, accessories that elevate everything.",
+        prompt: '[triggerword] woman in light wash oversized denim shirt over dark straight-leg jeans, hair in effortless waves, gold jewelry and designer belt, leaning against concrete wall, shot on Fujifilm GFX100S with 110mm f/2 lens, urban natural lighting, elevated denim styling, heavy 35mm film grain, pronounced texture, expensive casual aesthetic, editorial street style'
+      },
+      {
+        id: 'sweater-dress-boots',
+        name: 'Sweater Dress & Boots',
+        category: 'Cozy Elegance',
+        description: "The perfect sweater dress with knee-high boots - cozy but incredibly chic, hair perfectly undone.",
+        prompt: '[triggerword] woman in fitted ribbed sweater dress in camel or cream, knee-high leather boots, hair in textured waves, minimal gold jewelry, walking through luxury space, shot on Canon R6 Mark II with 35mm f/1.8 lens, natural warm lighting, cozy elegance aesthetic, heavy 35mm film grain, matte complexion, expensive comfort styling, sophisticated autumn vibes'
+      },
+      {
+        id: 'blazer-bike-shorts',
+        name: 'Blazer & Bike Shorts',
+        category: 'Modern Luxury',
+        description: "The modern power move - oversized blazer with fitted bike shorts, sneakers or boots, hair slicked back or textured.",
+        prompt: '[triggerword] woman in oversized blazer over fitted bike shorts, designer sneakers or ankle boots, hair slicked back or in messy bun, minimalist jewelry, urban luxury backdrop, shot on Leica Q2 with 28mm f/1.7 lens, dramatic city lighting, modern luxury styling, heavy 35mm film grain, film negative quality, contemporary expensive aesthetic, power casual elegance'
       }
     ]
   },
