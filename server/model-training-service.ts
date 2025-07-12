@@ -352,8 +352,10 @@ export class ModelTrainingService {
       const filmEnhancement = "shot on Hasselblad X2D 100C, 90mm lens, heavy 35mm film grain, matte skin finish, authentic skin texture with visible pores, natural imperfections, analog film photography aesthetic, raw film negative quality";
       const fashionEnhancement = "wearing designer pieces, tailored clothing, luxury materials, sophisticated styling, elegant feminine fashion, high-end accessories, refined aesthetic";
       const environmentalEnhancement = "full scene visible, environmental context, lifestyle photography not portrait, editorial lifestyle moment";
+      const hairColorConsistency = "consistent hair color, blonde hair, natural blonde tone";
+      const subtleRetouching = "subtle light retouching, softened harsh lines, gentle skin smoothing while maintaining realistic texture, natural facial refinement, editorial skin enhancement";
       
-      finalPrompt = `${basePrompt}, ${filmEnhancement}, ${fashionEnhancement}, ${environmentalEnhancement}`;
+      let finalPrompt = `${basePrompt}, ${hairColorConsistency}, ${filmEnhancement}, ${fashionEnhancement}, ${environmentalEnhancement}, ${subtleRetouching}`;
       
       console.log('Original prompt:', customPrompt);
       console.log('Final prompt for generation:', finalPrompt);
@@ -363,7 +365,7 @@ export class ModelTrainingService {
         version: modelToUse,
         input: {
           prompt: finalPrompt,
-          negative_prompt: "portrait, headshot, passport photo, studio shot, centered face, isolated subject, corporate headshot, ID photo, school photo, posed, glossy skin, plastic skin, digital perfection, overly polished, artificial lighting, fake appearance, retouched skin, airbrushed, perfect skin, flawless complexion, digital enhancement, beauty filter, smoothed skin, unrealistic skin texture, synthetic appearance",
+          negative_prompt: "portrait, headshot, passport photo, studio shot, centered face, isolated subject, corporate headshot, ID photo, school photo, posed, glossy skin, plastic skin, overly polished, artificial lighting, fake appearance, heavily airbrushed, perfect skin, flawless complexion, heavy digital enhancement, strong beauty filter, unrealistic skin texture, synthetic appearance, dark hair, brunette hair, black hair, inconsistent hair color",
           num_outputs: count,
           aspect_ratio: "4:3", // Wider aspect for environmental scenes
           output_format: "jpg",
