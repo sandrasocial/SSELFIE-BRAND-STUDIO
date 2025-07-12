@@ -456,93 +456,300 @@ What vibe are we creating today?`;
     };
   }
   
-  // Create Editorial B&W style buttons
+  // Create Editorial B&W style buttons - DYNAMIC generation
   private static createEditorialBWButtons(userId: string): StyleButton[] {
+    const randomId = Math.random().toString(36).substr(2, 9);
+    const cameras = this.getRandomCameras('editorial', 3);
+    const textures = this.getRandomTextures(3);
+    const editorialSettings = this.getEditorialBWSettings();
+    
     return [
       {
-        id: 'kate-moss-raw',
-        name: 'Raw & Powerful',
-        description: 'Intense gaze, dramatic shadows, messy hair perfection',
-        prompt: `user${userId} woman, editorial black and white portrait, shot on Hasselblad X2D with 80mm lens, dramatic studio lighting, messy hair with face-framing pieces, minimal makeup, direct intense gaze, visible skin texture and pores, high contrast monochrome, heavy 35mm film grain, matte skin finish, Kate Moss editorial inspiration`,
-        camera: 'Hasselblad X2D + 80mm',
-        texture: 'Heavy film grain, high contrast'
+        id: `editorial-bw-${randomId}-1`,
+        name: editorialSettings[0].name,
+        description: editorialSettings[0].description,
+        prompt: `user${userId} woman, ${editorialSettings[0].scene}, ${cameras[0]}, ${editorialSettings[0].lighting}, ${editorialSettings[0].styling}, ${editorialSettings[0].mood}, ${textures[0]}`,
+        camera: cameras[0].split(',')[0],
+        texture: textures[0]
       },
       {
-        id: 'window-light-soft',
-        name: 'Soft & Intimate', 
-        description: 'Window light, vulnerable expression, authentic beauty',
-        prompt: `user${userId} woman, natural window light portrait, shot on Leica M11 Monochrom with 50mm lens, soft directional lighting, eyes closed or looking down, serene expression, natural hair texture, bare shoulders, black and white film aesthetic, visible skin detail, authentic moment captured`,
-        camera: 'Leica M11 Monochrom + 50mm',
-        texture: 'Soft film grain, natural contrast'
+        id: `editorial-bw-${randomId}-2`,
+        name: editorialSettings[1].name,
+        description: editorialSettings[1].description,
+        prompt: `user${userId} woman, ${editorialSettings[1].scene}, ${cameras[1]}, ${editorialSettings[1].lighting}, ${editorialSettings[1].styling}, ${editorialSettings[1].mood}, ${textures[1]}`,
+        camera: cameras[1].split(',')[0],
+        texture: textures[1]
       },
       {
-        id: 'artistic-shadows',
-        name: 'Artistic & Mysterious',
-        description: 'Shadow play, blinds pattern, dramatic mood',
-        prompt: `user${userId} woman, dramatic shadow portrait, shot on Canon EOS R5 with 85mm lens, venetian blinds creating shadow stripes, mysterious expression, black outfit, artistic lighting patterns, high contrast black and white, shadow and light interplay, editorial fashion mood`,
-        camera: 'Canon EOS R5 + 85mm',
-        texture: 'Pronounced grain, artistic contrast'
+        id: `editorial-bw-${randomId}-3`,
+        name: editorialSettings[2].name,
+        description: editorialSettings[2].description,
+        prompt: `user${userId} woman, ${editorialSettings[2].scene}, ${cameras[2]}, ${editorialSettings[2].lighting}, ${editorialSettings[2].styling}, ${editorialSettings[2].mood}, ${textures[2]}`,
+        camera: cameras[2].split(',')[0],
+        texture: textures[2]
       }
     ];
   }
   
-  // Create Lifestyle style buttons  
+  // Create Lifestyle style buttons - DYNAMIC generation based on context
   private static createLifestyleStyleButtons(userId: string, detectedStyles: string[]): StyleButton[] {
+    const randomId = Math.random().toString(36).substr(2, 9);
+    const timestamp = Date.now().toString().substr(-4);
+    
+    // Dynamically select different camera/setting combinations
+    const cameras = this.getRandomCameras('lifestyle', 3);
+    const textures = this.getRandomTextures(3);
+    const settings = this.getLifestyleSettings(detectedStyles);
+    
     return [
       {
-        id: 'beach-club-candid',
-        name: 'Effortless Beach Goddess',
-        description: 'Full body, walking away, not looking at camera',
-        prompt: `user${userId} woman, full body lifestyle shot, walking away from camera at luxury beach club, shot on Canon EOS R5 with 35mm lens, natural golden hour lighting, flowing summer dress, hair moving in breeze, Mediterranean setting, candid moment captured, not looking at camera, heavy 35mm film grain, matte skin finish`,
-        camera: 'Canon EOS R5 + 35mm',
-        texture: 'Natural film grain, golden hour'
+        id: `lifestyle-${randomId}-1`,
+        name: settings[0].name,
+        description: settings[0].description,
+        prompt: `user${userId} woman, ${settings[0].scene}, ${cameras[0]}, ${settings[0].lighting}, ${settings[0].styling}, ${settings[0].pose}, ${textures[0]}`,
+        camera: cameras[0].split(',')[0], // Extract just camera name
+        texture: textures[0]
       },
       {
-        id: 'cafe-street-style',
-        name: 'European Street Chic',
-        description: 'Full body street style, mid-stride confidence',
-        prompt: `user${userId} woman, full body street style, walking past European cafe, shot on Leica Q2 with 28mm lens, natural daylight, oversized blazer, confident stride, looking ahead not at camera, cobblestone street setting, candid lifestyle moment, sophisticated casual styling, film photography aesthetic`,
-        camera: 'Leica Q2 + 28mm',
-        texture: 'Street photography grain'
+        id: `lifestyle-${randomId}-2`,
+        name: settings[1].name,
+        description: settings[1].description,
+        prompt: `user${userId} woman, ${settings[1].scene}, ${cameras[1]}, ${settings[1].lighting}, ${settings[1].styling}, ${settings[1].pose}, ${textures[1]}`,
+        camera: cameras[1].split(',')[0],
+        texture: textures[1]
       },
       {
-        id: 'rooftop-sunset',
-        name: 'Sunset Contemplation',
-        description: 'Looking at view, atmospheric lighting, full environmental',
-        prompt: `user${userId} woman, full body environmental shot, looking at sunset view, shot on Sony A7R V with 50mm lens, rooftop or balcony setting, golden hour atmospheric lighting, silhouette with warm backlighting, contemplative pose, not facing camera, luxury lifestyle setting, cinematic mood, film grain texture`,
-        camera: 'Sony A7R V + 50mm', 
-        texture: 'Cinematic film grain'
+        id: `lifestyle-${randomId}-3`,
+        name: settings[2].name,
+        description: settings[2].description,
+        prompt: `user${userId} woman, ${settings[2].scene}, ${cameras[2]}, ${settings[2].lighting}, ${settings[2].styling}, ${settings[2].pose}, ${textures[2]}`,
+        camera: cameras[2].split(',')[0],
+        texture: textures[2]
       }
     ];
   }
   
-  // Create General style buttons
+  // Create General style buttons - DYNAMIC generation
   private static createGeneralStyleButtons(userId: string): StyleButton[] {
+    const randomId = Math.random().toString(36).substr(2, 9);
+    const cameras = [
+      this.getRandomCameras('editorial', 1)[0],
+      this.getRandomCameras('lifestyle', 1)[0], 
+      this.getRandomCameras('portrait', 1)[0]
+    ];
+    const textures = this.getRandomTextures(3);
+    const generalSettings = this.getGeneralSettings();
+    
     return [
       {
-        id: 'editorial-chic',
+        id: `general-${randomId}-1`,
+        name: generalSettings[0].name,
+        description: generalSettings[0].description,
+        prompt: `user${userId} woman, ${generalSettings[0].scene}, ${cameras[0]}, ${generalSettings[0].lighting}, ${generalSettings[0].styling}, ${generalSettings[0].mood}, ${textures[0]}`,
+        camera: cameras[0].split(',')[0],
+        texture: textures[0]
+      },
+      {
+        id: `general-${randomId}-2`,
+        name: generalSettings[1].name,
+        description: generalSettings[1].description,
+        prompt: `user${userId} woman, ${generalSettings[1].scene}, ${cameras[1]}, ${generalSettings[1].lighting}, ${generalSettings[1].styling}, ${generalSettings[1].mood}, ${textures[1]}`,
+        camera: cameras[1].split(',')[0],
+        texture: textures[1]
+      },
+      {
+        id: `general-${randomId}-3`,
+        name: generalSettings[2].name,
+        description: generalSettings[2].description,
+        prompt: `user${userId} woman, ${generalSettings[2].scene}, ${cameras[2]}, ${generalSettings[2].lighting}, ${generalSettings[2].styling}, ${generalSettings[2].mood}, ${textures[2]}`,
+        camera: cameras[2].split(',')[0],
+        texture: textures[2]
+      }
+    ];
+  }
+  
+  // Helper method to get random cameras for different styles
+  private static getRandomCameras(style: string, count: number): string[] {
+    const cameraSpecs = CAMERA_SPECS[style] || CAMERA_SPECS.portrait;
+    const shuffled = [...cameraSpecs].sort(() => 0.5 - Math.random());
+    return shuffled.slice(0, count);
+  }
+  
+  // Helper method to get random textures
+  private static getRandomTextures(count: number): string[] {
+    const shuffled = [...TEXTURE_SPECS].sort(() => 0.5 - Math.random());
+    return shuffled.slice(0, count);
+  }
+  
+  // Helper method to get dynamic lifestyle settings based on detected styles
+  private static getLifestyleSettings(detectedStyles: string[]): Array<{name: string, description: string, scene: string, lighting: string, styling: string, pose: string}> {
+    const allSettings = [
+      {
+        name: 'Mediterranean Escape',
+        description: 'Walking away, ocean breeze, golden hour magic',
+        scene: 'full body lifestyle shot, walking along Mediterranean coastline',
+        lighting: 'natural golden hour lighting, warm backlighting',
+        styling: 'flowing summer dress, hair moving in ocean breeze',
+        pose: 'walking away from camera, not looking back, candid movement'
+      },
+      {
+        name: 'Parisian Morning',
+        description: 'Café culture, cobblestone confidence, effortless chic',
+        scene: 'full body street style, stepping out of Parisian café',
+        lighting: 'soft morning sunlight, natural street lighting',
+        styling: 'oversized blazer, designer handbag, coffee cup in hand',
+        pose: 'mid-stride, confident walk, looking ahead not at camera'
+      },
+      {
+        name: 'Rooftop Contemplation',
+        description: 'City views, sunset silhouette, atmospheric mood',
+        scene: 'full body environmental shot, rooftop terrace overlooking city',
+        lighting: 'dramatic sunset backlighting, silhouette with warm glow',
+        styling: 'elegant evening attire, hair flowing in evening breeze',
+        pose: 'looking at city view, contemplative pose, profile angle'
+      },
+      {
+        name: 'Garden Sanctuary',
+        description: 'Natural beauty, morning dew, peaceful energy',
+        scene: 'full body lifestyle shot, walking through luxury garden',
+        lighting: 'soft morning light filtering through leaves',
+        styling: 'flowing midi dress, natural makeup, barefoot elegance',
+        pose: 'gentle walk among flowers, not facing camera, serene moment'
+      },
+      {
+        name: 'Urban Explorer',
+        description: 'Street art, city energy, confident movement',
+        scene: 'full body street photography, urban architectural backdrop',
+        lighting: 'natural city daylight, dramatic shadows',
+        styling: 'casual chic outfit, statement accessories, confident styling',
+        pose: 'walking through urban space, dynamic movement, looking forward'
+      },
+      {
+        name: 'Beach Club Goddess',
+        description: 'Luxury resort, sunset glow, effortless elegance',
+        scene: 'full body luxury lifestyle, walking away from beachside club',
+        lighting: 'golden hour resort lighting, warm atmospheric glow',
+        styling: 'flowing resort wear, designer sunglasses, beach club elegance',
+        pose: 'walking away on deck, hair flowing, not looking at camera'
+      }
+    ];
+    
+    // Shuffle and return 3 random settings
+    const shuffled = [...allSettings].sort(() => 0.5 - Math.random());
+    return shuffled.slice(0, 3);
+  }
+  
+  // Helper method for Editorial B&W settings
+  private static getEditorialBWSettings(): Array<{name: string, description: string, scene: string, lighting: string, styling: string, mood: string}> {
+    const allSettings = [
+      {
+        name: 'Kate Moss Raw Power',
+        description: 'Intense gaze, dramatic shadows, messy hair perfection',
+        scene: 'editorial black and white portrait',
+        lighting: 'dramatic studio lighting with harsh shadows',
+        styling: 'messy hair with face-framing pieces, minimal makeup',
+        mood: 'direct intense gaze, visible skin texture, high contrast monochrome'
+      },
+      {
+        name: 'Window Light Poetry',
+        description: 'Soft natural light, vulnerable expression, intimate beauty',
+        scene: 'natural window light portrait',
+        lighting: 'soft directional window lighting',
+        styling: 'natural hair texture, bare shoulders, minimal styling',
+        mood: 'eyes closed or looking down, serene expression, authentic moment'
+      },
+      {
+        name: 'Shadow Play Drama',
+        description: 'Venetian blinds, pattern shadows, artistic mystery',
+        scene: 'dramatic shadow portrait with venetian blinds',
+        lighting: 'harsh directional light creating shadow stripes',
+        styling: 'black outfit, minimal makeup, sophisticated styling',
+        mood: 'mysterious expression, artistic lighting patterns, high contrast'
+      },
+      {
+        name: 'Editorial Vulnerability',
+        description: 'Raw emotion, authentic beauty, fashion vulnerability',
+        scene: 'fashion editorial portrait with emotional depth',
+        lighting: 'studio lighting with emotional shadows',
+        styling: 'designer clothing, natural hair movement, authentic styling',
+        mood: 'vulnerable expression, authentic emotion, fashion sophistication'
+      },
+      {
+        name: 'Minimalist Power',
+        description: 'Clean lines, strong presence, editorial sophistication',
+        scene: 'minimalist editorial portrait',
+        lighting: 'clean studio lighting with defined shadows',
+        styling: 'sleek hair styling, designer clothing, minimal accessories',
+        mood: 'confident presence, direct gaze, editorial sophistication'
+      },
+      {
+        name: 'Film Noir Elegance',
+        description: 'Classic Hollywood, dramatic lighting, timeless beauty',
+        scene: 'film noir inspired portrait',
+        lighting: 'dramatic chiaroscuro lighting',
+        styling: 'classic Hollywood styling, elegant hair, vintage inspiration',
+        mood: 'mysterious elegance, classic beauty, noir sophistication'
+      }
+    ];
+    
+    const shuffled = [...allSettings].sort(() => 0.5 - Math.random());
+    return shuffled.slice(0, 3);
+  }
+  
+  // Helper method for General settings
+  private static getGeneralSettings(): Array<{name: string, description: string, scene: string, lighting: string, styling: string, mood: string}> {
+    const allSettings = [
+      {
         name: 'Editorial Sophistication',
         description: 'High fashion magazine vibe, professional styling',
-        prompt: `user${userId} woman, editorial fashion portrait, shot on Hasselblad X2D with 80mm lens, professional studio lighting, sophisticated styling, designer clothing, confident pose, high fashion aesthetic, heavy 35mm film grain, matte skin finish, editorial sophistication`,
-        camera: 'Hasselblad X2D + 80mm',
-        texture: 'Professional film grain'
+        scene: 'editorial fashion portrait',
+        lighting: 'professional studio lighting',
+        styling: 'sophisticated styling, designer clothing',
+        mood: 'confident pose, high fashion aesthetic, editorial sophistication'
       },
       {
-        id: 'lifestyle-natural',
-        name: 'Natural Lifestyle',
+        name: 'Natural Lifestyle Grace',
         description: 'Candid moments, environmental storytelling',
-        prompt: `user${userId} woman, natural lifestyle photography, shot on Canon EOS R5 with 50mm lens, natural lighting, environmental setting, authentic candid moment, relaxed styling, storytelling composition, heavy 35mm film grain, matte skin finish, lifestyle photography`,
-        camera: 'Canon EOS R5 + 50mm',
-        texture: 'Natural film grain'
+        scene: 'natural lifestyle photography',
+        lighting: 'natural environmental lighting',
+        styling: 'relaxed styling, authentic wardrobe',
+        mood: 'authentic candid moment, storytelling composition, lifestyle grace'
       },
       {
-        id: 'business-professional',
-        name: 'Business Professional',
-        description: 'Corporate confidence, professional styling',
-        prompt: `user${userId} woman, professional business portrait, shot on Sony A7R V with 85mm lens, clean professional lighting, business attire, confident professional pose, corporate setting, sophisticated styling, heavy 35mm film grain, matte skin finish, business photography`,
-        camera: 'Sony A7R V + 85mm',
-        texture: 'Clean film grain'
+        name: 'Business Executive',
+        description: 'Corporate confidence, professional authority',
+        scene: 'professional business portrait',
+        lighting: 'clean professional lighting',
+        styling: 'business attire, professional styling',
+        mood: 'confident professional pose, corporate setting, executive presence'
+      },
+      {
+        name: 'Creative Visionary',
+        description: 'Artistic expression, creative energy, innovative spirit',
+        scene: 'creative portrait with artistic elements',
+        lighting: 'dynamic creative lighting',
+        styling: 'artistic styling, creative wardrobe choices',
+        mood: 'creative expression, innovative pose, artistic vision'
+      },
+      {
+        name: 'Luxury Lifestyle',
+        description: 'Elevated living, sophisticated elegance, premium aesthetic',
+        scene: 'luxury lifestyle portrait',
+        lighting: 'sophisticated ambient lighting',
+        styling: 'luxury fashion, elegant accessories',
+        mood: 'sophisticated presence, luxury aesthetic, elevated lifestyle'
+      },
+      {
+        name: 'Authentic Beauty',
+        description: 'Natural radiance, genuine expression, timeless appeal',
+        scene: 'natural beauty portrait',
+        lighting: 'soft natural lighting',
+        styling: 'minimal makeup, natural hair, authentic styling',
+        mood: 'genuine expression, natural radiance, authentic beauty'
       }
     ];
+    
+    const shuffled = [...allSettings].sort(() => 0.5 - Math.random());
+    return shuffled.slice(0, 3);
   }
 }
