@@ -20,56 +20,56 @@ const PROMPT_COLLECTIONS = {
         name: 'Arms to the Sky',
         category: 'Ocean Healing',
         description: "Perfect for when you need that emotional release moment. Think ocean waves, arms stretched toward the sky, letting everything go.",
-        prompt: '[triggerword] woman standing at ocean edge, voluminous hair flowing with natural body and movement, arms raised to sky in release, waves washing over feet, wearing flowing earth-toned top and cream pants, overcast moody sky, muted color palette, emotional liberation moment, healing journey photography, heavy 35mm film grain, gentle skin smoothing while maintaining realistic texture, natural facial refinement, editorial skin enhancement'
+        prompt: '[triggerword] woman standing at ocean edge, voluminous hair flowing with natural body and movement, arms raised to sky in release, waves washing over feet, wearing flowing earth-toned top and cream pants, overcast moody sky, muted color palette, emotional liberation moment, shot on Hasselblad X2D 100C with 90mm lens, natural ocean lighting with dramatic sky, healing journey photography, heavy 35mm film grain, matte skin finish, authentic skin texture with visible pores, pronounced grain structure, gentle skin smoothing while maintaining realistic texture, natural facial refinement, editorial skin enhancement'
       },
       {
         id: 'sunset-contemplation',
         name: 'Sunset Contemplation',
         category: 'Ocean Healing',
         description: "That golden hour magic where you're just... peaceful. Beach vibes, flowing dress, looking toward your future.",
-        prompt: '[triggerword] woman sitting on beach at golden hour, voluminous hair flowing beautifully in ocean breeze with natural body and movement, off-shoulder white dress, looking at horizon, warm sunset glow on skin, peaceful expression, mindfulness moment, coastal healing aesthetic, heavy 35mm film grain, gentle skin smoothing while maintaining realistic texture, natural facial refinement, editorial skin enhancement'
+        prompt: '[triggerword] woman sitting on beach at golden hour, voluminous hair flowing beautifully in ocean breeze with natural body and movement, off-shoulder white dress, looking at horizon, warm sunset glow on skin, peaceful expression, mindfulness moment, shot on Canon EOS R5 with 85mm f/1.2L lens, dramatic golden hour backlighting, coastal healing aesthetic, heavy 35mm film grain, matte complexion, authentic grain pattern, gentle skin smoothing while maintaining realistic texture, natural facial refinement, editorial skin enhancement'
       },
       {
         id: 'wave-surrender',
         name: 'Wave Surrender',
         category: 'Ocean Healing',
         description: "The ultimate letting go shot. You're in the waves, dress flowing, completely surrendering to the healing power of water.",
-        prompt: '[triggerword] woman in ocean waves, voluminous hair wild with salt water showing natural body and movement, white flowing dress getting wet, arms spread in surrender, sunset backlighting, letting go moment, therapeutic ocean photography, healing journey, heavy 35mm film grain, gentle skin smoothing while maintaining realistic texture, natural facial refinement, editorial skin enhancement'
+        prompt: '[triggerword] woman in ocean waves, voluminous hair wild with salt water showing natural body and movement, white flowing dress getting wet, arms spread in surrender, sunset backlighting, letting go moment, shot on Leica SL2 with 90mm APO-Summicron lens, dramatic sunset ocean lighting, therapeutic ocean photography, healing journey, heavy 35mm film grain, raw film negative quality, visible grain structure, gentle skin smoothing while maintaining realistic texture, natural facial refinement, editorial skin enhancement'
       },
       {
         id: 'beach-meditation',
         name: 'Beach Meditation',
         category: 'Ocean Healing',
         description: "Peaceful meditation by the ocean. Lotus pose, waves in background, that zen moment where everything feels aligned.",
-        prompt: '[triggerword] woman in lotus pose on sand, voluminous hair with natural body and movement, black outfit, eyes closed in meditation, ocean waves in background, golden hour side lighting, serene expression, mindfulness practice, beach yoga aesthetic, heavy 35mm film grain, gentle skin smoothing while maintaining realistic texture, natural facial refinement, editorial skin enhancement'
+        prompt: '[triggerword] woman in lotus pose on sand, voluminous hair with natural body and movement, black outfit, eyes closed in meditation, ocean waves in background, golden hour side lighting, serene expression, mindfulness practice, shot on Nikon Z9 with 50mm f/1.2S lens, soft golden hour lighting, beach yoga aesthetic, heavy 35mm film grain, Kodak Portra 400 film aesthetic, matte complexion, gentle skin smoothing while maintaining realistic texture, natural facial refinement, editorial skin enhancement'
       },
       {
         id: 'candlelit-meditation',
         name: 'Candlelit Meditation',
         category: 'Inner Peace',
         description: "Sacred space vibes. Surrounded by candlelight, finding your center in the most beautiful healing sanctuary.",
-        prompt: '[triggerword] woman in meditation pose, voluminous hair with natural body and movement, black tank and leggings, surrounded by candles, indoor zen space, warm candlelight glow on face, eyes closed in peace, healing sanctuary, mindfulness photography, heavy 35mm film grain, gentle skin smoothing while maintaining realistic texture, natural facial refinement, editorial skin enhancement'
+        prompt: '[triggerword] woman in meditation pose, voluminous hair with natural body and movement, black tank and leggings, surrounded by candles, indoor zen space, warm candlelight glow on face, eyes closed in peace, healing sanctuary, shot on Sony A7R V with 85mm f/1.4 GM lens, intimate candlelight illumination, mindfulness photography, heavy 35mm film grain, analog film photography aesthetic, natural skin imperfections, gentle skin smoothing while maintaining realistic texture, natural facial refinement, editorial skin enhancement'
       },
       {
         id: 'morning-ritual',
         name: 'Morning Ritual',
         category: 'Inner Peace',
         description: "That quiet morning moment with tea and intention. Window light, plants, just you starting your day mindfully.",
-        prompt: '[triggerword] woman in morning meditation, voluminous hair with natural body and movement, sitting by window with natural light, holding warm tea, peaceful expression, plants visible, cozy healing space, daily mindfulness practice, wellness lifestyle, heavy 35mm film grain, gentle skin smoothing while maintaining realistic texture, natural facial refinement, editorial skin enhancement'
+        prompt: '[triggerword] woman in morning meditation, voluminous hair with natural body and movement, sitting by window with natural light, holding warm tea, peaceful expression, plants visible, cozy healing space, daily mindfulness practice, shot on Fujifilm GFX100S with 110mm f/2 lens, soft morning window lighting, wellness lifestyle, heavy 35mm film grain, pronounced texture, authentic grain pattern, gentle skin smoothing while maintaining realistic texture, natural facial refinement, editorial skin enhancement'
       },
       {
         id: 'forest-grounding',
         name: 'Forest Grounding',
         category: 'Nature Connection',
         description: "Connecting with Mother Earth. Standing among trees, touching bark, grounding yourself in nature's healing energy.",
-        prompt: '[triggerword] woman standing among trees, voluminous hair with natural body and movement, touching tree trunk, earthing practice, natural clothing, dappled forest light, connection with nature, grounding energy, forest therapy moment, heavy 35mm film grain, gentle skin smoothing while maintaining realistic texture, natural facial refinement, editorial skin enhancement'
+        prompt: '[triggerword] woman standing among trees, voluminous hair with natural body and movement, touching tree trunk, earthing practice, natural clothing, dappled forest light, connection with nature, grounding energy, shot on Leica Q2 with 28mm f/1.7 lens, natural forest lighting with dappled shadows, forest therapy moment, heavy 35mm film grain, film negative quality, visible grain structure, gentle skin smoothing while maintaining realistic texture, natural facial refinement, editorial skin enhancement'
       },
       {
         id: 'yoga-flow',
         name: 'Yoga Flow',
         category: 'Movement Medicine',
         description: "Movement as medicine. Captured mid-flow, showing your strength and grace through mindful movement.",
-        prompt: '[triggerword] woman in yoga pose, voluminous hair with natural body and movement, flowing movement captured, natural light studio, black yoga wear, graceful strength, moving meditation, healing through movement, wellness photography, heavy 35mm film grain, gentle skin smoothing while maintaining realistic texture, natural facial refinement, editorial skin enhancement'
+        prompt: '[triggerword] woman in yoga pose, voluminous hair with natural body and movement, flowing movement captured, natural light studio, black yoga wear, graceful strength, moving meditation, healing through movement, shot on Canon R6 Mark II with 35mm f/1.8 lens, soft natural studio lighting, wellness photography, heavy 35mm film grain, matte skin finish, authentic texture with visible pores, gentle skin smoothing while maintaining realistic texture, natural facial refinement, editorial skin enhancement'
       }
     ]
   },
