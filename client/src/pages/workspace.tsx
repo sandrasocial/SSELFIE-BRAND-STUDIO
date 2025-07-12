@@ -580,6 +580,71 @@ export default function Workspace() {
                 </div>
               </Link>
 
+              {/* Sandra AI - Dedicated Chat Interface */}
+              <Link href="/sandra-ai">
+                <div style={{
+                  position: 'relative',
+                  overflow: 'hidden',
+                  background: '#f5f5f5',
+                  aspectRatio: '4/5',
+                  cursor: 'pointer'
+                }}
+                className="tool-card">
+                  <img 
+                    src="https://replicate.delivery/xezq/tIR9rofcvTxuE61uMrnnMufXCv7A8aAaMtQpIQkvYej8YhfTB/out-0.jpg"
+                    alt="Sandra AI"
+                    style={{
+                      width: '100%',
+                      height: '100%',
+                      objectFit: 'cover',
+                      transition: 'transform 1000ms cubic-bezier(0.4, 0, 0.2, 1)'
+                    }}
+                    onMouseEnter={(e) => {
+                      e.target.style.transform = 'scale(1.05)';
+                    }}
+                    onMouseLeave={(e) => {
+                      e.target.style.transform = 'scale(1)';
+                    }}
+                  />
+                  <div style={{
+                    position: 'absolute',
+                    inset: 0,
+                    background: 'linear-gradient(to bottom, transparent 50%, rgba(10, 10, 10, 0.9) 100%)',
+                    opacity: 0,
+                    transition: 'opacity 500ms ease',
+                    display: 'flex',
+                    alignItems: 'flex-end',
+                    padding: '40px'
+                  }}
+                  onMouseEnter={(e) => {
+                    e.currentTarget.style.opacity = 1;
+                  }}
+                  onMouseLeave={(e) => {
+                    e.currentTarget.style.opacity = 0;
+                  }}>
+                    <div>
+                      <h4 style={{
+                        color: '#ffffff',
+                        fontSize: '11px',
+                        fontWeight: 400,
+                        letterSpacing: '0.3em',
+                        textTransform: 'uppercase',
+                        marginBottom: '8px'
+                      }}>
+                        SANDRA AI
+                      </h4>
+                      <p style={{
+                        color: 'rgba(255, 255, 255, 0.8)',
+                        fontSize: '14px',
+                        margin: 0
+                      }}>
+                        Personal brand strategy
+                      </p>
+                    </div>
+                  </div>
+                </div>
+              </Link>
+
               {/* Sandra AI Photoshoot Planning - Available after AI training */}
               <div className="tool-card">
                 <div style={{
@@ -622,14 +687,14 @@ export default function Workspace() {
                       marginBottom: '24px',
                       lineHeight: 1
                     }}>
-                      SANDRA<br/>PHOTO<br/>SHOOT
+                      AI<br/>PHOTO<br/>SHOOT
                     </h3>
                     <p style={{
                       fontSize: '16px',
                       lineHeight: 1.6,
                       fontWeight: 300
                     }}>
-                      {userModel?.trainingStatus === 'completed' ? 'Plan your perfect photoshoot' : 'Complete AI training to unlock'}
+                      {userModel?.trainingStatus === 'completed' ? 'Generate your brand photos' : 'Complete AI training to unlock'}
                     </p>
                   </div>
                   <div style={{
