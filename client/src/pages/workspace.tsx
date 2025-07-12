@@ -69,8 +69,18 @@ export default function Workspace() {
       image: SandraImages.flatlays.beauty
     },
     {
-      id: 'gallery',
+      id: 'flatlay-library',
       number: '05',
+      title: 'Flatlay Library',
+      subtitle: 'Curated lifestyle images for your brand',
+      status: 'ready',
+      statusText: 'Browse Collections',
+      link: '/flatlay-library',
+      image: SandraImages.flatlays.workspace1
+    },
+    {
+      id: 'gallery',
+      number: '06',
       title: 'Gallery', 
       subtitle: 'View and download your photos',
       status: aiImages.length > 0 ? 'active' : 'locked',
@@ -80,7 +90,7 @@ export default function Workspace() {
     },
     {
       id: 'sandra-mentor',
-      number: '06',
+      number: '07',
       title: 'Sandra Personal Brand Mentor',
       subtitle: 'AI guidance for your brand journey',
       status: 'ready',
@@ -90,7 +100,7 @@ export default function Workspace() {
     },
     {
       id: 'business',
-      number: '07',
+      number: '08',
       title: 'Build Your Business',
       subtitle: 'Landing pages, booking, payments',
       status: 'coming-soon',
@@ -100,7 +110,7 @@ export default function Workspace() {
     },
     {
       id: 'profile',
-      number: '08',
+      number: '09',
       title: 'Your Profile',
       subtitle: 'Account settings and preferences',
       status: 'ready',
@@ -233,7 +243,7 @@ export default function Workspace() {
                 Your Journey
               </p>
               <h2 className="font-times text-[clamp(2rem,4vw,4rem)] font-extralight tracking-[-0.01em] uppercase leading-none">
-                Eight Steps to Empire
+                Nine Steps to Empire
               </h2>
             </div>
 
