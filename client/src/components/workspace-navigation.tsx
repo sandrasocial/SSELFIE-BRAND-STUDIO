@@ -54,16 +54,16 @@ export const WorkspaceNavigation: React.FC = () => {
         left: 0,
         right: 0,
         zIndex: 1000,
-        background: scrolled ? 'rgba(255, 255, 255, 0.95)' : 'rgba(255, 255, 255, 0.95)',
+        background: scrolled ? 'rgba(255, 255, 255, 0.95)' : 'transparent',
         backdropFilter: 'blur(10px)',
-        borderBottom: '1px solid #e5e5e5',
-        padding: '20px 0',
+        borderBottom: scrolled ? '1px solid #e5e5e5' : 'none',
+        padding: 'clamp(16px, 3vh, 24px) 0',
         transition: 'all 300ms ease'
       }}>
         <div style={{
           maxWidth: '1400px',
           margin: '0 auto',
-          padding: '0 40px',
+          padding: '0 clamp(20px, 4vw, 40px)',
           display: 'flex',
           justifyContent: 'space-between',
           alignItems: 'center'
@@ -72,12 +72,12 @@ export const WorkspaceNavigation: React.FC = () => {
           <Link href="/workspace">
             <div style={{
               fontFamily: 'Times New Roman, serif',
-              fontSize: '20px',
+              fontSize: 'clamp(18px, 3vw, 22px)',
               fontWeight: 400,
               letterSpacing: '-0.01em',
-              color: '#0a0a0a',
+              color: scrolled ? '#0a0a0a' : '#ffffff',
               cursor: 'pointer',
-              transition: 'opacity 300ms ease'
+              transition: 'color 300ms ease, opacity 300ms ease'
             }}
             onMouseEnter={(e) => e.target.style.opacity = '0.6'}
             onMouseLeave={(e) => e.target.style.opacity = '1'}>
@@ -86,15 +86,15 @@ export const WorkspaceNavigation: React.FC = () => {
           </Link>
 
           {/* Desktop Navigation */}
-          <div className="hidden md:flex" style={{
+          <div className="hidden lg:flex" style={{
             display: 'flex',
             alignItems: 'center',
-            gap: '40px'
+            gap: 'clamp(24px, 3vw, 40px)'
           }}>
             {navItems.map((item) => (
               <Link key={item.path} href={item.path}>
                 <span style={{
-                  color: isActive(item.path) ? '#0a0a0a' : '#666666',
+                  color: scrolled ? (isActive(item.path) ? '#0a0a0a' : '#666666') : (isActive(item.path) ? '#ffffff' : '#ffffff80'),
                   fontSize: '11px',
                   fontWeight: 400,
                   letterSpacing: '0.3em',
@@ -128,7 +128,7 @@ export const WorkspaceNavigation: React.FC = () => {
               <button 
                 onClick={handleLogout}
                 style={{
-                  color: '#666666',
+                  color: scrolled ? '#666666' : '#ffffff80',
                   fontSize: '11px',
                   fontWeight: 400,
                   letterSpacing: '0.3em',
@@ -149,9 +149,9 @@ export const WorkspaceNavigation: React.FC = () => {
 
           {/* Mobile Menu Button */}
           <button
-            className="md:hidden"
+            className="lg:hidden"
             style={{
-              color: '#0a0a0a',
+              color: scrolled ? '#0a0a0a' : '#ffffff',
               fontSize: '11px',
               fontWeight: 400,
               letterSpacing: '0.3em',
@@ -173,7 +173,7 @@ export const WorkspaceNavigation: React.FC = () => {
 
       {/* Mobile Menu */}
       {mobileMenuOpen && (
-        <div className="md:hidden" style={{
+        <div className="lg:hidden" style={{
           position: 'fixed',
           top: 0,
           left: 0,
@@ -181,20 +181,23 @@ export const WorkspaceNavigation: React.FC = () => {
           bottom: 0,
           zIndex: 999,
           background: '#ffffff',
-          padding: '100px 40px 40px 40px'
+          padding: '100px clamp(20px, 4vw, 40px) 40px clamp(20px, 4vw, 40px)',
+          overflowY: 'auto'
         }}>
           <div style={{
             display: 'flex',
             flexDirection: 'column',
-            gap: '40px',
-            textAlign: 'center'
+            gap: 'clamp(30px, 5vh, 40px)',
+            textAlign: 'center',
+            maxWidth: '400px',
+            margin: '0 auto'
           }}>
             {navItems.map((item) => (
               <Link key={item.path} href={item.path}>
                 <span 
                   style={{
                     color: isActive(item.path) ? '#0a0a0a' : '#666666',
-                    fontSize: '16px',
+                    fontSize: 'clamp(14px, 3.5vw, 18px)',
                     fontWeight: 400,
                     letterSpacing: '0.3em',
                     textTransform: 'uppercase',
@@ -202,10 +205,12 @@ export const WorkspaceNavigation: React.FC = () => {
                     cursor: 'pointer',
                     transition: 'opacity 300ms ease',
                     display: 'block',
-                    padding: '20px 0',
+                    padding: 'clamp(16px, 4vw, 24px) 0',
                     borderBottom: '1px solid #e5e5e5'
                   }}
                   onClick={() => setMobileMenuOpen(false)}
+                  onTouchStart={(e) => e.target.style.opacity = '0.6'}
+                  onTouchEnd={(e) => e.target.style.opacity = '1'}
                 >
                   {item.label}
                 </span>

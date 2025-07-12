@@ -206,39 +206,49 @@ export default function Workspace() {
       {/* Minimalistic Navigation */}
       <WorkspaceNavigation />
       
-      {/* Hero Section - Minimalistic with Padding for Navigation */}
-      <section className="pt-32 pb-20 px-4 sm:px-6 lg:px-8 text-center bg-white">
-        <div className="max-w-6xl mx-auto">
-          <div className="text-xs tracking-[0.4em] uppercase text-gray-500 mb-8">
+      {/* Full Bleed Hero Section */}
+      <section className="relative min-h-screen flex items-center justify-center bg-black text-white overflow-hidden">
+        {/* Background Image */}
+        <div className="absolute inset-0 opacity-30">
+          <img 
+            src="https://replicate.delivery/xezq/tIR9rofcvTxuE61uMrnnMufXCv7A8aAaMtQpIQkvYej8YhfTB/out-0.jpg"
+            alt="Your SSELFIE Studio"
+            className="w-full h-full object-cover"
+          />
+        </div>
+        
+        {/* Hero Content */}
+        <div className="relative z-10 text-center max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="text-xs tracking-[0.4em] uppercase text-white/60 mb-8">
             Your Personal Brand Empire
           </div>
           
           <div className="mb-12">
-            <h1 className="font-serif text-4xl sm:text-6xl md:text-8xl lg:text-9xl font-light tracking-wide sm:tracking-wider md:tracking-widest uppercase leading-none mb-4 text-black">
+            <h1 className="font-serif text-4xl sm:text-6xl md:text-8xl lg:text-9xl xl:text-[10rem] font-light tracking-wide sm:tracking-wider md:tracking-widest uppercase leading-none mb-4">
               SSELFIE
             </h1>
-            <h2 className="font-serif text-xl sm:text-2xl md:text-4xl lg:text-5xl font-light tracking-wider uppercase text-gray-600">
+            <h2 className="font-serif text-xl sm:text-2xl md:text-4xl lg:text-5xl font-light tracking-wider uppercase text-white/90">
               STUDIO
             </h2>
           </div>
           
-          <p className="text-base sm:text-lg text-gray-600 max-w-2xl mx-auto mb-12">
+          <p className="text-base sm:text-lg text-white/80 max-w-2xl mx-auto mb-12">
             Where one selfie becomes a business.
           </p>
 
-          {/* Quick Stats */}
+          {/* Quick Stats in Hero */}
           <div className="flex flex-col sm:flex-row justify-center gap-8 sm:gap-12 text-center">
             <div>
-              <div className="text-2xl sm:text-3xl font-serif mb-2 text-black">{usageStats.used}</div>
-              <div className="text-xs tracking-[0.2em] uppercase text-gray-500">Photos Generated</div>
+              <div className="text-2xl sm:text-3xl font-serif mb-2">{usageStats.used}</div>
+              <div className="text-xs tracking-[0.2em] uppercase opacity-60">Photos Generated</div>
             </div>
             <div>
-              <div className="text-2xl sm:text-3xl font-serif mb-2 text-black">{journeySteps.filter(s => s.status === 'complete').length}</div>
-              <div className="text-xs tracking-[0.2em] uppercase text-gray-500">Steps Complete</div>
+              <div className="text-2xl sm:text-3xl font-serif mb-2">{journeySteps.filter(s => s.status === 'complete').length}</div>
+              <div className="text-xs tracking-[0.2em] uppercase opacity-60">Steps Complete</div>
             </div>
             <div>
-              <div className="text-2xl sm:text-3xl font-serif mb-2 text-black">{usageStats.total - usageStats.used}</div>
-              <div className="text-xs tracking-[0.2em] uppercase text-gray-500">Remaining This Month</div>
+              <div className="text-2xl sm:text-3xl font-serif mb-2">{usageStats.total - usageStats.used}</div>
+              <div className="text-xs tracking-[0.2em] uppercase opacity-60">Remaining This Month</div>
             </div>
           </div>
         </div>
