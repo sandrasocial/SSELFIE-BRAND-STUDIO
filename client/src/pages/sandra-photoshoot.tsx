@@ -1,6 +1,7 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { Navigation } from '@/components/navigation';
 import { SandraImages } from '@/lib/sandra-images';
+import { useToast } from '@/hooks/use-toast';
 
 interface StyleButton {
   id: string;
@@ -19,6 +20,8 @@ interface ChatMessage {
 }
 
 export default function SandraPhotoshootPage() {
+  const { toast } = useToast();
+
   // Pinterest starter prompts for immediate use
   const pinterestStarterPrompts: StyleButton[] = [
     {
@@ -213,6 +216,49 @@ Here are some starter prompts to get you going, or tell me what mood you're feel
     }
   };
 
+  const savePromptToLibrary = async (styleButton: StyleButton) => {
+    try {
+      const response = await fetch('/api/save-prompt-to-library', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          name: styleButton.name,
+          description: styleButton.description,
+          prompt: styleButton.prompt,
+          camera: styleButton.camera,
+          texture: styleButton.texture,
+          collection: 'Sandra Favorites',
+          userId: 'sandra_test_user_2025'
+        }),
+      });
+
+      if (response.ok) {
+        toast({
+          title: "Saved to Library",
+          description: `"${styleButton.name}" has been saved to your Custom Prompts Library`,
+        });
+        
+        const successMessage: ChatMessage = {
+          type: 'sandra',
+          message: `Perfect! I've saved "${styleButton.name}" to your Custom Prompts Library. You can access all your saved prompts anytime from your workspace!`,
+          timestamp: new Date().toISOString()
+        };
+        setMessages(prev => [...prev, successMessage]);
+      } else {
+        throw new Error('Failed to save prompt');
+      }
+    } catch (error) {
+      console.error('Error saving prompt to library:', error);
+      toast({
+        title: "Save Failed",
+        description: "There was an issue saving your prompt. Please try again.",
+        variant: "destructive",
+      });
+    }
+  };
+
   const handleKeyPress = (e: React.KeyboardEvent) => {
     if (e.key === 'Enter' && !e.shiftKey) {
       e.preventDefault();
@@ -359,12 +405,27 @@ Here are some starter prompts to get you going, or tell me what mood you're feel
                         <div className="mt-4 space-y-2 sm:space-y-3">
                           <div className="text-xs sm:text-sm font-medium mb-2">Choose Your Style:</div>
                           {message.styleButtons.map((button) => (
-                            <div key={button.id} className="border border-[#e0e0e0] p-2 sm:p-3 hover:bg-[#f0f0f0] transition-colors cursor-pointer touch-manipulation"
-                                 onClick={() => generateImages(button.prompt)}>
+                            <div key={button.id} className="border border-[#e0e0e0] p-2 sm:p-3 hover:bg-[#f0f0f0] transition-colors">
                               <div className="font-medium text-xs sm:text-sm mb-1">{button.name}</div>
                               <div className="text-[10px] sm:text-xs text-[#666666] mb-1 sm:mb-2">{button.description}</div>
-                              <div className="text-[10px] sm:text-xs text-[#999999]">
+                              <div className="text-[10px] sm:text-xs text-[#999999] mb-2">
                                 {button.camera} • {button.texture}
+                              </div>
+                              
+                              {/* Action Buttons */}
+                              <div className="flex flex-col sm:flex-row gap-2 mt-2">
+                                <button
+                                  onClick={() => generateImages(button.prompt)}
+                                  className="flex-1 px-3 py-2 bg-[#0a0a0a] text-white text-[10px] sm:text-xs font-medium tracking-[0.1em] uppercase hover:bg-[#333333] transition-colors touch-manipulation"
+                                >
+                                  Generate Now
+                                </button>
+                                <button
+                                  onClick={() => savePromptToLibrary(button)}
+                                  className="flex-1 px-3 py-2 border border-[#0a0a0a] text-[#0a0a0a] text-[10px] sm:text-xs font-medium tracking-[0.1em] uppercase hover:bg-[#f0f0f0] transition-colors touch-manipulation"
+                                >
+                                  Save to Library
+                                </button>
                               </div>
                             </div>
                           ))}
