@@ -39,11 +39,11 @@ export default function CustomPhotoshootLibrary() {
   // Save image to gallery function (selective saving)
   const saveToGallery = useCallback(async (imageUrl: string) => {
     try {
-      const mutation = await apiRequest('POST', '/api/ai-images', {
+      await apiRequest('POST', '/api/ai-images', {
         imageUrl,
-        prompt: selectedPrompt?.prompt || '',
-        camera: selectedPrompt?.camera || '',
-        texture: selectedPrompt?.texture || ''
+        prompt: 'Custom Library Image',
+        camera: 'Professional Camera',
+        texture: 'Film Grain Aesthetic'
       });
       
       toast({
@@ -61,7 +61,7 @@ export default function CustomPhotoshootLibrary() {
         variant: "destructive",
       });
     }
-  }, [selectedPrompt, queryClient, toast]);
+  }, [queryClient, toast]);
 
   // Generate images from saved prompt
   const generateFromSavedPrompt = useCallback(async (prompt: SavedPrompt) => {
