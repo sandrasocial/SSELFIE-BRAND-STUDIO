@@ -5,12 +5,12 @@
 export const SandraImages = {
   // HERO IMAGES (Full-bleed, dramatic)
   hero: {
-    homepage: "@assets/out-1 (1)_1752344371746.jpg", // Power pose
+    homepage: "https://i.postimg.cc/rwTG02cZ/out-1-23.png", // Power pose
     about: "https://i.postimg.cc/bNF14sGc/out-1-4.png", // Vulnerable but strong
     pricing: "https://i.postimg.cc/nrKdm7Vj/out-2-4.webp", // Confident business
     method: "https://i.postimg.cc/HkNwfjh8/out-2-14.jpg", // Teaching mode
     contact: "https://i.postimg.cc/HsrPfn0G/out-2-26.png", // Approachable
-    aiImages: "https://i.postimg.cc/4NG0n2wN/out-1-12.png", // Gallery mood
+    aiImages: "@assets/out-1 (1)_1752344371746.jpg", // Gallery mood
     ai: "https://i.postimg.cc/4NG0n2wN/out-1-12.png", // AI page hero
     dashboard: "https://i.postimg.cc/htszBH6F/file-47.png", // Flatlay
   },
