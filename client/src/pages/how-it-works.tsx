@@ -20,39 +20,47 @@ const steps = [
   {
     number: "03",
     title: "Watch the magic",
-    description: "My custom SSELFIE AI model creates a gallery of editorial, on-brand images instantly. No more waiting weeks for a photoshoot.",
+    description: "My custom SSELFIE AI model creates 100-300 editorial, on-brand images instantly (depending on your plan). No more waiting weeks for a photoshoot.",
     image: SandraImages.editorial.laptop1
   },
   {
     number: "04",
-    title: "One-click studio setup",
-    description: "Choose your favorite images, pick your luxury layout, plug in your story. If you can text, you can do this.",
+    title: "Choose your plan",
+    description: "SSELFIE Studio ($29): AI photoshoot + luxury flatlays + brand templates. SSELFIE Studio PRO ($67): Everything plus Sandra Personal Brand AI Agent.",
     image: SandraImages.editorial.laptop2
   },
   {
     number: "05",
     title: "Everything falls into place",
-    description: "Your best selfies drop into every page. Booking, payments, links connect with one click. Share your page: sselfie.studio/yourname",
+    description: "Your best selfies drop into every page. Booking, payments, custom domain connect with one click. PRO users get 24/7 strategy guidance from my AI twin.",
     image: SandraImages.editorial.laughing
   }
 ];
 
 const faqs = [
   {
+    question: "What's the difference between the two plans?",
+    answer: "SSELFIE Studio ($29): 100 AI images + luxury flatlay collections + brand templates. SSELFIE Studio PRO ($67): 300 AI images + Sandra Personal Brand AI Agent for 24/7 strategy guidance."
+  },
+  {
     question: "Do I need to be tech-savvy?",
-    answer: "Nope. If you can text, you can do this. Everything is one-click simple."
+    answer: "Nope. If you can text, you can do this. Everything is one-click simple for both plans."
   },
   {
     question: "What if I don't have professional photos?",
-    answer: "That's the point. Just your phone and window light. I'll show you exactly how."
+    answer: "That's the point. Just your phone and window light. I'll show you exactly how to take selfies that work."
   },
   {
     question: "How long does this actually take?",
     answer: "About 20 minutes from first selfie to live business page. Most women do it between coffee and school pickup."
   },
   {
-    question: "What if I want to change something later?",
-    answer: "Change anything, anytime. Upload new selfies, switch colors, update your offer. No extra fees."
+    question: "What's this Sandra AI Agent about?",
+    answer: "PRO users get to chat with my AI twin 24/7 for brand strategy, content ideas, and business guidance. She knows exactly how I built this and can help you do the same."
+  },
+  {
+    question: "Can I upgrade later?",
+    answer: "Absolutely. Start with Studio, upgrade to PRO anytime when you're ready for personal brand strategy and more AI images."
   }
 ];
 
@@ -191,7 +199,7 @@ export default function HowItWorksPage() {
               Stop waiting for the perfect moment. Start with what you have, where you are, right now.
             </p>
             
-            <Link href="/pricing" className="inline-block text-white border border-white/30 hover:bg-white hover:text-[#0a0a0a] transition-colors duration-300 text-[11px] tracking-[0.3em] uppercase no-underline px-12 py-6 font-light font-inter">
+            <Link href="/" className="inline-block text-white border border-white/30 hover:bg-white hover:text-[#0a0a0a] transition-colors duration-300 text-[11px] tracking-[0.3em] uppercase no-underline px-12 py-6 font-light font-inter">
               GET STARTED
             </Link>
           </div>
