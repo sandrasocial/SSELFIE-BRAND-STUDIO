@@ -2054,16 +2054,8 @@ Consider this workflow optimized and ready for implementation! ⚙️`
       const { ModelTrainingService } = await import('./model-training-service');
       const result = await ModelTrainingService.generateUserImages(userId, prompt, count);
       
-      // Save new images to AI gallery
-      for (const imageUrl of result.images || []) {
-        await storage.saveAIImage({
-          userId,
-          imageUrl,
-          prompt,
-          style: 'photoshoot',
-          generationStatus: 'completed'
-        });
-      }
+      // Images are now only saved when user explicitly chooses to save them
+      // No automatic saving to prevent duplicates in gallery
       
       res.json({ 
         images: result.images || [],
