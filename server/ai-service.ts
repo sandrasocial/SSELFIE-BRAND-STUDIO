@@ -139,12 +139,20 @@ export class AIService {
       switch (status.status) {
         case 'succeeded':
           if (status.output && status.output.length > 0) {
-            // Store all generated images as JSON array for user selection
+            // Store images permanently in S3 before updating database
+            const { ImageStorageService } = await import('./image-storage-service');
+            const permanentUrls = await ImageStorageService.storeMultipleImages(
+              status.output, 
+              'user_generated', // Use generic prefix for AI generations
+              aiImageId.toString()
+            );
+            
+            // Store all permanent S3 URLs as JSON array for user selection
             await storage.updateGeneratedImage(aiImageId, {
-              image_urls: JSON.stringify(status.output), // Store all 4 options
+              image_urls: JSON.stringify(permanentUrls), // Store permanent S3 URLs
               generationStatus: 'completed'
             });
-            console.log('Successfully updated completed generation:', aiImageId);
+            console.log('Successfully updated completed generation with permanent URLs:', aiImageId);
           }
           break;
           

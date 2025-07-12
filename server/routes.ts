@@ -478,6 +478,30 @@ I have ALL collections ready - just tell me your mood! ✨`;
     }
   });
 
+  // Migration endpoint to fix broken image URLs
+  app.post('/api/migrate-images-to-s3', async (req: any, res) => {
+    try {
+      const userId = req.user?.claims?.sub || req.session?.userId || 'sandra_test_user_2025';
+      
+      console.log(`Starting image migration to S3 for user ${userId}...`);
+      
+      const { ImageStorageService } = await import('./image-storage-service');
+      await ImageStorageService.migrateTempImagesToS3(userId);
+      
+      res.json({ 
+        success: true, 
+        message: 'Migration completed - all images now stored permanently' 
+      });
+      
+    } catch (error) {
+      console.error('Migration error:', error);
+      res.status(500).json({ 
+        error: error.message,
+        message: 'Migration failed' 
+      });
+    }
+  });
+
   // Delete AI image route - BYPASS AUTH FOR TESTING
   app.delete('/api/ai-images/:id', async (req: any, res) => {
     try {
@@ -2109,11 +2133,23 @@ Consider this workflow optimized and ready for implementation! ⚙️`
       
       console.log('Saving selected images:', { userId, count: imageUrls.length, prompt });
       
+      // Import the image storage service
+      const { ImageStorageService } = await import('./image-storage-service');
+      
       const savedImages = [];
-      for (const imageUrl of imageUrls) {
+      for (let i = 0; i < imageUrls.length; i++) {
+        const imageUrl = imageUrls[i];
+        
+        // Store image permanently in S3 before saving to database
+        const permanentUrl = await ImageStorageService.ensurePermanentStorage(
+          imageUrl, 
+          userId, 
+          `selected_${Date.now()}_${i}`
+        );
+        
         const aiImage = await storage.saveAIImage({
           userId,
-          imageUrl,
+          imageUrl: permanentUrl, // Use permanent S3 URL
           prompt: prompt || 'Custom photoshoot'
         });
         savedImages.push(aiImage);
