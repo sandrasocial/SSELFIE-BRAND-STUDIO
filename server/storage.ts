@@ -262,28 +262,19 @@ export class DatabaseStorage implements IStorage {
       .where(eq(photoshootSessions.userId, userId));
   }
 
-  // Session-based image persistence using existing aiImages table
+  // Use existing AI images functionality - no separate session tracking needed
   async getCurrentSessionImages(userId: string): Promise<AIImage[]> {
     return await db
       .select()
       .from(aiImages)
-      .where(and(
-        eq(aiImages.userId, userId),
-        eq(aiImages.generationStatus, 'session-active')
-      ))
-      .orderBy(desc(aiImages.createdAt));
+      .where(eq(aiImages.userId, userId))
+      .orderBy(desc(aiImages.createdAt))
+      .limit(20); // Return latest 20 images
   }
 
   async deactivateSessionImages(userId: string): Promise<void> {
-    await db
-      .update(aiImages)
-      .set({ generationStatus: 'session-inactive' })
-      .where(
-        and(
-          eq(aiImages.userId, userId),
-          eq(aiImages.generationStatus, 'session-active')
-        )
-      );
+    // Not needed - we'll just use the existing AI images
+    return;
   }
 
   async saveSessionImage(userId: string, imageUrl: string, prompt: string): Promise<AIImage> {
@@ -292,7 +283,7 @@ export class DatabaseStorage implements IStorage {
       imageUrl: imageUrl,
       prompt: prompt,
       style: 'current-session',
-      generationStatus: 'session-active'
+      generationStatus: 'completed'
     });
   }
 
