@@ -269,7 +269,7 @@ export class DatabaseStorage implements IStorage {
       .from(aiImages)
       .where(and(
         eq(aiImages.userId, userId),
-        eq(aiImages.status, 'session-active')
+        eq(aiImages.generationStatus, 'session-active')
       ))
       .orderBy(desc(aiImages.createdAt));
   }
@@ -277,11 +277,13 @@ export class DatabaseStorage implements IStorage {
   async deactivateSessionImages(userId: string): Promise<void> {
     await db
       .update(aiImages)
-      .set({ status: 'session-inactive' })
-      .where(and(
-        eq(aiImages.userId, userId),
-        eq(aiImages.status, 'session-active')
-      ));
+      .set({ generationStatus: 'session-inactive' })
+      .where(
+        and(
+          eq(aiImages.userId, userId),
+          eq(aiImages.generationStatus, 'session-active')
+        )
+      );
   }
 
   async saveSessionImage(userId: string, imageUrl: string, prompt: string): Promise<AIImage> {
@@ -290,7 +292,7 @@ export class DatabaseStorage implements IStorage {
       imageUrl: imageUrl,
       prompt: prompt,
       style: 'current-session',
-      status: 'session-active'
+      generationStatus: 'session-active'
     });
   }
 
