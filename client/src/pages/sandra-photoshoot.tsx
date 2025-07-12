@@ -75,12 +75,24 @@ Here are some starter prompts to get you going, or tell me what mood you're feel
   const scrollToBottom = () => {
     setTimeout(() => {
       messagesEndRef.current?.scrollIntoView({ behavior: "smooth", block: "end" });
-    }, 200);
+    }, 100);
+  };
+
+  const scrollToTop = () => {
+    const chatContainer = document.getElementById('chat-container');
+    if (chatContainer) {
+      chatContainer.scrollTop = 0;
+    }
   };
 
   useEffect(() => {
     scrollToBottom();
   }, [messages]);
+
+  // Scroll to top when component mounts
+  useEffect(() => {
+    scrollToTop();
+  }, []);
 
   // Load existing session images on component mount
   useEffect(() => {
@@ -512,7 +524,7 @@ Here are some starter prompts to get you going, or tell me what mood you're feel
               </div>
 
               {/* Conversation Flow */}
-              <div className="flex-1 p-6 sm:p-8 md:p-12 overflow-y-auto max-h-[500px] sm:max-h-[600px] space-y-12 sm:space-y-16">
+              <div id="chat-container" className="flex-1 p-6 sm:p-8 md:p-12 overflow-y-auto max-h-[500px] sm:max-h-[600px] space-y-12 sm:space-y-16">
                 {messages.map((message, index) => (
                   <div key={index} className={`${message.type === 'user' ? 'ml-auto max-w-2xl' : 'mr-auto max-w-4xl'}`}>
                     {message.type === 'sandra' && (
