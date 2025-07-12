@@ -295,7 +295,7 @@ What kind of mood are you going for today?`,
     
     try {
       // Use same pattern as working sandra-photoshoot page
-      const response = await fetch('/api/sandra-prompt-generate', {
+      const response = await fetch('/api/generate-images', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -346,7 +346,7 @@ What kind of mood are you going for today?`,
     
     try {
       // Use same working pattern from sandra-photoshoot
-      const response = await fetch('/api/sandra-prompt-generate', {
+      const response = await fetch('/api/generate-images', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
