@@ -969,7 +969,6 @@ I have ALL collections ready - just tell me your mood! ✨`;
       const userId = req.session?.userId || req.user?.claims?.sub || '42585527';
       
       console.log(`Sandra AI chat request from user ${userId}: "${message}"`);
-      console.log('Using intelligent Sandra AI fallback system for immediate functionality');
       
       // Import the enhanced Sandra AI service with style buttons
       const { SandraAIService } = await import('./sandra-ai-service');

@@ -97,11 +97,12 @@ export class SandraAIService {
     const systemPrompt = `You are Sandra, an expert AI photographer and style consultant who creates stunning, personalized brand photoshoots. Your mission is to understand each user's unique vision and create custom prompts that generate breathtaking, professional images.
 
 SANDRA'S PERSONALITY:
-- Enthusiastic and encouraging, like talking to your most supportive creative friend
+- Talk like Rachel from FRIENDS - warm, relatable, like talking to your best friend who knows about style
+- Use simple everyday language: "Okay so here's the thing..." "You know what I love about this?" "Can we talk about how gorgeous this will be?"
 - Expert in photography, fashion, lighting, and visual storytelling
 - Obsessed with helping users create their perfect brand aesthetic
 - Always asks follow-up questions to understand their vision deeper
-- Uses "OMG", "gorgeous", "stunning" - authentic excitement about their vision
+- Authentic excitement but not over-the-top: "Oh this is gonna be so good!" "Perfect, I love this direction!"
 
 CONVERSATION GOALS:
 1. Learn their specific style preferences, aesthetic vision, and brand personality
@@ -109,6 +110,14 @@ CONVERSATION GOALS:
 3. Discover their ideal settings, outfits, moods, and energy
 4. Create custom prompts with specific camera details and film texture
 5. Remember everything they tell you to provide increasingly better suggestions
+
+PINTEREST STYLE EXPERTISE:
+- Full body and environmental shots showing the whole scene
+- Not looking directly at camera - natural, candid moments
+- Golden hour and sunset lighting for dreamy atmosphere
+- Long flowing hair, natural movement, authentic poses
+- Lifestyle settings: beaches, cafes, gardens, city streets
+- Natural, effortless styling that looks accidentally perfect
 
 PROMPT CREATION RULES:
 - Always include specific camera and lens details from professional equipment
@@ -130,47 +139,87 @@ Current user message: "${message}"
 
 Respond with enthusiasm and ask specific questions to understand their vision. If you have enough information, suggest a custom prompt with camera specs and film texture.`;
 
-    // For immediate launch, use intelligent fallback system
-    console.log('Using intelligent Sandra AI fallback system for immediate functionality');
-    return this.fallbackSandraResponse(message, userId);
-
-    // TODO: Enable Anthropic API when key is properly configured
-    /*
+    // Use real Anthropic API with ANTHROPIC_API_KEY
     try {
+      const conversationContext = recentConversations.length > 0 ? 
+        `\n\nPREVIOUS CONVERSATION CONTEXT:\n${recentConversations.map(c => `User: ${c.message}\nSandra: ${c.response}`).join('\n')}\n\n` : '';
+
+      const fullPrompt = `${contextPrompt}${conversationContext}Current user message: "${message}"
+
+${systemPrompt}
+
+Remember to:
+1. Create 3 unique, professional style buttons with different camera specs
+2. Reference the user's previous requests if this is a follow-up
+3. Be enthusiastic and encouraging
+4. Ask questions to understand their vision better
+5. Include specific technical details in each prompt
+
+Please respond in this JSON format:
+{
+  "message": "Your conversational response to the user",
+  "styleButtons": [
+    {
+      "name": "Style name",
+      "description": "Brief description", 
+      "prompt": "Technical prompt with camera specs",
+      "camera": "Camera and lens details",
+      "texture": "Film texture details"
+    }
+  ]
+}`;
+
       const response = await anthropic.messages.create({
         model: DEFAULT_MODEL_STR,
-        max_tokens: 1000,
-        system: systemPrompt,
+        max_tokens: 2000,
+        system: "You are Sandra, an expert AI photographer and style consultant. Always respond in valid JSON format.",
         messages: [
-          { role: 'user', content: message }
+          { role: 'user', content: fullPrompt }
         ],
       });
 
-      const sandraResponse = response.content[0].text;
+      const responseText = response.content[0].text;
+      let parsedResponse;
       
-      // Extract style insights and generate prompt if applicable
-      const { suggestedPrompt, styleInsights } = await this.analyzeAndGeneratePrompt(message, sandraResponse, recentConversations);
-      
+      try {
+        parsedResponse = JSON.parse(responseText);
+      } catch (parseError) {
+        console.error('Failed to parse Sandra AI response as JSON:', responseText);
+        // Fallback to the previous system if JSON parsing fails
+        return this.fallbackSandraResponse(message, userId);
+      }
+
+      // Generate proper style buttons with IDs
+      const styleButtons = parsedResponse.styleButtons?.map((button: any, index: number) => ({
+        id: `sandra-${Date.now()}-${index}`,
+        name: button.name,
+        description: button.description,
+        prompt: button.prompt.replace('user{userId}', `user${userId}`),
+        camera: button.camera,
+        texture: button.texture
+      })) || [];
+
       // Save conversation to memory
       await storage.saveSandraConversation({
         userId,
         message,
-        response: sandraResponse,
-        suggestedPrompt,
-        userStylePreferences: styleInsights,
+        response: parsedResponse.message,
+        suggestedPrompt: null,
+        userStylePreferences: { detectedKeywords: [] },
       });
 
       return {
-        response: sandraResponse,
-        suggestedPrompt,
-        styleInsights
+        response: parsedResponse.message,
+        styleButtons,
+        isFollowUp: recentConversations.length > 0,
+        styleInsights: { detectedKeywords: [] }
       };
 
     } catch (error) {
-      console.error('Sandra AI error:', error);
+      console.error('Sandra AI API error:', error);
+      console.log('Falling back to intelligent Sandra AI system');
       return this.fallbackSandraResponse(message, userId);
     }
-    */
   }
 
   // Build context from conversation history and user data
