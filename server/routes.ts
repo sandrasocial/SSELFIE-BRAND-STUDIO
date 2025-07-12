@@ -1009,6 +1009,36 @@ I have ALL collections ready - just tell me your mood! ✨`;
     }
   });
 
+  // Save image to gallery endpoint
+  app.post('/api/save-to-gallery', async (req: any, res) => {
+    try {
+      const { imageUrl, userId } = req.body;
+      const actualUserId = userId || req.session?.userId || req.user?.claims?.sub || 'sandra_test_user_2025';
+      
+      // Save to gallery using existing AI images storage
+      const savedImage = await storage.saveAIImage({
+        userId: actualUserId,
+        imageUrl: imageUrl,
+        prompt: 'Saved from Sandra AI Photoshoot',
+        style: 'sandra-photoshoot',
+        status: 'completed'
+      });
+      
+      res.json({ 
+        success: true, 
+        message: 'Image saved to gallery successfully',
+        imageId: savedImage.id 
+      });
+    } catch (error) {
+      console.error('Save to gallery error:', error);
+      res.status(500).json({ 
+        success: false,
+        message: 'Failed to save image to gallery',
+        error: error.message 
+      });
+    }
+  });
+
   // Legacy Sandra AI Designer endpoint for backward compatibility
   app.post('/api/sandra-ai/chat', async (req: any, res) => {
     try {
