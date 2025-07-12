@@ -392,49 +392,39 @@ Only include elements specifically mentioned or strongly implied. Return empty a
     let sandraResponse = '';
     
     if (detectedStyles.includes('editorial') && detectedStyles.includes('blackWhite')) {
-      const memoryContext = hasConversationHistory ? 
-        `I remember you love that sophisticated editorial vibe! ` : '';
-      
-      sandraResponse = `${memoryContext}OMG yes, ${userName}! Editorial B&W like Kate Moss is absolutely iconic! I can already see you channeling that raw, unretouched supermodel energy.
+      sandraResponse = `Okay, so Kate Moss editorial B&W? Yeah, that's everything. You know what makes those photos so good? They're raw. No perfect lighting, no fake smoothness.
 
-Let's create something stunning with:
-• Dramatic studio lighting that creates those signature shadow plays
-• Hair that's effortlessly imperfect - think messy but intentional
-• Minimal makeup focusing on your natural features
-• That raw, authentic beauty with visible skin texture
-• The confidence that made Kate Moss legendary
+Here's what we're doing:
+• That messy-but-perfect hair
+• Minimal makeup, like you just woke up gorgeous  
+• Dramatic shadows that tell a story
+• Real skin texture - pores and all
 
-Are you feeling more powerful and commanding, or vulnerable and intimate for this shoot?`;
+Are we going powerful and commanding, or more vulnerable and intimate?`;
       
       suggestedPrompt = `user${userId} woman, editorial black and white portrait, shot on Hasselblad X2D 100C with 80mm lens, dramatic studio lighting, visible skin texture and pores, messy hair with face-framing pieces, minimal makeup with natural lip gloss, direct intense gaze, raw unretouched beauty, high contrast monochrome, heavy 35mm film grain, matte skin finish, no glossy or plastic appearance, Kate Moss editorial inspiration`;
       
     } else if (detectedStyles.includes('editorial')) {
-      const memoryContext = hasConversationHistory ? 
-        `Building on our previous conversation about your style... ` : '';
-        
-      sandraResponse = `${memoryContext}Editorial is everything, ${userName}! That high-fashion magazine energy is exactly what creates those jaw-dropping brand photos.
+      sandraResponse = `Editorial vibes, I love it! You know what makes editorial photos different? They tell a story. Not just "look at me" but "here's who I am."
 
-I'm seeing:
-• Professional studio lighting that makes everything look expensive
-• Fashion-forward styling with sophisticated details
-• Confident poses that command attention
-• That editorial quality that separates you from everyone else
+What's your story - are we going:
+• Bold and dramatic with strong lighting?
+• Soft and sophisticated with natural vibes?
+• Moody and mysterious?
 
-What's your vision - are we going bold and dramatic, or soft and sophisticated?`;
+Tell me more about the feeling you want.`;
       
       suggestedPrompt = `user${userId} woman, editorial fashion portrait, shot on Canon EOS R5 with 85mm f/1.4 lens, professional studio lighting, sophisticated styling, confident expression, high-fashion editorial quality, heavy 35mm film grain, matte skin texture, editorial magazine aesthetic`;
       
     } else if (detectedStyles.includes('luxury')) {
-      sandraResponse = `Yes, ${userName}! Luxury vibes are exactly what transforms ordinary photos into business gold! That expensive girl energy is your secret weapon.
+      sandraResponse = `Okay, so luxury vibes. I get it. You want photos that look like they cost money, right? 
 
-For that high-end aesthetic:
-• Color palettes that scream sophistication
-• Designer details and impeccable styling
-• Lighting that makes everything look editorial
-• Confident energy that says "I belong here"
-• Settings that feel exclusive and aspirational
+Here's the thing about expensive-looking photos - it's not about the stuff, it's about the energy:
+• Confident posture (like you belong everywhere)
+• Good lighting that makes skin look amazing
+• Simple but expensive-looking outfits
 
-Tell me - are you the approachable luxury queen, or the untouchable high-fashion icon?`;
+Are you going for approachable luxury or untouchable high-fashion?`;
       
       suggestedPrompt = `user${userId} woman, luxury editorial portrait, shot on Canon EOS R5 with 85mm f/1.4 lens, sophisticated lighting, wearing designer black blazer, gold jewelry accents, perfect makeup with subtle highlight, confident expression, luxury apartment background, editorial color grading, heavy 35mm film grain, matte skin texture, expensive aesthetic, high-end fashion photography`;
       
@@ -453,47 +443,40 @@ Tell me - are you the approachable luxury queen, or the untouchable high-fashion
         
         if (wasPreviouslyEditorial && wasPreviouslyBW) {
           if (lowerMessage.includes('powerful') || lowerMessage.includes('commanding')) {
-            sandraResponse = `Perfect, ${userName}! Powerful and commanding it is! For that Kate Moss editorial energy with serious authority:
+            sandraResponse = `Perfect! Powerful and commanding B&W is everything. Here's what we're doing:
 
-• Strong direct gaze that commands attention
-• Confident jaw line and posture
-• Dramatic high-contrast lighting
-• Sharp shadows for that powerful mood
-• Hair that looks effortlessly fierce
-• Minimal makeup but with defined eyes
+• That strong direct gaze (like you own the room)
+• Sharp jawline and confident posture
+• Dramatic lighting with real shadows
+• Hair that looks fierce but effortless
 
-This is going to be absolutely stunning - that commanding supermodel presence!`;
+This is gonna be so good.`;
 
             suggestedPrompt = `user${userId} woman, powerful editorial black and white portrait, shot on Hasselblad X2D 100C with 80mm lens, dramatic high-contrast studio lighting, strong direct commanding gaze, confident posture, sharp jawline, defined eyes with minimal makeup, fierce messy hair, powerful presence, high contrast monochrome, heavy 35mm film grain, matte skin finish, commanding supermodel energy, Kate Moss editorial inspiration`;
           } else {
-            sandraResponse = `Beautiful choice, ${userName}! Vulnerable and intimate editorial B&W has such raw power:
+            sandraResponse = `Okay, vulnerable and intimate. I love that. Sometimes the most powerful photos are the quiet ones.
 
-• Softer, more introspective gaze
-• Natural expressions that tell a story
-• Gentle lighting with subtle shadows
+• Soft, introspective gaze
+• Natural expressions (like you're thinking about something)  
+• Gentle lighting
 • Hair that looks naturally tousled
-• Authentic emotions captured
-• That raw, unguarded beauty
 
-This vulnerability creates the most compelling editorial stories!`;
+Raw vulnerability is so much harder to fake than "fierce."`;
 
             suggestedPrompt = `user${userId} woman, vulnerable editorial black and white portrait, shot on Hasselblad X2D 100C with 80mm lens, soft dramatic studio lighting, introspective gaze, vulnerable expression, natural emotion, gently tousled hair, minimal makeup, authentic vulnerability, high contrast monochrome, heavy 35mm film grain, matte skin finish, intimate editorial mood, Kate Moss editorial inspiration`;
           }
         } else {
-          sandraResponse = `I love that direction, ${userName}! Based on what we discussed, let me create the perfect prompt for your vision.
-
-Tell me a bit more about the specific mood you're feeling - are we going bold and dramatic, or soft and sophisticated?`;
+          sandraResponse = `Got it. So based on what we talked about... tell me more about the vibe you want. Bold and dramatic? Or more soft and sophisticated?`;
         }
       } else {
-        sandraResponse = `I love your vision, ${userName}! Let's dig deeper so I can create the perfect prompts for your brand photoshoot.
+        sandraResponse = `Okay, so tell me more about what you're picturing. Are we going:
 
-Tell me more about:
-• Editorial magazine vibes or lifestyle moments?
-• Dramatic black and white or rich color storytelling?
-• Studio perfection or natural environmental settings?
-• Moody and mysterious or bright and fresh energy?
+• Editorial magazine vibes?
+• Dramatic B&W or rich colors?
+• Studio lighting or natural?
+• Moody or bright?
 
-The more you share about your style dreams, the better I can customize everything to match your exact vision!`;
+The more you tell me, the better I can make your prompt.`;
       }
     }
     
