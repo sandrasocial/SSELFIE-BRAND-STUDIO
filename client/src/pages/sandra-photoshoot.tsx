@@ -178,19 +178,27 @@ export default function SandraPhotoshoot() {
     timeElapsed: 0
   });
 
-  // Timer effect for generation progress tracking
+  // Timer effect for generation progress tracking with Sandra AI context
   useEffect(() => {
     let interval: NodeJS.Timeout;
     if (generationProgress.isGenerating) {
       interval = setInterval(() => {
-        setGenerationProgress(prev => ({
-          ...prev,
-          timeElapsed: prev.timeElapsed + 1,
-          status: prev.timeElapsed < 10 ? 'Processing dynamic scenes...' :
-                  prev.timeElapsed < 30 ? 'Generating lifestyle content...' :
-                  prev.timeElapsed < 45 ? 'Applying editorial style...' :
-                  'Finalizing your images...'
-        }));
+        setGenerationProgress(prev => {
+          const isStyleGeneration = prev.status.includes('Generating "');
+          const newStatus = prev.timeElapsed < 10 ? 
+            (isStyleGeneration ? 'Processing custom style settings...' : 'Processing dynamic scenes...') :
+            prev.timeElapsed < 20 ? 
+            (isStyleGeneration ? 'Applying camera specifications...' : 'Generating lifestyle content...') :
+            prev.timeElapsed < 35 ? 
+            (isStyleGeneration ? 'Adding film grain and texture...' : 'Applying editorial style...') :
+            (isStyleGeneration ? 'Finalizing Sandra\'s vision...' : 'Finalizing your images...');
+            
+          return {
+            ...prev,
+            timeElapsed: prev.timeElapsed + 1,
+            status: newStatus
+          };
+        });
       }, 1000);
     }
     return () => {
@@ -261,9 +269,12 @@ export default function SandraPhotoshoot() {
           status: 'Completed',
           timeElapsed: 0
         });
+        const isStyleGeneration = generationProgress.status.includes('Generating "');
         toast({
-          title: "Dynamic Lifestyle Images Generated!",
-          description: `Successfully generated ${data.images.length} environmental scene images.`,
+          title: isStyleGeneration ? "Sandra's Custom Style Complete!" : "Dynamic Lifestyle Images Generated!",
+          description: isStyleGeneration ? 
+            `Successfully generated ${data.images.length} images with custom camera specs and styling.` :
+            `Successfully generated ${data.images.length} environmental scene images.`,
         });
       } else {
         console.error('No images in success data:', data);
@@ -470,6 +481,13 @@ export default function SandraPhotoshoot() {
 
   // Handle style button click - generate from Sandra's custom style
   const handleStyleButtonGenerate = (styleButton: any) => {
+    // Start progress tracking for Sandra AI style generation
+    setGenerationProgress({ 
+      isGenerating: true, 
+      status: `Generating "${styleButton.name}" style...`, 
+      timeElapsed: 0 
+    });
+    
     const finalPrompt = styleButton.prompt.replace('user{userId}', user?.id || 'subject');
     generateImagesMutation.mutate(finalPrompt);
   };
