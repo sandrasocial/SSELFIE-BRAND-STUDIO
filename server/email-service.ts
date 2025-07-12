@@ -7,6 +7,27 @@ if (!process.env.RESEND_API_KEY) {
 const resend = new Resend(process.env.RESEND_API_KEY);
 
 export class EmailService {
+  static async sendSelfieQueenGuide(userEmail: string, source: string): Promise<void> {
+    try {
+      const { data, error } = await resend.emails.send({
+        from: 'Sandra from SSELFIE STUDIO <hello@sselfie.ai>',
+        to: [userEmail],
+        subject: 'Your Selfie Queen Guide is here 📸',
+        html: this.getSelfieQueenGuideTemplate(userEmail, source),
+      });
+
+      if (error) {
+        console.error('Resend email error:', error);
+        throw new Error(`Failed to send guide: ${error.message}`);
+      }
+
+      console.log('Selfie Queen Guide sent successfully:', data?.id);
+    } catch (error) {
+      console.error('Email service error:', error);
+      throw error;
+    }
+  }
+
   static async sendWelcomeEmail(userEmail: string, userName: string, plan: string): Promise<void> {
     try {
       const planDetails = this.getPlanDetails(plan);
@@ -58,6 +79,81 @@ export class EmailService {
           description: '250 AI generations + gallery'
         };
     }
+  }
+
+  private static getSelfieQueenGuideTemplate(userEmail: string, source: string): string {
+    return `<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>The Selfie Queen Guide</title>
+    <style>
+        body { margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; background: #ffffff; color: #0a0a0a; }
+        .container { max-width: 600px; margin: 0 auto; background: #ffffff; }
+        .header { background: #0a0a0a; color: #ffffff; text-align: center; padding: 40px 30px; }
+        .title { font-family: 'Times New Roman', serif; font-size: 36px; font-weight: 300; margin: 0; line-height: 1.2; }
+        .subtitle { font-size: 14px; letter-spacing: 0.1em; text-transform: uppercase; margin: 16px 0 0 0; opacity: 0.8; }
+        .content { padding: 40px 30px; }
+        .section { margin-bottom: 40px; }
+        .serif { font-family: 'Times New Roman', serif; }
+        .sans { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; }
+        .btn { display: inline-block; background: #0a0a0a; color: #ffffff; text-decoration: none; padding: 16px 32px; font-size: 12px; letter-spacing: 0.1em; text-transform: uppercase; border: 2px solid #0a0a0a; transition: all 0.3s; }
+        .btn:hover { background: #ffffff; color: #0a0a0a; }
+        .quote { font-style: italic; text-align: center; font-size: 24px; margin: 40px 0; color: #333; }
+        .footer { background: #f5f5f5; padding: 30px; text-align: center; color: #666; font-size: 14px; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1 class="title">The Selfie Queen Guide</h1>
+            <p class="subtitle">My gift to you</p>
+        </div>
+        
+        <div class="content">
+            <div class="section">
+                <p class="sans">Hey beautiful,</p>
+                <p class="sans">This isn't just another PDF. This is everything I wish someone handed me when I started—angles, light, editing, confidence, and a challenge for when you're ready to show up for real.</p>
+            </div>
+            
+            <div class="section" style="text-align: center; background: #f8f8f8; padding: 30px; margin: 40px 0;">
+                <h2 class="serif" style="margin: 0 0 16px 0; font-size: 24px;">Inside The Guide:</h2>
+                <ul style="list-style: none; padding: 0; margin: 0; text-align: left; display: inline-block;">
+                    <li style="margin-bottom: 12px;">✓ The 5 angles that make everyone look stunning</li>
+                    <li style="margin-bottom: 12px;">✓ Natural light secrets (no ring light needed)</li>
+                    <li style="margin-bottom: 12px;">✓ How to edit like a pro in 3 minutes</li>
+                    <li style="margin-bottom: 12px;">✓ Confidence hacks that actually work</li>
+                    <li style="margin-bottom: 12px;">✓ The 30-day selfie challenge</li>
+                </ul>
+            </div>
+            
+            <div class="section" style="text-align: center;">
+                <a href="https://drive.google.com/file/d/your-guide-link/view" class="btn">DOWNLOAD YOUR GUIDE</a>
+            </div>
+            
+            <div class="quote serif">
+                "When you show up as her? Everything changes."
+            </div>
+            
+            <div class="section">
+                <p class="sans">Ready to turn your selfies into a business? SSELFIE Studio creates professional AI photoshoots in minutes. Same confidence-building magic, but for your brand.</p>
+                <p class="sans" style="text-align: center; margin-top: 30px;">
+                    <a href="https://sselfie.replit.app" style="color: #0a0a0a; text-decoration: underline;">Check out SSELFIE Studio →</a>
+                </p>
+            </div>
+        </div>
+        
+        <div class="footer">
+            <p>You're receiving this because you requested The Selfie Queen Guide.</p>
+            <p style="margin-top: 20px;">
+                SSELFIE STUDIO<br>
+                <a href="#" style="color: #666;">Unsubscribe</a>
+            </p>
+        </div>
+    </div>
+</body>
+</html>`;
   }
 
   private static getWelcomeEmailTemplate(userName: string, planDetails: any, ctaUrl: string): string {

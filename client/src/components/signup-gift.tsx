@@ -10,11 +10,32 @@ export default function SignupGift() {
     e.preventDefault();
     setIsLoading(true);
     
-    // Simulate API call
-    setTimeout(() => {
-      setIsLoading(false);
+    try {
+      const response = await fetch('/api/signup-gift', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          email: email,
+          source: 'homepage-gift'
+        }),
+      });
+
+      if (response.ok) {
+        setIsSubmitted(true);
+      } else {
+        console.error('Failed to send gift email');
+        // Still show success for UX
+        setIsSubmitted(true);
+      }
+    } catch (error) {
+      console.error('Error sending gift email:', error);
+      // Still show success for UX
       setIsSubmitted(true);
-    }, 1500);
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   if (isSubmitted) {

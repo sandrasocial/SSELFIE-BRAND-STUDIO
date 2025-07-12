@@ -16,6 +16,7 @@ import session from 'express-session';
 import { registerAiImageRoutes } from './routes/ai-images';
 import { registerCheckoutRoutes } from './routes/checkout';
 import { registerAutomationRoutes } from './routes/automation';
+import { EmailService } from './email-service';
 import { z } from "zod";
 
 // Anthropic disabled for testing - API key issues
@@ -200,6 +201,36 @@ I have ALL collections ready - just tell me your mood! ✨`;
         auth: '/api/auth/user'
       }
     });
+  });
+
+  // PUBLIC ENDPOINT: Signup Gift Email (no auth required)
+  app.post('/api/signup-gift', async (req, res) => {
+    try {
+      const { email, source } = req.body;
+      
+      if (!email) {
+        return res.status(400).json({ error: 'Email is required' });
+      }
+
+      // Email validation
+      const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+      if (!emailRegex.test(email)) {
+        return res.status(400).json({ error: 'Invalid email format' });
+      }
+
+      // Send "The Selfie Queen Guide" email
+      await EmailService.sendSelfieQueenGuide(email, source || 'homepage');
+      
+      console.log(`Selfie Queen Guide sent to ${email} from ${source}`);
+      res.json({ 
+        success: true, 
+        message: 'Guide sent successfully'
+      });
+      
+    } catch (error) {
+      console.error('Signup gift error:', error);
+      res.status(500).json({ error: 'Failed to send guide' });
+    }
   });
 
   // Plan setup endpoint - called after checkout
