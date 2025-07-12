@@ -60,7 +60,7 @@ export const HeroFullBleed: React.FC<HeroFullBleedProps> = ({
       
       {/* Content Container - positioned lower with responsive spacing */}
       <div className="relative z-20 w-full h-full flex items-end justify-center">
-        <div className={`container-editorial ${alignment === 'center' ? 'text-center' : 'text-left-desktop'} pb-12 sm:pb-16 md:pb-24 lg:pb-32`}>
+        <div className={`max-w-6xl mx-auto px-6 sm:px-8 md:px-12 ${alignment === 'center' ? 'text-center' : 'text-left-desktop'} pb-12 sm:pb-16 md:pb-24 lg:pb-32`}>
           
           {/* Top Tagline */}
           {tagline && (
@@ -70,13 +70,13 @@ export const HeroFullBleed: React.FC<HeroFullBleedProps> = ({
           )}
           
           {/* Main Title - HUGE & STRETCHED with responsive scaling */}
-          <h1 className="hero-title-responsive text-white mb-2 sm:mb-4 break-words">
+          <h1 className="font-times text-[clamp(2.2rem,9vw,9rem)] leading-[0.9] font-extralight tracking-[0.05em] sm:tracking-[0.2em] md:tracking-[0.4em] uppercase text-white mb-2 sm:mb-4 break-words px-2">
             {title}
           </h1>
           
           {/* Subtitle - Responsive scaling */}
           {subtitle && (
-            <h2 className="editorial-subhead-responsive text-white mb-8 sm:mb-10 lg:mb-12">
+            <h2 className="font-times text-[clamp(1rem,3vw,2.5rem)] leading-none font-extralight tracking-[0.1em] sm:tracking-[0.2em] md:tracking-[0.3em] uppercase text-white mb-8 sm:mb-10 lg:mb-12 px-2">
               {subtitle}
             </h2>
           )}
