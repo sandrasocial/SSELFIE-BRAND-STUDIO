@@ -52,7 +52,18 @@ export default function SSELFIEGallery() {
 
   const downloadImage = async (imageUrl: string, filename: string) => {
     try {
+      // Skip broken or invalid URLs
+      if (!imageUrl || !imageUrl.startsWith('http')) {
+        console.log('Skipping invalid URL:', imageUrl);
+        return;
+      }
+      
       const response = await fetch(imageUrl);
+      if (!response.ok) {
+        console.log('Failed to download image:', response.status, imageUrl);
+        return;
+      }
+      
       const blob = await response.blob();
       const url = window.URL.createObjectURL(blob);
       const link = document.createElement('a');
