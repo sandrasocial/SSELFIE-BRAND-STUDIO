@@ -65,7 +65,7 @@ export default function CustomPhotoshootLibrary() {
 
   // Generate images from saved prompt
   const generateFromSavedPrompt = useCallback(async (prompt: SavedPrompt) => {
-    setSelectedPrompt(prompt);
+    setSelectedPrompt(null); // Close modal when generation starts
     setGeneratingImages(true);
     setGenerationProgress(0);
     setSelectedImages([]); // Clear previous images
