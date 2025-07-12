@@ -2131,24 +2131,7 @@ Consider this workflow optimized and ready for implementation! ⚙️`
     }
   });
 
-  app.post('/api/generate-user-images', isAuthenticated, async (req: any, res) => {
-    try {
-      const { category, subcategory } = req.body;
-      const userId = req.user.claims.sub;
-      
-      if (!category || !subcategory) {
-        return res.status(400).json({ error: 'Category and subcategory are required' });
-      }
 
-      const { ModelTrainingService } = await import('./model-training-service');
-      const result = await ModelTrainingService.generateUserImages(userId, category, subcategory);
-      
-      res.json(result);
-    } catch (error) {
-      console.error('User image generation error:', error);
-      res.status(500).json({ error: error.message });
-    }
-  });
 
   // Sandra AI Chat for custom prompts
   app.post('/api/sandra-chat', isAuthenticated, async (req: any, res) => {
@@ -2368,7 +2351,7 @@ Consider this workflow optimized and ready for implementation! ⚙️`
       }
       
       const { ModelTrainingService } = await import('./model-training-service');
-      const result = await ModelTrainingService.generateUserImages(userId, category, subcategory);
+      const result = await ModelTrainingService.generateUserImagesFromCategory(userId, category, subcategory);
       
       console.log('Generation result:', result); // Debug log
       res.json(result);
