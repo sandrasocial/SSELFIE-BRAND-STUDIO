@@ -22,11 +22,11 @@ export default function SandraPhotoshootPage() {
   const [messages, setMessages] = useState<ChatMessage[]>([
     {
       type: 'sandra',
-      message: `Hey gorgeous! I'm Sandra, your AI photographer who understands your story.
+      message: `Hey! I'm Sandra, and I get it.
 
-This isn't about creating perfect photos. It's about capturing the moments that show who you're becoming. Your journey. Your growth. Your authentic energy.
+This whole photography thing? It's not about perfect poses or magazine-worthy shots. It's about capturing YOU right now—the messy, beautiful, real version who's building something meaningful.
 
-Tell me about where you are in your story right now. What chapter are you writing?`,
+Your mess is your message. Let's capture both. Tell me what chapter you're writing in your story right now.`,
       timestamp: new Date().toISOString()
     }
   ]);
@@ -209,28 +209,30 @@ Tell me about where you are in your story right now. What chapter are you writin
         
         {/* Hero Content */}
         <div className="relative z-10 text-center max-w-6xl mx-auto px-8">
-          <div className="text-xs font-normal tracking-[0.4em] uppercase text-white/60 mb-12">
-            Your Story Captured
+          <div className="text-xs font-normal tracking-[0.4em] uppercase text-white/70 mb-12">
+            AI Photography That Gets You
           </div>
           
-          <div className="mb-20">
-            <h1 className="font-times text-[clamp(4rem,12vw,14rem)] leading-[0.85] font-extralight tracking-[-0.02em] uppercase mb-8">
-              Every Photo<br />
-              Tells Your Story
+          <div className="mb-16">
+            <h1 className="font-times text-[clamp(4rem,10vw,9rem)] leading-[1] font-extralight tracking-[0.5em] uppercase mb-4">
+              SANDRA
             </h1>
+            <h2 className="font-times text-[clamp(2.5rem,6vw,5rem)] leading-[1] font-extralight tracking-[0.3em] uppercase text-white/90">
+              SIGURJÓNSDÓTTIR
+            </h2>
           </div>
           
-          <p className="text-lg font-light max-w-3xl mx-auto leading-relaxed mb-16 tracking-[0.02em]">
-            This isn't about perfection. It's about capturing the authentic moments that show who you're becoming. 
-            Your growth. Your journey. Your real story.
+          <p className="text-base font-light max-w-3xl mx-auto leading-relaxed mb-16 tracking-[0.02em] text-white/80">
+            Your mess is your message. I figured out how to capture the real you—not the perfect version, 
+            but the authentic one building something meaningful. Let's turn your story into your strategy.
           </p>
 
-          <div className="flex flex-col sm:flex-row gap-6 justify-center">
+          <div className="flex justify-center">
             <button
               onClick={() => document.getElementById('story-section')?.scrollIntoView({ behavior: 'smooth' })}
-              className="px-12 py-5 bg-white text-black font-light tracking-[0.1em] uppercase transition-all duration-300 hover:bg-[#f5f5f5] border border-white"
+              className="text-white text-xs tracking-[0.3em] uppercase font-light pb-2 border-b border-white/30 hover:border-white transition-all duration-300"
             >
-              Start Your Session
+              Start Your Story
             </button>
           </div>
         </div>
