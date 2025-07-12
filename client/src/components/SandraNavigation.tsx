@@ -6,7 +6,7 @@ export default function SandraNavigation() {
 
   const navItems = [
     { path: '/sandra-ai', label: 'Personal Brand Mentor', description: 'Strategic guidance & coaching' },
-    { path: '/sandra-photoshoot', label: 'AI Photographer', description: 'Pinterest-style photoshoots' },
+    { path: '/sandra-photoshoot', label: 'AI Photographer', description: 'Authentic story photography' },
     { path: '/workspace', label: 'Studio Workspace', description: 'Complete business platform' }
   ];
 
