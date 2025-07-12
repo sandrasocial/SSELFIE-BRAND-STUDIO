@@ -399,6 +399,9 @@ export default function SandraPhotoshoot() {
       return;
     }
     
+    // Start progress tracking for Sandra Chat generation
+    setGenerationProgress({ isGenerating: true, status: 'Starting generation...', timeElapsed: 0 });
+    
     const finalPrompt = customPrompt.replace('user{userId}', user?.id || 'subject');
     generateImagesMutation.mutate(finalPrompt);
   };
@@ -1016,9 +1019,64 @@ export default function SandraPhotoshoot() {
                     }}>
                       {customPrompt}
                     </p>
+                    
+                    {/* Generation Progress Display for Sandra Chat */}
+                    {generationProgress.isGenerating && (
+                      <div style={{
+                        padding: '20px',
+                        background: '#e5e5e5',
+                        marginBottom: '20px',
+                        textAlign: 'center'
+                      }}>
+                        <div style={{
+                          fontSize: '12px',
+                          fontWeight: 400,
+                          letterSpacing: '0.2em',
+                          textTransform: 'uppercase',
+                          color: '#666666',
+                          marginBottom: '12px'
+                        }}>
+                          SANDRA'S CREATING YOUR PHOTOS
+                        </div>
+                        
+                        <div style={{
+                          fontSize: '16px',
+                          fontWeight: 300,
+                          marginBottom: '12px',
+                          color: '#0a0a0a'
+                        }}>
+                          {generationProgress.status}
+                        </div>
+                        
+                        <div style={{
+                          fontSize: '14px',
+                          fontWeight: 300,
+                          color: '#0a0a0a',
+                          marginBottom: '16px'
+                        }}>
+                          {Math.floor(generationProgress.timeElapsed / 60)}:{(generationProgress.timeElapsed % 60).toString().padStart(2, '0')}
+                        </div>
+                        
+                        <div style={{
+                          width: '100%',
+                          height: '2px',
+                          background: '#ccc',
+                          borderRadius: '1px',
+                          overflow: 'hidden'
+                        }}>
+                          <div style={{
+                            height: '100%',
+                            background: '#0a0a0a',
+                            width: `${Math.min((generationProgress.timeElapsed / 60) * 100, 100)}%`,
+                            transition: 'width 1s ease-in-out'
+                          }} />
+                        </div>
+                      </div>
+                    )}
+                    
                     <button
                       onClick={handleGenerateFromCustom}
-                      disabled={generateImagesMutation.isPending}
+                      disabled={generateImagesMutation.isPending || generationProgress.isGenerating}
                       style={{
                         padding: '16px 32px',
                         fontSize: '11px',
@@ -1030,10 +1088,10 @@ export default function SandraPhotoshoot() {
                         background: '#0a0a0a',
                         cursor: 'pointer',
                         transition: 'all 300ms ease',
-                        opacity: generateImagesMutation.isPending ? 0.5 : 1
+                        opacity: (generateImagesMutation.isPending || generationProgress.isGenerating) ? 0.5 : 1
                       }}
                     >
-                      {generateImagesMutation.isPending ? 'Generating...' : 'Generate 4 Preview Photos'}
+                      {generationProgress.isGenerating ? 'Generating...' : 'Generate 4 Preview Photos'}
                     </button>
                   </div>
                 )}
