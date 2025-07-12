@@ -499,8 +499,14 @@ export default function SSELFIEGallery() {
                     {/* Favorite Heart Button */}
                     <button
                       onClick={(e) => {
+                        e.preventDefault();
                         e.stopPropagation();
+                        console.log('Heart button clicked, preventing modal');
                         toggleFavorite(image.id);
+                      }}
+                      onMouseDown={(e) => {
+                        e.preventDefault();
+                        e.stopPropagation();
                       }}
                       style={{
                         position: 'absolute',
@@ -514,7 +520,8 @@ export default function SSELFIEGallery() {
                         cursor: 'pointer',
                         borderRadius: '50%',
                         transition: 'all 300ms ease',
-                        backdropFilter: 'blur(10px)'
+                        backdropFilter: 'blur(10px)',
+                        zIndex: 10
                       }}
                       onMouseEnter={(e) => {
                         e.target.style.background = 'rgba(0, 0, 0, 0.8)';
