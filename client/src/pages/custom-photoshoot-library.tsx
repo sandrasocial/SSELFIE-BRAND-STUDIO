@@ -607,18 +607,6 @@ export default function CustomPhotoshootLibrary() {
             </div>
             
             <div style={{
-              background: '#f5f5f5',
-              padding: '20px',
-              marginBottom: '30px',
-              fontSize: '0.9rem',
-              color: '#333333',
-              lineHeight: 1.5,
-              fontFamily: 'monospace'
-            }}>
-              {selectedPrompt.prompt}
-            </div>
-            
-            <div style={{
               display: 'grid',
               gridTemplateColumns: '1fr 1fr',
               gap: '20px',
@@ -639,22 +627,22 @@ export default function CustomPhotoshootLibrary() {
             </div>
             
             <button
-              onClick={() => generateFromPrompt(selectedPrompt)}
-              disabled={isGenerating}
+              onClick={() => generateFromSavedPrompt(selectedPrompt)}
+              disabled={generatingImages}
               style={{
                 width: '100%',
                 padding: '15px',
-                background: isGenerating ? '#cccccc' : '#0a0a0a',
+                background: generatingImages ? '#cccccc' : '#0a0a0a',
                 color: '#ffffff',
                 border: 'none',
                 fontSize: '0.9rem',
                 fontWeight: 400,
                 letterSpacing: '0.05em',
                 textTransform: 'uppercase',
-                cursor: isGenerating ? 'not-allowed' : 'pointer'
+                cursor: generatingImages ? 'not-allowed' : 'pointer'
               }}
             >
-              {isGenerating ? 'Generating Images...' : 'Generate 4 New Images'}
+              {generatingImages ? 'Generating Images...' : 'Generate 4 New Images'}
             </button>
           </div>
         </div>
