@@ -12,7 +12,6 @@ const PROMPT_COLLECTIONS = {
   'healing-mindset': {
     id: 'healing-mindset',
     name: 'Healing & Mindset',
-    emoji: '🌊',
     description: 'Ocean healing, meditation, wellness journey energy',
     preview: SandraImages.portraits.professional[2],
     prompts: [
@@ -69,7 +68,6 @@ const PROMPT_COLLECTIONS = {
   'european-luxury': {
     id: 'european-luxury',
     name: 'European Street Luxury',
-    emoji: '✨',
     description: 'Model-off-duty Paris/Milan expensive girl energy',
     preview: SandraImages.portraits.professional[0],
     prompts: [
@@ -114,7 +112,6 @@ const PROMPT_COLLECTIONS = {
   'vulnerability-series': {
     id: 'vulnerability-series',
     name: 'The Vulnerability Series',
-    emoji: '💔',
     description: 'Raw storytelling, emotional authenticity, transformation narratives',
     preview: SandraImages.portraits.professional[3],
     prompts: [
@@ -159,7 +156,6 @@ const PROMPT_COLLECTIONS = {
   'studio-beauty': {
     id: 'studio-beauty',
     name: 'B&W Studio Beauty',
-    emoji: '🖤',
     description: 'High-fashion editorial portraits, studio beauty test shots',
     preview: SandraImages.portraits.professional[1],
     prompts: [
@@ -233,6 +229,7 @@ What kind of mood are you going for today?`,
   ]);
   const [sandraInput, setSandraInput] = useState('');
   const [sandraGenerating, setSandraGenerating] = useState(false);
+  const [generationProgress, setGenerationProgress] = useState(0);
 
   // Fetch user model for trigger word
   const { data: userModel } = useQuery({
@@ -240,15 +237,41 @@ What kind of mood are you going for today?`,
     enabled: isAuthenticated
   });
 
-  // Generate images mutation
+  // Generate images mutation with progress tracking
   const generateImagesMutation = useMutation({
     mutationFn: async (prompt: string) => {
-      const response = await apiRequest('POST', '/api/generate-images', {
-        prompt: prompt.replace('[triggerword]', userModel?.triggerWord || 'subject'),
-        category: 'custom',
-        count: 4
-      });
-      return response;
+      setGenerationProgress(0);
+      setGeneratingImages(true);
+      
+      // Progress simulation - typical generation takes 15-30 seconds
+      const progressInterval = setInterval(() => {
+        setGenerationProgress(prev => {
+          if (prev >= 90) return prev;
+          return prev + Math.random() * 10;
+        });
+      }, 1000);
+      
+      try {
+        const response = await apiRequest('POST', '/api/generate-images', {
+          prompt: prompt.replace('[triggerword]', userModel?.triggerWord || 'subject'),
+          category: 'custom',
+          count: 4
+        });
+        
+        clearInterval(progressInterval);
+        setGenerationProgress(100);
+        setTimeout(() => {
+          setGeneratingImages(false);
+          setGenerationProgress(0);
+        }, 1000);
+        
+        return response;
+      } catch (error) {
+        clearInterval(progressInterval);
+        setGeneratingImages(false);
+        setGenerationProgress(0);
+        throw error;
+      }
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['/api/ai-images'] });
@@ -595,12 +618,6 @@ What kind of mood are you going for today?`,
                         padding: '40px 24px 24px 24px',
                         color: '#ffffff'
                       }}>
-                        <div style={{
-                          fontSize: '24px',
-                          marginBottom: '8px'
-                        }}>
-                          {collection.emoji}
-                        </div>
                         <h3 style={{
                           fontFamily: 'Times New Roman, serif',
                           fontSize: '24px',
@@ -665,9 +682,6 @@ What kind of mood are you going for today?`,
 
                 {/* Collection Header */}
                 <div style={{ textAlign: 'center', marginBottom: '60px' }}>
-                  <div style={{ fontSize: '48px', marginBottom: '16px' }}>
-                    {PROMPT_COLLECTIONS[selectedCollection]?.emoji}
-                  </div>
                   <h2 style={{
                     fontFamily: 'Times New Roman, serif',
                     fontSize: 'clamp(2rem, 4vw, 3rem)',
