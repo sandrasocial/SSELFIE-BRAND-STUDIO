@@ -30,11 +30,18 @@ export default function SSELFIEGallery() {
   // Toggle favorite mutation
   const toggleFavoriteMutation = useMutation({
     mutationFn: async (imageId: number) => {
-      return await apiRequest('POST', `/api/images/${imageId}/favorite`);
+      console.log('Making API request to toggle favorite for image:', imageId);
+      const response = await apiRequest('POST', `/api/images/${imageId}/favorite`);
+      console.log('Favorite toggle response:', response);
+      return response;
     },
-    onSuccess: () => {
+    onSuccess: (data) => {
+      console.log('Favorite toggle success:', data);
       // Refresh favorites data
       queryClient.invalidateQueries({ queryKey: ['/api/images/favorites'] });
+    },
+    onError: (error) => {
+      console.error('Favorite toggle error:', error);
     }
   });
 
@@ -103,6 +110,9 @@ export default function SSELFIEGallery() {
   });
 
   const toggleFavorite = (imageId: number) => {
+    console.log('Heart clicked for image:', imageId);
+    console.log('Current favorites:', favorites);
+    console.log('Is currently favorite:', favorites.includes(imageId));
     toggleFavoriteMutation.mutate(imageId);
   };
 
