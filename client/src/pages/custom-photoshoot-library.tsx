@@ -1,5 +1,7 @@
 import React, { useState } from 'react';
 import { Navigation } from '@/components/navigation';
+import { HeroFullBleed } from '@/components/hero-full-bleed';
+import { SandraImages } from '@/lib/sandra-images';
 import { useQuery } from '@tanstack/react-query';
 
 interface SavedPrompt {
@@ -99,44 +101,20 @@ export default function CustomPhotoshootLibrary() {
     }}>
       <Navigation />
       
-      {/* Full Bleed Hero */}
-      <div style={{
-        width: '100vw',
-        height: '60vh',
-        position: 'relative',
-        background: 'linear-gradient(135deg, #0a0a0a 0%, #2a2a2a 100%)',
-        display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'center',
-        overflow: 'hidden'
-      }}>
-        <div style={{
-          textAlign: 'center',
-          color: '#ffffff',
-          maxWidth: '800px',
-          padding: '0 40px'
-        }}>
-          <h1 style={{
-            fontSize: 'clamp(3rem, 8vw, 6rem)',
-            fontWeight: 300,
-            letterSpacing: '-0.02em',
-            lineHeight: 0.9,
-            marginBottom: '30px',
-            fontFamily: '"Times New Roman", Times, serif'
-          }}>
-            Your Custom<br />Photoshoot Library
-          </h1>
-          <p style={{
-            fontSize: 'clamp(1rem, 2.5vw, 1.3rem)',
-            fontWeight: 300,
-            lineHeight: 1.4,
-            opacity: 0.9,
-            letterSpacing: '0.01em'
-          }}>
-            All your saved prompts in one place. Generate again, refine, or create new variations.
-          </p>
-        </div>
-      </div>
+      {/* Hero Section using HeroFullBleed component */}
+      <HeroFullBleed
+        backgroundImage={SandraImages.editorialMagazineCollection[2]}
+        tagline="Your Personal Archive"
+        title={
+          <>
+            YOUR CUSTOM<br />
+            PHOTOSHOOT LIBRARY
+          </>
+        }
+        subtitle="All your saved prompts in one place. Generate again, refine, or create new variations."
+        overlay={0.6}
+        fullHeight={false}
+      />
 
       {/* Library Content */}
       <div style={{

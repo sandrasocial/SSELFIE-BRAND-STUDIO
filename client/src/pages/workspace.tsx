@@ -65,7 +65,7 @@ export default function Workspace() {
       subtitle: 'Save Sandra\'s prompts as favorites',
       status: 'ready',
       statusText: 'Organize Prompts',
-      link: '/prompt-library',
+      link: '/custom-photoshoot-library',
       image: SandraImages.flatlays.beauty
     },
     {
