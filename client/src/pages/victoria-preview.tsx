@@ -16,9 +16,13 @@ export default function VictoriaPreview() {
   // Function to inject ONLY SELECTED photos from photo-selection step
   const injectUserPhotos = (htmlTemplate: string): string => {
     // Use ONLY the 5 photos selected in photo-selection step
-    if (!photoSelections?.selectedSelfies?.length) return htmlTemplate;
+    if (!photoSelections?.selectedSelfies?.length) {
+      console.log('No photo selections available:', photoSelections);
+      return htmlTemplate;
+    }
 
     const selectedSelfies = photoSelections.selectedSelfies;
+    console.log('Injecting photos from selections:', selectedSelfies.length, 'photos');
     
     // Get flatlay collection chosen by user (not random)
     const flatlayCollection = photoSelections.flatlayCollection || 'Editorial Magazine';
@@ -215,7 +219,7 @@ export default function VictoriaPreview() {
     updatedHtml = updatedHtml.replace(/{{WEBSITE_URL}}/g, websiteUrl);
 
     return injectUserPhotos(updatedHtml);
-  }, [brandData, userGallery]);
+  }, [brandData, photoSelections]);
 
   // Update iframe when HTML changes
   useEffect(() => {
