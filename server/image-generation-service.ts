@@ -138,7 +138,7 @@ async function pollForCompletion(imageId: number, predictionId: string): Promise
         const outputUrls = prediction.output || [];
         const imageUrl = outputUrls.length > 0 ? outputUrls[0] : 'completed';
         
-        await storage.updateAiImage(imageId, {
+        await storage.updateAIImage(imageId, {
           imageUrl: imageUrl,
           generationStatus: 'completed'
         });
@@ -147,7 +147,7 @@ async function pollForCompletion(imageId: number, predictionId: string): Promise
 
       if (prediction.status === 'failed' || prediction.status === 'canceled') {
         console.log(`Generation failed with status: ${prediction.status}`);
-        await storage.updateAiImage(imageId, {
+        await storage.updateAIImage(imageId, {
           imageUrl: 'failed',
           generationStatus: 'failed'
         });
@@ -159,7 +159,7 @@ async function pollForCompletion(imageId: number, predictionId: string): Promise
         setTimeout(poll, 3000); // Poll every 3 seconds
       } else {
         console.log('Max polling attempts reached');
-        await storage.updateAiImage(imageId, {
+        await storage.updateAIImage(imageId, {
           imageUrl: 'timeout',
           generationStatus: 'failed'
         });
@@ -170,7 +170,7 @@ async function pollForCompletion(imageId: number, predictionId: string): Promise
       if (attempts < maxAttempts) {
         setTimeout(poll, 3000);
       } else {
-        await storage.updateAiImage(imageId, {
+        await storage.updateAIImage(imageId, {
           imageUrl: 'error',
           generationStatus: 'failed'
         });
