@@ -2,9 +2,43 @@ import { useState, useEffect } from "react";
 import { useLocation } from "wouter";
 import { SandraImages } from "@/lib/sandra-images";
 import { PortfolioSection } from "@/components/portfolio-section";
-import SignupGift from "@/components/signup-gift";
+import FreeTierSignup from "@/components/free-tier-signup";
 
 export default function EditorialLanding() {
+  // SEO Meta Tags
+  useEffect(() => {
+    document.title = "SSELFIE Studio - AI-Powered Personal Brand Photos & Business Launch";
+    
+    // Update or create meta description
+    let metaDescription = document.querySelector('meta[name="description"]');
+    if (!metaDescription) {
+      metaDescription = document.createElement('meta');
+      metaDescription.setAttribute('name', 'description');
+      document.head.appendChild(metaDescription);
+    }
+    metaDescription.setAttribute('content', 'Transform your selfies into professional brand photos with AI. Get 5 free images, build your personal brand, and launch your business in 20 minutes. Start free today.');
+    
+    // Add Open Graph tags
+    const ogTags = [
+      { property: 'og:title', content: 'SSELFIE Studio - Transform Selfies into Professional Brand Photos' },
+      { property: 'og:description', content: 'AI-powered personal branding platform. Transform selfies into professional photos and launch your business in 20 minutes.' },
+      { property: 'og:type', content: 'website' },
+      { property: 'og:url', content: window.location.href },
+      { name: 'twitter:card', content: 'summary_large_image' },
+      { name: 'twitter:title', content: 'SSELFIE Studio - AI Brand Photos' },
+      { name: 'twitter:description', content: 'Transform your selfies into professional brand photos with AI. Start free today.' }
+    ];
+    
+    ogTags.forEach(tag => {
+      let existingTag = document.querySelector(`meta[${tag.property ? 'property' : 'name'}="${tag.property || tag.name}"]`);
+      if (!existingTag) {
+        existingTag = document.createElement('meta');
+        existingTag.setAttribute(tag.property ? 'property' : 'name', tag.property || tag.name);
+        document.head.appendChild(existingTag);
+      }
+      existingTag.setAttribute('content', tag.content);
+    });
+  }, []);
   const [, setLocation] = useLocation();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
@@ -21,7 +55,13 @@ export default function EditorialLanding() {
 
   const handleGetStarted = (plan: string) => {
     localStorage.setItem('selectedPlan', plan);
-    setLocation('/checkout');
+    if (plan === 'free') {
+      // Route to login for free tier
+      window.location.href = '/api/login';
+    } else {
+      // Route to checkout for paid plans
+      setLocation('/checkout');
+    }
   };
 
   return (
@@ -80,7 +120,7 @@ export default function EditorialLanding() {
             </button>
             
             <button
-              onClick={() => handleGetStarted('sselfie-studio-pro')}
+              onClick={() => handleGetStarted('sselfie-studio')}
               className="hidden md:block px-6 py-3 border border-white/50 text-white text-xs uppercase tracking-[0.3em] hover:bg-white hover:text-black transition-all duration-300"
             >
               Get Started
@@ -124,7 +164,7 @@ export default function EditorialLanding() {
               Login
             </button>
             <button
-              onClick={() => { handleGetStarted('sselfie-studio-pro'); setMobileMenuOpen(false); }}
+              onClick={() => { handleGetStarted('sselfie-studio'); setMobileMenuOpen(false); }}
               className="px-8 py-4 border border-white/50 text-white text-xs uppercase tracking-[0.3em] hover:bg-white hover:text-black transition-all duration-300 mt-8"
             >
               Get Started
@@ -166,10 +206,10 @@ export default function EditorialLanding() {
           </p>
           
           <button
-            onClick={() => handleGetStarted('sselfie-studio-pro')}
+            onClick={() => handleGetStarted('free')}
             className="inline-block text-[10px] sm:text-xs uppercase tracking-[0.25em] sm:tracking-[0.3em] text-white border-b border-white/30 pb-1 sm:pb-2 hover:border-white hover:tracking-[0.3em] sm:hover:tracking-[0.35em] transition-all duration-300"
           >
-            START YOUR JOURNEY
+            START FOR FREE
           </button>
         </div>
       </section>
@@ -190,17 +230,16 @@ export default function EditorialLanding() {
           <div className="grid md:grid-cols-2 gap-8 sm:gap-12 md:gap-16 items-center">
             <div className="space-y-4 sm:space-y-6 text-gray-700 leading-relaxed text-sm sm:text-base">
               <p>
-                One year ago, I hit rock bottom. Divorced. Three kids. No backup plan.
+                Rock bottom has a way of showing you who you really are. Divorced, three kids, no safety net.
               </p>
               <p>
-                I picked up my phone. Took a selfie. Posted something honest. Not perfect. Just true.
+                I had two choices: disappear or figure it out. I chose my phone, a selfie, and the truth.
               </p>
               <p>
-                From there, I kept showing up—camera in one hand, coffee in the other. 
-                Built a real audience, a real brand, and eventually, a real business.
+                No fancy equipment. No perfect lighting. Just me showing up every day, building something real from nothing but honesty and consistency.
               </p>
               <p className="font-medium text-black">
-                Your mess is your message. Let's turn it into money.
+                Stop guessing and start growing. Your story is your strategy.
               </p>
             </div>
             
@@ -295,7 +334,7 @@ export default function EditorialLanding() {
                 <div className="text-6xl sm:text-8xl font-serif font-extralight opacity-10 absolute">03</div>
                 <h3 className="font-serif text-xl sm:text-2xl font-light mb-3 sm:mb-4 relative z-10">Sandra Personal Brand AI Agent</h3>
                 <p className="text-sm text-gray-600 group-hover:text-white/80 leading-relaxed">
-                  Get personal brand strategy and content ideas from my AI twin who knows exactly how I built this.
+                  Strategy that's as unique as you are. My AI knows what worked, what didn't, and what you need to focus on first.
                 </p>
               </div>
             </div>
@@ -318,8 +357,8 @@ export default function EditorialLanding() {
           <div className="grid md:grid-cols-2 gap-8 sm:gap-10 md:gap-12">
             {/* FREE PLAN */}
             <div className="bg-gray-50 p-8 sm:p-10 md:p-12 text-center group hover:bg-black hover:text-white transition-all duration-500">
-              <h3 className="font-serif text-2xl sm:text-3xl font-light mb-4 sm:mb-6">Try for Free</h3>
-              <div className="text-3xl sm:text-4xl md:text-5xl font-light mb-6 sm:mb-8">FREE<span className="text-sm sm:text-base md:text-lg text-gray-500 group-hover:text-white/60"></span></div>
+              <h3 className="font-serif text-2xl sm:text-3xl font-light mb-4 sm:mb-6">Start Free</h3>
+              <div className="text-3xl sm:text-4xl md:text-5xl font-light mb-6 sm:mb-8">FREE<span className="text-sm sm:text-base md:text-lg text-gray-500 group-hover:text-white/60"> forever</span></div>
               
               <div className="space-y-3 sm:space-y-4 mb-8 sm:mb-10 md:mb-12 text-left">
                 <div className="flex items-start">
@@ -344,7 +383,7 @@ export default function EditorialLanding() {
                 onClick={() => handleGetStarted('free')}
                 className="w-full py-4 border border-black group-hover:border-white text-black group-hover:text-white text-xs uppercase tracking-[0.3em] hover:bg-black hover:text-white group-hover:hover:bg-white group-hover:hover:text-black transition-all duration-300"
               >
-                Try for Free
+                Start Free Today
               </button>
             </div>
 
@@ -390,7 +429,7 @@ export default function EditorialLanding() {
                 onClick={() => handleGetStarted('sselfie-studio')}
                 className="w-full py-4 border border-white text-white text-xs uppercase tracking-[0.3em] hover:bg-white hover:text-black transition-all duration-300"
               >
-                Get Started
+                Start Studio $47/mo
               </button>
             </div>
           </div>
@@ -427,18 +466,18 @@ export default function EditorialLanding() {
           </div>
           
           <blockquote className="font-serif text-xl sm:text-2xl md:text-3xl font-light italic text-black leading-tight mb-6 sm:mb-8 px-4">
-            "Sandra's approach changed everything for me. I went from feeling invisible to having 
-            clients reach out daily. Her AI photoshoot gave me the confidence to finally show up."
+            "I thought I knew what I was doing, but Sandra's system completely changed how I show up online. 
+            The AI photos don't look AI - they look like me, but the version of me I've always wanted to be."
           </blockquote>
           
           <div className="text-sm text-gray-600 uppercase tracking-wide">
-            — MARIA K., WELLNESS COACH
+            — ELENA M., LIFE COACH
           </div>
         </div>
       </section>
 
-      {/* SignupGift Component */}
-      <SignupGift />
+      {/* Free Tier Signup Component */}
+      <FreeTierSignup />
 
       {/* Quote Section - Editorial */}
       <section className="py-32 bg-black text-white text-center">
@@ -452,13 +491,13 @@ export default function EditorialLanding() {
             onClick={() => handleGetStarted('free')}
             className="inline-block px-12 py-6 border border-white text-white text-xs uppercase tracking-[0.3em] hover:bg-white hover:text-black transition-all duration-300 mr-4"
           >
-            Try for Free
+            Start Free Today
           </button>
           <button
             onClick={() => handleGetStarted('sselfie-studio')}
             className="inline-block px-12 py-6 bg-white text-black text-xs uppercase tracking-[0.3em] hover:bg-gray-100 transition-all duration-300"
           >
-            Start Studio $47/mo
+            Get Studio $47/mo
           </button>
         </div>
       </section>
