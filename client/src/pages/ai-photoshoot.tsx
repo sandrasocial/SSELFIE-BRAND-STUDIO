@@ -7,20 +7,20 @@ import { WorkspaceNavigation } from '@/components/workspace-navigation';
 import { HeroFullBleed } from '@/components/hero-full-bleed';
 import { SandraImages } from '@/lib/sandra-images';
 
-// Complete prompts library from the assets
+// RAW PHOTOGRAPHY PROMPTS - Matching Training Data Aesthetic
 const PROMPT_COLLECTIONS = {
   'healing-mindset': {
     id: 'healing-mindset',
-    name: 'Healing & Mindset',
-    description: 'Ocean healing, meditation, wellness journey energy',
+    name: 'Moody Raw Photography',
+    description: 'Dark & intimate shadow play vulnerability',
     preview: SandraImages.portraits.professional[2],
     prompts: [
       {
-        id: 'arms-to-sky',
-        name: 'Arms to the Sky',
-        category: 'Ocean Healing',
-        description: "Perfect for when you need that emotional release moment. Think ocean waves, arms stretched toward the sky, letting everything go.",
-        prompt: '[triggerword] woman standing at ocean edge, voluminous hair flowing with natural body and movement, arms raised to sky in release, waves washing over feet, wearing flowing linen button-down shirt and wide-leg cream trousers, full scene with ocean and sky visible, overcast moody sky, muted color palette, emotional liberation moment, shot on Hasselblad X2D 100C with 90mm lens, natural ocean lighting with dramatic sky, healing journey photography, HEAVY 35mm film grain, pronounced grain structure, MATTE textured skin, soft skin retouch, authentic skin texture with visible pores, authentic skin imperfections, gentle facial refinement, editorial skin enhancement, raw film negative quality. Negative: shiny skin, glossy skin, fake skin, plastic-looking skin, over-processed skin, smooth skin, perfect skin, airbrushed skin, digital smoothing, skin blur, poreless skin, studio lighting perfection, clean skin, flawless skin'
+        id: 'shadow-play-vulnerability',
+        name: 'Shadow Play Vulnerability',
+        category: 'Raw Moments',
+        description: "Sitting in corner where walls meet, harsh window light creating geometric shadows across face and body.",
+        prompt: '[triggerword] woman long dark messy hair, sitting in corner where walls meet, harsh window light creating geometric shadows across face and body, wearing simple black tank, bare walls, shot on Leica M11 Monochrom with 50mm Noctilux f/0.95, high contrast shadows, raw photo, exhausted expression, visible skin imperfections, heavy grain, unretouched raw emotion, documentary style'
       },
       {
         id: 'sunset-contemplation',
