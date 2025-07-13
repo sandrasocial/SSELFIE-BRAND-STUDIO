@@ -6,8 +6,6 @@ import express from "express";
 import path from "path";
 import fs from "fs";
 import { rachelAgent } from "./agents/rachel-agent";
-import path from "path";
-import fs from "fs";
 // Removed photoshoot routes - using existing checkout system
 import { registerStyleguideRoutes } from "./routes/styleguide-routes";
 import { UsageService } from './usage-service';
