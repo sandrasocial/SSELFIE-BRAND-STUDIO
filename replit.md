@@ -275,6 +275,12 @@ The platform has become overly complex with multiple pricing tiers, broken onboa
 - Professional expertise helps users discover styling possibilities they hadn't considered
 - Ready for premium $47/month pricing with genuine celebrity-level AI stylist experience
 
+**Enhanced Maya Settings (July 13, 2025):**
+- **Negative Prompts**: Eliminates glossy fake skin, deep unflattering wrinkles, flat unflattering hair
+- **Texture Enhancement**: Always includes textured skin, flattering high fashion outfits, slightly retouched skin
+- **Realistic Factor**: Ensures "wow is that me?" user reaction with realistic but flattering results
+- **Guidance Scale**: Optimized at 2.8 for natural-looking results without over-processing
+
 #### ✅ PERMANENT IMAGE STORAGE SYSTEM IMPLEMENTED (July 13, 2025)
 **Critical Image Expiration Issue Resolved:**
 - **Problem Solved**: Replicate URLs expire after 1 hour, causing broken images in gallery
