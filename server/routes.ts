@@ -3521,14 +3521,19 @@ Consider this workflow optimized and ready for implementation! ⚙️`
     const path = req.path;
     const username = path.slice(1); // Remove leading slash
     
-    // Skip if it's clearly not a username route
+    // Skip if it's clearly not a username route - ENHANCED VITE PROTECTION
     if (path === '/' || 
         path.startsWith('/api') || 
-        path.startsWith('/@') ||  // React development files
-        path.includes('.') || 
-        path.startsWith('/_') ||  // Next.js internal routes
+        path.startsWith('/@') ||  // Vite development files
+        path.startsWith('/@vite') ||  // Vite HMR and client
+        path.startsWith('/@react-refresh') ||  // React refresh
+        path.startsWith('/@fs') ||  // Vite filesystem access
+        path.startsWith('/node_modules') ||  // Node modules
+        path.startsWith('/src') ||  // Source files
+        path.includes('.') ||  // File extensions
+        path.startsWith('/_') ||  // Internal routes
         path.startsWith('/__') || // Development files
-        ['workspace', 'gallery', 'maya', 'victoria', 'login', 'pricing', 'node_modules', 'src', 'client'].includes(username)) {
+        ['workspace', 'gallery', 'maya', 'victoria', 'login', 'pricing', 'client', 'onboarding', 'photo-selection', 'brand-onboarding', 'victoria-preview', 'victoria-chat', 'victoria-builder'].includes(username)) {
       return next(); // Continue to other routes
     }
     
