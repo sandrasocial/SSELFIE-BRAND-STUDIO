@@ -36,7 +36,7 @@ export default function VictoriaLandingPage() {
       title: 'Start New Chat with Victoria',
       description: 'Get strategic brand guidance and business insights',
       image: SandraImages.hero.pricing,
-      route: '/victoria',
+      route: '/victoria-chat',
       category: 'Strategy Session'
     },
     {
@@ -44,7 +44,7 @@ export default function VictoriaLandingPage() {
       title: 'Recent Strategy Sessions',
       description: 'Continue previous brand strategy discussions',
       image: SandraImages.editorial.laptop1,
-      route: '/victoria?history=true',
+      route: '/victoria-chat?history=true',
       category: 'Session History'
     },
     {
@@ -178,7 +178,7 @@ export default function VictoriaLandingPage() {
 
           <div className="grid grid-cols-2 lg:grid-cols-4 gap-6 lg:gap-8">
             {strategyCategories.map((category) => (
-              <Link key={category.name} href={`/victoria?focus=${category.name.toLowerCase().replace(' ', '-')}`}>
+              <Link key={category.name} href={`/victoria-chat?focus=${category.name.toLowerCase().replace(' ', '-')}`}>
                 <div className="group cursor-pointer">
                   <div className="aspect-square overflow-hidden bg-[#f5f5f5] mb-4">
                     <img 
@@ -216,7 +216,7 @@ export default function VictoriaLandingPage() {
 
           <div className="space-y-4">
             {recentSessions.map((session) => (
-              <Link key={session.id} href={`/victoria?session=${session.id}`}>
+              <Link key={session.id} href={`/victoria-chat?session=${session.id}`}>
                 <div className="bg-white p-6 hover:bg-[#f9f9f9] transition-all duration-300 cursor-pointer group">
                   <div className="flex items-center justify-between">
                     <div className="flex-1">
@@ -244,7 +244,7 @@ export default function VictoriaLandingPage() {
           </div>
 
           <div className="text-center mt-12">
-            <Link href="/victoria?history=all">
+            <Link href="/victoria-chat?history=all">
               <button className="text-[10px] tracking-[0.2em] uppercase text-black hover:tracking-[0.3em] transition-all duration-300 pb-2 border-b border-black/20 hover:border-black">
                 View All Strategy Sessions
               </button>
