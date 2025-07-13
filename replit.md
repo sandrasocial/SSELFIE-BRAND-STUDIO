@@ -852,29 +852,39 @@ Platform verified to seamlessly handle 1000+ users with individual AI training, 
 - **Complete Lens Specifications**: 85mm f/1.2L, 50mm Summilux, 90mm APO-Summicron, 110mm f/2, 28mm f/1.7
 - **Zero Coverage Gaps**: Every generation guaranteed professional camera specifications
 
-**✅ FLUX MODEL SETTINGS - ELEGANT "WOW IS THIS ME" OPTIMIZATION:**
+**✅ FLUX MODEL SETTINGS - ANTI-PLASTIC OPTIMIZATION WITH "NOT" STATEMENTS:**
 - **Model Version**: black-forest-labs/flux-dev-lora:a53fd9255ecba80d99eaab4706c698f861fd47b098012607557385416e46aae5
-- **Guidance Scale**: 2.8 (optimal for beautiful but natural enhancement)
-- **LoRA Scale**: 0.8 (reduced strength for more natural blending)
-- **Inference Steps**: 32 (quality steps for refined beauty)
-- **Quality Parameters**: output_quality: 100, go_fast: false, output_format: "png"
+- **Guidance Scale**: 2.5 (reduced from 2.8 to prevent over-processing toward plastic perfection)
+- **LoRA Scale**: 0.7 (reduced from 0.8 to prevent artificial appearance)
+- **Inference Steps**: 28 (reduced from 32 to prevent over-refinement)
+- **Quality Parameters**: output_quality: 90, go_fast: false, output_format: "png"
 - **Aspect Ratio**: 3:4 (portrait optimized for selfies)
-- **Enhancement Philosophy**: Elegant editorial retouching without artificial plastic look
+- **Anti-Plastic Method**: Embedded "NOT plastic skin" statements in positive prompt (no negative_prompt parameter)
 
-### July 13, 2025 - ELEGANT ENHANCEMENT BALANCE ✅ - "WOW IS THIS ME" PRIORITY
+### July 13, 2025 - CRITICAL DISCOVERY: FLUX NEGATIVE PROMPT ISSUE RESOLVED ✅ - ANTI-PLASTIC BREAKTHROUGH
 
-**🎯 SOPHISTICATED BEAUTY ENHANCEMENT IMPLEMENTATION**
-- **Balanced Negative Prompts**: Blocks plastic/fake skin while allowing soft makeup and gentle retouching
-- **Elegant Enhancement Prompts**: "soft matte skin, gentle skin retouching, flattering natural lighting, subtle skin smoothing, elegant skin enhancement, natural facial refinement, professional editorial retouching, soft focus skin perfection, gentle beauty enhancement"
-- **Strategic Exclusions**: Removes deep wrinkles, body hair, harsh lighting while maintaining natural beauty
-- **Quality Focus**: Maximum quality settings for stunning "magazine-ready" results
+**🚨 CRITICAL TECHNICAL DISCOVERY: FLUX DOESN'T SUPPORT NEGATIVE PROMPTS**
+- **Root Cause Found**: FLUX.1-dev-lora models completely ignore the `negative_prompt` parameter
+- **Why Plastic Skin Persisted**: All negative prompts were being ignored by the FLUX model
+- **Official Confirmation**: Black Forest Labs FLUX models are guidance-distilled and don't support negative prompts
+- **Solution Implemented**: Converted all negative terms to positive "NOT" statements embedded in main prompt
 
-**✅ REFINED ENHANCEMENT STRATEGY:**
-1. **Soft Retouching**: Gentle skin smoothing without plastic artificiality
-2. **Elegant Refinement**: Professional editorial enhancement like high-end magazines
-3. **Natural Beauty**: Maintains user likeness while elevating to best possible version
-4. **Sophisticated Balance**: Editorial quality without crossing into fake/digital territory
-5. **User Recognition**: Balanced LoRA strength (0.8) ensures natural "WOW is this me" reaction
+**🎯 NEW ANTI-PLASTIC STRATEGY USING "NOT" STATEMENTS:**
+- **Embedded Anti-Plastic Terms**: "with natural matte skin NOT plastic skin, with real skin texture NOT fake skin, with authentic human skin NOT synthetic skin, with organic skin NOT artificial skin, with natural skin NOT digital skin, with real human face NOT CGI skin, with natural texture NOT 3D rendered skin, with human skin NOT mannequin skin, with natural face NOT doll skin, with real skin NOT wax skin, with matte finish NOT glossy skin"
+- **Enhanced Film Specs**: "soft matte skin NOT plastic skin, gentle skin retouching NOT fake skin, flattering natural lighting NOT artificial lighting, subtle skin smoothing NOT glossy skin, elegant skin enhancement NOT synthetic skin"
+- **Custom Negative Conversion**: Any "Negative:" prompts automatically converted to "NOT" format
+
+**✅ AGGRESSIVE PARAMETER REDUCTION FOR NATURAL RESULTS:**
+- **Guidance Scale**: Reduced to 2.5 (from 2.8) to prevent over-processing toward plastic perfection
+- **LoRA Scale**: Reduced to 0.7 (from 0.8) to prevent artificial appearance
+- **Inference Steps**: Reduced to 28 (from 32) to prevent over-refinement
+- **Output Quality**: Reduced to 90 (from 100) to prevent over-sharpening
+
+**✅ TECHNICAL BREAKTHROUGH:**
+1. **FLUX Compatibility**: Removed non-functional negative_prompt parameter completely
+2. **Positive Negation**: Uses "NOT plastic skin" statements that FLUX actually processes
+3. **Reduced Processing**: Lower guidance, LoRA scale, and steps prevent artificial over-refinement
+4. **Natural Enhancement**: Maintains elegant beauty while avoiding fake plastic appearance
 
 **✅ DOUBLE COVERAGE SYSTEM:**
 1. **Manual Specifications**: Professional camera equipment in 95%+ of handcrafted prompts
