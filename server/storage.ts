@@ -52,6 +52,7 @@ export interface IStorage {
   getAIImages(userId: string): Promise<AIImage[]>;
   getUserAIImages(userId: string): Promise<AIImage[]>;
   saveAIImage(data: InsertAIImage): Promise<AIImage>;
+  updateAIImage(id: number, data: Partial<AIImage>): Promise<AIImage>;
   
   // User Model operations
   getUserModel(userId: string): Promise<UserModel | undefined>;
@@ -168,6 +169,15 @@ export class DatabaseStorage implements IStorage {
   async createAIImage(data: InsertAIImage): Promise<AIImage> {
     // Alias for saveAIImage for compatibility
     return this.saveAIImage(data);
+  }
+
+  async updateAIImage(id: number, data: Partial<AIImage>): Promise<AIImage> {
+    const [updated] = await db
+      .update(aiImages)
+      .set({ ...data, updatedAt: new Date() })
+      .where(eq(aiImages.id, id))
+      .returning();
+    return updated;
   }
 
   // User Model operations
