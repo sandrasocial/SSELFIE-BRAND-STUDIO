@@ -143,6 +143,13 @@
   .aspect-wide { aspect-ratio: 3/2; }
   .aspect-tall { aspect-ratio: 2/3; }
 
+  .line-clamp-2 {
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+  }
+
   /* Text Overlay for Editorial Cards */
   .text-overlay {
     position: absolute;
