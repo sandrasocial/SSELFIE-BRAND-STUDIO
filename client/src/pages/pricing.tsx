@@ -72,7 +72,7 @@ export default function Pricing() {
                 Welcome to SSELFIE Studio!
               </h3>
               <p className="text-gray-600">
-                Your {completedPlan === 'sselfie-studio' ? 'SSELFIE Studio' : 'SSELFIE Studio PRO'} access is now active. Check your email for next steps.
+                Your {completedPlan === 'sselfie-studio' ? 'SSELFIE Studio' : 'SSELFIE Studio'} access is now active. Check your email for next steps.
               </p>
             </div>
           </div>
@@ -88,7 +88,7 @@ export default function Pricing() {
               Start where you<br />feel ready
             </h1>
             <p className="text-lg sm:text-xl text-gray-600 max-w-3xl mx-auto font-light leading-relaxed">
-              Look, you don't need to go all in on day one. Test the AI, build your brand, or launch everything. Your call.
+              Look, you don't need to go all in on day one. Start free, test the magic, then upgrade when you're ready. Your call.
             </p>
           </div>
         </section>
@@ -152,7 +152,7 @@ export default function Pricing() {
                   </div>
                   <div className="flex items-start">
                     <span className="text-white mr-3">•</span>
-                    <span className="text-sm">Complete brand builder ecosystem</span>
+                    <span className="text-sm">Luxury flatlay collections</span>
                   </div>
                   <div className="flex items-start">
                     <span className="text-white mr-3">•</span>
@@ -194,11 +194,11 @@ export default function Pricing() {
             <div className="grid grid-cols-1 md:grid-cols-2 gap-8 sm:gap-10 md:gap-12">
               <div>
                 <h3 className="font-serif text-xl font-light text-black mb-4">
-                  What's the difference between the plans?
+                  What's the difference between FREE and Studio?
                 </h3>
                 <p className="text-gray-600 font-light leading-relaxed">
-                  SSELFIE Studio ($29): 100 AI images + luxury flatlay collections + brand templates. 
-                  SSELFIE Studio PRO ($67): 300 AI images + Sandra Personal Brand AI Agent for 24/7 strategy guidance.
+                  FREE: 5 AI images per month + basic chat with MAYA & VICTORIA. 
+                  SSELFIE Studio ($47/month): 100 AI images + unlimited AI agents + complete brand ecosystem + custom domains.
                 </p>
               </div>
               
@@ -214,21 +214,20 @@ export default function Pricing() {
               
               <div>
                 <h3 className="font-serif text-xl font-light text-black mb-4">
-                  What's this Sandra AI Agent about?
+                  Who are MAYA and VICTORIA?
                 </h3>
                 <p className="text-gray-600 font-light leading-relaxed">
-                  PRO users get to chat with my AI twin 24/7 for brand strategy, content ideas, and business guidance. 
-                  She knows exactly how I built this and can help you do the same.
+                  MAYA is your celebrity stylist/photographer who creates editorial images. VICTORIA is your brand strategist who builds complete websites. Both are AI agents trained on Sandra's expertise.
                 </p>
               </div>
               
               <div>
                 <h3 className="font-serif text-xl font-light text-black mb-4">
-                  Can I upgrade later?
+                  Can I upgrade from FREE to Studio later?
                 </h3>
                 <p className="text-gray-600 font-light leading-relaxed">
-                  Absolutely. Start with Studio, upgrade to PRO anytime when you're ready for personal brand strategy 
-                  and more AI images.
+                  Absolutely. Start free, upgrade to Studio anytime when you're ready for the full ecosystem 
+                  and 100 monthly images.
                 </p>
               </div>
             </div>
@@ -249,16 +248,16 @@ export default function Pricing() {
             
             <div className="flex flex-col sm:flex-row gap-4 justify-center items-center">
               <button 
-                onClick={() => handleGetStarted('sselfie-studio')}
+                onClick={() => handleGetStarted('free')}
                 className="px-8 py-4 border border-white text-white text-xs uppercase tracking-[0.3em] hover:bg-white hover:text-black transition-all duration-300"
               >
-                Start with Studio ($29)
+                Start Free Today
               </button>
               <button 
-                onClick={() => handleGetStarted('sselfie-studio-pro')}
+                onClick={() => handleGetStarted('sselfie-studio')}
                 className="bg-white text-black px-8 py-4 text-xs uppercase tracking-[0.3em] hover:bg-gray-100 transition-all duration-300"
               >
-                Go PRO ($67)
+                Get Studio $47/mo
               </button>
             </div>
           </div>
