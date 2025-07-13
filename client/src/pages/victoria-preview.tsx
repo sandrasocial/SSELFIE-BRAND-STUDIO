@@ -4,9 +4,12 @@ import { Button } from '@/components/ui/button';
 import { useQuery } from '@tanstack/react-query';
 import { Link } from 'wouter';
 import { COMPREHENSIVE_LANDING_TEMPLATE } from '@/components/comprehensive-landing-template';
+import { CompletionModal } from '@/components/completion-modal';
 
 export default function VictoriaPreview() {
   const [isFullScreen, setIsFullScreen] = useState(true); // Start in full-screen mode
+  const [showCompletionModal, setShowCompletionModal] = useState(false);
+  const [publishedUrl, setPublishedUrl] = useState('');
   const previewRef = useRef<HTMLIFrameElement>(null);
 
   const { data: brandData } = useQuery({ queryKey: ['/api/brand-onboarding'] });
@@ -163,10 +166,10 @@ export default function VictoriaPreview() {
       `The ${firstName} Method`;
     
     // Editorial text based on their actual positioning
-    const editorialText1 = problemYouSolve || 'She believes in authentic connections over perfect presentations.';
+    const editorialText1 = problemYouSolve || `${firstName} knows that your story is what sets you apart from everyone else doing "the same thing."`;
     const editorialText2 = targetClient ? 
-      `Working specifically with ${targetClient.toLowerCase()}, every project starts with understanding your unique story.` :
-      'Every project starts with understanding your story, not following a template.';
+      `Working specifically with ${targetClient.toLowerCase()}, she doesn't believe in cookie-cutter approaches. Your business deserves strategy that's as unique as you are.` :
+      `No templates, no copying what everyone else is doing. This is about building something that's unmistakably yours.`;
     
     // Services based on their actual offers
     const service1Title = primaryOffer || 'Brand Strategy';
@@ -183,16 +186,16 @@ export default function VictoriaPreview() {
     
     // Testimonial based on their target client
     const testimonialText = targetClient ?
-      `Working with ${firstName} transformed not just my brand, but how I see myself as a ${targetClient.toLowerCase()}. The clarity and confidence I gained was worth every penny.` :
-      'Working with her transformed not just my brand, but how I see myself as an entrepreneur. The clarity and confidence I gained was worth every penny.';
+      `I thought I knew what I was doing, but ${firstName} helped me see my business in a completely different way. Now I wake up excited about my work instead of constantly second-guessing myself.` :
+      `I thought I knew what I was doing, but working with her helped me see my business in a completely different way. Now I wake up excited about my work instead of constantly second-guessing myself.`;
     
-    const testimonialAuthor = targetClient ? `Sarah M., ${targetClient}` : 'Sarah M., Brand Strategist';
+    const testimonialAuthor = targetClient ? `Sarah M., ${targetClient}` : 'Sarah M., Client';
     
     // Freebie based on their actual free resource
-    const freebieTitle = freeResource || `The ${firstName} Brand Blueprint`;
+    const freebieTitle = freeResource || `Free: ${firstName}'s Brand Clarity Guide`;
     const freebieDescription = freeResource ?
-      `Get ${firstName}'s exclusive ${freeResource.toLowerCase()} that shows you exactly how to ${problemYouSolve?.toLowerCase() || 'build your authentic brand'}.` :
-      `Get the exact framework ${firstName} uses to help ${targetClient?.toLowerCase() || 'entrepreneurs'} build authentic, profitable personal brands.`;
+      `Stop guessing and start growing. Get ${firstName}'s ${freeResource.toLowerCase()} and discover the one thing that will make everything else easier.` :
+      `Stop guessing and start growing. Get the exact process ${firstName} uses with clients to go from "I don't know what I'm doing" to "I know exactly who I serve and how."`;
     
     // Replace all content variables
     updatedHtml = updatedHtml.replace(/{{PERSONAL_STORY}}/g, personalStory);
@@ -359,10 +362,9 @@ export default function VictoriaPreview() {
                     const result = await response.json();
                     
                     if (result.success) {
-                      // Show success message with live URL
-                      alert(`🎉 Your page is now live at:\n${result.liveUrl}\n\nShare this URL with your audience!`);
-                      // Optionally open the live page
-                      window.open(result.liveUrl, '_blank');
+                      // Show completion modal with live URL
+                      setPublishedUrl(result.liveUrl);
+                      setShowCompletionModal(true);
                     } else {
                       alert('Failed to publish page. Please try again.');
                     }
@@ -378,6 +380,14 @@ export default function VictoriaPreview() {
           </div>
         </div>
       </div>
+      
+      {/* Completion Modal */}
+      <CompletionModal 
+        isOpen={showCompletionModal}
+        onClose={() => setShowCompletionModal(false)}
+        liveUrl={publishedUrl}
+        brandName={brandData?.businessName || brandData?.fullName || 'Your Business'}
+      />
     </>
   );
 }
