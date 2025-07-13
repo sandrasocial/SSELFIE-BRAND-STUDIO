@@ -2,10 +2,9 @@ import type { Express } from "express";
 import { createServer, type Server } from "http";
 import { storage } from "./storage";
 import { setupAuth, isAuthenticated } from "./replitAuth";
-import express from "express";
+import { rachelAgent } from "./agents/rachel-agent";
 import path from "path";
 import fs from "fs";
-import { rachelAgent } from "./agents/rachel-agent";
 // Removed photoshoot routes - using existing checkout system
 import { registerStyleguideRoutes } from "./routes/styleguide-routes";
 import { UsageService } from './usage-service';
@@ -37,8 +36,6 @@ export async function registerRoutes(app: Express): Promise<Server> {
       maxAge: 24 * 60 * 60 * 1000 // 24 hours
     }
   }));
-
-  // Removed multi-page route from here - moved to end of routes to avoid Vite conflicts
 
   // PUBLIC ENDPOINT: Chat with Sandra AI for photoshoot prompts - MUST BE FIRST, NO AUTH
   app.post('/api/sandra-chat', async (req: any, res) => {
@@ -816,56 +813,36 @@ Your goal is to have a natural conversation, understand their vision deeply, and
       // Create a username-based subdomain (sanitize for URL)
       const username = pageName.toLowerCase().replace(/[^a-z0-9]/g, '');
       
-      // Create public directory for this user if it doesn't exist
-      const userDir = path.join(process.cwd(), 'public', username);
-      
-      if (!fs.existsSync(userDir)) {
-        fs.mkdirSync(userDir, { recursive: true });
-      }
-      
-      // Write all four HTML files to the filesystem
-      const pageFiles = {
-        'index.html': pages.home,
-        'about.html': pages.about,
-        'services.html': pages.services,
-        'contact.html': pages.contact
-      };
-      
-      for (const [filename, content] of Object.entries(pageFiles)) {
-        if (content) {
-          const filePath = path.join(userDir, filename);
-          fs.writeFileSync(filePath, content, 'utf8');
-          console.log(`Created ${filename} for user ${username}`);
-        }
-      }
-      
-      // Store website metadata in database for tracking
+      // Check if page already exists and update it, or create new one
       const existingPages = await storage.getUserLandingPages(userId);
       const existingPage = existingPages?.find(page => page.slug === username);
       
       let landingPage;
       if (existingPage) {
-        // Update existing page metadata
+        // Update existing page with home page content
         landingPage = await storage.updateUserLandingPage(existingPage.id, {
           title: `${pageName} - Multi-Page Website`,
-          htmlContent: pages.home, // Store home page as main content
+          htmlContent: pages.home,
           isPublished: true,
-          cssContent: '',
+          cssContent: '', // CSS is inline in htmlContent
           templateUsed: 'victoria-multi-page-template'
         });
       } else {
-        // Create new page metadata
+        // Create new page with home page content
         landingPage = await storage.createUserLandingPage({
           userId,
           title: `${pageName} - Multi-Page Website`,
-          htmlContent: pages.home, // Store home page as main content
+          htmlContent: pages.home,
           slug: username,
           isPublished: true,
           customDomain: null,
-          cssContent: '',
+          cssContent: '', // CSS is inline in htmlContent
           templateUsed: 'victoria-multi-page-template'
         });
       }
+
+      // Store additional pages (about, services, contact) for future routing
+      // For now, the main page contains navigation to other sections
       
       // Return the live URL
       const liveUrl = `${req.protocol}://${req.get('host')}/${username}`;
@@ -876,7 +853,6 @@ Your goal is to have a natural conversation, understand their vision deeply, and
         pageId: landingPage.id,
         websiteName: pageName,
         pages: ['home', 'about', 'services', 'contact'],
-        filesCreated: Object.keys(pageFiles),
         message: `Your multi-page website is now live at ${liveUrl}` 
       });
       
@@ -964,8 +940,36 @@ Always be encouraging and strategic while providing specific technical guidance.
       let victoriaResponse;
       
       try {
-        // Skip Anthropic API due to ES module compatibility issues
-        throw new Error('Anthropic API disabled for ES module compatibility');
+        if (process.env.ANTHROPIC_API_KEY) {
+          const Anthropic = require('@anthropic-ai/sdk');
+          const anthropic = new Anthropic({
+            apiKey: process.env.ANTHROPIC_API_KEY,
+          });
+
+          // Build conversation history for context
+          const conversationHistory = chatHistory || [];
+          const messages = conversationHistory.map((msg: any) => ({
+            role: msg.role === 'victoria' ? 'assistant' : 'user',
+            content: msg.content
+          }));
+
+          // Add current message
+          messages.push({
+            role: 'user',
+            content: message
+          });
+
+          const response = await anthropic.messages.create({
+            model: DEFAULT_MODEL_STR,
+            max_tokens: 1500,
+            system: victoriaSystemPrompt,
+            messages: messages
+          });
+
+          victoriaResponse = response.content[0].text;
+        } else {
+          throw new Error('Anthropic API key not available');
+        }
       } catch (error) {
         console.error('Claude API error:', error);
         // Fallback responses for landing page building
@@ -1156,43 +1160,21 @@ Always be encouraging and strategic while providing specific technical guidance.
   //   console.log('Auth setup failed, using simple auth for testing:', error.message);
   // }
 
-  // Simple login endpoint to set session for testing
-  app.get('/api/login', (req: any, res) => {
-    // Set up test user session
-    req.session.userId = 'sandra_test_user_2025';
-    req.session.userEmail = 'sandra@sselfie.ai';
-    req.session.firstName = 'Sandra';
-    req.session.lastName = 'Social';
-    req.session.createdAt = new Date().toISOString();
-    
-    // Redirect to workspace
-    res.redirect('/workspace');
-  });
-
   // Auth routes - consistent test user with session management
   app.get('/api/auth/user', async (req: any, res) => {
     try {
-      // For testing - always return authenticated user to fix white screen issue
-      const userId = req.session?.userId || 'sandra_test_user_2025';
-      
-      // Set session if not exists
-      if (!req.session.userId) {
-        req.session.userId = userId;
-        req.session.userEmail = 'sandra@sselfie.ai';
-        req.session.firstName = 'Sandra';
-        req.session.lastName = 'Social';
-        req.session.createdAt = new Date().toISOString();
+      // Check if user is in session - if not, they're not "logged in"
+      if (!req.session?.userId) {
+        return res.status(401).json({ message: "Not authenticated" });
       }
 
-      // Return consistent test user that allows platform access
+      // Return consistent test user from session
       const testUser = {
-        id: userId,
-        email: req.session.userEmail || "sandra@sselfie.ai",
-        firstName: req.session.firstName || "Sandra",
-        lastName: req.session.lastName || "Social", 
-        profileImageUrl: "https://i.postimg.cc/76vVdbWY/out-0-7.png",
-        plan: 'pro',
-        subscriptionStatus: 'active',
+        id: req.session.userId,
+        email: req.session.userEmail || "testuser@example.com",
+        firstName: req.session.firstName || "Test",
+        lastName: req.session.lastName || "User", 
+        profileImageUrl: null,
         stripeCustomerId: null,
         stripeSubscriptionId: null,
         createdAt: req.session.createdAt || new Date().toISOString(),
@@ -3565,36 +3547,6 @@ Consider this workflow optimized and ready for implementation! ⚙️`
         console.error('Error checking landing page:', error);
         next(); // Continue to other routes on error
       });
-  });
-
-
-
-  // Serve user-specific multi-page website files (MUST be LAST to avoid Vite conflicts)
-  app.get('/:username/:page', (req, res, next) => {
-    const { username, page } = req.params;
-    
-    // Skip Vite development routes
-    if (username.startsWith('@') || username.startsWith('src/') || username.startsWith('node_modules/')) {
-      return next();
-    }
-    
-    // Only handle .html files in user directories
-    if (!page.endsWith('.html')) {
-      return next();
-    }
-    
-    const validPages = ['about.html', 'services.html', 'contact.html'];
-    if (!validPages.includes(page)) {
-      return next();
-    }
-    
-    const filePath = path.join(process.cwd(), 'public', username, page);
-    
-    if (fs.existsSync(filePath)) {
-      res.sendFile(filePath);
-    } else {
-      next(); // Let other routes handle this
-    }
   });
 
   const httpServer = createServer(app);

@@ -9,7 +9,6 @@ import { useQuery } from "@tanstack/react-query";
 import NotFound from "@/pages/not-found";
 import Landing from "@/pages/landing";
 import EditorialLanding from "@/pages/editorial-landing";
-import TestLanding from "@/pages/test-landing";
 import Pricing from "@/pages/pricing";
 import Workspace from "@/pages/workspace";
 import Onboarding from "@/pages/onboarding";
@@ -132,40 +131,40 @@ function Router() {
       <Route path="/payment-success" component={PaymentSuccess} />
 
       {/* PROTECTED ROUTES */}
-      <Route path="/workspace" component={Workspace} />
-      <Route path="/studio" component={Workspace} />
-      <Route path="/onboarding" component={Onboarding} />
+      <Route path="/workspace" component={(props) => <ProtectedRoute component={Workspace} {...props} />} />
+      <Route path="/studio" component={(props) => <ProtectedRoute component={Workspace} {...props} />} />
+      <Route path="/onboarding" component={(props) => <ProtectedRoute component={Onboarding} {...props} />} />
       
-      {/* AI TRAINING & PHOTOSHOOT WORKFLOW - AUTH REMOVED TO FIX WHITE SCREENS */}
-      <Route path="/ai-training" component={SimpleTraining} />
-      <Route path="/simple-training" component={SimpleTraining} />
-      <Route path="/ai-photoshoot" component={AIPhotoshoot} />
-      <Route path="/sandra-photoshoot" component={SandraPhotoshoot} />
-      <Route path="/custom-photoshoot-library" component={CustomPhotoshootLibrary} />
-      <Route path="/flatlay-library" component={FlatlayLibrary} />
-      <Route path="/sandra-ai" component={SandraAI} />
-      <Route path="/ai-generator" component={AIGenerator} />
-      <Route path="/gallery" component={SSELFIEGallery} />
-      <Route path="/sselfie-gallery" component={SSELFIEGallery} />
-      <Route path="/profile" component={Profile} />
+      {/* AI TRAINING & PHOTOSHOOT WORKFLOW */}
+      <Route path="/ai-training" component={(props) => <ProtectedRoute component={SimpleTraining} {...props} />} />
+      <Route path="/simple-training" component={(props) => <ProtectedRoute component={SimpleTraining} {...props} />} />
+      <Route path="/ai-photoshoot" component={(props) => <ProtectedRoute component={AIPhotoshoot} {...props} />} />
+      <Route path="/sandra-photoshoot" component={(props) => <ProtectedRoute component={SandraPhotoshoot} {...props} />} />
+      <Route path="/custom-photoshoot-library" component={(props) => <ProtectedRoute component={CustomPhotoshootLibrary} {...props} />} />
+      <Route path="/flatlay-library" component={(props) => <ProtectedRoute component={FlatlayLibrary} {...props} />} />
+      <Route path="/sandra-ai" component={(props) => <ProtectedRoute component={SandraAI} {...props} />} />
+      <Route path="/ai-generator" component={(props) => <ProtectedRoute component={AIGenerator} {...props} />} />
+      <Route path="/gallery" component={(props) => <ProtectedRoute component={SSELFIEGallery} {...props} />} />
+      <Route path="/sselfie-gallery" component={(props) => <ProtectedRoute component={SSELFIEGallery} {...props} />} />
+      <Route path="/profile" component={(props) => <ProtectedRoute component={Profile} {...props} />} />
       
       {/* AI AGENTS */}
-      <Route path="/maya" component={Maya} />
-      <Route path="/victoria" component={Victoria} />
-      <Route path="/victoria-chat" component={VictoriaChat} />
-      <Route path="/photo-selection" component={PhotoSelection} />
-      <Route path="/brand-onboarding" component={BrandOnboarding} />
-      <Route path="/victoria-builder" component={VictoriaBuilder} />
-      <Route path="/victoria-preview" component={VictoriaPreview} />
+      <Route path="/maya" component={(props) => <ProtectedRoute component={Maya} {...props} />} />
+      <Route path="/victoria" component={(props) => <ProtectedRoute component={Victoria} {...props} />} />
+      <Route path="/victoria-chat" component={(props) => <ProtectedRoute component={VictoriaChat} {...props} />} />
+      <Route path="/photo-selection" component={(props) => <ProtectedRoute component={PhotoSelection} {...props} />} />
+      <Route path="/brand-onboarding" component={(props) => <ProtectedRoute component={BrandOnboarding} {...props} />} />
+      <Route path="/victoria-builder" component={(props) => <ProtectedRoute component={VictoriaBuilder} {...props} />} />
+      <Route path="/victoria-preview" component={(props) => <ProtectedRoute component={VictoriaPreview} {...props} />} />
       
       {/* SANDRA'S ADMIN DASHBOARD */}
       <Route path="/admin" component={AdminDashboard} />
       <Route path="/sandra-admin" component={AdminDashboard} />
-      <Route path="/rachel-chat" component={RachelChat} />
-      <Route path="/rachel-activation" component={RachelActivation} />
+      <Route path="/rachel-chat" component={(props) => <ProtectedRoute component={RachelChat} {...props} />} />
+      <Route path="/rachel-activation" component={(props) => <ProtectedRoute component={RachelActivation} {...props} />} />
       
       {/* ADMIN MARKETING AUTOMATION */}
-      <Route path="/marketing-automation" component={lazy(() => import('@/pages/marketing-automation'))} />
+      <Route path="/marketing-automation" component={(props) => <ProtectedRoute component={lazy(() => import('@/pages/marketing-automation'))} {...props} />} />
       
       {/* DEBUGGING */}
       <Route path="/test-login" component={TestLogin} />
