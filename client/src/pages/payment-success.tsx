@@ -20,10 +20,13 @@ export default function PaymentSuccess() {
     // Show success message regardless of auth status
     toast({
       title: "Payment Successful!",
-      description: "Welcome to SSELFIE Studio! Let's get you set up.",
+      description: "Welcome to SSELFIE Studio! Please sign in to access your account.",
     });
 
-    // NO AUTO-REDIRECT - User must manually click to proceed
+    // Store the plan for after authentication
+    if (plan) {
+      localStorage.setItem('userPlan', plan);
+    }
   }, [toast]);
 
   // Get plan details from URL

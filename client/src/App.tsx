@@ -46,6 +46,7 @@ import VictoriaPreview from '@/pages/victoria-preview';
 import PhotoSelection from "@/pages/photo-selection";
 import BrandOnboarding from "@/pages/brand-onboarding";
 import Welcome from "@/pages/welcome";
+import AuthSuccess from "@/pages/auth-success";
 
 // Removed duplicate photoshoot imports - using existing system
 
@@ -136,6 +137,7 @@ function Router() {
       <Route path="/welcome" component={Welcome} />
       <Route path="/thank-you" component={ThankYou} />
       <Route path="/payment-success" component={PaymentSuccess} />
+      <Route path="/auth-success" component={AuthSuccess} />
 
       {/* PROTECTED ROUTES */}
       <Route path="/workspace" component={(props) => <ProtectedRoute component={Workspace} {...props} />} />
