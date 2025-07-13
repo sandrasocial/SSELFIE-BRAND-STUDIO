@@ -50,7 +50,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const userId = req.user?.claims?.sub || 'anonymous_user';
       const user = await storage.getUser(userId);
       const userModel = await storage.getUserModel(userId);
-      const triggerWord = userModel?.triggerWord || 'subject';
+      const triggerWord = userModel?.triggerWord || '';
       
       let sandraResponse;
       let suggestedPrompt = null;
@@ -412,7 +412,7 @@ Your goal is to have a natural conversation, understand their vision deeply, and
           
           // Get user's trained model for trigger word
           const userModel = await storage.getUserModelByUserId(userId);
-          const triggerWord = userModel?.triggerWord || 'user';
+          const triggerWord = userModel?.triggerWord || '';
           
           // Maya's expert prompt generation
           const promptResponse = await client.messages.create({
@@ -3888,7 +3888,7 @@ function generateSandraPhotoshootResponse(message: string, chatHistory: any[], o
   if (lowerMessage.includes('business') || lowerMessage.includes('professional') || lowerMessage.includes('meeting')) {
     return {
       response: "Business energy - but let's make it dynamic! Instead of static headshots, let's capture you in action. Leading meetings, making deals, being the CEO you are. Real business moments that show your authority.",
-      prompt: "subject woman at head of conference table, modern office, city skyline view, black power suit, leading meeting, golden hour light through windows, full scene visible, environmental context, lifestyle photography not portrait, candid business moment"
+      prompt: "woman at head of conference table, modern office, city skyline view, black power suit, leading meeting, golden hour light through windows, full scene visible, environmental context, lifestyle photography not portrait, candid business moment"
     };
   }
   
@@ -3896,7 +3896,7 @@ function generateSandraPhotoshootResponse(message: string, chatHistory: any[], o
   if (lowerMessage.includes('magazine') || lowerMessage.includes('editorial') || lowerMessage.includes('vogue')) {
     return {
       response: "Editorial magazine realness! But let's make it lifestyle editorial - think Vogue meets real life. You working, you traveling, you living your best life. Environmental editorial that tells your story.",
-      prompt: "subject woman working on laptop at beachfront cafe, Mediterranean view, morning golden hour, white linen outfit, coffee on marble table, full scene visible, environmental context, lifestyle photography not portrait, editorial lifestyle moment"
+      prompt: "woman working on laptop at beachfront cafe, Mediterranean view, morning golden hour, white linen outfit, coffee on marble table, full scene visible, environmental context, lifestyle photography not portrait, editorial lifestyle moment"
     };
   }
   
@@ -3904,7 +3904,7 @@ function generateSandraPhotoshootResponse(message: string, chatHistory: any[], o
   if (lowerMessage.includes('lifestyle') || lowerMessage.includes('natural') || lowerMessage.includes('casual')) {
     return {
       response: "Natural lifestyle vibes - this is what converts because it feels authentic! Let's capture you in your element. Working from your favorite cafe, morning routine, real life moments that show who you are.",
-      prompt: "subject woman with coffee cup, cozy luxury setting, oversized black sweater, natural morning light, minimal styling, full scene visible, environmental context, lifestyle photography not portrait, authentic lifestyle moment"
+      prompt: "woman with coffee cup, cozy luxury setting, oversized black sweater, natural morning light, minimal styling, full scene visible, environmental context, lifestyle photography not portrait, authentic lifestyle moment"
     };
   }
   
@@ -3912,7 +3912,7 @@ function generateSandraPhotoshootResponse(message: string, chatHistory: any[], o
   if (lowerMessage.includes('luxury') || lowerMessage.includes('elegant') || lowerMessage.includes('sophisticated')) {
     return {
       response: "Luxury aesthetic - because you ARE the luxury brand! Let's create something that screams premium without trying too hard. Think understated elegance with that expensive feel.",
-      prompt: "subject, luxury portrait, high-end fashion photography, Hasselblad H6D-100c, 120mm lens, sophisticated elegance, premium styling, dramatic rim lighting, luxury aesthetic, sharp focus, raw photo, visible skin pores, film grain, unretouched natural skin texture, subsurface scattering, photographed on film"
+      prompt: "luxury portrait, high-end fashion photography, Hasselblad H6D-100c, 120mm lens, sophisticated elegance, premium styling, dramatic rim lighting, luxury aesthetic, sharp focus, raw photo, visible skin pores, film grain, unretouched natural skin texture, subsurface scattering, photographed on film"
     };
   }
   
