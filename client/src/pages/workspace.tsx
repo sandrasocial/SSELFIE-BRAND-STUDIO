@@ -295,109 +295,96 @@ export default function Workspace() {
       <section className="py-20 px-8">
         <div className="max-w-6xl mx-auto">
           
-          {/* Your Journey - Step Cards */}
+          {/* Your Platform Tools - Compact Widget Style */}
           <div className="mb-20">
-            <div className="text-center mb-16">
-              <div className="text-xs tracking-[0.4em] uppercase text-gray-500 mb-6">
-                Your Journey
+            <div className="text-center mb-12">
+              <div className="text-xs tracking-[0.4em] uppercase text-gray-500 mb-4">
+                Your Platform
               </div>
-              <h2 className="font-serif text-3xl sm:text-4xl md:text-5xl font-light tracking-wide uppercase">
-                Nine Steps to Empire
+              <h2 className="font-times text-2xl sm:text-3xl font-light tracking-wide uppercase mb-8">
+                Tools & Features
               </h2>
+              
+              {/* Clear Priority Message */}
+              <div className="max-w-2xl mx-auto mb-8 p-4 bg-gray-50 border border-gray-200">
+                <div className="text-xs tracking-[0.2em] uppercase text-gray-600 mb-2">Important</div>
+                <p className="text-sm font-light text-black">
+                  Start with <strong>Step 01 - Train Your AI</strong> first. You must train your personal AI model before you can generate photos of yourself.
+                </p>
+              </div>
             </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
+            {/* Compact Widget Grid */}
+            <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4">
               {journeySteps.map((step, index) => (
                 <Link key={step.id} href={step.link} className={step.status === 'locked' ? 'pointer-events-none' : ''}>
-                  <div className={`group relative bg-white border border-[#e0e0e0] transition-all duration-500 ${
-                    step.status === 'locked' ? 'opacity-50' : 'hover:border-black hover:shadow-lg'
+                  <div className={`group relative bg-white border border-[#e0e0e0] transition-all duration-300 h-32 ${
+                    step.status === 'locked' ? 'opacity-50' : 'hover:border-black hover:shadow-md'
                   }`}>
-                    {/* Step Image with Overlay */}
-                    <div className="relative aspect-[4/5] overflow-hidden bg-[#f5f5f5]">
+                    
+                    {/* Compact Image Section */}
+                    <div className="relative h-16 overflow-hidden bg-[#f5f5f5]">
                       <img 
                         src={step.image}
                         alt={step.title}
-                        className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
+                        className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105"
                       />
-                      {/* Subtle Dark Overlay */}
-                      <div className="absolute inset-0 bg-black/20 transition-opacity duration-300 group-hover:bg-black/30"></div>
                       
-                      {/* Text Overlay for Steps 01 and 03 */}
-                      {(index === 0 || index === 2) && (
-                        <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500">
-                          <div className="absolute bottom-6 left-6 right-6">
-                            <div className="text-xs tracking-[0.3em] uppercase font-light text-white/70 mb-2">
-                              Step {step.number}
-                            </div>
-                            <h3 className="font-times text-lg font-light tracking-[-0.01em] text-white mb-2">
-                              {step.title}
-                            </h3>
-                            <p className="text-sm font-light text-white/80 leading-relaxed">
-                              {step.subtitle}
-                            </p>
-                          </div>
-                        </div>
-                      )}
+                      {/* Step Number Badge */}
+                      <div className="absolute top-2 left-2 w-5 h-5 bg-black text-white text-xs flex items-center justify-center font-light">
+                        {step.number}
+                      </div>
+                      
+                      {/* Status Indicator */}
+                      <div className={`absolute top-2 right-2 w-2 h-2 rounded-full ${
+                        step.status === 'complete' ? 'bg-green-500' :
+                        step.status === 'progress' ? 'bg-yellow-500' :
+                        step.status === 'ready' ? 'bg-blue-500' :
+                        'bg-gray-300'
+                      }`}></div>
                     </div>
                     
-                    {/* Step Content - Hidden for overlay cards */}
-                    {!(index === 0 || index === 2) && (
-                      <div className="p-6">
-                        <div className="flex items-center justify-between mb-4">
-                          <span className="text-xs tracking-[0.3em] uppercase font-light text-[#666666]">
-                            Step {step.number}
-                          </span>
-                          <span className={`text-xs tracking-[0.2em] uppercase font-light ${
-                            step.status === 'complete' ? 'text-black' :
-                            step.status === 'progress' ? 'text-[#666666]' :
-                            step.status === 'ready' ? 'text-black' :
-                            step.status === 'locked' ? 'text-[#999999]' :
-                            'text-[#666666]'
-                          }`}>
-                            {step.statusText}
-                          </span>
-                        </div>
-                        
-                        <h3 className="font-times text-xl font-light tracking-[-0.01em] mb-2">
-                          {step.title}
-                        </h3>
-                        
-                        <p className="text-sm font-light text-[#666666] leading-relaxed">
-                          {step.subtitle}
-                        </p>
-                      </div>
-                    )}
+                    {/* Compact Content */}
+                    <div className="p-3 h-16 flex flex-col justify-between">
+                      <h3 className="font-times text-xs font-light tracking-tight leading-tight text-black line-clamp-2">
+                        {step.title}
+                      </h3>
+                      <span className={`text-xs tracking-[0.1em] uppercase font-light ${
+                        step.status === 'complete' ? 'text-green-600' :
+                        step.status === 'progress' ? 'text-yellow-600' :
+                        step.status === 'ready' ? 'text-black' :
+                        step.status === 'locked' ? 'text-gray-400' :
+                        'text-gray-600'
+                      }`}>
+                        {step.statusText}
+                      </span>
+                    </div>
 
-                    {/* Minimal Content for Overlay Cards */}
-                    {(index === 0 || index === 2) && (
-                      <div className="p-6">
-                        <div className="flex items-center justify-between">
-                          <span className="text-xs tracking-[0.3em] uppercase font-light text-[#666666]">
-                            Step {step.number}
-                          </span>
-                          <span className={`text-xs tracking-[0.2em] uppercase font-light ${
-                            step.status === 'complete' ? 'text-black' :
-                            step.status === 'progress' ? 'text-[#666666]' :
-                            step.status === 'ready' ? 'text-black' :
-                            step.status === 'locked' ? 'text-[#999999]' :
-                            'text-[#666666]'
-                          }`}>
-                            {step.statusText}
-                          </span>
-                        </div>
-                      </div>
-                    )}
-
-                    {/* Status Indicator */}
-                    <div className={`absolute top-6 right-6 w-2 h-2 ${
-                      step.status === 'complete' ? 'bg-white shadow-md' :
-                      step.status === 'progress' ? 'bg-white/80 shadow-md' :
-                      step.status === 'ready' ? 'bg-white shadow-md' :
-                      'bg-[#e0e0e0]'
-                    }`}></div>
+                    {/* Hover Description Tooltip */}
+                    <div className="absolute bottom-full left-0 right-0 mb-2 p-2 bg-black text-white text-xs opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none z-10">
+                      <div className="font-light leading-tight">{step.subtitle}</div>
+                    </div>
                   </div>
                 </Link>
               ))}
+            </div>
+
+            {/* Progress Overview */}
+            <div className="mt-8 text-center">
+              <div className="inline-flex items-center space-x-8 text-xs tracking-[0.2em] uppercase text-gray-600">
+                <div className="flex items-center space-x-2">
+                  <div className="w-2 h-2 bg-green-500 rounded-full"></div>
+                  <span>Complete</span>
+                </div>
+                <div className="flex items-center space-x-2">
+                  <div className="w-2 h-2 bg-blue-500 rounded-full"></div>
+                  <span>Ready</span>
+                </div>
+                <div className="flex items-center space-x-2">
+                  <div className="w-2 h-2 bg-gray-300 rounded-full"></div>
+                  <span>Locked</span>
+                </div>
+              </div>
             </div>
           </div>
 
