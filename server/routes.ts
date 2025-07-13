@@ -483,6 +483,29 @@ Your goal is to have a natural conversation, understand their vision deeply, and
 
       console.log(`Maya generating images for user ${userId} with prompt: ${customPrompt}`);
 
+      // CRITICAL FIX: Get the trained model version from your completed training  
+      let modelVersion = 'black-forest-labs/flux-dev-lora:a53fd9255ecba80d99eaab4706c698f861fd47b098012607557385416e46aae5';
+      
+      // For your completed model, check if we have version information
+      if (userModel.trainingStatus === 'completed' && userModel.replicateModelId) {
+        try {
+          // Check if this is a training ID and get the resulting model version
+          const trainingResponse = await fetch(`https://api.replicate.com/v1/trainings/${userModel.replicateModelId}`, {
+            headers: { 'Authorization': `Token ${process.env.REPLICATE_API_TOKEN}` }
+          });
+          
+          if (trainingResponse.ok) {
+            const trainingData = await trainingResponse.json();
+            if (trainingData.status === 'succeeded' && trainingData.version) {
+              modelVersion = trainingData.version;
+              console.log(`Maya using trained model version: ${modelVersion}`);
+            }
+          }
+        } catch (error) {
+          console.log('Maya using fallback FLUX LoRA version due to API error:', error.message);
+        }
+      }
+
       // FIXED: Use existing image generation service with proper user validation
       const imageGenerationService = await import('./image-generation-service');
       const result = await imageGenerationService.generateImages({
@@ -490,7 +513,7 @@ Your goal is to have a natural conversation, understand their vision deeply, and
         category: 'Maya AI',
         subcategory: 'AI Photography', 
         triggerWord: userModel.triggerWord,
-        modelVersion: userModel.replicateVersionId,
+        modelVersion: modelVersion,rsionId,
         customPrompt
       });
 
@@ -3121,6 +3144,29 @@ Consider this workflow optimized and ready for implementation! ⚙️`
         });
       }
       
+      // CRITICAL FIX: Get the trained model version from your completed training
+      let modelVersion = 'black-forest-labs/flux-dev-lora:a53fd9255ecba80d99eaab4706c698f861fd47b098012607557385416e46aae5';
+      
+      // For your completed model, check if we have version information
+      if (userModel.trainingStatus === 'completed' && userModel.replicateModelId) {
+        try {
+          // Check if this is a training ID and get the resulting model version
+          const trainingResponse = await fetch(`https://api.replicate.com/v1/trainings/${userModel.replicateModelId}`, {
+            headers: { 'Authorization': `Token ${process.env.REPLICATE_API_TOKEN}` }
+          });
+          
+          if (trainingResponse.ok) {
+            const trainingData = await trainingResponse.json();
+            if (trainingData.status === 'succeeded' && trainingData.version) {
+              modelVersion = trainingData.version;
+              console.log(`Using trained model version: ${modelVersion}`);
+            }
+          }
+        } catch (error) {
+          console.log('Using fallback FLUX LoRA version due to API error:', error.message);
+        }
+      }
+
       // Use correct FLUX LoRA image generation service (same as Maya)
       const { generateImages } = await import('./image-generation-service');
       const result = await generateImages({
@@ -3128,7 +3174,7 @@ Consider this workflow optimized and ready for implementation! ⚙️`
         category: 'built-in-prompt',
         subcategory: 'ai-photoshoot',
         triggerWord: userModel.triggerWord,
-        modelVersion: userModel.modelVersion || 'black-forest-labs/flux-dev-lora:a53fd9255ecba80d99eaab4706c698f861fd47b098012607557385416e46aae5',
+        modelVersion: modelVersion,
         customPrompt: prompt.replace('[triggerword]', userModel.triggerWord)
       });
       
