@@ -73,9 +73,22 @@ export async function generateImages(request: GenerateImagesRequest): Promise<Ge
       finalPrompt = `${finalPrompt}, ${randomCameraSpec}`;
     }
     
+    // Extract negative prompts from the custom prompt (if present)
+    let negativePrompt = "shiny skin, glossy skin, fake skin, plastic-looking skin, over-processed skin, deep unflattering wrinkles, flat unflattering hair, close-up portrait, headshot, tight crop, face only, portrait photography, profile shot, studio portrait, face closeup, tight framing, head and shoulders only, cropped face, zoomed in face";
+    
+    // Check if prompt contains negative prompts and extract them
+    if (finalPrompt.includes("Negative:")) {
+      const parts = finalPrompt.split("Negative:");
+      finalPrompt = parts[0].trim();
+      if (parts[1]) {
+        negativePrompt = parts[1].trim() + ", " + negativePrompt;
+      }
+    }
+
     // Build input with correct FLUX LoRA parameters per schema
     const input: any = {
       prompt: finalPrompt,
+      negative_prompt: negativePrompt,  // Add comprehensive negative prompts
       guidance: 3.5,              // Guidance for black-forest-labs/flux-dev-lora
       lora_weights: `sandrasocial/${userModel.modelName}`, // User's trained LoRA weights
       lora_scale: 1.0,           // Full LoRA application (0-1 range)
