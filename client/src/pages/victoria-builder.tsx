@@ -279,24 +279,50 @@ export default function VictoriaBuilder() {
     updatedHtml = updatedHtml.replace(/{{USER_FLATLAY_2}}/g, flatlay2);
     updatedHtml = updatedHtml.replace(/{{USER_FLATLAY_3}}/g, flatlay3);
     
-    // Default placeholders for content
-    updatedHtml = updatedHtml.replace(/{{USER_NAME}}/g, 'Your Name');
-    updatedHtml = updatedHtml.replace(/{{BUSINESS_TITLE}}/g, 'Personal Brand');
-    updatedHtml = updatedHtml.replace(/{{USER_TAGLINE}}/g, 'Building Something Beautiful');
-    updatedHtml = updatedHtml.replace(/{{USER_FIRST_NAME}}/g, 'YOUR');
-    updatedHtml = updatedHtml.replace(/{{USER_LAST_NAME}}/g, 'NAME');
+    // Use real brand data from onboarding or fallback to defaults
+    const businessName = brandData?.businessName || 'Your Name';
+    const tagline = brandData?.tagline || 'Building Something Beautiful';
+    const personalStory = brandData?.personalStory || 'I help ambitious women build their personal brand and launch their dreams.';
+    const primaryOffer = brandData?.primaryOffer || 'Strategy';
+    const primaryOfferPrice = brandData?.primaryOfferPrice || '$47/month';
+    const problemYouSolve = brandData?.problemYouSolve || 'Personal brand strategy and positioning';
+    const uniqueApproach = brandData?.uniqueApproach || 'My mission is to make personal branding accessible and authentic.';
+    const email = brandData?.email || 'hello@yourname.com';
+    const instagramHandle = brandData?.instagramHandle || '@yourname';
+    const websiteUrl = brandData?.websiteUrl || 'www.yourname.com';
+
+    // Split business name for hero display
+    const nameparts = businessName.split(' ');
+    const firstName = nameparts[0] || 'YOUR';
+    const lastName = nameparts.slice(1).join(' ') || 'NAME';
+    
+    // Replace content with actual brand data
+    updatedHtml = updatedHtml.replace(/{{USER_NAME}}/g, businessName);
+    updatedHtml = updatedHtml.replace(/{{BUSINESS_TITLE}}/g, businessName);
+    updatedHtml = updatedHtml.replace(/{{USER_TAGLINE}}/g, tagline);
+    updatedHtml = updatedHtml.replace(/{{USER_FIRST_NAME}}/g, firstName.toUpperCase());
+    updatedHtml = updatedHtml.replace(/{{USER_LAST_NAME}}/g, lastName.toUpperCase());
     updatedHtml = updatedHtml.replace(/{{ABOUT_TITLE}}/g, 'About Me');
-    updatedHtml = updatedHtml.replace(/{{ABOUT_DESCRIPTION}}/g, 'I help ambitious women build their personal brand and launch their dreams.');
-    updatedHtml = updatedHtml.replace(/{{ABOUT_MISSION}}/g, 'My mission is to make personal branding accessible and authentic.');
-    updatedHtml = updatedHtml.replace(/{{SERVICE_1_TITLE}}/g, 'Strategy');
-    updatedHtml = updatedHtml.replace(/{{SERVICE_1_DESCRIPTION}}/g, 'Personal brand strategy and positioning');
-    updatedHtml = updatedHtml.replace(/{{SERVICE_2_TITLE}}/g, 'Content');
-    updatedHtml = updatedHtml.replace(/{{SERVICE_2_DESCRIPTION}}/g, 'Content creation and storytelling');
-    updatedHtml = updatedHtml.replace(/{{SERVICE_3_TITLE}}/g, 'Growth');
-    updatedHtml = updatedHtml.replace(/{{SERVICE_3_DESCRIPTION}}/g, 'Business growth and monetization');
+    updatedHtml = updatedHtml.replace(/{{ABOUT_DESCRIPTION}}/g, personalStory);
+    updatedHtml = updatedHtml.replace(/{{ABOUT_MISSION}}/g, uniqueApproach);
+    updatedHtml = updatedHtml.replace(/{{SERVICE_1_TITLE}}/g, primaryOffer);
+    updatedHtml = updatedHtml.replace(/{{SERVICE_1_DESCRIPTION}}/g, problemYouSolve);
+    updatedHtml = updatedHtml.replace(/{{SERVICE_2_TITLE}}/g, 'Personal Brand Photos');
+    updatedHtml = updatedHtml.replace(/{{SERVICE_2_DESCRIPTION}}/g, 'AI-generated professional photos for your brand');
+    updatedHtml = updatedHtml.replace(/{{SERVICE_3_TITLE}}/g, 'Business Growth');
+    updatedHtml = updatedHtml.replace(/{{SERVICE_3_DESCRIPTION}}/g, 'Complete business setup and launch support');
+    updatedHtml = updatedHtml.replace(/{{CONTACT_EMAIL}}/g, email);
+    updatedHtml = updatedHtml.replace(/{{INSTAGRAM_HANDLE}}/g, instagramHandle);
+    updatedHtml = updatedHtml.replace(/{{WEBSITE_URL}}/g, websiteUrl);
     
     return updatedHtml;
   };
+
+  // Fetch user's brand onboarding data for template auto-population
+  const { data: brandData } = useQuery({
+    queryKey: ['/api/brand-onboarding'],
+    retry: false,
+  });
 
   // Get chat history
   const { data: chatData } = useQuery({
@@ -334,7 +360,7 @@ export default function VictoriaBuilder() {
     },
   });
 
-  // Update preview with user photos when HTML changes
+  // Update preview with user photos and brand data when HTML changes
   useEffect(() => {
     if (previewRef.current && currentHtml) {
       const htmlWithUserPhotos = injectUserPhotos(currentHtml);
@@ -345,7 +371,7 @@ export default function VictoriaBuilder() {
         doc.close();
       }
     }
-  }, [currentHtml, userGallery]);
+  }, [currentHtml, userGallery, brandData]);
 
   // Scroll to bottom when messages change
   useEffect(() => {
