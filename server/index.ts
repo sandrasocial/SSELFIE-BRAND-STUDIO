@@ -47,6 +47,36 @@ app.use((req, res, next) => {
     throw err;
   });
 
+  // EMERGENCY ROUTE - MUST BE BEFORE VITE SETUP TO WORK
+  app.get("/emergency", (req, res) => {
+    res.send(`
+      <!DOCTYPE html>
+      <html>
+      <head>
+          <title>EMERGENCY FIXED</title>
+          <style>
+              body { 
+                  background: red; 
+                  color: white; 
+                  font-size: 30px; 
+                  padding: 50px; 
+                  text-align: center; 
+                  font-family: Arial, sans-serif;
+              }
+          </style>
+      </head>
+      <body>
+          <h1>🚨 EMERGENCY: SERVER ROUTING FIXED! 🚨</h1>
+          <p>Emergency route before Vite works!</p>
+          <p>Now I'll fix the React app loading issue...</p>
+          <script>
+              console.log("Emergency route working! Testing complete.");
+          </script>
+      </body>
+      </html>
+    `);
+  });
+
   // importantly only setup vite in development and after
   // setting up all the other routes so the catch-all route
   // doesn't interfere with the other routes
