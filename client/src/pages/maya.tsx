@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useAuth } from '@/hooks/use-auth';
 import { useLocation } from 'wouter';
 import { useToast } from '@/hooks/use-toast';
-import { useQueryClient } from '@tanstack/react-query';
+import { useQueryClient, useQuery } from '@tanstack/react-query';
 import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
 import { apiRequest } from '@/lib/queryClient';
@@ -25,52 +25,35 @@ interface MayaChat {
   updatedAt: string;
 }
 
-// Chat History List Component
-function ChatHistoryList({ onChatSelect }: { onChatSelect: (chatId: number) => void }) {
-  const { data: chats, isLoading } = useQuery({
+// Chat History Links Component - integrated into Maya Dashboard
+function ChatHistoryLinks({ onChatSelect }: { onChatSelect: (chatId: number) => void }) {
+  const { data: chats } = useQuery({
     queryKey: ['/api/maya-chats'],
     retry: false,
   });
 
-  if (isLoading) {
-    return (
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-        <div className="bg-white p-4 border border-gray-200 rounded-none animate-pulse">
-          <div className="h-4 bg-gray-300 mb-2"></div>
-          <div className="h-3 bg-gray-200 mb-2"></div>
-          <div className="h-3 bg-gray-200"></div>
-        </div>
-      </div>
-    );
-  }
-
   if (!chats || chats.length === 0) {
     return (
-      <div className="text-center py-8 text-gray-500">
-        <p>No chat history yet. Start your first conversation with Maya!</p>
-      </div>
+      <div className="text-sm text-gray-500 italic">No previous chats yet</div>
     );
   }
 
   return (
-    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-      {chats.map((chat: MayaChat) => (
+    <div className="space-y-2">
+      {chats.slice(0, 5).map((chat: MayaChat) => (
         <div 
           key={chat.id} 
-          className="bg-white p-4 border border-gray-200 rounded-none hover:bg-gray-50 cursor-pointer"
+          className="text-sm text-gray-700 hover:text-black cursor-pointer underline"
           onClick={() => onChatSelect(chat.id)}
         >
-          <div className="text-sm font-medium text-gray-900">{chat.chatTitle}</div>
-          <div className="text-xs text-gray-500 mt-1">
-            {new Date(chat.updatedAt).toLocaleDateString()}
-          </div>
-          {chat.chatSummary && (
-            <div className="text-xs text-gray-600 mt-2 line-clamp-2">
-              {chat.chatSummary}
-            </div>
-          )}
+          {chat.chatTitle}
         </div>
       ))}
+      {chats.length > 5 && (
+        <div className="text-xs text-gray-500">
+          + {chats.length - 5} more conversations
+        </div>
+      )}
     </div>
   );
 }
@@ -91,7 +74,7 @@ export default function Maya() {
   const [generationProgress, setGenerationProgress] = useState(0);
   const [currentImageId, setCurrentImageId] = useState<number | null>(null);
   const [currentChatId, setCurrentChatId] = useState<number | null>(null);
-  const [showChatHistory, setShowChatHistory] = useState(false);
+
 
   // Redirect to login if not authenticated
   useEffect(() => {
@@ -455,10 +438,18 @@ export default function Maya() {
             <Button
               variant="outline"
               size="sm"
-              onClick={() => setShowChatHistory(!showChatHistory)}
+              onClick={() => {
+                // Reset to new chat
+                setMessages([{
+                  role: 'maya',
+                  content: `Hey ${user?.firstName || 'gorgeous'}! Ready for another amazing photoshoot? What's the vision this time? ✨`,
+                  timestamp: new Date().toISOString()
+                }]);
+                setCurrentChatId(null);
+              }}
               className="text-sm"
             >
-              {showChatHistory ? 'Hide History' : 'Chat History'}
+              New Chat
             </Button>
             <Button
               variant="outline"
@@ -471,38 +462,7 @@ export default function Maya() {
         </div>
       </header>
 
-      {/* Chat History Sidebar */}
-      {showChatHistory && (
-        <div className="bg-gray-50 border-b border-gray-200 p-4">
-          <div className="max-w-4xl mx-auto">
-            <h3 className="text-lg font-serif mb-4">Maya Chat History</h3>
-            <ChatHistoryList 
-              onChatSelect={(chatId) => {
-                // Load selected chat 
-                loadChatHistory(chatId);
-                setShowChatHistory(false);
-              }}
-            />
-            <Button
-              variant="outline"
-              size="sm"
-              className="mt-4 text-sm"
-              onClick={() => {
-                // Reset to new chat
-                setMessages([{
-                  role: 'maya',
-                  content: `Hey ${user?.firstName || 'gorgeous'}! Ready for another amazing photoshoot? What's the vision this time? ✨`,
-                  timestamp: new Date().toISOString()
-                }]);
-                setCurrentChatId(null);
-                setShowChatHistory(false);
-              }}
-            >
-              + Start New Chat
-            </Button>
-          </div>
-        </div>
-      )}
+
 
       {/* Chat Container */}
       <div className="flex-1 flex flex-col max-w-4xl mx-auto w-full">
