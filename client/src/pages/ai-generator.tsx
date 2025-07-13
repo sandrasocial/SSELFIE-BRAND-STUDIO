@@ -584,6 +584,11 @@ interface ResultsStepProps {
 }
 
 function ResultsStep({ generatedImages, selectedImages, onImageSelection, onUseToBrandbook }: ResultsStepProps) {
+  const { toast } = useToast();
+  const queryClient = useQueryClient();
+  const [savedImages, setSavedImages] = useState<Set<string>>(new Set());
+  const [savingImages, setSavingImages] = useState<Set<string>>(new Set());
+
   // Get the latest completed generation
   const latestGeneration = generatedImages
     .filter(img => img.generationStatus === 'completed' && img.image_urls && img.image_urls !== 'processing')
@@ -598,6 +603,43 @@ function ResultsStep({ generatedImages, selectedImages, onImageSelection, onUseT
       imageOptions = [];
     }
   }
+
+  // Save image to gallery with permanent storage
+  const saveToGallery = async (imageUrl: string, index: number) => {
+    if (savedImages.has(imageUrl) || savingImages.has(imageUrl)) return;
+    
+    setSavingImages(prev => new Set([...prev, imageUrl]));
+    
+    try {
+      await apiRequest('POST', '/api/save-to-gallery', {
+        imageUrl,
+        prompt: `${latestGeneration.category} ${latestGeneration.subcategory} - Option ${index + 1}`,
+        style: latestGeneration.category,
+        subcategory: latestGeneration.subcategory
+      });
+      
+      setSavedImages(prev => new Set([...prev, imageUrl]));
+      // Refresh the gallery to show newly saved image
+      queryClient.invalidateQueries({ queryKey: ['/api/gallery-images'] });
+      toast({
+        title: "Saved to Gallery",
+        description: "Image permanently saved to your gallery with S3 storage",
+      });
+    } catch (error) {
+      console.error('Error saving to gallery:', error);
+      toast({
+        title: "Save Failed",
+        description: "Could not save image to gallery. Please try again.",
+        variant: "destructive",
+      });
+    } finally {
+      setSavingImages(prev => {
+        const newSet = new Set(prev);
+        newSet.delete(imageUrl);
+        return newSet;
+      });
+    }
+  };
 
   return (
     <div className="max-w-4xl mx-auto px-8">
@@ -622,7 +664,7 @@ function ResultsStep({ generatedImages, selectedImages, onImageSelection, onUseT
           <>
             <div className="grid grid-cols-2 gap-6 mb-8">
               {imageOptions.map((imageUrl, index) => (
-                <div key={index} className="group">
+                <div key={index} className="group relative">
                   <div className="relative mb-4">
                     <img 
                       src={imageUrl}
@@ -633,14 +675,64 @@ function ResultsStep({ generatedImages, selectedImages, onImageSelection, onUseT
                         (e.target as HTMLImageElement).src = SandraImages.aiGallery[index % SandraImages.aiGallery.length];
                       }}
                     />
-                    <div className="absolute inset-0 bg-black bg-opacity-0 group-hover:bg-opacity-30 transition-all flex items-center justify-center">
-                      <button
-                        onClick={() => onImageSelection(latestGeneration.category, imageUrl)}
-                        className="opacity-0 group-hover:opacity-100 text-white border border-white px-6 py-3 text-sm transition-opacity hover:bg-white hover:text-black"
+                    
+                    {/* Save to Gallery Heart Button */}
+                    <button
+                      onClick={() => saveToGallery(imageUrl, index)}
+                      disabled={savingImages.has(imageUrl)}
+                      style={{
+                        position: 'absolute',
+                        top: '16px',
+                        right: '16px',
+                        background: savedImages.has(imageUrl) ? 'rgba(255, 68, 68, 0.9)' : 'rgba(0, 0, 0, 0.6)',
+                        border: 'none',
+                        color: '#ffffff',
+                        fontSize: '20px',
+                        padding: '8px 10px',
+                        cursor: savingImages.has(imageUrl) ? 'not-allowed' : 'pointer',
+                        borderRadius: '50%',
+                        transition: 'all 300ms ease',
+                        backdropFilter: 'blur(10px)',
+                        zIndex: 10
+                      }}
+                      onMouseEnter={(e) => {
+                        if (!savingImages.has(imageUrl)) {
+                          e.currentTarget.style.background = savedImages.has(imageUrl) ? 'rgba(255, 68, 68, 1)' : 'rgba(0, 0, 0, 0.8)';
+                          e.currentTarget.style.transform = 'scale(1.1)';
+                        }
+                      }}
+                      onMouseLeave={(e) => {
+                        if (!savingImages.has(imageUrl)) {
+                          e.currentTarget.style.background = savedImages.has(imageUrl) ? 'rgba(255, 68, 68, 0.9)' : 'rgba(0, 0, 0, 0.6)';
+                          e.currentTarget.style.transform = 'scale(1)';
+                        }
+                      }}
+                    >
+                      {savingImages.has(imageUrl) ? '⟳' : (savedImages.has(imageUrl) ? '♥' : '♡')}
+                    </button>
+
+                    {/* Saved Indicator */}
+                    {savedImages.has(imageUrl) && (
+                      <div
+                        style={{
+                          position: 'absolute',
+                          bottom: '16px',
+                          left: '16px',
+                          background: 'rgba(0, 128, 0, 0.9)',
+                          color: '#ffffff',
+                          fontSize: '10px',
+                          padding: '4px 8px',
+                          borderRadius: '12px',
+                          fontWeight: 500,
+                          letterSpacing: '0.1em',
+                          textTransform: 'uppercase',
+                          backdropFilter: 'blur(10px)',
+                          zIndex: 5
+                        }}
                       >
-                        Choose This One
-                      </button>
-                    </div>
+                        Saved to Gallery
+                      </div>
+                    )}
                   </div>
                   <p className="text-sm text-[#666] text-center">
                     Option {index + 1} • {latestGeneration.category} {latestGeneration.subcategory}
@@ -659,15 +751,21 @@ function ResultsStep({ generatedImages, selectedImages, onImageSelection, onUseT
                   Generate More Images
                 </button>
                 
-                {Object.keys(selectedImages).length > 0 && (
-                  <button
-                    onClick={onUseToBrandbook}
-                    className="text-white bg-[#0a0a0a] px-8 py-3 hover:opacity-80 transition-opacity"
+                {savedImages.size > 0 && (
+                  <a
+                    href="/sselfie-gallery"
+                    className="inline-block text-white bg-[#0a0a0a] px-8 py-3 hover:opacity-80 transition-opacity"
                   >
-                    Use Selected in Brandbook
-                  </button>
+                    View Gallery ({savedImages.size} saved)
+                  </a>
                 )}
               </div>
+              
+              {/* Save Instructions */}
+              <p className="text-sm text-[#666] max-w-lg mx-auto">
+                Click the heart (♡) on your favorite images to save them permanently to your gallery. 
+                Only saved images will appear in your gallery collection.
+              </p>
             </div>
           </>
         ) : (

@@ -740,6 +740,44 @@ Keep your responses strategic, actionable, and empowering. Focus on helping user
     }
   });
 
+  // Gallery Images route - Only deliberately saved images
+  app.get('/api/gallery-images', async (req: any, res) => {
+    try {
+      const userId = req.user?.claims?.sub || req.session?.userId || 'sandra_test_user_2025';
+      
+      console.log(`Fetching gallery images (saved only) for user ${userId}...`);
+      
+      // Direct database query to get only images saved through /api/save-to-gallery
+      const { db } = await import('./db');
+      const { aiImages } = await import('../shared/schema-simplified');
+      const { eq, desc, and, like } = await import('drizzle-orm');
+      
+      // Filter for images that were explicitly saved to gallery
+      // Look for images with S3 URLs (permanent storage) which indicates they were saved
+      const galleryImages = await db
+        .select()
+        .from(aiImages)
+        .where(
+          and(
+            eq(aiImages.userId, userId),
+            // Images saved to gallery have S3 URLs or specific prompts from save-to-gallery
+            like(aiImages.imageUrl, '%s3.amazonaws.com%')
+          )
+        )
+        .orderBy(desc(aiImages.createdAt));
+      
+      console.log(`Gallery images for user ${userId}:`, galleryImages?.length || 0, 'saved images found');
+      
+      res.json(galleryImages || []);
+      
+    } catch (error) {
+      console.error("Error fetching gallery images:", error);
+      res.status(500).json({ message: "Failed to fetch gallery images", 
+        error: error.message 
+      });
+    }
+  });
+
   // Migration endpoint to fix broken image URLs
   app.post('/api/migrate-images-to-s3', async (req: any, res) => {
     try {
