@@ -257,18 +257,40 @@ export default function VictoriaPreview() {
               <button 
                 className="px-4 py-2 bg-black text-white text-sm hover:bg-gray-800 transition-colors"
                 style={{ letterSpacing: '0.1em', textTransform: 'uppercase' }}
-                onClick={() => {
-                  // Simple publish functionality - could integrate with actual hosting later
-                  const blob = new Blob([currentHtml || ''], { type: 'text/html' });
-                  const url = URL.createObjectURL(blob);
-                  const a = document.createElement('a');
-                  a.href = url;
-                  a.download = 'landing-page.html';
-                  a.click();
-                  URL.revokeObjectURL(url);
+                onClick={async () => {
+                  if (!currentHtml) return;
+                  
+                  try {
+                    // Get user's brand data for page name
+                    const brandName = brandData?.businessName || brandData?.fullName || 'MyBusiness';
+                    const pageName = brandName.toLowerCase().replace(/[^a-z0-9]/g, '');
+                    
+                    const response = await fetch('/api/publish-landing-page', {
+                      method: 'POST',
+                      headers: { 'Content-Type': 'application/json' },
+                      body: JSON.stringify({
+                        htmlContent: currentHtml,
+                        pageName: pageName
+                      })
+                    });
+                    
+                    const result = await response.json();
+                    
+                    if (result.success) {
+                      // Show success message with live URL
+                      alert(`🎉 Your page is now live at:\n${result.liveUrl}\n\nShare this URL with your audience!`);
+                      // Optionally open the live page
+                      window.open(result.liveUrl, '_blank');
+                    } else {
+                      alert('Failed to publish page. Please try again.');
+                    }
+                  } catch (error) {
+                    console.error('Publish error:', error);
+                    alert('Failed to publish page. Please try again.');
+                  }
                 }}
               >
-                Download Page
+                Publish Live Now
               </button>
               <Link to="/victoria">
                 <button
@@ -313,18 +335,40 @@ export default function VictoriaPreview() {
               <Button 
                 size="sm"
                 className="bg-green-600 text-white hover:bg-green-700"
-                onClick={() => {
-                  // Simple publish functionality - could integrate with actual hosting later
-                  const blob = new Blob([currentHtml || ''], { type: 'text/html' });
-                  const url = URL.createObjectURL(blob);
-                  const a = document.createElement('a');
-                  a.href = url;
-                  a.download = 'landing-page.html';
-                  a.click();
-                  URL.revokeObjectURL(url);
+                onClick={async () => {
+                  if (!currentHtml) return;
+                  
+                  try {
+                    // Get user's brand data for page name
+                    const brandName = brandData?.businessName || brandData?.fullName || 'MyBusiness';
+                    const pageName = brandName.toLowerCase().replace(/[^a-z0-9]/g, '');
+                    
+                    const response = await fetch('/api/publish-landing-page', {
+                      method: 'POST',
+                      headers: { 'Content-Type': 'application/json' },
+                      body: JSON.stringify({
+                        htmlContent: currentHtml,
+                        pageName: pageName
+                      })
+                    });
+                    
+                    const result = await response.json();
+                    
+                    if (result.success) {
+                      // Show success message with live URL
+                      alert(`🎉 Your page is now live at:\n${result.liveUrl}\n\nShare this URL with your audience!`);
+                      // Optionally open the live page
+                      window.open(result.liveUrl, '_blank');
+                    } else {
+                      alert('Failed to publish page. Please try again.');
+                    }
+                  } catch (error) {
+                    console.error('Publish error:', error);
+                    alert('Failed to publish page. Please try again.');
+                  }
                 }}
               >
-                Download Page
+                Publish Live Now
               </Button>
             </div>
           </div>

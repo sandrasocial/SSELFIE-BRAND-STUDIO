@@ -10,6 +10,7 @@ import {
   photoSelections,
   landingPages,
   brandOnboarding,
+  userLandingPages,
   type User,
   type UpsertUser,
   type OnboardingData,
@@ -32,6 +33,8 @@ import {
   type InsertLandingPage,
   type BrandOnboarding,
   type InsertBrandOnboarding,
+  type UserLandingPage,
+  type InsertUserLandingPage,
 } from "@shared/schema";
 import { db } from "./db";
 import { eq, and, desc, gte } from "drizzle-orm";
@@ -93,6 +96,11 @@ export interface IStorage {
   createLandingPage(data: InsertLandingPage): Promise<LandingPage>;
   getLandingPages(userId: string): Promise<LandingPage[]>;
   
+  // User landing pages operations (live hosting)
+  createUserLandingPage(data: InsertUserLandingPage): Promise<UserLandingPage>;
+  getUserLandingPages(userId: string): Promise<UserLandingPage[]>;
+  getUserLandingPageBySlug(slug: string): Promise<UserLandingPage | undefined>;
+  updateUserLandingPage(id: number, data: Partial<UserLandingPage>): Promise<UserLandingPage | undefined>;
 
 }
 

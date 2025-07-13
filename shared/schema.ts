@@ -263,6 +263,24 @@ export const brandOnboarding = pgTable("brand_onboarding", {
   updatedAt: timestamp("updated_at").defaultNow(),
 });
 
+// User landing pages table for live hosting
+export const userLandingPages = pgTable("user_landing_pages", {
+  id: serial("id").primaryKey(),
+  userId: varchar("user_id").references(() => users.id).notNull(),
+  slug: varchar("slug").notNull().unique(), // username or custom slug
+  title: varchar("title").notNull(),
+  description: text("description"),
+  htmlContent: text("html_content").notNull(),
+  cssContent: text("css_content").notNull(),
+  templateUsed: varchar("template_used"),
+  isPublished: boolean("is_published").default(false),
+  customDomain: varchar("custom_domain"),
+  seoTitle: varchar("seo_title"),
+  seoDescription: text("seo_description"),
+  createdAt: timestamp("created_at").defaultNow(),
+  updatedAt: timestamp("updated_at").defaultNow(),
+});
+
 // Schema exports
 export const upsertUserSchema = createInsertSchema(users);
 export const insertProjectSchema = createInsertSchema(projects).omit({ id: true, createdAt: true, updatedAt: true });
@@ -277,6 +295,7 @@ export const insertVictoriaChatSchema = createInsertSchema(victoriaChats).omit({
 export const insertPhotoSelectionSchema = createInsertSchema(photoSelections).omit({ id: true, createdAt: true, updatedAt: true });
 export const insertLandingPageSchema = createInsertSchema(landingPages).omit({ id: true, createdAt: true, updatedAt: true });
 export const insertBrandOnboardingSchema = createInsertSchema(brandOnboarding).omit({ id: true, createdAt: true, updatedAt: true });
+export const insertUserLandingPageSchema = createInsertSchema(userLandingPages).omit({ id: true, createdAt: true, updatedAt: true });
 
 
 
@@ -333,6 +352,8 @@ export type InsertLandingPage = z.infer<typeof insertLandingPageSchema>;
 export type LandingPage = typeof landingPages.$inferSelect;
 export type InsertBrandOnboarding = z.infer<typeof insertBrandOnboardingSchema>;
 export type BrandOnboarding = typeof brandOnboarding.$inferSelect;
+export type InsertUserLandingPage = z.infer<typeof insertUserLandingPageSchema>;
+export type UserLandingPage = typeof userLandingPages.$inferSelect;
 
 
 

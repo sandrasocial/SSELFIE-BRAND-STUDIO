@@ -727,6 +727,55 @@ Your goal is to have a natural conversation, understand their vision deeply, and
     }
   });
 
+  // Publish landing page live - creates hosted page at sselfie.ai/username
+  app.post('/api/publish-landing-page', async (req, res) => {
+    try {
+      const userId = req.session?.userId || req.user?.claims?.sub || 'sandra_test_user_2025';
+      const { htmlContent, pageName } = req.body;
+      
+      console.log(`Publishing landing page for user: ${userId}, page: ${pageName}`);
+      
+      if (!htmlContent || !pageName) {
+        return res.status(400).json({ error: 'HTML content and page name required' });
+      }
+
+      // Get user info for the subdomain
+      const user = await storage.getUser(userId);
+      if (!user) {
+        return res.status(404).json({ error: 'User not found' });
+      }
+
+      // Create a username-based subdomain (sanitize for URL)
+      const username = pageName.toLowerCase().replace(/[^a-z0-9]/g, '');
+      
+      // Save the landing page to database
+      const landingPage = await storage.createUserLandingPage({
+        userId,
+        title: pageName,
+        htmlContent,
+        slug: username,
+        isPublished: true,
+        customDomain: null,
+        cssContent: '', // CSS is inline in htmlContent
+        templateUsed: 'victoria-template'
+      });
+
+      // Return the live URL
+      const liveUrl = `${req.protocol}://${req.get('host')}/${username}`;
+      
+      res.json({ 
+        success: true, 
+        liveUrl,
+        pageId: landingPage.id,
+        message: `Your page is now live at ${liveUrl}` 
+      });
+      
+    } catch (error) {
+      console.error('Error publishing landing page:', error);
+      res.status(500).json({ error: 'Failed to publish landing page' });
+    }
+  });
+
   // Victoria AI Chat endpoint with full Claude API integration
   app.post('/api/victoria-chat', async (req: any, res) => {
     try {
@@ -3375,6 +3424,64 @@ Consider this workflow optimized and ready for implementation! ⚙️`
     } catch (error) {
       console.error('Error saving brand onboarding:', error);
       res.status(500).json({ error: 'Failed to save brand data' });
+    }
+  });
+
+  // Serve live landing pages at /:username (MUST BE LAST ROUTE)
+  app.get('/:username', async (req, res) => {
+    try {
+      const { username } = req.params;
+      
+      // Skip if it's an API route, static asset, development file, or known app route
+      if (username.startsWith('api') || 
+          username.startsWith('@') ||  // React development files
+          username.includes('.') || 
+          username.startsWith('_') ||  // Next.js internal routes
+          username.startsWith('__') || // Development files
+          ['workspace', 'gallery', 'maya', 'victoria', 'login', 'pricing', 'node_modules', 'src', 'client'].includes(username)) {
+        return res.status(404).send('Not found');
+      }
+      
+      console.log(`Serving landing page for username: ${username}`);
+      
+      // Get the landing page by slug
+      const landingPage = await storage.getUserLandingPageBySlug(username);
+      
+      if (!landingPage || !landingPage.isPublished) {
+        return res.status(404).send(`
+          <!DOCTYPE html>
+          <html>
+            <head>
+              <title>Page Not Found - SSELFIE Studio</title>
+              <style>
+                body { 
+                  font-family: 'Times New Roman', serif; 
+                  text-align: center; 
+                  padding: 100px 20px;
+                  background: #f5f5f5;
+                  color: #0a0a0a;
+                }
+                h1 { font-size: 48px; margin-bottom: 20px; }
+                p { font-size: 18px; margin-bottom: 30px; }
+                a { color: #0a0a0a; text-decoration: none; border-bottom: 1px solid #0a0a0a; }
+              </style>
+            </head>
+            <body>
+              <h1>Page Not Found</h1>
+              <p>The page "${username}" does not exist or is not published.</p>
+              <a href="/">← Back to SSELFIE Studio</a>
+            </body>
+          </html>
+        `);
+      }
+      
+      // Serve the HTML content
+      res.setHeader('Content-Type', 'text/html');
+      res.send(landingPage.htmlContent);
+      
+    } catch (error) {
+      console.error('Error serving landing page:', error);
+      res.status(500).send('Internal server error');
     }
   });
 
