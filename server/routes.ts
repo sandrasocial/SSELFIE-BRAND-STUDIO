@@ -748,33 +748,17 @@ Your goal is to have a natural conversation, understand their vision deeply, and
       // Create a username-based subdomain (sanitize for URL)
       const username = pageName.toLowerCase().replace(/[^a-z0-9]/g, '');
       
-      // Check if page already exists and update it, or create new one
-      const existingPages = await storage.getUserLandingPages(userId);
-      const existingPage = existingPages?.find(page => page.slug === username);
-      
-      let landingPage;
-      if (existingPage) {
-        // Update existing page
-        landingPage = await storage.updateUserLandingPage(existingPage.id, {
-          title: pageName,
-          htmlContent,
-          isPublished: true,
-          cssContent: '', // CSS is inline in htmlContent
-          templateUsed: 'victoria-template'
-        });
-      } else {
-        // Create new page
-        landingPage = await storage.createUserLandingPage({
-          userId,
-          title: pageName,
-          htmlContent,
-          slug: username,
-          isPublished: true,
-          customDomain: null,
-          cssContent: '', // CSS is inline in htmlContent
-          templateUsed: 'victoria-template'
-        });
-      }
+      // Save the landing page to database
+      const landingPage = await storage.createUserLandingPage({
+        userId,
+        title: pageName,
+        htmlContent,
+        slug: username,
+        isPublished: true,
+        customDomain: null,
+        cssContent: '', // CSS is inline in htmlContent
+        templateUsed: 'victoria-template'
+      });
 
       // Return the live URL
       const liveUrl = `${req.protocol}://${req.get('host')}/${username}`;
@@ -789,76 +773,6 @@ Your goal is to have a natural conversation, understand their vision deeply, and
     } catch (error) {
       console.error('Error publishing landing page:', error);
       res.status(500).json({ error: 'Failed to publish landing page' });
-    }
-  });
-
-  // Publish multi-page website live - creates hosted website at sselfie.ai/username with navigation
-  app.post('/api/publish-multi-page-website', async (req, res) => {
-    try {
-      const userId = req.session?.userId || req.user?.claims?.sub || 'sandra_test_user_2025';
-      const { pageName, pages } = req.body;
-      
-      console.log(`Publishing multi-page website for user: ${userId}, website: ${pageName}`);
-      
-      if (!pageName || !pages || !pages.home) {
-        return res.status(400).json({ error: 'Website name and home page content required' });
-      }
-
-      // Get user info for the subdomain
-      const user = await storage.getUser(userId);
-      if (!user) {
-        return res.status(404).json({ error: 'User not found' });
-      }
-
-      // Create a username-based subdomain (sanitize for URL)
-      const username = pageName.toLowerCase().replace(/[^a-z0-9]/g, '');
-      
-      // Check if page already exists and update it, or create new one
-      const existingPages = await storage.getUserLandingPages(userId);
-      const existingPage = existingPages?.find(page => page.slug === username);
-      
-      let landingPage;
-      if (existingPage) {
-        // Update existing page with home page content
-        landingPage = await storage.updateUserLandingPage(existingPage.id, {
-          title: `${pageName} - Multi-Page Website`,
-          htmlContent: pages.home,
-          isPublished: true,
-          cssContent: '', // CSS is inline in htmlContent
-          templateUsed: 'victoria-multi-page-template'
-        });
-      } else {
-        // Create new page with home page content
-        landingPage = await storage.createUserLandingPage({
-          userId,
-          title: `${pageName} - Multi-Page Website`,
-          htmlContent: pages.home,
-          slug: username,
-          isPublished: true,
-          customDomain: null,
-          cssContent: '', // CSS is inline in htmlContent
-          templateUsed: 'victoria-multi-page-template'
-        });
-      }
-
-      // Store additional pages (about, services, contact) for future routing
-      // For now, the main page contains navigation to other sections
-      
-      // Return the live URL
-      const liveUrl = `${req.protocol}://${req.get('host')}/${username}`;
-      
-      res.json({ 
-        success: true, 
-        liveUrl,
-        pageId: landingPage.id,
-        websiteName: pageName,
-        pages: ['home', 'about', 'services', 'contact'],
-        message: `Your multi-page website is now live at ${liveUrl}` 
-      });
-      
-    } catch (error) {
-      console.error('Error publishing multi-page website:', error);
-      res.status(500).json({ error: 'Failed to publish multi-page website' });
     }
   });
 
@@ -3513,40 +3427,62 @@ Consider this workflow optimized and ready for implementation! ⚙️`
     }
   });
 
-  // Live landing page middleware - handle before Vite catch-all
-  app.use((req, res, next) => {
-    // Only handle GET requests for potential usernames
-    if (req.method !== 'GET') return next();
-    
-    const path = req.path;
-    const username = path.slice(1); // Remove leading slash
-    
-    // Skip if it's clearly not a username route
-    if (path === '/' || 
-        path.startsWith('/api') || 
-        path.startsWith('/@') ||  // React development files
-        path.includes('.') || 
-        path.startsWith('/_') ||  // Next.js internal routes
-        path.startsWith('/__') || // Development files
-        ['workspace', 'gallery', 'maya', 'victoria', 'login', 'pricing', 'node_modules', 'src', 'client'].includes(username)) {
-      return next(); // Continue to other routes
+  // Serve live landing pages at /:username (MUST BE LAST ROUTE)
+  app.get('/:username', async (req, res) => {
+    try {
+      const { username } = req.params;
+      
+      // Skip if it's an API route, static asset, development file, or known app route
+      if (username.startsWith('api') || 
+          username.startsWith('@') ||  // React development files
+          username.includes('.') || 
+          username.startsWith('_') ||  // Next.js internal routes
+          username.startsWith('__') || // Development files
+          ['workspace', 'gallery', 'maya', 'victoria', 'login', 'pricing', 'node_modules', 'src', 'client'].includes(username)) {
+        return res.status(404).send('Not found');
+      }
+      
+      console.log(`Serving landing page for username: ${username}`);
+      
+      // Get the landing page by slug
+      const landingPage = await storage.getUserLandingPageBySlug(username);
+      
+      if (!landingPage || !landingPage.isPublished) {
+        return res.status(404).send(`
+          <!DOCTYPE html>
+          <html>
+            <head>
+              <title>Page Not Found - SSELFIE Studio</title>
+              <style>
+                body { 
+                  font-family: 'Times New Roman', serif; 
+                  text-align: center; 
+                  padding: 100px 20px;
+                  background: #f5f5f5;
+                  color: #0a0a0a;
+                }
+                h1 { font-size: 48px; margin-bottom: 20px; }
+                p { font-size: 18px; margin-bottom: 30px; }
+                a { color: #0a0a0a; text-decoration: none; border-bottom: 1px solid #0a0a0a; }
+              </style>
+            </head>
+            <body>
+              <h1>Page Not Found</h1>
+              <p>The page "${username}" does not exist or is not published.</p>
+              <a href="/">← Back to SSELFIE Studio</a>
+            </body>
+          </html>
+        `);
+      }
+      
+      // Serve the HTML content
+      res.setHeader('Content-Type', 'text/html');
+      res.send(landingPage.htmlContent);
+      
+    } catch (error) {
+      console.error('Error serving landing page:', error);
+      res.status(500).send('Internal server error');
     }
-    
-    // This looks like a username route, try to serve it
-    storage.getUserLandingPageBySlug(username)
-      .then(landingPage => {
-        if (!landingPage || !landingPage.isPublished) {
-          return next(); // Let the app handle it (404 or React route)
-        }
-        
-        console.log(`Serving published landing page for: ${username}`);
-        res.setHeader('Content-Type', 'text/html');
-        res.send(landingPage.htmlContent);
-      })
-      .catch(error => {
-        console.error('Error checking landing page:', error);
-        next(); // Continue to other routes on error
-      });
   });
 
   const httpServer = createServer(app);
