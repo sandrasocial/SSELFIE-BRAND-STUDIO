@@ -307,28 +307,133 @@ const flatlayCollections: FlatlayCollection[] = [
     name: 'European Luxury',
     description: 'Parisian cafe tables, designer bags, sophisticated lifestyle',
     aesthetic: 'Effortless European sophistication',
-    backgroundImage: SandraImages.editorial.laptop2,
+    backgroundImage: 'https://i.postimg.cc/rmgNb53p/file-1.png',
     images: [
       {
         id: 'el-1',
-        url: SandraImages.editorial.laptop2,
-        title: 'Parisian Lifestyle',
+        url: 'https://i.postimg.cc/rmgNb53p/file-1.png',
+        title: 'Parisian Cafe',
         category: 'European Luxury',
-        description: 'Sophisticated cafe table setup'
+        description: 'Effortless European luxury lifestyle'
       },
       {
         id: 'el-2',
-        url: SandraImages.flatlays.workspace2,
-        title: 'European Workspace',
+        url: 'https://i.postimg.cc/RhFLzNxL/file-10.png',
+        title: 'Designer Planning',
         category: 'European Luxury',
-        description: 'Effortless luxury lifestyle'
+        description: 'Luxury European aesthetic'
       },
       {
         id: 'el-3',
-        url: SandraImages.editorial.phone1,
-        title: 'Content Creation',
+        url: 'https://i.postimg.cc/SQ7BS5FX/file-11.png',
+        title: 'European Workspace',
         category: 'European Luxury',
-        description: 'Sophisticated content lifestyle'
+        description: 'Sophisticated European lifestyle'
+      },
+      {
+        id: 'el-4',
+        url: 'https://i.postimg.cc/wTqS7Vgw/file-12.png',
+        title: 'Luxury Accessories',
+        category: 'European Luxury',
+        description: 'Designer European accessories'
+      },
+      {
+        id: 'el-5',
+        url: 'https://i.postimg.cc/pLXRMvmX/file-13.png',
+        title: 'Chic European',
+        category: 'European Luxury',
+        description: 'Effortless European chic'
+      },
+      {
+        id: 'el-6',
+        url: 'https://i.postimg.cc/W3V5xN45/file-14.png',
+        title: 'Parisian Style',
+        category: 'European Luxury',
+        description: 'Parisian luxury style'
+      },
+      {
+        id: 'el-7',
+        url: 'https://i.postimg.cc/rw6xfhsJ/file-15.png',
+        title: 'European Elegance',
+        category: 'European Luxury',
+        description: 'European elegant lifestyle'
+      },
+      {
+        id: 'el-8',
+        url: 'https://i.postimg.cc/cJBRgQsc/file-16.png',
+        title: 'Designer Bags',
+        category: 'European Luxury',
+        description: 'European designer accessories'
+      },
+      {
+        id: 'el-9',
+        url: 'https://i.postimg.cc/pTVDDprM/file-17.png',
+        title: 'Luxury Lifestyle',
+        category: 'European Luxury',
+        description: 'European luxury living'
+      },
+      {
+        id: 'el-10',
+        url: 'https://i.postimg.cc/ZRf6j4vB/file-18.png',
+        title: 'Cafe Culture',
+        category: 'European Luxury',
+        description: 'European cafe culture'
+      },
+      {
+        id: 'el-11',
+        url: 'https://i.postimg.cc/t4MQ0x02/file-19.png',
+        title: 'Sophisticated Style',
+        category: 'European Luxury',
+        description: 'European sophisticated style'
+      },
+      {
+        id: 'el-12',
+        url: 'https://i.postimg.cc/KjHrcxZS/file-2.png',
+        title: 'European Charm',
+        category: 'European Luxury',
+        description: 'Charming European aesthetic'
+      },
+      {
+        id: 'el-13',
+        url: 'https://i.postimg.cc/SxTqyP9L/file-20.png',
+        title: 'Luxury Details',
+        category: 'European Luxury',
+        description: 'European luxury details'
+      },
+      {
+        id: 'el-14',
+        url: 'https://i.postimg.cc/HstdNnsh/file-21.png',
+        title: 'Elegant Setup',
+        category: 'European Luxury',
+        description: 'European elegant setup'
+      },
+      {
+        id: 'el-15',
+        url: 'https://i.postimg.cc/kgtw466j/file-22.png',
+        title: 'Chic Lifestyle',
+        category: 'European Luxury',
+        description: 'European chic lifestyle'
+      },
+      {
+        id: 'el-16',
+        url: 'https://i.postimg.cc/Pqsy8X1d/file-23.png',
+        title: 'Parisian Luxury',
+        category: 'European Luxury',
+        description: 'Parisian luxury aesthetic'
+      },
+      {
+        id: 'el-17',
+        url: 'https://i.postimg.cc/W4vm19P3/file-24.png',
+        title: 'European Fashion',
+        category: 'European Luxury',
+        description: 'European fashion lifestyle'
+      },
+      {
+        id: 'el-18',
+        url: 'https://i.postimg.cc/htxbnk66/file-25.png',
+        title: 'Luxury European',
+        category: 'European Luxury',
+        description: 'Luxury European lifestyle'
       }
     ]
   },
