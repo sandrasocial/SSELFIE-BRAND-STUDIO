@@ -257,8 +257,18 @@ export default function VictoriaPreview() {
               <button 
                 className="px-4 py-2 bg-black text-white text-sm hover:bg-gray-800 transition-colors"
                 style={{ letterSpacing: '0.1em', textTransform: 'uppercase' }}
+                onClick={() => {
+                  // Simple publish functionality - could integrate with actual hosting later
+                  const blob = new Blob([currentHtml || ''], { type: 'text/html' });
+                  const url = URL.createObjectURL(blob);
+                  const a = document.createElement('a');
+                  a.href = url;
+                  a.download = 'landing-page.html';
+                  a.click();
+                  URL.revokeObjectURL(url);
+                }}
               >
-                Publish Live Now
+                Download Page
               </button>
               <Link to="/victoria">
                 <button
@@ -303,8 +313,18 @@ export default function VictoriaPreview() {
               <Button 
                 size="sm"
                 className="bg-green-600 text-white hover:bg-green-700"
+                onClick={() => {
+                  // Simple publish functionality - could integrate with actual hosting later
+                  const blob = new Blob([currentHtml || ''], { type: 'text/html' });
+                  const url = URL.createObjectURL(blob);
+                  const a = document.createElement('a');
+                  a.href = url;
+                  a.download = 'landing-page.html';
+                  a.click();
+                  URL.revokeObjectURL(url);
+                }}
               >
-                Publish Live Now
+                Download Page
               </Button>
             </div>
           </div>
