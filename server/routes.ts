@@ -8,6 +8,7 @@ import fs from "fs";
 // Removed photoshoot routes - using existing checkout system
 import { registerStyleguideRoutes } from "./routes/styleguide-routes";
 import { UsageService } from './usage-service';
+import { UserUsage } from '@shared/schema';
 // import Anthropic from '@anthropic-ai/sdk'; // DISABLED - API key issues
 // import { AgentSystem } from "./agents/agent-system"; // DISABLED - Anthropic API issues
 import { insertProjectSchema, insertAiImageSchema } from "@shared/schema";
@@ -1102,16 +1103,40 @@ Always be encouraging and strategic while providing specific technical guidance.
   app.get('/api/auth/user', isAuthenticated, async (req: any, res) => {
     try {
       const userId = req.user.claims.sub;
-      const user = await storage.getUser(userId);
+      const claims = req.user.claims;
       
+      // Try to get existing user
+      let user = await storage.getUser(userId);
+      
+      // If user doesn't exist, create them automatically
       if (!user) {
-        return res.status(404).json({ message: 'User not found' });
+        console.log(`Creating new user for ${userId} (${claims.email})`);
+        user = await storage.upsertUser({
+          id: userId,
+          email: claims.email,
+          firstName: claims.first_name,
+          lastName: claims.last_name,
+          profileImageUrl: claims.profile_image_url,
+        });
+        
+        // Determine plan based on purchase history or default to FREE
+        let userPlan = 'FREE';
+        
+        // Check if user has any subscription (indicating they purchased)
+        // For now, if they made it through auth, assume they have SSELFIE_STUDIO
+        // TODO: Integrate with actual Stripe subscription status
+        userPlan = 'SSELFIE_STUDIO';
+        
+        // Create initial usage record
+        await UsageService.initializeUserUsage(userId, userPlan);
+        
+        console.log(`✅ New user created: ${user.email}`);
       }
       
       res.json(user);
     } catch (error) {
-      console.error('Error fetching user:', error);
-      res.status(500).json({ message: 'Failed to fetch user' });
+      console.error('Error fetching/creating user:', error);
+      res.status(500).json({ message: 'Failed to fetch user', error: error.message });
     }
   });
 

@@ -2,6 +2,20 @@ import { storage } from './storage';
 
 // Plan configuration with usage limits and costs
 export const PLAN_LIMITS = {
+  'FREE': {
+    totalGenerations: null,
+    monthlyGenerations: 5, // 5 free images per month
+    cost: 0,
+    description: '5 AI generations per month',
+    resetMonthly: true
+  },
+  'SSELFIE_STUDIO': {
+    totalGenerations: null,
+    monthlyGenerations: 100, // $47/month for 100 images
+    cost: 47,
+    description: '100 AI generations per month + Maya + Victoria + Studio',
+    resetMonthly: true
+  },
   'ai-pack': {
     totalGenerations: 250,
     monthlyGenerations: null, // One-time purchase
