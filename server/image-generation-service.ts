@@ -65,8 +65,11 @@ export async function generateImages(request: GenerateImagesRequest): Promise<Ge
     
     const randomCameraSpec = cameraSpecs[Math.floor(Math.random() * cameraSpecs.length)];
     
-    // Enhance prompt with texture, flattering elements, and camera specifications
-    finalPrompt = `${finalPrompt}, textured skin, flattering high fashion outfit, slightly retouched skin, realistic, wow factor, ${randomCameraSpec}, professional photography, high resolution, film grain texture`;
+    // Only add camera specs if prompt doesn't already contain professional camera specifications
+    if (!finalPrompt.toLowerCase().includes('shot') && !finalPrompt.toLowerCase().includes('captured') && !finalPrompt.toLowerCase().includes('photographed')) {
+      // Add minimal professional enhancement for basic prompts
+      finalPrompt = `${finalPrompt}, ${randomCameraSpec}`;
+    }
     
     // Build input with optimal FLUX LoRA settings for amazing photos
     const input: any = {
