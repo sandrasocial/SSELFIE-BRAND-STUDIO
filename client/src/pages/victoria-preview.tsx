@@ -233,7 +233,16 @@ export default function VictoriaPreview() {
   };
 
   const currentHtml = React.useMemo(() => {
-    return generatePageHtml(getCurrentTemplate(), currentPage);
+    if (!brandData) {
+      console.log('No brand data available for preview');
+      return '<html><body style="padding: 40px; font-family: Times New Roman;"><h1>Loading brand data...</h1><p>Please wait while we load your information.</p></body></html>';
+    }
+    
+    const html = generatePageHtml(getCurrentTemplate(), currentPage);
+    console.log('Generated HTML length:', html.length);
+    console.log('Template used:', getCurrentTemplate().substring(0, 100) + '...');
+    
+    return html;
   }, [brandData, photoSelections, currentPage]);
 
   // Update iframe when HTML changes
