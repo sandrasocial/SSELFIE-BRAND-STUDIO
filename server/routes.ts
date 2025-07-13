@@ -3427,62 +3427,40 @@ Consider this workflow optimized and ready for implementation! ⚙️`
     }
   });
 
-  // Serve live landing pages at /:username (MUST BE LAST ROUTE)
-  app.get('/:username', async (req, res) => {
-    try {
-      const { username } = req.params;
-      
-      // Skip if it's an API route, static asset, development file, or known app route
-      if (username.startsWith('api') || 
-          username.startsWith('@') ||  // React development files
-          username.includes('.') || 
-          username.startsWith('_') ||  // Next.js internal routes
-          username.startsWith('__') || // Development files
-          ['workspace', 'gallery', 'maya', 'victoria', 'login', 'pricing', 'node_modules', 'src', 'client'].includes(username)) {
-        return res.status(404).send('Not found');
-      }
-      
-      console.log(`Serving landing page for username: ${username}`);
-      
-      // Get the landing page by slug
-      const landingPage = await storage.getUserLandingPageBySlug(username);
-      
-      if (!landingPage || !landingPage.isPublished) {
-        return res.status(404).send(`
-          <!DOCTYPE html>
-          <html>
-            <head>
-              <title>Page Not Found - SSELFIE Studio</title>
-              <style>
-                body { 
-                  font-family: 'Times New Roman', serif; 
-                  text-align: center; 
-                  padding: 100px 20px;
-                  background: #f5f5f5;
-                  color: #0a0a0a;
-                }
-                h1 { font-size: 48px; margin-bottom: 20px; }
-                p { font-size: 18px; margin-bottom: 30px; }
-                a { color: #0a0a0a; text-decoration: none; border-bottom: 1px solid #0a0a0a; }
-              </style>
-            </head>
-            <body>
-              <h1>Page Not Found</h1>
-              <p>The page "${username}" does not exist or is not published.</p>
-              <a href="/">← Back to SSELFIE Studio</a>
-            </body>
-          </html>
-        `);
-      }
-      
-      // Serve the HTML content
-      res.setHeader('Content-Type', 'text/html');
-      res.send(landingPage.htmlContent);
-      
-    } catch (error) {
-      console.error('Error serving landing page:', error);
-      res.status(500).send('Internal server error');
+  // Live landing page middleware - handle before Vite catch-all
+  app.use((req, res, next) => {
+    // Only handle GET requests for potential usernames
+    if (req.method !== 'GET') return next();
+    
+    const path = req.path;
+    const username = path.slice(1); // Remove leading slash
+    
+    // Skip if it's clearly not a username route
+    if (path === '/' || 
+        path.startsWith('/api') || 
+        path.startsWith('/@') ||  // React development files
+        path.includes('.') || 
+        path.startsWith('/_') ||  // Next.js internal routes
+        path.startsWith('/__') || // Development files
+        ['workspace', 'gallery', 'maya', 'victoria', 'login', 'pricing', 'node_modules', 'src', 'client'].includes(username)) {
+      return next(); // Continue to other routes
     }
+    
+    // This looks like a username route, try to serve it
+    storage.getUserLandingPageBySlug(username)
+      .then(landingPage => {
+        if (!landingPage || !landingPage.isPublished) {
+          return next(); // Let the app handle it (404 or React route)
+        }
+        
+        console.log(`Serving published landing page for: ${username}`);
+        res.setHeader('Content-Type', 'text/html');
+        res.send(landingPage.htmlContent);
+      })
+      .catch(error => {
+        console.error('Error checking landing page:', error);
+        next(); // Continue to other routes on error
+      });
   });
 
   const httpServer = createServer(app);
