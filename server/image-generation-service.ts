@@ -67,8 +67,64 @@ export async function generateImages(request: GenerateImagesRequest): Promise<Ge
     
     const randomCameraSpec = cameraSpecs[Math.floor(Math.random() * cameraSpecs.length)];
     
-    // Add elegant enhancement specifications with explicit anti-plastic language for "WOW is this me" results
+    // Add FLUX-optimized enhancement specifications with pose variety and natural skin
     const filmTextureSpecs = ", heavy 35mm film grain, pronounced grain structure, soft matte skin NOT plastic skin, gentle skin retouching NOT fake skin, flattering natural lighting NOT artificial lighting, subtle skin smoothing NOT glossy skin, elegant skin enhancement NOT synthetic skin, natural facial refinement NOT digital skin, professional editorial retouching NOT CGI skin, soft focus skin perfection NOT shiny skin, gentle beauty enhancement NOT artificial beauty, naturally refined skin texture NOT rendered skin, sophisticated skin treatment NOT mannequin skin, elegant beauty photography NOT fake beauty, refined natural beauty NOT plastic beauty, natural human skin NOT doll skin, authentic skin texture NOT artificial skin texture";
+    
+    // Add pose variety randomization to prevent repetition (FLUX research-backed)
+    const poseVariations = [
+      "looking over shoulder with gentle smile",
+      "hands running through hair naturally",
+      "sitting with legs crossed elegantly",
+      "standing with weight shifted to one hip",
+      "leaning against surface casually",
+      "walking with natural movement",
+      "hands on hips confidently",
+      "arms crossed in relaxed pose",
+      "looking down then up at camera",
+      "sitting with one leg up",
+      "standing with arms at sides naturally",
+      "hands gently touching face",
+      "mid-laugh with genuine expression",
+      "looking to the side thoughtfully",
+      "hands clasped behind back",
+      "sitting on edge of surface",
+      "standing with one hand on hip",
+      "leaning forward slightly",
+      "hands in pockets casually",
+      "sitting with chin resting on hand"
+    ];
+    
+    const expressionVariations = [
+      "with gentle confident smile",
+      "with soft mysterious expression",
+      "with genuine laughing expression",
+      "with serene peaceful look",
+      "with playful sparkling eyes",
+      "with thoughtful contemplative gaze",
+      "with warm welcoming smile",
+      "with subtle knowing smile",
+      "with bright joyful expression",
+      "with calm composed demeanor",
+      "with authentic candid expression",
+      "with soft dreamy look",
+      "with confident self-assured gaze",
+      "with gentle caring expression",
+      "with radiant happy smile"
+    ];
+    
+    // Randomly select pose and expression to prevent repetition
+    const randomPose = poseVariations[Math.floor(Math.random() * poseVariations.length)];
+    const randomExpression = expressionVariations[Math.floor(Math.random() * expressionVariations.length)];
+    
+    // Add pose variety to basic prompts that don't specify poses
+    if (!finalPrompt.toLowerCase().includes('sitting') && 
+        !finalPrompt.toLowerCase().includes('standing') && 
+        !finalPrompt.toLowerCase().includes('leaning') && 
+        !finalPrompt.toLowerCase().includes('walking') &&
+        !finalPrompt.toLowerCase().includes('looking') &&
+        !finalPrompt.toLowerCase().includes('pose')) {
+      finalPrompt = `${finalPrompt}, ${randomPose} ${randomExpression}`;
+    }
     
     // Only add camera specs if prompt doesn't already contain professional camera specifications
     if (!finalPrompt.toLowerCase().includes('shot') && !finalPrompt.toLowerCase().includes('captured') && !finalPrompt.toLowerCase().includes('photographed')) {
@@ -98,17 +154,17 @@ export async function generateImages(request: GenerateImagesRequest): Promise<Ge
       }
     }
 
-    // Build input with FLUX-compatible parameters (NO negative_prompt since FLUX doesn't support it)
+    // Build input with OPTIMAL FLUX LoRA parameters based on research
     const input: any = {
       prompt: finalPrompt,        // Includes embedded "NOT plastic skin" statements
-      guidance: 2.5,              // Reduced guidance to prevent over-processing toward plastic perfection
+      guidance: 3.0,              // OPTIMAL: 2.5-3.0 range for realistic images (research-backed)
       lora_weights: `sandrasocial/${userModel.modelName}`, // User's trained LoRA weights
-      lora_scale: 0.7,           // Further reduced LoRA strength to prevent artificial look
-      num_inference_steps: 28,    // Fewer steps to prevent over-refinement
+      lora_scale: 0.8,           // OPTIMAL: 0.7-0.9 range for balanced application (research-backed)
+      num_inference_steps: 35,    // OPTIMAL: 35+ steps minimum for quality (research-backed)
       num_outputs: 3,            // Generate 3 focused images
       aspect_ratio: "3:4",        // Portrait ratio better for selfies
       output_format: "png",       // PNG for highest quality
-      output_quality: 90,         // Reduced quality to prevent over-sharpening
+      output_quality: 100,        // Maximum quality for best results
       megapixels: "1",           // Approximate megapixels
       go_fast: false,             // Quality over speed - essential for beauty
       disable_safety_checker: false
