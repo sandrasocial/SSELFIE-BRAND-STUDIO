@@ -19,6 +19,12 @@ export interface GenerateImagesResponse {
 export async function generateImages(request: GenerateImagesRequest): Promise<GenerateImagesResponse> {
   const { userId, category, subcategory, triggerWord, modelVersion, customPrompt } = request;
   
+  // CRITICAL: Get user's trained model data first  
+  const userModel = await storage.getUserModel(userId);
+  if (!userModel || userModel.trainingStatus !== 'completed') {
+    throw new Error('User model not ready for generation. Training must be completed first.');
+  }
+  
   try {
     console.log(`Starting image generation for user ${userId}`);
     console.log(`Model version: ${modelVersion}`);
@@ -66,7 +72,7 @@ export async function generateImages(request: GenerateImagesRequest): Promise<Ge
     const input: any = {
       prompt: finalPrompt,
       negative_prompt: "glossy fake skin, deep unflattering wrinkles, flat unflattering hair, artificial plastic appearance, over-smooth skin, bad lighting, unflattering angle",
-      hf_lora: `sandrasocial/${userId}-selfie-lora`, // User's trained LoRA weights
+      hf_lora: `sandrasocial/${userModel.modelName}`, // Use actual model name from database
       guidance_scale: 2.8,        // Lowered from 3.5 to 2.8 for testing
       num_inference_steps: 32,    // Higher steps for better quality
       output_quality: 100,        // Maximum quality
@@ -80,7 +86,7 @@ export async function generateImages(request: GenerateImagesRequest): Promise<Ge
     };
     
     console.log(`Using FLUX model version: ${fluxModelVersion}`);
-    console.log(`Using trained LoRA: sandrasocial/${userId}-selfie-lora`);
+    console.log(`Using trained LoRA: sandrasocial/${userModel.modelName}`);
     console.log(`Final prompt with trigger word: ${finalPrompt}`);
     
     // Start Replicate generation with correct API format
