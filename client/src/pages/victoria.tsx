@@ -228,18 +228,8 @@ export default function VictoriaLandingPage() {
                 </h3>
                 <p className="text-sm font-light text-[#666666] leading-relaxed">
                   Advanced positioning and growth strategy for market leadership
-                    </div>
-                  </div>
-                </div>
-              </Link>
-            ))}
-          </div>
-
-          <div className="text-center mt-12">
-            <Link href="/victoria-chat?history=all">
-              <button className="text-[10px] tracking-[0.2em] uppercase text-black hover:tracking-[0.3em] transition-all duration-300 pb-2 border-b border-black/20 hover:border-black">
-                View All Strategy Sessions
-              </button>
+                </p>
+              </div>
             </Link>
           </div>
         </div>
