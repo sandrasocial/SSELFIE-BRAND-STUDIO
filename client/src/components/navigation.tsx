@@ -36,9 +36,11 @@ export const Navigation: React.FC = () => {
   const memberNavItems = [
     { path: '/studio', label: 'STUDIO' },
     { path: '/ai-training', label: 'TRAIN AI' },
-    { path: '/sandra-photoshoot', label: 'PHOTOSHOOT' },
-    { path: '/custom-photoshoot-library', label: 'LIBRARY' },
+    { path: '/maya', label: 'MAYA' },
+    { path: '/ai-photoshoot', label: 'AI PHOTOSHOOT' },
     { path: '/gallery', label: 'GALLERY' },
+    { path: '/flatlay-library', label: 'FLATLAYS' },
+    { path: '/victoria', label: 'VICTORIA' },
     { path: '/profile', label: 'PROFILE' },
     ...(isAdmin ? [{ path: '/admin', label: 'ADMIN' }] : []),
   ];

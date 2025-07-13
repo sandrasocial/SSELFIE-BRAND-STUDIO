@@ -60,8 +60,18 @@ export default function Workspace() {
       image: SandraImages.editorial.phone1
     },
     {
-      id: 'gallery',
+      id: 'ai-photoshoot',
       number: '03',
+      title: 'AI Photoshoot',
+      subtitle: 'Generate professional photos with AI',
+      status: userModel?.trainingStatus === 'completed' ? 'ready' : 'locked',
+      statusText: userModel?.trainingStatus === 'completed' ? 'Start Shooting' : 'Complete Step 1',
+      link: userModel?.trainingStatus === 'completed' ? '/ai-photoshoot' : '#',
+      image: SandraImages.editorial.phone1
+    },
+    {
+      id: 'gallery',
+      number: '04',
       title: 'Gallery', 
       subtitle: 'View and download your photos',
       status: aiImages.length > 0 ? 'active' : 'locked',
@@ -71,7 +81,7 @@ export default function Workspace() {
     },
     {
       id: 'flatlay-library',
-      number: '04',
+      number: '05',
       title: 'Flatlay Library',
       subtitle: 'Curated lifestyle images for your brand',
       status: 'ready',
@@ -81,7 +91,7 @@ export default function Workspace() {
     },
     {
       id: 'victoria-brand-strategist',
-      number: '05',
+      number: '06',
       title: 'Victoria - Personal Brand Strategist',
       subtitle: 'AI guidance for your brand strategy',
       status: 'ready',
@@ -91,7 +101,7 @@ export default function Workspace() {
     },
     {
       id: 'business',
-      number: '06',
+      number: '07',
       title: 'Build Your Business',
       subtitle: 'Landing pages, booking, payments',
       status: 'coming-soon',
@@ -101,7 +111,7 @@ export default function Workspace() {
     },
     {
       id: 'profile',
-      number: '07',
+      number: '08',
       title: 'Your Profile',
       subtitle: 'Account settings and preferences',
       status: 'ready',
