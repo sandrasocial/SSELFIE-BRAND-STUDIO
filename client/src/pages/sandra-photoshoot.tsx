@@ -16,10 +16,10 @@ export default function MayaLandingPage() {
   
   // Image categories for organization
   const imageCategories = [
-    { name: 'Editorial', count: 23, preview: SandraImages.portraits.editorial[0] },
-    { name: 'Lifestyle', count: 18, preview: SandraImages.portraits.lifestyle[0] },
-    { name: 'Business', count: 15, preview: SandraImages.portraits.professional[0] },
-    { name: 'Creative', count: 12, preview: SandraImages.portraits.creative[0] }
+    { name: 'Editorial', count: 23, preview: SandraImages.editorial.thinking },
+    { name: 'Lifestyle', count: 18, preview: SandraImages.editorial.laughing },
+    { name: 'Business', count: 15, preview: SandraImages.hero.pricing },
+    { name: 'Creative', count: 12, preview: SandraImages.editorial.laptop1 }
   ];
 
   // Recent chat history preview
@@ -35,7 +35,7 @@ export default function MayaLandingPage() {
       id: 'new-chat',
       title: 'Start New Chat with Maya',
       description: 'Get personalized photography and styling advice',
-      image: SandraImages.portraits.editorial[0],
+      image: SandraImages.editorial.thinking,
       route: '/maya',
       category: 'Chat'
     },
@@ -43,7 +43,7 @@ export default function MayaLandingPage() {
       id: 'recent-chats',
       title: 'Recent Conversations',
       description: 'Continue previous styling discussions',
-      image: SandraImages.portraits.lifestyle[0],
+      image: SandraImages.editorial.laughing,
       route: '/maya?history=true',
       category: 'Chat History'
     },
@@ -51,7 +51,7 @@ export default function MayaLandingPage() {
       id: 'profile-settings',
       title: 'Update Profile & Preferences',
       description: 'Edit your brand profile for better AI recommendations',
-      image: SandraImages.portraits.professional[0],
+      image: SandraImages.hero.pricing,
       route: '/profile',
       category: 'Settings'
     },
@@ -59,7 +59,7 @@ export default function MayaLandingPage() {
       id: 'all-images',
       title: 'View All Images',
       description: 'Browse your complete AI photo collection',
-      image: SandraImages.portraits.creative[0],
+      image: SandraImages.editorial.laptop1,
       route: '/gallery',
       category: 'Gallery'
     }
