@@ -2630,6 +2630,55 @@ Consider this workflow optimized and ready for implementation! ⚙️`
     }
   });
 
+  // BRAND ONBOARDING API ENDPOINTS
+  app.get('/api/brand-onboarding', async (req: any, res) => {
+    try {
+      const userId = req.session?.userId || req.user?.claims?.sub || 'sandra_test_user_2025';
+      const brandData = await storage.getBrandOnboarding(userId);
+      
+      if (brandData) {
+        res.json(brandData);
+      } else {
+        // Return default data structure instead of 404
+        res.json({
+          businessName: 'Your Business',
+          tagline: 'Build Your Empire',
+          personalStory: 'Your story starts here.',
+          whyStarted: '',
+          targetClient: 'Women entrepreneurs ready to scale',
+          problemYouSolve: 'I help you find clarity in your brand message.',
+          uniqueApproach: 'My approach is authentic and strategic.',
+          primaryOffer: 'Brand Strategy',
+          primaryOfferPrice: '$497',
+          secondaryOffer: 'Content Creation',
+          secondaryOfferPrice: '$297',
+          freeResource: 'Brand Strategy Guide',
+          email: 'hello@yourname.com',
+          instagramHandle: '@yourname',
+          websiteUrl: 'www.yourname.com',
+          brandPersonality: 'sophisticated',
+          brandValues: 'Authenticity, Excellence, Innovation'
+        });
+      }
+    } catch (error) {
+      console.error('Error fetching brand onboarding:', error);
+      res.status(500).json({ message: 'Failed to fetch brand onboarding data' });
+    }
+  });
+
+  app.post('/api/save-brand-onboarding', async (req: any, res) => {
+    try {
+      const userId = req.session?.userId || req.user?.claims?.sub || 'sandra_test_user_2025';
+      const brandData = { ...req.body, userId };
+      
+      const saved = await storage.saveBrandOnboarding(brandData);
+      res.json(saved);
+    } catch (error) {
+      console.error('Error saving brand onboarding:', error);
+      res.status(500).json({ message: 'Failed to save brand onboarding data' });
+    }
+  });
+
   // User model management routes
   app.get('/api/user-model', async (req: any, res) => {
     try {
