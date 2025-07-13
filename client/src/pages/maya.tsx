@@ -2,22 +2,32 @@ import React, { useState, useEffect } from 'react';
 import { useAuth } from '@/hooks/use-auth';
 import { useLocation } from 'wouter';
 import { useToast } from '@/hooks/use-toast';
+import { useQueryClient } from '@tanstack/react-query';
 import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
+import { apiRequest } from '@/lib/queryClient';
 
 interface ChatMessage {
   role: 'user' | 'maya';
   content: string;
   timestamp: string;
+  imagePreview?: string[];
+  canGenerate?: boolean;
+  generatedPrompt?: string;
 }
 
 export default function Maya() {
   const { user, isLoading } = useAuth();
   const [, setLocation] = useLocation();
   const { toast } = useToast();
+  const queryClient = useQueryClient();
   const [messages, setMessages] = useState<ChatMessage[]>([]);
   const [input, setInput] = useState('');
   const [isTyping, setIsTyping] = useState(false);
+  const [isGenerating, setIsGenerating] = useState(false);
+  const [generatedImages, setGeneratedImages] = useState<string[]>([]);
+  const [savedImages, setSavedImages] = useState<Set<string>>(new Set());
+  const [savingImages, setSavingImages] = useState<Set<string>>(new Set());
 
   // Redirect to login if not authenticated
   useEffect(() => {
@@ -73,6 +83,8 @@ export default function Maya() {
       const mayaMessage: ChatMessage = {
         role: 'maya',
         content: data.message || "I'm having a creative moment! Try asking me again about your photo vision.",
+        canGenerate: data.canGenerate || false,
+        generatedPrompt: data.generatedPrompt || undefined,
         timestamp: new Date().toISOString()
       };
 
@@ -86,6 +98,83 @@ export default function Maya() {
       });
     } finally {
       setIsTyping(false);
+    }
+  };
+
+  // Generate images based on Maya's prompt
+  const generateImages = async (prompt: string) => {
+    setIsGenerating(true);
+    setGeneratedImages([]);
+    
+    try {
+      const response = await apiRequest('POST', '/api/maya-generate-images', {
+        customPrompt: prompt
+      });
+
+      if (response.image_urls) {
+        const imageUrls = JSON.parse(response.image_urls);
+        setGeneratedImages(imageUrls);
+        
+        // Update the last Maya message to include the generated images
+        setMessages(prev => prev.map((msg, index) => {
+          if (index === prev.length - 1 && msg.role === 'maya') {
+            return { ...msg, imagePreview: imageUrls };
+          }
+          return msg;
+        }));
+
+        toast({
+          title: "Images Generated!",
+          description: "Maya created 4 beautiful photos for you. Save your favorites!",
+        });
+      }
+    } catch (error) {
+      console.error('Error generating images:', error);
+      toast({
+        title: "Generation Failed",
+        description: "Maya couldn't generate images right now. Try again!",
+        variant: "destructive",
+      });
+    } finally {
+      setIsGenerating(false);
+    }
+  };
+
+  // Save image to gallery
+  const saveToGallery = async (imageUrl: string, index: number) => {
+    if (savedImages.has(imageUrl) || savingImages.has(imageUrl)) return;
+    
+    setSavingImages(prev => new Set([...prev, imageUrl]));
+    
+    try {
+      await apiRequest('POST', '/api/save-to-gallery', {
+        imageUrl,
+        prompt: `Maya AI Photoshoot - Image ${index + 1}`,
+        style: 'Maya AI',
+        subcategory: 'AI Photography'
+      });
+      
+      setSavedImages(prev => new Set([...prev, imageUrl]));
+      // Refresh gallery to show newly saved image
+      queryClient.invalidateQueries({ queryKey: ['/api/gallery-images'] });
+      
+      toast({
+        title: "Saved to Gallery",
+        description: "Image saved to your gallery and Maya dashboard",
+      });
+    } catch (error) {
+      console.error('Error saving to gallery:', error);
+      toast({
+        title: "Save Failed",
+        description: "Could not save image. Please try again.",
+        variant: "destructive",
+      });
+    } finally {
+      setSavingImages(prev => {
+        const newSet = new Set(prev);
+        newSet.delete(imageUrl);
+        return newSet;
+      });
     }
   };
 
@@ -144,6 +233,54 @@ export default function Maya() {
                 <div className="whitespace-pre-wrap text-sm sm:text-base leading-relaxed">
                   {message.content}
                 </div>
+                
+                {/* Generate Images Button */}
+                {message.role === 'maya' && message.canGenerate && message.generatedPrompt && !message.imagePreview && (
+                  <div className="mt-4">
+                    <Button
+                      onClick={() => generateImages(message.generatedPrompt!)}
+                      disabled={isGenerating}
+                      className="bg-black text-white hover:bg-gray-800 text-sm"
+                    >
+                      {isGenerating ? 'Generating...' : 'Generate These Photos ✨'}
+                    </Button>
+                  </div>
+                )}
+                
+                {/* Image Preview Grid */}
+                {message.role === 'maya' && message.imagePreview && (
+                  <div className="mt-6">
+                    <h4 className="text-sm font-medium mb-3 text-black">Your Maya AI Photos</h4>
+                    <div className="grid grid-cols-2 gap-4">
+                      {message.imagePreview.map((imageUrl, imgIndex) => (
+                        <div key={imgIndex} className="relative group">
+                          <img 
+                            src={imageUrl}
+                            alt={`Maya generated image ${imgIndex + 1}`}
+                            className="w-full h-32 object-cover border border-gray-200"
+                          />
+                          
+                          {/* Save Button */}
+                          <button
+                            onClick={() => saveToGallery(imageUrl, imgIndex)}
+                            disabled={savingImages.has(imageUrl)}
+                            className="absolute top-2 right-2 bg-black/70 hover:bg-black text-white text-xs px-2 py-1 rounded transition-all"
+                          >
+                            {savingImages.has(imageUrl) ? '⟳' : (savedImages.has(imageUrl) ? '♥ Saved' : '♡ Save')}
+                          </button>
+                          
+                          {/* Saved Indicator */}
+                          {savedImages.has(imageUrl) && (
+                            <div className="absolute bottom-2 left-2 bg-green-600 text-white text-xs px-2 py-1 rounded">
+                              In Gallery
+                            </div>
+                          )}
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
+                
                 <div className={`text-xs mt-3 ${message.role === 'user' ? 'text-white/60' : 'text-gray-500'}`}>
                   {message.role === 'user' ? 'You' : 'Maya'} • {new Date(message.timestamp).toLocaleTimeString()}
                 </div>

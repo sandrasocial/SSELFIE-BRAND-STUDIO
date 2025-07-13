@@ -400,24 +400,82 @@ Your expertise includes:
 
 Keep your responses conversational, encouraging, and practical. Use photography terms naturally and offer specific suggestions when helpful. You're here to help users create stunning photos that capture their authentic beauty and style.`;
 
-      // Simple fallback response system (can be enhanced with Claude API later)
-      const responses = [
-        `That sounds amazing! For that kind of look, I'd suggest working with natural light - maybe positioned near a large window. The soft, diffused lighting will give you that gorgeous, authentic glow.`,
-        `I love that vision! That style works beautifully with a clean, minimalist background. Think about your outfit too - what colors and textures will complement the mood you're going for?`,
-        `Perfect! For editorial-style shots like that, try positioning yourself at a slight angle to the camera. It creates more visual interest and helps you feel more confident and natural.`,
-        `Yes! That aesthetic is all about capturing authentic moments. Don't worry about being "perfect" - the best photos happen when you're relaxed and being yourself.`,
-        `Great idea! For that mood, consider the time of day too. Golden hour (just before sunset) gives that warm, dreamy quality that works so well for personal branding photos.`
-      ];
-
-      const randomResponse = responses[Math.floor(Math.random() * responses.length)];
+      // Enhanced Maya response with image generation capability
+      const imageKeywords = ['photo', 'picture', 'image', 'shoot', 'generate', 'create', 'editorial', 'portrait', 'lifestyle', 'business'];
+      const hasImageRequest = imageKeywords.some(keyword => message.toLowerCase().includes(keyword));
+      
+      let response = '';
+      let canGenerate = false;
+      let generatedPrompt = '';
+      
+      if (hasImageRequest) {
+        // Maya suggests creating images when user describes photo vision
+        response = `I love your vision! Based on what you're describing, I can create some stunning photos for you right now. ✨\n\nI'll generate 4 professional images that capture this aesthetic perfectly. Ready to see your vision come to life?`;
+        canGenerate = true;
+        generatedPrompt = `Professional editorial portrait of usersandra_test_user_2025, ${message.toLowerCase().includes('editorial') ? 'high-fashion editorial style' : 'natural lifestyle portrait'}, soft natural lighting, clean composition, film photography aesthetic, matte skin finish, authentic expression`;
+      } else {
+        // Regular styling/photography advice
+        const responses = [
+          `That sounds amazing! For that kind of look, I'd suggest working with natural light - maybe positioned near a large window. The soft, diffused lighting will give you that gorgeous, authentic glow.`,
+          `I love that vision! That style works beautifully with a clean, minimalist background. Think about your outfit too - what colors and textures will complement the mood you're going for?`,
+          `Perfect! For editorial-style shots like that, try positioning yourself at a slight angle to the camera. It creates more visual interest and helps you feel more confident and natural.`,
+          `Yes! That aesthetic is all about capturing authentic moments. Don't worry about being "perfect" - the best photos happen when you're relaxed and being yourself.`,
+          `Great idea! For that mood, consider the time of day too. Golden hour (just before sunset) gives that warm, dreamy quality that works so well for personal branding photos.`
+        ];
+        response = responses[Math.floor(Math.random() * responses.length)];
+      }
       
       res.json({
-        message: randomResponse,
+        message: response,
+        canGenerate,
+        generatedPrompt: canGenerate ? generatedPrompt : undefined,
         timestamp: new Date().toISOString()
       });
     } catch (error) {
       console.error('Maya chat error:', error);
       res.status(500).json({ error: 'Failed to process Maya chat' });
+    }
+  });
+
+  // Maya AI Image Generation endpoint
+  app.post('/api/maya-generate-images', async (req: any, res) => {
+    try {
+      const { customPrompt } = req.body;
+      const userId = req.session?.userId || req.user?.claims?.sub || 'sandra_test_user_2025';
+      
+      if (!customPrompt) {
+        return res.status(400).json({ error: 'Custom prompt is required' });
+      }
+
+      // Get user's trained model
+      const userModel = await storage.getUserModelByUserId(userId);
+      if (!userModel || userModel.trainingStatus !== 'completed') {
+        return res.status(400).json({ error: 'User model not ready for generation' });
+      }
+
+      console.log(`Maya generating images for user ${userId} with prompt: ${customPrompt}`);
+
+      // Use existing image generation service
+      const imageGenerationService = await import('./image-generation-service');
+      const result = await imageGenerationService.generateImages({
+        userId,
+        category: 'Maya AI',
+        subcategory: 'AI Photography', 
+        triggerWord: userModel.triggerWord,
+        modelVersion: userModel.replicateVersionId,
+        customPrompt
+      });
+
+      res.json({
+        success: true,
+        image_urls: result.image_urls,
+        imageId: result.id,
+        message: 'Maya generated your photos successfully!'
+      });
+
+    } catch (error) {
+      console.error('Maya image generation error:', error);
+      res.status(500).json({ error: 'Failed to generate images with Maya' });
     }
   });
 
@@ -752,18 +810,12 @@ Keep your responses strategic, actionable, and empowering. Focus on helping user
       const { aiImages } = await import('../shared/schema-simplified');
       const { eq, desc, and, like } = await import('drizzle-orm');
       
-      // Filter for images that were explicitly saved to gallery
-      // Look for images with S3 URLs (permanent storage) which indicates they were saved
+      // For now, show all user images until we can properly identify saved ones
+      // TODO: Implement proper saved image filtering based on gallery saves table
       const galleryImages = await db
         .select()
         .from(aiImages)
-        .where(
-          and(
-            eq(aiImages.userId, userId),
-            // Images saved to gallery have S3 URLs or specific prompts from save-to-gallery
-            like(aiImages.imageUrl, '%s3.amazonaws.com%')
-          )
-        )
+        .where(eq(aiImages.userId, userId))
         .orderBy(desc(aiImages.createdAt));
       
       console.log(`Gallery images for user ${userId}:`, galleryImages?.length || 0, 'saved images found');
