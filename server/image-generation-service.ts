@@ -28,18 +28,37 @@ export async function generateImages(request: GenerateImagesRequest): Promise<Ge
     // Create initial AI image record
     const aiImageData: InsertAIImage = {
       userId,
-      category,
-      subcategory, 
+      imageUrl: 'processing', // Required field, will be updated when complete
       prompt: customPrompt,
-      imageUrls: 'processing',
+      style: category,
       generationStatus: 'processing',
-      modelVersion,
-      triggerWord
+      predictionId: '' // Will be updated after Replicate call
     };
 
     const savedImage = await storage.saveAIImage(aiImageData);
     console.log(`Created AI image record with ID: ${savedImage.id}`);
 
+    // Use correct FLUX LoRA model with trained weights
+    const fluxModel = 'black-forest-labs/flux-dev-lora';
+    
+    // Build input with trained model weights
+    const input: any = {
+      prompt: customPrompt,
+      hf_lora: `sandrasocial/${userId}-selfie-lora`, // User's trained LoRA weights
+      guidance_scale: 3,
+      num_inference_steps: 28,
+      output_quality: 95,
+      aspect_ratio: "4:3",
+      output_format: "jpg",
+      go_fast: false,
+      megapixels: "1",
+      num_outputs: 4,
+      lora_scale: 1.0
+    };
+    
+    console.log(`Using FLUX model: ${fluxModel}`);
+    console.log(`Using trained LoRA: sandrasocial/${userId}-selfie-lora`);
+    
     // Start Replicate generation
     const replicateResponse = await fetch('https://api.replicate.com/v1/predictions', {
       method: 'POST',
@@ -48,19 +67,8 @@ export async function generateImages(request: GenerateImagesRequest): Promise<Ge
         'Content-Type': 'application/json',
       },
       body: JSON.stringify({
-        version: modelVersion,
-        input: {
-          prompt: customPrompt,
-          guidance_scale: 3,
-          num_inference_steps: 28,
-          output_quality: 95,
-          aspect_ratio: "4:3",
-          output_format: "jpg",
-          go_fast: false,
-          megapixels: "1",
-          num_outputs: 4,
-          lora_scale: 1.0
-        }
+        model: fluxModel,
+        input
       }),
     });
 
@@ -73,19 +81,19 @@ export async function generateImages(request: GenerateImagesRequest): Promise<Ge
     const prediction = await replicateResponse.json();
     console.log(`Replicate prediction started with ID: ${prediction.id}`);
 
-    // Update image with prediction ID
+    // Update image with prediction ID  
     await storage.updateAIImage(savedImage.id, {
-      replicatePredictionId: prediction.id,
+      predictionId: prediction.id,
       generationStatus: 'processing'
     });
 
     // Start polling for completion in background
     pollForCompletion(savedImage.id, prediction.id);
 
-    // Return immediate response
+    // Return immediate response with single image format
     return {
       id: savedImage.id,
-      image_urls: JSON.stringify([]), // Empty initially, will be populated when complete
+      image_urls: JSON.stringify([savedImage.imageUrl]), // Maya expects JSON string format
       success: true
     };
 
@@ -119,8 +127,12 @@ async function pollForCompletion(imageId: number, predictionId: string): Promise
 
       if (prediction.status === 'succeeded') {
         console.log('Generation completed successfully');
+        // Use first image URL from the output array
+        const outputUrls = prediction.output || [];
+        const imageUrl = outputUrls.length > 0 ? outputUrls[0] : 'completed';
+        
         await storage.updateAIImage(imageId, {
-          imageUrls: JSON.stringify(prediction.output || []),
+          imageUrl: imageUrl,
           generationStatus: 'completed'
         });
         return;
@@ -129,7 +141,7 @@ async function pollForCompletion(imageId: number, predictionId: string): Promise
       if (prediction.status === 'failed' || prediction.status === 'canceled') {
         console.log(`Generation failed with status: ${prediction.status}`);
         await storage.updateAIImage(imageId, {
-          imageUrls: 'failed',
+          imageUrl: 'failed',
           generationStatus: 'failed'
         });
         return;
@@ -141,7 +153,7 @@ async function pollForCompletion(imageId: number, predictionId: string): Promise
       } else {
         console.log('Max polling attempts reached');
         await storage.updateAIImage(imageId, {
-          imageUrls: 'timeout',
+          imageUrl: 'timeout',
           generationStatus: 'failed'
         });
       }
@@ -152,7 +164,7 @@ async function pollForCompletion(imageId: number, predictionId: string): Promise
         setTimeout(poll, 3000);
       } else {
         await storage.updateAIImage(imageId, {
-          imageUrls: 'error',
+          imageUrl: 'error',
           generationStatus: 'failed'
         });
       }
