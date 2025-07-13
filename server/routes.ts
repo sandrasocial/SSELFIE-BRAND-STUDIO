@@ -38,28 +38,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   }));
 
-  // Serve user-specific multi-page website files (MUST be very early, before other routes)
-  app.get('/:username/:page', (req, res, next) => {
-    const { username, page } = req.params;
-    
-    // Only handle .html files in user directories
-    if (!page.endsWith('.html')) {
-      return next();
-    }
-    
-    const validPages = ['about.html', 'services.html', 'contact.html'];
-    if (!validPages.includes(page)) {
-      return next();
-    }
-    
-    const filePath = path.join(process.cwd(), 'public', username, page);
-    
-    if (fs.existsSync(filePath)) {
-      res.sendFile(filePath);
-    } else {
-      next(); // Let other routes handle this
-    }
-  });
+  // Removed multi-page route from here - moved to end of routes to avoid Vite conflicts
 
   // PUBLIC ENDPOINT: Chat with Sandra AI for photoshoot prompts - MUST BE FIRST, NO AUTH
   app.post('/api/sandra-chat', async (req: any, res) => {
@@ -3567,6 +3546,34 @@ Consider this workflow optimized and ready for implementation! ⚙️`
   });
 
 
+
+  // Serve user-specific multi-page website files (MUST be LAST to avoid Vite conflicts)
+  app.get('/:username/:page', (req, res, next) => {
+    const { username, page } = req.params;
+    
+    // Skip Vite development routes
+    if (username.startsWith('@') || username.startsWith('src/') || username.startsWith('node_modules/')) {
+      return next();
+    }
+    
+    // Only handle .html files in user directories
+    if (!page.endsWith('.html')) {
+      return next();
+    }
+    
+    const validPages = ['about.html', 'services.html', 'contact.html'];
+    if (!validPages.includes(page)) {
+      return next();
+    }
+    
+    const filePath = path.join(process.cwd(), 'public', username, page);
+    
+    if (fs.existsSync(filePath)) {
+      res.sendFile(filePath);
+    } else {
+      next(); // Let other routes handle this
+    }
+  });
 
   const httpServer = createServer(app);
   return httpServer;
