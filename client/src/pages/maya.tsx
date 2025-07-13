@@ -63,6 +63,10 @@ export default function Maya() {
   const [, setLocation] = useLocation();
   const { toast } = useToast();
   const queryClient = useQueryClient();
+  
+  // Get chat ID from URL parameters
+  const urlParams = new URLSearchParams(window.location.search);
+  const chatIdFromUrl = urlParams.get('chat');
   const [messages, setMessages] = useState<ChatMessage[]>([]);
   const [input, setInput] = useState('');
   const [isTyping, setIsTyping] = useState(false);
@@ -89,16 +93,22 @@ export default function Maya() {
     }
   }, [user, isLoading, setLocation, toast]);
 
-  // Initialize with Maya's welcome message
+  // Load specific chat or initialize with welcome message
   useEffect(() => {
     if (user && messages.length === 0) {
-      setMessages([{
-        role: 'maya',
-        content: `Hey ${user.firstName || 'gorgeous'}! I'm Maya, your personal celebrity stylist, photographer, and makeup artist. I work with A-list celebrities and high-end fashion brands to create magazine-worthy content.\n\nI'm here to help you look absolutely stunning and bring out your best features. Let's talk about your vision - what kind of energy are you going for? Editorial sophistication? Natural lifestyle beauty? Red carpet glamour?\n\nDescribe the mood, the story you want to tell, or even just how you want to feel in the photos. I'll ask the right questions to understand your vision perfectly, then create those exact photos for you! ✨`,
-        timestamp: new Date().toISOString()
-      }]);
+      if (chatIdFromUrl) {
+        // Load specific chat from URL parameter
+        loadChatHistory(parseInt(chatIdFromUrl));
+      } else {
+        // Initialize with Maya's welcome message
+        setMessages([{
+          role: 'maya',
+          content: `Hey ${user.firstName || 'gorgeous'}! I'm Maya, your personal celebrity stylist, photographer, and makeup artist. I work with A-list celebrities and high-end fashion brands to create magazine-worthy content.\n\nI'm here to help you look absolutely stunning and bring out your best features. Let's talk about your vision - what kind of energy are you going for? Editorial sophistication? Natural lifestyle beauty? Red carpet glamour?\n\nDescribe the mood, the story you want to tell, or even just how you want to feel in the photos. I'll ask the right questions to understand your vision perfectly, then create those exact photos for you! ✨`,
+          timestamp: new Date().toISOString()
+        }]);
+      }
     }
-  }, [user, messages.length]);
+  }, [user, messages.length, chatIdFromUrl]);
 
   const sendMessage = async () => {
     if (!input.trim()) return;
