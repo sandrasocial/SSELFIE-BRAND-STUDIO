@@ -226,9 +226,9 @@ export default function VictoriaPreview() {
     return injectUserPhotos(updatedHtml);
   };
 
-  // Get current page template and HTML - TEMPORARILY USING SINGLE PAGE
+  // Get current page template and HTML - USING SINGLE PAGE TO FIX NAVIGATION
   const getCurrentTemplate = () => {
-    // Use single page template for all navigation to avoid routing issues
+    // Single page template eliminates routing issues completely
     return SINGLE_PAGE_TEMPLATE;
   };
 
