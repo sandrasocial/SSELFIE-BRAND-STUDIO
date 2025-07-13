@@ -472,67 +472,6 @@ export default function Maya() {
         </div>
       </header>
 
-      {/* Quick Access Workflow Section */}
-      <div className="border-b border-gray-100 bg-gray-50/50 px-4 sm:px-6 py-4">
-        <div className="max-w-4xl mx-auto">
-          <h3 className="text-sm font-medium text-gray-700 mb-3">Complete Workflow</h3>
-          <div className="grid grid-cols-1 sm:grid-cols-4 gap-3">
-            {/* Step 1: Generate AI Photos */}
-            <div className="bg-white rounded-lg p-3 border border-gray-200">
-              <div className="flex items-center justify-between mb-2">
-                <h4 className="text-sm font-medium text-black">1. AI Photos</h4>
-                <span className="text-xs text-gray-500">You are here</span>
-              </div>
-              <p className="text-xs text-gray-600 mb-3">Chat with Maya to create stunning AI photos of yourself</p>
-              <div className="text-xs text-green-600 bg-green-50 px-2 py-1 rounded">
-                ✓ Active
-              </div>
-            </div>
-
-            {/* Step 2: Select Photos */}
-            <div className="bg-white rounded-lg p-3 border border-gray-200">
-              <div className="flex items-center justify-between mb-2">
-                <h4 className="text-sm font-medium text-black">2. Photo Selection</h4>
-                <span className="text-xs text-gray-500">Next</span>
-              </div>
-              <p className="text-xs text-gray-600 mb-3">Choose your favorite selfies and flatlay style for templates</p>
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={() => setLocation('/photo-selection')}
-                className="text-xs h-6 px-2"
-              >
-                Select Photos →
-              </Button>
-            </div>
-
-            {/* Step 3: Brand Story */}
-            <div className="bg-white rounded-lg p-3 border border-gray-200">
-              <div className="flex items-center justify-between mb-2">
-                <h4 className="text-sm font-medium text-black">3. Brand Story</h4>
-                <span className="text-xs text-gray-500">After photos</span>
-              </div>
-              <p className="text-xs text-gray-600 mb-3">Share your business story, offers, and brand personality</p>
-              <div className="text-xs text-gray-400 bg-gray-50 px-2 py-1 rounded">
-                Complete photos first
-              </div>
-            </div>
-
-            {/* Step 4: Victoria Builder */}
-            <div className="bg-white rounded-lg p-3 border border-gray-200">
-              <div className="flex items-center justify-between mb-2">
-                <h4 className="text-sm font-medium text-black">4. Landing Page</h4>
-                <span className="text-xs text-gray-500">Final step</span>
-              </div>
-              <p className="text-xs text-gray-600 mb-3">Auto-generated landing page with Victoria AI assistance</p>
-              <div className="text-xs text-gray-400 bg-gray-50 px-2 py-1 rounded">
-                Complete story first
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-
       {/* Chat Container */}
       <div className="flex-1 flex flex-col max-w-4xl mx-auto w-full">
         {/* Messages Area */}
