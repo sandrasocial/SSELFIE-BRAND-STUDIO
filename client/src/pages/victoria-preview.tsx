@@ -1,8 +1,12 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { WorkspaceNavigation } from '@/components/workspace-navigation';
+import { HeroFullBleed } from '@/components/HeroFullBleed';
+import { EditorialImageBreak } from '@/components/EditorialImageBreak';
+import { EditorialStory } from '@/components/editorial-story';
 import { Button } from '@/components/ui/button';
 import { useQuery } from '@tanstack/react-query';
 import { Link } from 'wouter';
+import { SandraImages } from '@/lib/sandra-images';
 import { COMPREHENSIVE_LANDING_TEMPLATE } from '@/components/comprehensive-landing-template';
 import { MULTI_PAGE_HOME_TEMPLATE, MULTI_PAGE_ABOUT_TEMPLATE, MULTI_PAGE_SERVICES_TEMPLATE, MULTI_PAGE_CONTACT_TEMPLATE, SINGLE_PAGE_TEMPLATE } from '@/components/multi-page-templates';
 import { CompletionModal } from '@/components/completion-modal';
@@ -277,196 +281,287 @@ export default function VictoriaPreview() {
     }
   }, [currentHtml, brandData, photoSelections]);
 
+  // Enhanced template selection interface
+  const [showTemplateSelector, setShowTemplateSelector] = useState(false);
+  const [selectedTemplate, setSelectedTemplate] = useState('comprehensive');
+
+  const templateOptions = [
+    {
+      id: 'comprehensive',
+      name: 'Full Editorial',
+      description: 'Complete magazine-style layout with all sections',
+      preview: SandraImages.hero.pricing,
+      template: COMPREHENSIVE_LANDING_TEMPLATE
+    },
+    {
+      id: 'single-page',
+      name: 'Single Page',
+      description: 'Clean one-page layout with anchor navigation',
+      preview: SandraImages.editorial.laptop1,
+      template: SINGLE_PAGE_TEMPLATE
+    }
+  ];
+
   return (
-    <>
-      {/* Full-Screen Preview Interface - NO NAVIGATION CONFLICT */}
-      <div className="h-screen flex flex-col bg-black">
-        {/* Top Bar - BRAND STYLING APPLIED */}
-        <div className="bg-white text-black px-6 py-4 border-b border-black">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center space-x-6">
-              <h1 className="text-xl font-light" style={{ fontFamily: 'Times New Roman, serif' }}>
-                Multi-Page Website Preview
-              </h1>
-              
-              {/* Page Navigation */}
-              <div className="flex items-center space-x-2">
-                {[
-                  { key: 'home', label: 'HOME' },
-                  { key: 'about', label: 'ABOUT' },
-                  { key: 'services', label: 'SERVICES' },
-                  { key: 'contact', label: 'CONTACT' }
-                ].map((page) => (
-                  <button
-                    key={page.key}
-                    onClick={() => setCurrentPage(page.key)}
-                    className={`px-3 py-1 text-[10px] tracking-[0.3em] uppercase transition-all border ${
-                      currentPage === page.key
-                        ? 'bg-[#0a0a0a] text-white border-[#0a0a0a]'
-                        : 'bg-white text-[#666] border-[#e5e5e5] hover:text-[#0a0a0a] hover:border-[#0a0a0a]'
-                    }`}
-                    style={{ fontFamily: 'Inter, system-ui, sans-serif' }}
+    <div className="min-h-screen bg-white">
+      <WorkspaceNavigation />
+      
+      {/* Template Preview Hero */}
+      <HeroFullBleed
+        title="Your Landing Page"
+        subtitle="Live preview with your brand story and photos"
+        backgroundImage={SandraImages.hero.pricing}
+        textPosition="center"
+        ctaText="Customize Template"
+        ctaAction={() => setShowTemplateSelector(true)}
+      />
+
+      {/* Template Selection Interface */}
+      {showTemplateSelector && (
+        <section className="py-16 sm:py-20 px-4 sm:px-6 md:px-8 bg-[#f5f5f5]">
+          <div className="max-w-7xl mx-auto">
+            <div className="text-center mb-16">
+              <h2 className="font-times text-[clamp(2rem,6vw,4rem)] leading-[0.9] font-extralight tracking-[-0.02em] text-black mb-8">
+                CHOOSE YOUR TEMPLATE
+              </h2>
+              <p className="text-base sm:text-lg font-light text-[#666666] max-w-2xl mx-auto">
+                Professional templates designed for your brand story
+              </p>
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-8 lg:gap-12">
+              {templateOptions.map((template) => (
+                <div
+                  key={template.id}
+                  onClick={() => {
+                    setSelectedTemplate(template.id);
+                    setShowTemplateSelector(false);
+                  }}
+                  className={`cursor-pointer group transition-all duration-300 ${
+                    selectedTemplate === template.id
+                      ? 'ring-2 ring-black'
+                      : 'hover:ring-1 hover:ring-gray-300'
+                  }`}
+                >
+                  <div className="aspect-[4/3] overflow-hidden bg-[#f5f5f5]">
+                    <img
+                      src={template.preview}
+                      alt={template.name}
+                      className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                    />
+                  </div>
+                  <div className="p-8 bg-white">
+                    <h3 className="font-times text-xl sm:text-2xl font-light tracking-[-0.01em] text-black mb-4">
+                      {template.name}
+                    </h3>
+                    <p className="text-sm font-light text-[#666666] leading-relaxed">
+                      {template.description}
+                    </p>
+                    <div className="mt-6 text-[10px] tracking-[0.2em] uppercase text-black group-hover:tracking-[0.3em] transition-all duration-300">
+                      Select Template →
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        </section>
+      )}
+
+      {/* Live Preview Section */}
+      <section className="py-16 sm:py-20 px-4 sm:px-6 md:px-8 bg-white">
+        <div className="max-w-7xl mx-auto">
+          <div className="text-center mb-16">
+            <h2 className="font-times text-[clamp(2rem,6vw,4rem)] leading-[0.9] font-extralight tracking-[-0.02em] text-black mb-8">
+              LIVE PREVIEW
+            </h2>
+            <p className="text-base sm:text-lg font-light text-[#666666] max-w-2xl mx-auto">
+              Your landing page with authentic brand data and personal photos
+            </p>
+          </div>
+
+          {/* Preview Controls */}
+          <div className="flex justify-center mb-12">
+            <div className="flex items-center space-x-4 bg-[#f5f5f5] p-2 rounded">
+              <button
+                onClick={() => setIsFullScreen(false)}
+                className={`px-4 py-2 text-sm transition-all ${
+                  !isFullScreen
+                    ? 'bg-black text-white'
+                    : 'text-black hover:bg-white'
+                }`}
+              >
+                Split View
+              </button>
+              <button
+                onClick={() => setIsFullScreen(true)}
+                className={`px-4 py-2 text-sm transition-all ${
+                  isFullScreen
+                    ? 'bg-black text-white'
+                    : 'text-black hover:bg-white'
+                }`}
+              >
+                Full Screen
+              </button>
+            </div>
+          </div>
+
+          {/* Split View vs Full Screen */}
+          {!isFullScreen ? (
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-12">
+              {/* Left: Editorial Story about the process */}
+              <EditorialStory
+                headline="Your Story, Elevated"
+                paragraphs={[
+                  "Using your brand onboarding data, we've created a landing page that authentically represents your business vision.",
+                  "Every detail is pulled from your actual story - from your why to your offers to your unique approach.",
+                  "This isn't a template filled with placeholder text. This is your business, ready to launch."
+                ]}
+                imageSrc={SandraImages.editorial.laptop1}
+                imageAlt="Landing page creation process"
+                backgroundColor="white"
+                button={{
+                  text: "Publish Your Page",
+                  href: "#publish"
+                }}
+              />
+
+              {/* Right: Live iframe preview */}
+              <div className="space-y-8">
+                <div className="aspect-[3/4] border border-gray-200 overflow-hidden">
+                  <iframe
+                    ref={previewRef}
+                    className="w-full h-full border-0"
+                    title="Landing Page Preview"
+                    sandbox="allow-same-origin"
+                  />
+                </div>
+                
+                <div className="text-center space-y-4">
+                  <Button
+                    onClick={() => setIsFullScreen(true)}
+                    className="bg-black text-white hover:bg-gray-800 px-8 py-3"
                   >
-                    {page.label}
-                  </button>
-                ))}
+                    View Full Screen
+                  </Button>
+                  <p className="text-sm text-gray-600">
+                    Preview with your actual brand data and photos
+                  </p>
+                </div>
+              </div>
+            </div>
+          ) : (
+            /* Full-Screen Preview Interface */
+            <div className="h-screen flex flex-col bg-black rounded overflow-hidden">
+              {/* Top Bar */}
+              <div className="bg-white text-black px-6 py-4 border-b border-black">
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center space-x-6">
+                    <h1 className="text-xl font-light" style={{ fontFamily: 'Times New Roman, serif' }}>
+                      Live Website Preview
+                    </h1>
+                    
+                    <div className="flex items-center space-x-2">
+                      <div className="w-2 h-2 bg-black rounded-full"></div>
+                      <span className="text-sm text-gray-600">
+                        Ready to publish with your brand data
+                      </span>
+                    </div>
+                  </div>
+                  
+                  <div className="flex items-center space-x-3">
+                    <Button
+                      variant="outline"
+                      onClick={() => setIsFullScreen(false)}
+                      className="text-black border-black hover:bg-gray-50"
+                    >
+                      ← Split View
+                    </Button>
+                    <Link to="/victoria-chat">
+                      <Button variant="outline">
+                        Customize with Victoria
+                      </Button>
+                    </Link>
+                    <Button 
+                      className="bg-black text-white hover:bg-gray-800"
+                      onClick={async () => {
+                        try {
+                          const brandName = brandData?.businessName || 'MyBusiness';
+                          const pageName = brandName.toLowerCase().replace(/[^a-z0-9]/g, '');
+                          
+                          const selectedTemplateConfig = templateOptions.find(t => t.id === selectedTemplate);
+                          const templateHtml = generatePageHtml(selectedTemplateConfig?.template || COMPREHENSIVE_LANDING_TEMPLATE, 'single');
+                          
+                          const response = await fetch('/api/publish-landing-page', {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify({
+                              pageName: pageName,
+                              html: templateHtml
+                            })
+                          });
+                          
+                          const result = await response.json();
+                          
+                          if (result.success) {
+                            setPublishedUrl(result.liveUrl);
+                            setShowCompletionModal(true);
+                          } else {
+                            alert('Failed to publish website. Please try again.');
+                          }
+                        } catch (error) {
+                          console.error('Publish error:', error);
+                          alert('Failed to publish website. Please try again.');
+                        }
+                      }}
+                    >
+                      Publish Website
+                    </Button>
+                  </div>
+                </div>
               </div>
               
-              {userGallery?.userSelfies?.length > 0 && (
-                <div className="flex items-center space-x-2">
-                  <div className="w-2 h-2 bg-black rounded-full"></div>
-                  <span className="text-sm text-gray-600">
-                    Using {userGallery.userSelfies.length} personal photos • All pages ready
-                  </span>
-                </div>
-              )}
+              {/* Full Preview */}
+              <div className="flex-1 bg-white">
+                <iframe
+                  ref={previewRef}
+                  className="w-full h-full border-0"
+                  title="Full Landing Page Preview"
+                  sandbox="allow-same-origin"
+                />
+              </div>
             </div>
-            
-            <div className="flex items-center space-x-3">
-              <Link to="/victoria-chat">
-                <button 
-                  className="px-4 py-2 text-black border border-black text-sm hover:bg-gray-50 transition-colors"
-                  style={{ letterSpacing: '0.1em', textTransform: 'uppercase' }}
-                >
-                  Customize with Victoria
-                </button>
-              </Link>
-              <button 
-                className="px-4 py-2 bg-black text-white text-sm hover:bg-gray-800 transition-colors"
-                style={{ letterSpacing: '0.1em', textTransform: 'uppercase' }}
-                onClick={async () => {
-                  try {
-                    // Get user's brand data for page name
-                    const brandName = brandData?.businessName || brandData?.fullName || 'MyBusiness';
-                    const pageName = brandName.toLowerCase().replace(/[^a-z0-9]/g, '');
-                    
-                    // Generate all four pages
-                    const homeHtml = generatePageHtml(MULTI_PAGE_HOME_TEMPLATE, 'home');
-                    const aboutHtml = generatePageHtml(MULTI_PAGE_ABOUT_TEMPLATE, 'about');
-                    const servicesHtml = generatePageHtml(MULTI_PAGE_SERVICES_TEMPLATE, 'services');
-                    const contactHtml = generatePageHtml(MULTI_PAGE_CONTACT_TEMPLATE, 'contact');
-                    
-                    const response = await fetch('/api/publish-multi-page-website', {
-                      method: 'POST',
-                      headers: { 'Content-Type': 'application/json' },
-                      body: JSON.stringify({
-                        pageName: pageName,
-                        pages: {
-                          home: homeHtml,
-                          about: aboutHtml,
-                          services: servicesHtml,
-                          contact: contactHtml
-                        }
-                      })
-                    });
-                    
-                    const result = await response.json();
-                    
-                    if (result.success) {
-                      // Show success message with live URL
-                      alert(`🎉 Your multi-page website is now live at:\n${result.liveUrl}\n\nShare this URL with your audience!`);
-                      // Open the live website
-                      window.open(result.liveUrl, '_blank');
-                    } else {
-                      alert('Failed to publish website. Please try again.');
-                    }
-                  } catch (error) {
-                    console.error('Publish error:', error);
-                    alert('Failed to publish website. Please try again.');
-                  }
-                }}
-              >
-                Publish Multi-Page Website
-              </button>
-              <Link to="/victoria">
-                <button
-                  className="px-4 py-2 text-black hover:bg-gray-50 text-sm transition-colors"
-                  style={{ letterSpacing: '0.1em' }}
-                >
-                  ← Back to Victoria
-                </button>
-              </Link>
-            </div>
+          )}
+        </div>
+      </section>
+
+      {/* Template Benefits Section */}
+      <EditorialImageBreak
+        imageUrl={SandraImages.editorial.aiSuccess}
+        alt="Professional template creation"
+        height="50vh"
+        overlay={true}
+        overlayContent={
+          <div>
+            <h2 className="font-times text-4xl sm:text-5xl font-light mb-6">
+              YOUR STORY, PROFESSIONALLY TOLD
+            </h2>
+            <p className="text-lg sm:text-xl font-light max-w-2xl">
+              Every template uses your authentic brand data to create a landing page that converts visitors into clients
+            </p>
           </div>
-        </div>
-        
-        {/* Full Preview */}
-        <div className="flex-1 bg-white">
-          <iframe
-            ref={previewRef}
-            className="w-full h-full border-0"
-            title="Full Landing Page Preview"
-            sandbox="allow-same-origin"
-          />
-        </div>
-        
-        {/* Bottom Action Bar - BRAND STYLING APPLIED */}
-        <div className="bg-white text-black px-6 py-4 border-t border-black">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center space-x-4">
-              <span className="text-sm text-gray-600">
-                Perfect preview with all your photos • Ready to publish or customize
-              </span>
-            </div>
-            
-            <div className="flex items-center space-x-3">
-              <Button 
-                variant="outline"
-                size="sm"
-                className="text-white border-white/30 hover:bg-white hover:text-black"
-                onClick={() => window.location.href = '/victoria-builder'}
-              >
-                Customize with Victoria
-              </Button>
-              <Button 
-                size="sm"
-                className="bg-green-600 text-white hover:bg-green-700"
-                onClick={async () => {
-                  if (!currentHtml) return;
-                  
-                  try {
-                    // Get user's brand data for page name
-                    const brandName = brandData?.businessName || brandData?.fullName || 'MyBusiness';
-                    const pageName = brandName.toLowerCase().replace(/[^a-z0-9]/g, '');
-                    
-                    const response = await fetch('/api/publish-landing-page', {
-                      method: 'POST',
-                      headers: { 'Content-Type': 'application/json' },
-                      body: JSON.stringify({
-                        htmlContent: currentHtml,
-                        pageName: pageName
-                      })
-                    });
-                    
-                    const result = await response.json();
-                    
-                    if (result.success) {
-                      // Show completion modal with live URL
-                      setPublishedUrl(result.liveUrl);
-                      setShowCompletionModal(true);
-                    } else {
-                      alert('Failed to publish page. Please try again.');
-                    }
-                  } catch (error) {
-                    console.error('Publish error:', error);
-                    alert('Failed to publish page. Please try again.');
-                  }
-                }}
-              >
-                Publish Live Now
-              </Button>
-            </div>
-          </div>
-        </div>
-      </div>
-      
-      {/* Completion Modal */}
-      <CompletionModal 
-        isOpen={showCompletionModal}
-        onClose={() => setShowCompletionModal(false)}
-        liveUrl={publishedUrl}
-        brandName={brandData?.businessName || brandData?.fullName || 'Your Business'}
+        }
       />
-    </>
+
+      {/* Completion Modal */}
+      {showCompletionModal && (
+        <CompletionModal
+          isOpen={showCompletionModal}
+          onClose={() => setShowCompletionModal(false)}
+          publishedUrl={publishedUrl}
+          businessName={brandData?.businessName || 'Your Business'}
+        />
+      )}
+    </div>
   );
 }
