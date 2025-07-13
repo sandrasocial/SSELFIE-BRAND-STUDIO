@@ -44,8 +44,46 @@ export async function generateImages(request: GenerateImagesRequest): Promise<Ge
     const savedImage = await storage.saveAIImage(aiImageData);
     console.log(`Created AI image record with ID: ${savedImage.id}`);
 
-    // Get the correct model version from database or use default FLUX LoRA
-    const fluxModelVersion = modelVersion || 'black-forest-labs/flux-dev-lora:a53fd9255ecba80d99eaab4706c698f861fd47b098012607557385416e46aae5';
+    // CRITICAL FIX: Use the trained model version for completed training
+    let fluxModelVersion = 'black-forest-labs/flux-dev-lora:a53fd9255ecba80d99eaab4706c698f861fd47b098012607557385416e46aae5';
+    
+    // For completed training, use the actual trained model version
+    if (userModel.trainingStatus === 'completed') {
+      // First try to get the version from the training completion
+      if (userModel.replicateVersionId) {
+        fluxModelVersion = userModel.replicateVersionId;
+        console.log(`Using completed trained model version: ${fluxModelVersion}`);
+      } else if (userModel.replicateModelId) {
+        // If no version ID saved, try to fetch it from the training API
+        try {
+          const trainingResponse = await fetch(`https://api.replicate.com/v1/trainings/${userModel.replicateModelId}`, {
+            headers: { 'Authorization': `Token ${process.env.REPLICATE_API_TOKEN}` }
+          });
+          
+          if (trainingResponse.ok) {
+            const trainingData = await trainingResponse.json();
+            if (trainingData.status === 'succeeded') {
+              // Get the version from training output
+              const trainedVersion = trainingData.output?.version || trainingData.version;
+              if (trainedVersion) {
+                fluxModelVersion = trainedVersion;
+                console.log(`Retrieved trained model version from API: ${fluxModelVersion}`);
+                
+                // Save it for future use
+                await storage.updateUserModel(userId, { replicateVersionId: trainedVersion });
+              }
+            }
+          }
+        } catch (error) {
+          console.log('Could not fetch trained model version, using base FLUX LoRA:', error.message);
+        }
+      }
+    }
+    
+    // Override with explicitly passed modelVersion if provided
+    if (modelVersion) {
+      fluxModelVersion = modelVersion;
+    }
     
     // Ensure the prompt includes the user's trigger word
     let finalPrompt = customPrompt;
