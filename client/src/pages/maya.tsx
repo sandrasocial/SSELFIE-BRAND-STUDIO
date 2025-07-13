@@ -140,6 +140,8 @@ export default function Maya() {
         if (chatResponse.ok) {
           const chat = await chatResponse.json();
           setCurrentChatId(chat.id);
+          // Invalidate chat history to refresh sidebar immediately
+          queryClient.invalidateQueries({ queryKey: ['/api/maya-chats'] });
         }
       }
 
@@ -187,6 +189,9 @@ export default function Maya() {
               generatedPrompt: mayaMessage.generatedPrompt
             })
           });
+
+          // Invalidate chat history to refresh sidebar
+          queryClient.invalidateQueries({ queryKey: ['/api/maya-chats'] });
         } catch (saveError) {
           console.error('Error saving messages to history:', saveError);
           // Don't show error to user - just log it
