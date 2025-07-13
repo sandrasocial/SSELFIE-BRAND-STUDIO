@@ -841,6 +841,141 @@ const flatlayCollections: FlatlayCollection[] = [
         description: 'Glamorous girly style'
       }
     ]
+  },
+  {
+    id: 'cream-aesthetic',
+    name: 'Cream Aesthetic',
+    description: 'Neutral tones, cream textures, minimalist elegance',
+    aesthetic: 'Soft neutral and cream sophistication',
+    backgroundImage: 'https://i.postimg.cc/NfrbPGj8/1.png',
+    images: [
+      {
+        id: 'ca-1',
+        url: 'https://i.postimg.cc/NfrbPGj8/1.png',
+        title: 'Cream Elegance',
+        category: 'Cream Aesthetic',
+        description: 'Soft cream aesthetic'
+      },
+      {
+        id: 'ca-2',
+        url: 'https://i.postimg.cc/ryRY7Nht/10.png',
+        title: 'Neutral Vibes',
+        category: 'Cream Aesthetic',
+        description: 'Neutral cream vibes'
+      },
+      {
+        id: 'ca-3',
+        url: 'https://i.postimg.cc/ydkr1mst/11.png',
+        title: 'Cream Sophistication',
+        category: 'Cream Aesthetic',
+        description: 'Sophisticated cream style'
+      },
+      {
+        id: 'ca-4',
+        url: 'https://i.postimg.cc/7hzs7qCN/12.png',
+        title: 'Minimalist Cream',
+        category: 'Cream Aesthetic',
+        description: 'Minimalist cream aesthetic'
+      },
+      {
+        id: 'ca-5',
+        url: 'https://i.postimg.cc/L6d0Sg7Q/13.png',
+        title: 'Cream Luxury',
+        category: 'Cream Aesthetic',
+        description: 'Luxurious cream tones'
+      },
+      {
+        id: 'ca-6',
+        url: 'https://i.postimg.cc/ZKrs5Kzb/14.png',
+        title: 'Neutral Luxury',
+        category: 'Cream Aesthetic',
+        description: 'Neutral luxury aesthetic'
+      },
+      {
+        id: 'ca-7',
+        url: 'https://i.postimg.cc/YCRXQnST/15.png',
+        title: 'Cream Lifestyle',
+        category: 'Cream Aesthetic',
+        description: 'Cream lifestyle aesthetic'
+      },
+      {
+        id: 'ca-8',
+        url: 'https://i.postimg.cc/fRD2tnMx/16.png',
+        title: 'Soft Neutrals',
+        category: 'Cream Aesthetic',
+        description: 'Soft neutral tones'
+      },
+      {
+        id: 'ca-9',
+        url: 'https://i.postimg.cc/yNNLjmgx/17.png',
+        title: 'Cream Comfort',
+        category: 'Cream Aesthetic',
+        description: 'Comfortable cream aesthetic'
+      },
+      {
+        id: 'ca-10',
+        url: 'https://i.postimg.cc/nLw0PXBk/18.png',
+        title: 'Neutral Elegance',
+        category: 'Cream Aesthetic',
+        description: 'Elegant neutral style'
+      },
+      {
+        id: 'ca-11',
+        url: 'https://i.postimg.cc/ydgv47Tz/19.png',
+        title: 'Cream Serenity',
+        category: 'Cream Aesthetic',
+        description: 'Serene cream aesthetic'
+      },
+      {
+        id: 'ca-12',
+        url: 'https://i.postimg.cc/MGzDTybt/2.png',
+        title: 'Soft Cream',
+        category: 'Cream Aesthetic',
+        description: 'Soft cream style'
+      },
+      {
+        id: 'ca-13',
+        url: 'https://i.postimg.cc/RFkGv2PJ/20.png',
+        title: 'Cream Warmth',
+        category: 'Cream Aesthetic',
+        description: 'Warm cream tones'
+      },
+      {
+        id: 'ca-14',
+        url: 'https://i.postimg.cc/4ypPywML/21.png',
+        title: 'Neutral Beauty',
+        category: 'Cream Aesthetic',
+        description: 'Beautiful neutral aesthetic'
+      },
+      {
+        id: 'ca-15',
+        url: 'https://i.postimg.cc/qBKj1MRs/22.png',
+        title: 'Cream Tranquility',
+        category: 'Cream Aesthetic',
+        description: 'Tranquil cream style'
+      },
+      {
+        id: 'ca-16',
+        url: 'https://i.postimg.cc/PrkK9spB/23.png',
+        title: 'Soft Luxury',
+        category: 'Cream Aesthetic',
+        description: 'Soft luxurious cream'
+      },
+      {
+        id: 'ca-17',
+        url: 'https://i.postimg.cc/7YMXysSb/24.png',
+        title: 'Cream Harmony',
+        category: 'Cream Aesthetic',
+        description: 'Harmonious cream aesthetic'
+      },
+      {
+        id: 'ca-18',
+        url: 'https://i.postimg.cc/Dwv6frc6/25.png',
+        title: 'Neutral Perfection',
+        category: 'Cream Aesthetic',
+        description: 'Perfect neutral tones'
+      }
+    ]
   }
 ];
 
