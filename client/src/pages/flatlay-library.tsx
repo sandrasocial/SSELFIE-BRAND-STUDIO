@@ -438,32 +438,137 @@ const flatlayCollections: FlatlayCollection[] = [
     ]
   },
   {
-    id: 'wellness-mindset',
-    name: 'Wellness & Mindset',
-    description: 'Natural textures, crystals, journals, self-care items',
-    aesthetic: 'Healing and mindful living',
-    backgroundImage: SandraImages.editorial.thinking,
+    id: 'fitness-health',
+    name: 'Fitness & Health',
+    description: 'Workout gear, healthy lifestyle, fitness motivation flatlays',
+    aesthetic: 'Active lifestyle and wellness motivation',
+    backgroundImage: 'https://i.postimg.cc/T1dT95WG/Fitness-Aesthetic1.png',
     images: [
       {
-        id: 'wm-1',
-        url: SandraImages.editorial.thinking,
-        title: 'Self-Care Ritual',
-        category: 'Wellness & Mindset',
-        description: 'Natural textures and mindful items'
+        id: 'fh-1',
+        url: 'https://i.postimg.cc/T1dT95WG/Fitness-Aesthetic1.png',
+        title: 'Fitness Motivation',
+        category: 'Fitness & Health',
+        description: 'Workout gear and fitness aesthetic'
       },
       {
-        id: 'wm-2',
-        url: SandraImages.flatlays.beauty,
-        title: 'Wellness Beauty',
-        category: 'Wellness & Mindset',
-        description: 'Mindful beauty routine setup'
+        id: 'fh-2',
+        url: 'https://i.postimg.cc/Bb4nVwkr/Fitness-Aesthetic10.png',
+        title: 'Active Lifestyle',
+        category: 'Fitness & Health',
+        description: 'Healthy living workout setup'
       },
       {
-        id: 'wm-3',
-        url: SandraImages.journey.building,
-        title: 'Growth Journey',
-        category: 'Wellness & Mindset',
-        description: 'Personal development aesthetic'
+        id: 'fh-3',
+        url: 'https://i.postimg.cc/ZRrqjh7P/Fitness-Aesthetic11.png',
+        title: 'Workout Essentials',
+        category: 'Fitness & Health',
+        description: 'Fitness gear and motivation'
+      },
+      {
+        id: 'fh-4',
+        url: 'https://i.postimg.cc/k4r4x5cX/Fitness-Aesthetic12.png',
+        title: 'Health Journey',
+        category: 'Fitness & Health',
+        description: 'Fitness and wellness lifestyle'
+      },
+      {
+        id: 'fh-5',
+        url: 'https://i.postimg.cc/CKn5B8bQ/Fitness-Aesthetic13.png',
+        title: 'Gym Aesthetic',
+        category: 'Fitness & Health',
+        description: 'Workout motivation setup'
+      },
+      {
+        id: 'fh-6',
+        url: 'https://i.postimg.cc/7ZWbZ9Jz/Fitness-Aesthetic14.png',
+        title: 'Fitness Goals',
+        category: 'Fitness & Health',
+        description: 'Health and fitness inspiration'
+      },
+      {
+        id: 'fh-7',
+        url: 'https://i.postimg.cc/jdRDgLrD/Fitness-Aesthetic15.png',
+        title: 'Healthy Living',
+        category: 'Fitness & Health',
+        description: 'Active lifestyle aesthetic'
+      },
+      {
+        id: 'fh-8',
+        url: 'https://i.postimg.cc/PrKPBTt2/Fitness-Aesthetic16.png',
+        title: 'Workout Gear',
+        category: 'Fitness & Health',
+        description: 'Fitness equipment and style'
+      },
+      {
+        id: 'fh-9',
+        url: 'https://i.postimg.cc/8kRFmLx8/Fitness-Aesthetic17.png',
+        title: 'Exercise Motivation',
+        category: 'Fitness & Health',
+        description: 'Workout inspiration flatlay'
+      },
+      {
+        id: 'fh-10',
+        url: 'https://i.postimg.cc/QCJHNrcN/Fitness-Aesthetic18.png',
+        title: 'Fitness Lifestyle',
+        category: 'Fitness & Health',
+        description: 'Health and wellness setup'
+      },
+      {
+        id: 'fh-11',
+        url: 'https://i.postimg.cc/D0TSKzJY/Fitness-Aesthetic19.png',
+        title: 'Active Health',
+        category: 'Fitness & Health',
+        description: 'Fitness and health aesthetic'
+      },
+      {
+        id: 'fh-12',
+        url: 'https://i.postimg.cc/85B1Mmct/Fitness-Aesthetic2.png',
+        title: 'Training Setup',
+        category: 'Fitness & Health',
+        description: 'Workout training gear'
+      },
+      {
+        id: 'fh-13',
+        url: 'https://i.postimg.cc/NMTKVXMH/Fitness-Aesthetic20.png',
+        title: 'Wellness Journey',
+        category: 'Fitness & Health',
+        description: 'Health and fitness journey'
+      },
+      {
+        id: 'fh-14',
+        url: 'https://i.postimg.cc/wB1yXZYF/Fitness-Aesthetic21.png',
+        title: 'Gym Life',
+        category: 'Fitness & Health',
+        description: 'Fitness gym lifestyle'
+      },
+      {
+        id: 'fh-15',
+        url: 'https://i.postimg.cc/L8CgZRwn/Fitness-Aesthetic22.png',
+        title: 'Health Goals',
+        category: 'Fitness & Health',
+        description: 'Fitness and health goals'
+      },
+      {
+        id: 'fh-16',
+        url: 'https://i.postimg.cc/9fs4JbW2/Fitness-Aesthetic23.png',
+        title: 'Workout Style',
+        category: 'Fitness & Health',
+        description: 'Stylish fitness aesthetic'
+      },
+      {
+        id: 'fh-17',
+        url: 'https://i.postimg.cc/y8YSdWfM/Fitness-Aesthetic24.png',
+        title: 'Fitness Inspiration',
+        category: 'Fitness & Health',
+        description: 'Health and fitness motivation'
+      },
+      {
+        id: 'fh-18',
+        url: 'https://i.postimg.cc/RVTH4wT1/Fitness-Aesthetic25.png',
+        title: 'Active Wellness',
+        category: 'Fitness & Health',
+        description: 'Active health and wellness'
       }
     ]
   },
