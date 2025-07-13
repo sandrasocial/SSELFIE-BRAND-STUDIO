@@ -172,7 +172,7 @@ export default function SSELFIEGallery() {
         
         {/* Full Bleed Hero Section */}
         <HeroFullBleed
-          backgroundImage="https://i.postimg.cc/wTkGN5b5/out-0_(13).png"
+          backgroundImage="https://i.postimg.cc/76vVdbWY/out-0-7.png"
           title="SSELFIE"
           subtitle="GALLERY"
           tagline="Your professional photo library"
