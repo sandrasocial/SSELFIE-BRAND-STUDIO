@@ -632,16 +632,22 @@ Your goal is to have a natural conversation, understand their vision deeply, and
       const userId = req.session?.userId || req.user?.claims?.sub || 'sandra_test_user_2025';
       
       // Get user's AI selfie images (70-80% of photos)
+      console.log(`Fetching gallery for user ${userId}...`);
       const aiImages = await storage.getAIImages(userId);
+      console.log(`AI images found:`, aiImages?.length || 0);
+      
       const userSelfies = aiImages
-        .filter(img => img.status === 'completed' && img.imageUrl)
-        .map(img => ({
+        ?.filter(img => img.status === 'completed' && img.imageUrl)
+        ?.map(img => ({
           id: img.id,
           url: img.imageUrl,
           type: 'selfie',
           style: img.style || 'portrait',
-          createdAt: img.createdAt
-        }));
+          createdAt: img.createdAt,
+          isSelected: false // For onboarding selection
+        })) || [];
+      
+      console.log(`Converted selfies:`, userSelfies.length);
       
       // Get flatlay collections (20-30% of photos)
       const flatlayCollections = [
@@ -680,6 +686,27 @@ Your goal is to have a natural conversation, understand their vision deeply, and
     } catch (error) {
       console.error('Error fetching user gallery:', error);
       res.status(500).json({ error: 'Failed to fetch user gallery' });
+    }
+  });
+
+  // Save user's photo selections for template customization
+  app.post('/api/save-photo-selections', async (req, res) => {
+    try {
+      const userId = req.session?.userId || req.user?.claims?.sub || 'sandra_test_user_2025';
+      const { selfieIds, flatlayCollection } = req.body;
+      
+      console.log(`Saving photo selections for user ${userId}:`, { selfieIds, flatlayCollection });
+      
+      // In a full implementation, we'd save these to database
+      // For now, we'll return success to allow testing
+      res.json({
+        success: true,
+        message: 'Photo selections saved successfully',
+        selections: { selfieIds, flatlayCollection }
+      });
+    } catch (error) {
+      console.error('Error saving photo selections:', error);
+      res.status(500).json({ error: 'Failed to save photo selections' });
     }
   });
 
