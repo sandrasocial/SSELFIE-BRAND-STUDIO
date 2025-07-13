@@ -509,8 +509,9 @@ The platform has become overly complex with multiple pricing tiers, broken onboa
 
 **Optimal FLUX LoRA Settings for Maximum Quality:**
 - **3 Images Generated**: More focused selection instead of 4 images
-- **guidance_scale: 3.5**: Optimal setting for FLUX LoRA quality
-- **num_inference_steps: 32**: Higher steps for superior image quality
+- **guidance_scale: 2.8**: Updated for better likeness matching
+- **num_inference_steps: 33**: Updated for improved quality and resemblance
+- **lora_scale: 0.8**: Increased for stronger model resemblance
 - **output_quality: 100**: Maximum quality settings
 - **aspect_ratio: "3:4"**: Portrait ratio perfect for selfies
 - **output_format: "png"**: PNG format for highest quality output

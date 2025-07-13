@@ -154,13 +154,13 @@ export async function generateImages(request: GenerateImagesRequest): Promise<Ge
       }
     }
 
-    // Build input with SOFT RAW PHOTOGRAPHY parameters for natural, unretouched look
+    // Build input with OPTIMIZED PARAMETERS for better likeness matching
     const input: any = {
       prompt: finalPrompt,        // Includes embedded "NOT plastic skin" statements
-      guidance: 2.0,              // REDUCED: Lower guidance for softer, less processed look
+      guidance: 2.8,              // UPDATED: User specified guidance for better likeness
       lora_weights: `sandrasocial/${userModel.modelName}`, // User's trained LoRA weights
-      lora_scale: 0.6,           // REDUCED: Lower LoRA for more natural blending with base model
-      num_inference_steps: 25,    // REDUCED: Fewer steps for softer, less refined look
+      lora_scale: 0.8,           // UPDATED: User specified LoRA scale for stronger model resemblance
+      num_inference_steps: 33,    // UPDATED: User specified steps for better quality
       num_outputs: 3,            // Generate 3 focused images
       aspect_ratio: "3:4",        // Portrait ratio better for selfies
       output_format: "png",       // PNG for highest quality
@@ -173,7 +173,7 @@ export async function generateImages(request: GenerateImagesRequest): Promise<Ge
     console.log(`Using FLUX model version: ${fluxModelVersion}`);
     console.log(`Using trained LoRA: sandrasocial/${userModel.modelName}`);
     console.log(`Final prompt with trigger word and raw photography NOT statements: ${finalPrompt}`);
-    console.log('⚙️ FLUX Parameters for RAW PHOTOGRAPHY (soft, natural, unretouched):', JSON.stringify({ guidance: input.guidance, lora_scale: input.lora_scale, num_inference_steps: input.num_inference_steps, output_quality: input.output_quality }, null, 2));
+    console.log('⚙️ FLUX Parameters for IMPROVED LIKENESS (steps 33, guidance 2.8, LoRA 0.8):', JSON.stringify({ guidance: input.guidance, lora_scale: input.lora_scale, num_inference_steps: input.num_inference_steps, output_quality: input.output_quality }, null, 2));
     
     // Start Replicate generation with correct API format
     const replicateResponse = await fetch('https://api.replicate.com/v1/predictions', {
