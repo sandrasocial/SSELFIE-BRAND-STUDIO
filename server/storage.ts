@@ -9,6 +9,7 @@ import {
   victoriaChats,
   photoSelections,
   landingPages,
+  brandOnboarding,
   type User,
   type UpsertUser,
   type OnboardingData,
@@ -29,6 +30,8 @@ import {
   type InsertPhotoSelection,
   type LandingPage,
   type InsertLandingPage,
+  type BrandOnboarding,
+  type InsertBrandOnboarding,
 } from "@shared/schema";
 import { db } from "./db";
 import { eq, and, desc, gte } from "drizzle-orm";
@@ -520,6 +523,30 @@ export class DatabaseStorage implements IStorage {
         ]
       }
     ];
+  }
+
+  // Brand onboarding operations
+  async saveBrandOnboarding(data: InsertBrandOnboarding): Promise<BrandOnboarding> {
+    const [saved] = await db
+      .insert(brandOnboarding)
+      .values(data)
+      .onConflictDoUpdate({
+        target: brandOnboarding.userId,
+        set: {
+          ...data,
+          updatedAt: new Date(),
+        },
+      })
+      .returning();
+    return saved;
+  }
+
+  async getBrandOnboarding(userId: string): Promise<BrandOnboarding | undefined> {
+    const [data] = await db
+      .select()
+      .from(brandOnboarding)
+      .where(eq(brandOnboarding.userId, userId));
+    return data;
   }
 }
 
