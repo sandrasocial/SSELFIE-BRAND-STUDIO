@@ -4,12 +4,14 @@ import { Button } from '@/components/ui/button';
 import { useQuery } from '@tanstack/react-query';
 import { Link } from 'wouter';
 import { COMPREHENSIVE_LANDING_TEMPLATE } from '@/components/comprehensive-landing-template';
+import { MULTI_PAGE_HOME_TEMPLATE, MULTI_PAGE_ABOUT_TEMPLATE, MULTI_PAGE_SERVICES_TEMPLATE, MULTI_PAGE_CONTACT_TEMPLATE } from '@/components/multi-page-templates';
 import { CompletionModal } from '@/components/completion-modal';
 
 export default function VictoriaPreview() {
   const [isFullScreen, setIsFullScreen] = useState(true); // Start in full-screen mode
   const [showCompletionModal, setShowCompletionModal] = useState(false);
   const [publishedUrl, setPublishedUrl] = useState('');
+  const [currentPage, setCurrentPage] = useState('home'); // Track current page preview
   const previewRef = useRef<HTMLIFrameElement>(null);
 
   const { data: brandData } = useQuery({ queryKey: ['/api/brand-onboarding'] });
@@ -102,8 +104,8 @@ export default function VictoriaPreview() {
   };
 
   // Generate the populated template with REAL brand data
-  const currentHtml = React.useMemo(() => {
-    if (!brandData) return COMPREHENSIVE_LANDING_TEMPLATE;
+  const generatePageHtml = (template: string, pageType: string) => {
+    if (!brandData) return template;
 
     // Use ACTUAL brand onboarding data
     const businessName = brandData.businessName || 'Your Business';
@@ -135,7 +137,7 @@ export default function VictoriaPreview() {
       `<div class="hero-name-stacked"><h1 class="hero-name-first">${displayFirstName}</h1><h1 class="hero-name-last">${displayLastName}</h1></div>` :
       `<div class="hero-name-stacked"><h1 class="hero-name-first">${displayFirstName}</h1></div>`;
 
-    let updatedHtml = COMPREHENSIVE_LANDING_TEMPLATE;
+    let updatedHtml = template;
     
     // Replace basic variables
     updatedHtml = updatedHtml.replace(/{{BUSINESS_TITLE}}/g, businessName);
@@ -222,7 +224,22 @@ export default function VictoriaPreview() {
     updatedHtml = updatedHtml.replace(/{{WEBSITE_URL}}/g, websiteUrl);
 
     return injectUserPhotos(updatedHtml);
-  }, [brandData, photoSelections]);
+  };
+
+  // Get current page template and HTML
+  const getCurrentTemplate = () => {
+    switch (currentPage) {
+      case 'home': return MULTI_PAGE_HOME_TEMPLATE;
+      case 'about': return MULTI_PAGE_ABOUT_TEMPLATE;
+      case 'services': return MULTI_PAGE_SERVICES_TEMPLATE;
+      case 'contact': return MULTI_PAGE_CONTACT_TEMPLATE;
+      default: return MULTI_PAGE_HOME_TEMPLATE;
+    }
+  };
+
+  const currentHtml = React.useMemo(() => {
+    return generatePageHtml(getCurrentTemplate(), currentPage);
+  }, [brandData, photoSelections, currentPage]);
 
   // Update iframe when HTML changes
   useEffect(() => {
@@ -238,15 +255,39 @@ export default function VictoriaPreview() {
         {/* Top Bar - BRAND STYLING APPLIED */}
         <div className="bg-white text-black px-6 py-4 border-b border-black">
           <div className="flex items-center justify-between">
-            <div className="flex items-center space-x-4">
+            <div className="flex items-center space-x-6">
               <h1 className="text-xl font-light" style={{ fontFamily: 'Times New Roman, serif' }}>
-                Landing Page Preview
+                Multi-Page Website Preview
               </h1>
+              
+              {/* Page Navigation */}
+              <div className="flex items-center space-x-2">
+                {[
+                  { key: 'home', label: 'HOME' },
+                  { key: 'about', label: 'ABOUT' },
+                  { key: 'services', label: 'SERVICES' },
+                  { key: 'contact', label: 'CONTACT' }
+                ].map((page) => (
+                  <button
+                    key={page.key}
+                    onClick={() => setCurrentPage(page.key)}
+                    className={`px-3 py-1 text-[10px] tracking-[0.3em] uppercase transition-all border ${
+                      currentPage === page.key
+                        ? 'bg-[#0a0a0a] text-white border-[#0a0a0a]'
+                        : 'bg-white text-[#666] border-[#e5e5e5] hover:text-[#0a0a0a] hover:border-[#0a0a0a]'
+                    }`}
+                    style={{ fontFamily: 'Inter, system-ui, sans-serif' }}
+                  >
+                    {page.label}
+                  </button>
+                ))}
+              </div>
+              
               {userGallery?.userSelfies?.length > 0 && (
                 <div className="flex items-center space-x-2">
                   <div className="w-2 h-2 bg-black rounded-full"></div>
                   <span className="text-sm text-gray-600">
-                    Using {userGallery.userSelfies.length} personal photos • All images distributed
+                    Using {userGallery.userSelfies.length} personal photos • All pages ready
                   </span>
                 </div>
               )}
@@ -265,19 +306,28 @@ export default function VictoriaPreview() {
                 className="px-4 py-2 bg-black text-white text-sm hover:bg-gray-800 transition-colors"
                 style={{ letterSpacing: '0.1em', textTransform: 'uppercase' }}
                 onClick={async () => {
-                  if (!currentHtml) return;
-                  
                   try {
                     // Get user's brand data for page name
                     const brandName = brandData?.businessName || brandData?.fullName || 'MyBusiness';
                     const pageName = brandName.toLowerCase().replace(/[^a-z0-9]/g, '');
                     
-                    const response = await fetch('/api/publish-landing-page', {
+                    // Generate all four pages
+                    const homeHtml = generatePageHtml(MULTI_PAGE_HOME_TEMPLATE, 'home');
+                    const aboutHtml = generatePageHtml(MULTI_PAGE_ABOUT_TEMPLATE, 'about');
+                    const servicesHtml = generatePageHtml(MULTI_PAGE_SERVICES_TEMPLATE, 'services');
+                    const contactHtml = generatePageHtml(MULTI_PAGE_CONTACT_TEMPLATE, 'contact');
+                    
+                    const response = await fetch('/api/publish-multi-page-website', {
                       method: 'POST',
                       headers: { 'Content-Type': 'application/json' },
                       body: JSON.stringify({
-                        htmlContent: currentHtml,
-                        pageName: pageName
+                        pageName: pageName,
+                        pages: {
+                          home: homeHtml,
+                          about: aboutHtml,
+                          services: servicesHtml,
+                          contact: contactHtml
+                        }
                       })
                     });
                     
@@ -285,19 +335,19 @@ export default function VictoriaPreview() {
                     
                     if (result.success) {
                       // Show success message with live URL
-                      alert(`🎉 Your page is now live at:\n${result.liveUrl}\n\nShare this URL with your audience!`);
-                      // Optionally open the live page
+                      alert(`🎉 Your multi-page website is now live at:\n${result.liveUrl}\n\nShare this URL with your audience!`);
+                      // Open the live website
                       window.open(result.liveUrl, '_blank');
                     } else {
-                      alert('Failed to publish page. Please try again.');
+                      alert('Failed to publish website. Please try again.');
                     }
                   } catch (error) {
                     console.error('Publish error:', error);
-                    alert('Failed to publish page. Please try again.');
+                    alert('Failed to publish website. Please try again.');
                   }
                 }}
               >
-                Publish Live Now
+                Publish Multi-Page Website
               </button>
               <Link to="/victoria">
                 <button

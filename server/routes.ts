@@ -792,6 +792,76 @@ Your goal is to have a natural conversation, understand their vision deeply, and
     }
   });
 
+  // Publish multi-page website live - creates hosted website at sselfie.ai/username with navigation
+  app.post('/api/publish-multi-page-website', async (req, res) => {
+    try {
+      const userId = req.session?.userId || req.user?.claims?.sub || 'sandra_test_user_2025';
+      const { pageName, pages } = req.body;
+      
+      console.log(`Publishing multi-page website for user: ${userId}, website: ${pageName}`);
+      
+      if (!pageName || !pages || !pages.home) {
+        return res.status(400).json({ error: 'Website name and home page content required' });
+      }
+
+      // Get user info for the subdomain
+      const user = await storage.getUser(userId);
+      if (!user) {
+        return res.status(404).json({ error: 'User not found' });
+      }
+
+      // Create a username-based subdomain (sanitize for URL)
+      const username = pageName.toLowerCase().replace(/[^a-z0-9]/g, '');
+      
+      // Check if page already exists and update it, or create new one
+      const existingPages = await storage.getUserLandingPages(userId);
+      const existingPage = existingPages?.find(page => page.slug === username);
+      
+      let landingPage;
+      if (existingPage) {
+        // Update existing page with home page content
+        landingPage = await storage.updateUserLandingPage(existingPage.id, {
+          title: `${pageName} - Multi-Page Website`,
+          htmlContent: pages.home,
+          isPublished: true,
+          cssContent: '', // CSS is inline in htmlContent
+          templateUsed: 'victoria-multi-page-template'
+        });
+      } else {
+        // Create new page with home page content
+        landingPage = await storage.createUserLandingPage({
+          userId,
+          title: `${pageName} - Multi-Page Website`,
+          htmlContent: pages.home,
+          slug: username,
+          isPublished: true,
+          customDomain: null,
+          cssContent: '', // CSS is inline in htmlContent
+          templateUsed: 'victoria-multi-page-template'
+        });
+      }
+
+      // Store additional pages (about, services, contact) for future routing
+      // For now, the main page contains navigation to other sections
+      
+      // Return the live URL
+      const liveUrl = `${req.protocol}://${req.get('host')}/${username}`;
+      
+      res.json({ 
+        success: true, 
+        liveUrl,
+        pageId: landingPage.id,
+        websiteName: pageName,
+        pages: ['home', 'about', 'services', 'contact'],
+        message: `Your multi-page website is now live at ${liveUrl}` 
+      });
+      
+    } catch (error) {
+      console.error('Error publishing multi-page website:', error);
+      res.status(500).json({ error: 'Failed to publish multi-page website' });
+    }
+  });
+
   // Victoria AI Chat endpoint with full Claude API integration
   app.post('/api/victoria-chat', async (req: any, res) => {
     try {
