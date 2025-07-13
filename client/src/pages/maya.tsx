@@ -28,6 +28,8 @@ export default function Maya() {
   const [generatedImages, setGeneratedImages] = useState<string[]>([]);
   const [savedImages, setSavedImages] = useState<Set<string>>(new Set());
   const [savingImages, setSavingImages] = useState<Set<string>>(new Set());
+  const [generationProgress, setGenerationProgress] = useState(0);
+  const [currentImageId, setCurrentImageId] = useState<number | null>(null);
 
   // Redirect to login if not authenticated
   useEffect(() => {
@@ -101,31 +103,121 @@ export default function Maya() {
     }
   };
 
+  // Poll for image completion
+  const pollForImages = async (imageId: number) => {
+    const maxAttempts = 40; // 2 minutes total (3 second intervals)
+    let attempts = 0;
+    
+    const poll = async () => {
+      try {
+        attempts++;
+        setGenerationProgress(Math.min(90, (attempts / maxAttempts) * 90));
+        
+        const response = await fetch('/api/ai-images');
+        if (!response.ok) throw new Error('Failed to fetch images');
+        
+        const images = await response.json();
+        const currentImage = images.find((img: any) => img.id === imageId);
+        
+        if (currentImage && currentImage.imageUrl && currentImage.imageUrl !== 'processing') {
+          // Image generation completed
+          setGenerationProgress(100);
+          setIsGenerating(false);
+          
+          if (currentImage.imageUrl.startsWith('http')) {
+            // Parse the image URLs (should be array of 4 URLs)
+            let imageUrls: string[] = [];
+            try {
+              imageUrls = JSON.parse(currentImage.imageUrl);
+            } catch {
+              imageUrls = [currentImage.imageUrl];
+            }
+            
+            setGeneratedImages(imageUrls);
+            
+            // Add image preview to the last Maya message
+            setMessages(prev => {
+              const newMessages = [...prev];
+              const lastMayaIndex = newMessages.map(m => m.role).lastIndexOf('maya');
+              if (lastMayaIndex >= 0) {
+                newMessages[lastMayaIndex] = {
+                  ...newMessages[lastMayaIndex],
+                  imagePreview: imageUrls
+                };
+              }
+              return newMessages;
+            });
+            
+            toast({
+              title: "Photos Ready!",
+              description: "Maya created 4 beautiful photos. Choose your favorites to save!",
+            });
+          } else {
+            // Generation failed
+            toast({
+              title: "Generation Failed",
+              description: "Maya couldn't complete the photos. Try again!",
+              variant: "destructive",
+            });
+          }
+          return;
+        }
+        
+        // Continue polling
+        if (attempts < maxAttempts) {
+          setTimeout(poll, 3000);
+        } else {
+          setIsGenerating(false);
+          toast({
+            title: "Generation Timeout", 
+            description: "Photos are taking longer than expected. Check gallery later!",
+            variant: "destructive",
+          });
+        }
+      } catch (error) {
+        console.error('Polling error:', error);
+        if (attempts < maxAttempts) {
+          setTimeout(poll, 3000);
+        } else {
+          setIsGenerating(false);
+        }
+      }
+    };
+    
+    poll();
+  };
+
   // Generate images based on Maya's prompt
   const generateImages = async (prompt: string) => {
     setIsGenerating(true);
     setGeneratedImages([]);
+    setGenerationProgress(0);
+    setCurrentImageId(null);
     
     try {
-      const response = await apiRequest('POST', '/api/maya-generate-images', {
-        customPrompt: prompt
+      const response = await fetch('/api/maya-generate-images', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ customPrompt: prompt }),
       });
 
-      if (response.image_urls) {
-        const imageUrls = JSON.parse(response.image_urls);
-        setGeneratedImages(imageUrls);
-        
-        // Update the last Maya message to include the generated images
-        setMessages(prev => prev.map((msg, index) => {
-          if (index === prev.length - 1 && msg.role === 'maya') {
-            return { ...msg, imagePreview: imageUrls };
-          }
-          return msg;
-        }));
+      if (!response.ok) {
+        throw new Error('Failed to generate images');
+      }
 
+      const data = await response.json();
+      
+      if (data.success && data.imageId) {
+        setCurrentImageId(data.imageId);
+        
+        // Start polling for completion
+        pollForImages(data.imageId);
+        
         toast({
-          title: "Images Generated!",
-          description: "Maya created 4 beautiful photos for you. Save your favorites!",
+          title: "Generation Started",
+          description: "Maya is creating your photos... This takes about 30 seconds.",
         });
       }
     } catch (error) {
@@ -135,7 +227,6 @@ export default function Maya() {
         description: "Maya couldn't generate images right now. Try again!",
         variant: "destructive",
       });
-    } finally {
       setIsGenerating(false);
     }
   };
@@ -244,6 +335,25 @@ export default function Maya() {
                     >
                       {isGenerating ? 'Generating...' : 'Generate These Photos ✨'}
                     </Button>
+                    
+                    {/* Progress Bar */}
+                    {isGenerating && (
+                      <div className="mt-4">
+                        <div className="flex items-center justify-between text-xs mb-2">
+                          <span className="text-gray-600">Maya is creating your photos...</span>
+                          <span className="text-gray-600">{Math.round(generationProgress)}%</span>
+                        </div>
+                        <div className="w-full bg-gray-200 h-2">
+                          <div 
+                            className="h-2 bg-black transition-all duration-300 ease-out"
+                            style={{ width: `${generationProgress}%` }}
+                          ></div>
+                        </div>
+                        <p className="text-xs text-gray-500 mt-2">
+                          ⏱️ Estimated time: 30-45 seconds • Maya is applying your trained model and professional camera settings
+                        </p>
+                      </div>
+                    )}
                   </div>
                 )}
                 
