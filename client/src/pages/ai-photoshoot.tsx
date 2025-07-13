@@ -291,7 +291,7 @@ const PROMPT_COLLECTIONS = {
     id: 'golden-hour',
     name: 'Golden Hour Magic',
     description: 'Dreamy golden light portraits - sunset fields, warm backlighting, ethereal beauty',
-    preview: SandraImages.portraits.editorial[0],
+    preview: SandraImages.portraits.professional[0],
     prompts: [
       {
         id: 'sunset-field-walk',
@@ -341,7 +341,7 @@ const PROMPT_COLLECTIONS = {
     id: 'raw-beauty',
     name: 'Raw Beauty',
     description: 'Unfiltered authentic moments - natural textures, real emotions, honest beauty',
-    preview: SandraImages.portraits.casual[1],
+    preview: SandraImages.portraits.professional[1],
     prompts: [
       {
         id: 'fresh-from-shower',

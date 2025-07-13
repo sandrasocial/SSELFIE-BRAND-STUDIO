@@ -4,7 +4,6 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { useToast } from '@/hooks/use-toast';
 import { apiRequest } from '@/lib/queryClient';
 import { Navigation } from '@/components/navigation';
-import { EditorialHero } from '@/components/enhanced-hero';
 import { PaymentVerification } from '@/components/payment-verification';
 import { SandraImages } from '@/lib/sandra-images';
 
@@ -105,11 +104,60 @@ export default function Profile() {
       <div className="min-h-screen bg-white">
         <Navigation />
         
-        <EditorialHero
-          backgroundImage={user?.profileImageUrl || SandraImages.editorial.luxury1}
-          title="Profile"
-          subtitle="Your personal brand foundation"
-        />
+        {/* Full Bleed Hero Section */}
+        <section className="relative min-h-screen flex items-center justify-center bg-black text-white overflow-hidden">
+          {/* Background Image */}
+          <div className="absolute inset-0 opacity-30">
+            <img 
+              src={user?.profileImageUrl || SandraImages.editorial.luxury1}
+              alt="Your Profile"
+              className="w-full h-full object-cover object-center-top"
+              style={{ objectPosition: 'center top' }}
+            />
+          </div>
+          
+          {/* Hero Content - Positioned Low */}
+          <div className="relative z-10 text-center max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col justify-end min-h-screen pb-16 sm:pb-20">
+            {/* Tagline */}
+            <div style={{
+              fontSize: 'clamp(9px, 2vw, 11px)',
+              letterSpacing: 'clamp(0.3em, 0.8vw, 0.4em)',
+              textTransform: 'uppercase',
+              color: 'rgba(255,255,255,0.7)',
+              marginBottom: 'clamp(16px, 3vw, 24px)'
+            }}>
+              Your Personal Brand Foundation
+            </div>
+            
+            {/* Main Title */}
+            <h1 style={{
+              fontSize: 'clamp(3rem, 8vw, 8rem)',
+              lineHeight: 0.9,
+              fontWeight: 200,
+              color: 'white',
+              marginBottom: 'clamp(16px, 3vw, 24px)',
+              fontFamily: 'Times New Roman, serif',
+              letterSpacing: 'clamp(0.02em, 0.5vw, 0.05em)',
+              textTransform: 'uppercase',
+              maxWidth: '100%',
+              overflowWrap: 'break-word'
+            }}>
+              PROFILE
+            </h1>
+            
+            {/* Subtitle */}
+            <div style={{
+              fontSize: 'clamp(9px, 2vw, 11px)',
+              letterSpacing: 'clamp(0.3em, 0.8vw, 0.4em)',
+              textTransform: 'uppercase',
+              color: 'rgba(255,255,255,0.7)',
+              maxWidth: '600px',
+              margin: '0 auto'
+            }}>
+              Complete your profile to unlock your full potential
+            </div>
+          </div>
+        </section>
 
         <main className="max-w-4xl mx-auto px-8 py-16">
           <div className="border border-[#0a0a0a] bg-white">
