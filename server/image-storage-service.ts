@@ -40,13 +40,13 @@ export class ImageStorageService {
       const fileExtension = contentType.includes('png') ? 'png' : 'jpg';
       const filename = `images/${userId}/${imageId}_${timestamp}.${fileExtension}`;
       
-      // Upload to S3
+      // Upload to S3 (without ACL since bucket doesn't support it)
       const uploadParams = {
         Bucket: this.BUCKET_NAME,
         Key: filename,
         Body: imageBuffer,
-        ContentType: contentType,
-        ACL: 'public-read' // Make images publicly accessible
+        ContentType: contentType
+        // Note: Bucket must be configured with public read access at bucket level
       };
       
       const uploadResult = await this.s3.upload(uploadParams).promise();
