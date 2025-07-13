@@ -198,7 +198,7 @@ const PROMPT_COLLECTIONS = {
         name: 'Silhouette of Strength',
         category: 'Raw Moments',
         description: "Beautiful silhouette by the window. Contemplative, powerful, showing your grace even in quiet moments.",
-        prompt: '[triggerword] woman profile silhouette against bright window, voluminous hair in elegant updo showing graceful neck curve, wrapped in blanket or oversized sweater, contemplative moment, black and white photography only, monochrome, no color, heavy 35mm film grain, matte textured skin, soft skin retouch, visible pores and natural texture, natural facial refinement, editorial skin enhancement, visible emotion in posture, raw documentary style. Negative: shiny skin, glossy skin, fake skin, plastic-looking skin, over-processed skin'
+        prompt: '[triggerword] woman profile silhouette against bright window, voluminous hair in elegant updo showing graceful neck curve, wrapped in blanket or oversized sweater, contemplative moment, shot on Leica SL2-S with 50mm Summilux lens, f/1.4, black and white photography only, monochrome, no color, heavy 35mm film grain, matte textured skin, soft skin retouch, visible pores and natural texture, natural facial refinement, editorial skin enhancement, visible emotion in posture, raw documentary style. Negative: shiny skin, glossy skin, fake skin, plastic-looking skin, over-processed skin'
       },
       {
         id: 'against-the-wall',
@@ -212,7 +212,7 @@ const PROMPT_COLLECTIONS = {
         name: 'Morning Truth',
         category: 'Raw Moments',
         description: "Honest morning beauty. No makeup, real hair, looking directly at the camera with complete authenticity.",
-        prompt: '[triggerword] woman in bed looking directly at camera, no makeup, voluminous hair beautifully spread on pillow with natural body and movement, white sheets, intimate morning portrait in natural light, natural morning vulnerability, black and white photography only, monochrome, no color, heavy 35mm film grain, matte textured skin, soft skin retouch, visible pores and natural texture, natural facial refinement, editorial skin enhancement, raw intimate photography, honest beauty. Negative: shiny skin, glossy skin, fake skin, plastic-looking skin, over-processed skin'
+        prompt: '[triggerword] woman in bed looking directly at camera, no makeup, voluminous hair beautifully spread on pillow with natural body and movement, white sheets, intimate morning portrait in natural light, shot on Canon EOS R5 with 85mm f/1.2L lens, natural morning vulnerability, black and white photography only, monochrome, no color, heavy 35mm film grain, matte textured skin, soft skin retouch, visible pores and natural texture, natural facial refinement, editorial skin enhancement, raw intimate photography, honest beauty. Negative: shiny skin, glossy skin, fake skin, plastic-looking skin, over-processed skin'
       },
       {
         id: 'mirror-reflection',
