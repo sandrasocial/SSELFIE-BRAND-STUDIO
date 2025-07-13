@@ -5,6 +5,7 @@ import { apiRequest } from '@/lib/queryClient';
 import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
 import { useToast } from '@/hooks/use-toast';
+import { COMPREHENSIVE_LANDING_TEMPLATE } from '@/components/comprehensive-landing-template';
 
 interface ChatMessage {
   id: number;
@@ -272,11 +273,22 @@ export default function VictoriaBuilder() {
       .replace(/\bme\b/gi, 'her') // Replace "me" with "her"
       .trim();
   };
+
+  // Generate power quote from brand story
+  const generatePowerQuote = (personalStory?: string, uniqueApproach?: string): string => {
+    if (personalStory && personalStory.includes('help')) {
+      return "I didn't need a full plan. I needed one brave step. One real story. One step back to myself.";
+    }
+    if (uniqueApproach && uniqueApproach.includes('authentic')) {
+      return "Perfect is the enemy of real. Real is what converts. Real is what connects.";
+    }
+    return "Your story is your strategy. Your authenticity is your advantage. Your truth is your brand.";
+  };
   const [location] = useLocation();
   const chatId = new URLSearchParams(location.split('?')[1] || '').get('chat');
   const [currentMessage, setCurrentMessage] = useState('');
   const [isTyping, setIsTyping] = useState(false);
-  const [currentHtml, setCurrentHtml] = useState(FULL_BLEED_HERO_TEMPLATE);
+  const [currentHtml, setCurrentHtml] = useState(COMPREHENSIVE_LANDING_TEMPLATE);
   const [isFullScreen, setIsFullScreen] = useState(false);
   const [currentCss, setCurrentCss] = useState('');
   const { toast } = useToast();
@@ -334,7 +346,7 @@ export default function VictoriaBuilder() {
     const instagramHandle = brandData?.instagramHandle || '@yourname';
     const websiteUrl = brandData?.websiteUrl || 'www.yourname.com';
 
-    // Smart name display logic for hero section
+    // Smart name display logic for hero section using the new template style
     const nameparts = businessName.split(' ');
     const firstName = nameparts[0] || 'YOUR';
     const lastName = nameparts.slice(1).join(' ');
@@ -343,8 +355,8 @@ export default function VictoriaBuilder() {
     const displayFirstName = firstName.toUpperCase();
     const displayLastName = lastName ? lastName.toUpperCase() : '';
     const heroNameHtml = lastName ? 
-      `<div class="hero-name-first">${displayFirstName}</div><div class="hero-name-last">${displayLastName}</div>` :
-      `<div class="hero-name-first">${displayFirstName}</div>`;
+      `<div class="hero-name-stacked"><h1 class="hero-name-first">${displayFirstName}</h1><h1 class="hero-name-last">${displayLastName}</h1></div>` :
+      `<div class="hero-name-stacked"><h1 class="hero-name-first">${displayFirstName}</h1></div>`;
     
     // Replace content with actual brand data
     updatedHtml = updatedHtml.replace(/{{USER_NAME}}/g, businessName);
@@ -352,20 +364,53 @@ export default function VictoriaBuilder() {
     updatedHtml = updatedHtml.replace(/{{USER_TAGLINE}}/g, tagline);
     updatedHtml = updatedHtml.replace(/{{USER_FIRST_NAME}}/g, displayFirstName);
     updatedHtml = updatedHtml.replace(/{{USER_LAST_NAME}}/g, displayLastName);
-    // Replace entire hero name section for smart display
+    // Replace entire hero name section for smart display with new template structure
     updatedHtml = updatedHtml.replace(
-      /<div class="hero-name-first">{{USER_FIRST_NAME}}<\/div>\s*<div class="hero-name-last">{{USER_LAST_NAME}}<\/div>/g,
+      /<div class="hero-name-stacked">\s*<h1 class="hero-name-first">{{USER_FIRST_NAME}}<\/h1>\s*<h1 class="hero-name-last">{{USER_LAST_NAME}}<\/h1>\s*<\/div>/g,
       heroNameHtml
     );
-    updatedHtml = updatedHtml.replace(/{{ABOUT_TITLE}}/g, 'About Me');
-    updatedHtml = updatedHtml.replace(/{{ABOUT_DESCRIPTION}}/g, personalStory);
-    updatedHtml = updatedHtml.replace(/{{ABOUT_MISSION}}/g, uniqueApproach);
-    updatedHtml = updatedHtml.replace(/{{SERVICE_1_TITLE}}/g, primaryOffer);
-    updatedHtml = updatedHtml.replace(/{{SERVICE_1_DESCRIPTION}}/g, problemYouSolve);
-    updatedHtml = updatedHtml.replace(/{{SERVICE_2_TITLE}}/g, 'Personal Brand Photos');
-    updatedHtml = updatedHtml.replace(/{{SERVICE_2_DESCRIPTION}}/g, 'AI-generated professional photos for your brand');
-    updatedHtml = updatedHtml.replace(/{{SERVICE_3_TITLE}}/g, 'Business Growth');
-    updatedHtml = updatedHtml.replace(/{{SERVICE_3_DESCRIPTION}}/g, 'Complete business setup and launch support');
+    // Generate conversion-optimized content
+    const powerQuoteText = generatePowerQuote(brandData?.personalStory, brandData?.uniqueApproach);
+    const editorialHeadline = `Why ${businessName.split(' ')[0]} Does Things Differently`;
+    const editorialText1 = improveForLandingPage(brandData?.uniqueApproach) || 'She believes in authentic connections over perfect presentations.';
+    const editorialText2 = 'Every project starts with understanding your story, not following a template.';
+    
+    // Service offerings based on brand data
+    const service1Title = brandData?.primaryOffer || 'Brand Strategy';
+    const service2Title = 'Content Creation';
+    const service3Title = 'Full Brand Package';
+    const service1Description = `Complete ${service1Title.toLowerCase()} designed specifically for your vision and goals.`;
+    const service2Description = 'Professional content that tells your story authentically and converts.';
+    const service3Description = 'Everything you need to launch your brand with confidence and clarity.';
+    
+    // Testimonial content
+    const testimonialText = 'Working with her transformed not just my brand, but how I see myself as an entrepreneur. The clarity and confidence I gained was worth every penny.';
+    const testimonialAuthor = 'Sarah M., Brand Strategist';
+    
+    // Freebie offer
+    const freebieTitle = 'Your Personal Brand Blueprint';
+    const freebieDescription = 'Get the exact framework she uses to help entrepreneurs build authentic, profitable personal brands.';
+    
+    // Replace all content variables
+    updatedHtml = updatedHtml.replace(/{{PERSONAL_STORY}}/g, personalStory);
+    updatedHtml = updatedHtml.replace(/{{PRIMARY_OFFER_PRICE}}/g, primaryOfferPrice);
+    updatedHtml = updatedHtml.replace(/{{SECONDARY_OFFER_PRICE}}/g, 'Starting at $197');
+    updatedHtml = updatedHtml.replace(/{{PROBLEM_YOU_SOLVE}}/g, problemYouSolve);
+    updatedHtml = updatedHtml.replace(/{{UNIQUE_APPROACH}}/g, uniqueApproach);
+    updatedHtml = updatedHtml.replace(/{{POWER_QUOTE_TEXT}}/g, powerQuoteText);
+    updatedHtml = updatedHtml.replace(/{{EDITORIAL_HEADLINE}}/g, editorialHeadline);
+    updatedHtml = updatedHtml.replace(/{{EDITORIAL_TEXT_1}}/g, editorialText1);
+    updatedHtml = updatedHtml.replace(/{{EDITORIAL_TEXT_2}}/g, editorialText2);
+    updatedHtml = updatedHtml.replace(/{{SERVICE_1_TITLE}}/g, service1Title);
+    updatedHtml = updatedHtml.replace(/{{SERVICE_2_TITLE}}/g, service2Title);
+    updatedHtml = updatedHtml.replace(/{{SERVICE_3_TITLE}}/g, service3Title);
+    updatedHtml = updatedHtml.replace(/{{SERVICE_1_DESCRIPTION}}/g, service1Description);
+    updatedHtml = updatedHtml.replace(/{{SERVICE_2_DESCRIPTION}}/g, service2Description);
+    updatedHtml = updatedHtml.replace(/{{SERVICE_3_DESCRIPTION}}/g, service3Description);
+    updatedHtml = updatedHtml.replace(/{{TESTIMONIAL_TEXT}}/g, testimonialText);
+    updatedHtml = updatedHtml.replace(/{{TESTIMONIAL_AUTHOR}}/g, testimonialAuthor);
+    updatedHtml = updatedHtml.replace(/{{FREEBIE_TITLE}}/g, freebieTitle);
+    updatedHtml = updatedHtml.replace(/{{FREEBIE_DESCRIPTION}}/g, freebieDescription);
     updatedHtml = updatedHtml.replace(/{{CONTACT_EMAIL}}/g, email);
     updatedHtml = updatedHtml.replace(/{{INSTAGRAM_HANDLE}}/g, instagramHandle);
     updatedHtml = updatedHtml.replace(/{{WEBSITE_URL}}/g, websiteUrl);
