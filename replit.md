@@ -280,6 +280,8 @@ The platform has become overly complex with multiple pricing tiers, broken onboa
 - **Texture Enhancement**: Always includes textured skin, flattering high fashion outfits, slightly retouched skin
 - **Realistic Factor**: Ensures "wow is that me?" user reaction with realistic but flattering results
 - **Guidance Scale**: Optimized at 2.8 for natural-looking results without over-processing
+- **Flexible Scenarios**: No hardcoded "editorial portrait" - supports diverse poses, settings, and scenarios
+- **Professional Camera Specs**: Randomized camera equipment including Hasselblad X2D 100C, Canon EOS R5, Leica SL2-S, Fujifilm GFX 100S, Nikon Z9, Sony A7R V with specific lenses and settings
 
 #### ✅ PERMANENT IMAGE STORAGE SYSTEM IMPLEMENTED (July 13, 2025)
 **Critical Image Expiration Issue Resolved:**

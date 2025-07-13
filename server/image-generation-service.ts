@@ -47,8 +47,20 @@ export async function generateImages(request: GenerateImagesRequest): Promise<Ge
       finalPrompt = `${triggerWord}, ${customPrompt}`;
     }
     
-    // Enhance prompt with texture and flattering elements
-    finalPrompt = `${finalPrompt}, textured skin, flattering high fashion outfit, slightly retouched skin, realistic, wow factor`;
+    // Add professional camera equipment specifications
+    const cameraSpecs = [
+      "shot with Hasselblad X2D 100C, 80mm lens, f/2.8",
+      "captured with Canon EOS R5, 85mm f/1.4 lens, professional lighting",
+      "photographed with Leica SL2-S, 50mm Summilux lens, f/1.4",
+      "shot on Fujifilm GFX 100S, 110mm f/2 lens, medium format",
+      "captured with Nikon Z9, 85mm f/1.8 lens, studio lighting",
+      "photographed with Sony A7R V, 90mm macro lens, f/2.8"
+    ];
+    
+    const randomCameraSpec = cameraSpecs[Math.floor(Math.random() * cameraSpecs.length)];
+    
+    // Enhance prompt with texture, flattering elements, and camera specifications
+    finalPrompt = `${finalPrompt}, textured skin, flattering high fashion outfit, slightly retouched skin, realistic, wow factor, ${randomCameraSpec}, professional photography, high resolution, film grain texture`;
     
     // Build input with optimal FLUX LoRA settings for amazing photos
     const input: any = {
