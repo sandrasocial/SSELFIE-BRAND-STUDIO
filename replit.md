@@ -852,14 +852,14 @@ Platform verified to seamlessly handle 1000+ users with individual AI training, 
 - **Complete Lens Specifications**: 85mm f/1.2L, 50mm Summilux, 90mm APO-Summicron, 110mm f/2, 28mm f/1.7
 - **Zero Coverage Gaps**: Every generation guaranteed professional camera specifications
 
-**✅ FLUX MODEL SETTINGS - RESEARCH-BACKED OPTIMAL PARAMETERS:**
+**✅ FLUX MODEL SETTINGS - RAW PHOTOGRAPHY AESTHETIC MATCHING TRAINING DATA:**
 - **Model Version**: black-forest-labs/flux-dev-lora:a53fd9255ecba80d99eaab4706c698f861fd47b098012607557385416e46aae5
-- **Guidance Scale**: 3.0 (OPTIMAL: 2.5-3.0 range for realistic images - research backed)
-- **LoRA Scale**: 0.8 (OPTIMAL: 0.7-0.9 range for balanced application - research backed)
-- **Inference Steps**: 35 (OPTIMAL: 35+ steps minimum for quality - research backed)
-- **Quality Parameters**: output_quality: 100, go_fast: false, output_format: "png"
+- **Guidance Scale**: 2.0 (REDUCED: Lower guidance for softer, less processed look matching training data)
+- **LoRA Scale**: 0.6 (REDUCED: Lower LoRA for more natural blending with base model)
+- **Inference Steps**: 25 (REDUCED: Fewer steps for softer, less refined look)
+- **Quality Parameters**: output_quality: 85, go_fast: false, output_format: "png"
 - **Aspect Ratio**: 3:4 (portrait optimized for selfies)
-- **Anti-Plastic Method**: Embedded "NOT plastic skin" statements in positive prompt (no negative_prompt parameter)
+- **Raw Photography Method**: Embedded "MOODY RAW PHOTOGRAPHY, unretouched skin texture, visible skin imperfections" statements
 - **Pose Variety System**: Random pose and expression injection to prevent repetition
 
 ### July 13, 2025 - CRITICAL DISCOVERY: FLUX NEGATIVE PROMPT ISSUE RESOLVED ✅ - ANTI-PLASTIC BREAKTHROUGH
@@ -875,11 +875,11 @@ Platform verified to seamlessly handle 1000+ users with individual AI training, 
 - **Enhanced Film Specs**: "soft matte skin NOT plastic skin, gentle skin retouching NOT fake skin, flattering natural lighting NOT artificial lighting, subtle skin smoothing NOT glossy skin, elegant skin enhancement NOT synthetic skin"
 - **Custom Negative Conversion**: Any "Negative:" prompts automatically converted to "NOT" format
 
-**✅ RESEARCH-BACKED OPTIMAL PARAMETERS FOR QUALITY:**
-- **Guidance Scale**: Increased to 3.0 (research shows 2.5-3.0 optimal for realistic images)
-- **LoRA Scale**: Increased to 0.8 (research shows 0.7-0.9 optimal for balanced application)
-- **Inference Steps**: Increased to 35 (research shows 35+ steps minimum for quality)
-- **Output Quality**: Restored to 100 (maximum quality for stunning results)
+**✅ RAW PHOTOGRAPHY PARAMETERS MATCHING TRAINING DATA:**
+- **Guidance Scale**: Reduced to 2.0 (softer, less processed look matching "MOODY RAW PHOTOGRAPHY" training style)
+- **LoRA Scale**: Reduced to 0.6 (more natural blending with base model for raw aesthetic)
+- **Inference Steps**: Reduced to 25 (fewer steps for softer, less refined look)
+- **Output Quality**: Reduced to 85 (natural grain, less sharpening for raw film aesthetic)
 
 **✅ POSE REPETITION SOLUTION:**
 1. **Random Pose Injection**: 20 different pose variations randomly selected for basic prompts
@@ -888,11 +888,11 @@ Platform verified to seamlessly handle 1000+ users with individual AI training, 
 4. **Pose Detection**: System checks if prompt already contains pose specifications before adding random poses
 5. **Authentic Branding Focus**: Expressions designed for personal brands, not stock photos
 
-**✅ TECHNICAL BREAKTHROUGH:**
+**✅ RAW PHOTOGRAPHY BREAKTHROUGH:**
 1. **FLUX Compatibility**: Removed non-functional negative_prompt parameter completely
-2. **Positive Negation**: Uses "NOT plastic skin" statements that FLUX actually processes
-3. **Optimal Processing**: Research-backed parameters for maximum quality and variety
-4. **Natural Enhancement**: Maintains elegant beauty while avoiding fake plastic appearance
+2. **Raw Photography Terms**: Uses "MOODY RAW PHOTOGRAPHY, unretouched skin texture, visible skin imperfections" statements that FLUX processes
+3. **Training Data Matching**: Parameters specifically tuned to match "SHADOW PLAY VULNERABILITY" style training data
+4. **Authentic Documentary Style**: Maintains raw, unretouched aesthetic with natural imperfections and film grain
 
 **✅ DOUBLE COVERAGE SYSTEM:**
 1. **Manual Specifications**: Professional camera equipment in 95%+ of handcrafted prompts
