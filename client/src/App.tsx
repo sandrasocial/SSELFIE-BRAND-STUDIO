@@ -43,6 +43,7 @@ import VictoriaChat from "@/pages/victoria-chat";
 import { lazy, Suspense } from "react";
 import VictoriaBuilder from '@/pages/victoria-builder';
 import PhotoSelection from "@/pages/photo-selection";
+import BrandOnboarding from "@/pages/brand-onboarding";
 
 // Removed duplicate photoshoot imports - using existing system
 
@@ -151,6 +152,7 @@ function Router() {
       <Route path="/victoria" component={(props) => <ProtectedRoute component={Victoria} {...props} />} />
       <Route path="/victoria-chat" component={(props) => <ProtectedRoute component={VictoriaChat} {...props} />} />
       <Route path="/photo-selection" component={(props) => <ProtectedRoute component={PhotoSelection} {...props} />} />
+      <Route path="/brand-onboarding" component={(props) => <ProtectedRoute component={BrandOnboarding} {...props} />} />
       <Route path="/victoria-builder" component={(props) => <ProtectedRoute component={VictoriaBuilder} {...props} />} />
       
       {/* SANDRA'S ADMIN DASHBOARD */}

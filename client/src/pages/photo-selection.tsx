@@ -47,8 +47,8 @@ export default function PhotoSelection() {
         title: "Photo Selection Saved",
         description: "Your favorite photos have been saved for template customization.",
       });
-      // Redirect to Victoria builder with selections ready
-      setLocation('/victoria-builder');
+      // Redirect to brand onboarding after photo selection
+      setLocation('/brand-onboarding');
     },
     onError: (error) => {
       toast({
@@ -219,7 +219,7 @@ export default function PhotoSelection() {
             disabled={selectedSelfies.length === 0 || saveSelectionsMutation.isPending}
             className="bg-black text-white px-8 py-3 rounded hover:bg-gray-800 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
           >
-            {saveSelectionsMutation.isPending ? 'Saving...' : 'Continue to Victoria Builder'}
+            {saveSelectionsMutation.isPending ? 'Saving...' : 'Continue to Brand Story'}
           </button>
         </div>
       </div>

@@ -3263,6 +3263,36 @@ Consider this workflow optimized and ready for implementation! ⚙️`
     }
   });
 
+  // Brand onboarding endpoints
+  app.get('/api/brand-onboarding', async (req, res) => {
+    try {
+      const userId = req.session?.userId || req.user?.claims?.sub || 'sandra_test_user_2025';
+      const brandData = await storage.getBrandOnboarding(userId);
+      res.json(brandData || {});
+    } catch (error) {
+      console.error('Error fetching brand onboarding:', error);
+      res.status(500).json({ error: 'Failed to fetch brand data' });
+    }
+  });
+
+  app.post('/api/save-brand-onboarding', async (req, res) => {
+    try {
+      const userId = req.session?.userId || req.user?.claims?.sub || 'sandra_test_user_2025';
+      console.log('Saving brand onboarding for user:', userId);
+      console.log('Brand data:', req.body);
+      
+      const brandData = await storage.saveBrandOnboarding({
+        userId,
+        ...req.body
+      });
+      
+      res.json({ success: true, message: 'Brand data saved successfully', data: brandData });
+    } catch (error) {
+      console.error('Error saving brand onboarding:', error);
+      res.status(500).json({ error: 'Failed to save brand data' });
+    }
+  });
+
   const httpServer = createServer(app);
   return httpServer;
 }

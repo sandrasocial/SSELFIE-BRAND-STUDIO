@@ -232,6 +232,37 @@ export const landingPages = pgTable("landing_pages", {
   updatedAt: timestamp("updated_at").defaultNow(),
 });
 
+// Brand onboarding data for template auto-population
+export const brandOnboarding = pgTable("brand_onboarding", {
+  id: serial("id").primaryKey(),
+  userId: varchar("user_id").references(() => users.id).notNull().unique(), // One per user
+  // Personal Brand Story
+  businessName: varchar("business_name").notNull(),
+  tagline: varchar("tagline").notNull(),
+  personalStory: text("personal_story").notNull(),
+  whyStarted: text("why_started"),
+  // Target Client & Positioning
+  targetClient: text("target_client").notNull(),
+  problemYouSolve: text("problem_you_solve").notNull(),
+  uniqueApproach: text("unique_approach").notNull(),
+  // Offers & Services
+  primaryOffer: varchar("primary_offer").notNull(),
+  primaryOfferPrice: varchar("primary_offer_price").notNull(),
+  secondaryOffer: varchar("secondary_offer"),
+  secondaryOfferPrice: varchar("secondary_offer_price"),
+  freeResource: varchar("free_resource"),
+  // Contact & Links
+  instagramHandle: varchar("instagram_handle"),
+  websiteUrl: varchar("website_url"),
+  email: varchar("email").notNull(),
+  location: varchar("location"),
+  // Brand Personality
+  brandPersonality: varchar("brand_personality").notNull(),
+  brandValues: text("brand_values"),
+  createdAt: timestamp("created_at").defaultNow(),
+  updatedAt: timestamp("updated_at").defaultNow(),
+});
+
 // Schema exports
 export const upsertUserSchema = createInsertSchema(users);
 export const insertProjectSchema = createInsertSchema(projects).omit({ id: true, createdAt: true, updatedAt: true });
@@ -245,6 +276,7 @@ export const insertGeneratedImageSchema = createInsertSchema(generatedImages).om
 export const insertVictoriaChatSchema = createInsertSchema(victoriaChats).omit({ id: true, createdAt: true });
 export const insertPhotoSelectionSchema = createInsertSchema(photoSelections).omit({ id: true, createdAt: true, updatedAt: true });
 export const insertLandingPageSchema = createInsertSchema(landingPages).omit({ id: true, createdAt: true, updatedAt: true });
+export const insertBrandOnboardingSchema = createInsertSchema(brandOnboarding).omit({ id: true, createdAt: true, updatedAt: true });
 
 
 
@@ -297,6 +329,8 @@ export type InsertPhotoSelection = z.infer<typeof insertPhotoSelectionSchema>;
 export type PhotoSelection = typeof photoSelections.$inferSelect;
 export type InsertLandingPage = z.infer<typeof insertLandingPageSchema>;
 export type LandingPage = typeof landingPages.$inferSelect;
+export type InsertBrandOnboarding = z.infer<typeof insertBrandOnboardingSchema>;
+export type BrandOnboarding = typeof brandOnboarding.$inferSelect;
 
 
 
