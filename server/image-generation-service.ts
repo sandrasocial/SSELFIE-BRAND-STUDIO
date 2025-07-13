@@ -51,7 +51,7 @@ export async function generateImages(request: GenerateImagesRequest): Promise<Ge
     const input: any = {
       prompt: finalPrompt,
       hf_lora: `sandrasocial/${userId}-selfie-lora`, // User's trained LoRA weights
-      guidance_scale: 3.5,        // Optimal for FLUX LoRA (3-4 range)
+      guidance_scale: 2.8,        // Lowered from 3.5 to 2.8 for testing
       num_inference_steps: 32,    // Higher steps for better quality
       output_quality: 100,        // Maximum quality
       aspect_ratio: "3:4",        // Portrait ratio better for selfies
