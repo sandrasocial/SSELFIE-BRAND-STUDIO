@@ -883,9 +883,10 @@ Platform verified to seamlessly handle 1000+ users with individual AI training, 
 
 **✅ POSE REPETITION SOLUTION:**
 1. **Random Pose Injection**: 20 different pose variations randomly selected for basic prompts
-2. **Expression Variety**: 15 different expression types to prevent same facial expression
+2. **Professional Expression Variety**: 15 authentic expression types focused on personal branding (no fake laughing/big smiling)
 3. **Detailed Prompts**: FLUX research shows long, poetic prompts work better than short descriptions
 4. **Pose Detection**: System checks if prompt already contains pose specifications before adding random poses
+5. **Authentic Branding Focus**: Expressions designed for personal brands, not stock photos
 
 **✅ TECHNICAL BREAKTHROUGH:**
 1. **FLUX Compatibility**: Removed non-functional negative_prompt parameter completely

@@ -84,7 +84,7 @@ export async function generateImages(request: GenerateImagesRequest): Promise<Ge
       "sitting with one leg up",
       "standing with arms at sides naturally",
       "hands gently touching face",
-      "mid-laugh with genuine expression",
+      "with natural authentic expression",
       "looking to the side thoughtfully",
       "hands clasped behind back",
       "sitting on edge of surface",
@@ -95,21 +95,21 @@ export async function generateImages(request: GenerateImagesRequest): Promise<Ge
     ];
     
     const expressionVariations = [
-      "with gentle confident smile",
-      "with soft mysterious expression",
-      "with genuine laughing expression",
+      "with subtle confident expression",
+      "with soft mysterious gaze",
       "with serene peaceful look",
-      "with playful sparkling eyes",
-      "with thoughtful contemplative gaze",
-      "with warm welcoming smile",
-      "with subtle knowing smile",
-      "with bright joyful expression",
+      "with thoughtful contemplative expression",
+      "with warm authentic presence",
+      "with subtle knowing look",
       "with calm composed demeanor",
-      "with authentic candid expression",
-      "with soft dreamy look",
-      "with confident self-assured gaze",
+      "with genuine candid expression",
+      "with soft dreamy gaze",
+      "with confident self-assured look",
       "with gentle caring expression",
-      "with radiant happy smile"
+      "with natural relaxed demeanor",
+      "with sophisticated editorial expression",
+      "with understated confidence",
+      "with authentic professional presence"
     ];
     
     // Randomly select pose and expression to prevent repetition
