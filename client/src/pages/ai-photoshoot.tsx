@@ -328,7 +328,7 @@ export default function AIPhotoshootPage() {
         throw new Error('Failed to save image');
       }
       
-      queryClient.invalidateQueries({ queryKey: ['/api/ai-images'] });
+      queryClient.invalidateQueries({ queryKey: ['/api/gallery-images'] });
       
       toast({
         title: "Image Saved",
@@ -392,8 +392,8 @@ export default function AIPhotoshootPage() {
       if (data.images && data.images.length > 0) {
         setSelectedImages(data.images);
         
-        // Invalidate AI images cache to show new images
-        queryClient.invalidateQueries({ queryKey: ['/api/ai-images'] });
+        // Invalidate gallery images cache to show new images when saved
+        queryClient.invalidateQueries({ queryKey: ['/api/gallery-images'] });
         
         toast({
           title: "Images Generated!",

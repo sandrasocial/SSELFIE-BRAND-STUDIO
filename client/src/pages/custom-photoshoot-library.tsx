@@ -55,7 +55,7 @@ export default function CustomPhotoshootLibrary() {
         throw new Error('Failed to save image');
       }
       
-      queryClient.invalidateQueries({ queryKey: ['/api/ai-images'] });
+      queryClient.invalidateQueries({ queryKey: ['/api/gallery-images'] });
       
       toast({
         title: "Image Saved",

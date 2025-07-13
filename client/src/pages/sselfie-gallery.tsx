@@ -13,9 +13,9 @@ export default function SSELFIEGallery() {
   const [showFavoritesOnly, setShowFavoritesOnly] = useState(false);
   const queryClient = useQueryClient();
 
-  // Fetch user's AI images
+  // Fetch user's deliberately saved gallery images
   const { data: aiImages = [], isLoading } = useQuery({
-    queryKey: ['/api/ai-images'],
+    queryKey: ['/api/gallery-images'],
     enabled: isAuthenticated
   });
 
@@ -51,8 +51,8 @@ export default function SSELFIEGallery() {
       return await apiRequest('DELETE', `/api/ai-images/${imageId}`);
     },
     onSuccess: () => {
-      // Refresh AI images data
-      queryClient.invalidateQueries({ queryKey: ['/api/ai-images'] });
+      // Refresh gallery images data
+      queryClient.invalidateQueries({ queryKey: ['/api/gallery-images'] });
       queryClient.invalidateQueries({ queryKey: ['/api/images/favorites'] });
     }
   });
@@ -63,8 +63,8 @@ export default function SSELFIEGallery() {
       return await apiRequest('POST', '/api/migrate-images-to-permanent');
     },
     onSuccess: () => {
-      // Refresh AI images data after migration
-      queryClient.invalidateQueries({ queryKey: ['/api/ai-images'] });
+      // Refresh gallery images data after migration
+      queryClient.invalidateQueries({ queryKey: ['/api/gallery-images'] });
       alert('All images have been migrated to permanent storage!');
     },
     onError: (error) => {
