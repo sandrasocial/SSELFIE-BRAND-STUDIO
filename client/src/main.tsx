@@ -1,25 +1,29 @@
 import { createRoot } from "react-dom/client";
-import App from "./App";
+import App from "./App-minimal";
 import "./index.css";
 
-// Add comprehensive error boundary and logging
-console.log("main.tsx executing");
+// Emergency React mounting with maximum logging
+console.log("main.tsx executing - step 1");
+
+// First replace the loading screen to show we're executing
+const rootElement = document.getElementById("root");
+if (rootElement) {
+  rootElement.innerHTML = '<div style="background: purple; color: white; padding: 50px; text-align: center; font-size: 20px;">🟣 Step 2: main.tsx executing, importing React...</div>';
+}
+
+console.log("Step 2: About to import React");
 
 try {
-  const rootElement = document.getElementById("root");
-  console.log("Root element found:", rootElement);
+  console.log("Step 3: Creating React root");
+  const root = createRoot(rootElement!);
+  console.log("Step 4: React root created, rendering App");
   
-  if (rootElement) {
-    console.log("Creating React root...");
-    const root = createRoot(rootElement);
-    console.log("React root created, rendering App...");
-    root.render(<App />);
-    console.log("App rendered successfully!");
-  } else {
-    console.error("Root element not found");
-    document.body.innerHTML = '<div style="color: red; padding: 20px; font-size: 20px;">EMERGENCY: Root element not found!</div>';
-  }
+  root.render(<App />);
+  console.log("Step 5: App rendered successfully!");
+  
 } catch (error) {
-  console.error("Failed to mount React app:", error);
-  document.body.innerHTML = '<div style="color: red; padding: 20px; font-size: 20px;">EMERGENCY: React app failed to mount: ' + error + '</div>';
+  console.error("Step ERROR: Failed to mount React app:", error);
+  if (rootElement) {
+    rootElement.innerHTML = `<div style="background: red; color: white; padding: 50px; text-align: center; font-size: 20px;">❌ ERROR: ${error.message || error}</div>`;
+  }
 }
