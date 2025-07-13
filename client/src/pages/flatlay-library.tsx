@@ -6092,18 +6092,7 @@ export default function FlatlayLibrary() {
             }}>
               {selectedCollection.description}
             </p>
-            <div style={{
-              background: '#f5f5f5',
-              padding: '20px',
-              fontSize: '14px',
-              color: '#0a0a0a',
-              textAlign: 'center',
-              border: '1px solid #e5e5e5'
-            }}>
-              <strong>Upload Location:</strong> Create folder: <code>/public/flatlays/{selectedCollection.id}/</code>
-              <br />
-              Add your flatlay images here and update the collection data below
-            </div>
+
           </div>
 
           {/* Image Grid */}
