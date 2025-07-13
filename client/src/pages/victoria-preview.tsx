@@ -2,6 +2,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import { WorkspaceNavigation } from '@/components/workspace-navigation';
 import { Button } from '@/components/ui/button';
 import { useQuery } from '@tanstack/react-query';
+import { Link } from 'wouter';
 import { COMPREHENSIVE_LANDING_TEMPLATE } from '@/components/comprehensive-landing-template';
 
 export default function VictoriaPreview() {
