@@ -522,13 +522,7 @@ export default function SimpleTraining() {
                 </div>
               </div>
 
-              <div style={{
-                fontSize: '14px',
-                opacity: 0.7,
-                marginTop: '20px'
-              }}>
-                Model: {userModel.replicateModelId} • Trigger: {userModel.triggerWord}
-              </div>
+
             </div>
           </section>
         </div>
