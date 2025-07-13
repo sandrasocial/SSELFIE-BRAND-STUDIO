@@ -712,28 +712,133 @@ const flatlayCollections: FlatlayCollection[] = [
     name: 'Pink & Girly',
     description: 'Soft feminine flatlays, beauty products, flowers',
     aesthetic: 'Feminine and romantic styling',
-    backgroundImage: SandraImages.flatlays.beauty,
+    backgroundImage: 'https://i.postimg.cc/QtnSw23T/1.png',
     images: [
       {
         id: 'pg-1',
-        url: SandraImages.flatlays.beauty,
+        url: 'https://i.postimg.cc/QtnSw23T/1.png',
         title: 'Feminine Beauty',
         category: 'Pink & Girly',
         description: 'Soft pink feminine flatlay'
       },
       {
         id: 'pg-2',
-        url: SandraImages.editorial.laughing,
-        title: 'Joy & Confidence',
+        url: 'https://i.postimg.cc/FKrM4X2W/10.png',
+        title: 'Pink Aesthetic',
         category: 'Pink & Girly',
-        description: 'Feminine confidence energy'
+        description: 'Girly pink aesthetic'
       },
       {
         id: 'pg-3',
-        url: SandraImages.editorial.mirror,
-        title: 'Beauty Transformation',
+        url: 'https://i.postimg.cc/9fLvXN2W/11.png',
+        title: 'Romantic Style',
         category: 'Pink & Girly',
-        description: 'Feminine transformation moment'
+        description: 'Romantic feminine style'
+      },
+      {
+        id: 'pg-4',
+        url: 'https://i.postimg.cc/wv3n1cxD/12.png',
+        title: 'Soft Femininity',
+        category: 'Pink & Girly',
+        description: 'Soft feminine aesthetic'
+      },
+      {
+        id: 'pg-5',
+        url: 'https://i.postimg.cc/63Sgn2Tg/13.png',
+        title: 'Beauty Essentials',
+        category: 'Pink & Girly',
+        description: 'Beauty and feminine essentials'
+      },
+      {
+        id: 'pg-6',
+        url: 'https://i.postimg.cc/nrD5kFDz/14.png',
+        title: 'Pink Vibes',
+        category: 'Pink & Girly',
+        description: 'Pink girly vibes'
+      },
+      {
+        id: 'pg-7',
+        url: 'https://i.postimg.cc/59YZ13RV/15.png',
+        title: 'Feminine Charm',
+        category: 'Pink & Girly',
+        description: 'Charming feminine aesthetic'
+      },
+      {
+        id: 'pg-8',
+        url: 'https://i.postimg.cc/3rszwvsD/16.png',
+        title: 'Girly Lifestyle',
+        category: 'Pink & Girly',
+        description: 'Girly lifestyle aesthetic'
+      },
+      {
+        id: 'pg-9',
+        url: 'https://i.postimg.cc/wTDZRBz4/17.png',
+        title: 'Pink Dreams',
+        category: 'Pink & Girly',
+        description: 'Pink dreamy aesthetic'
+      },
+      {
+        id: 'pg-10',
+        url: 'https://i.postimg.cc/YCkV6wqr/18.png',
+        title: 'Feminine Grace',
+        category: 'Pink & Girly',
+        description: 'Graceful feminine style'
+      },
+      {
+        id: 'pg-11',
+        url: 'https://i.postimg.cc/Z5cQjDCr/19.png',
+        title: 'Romantic Pink',
+        category: 'Pink & Girly',
+        description: 'Romantic pink aesthetic'
+      },
+      {
+        id: 'pg-12',
+        url: 'https://i.postimg.cc/vmh0L12X/2.png',
+        title: 'Soft Beauty',
+        category: 'Pink & Girly',
+        description: 'Soft beauty aesthetic'
+      },
+      {
+        id: 'pg-13',
+        url: 'https://i.postimg.cc/DzwMNdXR/20.png',
+        title: 'Pink Elegance',
+        category: 'Pink & Girly',
+        description: 'Elegant pink style'
+      },
+      {
+        id: 'pg-14',
+        url: 'https://i.postimg.cc/tgvMGZdJ/21.png',
+        title: 'Girly Chic',
+        category: 'Pink & Girly',
+        description: 'Chic girly aesthetic'
+      },
+      {
+        id: 'pg-15',
+        url: 'https://i.postimg.cc/TwyHddQ9/22.png',
+        title: 'Feminine Luxury',
+        category: 'Pink & Girly',
+        description: 'Luxurious feminine style'
+      },
+      {
+        id: 'pg-16',
+        url: 'https://i.postimg.cc/x8Mxm6wN/23.png',
+        title: 'Pink Paradise',
+        category: 'Pink & Girly',
+        description: 'Pink paradise aesthetic'
+      },
+      {
+        id: 'pg-17',
+        url: 'https://i.postimg.cc/ydwpWMbz/24.png',
+        title: 'Sweet Femininity',
+        category: 'Pink & Girly',
+        description: 'Sweet feminine aesthetic'
+      },
+      {
+        id: 'pg-18',
+        url: 'https://i.postimg.cc/tCdvCmdL/25.png',
+        title: 'Girly Glamour',
+        category: 'Pink & Girly',
+        description: 'Glamorous girly style'
       }
     ]
   }
