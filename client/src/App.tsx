@@ -112,7 +112,7 @@ function Router() {
       {/* STREAMLINED USER JOURNEY: Landing → Simple Checkout → Payment Success → Onboarding → Workspace */}
 
       {/* PUBLIC PAGES */}
-      <Route path="/" component={() => <div style={{color: 'red', padding: '20px'}}>TEST: App is working!</div>} />
+      <Route path="/" component={EditorialLanding} />
       <Route path="/old-landing" component={Landing} />
       <Route path="/about" component={About} />
       <Route path="/how-it-works" component={HowItWorks} />
@@ -175,37 +175,13 @@ function Router() {
 }
 
 function App() {
-  console.log("App component mounted successfully!");
-  
   return (
-    <div style={{
-      background: '#00ff00',
-      color: 'black',
-      padding: '40px',
-      fontSize: '24px',
-      fontWeight: 'bold',
-      minHeight: '100vh',
-      display: 'flex',
-      flexDirection: 'column',
-      alignItems: 'center',
-      justifyContent: 'center'
-    }}>
-      <h1>🎉 SUCCESS: REACT APP IS WORKING! 🎉</h1>
-      <p>White screen issue is FIXED!</p>
-      <p>Server on port 5000 is serving React correctly</p>
-      <button 
-        onClick={() => window.location.href = '/emergency'}
-        style={{
-          padding: '10px 20px',
-          fontSize: '18px',
-          backgroundColor: 'white',
-          border: '2px solid black',
-          cursor: 'pointer'
-        }}
-      >
-        Test Emergency Route
-      </button>
-    </div>
+    <QueryClientProvider client={queryClient}>
+      <TooltipProvider>
+        <Toaster />
+        <Router />
+      </TooltipProvider>
+    </QueryClientProvider>
   );
 }
 
