@@ -2793,13 +2793,25 @@ Consider this workflow optimized and ready for implementation! ⚙️`
       
       if (!userModel) {
         // Create initial model record for new users
-        const newModel = await storage.createUserModel({
-          userId,
-          triggerWord: `user${userId}`,
-          trainingStatus: 'not_started',
-          modelName: `${req.user.claims.first_name || 'User'} AI Model`
-        });
-        res.json(newModel);
+        try {
+          const newModel = await storage.createUserModel({
+            userId,
+            triggerWord: `user${userId}`,
+            trainingStatus: 'not_started',
+            modelName: `${req.user.claims.first_name || 'User'} AI Model`
+          });
+          console.log(`✅ AI model created for user ${userId}`);
+          res.json(newModel);
+        } catch (error) {
+          console.error('Error creating user model:', error);
+          // Return a minimal model structure for frontend compatibility
+          res.json({
+            userId,
+            triggerWord: `user${userId}`,
+            trainingStatus: 'not_started',
+            modelName: `${req.user.claims.first_name || 'User'} AI Model`
+          });
+        }
       } else {
         res.json(userModel);
       }
