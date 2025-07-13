@@ -27,18 +27,20 @@ export default function Pricing() {
   }, []);
 
   const handleGetStarted = (plan: string) => {
-    if (plan === 'sselfie-studio') {
+    if (plan === 'free') {
       toast({
-        title: "SSELFIE Studio",
-        description: "Redirecting to checkout for $29/month plan...",
+        title: "FREE Tier",
+        description: "Starting your free account with 5 images/month...",
       });
-      setLocation('/api/login'); // For now, redirect to login
+      localStorage.setItem('selectedPlan', 'free');
+      setLocation('/api/login');
     } else {
       toast({
-        title: "SSELFIE Studio PRO", 
-        description: "Redirecting to checkout for $67/month plan...",
+        title: "SSELFIE Studio", 
+        description: "Redirecting to checkout for $47/month plan...",
       });
-      setLocation('/api/login'); // For now, redirect to login
+      localStorage.setItem('selectedPlan', 'sselfie-studio');
+      setLocation('/checkout');
     }
   };
 
@@ -91,79 +93,79 @@ export default function Pricing() {
           </div>
         </section>
 
-        {/* Two-Tier Pricing Section */}
+        {/* Freemium Pricing Section */}
         <section className="px-4 sm:px-6 lg:px-8 mb-16 sm:mb-24 md:mb-32">
           <div className="max-w-4xl mx-auto">
             <div className="grid md:grid-cols-2 gap-8 sm:gap-10 md:gap-12">
               
-              {/* SSELFIE Studio */}
+              {/* FREE Tier */}
               <div className="bg-gray-50 p-8 sm:p-10 md:p-12 text-center group hover:bg-black hover:text-white transition-all duration-500">
-                <h3 className="font-serif text-2xl sm:text-3xl font-light mb-4 sm:mb-6">SSELFIE Studio</h3>
-                <div className="text-3xl sm:text-4xl md:text-5xl font-light mb-6 sm:mb-8">$29<span className="text-sm sm:text-base md:text-lg text-gray-500 group-hover:text-white/60">/month</span></div>
+                <h3 className="font-serif text-2xl sm:text-3xl font-light mb-4 sm:mb-6">Try SSELFIE</h3>
+                <div className="text-3xl sm:text-4xl md:text-5xl font-light mb-6 sm:mb-8">FREE<span className="text-sm sm:text-base md:text-lg text-gray-500 group-hover:text-white/60"></span></div>
                 
                 <div className="space-y-3 sm:space-y-4 mb-8 sm:mb-10 md:mb-12 text-left">
                   <div className="flex items-start">
                     <span className="text-black group-hover:text-white mr-3">•</span>
-                    <span className="text-sm">Personal AI photoshoot (100 images/month)</span>
+                    <span className="text-sm">5 AI images per month</span>
                   </div>
                   <div className="flex items-start">
                     <span className="text-black group-hover:text-white mr-3">•</span>
-                    <span className="text-sm">Luxury flatlay collections</span>
+                    <span className="text-sm">Maya AI photographer chat</span>
                   </div>
                   <div className="flex items-start">
                     <span className="text-black group-hover:text-white mr-3">•</span>
-                    <span className="text-sm">Brand templates & landing pages</span>
+                    <span className="text-sm">Victoria AI brand strategist</span>
                   </div>
                   <div className="flex items-start">
                     <span className="text-black group-hover:text-white mr-3">•</span>
-                    <span className="text-sm">Custom domain connection</span>
+                    <span className="text-sm">Basic templates access</span>
+                  </div>
+                </div>
+                
+                <button
+                  onClick={() => handleGetStarted('free')}
+                  className="w-full py-4 border border-black group-hover:border-white text-black group-hover:text-white text-xs uppercase tracking-[0.3em] hover:bg-black hover:text-white group-hover:hover:bg-white group-hover:hover:text-black transition-all duration-300"
+                >
+                  Start Free
+                </button>
+              </div>
+
+              {/* SSELFIE Studio */}
+              <div className="bg-black text-white p-8 sm:p-10 md:p-12 text-center relative">
+                <div className="absolute -top-3 sm:-top-4 left-1/2 transform -translate-x-1/2">
+                  <div className="bg-white text-black px-4 sm:px-6 py-1 sm:py-2 text-xs uppercase tracking-[0.3em]">
+                    Best Value
+                  </div>
+                </div>
+                
+                <h3 className="font-serif text-2xl sm:text-3xl font-light mb-4 sm:mb-6">SSELFIE Studio</h3>
+                <div className="text-3xl sm:text-4xl md:text-5xl font-light mb-6 sm:mb-8">$47<span className="text-sm sm:text-base md:text-lg text-gray-400">/month</span></div>
+                
+                <div className="space-y-3 sm:space-y-4 mb-8 sm:mb-10 md:mb-12 text-left">
+                  <div className="flex items-start">
+                    <span className="text-white mr-3">•</span>
+                    <span className="text-sm">100 AI images per month</span>
+                  </div>
+                  <div className="flex items-start">
+                    <span className="text-white mr-3">•</span>
+                    <span className="text-sm">Maya AI + Victoria AI unlimited</span>
+                  </div>
+                  <div className="flex items-start">
+                    <span className="text-white mr-3">•</span>
+                    <span className="text-sm">Complete brand builder ecosystem</span>
+                  </div>
+                  <div className="flex items-start">
+                    <span className="text-white mr-3">•</span>
+                    <span className="text-sm">Landing pages + custom domain</span>
+                  </div>
+                  <div className="flex items-start">
+                    <span className="text-white mr-3">•</span>
+                    <span className="text-sm">Priority support</span>
                   </div>
                 </div>
                 
                 <button
                   onClick={() => handleGetStarted('sselfie-studio')}
-                  className="w-full py-4 border border-black group-hover:border-white text-black group-hover:text-white text-xs uppercase tracking-[0.3em] hover:bg-black hover:text-white group-hover:hover:bg-white group-hover:hover:text-black transition-all duration-300"
-                >
-                  Get Started
-                </button>
-              </div>
-
-              {/* SSELFIE Studio PRO */}
-              <div className="bg-black text-white p-8 sm:p-10 md:p-12 text-center relative">
-                <div className="absolute -top-3 sm:-top-4 left-1/2 transform -translate-x-1/2">
-                  <div className="bg-white text-black px-4 sm:px-6 py-1 sm:py-2 text-xs uppercase tracking-[0.3em]">
-                    Most Popular
-                  </div>
-                </div>
-                
-                <h3 className="font-serif text-2xl sm:text-3xl font-light mb-4 sm:mb-6">SSELFIE Studio PRO</h3>
-                <div className="text-3xl sm:text-4xl md:text-5xl font-light mb-6 sm:mb-8">$67<span className="text-sm sm:text-base md:text-lg text-gray-400">/month</span></div>
-                
-                <div className="space-y-3 sm:space-y-4 mb-8 sm:mb-10 md:mb-12 text-left">
-                  <div className="flex items-start">
-                    <span className="text-white mr-3">•</span>
-                    <span className="text-sm">Everything in Studio</span>
-                  </div>
-                  <div className="flex items-start">
-                    <span className="text-white mr-3">•</span>
-                    <span className="text-sm">300 AI images per month</span>
-                  </div>
-                  <div className="flex items-start">
-                    <span className="text-white mr-3">•</span>
-                    <span className="text-sm text-white font-medium">Sandra Personal Brand AI Agent</span>
-                  </div>
-                  <div className="flex items-start">
-                    <span className="text-white mr-3">•</span>
-                    <span className="text-sm">Custom brand strategy & content</span>
-                  </div>
-                  <div className="flex items-start">
-                    <span className="text-white mr-3">•</span>
-                    <span className="text-sm">Priority support & guidance</span>
-                  </div>
-                </div>
-                
-                <button
-                  onClick={() => handleGetStarted('sselfie-studio-pro')}
                   className="w-full py-4 border border-white text-white text-xs uppercase tracking-[0.3em] hover:bg-white hover:text-black transition-all duration-300"
                 >
                   Get Started

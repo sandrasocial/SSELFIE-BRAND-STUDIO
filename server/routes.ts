@@ -335,7 +335,7 @@ I have ALL collections ready - just tell me your mood! ✨`;
       console.log(`Setting up plan ${plan} for user ${userId}`);
       
       // Validate plan
-      if (!['sselfie-studio', 'sselfie-studio-pro'].includes(plan)) {
+      if (!['free', 'sselfie-studio'].includes(plan)) {
         return res.status(400).json({ message: 'Invalid plan selected' });
       }
       
@@ -349,31 +349,118 @@ I have ALL collections ready - just tell me your mood! ✨`;
       });
       
       // Set up user usage based on plan
-      const isProPlan = plan === 'sselfie-studio-pro';
-      const monthlyLimit = isProPlan ? 300 : 100;
+      const monthlyLimit = plan === 'free' ? 5 : 100;
       
       const userUsage = await storage.createUserUsage({
         userId,
         plan,
         monthlyGenerationsAllowed: monthlyLimit,
         monthlyGenerationsUsed: 0,
-        sandraAIAccess: isProPlan,
+        mayaAIAccess: true,
+        victoriaAIAccess: true,
         currentPeriodStart: new Date(),
         currentPeriodEnd: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000)
       });
       
-      console.log(`Plan setup complete: ${plan}, AI Access: ${isProPlan}, Limit: ${monthlyLimit}`);
+      console.log(`Plan setup complete: ${plan}, Maya/Victoria Access: true, Limit: ${monthlyLimit}`);
       
       res.json({
         success: true,
         subscription,
         usage: userUsage,
-        message: `Welcome to SSELFIE Studio${isProPlan ? ' PRO' : ''}!`
+        message: `Welcome to SSELFIE Studio${plan === 'free' ? ' (Free)' : ''}!`,
+        redirectTo: '/workspace'
       });
       
     } catch (error) {
       console.error('Plan setup error:', error);
       res.status(500).json({ message: 'Failed to setup plan' });
+    }
+  });
+
+  // Maya AI Chat endpoint
+  app.post('/api/maya-chat', async (req: any, res) => {
+    try {
+      const { message, chatHistory } = req.body;
+      const userId = req.session?.userId || req.user?.claims?.sub || 'sandra_test_user_2025';
+      
+      if (!message) {
+        return res.status(400).json({ error: 'Message is required' });
+      }
+
+      // Maya's photographer/stylist personality and context
+      const mayaSystemPrompt = `You are Maya, an AI photographer and stylist assistant. You're enthusiastic, creative, and knowledgeable about photography, styling, and visual aesthetics. 
+
+Your expertise includes:
+- Photography styles (editorial, lifestyle, business, portraits)
+- Lighting and composition techniques
+- Styling and wardrobe guidance
+- Camera settings and equipment recommendations
+- Mood and aesthetic direction
+
+Keep your responses conversational, encouraging, and practical. Use photography terms naturally and offer specific suggestions when helpful. You're here to help users create stunning photos that capture their authentic beauty and style.`;
+
+      // Simple fallback response system (can be enhanced with Claude API later)
+      const responses = [
+        `That sounds amazing! For that kind of look, I'd suggest working with natural light - maybe positioned near a large window. The soft, diffused lighting will give you that gorgeous, authentic glow.`,
+        `I love that vision! That style works beautifully with a clean, minimalist background. Think about your outfit too - what colors and textures will complement the mood you're going for?`,
+        `Perfect! For editorial-style shots like that, try positioning yourself at a slight angle to the camera. It creates more visual interest and helps you feel more confident and natural.`,
+        `Yes! That aesthetic is all about capturing authentic moments. Don't worry about being "perfect" - the best photos happen when you're relaxed and being yourself.`,
+        `Great idea! For that mood, consider the time of day too. Golden hour (just before sunset) gives that warm, dreamy quality that works so well for personal branding photos.`
+      ];
+
+      const randomResponse = responses[Math.floor(Math.random() * responses.length)];
+      
+      res.json({
+        message: randomResponse,
+        timestamp: new Date().toISOString()
+      });
+    } catch (error) {
+      console.error('Maya chat error:', error);
+      res.status(500).json({ error: 'Failed to process Maya chat' });
+    }
+  });
+
+  // Victoria AI Chat endpoint
+  app.post('/api/victoria-chat', async (req: any, res) => {
+    try {
+      const { message, chatHistory } = req.body;
+      const userId = req.session?.userId || req.user?.claims?.sub || 'sandra_test_user_2025';
+      
+      if (!message) {
+        return res.status(400).json({ error: 'Message is required' });
+      }
+
+      // Victoria's brand strategist personality and context
+      const victoriaSystemPrompt = `You are Victoria, a personal brand strategist AI. You're strategic, insightful, and passionate about helping women build powerful personal brands. 
+
+Your expertise includes:
+- Personal brand strategy and positioning
+- Content marketing and social media strategy
+- Business development and growth tactics
+- Audience building and engagement
+- Professional networking and opportunities
+
+Keep your responses strategic, actionable, and empowering. Focus on helping users clarify their brand message, identify their ideal audience, and create content that attracts opportunities.`;
+
+      // Simple fallback response system (can be enhanced with Claude API later)
+      const responses = [
+        `That's exactly the kind of strategic thinking that builds strong personal brands! Your unique perspective is what will set you apart. What specific value do you want to be known for in your industry?`,
+        `I love that approach! Consistency is everything in personal branding. When your audience sees your content, they should immediately know it's yours - both in visual style and in the value you provide.`,
+        `Perfect! That positioning will resonate with your ideal clients. Now let's think about how to communicate that message across all your touchpoints - your bio, content, and conversations.`,
+        `Yes! That's how you build authority in your space. Share your knowledge generously, and people will start seeing you as the go-to person for that expertise.`,
+        `Exactly! Personal branding isn't about being perfect - it's about being authentic and valuable. What challenges have you overcome that your audience might be facing too?`
+      ];
+
+      const randomResponse = responses[Math.floor(Math.random() * responses.length)];
+      
+      res.json({
+        message: randomResponse,
+        timestamp: new Date().toISOString()
+      });
+    } catch (error) {
+      console.error('Victoria chat error:', error);
+      res.status(500).json({ error: 'Failed to process Victoria chat' });
     }
   });
 
