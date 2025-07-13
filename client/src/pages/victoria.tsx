@@ -235,12 +235,12 @@ export default function VictoriaLandingPage() {
               </div>
             </Link>
 
-            <Link href="/victoria-builder">
+            <Link href="/victoria-preview">
               <div className="group cursor-pointer text-center">
                 <div className="aspect-square overflow-hidden bg-[#f5f5f5] mb-4">
                   <img 
                     src={SandraImages.hero.pricing}
-                    alt="Auto-Generated Template"
+                    alt="Full Preview"
                     className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
                   />
                 </div>
@@ -248,10 +248,10 @@ export default function VictoriaLandingPage() {
                   Step 03
                 </div>
                 <h3 className="font-times text-lg sm:text-xl font-light tracking-[-0.01em] text-black mb-3">
-                  Preview Template
+                  Full Preview
                 </h3>
                 <p className="text-xs font-light text-[#666666] leading-relaxed">
-                  Auto-populated landing page with your content
+                  Full-screen preview • Publish directly or customize with Victoria
                 </p>
               </div>
             </Link>
