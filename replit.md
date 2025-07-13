@@ -852,14 +852,28 @@ Platform verified to seamlessly handle 1000+ users with individual AI training, 
 - **Complete Lens Specifications**: 85mm f/1.2L, 50mm Summilux, 90mm APO-Summicron, 110mm f/2, 28mm f/1.7
 - **Zero Coverage Gaps**: Every generation guaranteed professional camera specifications
 
-**✅ FLUX MODEL SETTINGS VERIFICATION:**
+**✅ FLUX MODEL SETTINGS - AGGRESSIVE ANTI-PLASTIC OPTIMIZATION:**
 - **Model Version**: black-forest-labs/flux-dev-lora:a53fd9255ecba80d99eaab4706c698f861fd47b098012607557385416e46aae5
-- **Guidance Scale**: 2.8 (optimal for natural, non-digital results)
-- **LoRA Scale**: 1.0 (full user model application)
-- **Inference Steps**: 32 (quality texture development range)
-- **Quality Parameters**: output_quality: 100, go_fast: false, output_format: "png"
+- **Guidance Scale**: 2.0 (REDUCED from 2.8 for more natural, less AI-processed results)
+- **LoRA Scale**: 0.8 (REDUCED from 1.0 to prevent over-application and plastic look)
+- **Inference Steps**: 28 (REDUCED from 32 to prevent over-processing)
+- **Quality Parameters**: output_quality: 90 (reduced to prevent over-sharpening), go_fast: false, output_format: "png"
 - **Aspect Ratio**: 3:4 (portrait optimized for selfies)
-- **Film Texture Priority**: Automatic injection if not already present in prompt
+- **Film Texture Priority**: AGGRESSIVE natural skin enhancement injection
+
+### July 13, 2025 - AGGRESSIVE ANTI-PLASTIC SKIN ENHANCEMENT ✅ - NATURAL TEXTURE PRIORITY
+
+**🎯 COMPREHENSIVE ANTI-FAKE SKIN IMPLEMENTATION**
+- **Massive Negative Prompt Expansion**: 50+ anti-plastic terms including "plastic skin, fake skin, synthetic skin, artificial skin, digital skin, CGI skin, rendered skin, 3D skin, mannequin skin, doll skin, wax skin, silicon skin, rubber skin, vinyl skin, shiny skin, glossy skin, reflective skin, wet skin, oily skin, slick skin, polished skin, laminated skin"
+- **Enhanced Natural Skin Prompts**: Added "MATTE textured skin, natural skin texture, visible skin pores, authentic skin imperfections, real skin texture, organic skin detail, unprocessed natural skin, realistic skin texture, human skin detail, natural skin irregularities, skin with character, lived-in skin, weathered skin texture, natural skin aging, authentic human skin"
+- **Parameter Optimization**: Reduced guidance (2.8→2.0), LoRA scale (1.0→0.8), inference steps (32→28), output quality (100→90)
+
+**✅ TECHNICAL ANTI-PLASTIC STRATEGY:**
+1. **Lower Guidance**: Prevents AI from over-processing toward "perfect" digital skin
+2. **Reduced LoRA Scale**: Prevents over-application that creates artificial textures  
+3. **Fewer Inference Steps**: Stops model from over-refining toward plastic perfection
+4. **Comprehensive Negatives**: Blocks ALL forms of artificial, digital, and processed skin textures
+5. **Enhanced Positives**: Forces natural, organic, human skin characteristics
 
 **✅ DOUBLE COVERAGE SYSTEM:**
 1. **Manual Specifications**: Professional camera equipment in 95%+ of handcrafted prompts
