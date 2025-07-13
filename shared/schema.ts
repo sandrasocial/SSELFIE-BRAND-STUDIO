@@ -37,6 +37,22 @@ export const users = pgTable("users", {
   updatedAt: timestamp("updated_at").defaultNow(),
 });
 
+// User profile table for additional profile information
+export const userProfiles = pgTable("user_profiles", {
+  id: serial("id").primaryKey(),
+  userId: varchar("user_id").references(() => users.id).notNull(),
+  fullName: varchar("full_name"),
+  phone: varchar("phone"),
+  location: varchar("location"),
+  instagramHandle: varchar("instagram_handle"),
+  websiteUrl: varchar("website_url"),
+  bio: text("bio"),
+  brandVibe: text("brand_vibe"),
+  goals: text("goals"),
+  createdAt: timestamp("created_at").defaultNow(),
+  updatedAt: timestamp("updated_at").defaultNow(),
+});
+
 // User projects/brands table
 export const projects = pgTable("projects", {
   id: serial("id").primaryKey(),
@@ -283,6 +299,7 @@ export const userLandingPages = pgTable("user_landing_pages", {
 
 // Schema exports
 export const upsertUserSchema = createInsertSchema(users);
+export const insertUserProfileSchema = createInsertSchema(userProfiles).omit({ id: true, createdAt: true, updatedAt: true });
 export const insertProjectSchema = createInsertSchema(projects).omit({ id: true, createdAt: true, updatedAt: true });
 export const insertAiImageSchema = createInsertSchema(aiImages).omit({ id: true, createdAt: true });
 export const insertTemplateSchema = createInsertSchema(templates).omit({ id: true, createdAt: true });
@@ -303,26 +320,7 @@ export const insertUserLandingPageSchema = createInsertSchema(userLandingPages).
 export type UpsertUser = z.infer<typeof upsertUserSchema>;
 export type User = typeof users.$inferSelect;
 
-// User profiles table for extended user information
-export const userProfiles = pgTable("user_profiles", {
-  id: varchar("id").primaryKey().notNull(),
-  userId: varchar("user_id").notNull().references(() => users.id),
-  fullName: varchar("full_name"),
-  phone: varchar("phone"),
-  birthDate: varchar("birth_date"),
-  location: varchar("location"),
-  instagramHandle: varchar("instagram_handle"),
-  websiteUrl: varchar("website_url"),
-  bio: text("bio"),
-  brandVibe: varchar("brand_vibe"),
-  goals: text("goals"),
-  preferences: jsonb("preferences"),
-  avatarUrl: varchar("avatar_url"),
-  createdAt: timestamp("created_at").defaultNow(),
-  updatedAt: timestamp("updated_at").defaultNow(),
-});
-
-const insertUserProfileSchema = createInsertSchema(userProfiles).omit({ id: true, createdAt: true, updatedAt: true });
+// User profiles table schema already defined at top of file
 
 export type UserProfile = typeof userProfiles.$inferSelect;
 export type InsertBrandOnboarding = z.infer<typeof insertBrandOnboardingSchema>;
@@ -354,6 +352,8 @@ export type InsertBrandOnboarding = z.infer<typeof insertBrandOnboardingSchema>;
 export type BrandOnboarding = typeof brandOnboarding.$inferSelect;
 export type InsertUserLandingPage = z.infer<typeof insertUserLandingPageSchema>;
 export type UserLandingPage = typeof userLandingPages.$inferSelect;
+
+// User profile schemas and types already defined above
 
 
 

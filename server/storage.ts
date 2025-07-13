@@ -1,5 +1,6 @@
 import {
   users,
+  userProfiles,
   onboardingData,
   aiImages,
   userModels,
@@ -13,6 +14,8 @@ import {
   userLandingPages,
   type User,
   type UpsertUser,
+  type UserProfile,
+  type InsertUserProfile,
   type OnboardingData,
   type InsertOnboardingData,
   type AiImage,
@@ -45,6 +48,10 @@ export interface IStorage {
   getUser(id: string): Promise<User | undefined>;
   upsertUser(user: UpsertUser): Promise<User>;
   updateUserProfile(userId: string, updates: Partial<User>): Promise<User>;
+  
+  // User Profile operations
+  getUserProfile(userId: string): Promise<UserProfile | undefined>;
+  upsertUserProfile(data: InsertUserProfile): Promise<UserProfile>;
   
   // Onboarding operations
   getOnboardingData(userId: string): Promise<OnboardingData | undefined>;
@@ -133,6 +140,37 @@ export class DatabaseStorage implements IStorage {
       .where(eq(users.id, userId))
       .returning();
     return updatedUser;
+  }
+
+  // User Profile operations
+  async getUserProfile(userId: string): Promise<UserProfile | undefined> {
+    const [profile] = await db
+      .select()
+      .from(userProfiles)
+      .where(eq(userProfiles.userId, userId));
+    return profile;
+  }
+
+  async upsertUserProfile(data: InsertUserProfile): Promise<UserProfile> {
+    // Check if profile exists
+    const existingProfile = await this.getUserProfile(data.userId);
+    
+    if (existingProfile) {
+      // Update existing profile
+      const [profile] = await db
+        .update(userProfiles)
+        .set({ ...data, updatedAt: new Date() })
+        .where(eq(userProfiles.userId, data.userId))
+        .returning();
+      return profile;
+    } else {
+      // Insert new profile
+      const [profile] = await db
+        .insert(userProfiles)
+        .values(data)
+        .returning();
+      return profile;
+    }
   }
 
   // Onboarding operations

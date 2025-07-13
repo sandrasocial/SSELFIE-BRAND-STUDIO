@@ -116,7 +116,7 @@ export default function Workspace() {
       subtitle: 'Account settings and preferences',
       status: 'ready',
       statusText: 'Manage Account',
-      link: '/settings',
+      link: '/profile',
       image: SandraImages.flatlays.workspace2
     }
   ];
