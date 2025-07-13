@@ -47,7 +47,7 @@ export default function Maya() {
     if (user && messages.length === 0) {
       setMessages([{
         role: 'maya',
-        content: `Hey ${user.firstName || 'gorgeous'}! I'm Maya, your AI photographer and stylist. I'm here to help you create stunning photos that capture your authentic beauty and power.\n\nTell me what kind of photos you want to create - editorial? business? lifestyle? Or just describe the mood you're going for and I'll help you bring it to life! ✨`,
+        content: `Hey ${user.firstName || 'gorgeous'}! I'm Maya, your personal celebrity stylist, photographer, and makeup artist. I work with A-list celebrities and high-end fashion brands to create magazine-worthy content.\n\nI'm here to help you look absolutely stunning and bring out your best features. Let's talk about your vision - what kind of energy are you going for? Editorial sophistication? Natural lifestyle beauty? Red carpet glamour?\n\nDescribe the mood, the story you want to tell, or even just how you want to feel in the photos. I'll ask the right questions to understand your vision perfectly, then create those exact photos for you! ✨`,
         timestamp: new Date().toISOString()
       }]);
     }

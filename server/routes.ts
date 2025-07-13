@@ -388,41 +388,117 @@ I have ALL collections ready - just tell me your mood! ✨`;
         return res.status(400).json({ error: 'Message is required' });
       }
 
-      // Maya's photographer/stylist personality and context
-      const mayaSystemPrompt = `You are Maya, an AI photographer and stylist assistant. You're enthusiastic, creative, and knowledgeable about photography, styling, and visual aesthetics. 
+      // Get user context for personalized responses
+      const user = await storage.getUser(userId);
+      const onboardingData = await storage.getUserOnboarding(userId);
+      
+      // Maya's professional celebrity stylist personality 
+      const mayaSystemPrompt = `You are Maya, a world-class celebrity stylist, photographer, hairstylist and makeup artist. You work with A-list celebrities, high-end fashion brands, and create magazine-worthy editorial content.
 
 Your expertise includes:
-- Photography styles (editorial, lifestyle, business, portraits)
-- Lighting and composition techniques
-- Styling and wardrobe guidance
-- Camera settings and equipment recommendations
-- Mood and aesthetic direction
+- Celebrity styling and red carpet looks
+- High-fashion editorial photography direction
+- Professional makeup artistry and hair styling
+- Posing techniques that bring out best features
+- Lighting setup and composition mastery
+- Brand aesthetic development
+- Fashion industry trends and techniques
 
-Keep your responses conversational, encouraging, and practical. Use photography terms naturally and offer specific suggestions when helpful. You're here to help users create stunning photos that capture their authentic beauty and style.`;
+PERSONALITY: You're passionate, creative, and have an eye for what makes people look absolutely stunning. You ask probing questions to understand their vision, suggest creative ideas when they need direction, and help them feel confident and beautiful.
 
-      // Enhanced Maya response with image generation capability
-      const imageKeywords = ['photo', 'picture', 'image', 'shoot', 'generate', 'create', 'editorial', 'portrait', 'lifestyle', 'business'];
-      const hasImageRequest = imageKeywords.some(keyword => message.toLowerCase().includes(keyword));
-      
+CONVERSATION STYLE: 
+- Ask detailed questions about their vision, mood, styling preferences
+- Suggest specific poses, angles, lighting, outfits when they need ideas
+- If they're vague, guide them with "What about doing..." suggestions
+- Use professional terminology naturally but keep it conversational
+- Be encouraging and make them feel like they're working with a top celebrity stylist
+
+USER CONTEXT:
+- Name: ${user?.firstName || 'gorgeous'}
+- Business: ${onboardingData?.businessType || 'personal brand'}
+- Style preference: ${onboardingData?.visualStyle || 'not specified'}
+- Target audience: ${onboardingData?.targetClient || 'not specified'}
+
+Your goal is to have a natural conversation, understand their vision deeply, and when ready, create the perfect AI photo prompt (but don't show the technical prompt to the user).`;
+
+      // Use Claude API for intelligent responses
       let response = '';
       let canGenerate = false;
       let generatedPrompt = '';
       
-      if (hasImageRequest) {
-        // Maya suggests creating images when user describes photo vision
-        response = `I love your vision! Based on what you're describing, I can create some stunning photos for you right now. ✨\n\nI'll generate 4 professional images that capture this aesthetic perfectly. Ready to see your vision come to life?`;
-        canGenerate = true;
-        generatedPrompt = `Professional editorial portrait of usersandra_test_user_2025, ${message.toLowerCase().includes('editorial') ? 'high-fashion editorial style' : 'natural lifestyle portrait'}, soft natural lighting, clean composition, film photography aesthetic, matte skin finish, authentic expression`;
-      } else {
-        // Regular styling/photography advice
-        const responses = [
-          `That sounds amazing! For that kind of look, I'd suggest working with natural light - maybe positioned near a large window. The soft, diffused lighting will give you that gorgeous, authentic glow.`,
-          `I love that vision! That style works beautifully with a clean, minimalist background. Think about your outfit too - what colors and textures will complement the mood you're going for?`,
-          `Perfect! For editorial-style shots like that, try positioning yourself at a slight angle to the camera. It creates more visual interest and helps you feel more confident and natural.`,
-          `Yes! That aesthetic is all about capturing authentic moments. Don't worry about being "perfect" - the best photos happen when you're relaxed and being yourself.`,
-          `Great idea! For that mood, consider the time of day too. Golden hour (just before sunset) gives that warm, dreamy quality that works so well for personal branding photos.`
-        ];
-        response = responses[Math.floor(Math.random() * responses.length)];
+      try {
+        const anthropic = await import('@anthropic-ai/sdk');
+        const client = new anthropic.default({
+          apiKey: process.env.ANTHROPIC_API_KEY,
+        });
+
+        // Build conversation context
+        const conversationHistory = chatHistory.map((msg: any) => ({
+          role: msg.role === 'maya' ? 'assistant' : 'user',
+          content: msg.content
+        }));
+
+        const claudeResponse = await client.messages.create({
+          model: "claude-3-5-sonnet-20241022",
+          max_tokens: 1000,
+          system: mayaSystemPrompt,
+          messages: [
+            ...conversationHistory,
+            { role: 'user', content: message }
+          ]
+        });
+
+        response = claudeResponse.content[0].text;
+
+        // Detect if user has described enough detail for image generation
+        const imageKeywords = ['photo', 'picture', 'image', 'shoot', 'generate', 'create', 'editorial', 'portrait', 'lifestyle', 'business', 'ready', 'let\'s do it', 'yes'];
+        const hasImageRequest = imageKeywords.some(keyword => message.toLowerCase().includes(keyword));
+        
+        // Also check if Maya's response suggests she's ready to generate
+        const mayaReadyPhrases = ['ready to create', 'let\'s create', 'generate', 'perfect vision', 'create these photos'];
+        const mayaIsReady = mayaReadyPhrases.some(phrase => response.toLowerCase().includes(phrase));
+
+        if (hasImageRequest || mayaIsReady) {
+          canGenerate = true;
+          
+          // Create professional prompt based on conversation context
+          const styleContext = message + ' ' + conversationHistory.slice(-3).map(msg => msg.content).join(' ');
+          
+          // Get user's trained model for trigger word
+          const userModel = await storage.getUserModelByUserId(userId);
+          const triggerWord = userModel?.triggerWord || 'usersandra_test_user_2025';
+          
+          // Maya's expert prompt generation
+          const promptResponse = await client.messages.create({
+            model: "claude-3-5-sonnet-20241022",
+            max_tokens: 500,
+            system: `You are an expert AI prompt engineer for fashion photography. Create a detailed Replicate FLUX prompt for the user's AI model. Include:
+            - The trigger word "${triggerWord}" 
+            - Professional photography specifications
+            - Specific styling, posing, lighting details
+            - Camera equipment (Hasselblad X2D 100C, Canon EOS R5, Leica SL2-S)
+            - Film aesthetic with heavy 35mm grain and matte skin finish
+            - Composition and mood details
+            - Professional lighting setup descriptions
+            
+            Make it technical and professional but natural-sounding. Focus on creating magazine-quality editorial results.`,
+            messages: [
+              { role: 'user', content: `Create a professional AI prompt for this photoshoot vision: ${styleContext}` }
+            ]
+          });
+
+          generatedPrompt = promptResponse.content[0].text;
+          
+          // Add generation offer to Maya's response if not already mentioned
+          if (!mayaIsReady) {
+            response += `\n\nI can see your vision perfectly! I'm ready to create these stunning photos for you right now. Should we generate them? ✨`;
+          }
+        }
+
+      } catch (error) {
+        console.error('Claude API error, using fallback:', error);
+        // Fallback response if Claude fails
+        response = `I love working with you on this vision! Tell me more about the mood you're going for - are we thinking editorial sophistication, natural lifestyle energy, or something more dramatic? I want to make sure we capture exactly what you're envisioning.`;
       }
       
       res.json({
