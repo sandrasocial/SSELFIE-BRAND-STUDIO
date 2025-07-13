@@ -2770,10 +2770,25 @@ Consider this workflow optimized and ready for implementation! ⚙️`
   });
 
   // User model management routes
-  app.get('/api/user-model', async (req: any, res) => {
+  app.get('/api/user-model', isAuthenticated, async (req: any, res) => {
     try {
-      // For new user testing, return null (no existing model)
-      res.json(null);
+      const userId = req.user.claims.sub;
+      
+      // Get user's model from database
+      const userModel = await storage.getUserModelByUserId(userId);
+      
+      if (!userModel) {
+        // Create initial model record for new users
+        const newModel = await storage.createUserModel({
+          userId,
+          triggerWord: `user${userId}`,
+          trainingStatus: 'not_started',
+          modelName: `${req.user.claims.first_name || 'User'} AI Model`
+        });
+        res.json(newModel);
+      } else {
+        res.json(userModel);
+      }
     } catch (error) {
       console.error('User model fetch error:', error);
       res.status(500).json({ error: error.message });
