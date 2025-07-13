@@ -8,10 +8,10 @@ export default function VictoriaPreview() {
   const [isFullScreen, setIsFullScreen] = useState(true); // Start in full-screen mode
   const previewRef = useRef<HTMLIFrameElement>(null);
 
-  const { data: brandData } = useQuery({ queryKey: ['/api/onboarding'] });
+  const { data: brandData } = useQuery({ queryKey: ['/api/brand-onboarding'] });
   const { data: userGallery } = useQuery({ queryKey: ['/api/user-gallery'] });
 
-  // Function to inject user photos into template
+  // Function to inject ALL user photos strategically into template
   const injectUserPhotos = (htmlTemplate: string): string => {
     if (!userGallery?.userSelfies?.length) return htmlTemplate;
 
@@ -23,34 +23,46 @@ export default function VictoriaPreview() {
     ];
 
     let updatedHtml = htmlTemplate;
-
-    // Use ALL user photos strategically throughout the template
     const photoCount = userSelfies.length;
     
-    // 1. Hero background - Use first selfie
-    if (photoCount >= 1) {
-      updatedHtml = updatedHtml.replace(/{{USER_HERO_PHOTO}}/g, userSelfies[0].url);
+    // STRATEGIC PHOTO DISTRIBUTION - USE ALL PHOTOS
+    // 1. Hero background - Use first/best selfie
+    updatedHtml = updatedHtml.replace(/{{USER_HERO_PHOTO}}/g, userSelfies[0].url);
+    
+    // 2. About section image - Use second selfie or best portrait
+    const aboutPhoto = photoCount >= 2 ? userSelfies[1].url : userSelfies[0].url;
+    updatedHtml = updatedHtml.replace(/{{USER_ABOUT_PHOTO}}/g, aboutPhoto);
+    
+    // 3. Editorial spread image - Use third selfie or alternate
+    const editorialPhoto = photoCount >= 3 ? userSelfies[2].url : userSelfies[0].url;
+    updatedHtml = updatedHtml.replace(/{{USER_EDITORIAL_PHOTO}}/g, editorialPhoto);
+    
+    // 4. Portfolio gallery - Use 4th, 5th, 6th selfies (repeat if needed)
+    const portfolio1 = photoCount >= 4 ? userSelfies[3].url : (userSelfies[1]?.url || userSelfies[0].url);
+    const portfolio2 = photoCount >= 5 ? userSelfies[4].url : (userSelfies[2]?.url || userSelfies[0].url);
+    const portfolio3 = photoCount >= 6 ? userSelfies[5].url : (userSelfies[3]?.url || userSelfies[0].url);
+    
+    updatedHtml = updatedHtml.replace(/{{USER_PORTFOLIO_1}}/g, portfolio1);
+    updatedHtml = updatedHtml.replace(/{{USER_PORTFOLIO_2}}/g, portfolio2);
+    updatedHtml = updatedHtml.replace(/{{USER_PORTFOLIO_3}}/g, portfolio3);
+    
+    // 5. Freebie background - Use 7th photo or alternate
+    const freebiePhoto = photoCount >= 7 ? userSelfies[6].url : (userSelfies[1]?.url || userSelfies[0].url);
+    updatedHtml = updatedHtml.replace(/{{USER_FREEBIE_BACKGROUND}}/g, freebiePhoto);
+    
+    // 6. Additional sections for 8+ photos
+    if (photoCount >= 8) {
+      // Story section additional photos
+      updatedHtml = updatedHtml.replace(/{{USER_STORY_PHOTO_1}}/g, userSelfies[7].url);
     }
     
-    // 2. About section image - Use second selfie  
-    if (photoCount >= 2) {
-      updatedHtml = updatedHtml.replace(/{{USER_ABOUT_PHOTO}}/g, userSelfies[1].url);
-    } else {
-      updatedHtml = updatedHtml.replace(/{{USER_ABOUT_PHOTO}}/g, userSelfies[0].url);
+    if (photoCount >= 9) {
+      updatedHtml = updatedHtml.replace(/{{USER_STORY_PHOTO_2}}/g, userSelfies[8].url);
     }
     
-    // 3. Editorial spread image - Use third selfie
-    if (photoCount >= 3) {
-      updatedHtml = updatedHtml.replace(/{{USER_EDITORIAL_PHOTO}}/g, userSelfies[2].url);
-    } else {
-      updatedHtml = updatedHtml.replace(/{{USER_EDITORIAL_PHOTO}}/g, userSelfies[0].url);
-    }
-    
-    // 4. Portfolio images - Use fourth and fifth selfies (or repeat if needed)
-    if (photoCount >= 4) {
-      updatedHtml = updatedHtml.replace(/{{USER_PORTFOLIO_1}}/g, userSelfies[3].url);
-    } else {
-      updatedHtml = updatedHtml.replace(/{{USER_PORTFOLIO_1}}/g, userSelfies[1] ? userSelfies[1].url : userSelfies[0].url);
+    // 7. Service sections for 10+ photos
+    if (photoCount >= 10) {
+      updatedHtml = updatedHtml.replace(/{{USER_SERVICE_PHOTO}}/g, userSelfies[9].url);
     }
     
     if (photoCount >= 5) {
@@ -84,20 +96,28 @@ export default function VictoriaPreview() {
     return updatedHtml;
   };
 
-  // Generate the populated template
+  // Generate the populated template with REAL brand data
   const currentHtml = React.useMemo(() => {
     if (!brandData) return COMPREHENSIVE_LANDING_TEMPLATE;
 
+    // Use ACTUAL brand onboarding data
     const businessName = brandData.businessName || 'Your Business';
-    const tagline = brandData.tagline || 'Build Your Empire';
+    const tagline = brandData.tagline || brandData.personalStory?.substring(0, 50) || 'Build Your Empire'; 
     const personalStory = brandData.personalStory || 'Your story starts here.';
+    const whyStarted = brandData.whyStarted || '';
+    const targetClient = brandData.targetClient || '';
     const primaryOffer = brandData.primaryOffer || 'Brand Strategy';
     const primaryOfferPrice = brandData.primaryOfferPrice || '$497';
+    const secondaryOffer = brandData.secondaryOffer || 'Content Creation';
+    const secondaryOfferPrice = brandData.secondaryOfferPrice || '$297';
     const problemYouSolve = brandData.problemYouSolve || 'I help you find clarity in your brand message.';
     const uniqueApproach = brandData.uniqueApproach || 'My approach is authentic and strategic.';
+    const freeResource = brandData.freeResource || 'Brand Strategy Guide';
     const email = brandData.email || 'hello@yourname.com';
     const instagramHandle = brandData.instagramHandle || '@yourname';
     const websiteUrl = brandData.websiteUrl || 'www.yourname.com';
+    const brandPersonality = brandData.brandPersonality || 'sophisticated';
+    const brandValues = brandData.brandValues || '';
 
     // Smart name display logic
     const nameparts = businessName.split(' ');
@@ -125,21 +145,52 @@ export default function VictoriaPreview() {
       heroNameHtml
     );
 
-    // Generate content
-    const powerQuoteText = "Your story is your strategy. Your authenticity is your advantage. Your truth is your brand.";
-    const editorialHeadline = `Why ${businessName.split(' ')[0]} Does Things Differently`;
-    const editorialText1 = uniqueApproach || 'She believes in authentic connections over perfect presentations.';
-    const editorialText2 = 'Every project starts with understanding your story, not following a template.';
+    // Generate POWERFUL landing page copy based on REAL brand data
+    // Using existing firstName variable from line 112
     
+    // Power quote based on their actual story
+    const powerQuoteText = whyStarted ? 
+      `"${whyStarted.replace(/['"]/g, '')}"` : 
+      uniqueApproach ? 
+        `"${uniqueApproach.replace(/['"]/g, '')}"` :
+        "Your story is your strategy. Your authenticity is your advantage.";
+    
+    // Editorial headline based on their unique approach
+    const editorialHeadline = uniqueApproach ? 
+      `Why ${firstName}'s Approach Is Different` :
+      `The ${firstName} Method`;
+    
+    // Editorial text based on their actual positioning
+    const editorialText1 = problemYouSolve || 'She believes in authentic connections over perfect presentations.';
+    const editorialText2 = targetClient ? 
+      `Working specifically with ${targetClient.toLowerCase()}, every project starts with understanding your unique story.` :
+      'Every project starts with understanding your story, not following a template.';
+    
+    // Services based on their actual offers
     const service1Title = primaryOffer || 'Brand Strategy';
-    const service2Title = 'Content Creation';
-    const service3Title = 'Full Brand Package';
+    const service2Title = secondaryOffer || 'Content Creation';
+    const service3Title = 'VIP Experience';
     
-    const testimonialText = 'Working with her transformed not just my brand, but how I see myself as an entrepreneur. The clarity and confidence I gained was worth every penny.';
-    const testimonialAuthor = 'Sarah M., Brand Strategist';
+    const service1Description = problemYouSolve ? 
+      `${problemYouSolve} Complete ${service1Title.toLowerCase()} designed for your vision.` :
+      `Complete ${service1Title.toLowerCase()} designed specifically for your vision and goals.`;
     
-    const freebieTitle = 'Your Personal Brand Blueprint';
-    const freebieDescription = 'Get the exact framework she uses to help entrepreneurs build authentic, profitable personal brands.';
+    const service2Description = secondaryOffer ?
+      `Professional ${secondaryOffer.toLowerCase()} that tells your story authentically.` :
+      'Professional content that tells your story authentically and converts.';
+    
+    // Testimonial based on their target client
+    const testimonialText = targetClient ?
+      `Working with ${firstName} transformed not just my brand, but how I see myself as a ${targetClient.toLowerCase()}. The clarity and confidence I gained was worth every penny.` :
+      'Working with her transformed not just my brand, but how I see myself as an entrepreneur. The clarity and confidence I gained was worth every penny.';
+    
+    const testimonialAuthor = targetClient ? `Sarah M., ${targetClient}` : 'Sarah M., Brand Strategist';
+    
+    // Freebie based on their actual free resource
+    const freebieTitle = freeResource || `The ${firstName} Brand Blueprint`;
+    const freebieDescription = freeResource ?
+      `Get ${firstName}'s exclusive ${freeResource.toLowerCase()} that shows you exactly how to ${problemYouSolve?.toLowerCase() || 'build your authentic brand'}.` :
+      `Get the exact framework ${firstName} uses to help ${targetClient?.toLowerCase() || 'entrepreneurs'} build authentic, profitable personal brands.`;
     
     // Replace all content variables
     updatedHtml = updatedHtml.replace(/{{PERSONAL_STORY}}/g, personalStory);
@@ -154,8 +205,8 @@ export default function VictoriaPreview() {
     updatedHtml = updatedHtml.replace(/{{SERVICE_1_TITLE}}/g, service1Title);
     updatedHtml = updatedHtml.replace(/{{SERVICE_2_TITLE}}/g, service2Title);
     updatedHtml = updatedHtml.replace(/{{SERVICE_3_TITLE}}/g, service3Title);
-    updatedHtml = updatedHtml.replace(/{{SERVICE_1_DESCRIPTION}}/g, `Complete ${service1Title.toLowerCase()} designed specifically for your vision and goals.`);
-    updatedHtml = updatedHtml.replace(/{{SERVICE_2_DESCRIPTION}}/g, 'Professional content that tells your story authentically and converts.');
+    updatedHtml = updatedHtml.replace(/{{SERVICE_1_DESCRIPTION}}/g, service1Description);
+    updatedHtml = updatedHtml.replace(/{{SERVICE_2_DESCRIPTION}}/g, service2Description);
     updatedHtml = updatedHtml.replace(/{{SERVICE_3_DESCRIPTION}}/g, 'Everything you need to launch your brand with confidence and clarity.');
     updatedHtml = updatedHtml.replace(/{{TESTIMONIAL_TEXT}}/g, testimonialText);
     updatedHtml = updatedHtml.replace(/{{TESTIMONIAL_AUTHOR}}/g, testimonialAuthor);
@@ -177,12 +228,10 @@ export default function VictoriaPreview() {
 
   return (
     <>
-      <WorkspaceNavigation />
-      
-      {/* Full-Screen Preview Interface */}
+      {/* Full-Screen Preview Interface - NO NAVIGATION CONFLICT */}
       <div className="h-screen flex flex-col bg-black">
-        {/* Top Bar */}
-        <div className="bg-black text-white px-6 py-4 border-b border-gray-800">
+        {/* Top Bar - BRAND STYLING APPLIED */}
+        <div className="bg-white text-black px-6 py-4 border-b border-black">
           <div className="flex items-center justify-between">
             <div className="flex items-center space-x-4">
               <h1 className="text-xl font-light" style={{ fontFamily: 'Times New Roman, serif' }}>
@@ -190,36 +239,37 @@ export default function VictoriaPreview() {
               </h1>
               {userGallery?.userSelfies?.length > 0 && (
                 <div className="flex items-center space-x-2">
-                  <div className="w-2 h-2 bg-green-500 rounded-full"></div>
-                  <span className="text-sm text-gray-300">
-                    Using {userGallery.userSelfies.length} personal photos + 3 flatlays
+                  <div className="w-2 h-2 bg-black rounded-full"></div>
+                  <span className="text-sm text-gray-600">
+                    Using {userGallery.userSelfies.length} personal photos • All images distributed
                   </span>
                 </div>
               )}
             </div>
             
             <div className="flex items-center space-x-3">
-              <Button 
-                variant="outline"
-                size="sm"
-                className="text-white border-white/30 hover:bg-white hover:text-black"
+              <Link to="/victoria-chat">
+                <button 
+                  className="px-4 py-2 text-black border border-black text-sm hover:bg-gray-50 transition-colors"
+                  style={{ letterSpacing: '0.1em', textTransform: 'uppercase' }}
+                >
+                  Customize with Victoria
+                </button>
+              </Link>
+              <button 
+                className="px-4 py-2 bg-black text-white text-sm hover:bg-gray-800 transition-colors"
+                style={{ letterSpacing: '0.1em', textTransform: 'uppercase' }}
               >
-                Save Draft
-              </Button>
-              <Button 
-                size="sm"
-                className="bg-white text-black hover:bg-gray-200"
-              >
-                Publish Live at /yourname
-              </Button>
-              <Button
-                variant="ghost"
-                size="sm"
-                onClick={() => window.history.back()}
-                className="text-white hover:bg-gray-800"
-              >
-                ← Back to Victoria
-              </Button>
+                Publish Live Now
+              </button>
+              <Link to="/victoria">
+                <button
+                  className="px-4 py-2 text-black hover:bg-gray-50 text-sm transition-colors"
+                  style={{ letterSpacing: '0.1em' }}
+                >
+                  ← Back to Victoria
+                </button>
+              </Link>
             </div>
           </div>
         </div>
@@ -234,11 +284,11 @@ export default function VictoriaPreview() {
           />
         </div>
         
-        {/* Bottom Action Bar */}
-        <div className="bg-gray-900 text-white px-6 py-4 border-t border-gray-800">
+        {/* Bottom Action Bar - BRAND STYLING APPLIED */}
+        <div className="bg-white text-black px-6 py-4 border-t border-black">
           <div className="flex items-center justify-between">
             <div className="flex items-center space-x-4">
-              <span className="text-sm text-gray-300">
+              <span className="text-sm text-gray-600">
                 Perfect preview with all your photos • Ready to publish or customize
               </span>
             </div>
