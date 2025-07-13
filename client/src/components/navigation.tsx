@@ -57,7 +57,7 @@ export const Navigation: React.FC = () => {
   const navItems = isAuthenticated ? memberNavItems : publicNavItems;
 
   const handleLogin = () => {
-    window.location.href = '/api/login';
+    window.location.href = '/login';
   };
 
   const handleLogout = () => {

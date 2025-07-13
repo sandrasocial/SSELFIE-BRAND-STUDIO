@@ -52,8 +52,8 @@ export default function PaymentSuccess() {
         title="PAYMENT SUCCESSFUL"
         ctaText="Continue"
         onCtaClick={() => {
-          // Direct redirect to login, which will redirect to workspace
-          window.location.href = '/api/login';
+          // Redirect to our branded login page
+          window.location.href = '/login';
         }}
         fullHeight={false}
       />
@@ -104,8 +104,8 @@ export default function PaymentSuccess() {
         <div className="text-center mt-16">
           <button 
             onClick={() => {
-              // Since onboarding is protected, need to login first then redirect to onboarding
-              window.location.href = '/api/login?redirect=/onboarding';
+              // Redirect to our branded login page
+              window.location.href = '/login';
             }}
             className="bg-[#0a0a0a] text-white px-8 py-4 text-xs uppercase tracking-wider hover:bg-[#333] transition-colors"
           >
