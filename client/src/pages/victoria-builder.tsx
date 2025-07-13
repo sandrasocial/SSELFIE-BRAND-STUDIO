@@ -232,10 +232,46 @@ const FULL_BLEED_HERO_TEMPLATE = `
             </div>
         </div>
     </div>
+    
+    <!-- Portfolio Section with User Photos -->
+    <div class="portfolio-section" style="padding: 120px 40px; background: white;">
+        <div style="max-width: 1200px; margin: 0 auto; text-align: center; margin-bottom: 60px;">
+            <h2 style="font-family: 'Times New Roman', serif; font-size: clamp(2rem, 4vw, 3rem); font-weight: 300; color: #0a0a0a;">Portfolio</h2>
+        </div>
+        <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 40px; max-width: 800px; margin: 0 auto;">
+            <div style="background: url('{{USER_PORTFOLIO_1}}') center/cover; height: 400px;"></div>
+            <div style="background: url('{{USER_PORTFOLIO_2}}') center/cover; height: 400px;"></div>
+        </div>
+    </div>
+    
+    <!-- Contact Section with User Photo -->
+    <div class="contact-section" style="padding: 120px 40px; background: #0a0a0a; color: white; text-align: center;">
+        <div style="max-width: 600px; margin: 0 auto;">
+            <div style="width: 200px; height: 200px; background: url('{{USER_CONTACT_PHOTO}}') center/cover; border-radius: 50%; margin: 0 auto 40px;"></div>
+            <h2 style="font-family: 'Times New Roman', serif; font-size: clamp(2rem, 4vw, 3rem); font-weight: 300; margin-bottom: 24px;">Let's Work Together</h2>
+            <p style="font-size: 18px; line-height: 1.6; margin-bottom: 32px;">Ready to transform your brand? Get in touch.</p>
+            <div style="display: flex; justify-content: center; gap: 32px; margin-top: 32px;">
+                <a href="mailto:{{CONTACT_EMAIL}}" style="color: white; text-decoration: none; font-size: 16px; letter-spacing: 0.1em; border-bottom: 1px solid rgba(255,255,255,0.3); padding-bottom: 4px;">{{CONTACT_EMAIL}}</a>
+                <a href="https://instagram.com/{{INSTAGRAM_HANDLE}}" style="color: white; text-decoration: none; font-size: 16px; letter-spacing: 0.1em; border-bottom: 1px solid rgba(255,255,255,0.3); padding-bottom: 4px;">{{INSTAGRAM_HANDLE}}</a>
+            </div>
+        </div>
+    </div>
 </body>
 </html>`;
 
 export default function VictoriaBuilder() {
+  // Function to improve brand content for landing page copy
+  const improveForLandingPage = (originalText: string | undefined | null): string | undefined => {
+    if (!originalText) return undefined;
+    
+    // Simple text improvements for better landing page copy
+    return originalText
+      .replace(/^I\s+/, 'She ') // Change "I help" to "She helps" for third person
+      .replace(/\bI\b/g, 'she') // Replace other instances of "I" with "she"
+      .replace(/\bmy\b/gi, 'her') // Replace "my" with "her"
+      .replace(/\bme\b/gi, 'her') // Replace "me" with "her"
+      .trim();
+  };
   const [location] = useLocation();
   const chatId = new URLSearchParams(location.split('?')[1] || '').get('chat');
   const [currentMessage, setCurrentMessage] = useState('');
@@ -254,17 +290,20 @@ export default function VictoriaBuilder() {
     retry: false,
   });
 
-  // Function to inject user photos into template (70-80% selfies, 20-30% flatlays)
+  // Function to inject user photos into template using all 5 selected selfies
   const injectUserPhotos = (htmlTemplate: string) => {
     if (!userGallery?.userSelfies?.length) return htmlTemplate;
     
-    // Get mix of user selfies (75%) and flatlays (25%)
-    const allSelfies = userGallery.userSelfies || [];
+    // Get user's selected selfies and flatlay collection
+    const selectedSelfies = userGallery.userSelfies || [];
     const allFlatlays = userGallery.flatlayCollections?.flatMap(col => col.images) || [];
     
-    // Select best user photos
-    const heroPhoto = allSelfies[0]?.url || ''; // Best selfie for hero
-    const aboutPhoto = allSelfies[1]?.url || ''; // Second best for about
+    // Use all available selected selfies across different sections
+    const heroPhoto = selectedSelfies[0]?.url || ''; // Best selfie for hero
+    const aboutPhoto = selectedSelfies[1]?.url || selectedSelfies[0]?.url || ''; // Second or fallback to first
+    const portfolioPhoto1 = selectedSelfies[2]?.url || selectedSelfies[0]?.url || ''; // Third or fallback
+    const portfolioPhoto2 = selectedSelfies[3]?.url || selectedSelfies[1]?.url || selectedSelfies[0]?.url || ''; // Fourth or fallback  
+    const contactPhoto = selectedSelfies[4]?.url || selectedSelfies[2]?.url || selectedSelfies[0]?.url || ''; // Fifth or fallback
     const flatlay1 = allFlatlays[0] || '';
     const flatlay2 = allFlatlays[1] || '';
     const flatlay3 = allFlatlays[2] || '';
@@ -272,9 +311,12 @@ export default function VictoriaBuilder() {
     // Replace all photo placeholders with user photos
     let updatedHtml = htmlTemplate;
     
-    // Replace hero background with user's best selfie
+    // Replace all photo placeholders with user's selected photos
     updatedHtml = updatedHtml.replace(/{{USER_HERO_PHOTO}}/g, heroPhoto);
     updatedHtml = updatedHtml.replace(/{{USER_ABOUT_PHOTO}}/g, aboutPhoto);
+    updatedHtml = updatedHtml.replace(/{{USER_PORTFOLIO_1}}/g, portfolioPhoto1);
+    updatedHtml = updatedHtml.replace(/{{USER_PORTFOLIO_2}}/g, portfolioPhoto2);
+    updatedHtml = updatedHtml.replace(/{{USER_CONTACT_PHOTO}}/g, contactPhoto);
     updatedHtml = updatedHtml.replace(/{{USER_FLATLAY_1}}/g, flatlay1);
     updatedHtml = updatedHtml.replace(/{{USER_FLATLAY_2}}/g, flatlay2);
     updatedHtml = updatedHtml.replace(/{{USER_FLATLAY_3}}/g, flatlay3);
@@ -282,26 +324,39 @@ export default function VictoriaBuilder() {
     // Use real brand data from onboarding or fallback to defaults
     const businessName = brandData?.businessName || 'Your Name';
     const tagline = brandData?.tagline || 'Building Something Beautiful';
-    const personalStory = brandData?.personalStory || 'I help ambitious women build their personal brand and launch their dreams.';
+    // Enhanced brand content with Claude rewriting for landing page optimization
+    const personalStory = improveForLandingPage(brandData?.personalStory) || 'I help ambitious women build their personal brand and launch their dreams.';
     const primaryOffer = brandData?.primaryOffer || 'Strategy';
     const primaryOfferPrice = brandData?.primaryOfferPrice || '$47/month';
-    const problemYouSolve = brandData?.problemYouSolve || 'Personal brand strategy and positioning';
-    const uniqueApproach = brandData?.uniqueApproach || 'My mission is to make personal branding accessible and authentic.';
+    const problemYouSolve = improveForLandingPage(brandData?.problemYouSolve) || 'Personal brand strategy and positioning';
+    const uniqueApproach = improveForLandingPage(brandData?.uniqueApproach) || 'My mission is to make personal branding accessible and authentic.';
     const email = brandData?.email || 'hello@yourname.com';
     const instagramHandle = brandData?.instagramHandle || '@yourname';
     const websiteUrl = brandData?.websiteUrl || 'www.yourname.com';
 
-    // Split business name for hero display
+    // Smart name display logic for hero section
     const nameparts = businessName.split(' ');
     const firstName = nameparts[0] || 'YOUR';
-    const lastName = nameparts.slice(1).join(' ') || 'NAME';
+    const lastName = nameparts.slice(1).join(' ');
+    
+    // For single word names, show only first name and hide last name line
+    const displayFirstName = firstName.toUpperCase();
+    const displayLastName = lastName ? lastName.toUpperCase() : '';
+    const heroNameHtml = lastName ? 
+      `<div class="hero-name-first">${displayFirstName}</div><div class="hero-name-last">${displayLastName}</div>` :
+      `<div class="hero-name-first">${displayFirstName}</div>`;
     
     // Replace content with actual brand data
     updatedHtml = updatedHtml.replace(/{{USER_NAME}}/g, businessName);
     updatedHtml = updatedHtml.replace(/{{BUSINESS_TITLE}}/g, businessName);
     updatedHtml = updatedHtml.replace(/{{USER_TAGLINE}}/g, tagline);
-    updatedHtml = updatedHtml.replace(/{{USER_FIRST_NAME}}/g, firstName.toUpperCase());
-    updatedHtml = updatedHtml.replace(/{{USER_LAST_NAME}}/g, lastName.toUpperCase());
+    updatedHtml = updatedHtml.replace(/{{USER_FIRST_NAME}}/g, displayFirstName);
+    updatedHtml = updatedHtml.replace(/{{USER_LAST_NAME}}/g, displayLastName);
+    // Replace entire hero name section for smart display
+    updatedHtml = updatedHtml.replace(
+      /<div class="hero-name-first">{{USER_FIRST_NAME}}<\/div>\s*<div class="hero-name-last">{{USER_LAST_NAME}}<\/div>/g,
+      heroNameHtml
+    );
     updatedHtml = updatedHtml.replace(/{{ABOUT_TITLE}}/g, 'About Me');
     updatedHtml = updatedHtml.replace(/{{ABOUT_DESCRIPTION}}/g, personalStory);
     updatedHtml = updatedHtml.replace(/{{ABOUT_MISSION}}/g, uniqueApproach);
