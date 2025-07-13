@@ -23,104 +23,212 @@ interface VictoriaChat {
   templateUsed?: string;
 }
 
-// Soul Resets template HTML as foundation
-const SOUL_RESETS_TEMPLATE = `
+// Full-bleed hero template using user's personal photos
+const FULL_BLEED_HERO_TEMPLATE = `
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>{{TITLE}} | {{BUSINESS_NAME}}</title>
+    <title>{{USER_NAME}} | {{BUSINESS_TITLE}}</title>
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
+        
         body { 
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-            line-height: 1.6;
-            color: #2c5f5d;
-            background: white;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            background: #0a0a0a;
+            color: white;
         }
-        .hero { 
-            height: 100vh; 
-            background: linear-gradient(rgba(0,0,0,0.3), rgba(0,0,0,0.3)), url('https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=1600') center/cover;
+        
+        /* Full-bleed Hero with User Photo */
+        .hero {
+            height: 100vh;
+            background: linear-gradient(rgba(0,0,0,0.4), rgba(0,0,0,0.4)), url('{{USER_HERO_PHOTO}}') center/cover;
             display: flex;
+            flex-direction: column;
+            justify-content: flex-end;
             align-items: center;
-            justify-content: center;
             text-align: center;
-            color: white;
+            padding: 80px 40px;
+            position: relative;
         }
-        .hero-content { max-width: 800px; padding: 0 2rem; }
-        .hero h1 { 
-            font-family: 'Times New Roman', serif;
-            font-size: 4rem;
-            font-weight: 300;
-            letter-spacing: 0.1em;
-            margin-bottom: 2rem;
-        }
-        .hero p { 
-            font-size: 1.25rem;
-            font-weight: 300;
-            margin-bottom: 3rem;
-            opacity: 0.95;
-        }
-        .cta-button {
-            background: #7ba3a0;
-            color: white;
-            border: none;
-            padding: 1rem 2.5rem;
-            font-size: 1rem;
+        
+        .hero-tagline {
+            font-size: 11px;
+            letter-spacing: 0.4em;
             text-transform: uppercase;
-            letter-spacing: 0.2em;
-            cursor: pointer;
+            color: rgba(255,255,255,0.7);
+            margin-bottom: 24px;
+        }
+        
+        .hero-name {
+            margin-bottom: 40px;
+        }
+        
+        .hero-name-first {
+            font-size: clamp(4rem, 10vw, 9rem);
+            line-height: 1;
+            font-weight: 200;
+            color: white;
+            font-family: 'Times New Roman', serif;
+            letter-spacing: 0.5em;
+            margin-bottom: -10px;
+        }
+        
+        .hero-name-last {
+            font-size: clamp(2.5rem, 6vw, 5rem);
+            line-height: 1;
+            font-weight: 200;
+            color: white;
+            font-family: 'Times New Roman', serif;
+            letter-spacing: 0.3em;
+        }
+        
+        .cta-minimal {
+            display: inline-block;
+            color: white;
+            text-decoration: none;
+            font-size: 12px;
+            letter-spacing: 0.3em;
+            text-transform: uppercase;
+            font-weight: 300;
+            padding-bottom: 8px;
+            border-bottom: 1px solid rgba(255,255,255,0.3);
             transition: all 0.3s ease;
         }
-        .cta-button:hover { background: #5a7c7a; }
-        .section { padding: 5rem 2rem; max-width: 1200px; margin: 0 auto; }
-        .section h2 {
+        
+        .cta-minimal:hover {
+            border-bottom-color: white;
+        }
+        
+        /* About Section with User Photos */
+        .about-section {
+            padding: 120px 40px;
+            background: white;
+            color: #0a0a0a;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 80px;
+            align-items: center;
+        }
+        
+        .about-content h2 {
             font-family: 'Times New Roman', serif;
-            font-size: 2.5rem;
+            font-size: clamp(2.5rem, 5vw, 4rem);
             font-weight: 300;
+            line-height: 1.2;
+            margin-bottom: 32px;
+        }
+        
+        .about-content p {
+            font-size: 18px;
+            line-height: 1.6;
+            margin-bottom: 24px;
+            color: #333;
+        }
+        
+        .about-image {
+            background: url('{{USER_ABOUT_PHOTO}}') center/cover;
+            height: 600px;
+        }
+        
+        /* Services Section with Flatlay */
+        .services-section {
+            padding: 120px 40px;
+            background: #f5f5f5;
+        }
+        
+        .services-grid {
+            max-width: 1200px;
+            margin: 0 auto;
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 60px;
+        }
+        
+        .service-card {
             text-align: center;
-            margin-bottom: 3rem;
-            color: #2c5f5d;
         }
-        .features { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 3rem; }
-        .feature { text-align: center; }
-        .feature h3 {
+        
+        .service-icon {
+            width: 200px;
+            height: 200px;
+            background: url('{{USER_FLATLAY_1}}') center/cover;
+            margin: 0 auto 32px;
+        }
+        
+        .service-card h3 {
             font-family: 'Times New Roman', serif;
-            font-size: 1.5rem;
-            margin-bottom: 1rem;
-            color: #2c5f5d;
+            font-size: 24px;
+            font-weight: 300;
+            margin-bottom: 16px;
+            color: #0a0a0a;
         }
-        .feature p { color: #5a7c7a; }
+        
+        .service-card p {
+            color: #666;
+            line-height: 1.6;
+        }
+        
         @media (max-width: 768px) {
-            .hero h1 { font-size: 2.5rem; }
-            .section { padding: 3rem 1rem; }
+            .container {
+                grid-template-columns: 1fr;
+                gap: 40px;
+            }
+            
+            .services-grid {
+                grid-template-columns: 1fr;
+                gap: 40px;
+            }
+            
+            .hero {
+                padding: 40px 20px;
+            }
         }
     </style>
 </head>
 <body>
     <div class="hero">
-        <div class="hero-content">
-            <h1>{{BUSINESS_NAME}}</h1>
-            <p>{{TAGLINE}}</p>
-            <button class="cta-button">{{CTA_TEXT}}</button>
+        <p class="hero-tagline">{{USER_TAGLINE}}</p>
+        <div class="hero-name">
+            <h1 class="hero-name-first">{{USER_FIRST_NAME}}</h1>
+            <h1 class="hero-name-last">{{USER_LAST_NAME}}</h1>
+        </div>
+        <a href="#about" class="cta-minimal">DISCOVER MY STORY</a>
+    </div>
+    
+    <div class="about-section" id="about">
+        <div class="container">
+            <div class="about-content">
+                <h2>{{ABOUT_TITLE}}</h2>
+                <p>{{ABOUT_DESCRIPTION}}</p>
+                <p>{{ABOUT_MISSION}}</p>
+            </div>
+            <div class="about-image"></div>
         </div>
     </div>
     
-    <div class="section">
-        <h2>{{SECTION_TITLE}}</h2>
-        <div class="features">
-            <div class="feature">
-                <h3>{{FEATURE_1_TITLE}}</h3>
-                <p>{{FEATURE_1_DESC}}</p>
+    <div class="services-section">
+        <div class="services-grid">
+            <div class="service-card">
+                <div class="service-icon"></div>
+                <h3>{{SERVICE_1_TITLE}}</h3>
+                <p>{{SERVICE_1_DESCRIPTION}}</p>
             </div>
-            <div class="feature">
-                <h3>{{FEATURE_2_TITLE}}</h3>
-                <p>{{FEATURE_2_DESC}}</p>
+            <div class="service-card">
+                <div class="service-icon" style="background-image: url('{{USER_FLATLAY_2}}');"></div>
+                <h3>{{SERVICE_2_TITLE}}</h3>
+                <p>{{SERVICE_2_DESCRIPTION}}</p>
             </div>
-            <div class="feature">
-                <h3>{{FEATURE_3_TITLE}}</h3>
-                <p>{{FEATURE_3_DESC}}</p>
+            <div class="service-card">
+                <div class="service-icon" style="background-image: url('{{USER_FLATLAY_3}}');"></div>
+                <h3>{{SERVICE_3_TITLE}}</h3>
+                <p>{{SERVICE_3_DESCRIPTION}}</p>
             </div>
         </div>
     </div>
@@ -132,7 +240,7 @@ export default function VictoriaBuilder() {
   const chatId = new URLSearchParams(location.split('?')[1] || '').get('chat');
   const [currentMessage, setCurrentMessage] = useState('');
   const [isTyping, setIsTyping] = useState(false);
-  const [currentHtml, setCurrentHtml] = useState(SOUL_RESETS_TEMPLATE);
+  const [currentHtml, setCurrentHtml] = useState(FULL_BLEED_HERO_TEMPLATE);
   const [isFullScreen, setIsFullScreen] = useState(false);
   const [currentCss, setCurrentCss] = useState('');
   const { toast } = useToast();
@@ -150,36 +258,42 @@ export default function VictoriaBuilder() {
   const injectUserPhotos = (htmlTemplate: string) => {
     if (!userGallery?.userSelfies?.length) return htmlTemplate;
     
-    // Get mix of user selfies (70-80%) and flatlays (20-30%)
+    // Get mix of user selfies (75%) and flatlays (25%)
     const allSelfies = userGallery.userSelfies || [];
     const allFlatlays = userGallery.flatlayCollections?.flatMap(col => col.images) || [];
     
-    // Calculate photo distribution for landing page
-    const totalPhotos = 6; // Standard landing page photo count
-    const selfieCount = Math.ceil(totalPhotos * 0.75); // 75% selfies
-    const flatlayCount = totalPhotos - selfieCount; // 25% flatlays
+    // Select best user photos
+    const heroPhoto = allSelfies[0]?.url || ''; // Best selfie for hero
+    const aboutPhoto = allSelfies[1]?.url || ''; // Second best for about
+    const flatlay1 = allFlatlays[0] || '';
+    const flatlay2 = allFlatlays[1] || '';
+    const flatlay3 = allFlatlays[2] || '';
     
-    // Select photos - prioritize recent selfies
-    const selectedSelfies = allSelfies.slice(0, selfieCount);
-    const selectedFlatlays = allFlatlays.slice(0, flatlayCount);
-    const allSelectedPhotos = [...selectedSelfies.map(s => s.url), ...selectedFlatlays];
-    
-    // Replace stock photos with user photos
+    // Replace all photo placeholders with user photos
     let updatedHtml = htmlTemplate;
     
-    // Replace hero background image with user's best selfie
-    if (allSelectedPhotos[0]) {
-      updatedHtml = updatedHtml.replace(
-        /url\('https:\/\/images\.unsplash\.com\/[^']+'\)/g,
-        `url('${allSelectedPhotos[0]}')`
-      );
-    }
+    // Replace hero background with user's best selfie
+    updatedHtml = updatedHtml.replace(/{{USER_HERO_PHOTO}}/g, heroPhoto);
+    updatedHtml = updatedHtml.replace(/{{USER_ABOUT_PHOTO}}/g, aboutPhoto);
+    updatedHtml = updatedHtml.replace(/{{USER_FLATLAY_1}}/g, flatlay1);
+    updatedHtml = updatedHtml.replace(/{{USER_FLATLAY_2}}/g, flatlay2);
+    updatedHtml = updatedHtml.replace(/{{USER_FLATLAY_3}}/g, flatlay3);
     
-    // Replace additional placeholder images throughout the template
-    allSelectedPhotos.slice(1).forEach((photo, index) => {
-      const placeholder = `{{USER_PHOTO_${index + 2}}}`;
-      updatedHtml = updatedHtml.replace(placeholder, photo);
-    });
+    // Default placeholders for content
+    updatedHtml = updatedHtml.replace(/{{USER_NAME}}/g, 'Your Name');
+    updatedHtml = updatedHtml.replace(/{{BUSINESS_TITLE}}/g, 'Personal Brand');
+    updatedHtml = updatedHtml.replace(/{{USER_TAGLINE}}/g, 'Building Something Beautiful');
+    updatedHtml = updatedHtml.replace(/{{USER_FIRST_NAME}}/g, 'YOUR');
+    updatedHtml = updatedHtml.replace(/{{USER_LAST_NAME}}/g, 'NAME');
+    updatedHtml = updatedHtml.replace(/{{ABOUT_TITLE}}/g, 'About Me');
+    updatedHtml = updatedHtml.replace(/{{ABOUT_DESCRIPTION}}/g, 'I help ambitious women build their personal brand and launch their dreams.');
+    updatedHtml = updatedHtml.replace(/{{ABOUT_MISSION}}/g, 'My mission is to make personal branding accessible and authentic.');
+    updatedHtml = updatedHtml.replace(/{{SERVICE_1_TITLE}}/g, 'Strategy');
+    updatedHtml = updatedHtml.replace(/{{SERVICE_1_DESCRIPTION}}/g, 'Personal brand strategy and positioning');
+    updatedHtml = updatedHtml.replace(/{{SERVICE_2_TITLE}}/g, 'Content');
+    updatedHtml = updatedHtml.replace(/{{SERVICE_2_DESCRIPTION}}/g, 'Content creation and storytelling');
+    updatedHtml = updatedHtml.replace(/{{SERVICE_3_TITLE}}/g, 'Growth');
+    updatedHtml = updatedHtml.replace(/{{SERVICE_3_DESCRIPTION}}/g, 'Business growth and monetization');
     
     return updatedHtml;
   };
