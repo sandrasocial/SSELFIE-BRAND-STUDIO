@@ -855,7 +855,7 @@ Platform verified to seamlessly handle 1000+ users with individual AI training, 
 **✅ FLUX MODEL SETTINGS - ELEGANT "WOW IS THIS ME" OPTIMIZATION:**
 - **Model Version**: black-forest-labs/flux-dev-lora:a53fd9255ecba80d99eaab4706c698f861fd47b098012607557385416e46aae5
 - **Guidance Scale**: 2.8 (optimal for beautiful but natural enhancement)
-- **LoRA Scale**: 1.0 (full application for strong user likeness)
+- **LoRA Scale**: 0.8 (reduced strength for more natural blending)
 - **Inference Steps**: 32 (quality steps for refined beauty)
 - **Quality Parameters**: output_quality: 100, go_fast: false, output_format: "png"
 - **Aspect Ratio**: 3:4 (portrait optimized for selfies)
@@ -874,7 +874,7 @@ Platform verified to seamlessly handle 1000+ users with individual AI training, 
 2. **Elegant Refinement**: Professional editorial enhancement like high-end magazines
 3. **Natural Beauty**: Maintains user likeness while elevating to best possible version
 4. **Sophisticated Balance**: Editorial quality without crossing into fake/digital territory
-5. **User Recognition**: Strong LoRA application ensures "WOW is this me" reaction
+5. **User Recognition**: Balanced LoRA strength (0.8) ensures natural "WOW is this me" reaction
 
 **✅ DOUBLE COVERAGE SYSTEM:**
 1. **Manual Specifications**: Professional camera equipment in 95%+ of handcrafted prompts

@@ -99,7 +99,7 @@ export async function generateImages(request: GenerateImagesRequest): Promise<Ge
       negative_prompt: negativePrompt,  // Balanced enhancement without fake plastic
       guidance: 2.8,              // Optimal guidance for beautiful but natural results
       lora_weights: `sandrasocial/${userModel.modelName}`, // User's trained LoRA weights
-      lora_scale: 1.0,           // Full LoRA application for strong likeness
+      lora_scale: 0.8,           // Reduced LoRA strength for more natural blending
       num_inference_steps: 32,    // Quality steps for refined beauty
       num_outputs: 3,            // Generate 3 focused images
       aspect_ratio: "3:4",        // Portrait ratio better for selfies
