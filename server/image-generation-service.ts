@@ -73,19 +73,19 @@ export async function generateImages(request: GenerateImagesRequest): Promise<Ge
       finalPrompt = `${finalPrompt}, ${randomCameraSpec}`;
     }
     
-    // Build input with optimal FLUX LoRA settings for amazing photos
+    // Build input with correct FLUX LoRA parameters per schema
     const input: any = {
       prompt: finalPrompt,
       guidance: 3.5,              // Guidance for black-forest-labs/flux-dev-lora
       lora_weights: `sandrasocial/${userModel.modelName}`, // User's trained LoRA weights
-      lora_scale: 1.0,           // Full LoRA application
-      num_inference_steps: 32,    // Higher steps for better quality
-      output_quality: 100,        // Maximum quality
+      lora_scale: 1.0,           // Full LoRA application (0-1 range)
+      num_inference_steps: 32,    // 28-50 recommended range
+      num_outputs: 3,            // Generate 3 focused images
       aspect_ratio: "3:4",        // Portrait ratio better for selfies
       output_format: "png",       // PNG for highest quality
+      output_quality: 100,        // Maximum quality (0-100)
+      megapixels: "1",           // Approximate megapixels
       go_fast: false,             // Quality over speed
-      megapixels: "1",           // Good balance of quality/speed
-      num_outputs: 3,            // Generate 3 focused images
       disable_safety_checker: false
     };
     
