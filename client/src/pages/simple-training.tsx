@@ -18,11 +18,11 @@ export default function SimpleTraining() {
   const [estimatedTimeRemaining, setEstimatedTimeRemaining] = useState<string>('');
   const fileInputRef = useRef<HTMLInputElement>(null);
 
-  // Check if user already has a model
+  // TEMPORARY: Check user model without authentication requirement 
   const { data: userModel, refetch: refetchUserModel } = useQuery({
     queryKey: ['/api/user-model'],
     retry: false,
-    enabled: isAuthenticated
+    enabled: true // Always enabled for testing
   });
 
   // State for retraining mode
