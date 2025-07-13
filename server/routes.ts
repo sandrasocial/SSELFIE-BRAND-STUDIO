@@ -48,7 +48,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       }
 
       // Get user info for personalized responses
-      const userId = req.user?.claims?.sub || 'sandra_test_user_2025';
+      const userId = req.user?.claims?.sub || 'anonymous_user';
       const user = await storage.getUser(userId);
       const userModel = await storage.getUserModel(userId);
       const triggerWord = userModel?.triggerWord || 'subject';
@@ -121,74 +121,11 @@ I have ALL collections ready - just tell me your mood! ✨`;
     }
   });
 
-  // Simple login endpoint - always use Sandra's consistent test user
-  app.get('/api/login', (req: any, res) => {
-    // Always use the same test user for consistent training
-    const testUser = {
-      userId: "sandra_test_user_2025",
-      userEmail: "sandra@sselfie.ai",
-      firstName: "Sandra",
-      lastName: "Test"
-    };
+  // REMOVED DANGEROUS TEST LOGIN - Replit Auth only
 
-    req.session.userId = testUser.userId;
-    req.session.userEmail = testUser.userEmail;
-    req.session.firstName = testUser.firstName;
-    req.session.lastName = testUser.lastName;
-    req.session.createdAt = new Date().toISOString();
-    
-    console.log(`Login: Created consistent user session:`, testUser.userId);
-    res.redirect('/workspace');
-  });
+  // REMOVED TEST LOGOUT - Replit Auth handles logout at /api/logout
 
-  // Enhanced logout endpoints for testing
-  app.get('/api/logout', (req: any, res) => {
-    // Clear the test user session
-    if (req.session) {
-      console.log('Logout: Destroying session for user:', req.session.userId);
-      req.session.destroy((err: any) => {
-        if (err) {
-          console.error('Session destruction error:', err);
-        }
-        // Clear the cookie completely
-        res.clearCookie('connect.sid', {
-          path: '/',
-          httpOnly: true,
-          secure: false
-        });
-        res.redirect('/');
-      });
-    } else {
-      res.redirect('/');
-    }
-  });
-
-  // API endpoint for clearing session (for testing)
-  app.post('/api/clear-session', (req: any, res) => {
-    console.log('Clear session request received');
-    
-    if (req.session) {
-      req.session.destroy((err: any) => {
-        if (err) {
-          console.error('Session clear error:', err);
-          return res.status(500).json({ message: 'Session clear failed' });
-        }
-        
-        // Clear the session cookie completely
-        res.clearCookie('connect.sid', {
-          path: '/',
-          httpOnly: true,
-          secure: false,
-          sameSite: 'lax'
-        });
-        
-        console.log('Session cleared successfully');
-        res.json({ message: 'Session cleared - you can now test as a new user' });
-      });
-    } else {
-      res.json({ message: 'No session to clear' });
-    }
-  });
+  // REMOVED DANGEROUS SESSION CLEAR - Security vulnerability
 
   // Health check endpoint to verify API is working
   app.get('/api/health', (req, res) => {
@@ -301,9 +238,9 @@ I have ALL collections ready - just tell me your mood! ✨`;
   });
 
   // Get user's inspiration photos
-  app.get('/api/inspiration-photos', async (req, res) => {
+  app.get('/api/inspiration-photos', isAuthenticated, async (req: any, res) => {
     try {
-      const userId = req.user?.claims?.sub || req.session?.userId || 'sandra_test_user_2025';
+      const userId = req.user.claims.sub;
       const photos = await storage.getInspirationPhotos(userId);
       res.json(photos);
     } catch (error) {
@@ -327,10 +264,10 @@ I have ALL collections ready - just tell me your mood! ✨`;
   });
 
   // Plan setup endpoint - called after checkout
-  app.post('/api/setup-plan', async (req: any, res) => {
+  app.post('/api/setup-plan', isAuthenticated, async (req: any, res) => {
     try {
       const { plan } = req.body; // 'sselfie-studio' or 'sselfie-studio-pro'
-      const userId = req.session?.userId || req.user?.claims?.sub || 'sandra_test_user_2025';
+      const userId = req.user.claims.sub;
       
       console.log(`Setting up plan ${plan} for user ${userId}`);
       
@@ -378,11 +315,11 @@ I have ALL collections ready - just tell me your mood! ✨`;
     }
   });
 
-  // Maya AI Chat endpoint
-  app.post('/api/maya-chat', async (req: any, res) => {
+  // Maya AI Chat endpoint  
+  app.post('/api/maya-chat', isAuthenticated, async (req: any, res) => {
     try {
       const { message, chatHistory } = req.body;
-      const userId = req.session?.userId || req.user?.claims?.sub || 'sandra_test_user_2025';
+      const userId = req.user.claims.sub;
       
       if (!message) {
         return res.status(400).json({ error: 'Message is required' });
@@ -1152,45 +1089,36 @@ Always be encouraging and strategic while providing specific technical guidance.
     }
   });
 
-  // TEMPORARILY DISABLED AUTH SETUP FOR SANDRA AI CHAT TESTING
-  // Try to setup auth, but don't fail if it errors
-  // try {
-  //   await setupAuth(app);
-  // } catch (error) {
-  //   console.log('Auth setup failed, using simple auth for testing:', error.message);
-  // }
+  // CRITICAL: Enable proper Replit Authentication
+  try {
+    await setupAuth(app);
+    console.log('✅ Replit Authentication enabled successfully');
+  } catch (error) {
+    console.error('❌ CRITICAL: Auth setup failed:', error.message);
+    throw new Error('Authentication setup is required for production');
+  }
 
-  // Auth routes - consistent test user with session management
-  app.get('/api/auth/user', async (req: any, res) => {
+  // Auth routes with proper Replit Authentication
+  app.get('/api/auth/user', isAuthenticated, async (req: any, res) => {
     try {
-      // Check if user is in session - if not, they're not "logged in"
-      if (!req.session?.userId) {
-        return res.status(401).json({ message: "Not authenticated" });
+      const userId = req.user.claims.sub;
+      const user = await storage.getUser(userId);
+      
+      if (!user) {
+        return res.status(404).json({ message: 'User not found' });
       }
-
-      // Return consistent test user from session
-      const testUser = {
-        id: req.session.userId,
-        email: req.session.userEmail || "testuser@example.com",
-        firstName: req.session.firstName || "Test",
-        lastName: req.session.lastName || "User", 
-        profileImageUrl: null,
-        stripeCustomerId: null,
-        stripeSubscriptionId: null,
-        createdAt: req.session.createdAt || new Date().toISOString(),
-        updatedAt: new Date().toISOString()
-      };
-      res.json(testUser);
+      
+      res.json(user);
     } catch (error) {
-      console.error("Error fetching authenticated user:", error);
-      res.status(500).json({ message: "Failed to fetch user" });
+      console.error('Error fetching user:', error);
+      res.status(500).json({ message: 'Failed to fetch user' });
     }
   });
 
-  // User profile routes - simplified for immediate launch
-  app.get('/api/profile', async (req: any, res) => {
+  // User profile routes - protected with authentication
+  app.get('/api/profile', isAuthenticated, async (req: any, res) => {
     try {
-      const userId = req.session?.userId || req.user?.claims?.sub || 'sandra_test_user_2025';
+      const userId = req.user.claims.sub;
       const profile = await storage.getUserProfile(userId);
       res.json(profile || {});
     } catch (error) {
@@ -1199,9 +1127,9 @@ Always be encouraging and strategic while providing specific technical guidance.
     }
   });
 
-  app.put('/api/profile', async (req: any, res) => {
+  app.put('/api/profile', isAuthenticated, async (req: any, res) => {
     try {
-      const userId = req.session?.userId || req.user?.claims?.sub || 'sandra_test_user_2025';
+      const userId = req.user.claims.sub;
       const profileData = { ...req.body, userId };
       const profile = await storage.upsertUserProfile(profileData);
       res.json(profile);
@@ -1212,7 +1140,7 @@ Always be encouraging and strategic while providing specific technical guidance.
   });
 
   // Project routes
-  app.get('/api/projects', async (req: any, res) => {
+  app.get('/api/projects', isAuthenticated, async (req: any, res) => {
     try {
       const userId = req.user.claims.sub;
       const projects = await storage.getUserProjects(userId);
