@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { Link, useLocation } from 'wouter';
 import { useToast } from '@/hooks/use-toast';
@@ -68,6 +68,32 @@ export default function BrandOnboarding() {
     queryKey: ['/api/brand-onboarding'],
     retry: false,
   });
+
+  // Load existing data into form when available
+  useEffect(() => {
+    if (existingData && !isLoading) {
+      setFormData({
+        businessName: existingData.businessName || '',
+        tagline: existingData.tagline || '',
+        personalStory: existingData.personalStory || '',
+        whyStarted: existingData.whyStarted || '',
+        targetClient: existingData.targetClient || '',
+        problemYouSolve: existingData.problemYouSolve || '',
+        uniqueApproach: existingData.uniqueApproach || '',
+        primaryOffer: existingData.primaryOffer || '',
+        primaryOfferPrice: existingData.primaryOfferPrice || '',
+        secondaryOffer: existingData.secondaryOffer || '',
+        secondaryOfferPrice: existingData.secondaryOfferPrice || '',
+        freeResource: existingData.freeResource || '',
+        instagramHandle: existingData.instagramHandle || '',
+        websiteUrl: existingData.websiteUrl || '',
+        email: existingData.email || '',
+        location: existingData.location || '',
+        brandPersonality: existingData.brandPersonality || '',
+        brandValues: existingData.brandValues || ''
+      });
+    }
+  }, [existingData, isLoading]);
 
   // Save brand onboarding mutation
   const saveBrandDataMutation = useMutation({
