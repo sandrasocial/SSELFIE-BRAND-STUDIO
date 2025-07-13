@@ -3,14 +3,13 @@ import { UsageService, API_COSTS } from './usage-service';
 
 // FLUX model configuration for SSELFIE generation
 const FLUX_MODEL_CONFIG = {
-  // Sandra's high-quality trained model (updated to newer model)
-  sandraModelId: 'sandrasocial/sandra_test_user_2025-selfie-lora',
-  sandraTriggerWord: 'usersandra_test_user_2025',
-  sandraUserId: '42585527', // Sandra's user ID
-  sandraVersionId: 'a53fd9255ecba80d99eaab4706c698f861fd47b098012607557385416e46aae5',
-  // For other users: individual trained models
-  demoModelId: 'sandrasocial/sseelfie-ai', // Fallback while user models train
-  demoTriggerWord: 'subject',
+  // REMOVED: Default Sandra model - users must use their own trained models
+  // sandraModelId: 'sandrasocial/sandra_test_user_2025-selfie-lora', // REMOVED
+  // sandraTriggerWord: 'usersandra_test_user_2025', // REMOVED
+  // sandraUserId: '42585527', // REMOVED  
+  // sandraVersionId: 'a53fd9255ecba80d99eaab4706c698f861fd47b098012607557385416e46aae5', // REMOVED
+  // demoModelId: 'sandrasocial/sseelfie-ai', // REMOVED - no fallbacks
+  // demoTriggerWord: 'subject', // REMOVED - no fallbacks
   apiUrl: 'https://api.replicate.com/v1/predictions',
   styles: {
     editorial: 'luxury editorial magazine style, high-end fashion photography, designer clothing, sophisticated styling, elegant feminine outfits, Milan street style inspiration',

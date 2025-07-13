@@ -463,11 +463,15 @@ Your goal is to have a natural conversation, understand their vision deeply, and
     }
   });
 
-  // Maya AI Image Generation endpoint
+  // Maya AI Image Generation endpoint - AUTHENTICATION REQUIRED
   app.post('/api/maya-generate-images', async (req: any, res) => {
     try {
       const { customPrompt } = req.body;
-      const userId = req.session?.userId || req.user?.claims?.sub || 'sandra_test_user_2025';
+      const userId = req.user?.claims?.sub;
+      
+      if (!userId) {
+        return res.status(401).json({ error: 'Authentication required for image generation' });
+      }
       
       if (!customPrompt) {
         return res.status(400).json({ error: 'Custom prompt is required' });
@@ -481,7 +485,7 @@ Your goal is to have a natural conversation, understand their vision deeply, and
 
       console.log(`Maya generating images for user ${userId} with prompt: ${customPrompt}`);
 
-      // Use existing image generation service
+      // FIXED: Use existing image generation service with proper user validation
       const imageGenerationService = await import('./image-generation-service');
       const result = await imageGenerationService.generateImages({
         userId,
@@ -1407,6 +1411,54 @@ Always be encouraging and strategic while providing specific technical guidance.
       res.sendFile(filePath);
     } else {
       res.status(404).json({ error: 'Training ZIP file not found' });
+    }
+  });
+
+  // TESTING: Verify user model isolation - check if users get their own models
+  app.get('/api/test-user-model-isolation', async (req: any, res) => {
+    try {
+      console.log('🔧 TESTING: Checking if users get their own models vs founder model');
+      
+      // Get all training models
+      const trainingModels = await db.select().from(userModels).where(eq(userModels.trainingStatus, 'training'));
+      
+      const results = [];
+      for (const model of trainingModels) {
+        const isFounderModel = model.userId === 'sandra_test_user_2025' || 
+                              model.modelName?.includes('sandra_test_user_2025') ||
+                              model.triggerWord?.includes('sandra_test_user_2025');
+        
+        results.push({
+          userId: model.userId,
+          modelName: model.modelName,
+          triggerWord: model.triggerWord,
+          replicateModelId: model.replicateModelId,
+          isFounderModel,
+          expectedLoRA: `sandrasocial/${model.modelName}`,
+          status: model.trainingStatus,
+          createdAt: model.createdAt
+        });
+      }
+      
+      // Check for founder model contamination
+      const founderContamination = results.filter(r => r.isFounderModel);
+      const uniqueUserModels = results.filter(r => !r.isFounderModel);
+      
+      res.json({
+        success: true,
+        totalModels: results.length,
+        founderContamination: founderContamination.length,
+        uniqueUserModels: uniqueUserModels.length,
+        results,
+        analysis: {
+          issue: founderContamination.length > 0 ? 'FOUNDER MODEL CONTAMINATION DETECTED' : 'USER MODEL ISOLATION WORKING',
+          solution: 'Each user should have unique model name and trigger word',
+          fixApplied: 'Updated image generation to use userModel.modelName from database'
+        }
+      });
+    } catch (error) {
+      console.error('🔧 TEST: Error:', error);
+      res.status(500).json({ error: error.message });
     }
   });
 
@@ -3127,11 +3179,14 @@ Consider this workflow optimized and ready for implementation! ⚙️`
     }
   });
 
-  // AI Image Generation with Custom Prompts and Session Persistence
+  // AI Image Generation with Custom Prompts - AUTHENTICATION REQUIRED
   app.post('/api/generate-images', async (req: any, res) => {
     try {
-      // Session-based user authentication for testing
-      const userId = req.user?.claims?.sub || req.session?.userId || 'sandra_test_user_2025';
+      const userId = req.user?.claims?.sub;
+      
+      if (!userId) {
+        return res.status(401).json({ error: 'Authentication required for image generation' });
+      }
       const { prompt, count = 3 } = req.body;
       
       if (!prompt) {
