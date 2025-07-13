@@ -238,7 +238,7 @@ export const brandOnboarding = pgTable("brand_onboarding", {
   userId: varchar("user_id").references(() => users.id).notNull().unique(), // One per user
   // Personal Brand Story
   businessName: varchar("business_name").notNull(),
-  tagline: varchar("tagline").notNull(),
+  tagline: text("tagline").notNull(),
   personalStory: text("personal_story").notNull(),
   whyStarted: text("why_started"),
   // Target Client & Positioning
@@ -250,7 +250,7 @@ export const brandOnboarding = pgTable("brand_onboarding", {
   primaryOfferPrice: varchar("primary_offer_price").notNull(),
   secondaryOffer: varchar("secondary_offer"),
   secondaryOfferPrice: varchar("secondary_offer_price"),
-  freeResource: varchar("free_resource"),
+  freeResource: text("free_resource"),
   // Contact & Links
   instagramHandle: varchar("instagram_handle"),
   websiteUrl: varchar("website_url"),
@@ -306,6 +306,8 @@ export const userProfiles = pgTable("user_profiles", {
 const insertUserProfileSchema = createInsertSchema(userProfiles).omit({ id: true, createdAt: true, updatedAt: true });
 
 export type UserProfile = typeof userProfiles.$inferSelect;
+export type InsertBrandOnboarding = z.infer<typeof insertBrandOnboardingSchema>;
+export type BrandOnboarding = typeof brandOnboarding.$inferSelect;
 export type InsertUserProfile = z.infer<typeof insertUserProfileSchema>;
 export type InsertProject = z.infer<typeof insertProjectSchema>;
 export type Project = typeof projects.$inferSelect;
