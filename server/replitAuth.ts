@@ -97,19 +97,35 @@ export async function setupAuth(app: Express) {
     );
     passport.use(strategy);
   }
+  
+  // Add localhost strategy for development
+  const devStrategy = new Strategy(
+    {
+      name: `replitauth:localhost`,
+      config,
+      scope: "openid email profile offline_access", 
+      callbackURL: `http://localhost:5000/api/callback`,
+    },
+    verify,
+  );
+  passport.use(devStrategy);
 
   passport.serializeUser((user: Express.User, cb) => cb(null, user));
   passport.deserializeUser((user: Express.User, cb) => cb(null, user));
 
   app.get("/api/login", (req, res, next) => {
-    passport.authenticate(`replitauth:${req.hostname}`, {
+    const hostname = req.hostname === 'localhost' ? 'localhost' : req.hostname;
+    console.log(`🔍 Login attempt for hostname: ${hostname}`);
+    passport.authenticate(`replitauth:${hostname}`, {
       prompt: "login consent",
       scope: ["openid", "email", "profile", "offline_access"],
     })(req, res, next);
   });
 
   app.get("/api/callback", (req, res, next) => {
-    passport.authenticate(`replitauth:${req.hostname}`, {
+    const hostname = req.hostname === 'localhost' ? 'localhost' : req.hostname;
+    console.log(`🔍 Auth callback for hostname: ${hostname}`);
+    passport.authenticate(`replitauth:${hostname}`, {
       successReturnToOrRedirect: "/auth-success",
       failureRedirect: "/api/login",
     })(req, res, next);
@@ -130,7 +146,15 @@ export async function setupAuth(app: Express) {
 export const isAuthenticated: RequestHandler = async (req, res, next) => {
   const user = req.user as any;
 
+  // Debug authentication state
+  console.log('🔍 Auth middleware check:');
+  console.log('- req.isAuthenticated exists:', typeof req.isAuthenticated);
+  console.log('- req.isAuthenticated():', req.isAuthenticated ? req.isAuthenticated() : 'N/A');
+  console.log('- req.user exists:', !!req.user);
+  console.log('- user.expires_at:', user?.expires_at);
+
   if (!req.isAuthenticated || !req.isAuthenticated() || !user?.expires_at) {
+    console.log('❌ Authentication failed - redirecting to login');
     return res.status(401).json({ message: "Unauthorized" });
   }
 

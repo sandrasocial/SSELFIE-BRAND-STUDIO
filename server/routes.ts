@@ -1099,9 +1099,28 @@ Always be encouraging and strategic while providing specific technical guidance.
     throw new Error('Authentication setup is required for production');
   }
 
+  // DEBUGGING: Add a test endpoint to check auth status
+  app.get('/api/debug-auth', async (req: any, res) => {
+    console.log('🔍 Debug auth check:');
+    console.log('- req.isAuthenticated():', req.isAuthenticated ? req.isAuthenticated() : 'function not available');
+    console.log('- req.user exists:', !!req.user);
+    console.log('- req.session exists:', !!req.session);
+    console.log('- Session ID:', req.session?.id);
+    console.log('- User claims:', req.user?.claims);
+    
+    res.json({
+      isAuthenticated: req.isAuthenticated ? req.isAuthenticated() : false,
+      hasUser: !!req.user,
+      hasSession: !!req.session,
+      sessionId: req.session?.id,
+      userClaims: req.user?.claims || null
+    });
+  });
+
   // Auth routes with proper Replit Authentication
   app.get('/api/auth/user', isAuthenticated, async (req: any, res) => {
     try {
+      console.log('🔍 Auth user endpoint called');
       const userId = req.user.claims.sub;
       const claims = req.user.claims;
       
