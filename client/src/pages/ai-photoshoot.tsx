@@ -23,18 +23,46 @@ const PROMPT_COLLECTIONS = {
         prompt: '[triggerword] woman long dark messy hair, sitting in corner where walls meet, harsh window light creating geometric shadows across face and body, wearing simple black tank, bare walls, shot on Leica M11 Monochrom with 50mm Noctilux f/0.95, high contrast shadows, raw photo, exhausted expression, visible skin imperfections, heavy grain, unretouched raw emotion, documentary style'
       },
       {
-        id: 'sunset-contemplation',
-        name: 'Sunset Contemplation',
-        category: 'Ocean Healing',
-        description: "That golden hour magic where you're just... peaceful. Beach vibes, flowing dress, looking toward your future.",
-        prompt: '[triggerword] woman sitting on beach at golden hour, voluminous hair flowing beautifully in ocean breeze with natural body and movement, white linen midi dress with subtle texture, looking at horizon, beach and ocean environment visible, warm sunset glow on skin, peaceful expression, mindfulness moment, shot on Canon EOS R5 with 85mm f/1.2L lens, dramatic golden hour backlighting, coastal healing aesthetic, heavy 35mm film grain, matte textured skin, soft skin retouch, authentic grain pattern, visible pores and natural texture, gentle facial refinement, editorial skin enhancement. Negative: shiny skin, glossy skin, fake skin, plastic-looking skin, over-processed skin, close-up portrait, headshot, tight crop'
+        id: 'bathroom-floor-truth',
+        name: 'Bathroom Floor Truth', 
+        category: 'Raw Moments',
+        description: "Sitting on bathroom floor against bathtub, single overhead light creating harsh downward shadows.",
+        prompt: '[triggerword] woman long dark wet hair, sitting on bathroom floor against bathtub, wearing oversized black t-shirt, single overhead light creating harsh downward shadows, shot on Canon 5D Mark IV with 35mm f/1.4, bathroom tiles visible, raw photo, makeup smeared, real skin texture, heavy grain, unretouched rock bottom moment'
       },
       {
-        id: 'wave-surrender',
-        name: 'Wave Surrender',
-        category: 'Ocean Healing',
-        description: "The ultimate letting go shot. You're in the waves, dress flowing, completely surrendering to the healing power of water.",
-        prompt: '[triggerword] woman in ocean waves, voluminous hair wild with salt water showing natural body and movement, white silk slip dress getting wet, arms spread in surrender, sunset backlighting, letting go moment, shot on Leica SL2 with 90mm APO-Summicron lens, dramatic sunset ocean lighting, therapeutic ocean photography, healing journey, heavy 35mm film grain, matte textured skin, soft skin retouch, raw film negative quality, visible grain structure and natural pores, gentle facial refinement, editorial skin enhancement. Negative: shiny skin, glossy skin, fake skin, plastic-looking skin, over-processed skin'
+        id: 'window-silhouette-pain',
+        name: 'Window Silhouette Pain',
+        category: 'Raw Moments', 
+        description: "Standing against bright window becoming silhouette, body language showing defeat.",
+        prompt: '[triggerword] woman long dark hair backlit, standing against bright window becoming silhouette, wearing black slip, body language showing defeat, shot on Fujifilm X-Pro3 with 35mm f/1.4, extreme backlighting, raw photo, figure in shadow, emotional posture, film grain, unretouched isolation'
+      },
+      {
+        id: 'kitchen-floor-3am',
+        name: 'Kitchen Floor 3AM',
+        category: 'Raw Moments',
+        description: "Sitting on kitchen floor in refrigerator light only, holding coffee mug.",
+        prompt: '[triggerword] woman long dark tangled hair, sitting on kitchen floor in refrigerator light only, wearing black robe fallen open, holding coffee mug, shot on Sony A7S III with 24mm f/1.4, only fridge light source, raw photo, insomnia visible on face, natural tired skin, heavy grain, unretouched sleepless reality'
+      },
+      {
+        id: 'mirror-fragmentation', 
+        name: 'Mirror Fragmentation',
+        category: 'Raw Moments',
+        description: "Looking at broken mirror reflection, multiple fractured reflections.",
+        prompt: '[triggerword] woman long dark hair covering partial face, looking at broken mirror reflection, wearing black camisole, multiple fractured reflections, shot on Pentax 645Z with 75mm f/2.8, single bare bulb lighting, raw photo, distorted self-image, real skin in harsh light, grain, unretouched identity crisis'
+      },
+      {
+        id: 'iphone-mirror-selfie',
+        name: 'iPhone Mirror Selfie',
+        category: 'Modern Portraits',
+        description: "Taking mirror selfie with iPhone, luxury marble bathroom setting.",
+        prompt: '[triggerword] woman long dark hair, taking mirror selfie with iPhone 15 Pro Max, wearing black slip dress, luxury marble bathroom, ring light reflection visible in mirror, shot on Hasselblad H6D-100c with 50mm lens f/2.8, ambient bathroom lighting, raw photo, natural skin in mirror reflection, film grain, unretouched authentic moment, lifestyle editorial'
+      },
+      {
+        id: 'iphone-half-face-cover',
+        name: 'iPhone Half Face Cover',
+        category: 'Modern Portraits',
+        description: "Holding iPhone covering left half of face, only right eye visible with intense gaze.",
+        prompt: '[triggerword] woman long dark hair flowing, holding iPhone 15 Pro Max covering left half of face, only right eye visible with intense gaze, wearing black silk top, white studio backdrop, shot on Canon 5DS R with 85mm f/1.2L lens, soft beauty lighting, raw photo, visible skin pores on exposed face, film grain, unretouched natural skin texture, subsurface scattering, modern portrait photography'
       },
       {
         id: 'beach-meditation',
@@ -73,78 +101,127 @@ const PROMPT_COLLECTIONS = {
       }
     ]
   },
-  'effortless-chic': {
-    id: 'effortless-chic',
-    name: 'Effortless Chic',
-    description: 'Authentic off-duty moments - imperfect hair, real expressions, actual living',
+  'magazine-covers': {
+    id: 'magazine-covers',
+    name: 'Magazine Cover Editorial',
+    description: 'High-fashion editorial portraits with magazine quality',
     preview: SandraImages.portraits.professional[1],
     prompts: [
       {
-        id: 'morning-coffee-bed',
-        name: 'Morning Coffee in Bed',
-        category: 'Real Mornings',
-        description: "That real morning moment - messy hair, oversized tee, coffee in bed, actually tired but beautiful.",
-        prompt: '[triggerword] woman sitting cross-legged in unmade bed holding coffee mug, voluminous hair messy from sleep with natural body and movement, oversized vintage band t-shirt, bare legs, natural morning light streaming through window, authentic tired but content expression, shot on Fujifilm X100VI with 23mm lens, soft golden morning lighting, documentary lifestyle style, heavy 35mm film grain, matte textured skin, soft skin retouch, visible pores and natural texture, real life captured, authentic beauty. Negative: shiny skin, glossy skin, fake skin, plastic-looking skin, over-processed skin'
+        id: 'vogue-transformative-strength',
+        name: 'VOGUE Transformative Strength',
+        category: 'Magazine Covers',
+        description: "Hair swept over one shoulder, direct powerful gaze, wearing black off-shoulder blazer.",
+        prompt: '[triggerword] woman long dark hair swept over one shoulder, direct powerful gaze at camera, wearing black off-shoulder blazer, minimal gold jewelry, pure white backdrop, shot on Hasselblad H6D-100c with 80mm lens f/2.8, beauty dish with fill light, raw photo, visible skin pores, film grain, unretouched natural skin texture, subsurface scattering, transformative strength editorial portrait'
       },
       {
-        id: 'laundromat-waiting',
-        name: 'Laundromat Chronicles',
-        category: 'Real Life Moments',
-        description: "Waiting for laundry to finish, scrolling phone, hair in a messy topknot - real life but make it cinematic.",
-        prompt: '[triggerword] woman sitting in laundromat chair looking at phone, voluminous hair in imperfect messy bun with pieces falling out, wearing oversized hoodie and leggings, laundry baskets and washing machines visible, fluorescent lighting mixed with natural light, candid moment, shot on Canon EOS R6 with 35mm f/1.8 lens, documentary street photography, heavy 35mm film grain, matte textured skin, soft skin retouch, visible pores and authentic texture, real mundane beauty, unposed lifestyle. Negative: shiny skin, glossy skin, fake skin, plastic-looking skin, over-processed skin'
+        id: 'elle-confidence-rebirth',
+        name: 'ELLE Confidence Rebirth',
+        category: 'Magazine Covers',
+        description: "Natural waves, slight smile knowing expression, wearing simple black silk camisole.",
+        prompt: '[triggerword] woman long dark hair natural waves, slight smile knowing expression, wearing simple black silk camisole, no excessive jewelry, soft gray seamless background, shot on Canon 5DS R with 85mm f/1.2L lens, window light with silver reflector, raw photo, authentic skin texture, film grain, unretouched beauty, subsurface scattering, quiet confidence portrait'
       },
       {
-        id: 'grocery-run-reality',
-        name: 'Sunday Grocery Run',
-        category: 'Authentic Errands',
-        description: "Running errands but looking effortlessly put together - hair thrown up, comfortable clothes, real life energy.",
-        prompt: '[triggerword] woman pushing shopping cart in grocery store, voluminous hair in quick messy bun secured with hair tie, wearing comfortable linen button-down and jeans, holding shopping list, full scene with grocery store environment visible, natural fluorescent store lighting, genuine concentrated expression reading labels, shot on iPhone 15 Pro with wide lens, candid lifestyle photography, heavy 35mm film grain, matte textured skin, soft skin retouch, visible pores and natural texture, real errands aesthetic, authentic daily life. Negative: shiny skin, glossy skin, fake skin, plastic-looking skin, over-processed skin, close-up portrait, headshot, tight crop, face only'
+        id: 'harpers-bazaar-phoenix',
+        name: "HARPER'S BAZAAR Phoenix",
+        category: 'Magazine Covers',
+        description: "Sleek center part, three-quarter turn strong posture, structured black suit jacket.",
+        prompt: '[triggerword] woman long sleek dark hair center part, three-quarter turn strong posture, wearing structured black suit jacket deep V, layered delicate necklaces, neutral beige backdrop, shot on Phase One XF IQ4 150MP with 110mm lens f/2.8, three-point studio lighting, raw photo, natural skin visible, film grain, unretouched power, magazine cover editorial'
       },
       {
-        id: 'park-bench-call',
-        name: 'Park Bench Phone Call',
-        category: 'Between Moments',
-        description: "Taking an important call in the park, hair blown by wind, gesturing while talking - caught in authentic conversation.",
-        prompt: '[triggerword] woman sitting on park bench talking on phone, voluminous hair moving in natural breeze with authentic movement, wearing casual sweater and jeans, one hand gesturing while speaking, trees and park life blurred in background, natural afternoon lighting, genuine conversation expression, shot on Sony A7 IV with 50mm f/1.4 lens, street photography documentary style, heavy 35mm film grain, matte textured skin, soft skin retouch, visible pores and natural texture, real conversation captured, candid lifestyle. Negative: shiny skin, glossy skin, fake skin, plastic-looking skin, over-processed skin'
+        id: 'marie-claire-survivor',
+        name: 'MARIE CLAIRE Survivor',
+        category: 'Magazine Covers',
+        description: "Tousled hair, looking past camera with determination, wearing black cashmere turtleneck.",
+        prompt: '[triggerword] woman long dark tousled hair, looking past camera with determination, wearing black cashmere turtleneck, single gold ring visible, warm white background, shot on Leica S3 with 70mm Summarit-S f/2.5, soft continuous lighting, raw photo, lived-in skin texture, film grain, unretouched authenticity, emotional strength portrait'
       },
       {
-        id: 'subway-commute',
-        name: 'Subway Commute Vibes',
-        category: 'City Living',
-        description: "Morning commute on the subway, reading or listening to music, that in-between moment of city life.",
-        prompt: '[triggerword] woman sitting in subway train reading book or looking at phone, voluminous hair partially covered by beanie or scarf, wearing layered autumn clothes, other commuters blurred in background, artificial train lighting mixed with tunnel darkness, thoughtful commuter expression, shot on Canon EOS R5 with 85mm f/1.8 lens, urban documentary photography, heavy 35mm film grain, matte textured skin, soft skin retouch, visible pores and authentic texture, real commuter life, authentic city living. Negative: shiny skin, glossy skin, fake skin, plastic-looking skin, over-processed skin'
+        id: 'cosmopolitan-comeback',
+        name: 'COSMOPOLITAN Comeback',
+        category: 'Magazine Covers',
+        description: "Voluminous hair, genuine laugh caught mid-moment, wearing black blazer over lace cami.",
+        prompt: '[triggerword] woman long dark voluminous hair, genuine laugh caught mid-moment, wearing black blazer over lace cami, statement earrings, bright white studio, shot on Sony A1 with 135mm GM lens f/1.8, strobe with softbox, raw photo, expression lines visible, natural skin, film grain, unretouched joy, celebratory editorial'
       },
       {
-        id: 'cooking-at-home',
-        name: 'Sunday Cooking Session',
-        category: 'Home Life',
-        description: "Actually cooking at home, hair up to stay out of face, flour on hands, real domestic goddess energy.",
-        prompt: '[triggerword] woman cooking in kitchen with ingredients scattered on counter, voluminous hair secured in practical messy bun with bobby pins, wearing apron over casual clothes, flour dusted on hands and forearm, natural kitchen lighting from window, concentrated cooking expression, shot on Fujifilm X-T5 with 35mm f/1.4 lens, lifestyle documentary photography, heavy 35mm film grain, matte textured skin, soft skin retouch, visible pores and natural texture, real home cooking, authentic domestic life. Negative: shiny skin, glossy skin, fake skin, plastic-looking skin, over-processed skin'
+        id: 'glamour-rising',
+        name: 'GLAMOUR Rising',
+        category: 'Magazine Covers',
+        description: "Hair one side behind ear, direct confident eye contact, wearing simple black dress.",
+        prompt: '[triggerword] woman long dark hair one side behind ear, direct confident eye contact, wearing simple black dress, delicate gold chain, clean white cyclorama, shot on Nikon Z9 with 105mm f/1.4 lens, beauty lighting setup, raw photo, real skin texture, visible pores, film grain, unretouched natural power, cover portrait'
       },
       {
-        id: 'bookstore-browsing',
-        name: 'Bookstore Discovery',
-        category: 'Quiet Moments',
-        description: "Lost in a bookstore, sitting on floor reading, hair falling in face, completely absorbed in discovery.",
-        prompt: '[triggerword] woman sitting cross-legged on bookstore floor reading open book, voluminous hair falling naturally around face as she reads, wearing comfortable oversized sweater and jeans, bookshelves towering around her, warm bookstore lighting, completely absorbed reading expression, shot on Leica Q2 with 28mm f/1.7 lens, intimate documentary style, heavy 35mm film grain, matte textured skin, soft skin retouch, visible pores and authentic texture, real bookworm moment, authentic discovery. Negative: shiny skin, glossy skin, fake skin, plastic-looking skin, over-processed skin'
+        id: 'instyle-empire',
+        name: 'INSTYLE Empire',
+        category: 'Magazine Covers',
+        description: "Hair in low ponytail, CEO stance facing camera, wearing black power suit.",
+        prompt: '[triggerword] woman long dark hair in low ponytail, CEO stance facing camera, wearing black power suit with white shirt, minimal jewelry, gray paper backdrop, shot on Fujifilm GFX100 II with 110mm f/2 lens, classic portrait lighting, raw photo, professional strength, natural skin detail, film grain, unretouched leadership'
       },
       {
-        id: 'window-rain-watching',
-        name: 'Rainy Day Window',
-        category: 'Contemplative Moments',
-        description: "Watching rain through window, wrapped in blanket, that peaceful melancholy of rainy afternoons.",
-        prompt: '[triggerword] woman sitting by window watching rain, voluminous hair loose and natural with gentle movement, wrapped in soft knit blanket, holding warm tea mug, raindrops on window glass, gray overcast natural lighting, peaceful contemplative expression, shot on Canon R6 Mark II with 50mm f/1.2L lens, intimate lifestyle photography, heavy 35mm film grain, matte textured skin, soft skin retouch, visible pores and natural texture, real rainy day mood, authentic quiet moments. Negative: shiny skin, glossy skin, fake skin, plastic-looking skin, over-processed skin'
+        id: 'tatler-triumph',
+        name: 'TATLER Triumph',
+        category: 'Magazine Covers',
+        description: "Hollywood waves, regal bearing, wearing black velvet blazer, pearl earrings.",
+        prompt: '[triggerword] woman long dark hair Hollywood waves, regal bearing, wearing black velvet blazer, pearl earrings, rich navy backdrop, shot on Pentax 645Z with 90mm f/2.8 lens, Rembrandt lighting, raw photo, mature beauty, skin texture visible, medium format grain, unretouched elegance, luxury survivor portrait'
+      },
+      {
+        id: 'w-magazine-warrior',
+        name: 'W MAGAZINE Warrior',
+        category: 'Magazine Covers',
+        description: "Straight hair, profile showing strength, wearing architectural black top.",
+        prompt: '[triggerword] woman long dark straight hair, profile showing strength, wearing architectural black top, single statement earring, black seamless background, shot on RED Komodo with 85mm cinema lens, dramatic side light, raw photo, skin in harsh light, film grain, unretouched fierce beauty, artistic power portrait'
+      },
+      {
+        id: 'forbes-founder',
+        name: 'FORBES Founder',
+        category: 'Magazine Covers',
+        description: "Professional hair, business portrait angle, wearing black blazer white shirt.",
+        prompt: '[triggerword] woman long dark professional hair, business portrait angle, wearing black blazer white shirt, watch visible, corporate gray backdrop, shot on Canon R5 with 70-200mm f/2.8 at 135mm, corporate headshot lighting, raw photo, approachable CEO energy, natural skin, film grain, unretouched success story'
+      },
+      {
+        id: 'rock-bottom-truth',
+        name: 'Rock Bottom Truth',
+        category: 'Journey Story',
+        description: "Sitting on floor against white wall, wearing oversized black sweater, knees pulled up.",
+        prompt: '[triggerword] woman long dark disheveled hair, sitting on floor against white wall, wearing oversized black sweater, knees pulled up, morning window light creating shadows, shot on Leica Q2 with 28mm Summilux, available light only, raw photo, tired eyes visible, natural exhausted skin, heavy grain, unretouched vulnerability, documentary style'
+      },
+      {
+        id: 'first-brave-selfie',
+        name: 'First Brave Selfie',
+        category: 'Journey Story',
+        description: "Holding phone up taking selfie, wearing simple black t-shirt, bedroom background soft focus.",
+        prompt: '[triggerword] woman long dark messy hair, holding phone up taking selfie, wearing simple black t-shirt, bedroom background soft focus, natural morning light, shot on iPhone 15 Pro portrait mode feel, handheld casual angle, raw photo, no makeup skin texture, authentic moment, film grain, unretouched courage beginning'
+      },
+      {
+        id: 'coffee-and-camera',
+        name: 'Coffee and Camera',
+        category: 'Journey Story',
+        description: "Hair in messy bun, one hand holding coffee other holding phone, wearing black robe.",
+        prompt: '[triggerword] woman long dark hair in messy bun, one hand holding coffee other holding phone, wearing black robe, kitchen counter background, 7am golden hour through window, shot on Canon 5D Mark IV with 35mm f/1.4, lifestyle documentary, raw photo, morning skin no makeup, visible texture, grain, unretouched daily ritual'
+      },
+      {
+        id: 'building-momentum',
+        name: 'Building Momentum',
+        category: 'Journey Story',
+        description: "Hair half up, sitting at laptop with ring light, wearing black tank top.",
+        prompt: '[triggerword] woman long dark hair half up, sitting at laptop with ring light, wearing black tank top, home office setup visible, afternoon natural light, shot on Sony A7R V with 50mm f/1.2, environmental portrait, raw photo, focused expression, real skin, film grain, unretouched work in progress'
       }
     ]
   },
-  'european-luxury': {
-    id: 'european-luxury',
-    name: 'European Street Luxury',
-    description: 'Model-off-duty Paris/Milan expensive girl energy',
+  'street-documentary': {
+    id: 'street-documentary',
+    name: 'Street Documentary Style',
+    description: 'Natural urban moments with film photography aesthetics',
     preview: SandraImages.portraits.professional[0],
     prompts: [
       {
-        id: 'parisian-cafe-exit',
+        id: 'crosswalk-confidence',
+        name: 'Crosswalk Confidence',
+        category: 'Street Power',
+        description: "Crossing street mid-stride, wearing black oversized blazer, hair windswept.",
+        prompt: '[triggerword] woman long dark hair windswept, crossing street mid-stride, wearing black oversized blazer, designer bag, city traffic blurred background, shot on Leica M10 with 35mm Summicron f/2, street photography style, raw photo, natural stride energy, visible skin texture, film grain, unretouched confidence'
+      },
+      {
+        id: 'subway-stairs-power',
         name: 'Parisian Café Exit',
         category: 'Morning Coffee Runs',
         description: "That expensive girl energy. You're stepping out of a cute Parisian café with your morning coffee, looking effortlessly chic.",
@@ -187,204 +264,59 @@ const PROMPT_COLLECTIONS = {
       }
     ]
   },
-  'vulnerability-series': {
-    id: 'vulnerability-series',
-    name: 'The Vulnerability Series',
-    description: 'Raw storytelling, emotional authenticity, transformation narratives',
+  'lifestyle-editorial': {
+    id: 'lifestyle-editorial',
+    name: 'Lifestyle Editorial',
+    description: 'Natural moments with editorial quality and authentic expressions',
     preview: SandraImages.portraits.professional[3],
     prompts: [
       {
-        id: 'silhouette-strength',
-        name: 'Silhouette of Strength',
-        category: 'Raw Moments',
-        description: "Beautiful silhouette by the window. Contemplative, powerful, showing your grace even in quiet moments.",
-        prompt: '[triggerword] woman profile silhouette against bright window, voluminous hair in elegant updo showing graceful neck curve, wrapped in blanket or oversized sweater, contemplative moment, shot on Leica SL2-S with 50mm Summilux lens, f/1.4, black and white photography only, monochrome, no color, heavy 35mm film grain, matte textured skin, soft skin retouch, visible pores and natural texture, natural facial refinement, editorial skin enhancement, visible emotion in posture, raw documentary style. Negative: shiny skin, glossy skin, fake skin, plastic-looking skin, over-processed skin'
+        id: 'surfboard-ocean-mood',
+        name: 'Surfboard Ocean Mood',
+        category: 'Beach Editorial',
+        description: "Holding surfboard on beach, windswept hair, wearing black wetsuit.",
+        prompt: '[triggerword] woman long dark hair windswept, holding surfboard vertical on beach, wearing black wetsuit partially unzipped, ocean waves background, golden hour side lighting, shot on Fujifilm X-T4 with 56mm f/1.2, coastal lifestyle, raw photo, salt-kissed skin texture, film grain, unretouched ocean energy, surf culture editorial'
       },
       {
-        id: 'against-the-wall',
-        name: 'Against the Wall',
-        category: 'Raw Moments',
-        description: "Those overwhelming moments we all have. Forehead against the wall, real emotion, completely authentic.",
-        prompt: '[triggerword] woman leaning forehead against textured wall, eyes closed, voluminous hair falling naturally with beautiful movement, wearing simple knit sweater, exhausted or overwhelmed posture, half body shot with wall texture visible, available light only, black and white intimate photography, monochrome, no color, heavy 35mm film grain, matte textured skin, soft skin retouch, visible pores and natural texture, natural facial refinement, editorial skin enhancement, unguarded moment. Negative: shiny skin, glossy skin, fake skin, plastic-looking skin, over-processed skin, close-up portrait, headshot, tight crop'
+        id: 'morning-garden-ritual',
+        name: 'Morning Garden Ritual',
+        category: 'Home Editorial',
+        description: "Watering plants in garden, wearing white linen dress, natural morning light.",
+        prompt: '[triggerword] woman long dark hair loose, watering plants in garden, wearing white linen dress, barefoot on grass, morning sunlight filtering through leaves, shot on Canon 5D Mark IV with 85mm f/1.4, lifestyle editorial, raw photo, natural skin in dappled light, film grain, unretouched peaceful moment'
       },
       {
-        id: 'morning-truth',
-        name: 'Morning Truth',
-        category: 'Raw Moments',
-        description: "Honest morning beauty. No makeup, real hair, looking directly at the camera with complete authenticity.",
-        prompt: '[triggerword] woman in bed looking directly at camera, no makeup, voluminous hair beautifully spread on pillow with natural body and movement, white sheets, intimate morning portrait in natural light, shot on Canon EOS R5 with 85mm f/1.2L lens, natural morning vulnerability, black and white photography only, monochrome, no color, heavy 35mm film grain, matte textured skin, soft skin retouch, visible pores and natural texture, natural facial refinement, editorial skin enhancement, raw intimate photography, honest beauty. Negative: shiny skin, glossy skin, fake skin, plastic-looking skin, over-processed skin'
+        id: 'balcony-reading-corner',
+        name: 'Balcony Reading Corner',
+        category: 'Home Editorial',
+        description: "Reading book on balcony chair, wearing black turtleneck, city view background.",
+        prompt: '[triggerword] woman long dark hair center part, reading book on balcony chair, wearing black turtleneck, city view background soft focus, afternoon natural light, shot on Leica Q2 with 28mm f/1.7, intimate lifestyle, raw photo, concentrated reading expression, natural skin, film grain, unretouched quiet intensity'
       },
       {
-        id: 'mirror-reflection',
-        name: 'Mirror Reflection',
-        category: 'Journey Portraits',
-        description: "That moment of self-reflection. Looking at yourself in the mirror, questioning, growing, becoming.",
-        prompt: '[triggerword] woman looking at self in bathroom mirror, voluminous hair with natural body and movement, hands on sink, questioning expression, simple clothing, bathroom environment visible, harsh bathroom light, black and white self-confrontation photography, monochrome, no color, heavy 35mm film grain, matte textured skin, soft skin retouch, visible pores and natural texture, natural facial refinement, editorial skin enhancement, raw personal moment. Negative: shiny skin, glossy skin, fake skin, plastic-looking skin, over-processed skin, close-up portrait, headshot, tight crop'
+        id: 'kitchen-midnight-snack',
+        name: 'Kitchen Midnight Snack',
+        category: 'Real Life',
+        description: "Standing in kitchen eating late night snack, wearing oversized shirt, refrigerator light.",
+        prompt: '[triggerword] woman long dark messy hair, standing in kitchen eating late night snack, wearing oversized shirt, refrigerator light only, shot on Sony A7S III with 35mm f/1.4, ambient kitchen lighting, raw photo, casual late night energy, natural tired skin, film grain, unretouched authentic moment'
       },
       {
-        id: 'window-watcher',
-        name: 'Window Watcher',
-        category: 'Journey Portraits',
-        description: "Contemplating life by the window. Coffee in hand, looking toward your future with hope and possibility.",
-        prompt: '[triggerword] woman by window looking out, coffee cup in hands, voluminous messy hair with natural body and beautiful movement, oversized sweater, window and room environment visible, rain or city view outside, black and white melancholic photography, monochrome, no color, heavy 35mm film grain, matte textured skin, soft skin retouch, visible pores and natural texture, natural facial refinement, editorial skin enhancement, waiting or hoping. Negative: shiny skin, glossy skin, fake skin, plastic-looking skin, over-processed skin, close-up portrait, headshot, tight crop'
+        id: 'bookstore-floor-discover',
+        name: 'Bookstore Floor Discovery',
+        category: 'Urban Life',
+        description: "Sitting on bookstore floor reading, surrounded by books, wearing sweater and jeans.",
+        prompt: '[triggerword] woman long dark hair falling forward, sitting on bookstore floor reading, surrounded by books, wearing oversized sweater and jeans, warm bookstore lighting, shot on Canon R6 with 50mm f/1.2, documentary style, raw photo, absorbed in reading, natural skin texture, film grain, unretouched discovery moment'
       },
       {
-        id: 'walking-away',
-        name: 'Walking Away',
-        category: 'Transformation',
-        description: "Powerful transformation shot. Walking away from what was, toward what's next. No looking back.",
-        prompt: '[triggerword] woman walking away from camera down hallway or street, voluminous hair with natural body and movement, purposeful stride, looking forward not back, simple outfit, full body shot with hallway or street environment visible, black and white documentary only, monochrome, no color, heavy 35mm film grain, matte textured skin, soft skin retouch, visible pores and natural texture, natural facial refinement, editorial skin enhancement, leaving the past behind. Negative: shiny skin, glossy skin, fake skin, plastic-looking skin, over-processed skin, close-up portrait, headshot, tight crop'
+        id: 'rainy-window-contemplation',
+        name: 'Rainy Window Contemplation',
+        category: 'Introspective',
+        description: "Looking out rainy window with tea, wearing soft sweater, thoughtful expression.",
+        prompt: '[triggerword] woman long dark hair natural, looking out rainy window with tea, wearing soft sweater, raindrops on glass, gray natural light, shot on Nikon Z6 II with 85mm f/1.8, intimate portrait, raw photo, contemplative mood, visible skin pores, film grain, unretouched melancholy beauty'
       }
-    ]
-  },
-  'studio-beauty': {
-    id: 'studio-beauty',
-    name: 'B&W Studio Beauty',
-    description: 'High-fashion editorial portraits, studio beauty test shots',
-    preview: SandraImages.portraits.professional[1],
-    prompts: [
-      {
-        id: 'vogue-beauty-classic',
-        name: 'Vogue Beauty Classic',
-        category: 'Studio Beauty',
-        description: "Pure editorial magic. Think Vogue beauty pages - clean, stunning, that perfect messy bun situation.",
-        prompt: '[triggerword] woman, voluminous hair in perfectly tousled messy bun with soft face-framing pieces, hair with natural body and movement, minimal makeup with glossy lips, bare shoulders, beauty portrait against seamless gray backdrop, shot on Hasselblad X2D 100C, 90mm lens, single beauty dish lighting, black and white photography only, monochrome, no color, HEAVY 35mm film grain, pronounced grain structure, MATTE textured skin, soft skin retouch, visible skin texture and natural pores, authentic skin imperfections, natural facial refinement, high fashion beauty photography, editorial skin enhancement, raw film negative quality. Negative: shiny skin, glossy skin, fake skin, plastic-looking skin, over-processed skin, smooth skin, perfect skin, airbrushed skin, digital smoothing, skin blur, poreless skin, studio lighting perfection, clean skin, flawless skin'
-      },
-      {
-        id: 'harpers-intimate',
-        name: "Harper's Intimate Portrait",
-        category: 'Studio Beauty',
-        description: "Intimate Harper's Bazaar vibes. Looking over your shoulder, tousled hair, that effortless editorial beauty.",
-        prompt: '[triggerword] woman, voluminous tousled hair with natural body and movement falling beautifully over shoulders, looking over bare shoulder, minimal jewelry, intimate beauty portrait with neutral backdrop, shot on Canon EOS R5, 85mm lens, soft window light from left, black and white editorial only, monochrome, no color, heavy 35mm film grain, matte textured skin, soft skin retouch, visible pores and natural texture, natural facial refinement, editorial skin enhancement, medium format aesthetic. Negative: shiny skin, glossy skin, fake skin, plastic-looking skin, over-processed skin'
-      },
-      {
-        id: 'window-shadow-play',
-        name: 'Window Shadow Play',
-        category: 'Dramatic Lighting',
-        description: "Dramatic light and shadow. Window blinds creating beautiful stripes across your face - pure artistic magic.",
-        prompt: '[triggerword] woman, voluminous hair with natural body and texture, dramatic window blinds creating shadow stripes across face and body, eyes closed in serene expression, black slip dress, artistic close-up with window shadow patterns visible, shot on Leica M11 Monochrom, 90mm lens, natural harsh light, high contrast black and white only, monochrome, no color, heavy 35mm film grain, matte textured skin, soft skin retouch, visible pores and natural texture, natural facial refinement, editorial skin enhancement, visible skin detail in light strips. Negative: shiny skin, glossy skin, fake skin, plastic-looking skin, over-processed skin'
-      },
-      {
-        id: 'hair-toss-energy',
-        name: 'Hair Toss Energy',
-        category: 'Natural Movement',
-        description: "That perfect hair flip moment. Natural movement, genuine expression, pure energy captured.",
-        prompt: '[triggerword] woman, mid hair flip movement with voluminous hair showing natural body and bounce, natural motion blur in hair, black tank top, genuine expression, half body motion shot with studio environment visible, shot on Nikon Z9, 85mm lens, studio strobe to freeze motion, black and white action photography, monochrome, no color, heavy 35mm film grain, matte textured skin, soft skin retouch, visible pores and natural texture, natural facial refinement, editorial skin enhancement, authentic moment captured. Negative: shiny skin, glossy skin, fake skin, plastic-looking skin, over-processed skin, close-up portrait, headshot, tight crop'
-      },
-      {
-        id: 'chair-authority',
-        name: 'Chair Authority',
-        category: 'Editorial Power',
-        description: "Boss lady energy. Sitting backwards on a chair with that direct, powerful gaze that says you mean business.",
-        prompt: '[triggerword] woman sitting backwards on chair, voluminous hair with natural body and movement, arms resting on chair back, black outfit, direct powerful gaze, full scene with chair and studio environment visible, shot on Phase One XF IQ4, 80mm lens, dramatic studio lighting, black and white power photography, monochrome, no color, heavy 35mm film grain, matte textured skin, soft skin retouch, visible pores and natural texture, natural facial refinement, editorial skin enhancement, strong presence, editorial fashion. Negative: shiny skin, glossy skin, fake skin, plastic-looking skin, over-processed skin, close-up portrait, headshot, tight crop'
-      },
-      {
-        id: 'natural-texture-beauty',
-        name: 'Natural Texture Beauty',
-        category: 'Authentic Beauty',
-        description: "Celebrating natural beauty and texture. Real freckles, authentic skin, messy hair - close-up gorgeousness.",
-        prompt: '[triggerword] woman, voluminous hair in tousled messy bun with loose face-framing strands, natural freckles visible, glossy lips slightly parted, close-up beauty shot focusing on natural texture, shot on Phase One XF IQ4 with 80mm lens, ring light, black and white beauty photography, monochrome, no color, HEAVY 35mm film grain, pronounced grain structure, MATTE textured skin, soft skin retouch, visible pores and natural texture, authentic skin imperfections, natural facial refinement, editorial skin enhancement, natural skin texture celebrated, raw film negative quality. Negative: shiny skin, glossy skin, fake skin, plastic-looking skin, over-processed skin, smooth skin, perfect skin, airbrushed skin, digital smoothing, skin blur, poreless skin, studio lighting perfection, clean skin, flawless skin'
-      }
-    ]
-  },
-  'golden-hour': {
-    id: 'golden-hour',
-    name: 'Golden Hour Magic',
-    description: 'Dreamy golden light portraits - sunset fields, warm backlighting, ethereal beauty',
-    preview: SandraImages.portraits.professional[0],
-    prompts: [
-      {
-        id: 'sunset-field-walk',
-        name: 'Sunset Field Walk',
-        category: 'Magic Hour',
-        description: "Walking through fields at golden hour, hair flowing in evening breeze, pure magic light wrapping around you.",
-        prompt: '[triggerword] woman walking through tall grass field at sunset, voluminous hair flowing naturally in warm evening breeze with beautiful movement, wearing flowing white or cream linen dress, golden hour backlighting creating rim light around hair and silhouette, lens flare from low sun, peaceful expression, shot on Canon EOS R5 with 85mm f/1.4L lens, dramatic golden hour lighting, dreamy film aesthetic, heavy 35mm film grain, matte textured skin, soft skin retouch, visible pores and natural texture, ethereal beauty, authentic golden moment. Negative: shiny skin, glossy skin, fake skin, plastic-looking skin, over-processed skin'
-      },
-      {
-        id: 'rooftop-golden-glow',
-        name: 'Rooftop Golden Glow',
-        category: 'Urban Sunset',
-        description: "On a rooftop as the sun sets over the city, hair catching golden light, that perfect dreamy urban moment.",
-        prompt: '[triggerword] woman standing on rooftop at golden hour with city skyline behind, voluminous hair illuminated by warm sunset light with natural movement, wearing simple black or white top, arms relaxed at sides, peaceful expression looking toward sunset, golden rim lighting on hair and skin, shot on Sony A7R V with 50mm f/1.4 lens, dramatic urban sunset lighting, cinematic golden hour mood, heavy 35mm film grain, matte textured skin, soft skin retouch, visible pores and natural texture, urban goddess energy, authentic sunset moment. Negative: shiny skin, glossy skin, fake skin, plastic-looking skin, over-processed skin'
-      },
-      {
-        id: 'beach-sunset-silhouette',
-        name: 'Beach Sunset Silhouette',
-        category: 'Coastal Golden Hour',
-        description: "Beach at sunset, waves and golden light, hair wild from ocean breeze - pure coastal goddess energy.",
-        prompt: '[triggerword] woman standing at beach edge during sunset, voluminous hair wild and flowing from ocean breeze with dramatic movement, wearing flowing white dress or simple top, waves washing around feet, golden sun low on horizon creating dramatic backlighting, silhouette with golden rim light, shot on Fujifilm GFX100S with 63mm f/2.8 lens, epic coastal sunset lighting, romantic beach aesthetic, heavy 35mm film grain, matte textured skin, soft skin retouch, visible pores and natural texture, coastal goddess vibes, authentic ocean sunset. Negative: shiny skin, glossy skin, fake skin, plastic-looking skin, over-processed skin'
-      },
-      {
-        id: 'flower-field-dreams',
-        name: 'Flower Field Dreams',
-        category: 'Natural Beauty',
-        description: "In a wildflower field at golden hour, sitting among flowers, hair catching warm light, pure ethereal beauty.",
-        prompt: '[triggerword] woman sitting in wildflower field at golden hour, voluminous hair with natural body flowing around shoulders, wearing soft white or cream dress, surrounded by colorful wildflowers, golden hour light filtering through, peaceful contemplative expression, shot on Leica SL2 with 90mm APO-Summicron lens, dreamy field lighting with warm glow, romantic nature aesthetic, heavy 35mm film grain, matte textured skin, soft skin retouch, visible pores and natural texture, flower goddess energy, authentic field moment. Negative: shiny skin, glossy skin, fake skin, plastic-looking skin, over-processed skin'
-      },
-      {
-        id: 'golden-window-light',
-        name: 'Golden Window Light',
-        category: 'Indoor Golden Hour',
-        description: "Sitting by window as golden hour light streams in, hair illuminated like a halo, peaceful and dreamy.",
-        prompt: '[triggerword] woman sitting by large window during golden hour, voluminous hair backlit by warm golden window light with ethereal glow, wearing simple white or cream top, light streaming across face and body, peaceful expression looking toward light, dust particles visible in golden rays, shot on Canon R6 Mark II with 50mm f/1.2L lens, magical indoor golden hour lighting, dreamy window light aesthetic, heavy 35mm film grain, matte textured skin, soft skin retouch, visible pores and natural texture, ethereal indoor beauty, authentic golden light moment. Negative: shiny skin, glossy skin, fake skin, plastic-looking skin, over-processed skin'
-      },
-      {
-        id: 'sunset-car-windows',
-        name: 'Sunset Road Trip',
-        category: 'Travel Golden Hour',
-        description: "In car during golden hour road trip, hair flowing from open windows, that dreamy travel moment.",
-        prompt: '[triggerword] woman in passenger seat of car during golden hour, voluminous hair flowing from open windows with natural movement, wearing casual road trip clothes, golden sunset light streaming through windows, peaceful expression looking out at landscape, hand resting on window frame, shot on iPhone 15 Pro with portrait mode, road trip golden hour aesthetic, casual travel beauty, heavy 35mm film grain, matte textured skin, soft skin retouch, visible pores and natural texture, travel goddess vibes, authentic road trip moment. Negative: shiny skin, glossy skin, fake skin, plastic-looking skin, over-processed skin'
-      }
-    ]
-  },
-  'raw-beauty': {
-    id: 'raw-beauty',
-    name: 'Raw Beauty',
-    description: 'Unfiltered authentic moments - natural textures, real emotions, honest beauty',
-    preview: SandraImages.portraits.professional[1],
-    prompts: [
-      {
-        id: 'fresh-from-shower',
-        name: 'Fresh From Shower',
-        category: 'Natural Moments',
-        description: "Just out of the shower, hair damp and natural, skin glowing, wrapped in soft towel - pure authentic beauty.",
-        prompt: '[triggerword] woman just out of shower with damp voluminous hair in natural wet texture with beautiful movement, minimal or no makeup, dewy fresh skin, wrapped in soft white towel, natural bathroom lighting, genuine fresh expression, water droplets on shoulders, shot on Fujifilm X-T5 with 35mm f/1.4 lens, soft natural bathroom light, intimate fresh moment, heavy 35mm film grain, matte textured skin, soft skin retouch, visible pores and natural texture, authentic fresh beauty, honest shower moment. Negative: shiny skin, glossy skin, fake skin, plastic-looking skin, over-processed skin'
-      },
-      {
-        id: 'morning-stretches',
-        name: 'Morning Stretch Ritual',
-        category: 'Authentic Mornings',
-        description: "Natural morning stretching in soft light, hair messy from sleep, body in gentle movement - real morning energy.",
-        prompt: '[triggerword] woman doing gentle morning stretches by window, voluminous hair messy from sleep with natural movement, wearing comfortable oversized t-shirt or tank, arms stretched above head or in yoga pose, natural morning light, authentic tired but peaceful expression, shot on Canon EOS R6 with 35mm f/1.8 lens, soft morning window lighting, intimate morning ritual, heavy 35mm film grain, matte textured skin, soft skin retouch, visible pores and natural texture, authentic morning beauty, real wake-up moment. Negative: shiny skin, glossy skin, fake skin, plastic-looking skin, over-processed skin'
-      },
-      {
-        id: 'laughing-candid',
-        name: 'Genuine Laughter',
-        category: 'Real Emotions',
-        description: "Caught in genuine laughter, hair moving with expression, eyes crinkled with joy - pure authentic happiness.",
-        prompt: '[triggerword] woman in genuine laughter moment, voluminous hair moving naturally with laughter with beautiful bounce, wearing casual comfortable clothes, eyes crinkled with real joy, mouth open in authentic laugh, natural lighting, completely unguarded happy expression, shot on Sony A7 IV with 50mm f/1.4 lens, candid documentary lighting, authentic joy capture, heavy 35mm film grain, matte textured skin, soft skin retouch, visible pores and natural texture, real happiness beauty, honest laughter moment. Negative: shiny skin, glossy skin, fake skin, plastic-looking skin, over-processed skin'
-      },
-      {
-        id: 'wind-blown-natural',
-        name: 'Wind-Blown Natural',
-        category: 'Natural Elements',
-        description: "Hair completely wild from wind, natural unposed moment, authentic connection with the elements.",
-        prompt: '[triggerword] woman with voluminous hair completely wild and wind-blown with dramatic natural movement, wearing simple casual clothes, hair whipping across face, genuine expression dealing with wind, outdoor natural setting, strong natural lighting, authentic unposed moment, shot on Leica Q2 with 28mm f/1.7 lens, dramatic wind photography, raw natural energy, heavy 35mm film grain, matte textured skin, soft skin retouch, visible pores and natural texture, wild natural beauty, authentic wind moment. Negative: shiny skin, glossy skin, fake skin, plastic-looking skin, over-processed skin'
-      },
-      {
-        id: 'tired-but-beautiful',
-        name: 'Tired But Beautiful',
-        category: 'Honest Moments',
-        description: "Those exhausted but beautiful moments - real tiredness but still radiant, authentic human experience.",
-        prompt: '[triggerword] woman looking genuinely tired but beautiful, voluminous hair slightly messy with natural texture and movement, wearing comfortable casual clothes, authentic tired expression with gentle eyes, natural lighting, real exhaustion but peaceful, leaning against wall or sitting, shot on Canon R6 Mark II with 50mm f/1.2L lens, soft natural portrait lighting, honest tired beauty, heavy 35mm film grain, matte textured skin, soft skin retouch, visible pores and natural texture, authentic tiredness beauty, real human moment. Negative: shiny skin, glossy skin, fake skin, plastic-looking skin, over-processed skin'
-      },
-      {
-        id: 'freckles-and-texture',
-        name: 'Freckles & Natural Texture',
-        category: 'Texture Celebration',
-        description: "Close-up celebrating natural skin texture, freckles, real pores - authentic skin beauty in all its glory.",
-        prompt: '[triggerword] woman in close-up portrait showing natural skin texture, voluminous hair with natural body and movement framing face, visible freckles and natural skin texture, minimal or no makeup, natural pores and skin details celebrated, authentic gentle expression, natural lighting, shot on Phase One XF IQ4 with 120mm macro lens, intimate skin texture photography, real texture celebration, heavy 35mm film grain, matte textured skin, soft skin retouch, visible pores and natural texture emphasized, authentic skin beauty, honest texture moment. Negative: shiny skin, glossy skin, fake skin, plastic-looking skin, over-processed skin'
-      }
+
+
+
+
+
     ]
   }
 };
@@ -468,7 +400,7 @@ export default function AIPhotoshootPage() {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
-          prompt: prompt.prompt.replace('[triggerword]', userModel?.triggerWord || 'subject'),
+          prompt: prompt.prompt.replace('[triggerword]', userModel?.triggerWord || ''),
           // Note: userId will be handled by backend authentication
         }),
       });
