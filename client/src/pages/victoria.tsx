@@ -40,10 +40,26 @@ export default function VictoriaLandingPage() {
       category: 'Strategy Session'
     },
     {
+      id: 'photo-selection',
+      title: 'Select Your Brand Photos',
+      description: 'Choose your favorite selfies and style before building your landing page',
+      image: SandraImages.editorial.laptop1,
+      route: '/photo-selection',
+      category: 'Photo Setup'
+    },
+    {
+      id: 'landing-builder',
+      title: 'Build Your Landing Page',
+      description: 'Create your personalized business landing page with live preview',
+      image: SandraImages.journey.success,
+      route: '/victoria-builder',
+      category: 'Page Builder'
+    },
+    {
       id: 'recent-sessions',
       title: 'Recent Strategy Sessions',
       description: 'Continue previous brand strategy discussions',
-      image: SandraImages.editorial.laptop1,
+      image: SandraImages.editorial.aiSuccess,
       route: '/victoria-chat?history=true',
       category: 'Session History'
     },
@@ -51,7 +67,7 @@ export default function VictoriaLandingPage() {
       id: 'brand-profile',
       title: 'Brand Profile & Goals',
       description: 'Update your business goals and target market',
-      image: SandraImages.journey.success,
+      image: SandraImages.hero.homepage,
       route: '/profile?tab=brand',
       category: 'Brand Setup'
     },
@@ -59,7 +75,7 @@ export default function VictoriaLandingPage() {
       id: 'strategy-library',
       title: 'Strategy Resources',
       description: 'Access your custom brand strategy templates',
-      image: SandraImages.editorial.aiSuccess,
+      image: SandraImages.flatlays.planning,
       route: '/strategy-library',
       category: 'Resources'
     }
@@ -132,7 +148,7 @@ export default function VictoriaLandingPage() {
           </div>
 
           {/* Quick Link Cards Grid */}
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-8 lg:gap-12">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 lg:gap-12">
             {quickLinkCards.map((card) => (
               <Link key={card.id} href={card.route}>
                 <div className="bg-white group hover:bg-[#f9f9f9] transition-all duration-300 cursor-pointer">
@@ -164,8 +180,87 @@ export default function VictoriaLandingPage() {
         </div>
       </section>
 
-      {/* Strategy Categories Overview */}
+      {/* Landing Page Builder Workflow */}
       <section className="py-16 sm:py-20 px-4 sm:px-6 md:px-8 bg-white">
+        <div className="max-w-7xl mx-auto">
+          <div className="text-center mb-16">
+            <h2 className="font-times text-[clamp(2rem,6vw,4rem)] leading-[0.9] font-extralight tracking-[-0.02em] text-black mb-8">
+              LANDING PAGE BUILDER
+            </h2>
+            <p className="text-base sm:text-lg font-light text-[#666666] max-w-2xl mx-auto">
+              Complete workflow from photo selection to live landing page creation
+            </p>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-8 lg:gap-12">
+            <Link href="/photo-selection">
+              <div className="group cursor-pointer text-center">
+                <div className="aspect-square overflow-hidden bg-[#f5f5f5] mb-6">
+                  <img 
+                    src={SandraImages.editorial.laptop1}
+                    alt="Photo Selection"
+                    className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                  />
+                </div>
+                <div className="text-[10px] tracking-[0.3em] uppercase text-[#666666] mb-3">
+                  Step 01
+                </div>
+                <h3 className="font-times text-xl sm:text-2xl font-light tracking-[-0.01em] text-black mb-4">
+                  Select Your Photos
+                </h3>
+                <p className="text-sm font-light text-[#666666] leading-relaxed">
+                  Choose from your 119 AI selfies and flatlay collections for your brand
+                </p>
+              </div>
+            </Link>
+
+            <Link href="/victoria-chat">
+              <div className="group cursor-pointer text-center">
+                <div className="aspect-square overflow-hidden bg-[#f5f5f5] mb-6">
+                  <img 
+                    src={SandraImages.hero.pricing}
+                    alt="Victoria Strategy"
+                    className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                  />
+                </div>
+                <div className="text-[10px] tracking-[0.3em] uppercase text-[#666666] mb-3">
+                  Step 02
+                </div>
+                <h3 className="font-times text-xl sm:text-2xl font-light tracking-[-0.01em] text-black mb-4">
+                  Strategy with Victoria
+                </h3>
+                <p className="text-sm font-light text-[#666666] leading-relaxed">
+                  Chat with Victoria AI to refine your brand message and positioning
+                </p>
+              </div>
+            </Link>
+
+            <Link href="/victoria-builder">
+              <div className="group cursor-pointer text-center">
+                <div className="aspect-square overflow-hidden bg-[#f5f5f5] mb-6">
+                  <img 
+                    src={SandraImages.journey.success}
+                    alt="Landing Page Builder"
+                    className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                  />
+                </div>
+                <div className="text-[10px] tracking-[0.3em] uppercase text-[#666666] mb-3">
+                  Step 03
+                </div>
+                <h3 className="font-times text-xl sm:text-2xl font-light tracking-[-0.01em] text-black mb-4">
+                  Build & Launch
+                </h3>
+                <p className="text-sm font-light text-[#666666] leading-relaxed">
+                  Create your landing page with live preview and publish instantly
+                </p>
+              </div>
+            </Link>
+          </div>
+        </div>
+      </section>
+
+      {/* Strategy Categories Overview */}
+      <section className="py-16 sm:py-20 px-4 sm:px-6 md:px-8 bg-[#f5f5f5]">
         <div className="max-w-7xl mx-auto">
           <div className="text-center mb-16">
             <h2 className="font-times text-[clamp(2rem,6vw,4rem)] leading-[0.9] font-extralight tracking-[-0.02em] text-black mb-8">
@@ -203,7 +298,7 @@ export default function VictoriaLandingPage() {
       </section>
 
       {/* Recent Strategy Sessions */}
-      <section className="py-16 sm:py-20 px-4 sm:px-6 md:px-8 bg-[#f5f5f5]">
+      <section className="py-16 sm:py-20 px-4 sm:px-6 md:px-8 bg-white">
         <div className="max-w-4xl mx-auto">
           <div className="text-center mb-12">
             <h2 className="font-times text-[clamp(1.8rem,5vw,3rem)] leading-[0.9] font-extralight tracking-[-0.02em] text-black mb-6">
