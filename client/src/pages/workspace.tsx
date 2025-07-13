@@ -99,13 +99,13 @@ export default function Workspace() {
       image: SandraImages.editorial.thinking
     },
     {
-      id: 'sandra-mentor',
+      id: 'victoria-brand-strategist',
       number: '07',
-      title: 'Sandra Personal Brand Mentor',
-      subtitle: 'AI guidance for your brand journey',
+      title: 'Victoria - Personal Brand Strategist',
+      subtitle: 'AI guidance for your brand strategy',
       status: 'ready',
-      statusText: 'Get Guidance',
-      link: '/sandra-ai',
+      statusText: 'Get Strategy',
+      link: '/victoria',
       image: SandraImages.editorial.laptop2
     },
     {
