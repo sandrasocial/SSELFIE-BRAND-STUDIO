@@ -247,18 +247,35 @@ export default function VictoriaPreview() {
 
   // Update iframe when HTML changes
   useEffect(() => {
+    console.log('=== IFRAME UPDATE DEBUG ===');
+    console.log('previewRef.current:', !!previewRef.current);
+    console.log('currentHtml exists:', !!currentHtml);
+    console.log('currentHtml length:', currentHtml?.length || 0);
+    console.log('brandData exists:', !!brandData);
+    console.log('photoSelections exists:', !!photoSelections);
+    
     if (previewRef.current && currentHtml) {
-      console.log('Updating iframe with HTML length:', currentHtml.length);
-      console.log('Current HTML preview:', currentHtml.substring(0, 200));
+      console.log('Setting iframe srcdoc with HTML:', currentHtml.substring(0, 500) + '...');
       previewRef.current.srcdoc = currentHtml;
+      
+      // Also try setting innerHTML as backup
+      setTimeout(() => {
+        if (previewRef.current?.contentDocument) {
+          console.log('Iframe document available, checking content');
+          const doc = previewRef.current.contentDocument;
+          console.log('Iframe document body:', doc.body?.innerHTML?.substring(0, 200) || 'NO BODY');
+        }
+      }, 100);
     } else {
-      console.log('Preview not ready - missing ref or HTML:', { 
+      console.log('❌ IFRAME NOT READY - Details:', { 
         hasRef: !!previewRef.current, 
         hasHtml: !!currentHtml,
-        htmlLength: currentHtml?.length || 0
+        htmlLength: currentHtml?.length || 0,
+        hasBrandData: !!brandData,
+        hasPhotoSelections: !!photoSelections
       });
     }
-  }, [currentHtml]);
+  }, [currentHtml, brandData, photoSelections]);
 
   return (
     <>
