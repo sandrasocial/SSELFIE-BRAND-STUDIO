@@ -513,7 +513,7 @@ Your goal is to have a natural conversation, understand their vision deeply, and
         category: 'Maya AI',
         subcategory: 'AI Photography', 
         triggerWord: userModel.triggerWord,
-        modelVersion: modelVersion,rsionId,
+        modelVersion: modelVersion,
         customPrompt
       });
 

@@ -191,6 +191,8 @@ export const userModels = pgTable("user_models", {
   id: serial("id").primaryKey(),
   userId: varchar("user_id").references(() => users.id).notNull().unique(), // One model per user
   replicateModelId: varchar("replicate_model_id"),
+  replicateVersionId: varchar("replicate_version_id"), // The actual trained model version to use
+  trainedModelPath: varchar("trained_model_path"), // sandrasocial/{modelName}
   triggerWord: varchar("trigger_word").notNull().unique(),
   trainingStatus: varchar("training_status").default('pending'), // pending, training, completed, failed
   modelName: varchar("model_name"),

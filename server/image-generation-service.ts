@@ -44,17 +44,15 @@ export async function generateImages(request: GenerateImagesRequest): Promise<Ge
     const savedImage = await storage.saveAIImage(aiImageData);
     console.log(`Created AI image record with ID: ${savedImage.id}`);
 
-    // CRITICAL FIX: Use the trained model version for completed training
+    // CRITICAL FIX: Always use the user's trained model, never the base FLUX
     let fluxModelVersion = 'black-forest-labs/flux-dev-lora:a53fd9255ecba80d99eaab4706c698f861fd47b098012607557385416e46aae5';
     
-    // For completed training, use the actual trained model version
+    // For completed training, we MUST get the trained model version from Replicate API
     if (userModel.trainingStatus === 'completed') {
-      // First try to get the version from the training completion
-      if (userModel.replicateVersionId) {
-        fluxModelVersion = userModel.replicateVersionId;
-        console.log(`Using completed trained model version: ${fluxModelVersion}`);
-      } else if (userModel.replicateModelId) {
-        // If no version ID saved, try to fetch it from the training API
+      console.log(`User has completed training, fetching trained model version...`);
+      
+      // Always fetch the latest training data to get the actual model version
+      if (userModel.replicateModelId) {
         try {
           const trainingResponse = await fetch(`https://api.replicate.com/v1/trainings/${userModel.replicateModelId}`, {
             headers: { 'Authorization': `Token ${process.env.REPLICATE_API_TOKEN}` }
@@ -62,27 +60,51 @@ export async function generateImages(request: GenerateImagesRequest): Promise<Ge
           
           if (trainingResponse.ok) {
             const trainingData = await trainingResponse.json();
+            console.log('Training data status:', trainingData.status);
+            console.log('Training data version:', trainingData.version);
+            console.log('Training data output:', trainingData.output);
+            
             if (trainingData.status === 'succeeded') {
-              // Get the version from training output
-              const trainedVersion = trainingData.output?.version || trainingData.version;
+              // The trained model version is in the training response
+              const trainedVersion = trainingData.version; // This is the actual trained model
+              
               if (trainedVersion) {
                 fluxModelVersion = trainedVersion;
-                console.log(`Retrieved trained model version from API: ${fluxModelVersion}`);
+                console.log(`✅ USING TRAINED MODEL: ${fluxModelVersion}`);
                 
-                // Save it for future use
-                await storage.updateUserModel(userId, { replicateVersionId: trainedVersion });
+                // Save it to avoid future API calls
+                await storage.updateUserModel(userId, { 
+                  replicateVersionId: trainedVersion,
+                  trainedModelPath: `sandrasocial/${userModel.modelName}`
+                });
+              } else {
+                console.error('❌ No version found in training data - user will get generic FLUX results');
+                throw new Error('Trained model version not available');
               }
+            } else {
+              console.error('❌ Training not succeeded:', trainingData.status);
+              throw new Error(`Training status: ${trainingData.status}`);
             }
+          } else {
+            console.error('❌ Failed to fetch training data');
+            throw new Error('Could not fetch training data from Replicate');
           }
         } catch (error) {
-          console.log('Could not fetch trained model version, using base FLUX LoRA:', error.message);
+          console.error('❌ CRITICAL ERROR: Cannot use trained model:', error.message);
+          throw new Error(`Cannot generate images: trained model not accessible - ${error.message}`);
         }
+      } else {
+        console.error('❌ No replicate model ID for completed training');
+        throw new Error('Cannot generate images: no training ID found');
       }
+    } else {
+      throw new Error(`Cannot generate images: user model training status is '${userModel.trainingStatus}', must be 'completed'`);
     }
     
-    // Override with explicitly passed modelVersion if provided
-    if (modelVersion) {
+    // Override with explicitly passed modelVersion only if it's a trained model
+    if (modelVersion && modelVersion.includes(':')) {
       fluxModelVersion = modelVersion;
+      console.log(`Using explicitly provided trained model: ${fluxModelVersion}`);
     }
     
     // Ensure the prompt includes the user's trigger word
@@ -113,7 +135,7 @@ export async function generateImages(request: GenerateImagesRequest): Promise<Ge
     const input: any = {
       prompt: finalPrompt,
       negative_prompt: "glossy fake skin, deep unflattering wrinkles, flat unflattering hair, artificial plastic appearance, over-smooth skin, bad lighting, unflattering angle",
-      hf_lora: `sandrasocial/${userModel.modelName}`, // Use actual model name from database
+      // NO LORA FIELD - the trained model version already contains the LoRA training
       guidance_scale: 2.8,        // Lowered from 3.5 to 2.8 for testing
       num_inference_steps: 32,    // Higher steps for better quality
       output_quality: 100,        // Maximum quality
