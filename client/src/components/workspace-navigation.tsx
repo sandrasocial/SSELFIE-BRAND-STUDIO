@@ -30,13 +30,12 @@ export const WorkspaceNavigation: React.FC = () => {
   // Check if user is admin (Sandra)
   const isAdmin = user?.email === 'ssa@ssasocial.com';
 
-  // Workspace navigation items - minimalistic
+  // Workspace navigation items - cleaned up
   const navItems = [
-    { path: '/workspace', label: 'STUDIO' },
-    { path: '/ai-training', label: 'TRAIN AI' },
-    { path: '/sandra-photoshoot', label: 'PHOTOSHOOT' },
-    { path: '/custom-photoshoot-library', label: 'LIBRARY' },
+    { path: '/ai-training', label: 'TRAIN' },
+    { path: '/maya', label: 'PHOTOSHOOT' },
     { path: '/gallery', label: 'GALLERY' },
+    { path: '/flatlay-library', label: 'FLATLAYS' },
     { path: '/profile', label: 'PROFILE' },
     ...(isAdmin ? [{ path: '/admin', label: 'ADMIN' }] : []),
   ];
