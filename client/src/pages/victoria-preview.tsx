@@ -4,7 +4,7 @@ import { Button } from '@/components/ui/button';
 import { useQuery } from '@tanstack/react-query';
 import { Link } from 'wouter';
 import { COMPREHENSIVE_LANDING_TEMPLATE } from '@/components/comprehensive-landing-template';
-import { MULTI_PAGE_HOME_TEMPLATE, MULTI_PAGE_ABOUT_TEMPLATE, MULTI_PAGE_SERVICES_TEMPLATE, MULTI_PAGE_CONTACT_TEMPLATE } from '@/components/multi-page-templates';
+import { MULTI_PAGE_HOME_TEMPLATE, MULTI_PAGE_ABOUT_TEMPLATE, MULTI_PAGE_SERVICES_TEMPLATE, MULTI_PAGE_CONTACT_TEMPLATE, SINGLE_PAGE_TEMPLATE } from '@/components/multi-page-templates';
 import { CompletionModal } from '@/components/completion-modal';
 
 export default function VictoriaPreview() {
@@ -226,15 +226,10 @@ export default function VictoriaPreview() {
     return injectUserPhotos(updatedHtml);
   };
 
-  // Get current page template and HTML
+  // Get current page template and HTML - TEMPORARILY USING SINGLE PAGE
   const getCurrentTemplate = () => {
-    switch (currentPage) {
-      case 'home': return MULTI_PAGE_HOME_TEMPLATE;
-      case 'about': return MULTI_PAGE_ABOUT_TEMPLATE;
-      case 'services': return MULTI_PAGE_SERVICES_TEMPLATE;
-      case 'contact': return MULTI_PAGE_CONTACT_TEMPLATE;
-      default: return MULTI_PAGE_HOME_TEMPLATE;
-    }
+    // Use single page template for all navigation to avoid routing issues
+    return SINGLE_PAGE_TEMPLATE;
   };
 
   const currentHtml = React.useMemo(() => {
