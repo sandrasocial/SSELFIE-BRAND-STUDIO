@@ -85,7 +85,7 @@ export const COMPREHENSIVE_LANDING_TEMPLATE = `<!DOCTYPE html>
         
         /* Editorial Spread Section */
         .editorial-spread { min-height: 80vh; display: grid; grid-template-columns: 1fr 1fr; background: #f5f5f5; }
-        .editorial-image { background: url('{{USER_PORTFOLIO_1}}') center/cover; min-height: 400px; }
+        .editorial-image { background: url('{{USER_EDITORIAL_PHOTO}}') center/cover; min-height: 400px; }
         .editorial-content { padding: 80px 60px; display: flex; flex-direction: column; justify-content: center; }
         .editorial-eyebrow { font-size: 11px; letter-spacing: 0.4em; text-transform: uppercase; color: #666; margin-bottom: 24px; font-weight: 300; }
         .editorial-headline { font-family: 'Times New Roman', serif; font-size: clamp(2rem, 4vw, 3.5rem); font-weight: 300; line-height: 1.1; margin-bottom: 28px; letter-spacing: -0.01em; }
@@ -117,14 +117,16 @@ export const COMPREHENSIVE_LANDING_TEMPLATE = `<!DOCTYPE html>
         .testimonial-author { font-size: 16px; color: #666; letter-spacing: 0.1em; }
         
         /* Freebie Signup Section */
-        .freebie-section { 
-            padding: 120px 40px; 
-            background: linear-gradient(rgba(10,10,10,0.7), rgba(10,10,10,0.7)), url('{{USER_PORTFOLIO_2}}') center/cover; 
-            text-align: center; 
-            color: white; 
-        }
+        .freebie-section { background: linear-gradient(rgba(10,10,10,0.6), rgba(10,10,10,0.6)), url('{{USER_FREEBIE_BACKGROUND}}') center/cover; color: white; padding: 120px 40px; text-align: center; }
         .freebie-content { max-width: 600px; margin: 0 auto; }
-        .freebie-eyebrow { font-size: 11px; letter-spacing: 0.4em; text-transform: uppercase; color: rgba(255,255,255,0.7); margin-bottom: 24px; }
+        .freebie-eyebrow { font-size: 11px; letter-spacing: 0.4em; text-transform: uppercase; color: rgba(255,255,255,0.7); margin-bottom: 16px; }
+        .freebie-headline { font-family: 'Times New Roman', serif; font-size: clamp(2rem, 4vw, 3rem); font-weight: 300; margin-bottom: 24px; line-height: 1.2; }
+        .freebie-text { font-size: 18px; line-height: 1.6; margin-bottom: 40px; color: rgba(255,255,255,0.9); }
+        .freebie-form { display: flex; flex-direction: column; gap: 16px; max-width: 400px; margin: 0 auto; }
+        .freebie-input { padding: 16px 20px; border: 2px solid rgba(255,255,255,0.3); background: rgba(255,255,255,0.1); color: white; font-size: 16px; }
+        .freebie-input::placeholder { color: rgba(255,255,255,0.6); }
+        .freebie-button { padding: 16px 20px; background: white; color: #0a0a0a; border: none; font-size: 14px; letter-spacing: 0.1em; text-transform: uppercase; font-weight: 500; cursor: pointer; transition: background 0.3s; }
+        .freebie-button:hover { background: #f5f5f5; }
         .freebie-headline { font-family: 'Times New Roman', serif; font-size: clamp(2rem, 4vw, 3rem); font-weight: 300; line-height: 1.2; margin-bottom: 24px; }
         .freebie-text { font-size: 18px; line-height: 1.6; margin-bottom: 40px; color: rgba(255,255,255,0.9); }
         .freebie-form { display: flex; gap: 16px; max-width: 400px; margin: 0 auto; }

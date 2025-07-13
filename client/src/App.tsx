@@ -42,6 +42,7 @@ import Victoria from "@/pages/victoria";
 import VictoriaChat from "@/pages/victoria-chat";
 import { lazy, Suspense } from "react";
 import VictoriaBuilder from '@/pages/victoria-builder';
+import VictoriaPreview from '@/pages/victoria-preview';
 import PhotoSelection from "@/pages/photo-selection";
 import BrandOnboarding from "@/pages/brand-onboarding";
 
@@ -154,6 +155,7 @@ function Router() {
       <Route path="/photo-selection" component={(props) => <ProtectedRoute component={PhotoSelection} {...props} />} />
       <Route path="/brand-onboarding" component={(props) => <ProtectedRoute component={BrandOnboarding} {...props} />} />
       <Route path="/victoria-builder" component={(props) => <ProtectedRoute component={VictoriaBuilder} {...props} />} />
+      <Route path="/victoria-preview" component={(props) => <ProtectedRoute component={VictoriaPreview} {...props} />} />
       
       {/* SANDRA'S ADMIN DASHBOARD */}
       <Route path="/admin" component={AdminDashboard} />
