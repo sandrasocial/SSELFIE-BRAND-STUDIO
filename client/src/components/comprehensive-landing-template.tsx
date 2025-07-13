@@ -20,7 +20,7 @@ export const COMPREHENSIVE_LANDING_TEMPLATE = `<!DOCTYPE html>
         /* Hero Section */
         .hero-section { 
             height: 100vh; 
-            background: linear-gradient(rgba(10,10,10,0.3), rgba(10,10,10,0.3)), url('{{USER_HERO_PHOTO}}') center/cover; 
+            background: linear-gradient(rgba(10,10,10,0.3), rgba(10,10,10,0.3)), url('{{USER_HERO_PHOTO}}') center top/cover; 
             display: flex; 
             flex-direction: column;
             justify-content: flex-end; 
@@ -75,7 +75,7 @@ export const COMPREHENSIVE_LANDING_TEMPLATE = `<!DOCTYPE html>
         .about-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 80px; max-width: 1200px; margin: 0 auto; align-items: center; }
         .about-content h2 { font-family: 'Times New Roman', serif; font-size: clamp(2.5rem, 5vw, 4rem); font-weight: 300; margin-bottom: 32px; line-height: 1.1; }
         .about-content p { font-size: 18px; line-height: 1.7; margin-bottom: 24px; color: #333; }
-        .about-image { background: url('{{USER_ABOUT_PHOTO}}') center/cover; height: 500px; }
+        .about-image { background: url('{{USER_ABOUT_PHOTO}}') center top/cover; height: 500px; }
         
         /* Power Quote Section */
         .power-quote { min-height: 70vh; display: flex; align-items: center; justify-content: center; background: #0a0a0a; padding: 80px 40px; text-align: center; }
@@ -85,7 +85,7 @@ export const COMPREHENSIVE_LANDING_TEMPLATE = `<!DOCTYPE html>
         
         /* Editorial Spread Section */
         .editorial-spread { min-height: 80vh; display: grid; grid-template-columns: 1fr 1fr; background: #f5f5f5; }
-        .editorial-image { background: url('{{USER_EDITORIAL_PHOTO}}') center/cover; min-height: 400px; }
+        .editorial-image { background: url('{{USER_EDITORIAL_PHOTO}}') center top/cover; min-height: 400px; }
         .editorial-content { padding: 80px 60px; display: flex; flex-direction: column; justify-content: center; }
         .editorial-eyebrow { font-size: 11px; letter-spacing: 0.4em; text-transform: uppercase; color: #666; margin-bottom: 24px; font-weight: 300; }
         .editorial-headline { font-family: 'Times New Roman', serif; font-size: clamp(2rem, 4vw, 3.5rem); font-weight: 300; line-height: 1.1; margin-bottom: 28px; letter-spacing: -0.01em; }
@@ -107,7 +107,7 @@ export const COMPREHENSIVE_LANDING_TEMPLATE = `<!DOCTYPE html>
         .portfolio-section { padding: 120px 40px; background: #f5f5f5; }
         .portfolio-title { font-family: 'Times New Roman', serif; font-size: clamp(2.5rem, 5vw, 4rem); font-weight: 300; text-align: center; margin-bottom: 80px; }
         .portfolio-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 40px; max-width: 1000px; margin: 0 auto; }
-        .portfolio-item { background-size: cover; background-position: center; height: 500px; transition: transform 0.5s ease; }
+        .portfolio-item { background-size: cover; background-position: center top; height: 500px; transition: transform 0.5s ease; }
         .portfolio-item:hover { transform: scale(1.02); }
         
         /* Testimonial Section */
@@ -117,7 +117,7 @@ export const COMPREHENSIVE_LANDING_TEMPLATE = `<!DOCTYPE html>
         .testimonial-author { font-size: 16px; color: #666; letter-spacing: 0.1em; }
         
         /* Freebie Signup Section */
-        .freebie-section { background: linear-gradient(rgba(10,10,10,0.6), rgba(10,10,10,0.6)), url('{{USER_FREEBIE_BACKGROUND}}') center/cover; color: white; padding: 120px 40px; text-align: center; }
+        .freebie-section { background: linear-gradient(rgba(10,10,10,0.6), rgba(10,10,10,0.6)), url('{{USER_FREEBIE_BACKGROUND}}') center top/cover; color: white; padding: 120px 40px; text-align: center; }
         .freebie-content { max-width: 600px; margin: 0 auto; }
         .freebie-eyebrow { font-size: 11px; letter-spacing: 0.4em; text-transform: uppercase; color: rgba(255,255,255,0.7); margin-bottom: 16px; }
         .freebie-headline { font-family: 'Times New Roman', serif; font-size: clamp(2rem, 4vw, 3rem); font-weight: 300; margin-bottom: 24px; line-height: 1.2; }

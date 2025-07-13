@@ -286,14 +286,21 @@ The platform has become overly complex with multiple pricing tiers, broken onboa
 **Technical Implementation Complete:**
 - Updated `/api/save-to-gallery` endpoint to use `ImageStorageService.ensurePermanentStorage()`
 - Added `/api/migrate-images-to-permanent` endpoint for batch migration of existing images
-- Gallery interface shows storage status indicators (green "Permanent" vs orange "Temp")
-- Migration button appears when temporary images detected with count display
+- Fixed S3 bucket ACL configuration to work with modern bucket policies
+- Successfully migrated all 5 selected photos to permanent S3 URLs
 - S3 storage provides permanent URLs that never expire, solving critical user experience issue
+
+**Image Positioning Fix (July 13, 2025):**
+- **Face Cropping Issue Resolved**: Updated CSS positioning from `center/cover` to `center top/cover`
+- **Template Improvements**: Hero, About, Editorial, Portfolio, and Freebie sections now show faces properly
+- **User Experience**: Portrait selfies no longer crop off faces in landing page template
+- **CSS Updates**: All background images now use `center top` positioning for optimal face visibility
 
 **Business Impact:**
 - Users can now confidently save images knowing they'll remain accessible forever
 - Eliminates frustration of broken gallery images after 1 hour
 - Professional reliability for users building their brand with saved AI images
+- Landing page templates display user faces properly without cropping
 - Ready for scale with permanent storage infrastructure
 
 #### ✅ ABSOLUTE DESIGN COMPLIANCE ACHIEVED (100% Complete)
