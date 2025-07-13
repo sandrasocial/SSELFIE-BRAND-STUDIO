@@ -561,8 +561,8 @@ export default function AIPhotoshootPage() {
       {/* Hero Section */}
       <HeroFullBleed
         backgroundImage={SandraImages.editorial.laptop1}
-        tagline="Your AI photographer is ready"
-        title="AI BRAND PHOTOSHOOT"
+        tagline="Where your vision meets reality"
+        title="PHOTOSHOOT"
         subtitle={userModel?.trainingStatus === 'completed' ? "YOUR MODEL IS TRAINED" : "COMPLETE TRAINING FIRST"}
         ctaText="Start Creating"
         ctaLink="#collections"
