@@ -165,7 +165,7 @@ export default function RachelActivation() {
           ))}
         </div>
 
-        <div className="bg-green-50 border border-green-200 p-6 mt-8">
+        <div className="bg-black-50 border border-green-200 p-6 mt-8">
           <h2 className="text-xl font-medium mb-4">Conservative Revenue Projections</h2>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4 text-sm">
             <div>

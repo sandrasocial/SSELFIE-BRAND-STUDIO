@@ -258,7 +258,7 @@ export default function RachelChat() {
                   <button
                     onClick={() => approveCampaignMutation.mutate()}
                     disabled={approveCampaignMutation.isPending}
-                    className="w-full bg-green-600 text-white p-3 hover:bg-green-700 disabled:bg-gray-300 transition-colors"
+                    className="w-full bg-black text-white p-3 hover:bg-black disabled:bg-gray-300 transition-colors"
                   >
                     {approveCampaignMutation.isPending ? 'Sending...' : 'Approve & Send to 2500 Subscribers'}
                   </button>

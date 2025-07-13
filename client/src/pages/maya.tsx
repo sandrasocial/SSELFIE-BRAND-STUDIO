@@ -28,6 +28,7 @@ export default function Maya() {
   const [generatedImages, setGeneratedImages] = useState<string[]>([]);
   const [savedImages, setSavedImages] = useState<Set<string>>(new Set());
   const [savingImages, setSavingImages] = useState<Set<string>>(new Set());
+  const [selectedImage, setSelectedImage] = useState<string | null>(null);
   const [generationProgress, setGenerationProgress] = useState(0);
   const [currentImageId, setCurrentImageId] = useState<number | null>(null);
 
@@ -125,10 +126,15 @@ export default function Maya() {
           setIsGenerating(false);
           
           if (currentImage.imageUrl.startsWith('http')) {
-            // Parse the image URLs (should be array of 4 URLs)
+            // Parse the image URLs (should be array of 3 URLs)
             let imageUrls: string[] = [];
             try {
-              imageUrls = JSON.parse(currentImage.imageUrl);
+              // Handle both JSON array and single URL formats
+              if (currentImage.imageUrl.startsWith('[')) {
+                imageUrls = JSON.parse(currentImage.imageUrl);
+              } else {
+                imageUrls = [currentImage.imageUrl];
+              }
             } catch {
               imageUrls = [currentImage.imageUrl];
             }
@@ -350,7 +356,7 @@ export default function Maya() {
                           ></div>
                         </div>
                         <p className="text-xs text-gray-500 mt-2">
-                          ⏱️ Estimated time: 35-50 seconds • Maya is applying optimal FLUX LoRA settings for maximum quality
+                          ⏱️ Estimated time: 35-50 seconds • Creating your professional photos
                         </p>
                       </div>
                     )}
@@ -367,7 +373,8 @@ export default function Maya() {
                           <img 
                             src={imageUrl}
                             alt={`Maya generated image ${imgIndex + 1}`}
-                            className="w-full h-32 object-cover border border-gray-200"
+                            className="w-full h-32 object-cover border border-gray-200 cursor-pointer hover:opacity-90 transition-opacity"
+                            onClick={() => setSelectedImage(imageUrl)}
                           />
                           
                           {/* Save Button */}
@@ -381,7 +388,7 @@ export default function Maya() {
                           
                           {/* Saved Indicator */}
                           {savedImages.has(imageUrl) && (
-                            <div className="absolute bottom-2 left-2 bg-green-600 text-white text-xs px-2 py-1 rounded">
+                            <div className="absolute bottom-2 left-2 bg-black text-white text-xs px-2 py-1 rounded">
                               In Gallery
                             </div>
                           )}
@@ -436,6 +443,29 @@ export default function Maya() {
           </p>
         </div>
       </div>
+
+      {/* Full-size Image Modal */}
+      {selectedImage && (
+        <div 
+          className="fixed inset-0 bg-black bg-opacity-80 flex items-center justify-center z-50 p-4"
+          onClick={() => setSelectedImage(null)}
+        >
+          <div className="relative max-w-4xl max-h-full">
+            <img 
+              src={selectedImage}
+              alt="Full size view"
+              className="max-w-full max-h-full object-contain"
+              onClick={(e) => e.stopPropagation()}
+            />
+            <button 
+              onClick={() => setSelectedImage(null)}
+              className="absolute top-4 right-4 bg-black text-white rounded-full w-8 h-8 flex items-center justify-center hover:bg-gray-700 transition-colors"
+            >
+              ×
+            </button>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
