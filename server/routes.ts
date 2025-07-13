@@ -1342,16 +1342,30 @@ Keep your responses strategic, actionable, and empowering. Focus on helping user
     }
   });
 
-  // Save image to gallery endpoint
+  // Save image to gallery endpoint with permanent storage
   app.post('/api/save-to-gallery', async (req: any, res) => {
     try {
       const { imageUrl, userId } = req.body;
       const actualUserId = userId || req.session?.userId || req.user?.claims?.sub || 'sandra_test_user_2025';
       
-      // Save to gallery using existing AI images storage
+      console.log('Saving image to gallery with permanent storage:', { actualUserId, imageUrl });
+      
+      // Import the image storage service
+      const { ImageStorageService } = await import('./image-storage-service');
+      
+      // Store image permanently in S3 before saving to database
+      const permanentUrl = await ImageStorageService.ensurePermanentStorage(
+        imageUrl, 
+        actualUserId, 
+        `gallery_${Date.now()}`
+      );
+      
+      console.log('Image stored permanently:', { originalUrl: imageUrl, permanentUrl });
+      
+      // Save to gallery using permanent S3 URL
       const savedImage = await storage.saveAIImage({
         userId: actualUserId,
-        imageUrl: imageUrl,
+        imageUrl: permanentUrl, // Use permanent S3 URL instead of Replicate URL
         prompt: 'Saved from Sandra AI Photoshoot',
         style: 'sandra-photoshoot',
         status: 'completed'
@@ -1359,14 +1373,42 @@ Keep your responses strategic, actionable, and empowering. Focus on helping user
       
       res.json({ 
         success: true, 
-        message: 'Image saved to gallery successfully',
-        imageId: savedImage.id 
+        message: 'Image saved to gallery with permanent storage',
+        imageId: savedImage.id,
+        permanentUrl: permanentUrl
       });
     } catch (error) {
       console.error('Save to gallery error:', error);
       res.status(500).json({ 
         success: false,
         message: 'Failed to save image to gallery',
+        error: error.message 
+      });
+    }
+  });
+
+  // Migrate user's existing images to permanent storage
+  app.post('/api/migrate-images-to-permanent', async (req: any, res) => {
+    try {
+      const userId = req.user?.claims?.sub || req.session?.userId || 'sandra_test_user_2025';
+      
+      console.log('Starting image migration to permanent storage for user:', userId);
+      
+      // Import the image storage service
+      const { ImageStorageService } = await import('./image-storage-service');
+      
+      // Migrate all user's images
+      await ImageStorageService.migrateTempImagesToS3(userId);
+      
+      res.json({ 
+        success: true,
+        message: 'All images have been migrated to permanent storage'
+      });
+    } catch (error) {
+      console.error('Migration error:', error);
+      res.status(500).json({ 
+        success: false,
+        message: 'Failed to migrate images',
         error: error.message 
       });
     }
