@@ -45,6 +45,7 @@ import VictoriaBuilder from '@/pages/victoria-builder';
 import VictoriaPreview from '@/pages/victoria-preview';
 import PhotoSelection from "@/pages/photo-selection";
 import BrandOnboarding from "@/pages/brand-onboarding";
+import Welcome from "@/pages/welcome";
 
 // Removed duplicate photoshoot imports - using existing system
 
@@ -132,6 +133,7 @@ function Router() {
       {/* PAYMENT FLOW */}
       <Route path="/checkout" component={Checkout} />
       <Route path="/simple-checkout" component={SimpleCheckout} />
+      <Route path="/welcome" component={Welcome} />
       <Route path="/thank-you" component={ThankYou} />
       <Route path="/payment-success" component={PaymentSuccess} />
 
