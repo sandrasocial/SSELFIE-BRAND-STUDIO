@@ -435,7 +435,7 @@ export default function Maya() {
     <div className="min-h-screen bg-white flex flex-col">
       {/* Header */}
       <header className="border-b border-gray-200 p-4 sm:p-6">
-        <div className="max-w-4xl mx-auto flex items-center justify-between">
+        <div className="max-w-6xl mx-auto flex items-center justify-between">
           <div>
             <h1 className="text-2xl sm:text-3xl font-serif font-light text-black">
               Maya AI
@@ -456,6 +456,8 @@ export default function Maya() {
                   timestamp: new Date().toISOString()
                 }]);
                 setCurrentChatId(null);
+                // Clear URL parameters
+                window.history.replaceState({}, '', '/maya');
               }}
               className="text-sm"
             >
@@ -472,8 +474,22 @@ export default function Maya() {
         </div>
       </header>
 
-      {/* Chat Container */}
-      <div className="flex-1 flex flex-col max-w-4xl mx-auto w-full">
+      {/* Main Content Area with Sidebar */}
+      <div className="flex-1 flex max-w-6xl mx-auto w-full">
+        {/* Chat History Sidebar */}
+        <div className="w-64 border-r border-gray-200 bg-gray-50/30 p-4">
+          <div className="mb-4">
+            <h3 className="text-sm font-medium text-gray-700 mb-3">Recent Photoshoots</h3>
+            <ChatHistoryLinks onChatSelect={(chatId) => {
+              loadChatHistory(chatId);
+              // Update URL to include chat parameter
+              window.history.replaceState({}, '', `/maya?chat=${chatId}`);
+            }} />
+          </div>
+        </div>
+
+        {/* Chat Container */}
+        <div className="flex-1 flex flex-col">
         {/* Messages Area */}
         <div className="flex-1 overflow-y-auto p-4 sm:p-6 space-y-6">
           {messages.map((message, index) => (
@@ -593,6 +609,7 @@ export default function Maya() {
           <p className="text-xs text-gray-500 mt-2">
             Press Enter to send, Shift+Enter for new line
           </p>
+        </div>
         </div>
       </div>
 
