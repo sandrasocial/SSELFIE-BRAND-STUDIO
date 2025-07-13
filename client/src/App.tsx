@@ -113,8 +113,7 @@ function Router() {
       {/* STREAMLINED USER JOURNEY: Landing → Simple Checkout → Payment Success → Onboarding → Workspace */}
 
       {/* PUBLIC PAGES */}
-      <Route path="/" component={TestLanding} />
-      <Route path="/editorial" component={EditorialLanding} />
+      <Route path="/" component={EditorialLanding} />
       <Route path="/old-landing" component={Landing} />
       <Route path="/about" component={About} />
       <Route path="/how-it-works" component={HowItWorks} />
