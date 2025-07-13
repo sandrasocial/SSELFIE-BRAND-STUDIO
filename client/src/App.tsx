@@ -37,6 +37,8 @@ import TestLogin from "@/pages/test-login";
 import AdminDashboard from "@/pages/admin";
 import CustomPhotoshootLibrary from "@/pages/custom-photoshoot-library";
 import FlatlayLibrary from "@/pages/flatlay-library";
+import Maya from "@/pages/maya";
+import Victoria from "@/pages/victoria";
 import { lazy } from "react";
 
 // Removed duplicate photoshoot imports - using existing system
@@ -140,6 +142,10 @@ function Router() {
       <Route path="/gallery" component={(props) => <ProtectedRoute component={SSELFIEGallery} {...props} />} />
       <Route path="/sselfie-gallery" component={(props) => <ProtectedRoute component={SSELFIEGallery} {...props} />} />
       <Route path="/profile" component={(props) => <ProtectedRoute component={Profile} {...props} />} />
+      
+      {/* AI AGENTS */}
+      <Route path="/maya" component={(props) => <ProtectedRoute component={Maya} {...props} />} />
+      <Route path="/victoria" component={(props) => <ProtectedRoute component={Victoria} {...props} />} />
       
       {/* SANDRA'S ADMIN DASHBOARD */}
       <Route path="/admin" component={AdminDashboard} />

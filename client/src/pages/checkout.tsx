@@ -15,23 +15,13 @@ export default function Checkout() {
   const planDetails = {
     'sselfie-studio': {
       name: 'SSELFIE Studio',
-      price: 29,
+      price: 47,
       features: [
-        'Personal AI photoshoot (100 images/month)',
-        'Luxury flatlay collections',
-        'Brand templates & landing pages',
-        'Custom domain connection'
-      ]
-    },
-    'sselfie-studio-pro': {
-      name: 'SSELFIE Studio PRO',
-      price: 67,
-      features: [
-        'Everything in Studio',
-        '300 AI images per month',
-        'Sandra Personal Brand AI Agent',
-        'Custom brand strategy & content',
-        'Priority support & guidance'
+        '100 AI images per month',
+        'Maya AI + Victoria AI unlimited',
+        'Complete brand builder ecosystem',
+        'Landing pages + custom domain',
+        'Priority support'
       ]
     }
   };
@@ -130,14 +120,11 @@ export default function Checkout() {
               </div>
             </div>
 
-            {/* Plan switcher */}
+            {/* Plan info only - no switching needed with single paid plan */}
             <div className="mt-8">
-              <button
-                onClick={() => setSelectedPlan(selectedPlan === 'sselfie-studio' ? 'sselfie-studio-pro' : 'sselfie-studio')}
-                className="text-sm text-gray-600 hover:text-black transition-colors"
-              >
-                Switch to {selectedPlan === 'sselfie-studio' ? 'PRO' : 'Studio'} plan ›
-              </button>
+              <p className="text-sm text-gray-600">
+                Includes everything you need to build your personal brand
+              </p>
             </div>
           </div>
 

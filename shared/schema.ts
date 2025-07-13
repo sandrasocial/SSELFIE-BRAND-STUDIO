@@ -83,7 +83,7 @@ export const templates = pgTable("templates", {
 export const subscriptions = pgTable("subscriptions", {
   id: serial("id").primaryKey(),
   userId: varchar("user_id").references(() => users.id).notNull(),
-  plan: varchar("plan").notNull(), // sselfie-studio (simplified to single product)
+  plan: varchar("plan").notNull(), // "free" or "sselfie-studio"
   status: varchar("status").notNull(), // active, cancelled, expired
   stripeSubscriptionId: varchar("stripe_subscription_id"),
   currentPeriodStart: timestamp("current_period_start"),
@@ -96,12 +96,13 @@ export const subscriptions = pgTable("subscriptions", {
 export const userUsage = pgTable("user_usage", {
   id: serial("id").primaryKey(),
   userId: varchar("user_id").references(() => users.id).notNull(),
-  plan: varchar("plan").notNull(), // sselfie-studio (simplified to single product)
+  plan: varchar("plan").notNull(), // "free" or "sselfie-studio"
   // AI Generation limits and usage
-  totalGenerationsAllowed: integer("total_generations_allowed").notNull(), // 300 monthly for SSELFIE Studio
-  totalGenerationsUsed: integer("total_generations_used").default(0),
-  monthlyGenerationsAllowed: integer("monthly_generations_allowed").default(300), // 300 monthly for SSELFIE Studio
+  monthlyGenerationsAllowed: integer("monthly_generations_allowed").notNull(), // 5 for free, 100 for paid
   monthlyGenerationsUsed: integer("monthly_generations_used").default(0),
+  // Access controls
+  mayaAIAccess: boolean("maya_ai_access").default(true), // Always true - both free and paid
+  victoriaAIAccess: boolean("victoria_ai_access").default(true), // Always true - both free and paid
   // Cost tracking
   totalCostIncurred: decimal("total_cost_incurred", { precision: 10, scale: 4 }).default("0.0000"), // Track actual API costs
   // Period tracking for monthly limits

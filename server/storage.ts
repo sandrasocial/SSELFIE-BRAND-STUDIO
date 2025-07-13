@@ -258,7 +258,17 @@ export class DatabaseStorage implements IStorage {
   // Plan-based access control methods
   async getUserPlan(userId: string): Promise<string | null> {
     const subscription = await this.getSubscription(userId);
-    return subscription?.plan || null;
+    return subscription?.plan || 'free'; // Default to free if no subscription
+  }
+
+  async hasMayaAIAccess(userId: string): Promise<boolean> {
+    // Maya AI (photographer) is accessible to everyone
+    return true;
+  }
+
+  async hasVictoriaAIAccess(userId: string): Promise<boolean> {
+    // Victoria AI (brand strategist) is accessible to everyone
+    return true;
   }
 
   async hasSandraAIAccess(userId: string): Promise<boolean> {
@@ -268,10 +278,20 @@ export class DatabaseStorage implements IStorage {
 
   async getGenerationLimits(userId: string): Promise<{ allowed: number; used: number }> {
     const usage = await this.getUserUsage(userId);
+    const plan = await this.getUserPlan(userId);
+    
+    // Default limits based on plan
+    const defaultAllowed = plan === 'free' ? 5 : 100;
+    
     return {
-      allowed: usage?.monthlyGenerationsAllowed || 0,
+      allowed: usage?.monthlyGenerationsAllowed || defaultAllowed,
       used: usage?.monthlyGenerationsUsed || 0
     };
+  }
+
+  async isFreePlan(userId: string): Promise<boolean> {
+    const plan = await this.getUserPlan(userId);
+    return plan === 'free' || plan === null;
   }
 
   // Photoshoot session operations
