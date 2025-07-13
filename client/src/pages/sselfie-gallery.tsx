@@ -57,6 +57,22 @@ export default function SSELFIEGallery() {
     }
   });
 
+  // Migration mutation for permanent storage
+  const migrateToPermanentMutation = useMutation({
+    mutationFn: async () => {
+      return await apiRequest('POST', '/api/migrate-images-to-permanent');
+    },
+    onSuccess: () => {
+      // Refresh AI images data after migration
+      queryClient.invalidateQueries({ queryKey: ['/api/ai-images'] });
+      alert('All images have been migrated to permanent storage!');
+    },
+    onError: (error) => {
+      console.error('Migration error:', error);
+      alert('Migration failed. Please try again.');
+    }
+  });
+
   const downloadImage = async (imageUrl: string, filename: string) => {
     try {
       // Skip broken or invalid URLs
@@ -98,16 +114,14 @@ export default function SSELFIEGallery() {
     }
   };
 
-  // Migration to permanent storage
-  const migrateMutation = useMutation({
-    mutationFn: async () => {
-      return await apiRequest('POST', '/api/migrate-images-to-s3');
-    },
-    onSuccess: () => {
-      // Refresh images after migration
-      queryClient.invalidateQueries({ queryKey: ['/api/ai-images'] });
-    }
-  });
+  // Helper function to check if URL is permanent
+  const isPermanentUrl = (url: string) => {
+    return url && (url.includes('amazonaws.com') || url.includes('s3.'));
+  };
+
+  // Count temporary images that need migration
+  const temporaryImages = aiImages.filter(img => !isPermanentUrl(img.imageUrl));
+  const needsMigration = temporaryImages.length > 0;
 
   const toggleFavorite = (imageId: number) => {
     console.log('Heart clicked for image:', imageId);
@@ -292,10 +306,10 @@ export default function SSELFIEGallery() {
                 </button>
               )}
               
-              {aiImages.length > 0 && (
+              {needsMigration && (
                 <button
-                  onClick={() => migrateMutation.mutate()}
-                  disabled={migrateMutation.isPending}
+                  onClick={() => migrateToPermanentMutation.mutate()}
+                  disabled={migrateToPermanentMutation.isPending}
                   style={{
                     padding: '16px 32px',
                     fontSize: '11px',
@@ -304,26 +318,14 @@ export default function SSELFIEGallery() {
                     textTransform: 'uppercase',
                     textDecoration: 'none',
                     border: '1px solid #0a0a0a',
-                    color: '#0a0a0a',
-                    background: migrateMutation.isPending ? '#f5f5f5' : 'transparent',
+                    color: '#ffffff',
+                    background: migrateToPermanentMutation.isPending ? '#666666' : '#0a0a0a',
                     transition: 'all 300ms ease',
-                    cursor: migrateMutation.isPending ? 'not-allowed' : 'pointer',
-                    opacity: migrateMutation.isPending ? 0.5 : 1
-                  }}
-                  onMouseEnter={(e) => {
-                    if (!migrateMutation.isPending) {
-                      e.target.style.background = '#0a0a0a';
-                      e.target.style.color = '#ffffff';
-                    }
-                  }}
-                  onMouseLeave={(e) => {
-                    if (!migrateMutation.isPending) {
-                      e.target.style.background = 'transparent';
-                      e.target.style.color = '#0a0a0a';
-                    }
+                    cursor: migrateToPermanentMutation.isPending ? 'not-allowed' : 'pointer',
+                    opacity: migrateToPermanentMutation.isPending ? 0.7 : 1
                   }}
                 >
-                  {migrateMutation.isPending ? 'Fixing Images...' : 'Fix Broken Images'}
+                  {migrateToPermanentMutation.isPending ? 'Saving Images...' : `Make ${temporaryImages.length} Images Permanent`}
                 </button>
               )}
             </div>
@@ -496,6 +498,30 @@ export default function SSELFIEGallery() {
                       }}
                     />
                     
+                    {/* Storage Status Indicator */}
+                    <div
+                      style={{
+                        position: 'absolute',
+                        top: '16px',
+                        left: '16px',
+                        background: isPermanentUrl(image.imageUrl) 
+                          ? 'rgba(0, 128, 0, 0.8)' 
+                          : 'rgba(255, 165, 0, 0.8)',
+                        border: 'none',
+                        color: '#ffffff',
+                        fontSize: '10px',
+                        padding: '4px 8px',
+                        borderRadius: '12px',
+                        fontWeight: 500,
+                        letterSpacing: '0.1em',
+                        textTransform: 'uppercase',
+                        backdropFilter: 'blur(10px)',
+                        zIndex: 5
+                      }}
+                    >
+                      {isPermanentUrl(image.imageUrl) ? 'Permanent' : 'Temp'}
+                    </div>
+
                     {/* Favorite Heart Button */}
                     <button
                       onClick={(e) => {
