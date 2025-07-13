@@ -83,6 +83,11 @@ export interface IStorage {
   // Photo selections operations
   savePhotoSelections(data: InsertPhotoSelection): Promise<PhotoSelection>;
   getPhotoSelections(userId: string): Promise<PhotoSelection | undefined>;
+  getInspirationPhotos(userId: string): Promise<any[]>;
+  
+  // Sandra AI conversation operations
+  getSandraConversations(userId: string): Promise<any[]>;
+  saveSandraConversation(data: any): Promise<any>;
   
   // Landing page operations
   createLandingPage(data: InsertLandingPage): Promise<LandingPage>;
@@ -427,6 +432,26 @@ export class DatabaseStorage implements IStorage {
     return selection;
   }
 
+  async getInspirationPhotos(userId: string): Promise<any[]> {
+    // Get user's selected photos from photo selections
+    const photoSelections = await this.getPhotoSelections(userId);
+    if (!photoSelections?.selectedSelfieIds?.length) {
+      return [];
+    }
+
+    // Get the actual images from AI images table
+    const userImages = await this.getAIImages(userId);
+    const selectedImages = userImages.filter(img => 
+      photoSelections.selectedSelfieIds.includes(img.id)
+    );
+
+    return selectedImages.map(img => ({
+      id: img.id,
+      url: img.imageUrl,
+      description: img.prompt || 'Selected inspiration photo'
+    }));
+  }
+
   // Landing page operations
   async createLandingPage(data: InsertLandingPage): Promise<LandingPage> {
     const [page] = await db
@@ -546,6 +571,17 @@ export class DatabaseStorage implements IStorage {
       .select()
       .from(brandOnboarding)
       .where(eq(brandOnboarding.userId, userId));
+    return data;
+  }
+
+  // Sandra AI conversation operations (minimal implementation)
+  async getSandraConversations(userId: string): Promise<any[]> {
+    // For now, return empty array - could implement full conversation storage later
+    return [];
+  }
+
+  async saveSandraConversation(data: any): Promise<any> {
+    // For now, just return the data - could implement full conversation storage later
     return data;
   }
 }
