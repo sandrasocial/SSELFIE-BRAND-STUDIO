@@ -290,6 +290,14 @@ The platform has become overly complex with multiple pricing tiers, broken onboa
 - Successfully migrated all 5 selected photos to permanent S3 URLs
 - S3 storage provides permanent URLs that never expire, solving critical user experience issue
 
+**Critical Image Workflow Process:**
+- **Step 1**: AI generates images with temporary Replicate URLs (1-hour expiry)
+- **Step 2**: User previews all generated images in interface
+- **Step 3**: User selects favorite images to save permanently
+- **Step 4**: Selected images are migrated to permanent S3 storage with real URLs
+- **Step 5**: Only migrated images with permanent URLs are saved to user's gallery
+- **Important**: Temporary Replicate URLs expire after 1 hour and become broken links
+
 **Image Positioning Fix (July 13, 2025):**
 - **Face Cropping Issue Resolved**: Updated CSS positioning from `center/cover` to `center top/cover`
 - **Template Improvements**: Hero, About, Editorial, Portfolio, and Freebie sections now show faces properly
