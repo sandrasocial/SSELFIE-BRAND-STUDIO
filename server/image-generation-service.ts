@@ -47,19 +47,20 @@ export async function generateImages(request: GenerateImagesRequest): Promise<Ge
       finalPrompt = `${triggerWord}, ${customPrompt}`;
     }
     
-    // Build input with trained model weights
+    // Build input with optimal FLUX LoRA settings for amazing photos
     const input: any = {
       prompt: finalPrompt,
       hf_lora: `sandrasocial/${userId}-selfie-lora`, // User's trained LoRA weights
-      guidance_scale: 3,
-      num_inference_steps: 28,
-      output_quality: 95,
-      aspect_ratio: "4:3",
-      output_format: "jpg",
-      go_fast: false,
-      megapixels: "1",
-      num_outputs: 4,
-      lora_scale: 1.0
+      guidance_scale: 3.5,        // Optimal for FLUX LoRA (3-4 range)
+      num_inference_steps: 32,    // Higher steps for better quality
+      output_quality: 100,        // Maximum quality
+      aspect_ratio: "3:4",        // Portrait ratio better for selfies
+      output_format: "png",       // PNG for highest quality
+      go_fast: false,             // Quality over speed
+      megapixels: "1",           // Good balance of quality/speed
+      num_outputs: 3,            // Generate 3 focused images
+      lora_scale: 1.0,           // Full LoRA application
+      disable_safety_checker: false
     };
     
     console.log(`Using FLUX model version: ${fluxModelVersion}`);

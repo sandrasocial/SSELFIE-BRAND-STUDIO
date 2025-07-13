@@ -150,7 +150,7 @@ export default function Maya() {
             
             toast({
               title: "Photos Ready!",
-              description: "Maya created 4 beautiful photos. Choose your favorites to save!",
+              description: "Maya created 3 stunning photos. Choose your favorites to save!",
             });
           } else {
             // Generation failed
@@ -350,7 +350,7 @@ export default function Maya() {
                           ></div>
                         </div>
                         <p className="text-xs text-gray-500 mt-2">
-                          ⏱️ Estimated time: 30-45 seconds • Maya is applying your trained model and professional camera settings
+                          ⏱️ Estimated time: 35-50 seconds • Maya is applying optimal FLUX LoRA settings for maximum quality
                         </p>
                       </div>
                     )}
@@ -361,7 +361,7 @@ export default function Maya() {
                 {message.role === 'maya' && message.imagePreview && (
                   <div className="mt-6">
                     <h4 className="text-sm font-medium mb-3 text-black">Your Maya AI Photos</h4>
-                    <div className="grid grid-cols-2 gap-4">
+                    <div className="grid grid-cols-3 gap-4">
                       {message.imagePreview.map((imageUrl, imgIndex) => (
                         <div key={imgIndex} className="relative group">
                           <img 
