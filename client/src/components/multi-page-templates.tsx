@@ -11,6 +11,7 @@ export const SINGLE_PAGE_TEMPLATE = `<!DOCTYPE html>
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
         html { scroll-behavior: smooth; }
+        /* FIX FOR ANCHOR NAVIGATION - ALL NAVIGATION MUST USE ANCHORS INSTEAD OF ROUTES */
         body { font-family: system-ui, -apple-system, sans-serif; line-height: 1.6; color: #0a0a0a; }
         
         /* Navigation */
@@ -375,7 +376,7 @@ export const MULTI_PAGE_HOME_TEMPLATE = `<!DOCTYPE html>
             <h2 class="editorial-headline">{{EDITORIAL_HEADLINE}}</h2>
             <p class="editorial-text">{{EDITORIAL_TEXT_1}}</p>
             <p class="editorial-text">{{EDITORIAL_TEXT_2}}</p>
-            <a href="/services" class="editorial-button">Explore Services</a>
+            <a href="#services" class="editorial-button">Explore Services</a>
         </div>
     </section>
 
@@ -557,10 +558,10 @@ export const MULTI_PAGE_ABOUT_TEMPLATE = `<!DOCTYPE html>
         <div class="nav-container">
             <a href="/" class="nav-logo">{{USER_FIRST_NAME}}</a>
             <div class="nav-menu">
-                <a href="/" class="nav-item">HOME</a>
-                <a href="/about" class="nav-item active">ABOUT</a>
-                <a href="/services" class="nav-item">SERVICES</a>
-                <a href="/contact" class="nav-item">CONTACT</a>
+                <a href="#home" class="nav-item">HOME</a>
+                <a href="#about" class="nav-item active">ABOUT</a>
+                <a href="#services" class="nav-item">SERVICES</a>
+                <a href="#contact" class="nav-item">CONTACT</a>
             </div>
         </div>
     </nav>
@@ -644,7 +645,7 @@ export const MULTI_PAGE_ABOUT_TEMPLATE = `<!DOCTYPE html>
         <div class="cta-content">
             <h2 class="cta-headline">Ready to start your story?</h2>
             <p class="cta-text">Stop guessing and start growing. Let's discover what makes your business unmistakably yours.</p>
-            <a href="/contact" class="cta-button">Let's Work Together</a>
+            <a href="#contact" class="cta-button">Let's Work Together</a>
         </div>
     </section>
 
@@ -778,10 +779,10 @@ export const MULTI_PAGE_SERVICES_TEMPLATE = `<!DOCTYPE html>
         <div class="nav-container">
             <a href="/" class="nav-logo">{{USER_FIRST_NAME}}</a>
             <div class="nav-menu">
-                <a href="/" class="nav-item">HOME</a>
-                <a href="/about" class="nav-item">ABOUT</a>
-                <a href="/services" class="nav-item active">SERVICES</a>
-                <a href="/contact" class="nav-item">CONTACT</a>
+                <a href="#home" class="nav-item">HOME</a>
+                <a href="#about" class="nav-item">ABOUT</a>
+                <a href="#services" class="nav-item">SERVICES</a>
+                <a href="#contact" class="nav-item">CONTACT</a>
             </div>
         </div>
     </nav>
@@ -818,7 +819,7 @@ export const MULTI_PAGE_SERVICES_TEMPLATE = `<!DOCTYPE html>
                         <li>Implementation roadmap</li>
                         <li>90-day follow-up support</li>
                     </ul>
-                    <a href="/contact" class="service-button">Get Started</a>
+                    <a href="#contact" class="service-button">Get Started</a>
                 </div>
                 <div class="service-image" style="background-image: url('{{USER_SERVICE_PHOTO_1}}');"></div>
             </div>
@@ -836,7 +837,7 @@ export const MULTI_PAGE_SERVICES_TEMPLATE = `<!DOCTYPE html>
                         <li>Content calendar planning</li>
                         <li>Performance optimization</li>
                     </ul>
-                    <a href="/contact" class="service-button">Learn More</a>
+                    <a href="#contact" class="service-button">Learn More</a>
                 </div>
                 <div class="service-image" style="background-image: url('{{USER_SERVICE_PHOTO_2}}');"></div>
             </div>
@@ -854,7 +855,7 @@ export const MULTI_PAGE_SERVICES_TEMPLATE = `<!DOCTYPE html>
                         <li>Website and marketing materials</li>
                         <li>6-month implementation support</li>
                     </ul>
-                    <a href="/contact" class="service-button">Apply Now</a>
+                    <a href="#contact" class="service-button">Apply Now</a>
                 </div>
                 <div class="service-image" style="background-image: url('{{USER_SERVICE_PHOTO_3}}');"></div>
             </div>
@@ -918,7 +919,7 @@ export const MULTI_PAGE_SERVICES_TEMPLATE = `<!DOCTYPE html>
         <div class="cta-content">
             <h2 class="cta-headline">Ready to get started?</h2>
             <p class="cta-text">Stop guessing and start growing. Let's create a strategy that's as unique as you are.</p>
-            <a href="/contact" class="cta-button">Let's Work Together</a>
+            <a href="#contact" class="cta-button">Let's Work Together</a>
         </div>
     </section>
 
@@ -1039,9 +1040,9 @@ export const MULTI_PAGE_CONTACT_TEMPLATE = `<!DOCTYPE html>
             <a href="/" class="nav-logo">{{USER_FIRST_NAME}}</a>
             <div class="nav-menu">
                 <a href="/" class="nav-item">HOME</a>
-                <a href="/about" class="nav-item">ABOUT</a>
-                <a href="/services" class="nav-item">SERVICES</a>
-                <a href="/contact" class="nav-item active">CONTACT</a>
+                <a href="#about" class="nav-item">ABOUT</a>
+                <a href="#services" class="nav-item">SERVICES</a>
+                <a href="#contact" class="nav-item active">CONTACT</a>
             </div>
         </div>
     </nav>
