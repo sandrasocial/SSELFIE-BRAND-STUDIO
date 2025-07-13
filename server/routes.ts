@@ -635,47 +635,28 @@ Your goal is to have a natural conversation, understand their vision deeply, and
       console.log(`Fetching gallery for user ${userId}...`);
       const aiImages = await storage.getAIImages(userId);
       console.log(`AI images found:`, aiImages?.length || 0);
+      console.log(`First AI image sample:`, JSON.stringify(aiImages?.[0], null, 2));
       
-      const userSelfies = aiImages
-        ?.filter(img => img.status === 'completed' && img.imageUrl)
-        ?.map(img => ({
+      const userSelfies = (aiImages || [])
+        .filter(img => {
+          // Simplified filter - just accept all images with any URL field
+          const hasUrl = !!(img.imageUrl || img.url || img.image_url);
+          console.log(`Image ${img.id}: hasUrl=${hasUrl}, imageUrl='${img.imageUrl}'`);
+          return hasUrl;
+        })
+        .map(img => ({
           id: img.id,
           url: img.imageUrl,
           type: 'selfie',
           style: img.style || 'portrait',
           createdAt: img.createdAt,
           isSelected: false // For onboarding selection
-        })) || [];
+        }));
       
       console.log(`Converted selfies:`, userSelfies.length);
       
-      // Get flatlay collections (20-30% of photos)
-      const flatlayCollections = [
-        {
-          name: 'Luxury Minimal',
-          images: [
-            'https://images.unsplash.com/photo-1586617292529-526de0f8cd29?w=800',
-            'https://images.unsplash.com/photo-1605406668801-a3d6c1b9b2cc?w=800',
-            'https://images.unsplash.com/photo-1581833971358-2c8b550f87b3?w=800'
-          ]
-        },
-        {
-          name: 'Editorial Magazine', 
-          images: [
-            'https://images.unsplash.com/photo-1611080626919-7cf5a9dbab5b?w=800',
-            'https://images.unsplash.com/photo-1598300042247-d088f8ab3a91?w=800',
-            'https://images.unsplash.com/photo-1616047006789-b7af5afb8c20?w=800'
-          ]
-        },
-        {
-          name: 'Business Professional',
-          images: [
-            'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=800',
-            'https://images.unsplash.com/photo-1521737604893-d14cc237f11d?w=800',
-            'https://images.unsplash.com/photo-1499951360447-b19be8fe80f5?w=800'
-          ]
-        }
-      ];
+      // Get flatlay collections from actual flatlay gallery (NO STOCK PHOTOS)
+      const flatlayCollections = await storage.getFlatlayCollections();
       
       res.json({
         userSelfies,
