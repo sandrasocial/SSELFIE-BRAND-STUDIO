@@ -19,11 +19,26 @@ interface ChatMessage {
   timestamp: string;
 }
 
-export default function SandraPhotoshootPage() {
+export default function MayaLandingPage() {
   const { toast } = useToast();
 
-  // Pinterest starter prompts for immediate use
-  const pinterestStarterPrompts: StyleButton[] = [
+  // Image categories for organization
+  const imageCategories = [
+    { name: 'Editorial', count: 23, preview: SandraImages.portraits.editorial[0] },
+    { name: 'Lifestyle', count: 18, preview: SandraImages.portraits.lifestyle[0] },
+    { name: 'Business', count: 15, preview: SandraImages.portraits.professional[0] },
+    { name: 'Creative', count: 12, preview: SandraImages.portraits.creative[0] }
+  ];
+
+  // Recent chat history preview
+  const recentChats = [
+    { id: 1, preview: "Golden hour beach photoshoot inspiration...", date: "Today", unread: 2 },
+    { id: 2, preview: "Editorial B&W styling advice...", date: "Yesterday", unread: 0 },
+    { id: 3, preview: "Business professional outfits...", date: "2 days ago", unread: 0 }
+  ];
+
+  // Maya's starter prompts for new users
+  const mayaStarterPrompts: StyleButton[] = [
     {
       id: 'pinterest-starter-1',
       name: 'Sunset Contemplation',
@@ -50,27 +65,7 @@ export default function SandraPhotoshootPage() {
     }
   ];
 
-  const [messages, setMessages] = useState<ChatMessage[]>([
-    {
-      type: 'sandra',
-      message: `Hey gorgeous! I'm Sandra, your AI photographer and style consultant. 
-
-I specialize in creating Pinterest-style environmental shots where you're not looking at the camera and we can see the whole beautiful scenery. Think dreamy lifestyle vibes, luxury settings, and natural poses that look effortlessly expensive.
-
-Here are some starter prompts to get you going, or tell me what mood you're feeling:`,
-      styleButtons: pinterestStarterPrompts,
-      timestamp: new Date().toISOString()
-    }
-  ]);
-  const [inputMessage, setInputMessage] = useState('');
-  const [isLoading, setIsLoading] = useState(false);
-  const [selectedImages, setSelectedImages] = useState<string[]>([]);
-  const [fullSizeImage, setFullSizeImage] = useState<string | null>(null);
-  const [inspirationPhotos, setInspirationPhotos] = useState<string[]>([]);
-  const [isUploadingInspiration, setIsUploadingInspiration] = useState(false);
-  const [showInspirationUpload, setShowInspirationUpload] = useState(false);
-  const messagesEndRef = useRef<HTMLDivElement>(null);
-  const fileInputRef = useRef<HTMLInputElement>(null);
+  const [activeSection, setActiveSection] = useState<'overview' | 'images' | 'chats' | 'profile' | 'newchat'>('overview');
 
   const scrollToBottom = () => {
     setTimeout(() => {
