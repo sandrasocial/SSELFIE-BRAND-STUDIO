@@ -670,6 +670,37 @@ Your goal is to have a natural conversation, understand their vision deeply, and
     }
   });
 
+  // Get user's saved photo selections
+  app.get('/api/photo-selections', async (req, res) => {
+    try {
+      const userId = req.session?.userId || req.user?.claims?.sub || 'sandra_test_user_2025';
+      
+      // Get saved photo selections from database
+      const selections = await storage.getPhotoSelections(userId);
+      
+      if (!selections) {
+        return res.json({
+          selectedSelfies: [],
+          flatlayCollection: 'Editorial Magazine'
+        });
+      }
+
+      // Get the actual image data for selected selfie IDs
+      const allUserImages = await storage.getAIImages(userId);
+      const selectedSelfies = allUserImages.filter(img => 
+        selections.selectedSelfieIds?.includes(img.id)
+      );
+      
+      res.json({
+        selectedSelfies,
+        flatlayCollection: selections.selectedFlatlayCollection || 'Editorial Magazine'
+      });
+    } catch (error) {
+      console.error('Error fetching photo selections:', error);
+      res.status(500).json({ error: 'Failed to fetch photo selections' });
+    }
+  });
+
   // Save user's photo selections for template customization
   app.post('/api/save-photo-selections', async (req, res) => {
     try {
@@ -678,8 +709,13 @@ Your goal is to have a natural conversation, understand their vision deeply, and
       
       console.log(`Saving photo selections for user ${userId}:`, { selfieIds, flatlayCollection });
       
-      // In a full implementation, we'd save these to database
-      // For now, we'll return success to allow testing
+      // Save selections to database
+      await storage.savePhotoSelections({
+        userId,
+        selectedSelfieIds: selfieIds,
+        selectedFlatlayCollection: flatlayCollection
+      });
+      
       res.json({
         success: true,
         message: 'Photo selections saved successfully',

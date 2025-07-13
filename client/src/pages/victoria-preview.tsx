@@ -10,91 +10,88 @@ export default function VictoriaPreview() {
   const previewRef = useRef<HTMLIFrameElement>(null);
 
   const { data: brandData } = useQuery({ queryKey: ['/api/brand-onboarding'] });
+  const { data: photoSelections } = useQuery({ queryKey: ['/api/photo-selections'] });
   const { data: userGallery } = useQuery({ queryKey: ['/api/user-gallery'] });
 
-  // Function to inject ALL user photos strategically into template
+  // Function to inject ONLY SELECTED photos from photo-selection step
   const injectUserPhotos = (htmlTemplate: string): string => {
-    if (!userGallery?.userSelfies?.length) return htmlTemplate;
+    // Use ONLY the 5 photos selected in photo-selection step
+    if (!photoSelections?.selectedSelfies?.length) return htmlTemplate;
 
-    const userSelfies = userGallery.userSelfies;
-    const flatLayUrls = [
-      '/api/images/flatlays/luxury-minimal-1.jpg',
-      '/api/images/flatlays/luxury-minimal-2.jpg',
-      '/api/images/flatlays/luxury-minimal-3.jpg'
-    ];
+    const selectedSelfies = photoSelections.selectedSelfies;
+    
+    // Get flatlay collection chosen by user (not random)
+    const flatlayCollection = photoSelections.flatlayCollection || 'Editorial Magazine';
+    const flatLayUrls = getFlatLayUrls(flatlayCollection);
 
     let updatedHtml = htmlTemplate;
-    const photoCount = userSelfies.length;
     
-    // STRATEGIC PHOTO DISTRIBUTION - USE ALL PHOTOS
-    // 1. Hero background - Use first/best selfie
-    updatedHtml = updatedHtml.replace(/{{USER_HERO_PHOTO}}/g, userSelfies[0].url);
+    // STRATEGIC PHOTO DISTRIBUTION - USE ONLY 5 SELECTED PHOTOS
+    // 1. Hero background - Use first selected selfie
+    updatedHtml = updatedHtml.replace(/{{USER_HERO_PHOTO}}/g, selectedSelfies[0].url);
     
-    // 2. About section image - Use second selfie or best portrait
-    const aboutPhoto = photoCount >= 2 ? userSelfies[1].url : userSelfies[0].url;
+    // 2. About section image - Use second selected selfie
+    const aboutPhoto = selectedSelfies[1]?.url || selectedSelfies[0].url;
     updatedHtml = updatedHtml.replace(/{{USER_ABOUT_PHOTO}}/g, aboutPhoto);
     
-    // 3. Editorial spread image - Use third selfie or alternate
-    const editorialPhoto = photoCount >= 3 ? userSelfies[2].url : userSelfies[0].url;
+    // 3. Editorial spread image - Use third selected selfie
+    const editorialPhoto = selectedSelfies[2]?.url || selectedSelfies[0].url;
     updatedHtml = updatedHtml.replace(/{{USER_EDITORIAL_PHOTO}}/g, editorialPhoto);
     
-    // 4. Portfolio gallery - Use 4th, 5th, 6th selfies (repeat if needed)
-    const portfolio1 = photoCount >= 4 ? userSelfies[3].url : (userSelfies[1]?.url || userSelfies[0].url);
-    const portfolio2 = photoCount >= 5 ? userSelfies[4].url : (userSelfies[2]?.url || userSelfies[0].url);
-    const portfolio3 = photoCount >= 6 ? userSelfies[5].url : (userSelfies[3]?.url || userSelfies[0].url);
+    // 4. Portfolio gallery - Use 4th and 5th selected selfies
+    const portfolio1 = selectedSelfies[3]?.url || selectedSelfies[1]?.url || selectedSelfies[0].url;
+    const portfolio2 = selectedSelfies[4]?.url || selectedSelfies[2]?.url || selectedSelfies[0].url;
+    const portfolio3 = selectedSelfies[0]?.url; // Reuse first photo for 3rd slot
     
     updatedHtml = updatedHtml.replace(/{{USER_PORTFOLIO_1}}/g, portfolio1);
     updatedHtml = updatedHtml.replace(/{{USER_PORTFOLIO_2}}/g, portfolio2);
     updatedHtml = updatedHtml.replace(/{{USER_PORTFOLIO_3}}/g, portfolio3);
     
-    // 5. Freebie background - Use 7th photo or alternate
-    const freebiePhoto = photoCount >= 7 ? userSelfies[6].url : (userSelfies[1]?.url || userSelfies[0].url);
-    updatedHtml = updatedHtml.replace(/{{USER_FREEBIE_BACKGROUND}}/g, freebiePhoto);
+    // 5. Freebie background - Use first selected photo as background
+    updatedHtml = updatedHtml.replace(/{{USER_FREEBIE_BACKGROUND}}/g, selectedSelfies[0].url);
     
-    // 6. Additional sections for 8+ photos
-    if (photoCount >= 8) {
-      // Story section additional photos
-      updatedHtml = updatedHtml.replace(/{{USER_STORY_PHOTO_1}}/g, userSelfies[7].url);
-    }
-    
-    if (photoCount >= 9) {
-      updatedHtml = updatedHtml.replace(/{{USER_STORY_PHOTO_2}}/g, userSelfies[8].url);
-    }
-    
-    // 7. Service sections for 10+ photos
-    if (photoCount >= 10) {
-      updatedHtml = updatedHtml.replace(/{{USER_SERVICE_PHOTO}}/g, userSelfies[9].url);
-    }
-    
-    if (photoCount >= 5) {
-      updatedHtml = updatedHtml.replace(/{{USER_PORTFOLIO_2}}/g, userSelfies[4].url);
-    } else {
-      updatedHtml = updatedHtml.replace(/{{USER_PORTFOLIO_2}}/g, userSelfies[2] ? userSelfies[2].url : userSelfies[0].url);
-    }
-    
-    // 5. Freebie background - Use sixth selfie or cycle back
-    if (photoCount >= 6) {
-      updatedHtml = updatedHtml.replace(/{{USER_FREEBIE_BACKGROUND}}/g, userSelfies[5].url);
-    } else {
-      updatedHtml = updatedHtml.replace(/{{USER_FREEBIE_BACKGROUND}}/g, userSelfies[0].url);
-    }
-
-    // If we have more photos, use them in additional places
-    if (photoCount >= 7) {
-      // Add extra portfolio or testimonial images
-      updatedHtml = updatedHtml.replace(/{{USER_EXTRA_PHOTO_1}}/g, userSelfies[6].url);
-    }
-    
-    if (photoCount >= 8) {
-      updatedHtml = updatedHtml.replace(/{{USER_EXTRA_PHOTO_2}}/g, userSelfies[7].url);
-    }
-
-    // Use flatlay images for service icons
-    updatedHtml = updatedHtml.replace(/{{USER_FLATLAY_1}}/g, flatLayUrls[0]);
-    updatedHtml = updatedHtml.replace(/{{USER_FLATLAY_2}}/g, flatLayUrls[1]);
-    updatedHtml = updatedHtml.replace(/{{USER_FLATLAY_3}}/g, flatLayUrls[2]);
+    // 6. Use selected flatlay collection instead of default
+    updatedHtml = updatedHtml.replace(/{{FLATLAY_1}}/g, flatLayUrls[0]);
+    updatedHtml = updatedHtml.replace(/{{FLATLAY_2}}/g, flatLayUrls[1]);
+    updatedHtml = updatedHtml.replace(/{{FLATLAY_3}}/g, flatLayUrls[2]);
 
     return updatedHtml;
+  };
+
+  // Get flatlay URLs based on user's selected collection
+  const getFlatLayUrls = (collection: string) => {
+    switch (collection) {
+      case 'Luxury Minimal':
+        return [
+          '/api/images/flatlays/luxury-minimal-1.jpg',
+          '/api/images/flatlays/luxury-minimal-2.jpg',
+          '/api/images/flatlays/luxury-minimal-3.jpg'
+        ];
+      case 'Editorial Magazine':
+        return [
+          '/api/images/flatlays/editorial-1.jpg',
+          '/api/images/flatlays/editorial-2.jpg',
+          '/api/images/flatlays/editorial-3.jpg'
+        ];
+      case 'Pink & Girly':
+        return [
+          '/api/images/flatlays/pink-1.jpg',
+          '/api/images/flatlays/pink-2.jpg',
+          '/api/images/flatlays/pink-3.jpg'
+        ];
+      case 'Business Professional':
+        return [
+          '/api/images/flatlays/business-1.jpg',
+          '/api/images/flatlays/business-2.jpg',
+          '/api/images/flatlays/business-3.jpg'
+        ];
+      default:
+        return [
+          '/api/images/flatlays/editorial-1.jpg',
+          '/api/images/flatlays/editorial-2.jpg',
+          '/api/images/flatlays/editorial-3.jpg'
+        ];
+    }
   };
 
   // Generate the populated template with REAL brand data
