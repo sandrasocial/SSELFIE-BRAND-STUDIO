@@ -135,9 +135,12 @@ async function pollForCompletion(imageId: number, predictionId: string): Promise
 
       if (prediction.status === 'succeeded') {
         console.log('Generation completed successfully');
-        // Use first image URL from the output array
+        // Store all image URLs as JSON array (Maya expects this format)
         const outputUrls = prediction.output || [];
-        const imageUrl = outputUrls.length > 0 ? outputUrls[0] : 'completed';
+        console.log(`Generated ${outputUrls.length} images:`, outputUrls);
+        
+        // Store as JSON string for Maya to parse correctly
+        const imageUrl = outputUrls.length > 0 ? JSON.stringify(outputUrls) : 'completed';
         
         await storage.updateAIImage(imageId, {
           imageUrl: imageUrl,
