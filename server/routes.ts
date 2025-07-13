@@ -3485,6 +3485,39 @@ Consider this workflow optimized and ready for implementation! ⚙️`
     }
   });
 
+  // Emergency test route to bypass Vite - CRITICAL DEBUG ROUTE
+  app.get("/emergency", (req, res) => {
+    res.send(`
+      <!DOCTYPE html>
+      <html>
+      <head>
+          <title>Emergency Test</title>
+          <style>
+              body { 
+                  background: red; 
+                  color: white; 
+                  font-size: 30px; 
+                  padding: 50px; 
+                  text-align: center; 
+                  font-family: Arial, sans-serif;
+              }
+          </style>
+      </head>
+      <body>
+          <h1>🚨 EMERGENCY: SERVER IS WORKING! 🚨</h1>
+          <p>Express server on port 5000 is responding correctly</p>
+          <p>The white screen issue is NOT a server problem</p>
+          <script>
+              console.log("Emergency test script running - JS is working!");
+              setTimeout(() => {
+                  window.location.href = '/';
+              }, 3000);
+          </script>
+      </body>
+      </html>
+    `);
+  });
+
   const httpServer = createServer(app);
   return httpServer;
 }
