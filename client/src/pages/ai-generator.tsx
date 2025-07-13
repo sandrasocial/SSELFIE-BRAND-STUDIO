@@ -718,7 +718,7 @@ function ResultsStep({ generatedImages, selectedImages, onImageSelection, onUseT
                           position: 'absolute',
                           bottom: '16px',
                           left: '16px',
-                          background: 'rgba(0, 128, 0, 0.9)',
+                          background: 'rgba(0, 0, 0, 0.9)',
                           color: '#ffffff',
                           fontSize: '10px',
                           padding: '4px 8px',

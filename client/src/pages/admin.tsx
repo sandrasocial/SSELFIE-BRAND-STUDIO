@@ -236,12 +236,12 @@ export default function AdminDashboard() {
               </h2>
             </div>
             <div className="p-4 space-y-4">
-              <div className="bg-green-50 border border-green-200 p-4 mb-4">
-                <h3 className="font-medium text-green-800 mb-2">Status: APPROVAL-BASED ACTIVATION</h3>
-                <p className="text-sm text-green-700">
+              <div className="bg-gray-50 border border-gray-200 p-4 mb-4">
+                <h3 className="font-medium text-black mb-2">Status: APPROVAL-BASED ACTIVATION</h3>
+                <p className="text-sm text-gray-700">
                   Your agents are now fully activated with approval workflows. They can create real marketing materials, emails, and strategies that require your approval before implementation.
                 </p>
-                <div className="mt-2 text-xs text-green-600">
+                <div className="mt-2 text-xs text-gray-600">
                   ✓ Ready to manage 120K Instagram followers ✓ Ready to activate 2500 email subscribers ✓ Ready to convert 5000 ManyChat subscribers
                 </div>
               </div>
@@ -253,7 +253,7 @@ export default function AdminDashboard() {
                       <div className="text-sm text-gray-600">{agent.role}</div>
                     </div>
                     <div className={`px-2 py-1 text-xs rounded ${
-                      agent.status === 'active' ? 'bg-green-100 text-green-800' :
+                      agent.status === 'active' ? 'bg-black text-black' :
                       agent.status === 'working' ? 'bg-blue-100 text-blue-800' :
                       'bg-gray-100 text-gray-600'
                     }`}>
@@ -344,21 +344,21 @@ export default function AdminDashboard() {
               <h3 className="text-lg font-medium">Now Activated - Immediate Actions</h3>
               <div className="space-y-3">
                 <div className="flex items-start space-x-3">
-                  <div className="w-2 h-2 bg-green-500 rounded-full mt-2 flex-shrink-0"></div>
+                  <div className="w-2 h-2 bg-black rounded-full mt-2 flex-shrink-0"></div>
                   <div>
                     <div className="font-medium">Email Campaign Creation</div>
                     <div className="text-sm text-gray-600">Rachel can write emails for your 2500 Flodesk subscribers</div>
                   </div>
                 </div>
                 <div className="flex items-start space-x-3">
-                  <div className="w-2 h-2 bg-green-500 rounded-full mt-2 flex-shrink-0"></div>
+                  <div className="w-2 h-2 bg-black rounded-full mt-2 flex-shrink-0"></div>
                   <div>
                     <div className="font-medium">Instagram Content Strategy</div>
                     <div className="text-sm text-gray-600">Sophia can manage 800 DMs and create conversion content</div>
                   </div>
                 </div>
                 <div className="flex items-start space-x-3">
-                  <div className="w-2 h-2 bg-green-500 rounded-full mt-2 flex-shrink-0"></div>
+                  <div className="w-2 h-2 bg-black rounded-full mt-2 flex-shrink-0"></div>
                   <div>
                     <div className="font-medium">Revenue Optimization</div>
                     <div className="text-sm text-gray-600">Martha can design conversion funnels for immediate sales</div>
