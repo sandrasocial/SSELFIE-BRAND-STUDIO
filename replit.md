@@ -724,33 +724,27 @@ The platform foundation is rock-solid with four professional brandbook templates
 - Removed all hardcoded fallbacks to `sandra_test_user_2025` model in image generation
 - Users now guaranteed to get images trained on their own selfies
 
-### July 13, 2025 - SYSTEM-WIDE TRAINED MODEL USAGE FIXED ✅
+### July 13, 2025 - CORRECT LORA ARCHITECTURE IMPLEMENTED ✅
 
-**🚨 CRITICAL FIX: All Users Now Use Their Trained Models (Not Base FLUX)**
-- **Root Cause Fixed**: System was using `black-forest-labs/flux-dev-lora` with trigger words instead of actual trained model versions
-- **Training→Generation Pipeline**: Fixed automatic transition from `ostris/flux-dev-lora-trainer` (training) to trained model version (generation)
-- **ALL Users Affected**: Every user was getting generic FLUX results instead of their personalized trained models
-- **Database Schema Enhanced**: Added `replicate_version_id` and `trained_model_path` columns to properly track trained models
-- **API Integration**: System now fetches actual trained model versions from Replicate training completion data
-- **Validation Added**: Image generation throws errors if trained model version cannot be found, preventing fallback to generic FLUX
+**🎯 ARCHITECTURE CORRECTED: Using black-forest-labs/flux-dev-lora + LoRA Weights**
+- **Understanding Fixed**: After training on `ostris/flux-dev-lora-trainer`, users should use `black-forest-labs/flux-dev-lora` with `lora_weights` parameter
+- **Training→Generation Pipeline**: Train on ostris trainer → Use black-forest-labs FLUX with LoRA weights → Get personalized results
+- **LoRA Integration**: System now uses `lora_weights: sandrasocial/{modelName}` instead of trying to use "trained model versions"
+- **Model Architecture**: `black-forest-labs/flux-dev-lora` is the base model that supports LoRA weight loading
+- **Parameter Structure**: Uses `guidance`, `lora_weights`, `lora_scale` as per the model's specification
 
 **✅ Technical Implementation:**
-- Enhanced `image-generation-service.ts` to always fetch and use trained model versions for completed training
-- Updated database schema to store `replicate_version_id` (actual model version) and `trained_model_path`
-- Fixed both Maya and AI-photoshoot endpoints to use real trained models instead of base FLUX + LoRA approach
-- Removed `hf_lora` field since trained model versions already contain the LoRA training
-- Added comprehensive error handling to prevent users from getting generic results
+- Updated `image-generation-service.ts` to use `black-forest-labs/flux-dev-lora` with `lora_weights` parameter
+- Fixed input parameters: `guidance: 3.5`, `lora_weights: sandrasocial/{modelName}`, `lora_scale: 1.0`
+- Removed incorrect attempts to use "trained model versions" - those don't exist for this architecture
+- Both Maya and AI-photoshoot endpoints now use correct LoRA weight approach
+- System correctly applies user's trained LoRA weights to base FLUX model
 
-**✅ Sandra's Model Updated:**
-- Training ID: `91s9jvvr6hrm80cr0pvam9m38m` 
-- Trained Model Version: `sandrasocial/43782722-selfie-lora:7a8f2bc40b4e29d5b3db31bc72b8c68d3103b96d05bf4b04fee4142e6ceb0e6d`
-- System now uses this specific trained version instead of base FLUX
-
-**✅ Real Training Pipeline Verified:**
-- Users upload 10+ selfies → System creates Replicate training job → Real model IDs generated
-- Training process goes beyond UI status - actual Replicate API integration confirmed
-- Platform ready for scale with proven AI training infrastructure
-- Multiple users successfully using the system with real trained models
+**✅ Correct Model Usage:**
+- Base Model: `black-forest-labs/flux-dev-lora:a53fd9255ecba80d99eaab4706c698f861fd47b098012607557385416e46aae5`
+- LoRA Weights: `sandrasocial/43782722-selfie-lora` (for user 43782722)
+- Trigger Word: `user43782722` (included in prompts)
+- Result: Personalized images with user's trained face instead of generic FLUX
 
 ### July 13, 2025 - AI-PHOTOSHOOT WORKSPACE INTEGRATION ✅ - STEP 3 IMPLEMENTATION COMPLETE
 

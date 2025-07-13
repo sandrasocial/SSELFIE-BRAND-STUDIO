@@ -44,68 +44,10 @@ export async function generateImages(request: GenerateImagesRequest): Promise<Ge
     const savedImage = await storage.saveAIImage(aiImageData);
     console.log(`Created AI image record with ID: ${savedImage.id}`);
 
-    // CRITICAL FIX: Always use the user's trained model, never the base FLUX
-    let fluxModelVersion = 'black-forest-labs/flux-dev-lora:a53fd9255ecba80d99eaab4706c698f861fd47b098012607557385416e46aae5';
+    // CORRECT APPROACH: Always use black-forest-labs/flux-dev-lora with user's LoRA weights
+    const fluxModelVersion = modelVersion || 'black-forest-labs/flux-dev-lora:a53fd9255ecba80d99eaab4706c698f861fd47b098012607557385416e46aae5';
     
-    // For completed training, we MUST get the trained model version from Replicate API
-    if (userModel.trainingStatus === 'completed') {
-      console.log(`User has completed training, fetching trained model version...`);
-      
-      // Always fetch the latest training data to get the actual model version
-      if (userModel.replicateModelId) {
-        try {
-          const trainingResponse = await fetch(`https://api.replicate.com/v1/trainings/${userModel.replicateModelId}`, {
-            headers: { 'Authorization': `Token ${process.env.REPLICATE_API_TOKEN}` }
-          });
-          
-          if (trainingResponse.ok) {
-            const trainingData = await trainingResponse.json();
-            console.log('Training data status:', trainingData.status);
-            console.log('Training data version:', trainingData.version);
-            console.log('Training data output:', trainingData.output);
-            
-            if (trainingData.status === 'succeeded') {
-              // The trained model version is in the training response
-              const trainedVersion = trainingData.version; // This is the actual trained model
-              
-              if (trainedVersion) {
-                fluxModelVersion = trainedVersion;
-                console.log(`✅ USING TRAINED MODEL: ${fluxModelVersion}`);
-                
-                // Save it to avoid future API calls
-                await storage.updateUserModel(userId, { 
-                  replicateVersionId: trainedVersion,
-                  trainedModelPath: `sandrasocial/${userModel.modelName}`
-                });
-              } else {
-                console.error('❌ No version found in training data - user will get generic FLUX results');
-                throw new Error('Trained model version not available');
-              }
-            } else {
-              console.error('❌ Training not succeeded:', trainingData.status);
-              throw new Error(`Training status: ${trainingData.status}`);
-            }
-          } else {
-            console.error('❌ Failed to fetch training data');
-            throw new Error('Could not fetch training data from Replicate');
-          }
-        } catch (error) {
-          console.error('❌ CRITICAL ERROR: Cannot use trained model:', error.message);
-          throw new Error(`Cannot generate images: trained model not accessible - ${error.message}`);
-        }
-      } else {
-        console.error('❌ No replicate model ID for completed training');
-        throw new Error('Cannot generate images: no training ID found');
-      }
-    } else {
-      throw new Error(`Cannot generate images: user model training status is '${userModel.trainingStatus}', must be 'completed'`);
-    }
-    
-    // Override with explicitly passed modelVersion only if it's a trained model
-    if (modelVersion && modelVersion.includes(':')) {
-      fluxModelVersion = modelVersion;
-      console.log(`Using explicitly provided trained model: ${fluxModelVersion}`);
-    }
+    console.log(`✅ Using black-forest-labs/flux-dev-lora with trained LoRA: sandrasocial/${userModel.modelName}`);
     
     // Ensure the prompt includes the user's trigger word
     let finalPrompt = customPrompt;
@@ -134,9 +76,9 @@ export async function generateImages(request: GenerateImagesRequest): Promise<Ge
     // Build input with optimal FLUX LoRA settings for amazing photos
     const input: any = {
       prompt: finalPrompt,
-      negative_prompt: "glossy fake skin, deep unflattering wrinkles, flat unflattering hair, artificial plastic appearance, over-smooth skin, bad lighting, unflattering angle",
-      // NO LORA FIELD - the trained model version already contains the LoRA training
-      guidance_scale: 2.8,        // Lowered from 3.5 to 2.8 for testing
+      guidance: 3.5,              // Guidance for black-forest-labs/flux-dev-lora
+      lora_weights: `sandrasocial/${userModel.modelName}`, // User's trained LoRA weights
+      lora_scale: 1.0,           // Full LoRA application
       num_inference_steps: 32,    // Higher steps for better quality
       output_quality: 100,        // Maximum quality
       aspect_ratio: "3:4",        // Portrait ratio better for selfies
@@ -144,7 +86,6 @@ export async function generateImages(request: GenerateImagesRequest): Promise<Ge
       go_fast: false,             // Quality over speed
       megapixels: "1",           // Good balance of quality/speed
       num_outputs: 3,            // Generate 3 focused images
-      lora_scale: 1.0,           // Full LoRA application
       disable_safety_checker: false
     };
     
