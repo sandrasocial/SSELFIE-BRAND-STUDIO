@@ -748,17 +748,33 @@ Your goal is to have a natural conversation, understand their vision deeply, and
       // Create a username-based subdomain (sanitize for URL)
       const username = pageName.toLowerCase().replace(/[^a-z0-9]/g, '');
       
-      // Save the landing page to database
-      const landingPage = await storage.createUserLandingPage({
-        userId,
-        title: pageName,
-        htmlContent,
-        slug: username,
-        isPublished: true,
-        customDomain: null,
-        cssContent: '', // CSS is inline in htmlContent
-        templateUsed: 'victoria-template'
-      });
+      // Check if page already exists and update it, or create new one
+      const existingPages = await storage.getUserLandingPages(userId);
+      const existingPage = existingPages?.find(page => page.slug === username);
+      
+      let landingPage;
+      if (existingPage) {
+        // Update existing page
+        landingPage = await storage.updateUserLandingPage(existingPage.id, {
+          title: pageName,
+          htmlContent,
+          isPublished: true,
+          cssContent: '', // CSS is inline in htmlContent
+          templateUsed: 'victoria-template'
+        });
+      } else {
+        // Create new page
+        landingPage = await storage.createUserLandingPage({
+          userId,
+          title: pageName,
+          htmlContent,
+          slug: username,
+          isPublished: true,
+          customDomain: null,
+          cssContent: '', // CSS is inline in htmlContent
+          templateUsed: 'victoria-template'
+        });
+      }
 
       // Return the live URL
       const liveUrl = `${req.protocol}://${req.get('host')}/${username}`;
