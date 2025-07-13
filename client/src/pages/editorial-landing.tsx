@@ -5,6 +5,7 @@ import { PortfolioSection } from "@/components/portfolio-section";
 import SignupGift from "@/components/signup-gift";
 
 export default function EditorialLanding() {
+  console.log('EditorialLanding component rendering');
   const [, setLocation] = useLocation();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
