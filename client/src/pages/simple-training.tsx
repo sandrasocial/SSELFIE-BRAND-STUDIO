@@ -1010,7 +1010,13 @@ export default function SimpleTraining() {
           </div>
         </section>
 
-
+        {/* Add spinning animation */}
+        <style jsx>{`
+          @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+          }
+        `}</style>
       </div>
     </PaymentVerification>
   );
