@@ -1,194 +1,257 @@
-import React, { useState, useEffect } from 'react';
-import { useAuth } from '@/hooks/use-auth';
-import { useLocation } from 'wouter';
-import { useToast } from '@/hooks/use-toast';
-import { Button } from '@/components/ui/button';
-import { Textarea } from '@/components/ui/textarea';
+import React, { useState } from 'react';
+import { WorkspaceNavigation } from '@/components/workspace-navigation';
+import { SandraImages } from '@/lib/sandra-images';
+import { Link } from 'wouter';
 
-interface ChatMessage {
-  role: 'user' | 'victoria';
-  content: string;
-  timestamp: string;
+interface QuickLinkCard {
+  id: string;
+  title: string;
+  description: string;
+  image: string;
+  route: string;
+  category: string;
 }
 
-export default function Victoria() {
-  const { user, isLoading } = useAuth();
-  const [, setLocation] = useLocation();
-  const { toast } = useToast();
-  const [messages, setMessages] = useState<ChatMessage[]>([]);
-  const [input, setInput] = useState('');
-  const [isTyping, setIsTyping] = useState(false);
+export default function VictoriaLandingPage() {
+  
+  // Brand strategy categories for organization
+  const strategyCategories = [
+    { name: 'Brand Strategy', count: 18, preview: SandraImages.hero.pricing },
+    { name: 'Content Planning', count: 22, preview: SandraImages.editorial.laptop1 },
+    { name: 'Business Growth', count: 16, preview: SandraImages.journey.success },
+    { name: 'Market Positioning', count: 14, preview: SandraImages.editorial.aiSuccess }
+  ];
 
-  // Redirect to login if not authenticated
-  useEffect(() => {
-    if (!isLoading && !user) {
-      toast({
-        title: "Authentication Required",
-        description: "Please log in to chat with Victoria AI",
-        variant: "destructive",
-      });
-      setLocation('/pricing');
-      return;
+  // Recent strategy sessions preview
+  const recentSessions = [
+    { id: 1, preview: "Personal brand positioning for coaches...", date: "Today", unread: 1 },
+    { id: 2, preview: "Content strategy for LinkedIn growth...", date: "Yesterday", unread: 0 },
+    { id: 3, preview: "Target audience identification workshop...", date: "2 days ago", unread: 0 }
+  ];
+
+  // Quick link cards for Victoria's services
+  const quickLinkCards: QuickLinkCard[] = [
+    {
+      id: 'new-chat',
+      title: 'Start New Chat with Victoria',
+      description: 'Get strategic brand guidance and business insights',
+      image: SandraImages.hero.pricing,
+      route: '/victoria',
+      category: 'Strategy Session'
+    },
+    {
+      id: 'recent-sessions',
+      title: 'Recent Strategy Sessions',
+      description: 'Continue previous brand strategy discussions',
+      image: SandraImages.editorial.laptop1,
+      route: '/victoria?history=true',
+      category: 'Session History'
+    },
+    {
+      id: 'brand-profile',
+      title: 'Brand Profile & Goals',
+      description: 'Update your business goals and target market',
+      image: SandraImages.journey.success,
+      route: '/profile?tab=brand',
+      category: 'Brand Setup'
+    },
+    {
+      id: 'strategy-library',
+      title: 'Strategy Resources',
+      description: 'Access your custom brand strategy templates',
+      image: SandraImages.editorial.aiSuccess,
+      route: '/strategy-library',
+      category: 'Resources'
     }
-  }, [user, isLoading, setLocation, toast]);
-
-  // Initialize with Victoria's welcome message
-  useEffect(() => {
-    if (user && messages.length === 0) {
-      setMessages([{
-        role: 'victoria',
-        content: `Hi ${user.firstName || 'there'}! I'm Victoria, your personal brand strategist. I help ambitious women like you build powerful personal brands that attract dream clients and opportunities.\n\nWhether you're launching a business, growing your following, or positioning yourself as an expert in your field - I'm here to guide you every step of the way.\n\nWhat's your biggest brand challenge right now? Let's figure this out together! 💪`,
-        timestamp: new Date().toISOString()
-      }]);
-    }
-  }, [user, messages.length]);
-
-  const sendMessage = async () => {
-    if (!input.trim()) return;
-
-    const userMessage: ChatMessage = {
-      role: 'user',
-      content: input,
-      timestamp: new Date().toISOString()
-    };
-
-    setMessages(prev => [...prev, userMessage]);
-    setInput('');
-    setIsTyping(true);
-
-    try {
-      const response = await fetch('/api/victoria-chat', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          message: input,
-          chatHistory: messages
-        }),
-      });
-
-      const data = await response.json();
-
-      const victoriaMessage: ChatMessage = {
-        role: 'victoria',
-        content: data.message || "I'm strategizing! Give me a moment and ask me again about your brand goals.",
-        timestamp: new Date().toISOString()
-      };
-
-      setMessages(prev => [...prev, victoriaMessage]);
-    } catch (error) {
-      console.error('Victoria chat error:', error);
-      toast({
-        title: "Connection Error",
-        description: "Victoria is having trouble connecting. Please try again.",
-        variant: "destructive",
-      });
-    } finally {
-      setIsTyping(false);
-    }
-  };
-
-  const handleKeyPress = (e: React.KeyboardEvent) => {
-    if (e.key === 'Enter' && !e.shiftKey) {
-      e.preventDefault();
-      sendMessage();
-    }
-  };
-
-  if (isLoading) {
-    return (
-      <div className="min-h-screen bg-white flex items-center justify-center">
-        <div className="text-center">
-          <div className="w-8 h-8 border border-black border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
-          <p className="text-gray-600">Loading Victoria AI...</p>
-        </div>
-      </div>
-    );
-  }
-
-  if (!user) {
-    return null; // Will redirect to login
-  }
+  ];
 
   return (
-    <div className="min-h-screen bg-white flex flex-col">
-      {/* Header */}
-      <header className="border-b border-gray-200 p-4 sm:p-6">
-        <div className="max-w-4xl mx-auto flex items-center justify-between">
-          <div>
-            <h1 className="text-2xl sm:text-3xl font-serif font-light text-black">
-              Victoria AI
-            </h1>
-            <p className="text-sm text-gray-600 mt-1">
-              Your personal brand strategist
+    <div className="min-h-screen bg-white">
+      {/* Navigation */}
+      <WorkspaceNavigation />
+
+      {/* Hero Section - Victoria Introduction */}
+      <section className="relative py-20 sm:py-32 px-4 sm:px-6 md:px-8 bg-white">
+        <div className="max-w-7xl mx-auto">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 lg:gap-16 items-center">
+            {/* Hero Content */}
+            <div className="order-2 lg:order-1">
+              <div className="text-[10px] sm:text-xs font-normal tracking-[0.3em] sm:tracking-[0.4em] uppercase text-[#666666] mb-8">
+                AI Brand Strategist
+              </div>
+              
+              <h1 className="font-times text-[clamp(2.5rem,8vw,6rem)] leading-[0.9] font-extralight tracking-[-0.02em] text-black mb-8">
+                VICTORIA
+              </h1>
+              
+              <p className="text-lg sm:text-xl font-light leading-relaxed text-[#666666] mb-12 max-w-xl">
+                Your AI brand strategist who transforms ambitious women into recognized experts. 
+                Victoria helps you clarify your message, position your expertise, and build a personal brand that attracts dream opportunities.
+              </p>
+
+              <div className="space-y-6">
+                <div className="flex items-center space-x-4">
+                  <div className="w-2 h-2 bg-black"></div>
+                  <span className="text-sm tracking-[0.1em] uppercase text-[#666666]">Strategic Brand Positioning</span>
+                </div>
+                <div className="flex items-center space-x-4">
+                  <div className="w-2 h-2 bg-black"></div>
+                  <span className="text-sm tracking-[0.1em] uppercase text-[#666666]">Content & Marketing Strategy</span>
+                </div>
+                <div className="flex items-center space-x-4">
+                  <div className="w-2 h-2 bg-black"></div>
+                  <span className="text-sm tracking-[0.1em] uppercase text-[#666666]">Business Growth Planning</span>
+                </div>
+              </div>
+            </div>
+            
+            {/* Hero Image */}
+            <div className="order-1 lg:order-2">
+              <div className="aspect-[4/5] bg-[#f5f5f5] overflow-hidden">
+                <img 
+                  src={SandraImages.hero.pricing}
+                  alt="Victoria AI Brand Strategist"
+                  className="w-full h-full object-cover"
+                />
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* Quick Access Dashboard */}
+      <section className="py-16 sm:py-20 px-4 sm:px-6 md:px-8 bg-[#f5f5f5]">
+        <div className="max-w-7xl mx-auto">
+          <div className="text-center mb-16">
+            <h2 className="font-times text-[clamp(2rem,6vw,4rem)] leading-[0.9] font-extralight tracking-[-0.02em] text-black mb-8">
+              YOUR VICTORIA DASHBOARD
+            </h2>
+            <p className="text-base sm:text-lg font-light text-[#666666] max-w-2xl mx-auto">
+              Strategic guidance and brand development tools at your fingertips
             </p>
           </div>
-          <Button
-            variant="outline"
-            onClick={() => setLocation('/workspace')}
-            className="text-sm"
-          >
-            ← Back to Studio
-          </Button>
-        </div>
-      </header>
 
-      {/* Chat Container */}
-      <div className="flex-1 flex flex-col max-w-4xl mx-auto w-full">
-        {/* Messages Area */}
-        <div className="flex-1 overflow-y-auto p-4 sm:p-6 space-y-6">
-          {messages.map((message, index) => (
-            <div key={index} className={`flex ${message.role === 'user' ? 'justify-end' : 'justify-start'}`}>
-              <div className={`max-w-2xl ${message.role === 'user' ? 'bg-black text-white' : 'bg-gray-50 text-black'} p-4 sm:p-6`}>
-                <div className="whitespace-pre-wrap text-sm sm:text-base leading-relaxed">
-                  {message.content}
+          {/* Quick Link Cards Grid */}
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-8 lg:gap-12">
+            {quickLinkCards.map((card) => (
+              <Link key={card.id} href={card.route}>
+                <div className="bg-white group hover:bg-[#f9f9f9] transition-all duration-300 cursor-pointer">
+                  <div className="aspect-[4/3] overflow-hidden bg-[#f5f5f5]">
+                    <img 
+                      src={card.image}
+                      alt={card.title}
+                      className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                    />
+                  </div>
+                  <div className="p-8">
+                    <div className="text-[10px] tracking-[0.3em] uppercase text-[#666666] mb-4">
+                      {card.category}
+                    </div>
+                    <h3 className="font-times text-xl sm:text-2xl font-light tracking-[-0.01em] text-black mb-4">
+                      {card.title}
+                    </h3>
+                    <p className="text-sm font-light text-[#666666] leading-relaxed">
+                      {card.description}
+                    </p>
+                    <div className="mt-6 text-[10px] tracking-[0.2em] uppercase text-black group-hover:tracking-[0.3em] transition-all duration-300">
+                      Access →
+                    </div>
+                  </div>
                 </div>
-                <div className={`text-xs mt-3 ${message.role === 'user' ? 'text-white/60' : 'text-gray-500'}`}>
-                  {message.role === 'user' ? 'You' : 'Victoria'} • {new Date(message.timestamp).toLocaleTimeString()}
-                </div>
-              </div>
-            </div>
-          ))}
-          
-          {isTyping && (
-            <div className="flex justify-start">
-              <div className="bg-gray-50 text-black p-4 sm:p-6 max-w-2xl">
-                <div className="flex items-center space-x-1">
-                  <div className="w-2 h-2 bg-gray-400 rounded-full animate-bounce"></div>
-                  <div className="w-2 h-2 bg-gray-400 rounded-full animate-bounce" style={{ animationDelay: '0.1s' }}></div>
-                  <div className="w-2 h-2 bg-gray-400 rounded-full animate-bounce" style={{ animationDelay: '0.2s' }}></div>
-                </div>
-                <div className="text-xs mt-3 text-gray-500">Victoria is strategizing...</div>
-              </div>
-            </div>
-          )}
-        </div>
-
-        {/* Input Area */}
-        <div className="border-t border-gray-200 p-4 sm:p-6">
-          <div className="flex gap-3">
-            <Textarea
-              value={input}
-              onChange={(e) => setInput(e.target.value)}
-              onKeyPress={handleKeyPress}
-              placeholder="Ask Victoria about your brand strategy, content ideas, business growth..."
-              className="flex-1 min-h-[60px] resize-none border-gray-300 focus:border-black focus:ring-black"
-              disabled={isTyping}
-            />
-            <Button
-              onClick={sendMessage}
-              disabled={!input.trim() || isTyping}
-              className="bg-black text-white hover:bg-gray-800 px-6"
-            >
-              Send
-            </Button>
+              </Link>
+            ))}
           </div>
-          <p className="text-xs text-gray-500 mt-2">
-            Press Enter to send, Shift+Enter for new line
-          </p>
         </div>
-      </div>
+      </section>
+
+      {/* Strategy Categories Overview */}
+      <section className="py-16 sm:py-20 px-4 sm:px-6 md:px-8 bg-white">
+        <div className="max-w-7xl mx-auto">
+          <div className="text-center mb-16">
+            <h2 className="font-times text-[clamp(2rem,6vw,4rem)] leading-[0.9] font-extralight tracking-[-0.02em] text-black mb-8">
+              STRATEGY FOCUS AREAS
+            </h2>
+            <p className="text-base sm:text-lg font-light text-[#666666] max-w-2xl mx-auto">
+              Comprehensive brand strategy across all business dimensions
+            </p>
+          </div>
+
+          <div className="grid grid-cols-2 lg:grid-cols-4 gap-6 lg:gap-8">
+            {strategyCategories.map((category) => (
+              <Link key={category.name} href={`/victoria?focus=${category.name.toLowerCase().replace(' ', '-')}`}>
+                <div className="group cursor-pointer">
+                  <div className="aspect-square overflow-hidden bg-[#f5f5f5] mb-4">
+                    <img 
+                      src={category.preview}
+                      alt={category.name}
+                      className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                    />
+                  </div>
+                  <div className="text-center">
+                    <h3 className="font-times text-lg sm:text-xl font-light tracking-[-0.01em] text-black mb-2">
+                      {category.name}
+                    </h3>
+                    <p className="text-xs tracking-[0.1em] uppercase text-[#666666]">
+                      {category.count} Resources
+                    </p>
+                  </div>
+                </div>
+              </Link>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* Recent Strategy Sessions */}
+      <section className="py-16 sm:py-20 px-4 sm:px-6 md:px-8 bg-[#f5f5f5]">
+        <div className="max-w-4xl mx-auto">
+          <div className="text-center mb-12">
+            <h2 className="font-times text-[clamp(1.8rem,5vw,3rem)] leading-[0.9] font-extralight tracking-[-0.02em] text-black mb-6">
+              RECENT STRATEGY SESSIONS
+            </h2>
+            <p className="text-base font-light text-[#666666]">
+              Continue building your brand strategy with Victoria
+            </p>
+          </div>
+
+          <div className="space-y-4">
+            {recentSessions.map((session) => (
+              <Link key={session.id} href={`/victoria?session=${session.id}`}>
+                <div className="bg-white p-6 hover:bg-[#f9f9f9] transition-all duration-300 cursor-pointer group">
+                  <div className="flex items-center justify-between">
+                    <div className="flex-1">
+                      <p className="text-sm font-light text-black mb-2 group-hover:text-[#333] transition-colors">
+                        {session.preview}
+                      </p>
+                      <div className="flex items-center space-x-4">
+                        <span className="text-xs tracking-[0.1em] uppercase text-[#666666]">
+                          {session.date}
+                        </span>
+                        {session.unread > 0 && (
+                          <span className="text-xs tracking-[0.1em] uppercase text-black">
+                            {session.unread} New Insight
+                          </span>
+                        )}
+                      </div>
+                    </div>
+                    <div className="text-[10px] tracking-[0.2em] uppercase text-[#666666] group-hover:text-black group-hover:tracking-[0.3em] transition-all duration-300">
+                      Continue →
+                    </div>
+                  </div>
+                </div>
+              </Link>
+            ))}
+          </div>
+
+          <div className="text-center mt-12">
+            <Link href="/victoria?history=all">
+              <button className="text-[10px] tracking-[0.2em] uppercase text-black hover:tracking-[0.3em] transition-all duration-300 pb-2 border-b border-black/20 hover:border-black">
+                View All Strategy Sessions
+              </button>
+            </Link>
+          </div>
+        </div>
+      </section>
     </div>
   );
 }
