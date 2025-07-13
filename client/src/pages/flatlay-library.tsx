@@ -3831,7 +3831,7 @@ const flatlayCollections: FlatlayCollection[] = [
       },
       {
         id: 'pg-95',
-        url: 'https://i.postimg.cc/90g2Xvg2/3.png',
+        url: 'https://i.postimg.cc/3x59MMks/3.png',
         title: 'Pink & Girly 95',
         category: 'Pink & Girly',
         description: 'Pink & Girly aesthetic flatlay'
@@ -3908,7 +3908,7 @@ const flatlayCollections: FlatlayCollection[] = [
       },
       {
         id: 'pg-106',
-        url: 'https://i.postimg.cc/8cc8YZp0/4.png',
+        url: 'https://i.postimg.cc/52BgbPv6/4.png',
         title: 'Pink & Girly 106',
         category: 'Pink & Girly',
         description: 'Pink & Girly aesthetic flatlay'
@@ -3985,7 +3985,7 @@ const flatlayCollections: FlatlayCollection[] = [
       },
       {
         id: 'pg-117',
-        url: 'https://i.postimg.cc/y8ZD5PLp/5.png',
+        url: 'https://i.postimg.cc/s1FPRSgY/5.png',
         title: 'Pink & Girly 117',
         category: 'Pink & Girly',
         description: 'Pink & Girly aesthetic flatlay'
