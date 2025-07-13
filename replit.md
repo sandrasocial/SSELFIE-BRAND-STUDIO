@@ -289,6 +289,8 @@ The platform has become overly complex with multiple pricing tiers, broken onboa
 - **User Journey Simplified**: Removed steps 3-4, streamlined to 5 core steps: Train AI → Maya Photoshoot → Gallery → Flatlays → Victoria
 - **Navigation Cleaned**: Updated to TRAIN, PHOTOSHOOT (Maya), GALLERY, FLATLAYS, PROFILE across all authenticated pages
 - **Global Footer**: Created comprehensive footer component with platform links, support, and legal sections
+- **Step Numbers Fixed**: Updated remaining steps from 08, 09 to 06, 07 after removing steps 3-4
+- **Technical Details Removed**: Eliminated user-facing display of model IDs and trigger words for cleaner experience
 - **Professional Layout**: Maintained luxury editorial design while improving user flow and accessibility
 
 #### ✅ PERMANENT IMAGE STORAGE SYSTEM IMPLEMENTED (July 13, 2025)

@@ -91,7 +91,7 @@ export default function Workspace() {
     },
     {
       id: 'business',
-      number: '08',
+      number: '06',
       title: 'Build Your Business',
       subtitle: 'Landing pages, booking, payments',
       status: 'coming-soon',
@@ -101,7 +101,7 @@ export default function Workspace() {
     },
     {
       id: 'profile',
-      number: '09',
+      number: '07',
       title: 'Your Profile',
       subtitle: 'Account settings and preferences',
       status: 'ready',
