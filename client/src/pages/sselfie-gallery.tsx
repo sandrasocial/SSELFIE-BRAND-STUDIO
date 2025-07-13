@@ -57,21 +57,7 @@ export default function SSELFIEGallery() {
     }
   });
 
-  // Migration mutation for permanent storage
-  const migrateToPermanentMutation = useMutation({
-    mutationFn: async () => {
-      return await apiRequest('POST', '/api/migrate-images-to-permanent');
-    },
-    onSuccess: () => {
-      // Refresh gallery images data after migration
-      queryClient.invalidateQueries({ queryKey: ['/api/gallery-images'] });
-      alert('All images have been migrated to permanent storage!');
-    },
-    onError: (error) => {
-      console.error('Migration error:', error);
-      alert('Migration failed. Please try again.');
-    }
-  });
+
 
   const downloadImage = async (imageUrl: string, filename: string) => {
     try {
@@ -114,14 +100,7 @@ export default function SSELFIEGallery() {
     }
   };
 
-  // Helper function to check if URL is permanent
-  const isPermanentUrl = (url: string) => {
-    return url && (url.includes('amazonaws.com') || url.includes('s3.'));
-  };
 
-  // Count temporary images that need migration
-  const temporaryImages = aiImages.filter(img => !isPermanentUrl(img.imageUrl));
-  const needsMigration = temporaryImages.length > 0;
 
   const toggleFavorite = (imageId: number) => {
     console.log('Heart clicked for image:', imageId);
@@ -306,28 +285,7 @@ export default function SSELFIEGallery() {
                 </button>
               )}
               
-              {needsMigration && (
-                <button
-                  onClick={() => migrateToPermanentMutation.mutate()}
-                  disabled={migrateToPermanentMutation.isPending}
-                  style={{
-                    padding: '16px 32px',
-                    fontSize: '11px',
-                    fontWeight: 400,
-                    letterSpacing: '0.3em',
-                    textTransform: 'uppercase',
-                    textDecoration: 'none',
-                    border: '1px solid #0a0a0a',
-                    color: '#ffffff',
-                    background: migrateToPermanentMutation.isPending ? '#666666' : '#0a0a0a',
-                    transition: 'all 300ms ease',
-                    cursor: migrateToPermanentMutation.isPending ? 'not-allowed' : 'pointer',
-                    opacity: migrateToPermanentMutation.isPending ? 0.7 : 1
-                  }}
-                >
-                  {migrateToPermanentMutation.isPending ? 'Saving Images...' : `Make ${temporaryImages.length} Images Permanent`}
-                </button>
-              )}
+
             </div>
 
             {/* Filter Controls - Centered */}
@@ -498,29 +456,7 @@ export default function SSELFIEGallery() {
                       }}
                     />
                     
-                    {/* Storage Status Indicator */}
-                    <div
-                      style={{
-                        position: 'absolute',
-                        top: '16px',
-                        left: '16px',
-                        background: isPermanentUrl(image.imageUrl) 
-                          ? 'rgba(0, 128, 0, 0.8)' 
-                          : 'rgba(255, 165, 0, 0.8)',
-                        border: 'none',
-                        color: '#ffffff',
-                        fontSize: '10px',
-                        padding: '4px 8px',
-                        borderRadius: '12px',
-                        fontWeight: 500,
-                        letterSpacing: '0.1em',
-                        textTransform: 'uppercase',
-                        backdropFilter: 'blur(10px)',
-                        zIndex: 5
-                      }}
-                    >
-                      {isPermanentUrl(image.imageUrl) ? 'Permanent' : 'Temp'}
-                    </div>
+
 
                     {/* Favorite Heart Button */}
                     <button
