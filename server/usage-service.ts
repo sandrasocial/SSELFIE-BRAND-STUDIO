@@ -98,9 +98,9 @@ export class UsageService {
   static async checkUsageLimit(userId: string): Promise<UsageCheck> {
     let usage = await storage.getUserUsage(userId);
     
-    // Auto-initialize usage for new users with AI Pack plan
+    // Auto-initialize usage for new users with SSELFIE_STUDIO plan
     if (!usage) {
-      await this.initializeUserUsage(userId, 'ai-pack');
+      await this.initializeUserUsage(userId, 'SSELFIE_STUDIO');
       usage = await storage.getUserUsage(userId);
       if (!usage) {
         throw new Error('Failed to initialize user usage');
