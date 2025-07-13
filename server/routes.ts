@@ -565,6 +565,67 @@ Your goal is to have a natural conversation, understand their vision deeply, and
     }
   });
 
+  // Maya Chat History endpoints
+  app.get('/api/maya-chats', async (req: any, res) => {
+    try {
+      const userId = req.session?.userId || req.user?.claims?.sub || 'sandra_test_user_2025';
+      const chats = await storage.getMayaChats(userId);
+      res.json(chats);
+    } catch (error) {
+      console.error('Error fetching Maya chats:', error);
+      res.status(500).json({ error: 'Failed to fetch chat history' });
+    }
+  });
+
+  app.get('/api/maya-chats/:chatId/messages', async (req: any, res) => {
+    try {
+      const { chatId } = req.params;
+      const messages = await storage.getMayaChatMessages(parseInt(chatId));
+      res.json(messages);
+    } catch (error) {
+      console.error('Error fetching Maya chat messages:', error);
+      res.status(500).json({ error: 'Failed to fetch chat messages' });
+    }
+  });
+
+  app.post('/api/maya-chats', async (req: any, res) => {
+    try {
+      const userId = req.session?.userId || req.user?.claims?.sub || 'sandra_test_user_2025';
+      const { chatTitle, chatSummary } = req.body;
+      
+      const chat = await storage.createMayaChat({
+        userId,
+        chatTitle: chatTitle || 'New Maya Photoshoot',
+        chatSummary
+      });
+      
+      res.json(chat);
+    } catch (error) {
+      console.error('Error creating Maya chat:', error);
+      res.status(500).json({ error: 'Failed to create chat' });
+    }
+  });
+
+  app.post('/api/maya-chats/:chatId/messages', async (req: any, res) => {
+    try {
+      const { chatId } = req.params;
+      const { role, content, imagePreview, generatedPrompt } = req.body;
+      
+      const message = await storage.createMayaChatMessage({
+        chatId: parseInt(chatId),
+        role,
+        content,
+        imagePreview: imagePreview ? JSON.stringify(imagePreview) : null,
+        generatedPrompt
+      });
+      
+      res.json(message);
+    } catch (error) {
+      console.error('Error creating Maya chat message:', error);
+      res.status(500).json({ error: 'Failed to save message' });
+    }
+  });
+
   // Victoria AI Chat endpoint
   app.post('/api/victoria-chat', async (req: any, res) => {
     try {
