@@ -67,8 +67,8 @@ export async function generateImages(request: GenerateImagesRequest): Promise<Ge
     
     const randomCameraSpec = cameraSpecs[Math.floor(Math.random() * cameraSpecs.length)];
     
-    // Add FLUX-optimized enhancement specifications with pose variety and natural skin
-    const filmTextureSpecs = ", heavy 35mm film grain, pronounced grain structure, soft matte skin NOT plastic skin, gentle skin retouching NOT fake skin, flattering natural lighting NOT artificial lighting, subtle skin smoothing NOT glossy skin, elegant skin enhancement NOT synthetic skin, natural facial refinement NOT digital skin, professional editorial retouching NOT CGI skin, soft focus skin perfection NOT shiny skin, gentle beauty enhancement NOT artificial beauty, naturally refined skin texture NOT rendered skin, sophisticated skin treatment NOT mannequin skin, elegant beauty photography NOT fake beauty, refined natural beauty NOT plastic beauty, natural human skin NOT doll skin, authentic skin texture NOT artificial skin texture";
+    // Add RAW PHOTOGRAPHY specifications matching training data aesthetic
+    const filmTextureSpecs = ", MOODY RAW PHOTOGRAPHY, heavy 35mm film grain, pronounced grain structure, raw photo, unretouched skin texture, visible skin imperfections, natural skin pores, authentic skin NOT plastic skin, real skin texture NOT fake skin, documentary style lighting NOT artificial lighting, unprocessed skin NOT glossy skin, raw natural beauty NOT synthetic skin, authentic human skin NOT digital skin, film grain texture NOT CGI skin, matte natural finish NOT shiny skin, unretouched raw emotion NOT artificial beauty, natural imperfections NOT rendered skin, authentic documentary feel NOT mannequin skin, raw film aesthetic NOT fake beauty, real human texture NOT plastic beauty, genuine skin NOT doll skin, natural authentic texture NOT artificial skin texture";
     
     // Add pose variety randomization to prevent repetition (FLUX research-backed)
     const poseVariations = [
@@ -137,9 +137,9 @@ export async function generateImages(request: GenerateImagesRequest): Promise<Ge
       finalPrompt = `${finalPrompt}${filmTextureSpecs}`;
     }
     
-    // FLUX doesn't support negative_prompt parameter, so we embed anti-plastic terms directly in positive prompt
-    // Add explicit "NOT" statements to combat plastic/fake skin since negative prompts don't work
-    const antiPlasticSpecs = ", with natural matte skin NOT plastic skin, with real skin texture NOT fake skin, with authentic human skin NOT synthetic skin, with organic skin NOT artificial skin, with natural skin NOT digital skin, with real human face NOT CGI skin, with natural texture NOT 3D rendered skin, with human skin NOT mannequin skin, with natural face NOT doll skin, with real skin NOT wax skin, with matte finish NOT glossy skin, with natural lighting NOT artificial lighting, with subtle enhancement NOT over-processed enhancement, with gentle retouching NOT beauty filter artifacts, with natural beauty NOT digital manipulation, with authentic appearance NOT computer generated face, with real makeup NOT digital makeup, with natural skin tone NOT unnatural skin, with soft skin NOT harsh skin, with natural imperfections NOT perfect skin";
+    // FLUX doesn't support negative_prompt parameter, so we embed raw photography terms directly in positive prompt
+    // Add explicit "NOT" statements for raw, unretouched aesthetic matching training data
+    const antiPlasticSpecs = ", with raw unretouched skin NOT plastic skin, with visible skin imperfections NOT fake skin, with natural skin pores NOT synthetic skin, with authentic human texture NOT artificial skin, with film grain skin NOT digital skin, with documentary realism NOT CGI skin, with natural texture NOT 3D rendered skin, with human skin imperfections NOT mannequin skin, with raw natural face NOT doll skin, with unprocessed skin NOT wax skin, with matte natural finish NOT glossy skin, with moody natural lighting NOT artificial lighting, with no retouching NOT over-processed enhancement, with raw photography NOT beauty filter artifacts, with authentic documentary style NOT digital manipulation, with genuine appearance NOT computer generated face, with natural makeup NOT digital makeup, with real skin tone NOT unnatural skin, with natural human flaws NOT harsh skin, with authentic imperfections NOT perfect skin";
     
     // Always add anti-plastic specifications since FLUX ignores negative_prompt
     finalPrompt = `${finalPrompt}${antiPlasticSpecs}`;
@@ -154,17 +154,17 @@ export async function generateImages(request: GenerateImagesRequest): Promise<Ge
       }
     }
 
-    // Build input with OPTIMAL FLUX LoRA parameters based on research
+    // Build input with SOFT RAW PHOTOGRAPHY parameters for natural, unretouched look
     const input: any = {
       prompt: finalPrompt,        // Includes embedded "NOT plastic skin" statements
-      guidance: 3.0,              // OPTIMAL: 2.5-3.0 range for realistic images (research-backed)
+      guidance: 2.0,              // REDUCED: Lower guidance for softer, less processed look
       lora_weights: `sandrasocial/${userModel.modelName}`, // User's trained LoRA weights
-      lora_scale: 0.8,           // OPTIMAL: 0.7-0.9 range for balanced application (research-backed)
-      num_inference_steps: 35,    // OPTIMAL: 35+ steps minimum for quality (research-backed)
+      lora_scale: 0.6,           // REDUCED: Lower LoRA for more natural blending with base model
+      num_inference_steps: 25,    // REDUCED: Fewer steps for softer, less refined look
       num_outputs: 3,            // Generate 3 focused images
       aspect_ratio: "3:4",        // Portrait ratio better for selfies
       output_format: "png",       // PNG for highest quality
-      output_quality: 100,        // Maximum quality for best results
+      output_quality: 85,         // REDUCED: Lower quality for more natural grain
       megapixels: "1",           // Approximate megapixels
       go_fast: false,             // Quality over speed - essential for beauty
       disable_safety_checker: false
@@ -172,8 +172,8 @@ export async function generateImages(request: GenerateImagesRequest): Promise<Ge
     
     console.log(`Using FLUX model version: ${fluxModelVersion}`);
     console.log(`Using trained LoRA: sandrasocial/${userModel.modelName}`);
-    console.log(`Final prompt with trigger word and anti-plastic NOT statements: ${finalPrompt}`);
-    console.log('⚙️ FLUX Parameters (NO negative_prompt - FLUX doesnt support it):', JSON.stringify({ guidance: input.guidance, lora_scale: input.lora_scale, num_inference_steps: input.num_inference_steps }, null, 2));
+    console.log(`Final prompt with trigger word and raw photography NOT statements: ${finalPrompt}`);
+    console.log('⚙️ FLUX Parameters for RAW PHOTOGRAPHY (soft, natural, unretouched):', JSON.stringify({ guidance: input.guidance, lora_scale: input.lora_scale, num_inference_steps: input.num_inference_steps, output_quality: input.output_quality }, null, 2));
     
     // Start Replicate generation with correct API format
     const replicateResponse = await fetch('https://api.replicate.com/v1/predictions', {
