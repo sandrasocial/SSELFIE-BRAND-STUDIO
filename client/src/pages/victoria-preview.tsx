@@ -4,14 +4,9 @@ import { Button } from '@/components/ui/button';
 import { useQuery } from '@tanstack/react-query';
 import { Link } from 'wouter';
 import { COMPREHENSIVE_LANDING_TEMPLATE } from '@/components/comprehensive-landing-template';
-import { MULTI_PAGE_HOME_TEMPLATE, MULTI_PAGE_ABOUT_TEMPLATE, MULTI_PAGE_SERVICES_TEMPLATE, MULTI_PAGE_CONTACT_TEMPLATE } from '@/components/multi-page-templates';
-import { CompletionModal } from '@/components/completion-modal';
 
 export default function VictoriaPreview() {
   const [isFullScreen, setIsFullScreen] = useState(true); // Start in full-screen mode
-  const [showCompletionModal, setShowCompletionModal] = useState(false);
-  const [publishedUrl, setPublishedUrl] = useState('');
-  const [currentPage, setCurrentPage] = useState('home'); // Track current page preview
   const previewRef = useRef<HTMLIFrameElement>(null);
 
   const { data: brandData } = useQuery({ queryKey: ['/api/brand-onboarding'] });
@@ -21,13 +16,9 @@ export default function VictoriaPreview() {
   // Function to inject ONLY SELECTED photos from photo-selection step
   const injectUserPhotos = (htmlTemplate: string): string => {
     // Use ONLY the 5 photos selected in photo-selection step
-    if (!photoSelections?.selectedSelfies?.length) {
-      console.log('No photo selections available:', photoSelections);
-      return htmlTemplate;
-    }
+    if (!photoSelections?.selectedSelfies?.length) return htmlTemplate;
 
     const selectedSelfies = photoSelections.selectedSelfies;
-    console.log('Injecting photos from selections:', selectedSelfies.length, 'photos');
     
     // Get flatlay collection chosen by user (not random)
     const flatlayCollection = photoSelections.flatlayCollection || 'Editorial Magazine';
@@ -104,8 +95,8 @@ export default function VictoriaPreview() {
   };
 
   // Generate the populated template with REAL brand data
-  const generatePageHtml = (template: string, pageType: string) => {
-    if (!brandData) return template;
+  const currentHtml = React.useMemo(() => {
+    if (!brandData) return COMPREHENSIVE_LANDING_TEMPLATE;
 
     // Use ACTUAL brand onboarding data
     const businessName = brandData.businessName || 'Your Business';
@@ -137,7 +128,7 @@ export default function VictoriaPreview() {
       `<div class="hero-name-stacked"><h1 class="hero-name-first">${displayFirstName}</h1><h1 class="hero-name-last">${displayLastName}</h1></div>` :
       `<div class="hero-name-stacked"><h1 class="hero-name-first">${displayFirstName}</h1></div>`;
 
-    let updatedHtml = template;
+    let updatedHtml = COMPREHENSIVE_LANDING_TEMPLATE;
     
     // Replace basic variables
     updatedHtml = updatedHtml.replace(/{{BUSINESS_TITLE}}/g, businessName);
@@ -168,10 +159,10 @@ export default function VictoriaPreview() {
       `The ${firstName} Method`;
     
     // Editorial text based on their actual positioning
-    const editorialText1 = problemYouSolve || `${firstName} knows that your story is what sets you apart from everyone else doing "the same thing."`;
+    const editorialText1 = problemYouSolve || 'She believes in authentic connections over perfect presentations.';
     const editorialText2 = targetClient ? 
-      `Working specifically with ${targetClient.toLowerCase()}, she doesn't believe in cookie-cutter approaches. Your business deserves strategy that's as unique as you are.` :
-      `No templates, no copying what everyone else is doing. This is about building something that's unmistakably yours.`;
+      `Working specifically with ${targetClient.toLowerCase()}, every project starts with understanding your unique story.` :
+      'Every project starts with understanding your story, not following a template.';
     
     // Services based on their actual offers
     const service1Title = primaryOffer || 'Brand Strategy';
@@ -188,16 +179,16 @@ export default function VictoriaPreview() {
     
     // Testimonial based on their target client
     const testimonialText = targetClient ?
-      `I thought I knew what I was doing, but ${firstName} helped me see my business in a completely different way. Now I wake up excited about my work instead of constantly second-guessing myself.` :
-      `I thought I knew what I was doing, but working with her helped me see my business in a completely different way. Now I wake up excited about my work instead of constantly second-guessing myself.`;
+      `Working with ${firstName} transformed not just my brand, but how I see myself as a ${targetClient.toLowerCase()}. The clarity and confidence I gained was worth every penny.` :
+      'Working with her transformed not just my brand, but how I see myself as an entrepreneur. The clarity and confidence I gained was worth every penny.';
     
-    const testimonialAuthor = targetClient ? `Sarah M., ${targetClient}` : 'Sarah M., Client';
+    const testimonialAuthor = targetClient ? `Sarah M., ${targetClient}` : 'Sarah M., Brand Strategist';
     
     // Freebie based on their actual free resource
-    const freebieTitle = freeResource || `Free: ${firstName}'s Brand Clarity Guide`;
+    const freebieTitle = freeResource || `The ${firstName} Brand Blueprint`;
     const freebieDescription = freeResource ?
-      `Stop guessing and start growing. Get ${firstName}'s ${freeResource.toLowerCase()} and discover the one thing that will make everything else easier.` :
-      `Stop guessing and start growing. Get the exact process ${firstName} uses with clients to go from "I don't know what I'm doing" to "I know exactly who I serve and how."`;
+      `Get ${firstName}'s exclusive ${freeResource.toLowerCase()} that shows you exactly how to ${problemYouSolve?.toLowerCase() || 'build your authentic brand'}.` :
+      `Get the exact framework ${firstName} uses to help ${targetClient?.toLowerCase() || 'entrepreneurs'} build authentic, profitable personal brands.`;
     
     // Replace all content variables
     updatedHtml = updatedHtml.replace(/{{PERSONAL_STORY}}/g, personalStory);
@@ -224,22 +215,7 @@ export default function VictoriaPreview() {
     updatedHtml = updatedHtml.replace(/{{WEBSITE_URL}}/g, websiteUrl);
 
     return injectUserPhotos(updatedHtml);
-  };
-
-  // Get current page template and HTML
-  const getCurrentTemplate = () => {
-    switch (currentPage) {
-      case 'home': return MULTI_PAGE_HOME_TEMPLATE;
-      case 'about': return MULTI_PAGE_ABOUT_TEMPLATE;
-      case 'services': return MULTI_PAGE_SERVICES_TEMPLATE;
-      case 'contact': return MULTI_PAGE_CONTACT_TEMPLATE;
-      default: return MULTI_PAGE_HOME_TEMPLATE;
-    }
-  };
-
-  const currentHtml = React.useMemo(() => {
-    return generatePageHtml(getCurrentTemplate(), currentPage);
-  }, [brandData, photoSelections, currentPage]);
+  }, [brandData, userGallery]);
 
   // Update iframe when HTML changes
   useEffect(() => {
@@ -255,39 +231,15 @@ export default function VictoriaPreview() {
         {/* Top Bar - BRAND STYLING APPLIED */}
         <div className="bg-white text-black px-6 py-4 border-b border-black">
           <div className="flex items-center justify-between">
-            <div className="flex items-center space-x-6">
+            <div className="flex items-center space-x-4">
               <h1 className="text-xl font-light" style={{ fontFamily: 'Times New Roman, serif' }}>
-                Multi-Page Website Preview
+                Landing Page Preview
               </h1>
-              
-              {/* Page Navigation */}
-              <div className="flex items-center space-x-2">
-                {[
-                  { key: 'home', label: 'HOME' },
-                  { key: 'about', label: 'ABOUT' },
-                  { key: 'services', label: 'SERVICES' },
-                  { key: 'contact', label: 'CONTACT' }
-                ].map((page) => (
-                  <button
-                    key={page.key}
-                    onClick={() => setCurrentPage(page.key)}
-                    className={`px-3 py-1 text-[10px] tracking-[0.3em] uppercase transition-all border ${
-                      currentPage === page.key
-                        ? 'bg-[#0a0a0a] text-white border-[#0a0a0a]'
-                        : 'bg-white text-[#666] border-[#e5e5e5] hover:text-[#0a0a0a] hover:border-[#0a0a0a]'
-                    }`}
-                    style={{ fontFamily: 'Inter, system-ui, sans-serif' }}
-                  >
-                    {page.label}
-                  </button>
-                ))}
-              </div>
-              
               {userGallery?.userSelfies?.length > 0 && (
                 <div className="flex items-center space-x-2">
                   <div className="w-2 h-2 bg-black rounded-full"></div>
                   <span className="text-sm text-gray-600">
-                    Using {userGallery.userSelfies.length} personal photos • All pages ready
+                    Using {userGallery.userSelfies.length} personal photos • All images distributed
                   </span>
                 </div>
               )}
@@ -306,28 +258,19 @@ export default function VictoriaPreview() {
                 className="px-4 py-2 bg-black text-white text-sm hover:bg-gray-800 transition-colors"
                 style={{ letterSpacing: '0.1em', textTransform: 'uppercase' }}
                 onClick={async () => {
+                  if (!currentHtml) return;
+                  
                   try {
                     // Get user's brand data for page name
                     const brandName = brandData?.businessName || brandData?.fullName || 'MyBusiness';
                     const pageName = brandName.toLowerCase().replace(/[^a-z0-9]/g, '');
                     
-                    // Generate all four pages
-                    const homeHtml = generatePageHtml(MULTI_PAGE_HOME_TEMPLATE, 'home');
-                    const aboutHtml = generatePageHtml(MULTI_PAGE_ABOUT_TEMPLATE, 'about');
-                    const servicesHtml = generatePageHtml(MULTI_PAGE_SERVICES_TEMPLATE, 'services');
-                    const contactHtml = generatePageHtml(MULTI_PAGE_CONTACT_TEMPLATE, 'contact');
-                    
-                    const response = await fetch('/api/publish-multi-page-website', {
+                    const response = await fetch('/api/publish-landing-page', {
                       method: 'POST',
                       headers: { 'Content-Type': 'application/json' },
                       body: JSON.stringify({
-                        pageName: pageName,
-                        pages: {
-                          home: homeHtml,
-                          about: aboutHtml,
-                          services: servicesHtml,
-                          contact: contactHtml
-                        }
+                        htmlContent: currentHtml,
+                        pageName: pageName
                       })
                     });
                     
@@ -335,19 +278,19 @@ export default function VictoriaPreview() {
                     
                     if (result.success) {
                       // Show success message with live URL
-                      alert(`🎉 Your multi-page website is now live at:\n${result.liveUrl}\n\nShare this URL with your audience!`);
-                      // Open the live website
+                      alert(`🎉 Your page is now live at:\n${result.liveUrl}\n\nShare this URL with your audience!`);
+                      // Optionally open the live page
                       window.open(result.liveUrl, '_blank');
                     } else {
-                      alert('Failed to publish website. Please try again.');
+                      alert('Failed to publish page. Please try again.');
                     }
                   } catch (error) {
                     console.error('Publish error:', error);
-                    alert('Failed to publish website. Please try again.');
+                    alert('Failed to publish page. Please try again.');
                   }
                 }}
               >
-                Publish Multi-Page Website
+                Publish Live Now
               </button>
               <Link to="/victoria">
                 <button
@@ -412,9 +355,10 @@ export default function VictoriaPreview() {
                     const result = await response.json();
                     
                     if (result.success) {
-                      // Show completion modal with live URL
-                      setPublishedUrl(result.liveUrl);
-                      setShowCompletionModal(true);
+                      // Show success message with live URL
+                      alert(`🎉 Your page is now live at:\n${result.liveUrl}\n\nShare this URL with your audience!`);
+                      // Optionally open the live page
+                      window.open(result.liveUrl, '_blank');
                     } else {
                       alert('Failed to publish page. Please try again.');
                     }
@@ -430,14 +374,6 @@ export default function VictoriaPreview() {
           </div>
         </div>
       </div>
-      
-      {/* Completion Modal */}
-      <CompletionModal 
-        isOpen={showCompletionModal}
-        onClose={() => setShowCompletionModal(false)}
-        liveUrl={publishedUrl}
-        brandName={brandData?.businessName || brandData?.fullName || 'Your Business'}
-      />
     </>
   );
 }
