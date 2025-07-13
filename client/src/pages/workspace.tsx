@@ -3,6 +3,7 @@ import { useAuth } from '@/hooks/use-auth';
 import { useQuery } from '@tanstack/react-query';
 import { Link } from 'wouter';
 import { WorkspaceNavigation } from '@/components/workspace-navigation';
+import { GlobalFooter } from '@/components/global-footer';
 import { SandraImages } from '@/lib/sandra-images';
 
 export default function Workspace() {
@@ -49,48 +50,18 @@ export default function Workspace() {
       image: SandraImages.editorial.laptop1
     },
     {
-      id: 'sandra-photoshoot',
+      id: 'maya-photoshoot',
       number: '02', 
-      title: 'Photoshoot with Sandra',
-      subtitle: 'Chat with Sandra for custom prompts',
+      title: 'Maya - AI Photographer',
+      subtitle: 'Professional celebrity stylist photoshoot',
       status: userModel?.trainingStatus === 'completed' ? 'ready' : 'locked',
-      statusText: userModel?.trainingStatus === 'completed' ? 'Chat with Sandra' : 'Complete Step 1',
-      link: userModel?.trainingStatus === 'completed' ? '/sandra-photoshoot' : '#',
+      statusText: userModel?.trainingStatus === 'completed' ? 'Start Photoshoot' : 'Complete Step 1',
+      link: userModel?.trainingStatus === 'completed' ? '/maya' : '#',
       image: SandraImages.editorial.phone1
     },
     {
-      id: 'ai-photoshoot',
-      number: '03',
-      title: 'AI Photoshoot',
-      subtitle: 'Use built-in professional prompts',
-      status: userModel?.trainingStatus === 'completed' ? 'ready' : 'locked',
-      statusText: userModel?.trainingStatus === 'completed' ? 'Generate Photos' : 'Complete Step 1',
-      link: userModel?.trainingStatus === 'completed' ? '/ai-photoshoot' : '#',
-      image: SandraImages.flatlays.workspace1
-    },
-    {
-      id: 'custom-library',
-      number: '04',
-      title: 'Your Custom Photoshoot Library',
-      subtitle: 'Save Sandra\'s prompts as favorites',
-      status: 'ready',
-      statusText: 'Organize Prompts',
-      link: '/custom-photoshoot-library',
-      image: SandraImages.flatlays.beauty
-    },
-    {
-      id: 'flatlay-library',
-      number: '05',
-      title: 'Flatlay Library',
-      subtitle: 'Curated lifestyle images for your brand',
-      status: 'ready',
-      statusText: 'Browse Collections',
-      link: '/flatlay-library',
-      image: SandraImages.flatlays.workspace1
-    },
-    {
       id: 'gallery',
-      number: '06',
+      number: '03',
       title: 'Gallery', 
       subtitle: 'View and download your photos',
       status: aiImages.length > 0 ? 'active' : 'locked',
@@ -99,8 +70,18 @@ export default function Workspace() {
       image: SandraImages.editorial.thinking
     },
     {
+      id: 'flatlay-library',
+      number: '04',
+      title: 'Flatlay Library',
+      subtitle: 'Curated lifestyle images for your brand',
+      status: 'ready',
+      statusText: 'Browse Collections',
+      link: '/flatlay-library',
+      image: SandraImages.flatlays.workspace1
+    },
+    {
       id: 'victoria-brand-strategist',
-      number: '07',
+      number: '05',
       title: 'Victoria - Personal Brand Strategist',
       subtitle: 'AI guidance for your brand strategy',
       status: 'ready',
@@ -208,12 +189,13 @@ export default function Workspace() {
       
       {/* Full Bleed Hero Section */}
       <section className="relative min-h-screen flex items-center justify-center bg-black text-white overflow-hidden">
-        {/* Background Image */}
+        {/* Background Image - positioned to show face */}
         <div className="absolute inset-0 opacity-30">
           <img 
-            src="https://replicate.delivery/xezq/tIR9rofcvTxuE61uMrnnMufXCv7A8aAaMtQpIQkvYej8YhfTB/out-0.jpg"
+            src="https://sselfie-training-zips.s3.amazonaws.com/images/sandra_test_user_2025/137_1752409456266.png"
             alt="Your SSELFIE Studio"
-            className="w-full h-full object-cover"
+            className="w-full h-full object-cover object-center-top"
+            style={{ objectPosition: 'center top' }}
           />
         </div>
         
@@ -466,6 +448,9 @@ export default function Workspace() {
 
         </div>
       </section>
+
+      {/* Global Footer */}
+      <GlobalFooter />
     </div>
   );
 }
