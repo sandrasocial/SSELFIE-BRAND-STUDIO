@@ -353,22 +353,15 @@ export default function AIPhotoshootPage() {
 
 
 
-  // Generate from built-in prompt using working sandra-photoshoot pattern
+  // Generate from built-in prompt using Maya's polling pattern
   const generateFromPrompt = useCallback(async (prompt: any) => {
     setSelectedPrompt(prompt);
     setGeneratingImages(true);
     setGenerationProgress(0);
-    
-    // Progress simulation for user feedback
-    const progressInterval = setInterval(() => {
-      setGenerationProgress(prev => {
-        if (prev >= 90) return prev;
-        return prev + Math.random() * 8;
-      });
-    }, 1000);
+    setSelectedImages([]);
     
     try {
-      // Use same pattern as working sandra-photoshoot page
+      // Use same pattern as Maya - start generation and get imageId
       const response = await fetch('/api/generate-images', {
         method: 'POST',
         headers: {
@@ -386,35 +379,108 @@ export default function AIPhotoshootPage() {
 
       const data = await response.json();
       
-      clearInterval(progressInterval);
-      setGenerationProgress(100);
-      
-      if (data.images && data.images.length > 0) {
-        setSelectedImages(data.images);
-        
-        // Invalidate gallery images cache to show new images when saved
-        queryClient.invalidateQueries({ queryKey: ['/api/gallery-images'] });
+      if (data.imageId) {
+        // Start polling for completion using Maya's pattern
+        pollForImages(data.imageId);
         
         toast({
-          title: "Images Generated!",
-          description: `${data.images.length} new photos ready for preview`,
+          title: "Generation Started",
+          description: "Creating your photos... This takes about 30 seconds.",
         });
       }
     } catch (error) {
       console.error('Error generating images:', error);
-      clearInterval(progressInterval);
       toast({
         title: "Generation Failed",
         description: "Something went wrong with image generation",
         variant: "destructive",
       });
-    } finally {
-      setTimeout(() => {
-        setGeneratingImages(false);
-        setGenerationProgress(0);
-      }, 1000);
+      setGeneratingImages(false);
     }
   }, [userModel, queryClient, toast]);
+
+  // Poll for image completion using Maya's exact pattern
+  const pollForImages = async (imageId: number) => {
+    const maxAttempts = 40; // 2 minutes total (3 second intervals)
+    let attempts = 0;
+    
+    const poll = async () => {
+      try {
+        attempts++;
+        setGenerationProgress(Math.min(90, (attempts / maxAttempts) * 90));
+        
+        const response = await fetch('/api/ai-images');
+        if (!response.ok) throw new Error('Failed to fetch images');
+        
+        const images = await response.json();
+        const currentImage = images.find((img: any) => img.id === imageId);
+        
+        if (currentImage && currentImage.imageUrl && currentImage.imageUrl !== 'processing') {
+          // Image generation completed
+          console.log('AI-PHOTOSHOOT: Image generation completed!', currentImage);
+          console.log('AI-PHOTOSHOOT: imageUrl value:', currentImage.imageUrl);
+          
+          setGenerationProgress(100);
+          setGeneratingImages(false);
+          
+          if (currentImage.imageUrl.startsWith('http') || currentImage.imageUrl.startsWith('[')) {
+            // Parse the image URLs (should be array of 3 URLs)
+            let imageUrls: string[] = [];
+            try {
+              // Try to parse as JSON array first
+              const parsed = JSON.parse(currentImage.imageUrl);
+              console.log('AI-PHOTOSHOOT: Parsed imageUrl:', parsed);
+              if (Array.isArray(parsed)) {
+                imageUrls = parsed;
+                console.log('AI-PHOTOSHOOT: Found array with', imageUrls.length, 'images');
+              } else {
+                imageUrls = [currentImage.imageUrl];
+                console.log('AI-PHOTOSHOOT: Single URL fallback');
+              }
+            } catch (error) {
+              // If not JSON, treat as single URL
+              console.log('AI-PHOTOSHOOT: JSON parse failed, using single URL:', error);
+              imageUrls = [currentImage.imageUrl];
+            }
+            
+            // Set the images for display
+            setSelectedImages(imageUrls);
+            
+            // Invalidate gallery images cache to show new images when saved
+            queryClient.invalidateQueries({ queryKey: ['/api/gallery-images'] });
+            
+            toast({
+              title: "Images Generated!",
+              description: `${imageUrls.length} new photos ready for preview`,
+            });
+          }
+          return;
+        }
+        
+        // Continue polling
+        if (attempts < maxAttempts) {
+          setTimeout(poll, 3000);
+        } else {
+          setGeneratingImages(false);
+          toast({
+            title: "Generation Timeout", 
+            description: "Photos are taking longer than expected. Check gallery later!",
+            variant: "destructive",
+          });
+        }
+      } catch (error) {
+        console.error('Polling error:', error);
+        if (attempts < maxAttempts) {
+          setTimeout(poll, 3000);
+        } else {
+          setGeneratingImages(false);
+        }
+      }
+    };
+    
+    // Start polling
+    setTimeout(poll, 2000);
+  };
 
 
 
