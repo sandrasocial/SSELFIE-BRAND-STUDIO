@@ -112,7 +112,7 @@ function Router() {
       {/* STREAMLINED USER JOURNEY: Landing → Simple Checkout → Payment Success → Onboarding → Workspace */}
 
       {/* PUBLIC PAGES */}
-      <Route path="/" component={EditorialLanding} />
+      <Route path="/" component={() => <div style={{color: 'red', padding: '20px'}}>TEST: App is working!</div>} />
       <Route path="/old-landing" component={Landing} />
       <Route path="/about" component={About} />
       <Route path="/how-it-works" component={HowItWorks} />
