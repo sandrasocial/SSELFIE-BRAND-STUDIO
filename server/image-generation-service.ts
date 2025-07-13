@@ -47,9 +47,13 @@ export async function generateImages(request: GenerateImagesRequest): Promise<Ge
       finalPrompt = `${triggerWord}, ${customPrompt}`;
     }
     
+    // Enhance prompt with texture and flattering elements
+    finalPrompt = `${finalPrompt}, textured skin, flattering high fashion outfit, slightly retouched skin, realistic, wow factor`;
+    
     // Build input with optimal FLUX LoRA settings for amazing photos
     const input: any = {
       prompt: finalPrompt,
+      negative_prompt: "glossy fake skin, deep unflattering wrinkles, flat unflattering hair, artificial plastic appearance, over-smooth skin, bad lighting, unflattering angle",
       hf_lora: `sandrasocial/${userId}-selfie-lora`, // User's trained LoRA weights
       guidance_scale: 2.8,        // Lowered from 3.5 to 2.8 for testing
       num_inference_steps: 32,    // Higher steps for better quality
