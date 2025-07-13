@@ -7,44 +7,44 @@ import { Link } from 'wouter';
 const steps = [
   {
     number: "01",
-    title: "Upload your selfies",
-    description: "10-15 photos. You get a dead-simple tutorial: 'Face the window, wear what you love, no need for a ring light.'",
+    title: "Start free or choose Studio",
+    description: "FREE tier: 5 AI images to test the magic. SSELFIE Studio ($47/month): 100 AI images + MAYA celebrity stylist + VICTORIA brand strategist + full ecosystem.",
     image: SandraImages.editorial.phone2
   },
   {
     number: "02", 
-    title: "Pick your vibe",
-    description: "Choose your niche, your look, even your 'dream client' mood.",
+    title: "Upload your selfies",
+    description: "10-15 photos. You get a dead-simple tutorial: 'Face the window, wear what you love, no need for a ring light.'",
     image: SandraImages.editorial.thinking
   },
   {
     number: "03",
-    title: "Watch the magic",
-    description: "My custom SSELFIE AI model creates 100-300 editorial, on-brand images instantly (depending on your plan). No more waiting weeks for a photoshoot.",
+    title: "Meet your AI agents",
+    description: "MAYA (celebrity stylist/photographer) creates your editorial images. VICTORIA (brand strategist) builds your complete website. Both chat with you like real consultants.",
     image: SandraImages.editorial.laptop1
   },
   {
     number: "04",
-    title: "Choose your plan",
-    description: "SSELFIE Studio ($29): AI photoshoot + luxury flatlays + brand templates. SSELFIE Studio PRO ($67): Everything plus Sandra Personal Brand AI Agent.",
+    title: "Watch the magic",
+    description: "Custom AI generates professional editorial photos instantly. No more waiting weeks for a photoshoot or spending thousands on brand photography.",
     image: SandraImages.editorial.laptop2
   },
   {
     number: "05",
-    title: "Everything falls into place",
-    description: "Your best selfies drop into every page. Booking, payments, custom domain connect with one click. PRO users get 24/7 strategy guidance from my AI twin.",
+    title: "Launch your brand",
+    description: "Your best images populate every page. Booking, payments, custom domain connect with one click. Live business in 20 minutes, not 20 weeks.",
     image: SandraImages.editorial.laughing
   }
 ];
 
 const faqs = [
   {
-    question: "What's the difference between the two plans?",
-    answer: "SSELFIE Studio ($29): 100 AI images + luxury flatlay collections + brand templates. SSELFIE Studio PRO ($67): 300 AI images + Sandra Personal Brand AI Agent for 24/7 strategy guidance."
+    question: "What's the difference between FREE and Studio?",
+    answer: "FREE: 5 AI images to test the magic + basic chat with MAYA & VICTORIA. SSELFIE Studio ($47/month): 100 AI images + full ecosystem + luxury templates + custom domains."
   },
   {
     question: "Do I need to be tech-savvy?",
-    answer: "Nope. If you can text, you can do this. Everything is one-click simple for both plans."
+    answer: "Nope. If you can text, you can do this. Everything is one-click simple for both tiers."
   },
   {
     question: "What if I don't have professional photos?",
@@ -55,12 +55,12 @@ const faqs = [
     answer: "About 20 minutes from first selfie to live business page. Most women do it between coffee and school pickup."
   },
   {
-    question: "What's this Sandra AI Agent about?",
-    answer: "PRO users get to chat with my AI twin 24/7 for brand strategy, content ideas, and business guidance. She knows exactly how I built this and can help you do the same."
+    question: "Who are MAYA and VICTORIA?",
+    answer: "MAYA is your celebrity stylist/photographer who creates editorial images. VICTORIA is your brand strategist who builds complete websites. Both are AI agents trained on Sandra's expertise."
   },
   {
-    question: "Can I upgrade later?",
-    answer: "Absolutely. Start with Studio, upgrade to PRO anytime when you're ready for personal brand strategy and more AI images."
+    question: "Can I upgrade from FREE to Studio later?",
+    answer: "Absolutely. Start free, upgrade to Studio anytime when you're ready for the full ecosystem and 100 monthly images."
   }
 ];
 
@@ -89,7 +89,7 @@ export default function HowItWorksPage() {
             </h1>
             
             <div className="text-lg leading-relaxed text-[#0a0a0a] font-inter max-w-3xl mx-auto">
-              <p>This isn't about perfect photos. It's about your personal brand, built on your best selfies and a little AI magic.</p>
+              <p>This isn't about perfect photos. It's about your personal brand, built from your selfies with celebrity-level AI styling.</p>
               <p className="mt-4">Here's exactly how it works (when you're not in the mood to overthink it):</p>
             </div>
           </div>
@@ -200,7 +200,7 @@ export default function HowItWorksPage() {
               Stop waiting for the perfect moment. Start with what you have, where you are, right now.
             </p>
             
-            <Link href="/" className="inline-block text-white border border-white/30 hover:bg-white hover:text-[#0a0a0a] transition-colors duration-300 text-[11px] tracking-[0.3em] uppercase no-underline px-12 py-6 font-light font-inter">
+            <Link href="/pricing" className="inline-block text-white border border-white/30 hover:bg-white hover:text-[#0a0a0a] transition-colors duration-300 text-[11px] tracking-[0.3em] uppercase no-underline px-12 py-6 font-light font-inter">
               GET STARTED
             </Link>
           </div>
