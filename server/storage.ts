@@ -10,6 +10,8 @@ import {
   photoshootSessions,
   savedPrompts,
   inspirationPhotos,
+  mayaChats,
+  mayaChatMessages,
   type User,
   type UpsertUser,
   type OnboardingData,
@@ -32,6 +34,10 @@ import {
   type InsertSavedPrompt,
   type InspirationPhoto,
   type InsertInspirationPhoto,
+  type MayaChat,
+  type InsertMayaChat,
+  type MayaChatMessage,
+  type InsertMayaChatMessage,
 } from "@shared/schema-simplified";
 import { db } from "./db";
 import { eq, and, desc, gte } from "drizzle-orm";
@@ -72,6 +78,14 @@ export interface IStorage {
   getUserUsage(userId: string): Promise<UserUsage | undefined>;
   createUserUsage(data: InsertUserUsage): Promise<UserUsage>;
   updateUserUsage(userId: string, data: Partial<UserUsage>): Promise<UserUsage>;
+
+  // Maya chat operations
+  createMayaChat(data: InsertMayaChat): Promise<MayaChat>;
+  getMayaChats(userId: string): Promise<MayaChat[]>;
+  getMayaChat(chatId: number): Promise<MayaChat | undefined>;
+  updateMayaChat(chatId: number, data: Partial<MayaChat>): Promise<MayaChat | undefined>;
+  createMayaChatMessage(data: InsertMayaChatMessage): Promise<MayaChatMessage>;
+  getMayaChatMessages(chatId: number): Promise<MayaChatMessage[]>;
   
   // Sandra AI conversation operations
   getSandraConversations(userId: string): Promise<SandraConversation[]>;
@@ -391,6 +405,56 @@ export class DatabaseStorage implements IStorage {
       .update(inspirationPhotos)
       .set({ isActive: false })
       .where(and(eq(inspirationPhotos.id, id), eq(inspirationPhotos.userId, userId)));
+  }
+
+  // Maya chat operations
+  async createMayaChat(data: InsertMayaChat): Promise<MayaChat> {
+    const [chat] = await db
+      .insert(mayaChats)
+      .values(data)
+      .returning();
+    return chat;
+  }
+
+  async getMayaChats(userId: string): Promise<MayaChat[]> {
+    return await db
+      .select()
+      .from(mayaChats)
+      .where(eq(mayaChats.userId, userId))
+      .orderBy(desc(mayaChats.updatedAt));
+  }
+
+  async getMayaChat(chatId: number): Promise<MayaChat | undefined> {
+    const [chat] = await db
+      .select()
+      .from(mayaChats)
+      .where(eq(mayaChats.id, chatId));
+    return chat;
+  }
+
+  async updateMayaChat(chatId: number, data: Partial<MayaChat>): Promise<MayaChat | undefined> {
+    const [updated] = await db
+      .update(mayaChats)
+      .set({ ...data, updatedAt: new Date() })
+      .where(eq(mayaChats.id, chatId))
+      .returning();
+    return updated;
+  }
+
+  async createMayaChatMessage(data: InsertMayaChatMessage): Promise<MayaChatMessage> {
+    const [message] = await db
+      .insert(mayaChatMessages)
+      .values(data)
+      .returning();
+    return message;
+  }
+
+  async getMayaChatMessages(chatId: number): Promise<MayaChatMessage[]> {
+    return await db
+      .select()
+      .from(mayaChatMessages)
+      .where(eq(mayaChatMessages.chatId, chatId))
+      .orderBy(mayaChatMessages.createdAt);
   }
 }
 

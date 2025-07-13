@@ -199,6 +199,31 @@ export type Subscription = typeof subscriptions.$inferSelect;
 export type InsertSubscription = typeof subscriptions.$inferInsert;
 export type UserUsage = typeof userUsage.$inferSelect;
 export type InsertUserUsage = typeof userUsage.$inferInsert;
+
+// Maya Chat History
+export const mayaChats = pgTable("maya_chats", {
+  id: serial("id").primaryKey(),
+  userId: varchar("user_id").notNull(),
+  chatTitle: varchar("chat_title").notNull(),
+  chatSummary: text("chat_summary"),
+  createdAt: timestamp("created_at").defaultNow(),
+  updatedAt: timestamp("updated_at").defaultNow(),
+});
+
+export const mayaChatMessages = pgTable("maya_chat_messages", {
+  id: serial("id").primaryKey(),
+  chatId: integer("chat_id").references(() => mayaChats.id).notNull(),
+  role: varchar("role").notNull(), // 'user' or 'maya'
+  content: text("content").notNull(),
+  imagePreview: text("image_preview"), // JSON array of image URLs
+  generatedPrompt: text("generated_prompt"),
+  createdAt: timestamp("created_at").defaultNow(),
+});
+
+export type MayaChat = typeof mayaChats.$inferSelect;
+export type InsertMayaChat = typeof mayaChats.$inferInsert;
+export type MayaChatMessage = typeof mayaChatMessages.$inferSelect;
+export type InsertMayaChatMessage = typeof mayaChatMessages.$inferInsert;
 export type SandraConversation = typeof sandraConversations.$inferSelect;
 export type InsertSandraConversation = typeof sandraConversations.$inferInsert;
 export type PhotoshootSession = typeof photoshootSessions.$inferSelect;

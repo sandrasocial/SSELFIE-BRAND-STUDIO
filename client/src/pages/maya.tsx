@@ -16,6 +16,65 @@ interface ChatMessage {
   generatedPrompt?: string;
 }
 
+interface MayaChat {
+  id: number;
+  userId: string;
+  chatTitle: string;
+  chatSummary?: string;
+  createdAt: string;
+  updatedAt: string;
+}
+
+// Chat History List Component
+function ChatHistoryList({ onChatSelect }: { onChatSelect: (chatId: number) => void }) {
+  const { data: chats, isLoading } = useQuery({
+    queryKey: ['/api/maya-chats'],
+    retry: false,
+  });
+
+  if (isLoading) {
+    return (
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+        <div className="bg-white p-4 border border-gray-200 rounded-none animate-pulse">
+          <div className="h-4 bg-gray-300 mb-2"></div>
+          <div className="h-3 bg-gray-200 mb-2"></div>
+          <div className="h-3 bg-gray-200"></div>
+        </div>
+      </div>
+    );
+  }
+
+  if (!chats || chats.length === 0) {
+    return (
+      <div className="text-center py-8 text-gray-500">
+        <p>No chat history yet. Start your first conversation with Maya!</p>
+      </div>
+    );
+  }
+
+  return (
+    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+      {chats.map((chat: MayaChat) => (
+        <div 
+          key={chat.id} 
+          className="bg-white p-4 border border-gray-200 rounded-none hover:bg-gray-50 cursor-pointer"
+          onClick={() => onChatSelect(chat.id)}
+        >
+          <div className="text-sm font-medium text-gray-900">{chat.chatTitle}</div>
+          <div className="text-xs text-gray-500 mt-1">
+            {new Date(chat.updatedAt).toLocaleDateString()}
+          </div>
+          {chat.chatSummary && (
+            <div className="text-xs text-gray-600 mt-2 line-clamp-2">
+              {chat.chatSummary}
+            </div>
+          )}
+        </div>
+      ))}
+    </div>
+  );
+}
+
 export default function Maya() {
   const { user, isLoading } = useAuth();
   const [, setLocation] = useLocation();
@@ -31,6 +90,8 @@ export default function Maya() {
   const [selectedImage, setSelectedImage] = useState<string | null>(null);
   const [generationProgress, setGenerationProgress] = useState(0);
   const [currentImageId, setCurrentImageId] = useState<number | null>(null);
+  const [currentChatId, setCurrentChatId] = useState<number | null>(null);
+  const [showChatHistory, setShowChatHistory] = useState(false);
 
   // Redirect to login if not authenticated
   useEffect(() => {
@@ -59,9 +120,10 @@ export default function Maya() {
   const sendMessage = async () => {
     if (!input.trim()) return;
 
+    const messageContent = input.trim();
     const userMessage: ChatMessage = {
       role: 'user',
-      content: input,
+      content: messageContent,
       timestamp: new Date().toISOString()
     };
 
@@ -70,13 +132,31 @@ export default function Maya() {
     setIsTyping(true);
 
     try {
+      // Create chat if this is the first user message (messages.length === 1 means only Maya's welcome)
+      if (!currentChatId && messages.length === 1) {
+        const chatTitle = messageContent.slice(0, 50) + (messageContent.length > 50 ? '...' : '');
+        const chatResponse = await fetch('/api/maya-chats', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ 
+            chatTitle,
+            chatSummary: messageContent.slice(0, 100)
+          })
+        });
+        
+        if (chatResponse.ok) {
+          const chat = await chatResponse.json();
+          setCurrentChatId(chat.id);
+        }
+      }
+
       const response = await fetch('/api/maya-chat', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
-          message: input,
+          message: messageContent,
           chatHistory: messages
         }),
       });
@@ -92,6 +172,33 @@ export default function Maya() {
       };
 
       setMessages(prev => [...prev, mayaMessage]);
+
+      // Save both messages to database if we have a chat ID
+      if (currentChatId) {
+        try {
+          await fetch(`/api/maya-chats/${currentChatId}/messages`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              role: 'user',
+              content: userMessage.content
+            })
+          });
+
+          await fetch(`/api/maya-chats/${currentChatId}/messages`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              role: 'maya',
+              content: mayaMessage.content,
+              generatedPrompt: mayaMessage.generatedPrompt
+            })
+          });
+        } catch (saveError) {
+          console.error('Error saving messages to history:', saveError);
+          // Don't show error to user - just log it
+        }
+      }
     } catch (error) {
       console.error('Maya chat error:', error);
       toast({
@@ -284,6 +391,31 @@ export default function Maya() {
     }
   };
 
+  const loadChatHistory = async (chatId: number) => {
+    try {
+      const messagesResponse = await fetch(`/api/maya-chats/${chatId}/messages`);
+      if (messagesResponse.ok) {
+        const dbMessages = await messagesResponse.json();
+        const formattedMessages: ChatMessage[] = dbMessages.map((msg: any) => ({
+          role: msg.role,
+          content: msg.content,
+          timestamp: msg.createdAt,
+          generatedPrompt: msg.generatedPrompt,
+          canGenerate: !!msg.generatedPrompt
+        }));
+        setMessages(formattedMessages);
+        setCurrentChatId(chatId);
+      }
+    } catch (error) {
+      console.error('Error loading chat history:', error);
+      toast({
+        title: "Error",
+        description: "Could not load chat history",
+        variant: "destructive",
+      });
+    }
+  };
+
   const handleKeyPress = (e: React.KeyboardEvent) => {
     if (e.key === 'Enter' && !e.shiftKey) {
       e.preventDefault();
@@ -319,15 +451,58 @@ export default function Maya() {
               Your personal AI photographer & stylist
             </p>
           </div>
-          <Button
-            variant="outline"
-            onClick={() => setLocation('/workspace')}
-            className="text-sm"
-          >
-            ← Back to Studio
-          </Button>
+          <div className="flex items-center gap-4">
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => setShowChatHistory(!showChatHistory)}
+              className="text-sm"
+            >
+              {showChatHistory ? 'Hide History' : 'Chat History'}
+            </Button>
+            <Button
+              variant="outline"
+              onClick={() => setLocation('/workspace')}
+              className="text-sm"
+            >
+              ← Back to Studio
+            </Button>
+          </div>
         </div>
       </header>
+
+      {/* Chat History Sidebar */}
+      {showChatHistory && (
+        <div className="bg-gray-50 border-b border-gray-200 p-4">
+          <div className="max-w-4xl mx-auto">
+            <h3 className="text-lg font-serif mb-4">Maya Chat History</h3>
+            <ChatHistoryList 
+              onChatSelect={(chatId) => {
+                // Load selected chat 
+                loadChatHistory(chatId);
+                setShowChatHistory(false);
+              }}
+            />
+            <Button
+              variant="outline"
+              size="sm"
+              className="mt-4 text-sm"
+              onClick={() => {
+                // Reset to new chat
+                setMessages([{
+                  role: 'maya',
+                  content: `Hey ${user?.firstName || 'gorgeous'}! Ready for another amazing photoshoot? What's the vision this time? ✨`,
+                  timestamp: new Date().toISOString()
+                }]);
+                setCurrentChatId(null);
+                setShowChatHistory(false);
+              }}
+            >
+              + Start New Chat
+            </Button>
+          </div>
+        </div>
+      )}
 
       {/* Chat Container */}
       <div className="flex-1 flex flex-col max-w-4xl mx-auto w-full">
