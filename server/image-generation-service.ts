@@ -49,10 +49,14 @@ export async function generateImages(request: GenerateImagesRequest): Promise<Ge
     
     console.log(`✅ Using black-forest-labs/flux-dev-lora with trained LoRA: sandrasocial/${userModel.modelName}`);
     
-    // Ensure the prompt includes the user's trigger word
+    // Ensure the prompt starts with the user's trigger word for maximum likeness
     let finalPrompt = customPrompt;
     if (!finalPrompt.includes(triggerWord)) {
-      finalPrompt = `${triggerWord}, ${customPrompt}`;
+      finalPrompt = `${triggerWord} ${customPrompt}`;
+    } else {
+      // If trigger word exists but not at start, move it to beginning
+      finalPrompt = finalPrompt.replace(triggerWord, '').trim();
+      finalPrompt = `${triggerWord} ${finalPrompt}`;
     }
     
     // Add professional camera equipment specifications
@@ -67,8 +71,8 @@ export async function generateImages(request: GenerateImagesRequest): Promise<Ge
     
     const randomCameraSpec = cameraSpecs[Math.floor(Math.random() * cameraSpecs.length)];
     
-    // Add RAW PHOTOGRAPHY specifications matching training data aesthetic
-    const filmTextureSpecs = ", MOODY RAW PHOTOGRAPHY, heavy 35mm film grain, pronounced grain structure, raw photo, unretouched skin texture, visible skin imperfections, natural skin pores, authentic skin NOT plastic skin, real skin texture NOT fake skin, documentary style lighting NOT artificial lighting, unprocessed skin NOT glossy skin, raw natural beauty NOT synthetic skin, authentic human skin NOT digital skin, film grain texture NOT CGI skin, matte natural finish NOT shiny skin, unretouched raw emotion NOT artificial beauty, natural imperfections NOT rendered skin, authentic documentary feel NOT mannequin skin, raw film aesthetic NOT fake beauty, real human texture NOT plastic beauty, genuine skin NOT doll skin, natural authentic texture NOT artificial skin texture";
+    // Simplified texture specs to avoid overwhelming the trigger word recognition
+    const filmTextureSpecs = ", raw photo, visible skin texture, natural skin pores, film grain, matte finish NOT glossy skin, authentic texture NOT plastic skin";
     
     // Add pose variety randomization to prevent repetition (FLUX research-backed)
     const poseVariations = [
@@ -137,11 +141,10 @@ export async function generateImages(request: GenerateImagesRequest): Promise<Ge
       finalPrompt = `${finalPrompt}${filmTextureSpecs}`;
     }
     
-    // FLUX doesn't support negative_prompt parameter, so we embed raw photography terms directly in positive prompt
-    // Add explicit "NOT" statements for raw, unretouched aesthetic matching training data
-    const antiPlasticSpecs = ", with raw unretouched skin NOT plastic skin, with visible skin imperfections NOT fake skin, with natural skin pores NOT synthetic skin, with authentic human texture NOT artificial skin, with film grain skin NOT digital skin, with documentary realism NOT CGI skin, with natural texture NOT 3D rendered skin, with human skin imperfections NOT mannequin skin, with raw natural face NOT doll skin, with unprocessed skin NOT wax skin, with matte natural finish NOT glossy skin, with moody natural lighting NOT artificial lighting, with no retouching NOT over-processed enhancement, with raw photography NOT beauty filter artifacts, with authentic documentary style NOT digital manipulation, with genuine appearance NOT computer generated face, with natural makeup NOT digital makeup, with real skin tone NOT unnatural skin, with natural human flaws NOT harsh skin, with authentic imperfections NOT perfect skin";
+    // Simplified anti-plastic specs to prioritize facial recognition over texture details
+    const antiPlasticSpecs = ", natural skin NOT plastic skin, authentic face NOT fake face, real person NOT CGI";
     
-    // Always add anti-plastic specifications since FLUX ignores negative_prompt
+    // Add minimal anti-plastic specifications to avoid prompt overcrowding
     finalPrompt = `${finalPrompt}${antiPlasticSpecs}`;
     
     // Handle custom negative prompts by converting them to "NOT" format
@@ -157,9 +160,9 @@ export async function generateImages(request: GenerateImagesRequest): Promise<Ge
     // Build input with OPTIMIZED PARAMETERS for better likeness matching
     const input: any = {
       prompt: finalPrompt,        // Includes embedded "NOT plastic skin" statements
-      guidance: 2.8,              // UPDATED: User specified guidance for better likeness
+      guidance: 3.2,              // INCREASED: Higher guidance for stronger prompt adherence and likeness
       lora_weights: `sandrasocial/${userModel.modelName}`, // User's trained LoRA weights
-      lora_scale: 0.8,           // UPDATED: User specified LoRA scale for stronger model resemblance
+      lora_scale: 1.0,           // INCREASED: Maximum LoRA application for strongest likeness
       num_inference_steps: 33,    // UPDATED: User specified steps for better quality
       num_outputs: 3,            // Generate 3 focused images
       aspect_ratio: "3:4",        // Portrait ratio better for selfies
@@ -170,10 +173,13 @@ export async function generateImages(request: GenerateImagesRequest): Promise<Ge
       disable_safety_checker: false
     };
     
+    console.log(`🔍 DEBUGGING LIKENESS ISSUE:`);
     console.log(`Using FLUX model version: ${fluxModelVersion}`);
     console.log(`Using trained LoRA: sandrasocial/${userModel.modelName}`);
-    console.log(`Final prompt with trigger word and raw photography NOT statements: ${finalPrompt}`);
-    console.log('⚙️ FLUX Parameters for IMPROVED LIKENESS (steps 33, guidance 2.8, LoRA 0.8):', JSON.stringify({ guidance: input.guidance, lora_scale: input.lora_scale, num_inference_steps: input.num_inference_steps, output_quality: input.output_quality }, null, 2));
+    console.log(`User's trigger word: "${triggerWord}"`);
+    console.log(`Model training status: ${userModel.trainingStatus}`);
+    console.log(`Final prompt: ${finalPrompt}`);
+    console.log('⚙️ FLUX Parameters for MAXIMUM LIKENESS (steps 33, guidance 3.2, LoRA 1.0):', JSON.stringify({ guidance: input.guidance, lora_scale: input.lora_scale, num_inference_steps: input.num_inference_steps, output_quality: input.output_quality }, null, 2));
     
     // Start Replicate generation with correct API format
     const replicateResponse = await fetch('https://api.replicate.com/v1/predictions', {
