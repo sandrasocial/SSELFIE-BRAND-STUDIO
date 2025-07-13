@@ -263,6 +263,14 @@ export class DatabaseStorage implements IStorage {
     return updated;
   }
 
+  async getUserModelsByStatus(status: string): Promise<UserModel[]> {
+    return await db
+      .select()
+      .from(userModels)
+      .where(eq(userModels.trainingStatus, status))
+      .orderBy(desc(userModels.createdAt));
+  }
+
   // Add methods to work with actual database columns
   async getUserModelByDatabaseUserId(userId: string): Promise<any> {
     const result = await db.select().from(userModels).where(eq(userModels.userId, userId));
