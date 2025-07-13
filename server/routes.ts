@@ -694,7 +694,7 @@ Your goal is to have a natural conversation, understand their vision deeply, and
   // Victoria AI Chat endpoint with full Claude API integration
   app.post('/api/victoria-chat', async (req: any, res) => {
     try {
-      const { message, chatHistory, conversationId } = req.body;
+      const { message, chatHistory, sessionId } = req.body;
       const userId = req.session?.userId || req.user?.claims?.sub || 'sandra_test_user_2025';
       
       if (!message) {
@@ -705,23 +705,16 @@ Your goal is to have a natural conversation, understand their vision deeply, and
       const user = await storage.getUser(userId);
       const onboarding = await storage.getOnboardingData(userId);
       
-      // Create conversation if not exists
-      let conversation;
-      if (conversationId) {
-        conversation = await storage.getVictoriaChat(conversationId);
-      } else {
-        conversation = await storage.createVictoriaChat({
-          userId,
-          title: message.substring(0, 50) + "...",
-          status: 'active'
-        });
-      }
+      // Use sessionId or create new one
+      const currentSessionId = sessionId || `victoria_${Date.now()}`;
 
       // Save user message
-      await storage.createVictoriaChatMessage({
-        chatId: conversation.id,
-        role: 'user',
-        content: message
+      await storage.createVictoriaChat({
+        userId,
+        sessionId: currentSessionId,
+        message,
+        sender: 'user',
+        messageType: 'text'
       });
 
       // Victoria's brand strategist personality with landing page expertise
@@ -822,17 +815,18 @@ Always be encouraging and strategic while providing specific technical guidance.
         victoriaResponse = fallbackResponses[Math.floor(Math.random() * fallbackResponses.length)];
       }
 
-      // Save Victoria's response
-      const savedMessage = await storage.createVictoriaChatMessage({
-        chatId: conversation.id,
-        role: 'victoria',
-        content: victoriaResponse
+      // Save Victoria's response to the same session
+      await storage.createVictoriaChat({
+        userId,
+        sessionId: currentSessionId,
+        message: victoriaResponse,
+        sender: 'victoria',
+        messageType: 'text'
       });
       
       res.json({
         message: victoriaResponse,
-        conversationId: conversation.id,
-        messageId: savedMessage.id,
+        sessionId: currentSessionId,
         timestamp: new Date().toISOString()
       });
     } catch (error) {
@@ -842,31 +836,20 @@ Always be encouraging and strategic while providing specific technical guidance.
   });
 
   // Victoria chat history endpoint
-  app.get('/api/victoria-chat-history/:chatId', isAuthenticated, async (req, res) => {
+  app.get('/api/victoria-chat-history/:sessionId', isAuthenticated, async (req, res) => {
     try {
-      const chatId = parseInt(req.params.chatId);
-      const chat = await storage.getVictoriaChat(chatId);
-      
-      if (!chat) {
-        return res.status(404).json({ error: 'Chat not found' });
+      const userId = req.user?.claims?.sub || req.session?.userId;
+      if (!userId) {
+        return res.status(401).json({ error: 'User not authenticated' });
       }
+
+      const sessionId = req.params.sessionId;
+      const messages = await storage.getVictoriaChatsBySession(userId, sessionId);
       
-      res.json(chat);
+      res.json(messages);
     } catch (error) {
       console.error('Victoria chat history error:', error);
       res.status(500).json({ error: 'Failed to fetch chat history' });
-    }
-  });
-
-  // Victoria chat messages endpoint
-  app.get('/api/victoria-chat-messages/:chatId', isAuthenticated, async (req, res) => {
-    try {
-      const chatId = parseInt(req.params.chatId);
-      const messages = await storage.getVictoriaChatMessages(chatId);
-      res.json(messages);
-    } catch (error) {
-      console.error('Victoria chat messages error:', error);
-      res.status(500).json({ error: 'Failed to fetch chat messages' });
     }
   });
 

@@ -196,6 +196,42 @@ export const generatedImages = pgTable("generated_images", {
   createdAt: timestamp("created_at").defaultNow()
 });
 
+// Victoria AI chat conversations
+export const victoriaChats = pgTable("victoria_chats", {
+  id: serial("id").primaryKey(),
+  userId: varchar("user_id").references(() => users.id).notNull(),
+  sessionId: varchar("session_id").notNull(), // Group related messages
+  message: text("message").notNull(),
+  sender: varchar("sender").notNull(), // 'user' or 'victoria'
+  messageType: varchar("message_type").default("text"), // text, template_suggestion, photo_selection
+  metadata: jsonb("metadata"), // Store template data, photo selections, etc.
+  createdAt: timestamp("created_at").defaultNow(),
+});
+
+// Photo selections for landing page builder
+export const photoSelections = pgTable("photo_selections", {
+  id: serial("id").primaryKey(),
+  userId: varchar("user_id").references(() => users.id).notNull(),
+  selectedSelfieIds: jsonb("selected_selfie_ids").notNull(), // Array of AI image IDs
+  selectedFlatlayCollection: varchar("selected_flatlay_collection").notNull(), // Collection name
+  createdAt: timestamp("created_at").defaultNow(),
+  updatedAt: timestamp("updated_at").defaultNow(),
+});
+
+// Landing page templates and user customizations
+export const landingPages = pgTable("landing_pages", {
+  id: serial("id").primaryKey(),
+  userId: varchar("user_id").references(() => users.id).notNull(),
+  templateName: varchar("template_name").notNull(),
+  customizations: jsonb("customizations"), // Colors, fonts, layout changes
+  content: jsonb("content"), // Text content, headlines, descriptions
+  photoSelections: jsonb("photo_selections"), // Selected photos for each section
+  isPublished: boolean("is_published").default(false),
+  publishedUrl: varchar("published_url"),
+  createdAt: timestamp("created_at").defaultNow(),
+  updatedAt: timestamp("updated_at").defaultNow(),
+});
+
 // Schema exports
 export const upsertUserSchema = createInsertSchema(users);
 export const insertProjectSchema = createInsertSchema(projects).omit({ id: true, createdAt: true, updatedAt: true });
@@ -206,6 +242,9 @@ export const insertOnboardingDataSchema = createInsertSchema(onboardingData).omi
 export const insertSelfieUploadSchema = createInsertSchema(selfieUploads).omit({ id: true, createdAt: true });
 export const insertUserModelSchema = createInsertSchema(userModels).omit({ id: true, createdAt: true });
 export const insertGeneratedImageSchema = createInsertSchema(generatedImages).omit({ id: true, createdAt: true });
+export const insertVictoriaChatSchema = createInsertSchema(victoriaChats).omit({ id: true, createdAt: true });
+export const insertPhotoSelectionSchema = createInsertSchema(photoSelections).omit({ id: true, createdAt: true, updatedAt: true });
+export const insertLandingPageSchema = createInsertSchema(landingPages).omit({ id: true, createdAt: true, updatedAt: true });
 
 
 
@@ -252,6 +291,12 @@ export type InsertUserModel = z.infer<typeof insertUserModelSchema>;
 export type UserModel = typeof userModels.$inferSelect;
 export type InsertGeneratedImage = z.infer<typeof insertGeneratedImageSchema>;
 export type GeneratedImage = typeof generatedImages.$inferSelect;
+export type InsertVictoriaChat = z.infer<typeof insertVictoriaChatSchema>;
+export type VictoriaChat = typeof victoriaChats.$inferSelect;
+export type InsertPhotoSelection = z.infer<typeof insertPhotoSelectionSchema>;
+export type PhotoSelection = typeof photoSelections.$inferSelect;
+export type InsertLandingPage = z.infer<typeof insertLandingPageSchema>;
+export type LandingPage = typeof landingPages.$inferSelect;
 
 
 

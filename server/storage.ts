@@ -6,21 +6,15 @@ import {
   selfieUploads,
   subscriptions,
   userUsage,
-  sandraConversations,
-  photoshootSessions,
-  savedPrompts,
-  inspirationPhotos,
-  mayaChats,
-  mayaChatMessages,
   victoriaChats,
-  victoriaChatMessages,
-  userLandingPages,
+  photoSelections,
+  landingPages,
   type User,
   type UpsertUser,
   type OnboardingData,
   type InsertOnboardingData,
-  type AIImage,
-  type InsertAIImage,
+  type AiImage,
+  type InsertAiImage,
   type UserModel,
   type InsertUserModel,
   type SelfieUpload,
@@ -29,25 +23,13 @@ import {
   type InsertSubscription,
   type UserUsage,
   type InsertUserUsage,
-  type SandraConversation,
-  type InsertSandraConversation,
-  type PhotoshootSession,
-  type InsertPhotoshootSession,
-  type SavedPrompt,
-  type InsertSavedPrompt,
-  type InspirationPhoto,
-  type InsertInspirationPhoto,
-  type MayaChat,
-  type InsertMayaChat,
-  type MayaChatMessage,
-  type InsertMayaChatMessage,
   type VictoriaChat,
   type InsertVictoriaChat,
-  type VictoriaChatMessage,
-  type InsertVictoriaChatMessage,
-  type UserLandingPage,
-  type InsertUserLandingPage,
-} from "@shared/schema-simplified";
+  type PhotoSelection,
+  type InsertPhotoSelection,
+  type LandingPage,
+  type InsertLandingPage,
+} from "@shared/schema";
 import { db } from "./db";
 import { eq, and, desc, gte } from "drizzle-orm";
 
@@ -64,10 +46,10 @@ export interface IStorage {
   updateOnboardingData(userId: string, data: Partial<OnboardingData>): Promise<OnboardingData>;
   
   // AI Image operations
-  getAIImages(userId: string): Promise<AIImage[]>;
-  getUserAIImages(userId: string): Promise<AIImage[]>;
-  saveAIImage(data: InsertAIImage): Promise<AIImage>;
-  updateAIImage(id: number, data: Partial<AIImage>): Promise<AIImage>;
+  getAIImages(userId: string): Promise<AiImage[]>;
+  getUserAIImages(userId: string): Promise<AiImage[]>;
+  saveAIImage(data: InsertAiImage): Promise<AiImage>;
+  updateAIImage(id: number, data: Partial<AiImage>): Promise<AiImage>;
   
   // User Model operations
   getUserModel(userId: string): Promise<UserModel | undefined>;
@@ -88,40 +70,22 @@ export interface IStorage {
   createUserUsage(data: InsertUserUsage): Promise<UserUsage>;
   updateUserUsage(userId: string, data: Partial<UserUsage>): Promise<UserUsage>;
 
-  // Maya chat operations
-  createMayaChat(data: InsertMayaChat): Promise<MayaChat>;
-  getMayaChats(userId: string): Promise<MayaChat[]>;
-  getMayaChat(chatId: number): Promise<MayaChat | undefined>;
-  updateMayaChat(chatId: number, data: Partial<MayaChat>): Promise<MayaChat | undefined>;
-  createMayaChatMessage(data: InsertMayaChatMessage): Promise<MayaChatMessage>;
-  getMayaChatMessages(chatId: number): Promise<MayaChatMessage[]>;
-  
-  // Sandra AI conversation operations
-  getSandraConversations(userId: string): Promise<SandraConversation[]>;
-  saveSandraConversation(data: InsertSandraConversation): Promise<SandraConversation>;
-  
-  // Saved prompts operations
-  savePromptToLibrary(data: InsertSavedPrompt): Promise<SavedPrompt>;
-  getSavedPrompts(userId: string): Promise<SavedPrompt[]>;
-  
-  // Inspiration photos operations
-  saveInspirationPhoto(data: InsertInspirationPhoto): Promise<InspirationPhoto>;
-  getInspirationPhotos(userId: string): Promise<InspirationPhoto[]>;
-  deleteInspirationPhoto(id: number, userId: string): Promise<void>;
+
   
   // Victoria chat operations
   createVictoriaChat(data: InsertVictoriaChat): Promise<VictoriaChat>;
   getVictoriaChats(userId: string): Promise<VictoriaChat[]>;
-  getVictoriaChat(chatId: number): Promise<VictoriaChat | undefined>;
-  updateVictoriaChat(chatId: number, data: Partial<VictoriaChat>): Promise<VictoriaChat | undefined>;
-  createVictoriaChatMessage(data: InsertVictoriaChatMessage): Promise<VictoriaChatMessage>;
-  getVictoriaChatMessages(chatId: number): Promise<VictoriaChatMessage[]>;
+  getVictoriaChatsBySession(userId: string, sessionId: string): Promise<VictoriaChat[]>;
   
-  // Landing pages operations
-  createUserLandingPage(data: InsertUserLandingPage): Promise<UserLandingPage>;
-  getUserLandingPages(userId: string): Promise<UserLandingPage[]>;
-  getUserLandingPageBySlug(slug: string): Promise<UserLandingPage | undefined>;
-  updateUserLandingPage(id: number, data: Partial<UserLandingPage>): Promise<UserLandingPage | undefined>;
+  // Photo selections operations
+  savePhotoSelections(data: InsertPhotoSelection): Promise<PhotoSelection>;
+  getPhotoSelections(userId: string): Promise<PhotoSelection | undefined>;
+  
+  // Landing page operations
+  createLandingPage(data: InsertLandingPage): Promise<LandingPage>;
+  getLandingPages(userId: string): Promise<LandingPage[]>;
+  
+
 }
 
 export class DatabaseStorage implements IStorage {
@@ -408,110 +372,7 @@ export class DatabaseStorage implements IStorage {
 
   // Removed session methods - use existing getAIImages() instead
 
-  // Sandra AI conversation operations
-  async getSandraConversations(userId: string): Promise<SandraConversation[]> {
-    return await db
-      .select()
-      .from(sandraConversations)
-      .where(eq(sandraConversations.userId, userId))
-      .orderBy(desc(sandraConversations.createdAt));
-  }
 
-  async saveSandraConversation(data: InsertSandraConversation): Promise<SandraConversation> {
-    const [conversation] = await db.insert(sandraConversations).values(data).returning();
-    return conversation;
-  }
-
-  // Saved prompts operations
-  async savePromptToLibrary(data: InsertSavedPrompt): Promise<SavedPrompt> {
-    const [savedPrompt] = await db
-      .insert(savedPrompts)
-      .values(data)
-      .returning();
-    return savedPrompt;
-  }
-
-  async getSavedPrompts(userId: string): Promise<SavedPrompt[]> {
-    return await db
-      .select()
-      .from(savedPrompts)
-      .where(eq(savedPrompts.userId, userId))
-      .orderBy(desc(savedPrompts.createdAt));
-  }
-
-  // Inspiration photos operations
-  async saveInspirationPhoto(data: InsertInspirationPhoto): Promise<InspirationPhoto> {
-    const [photo] = await db
-      .insert(inspirationPhotos)
-      .values(data)
-      .returning();
-    return photo;
-  }
-
-  async getInspirationPhotos(userId: string): Promise<InspirationPhoto[]> {
-    return await db
-      .select()
-      .from(inspirationPhotos)
-      .where(and(eq(inspirationPhotos.userId, userId), eq(inspirationPhotos.isActive, true)))
-      .orderBy(desc(inspirationPhotos.createdAt));
-  }
-
-  async deleteInspirationPhoto(id: number, userId: string): Promise<void> {
-    await db
-      .update(inspirationPhotos)
-      .set({ isActive: false })
-      .where(and(eq(inspirationPhotos.id, id), eq(inspirationPhotos.userId, userId)));
-  }
-
-  // Maya chat operations
-  async createMayaChat(data: InsertMayaChat): Promise<MayaChat> {
-    const [chat] = await db
-      .insert(mayaChats)
-      .values(data)
-      .returning();
-    return chat;
-  }
-
-  async getMayaChats(userId: string): Promise<MayaChat[]> {
-    return await db
-      .select()
-      .from(mayaChats)
-      .where(eq(mayaChats.userId, userId))
-      .orderBy(desc(mayaChats.updatedAt));
-  }
-
-  async getMayaChat(chatId: number): Promise<MayaChat | undefined> {
-    const [chat] = await db
-      .select()
-      .from(mayaChats)
-      .where(eq(mayaChats.id, chatId));
-    return chat;
-  }
-
-  async updateMayaChat(chatId: number, data: Partial<MayaChat>): Promise<MayaChat | undefined> {
-    const [updated] = await db
-      .update(mayaChats)
-      .set({ ...data, updatedAt: new Date() })
-      .where(eq(mayaChats.id, chatId))
-      .returning();
-    return updated;
-  }
-
-  async createMayaChatMessage(data: InsertMayaChatMessage): Promise<MayaChatMessage> {
-    const [message] = await db
-      .insert(mayaChatMessages)
-      .values(data)
-      .returning();
-    return message;
-  }
-
-  async getMayaChatMessages(chatId: number): Promise<MayaChatMessage[]> {
-    return await db
-      .select()
-      .from(mayaChatMessages)
-      .where(eq(mayaChatMessages.chatId, chatId))
-      .orderBy(mayaChatMessages.createdAt);
-  }
 
   // Victoria chat operations
   async createVictoriaChat(data: InsertVictoriaChat): Promise<VictoriaChat> {
@@ -527,40 +388,57 @@ export class DatabaseStorage implements IStorage {
       .select()
       .from(victoriaChats)
       .where(eq(victoriaChats.userId, userId))
-      .orderBy(desc(victoriaChats.updatedAt));
+      .orderBy(desc(victoriaChats.createdAt));
   }
 
-  async getVictoriaChat(chatId: number): Promise<VictoriaChat | undefined> {
-    const [chat] = await db
-      .select()
-      .from(victoriaChats)
-      .where(eq(victoriaChats.id, chatId));
-    return chat;
-  }
-
-  async updateVictoriaChat(chatId: number, data: Partial<VictoriaChat>): Promise<VictoriaChat | undefined> {
-    const [updated] = await db
-      .update(victoriaChats)
-      .set({ ...data, updatedAt: new Date() })
-      .where(eq(victoriaChats.id, chatId))
-      .returning();
-    return updated;
-  }
-
-  async createVictoriaChatMessage(data: InsertVictoriaChatMessage): Promise<VictoriaChatMessage> {
-    const [message] = await db
-      .insert(victoriaChatMessages)
-      .values(data)
-      .returning();
-    return message;
-  }
-
-  async getVictoriaChatMessages(chatId: number): Promise<VictoriaChatMessage[]> {
+  async getVictoriaChatsBySession(userId: string, sessionId: string): Promise<VictoriaChat[]> {
     return await db
       .select()
-      .from(victoriaChatMessages)
-      .where(eq(victoriaChatMessages.chatId, chatId))
-      .orderBy(victoriaChatMessages.createdAt);
+      .from(victoriaChats)
+      .where(and(eq(victoriaChats.userId, userId), eq(victoriaChats.sessionId, sessionId)))
+      .orderBy(victoriaChats.createdAt);
+  }
+
+  // Photo selections operations
+  async savePhotoSelections(data: InsertPhotoSelection): Promise<PhotoSelection> {
+    const [selection] = await db
+      .insert(photoSelections)
+      .values(data)
+      .onConflictDoUpdate({
+        target: photoSelections.userId,
+        set: {
+          selectedSelfieIds: data.selectedSelfieIds,
+          selectedFlatlayCollection: data.selectedFlatlayCollection,
+          updatedAt: new Date(),
+        },
+      })
+      .returning();
+    return selection;
+  }
+
+  async getPhotoSelections(userId: string): Promise<PhotoSelection | undefined> {
+    const [selection] = await db
+      .select()
+      .from(photoSelections)
+      .where(eq(photoSelections.userId, userId));
+    return selection;
+  }
+
+  // Landing page operations
+  async createLandingPage(data: InsertLandingPage): Promise<LandingPage> {
+    const [page] = await db
+      .insert(landingPages)
+      .values(data)
+      .returning();
+    return page;
+  }
+
+  async getLandingPages(userId: string): Promise<LandingPage[]> {
+    return await db
+      .select()
+      .from(landingPages)
+      .where(eq(landingPages.userId, userId))
+      .orderBy(desc(landingPages.createdAt));
   }
 
   // Landing pages operations

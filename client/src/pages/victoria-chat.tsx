@@ -1,101 +1,91 @@
-import React, { useState, useRef, useEffect } from 'react';
-import { useAuth } from '@/hooks/use-auth';
-import { useLocation } from 'wouter';
-import { useToast } from '@/hooks/use-toast';
-import { Button } from '@/components/ui/button';
-import { Textarea } from '@/components/ui/textarea';
-import { WorkspaceNavigation } from '@/components/workspace-navigation';
+import { useState, useEffect, useRef } from "react";
+import { useLocation } from "wouter";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardHeader } from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
+import { ScrollArea } from "@/components/ui/scroll-area";
+import { Separator } from "@/components/ui/separator";
+import { apiRequest } from "@/lib/queryClient";
+import { useAuth } from "@/hooks/useAuth";
+import { useToast } from "@/hooks/use-toast";
 
 interface ChatMessage {
-  role: 'user' | 'victoria';
-  content: string;
+  id: string;
+  sender: 'user' | 'victoria';
+  message: string;
+  timestamp: string;
+}
+
+interface VictoriaChatResponse {
+  message: string;
+  sessionId: string;
   timestamp: string;
 }
 
 export default function VictoriaChat() {
-  const { user, isLoading } = useAuth();
-  const [, setLocation] = useLocation();
-  const { toast } = useToast();
   const [messages, setMessages] = useState<ChatMessage[]>([]);
-  const [input, setInput] = useState('');
-  const [isTyping, setIsTyping] = useState(false);
+  const [input, setInput] = useState("");
+  const [isLoading, setIsLoading] = useState(false);
+  const [sessionId, setSessionId] = useState<string>("");
+  const { user, isAuthenticated } = useAuth();
+  const [, navigate] = useLocation();
+  const { toast } = useToast();
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
-  const scrollToBottom = () => {
-    messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
-  };
+  useEffect(() => {
+    if (!isAuthenticated) {
+      navigate("/");
+    }
+  }, [isAuthenticated, navigate]);
 
   useEffect(() => {
-    scrollToBottom();
+    // Auto scroll to bottom when new messages arrive
+    messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [messages]);
 
-  // Redirect to login if not authenticated
-  useEffect(() => {
-    if (!isLoading && !user) {
-      toast({
-        title: "Authentication Required",
-        description: "Please log in to chat with Victoria AI",
-        variant: "destructive",
-      });
-      setLocation('/pricing');
-      return;
-    }
-  }, [user, isLoading, setLocation, toast]);
-
-  // Initialize with Victoria's welcome message
-  useEffect(() => {
-    if (user && messages.length === 0) {
-      setMessages([{
-        role: 'victoria',
-        content: `Hi ${user.firstName || 'there'}! I'm Victoria, your personal brand strategist. I help ambitious women like you build powerful personal brands that attract dream clients and opportunities.\n\nWhether you're launching a business, growing your following, or positioning yourself as an expert in your field - I'm here to guide you every step of the way.\n\nWhat's your biggest brand challenge right now? Let's figure this out together!`,
-        timestamp: new Date().toISOString()
-      }]);
-    }
-  }, [user, messages.length]);
-
   const sendMessage = async () => {
-    if (!input.trim()) return;
+    if (!input.trim() || isLoading) return;
 
     const userMessage: ChatMessage = {
-      role: 'user',
-      content: input,
+      id: Date.now().toString(),
+      sender: 'user',
+      message: input.trim(),
       timestamp: new Date().toISOString()
     };
 
     setMessages(prev => [...prev, userMessage]);
-    setInput('');
-    setIsTyping(true);
+    setInput("");
+    setIsLoading(true);
 
     try {
-      const response = await fetch('/api/victoria-chat', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          message: input,
-          chatHistory: messages
-        }),
-      });
+      const response = await apiRequest("POST", "/api/victoria-chat", {
+        message: userMessage.message,
+        sessionId: sessionId || undefined
+      }) as VictoriaChatResponse;
 
-      const data = await response.json();
+      // Update sessionId if this is the first message
+      if (!sessionId && response.sessionId) {
+        setSessionId(response.sessionId);
+      }
 
       const victoriaMessage: ChatMessage = {
-        role: 'victoria',
-        content: data.message || "I'm strategizing! Give me a moment and ask me again about your brand goals.",
-        timestamp: new Date().toISOString()
+        id: (Date.now() + 1).toString(),
+        sender: 'victoria',
+        message: response.message,
+        timestamp: response.timestamp
       };
 
       setMessages(prev => [...prev, victoriaMessage]);
+
     } catch (error) {
       console.error('Victoria chat error:', error);
       toast({
-        title: "Connection Error",
-        description: "Victoria is having trouble connecting. Please try again.",
+        title: "Chat Error",
+        description: "Failed to send message to Victoria. Please try again.",
         variant: "destructive",
       });
     } finally {
-      setIsTyping(false);
+      setIsLoading(false);
     }
   };
 
@@ -106,90 +96,122 @@ export default function VictoriaChat() {
     }
   };
 
+  if (!isAuthenticated) {
+    return null;
+  }
+
   return (
     <div className="min-h-screen bg-white">
-      <WorkspaceNavigation />
-      
-      <div className="max-w-4xl mx-auto p-6">
-        {/* Header */}
-        <div className="text-center mb-8">
-          <h1 className="font-times text-4xl font-light tracking-[-0.02em] text-black mb-4">
-            VICTORIA AI
-          </h1>
-          <p className="text-base font-light text-[#666666]">
-            Your Personal Brand Strategist
-          </p>
-        </div>
-
-        {/* Chat Container */}
-        <div className="bg-white border border-gray-200">
-          {/* Messages */}
-          <div className="h-[500px] overflow-y-auto p-6 space-y-6">
-            {messages.map((message, index) => (
-              <div key={index} className={`flex ${message.role === 'user' ? 'justify-end' : 'justify-start'}`}>
-                <div className={`max-w-[80%] p-4 ${
-                  message.role === 'user' 
-                    ? 'bg-black text-white' 
-                    : 'bg-[#f5f5f5] text-black'
-                }`}>
-                  {message.role === 'victoria' && (
-                    <div className="flex items-center mb-3">
-                      <div className="w-6 h-6 bg-black text-white text-xs flex items-center justify-center mr-2">
-                        V
-                      </div>
-                      <span className="text-xs tracking-[0.2em] uppercase">Victoria</span>
-                    </div>
-                  )}
-                  <div className="text-sm leading-relaxed whitespace-pre-wrap">
-                    {message.content}
-                  </div>
-                  <div className="text-xs opacity-60 mt-2">
-                    {new Date(message.timestamp).toLocaleTimeString()}
-                  </div>
-                </div>
-              </div>
-            ))}
-            
-            {isTyping && (
-              <div className="flex justify-start">
-                <div className="bg-[#f5f5f5] text-black p-4 max-w-[80%]">
-                  <div className="flex items-center mb-3">
-                    <div className="w-6 h-6 bg-black text-white text-xs flex items-center justify-center mr-2">
-                      V
-                    </div>
-                    <span className="text-xs tracking-[0.2em] uppercase">Victoria</span>
-                  </div>
-                  <div className="text-sm">Thinking...</div>
-                </div>
-              </div>
-            )}
-            <div ref={messagesEndRef} />
-          </div>
-
-          {/* Input Area */}
-          <div className="border-t border-gray-200 p-4 sm:p-6">
-            <div className="flex gap-3">
-              <Textarea
-                value={input}
-                onChange={(e) => setInput(e.target.value)}
-                onKeyPress={handleKeyPress}
-                placeholder="Ask Victoria about your brand strategy, content ideas, business growth..."
-                className="flex-1 min-h-[60px] resize-none border-gray-300 focus:border-black focus:ring-black"
-                disabled={isTyping}
-              />
-              <Button
-                onClick={sendMessage}
-                disabled={!input.trim() || isTyping}
-                className="bg-black text-white hover:bg-gray-800 px-6"
-              >
-                Send
-              </Button>
+      {/* Header */}
+      <div className="border-b border-gray-200 bg-white sticky top-0 z-10">
+        <div className="max-w-4xl mx-auto px-6 py-4">
+          <div className="flex items-center justify-between">
+            <div>
+              <h1 className="text-2xl font-bold text-black" style={{ fontFamily: 'Times New Roman, serif' }}>
+                Victoria AI Brand Strategist
+              </h1>
+              <p className="text-gray-600 mt-1">
+                Your personal brand strategist and landing page expert
+              </p>
             </div>
-            <p className="text-xs text-gray-500 mt-2">
-              Press Enter to send, Shift+Enter for new line
-            </p>
+            <Button 
+              variant="outline" 
+              onClick={() => navigate("/workspace")}
+              className="border-black text-black hover:bg-gray-50"
+            >
+              ‹ Back to Workspace
+            </Button>
           </div>
         </div>
+      </div>
+
+      {/* Chat Container */}
+      <div className="max-w-4xl mx-auto px-6 py-8">
+        <Card className="h-[600px] flex flex-col">
+          <CardHeader className="flex-shrink-0">
+            <div className="text-center py-4">
+              <h2 className="text-lg font-medium text-black" style={{ fontFamily: 'Times New Roman, serif' }}>
+                Chat with Victoria
+              </h2>
+              <p className="text-sm text-gray-600 mt-2">
+                Get expert brand strategy advice and landing page help
+              </p>
+            </div>
+            <Separator />
+          </CardHeader>
+
+          <CardContent className="flex-1 flex flex-col p-0">
+            {/* Messages Area */}
+            <ScrollArea className="flex-1 p-6">
+              <div className="space-y-6">
+                {messages.length === 0 && (
+                  <div className="text-center py-12">
+                    <h3 className="text-lg font-medium text-black mb-2" style={{ fontFamily: 'Times New Roman, serif' }}>
+                      Start Your Brand Strategy Session
+                    </h3>
+                    <p className="text-gray-600 mb-6">
+                      Ask Victoria about your business goals, landing page needs, or brand strategy
+                    </p>
+                    <div className="space-y-2 text-sm text-gray-500">
+                      <p>"Help me create a landing page for my coaching business"</p>
+                      <p>"What's the best template for my wellness brand?"</p>
+                      <p>"How can I position myself as an expert in my field?"</p>
+                    </div>
+                  </div>
+                )}
+
+                {messages.map((message) => (
+                  <div key={message.id} className={`flex ${message.sender === 'user' ? 'justify-end' : 'justify-start'}`}>
+                    <div className={`max-w-[70%] ${message.sender === 'user' ? 'bg-black text-white' : 'bg-gray-100 text-black'} p-4 space-y-2`}>
+                      <div className="text-sm font-medium">
+                        {message.sender === 'user' ? 'You' : 'Victoria'}
+                      </div>
+                      <div className="whitespace-pre-wrap text-sm leading-relaxed">
+                        {message.message}
+                      </div>
+                      <div className="text-xs opacity-70">
+                        {new Date(message.timestamp).toLocaleTimeString()}
+                      </div>
+                    </div>
+                  </div>
+                ))}
+
+                {isLoading && (
+                  <div className="flex justify-start">
+                    <div className="bg-gray-100 text-black p-4 max-w-[70%]">
+                      <div className="text-sm font-medium mb-2">Victoria</div>
+                      <div className="text-sm text-gray-600">
+                        Thinking about your brand strategy...
+                      </div>
+                    </div>
+                  </div>
+                )}
+              </div>
+              <div ref={messagesEndRef} />
+            </ScrollArea>
+
+            {/* Input Area */}
+            <div className="flex-shrink-0 border-t border-gray-200 p-6">
+              <div className="flex space-x-3">
+                <Input
+                  value={input}
+                  onChange={(e) => setInput(e.target.value)}
+                  onKeyPress={handleKeyPress}
+                  placeholder="Ask Victoria about your brand strategy..."
+                  className="flex-1 border-gray-300 focus:border-black"
+                  disabled={isLoading}
+                />
+                <Button 
+                  onClick={sendMessage}
+                  disabled={isLoading || !input.trim()}
+                  className="bg-black text-white hover:bg-gray-800 px-6"
+                >
+                  Send
+                </Button>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
       </div>
     </div>
   );
