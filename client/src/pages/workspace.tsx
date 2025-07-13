@@ -275,22 +275,6 @@ export default function Workspace() {
         </div>
       </section>
 
-      {/* Editorial Quote Section */}
-      <section className="py-20 sm:py-32 px-4 sm:px-6 lg:px-8 bg-gray-50 text-center">
-        <div className="max-w-4xl mx-auto">
-          <div className="text-xs tracking-[0.4em] uppercase text-gray-500 mb-8">
-            Sandra's Philosophy
-          </div>
-          <blockquote className="font-serif text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-light italic leading-tight text-black mb-8">
-            "Your mess is your message.<br />
-            Let's build something real."
-          </blockquote>
-          <cite className="text-xs tracking-[0.3em] uppercase text-gray-500">
-            Sandra Sigurjónsdóttir, Founder
-          </cite>
-        </div>
-      </section>
-
       {/* Main Content */}
       <section className="py-20 px-8">
         <div className="max-w-6xl mx-auto">
@@ -337,9 +321,9 @@ export default function Workspace() {
                       
                       {/* Status Indicator */}
                       <div className={`absolute top-2 right-2 w-2 h-2 rounded-full ${
-                        step.status === 'complete' ? 'bg-green-500' :
-                        step.status === 'progress' ? 'bg-yellow-500' :
-                        step.status === 'ready' ? 'bg-blue-500' :
+                        step.status === 'complete' ? 'bg-black' :
+                        step.status === 'progress' ? 'bg-gray-600' :
+                        step.status === 'ready' ? 'bg-gray-800' :
                         'bg-gray-300'
                       }`}></div>
                     </div>
@@ -350,8 +334,8 @@ export default function Workspace() {
                         {step.title}
                       </h3>
                       <span className={`text-xs tracking-[0.1em] uppercase font-light ${
-                        step.status === 'complete' ? 'text-green-600' :
-                        step.status === 'progress' ? 'text-yellow-600' :
+                        step.status === 'complete' ? 'text-black' :
+                        step.status === 'progress' ? 'text-gray-600' :
                         step.status === 'ready' ? 'text-black' :
                         step.status === 'locked' ? 'text-gray-400' :
                         'text-gray-600'
@@ -373,11 +357,11 @@ export default function Workspace() {
             <div className="mt-8 text-center">
               <div className="inline-flex items-center space-x-8 text-xs tracking-[0.2em] uppercase text-gray-600">
                 <div className="flex items-center space-x-2">
-                  <div className="w-2 h-2 bg-green-500 rounded-full"></div>
+                  <div className="w-2 h-2 bg-black rounded-full"></div>
                   <span>Complete</span>
                 </div>
                 <div className="flex items-center space-x-2">
-                  <div className="w-2 h-2 bg-blue-500 rounded-full"></div>
+                  <div className="w-2 h-2 bg-gray-800 rounded-full"></div>
                   <span>Ready</span>
                 </div>
                 <div className="flex items-center space-x-2">
@@ -388,7 +372,21 @@ export default function Workspace() {
             </div>
           </div>
 
-
+          {/* Editorial Quote Section - Moved Below Tools */}
+          <section className="py-20 sm:py-32 px-4 sm:px-6 lg:px-8 bg-gray-50 text-center mb-20">
+            <div className="max-w-4xl mx-auto">
+              <div className="text-xs tracking-[0.4em] uppercase text-gray-500 mb-8">
+                Sandra's Philosophy
+              </div>
+              <blockquote className="font-serif text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-light italic leading-tight text-black mb-8">
+                "Your mess is your message.<br />
+                Let's build something real."
+              </blockquote>
+              <cite className="text-xs tracking-[0.3em] uppercase text-gray-500">
+                Sandra Sigurjónsdóttir, Founder
+              </cite>
+            </div>
+          </section>
 
           {/* Usage Overview - Editorial Card Style */}
           <div className="text-center">
