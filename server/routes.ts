@@ -1130,6 +1130,20 @@ Always be encouraging and strategic while providing specific technical guidance.
         // Create initial usage record
         await UsageService.initializeUserUsage(userId, userPlan);
         
+        // Create initial AI model record for training tracking
+        try {
+          await storage.createUserModel({
+            userId,
+            triggerWord: `user${userId}`,
+            trainingStatus: 'not_started',
+            modelName: `${user.firstName || 'User'} AI Model`
+          });
+          console.log(`✅ AI model record created for user ${userId}`);
+        } catch (error) {
+          // Model might already exist, that's ok
+          console.log(`AI model already exists for user ${userId}, continuing...`);
+        }
+        
         console.log(`✅ New user created: ${user.email}`);
       }
       
