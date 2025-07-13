@@ -40,7 +40,8 @@ import FlatlayLibrary from "@/pages/flatlay-library";
 import Maya from "@/pages/maya";
 import Victoria from "@/pages/victoria";
 import VictoriaChat from "@/pages/victoria-chat";
-import { lazy } from "react";
+import { lazy, Suspense } from "react";
+import VictoriaBuilder from '@/pages/victoria-builder';
 
 // Removed duplicate photoshoot imports - using existing system
 
@@ -148,7 +149,7 @@ function Router() {
       <Route path="/maya" component={(props) => <ProtectedRoute component={Maya} {...props} />} />
       <Route path="/victoria" component={(props) => <ProtectedRoute component={Victoria} {...props} />} />
       <Route path="/victoria-chat" component={(props) => <ProtectedRoute component={VictoriaChat} {...props} />} />
-      <Route path="/victoria-builder" component={(props) => <ProtectedRoute component={lazy(() => import('@/pages/victoria-builder'))} {...props} />} />
+      <Route path="/victoria-builder" component={(props) => <ProtectedRoute component={VictoriaBuilder} {...props} />} />
       
       {/* SANDRA'S ADMIN DASHBOARD */}
       <Route path="/admin" component={AdminDashboard} />

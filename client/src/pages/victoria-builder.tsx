@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { useSearchParams } from 'wouter';
+import { useLocation } from 'wouter';
 import { apiRequest } from '@/lib/queryClient';
 import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
@@ -128,8 +128,8 @@ const SOUL_RESETS_TEMPLATE = `
 </html>`;
 
 export default function VictoriaBuilder() {
-  const [searchParams] = useSearchParams();
-  const chatId = searchParams.get('chat');
+  const [location] = useLocation();
+  const chatId = new URLSearchParams(location.split('?')[1] || '').get('chat');
   const [currentMessage, setCurrentMessage] = useState('');
   const [isTyping, setIsTyping] = useState(false);
   const [currentHtml, setCurrentHtml] = useState(SOUL_RESETS_TEMPLATE);
