@@ -148,6 +148,7 @@ function Router() {
       <Route path="/maya" component={(props) => <ProtectedRoute component={Maya} {...props} />} />
       <Route path="/victoria" component={(props) => <ProtectedRoute component={Victoria} {...props} />} />
       <Route path="/victoria-chat" component={(props) => <ProtectedRoute component={VictoriaChat} {...props} />} />
+      <Route path="/victoria-builder" component={(props) => <ProtectedRoute component={lazy(() => import('@/pages/victoria-builder'))} {...props} />} />
       
       {/* SANDRA'S ADMIN DASHBOARD */}
       <Route path="/admin" component={AdminDashboard} />

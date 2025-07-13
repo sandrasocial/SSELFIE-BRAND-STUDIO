@@ -12,6 +12,9 @@ import {
   inspirationPhotos,
   mayaChats,
   mayaChatMessages,
+  victoriaChats,
+  victoriaChatMessages,
+  userLandingPages,
   type User,
   type UpsertUser,
   type OnboardingData,
@@ -38,6 +41,12 @@ import {
   type InsertMayaChat,
   type MayaChatMessage,
   type InsertMayaChatMessage,
+  type VictoriaChat,
+  type InsertVictoriaChat,
+  type VictoriaChatMessage,
+  type InsertVictoriaChatMessage,
+  type UserLandingPage,
+  type InsertUserLandingPage,
 } from "@shared/schema-simplified";
 import { db } from "./db";
 import { eq, and, desc, gte } from "drizzle-orm";
@@ -99,6 +108,20 @@ export interface IStorage {
   saveInspirationPhoto(data: InsertInspirationPhoto): Promise<InspirationPhoto>;
   getInspirationPhotos(userId: string): Promise<InspirationPhoto[]>;
   deleteInspirationPhoto(id: number, userId: string): Promise<void>;
+  
+  // Victoria chat operations
+  createVictoriaChat(data: InsertVictoriaChat): Promise<VictoriaChat>;
+  getVictoriaChats(userId: string): Promise<VictoriaChat[]>;
+  getVictoriaChat(chatId: number): Promise<VictoriaChat | undefined>;
+  updateVictoriaChat(chatId: number, data: Partial<VictoriaChat>): Promise<VictoriaChat | undefined>;
+  createVictoriaChatMessage(data: InsertVictoriaChatMessage): Promise<VictoriaChatMessage>;
+  getVictoriaChatMessages(chatId: number): Promise<VictoriaChatMessage[]>;
+  
+  // Landing pages operations
+  createUserLandingPage(data: InsertUserLandingPage): Promise<UserLandingPage>;
+  getUserLandingPages(userId: string): Promise<UserLandingPage[]>;
+  getUserLandingPageBySlug(slug: string): Promise<UserLandingPage | undefined>;
+  updateUserLandingPage(id: number, data: Partial<UserLandingPage>): Promise<UserLandingPage | undefined>;
 }
 
 export class DatabaseStorage implements IStorage {
@@ -455,6 +478,90 @@ export class DatabaseStorage implements IStorage {
       .from(mayaChatMessages)
       .where(eq(mayaChatMessages.chatId, chatId))
       .orderBy(mayaChatMessages.createdAt);
+  }
+
+  // Victoria chat operations
+  async createVictoriaChat(data: InsertVictoriaChat): Promise<VictoriaChat> {
+    const [chat] = await db
+      .insert(victoriaChats)
+      .values(data)
+      .returning();
+    return chat;
+  }
+
+  async getVictoriaChats(userId: string): Promise<VictoriaChat[]> {
+    return await db
+      .select()
+      .from(victoriaChats)
+      .where(eq(victoriaChats.userId, userId))
+      .orderBy(desc(victoriaChats.updatedAt));
+  }
+
+  async getVictoriaChat(chatId: number): Promise<VictoriaChat | undefined> {
+    const [chat] = await db
+      .select()
+      .from(victoriaChats)
+      .where(eq(victoriaChats.id, chatId));
+    return chat;
+  }
+
+  async updateVictoriaChat(chatId: number, data: Partial<VictoriaChat>): Promise<VictoriaChat | undefined> {
+    const [updated] = await db
+      .update(victoriaChats)
+      .set({ ...data, updatedAt: new Date() })
+      .where(eq(victoriaChats.id, chatId))
+      .returning();
+    return updated;
+  }
+
+  async createVictoriaChatMessage(data: InsertVictoriaChatMessage): Promise<VictoriaChatMessage> {
+    const [message] = await db
+      .insert(victoriaChatMessages)
+      .values(data)
+      .returning();
+    return message;
+  }
+
+  async getVictoriaChatMessages(chatId: number): Promise<VictoriaChatMessage[]> {
+    return await db
+      .select()
+      .from(victoriaChatMessages)
+      .where(eq(victoriaChatMessages.chatId, chatId))
+      .orderBy(victoriaChatMessages.createdAt);
+  }
+
+  // Landing pages operations
+  async createUserLandingPage(data: InsertUserLandingPage): Promise<UserLandingPage> {
+    const [page] = await db
+      .insert(userLandingPages)
+      .values(data)
+      .returning();
+    return page;
+  }
+
+  async getUserLandingPages(userId: string): Promise<UserLandingPage[]> {
+    return await db
+      .select()
+      .from(userLandingPages)
+      .where(eq(userLandingPages.userId, userId))
+      .orderBy(desc(userLandingPages.updatedAt));
+  }
+
+  async getUserLandingPageBySlug(slug: string): Promise<UserLandingPage | undefined> {
+    const [page] = await db
+      .select()
+      .from(userLandingPages)
+      .where(eq(userLandingPages.slug, slug));
+    return page;
+  }
+
+  async updateUserLandingPage(id: number, data: Partial<UserLandingPage>): Promise<UserLandingPage | undefined> {
+    const [updated] = await db
+      .update(userLandingPages)
+      .set({ ...data, updatedAt: new Date() })
+      .where(eq(userLandingPages.id, id))
+      .returning();
+    return updated;
   }
 }
 

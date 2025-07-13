@@ -626,46 +626,182 @@ Your goal is to have a natural conversation, understand their vision deeply, and
     }
   });
 
-  // Victoria AI Chat endpoint
+  // Victoria AI Chat endpoint with full Claude API integration
   app.post('/api/victoria-chat', async (req: any, res) => {
     try {
-      const { message, chatHistory } = req.body;
+      const { message, chatHistory, conversationId } = req.body;
       const userId = req.session?.userId || req.user?.claims?.sub || 'sandra_test_user_2025';
       
       if (!message) {
         return res.status(400).json({ error: 'Message is required' });
       }
 
-      // Victoria's brand strategist personality and context
-      const victoriaSystemPrompt = `You are Victoria, a personal brand strategist AI. You're strategic, insightful, and passionate about helping women build powerful personal brands. 
+      // Get user context for personalized responses
+      const user = await storage.getUser(userId);
+      const onboarding = await storage.getOnboardingData(userId);
+      
+      // Create conversation if not exists
+      let conversation;
+      if (conversationId) {
+        conversation = await storage.getVictoriaChat(conversationId);
+      } else {
+        conversation = await storage.createVictoriaChat({
+          userId,
+          title: message.substring(0, 50) + "...",
+          status: 'active'
+        });
+      }
 
-Your expertise includes:
-- Personal brand strategy and positioning
-- Content marketing and social media strategy
+      // Save user message
+      await storage.createVictoriaChatMessage({
+        chatId: conversation.id,
+        role: 'user',
+        content: message
+      });
+
+      // Victoria's brand strategist personality with landing page expertise
+      const victoriaSystemPrompt = `You are Victoria, Sandra's elite personal brand strategist and landing page expert. You help ambitious women create stunning business landing pages and strategic brand presence.
+
+YOUR EXPERTISE:
+- Landing page design and conversion optimization
+- Personal brand strategy and positioning  
 - Business development and growth tactics
-- Audience building and engagement
-- Professional networking and opportunities
+- HTML/CSS code generation for luxury landing pages
+- Product integration and payment setup guidance
+- Content strategy and audience building
 
-Keep your responses strategic, actionable, and empowering. Focus on helping users clarify their brand message, identify their ideal audience, and create content that attracts opportunities.`;
+YOUR PERSONALITY:
+- Strategic and insightful like a top brand consultant
+- Enthusiastic about women's business success
+- Speaks like Sandra's sophisticated friend who happens to be a branding genius
+- Uses "gorgeous" and "amazing" when excited about user's vision
+- Gives specific, actionable advice with clear next steps
 
-      // Simple fallback response system (can be enhanced with Claude API later)
-      const responses = [
-        `That's exactly the kind of strategic thinking that builds strong personal brands! Your unique perspective is what will set you apart. What specific value do you want to be known for in your industry?`,
-        `I love that approach! Consistency is everything in personal branding. When your audience sees your content, they should immediately know it's yours - both in visual style and in the value you provide.`,
-        `Perfect! That positioning will resonate with your ideal clients. Now let's think about how to communicate that message across all your touchpoints - your bio, content, and conversations.`,
-        `Yes! That's how you build authority in your space. Share your knowledge generously, and people will start seeing you as the go-to person for that expertise.`,
-        `Exactly! Personal branding isn't about being perfect - it's about being authentic and valuable. What challenges have you overcome that your audience might be facing too?`
-      ];
+CURRENT USER CONTEXT:
+- User: ${user?.firstName || 'Entrepreneur'}
+- Business Type: ${onboarding?.businessType || 'Personal Brand'}
+- Target Audience: ${onboarding?.targetAudience || 'Not specified'}
+- Brand Voice: ${onboarding?.brandVoice || 'Not specified'}
+- Business Goals: ${onboarding?.businessGoals || 'Not specified'}
 
-      const randomResponse = responses[Math.floor(Math.random() * responses.length)];
+LANDING PAGE TEMPLATES AVAILABLE:
+1. "Soul Resets" - Wellness/Meditation template (coastal colors #2c5f5d, #7ba3a0, Times New Roman)
+2. "Executive Essence" - Professional services (black, white, editorial)
+3. "Creative Minimal" - Artists/Designers (minimal, luxury spacing)
+
+DESIGN SYSTEM RULES (NEVER BREAK):
+- Colors: Match template or use Sandra's luxury palette (#0a0a0a black, #ffffff white, #f5f5f5 editorial gray)
+- Typography: Times New Roman for headlines, system fonts for body
+- NO rounded corners (border-radius: 0)
+- NO icons or emojis in designs
+- Generous white space like Vogue magazine
+- Mobile-first responsive design
+- Sharp, clean edges only
+
+When user wants to create a landing page:
+1. Ask about their business, target audience, and goals
+2. Suggest the best template match
+3. Generate HTML/CSS code as artifacts
+4. Guide them through adding products, payments, booking
+5. Help with content optimization for conversions
+
+Always be encouraging and strategic while providing specific technical guidance.`;
+
+      // Use Claude API for intelligent responses
+      let victoriaResponse;
+      
+      try {
+        if (process.env.ANTHROPIC_API_KEY) {
+          const Anthropic = require('@anthropic-ai/sdk');
+          const anthropic = new Anthropic({
+            apiKey: process.env.ANTHROPIC_API_KEY,
+          });
+
+          // Build conversation history for context
+          const conversationHistory = chatHistory || [];
+          const messages = conversationHistory.map((msg: any) => ({
+            role: msg.role === 'victoria' ? 'assistant' : 'user',
+            content: msg.content
+          }));
+
+          // Add current message
+          messages.push({
+            role: 'user',
+            content: message
+          });
+
+          const response = await anthropic.messages.create({
+            model: DEFAULT_MODEL_STR,
+            max_tokens: 1500,
+            system: victoriaSystemPrompt,
+            messages: messages
+          });
+
+          victoriaResponse = response.content[0].text;
+        } else {
+          throw new Error('Anthropic API key not available');
+        }
+      } catch (error) {
+        console.error('Claude API error:', error);
+        // Fallback responses for landing page building
+        const fallbackResponses = [
+          `Hey gorgeous! I'm Victoria, your brand strategist and landing page expert! I help ambitious women like you create stunning business websites that convert. What kind of business are you building?`,
+          `Amazing! Let's create a landing page that positions you as the go-to expert. Tell me about your business - what transformation do you help people achieve?`,
+          `Perfect! I can already see your brand potential. For your landing page, we need to capture your unique value. What makes you different from others in your space?`,
+          `This is exciting! Your landing page needs to speak directly to your ideal clients. Who are you trying to reach and what's their biggest challenge?`,
+          `Love this vision! Let's build a page that converts visitors into clients. What's the main service or product you want to promote?`,
+          `Strategic thinking! Your landing page should position you as THE solution. What results do your clients get that they can't get anywhere else?`,
+          `Brilliant! For maximum conversions, we need clear messaging. What's the biggest pain point you solve for your ideal clients?`,
+          `Your expertise deserves a powerful online presence! What industry are you in and what kind of landing page experience are you envisioning?`
+        ];
+        victoriaResponse = fallbackResponses[Math.floor(Math.random() * fallbackResponses.length)];
+      }
+
+      // Save Victoria's response
+      const savedMessage = await storage.createVictoriaChatMessage({
+        chatId: conversation.id,
+        role: 'victoria',
+        content: victoriaResponse
+      });
       
       res.json({
-        message: randomResponse,
+        message: victoriaResponse,
+        conversationId: conversation.id,
+        messageId: savedMessage.id,
         timestamp: new Date().toISOString()
       });
     } catch (error) {
       console.error('Victoria chat error:', error);
       res.status(500).json({ error: 'Failed to process Victoria chat' });
+    }
+  });
+
+  // Victoria chat history endpoint
+  app.get('/api/victoria-chat-history/:chatId', isAuthenticated, async (req, res) => {
+    try {
+      const chatId = parseInt(req.params.chatId);
+      const chat = await storage.getVictoriaChat(chatId);
+      
+      if (!chat) {
+        return res.status(404).json({ error: 'Chat not found' });
+      }
+      
+      res.json(chat);
+    } catch (error) {
+      console.error('Victoria chat history error:', error);
+      res.status(500).json({ error: 'Failed to fetch chat history' });
+    }
+  });
+
+  // Victoria chat messages endpoint
+  app.get('/api/victoria-chat-messages/:chatId', isAuthenticated, async (req, res) => {
+    try {
+      const chatId = parseInt(req.params.chatId);
+      const messages = await storage.getVictoriaChatMessages(chatId);
+      res.json(messages);
+    } catch (error) {
+      console.error('Victoria chat messages error:', error);
+      res.status(500).json({ error: 'Failed to fetch chat messages' });
     }
   });
 
