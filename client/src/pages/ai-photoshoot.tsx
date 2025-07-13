@@ -212,7 +212,7 @@ const PROMPT_COLLECTIONS = {
         name: 'Morning Truth',
         category: 'Raw Moments',
         description: "Honest morning beauty. No makeup, real hair, looking directly at the camera with complete authenticity.",
-        prompt: '[triggerword] woman in bed looking directly at camera, no makeup, voluminous hair beautifully spread on pillow with natural body and movement, white sheets, half body shot in bed environment, natural morning vulnerability, black and white photography only, monochrome, no color, heavy 35mm film grain, matte textured skin, soft skin retouch, visible pores and natural texture, natural facial refinement, editorial skin enhancement, raw intimate photography, honest beauty. Negative: shiny skin, glossy skin, fake skin, plastic-looking skin, over-processed skin, close-up portrait, headshot, tight crop'
+        prompt: '[triggerword] woman in bed looking directly at camera, no makeup, voluminous hair beautifully spread on pillow with natural body and movement, white sheets, intimate morning portrait in natural light, natural morning vulnerability, black and white photography only, monochrome, no color, heavy 35mm film grain, matte textured skin, soft skin retouch, visible pores and natural texture, natural facial refinement, editorial skin enhancement, raw intimate photography, honest beauty. Negative: shiny skin, glossy skin, fake skin, plastic-looking skin, over-processed skin'
       },
       {
         id: 'mirror-reflection',
@@ -248,21 +248,21 @@ const PROMPT_COLLECTIONS = {
         name: 'Vogue Beauty Classic',
         category: 'Studio Beauty',
         description: "Pure editorial magic. Think Vogue beauty pages - clean, stunning, that perfect messy bun situation.",
-        prompt: '[triggerword] woman, voluminous hair in perfectly tousled messy bun with soft face-framing pieces, hair with natural body and movement, minimal makeup with glossy lips, bare shoulders, half body shot against seamless gray backdrop, shot on Hasselblad X2D 100C, 90mm lens, single beauty dish lighting, black and white photography only, monochrome, no color, heavy 35mm film grain, matte textured skin, soft skin retouch, visible skin texture and natural pores, natural facial refinement, high fashion beauty photography, editorial skin enhancement. Negative: shiny skin, glossy skin, fake skin, plastic-looking skin, over-processed skin, close-up portrait, headshot, tight crop, face only'
+        prompt: '[triggerword] woman, voluminous hair in perfectly tousled messy bun with soft face-framing pieces, hair with natural body and movement, minimal makeup with glossy lips, bare shoulders, beauty portrait against seamless gray backdrop, shot on Hasselblad X2D 100C, 90mm lens, single beauty dish lighting, black and white photography only, monochrome, no color, heavy 35mm film grain, matte textured skin, soft skin retouch, visible skin texture and natural pores, natural facial refinement, high fashion beauty photography, editorial skin enhancement. Negative: shiny skin, glossy skin, fake skin, plastic-looking skin, over-processed skin'
       },
       {
         id: 'harpers-intimate',
         name: "Harper's Intimate Portrait",
         category: 'Studio Beauty',
         description: "Intimate Harper's Bazaar vibes. Looking over your shoulder, tousled hair, that effortless editorial beauty.",
-        prompt: '[triggerword] woman, voluminous tousled hair with natural body and movement falling beautifully over shoulders, looking over bare shoulder, minimal jewelry, half body shot with neutral backdrop, shot on Canon EOS R5, 85mm lens, soft window light from left, black and white editorial only, monochrome, no color, heavy 35mm film grain, matte textured skin, soft skin retouch, visible pores and natural texture, natural facial refinement, editorial skin enhancement, medium format aesthetic. Negative: shiny skin, glossy skin, fake skin, plastic-looking skin, over-processed skin, close-up portrait, headshot, tight crop'
+        prompt: '[triggerword] woman, voluminous tousled hair with natural body and movement falling beautifully over shoulders, looking over bare shoulder, minimal jewelry, intimate beauty portrait with neutral backdrop, shot on Canon EOS R5, 85mm lens, soft window light from left, black and white editorial only, monochrome, no color, heavy 35mm film grain, matte textured skin, soft skin retouch, visible pores and natural texture, natural facial refinement, editorial skin enhancement, medium format aesthetic. Negative: shiny skin, glossy skin, fake skin, plastic-looking skin, over-processed skin'
       },
       {
         id: 'window-shadow-play',
         name: 'Window Shadow Play',
         category: 'Dramatic Lighting',
         description: "Dramatic light and shadow. Window blinds creating beautiful stripes across your face - pure artistic magic.",
-        prompt: '[triggerword] woman, voluminous hair with natural body and texture, dramatic window blinds creating shadow stripes across face and body, eyes closed in serene expression, black slip dress, half body shot with architectural window elements visible, shot on Leica M11 Monochrom, 90mm lens, natural harsh light, high contrast black and white only, monochrome, no color, heavy 35mm film grain, matte textured skin, soft skin retouch, visible pores and natural texture, natural facial refinement, editorial skin enhancement, visible skin detail in light strips. Negative: shiny skin, glossy skin, fake skin, plastic-looking skin, over-processed skin, close-up portrait, headshot, tight crop'
+        prompt: '[triggerword] woman, voluminous hair with natural body and texture, dramatic window blinds creating shadow stripes across face and body, eyes closed in serene expression, black slip dress, artistic close-up with window shadow patterns visible, shot on Leica M11 Monochrom, 90mm lens, natural harsh light, high contrast black and white only, monochrome, no color, heavy 35mm film grain, matte textured skin, soft skin retouch, visible pores and natural texture, natural facial refinement, editorial skin enhancement, visible skin detail in light strips. Negative: shiny skin, glossy skin, fake skin, plastic-looking skin, over-processed skin'
       },
       {
         id: 'hair-toss-energy',
@@ -282,8 +282,8 @@ const PROMPT_COLLECTIONS = {
         id: 'natural-texture-beauty',
         name: 'Natural Texture Beauty',
         category: 'Authentic Beauty',
-        description: "Celebrating natural beauty and texture. Real freckles, authentic skin, messy hair - unfiltered gorgeousness.",
-        prompt: '[triggerword] woman, voluminous hair in tousled messy bun with loose face-framing strands, natural freckles visible, glossy lips slightly parted, half body beauty shot with studio backdrop visible, shot on Phase One XF IQ4 with 80mm lens, ring light, black and white beauty photography, monochrome, no color, heavy 35mm film grain, matte textured skin, soft skin retouch, visible pores and natural texture, natural facial refinement, editorial skin enhancement, natural skin texture celebrated. Negative: shiny skin, glossy skin, fake skin, plastic-looking skin, over-processed skin, extreme close-up, tight crop, face only, headshot'
+        description: "Celebrating natural beauty and texture. Real freckles, authentic skin, messy hair - close-up gorgeousness.",
+        prompt: '[triggerword] woman, voluminous hair in tousled messy bun with loose face-framing strands, natural freckles visible, glossy lips slightly parted, close-up beauty shot focusing on natural texture, shot on Phase One XF IQ4 with 80mm lens, ring light, black and white beauty photography, monochrome, no color, heavy 35mm film grain, matte textured skin, soft skin retouch, visible pores and natural texture, natural facial refinement, editorial skin enhancement, natural skin texture celebrated. Negative: shiny skin, glossy skin, fake skin, plastic-looking skin, over-processed skin'
       }
     ]
   },

@@ -74,7 +74,7 @@ export async function generateImages(request: GenerateImagesRequest): Promise<Ge
     }
     
     // Extract negative prompts from the custom prompt (if present)
-    let negativePrompt = "shiny skin, glossy skin, fake skin, plastic-looking skin, over-processed skin, deep unflattering wrinkles, flat unflattering hair, close-up portrait, headshot, tight crop, face only, portrait photography, profile shot, studio portrait, face closeup, tight framing, head and shoulders only, cropped face, zoomed in face";
+    let negativePrompt = "shiny skin, glossy skin, fake skin, plastic-looking skin, over-processed skin, deep unflattering wrinkles, flat unflattering hair";
     
     // Check if prompt contains negative prompts and extract them
     if (finalPrompt.includes("Negative:")) {
