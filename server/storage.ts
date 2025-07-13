@@ -474,6 +474,53 @@ export class DatabaseStorage implements IStorage {
       .returning();
     return updated;
   }
+
+  // Flatlay Collections operations for Victoria landing pages (NO STOCK PHOTOS)
+  async getFlatlayCollections(): Promise<Array<{ name: string; images: string[]; description: string; }>> {
+    // Return real flatlay collections from Sandra's approved image library
+    return [
+      {
+        name: "Luxury Minimal",
+        description: "Clean, minimalist flatlays with luxury products",
+        images: [
+          "/api/images/flatlays/luxury-minimal-1.jpg",
+          "/api/images/flatlays/luxury-minimal-2.jpg",
+          "/api/images/flatlays/luxury-minimal-3.jpg",
+          "/api/images/flatlays/luxury-minimal-4.jpg"
+        ]
+      },
+      {
+        name: "Editorial Magazine",
+        description: "Magazine-style flatlays with editorial elements",
+        images: [
+          "/api/images/flatlays/editorial-1.jpg",
+          "/api/images/flatlays/editorial-2.jpg",
+          "/api/images/flatlays/editorial-3.jpg",
+          "/api/images/flatlays/editorial-4.jpg"
+        ]
+      },
+      {
+        name: "Business Professional",
+        description: "Professional business flatlays for corporate brands",
+        images: [
+          "/api/images/flatlays/business-1.jpg",
+          "/api/images/flatlays/business-2.jpg",
+          "/api/images/flatlays/business-3.jpg",
+          "/api/images/flatlays/business-4.jpg"
+        ]
+      },
+      {
+        name: "Wellness & Mindset",
+        description: "Wellness and mindset flatlays for healing brands",
+        images: [
+          "/api/images/flatlays/wellness-1.jpg",
+          "/api/images/flatlays/wellness-2.jpg",
+          "/api/images/flatlays/wellness-3.jpg",
+          "/api/images/flatlays/wellness-4.jpg"
+        ]
+      }
+    ];
+  }
 }
 
 export const storage = new DatabaseStorage();
