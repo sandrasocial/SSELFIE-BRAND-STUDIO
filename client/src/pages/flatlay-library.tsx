@@ -30,14 +30,142 @@ const flatlayCollections: FlatlayCollection[] = [
     name: 'Luxury Minimal',
     description: 'Clean white backgrounds, designer accessories, minimal styling',
     aesthetic: 'Clean sophistication with generous white space',
-    backgroundImage: SandraImages.flatlays.workspace1,
-    images: SandraImages.flatlays.luxuryMinimal.map((url, index) => ({
-      id: `lm-${index + 1}`,
-      url,
-      title: ['Clean Workspace', 'Minimal Setup', 'Beauty Minimal', 'Planning Flatlay', 'Executive Setup', 'Content Creation', 'Laptop Workspace'][index] || 'Luxury Minimal',
-      category: 'Luxury Minimal',
-      description: 'Clean sophisticated lifestyle flatlay'
-    }))
+    backgroundImage: 'https://i.postimg.cc/1tfNMJvk/file-16.png',
+    images: [
+      {
+        id: 'lm-1',
+        url: 'https://i.postimg.cc/1tfNMJvk/file-16.png',
+        title: 'Clean Workspace',
+        category: 'Luxury Minimal',
+        description: 'Clean sophisticated lifestyle flatlay'
+      },
+      {
+        id: 'lm-2',
+        url: 'https://i.postimg.cc/6qZ4xTJz/file-19.png',
+        title: 'Minimal Setup',
+        category: 'Luxury Minimal',
+        description: 'Clean sophisticated lifestyle flatlay'
+      },
+      {
+        id: 'lm-3',
+        url: 'https://i.postimg.cc/4NzH8K1x/file-20.png',
+        title: 'Beauty Minimal',
+        category: 'Luxury Minimal',
+        description: 'Clean sophisticated lifestyle flatlay'
+      },
+      {
+        id: 'lm-4',
+        url: 'https://i.postimg.cc/V5ysqFhW/file-21.png',
+        title: 'Planning Flatlay',
+        category: 'Luxury Minimal',
+        description: 'Clean sophisticated lifestyle flatlay'
+      },
+      {
+        id: 'lm-5',
+        url: 'https://i.postimg.cc/yY9cwp7B/file-22.png',
+        title: 'Executive Setup',
+        category: 'Luxury Minimal',
+        description: 'Clean sophisticated lifestyle flatlay'
+      },
+      {
+        id: 'lm-6',
+        url: 'https://i.postimg.cc/bvFZG1q3/file-23.png',
+        title: 'Content Creation',
+        category: 'Luxury Minimal',
+        description: 'Clean sophisticated lifestyle flatlay'
+      },
+      {
+        id: 'lm-7',
+        url: 'https://i.postimg.cc/C1Bzbd1Y/file-24.png',
+        title: 'Laptop Workspace',
+        category: 'Luxury Minimal',
+        description: 'Clean sophisticated lifestyle flatlay'
+      },
+      {
+        id: 'lm-8',
+        url: 'https://i.postimg.cc/Y95jRkGF/file-25.png',
+        title: 'Minimal Luxury',
+        category: 'Luxury Minimal',
+        description: 'Clean sophisticated lifestyle flatlay'
+      },
+      {
+        id: 'lm-9',
+        url: 'https://i.postimg.cc/sgr7yP2W/file-26.png',
+        title: 'Designer Accessories',
+        category: 'Luxury Minimal',
+        description: 'Clean sophisticated lifestyle flatlay'
+      },
+      {
+        id: 'lm-10',
+        url: 'https://i.postimg.cc/5t9zQxLN/file-27.png',
+        title: 'Elegant Minimal',
+        category: 'Luxury Minimal',
+        description: 'Clean sophisticated lifestyle flatlay'
+      },
+      {
+        id: 'lm-11',
+        url: 'https://i.postimg.cc/3wLvgPFj/file-28.png',
+        title: 'White Space',
+        category: 'Luxury Minimal',
+        description: 'Clean sophisticated lifestyle flatlay'
+      },
+      {
+        id: 'lm-12',
+        url: 'https://i.postimg.cc/x13Hdkk4/file-31.png',
+        title: 'Clean Lines',
+        category: 'Luxury Minimal',
+        description: 'Clean sophisticated lifestyle flatlay'
+      },
+      {
+        id: 'lm-13',
+        url: 'https://i.postimg.cc/HWFbv1DB/file-32.png',
+        title: 'Minimal Beauty',
+        category: 'Luxury Minimal',
+        description: 'Clean sophisticated lifestyle flatlay'
+      },
+      {
+        id: 'lm-14',
+        url: 'https://i.postimg.cc/PfCmMrcC/file-33.png',
+        title: 'Luxury Essentials',
+        category: 'Luxury Minimal',
+        description: 'Clean sophisticated lifestyle flatlay'
+      },
+      {
+        id: 'lm-15',
+        url: 'https://i.postimg.cc/kMRbbY68/file-44.png',
+        title: 'Professional Setup',
+        category: 'Luxury Minimal',
+        description: 'Clean sophisticated lifestyle flatlay'
+      },
+      {
+        id: 'lm-16',
+        url: 'https://i.postimg.cc/kXrtFNKH/file-45.png',
+        title: 'Organized Minimal',
+        category: 'Luxury Minimal',
+        description: 'Clean sophisticated lifestyle flatlay'
+      },
+      {
+        id: 'lm-17',
+        url: 'https://i.postimg.cc/Z54BXTfF/file-46.png',
+        title: 'Aesthetic Order',
+        category: 'Luxury Minimal',
+        description: 'Clean sophisticated lifestyle flatlay'
+      },
+      {
+        id: 'lm-18',
+        url: 'https://i.postimg.cc/htszBH6F/file-47.png',
+        title: 'Executive Minimal',
+        category: 'Luxury Minimal',
+        description: 'Clean sophisticated lifestyle flatlay'
+      },
+      {
+        id: 'lm-19',
+        url: 'https://i.postimg.cc/0NN62V1z/file-48.png',
+        title: 'Sophisticated Clean',
+        category: 'Luxury Minimal',
+        description: 'Clean sophisticated lifestyle flatlay'
+      }
+    ]
   },
   {
     id: 'editorial-magazine',
