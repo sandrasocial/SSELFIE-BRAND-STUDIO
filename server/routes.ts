@@ -169,11 +169,11 @@ I have ALL collections ready - just tell me your mood! ✨`;
     }
   });
 
-  // Save Prompt to Library (session-based for testing)
-  app.post('/api/save-prompt-to-library', async (req, res) => {
+  // Save Prompt to Library - AUTHENTICATION REQUIRED
+  app.post('/api/save-prompt-to-library', isAuthenticated, async (req: any, res) => {
     try {
       const { name, description, prompt, camera, texture, collection } = req.body;
-      const userId = req.user?.claims?.sub || req.session?.userId || 'sandra_test_user_2025';
+      const userId = req.user.claims.sub;
       
       if (!name || !prompt) {
         return res.status(400).json({ error: 'Name and prompt are required' });
@@ -203,11 +203,11 @@ I have ALL collections ready - just tell me your mood! ✨`;
     }
   });
 
-  // Upload inspiration photo for style reference
-  app.post('/api/upload-inspiration', async (req, res) => {
+  // Upload inspiration photo for style reference - AUTHENTICATION REQUIRED
+  app.post('/api/upload-inspiration', isAuthenticated, async (req: any, res) => {
     try {
       const { imageUrl, description, tags, source } = req.body;
-      const userId = req.user?.claims?.sub || req.session?.userId || 'sandra_test_user_2025';
+      const userId = req.user.claims.sub;
       
       if (!imageUrl) {
         return res.status(400).json({ error: 'Image URL is required' });
@@ -248,11 +248,11 @@ I have ALL collections ready - just tell me your mood! ✨`;
     }
   });
 
-  // Delete inspiration photo
-  app.delete('/api/inspiration-photos/:id', async (req, res) => {
+  // Delete inspiration photo - AUTHENTICATION REQUIRED
+  app.delete('/api/inspiration-photos/:id', isAuthenticated, async (req: any, res) => {
     try {
       const { id } = req.params;
-      const userId = req.user?.claims?.sub || req.session?.userId || 'sandra_test_user_2025';
+      const userId = req.user.claims.sub;
       
       await storage.deleteInspirationPhoto(parseInt(id), userId);
       res.json({ success: true, message: 'Inspiration photo deleted' });
@@ -412,7 +412,7 @@ Your goal is to have a natural conversation, understand their vision deeply, and
           
           // Get user's trained model for trigger word
           const userModel = await storage.getUserModelByUserId(userId);
-          const triggerWord = userModel?.triggerWord || 'usersandra_test_user_2025';
+          const triggerWord = userModel?.triggerWord || 'user';
           
           // Maya's expert prompt generation
           const promptResponse = await client.messages.create({
@@ -507,10 +507,10 @@ Your goal is to have a natural conversation, understand their vision deeply, and
     }
   });
 
-  // Maya Chat History endpoints
-  app.get('/api/maya-chats', async (req: any, res) => {
+  // Maya Chat History endpoints - AUTHENTICATION REQUIRED
+  app.get('/api/maya-chats', isAuthenticated, async (req: any, res) => {
     try {
-      const userId = req.session?.userId || req.user?.claims?.sub || 'sandra_test_user_2025';
+      const userId = req.user.claims.sub;
       const chats = await storage.getMayaChats(userId);
       res.json(chats);
     } catch (error) {
@@ -530,9 +530,9 @@ Your goal is to have a natural conversation, understand their vision deeply, and
     }
   });
 
-  app.post('/api/maya-chats', async (req: any, res) => {
+  app.post('/api/maya-chats', isAuthenticated, async (req: any, res) => {
     try {
-      const userId = req.session?.userId || req.user?.claims?.sub || 'sandra_test_user_2025';
+      const userId = req.user.claims.sub;
       const { chatTitle, chatSummary } = req.body;
       
       const chat = await storage.createMayaChat({
@@ -568,10 +568,10 @@ Your goal is to have a natural conversation, understand their vision deeply, and
     }
   });
 
-  // Get user's photo gallery for Victoria landing page templates
-  app.get('/api/user-gallery', async (req, res) => {
+  // Get user's photo gallery for Victoria landing page templates - AUTHENTICATION REQUIRED
+  app.get('/api/user-gallery', isAuthenticated, async (req: any, res) => {
     try {
-      const userId = req.session?.userId || req.user?.claims?.sub || 'sandra_test_user_2025';
+      const userId = req.user.claims.sub;
       
       // Get user's AI selfie images (70-80% of photos)
       console.log(`Fetching gallery for user ${userId}...`);
@@ -612,10 +612,10 @@ Your goal is to have a natural conversation, understand their vision deeply, and
     }
   });
 
-  // Get user's saved photo selections
-  app.get('/api/photo-selections', async (req, res) => {
+  // Get user's saved photo selections - AUTHENTICATION REQUIRED
+  app.get('/api/photo-selections', isAuthenticated, async (req: any, res) => {
     try {
-      const userId = req.session?.userId || req.user?.claims?.sub || 'sandra_test_user_2025';
+      const userId = req.user.claims.sub;
       
       // Get saved photo selections from database
       const selections = await storage.getPhotoSelections(userId);
@@ -643,10 +643,10 @@ Your goal is to have a natural conversation, understand their vision deeply, and
     }
   });
 
-  // Save user's photo selections for template customization
-  app.post('/api/save-photo-selections', async (req, res) => {
+  // Save user's photo selections for template customization - AUTHENTICATION REQUIRED
+  app.post('/api/save-photo-selections', isAuthenticated, async (req: any, res) => {
     try {
-      const userId = req.session?.userId || req.user?.claims?.sub || 'sandra_test_user_2025';
+      const userId = req.user.claims.sub;
       const { selfieIds, flatlayCollection } = req.body;
       
       console.log(`Saving photo selections for user ${userId}:`, { selfieIds, flatlayCollection });
@@ -669,10 +669,10 @@ Your goal is to have a natural conversation, understand their vision deeply, and
     }
   });
 
-  // Publish landing page live - creates hosted page at sselfie.ai/username
-  app.post('/api/publish-landing-page', async (req, res) => {
+  // Publish landing page live - creates hosted page at sselfie.ai/username - AUTHENTICATION REQUIRED
+  app.post('/api/publish-landing-page', isAuthenticated, async (req: any, res) => {
     try {
-      const userId = req.session?.userId || req.user?.claims?.sub || 'sandra_test_user_2025';
+      const userId = req.user.claims.sub;
       const { htmlContent, pageName } = req.body;
       
       console.log(`Publishing landing page for user: ${userId}, page: ${pageName}`);
@@ -734,10 +734,10 @@ Your goal is to have a natural conversation, understand their vision deeply, and
     }
   });
 
-  // Publish multi-page website live - creates hosted website at sselfie.ai/username with navigation
-  app.post('/api/publish-multi-page-website', async (req, res) => {
+  // Publish multi-page website live - creates hosted website at sselfie.ai/username with navigation - AUTHENTICATION REQUIRED
+  app.post('/api/publish-multi-page-website', isAuthenticated, async (req: any, res) => {
     try {
-      const userId = req.session?.userId || req.user?.claims?.sub || 'sandra_test_user_2025';
+      const userId = req.user.claims.sub;
       const { pageName, pages } = req.body;
       
       console.log(`Publishing multi-page website for user: ${userId}, website: ${pageName}`);
@@ -804,11 +804,11 @@ Your goal is to have a natural conversation, understand their vision deeply, and
     }
   });
 
-  // Victoria AI Chat endpoint with full Claude API integration
-  app.post('/api/victoria-chat', async (req: any, res) => {
+  // Victoria AI Chat endpoint with full Claude API integration - AUTHENTICATION REQUIRED
+  app.post('/api/victoria-chat', isAuthenticated, async (req: any, res) => {
     try {
       const { message, chatHistory, sessionId } = req.body;
-      const userId = req.session?.userId || req.user?.claims?.sub || 'sandra_test_user_2025';
+      const userId = req.user.claims.sub;
       
       if (!message) {
         return res.status(400).json({ error: 'Message is required' });
@@ -1225,11 +1225,11 @@ Always be encouraging and strategic while providing specific technical guidance.
     }
   });
 
-  // AI Images routes  
-  app.get('/api/ai-images', async (req: any, res) => {
+  // AI Images routes - AUTHENTICATION REQUIRED
+  app.get('/api/ai-images', isAuthenticated, async (req: any, res) => {
     try {
       // Get real user AI images from database using direct SQL query
-      const userId = req.user?.claims?.sub || req.session?.userId || 'sandra_test_user_2025';
+      const userId = req.user.claims.sub;
       
       console.log(`Fetching AI images for user ${userId}...`);
       
@@ -1256,10 +1256,10 @@ Always be encouraging and strategic while providing specific technical guidance.
     }
   });
 
-  // Gallery Images route - Only deliberately saved images
-  app.get('/api/gallery-images', async (req: any, res) => {
+  // Gallery Images route - Only deliberately saved images - AUTHENTICATION REQUIRED
+  app.get('/api/gallery-images', isAuthenticated, async (req: any, res) => {
     try {
-      const userId = req.user?.claims?.sub || req.session?.userId || 'sandra_test_user_2025';
+      const userId = req.user.claims.sub;
       
       console.log(`Fetching gallery images (saved only) for user ${userId}...`);
       
@@ -1288,10 +1288,10 @@ Always be encouraging and strategic while providing specific technical guidance.
     }
   });
 
-  // Migration endpoint to fix broken image URLs
-  app.post('/api/migrate-images-to-s3', async (req: any, res) => {
+  // Migration endpoint to fix broken image URLs - AUTHENTICATION REQUIRED
+  app.post('/api/migrate-images-to-s3', isAuthenticated, async (req: any, res) => {
     try {
-      const userId = req.user?.claims?.sub || req.session?.userId || 'sandra_test_user_2025';
+      const userId = req.user.claims.sub;
       
       console.log(`Starting image migration to S3 for user ${userId}...`);
       
@@ -1312,12 +1312,11 @@ Always be encouraging and strategic while providing specific technical guidance.
     }
   });
 
-  // Delete AI image route - BYPASS AUTH FOR TESTING
-  app.delete('/api/ai-images/:id', async (req: any, res) => {
+  // Delete AI image route - AUTHENTICATION REQUIRED
+  app.delete('/api/ai-images/:id', isAuthenticated, async (req: any, res) => {
     try {
       const imageId = parseInt(req.params.id);
-      // Use consistent test user ID like other endpoints
-      const userId = 'sandra_test_user_2025';
+      const userId = req.user.claims.sub;
       
       console.log(`Deleting AI image ${imageId} for user ${userId}...`);
       
@@ -1422,9 +1421,7 @@ Always be encouraging and strategic while providing specific technical guidance.
       
       const results = [];
       for (const model of trainingModels) {
-        const isFounderModel = model.userId === 'sandra_test_user_2025' || 
-                              model.modelName?.includes('sandra_test_user_2025') ||
-                              model.triggerWord?.includes('sandra_test_user_2025');
+        const isFounderModel = false; // Removed founder model detection for production
         
         results.push({
           userId: model.userId,
@@ -1537,10 +1534,10 @@ Always be encouraging and strategic while providing specific technical guidance.
     }
   });
 
-  // TESTING: Direct test endpoint to verify user model system works
-  app.get('/api/test-user-model', async (req: any, res) => {
+  // TESTING: Direct test endpoint to verify user model system works - AUTHENTICATION REQUIRED
+  app.get('/api/test-user-model', isAuthenticated, async (req: any, res) => {
     try {
-      const userId = 'test_user_auth_debug_2025';
+      const userId = req.user.claims.sub;
       console.log(`🔧 TEST: Creating/fetching user model for ${userId}`);
       
       // First ensure user exists in users table
@@ -1602,11 +1599,10 @@ Always be encouraging and strategic while providing specific technical guidance.
     }
   });
 
-  // TEMPORARY: AI Model Training API without authentication for testing
-  app.get('/api/user-model', async (req: any, res) => {
+  // AI Model Training API - AUTHENTICATION REQUIRED
+  app.get('/api/user-model', isAuthenticated, async (req: any, res) => {
     try {
-      // TEMPORARY: Use test user for authentication debugging
-      const userId = req.session?.userId || req.user?.claims?.sub || 'test_user_auth_debug_2025';
+      const userId = req.user.claims.sub;
       console.log(`🔍 User model endpoint - userId: ${userId}`);
 
       console.log('GET /api/user-model - fetching for user:', userId);
@@ -1650,10 +1646,9 @@ Always be encouraging and strategic while providing specific technical guidance.
     }
   });
 
-  app.post('/api/start-model-training', async (req: any, res) => {
+  app.post('/api/start-model-training', isAuthenticated, async (req: any, res) => {
     try {
-      // TEMPORARY: Use test user for authentication debugging
-      const userId = req.session?.userId || req.user?.claims?.sub || 'test_user_auth_debug_2025';
+      const userId = req.user.claims.sub;
       console.log(`🔍 Start training endpoint - userId: ${userId}`);
 
       const { selfieImages } = req.body;
@@ -1955,11 +1950,11 @@ Always be encouraging and strategic while providing specific technical guidance.
     }
   });
 
-  // Personal Branding Sandra AI - Full Claude API Integration (PRO only)
-  app.post('/api/personal-branding-sandra', async (req: any, res) => {
+  // Personal Branding Sandra AI - Full Claude API Integration (PRO only) - AUTHENTICATION REQUIRED
+  app.post('/api/personal-branding-sandra', isAuthenticated, async (req: any, res) => {
     try {
       const { message } = req.body;
-      const userId = req.session?.userId || req.user?.claims?.sub || 'sandra_test_user_2025';
+      const userId = req.user.claims.sub;
       
       console.log(`Personal Branding Sandra chat request from user ${userId}: "${message}"`);
       
@@ -2078,11 +2073,11 @@ Always be encouraging and strategic while providing specific technical guidance.
     }
   });
 
-  // Save image to gallery endpoint with permanent storage
-  app.post('/api/save-to-gallery', async (req: any, res) => {
+  // Save image to gallery endpoint with permanent storage - AUTHENTICATION REQUIRED
+  app.post('/api/save-to-gallery', isAuthenticated, async (req: any, res) => {
     try {
       const { imageUrl, userId } = req.body;
-      const actualUserId = userId || req.session?.userId || req.user?.claims?.sub || 'sandra_test_user_2025';
+      const actualUserId = userId || req.user.claims.sub;
       
       console.log('Saving image to gallery with permanent storage:', { actualUserId, imageUrl });
       
@@ -2123,10 +2118,10 @@ Always be encouraging and strategic while providing specific technical guidance.
     }
   });
 
-  // Migrate user's existing images to permanent storage
-  app.post('/api/migrate-images-to-permanent', async (req: any, res) => {
+  // Migrate user's existing images to permanent storage - AUTHENTICATION REQUIRED
+  app.post('/api/migrate-images-to-permanent', isAuthenticated, async (req: any, res) => {
     try {
-      const userId = req.user?.claims?.sub || req.session?.userId || 'sandra_test_user_2025';
+      const userId = req.user.claims.sub;
       
       console.log('Starting image migration to permanent storage for user:', userId);
       
@@ -2946,9 +2941,9 @@ Consider this workflow optimized and ready for implementation! ⚙️`
   });
 
   // BRAND ONBOARDING API ENDPOINTS
-  app.get('/api/brand-onboarding', async (req: any, res) => {
+  app.get('/api/brand-onboarding', isAuthenticated, async (req: any, res) => {
     try {
-      const userId = req.session?.userId || req.user?.claims?.sub || 'sandra_test_user_2025';
+      const userId = req.user.claims.sub;
       const brandData = await storage.getBrandOnboarding(userId);
       
       if (brandData) {
@@ -2981,9 +2976,9 @@ Consider this workflow optimized and ready for implementation! ⚙️`
     }
   });
 
-  app.post('/api/save-brand-onboarding', async (req: any, res) => {
+  app.post('/api/save-brand-onboarding', isAuthenticated, async (req: any, res) => {
     try {
-      const userId = req.session?.userId || req.user?.claims?.sub || 'sandra_test_user_2025';
+      const userId = req.user.claims.sub;
       const brandData = { ...req.body, userId };
       
       const saved = await storage.saveBrandOnboarding(brandData);
@@ -2994,87 +2989,9 @@ Consider this workflow optimized and ready for implementation! ⚙️`
     }
   });
 
-  // User model management routes - TEMPORARY: Authentication bypass for testing
-  app.get('/api/user-model', async (req: any, res) => {
-    try {
-      // TEMPORARY: Use fallback for authentication debugging  
-      const userId = req.user?.claims?.sub || 'test_user_auth_debug_2025';
-      console.log(`🔍 User model request for: ${userId}`);
-      
-      // Get user's model from database
-      const userModel = await storage.getUserModelByUserId(userId);
-      
-      if (!userModel) {
-        // Create initial model record for new users
-        try {
-          const newModel = await storage.createUserModel({
-            userId,
-            triggerWord: `user${userId}`,
-            trainingStatus: 'not_started',
-            modelName: `${req.user?.claims?.first_name || 'Test User'} AI Model`
-          });
-          console.log(`✅ AI model created for user ${userId}`);
-          res.json(newModel);
-        } catch (error) {
-          console.error('Error creating user model:', error);
-          // Return a minimal model structure for frontend compatibility
-          res.json({
-            userId,
-            triggerWord: `user${userId}`,
-            trainingStatus: 'not_started',
-            modelName: `${req.user?.claims?.first_name || 'Test User'} AI Model`
-          });
-        }
-      } else {
-        res.json(userModel);
-      }
-    } catch (error) {
-      console.error('User model fetch error:', error);
-      res.status(500).json({ error: error.message });
-    }
-  });
 
-  // TEMPORARY: Remove auth requirement for AI training testing
-  app.post('/api/start-model-training', async (req: any, res) => {
-    try {
-      const { selfieImages } = req.body;
-      const userId = req.user?.claims?.sub || 'test_user_auth_debug_2025';
-      
-      if (!selfieImages || selfieImages.length < 10) {
-        return res.status(400).json({ error: 'At least 10 selfie images required for training' });
-      }
 
-      const { ModelTrainingService } = await import('./model-training-service');
-      const result = await ModelTrainingService.startModelTraining(userId, selfieImages);
-      
-      res.json(result);
-    } catch (error) {
-      console.error('Model training start error:', error);
-      res.status(500).json({ error: error.message });
-    }
-  });
 
-  // TEMPORARY: Check training status without authentication for debugging
-  app.get('/api/training-status/:modelId', async (req: any, res) => {
-    try {
-      const { modelId } = req.params;
-      // TEMPORARY: Skip user verification for debugging
-      const userModel = await storage.getUserModel(parseInt(modelId));
-      if (!userModel) {
-        return res.status(404).json({ error: 'Model not found' });
-      }
-      
-      console.log(`🔍 Checking training status for model ${modelId}:`, userModel);
-
-      const { ModelTrainingService } = await import('./model-training-service');
-      const status = await ModelTrainingService.checkTrainingStatus(parseInt(modelId));
-      
-      res.json(status);
-    } catch (error) {
-      console.error('Training status check error:', error);
-      res.status(500).json({ error: error.message });
-    }
-  });
 
 
 
@@ -3235,10 +3152,10 @@ Consider this workflow optimized and ready for implementation! ⚙️`
     }
   });
 
-  // Get current session images endpoint - use existing AI images
-  app.get('/api/current-session-images', async (req: any, res) => {
+  // Get current session images endpoint - use existing AI images - AUTHENTICATION REQUIRED
+  app.get('/api/current-session-images', isAuthenticated, async (req: any, res) => {
     try {
-      const userId = req.user?.claims?.sub || req.session?.userId || 'sandra_test_user_2025';
+      const userId = req.user.claims.sub;
       
       // Use existing working getAIImages method
       const aiImages = await storage.getAIImages(userId);
@@ -3257,10 +3174,10 @@ Consider this workflow optimized and ready for implementation! ⚙️`
     }
   });
 
-  // Save selected images to gallery
-  app.post('/api/save-selected-images', async (req: any, res) => {
+  // Save selected images to gallery - AUTHENTICATION REQUIRED
+  app.post('/api/save-selected-images', isAuthenticated, async (req: any, res) => {
     try {
-      const userId = req.user?.claims?.sub || req.session?.userId || 'sandra_test_user_2025';
+      const userId = req.user.claims.sub;
       const { imageUrls, prompt } = req.body;
       
       if (!imageUrls || !Array.isArray(imageUrls) || imageUrls.length === 0) {
@@ -3473,11 +3390,11 @@ Consider this workflow optimized and ready for implementation! ⚙️`
     }
   });
 
-  // Favorites functionality - toggle favorite status
-  app.post('/api/images/:imageId/favorite', async (req: any, res) => {
+  // Favorites functionality - toggle favorite status - AUTHENTICATION REQUIRED
+  app.post('/api/images/:imageId/favorite', isAuthenticated, async (req: any, res) => {
     try {
       const { imageId } = req.params;
-      const userId = req.user?.claims?.sub || req.session?.userId || 'sandra_test_user_2025';
+      const userId = req.user.claims.sub;
       
       console.log('Toggle favorite for user:', userId, 'image:', imageId);
       
@@ -3513,10 +3430,10 @@ Consider this workflow optimized and ready for implementation! ⚙️`
     }
   });
 
-  // Get user's favorite images
-  app.get('/api/images/favorites', async (req: any, res) => {
+  // Get user's favorite images - AUTHENTICATION REQUIRED
+  app.get('/api/images/favorites', isAuthenticated, async (req: any, res) => {
     try {
-      const userId = req.user?.claims?.sub || req.session?.userId || 'sandra_test_user_2025';
+      const userId = req.user.claims.sub;
       const userFavorites = req.session?.favorites?.[userId] || [];
       
       console.log('Getting favorites for user:', userId, 'favorites:', userFavorites);
@@ -3678,35 +3595,9 @@ Consider this workflow optimized and ready for implementation! ⚙️`
     }
   });
 
-  // Brand onboarding endpoints
-  app.get('/api/brand-onboarding', async (req, res) => {
-    try {
-      const userId = req.session?.userId || req.user?.claims?.sub || 'sandra_test_user_2025';
-      const brandData = await storage.getBrandOnboarding(userId);
-      res.json(brandData || {});
-    } catch (error) {
-      console.error('Error fetching brand onboarding:', error);
-      res.status(500).json({ error: 'Failed to fetch brand data' });
-    }
-  });
+  // NOTE: Duplicate brand onboarding endpoint removed - using authenticated version above
 
-  app.post('/api/save-brand-onboarding', async (req, res) => {
-    try {
-      const userId = req.session?.userId || req.user?.claims?.sub || 'sandra_test_user_2025';
-      console.log('Saving brand onboarding for user:', userId);
-      console.log('Brand data:', req.body);
-      
-      const brandData = await storage.saveBrandOnboarding({
-        userId,
-        ...req.body
-      });
-      
-      res.json({ success: true, message: 'Brand data saved successfully', data: brandData });
-    } catch (error) {
-      console.error('Error saving brand onboarding:', error);
-      res.status(500).json({ error: 'Failed to save brand data' });
-    }
-  });
+  // NOTE: Duplicate endpoint removed - using authenticated version above
 
   // Live landing page middleware - handle before Vite catch-all
   app.use((req, res, next) => {
