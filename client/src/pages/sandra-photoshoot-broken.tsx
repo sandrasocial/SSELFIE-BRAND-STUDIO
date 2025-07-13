@@ -123,8 +123,8 @@ What kind of mood are you going for today?`,
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
-          prompt: prompt,
-          userId: 'sandra_test_user_2025'
+          prompt: prompt
+          // Note: userId handled by backend authentication
         }),
       });
 
@@ -165,8 +165,8 @@ What kind of mood are you going for today?`,
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
-          imageUrl: imageUrl,
-          userId: 'sandra_test_user_2025'
+          imageUrl: imageUrl
+          // Note: userId handled by backend authentication
         }),
       });
 
