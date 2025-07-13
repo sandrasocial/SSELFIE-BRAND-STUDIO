@@ -389,8 +389,18 @@ I have ALL collections ready - just tell me your mood! ✨`;
       }
 
       // Get user context for personalized responses
+      console.log('Maya chat: Getting user data for userId:', userId);
       const user = await storage.getUser(userId);
-      const onboardingData = await storage.getUserOnboarding(userId);
+      console.log('Maya chat: User found:', user ? 'yes' : 'no');
+      
+      let onboardingData = null;
+      try {
+        onboardingData = await storage.getOnboardingData(userId);
+        console.log('Maya chat: Onboarding data found:', onboardingData ? 'yes' : 'no');
+      } catch (error) {
+        console.log('Maya chat: No onboarding data found, continuing without it');
+        onboardingData = null;
+      }
       
       // Maya's professional celebrity stylist personality 
       const mayaSystemPrompt = `You are Maya, a world-class celebrity stylist, photographer, hairstylist and makeup artist. You work with A-list celebrities, high-end fashion brands, and create magazine-worthy editorial content.
