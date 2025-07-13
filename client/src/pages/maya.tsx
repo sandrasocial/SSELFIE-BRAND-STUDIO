@@ -34,24 +34,24 @@ function ChatHistoryLinks({ onChatSelect }: { onChatSelect: (chatId: number) => 
 
   if (!chats || chats.length === 0) {
     return (
-      <div className="text-sm text-gray-500 italic">No previous chats yet</div>
+      <div className="text-xs text-gray-400">No previous sessions</div>
     );
   }
 
   return (
-    <div className="space-y-2">
+    <div className="space-y-3">
       {chats.slice(0, 5).map((chat: MayaChat) => (
         <div 
           key={chat.id} 
-          className="text-sm text-gray-700 hover:text-black cursor-pointer underline"
+          className="text-xs text-gray-600 hover:text-black cursor-pointer transition-colors leading-relaxed"
           onClick={() => onChatSelect(chat.id)}
         >
           {chat.chatTitle}
         </div>
       ))}
       {chats.length > 5 && (
-        <div className="text-xs text-gray-500">
-          + {chats.length - 5} more conversations
+        <div className="text-xs text-gray-400 pt-2 border-t border-gray-100">
+          {chats.length - 5} more sessions
         </div>
       )}
     </div>
@@ -103,7 +103,7 @@ export default function Maya() {
         // Initialize with Maya's welcome message
         setMessages([{
           role: 'maya',
-          content: `Hey ${user.firstName || 'gorgeous'}! I'm Maya, your personal celebrity stylist, photographer, and makeup artist. I work with A-list celebrities and high-end fashion brands to create magazine-worthy content.\n\nI'm here to help you look absolutely stunning and bring out your best features. Let's talk about your vision - what kind of energy are you going for? Editorial sophistication? Natural lifestyle beauty? Red carpet glamour?\n\nDescribe the mood, the story you want to tell, or even just how you want to feel in the photos. I'll ask the right questions to understand your vision perfectly, then create those exact photos for you! ✨`,
+          content: `Hey ${user.firstName || 'gorgeous'}! I'm Maya, your personal celebrity stylist, photographer, and makeup artist. I work with A-list celebrities and high-end fashion brands to create magazine-worthy content.\n\nI'm here to help you look absolutely stunning and bring out your best features. Let's talk about your vision - what kind of energy are you going for? Editorial sophistication? Natural lifestyle beauty? Red carpet glamour?\n\nDescribe the mood, the story you want to tell, or even just how you want to feel in the photos. I'll ask the right questions to understand your vision perfectly, then create those exact photos for you.`,
           timestamp: new Date().toISOString()
         }]);
       }
@@ -452,7 +452,7 @@ export default function Maya() {
                 // Reset to new chat
                 setMessages([{
                   role: 'maya',
-                  content: `Hey ${user?.firstName || 'gorgeous'}! Ready for another amazing photoshoot? What's the vision this time? ✨`,
+                  content: `Hey ${user?.firstName || 'gorgeous'}! Ready for another amazing photoshoot? What's the vision this time?`,
                   timestamp: new Date().toISOString()
                 }]);
                 setCurrentChatId(null);
@@ -477,9 +477,9 @@ export default function Maya() {
       {/* Main Content Area with Sidebar */}
       <div className="flex-1 flex max-w-6xl mx-auto w-full">
         {/* Chat History Sidebar */}
-        <div className="w-64 border-r border-gray-200 bg-gray-50/30 p-4">
-          <div className="mb-4">
-            <h3 className="text-sm font-medium text-gray-700 mb-3">Recent Photoshoots</h3>
+        <div className="w-64 border-r border-gray-100 bg-white p-6">
+          <div>
+            <h3 className="font-serif text-sm text-black mb-4 tracking-wide">Previous Sessions</h3>
             <ChatHistoryLinks onChatSelect={(chatId) => {
               loadChatHistory(chatId);
               // Update URL to include chat parameter
@@ -507,7 +507,7 @@ export default function Maya() {
                       disabled={isGenerating}
                       className="bg-black text-white hover:bg-gray-800 text-sm"
                     >
-                      {isGenerating ? 'Generating...' : 'Generate These Photos ✨'}
+                      {isGenerating ? 'Generating...' : 'Generate These Photos'}
                     </Button>
                     
                     {/* Progress Bar */}
