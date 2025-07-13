@@ -172,28 +172,133 @@ const flatlayCollections: FlatlayCollection[] = [
     name: 'Editorial Magazine',
     description: 'Dark moody flatlays, fashion magazines, coffee aesthetic',
     aesthetic: 'Magazine-worthy editorial sophistication',
-    backgroundImage: SandraImages.editorial.laptop1,
+    backgroundImage: 'https://i.postimg.cc/02VLGyr8/1.png',
     images: [
       {
         id: 'em-1',
-        url: SandraImages.editorial.laptop1,
+        url: 'https://i.postimg.cc/02VLGyr8/1.png',
         title: 'Editorial Workspace',
         category: 'Editorial Magazine',
         description: 'Dark moody editorial flatlay'
       },
       {
         id: 'em-2',
-        url: SandraImages.editorial.thinking,
-        title: 'Creative Process',
+        url: 'https://i.postimg.cc/xjR7Y1vK/10.png',
+        title: 'Magazine Style',
         category: 'Editorial Magazine',
         description: 'Magazine-worthy editorial moment'
       },
       {
         id: 'em-3',
-        url: SandraImages.flatlays.planning,
-        title: 'Editorial Planning',
+        url: 'https://i.postimg.cc/hPtYGRsN/11.png',
+        title: 'Creative Process',
         category: 'Editorial Magazine',
         description: 'Dark sophisticated planning setup'
+      },
+      {
+        id: 'em-4',
+        url: 'https://i.postimg.cc/qMD5hDZq/12.png',
+        title: 'Editorial Planning',
+        category: 'Editorial Magazine',
+        description: 'Magazine editorial aesthetic'
+      },
+      {
+        id: 'em-5',
+        url: 'https://i.postimg.cc/bwGFQ0KT/13.png',
+        title: 'Dark Mood',
+        category: 'Editorial Magazine',
+        description: 'Moody editorial flatlay'
+      },
+      {
+        id: 'em-6',
+        url: 'https://i.postimg.cc/8zqXwJGV/14.png',
+        title: 'Magazine Layout',
+        category: 'Editorial Magazine',
+        description: 'Professional editorial setup'
+      },
+      {
+        id: 'em-7',
+        url: 'https://i.postimg.cc/s276LjfG/15.png',
+        title: 'Fashion Editorial',
+        category: 'Editorial Magazine',
+        description: 'Fashion magazine aesthetic'
+      },
+      {
+        id: 'em-8',
+        url: 'https://i.postimg.cc/tTbSQK7S/16.png',
+        title: 'Editorial Coffee',
+        category: 'Editorial Magazine',
+        description: 'Coffee shop editorial vibe'
+      },
+      {
+        id: 'em-9',
+        url: 'https://i.postimg.cc/63hH9Mv9/17.png',
+        title: 'Magazine Spread',
+        category: 'Editorial Magazine',
+        description: 'Magazine spread layout'
+      },
+      {
+        id: 'em-10',
+        url: 'https://i.postimg.cc/j2dMCyHy/18.png',
+        title: 'Dark Editorial',
+        category: 'Editorial Magazine',
+        description: 'Dark moody editorial style'
+      },
+      {
+        id: 'em-11',
+        url: 'https://i.postimg.cc/WzWXZt8C/19.png',
+        title: 'Editorial Styling',
+        category: 'Editorial Magazine',
+        description: 'Professional editorial styling'
+      },
+      {
+        id: 'em-12',
+        url: 'https://i.postimg.cc/K8VwVpnw/2.png',
+        title: 'Magazine Aesthetic',
+        category: 'Editorial Magazine',
+        description: 'Clean magazine aesthetic'
+      },
+      {
+        id: 'em-13',
+        url: 'https://i.postimg.cc/xjtshFQ5/20.png',
+        title: 'Editorial Mood',
+        category: 'Editorial Magazine',
+        description: 'Sophisticated editorial mood'
+      },
+      {
+        id: 'em-14',
+        url: 'https://i.postimg.cc/7YRKYGfT/21.png',
+        title: 'Fashion Magazine',
+        category: 'Editorial Magazine',
+        description: 'Fashion magazine style'
+      },
+      {
+        id: 'em-15',
+        url: 'https://i.postimg.cc/Dy0CTdyT/22.png',
+        title: 'Editorial Layout',
+        category: 'Editorial Magazine',
+        description: 'Professional editorial layout'
+      },
+      {
+        id: 'em-16',
+        url: 'https://i.postimg.cc/qvCjtJ3D/23.png',
+        title: 'Magazine Setup',
+        category: 'Editorial Magazine',
+        description: 'Magazine-worthy setup'
+      },
+      {
+        id: 'em-17',
+        url: 'https://i.postimg.cc/bvcLk70y/24.png',
+        title: 'Editorial Style',
+        category: 'Editorial Magazine',
+        description: 'Editorial magazine style'
+      },
+      {
+        id: 'em-18',
+        url: 'https://i.postimg.cc/zfC7jxpn/25.png',
+        title: 'Dark Magazine',
+        category: 'Editorial Magazine',
+        description: 'Dark magazine aesthetic'
       }
     ]
   },
