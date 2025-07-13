@@ -244,7 +244,15 @@ export default function VictoriaPreview() {
   // Update iframe when HTML changes
   useEffect(() => {
     if (previewRef.current && currentHtml) {
+      console.log('Updating iframe with HTML length:', currentHtml.length);
+      console.log('Current HTML preview:', currentHtml.substring(0, 200));
       previewRef.current.srcdoc = currentHtml;
+    } else {
+      console.log('Preview not ready - missing ref or HTML:', { 
+        hasRef: !!previewRef.current, 
+        hasHtml: !!currentHtml,
+        htmlLength: currentHtml?.length || 0
+      });
     }
   }, [currentHtml]);
 
