@@ -28,27 +28,27 @@ export default function VictoriaPreview() {
     
     // STRATEGIC PHOTO DISTRIBUTION - USE ONLY 5 SELECTED PHOTOS
     // 1. Hero background - Use first selected selfie
-    updatedHtml = updatedHtml.replace(/{{USER_HERO_PHOTO}}/g, selectedSelfies[0].url);
+    updatedHtml = updatedHtml.replace(/{{USER_HERO_PHOTO}}/g, selectedSelfies[0].imageUrl);
     
     // 2. About section image - Use second selected selfie
-    const aboutPhoto = selectedSelfies[1]?.url || selectedSelfies[0].url;
+    const aboutPhoto = selectedSelfies[1]?.imageUrl || selectedSelfies[0].imageUrl;
     updatedHtml = updatedHtml.replace(/{{USER_ABOUT_PHOTO}}/g, aboutPhoto);
     
     // 3. Editorial spread image - Use third selected selfie
-    const editorialPhoto = selectedSelfies[2]?.url || selectedSelfies[0].url;
+    const editorialPhoto = selectedSelfies[2]?.imageUrl || selectedSelfies[0].imageUrl;
     updatedHtml = updatedHtml.replace(/{{USER_EDITORIAL_PHOTO}}/g, editorialPhoto);
     
     // 4. Portfolio gallery - Use 4th and 5th selected selfies
-    const portfolio1 = selectedSelfies[3]?.url || selectedSelfies[1]?.url || selectedSelfies[0].url;
-    const portfolio2 = selectedSelfies[4]?.url || selectedSelfies[2]?.url || selectedSelfies[0].url;
-    const portfolio3 = selectedSelfies[0]?.url; // Reuse first photo for 3rd slot
+    const portfolio1 = selectedSelfies[3]?.imageUrl || selectedSelfies[1]?.imageUrl || selectedSelfies[0].imageUrl;
+    const portfolio2 = selectedSelfies[4]?.imageUrl || selectedSelfies[2]?.imageUrl || selectedSelfies[0].imageUrl;
+    const portfolio3 = selectedSelfies[0]?.imageUrl; // Reuse first photo for 3rd slot
     
     updatedHtml = updatedHtml.replace(/{{USER_PORTFOLIO_1}}/g, portfolio1);
     updatedHtml = updatedHtml.replace(/{{USER_PORTFOLIO_2}}/g, portfolio2);
     updatedHtml = updatedHtml.replace(/{{USER_PORTFOLIO_3}}/g, portfolio3);
     
     // 5. Freebie background - Use first selected photo as background
-    updatedHtml = updatedHtml.replace(/{{USER_FREEBIE_BACKGROUND}}/g, selectedSelfies[0].url);
+    updatedHtml = updatedHtml.replace(/{{USER_FREEBIE_BACKGROUND}}/g, selectedSelfies[0].imageUrl);
     
     // 6. Use selected flatlay collection instead of default
     updatedHtml = updatedHtml.replace(/{{FLATLAY_1}}/g, flatLayUrls[0]);
