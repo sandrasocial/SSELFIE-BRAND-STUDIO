@@ -67,8 +67,8 @@ export async function generateImages(request: GenerateImagesRequest): Promise<Ge
     
     const randomCameraSpec = cameraSpecs[Math.floor(Math.random() * cameraSpecs.length)];
     
-    // Add AGGRESSIVE film texture and natural skin specifications to ALL prompts
-    const filmTextureSpecs = ", HEAVY 35mm film grain, PRONOUNCED grain structure, MATTE textured skin, natural skin texture, visible skin pores, authentic skin imperfections, real skin texture, organic skin detail, natural facial refinement, ANALOG film aesthetic, raw film negative quality, unprocessed natural skin, realistic skin texture, human skin detail, natural skin irregularities, skin with character, lived-in skin, weathered skin texture, natural skin aging, authentic human skin";
+    // Add elegant enhancement specifications for "WOW is this me" results
+    const filmTextureSpecs = ", heavy 35mm film grain, pronounced grain structure, soft matte skin, gentle skin retouching, flattering natural lighting, subtle skin smoothing, elegant skin enhancement, natural facial refinement, professional editorial retouching, soft focus skin perfection, gentle beauty enhancement, naturally refined skin texture, sophisticated skin treatment, elegant beauty photography, refined natural beauty";
     
     // Only add camera specs if prompt doesn't already contain professional camera specifications
     if (!finalPrompt.toLowerCase().includes('shot') && !finalPrompt.toLowerCase().includes('captured') && !finalPrompt.toLowerCase().includes('photographed')) {
@@ -81,8 +81,8 @@ export async function generateImages(request: GenerateImagesRequest): Promise<Ge
       finalPrompt = `${finalPrompt}${filmTextureSpecs}`;
     }
     
-    // Extract negative prompts from the custom prompt (if present) - AGGRESSIVE ANTI-PLASTIC ENHANCEMENT
-    let negativePrompt = "plastic skin, fake skin, synthetic skin, artificial skin, digital skin, CGI skin, rendered skin, 3D skin, mannequin skin, doll skin, wax skin, silicon skin, rubber skin, vinyl skin, shiny skin, glossy skin, reflective skin, wet skin, oily skin, slick skin, polished skin, laminated skin, smooth skin, perfect skin, flawless skin, poreless skin, airbrushed skin, retouched skin, filtered skin, processed skin, enhanced skin, beautified skin, digital smoothing, skin blur, over-processed, digital enhancement, beauty filter, face tune, photo filter, digital makeup, virtual makeup, computer generated, AI generated face, deepfake, face swap, digital face, rendered face, 3D face, artificial lighting, studio lighting perfection, professional makeup, heavy makeup, foundation, concealer, digital retouching";
+    // Extract negative prompts - balanced for elegant enhancement without fake plastic look
+    let negativePrompt = "plastic skin, fake skin, synthetic skin, artificial skin, digital skin, CGI skin, 3D rendered skin, mannequin skin, doll skin, wax skin, rubber skin, vinyl skin, overly shiny skin, glossy wet skin, reflective skin, oily slick skin, deep unflattering wrinkles, harsh aging lines, visible body hair, underarm hair, facial hair stubble, unflattering lighting, harsh shadows, over-processed digital enhancement, beauty filter artifacts, face tune distortion, digital manipulation, computer generated face, deepfake, artificial face swap, cheap digital makeup, heavy foundation caking, cakey makeup, unnatural contouring, digital face replacement";
     
     // Check if prompt contains negative prompts and extract them
     if (finalPrompt.includes("Negative:")) {
@@ -93,20 +93,20 @@ export async function generateImages(request: GenerateImagesRequest): Promise<Ge
       }
     }
 
-    // Build input with AGGRESSIVE anti-plastic parameters for natural, textured skin
+    // Build input with balanced parameters for elegant "WOW is this me" enhancement
     const input: any = {
       prompt: finalPrompt,
-      negative_prompt: negativePrompt,  // Aggressive anti-plastic negative prompts
-      guidance: 2.0,              // LOWER guidance for more natural, less AI-processed results
+      negative_prompt: negativePrompt,  // Balanced enhancement without fake plastic
+      guidance: 2.8,              // Optimal guidance for beautiful but natural results
       lora_weights: `sandrasocial/${userModel.modelName}`, // User's trained LoRA weights
-      lora_scale: 0.8,           // REDUCED LoRA scale to prevent over-application
-      num_inference_steps: 28,    // FEWER steps to prevent over-processing
+      lora_scale: 1.0,           // Full LoRA application for strong likeness
+      num_inference_steps: 32,    // Quality steps for refined beauty
       num_outputs: 3,            // Generate 3 focused images
       aspect_ratio: "3:4",        // Portrait ratio better for selfies
       output_format: "png",       // PNG for highest quality
-      output_quality: 90,         // REDUCED quality to prevent over-sharpening
+      output_quality: 100,        // Maximum quality for stunning results
       megapixels: "1",           // Approximate megapixels
-      go_fast: false,             // Quality over speed - essential for grain texture
+      go_fast: false,             // Quality over speed - essential for beauty
       disable_safety_checker: false
     };
     
