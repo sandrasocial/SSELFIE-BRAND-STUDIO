@@ -1,6 +1,174 @@
 // Multi-page website templates using Sandra's design system
 // Each page uses the same hero structure but different content
 
+// SINGLE PAGE TEMPLATE - All sections combined with smooth navigation
+export const SINGLE_PAGE_TEMPLATE = `<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{USER_NAME}} - {{USER_TAGLINE}}</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        html { scroll-behavior: smooth; }
+        body { font-family: system-ui, -apple-system, sans-serif; line-height: 1.6; color: #0a0a0a; }
+        
+        /* Navigation */
+        .nav { position: fixed; top: 0; left: 0; right: 0; z-index: 1000; background: rgba(255,255,255,0.95); backdrop-filter: blur(10px); border-bottom: 1px solid #e5e5e5; padding: 20px 0; }
+        .nav-container { max-width: 1400px; margin: 0 auto; padding: 0 40px; display: flex; justify-content: space-between; align-items: center; }
+        .nav-logo { font-family: 'Times New Roman', serif; font-size: 20px; font-weight: 400; letter-spacing: -0.01em; color: #0a0a0a; text-decoration: none; }
+        .nav-menu { display: flex; gap: 40px; }
+        .nav-item { color: #0a0a0a; text-decoration: none; font-size: 11px; letter-spacing: 0.4em; text-transform: uppercase; transition: opacity 0.3s; }
+        .nav-item:hover { opacity: 0.6; }
+        
+        /* Hero Section */
+        .hero-section { height: 100vh; background: linear-gradient(rgba(10,10,10,0.3), rgba(10,10,10,0.3)), url('{{USER_HERO_PHOTO}}') center top/cover; display: flex; flex-direction: column; justify-content: flex-end; align-items: center; text-align: center; color: white; position: relative; padding: 80px 40px; }
+        .hero-content { max-width: 800px; }
+        .hero-tagline { font-size: 11px; letter-spacing: 0.4em; text-transform: uppercase; color: rgba(255,255,255,0.7); margin-bottom: 24px; }
+        .hero-name-stacked { margin-bottom: 40px; }
+        .hero-name-first { font-size: clamp(4rem, 10vw, 9rem); line-height: 1; font-weight: 200; color: white; font-family: 'Times New Roman', serif; letter-spacing: 0.5em; margin-bottom: -10px; }
+        .hero-name-last { font-size: clamp(2.5rem, 6vw, 5rem); line-height: 1; font-weight: 200; color: white; font-family: 'Times New Roman', serif; letter-spacing: 0.3em; }
+        .cta-minimal { display: inline-block; color: white; text-decoration: none; font-size: 12px; letter-spacing: 0.3em; text-transform: uppercase; font-weight: 300; padding-bottom: 8px; border-bottom: 1px solid rgba(255,255,255,0.3); transition: all 0.3s ease; }
+        .cta-minimal:hover { border-bottom-color: white; }
+        
+        /* About Section */
+        .about-section { padding: 120px 40px; background: white; }
+        .about-grid { max-width: 1200px; margin: 0 auto; display: grid; grid-template-columns: 1fr 1fr; gap: 80px; align-items: center; }
+        .about-content h2 { font-family: 'Times New Roman', serif; font-size: clamp(2.5rem, 5vw, 4rem); font-weight: 300; margin-bottom: 40px; line-height: 1.2; }
+        .about-content p { font-size: 18px; line-height: 1.7; color: #333; margin-bottom: 24px; }
+        .about-image { background: url('{{USER_ABOUT_PHOTO}}') center top/cover; height: 600px; }
+        
+        /* Services Section */
+        .services-section { padding: 120px 40px; background: #f5f5f5; }
+        .services-content { max-width: 1200px; margin: 0 auto; }
+        .services-title { font-family: 'Times New Roman', serif; font-size: clamp(2.5rem, 5vw, 4rem); font-weight: 300; margin-bottom: 80px; text-align: center; }
+        .services-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(350px, 1fr)); gap: 60px; }
+        .service-card { background: white; padding: 60px 40px; text-align: center; }
+        .service-card h3 { font-family: 'Times New Roman', serif; font-size: 28px; margin-bottom: 24px; font-weight: 300; }
+        .service-card p { color: #666; line-height: 1.6; margin-bottom: 24px; }
+        .service-price { font-size: 24px; font-weight: 600; color: #0a0a0a; margin: 20px 0; }
+        .service-button { display: inline-block; background: #0a0a0a; color: white; padding: 16px 32px; text-decoration: none; font-size: 11px; letter-spacing: 0.4em; text-transform: uppercase; transition: background 0.3s; }
+        .service-button:hover { background: #333; }
+        
+        /* Contact Section */
+        .contact-section { padding: 120px 40px; background: white; text-align: center; }
+        .contact-content { max-width: 800px; margin: 0 auto; }
+        .contact-title { font-family: 'Times New Roman', serif; font-size: clamp(2.5rem, 5vw, 4rem); font-weight: 300; margin-bottom: 40px; }
+        .contact-text { font-size: 18px; line-height: 1.7; color: #333; margin-bottom: 40px; }
+        .contact-info { display: flex; justify-content: center; gap: 60px; flex-wrap: wrap; }
+        .contact-item p { margin: 8px 0; }
+        .contact-item strong { display: block; margin-bottom: 8px; font-family: 'Times New Roman', serif; font-size: 18px; }
+        
+        /* Footer */
+        .footer { background: #0a0a0a; color: rgba(255,255,255,0.7); padding: 60px 40px 40px; text-align: center; }
+        .footer-copyright { font-size: 11px; letter-spacing: 0.4em; text-transform: uppercase; opacity: 0.5; }
+        
+        /* Responsive */
+        @media (max-width: 768px) {
+            .nav-menu { display: none; }
+            .hero-section { padding: 60px 20px; }
+            .about-grid { grid-template-columns: 1fr; gap: 40px; }
+            .services-grid { grid-template-columns: 1fr; }
+            .contact-info { flex-direction: column; gap: 30px; }
+        }
+    </style>
+</head>
+<body>
+    <!-- Navigation -->
+    <nav class="nav">
+        <div class="nav-container">
+            <a href="#home" class="nav-logo">{{USER_FIRST_NAME}}</a>
+            <div class="nav-menu">
+                <a href="#home" class="nav-item">HOME</a>
+                <a href="#about" class="nav-item">ABOUT</a>
+                <a href="#services" class="nav-item">SERVICES</a>
+                <a href="#contact" class="nav-item">CONTACT</a>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Hero Section -->
+    <section id="home" class="hero-section">
+        <div class="hero-content">
+            <p class="hero-tagline">{{USER_TAGLINE}}</p>
+            <div class="hero-name-stacked">
+                <h1 class="hero-name-first">{{USER_FIRST_NAME}}</h1>
+                <h1 class="hero-name-last">{{USER_LAST_NAME}}</h1>
+            </div>
+            <a href="#about" class="cta-minimal">Start Your Journey</a>
+        </div>
+    </section>
+
+    <!-- About Section -->
+    <section id="about" class="about-section">
+        <div class="about-grid">
+            <div class="about-content">
+                <h2>{{PERSONAL_STORY}}</h2>
+                <p>{{EDITORIAL_TEXT_1}}</p>
+                <p>{{EDITORIAL_TEXT_2}}</p>
+            </div>
+            <div class="about-image"></div>
+        </div>
+    </section>
+
+    <!-- Services Section -->
+    <section id="services" class="services-section">
+        <div class="services-content">
+            <h2 class="services-title">How I Can Help</h2>
+            <div class="services-grid">
+                <div class="service-card">
+                    <h3>{{SERVICE_1_TITLE}}</h3>
+                    <p>{{SERVICE_1_DESCRIPTION}}</p>
+                    <div class="service-price">{{PRIMARY_OFFER_PRICE}}</div>
+                    <a href="mailto:{{CONTACT_EMAIL}}" class="service-button">Get Started</a>
+                </div>
+                <div class="service-card">
+                    <h3>{{SERVICE_2_TITLE}}</h3>
+                    <p>{{SERVICE_2_DESCRIPTION}}</p>
+                    <div class="service-price">Starting at $197</div>
+                    <a href="mailto:{{CONTACT_EMAIL}}" class="service-button">Learn More</a>
+                </div>
+                <div class="service-card">
+                    <h3>{{SERVICE_3_TITLE}}</h3>
+                    <p>{{SERVICE_3_DESCRIPTION}}</p>
+                    <div class="service-price">Custom Pricing</div>
+                    <a href="mailto:{{CONTACT_EMAIL}}" class="service-button">Book Call</a>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Contact Section -->
+    <section id="contact" class="contact-section">
+        <div class="contact-content">
+            <h2 class="contact-title">Let's Work Together</h2>
+            <p class="contact-text">Ready to transform your business? I'd love to hear about your vision and see how we can bring it to life.</p>
+            <div class="contact-info">
+                <div class="contact-item">
+                    <strong>Email</strong>
+                    <p><a href="mailto:{{CONTACT_EMAIL}}" style="color: #0a0a0a; text-decoration: none;">{{CONTACT_EMAIL}}</a></p>
+                </div>
+                <div class="contact-item">
+                    <strong>Instagram</strong>
+                    <p><a href="https://instagram.com/{{INSTAGRAM_HANDLE}}" style="color: #0a0a0a; text-decoration: none;" target="_blank">{{INSTAGRAM_HANDLE}}</a></p>
+                </div>
+                <div class="contact-item">
+                    <strong>Website</strong>
+                    <p><a href="{{WEBSITE_URL}}" style="color: #0a0a0a; text-decoration: none;" target="_blank">{{WEBSITE_URL}}</a></p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="footer-copyright">
+            © 2025 {{USER_FIRST_NAME}} {{USER_LAST_NAME}}. All rights reserved.
+        </div>
+    </footer>
+</body>
+</html>`;
+
 export const MULTI_PAGE_HOME_TEMPLATE = `<!DOCTYPE html>
 <html lang="en">
 <head>
@@ -159,16 +327,16 @@ export const MULTI_PAGE_HOME_TEMPLATE = `<!DOCTYPE html>
         <div class="nav-container">
             <a href="#" class="nav-logo">{{USER_FIRST_NAME}}</a>
             <div class="nav-menu">
-                <a href="/" class="nav-item active">HOME</a>
-                <a href="/about" class="nav-item">ABOUT</a>
-                <a href="/services" class="nav-item">SERVICES</a>
-                <a href="/contact" class="nav-item">CONTACT</a>
+                <a href="#home" class="nav-item">HOME</a>
+                <a href="#about" class="nav-item">ABOUT</a>
+                <a href="#services" class="nav-item">SERVICES</a>
+                <a href="#contact" class="nav-item">CONTACT</a>
             </div>
         </div>
     </nav>
 
     <!-- Hero Section -->
-    <section class="hero-section">
+    <section id="home" class="hero-section">
         <div class="hero-content">
             <p class="hero-tagline">{{USER_TAGLINE}}</p>
             <div class="hero-name-stacked">
