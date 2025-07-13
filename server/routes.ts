@@ -3007,32 +3007,47 @@ Consider this workflow optimized and ready for implementation! ⚙️`
     try {
       // Session-based user authentication for testing
       const userId = req.user?.claims?.sub || req.session?.userId || 'sandra_test_user_2025';
-      const { prompt, count = 4 } = req.body;
+      const { prompt, count = 3 } = req.body;
       
       if (!prompt) {
         return res.status(400).json({ error: 'Prompt is required for image generation' });
       }
       
-      console.log('REAL image generation request:', { userId, prompt, count });
+      console.log('AI-PHOTOSHOOT: Using correct FLUX LoRA model for built-in prompts:', { userId, prompt, count });
       
-      // Use real ModelTrainingService for image generation
-      const { ModelTrainingService } = await import('./model-training-service');
-      const result = await ModelTrainingService.generateUserImages(userId, prompt, count);
+      // Get user model data for trigger word
+      const userModel = await storage.getUserModel(userId);
+      if (!userModel || userModel.trainingStatus !== 'completed') {
+        return res.status(400).json({ 
+          error: 'User model not ready. Please complete AI training first.',
+          trainingStatus: userModel?.trainingStatus || 'not_started'
+        });
+      }
       
-      // Images are now only saved when user explicitly chooses to save them
-      // No automatic saving to prevent duplicates in gallery
+      // Use correct FLUX LoRA image generation service (same as Maya)
+      const { generateImages } = await import('./image-generation-service');
+      const result = await generateImages({
+        userId: userId,
+        category: 'built-in-prompt',
+        subcategory: 'ai-photoshoot',
+        triggerWord: userModel.triggerWord,
+        modelVersion: userModel.modelVersion || 'black-forest-labs/flux-dev-lora:a53fd9255ecba80d99eaab4706c698f861fd47b098012607557385416e46aae5',
+        customPrompt: prompt.replace('[triggerword]', userModel.triggerWord)
+      });
       
       res.json({ 
-        images: result.images || [],
+        images: result.image_urls ? JSON.parse(result.image_urls) : [],
         generatedCount: count,
         userId: userId,
         prompt: prompt,
+        imageId: result.id,
         isRealGeneration: true,
+        usingFluxLoRA: true,
         generatedAt: new Date().toISOString()
       });
       
     } catch (error) {
-      console.error('REAL image generation error:', error);
+      console.error('AI-PHOTOSHOOT FLUX LoRA generation error:', error);
       res.status(500).json({ 
         error: error.message,
         isRealGeneration: true
