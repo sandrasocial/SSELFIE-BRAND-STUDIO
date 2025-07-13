@@ -2,6 +2,8 @@ import React, { useState } from 'react';
 import { WorkspaceNavigation } from '@/components/workspace-navigation';
 import { SandraImages } from '@/lib/sandra-images';
 import { Link } from 'wouter';
+import { useQuery } from '@tanstack/react-query';
+import { useAuth } from '@/hooks/useAuth';
 
 interface QuickLinkCard {
   id: string;
@@ -13,6 +15,13 @@ interface QuickLinkCard {
 }
 
 export default function MayaLandingPage() {
+  const { user } = useAuth();
+
+  // Fetch real Maya chat history
+  const { data: mayaChats, isLoading: chatsLoading } = useQuery({
+    queryKey: ['/api/maya-chats'],
+    enabled: !!user,
+  });
   
   // Image categories for organization
   const imageCategories = [
@@ -22,12 +31,17 @@ export default function MayaLandingPage() {
     { name: 'Creative', count: 12, preview: SandraImages.editorial.laptop1 }
   ];
 
-  // Recent chat history preview
-  const recentChats = [
-    { id: 1, preview: "Golden hour beach photoshoot inspiration...", date: "Today", unread: 2 },
-    { id: 2, preview: "Editorial B&W styling advice...", date: "Yesterday", unread: 0 },
-    { id: 3, preview: "Business professional outfits...", date: "2 days ago", unread: 0 }
-  ];
+  // Convert real chats to display format
+  const recentChats = mayaChats?.slice(0, 3).map((chat: any) => ({
+    id: chat.id,
+    preview: chat.chatSummary || chat.chatTitle,
+    date: new Date(chat.createdAt).toLocaleDateString('en-US', { 
+      weekday: 'short',
+      month: 'short',
+      day: 'numeric'
+    }),
+    unread: 0
+  })) || [];
 
   // Quick link cards for Maya's services
   const quickLinkCards: QuickLinkCard[] = [
@@ -215,32 +229,47 @@ export default function MayaLandingPage() {
           </div>
 
           <div className="space-y-4">
-            {recentChats.map((chat) => (
-              <Link key={chat.id} href={`/maya?chat=${chat.id}`}>
-                <div className="bg-white p-6 hover:bg-[#f9f9f9] transition-all duration-300 cursor-pointer group">
-                  <div className="flex items-center justify-between">
-                    <div className="flex-1">
-                      <p className="text-sm font-light text-black mb-2 group-hover:text-[#333] transition-colors">
-                        {chat.preview}
-                      </p>
-                      <div className="flex items-center space-x-4">
-                        <span className="text-xs tracking-[0.1em] uppercase text-[#666666]">
-                          {chat.date}
-                        </span>
-                        {chat.unread > 0 && (
-                          <span className="text-xs tracking-[0.1em] uppercase text-black">
-                            {chat.unread} New
+            {chatsLoading ? (
+              <div className="text-center py-8">
+                <p className="text-sm font-light text-[#666666]">Loading your conversations...</p>
+              </div>
+            ) : recentChats.length > 0 ? (
+              recentChats.map((chat) => (
+                <Link key={chat.id} href={`/maya?chat=${chat.id}`}>
+                  <div className="bg-white p-6 hover:bg-[#f9f9f9] transition-all duration-300 cursor-pointer group">
+                    <div className="flex items-center justify-between">
+                      <div className="flex-1">
+                        <p className="text-sm font-light text-black mb-2 group-hover:text-[#333] transition-colors">
+                          {chat.preview}
+                        </p>
+                        <div className="flex items-center space-x-4">
+                          <span className="text-xs tracking-[0.1em] uppercase text-[#666666]">
+                            {chat.date}
                           </span>
-                        )}
+                          {chat.unread > 0 && (
+                            <span className="text-xs tracking-[0.1em] uppercase text-black">
+                              {chat.unread} New
+                            </span>
+                          )}
+                        </div>
                       </div>
                     </div>
                     <div className="text-[10px] tracking-[0.2em] uppercase text-[#666666] group-hover:text-black group-hover:tracking-[0.3em] transition-all duration-300">
                       Continue →
                     </div>
                   </div>
-                </div>
-              </Link>
-            ))}
+                </Link>
+              ))
+            ) : (
+              <div className="text-center py-8">
+                <p className="text-sm font-light text-[#666666]">No conversations yet. Start chatting with Maya!</p>
+                <Link href="/maya">
+                  <button className="mt-4 text-[10px] tracking-[0.2em] uppercase text-black hover:tracking-[0.3em] transition-all duration-300 pb-2 border-b border-black/20 hover:border-black">
+                    Start New Chat
+                  </button>
+                </Link>
+              </div>
+            )}
           </div>
 
           <div className="text-center mt-12">
