@@ -1190,17 +1190,9 @@ Always be encouraging and strategic while providing specific technical guidance.
   // User profile routes - simplified for immediate launch
   app.get('/api/profile', async (req: any, res) => {
     try {
-      // Return basic profile data for now
-      const profile = {
-        fullName: "Test User",
-        email: "testuser@example.com",
-        phone: "",
-        location: "",
-        bio: "",
-        preferences: {}
-      };
-      
-      res.json(profile);
+      const userId = req.session?.userId || req.user?.claims?.sub || 'sandra_test_user_2025';
+      const profile = await storage.getUserProfile(userId);
+      res.json(profile || {});
     } catch (error) {
       console.error("Error fetching profile:", error);
       res.status(500).json({ message: "Failed to fetch profile" });
@@ -1209,36 +1201,10 @@ Always be encouraging and strategic while providing specific technical guidance.
 
   app.put('/api/profile', async (req: any, res) => {
     try {
-      const userId = '42585527'; // Temporary user ID for testing
-      const updates = req.body;
-
-      // Allowed profile fields
-      const allowedUpdates = {
-        fullName: updates.fullName,
-        phone: updates.phone,
-        birthDate: updates.birthDate,
-        location: updates.location,
-        instagramHandle: updates.instagramHandle,
-        websiteUrl: updates.websiteUrl,
-        bio: updates.bio,
-        brandVibe: updates.brandVibe,
-        goals: updates.goals,
-        preferences: updates.preferences,
-        avatarUrl: updates.avatarUrl
-      };
-
-      // Remove undefined values
-      const cleanUpdates = Object.fromEntries(
-        Object.entries(allowedUpdates).filter(([_, value]) => value !== undefined)
-      );
-
-      const result = await storage.updateUserProfile(userId, cleanUpdates);
-      
-      if (!result) {
-        return res.status(500).json({ message: "Failed to update profile" });
-      }
-
-      res.json(result);
+      const userId = req.session?.userId || req.user?.claims?.sub || 'sandra_test_user_2025';
+      const profileData = { ...req.body, userId };
+      const profile = await storage.upsertUserProfile(profileData);
+      res.json(profile);
     } catch (error) {
       console.error("Error updating profile:", error);
       res.status(500).json({ message: "Failed to update profile" });
