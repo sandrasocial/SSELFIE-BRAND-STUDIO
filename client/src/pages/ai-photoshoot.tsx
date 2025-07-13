@@ -469,7 +469,7 @@ export default function AIPhotoshootPage() {
         },
         body: JSON.stringify({
           prompt: prompt.prompt.replace('[triggerword]', userModel?.triggerWord || 'subject'),
-          userId: 'sandra_test_user_2025'
+          // Note: userId will be handled by backend authentication
         }),
       });
 

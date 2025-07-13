@@ -202,7 +202,7 @@ export default function Workspace() {
         {/* Background Image - positioned to show face */}
         <div className="absolute inset-0 opacity-30">
           <img 
-            src="https://sselfie-training-zips.s3.amazonaws.com/images/sandra_test_user_2025/137_1752409456266.png"
+            src={SandraImages.hero.homepage}
             alt="Your SSELFIE Studio"
             className="w-full h-full object-cover object-center-top"
             style={{ objectPosition: 'center top' }}
