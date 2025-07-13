@@ -400,12 +400,8 @@ export class ModelTrainingService {
       const environmentalEnhancement = "full scene visible, environmental context, lifestyle photography not portrait, editorial lifestyle moment";
       // Get user-specific hair characteristics with volume and movement
       let hairColorConsistency = "consistent hair color";
-      if (userId === 'sandra_test_user_2025') {
-        hairColorConsistency = "consistent hair color, long dark hair, wavy hair, natural dark brown tone, voluminous hair, tousled hair, effortless waves, hair with movement, bouncy hair, textured hair, never flat hair, perfectly imperfect hair styling";
-      } else {
-        // For other users, we'll need to get this from their onboarding data
-        hairColorConsistency = "consistent hair color, natural hair tone, voluminous hair, hair with movement, tousled hair, effortless styling, bouncy hair, textured hair, never flat hair, perfectly imperfect hair";
-      }
+      // For all users, use consistent professional hair enhancement
+      hairColorConsistency = "consistent hair color, natural hair tone, voluminous hair, hair with movement, tousled hair, effortless styling, bouncy hair, textured hair, never flat hair, perfectly imperfect hair";
       const subtleRetouching = "subtle light retouching, softened harsh lines, gentle skin smoothing while maintaining realistic texture, natural facial refinement, editorial skin enhancement, preserve natural skin imperfections, avoid plastic look, maintain authentic texture, enhanced natural glow, improved skin radiance, soft highlight enhancement, natural luminosity boost, editorial beauty enhancement, refined natural features";
       
       let finalPrompt = `${basePrompt}, ${hairColorConsistency}, ${filmEnhancement}, ${fashionEnhancement}, ${environmentalEnhancement}, ${subtleRetouching}`;
