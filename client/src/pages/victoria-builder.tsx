@@ -133,11 +133,56 @@ export default function VictoriaBuilder() {
   const [currentMessage, setCurrentMessage] = useState('');
   const [isTyping, setIsTyping] = useState(false);
   const [currentHtml, setCurrentHtml] = useState(SOUL_RESETS_TEMPLATE);
+  const [isFullScreen, setIsFullScreen] = useState(false);
   const [currentCss, setCurrentCss] = useState('');
   const { toast } = useToast();
   const queryClient = useQueryClient();
   const chatEndRef = useRef<HTMLDivElement>(null);
   const previewRef = useRef<HTMLIFrameElement>(null);
+
+  // Fetch user's personal photo gallery
+  const { data: userGallery } = useQuery({
+    queryKey: ['/api/user-gallery'],
+    retry: false,
+  });
+
+  // Function to inject user photos into template (70-80% selfies, 20-30% flatlays)
+  const injectUserPhotos = (htmlTemplate: string) => {
+    if (!userGallery?.userSelfies?.length) return htmlTemplate;
+    
+    // Get mix of user selfies (70-80%) and flatlays (20-30%)
+    const allSelfies = userGallery.userSelfies || [];
+    const allFlatlays = userGallery.flatlayCollections?.flatMap(col => col.images) || [];
+    
+    // Calculate photo distribution for landing page
+    const totalPhotos = 6; // Standard landing page photo count
+    const selfieCount = Math.ceil(totalPhotos * 0.75); // 75% selfies
+    const flatlayCount = totalPhotos - selfieCount; // 25% flatlays
+    
+    // Select photos - prioritize recent selfies
+    const selectedSelfies = allSelfies.slice(0, selfieCount);
+    const selectedFlatlays = allFlatlays.slice(0, flatlayCount);
+    const allSelectedPhotos = [...selectedSelfies.map(s => s.url), ...selectedFlatlays];
+    
+    // Replace stock photos with user photos
+    let updatedHtml = htmlTemplate;
+    
+    // Replace hero background image with user's best selfie
+    if (allSelectedPhotos[0]) {
+      updatedHtml = updatedHtml.replace(
+        /url\('https:\/\/images\.unsplash\.com\/[^']+'\)/g,
+        `url('${allSelectedPhotos[0]}')`
+      );
+    }
+    
+    // Replace additional placeholder images throughout the template
+    allSelectedPhotos.slice(1).forEach((photo, index) => {
+      const placeholder = `{{USER_PHOTO_${index + 2}}}`;
+      updatedHtml = updatedHtml.replace(placeholder, photo);
+    });
+    
+    return updatedHtml;
+  };
 
   // Get chat history
   const { data: chatData } = useQuery({
@@ -175,17 +220,18 @@ export default function VictoriaBuilder() {
     },
   });
 
-  // Update preview when HTML changes
+  // Update preview with user photos when HTML changes
   useEffect(() => {
     if (previewRef.current && currentHtml) {
+      const htmlWithUserPhotos = injectUserPhotos(currentHtml);
       const doc = previewRef.current.contentDocument;
       if (doc) {
         doc.open();
-        doc.write(currentHtml);
+        doc.write(htmlWithUserPhotos);
         doc.close();
       }
     }
-  }, [currentHtml]);
+  }, [currentHtml, userGallery]);
 
   // Scroll to bottom when messages change
   useEffect(() => {
@@ -212,7 +258,17 @@ export default function VictoriaBuilder() {
       <div className="w-3/5 border-r border-gray-200 flex flex-col">
         <div className="bg-gray-50 px-6 py-4 border-b border-gray-200">
           <h2 className="text-xl font-light text-black">Live Preview</h2>
-          <p className="text-sm text-gray-600 font-light">Your landing page updates in real-time</p>
+          <div className="flex items-center justify-between">
+            <p className="text-sm text-gray-600 font-light">Your landing page updates in real-time</p>
+            {userGallery?.userSelfies?.length > 0 && (
+              <div className="flex items-center space-x-2">
+                <div className="w-2 h-2 bg-green-500 rounded-full"></div>
+                <span className="text-xs text-gray-500">
+                  Using {userGallery.totalSelfies} personal photos + {userGallery.totalFlatlays} flatlays
+                </span>
+              </div>
+            )}
+          </div>
         </div>
         
         <div className="flex-1 bg-white">
@@ -244,6 +300,14 @@ export default function VictoriaBuilder() {
             </div>
             
             <div className="flex items-center space-x-3">
+              <Button 
+                variant="outline"
+                size="sm"
+                className="text-black border-black hover:bg-black hover:text-white"
+                onClick={() => setIsFullScreen(true)}
+              >
+                Full Preview
+              </Button>
               <Button 
                 variant="outline"
                 size="sm"
@@ -350,6 +414,53 @@ export default function VictoriaBuilder() {
           </p>
         </div>
       </div>
+
+      {/* Full-Screen Preview Modal */}
+      {isFullScreen && (
+        <div className="fixed inset-0 z-50 bg-black bg-opacity-90 flex items-center justify-center">
+          <div className="w-full h-full max-w-6xl max-h-full p-8 flex flex-col">
+            <div className="flex items-center justify-between mb-4">
+              <h2 className="text-white text-xl font-light">Full-Screen Preview</h2>
+              <div className="flex items-center space-x-4">
+                <Button 
+                  variant="outline"
+                  size="sm"
+                  className="text-white border-white hover:bg-white hover:text-black"
+                >
+                  Save Draft
+                </Button>
+                <Button 
+                  size="sm"
+                  className="bg-white text-black hover:bg-gray-200"
+                >
+                  Publish Live at /yourname
+                </Button>
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={() => setIsFullScreen(false)}
+                  className="text-white hover:bg-gray-800"
+                >
+                  × Close
+                </Button>
+              </div>
+            </div>
+            
+            <div className="flex-1 bg-white border border-gray-300">
+              <iframe
+                className="w-full h-full border-0"
+                title="Full-Screen Landing Page Preview"
+                srcDoc={injectUserPhotos(currentHtml)}
+                sandbox="allow-same-origin"
+              />
+            </div>
+            
+            <p className="text-gray-300 text-sm mt-4 text-center">
+              Preview your landing page before publishing live • Uses your personal photos: {userGallery?.totalSelfies || 0} selfies + {userGallery?.totalFlatlays || 0} flatlays
+            </p>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
