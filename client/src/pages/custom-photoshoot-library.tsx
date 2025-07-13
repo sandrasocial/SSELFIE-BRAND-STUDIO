@@ -95,7 +95,7 @@ export default function CustomPhotoshootLibrary() {
         },
         body: JSON.stringify({
           prompt: prompt.prompt,
-          userId: 'sandra_test_user_2025'
+          // Note: userId handled by backend authentication
         }),
       });
 
@@ -139,7 +139,7 @@ export default function CustomPhotoshootLibrary() {
       id: 'saved-1',
       name: 'Sunset Contemplation',
       description: 'Golden hour magic, whole scenery, natural pose',
-      prompt: 'usersandra_test_user_2025 woman, full body environmental shot, sunset beach setting, looking away from camera, long dark wavy hair flowing, shot on Nikon Z9 with 50mm f/1.2S lens, dramatic golden hour backlighting, warm atmospheric glow, flowing maxi dress, natural makeup, barefoot elegance, contemplative pose looking at horizon, not facing camera, serene moment, heavy 35mm film grain, pronounced texture',
+      prompt: '[triggerword] woman, full body environmental shot, sunset beach setting, looking away from camera, long dark wavy hair flowing, shot on Nikon Z9 with 50mm f/1.2S lens, dramatic golden hour backlighting, warm atmospheric glow, flowing maxi dress, natural makeup, barefoot elegance, contemplative pose looking at horizon, not facing camera, serene moment, heavy 35mm film grain, pronounced texture',
       camera: 'Nikon Z9 with 50mm f/1.2S lens',
       texture: 'heavy 35mm film grain, pronounced texture',
       dateSaved: '2025-07-12',
@@ -149,7 +149,7 @@ export default function CustomPhotoshootLibrary() {
       id: 'saved-2', 
       name: 'Editorial Power',
       description: 'High fashion editorial energy, commanding presence',
-      prompt: 'usersandra_test_user_2025 woman, editorial fashion portrait, commanding presence, black power suit, modern office environment, shot on Hasselblad X2D with 90mm lens, dramatic window lighting, professional styling, confident direct gaze, corporate luxury, film negative quality, authentic grain pattern',
+      prompt: '[triggerword] woman, editorial fashion portrait, commanding presence, black power suit, modern office environment, shot on Hasselblad X2D with 90mm lens, dramatic window lighting, professional styling, confident direct gaze, corporate luxury, film negative quality, authentic grain pattern',
       camera: 'Hasselblad X2D with 90mm lens',
       texture: 'film negative quality, authentic grain pattern',
       dateSaved: '2025-07-11',
@@ -159,7 +159,7 @@ export default function CustomPhotoshootLibrary() {
       id: 'saved-3',
       name: 'Garden Wanderer',
       description: 'Natural beauty, morning light, peaceful energy',
-      prompt: 'usersandra_test_user_2025 woman, full body lifestyle shot, walking through luxury garden path, not looking at camera, shot on Sony A7R V with 55mm f/1.8 Zeiss lens, soft morning light filtering through leaves, natural daylight, flowing midi dress, natural textures, effortless styling, gentle walk among flowers, looking forward, peaceful movement, Kodak Portra 400 film aesthetic, visible grain structure',
+      prompt: '[triggerword] woman, full body lifestyle shot, walking through luxury garden path, not looking at camera, shot on Sony A7R V with 55mm f/1.8 Zeiss lens, soft morning light filtering through leaves, natural daylight, flowing midi dress, natural textures, effortless styling, gentle walk among flowers, looking forward, peaceful movement, Kodak Portra 400 film aesthetic, visible grain structure',
       camera: 'Sony A7R V with 55mm f/1.8 Zeiss lens',
       texture: 'Kodak Portra 400 film aesthetic, visible grain structure',
       dateSaved: '2025-07-10',
