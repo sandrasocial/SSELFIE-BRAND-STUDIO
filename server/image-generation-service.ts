@@ -67,14 +67,22 @@ export async function generateImages(request: GenerateImagesRequest): Promise<Ge
     
     const randomCameraSpec = cameraSpecs[Math.floor(Math.random() * cameraSpecs.length)];
     
+    // Add film texture and matte skin specifications to ALL prompts
+    const filmTextureSpecs = ", heavy 35mm film grain, pronounced grain structure, matte textured skin, soft skin retouch, visible pores and natural texture, authentic skin imperfections, natural facial refinement, editorial skin enhancement, raw film negative quality, analog film aesthetic, textured skin with visible detail";
+    
     // Only add camera specs if prompt doesn't already contain professional camera specifications
     if (!finalPrompt.toLowerCase().includes('shot') && !finalPrompt.toLowerCase().includes('captured') && !finalPrompt.toLowerCase().includes('photographed')) {
       // Add minimal professional enhancement for basic prompts
       finalPrompt = `${finalPrompt}, ${randomCameraSpec}`;
     }
     
-    // Extract negative prompts from the custom prompt (if present)
-    let negativePrompt = "shiny skin, glossy skin, fake skin, plastic-looking skin, over-processed skin, deep unflattering wrinkles, flat unflattering hair";
+    // Always add film texture specifications if not already present
+    if (!finalPrompt.toLowerCase().includes('film grain') && !finalPrompt.toLowerCase().includes('matte textured skin')) {
+      finalPrompt = `${finalPrompt}${filmTextureSpecs}`;
+    }
+    
+    // Extract negative prompts from the custom prompt (if present) - ENHANCED FOR TEXTURE
+    let negativePrompt = "shiny skin, glossy skin, fake skin, plastic-looking skin, over-processed skin, deep unflattering wrinkles, flat unflattering hair, smooth skin, perfect skin, airbrushed skin, digital smoothing, skin blur, poreless skin, wax-like skin, doll-like skin, artificial lighting, studio lighting perfection, clean skin, flawless skin, retouched skin, digital enhancement";
     
     // Check if prompt contains negative prompts and extract them
     if (finalPrompt.includes("Negative:")) {
@@ -85,20 +93,20 @@ export async function generateImages(request: GenerateImagesRequest): Promise<Ge
       }
     }
 
-    // Build input with correct FLUX LoRA parameters per schema
+    // Build input with correct FLUX LoRA parameters optimized for textured, matte skin
     const input: any = {
       prompt: finalPrompt,
-      negative_prompt: negativePrompt,  // Add comprehensive negative prompts
-      guidance: 3.5,              // Guidance for black-forest-labs/flux-dev-lora
+      negative_prompt: negativePrompt,  // Enhanced negative prompts for texture
+      guidance: 2.8,              // Lower guidance for more natural, less over-processed results
       lora_weights: `sandrasocial/${userModel.modelName}`, // User's trained LoRA weights
       lora_scale: 1.0,           // Full LoRA application (0-1 range)
-      num_inference_steps: 32,    // 28-50 recommended range
+      num_inference_steps: 32,    // 28-50 recommended range for quality
       num_outputs: 3,            // Generate 3 focused images
       aspect_ratio: "3:4",        // Portrait ratio better for selfies
       output_format: "png",       // PNG for highest quality
       output_quality: 100,        // Maximum quality (0-100)
       megapixels: "1",           // Approximate megapixels
-      go_fast: false,             // Quality over speed
+      go_fast: false,             // Quality over speed - essential for grain texture
       disable_safety_checker: false
     };
     
