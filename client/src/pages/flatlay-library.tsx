@@ -573,32 +573,137 @@ const flatlayCollections: FlatlayCollection[] = [
     ]
   },
   {
-    id: 'business-professional',
-    name: 'Business Professional',
-    description: 'Laptop flatlays, planning materials, office aesthetics',
-    aesthetic: 'Professional productivity with style',
-    backgroundImage: SandraImages.flatlays.workspace1,
+    id: 'coastal-vibes',
+    name: 'Coastal Vibes',
+    description: 'Beach aesthetics, surfboards, ocean lifestyle, coastal living',
+    aesthetic: 'Relaxed coastal and surf lifestyle',
+    backgroundImage: 'https://i.postimg.cc/6qBxt1FS/file-1.png',
     images: [
       {
-        id: 'bp-1',
-        url: SandraImages.flatlays.workspace1,
-        title: 'Business Setup',
-        category: 'Business Professional',
-        description: 'Stylish productivity flatlay'
+        id: 'cv-1',
+        url: 'https://i.postimg.cc/6qBxt1FS/file-1.png',
+        title: 'Coastal Lifestyle',
+        category: 'Coastal Vibes',
+        description: 'Relaxed beach aesthetic'
       },
       {
-        id: 'bp-2',
-        url: SandraImages.flatlays.planning,
-        title: 'Strategic Planning',
-        category: 'Business Professional',
-        description: 'Professional planning materials'
+        id: 'cv-2',
+        url: 'https://i.postimg.cc/43hg5cz8/file-11.png',
+        title: 'Ocean Vibes',
+        category: 'Coastal Vibes',
+        description: 'Coastal living aesthetic'
       },
       {
-        id: 'bp-3',
-        url: SandraImages.editorial.laptop1,
-        title: 'Executive Workspace',
-        category: 'Business Professional',
-        description: 'Professional laptop workspace'
+        id: 'cv-3',
+        url: 'https://i.postimg.cc/DZkKYz67/file-12.png',
+        title: 'Beach Setup',
+        category: 'Coastal Vibes',
+        description: 'Coastal beach lifestyle'
+      },
+      {
+        id: 'cv-4',
+        url: 'https://i.postimg.cc/wvVbcxbf/file-15.png',
+        title: 'Surf Culture',
+        category: 'Coastal Vibes',
+        description: 'Surfing lifestyle aesthetic'
+      },
+      {
+        id: 'cv-5',
+        url: 'https://i.postimg.cc/brwV6X7z/file-16.png',
+        title: 'Coastal Living',
+        category: 'Coastal Vibes',
+        description: 'Beach coastal living'
+      },
+      {
+        id: 'cv-6',
+        url: 'https://i.postimg.cc/SNNbP36Y/file-18.png',
+        title: 'Ocean Aesthetic',
+        category: 'Coastal Vibes',
+        description: 'Ocean surf aesthetic'
+      },
+      {
+        id: 'cv-7',
+        url: 'https://i.postimg.cc/HkNmXz7c/file-2.png',
+        title: 'Beach Vibes',
+        category: 'Coastal Vibes',
+        description: 'Coastal beach vibes'
+      },
+      {
+        id: 'cv-8',
+        url: 'https://i.postimg.cc/1zDdXr0Z/file-21.png',
+        title: 'Surf Lifestyle',
+        category: 'Coastal Vibes',
+        description: 'Surfing beach lifestyle'
+      },
+      {
+        id: 'cv-9',
+        url: 'https://i.postimg.cc/9MVn7w1w/file-23.png',
+        title: 'Coastal Style',
+        category: 'Coastal Vibes',
+        description: 'Coastal style aesthetic'
+      },
+      {
+        id: 'cv-10',
+        url: 'https://i.postimg.cc/BQM4Q4SC/file-3.png',
+        title: 'Beach Culture',
+        category: 'Coastal Vibes',
+        description: 'Beach culture lifestyle'
+      },
+      {
+        id: 'cv-11',
+        url: 'https://i.postimg.cc/Bb5ZCFGW/file-33.png',
+        title: 'Ocean Living',
+        category: 'Coastal Vibes',
+        description: 'Ocean coastal living'
+      },
+      {
+        id: 'cv-12',
+        url: 'https://i.postimg.cc/kgLrB5kW/file-36.png',
+        title: 'Surf Aesthetic',
+        category: 'Coastal Vibes',
+        description: 'Surf beach aesthetic'
+      },
+      {
+        id: 'cv-13',
+        url: 'https://i.postimg.cc/4yfqrH9R/file-37.png',
+        title: 'Coastal Retreat',
+        category: 'Coastal Vibes',
+        description: 'Coastal retreat lifestyle'
+      },
+      {
+        id: 'cv-14',
+        url: 'https://i.postimg.cc/7hKdDP3G/file-38.png',
+        title: 'Beach Life',
+        category: 'Coastal Vibes',
+        description: 'Beach lifestyle aesthetic'
+      },
+      {
+        id: 'cv-15',
+        url: 'https://i.postimg.cc/26ZSVJcS/file-39.png',
+        title: 'Ocean Escape',
+        category: 'Coastal Vibes',
+        description: 'Ocean escape aesthetic'
+      },
+      {
+        id: 'cv-16',
+        url: 'https://i.postimg.cc/DzW2MHKP/file-4.png',
+        title: 'Coastal Freedom',
+        category: 'Coastal Vibes',
+        description: 'Coastal freedom lifestyle'
+      },
+      {
+        id: 'cv-17',
+        url: 'https://i.postimg.cc/d3ctdBpm/file-40.png',
+        title: 'Surf Journey',
+        category: 'Coastal Vibes',
+        description: 'Surfing journey aesthetic'
+      },
+      {
+        id: 'cv-18',
+        url: 'https://i.postimg.cc/8P1TSjS5/file-41.png',
+        title: 'Beach Adventure',
+        category: 'Coastal Vibes',
+        description: 'Beach adventure lifestyle'
       }
     ]
   },
