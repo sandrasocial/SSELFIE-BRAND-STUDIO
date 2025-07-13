@@ -724,22 +724,27 @@ The platform foundation is rock-solid with four professional brandbook templates
 - Removed all hardcoded fallbacks to `sandra_test_user_2025` model in image generation
 - Users now guaranteed to get images trained on their own selfies
 
-### July 13, 2025 - CRITICAL MODEL & PROMPT FIXES DEPLOYED ✅
+### July 13, 2025 - SYSTEM-WIDE TRAINED MODEL USAGE FIXED ✅
 
-**🎉 MAJOR BREAKTHROUGH: Prompt Quality & Model Usage Issues Resolved**
-- **Sandra's Model (43782722)**: TRAINING COMPLETED - Model `43782722-selfie-lora` with trigger `user43782722` operational
-- **Prompt Quality Fixed**: AI-photoshoot now preserves luxury editorial prompts instead of overriding with basic enhancements
-- **Model Version Detection**: Both Maya and AI-photoshoot now properly detect and use trained model versions from Replicate API
-- **Training Validation Gap**: Shannon (44991795) needs retraining with actual selfies - status updated to 'needs_retraining'
-- **Authentication Secured**: All endpoints require proper user authentication with no test user fallbacks
-- **Image Generation Ready**: Platform operational for premium AI photography with trained models
+**🚨 CRITICAL FIX: All Users Now Use Their Trained Models (Not Base FLUX)**
+- **Root Cause Fixed**: System was using `black-forest-labs/flux-dev-lora` with trigger words instead of actual trained model versions
+- **Training→Generation Pipeline**: Fixed automatic transition from `ostris/flux-dev-lora-trainer` (training) to trained model version (generation)
+- **ALL Users Affected**: Every user was getting generic FLUX results instead of their personalized trained models
+- **Database Schema Enhanced**: Added `replicate_version_id` and `trained_model_path` columns to properly track trained models
+- **API Integration**: System now fetches actual trained model versions from Replicate training completion data
+- **Validation Added**: Image generation throws errors if trained model version cannot be found, preventing fallback to generic FLUX
 
-**✅ Technical Fixes Applied:**
-- Enhanced image generation service to preserve existing camera specifications in prompts
-- Added Replicate training API integration to fetch actual trained model versions
-- Updated both Maya and AI-photoshoot endpoints to use completed trained models
-- Removed basic prompt enhancements that were overriding luxury editorial prompts
-- System now uses trained model versions instead of base FLUX LoRA for completed training
+**✅ Technical Implementation:**
+- Enhanced `image-generation-service.ts` to always fetch and use trained model versions for completed training
+- Updated database schema to store `replicate_version_id` (actual model version) and `trained_model_path`
+- Fixed both Maya and AI-photoshoot endpoints to use real trained models instead of base FLUX + LoRA approach
+- Removed `hf_lora` field since trained model versions already contain the LoRA training
+- Added comprehensive error handling to prevent users from getting generic results
+
+**✅ Sandra's Model Updated:**
+- Training ID: `91s9jvvr6hrm80cr0pvam9m38m` 
+- Trained Model Version: `sandrasocial/43782722-selfie-lora:7a8f2bc40b4e29d5b3db31bc72b8c68d3103b96d05bf4b04fee4142e6ceb0e6d`
+- System now uses this specific trained version instead of base FLUX
 
 **✅ Real Training Pipeline Verified:**
 - Users upload 10+ selfies → System creates Replicate training job → Real model IDs generated
