@@ -122,20 +122,29 @@ export default function Maya() {
         
         if (currentImage && currentImage.imageUrl && currentImage.imageUrl !== 'processing') {
           // Image generation completed
+          console.log('Maya: Image generation completed!', currentImage);
+          console.log('Maya: imageUrl value:', currentImage.imageUrl);
+          
           setGenerationProgress(100);
           setIsGenerating(false);
           
-          if (currentImage.imageUrl.startsWith('http')) {
+          if (currentImage.imageUrl.startsWith('http') || currentImage.imageUrl.startsWith('[')) {
             // Parse the image URLs (should be array of 3 URLs)
             let imageUrls: string[] = [];
             try {
-              // Handle both JSON array and single URL formats
-              if (currentImage.imageUrl.startsWith('[')) {
-                imageUrls = JSON.parse(currentImage.imageUrl);
+              // Try to parse as JSON array first
+              const parsed = JSON.parse(currentImage.imageUrl);
+              console.log('Maya: Parsed imageUrl:', parsed);
+              if (Array.isArray(parsed)) {
+                imageUrls = parsed;
+                console.log('Maya: Found array with', imageUrls.length, 'images');
               } else {
                 imageUrls = [currentImage.imageUrl];
+                console.log('Maya: Single URL fallback');
               }
-            } catch {
+            } catch (error) {
+              // If not JSON, treat as single URL
+              console.log('Maya: JSON parse failed, using single URL:', error);
               imageUrls = [currentImage.imageUrl];
             }
             
