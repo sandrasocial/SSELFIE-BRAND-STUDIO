@@ -192,45 +192,87 @@ export default function VictoriaLandingPage() {
             </p>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-8 lg:gap-12">
+          <div className="grid grid-cols-1 md:grid-cols-4 gap-6 lg:gap-8">
             <Link href="/photo-selection">
               <div className="group cursor-pointer text-center">
-                <div className="aspect-square overflow-hidden bg-[#f5f5f5] mb-6">
+                <div className="aspect-square overflow-hidden bg-[#f5f5f5] mb-4">
                   <img 
                     src={SandraImages.editorial.laptop1}
                     alt="Photo Selection"
                     className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
                   />
                 </div>
-                <div className="text-[10px] tracking-[0.3em] uppercase text-[#666666] mb-3">
+                <div className="text-[10px] tracking-[0.3em] uppercase text-[#666666] mb-2">
                   Step 01
                 </div>
-                <h3 className="font-times text-xl sm:text-2xl font-light tracking-[-0.01em] text-black mb-4">
-                  Select Your Photos
+                <h3 className="font-times text-lg sm:text-xl font-light tracking-[-0.01em] text-black mb-3">
+                  Select Photos
                 </h3>
-                <p className="text-sm font-light text-[#666666] leading-relaxed">
-                  Choose from your 119 AI selfies and flatlay collections for your brand
+                <p className="text-xs font-light text-[#666666] leading-relaxed">
+                  Choose your best AI selfies and flatlay style
+                </p>
+              </div>
+            </Link>
+
+            <Link href="/brand-onboarding">
+              <div className="group cursor-pointer text-center">
+                <div className="aspect-square overflow-hidden bg-[#f5f5f5] mb-4">
+                  <img 
+                    src={SandraImages.editorial.laptop1}
+                    alt="Brand Story"
+                    className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                  />
+                </div>
+                <div className="text-[10px] tracking-[0.3em] uppercase text-[#666666] mb-2">
+                  Step 02
+                </div>
+                <h3 className="font-times text-lg sm:text-xl font-light tracking-[-0.01em] text-black mb-3">
+                  Brand Story
+                </h3>
+                <p className="text-xs font-light text-[#666666] leading-relaxed">
+                  Share your business story, offers, and personality
+                </p>
+              </div>
+            </Link>
+
+            <Link href="/victoria-builder">
+              <div className="group cursor-pointer text-center">
+                <div className="aspect-square overflow-hidden bg-[#f5f5f5] mb-4">
+                  <img 
+                    src={SandraImages.hero.pricing}
+                    alt="Auto-Generated Template"
+                    className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                  />
+                </div>
+                <div className="text-[10px] tracking-[0.3em] uppercase text-[#666666] mb-2">
+                  Step 03
+                </div>
+                <h3 className="font-times text-lg sm:text-xl font-light tracking-[-0.01em] text-black mb-3">
+                  Preview Template
+                </h3>
+                <p className="text-xs font-light text-[#666666] leading-relaxed">
+                  Auto-populated landing page with your content
                 </p>
               </div>
             </Link>
 
             <Link href="/victoria-chat">
               <div className="group cursor-pointer text-center">
-                <div className="aspect-square overflow-hidden bg-[#f5f5f5] mb-6">
+                <div className="aspect-square overflow-hidden bg-[#f5f5f5] mb-4">
                   <img 
                     src={SandraImages.hero.pricing}
                     alt="Victoria Strategy"
                     className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
                   />
                 </div>
-                <div className="text-[10px] tracking-[0.3em] uppercase text-[#666666] mb-3">
-                  Step 02
+                <div className="text-[10px] tracking-[0.3em] uppercase text-[#666666] mb-2">
+                  Step 04
                 </div>
-                <h3 className="font-times text-xl sm:text-2xl font-light tracking-[-0.01em] text-black mb-4">
-                  Strategy with Victoria
+                <h3 className="font-times text-lg sm:text-xl font-light tracking-[-0.01em] text-black mb-3">
+                  Advanced Setup
                 </h3>
-                <p className="text-sm font-light text-[#666666] leading-relaxed">
-                  Chat with Victoria AI to refine your brand message and positioning
+                <p className="text-xs font-light text-[#666666] leading-relaxed">
+                  Chat with Victoria for custom landing page refinements
                 </p>
               </div>
             </Link>
