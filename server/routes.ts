@@ -38,6 +38,11 @@ export async function registerRoutes(app: Express): Promise<Server> {
     res.sendFile(path.join(process.cwd(), 'test-auth.html'));
   });
 
+  // Google OAuth test page
+  app.get('/test-google-auth', (req, res) => {
+    res.sendFile(path.join(process.cwd(), 'test-google-auth.html'));
+  });
+
   // Production auth debugging endpoint
   app.get('/api/auth-debug', (req, res) => {
     try {
