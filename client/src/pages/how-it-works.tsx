@@ -81,45 +81,76 @@ export default function HowItWorksPage() {
           fullHeight={true}
         />
 
-        {/* Intro Section */}
-        <section className="py-20 px-4">
-          <div className="max-w-4xl mx-auto text-center">
-            <h1 className="text-3xl md:text-4xl text-[#0a0a0a] mb-8 font-light tracking-[-0.01em]" style={{ fontFamily: 'Times New Roman, serif' }}>
-              Build your brand in 20 minutes
-            </h1>
+        {/* Intro Section - Editorial Typography */}
+        <section className="py-20 md:py-32 px-4 sm:px-6 lg:px-8">
+          <div className="max-w-5xl mx-auto text-center">
+            <div className="mb-16 md:mb-20">
+              <h1 
+                className="text-4xl md:text-5xl lg:text-6xl xl:text-7xl font-light mb-6 tracking-[-0.02em] text-[#0a0a0a]" 
+                style={{ fontFamily: 'Times New Roman, serif' }}
+              >
+                Build your brand<br />in 20 minutes
+              </h1>
+              <div className="w-16 h-px bg-[#B5B5B3] mx-auto"></div>
+            </div>
             
-            <div className="text-lg leading-relaxed text-[#0a0a0a] font-inter max-w-3xl mx-auto">
-              <p>This isn't about perfect photos. It's about your personal brand, built from your selfies with celebrity-level AI styling.</p>
-              <p className="mt-4">Here's exactly how it works (when you're not in the mood to overthink it):</p>
+            <div className="max-w-4xl mx-auto space-y-8 md:space-y-10">
+              <p 
+                className="text-xl md:text-2xl lg:text-3xl font-light leading-relaxed text-[#0a0a0a] italic"
+                style={{ fontFamily: 'Times New Roman, serif' }}
+              >
+                This isn't about perfect photos.
+              </p>
+              
+              <div className="space-y-6 text-lg md:text-xl leading-relaxed text-[#333] font-light max-w-3xl mx-auto">
+                <p>It's about your personal brand, built from your selfies with celebrity-level AI styling.</p>
+                <p 
+                  className="text-xl md:text-2xl font-light italic text-[#0a0a0a] border-l-2 border-[#B5B5B3] pl-8"
+                  style={{ fontFamily: 'Times New Roman, serif' }}
+                >
+                  Here's exactly how it works when you're not in the mood to overthink it
+                </p>
+              </div>
             </div>
           </div>
         </section>
 
-        {/* Steps Section */}
-        <section className="py-20 px-4">
-          <div className="max-w-6xl mx-auto">
-            <div className="space-y-32">
+        {/* Steps Section - Enhanced Editorial Design */}
+        <section className="py-20 md:py-32 px-4 sm:px-6 lg:px-8 bg-[#f5f5f5]">
+          <div className="max-w-7xl mx-auto">
+            <div className="space-y-24 md:space-y-32">
               {steps.map((step, index) => (
-                <div key={index} className={`flex flex-col lg:flex-row items-center gap-16 ${index % 2 === 1 ? 'lg:flex-row-reverse' : ''}`}>
-                  <div className="flex-1">
-                    <div className="flex items-center gap-6 mb-6">
-                      <span className="text-6xl md:text-7xl font-light text-[#0a0a0a] tracking-[-0.02em]" style={{ fontFamily: 'Times New Roman, serif' }}>
+                <div key={index} className={`grid grid-cols-1 lg:grid-cols-2 gap-12 lg:gap-16 items-center ${index % 2 === 1 ? 'lg:[&>*:first-child]:order-2' : ''}`}>
+                  <div className="space-y-6 lg:space-y-8">
+                    <div className="flex items-baseline gap-4 mb-6">
+                      <span 
+                        className="text-5xl sm:text-6xl md:text-7xl lg:text-8xl font-light text-[#0a0a0a] tracking-[-0.02em] leading-none" 
+                        style={{ fontFamily: 'Times New Roman, serif' }}
+                      >
                         {step.number}
                       </span>
+                      <div className="w-8 h-px bg-[#B5B5B3] mt-8"></div>
                     </div>
-                    <h2 className="text-3xl md:text-4xl font-light text-[#0a0a0a] mb-6 tracking-[-0.01em]" style={{ fontFamily: 'Times New Roman, serif' }}>
+                    
+                    <h2 
+                      className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-light text-[#0a0a0a] mb-6 tracking-[-0.01em] leading-tight" 
+                      style={{ fontFamily: 'Times New Roman, serif' }}
+                    >
                       {step.title}
                     </h2>
-                    <p className="text-lg leading-relaxed text-[#666666] font-inter">
+                    
+                    <p className="text-base sm:text-lg md:text-xl leading-relaxed text-[#333] font-light max-w-lg">
                       {step.description}
                     </p>
                   </div>
-                  <div className="flex-1">
-                    <div className="aspect-[4/3] overflow-hidden">
+                  
+                  <div className="relative">
+                    <div className="aspect-[4/3] overflow-hidden bg-white shadow-sm">
                       <img
                         src={step.image}
-                        alt={step.title}
-                        className="w-full h-full object-cover"
+                        alt={`Step ${step.number}: ${step.title}`}
+                        className="w-full h-full object-cover hover:scale-105 transition-transform duration-700"
+                        loading="lazy"
                       />
                     </div>
                   </div>
