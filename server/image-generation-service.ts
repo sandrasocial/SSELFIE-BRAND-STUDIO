@@ -62,9 +62,17 @@ export async function generateImages(request: GenerateImagesRequest): Promise<Ge
     // Maya AI should provide complete authentic prompts - minimal enhancement only
     const naturalTextureSpecs = ", raw photo, natural skin glow, visible texture, film grain, unretouched confidence, editorial cover portrait";
     
+    // CRITICAL HAIR ENHANCEMENT: Always ensure hair has volume and natural movement
+    const hairEnhancementSpecs = ", hair with natural volume and movement, soft textured hair styling, hair flowing naturally, hair never flat or lifeless";
+    
     // Only add natural texture if not already present
     if (!finalPrompt.toLowerCase().includes('film grain') && !finalPrompt.toLowerCase().includes('raw photo')) {
       finalPrompt = `${finalPrompt}${naturalTextureSpecs}`;
+    }
+    
+    // Always add hair enhancement specifications for better hair quality
+    if (!finalPrompt.toLowerCase().includes('hair with') && !finalPrompt.toLowerCase().includes('voluminous hair')) {
+      finalPrompt = `${finalPrompt}${hairEnhancementSpecs}`;
     }
 
     // Build input with OPTIMIZED FLUX LoRA SETTINGS for maximum quality and likeness

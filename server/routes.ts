@@ -605,6 +605,7 @@ MANDATORY ELEMENTS (always include):
 - The trigger word "${triggerWord}" at the beginning
 - "raw photo, visible skin pores, film grain, unretouched natural skin texture"
 - "natural beauty with light skin retouch, soft diffused lighting"
+- "hair with natural volume and movement, soft textured hair styling, hair flowing naturally, hair never flat or lifeless"
 - Specific camera equipment (Hasselblad X2D 100C, Canon EOS R5, Leica SL2-S, Fujifilm GFX 100S) with lens details
 - Dynamic action, movement, or compelling pose (NO static portraits)
 - Rich environmental storytelling and cinematic mood
