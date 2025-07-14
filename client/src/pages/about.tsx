@@ -6,10 +6,16 @@ import { EditorialImageBreak } from '@/components/editorial-image-break';
 import PowerQuote from '@/components/power-quote';
 import { EditorialTestimonials } from '@/components/editorial-testimonials';
 import WelcomeEditorial from '@/components/welcome-editorial';
+import { EmailCaptureModal } from '@/components/email-capture-modal';
 import { SandraImages } from '@/lib/sandra-images';
 
 export default function AboutPage() {
-  const [showEmailPopup, setShowEmailPopup] = useState(false);
+  const [isEmailModalOpen, setIsEmailModalOpen] = useState(false);
+
+  const handleEmailCaptured = (email: string) => {
+    // Email captured successfully - could redirect to onboarding or show success message
+    console.log('Email captured:', email);
+  };
 
   return (
     <div className="bg-white">
@@ -169,7 +175,7 @@ export default function AboutPage() {
               
               <div className="pt-8 md:pt-12">
                 <button 
-                  onClick={() => setShowEmailPopup(true)}
+                  onClick={() => setIsEmailModalOpen(true)}
                   className="bg-[#0a0a0a] text-white px-8 py-4 text-lg font-light tracking-wide hover:bg-[#333] transition-colors duration-300"
                   style={{ fontFamily: 'Times New Roman, serif' }}
                 >
@@ -181,53 +187,13 @@ export default function AboutPage() {
         </section>
       </main>
 
-      {/* Email Capture Popup */}
-      {showEmailPopup && (
-        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
-          <div className="bg-white max-w-md w-full p-8 relative">
-            <button 
-              onClick={() => setShowEmailPopup(false)}
-              className="absolute top-4 right-4 text-2xl text-[#666] hover:text-[#0a0a0a]"
-            >
-              ×
-            </button>
-            
-            <div className="text-center">
-              <h3 
-                className="text-2xl md:text-3xl font-light mb-4 text-[#0a0a0a]"
-                style={{ fontFamily: 'Times New Roman, serif' }}
-              >
-                Ready for your comeback?
-              </h3>
-              
-              <p className="text-[#666] mb-6 leading-relaxed">
-                Join 120K+ women who stopped waiting for permission and started building something real.
-              </p>
-              
-              <form className="space-y-4">
-                <input 
-                  type="email" 
-                  placeholder="Enter your email"
-                  className="w-full p-3 border border-[#ddd] focus:border-[#0a0a0a] focus:outline-none"
-                  required
-                />
-                
-                <button 
-                  type="submit"
-                  className="w-full bg-[#0a0a0a] text-white py-3 font-light hover:bg-[#333] transition-colors"
-                  style={{ fontFamily: 'Times New Roman, serif' }}
-                >
-                  Start my comeback story
-                </button>
-              </form>
-              
-              <p className="text-xs text-[#999] mt-4">
-                No spam. Just real stories and tools that work.
-              </p>
-            </div>
-          </div>
-        </div>
-      )}
+      {/* Email Capture Modal */}
+      <EmailCaptureModal
+        isOpen={isEmailModalOpen}
+        onClose={() => setIsEmailModalOpen(false)}
+        onEmailCaptured={handleEmailCaptured}
+        plan="free"
+      />
     </div>
   );
 }
