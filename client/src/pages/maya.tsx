@@ -454,18 +454,24 @@ export default function Maya() {
     <div className="min-h-screen bg-white">
       <MemberNavigation />
       
-      {/* Simple Header Section */}
-      <section className="bg-white pt-24 pb-8 px-4 sm:px-6 md:px-8">
-        <div className="max-w-6xl mx-auto text-center">
-          <div className="text-[10px] sm:text-xs font-normal tracking-[0.4em] uppercase text-gray-500 mb-4">
-            Meet Maya
+      {/* Editorial Hero Section */}
+      <EditorialImageBreak 
+        imageUrl={SandraImages.editorial.thinking}
+        alt="Maya - Your Personal Celebrity Photographer"
+        height="45vh"
+        overlay={true}
+        overlayContent={
+          <div className="max-w-3xl mx-auto text-center px-6">
+            <div className="text-[10px] sm:text-xs font-normal tracking-[0.4em] uppercase text-white/80 mb-4">
+              Meet Maya
+            </div>
+            <h1 className="font-times text-[clamp(2.5rem,6vw,4rem)] leading-[0.9] font-extralight tracking-[-0.02em] text-white">
+              YOUR PERSONAL<br/>
+              CELEBRITY PHOTOGRAPHER
+            </h1>
           </div>
-          <h1 className="font-times text-[clamp(2rem,5vw,3.5rem)] leading-[0.9] font-extralight tracking-[-0.02em] text-black mb-6">
-            YOUR PERSONAL<br/>
-            CELEBRITY PHOTOGRAPHER
-          </h1>
-        </div>
-      </section>
+        }
+      />
 
       {/* Main Chat Interface */}
       <section className="py-16 sm:py-20 px-4 sm:px-6 md:px-8 bg-white">
