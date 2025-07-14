@@ -41,7 +41,7 @@ export default function Workspace() {
   });
 
   // Check if user has premium access
-  const isPremiumUser = subscription?.plan === 'sselfie-studio';
+  const isPremiumUser = subscription?.plan === 'sselfie-studio' || user?.plan === 'admin';
 
   // User Journey Steps - 8 Steps as requested
   const getUserJourneySteps = () => [
@@ -92,9 +92,9 @@ export default function Workspace() {
       number: '05',
       title: 'Flatlay Library',
       subtitle: 'Curated lifestyle images for your brand',
-      status: 'ready',
-      statusText: 'Browse Collections',
-      link: '/flatlay-library',
+      status: isPremiumUser ? 'ready' : 'locked',
+      statusText: isPremiumUser ? 'Browse Collections' : 'Upgrade Required',
+      link: isPremiumUser ? '/flatlay-library' : '/pricing',
       image: SandraImages.flatlays.workspace1
     },
     {

@@ -65,7 +65,7 @@ export interface UsageCheck {
 }
 
 export interface UsageUpdate {
-  actionType: 'generation' | 'api_call' | 'sandra_chat';
+  actionType: 'generation' | 'api_call' | 'sandra_chat' | 'training';
   resourceUsed: 'replicate_ai' | 'claude_api' | 'openai_api';
   cost: number;
   details?: any;
@@ -184,6 +184,7 @@ export class UsageService {
       lastGenerationAt: new Date()
     };
 
+    // Only count 'generation' actions against limits, NOT 'training'
     if (update.actionType === 'generation') {
       updates.totalGenerationsUsed = usage.totalGenerationsUsed + 1;
       
@@ -199,6 +200,7 @@ export class UsageService {
         updates.isLimitReached = updates.monthlyGenerationsUsed >= (usage.monthlyGenerationsAllowed || 0);
       }
     }
+    // Training actions are tracked in history but don't count against generation limits
 
     await storage.updateUserUsage(userId, updates);
   }
