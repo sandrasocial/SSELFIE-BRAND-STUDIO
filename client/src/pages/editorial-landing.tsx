@@ -1,8 +1,8 @@
 import { useState, useEffect } from "react";
 import { useLocation } from "wouter";
 import { SandraImages } from "@/lib/sandra-images";
-import { PortfolioSection } from "@/components/portfolio-section";
-import FreeTierSignup from "@/components/free-tier-signup";
+// import { PortfolioSection } from "@/components/portfolio-section";
+// import FreeTierSignup from "@/components/free-tier-signup";
 
 export default function EditorialLanding() {
   // SEO Meta Tags
@@ -454,7 +454,7 @@ export default function EditorialLanding() {
             </h2>
           </div>
           
-          <PortfolioSection />
+          {/* <PortfolioSection /> */}
         </div>
       </section>
 
