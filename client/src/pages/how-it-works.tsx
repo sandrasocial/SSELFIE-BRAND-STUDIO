@@ -66,8 +66,125 @@ const faqs = [
 ];
 
 export default function HowItWorksPage() {
+  // SEO Meta tags setup
+  useEffect(() => {
+    // Update page title
+    document.title = "How It Works - SSELFIE Studio | AI Personal Branding in 20 Minutes";
+    
+    // Update meta description
+    const metaDescription = document.querySelector('meta[name="description"]');
+    if (metaDescription) {
+      metaDescription.setAttribute('content', 'Learn how SSELFIE Studio transforms your phone selfies into professional brand photos in 20 minutes. AI celebrity stylist MAYA + brand strategist VICTORIA = your complete business launch.');
+    }
+
+    // Update Open Graph tags
+    const ogTitle = document.querySelector('meta[property="og:title"]');
+    if (ogTitle) {
+      ogTitle.setAttribute('content', 'How It Works - Build Your Brand in 20 Minutes | SSELFIE Studio');
+    }
+
+    const ogDescription = document.querySelector('meta[property="og:description"]');
+    if (ogDescription) {
+      ogDescription.setAttribute('content', 'Transform your phone selfies into professional brand photos with AI. Meet MAYA (celebrity stylist) and VICTORIA (brand strategist) - your complete business launch in 20 minutes.');
+    }
+
+    const ogUrl = document.querySelector('meta[property="og:url"]');
+    if (ogUrl) {
+      ogUrl.setAttribute('content', 'https://sselfie.ai/how-it-works');
+    }
+
+    // Update Twitter Card tags
+    const twitterTitle = document.querySelector('meta[property="twitter:title"]');
+    if (twitterTitle) {
+      twitterTitle.setAttribute('content', 'How It Works - SSELFIE Studio AI Personal Branding');
+    }
+
+    const twitterDescription = document.querySelector('meta[property="twitter:description"]');
+    if (twitterDescription) {
+      twitterDescription.setAttribute('content', 'Transform your phone selfies into professional brand photos in 20 minutes with AI celebrity stylist and brand strategist.');
+    }
+
+    // Add structured data for How-to page
+    const structuredData = {
+      "@context": "https://schema.org",
+      "@type": "HowTo",
+      "name": "How to Build Your Personal Brand with AI in 20 Minutes",
+      "description": "Step-by-step guide to transforming phone selfies into professional brand photos and complete business launch using SSELFIE Studio",
+      "totalTime": "PT20M",
+      "supply": [
+        {
+          "@type": "HowToSupply",
+          "name": "Phone camera"
+        },
+        {
+          "@type": "HowToSupply", 
+          "name": "Natural lighting"
+        }
+      ],
+      "tool": [
+        {
+          "@type": "HowToTool",
+          "name": "SSELFIE Studio AI Platform"
+        }
+      ],
+      "step": [
+        {
+          "@type": "HowToStep",
+          "name": "Choose Your Plan",
+          "text": "Start with FREE (5 AI images) or SSELFIE Studio ($47/month) for full ecosystem",
+          "url": "https://sselfie.ai/pricing"
+        },
+        {
+          "@type": "HowToStep", 
+          "name": "Upload Selfies",
+          "text": "Upload 10-15 phone selfies with natural lighting",
+          "url": "https://sselfie.ai/how-it-works#upload"
+        },
+        {
+          "@type": "HowToStep",
+          "name": "Meet AI Agents", 
+          "text": "MAYA (celebrity stylist) and VICTORIA (brand strategist) create your content",
+          "url": "https://sselfie.ai/how-it-works#agents"
+        },
+        {
+          "@type": "HowToStep",
+          "name": "AI Generation",
+          "text": "Custom AI generates professional editorial photos instantly", 
+          "url": "https://sselfie.ai/how-it-works#generation"
+        },
+        {
+          "@type": "HowToStep",
+          "name": "Launch Brand",
+          "text": "Complete website with booking, payments, and custom domain in 20 minutes",
+          "url": "https://sselfie.ai/how-it-works#launch"
+        }
+      ],
+      "about": {
+        "@type": "Organization",
+        "name": "SSELFIE Studio",
+        "url": "https://sselfie.ai"
+      }
+    };
+
+    const script = document.createElement('script');
+    script.type = 'application/ld+json';
+    script.innerHTML = JSON.stringify(structuredData);
+    document.head.appendChild(script);
+
+    return () => {
+      // Cleanup structured data on unmount
+      const existingScript = document.querySelector('script[type="application/ld+json"]');
+      if (existingScript) {
+        document.head.removeChild(existingScript);
+      }
+    };
+  }, []);
+
   return (
-    <div className="bg-white">
+    <div className="bg-white"
+         itemScope 
+         itemType="https://schema.org/HowTo"
+    >
       {/* Standardized Navigation */}
       <PreLoginNavigationUnified />
       
@@ -240,41 +357,73 @@ export default function HowItWorksPage() {
           </div>
         </section>
 
-        {/* Quick FAQs */}
-        <section className="py-20 px-4">
-          <div className="max-w-4xl mx-auto">
-            <h2 className="text-3xl md:text-4xl font-light text-[#0a0a0a] mb-16 text-center tracking-[-0.01em]" style={{ fontFamily: 'Times New Roman, serif' }}>
-              The questions you're actually thinking
-            </h2>
+        {/* Quick FAQs - Enhanced Mobile Responsiveness */}
+        <section className="py-16 sm:py-20 md:py-24 px-4 sm:px-6 lg:px-8" 
+                 itemScope 
+                 itemType="https://schema.org/FAQPage">
+          <div className="max-w-5xl mx-auto">
+            <div className="text-center mb-12 sm:mb-16">
+              <h2 
+                className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-light text-[#0a0a0a] mb-4 tracking-[-0.01em]" 
+                style={{ fontFamily: 'Times New Roman, serif' }}
+                itemProp="headline"
+              >
+                The questions you're actually thinking
+              </h2>
+              <div className="w-16 h-px bg-[#B5B5B3] mx-auto"></div>
+            </div>
             
-            <div className="grid md:grid-cols-2 gap-12">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-8 sm:gap-10 md:gap-12">
               {faqs.map((faq, index) => (
-                <div key={index}>
-                  <h3 className="text-xl font-medium text-[#0a0a0a] mb-4 font-inter">
+                <div key={index} 
+                     className="space-y-3 sm:space-y-4"
+                     itemScope 
+                     itemType="https://schema.org/Question">
+                  <h3 
+                    className="text-lg sm:text-xl font-medium text-[#0a0a0a] leading-tight"
+                    itemProp="name"
+                  >
                     {faq.question}
                   </h3>
-                  <p className="text-lg leading-relaxed text-[#666666] font-inter">
-                    {faq.answer}
-                  </p>
+                  <div itemScope itemType="https://schema.org/Answer">
+                    <p 
+                      className="text-base sm:text-lg leading-relaxed text-[#666666] font-light"
+                      itemProp="text"
+                    >
+                      {faq.answer}
+                    </p>
+                  </div>
                 </div>
               ))}
             </div>
           </div>
         </section>
 
-        {/* Power Quote & CTA */}
-        <section id="get-started" className="py-20 px-4 bg-[#0a0a0a] text-center">
-          <div className="max-w-4xl mx-auto">
-            <blockquote className="text-4xl md:text-5xl lg:text-6xl font-light text-white mb-12 tracking-[-0.01em]" style={{ fontFamily: 'Times New Roman, serif' }}>
-              "You don't need a plan.<br />
-              Just one brave selfie."
+        {/* Power Quote & CTA - Enhanced Mobile Design */}
+        <section id="get-started" 
+                 className="py-16 sm:py-20 md:py-24 px-4 sm:px-6 lg:px-8 bg-[#0a0a0a] text-center"
+                 itemScope 
+                 itemType="https://schema.org/Organization">
+          <div className="max-w-5xl mx-auto">
+            <blockquote 
+              className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl xl:text-6xl font-light text-white mb-8 sm:mb-12 tracking-[-0.01em] px-4" 
+              style={{ fontFamily: 'Times New Roman, serif' }}
+              itemProp="slogan"
+            >
+              "You don't need a plan.<br className="hidden sm:block" />
+              <span className="sm:hidden"> </span>Just one brave selfie."
             </blockquote>
             
-            <p className="text-lg text-white/80 mb-12 max-w-2xl mx-auto font-inter">
+            <p className="text-base sm:text-lg text-white/80 mb-8 sm:mb-12 max-w-2xl mx-auto font-light px-4">
               Stop waiting for the perfect moment. Start with what you have, where you are, right now.
             </p>
             
-            <Link href="/pricing" className="inline-block text-white border border-white/30 hover:bg-white hover:text-[#0a0a0a] transition-colors duration-300 text-[11px] tracking-[0.3em] uppercase no-underline px-12 py-6 font-light font-inter">
+            <Link 
+              href="/pricing" 
+              className="inline-block text-white border border-white/30 hover:bg-white hover:text-[#0a0a0a] transition-colors duration-300 text-[10px] sm:text-[11px] tracking-[0.25em] sm:tracking-[0.3em] uppercase no-underline px-8 sm:px-12 py-4 sm:py-6 font-light w-full sm:w-auto max-w-xs sm:max-w-none"
+              itemProp="url"
+              aria-label="Start building your personal brand with SSELFIE Studio"
+            >
               STOP WAITING, START BUILDING
             </Link>
           </div>
