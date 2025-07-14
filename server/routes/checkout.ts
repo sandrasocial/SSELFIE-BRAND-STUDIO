@@ -1,7 +1,7 @@
 import type { Express } from "express";
 import { isAuthenticated } from "../replitAuth";
 import { storage } from "../storage";
-import { EmailService } from "../email-service";
+import { sendWelcomeEmail } from "../email-service";
 import Stripe from "stripe";
 
 if (!process.env.STRIPE_SECRET_KEY) {

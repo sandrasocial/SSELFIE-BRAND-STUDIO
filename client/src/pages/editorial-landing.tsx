@@ -4,8 +4,13 @@ import { SandraImages } from "@/lib/sandra-images";
 import { PortfolioSection } from "@/components/portfolio-section";
 import FreeTierSignup from "@/components/free-tier-signup";
 import WelcomeEditorial from "@/components/welcome-editorial";
+import { EmailCaptureModal } from "@/components/email-capture-modal";
 
 export default function EditorialLanding() {
+  const [isEmailModalOpen, setIsEmailModalOpen] = useState(false);
+  const [selectedPlan, setSelectedPlan] = useState<'free' | 'sselfie-studio'>('free');
+  const [, setLocation] = useLocation();
+
   // SEO Meta Tags
   useEffect(() => {
     document.title = "SSELFIE Studio - AI-Powered Personal Brand Photos & Business Launch";
@@ -40,7 +45,6 @@ export default function EditorialLanding() {
       existingTag.setAttribute('content', tag.content);
     });
   }, []);
-  const [, setLocation] = useLocation();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
 
@@ -54,13 +58,31 @@ export default function EditorialLanding() {
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
 
-  const handleGetStarted = (plan: string) => {
-    localStorage.setItem('selectedPlan', plan);
-    if (plan === 'free') {
-      // Route to login for free tier
+  const handleGetStarted = (plan: 'free' | 'sselfie-studio') => {
+    // Check if email already captured
+    const emailCaptured = localStorage.getItem('emailCaptured');
+    
+    if (emailCaptured) {
+      // Email already captured, proceed directly
+      localStorage.setItem('selectedPlan', plan);
+      if (plan === 'free') {
+        window.location.href = '/api/login';
+      } else {
+        setLocation('/checkout');
+      }
+    } else {
+      // Show email capture modal first
+      setSelectedPlan(plan);
+      setIsEmailModalOpen(true);
+    }
+  };
+
+  const handleEmailCaptured = (email: string) => {
+    // After email captured, proceed with original flow
+    localStorage.setItem('selectedPlan', selectedPlan);
+    if (selectedPlan === 'free') {
       window.location.href = '/api/login';
     } else {
-      // Route to checkout for paid plans
       setLocation('/checkout');
     }
   };
@@ -465,6 +487,14 @@ export default function EditorialLanding() {
           </button>
         </div>
       </section>
+
+      {/* Email Capture Modal */}
+      <EmailCaptureModal
+        isOpen={isEmailModalOpen}
+        onClose={() => setIsEmailModalOpen(false)}
+        onEmailCaptured={handleEmailCaptured}
+        plan={selectedPlan}
+      />
     </div>
   );
 }
