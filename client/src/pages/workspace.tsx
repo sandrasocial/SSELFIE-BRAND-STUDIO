@@ -290,6 +290,39 @@ export default function Workspace() {
       <section className="py-20 px-8">
         <div className="max-w-6xl mx-auto">
           
+          {/* Free User Upgrade Section */}
+          {!isPremiumUser && (
+            <div className="mb-16 text-center">
+              <div className="max-w-2xl mx-auto p-8 border border-gray-200 bg-gradient-to-b from-gray-50 to-white">
+                <h3 className="font-serif text-2xl mb-4">Unlock Full SSELFIE Studio</h3>
+                <p className="text-gray-600 mb-6 leading-relaxed">
+                  Get 100 monthly AI images, premium flatlay collections with 900+ lifestyle photos, 
+                  unlimited business templates, and priority support.
+                </p>
+                <div className="space-y-3 mb-6">
+                  <div className="flex items-center justify-center space-x-2 text-sm">
+                    <div className="w-1 h-1 bg-black rounded-full"></div>
+                    <span>100 AI Photos/Month (vs 5 free)</span>
+                  </div>
+                  <div className="flex items-center justify-center space-x-2 text-sm">
+                    <div className="w-1 h-1 bg-black rounded-full"></div>
+                    <span>Premium Flatlay Library Access</span>
+                  </div>
+                  <div className="flex items-center justify-center space-x-2 text-sm">
+                    <div className="w-1 h-1 bg-black rounded-full"></div>
+                    <span>Victoria AI Brand Strategist</span>
+                  </div>
+                </div>
+                <a
+                  href="/pricing"
+                  className="inline-block bg-black text-white px-8 py-3 text-xs uppercase tracking-wider hover:bg-gray-800 transition-colors"
+                >
+                  Upgrade to Studio - $47/month
+                </a>
+              </div>
+            </div>
+          )}
+
           {/* Your Platform Tools - Compact Widget Style */}
           <div className="mb-20">
             <div className="text-center mb-12">
@@ -431,9 +464,19 @@ export default function Workspace() {
                 ></div>
               </div>
 
-              <p className="text-sm font-light text-[#666666] tracking-[0.1em] uppercase">
-                €97 SSELFIE Studio Subscription
-              </p>
+              <div className="flex items-center justify-center space-x-4">
+                <p className="text-sm font-light text-[#666666] tracking-[0.1em] uppercase">
+                  {isPremiumUser ? 'SSELFIE Studio Premium' : 'Free Plan'}
+                </p>
+                {!isPremiumUser && (
+                  <a
+                    href="/pricing"
+                    className="px-4 py-2 text-xs uppercase tracking-wider bg-black text-white hover:bg-gray-800 transition-colors"
+                  >
+                    Upgrade to Studio
+                  </a>
+                )}
+              </div>
             </div>
           </div>
 
