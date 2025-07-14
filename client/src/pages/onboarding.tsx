@@ -508,7 +508,7 @@ export default function OnboardingNew() {
               <div className="space-y-3 text-left">
                 <div className="flex items-center">
                   <span className="w-2 h-2 bg-black rounded-full mr-3"></span>
-                  <span>Generate 300 AI photos monthly</span>
+                  <span>Generate 100 AI photos monthly</span>
                 </div>
                 <div className="flex items-center">
                   <span className="w-2 h-2 bg-black rounded-full mr-3"></span>

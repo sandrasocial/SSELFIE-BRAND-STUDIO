@@ -17,10 +17,10 @@ export const PLAN_LIMITS = {
     resetMonthly: true
   },
   'ai-pack': {
-    totalGenerations: 250,
-    monthlyGenerations: null, // One-time purchase
+    totalGenerations: 100,
+    monthlyGenerations: null, // Legacy one-time purchase
     cost: 47,
-    description: '250 AI generations (1,000 images)',
+    description: '100 AI generations (legacy plan)',
     resetMonthly: false
   },
   'studio-founding': {
@@ -32,9 +32,9 @@ export const PLAN_LIMITS = {
   },
   'studio-standard': {
     totalGenerations: null,
-    monthlyGenerations: 250,
+    monthlyGenerations: 100,
     cost: 147,
-    description: '250 generations per month + Priority support',
+    description: '100 generations per month + Priority support (legacy plan)',
     resetMonthly: true
   }
 } as const;

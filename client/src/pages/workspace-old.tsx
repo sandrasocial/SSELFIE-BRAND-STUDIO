@@ -68,7 +68,7 @@ export default function Workspace() {
   };
 
   const getUsageStats = () => {
-    const monthlyLimit = subscription?.plan === 'sselfie-studio' ? 300 : 100;
+    const monthlyLimit = subscription?.plan === 'sselfie-studio' ? 100 : 5;
     return {
       used: aiImages.length || 0,
       total: monthlyLimit,
