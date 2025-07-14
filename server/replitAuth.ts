@@ -14,10 +14,59 @@ if (!process.env.REPLIT_DOMAINS) {
 
 const getOidcConfig = memoize(
   async () => {
-    return await client.discovery(
-      new URL(process.env.ISSUER_URL ?? "https://replit.com/oidc"),
-      process.env.REPL_ID!
-    );
+    try {
+      console.log('🔍 OIDC Discovery - ISSUER_URL:', process.env.ISSUER_URL ?? "https://replit.com/oidc");
+      console.log('🔍 OIDC Discovery - REPL_ID:', process.env.REPL_ID);
+      
+      // Try direct configuration instead of discovery
+      const issuerUrl = process.env.ISSUER_URL ?? "https://replit.com/oidc";
+      
+      try {
+        const config = await client.discovery(
+          new URL(issuerUrl),
+          process.env.REPL_ID!
+        );
+        return config;
+      } catch (discoveryError) {
+        console.log('🔄 OIDC discovery failed, trying manual configuration...');
+        
+        // Manual OIDC configuration for Replit
+        const manualConfig = {
+          issuer: issuerUrl,
+          authorization_endpoint: `${issuerUrl}/oauth/authorize`,
+          token_endpoint: `${issuerUrl}/oauth/token`,
+          userinfo_endpoint: `${issuerUrl}/userinfo`,
+          end_session_endpoint: `${issuerUrl}/logout`,
+          jwks_uri: `${issuerUrl}/.well-known/jwks.json`,
+          scopes_supported: ["openid", "email", "profile", "offline_access"],
+          response_types_supported: ["code"],
+          grant_types_supported: ["authorization_code", "refresh_token"],
+          subject_types_supported: ["public"],
+          id_token_signing_alg_values_supported: ["RS256"],
+          client_id: process.env.REPL_ID!
+        };
+        
+        console.log('🔍 Using manual OIDC config');
+        return manualConfig;
+      }
+      
+      console.log('✅ OIDC Config loaded successfully');
+      console.log('🔍 Token endpoint:', config.token_endpoint);
+      console.log('🔍 Auth endpoint:', config.authorization_endpoint);
+      console.log('🔍 Full config keys:', Object.keys(config));
+      
+      // Verify required endpoints exist
+      if (!config.token_endpoint || !config.authorization_endpoint) {
+        console.error('❌ Missing required OIDC endpoints in config');
+        console.error('🔍 Full config:', JSON.stringify(config, null, 2));
+        throw new Error('Invalid OIDC configuration: missing required endpoints');
+      }
+      
+      return config;
+    } catch (error) {
+      console.error('❌ OIDC Discovery failed:', error);
+      throw error;
+    }
   },
   { maxAge: 3600 * 1000 }
 );
@@ -120,6 +169,9 @@ export async function setupAuth(app: Express) {
   ) => {
     try {
       console.log('🔍 Auth verify function called');
+      console.log('🔍 Token response type:', typeof tokens);
+      console.log('🔍 Available token methods:', Object.getOwnPropertyNames(tokens));
+      
       const claims = tokens.claims();
       console.log('🔍 User claims:', JSON.stringify(claims, null, 2));
       
@@ -133,7 +185,12 @@ export async function setupAuth(app: Express) {
       verified(null, user);
     } catch (error) {
       console.error('❌ Auth verify error:', error);
-      console.error('❌ Error stack:', error.stack);
+      console.error('❌ Error details:', {
+        message: error.message,
+        code: error.code,
+        status: error.status,
+        stack: error.stack?.substring(0, 500)
+      });
       verified(error, null);
     }
   };
