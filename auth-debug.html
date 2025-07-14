@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Auth Debug - SSELFIE Studio</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 20px; max-width: 800px; }
+        .test-section { background: #f5f5f5; padding: 15px; margin: 10px 0; border-radius: 5px; }
+        button { background: #007bff; color: white; padding: 10px 20px; border: none; border-radius: 5px; cursor: pointer; margin: 5px; }
+        button:hover { background: #0056b3; }
+        .result { margin: 10px 0; padding: 10px; border-radius: 5px; }
+        .success { background: #d4edda; color: #155724; border: 1px solid #c3e6cb; }
+        .error { background: #f8d7da; color: #721c24; border: 1px solid #f5c6cb; }
+        .info { background: #d1ecf1; color: #0c5460; border: 1px solid #bee5eb; }
+    </style>
+</head>
+<body>
+    <h1>SSELFIE Studio - Authentication Debug</h1>
+    <p><strong>Current URL:</strong> <span id="current-url"></span></p>
+    <p><strong>User Agent:</strong> <span id="user-agent"></span></p>
+    <p><strong>Browser:</strong> <span id="browser-info"></span></p>
+
+    <div class="test-section">
+        <h2>Cookie Support Test</h2>
+        <button onclick="testCookies()">Test Cookies</button>
+        <div id="cookie-result"></div>
+    </div>
+
+    <div class="test-section">
+        <h2>Authentication Test</h2>
+        <button onclick="testAuth()">Test Auth Status</button>
+        <div id="auth-result"></div>
+    </div>
+
+    <div class="test-section">
+        <h2>Login Test</h2>
+        <button onclick="testLogin()">Test Login Flow</button>
+        <div id="login-result"></div>
+    </div>
+
+    <div class="test-section">
+        <h2>API Test</h2>
+        <button onclick="testAPI()">Test API Access</button>
+        <div id="api-result"></div>
+    </div>
+
+    <script>
+        // Initialize page info
+        document.getElementById('current-url').textContent = window.location.href;
+        document.getElementById('user-agent').textContent = navigator.userAgent;
+        
+        // Detect browser
+        function detectBrowser() {
+            const ua = navigator.userAgent;
+            if (ua.includes('Chrome') && !ua.includes('Edg')) return 'Chrome';
+            if (ua.includes('Safari') && !ua.includes('Chrome')) return 'Safari';
+            if (ua.includes('Firefox')) return 'Firefox';
+            if (ua.includes('Edg')) return 'Edge';
+            return 'Unknown';
+        }
+        
+        const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
+        document.getElementById('browser-info').textContent = `${detectBrowser()} ${isMobile ? '(Mobile)' : '(Desktop)'}`;
+
+        function showResult(elementId, message, type = 'info') {
+            const result = document.getElementById(elementId);
+            result.innerHTML = `<div class="result ${type}">${message}</div>`;
+        }
+
+        function testCookies() {
+            try {
+                // Test cookie setting
+                document.cookie = 'test_cookie=test_value; path=/; secure; samesite=lax';
+                
+                // Test cookie reading
+                const cookies = document.cookie;
+                const hasTestCookie = cookies.includes('test_cookie=test_value');
+                
+                showResult('cookie-result', 
+                    `Cookie Test: ${hasTestCookie ? 'PASS' : 'FAIL'}<br>
+                    All cookies: ${cookies || 'None'}<br>
+                    Third-party cookies: ${navigator.cookieEnabled ? 'Enabled' : 'Disabled'}`,
+                    hasTestCookie ? 'success' : 'error'
+                );
+            } catch (error) {
+                showResult('cookie-result', `Cookie Error: ${error.message}`, 'error');
+            }
+        }
+
+        async function testAuth() {
+            try {
+                const response = await fetch('/api/auth/user', {
+                    credentials: 'include'
+                });
+                
+                if (response.ok) {
+                    const user = await response.json();
+                    showResult('auth-result', 
+                        `Authentication: SUCCESS<br>
+                        User ID: ${user.id}<br>
+                        Email: ${user.email}<br>
+                        Status: Logged in`,
+                        'success'
+                    );
+                } else {
+                    showResult('auth-result', 
+                        `Authentication: FAILED<br>
+                        Status: ${response.status}<br>
+                        Response: ${await response.text()}`,
+                        'error'
+                    );
+                }
+            } catch (error) {
+                showResult('auth-result', `Auth Error: ${error.message}`, 'error');
+            }
+        }
+
+        function testLogin() {
+            try {
+                showResult('login-result', 'Redirecting to login...', 'info');
+                window.location.href = '/api/login';
+            } catch (error) {
+                showResult('login-result', `Login Error: ${error.message}`, 'error');
+            }
+        }
+
+        async function testAPI() {
+            try {
+                const response = await fetch('/api/health', {
+                    credentials: 'include'
+                });
+                
+                if (response.ok) {
+                    const data = await response.json();
+                    showResult('api-result', 
+                        `API Test: SUCCESS<br>
+                        Status: ${response.status}<br>
+                        Response: ${JSON.stringify(data)}`,
+                        'success'
+                    );
+                } else {
+                    showResult('api-result', 
+                        `API Test: FAILED<br>
+                        Status: ${response.status}<br>
+                        Response: ${await response.text()}`,
+                        'error'
+                    );
+                }
+            } catch (error) {
+                showResult('api-result', `API Error: ${error.message}`, 'error');
+            }
+        }
+    </script>
+</body>
+</html>

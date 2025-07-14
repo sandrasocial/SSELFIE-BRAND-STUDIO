@@ -249,6 +249,11 @@ I have ALL collections ready - just tell me your mood! ✨`;
     });
   });
 
+  // Debug route for authentication testing across browsers
+  app.get('/auth-debug', (req, res) => {
+    res.sendFile(path.join(process.cwd(), 'auth-debug.html'));
+  });
+
   // PUBLIC ENDPOINT: Signup Gift Email (no auth required)
   app.post('/api/signup-gift', async (req, res) => {
     try {
