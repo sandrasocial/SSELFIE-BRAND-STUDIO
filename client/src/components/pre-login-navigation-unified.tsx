@@ -72,78 +72,68 @@ export function PreLoginNavigationUnified({ transparent = true }: PreLoginNaviga
             </button>
           </div>
           
-          {/* Mobile Menu Button */}
-          <button 
+          {/* Mobile Menu Button - Minimalistic MENU text */}
+          <button
             onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-            className="md:hidden text-white hover:opacity-70 transition-opacity duration-300"
+            className="md:hidden text-xs uppercase tracking-[0.4em] text-white/80 hover:text-white transition-all duration-300"
           >
-            <div className="w-6 h-5 flex flex-col justify-between">
-              <div className={`w-full h-0.5 bg-white transition-all duration-300 ${
-                mobileMenuOpen ? 'rotate-45 translate-y-2' : ''
-              }`}></div>
-              <div className={`w-full h-0.5 bg-white transition-all duration-300 ${
-                mobileMenuOpen ? 'opacity-0' : ''
-              }`}></div>
-              <div className={`w-full h-0.5 bg-white transition-all duration-300 ${
-                mobileMenuOpen ? '-rotate-45 -translate-y-2' : ''
-              }`}></div>
-            </div>
+            MENU
           </button>
         </div>
       </div>
       
-      {/* Mobile Menu */}
-      <div className={`md:hidden transition-all duration-300 ${
-        mobileMenuOpen ? 'max-h-screen opacity-100' : 'max-h-0 opacity-0'
-      } overflow-hidden bg-black/90 backdrop-blur-md`}>
-        <div className="px-4 sm:px-6 lg:px-8 py-6 space-y-4">
-          <button 
-            onClick={() => {
-              setLocation("/about");
-              setMobileMenuOpen(false);
-            }}
-            className="block w-full text-left text-xs uppercase tracking-[0.4em] text-white/80 hover:text-white transition-all duration-300"
-          >
-            About
-          </button>
-          <button 
-            onClick={() => {
-              setLocation("/how-it-works");
-              setMobileMenuOpen(false);
-            }}
-            className="block w-full text-left text-xs uppercase tracking-[0.4em] text-white/80 hover:text-white transition-all duration-300"
-          >
-            How It Works
-          </button>
-          <button 
-            onClick={() => {
-              setLocation("/pricing");
-              setMobileMenuOpen(false);
-            }}
-            className="block w-full text-left text-xs uppercase tracking-[0.4em] text-white/80 hover:text-white transition-all duration-300"
-          >
-            Pricing
-          </button>
-          <button 
-            onClick={() => {
-              setLocation("/blog");
-              setMobileMenuOpen(false);
-            }}
-            className="block w-full text-left text-xs uppercase tracking-[0.4em] text-white/80 hover:text-white transition-all duration-300"
-          >
-            Blog
-          </button>
-          <button
-            onClick={() => {
-              window.location.href = '/api/login';
-              setMobileMenuOpen(false);
-            }}
-            className="block w-full text-left text-xs uppercase tracking-[0.4em] text-white/80 hover:text-white transition-all duration-300"
-          >
-            Login
-          </button>
+      {/* Mobile Menu - Full Screen Overlay */}
+      {mobileMenuOpen && (
+        <div className="md:hidden fixed top-0 left-0 right-0 bottom-0 z-[999] bg-white">
+          <div className="flex flex-col gap-10 text-center pt-[100px] px-10">
+            <button 
+              onClick={() => {
+                setLocation("/about");
+                setMobileMenuOpen(false);
+              }}
+              className="text-base uppercase tracking-[0.3em] text-gray-600 hover:text-black transition-colors py-5 border-b border-gray-200"
+            >
+              About
+            </button>
+            <button 
+              onClick={() => {
+                setLocation("/how-it-works");
+                setMobileMenuOpen(false);
+              }}
+              className="text-base uppercase tracking-[0.3em] text-gray-600 hover:text-black transition-colors py-5 border-b border-gray-200"
+            >
+              How It Works
+            </button>
+            <button 
+              onClick={() => {
+                setLocation("/pricing");
+                setMobileMenuOpen(false);
+              }}
+              className="text-base uppercase tracking-[0.3em] text-gray-600 hover:text-black transition-colors py-5 border-b border-gray-200"
+            >
+              Pricing
+            </button>
+            <button 
+              onClick={() => {
+                setLocation("/blog");
+                setMobileMenuOpen(false);
+              }}
+              className="text-base uppercase tracking-[0.3em] text-gray-600 hover:text-black transition-colors py-5 border-b border-gray-200"
+            >
+              Blog
+            </button>
+            <button
+              onClick={() => {
+                window.location.href = '/api/login';
+                setMobileMenuOpen(false);
+              }}
+              className="text-base uppercase tracking-[0.3em] text-gray-600 hover:text-black transition-colors py-5"
+            >
+              Login
+            </button>
+          </div>
         </div>
-      </div>
+      )}
     </nav>
   );
 }
