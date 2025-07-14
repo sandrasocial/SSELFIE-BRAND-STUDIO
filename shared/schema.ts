@@ -300,6 +300,28 @@ export const userLandingPages = pgTable("user_landing_pages", {
   updatedAt: timestamp("updated_at").defaultNow(),
 });
 
+// Maya Chat History tables
+export const mayaChats = pgTable("maya_chats", {
+  id: serial("id").primaryKey(),
+  userId: varchar("user_id").notNull(),
+  chatTitle: varchar("chat_title").notNull(),
+  chatSummary: text("chat_summary"),
+  createdAt: timestamp("created_at").defaultNow(),
+  updatedAt: timestamp("updated_at").defaultNow(),
+});
+
+export const mayaChatMessages = pgTable("maya_chat_messages", {
+  id: serial("id").primaryKey(),
+  chatId: integer("chat_id").references(() => mayaChats.id).notNull(),
+  role: varchar("role").notNull(), // 'user' or 'maya'
+  content: text("content").notNull(),
+  imagePreview: text("image_preview"), // JSON array of image URLs
+  generatedPrompt: text("generated_prompt"),
+  createdAt: timestamp("created_at").defaultNow(),
+});
+
+
+
 // Schema exports
 export const upsertUserSchema = createInsertSchema(users);
 export const insertUserProfileSchema = createInsertSchema(userProfiles).omit({ id: true, createdAt: true, updatedAt: true });
@@ -316,12 +338,21 @@ export const insertPhotoSelectionSchema = createInsertSchema(photoSelections).om
 export const insertLandingPageSchema = createInsertSchema(landingPages).omit({ id: true, createdAt: true, updatedAt: true });
 export const insertBrandOnboardingSchema = createInsertSchema(brandOnboarding).omit({ id: true, createdAt: true, updatedAt: true });
 export const insertUserLandingPageSchema = createInsertSchema(userLandingPages).omit({ id: true, createdAt: true, updatedAt: true });
+export const insertMayaChatSchema = createInsertSchema(mayaChats).omit({ id: true, createdAt: true, updatedAt: true });
+export const insertMayaChatMessageSchema = createInsertSchema(mayaChatMessages).omit({ id: true, createdAt: true });
+export const insertEmailCaptureSchema = createInsertSchema(emailCaptures).omit({ id: true, createdAt: true });
 
 
 
 // Type exports
 export type UpsertUser = z.infer<typeof upsertUserSchema>;
 export type User = typeof users.$inferSelect;
+export type MayaChat = typeof mayaChats.$inferSelect;
+export type InsertMayaChat = typeof mayaChats.$inferInsert;
+export type MayaChatMessage = typeof mayaChatMessages.$inferSelect;
+export type InsertMayaChatMessage = typeof mayaChatMessages.$inferInsert;
+export type EmailCapture = typeof emailCaptures.$inferSelect;
+export type InsertEmailCapture = typeof emailCaptures.$inferInsert;
 
 // User profiles table schema already defined at top of file
 
