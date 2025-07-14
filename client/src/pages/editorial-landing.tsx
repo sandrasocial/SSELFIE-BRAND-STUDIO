@@ -13,31 +13,36 @@ export default function EditorialLanding() {
   const [selectedPlan, setSelectedPlan] = useState<'free' | 'sselfie-studio'>('free');
   const [, setLocation] = useLocation();
 
-  // SEO Meta Tags
+  // SEO Meta Tags and Performance Optimization
   useEffect(() => {
-    document.title = "SSELFIE Studio - AI-Powered Personal Brand Photos & Business Launch";
+    document.title = "SSELFIE Studio - AI Personal Branding Platform | Transform Selfies Into Professional Photos";
     
-    // Update or create meta description
+    // Update or create meta description with rich keywords
     let metaDescription = document.querySelector('meta[name="description"]');
     if (!metaDescription) {
       metaDescription = document.createElement('meta');
       metaDescription.setAttribute('name', 'description');
       document.head.appendChild(metaDescription);
     }
-    metaDescription.setAttribute('content', 'Transform your selfies into professional brand photos with AI. Get 5 free images, build your personal brand, and launch your business in 20 minutes. Start free today.');
+    metaDescription.setAttribute('content', 'Transform selfies into professional brand photos with AI. Maya AI photographer & Victoria AI strategist help you build your personal brand and launch your business in 20 minutes. Start free - 5 AI images included.');
     
-    // Add Open Graph tags
-    const ogTags = [
-      { property: 'og:title', content: 'SSELFIE Studio - Transform Selfies into Professional Brand Photos' },
-      { property: 'og:description', content: 'AI-powered personal branding platform. Transform selfies into professional photos and launch your business in 20 minutes.' },
+    // Add comprehensive SEO meta tags
+    const seoTags = [
+      { name: 'keywords', content: 'AI personal branding, AI photographer, professional headshots AI, personal brand builder, selfie to professional photos, AI brand strategist, business launch platform, professional photos from selfies, AI personal brand coach, digital brand transformation' },
+      { property: 'og:title', content: 'SSELFIE Studio - AI Personal Branding Platform | Professional Photos from Selfies' },
+      { property: 'og:description', content: 'Transform selfies into professional brand photos with AI. Maya AI photographer & Victoria AI strategist included. Launch your business in 20 minutes. Start free today.' },
       { property: 'og:type', content: 'website' },
       { property: 'og:url', content: window.location.href },
+      { property: 'og:site_name', content: 'SSELFIE Studio' },
       { name: 'twitter:card', content: 'summary_large_image' },
-      { name: 'twitter:title', content: 'SSELFIE Studio - AI Brand Photos' },
-      { name: 'twitter:description', content: 'Transform your selfies into professional brand photos with AI. Start free today.' }
+      { name: 'twitter:title', content: 'SSELFIE Studio - AI Personal Branding Platform' },
+      { name: 'twitter:description', content: 'Transform selfies into professional brand photos with AI. Maya AI photographer & Victoria AI strategist. Start free today.' },
+      { name: 'twitter:creator', content: '@sandra.social' },
+      { name: 'author', content: 'Sandra Sigurjónsdóttir' },
+      { name: 'robots', content: 'index, follow, max-image-preview:large' }
     ];
     
-    ogTags.forEach(tag => {
+    seoTags.forEach(tag => {
       let existingTag = document.querySelector(`meta[${tag.property ? 'property' : 'name'}="${tag.property || tag.name}"]`);
       if (!existingTag) {
         existingTag = document.createElement('meta');
@@ -46,6 +51,45 @@ export default function EditorialLanding() {
       }
       existingTag.setAttribute('content', tag.content);
     });
+
+    // Add structured data for better search results
+    const structuredData = {
+      "@context": "https://schema.org",
+      "@type": ["WebPage", "SoftwareApplication"],
+      "name": "SSELFIE Studio",
+      "description": "AI-powered personal branding platform that transforms selfies into professional business photos",
+      "url": window.location.href,
+      "author": {
+        "@type": "Person",
+        "name": "Sandra Sigurjónsdóttir",
+        "url": "https://instagram.com/sandra.social"
+      },
+      "applicationCategory": "BusinessApplication",
+      "offers": [
+        {
+          "@type": "Offer",
+          "name": "Free Plan",
+          "price": "0",
+          "priceCurrency": "USD",
+          "description": "5 AI images per month, Maya AI photographer chat, Victoria AI strategist chat"
+        },
+        {
+          "@type": "Offer", 
+          "name": "SSELFIE Studio",
+          "price": "47",
+          "priceCurrency": "USD",
+          "description": "100 AI images monthly, complete Maya & Victoria AI access, landing page builder"
+        }
+      ]
+    };
+
+    let structuredDataScript = document.querySelector('script[type="application/ld+json"]');
+    if (!structuredDataScript) {
+      structuredDataScript = document.createElement('script');
+      structuredDataScript.type = 'application/ld+json';
+      document.head.appendChild(structuredDataScript);
+    }
+    structuredDataScript.textContent = JSON.stringify(structuredData);
   }, []);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
@@ -211,8 +255,10 @@ export default function EditorialLanding() {
         <div className="absolute inset-0 opacity-40">
           <img
             src={SandraImages.hero.homepage}
-            alt="Sandra"
-            className="w-full h-full object-cover"
+            alt="Sandra Sigurjónsdóttir - SSELFIE Studio Founder transforming personal branding with AI"
+            className="w-full h-full object-cover object-center"
+            loading="eager"
+            fetchPriority="high"
           />
         </div>
         
