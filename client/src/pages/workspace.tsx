@@ -195,22 +195,27 @@ export default function Workspace() {
                     {/* Soft Dark Overlay */}
                     <div className="absolute inset-0 bg-black/30"></div>
                     
-                    {/* Status Badge */}
-                    <div className="absolute top-6 left-6">
-                      <div className={`px-3 py-1 text-xs tracking-[0.2em] uppercase font-light ${
-                        step.status === 'complete' ? 'bg-black text-white' :
-                        step.status === 'progress' ? 'bg-gray-800 text-white' :
-                        step.status === 'ready' ? 'bg-white text-black border border-black' :
-                        'bg-gray-200 text-gray-500'
+                    {/* Minimalist Status Badge */}
+                    <div className="absolute top-4 left-4">
+                      <div className={`px-2 py-1 text-xs font-light ${
+                        step.status === 'complete' ? 'bg-black/80 text-white' :
+                        step.status === 'progress' ? 'bg-black/60 text-white' :
+                        step.status === 'ready' ? 'bg-white/90 text-black' :
+                        'bg-white/70 text-gray-600'
                       }`}>
                         {step.statusMessage}
                       </div>
                     </div>
                     
-                    {/* Time Estimate */}
-                    <div className="absolute top-6 right-6">
-                      <div className="bg-white/90 backdrop-blur-sm px-3 py-1 text-xs tracking-[0.2em] uppercase text-black">
-                        {step.timeEstimate}
+                    {/* Elegant Title Overlay */}
+                    <div className="absolute inset-0 flex items-center justify-center">
+                      <div className="text-white text-center">
+                        <div className="font-serif text-3xl md:text-4xl font-light tracking-[0.4em] uppercase">
+                          {index === 0 ? 'T R A I N' : index === 1 ? 'S T Y L E' : 'P H O T O S H O O T'}
+                        </div>
+                        <div className="text-xs tracking-[0.2em] uppercase opacity-80 mt-2">
+                          Step {index + 1}
+                        </div>
                       </div>
                     </div>
                     
@@ -222,12 +227,8 @@ export default function Workspace() {
                   
                   {/* Step Content */}
                   <div className="space-y-4">
-                    <div className="text-xs tracking-[0.4em] uppercase text-gray-500">
-                      Step {index + 1}
-                    </div>
-                    
-                    <h3 className="font-serif text-2xl font-light tracking-[0.4em] uppercase leading-tight">
-                      {index === 0 ? 'T R A I N' : index === 1 ? 'S T Y L E' : 'P H O T O S H O O T'}
+                    <h3 className="font-serif text-xl font-light leading-tight text-black">
+                      {step.title}
                     </h3>
                     
                     <p className="text-gray-600 leading-relaxed font-light">
