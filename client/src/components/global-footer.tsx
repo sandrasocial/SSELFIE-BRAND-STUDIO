@@ -43,29 +43,24 @@ export const GlobalFooter: React.FC = () => {
             </ul>
           </div>
 
-          {/* Support Links */}
+          {/* Contact Info */}
           <div>
-            <h3 className="text-xs uppercase tracking-[0.3em] text-white/80 mb-6">Support</h3>
+            <h3 className="text-xs uppercase tracking-[0.3em] text-white/80 mb-6">Contact</h3>
             <ul className="space-y-3">
               <li>
-                <Link href="/how-it-works" className="text-white/60 hover:text-white transition-colors text-sm">
-                  How It Works
-                </Link>
+                <a href="mailto:hello@sselfie.ai" className="text-white/60 hover:text-white transition-colors text-sm">
+                  hello@sselfie.ai
+                </a>
               </li>
               <li>
-                <Link href="/faq" className="text-white/60 hover:text-white transition-colors text-sm">
-                  FAQ
-                </Link>
+                <a href="https://sselfie.ai" className="text-white/60 hover:text-white transition-colors text-sm">
+                  sselfie.ai
+                </a>
               </li>
               <li>
-                <Link href="/contact" className="text-white/60 hover:text-white transition-colors text-sm">
-                  Contact
-                </Link>
-              </li>
-              <li>
-                <Link href="/profile" className="text-white/60 hover:text-white transition-colors text-sm">
-                  Profile
-                </Link>
+                <a href="https://instagram.com/sandra.social" target="_blank" rel="noopener noreferrer" className="text-white/60 hover:text-white transition-colors text-sm">
+                  @sandra.social
+                </a>
               </li>
             </ul>
           </div>
@@ -83,11 +78,6 @@ export const GlobalFooter: React.FC = () => {
                 <Link href="/terms" className="text-white/60 hover:text-white transition-colors text-sm">
                   Terms of Service
                 </Link>
-              </li>
-              <li>
-                <a href="/api/logout" className="text-white/60 hover:text-white transition-colors text-sm">
-                  Logout
-                </a>
               </li>
             </ul>
           </div>

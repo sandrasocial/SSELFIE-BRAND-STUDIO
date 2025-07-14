@@ -6,6 +6,7 @@ import FreeTierSignup from "@/components/free-tier-signup";
 import WelcomeEditorial from "@/components/welcome-editorial";
 import { EmailCaptureModal } from "@/components/email-capture-modal";
 import { InlineEmailCapture } from "@/components/inline-email-capture";
+import { GlobalFooter } from "@/components/global-footer";
 
 export default function EditorialLanding() {
   const [isEmailModalOpen, setIsEmailModalOpen] = useState(false);
@@ -491,6 +492,9 @@ export default function EditorialLanding() {
           </button>
         </div>
       </section>
+
+      {/* Global Footer */}
+      <GlobalFooter />
 
       {/* Email Capture Modal */}
       <EmailCaptureModal
