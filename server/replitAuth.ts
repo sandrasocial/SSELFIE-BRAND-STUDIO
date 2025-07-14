@@ -138,16 +138,20 @@ export async function setupAuth(app: Express) {
 
   for (const domain of process.env
     .REPLIT_DOMAINS!.split(",")) {
+    const cleanDomain = domain.trim();
+    console.log('🔍 Setting up auth strategy for domain:', cleanDomain);
+    
     const strategy = new Strategy(
       {
-        name: `replitauth:${domain}`,
+        name: `replitauth:${cleanDomain}`,
         config,
         scope: "openid email profile offline_access",
-        callbackURL: `https://${domain}/api/callback`,
+        callbackURL: `https://${cleanDomain}/api/callback`,
       },
       verify,
     );
     passport.use(strategy);
+    console.log('✅ Auth strategy created:', `replitauth:${cleanDomain}`);
   }
   
   // Add localhost strategy for development
@@ -167,6 +171,10 @@ export async function setupAuth(app: Express) {
 
   app.get("/api/login", (req, res, next) => {
     const hostname = req.hostname === 'localhost' ? 'localhost' : req.hostname;
+    console.log('🔍 Login attempt - hostname:', hostname);
+    console.log('🔍 Available auth strategies:', Object.keys(passport._strategies));
+    console.log('🔍 Looking for strategy:', `replitauth:${hostname}`);
+    
     passport.authenticate(`replitauth:${hostname}`, {
       prompt: "login consent",
       scope: ["openid", "email", "profile", "offline_access"],
