@@ -34,6 +34,9 @@ export const users = pgTable("users", {
   stripeCustomerId: varchar("stripe_customer_id"),
   stripeSubscriptionId: varchar("stripe_subscription_id"),
   plan: varchar("plan").default("free"), // free, sselfie-studio
+  role: varchar("role").default("user"), // user, admin, founder
+  monthlyGenerationLimit: integer("monthly_generation_limit").default(5), // 5 for free, 100 for paid, unlimited (-1) for admin
+  generationsUsedThisMonth: integer("generations_used_this_month").default(0),
   mayaAiAccess: boolean("maya_ai_access").default(true),
   victoriaAiAccess: boolean("victoria_ai_access").default(false),
   createdAt: timestamp("created_at").defaultNow(),
