@@ -6,8 +6,9 @@ import { useQueryClient, useQuery } from '@tanstack/react-query';
 import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
 import { apiRequest } from '@/lib/queryClient';
-import UsageTracker from '@/components/UsageTracker';
 import { SandraImages } from '@/lib/sandra-images';
+import { EditorialImageBreak } from '@/components/EditorialImageBreak';
+import { MemberNavigation } from '@/components/member-navigation';
 
 interface ChatMessage {
   role: 'user' | 'maya';
@@ -450,241 +451,231 @@ export default function Maya() {
   }
 
   return (
-    <div className="min-h-screen bg-white flex flex-col">
-      {/* Top Header - Minimal */}
-      <header className="border-b border-gray-200 p-4 sm:p-6 bg-white">
-        <div className="max-w-6xl mx-auto">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-8">
-              <div>
-                <h1 className="font-times text-2xl sm:text-3xl font-light text-black">
-                  MAYA
-                </h1>
-                <p className="text-sm text-[#666666] mt-1">
-                  Your Personal Celebrity Photographer
-                </p>
-              </div>
-              
-              {/* Quick Examples */}
-              <div className="hidden lg:flex items-center gap-6">
-                <div className="w-12 h-12 bg-[#f5f5f5] overflow-hidden">
-                  <img 
-                    src={SandraImages.hero.pricing}
-                    alt="Editorial"
-                    className="w-full h-full object-cover object-center top"
-                  />
-                </div>
-                <div className="w-12 h-12 bg-[#f5f5f5] overflow-hidden">
-                  <img 
-                    src={SandraImages.editorial.laughing}
-                    alt="Lifestyle"
-                    className="w-full h-full object-cover object-center top"
-                  />
-                </div>
-                <div className="w-12 h-12 bg-[#f5f5f5] overflow-hidden">
-                  <img 
-                    src={SandraImages.editorial.laptop1}
-                    alt="Professional"
-                    className="w-full h-full object-cover object-center top"
-                  />
-                </div>
-                <span className="text-xs text-[#666666] tracking-[0.1em] uppercase">Examples</span>
-              </div>
+    <div className="min-h-screen bg-white">
+      <MemberNavigation />
+      
+      {/* Editorial Hero Section with Sandra's Quote */}
+      <EditorialImageBreak 
+        imageUrl={SandraImages.editorial.thinking}
+        alt="Maya - Your Personal Celebrity Photographer"
+        height="60vh"
+        overlay={true}
+        overlayContent={
+          <div className="max-w-4xl mx-auto text-center px-6">
+            <div className="text-[10px] sm:text-xs font-normal tracking-[0.4em] uppercase text-white/80 mb-6">
+              Meet Maya
             </div>
-            
-            <div className="flex items-center gap-4">
-              <UsageTracker />
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={() => {
-                  setMessages([{
-                    role: 'maya',
-                    content: `Hey ${user?.firstName || 'gorgeous'}! Ready for another amazing photoshoot? What's the vision this time?`,
-                    timestamp: new Date().toISOString()
-                  }]);
-                  setCurrentChatId(null);
-                  window.history.replaceState({}, '', '/maya');
-                }}
-                className="text-sm"
-              >
-                New Session
-              </Button>
-              <Button
-                variant="outline"
-                onClick={() => setLocation('/workspace')}
-                className="text-sm"
-              >
-                ← Studio
-              </Button>
+            <h1 className="font-times text-[clamp(3rem,8vw,6rem)] leading-[0.85] font-extralight tracking-[-0.02em] text-white mb-8">
+              YOUR PERSONAL<br/>
+              CELEBRITY PHOTOGRAPHER
+            </h1>
+            <div className="max-w-2xl mx-auto">
+              <p className="text-lg sm:text-xl font-light leading-relaxed text-white/90 mb-8">
+                "Maya creates the photos I wish I had when I was building my brand. She's like having a celebrity photographer in your pocket who actually gets your vision."
+              </p>
+              <div className="text-sm font-light tracking-[0.2em] uppercase text-white/60">
+                — Sandra, Founder of SSELFIE
+              </div>
             </div>
           </div>
-        </div>
-      </header>
+        }
+      />
 
-      {/* Main Chat Interface - Full Height */}
-      <div className="flex-1 flex max-w-6xl mx-auto w-full">
-        {/* Previous Sessions Sidebar */}
-        <div className="w-64 border-r border-gray-200 bg-[#f5f5f5] p-6">
-          <h3 className="font-times text-lg font-light text-black mb-6">Previous Sessions</h3>
-          <ChatHistoryLinks onChatSelect={(chatId) => {
-            loadChatHistory(chatId);
-            window.history.replaceState({}, '', `/maya?chat=${chatId}`);
-          }} />
-        </div>
-
-        {/* Chat Messages - Main Area */}
-        <div className="flex-1 flex flex-col">
-          {/* Welcome Message when no conversation */}
-          {messages.length <= 1 && (
-            <div className="flex-1 flex items-center justify-center p-8">
-              <div className="text-center max-w-lg">
-                <div className="w-24 h-24 bg-[#f5f5f5] mx-auto mb-8 overflow-hidden">
-                  <img 
-                    src={SandraImages.editorial.thinking}
-                    alt="Maya"
-                    className="w-full h-full object-cover object-center top"
-                  />
-                </div>
-                <h2 className="font-times text-2xl font-light text-black mb-4">
-                  Hey {user?.firstName || 'gorgeous'}! 
-                </h2>
-                <p className="text-lg text-[#666666] mb-8 leading-relaxed">
-                  I'm Maya, your personal celebrity photographer. Tell me what kind of photos you want to create today and I'll help you plan the perfect shoot.
-                </p>
-                <div className="space-y-3 text-sm text-[#666666]">
-                  <div>💫 "I want editorial portraits like Vogue"</div>
-                  <div>🌟 "Create lifestyle photos for my business"</div>
-                  <div>✨ "I need professional headshots"</div>
-                </div>
-              </div>
-            </div>
-          )}
-
-          {/* Messages Area */}
-          {messages.length > 1 && (
-            <div className="flex-1 overflow-y-auto p-6 space-y-6">
-              {messages.map((message, index) => (
-                <div key={index} className={`flex ${message.role === 'user' ? 'justify-end' : 'justify-start'}`}>
-                  <div className={`max-w-2xl ${message.role === 'user' ? 'bg-black text-white' : 'bg-white text-black border border-gray-200'} p-4 sm:p-6`}>
-                    <div className="whitespace-pre-wrap text-sm sm:text-base leading-relaxed">
-                      {message.content}
+      {/* Main Chat Interface */}
+      <section className="py-16 sm:py-20 px-4 sm:px-6 md:px-8 bg-white">
+        <div className="max-w-6xl mx-auto">
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-12">
+            {/* Chat Area - Main Column */}
+            <div className="lg:col-span-2">
+              <div className="bg-[#f5f5f5] min-h-[500px] flex flex-col">
+                {/* Chat Header */}
+                <div className="border-b border-gray-200 p-6 bg-white">
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <h3 className="font-times text-xl font-light text-black">Chat with Maya</h3>
+                      <p className="text-sm text-[#666666] mt-1">Your photoshoot session</p>
                     </div>
-                    
-                    {/* Generate Images Button */}
-                    {message.role === 'maya' && message.canGenerate && message.generatedPrompt && !message.imagePreview && (
-                      <div className="mt-4">
-                        <Button
-                          onClick={() => generateImages(message.generatedPrompt!)}
-                          disabled={isGenerating}
-                          className="bg-black text-white hover:bg-gray-800 text-sm"
-                        >
-                          {isGenerating ? 'Creating Your Photos...' : 'Create These Photos'}
-                        </Button>
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={() => {
+                        setMessages([{
+                          role: 'maya',
+                          content: `Hey ${user?.firstName || 'gorgeous'}! Ready for another amazing photoshoot? What's the vision this time?`,
+                          timestamp: new Date().toISOString()
+                        }]);
+                        setCurrentChatId(null);
+                        window.history.replaceState({}, '', '/maya');
+                      }}
+                      className="text-sm"
+                    >
+                      New Session
+                    </Button>
+                  </div>
+                </div>
+
+                {/* Messages Area */}
+                <div className="flex-1 overflow-y-auto p-6 space-y-6">
+                  {/* Welcome Message */}
+                  {messages.length <= 1 && (
+                    <div className="text-center py-12">
+                      <div className="w-16 h-16 bg-white mx-auto mb-6 overflow-hidden border border-gray-200">
+                        <img 
+                          src={SandraImages.editorial.thinking}
+                          alt="Maya"
+                          className="w-full h-full object-cover object-center top"
+                        />
+                      </div>
+                      <h4 className="font-times text-xl font-light text-black mb-4">
+                        Hey {user?.firstName || 'gorgeous'}!
+                      </h4>
+                      <p className="text-sm text-[#666666] mb-6 max-w-md mx-auto leading-relaxed">
+                        I'm Maya, your personal celebrity photographer. Tell me what kind of photos you want to create and I'll help you plan the perfect shoot.
+                      </p>
+                      <div className="space-y-2 text-xs text-[#666666] max-w-sm mx-auto">
+                        <div>"I want editorial portraits like Vogue"</div>
+                        <div>"Create lifestyle photos for my business"</div>
+                        <div>"I need professional headshots"</div>
+                      </div>
+                    </div>
+                  )}
+
+                  {/* Chat Messages */}
+                  {messages.length > 1 && messages.map((message, index) => (
+                    <div key={index} className={`flex ${message.role === 'user' ? 'justify-end' : 'justify-start'}`}>
+                      <div className={`max-w-2xl ${message.role === 'user' ? 'bg-black text-white' : 'bg-white text-black border border-gray-200'} p-4 sm:p-6`}>
+                        <div className="whitespace-pre-wrap text-sm sm:text-base leading-relaxed">
+                          {message.content}
+                        </div>
                         
-                        {/* Progress Bar */}
-                        {isGenerating && (
+                        {/* Generate Images Button */}
+                        {message.role === 'maya' && message.canGenerate && message.generatedPrompt && !message.imagePreview && (
                           <div className="mt-4">
-                            <div className="flex items-center justify-between text-xs mb-2">
-                              <span className="text-gray-600">Maya is creating your photos...</span>
-                              <span className="text-gray-600">{Math.round(generationProgress)}%</span>
-                            </div>
-                            <div className="w-full bg-gray-200 h-2">
-                              <div 
-                                className="h-2 bg-black transition-all duration-300 ease-out"
-                                style={{ width: `${generationProgress}%` }}
-                              ></div>
-                            </div>
-                            <p className="text-xs text-gray-500 mt-2">
-                              ✨ Estimated time: 35-50 seconds • Creating your professional photos
-                            </p>
+                            <Button
+                              onClick={() => generateImages(message.generatedPrompt!)}
+                              disabled={isGenerating}
+                              className="bg-black text-white hover:bg-gray-800 text-sm"
+                            >
+                              {isGenerating ? 'Creating Your Photos...' : 'Create These Photos'}
+                            </Button>
+                            
+                            {/* Progress Bar */}
+                            {isGenerating && (
+                              <div className="mt-4">
+                                <div className="flex items-center justify-between text-xs mb-2">
+                                  <span className="text-gray-600">Maya is creating your photos...</span>
+                                  <span className="text-gray-600">{Math.round(generationProgress)}%</span>
+                                </div>
+                                <div className="w-full bg-gray-200 h-2">
+                                  <div 
+                                    className="h-2 bg-black transition-all duration-300 ease-out"
+                                    style={{ width: `${generationProgress}%` }}
+                                  ></div>
+                                </div>
+                                <p className="text-xs text-gray-500 mt-2">
+                                  Estimated time: 35-50 seconds • Creating your professional photos
+                                </p>
+                              </div>
+                            )}
                           </div>
                         )}
-                      </div>
-                    )}
-                    
-                    {/* Image Preview Grid */}
-                    {message.role === 'maya' && message.imagePreview && (
-                      <div className="mt-6">
-                        <h4 className="text-sm font-medium mb-3 text-black">Your Maya Photos</h4>
-                        <div className="grid grid-cols-3 gap-4">
-                          {message.imagePreview.map((imageUrl, imgIndex) => (
-                            <div key={imgIndex} className="relative group">
-                              <img 
-                                src={imageUrl}
-                                alt={`Maya generated image ${imgIndex + 1}`}
-                                className="w-full h-32 object-cover border border-gray-200 cursor-pointer hover:opacity-90 transition-opacity"
-                                onClick={() => setSelectedImage(imageUrl)}
-                              />
-                              
-                              {/* Save Button */}
-                              <button
-                                onClick={() => saveToGallery(imageUrl, imgIndex)}
-                                disabled={savingImages.has(imageUrl)}
-                                className="absolute top-2 right-2 bg-black/70 hover:bg-black text-white text-xs px-2 py-1 rounded transition-all"
-                              >
-                                {savingImages.has(imageUrl) ? '⟳' : (savedImages.has(imageUrl) ? '♥ Saved' : '♡ Save')}
-                              </button>
-                              
-                              {/* Saved Indicator */}
-                              {savedImages.has(imageUrl) && (
-                                <div className="absolute bottom-2 left-2 bg-black text-white text-xs px-2 py-1 rounded">
-                                  In Gallery
+                        
+                        {/* Image Preview Grid */}
+                        {message.role === 'maya' && message.imagePreview && (
+                          <div className="mt-6">
+                            <h4 className="text-sm font-medium mb-3 text-black">Your Maya Photos</h4>
+                            <div className="grid grid-cols-3 gap-4">
+                              {message.imagePreview.map((imageUrl, imgIndex) => (
+                                <div key={imgIndex} className="relative group">
+                                  <img 
+                                    src={imageUrl}
+                                    alt={`Maya generated image ${imgIndex + 1}`}
+                                    className="w-full h-32 object-cover border border-gray-200 cursor-pointer hover:opacity-90 transition-opacity"
+                                    onClick={() => setSelectedImage(imageUrl)}
+                                  />
+                                  
+                                  {/* Save Button */}
+                                  <button
+                                    onClick={() => saveToGallery(imageUrl, imgIndex)}
+                                    disabled={savingImages.has(imageUrl)}
+                                    className="absolute top-2 right-2 bg-black/70 hover:bg-black text-white text-xs px-2 py-1 rounded transition-all"
+                                  >
+                                    {savingImages.has(imageUrl) ? '⟳' : (savedImages.has(imageUrl) ? '♥ Saved' : '♡ Save')}
+                                  </button>
+                                  
+                                  {/* Saved Indicator */}
+                                  {savedImages.has(imageUrl) && (
+                                    <div className="absolute bottom-2 left-2 bg-black text-white text-xs px-2 py-1 rounded">
+                                      In Gallery
+                                    </div>
+                                  )}
                                 </div>
-                              )}
+                              ))}
                             </div>
-                          ))}
+                          </div>
+                        )}
+                        
+                        <div className={`text-xs mt-3 ${message.role === 'user' ? 'text-white/60' : 'text-gray-500'}`}>
+                          {message.role === 'user' ? 'You' : 'Maya'} • {new Date(message.timestamp).toLocaleTimeString()}
                         </div>
                       </div>
-                    )}
-                    
-                    <div className={`text-xs mt-3 ${message.role === 'user' ? 'text-white/60' : 'text-gray-500'}`}>
-                      {message.role === 'user' ? 'You' : 'Maya'} • {new Date(message.timestamp).toLocaleTimeString()}
                     </div>
-                  </div>
-                </div>
-              ))}
-              
-              {isTyping && (
-                <div className="flex justify-start">
-                  <div className="bg-white text-black border border-gray-200 p-4 sm:p-6 max-w-2xl">
-                    <div className="flex items-center space-x-1">
-                      <div className="w-2 h-2 bg-gray-400 rounded-full animate-bounce"></div>
-                      <div className="w-2 h-2 bg-gray-400 rounded-full animate-bounce" style={{ animationDelay: '0.1s' }}></div>
-                      <div className="w-2 h-2 bg-gray-400 rounded-full animate-bounce" style={{ animationDelay: '0.2s' }}></div>
+                  ))}
+                  
+                  {/* Typing Indicator */}
+                  {isTyping && (
+                    <div className="flex justify-start">
+                      <div className="bg-white text-black border border-gray-200 p-4 sm:p-6 max-w-2xl">
+                        <div className="flex items-center space-x-1">
+                          <div className="w-2 h-2 bg-gray-400 rounded-full animate-bounce"></div>
+                          <div className="w-2 h-2 bg-gray-400 rounded-full animate-bounce" style={{ animationDelay: '0.1s' }}></div>
+                          <div className="w-2 h-2 bg-gray-400 rounded-full animate-bounce" style={{ animationDelay: '0.2s' }}></div>
+                        </div>
+                        <div className="text-xs mt-3 text-gray-500">Maya is typing...</div>
+                      </div>
                     </div>
-                    <div className="text-xs mt-3 text-gray-500">Maya is typing...</div>
-                  </div>
+                  )}
                 </div>
-              )}
-            </div>
-          )}
 
-          {/* Input Area - Always visible */}
-          <div className="border-t border-gray-200 p-6 bg-white">
-            <div className="flex gap-3">
-              <Textarea
-                value={input}
-                onChange={(e) => setInput(e.target.value)}
-                onKeyPress={handleKeyPress}
-                placeholder="Tell Maya what kind of photos you want to create..."
-                className="flex-1 min-h-[60px] resize-none border-gray-300 focus:border-black focus:ring-black"
-                disabled={isTyping}
-              />
-              <Button
-                onClick={sendMessage}
-                disabled={!input.trim() || isTyping}
-                className="bg-black text-white hover:bg-gray-800 px-6"
-              >
-                Send
-              </Button>
+                {/* Input Area */}
+                <div className="border-t border-gray-200 p-6 bg-white">
+                  <div className="flex gap-3">
+                    <Textarea
+                      value={input}
+                      onChange={(e) => setInput(e.target.value)}
+                      onKeyPress={handleKeyPress}
+                      placeholder="Tell Maya what kind of photos you want to create..."
+                      className="flex-1 min-h-[60px] resize-none border-gray-300 focus:border-black focus:ring-black"
+                      disabled={isTyping}
+                    />
+                    <Button
+                      onClick={sendMessage}
+                      disabled={!input.trim() || isTyping}
+                      className="bg-black text-white hover:bg-gray-800 px-6"
+                    >
+                      Send
+                    </Button>
+                  </div>
+                  <p className="text-xs text-gray-500 mt-2">
+                    Press Enter to send, Shift+Enter for new line
+                  </p>
+                </div>
+              </div>
             </div>
-            <p className="text-xs text-gray-500 mt-2">
-              Press Enter to send, Shift+Enter for new line
-            </p>
+
+            {/* Sidebar - Previous Sessions */}
+            <div className="lg:col-span-1">
+              <div className="bg-[#f5f5f5] p-6 min-h-[500px]">
+                <h3 className="font-times text-lg font-light text-black mb-6">Previous Sessions</h3>
+                <ChatHistoryLinks onChatSelect={(chatId) => {
+                  loadChatHistory(chatId);
+                  window.history.replaceState({}, '', `/maya?chat=${chatId}`);
+                }} />
+              </div>
+            </div>
           </div>
         </div>
-      </div>
+      </section>
 
       {/* Full-size Image Modal */}
       {selectedImage && (
