@@ -62,8 +62,8 @@ export default function Workspace() {
       },
       {
         id: 'photoshoot',
-        title: 'Take Professional Photos',
-        description: 'Chat with Maya, your personal photographer, and create stunning photos in any style.',
+        title: 'Chat with Maya',
+        description: 'Your personal photographer who creates stunning photos in any style you want.',
         timeEstimate: '10 minutes',
         status: step2HasPhotos ? 'complete' : step2Ready ? 'ready' : 'locked',
         statusMessage: step2HasPhotos ? `${aiImages.length} photos ready` :
@@ -74,15 +74,15 @@ export default function Workspace() {
         nextStep: step2HasPhotos ? null : step2Ready ? 'Chat with Maya to create photos' : null
       },
       {
-        id: 'brand',
-        title: 'Build Your Brand',
-        description: 'Use your new photos to create landing pages, business cards, and more.',
+        id: 'aiphotoshoot', 
+        title: 'AI Photoshoot',
+        description: 'Create professional photos instantly with your trained AI model.',
         timeEstimate: '5 minutes',
         status: step3Ready ? 'ready' : 'locked',
-        statusMessage: step3Ready ? 'Ready to build' : 'Take photos first',
+        statusMessage: step3Ready ? 'Ready to shoot' : 'Take photos first',
         link: step3Ready ? '/gallery' : '#',
         image: SandraImages.flatlays.planning,
-        nextStep: step3Ready ? 'Browse your photos and start building' : null
+        nextStep: step3Ready ? 'Generate photos and build your brand' : null
       }
     ];
   };
@@ -293,6 +293,108 @@ export default function Workspace() {
                   </div>
                 )}
               </div>
+            </div>
+          </div>
+
+          {/* Vogue-Style Access Widgets */}
+          <div className="py-32">
+            <div className="text-center mb-16">
+              <div className="text-xs tracking-[0.4em] uppercase text-gray-500 mb-8">
+                Quick Access
+              </div>
+              <h2 className="font-serif text-[clamp(2rem,5vw,4rem)] font-light uppercase tracking-wide leading-tight">
+                Your Creative Studio
+              </h2>
+            </div>
+
+            {/* Sophisticated Image Widgets Grid */}
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-8 mb-20">
+              
+              {/* Gallery Widget */}
+              <Link href="/gallery" className="group">
+                <div className="relative overflow-hidden bg-black" style={{ aspectRatio: '4/5' }}>
+                  <img 
+                    src={SandraImages.editorial.professional}
+                    alt="Gallery"
+                    className="w-full h-full object-cover opacity-60 transition-all duration-1000 group-hover:opacity-80 group-hover:scale-105"
+                  />
+                  
+                  {/* Elegant Text Overlay */}
+                  <div className="absolute inset-0 flex items-center justify-center">
+                    <div className="text-white text-center">
+                      <div className="font-serif text-[clamp(1.5rem,4vw,3rem)] font-light tracking-[0.5em] uppercase">
+                        G A L L E R Y
+                      </div>
+                      <div className="text-xs tracking-[0.3em] uppercase opacity-80 mt-4">
+                        Your AI Photos
+                      </div>
+                    </div>
+                  </div>
+                  
+                  {/* Hover Effect Border */}
+                  <div className="absolute inset-0 border-2 border-white opacity-0 group-hover:opacity-20 transition-opacity duration-500"></div>
+                </div>
+              </Link>
+
+              {/* Library Widget */}
+              <Link href="/flatlays" className="group">
+                <div className="relative overflow-hidden bg-black" style={{ aspectRatio: '4/5' }}>
+                  <img 
+                    src={SandraImages.flatlays.luxury}
+                    alt="Library"
+                    className="w-full h-full object-cover opacity-60 transition-all duration-1000 group-hover:opacity-80 group-hover:scale-105"
+                  />
+                  
+                  {/* Elegant Text Overlay */}
+                  <div className="absolute inset-0 flex items-center justify-center">
+                    <div className="text-white text-center">
+                      <div className="font-serif text-[clamp(1.5rem,4vw,3rem)] font-light tracking-[0.5em] uppercase">
+                        L I B R A R Y
+                      </div>
+                      <div className="text-xs tracking-[0.3em] uppercase opacity-80 mt-4">
+                        Image Collections
+                      </div>
+                    </div>
+                  </div>
+                  
+                  {/* Hover Effect Border */}
+                  <div className="absolute inset-0 border-2 border-white opacity-0 group-hover:opacity-20 transition-opacity duration-500"></div>
+                </div>
+              </Link>
+
+              {/* Victoria Widget - Locked */}
+              <div className="group">
+                <div className="relative overflow-hidden bg-black opacity-50" style={{ aspectRatio: '4/5' }}>
+                  <img 
+                    src={SandraImages.editorial.lifestyle}
+                    alt="Victoria"
+                    className="w-full h-full object-cover opacity-40"
+                  />
+                  
+                  {/* Elegant Text Overlay */}
+                  <div className="absolute inset-0 flex items-center justify-center">
+                    <div className="text-white text-center">
+                      <div className="font-serif text-[clamp(1.5rem,4vw,3rem)] font-light tracking-[0.5em] uppercase">
+                        V I C T O R I A
+                      </div>
+                      <div className="text-xs tracking-[0.3em] uppercase opacity-60 mt-4">
+                        Coming Soon
+                      </div>
+                    </div>
+                  </div>
+                  
+                  {/* Lock Overlay */}
+                  <div className="absolute inset-0 bg-black/30"></div>
+                  
+                  {/* Lock Icon in Bottom Corner */}
+                  <div className="absolute bottom-6 right-6">
+                    <div className="w-6 h-6 border border-white/60 rounded-sm flex items-center justify-center">
+                      <div className="w-2 h-2 border border-white/60 rounded-full"></div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
             </div>
           </div>
 
