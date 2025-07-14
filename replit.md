@@ -561,6 +561,12 @@ The platform has become overly complex with multiple pricing tiers, broken onboa
 - **Environmental Details**: Mood, atmosphere, and contextual elements included
 - **Anti-Corporate**: Avoids generic terms, stock photo aesthetics, artificial perfection, corporate headshots
 
+**CRITICAL HAIR ENHANCEMENT UPDATE (July 14, 2025):**
+- **Auto Hair Enhancement**: All prompts now automatically include "hair with natural volume and movement, soft textured hair styling, hair flowing naturally, hair never flat or lifeless"
+- **Maya Claude Integration**: Hair volume requirements integrated into Maya's Claude-powered prompt generation system
+- **Both Generation Paths**: Hair enhancement active for both AI Photoshoot collections and Maya chat-generated prompts
+- **User Request Implementation**: Direct response to user feedback about flat, dull hair in generated images
+
 **Technical Implementation:**
 - Enhanced Claude prompt engineering system for authentic editorial results
 - Increased token limit to 600 for more detailed prompt generation
