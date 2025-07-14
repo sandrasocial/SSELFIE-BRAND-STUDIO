@@ -149,10 +149,10 @@ export default function SimpleTraining() {
   };
 
   const handleStartTraining = async () => {
-    if (selfieImages.length < 10) {
+    if (selfieImages.length < 5) {
       toast({
         title: "Need More Photos",
-        description: "Please upload at least 10 selfies for best results.",
+        description: "Please upload at least 5 selfies for best results.",
         variant: "destructive",
       });
       return;

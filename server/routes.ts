@@ -2006,8 +2006,8 @@ Create prompts that feel like iconic fashion campaign moments that would make so
 
       const { selfieImages } = req.body;
       
-      if (!selfieImages || selfieImages.length < 10) {
-        return res.status(400).json({ message: "At least 10 selfie images required for training" });
+      if (!selfieImages || selfieImages.length < 5) {
+        return res.status(400).json({ message: "At least 5 selfie images required for training" });
       }
 
       console.log(`Starting model training for user ${userId} with ${selfieImages.length} images`);
