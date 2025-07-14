@@ -226,8 +226,8 @@ export default function Workspace() {
                       Step {index + 1}
                     </div>
                     
-                    <h3 className="font-serif text-2xl font-light tracking-wide leading-tight">
-                      {step.title}
+                    <h3 className="font-serif text-2xl font-light tracking-[0.4em] uppercase leading-tight">
+                      {index === 0 ? 'T R A I N' : index === 1 ? 'S T Y L E' : 'P H O T O S H O O T'}
                     </h3>
                     
                     <p className="text-gray-600 leading-relaxed font-light">
