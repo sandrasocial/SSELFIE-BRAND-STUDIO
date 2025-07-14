@@ -6,6 +6,7 @@ import { useQueryClient, useQuery } from '@tanstack/react-query';
 import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
 import { apiRequest } from '@/lib/queryClient';
+import UsageTracker from '@/components/UsageTracker';
 
 interface ChatMessage {
   role: 'user' | 'maya';
@@ -323,11 +324,22 @@ export default function Maya() {
         body: JSON.stringify({ customPrompt: prompt }),
       });
 
-      if (!response.ok) {
-        throw new Error('Failed to generate images');
-      }
-
       const data = await response.json();
+
+      // Handle usage limit errors with upgrade prompts
+      if (!response.ok) {
+        if (response.status === 403 && data.upgrade) {
+          toast({
+            title: "Usage Limit Reached",
+            description: data.reason || "You've reached your free limit. Upgrade to continue!",
+            variant: "destructive",
+          });
+          // Show upgrade modal or redirect to pricing
+          window.location.href = '/pricing';
+          return;
+        }
+        throw new Error(data.error || 'Failed to generate images');
+      }
       
       if (data.success && data.imageId) {
         setCurrentImageId(data.imageId);
@@ -344,7 +356,7 @@ export default function Maya() {
       console.error('Error generating images:', error);
       toast({
         title: "Generation Failed",
-        description: "Maya couldn't generate images right now. Try again!",
+        description: error instanceof Error ? error.message : "Maya couldn't generate images right now. Try again!",
         variant: "destructive",
       });
       setIsGenerating(false);
@@ -450,6 +462,7 @@ export default function Maya() {
             </p>
           </div>
           <div className="flex items-center gap-4">
+            <UsageTracker />
             <Button
               variant="outline"
               size="sm"
