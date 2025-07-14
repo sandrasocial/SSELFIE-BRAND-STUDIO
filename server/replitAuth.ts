@@ -18,51 +18,49 @@ const getOidcConfig = memoize(
       console.log('🔍 OIDC Discovery - ISSUER_URL:', process.env.ISSUER_URL ?? "https://replit.com/oidc");
       console.log('🔍 OIDC Discovery - REPL_ID:', process.env.REPL_ID);
       
-      // Try direct configuration instead of discovery
+      // Use manual OIDC configuration - discovery is failing
       const issuerUrl = process.env.ISSUER_URL ?? "https://replit.com/oidc";
       
+      console.log('🔄 Using manual OIDC configuration due to discovery issues...');
+      
+      // Based on Replit's blog post, use the original /oidc path with fallback
+      console.log('🔄 Attempting OIDC discovery with multiple issuer URLs...');
+      
+      // First try: Original /oidc path (from environment or default)
       try {
         const config = await client.discovery(
           new URL(issuerUrl),
           process.env.REPL_ID!
         );
+        console.log('✅ Success with', issuerUrl);
         return config;
-      } catch (discoveryError) {
-        console.log('🔄 OIDC discovery failed, trying manual configuration...');
+      } catch (oidcError) {
+        console.log('❌ Failed with', issuerUrl, '- Error:', oidcError.message);
         
-        // Manual OIDC configuration for Replit
-        const manualConfig = {
-          issuer: issuerUrl,
-          authorization_endpoint: `${issuerUrl}/oauth/authorize`,
-          token_endpoint: `${issuerUrl}/oauth/token`,
-          userinfo_endpoint: `${issuerUrl}/userinfo`,
-          end_session_endpoint: `${issuerUrl}/logout`,
-          jwks_uri: `${issuerUrl}/.well-known/jwks.json`,
-          scopes_supported: ["openid", "email", "profile", "offline_access"],
-          response_types_supported: ["code"],
-          grant_types_supported: ["authorization_code", "refresh_token"],
-          subject_types_supported: ["public"],
-          id_token_signing_alg_values_supported: ["RS256"],
-          client_id: process.env.REPL_ID!
-        };
-        
-        console.log('🔍 Using manual OIDC config');
-        return manualConfig;
+        // Second try: Root domain (as mentioned in blog post)
+        try {
+          const config = await client.discovery(
+            new URL("https://replit.com"),
+            process.env.REPL_ID!
+          );
+          console.log('✅ Success with https://replit.com issuer');
+          return config;
+        } catch (rootError) {
+          console.error('❌ All OIDC discovery attempts failed');
+          console.error('- OIDC path error:', oidcError.message);
+          console.error('- Root domain error:', rootError.message);
+          
+          // This suggests a network or configuration issue
+          throw new Error(`OIDC Discovery failed: ${rootError.message}`);
+        }
       }
       
-      console.log('✅ OIDC Config loaded successfully');
-      console.log('🔍 Token endpoint:', config.token_endpoint);
-      console.log('🔍 Auth endpoint:', config.authorization_endpoint);
-      console.log('🔍 Full config keys:', Object.keys(config));
+      console.log('✅ Manual OIDC Config created');
+      console.log('🔍 Token endpoint:', manualConfig.token_endpoint);
+      console.log('🔍 Auth endpoint:', manualConfig.authorization_endpoint);
+      console.log('🔍 Issuer:', manualConfig.issuer);
       
-      // Verify required endpoints exist
-      if (!config.token_endpoint || !config.authorization_endpoint) {
-        console.error('❌ Missing required OIDC endpoints in config');
-        console.error('🔍 Full config:', JSON.stringify(config, null, 2));
-        throw new Error('Invalid OIDC configuration: missing required endpoints');
-      }
-      
-      return config;
+      return manualConfig;
     } catch (error) {
       console.error('❌ OIDC Discovery failed:', error);
       throw error;
