@@ -19,7 +19,8 @@ import session from 'express-session';
 import { registerAiImageRoutes } from './routes/ai-images';
 import { registerCheckoutRoutes } from './routes/checkout';
 import { registerAutomationRoutes } from './routes/automation';
-import { EmailService } from './email-service';
+// Email service import moved inline to avoid conflicts
+import { sendWelcomeEmail, EmailCaptureData } from "./email-service";
 import { z } from "zod";
 
 // Anthropic disabled for testing - API key issues
@@ -805,6 +806,34 @@ Your goal is to have a natural conversation, understand their vision deeply, and
     } catch (error) {
       console.error('Error publishing multi-page website:', error);
       res.status(500).json({ error: 'Failed to publish multi-page website' });
+    }
+  });
+
+  // Email capture endpoint for landing page
+  app.post('/api/email-capture', async (req, res) => {
+    try {
+      const { email, plan, source } = req.body;
+      
+      if (!email || !email.includes('@')) {
+        return res.status(400).json({ error: 'Valid email required' });
+      }
+      
+      const emailData: EmailCaptureData = {
+        email,
+        plan: plan || 'free',
+        source: source || 'landing_page'
+      };
+      
+      const result = await sendWelcomeEmail(emailData);
+      
+      if (result.success) {
+        res.json({ success: true, message: 'Welcome email sent' });
+      } else {
+        res.status(500).json({ error: 'Failed to send email' });
+      }
+    } catch (error) {
+      console.error('Email capture error:', error);
+      res.status(500).json({ error: 'Internal server error' });
     }
   });
 
