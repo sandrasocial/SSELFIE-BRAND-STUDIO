@@ -298,7 +298,7 @@ export class UsageService {
         shouldUpgrade: true,
         reason: 'Monthly limit consistently reached',
         recommendedPlan: 'studio-standard',
-        message: 'Upgrade to Studio Standard for 250 monthly generations + priority support!'
+        message: 'Upgrade to SSELFIE Studio for 100 monthly generations + Maya AI + Victoria AI!'
       };
     }
 
