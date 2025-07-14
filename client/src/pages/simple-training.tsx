@@ -541,333 +541,77 @@ export default function SimpleTraining() {
       }}>
         <MemberNavigation />
         
-        {/* Hero Section */}
+        {/* Hero Section - Simplified */}
         <section style={{
-          minHeight: '100vh',
+          minHeight: '80vh',
           display: 'flex',
           alignItems: 'center',
           justifyContent: 'center',
-          background: '#0a0a0a',
-          color: '#ffffff',
+          background: '#f5f5f5',
           position: 'relative',
-          overflow: 'hidden'
+          padding: '80px 40px'
         }}>
           <div style={{
-            position: 'absolute',
-            inset: 0,
-            opacity: 0.4
-          }}>
-            <img 
-              src={SandraImages.hero.ai}
-              alt=""
-              style={{
-                width: '100%',
-                height: '100%',
-                objectFit: 'cover'
-              }}
-            />
-          </div>
-          
-          <div style={{
-            position: 'relative',
-            zIndex: 2,
             textAlign: 'center',
-            maxWidth: '800px',
-            padding: '0 40px'
+            maxWidth: '800px'
           }}>
             <div style={{
-              fontSize: '11px',
-              letterSpacing: '0.4em',
+              fontSize: '12px',
+              letterSpacing: '0.3em',
               textTransform: 'uppercase',
-              color: 'rgba(255, 255, 255, 0.7)',
-              marginBottom: '40px',
-              fontWeight: 300
+              color: '#666666',
+              marginBottom: '24px'
             }}>
-              {isRetrainingMode ? 'RETRAIN YOUR MODEL' : 'STEP ONE OF THREE'}
+              Step 1 • 2 minutes
             </div>
             
             <h1 style={{
               fontFamily: 'Times New Roman, serif',
-              fontSize: 'clamp(4rem, 8vw, 8rem)',
+              fontSize: 'clamp(4rem, 8vw, 7rem)',
               lineHeight: 0.9,
               fontWeight: 200,
-              letterSpacing: '0.3em',
-              textTransform: 'uppercase',
-              marginBottom: '20px'
+              marginBottom: '32px',
+              color: '#0a0a0a'
             }}>
-              {isRetrainingMode ? 'RETRAIN' : 'TRAIN'}
+              Upload Your Selfies
             </h1>
             
-            <div style={{
-              fontFamily: 'Times New Roman, serif',
-              fontSize: 'clamp(1.5rem, 4vw, 3rem)',
-              lineHeight: 1,
-              fontWeight: 200,
-              letterSpacing: '0.5em',
-              textTransform: 'uppercase',
-              opacity: 0.8,
-              marginBottom: '60px'
-            }}>
-              YOUR SSELFIE AI
-            </div>
-            
             <p style={{
-              fontSize: '16px',
-              letterSpacing: '0.1em',
-              textTransform: 'uppercase',
-              opacity: 0.8,
+              fontSize: '20px',
+              lineHeight: 1.5,
               fontWeight: 300,
               maxWidth: '600px',
-              margin: '0 auto'
+              margin: '0 auto 48px auto',
+              color: '#333333'
             }}>
-              {isRetrainingMode ? 'Upload 10+ new selfies to retrain your AI model with better accuracy' : 'Upload 10+ selfies to create your personal AI model'}
+              Just grab your phone and take 10 quick selfies. Your AI will learn to create professional photos that actually look like you.
             </p>
-          </div>
-        </section>
 
-        {/* Training Instructions Section */}
-        <section style={{ padding: '120px 0', background: '#f5f5f5' }}>
-          <div style={{
-            maxWidth: '1400px',
-            margin: '0 auto',
-            padding: '0 40px'
-          }}>
             <div style={{
-              textAlign: 'center',
-              marginBottom: '80px'
+              fontSize: '16px',
+              color: '#666666',
+              marginBottom: '48px'
             }}>
-              <div style={{
-                fontSize: '11px',
-                fontWeight: 400,
-                letterSpacing: '0.4em',
-                textTransform: 'uppercase',
-                color: '#666666',
-                marginBottom: '24px'
-              }}>
-                QUICK SETUP
-              </div>
-              <h2 style={{
-                fontFamily: 'Times New Roman, serif',
-                fontSize: 'clamp(3rem, 6vw, 6rem)',
-                fontWeight: 200,
-                letterSpacing: '-0.01em',
-                textTransform: 'uppercase',
-                marginBottom: '32px',
-                lineHeight: 1
-              }}>
-                10 Photos to Transform Your Future
-              </h2>
-              <p style={{
-                fontSize: '20px',
-                lineHeight: 1.5,
-                fontWeight: 300,
-                maxWidth: '700px',
-                margin: '0 auto 40px auto'
-              }}>
-                Your AI needs just 10 specific photos to create stunning, professional images of you. 
-                No complicated setup. No professional equipment. Just your phone and good light.
-              </p>
-              
-              <Link href="/selfie-guide">
-                <div style={{
-                  display: 'inline-block',
-                  padding: '16px 32px',
-                  fontSize: '11px',
-                  fontWeight: 400,
-                  letterSpacing: '0.3em',
-                  textTransform: 'uppercase',
-                  textDecoration: 'none',
-                  border: '1px solid #0a0a0a',
-                  color: '#0a0a0a',
-                  background: 'transparent',
-                  transition: 'all 300ms ease',
-                  cursor: 'pointer'
-                }}
-                onMouseEnter={(e) => {
-                  e.target.style.background = '#0a0a0a';
-                  e.target.style.color = '#ffffff';
-                }}
-                onMouseLeave={(e) => {
-                  e.target.style.background = 'transparent';
-                  e.target.style.color = '#0a0a0a';
-                }}
-                >
-                  VIEW COMPLETE SELFIE GUIDE
-                </div>
-              </Link>
+              {selfieImages.length}/10 photos uploaded
             </div>
 
-            {/* Quick Rules Grid */}
-            <div style={{
-              display: 'grid',
-              gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))',
-              gap: '8px',
-              marginBottom: '80px'
-            }}>
-              <div style={{
-                background: '#ffffff',
-                padding: '60px',
-                position: 'relative',
-                transition: 'all 500ms ease'
-              }}>
-                <div style={{
-                  fontFamily: 'Times New Roman, serif',
-                  fontSize: '120px',
-                  position: 'absolute',
-                  top: '20px',
-                  right: '30px',
-                  opacity: 0.1,
-                  lineHeight: 1
-                }}>01</div>
-                <h3 style={{
-                  fontSize: '11px',
-                  fontWeight: 400,
-                  letterSpacing: '0.3em',
-                  textTransform: 'uppercase',
-                  marginBottom: '24px'
-                }}>WHAT YOU NEED</h3>
-                <ul style={{
-                  listStyle: 'none',
-                  padding: 0,
-                  fontSize: '16px',
-                  lineHeight: 1.8,
-                  fontWeight: 300
-                }}>
-                  <li>→ Your phone camera</li>
-                  <li>→ Natural light from window</li>
-                  <li>→ 15 minutes of time</li>
-                  <li>→ Your everyday look</li>
-                </ul>
-              </div>
-              
-              <div style={{
-                background: '#ffffff',
-                padding: '60px',
-                position: 'relative',
-                transition: 'all 500ms ease'
-              }}>
-                <div style={{
-                  fontFamily: 'Times New Roman, serif',
-                  fontSize: '120px',
-                  position: 'absolute',
-                  top: '20px',
-                  right: '30px',
-                  opacity: 0.1,
-                  lineHeight: 1
-                }}>02</div>
-                <h3 style={{
-                  fontSize: '11px',
-                  fontWeight: 400,
-                  letterSpacing: '0.3em',
-                  textTransform: 'uppercase',
-                  marginBottom: '24px'
-                }}>IMPORTANT RULES</h3>
-                <ul style={{
-                  listStyle: 'none',
-                  padding: 0,
-                  fontSize: '16px',
-                  lineHeight: 1.8,
-                  fontWeight: 300
-                }}>
-                  <li>→ No filters or heavy editing</li>
-                  <li>→ Face clearly visible in all shots</li>
-                  <li>→ Mix of expressions (not all smiling)</li>
-                  <li>→ Recent photos only</li>
-                </ul>
-              </div>
-              
-              <div style={{
-                background: '#ffffff',
-                padding: '60px',
-                position: 'relative',
-                transition: 'all 500ms ease'
-              }}>
-                <div style={{
-                  fontFamily: 'Times New Roman, serif',
-                  fontSize: '120px',
-                  position: 'absolute',
-                  top: '20px',
-                  right: '30px',
-                  opacity: 0.1,
-                  lineHeight: 1
-                }}>03</div>
-                <h3 style={{
-                  fontSize: '11px',
-                  fontWeight: 400,
-                  letterSpacing: '0.3em',
-                  textTransform: 'uppercase',
-                  marginBottom: '24px'
-                }}>PHOTO VARIETY</h3>
-                <ul style={{
-                  listStyle: 'none',
-                  padding: 0,
-                  fontSize: '16px',
-                  lineHeight: 1.8,
-                  fontWeight: 300
-                }}>
-                  <li>→ Close-up portraits (front, left, right)</li>
-                  <li>→ Waist-up shots (sitting, standing)</li>
-                  <li>→ Full body shots</li>
-                  <li>→ Profile views (both sides)</li>
-                </ul>
-              </div>
-            </div>
-          </div>
-        </section>
-
-        {/* Upload Section */}
-        <section style={{ padding: '120px 0' }}>
-          <div style={{
-            maxWidth: '1000px',
-            margin: '0 auto',
-            padding: '0 40px'
-          }}>
-            <div style={{
-              textAlign: 'center',
-              marginBottom: '60px'
-            }}>
-              <h2 style={{
-                fontFamily: 'Times New Roman, serif',
-                fontSize: 'clamp(2rem, 4vw, 4rem)',
-                fontWeight: 200,
-                letterSpacing: '-0.01em',
-                textTransform: 'uppercase',
-                marginBottom: '24px',
-                lineHeight: 1
-              }}>
-                Upload Your Selfies
-              </h2>
-              <p style={{
-                fontSize: '16px',
-                lineHeight: 1.6,
-                fontWeight: 300,
-                color: '#666666',
-                maxWidth: '500px',
-                margin: '0 auto'
-              }}>
-                {selfieImages.length}/10+ photos uploaded. Training takes 20 minutes once started.
-              </p>
-            </div>
-
-            {/* Upload Area */}
+            {/* Simple Upload Area */}
             <div 
               style={{
-                border: '2px dashed #e5e5e5',
-                background: '#fafafa',
-                padding: '80px 40px',
-                textAlign: 'center',
-                marginBottom: '40px',
+                border: '2px dashed #cccccc',
+                background: '#ffffff',
+                padding: '60px 40px',
+                borderRadius: '8px',
+                cursor: 'pointer',
                 transition: 'all 300ms ease',
-                cursor: 'pointer'
+                marginBottom: '40px'
               }}
               onClick={() => fileInputRef.current?.click()}
               onMouseEnter={(e) => {
                 e.target.style.borderColor = '#0a0a0a';
-                e.target.style.background = '#f5f5f5';
               }}
               onMouseLeave={(e) => {
-                e.target.style.borderColor = '#e5e5e5';
-                e.target.style.background = '#fafafa';
+                e.target.style.borderColor = '#cccccc';
               }}
             >
               <input
@@ -880,45 +624,44 @@ export default function SimpleTraining() {
               />
               
               <div style={{
-                fontSize: '48px',
-                marginBottom: '24px',
-                opacity: 0.3
-              }}>+</div>
+                fontSize: '32px',
+                marginBottom: '16px',
+                opacity: 0.4
+              }}>📱</div>
               
               <h3 style={{
-                fontSize: '11px',
+                fontSize: '18px',
                 fontWeight: 400,
-                letterSpacing: '0.3em',
-                textTransform: 'uppercase',
-                marginBottom: '16px'
+                marginBottom: '8px'
               }}>
-                DRAG & DROP OR CLICK TO UPLOAD
+                Click to upload your selfies
               </h3>
               
               <p style={{
                 fontSize: '14px',
-                color: '#666666',
-                fontWeight: 300
+                color: '#666666'
               }}>
-                Upload high-quality selfies with good lighting (max 10MB each)
+                Natural lighting works best
               </p>
             </div>
 
-            {/* Uploaded Images Grid */}
+            {/* Uploaded Photos Preview */}
             {selfieImages.length > 0 && (
               <div style={{
                 display: 'grid',
-                gridTemplateColumns: 'repeat(auto-fill, minmax(120px, 1fr))',
-                gap: '16px',
-                marginBottom: '60px'
+                gridTemplateColumns: 'repeat(auto-fill, minmax(80px, 1fr))',
+                gap: '12px',
+                marginBottom: '40px',
+                maxWidth: '600px',
+                margin: '0 auto 40px auto'
               }}>
                 {selfieImages.map((file, index) => (
                   <div key={index} style={{
                     position: 'relative',
                     aspectRatio: '1/1',
-                    background: '#f5f5f5',
-                    border: '1px solid #e5e5e5',
-                    overflow: 'hidden'
+                    borderRadius: '8px',
+                    overflow: 'hidden',
+                    border: '1px solid #e5e5e5'
                   }}>
                     <img
                       src={URL.createObjectURL(file)}
@@ -933,14 +676,15 @@ export default function SimpleTraining() {
                       onClick={() => removeImage(index)}
                       style={{
                         position: 'absolute',
-                        top: '8px',
-                        right: '8px',
-                        width: '24px',
-                        height: '24px',
-                        background: 'rgba(0, 0, 0, 0.8)',
+                        top: '4px',
+                        right: '4px',
+                        width: '20px',
+                        height: '20px',
+                        background: 'rgba(0, 0, 0, 0.7)',
                         color: '#ffffff',
                         border: 'none',
-                        fontSize: '14px',
+                        borderRadius: '50%',
+                        fontSize: '12px',
                         cursor: 'pointer',
                         display: 'flex',
                         alignItems: 'center',
@@ -954,53 +698,71 @@ export default function SimpleTraining() {
               </div>
             )}
 
-            {/* Start Training Button */}
-            <div style={{ textAlign: 'center' }}>
-              <button
-                onClick={handleStartTraining}
-                disabled={selfieImages.length < 10 || startTraining.isPending}
-                style={{
-                  padding: '20px 40px',
-                  fontSize: '11px',
-                  fontWeight: 400,
-                  letterSpacing: '0.3em',
-                  textTransform: 'uppercase',
-                  border: selfieImages.length >= 10 ? '1px solid #0a0a0a' : '1px solid #e5e5e5',
-                  color: selfieImages.length >= 10 ? '#0a0a0a' : '#666666',
-                  background: 'transparent',
-                  transition: 'all 300ms ease',
-                  cursor: selfieImages.length >= 10 ? 'pointer' : 'not-allowed',
-                  opacity: selfieImages.length >= 10 ? 1 : 0.5
-                }}
-                onMouseEnter={(e) => {
-                  if (selfieImages.length >= 10) {
-                    e.target.style.background = '#0a0a0a';
-                    e.target.style.color = '#ffffff';
-                  }
-                }}
-                onMouseLeave={(e) => {
-                  if (selfieImages.length >= 10) {
-                    e.target.style.background = 'transparent';
-                    e.target.style.color = '#0a0a0a';
-                  }
-                }}
-              >
-                {startTraining.isPending ? 'STARTING TRAINING...' : 
-                 selfieImages.length < 10 ? `NEED ${10 - selfieImages.length} MORE PHOTOS` : 
-                 'START AI TRAINING'}
-              </button>
-              
-              {selfieImages.length >= 10 && !startTraining.isPending && (
-                <p style={{
-                  fontSize: '14px',
-                  color: '#666666',
-                  marginTop: '16px',
-                  fontWeight: 300
+            {/* Simple Start Button */}
+            <button
+              onClick={handleStartTraining}
+              disabled={selfieImages.length < 10 || startTraining.isPending}
+              style={{
+                padding: '18px 36px',
+                fontSize: '16px',
+                fontWeight: 500,
+                border: 'none',
+                borderRadius: '8px',
+                color: '#ffffff',
+                background: selfieImages.length >= 10 ? '#0a0a0a' : '#cccccc',
+                cursor: selfieImages.length >= 10 ? 'pointer' : 'not-allowed',
+                transition: 'all 300ms ease',
+                marginBottom: '24px'
+              }}
+            >
+              {startTraining.isPending ? 'Starting training...' : 
+               selfieImages.length < 10 ? `Upload ${10 - selfieImages.length} more photos` : 
+               'Start AI Training (20 minutes)'}
+            </button>
+
+            {selfieImages.length >= 10 && !startTraining.isPending && (
+              <p style={{
+                fontSize: '14px',
+                color: '#666666',
+                fontWeight: 300
+              }}>
+                Your AI will learn from these photos and be ready in about 20 minutes
+              </p>
+            )}
+
+            {selfieImages.length < 10 && (
+              <div style={{
+                marginTop: '40px',
+                padding: '24px',
+                background: '#ffffff',
+                borderRadius: '8px',
+                border: '1px solid #e5e5e5',
+                textAlign: 'left',
+                maxWidth: '500px',
+                margin: '40px auto 0 auto'
+              }}>
+                <h4 style={{
+                  fontSize: '16px',
+                  fontWeight: 500,
+                  marginBottom: '16px',
+                  color: '#0a0a0a'
                 }}>
-                  Training takes about 20 minutes. You'll be notified when it's complete.
-                </p>
-              )}
-            </div>
+                  Quick photo tips:
+                </h4>
+                <ul style={{
+                  listStyle: 'none',
+                  padding: 0,
+                  fontSize: '14px',
+                  lineHeight: 1.6,
+                  color: '#333333'
+                }}>
+                  <li style={{marginBottom: '8px'}}>• Use natural window light</li>
+                  <li style={{marginBottom: '8px'}}>• Take some smiling, some serious</li>
+                  <li style={{marginBottom: '8px'}}>• Include different angles</li>
+                  <li>• No filters needed</li>
+                </ul>
+              </div>
+            )}
           </div>
         </section>
 
