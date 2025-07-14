@@ -465,10 +465,12 @@ export default function Maya() {
             <div className="text-[10px] sm:text-xs font-normal tracking-[0.4em] uppercase text-white/80 mb-4">
               Meet Maya
             </div>
-            <h1 className="font-times text-[clamp(2.5rem,6vw,4rem)] leading-[0.9] font-extralight tracking-[-0.02em] text-white">
-              YOUR PERSONAL<br/>
-              CELEBRITY PHOTOGRAPHER
+            <h1 className="font-times text-[clamp(3rem,7vw,5rem)] leading-[0.8] font-extralight tracking-[0.1em] text-white mb-2">
+              BRAND
             </h1>
+            <h2 className="font-times text-[clamp(1.2rem,3vw,2rem)] leading-[1] font-extralight tracking-[0.05em] text-white/90">
+              PHOTOSHOOT
+            </h2>
           </div>
         }
       />
