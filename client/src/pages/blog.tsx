@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { HeroFullBleed } from '@/components/hero-full-bleed';
 import { SandraImages } from '@/components/sandra-image-library';
-import { PreLoginNavigation } from '@/components/pre-login-navigation';
+import { PreLoginNavigationUnified } from '@/components/pre-login-navigation-unified';
 import { Link } from 'wouter';
 
 // Blog posts data
@@ -68,7 +68,7 @@ export default function BlogPage() {
   return (
     <div className="bg-white">
       {/* Standardized Navigation */}
-      <PreLoginNavigation />
+      <PreLoginNavigationUnified />
       
       <main>
         {/* Hero Section */}

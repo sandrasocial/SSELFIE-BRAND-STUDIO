@@ -1,11 +1,11 @@
-import { useState, useEffect } from "react";
-import { useLocation } from "wouter";
+import React, { useState, useEffect } from 'react';
+import { useLocation } from 'wouter';
 
-interface PreLoginNavigationProps {
+interface PreLoginNavigationUnifiedProps {
   transparent?: boolean;
 }
 
-export function PreLoginNavigation({ transparent = true }: PreLoginNavigationProps) {
+export function PreLoginNavigationUnified({ transparent = true }: PreLoginNavigationUnifiedProps) {
   const [, setLocation] = useLocation();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
@@ -90,59 +90,59 @@ export function PreLoginNavigation({ transparent = true }: PreLoginNavigationPro
             </div>
           </button>
         </div>
-        
-        {/* Mobile Menu */}
-        {mobileMenuOpen && (
-          <div className="md:hidden mt-6 pb-4 border-t border-white/20">
-            <div className="pt-4 space-y-4">
-              <button 
-                onClick={() => {
-                  setLocation("/about");
-                  setMobileMenuOpen(false);
-                }}
-                className="block w-full text-left text-sm uppercase tracking-[0.3em] text-white/80 hover:text-white transition-all duration-300"
-              >
-                About
-              </button>
-              <button 
-                onClick={() => {
-                  setLocation("/how-it-works");
-                  setMobileMenuOpen(false);
-                }}
-                className="block w-full text-left text-sm uppercase tracking-[0.3em] text-white/80 hover:text-white transition-all duration-300"
-              >
-                How It Works
-              </button>
-              <button 
-                onClick={() => {
-                  setLocation("/pricing");
-                  setMobileMenuOpen(false);
-                }}
-                className="block w-full text-left text-sm uppercase tracking-[0.3em] text-white/80 hover:text-white transition-all duration-300"
-              >
-                Pricing
-              </button>
-              <button 
-                onClick={() => {
-                  setLocation("/blog");
-                  setMobileMenuOpen(false);
-                }}
-                className="block w-full text-left text-sm uppercase tracking-[0.3em] text-white/80 hover:text-white transition-all duration-300"
-              >
-                Blog
-              </button>
-              <button
-                onClick={() => {
-                  window.location.href = '/api/login';
-                  setMobileMenuOpen(false);
-                }}
-                className="block w-full text-left text-sm uppercase tracking-[0.3em] text-white/80 hover:text-white transition-all duration-300"
-              >
-                Login
-              </button>
-            </div>
-          </div>
-        )}
+      </div>
+      
+      {/* Mobile Menu */}
+      <div className={`md:hidden transition-all duration-300 ${
+        mobileMenuOpen ? 'max-h-screen opacity-100' : 'max-h-0 opacity-0'
+      } overflow-hidden bg-black/90 backdrop-blur-md`}>
+        <div className="px-4 sm:px-6 lg:px-8 py-6 space-y-4">
+          <button 
+            onClick={() => {
+              setLocation("/about");
+              setMobileMenuOpen(false);
+            }}
+            className="block w-full text-left text-xs uppercase tracking-[0.4em] text-white/80 hover:text-white transition-all duration-300"
+          >
+            About
+          </button>
+          <button 
+            onClick={() => {
+              setLocation("/how-it-works");
+              setMobileMenuOpen(false);
+            }}
+            className="block w-full text-left text-xs uppercase tracking-[0.4em] text-white/80 hover:text-white transition-all duration-300"
+          >
+            How It Works
+          </button>
+          <button 
+            onClick={() => {
+              setLocation("/pricing");
+              setMobileMenuOpen(false);
+            }}
+            className="block w-full text-left text-xs uppercase tracking-[0.4em] text-white/80 hover:text-white transition-all duration-300"
+          >
+            Pricing
+          </button>
+          <button 
+            onClick={() => {
+              setLocation("/blog");
+              setMobileMenuOpen(false);
+            }}
+            className="block w-full text-left text-xs uppercase tracking-[0.4em] text-white/80 hover:text-white transition-all duration-300"
+          >
+            Blog
+          </button>
+          <button
+            onClick={() => {
+              window.location.href = '/api/login';
+              setMobileMenuOpen(false);
+            }}
+            className="block w-full text-left text-xs uppercase tracking-[0.4em] text-white/80 hover:text-white transition-all duration-300"
+          >
+            Login
+          </button>
+        </div>
       </div>
     </nav>
   );

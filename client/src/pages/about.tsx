@@ -1,5 +1,5 @@
 import React from 'react';
-import { PreLoginNavigation } from '@/components/pre-login-navigation';
+import { PreLoginNavigationUnified } from '@/components/pre-login-navigation-unified';
 import { HeroFullBleed } from '@/components/hero-full-bleed';
 import { EditorialStory } from '@/components/editorial-story';
 import { EditorialImageBreak } from '@/components/editorial-image-break';
@@ -10,7 +10,7 @@ import { SandraImages } from '@/components/sandra-image-library';
 export default function AboutPage() {
   return (
     <div className="bg-white">
-      <PreLoginNavigation />
+      <PreLoginNavigationUnified />
       
       <main>
         {/* Hero Section */}
