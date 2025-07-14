@@ -174,7 +174,7 @@ export async function generateImages(request: GenerateImagesRequest): Promise<Ge
     };
     
     console.log(`🔍 DEBUGGING LIKENESS ISSUE:`);
-    console.log(`Using FLUX model version: ${fluxModelVersion}`);
+    console.log(`Using FLUX model: black-forest-labs/flux-dev-lora`);
     console.log(`Using trained LoRA: sandrasocial/${userModel.modelName}`);
     console.log(`User's trigger word: "${triggerWord}"`);
     console.log(`Model training status: ${userModel.trainingStatus}`);
@@ -197,7 +197,7 @@ export async function generateImages(request: GenerateImagesRequest): Promise<Ge
             'Content-Type': 'application/json',
           },
           body: JSON.stringify({
-            version: fluxModelVersion, // Use 'version' not 'model'
+            version: fluxModelVersion, // Keep using version parameter as Replicate requires it
             input
           }),
         });
