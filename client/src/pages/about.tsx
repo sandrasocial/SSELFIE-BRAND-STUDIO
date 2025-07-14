@@ -115,9 +115,10 @@ export default function AboutPage() {
             <div className="grid lg:grid-cols-2 gap-16 items-center">
               <div>
                 <img 
-                  src={SandraImages.editorial.laptop2} 
-                  alt="Building the business"
+                  src="https://i.postimg.cc/xdSMgswW/sselfie-1.jpg" 
+                  alt="Sandra building SSELFIE"
                   className="w-full h-[600px] object-cover"
+                  loading="lazy"
                 />
               </div>
               <div>
