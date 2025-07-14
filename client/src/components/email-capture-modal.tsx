@@ -88,18 +88,18 @@ export const EmailCaptureModal: React.FC<EmailCaptureModalProps> = ({
 
   return (
     <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-      <div className="bg-white max-w-4xl w-full max-h-[90vh] overflow-hidden relative">
+      <div className="bg-white max-w-4xl w-full max-h-[90vh] overflow-y-auto relative">
         {/* Close button */}
         <button
           onClick={onClose}
-          className="absolute top-6 right-6 text-black hover:text-gray-600 text-2xl font-light z-10"
+          className="absolute top-4 right-4 text-black hover:text-gray-600 text-2xl font-light z-10"
         >
           ×
         </button>
 
         <div className="flex flex-col lg:flex-row min-h-[500px]">
           {/* Image Side */}
-          <div className="lg:w-1/2 relative">
+          <div className="lg:w-1/2 relative min-h-[300px] lg:min-h-[500px]">
             <img
               src={SandraImages.emailCapture}
               alt="SSELFIE Studio"
@@ -109,7 +109,7 @@ export const EmailCaptureModal: React.FC<EmailCaptureModalProps> = ({
           </div>
 
           {/* Form Side */}
-          <div className="lg:w-1/2 p-8 lg:p-12 flex flex-col justify-center">
+          <div className="lg:w-1/2 p-6 sm:p-8 lg:p-12 flex flex-col justify-center min-h-[400px]">
             <div className="max-w-md mx-auto w-full">
               <div className="text-xs uppercase tracking-[0.4em] text-gray-500 mb-6">
                 {isFreePlan ? 'Start Free' : 'Join SSELFIE Studio'}

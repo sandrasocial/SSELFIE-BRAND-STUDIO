@@ -3948,13 +3948,21 @@ const flatlayCollections: FlatlayCollection[] = [
 ];
 
 export default function FlatlayLibrary() {
-  const { isAuthenticated } = useAuth();
+  const { isAuthenticated, user } = useAuth();
   const { toast } = useToast();
   const queryClient = useQueryClient();
   
   const [selectedCollection, setSelectedCollection] = useState<FlatlayCollection>(flatlayCollections[0]);
   const [fullSizeImage, setFullSizeImage] = useState<string | null>(null);
   const [favoriteImages, setFavoriteImages] = useState<Set<string>>(new Set());
+
+  // Fetch user subscription to check plan
+  const { data: subscription } = useQuery({
+    queryKey: ['/api/subscription'],
+    enabled: isAuthenticated
+  });
+
+  const isPremiumUser = subscription?.plan === 'sselfie-studio' || user?.plan === 'admin';
 
   // Save flatlay to gallery
   const saveToGallery = useCallback(async (imageUrl: string, imageTitle: string) => {
@@ -3996,6 +4004,44 @@ export default function FlatlayLibrary() {
         <div className="text-center">
           <h1 className="text-2xl font-serif text-black mb-4">Please Log In</h1>
           <p className="text-gray-600">You need to be logged in to access the flatlay library.</p>
+        </div>
+      </div>
+    );
+  }
+
+  if (!isPremiumUser) {
+    return (
+      <div className="min-h-screen bg-white">
+        <Navigation />
+        
+        <div className="min-h-screen flex items-center justify-center px-4">
+          <div className="text-center max-w-md">
+            <div className="mb-8">
+              <div className="w-16 h-16 bg-gray-100 rounded-full mx-auto mb-4 flex items-center justify-center">
+                <span className="text-2xl">🔒</span>
+              </div>
+              <h1 className="text-2xl font-serif text-black mb-4">Premium Feature</h1>
+              <p className="text-gray-600 mb-6">
+                Flatlay collections are available for SSELFIE Studio subscribers. 
+                Upgrade to access 900+ professional styled flatlays.
+              </p>
+            </div>
+            
+            <div className="space-y-4">
+              <a
+                href="/pricing"
+                className="block w-full bg-black text-white py-3 px-6 text-sm uppercase tracking-wider hover:bg-gray-800 transition-colors"
+              >
+                Upgrade to Studio - $47/month
+              </a>
+              <a
+                href="/workspace"
+                className="block w-full border border-gray-300 text-black py-3 px-6 text-sm uppercase tracking-wider hover:bg-gray-50 transition-colors"
+              >
+                Back to Workspace
+              </a>
+            </div>
+          </div>
         </div>
       </div>
     );
