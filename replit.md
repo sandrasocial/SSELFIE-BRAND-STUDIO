@@ -727,16 +727,16 @@ The platform foundation is rock-solid with four professional brandbook templates
 ### July 14, 2025 - CRITICAL FLUX SETTINGS FIXED ✅ - PLASTIC APPEARANCE ELIMINATED
 
 **🔧 FLUX MODEL SETTINGS OPTIMIZED FOR NATURAL RESULTS:**
-- **Root Cause**: Previous settings (guidance: 3.2, lora_scale: 1.0, steps: 33, quality: 85) were creating overly processed, plastic-looking images
-- **Solution**: Reduced all parameters for more natural, authentic results
-- **New Settings**: guidance: 2.5, lora_scale: 0.7, steps: 28, quality: 75
-- **Enhanced Anti-Plastic Prompts**: Added "organic texture NOT artificial smoothness, natural imperfections NOT airbrushed perfection"
+- **Root Cause**: Maya was using AIService.generateSSELFIE with old settings (guidance: 3.2, lora_scale: 1.0, steps: 33, quality: 85) creating overly processed, plastic-looking images
+- **Solution**: Fixed ai-service.ts with reduced parameters for natural, authentic results
+- **New Settings**: guidance: 2.0, lora_scale: 0.9, steps: 25, quality: 70
+- **Enhanced Anti-Plastic Prompts**: Added "raw unprocessed photo, visible skin texture with pores, heavy film grain, matte finish NOT glossy, dry skin NOT shiny plastic skin, natural imperfections, organic texture NOT smooth artificial skin"
 - **Result**: More authentic, editorial-quality images with natural skin texture instead of plastic appearance
 
 **Technical Implementation:**
-- Updated image-generation-service.ts with natural parameter settings
-- Enhanced texture specifications for authentic skin appearance
-- Strengthened anti-plastic prompt elements for organic results
+- Updated ai-service.ts AIService.generateSSELFIE with natural parameter settings
+- Enhanced buildFluxPrompt function with stronger anti-plastic specifications
+- Confirmed Maya uses black-forest-labs/flux-dev-lora with user's trained LoRA weights
 - Reduced over-processing while maintaining facial likeness accuracy
 
 **Business Impact:**
