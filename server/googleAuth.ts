@@ -80,13 +80,18 @@ export async function setupGoogleAuth(app: Express) {
     return 'http://localhost:5000/api/auth/google/callback';
   };
 
-  // Google OAuth Strategy with current domain callback URL
-  const currentDomain = process.env.REPLIT_DOMAINS?.split(',')[0] || 'localhost:5000';
-  const callbackURL = currentDomain.includes('localhost') 
-    ? `http://${currentDomain}/api/auth/google/callback`
-    : `https://${currentDomain}/api/auth/google/callback`;
+  // Google OAuth Strategy with custom domain callback URL
+  const domains = process.env.REPLIT_DOMAINS?.split(',') || ['localhost:5000'];
+  const customDomain = domains.find(domain => domain.includes('sselfie.ai'));
+  const fallbackDomain = domains[0];
+  
+  const primaryDomain = customDomain || fallbackDomain;
+  const callbackURL = primaryDomain.includes('localhost') 
+    ? `http://${primaryDomain}/api/auth/google/callback`
+    : `https://${primaryDomain}/api/auth/google/callback`;
   
   console.log('🔍 Google OAuth callback URL:', callbackURL);
+  console.log('🔍 Available domains:', domains);
   
   passport.use(new GoogleStrategy({
     clientID: googleClientId,
