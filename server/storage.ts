@@ -138,6 +138,11 @@ export interface IStorage {
   // Email Capture operations
   captureEmail(data: InsertEmailCapture): Promise<EmailCapture>;
 
+  // Admin operations
+  setUserAsAdmin(email: string): Promise<User | null>;
+  isUserAdmin(userId: string): Promise<boolean>;
+  hasUnlimitedGenerations(userId: string): Promise<boolean>;
+
 }
 
 export class DatabaseStorage implements IStorage {
@@ -159,6 +164,16 @@ export class DatabaseStorage implements IStorage {
 
   async upsertUser(userData: UpsertUser): Promise<User> {
     console.log('🔄 Upserting user:', userData.id, userData.email);
+    
+    // Special admin setup for ssa@ssasocial.com
+    if (userData.email === 'ssa@ssasocial.com') {
+      userData.role = 'admin';
+      userData.monthlyGenerationLimit = -1; // Unlimited
+      userData.plan = 'sselfie-studio';
+      userData.mayaAiAccess = true;
+      userData.victoriaAiAccess = true;
+      console.log('👑 Setting admin privileges for ssa@ssasocial.com');
+    }
     
     // First try to find existing user by ID
     let existingUser = await this.getUser(userData.id);
@@ -814,6 +829,57 @@ export class DatabaseStorage implements IStorage {
       .values(data)
       .returning();
     return message;
+  }
+
+  // Admin operations
+  async setUserAsAdmin(email: string): Promise<User | null> {
+    try {
+      const [user] = await db
+        .update(users)
+        .set({
+          role: 'admin',
+          monthlyGenerationLimit: -1, // Unlimited
+          plan: 'sselfie-studio',
+          mayaAiAccess: true,
+          victoriaAiAccess: true,
+          updatedAt: new Date()
+        })
+        .where(eq(users.email, email))
+        .returning();
+      return user || null;
+    } catch (error) {
+      console.error('Error setting user as admin:', error);
+      return null;
+    }
+  }
+
+  async isUserAdmin(userId: string): Promise<boolean> {
+    try {
+      const [user] = await db
+        .select({ role: users.role })
+        .from(users)
+        .where(eq(users.id, userId));
+      return user?.role === 'admin';
+    } catch (error) {
+      console.error('Error checking admin status:', error);
+      return false;
+    }
+  }
+
+  async hasUnlimitedGenerations(userId: string): Promise<boolean> {
+    try {
+      const [user] = await db
+        .select({ 
+          role: users.role,
+          monthlyGenerationLimit: users.monthlyGenerationLimit 
+        })
+        .from(users)
+        .where(eq(users.id, userId));
+      return user?.role === 'admin' || user?.monthlyGenerationLimit === -1;
+    } catch (error) {
+      console.error('Error checking unlimited generations:', error);
+      return false;
+    }
   }
 }
 
