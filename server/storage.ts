@@ -131,48 +131,72 @@ export class DatabaseStorage implements IStorage {
   }
 
   async upsertUser(userData: UpsertUser): Promise<User> {
-    try {
-      // First try to find existing user by ID
-      const existingUser = await this.getUser(userData.id);
-      
-      if (existingUser) {
-        // User exists, update them
+    console.log('🔄 Upserting user:', userData.id, userData.email);
+    
+    // First try to find existing user by ID
+    let existingUser = await this.getUser(userData.id);
+    
+    if (existingUser) {
+      console.log('✅ Found existing user by ID, updating...');
+      const [user] = await db
+        .update(users)
+        .set({
+          ...userData,
+          updatedAt: new Date(),
+        })
+        .where(eq(users.id, userData.id))
+        .returning();
+      return user;
+    }
+    
+    // If not found by ID, check by email
+    if (userData.email) {
+      const [userByEmail] = await db
+        .select()
+        .from(users)
+        .where(eq(users.email, userData.email));
+        
+      if (userByEmail) {
+        console.log('✅ Found existing user by email, updating with new ID...');
         const [user] = await db
           .update(users)
           .set({
             ...userData,
             updatedAt: new Date(),
           })
-          .where(eq(users.id, userData.id))
-          .returning();
-        return user;
-      } else {
-        // User doesn't exist, create new one
-        const [user] = await db
-          .insert(users)
-          .values({
-            ...userData,
-            createdAt: new Date(),
-            updatedAt: new Date(),
-          })
+          .where(eq(users.email, userData.email))
           .returning();
         return user;
       }
+    }
+    
+    // User doesn't exist by ID or email, create new one
+    console.log('🆕 Creating new user...');
+    try {
+      const [user] = await db
+        .insert(users)
+        .values({
+          ...userData,
+          createdAt: new Date(),
+          updatedAt: new Date(),
+        })
+        .returning();
+      return user;
     } catch (error) {
-      console.error('❌ Error in upsertUser:', error);
+      console.error('❌ Error creating user:', error);
       
-      // If insert failed due to email constraint, try to find by email and update
-      if (error.code === '23505' && error.constraint === 'users_email_unique') {
-        console.log('🔄 Email constraint violation, trying to find user by email...');
+      // Last resort: if there's still a constraint error, try to find and update
+      if (error.code === '23505') {
+        console.log('🔄 Constraint violation during insert, attempting final recovery...');
         
-        try {
-          const [existingUser] = await db
+        if (userData.email) {
+          const [fallbackUser] = await db
             .select()
             .from(users)
             .where(eq(users.email, userData.email));
             
-          if (existingUser) {
-            console.log('✅ Found existing user by email, updating...');
+          if (fallbackUser) {
+            console.log('✅ Final recovery: updating existing user...');
             const [user] = await db
               .update(users)
               .set({
@@ -183,8 +207,6 @@ export class DatabaseStorage implements IStorage {
               .returning();
             return user;
           }
-        } catch (updateError) {
-          console.error('❌ Error updating user by email:', updateError);
         }
       }
       

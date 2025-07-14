@@ -1,0 +1,49 @@
+e_modules/src/neon-http/session.ts:68:18)
+    at async DatabaseStorage.upsertUser (/home/runner/workspace/server/storage.ts:151:24)
+    at async upsertUser (/home/runner/workspace/server/replitAuth.ts:77:26)
+    at async Strategy.verify (/home/runner/workspace/server/replitAuth.ts:128:7) {
+  severity: 'ERROR',
+  code: '23505',
+  detail: 'Key (email)=(ssa@ssasocial.com) already exists.',
+  hint: undefined,
+  position: undefined,
+  internalPosition: undefined,
+  internalQuery: undefined,
+  where: undefined,
+  schema: 'public',
+  table: 'users',
+  column: undefined,
+  dataType: undefined,
+  constraint: 'users_email_unique',
+  file: 'nbtinsert.c',
+  line: '666',
+  routine: '_bt_check_unique',
+  sourceError: undefined
+}
+❌ Error stack: NeonDbError: duplicate key value violates unique constraint "users_email_unique"
+    at execute (file:///home/runner/workspace/node_modules/@neondatabase/serverless/index.mjs:1556:55)
+    at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+    at async NeonHttpPreparedQuery.execute (/home/runner/workspace/node_modules/src/neon-http/session.ts:68:18)
+    at async DatabaseStorage.upsertUser (/home/runner/workspace/server/storage.ts:151:24)
+    at async upsertUser (/home/runner/workspace/server/replitAuth.ts:77:26)
+    at async Strategy.verify (/home/runner/workspace/server/replitAuth.ts:128:7)
+❌ Authentication error: duplicate key value violates unique constraint "users_email_unique"
+12:20:53 PM [express] GET /api/callback 302 in 751ms
+ClientError: invalid response encountered
+    at e (/home/runner/workspace/node_modules/openid-client/src/index.ts:912:10)
+    at errorHandler (/home/runner/workspace/node_modules/openid-client/src/index.ts:939:15)
+    at Module.authorizationCodeGrant (/home/runner/workspace/node_modules/openid-client/src/index.ts:3315:11)
+    at Strategy.authorizationCodeGrant (/home/runner/workspace/node_modules/openid-client/src/passport.ts:556:35)
+    at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+ClientError: invalid response encountered
+    at e (/home/runner/workspace/node_modules/openid-client/src/index.ts:912:10)
+    at errorHandler (/home/runner/workspace/node_modules/openid-client/src/index.ts:939:15)
+    at Module.authorizationCodeGrant (/home/runner/workspace/node_modules/openid-client/src/index.ts:3315:11)
+    at Strategy.authorizationCodeGrant (/home/runner/workspace/node_modules/openid-client/src/passport.ts:556:35)
+    at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+ClientError: invalid response encountered
+    at e (/home/runner/workspace/node_modules/openid-client/src/index.ts:912:10)
+    at errorHandler (/home/runner/workspace/node_modules/openid-client/src/index.ts:939:15)
+    at Module.authorizationCodeGrant (/home/runner/workspace/node_modules/openid-client/src/index.ts:3315:11)
+    at Strategy.authorizationCodeGrant (/home/runner/workspace/node_modules/openid-client/src/passport.ts:556:35)
+    at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
