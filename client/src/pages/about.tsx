@@ -15,7 +15,7 @@ export default function AboutPage() {
       <main>
         {/* Hero Section */}
         <HeroFullBleed
-          backgroundImage={SandraImages.editorial.mirror}
+          backgroundImage={SandraImages.portraits.professional[0]}
           tagline="The Icelandic Selfie Queen"
           title="SANDRA"
           ctaText="My story"
