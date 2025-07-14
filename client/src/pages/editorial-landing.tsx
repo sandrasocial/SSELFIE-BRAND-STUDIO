@@ -123,15 +123,7 @@ export default function EditorialLanding() {
     }
   };
 
-  const handleEmailCaptured = (email: string) => {
-    // After email captured, proceed with original flow
-    localStorage.setItem('selectedPlan', selectedPlan);
-    if (selectedPlan === 'free') {
-      window.location.href = '/api/login';
-    } else {
-      setLocation('/checkout');
-    }
-  };
+
 
   return (
     <div className="min-h-screen bg-white">
@@ -513,7 +505,10 @@ export default function EditorialLanding() {
       {/* Inline Email Capture Form */}
       <InlineEmailCapture 
         plan="free"
-        onEmailCaptured={handleEmailCaptured}
+        onEmailCaptured={(email) => {
+          console.log('Email captured:', email);
+          // Inline capture will handle redirect to authentication
+        }}
       />
 
       {/* Quote Section - Editorial */}
@@ -546,8 +541,11 @@ export default function EditorialLanding() {
       <EmailCaptureModal
         isOpen={isEmailModalOpen}
         onClose={() => setIsEmailModalOpen(false)}
-        onEmailCaptured={handleEmailCaptured}
         plan={selectedPlan}
+        onEmailCaptured={(email) => {
+          console.log('Email captured:', email);
+          // Email modal will handle redirect to authentication
+        }}
       />
     </div>
   );

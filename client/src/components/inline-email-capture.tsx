@@ -4,7 +4,7 @@ import { useToast } from '@/hooks/use-toast';
 
 interface InlineEmailCaptureProps {
   plan: 'free' | 'sselfie-studio';
-  onEmailCaptured: (email: string) => void;
+  onEmailCaptured?: (email: string) => void;
 }
 
 export const InlineEmailCapture: React.FC<InlineEmailCaptureProps> = ({
@@ -49,7 +49,21 @@ export const InlineEmailCapture: React.FC<InlineEmailCaptureProps> = ({
       localStorage.setItem('emailCaptured', 'true');
       localStorage.setItem('capturedEmail', email);
       
-      onEmailCaptured(email);
+      // Success! Now redirect to authentication
+      toast({
+        title: "Email Captured!",
+        description: "Redirecting to authentication...",
+        variant: "default",
+      });
+      
+      if (onEmailCaptured) {
+        onEmailCaptured(email);
+      }
+      
+      // Redirect to authentication after brief delay for user feedback
+      setTimeout(() => {
+        window.location.href = '/api/login';
+      }, 1000);
 
     } catch (error) {
       toast({
