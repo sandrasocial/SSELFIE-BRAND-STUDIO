@@ -57,7 +57,7 @@ export default function Workspace() {
                       step1InProgress ? 'Getting your photos ready...' : 
                       'Start here first',
         link: '/ai-training',
-        image: SandraImages.editorial.laptop1,
+        image: "https://i.postimg.cc/bNF14sGc/out-1-4.png",
         nextStep: step1Complete ? null : 'Upload a few selfies to get started'
       },
       {
@@ -70,7 +70,7 @@ export default function Workspace() {
                       step2Ready ? 'Ready for your photoshoot' :
                       'Upload selfies first',
         link: step2Ready ? '/maya' : '#',
-        image: SandraImages.editorial.phone1,
+        image: "https://i.postimg.cc/HWFbv1DB/file-32.png",
         nextStep: step2HasPhotos ? null : step2Ready ? 'Chat with Maya to create photos' : null
       },
       {
@@ -81,7 +81,7 @@ export default function Workspace() {
         status: step3Ready ? 'ready' : 'locked',
         statusMessage: step3Ready ? 'Ready to shoot' : 'Train your AI first',
         link: step3Ready ? '/gallery' : '#',
-        image: SandraImages.flatlays.planning,
+        image: "https://i.postimg.cc/4N8v1bP5/IMG-6564.jpg",
         nextStep: step3Ready ? 'Generate photos and build your brand' : null
       }
     ];
@@ -192,6 +192,9 @@ export default function Workspace() {
                       className="w-full h-full object-cover transition-transform duration-1000 group-hover:scale-105"
                     />
                     
+                    {/* Soft Dark Overlay */}
+                    <div className="absolute inset-0 bg-black/30"></div>
+                    
                     {/* Status Badge */}
                     <div className="absolute top-6 left-6">
                       <div className={`px-3 py-1 text-xs tracking-[0.2em] uppercase font-light ${
@@ -265,7 +268,7 @@ export default function Workspace() {
               <Link href="/gallery" className="group">
                 <div className="relative overflow-hidden bg-black" style={{ aspectRatio: '21/9' }}>
                   <img 
-                    src={SandraImages.editorial.thinking}
+                    src="https://i.postimg.cc/Vk6M70XM/out-1-20.jpg"
                     alt="Gallery"
                     className="w-full h-full object-cover opacity-60 transition-all duration-700 group-hover:opacity-80 group-hover:scale-105"
                   />
