@@ -21,8 +21,9 @@ export function getSession() {
     saveUninitialized: false,
     cookie: {
       httpOnly: true,
-      secure: true,
+      secure: process.env.NODE_ENV === 'production' || process.env.REPLIT_DOMAINS?.includes('sselfie.ai'),
       maxAge: sessionTtl,
+      sameSite: 'lax',
     },
   });
 }
