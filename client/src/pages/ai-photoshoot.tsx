@@ -618,8 +618,8 @@ export default function AIPhotoshootPage() {
                 <div
                   key={collection.id}
                   onClick={() => setSelectedCollection(collection.id)}
-                  className="relative cursor-pointer transition-all duration-500 overflow-hidden group"
-                  style={{ aspectRatio: '4/5', height: '280px' }}
+                  className="relative cursor-pointer transition-all duration-500 overflow-hidden group rounded-sm"
+                  style={{ height: '360px', width: '100%' }}
                 >
                   {/* Collection Image */}
                   <img
@@ -632,15 +632,20 @@ export default function AIPhotoshootPage() {
                   <div className="absolute inset-0 bg-black/30 group-hover:bg-black/20 transition-all duration-500"></div>
                   
                   {/* Elegant Two-Line Title Overlay */}
-                  <div className="absolute inset-0 flex items-center justify-center">
-                    <div className="text-white text-center">
-                      <div className="font-serif text-2xl md:text-3xl font-light tracking-[0.4em] uppercase mb-1">
+                  <div className="absolute inset-0 flex items-center justify-center p-4">
+                    <div className="text-white text-center max-w-full">
+                      <div className="font-serif text-lg md:text-2xl font-light uppercase mb-1 whitespace-nowrap overflow-hidden" 
+                           style={{ letterSpacing: '0.2em' }}>
                         {collection.name}
                       </div>
-                      <div className="font-serif text-lg md:text-xl font-light tracking-[0.4em] uppercase mb-3">
-                        {collection.subtitle}
-                      </div>
-                      <div className="text-xs tracking-[0.2em] uppercase opacity-80">
+                      {collection.subtitle && (
+                        <div className="font-serif text-base md:text-lg font-light uppercase mb-3 whitespace-nowrap overflow-hidden" 
+                             style={{ letterSpacing: '0.2em' }}>
+                          {collection.subtitle}
+                        </div>
+                      )}
+                      <div className="text-[10px] md:text-xs uppercase opacity-80 px-2" 
+                           style={{ letterSpacing: '0.1em', lineHeight: '1.2' }}>
                         {collection.description}
                       </div>
                     </div>
@@ -668,12 +673,16 @@ export default function AIPhotoshootPage() {
 
             {/* Collection Header */}
             <div className="text-center mb-16">
-              <h2 className="font-serif text-[clamp(2rem,4vw,3rem)] font-light tracking-[0.4em] uppercase mb-2">
+              <h2 className="font-serif text-[clamp(2rem,4vw,3rem)] font-light uppercase mb-2" 
+                  style={{ letterSpacing: '0.3em' }}>
                 {PROMPT_COLLECTIONS[selectedCollection]?.name}
               </h2>
-              <h3 className="font-serif text-[clamp(1.5rem,3vw,2rem)] font-light tracking-[0.4em] uppercase mb-4">
-                {PROMPT_COLLECTIONS[selectedCollection]?.subtitle}
-              </h3>
+              {PROMPT_COLLECTIONS[selectedCollection]?.subtitle && (
+                <h3 className="font-serif text-[clamp(1.5rem,3vw,2rem)] font-light uppercase mb-4" 
+                    style={{ letterSpacing: '0.3em' }}>
+                  {PROMPT_COLLECTIONS[selectedCollection]?.subtitle}
+                </h3>
+              )}
               <p className="text-gray-600 max-w-2xl mx-auto text-lg font-light">
                 {PROMPT_COLLECTIONS[selectedCollection]?.description}
               </p>
