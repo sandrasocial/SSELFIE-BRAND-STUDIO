@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { PreLoginNavigationUnified } from '@/components/pre-login-navigation-unified';
 import { HeroFullBleed } from '@/components/hero-full-bleed';
 import { EditorialStory } from '@/components/editorial-story';
@@ -18,8 +18,88 @@ export default function AboutPage() {
     console.log('Email captured:', email);
   };
 
+  // SEO Meta tags setup
+  useEffect(() => {
+    // Update page title
+    document.title = "About Sandra - SSELFIE Studio Founder | AI Personal Branding Pioneer";
+    
+    // Update meta description
+    const metaDescription = document.querySelector('meta[name="description"]');
+    if (metaDescription) {
+      metaDescription.setAttribute('content', 'Meet Sandra Sigurjónsdóttir, founder of SSELFIE Studio. From divorced single mom to 120K followers in 90 days. Learn how she built the AI personal branding revolution.');
+    }
+
+    // Update Open Graph tags
+    const ogTitle = document.querySelector('meta[property="og:title"]');
+    if (ogTitle) {
+      ogTitle.setAttribute('content', 'About Sandra - SSELFIE Studio Founder');
+    }
+
+    const ogDescription = document.querySelector('meta[property="og:description"]');
+    if (ogDescription) {
+      ogDescription.setAttribute('content', 'Meet Sandra Sigurjónsdóttir, founder of SSELFIE Studio. From divorced single mom to 120K followers in 90 days.');
+    }
+
+    const ogUrl = document.querySelector('meta[property="og:url"]');
+    if (ogUrl) {
+      ogUrl.setAttribute('content', 'https://sselfie.ai/about');
+    }
+
+    // Update Twitter Card tags
+    const twitterTitle = document.querySelector('meta[property="twitter:title"]');
+    if (twitterTitle) {
+      twitterTitle.setAttribute('content', 'About Sandra - SSELFIE Studio Founder');
+    }
+
+    const twitterDescription = document.querySelector('meta[property="twitter:description"]');
+    if (twitterDescription) {
+      twitterDescription.setAttribute('content', 'Meet Sandra Sigurjónsdóttir, founder of SSELFIE Studio. From divorced single mom to 120K followers in 90 days.');
+    }
+
+    // Add structured data for About page
+    const structuredData = {
+      "@context": "https://schema.org",
+      "@type": "AboutPage",
+      "mainEntity": {
+        "@type": "Person",
+        "name": "Sandra Sigurjónsdóttir",
+        "jobTitle": "Founder & CEO",
+        "worksFor": {
+          "@type": "Organization",
+          "name": "SSELFIE Studio"
+        },
+        "description": "AI personal branding pioneer who built 120K followers in 90 days",
+        "url": "https://sselfie.ai/about",
+        "sameAs": [
+          "https://instagram.com/sandra.social"
+        ]
+      },
+      "about": {
+        "@type": "Organization",
+        "name": "SSELFIE Studio",
+        "description": "AI-powered personal branding platform"
+      }
+    };
+
+    const script = document.createElement('script');
+    script.type = 'application/ld+json';
+    script.innerHTML = JSON.stringify(structuredData);
+    document.head.appendChild(script);
+
+    return () => {
+      // Cleanup structured data on unmount
+      const existingScript = document.querySelector('script[type="application/ld+json"]');
+      if (existingScript) {
+        document.head.removeChild(existingScript);
+      }
+    };
+  }, []);
+
   return (
-    <div className="bg-white">
+    <div className="bg-white"
+         itemScope 
+         itemType="https://schema.org/AboutPage"
+    >
       <PreLoginNavigationUnified />
       
       <main>
@@ -87,30 +167,36 @@ export default function AboutPage() {
         </section>
 
         {/* Timeline Stats */}
-        <section className="section-padding bg-white">
-          <div className="max-w-7xl mx-auto px-8">
-            <div className="grid md:grid-cols-3 gap-16 text-center">
-              <div>
-                <h3 className="text-6xl font-light mb-4 text-[#0a0a0a]" style={{ fontFamily: 'Times New Roman, serif' }}>
+        <section className="py-16 md:py-24 bg-white">
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-8 sm:gap-12 md:gap-16 text-center">
+              <div className="space-y-2">
+                <h3 className="text-4xl sm:text-5xl md:text-6xl font-light text-[#0a0a0a]" 
+                    style={{ fontFamily: 'Times New Roman, serif' }}
+                    itemProp="duration">
                   90
                 </h3>
-                <p className="text-sm tracking-[0.4em] uppercase text-[#666] font-inter">
+                <p className="text-xs sm:text-sm tracking-[0.3em] sm:tracking-[0.4em] uppercase text-[#666] font-inter px-2">
                   Days to 120K followers
                 </p>
               </div>
-              <div>
-                <h3 className="text-6xl font-light mb-4 text-[#0a0a0a]" style={{ fontFamily: 'Times New Roman, serif' }}>
+              <div className="space-y-2">
+                <h3 className="text-4xl sm:text-5xl md:text-6xl font-light text-[#0a0a0a]" 
+                    style={{ fontFamily: 'Times New Roman, serif' }}
+                    itemProp="audience">
                   120K
                 </h3>
-                <p className="text-sm tracking-[0.4em] uppercase text-[#666] font-inter">
+                <p className="text-xs sm:text-sm tracking-[0.3em] sm:tracking-[0.4em] uppercase text-[#666] font-inter px-2">
                   Followers built from scratch
                 </p>
               </div>
-              <div>
-                <h3 className="text-6xl font-light mb-4 text-[#0a0a0a]" style={{ fontFamily: 'Times New Roman, serif' }}>
+              <div className="space-y-2">
+                <h3 className="text-4xl sm:text-5xl md:text-6xl font-light text-[#0a0a0a]" 
+                    style={{ fontFamily: 'Times New Roman, serif' }}
+                    itemProp="tool">
                   1
                 </h3>
-                <p className="text-sm tracking-[0.4em] uppercase text-[#666] font-inter">
+                <p className="text-xs sm:text-sm tracking-[0.3em] sm:tracking-[0.4em] uppercase text-[#666] font-inter px-2">
                   Phone. That's all I had.
                 </p>
               </div>
@@ -119,26 +205,31 @@ export default function AboutPage() {
         </section>
 
         {/* Evolution Story */}
-        <section className="section-padding bg-white">
-          <div className="max-w-7xl mx-auto px-8">
-            <div className="grid lg:grid-cols-2 gap-16 items-center">
-              <div>
+        <section className="py-16 md:py-24 bg-white" itemScope itemType="https://schema.org/Story">
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-16 items-center">
+              <div className="order-2 lg:order-1">
                 <img 
                   src="https://i.postimg.cc/xdSMgswW/sselfie-1.jpg" 
-                  alt="Sandra building SSELFIE"
-                  className="w-full h-[600px] object-cover"
+                  alt="Sandra Sigurjónsdóttir building SSELFIE Studio platform"
+                  className="w-full h-[400px] sm:h-[500px] lg:h-[600px] object-cover rounded-sm"
                   loading="lazy"
+                  itemProp="image"
+                  width="600"
+                  height="600"
                 />
               </div>
-              <div>
-                <h2 className="text-4xl md:text-5xl font-light mb-8 tracking-[-0.01em]" style={{ fontFamily: 'Times New Roman, serif' }}>
+              <div className="order-1 lg:order-2 space-y-6 lg:space-y-8">
+                <h2 className="text-3xl sm:text-4xl lg:text-5xl font-light tracking-[-0.01em] text-[#0a0a0a]" 
+                    style={{ fontFamily: 'Times New Roman, serif' }}
+                    itemProp="headline">
                   From there, I kept showing up
                 </h2>
-                <div className="space-y-6 text-lg leading-relaxed text-[#333] font-inter">
+                <div className="space-y-4 sm:space-y-6 text-base sm:text-lg leading-relaxed text-[#333] font-light" itemProp="text">
                   <p>Camera in one hand, coffee in the other. And over time, I built a real audience, a real brand, and eventually, a real business.</p>
-                  <p>Not because I had it all together. But because I didn't—and I stopped hiding that.</p>
+                  <p>Not because I had it all together. But because I didn't and I stopped hiding that.</p>
                   <p>That's where SSELFIE was born. From one woman deciding to stop shrinking and start showing up.</p>
-                  <p>Now? I help other women do the same.</p>
+                  <p className="font-medium text-[#0a0a0a]">Now? I help other women do the same.</p>
                 </div>
               </div>
             </div>
@@ -149,36 +240,41 @@ export default function AboutPage() {
         <PowerQuote />
 
         {/* Final Philosophy */}
-        <section className="py-20 md:py-32 bg-white">
-          <div className="max-w-5xl mx-auto px-8 md:px-12 text-center">
-            <div className="mb-16 md:mb-20">
+        <section className="py-16 sm:py-20 md:py-32 bg-white" 
+                 itemScope 
+                 itemType="https://schema.org/AboutSection">
+          <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
+            <div className="mb-12 sm:mb-16 md:mb-20">
               <h2 
-                className="text-4xl md:text-5xl lg:text-6xl font-light mb-6 tracking-[-0.02em] text-[#0a0a0a]" 
+                className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-light mb-4 sm:mb-6 tracking-[-0.02em] text-[#0a0a0a] px-4" 
                 style={{ fontFamily: 'Times New Roman, serif' }}
+                itemProp="headline"
               >
                 SSELFIE isn't just about pictures
               </h2>
               <div className="w-12 h-px bg-[#B5B5B3] mx-auto"></div>
             </div>
             
-            <div className="max-w-3xl mx-auto space-y-8 md:space-y-10">
+            <div className="max-w-3xl mx-auto space-y-6 sm:space-y-8 md:space-y-10">
               <p 
-                className="text-xl md:text-2xl lg:text-3xl font-light leading-relaxed text-[#0a0a0a] italic"
+                className="text-lg sm:text-xl md:text-2xl lg:text-3xl font-light leading-relaxed text-[#0a0a0a] italic px-4"
                 style={{ fontFamily: 'Times New Roman, serif' }}
+                itemProp="description"
               >
                 It's about power.
               </p>
               
-              <div className="space-y-6 text-lg md:text-xl leading-relaxed text-[#333] font-light">
+              <div className="space-y-4 sm:space-y-6 text-base sm:text-lg md:text-xl leading-relaxed text-[#333] font-light px-4">
                 <p>It's about building something from the version of you that almost gave up but didn't.</p>
                 <p>Because when you show up as her? Everything changes.</p>
               </div>
               
-              <div className="pt-8 md:pt-12">
+              <div className="pt-6 sm:pt-8 md:pt-12">
                 <button 
                   onClick={() => setIsEmailModalOpen(true)}
-                  className="bg-[#0a0a0a] text-white px-8 py-4 text-lg font-light tracking-wide hover:bg-[#333] transition-colors duration-300"
+                  className="bg-[#0a0a0a] text-white px-6 sm:px-8 py-3 sm:py-4 text-base sm:text-lg font-light tracking-wide hover:bg-[#333] transition-colors duration-300 w-full sm:w-auto"
                   style={{ fontFamily: 'Times New Roman, serif' }}
+                  aria-label="Start your personal branding comeback story with SSELFIE Studio"
                 >
                   Start your comeback story
                 </button>
