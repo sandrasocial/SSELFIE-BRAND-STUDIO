@@ -1,15 +1,10 @@
 import { storage } from './storage';
 import { UsageService, API_COSTS } from './usage-service';
 
-// FLUX model configuration for SSELFIE generation
+// FLUX model configuration for SSELFIE generation - SECURE VERSION
 const FLUX_MODEL_CONFIG = {
-  // REMOVED: Default Sandra model - users must use their own trained models
-  // sandraModelId: 'sandrasocial/sandra_test_user_2025-selfie-lora', // REMOVED
-  // sandraTriggerWord: 'usersandra_test_user_2025', // REMOVED
-  // sandraUserId: '42585527', // REMOVED  
-  // sandraVersionId: 'a53fd9255ecba80d99eaab4706c698f861fd47b098012607557385416e46aae5', // REMOVED
-  // demoModelId: 'sandrasocial/sseelfie-ai', // REMOVED - no fallbacks
-  // demoTriggerWord: 'subject', // REMOVED - no fallbacks
+  // ALL FALLBACK MODELS PERMANENTLY REMOVED FOR PRODUCTION SECURITY
+  // Each user must have their own completed trained model
   apiUrl: 'https://api.replicate.com/v1/predictions',
   styles: {
     editorial: 'luxury editorial magazine style, high-end fashion photography, designer clothing, sophisticated styling, elegant feminine outfits, Milan street style inspiration',
@@ -49,7 +44,13 @@ export class AIService {
   static async generateSSELFIE(request: ImageGenerationRequest): Promise<{ aiImageId: number; predictionId: string; usageStatus: any }> {
     const { userId, imageBase64, style, prompt } = request;
     
-    // 1. Check usage limits BEFORE generation
+    // CRITICAL: Validate user model completion FIRST - NO FALLBACKS
+    const userModel = await storage.getUserModelByUserId(userId);
+    if (!userModel || userModel.trainingStatus !== 'completed') {
+      throw new Error('User model not ready for generation. Training must be completed first.');
+    }
+    
+    // 1. Check usage limits AFTER model validation
     const usageCheck = await UsageService.checkUsageLimit(userId);
     if (!usageCheck.canGenerate) {
       throw new Error(`Generation limit reached: ${usageCheck.reason}`);
@@ -205,23 +206,18 @@ export class AIService {
     const basePrompt = FLUX_MODEL_CONFIG.styles[style] || FLUX_MODEL_CONFIG.styles.editorial;
     const qualityPrompt = FLUX_MODEL_CONFIG.qualityPrompts[style] || FLUX_MODEL_CONFIG.qualityPrompts.editorial;
     
-    // Get trigger word - Sandra gets her special model, others get individual models
-    let triggerWord = FLUX_MODEL_CONFIG.demoTriggerWord; // Default fallback
-    
-    if (userId === FLUX_MODEL_CONFIG.sandraUserId) {
-      // Sandra uses her high-quality model
-      triggerWord = FLUX_MODEL_CONFIG.sandraTriggerWord;
-    } else if (userId) {
-      try {
-        const userModel = await storage.getUserModelByUserId(userId);
-        if (userModel && userModel.trainingStatus === 'completed') {
-          triggerWord = userModel.triggerWord; // Use user's unique trigger word
-        }
-      } catch (error) {
-        console.log('Using demo trigger word, user model not available:', error.message);
-      }
+    // CRITICAL: Get user's trained model - NO FALLBACKS ALLOWED
+    if (!userId) {
+      throw new Error('User ID is required for image generation');
     }
     
+    const userModel = await storage.getUserModelByUserId(userId);
+    if (!userModel || userModel.trainingStatus !== 'completed') {
+      throw new Error('User model not ready for generation. Training must be completed first.');
+    }
+    
+    // Use ONLY user's unique trigger word - NO FALLBACKS
+    const triggerWord = userModel.triggerWord;
     const triggerPrompt = `${triggerWord}, SSELFIE style transformation`;
     
     if (customPrompt) {
@@ -236,65 +232,41 @@ export class AIService {
       throw new Error('REPLICATE_API_TOKEN not configured');
     }
 
-    // Determine which model to use
-    let modelId = FLUX_MODEL_CONFIG.demoModelId; // Default fallback
+    // CRITICAL: Get user's trained model - NO FALLBACKS ALLOWED
+    if (!userId) {
+      throw new Error('User ID is required for image generation');
+    }
     
-    if (userId === FLUX_MODEL_CONFIG.sandraUserId) {
-      // Sandra gets her high-quality trained model
-      modelId = FLUX_MODEL_CONFIG.sandraModelId;
-    } else if (userId) {
-      try {
-        const userModel = await storage.getUserModelByUserId(userId);
-        if (userModel && userModel.trainingStatus === 'completed' && userModel.modelUrl) {
-          modelId = userModel.modelUrl; // Use user's trained model
-        }
-      } catch (error) {
-        console.log('Using fallback model, user model not available:', error.message);
-      }
+    const userModel = await storage.getUserModelByUserId(userId);
+    if (!userModel || userModel.trainingStatus !== 'completed') {
+      throw new Error('User model not ready for generation. Training must be completed first.');
     }
 
-    // Use Sandra's model with the exact same parameters from her successful test
-    const isSandraModel = modelId === FLUX_MODEL_CONFIG.sandraModelId;
+    console.log(`🔒 SECURE: Using only user's trained model: sandrasocial/${userModel.modelName}`);
+    console.log(`🔒 SECURE: Using only user's trigger word: ${userModel.triggerWord}`);
+
+    // Use SAME API format as image-generation-service.ts for consistency
+    const fluxModelVersion = 'black-forest-labs/flux-dev-lora:a53fd9255ecba80d99eaab4706c698f861fd47b098012607557385416e46aae5';
     
-    let requestBody;
+    const requestBody = {
+      version: fluxModelVersion, // Use version parameter as required by Replicate
+      input: {
+        prompt: prompt,
+        guidance: 3.2,              // Higher guidance for stronger prompt adherence and likeness
+        lora_weights: `sandrasocial/${userModel.modelName}`, // User's trained LoRA weights
+        lora_scale: 1.0,           // Maximum LoRA application for strongest likeness
+        num_inference_steps: 33,    // High quality steps
+        num_outputs: 3,            // Generate 3 focused images
+        aspect_ratio: "3:4",        // Portrait ratio better for selfies
+        output_format: "png",       // PNG for highest quality
+        output_quality: 85,         // Quality for natural grain
+        megapixels: "1",           // Approximate megapixels
+        go_fast: false,             // Quality over speed
+        disable_safety_checker: false
+      }
+    };
     
-    if (isSandraModel) {
-      // Sandra's newer model - use version from database with matte film-grained settings and high fashion styling
-      requestBody = {
-        version: FLUX_MODEL_CONFIG.sandraVersionId,
-        input: {
-          prompt: prompt,
-          negative_prompt: "glossy skin, shiny skin, oily skin, plastic skin, fake skin, digital enhancement, airbrushed, over-processed, smooth skin, perfect skin, retouched, digital makeup, artificial lighting, studio perfection, polished skin, magazine retouching, basic t-shirts, plain casual wear, cheap materials, unflattering cuts, frumpy clothing, outdated styles, old woman clothes, unfashionable outfits, basic clothing, cheap accessories",
-          go_fast: false,
-          lora_scale: 1,
-          num_outputs: 4,
-          aspect_ratio: "4:3", // Optimal for portraits
-          output_format: "jpg", 
-          guidance_scale: 2.5, // Optimized setting
-          output_quality: 95, // High quality
-          num_inference_steps: 32 // High quality setting
-        }
-      };
-    } else {
-      // Other users' models or fallback - apply same film-grained, matte settings and high fashion styling
-      const isUserModel = modelId.includes('sandrasocial') || modelId.includes('user');
-      requestBody = {
-        model: isUserModel ? modelId : "black-forest-labs/flux-dev-lora",
-        input: {
-          prompt: prompt,
-          negative_prompt: "glossy skin, shiny skin, oily skin, plastic skin, fake skin, digital enhancement, airbrushed, over-processed, smooth skin, perfect skin, retouched, digital makeup, artificial lighting, studio perfection, polished skin, magazine retouching, basic t-shirts, plain casual wear, cheap materials, unflattering cuts, frumpy clothing, outdated styles, old woman clothes, unfashionable outfits, basic clothing, cheap accessories",
-          guidance_scale: 2.5, // Use optimized setting for all users
-          num_inference_steps: 32, // High quality for all users
-          num_outputs: 4,
-          lora_scale: isUserModel ? 1.0 : undefined,
-          aspect_ratio: "4:3",
-          output_format: "jpg",
-          output_quality: 95,
-          go_fast: false,
-          megapixels: "1"
-        }
-      };
-    }
+    console.log('🔒 SECURE: API request body:', JSON.stringify(requestBody, null, 2));
     
     const response = await fetch(FLUX_MODEL_CONFIG.apiUrl, {
       method: 'POST',
@@ -311,6 +283,7 @@ export class AIService {
     }
 
     const prediction = await response.json();
+    console.log('🔒 SECURE: Generation started with user-specific model for prediction:', prediction.id);
     return prediction.id;
   }
 
