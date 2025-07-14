@@ -193,10 +193,12 @@ export async function setupAuth(app: Express) {
     }
   };
 
-  for (const domain of process.env
-    .REPLIT_DOMAINS!.split(",")) {
-    const cleanDomain = domain.trim();
+  // Remove duplicates from REPLIT_DOMAINS
+  const domains = [...new Set(process.env.REPLIT_DOMAINS!.split(",").map(d => d.trim()))];
+  
+  for (const cleanDomain of domains) {
     console.log('🔍 Setting up auth strategy for domain:', cleanDomain);
+    console.log('🔍 Callback URL will be:', `https://${cleanDomain}/api/callback`);
     
     const strategy = new Strategy(
       {
@@ -229,8 +231,21 @@ export async function setupAuth(app: Express) {
   app.get("/api/login", (req, res, next) => {
     const hostname = req.hostname === 'localhost' ? 'localhost' : req.hostname;
     console.log('🔍 Login attempt - hostname:', hostname);
+    console.log('🔍 Request URL:', req.url);
+    console.log('🔍 Request headers host:', req.headers.host);
     console.log('🔍 Available auth strategies:', Object.keys(passport._strategies));
     console.log('🔍 Looking for strategy:', `replitauth:${hostname}`);
+    
+    // Check if strategy exists for this hostname
+    if (!passport._strategies[`replitauth:${hostname}`]) {
+      console.error(`❌ No auth strategy found for hostname: ${hostname}`);
+      console.error('Available strategies:', Object.keys(passport._strategies));
+      return res.status(500).json({ 
+        error: 'Authentication not configured for this domain',
+        hostname: hostname,
+        availableStrategies: Object.keys(passport._strategies)
+      });
+    }
     
     passport.authenticate(`replitauth:${hostname}`, {
       prompt: "login consent",
