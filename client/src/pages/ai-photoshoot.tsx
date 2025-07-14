@@ -580,6 +580,99 @@ const PROMPT_COLLECTIONS = {
         prompt: 'raw photo, visible skin pores, film grain, unretouched natural skin texture, subsurface scattering, photographed on film, [triggerword], woman relaxing in beach hammock during golden hour, tropical paradise and ocean in soft focus background, natural peaceful expression with eyes gently closed, flowing white dress and natural hair, shot on Canon EOS R5 with 70-200mm f/2.8 lens, beach relaxation photography, warm golden hour lighting, tropical luxury aesthetic'
       }
     ]
+  },
+  'urban-edge': {
+    id: 'urban-edge',
+    name: 'URBAN EDGE',
+    subtitle: 'Concrete Rebellion',
+    description: 'Raw urban energy meets fearless attitude - where city streets become your runway and concrete tells your story',
+    preview: SandraImages.portraits.professional[1],
+    prompts: [
+      {
+        id: 'concrete-wall-defiance',
+        name: 'Concrete Defiance',
+        category: 'Industrial Power',
+        description: 'Portrait - When concrete becomes your canvas and attitude is your armor',
+        prompt: 'raw photo, visible skin pores, film grain, unretouched natural skin texture, subsurface scattering, photographed on film, [triggerword], powerful portrait against raw concrete wall, wearing all black leather jacket and dark clothing, intense direct gaze with subtle defiant expression, hair in edgy textured style, natural moody makeup, shot on Canon EOS R5 with 85mm f/1.2 lens, urban portrait photography, harsh directional lighting creating dramatic shadows, industrial rebellion aesthetic'
+      },
+      {
+        id: 'warehouse-district-walk',
+        name: 'Warehouse District',
+        category: 'Industrial Streets',
+        description: 'Full scenery - Walking through the city like you own every street',
+        prompt: 'raw photo, visible skin pores, film grain, unretouched natural skin texture, subsurface scattering, photographed on film, [triggerword], woman in dark streetwear walking through industrial warehouse district, abandoned buildings and urban decay in background, natural confident stride, windswept hair, hands in pockets, shot on Fujifilm GFX 100S with 63mm f/2.8 lens, street documentary photography, overcast urban lighting, industrial urban aesthetic'
+      },
+      {
+        id: 'fire-escape-rebel',
+        name: 'Fire Escape Rebel',
+        category: 'Urban Architecture',
+        description: 'Half body - The metal stairs that lead to your empire',
+        prompt: 'raw photo, visible skin pores, film grain, unretouched natural skin texture, subsurface scattering, photographed on film, [triggerword], edgy portrait on metal fire escape stairs, wearing dark denim jacket and urban accessories, natural rebellious expression while looking out over city, hair catching urban wind, minimal dark makeup, shot on Sony A7R IV with 50mm f/1.2 lens, architectural portrait photography, moody urban lighting, fire escape rebellion aesthetic'
+      },
+      {
+        id: 'subway-tunnel-authority',
+        name: 'Underground Authority',
+        category: 'Subway Culture',
+        description: 'Portrait - Where the underground becomes your domain',
+        prompt: 'raw photo, visible skin pores, film grain, unretouched natural skin texture, subsurface scattering, photographed on film, [triggerword], intense portrait in subway tunnel or underpass, wearing black hoodie or urban streetwear, natural serious expression with piercing gaze, hair in street-style waves, dramatic tunnel lighting creating stark contrasts, shot on Nikon Z9 with 85mm f/1.8 lens, underground photography, dramatic artificial lighting, subway culture aesthetic'
+      },
+      {
+        id: 'rooftop-city-overlook',
+        name: 'Rooftop Overlord',
+        category: 'Urban Heights',
+        description: 'Full scenery - The city spread below like your conquered territory',
+        prompt: 'raw photo, visible skin pores, film grain, unretouched natural skin texture, subsurface scattering, photographed on film, [triggerword], woman standing on urban rooftop overlooking city skyline, wearing dark coat and urban fashion, natural powerful stance, hair flowing in city wind, hands confidently positioned, shot on Leica SL2 with 90mm f/2 lens, rooftop cityscape photography, dramatic urban lighting, city conquest aesthetic'
+      },
+      {
+        id: 'alley-shadow-mystery',
+        name: 'Alley Shadows',
+        category: 'Urban Noir',
+        description: 'Half body - Where shadows dance and mysteries are born',
+        prompt: 'raw photo, visible skin pores, film grain, unretouched natural skin texture, subsurface scattering, photographed on film, [triggerword], moody portrait in narrow urban alley with dramatic shadows, wearing dark clothing with interesting textures, natural mysterious expression, hair partially in shadow, edgy minimal makeup, shot on Canon EOS R6 with 50mm f/1.2 lens, alley noir photography, harsh shadow lighting, urban mystery aesthetic'
+      },
+      {
+        id: 'graffiti-wall-statement',
+        name: 'Graffiti Statement',
+        category: 'Street Art',
+        description: 'Portrait - When street art meets personal rebellion',
+        prompt: 'raw photo, visible skin pores, film grain, unretouched natural skin texture, subsurface scattering, photographed on film, [triggerword], bold portrait against colorful graffiti wall, wearing edgy street fashion, natural confident expression with slight attitude, hair in urban street style, bold minimal makeup, shot on Fujifilm X-T5 with 35mm f/1.4 lens, street art photography, urban natural lighting, graffiti culture aesthetic'
+      },
+      {
+        id: 'parking-garage-solitude',
+        name: 'Parking Garage Mood',
+        category: 'Concrete Spaces',
+        description: 'Full scenery - Finding beauty in the most unlikely urban spaces',
+        prompt: 'raw photo, visible skin pores, film grain, unretouched natural skin texture, subsurface scattering, photographed on film, [triggerword], atmospheric shot in concrete parking garage, wearing dark minimalist clothing, natural contemplative expression, hair naturally falling, hands in relaxed position, shot on Sony A7R V with 24-70mm f/2.8 lens, parking garage photography, harsh fluorescent lighting mixed with shadows, concrete brutalism aesthetic'
+      },
+      {
+        id: 'bridge-underpass-mood',
+        name: 'Bridge Underpass',
+        category: 'Urban Structures',
+        description: 'Half body - Where concrete arches frame your strength',
+        prompt: 'raw photo, visible skin pores, film grain, unretouched natural skin texture, subsurface scattering, photographed on film, [triggerword], powerful portrait under concrete bridge or overpass, wearing urban streetwear with layered textures, natural intense expression, hair with urban wind movement, dramatic architectural shadows, shot on Leica M11 with 50mm f/1.4 lens, bridge architecture photography, dramatic concrete lighting, urban structure aesthetic'
+      },
+      {
+        id: 'industrial-window-light',
+        name: 'Industrial Window',
+        category: 'Factory Spaces',
+        description: 'Portrait - When factory windows become your spotlight',
+        prompt: 'raw photo, visible skin pores, film grain, unretouched natural skin texture, subsurface scattering, photographed on film, [triggerword], dramatic portrait by large industrial window, wearing dark fitted clothing, natural serious expression with window light illuminating face, hair in edgy natural style, minimal urban makeup, shot on Hasselblad H6D-400c with 80mm f/1.9 lens, industrial portrait photography, harsh window lighting, factory rebellion aesthetic'
+      },
+      {
+        id: 'street-corner-confidence',
+        name: 'Street Corner Power',
+        category: 'Urban Intersection',
+        description: 'Full scenery - Owning every corner of the concrete jungle',
+        prompt: 'raw photo, visible skin pores, film grain, unretouched natural skin texture, subsurface scattering, photographed on film, [triggerword], confident stance at urban street corner, wearing edgy street fashion, natural powerful expression while surveying territory, hair in street-style movement, urban accessories, shot on Canon EOS R5 with 24-70mm f/2.8 lens, street corner photography, urban intersection lighting, street power aesthetic'
+      },
+      {
+        id: 'concrete-steps-ascension',
+        name: 'Concrete Ascension',
+        category: 'Urban Architecture',
+        description: 'Half body - Climbing the concrete steps to your throne',
+        prompt: 'raw photo, visible skin pores, film grain, unretouched natural skin texture, subsurface scattering, photographed on film, [triggerword], dynamic portrait on concrete steps or urban stairs, wearing dark streetwear with interesting details, natural determined expression, hair catching urban breeze, confident ascending posture, shot on Fujifilm GFX 50S with 110mm f/2 lens, concrete stairs photography, architectural urban lighting, ascension power aesthetic'
+      }
+    ]
   }
 };
 
