@@ -71,8 +71,8 @@ export async function generateImages(request: GenerateImagesRequest): Promise<Ge
     
     const randomCameraSpec = cameraSpecs[Math.floor(Math.random() * cameraSpecs.length)];
     
-    // Enhanced texture specs for authentic, non-plastic results
-    const filmTextureSpecs = ", raw photo, visible skin texture, natural skin pores, film grain, matte finish, authentic skin NOT glossy plastic skin, natural imperfections, organic texture";
+    // EXTREME anti-plastic texture specs for natural results
+    const filmTextureSpecs = ", raw unprocessed photo, visible skin texture with pores, heavy film grain, matte finish NOT glossy, dry skin NOT shiny plastic skin, natural imperfections, organic texture NOT smooth artificial skin";
     
     // Add pose variety randomization to prevent repetition (FLUX research-backed)
     const poseVariations = [
@@ -141,8 +141,8 @@ export async function generateImages(request: GenerateImagesRequest): Promise<Ge
       finalPrompt = `${finalPrompt}${filmTextureSpecs}`;
     }
     
-    // Enhanced anti-plastic specs for natural, authentic results
-    const antiPlasticSpecs = ", natural skin NOT plastic skin, authentic face NOT fake face, real person NOT CGI, organic texture NOT artificial smoothness, natural imperfections NOT airbrushed perfection";
+    // EXTREME anti-plastic specs for natural, authentic results
+    const antiPlasticSpecs = ", natural skin NOT plastic skin, authentic face NOT fake face, real person NOT CGI, organic texture NOT artificial smoothness, natural imperfections NOT airbrushed perfection, matte NOT glossy, dry skin NOT shiny skin, textured skin NOT smooth skin";
     
     // Add minimal anti-plastic specifications to avoid prompt overcrowding
     finalPrompt = `${finalPrompt}${antiPlasticSpecs}`;
@@ -157,17 +157,17 @@ export async function generateImages(request: GenerateImagesRequest): Promise<Ge
       }
     }
 
-    // Build input with NATURAL PARAMETERS for authentic, non-plastic results
+    // Build input with EXTREME NATURAL PARAMETERS for authentic, non-plastic results
     const input: any = {
       prompt: finalPrompt,        // Includes embedded "NOT plastic skin" statements
-      guidance: 2.5,              // REDUCED: Lower guidance for more natural, less processed results
+      guidance: 2.0,              // REDUCED FURTHER: Much lower guidance for natural, unprocessed results
       lora_weights: `sandrasocial/${userModel.modelName}`, // User's trained LoRA weights
-      lora_scale: 0.7,           // REDUCED: Lower LoRA scale for more natural blending
-      num_inference_steps: 28,    // REDUCED: Fewer steps for more natural, less processed results
+      lora_scale: 0.9,           // INCREASED: Higher LoRA scale for better facial likeness
+      num_inference_steps: 25,    // REDUCED FURTHER: Even fewer steps for natural results
       num_outputs: 3,            // Generate 3 focused images
       aspect_ratio: "3:4",        // Portrait ratio better for selfies
       output_format: "png",       // PNG for highest quality
-      output_quality: 75,         // REDUCED: Lower quality for more natural grain and texture
+      output_quality: 70,         // REDUCED FURTHER: Even lower quality for natural grain
       megapixels: "1",           // Approximate megapixels
       go_fast: false,             // Quality over speed - essential for beauty
       disable_safety_checker: false
@@ -179,7 +179,7 @@ export async function generateImages(request: GenerateImagesRequest): Promise<Ge
     console.log(`User's trigger word: "${triggerWord}"`);
     console.log(`Model training status: ${userModel.trainingStatus}`);
     console.log(`Final prompt: ${finalPrompt}`);
-    console.log('⚙️ FLUX Parameters for NATURAL RESULTS (steps 28, guidance 2.5, LoRA 0.7):', JSON.stringify({ guidance: input.guidance, lora_scale: input.lora_scale, num_inference_steps: input.num_inference_steps, output_quality: input.output_quality }, null, 2));
+    console.log('⚙️ FLUX Parameters for EXTREME NATURAL RESULTS (steps 25, guidance 2.0, LoRA 0.9):', JSON.stringify({ guidance: input.guidance, lora_scale: input.lora_scale, num_inference_steps: input.num_inference_steps, output_quality: input.output_quality }, null, 2));
     
     // Start Replicate generation with retry logic for 502 errors
     let replicateResponse;

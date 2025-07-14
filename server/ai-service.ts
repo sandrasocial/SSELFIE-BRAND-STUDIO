@@ -210,11 +210,14 @@ export class AIService {
     const triggerWord = userModel.triggerWord;
     const triggerPrompt = `${triggerWord}, SSELFIE style transformation`;
     
+    // Enhanced anti-plastic texture specifications
+    const antiPlasticSpecs = ", raw unprocessed photo, visible skin texture with pores, heavy film grain, matte finish NOT glossy, dry skin NOT shiny plastic skin, natural imperfections, organic texture NOT smooth artificial skin, natural skin NOT plastic skin, authentic face NOT fake face, real person NOT CGI, matte NOT glossy, textured skin NOT smooth skin";
+    
     if (customPrompt) {
-      return `${triggerPrompt}, ${customPrompt}, ${basePrompt}, ${qualityPrompt}`;
+      return `${triggerPrompt}, ${customPrompt}, ${basePrompt}, ${qualityPrompt}${antiPlasticSpecs}`;
     }
     
-    return `${triggerPrompt}, ${basePrompt}, ${qualityPrompt}`;
+    return `${triggerPrompt}, ${basePrompt}, ${qualityPrompt}${antiPlasticSpecs}`;
   }
 
   private static async callFluxAPI(imageBase64: string, prompt: string, userId?: string): Promise<string> {
@@ -242,14 +245,14 @@ export class AIService {
       version: fluxModelVersion, // Use version parameter as required by Replicate
       input: {
         prompt: prompt,
-        guidance: 3.2,              // Higher guidance for stronger prompt adherence and likeness
+        guidance: 2.0,              // REDUCED: Lower guidance for natural, unprocessed results
         lora_weights: `sandrasocial/${userModel.modelName}`, // User's trained LoRA weights
-        lora_scale: 1.0,           // Maximum LoRA application for strongest likeness
-        num_inference_steps: 33,    // High quality steps
+        lora_scale: 0.9,           // INCREASED: Higher LoRA scale for better facial likeness
+        num_inference_steps: 25,    // REDUCED: Fewer steps for natural results
         num_outputs: 3,            // Generate 3 focused images
         aspect_ratio: "3:4",        // Portrait ratio better for selfies
         output_format: "png",       // PNG for highest quality
-        output_quality: 85,         // Quality for natural grain
+        output_quality: 70,         // REDUCED: Lower quality for natural grain
         megapixels: "1",           // Approximate megapixels
         go_fast: false,             // Quality over speed
         disable_safety_checker: false
