@@ -39,7 +39,9 @@ export function getSession() {
     cookie: {
       httpOnly: true,
       secure: true,
+      sameSite: 'lax', // Essential for cross-browser compatibility
       maxAge: sessionTtl,
+      domain: undefined, // Let browsers handle domain automatically
     },
   });
 }
