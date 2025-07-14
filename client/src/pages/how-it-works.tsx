@@ -160,40 +160,82 @@ export default function HowItWorksPage() {
           </div>
         </section>
 
-        {/* Transformation Preview */}
-        <section className="py-20 px-4 bg-[#f5f5f5]">
-          <div className="max-w-4xl mx-auto text-center">
-            <h2 className="text-3xl md:text-4xl font-light text-[#0a0a0a] mb-12 tracking-[-0.01em]" style={{ fontFamily: 'Times New Roman, serif' }}>
-              Before and after
-            </h2>
+        {/* Transformation Preview - Enhanced Editorial Design */}
+        <section className="py-20 md:py-32 px-4 sm:px-6 lg:px-8 bg-white">
+          <div className="max-w-6xl mx-auto text-center">
+            <div className="mb-16 md:mb-20">
+              <h2 
+                className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-light mb-6 tracking-[-0.02em] text-[#0a0a0a]" 
+                style={{ fontFamily: 'Times New Roman, serif' }}
+              >
+                Before and after
+              </h2>
+              <div className="w-16 h-px bg-[#B5B5B3] mx-auto"></div>
+            </div>
             
-            <div className="grid md:grid-cols-3 gap-8 items-center">
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-8 md:gap-12 lg:gap-16 items-center max-w-5xl mx-auto">
               <div className="text-center">
-                <div className="aspect-[3/4] mb-4 bg-[#e5e5e5] flex items-center justify-center">
-                  <span className="text-[#999] font-inter">Your phone selfie</span>
-                </div>
-                <p className="text-sm text-[#666] font-inter">Before</p>
-              </div>
-              
-              <div className="flex justify-center">
-                <span className="text-2xl text-[#0a0a0a] font-light">→</span>
-              </div>
-              
-              <div className="text-center">
-                <div className="aspect-[3/4] mb-4 overflow-hidden">
+                <div className="aspect-[3/4] mb-6 overflow-hidden bg-white shadow-sm">
                   <img
-                    src={SandraImages.editorial.thinking}
-                    alt="AI-enhanced editorial photo"
+                    src="https://i.postimg.cc/76XHGVrv/IMG-3168.jpg"
+                    alt="Before: Phone selfie"
                     className="w-full h-full object-cover"
+                    loading="lazy"
                   />
                 </div>
-                <p className="text-sm text-[#666] font-inter">After</p>
+                <p 
+                  className="text-xs sm:text-sm tracking-[0.3em] uppercase text-[#666] font-light"
+                  style={{ fontFamily: 'Times New Roman, serif' }}
+                >
+                  Before
+                </p>
+                <p className="text-sm text-[#999] mt-2 font-light">Your phone selfie</p>
+              </div>
+              
+              <div className="flex justify-center items-center">
+                <div className="text-center space-y-4">
+                  <span 
+                    className="text-3xl md:text-4xl text-[#0a0a0a] font-light block"
+                    style={{ fontFamily: 'Times New Roman, serif' }}
+                  >
+                    →
+                  </span>
+                  <p 
+                    className="text-xs tracking-[0.4em] uppercase text-[#999] font-light"
+                    style={{ fontFamily: 'Times New Roman, serif' }}
+                  >
+                    AI Magic
+                  </p>
+                </div>
+              </div>
+              
+              <div className="text-center">
+                <div className="aspect-[3/4] mb-6 overflow-hidden bg-white shadow-sm">
+                  <img
+                    src="https://i.postimg.cc/0jQ8pw9z/IMG-6563.png"
+                    alt="After: AI-enhanced editorial photo"
+                    className="w-full h-full object-cover"
+                    loading="lazy"
+                  />
+                </div>
+                <p 
+                  className="text-xs sm:text-sm tracking-[0.3em] uppercase text-[#666] font-light"
+                  style={{ fontFamily: 'Times New Roman, serif' }}
+                >
+                  After
+                </p>
+                <p className="text-sm text-[#999] mt-2 font-light">Editorial perfection</p>
               </div>
             </div>
             
-            <p className="text-lg text-[#0a0a0a] mt-12 font-inter">
-              This could be you.
-            </p>
+            <div className="mt-16 md:mt-20">
+              <p 
+                className="text-xl md:text-2xl lg:text-3xl font-light text-[#0a0a0a] italic"
+                style={{ fontFamily: 'Times New Roman, serif' }}
+              >
+                This could be you.
+              </p>
+            </div>
           </div>
         </section>
 
