@@ -1,8 +1,9 @@
-import { useState } from "react";
+import React, { useState } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { useAuth } from "@/hooks/useAuth";
 import { apiRequest } from "@/lib/queryClient";
 import { useToast } from "@/hooks/use-toast";
+import { Link, useLocation } from "wouter";
 
 interface Agent {
   id: string;
@@ -29,18 +30,35 @@ interface AdminStats {
 }
 
 export default function AdminDashboard() {
-  const { user, isAuthenticated } = useAuth();
+  const { user, isAuthenticated, isLoading } = useAuth();
   const { toast } = useToast();
   const queryClient = useQueryClient();
+  const [, setLocation] = useLocation();
   
   const [selectedAgent, setSelectedAgent] = useState('');
   const [task, setTask] = useState('');
   const [context, setContext] = useState('');
   const [agentResponse, setAgentResponse] = useState('');
 
-  // TEMPORARILY BYPASS AUTH FOR TESTING
-  // This allows Sandra to access the admin dashboard directly
-  // In production, proper authentication should be implemented
+  // SECURE ADMIN ACCESS - Only Sandra can access admin dashboard
+  React.useEffect(() => {
+    if (!isLoading && (!isAuthenticated || user?.email !== 'ssa@ssasocial.com')) {
+      setLocation('/');
+      return;
+    }
+  }, [isAuthenticated, isLoading, user, setLocation]);
+
+  if (isLoading) {
+    return (
+      <div className="min-h-screen bg-white flex items-center justify-center">
+        <div className="animate-spin w-8 h-8 border-4 border-black border-t-transparent rounded-full" />
+      </div>
+    );
+  }
+
+  if (!isAuthenticated || user?.email !== 'ssa@ssasocial.com') {
+    return null;
+  }
 
   // Fetch business stats
   const { data: stats } = useQuery<AdminStats>({
@@ -176,17 +194,13 @@ export default function AdminDashboard() {
 
   return (
     <div className="min-h-screen bg-white">
-      {/* Header */}
-      <div className="bg-black text-white p-6 border-b">
-        <div className="max-w-7xl mx-auto">
-          <h1 className="text-3xl font-light" style={{ fontFamily: 'Times New Roman, serif' }}>
-            SANDRA'S ADMIN COMMAND CENTER
-          </h1>
-          <p className="text-gray-300 mt-2">Your AI Agent Team & Business Analytics</p>
-        </div>
-      </div>
-
+      <AdminNavigation />
+      
       <div className="max-w-7xl mx-auto p-6">
+        <header className="mb-8">
+          <h1 className="font-serif text-4xl font-light mb-2">Admin Command Center</h1>
+          <p className="text-gray-600">AI Agent Team & Business Analytics</p>
+        </header>
         {/* Business Stats */}
         <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4 mb-8">
           <div className="bg-white border border-gray-200 p-4">
@@ -419,5 +433,50 @@ export default function AdminDashboard() {
         </div>
       </div>
     </div>
+  );
+}
+
+function AdminNavigation() {
+  return (
+    <nav className="bg-black text-white px-4 py-3">
+      <div className="max-w-7xl mx-auto flex items-center justify-between">
+        <div className="flex items-center space-x-8">
+          <Link href="/admin">
+            <div className="font-serif text-lg letter-spacing-wide">SSELFIE ADMIN</div>
+          </Link>
+          <div className="flex space-x-6">
+            <Link href="/admin" className="text-sm uppercase tracking-wide hover:text-gray-300">
+              Dashboard
+            </Link>
+            <Link href="/admin/users" className="text-sm uppercase tracking-wide hover:text-gray-300">
+              Users
+            </Link>
+            <Link href="/admin/emails" className="text-sm uppercase tracking-wide hover:text-gray-300">
+              Emails
+            </Link>
+            <Link href="/admin/settings" className="text-sm uppercase tracking-wide hover:text-gray-300">
+              Settings
+            </Link>
+            <Link href="/admin/ai-models" className="text-sm uppercase tracking-wide hover:text-gray-300">
+              AI Models
+            </Link>
+            <Link href="/admin/progress" className="text-sm uppercase tracking-wide hover:text-gray-300">
+              Progress
+            </Link>
+            <Link href="/admin/roadmap" className="text-sm uppercase tracking-wide hover:text-gray-300">
+              Roadmap
+            </Link>
+          </div>
+        </div>
+        <div className="flex items-center space-x-4">
+          <Link href="/workspace" className="text-sm uppercase tracking-wide hover:text-gray-300">
+            Back to Platform
+          </Link>
+          <a href="/api/logout" className="text-sm uppercase tracking-wide hover:text-gray-300">
+            Logout
+          </a>
+        </div>
+      </div>
+    </nav>
   );
 }

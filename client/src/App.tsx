@@ -35,6 +35,9 @@ import AIPhotoshoot from "@/pages/ai-photoshoot";
 import SimpleTraining from "@/pages/simple-training";
 import TestLogin from "@/pages/test-login";
 import AdminDashboard from "@/pages/admin";
+import AdminUsers from "@/pages/admin-users";
+import AdminEmails from "@/pages/admin-emails";
+import AdminSettings from "@/pages/admin-settings";
 import CustomPhotoshootLibrary from "@/pages/custom-photoshoot-library";
 import FlatlayLibrary from "@/pages/flatlay-library";
 import Maya from "@/pages/maya";
@@ -171,6 +174,12 @@ function Router() {
       {/* SANDRA'S ADMIN DASHBOARD */}
       <Route path="/admin" component={AdminDashboard} />
       <Route path="/sandra-admin" component={AdminDashboard} />
+      <Route path="/admin/users" component={AdminUsers} />
+      <Route path="/admin/emails" component={AdminEmails} />
+      <Route path="/admin/settings" component={AdminSettings} />
+      <Route path="/admin/progress" component={() => <div className="p-8">Admin Progress - Coming Soon</div>} />
+      <Route path="/admin/roadmap" component={() => <div className="p-8">Admin Roadmap - Coming Soon</div>} />
+      <Route path="/admin/ai-models" component={() => <div className="p-8">AI Models Management - Coming Soon</div>} />
       <Route path="/rachel-chat" component={(props) => <ProtectedRoute component={RachelChat} {...props} />} />
       <Route path="/rachel-activation" component={(props) => <ProtectedRoute component={RachelActivation} {...props} />} />
       

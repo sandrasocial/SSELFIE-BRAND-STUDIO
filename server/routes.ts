@@ -2829,6 +2829,22 @@ Consider this workflow optimized and ready for implementation! ⚙️`
     }
   });
 
+  // Admin users endpoint (Sandra only)
+  app.get('/api/admin/users', isAuthenticated, async (req: any, res) => {
+    try {
+      const adminEmail = req.user.claims.email;
+      if (adminEmail !== 'ssa@ssasocial.com') {
+        return res.status(403).json({ error: 'Admin access required' });
+      }
+      
+      const users = await storage.getAllUsers();
+      res.json(users);
+    } catch (error) {
+      console.error('Admin users fetch error:', error);
+      res.status(500).json({ error: 'Failed to fetch users' });
+    }
+  });
+
   // Register AI Images routes
   registerAiImageRoutes(app);
 
