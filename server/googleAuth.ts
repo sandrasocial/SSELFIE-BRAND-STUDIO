@@ -92,6 +92,8 @@ export async function setupGoogleAuth(app: Express) {
   
   console.log('🔍 Google OAuth callback URL:', callbackURL);
   console.log('🔍 Available domains:', domains);
+  console.log('🔍 Google Client ID (first 10 chars):', googleClientId.substring(0, 10) + '...');
+  console.log('🔍 Google Client Secret (first 10 chars):', googleClientSecret.substring(0, 10) + '...');
   
   passport.use(new GoogleStrategy({
     clientID: googleClientId,
@@ -101,6 +103,9 @@ export async function setupGoogleAuth(app: Express) {
   async (accessToken, refreshToken, profile, done) => {
     try {
       console.log('🔍 Google OAuth callback received for user:', profile.id);
+      console.log('🔍 Profile details:', JSON.stringify(profile, null, 2));
+      console.log('🔍 Access token present:', !!accessToken);
+      console.log('🔍 Refresh token present:', !!refreshToken);
       
       // Extract user data from Google profile
       const userData = {
@@ -128,6 +133,12 @@ export async function setupGoogleAuth(app: Express) {
       return done(null, user);
     } catch (error) {
       console.error('❌ Google Auth error:', error);
+      console.error('❌ Error details:', {
+        message: error.message,
+        code: error.code,
+        name: error.name,
+        stack: error.stack
+      });
       return done(error, null);
     }
   }));
