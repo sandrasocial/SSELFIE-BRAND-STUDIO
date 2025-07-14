@@ -307,29 +307,65 @@ I have ALL collections ready - just tell me your mood! ✨`;
       if (!['free', 'sselfie-studio'].includes(plan)) {
         return res.status(400).json({ message: 'Invalid plan selected' });
       }
+
+      // Check if user already has a subscription/usage
+      const existingSubscription = await storage.getSubscription(userId);
+      const existingUsage = await storage.getUserUsage(userId);
       
-      // Create subscription
-      const subscription = await storage.createSubscription({
-        userId,
-        plan,
-        status: 'active',
-        currentPeriodStart: new Date(),
-        currentPeriodEnd: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000) // 30 days
-      });
+      if (existingSubscription && existingUsage) {
+        console.log(`User ${userId} already has subscription and usage setup`);
+        return res.json({
+          success: true,
+          subscription: existingSubscription,
+          usage: existingUsage,
+          message: `Welcome back to SSELFIE Studio${plan === 'free' ? ' (Free)' : ''}!`,
+          redirectTo: '/workspace'
+        });
+      }
+      
+      // Create subscription only if it doesn't exist
+      let subscription = existingSubscription;
+      if (!subscription) {
+        try {
+          subscription = await storage.createSubscription({
+            userId,
+            plan,
+            status: 'active',
+            currentPeriodStart: new Date(),
+            currentPeriodEnd: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000) // 30 days
+          });
+          console.log(`Created subscription for user ${userId}:`, subscription);
+        } catch (subError) {
+          console.error('Subscription creation error:', subError);
+          throw new Error(`Failed to create subscription: ${subError.message}`);
+        }
+      }
       
       // Set up user usage based on plan
       const monthlyLimit = plan === 'free' ? 5 : 100;
+      let userUsage = existingUsage;
       
-      const userUsage = await storage.createUserUsage({
-        userId,
-        plan,
-        monthlyGenerationsAllowed: monthlyLimit,
-        monthlyGenerationsUsed: 0,
-        mayaAIAccess: true,
-        victoriaAIAccess: true,
-        currentPeriodStart: new Date(),
-        currentPeriodEnd: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000)
-      });
+      if (!userUsage) {
+        try {
+          userUsage = await storage.createUserUsage({
+            userId,
+            plan,
+            monthlyGenerationsAllowed: monthlyLimit,
+            monthlyGenerationsUsed: 0,
+            mayaAIAccess: true,
+            victoriaAIAccess: true,
+            totalCostIncurred: "0.0000",
+            currentPeriodStart: new Date(),
+            currentPeriodEnd: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000),
+            isLimitReached: false,
+            lastGenerationAt: null
+          });
+          console.log(`Created user usage for user ${userId}:`, userUsage);
+        } catch (usageError) {
+          console.error('User usage creation error:', usageError);
+          throw new Error(`Failed to create user usage: ${usageError.message}`);
+        }
+      }
       
       console.log(`Plan setup complete: ${plan}, Maya/Victoria Access: true, Limit: ${monthlyLimit}`);
       
@@ -366,7 +402,12 @@ I have ALL collections ready - just tell me your mood! ✨`;
       
     } catch (error) {
       console.error('Plan setup error:', error);
-      res.status(500).json({ message: 'Failed to setup plan' });
+      console.error('Error details:', error.message, error.stack);
+      res.status(500).json({ 
+        message: 'Failed to setup plan',
+        error: error.message,
+        userId: req.user?.claims?.sub
+      });
     }
   });
 
