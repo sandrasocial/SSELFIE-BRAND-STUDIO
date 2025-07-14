@@ -37,6 +37,82 @@ export async function registerRoutes(app: Express): Promise<Server> {
     res.sendFile(path.join(process.cwd(), 'test-auth.html'));
   });
 
+  // Production auth debugging endpoint
+  app.get('/api/auth-debug', (req, res) => {
+    try {
+      const debugInfo = {
+        isAuthenticated: req.isAuthenticated(),
+        user: req.user ? {
+          hasUser: true,
+          hasClaims: !!(req.user as any)?.claims,
+          hasAccessToken: !!(req.user as any)?.access_token,
+          hasRefreshToken: !!(req.user as any)?.refresh_token,
+          expiresAt: (req.user as any)?.expires_at,
+          claimsSubject: (req.user as any)?.claims?.sub,
+          claimsEmail: (req.user as any)?.claims?.email,
+        } : null,
+        session: {
+          exists: !!req.session,
+          id: req.sessionID,
+          passport: req.session?.passport
+        },
+        headers: {
+          host: req.get('host'),
+          userAgent: req.get('user-agent'),
+          origin: req.get('origin'),
+          referer: req.get('referer')
+        }
+      };
+      
+      console.log('🔍 Auth debug info:', JSON.stringify(debugInfo, null, 2));
+      res.json(debugInfo);
+    } catch (error) {
+      console.error('❌ Auth debug error:', error);
+      res.status(500).json({ error: error.message });
+    }
+  });
+
+  // Test route to simulate auth success and trigger potential errors
+  app.get('/api/test-auth-success', async (req, res) => {
+    try {
+      console.log('🔍 Testing auth success flow');
+      
+      // Simulate creating a test user like auth would do
+      const testUserData = {
+        id: 'test_user_' + Date.now(),
+        email: 'test@example.com',
+        firstName: 'Test',
+        lastName: 'User',
+        profileImageUrl: null,
+      };
+      
+      console.log('🔍 Creating test user:', testUserData);
+      const user = await storage.upsertUser(testUserData);
+      console.log('✅ Test user created:', user.id);
+      
+      // Test user usage initialization (this might be failing)
+      console.log('🔍 Testing user usage initialization');
+      const existingUsage = await storage.getUserUsage(user.id);
+      if (!existingUsage) {
+        await storage.createUserUsage({
+          userId: user.id,
+          plan: 'free',
+          monthlyGenerationsAllowed: 5,
+          monthlyGenerationsUsed: 0,
+          lastResetDate: new Date(),
+        });
+      }
+      console.log('✅ User usage test passed');
+      
+      res.json({ success: true, user, message: 'Auth success flow test passed' });
+    } catch (error) {
+      console.error('❌ Auth success test error:', error);
+      console.error('❌ Error details:', error.message);
+      console.error('❌ Error stack:', error.stack);
+      res.status(500).json({ error: error.message, stack: error.stack });
+    }
+  });
+
   // Test email endpoint for debugging
   app.post('/api/test-email', isAuthenticated, async (req: any, res) => {
     try {
