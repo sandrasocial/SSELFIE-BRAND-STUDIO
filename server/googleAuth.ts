@@ -80,11 +80,18 @@ export async function setupGoogleAuth(app: Express) {
     return 'http://localhost:5000/api/auth/google/callback';
   };
 
-  // Google OAuth Strategy with dynamic callback URL
+  // Google OAuth Strategy with current domain callback URL
+  const currentDomain = process.env.REPLIT_DOMAINS?.split(',')[0] || 'localhost:5000';
+  const callbackURL = currentDomain.includes('localhost') 
+    ? `http://${currentDomain}/api/auth/google/callback`
+    : `https://${currentDomain}/api/auth/google/callback`;
+  
+  console.log('🔍 Google OAuth callback URL:', callbackURL);
+  
   passport.use(new GoogleStrategy({
     clientID: googleClientId,
     clientSecret: googleClientSecret,
-    callbackURL: "https://e33979fc-c9be-4f0d-9a7b-6a3e83046828-00-3ij9k7qy14rai.picard.replit.dev/api/auth/google/callback"
+    callbackURL: callbackURL
   },
   async (accessToken, refreshToken, profile, done) => {
     try {
