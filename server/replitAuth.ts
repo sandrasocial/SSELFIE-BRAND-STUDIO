@@ -193,25 +193,27 @@ export async function setupAuth(app: Express) {
     }
   };
 
-  // Remove duplicates from REPLIT_DOMAINS
-  const domains = [...new Set(process.env.REPLIT_DOMAINS!.split(",").map(d => d.trim()))];
+  // TEMPORARY: Only use Replit domain to debug OAuth issue
+  const replitDomain = process.env.REPLIT_DOMAINS!.split(",").find(d => d.includes('.replit.dev'))?.trim();
   
-  for (const cleanDomain of domains) {
-    console.log('🔍 Setting up auth strategy for domain:', cleanDomain);
-    console.log('🔍 Callback URL will be:', `https://${cleanDomain}/api/callback`);
-    
-    const strategy = new Strategy(
-      {
-        name: `replitauth:${cleanDomain}`,
-        config,
-        scope: "openid email profile offline_access",
-        callbackURL: `https://${cleanDomain}/api/callback`,
-      },
-      verify,
-    );
-    passport.use(strategy);
-    console.log('✅ Auth strategy created:', `replitauth:${cleanDomain}`);
+  if (!replitDomain) {
+    throw new Error('No Replit domain found in REPLIT_DOMAINS');
   }
+  
+  console.log('🔍 DEBUGGING: Using only Replit domain for OAuth:', replitDomain);
+  console.log('🔍 Callback URL will be:', `https://${replitDomain}/api/callback`);
+  
+  const strategy = new Strategy(
+    {
+      name: `replitauth:${replitDomain}`,
+      config,
+      scope: "openid email profile offline_access",
+      callbackURL: `https://${replitDomain}/api/callback`,
+    },
+    verify,
+  );
+  passport.use(strategy);
+  console.log('✅ Auth strategy created:', `replitauth:${replitDomain}`);
   
   // Add localhost strategy for development
   const devStrategy = new Strategy(
@@ -229,34 +231,38 @@ export async function setupAuth(app: Express) {
   passport.deserializeUser((user: Express.User, cb) => cb(null, user));
 
   app.get("/api/login", (req, res, next) => {
-    const hostname = req.hostname === 'localhost' ? 'localhost' : req.hostname;
-    console.log('🔍 Login attempt - hostname:', hostname);
+    // TEMPORARY: Force use of Replit domain for debugging
+    const replitDomain = process.env.REPLIT_DOMAINS!.split(",").find(d => d.includes('.replit.dev'))?.trim();
+    
+    console.log('🔍 Login attempt - forcing Replit domain:', replitDomain);
     console.log('🔍 Request URL:', req.url);
     console.log('🔍 Request headers host:', req.headers.host);
     console.log('🔍 Available auth strategies:', Object.keys(passport._strategies));
-    console.log('🔍 Looking for strategy:', `replitauth:${hostname}`);
+    console.log('🔍 Using strategy:', `replitauth:${replitDomain}`);
     
-    // Check if strategy exists for this hostname
-    if (!passport._strategies[`replitauth:${hostname}`]) {
-      console.error(`❌ No auth strategy found for hostname: ${hostname}`);
+    if (!passport._strategies[`replitauth:${replitDomain}`]) {
+      console.error(`❌ No auth strategy found for domain: ${replitDomain}`);
       console.error('Available strategies:', Object.keys(passport._strategies));
       return res.status(500).json({ 
-        error: 'Authentication not configured for this domain',
-        hostname: hostname,
+        error: 'Authentication not configured for Replit domain',
+        domain: replitDomain,
         availableStrategies: Object.keys(passport._strategies)
       });
     }
     
-    passport.authenticate(`replitauth:${hostname}`, {
+    passport.authenticate(`replitauth:${replitDomain}`, {
       prompt: "login consent",
       scope: ["openid", "email", "profile", "offline_access"],
     })(req, res, next);
   });
 
   app.get("/api/callback", (req, res, next) => {
-    const hostname = req.hostname === 'localhost' ? 'localhost' : req.hostname;
+    // TEMPORARY: Force use of Replit domain for debugging
+    const replitDomain = process.env.REPLIT_DOMAINS!.split(",").find(d => d.includes('.replit.dev'))?.trim();
     
-    passport.authenticate(`replitauth:${hostname}`, (err, user, info) => {
+    console.log('🔍 OAuth callback - using Replit domain:', replitDomain);
+    
+    passport.authenticate(`replitauth:${replitDomain}`, (err, user, info) => {
       if (err) {
         console.error('❌ Authentication error:', err.message || err);
         return res.redirect('/api/login?error=auth_error');
