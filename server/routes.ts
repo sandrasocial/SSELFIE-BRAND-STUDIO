@@ -185,7 +185,7 @@ Click "Generate From Custom Prompt" below to see your preview photos. 🚀`;
 Click "Generate From Custom Prompt" below to create your aesthetic photos. 📸`;
         
       } else if (message.toLowerCase().includes('beauty') || message.toLowerCase().includes('studio') || message.toLowerCase().includes('fashion') || message.toLowerCase().includes('editorial')) {
-        suggestedPrompt = `${triggerWord} woman, hair in high messy bun with face-framing pieces, minimal makeup with glossy lips, bare shoulders, seamless gray backdrop, shot on Hasselblad X2D, single beauty dish lighting, black and white photography, visible skin texture and freckles, film grain, high fashion beauty portrait`;
+        suggestedPrompt = `${triggerWord} woman, hair in high messy bun with face-framing pieces, natural makeup with matte lips, bare shoulders, seamless gray backdrop, shot on Hasselblad X2D, single beauty dish lighting, black and white photography, visible skin texture and freckles, film grain, high fashion beauty portrait`;
         sandraResponse = `YES! High-fashion beauty portraits are absolutely iconic! I've chosen the "Vogue Beauty Classic" prompt from our B&W Studio Beauty collection that captures that timeless editorial elegance. This is model test shot perfection! 
 
 Click "Generate From Custom Prompt" below to create your power photos. 💫`;

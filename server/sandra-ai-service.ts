@@ -401,8 +401,8 @@ Only include elements specifically mentioned or strongly implied. Return empty a
     // Aesthetic style
     const aesthetic = styleInsights.aesthetic?.length > 0 ? styleInsights.aesthetic.join(', ') : 'editorial sophistication';
 
-    // Compose final prompt
-    const finalPrompt = `${subject}, ${outfitDetails}, ${setting}, ${mood}, ${pose}, ${lighting}, ${aesthetic}, ${camera}, ${texture}, matte skin finish, natural skin texture, high fashion photography, sophisticated styling, no glossy skin, no basic clothing, editorial quality`;
+    // Compose final prompt with natural texture emphasis
+    const finalPrompt = `${subject}, ${outfitDetails}, ${setting}, ${mood}, ${pose}, ${lighting}, ${aesthetic}, ${camera}, ${texture}, raw photo, natural skin glow, visible texture, film grain, unretouched confidence, editorial cover portrait`;
 
     return finalPrompt;
   }

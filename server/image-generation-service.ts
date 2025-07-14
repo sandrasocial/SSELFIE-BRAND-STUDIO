@@ -59,117 +59,27 @@ export async function generateImages(request: GenerateImagesRequest): Promise<Ge
       finalPrompt = `${triggerWord} ${finalPrompt}`;
     }
     
-    // Add professional camera equipment specifications
-    const cameraSpecs = [
-      "shot with Hasselblad X2D 100C, 80mm lens, f/2.8",
-      "captured with Canon EOS R5, 85mm f/1.4 lens, professional lighting",
-      "photographed with Leica SL2-S, 50mm Summilux lens, f/1.4",
-      "shot on Fujifilm GFX 100S, 110mm f/2 lens, medium format",
-      "captured with Nikon Z9, 85mm f/1.8 lens, studio lighting",
-      "photographed with Sony A7R V, 90mm macro lens, f/2.8"
-    ];
+    // Maya AI should provide complete authentic prompts - minimal enhancement only
+    const naturalTextureSpecs = ", raw photo, natural skin glow, visible texture, film grain, unretouched confidence, editorial cover portrait";
     
-    const randomCameraSpec = cameraSpecs[Math.floor(Math.random() * cameraSpecs.length)];
-    
-    // EXTREME anti-plastic texture specs for natural results
-    const filmTextureSpecs = ", raw unprocessed photo, visible skin texture with pores, heavy film grain, matte finish NOT glossy, dry skin NOT shiny plastic skin, natural imperfections, organic texture NOT smooth artificial skin";
-    
-    // Add pose variety randomization to prevent repetition (FLUX research-backed)
-    const poseVariations = [
-      "looking over shoulder with gentle smile",
-      "hands running through hair naturally",
-      "sitting with legs crossed elegantly",
-      "standing with weight shifted to one hip",
-      "leaning against surface casually",
-      "walking with natural movement",
-      "hands on hips confidently",
-      "arms crossed in relaxed pose",
-      "looking down then up at camera",
-      "sitting with one leg up",
-      "standing with arms at sides naturally",
-      "hands gently touching face",
-      "with natural authentic expression",
-      "looking to the side thoughtfully",
-      "hands clasped behind back",
-      "sitting on edge of surface",
-      "standing with one hand on hip",
-      "leaning forward slightly",
-      "hands in pockets casually",
-      "sitting with chin resting on hand"
-    ];
-    
-    const expressionVariations = [
-      "with subtle confident expression",
-      "with soft mysterious gaze",
-      "with serene peaceful look",
-      "with thoughtful contemplative expression",
-      "with warm authentic presence",
-      "with subtle knowing look",
-      "with calm composed demeanor",
-      "with genuine candid expression",
-      "with soft dreamy gaze",
-      "with confident self-assured look",
-      "with gentle caring expression",
-      "with natural relaxed demeanor",
-      "with sophisticated editorial expression",
-      "with understated confidence",
-      "with authentic professional presence"
-    ];
-    
-    // Randomly select pose and expression to prevent repetition
-    const randomPose = poseVariations[Math.floor(Math.random() * poseVariations.length)];
-    const randomExpression = expressionVariations[Math.floor(Math.random() * expressionVariations.length)];
-    
-    // Add pose variety to basic prompts that don't specify poses
-    if (!finalPrompt.toLowerCase().includes('sitting') && 
-        !finalPrompt.toLowerCase().includes('standing') && 
-        !finalPrompt.toLowerCase().includes('leaning') && 
-        !finalPrompt.toLowerCase().includes('walking') &&
-        !finalPrompt.toLowerCase().includes('looking') &&
-        !finalPrompt.toLowerCase().includes('pose')) {
-      finalPrompt = `${finalPrompt}, ${randomPose} ${randomExpression}`;
-    }
-    
-    // Only add camera specs if prompt doesn't already contain professional camera specifications
-    if (!finalPrompt.toLowerCase().includes('shot') && !finalPrompt.toLowerCase().includes('captured') && !finalPrompt.toLowerCase().includes('photographed')) {
-      // Add minimal professional enhancement for basic prompts
-      finalPrompt = `${finalPrompt}, ${randomCameraSpec}`;
-    }
-    
-    // Always add film texture specifications if not already present
-    if (!finalPrompt.toLowerCase().includes('film grain') && !finalPrompt.toLowerCase().includes('matte textured skin')) {
-      finalPrompt = `${finalPrompt}${filmTextureSpecs}`;
-    }
-    
-    // EXTREME anti-plastic specs for natural, authentic results
-    const antiPlasticSpecs = ", natural skin NOT plastic skin, authentic face NOT fake face, real person NOT CGI, organic texture NOT artificial smoothness, natural imperfections NOT airbrushed perfection, matte NOT glossy, dry skin NOT shiny skin, textured skin NOT smooth skin";
-    
-    // Add minimal anti-plastic specifications to avoid prompt overcrowding
-    finalPrompt = `${finalPrompt}${antiPlasticSpecs}`;
-    
-    // Handle custom negative prompts by converting them to "NOT" format
-    if (finalPrompt.includes("Negative:")) {
-      const parts = finalPrompt.split("Negative:");
-      finalPrompt = parts[0].trim();
-      if (parts[1]) {
-        const customNegatives = parts[1].trim().split(',').map(term => `NOT ${term.trim()}`).join(', ');
-        finalPrompt = `${finalPrompt}, ${customNegatives}`;
-      }
+    // Only add natural texture if not already present
+    if (!finalPrompt.toLowerCase().includes('film grain') && !finalPrompt.toLowerCase().includes('raw photo')) {
+      finalPrompt = `${finalPrompt}${naturalTextureSpecs}`;
     }
 
-    // Build input with EXTREME NATURAL PARAMETERS for authentic, non-plastic results
+    // Build input with NATURAL SETTINGS for authentic, non-plastic results
     const input: any = {
-      prompt: finalPrompt,        // Includes embedded "NOT plastic skin" statements
-      guidance: 2.0,              // REDUCED FURTHER: Much lower guidance for natural, unprocessed results
+      prompt: finalPrompt,        // Maya's authentic prompt with trigger word
+      guidance: 2.0,              // Lower guidance for natural results
       lora_weights: `sandrasocial/${userModel.modelName}`, // User's trained LoRA weights
-      lora_scale: 0.9,           // INCREASED: Higher LoRA scale for better facial likeness
-      num_inference_steps: 25,    // REDUCED FURTHER: Even fewer steps for natural results
+      lora_scale: 0.7,           // Moderate LoRA scale for natural blending
+      num_inference_steps: 28,    // Moderate steps for quality
       num_outputs: 3,            // Generate 3 focused images
       aspect_ratio: "3:4",        // Portrait ratio better for selfies
       output_format: "png",       // PNG for highest quality
-      output_quality: 70,         // REDUCED FURTHER: Even lower quality for natural grain
+      output_quality: 75,         // Moderate quality for natural texture
       megapixels: "1",           // Approximate megapixels
-      go_fast: false,             // Quality over speed - essential for beauty
+      go_fast: false,             // Quality over speed
       disable_safety_checker: false
     };
     
