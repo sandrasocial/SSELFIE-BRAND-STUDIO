@@ -58,6 +58,7 @@ export const SandraImages = {
   // PORTRAITS COLLECTION
   portraits: {
     professional: [
+      "https://i.postimg.cc/4N8v1bP5/IMG-6564.jpg", // AI Photoshoot featured image
       "https://i.postimg.cc/76vVdbWY/out-0-7.png", // Power pose
       "https://i.postimg.cc/nrKdm7Vj/out-2-4.webp", // Confident business
       "https://i.postimg.cc/brm1yv3n/out-0_(3).png", // Working professional
