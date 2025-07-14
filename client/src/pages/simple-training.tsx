@@ -798,10 +798,10 @@ export default function SimpleTraining() {
               gridTemplateColumns: 'repeat(auto-fit, minmax(150px, 1fr))',
               gap: '16px',
               marginBottom: '60px',
-              maxWidth: '800px',
+              maxWidth: '1000px',
               margin: '0 auto 60px auto'
             }}>
-              {/* Using Sandra's actual training images */}
+              {/* Sandra's actual training images */}
               <div style={{
                 aspectRatio: '3/4',
                 background: '#f5f5f5',
@@ -810,7 +810,7 @@ export default function SimpleTraining() {
                 overflow: 'hidden'
               }}>
                 <img 
-                  src={SandraImages.editorial.thinking}
+                  src="https://i.postimg.cc/x12VBCkc/IMG-5627.jpg"
                   alt="Training example: close-up with natural light"
                   style={{
                     width: '100%',
@@ -841,8 +841,8 @@ export default function SimpleTraining() {
                 overflow: 'hidden'
               }}>
                 <img 
-                  src={SandraImages.hero.contact}
-                  alt="Training example: profile view"
+                  src="https://i.postimg.cc/nzMyq9Ww/IMG-4827.jpg"
+                  alt="Training example: profile angle left"
                   style={{
                     width: '100%',
                     height: '100%',
@@ -860,7 +860,7 @@ export default function SimpleTraining() {
                   padding: '4px 8px',
                   letterSpacing: '0.05em'
                 }}>
-                  PROFILE ANGLE
+                  PROFILE ANGLE LEFT
                 </div>
               </div>
               
@@ -872,8 +872,8 @@ export default function SimpleTraining() {
                 overflow: 'hidden'
               }}>
                 <img 
-                  src={SandraImages.editorial.laughing}
-                  alt="Training example: different expression"
+                  src="https://i.postimg.cc/TPk8yJtD/IMG-4086.jpg"
+                  alt="Training example: profile angle right"
                   style={{
                     width: '100%',
                     height: '100%',
@@ -891,7 +891,7 @@ export default function SimpleTraining() {
                   padding: '4px 8px',
                   letterSpacing: '0.05em'
                 }}>
-                  DIFFERENT EXPRESSION
+                  PROFILE ANGLE RIGHT
                 </div>
               </div>
               
@@ -903,8 +903,8 @@ export default function SimpleTraining() {
                 overflow: 'hidden'
               }}>
                 <img 
-                  src={SandraImages.editorial.laptop1}
-                  alt="Training example: waist-up shot"
+                  src="https://i.postimg.cc/85q0WKMj/IMG-0670.jpg"
+                  alt="Training example: different expression 1"
                   style={{
                     width: '100%',
                     height: '100%',
@@ -922,7 +922,193 @@ export default function SimpleTraining() {
                   padding: '4px 8px',
                   letterSpacing: '0.05em'
                 }}>
-                  WAIST-UP SHOT
+                  DIFFERENT EXPRESSION 1
+                </div>
+              </div>
+              
+              <div style={{
+                aspectRatio: '3/4',
+                background: '#f5f5f5',
+                border: '1px solid #e5e5e5',
+                position: 'relative',
+                overflow: 'hidden'
+              }}>
+                <img 
+                  src="https://i.postimg.cc/bN0BDRJw/IMG-2639.jpg"
+                  alt="Training example: different expression 2"
+                  style={{
+                    width: '100%',
+                    height: '100%',
+                    objectFit: 'cover'
+                  }}
+                />
+                <div style={{
+                  position: 'absolute',
+                  bottom: '8px',
+                  left: '8px',
+                  right: '8px',
+                  background: 'rgba(0, 0, 0, 0.7)',
+                  color: '#ffffff',
+                  fontSize: '10px',
+                  padding: '4px 8px',
+                  letterSpacing: '0.05em'
+                }}>
+                  DIFFERENT EXPRESSION 2
+                </div>
+              </div>
+              
+              <div style={{
+                aspectRatio: '3/4',
+                background: '#f5f5f5',
+                border: '1px solid #e5e5e5',
+                position: 'relative',
+                overflow: 'hidden'
+              }}>
+                <img 
+                  src="https://i.postimg.cc/KYpVcvY7/IMG-3516.jpg"
+                  alt="Training example: sitting shot"
+                  style={{
+                    width: '100%',
+                    height: '100%',
+                    objectFit: 'cover'
+                  }}
+                />
+                <div style={{
+                  position: 'absolute',
+                  bottom: '8px',
+                  left: '8px',
+                  right: '8px',
+                  background: 'rgba(0, 0, 0, 0.7)',
+                  color: '#ffffff',
+                  fontSize: '10px',
+                  padding: '4px 8px',
+                  letterSpacing: '0.05em'
+                }}>
+                  SITTING SHOT
+                </div>
+              </div>
+              
+              <div style={{
+                aspectRatio: '3/4',
+                background: '#f5f5f5',
+                border: '1px solid #e5e5e5',
+                position: 'relative',
+                overflow: 'hidden'
+              }}>
+                <img 
+                  src="https://i.postimg.cc/VLX39871/IMG-3484.jpg"
+                  alt="Training example: full body shot"
+                  style={{
+                    width: '100%',
+                    height: '100%',
+                    objectFit: 'cover'
+                  }}
+                />
+                <div style={{
+                  position: 'absolute',
+                  bottom: '8px',
+                  left: '8px',
+                  right: '8px',
+                  background: 'rgba(0, 0, 0, 0.7)',
+                  color: '#ffffff',
+                  fontSize: '10px',
+                  padding: '4px 8px',
+                  letterSpacing: '0.05em'
+                }}>
+                  FULL BODY SHOT
+                </div>
+              </div>
+              
+              <div style={{
+                aspectRatio: '3/4',
+                background: '#f5f5f5',
+                border: '1px solid #e5e5e5',
+                position: 'relative',
+                overflow: 'hidden'
+              }}>
+                <img 
+                  src="https://i.postimg.cc/Hk91mg53/IMG-3168.jpg"
+                  alt="Training example: front facing shot"
+                  style={{
+                    width: '100%',
+                    height: '100%',
+                    objectFit: 'cover'
+                  }}
+                />
+                <div style={{
+                  position: 'absolute',
+                  bottom: '8px',
+                  left: '8px',
+                  right: '8px',
+                  background: 'rgba(0, 0, 0, 0.7)',
+                  color: '#ffffff',
+                  fontSize: '10px',
+                  padding: '4px 8px',
+                  letterSpacing: '0.05em'
+                }}>
+                  FRONT FACING SHOT
+                </div>
+              </div>
+              
+              <div style={{
+                aspectRatio: '3/4',
+                background: '#f5f5f5',
+                border: '1px solid #e5e5e5',
+                position: 'relative',
+                overflow: 'hidden'
+              }}>
+                <img 
+                  src="https://i.postimg.cc/ZR9QWt9G/IMG-3047-2.png"
+                  alt="Training example: smiling shot"
+                  style={{
+                    width: '100%',
+                    height: '100%',
+                    objectFit: 'cover'
+                  }}
+                />
+                <div style={{
+                  position: 'absolute',
+                  bottom: '8px',
+                  left: '8px',
+                  right: '8px',
+                  background: 'rgba(0, 0, 0, 0.7)',
+                  color: '#ffffff',
+                  fontSize: '10px',
+                  padding: '4px 8px',
+                  letterSpacing: '0.05em'
+                }}>
+                  SMILING SHOT
+                </div>
+              </div>
+              
+              <div style={{
+                aspectRatio: '3/4',
+                background: '#f5f5f5',
+                border: '1px solid #e5e5e5',
+                position: 'relative',
+                overflow: 'hidden'
+              }}>
+                <img 
+                  src="https://i.postimg.cc/59CG1JWv/IMG-0698.jpg"
+                  alt="Training example: where I felt cute"
+                  style={{
+                    width: '100%',
+                    height: '100%',
+                    objectFit: 'cover'
+                  }}
+                />
+                <div style={{
+                  position: 'absolute',
+                  bottom: '8px',
+                  left: '8px',
+                  right: '8px',
+                  background: 'rgba(0, 0, 0, 0.7)',
+                  color: '#ffffff',
+                  fontSize: '10px',
+                  padding: '4px 8px',
+                  letterSpacing: '0.05em'
+                }}>
+                  SHOT WHERE I FELT CUTE
                 </div>
               </div>
             </div>
