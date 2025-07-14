@@ -13,6 +13,7 @@ export const SandraImages = {
     aiImages: "@assets/out-1 (1)_1752344371746.jpg", // Gallery mood
     ai: "https://i.postimg.cc/4NG0n2wN/out-1-12.png", // AI page hero
     dashboard: "https://i.postimg.cc/htszBH6F/file-47.png", // Flatlay
+    agents: "https://i.postimg.cc/RV9pBPGc/out-2-5.webp", // Sandra's Agents card
   },
 
   // EDITORIAL SHOTS (Magazine-style)
