@@ -82,16 +82,16 @@ export function PreLoginNavigationUnified({ transparent = true }: PreLoginNaviga
         </div>
       </div>
       
-      {/* Mobile Menu - Full Screen Overlay */}
+      {/* Mobile Menu - Minimalistic Black Overlay */}
       {mobileMenuOpen && (
-        <div className="md:hidden fixed top-0 left-0 right-0 bottom-0 z-[999] bg-white">
-          <div className="flex flex-col gap-10 text-center pt-[100px] px-10">
+        <div className="md:hidden fixed top-0 left-0 right-0 bottom-0 z-[999] bg-black/95 backdrop-blur-md">
+          <div className="flex flex-col items-center justify-center h-full space-y-8 px-6">
             <button 
               onClick={() => {
                 setLocation("/about");
                 setMobileMenuOpen(false);
               }}
-              className="text-base uppercase tracking-[0.3em] text-gray-600 hover:text-black transition-colors py-5 border-b border-gray-200"
+              className="text-sm uppercase tracking-[0.4em] text-white/70 hover:text-white transition-all duration-300"
             >
               About
             </button>
@@ -100,7 +100,7 @@ export function PreLoginNavigationUnified({ transparent = true }: PreLoginNaviga
                 setLocation("/how-it-works");
                 setMobileMenuOpen(false);
               }}
-              className="text-base uppercase tracking-[0.3em] text-gray-600 hover:text-black transition-colors py-5 border-b border-gray-200"
+              className="text-sm uppercase tracking-[0.4em] text-white/70 hover:text-white transition-all duration-300"
             >
               How It Works
             </button>
@@ -109,7 +109,7 @@ export function PreLoginNavigationUnified({ transparent = true }: PreLoginNaviga
                 setLocation("/pricing");
                 setMobileMenuOpen(false);
               }}
-              className="text-base uppercase tracking-[0.3em] text-gray-600 hover:text-black transition-colors py-5 border-b border-gray-200"
+              className="text-sm uppercase tracking-[0.4em] text-white/70 hover:text-white transition-all duration-300"
             >
               Pricing
             </button>
@@ -118,7 +118,7 @@ export function PreLoginNavigationUnified({ transparent = true }: PreLoginNaviga
                 setLocation("/blog");
                 setMobileMenuOpen(false);
               }}
-              className="text-base uppercase tracking-[0.3em] text-gray-600 hover:text-black transition-colors py-5 border-b border-gray-200"
+              className="text-sm uppercase tracking-[0.4em] text-white/70 hover:text-white transition-all duration-300"
             >
               Blog
             </button>
@@ -127,9 +127,17 @@ export function PreLoginNavigationUnified({ transparent = true }: PreLoginNaviga
                 window.location.href = '/api/login';
                 setMobileMenuOpen(false);
               }}
-              className="text-base uppercase tracking-[0.3em] text-gray-600 hover:text-black transition-colors py-5"
+              className="text-sm uppercase tracking-[0.4em] text-white/70 hover:text-white transition-all duration-300 mt-8"
             >
               Login
+            </button>
+            
+            {/* Close button */}
+            <button
+              onClick={() => setMobileMenuOpen(false)}
+              className="absolute top-6 right-6 text-xs uppercase tracking-[0.4em] text-white/80 hover:text-white transition-all duration-300"
+            >
+              Close
             </button>
           </div>
         </div>
