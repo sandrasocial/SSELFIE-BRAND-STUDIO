@@ -13,6 +13,8 @@ import {
   brandOnboarding,
   userLandingPages,
   emailCaptures,
+  mayaChats,
+  mayaChatMessages,
   type User,
   type UpsertUser,
   type UserProfile,
@@ -41,6 +43,10 @@ import {
   type InsertUserLandingPage,
   type EmailCapture,
   type InsertEmailCapture,
+  type MayaChat,
+  type InsertMayaChat,
+  type MayaChatMessage,
+  type InsertMayaChatMessage,
 } from "@shared/schema";
 import { db } from "./db";
 import { eq, and, desc, gte } from "drizzle-orm";
@@ -94,6 +100,12 @@ export interface IStorage {
   createVictoriaChat(data: InsertVictoriaChat): Promise<VictoriaChat>;
   getVictoriaChats(userId: string): Promise<VictoriaChat[]>;
   getVictoriaChatsBySession(userId: string, sessionId: string): Promise<VictoriaChat[]>;
+  
+  // Maya chat operations
+  getMayaChats(userId: string): Promise<MayaChat[]>;
+  createMayaChat(data: InsertMayaChat): Promise<MayaChat>;
+  getMayaChatMessages(chatId: number): Promise<MayaChatMessage[]>;
+  createMayaChatMessage(data: InsertMayaChatMessage): Promise<MayaChatMessage>;
   
   // Photo selections operations
   savePhotoSelections(data: InsertPhotoSelection): Promise<PhotoSelection>;
@@ -751,6 +763,39 @@ export class DatabaseStorage implements IStorage {
       .values(data)
       .returning();
     return capture;
+  }
+
+  // Maya chat operations
+  async getMayaChats(userId: string): Promise<MayaChat[]> {
+    return await db
+      .select()
+      .from(mayaChats)
+      .where(eq(mayaChats.userId, userId))
+      .orderBy(desc(mayaChats.createdAt));
+  }
+
+  async createMayaChat(data: InsertMayaChat): Promise<MayaChat> {
+    const [chat] = await db
+      .insert(mayaChats)
+      .values(data)
+      .returning();
+    return chat;
+  }
+
+  async getMayaChatMessages(chatId: number): Promise<MayaChatMessage[]> {
+    return await db
+      .select()
+      .from(mayaChatMessages)
+      .where(eq(mayaChatMessages.chatId, chatId))
+      .orderBy(mayaChatMessages.createdAt);
+  }
+
+  async createMayaChatMessage(data: InsertMayaChatMessage): Promise<MayaChatMessage> {
+    const [message] = await db
+      .insert(mayaChatMessages)
+      .values(data)
+      .returning();
+    return message;
   }
 }
 
