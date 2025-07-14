@@ -89,8 +89,6 @@ export class UsageService {
     return await storage.createUserUsage({
       userId,
       plan,
-      totalGenerationsAllowed: planLimits.totalGenerations || 999999,
-      totalGenerationsUsed: 0,
       monthlyGenerationsAllowed: planLimits.monthlyGenerations,
       monthlyGenerationsUsed: 0,
       totalCostIncurred: "0.0000",
