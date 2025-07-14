@@ -132,11 +132,22 @@ export default function Workspace() {
 
 
   const getUsageStats = () => {
-    const monthlyLimit = 100; // $47 SSELFIE Studio plan includes 100 monthly generations
+    // Use real usage data from API instead of hardcoded values
+    if (!usage) {
+      return {
+        used: 0,
+        total: 5, // Default for free users
+        percentage: 0
+      };
+    }
+    
+    const used = usage.monthlyUsed || 0;
+    const total = usage.monthlyAllowed || 5;
+    
     return {
-      used: aiImages.length || 0,
-      total: monthlyLimit,
-      percentage: Math.round(((aiImages.length || 0) / monthlyLimit) * 100)
+      used,
+      total,
+      percentage: Math.round((used / total) * 100)
     };
   };
 
