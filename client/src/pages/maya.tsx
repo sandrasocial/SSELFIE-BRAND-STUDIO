@@ -347,17 +347,10 @@ export default function Maya() {
       // Refresh gallery to show newly saved images
       queryClient.invalidateQueries({ queryKey: ['/api/gallery-images'] });
       
-      toast({
-        title: "Saved to Gallery",
-        description: `${data.savedCount} image${data.savedCount > 1 ? 's' : ''} saved permanently to your gallery!`,
-      });
+      // Remove toast - Maya explains everything in chat
     } catch (error) {
       console.error('Error saving to gallery:', error);
-      toast({
-        title: "Save Failed",
-        description: "Could not save images. Please try again.",
-        variant: "destructive",
-      });
+      // Remove toast - Maya explains everything in chat
     }
   };
 
@@ -395,11 +388,7 @@ export default function Maya() {
       }
     } catch (error) {
       console.error('Error loading chat history:', error);
-      toast({
-        title: "Error",
-        description: "Could not load chat history",
-        variant: "destructive",
-      });
+      // Remove toast - Maya explains everything in chat
     }
   };
 

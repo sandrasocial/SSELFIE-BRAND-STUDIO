@@ -788,17 +788,16 @@ Your goal is to have a natural conversation, understand their vision deeply, and
   app.post('/api/save-preview-to-gallery', isAuthenticated, async (req: any, res) => {
     try {
       const { trackerId, selectedImageUrls } = req.body;
-      const userId = req.user.claims.sub;
       
       if (!trackerId || !selectedImageUrls || !Array.isArray(selectedImageUrls)) {
         return res.status(400).json({ error: 'trackerId and selectedImageUrls array required' });
       }
       
-      // Verify user owns this tracker - convert auth ID to database ID
+      // Convert auth ID to database ID (same logic as Maya generation)
       const authUserId = req.user.claims.sub;
       const claims = req.user.claims;
       
-      // Get the correct database user ID (same logic as Maya generation)
+      // Get the correct database user ID
       let user = await storage.getUser(authUserId);
       if (!user && claims.email) {
         user = await storage.getUserByEmail(claims.email);
@@ -814,7 +813,9 @@ Your goal is to have a natural conversation, understand their vision deeply, and
         return res.status(403).json({ error: 'Unauthorized access to tracker' });
       }
       
-      console.log(`🖼️ Converting ${selectedImageUrls.length} temp URLs to permanent gallery for user ${userId}`);
+      console.log(`🔍 Auth conversion: ${authUserId} -> ${dbUserId}`);
+      
+      console.log(`🖼️ Converting ${selectedImageUrls.length} temp URLs to permanent gallery for user ${dbUserId}`);
       
       // Convert temp URLs to permanent S3 storage
       const { ImageStorageService } = await import('./image-storage-service');
@@ -827,7 +828,7 @@ Your goal is to have a natural conversation, understand their vision deeply, and
           
           // Save to gallery with permanent URL
           const savedImage = await storage.saveAIImage({
-            userId,
+            userId: dbUserId,
             imageUrl: permanentUrl,
             prompt: tracker.prompt || 'Maya AI Generated',
             style: tracker.style || 'Maya AI',
