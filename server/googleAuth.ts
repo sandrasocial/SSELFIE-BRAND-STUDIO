@@ -155,10 +155,14 @@ export async function setupGoogleAuth(app: Express) {
   });
 
   app.get('/api/auth/google/callback', 
-    passport.authenticate('google', { failureRedirect: '/api/login' }),
-    (req, res) => {
-      console.log('✅ Google authentication successful, redirecting to workspace');
-      res.redirect('/workspace');
+    (req, res, next) => {
+      console.log('🔍 Google callback received:', req.url);
+      console.log('🔍 Query params:', req.query);
+      
+      passport.authenticate('google', { 
+        failureRedirect: '/api/login',
+        successRedirect: '/workspace'
+      })(req, res, next);
     }
   );
 
