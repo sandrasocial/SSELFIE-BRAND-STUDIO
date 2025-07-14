@@ -9,13 +9,18 @@ import { useMutation, useQuery } from '@tanstack/react-query';
 import { apiRequest } from '@/lib/queryClient';
 
 export default function SimpleTraining() {
+  // Always call hooks in the same order
   const { isAuthenticated } = useAuth();
   const { toast } = useToast();
+  
+  // State hooks always called consistently
   const [selfieImages, setSelfieImages] = useState<File[]>([]);
   const [isTrainingStarted, setIsTrainingStarted] = useState(false);
   const [trainingProgress, setTrainingProgress] = useState(0);
   const [startTime, setStartTime] = useState<Date | null>(null);
   const [estimatedTimeRemaining, setEstimatedTimeRemaining] = useState<string>('');
+  const [isRetrainingMode, setIsRetrainingMode] = useState(false);
+  
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   // TEMPORARY: Check user model without authentication requirement 
@@ -24,9 +29,6 @@ export default function SimpleTraining() {
     retry: false,
     enabled: true // Always enabled for testing
   });
-
-  // State for retraining mode
-  const [isRetrainingMode, setIsRetrainingMode] = useState(false);
 
   // Poll for training status updates with progress
   useEffect(() => {

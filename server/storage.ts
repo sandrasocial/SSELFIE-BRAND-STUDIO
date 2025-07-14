@@ -184,18 +184,9 @@ export class DatabaseStorage implements IStorage {
         .where(eq(users.email, userData.email));
         
       if (userByEmail) {
-        console.log('✅ Found existing user by email, updating profile data (keeping existing ID)...');
-        // Don't update the ID to avoid foreign key constraint violations
-        const { id, ...updateData } = userData;
-        const [user] = await db
-          .update(users)
-          .set({
-            ...updateData,
-            updatedAt: new Date(),
-          })
-          .where(eq(users.email, userData.email))
-          .returning();
-        return user;
+        console.log('✅ Found existing user by email, returning existing user (no update to avoid constraint violations)...');
+        // Return the existing user as-is to avoid duplicate key constraint violations
+        return userByEmail;
       }
     }
     
@@ -204,43 +195,21 @@ export class DatabaseStorage implements IStorage {
     try {
       const [user] = await db
         .insert(users)
-        .values({
-          ...userData,
-          createdAt: new Date(),
-          updatedAt: new Date(),
-        })
+        .values(userData)
         .returning();
       return user;
     } catch (error) {
-      console.error('❌ Error creating user:', error);
-      
-      // Last resort: if there's still a constraint error, try to find and update
-      if (error.code === '23505') {
-        console.log('🔄 Constraint violation during insert, attempting final recovery...');
-        
-        if (userData.email) {
-          const [fallbackUser] = await db
-            .select()
-            .from(users)
-            .where(eq(users.email, userData.email));
-            
-          if (fallbackUser) {
-            console.log('✅ Final recovery: updating existing user (keeping existing ID)...');
-            // Don't update the ID to avoid foreign key constraint violations
-            const { id, ...updateData } = userData;
-            const [user] = await db
-              .update(users)
-              .set({
-                ...updateData,
-                updatedAt: new Date(),
-              })
-              .where(eq(users.email, userData.email))
-              .returning();
-            return user;
-          }
+      // If duplicate key error on email, try to return existing user
+      if (error.code === '23505' && error.constraint === 'users_email_unique') {
+        console.log('🔄 Duplicate email constraint, fetching existing user...');
+        const [existingUser] = await db
+          .select()
+          .from(users)
+          .where(eq(users.email, userData.email));
+        if (existingUser) {
+          return existingUser;
         }
       }
-      
       throw error;
     }
   }
@@ -391,7 +360,7 @@ export class DatabaseStorage implements IStorage {
     const [model] = await db
       .select()
       .from(userModels)
-      .where(eq(userModels.user_id, userId));
+      .where(eq(userModels.userId, userId));
     return model;
   }
 
@@ -401,6 +370,7 @@ export class DatabaseStorage implements IStorage {
   }
 
   async createUserModel(data: InsertUserModel): Promise<UserModel> {
+    console.log('Creating user model with data:', data);
     const [model] = await db.insert(userModels).values(data).returning();
     return model;
   }
@@ -409,7 +379,7 @@ export class DatabaseStorage implements IStorage {
     const [updated] = await db
       .update(userModels)
       .set({ ...data, updatedAt: new Date() })
-      .where(eq(userModels.user_id, userId))
+      .where(eq(userModels.userId, userId))
       .returning();
     return updated;
   }
@@ -424,7 +394,7 @@ export class DatabaseStorage implements IStorage {
 
   // Add methods to work with actual database columns
   async getUserModelByDatabaseUserId(userId: string): Promise<any> {
-    const result = await db.select().from(userModels).where(eq(userModels.user_id, userId));
+    const result = await db.select().from(userModels).where(eq(userModels.userId, userId));
     return result[0];
   }
 
