@@ -1,5 +1,5 @@
 import React from 'react';
-import { Navigation } from '@/components/navigation';
+import { PreLoginNavigationUnified } from '@/components/pre-login-navigation-unified';
 import { SandraImages } from '@/lib/sandra-images';
 
 interface LoadingScreenProps {
@@ -10,7 +10,7 @@ interface LoadingScreenProps {
 export function LoadingScreen({ message = "Loading...", showNavigation = true }: LoadingScreenProps) {
   return (
     <div className="min-h-screen bg-white">
-      {showNavigation && <Navigation />}
+      {showNavigation && <PreLoginNavigationUnified />}
       
       <div className="min-h-screen flex items-center justify-center">
         <div className="text-center">
