@@ -291,8 +291,11 @@ export default function AboutPage() {
       <EmailCaptureModal
         isOpen={isEmailModalOpen}
         onClose={() => setIsEmailModalOpen(false)}
-        onEmailCaptured={handleEmailCaptured}
         plan="free"
+        onEmailCaptured={(email) => {
+          console.log('Email captured:', email);
+          // Email modal will handle redirect to authentication
+        }}
       />
     </div>
   );
