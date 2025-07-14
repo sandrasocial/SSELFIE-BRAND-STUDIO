@@ -5,7 +5,8 @@ import { EditorialStory } from '@/components/editorial-story';
 import { EditorialImageBreak } from '@/components/editorial-image-break';
 import PowerQuote from '@/components/power-quote';
 import { EditorialTestimonials } from '@/components/editorial-testimonials';
-import { SandraImages } from '@/components/sandra-image-library';
+import WelcomeEditorial from '@/components/welcome-editorial';
+import { SandraImages } from '@/lib/sandra-images';
 
 export default function AboutPage() {
   return (
