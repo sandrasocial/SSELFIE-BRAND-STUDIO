@@ -31,11 +31,14 @@ export const EditorialImageBreak: React.FC<EditorialImageBreakProps> = ({
       />
       
       {overlay && (
-        <div className="absolute inset-0 bg-black/30 flex items-center justify-center">
+        <div className="absolute inset-0 bg-black/40 flex items-center justify-center">
           {overlayText && (
-            <p className="text-white text-center text-xl md:text-2xl font-light max-w-2xl px-8 system-text">
-              {overlayText}
-            </p>
+            <blockquote 
+              className="text-white text-center text-2xl md:text-3xl lg:text-4xl font-light max-w-4xl px-8 md:px-12 leading-tight tracking-[-0.02em] italic"
+              style={{ fontFamily: 'Times New Roman, serif' }}
+            >
+              "{overlayText}"
+            </blockquote>
           )}
         </div>
       )}
