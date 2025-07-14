@@ -283,7 +283,7 @@ export default function EditorialLanding() {
             <div className="bg-white group hover:bg-black hover:text-white transition-all duration-500">
               <div className="aspect-square bg-gray-100 overflow-hidden relative">
                 <img
-                  src="https://i.postimg.cc/RV9pBPGc/out-2-5.webp"
+                  src={SandraImages.hero.agents}
                   alt="Sandra's AI Agents"
                   className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
                 />
