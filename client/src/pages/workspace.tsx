@@ -43,8 +43,8 @@ export default function Workspace() {
     const step2Ready = step1Complete;
     const step2HasPhotos = aiImages.length > 0;
     
-    // Step 3: Build Brand
-    const step3Ready = step2HasPhotos;
+    // Step 3: AI Photoshoot - should be ready when model is trained
+    const step3Ready = step1Complete;
     
     return [
       {
@@ -79,7 +79,7 @@ export default function Workspace() {
         description: 'Create professional photos instantly with your trained AI model.',
         timeEstimate: '5 minutes',
         status: step3Ready ? 'ready' : 'locked',
-        statusMessage: step3Ready ? 'Ready to shoot' : 'Take photos first',
+        statusMessage: step3Ready ? 'Ready to shoot' : 'Train your AI first',
         link: step3Ready ? '/gallery' : '#',
         image: SandraImages.flatlays.planning,
         nextStep: step3Ready ? 'Generate photos and build your brand' : null
