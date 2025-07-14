@@ -11,7 +11,8 @@ import { SandraImages } from '@/lib/sandra-images';
 const PROMPT_COLLECTIONS = {
   'healing-mindset': {
     id: 'healing-mindset',
-    name: 'M I N D F U L   M O M E N T S',
+    name: 'M I N D S E T',
+    subtitle: 'M O M E N T S',
     description: 'Peaceful & authentic wellness photography',
     preview: SandraImages.portraits.professional[2],
     prompts: [
@@ -103,7 +104,8 @@ const PROMPT_COLLECTIONS = {
   },
   'magazine-covers': {
     id: 'magazine-covers',
-    name: 'E D I T O R I A L   P O W E R',
+    name: 'E D I T O R I A L',
+    subtitle: 'P O W E R',
     description: 'High-fashion editorial portraits for your brand',
     preview: SandraImages.portraits.professional[1],
     prompts: [
@@ -209,7 +211,8 @@ const PROMPT_COLLECTIONS = {
   },
   'street-documentary': {
     id: 'street-documentary',
-    name: 'Street Documentary Style',
+    name: 'S T R E E T',
+    subtitle: 'D O C U M E N T A R Y',
     description: 'Natural urban moments with film photography aesthetics',
     preview: SandraImages.portraits.professional[0],
     prompts: [
@@ -266,7 +269,8 @@ const PROMPT_COLLECTIONS = {
   },
   'lifestyle-editorial': {
     id: 'lifestyle-editorial',
-    name: 'Lifestyle Editorial',
+    name: 'L I F E S T Y L E',
+    subtitle: 'E D I T O R I A L',
     description: 'Natural moments with editorial quality and authentic expressions',
     preview: SandraImages.portraits.professional[3],
     prompts: [
@@ -312,11 +316,6 @@ const PROMPT_COLLECTIONS = {
         description: "Looking out rainy window with tea, wearing soft sweater, thoughtful expression.",
         prompt: '[triggerword] woman long dark hair natural, looking out rainy window with tea, wearing soft sweater, raindrops on glass, gray natural light, shot on Nikon Z6 II with 85mm f/1.8, intimate portrait, raw photo, contemplative mood, visible skin pores, film grain, unretouched melancholy beauty'
       }
-
-
-
-
-
     ]
   }
 };
@@ -607,7 +606,7 @@ export default function AIPhotoshootPage() {
             Choose Your Vibe
           </h2>
           <p className="text-lg text-gray-600 max-w-2xl mx-auto">
-            I've curated these gorgeous collections for different moods. Pick what feels right for you today.
+            I've put together these gorgeous collections for whatever mood you're in. Pick the one that feels right for you today.
           </p>
         </div>
 
@@ -620,7 +619,7 @@ export default function AIPhotoshootPage() {
                   key={collection.id}
                   onClick={() => setSelectedCollection(collection.id)}
                   className="relative cursor-pointer transition-all duration-500 overflow-hidden group"
-                  style={{ aspectRatio: '4/5' }}
+                  style={{ aspectRatio: '4/5', height: '280px' }}
                 >
                   {/* Collection Image */}
                   <img
@@ -632,11 +631,14 @@ export default function AIPhotoshootPage() {
                   {/* Soft Dark Overlay */}
                   <div className="absolute inset-0 bg-black/30 group-hover:bg-black/20 transition-all duration-500"></div>
                   
-                  {/* Elegant Title Overlay */}
+                  {/* Elegant Two-Line Title Overlay */}
                   <div className="absolute inset-0 flex items-center justify-center">
                     <div className="text-white text-center">
-                      <div className="font-serif text-2xl md:text-3xl font-light tracking-[0.4em] uppercase mb-2">
+                      <div className="font-serif text-2xl md:text-3xl font-light tracking-[0.4em] uppercase mb-1">
                         {collection.name}
+                      </div>
+                      <div className="font-serif text-lg md:text-xl font-light tracking-[0.4em] uppercase mb-3">
+                        {collection.subtitle}
                       </div>
                       <div className="text-xs tracking-[0.2em] uppercase opacity-80">
                         {collection.description}
@@ -666,9 +668,12 @@ export default function AIPhotoshootPage() {
 
             {/* Collection Header */}
             <div className="text-center mb-16">
-              <h2 className="font-serif text-[clamp(2rem,4vw,3rem)] font-light tracking-[0.4em] uppercase mb-4">
+              <h2 className="font-serif text-[clamp(2rem,4vw,3rem)] font-light tracking-[0.4em] uppercase mb-2">
                 {PROMPT_COLLECTIONS[selectedCollection]?.name}
               </h2>
+              <h3 className="font-serif text-[clamp(1.5rem,3vw,2rem)] font-light tracking-[0.4em] uppercase mb-4">
+                {PROMPT_COLLECTIONS[selectedCollection]?.subtitle}
+              </h3>
               <p className="text-gray-600 max-w-2xl mx-auto text-lg font-light">
                 {PROMPT_COLLECTIONS[selectedCollection]?.description}
               </p>
@@ -691,7 +696,7 @@ export default function AIPhotoshootPage() {
                   }}
                 >
                   {/* Image Placeholder Area - Ready for Collection Images */}
-                  <div className="aspect-[4/5] bg-gray-200 relative overflow-hidden">
+                  <div className="bg-gray-200 relative overflow-hidden" style={{ height: '200px' }}>
                     <div className="absolute inset-0 bg-black/20"></div>
                     
                     {/* Title Overlay */}
