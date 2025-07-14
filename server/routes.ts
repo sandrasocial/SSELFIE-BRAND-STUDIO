@@ -634,13 +634,25 @@ Your goal is to have a natural conversation, understand their vision deeply, and
   app.post('/api/maya-generate-images', isAuthenticated, async (req: any, res) => {
     try {
       const { customPrompt } = req.body;
-      const userId = req.user?.claims?.sub;
+      const authUserId = req.user?.claims?.sub;
+      const claims = req.user.claims;
       
-      if (!userId) {
+      if (!authUserId) {
         return res.status(401).json({ error: 'Authentication required' });
       }
       
-      console.log(`Maya generating images for authenticated user ${userId}`);
+      // Get the correct database user ID
+      let user = await storage.getUser(authUserId);
+      if (!user && claims.email) {
+        user = await storage.getUserByEmail(claims.email);
+      }
+      
+      if (!user) {
+        return res.status(404).json({ error: 'User not found' });
+      }
+      
+      const userId = user.id;
+      console.log(`Maya generating images for database user ${userId} (auth: ${authUserId})`);
       
       if (!customPrompt) {
         return res.status(400).json({ error: 'Custom prompt is required' });
