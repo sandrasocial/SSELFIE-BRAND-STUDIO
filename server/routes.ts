@@ -2001,8 +2001,8 @@ Create prompts that feel like iconic fashion campaign moments that would make so
 
   app.post('/api/start-model-training', isAuthenticated, async (req: any, res) => {
     try {
-      const userId = req.user.claims.sub;
-      console.log(`🔍 Start training endpoint - userId: ${userId}`);
+      const authUserId = req.user.claims.sub;
+      console.log(`🔍 Start training endpoint - auth ID: ${authUserId}`);
 
       const { selfieImages } = req.body;
       
@@ -2010,25 +2010,26 @@ Create prompts that feel like iconic fashion campaign moments that would make so
         return res.status(400).json({ message: "At least 5 selfie images required for training" });
       }
 
-      console.log(`Starting model training for user ${userId} with ${selfieImages.length} images`);
-
-      // Ensure user exists in database first
-      await storage.upsertUser({
-        id: userId,
-        email: `${userId}@example.com`
+      // Get or create the database user record first
+      const user = await storage.upsertUser({
+        id: authUserId,
+        email: req.user.claims.email || `${authUserId}@example.com`
       });
+      
+      const dbUserId = user.id; // Use the database user ID
+      console.log(`Starting model training for user ${dbUserId} with ${selfieImages.length} images`);
 
       // Generate unique trigger word for this user
-      const triggerWord = `user${userId.replace(/[^0-9]/g, '')}`;
-      const modelName = `${userId}-selfie-lora`;
+      const triggerWord = `user${dbUserId.replace(/[^a-zA-Z0-9]/g, '_')}`;
+      const modelName = `${dbUserId}-selfie-lora`;
 
       // Check if user already has a model
-      const existingModel = await storage.getUserModelByUserId(userId);
+      const existingModel = await storage.getUserModelByUserId(dbUserId);
       
       let userModel;
       if (existingModel) {
         // Update existing model for retraining
-        userModel = await storage.updateUserModel(userId, {
+        userModel = await storage.updateUserModel(dbUserId, {
           triggerWord,
           modelName,
           trainingStatus: 'training',
@@ -2037,38 +2038,15 @@ Create prompts that feel like iconic fashion campaign moments that would make so
         console.log('Updated existing model for retraining');
       } else {
         // Create new user model
-        console.log('Creating new user model for user:', userId);
-        try {
-          userModel = await storage.createUserModel({
-            userId,
-            triggerWord,
-            modelName,
-            trainingStatus: 'training',
-            startedAt: new Date()
-          });
-          console.log('Created new user model:', userModel);
-        } catch (createError) {
-          console.error('Failed to create user model:', createError);
-          // Try to create user record if foreign key constraint failed
-          if (createError.code === '23503') {
-            console.log('Foreign key constraint failed, ensuring user exists...');
-            await storage.upsertUser({
-              id: userId,
-              email: `${userId}@example.com`
-            });
-            // Retry model creation
-            userModel = await storage.createUserModel({
-              userId,
-              triggerWord,
-              modelName,
-              trainingStatus: 'training',
-              startedAt: new Date()
-            });
-            console.log('Successfully created user model after ensuring user exists');
-          } else {
-            throw createError;
-          }
-        }
+        console.log('Creating new user model for user:', dbUserId);
+        userModel = await storage.createUserModel({
+          userId: dbUserId,
+          triggerWord,
+          modelName,
+          trainingStatus: 'training',
+          startedAt: new Date()
+        });
+        console.log('Created new user model:', userModel);
       }
 
       // Integrate with real Replicate API using the ModelTrainingService
@@ -2076,7 +2054,7 @@ Create prompts that feel like iconic fashion campaign moments that would make so
       const { ModelTrainingService } = await import('./model-training-service');
       
       // Start REAL Replicate training - NO FALLBACKS OR SIMULATIONS
-      const result = await ModelTrainingService.startModelTraining(userId, selfieImages);
+      const result = await ModelTrainingService.startModelTraining(dbUserId, selfieImages);
       
       res.json({
         success: true,
@@ -2086,7 +2064,7 @@ Create prompts that feel like iconic fashion campaign moments that would make so
         estimatedCompletionTime: "20 minutes"
       });
       
-      console.log('REAL Replicate API training started for user:', userId);
+      console.log('REAL Replicate API training started for user:', dbUserId);
     } catch (error) {
       console.error("REAL model training failed - no fallbacks available:", error);
       res.status(500).json({ 
