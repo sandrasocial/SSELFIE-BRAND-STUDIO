@@ -352,8 +352,6 @@ I have ALL collections ready - just tell me your mood! ✨`;
             plan,
             monthlyGenerationsAllowed: monthlyLimit,
             monthlyGenerationsUsed: 0,
-            mayaAIAccess: true,
-            victoriaAIAccess: true,
             totalCostIncurred: "0.0000",
             currentPeriodStart: new Date(),
             currentPeriodEnd: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000),
