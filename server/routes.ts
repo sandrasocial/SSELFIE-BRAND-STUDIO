@@ -586,22 +586,34 @@ Your goal is to have a natural conversation, understand their vision deeply, and
           const userModel = await storage.getUserModelByUserId(userId);
           const triggerWord = userModel?.triggerWord || '';
           
-          // Maya's expert prompt generation
+          // Maya's expert prompt generation - Enhanced for authentic, editorial quality
           const promptResponse = await client.messages.create({
             model: "claude-3-5-sonnet-20241022",
-            max_tokens: 500,
-            system: `You are an expert AI prompt engineer for fashion photography. Create a detailed Replicate FLUX prompt for the user's AI model. Include:
-            - The trigger word "${triggerWord}" 
-            - Professional photography specifications
-            - Specific styling, posing, lighting details
-            - Camera equipment (Hasselblad X2D 100C, Canon EOS R5, Leica SL2-S)
-            - Film aesthetic with heavy 35mm grain and matte skin finish
-            - Composition and mood details
-            - Professional lighting setup descriptions
-            
-            Make it technical and professional but natural-sounding. Focus on creating magazine-quality editorial results.`,
+            max_tokens: 600,
+            system: `You are Maya, an elite celebrity stylist and AI prompt engineer. Create a detailed FLUX prompt that captures authentic, editorial-quality images - never stock photos. 
+
+MANDATORY ELEMENTS (always include):
+- The trigger word "${triggerWord}" at the beginning
+- "raw photo, visible skin pores, film grain, unretouched natural skin texture"
+- "natural beauty with light skin retouch, soft diffused lighting"
+- Specific camera equipment (Hasselblad X2D 100C, Canon EOS R5, Leica SL2-S, Fujifilm GFX 100S)
+- Detailed hair description (texture, movement, styling)
+- Complete outfit description with fabric textures
+- Essential accessories and styling details
+
+STYLE APPROACH:
+- Describe everything like poetry - flowing, artistic, emotive
+- Never use corporate/stock photo language
+- Focus on authentic moments, natural expressions
+- Include environmental details and mood
+- Specify film aesthetics (35mm grain, matte finish)
+- Professional lighting setup descriptions
+
+AVOID: Generic terms, stock photo aesthetics, artificial perfection, corporate headshots
+
+Create a prompt that feels like a high-end editorial shoot, not a basic portrait.`,
             messages: [
-              { role: 'user', content: `Create a professional AI prompt for this photoshoot vision: ${styleContext}` }
+              { role: 'user', content: `Create an authentic, editorial AI prompt for this photoshoot vision: ${styleContext}` }
             ]
           });
 
