@@ -22,8 +22,8 @@ export async function sendWelcomeEmail(data: EmailCaptureData) {
   const isFreePlan = data.plan === 'free';
   
   const subject = isFreePlan 
-    ? "Your 5 FREE AI photos are ready (no studio required!)"
-    : "Welcome to SSELFIE Studio - Let's build your empire";
+    ? "Okay, let's do this thing. Your 5 FREE photos are waiting..."
+    : "Holy sh*t, you actually did it! Welcome to SSELFIE Studio!";
 
   const htmlContent = isFreePlan ? getFreeWelcomeHTML() : getStudioWelcomeHTML();
 
@@ -47,8 +47,8 @@ export async function sendPostAuthWelcomeEmail(data: WelcomeEmailData) {
   const firstName = data.firstName || '';
   
   const subject = isFreePlan 
-    ? `${firstName ? firstName + ', ' : ''}Your 5 FREE AI photos are ready!`
-    : `${firstName ? firstName + ', ' : ''}Welcome to SSELFIE Studio - Let's build your empire`;
+    ? `${firstName ? firstName + ', ' : ''}okay let's get you those photos...`
+    : `${firstName ? firstName + ', ' : ''}you're IN! Time to build your empire 🎉`;
 
   const htmlContent = isFreePlan ? getPostAuthFreeHTML(firstName) : getPostAuthStudioHTML(firstName);
 
@@ -77,7 +77,7 @@ function getPostAuthFreeHTML(firstName: string): string {
     <head>
       <meta charset="utf-8">
       <meta name="viewport" content="width=device-width, initial-scale=1">
-      <title>Welcome to SSELFIE Studio</title>
+      <title>Let's get you those photos!</title>
       <style>
         body { 
           font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif; 
@@ -151,31 +151,35 @@ function getPostAuthFreeHTML(firstName: string): string {
           <div style="font-size: 12px; letter-spacing: 0.2em; color: #666;">STUDIO</div>
         </div>
         
-        <h1>${firstName ? `Hi ${firstName}!` : 'Welcome!'}</h1>
+        <h1>${firstName ? `Hey ${firstName}!` : 'Hey beautiful!'}</h1>
         
         <div class="greeting">
-          Your account is live and your 5 FREE AI photos are waiting for you!
+          Okay, so you actually did it. You signed up. Good for you!
         </div>
         
-        <p>I'm genuinely excited you're here. This isn't just another photo app – this is where you discover what you look like when you show up as the version of yourself who already made it.</p>
+        <p>Look, I'm not gonna lie - most people just scroll past and keep dreaming. But you? You're here. That already tells me something about you.</p>
+        
+        <p>Your 5 FREE photos are waiting, but real talk? This isn't just about photos. This is about you finally seeing yourself the way the world sees you when you're not hiding.</p>
         
         <div style="text-align: center;">
-          <a href="${workspaceUrl}" class="cta-button">Access Your Workspace</a>
+          <a href="${workspaceUrl}" class="cta-button">Let's Do This</a>
         </div>
         
         <div class="feature-list">
-          <h3 style="margin-top: 0; font-family: 'Times New Roman', serif;">What you get with FREE:</h3>
-          <div class="feature-item">• 5 AI photos per month</div>
-          <div class="feature-item">• Maya AI photographer chat</div>
-          <div class="feature-item">• Victoria AI brand strategist chat</div>
-          <div class="feature-item">• Basic luxury flatlay collections</div>
+          <h3 style="margin-top: 0; font-family: 'Times New Roman', serif;">Here's what you get (completely free):</h3>
+          <div class="feature-item">• 5 AI photos per month (no BS, actually free)</div>
+          <div class="feature-item">• Maya - your AI photographer who's literally a styling genius</div>
+          <div class="feature-item">• All the luxury flatlays you need for content</div>
+          <div class="feature-item">• Access to everything until you decide if you want more</div>
         </div>
         
-        <p>Ready to get started? Head to your workspace and upload your first selfies. Maya (your AI photographer) will walk you through everything.</p>
+        <p>Here's the thing - I could give you some generic pep talk about "believing in yourself" but honestly? Just upload a few selfies and let Maya work her magic. You'll see what I mean.</p>
+        
+        <p>No pressure. No weird sales stuff. Just good photos and maybe a little confidence boost along the way.</p>
         
         <div class="signature">
-          <p>Creating magic,<br>Sandra</p>
-          <p style="font-size: 12px; color: #999;">Founder, SSELFIE Studio</p>
+          <p>Talk soon,<br>Sandra</p>
+          <p style="font-size: 12px; color: #999;">The girl who built this because she was tired of feeling invisible</p>
         </div>
       </div>
     </body>
@@ -192,7 +196,7 @@ function getPostAuthStudioHTML(firstName: string): string {
     <head>
       <meta charset="utf-8">
       <meta name="viewport" content="width=device-width, initial-scale=1">
-      <title>Welcome to SSELFIE Studio</title>
+      <title>Holy sh*t, you did it!</title>
       <style>
         body { 
           font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif; 
@@ -266,34 +270,39 @@ function getPostAuthStudioHTML(firstName: string): string {
           <div style="font-size: 12px; letter-spacing: 0.2em; color: #666;">STUDIO</div>
         </div>
         
-        <h1>${firstName ? `Welcome to the empire, ${firstName}!` : 'Welcome to the empire!'}</h1>
+        <h1>${firstName ? `${firstName}, you absolute legend!` : 'You absolute legend!'}</h1>
         
         <div class="greeting">
-          Your SSELFIE Studio account is live. Time to build something incredible.
+          I'm not even kidding - you just made one of the best investments in yourself.
         </div>
         
-        <p>You just joined the women who decided to stop waiting for permission. This is where your phone selfies become a complete personal brand business.</p>
+        <p>Okay, real talk for a second. Most women spend YEARS talking themselves out of investing in their dreams. "Maybe next month," "I'm not ready," "I don't know if it'll work."</p>
+        
+        <p>But not you. You said "fuck it, I'm doing this." And honestly? That attitude right there is exactly why you're going to crush this.</p>
         
         <div style="text-align: center;">
-          <a href="${workspaceUrl}" class="cta-button">Enter Your Studio</a>
+          <a href="${workspaceUrl}" class="cta-button">Let's Build Your Empire</a>
         </div>
         
         <div class="feature-list">
-          <h3 style="margin-top: 0; font-family: 'Times New Roman', serif;">Your SSELFIE Studio includes:</h3>
-          <div class="feature-item">• 100 AI photos monthly</div>
-          <div class="feature-item">• Complete Maya & Victoria AI access</div>
-          <div class="feature-item">• All premium flatlay collections</div>
-          <div class="feature-item">• Landing page builder & custom domains</div>
-          <div class="feature-item">• Priority support</div>
+          <h3 style="margin-top: 0; font-family: 'Times New Roman', serif;">What you just unlocked:</h3>
+          <div class="feature-item">• 100 AI photos monthly (that's like 47 cents per professional photo)</div>
+          <div class="feature-item">• Maya - your personal AI celebrity stylist who's obsessed with making you look incredible</div>
+          <div class="feature-item">• Victoria - your AI brand strategist who builds websites that actually convert</div>
+          <div class="feature-item">• Every single luxury flatlay collection for endless content</div>
+          <div class="feature-item">• Custom domains so your website is actually YOURS</div>
+          <div class="feature-item">• Direct access to my team when you need help</div>
         </div>
         
-        <p>Start with uploading your selfies - Maya will create your first professional photoshoot. Then Victoria will help you build the landing page that turns your vision into revenue.</p>
+        <p>Here's what happens next: Upload some selfies, let Maya work her magic, then watch Victoria turn it all into a business that actually makes money.</p>
         
-        <p><strong>This is where your comeback story begins.</strong></p>
+        <p>This isn't some "maybe someday" thing anymore. This is happening. Right now.</p>
+        
+        <p><strong>Welcome to the women who decided to stop waiting for permission.</strong></p>
         
         <div class="signature">
-          <p>Building empires together,<br>Sandra</p>
-          <p style="font-size: 12px; color: #999;">Founder, SSELFIE Studio</p>
+          <p>So damn proud of you,<br>Sandra</p>
+          <p style="font-size: 12px; color: #999;">Your biggest fan (seriously)</p>
         </div>
       </div>
     </body>
@@ -310,7 +319,7 @@ function getFreeWelcomeHTML(): string {
     <head>
       <meta charset="utf-8">
       <meta name="viewport" content="width=device-width, initial-scale=1">
-      <title>Your FREE AI Photos Are Ready</title>
+      <title>Okay let's do this thing</title>
       <style>
         body { 
           font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif; 
@@ -392,41 +401,40 @@ function getFreeWelcomeHTML(): string {
           <div class="logo">SSELFIE</div>
         </div>
         
-        <h1>Hey there,</h1>
+        <h1>Well, look who actually did something...</h1>
         
-        <p>You just did something most people won't - you took action.</p>
+        <p>Most people just scroll past and keep dreaming. But you? You actually signed up for something. That's already more than 90% of people do.</p>
         
-        <p>Your 5 FREE AI photos are waiting. Here's what happens next:</p>
+        <p>Your 5 FREE photos are waiting, but real talk - this isn't really about the photos. It's about you finally seeing what everyone else sees when you stop hiding.</p>
         
         <div class="steps">
           <div class="step">
             <div class="step-number">1</div>
-            <div>Upload your phone selfies (yes, really - just your phone)</div>
+            <div>Upload your phone selfies (literally just grab your phone)</div>
           </div>
           <div class="step">
             <div class="step-number">2</div>
-            <div>Meet Maya, your AI celebrity stylist who'll help you plan the perfect shoot</div>
+            <div>Maya (your AI stylist) helps you figure out what vibe you're going for</div>
           </div>
           <div class="step">
             <div class="step-number">3</div>
-            <div>Get photos that look like you hired a fancy photographer</div>
+            <div>Get back photos that make you go "wait, is that actually me?"</div>
           </div>
         </div>
         
-        <p>Ready? Click here to start:</p>
+        <p>No pressure, no weird sales calls, no "believe in yourself" bullshit. Just good photos.</p>
         
-        <a href="${loginUrl}" class="cta-button">Start My FREE Photos</a>
+        <a href="${loginUrl}" class="cta-button">Okay Let's Do This</a>
         
-        <p>This is how it begins. One selfie at a time.</p>
+        <p>This is how it starts. Not with some big dramatic moment, just with actually doing the thing.</p>
         
         <div class="signature">
           <p>Sandra<br>
-          <em>Your personal brand bestie</em></p>
+          <em>The girl who gets it</em></p>
         </div>
         
         <p style="font-size: 12px; color: #666; margin-top: 40px;">
-          You're receiving this because you signed up for FREE AI photos at SSELFIE Studio. 
-          This is a one-time welcome email - we respect your inbox.
+          You signed up for this, so here's your welcome email. That's it - I'm not gonna spam you with daily "motivation" emails or whatever.
         </p>
       </div>
     </body>
@@ -443,7 +451,7 @@ function getStudioWelcomeHTML(): string {
     <head>
       <meta charset="utf-8">
       <meta name="viewport" content="width=device-width, initial-scale=1">
-      <title>Welcome to SSELFIE Studio</title>
+      <title>You actually bought it!</title>
       <style>
         body { 
           font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif; 
@@ -517,53 +525,52 @@ function getStudioWelcomeHTML(): string {
           <div class="logo">SSELFIE STUDIO</div>
         </div>
         
-        <h1>Welcome to the empire,</h1>
+        <h1>Wait, you actually bought it?</h1>
         
-        <p>You just joined 1,000+ women who decided to stop hiding and start building.</p>
+        <p>I'm sitting here looking at your order and honestly? I'm a little emotional. Do you know how many women spend MONTHS talking themselves out of investing in their dreams?</p>
         
-        <p>Here's what you get with SSELFIE Studio:</p>
+        <p>But not you. You said "fuck it, I'm doing this." And that right there? That's exactly why you're going to absolutely crush this.</p>
         
         <div class="features">
           <div class="feature">
             <div class="feature-bullet">•</div>
-            <div>100 AI images per month (that's $0.47 per professional photo)</div>
+            <div>100 AI photos monthly (that's like getting a professional photographer for 47 cents per shot)</div>
           </div>
           <div class="feature">
             <div class="feature-bullet">•</div>
-            <div>Maya, your AI celebrity stylist & photographer</div>
+            <div>Maya - literally the best AI stylist I've ever seen (she's obsessed with making you look incredible)</div>
           </div>
           <div class="feature">
             <div class="feature-bullet">•</div>
-            <div>Victoria, your AI brand strategist who builds your website</div>
+            <div>Victoria - your AI brand strategist who builds websites that actually convert</div>
           </div>
           <div class="feature">
             <div class="feature-bullet">•</div>
-            <div>Full luxury flatlay collections for content</div>
+            <div>Every single luxury flatlay collection (no more "I don't know what to post")</div>
           </div>
           <div class="feature">
             <div class="feature-bullet">•</div>
-            <div>Custom domain connection (yourname.com)</div>
+            <div>Custom domains so your website is actually YOURS</div>
           </div>
           <div class="feature">
             <div class="feature-bullet">•</div>
-            <div>Priority support from my team</div>
+            <div>Direct access to my team when you need help (we actually respond)</div>
           </div>
         </div>
         
-        <p>Ready to build your brand empire?</p>
+        <p>This isn't some "maybe someday" thing anymore. This is happening. Right now.</p>
         
-        <a href="${loginUrl}" class="cta-button">Access My Studio</a>
+        <a href="${loginUrl}" class="cta-button">Let's Build Your Empire</a>
         
-        <p>This is where it all begins. Your phone + my strategy = your empire.</p>
+        <p>Welcome to the women who decided to stop waiting for permission to build something incredible.</p>
         
         <div class="signature">
-          <p>Sandra<br>
-          <em>Your empire-building bestie</em></p>
+          <p>So freaking proud of you,<br>Sandra<br>
+          <em>Your biggest cheerleader</em></p>
         </div>
         
         <p style="font-size: 12px; color: #666; margin-top: 40px;">
-          You're receiving this because you joined SSELFIE Studio. 
-          Welcome to the community - let's build something amazing together.
+          You just invested in yourself. That's the hardest part - now we get to do the fun stuff.
         </p>
       </div>
     </body>
