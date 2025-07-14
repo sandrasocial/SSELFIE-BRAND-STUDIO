@@ -116,9 +116,7 @@ export const userUsage = pgTable("user_usage", {
   // AI Generation limits and usage
   monthlyGenerationsAllowed: integer("monthly_generations_allowed").notNull(), // 5 for free, 100 for paid
   monthlyGenerationsUsed: integer("monthly_generations_used").default(0),
-  // Access controls
-  mayaAIAccess: boolean("maya_ai_access").default(true), // Always true - both free and paid
-  victoriaAIAccess: boolean("victoria_ai_access").default(true), // Always true - both free and paid
+  // Access controls removed - handled by plan type instead
   // Cost tracking
   totalCostIncurred: decimal("total_cost_incurred", { precision: 10, scale: 4 }).default("0.0000"), // Track actual API costs
   // Period tracking for monthly limits
