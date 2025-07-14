@@ -684,33 +684,27 @@ Your goal is to have a natural conversation, understand their vision deeply, and
       const modelVersion = 'black-forest-labs/flux-dev-lora:a53fd9255ecba80d99eaab4706c698f861fd47b098012607557385416e46aae5';
       console.log(`Maya using black-forest-labs/flux-dev-lora with LoRA: sandrasocial/${userModel.modelName}`);
 
-      // FIXED: Use existing image generation service with proper user validation
-      const imageGenerationService = await import('./image-generation-service');
-      const result = await imageGenerationService.generateImages({
+      // 🔑 NEW: Use AIService with tracker system (no auto-save to gallery)
+      const trackingResult = await AIService.generateSSELFIE({
         userId,
-        category: 'Maya AI',
-        subcategory: 'AI Photography', 
-        triggerWord: userModel.triggerWord,
-        modelVersion: modelVersion,
-        customPrompt
+        imageBase64: 'placeholder', // Maya doesn't use uploaded images 
+        style: 'Maya AI',
+        prompt: customPrompt
       });
 
-      // CRITICAL: Record usage after successful generation
-      await UsageService.recordUsage(userId, {
-        actionType: 'generation',
-        resourceUsed: 'replicate_ai',
-        cost: API_COSTS.replicate_ai,
-        details: { prompt: customPrompt, category: 'Maya AI' },
-        generatedImageId: result.id
-      });
+      console.log('✅ Maya generation initiated with tracker system:', trackingResult);
 
-      console.log(`Maya generation successful for user ${userId}, usage recorded`);
+      // Start background polling for completion (updates tracker, NOT gallery)
+      AIService.pollGenerationStatus(trackingResult.trackerId, trackingResult.predictionId).catch(err => {
+        console.error('❌ Background polling failed:', err);
+      });
 
       res.json({
         success: true,
-        image_urls: result.image_urls,
-        imageId: result.id,
-        message: 'Maya generated your photos successfully!'
+        trackerId: trackingResult.trackerId,
+        predictionId: trackingResult.predictionId,
+        usageStatus: trackingResult.usageStatus,
+        message: 'Your images are generating! They\'ll appear here for preview - select favorites to save permanently.'
       });
 
     } catch (error) {
@@ -735,6 +729,103 @@ Your goal is to have a natural conversation, understand their vision deeply, and
         error: 'Failed to generate images with Maya. Please try again.',
         retryable: true 
       });
+    }
+  });
+
+  // 🔑 NEW GENERATION TRACKER API ENDPOINTS - Preview workflow
+  app.get('/api/generation-tracker/:trackerId', isAuthenticated, async (req: any, res) => {
+    try {
+      const { trackerId } = req.params;
+      const tracker = await storage.getGenerationTracker(parseInt(trackerId));
+      
+      if (!tracker) {
+        return res.status(404).json({ error: 'Generation tracker not found' });
+      }
+      
+      // Verify user owns this tracker
+      const userId = req.user.claims.sub;
+      if (tracker.userId !== userId) {
+        return res.status(403).json({ error: 'Unauthorized access to tracker' });
+      }
+      
+      // Parse temp URLs for preview
+      let imageUrls = [];
+      try {
+        imageUrls = tracker.imageUrls ? JSON.parse(tracker.imageUrls) : [];
+      } catch {
+        imageUrls = [];
+      }
+      
+      res.json({
+        id: tracker.id,
+        status: tracker.status,
+        imageUrls, // Temp URLs for preview only
+        prompt: tracker.prompt,
+        style: tracker.style,
+        createdAt: tracker.createdAt
+      });
+    } catch (error) {
+      console.error('Error fetching generation tracker:', error);
+      res.status(500).json({ error: 'Failed to fetch generation status' });
+    }
+  });
+
+  // 🔑 NEW: Save selected images from temp URLs to permanent gallery
+  app.post('/api/save-preview-to-gallery', isAuthenticated, async (req: any, res) => {
+    try {
+      const { trackerId, selectedImageUrls } = req.body;
+      const userId = req.user.claims.sub;
+      
+      if (!trackerId || !selectedImageUrls || !Array.isArray(selectedImageUrls)) {
+        return res.status(400).json({ error: 'trackerId and selectedImageUrls array required' });
+      }
+      
+      // Verify user owns this tracker
+      const tracker = await storage.getGenerationTracker(trackerId);
+      if (!tracker || tracker.userId !== userId) {
+        return res.status(403).json({ error: 'Unauthorized access to tracker' });
+      }
+      
+      console.log(`🖼️ Converting ${selectedImageUrls.length} temp URLs to permanent gallery for user ${userId}`);
+      
+      // Convert temp URLs to permanent S3 storage
+      const { ImageStorageService } = await import('./image-storage-service');
+      const savedImages = [];
+      
+      for (const tempUrl of selectedImageUrls) {
+        try {
+          // Convert temp URL to permanent S3
+          const permanentUrl = await ImageStorageService.ensurePermanentStorage(tempUrl);
+          
+          // Save to gallery with permanent URL
+          const savedImage = await storage.saveAIImage({
+            userId,
+            imageUrl: permanentUrl,
+            prompt: tracker.prompt || 'Maya AI Generated',
+            style: tracker.style || 'Maya AI',
+            predictionId: tracker.predictionId || '',
+            generationStatus: 'completed',
+            isSelected: true,
+            isFavorite: false
+          });
+          
+          savedImages.push(savedImage);
+          console.log(`✅ Saved image to gallery: ${savedImage.id} (${permanentUrl})`);
+        } catch (error) {
+          console.error('Error saving image to gallery:', error);
+          // Continue with other images even if one fails
+        }
+      }
+      
+      res.json({
+        success: true,
+        savedCount: savedImages.length,
+        savedImages,
+        message: `Successfully saved ${savedImages.length} images to your gallery permanently!`
+      });
+    } catch (error) {
+      console.error('Error saving preview images to gallery:', error);
+      res.status(500).json({ error: 'Failed to save images to gallery' });
     }
   });
 
@@ -3013,16 +3104,16 @@ Consider this workflow optimized and ready for implementation! ⚙️`
         prompt
       });
       
-      // Start background polling for status updates
-      AIService.pollGenerationStatus(result.aiImageId, result.predictionId)
+      // 🔑 NEW: Start background polling with tracker system (NO AUTO-SAVE TO GALLERY)
+      AIService.pollGenerationStatus(result.trackerId, result.predictionId)
         .catch(error => console.error('Background polling failed:', error));
       
       res.json({ 
         success: true, 
-        aiImageId: result.aiImageId,
+        trackerId: result.trackerId, // Use trackerId instead of aiImageId
         predictionId: result.predictionId,
         usageStatus: result.usageStatus,
-        message: 'SSELFIE generation started. Check status with /api/ai/status endpoint.' 
+        message: 'SSELFIE generation started - images will show for preview before saving to gallery.' 
       });
     } catch (error) {
       console.error('SSELFIE generation error:', error);

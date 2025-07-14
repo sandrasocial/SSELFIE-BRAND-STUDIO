@@ -41,7 +41,7 @@ interface FluxResponse {
 }
 
 export class AIService {
-  static async generateSSELFIE(request: ImageGenerationRequest): Promise<{ aiImageId: number; predictionId: string; usageStatus: any }> {
+  static async generateSSELFIE(request: ImageGenerationRequest): Promise<{ trackerId: number; predictionId: string; usageStatus: any }> {
     const { userId, imageBase64, style, prompt } = request;
     
     // CRITICAL: Validate user model completion FIRST - NO FALLBACKS
@@ -56,15 +56,14 @@ export class AIService {
       throw new Error(`Generation limit reached: ${usageCheck.reason}`);
     }
 
-    // Create generated image record in database with pending status
-    const generatedImage = await storage.createGeneratedImage({
+    // Create temporary generation tracking record (NOT in ai_images gallery table)
+    const generationTracker = await storage.createGenerationTracker({
       userId,
-      image_urls: '', // Will be updated when generation completes
+      predictionId: '', // Will be updated after API call
       prompt: prompt || `${FLUX_MODEL_CONFIG.styles[style]}, SSELFIE transformation`,
       style,
-      isSelected: false,
-      predictionId: '', // Will be updated after API call
-      generationStatus: 'pending'
+      status: 'pending',
+      imageUrls: null // Will store temp URLs for preview only
     });
 
     try {
@@ -72,10 +71,10 @@ export class AIService {
       const fluxPrompt = await this.buildFluxPrompt(style, prompt, userId);
       const predictionId = await this.callFluxAPI(imageBase64, fluxPrompt, userId);
       
-      // Update with prediction ID
-      await storage.updateGeneratedImage(generatedImage.id, { 
+      // Update tracker with prediction ID
+      await storage.updateGenerationTracker(generationTracker.id, { 
         predictionId,
-        generationStatus: 'processing'
+        status: 'processing'
       });
 
       // 2. Record usage immediately when API call succeeds
@@ -88,24 +87,23 @@ export class AIService {
           prompt: fluxPrompt,
           predictionId
         },
-        generatedImageId: generatedImage.id
+        generationTrackerId: generationTracker.id
       });
 
       // Get updated usage status for frontend
       const updatedUsage = await UsageService.checkUsageLimit(userId);
       
       return {
-        aiImageId: generatedImage.id,
+        trackerId: generationTracker.id,
         predictionId,
         usageStatus: updatedUsage
       };
     } catch (error) {
       console.error('FLUX API call failed:', error);
-      // Update generated image with error status
-      await storage.updateGeneratedImage(generatedImage.id, {
-        image_urls: 'error',
-        prompt: `Error: ${error.message}`,
-        generationStatus: 'failed'
+      // Update generation tracker with error status
+      await storage.updateGenerationTracker(generationTracker.id, {
+        status: 'failed',
+        imageUrls: JSON.stringify([`Error: ${error.message}`])
       });
       throw error;
     }
@@ -130,57 +128,49 @@ export class AIService {
     return response.json();
   }
 
-  static async updateImageStatus(aiImageId: number, predictionId: string): Promise<void> {
+  static async updateImageStatus(trackerId: number, predictionId: string): Promise<void> {
     try {
       const status = await this.checkGenerationStatus(predictionId);
       
-      console.log('Updating image status:', { aiImageId, predictionId, status: status.status, outputCount: status.output?.length });
+      console.log('🔄 Updating generation tracker status:', { trackerId, predictionId, status: status.status, outputCount: status.output?.length });
       
       switch (status.status) {
         case 'succeeded':
           if (status.output && status.output.length > 0) {
-            // Store images permanently in S3 before updating database
-            const { ImageStorageService } = await import('./image-storage-service');
-            const permanentUrls = await ImageStorageService.storeMultipleImages(
-              status.output, 
-              'user_generated', // Use generic prefix for AI generations
-              aiImageId.toString()
-            );
+            // 🔑 KEY CHANGE: Store TEMP URLs only for preview - NO AUTO-SAVE TO GALLERY
+            console.log('✅ Generation complete - storing temp URLs for preview only (NOT auto-saving to gallery)');
             
-            // Store all permanent S3 URLs as JSON array for user selection
-            await storage.updateGeneratedImage(aiImageId, {
-              image_urls: JSON.stringify(permanentUrls), // Store permanent S3 URLs
-              generationStatus: 'completed'
+            await storage.updateGenerationTracker(trackerId, {
+              imageUrls: JSON.stringify(status.output), // Store TEMP Replicate URLs for preview
+              status: 'completed'
             });
-            console.log('Successfully updated completed generation with permanent URLs:', aiImageId);
+            console.log('📋 Generation tracker updated with temp URLs for user selection:', trackerId);
           }
           break;
           
         case 'failed':
-          await storage.updateGeneratedImage(aiImageId, {
-            image_urls: 'error',
-            prompt: `Generation failed: ${status.error || 'Unknown error'}`,
-            generationStatus: 'failed'
+          await storage.updateGenerationTracker(trackerId, {
+            imageUrls: JSON.stringify([`Generation failed: ${status.error || 'Unknown error'}`]),
+            status: 'failed'
           });
           break;
           
         case 'starting':
         case 'processing':
-          await storage.updateGeneratedImage(aiImageId, {
-            generationStatus: 'processing'
+          await storage.updateGenerationTracker(trackerId, {
+            status: 'processing'
           });
           break;
           
         case 'canceled':
-          await storage.updateGeneratedImage(aiImageId, {
-            image_urls: 'canceled',
-            prompt: 'Generation was canceled',
-            generationStatus: 'canceled'
+          await storage.updateGenerationTracker(trackerId, {
+            imageUrls: JSON.stringify(['Generation was canceled']),
+            status: 'canceled'
           });
           break;
       }
     } catch (error) {
-      console.error('Error updating image status:', error);
+      console.error('Error updating generation tracker status:', error);
       throw error;
     }
   }
@@ -305,7 +295,7 @@ export class AIService {
     return results;
   }
 
-  static async pollGenerationStatus(aiImageId: number, predictionId: string, maxAttempts: number = 30): Promise<void> {
+  static async pollGenerationStatus(trackerId: number, predictionId: string, maxAttempts: number = 30): Promise<void> {
     let attempts = 0;
     
     while (attempts < maxAttempts) {
@@ -313,7 +303,7 @@ export class AIService {
         const status = await this.checkGenerationStatus(predictionId);
         
         if (status.status === 'succeeded' || status.status === 'failed' || status.status === 'canceled') {
-          await this.updateImageStatus(aiImageId, predictionId);
+          await this.updateImageStatus(trackerId, predictionId);
           return;
         }
         
@@ -325,9 +315,9 @@ export class AIService {
         attempts++;
         
         if (attempts >= maxAttempts) {
-          await storage.updateAiImage(aiImageId, {
-            imageUrl: 'error',
-            prompt: 'Generation timeout - max attempts reached'
+          await storage.updateGenerationTracker(trackerId, {
+            status: 'timeout',
+            imageUrls: JSON.stringify(['Generation timeout - max attempts reached'])
           });
           throw new Error('Generation polling timeout');
         }
