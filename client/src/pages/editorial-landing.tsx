@@ -250,7 +250,7 @@ export default function EditorialLanding() {
                 <div className="text-6xl sm:text-8xl font-serif font-extralight opacity-10 absolute">01</div>
                 <h3 className="font-serif text-xl sm:text-2xl font-light mb-3 sm:mb-4 relative z-10">AI Photoshoot</h3>
                 <p className="text-sm text-gray-600 group-hover:text-white/80 leading-relaxed">
-                  Upload your selfies, get professional brand photos that look like you hired a photographer.
+                  Upload your phone selfies, get photos that look like you hired a fancy photographer. No studio required.
                 </p>
               </div>
             </div>
@@ -274,31 +274,31 @@ export default function EditorialLanding() {
                 <div className="text-6xl sm:text-8xl font-serif font-extralight opacity-10 absolute">02</div>
                 <h3 className="font-serif text-xl sm:text-2xl font-light mb-3 sm:mb-4 relative z-10">Luxury Flatlays</h3>
                 <p className="text-sm text-gray-600 group-hover:text-white/80 leading-relaxed">
-                  Professional flatlay collections to elevate your brand with that expensive aesthetic.
+                  Gorgeous flatlay collections that make your brand look expensive. Perfect for when you need content but don't have time to style it yourself.
                 </p>
               </div>
             </div>
 
-            {/* Sandra Personal Brand AI Agent */}
+            {/* Sandra's AI Agents */}
             <div className="bg-white group hover:bg-black hover:text-white transition-all duration-500">
               <div className="aspect-square bg-gray-100 overflow-hidden relative">
                 <img
                   src={SandraImages.hero.dashboard}
-                  alt="Sandra AI Agent"
+                  alt="Sandra's AI Agents"
                   className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
                 />
                 <div className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity duration-500 flex items-end p-8">
                   <div className="text-white">
-                    <h4 className="text-xs uppercase tracking-[0.3em] mb-2">Sandra AI Agent</h4>
-                    <p className="text-sm opacity-80">Your personal brand strategist</p>
+                    <h4 className="text-xs uppercase tracking-[0.3em] mb-2">Sandra's Agents</h4>
+                    <p className="text-sm opacity-80">Meet Victoria and Maya</p>
                   </div>
                 </div>
               </div>
               <div className="p-6 sm:p-8">
                 <div className="text-6xl sm:text-8xl font-serif font-extralight opacity-10 absolute">03</div>
-                <h3 className="font-serif text-xl sm:text-2xl font-light mb-3 sm:mb-4 relative z-10">Sandra Personal Brand AI Agent</h3>
+                <h3 className="font-serif text-xl sm:text-2xl font-light mb-3 sm:mb-4 relative z-10">Sandra's Agents</h3>
                 <p className="text-sm text-gray-600 group-hover:text-white/80 leading-relaxed">
-                  Strategy that's as unique as you are. My AI knows what worked, what didn't, and what you need to focus on first.
+                  You get my trained AI agents Victoria and Maya. Victoria handles your brand strategy, Maya's your celebrity stylist. Like having my whole team in your pocket.
                 </p>
               </div>
             </div>
