@@ -11,94 +11,94 @@ import { SandraImages } from '@/lib/sandra-images';
 const PROMPT_COLLECTIONS = {
   'healing-mindset': {
     id: 'healing-mindset',
-    name: 'M I N D S E T',
-    subtitle: 'M O M E N T S',
-    description: 'Peaceful & authentic wellness photography',
+    name: 'HEALING MINDSET',
+    subtitle: 'Phoenix Rising',
+    description: 'The quiet strength of a woman who rebuilt herself - capturing the beauty of healing and the power of rising',
     preview: SandraImages.portraits.professional[2],
     prompts: [
       {
-        id: 'shadow-play-vulnerability',
-        name: 'Shadow Play Vulnerability',
-        category: 'Raw Moments',
-        description: "Sitting in corner where walls meet, harsh window light creating geometric shadows across face and body.",
-        prompt: '[triggerword] woman long dark messy hair, sitting in corner where walls meet, harsh window light creating geometric shadows across face and body, wearing simple black tank, bare walls, shot on Leica M11 Monochrom with 50mm Noctilux f/0.95, high contrast shadows, raw photo, exhausted expression, visible skin imperfections, heavy grain, unretouched raw emotion, documentary style'
-      },
-      {
-        id: 'bathroom-floor-truth',
-        name: 'Bathroom Floor Truth', 
-        category: 'Raw Moments',
-        description: "Sitting on bathroom floor against bathtub, single overhead light creating harsh downward shadows.",
-        prompt: '[triggerword] woman long dark wet hair, sitting on bathroom floor against bathtub, wearing oversized black t-shirt, single overhead light creating harsh downward shadows, shot on Canon 5D Mark IV with 35mm f/1.4, bathroom tiles visible, raw photo, makeup smeared, real skin texture, heavy grain, unretouched rock bottom moment'
-      },
-      {
-        id: 'window-silhouette-pain',
-        name: 'Window Silhouette Pain',
-        category: 'Raw Moments', 
-        description: "Standing against bright window becoming silhouette, body language showing defeat.",
-        prompt: '[triggerword] woman long dark hair backlit, standing against bright window becoming silhouette, wearing black slip, body language showing defeat, shot on Fujifilm X-Pro3 with 35mm f/1.4, extreme backlighting, raw photo, figure in shadow, emotional posture, film grain, unretouched isolation'
-      },
-      {
-        id: 'kitchen-floor-3am',
-        name: 'Kitchen Floor 3AM',
-        category: 'Raw Moments',
-        description: "Sitting on kitchen floor in refrigerator light only, holding coffee mug.",
-        prompt: '[triggerword] woman long dark tangled hair, sitting on kitchen floor in refrigerator light only, wearing black robe fallen open, holding coffee mug, shot on Sony A7S III with 24mm f/1.4, only fridge light source, raw photo, insomnia visible on face, natural tired skin, heavy grain, unretouched sleepless reality'
-      },
-      {
-        id: 'mirror-fragmentation', 
-        name: 'Mirror Fragmentation',
-        category: 'Raw Moments',
-        description: "Looking at broken mirror reflection, multiple fractured reflections.",
-        prompt: '[triggerword] woman long dark hair covering partial face, looking at broken mirror reflection, wearing black camisole, multiple fractured reflections, shot on Pentax 645Z with 75mm f/2.8, single bare bulb lighting, raw photo, distorted self-image, real skin in harsh light, grain, unretouched identity crisis'
-      },
-      {
-        id: 'iphone-mirror-selfie',
-        name: 'iPhone Mirror Selfie',
-        category: 'Modern Portraits',
-        description: "Taking mirror selfie with iPhone, luxury marble bathroom setting.",
-        prompt: '[triggerword] woman long dark hair, taking mirror selfie with iPhone 15 Pro Max, wearing black slip dress, luxury marble bathroom, ring light reflection visible in mirror, shot on Hasselblad H6D-100c with 50mm lens f/2.8, ambient bathroom lighting, raw photo, natural skin in mirror reflection, film grain, unretouched authentic moment, lifestyle editorial'
-      },
-      {
-        id: 'iphone-half-face-cover',
-        name: 'iPhone Half Face Cover',
-        category: 'Modern Portraits',
-        description: "Holding iPhone covering left half of face, only right eye visible with intense gaze.",
-        prompt: '[triggerword] woman long dark hair flowing, holding iPhone 15 Pro Max covering left half of face, only right eye visible with intense gaze, wearing black silk top, white studio backdrop, shot on Canon 5DS R with 85mm f/1.2L lens, soft beauty lighting, raw photo, visible skin pores on exposed face, film grain, unretouched natural skin texture, subsurface scattering, modern portrait photography'
-      },
-      {
-        id: 'beach-meditation',
-        name: 'Beach Meditation',
-        category: 'Ocean Healing',
-        description: "Peaceful meditation by the ocean. Lotus pose, waves in background, that zen moment where everything feels aligned.",
-        prompt: '[triggerword] woman in lotus pose on sand, voluminous hair with natural body and movement, black ribbed bodysuit or fitted long-sleeve top, eyes closed in meditation, ocean waves in background, golden hour side lighting, serene expression, mindfulness practice, shot on Nikon Z9 with 50mm f/1.2S lens, soft golden hour lighting, beach yoga aesthetic, heavy 35mm film grain, matte textured skin, soft skin retouch, Kodak Portra 400 film aesthetic, visible pores and natural texture, gentle facial refinement, editorial skin enhancement. Negative: shiny skin, glossy skin, fake skin, plastic-looking skin, over-processed skin'
-      },
-      {
-        id: 'candlelit-meditation',
-        name: 'Candlelit Meditation',
+        id: 'morning-meditation-solitude',
+        name: 'Morning Solitude',
         category: 'Inner Peace',
-        description: "You know those nights when you just need to reset? Light some candles, close your eyes, and find your zen.",
-        prompt: '[triggerword] woman in meditation pose, voluminous hair with natural body and movement, black ribbed bodysuit or fitted long-sleeve top, surrounded by candles, indoor zen space, warm candlelight glow on face, eyes closed in peace, healing sanctuary, shot on Sony A7R V with 85mm f/1.4 GM lens, intimate candlelight illumination, mindfulness photography, heavy 35mm film grain, matte textured skin, soft skin retouch, analog film photography aesthetic, natural skin imperfections and visible pores, gentle facial refinement, editorial skin enhancement. Negative: shiny skin, glossy skin, fake skin, plastic-looking skin, over-processed skin'
+        description: 'Finding stillness in the storm - the morning ritual that saved your sanity',
+        prompt: 'raw photo, visible skin pores, film grain, unretouched natural skin texture, subsurface scattering, photographed on film, [triggerword], woman in soft neutral clothing sitting in meditation pose by large window, morning light gently illuminating her peaceful face, eyes closed in deep contemplation, natural untouched beauty, hair in simple loose style, hands resting gently, shot on Leica Q2 with 28mm f/1.7 lens, meditation photography, soft morning lighting, inner peace aesthetic'
       },
       {
-        id: 'morning-ritual',
-        name: 'Morning Ritual',
-        category: 'Inner Peace',
-        description: "My favorite time of day. Just you, your tea, and that perfect window light. Pure morning magic.",
-        prompt: '[triggerword] woman in morning meditation, voluminous hair with natural body and movement, sitting by window with natural light, holding warm tea, peaceful expression, plants visible, cozy healing space, daily mindfulness practice, shot on Fujifilm GFX100S with 110mm f/2 lens, soft morning window lighting, wellness lifestyle, heavy 35mm film grain, matte textured skin, soft skin retouch, pronounced texture, authentic grain pattern and visible pores, gentle facial refinement, editorial skin enhancement. Negative: shiny skin, glossy skin, fake skin, plastic-looking skin, over-processed skin'
+        id: 'ocean-therapy-walk',
+        name: 'Ocean Healing',
+        category: 'Nature Therapy',
+        description: 'Where the ocean became your therapist - finding peace in endless horizons',
+        prompt: 'raw photo, visible skin pores, film grain, unretouched natural skin texture, subsurface scattering, photographed on film, [triggerword], woman in flowing linen dress walking alone on empty beach at dawn, ocean waves gently reaching shore, contemplative expression while processing thoughts, hair moving naturally in sea breeze, bare feet in sand, shot on Canon EOS R5 with 85mm f/1.4 lens, ocean therapy photography, golden dawn lighting, healing solitude aesthetic'
       },
       {
-        id: 'forest-grounding',
-        name: 'Forest Grounding',
+        id: 'journal-writing-ritual',
+        name: 'Truth on Paper',
+        category: 'Emotional Release',
+        description: 'Writing your way through the pain - where honesty becomes healing',
+        prompt: 'raw photo, visible skin pores, film grain, unretouched natural skin texture, subsurface scattering, photographed on film, [triggerword], woman in oversized cashmere sweater writing in leather journal at wooden table, soft afternoon light streaming through window, focused expression while processing emotions through words, minimal makeup revealing natural features, hair naturally falling around face, shot on Fujifilm GFX 100S with 63mm f/2.8 lens, journaling photography, natural writing light, emotional processing aesthetic'
+      },
+      {
+        id: 'therapy-session-breakthrough',
+        name: 'Breakthrough Moment',
+        category: 'Professional Healing',
+        description: 'The session where everything clicked - when vulnerability became strength',
+        prompt: 'raw photo, visible skin pores, film grain, unretouched natural skin texture, subsurface scattering, photographed on film, [triggerword], woman in comfortable clothing sitting in therapy chair, soft natural light from office window, genuine expression of realization and understanding, hands clasped thoughtfully, natural beauty without artifice, shot on Sony A7R IV with 50mm f/1.2 lens, therapy session photography, soft office lighting, healing breakthrough aesthetic'
+      },
+      {
+        id: 'single-mom-bedtime-strength',
+        name: 'Bedtime Strength',
+        category: 'Maternal Resilience',
+        description: 'After tucking them in - the quiet moment when you realize how strong you really are',
+        prompt: 'raw photo, visible skin pores, film grain, unretouched natural skin texture, subsurface scattering, photographed on film, [triggerword], woman in soft pajamas sitting on edge of child\'s bed after bedtime story, gentle nightlight creating warm glow, peaceful expression of maternal strength, natural beauty in domestic moment, hair in relaxed evening style, shot on Leica M11 with 50mm f/1.4 lens, maternal strength photography, warm evening lighting, single mother resilience aesthetic'
+      },
+      {
+        id: 'mirror-self-acceptance',
+        name: 'Mirror Truth',
+        category: 'Self-Acceptance',
+        description: 'Looking in the mirror and finally seeing your worth - the moment everything changed',
+        prompt: 'raw photo, visible skin pores, film grain, unretouched natural skin texture, subsurface scattering, photographed on film, [triggerword], woman looking at herself in bathroom mirror with gentle acceptance, soft natural light from window, genuine expression of self-recognition and worth, no makeup revealing natural beauty, hair in honest morning state, shot on Canon EOS R6 with 85mm f/1.2 lens, self-acceptance photography, natural bathroom lighting, authentic self-love aesthetic'
+      },
+      {
+        id: 'forest-therapy-walk',
+        name: 'Forest Healing',
         category: 'Nature Connection',
-        description: "When you need to get out of your head and into nature. Tree hugging is totally allowed here.",
-        prompt: '[triggerword] woman standing among trees, voluminous hair with natural body and movement, touching tree trunk, earthing practice, wearing linen button-down shirt and wide-leg trousers in earth tones, dappled forest light, connection with nature, grounding energy, shot on Leica Q2 with 28mm f/1.7 lens, natural forest lighting with dappled shadows, forest therapy moment, heavy 35mm film grain, matte textured skin, soft skin retouch, film negative quality, visible grain structure and natural pores, gentle facial refinement, editorial skin enhancement. Negative: shiny skin, glossy skin, fake skin, plastic-looking skin, over-processed skin'
+        description: 'When trees became your teachers - finding wisdom in ancient growth',
+        prompt: 'raw photo, visible skin pores, film grain, unretouched natural skin texture, subsurface scattering, photographed on film, [triggerword], woman in earth-toned layers walking slowly through forest path, dappled sunlight filtering through trees, serene expression while connecting with nature, natural windswept hair, hands touching tree bark gently, shot on Fujifilm X-T5 with 35mm f/1.4 lens, forest therapy photography, natural woodland lighting, earth connection aesthetic'
       },
       {
-        id: 'yoga-flow',
-        name: 'Yoga Flow',
-        category: 'Movement Medicine',
-        description: "Because your yoga practice is gorgeous and powerful. Let's show the world your graceful strength.",
-        prompt: '[triggerword] woman in yoga pose, voluminous hair with natural body and movement, flowing movement captured, natural light studio, black ribbed bodysuit or fitted athletic wear, graceful strength, moving meditation, healing through movement, shot on Canon R6 Mark II with 35mm f/1.8 lens, soft natural studio lighting, wellness photography, heavy 35mm film grain, matte textured skin, soft skin retouch, authentic texture with visible pores, gentle facial refinement, editorial skin enhancement. Negative: shiny skin, glossy skin, fake skin, plastic-looking skin, over-processed skin'
+        id: 'crying-release-moment',
+        name: 'Sacred Tears',
+        category: 'Emotional Honesty',
+        description: 'The tears that washed away the old you - sacred release of what no longer serves',
+        prompt: 'raw photo, visible skin pores, film grain, unretouched natural skin texture, subsurface scattering, photographed on film, [triggerword], woman in soft clothing allowing tears to flow naturally, sitting by window with gentle light, vulnerable expression of emotional release, natural beauty in raw moment, hair naturally framing face, shot on Leica SL2 with 90mm f/2 lens, emotional release photography, soft natural lighting, vulnerable healing aesthetic'
+      },
+      {
+        id: 'book-wisdom-absorption',
+        name: 'Wisdom Gathering',
+        category: 'Learning to Heal',
+        description: 'Finding answers in pages - when books became your healing guides',
+        prompt: 'raw photo, visible skin pores, film grain, unretouched natural skin texture, subsurface scattering, photographed on film, [triggerword], woman in cozy reading nook surrounded by self-help and healing books, soft reading light creating warm atmosphere, contemplative expression while absorbing wisdom, natural beauty in learning moment, hair in comfortable reading style, shot on Sony A7R V with 85mm f/1.4 lens, reading for healing photography, warm lamp lighting, knowledge seeking aesthetic'
+      },
+      {
+        id: 'phoenix-rising-portrait',
+        name: 'Phoenix Rising',
+        category: 'Transformation',
+        description: 'The woman you became after the fire - stronger, wiser, unbreakable',
+        prompt: 'raw photo, visible skin pores, film grain, unretouched natural skin texture, subsurface scattering, photographed on film, [triggerword], woman in flowing white clothing standing in golden field at sunset, powerful yet serene expression of transformation, hair flowing in evening breeze, arms slightly outstretched feeling freedom, natural radiant beauty, shot on Canon EOS R5 with 70-200mm f/2.8 lens, transformation photography, golden hour lighting, phoenix rising aesthetic'
+      },
+      {
+        id: 'new-beginning-sunrise',
+        name: 'New Dawn',
+        category: 'Fresh Starts',
+        description: 'Watching the sunrise with new eyes - when hope returned to your heart',
+        prompt: 'raw photo, visible skin pores, film grain, unretouched natural skin texture, subsurface scattering, photographed on film, [triggerword], woman in warm sweater watching sunrise from mountain viewpoint, soft golden light illuminating hopeful expression, natural beauty in moment of renewal, hair gently moved by morning breeze, hands wrapped around coffee mug, shot on Fujifilm GFX 50S with 110mm f/2 lens, sunrise hope photography, golden dawn lighting, new beginning aesthetic'
+      },
+      {
+        id: 'strength-in-stillness',
+        name: 'Stillness Strength',
+        category: 'Inner Power',
+        description: 'The power you found in stillness - when silence became your superpower',
+        prompt: 'raw photo, visible skin pores, film grain, unretouched natural skin texture, subsurface scattering, photographed on film, [triggerword], woman sitting in peaceful meditation in minimalist room, soft natural light creating gentle shadows, expression of deep inner strength and peace, natural beauty in contemplative moment, hair in simple natural style, shot on Leica Q2 Monochrom with natural lighting, inner strength photography, peaceful lighting, quiet power aesthetic'
       }
     ]
   },
