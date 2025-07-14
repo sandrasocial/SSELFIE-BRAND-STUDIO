@@ -46,7 +46,7 @@ export const users = pgTable("users", {
 // User profile table for additional profile information
 export const userProfiles = pgTable("user_profiles", {
   id: serial("id").primaryKey(),
-  userId: varchar("user_id").references(() => users.id).notNull(),
+  userId: varchar("user_id").references(() => users.id, { onDelete: "cascade" }).notNull(),
   fullName: varchar("full_name"),
   phone: varchar("phone"),
   location: varchar("location"),
@@ -62,7 +62,7 @@ export const userProfiles = pgTable("user_profiles", {
 // User projects/brands table
 export const projects = pgTable("projects", {
   id: serial("id").primaryKey(),
-  userId: varchar("user_id").references(() => users.id).notNull(),
+  userId: varchar("user_id").references(() => users.id, { onDelete: "cascade" }).notNull(),
   name: varchar("name").notNull(),
   description: text("description"),
   status: varchar("status").default("draft"), // draft, published, archived
@@ -78,7 +78,7 @@ export const projects = pgTable("projects", {
 // Generation tracking table - for temp preview ONLY (not gallery)
 export const generationTrackers = pgTable("generation_trackers", {
   id: serial("id").primaryKey(),
-  userId: varchar("user_id").references(() => users.id).notNull(),
+  userId: varchar("user_id").references(() => users.id, { onDelete: "cascade" }).notNull(),
   predictionId: varchar("prediction_id"),
   prompt: text("prompt"),
   style: varchar("style"),
@@ -91,7 +91,7 @@ export const generationTrackers = pgTable("generation_trackers", {
 // AI generated images table - GALLERY ONLY (permanent S3 URLs)
 export const aiImages = pgTable("ai_images", {
   id: serial("id").primaryKey(),
-  userId: varchar("user_id").references(() => users.id).notNull(),
+  userId: varchar("user_id").references(() => users.id, { onDelete: "cascade" }).notNull(),
   imageUrl: varchar("image_url").notNull(),
   prompt: text("prompt"),
   style: varchar("style"), // editorial, business, lifestyle, luxury
@@ -117,7 +117,7 @@ export const templates = pgTable("templates", {
 // User subscriptions table
 export const subscriptions = pgTable("subscriptions", {
   id: serial("id").primaryKey(),
-  userId: varchar("user_id").references(() => users.id).notNull(),
+  userId: varchar("user_id").references(() => users.id, { onDelete: "cascade" }).notNull(),
   plan: varchar("plan").notNull(), // "free" or "sselfie-studio"
   status: varchar("status").notNull(), // active, cancelled, expired
   stripeSubscriptionId: varchar("stripe_subscription_id"),
@@ -130,7 +130,7 @@ export const subscriptions = pgTable("subscriptions", {
 // User usage tracking table
 export const userUsage = pgTable("user_usage", {
   id: serial("id").primaryKey(),
-  userId: varchar("user_id").references(() => users.id).notNull(),
+  userId: varchar("user_id").references(() => users.id, { onDelete: "cascade" }).notNull(),
   plan: varchar("plan").notNull(), // "free" or "sselfie-studio"
   // AI Generation limits and usage
   monthlyGenerationsAllowed: integer("monthly_generations_allowed").notNull(), // 5 for free, 100 for paid
