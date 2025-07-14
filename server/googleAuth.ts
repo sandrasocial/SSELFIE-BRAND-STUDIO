@@ -80,11 +80,11 @@ export async function setupGoogleAuth(app: Express) {
     return 'http://localhost:5000/api/auth/google/callback';
   };
 
-  // Google OAuth Strategy
+  // Google OAuth Strategy with dynamic callback URL
   passport.use(new GoogleStrategy({
     clientID: googleClientId,
     clientSecret: googleClientSecret,
-    callbackURL: "/api/auth/google/callback"
+    callbackURL: "https://e33979fc-c9be-4f0d-9a7b-6a3e83046828-00-3ij9k7qy14rai.picard.replit.dev/api/auth/google/callback"
   },
   async (accessToken, refreshToken, profile, done) => {
     try {
@@ -140,14 +140,7 @@ export async function setupGoogleAuth(app: Express) {
 
   // Auth routes
   app.get('/api/login', (req, res, next) => {
-    const callbackURL = getCallbackURL(req);
-    console.log('🔍 Using callback URL:', callbackURL);
-    
-    // Update strategy with correct callback URL
-    const strategy = passport._strategies.google;
-    if (strategy) {
-      strategy._callbackURL = callbackURL;
-    }
+    console.log('🔍 Starting Google OAuth login');
     
     passport.authenticate('google', {
       scope: ['profile', 'email']
@@ -160,7 +153,7 @@ export async function setupGoogleAuth(app: Express) {
       console.log('🔍 Query params:', req.query);
       
       passport.authenticate('google', { 
-        failureRedirect: '/api/login',
+        failureRedirect: '/api/login?error=auth_failed',
         successRedirect: '/workspace'
       })(req, res, next);
     }
