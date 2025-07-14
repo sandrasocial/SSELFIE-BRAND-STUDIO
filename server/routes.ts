@@ -1767,51 +1767,7 @@ Create prompts that feel like iconic fashion campaign moments that would make so
     }
   });
 
-  // TESTING: Verify user model isolation - check if users get their own models
-  app.get('/api/test-user-model-isolation', async (req: any, res) => {
-    try {
-      console.log('🔧 TESTING: Checking if users get their own models vs founder model');
-      
-      // Get all training models
-      const trainingModels = await db.select().from(userModels).where(eq(userModels.trainingStatus, 'training'));
-      
-      const results = [];
-      for (const model of trainingModels) {
-        const isFounderModel = false; // Removed founder model detection for production
-        
-        results.push({
-          userId: model.userId,
-          modelName: model.modelName,
-          triggerWord: model.triggerWord,
-          replicateModelId: model.replicateModelId,
-          isFounderModel,
-          expectedLoRA: `sandrasocial/${model.modelName}`,
-          status: model.trainingStatus,
-          createdAt: model.createdAt
-        });
-      }
-      
-      // Check for founder model contamination
-      const founderContamination = results.filter(r => r.isFounderModel);
-      const uniqueUserModels = results.filter(r => !r.isFounderModel);
-      
-      res.json({
-        success: true,
-        totalModels: results.length,
-        founderContamination: founderContamination.length,
-        uniqueUserModels: uniqueUserModels.length,
-        results,
-        analysis: {
-          issue: founderContamination.length > 0 ? 'FOUNDER MODEL CONTAMINATION DETECTED' : 'USER MODEL ISOLATION WORKING',
-          solution: 'Each user should have unique model name and trigger word',
-          fixApplied: 'Updated image generation to use userModel.modelName from database'
-        }
-      });
-    } catch (error) {
-      console.error('🔧 TEST: Error:', error);
-      res.status(500).json({ error: error.message });
-    }
-  });
+
 
   // TESTING: Check actual Replicate training status
   app.get('/api/test-replicate-training', async (req: any, res) => {
@@ -1890,49 +1846,7 @@ Create prompts that feel like iconic fashion campaign moments that would make so
     }
   });
 
-  // TESTING: Direct test endpoint to verify user model system works - AUTHENTICATION REQUIRED
-  app.get('/api/test-user-model', isAuthenticated, async (req: any, res) => {
-    try {
-      const userId = req.user.claims.sub;
-      console.log(`🔧 TEST: Creating/fetching user model for ${userId}`);
-      
-      // First ensure user exists in users table
-      let user = await storage.getUser(userId);
-      if (!user) {
-        console.log('🔧 TEST: Creating test user first');
-        user = await storage.upsertUser({
-          id: userId,
-          email: 'test@example.com',
-          firstName: 'Test',
-          lastName: 'User',
-          profileImageUrl: null
-        });
-      }
-      
-      let userModel = await storage.getUserModelByUserId(userId);
-      
-      if (!userModel) {
-        console.log('🔧 TEST: Creating new user model');
-        userModel = await storage.createUserModel({
-          userId,
-          triggerWord: `user${userId}`,
-          trainingStatus: 'not_started',
-          modelName: 'Test User AI Model'
-        });
-      }
-      
-      console.log('🔧 TEST: User model result:', userModel);
-      res.json({
-        success: true,
-        user,
-        userModel,
-        message: 'Test user model endpoint working - user and model created'
-      });
-    } catch (error) {
-      console.error('🔧 TEST: Error:', error);
-      res.status(500).json({ error: error.message });
-    }
-  });
+
 
   // Subscription routes
   app.get('/api/subscription', async (req: any, res) => {
@@ -1955,36 +1869,62 @@ Create prompts that feel like iconic fashion campaign moments that would make so
     }
   });
 
-  // AI Model Training API - TEMPORARY MOCK FOR DEVELOPMENT
-  app.get('/api/user-model', async (req: any, res) => {
+  // AI Model Training API - LIVE PRODUCTION
+  app.get('/api/user-model', isAuthenticated, async (req: any, res) => {
     try {
-      console.log('🔍 User model endpoint called (DEVELOPMENT MODE)');
+      const authUserId = req.user.claims.sub;
+      const claims = req.user.claims;
       
-      // For development, return a simple mock user model
-      const mockUserModel = {
-        id: 1,
-        userId: 'dev-user-123',
-        triggerWord: 'userdev_user_123',
-        trainingStatus: 'not_started',
-        modelName: 'Development AI Model',
-        replicateModelId: null,
-        createdAt: new Date().toISOString(),
-        updatedAt: new Date().toISOString()
-      };
+      console.log(`🔍 Live user model endpoint - auth ID: ${authUserId}`);
       
-      console.log('✅ Returning mock user model:', mockUserModel);
-      res.json(mockUserModel);
+      // Get the correct database user ID
+      let user = await storage.getUser(authUserId);
+      if (!user && claims.email) {
+        user = await storage.getUserByEmail(claims.email);
+      }
+      
+      if (!user) {
+        // Create user if they don't exist
+        user = await storage.upsertUser({
+          id: authUserId,
+          email: claims.email || `${authUserId}@example.com`,
+          firstName: claims.first_name,
+          lastName: claims.last_name,
+          profileImageUrl: claims.profile_image_url
+        });
+      }
+      
+      const dbUserId = user.id;
+      
+      // Get real user model from database
+      const userModel = await storage.getUserModelByUserId(dbUserId);
+      
+      if (userModel) {
+        console.log('✅ Found existing user model:', userModel);
+        res.json(userModel);
+      } else {
+        // Create new user model
+        const triggerWord = `user${dbUserId.replace(/[^a-zA-Z0-9]/g, '_')}_${Date.now()}`;
+        const newModel = await storage.createUserModel({
+          userId: dbUserId,
+          triggerWord,
+          trainingStatus: 'pending',
+          modelName: `${user.firstName || 'User'} AI Model`
+        });
+        console.log('✅ Created new user model:', newModel);
+        res.json(newModel);
+      }
     } catch (error) {
-      console.error("Error in mock user model endpoint:", error);
+      console.error("❌ Error fetching user model:", error);
       res.status(500).json({ message: "Failed to fetch user model" });
     }
   });
 
-  app.post('/api/start-model-training', async (req: any, res) => {
+  app.post('/api/start-model-training', isAuthenticated, async (req: any, res) => {
     try {
-      // Development bypass for authentication
-      const authUserId = req.user?.claims?.sub || 'dev-user-123';
-      console.log(`🔍 Start training endpoint - auth ID: ${authUserId}`);
+      const authUserId = req.user.claims.sub;
+      const claims = req.user.claims;
+      console.log(`🔍 Live training endpoint - auth ID: ${authUserId}`);
 
       const { selfieImages } = req.body;
       
@@ -1992,48 +1932,79 @@ Create prompts that feel like iconic fashion campaign moments that would make so
         return res.status(400).json({ message: "At least 5 selfie images required for training" });
       }
 
-      // For development, use simplified approach without database operations
-      const dbUserId = authUserId;
-      console.log(`Starting model training for user ${dbUserId} with ${selfieImages.length} images`);
+      // Get or create user
+      let user = await storage.getUser(authUserId);
+      if (!user) {
+        user = await storage.upsertUser({
+          id: authUserId,
+          email: claims.email || `${authUserId}@example.com`,
+          firstName: claims.first_name,
+          lastName: claims.last_name,
+          profileImageUrl: claims.profile_image_url
+        });
+      }
+
+      const dbUserId = user.id;
+      console.log(`🚀 Starting LIVE model training for user ${dbUserId} with ${selfieImages.length} images`);
 
       // Generate unique trigger word for this user
-      const triggerWord = `user${dbUserId.replace(/[^a-zA-Z0-9]/g, '_')}`;
+      const triggerWord = `user${dbUserId.replace(/[^a-zA-Z0-9]/g, '_')}_${Date.now()}`;
       const modelName = `${dbUserId}-selfie-lora`;
 
-      // For development, simulate user model
-      let userModel = {
-        id: 1,
-        userId: dbUserId,
-        triggerWord,
-        modelName,
-        trainingStatus: 'training'
-      };
+      // Update or create user model for training
+      let userModel = await storage.getUserModelByUserId(dbUserId);
+      if (userModel) {
+        userModel = await storage.updateUserModel(dbUserId, {
+          triggerWord,
+          modelName,
+          trainingStatus: 'training',
+          startedAt: new Date()
+        });
+      } else {
+        userModel = await storage.createUserModel({
+          userId: dbUserId,
+          triggerWord,
+          modelName,
+          trainingStatus: 'training',
+          startedAt: new Date()
+        });
+      }
 
-      // For development testing, simulate training start
-      console.log('Development mode: simulating training start...');
+      // Start REAL Replicate training
+      console.log('🔥 Starting REAL Replicate API training...');
+      const { ModelTrainingService } = await import('./model-training-service');
+      
+      const result = await ModelTrainingService.startModelTraining(dbUserId, selfieImages);
+      
+      // Update model with Replicate training ID
+      await storage.updateUserModel(dbUserId, {
+        replicateModelId: result.trainingId
+      });
       
       res.json({
         success: true,
-        message: "AI model training started successfully (Development Mode)",
-        trainingId: `dev-training-${Date.now()}`,
-        status: 'training',
-        estimatedCompletionTime: "20 minutes"
+        message: "AI model training started successfully",
+        trainingId: result.trainingId,
+        status: result.status,
+        estimatedCompletionTime: "20 minutes",
+        triggerWord: triggerWord
       });
       
-      console.log('Development training simulation started for user:', dbUserId);
+      console.log('✅ LIVE Replicate training started for user:', dbUserId);
     } catch (error) {
-      console.error("Development training simulation error:", error);
+      console.error("❌ LIVE model training failed:", error);
       res.status(500).json({ 
-        message: "Development training simulation failed", 
+        message: "Model training failed", 
         error: error.message
       });
     }
   });
 
-  // Get REAL training status - NO SIMULATION/MOCK DATA
-  app.get('/api/training-status', async (req: any, res) => {
+  // Get LIVE training status
+  app.get('/api/training-status', isAuthenticated, async (req: any, res) => {
     try {
-      // Get authenticated user ID from session - NO HARDCODED TEST IDS
+      // Get authenticated user ID from session
+      const authUserId = req.user.claims.sub;
       const userId = req.session?.userId;
       if (!userId) {
         return res.status(401).json({ message: "Authentication required" });
