@@ -79,7 +79,7 @@ export default function Maya() {
   const [savingImages, setSavingImages] = useState<Set<string>>(new Set());
   const [selectedImage, setSelectedImage] = useState<string | null>(null);
   const [generationProgress, setGenerationProgress] = useState(0);
-  const [currentImageId, setCurrentImageId] = useState<number | null>(null);
+  const [currentTrackerId, setCurrentTrackerId] = useState<number | null>(null);
   const [currentChatId, setCurrentChatId] = useState<number | null>(null);
 
 
@@ -212,8 +212,8 @@ export default function Maya() {
     }
   };
 
-  // Poll for image completion
-  const pollForImages = async (imageId: number) => {
+  // 🔑 NEW: Poll tracker for image completion (using new tracker system)
+  const pollForTrackerCompletion = async (trackerId: number) => {
     const maxAttempts = 40; // 2 minutes total (3 second intervals)
     let attempts = 0;
     
@@ -222,67 +222,46 @@ export default function Maya() {
         attempts++;
         setGenerationProgress(Math.min(90, (attempts / maxAttempts) * 90));
         
-        const response = await fetch('/api/ai-images');
-        if (!response.ok) throw new Error('Failed to fetch images');
+        const response = await fetch(`/api/generation-tracker/${trackerId}`);
+        if (!response.ok) throw new Error('Failed to fetch tracker status');
         
-        const images = await response.json();
-        const currentImage = images.find((img: any) => img.id === imageId);
+        const tracker = await response.json();
         
-        if (currentImage && currentImage.imageUrl && currentImage.imageUrl !== 'processing') {
+        if (tracker.status === 'completed' && tracker.imageUrls && tracker.imageUrls.length > 0) {
           // Image generation completed
-          console.log('Maya: Image generation completed!', currentImage);
-          console.log('Maya: imageUrl value:', currentImage.imageUrl);
+          console.log('Maya: Tracker generation completed!', tracker);
           
           setGenerationProgress(100);
           setIsGenerating(false);
+          setGeneratedImages(tracker.imageUrls);
           
-          if (currentImage.imageUrl.startsWith('http') || currentImage.imageUrl.startsWith('[')) {
-            // Parse the image URLs (should be array of 3 URLs)
-            let imageUrls: string[] = [];
-            try {
-              // Try to parse as JSON array first
-              const parsed = JSON.parse(currentImage.imageUrl);
-              console.log('Maya: Parsed imageUrl:', parsed);
-              if (Array.isArray(parsed)) {
-                imageUrls = parsed;
-                console.log('Maya: Found array with', imageUrls.length, 'images');
-              } else {
-                imageUrls = [currentImage.imageUrl];
-                console.log('Maya: Single URL fallback');
-              }
-            } catch (error) {
-              // If not JSON, treat as single URL
-              console.log('Maya: JSON parse failed, using single URL:', error);
-              imageUrls = [currentImage.imageUrl];
+          // Add image preview to the last Maya message
+          setMessages(prev => {
+            const newMessages = [...prev];
+            const lastMayaIndex = newMessages.map(m => m.role).lastIndexOf('maya');
+            if (lastMayaIndex >= 0) {
+              newMessages[lastMayaIndex] = {
+                ...newMessages[lastMayaIndex],
+                imagePreview: tracker.imageUrls
+              };
             }
-            
-            setGeneratedImages(imageUrls);
-            
-            // Add image preview to the last Maya message
-            setMessages(prev => {
-              const newMessages = [...prev];
-              const lastMayaIndex = newMessages.map(m => m.role).lastIndexOf('maya');
-              if (lastMayaIndex >= 0) {
-                newMessages[lastMayaIndex] = {
-                  ...newMessages[lastMayaIndex],
-                  imagePreview: imageUrls
-                };
-              }
-              return newMessages;
-            });
-            
-            toast({
-              title: "Photos Ready!",
-              description: "Maya created 3 stunning photos. Choose your favorites to save!",
-            });
-          } else {
-            // Generation failed
-            toast({
-              title: "Generation Failed",
-              description: "Maya couldn't complete the photos. Try again!",
-              variant: "destructive",
-            });
-          }
+            return newMessages;
+          });
+          
+          toast({
+            title: "Photos Ready!",
+            description: "Maya created 3 stunning photos. Select your favorites to save permanently!",
+          });
+          return;
+        }
+        
+        if (tracker.status === 'failed') {
+          setIsGenerating(false);
+          toast({
+            title: "Generation Failed",
+            description: "Maya couldn't complete the photos. Try again!",
+            variant: "destructive",
+          });
           return;
         }
         
@@ -310,12 +289,12 @@ export default function Maya() {
     poll();
   };
 
-  // Generate images based on Maya's prompt
+  // 🔑 NEW: Generate images using tracker system (preview-first workflow)
   const generateImages = async (prompt: string) => {
     setIsGenerating(true);
     setGeneratedImages([]);
     setGenerationProgress(0);
-    setCurrentImageId(null);
+    setCurrentTrackerId(null);
     
     try {
       const response = await fetch('/api/maya-generate-images', {
@@ -336,18 +315,17 @@ export default function Maya() {
             description: data.reason || "You've reached your free limit. Upgrade to continue!",
             variant: "destructive",
           });
-          // Show upgrade modal or redirect to pricing
           window.location.href = '/pricing';
           return;
         }
         throw new Error(data.error || 'Failed to generate images');
       }
       
-      if (data.success && data.imageId) {
-        setCurrentImageId(data.imageId);
+      if (data.success && data.trackerId) {
+        setCurrentTrackerId(data.trackerId);
         
-        // Start polling for completion
-        pollForImages(data.imageId);
+        // Start polling tracker for completion
+        pollForTrackerCompletion(data.trackerId);
         
         toast({
           title: "Generation Started",
@@ -365,35 +343,58 @@ export default function Maya() {
     }
   };
 
-  // Save image to gallery
-  const saveToGallery = async (imageUrl: string, index: number) => {
-    if (savedImages.has(imageUrl) || savingImages.has(imageUrl)) return;
-    
-    setSavingImages(prev => new Set([...prev, imageUrl]));
+  // 🔑 NEW: Save selected preview images to permanent gallery
+  const saveSelectedToGallery = async (selectedUrls: string[]) => {
+    if (!currentTrackerId || selectedUrls.length === 0) return;
     
     try {
-      await apiRequest('POST', '/api/save-to-gallery', {
-        imageUrl,
-        prompt: `Maya AI Photoshoot - Image ${index + 1}`,
-        style: 'Maya AI',
-        subcategory: 'AI Photography'
+      const response = await fetch('/api/save-preview-to-gallery', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          trackerId: currentTrackerId,
+          selectedImageUrls: selectedUrls
+        }),
+      });
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        throw new Error(data.error || 'Failed to save images');
+      }
+      
+      // Mark images as saved
+      selectedUrls.forEach(url => {
+        setSavedImages(prev => new Set([...prev, url]));
       });
       
-      setSavedImages(prev => new Set([...prev, imageUrl]));
-      // Refresh gallery to show newly saved image
+      // Refresh gallery to show newly saved images
       queryClient.invalidateQueries({ queryKey: ['/api/gallery-images'] });
       
       toast({
         title: "Saved to Gallery",
-        description: "Image saved to your gallery and Maya dashboard",
+        description: `${data.savedCount} image${data.savedCount > 1 ? 's' : ''} saved permanently to your gallery!`,
       });
     } catch (error) {
       console.error('Error saving to gallery:', error);
       toast({
         title: "Save Failed",
-        description: "Could not save image. Please try again.",
+        description: "Could not save images. Please try again.",
         variant: "destructive",
       });
+    }
+  };
+
+  // Save single image to gallery with heart click
+  const saveToGallery = async (imageUrl: string) => {
+    if (savedImages.has(imageUrl) || savingImages.has(imageUrl)) return;
+    
+    setSavingImages(prev => new Set([...prev, imageUrl]));
+    
+    try {
+      await saveSelectedToGallery([imageUrl]);
     } finally {
       setSavingImages(prev => {
         const newSet = new Set(prev);
@@ -574,37 +575,62 @@ export default function Maya() {
                           </div>
                         )}
                         
-                        {/* Image Preview Grid */}
+                        {/* 🔑 NEW: Enhanced Image Preview Grid with Heart-Save */}
                         {message.role === 'maya' && message.imagePreview && (
                           <div className="mt-6">
-                            <h4 className="text-sm font-medium mb-3 text-black">Your Maya Photos</h4>
-                            <div className="grid grid-cols-3 gap-4">
+                            <div className="flex items-center justify-between mb-4">
+                              <h4 className="text-sm font-medium text-black">Your Maya Photos</h4>
+                              <p className="text-xs text-gray-500">Click to view full size • Heart to save permanently</p>
+                            </div>
+                            <div className="grid grid-cols-3 gap-3">
                               {message.imagePreview.map((imageUrl, imgIndex) => (
                                 <div key={imgIndex} className="relative group">
-                                  <img 
-                                    src={imageUrl}
-                                    alt={`Maya generated image ${imgIndex + 1}`}
-                                    className="w-full h-32 object-cover border border-gray-200 cursor-pointer hover:opacity-90 transition-opacity"
-                                    onClick={() => setSelectedImage(imageUrl)}
-                                  />
-                                  
-                                  {/* Save Button */}
-                                  <button
-                                    onClick={() => saveToGallery(imageUrl, imgIndex)}
-                                    disabled={savingImages.has(imageUrl)}
-                                    className="absolute top-2 right-2 bg-black/70 hover:bg-black text-white text-xs px-2 py-1 rounded transition-all"
-                                  >
-                                    {savingImages.has(imageUrl) ? '⟳' : (savedImages.has(imageUrl) ? '♥ Saved' : '♡ Save')}
-                                  </button>
-                                  
-                                  {/* Saved Indicator */}
-                                  {savedImages.has(imageUrl) && (
-                                    <div className="absolute bottom-2 left-2 bg-black text-white text-xs px-2 py-1 rounded">
-                                      In Gallery
-                                    </div>
-                                  )}
+                                  <div className="relative overflow-hidden border border-gray-200 hover:border-gray-300 transition-colors">
+                                    <img 
+                                      src={imageUrl}
+                                      alt={`Maya generated image ${imgIndex + 1}`}
+                                      className="w-full h-32 object-cover cursor-pointer hover:scale-105 transition-transform duration-200"
+                                      onClick={() => setSelectedImage(imageUrl)}
+                                    />
+                                    
+                                    {/* Minimalistic Heart Save Button */}
+                                    <button
+                                      onClick={(e) => {
+                                        e.stopPropagation();
+                                        saveToGallery(imageUrl);
+                                      }}
+                                      disabled={savingImages.has(imageUrl)}
+                                      className="absolute top-2 right-2 w-8 h-8 flex items-center justify-center bg-white/90 hover:bg-white border border-gray-200 hover:border-gray-300 rounded-full transition-all shadow-sm"
+                                      title={savedImages.has(imageUrl) ? 'Saved to gallery' : 'Save to gallery'}
+                                    >
+                                      {savingImages.has(imageUrl) ? (
+                                        <div className="w-3 h-3 border border-gray-400 border-t-transparent rounded-full animate-spin"></div>
+                                      ) : savedImages.has(imageUrl) ? (
+                                        <span className="text-red-500 text-sm">♥</span>
+                                      ) : (
+                                        <span className="text-gray-400 hover:text-red-500 text-sm transition-colors">♡</span>
+                                      )}
+                                    </button>
+                                    
+                                    {/* Subtle Saved Indicator */}
+                                    {savedImages.has(imageUrl) && (
+                                      <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/60 to-transparent p-2">
+                                        <div className="text-white text-xs font-medium">
+                                          ✓ Saved
+                                        </div>
+                                      </div>
+                                    )}
+                                    
+                                    {/* Hover overlay */}
+                                    <div className="absolute inset-0 bg-black/0 hover:bg-black/10 transition-colors pointer-events-none"></div>
+                                  </div>
                                 </div>
                               ))}
+                            </div>
+                            
+                            {/* Preview Status Message */}
+                            <div className="mt-3 text-xs text-gray-500 bg-gray-50 p-3 rounded border">
+                              <strong>Preview Mode:</strong> These are temporary preview images. Click the heart (♡) to save your favorites permanently to your gallery.
                             </div>
                           </div>
                         )}
@@ -671,25 +697,56 @@ export default function Maya() {
         </div>
       </section>
 
-      {/* Full-size Image Modal */}
+      {/* 🔑 ENHANCED: Full-size Image Modal with Heart-Save */}
       {selectedImage && (
         <div 
-          className="fixed inset-0 bg-black bg-opacity-80 flex items-center justify-center z-50 p-4"
+          className="fixed inset-0 bg-black bg-opacity-90 flex items-center justify-center z-50 p-4"
           onClick={() => setSelectedImage(null)}
         >
-          <div className="relative max-w-4xl max-h-full">
+          <div className="relative max-w-5xl max-h-full">
             <img 
               src={selectedImage}
               alt="Full size view"
-              className="max-w-full max-h-full object-contain"
+              className="max-w-full max-h-full object-contain rounded-lg shadow-2xl"
               onClick={(e) => e.stopPropagation()}
             />
-            <button 
-              onClick={() => setSelectedImage(null)}
-              className="absolute top-4 right-4 bg-black text-white rounded-full w-8 h-8 flex items-center justify-center hover:bg-gray-700 transition-colors"
-            >
-              ×
-            </button>
+            
+            {/* Modal Controls */}
+            <div className="absolute top-4 right-4 flex gap-2">
+              {/* Heart Save Button in Modal */}
+              <button
+                onClick={(e) => {
+                  e.stopPropagation();
+                  saveToGallery(selectedImage);
+                }}
+                disabled={savingImages.has(selectedImage)}
+                className="w-10 h-10 flex items-center justify-center bg-white/90 hover:bg-white border border-gray-200 hover:border-gray-300 rounded-full transition-all shadow-lg"
+                title={savedImages.has(selectedImage) ? 'Saved to gallery' : 'Save to gallery'}
+              >
+                {savingImages.has(selectedImage) ? (
+                  <div className="w-4 h-4 border border-gray-400 border-t-transparent rounded-full animate-spin"></div>
+                ) : savedImages.has(selectedImage) ? (
+                  <span className="text-red-500 text-lg">♥</span>
+                ) : (
+                  <span className="text-gray-400 hover:text-red-500 text-lg transition-colors">♡</span>
+                )}
+              </button>
+              
+              {/* Close Button */}
+              <button 
+                onClick={() => setSelectedImage(null)}
+                className="w-10 h-10 flex items-center justify-center bg-white/90 hover:bg-white text-gray-700 hover:text-black rounded-full transition-all shadow-lg"
+                title="Close"
+              >
+                <span className="text-xl leading-none">×</span>
+              </button>
+            </div>
+            
+            {/* Image Info */}
+            <div className="absolute bottom-4 left-4 bg-black/60 text-white px-4 py-2 rounded-lg backdrop-blur-sm">
+              <div className="text-sm font-medium">Maya AI Generated Photo</div>
+              <div className="text-xs text-white/80">Click heart to save permanently</div>
+            </div>
           </div>
         </div>
       )}
