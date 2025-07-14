@@ -151,15 +151,15 @@ function getPostAuthFreeHTML(firstName: string): string {
           <div style="font-size: 12px; letter-spacing: 0.2em; color: #666;">STUDIO</div>
         </div>
         
-        <h1>${firstName ? `Hey ${firstName}!` : 'Hey beautiful!'}</h1>
+        <h1>${firstName ? `Hey ${firstName}!` : 'Hey gorgeous!'}</h1>
         
         <div class="greeting">
-          Okay, so you actually did it. You signed up. Good for you!
+          So you actually signed up! I'm honestly so excited for you right now.
         </div>
         
-        <p>Look, I'm not gonna lie - most people just scroll past and keep dreaming. But you? You're here. That already tells me something about you.</p>
+        <p>Listen, I know this might feel a little scary or weird. Trust me, I get it. But you know what? You took the first step and that's literally the hardest part.</p>
         
-        <p>Your 5 FREE photos are waiting, but real talk? This isn't just about photos. This is about you finally seeing yourself the way the world sees you when you're not hiding.</p>
+        <p>Your 5 FREE photos are ready to go. And between you and me? These aren't just any photos. They're the kind that make you go "wait, is that actually me?" in the best possible way.</p>
         
         <div style="text-align: center;">
           <a href="${workspaceUrl}" class="cta-button">Let's Do This</a>
@@ -173,13 +173,13 @@ function getPostAuthFreeHTML(firstName: string): string {
           <div class="feature-item">• Access to everything until you decide if you want more</div>
         </div>
         
-        <p>Here's the thing - I could give you some generic pep talk about "believing in yourself" but honestly? Just upload a few selfies and let Maya work her magic. You'll see what I mean.</p>
+        <p>Here's what's gonna happen next: You'll upload a few selfies (yes, the ones on your phone right now are perfect). Maya, your AI photographer, will work her magic. And then you'll see yourself in a completely new way.</p>
         
-        <p>No pressure. No weird sales stuff. Just good photos and maybe a little confidence boost along the way.</p>
+        <p>No pressure, no weird sales stuff. Just really good photos and honestly? Maybe a little confidence boost too.</p>
         
         <div class="signature">
-          <p>Talk soon,<br>Sandra</p>
-          <p style="font-size: 12px; color: #999;">The girl who built this because she was tired of feeling invisible</p>
+          <p>Can't wait to see what you create,<br>Sandra</p>
+          <p style="font-size: 12px; color: #999;">Your new best friend who happens to be really good with AI</p>
         </div>
       </div>
     </body>
@@ -270,15 +270,15 @@ function getPostAuthStudioHTML(firstName: string): string {
           <div style="font-size: 12px; letter-spacing: 0.2em; color: #666;">STUDIO</div>
         </div>
         
-        <h1>${firstName ? `${firstName}, you absolute legend!` : 'You absolute legend!'}</h1>
+        <h1>${firstName ? `${firstName}, you amazing human!` : 'You amazing human!'}</h1>
         
         <div class="greeting">
-          I'm not even kidding - you just made one of the best investments in yourself.
+          Seriously, you just made one of the best decisions ever. I'm so excited for you right now!
         </div>
         
-        <p>Okay, real talk for a second. Most women spend YEARS talking themselves out of investing in their dreams. "Maybe next month," "I'm not ready," "I don't know if it'll work."</p>
+        <p>Can we talk for a sec? Most people spend forever making excuses about why they're not ready. "Maybe next month" or "I don't know if this will work" or "I need to think about it more."</p>
         
-        <p>But not you. You said "fuck it, I'm doing this." And honestly? That attitude right there is exactly why you're going to crush this.</p>
+        <p>But you? You just went for it. And honestly, that tells me everything I need to know about how this is gonna go for you.</p>
         
         <div style="text-align: center;">
           <a href="${workspaceUrl}" class="cta-button">Let's Build Your Empire</a>
@@ -294,15 +294,15 @@ function getPostAuthStudioHTML(firstName: string): string {
           <div class="feature-item">• Direct access to my team when you need help</div>
         </div>
         
-        <p>Here's what happens next: Upload some selfies, let Maya work her magic, then watch Victoria turn it all into a business that actually makes money.</p>
+        <p>Here's what happens next: You'll upload some selfies, Maya will create magic with them, and then Victoria will help you turn it all into a real business that actually makes money.</p>
         
-        <p>This isn't some "maybe someday" thing anymore. This is happening. Right now.</p>
+        <p>This isn't a "someday when I'm ready" thing anymore. This is your moment. Right now.</p>
         
-        <p><strong>Welcome to the women who decided to stop waiting for permission.</strong></p>
+        <p><strong>Welcome to the club of women who stopped waiting for permission.</strong></p>
         
         <div class="signature">
-          <p>So damn proud of you,<br>Sandra</p>
-          <p style="font-size: 12px; color: #999;">Your biggest fan (seriously)</p>
+          <p>So proud of you already,<br>Sandra</p>
+          <p style="font-size: 12px; color: #999;">Your biggest cheerleader (and that's not changing)</p>
         </div>
       </div>
     </body>

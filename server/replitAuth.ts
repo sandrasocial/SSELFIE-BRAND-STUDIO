@@ -57,13 +57,50 @@ function updateUserSession(
 async function upsertUser(
   claims: any,
 ) {
-  await storage.upsertUser({
-    id: claims["sub"],
-    email: claims["email"],
-    firstName: claims["first_name"],
-    lastName: claims["last_name"],
-    profileImageUrl: claims["profile_image_url"],
-  });
+  try {
+    console.log('🔍 Upserting user with claims:', {
+      id: claims["sub"],
+      email: claims["email"],
+      firstName: claims["first_name"],
+      lastName: claims["last_name"],
+      profileImageUrl: claims["profile_image_url"],
+    });
+    
+    const userData = {
+      id: claims["sub"],
+      email: claims["email"],
+      firstName: claims["first_name"],
+      lastName: claims["last_name"],
+      profileImageUrl: claims["profile_image_url"],
+    };
+    
+    const upsertedUser = await storage.upsertUser(userData);
+    console.log('✅ User upserted successfully:', upsertedUser.id);
+    
+    // Initialize user usage for new users
+    try {
+      const existingUsage = await storage.getUserUsage(upsertedUser.id);
+      if (!existingUsage) {
+        console.log('🔍 Initializing user usage for new user');
+        await storage.createUserUsage({
+          userId: upsertedUser.id,
+          plan: 'free',
+          monthlyGenerationsAllowed: 5,
+          monthlyGenerationsUsed: 0,
+          lastResetDate: new Date(),
+        });
+        console.log('✅ User usage initialized successfully');
+      }
+    } catch (usageError) {
+      console.error('⚠️ User usage initialization error (non-fatal):', usageError);
+      // Don't throw - this shouldn't block authentication
+    }
+  } catch (error) {
+    console.error('❌ upsertUser error:', error);
+    console.error('❌ Error details:', error.message);
+    console.error('❌ Error stack:', error.stack);
+    throw error;
+  }
 }
 
 export async function setupAuth(app: Express) {
@@ -78,10 +115,24 @@ export async function setupAuth(app: Express) {
     tokens: client.TokenEndpointResponse & client.TokenEndpointResponseHelpers,
     verified: passport.AuthenticateCallback
   ) => {
-    const user = {};
-    updateUserSession(user, tokens);
-    await upsertUser(tokens.claims());
-    verified(null, user);
+    try {
+      console.log('🔍 Auth verify function called');
+      const claims = tokens.claims();
+      console.log('🔍 User claims:', JSON.stringify(claims, null, 2));
+      
+      const user = {};
+      updateUserSession(user, tokens);
+      console.log('🔍 User session updated');
+      
+      await upsertUser(claims);
+      console.log('🔍 User upserted successfully');
+      
+      verified(null, user);
+    } catch (error) {
+      console.error('❌ Auth verify error:', error);
+      console.error('❌ Error stack:', error.stack);
+      verified(error, null);
+    }
   };
 
   for (const domain of process.env
@@ -125,9 +176,32 @@ export async function setupAuth(app: Express) {
   app.get("/api/callback", (req, res, next) => {
     const hostname = req.hostname === 'localhost' ? 'localhost' : req.hostname;
     console.log(`🔍 Auth callback for hostname: ${hostname}`);
-    passport.authenticate(`replitauth:${hostname}`, {
-      successReturnToOrRedirect: "/auth-success",
-      failureRedirect: "/api/login",
+    console.log(`🔍 Callback query params:`, req.query);
+    
+    passport.authenticate(`replitauth:${hostname}`, (err, user, info) => {
+      if (err) {
+        console.error('❌ Passport authentication error:', err);
+        console.error('❌ Error details:', err.message);
+        console.error('❌ Error stack:', err.stack);
+        return res.redirect('/api/login?error=auth_error');
+      }
+      
+      if (!user) {
+        console.error('❌ No user returned from authentication');
+        console.error('❌ Auth info:', info);
+        return res.redirect('/api/login?error=no_user');
+      }
+      
+      req.logIn(user, (loginErr) => {
+        if (loginErr) {
+          console.error('❌ Login error:', loginErr);
+          console.error('❌ Login error details:', loginErr.message);
+          return res.redirect('/api/login?error=login_failed');
+        }
+        
+        console.log('✅ Authentication successful, redirecting to workspace');
+        return res.redirect('/workspace');
+      });
     })(req, res, next);
   });
 
