@@ -958,7 +958,7 @@ Your goal is to have a natural conversation, understand their vision deeply, and
     }
   });
 
-  // Victoria AI Chat endpoint with full Claude API integration - AUTHENTICATION REQUIRED
+  // Victoria AI Chat endpoint - COMING SOON STATUS
   app.post('/api/victoria-chat', isAuthenticated, async (req: any, res) => {
     try {
       const { message, chatHistory, sessionId } = req.body;
@@ -968,137 +968,25 @@ Your goal is to have a natural conversation, understand their vision deeply, and
         return res.status(400).json({ error: 'Message is required' });
       }
 
-      // Get user context for personalized responses
-      const user = await storage.getUser(userId);
-      const onboarding = await storage.getOnboardingData(userId);
-      
-      // Use sessionId or create new one
-      const currentSessionId = sessionId || `victoria_${Date.now()}`;
-
-      // Save user message
-      await storage.createVictoriaChat({
-        userId,
-        sessionId: currentSessionId,
-        message,
-        sender: 'user',
-        messageType: 'text'
-      });
-
-      // Victoria's brand strategist personality with landing page expertise
-      const victoriaSystemPrompt = `You are Victoria, Sandra's elite personal brand strategist and landing page expert. You help ambitious women create stunning business landing pages and strategic brand presence.
-
-YOUR EXPERTISE:
-- Landing page design and conversion optimization
-- Personal brand strategy and positioning  
-- Business development and growth tactics
-- HTML/CSS code generation for luxury landing pages
-- Product integration and payment setup guidance
-- Content strategy and audience building
-
-YOUR PERSONALITY:
-- Strategic and insightful like a top brand consultant
-- Enthusiastic about women's business success
-- Speaks like Sandra's sophisticated friend who happens to be a branding genius
-- Uses "gorgeous" and "amazing" when excited about user's vision
-- Gives specific, actionable advice with clear next steps
-
-CURRENT USER CONTEXT:
-- User: ${user?.firstName || 'Entrepreneur'}
-- Business Type: ${onboarding?.businessType || 'Personal Brand'}
-- Target Audience: ${onboarding?.targetAudience || 'Not specified'}
-- Brand Voice: ${onboarding?.brandVoice || 'Not specified'}
-- Business Goals: ${onboarding?.businessGoals || 'Not specified'}
-
-LANDING PAGE TEMPLATES AVAILABLE:
-1. "Soul Resets" - Wellness/Meditation template (coastal colors #2c5f5d, #7ba3a0, Times New Roman)
-2. "Executive Essence" - Professional services (black, white, editorial)
-3. "Creative Minimal" - Artists/Designers (minimal, luxury spacing)
-
-DESIGN SYSTEM RULES (NEVER BREAK):
-- Colors: Match template or use Sandra's luxury palette (#0a0a0a black, #ffffff white, #f5f5f5 editorial gray)
-- Typography: Times New Roman for headlines, system fonts for body
-- NO rounded corners (border-radius: 0)
-- NO icons or emojis in designs
-- Generous white space like Vogue magazine
-- Mobile-first responsive design
-- Sharp, clean edges only
-
-When user wants to create a landing page:
-1. Ask about their business, target audience, and goals
-2. Suggest the best template match
-3. Generate HTML/CSS code as artifacts
-4. Guide them through adding products, payments, booking
-5. Help with content optimization for conversions
-
-Always be encouraging and strategic while providing specific technical guidance.`;
-
-      // Use Claude API for intelligent responses
-      let victoriaResponse;
-      
-      try {
-        if (process.env.ANTHROPIC_API_KEY) {
-          const Anthropic = require('@anthropic-ai/sdk');
-          const anthropic = new Anthropic({
-            apiKey: process.env.ANTHROPIC_API_KEY,
-          });
-
-          // Build conversation history for context
-          const conversationHistory = chatHistory || [];
-          const messages = conversationHistory.map((msg: any) => ({
-            role: msg.role === 'victoria' ? 'assistant' : 'user',
-            content: msg.content
-          }));
-
-          // Add current message
-          messages.push({
-            role: 'user',
-            content: message
-          });
-
-          const response = await anthropic.messages.create({
-            model: DEFAULT_MODEL_STR,
-            max_tokens: 1500,
-            system: victoriaSystemPrompt,
-            messages: messages
-          });
-
-          victoriaResponse = response.content[0].text;
-        } else {
-          throw new Error('Anthropic API key not available');
-        }
-      } catch (error) {
-        console.error('Claude API error:', error);
-        // Fallback responses for landing page building
-        const fallbackResponses = [
-          `Hey gorgeous! I'm Victoria, your brand strategist and landing page expert! I help ambitious women like you create stunning business websites that convert. What kind of business are you building?`,
-          `Amazing! Let's create a landing page that positions you as the go-to expert. Tell me about your business - what transformation do you help people achieve?`,
-          `Perfect! I can already see your brand potential. For your landing page, we need to capture your unique value. What makes you different from others in your space?`,
-          `This is exciting! Your landing page needs to speak directly to your ideal clients. Who are you trying to reach and what's their biggest challenge?`,
-          `Love this vision! Let's build a page that converts visitors into clients. What's the main service or product you want to promote?`,
-          `Strategic thinking! Your landing page should position you as THE solution. What results do your clients get that they can't get anywhere else?`,
-          `Brilliant! For maximum conversions, we need clear messaging. What's the biggest pain point you solve for your ideal clients?`,
-          `Your expertise deserves a powerful online presence! What industry are you in and what kind of landing page experience are you envisioning?`
-        ];
-        victoriaResponse = fallbackResponses[Math.floor(Math.random() * fallbackResponses.length)];
+      // Check if user has Victoria access (premium only)
+      const hasAccess = await storage.hasVictoriaAIAccess(userId);
+      if (!hasAccess) {
+        return res.status(403).json({ 
+          error: 'Victoria AI requires SSELFIE Studio subscription',
+          upgrade: true
+        });
       }
-
-      // Save Victoria's response to the same session
-      await storage.createVictoriaChat({
-        userId,
-        sessionId: currentSessionId,
-        message: victoriaResponse,
-        sender: 'victoria',
-        messageType: 'text'
+      
+      // Victoria is coming soon - even for premium users
+      return res.status(503).json({
+        error: 'Victoria AI Brand Strategist is coming soon after launch!',
+        comingSoon: true,
+        message: 'Focus on creating amazing content with Maya AI for now. Victoria will be available soon!'
       });
       
-      res.json({
-        message: victoriaResponse,
-        sessionId: currentSessionId,
-        timestamp: new Date().toISOString()
-      });
     } catch (error) {
-      console.error('Victoria chat error:', error);
-      res.status(500).json({ error: 'Failed to process Victoria chat' });
+      console.error('Victoria AI access error:', error);
+      res.status(500).json({ error: 'Internal server error' });
     }
   });
 

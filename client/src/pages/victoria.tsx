@@ -61,6 +61,16 @@ export default function VictoriaLandingPage() {
     <div className="min-h-screen bg-white">
       {/* Navigation */}
       <WorkspaceNavigation />
+      
+      {/* Coming Soon Banner */}
+      <div className="bg-[#f5f5f5] border-b border-gray-200">
+        <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-4 text-center">
+          <p className="text-sm text-gray-600">
+            <span className="font-medium">Victoria AI Brand Strategist</span> is coming soon after launch. 
+            Focus on creating amazing content with Maya AI for now!
+          </p>
+        </div>
+      </div>
 
       {/* Hero Section - Victoria Introduction */}
       <section className="relative py-20 sm:py-32 px-4 sm:px-6 md:px-8 bg-white">

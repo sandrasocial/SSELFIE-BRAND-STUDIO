@@ -102,6 +102,15 @@ export default function VictoriaChat() {
 
   return (
     <div className="min-h-screen bg-white">
+      {/* Coming Soon Banner */}
+      <div className="bg-yellow-50 border-b border-yellow-200">
+        <div className="max-w-4xl mx-auto px-6 py-3 text-center">
+          <p className="text-sm text-yellow-800">
+            Victoria AI is currently in development. This feature will be available after launch.
+          </p>
+        </div>
+      </div>
+      
       {/* Header */}
       <div className="border-b border-gray-200 bg-white sticky top-0 z-10">
         <div className="max-w-4xl mx-auto px-6 py-4">
