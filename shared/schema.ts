@@ -72,7 +72,20 @@ export const projects = pgTable("projects", {
   updatedAt: timestamp("updated_at").defaultNow(),
 });
 
-// AI generated images table
+// Generation tracking table - for temp preview ONLY (not gallery)
+export const generationTrackers = pgTable("generation_trackers", {
+  id: serial("id").primaryKey(),
+  userId: varchar("user_id").references(() => users.id).notNull(),
+  predictionId: varchar("prediction_id"),
+  prompt: text("prompt"),
+  style: varchar("style"),
+  status: varchar("status").default("pending"), // pending, processing, completed, failed, canceled, timeout
+  imageUrls: text("image_urls"), // JSON array of temp URLs for preview only
+  createdAt: timestamp("created_at").defaultNow(),
+  updatedAt: timestamp("updated_at").defaultNow(),
+});
+
+// AI generated images table - GALLERY ONLY (permanent S3 URLs)
 export const aiImages = pgTable("ai_images", {
   id: serial("id").primaryKey(),
   userId: varchar("user_id").references(() => users.id).notNull(),
@@ -385,7 +398,10 @@ export type BrandOnboarding = typeof brandOnboarding.$inferSelect;
 export type InsertUserLandingPage = z.infer<typeof insertUserLandingPageSchema>;
 export type UserLandingPage = typeof userLandingPages.$inferSelect;
 
-// User profile schemas and types already defined above
+// Generation tracker schemas and types
+export const insertGenerationTrackerSchema = createInsertSchema(generationTrackers).omit({ id: true, createdAt: true, updatedAt: true });
+export type GenerationTracker = typeof generationTrackers.$inferSelect;
+export type InsertGenerationTracker = z.infer<typeof insertGenerationTrackerSchema>;
 
 
 

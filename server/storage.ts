@@ -3,6 +3,7 @@ import {
   userProfiles,
   onboardingData,
   aiImages,
+  generationTrackers,
   userModels,
   selfieUploads,
   subscriptions,
@@ -23,6 +24,8 @@ import {
   type InsertOnboardingData,
   type AiImage,
   type InsertAiImage,
+  type GenerationTracker,
+  type InsertGenerationTracker,
   type UserModel,
   type InsertUserModel,
   type SelfieUpload,
@@ -69,10 +72,16 @@ export interface IStorage {
   saveOnboardingData(data: InsertOnboardingData): Promise<OnboardingData>;
   updateOnboardingData(userId: string, data: Partial<OnboardingData>): Promise<OnboardingData>;
   
-  // AI Image operations
+  // AI Image operations (GALLERY ONLY - permanent S3 URLs)
   getAIImages(userId: string): Promise<AiImage[]>;
   getUserAIImages(userId: string): Promise<AiImage[]>;
   saveAIImage(data: InsertAiImage): Promise<AiImage>;
+  
+  // Generation Tracker operations (TEMP PREVIEW ONLY)
+  createGenerationTracker(data: InsertGenerationTracker): Promise<GenerationTracker>;
+  updateGenerationTracker(id: number, updates: Partial<GenerationTracker>): Promise<GenerationTracker>;
+  getGenerationTracker(id: number): Promise<GenerationTracker | undefined>;
+  getUserGenerationTrackers(userId: string): Promise<GenerationTracker[]>;
   updateAIImage(id: number, data: Partial<AiImage>): Promise<AiImage>;
   
   // User Model operations
@@ -329,13 +338,52 @@ export class DatabaseStorage implements IStorage {
     return this.saveAIImage(data);
   }
 
-  async updateAIImage(id: number, data: Partial<AIImage>): Promise<AIImage> {
+  async updateAIImage(id: number, data: Partial<AiImage>): Promise<AiImage> {
     const [updated] = await db
       .update(aiImages)
-      .set({ ...data, updatedAt: new Date() })
+      .set({ ...data })
       .where(eq(aiImages.id, id))
       .returning();
     return updated;
+  }
+
+  // 🔑 Generation Tracker Methods - for temp preview workflow ONLY
+  async createGenerationTracker(data: InsertGenerationTracker): Promise<GenerationTracker> {
+    const [tracker] = await db
+      .insert(generationTrackers)
+      .values(data)
+      .returning();
+    return tracker;
+  }
+
+  async updateGenerationTracker(id: number, updates: Partial<GenerationTracker>): Promise<GenerationTracker> {
+    const [updatedTracker] = await db
+      .update(generationTrackers)
+      .set({ ...updates, updatedAt: new Date() })
+      .where(eq(generationTrackers.id, id))
+      .returning();
+    
+    if (!updatedTracker) {
+      throw new Error(`Generation tracker with id ${id} not found`);
+    }
+    
+    return updatedTracker;
+  }
+
+  async getGenerationTracker(id: number): Promise<GenerationTracker | undefined> {
+    const [tracker] = await db
+      .select()
+      .from(generationTrackers)
+      .where(eq(generationTrackers.id, id));
+    return tracker;
+  }
+
+  async getUserGenerationTrackers(userId: string): Promise<GenerationTracker[]> {
+    return await db
+      .select()
+      .from(generationTrackers)
+      .where(eq(generationTrackers.userId, userId))
+      .orderBy(desc(generationTrackers.createdAt));
   }
 
   // User Model operations
