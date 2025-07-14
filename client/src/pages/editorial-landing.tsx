@@ -3,6 +3,7 @@ import { useLocation } from "wouter";
 import { SandraImages } from "@/lib/sandra-images";
 import { PortfolioSection } from "@/components/portfolio-section";
 import FreeTierSignup from "@/components/free-tier-signup";
+import WelcomeSection from "@/components/welcome-section";
 
 export default function EditorialLanding() {
   // SEO Meta Tags
@@ -214,45 +215,8 @@ export default function EditorialLanding() {
         </div>
       </section>
 
-      {/* Story Section - Editorial Style */}
-      <section className="py-16 sm:py-24 md:py-32 bg-white">
-        <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="text-center mb-12 sm:mb-16 md:mb-20">
-            <div className="text-xs uppercase tracking-[0.4em] text-gray-500 mb-6 sm:mb-8">
-              The Story
-            </div>
-            <blockquote className="font-serif text-xl sm:text-2xl md:text-3xl lg:text-4xl xl:text-5xl font-light italic text-black leading-tight px-4">
-              "This didn't start as a business.<br className="hidden sm:block" />
-              <span className="sm:hidden"> </span>It started as survival."
-            </blockquote>
-          </div>
-          
-          <div className="grid md:grid-cols-2 gap-8 sm:gap-12 md:gap-16 items-center">
-            <div className="space-y-4 sm:space-y-6 text-gray-700 leading-relaxed text-sm sm:text-base">
-              <p>
-                Rock bottom has a way of showing you who you really are. Divorced, three kids, no safety net.
-              </p>
-              <p>
-                I had two choices: disappear or figure it out. I chose my phone, a selfie, and the truth.
-              </p>
-              <p>
-                No fancy equipment. No perfect lighting. Just me showing up every day, building something real from nothing but honesty and consistency.
-              </p>
-              <p className="font-medium text-black">
-                Stop guessing and start growing. Your story is your strategy.
-              </p>
-            </div>
-            
-            <div className="aspect-[4/5] bg-gray-100 overflow-hidden">
-              <img
-                src={SandraImages.journey.building}
-                alt="Sandra's journey"
-                className="w-full h-full object-cover"
-              />
-            </div>
-          </div>
-        </div>
-      </section>
+      {/* Welcome Section - Editorial Style */}
+      <WelcomeSection />
 
       {/* Features Section - Editorial Grid */}
       <section className="py-16 sm:py-24 md:py-32 bg-gray-50">
