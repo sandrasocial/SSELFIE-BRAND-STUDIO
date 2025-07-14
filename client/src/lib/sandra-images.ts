@@ -71,6 +71,9 @@ export const SandraImages = {
     ]
   },
 
+  // Email capture modal image
+  emailCapture: "https://i.postimg.cc/282KsWkc/out-1-6.png",
+
   // AI IMAGES GALLERY (pick and rotate for carousels, grids, or random display)
   aiGallery: [
     "https://i.postimg.cc/sgmtqFrQ/out-0-1.webp",

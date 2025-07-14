@@ -86,7 +86,7 @@ export const EmailCaptureModal: React.FC<EmailCaptureModalProps> = ({
           {/* Image Side */}
           <div className="lg:w-1/2 relative">
             <img
-              src={SandraImages.editorial.laptop1}
+              src={SandraImages.emailCapture}
               alt="SSELFIE Studio"
               className="w-full h-full object-cover"
             />
