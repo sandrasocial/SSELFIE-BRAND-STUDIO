@@ -1,5 +1,5 @@
 import React, { useEffect } from 'react';
-import { Navigation } from '@/components/navigation';
+import { PreLoginNavigationUnified } from '@/components/pre-login-navigation-unified';
 import { HeroFullBleed } from '@/components/HeroFullBleed';
 import { SandraImages } from '@/lib/sandra-images';
 import { useAuth } from '@/hooks/use-auth';
@@ -44,7 +44,7 @@ export default function PaymentSuccess() {
 
   return (
     <div className="min-h-screen bg-white">
-      <Navigation />
+      <PreLoginNavigationUnified />
       
       <HeroFullBleed
         backgroundImage={SandraImages.editorial.luxury1}

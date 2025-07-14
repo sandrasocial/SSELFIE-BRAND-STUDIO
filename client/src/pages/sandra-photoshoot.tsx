@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { WorkspaceNavigation } from '@/components/workspace-navigation';
+import { MemberNavigation } from '@/components/member-navigation';
 import { SandraImages } from '@/lib/sandra-images';
 import { Link } from 'wouter';
 import { useQuery } from '@tanstack/react-query';
@@ -82,7 +82,7 @@ export default function MayaLandingPage() {
   return (
     <div className="min-h-screen bg-white">
       {/* Navigation */}
-      <WorkspaceNavigation />
+      <MemberNavigation />
 
       {/* Hero Section - Maya Introduction */}
       <section className="relative py-20 sm:py-32 px-4 sm:px-6 md:px-8 bg-white">

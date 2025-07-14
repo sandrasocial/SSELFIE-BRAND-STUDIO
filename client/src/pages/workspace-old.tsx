@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { useAuth } from '@/hooks/use-auth';
 import { useQuery } from '@tanstack/react-query';
 import { Link } from 'wouter';
-import { Navigation } from '@/components/navigation';
+import { MemberNavigation } from '@/components/member-navigation';
 import { PaymentVerification } from '@/components/payment-verification';
 import { SandraImages } from '@/lib/sandra-images';
 
@@ -85,7 +85,7 @@ export default function Workspace() {
         fontWeight: 300,
         color: '#0a0a0a'
       }}>
-        <Navigation />
+        <MemberNavigation />
         <div style={{
           maxWidth: '1400px',
           margin: '0 auto',
@@ -157,7 +157,7 @@ export default function Workspace() {
         fontWeight: 300,
         color: '#0a0a0a'
       }}>
-        <Navigation />
+        <MemberNavigation />
         
         {/* Hero Section with Editorial Background */}
         <section style={{

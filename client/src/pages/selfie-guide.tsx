@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Navigation } from '@/components/navigation';
+import { MemberNavigation } from '@/components/member-navigation';
 import { Link } from 'wouter';
 
 const essentialPhotos = [
@@ -99,7 +99,7 @@ export default function SelfieGuide() {
 
   return (
     <div className="min-h-screen bg-[#fafafa]">
-      <Navigation />
+      <MemberNavigation />
       
       <div className="max-w-4xl mx-auto px-6 py-20">
         {/* Back Link */}

@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Navigation } from '@/components/navigation';
+import { MemberNavigation } from '@/components/member-navigation';
 import { HeroFullBleed } from '@/components/HeroFullBleed';
 import { SandraImages } from '@/lib/sandra-images';
 import { apiRequest } from "@/lib/queryClient";
@@ -59,7 +59,7 @@ export default function SimpleCheckout() {
 
   return (
     <div className="min-h-screen bg-white">
-      <Navigation />
+      <MemberNavigation />
       
       <HeroFullBleed
         backgroundImage={SandraImages.editorial.luxury1}

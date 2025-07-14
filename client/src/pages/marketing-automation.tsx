@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useAuth } from '@/hooks/use-auth';
-import { Navigation } from '@/components/navigation';
+import { MemberNavigation } from '@/components/member-navigation';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -137,7 +137,7 @@ export default function MarketingAutomation() {
 
   return (
     <div className="min-h-screen bg-white">
-      <Navigation />
+      <MemberNavigation />
       
       <div className="container mx-auto px-4 py-8">
         {/* Header */}
