@@ -1220,9 +1220,8 @@ Your goal is to have a natural conversation, understand their vision deeply, and
         let userPlan = 'FREE';
         
         // Check if user has any subscription (indicating they purchased)
-        // For now, if they made it through auth, assume they have SSELFIE_STUDIO
-        // TODO: Integrate with actual Stripe subscription status
-        userPlan = 'SSELFIE_STUDIO';
+        // For now, if they made it through auth, default to FREE plan
+        // TODO: Integrate with actual Stripe subscription status when user has paid
         
         // Create initial usage record
         await UsageService.initializeUserUsage(userId, userPlan);
