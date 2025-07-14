@@ -699,28 +699,40 @@ export default function AIPhotoshootPage() {
   const [savingImages, setSavingImages] = useState<Set<string>>(new Set());
   const [selectedImage, setSelectedImage] = useState<string | null>(null);
   const [showPreviewModal, setShowPreviewModal] = useState(false);
+  const [currentTrackerId, setCurrentTrackerId] = useState<number | null>(null);
 
-  // Maya-style save function with permanent URL migration
+  // Maya-style save function with permanent URL migration using tracker system
   const saveToGallery = async (imageUrl: string) => {
+    if (!currentTrackerId) {
+      toast({
+        title: "Save Failed",
+        description: "No tracker ID available for saving",
+        variant: "destructive",
+      });
+      return;
+    }
+
     try {
       setSavingImages(prev => new Set([...prev, imageUrl]));
       
-      // Use the permanent save endpoint that migrates temp URLs to permanent S3
+      // Use the permanent save endpoint that requires trackerId and selectedImageUrls array
       const response = await fetch('/api/save-preview-to-gallery', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
-          imageUrl: imageUrl,
-          prompt: selectedPrompt?.name || 'AI Photoshoot',
-          category: 'ai-photoshoot'
+          trackerId: currentTrackerId,
+          selectedImageUrls: [imageUrl] // Send as array with single URL
         })
       });
       
       if (!response.ok) {
-        throw new Error('Failed to save image');
+        const errorData = await response.json();
+        throw new Error(errorData.error || 'Failed to save image');
       }
+      
+      const result = await response.json();
       
       // Mark as saved and remove saving status
       setSavedImages(prev => new Set([...prev, imageUrl]));
@@ -734,9 +746,10 @@ export default function AIPhotoshootPage() {
       
       toast({
         title: "Image Saved",
-        description: "Image permanently added to your gallery",
+        description: result.message || "Image permanently added to your gallery",
       });
     } catch (error) {
+      console.error('Save error:', error);
       setSavingImages(prev => {
         const newSet = new Set(prev);
         newSet.delete(imageUrl);
@@ -745,7 +758,7 @@ export default function AIPhotoshootPage() {
       
       toast({
         title: "Save Failed",
-        description: "Could not save image to gallery",
+        description: error instanceof Error ? error.message : "Could not save image to gallery",
         variant: "destructive",
       });
     }
@@ -798,6 +811,9 @@ export default function AIPhotoshootPage() {
       }
       
       if (data.success && data.trackerId) {
+        // Store tracker ID for saving images later
+        setCurrentTrackerId(data.trackerId);
+        
         // Start polling for completion using Maya's tracker pattern
         pollForTrackerImages(data.trackerId);
         
