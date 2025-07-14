@@ -166,7 +166,6 @@ export async function setupAuth(app: Express) {
 
   app.get("/api/login", (req, res, next) => {
     const hostname = req.hostname === 'localhost' ? 'localhost' : req.hostname;
-    console.log(`🔍 Login attempt for hostname: ${hostname}`);
     passport.authenticate(`replitauth:${hostname}`, {
       prompt: "login consent",
       scope: ["openid", "email", "profile", "offline_access"],
@@ -175,27 +174,21 @@ export async function setupAuth(app: Express) {
 
   app.get("/api/callback", (req, res, next) => {
     const hostname = req.hostname === 'localhost' ? 'localhost' : req.hostname;
-    console.log(`🔍 Auth callback for hostname: ${hostname}`);
-    console.log(`🔍 Callback query params:`, req.query);
     
     passport.authenticate(`replitauth:${hostname}`, (err, user, info) => {
       if (err) {
-        console.error('❌ Passport authentication error:', err);
-        console.error('❌ Error details:', err.message);
-        console.error('❌ Error stack:', err.stack);
+        console.error('❌ Authentication error:', err.message || err);
         return res.redirect('/api/login?error=auth_error');
       }
       
       if (!user) {
-        console.error('❌ No user returned from authentication');
-        console.error('❌ Auth info:', info);
+        console.error('❌ Authentication failed:', info?.message || 'No user returned');
         return res.redirect('/api/login?error=no_user');
       }
       
       req.logIn(user, (loginErr) => {
         if (loginErr) {
-          console.error('❌ Login error:', loginErr);
-          console.error('❌ Login error details:', loginErr.message);
+          console.error('❌ Login error:', loginErr.message || loginErr);
           return res.redirect('/api/login?error=login_failed');
         }
         

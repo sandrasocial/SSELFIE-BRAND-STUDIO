@@ -33,6 +33,9 @@ export const users = pgTable("users", {
   profileImageUrl: varchar("profile_image_url"),
   stripeCustomerId: varchar("stripe_customer_id"),
   stripeSubscriptionId: varchar("stripe_subscription_id"),
+  plan: varchar("plan").default("free"), // free, sselfie-studio
+  mayaAiAccess: boolean("maya_ai_access").default(true),
+  victoriaAiAccess: boolean("victoria_ai_access").default(false),
   createdAt: timestamp("created_at").defaultNow(),
   updatedAt: timestamp("updated_at").defaultNow(),
 });
