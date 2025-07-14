@@ -44,6 +44,8 @@ export default function UsageTracker() {
   }
 
   const getStatusColor = () => {
+    // Admin users always show green
+    if (usageStatus.remainingGenerations >= 999999) return "text-emerald-600";
     if (!usageStatus.canGenerate) return "text-red-500";
     if (usageStatus.remainingGenerations <= 10) return "text-yellow-600";
     return "text-emerald-600";
@@ -82,7 +84,7 @@ export default function UsageTracker() {
               Usage
             </div>
             <div className={`text-sm font-bold ${getStatusColor()}`}>
-              {usageStatus.remainingGenerations} remaining
+              {usageStatus.remainingGenerations >= 999999 ? 'Unlimited' : `${usageStatus.remainingGenerations} remaining`}
             </div>
           </div>
           

@@ -141,6 +141,16 @@ export default function Workspace() {
       };
     }
     
+    // Special handling for admin users - show unlimited
+    if (usage.plan === 'admin' || usage.isAdmin) {
+      return {
+        used: usage.monthlyUsed || 0,
+        total: 999999, // Unlimited for admin
+        percentage: 0,
+        isAdmin: true
+      };
+    }
+    
     const used = usage.monthlyUsed || 0;
     const total = usage.monthlyAllowed || 5;
     
@@ -448,11 +458,17 @@ export default function Workspace() {
                   <div className="text-xs tracking-[0.3em] uppercase text-gray-600">Generated</div>
                 </div>
                 <div className="text-center">
-                  <div className="font-serif text-3xl sm:text-4xl md:text-5xl font-light mb-3">{usageStats.total - usageStats.used}</div>
-                  <div className="text-xs tracking-[0.3em] uppercase text-gray-600">Remaining</div>
+                  <div className="font-serif text-3xl sm:text-4xl md:text-5xl font-light mb-3">
+                    {usageStats.isAdmin ? '∞' : (usageStats.total - usageStats.used)}
+                  </div>
+                  <div className="text-xs tracking-[0.3em] uppercase text-gray-600">
+                    {usageStats.isAdmin ? 'Unlimited' : 'Remaining'}
+                  </div>
                 </div>
                 <div className="text-center">
-                  <div className="font-serif text-3xl sm:text-4xl md:text-5xl font-light mb-3">{usageStats.percentage}%</div>
+                  <div className="font-serif text-3xl sm:text-4xl md:text-5xl font-light mb-3">
+                    {usageStats.isAdmin ? '0%' : `${usageStats.percentage}%`}
+                  </div>
                   <div className="text-xs tracking-[0.3em] uppercase text-gray-600">Used</div>
                 </div>
               </div>
@@ -460,7 +476,7 @@ export default function Workspace() {
               <div className="w-full bg-[#e0e0e0] h-1 mb-6">
                 <div 
                   className="bg-black h-full transition-all duration-1000 ease-out"
-                  style={{ width: `${usageStats.percentage}%` }}
+                  style={{ width: `${usageStats.isAdmin ? 0 : usageStats.percentage}%` }}
                 ></div>
               </div>
 
