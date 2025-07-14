@@ -131,18 +131,65 @@ export class DatabaseStorage implements IStorage {
   }
 
   async upsertUser(userData: UpsertUser): Promise<User> {
-    const [user] = await db
-      .insert(users)
-      .values(userData)
-      .onConflictDoUpdate({
-        target: users.id,
-        set: {
-          ...userData,
-          updatedAt: new Date(),
-        },
-      })
-      .returning();
-    return user;
+    try {
+      // First try to find existing user by ID
+      const existingUser = await this.getUser(userData.id);
+      
+      if (existingUser) {
+        // User exists, update them
+        const [user] = await db
+          .update(users)
+          .set({
+            ...userData,
+            updatedAt: new Date(),
+          })
+          .where(eq(users.id, userData.id))
+          .returning();
+        return user;
+      } else {
+        // User doesn't exist, create new one
+        const [user] = await db
+          .insert(users)
+          .values({
+            ...userData,
+            createdAt: new Date(),
+            updatedAt: new Date(),
+          })
+          .returning();
+        return user;
+      }
+    } catch (error) {
+      console.error('❌ Error in upsertUser:', error);
+      
+      // If insert failed due to email constraint, try to find by email and update
+      if (error.code === '23505' && error.constraint === 'users_email_unique') {
+        console.log('🔄 Email constraint violation, trying to find user by email...');
+        
+        try {
+          const [existingUser] = await db
+            .select()
+            .from(users)
+            .where(eq(users.email, userData.email));
+            
+          if (existingUser) {
+            console.log('✅ Found existing user by email, updating...');
+            const [user] = await db
+              .update(users)
+              .set({
+                ...userData,
+                updatedAt: new Date(),
+              })
+              .where(eq(users.email, userData.email))
+              .returning();
+            return user;
+          }
+        } catch (updateError) {
+          console.error('❌ Error updating user by email:', updateError);
+        }
+      }
+      
+      throw error;
+    }
   }
 
   async updateUserProfile(userId: string, updates: Partial<User>): Promise<User> {
