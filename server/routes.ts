@@ -3465,32 +3465,43 @@ Consider this workflow optimized and ready for implementation! ⚙️`
   // AI Image Generation with Custom Prompts - LIVE AUTHENTICATION
   app.post('/api/generate-images', isAuthenticated, async (req: any, res) => {
     try {
-      const userId = req.user?.claims?.sub;
+      const authUserId = req.user?.claims?.sub;
       const { prompt, count = 3 } = req.body;
       
-      if (!userId) {
+      if (!authUserId) {
         return res.status(401).json({ error: 'Authentication required' });
       }
       
-      console.log(`AI-Photoshoot generating images for authenticated user ${userId}`);
+      console.log(`AI-Photoshoot generating images for authenticated user ${authUserId}`);
       
       if (!prompt) {
         return res.status(400).json({ error: 'Prompt is required for image generation' });
       }
       
-      console.log('AI-PHOTOSHOOT: Using correct FLUX LoRA model for built-in prompts:', { userId, prompt, count });
+      console.log('AI-PHOTOSHOOT: Using correct FLUX LoRA model for built-in prompts:', { authUserId, prompt, count });
       
-      // Get database user ID first, then user model data for trigger word
-      const user = await storage.getUser(userId);
-      if (!user) {
-        return res.status(400).json({ error: 'User not found' });
+      // Get database user ID using same mapping logic as auth endpoint
+      let user = await storage.getUser(authUserId);
+      
+      // If not found by auth ID, try by email (same as auth endpoint)
+      if (!user && req.user?.claims?.email) {
+        console.log(`User not found by auth ID ${authUserId}, checking by email: ${req.user.claims.email}`);
+        user = await storage.getUserByEmail(req.user.claims.email);
       }
+      
+      if (!user) {
+        return res.status(400).json({ error: 'User not found in database' });
+      }
+      
+      console.log(`Using database user ID ${user.id} for model lookup`);
       
       const userModel = await storage.getUserModel(user.id);
       if (!userModel || userModel.trainingStatus !== 'completed') {
         return res.status(400).json({ 
           error: 'User model not ready. Please complete AI training first.',
-          trainingStatus: userModel?.trainingStatus || 'not_started'
+          trainingStatus: userModel?.trainingStatus || 'not_started',
+          databaseUserId: user.id,
+          authUserId: authUserId
         });
       }
       
@@ -3501,7 +3512,7 @@ Consider this workflow optimized and ready for implementation! ⚙️`
       // Use correct FLUX LoRA image generation service (same as Maya)
       const { generateImages } = await import('./image-generation-service');
       const result = await generateImages({
-        userId: userId,
+        userId: user.id, // Use database user ID
         category: 'built-in-prompt',
         subcategory: 'ai-photoshoot',
         triggerWord: userModel.triggerWord,
@@ -3512,7 +3523,8 @@ Consider this workflow optimized and ready for implementation! ⚙️`
       res.json({ 
         images: result.image_urls ? JSON.parse(result.image_urls) : [],
         generatedCount: count,
-        userId: userId,
+        userId: user.id, // Use database user ID
+        authUserId: authUserId, // Include for reference
         prompt: prompt,
         imageId: result.id,
         isRealGeneration: true,
