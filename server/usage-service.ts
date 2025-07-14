@@ -2,6 +2,13 @@ import { storage } from './storage';
 
 // Plan configuration with usage limits and costs
 export const PLAN_LIMITS = {
+  'admin': {
+    totalGenerations: null,
+    monthlyGenerations: 999999, // Unlimited for admin
+    cost: 0,
+    description: 'Unlimited admin access',
+    resetMonthly: false
+  },
   'FREE': {
     totalGenerations: null,
     monthlyGenerations: 5, // 5 free images per month

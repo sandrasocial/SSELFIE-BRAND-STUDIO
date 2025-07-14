@@ -381,17 +381,25 @@ export class DatabaseStorage implements IStorage {
   async hasVictoriaAIAccess(userId: string): Promise<boolean> {
     // Victoria AI (brand strategist) is locked for free users - premium only
     const usage = await this.getUserUsage(userId);
-    return usage?.plan === 'sselfie-studio'; // Only paid users get Victoria access
+    return usage?.plan === 'admin' || usage?.plan === 'sselfie-studio'; // Admin and paid users get Victoria access
   }
 
   async hasSandraAIAccess(userId: string): Promise<boolean> {
     const usage = await this.getUserUsage(userId);
-    return usage?.sandraAIAccess || false;
+    return usage?.plan === 'admin' || usage?.sandraAIAccess || false;
   }
 
   async getGenerationLimits(userId: string): Promise<{ allowed: number; used: number }> {
     const usage = await this.getUserUsage(userId);
     const plan = await this.getUserPlan(userId);
+    
+    // Admin users get unlimited access
+    if (plan === 'admin') {
+      return {
+        allowed: 999999,
+        used: usage?.monthlyGenerationsUsed || 0
+      };
+    }
     
     // Default limits based on plan
     const defaultAllowed = plan === 'free' ? 5 : 100;
@@ -405,6 +413,11 @@ export class DatabaseStorage implements IStorage {
   async isFreePlan(userId: string): Promise<boolean> {
     const plan = await this.getUserPlan(userId);
     return plan === 'free' || plan === null;
+  }
+
+  async isAdminUser(userId: string): Promise<boolean> {
+    const plan = await this.getUserPlan(userId);
+    return plan === 'admin';
   }
 
   // Photoshoot session operations
