@@ -1,5 +1,5 @@
 import React from 'react';
-import { Navigation } from '@/components/navigation';
+import { PreLoginNavigationUnified } from '@/components/pre-login-navigation-unified';
 import { HeroFullBleed } from '@/components/HeroFullBleed';
 import { SandraImages } from '@/lib/sandra-images';
 
@@ -30,7 +30,7 @@ export class EnhancedErrorBoundary extends React.Component<Props, State> {
     if (this.state.hasError) {
       return (
         <div className="min-h-screen bg-white">
-          <Navigation />
+          <PreLoginNavigationUnified />
           
           <HeroFullBleed
             backgroundImage={SandraImages.editorial.luxury1}
