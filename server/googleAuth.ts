@@ -64,6 +64,22 @@ export async function setupGoogleAuth(app: Express) {
   app.use(passport.initialize());
   app.use(passport.session());
 
+  // Fixed callback URLs for Google OAuth
+  const getCallbackURL = (req?: any) => {
+    if (process.env.NODE_ENV === 'production') {
+      return 'https://sselfie.ai/api/auth/google/callback';
+    }
+    
+    // For Replit development
+    const host = req?.get('host');
+    if (host && host.includes('replit.dev')) {
+      return `https://${host}/api/auth/google/callback`;
+    }
+    
+    // For localhost development
+    return 'http://localhost:5000/api/auth/google/callback';
+  };
+
   // Google OAuth Strategy
   passport.use(new GoogleStrategy({
     clientID: googleClientId,
@@ -123,9 +139,20 @@ export async function setupGoogleAuth(app: Express) {
   });
 
   // Auth routes
-  app.get('/api/login', passport.authenticate('google', {
-    scope: ['profile', 'email']
-  }));
+  app.get('/api/login', (req, res, next) => {
+    const callbackURL = getCallbackURL(req);
+    console.log('🔍 Using callback URL:', callbackURL);
+    
+    // Update strategy with correct callback URL
+    const strategy = passport._strategies.google;
+    if (strategy) {
+      strategy._callbackURL = callbackURL;
+    }
+    
+    passport.authenticate('google', {
+      scope: ['profile', 'email']
+    })(req, res, next);
+  });
 
   app.get('/api/auth/google/callback', 
     passport.authenticate('google', { failureRedirect: '/api/login' }),
