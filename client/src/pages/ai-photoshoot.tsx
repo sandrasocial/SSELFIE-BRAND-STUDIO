@@ -694,20 +694,27 @@ export default function AIPhotoshootPage() {
   const [selectedPrompt, setSelectedPrompt] = useState<any>(null);
   const [generatingImages, setGeneratingImages] = useState(false);
   const [generationProgress, setGenerationProgress] = useState(0);
-  const [selectedImages, setSelectedImages] = useState<string[]>([]);
-  const [fullSizeImage, setFullSizeImage] = useState<string | null>(null);
+  const [generatedImages, setGeneratedImages] = useState<string[]>([]);
+  const [savedImages, setSavedImages] = useState<Set<string>>(new Set());
+  const [savingImages, setSavingImages] = useState<Set<string>>(new Set());
+  const [selectedImage, setSelectedImage] = useState<string | null>(null);
+  const [showPreviewModal, setShowPreviewModal] = useState(false);
 
+  // Maya-style save function with permanent URL migration
   const saveToGallery = async (imageUrl: string) => {
     try {
-      // Use the working save-selected-images endpoint that doesn't require authentication
-      const response = await fetch('/api/save-selected-images', {
+      setSavingImages(prev => new Set([...prev, imageUrl]));
+      
+      // Use the permanent save endpoint that migrates temp URLs to permanent S3
+      const response = await fetch('/api/save-preview-to-gallery', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
-          imageUrls: [imageUrl],
-          prompt: 'From AI Photoshoot'
+          imageUrl: imageUrl,
+          prompt: selectedPrompt?.name || 'AI Photoshoot',
+          category: 'ai-photoshoot'
         })
       });
       
@@ -715,13 +722,27 @@ export default function AIPhotoshootPage() {
         throw new Error('Failed to save image');
       }
       
+      // Mark as saved and remove saving status
+      setSavedImages(prev => new Set([...prev, imageUrl]));
+      setSavingImages(prev => {
+        const newSet = new Set(prev);
+        newSet.delete(imageUrl);
+        return newSet;
+      });
+      
       queryClient.invalidateQueries({ queryKey: ['/api/gallery-images'] });
       
       toast({
         title: "Image Saved",
-        description: "Image added to your gallery",
+        description: "Image permanently added to your gallery",
       });
     } catch (error) {
+      setSavingImages(prev => {
+        const newSet = new Set(prev);
+        newSet.delete(imageUrl);
+        return newSet;
+      });
+      
       toast({
         title: "Save Failed",
         description: "Could not save image to gallery",
@@ -745,18 +766,19 @@ export default function AIPhotoshootPage() {
     setSelectedPrompt(prompt);
     setGeneratingImages(true);
     setGenerationProgress(0);
-    setSelectedImages([]);
+    setGeneratedImages([]);
+    setShowPreviewModal(false);
     
     try {
-      // Use same pattern as Maya - start generation and get imageId
-      const response = await fetch('/api/generate-images', {
+      // Use Maya's generation tracker system instead of direct AI images
+      const response = await fetch('/api/maya-generate', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
-          prompt: prompt.prompt.replace('[triggerword]', userModel?.triggerWord || ''),
-          // Note: userId will be handled by backend authentication
+          prompt: prompt.prompt.replace('[triggerword]', userModel?.triggerWord || 'usersandra_test_user_2025'),
+          count: 3
         }),
       });
 
@@ -766,9 +788,9 @@ export default function AIPhotoshootPage() {
 
       const data = await response.json();
       
-      if (data.imageId) {
-        // Start polling for completion using Maya's pattern
-        pollForImages(data.imageId);
+      if (data.trackerId) {
+        // Start polling for completion using Maya's tracker pattern
+        pollForTrackerImages(data.trackerId);
         
         toast({
           title: "Generation Started",
@@ -786,8 +808,8 @@ export default function AIPhotoshootPage() {
     }
   }, [userModel, queryClient, toast]);
 
-  // Poll for image completion using Maya's exact pattern
-  const pollForImages = async (imageId: number) => {
+  // Maya-style tracker polling function
+  const pollForTrackerImages = async (trackerId: number) => {
     const maxAttempts = 40; // 2 minutes total (3 second intervals)
     let attempts = 0;
     
@@ -796,51 +818,38 @@ export default function AIPhotoshootPage() {
         attempts++;
         setGenerationProgress(Math.min(90, (attempts / maxAttempts) * 90));
         
-        const response = await fetch('/api/ai-images');
-        if (!response.ok) throw new Error('Failed to fetch images');
+        const response = await fetch(`/api/generation-tracker/${trackerId}`);
+        if (!response.ok) throw new Error('Failed to fetch tracker status');
         
-        const images = await response.json();
-        const currentImage = images.find((img: any) => img.id === imageId);
+        const tracker = await response.json();
         
-        if (currentImage && currentImage.imageUrl && currentImage.imageUrl !== 'processing') {
-          // Image generation completed
-          console.log('AI-PHOTOSHOOT: Image generation completed!', currentImage);
-          console.log('AI-PHOTOSHOOT: imageUrl value:', currentImage.imageUrl);
+        if (tracker && tracker.imageUrls && tracker.imageUrls.length > 0) {
+          // Generation completed
+          console.log('AI-PHOTOSHOOT: Tracker generation completed!', tracker);
           
           setGenerationProgress(100);
           setGeneratingImages(false);
           
-          if (currentImage.imageUrl.startsWith('http') || currentImage.imageUrl.startsWith('[')) {
-            // Parse the image URLs (should be array of 3 URLs)
-            let imageUrls: string[] = [];
-            try {
-              // Try to parse as JSON array first
-              const parsed = JSON.parse(currentImage.imageUrl);
-              console.log('AI-PHOTOSHOOT: Parsed imageUrl:', parsed);
-              if (Array.isArray(parsed)) {
-                imageUrls = parsed;
-                console.log('AI-PHOTOSHOOT: Found array with', imageUrls.length, 'images');
-              } else {
-                imageUrls = [currentImage.imageUrl];
-                console.log('AI-PHOTOSHOOT: Single URL fallback');
-              }
-            } catch (error) {
-              // If not JSON, treat as single URL
-              console.log('AI-PHOTOSHOOT: JSON parse failed, using single URL:', error);
-              imageUrls = [currentImage.imageUrl];
+          // Parse image URLs and show preview modal
+          let imageUrls: string[] = [];
+          try {
+            if (typeof tracker.imageUrls === 'string') {
+              imageUrls = JSON.parse(tracker.imageUrls);
+            } else if (Array.isArray(tracker.imageUrls)) {
+              imageUrls = tracker.imageUrls;
             }
-            
-            // Set the images for display
-            setSelectedImages(imageUrls);
-            
-            // Invalidate gallery images cache to show new images when saved
-            queryClient.invalidateQueries({ queryKey: ['/api/gallery-images'] });
-            
-            toast({
-              title: "Images Generated!",
-              description: `${imageUrls.length} new photos ready for preview`,
-            });
+          } catch (error) {
+            console.error('Failed to parse tracker imageUrls:', error);
+            imageUrls = [tracker.imageUrls];
           }
+          
+          setGeneratedImages(imageUrls);
+          setShowPreviewModal(true);
+          
+          toast({
+            title: "Images Generated!",
+            description: `${imageUrls.length} new photos ready for preview`,
+          });
           return;
         }
         
@@ -856,7 +865,7 @@ export default function AIPhotoshootPage() {
           });
         }
       } catch (error) {
-        console.error('Polling error:', error);
+        console.error('Tracker polling error:', error);
         if (attempts < maxAttempts) {
           setTimeout(poll, 3000);
         } else {
@@ -868,6 +877,8 @@ export default function AIPhotoshootPage() {
     // Start polling
     setTimeout(poll, 2000);
   };
+
+
 
 
 
@@ -1106,91 +1117,145 @@ export default function AIPhotoshootPage() {
           </div>
         )}
 
-        {/* Generated Images - Lookbook Style */}
-        {selectedImages.length > 0 && (
-          <div className="mt-12 sm:mt-16">
-            <div className="text-center mb-8 sm:mb-12">
-              <h3 className="font-times text-[clamp(1.5rem,5vw,4rem)] font-light tracking-[-0.01em] mb-4">
-                Your Story, Captured
-              </h3>
-              <p className="text-xs sm:text-sm font-light tracking-[0.15em] sm:tracking-[0.2em] uppercase text-[#666666]">
-                {selectedImages.length} Images from this session
-              </p>
-            </div>
-            
-            <div className="grid grid-cols-2 md:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6 lg:gap-8 max-w-6xl mx-auto">
-              {selectedImages.map((imageUrl, index) => (
-                <div key={index} className="group">
-                  <div className="aspect-[4/5] overflow-hidden bg-[#f8f8f8] relative mb-3 sm:mb-4">
-                    <img
-                      src={imageUrl}
-                      alt={`Your story ${index + 1}`}
-                      className="w-full h-full object-cover cursor-pointer transition-all duration-500 group-hover:scale-105 touch-manipulation"
-                      onClick={() => setFullSizeImage(imageUrl)}
-                    />
-                    {/* Minimal overlay */}
-                    <div className="absolute inset-0 bg-black/0 group-hover:bg-black/20 transition-all duration-300"></div>
-                  </div>
-                  <div className="text-center">
-                    <div className="text-[10px] sm:text-xs tracking-[0.2em] sm:tracking-[0.3em] uppercase font-light text-[#666666] mb-1 sm:mb-2">
-                      Image {index + 1}
-                    </div>
-                    <div className="flex justify-center gap-2 sm:gap-3">
-                      <button
-                        onClick={() => setFullSizeImage(imageUrl)}
-                        className="text-[10px] sm:text-xs tracking-[0.15em] sm:tracking-[0.2em] uppercase font-light text-black hover:text-[#666666] transition-colors touch-manipulation"
-                      >
-                        View
-                      </button>
-                      <span className="text-[#e0e0e0] text-xs">•</span>
-                      <button
-                        onClick={() => saveToGallery(imageUrl)}
-                        className="text-[10px] sm:text-xs tracking-[0.15em] sm:tracking-[0.2em] uppercase font-light text-black hover:text-[#666666] transition-colors touch-manipulation"
-                      >
-                        Save
-                      </button>
-                    </div>
-                  </div>
+      {/* Maya-style Image Preview Modal */}
+      {showPreviewModal && generatedImages.length > 0 && (
+        <div className="fixed inset-0 bg-black bg-opacity-90 z-50 flex items-center justify-center p-4" onClick={() => setShowPreviewModal(false)}>
+          <div className="bg-white max-w-5xl w-full max-h-[90vh] overflow-y-auto" onClick={(e) => e.stopPropagation()}>
+            {/* Modal Header */}
+            <div className="p-6 border-b border-gray-200">
+              <div className="flex items-center justify-between">
+                <div>
+                  <h3 className="font-times text-xl font-light text-black">Your AI Photos</h3>
+                  <p className="text-sm text-gray-600 mt-1">{selectedPrompt?.name} • {generatedImages.length} images</p>
                 </div>
-              ))}
-            </div>
-          </div>
-        )}
-
-        {/* Full Size Image Modal */}
-        {fullSizeImage && (
-          <div className="fixed inset-0 bg-black bg-opacity-90 z-50 flex items-center justify-center p-2 sm:p-4" onClick={() => setFullSizeImage(null)}>
-            <div className="relative max-w-full max-h-full">
-              <img
-                src={fullSizeImage}
-                alt="Full size photo"
-                className="max-w-full max-h-full object-contain"
-                onClick={(e) => e.stopPropagation()}
-              />
-              <div className="absolute top-2 sm:top-4 right-2 sm:right-4 flex flex-col sm:flex-row space-y-2 sm:space-y-0 sm:space-x-2">
-                <button
-                  onClick={() => saveToGallery(fullSizeImage)}
-                  className="px-3 sm:px-4 py-2 bg-white text-black font-light hover:bg-[#f0f0f0] transition-colors text-xs sm:text-sm touch-manipulation"
+                <button 
+                  onClick={() => setShowPreviewModal(false)}
+                  className="w-8 h-8 flex items-center justify-center text-gray-400 hover:text-black rounded-full transition-colors"
                 >
-                  Save to Gallery
-                </button>
-                <a
-                  href={fullSizeImage}
-                  download={`ai-photoshoot-${Date.now()}.jpg`}
-                  className="px-3 sm:px-4 py-2 bg-[#0a0a0a] text-white font-light hover:bg-[#333333] transition-colors inline-block text-xs sm:text-sm touch-manipulation text-center"
-                >
-                  Download
-                </a>
-                <button
-                  onClick={() => setFullSizeImage(null)}
-                  className="px-3 sm:px-4 py-2 bg-[#666666] text-white font-light hover:bg-[#888888] transition-colors text-xs sm:text-sm touch-manipulation"
-                >
-                  Close
+                  <span className="text-xl leading-none">×</span>
                 </button>
               </div>
             </div>
+
+            {/* Progress Bar During Generation */}
+            {generatingImages && (
+              <div className="p-6 border-b border-gray-200">
+                <div className="flex items-center justify-between text-sm mb-2">
+                  <span className="text-gray-600">Creating your photos...</span>
+                  <span className="text-gray-600">{Math.round(generationProgress)}%</span>
+                </div>
+                <div className="w-full bg-gray-200 h-1">
+                  <div 
+                    className="bg-black h-1 transition-all duration-300" 
+                    style={{ width: `${generationProgress}%` }}
+                  ></div>
+                </div>
+                <p className="text-xs text-gray-500 mt-2">Natural quality, authentic results • Estimated time: 30-45 seconds</p>
+              </div>
+            )}
+
+            {/* Image Grid - Mobile Stack, Desktop Grid */}
+            <div className="p-6">
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                {generatedImages.map((imageUrl, index) => (
+                  <div key={index} className="relative group">
+                    <img 
+                      src={imageUrl}
+                      alt={`Generated image ${index + 1}`}
+                      className="w-full h-32 object-cover cursor-pointer hover:scale-105 transition-transform duration-200"
+                      onClick={() => setSelectedImage(imageUrl)}
+                    />
+                    
+                    {/* Minimalistic Heart Save Button */}
+                    <button
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        saveToGallery(imageUrl);
+                      }}
+                      disabled={savingImages.has(imageUrl)}
+                      className="absolute top-2 right-2 w-8 h-8 flex items-center justify-center bg-white/90 hover:bg-white border border-gray-200 hover:border-gray-300 rounded-full transition-all shadow-sm"
+                      title={savedImages.has(imageUrl) ? 'Saved to gallery' : 'Save to gallery'}
+                    >
+                      {savingImages.has(imageUrl) ? (
+                        <div className="w-3 h-3 border border-gray-400 border-t-transparent rounded-full animate-spin"></div>
+                      ) : savedImages.has(imageUrl) ? (
+                        <span className="text-red-500 text-sm">♥</span>
+                      ) : (
+                        <span className="text-gray-400 hover:text-red-500 text-sm transition-colors">♡</span>
+                      )}
+                    </button>
+                    
+                    {/* Subtle Saved Indicator */}
+                    {savedImages.has(imageUrl) && (
+                      <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/60 to-transparent p-2">
+                        <div className="text-white text-xs font-medium">
+                          ✓ Saved
+                        </div>
+                      </div>
+                    )}
+                    
+                    {/* Hover overlay */}
+                    <div className="absolute inset-0 bg-black/0 hover:bg-black/10 transition-colors pointer-events-none"></div>
+                  </div>
+                ))}
+              </div>
+              
+              {/* Preview Status Message */}
+              <div className="mt-3 text-xs text-gray-500 bg-gray-50 p-3 rounded border">
+                <strong>Preview Mode:</strong> These are temporary preview images. Click the heart (♡) to save your favorites permanently to your gallery.
+              </div>
+            </div>
           </div>
-        )}
+        </div>
+      )}
+
+      {/* Full-Size Image Modal with Heart-Save */}
+      {selectedImage && (
+        <div 
+          className="fixed inset-0 bg-black bg-opacity-90 flex items-center justify-center z-50 p-4"
+          onClick={() => setSelectedImage(null)}
+        >
+          <div className="relative max-w-5xl max-h-full">
+            <img 
+              src={selectedImage}
+              alt="Full size view"
+              className="max-w-full max-h-full object-contain rounded-lg shadow-2xl"
+              onClick={(e) => e.stopPropagation()}
+            />
+            
+            {/* Modal Controls */}
+            <div className="absolute top-4 right-4 flex gap-2">
+              {/* Heart Save Button in Modal */}
+              <button
+                onClick={(e) => {
+                  e.stopPropagation();
+                  saveToGallery(selectedImage);
+                }}
+                disabled={savingImages.has(selectedImage)}
+                className="w-10 h-10 flex items-center justify-center bg-white/90 hover:bg-white border border-gray-200 hover:border-gray-300 rounded-full transition-all shadow-lg"
+                title={savedImages.has(selectedImage) ? 'Saved to gallery' : 'Save to gallery'}
+              >
+                {savingImages.has(selectedImage) ? (
+                  <div className="w-4 h-4 border border-gray-400 border-t-transparent rounded-full animate-spin"></div>
+                ) : savedImages.has(selectedImage) ? (
+                  <span className="text-red-500 text-lg">♥</span>
+                ) : (
+                  <span className="text-gray-400 hover:text-red-500 text-lg transition-colors">♡</span>
+                )}
+              </button>
+              
+              {/* Close Button */}
+              <button 
+                onClick={() => setSelectedImage(null)}
+                className="w-10 h-10 flex items-center justify-center bg-white/90 hover:bg-white text-gray-700 hover:text-black rounded-full transition-all shadow-lg"
+                title="Close"
+              >
+                <span className="text-xl leading-none">×</span>
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
       </div>
     </div>
   );
