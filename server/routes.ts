@@ -7,7 +7,7 @@ import path from "path";
 import fs from "fs";
 // Removed photoshoot routes - using existing checkout system
 import { registerStyleguideRoutes } from "./routes/styleguide-routes";
-import { UsageService } from './usage-service';
+import { UsageService, API_COSTS } from './usage-service';
 import { UserUsage } from '@shared/schema';
 // import Anthropic from '@anthropic-ai/sdk'; // DISABLED - API key issues
 // import { AgentSystem } from "./agents/agent-system"; // DISABLED - Anthropic API issues
@@ -515,7 +515,7 @@ Your goal is to have a natural conversation, understand their vision deeply, and
     }
   });
 
-  // Maya AI Image Generation endpoint - LIVE AUTHENTICATION
+  // Maya AI Image Generation endpoint - LIVE AUTHENTICATION WITH USAGE LIMITS
   app.post('/api/maya-generate-images', isAuthenticated, async (req: any, res) => {
     try {
       const { customPrompt } = req.body;
@@ -529,6 +529,20 @@ Your goal is to have a natural conversation, understand their vision deeply, and
       
       if (!customPrompt) {
         return res.status(400).json({ error: 'Custom prompt is required' });
+      }
+
+      // CRITICAL: Check usage limits BEFORE generation
+      const usageCheck = await UsageService.checkUsageLimit(userId);
+      if (!usageCheck.canGenerate) {
+        console.log(`Maya generation blocked for user ${userId}: ${usageCheck.reason}`);
+        return res.status(403).json({ 
+          error: 'Usage limit reached',
+          reason: usageCheck.reason,
+          remainingGenerations: usageCheck.remainingGenerations,
+          monthlyUsed: usageCheck.monthlyUsed,
+          monthlyAllowed: usageCheck.monthlyAllowed,
+          upgrade: true // Flag for frontend to show upgrade prompt
+        });
       }
 
       // Get user's trained model
@@ -553,6 +567,17 @@ Your goal is to have a natural conversation, understand their vision deeply, and
         modelVersion: modelVersion,
         customPrompt
       });
+
+      // CRITICAL: Record usage after successful generation
+      await UsageService.recordUsage(userId, {
+        actionType: 'generation',
+        resourceUsed: 'replicate_ai',
+        cost: API_COSTS.replicate_ai,
+        details: { prompt: customPrompt, category: 'Maya AI' },
+        generatedImageId: result.id
+      });
+
+      console.log(`Maya generation successful for user ${userId}, usage recorded`);
 
       res.json({
         success: true,
