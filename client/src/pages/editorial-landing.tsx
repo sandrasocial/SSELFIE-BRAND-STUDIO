@@ -5,6 +5,7 @@ import { PortfolioSection } from "@/components/portfolio-section";
 import FreeTierSignup from "@/components/free-tier-signup";
 import WelcomeEditorial from "@/components/welcome-editorial";
 import { EmailCaptureModal } from "@/components/email-capture-modal";
+import { InlineEmailCapture } from "@/components/inline-email-capture";
 
 export default function EditorialLanding() {
   const [isEmailModalOpen, setIsEmailModalOpen] = useState(false);
@@ -462,8 +463,11 @@ export default function EditorialLanding() {
         </div>
       </section>
 
-      {/* Free Tier Signup Component */}
-      <FreeTierSignup />
+      {/* Inline Email Capture Form */}
+      <InlineEmailCapture 
+        plan="free"
+        onEmailCaptured={handleEmailCaptured}
+      />
 
       {/* Quote Section - Editorial */}
       <section className="py-32 bg-black text-white text-center">
