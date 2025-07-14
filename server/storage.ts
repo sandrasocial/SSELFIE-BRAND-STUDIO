@@ -391,7 +391,7 @@ export class DatabaseStorage implements IStorage {
     const [model] = await db
       .select()
       .from(userModels)
-      .where(eq(userModels.userId, userId));
+      .where(eq(userModels.user_id, userId));
     return model;
   }
 
@@ -409,7 +409,7 @@ export class DatabaseStorage implements IStorage {
     const [updated] = await db
       .update(userModels)
       .set({ ...data, updatedAt: new Date() })
-      .where(eq(userModels.userId, userId))
+      .where(eq(userModels.user_id, userId))
       .returning();
     return updated;
   }
@@ -424,7 +424,7 @@ export class DatabaseStorage implements IStorage {
 
   // Add methods to work with actual database columns
   async getUserModelByDatabaseUserId(userId: string): Promise<any> {
-    const result = await db.select().from(userModels).where(eq(userModels.userId, userId));
+    const result = await db.select().from(userModels).where(eq(userModels.user_id, userId));
     return result[0];
   }
 

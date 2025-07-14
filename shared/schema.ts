@@ -203,7 +203,7 @@ export const selfieUploads = pgTable("selfie_uploads", {
 // User AI Models table for individual trained models
 export const userModels = pgTable("user_models", {
   id: serial("id").primaryKey(),
-  userId: varchar("user_id").references(() => users.id).notNull().unique(), // One model per user
+  user_id: varchar("user_id").references(() => users.id).notNull().unique(), // One model per user
   replicateModelId: varchar("replicate_model_id"),
   replicateVersionId: varchar("replicate_version_id"), // The actual trained model version to use
   trainedModelPath: varchar("trained_model_path"), // sandrasocial/{modelName}
