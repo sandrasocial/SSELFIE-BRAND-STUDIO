@@ -715,7 +715,26 @@ Your goal is to have a natural conversation, understand their vision deeply, and
 
     } catch (error) {
       console.error('Maya image generation error:', error);
-      res.status(500).json({ error: 'Failed to generate images with Maya' });
+      
+      // Handle specific Replicate API errors with user-friendly messages
+      if (error.message.includes('502')) {
+        return res.status(503).json({ 
+          error: 'Replicate API temporarily unavailable. Please try again in a few moments.',
+          retryable: true 
+        });
+      }
+      
+      if (error.message.includes('401') || error.message.includes('403')) {
+        return res.status(500).json({ 
+          error: 'AI service authentication issue. Please contact support.',
+          retryable: false 
+        });
+      }
+      
+      res.status(500).json({ 
+        error: 'Failed to generate images with Maya. Please try again.',
+        retryable: true 
+      });
     }
   });
 

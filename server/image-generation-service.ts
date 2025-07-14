@@ -181,23 +181,51 @@ export async function generateImages(request: GenerateImagesRequest): Promise<Ge
     console.log(`Final prompt: ${finalPrompt}`);
     console.log('⚙️ FLUX Parameters for MAXIMUM LIKENESS (steps 33, guidance 3.2, LoRA 1.0):', JSON.stringify({ guidance: input.guidance, lora_scale: input.lora_scale, num_inference_steps: input.num_inference_steps, output_quality: input.output_quality }, null, 2));
     
-    // Start Replicate generation with correct API format
-    const replicateResponse = await fetch('https://api.replicate.com/v1/predictions', {
-      method: 'POST',
-      headers: {
-        'Authorization': `Token ${process.env.REPLICATE_API_TOKEN}`,
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({
-        version: fluxModelVersion, // Use 'version' not 'model'
-        input
-      }),
-    });
+    // Start Replicate generation with retry logic for 502 errors
+    let replicateResponse;
+    let retries = 0;
+    const maxRetries = 3;
+    
+    while (retries <= maxRetries) {
+      try {
+        replicateResponse = await fetch('https://api.replicate.com/v1/predictions', {
+          method: 'POST',
+          headers: {
+            'Authorization': `Token ${process.env.REPLICATE_API_TOKEN}`,
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            version: fluxModelVersion, // Use 'version' not 'model'
+            input
+          }),
+        });
 
-    if (!replicateResponse.ok) {
-      const errorData = await replicateResponse.text();
-      console.error('Replicate API error:', errorData);
-      throw new Error(`Replicate API error: ${replicateResponse.status} ${errorData}`);
+        if (replicateResponse.ok) {
+          break; // Success, exit retry loop
+        }
+
+        // If 502 error, retry after delay
+        if (replicateResponse.status === 502 && retries < maxRetries) {
+          console.log(`Replicate API 502 error, retrying in ${(retries + 1) * 2}s... (attempt ${retries + 1}/${maxRetries})`);
+          await new Promise(resolve => setTimeout(resolve, (retries + 1) * 2000));
+          retries++;
+          continue;
+        }
+
+        // For other errors or max retries reached, throw error
+        const errorData = await replicateResponse.text();
+        console.error('Replicate API error:', errorData);
+        throw new Error(`Replicate API error: ${replicateResponse.status} ${errorData}`);
+        
+      } catch (error) {
+        if (retries >= maxRetries) {
+          console.error('Max retries reached for Replicate API');
+          throw error;
+        }
+        console.log(`Network error, retrying in ${(retries + 1) * 2}s... (attempt ${retries + 1}/${maxRetries})`);
+        await new Promise(resolve => setTimeout(resolve, (retries + 1) * 2000));
+        retries++;
+      }
     }
 
     const prediction = await replicateResponse.json();
