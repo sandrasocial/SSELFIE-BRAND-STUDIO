@@ -231,23 +231,24 @@ export default function SimpleTraining() {
               
               <h1 style={{
                 fontFamily: 'Times New Roman, serif',
-                fontSize: 'clamp(4rem, 8vw, 8rem)',
+                fontSize: 'clamp(2.5rem, 8vw, 8rem)',
                 lineHeight: 0.9,
                 fontWeight: 200,
                 letterSpacing: '-0.01em',
                 textTransform: 'uppercase',
-                marginBottom: '32px'
+                marginBottom: '24px'
               }}>
                 YOUR AI IS LEARNING
               </h1>
               
               <p style={{
-                fontSize: '20px',
+                fontSize: 'clamp(16px, 4vw, 20px)',
                 lineHeight: 1.5,
                 fontWeight: 300,
                 maxWidth: '600px',
-                margin: '0 auto 40px auto',
-                opacity: 0.9
+                margin: '0 auto 32px auto',
+                opacity: 0.9,
+                padding: '0 20px'
               }}>
                 Your personal SSELFIE AI model is being created. This process takes approximately 20 minutes. 
                 You'll receive an email when it's ready.
@@ -274,10 +275,12 @@ export default function SimpleTraining() {
               <div style={{
                 display: 'flex',
                 justifyContent: 'center',
-                gap: '40px',
-                fontSize: '14px',
+                gap: 'clamp(20px, 5vw, 40px)',
+                fontSize: 'clamp(12px, 3vw, 14px)',
                 opacity: 0.8,
-                marginBottom: '20px'
+                marginBottom: '20px',
+                flexWrap: 'wrap',
+                padding: '0 20px'
               }}>
                 <div>Progress: {Math.max(5, trainingProgress)}%</div>
                 {estimatedTimeRemaining && (
@@ -289,8 +292,10 @@ export default function SimpleTraining() {
                 display: 'flex',
                 justifyContent: 'center',
                 alignItems: 'center',
-                gap: '40px',
-                marginBottom: '60px'
+                gap: 'clamp(20px, 5vw, 40px)',
+                marginBottom: '40px',
+                flexWrap: 'wrap',
+                padding: '0 20px'
               }}>
                 <div style={{
                   width: '16px',
@@ -301,10 +306,11 @@ export default function SimpleTraining() {
                   animation: 'spin 1s linear infinite'
                 }}></div>
                 <div style={{
-                  fontSize: '14px',
+                  fontSize: 'clamp(12px, 3vw, 14px)',
                   letterSpacing: '0.1em',
                   textTransform: 'uppercase',
-                  opacity: 0.7
+                  opacity: 0.7,
+                  textAlign: 'center'
                 }}>
                   Creating your personal AI model...
                 </div>
@@ -549,7 +555,7 @@ export default function SimpleTraining() {
           justifyContent: 'center',
           background: '#f5f5f5',
           position: 'relative',
-          padding: '80px 40px'
+          padding: '60px 20px'
         }}>
           <div style={{
             textAlign: 'center',
@@ -568,7 +574,7 @@ export default function SimpleTraining() {
             
             <h1 style={{
               fontFamily: 'Times New Roman, serif',
-              fontSize: 'clamp(4rem, 10vw, 8rem)',
+              fontSize: 'clamp(2.5rem, 10vw, 8rem)',
               lineHeight: 0.85,
               fontWeight: 200,
               marginBottom: '24px',
@@ -579,12 +585,13 @@ export default function SimpleTraining() {
             </h1>
             
             <p style={{
-              fontSize: '18px',
+              fontSize: 'clamp(16px, 4vw, 18px)',
               lineHeight: 1.6,
               fontWeight: 300,
               maxWidth: '500px',
-              margin: '0 auto 60px auto',
-              color: '#333333'
+              margin: '0 auto 40px auto',
+              color: '#333333',
+              padding: '0 20px'
             }}>
               Your AI needs to learn your face to create photos that actually look like you. 
               Ten selfies with good light is all it takes.
@@ -604,10 +611,12 @@ export default function SimpleTraining() {
               style={{
                 border: '1px solid #e5e5e5',
                 background: '#ffffff',
-                padding: '80px 40px',
+                padding: 'clamp(40px, 8vw, 80px) clamp(20px, 5vw, 40px)',
                 cursor: 'pointer',
                 transition: 'all 300ms ease',
-                marginBottom: '60px'
+                marginBottom: 'clamp(40px, 8vw, 60px)',
+                margin: '0 auto clamp(40px, 8vw, 60px) auto',
+                maxWidth: '600px'
               }}
               onClick={() => fileInputRef.current?.click()}
               onMouseEnter={(e) => {
@@ -716,8 +725,8 @@ export default function SimpleTraining() {
               onClick={handleStartTraining}
               disabled={selfieImages.length < 10 || startTraining.isPending}
               style={{
-                padding: '18px 36px',
-                fontSize: '16px',
+                padding: 'clamp(14px, 3vw, 18px) clamp(24px, 6vw, 36px)',
+                fontSize: 'clamp(14px, 3.5vw, 16px)',
                 fontWeight: 500,
                 border: 'none',
                 borderRadius: '8px',
@@ -725,7 +734,12 @@ export default function SimpleTraining() {
                 background: selfieImages.length >= 10 ? '#0a0a0a' : '#cccccc',
                 cursor: selfieImages.length >= 10 ? 'pointer' : 'not-allowed',
                 transition: 'all 300ms ease',
-                marginBottom: '24px'
+                marginBottom: '24px',
+                textAlign: 'center',
+                whiteSpace: 'nowrap',
+                overflow: 'hidden',
+                textOverflow: 'ellipsis',
+                maxWidth: '300px'
               }}
             >
               {startTraining.isPending ? 'Starting training...' : 
@@ -735,9 +749,11 @@ export default function SimpleTraining() {
 
             {selfieImages.length >= 10 && !startTraining.isPending && (
               <p style={{
-                fontSize: '14px',
+                fontSize: 'clamp(12px, 3vw, 14px)',
                 color: '#666666',
-                fontWeight: 300
+                fontWeight: 300,
+                padding: '0 20px',
+                textAlign: 'center'
               }}>
                 Your AI will learn from these photos and be ready in about 20 minutes
               </p>
@@ -747,14 +763,14 @@ export default function SimpleTraining() {
 
         {/* Example Photos Section */}
         <section style={{ 
-          padding: '100px 0', 
+          padding: 'clamp(60px, 10vw, 100px) 0', 
           background: '#ffffff',
           borderTop: '1px solid #f0f0f0'
         }}>
           <div style={{
             maxWidth: '1200px',
             margin: '0 auto',
-            padding: '0 40px',
+            padding: '0 20px',
             textAlign: 'center'
           }}>
             <div style={{
@@ -770,7 +786,7 @@ export default function SimpleTraining() {
             
             <h2 style={{
               fontFamily: 'Times New Roman, serif',
-              fontSize: 'clamp(2.5rem, 6vw, 4rem)',
+              fontSize: 'clamp(2rem, 6vw, 4rem)',
               lineHeight: 0.9,
               fontWeight: 200,
               marginBottom: '24px',
