@@ -364,6 +364,20 @@ export type UserLandingPage = typeof userLandingPages.$inferSelect;
 
 
 
+// Email capture table for lead generation
+export const emailCaptures = pgTable("email_captures", {
+  id: serial("id").primaryKey(),
+  email: varchar("email").notNull(),
+  plan: varchar("plan").notNull(), // free, sselfie-studio
+  source: varchar("source").notNull(), // landing_page, pricing_page, etc
+  captured: timestamp("captured").defaultNow(),
+  converted: boolean("converted").default(false),
+  userId: varchar("user_id").references(() => users.id), // Set after user signs up
+});
+
+export type EmailCapture = typeof emailCaptures.$inferSelect;
+export type InsertEmailCapture = typeof emailCaptures.$inferInsert;
+
 // Domain management table
 export const domains = pgTable("domains", {
   id: serial("id").primaryKey(),

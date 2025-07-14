@@ -420,6 +420,10 @@ export default function Pricing() {
         isOpen={showEmailModal}
         onClose={() => setShowEmailModal(false)}
         plan="free"
+        onEmailCaptured={(email) => {
+          console.log('Email captured:', email);
+          // Email modal will handle redirect to authentication
+        }}
       />
     </div>
   );

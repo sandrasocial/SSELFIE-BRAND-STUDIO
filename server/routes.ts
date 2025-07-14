@@ -1154,6 +1154,40 @@ Always be encouraging and strategic while providing specific technical guidance.
     });
   });
 
+  // Email capture endpoint (NON-AUTHENTICATED) - Must be before auth routes
+  app.post('/api/email-capture', async (req, res) => {
+    try {
+      const { email, plan, source } = req.body;
+      
+      if (!email || !plan || !source) {
+        return res.status(400).json({ error: 'Missing required fields' });
+      }
+      
+      // Store email capture in database  
+      const capture = await storage.captureEmail({ 
+        email, 
+        plan, 
+        source,
+        captured: new Date(),
+        converted: false
+      });
+      
+      console.log('Email captured successfully:', capture);
+      
+      // Send welcome email (optional, don't fail if it doesn't work)
+      try {
+        await sendWelcomeEmail({ email, plan, source } as EmailCaptureData);
+      } catch (emailError) {
+        console.log('Email sending failed, but capture succeeded:', emailError);
+      }
+      
+      res.json({ success: true, captureId: capture.id });
+    } catch (error) {
+      console.error('Email capture error:', error);
+      res.status(500).json({ error: 'Failed to capture email' });
+    }
+  });
+
   // Auth routes with proper Replit Authentication
   app.get('/api/auth/user', isAuthenticated, async (req: any, res) => {
     try {
