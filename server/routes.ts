@@ -1275,48 +1275,68 @@ Your goal is to have a natural conversation, understand their vision deeply, and
   app.get('/api/auth/user', isAuthenticated, async (req: any, res) => {
     try {
       console.log('🔍 Auth user endpoint called');
-      const userId = req.user.claims.sub;
+      const authUserId = req.user.claims.sub;
       const claims = req.user.claims;
       
-      // Try to get existing user
-      let user = await storage.getUser(userId);
+      // Try to get existing user by auth ID first
+      let user = await storage.getUser(authUserId);
       
-      // If user doesn't exist, create them automatically
+      // If not found by auth ID, try by email (for existing users with different IDs)
+      if (!user && claims.email) {
+        console.log(`User not found by auth ID ${authUserId}, checking by email: ${claims.email}`);
+        user = await storage.getUserByEmail(claims.email);
+      }
+      
+      // If user doesn't exist at all, create them automatically
       if (!user) {
-        console.log(`Creating new user for ${userId} (${claims.email})`);
+        console.log(`Creating new user for ${authUserId} (${claims.email})`);
         user = await storage.upsertUser({
-          id: userId,
+          id: authUserId,
           email: claims.email,
           firstName: claims.first_name,
           lastName: claims.last_name,
           profileImageUrl: claims.profile_image_url,
         });
-        
-        // Determine plan based on purchase history or default to FREE
-        let userPlan = 'FREE';
-        
-        // Check if user has any subscription (indicating they purchased)
-        // For now, if they made it through auth, default to FREE plan
-        // TODO: Integrate with actual Stripe subscription status when user has paid
-        
-        // Create initial usage record
-        await UsageService.initializeUserUsage(userId, userPlan);
-        
-        // Create initial AI model record for training tracking
-        try {
+      } else {
+        // User exists, update their profile with latest auth data (but keep existing ID)
+        console.log(`Updating existing user ${user.id} with latest auth data`);
+        user = await storage.upsertUser({
+          id: user.id, // Use existing database ID, not auth ID
+          email: claims.email,
+          firstName: claims.first_name,
+          lastName: claims.last_name,
+          profileImageUrl: claims.profile_image_url,
+        });
+      }
+      
+      // Now use the actual database user ID for all operations
+      const dbUserId = user.id;
+      
+      // Initialize usage records if they don't exist (using database user ID)
+      try {
+        const existingUsage = await storage.getUserUsage(dbUserId);
+        if (!existingUsage) {
+          console.log(`Creating initial usage record for database user ${dbUserId}`);
+          await UsageService.initializeUserUsage(dbUserId, 'FREE');
+        }
+      } catch (error) {
+        console.log(`Usage record already exists for user ${dbUserId}, continuing...`);
+      }
+      
+      // Create initial AI model record if it doesn't exist (using database user ID)
+      try {
+        const existingModel = await storage.getUserModel(dbUserId);
+        if (!existingModel) {
+          console.log(`Creating AI model record for database user ${dbUserId}`);
           await storage.createUserModel({
-            userId,
-            triggerWord: `user${userId}`,
+            userId: dbUserId,
+            triggerWord: `user${dbUserId.replace(/[^a-zA-Z0-9]/g, '_')}`,
             trainingStatus: 'not_started',
             modelName: `${user.firstName || 'User'} AI Model`
           });
-          console.log(`✅ AI model record created for user ${userId}`);
-        } catch (error) {
-          // Model might already exist, that's ok
-          console.log(`AI model already exists for user ${userId}, continuing...`);
         }
-        
-        console.log(`✅ New user created: ${user.email}`);
+      } catch (error) {
+        console.log(`AI model already exists for user ${dbUserId}, continuing...`);
       }
       
       res.json(user);
