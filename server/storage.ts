@@ -379,8 +379,9 @@ export class DatabaseStorage implements IStorage {
   }
 
   async hasVictoriaAIAccess(userId: string): Promise<boolean> {
-    // Victoria AI (brand strategist) is accessible to everyone
-    return true;
+    // Victoria AI (brand strategist) is locked for free users - premium only
+    const usage = await this.getUserUsage(userId);
+    return usage?.plan === 'sselfie-studio'; // Only paid users get Victoria access
   }
 
   async hasSandraAIAccess(userId: string): Promise<boolean> {

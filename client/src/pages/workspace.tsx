@@ -35,6 +35,14 @@ export default function Workspace() {
     enabled: isAuthenticated
   });
 
+  const { data: usage } = useQuery({
+    queryKey: ['/api/usage/status'],
+    enabled: isAuthenticated
+  });
+
+  // Check if user has premium access
+  const isPremiumUser = subscription?.plan === 'sselfie-studio';
+
   // User Journey Steps - 8 Steps as requested
   const getUserJourneySteps = () => [
     {
@@ -93,10 +101,10 @@ export default function Workspace() {
       id: 'victoria-brand-strategist',
       number: '06',
       title: 'Victoria - Personal Brand Strategist',
-      subtitle: 'AI guidance for your brand strategy',
-      status: 'ready',
-      statusText: 'Get Strategy',
-      link: '/victoria',
+      subtitle: isPremiumUser ? 'Coming soon - Brand strategy expert' : 'Premium feature - Upgrade to unlock',
+      status: isPremiumUser ? 'coming-soon' : 'locked',
+      statusText: isPremiumUser ? 'Coming Soon' : 'Upgrade Required',
+      link: isPremiumUser ? '#' : '/pricing',
       image: SandraImages.editorial.laptop2
     },
     {
