@@ -17,9 +17,9 @@ export default function AuthSuccess() {
       setIsSettingUp(true);
 
       try {
-        // Check if user has a stored plan from purchase
-        const storedPlan = localStorage.getItem('userPlan');
-        const plan = storedPlan || 'sselfie-studio'; // Default to paid plan
+        // Check if user has a stored plan from purchase or email capture
+        const storedPlan = localStorage.getItem('userPlan') || localStorage.getItem('selectedPlan');
+        const plan = storedPlan || 'free'; // Default to free plan
 
         console.log('Setting up user account with plan:', plan);
 
@@ -32,8 +32,9 @@ export default function AuthSuccess() {
           const data = await response.json();
           console.log('Plan setup successful:', data);
 
-          // Clear stored plan
+          // Clear stored plans
           localStorage.removeItem('userPlan');
+          localStorage.removeItem('selectedPlan');
 
           toast({
             title: "Welcome to SSELFIE Studio!",

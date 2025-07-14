@@ -20,7 +20,7 @@ import { registerAiImageRoutes } from './routes/ai-images';
 import { registerCheckoutRoutes } from './routes/checkout';
 import { registerAutomationRoutes } from './routes/automation';
 // Email service import moved inline to avoid conflicts
-import { sendWelcomeEmail, EmailCaptureData } from "./email-service";
+import { sendWelcomeEmail, sendPostAuthWelcomeEmail, EmailCaptureData, WelcomeEmailData } from "./email-service";
 import { z } from "zod";
 
 // Anthropic disabled for testing - API key issues
@@ -35,6 +35,38 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Add authentication test page for live testing
   app.get('/test-auth', (req, res) => {
     res.sendFile(path.join(process.cwd(), 'test-auth.html'));
+  });
+
+  // Test email endpoint for debugging
+  app.post('/api/test-email', isAuthenticated, async (req: any, res) => {
+    try {
+      const userId = req.user.claims.sub;
+      const user = await storage.getUser(userId);
+      
+      if (!user?.email) {
+        return res.status(400).json({ error: 'User email not found' });
+      }
+
+      const welcomeEmailData: WelcomeEmailData = {
+        email: user.email,
+        firstName: user.firstName || undefined,
+        plan: 'free' // Test with free plan
+      };
+      
+      console.log('Testing email send to:', user.email);
+      const emailResult = await sendPostAuthWelcomeEmail(welcomeEmailData);
+      
+      res.json({
+        success: emailResult.success,
+        emailId: emailResult.id,
+        error: emailResult.success ? null : emailResult.error,
+        userEmail: user.email
+      });
+      
+    } catch (error) {
+      console.error('Test email error:', error);
+      res.status(500).json({ error: 'Failed to send test email' });
+    }
   });
 
   // PUBLIC ENDPOINT: Chat with Sandra AI for photoshoot prompts - MUST BE FIRST, NO AUTH
@@ -300,6 +332,29 @@ I have ALL collections ready - just tell me your mood! ✨`;
       });
       
       console.log(`Plan setup complete: ${plan}, Maya/Victoria Access: true, Limit: ${monthlyLimit}`);
+      
+      // Send post-authentication welcome email
+      try {
+        const user = await storage.getUser(userId);
+        if (user?.email) {
+          const welcomeEmailData: WelcomeEmailData = {
+            email: user.email,
+            firstName: user.firstName || undefined,
+            plan: plan as 'free' | 'sselfie-studio'
+          };
+          
+          console.log('Sending post-authentication welcome email to:', user.email);
+          const emailResult = await sendPostAuthWelcomeEmail(welcomeEmailData);
+          
+          if (emailResult.success) {
+            console.log('Welcome email sent successfully:', emailResult.id);
+          } else {
+            console.error('Welcome email failed:', emailResult.error);
+          }
+        }
+      } catch (emailError) {
+        console.error('Welcome email error (non-blocking):', emailError);
+      }
       
       res.json({
         success: true,
