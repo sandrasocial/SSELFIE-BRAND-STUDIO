@@ -67,17 +67,17 @@ export async function generateImages(request: GenerateImagesRequest): Promise<Ge
       finalPrompt = `${finalPrompt}${naturalTextureSpecs}`;
     }
 
-    // Build input with NATURAL SETTINGS for authentic, non-plastic results
+    // Build input with OPTIMIZED FLUX LoRA SETTINGS for maximum quality and likeness
     const input: any = {
       prompt: finalPrompt,        // Maya's authentic prompt with trigger word
-      guidance: 2.0,              // Lower guidance for natural results
+      guidance: 3.0,              // Optimal guidance for FLUX LoRA (2.5-3.0 recommended)
       lora_weights: `sandrasocial/${userModel.modelName}`, // User's trained LoRA weights
-      lora_scale: 0.7,           // Moderate LoRA scale for natural blending
-      num_inference_steps: 28,    // Moderate steps for quality
+      lora_scale: 1.0,           // Standard LoRA scale for personal LoRAs (0.9-1.0 optimal)
+      num_inference_steps: 35,    // Minimum recommended steps for high quality (35+ optimal)
       num_outputs: 3,            // Generate 3 focused images
       aspect_ratio: "3:4",        // Portrait ratio better for selfies
       output_format: "png",       // PNG for highest quality
-      output_quality: 75,         // Moderate quality for natural texture
+      output_quality: 90,         // Higher quality for professional results
       megapixels: "1",           // Approximate megapixels
       go_fast: false,             // Quality over speed
       disable_safety_checker: false
@@ -89,7 +89,7 @@ export async function generateImages(request: GenerateImagesRequest): Promise<Ge
     console.log(`User's trigger word: "${triggerWord}"`);
     console.log(`Model training status: ${userModel.trainingStatus}`);
     console.log(`Final prompt: ${finalPrompt}`);
-    console.log('⚙️ FLUX Parameters for EXTREME NATURAL RESULTS (steps 25, guidance 2.0, LoRA 0.9):', JSON.stringify({ guidance: input.guidance, lora_scale: input.lora_scale, num_inference_steps: input.num_inference_steps, output_quality: input.output_quality }, null, 2));
+    console.log('⚙️ OPTIMIZED FLUX LoRA SETTINGS (2025 Best Practices):', JSON.stringify({ guidance: input.guidance, lora_scale: input.lora_scale, num_inference_steps: input.num_inference_steps, output_quality: input.output_quality }, null, 2));
     
     // Start Replicate generation with retry logic for 502 errors
     let replicateResponse;

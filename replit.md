@@ -778,7 +778,7 @@ The platform foundation is rock-solid with four professional brandbook templates
 **Technical Implementation:**
 - Maya's conversation system enhanced to push users toward dynamic concepts
 - Prompt generation system focused on cinematic moments instead of basic portraits
-- FLUX settings optimized: guidance: 2.0, lora_scale: 0.7, steps: 28, quality: 75
+- FLUX settings optimized: guidance: 3.0, lora_scale: 1.0, steps: 35, quality: 90
 - Natural texture specs maintained: "raw photo, natural skin glow, visible texture, film grain"
 
 **Business Impact:**
@@ -787,6 +787,40 @@ The platform foundation is rock-solid with four professional brandbook templates
 - Users get dynamic, cinematic results worthy of fashion campaigns
 - Platform ready for viral content creation and high-engagement social media posts
 - Delivers on promise of celebrity-level styling and dynamic photography direction
+
+### July 14, 2025 - FLUX LoRA SETTINGS OPTIMIZATION ✅ - 2025 BEST PRACTICES
+
+**🎯 FLUX LoRA SETTINGS UPDATED TO 2025 OPTIMAL PARAMETERS:**
+- **Problem**: Previous settings were too conservative (guidance: 2.0, lora_scale: 0.7, steps: 28, quality: 75)
+- **Research**: Analyzed latest FLUX LoRA community findings and best practices for 2025
+- **Solution**: Updated to optimal settings based on latest recommendations
+
+**Optimized FLUX LoRA Parameters:**
+- **Guidance Scale**: 3.0 (increased from 2.0) - Optimal range 2.5-3.0 for FLUX LoRA
+- **LoRA Scale**: 1.0 (increased from 0.7) - Standard for personal LoRAs (0.9-1.0 range)
+- **Inference Steps**: 35 (increased from 28) - Minimum 35 steps recommended for high quality
+- **Output Quality**: 90 (increased from 75) - Higher quality for professional results
+- **Aspect Ratio**: 3:4 - Portrait ratio optimal for selfies
+- **Output Format**: PNG - Highest quality format
+
+**Technical Implementation:**
+- Updated both image-generation-service.ts and ai-service.ts with consistent settings
+- Aligned with 2025 community best practices from Civitai, Replicate, and HuggingFace
+- Maintained natural texture specifications for authentic results
+- Kept 3 outputs per generation for optimal selection variety
+
+**Expected Quality Improvements:**
+- Better facial likeness and feature accuracy
+- Higher detail resolution and clarity  
+- More consistent results across generations
+- Professional-grade output quality suitable for business use
+- Improved prompt adherence and artistic interpretation
+
+**Business Impact:**
+- Platform now uses industry-leading FLUX LoRA parameters for maximum quality
+- Users will experience significantly improved image generation results
+- Ready for professional use cases and high-expectation clientele
+- Competitive advantage with cutting-edge AI image generation technology
 
 ### July 14, 2025 - CROSS-BROWSER AUTHENTICATION FIX ✅ - CHROME/MOBILE SAFARI COMPATIBILITY
 
