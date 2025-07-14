@@ -7,12 +7,12 @@ import { MemberNavigation } from '@/components/member-navigation';
 import { HeroFullBleed } from '@/components/hero-full-bleed';
 import { SandraImages } from '@/lib/sandra-images';
 
-// RAW PHOTOGRAPHY PROMPTS - Matching Training Data Aesthetic
+// ELEGANT PHOTOSHOOT COLLECTIONS - Lookbook Style
 const PROMPT_COLLECTIONS = {
   'healing-mindset': {
     id: 'healing-mindset',
-    name: 'Moody Raw Photography',
-    description: 'Dark & intimate shadow play vulnerability',
+    name: 'M I N D F U L   M O M E N T S',
+    description: 'Peaceful & authentic wellness photography',
     preview: SandraImages.portraits.professional[2],
     prompts: [
       {
@@ -103,8 +103,8 @@ const PROMPT_COLLECTIONS = {
   },
   'magazine-covers': {
     id: 'magazine-covers',
-    name: 'Magazine Cover Editorial',
-    description: 'High-fashion editorial portraits with magazine quality',
+    name: 'E D I T O R I A L   P O W E R',
+    description: 'High-fashion editorial portraits for your brand',
     preview: SandraImages.portraits.professional[1],
     prompts: [
       {
@@ -613,31 +613,41 @@ export default function AIPhotoshootPage() {
 
         {!selectedCollection ? (
           <div>
-            {/* Collection Grid */}
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+            {/* Collection Grid - Lookbook Style */}
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-8 max-w-4xl mx-auto">
               {Object.values(PROMPT_COLLECTIONS).map((collection) => (
                 <div
                   key={collection.id}
                   onClick={() => setSelectedCollection(collection.id)}
-                  className="bg-gray-50 aspect-[4/5] relative cursor-pointer transition-all duration-300 overflow-hidden hover:scale-[1.02]"
+                  className="relative cursor-pointer transition-all duration-500 overflow-hidden group"
+                  style={{ aspectRatio: '4/5' }}
                 >
                   {/* Collection Image */}
                   <img
                     src={collection.preview}
                     alt={collection.name}
-                    className="w-full h-full object-cover"
+                    className="w-full h-full object-cover transition-all duration-700 group-hover:scale-105"
                   />
                   
-                  {/* Collection Info Overlay */}
-                  <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/80 to-transparent p-6 text-white">
-                    <h3 className="font-times text-xl font-normal mb-2">
-                      {collection.name}
-                    </h3>
-                    <p className="text-sm opacity-90 mb-3 leading-relaxed">
-                      {collection.description}
-                    </p>
-                    <div className="text-xs uppercase tracking-wider opacity-80">
-                      {collection.prompts.length} prompts
+                  {/* Soft Dark Overlay */}
+                  <div className="absolute inset-0 bg-black/30 group-hover:bg-black/20 transition-all duration-500"></div>
+                  
+                  {/* Elegant Title Overlay */}
+                  <div className="absolute inset-0 flex items-center justify-center">
+                    <div className="text-white text-center">
+                      <div className="font-serif text-2xl md:text-3xl font-light tracking-[0.4em] uppercase mb-2">
+                        {collection.name}
+                      </div>
+                      <div className="text-xs tracking-[0.2em] uppercase opacity-80">
+                        {collection.description}
+                      </div>
+                    </div>
+                  </div>
+                  
+                  {/* Minimalist Count Badge */}
+                  <div className="absolute top-4 right-4">
+                    <div className="bg-white/90 px-2 py-1 text-xs font-light text-black">
+                      {collection.prompts.length} styles
                     </div>
                   </div>
                 </div>
@@ -656,22 +666,22 @@ export default function AIPhotoshootPage() {
 
             {/* Collection Header */}
             <div className="text-center mb-16">
-              <h2 className="font-times text-[clamp(2rem,4vw,3rem)] font-light tracking-wide mb-4">
+              <h2 className="font-serif text-[clamp(2rem,4vw,3rem)] font-light tracking-[0.4em] uppercase mb-4">
                 {PROMPT_COLLECTIONS[selectedCollection]?.name}
               </h2>
-              <p className="text-gray-600 max-w-2xl mx-auto">
+              <p className="text-gray-600 max-w-2xl mx-auto text-lg font-light">
                 {PROMPT_COLLECTIONS[selectedCollection]?.description}
               </p>
             </div>
 
-            {/* Prompts Grid */}
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {/* Prompts Grid - Minimalist Cards */}
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
               {PROMPT_COLLECTIONS[selectedCollection]?.prompts.map((prompt) => (
                 <div
                   key={prompt.id}
-                  className={`border border-gray-200 p-6 bg-white transition-all duration-300 ${
+                  className={`bg-gray-50 border border-gray-100 transition-all duration-500 ${
                     userModel?.trainingStatus === 'completed' 
-                      ? 'cursor-pointer hover:border-black hover:-translate-y-1' 
+                      ? 'cursor-pointer hover:border-black hover:shadow-lg hover:-translate-y-1' 
                       : 'opacity-60 cursor-default'
                   }`}
                   onClick={() => {
@@ -680,25 +690,46 @@ export default function AIPhotoshootPage() {
                     }
                   }}
                 >
-                  <div className="text-xs uppercase tracking-wider text-gray-500 mb-2">
-                    {prompt.category}
+                  {/* Image Placeholder Area - Ready for Collection Images */}
+                  <div className="aspect-[4/5] bg-gray-200 relative overflow-hidden">
+                    <div className="absolute inset-0 bg-black/20"></div>
+                    
+                    {/* Title Overlay */}
+                    <div className="absolute inset-0 flex items-center justify-center">
+                      <div className="text-white text-center px-4">
+                        <div className="font-serif text-lg font-light tracking-[0.3em] uppercase">
+                          {prompt.name.replace(/\s/g, ' ')}
+                        </div>
+                      </div>
+                    </div>
+                    
+                    {/* Status Badge */}
+                    <div className="absolute top-4 right-4">
+                      <div className={`px-2 py-1 text-xs font-light ${
+                        userModel?.trainingStatus === 'completed' 
+                          ? 'bg-white/90 text-black' 
+                          : 'bg-white/70 text-gray-600'
+                      }`}>
+                        {userModel?.trainingStatus === 'completed' 
+                          ? (generatingImages && selectedPrompt?.id === prompt.id ? 'Creating...' : 'Ready')
+                          : 'Locked'
+                        }
+                      </div>
+                    </div>
                   </div>
-                  <h3 className="font-times text-xl font-normal mb-3">
-                    {prompt.name}
-                  </h3>
-                  <p className="text-sm text-gray-600 mb-4 leading-relaxed">
-                    {prompt.description}
-                  </p>
                   
-                  {userModel?.trainingStatus === 'completed' ? (
-                    <div className="text-xs uppercase tracking-wide text-black">
-                      {generatingImages && selectedPrompt?.id === prompt.id ? 'Generating...' : 'Generate Photos'}
+                  {/* Card Content */}
+                  <div className="p-6">
+                    <div className="text-xs tracking-[0.2em] uppercase text-gray-500 mb-2">
+                      {prompt.category}
                     </div>
-                  ) : (
-                    <div className="text-xs uppercase tracking-wide text-gray-400">
-                      Complete AI Training First
-                    </div>
-                  )}
+                    <h3 className="font-serif text-lg font-light mb-3 leading-tight">
+                      {prompt.name}
+                    </h3>
+                    <p className="text-sm text-gray-600 leading-relaxed font-light">
+                      {prompt.description}
+                    </p>
+                  </div>
                 </div>
               ))}
             </div>
