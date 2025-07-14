@@ -79,7 +79,7 @@ export default function SimpleCheckout() {
             <div className="flex justify-between items-center mb-4">
               <div>
                 <div className="font-medium">SSELFIE AI Brand Photoshoot</div>
-                <div className="text-sm text-gray-600">300 monthly AI-generated professional photos</div>
+                <div className="text-sm text-gray-600">100 monthly AI-generated professional photos</div>
               </div>
               <div className="text-xl font-light" style={{ fontFamily: 'Times New Roman, serif' }}>
                 €97/month

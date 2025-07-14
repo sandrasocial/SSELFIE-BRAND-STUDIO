@@ -238,7 +238,7 @@ export default function NewLanding() {
                 </li>
                 <li className="flex items-start">
                   <span className="text-white mr-3">•</span>
-                  <span>300 AI images per month</span>
+                  <span>100 AI images per month</span>
                 </li>
                 <li className="flex items-start">
                   <span className="text-white mr-3">•</span>

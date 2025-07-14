@@ -132,7 +132,7 @@ export default function Workspace() {
 
 
   const getUsageStats = () => {
-    const monthlyLimit = 300; // €97 plan includes 300 monthly generations
+    const monthlyLimit = 100; // $47 SSELFIE Studio plan includes 100 monthly generations
     return {
       used: aiImages.length || 0,
       total: monthlyLimit,
