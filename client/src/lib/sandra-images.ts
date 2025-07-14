@@ -45,6 +45,7 @@ export const SandraImages = {
     phone: "https://i.postimg.cc/9Q0P8yJj/story_2.jpg", // Phone in action shot
     beauty: "https://i.postimg.cc/PfCmMrcC/file-33.png",
     planning: "https://i.postimg.cc/kXrtFNKH/file-45.png",
+    luxury: "https://i.postimg.cc/KcqNJk7s/30.png", // Luxury Flatlays card
     luxuryMinimal: [
       "https://i.postimg.cc/VkVddttn/67.png", // Clean workspace
       "https://i.postimg.cc/kMRbbY68/file-44.png", // Minimal setup
