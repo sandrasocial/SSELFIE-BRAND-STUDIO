@@ -211,59 +211,94 @@ const PROMPT_COLLECTIONS = {
   },
   'street-documentary': {
     id: 'street-documentary',
-    name: 'S T R E E T',
-    subtitle: 'D O C U M E N T A R Y',
-    description: 'Natural urban moments with film photography aesthetics',
+    name: 'STREET DOCUMENTARY',
+    subtitle: 'Urban Confidence',
+    description: 'Candid moments of moving through the world with quiet authority - street photography that captures authentic confidence',
     preview: SandraImages.portraits.professional[0],
     prompts: [
       {
-        id: 'crosswalk-confidence',
-        name: 'Crosswalk Confidence',
-        category: 'Street Power',
-        description: "That main character energy crossing the street. Blazer flowing, hair windswept, total boss move.",
-        prompt: '[triggerword] woman long dark hair windswept, crossing street mid-stride, wearing black oversized blazer, designer bag, city traffic blurred background, shot on Leica M10 with 35mm Summicron f/2, street photography style, raw photo, natural stride energy, visible skin texture, film grain, unretouched confidence'
+        id: 'copenhagen-bike-commute',
+        name: 'Copenhagen Commute',
+        category: 'Urban Movement',
+        description: 'Cycling through the city with effortless grace - sustainable luxury in motion',
+        prompt: 'raw photo, visible skin pores, film grain, unretouched natural skin texture, subsurface scattering, photographed on film, [triggerword], woman cycling vintage bicycle through Copenhagen streets, wearing tailored wool coat and leather crossbody bag, colorful Nordic buildings in background, natural confident expression, hair moving gently in breeze, minimal gold jewelry, shot on Leica Q2 with 28mm f/1.7 lens, street photography style, natural daylight, Scandinavian urban aesthetic'
       },
       {
-        id: 'subway-stairs-power',
-        name: 'Parisian Café Exit',
-        category: 'Morning Coffee Runs',
-        description: "That expensive girl energy. You're stepping out of a cute Parisian café with your morning coffee, looking effortlessly chic.",
-        prompt: '[triggerword] woman stepping out of Parisian cafe holding coffee cup, voluminous hair with natural body and movement, oversized black blazer over mini dress, Prada bag, morning sunlight on cobblestone street, natural stride, other cafe patrons blurred in background, shot on Canon EOS R5, 85mm lens, iPhone street photography aesthetic, heavy 35mm film grain, matte textured skin, soft skin retouch, visible pores and natural texture, natural facial refinement, editorial skin enhancement, candid lifestyle moment. Negative: shiny skin, glossy skin, fake skin, plastic-looking skin, over-processed skin'
+        id: 'milan-fashion-walk',
+        name: 'Milan Fashion District',
+        category: 'Style in Motion',
+        description: 'Walking through the fashion capital with innate style - where elegance meets everyday',
+        prompt: 'raw photo, visible skin pores, film grain, unretouched natural skin texture, subsurface scattering, photographed on film, [triggerword], woman in elevated basics walking through Milano fashion district, long camel coat and designer accessories, Italian architecture backdrop, natural purposeful stride, serene focused expression, hair styled effortlessly, shot on Canon EOS R5 with 85mm f/1.4 lens, street fashion photography, golden hour lighting, Italian elegance aesthetic'
       },
       {
-        id: 'milan-coffee-walk',
-        name: 'Milan Coffee Walk',
-        category: 'Morning Coffee Runs',
-        description: "Italian elegance meets street style. Walking with your espresso like the sophisticated woman you are.",
-        prompt: '[triggerword] woman walking with espresso cup, voluminous hair with natural body and movement, black cropped tank, high-waisted cream trousers, small Bottega Veneta bag, Italian architecture behind, adjusting sunglasses with free hand, natural morning light, street style candid, shot on Fujifilm X-T5, 35mm lens, heavy 35mm film grain, matte textured skin, soft skin retouch, visible pores and natural texture, natural facial refinement, editorial skin enhancement, film photography mood. Negative: shiny skin, glossy skin, fake skin, plastic-looking skin, over-processed skin'
+        id: 'london-crosswalk-moment',
+        name: 'London Crosswalk',
+        category: 'City Navigation',
+        description: 'Navigating the city with quiet confidence - urban moments that feel cinematic',
+        prompt: 'raw photo, visible skin pores, film grain, unretouched natural skin texture, subsurface scattering, photographed on film, [triggerword], woman in trench coat crossing busy London street, classic British architecture background, natural determined expression while navigating crosswalk, minimal scarf and leather boots, hair moving with city breeze, shot on Fujifilm GFX 100S with 63mm f/2.8 lens, documentary street photography, overcast natural lighting, British urban aesthetic'
       },
       {
-        id: 'avenue-montaigne-stroll',
-        name: 'Avenue Montaigne Stroll',
-        category: 'Luxury Shopping',
-        description: "Walking past Dior like you belong there. Pure luxury shopping vibes with that confident stride.",
-        prompt: '[triggerword] woman walking past Dior boutique, voluminous hair with natural body and movement, black strapless top, white wide-leg pants, Hermès Kelly bag, mid-stride confident walk, Parisian Haussmann architecture, natural daylight, street style photography, shot on Leica Q2, 28mm lens, heavy 35mm film grain, matte textured skin, soft skin retouch, visible pores and natural texture, natural facial refinement, editorial skin enhancement, film aesthetic, movement captured. Negative: shiny skin, glossy skin, fake skin, plastic-looking skin, over-processed skin'
+        id: 'paris-metro-entrance',
+        name: 'Parisian Metro',
+        category: 'Transit Elegance',
+        description: 'Even the mundane becomes elegant - French sophistication in everyday moments',
+        prompt: 'raw photo, visible skin pores, film grain, unretouched natural skin texture, subsurface scattering, photographed on film, [triggerword], woman in neutral turtleneck and tailored coat descending into Parisian metro station, Art Nouveau metro entrance visible, contemplative expression while moving through transit, minimal jewelry and structured bag, natural confident posture, shot on Leica M11 with 50mm f/1.4 lens, urban documentary photography, soft Paris lighting, French metropolitan aesthetic'
       },
       {
-        id: 'stone-building-lean',
-        name: 'Stone Building Lean',
-        category: 'Architectural Backgrounds',
-        description: "That effortless pose against beautiful European architecture. Looking away thoughtfully, totally at ease.",
-        prompt: '[triggerword] woman leaning against limestone building, voluminous hair with natural body and movement, black tube top, vintage denim, small chain bag, one hand in pocket, looking away from camera, European architectural details visible, natural shadows on face, half body street style shot, shot on Canon EOS R5, 50mm lens, heavy 35mm film grain, matte textured skin, soft skin retouch, visible pores and natural texture, natural facial refinement, editorial skin enhancement, film photography. Negative: shiny skin, glossy skin, fake skin, plastic-looking skin, over-processed skin, close-up portrait, headshot, tight crop'
+        id: 'brooklyn-bridge-walk',
+        name: 'Bridge Crossing',
+        category: 'Urban Exploration',
+        description: 'Taking the longer route for the better view - finding beauty in city infrastructure',
+        prompt: 'raw photo, visible skin pores, film grain, unretouched natural skin texture, subsurface scattering, photographed on film, [triggerword], woman in wool sweater and jeans walking across urban bridge, city skyline in background, peaceful expression while taking in views, hair in natural loose style, hands in coat pockets, shot on Sony A7R IV with 70-200mm f/2.8 lens, bridge photography, golden hour lighting, metropolitan lifestyle aesthetic'
       },
       {
-        id: 'zebra-crossing-power',
-        name: 'Zebra Crossing Power',
-        category: 'Street Crossing',
-        description: "Abbey Road vibes but make it fashion. Confident stride across the street, blazer flowing, pure power move.",
-        prompt: '[triggerword] woman mid-stride on crosswalk, voluminous hair with natural body and movement, black bodysuit, oversized blazer flowing, small bag across body, city traffic blurred behind, confident walk, natural daylight, street photography style, shot on Sony α7R V, 35mm lens, heavy 35mm film grain, matte textured skin, soft skin retouch, visible pores and natural texture, natural facial refinement, editorial skin enhancement, movement captured, film aesthetic. Negative: shiny skin, glossy skin, fake skin, plastic-looking skin, over-processed skin'
+        id: 'stockholm-old-town',
+        name: 'Stockholm Gamla Stan',
+        category: 'Historic Wandering',
+        description: 'Moving through cobblestone streets with timeless grace - where history meets modernity',
+        prompt: 'raw photo, visible skin pores, film grain, unretouched natural skin texture, subsurface scattering, photographed on film, [triggerword], woman in Scandinavian minimalist outfit walking through Stockholm old town cobblestone streets, colorful medieval buildings backdrop, serene expression while exploring, minimal Nordic styling, natural confident stride, shot on Canon EOS R6 with 50mm f/1.2 lens, historic street photography, Nordic natural lighting, Swedish heritage aesthetic'
       },
       {
-        id: 'golden-hour-walk',
-        name: 'Golden Hour Walk',
-        category: 'Evening Transitions',
-        description: "That magic hour when everything glows. Evening walk in your slip dress, golden light making you look ethereal.",
-        prompt: '[triggerword] woman walking in evening light, voluminous hair with natural body and movement, black slip dress, leather jacket over shoulders, small clutch bag, European boulevard, golden hour backlighting, natural stride, street style photography, shot on Fujifilm X-T5, 56mm lens, heavy 35mm film grain, matte textured skin, soft skin retouch, visible pores and natural texture, natural facial refinement, editorial skin enhancement, film mood. Negative: shiny skin, glossy skin, fake skin, plastic-looking skin, over-processed skin'
+        id: 'rainy-amsterdam-umbrella',
+        name: 'Amsterdam Rain',
+        category: 'Weather Elegance',
+        description: 'Even rainy days look elegant when you move with intention and style',
+        prompt: 'raw photo, visible skin pores, film grain, unretouched natural skin texture, subsurface scattering, photographed on film, [triggerword], woman with classic black umbrella walking along Amsterdam canal, wearing long wool coat and leather boots, Dutch canal houses reflected in rain puddles, peaceful expression despite weather, hair protected under umbrella, shot on Fujifilm X-T5 with 35mm f/1.4 lens, rainy day photography, soft overcast lighting, Dutch urban resilience aesthetic'
+      },
+      {
+        id: 'barcelona-morning-market',
+        name: 'Barcelona Market Walk',
+        category: 'Local Exploration',
+        description: 'Navigating local markets with curiosity and confidence - where culture meets cuisine',
+        prompt: 'raw photo, visible skin pores, film grain, unretouched natural skin texture, subsurface scattering, photographed on film, [triggerword], woman in linen shirt walking through Barcelona morning market, colorful produce stalls and Spanish architecture, natural interested expression while observing local life, woven market bag in hand, minimal Mediterranean styling, shot on Leica SL2 with 90mm f/2 lens, market documentary photography, warm morning light, Spanish cultural immersion aesthetic'
+      },
+      {
+        id: 'tokyo-shibuya-crossing',
+        name: 'Tokyo Navigation',
+        category: 'Cultural Adaptation',
+        description: 'Moving through foreign spaces with quiet confidence - cultural exploration with grace',
+        prompt: 'raw photo, visible skin pores, film grain, unretouched natural skin texture, subsurface scattering, photographed on film, [triggerword], woman in minimalist black outfit navigating Tokyo crosswalk, neon signs and urban energy in background, calm focused expression amid city chaos, sleek modern styling, hair in simple elegant style, shot on Sony A7R V with 85mm f/1.4 lens, urban crowd photography, neon-lit evening atmosphere, metropolitan confidence aesthetic'
+      },
+      {
+        id: 'edinburgh-royal-mile',
+        name: 'Edinburgh Heritage',
+        category: 'Historic Cities',
+        description: 'Walking through centuries of history with contemporary confidence',
+        prompt: 'raw photo, visible skin pores, film grain, unretouched natural skin texture, subsurface scattering, photographed on film, [triggerword], woman in tartan scarf and wool coat walking down Edinburgh Royal Mile, historic Scottish architecture surrounding, thoughtful expression while appreciating heritage, natural windswept hair, traditional yet modern styling, shot on Nikon Z9 with 24-70mm f/2.8 lens, heritage street photography, Scottish natural lighting, Celtic urban exploration aesthetic'
+      },
+      {
+        id: 'vancouver-seawall-stroll',
+        name: 'Coastal City Walk',
+        category: 'Nature Meets Urban',
+        description: 'Where city meets sea - finding harmony between urban and natural worlds',
+        prompt: 'raw photo, visible skin pores, film grain, unretouched natural skin texture, subsurface scattering, photographed on film, [triggerword], woman in layered neutral clothing walking along Vancouver seawall, mountains and water visible in background, peaceful expression while enjoying coastal breeze, hair moving naturally in ocean air, comfortable walking shoes and crossbody bag, shot on Canon EOS R5 with 70-200mm f/2.8 lens, coastal urban photography, Pacific Northwest lighting, maritime city aesthetic'
+      },
+      {
+        id: 'zurich-tram-commute',
+        name: 'Swiss Precision',
+        category: 'Efficient Movement',
+        description: 'Moving through the city with Swiss precision and understated luxury',
+        prompt: 'raw photo, visible skin pores, film grain, unretouched natural skin texture, subsurface scattering, photographed on film, [triggerword], woman in quality basics waiting for Zurich tram, Swiss Alps visible in distance, composed expression while commuting efficiently, minimal luxury accessories, hair in neat natural style, shot on Fujifilm GFX 50S with 110mm f/2 lens, Swiss urban photography, clean Alpine lighting, efficient luxury lifestyle aesthetic'
       }
     ]
   },
