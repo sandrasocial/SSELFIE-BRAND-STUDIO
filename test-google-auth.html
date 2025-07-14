@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Google Auth Test - SSELFIE Studio</title>
+    <style>
+        body {
+            font-family: "Times New Roman", serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            background: #f5f5f5;
+        }
+        .container {
+            background: white;
+            padding: 40px;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        h1 {
+            font-size: 2.5rem;
+            margin-bottom: 30px;
+            text-align: center;
+        }
+        .auth-section {
+            margin: 30px 0;
+            padding: 20px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+        }
+        .login-btn {
+            background: #0a0a0a;
+            color: white;
+            padding: 15px 30px;
+            border: none;
+            border-radius: 4px;
+            font-size: 1.1rem;
+            cursor: pointer;
+            text-decoration: none;
+            display: inline-block;
+            margin: 10px;
+        }
+        .login-btn:hover {
+            background: #333;
+        }
+        .status {
+            margin: 20px 0;
+            padding: 15px;
+            border-radius: 4px;
+            font-weight: bold;
+        }
+        .success {
+            background: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+        .error {
+            background: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Google OAuth Test</h1>
+        
+        <div class="auth-section">
+            <h3>Authentication Status</h3>
+            <div id="auth-status">Checking...</div>
+        </div>
+        
+        <div class="auth-section">
+            <h3>Login Actions</h3>
+            <a href="/api/login" class="login-btn">Login with Google</a>
+            <a href="/api/logout" class="login-btn">Logout</a>
+        </div>
+        
+        <div class="auth-section">
+            <h3>User Information</h3>
+            <div id="user-info">Loading...</div>
+        </div>
+        
+        <div class="auth-section">
+            <h3>API Tests</h3>
+            <button onclick="testProtectedRoute()" class="login-btn">Test Protected Route</button>
+            <div id="api-results"></div>
+        </div>
+    </div>
+
+    <script>
+        // Check authentication status
+        async function checkAuth() {
+            try {
+                const response = await fetch('/api/auth/user');
+                const authStatus = document.getElementById('auth-status');
+                const userInfo = document.getElementById('user-info');
+                
+                if (response.ok) {
+                    const user = await response.json();
+                    authStatus.innerHTML = '<div class="status success">✅ Authenticated</div>';
+                    userInfo.innerHTML = `
+                        <p><strong>ID:</strong> ${user.id}</p>
+                        <p><strong>Email:</strong> ${user.email}</p>
+                        <p><strong>Name:</strong> ${user.firstName} ${user.lastName}</p>
+                        <p><strong>Role:</strong> ${user.role || 'user'}</p>
+                        <p><strong>Plan:</strong> ${user.plan || 'free'}</p>
+                        <p><strong>Created:</strong> ${new Date(user.createdAt).toLocaleString()}</p>
+                    `;
+                } else {
+                    authStatus.innerHTML = '<div class="status error">❌ Not Authenticated</div>';
+                    userInfo.innerHTML = '<p>Please log in to see user information.</p>';
+                }
+            } catch (error) {
+                console.error('Auth check failed:', error);
+                document.getElementById('auth-status').innerHTML = '<div class="status error">❌ Error checking authentication</div>';
+            }
+        }
+        
+        // Test protected route
+        async function testProtectedRoute() {
+            try {
+                const response = await fetch('/api/debug-auth');
+                const result = await response.json();
+                
+                document.getElementById('api-results').innerHTML = `
+                    <h4>Protected Route Test Results:</h4>
+                    <pre>${JSON.stringify(result, null, 2)}</pre>
+                `;
+            } catch (error) {
+                document.getElementById('api-results').innerHTML = `
+                    <h4>API Test Failed:</h4>
+                    <p>${error.message}</p>
+                `;
+            }
+        }
+        
+        // Check auth on page load
+        checkAuth();
+        
+        // Refresh auth every 5 seconds
+        setInterval(checkAuth, 5000);
+    </script>
+</body>
+</html>
