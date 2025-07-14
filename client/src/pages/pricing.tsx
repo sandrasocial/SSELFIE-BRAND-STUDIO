@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useAuth } from '@/hooks/use-auth';
 import { HeroFullBleed } from '@/components/hero-full-bleed';
 import { SandraImages } from '@/components/sandra-image-library';
-import { PreLoginNavigation } from '@/components/pre-login-navigation';
+import { PreLoginNavigationUnified } from '@/components/pre-login-navigation-unified';
 import { Link, useLocation } from 'wouter';
 import { useToast } from '@/hooks/use-toast';
 
@@ -47,7 +47,7 @@ export default function Pricing() {
   return (
     <div className="min-h-screen bg-white">
       {/* Standardized Navigation */}
-      <PreLoginNavigation />
+      <PreLoginNavigationUnified />
 
       {/* Hero Section */}
       <HeroFullBleed
