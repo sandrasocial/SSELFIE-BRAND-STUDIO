@@ -7,6 +7,7 @@ import PowerQuote from '@/components/power-quote';
 import { EditorialTestimonials } from '@/components/editorial-testimonials';
 import WelcomeEditorial from '@/components/welcome-editorial';
 import { EmailCaptureModal } from '@/components/email-capture-modal';
+import { GlobalFooter } from '@/components/global-footer';
 import { SandraImages } from '@/lib/sandra-images';
 
 export default function AboutPage() {
@@ -186,6 +187,9 @@ export default function AboutPage() {
           </div>
         </section>
       </main>
+
+      {/* Global Footer */}
+      <GlobalFooter />
 
       {/* Email Capture Modal */}
       <EmailCaptureModal
