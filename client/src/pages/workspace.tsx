@@ -263,9 +263,9 @@ export default function Workspace() {
               
               {/* Gallery Widget */}
               <Link href="/gallery" className="group">
-                <div className="relative overflow-hidden bg-black" style={{ aspectRatio: '16/9' }}>
+                <div className="relative overflow-hidden bg-black" style={{ aspectRatio: '21/9' }}>
                   <img 
-                    src={SandraImages.editorial.professional}
+                    src={SandraImages.editorial.thinking}
                     alt="Gallery"
                     className="w-full h-full object-cover opacity-60 transition-all duration-700 group-hover:opacity-80 group-hover:scale-105"
                   />
@@ -289,7 +289,7 @@ export default function Workspace() {
 
               {/* Library Widget */}
               <Link href="/flatlays" className="group">
-                <div className="relative overflow-hidden bg-black" style={{ aspectRatio: '16/9' }}>
+                <div className="relative overflow-hidden bg-black" style={{ aspectRatio: '21/9' }}>
                   <img 
                     src={SandraImages.flatlays.luxury}
                     alt="Library"
@@ -315,7 +315,7 @@ export default function Workspace() {
 
               {/* Victoria Widget - Locked */}
               <div className="group">
-                <div className="relative overflow-hidden bg-black opacity-60" style={{ aspectRatio: '16/9' }}>
+                <div className="relative overflow-hidden bg-black opacity-60" style={{ aspectRatio: '21/9' }}>
                   <img 
                     src={SandraImages.editorial.lifestyle}
                     alt="Victoria"
