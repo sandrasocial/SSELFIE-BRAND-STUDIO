@@ -226,10 +226,10 @@ export class AIService {
       version: fluxModelVersion, // Use version parameter as required by Replicate
       input: {
         prompt: prompt,
-        guidance: 3.0,              // OPTIMAL: Best guidance for FLUX LoRA (2.5-3.0 range)
+        guidance: 2.8,              // OPTIMIZED: Reduced from 3.0 to 2.8 for more natural results
         lora_weights: `sandrasocial/${userModel.modelName}`, // User's trained LoRA weights
         lora_scale: 1.0,           // OPTIMAL: Standard scale for personal LoRAs (0.9-1.0)
-        num_inference_steps: 35,    // OPTIMAL: Minimum 35 steps for high quality
+        num_inference_steps: 40,    // OPTIMIZED: Increased from 35 to 40 for higher quality
         num_outputs: 3,            // Generate 3 focused images
         aspect_ratio: "3:4",        // Portrait ratio better for selfies
         output_format: "png",       // PNG for highest quality

@@ -35,8 +35,8 @@ export const GENERATION_SETTINGS = {
   aspect_ratio: "4:3",
   output_format: "jpg", 
   output_quality: 95,
-  guidance: 3,
-  num_inference_steps: 28,
+  guidance: 2.8,              // OPTIMIZED: Reduced from 3.0 to 2.8 for more natural results
+  num_inference_steps: 40,    // OPTIMIZED: Increased from 28 to 40 for higher quality
   go_fast: false,
   lora_scale: 1.0,
   megapixels: "1"

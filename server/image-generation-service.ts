@@ -70,10 +70,10 @@ export async function generateImages(request: GenerateImagesRequest): Promise<Ge
     // Build input with OPTIMIZED FLUX LoRA SETTINGS for maximum quality and likeness
     const input: any = {
       prompt: finalPrompt,        // Maya's authentic prompt with trigger word
-      guidance: 3.0,              // Optimal guidance for FLUX LoRA (2.5-3.0 recommended)
+      guidance: 2.8,              // OPTIMIZED: Reduced from 3.0 to 2.8 for more natural results
       lora_weights: `sandrasocial/${userModel.modelName}`, // User's trained LoRA weights
       lora_scale: 1.0,           // Standard LoRA scale for personal LoRAs (0.9-1.0 optimal)
-      num_inference_steps: 35,    // Minimum recommended steps for high quality (35+ optimal)
+      num_inference_steps: 40,    // OPTIMIZED: Increased from 35 to 40 for higher quality
       num_outputs: 3,            // Generate 3 focused images
       aspect_ratio: "3:4",        // Portrait ratio better for selfies
       output_format: "png",       // PNG for highest quality
@@ -89,7 +89,7 @@ export async function generateImages(request: GenerateImagesRequest): Promise<Ge
     console.log(`User's trigger word: "${triggerWord}"`);
     console.log(`Model training status: ${userModel.trainingStatus}`);
     console.log(`Final prompt: ${finalPrompt}`);
-    console.log('⚙️ OPTIMIZED FLUX LoRA SETTINGS (2025 Best Practices):', JSON.stringify({ guidance: input.guidance, lora_scale: input.lora_scale, num_inference_steps: input.num_inference_steps, output_quality: input.output_quality }, null, 2));
+    console.log('⚙️ OPTIMIZED FLUX LoRA SETTINGS (Pre-Launch 2025):', JSON.stringify({ guidance: input.guidance, lora_scale: input.lora_scale, num_inference_steps: input.num_inference_steps, output_quality: input.output_quality }, null, 2));
     
     // Start Replicate generation with retry logic for 502 errors
     let replicateResponse;
