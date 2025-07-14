@@ -556,62 +556,67 @@ export default function SimpleTraining() {
             maxWidth: '800px'
           }}>
             <div style={{
-              fontSize: '12px',
-              letterSpacing: '0.3em',
+              fontSize: '11px',
+              letterSpacing: '0.4em',
               textTransform: 'uppercase',
-              color: '#666666',
-              marginBottom: '24px'
+              color: 'rgba(0, 0, 0, 0.5)',
+              marginBottom: '40px',
+              fontWeight: 300
             }}>
-              Step 1 • 2 minutes
+              Step One • 2 minutes
             </div>
             
             <h1 style={{
               fontFamily: 'Times New Roman, serif',
-              fontSize: 'clamp(4rem, 8vw, 7rem)',
-              lineHeight: 0.9,
+              fontSize: 'clamp(4rem, 10vw, 8rem)',
+              lineHeight: 0.85,
               fontWeight: 200,
-              marginBottom: '32px',
-              color: '#0a0a0a'
+              marginBottom: '24px',
+              color: '#0a0a0a',
+              letterSpacing: '-0.02em'
             }}>
               Upload Your Selfies
             </h1>
             
             <p style={{
-              fontSize: '20px',
-              lineHeight: 1.5,
+              fontSize: '18px',
+              lineHeight: 1.6,
               fontWeight: 300,
-              maxWidth: '600px',
-              margin: '0 auto 48px auto',
+              maxWidth: '500px',
+              margin: '0 auto 60px auto',
               color: '#333333'
             }}>
-              Just grab your phone and take 10 quick selfies. Your AI will learn to create professional photos that actually look like you.
+              Your AI needs to learn your face to create photos that actually look like you. 
+              Ten selfies with good light is all it takes.
             </p>
 
             <div style={{
-              fontSize: '16px',
+              fontSize: '14px',
               color: '#666666',
-              marginBottom: '48px'
+              marginBottom: '48px',
+              letterSpacing: '0.05em'
             }}>
-              {selfieImages.length}/10 photos uploaded
+              {selfieImages.length} of 10 photos uploaded
             </div>
 
-            {/* Simple Upload Area */}
+            {/* Editorial Upload Area */}
             <div 
               style={{
-                border: '2px dashed #cccccc',
+                border: '1px solid #e5e5e5',
                 background: '#ffffff',
-                padding: '60px 40px',
-                borderRadius: '8px',
+                padding: '80px 40px',
                 cursor: 'pointer',
                 transition: 'all 300ms ease',
-                marginBottom: '40px'
+                marginBottom: '60px'
               }}
               onClick={() => fileInputRef.current?.click()}
               onMouseEnter={(e) => {
                 e.target.style.borderColor = '#0a0a0a';
+                e.target.style.background = '#fafafa';
               }}
               onMouseLeave={(e) => {
-                e.target.style.borderColor = '#cccccc';
+                e.target.style.borderColor = '#e5e5e5';
+                e.target.style.background = '#ffffff';
               }}
             >
               <input
@@ -624,24 +629,32 @@ export default function SimpleTraining() {
               />
               
               <div style={{
-                fontSize: '32px',
-                marginBottom: '16px',
-                opacity: 0.4
-              }}>📱</div>
+                fontFamily: 'Times New Roman, serif',
+                fontSize: '72px',
+                marginBottom: '24px',
+                opacity: 0.15,
+                lineHeight: 1,
+                fontWeight: 200
+              }}>+</div>
               
               <h3 style={{
-                fontSize: '18px',
+                fontSize: '11px',
                 fontWeight: 400,
-                marginBottom: '8px'
+                letterSpacing: '0.3em',
+                textTransform: 'uppercase',
+                marginBottom: '12px',
+                color: '#0a0a0a'
               }}>
-                Click to upload your selfies
+                Click to select photos
               </h3>
               
               <p style={{
                 fontSize: '14px',
-                color: '#666666'
+                color: '#666666',
+                fontWeight: 300,
+                lineHeight: 1.5
               }}>
-                Natural lighting works best
+                Natural window light gives the best results
               </p>
             </div>
 
@@ -729,38 +742,230 @@ export default function SimpleTraining() {
                 Your AI will learn from these photos and be ready in about 20 minutes
               </p>
             )}
+          </div>
+        </section>
 
+        {/* Example Photos Section */}
+        <section style={{ 
+          padding: '100px 0', 
+          background: '#ffffff',
+          borderTop: '1px solid #f0f0f0'
+        }}>
+          <div style={{
+            maxWidth: '1200px',
+            margin: '0 auto',
+            padding: '0 40px',
+            textAlign: 'center'
+          }}>
+            <div style={{
+              fontSize: '11px',
+              letterSpacing: '0.4em',
+              textTransform: 'uppercase',
+              color: 'rgba(0, 0, 0, 0.5)',
+              marginBottom: '32px',
+              fontWeight: 300
+            }}>
+              Training Examples
+            </div>
+            
+            <h2 style={{
+              fontFamily: 'Times New Roman, serif',
+              fontSize: 'clamp(2.5rem, 6vw, 4rem)',
+              lineHeight: 0.9,
+              fontWeight: 200,
+              marginBottom: '24px',
+              color: '#0a0a0a',
+              letterSpacing: '-0.02em'
+            }}>
+              This Is How I Trained My AI
+            </h2>
+            
+            <p style={{
+              fontSize: '16px',
+              lineHeight: 1.6,
+              fontWeight: 300,
+              maxWidth: '600px',
+              margin: '0 auto 60px auto',
+              color: '#666666'
+            }}>
+              Here are actual examples from my training set. Notice the variety in lighting, 
+              angles, and expressions. This is what creates professional results.
+            </p>
+
+            {/* Example Photos Grid */}
+            <div style={{
+              display: 'grid',
+              gridTemplateColumns: 'repeat(auto-fit, minmax(150px, 1fr))',
+              gap: '16px',
+              marginBottom: '60px',
+              maxWidth: '800px',
+              margin: '0 auto 60px auto'
+            }}>
+              {/* Using Sandra's actual training images */}
+              <div style={{
+                aspectRatio: '3/4',
+                background: '#f5f5f5',
+                border: '1px solid #e5e5e5',
+                position: 'relative',
+                overflow: 'hidden'
+              }}>
+                <img 
+                  src={SandraImages.editorial.thinking}
+                  alt="Training example: close-up with natural light"
+                  style={{
+                    width: '100%',
+                    height: '100%',
+                    objectFit: 'cover'
+                  }}
+                />
+                <div style={{
+                  position: 'absolute',
+                  bottom: '8px',
+                  left: '8px',
+                  right: '8px',
+                  background: 'rgba(0, 0, 0, 0.7)',
+                  color: '#ffffff',
+                  fontSize: '10px',
+                  padding: '4px 8px',
+                  letterSpacing: '0.05em'
+                }}>
+                  CLOSE-UP, NATURAL LIGHT
+                </div>
+              </div>
+              
+              <div style={{
+                aspectRatio: '3/4',
+                background: '#f5f5f5',
+                border: '1px solid #e5e5e5',
+                position: 'relative',
+                overflow: 'hidden'
+              }}>
+                <img 
+                  src={SandraImages.hero.contact}
+                  alt="Training example: profile view"
+                  style={{
+                    width: '100%',
+                    height: '100%',
+                    objectFit: 'cover'
+                  }}
+                />
+                <div style={{
+                  position: 'absolute',
+                  bottom: '8px',
+                  left: '8px',
+                  right: '8px',
+                  background: 'rgba(0, 0, 0, 0.7)',
+                  color: '#ffffff',
+                  fontSize: '10px',
+                  padding: '4px 8px',
+                  letterSpacing: '0.05em'
+                }}>
+                  PROFILE ANGLE
+                </div>
+              </div>
+              
+              <div style={{
+                aspectRatio: '3/4',
+                background: '#f5f5f5',
+                border: '1px solid #e5e5e5',
+                position: 'relative',
+                overflow: 'hidden'
+              }}>
+                <img 
+                  src={SandraImages.editorial.laughing}
+                  alt="Training example: different expression"
+                  style={{
+                    width: '100%',
+                    height: '100%',
+                    objectFit: 'cover'
+                  }}
+                />
+                <div style={{
+                  position: 'absolute',
+                  bottom: '8px',
+                  left: '8px',
+                  right: '8px',
+                  background: 'rgba(0, 0, 0, 0.7)',
+                  color: '#ffffff',
+                  fontSize: '10px',
+                  padding: '4px 8px',
+                  letterSpacing: '0.05em'
+                }}>
+                  DIFFERENT EXPRESSION
+                </div>
+              </div>
+              
+              <div style={{
+                aspectRatio: '3/4',
+                background: '#f5f5f5',
+                border: '1px solid #e5e5e5',
+                position: 'relative',
+                overflow: 'hidden'
+              }}>
+                <img 
+                  src={SandraImages.editorial.laptop1}
+                  alt="Training example: waist-up shot"
+                  style={{
+                    width: '100%',
+                    height: '100%',
+                    objectFit: 'cover'
+                  }}
+                />
+                <div style={{
+                  position: 'absolute',
+                  bottom: '8px',
+                  left: '8px',
+                  right: '8px',
+                  background: 'rgba(0, 0, 0, 0.7)',
+                  color: '#ffffff',
+                  fontSize: '10px',
+                  padding: '4px 8px',
+                  letterSpacing: '0.05em'
+                }}>
+                  WAIST-UP SHOT
+                </div>
+              </div>
+            </div>
+
+            {/* Quick Tips Below Examples */}
             {selfieImages.length < 10 && (
               <div style={{
-                marginTop: '40px',
-                padding: '24px',
-                background: '#ffffff',
-                borderRadius: '8px',
-                border: '1px solid #e5e5e5',
-                textAlign: 'left',
-                maxWidth: '500px',
-                margin: '40px auto 0 auto'
+                background: '#f9f9f9',
+                padding: '40px',
+                maxWidth: '600px',
+                margin: '0 auto',
+                textAlign: 'left'
               }}>
                 <h4 style={{
-                  fontSize: '16px',
-                  fontWeight: 500,
-                  marginBottom: '16px',
+                  fontSize: '11px',
+                  fontWeight: 400,
+                  letterSpacing: '0.3em',
+                  textTransform: 'uppercase',
+                  marginBottom: '20px',
                   color: '#0a0a0a'
                 }}>
-                  Quick photo tips:
+                  What makes good training photos:
                 </h4>
-                <ul style={{
-                  listStyle: 'none',
-                  padding: 0,
+                <div style={{
+                  display: 'grid',
+                  gridTemplateColumns: '1fr 1fr',
+                  gap: '16px',
                   fontSize: '14px',
                   lineHeight: 1.6,
-                  color: '#333333'
+                  color: '#333333',
+                  fontWeight: 300
                 }}>
-                  <li style={{marginBottom: '8px'}}>• Use natural window light</li>
-                  <li style={{marginBottom: '8px'}}>• Take some smiling, some serious</li>
-                  <li style={{marginBottom: '8px'}}>• Include different angles</li>
-                  <li>• No filters needed</li>
-                </ul>
+                  <div>
+                    <div style={{marginBottom: '8px'}}>✓ Natural window light</div>
+                    <div style={{marginBottom: '8px'}}>✓ Clear, unfiltered photos</div>
+                    <div style={{marginBottom: '8px'}}>✓ Different angles</div>
+                  </div>
+                  <div>
+                    <div style={{marginBottom: '8px'}}>✓ Various expressions</div>
+                    <div style={{marginBottom: '8px'}}>✓ Close-up and waist-up</div>
+                    <div style={{marginBottom: '8px'}}>✓ Recent photos of you</div>
+                  </div>
+                </div>
               </div>
             )}
           </div>
