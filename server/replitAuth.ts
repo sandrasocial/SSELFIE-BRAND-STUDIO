@@ -87,7 +87,8 @@ async function upsertUser(
           plan: 'free',
           monthlyGenerationsAllowed: 5,
           monthlyGenerationsUsed: 0,
-          lastResetDate: new Date(),
+          currentPeriodStart: new Date(),
+          currentPeriodEnd: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000), // 30 days from now
         });
         console.log('✅ User usage initialized successfully');
       }
