@@ -16,34 +16,21 @@ export default function WelcomeEditorial() {
           
           {/* Content */}
           <div className="space-y-8 w-full lg:w-1/2">
-            {/* Eyebrow */}
-            <p 
-              className="text-xs tracking-[0.4em] uppercase text-[#B5B5B3] font-inter"
-            >
-              WELCOME TO SSELFIE STUDIO
-            </p>
-            
             {/* Main Headline */}
             <h2 
               className="text-3xl md:text-4xl lg:text-5xl font-light leading-tight tracking-[-0.01em] text-[#171719]"
               style={{ fontFamily: 'Times New Roman, serif', fontWeight: 300 }}
             >
-              The digital studio where your face is the brand.
+              Okay, here's what actually happened...
             </h2>
             
-            {/* Quote */}
-            <blockquote 
-              className="text-lg md:text-xl leading-relaxed text-[#171719]/80 font-light italic border-l-2 border-[#B5B5B3]/30 pl-6 font-inter"
-            >
-              "One year ago my marriage ended. Single mom, three kids, zero plan. But I had a phone. And I figured out that was all I needed."
-            </blockquote>
-            
-            {/* Description */}
-            <p 
-              className="text-base md:text-lg leading-relaxed text-[#171719]/70 font-light font-inter"
-            >
-              SSELFIE STUDIO is for women who are done waiting for perfect. Upload your actual selfies. No fancy camera, no design degree, no pretending. My AI just brings out what's already there. Your face. Your story. Your brand, all done in minutes.
-            </p>
+            {/* Story Content */}
+            <div className="space-y-6 text-base md:text-lg leading-relaxed text-[#171719] font-light font-inter">
+              <p>One year ago my marriage ended. Single mom, three kids, zero plan.</p>
+              <p>But I had a phone. And I figured out that was all I needed.</p>
+              <p>90 days later: 120K followers. Today: A business that actually works. Now: Teaching you exactly how I did it.</p>
+              <p>No fancy equipment. No design degree. Just strategy that actually works.</p>
+            </div>
           </div>
         </div>
       </div>
