@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { HeroFullBleed } from '@/components/hero-full-bleed';
 import { SandraImages } from '@/components/sandra-image-library';
 import { PreLoginNavigationUnified } from '@/components/pre-login-navigation-unified';
+import { GlobalFooter } from '@/components/global-footer';
 import { Link } from 'wouter';
 
 const steps = [
@@ -76,8 +77,8 @@ export default function HowItWorksPage() {
           backgroundImage={SandraImages.hero.about}
           tagline="YOUR STORY, YOUR SELFIE, YOUR WAY"
           title="HOW IT WORKS"
-          ctaText="START YOUR TRANSFORMATION"
-          ctaLink="#get-started"
+          ctaText="SKIP THE OVERTHINKING"
+          ctaLink="/pricing"
           fullHeight={true}
         />
 
@@ -274,11 +275,14 @@ export default function HowItWorksPage() {
             </p>
             
             <Link href="/pricing" className="inline-block text-white border border-white/30 hover:bg-white hover:text-[#0a0a0a] transition-colors duration-300 text-[11px] tracking-[0.3em] uppercase no-underline px-12 py-6 font-light font-inter">
-              GET STARTED
+              STOP WAITING, START BUILDING
             </Link>
           </div>
         </section>
       </main>
+
+      {/* Global Footer */}
+      <GlobalFooter />
     </div>
   );
 }
