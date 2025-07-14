@@ -105,7 +105,7 @@ export class UsageService {
     
     // Auto-initialize usage for new users with FREE plan
     if (!usage) {
-      await this.initializeUserUsage(userId, 'free');
+      await this.initializeUserUsage(userId, 'FREE');
       usage = await storage.getUserUsage(userId);
       if (!usage) {
         throw new Error('Failed to initialize user usage');
@@ -168,15 +168,19 @@ export class UsageService {
       throw new Error('User usage not found');
     }
 
-    // Record in usage history
-    await storage.createUsageHistory({
-      userId,
-      actionType: update.actionType,
-      resourceUsed: update.resourceUsed,
-      cost: update.cost.toString(),
-      details: update.details,
-      generatedImageId: update.generatedImageId
-    });
+    // Record in usage history (skip if table doesn't exist)
+    try {
+      await storage.createUsageHistory({
+        userId,
+        actionType: update.actionType,
+        resourceUsed: update.resourceUsed,
+        cost: update.cost.toString(),
+        details: update.details,
+        generatedImageId: update.generatedImageId
+      });
+    } catch (error) {
+      console.log('Usage history recording skipped (table may not exist):', error.message);
+    }
 
     // Update usage counters
     const updates: any = {
