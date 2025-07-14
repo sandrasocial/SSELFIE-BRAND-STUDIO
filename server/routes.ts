@@ -1,7 +1,7 @@
 import type { Express } from "express";
 import { createServer, type Server } from "http";
 import { storage } from "./storage";
-import { setupAuth, isAuthenticated } from "./replitAuth";
+import { setupGoogleAuth, isAuthenticated } from "./googleAuth";
 import { rachelAgent } from "./agents/rachel-agent";
 import path from "path";
 import fs from "fs";
@@ -30,8 +30,8 @@ import { z } from "zod";
 const DEFAULT_MODEL_STR = "claude-sonnet-4-20250514";
 
 export async function registerRoutes(app: Express): Promise<Server> {
-  // Auth middleware - setup Replit authentication FIRST
-  await setupAuth(app);
+  // Auth middleware - setup Google authentication FIRST
+  await setupGoogleAuth(app);
   
   // Add authentication test page for live testing
   app.get('/test-auth', (req, res) => {
@@ -1397,14 +1397,7 @@ Create prompts that feel like iconic fashion campaign moments that would make so
     }
   });
 
-  // CRITICAL: Enable proper Replit Authentication
-  try {
-    await setupAuth(app);
-    console.log('✅ Replit Authentication enabled successfully');
-  } catch (error) {
-    console.error('❌ CRITICAL: Auth setup failed:', error.message);
-    throw new Error('Authentication setup is required for production');
-  }
+  // Authentication already set up at the beginning of this function
 
   // DEBUGGING: Add a test endpoint to check auth status
   app.get('/api/debug-auth', async (req: any, res) => {

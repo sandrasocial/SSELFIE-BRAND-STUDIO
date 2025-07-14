@@ -191,7 +191,7 @@ export class DatabaseStorage implements IStorage {
       return user;
     }
     
-    // If not found by ID, check by email
+    // If not found by ID, check by email and update that record with new ID
     if (userData.email) {
       const [userByEmail] = await db
         .select()
@@ -199,9 +199,20 @@ export class DatabaseStorage implements IStorage {
         .where(eq(users.email, userData.email));
         
       if (userByEmail) {
-        console.log('✅ Found existing user by email, returning existing user (no update to avoid constraint violations)...');
-        // Return the existing user as-is to avoid duplicate key constraint violations
-        return userByEmail;
+        console.log('✅ Found existing user by email, updating with new Replit ID...');
+        // Update the existing user record with the new Replit ID
+        const [updatedUser] = await db
+          .update(users)
+          .set({
+            id: userData.id, // Update to new Replit user ID
+            firstName: userData.firstName,
+            lastName: userData.lastName,
+            profileImageUrl: userData.profileImageUrl,
+            updatedAt: new Date(),
+          })
+          .where(eq(users.email, userData.email))
+          .returning();
+        return updatedUser;
       }
     }
     
