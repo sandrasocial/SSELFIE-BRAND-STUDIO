@@ -21,6 +21,7 @@ import { registerCheckoutRoutes } from './routes/checkout';
 import { registerAutomationRoutes } from './routes/automation';
 // Email service import moved inline to avoid conflicts
 import { sendWelcomeEmail, sendPostAuthWelcomeEmail, EmailCaptureData, WelcomeEmailData } from "./email-service";
+import { AIService } from './ai-service';
 import { z } from "zod";
 
 // Anthropic disabled for testing - API key issues
