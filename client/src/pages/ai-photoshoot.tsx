@@ -269,52 +269,94 @@ const PROMPT_COLLECTIONS = {
   },
   'lifestyle-editorial': {
     id: 'lifestyle-editorial',
-    name: 'L I F E S T Y L E',
-    subtitle: 'E D I T O R I A L',
-    description: 'Natural moments with editorial quality and authentic expressions',
+    name: 'LIFESTYLE EDITORIAL',
+    subtitle: 'Elevated Everyday',
+    description: 'Effortlessly elevated moments from a life well-lived - European sophistication meets everyday luxury',
     preview: SandraImages.portraits.professional[3],
     prompts: [
       {
-        id: 'surfboard-ocean-mood',
-        name: 'Surfboard Ocean Mood',
-        category: 'Beach Editorial',
-        description: "Beach babe energy with your surfboard. Hair wild from the ocean breeze, wetsuit looking effortlessly cool.",
-        prompt: '[triggerword] woman long dark hair windswept, holding surfboard vertical on beach, wearing black wetsuit partially unzipped, ocean waves background, golden hour side lighting, shot on Fujifilm X-T4 with 56mm f/1.2, coastal lifestyle, raw photo, salt-kissed skin texture, film grain, unretouched ocean energy, surf culture editorial'
+        id: 'morning-coffee-ritual',
+        name: 'Morning Coffee Ritual',
+        category: 'Daily Moments',
+        description: 'The quiet luxury of a perfect morning - simplicity elevated to art',
+        prompt: 'raw photo, visible skin pores, film grain, unretouched natural skin texture, subsurface scattering, photographed on film, [triggerword], woman in oversized cream cashmere sweater holding ceramic coffee mug by large window, soft morning light streaming through sheer curtains, minimal Scandinavian interior with natural wood and white walls, serene contemplative expression, effortless tousled hair, sitting in modern chair, shot on Leica Q2 with 28mm f/1.7 lens, natural window lighting, hygge lifestyle photography, cozy home aesthetic, morning ritual vibes'
       },
       {
-        id: 'morning-garden-ritual',
-        name: 'Morning Garden Ritual',
-        category: 'Home Editorial',
-        description: "That peaceful morning ritual with your plants. White linen, barefoot, totally in your element.",
-        prompt: '[triggerword] woman long dark hair loose, watering plants in garden, wearing white linen dress, barefoot on grass, morning sunlight filtering through leaves, shot on Canon 5D Mark IV with 85mm f/1.4, lifestyle editorial, raw photo, natural skin in dappled light, film grain, unretouched peaceful moment'
+        id: 'parisian-cafe-afternoon',
+        name: 'Café Afternoon',
+        category: 'Urban Elegance',
+        description: 'Lost in thought at your favorite café - where time moves differently',
+        prompt: 'raw photo, visible skin pores, film grain, unretouched natural skin texture, subsurface scattering, photographed on film, [triggerword], woman in neutral turtleneck and tailored coat sitting at marble café table, Parisian street visible through large windows, soft afternoon light filtering in, thoughtful distant gaze, minimal gold jewelry, espresso cup and leather notebook on table, shot on Canon EOS R5 with 85mm f/1.4 lens, café window lighting, European lifestyle photography, urban sophistication aesthetic'
       },
       {
-        id: 'balcony-reading-corner',
-        name: 'Balcony Reading Corner',
-        category: 'Home Editorial',
-        description: "Your cozy reading corner with the best city view. Black turtleneck, good book, pure bliss.",
-        prompt: '[triggerword] woman long dark hair center part, reading book on balcony chair, wearing black turtleneck, city view background soft focus, afternoon natural light, shot on Leica Q2 with 28mm f/1.7, intimate lifestyle, raw photo, concentrated reading expression, natural skin, film grain, unretouched quiet intensity'
+        id: 'london-walk-golden-hour',
+        name: 'London Golden Hour',
+        category: 'City Wandering',
+        description: 'Evening stroll through the city - finding beauty in urban moments',
+        prompt: 'raw photo, visible skin pores, film grain, unretouched natural skin texture, subsurface scattering, photographed on film, [triggerword], woman in long wool coat walking down tree-lined London street during golden hour, soft natural light catching her profile, peaceful contemplative expression, hair moving gently in breeze, minimal scarf and leather boots, shot on Fujifilm GFX 100S with 63mm f/2.8 lens, golden hour street photography, European urban aesthetic, natural city wandering vibes'
       },
       {
-        id: 'kitchen-midnight-snack',
-        name: 'Kitchen Midnight Snack',
-        category: 'Real Life',
-        description: "We've all been there - midnight snack in oversized shirt, fridge light glowing. Real life moments.",
-        prompt: '[triggerword] woman long dark messy hair, standing in kitchen eating late night snack, wearing oversized shirt, refrigerator light only, shot on Sony A7S III with 35mm f/1.4, ambient kitchen lighting, raw photo, casual late night energy, natural tired skin, film grain, unretouched authentic moment'
+        id: 'home-cooking-ritual',
+        name: 'Cooking at Home',
+        category: 'Domestic Luxury',
+        description: 'Creating something beautiful in your kitchen - everyday moments made precious',
+        prompt: 'raw photo, visible skin pores, film grain, unretouched natural skin texture, subsurface scattering, photographed on film, [triggerword], woman in linen apron preparing fresh ingredients in bright minimalist kitchen, white marble counters and wooden cutting boards, soft natural focus while cooking, sleeves casually rolled up, hair loosely tied back, shot on Sony A7R IV with 50mm f/1.2 lens, kitchen lifestyle photography, natural home lighting, culinary minimalism aesthetic'
       },
       {
-        id: 'bookstore-floor-discover',
-        name: 'Bookstore Floor Discovery',
-        category: 'Urban Life',
-        description: "That book lover moment sitting on the floor, completely absorbed. Surrounded by stories, lost in yours.",
-        prompt: '[triggerword] woman long dark hair falling forward, sitting on bookstore floor reading, surrounded by books, wearing oversized sweater and jeans, warm bookstore lighting, shot on Canon R6 with 50mm f/1.2, documentary style, raw photo, absorbed in reading, natural skin texture, film grain, unretouched discovery moment'
+        id: 'bookstore-browsing',
+        name: 'Literary Wandering',
+        category: 'Cultural Moments',
+        description: 'Discovering your next favorite book - intellectual curiosity in beautiful spaces',
+        prompt: 'raw photo, visible skin pores, film grain, unretouched natural skin texture, subsurface scattering, photographed on film, [triggerword], woman in soft cardigan browsing books in independent bookstore, warm afternoon light filtering through tall windows, gentle contemplative expression while reading book spine, minimal accessories, stacks of books and cozy reading nooks around, shot on Leica M11 with 50mm f/1.4 lens, bookstore ambient lighting, literary lifestyle photography, intellectual curiosity aesthetic'
       },
       {
-        id: 'rainy-window-contemplation',
-        name: 'Rainy Window Contemplation',
-        category: 'Introspective',
-        description: "Rainy day thoughts with tea in hand. Soft sweater, window reflections, those deep thinking moments.",
-        prompt: '[triggerword] woman long dark hair natural, looking out rainy window with tea, wearing soft sweater, raindrops on glass, gray natural light, shot on Nikon Z6 II with 85mm f/1.8, intimate portrait, raw photo, contemplative mood, visible skin pores, film grain, unretouched melancholy beauty'
+        id: 'milan-shopping-stroll',
+        name: 'Milan Shopping',
+        category: 'Fashion Moments',
+        description: 'Curating your wardrobe in the fashion capital - where style meets intention',
+        prompt: 'raw photo, visible skin pores, film grain, unretouched natural skin texture, subsurface scattering, photographed on film, [triggerword], woman in elevated basics examining beautiful garment in Milano boutique, soft retail lighting highlighting textures, focused expression while appreciating quality, elegant posture, designer bag and minimal jewelry, shot on Canon EOS R6 with 85mm f/1.2 lens, boutique lifestyle photography, luxury retail lighting, Italian fashion aesthetic'
+      },
+      {
+        id: 'iceland-nature-moment',
+        name: 'Nordic Nature',
+        category: 'Natural Beauty',
+        description: 'Finding solitude in stunning landscapes - where nature meets sophisticated style',
+        prompt: 'raw photo, visible skin pores, film grain, unretouched natural skin texture, subsurface scattering, photographed on film, [triggerword], woman in wool coat and cashmere scarf standing beside Icelandic landscape, dramatic natural lighting from Nordic sky, serene expression while taking in vast beauty, hair moving in fresh air, minimal but warm styling, shot on Fujifilm X-T5 with 35mm f/1.4 lens, Nordic landscape photography, natural dramatic lighting, Scandinavian outdoor aesthetic'
+      },
+      {
+        id: 'norwegian-fjord-reflection',
+        name: 'Fjord Contemplation',
+        category: 'Peaceful Moments',
+        description: 'Silent moments by the water - where thoughts become clearer',
+        prompt: 'raw photo, visible skin pores, film grain, unretouched natural skin texture, subsurface scattering, photographed on film, [triggerword], woman in neutral knit sweater sitting by Norwegian fjord, soft Nordic light reflecting on water, peaceful introspective expression, hair in relaxed natural style, hands wrapped around warm drink, shot on Leica SL2 with 90mm f/2 lens, fjord lifestyle photography, natural reflection lighting, Norwegian tranquility aesthetic'
+      },
+      {
+        id: 'evening-bath-ritual',
+        name: 'Evening Ritual',
+        category: 'Self-Care Luxury',
+        description: 'The luxury of time for yourself - evening rituals as meditation',
+        prompt: 'raw photo, visible skin pores, film grain, unretouched natural skin texture, subsurface scattering, photographed on film, [triggerword], woman in silk robe preparing evening bath in marble bathroom, soft candlelight creating warm glow, peaceful expression while adding oils to water, hair in loose low bun, minimal luxury bath products arranged aesthetically, shot on Sony A7R V with 85mm f/1.4 lens, bathroom candlelight photography, intimate spa lighting, self-care luxury aesthetic'
+      },
+      {
+        id: 'morning-yoga-practice',
+        name: 'Morning Movement',
+        category: 'Wellness Ritual',
+        description: 'Starting the day with intention - mindful movement in beautiful light',
+        prompt: 'raw photo, visible skin pores, film grain, unretouched natural skin texture, subsurface scattering, photographed on film, [triggerword], woman in neutral yoga wear practicing gentle stretches by large window, morning light filtering through sheer curtains, serene focused expression, hair in simple natural style, minimal room with plants and natural textures, shot on Canon EOS R5 with 50mm f/1.2 lens, wellness lifestyle photography, soft morning light, mindful living aesthetic'
+      },
+      {
+        id: 'weekend-market-flowers',
+        name: 'Fresh Flowers',
+        category: 'Weekend Rituals',
+        description: 'Choosing flowers for your home - small luxuries that elevate everyday life',
+        prompt: 'raw photo, visible skin pores, film grain, unretouched natural skin texture, subsurface scattering, photographed on film, [triggerword], woman in cream sweater selecting white peonies at European flower market, soft natural morning light, gentle concentration while choosing blooms, woven basket with other flowers, minimal jewelry and natural styling, shot on Fujifilm GFX 50S with 110mm f/2 lens, flower market photography, natural outdoor lighting, botanical lifestyle aesthetic'
+      },
+      {
+        id: 'cozy-reading-afternoon',
+        name: 'Reading Corner',
+        category: 'Quiet Luxury',
+        description: 'Sunday afternoon with a good book - the luxury of uninterrupted time',
+        prompt: 'raw photo, visible skin pores, film grain, unretouched natural skin texture, subsurface scattering, photographed on film, [triggerword], woman in soft knit sweater reading book in cozy corner with throw blanket, natural light from window creating soft shadows, peaceful absorbed expression, hair in relaxed style, tea cup on side table, shot on Leica Q2 Monochrom with natural lighting, hygge lifestyle photography, cozy home aesthetic, reading sanctuary vibes'
       }
     ]
   }
