@@ -150,14 +150,17 @@ export async function setupGoogleAuth(app: Express) {
 
   passport.deserializeUser(async (id: string, done) => {
     try {
+      console.log('🔍 Deserializing user with ID:', id);
       const user = await storage.getUser(id);
       if (!user) {
         console.log('⚠️ User not found during deserialization:', id);
         return done(null, false);
       }
+      console.log('✅ User deserialized successfully:', user.id, user.email);
       done(null, user);
     } catch (error) {
       console.error('❌ Error deserializing user:', error);
+      console.error('❌ Error details:', error.message, error.stack);
       done(null, false);
     }
   });
@@ -200,6 +203,8 @@ export const isAuthenticated: RequestHandler = async (req, res, next) => {
   console.log('🔍 Auth middleware check:');
   console.log('- req.isAuthenticated():', req.isAuthenticated?.());
   console.log('- req.user exists:', !!req.user);
+  console.log('- req.user:', req.user);
+  console.log('- req.session:', req.session);
 
   if (!req.isAuthenticated?.() || !req.user) {
     console.log('❌ Authentication failed - unauthorized');

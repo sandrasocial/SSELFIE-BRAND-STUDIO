@@ -1475,75 +1475,25 @@ Create prompts that feel like iconic fashion campaign moments that would make so
     }
   });
 
-  // Auth routes with proper Replit Authentication
+  // Auth routes with proper Google OAuth Authentication
   app.get('/api/auth/user', isAuthenticated, async (req: any, res) => {
     try {
       console.log('🔍 Auth user endpoint called');
-      const authUserId = req.user.id;
-      const claims = req.user.claims;
+      console.log('🔍 req.user:', JSON.stringify(req.user, null, 2));
       
-      // Try to get existing user by auth ID first
-      let user = await storage.getUser(authUserId);
+      // Google OAuth provides user object directly (not claims)
+      const user = req.user;
       
-      // If not found by auth ID, try by email (for existing users with different IDs)
-      if (!user && claims.email) {
-        console.log(`User not found by auth ID ${authUserId}, checking by email: ${claims.email}`);
-        user = await storage.getUserByEmail(claims.email);
-      }
-      
-      // If user doesn't exist at all, create them automatically
       if (!user) {
-        console.log(`Creating new user for ${authUserId} (${claims.email})`);
-        user = await storage.upsertUser({
-          id: authUserId,
-          email: claims.email,
-          firstName: claims.first_name,
-          lastName: claims.last_name,
-          profileImageUrl: claims.profile_image_url,
-        });
-      } else {
-        // User exists, update their profile with latest auth data (but keep existing ID)
-        console.log(`Updating existing user ${user.id} with latest auth data`);
-        user = await storage.upsertUser({
-          id: user.id, // Use existing database ID, not auth ID
-          email: claims.email,
-          firstName: claims.first_name,
-          lastName: claims.last_name,
-          profileImageUrl: claims.profile_image_url,
-        });
+        console.log('❌ No user found in request');
+        return res.status(401).json({ message: "Unauthorized" });
       }
       
-      // Now use the actual database user ID for all operations
-      const dbUserId = user.id;
+      console.log('✅ User found in session:', user.id);
       
-      // Initialize usage records if they don't exist (using database user ID)
-      try {
-        const existingUsage = await storage.getUserUsage(dbUserId);
-        if (!existingUsage) {
-          console.log(`Creating initial usage record for database user ${dbUserId}`);
-          await UsageService.initializeUserUsage(dbUserId, 'FREE');
-        }
-      } catch (error) {
-        console.log(`Usage record already exists for user ${dbUserId}, continuing...`);
-      }
-      
-      // Create initial AI model record if it doesn't exist (using database user ID)
-      try {
-        const existingModel = await storage.getUserModel(dbUserId);
-        if (!existingModel) {
-          console.log(`Creating AI model record for database user ${dbUserId}`);
-          await storage.createUserModel({
-            userId: dbUserId,
-            triggerWord: `user${dbUserId.replace(/[^a-zA-Z0-9]/g, '_')}`,
-            trainingStatus: 'not_started',
-            modelName: `${user.firstName || 'User'} AI Model`
-          });
-        }
-      } catch (error) {
-        console.log(`AI model already exists for user ${dbUserId}, continuing...`);
-      }
-      
+      // Return the user object directly - Google OAuth already handled upsert
       res.json(user);
+      
     } catch (error) {
       console.error('Error fetching/creating user:', error);
       res.status(500).json({ message: 'Failed to fetch user', error: error.message });
