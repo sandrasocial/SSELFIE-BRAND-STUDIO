@@ -80,7 +80,7 @@ export default function Workspace() {
         timeEstimate: '5 minutes',
         status: step3Ready ? 'ready' : 'locked',
         statusMessage: step3Ready ? 'Ready to shoot' : 'Train your AI first',
-        link: step3Ready ? '/gallery' : '#',
+        link: step3Ready ? '/ai-photoshoot' : '#',
         image: "https://i.postimg.cc/4N8v1bP5/IMG-6564.jpg",
         nextStep: step3Ready ? 'Generate photos and build your brand' : null
       }

@@ -3480,8 +3480,13 @@ Consider this workflow optimized and ready for implementation! ⚙️`
       
       console.log('AI-PHOTOSHOOT: Using correct FLUX LoRA model for built-in prompts:', { userId, prompt, count });
       
-      // Get user model data for trigger word
-      const userModel = await storage.getUserModel(userId);
+      // Get database user ID first, then user model data for trigger word
+      const user = await storage.getUser(userId);
+      if (!user) {
+        return res.status(400).json({ error: 'User not found' });
+      }
+      
+      const userModel = await storage.getUserModel(user.id);
       if (!userModel || userModel.trainingStatus !== 'completed') {
         return res.status(400).json({ 
           error: 'User model not ready. Please complete AI training first.',
