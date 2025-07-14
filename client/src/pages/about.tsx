@@ -23,31 +23,8 @@ export default function AboutPage() {
           fullHeight={true}
         />
 
-        {/* Beginning Story */}
-        <section id="story" className="section-padding bg-white">
-          <div className="max-w-7xl mx-auto px-8">
-            <div className="grid lg:grid-cols-2 gap-16 items-center">
-              <div>
-                <h2 className="text-4xl md:text-5xl font-light mb-8 tracking-[-0.01em]" style={{ fontFamily: 'Times New Roman, serif' }}>
-                  Okay, here's what actually happened...
-                </h2>
-                <div className="space-y-6 text-lg leading-relaxed text-[#333] font-inter">
-                  <p>One year ago my marriage ended. Single mom, three kids, zero plan.</p>
-                  <p>But I had a phone. And I figured out that was all I needed.</p>
-                  <p>90 days later: 120K followers. Today: A business that actually works. Now: Teaching you exactly how I did it.</p>
-                  <p>No fancy equipment. No design degree. Just strategy that actually works.</p>
-                </div>
-              </div>
-              <div className="lg:order-first">
-                <img 
-                  src={SandraImages.editorial.laptop1} 
-                  alt="Sandra working"
-                  className="w-full h-[600px] object-cover"
-                />
-              </div>
-            </div>
-          </div>
-        </section>
+        {/* Welcome Editorial Story */}
+        <WelcomeEditorial />
 
         {/* Image Break */}
         <EditorialImageBreak
