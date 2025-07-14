@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { HeroFullBleed } from '@/components/hero-full-bleed';
 import { SandraImages } from '@/components/sandra-image-library';
 import { PreLoginNavigationUnified } from '@/components/pre-login-navigation-unified';
+import { GlobalFooter } from '@/components/global-footer';
 import { Link } from 'wouter';
 
 // Blog posts data
@@ -178,6 +179,9 @@ export default function BlogPage() {
           </div>
         </section>
       </main>
+
+      {/* Global Footer */}
+      <GlobalFooter />
     </div>
   );
 }
