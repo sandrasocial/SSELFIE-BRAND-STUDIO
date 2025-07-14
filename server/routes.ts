@@ -54,8 +54,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
           hasAccessToken: !!(req.user as any)?.access_token,
           hasRefreshToken: !!(req.user as any)?.refresh_token,
           expiresAt: (req.user as any)?.expires_at,
-          claimsSubject: (req.user as any)?.claims?.sub,
-          claimsEmail: (req.user as any)?.claims?.email,
+          claimsSubject: (req.user as any)?.id,
+          claimsEmail: (req.user as any)?.email,
         } : null,
         session: {
           exists: !!req.session,
@@ -122,7 +122,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Test email endpoint for debugging
   app.post('/api/test-email', isAuthenticated, async (req: any, res) => {
     try {
-      const userId = req.user.claims.sub;
+      const userId = req.user.id;
       const user = await storage.getUser(userId);
       
       if (!user?.email) {
@@ -293,7 +293,7 @@ I have ALL collections ready - just tell me your mood! ✨`;
   app.post('/api/save-prompt-to-library', isAuthenticated, async (req: any, res) => {
     try {
       const { name, description, prompt, camera, texture, collection } = req.body;
-      const userId = req.user.claims.sub;
+      const userId = req.user.id;
       
       if (!name || !prompt) {
         return res.status(400).json({ error: 'Name and prompt are required' });
@@ -327,7 +327,7 @@ I have ALL collections ready - just tell me your mood! ✨`;
   app.post('/api/upload-inspiration', isAuthenticated, async (req: any, res) => {
     try {
       const { imageUrl, description, tags, source } = req.body;
-      const userId = req.user.claims.sub;
+      const userId = req.user.id;
       
       if (!imageUrl) {
         return res.status(400).json({ error: 'Image URL is required' });
@@ -359,7 +359,7 @@ I have ALL collections ready - just tell me your mood! ✨`;
   // Get user's inspiration photos
   app.get('/api/inspiration-photos', isAuthenticated, async (req: any, res) => {
     try {
-      const userId = req.user.claims.sub;
+      const userId = req.user.id;
       const photos = await storage.getInspirationPhotos(userId);
       res.json(photos);
     } catch (error) {
@@ -372,7 +372,7 @@ I have ALL collections ready - just tell me your mood! ✨`;
   app.delete('/api/inspiration-photos/:id', isAuthenticated, async (req: any, res) => {
     try {
       const { id } = req.params;
-      const userId = req.user.claims.sub;
+      const userId = req.user.id;
       
       await storage.deleteInspirationPhoto(parseInt(id), userId);
       res.json({ success: true, message: 'Inspiration photo deleted' });
@@ -386,7 +386,7 @@ I have ALL collections ready - just tell me your mood! ✨`;
   app.post('/api/setup-plan', isAuthenticated, async (req: any, res) => {
     try {
       const { plan } = req.body; // 'sselfie-studio' or 'sselfie-studio-pro'
-      const userId = req.user.claims.sub;
+      const userId = req.user.id;
       
       console.log(`Setting up plan ${plan} for user ${userId}`);
       
@@ -500,7 +500,7 @@ I have ALL collections ready - just tell me your mood! ✨`;
   app.post('/api/maya-chat', isAuthenticated, async (req: any, res) => {
     try {
       const { message, chatHistory } = req.body;
-      const userId = req.user.claims.sub;
+      const userId = req.user.id;
       
       if (!message) {
         return res.status(400).json({ error: 'Message is required' });
@@ -785,7 +785,7 @@ Create prompts that feel like iconic fashion campaign moments that would make so
       }
       
       // Verify user owns this tracker - convert auth ID to database ID
-      const authUserId = req.user.claims.sub;
+      const authUserId = req.user.id;
       const claims = req.user.claims;
       
       // Get the correct database user ID (same logic as Maya generation)
@@ -835,7 +835,7 @@ Create prompts that feel like iconic fashion campaign moments that would make so
       }
       
       // Convert auth ID to database ID (same logic as Maya generation)
-      const authUserId = req.user.claims.sub;
+      const authUserId = req.user.id;
       const claims = req.user.claims;
       
       // Get the correct database user ID
@@ -902,7 +902,7 @@ Create prompts that feel like iconic fashion campaign moments that would make so
   // Maya Chat History endpoints - AUTHENTICATION REQUIRED
   app.get('/api/maya-chats', isAuthenticated, async (req: any, res) => {
     try {
-      const userId = req.user.claims.sub;
+      const userId = req.user.id;
       const chats = await storage.getMayaChats(userId);
       res.json(chats);
     } catch (error) {
@@ -924,7 +924,7 @@ Create prompts that feel like iconic fashion campaign moments that would make so
 
   app.post('/api/maya-chats', isAuthenticated, async (req: any, res) => {
     try {
-      const userId = req.user.claims.sub;
+      const userId = req.user.id;
       const { chatTitle, chatSummary } = req.body;
       
       const chat = await storage.createMayaChat({
@@ -963,7 +963,7 @@ Create prompts that feel like iconic fashion campaign moments that would make so
   // Get user's photo gallery for Victoria landing page templates - AUTHENTICATION REQUIRED
   app.get('/api/user-gallery', isAuthenticated, async (req: any, res) => {
     try {
-      const userId = req.user.claims.sub;
+      const userId = req.user.id;
       
       // Get user's AI selfie images (70-80% of photos)
       console.log(`Fetching gallery for user ${userId}...`);
@@ -1007,7 +1007,7 @@ Create prompts that feel like iconic fashion campaign moments that would make so
   // Get user's saved photo selections - AUTHENTICATION REQUIRED
   app.get('/api/photo-selections', isAuthenticated, async (req: any, res) => {
     try {
-      const userId = req.user.claims.sub;
+      const userId = req.user.id;
       
       // Get saved photo selections from database
       const selections = await storage.getPhotoSelections(userId);
@@ -1038,7 +1038,7 @@ Create prompts that feel like iconic fashion campaign moments that would make so
   // Save user's photo selections for template customization - AUTHENTICATION REQUIRED
   app.post('/api/save-photo-selections', isAuthenticated, async (req: any, res) => {
     try {
-      const userId = req.user.claims.sub;
+      const userId = req.user.id;
       const { selfieIds, flatlayCollection } = req.body;
       
       console.log(`Saving photo selections for user ${userId}:`, { selfieIds, flatlayCollection });
@@ -1064,7 +1064,7 @@ Create prompts that feel like iconic fashion campaign moments that would make so
   // Publish landing page live - creates hosted page at sselfie.ai/username - AUTHENTICATION REQUIRED
   app.post('/api/publish-landing-page', isAuthenticated, async (req: any, res) => {
     try {
-      const userId = req.user.claims.sub;
+      const userId = req.user.id;
       const { htmlContent, pageName } = req.body;
       
       console.log(`Publishing landing page for user: ${userId}, page: ${pageName}`);
@@ -1129,7 +1129,7 @@ Create prompts that feel like iconic fashion campaign moments that would make so
   // Publish multi-page website live - creates hosted website at sselfie.ai/username with navigation - AUTHENTICATION REQUIRED
   app.post('/api/publish-multi-page-website', isAuthenticated, async (req: any, res) => {
     try {
-      const userId = req.user.claims.sub;
+      const userId = req.user.id;
       const { pageName, pages } = req.body;
       
       console.log(`Publishing multi-page website for user: ${userId}, website: ${pageName}`);
@@ -1228,7 +1228,7 @@ Create prompts that feel like iconic fashion campaign moments that would make so
   app.post('/api/victoria-chat', isAuthenticated, async (req: any, res) => {
     try {
       const { message, chatHistory, sessionId } = req.body;
-      const userId = req.user.claims.sub;
+      const userId = req.user.id;
       
       if (!message) {
         return res.status(400).json({ error: 'Message is required' });
@@ -1460,7 +1460,7 @@ Create prompts that feel like iconic fashion campaign moments that would make so
   app.get('/api/auth/user', isAuthenticated, async (req: any, res) => {
     try {
       console.log('🔍 Auth user endpoint called');
-      const authUserId = req.user.claims.sub;
+      const authUserId = req.user.id;
       const claims = req.user.claims;
       
       // Try to get existing user by auth ID first
@@ -1534,7 +1534,7 @@ Create prompts that feel like iconic fashion campaign moments that would make so
   // User profile routes - protected with authentication
   app.get('/api/profile', isAuthenticated, async (req: any, res) => {
     try {
-      const userId = req.user.claims.sub;
+      const userId = req.user.id;
       const profile = await storage.getUserProfile(userId);
       res.json(profile || {});
     } catch (error) {
@@ -1545,7 +1545,7 @@ Create prompts that feel like iconic fashion campaign moments that would make so
 
   app.put('/api/profile', isAuthenticated, async (req: any, res) => {
     try {
-      const userId = req.user.claims.sub;
+      const userId = req.user.id;
       const profileData = { ...req.body, userId };
       const profile = await storage.upsertUserProfile(profileData);
       res.json(profile);
@@ -1558,7 +1558,7 @@ Create prompts that feel like iconic fashion campaign moments that would make so
   // Project routes
   app.get('/api/projects', isAuthenticated, async (req: any, res) => {
     try {
-      const userId = req.user.claims.sub;
+      const userId = req.user.id;
       const projects = await storage.getUserProjects(userId);
       res.json(projects);
     } catch (error) {
@@ -1569,7 +1569,7 @@ Create prompts that feel like iconic fashion campaign moments that would make so
 
   app.post('/api/projects', isAuthenticated, async (req: any, res) => {
     try {
-      const userId = req.user.claims.sub;
+      const userId = req.user.id;
       const projectData = insertProjectSchema.parse({ ...req.body, userId });
       const project = await storage.createProject(projectData);
       res.json(project);
@@ -1583,7 +1583,7 @@ Create prompts that feel like iconic fashion campaign moments that would make so
   app.get('/api/ai-images', isAuthenticated, async (req: any, res) => {
     try {
       // Get real user AI images from database using direct SQL query
-      const userId = req.user.claims.sub;
+      const userId = req.user.id;
       
       console.log(`Fetching AI images for user ${userId}...`);
       
@@ -1613,7 +1613,7 @@ Create prompts that feel like iconic fashion campaign moments that would make so
   // Gallery Images route - Only deliberately saved images - AUTHENTICATION REQUIRED
   app.get('/api/gallery-images', isAuthenticated, async (req: any, res) => {
     try {
-      const userId = req.user.claims.sub;
+      const userId = req.user.id;
       
       console.log(`Fetching gallery images (saved only) for user ${userId}...`);
       
@@ -1645,7 +1645,7 @@ Create prompts that feel like iconic fashion campaign moments that would make so
   // Migration endpoint to fix broken image URLs - AUTHENTICATION REQUIRED
   app.post('/api/migrate-images-to-s3', isAuthenticated, async (req: any, res) => {
     try {
-      const userId = req.user.claims.sub;
+      const userId = req.user.id;
       
       console.log(`Starting image migration to S3 for user ${userId}...`);
       
@@ -1670,7 +1670,7 @@ Create prompts that feel like iconic fashion campaign moments that would make so
   app.delete('/api/ai-images/:id', isAuthenticated, async (req: any, res) => {
     try {
       const imageId = parseInt(req.params.id);
-      const userId = req.user.claims.sub;
+      const userId = req.user.id;
       
       console.log(`Deleting AI image ${imageId} for user ${userId}...`);
       
@@ -1716,7 +1716,7 @@ Create prompts that feel like iconic fashion campaign moments that would make so
 
   app.post('/api/ai-images', isAuthenticated, async (req: any, res) => {
     try {
-      const userId = req.user.claims.sub;
+      const userId = req.user.id;
       const aiImageData = insertAiImageSchema.parse({ ...req.body, userId });
       const aiImage = await storage.createAiImage(aiImageData);
       res.json(aiImage);
@@ -1870,7 +1870,7 @@ Create prompts that feel like iconic fashion campaign moments that would make so
   // AI Model Training API - LIVE PRODUCTION
   app.get('/api/user-model', isAuthenticated, async (req: any, res) => {
     try {
-      const authUserId = req.user.claims.sub;
+      const authUserId = req.user.id;
       const claims = req.user.claims;
       
       console.log(`🔍 Live user model endpoint - auth ID: ${authUserId}`);
@@ -1920,7 +1920,7 @@ Create prompts that feel like iconic fashion campaign moments that would make so
 
   app.post('/api/start-model-training', isAuthenticated, async (req: any, res) => {
     try {
-      const authUserId = req.user.claims.sub;
+      const authUserId = req.user.id;
       const claims = req.user.claims;
       console.log(`🔍 Live training endpoint - auth ID: ${authUserId}`);
 
@@ -2002,7 +2002,7 @@ Create prompts that feel like iconic fashion campaign moments that would make so
   app.get('/api/training-status', isAuthenticated, async (req: any, res) => {
     try {
       // Get authenticated user ID from session
-      const authUserId = req.user.claims.sub;
+      const authUserId = req.user.id;
       const userId = req.session?.userId;
       if (!userId) {
         return res.status(401).json({ message: "Authentication required" });
@@ -2177,7 +2177,7 @@ Create prompts that feel like iconic fashion campaign moments that would make so
   // Selfie upload API routes  
   app.get('/api/selfies', isAuthenticated, async (req: any, res) => {
     try {
-      const userId = req.user.claims.sub;
+      const userId = req.user.id;
       const selfies = await storage.getUserSelfieUploads(userId);
       res.json(selfies);
     } catch (error) {
@@ -2188,7 +2188,7 @@ Create prompts that feel like iconic fashion campaign moments that would make so
 
   app.post('/api/selfies/upload', isAuthenticated, async (req: any, res) => {
     try {
-      const userId = req.user.claims.sub;
+      const userId = req.user.id;
       const { filename, originalUrl } = req.body;
       
       const selfie = await storage.createSelfieUpload({
@@ -2209,7 +2209,7 @@ Create prompts that feel like iconic fashion campaign moments that would make so
   app.post('/api/personal-branding-sandra', isAuthenticated, async (req: any, res) => {
     try {
       const { message } = req.body;
-      const userId = req.user.claims.sub;
+      const userId = req.user.id;
       
       console.log(`Personal Branding Sandra chat request from user ${userId}: "${message}"`);
       
@@ -2332,7 +2332,7 @@ Create prompts that feel like iconic fashion campaign moments that would make so
   app.post('/api/save-to-gallery', isAuthenticated, async (req: any, res) => {
     try {
       const { imageUrl, userId } = req.body;
-      const actualUserId = userId || req.user.claims.sub;
+      const actualUserId = userId || req.user.id;
       
       console.log('Saving image to gallery with permanent storage:', { actualUserId, imageUrl });
       
@@ -2376,7 +2376,7 @@ Create prompts that feel like iconic fashion campaign moments that would make so
   // Migrate user's existing images to permanent storage - AUTHENTICATION REQUIRED
   app.post('/api/migrate-images-to-permanent', isAuthenticated, async (req: any, res) => {
     try {
-      const userId = req.user.claims.sub;
+      const userId = req.user.id;
       
       console.log('Starting image migration to permanent storage for user:', userId);
       
@@ -2498,7 +2498,7 @@ You help users design and customize their ${context === 'dashboard-builder' ? 'p
   // Brandbook API endpoints
   app.post('/api/brandbooks', isAuthenticated, async (req: any, res) => {
     try {
-      const userId = req.user.claims.sub;
+      const userId = req.user.id;
       const brandbookData = req.body;
       
       // Create new brandbook
@@ -2512,7 +2512,7 @@ You help users design and customize their ${context === 'dashboard-builder' ? 'p
 
   app.get('/api/brandbooks/:userId', isAuthenticated, async (req: any, res) => {
     try {
-      const userId = req.user.claims.sub;
+      const userId = req.user.id;
       
       // Get user's brandbook
       const brandbook = await storage.getUserBrandbook(userId);
@@ -2530,7 +2530,7 @@ You help users design and customize their ${context === 'dashboard-builder' ? 'p
   app.put('/api/brandbooks/:id', isAuthenticated, async (req: any, res) => {
     try {
       const { id } = req.params;
-      const userId = req.user.claims.sub;
+      const userId = req.user.id;
       const updateData = req.body;
       
       // Update brandbook
@@ -2546,7 +2546,7 @@ You help users design and customize their ${context === 'dashboard-builder' ? 'p
   app.post('/api/sandra-ai/brandbook-designer', isAuthenticated, async (req: any, res) => {
     try {
       const { message, context } = req.body;
-      const userId = req.user.claims.sub;
+      const userId = req.user.id;
       
       const response = generateBrandbookDesignerResponse(message, context.brandbook, context.onboardingData, context.chatHistory);
       res.json(response);
@@ -2559,7 +2559,7 @@ You help users design and customize their ${context === 'dashboard-builder' ? 'p
   // Dashboard and Landing Page API endpoints
   app.post('/api/dashboard', isAuthenticated, async (req: any, res) => {
     try {
-      const userId = req.user.claims.sub;
+      const userId = req.user.id;
       const { config, onboardingData } = req.body;
       
       // Save dashboard configuration
@@ -2573,7 +2573,7 @@ You help users design and customize their ${context === 'dashboard-builder' ? 'p
 
   app.post('/api/landing-page', isAuthenticated, async (req: any, res) => {
     try {
-      const userId = req.user.claims.sub;
+      const userId = req.user.id;
       const { config, onboardingData, template } = req.body;
       
       // Save landing page configuration
@@ -2588,7 +2588,7 @@ You help users design and customize their ${context === 'dashboard-builder' ? 'p
   // Agent system routes with proper admin access
   const isAdmin = async (req: any, res: any, next: any) => {
     try {
-      const userId = req.user.claims.sub;
+      const userId = req.user.id;
       const user = await storage.getUser(userId);
       
       // Check for Sandra's admin emails
@@ -3013,7 +3013,7 @@ Consider this workflow optimized and ready for implementation! ⚙️`
   // Admin users endpoint (Sandra only)
   app.get('/api/admin/users', isAuthenticated, async (req: any, res) => {
     try {
-      const adminEmail = req.user.claims.email;
+      const adminEmail = req.user.email;
       if (adminEmail !== 'ssa@ssasocial.com') {
         return res.status(403).json({ error: 'Admin access required' });
       }
@@ -3057,7 +3057,7 @@ Consider this workflow optimized and ready for implementation! ⚙️`
   app.post('/api/ai/generate-sselfie', isAuthenticated, async (req: any, res) => {
     try {
       const { imageBase64, style, prompt } = req.body;
-      const userId = req.user.claims.sub;
+      const userId = req.user.id;
       
       if (!imageBase64) {
         return res.status(400).json({ error: 'Image data is required' });
@@ -3101,7 +3101,7 @@ Consider this workflow optimized and ready for implementation! ⚙️`
   app.post('/api/ai/generate-multiple', isAuthenticated, async (req: any, res) => {
     try {
       const { imageBase64 } = req.body;
-      const userId = req.user.claims.sub;
+      const userId = req.user.id;
       
       if (!imageBase64) {
         return res.status(400).json({ error: 'Image data is required' });
@@ -3159,7 +3159,7 @@ Consider this workflow optimized and ready for implementation! ⚙️`
   app.post('/api/ai/force-update/:aiImageId', isAuthenticated, async (req: any, res) => {
     try {
       const { aiImageId } = req.params;
-      const userId = req.user.claims.sub;
+      const userId = req.user.id;
       
       // Verify user owns this image
       const images = await storage.getUserGeneratedImages(userId);
@@ -3192,7 +3192,7 @@ Consider this workflow optimized and ready for implementation! ⚙️`
   app.post('/api/ai/save-selection', isAuthenticated, async (req: any, res) => {
     try {
       const { aiImageId, selectedUrl } = req.body;
-      const userId = req.user.claims.sub;
+      const userId = req.user.id;
       
       if (!aiImageId || !selectedUrl) {
         return res.status(400).json({ error: 'AI Image ID and selected URL are required' });
@@ -3214,7 +3214,7 @@ Consider this workflow optimized and ready for implementation! ⚙️`
   // BRAND ONBOARDING API ENDPOINTS
   app.get('/api/brand-onboarding', isAuthenticated, async (req: any, res) => {
     try {
-      const userId = req.user.claims.sub;
+      const userId = req.user.id;
       const brandData = await storage.getBrandOnboarding(userId);
       
       if (brandData) {
@@ -3249,7 +3249,7 @@ Consider this workflow optimized and ready for implementation! ⚙️`
 
   app.post('/api/save-brand-onboarding', isAuthenticated, async (req: any, res) => {
     try {
-      const userId = req.user.claims.sub;
+      const userId = req.user.id;
       const brandData = { ...req.body, userId };
       
       const saved = await storage.saveBrandOnboarding(brandData);
@@ -3270,7 +3270,7 @@ Consider this workflow optimized and ready for implementation! ⚙️`
   app.post('/api/sandra-chat', isAuthenticated, async (req: any, res) => {
     try {
       const { message, chatHistory } = req.body;
-      const userId = req.user.claims.sub;
+      const userId = req.user.id;
       
       if (!message) {
         return res.status(400).json({ error: 'Message is required' });
@@ -3292,7 +3292,7 @@ Consider this workflow optimized and ready for implementation! ⚙️`
   app.post('/api/sandra-custom-prompt', isAuthenticated, async (req: any, res) => {
     try {
       const { message, context } = req.body;
-      const userId = req.user.claims.sub;
+      const userId = req.user.id;
       
       // Get user onboarding data for context
       const onboardingData = await storage.getUserOnboardingData(userId);
@@ -3317,7 +3317,7 @@ Consider this workflow optimized and ready for implementation! ⚙️`
   app.post('/api/generate-custom-prompt', isAuthenticated, async (req: any, res) => {
     try {
       const { customPrompt } = req.body;
-      const userId = req.user.claims.sub;
+      const userId = req.user.id;
       
       if (!customPrompt) {
         return res.status(400).json({ error: 'Custom prompt is required' });
@@ -3335,7 +3335,7 @@ Consider this workflow optimized and ready for implementation! ⚙️`
 
   app.get('/api/generated-images', isAuthenticated, async (req: any, res) => {
     try {
-      const userId = req.user.claims.sub;
+      const userId = req.user.id;
       const images = await storage.getUserGeneratedImages(userId);
       res.json(images);
     } catch (error) {
@@ -3348,7 +3348,7 @@ Consider this workflow optimized and ready for implementation! ⚙️`
     try {
       const { imageId } = req.params;
       const { selectedUrl } = req.body;
-      const userId = req.user.claims.sub;
+      const userId = req.user.id;
       
       // Verify user owns this generated image
       const image = await storage.getUserGeneratedImages(userId);
@@ -3388,8 +3388,8 @@ Consider this workflow optimized and ready for implementation! ⚙️`
       
       // If not found by auth ID, try by email (same as auth endpoint)
       if (!user && req.user?.claims?.email) {
-        console.log(`User not found by auth ID ${authUserId}, checking by email: ${req.user.claims.email}`);
-        user = await storage.getUserByEmail(req.user.claims.email);
+        console.log(`User not found by auth ID ${authUserId}, checking by email: ${req.user.email}`);
+        user = await storage.getUserByEmail(req.user.email);
       }
       
       if (!user) {
@@ -3447,7 +3447,7 @@ Consider this workflow optimized and ready for implementation! ⚙️`
   // Get current session images endpoint - use existing AI images - AUTHENTICATION REQUIRED
   app.get('/api/current-session-images', isAuthenticated, async (req: any, res) => {
     try {
-      const userId = req.user.claims.sub;
+      const userId = req.user.id;
       
       // Use existing working getAIImages method
       const aiImages = await storage.getAIImages(userId);
@@ -3469,7 +3469,7 @@ Consider this workflow optimized and ready for implementation! ⚙️`
   // Save selected images to gallery - AUTHENTICATION REQUIRED
   app.post('/api/save-selected-images', isAuthenticated, async (req: any, res) => {
     try {
-      const userId = req.user.claims.sub;
+      const userId = req.user.id;
       const { imageUrls, prompt } = req.body;
       
       if (!imageUrls || !Array.isArray(imageUrls) || imageUrls.length === 0) {
@@ -3518,7 +3518,7 @@ Consider this workflow optimized and ready for implementation! ⚙️`
   app.post('/api/generate-user-images', isAuthenticated, async (req: any, res) => {
     try {
       const { category, subcategory } = req.body;
-      const userId = req.user.claims.sub;
+      const userId = req.user.id;
       
       if (!category || !subcategory) {
         return res.status(400).json({ error: 'Category and subcategory are required' });
@@ -3538,7 +3538,7 @@ Consider this workflow optimized and ready for implementation! ⚙️`
   // Get all generated images for user
   app.get('/api/generated-images', isAuthenticated, async (req: any, res) => {
     try {
-      const userId = req.user.claims.sub;
+      const userId = req.user.id;
       const images = await storage.getUserGeneratedImages(userId);
       res.json(images);
     } catch (error) {
@@ -3588,7 +3588,7 @@ Consider this workflow optimized and ready for implementation! ⚙️`
 
   app.post('/api/brandbook', isAuthenticated, async (req: any, res) => {
     try {
-      const userId = req.user.claims.sub;
+      const userId = req.user.id;
       const brandbookData = {
         userId,
         businessName: req.body.businessName,
@@ -3627,7 +3627,7 @@ Consider this workflow optimized and ready for implementation! ⚙️`
   // Usage Tracking API Routes
   app.get('/api/usage/status', isAuthenticated, async (req: any, res) => {
     try {
-      const authUserId = req.user.claims.sub;
+      const authUserId = req.user.id;
       const claims = req.user.claims;
       
       // Get the correct database user ID
@@ -3663,7 +3663,7 @@ Consider this workflow optimized and ready for implementation! ⚙️`
 
   app.get('/api/usage/stats', isAuthenticated, async (req: any, res) => {
     try {
-      const authUserId = req.user.claims.sub;
+      const authUserId = req.user.id;
       const claims = req.user.claims;
       
       // Get the correct database user ID
@@ -3687,7 +3687,7 @@ Consider this workflow optimized and ready for implementation! ⚙️`
 
   app.post('/api/usage/initialize', isAuthenticated, async (req: any, res) => {
     try {
-      const userId = req.user.claims.sub;
+      const userId = req.user.id;
       const { plan } = req.body;
       
       if (!plan || !['ai-pack', 'studio-founding', 'studio-standard'].includes(plan)) {
@@ -3706,7 +3706,7 @@ Consider this workflow optimized and ready for implementation! ⚙️`
   // Admin usage analysis (Sandra only)
   app.get('/api/admin/usage-analysis/:userId', isAuthenticated, async (req: any, res) => {
     try {
-      const adminEmail = req.user.claims.email;
+      const adminEmail = req.user.email;
       if (adminEmail !== 'ssa@ssasocial.com') {
         return res.status(403).json({ error: 'Admin access required' });
       }
@@ -3724,7 +3724,7 @@ Consider this workflow optimized and ready for implementation! ⚙️`
   app.post('/api/images/:imageId/favorite', isAuthenticated, async (req: any, res) => {
     try {
       const { imageId } = req.params;
-      const userId = req.user.claims.sub;
+      const userId = req.user.id;
       
       console.log('Toggle favorite for user:', userId, 'image:', imageId);
       
@@ -3763,7 +3763,7 @@ Consider this workflow optimized and ready for implementation! ⚙️`
   // Get user's favorite images - AUTHENTICATION REQUIRED
   app.get('/api/images/favorites', isAuthenticated, async (req: any, res) => {
     try {
-      const userId = req.user.claims.sub;
+      const userId = req.user.id;
       const userFavorites = req.session?.favorites?.[userId] || [];
       
       console.log('Getting favorites for user:', userId, 'favorites:', userFavorites);

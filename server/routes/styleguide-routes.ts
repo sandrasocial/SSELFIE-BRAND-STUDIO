@@ -1,6 +1,6 @@
 import type { Express } from "express";
 import { storage } from "../storage";
-import { isAuthenticated } from "../replitAuth";
+import { isAuthenticated } from "../googleAuth";
 import { minimalisticTemplate } from "../../shared/templates/template-minimalistic";
 import { boldTemplate } from "../../shared/templates/template-bold";
 import { sophisticatedTemplate } from "../../shared/templates/template-sophisticated";
