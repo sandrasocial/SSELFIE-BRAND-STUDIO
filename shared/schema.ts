@@ -340,7 +340,8 @@ export const insertBrandOnboardingSchema = createInsertSchema(brandOnboarding).o
 export const insertUserLandingPageSchema = createInsertSchema(userLandingPages).omit({ id: true, createdAt: true, updatedAt: true });
 export const insertMayaChatSchema = createInsertSchema(mayaChats).omit({ id: true, createdAt: true, updatedAt: true });
 export const insertMayaChatMessageSchema = createInsertSchema(mayaChatMessages).omit({ id: true, createdAt: true });
-export const insertEmailCaptureSchema = createInsertSchema(emailCaptures).omit({ id: true, createdAt: true });
+
+
 
 
 
@@ -351,9 +352,6 @@ export type MayaChat = typeof mayaChats.$inferSelect;
 export type InsertMayaChat = typeof mayaChats.$inferInsert;
 export type MayaChatMessage = typeof mayaChatMessages.$inferSelect;
 export type InsertMayaChatMessage = typeof mayaChatMessages.$inferInsert;
-export type EmailCapture = typeof emailCaptures.$inferSelect;
-export type InsertEmailCapture = typeof emailCaptures.$inferInsert;
-
 // User profiles table schema already defined at top of file
 
 export type UserProfile = typeof userProfiles.$inferSelect;
@@ -407,6 +405,7 @@ export const emailCaptures = pgTable("email_captures", {
   userId: varchar("user_id").references(() => users.id), // Set after user signs up
 });
 
+export const insertEmailCaptureSchema = createInsertSchema(emailCaptures).omit({ id: true, createdAt: true });
 export type EmailCapture = typeof emailCaptures.$inferSelect;
 export type InsertEmailCapture = typeof emailCaptures.$inferInsert;
 
