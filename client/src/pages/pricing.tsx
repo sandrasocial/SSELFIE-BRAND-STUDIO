@@ -3,6 +3,8 @@ import { useAuth } from '@/hooks/use-auth';
 import { HeroFullBleed } from '@/components/hero-full-bleed';
 import { SandraImages } from '@/components/sandra-image-library';
 import { PreLoginNavigationUnified } from '@/components/pre-login-navigation-unified';
+import { EmailCaptureModal } from '@/components/email-capture-modal';
+import { GlobalFooter } from '@/components/global-footer';
 import { Link, useLocation } from 'wouter';
 import { useToast } from '@/hooks/use-toast';
 
@@ -11,6 +13,7 @@ export default function Pricing() {
   const { toast } = useToast();
   const [, setLocation] = useLocation();
   const [scrolled, setScrolled] = useState(false);
+  const [showEmailModal, setShowEmailModal] = useState(false);
   
   // Check for success parameter from payment completion
   const urlParams = new URLSearchParams(window.location.search);
@@ -28,12 +31,7 @@ export default function Pricing() {
 
   const handleGetStarted = (plan: string) => {
     if (plan === 'free') {
-      toast({
-        title: "FREE Tier",
-        description: "Starting your free account with 5 images/month...",
-      });
-      localStorage.setItem('selectedPlan', 'free');
-      setLocation('/api/login');
+      setShowEmailModal(true);
     } else {
       toast({
         title: "SSELFIE Studio", 
@@ -51,7 +49,7 @@ export default function Pricing() {
 
       {/* Hero Section */}
       <HeroFullBleed
-        backgroundImage={SandraImages.editorial.mirror}
+        backgroundImage="https://i.postimg.cc/HsrPfn0G/out-2-26.png"
         tagline="Investment in the woman you're becoming"
         title="PRICING"
         ctaText="Choose Your Plan"
@@ -263,6 +261,16 @@ export default function Pricing() {
           </div>
         </section>
       </main>
+
+      {/* Global Footer */}
+      <GlobalFooter />
+
+      {/* Email Capture Modal */}
+      <EmailCaptureModal 
+        isOpen={showEmailModal}
+        onClose={() => setShowEmailModal(false)}
+        plan="free"
+      />
     </div>
   );
 }
