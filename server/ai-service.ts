@@ -5,25 +5,8 @@ import { UsageService, API_COSTS } from './usage-service';
 const FLUX_MODEL_CONFIG = {
   // ALL FALLBACK MODELS PERMANENTLY REMOVED FOR PRODUCTION SECURITY
   // Each user must have their own completed trained model
-  apiUrl: 'https://api.replicate.com/v1/predictions',
-  styles: {
-    editorial: 'luxury editorial magazine style, high-end fashion photography, designer clothing, sophisticated styling, elegant feminine outfits, Milan street style inspiration',
-    business: 'professional executive style, tailored designer pieces, sophisticated business attire, luxury professional wear, elegant and polished',
-    lifestyle: 'chic lifestyle photography, designer casual wear, effortless luxury style, sophisticated everyday fashion, elegant feminine aesthetic', 
-    luxury: 'high fashion luxury photography, designer outfits, sophisticated styling, premium fashion pieces, elegant and refined feminine style'
-  },
-  // Film-grained, matte quality prompts with high fashion styling
-  qualityPrompts: {
-    editorial: 'shot on 35mm film, heavy film grain, matte skin finish, natural skin texture, wearing designer clothing, tailored pieces, sophisticated styling, elegant feminine fashion, high-end materials, no cheap or basic clothing',
-    business: 'shot on film camera, natural matte finish, authentic skin texture, film grain, wearing luxury professional attire, tailored blazers, sophisticated business wear, elegant executive style',
-    lifestyle: 'film photography, heavy grain, matte finish, natural skin texture, wearing chic casual designer pieces, effortless luxury style, sophisticated everyday fashion, elegant feminine aesthetic',
-    luxury: 'analog film photography, pronounced film grain, matte skin finish, wearing high fashion designer outfits, luxury materials, sophisticated styling, elegant and refined feminine pieces, premium fashion'
-  },
-  // High fashion outfit specifications to avoid basic clothing
-  fashionPrompts: {
-    outfits: 'wearing designer pieces, tailored clothing, luxury materials, sophisticated styling, elegant feminine fashion, high-end accessories, refined aesthetic',
-    avoidBasic: 'no basic t-shirts, no plain casual wear, no cheap materials, no unflattering cuts, no frumpy clothing, no outdated styles'
-  }
+  apiUrl: 'https://api.replicate.com/v1/predictions'
+  // ALL HARDCODED PROMPTS REMOVED - Maya AI generates authentic prompts only
 };
 
 interface ImageGenerationRequest {
@@ -60,7 +43,7 @@ export class AIService {
     const generationTracker = await storage.createGenerationTracker({
       userId,
       predictionId: '', // Will be updated after API call
-      prompt: prompt || `${FLUX_MODEL_CONFIG.styles[style]}, SSELFIE transformation`,
+      prompt: prompt || 'Custom Maya AI prompt generation',
       style,
       status: 'pending',
       imageUrls: null // Will store temp URLs for preview only
@@ -193,9 +176,6 @@ export class AIService {
   }
 
   private static async buildFluxPrompt(style: string, customPrompt?: string, userId?: string): Promise<string> {
-    const basePrompt = FLUX_MODEL_CONFIG.styles[style] || FLUX_MODEL_CONFIG.styles.editorial;
-    const qualityPrompt = FLUX_MODEL_CONFIG.qualityPrompts[style] || FLUX_MODEL_CONFIG.qualityPrompts.editorial;
-    
     // CRITICAL: Get user's trained model - NO FALLBACKS ALLOWED
     if (!userId) {
       throw new Error('User ID is required for image generation');
@@ -208,16 +188,17 @@ export class AIService {
     
     // Use ONLY user's unique trigger word - NO FALLBACKS
     const triggerWord = userModel.triggerWord;
-    const triggerPrompt = `${triggerWord}, SSELFIE style transformation`;
     
-    // Enhanced anti-plastic texture specifications
-    const antiPlasticSpecs = ", raw unprocessed photo, visible skin texture with pores, heavy film grain, matte finish NOT glossy, dry skin NOT shiny plastic skin, natural imperfections, organic texture NOT smooth artificial skin, natural skin NOT plastic skin, authentic face NOT fake face, real person NOT CGI, matte NOT glossy, textured skin NOT smooth skin";
+    // MANDATORY: Natural texture specifications for authentic results
+    const naturalTextureSpecs = ", raw photo, natural skin glow, visible texture, film grain, unretouched confidence, editorial cover portrait";
     
     if (customPrompt) {
-      return `${triggerPrompt}, ${customPrompt}, ${basePrompt}, ${qualityPrompt}${antiPlasticSpecs}`;
+      // Custom prompt from Maya AI should already include trigger word and be authentic
+      return `${triggerWord} ${customPrompt}${naturalTextureSpecs}`;
     }
     
-    return `${triggerPrompt}, ${basePrompt}, ${qualityPrompt}${antiPlasticSpecs}`;
+    // Fallback should never be used - Maya should always provide custom prompt
+    throw new Error('Custom prompt required - no hardcoded prompts allowed');
   }
 
   private static async callFluxAPI(imageBase64: string, prompt: string, userId?: string): Promise<string> {
