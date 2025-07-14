@@ -771,24 +771,33 @@ export default function AIPhotoshootPage() {
     
     try {
       // Use Maya's generation tracker system instead of direct AI images
-      const response = await fetch('/api/maya-generate', {
+      const response = await fetch('/api/maya-generate-images', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
-          prompt: prompt.prompt.replace('[triggerword]', userModel?.triggerWord || 'usersandra_test_user_2025'),
-          count: 3
+          customPrompt: prompt.prompt.replace('[triggerword]', userModel?.triggerWord || 'useradmin_sandra_2025')
         }),
       });
 
-      if (!response.ok) {
-        throw new Error(`HTTP error! status: ${response.status}`);
-      }
-
       const data = await response.json();
       
-      if (data.trackerId) {
+      // Handle usage limit errors with upgrade prompts (same as Maya)
+      if (!response.ok) {
+        if (response.status === 403 && data.upgrade) {
+          toast({
+            title: "Usage Limit Reached",
+            description: "Upgrade to generate more images",
+            variant: "destructive",
+          });
+          // Could redirect to pricing: window.location.href = '/pricing';
+          return;
+        }
+        throw new Error(data.error || 'Failed to generate images');
+      }
+      
+      if (data.success && data.trackerId) {
         // Start polling for completion using Maya's tracker pattern
         pollForTrackerImages(data.trackerId);
         
@@ -823,32 +832,30 @@ export default function AIPhotoshootPage() {
         
         const tracker = await response.json();
         
-        if (tracker && tracker.imageUrls && tracker.imageUrls.length > 0) {
+        if (tracker && tracker.status === 'completed' && tracker.imageUrls && tracker.imageUrls.length > 0) {
           // Generation completed
           console.log('AI-PHOTOSHOOT: Tracker generation completed!', tracker);
           
           setGenerationProgress(100);
           setGeneratingImages(false);
           
-          // Parse image URLs and show preview modal
-          let imageUrls: string[] = [];
-          try {
-            if (typeof tracker.imageUrls === 'string') {
-              imageUrls = JSON.parse(tracker.imageUrls);
-            } else if (Array.isArray(tracker.imageUrls)) {
-              imageUrls = tracker.imageUrls;
-            }
-          } catch (error) {
-            console.error('Failed to parse tracker imageUrls:', error);
-            imageUrls = [tracker.imageUrls];
-          }
-          
-          setGeneratedImages(imageUrls);
+          // Maya tracker already has parsed imageUrls array
+          setGeneratedImages(tracker.imageUrls);
           setShowPreviewModal(true);
           
           toast({
             title: "Images Generated!",
-            description: `${imageUrls.length} new photos ready for preview`,
+            description: `${tracker.imageUrls.length} new photos ready for preview`,
+          });
+          return;
+        }
+        
+        if (tracker && tracker.status === 'failed') {
+          setGeneratingImages(false);
+          toast({
+            title: "Generation Failed",
+            description: "Something went wrong with image generation",
+            variant: "destructive",
           });
           return;
         }
