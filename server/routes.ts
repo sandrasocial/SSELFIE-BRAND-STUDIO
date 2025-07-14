@@ -1771,40 +1771,37 @@ Your goal is to have a natural conversation, understand their vision deeply, and
   // AI Model Training API - AUTHENTICATION REQUIRED
   app.get('/api/user-model', isAuthenticated, async (req: any, res) => {
     try {
-      const userId = req.user.claims.sub;
-      console.log(`🔍 User model endpoint - userId: ${userId}`);
-
-      console.log('GET /api/user-model - fetching for user:', userId);
+      const authUserId = req.user.claims.sub;
+      const claims = req.user.claims;
       
-      // Get real user model from database
-      const userModel = await storage.getUserModelByUserId(userId);
+      // Get the correct database user ID
+      let user = await storage.getUser(authUserId);
+      if (!user && claims.email) {
+        user = await storage.getUserByEmail(claims.email);
+      }
+      
+      if (!user) {
+        return res.status(404).json({ message: "User not found" });
+      }
+      
+      const dbUserId = user.id;
+      console.log(`🔍 User model endpoint - auth ID: ${authUserId}, db ID: ${dbUserId}`);
+      
+      // Get real user model from database using correct ID
+      const userModel = await storage.getUserModelByUserId(dbUserId);
       
       if (userModel) {
         console.log('Found user model:', userModel);
         res.json(userModel);
       } else {
-        console.log('No user model found for user:', userId, '- creating user and model');
+        console.log('No user model found for user:', dbUserId, '- creating model');
         
-        // First ensure user exists
-        let user = await storage.getUser(userId);
-        if (!user) {
-          console.log('Creating test user first');
-          user = await storage.upsertUser({
-            id: userId,
-            email: 'test@example.com',
-            firstName: 'Test',
-            lastName: 'User',
-            profileImageUrl: null
-          });
-          console.log('✅ Created test user:', user);
-        }
-        
-        // Now create the model
+        // Create the model using database user ID
         const newModel = await storage.createUserModel({
-          userId,
-          triggerWord: `user${userId}`,
+          userId: dbUserId,
+          triggerWord: `user${dbUserId.replace(/[^a-zA-Z0-9]/g, '_')}`,
           trainingStatus: 'not_started',
-          modelName: 'Test User AI Model'
+          modelName: `${user.firstName || 'User'} AI Model`
         });
         console.log('Created new model:', newModel);
         res.json(newModel);
@@ -3524,8 +3521,33 @@ Consider this workflow optimized and ready for implementation! ⚙️`
   // Usage Tracking API Routes
   app.get('/api/usage/status', isAuthenticated, async (req: any, res) => {
     try {
-      const userId = req.user.claims.sub;
-      const usageStatus = await UsageService.checkUsageLimit(userId);
+      const authUserId = req.user.claims.sub;
+      const claims = req.user.claims;
+      
+      // Get the correct database user ID
+      let user = await storage.getUser(authUserId);
+      if (!user && claims.email) {
+        user = await storage.getUserByEmail(claims.email);
+      }
+      
+      if (!user) {
+        return res.status(404).json({ error: 'User not found' });
+      }
+      
+      const dbUserId = user.id;
+      
+      // Special handling for admin users - unlimited access
+      if (user.plan === 'admin') {
+        return res.json({
+          plan: 'admin',
+          imagesUsed: 0,
+          imagesLimit: 999999,
+          canGenerate: true,
+          isAdmin: true
+        });
+      }
+      
+      const usageStatus = await UsageService.checkUsageLimit(dbUserId);
       res.json(usageStatus);
     } catch (error) {
       console.error('Error getting usage status:', error);
@@ -3535,8 +3557,21 @@ Consider this workflow optimized and ready for implementation! ⚙️`
 
   app.get('/api/usage/stats', isAuthenticated, async (req: any, res) => {
     try {
-      const userId = req.user.claims.sub;
-      const stats = await UsageService.getUserStats(userId);
+      const authUserId = req.user.claims.sub;
+      const claims = req.user.claims;
+      
+      // Get the correct database user ID
+      let user = await storage.getUser(authUserId);
+      if (!user && claims.email) {
+        user = await storage.getUserByEmail(claims.email);
+      }
+      
+      if (!user) {
+        return res.status(404).json({ error: 'User not found' });
+      }
+      
+      const dbUserId = user.id;
+      const stats = await UsageService.getUserStats(dbUserId);
       res.json(stats || {});
     } catch (error) {
       console.error('Error getting usage stats:', error);
