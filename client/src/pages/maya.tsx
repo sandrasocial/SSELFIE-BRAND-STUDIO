@@ -202,11 +202,7 @@ export default function Maya() {
       }
     } catch (error) {
       console.error('Maya chat error:', error);
-      toast({
-        title: "Connection Error",
-        description: "Maya is having trouble connecting. Please try again.",
-        variant: "destructive",
-      });
+      // Remove toast - Maya explains everything in chat
     } finally {
       setIsTyping(false);
     }
@@ -248,20 +244,13 @@ export default function Maya() {
             return newMessages;
           });
           
-          toast({
-            title: "Photos Ready!",
-            description: "Maya created 3 stunning photos. Select your favorites to save permanently!",
-          });
+          // Remove toast - Maya explains everything in chat
           return;
         }
         
         if (tracker.status === 'failed') {
           setIsGenerating(false);
-          toast({
-            title: "Generation Failed",
-            description: "Maya couldn't complete the photos. Try again!",
-            variant: "destructive",
-          });
+          // Remove toast - Maya explains everything in chat
           return;
         }
         
@@ -270,11 +259,7 @@ export default function Maya() {
           setTimeout(poll, 3000);
         } else {
           setIsGenerating(false);
-          toast({
-            title: "Generation Timeout", 
-            description: "Photos are taking longer than expected. Check gallery later!",
-            variant: "destructive",
-          });
+          // Remove toast - Maya explains everything in chat
         }
       } catch (error) {
         console.error('Polling error:', error);
@@ -310,11 +295,7 @@ export default function Maya() {
       // Handle usage limit errors with upgrade prompts
       if (!response.ok) {
         if (response.status === 403 && data.upgrade) {
-          toast({
-            title: "Usage Limit Reached",
-            description: data.reason || "You've reached your free limit. Upgrade to continue!",
-            variant: "destructive",
-          });
+          // Remove toast - Maya explains everything in chat
           window.location.href = '/pricing';
           return;
         }
@@ -327,18 +308,11 @@ export default function Maya() {
         // Start polling tracker for completion
         pollForTrackerCompletion(data.trackerId);
         
-        toast({
-          title: "Generation Started",
-          description: "Maya is creating your photos... This takes about 30 seconds.",
-        });
+        // Remove toast - Maya explains everything in chat
       }
     } catch (error) {
       console.error('Error generating images:', error);
-      toast({
-        title: "Generation Failed",
-        description: error instanceof Error ? error.message : "Maya couldn't generate images right now. Try again!",
-        variant: "destructive",
-      });
+      // Remove toast - Maya explains everything in chat
       setIsGenerating(false);
     }
   };

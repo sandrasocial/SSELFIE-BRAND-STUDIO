@@ -743,8 +743,21 @@ Your goal is to have a natural conversation, understand their vision deeply, and
         return res.status(404).json({ error: 'Generation tracker not found' });
       }
       
-      // Verify user owns this tracker
-      const userId = req.user.claims.sub;
+      // Verify user owns this tracker - convert auth ID to database ID
+      const authUserId = req.user.claims.sub;
+      const claims = req.user.claims;
+      
+      // Get the correct database user ID (same logic as Maya generation)
+      let user = await storage.getUser(authUserId);
+      if (!user && claims.email) {
+        user = await storage.getUserByEmail(claims.email);
+      }
+      
+      if (!user) {
+        return res.status(404).json({ error: 'User not found' });
+      }
+      
+      const userId = user.id;
       if (tracker.userId !== userId) {
         return res.status(403).json({ error: 'Unauthorized access to tracker' });
       }
@@ -781,9 +794,23 @@ Your goal is to have a natural conversation, understand their vision deeply, and
         return res.status(400).json({ error: 'trackerId and selectedImageUrls array required' });
       }
       
-      // Verify user owns this tracker
+      // Verify user owns this tracker - convert auth ID to database ID
+      const authUserId = req.user.claims.sub;
+      const claims = req.user.claims;
+      
+      // Get the correct database user ID (same logic as Maya generation)
+      let user = await storage.getUser(authUserId);
+      if (!user && claims.email) {
+        user = await storage.getUserByEmail(claims.email);
+      }
+      
+      if (!user) {
+        return res.status(404).json({ error: 'User not found' });
+      }
+      
+      const dbUserId = user.id;
       const tracker = await storage.getGenerationTracker(trackerId);
-      if (!tracker || tracker.userId !== userId) {
+      if (!tracker || tracker.userId !== dbUserId) {
         return res.status(403).json({ error: 'Unauthorized access to tracker' });
       }
       
