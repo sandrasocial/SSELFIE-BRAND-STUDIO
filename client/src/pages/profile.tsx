@@ -3,7 +3,7 @@ import { useAuth } from '@/hooks/use-auth';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { useToast } from '@/hooks/use-toast';
 import { apiRequest } from '@/lib/queryClient';
-import { Navigation } from '@/components/navigation';
+import { MemberNavigation } from '@/components/member-navigation';
 import { PaymentVerification } from '@/components/payment-verification';
 import { SandraImages } from '@/lib/sandra-images';
 
@@ -80,7 +80,7 @@ export default function Profile() {
   if (!isAuthenticated) {
     return (
       <div className="min-h-screen bg-white">
-        <Navigation />
+        <MemberNavigation />
         <div className="max-w-4xl mx-auto px-6 py-16 text-center">
           <h1 className="text-3xl font-light mb-4" style={{ fontFamily: 'Times New Roman, serif' }}>
             Access Required
@@ -102,7 +102,7 @@ export default function Profile() {
   return (
     <PaymentVerification>
       <div className="min-h-screen bg-white">
-        <Navigation />
+        <MemberNavigation />
         
         {/* Full Bleed Hero Section */}
         <section className="relative min-h-screen flex items-center justify-center bg-black text-white overflow-hidden">

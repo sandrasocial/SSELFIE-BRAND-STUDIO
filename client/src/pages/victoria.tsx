@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { WorkspaceNavigation } from '@/components/workspace-navigation';
+import { MemberNavigation } from '@/components/member-navigation';
 import { SandraImages } from '@/lib/sandra-images';
 import { Link } from 'wouter';
 
@@ -60,7 +60,7 @@ export default function VictoriaLandingPage() {
   return (
     <div className="min-h-screen bg-white">
       {/* Navigation */}
-      <WorkspaceNavigation />
+      <MemberNavigation />
       
       {/* Coming Soon Banner */}
       <div className="bg-[#f5f5f5] border-b border-gray-200">

@@ -3,7 +3,7 @@ import { useAuth } from "@/hooks/use-auth";
 import { useToast } from "@/hooks/use-toast";
 import { useQueryClient } from "@tanstack/react-query";
 import { HeroFullBleed } from '@/components/HeroFullBleed';
-import { Navigation } from '@/components/navigation';
+import { MemberNavigation } from '@/components/member-navigation';
 import { SandraImages } from '@/lib/sandra-images';
 
 interface FlatlayImage {
@@ -4014,7 +4014,7 @@ export default function FlatlayLibrary() {
   if (!isPremiumUser) {
     return (
       <div className="min-h-screen bg-white">
-        <Navigation />
+        <MemberNavigation />
         
         <div className="min-h-screen flex items-center justify-center px-4">
           <div className="text-center max-w-md">
@@ -4051,7 +4051,7 @@ export default function FlatlayLibrary() {
 
   return (
     <div className="min-h-screen bg-white">
-      <Navigation />
+      <MemberNavigation />
       
       {/* Hero Section */}
       <HeroFullBleed

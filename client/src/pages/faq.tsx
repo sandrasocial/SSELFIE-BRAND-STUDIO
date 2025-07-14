@@ -1,5 +1,5 @@
 import React from 'react';
-import { Navigation } from '@/components/navigation';
+import { PreLoginNavigationUnified } from '@/components/pre-login-navigation-unified';
 import { HeroFullBleed } from '@/components/hero-full-bleed';
 import { SandraImages } from '@/components/sandra-image-library';
 import { Link } from 'wouter';
@@ -50,7 +50,7 @@ const faqData = [
 export default function FAQPage() {
   return (
     <div className="bg-white">
-      <Navigation />
+      <PreLoginNavigationUnified />
       
       <main>
         {/* Hero Section */}

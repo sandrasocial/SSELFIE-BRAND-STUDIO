@@ -1,5 +1,5 @@
 import React, { useState, useRef } from 'react';
-import { Navigation } from '@/components/navigation';
+import { MemberNavigation } from '@/components/member-navigation';
 import { useAuth } from '@/hooks/use-auth';
 import { useMutation } from '@tanstack/react-query';
 import { apiRequest } from '@/lib/queryClient';
@@ -179,7 +179,7 @@ export default function OnboardingNew() {
   if (!isAuthenticated) {
     return (
       <div className="min-h-screen bg-white">
-        <Navigation />
+        <MemberNavigation />
         <div className="max-w-4xl mx-auto px-4 py-16 text-center">
           <h1 className="text-3xl font-light mb-4" style={{ fontFamily: 'Times New Roman, serif' }}>
             Please Sign In
@@ -197,7 +197,7 @@ export default function OnboardingNew() {
 
   return (
     <div className="min-h-screen bg-white">
-      <Navigation />
+      <MemberNavigation />
       
       <HeroFullBleed
         backgroundImage={SandraImages.journey.onboarding}

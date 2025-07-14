@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useAuth } from '@/hooks/use-auth';
 import { useQuery } from '@tanstack/react-query';
 import { Link } from 'wouter';
-import { WorkspaceNavigation } from '@/components/workspace-navigation';
+import { MemberNavigation } from '@/components/member-navigation';
 import { GlobalFooter } from '@/components/global-footer';
 import { SandraImages } from '@/lib/sandra-images';
 
@@ -214,7 +214,7 @@ export default function Workspace() {
   return (
     <div className="min-h-screen bg-white">
       {/* Minimalistic Navigation */}
-      <WorkspaceNavigation />
+      <MemberNavigation />
       
       {/* Full Bleed Hero Section */}
       <section className="relative min-h-screen flex items-center justify-center bg-black text-white overflow-hidden">

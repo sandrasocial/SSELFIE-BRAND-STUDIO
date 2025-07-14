@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Navigation } from '@/components/navigation';
+import { PreLoginNavigationUnified } from '@/components/pre-login-navigation-unified';
 import { HeroFullBleed } from '@/components/hero-full-bleed';
 
 export default function Contact() {
@@ -31,7 +31,7 @@ export default function Contact() {
 
   return (
     <div className="min-h-screen bg-white">
-      <Navigation />
+      <PreLoginNavigationUnified />
       
       <HeroFullBleed
         backgroundImage="https://images.unsplash.com/photo-1519389950473-47ba0277781c?w=1600"

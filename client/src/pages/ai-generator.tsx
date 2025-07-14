@@ -2,7 +2,7 @@ import { useState, useCallback, useEffect } from 'react';
 import { useAuth } from '@/hooks/use-auth';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { useToast } from '@/hooks/use-toast';
-import { Navigation } from '@/components/navigation';
+import { MemberNavigation } from '@/components/member-navigation';
 import { PaymentVerification } from '@/components/payment-verification';
 import { SandraImages } from '@/lib/sandra-images';
 import { apiRequest } from '@/lib/queryClient';
@@ -336,7 +336,7 @@ export default function AIGenerator() {
   if (!isAuthenticated) {
     return (
       <div className="min-h-screen bg-white">
-        <Navigation />
+        <MemberNavigation />
         <div className="pt-32 pb-16 text-center">
           <h1>Please log in to access Your Brand Photoshoot</h1>
         </div>
@@ -347,7 +347,7 @@ export default function AIGenerator() {
   return (
     <PaymentVerification>
       <div className="min-h-screen bg-white">
-        <Navigation />
+        <MemberNavigation />
         
         <div className="pt-32 pb-16">
           {/* Hero Section */}

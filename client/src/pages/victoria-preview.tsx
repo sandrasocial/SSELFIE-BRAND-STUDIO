@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { WorkspaceNavigation } from '@/components/workspace-navigation';
+import { MemberNavigation } from '@/components/member-navigation';
 import { HeroFullBleed } from '@/components/HeroFullBleed';
 import { EditorialImageBreak } from '@/components/EditorialImageBreak';
 import { EditorialStory } from '@/components/editorial-story';
@@ -304,7 +304,7 @@ export default function VictoriaPreview() {
 
   return (
     <div className="min-h-screen bg-white">
-      <WorkspaceNavigation />
+      <MemberNavigation />
       
       {/* Template Preview Hero */}
       <HeroFullBleed

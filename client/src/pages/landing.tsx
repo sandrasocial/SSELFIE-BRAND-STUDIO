@@ -1,5 +1,5 @@
 import React from 'react';
-import { Navigation } from '@/components/navigation';
+import { PreLoginNavigationUnified } from '@/components/pre-login-navigation-unified';
 import { SandraImages } from '@/lib/sandra-images';
 import { useLocation } from 'wouter';
 
@@ -12,7 +12,7 @@ export default function Landing() {
 
   return (
     <div className="bg-white text-[#0a0a0a]">
-      <Navigation />
+      <PreLoginNavigationUnified />
       
       {/* Hero Section - Full Bleed */}
       <section className="relative min-h-screen flex items-end justify-center bg-[#0a0a0a] overflow-hidden">
