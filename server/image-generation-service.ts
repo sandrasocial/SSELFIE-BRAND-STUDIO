@@ -188,6 +188,8 @@ export async function generateImages(request: GenerateImagesRequest): Promise<Ge
     
     while (retries <= maxRetries) {
       try {
+        console.log(`🔄 Attempting Replicate API call... (attempt ${retries + 1}/${maxRetries + 1})`);
+        
         replicateResponse = await fetch('https://api.replicate.com/v1/predictions', {
           method: 'POST',
           headers: {
@@ -201,30 +203,40 @@ export async function generateImages(request: GenerateImagesRequest): Promise<Ge
         });
 
         if (replicateResponse.ok) {
+          console.log('✅ Replicate API call successful');
           break; // Success, exit retry loop
         }
 
-        // If 502 error, retry after delay
-        if (replicateResponse.status === 502 && retries < maxRetries) {
-          console.log(`Replicate API 502 error, retrying in ${(retries + 1) * 2}s... (attempt ${retries + 1}/${maxRetries})`);
-          await new Promise(resolve => setTimeout(resolve, (retries + 1) * 2000));
+        // If 502 error or other server errors, retry after delay
+        if ((replicateResponse.status === 502 || replicateResponse.status >= 500) && retries < maxRetries) {
+          const delaySeconds = (retries + 1) * 3;
+          console.log(`⚠️ Replicate API ${replicateResponse.status} error, retrying in ${delaySeconds}s... (attempt ${retries + 1}/${maxRetries})`);
+          await new Promise(resolve => setTimeout(resolve, delaySeconds * 1000));
           retries++;
           continue;
         }
 
         // For other errors or max retries reached, throw error
         const errorData = await replicateResponse.text();
-        console.error('Replicate API error:', errorData);
+        console.error('❌ Replicate API error:', errorData);
         throw new Error(`Replicate API error: ${replicateResponse.status} ${errorData}`);
         
       } catch (error) {
-        if (retries >= maxRetries) {
-          console.error('Max retries reached for Replicate API');
-          throw error;
+        // Check if this is a fetch error (network issue)
+        if (error.message.includes('fetch')) {
+          if (retries >= maxRetries) {
+            console.error('❌ Max retries reached for network errors');
+            throw error;
+          }
+          const delaySeconds = (retries + 1) * 2;
+          console.log(`⚠️ Network error, retrying in ${delaySeconds}s... (attempt ${retries + 1}/${maxRetries})`);
+          await new Promise(resolve => setTimeout(resolve, delaySeconds * 1000));
+          retries++;
+          continue;
         }
-        console.log(`Network error, retrying in ${(retries + 1) * 2}s... (attempt ${retries + 1}/${maxRetries})`);
-        await new Promise(resolve => setTimeout(resolve, (retries + 1) * 2000));
-        retries++;
+        
+        // If it's not a network error, re-throw immediately
+        throw error;
       }
     }
 
