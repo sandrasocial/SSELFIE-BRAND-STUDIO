@@ -157,11 +157,13 @@ export class DatabaseStorage implements IStorage {
         .where(eq(users.email, userData.email));
         
       if (userByEmail) {
-        console.log('✅ Found existing user by email, updating with new ID...');
+        console.log('✅ Found existing user by email, updating profile data (keeping existing ID)...');
+        // Don't update the ID to avoid foreign key constraint violations
+        const { id, ...updateData } = userData;
         const [user] = await db
           .update(users)
           .set({
-            ...userData,
+            ...updateData,
             updatedAt: new Date(),
           })
           .where(eq(users.email, userData.email))
@@ -196,11 +198,13 @@ export class DatabaseStorage implements IStorage {
             .where(eq(users.email, userData.email));
             
           if (fallbackUser) {
-            console.log('✅ Final recovery: updating existing user...');
+            console.log('✅ Final recovery: updating existing user (keeping existing ID)...');
+            // Don't update the ID to avoid foreign key constraint violations
+            const { id, ...updateData } = userData;
             const [user] = await db
               .update(users)
               .set({
-                ...userData,
+                ...updateData,
                 updatedAt: new Date(),
               })
               .where(eq(users.email, userData.email))
