@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { PreLoginNavigationUnified } from '@/components/pre-login-navigation-unified';
 import { HeroFullBleed } from '@/components/hero-full-bleed';
 import { EditorialStory } from '@/components/editorial-story';
@@ -9,6 +9,8 @@ import WelcomeEditorial from '@/components/welcome-editorial';
 import { SandraImages } from '@/lib/sandra-images';
 
 export default function AboutPage() {
+  const [showEmailPopup, setShowEmailPopup] = useState(false);
+
   return (
     <div className="bg-white">
       <PreLoginNavigationUnified />
@@ -140,27 +142,92 @@ export default function AboutPage() {
         <PowerQuote />
 
         {/* Final Philosophy */}
-        <section className="section-padding bg-white">
-          <div className="max-w-4xl mx-auto px-8 text-center">
-            <h2 className="text-4xl md:text-5xl font-light mb-12 tracking-[-0.01em]" style={{ fontFamily: 'Times New Roman, serif' }}>
-              SSELFIE isn't just about pictures
-            </h2>
-            <div className="space-y-8 text-xl leading-relaxed text-[#333] font-inter">
-              <p>It's about power.</p>
-              <p>It's about building something from the version of you that almost gave up—but didn't.</p>
-              <p>Because when you show up as her? Everything changes.</p>
-            </div>
-            <div className="mt-16">
-              <a 
-                href="/pricing"
-                className="inline-block text-sm tracking-[0.4em] uppercase text-[#0a0a0a] border border-[#0a0a0a] px-12 py-6 hover:bg-[#0a0a0a] hover:text-white transition-all duration-300 font-inter"
+        <section className="py-20 md:py-32 bg-white">
+          <div className="max-w-5xl mx-auto px-8 md:px-12 text-center">
+            <div className="mb-16 md:mb-20">
+              <h2 
+                className="text-4xl md:text-5xl lg:text-6xl font-light mb-6 tracking-[-0.02em] text-[#0a0a0a]" 
+                style={{ fontFamily: 'Times New Roman, serif' }}
               >
-                Let's build something real together
-              </a>
+                SSELFIE isn't just about pictures
+              </h2>
+              <div className="w-12 h-px bg-[#B5B5B3] mx-auto"></div>
+            </div>
+            
+            <div className="max-w-3xl mx-auto space-y-8 md:space-y-10">
+              <p 
+                className="text-xl md:text-2xl lg:text-3xl font-light leading-relaxed text-[#0a0a0a] italic"
+                style={{ fontFamily: 'Times New Roman, serif' }}
+              >
+                It's about power.
+              </p>
+              
+              <div className="space-y-6 text-lg md:text-xl leading-relaxed text-[#333] font-light">
+                <p>It's about building something from the version of you that almost gave up but didn't.</p>
+                <p>Because when you show up as her? Everything changes.</p>
+              </div>
+              
+              <div className="pt-8 md:pt-12">
+                <button 
+                  onClick={() => setShowEmailPopup(true)}
+                  className="bg-[#0a0a0a] text-white px-8 py-4 text-lg font-light tracking-wide hover:bg-[#333] transition-colors duration-300"
+                  style={{ fontFamily: 'Times New Roman, serif' }}
+                >
+                  Start your comeback story
+                </button>
+              </div>
             </div>
           </div>
         </section>
       </main>
+
+      {/* Email Capture Popup */}
+      {showEmailPopup && (
+        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
+          <div className="bg-white max-w-md w-full p-8 relative">
+            <button 
+              onClick={() => setShowEmailPopup(false)}
+              className="absolute top-4 right-4 text-2xl text-[#666] hover:text-[#0a0a0a]"
+            >
+              ×
+            </button>
+            
+            <div className="text-center">
+              <h3 
+                className="text-2xl md:text-3xl font-light mb-4 text-[#0a0a0a]"
+                style={{ fontFamily: 'Times New Roman, serif' }}
+              >
+                Ready for your comeback?
+              </h3>
+              
+              <p className="text-[#666] mb-6 leading-relaxed">
+                Join 120K+ women who stopped waiting for permission and started building something real.
+              </p>
+              
+              <form className="space-y-4">
+                <input 
+                  type="email" 
+                  placeholder="Enter your email"
+                  className="w-full p-3 border border-[#ddd] focus:border-[#0a0a0a] focus:outline-none"
+                  required
+                />
+                
+                <button 
+                  type="submit"
+                  className="w-full bg-[#0a0a0a] text-white py-3 font-light hover:bg-[#333] transition-colors"
+                  style={{ fontFamily: 'Times New Roman, serif' }}
+                >
+                  Start my comeback story
+                </button>
+              </form>
+              
+              <p className="text-xs text-[#999] mt-4">
+                No spam. Just real stories and tools that work.
+              </p>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
