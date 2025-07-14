@@ -8,7 +8,7 @@ export default function WelcomeEditorial() {
           {/* Image */}
           <div className="relative h-96 lg:h-[600px] w-full lg:w-1/2 flex-shrink-0 overflow-hidden group cursor-pointer">
             <img
-              src={SandraImages.editorial.laptop1}
+              src={SandraImages.journey.building}
               alt="Sandra's SSELFIE editorial example"
               className="w-full h-full object-cover transition-transform duration-700 ease-out group-hover:scale-105"
             />

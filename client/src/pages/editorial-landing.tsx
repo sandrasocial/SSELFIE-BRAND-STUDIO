@@ -3,7 +3,7 @@ import { useLocation } from "wouter";
 import { SandraImages } from "@/lib/sandra-images";
 import { PortfolioSection } from "@/components/portfolio-section";
 import FreeTierSignup from "@/components/free-tier-signup";
-import WelcomeSection from "@/components/welcome-section";
+import WelcomeEditorial from "@/components/welcome-editorial";
 
 export default function EditorialLanding() {
   // SEO Meta Tags
@@ -216,7 +216,7 @@ export default function EditorialLanding() {
       </section>
 
       {/* Welcome Section - Editorial Style */}
-      <WelcomeSection />
+      <WelcomeEditorial />
 
       {/* Features Section - Editorial Grid */}
       <section className="py-16 sm:py-24 md:py-32 bg-gray-50">
