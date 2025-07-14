@@ -35,18 +35,43 @@ export default function AboutPage() {
           overlayText="This didn't start as a business. It started as survival."
         />
 
-        {/* The Moment */}
-        <section className="section-padding bg-[#f5f5f5]">
-          <div className="max-w-4xl mx-auto px-8 text-center">
-            <h2 className="text-3xl md:text-4xl font-light mb-12 tracking-[-0.01em]" style={{ fontFamily: 'Times New Roman, serif' }}>
-              The Origin Story
-            </h2>
-            <div className="space-y-8 text-lg leading-relaxed text-[#333] font-inter">
-              <p>This didn't start as a business. It started as survival.</p>
-              <p>One year ago, I hit rock bottom. Divorced. Three kids. No backup plan. I was heartbroken, exhausted, and completely disconnected from the woman I used to be.</p>
-              <p>I didn't recognize myself. Not in the mirror. Not in my life.</p>
-              <p>And one day, in the middle of all that mess—I picked up my phone. Took a selfie. Posted something honest. Not perfect. Just true.</p>
-              <p>That one moment sparked something. I didn't need a full plan. I needed one brave post. One real story. One step back to myself.</p>
+        {/* The Origin Story */}
+        <section className="py-20 md:py-32 bg-[#f5f5f5]">
+          <div className="max-w-5xl mx-auto px-8 md:px-12">
+            <div className="text-center mb-16 md:mb-20">
+              <h2 
+                className="text-4xl md:text-5xl lg:text-6xl font-light mb-6 tracking-[-0.02em] text-[#0a0a0a]" 
+                style={{ fontFamily: 'Times New Roman, serif' }}
+              >
+                The Origin Story
+              </h2>
+              <div className="w-12 h-px bg-[#B5B5B3] mx-auto"></div>
+            </div>
+            
+            <div className="max-w-3xl mx-auto">
+              <div className="space-y-8 md:space-y-10">
+                <p 
+                  className="text-xl md:text-2xl lg:text-3xl font-light leading-relaxed text-[#0a0a0a] text-center italic"
+                  style={{ fontFamily: 'Times New Roman, serif' }}
+                >
+                  This didn't start as a business. It started as survival.
+                </p>
+                
+                <div className="space-y-6 text-lg md:text-xl leading-relaxed text-[#333] font-light">
+                  <p>One year ago, I hit rock bottom. Divorced. Three kids. No backup plan. I was heartbroken, exhausted, and completely disconnected from the woman I used to be.</p>
+                  
+                  <p>I didn't recognize myself. Not in the mirror. Not in my life.</p>
+                  
+                  <p>And one day, in the middle of all that mess, I picked up my phone. Took a selfie. Posted something honest. Not perfect. Just true.</p>
+                  
+                  <p 
+                    className="text-xl md:text-2xl font-light italic text-[#0a0a0a] border-l-2 border-[#B5B5B3] pl-8"
+                    style={{ fontFamily: 'Times New Roman, serif' }}
+                  >
+                    That one moment sparked something. I didn't need a full plan. I needed one brave post. One real story. One step back to myself.
+                  </p>
+                </div>
+              </div>
             </div>
           </div>
         </section>
