@@ -15,25 +15,25 @@ const steps = [
     number: "02", 
     title: "Upload your selfies",
     description: "10-15 photos. You get a dead-simple tutorial: 'Face the window, wear what you love, no need for a ring light.'",
-    image: SandraImages.editorial.thinking
+    image: "https://i.postimg.cc/bNF14sGc/out-1_(4).png"
   },
   {
     number: "03",
     title: "Meet your AI agents",
     description: "MAYA (celebrity stylist/photographer) creates your editorial images. VICTORIA (brand strategist) builds your complete website. Both chat with you like real consultants.",
-    image: SandraImages.editorial.laptop1
+    image: "https://i.postimg.cc/K8p0tmbN/out-0-9.webp"
   },
   {
     number: "04",
     title: "Watch the magic",
     description: "Custom AI generates professional editorial photos instantly. No more waiting weeks for a photoshoot or spending thousands on brand photography.",
-    image: SandraImages.editorial.laptop2
+    image: "https://i.postimg.cc/4N8v1bP5/IMG-6564.jpg"
   },
   {
     number: "05",
     title: "Launch your brand",
     description: "Your best images populate every page. Booking, payments, custom domain connect with one click. Live business in 20 minutes, not 20 weeks.",
-    image: SandraImages.editorial.laughing
+    image: "https://i.postimg.cc/nz3mFnXJ/out-3.png"
   }
 ];
 
