@@ -12,6 +12,7 @@ import {
   landingPages,
   brandOnboarding,
   userLandingPages,
+  emailCaptures,
   type User,
   type UpsertUser,
   type UserProfile,
@@ -38,6 +39,8 @@ import {
   type InsertBrandOnboarding,
   type UserLandingPage,
   type InsertUserLandingPage,
+  type EmailCapture,
+  type InsertEmailCapture,
 } from "@shared/schema";
 import { db } from "./db";
 import { eq, and, desc, gte } from "drizzle-orm";
@@ -108,6 +111,9 @@ export interface IStorage {
   getUserLandingPages(userId: string): Promise<UserLandingPage[]>;
   getUserLandingPageBySlug(slug: string): Promise<UserLandingPage | undefined>;
   updateUserLandingPage(id: number, data: Partial<UserLandingPage>): Promise<UserLandingPage | undefined>;
+  
+  // Email Capture operations
+  captureEmail(data: InsertEmailCapture): Promise<EmailCapture>;
 
 }
 
@@ -637,6 +643,15 @@ export class DatabaseStorage implements IStorage {
   async saveSandraConversation(data: any): Promise<any> {
     // For now, just return the data - could implement full conversation storage later
     return data;
+  }
+
+  // Email Capture operations
+  async captureEmail(data: InsertEmailCapture): Promise<EmailCapture> {
+    const [capture] = await db
+      .insert(emailCaptures)
+      .values(data)
+      .returning();
+    return capture;
   }
 }
 

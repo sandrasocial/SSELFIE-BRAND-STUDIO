@@ -5,7 +5,7 @@ import { useToast } from '@/hooks/use-toast';
 interface EmailCaptureModalProps {
   isOpen: boolean;
   onClose: () => void;
-  onEmailCaptured: (email: string) => void;
+  onEmailCaptured?: (email: string) => void;
   plan: 'free' | 'sselfie-studio';
 }
 
@@ -53,8 +53,23 @@ export const EmailCaptureModal: React.FC<EmailCaptureModalProps> = ({
       localStorage.setItem('emailCaptured', 'true');
       localStorage.setItem('capturedEmail', email);
       
-      onEmailCaptured(email);
+      // Success! Now redirect to authentication
+      toast({
+        title: "Email Captured!",
+        description: "Redirecting to authentication...",
+        variant: "default",
+      });
+      
+      if (onEmailCaptured) {
+        onEmailCaptured(email);
+      }
+      
       onClose();
+      
+      // Redirect to authentication after brief delay for user feedback
+      setTimeout(() => {
+        window.location.href = '/api/login';
+      }, 1000);
 
     } catch (error) {
       toast({
