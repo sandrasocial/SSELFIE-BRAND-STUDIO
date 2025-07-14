@@ -76,28 +76,28 @@ const PROMPT_COLLECTIONS = {
         id: 'candlelit-meditation',
         name: 'Candlelit Meditation',
         category: 'Inner Peace',
-        description: "Sacred space vibes. Surrounded by candlelight, finding your center in the most beautiful healing sanctuary.",
+        description: "You know those nights when you just need to reset? Light some candles, close your eyes, and find your zen.",
         prompt: '[triggerword] woman in meditation pose, voluminous hair with natural body and movement, black ribbed bodysuit or fitted long-sleeve top, surrounded by candles, indoor zen space, warm candlelight glow on face, eyes closed in peace, healing sanctuary, shot on Sony A7R V with 85mm f/1.4 GM lens, intimate candlelight illumination, mindfulness photography, heavy 35mm film grain, matte textured skin, soft skin retouch, analog film photography aesthetic, natural skin imperfections and visible pores, gentle facial refinement, editorial skin enhancement. Negative: shiny skin, glossy skin, fake skin, plastic-looking skin, over-processed skin'
       },
       {
         id: 'morning-ritual',
         name: 'Morning Ritual',
         category: 'Inner Peace',
-        description: "That quiet morning moment with tea and intention. Window light, plants, just you starting your day mindfully.",
+        description: "My favorite time of day. Just you, your tea, and that perfect window light. Pure morning magic.",
         prompt: '[triggerword] woman in morning meditation, voluminous hair with natural body and movement, sitting by window with natural light, holding warm tea, peaceful expression, plants visible, cozy healing space, daily mindfulness practice, shot on Fujifilm GFX100S with 110mm f/2 lens, soft morning window lighting, wellness lifestyle, heavy 35mm film grain, matte textured skin, soft skin retouch, pronounced texture, authentic grain pattern and visible pores, gentle facial refinement, editorial skin enhancement. Negative: shiny skin, glossy skin, fake skin, plastic-looking skin, over-processed skin'
       },
       {
         id: 'forest-grounding',
         name: 'Forest Grounding',
         category: 'Nature Connection',
-        description: "Connecting with Mother Earth. Standing among trees, touching bark, grounding yourself in nature's healing energy.",
+        description: "When you need to get out of your head and into nature. Tree hugging is totally allowed here.",
         prompt: '[triggerword] woman standing among trees, voluminous hair with natural body and movement, touching tree trunk, earthing practice, wearing linen button-down shirt and wide-leg trousers in earth tones, dappled forest light, connection with nature, grounding energy, shot on Leica Q2 with 28mm f/1.7 lens, natural forest lighting with dappled shadows, forest therapy moment, heavy 35mm film grain, matte textured skin, soft skin retouch, film negative quality, visible grain structure and natural pores, gentle facial refinement, editorial skin enhancement. Negative: shiny skin, glossy skin, fake skin, plastic-looking skin, over-processed skin'
       },
       {
         id: 'yoga-flow',
         name: 'Yoga Flow',
         category: 'Movement Medicine',
-        description: "Movement as medicine. Captured mid-flow, showing your strength and grace through mindful movement.",
+        description: "Because your yoga practice is gorgeous and powerful. Let's show the world your graceful strength.",
         prompt: '[triggerword] woman in yoga pose, voluminous hair with natural body and movement, flowing movement captured, natural light studio, black ribbed bodysuit or fitted athletic wear, graceful strength, moving meditation, healing through movement, shot on Canon R6 Mark II with 35mm f/1.8 lens, soft natural studio lighting, wellness photography, heavy 35mm film grain, matte textured skin, soft skin retouch, authentic texture with visible pores, gentle facial refinement, editorial skin enhancement. Negative: shiny skin, glossy skin, fake skin, plastic-looking skin, over-processed skin'
       }
     ]
@@ -113,98 +113,98 @@ const PROMPT_COLLECTIONS = {
         id: 'vogue-transformative-strength',
         name: 'VOGUE Transformative Strength',
         category: 'Magazine Covers',
-        description: "Hair swept over one shoulder, direct powerful gaze, wearing black off-shoulder blazer.",
+        description: "That moment when you realize your power. Hair perfectly swept, blazer on point, gaze that says everything.",
         prompt: '[triggerword] woman long dark hair swept over one shoulder, direct powerful gaze at camera, wearing black off-shoulder blazer, minimal gold jewelry, pure white backdrop, shot on Hasselblad H6D-100c with 80mm lens f/2.8, beauty dish with fill light, raw photo, visible skin pores, film grain, unretouched natural skin texture, subsurface scattering, transformative strength editorial portrait'
       },
       {
         id: 'elle-confidence-rebirth',
         name: 'ELLE Confidence Rebirth',
         category: 'Magazine Covers',
-        description: "Natural waves, slight smile knowing expression, wearing simple black silk camisole.",
+        description: "That little knowing smile because you've figured it out. Natural waves, silk cami, pure confidence.",
         prompt: '[triggerword] woman long dark hair natural waves, slight smile knowing expression, wearing simple black silk camisole, no excessive jewelry, soft gray seamless background, shot on Canon 5DS R with 85mm f/1.2L lens, window light with silver reflector, raw photo, authentic skin texture, film grain, unretouched beauty, subsurface scattering, quiet confidence portrait'
       },
       {
         id: 'harpers-bazaar-phoenix',
         name: "HARPER'S BAZAAR Phoenix",
         category: 'Magazine Covers',
-        description: "Sleek center part, three-quarter turn strong posture, structured black suit jacket.",
+        description: "CEO energy in that perfect suit. Hair sleek, posture strong, ready to take on the world.",
         prompt: '[triggerword] woman long sleek dark hair center part, three-quarter turn strong posture, wearing structured black suit jacket deep V, layered delicate necklaces, neutral beige backdrop, shot on Phase One XF IQ4 150MP with 110mm lens f/2.8, three-point studio lighting, raw photo, natural skin visible, film grain, unretouched power, magazine cover editorial'
       },
       {
         id: 'marie-claire-survivor',
         name: 'MARIE CLAIRE Survivor',
         category: 'Magazine Covers',
-        description: "Tousled hair, looking past camera with determination, wearing black cashmere turtleneck.",
+        description: "When you've been through it all and came out stronger. Tousled hair, cashmere comfort, unshakeable determination.",
         prompt: '[triggerword] woman long dark tousled hair, looking past camera with determination, wearing black cashmere turtleneck, single gold ring visible, warm white background, shot on Leica S3 with 70mm Summarit-S f/2.5, soft continuous lighting, raw photo, lived-in skin texture, film grain, unretouched authenticity, emotional strength portrait'
       },
       {
         id: 'cosmopolitan-comeback',
         name: 'COSMOPOLITAN Comeback',
         category: 'Magazine Covers',
-        description: "Voluminous hair, genuine laugh caught mid-moment, wearing black blazer over lace cami.",
+        description: "Pure joy because you're winning at life. That real laugh, gorgeous hair, perfect blazer moment.",
         prompt: '[triggerword] woman long dark voluminous hair, genuine laugh caught mid-moment, wearing black blazer over lace cami, statement earrings, bright white studio, shot on Sony A1 with 135mm GM lens f/1.8, strobe with softbox, raw photo, expression lines visible, natural skin, film grain, unretouched joy, celebratory editorial'
       },
       {
         id: 'glamour-rising',
         name: 'GLAMOUR Rising',
         category: 'Magazine Covers',
-        description: "Hair one side behind ear, direct confident eye contact, wearing simple black dress.",
+        description: "That direct eye contact that says you're not playing anymore. Hair perfectly tucked, simple dress, maximum impact.",
         prompt: '[triggerword] woman long dark hair one side behind ear, direct confident eye contact, wearing simple black dress, delicate gold chain, clean white cyclorama, shot on Nikon Z9 with 105mm f/1.4 lens, beauty lighting setup, raw photo, real skin texture, visible pores, film grain, unretouched natural power, cover portrait'
       },
       {
         id: 'instyle-empire',
         name: 'INSTYLE Empire',
         category: 'Magazine Covers',
-        description: "Hair in low ponytail, CEO stance facing camera, wearing black power suit.",
+        description: "Boss mode activated. Low ponytail, power suit, standing like you own the room - because you do.",
         prompt: '[triggerword] woman long dark hair in low ponytail, CEO stance facing camera, wearing black power suit with white shirt, minimal jewelry, gray paper backdrop, shot on Fujifilm GFX100 II with 110mm f/2 lens, classic portrait lighting, raw photo, professional strength, natural skin detail, film grain, unretouched leadership'
       },
       {
         id: 'tatler-triumph',
         name: 'TATLER Triumph',
         category: 'Magazine Covers',
-        description: "Hollywood waves, regal bearing, wearing black velvet blazer, pearl earrings.",
+        description: "Old Hollywood glamour meets modern power. Those waves, that velvet, pearls that whisper elegance.",
         prompt: '[triggerword] woman long dark hair Hollywood waves, regal bearing, wearing black velvet blazer, pearl earrings, rich navy backdrop, shot on Pentax 645Z with 90mm f/2.8 lens, Rembrandt lighting, raw photo, mature beauty, skin texture visible, medium format grain, unretouched elegance, luxury survivor portrait'
       },
       {
         id: 'w-magazine-warrior',
         name: 'W MAGAZINE Warrior',
         category: 'Magazine Covers',
-        description: "Straight hair, profile showing strength, wearing architectural black top.",
+        description: "Your profile is art. Sleek hair, that incredible architectural top, strength in every line.",
         prompt: '[triggerword] woman long dark straight hair, profile showing strength, wearing architectural black top, single statement earring, black seamless background, shot on RED Komodo with 85mm cinema lens, dramatic side light, raw photo, skin in harsh light, film grain, unretouched fierce beauty, artistic power portrait'
       },
       {
         id: 'forbes-founder',
         name: 'FORBES Founder',
         category: 'Magazine Covers',
-        description: "Professional hair, business portrait angle, wearing black blazer white shirt.",
+        description: "The founder energy is real. Professional hair, perfect blazer, ready to change the world with your business.",
         prompt: '[triggerword] woman long dark professional hair, business portrait angle, wearing black blazer white shirt, watch visible, corporate gray backdrop, shot on Canon R5 with 70-200mm f/2.8 at 135mm, corporate headshot lighting, raw photo, approachable CEO energy, natural skin, film grain, unretouched success story'
       },
       {
         id: 'rock-bottom-truth',
         name: 'Rock Bottom Truth',
         category: 'Journey Story',
-        description: "Sitting on floor against white wall, wearing oversized black sweater, knees pulled up.",
+        description: "We all have those rock bottom moments. This is yours - raw, real, and the beginning of your comeback story.",
         prompt: '[triggerword] woman long dark disheveled hair, sitting on floor against white wall, wearing oversized black sweater, knees pulled up, morning window light creating shadows, shot on Leica Q2 with 28mm Summilux, available light only, raw photo, tired eyes visible, natural exhausted skin, heavy grain, unretouched vulnerability, documentary style'
       },
       {
         id: 'first-brave-selfie',
         name: 'First Brave Selfie',
         category: 'Journey Story',
-        description: "Holding phone up taking selfie, wearing simple black t-shirt, bedroom background soft focus.",
+        description: "Remember your first brave selfie? That moment you decided to show up. This is where it all started.",
         prompt: '[triggerword] woman long dark messy hair, holding phone up taking selfie, wearing simple black t-shirt, bedroom background soft focus, natural morning light, shot on iPhone 15 Pro portrait mode feel, handheld casual angle, raw photo, no makeup skin texture, authentic moment, film grain, unretouched courage beginning'
       },
       {
         id: 'coffee-and-camera',
         name: 'Coffee and Camera',
         category: 'Journey Story',
-        description: "Hair in messy bun, one hand holding coffee other holding phone, wearing black robe.",
+        description: "That 7am hustle with coffee in one hand, phone in the other. Building your empire one morning at a time.",
         prompt: '[triggerword] woman long dark hair in messy bun, one hand holding coffee other holding phone, wearing black robe, kitchen counter background, 7am golden hour through window, shot on Canon 5D Mark IV with 35mm f/1.4, lifestyle documentary, raw photo, morning skin no makeup, visible texture, grain, unretouched daily ritual'
       },
       {
         id: 'building-momentum',
         name: 'Building Momentum',
         category: 'Journey Story',
-        description: "Hair half up, sitting at laptop with ring light, wearing black tank top.",
+        description: "The grind is real but so are you. Hair half up, laptop open, ring light on - building your dreams pixel by pixel.",
         prompt: '[triggerword] woman long dark hair half up, sitting at laptop with ring light, wearing black tank top, home office setup visible, afternoon natural light, shot on Sony A7R V with 50mm f/1.2, environmental portrait, raw photo, focused expression, real skin, film grain, unretouched work in progress'
       }
     ]
@@ -220,7 +220,7 @@ const PROMPT_COLLECTIONS = {
         id: 'crosswalk-confidence',
         name: 'Crosswalk Confidence',
         category: 'Street Power',
-        description: "Crossing street mid-stride, wearing black oversized blazer, hair windswept.",
+        description: "That main character energy crossing the street. Blazer flowing, hair windswept, total boss move.",
         prompt: '[triggerword] woman long dark hair windswept, crossing street mid-stride, wearing black oversized blazer, designer bag, city traffic blurred background, shot on Leica M10 with 35mm Summicron f/2, street photography style, raw photo, natural stride energy, visible skin texture, film grain, unretouched confidence'
       },
       {
@@ -278,42 +278,42 @@ const PROMPT_COLLECTIONS = {
         id: 'surfboard-ocean-mood',
         name: 'Surfboard Ocean Mood',
         category: 'Beach Editorial',
-        description: "Holding surfboard on beach, windswept hair, wearing black wetsuit.",
+        description: "Beach babe energy with your surfboard. Hair wild from the ocean breeze, wetsuit looking effortlessly cool.",
         prompt: '[triggerword] woman long dark hair windswept, holding surfboard vertical on beach, wearing black wetsuit partially unzipped, ocean waves background, golden hour side lighting, shot on Fujifilm X-T4 with 56mm f/1.2, coastal lifestyle, raw photo, salt-kissed skin texture, film grain, unretouched ocean energy, surf culture editorial'
       },
       {
         id: 'morning-garden-ritual',
         name: 'Morning Garden Ritual',
         category: 'Home Editorial',
-        description: "Watering plants in garden, wearing white linen dress, natural morning light.",
+        description: "That peaceful morning ritual with your plants. White linen, barefoot, totally in your element.",
         prompt: '[triggerword] woman long dark hair loose, watering plants in garden, wearing white linen dress, barefoot on grass, morning sunlight filtering through leaves, shot on Canon 5D Mark IV with 85mm f/1.4, lifestyle editorial, raw photo, natural skin in dappled light, film grain, unretouched peaceful moment'
       },
       {
         id: 'balcony-reading-corner',
         name: 'Balcony Reading Corner',
         category: 'Home Editorial',
-        description: "Reading book on balcony chair, wearing black turtleneck, city view background.",
+        description: "Your cozy reading corner with the best city view. Black turtleneck, good book, pure bliss.",
         prompt: '[triggerword] woman long dark hair center part, reading book on balcony chair, wearing black turtleneck, city view background soft focus, afternoon natural light, shot on Leica Q2 with 28mm f/1.7, intimate lifestyle, raw photo, concentrated reading expression, natural skin, film grain, unretouched quiet intensity'
       },
       {
         id: 'kitchen-midnight-snack',
         name: 'Kitchen Midnight Snack',
         category: 'Real Life',
-        description: "Standing in kitchen eating late night snack, wearing oversized shirt, refrigerator light.",
+        description: "We've all been there - midnight snack in oversized shirt, fridge light glowing. Real life moments.",
         prompt: '[triggerword] woman long dark messy hair, standing in kitchen eating late night snack, wearing oversized shirt, refrigerator light only, shot on Sony A7S III with 35mm f/1.4, ambient kitchen lighting, raw photo, casual late night energy, natural tired skin, film grain, unretouched authentic moment'
       },
       {
         id: 'bookstore-floor-discover',
         name: 'Bookstore Floor Discovery',
         category: 'Urban Life',
-        description: "Sitting on bookstore floor reading, surrounded by books, wearing sweater and jeans.",
+        description: "That book lover moment sitting on the floor, completely absorbed. Surrounded by stories, lost in yours.",
         prompt: '[triggerword] woman long dark hair falling forward, sitting on bookstore floor reading, surrounded by books, wearing oversized sweater and jeans, warm bookstore lighting, shot on Canon R6 with 50mm f/1.2, documentary style, raw photo, absorbed in reading, natural skin texture, film grain, unretouched discovery moment'
       },
       {
         id: 'rainy-window-contemplation',
         name: 'Rainy Window Contemplation',
         category: 'Introspective',
-        description: "Looking out rainy window with tea, wearing soft sweater, thoughtful expression.",
+        description: "Rainy day thoughts with tea in hand. Soft sweater, window reflections, those deep thinking moments.",
         prompt: '[triggerword] woman long dark hair natural, looking out rainy window with tea, wearing soft sweater, raindrops on glass, gray natural light, shot on Nikon Z6 II with 85mm f/1.8, intimate portrait, raw photo, contemplative mood, visible skin pores, film grain, unretouched melancholy beauty'
       }
     ]
