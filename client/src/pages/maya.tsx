@@ -454,32 +454,18 @@ export default function Maya() {
     <div className="min-h-screen bg-white">
       <MemberNavigation />
       
-      {/* Editorial Hero Section with Sandra's Quote */}
-      <EditorialImageBreak 
-        imageUrl={SandraImages.editorial.thinking}
-        alt="Maya - Your Personal Celebrity Photographer"
-        height="60vh"
-        overlay={true}
-        overlayContent={
-          <div className="max-w-4xl mx-auto text-center px-6">
-            <div className="text-[10px] sm:text-xs font-normal tracking-[0.4em] uppercase text-white/80 mb-6">
-              Meet Maya
-            </div>
-            <h1 className="font-times text-[clamp(3rem,8vw,6rem)] leading-[0.85] font-extralight tracking-[-0.02em] text-white mb-8">
-              YOUR PERSONAL<br/>
-              CELEBRITY PHOTOGRAPHER
-            </h1>
-            <div className="max-w-2xl mx-auto">
-              <p className="text-lg sm:text-xl font-light leading-relaxed text-white/90 mb-8">
-                "Maya creates the photos I wish I had when I was building my brand. She's like having a celebrity photographer in your pocket who actually gets your vision."
-              </p>
-              <div className="text-sm font-light tracking-[0.2em] uppercase text-white/60">
-                — Sandra, Founder of SSELFIE
-              </div>
-            </div>
+      {/* Simple Header Section */}
+      <section className="bg-white pt-24 pb-8 px-4 sm:px-6 md:px-8">
+        <div className="max-w-6xl mx-auto text-center">
+          <div className="text-[10px] sm:text-xs font-normal tracking-[0.4em] uppercase text-gray-500 mb-4">
+            Meet Maya
           </div>
-        }
-      />
+          <h1 className="font-times text-[clamp(2rem,5vw,3.5rem)] leading-[0.9] font-extralight tracking-[-0.02em] text-black mb-6">
+            YOUR PERSONAL<br/>
+            CELEBRITY PHOTOGRAPHER
+          </h1>
+        </div>
+      </section>
 
       {/* Main Chat Interface */}
       <section className="py-16 sm:py-20 px-4 sm:px-6 md:px-8 bg-white">
