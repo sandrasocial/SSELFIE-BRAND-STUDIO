@@ -40,12 +40,12 @@ export async function generateImages(request: GenerateImagesRequest): Promise<Ge
     const savedImage = await storage.saveAIImage(aiImageData);
 
 
-    // CORRECT APPROACH: Always use black-forest-labs/flux-dev-lora with user's LoRA weights
-    const fluxModelVersion = modelVersion || 'black-forest-labs/flux-dev-lora:a53fd9255ecba80d99eaab4706c698f861fd47b098012607557385416e46aae5';
+    // ✅ ACCOUNT CLEANED: Use user's trained model version directly
+    const userModelVersion = userModel.replicateVersionId;
     
-    // 🚨 CRITICAL ACCOUNT CONTAMINATION BLOCKING SOLUTION
-    // The Replicate account has Sandra models as defaults - ALL requests route to Sandra models
-    throw new Error('CRITICAL_ACCOUNT_CONTAMINATION: Replicate account defaults to Sandra models. All user generations will show Sandra until this is fixed at account level. Image generation blocked to prevent wrong images.');
+    if (!userModelVersion) {
+      throw new Error('User model version not found - training may need to be redone after account cleanup');
+    }
     
     // Ensure the prompt starts with the user's trigger word for maximum likeness
     let finalPrompt = customPrompt;
@@ -72,12 +72,10 @@ export async function generateImages(request: GenerateImagesRequest): Promise<Ge
       finalPrompt = `${finalPrompt}${hairEnhancementSpecs}`;
     }
 
-    // Build input with OPTIMIZED FLUX LoRA SETTINGS for maximum quality and likeness
+    // Build input with user's individual trained model
     const input: any = {
       prompt: finalPrompt,
       guidance: 2.8,
-      lora_weights: userLoRAWeights,
-      lora_scale: 1.0,
       num_inference_steps: 40,
       num_outputs: 3,
       aspect_ratio: "3:4",
@@ -104,7 +102,7 @@ export async function generateImages(request: GenerateImagesRequest): Promise<Ge
             'Content-Type': 'application/json',
           },
           body: JSON.stringify({
-            version: fluxModelVersion, // Keep using version parameter as Replicate requires it
+            version: userModelVersion, // Use user's individual trained model
             input
           }),
         });

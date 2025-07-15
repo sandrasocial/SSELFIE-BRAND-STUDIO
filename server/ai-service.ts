@@ -213,25 +213,26 @@ export class AIService {
       throw new Error('User model not ready for generation. Training must be completed first.');
     }
 
-    // 🚨 CRITICAL ACCOUNT CONTAMINATION BLOCKING SOLUTION
-    // The Replicate account has Sandra models as defaults - ALL requests route to Sandra models
-    // This means users CANNOT get their own images until account is cleaned
-    throw new Error('CRITICAL_ACCOUNT_CONTAMINATION: Replicate account defaults to Sandra models. All user generations will show Sandra until this is fixed at account level. Image generation blocked to prevent wrong images.');
+    // ✅ ACCOUNT CLEANED: Use user's trained model version directly (no LoRA needed)
+    // After cleanup, user models are standalone and don't need base FLUX model
+    const userModelVersion = userModel.replicateVersionId;
+    
+    if (!userModelVersion) {
+      throw new Error('User model version not found - training may need to be redone after account cleanup');
+    }
     
     const requestBody = {
-      version: fluxModelVersion, // Use version parameter as required by Replicate
+      version: userModelVersion, // Use user's trained model directly
       input: {
         prompt: prompt,
-        guidance: 2.8,              // OPTIMIZED: Reduced from 3.0 to 2.8 for more natural results
-        lora_weights: userLoRAWeights, // 🔑 CRITICAL: User's trained LoRA weights - THIS WAS MISSING!
-        lora_scale: 1.0,           // OPTIMAL: Standard scale for personal LoRAs (0.9-1.0)
-        num_inference_steps: 40,    // OPTIMIZED: Increased from 35 to 40 for higher quality
-        num_outputs: 3,            // Generate 3 focused images
-        aspect_ratio: "3:4",        // Portrait ratio better for selfies
-        output_format: "png",       // PNG for highest quality
-        output_quality: 90,         // HIGHER: Professional quality output
-        megapixels: "1",           // Approximate megapixels
-        go_fast: false,             // Quality over speed
+        guidance: 2.8,
+        num_inference_steps: 40,
+        num_outputs: 3,
+        aspect_ratio: "3:4",
+        output_format: "png",
+        output_quality: 90,
+        megapixels: "1",
+        go_fast: false,
         disable_safety_checker: false
       }
     };
