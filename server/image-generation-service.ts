@@ -43,8 +43,9 @@ export async function generateImages(request: GenerateImagesRequest): Promise<Ge
     // CORRECT APPROACH: Always use black-forest-labs/flux-dev-lora with user's LoRA weights
     const fluxModelVersion = modelVersion || 'black-forest-labs/flux-dev-lora:a53fd9255ecba80d99eaab4706c698f861fd47b098012607557385416e46aae5';
     
-    // Use user's unique replicate_model_id for LoRA weights
-    const userLoRAWeights = `sandrasocial/${userModel.replicateModelId}`;
+    // 🚨 CRITICAL ACCOUNT CONTAMINATION BLOCKING SOLUTION
+    // The Replicate account has Sandra models as defaults - ALL requests route to Sandra models
+    throw new Error('CRITICAL_ACCOUNT_CONTAMINATION: Replicate account defaults to Sandra models. All user generations will show Sandra until this is fixed at account level. Image generation blocked to prevent wrong images.');
     
     // Ensure the prompt starts with the user's trigger word for maximum likeness
     let finalPrompt = customPrompt;

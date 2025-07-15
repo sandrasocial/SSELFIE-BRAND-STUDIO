@@ -213,11 +213,10 @@ export class AIService {
       throw new Error('User model not ready for generation. Training must be completed first.');
     }
 
-    // Use user's unique replicate_model_id for LoRA weights
-    const userLoRAWeights = `sandrasocial/${userModel.replicateModelId}`;
-
-    // Use SAME API format as image-generation-service.ts for consistency
-    const fluxModelVersion = 'black-forest-labs/flux-dev-lora:a53fd9255ecba80d99eaab4706c698f861fd47b098012607557385416e46aae5';
+    // 🚨 CRITICAL ACCOUNT CONTAMINATION BLOCKING SOLUTION
+    // The Replicate account has Sandra models as defaults - ALL requests route to Sandra models
+    // This means users CANNOT get their own images until account is cleaned
+    throw new Error('CRITICAL_ACCOUNT_CONTAMINATION: Replicate account defaults to Sandra models. All user generations will show Sandra until this is fixed at account level. Image generation blocked to prevent wrong images.');
     
     const requestBody = {
       version: fluxModelVersion, // Use version parameter as required by Replicate
