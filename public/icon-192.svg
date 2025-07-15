@@ -1,6 +1,5 @@
 <svg width="192" height="192" viewBox="0 0 192 192" fill="none" xmlns="http://www.w3.org/2000/svg">
-<rect width="192" height="192" fill="#0A0A0A"/>
-<path d="M96 48C73.9086 48 56 65.9086 56 88C56 110.091 73.9086 128 96 128C118.091 128 136 110.091 136 88C136 65.9086 118.091 48 96 48Z" fill="white"/>
-<path d="M64 152C64 143.163 71.1634 136 80 136H112C120.837 136 128 143.163 128 152V160H64V152Z" fill="white"/>
-<text x="96" y="40" text-anchor="middle" fill="white" font-family="Times New Roman" font-size="12" letter-spacing="2px">SSELFIE</text>
+  <rect width="192" height="192" rx="32" fill="#0a0a0a"/>
+  <circle cx="96" cy="96" r="48" fill="#ffffff"/>
+  <text x="96" y="106" text-anchor="middle" font-family="Times, serif" font-size="36" font-weight="bold" fill="#0a0a0a">S</text>
 </svg>

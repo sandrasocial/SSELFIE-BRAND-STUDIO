@@ -1,7 +1,5 @@
 <svg width="512" height="512" viewBox="0 0 512 512" fill="none" xmlns="http://www.w3.org/2000/svg">
-<rect width="512" height="512" fill="#0A0A0A"/>
-<path d="M256 128C196.772 128 149.333 175.439 149.333 234.667C149.333 293.895 196.772 341.333 256 341.333C315.228 341.333 362.667 293.895 362.667 234.667C362.667 175.439 315.228 128 256 128Z" fill="white"/>
-<path d="M170.667 405.333C170.667 382.434 189.101 364 212 364H300C322.899 364 341.333 382.434 341.333 405.333V426.667H170.667V405.333Z" fill="white"/>
-<text x="256" y="100" text-anchor="middle" fill="white" font-family="Times New Roman" font-size="32" letter-spacing="6px">SSELFIE</text>
-<text x="256" y="480" text-anchor="middle" fill="white" font-family="Times New Roman" font-size="16" letter-spacing="3px">STUDIO</text>
+  <rect width="512" height="512" rx="86" fill="#0a0a0a"/>
+  <circle cx="256" cy="256" r="128" fill="#ffffff"/>
+  <text x="256" y="284" text-anchor="middle" font-family="Times, serif" font-size="96" font-weight="bold" fill="#0a0a0a">S</text>
 </svg>
