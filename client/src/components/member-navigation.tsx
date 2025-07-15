@@ -63,7 +63,15 @@ export function MemberNavigation({ transparent = true }: MemberNavigationProps) 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 sm:py-6">
         <div className="flex items-center justify-between">
           <button 
-            onClick={() => setLocation("/workspace")}
+            onClick={(e) => {
+              e.preventDefault();
+              // If already on workspace, just scroll to top instead of navigating
+              if (location === '/workspace' || location === '/studio') {
+                window.scrollTo({ top: 0, behavior: 'smooth' });
+              } else {
+                setLocation("/workspace");
+              }
+            }}
             className="font-serif text-xl font-light tracking-wide text-white hover:opacity-70 transition-opacity duration-300"
           >
             SSELFIE

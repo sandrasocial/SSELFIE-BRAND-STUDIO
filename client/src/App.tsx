@@ -92,7 +92,14 @@ function SmartHome() {
 
 // Protected wrapper component that handles authentication
 function ProtectedRoute({ component: Component, ...props }) {
-  const { isAuthenticated, isLoading } = useAuth();
+  const { isAuthenticated, isLoading, user } = useAuth();
+  
+  // Enhanced logging for debugging navigation issues
+  React.useEffect(() => {
+    if (process.env.NODE_ENV === 'development') {
+      console.log('ProtectedRoute state:', { isAuthenticated, isLoading, hasUser: !!user });
+    }
+  }, [isAuthenticated, isLoading, user]);
   
   if (isLoading) {
     return (
@@ -103,6 +110,25 @@ function ProtectedRoute({ component: Component, ...props }) {
   }
   
   if (!isAuthenticated) {
+    // Add a small delay to prevent unnecessary redirects during state changes
+    const [shouldRedirect, setShouldRedirect] = React.useState(false);
+    
+    React.useEffect(() => {
+      const timer = setTimeout(() => {
+        setShouldRedirect(true);
+      }, 100); // 100ms delay to allow authentication state to stabilize
+      
+      return () => clearTimeout(timer);
+    }, []);
+    
+    if (!shouldRedirect) {
+      return (
+        <div className="min-h-screen flex items-center justify-center">
+          <div className="animate-spin w-8 h-8 border-4 border-black border-t-transparent rounded-full" />
+        </div>
+      );
+    }
+    
     // Use auth bridge for smooth redirect
     return <AuthBridge />;
   }
