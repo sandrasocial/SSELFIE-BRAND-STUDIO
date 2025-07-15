@@ -14,10 +14,18 @@ if (!process.env.REPLIT_DOMAINS) {
 
 const getOidcConfig = memoize(
   async () => {
-    return await client.discovery(
-      new URL(process.env.ISSUER_URL ?? "https://replit.com/oidc"),
-      process.env.REPL_ID!
-    );
+    try {
+      console.log('🔍 OIDC Discovery starting...');
+      const config = await client.discovery(
+        new URL(process.env.ISSUER_URL ?? "https://replit.com/oidc"),
+        process.env.REPL_ID!
+      );
+      console.log('✅ OIDC Discovery successful');
+      return config;
+    } catch (error) {
+      console.error('❌ OIDC Discovery failed:', error);
+      throw error;
+    }
   },
   { maxAge: 3600 * 1000 }
 );
@@ -122,6 +130,9 @@ export async function setupAuth(app: Express) {
   
   for (const domain of domains) {
     const callbackURL = `https://${domain}/api/callback`;
+    
+    console.log(`🔍 Registering strategy for domain: ${domain}`);
+    console.log(`🔍 Callback URL: ${callbackURL}`);
       
     const strategy = new Strategy(
       {
@@ -236,45 +247,41 @@ export async function setupAuth(app: Express) {
       console.error('❌ OAuth error in callback:', req.query.error, req.query.error_description);
       return res.redirect('/?error=oauth_failed');
     }
+
+    // EMERGENCY FIX: Skip standard OAuth if we have code - go directly to manual token exchange
+    if (req.query.code) {
+      console.log('🚨 EMERGENCY: Bypassing standard OAuth, using manual token exchange');
+      return handleManualTokenExchange(req, res, next);
+    }
     
-    // CRITICAL FIX: Try multiple authentication approaches
-    const tryAuthenticate = () => {
-      passport.authenticate(`replitauth:${hostname}`, {
-        session: true,
-        failureRedirect: '/?error=auth_failed',
-        failureFlash: false
-      }, (err, user, info) => {
-        console.log(`🔍 OAuth authenticate result:`, { err: !!err, user: !!user, info });
-        
-        if (err) {
-          console.error('❌ OAuth callback error:', err);
-          return res.redirect('/?error=auth_error');
+    // Fallback to standard OAuth if no code
+    passport.authenticate(`replitauth:${hostname}`, {
+      session: true,
+      failureRedirect: '/?error=auth_failed',
+      failureFlash: false
+    }, (err, user, info) => {
+      console.log(`🔍 OAuth authenticate result:`, { err: !!err, user: !!user, info });
+      
+      if (err) {
+        console.error('❌ OAuth callback error:', err);
+        return res.redirect('/?error=auth_error');
+      }
+      
+      if (!user) {
+        console.error('❌ OAuth callback: No user returned. Info:', info);
+        return res.redirect('/?error=no_user');
+      }
+      
+      req.logIn(user, (loginErr) => {
+        if (loginErr) {
+          console.error('❌ Login error after OAuth:', loginErr);
+          return res.redirect('/?error=login_failed');
         }
         
-        if (!user) {
-          console.error('❌ OAuth callback: No user returned. Info:', info);
-          // CRITICAL: Manual OAuth code exchange to bypass state verification
-          if (req.query.code && req.query.iss) {
-            console.log('🔄 Attempting manual OAuth token exchange...');
-            return handleManualTokenExchange(req, res, next);
-          }
-          return res.redirect('/?error=no_user');
-        }
-        
-        req.logIn(user, (loginErr) => {
-          if (loginErr) {
-            console.error('❌ Login error after OAuth:', loginErr);
-            return res.redirect('/?error=login_failed');
-          }
-          
-          console.log('✅ OAuth callback successful for user:', user.claims?.email);
-          console.log('✅ Redirecting to workspace...');
-          res.redirect('/workspace');
-        });
-      })(req, res, next);
-    };
-    
-    tryAuthenticate();
+        console.log('✅ OAuth callback successful for user:', user.claims?.email);
+        res.redirect('/workspace');
+      });
+    })(req, res, next);
   });
 
   // CRITICAL: Manual OAuth token exchange function
@@ -308,46 +315,23 @@ export async function setupAuth(app: Express) {
         clientId: !!process.env.REPL_ID
       });
       
-      // Make direct token request to Replit
-      const tokenUrl = config.token_endpoint || 'https://replit.com/oidc/token';
+      // CRITICAL: Use openid-client's authorizationCodeGrant method instead of manual fetch
+      console.log('🔧 Using openid-client for token exchange...');
       
-      const tokenResponse = await fetch(tokenUrl, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/x-www-form-urlencoded',
-          'Accept': 'application/json'
-        },
-        body: tokenParams.toString()
+      const tokenSet = await client.authorizationCodeGrant(config, {
+        code: code,
+        redirect_uri: `https://${hostname}/api/callback`
       });
       
-      if (!tokenResponse.ok) {
-        const errorText = await tokenResponse.text();
-        console.error('❌ Token exchange HTTP error:', tokenResponse.status, errorText);
-        throw new Error(`Token exchange failed: ${tokenResponse.status} ${errorText}`);
-      }
-      
-      const tokenData = await tokenResponse.json();
       console.log('✅ Manual token exchange successful');
       
-      // Decode and validate the ID token
-      const idToken = tokenData.id_token;
-      if (!idToken) {
-        throw new Error('No ID token in response');
-      }
+      // Create user object using openid-client's token set
+      const user: any = {};
+      updateUserSession(user, tokenSet);
       
-      // Parse JWT without verification (since we got it directly from Replit)
-      const idTokenPayload = JSON.parse(Buffer.from(idToken.split('.')[1], 'base64').toString());
-      
-      // Create user object with token data
-      const user: any = {
-        claims: idTokenPayload,
-        access_token: tokenData.access_token,
-        refresh_token: tokenData.refresh_token,
-        expires_at: idTokenPayload.exp
-      };
-      
-      // Upsert user to database
-      await upsertUser(idTokenPayload);
+      // Get claims from the token set
+      const claims = tokenSet.claims();
+      await upsertUser(claims);
       
       // Log in the user manually
       req.logIn(user, (loginErr: any) => {
