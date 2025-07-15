@@ -59,6 +59,7 @@ import CustomLogin from "@/pages/custom-login";
 import LoginPrompt from "@/components/LoginPrompt";
 import DomainHelp from "@/pages/domain-help";
 import SwitchAccount from "@/pages/switch-account";
+import LaunchCountdown from "@/pages/launch-countdown";
 
 // Removed duplicate photoshoot imports - using existing system
 
@@ -132,6 +133,9 @@ function Router() {
     <Switch>
       {/* STREAMLINED USER JOURNEY: Landing → Simple Checkout → Payment Success → Onboarding → Workspace */}
 
+      {/* LAUNCH COUNTDOWN */}
+      <Route path="/launch" component={LaunchCountdown} />
+      
       {/* PUBLIC PAGES */}
       <Route path="/" component={EditorialLanding} />
       
