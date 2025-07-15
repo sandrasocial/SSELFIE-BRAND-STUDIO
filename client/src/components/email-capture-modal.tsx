@@ -68,7 +68,7 @@ export const EmailCaptureModal: React.FC<EmailCaptureModalProps> = ({
       
       // Redirect to authentication after brief delay for user feedback
       setTimeout(() => {
-        window.location.href = '/api/login';
+        window.location.href = 'https://e33979fc-c9be-4f0d-9a7b-6a3e83046828-00-3ij9k7qy14rai.picard.replit.dev/api/login';
       }, 1000);
 
     } catch (error) {

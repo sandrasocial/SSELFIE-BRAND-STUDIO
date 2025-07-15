@@ -105,14 +105,16 @@ export default function EditorialLanding() {
   }, []);
 
   const handleGetStarted = (plan: 'free' | 'sselfie-studio') => {
+    // Store the selected plan
+    localStorage.setItem('selectedPlan', plan);
+    
     // Check if email already captured
     const emailCaptured = localStorage.getItem('emailCaptured');
     
     if (emailCaptured) {
-      // Email already captured, proceed directly
-      localStorage.setItem('selectedPlan', plan);
+      // Email already captured, proceed directly to dev server for authentication
       if (plan === 'free') {
-        window.location.href = '/api/login';
+        window.location.href = 'https://e33979fc-c9be-4f0d-9a7b-6a3e83046828-00-3ij9k7qy14rai.picard.replit.dev/api/login';
       } else {
         setLocation('/checkout');
       }
