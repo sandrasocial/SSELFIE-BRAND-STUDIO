@@ -248,7 +248,10 @@ export class AIService {
         output_quality: 90,         // 🔧 HIGH: Good quality without over-enhancement
         megapixels: "1",
         go_fast: false,
-        disable_safety_checker: false
+        disable_safety_checker: false,
+        lora_scale: 1.0,           // 🔧 MAXIMUM: Full strength of user's trained model
+        seed: null,                // 🔧 RANDOM: Allow natural variation while maintaining likeness
+        prompt_strength: 0.8       // 🔧 STRONG: Prioritize prompt adherence with model features
       }
     };
     
