@@ -212,15 +212,11 @@ export async function setupAuth(app: Express) {
   });
 
   app.get("/api/callback", (req, res, next) => {
-    let hostname = req.hostname;
-    
-    // CRITICAL: Force sselfie.ai domain for all authentication callbacks
-    if (hostname === 'localhost' || hostname.includes('replit.dev')) {
-      hostname = 'sselfie.ai';
-    }
+    const hostname = req.hostname;
     
     console.log(`🔍 OAuth callback for hostname: ${hostname}`);
     
+    // Use the ACTUAL hostname for the callback, not forced domain
     passport.authenticate(`replitauth:${hostname}`, {
       successRedirect: '/workspace',
       failureRedirect: '/api/login',
