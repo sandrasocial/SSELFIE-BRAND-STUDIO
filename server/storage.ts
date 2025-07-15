@@ -123,6 +123,7 @@ export interface IStorage {
   createMayaChat(data: InsertMayaChat): Promise<MayaChat>;
   getMayaChatMessages(chatId: number): Promise<MayaChatMessage[]>;
   createMayaChatMessage(data: InsertMayaChatMessage): Promise<MayaChatMessage>;
+  updateMayaChatMessage(messageId: number, data: Partial<MayaChatMessage>): Promise<MayaChatMessage>;
   
   // Photo selections operations
   savePhotoSelections(data: InsertPhotoSelection): Promise<PhotoSelection>;
@@ -910,6 +911,15 @@ export class DatabaseStorage implements IStorage {
     const [message] = await db
       .insert(mayaChatMessages)
       .values(data)
+      .returning();
+    return message;
+  }
+
+  async updateMayaChatMessage(messageId: number, data: Partial<MayaChatMessage>): Promise<MayaChatMessage> {
+    const [message] = await db
+      .update(mayaChatMessages)
+      .set(data)
+      .where(eq(mayaChatMessages.id, messageId))
       .returning();
     return message;
   }

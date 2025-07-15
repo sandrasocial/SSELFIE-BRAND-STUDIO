@@ -128,6 +128,15 @@ export class AIService {
               imageUrls: JSON.stringify(status.output), // Store TEMP Replicate URLs for preview
               status: 'completed'
             });
+            
+            // 🚨 CRITICAL FIX: Update Maya chat message with image preview
+            try {
+              await this.updateMayaChatWithImages(trackerId, status.output);
+              console.log('✅ Maya chat message updated with generated images:', trackerId);
+            } catch (error) {
+              console.error('❌ Failed to update Maya chat with images:', error);
+            }
+            
             console.log('📋 Generation tracker updated with temp URLs for user selection:', trackerId);
           }
           break;
@@ -309,6 +318,54 @@ export class AIService {
           throw new Error('Generation polling timeout');
         }
       }
+    }
+  }
+
+  // 🚨 CRITICAL FIX: Update Maya chat message with generated images
+  private static async updateMayaChatWithImages(trackerId: number, imageUrls: string[]): Promise<void> {
+    try {
+      // Get the generation tracker to find the user
+      const tracker = await storage.getGenerationTracker(trackerId);
+      if (!tracker) {
+        console.error('❌ Generation tracker not found for chat update:', trackerId);
+        return;
+      }
+
+      // Find the most recent Maya chat message with a generated_prompt for this user
+      const mayaChats = await storage.getMayaChats(tracker.userId);
+      if (!mayaChats || mayaChats.length === 0) {
+        console.error('❌ No Maya chats found for user:', tracker.userId);
+        return;
+      }
+
+      // Get the most recent chat
+      const recentChat = mayaChats[0];
+      const chatMessages = await storage.getMayaChatMessages(recentChat.id);
+      
+      // Find the most recent Maya message with a generated_prompt (the one that should get images)
+      const mayaMessageWithPrompt = chatMessages
+        .filter(msg => msg.role === 'maya' && msg.generatedPrompt && !msg.imagePreview)
+        .sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime())[0];
+
+      if (!mayaMessageWithPrompt) {
+        console.error('❌ No Maya message with generated_prompt found to update with images');
+        return;
+      }
+
+      // Update the Maya message with the generated images
+      await storage.updateMayaChatMessage(mayaMessageWithPrompt.id, {
+        imagePreview: JSON.stringify(imageUrls)
+      });
+
+      console.log('✅ Maya chat message updated with image preview:', {
+        messageId: mayaMessageWithPrompt.id,
+        imageCount: imageUrls.length,
+        trackerId
+      });
+
+    } catch (error) {
+      console.error('❌ Error updating Maya chat with images:', error);
+      throw error;
     }
   }
 }
