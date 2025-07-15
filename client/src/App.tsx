@@ -227,18 +227,31 @@ function Router() {
 }
 
 function App() {
-  // Browser compatibility check for domain access
+  // Enhanced domain access handling
   useEffect(() => {
     try {
       console.log('SSELFIE Studio: App initializing...');
+      
+      // Force HTTPS redirect if needed
+      if (window.location.protocol === 'http:' && window.location.hostname === 'sselfie.ai') {
+        window.location.href = window.location.href.replace('http:', 'https:');
+        return;
+      }
+      
+      // Handle www subdomain redirect
+      if (window.location.hostname === 'www.sselfie.ai') {
+        window.location.href = window.location.href.replace('www.sselfie.ai', 'sselfie.ai');
+        return;
+      }
+      
+      // Check for domain access issues
       const issues = detectBrowserIssues();
       if (issues.length > 0) {
         console.warn('Browser compatibility issues detected:', issues);
         showDomainHelp();
       }
-      redirectToHttps();
       
-      console.log('SSELFIE Studio: PWA initialized for native app experience');
+      console.log('SSELFIE Studio: Domain access validated, app ready');
     } catch (error) {
       console.error('Error in App initialization:', error);
     }
