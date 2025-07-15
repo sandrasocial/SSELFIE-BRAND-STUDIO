@@ -210,7 +210,7 @@ Please respond in this JSON format:
         userStylePreferences: { detectedKeywords: [] },
       });
 
-      console.log('✅ Sandra AI real conversation successful with Anthropic');
+
       return {
         response: parsedResponse.message,
         styleButtons,
@@ -260,7 +260,7 @@ Please respond in this JSON format:
           userStylePreferences: { detectedKeywords: [] },
         });
 
-        console.log('✅ Sandra AI real conversation successful with OpenAI backup');
+
         return {
           response: parsedResponse.message,
           styleButtons,
@@ -269,8 +269,8 @@ Please respond in this JSON format:
         };
 
       } catch (openaiError) {
-        console.error('OpenAI API error:', openaiError);
-        console.error('Both AI APIs failed - no fallback allowed');
+
+
         throw new Error('AI service unavailable. Please try again later.');
       }
     }
@@ -463,114 +463,9 @@ Only include elements specifically mentioned or strongly implied. Return empty a
       .map(([keyword]) => keyword);
   }
 
-  // REMOVED: No fallback responses allowed - AI service must be available
+
   private static async fallbackSandraResponse(message: string, userId: string): Promise<any> {
     throw new Error('AI service unavailable. Please try again later.');
-    const lowerMessage = message.toLowerCase();
-    
-    // Get conversation history for learning user preferences
-    const recentConversations = await storage.getSandraConversations(userId);
-    const onboardingData = await storage.getOnboardingData(userId);
-    const userName = onboardingData?.firstName || 'gorgeous';
-    
-    // Detect if this is a follow-up conversation (refinement request)
-    const isFollowUp = recentConversations.length > 0 && (
-      lowerMessage.includes('more') || 
-      lowerMessage.includes('change') || 
-      lowerMessage.includes('different') ||
-      lowerMessage.includes('not looking at camera') ||
-      lowerMessage.includes('full body') ||
-      lowerMessage.includes('lifestyle')
-    );
-    
-    // Enhanced keyword detection for photoshoot expertise
-    const styleKeywords = {
-      editorial: ['editorial', 'magazine', 'vogue', 'fashion', 'model', 'kate moss'],
-      blackWhite: ['black and white', 'b&w', 'monochrome', 'bw'],
-      luxury: ['luxury', 'expensive', 'high-end', 'premium', 'elegant', 'sophisticated'],
-      lifestyle: ['lifestyle', 'beach', 'club', 'restaurant', 'cafe', 'natural', 'candid'],
-      business: ['business', 'professional', 'corporate', 'office', 'linkedin'],
-      street: ['street', 'urban', 'walking', 'city', 'paris', 'milan'],
-      studio: ['studio', 'portrait', 'beauty', 'headshot'],
-      moody: ['moody', 'dramatic', 'dark', 'shadows', 'mysterious'],
-      fullBody: ['full body', 'full length', 'whole body', 'body shot'],
-      notLooking: ['not looking', 'away from camera', 'looking away', 'not at camera']
-    };
-    
-    let detectedStyles = [];
-    for (const [style, keywords] of Object.entries(styleKeywords)) {
-      if (keywords.some(keyword => lowerMessage.includes(keyword))) {
-        detectedStyles.push(style);
-      }
-    }
-    
-    // Sandra's personalized conversation responses with memory
-    let sandraResponse = '';
-    let styleButtons: StyleButton[] = [];
-    
-    // Check for Pinterest-specific requests
-    const isPinterestStyle = lowerMessage.includes('pinterest') || 
-                            (lowerMessage.includes('whole scenery') && lowerMessage.includes('not looking'));
-    
-    if (isPinterestStyle) {
-      // Handle Pinterest-style requests specifically
-      sandraResponse = `Oh I love Pinterest vibes! Okay so you want those dreamy lifestyle shots where you're not looking at the camera and we see the whole scene? That's like my favorite aesthetic.
-
-Let me give you some options that'll look amazing:`;
-      
-      styleButtons = this.createPinterestStyleButtons(userId, detectedStyles);
-      
-    } else if (isFollowUp) {
-      // Handle refinement requests with conversation memory
-      const previousStyle = recentConversations[0]?.userStylePreferences?.detectedKeywords || [];
-      sandraResponse = `Got it! So you want to adjust the ${previousStyle.join(' ')} vibe we talked about. Let me create something different for you.
-
-Here are some new options:`;
-      
-      styleButtons = this.createLifestyleStyleButtons(userId, detectedStyles);
-      
-    } else if (detectedStyles.includes('editorial') && detectedStyles.includes('blackWhite')) {
-      // Editorial B&W specialist response
-      sandraResponse = `Okay yes! Editorial black and white is so good. Like Kate Moss but make it you.
-
-Here's what I'm thinking:`;
-      
-      styleButtons = this.createEditorialBWButtons(userId);
-      
-    } else if (detectedStyles.includes('lifestyle')) {
-      // Lifestyle specialist response
-      sandraResponse = `Beach club vibes? Girl, yes! That effortless "I'm expensive but make it look easy" energy.
-
-I've got some ideas:`;
-      
-      styleButtons = this.createLifestyleStyleButtons(userId, detectedStyles);
-      
-    } else {
-      // General photoshoot consultation
-      sandraResponse = `Hey ${userName}! Okay so tell me what you're going for. I'm like your personal photographer friend who knows exactly what looks good.
-
-What vibe are we creating today?`;
-      
-      styleButtons = this.createGeneralStyleButtons(userId);
-    }
-    
-    // Save conversation for learning
-    await storage.saveSandraConversation({
-      userId,
-      message,
-      response: sandraResponse,
-      suggestedPrompt: null, // No single prompt anymore - using style buttons
-      userStylePreferences: { detectedKeywords: detectedStyles },
-    });
-    
-    console.log(`Sandra AI fallback returning ${styleButtons.length} style buttons for user ${userId}`);
-    
-    return {
-      response: sandraResponse,
-      styleButtons,
-      isFollowUp,
-      styleInsights: { detectedKeywords: detectedStyles }
-    };
   }
   
   // Create Pinterest-style buttons - Environmental shots, not looking at camera
