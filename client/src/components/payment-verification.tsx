@@ -44,7 +44,7 @@ export function PaymentVerification({ children, requiredPlan }: PaymentVerificat
       return;
     }
 
-    // Check if user has valid subscription
+    // Check if user has valid subscription (including virtual subscriptions for free users)
     const userHasValidSubscription = subscription && subscription.status === 'active';
     
     if (requiredPlan) {
@@ -61,6 +61,7 @@ export function PaymentVerification({ children, requiredPlan }: PaymentVerificat
       }
     }
 
+    // Allow access if user has subscription OR if they're a free user (subscription API now returns virtual subscriptions)
     if (!userHasValidSubscription) {
       toast({
         title: "Payment Required",
