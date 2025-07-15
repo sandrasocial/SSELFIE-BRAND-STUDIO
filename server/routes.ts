@@ -1962,7 +1962,6 @@ Create prompts that feel like iconic fashion campaign moments that would make so
       const hasRealTrainedModel = userModel && 
         userModel.trainingStatus === 'completed' && 
         userModel.replicateModelId && 
-
         userModel.replicateModelId.startsWith('urn:air:flux1');
       
       if (hasRealTrainedModel) {
