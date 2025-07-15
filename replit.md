@@ -272,6 +272,14 @@ The platform has become overly complex with multiple pricing tiers, broken onboa
 - **Proper Account Selection**: Fixed account switching to actually allow users to choose different email addresses
 - **User-Friendly Messaging**: Added Sandra's warm, best-friend language explaining the account switching process
 
+### ✅ MAYA IMAGE GENERATION AUTHENTICATION FIXED (July 15, 2025)
+**CRITICAL MAYA AI FUNCTIONALITY RESTORED:**
+- **Authentication Credentials**: Fixed Maya image generation by adding `credentials: 'include'` to all fetch requests
+- **Session Persistence**: Resolved "Unauthorized" errors preventing image generation
+- **Complete API Coverage**: Updated all Maya endpoints (chat, image generation, gallery save, tracker polling)
+- **Asset Loading Fixed**: Updated HTML file references to correct built asset filenames
+- **User Experience**: Maya can now generate images properly for authenticated users
+
 ## Current Project Status & Progress
 
 ### ✅ DOMAIN ACCESS COMPATIBILITY FIXES IMPLEMENTED (July 15, 2025)

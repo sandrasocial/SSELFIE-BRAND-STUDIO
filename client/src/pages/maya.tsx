@@ -88,10 +88,10 @@ export default function Maya() {
     if (!isLoading && !user) {
       toast({
         title: "Authentication Required",
-        description: "Continue with Google to chat with Maya AI",
+        description: "Please sign in to chat with Maya AI",
         variant: "destructive",
       });
-      setLocation('/pricing');
+      setLocation('/login');
       return;
     }
   }, [user, isLoading, setLocation, toast]);
@@ -134,6 +134,7 @@ export default function Maya() {
         const chatResponse = await fetch('/api/maya-chats', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
+          credentials: 'include',
           body: JSON.stringify({ 
             chatTitle,
             chatSummary: messageContent.slice(0, 100)
@@ -153,6 +154,7 @@ export default function Maya() {
         headers: {
           'Content-Type': 'application/json',
         },
+        credentials: 'include',
         body: JSON.stringify({
           message: messageContent,
           chatHistory: messages
@@ -218,7 +220,9 @@ export default function Maya() {
         attempts++;
         setGenerationProgress(Math.min(90, (attempts / maxAttempts) * 90));
         
-        const response = await fetch(`/api/generation-tracker/${trackerId}`);
+        const response = await fetch(`/api/generation-tracker/${trackerId}`, {
+          credentials: 'include'
+        });
         if (!response.ok) throw new Error('Failed to fetch tracker status');
         
         const tracker = await response.json();
@@ -287,6 +291,7 @@ export default function Maya() {
         headers: {
           'Content-Type': 'application/json',
         },
+        credentials: 'include', // Ensure authentication cookies are sent
         body: JSON.stringify({ customPrompt: prompt }),
       });
 
@@ -341,6 +346,7 @@ export default function Maya() {
         headers: {
           'Content-Type': 'application/json',
         },
+        credentials: 'include',
         body: JSON.stringify({
           trackerId: currentTrackerId,
           selectedImageUrls: selectedUrls
@@ -387,7 +393,9 @@ export default function Maya() {
 
   const loadChatHistory = async (chatId: number) => {
     try {
-      const messagesResponse = await fetch(`/api/maya-chats/${chatId}/messages`);
+      const messagesResponse = await fetch(`/api/maya-chats/${chatId}/messages`, {
+        credentials: 'include'
+      });
       if (messagesResponse.ok) {
         const dbMessages = await messagesResponse.json();
         const formattedMessages: ChatMessage[] = dbMessages.map((msg: any) => ({
