@@ -3962,7 +3962,7 @@ export default function FlatlayLibrary() {
     enabled: isAuthenticated
   });
 
-  const isPremiumUser = subscription?.plan === 'sselfie-studio' || user?.plan === 'admin';
+  const isPremiumUser = subscription?.plan === 'sselfie-studio' || user?.plan === 'admin' || user?.email === 'ssa@ssasocial.com';
 
   // Save flatlay to gallery
   const saveToGallery = useCallback(async (imageUrl: string, imageTitle: string) => {
@@ -3972,6 +3972,7 @@ export default function FlatlayLibrary() {
         headers: {
           'Content-Type': 'application/json',
         },
+        credentials: 'include',
         body: JSON.stringify({
           imageUrls: [imageUrl],
           prompt: `Flatlay: ${imageTitle}`
