@@ -77,6 +77,20 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   // Auth middleware - setup Replit authentication FIRST  
   await setupAuth(app);
+
+  // Add cache-busting headers for all API endpoints to prevent browser caching issues
+  app.use('/api', (req, res, next) => {
+    // Prevent browser caching of API responses
+    res.setHeader('Cache-Control', 'no-store, no-cache, must-revalidate, proxy-revalidate');
+    res.setHeader('Pragma', 'no-cache');
+    res.setHeader('Expires', '0');
+    res.setHeader('Surrogate-Control', 'no-store');
+    
+    // Add timestamp to help with debugging
+    res.setHeader('X-Response-Time', Date.now().toString());
+    
+    next();
+  });
   
   // Add authentication test page for live testing
   app.get('/test-auth', (req, res) => {
