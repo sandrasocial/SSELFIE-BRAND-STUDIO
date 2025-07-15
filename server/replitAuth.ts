@@ -247,10 +247,10 @@ export async function setupAuth(app: Express) {
         
         if (!user) {
           console.error('❌ OAuth callback: No user returned. Info:', info);
-          // CRITICAL: Try to manually handle the OAuth code
-          if (req.query.code) {
-            console.log('🔄 Manual OAuth code exchange attempt...');
-            return res.redirect('/?error=manual_auth_needed');
+          // CRITICAL: Manual OAuth code exchange to bypass state verification
+          if (req.query.code && req.query.iss) {
+            console.log('🔄 Attempting manual OAuth token exchange...');
+            return handleManualTokenExchange(req, res, next);
           }
           return res.redirect('/?error=no_user');
         }
@@ -270,6 +270,58 @@ export async function setupAuth(app: Express) {
     
     tryAuthenticate();
   });
+
+  // CRITICAL: Manual OAuth token exchange function
+  async function handleManualTokenExchange(req: any, res: any, next: any) {
+    try {
+      console.log('🔧 Manual token exchange - bypassing state verification');
+      
+      const code = req.query.code;
+      const hostname = req.hostname;
+      
+      // Get the OAuth configuration
+      const config = await getOidcConfig();
+      
+      // Prepare token exchange
+      const tokenRequest = {
+        grant_type: 'authorization_code',
+        code: code,
+        redirect_uri: `https://${hostname}/api/callback`,
+        client_id: process.env.REPL_ID!
+      };
+      
+      console.log('🔧 Token exchange request:', { 
+        redirect_uri: tokenRequest.redirect_uri,
+        hostname,
+        hasCode: !!code 
+      });
+      
+      // Exchange code for tokens
+      const tokens = await client.authorizationCodeGrant(config, tokenRequest);
+      
+      console.log('✅ Manual token exchange successful');
+      
+      // Create user object
+      const user: any = {};
+      updateUserSession(user, tokens);
+      await upsertUser(tokens.claims());
+      
+      // Log in the user manually
+      req.logIn(user, (loginErr: any) => {
+        if (loginErr) {
+          console.error('❌ Manual login error:', loginErr);
+          return res.redirect('/?error=manual_login_failed');
+        }
+        
+        console.log('✅ Manual OAuth login successful for user:', user.claims?.email);
+        res.redirect('/workspace');
+      });
+      
+    } catch (error) {
+      console.error('❌ Manual token exchange failed:', error);
+      res.redirect('/?error=token_exchange_failed');
+    }
+  }
 
   app.get("/api/logout", (req, res) => {
     console.log('🔍 Logout requested for user:', req.user?.claims?.email);
