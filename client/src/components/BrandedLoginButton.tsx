@@ -13,7 +13,7 @@ export default function BrandedLoginButton({
 }: BrandedLoginButtonProps) {
 
   const handleLogin = () => {
-    window.location.href = "/api/login";
+    window.location.href = "/login";
   };
 
   return (

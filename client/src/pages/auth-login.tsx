@@ -44,7 +44,7 @@ export default function AuthLogin() {
               Welcome Back
             </h2>
             <p className="text-gray-600">
-              Sign in to access your AI photography studio
+              Ready to create something amazing? Let's go.
             </p>
           </div>
 
