@@ -1991,14 +1991,14 @@ Create prompts that feel like iconic fashion campaign moments that would make so
             });
           }
           
-          // Premium users can retrain up to 3 times per month
+          // Premium users can retrain up to 3 times per month (4 total trainings: 1 initial + 3 retrains)
           const currentMonth = new Date().getMonth();
           const currentYear = new Date().getFullYear();
           const retrainCount = await storage.getMonthlyRetrainCount(dbUserId, currentMonth, currentYear);
           
-          if (retrainCount >= 3) {
+          if (retrainCount >= 4) {
             return res.status(400).json({ 
-              message: "You've reached your monthly retraining limit (3 times per month). Please try again next month or contact support.",
+              message: "You've reached your monthly retraining limit (3 retrains per month). Please try again next month or contact support.",
               limitReached: true,
               planType: 'premium'
             });

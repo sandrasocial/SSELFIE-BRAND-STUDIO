@@ -199,14 +199,19 @@ The platform has become overly complex with multiple pricing tiers, broken onboa
 
 ## Current Project Status & Progress
 
-### ✅ FREEMIUM MODEL TRAINING LIMITS IMPLEMENTED (July 15, 2025)
+### ✅ FREEMIUM MODEL TRAINING LIMITS IMPLEMENTED & FIXED (July 15, 2025)
 **FREE USER TRAINING RESTRICTIONS & UPGRADE FLOW:**
-- **Free Plan Limit**: Users can only train their AI model once before needing to upgrade
-- **Premium Plan Limit**: SSELFIE Studio subscribers get 3 retrains per month  
+- **Free Plan Limit**: Users can train their AI model once (1 initial training, 0 retrains)
+- **Premium Plan Limit**: SSELFIE Studio subscribers get 3 retrains per month (4 total trainings: 1 initial + 3 retrains)
 - **Admin Exception**: Admin users (ssa@ssasocial.com) have unlimited retraining
 - **Error Handling**: Clear upgrade messaging with automatic redirect to pricing page
 - **Database Cleanup**: Proper old model deletion before retraining to prevent conflicts
 - **Plan Detection**: System checks subscription status to apply correct limits
+
+**CRITICAL BUG FIXES APPLIED:**
+- **Free User Issue**: Fixed blocking of first training attempt - now allows 1 training total
+- **Premium User Issue**: Fixed limit check from >=3 to >=4 to allow proper 3 retrains per month
+- **Logic Separation**: Clearly separated first training vs. retraining scenarios for accurate limits
 
 **Technical Implementation:**
 - Enhanced `/api/start-model-training` endpoint with plan-based limit checking
@@ -218,7 +223,7 @@ The platform has become overly complex with multiple pricing tiers, broken onboa
 
 **Business Impact:**
 - Clear upgrade path for free users who want to retrain their AI models
-- Premium subscribers get reasonable retraining flexibility (3x per month)
+- Premium subscribers get correct retraining flexibility (3 retrains per month)
 - Proper revenue funnel from free tier training limits to paid subscriptions
 - Prevents abuse of free model training while encouraging upgrades
 
