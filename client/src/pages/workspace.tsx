@@ -40,8 +40,11 @@ export default function Workspace() {
     enabled: isAuthenticated
   });
 
-  // Check if user has premium access
-  const isPremiumUser = subscription?.plan === 'sselfie-studio' || user?.plan === 'admin';
+  // Check if user has premium access - Enhanced detection
+  const isPremiumUser = subscription?.plan === 'sselfie-studio' || 
+                       user?.plan === 'admin' || 
+                       user?.plan === 'sselfie-studio' ||
+                       usage?.plan === 'sselfie-studio';
 
   // Simplified User Journey - 3 clear steps
   const getJourneySteps = () => {
@@ -111,13 +114,17 @@ export default function Workspace() {
       };
     }
     
+    // Enhanced plan detection from multiple sources
+    const userPlan = user?.plan || subscription?.plan || usage?.plan || 'free';
+    const isStudioUser = userPlan === 'sselfie-studio' || userPlan === 'admin';
+    
     const used = usage.monthlyUsed || 0;
-    const total = usage.monthlyAllowed || 5;
+    const total = isStudioUser ? (usage.monthlyAllowed || 100) : (usage.monthlyAllowed || 6);
     
     return {
       used,
       remaining: total - used,
-      plan: isPremiumUser ? 'Studio' : 'Free'
+      plan: isStudioUser ? 'Studio' : 'Free'
     };
   };
 
