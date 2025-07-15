@@ -1,5 +1,5 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { MemberNavigation } from '@/components/member-navigation';
+import MemberNavigation from '@/components/member-navigation';
 import { PaymentVerification } from '@/components/payment-verification';
 import { SandraImages } from '@/lib/sandra-images';
 import { useAuth } from '@/hooks/use-auth';

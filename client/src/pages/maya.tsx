@@ -8,7 +8,7 @@ import { Textarea } from '@/components/ui/textarea';
 import { apiRequest } from '@/lib/queryClient';
 import { SandraImages } from '@/lib/sandra-images';
 import { EditorialImageBreak } from '@/components/EditorialImageBreak';
-import { MemberNavigation } from '@/components/member-navigation';
+import MemberNavigation from '@/components/member-navigation';
 
 interface ChatMessage {
   role: 'user' | 'maya';

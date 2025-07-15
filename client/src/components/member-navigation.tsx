@@ -6,7 +6,7 @@ interface MemberNavigationProps {
   transparent?: boolean;
 }
 
-export function MemberNavigation({ transparent = true }: MemberNavigationProps) {
+function MemberNavigation({ transparent = true }: MemberNavigationProps) {
   const [, setLocation] = useLocation();
   const [location] = useLocation();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);

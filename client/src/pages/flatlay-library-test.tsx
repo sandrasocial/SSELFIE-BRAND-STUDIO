@@ -3,7 +3,7 @@ import { useAuth } from "@/hooks/use-auth";
 import { useToast } from "@/hooks/use-toast";
 import { useQueryClient, useQuery } from "@tanstack/react-query";
 import { HeroFullBleed } from '@/components/HeroFullBleed';
-import { MemberNavigation } from '@/components/member-navigation';
+import MemberNavigation from '@/components/member-navigation';
 import { SandraImages } from '@/lib/sandra-images';
 
 interface FlatlayImage {
