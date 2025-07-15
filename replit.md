@@ -357,7 +357,7 @@ The platform has become overly complex with multiple pricing tiers, broken onboa
 - Domain help system reduces support requests for access issues
 
 ### ✅ PRODUCTION LAUNCH READY - SSELFIE.AI (July 15, 2025)
-**COMPREHENSIVE PRODUCTION DEPLOYMENT COMPLETED - FINAL VERIFICATION:**
+**COMPREHENSIVE PRODUCTION DEPLOYMENT COMPLETED - FREE USER TRAINING FIXED:**
 - **🚀 DOMAIN FULLY OPERATIONAL**: https://sselfie.ai responding perfectly with HTTP 200
 - **✅ AUTHENTICATION SYSTEM**: All three auth strategies working (sselfie.ai, replit.dev, localhost)
 - **✅ DATABASE CONNECTED**: PostgreSQL operational with user isolation and AI model training
@@ -365,10 +365,16 @@ The platform has become overly complex with multiple pricing tiers, broken onboa
 - **✅ PAYMENT PROCESSING**: Stripe live payments for SSELFIE Studio subscriptions
 - **✅ SEO OPTIMIZED**: Complete meta tags, robots.txt, manifest.json for search visibility
 - **✅ ZERO PLACEHOLDERS**: Complete elimination of all mock data, placeholders, and fallbacks
-- **✅ FREE USER TRAINING**: Fixed critical bug preventing first-time training for free users
+- **✅ FREE USER TRAINING FIXED**: Removed failed model records blocking first-time training
+
+**Critical Bug Fix Applied (July 15, 16:45):**
+- **Database Cleanup**: Removed failed model records that were incorrectly blocking free users
+- **Training Logic Verified**: Only completed models with valid Replicate IDs trigger retraining limits
+- **Free User Access**: All free users can now complete their first AI model training
+- **Upgrade Flow**: Premium upgrade only required for retraining after successful first training
 
 **Production Systems Final Verification:**
-- Health check endpoint: /api/health-check returning healthy status
+- Health check endpoint: /api/health-check returning {"status":"healthy","domain":"sselfie.ai"}
 - Authentication flow: /login → Replit OAuth → /workspace working seamlessly
 - Protected routes: All 26+ workspace pages properly secured
 - Training workflow: Free users can complete first training, premium users get retraining
