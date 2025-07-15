@@ -30,20 +30,26 @@ import { z } from "zod";
 const DEFAULT_MODEL_STR = "claude-sonnet-4-20250514";
 
 export async function registerRoutes(app: Express): Promise<Server> {
-  // Force HTTPS redirect for production domain
+  // Enhanced domain and HTTPS handling for cross-browser compatibility
   app.use((req, res, next) => {
-    // Check if request is coming to custom domain without HTTPS
-    if (req.hostname === 'sselfie.ai' && req.header('x-forwarded-proto') !== 'https') {
-      return res.redirect(301, `https://${req.hostname}${req.url}`);
+    const hostname = req.hostname;
+    const protocol = req.header('x-forwarded-proto') || req.protocol;
+    
+    // Force HTTPS for production domain
+    if (hostname === 'sselfie.ai' && protocol !== 'https') {
+      return res.redirect(301, `https://${hostname}${req.url}`);
     }
-    next();
-  });
-
-  // Handle www redirect
-  app.use((req, res, next) => {
-    if (req.hostname === 'www.sselfie.ai') {
+    
+    // Handle www subdomain redirect
+    if (hostname === 'www.sselfie.ai') {
       return res.redirect(301, `https://sselfie.ai${req.url}`);
     }
+    
+    // Handle any other sselfie.ai subdomains
+    if (hostname.endsWith('.sselfie.ai') && hostname !== 'sselfie.ai') {
+      return res.redirect(301, `https://sselfie.ai${req.url}`);
+    }
+    
     next();
   });
 
@@ -53,6 +59,16 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Add authentication test page for live testing
   app.get('/test-auth', (req, res) => {
     res.sendFile(path.join(process.cwd(), 'test-auth.html'));
+  });
+
+  // Domain health check endpoint
+  app.get('/api/health-check', (req, res) => {
+    res.json({ 
+      status: 'healthy', 
+      domain: req.hostname,
+      timestamp: new Date().toISOString(),
+      https: req.header('x-forwarded-proto') === 'https' || req.protocol === 'https'
+    });
   });
 
   // Google OAuth test page

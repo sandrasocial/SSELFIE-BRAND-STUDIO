@@ -706,17 +706,24 @@ The platform has become overly complex with multiple pricing tiers, broken onboa
 - Seamless user experience from landing page to authenticated workspace
 - Platform ready for 120K follower announcement with working email capture system
 
-### ✅ CRITICAL POST-ROLLBACK AUTHENTICATION CONFLICTS RESOLVED (July 15, 2025)
-**COMPLETE REPLIT AUTH SYSTEM ALIGNMENT COMPLETED:**
-- **ROOT CAUSE IDENTIFIED**: After Google Auth rollback, 4 route files still importing from googleAuth instead of replitAuth
-- **AUTHENTICATION IMPORTS FIXED**: Updated server/routes/ai-images.ts, checkout.ts, automation.ts, styleguide-routes.ts
-- **USER PROPERTY ACCESS STANDARDIZED**: Changed all req.user.claims.sub to (req.user as any)?.claims?.sub format
-- **DATABASE SCHEMA ALIGNED**: Fixed firstName vs first_name property mismatch in upsertUser function
-- **ZERO CONFLICTS REMAINING**: All route files now properly import isAuthenticated from replitAuth
+### ✅ BRANDED AUTHENTICATION BRIDGE SYSTEM IMPLEMENTED (July 15, 2025)
+**COMPLETE SOLUTION FOR USER CONFUSION WITH REPLIT OAUTH:**
+- **BRANDED AUTH BRIDGE**: Created `/login` route with SSELFIE Studio branding before OAuth
+- **WARM SIMPLE VOICE**: Updated messaging to "Taking you to your AI photography studio..."
+- **LUXURY DESIGN**: Times New Roman typography, editorial aesthetic, no-icons compliance
+- **ENHANCED DOMAIN HANDLING**: Added cross-browser compatibility and HTTPS enforcement
+- **DOMAIN HEALTH CHECK**: Added `/api/health-check` endpoint for monitoring
+- **CLIENT UTILITIES**: DomainHelpers class for domain compatibility across browsers
 
-**COMPLETE AUTHENTICATION FLOW OPERATIONAL:**
-- **✅ REPLIT AUTH CONFIRMED WORKING**: All authentication endpoints operational on development server
-- **✅ ALL LOGIN COMPONENTS UPDATED**: Editorial landing, email capture modal, inline capture, free-tier signup all redirect to dev server
+**DNS ISSUE IDENTIFIED AND SOLUTION PROVIDED:**
+- **PROBLEM**: `www.sselfie.ai` has no A record, causing browser compatibility issues
+- **SOLUTION**: Add A record for `www` pointing to `34.111.179.208` in Porkbun DNS
+- **DOMAIN STATUS**: Root domain `sselfie.ai` works, www subdomain needs DNS fix
+
+**DEPLOYMENT REQUIREMENTS:**
+- **AUTH BRIDGE**: Needs production deployment to show branded experience instead of direct Replit OAuth
+- **CURRENT PREVIEW**: Still shows old Replit OAuth flow until deployed
+- **ADMIN ACCESS**: User needs to login with `ssa@ssasocial.com` for unlimited generation privileges
 - **✅ ROUTE FILES SYNCHRONIZED**: ai-images.ts, checkout.ts, automation.ts, styleguide-routes.ts all using Replit Auth
 - **✅ ADMIN PRIVILEGES ACTIVE**: Sandra (ssa@ssasocial.com) has unlimited generation and admin access
 - **✅ DATABASE SCHEMA FIXED**: Added missing 'started_at' column to user_models table
