@@ -150,27 +150,36 @@ function Router() {
   
   // Debug current location
   const [location] = useLocation();
-  console.log('Current location:', location);
+  console.log('🔍 Router Debug - Current location:', location);
+  console.log('🔍 Router Debug - window.location.pathname:', window.location.pathname);
+  console.log('🔍 Router Debug - window.location.href:', window.location.href);
   
   return (
     <Switch>
-      {/* URGENT: MOVE FLATLAY-LIBRARY TO TOP FOR PRIORITY MATCHING */}
-      <Route path="/flatlay-library">
-        {() => {
-          console.log('🎯 FLATLAY LIBRARY ROUTE HIT! Priority position');
-          return (
-            <div className="min-h-screen p-8 bg-green-50">
-              <h1 className="text-4xl font-serif mb-4 text-green-800">✅ Priority Route Working!</h1>
-              <p className="text-lg mb-4">The /flatlay-library route is now in priority position.</p>
-              <p className="text-sm text-gray-600">Route order: FIRST in Switch component</p>
-              <div className="mt-8 p-4 bg-green-200 rounded">
-                <p className="text-green-900 font-medium">STATUS: Route matching confirmed</p>
-                <p className="text-green-700">Location: {window.location.pathname}</p>
-              </div>
+      {/* ABSOLUTE FIRST PRIORITY ROUTE */}
+      <Route path="/flatlay-library" component={() => {
+        console.log('🎯 FLATLAY LIBRARY ROUTE MATCHED!!!');
+        return (
+          <div className="min-h-screen p-8 bg-green-50">
+            <h1 className="text-4xl font-serif mb-4 text-green-800">✅ ROUTE FIXED!</h1>
+            <p className="text-lg mb-4">The /flatlay-library route is working!</p>
+            <div className="mt-8 p-4 bg-green-200 rounded">
+              <p className="text-green-900 font-medium">SUCCESS: Route matching working</p>
             </div>
-          );
-        }}
-      </Route>
+          </div>
+        );
+      }} />
+      
+      {/* ALTERNATIVE TEST - EXACT MATCH */}
+      <Route path="/flatlay-test" component={() => {
+        console.log('🧪 FLATLAY TEST ROUTE MATCHED');
+        return (
+          <div className="min-h-screen p-8 bg-blue-50">
+            <h1 className="text-4xl font-serif mb-4 text-blue-800">✅ TEST ROUTE WORKS!</h1>
+            <p>This confirms React Router is functional</p>
+          </div>
+        );
+      }} />
       
       {/* STREAMLINED USER JOURNEY: Landing → Simple Checkout → Payment Success → Onboarding → Workspace */}
 
@@ -293,26 +302,33 @@ function Router() {
         );
       }} />
 
-      {/* DEBUG: Show what route is being attempted */}
-      <Route>
-        {(params) => {
-          console.log('🚨 CATCH-ALL ROUTE HIT. Params:', params);
-          console.log('🚨 Current window.location.pathname:', window.location.pathname);
-          return (
-            <div className="min-h-screen p-8 bg-red-50">
-              <h1 className="text-4xl font-serif mb-4 text-red-800">🚨 Debug: Catch-All Route</h1>
-              <div className="space-y-2 text-sm">
-                <p><strong>Attempted path:</strong> {window.location.pathname}</p>
-                <p><strong>Params:</strong> {JSON.stringify(params)}</p>
-                <p><strong>Router location:</strong> {location}</p>
-              </div>
-              <div className="mt-8 p-4 bg-red-100 rounded">
-                <p className="text-red-900">This route was not matched by any specific Route component above.</p>
-              </div>
+      {/* 404 DIAGNOSTIC */}
+      <Route component={({ params }) => {
+        console.log('🚨 FALLBACK ROUTE HIT - NO MATCH FOUND');
+        console.log('🚨 Router location state:', location);
+        console.log('🚨 Window pathname:', window.location.pathname);
+        console.log('🚨 Route params:', params);
+        
+        return (
+          <div className="min-h-screen p-8 bg-red-50">
+            <h1 className="text-4xl font-serif mb-4 text-red-800">🚨 ROUTE NOT FOUND</h1>
+            <div className="space-y-2 text-sm font-mono">
+              <p><strong>Expected:</strong> /flatlay-library</p>
+              <p><strong>Router location:</strong> {location}</p>
+              <p><strong>Window pathname:</strong> {window.location.pathname}</p>
+              <p><strong>Are they matching?</strong> {location === '/flatlay-library' ? '✅ YES' : '❌ NO'}</p>
             </div>
-          );
-        }}
-      </Route>
+            <div className="mt-8 p-4 bg-red-100 rounded">
+              <h3 className="font-bold mb-2">Debugging Steps:</h3>
+              <ol className="list-decimal list-inside space-y-1 text-sm">
+                <li>Check console for navigation click logs</li>
+                <li>Verify setLocation is being called</li>
+                <li>Check if route path matches exactly</li>
+              </ol>
+            </div>
+          </div>
+        );
+      }} />
     </Switch>
   );
 }
