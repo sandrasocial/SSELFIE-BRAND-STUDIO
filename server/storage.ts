@@ -1028,7 +1028,36 @@ export class DatabaseStorage implements IStorage {
       });
     }
 
-    console.log(`✅ User ${userId} successfully upgraded to ${plan}`);
+    // CRITICAL: Initialize or update user usage record for the new plan
+    const existingUsage = await this.getUserUsage(userId);
+    
+    if (existingUsage) {
+      // Update existing usage with new plan limits
+      await this.updateUserUsage(userId, {
+        plan: plan,
+        monthlyGenerationsAllowed: 100,
+        currentPeriodStart: new Date(),
+        currentPeriodEnd: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000), // 30 days from now
+        isLimitReached: false
+      });
+    } else {
+      // Create new usage record for upgraded user
+      await this.createUserUsage({
+        userId,
+        plan: plan,
+        monthlyGenerationsAllowed: 100,
+        monthlyGenerationsUsed: 0,
+        totalGenerationsAllowed: 999999, // Unlimited total for monthly plans
+        totalGenerationsUsed: 0,
+        totalCostIncurred: "0.0000",
+        currentPeriodStart: new Date(),
+        currentPeriodEnd: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000),
+        isLimitReached: false,
+        lastGenerationAt: null
+      });
+    }
+
+    console.log(`✅ User ${userId} successfully upgraded to ${plan} with usage initialized`);
     return updatedUser;
   }
 }
