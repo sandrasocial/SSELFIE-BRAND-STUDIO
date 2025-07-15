@@ -47,7 +47,9 @@ export async function generateImages(request: GenerateImagesRequest): Promise<Ge
     // CORRECT APPROACH: Always use black-forest-labs/flux-dev-lora with user's LoRA weights
     const fluxModelVersion = modelVersion || 'black-forest-labs/flux-dev-lora:a53fd9255ecba80d99eaab4706c698f861fd47b098012607557385416e46aae5';
     
-    console.log(`✅ Using black-forest-labs/flux-dev-lora with trained LoRA: sandrasocial/${userModel.modelName}`);
+    // 🚨 CRITICAL SECURITY FIX: Use user's unique replicate_model_id for LoRA weights
+    const userLoRAWeights = `sandrasocial/${userModel.replicateModelId}`;
+    console.log(`🔒 SECURITY FIX: Using user's unique LoRA model: ${userLoRAWeights}`);
     
     // Ensure the prompt starts with the user's trigger word for maximum likeness
     let finalPrompt = customPrompt;
@@ -79,7 +81,7 @@ export async function generateImages(request: GenerateImagesRequest): Promise<Ge
     const input: any = {
       prompt: finalPrompt,        // Maya's authentic prompt with trigger word
       guidance: 2.8,              // OPTIMIZED: Reduced from 3.0 to 2.8 for more natural results
-      lora_weights: `sandrasocial/${userModel.modelName}`, // User's trained LoRA weights
+      lora_weights: userLoRAWeights, // 🔒 CRITICAL: User's unique trained LoRA weights
       lora_scale: 1.0,           // Standard LoRA scale for personal LoRAs (0.9-1.0 optimal)
       num_inference_steps: 40,    // OPTIMIZED: Increased from 35 to 40 for higher quality
       num_outputs: 3,            // Generate 3 focused images
@@ -91,9 +93,9 @@ export async function generateImages(request: GenerateImagesRequest): Promise<Ge
       disable_safety_checker: false
     };
     
-    console.log(`🔍 DEBUGGING LIKENESS ISSUE:`);
+    console.log(`🔒 SECURITY FIX APPLIED:`);
     console.log(`Using FLUX model: black-forest-labs/flux-dev-lora`);
-    console.log(`Using trained LoRA: sandrasocial/${userModel.modelName}`);
+    console.log(`Using user's unique LoRA: ${userLoRAWeights}`);
     console.log(`User's trigger word: "${triggerWord}"`);
     console.log(`Model training status: ${userModel.trainingStatus}`);
     console.log(`Final prompt: ${finalPrompt}`);
