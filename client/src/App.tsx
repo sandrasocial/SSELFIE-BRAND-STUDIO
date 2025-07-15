@@ -42,9 +42,9 @@ import AdminEmails from "@/pages/admin-emails";
 import AdminSettings from "@/pages/admin-settings";
 import CustomPhotoshootLibrary from "@/pages/custom-photoshoot-library";
 // Test import to verify component loads
-console.log('Importing FlatlayLibrary...');
+console.log('🔍 App.tsx: Starting FlatlayLibrary import...');
 import FlatlayLibrary from "@/pages/flatlay-library";
-console.log('FlatlayLibrary imported successfully:', FlatlayLibrary);
+console.log('🔍 App.tsx: FlatlayLibrary imported successfully:', FlatlayLibrary);
 import FlatlayLibraryTest from "@/pages/flatlay-library-test";
 import FlatlayMinimal from "@/pages/flatlay-minimal";
 import RouteTest from "@/pages/route-test";
@@ -156,19 +156,17 @@ function Router() {
   
   return (
     <Switch>
-      {/* ABSOLUTE FIRST PRIORITY ROUTE */}
-      <Route path="/flatlay-library" component={() => {
-        console.log('🎯 FLATLAY LIBRARY ROUTE MATCHED!!!');
-        return (
-          <div className="min-h-screen p-8 bg-green-50">
-            <h1 className="text-4xl font-serif mb-4 text-green-800">✅ ROUTE FIXED!</h1>
-            <p className="text-lg mb-4">The /flatlay-library route is working!</p>
-            <div className="mt-8 p-4 bg-green-200 rounded">
-              <p className="text-green-900 font-medium">SUCCESS: Route matching working</p>
-            </div>
+      {/* EMERGENCY BYPASS - DIRECT TEST */}
+      <Route path="/flatlay-library">
+        <div className="min-h-screen p-8 bg-green-50">
+          <h1 className="text-4xl font-serif mb-4 text-green-800">✅ DIRECT ROUTE TEST</h1>
+          <p className="text-lg mb-4">If you see this, the route is working!</p>
+          <div className="mt-8 p-4 bg-green-200 rounded">
+            <p className="text-green-900 font-medium">BYPASS: Direct route matching</p>
+            <p className="text-sm">Path: {window.location.pathname}</p>
           </div>
-        );
-      }} />
+        </div>
+      </Route>
       
       {/* ALTERNATIVE TEST - EXACT MATCH */}
       <Route path="/flatlay-test" component={() => {
@@ -334,7 +332,9 @@ function Router() {
 }
 
 function App() {
-  console.log('SSELFIE Studio: App rendering...');
+  console.log('🔍 SSELFIE Studio: App rendering...');
+  console.log('🔍 Current URL:', window.location.href);
+  console.log('🔍 QueryClient ready:', !!queryClient);
 
   return (
     <QueryClientProvider client={queryClient}>
