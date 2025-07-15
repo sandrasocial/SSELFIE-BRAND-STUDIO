@@ -9,16 +9,7 @@ import { SandraImages } from '@/lib/sandra-images';
 export default function Workspace() {
   const { user, isAuthenticated, isLoading, error } = useAuth();
   
-  // Debug authentication state
-  useEffect(() => {
-    console.log('🔍 Workspace auth state:', {
-      isAuthenticated,
-      isLoading,
-      hasUser: !!user,
-      userEmail: user?.email,
-      error: error?.message
-    });
-  }, [isAuthenticated, isLoading, user, error]);
+
 
   // Fetch user data
   const { data: aiImages = [] } = useQuery({

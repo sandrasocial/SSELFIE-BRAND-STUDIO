@@ -43,40 +43,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     res.sendFile(path.join(process.cwd(), 'test-google-auth.html'));
   });
 
-  // Production auth debugging endpoint
-  app.get('/api/auth-debug', (req, res) => {
-    try {
-      const debugInfo = {
-        isAuthenticated: req.isAuthenticated(),
-        user: req.user ? {
-          hasUser: true,
-          hasClaims: !!(req.user as any)?.claims,
-          hasAccessToken: !!(req.user as any)?.access_token,
-          hasRefreshToken: !!(req.user as any)?.refresh_token,
-          expiresAt: (req.user as any)?.expires_at,
-          claimsSubject: (req.user as any)?.id,
-          claimsEmail: (req.user as any)?.email,
-        } : null,
-        session: {
-          exists: !!req.session,
-          id: req.sessionID,
-          passport: req.session?.passport
-        },
-        headers: {
-          host: req.get('host'),
-          userAgent: req.get('user-agent'),
-          origin: req.get('origin'),
-          referer: req.get('referer')
-        }
-      };
-      
-      console.log('🔍 Auth debug info:', JSON.stringify(debugInfo, null, 2));
-      res.json(debugInfo);
-    } catch (error) {
-      console.error('❌ Auth debug error:', error);
-      res.status(500).json({ error: error.message });
-    }
-  });
+
 
   // Quick auth test endpoint (no auth required)
   app.get('/api/quick-auth-test', (req, res) => {
