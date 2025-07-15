@@ -156,28 +156,33 @@ function Router() {
   
   return (
     <Switch>
-      {/* EMERGENCY BYPASS - DIRECT TEST */}
-      <Route path="/flatlay-library">
+      {/* FLATLAYS ROUTE - MATCHING NAVIGATION */}
+      <Route path="/flatlays">
         <div className="min-h-screen p-8 bg-green-50">
-          <h1 className="text-4xl font-serif mb-4 text-green-800">✅ DIRECT ROUTE TEST</h1>
-          <p className="text-lg mb-4">If you see this, the route is working!</p>
+          <h1 className="text-4xl font-serif mb-4 text-green-800">✅ FLATLAYS ROUTE WORKING!</h1>
+          <p className="text-lg mb-4">Navigation and route are now aligned.</p>
           <div className="mt-8 p-4 bg-green-200 rounded">
-            <p className="text-green-900 font-medium">BYPASS: Direct route matching</p>
+            <p className="text-green-900 font-medium">SUCCESS: /flatlays route matched</p>
             <p className="text-sm">Path: {window.location.pathname}</p>
           </div>
         </div>
       </Route>
       
-      {/* ALTERNATIVE TEST - EXACT MATCH */}
-      <Route path="/flatlay-test" component={() => {
-        console.log('🧪 FLATLAY TEST ROUTE MATCHED');
-        return (
-          <div className="min-h-screen p-8 bg-blue-50">
-            <h1 className="text-4xl font-serif mb-4 text-blue-800">✅ TEST ROUTE WORKS!</h1>
-            <p>This confirms React Router is functional</p>
+      {/* BACKUP FLATLAY-LIBRARY ROUTE */}
+      <Route path="/flatlay-library">
+        <div className="min-h-screen p-8 bg-blue-50">
+          <h1 className="text-4xl font-serif mb-4 text-blue-800">✅ BACKUP ROUTE!</h1>
+          <p>You accessed the old /flatlay-library route</p>
+          <div className="mt-4">
+            <button 
+              onClick={() => window.location.href = '/flatlays'}
+              className="bg-blue-600 text-white px-4 py-2 rounded"
+            >
+              Go to /flatlays
+            </button>
           </div>
-        );
-      }} />
+        </div>
+      </Route>
       
       {/* STREAMLINED USER JOURNEY: Landing → Simple Checkout → Payment Success → Onboarding → Workspace */}
 

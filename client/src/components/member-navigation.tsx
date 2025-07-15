@@ -43,7 +43,7 @@ export function MemberNavigation({ transparent = true }: MemberNavigationProps) 
     { path: '/ai-training', label: 'Train' },
     { path: '/maya', label: 'Photoshoot' },
     { path: '/gallery', label: 'Gallery' },
-    { path: '/flatlay-library', label: 'Flatlays' },
+    { path: '/flatlays', label: 'Flatlays' },
     { path: '/profile', label: 'Profile' },
     ...(isAdmin ? [{ path: '/admin', label: 'Admin' }] : []),
   ];
