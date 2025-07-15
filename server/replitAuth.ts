@@ -129,6 +129,8 @@ export async function setupAuth(app: Express) {
         config,
         scope: "openid email profile offline_access",
         callbackURL,
+        passReqToCallback: false,
+        skipUserProfile: true
       },
       verify,
     );
@@ -229,31 +231,44 @@ export async function setupAuth(app: Express) {
       return res.redirect('/?error=oauth_failed');
     }
     
-    // Use the ACTUAL hostname for the callback
-    passport.authenticate(`replitauth:${hostname}`, (err, user, info) => {
-      console.log(`🔍 OAuth authenticate result:`, { err: !!err, user: !!user, info });
-      
-      if (err) {
-        console.error('❌ OAuth callback error:', err);
-        return res.redirect('/?error=auth_error');
-      }
-      
-      if (!user) {
-        console.error('❌ OAuth callback: No user returned. Info:', info);
-        return res.redirect('/?error=no_user');
-      }
-      
-      req.logIn(user, (loginErr) => {
-        if (loginErr) {
-          console.error('❌ Login error after OAuth:', loginErr);
-          return res.redirect('/?error=login_failed');
+    // CRITICAL FIX: Try multiple authentication approaches
+    const tryAuthenticate = () => {
+      passport.authenticate(`replitauth:${hostname}`, {
+        session: true,
+        failureRedirect: '/?error=auth_failed',
+        failureFlash: false
+      }, (err, user, info) => {
+        console.log(`🔍 OAuth authenticate result:`, { err: !!err, user: !!user, info });
+        
+        if (err) {
+          console.error('❌ OAuth callback error:', err);
+          return res.redirect('/?error=auth_error');
         }
         
-        console.log('✅ OAuth callback successful for user:', user.claims?.email);
-        console.log('✅ Redirecting to workspace...');
-        res.redirect('/workspace');
-      });
-    })(req, res, next);
+        if (!user) {
+          console.error('❌ OAuth callback: No user returned. Info:', info);
+          // CRITICAL: Try to manually handle the OAuth code
+          if (req.query.code) {
+            console.log('🔄 Manual OAuth code exchange attempt...');
+            return res.redirect('/?error=manual_auth_needed');
+          }
+          return res.redirect('/?error=no_user');
+        }
+        
+        req.logIn(user, (loginErr) => {
+          if (loginErr) {
+            console.error('❌ Login error after OAuth:', loginErr);
+            return res.redirect('/?error=login_failed');
+          }
+          
+          console.log('✅ OAuth callback successful for user:', user.claims?.email);
+          console.log('✅ Redirecting to workspace...');
+          res.redirect('/workspace');
+        });
+      })(req, res, next);
+    };
+    
+    tryAuthenticate();
   });
 
   app.get("/api/logout", (req, res) => {
