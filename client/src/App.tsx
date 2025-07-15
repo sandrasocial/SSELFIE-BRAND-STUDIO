@@ -154,18 +154,23 @@ function Router() {
   
   return (
     <Switch>
-      {/* FLATLAY LIBRARY ROUTE - NO AUTHENTICATION CHECK */}
-      <Route path="/flatlay-library" component={() => {
-        console.log('FLATLAY LIBRARY ROUTE MATCHED - DIRECT ACCESS');
-        return (
-          <div className="min-h-screen">
-            <div className="p-4 bg-yellow-100 border-b">
-              <p className="text-sm text-yellow-800">🚨 AUTHENTICATION BYPASS MODE - Library accessible without login</p>
+      {/* URGENT: MOVE FLATLAY-LIBRARY TO TOP FOR PRIORITY MATCHING */}
+      <Route path="/flatlay-library">
+        {() => {
+          console.log('🎯 FLATLAY LIBRARY ROUTE HIT! Priority position');
+          return (
+            <div className="min-h-screen p-8 bg-green-50">
+              <h1 className="text-4xl font-serif mb-4 text-green-800">✅ Priority Route Working!</h1>
+              <p className="text-lg mb-4">The /flatlay-library route is now in priority position.</p>
+              <p className="text-sm text-gray-600">Route order: FIRST in Switch component</p>
+              <div className="mt-8 p-4 bg-green-200 rounded">
+                <p className="text-green-900 font-medium">STATUS: Route matching confirmed</p>
+                <p className="text-green-700">Location: {window.location.pathname}</p>
+              </div>
             </div>
-            <FlatlayLibrary />
-          </div>
-        );
-      }} />
+          );
+        }}
+      </Route>
       
       {/* STREAMLINED USER JOURNEY: Landing → Simple Checkout → Payment Success → Onboarding → Workspace */}
 
@@ -175,13 +180,18 @@ function Router() {
       {/* DEVELOPMENT TEST PAGE */}
       <Route path="/test" component={() => (
         <div className="p-8">
-          <h1 className="text-2xl mb-4">Navigation Test</h1>
-          <p>If you can see this, navigation is working!</p>
+          <h1 className="text-2xl mb-4">🔧 ROUTING DIAGNOSTICS</h1>
+          <p>Basic navigation test - if you see this, React Router is working.</p>
           <div className="mt-4 space-y-2">
             <div><a href="/workspace" className="text-blue-600 underline">Go to Workspace</a></div>
-            <div><a href="/victoria-preview" className="text-blue-600 underline">Go to Victoria Preview</a></div>
-            <div><a href="/maya" className="text-blue-600 underline">Go to Maya</a></div>
-            <div><a href="/flatlay-library" className="text-blue-600 underline">Test Flatlay Library Route</a></div>
+            <div><a href="/flatlay-library" className="text-blue-600 underline bg-yellow-200 px-2 py-1">🎯 Test Flatlay Library Route</a></div>
+            <div><a href="/flatlay-test" className="text-blue-600 underline">Test Simple Route</a></div>
+          </div>
+          <div className="mt-6 p-4 bg-blue-50 rounded">
+            <h3 className="font-bold">Current Router Status:</h3>
+            <p>Location: {window.location.pathname}</p>
+            <p>Protocol: {window.location.protocol}</p>
+            <p>Host: {window.location.host}</p>
           </div>
         </div>
       )} />
@@ -283,7 +293,26 @@ function Router() {
         );
       }} />
 
-      <Route component={NotFound} />
+      {/* DEBUG: Show what route is being attempted */}
+      <Route>
+        {(params) => {
+          console.log('🚨 CATCH-ALL ROUTE HIT. Params:', params);
+          console.log('🚨 Current window.location.pathname:', window.location.pathname);
+          return (
+            <div className="min-h-screen p-8 bg-red-50">
+              <h1 className="text-4xl font-serif mb-4 text-red-800">🚨 Debug: Catch-All Route</h1>
+              <div className="space-y-2 text-sm">
+                <p><strong>Attempted path:</strong> {window.location.pathname}</p>
+                <p><strong>Params:</strong> {JSON.stringify(params)}</p>
+                <p><strong>Router location:</strong> {location}</p>
+              </div>
+              <div className="mt-8 p-4 bg-red-100 rounded">
+                <p className="text-red-900">This route was not matched by any specific Route component above.</p>
+              </div>
+            </div>
+          );
+        }}
+      </Route>
     </Switch>
   );
 }
