@@ -62,6 +62,19 @@ export async function registerRoutes(app: Express): Promise<Server> {
     res.sendFile(path.join(process.cwd(), 'test-auth.html'));
   });
 
+  // PWA Service Worker with proper MIME type
+  app.get('/sw.js', (req, res) => {
+    res.setHeader('Content-Type', 'application/javascript');
+    res.setHeader('Cache-Control', 'no-cache');
+    res.sendFile(path.join(process.cwd(), 'public', 'sw.js'));
+  });
+
+  // PWA Manifest with proper MIME type
+  app.get('/manifest.json', (req, res) => {
+    res.setHeader('Content-Type', 'application/manifest+json');
+    res.sendFile(path.join(process.cwd(), 'public', 'manifest.json'));
+  });
+
   // Domain health check endpoint
   app.get('/api/health-check', (req, res) => {
     res.json({ 

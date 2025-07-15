@@ -1,5 +1,6 @@
 import React from 'react';
 import { Link } from 'wouter';
+import { InstallButton } from '@/components/ui/install-button';
 
 export const GlobalFooter: React.FC = () => {
   return (
@@ -11,9 +12,12 @@ export const GlobalFooter: React.FC = () => {
             <div className="font-serif text-2xl font-light mb-4">
               SSELFIE STUDIO
             </div>
-            <p className="text-white/60 text-sm leading-relaxed">
+            <p className="text-white/60 text-sm leading-relaxed mb-6">
               The world's first AI-powered personal branding platform. Transform selfies into complete business launches.
             </p>
+            <InstallButton 
+              className="bg-white text-black hover:bg-gray-100 text-xs uppercase tracking-[0.3em] px-4 py-2"
+            />
           </div>
 
           {/* Platform Links */}

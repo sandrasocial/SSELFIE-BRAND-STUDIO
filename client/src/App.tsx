@@ -7,6 +7,7 @@ import { TooltipProvider } from "@/components/ui/tooltip";
 import { useAuth } from "@/hooks/useAuth";
 import { useQuery } from "@tanstack/react-query";
 import { redirectToHttps, detectBrowserIssues, showDomainHelp } from "./utils/browserCompat";
+import { pwaManager } from "./utils/pwa";
 import NotFound from "@/pages/not-found";
 import Landing from "@/pages/landing";
 import EditorialLanding from "@/pages/editorial-landing";
@@ -234,6 +235,14 @@ function App() {
       showDomainHelp();
     }
     redirectToHttps();
+    
+    // Initialize PWA functionality
+    // PWA Manager will automatically handle:
+    // - Service worker registration
+    // - Install prompt display
+    // - App installation detection
+    // - Update notifications
+    console.log('SSELFIE Studio: PWA initialized for native app experience');
   }, []);
 
   return (
