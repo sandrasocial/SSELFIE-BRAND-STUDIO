@@ -241,7 +241,7 @@ export class AIService {
       input: {
         prompt: enhancedPrompt,
         guidance: 2.5,              // 🔧 BALANCED: Let user's model dominate without base model interference
-        num_inference_steps: 28,    // 🔧 OPTIMAL: Standard steps for trained models to avoid over-processing
+        num_inference_steps: 34,    // 🔧 OPTIMAL: Perfect steps for trained model likeness
         num_outputs: 3,
         aspect_ratio: "3:4",
         output_format: "png",
