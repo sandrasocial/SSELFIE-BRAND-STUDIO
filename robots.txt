@@ -1,0 +1,22 @@
+User-agent: *
+Allow: /
+
+# Main sitemap
+Sitemap: https://sselfie.ai/sitemap.xml
+
+# Important pages
+Allow: /about
+Allow: /how-it-works
+Allow: /pricing
+Allow: /contact
+Allow: /faq
+Allow: /terms
+Allow: /privacy
+
+# Block admin and user areas
+Disallow: /admin
+Disallow: /workspace
+Disallow: /api
+
+# Host information
+Host: sselfie.ai
