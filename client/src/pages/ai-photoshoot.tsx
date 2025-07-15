@@ -860,13 +860,22 @@ export default function AIPhotoshootPage() {
         const response = await fetch(`/api/generation-tracker/${trackerId}`, {
           credentials: 'include'
         });
-        if (!response.ok) throw new Error('Failed to fetch tracker status');
+        
+        console.log('AI-PHOTOSHOOT: Polling response status:', response.status);
+        
+        if (!response.ok) {
+          console.error('AI-PHOTOSHOOT: Tracker fetch failed:', response.status, await response.text());
+          throw new Error('Failed to fetch tracker status');
+        }
         
         const tracker = await response.json();
+        console.log('AI-PHOTOSHOOT: Tracker data:', tracker);
         
         if (tracker && tracker.status === 'completed' && tracker.imageUrls && tracker.imageUrls.length > 0) {
           // Generation completed
           console.log('AI-PHOTOSHOOT: Tracker generation completed!', tracker);
+          console.log('AI-PHOTOSHOOT: Setting generatedImages to:', tracker.imageUrls);
+          console.log('AI-PHOTOSHOOT: Setting showPreviewModal to true');
           
           setGenerationProgress(100);
           setGeneratingImages(false);
@@ -1157,7 +1166,10 @@ export default function AIPhotoshootPage() {
         )}
 
       {/* Maya-style Image Preview Modal */}
-      {showPreviewModal && generatedImages.length > 0 && (
+      {(() => {
+        console.log('AI-PHOTOSHOOT: Preview modal check - showPreviewModal:', showPreviewModal, 'generatedImages.length:', generatedImages.length);
+        return showPreviewModal && generatedImages.length > 0;
+      })() && (
         <div className="fixed inset-0 bg-black bg-opacity-90 z-50 flex items-center justify-center p-4" onClick={() => setShowPreviewModal(false)}>
           <div className="bg-white max-w-5xl w-full max-h-[90vh] overflow-y-auto" onClick={(e) => e.stopPropagation()}>
             {/* Modal Header */}
