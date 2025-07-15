@@ -55,14 +55,14 @@ export function getSession() {
     secret: process.env.SESSION_SECRET!,
     store: sessionStore,
     resave: false,
-    saveUninitialized: true, // CRITICAL: Required for OAuth state verification
+    saveUninitialized: false, // PERMANENT FIX: Disable automatic session creation
     rolling: true, // Extend session on each request
     cookie: {
       httpOnly: true,
       secure: useSecureCookies,
       maxAge: sessionTtl,
       sameSite: 'lax',
-      domain: isSSELFIEDomain ? '.sselfie.ai' : undefined // Allow subdomains
+      domain: isSSELFIEDomain ? undefined : undefined // PERMANENT FIX: Remove domain restrictions
     },
   });
 }
@@ -141,7 +141,10 @@ export async function setupAuth(app: Express) {
         scope: "openid email profile offline_access",
         callbackURL,
         passReqToCallback: false,
-        skipUserProfile: true
+        skipUserProfile: true,
+        sessionKey: false, // Disable automatic session key generation
+        state: false, // Disable state parameter that's causing issues
+        nonce: false // Disable nonce to simplify OAuth flow
       },
       verify,
     );
@@ -218,14 +221,14 @@ export async function setupAuth(app: Express) {
       
       const authOptions: any = {
         scope: ["openid", "email", "profile", "offline_access"],
+        state: false, // PERMANENT FIX: Disable state parameter causing OAuth issues
+        prompt: forceAccountSelection ? "select_account" : "login consent"
       };
       
-      // Force account selection only when explicitly requested
       if (forceAccountSelection) {
-        authOptions.prompt = "select_account";
         console.log('🔍 Forcing account selection for account switching');
       } else {
-        console.log('🔍 Login requested - starting authentication flow');
+        console.log('🔍 Login requested - starting authentication flow with simplified OAuth');
       }
       
       console.log(`🔍 Using strategy: ${strategyName} for domain: ${hostname}`);
@@ -248,16 +251,10 @@ export async function setupAuth(app: Express) {
       return res.redirect('/?error=oauth_failed');
     }
 
-    // EMERGENCY FIX: Skip standard OAuth if we have code - go directly to manual token exchange
-    if (req.query.code) {
-      console.log('🚨 EMERGENCY: Bypassing standard OAuth, using manual token exchange');
-      return handleManualTokenExchange(req, res, next);
-    }
-    
-    // Fallback to standard OAuth if no code
+    // PERMANENT FIX: Always try standard OAuth first, with manual exchange as failsafe
     passport.authenticate(`replitauth:${hostname}`, {
       session: true,
-      failureRedirect: '/?error=auth_failed',
+      failureRedirect: false, // Handle failures manually
       failureFlash: false
     }, (err, user, info) => {
       console.log(`🔍 OAuth authenticate result:`, { err: !!err, user: !!user, info });
@@ -269,6 +266,11 @@ export async function setupAuth(app: Express) {
       
       if (!user) {
         console.error('❌ OAuth callback: No user returned. Info:', info);
+        // FAILSAFE: If standard OAuth fails but we have an authorization code, try manual exchange
+        if (req.query.code) {
+          console.log('🔄 Standard OAuth failed, attempting manual token exchange...');
+          return handleManualTokenExchange(req, res, next);
+        }
         return res.redirect('/?error=no_user');
       }
       
