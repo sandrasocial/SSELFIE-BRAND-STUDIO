@@ -211,6 +211,7 @@ The platform has become overly complex with multiple pricing tiers, broken onboa
 **CRITICAL BUG FIXES APPLIED:**
 - **Free User Issue**: Fixed blocking of first training attempt - now allows 1 training total
 - **Premium User Issue**: Fixed limit check from >=3 to >=4 to allow proper 3 retrains per month
+- **Placeholder Model Issue**: Fixed logic to distinguish between placeholder models and real trained models
 - **Logic Separation**: Clearly separated first training vs. retraining scenarios for accurate limits
 
 **Technical Implementation:**

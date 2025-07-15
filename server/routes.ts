@@ -1973,8 +1973,10 @@ Create prompts that feel like iconic fashion campaign moments that would make so
 
       // Handle retraining with usage limits based on user plan
       let userModel = await storage.getUserModelByUserId(dbUserId);
-      if (userModel) {
-        // This is a RETRAINING scenario - user already has a model
+      const isRealTraining = userModel && userModel.trainingStatus === 'completed' && userModel.replicateModelId && !userModel.replicateModelId.includes('placeholder');
+      
+      if (isRealTraining) {
+        // This is a RETRAINING scenario - user already has a REAL trained model
         // Get user's subscription plan
         const subscription = await storage.getSubscription(dbUserId);
         const isFreePlan = !subscription || subscription.plan === 'free';
@@ -2019,8 +2021,14 @@ Create prompts that feel like iconic fashion campaign moments that would make so
           startedAt: new Date()
         });
       } else {
-        // This is FIRST TRAINING scenario - allowed for all users including free
-        console.log(`🆕 User ${dbUserId} is training for the first time`);
+        // This is FIRST TRAINING scenario - delete any placeholder models and create fresh
+        console.log(`🆕 User ${dbUserId} is training for the first time (removing any placeholder models)`);
+        
+        if (userModel) {
+          // Delete placeholder model
+          await storage.deleteUserModel(dbUserId);
+        }
+        
         userModel = await storage.createUserModel({
           userId: dbUserId,
           triggerWord,
