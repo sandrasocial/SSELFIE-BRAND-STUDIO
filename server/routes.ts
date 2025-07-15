@@ -3667,6 +3667,8 @@ Consider this workflow optimized and ready for implementation! ⚙️`
       const authUserId = req.user.claims.sub;
       const claims = req.user.claims;
       
+      console.log(`🔍 Usage status check - Auth ID: ${authUserId}, Email: ${claims.email}`);
+      
       // Get the correct database user ID
       let user = await storage.getUser(authUserId);
       if (!user && claims.email) {
@@ -3677,9 +3679,26 @@ Consider this workflow optimized and ready for implementation! ⚙️`
         return res.status(404).json({ error: 'User not found' });
       }
       
+      console.log(`👤 Found user: ${user.email}, Plan: ${user.plan}`);
+      
       const dbUserId = user.id;
       
-      // Special handling for admin users - unlimited access
+      // CRITICAL: Check admin emails regardless of plan field
+      const adminEmails = ['ssa@ssasocial.com', 'sandrajonna@gmail.com', 'sandra@sselfie.ai'];
+      if (adminEmails.includes(user.email)) {
+        console.log(`👑 Admin user detected: ${user.email} - granting unlimited access`);
+        return res.json({
+          plan: 'admin',
+          canGenerate: true,
+          remainingGenerations: 999999,
+          totalUsed: 0,
+          totalAllowed: 999999,
+          isAdmin: true,
+          reason: 'Admin: Unlimited access'
+        });
+      }
+      
+      // Special handling for admin users by plan field
       if (user.plan === 'admin') {
         return res.json({
           plan: 'admin',
