@@ -202,7 +202,7 @@ The platform has become overly complex with multiple pricing tiers, broken onboa
 ### ✅ PLATFORM STABILITY ENHANCED & ROUTING OPTIMIZED (July 15, 2025)
 **NAVIGATION AND USER EXPERIENCE IMPROVEMENTS:**
 - **Logo Navigation Fixed**: SSELFIE logo now smoothly scrolls to top when already on workspace instead of triggering re-authentication loops
-- **Library Widget Route Corrected**: Fixed 404 error by updating Library widget route from `/flatlays` to `/flatlay-library`
+- **Library Widget Route Corrected**: Fixed 404 error by updating Library widget route from `/flatlay-library` to `/flatlays`
 - **Authentication Stability Improved**: Enhanced with 100ms delays, retry logic, and state persistence to prevent rapid redirect loops
 - **Console Logging Optimized**: Reduced noise in development logs while maintaining debugging capabilities
 - **Workspace Navigation Enhanced**: Better state management prevents unnecessary re-authentication when navigating within workspace
