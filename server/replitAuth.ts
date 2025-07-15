@@ -55,14 +55,14 @@ export function getSession() {
     secret: process.env.SESSION_SECRET!,
     store: sessionStore,
     resave: false,
-    saveUninitialized: false, // PERMANENT FIX: Disable automatic session creation
+    saveUninitialized: true, // CRITICAL: Required for OAuth state
     rolling: true, // Extend session on each request
     cookie: {
       httpOnly: true,
       secure: useSecureCookies,
       maxAge: sessionTtl,
-      sameSite: 'lax',
-      domain: isSSELFIEDomain ? undefined : undefined // PERMANENT FIX: Remove domain restrictions
+      sameSite: 'lax'
+      // Remove domain restrictions completely
     },
   });
 }
@@ -141,10 +141,7 @@ export async function setupAuth(app: Express) {
         scope: "openid email profile offline_access",
         callbackURL,
         passReqToCallback: false,
-        skipUserProfile: true,
-        sessionKey: false, // Disable automatic session key generation
-        state: false, // Disable state parameter that's causing issues
-        nonce: false // Disable nonce to simplify OAuth flow
+        skipUserProfile: true
       },
       verify,
     );
@@ -221,7 +218,6 @@ export async function setupAuth(app: Express) {
       
       const authOptions: any = {
         scope: ["openid", "email", "profile", "offline_access"],
-        state: false, // PERMANENT FIX: Disable state parameter causing OAuth issues
         prompt: forceAccountSelection ? "select_account" : "login consent"
       };
       
