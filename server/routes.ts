@@ -1499,24 +1499,34 @@ Create prompts that feel like iconic fashion campaign moments that would make so
   // Auth routes with proper Google OAuth Authentication
   app.get('/api/auth/user', isAuthenticated, async (req: any, res) => {
     try {
-      console.log('🔍 Auth user endpoint called');
-      console.log('🔍 req.user:', JSON.stringify(req.user, null, 2));
+      console.log('🔍 [AUTH/USER] Auth user endpoint called');
+      console.log('🔍 [AUTH/USER] req.user exists:', !!req.user);
+      console.log('🔍 [AUTH/USER] req.user type:', typeof req.user);
+      console.log('🔍 [AUTH/USER] req.user contents:', req.user ? JSON.stringify(req.user, null, 2) : 'null');
       
       // Google OAuth provides user object directly (not claims)
       const user = req.user;
       
       if (!user) {
-        console.log('❌ No user found in request');
-        return res.status(401).json({ message: "Unauthorized" });
+        console.log('❌ [AUTH/USER] No user found in request');
+        return res.status(401).json({ message: "Unauthorized - no user in request" });
       }
       
-      console.log('✅ User found in session:', user.id);
+      if (!user.id) {
+        console.log('❌ [AUTH/USER] User object missing ID property');
+        console.log('❌ [AUTH/USER] Available properties:', Object.keys(user));
+        return res.status(500).json({ message: "User object malformed - missing ID", userProperties: Object.keys(user) });
+      }
+      
+      console.log('✅ [AUTH/USER] User found in session:', user.id, user.email);
       
       // Return the user object directly - Google OAuth already handled upsert
       res.json(user);
       
     } catch (error) {
-      console.error('Error fetching/creating user:', error);
+      console.error('❌ [AUTH/USER] Error in auth/user endpoint:', error);
+      console.error('❌ [AUTH/USER] Error message:', error.message);
+      console.error('❌ [AUTH/USER] Error stack:', error.stack);
       res.status(500).json({ message: 'Failed to fetch user', error: error.message });
     }
   });
