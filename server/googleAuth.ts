@@ -66,9 +66,25 @@ export async function setupGoogleAuth(app: Express) {
   app.use(passport.initialize());
   app.use(passport.session());
 
-  // EMERGENCY LAUNCH FIX: Use Replit domain for immediate OAuth functionality
-  const replitDomain = 'e33979fc-c9be-4f0d-9a7b-6a3e83046828-00-3ij9k7qy14rai.picard.replit.dev';
-  const callbackURL = `https://${replitDomain}/api/auth/google/callback`;
+  // PRODUCTION READY: Support both custom domain and Replit domain
+  const getCallbackURL = (req?: any) => {
+    const host = req?.get('host') || 'sselfie.ai';
+    
+    // Custom domain takes priority
+    if (host.includes('sselfie.ai')) {
+      return 'https://sselfie.ai/api/auth/google/callback';
+    }
+    
+    // Replit domain fallback
+    if (host.includes('replit.dev')) {
+      return `https://${host}/api/auth/google/callback`;
+    }
+    
+    // Default to custom domain
+    return 'https://sselfie.ai/api/auth/google/callback';
+  };
+  
+  const callbackURL = getCallbackURL();
   
   console.log('🔍 Google OAuth callback URL:', callbackURL);
   console.log('🔍 Google Client ID (first 10 chars):', googleClientId.substring(0, 10) + '...');
