@@ -12,7 +12,7 @@ export const AuthForm: React.FC<AuthFormProps> = ({ type }) => {
     e.preventDefault();
     setIsLoading(true);
     
-    // Redirect to Replit Auth
+    // Redirect to Google OAuth
     window.location.href = '/api/login';
   };
 
@@ -42,13 +42,13 @@ export const AuthForm: React.FC<AuthFormProps> = ({ type }) => {
           disabled={isLoading}
           className="w-full py-4 border border-[#f5f5f5] text-[#f5f5f5] text-sm tracking-[0.2em] uppercase font-inter font-light hover:bg-[#f5f5f5] hover:text-[#0a0a0a] transition-all duration-300 disabled:opacity-50"
         >
-          {isLoading ? 'Connecting...' : (isLogin ? 'Continue with Replit' : 'Start with Replit')}
+          {isLoading ? 'Connecting...' : (isLogin ? 'Continue with Google' : 'Start with Google')}
         </button>
 
         {/* Divider */}
         <div className="text-center">
           <span className="text-[#f5f5f5]/50 text-xs font-inter">
-            Secure authentication powered by Replit
+            Secure authentication powered by Google
           </span>
         </div>
 

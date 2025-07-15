@@ -66,25 +66,8 @@ export async function setupGoogleAuth(app: Express) {
   app.use(passport.initialize());
   app.use(passport.session());
 
-  // PRODUCTION READY: Support both custom domain and Replit domain
-  const getCallbackURL = (req?: any) => {
-    const host = req?.get('host') || 'sselfie.ai';
-    
-    // Custom domain takes priority
-    if (host.includes('sselfie.ai')) {
-      return 'https://sselfie.ai/api/auth/google/callback';
-    }
-    
-    // Replit domain fallback
-    if (host.includes('replit.dev')) {
-      return `https://${host}/api/auth/google/callback`;
-    }
-    
-    // Default to custom domain
-    return 'https://sselfie.ai/api/auth/google/callback';
-  };
-  
-  const callbackURL = getCallbackURL();
+  // DEVELOPMENT SERVER CALLBACK URL - Always use development server for OAuth
+  const callbackURL = 'https://e33979fc-c9be-4f0d-9a7b-6a3e83046828-00-3ij9k7qy14rai.picard.replit.dev/api/auth/google/callback';
   
   console.log('🔍 Google OAuth callback URL:', callbackURL);
   console.log('🔍 Google Client ID (first 10 chars):', googleClientId.substring(0, 10) + '...');
@@ -220,8 +203,8 @@ export async function setupGoogleAuth(app: Express) {
           console.log('✅ req.isAuthenticated():', req.isAuthenticated());
           console.log('✅ req.user after login:', !!req.user);
           console.log('✅ Session passport after login:', req.session?.passport);
-          console.log('✅ Redirecting to workspace');
-          res.redirect('/workspace');
+          console.log('✅ Redirecting to production domain workspace');
+          res.redirect('https://sselfie.ai/workspace');
         });
       })(req, res, next);
     }
@@ -233,7 +216,7 @@ export async function setupGoogleAuth(app: Express) {
         console.error('❌ Logout error:', err);
         return res.status(500).json({ error: 'Logout failed' });
       }
-      res.redirect('/');
+      res.redirect('https://sselfie.ai/');
     });
   });
 
