@@ -31,6 +31,13 @@ export function getSession() {
     ttl: sessionTtl,
     tableName: "sessions",
   });
+  
+  // Determine if we should use secure cookies based on environment
+  const isProduction = process.env.NODE_ENV === 'production';
+  const useSecureCookies = isProduction || process.env.FORCE_HTTPS === 'true';
+  
+  console.log('🍪 Session config:', { isProduction, useSecureCookies });
+  
   return session({
     secret: process.env.SESSION_SECRET!,
     store: sessionStore,
@@ -38,7 +45,7 @@ export function getSession() {
     saveUninitialized: false,
     cookie: {
       httpOnly: true,
-      secure: false, // Always false for development compatibility
+      secure: useSecureCookies,
       maxAge: sessionTtl,
       sameSite: 'lax'
     },
