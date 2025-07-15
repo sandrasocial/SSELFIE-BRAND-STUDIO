@@ -93,6 +93,7 @@ export default function CustomPhotoshootLibrary() {
         headers: {
           'Content-Type': 'application/json',
         },
+        credentials: 'include',
         body: JSON.stringify({
           prompt: prompt.prompt,
           // Note: userId handled by backend authentication
