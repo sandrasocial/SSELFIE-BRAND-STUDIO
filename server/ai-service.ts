@@ -224,6 +224,7 @@ export class AIService {
       input: {
         prompt: prompt,
         guidance: 2.8,              // OPTIMIZED: Reduced from 3.0 to 2.8 for more natural results
+        lora_weights: userLoRAWeights, // 🔑 CRITICAL: User's trained LoRA weights - THIS WAS MISSING!
         lora_scale: 1.0,           // OPTIMAL: Standard scale for personal LoRAs (0.9-1.0)
         num_inference_steps: 40,    // OPTIMIZED: Increased from 35 to 40 for higher quality
         num_outputs: 3,            // Generate 3 focused images
