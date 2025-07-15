@@ -119,8 +119,11 @@ export async function setupAuth(app: Express) {
   passport.deserializeUser((user: Express.User, cb) => cb(null, user));
 
   app.get("/api/login", (req, res, next) => {
-    // Check if user is already authenticated
-    if (req.isAuthenticated() && req.user?.expires_at) {
+    // Check if this is a forced account selection (for switching)
+    const forceAccountSelection = req.query.prompt === 'select_account';
+    
+    // Check if user is already authenticated (unless forcing account selection)
+    if (!forceAccountSelection && req.isAuthenticated() && req.user?.expires_at) {
       const now = Math.floor(Date.now() / 1000);
       if (now <= req.user.expires_at) {
         console.log('✅ User already authenticated, redirecting to workspace');
@@ -128,10 +131,19 @@ export async function setupAuth(app: Express) {
       }
     }
     
-    console.log('🔍 Login requested - starting authentication flow');
-    passport.authenticate(`replitauth:${req.hostname}`, {
+    const authOptions: any = {
       scope: ["openid", "email", "profile", "offline_access"],
-    })(req, res, next);
+    };
+    
+    // Force account selection only when explicitly requested
+    if (forceAccountSelection) {
+      authOptions.prompt = "select_account";
+      console.log('🔍 Forcing account selection for account switching');
+    } else {
+      console.log('🔍 Login requested - starting authentication flow');
+    }
+    
+    passport.authenticate(`replitauth:${req.hostname}`, authOptions)(req, res, next);
   });
 
   app.get("/api/callback", (req, res, next) => {
@@ -175,11 +187,8 @@ export async function setupAuth(app: Express) {
         res.clearCookie('connect.sid');
         console.log('✅ Session cleared for account switch');
         
-        // Force account selection for switching
-        passport.authenticate(`replitauth:${req.hostname}`, {
-          prompt: "login consent",
-          scope: ["openid", "email", "profile", "offline_access"],
-        })(req, res, () => {});
+        // Redirect to branded account switch page instead of direct auth
+        res.redirect('/switch-account');
       });
     });
   });
