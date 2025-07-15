@@ -7,12 +7,25 @@ async function throwIfResNotOk(res: Response) {
   }
 }
 
+// Force development server URL in development mode
+function getApiUrl(url: string): string {
+  // If we're on production domain but in development, redirect to dev server
+  if (window.location.hostname === 'sselfie.ai' && import.meta.env.DEV) {
+    // Use the Replit development domain
+    return `https://e33979fc-c9be-4f0d-9a7b-6a3e83046828-00-3ij9k7qy14rai.picard.replit.dev${url}`;
+  }
+  return url;
+}
+
 export async function apiRequest(
   method: string,
   url: string,
   data?: unknown | undefined,
 ): Promise<Response> {
-  const res = await fetch(url, {
+  const finalUrl = getApiUrl(url);
+  console.log(`🔍 API Request: ${method} ${url} -> ${finalUrl}`);
+  
+  const res = await fetch(finalUrl, {
     method,
     headers: data ? { "Content-Type": "application/json" } : {},
     body: data ? JSON.stringify(data) : undefined,
@@ -29,7 +42,11 @@ export const getQueryFn: <T>(options: {
 }) => QueryFunction<T> =
   ({ on401: unauthorizedBehavior }) =>
   async ({ queryKey }) => {
-    const res = await fetch(queryKey[0] as string, {
+    const url = queryKey[0] as string;
+    const finalUrl = getApiUrl(url);
+    console.log(`🔍 Query: ${url} -> ${finalUrl}`);
+    
+    const res = await fetch(finalUrl, {
       credentials: "include",
     });
 
