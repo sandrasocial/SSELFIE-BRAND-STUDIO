@@ -88,7 +88,7 @@ export default function Maya() {
     if (!isLoading && !user) {
       toast({
         title: "Authentication Required",
-        description: "Please log in to chat with Maya AI",
+        description: "Continue with Google to chat with Maya AI",
         variant: "destructive",
       });
       setLocation('/pricing');

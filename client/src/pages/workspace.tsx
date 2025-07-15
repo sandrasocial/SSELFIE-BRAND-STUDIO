@@ -138,13 +138,13 @@ export default function Workspace() {
             Hey There
           </h1>
           <p className="text-lg text-gray-600 mb-8 max-w-md">
-            You'll need to sign in to see your studio space.
+            Continue with Google to access your studio space.
           </p>
           <a
             href="/api/login"
             className="inline-block px-8 py-4 text-xs uppercase tracking-wide border border-black hover:bg-black hover:text-white transition-all duration-300"
           >
-            Sign In
+            Continue with Google
           </a>
         </div>
       </div>

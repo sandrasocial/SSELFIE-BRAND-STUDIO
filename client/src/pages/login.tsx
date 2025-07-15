@@ -5,7 +5,7 @@ import { SandraImages } from '@/lib/sandra-images';
 
 export default function Login() {
   const handleLogin = () => {
-    // Redirect to the Replit OAuth endpoint
+    // Redirect to Google OAuth endpoint
     window.location.href = '/api/login';
   };
 
