@@ -23,27 +23,55 @@ export default function SimpleTraining() {
   
   const fileInputRef = useRef<HTMLInputElement>(null);
 
-  // TEMPORARY: Check user model without authentication requirement 
+  // Check user model status with proper authentication
   const { data: userModel, refetch: refetchUserModel } = useQuery({
     queryKey: ['/api/user-model'],
     retry: false,
-    enabled: true // Always enabled for testing
+    enabled: isAuthenticated // Only when authenticated
   });
+
+  // Initialize training state based on userModel data
+  useEffect(() => {
+    console.log('📊 User Model Debug:', {
+      userModel,
+      isAuthenticated,
+      trainingStatus: userModel?.trainingStatus
+    });
+    
+    if (userModel && userModel.trainingStatus === 'training') {
+      console.log('🔄 Found active training on page load:', userModel);
+      setIsTrainingStarted(true);
+      setTrainingProgress(userModel.trainingProgress || 5);
+      if (userModel.startedAt) {
+        setStartTime(new Date(userModel.startedAt));
+      }
+    } else if (userModel && userModel.trainingStatus === 'completed') {
+      console.log('✅ Found completed training:', userModel);
+      // Don't set training started, user can retrain
+    }
+  }, [userModel, isAuthenticated]);
 
   // Poll for training status updates with progress
   useEffect(() => {
-    if (isTrainingStarted || (userModel && userModel.trainingStatus === 'training')) {
+    const isCurrentlyTraining = isTrainingStarted || (userModel && userModel.trainingStatus === 'training');
+    
+    if (isCurrentlyTraining && isAuthenticated) {
+      console.log('🔄 Training detected, starting status polling...');
+      
       const interval = setInterval(async () => {
         // Update user model data
-        refetchUserModel();
+        await refetchUserModel();
         
-        // Get progress data if we have user ID
-        if (userModel?.userId) {
+        // Get progress data if we have user model
+        if (userModel?.id) {
           try {
-            const progressResponse = await fetch(`/api/training-progress/${userModel.userId}`);
+            const progressResponse = await fetch(`/api/training-progress/${userModel.id}`, {
+              credentials: 'include'
+            });
             if (progressResponse.ok) {
               const progressData = await progressResponse.json();
-              setTrainingProgress(progressData.progress);
+              setTrainingProgress(progressData.progress || 0);
+              console.log(`📊 Training progress: ${progressData.progress}%`);
             }
           } catch (error) {
             console.error('Failed to fetch training progress:', error);
@@ -53,7 +81,7 @@ export default function SimpleTraining() {
 
       return () => clearInterval(interval);
     }
-  }, [isTrainingStarted, userModel, refetchUserModel]);
+  }, [isTrainingStarted, userModel, refetchUserModel, isAuthenticated]);
 
   // Calculate progress and time remaining
   useEffect(() => {
