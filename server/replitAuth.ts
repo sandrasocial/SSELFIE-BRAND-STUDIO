@@ -163,7 +163,12 @@ export async function setupAuth(app: Express) {
       console.log(`🔍 Login requested for hostname: ${hostname}`);
       console.log(`🔍 Available strategies: ${req.app.locals.authDomains.join(', ')}`);
       
-      // Check if we have a strategy for this hostname
+      // CRITICAL: Redirect to sselfie.ai for proper authentication instead of localhost
+      if (hostname === 'localhost' || hostname.includes('replit.dev')) {
+        console.log('🔄 Redirecting to production domain for authentication');
+        return res.redirect(302, 'https://sselfie.ai/api/login');
+      }
+      
       const strategyName = `replitauth:${hostname}`;
       const hasStrategy = req.app.locals.authDomains.includes(hostname);
       
@@ -189,6 +194,7 @@ export async function setupAuth(app: Express) {
         console.log('🔍 Login requested - starting authentication flow');
       }
       
+      console.log(`🔍 Using strategy: ${strategyName} for domain: ${hostname}`);
       passport.authenticate(strategyName, authOptions)(req, res, next);
     }
     
@@ -198,6 +204,11 @@ export async function setupAuth(app: Express) {
 
   app.get("/api/callback", (req, res, next) => {
     let hostname = req.hostname;
+    
+    // CRITICAL: Force sselfie.ai domain for all authentication callbacks
+    if (hostname === 'localhost' || hostname.includes('replit.dev')) {
+      hostname = 'sselfie.ai';
+    }
     
     console.log(`🔍 OAuth callback for hostname: ${hostname}`);
     
@@ -251,7 +262,14 @@ export async function setupAuth(app: Express) {
 export const isAuthenticated: RequestHandler = async (req, res, next) => {
   const user = req.user as any;
 
-  if (!req.isAuthenticated() || !user.expires_at) {
+  console.log('🔍 Auth check:', {
+    isAuthenticated: req.isAuthenticated?.() || false,
+    hasUser: !!user,
+    userEmail: user?.claims?.email,
+    expiresAt: user?.expires_at
+  });
+
+  if (!req.isAuthenticated() || !user?.expires_at) {
     return res.status(401).json({ message: "Unauthorized" });
   }
 

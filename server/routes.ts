@@ -1472,6 +1472,25 @@ Create prompts that feel like iconic fashion campaign moments that would make so
     }
   });
 
+  // CRITICAL FIX: Add domain redirect for proper authentication
+  app.get('/api/check-domain', (req, res) => {
+    const hostname = req.hostname;
+    console.log('🔍 Domain check requested from:', hostname);
+    
+    // If accessing from localhost or replit.dev, redirect to sselfie.ai for proper auth
+    if (hostname === 'localhost' || hostname.includes('replit.dev')) {
+      const redirectUrl = `https://sselfie.ai${req.originalUrl}`;
+      console.log('🔄 Redirecting to production domain:', redirectUrl);
+      return res.redirect(302, redirectUrl);
+    }
+    
+    res.json({ 
+      domain: hostname, 
+      isProduction: hostname === 'sselfie.ai',
+      authReady: hostname === 'sselfie.ai'
+    });
+  });
+
   // Authentication already set up at the beginning of this function
 
   // DEBUGGING: Add a test endpoint to check auth status
