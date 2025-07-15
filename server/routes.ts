@@ -890,10 +890,21 @@ Create prompts that feel like iconic fashion campaign moments that would make so
         return res.status(403).json({ error: 'Unauthorized access to tracker' });
       }
       
-      // Parse temp URLs for preview
+      // Parse temp URLs for preview or error messages
       let imageUrls = [];
+      let errorMessage = null;
+      
       try {
-        imageUrls = tracker.imageUrls ? JSON.parse(tracker.imageUrls) : [];
+        if (tracker.imageUrls) {
+          const parsed = JSON.parse(tracker.imageUrls);
+          if (tracker.status === 'failed' && Array.isArray(parsed) && parsed.length > 0 && parsed[0].includes('Error:')) {
+            // Extract error message from failed generation
+            errorMessage = parsed[0].replace('Error: ', '');
+            imageUrls = [];
+          } else {
+            imageUrls = parsed;
+          }
+        }
       } catch {
         imageUrls = [];
       }
@@ -902,6 +913,7 @@ Create prompts that feel like iconic fashion campaign moments that would make so
         id: tracker.id,
         status: tracker.status,
         imageUrls, // Temp URLs for preview only
+        errorMessage, // Error message for failed generations
         prompt: tracker.prompt,
         style: tracker.style,
         createdAt: tracker.createdAt
