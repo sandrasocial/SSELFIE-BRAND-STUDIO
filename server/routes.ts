@@ -31,16 +31,12 @@ const DEFAULT_MODEL_STR = "claude-sonnet-4-20250514";
 
 export async function registerRoutes(app: Express): Promise<Server> {
   // Enhanced domain and HTTPS handling for cross-browser compatibility
+  // Handle www redirect FIRST (before SSL certificate verification)
   app.use((req, res, next) => {
     const hostname = req.hostname;
     const protocol = req.header('x-forwarded-proto') || req.protocol;
     
-    // Force HTTPS for production domain
-    if (hostname === 'sselfie.ai' && protocol !== 'https') {
-      return res.redirect(301, `https://${hostname}${req.url}`);
-    }
-    
-    // Handle www subdomain redirect
+    // CRITICAL: Redirect www subdomain BEFORE SSL checks to avoid certificate mismatch
     if (hostname === 'www.sselfie.ai') {
       return res.redirect(301, `https://sselfie.ai${req.url}`);
     }
@@ -48,6 +44,11 @@ export async function registerRoutes(app: Express): Promise<Server> {
     // Handle any other sselfie.ai subdomains
     if (hostname.endsWith('.sselfie.ai') && hostname !== 'sselfie.ai') {
       return res.redirect(301, `https://sselfie.ai${req.url}`);
+    }
+    
+    // Force HTTPS for production domain (after subdomain redirects)
+    if (hostname === 'sselfie.ai' && protocol !== 'https') {
+      return res.redirect(301, `https://${hostname}${req.url}`);
     }
     
     next();
