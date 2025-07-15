@@ -138,69 +138,87 @@ export function registerAutomationRoutes(app: Express) {
 }
 
 async function sendWelcomeEmail(user: any, plan: string) {
-  // Email templates based on plan
+  // Email templates based on plan - Sandra's warm bestfriend voice
   const templates = {
-    'ai-pack': {
-      subject: '🎉 Welcome to SSELFIE AI Pack! Your transformation starts now',
+    'free': {
+      subject: 'Hey gorgeous! Welcome to SSELFIE 💫',
       body: `
-        Hi ${user.firstName || 'there'},
-        
-        Welcome to SSELFIE! You're about to transform your personal brand with AI.
-        
-        Your next step: Upload 5-15 selfies to generate 50 professional AI images.
-        
-        👉 Get started: ${process.env.BASE_URL}/ai-images
-        
-        Questions? Just reply to this email.
-        
-        Your authentic journey starts now,
-        Sandra
+        Hey ${user.firstName || 'gorgeous'}!
+
+        So you actually signed up! I'm honestly so excited for you.
+
+        Listen, you just took the first step toward building something incredible. And I'm here to help you every single step of the way.
+
+        Your next move? Let's get those selfies uploaded so Maya (my AI photographer) can work her magic. Trust me, you're going to love what she creates for you.
+
+        Ready to see what you're capable of?
+
+        👉 Let's do this: ${process.env.BASE_URL || 'https://sselfie.ai'}/workspace
+
+        Text me back if you need anything. Seriously.
+
+        Your new best friend who happens to be really good with AI,
+        Sandra ✨
+
+        P.S. I believe in you. Like, really believe in you.
       `
     },
     'studio': {
-      subject: '🚀 Welcome to SSELFIE Studio! Let\'s build your business',
+      subject: 'You amazing human! Welcome to SSELFIE Studio 🚀',
       body: `
-        Hi ${user.firstName || 'there'},
-        
-        Welcome to SSELFIE Studio! You now have everything you need to build your business.
-        
-        Your next steps:
-        1. Complete your brand onboarding
-        2. Generate your AI images
-        3. Build your landing page
-        4. Launch your business
-        
-        👉 Start here: ${process.env.BASE_URL}/onboarding
-        
-        I'm here to support you every step of the way.
-        
-        Let's build something amazing,
-        Sandra
+        Hey ${user.firstName || 'you amazing human'}!
+
+        Seriously, you just made one of the best decisions ever. 
+
+        SSELFIE Studio isn't just a platform. It's your complete business-in-a-box. And I'm genuinely excited to watch you build something incredible.
+
+        Here's what happens next:
+        • Upload your selfies (Maya is waiting for you!)
+        • Let Victoria help you build your brand
+        • Create your landing page
+        • Launch your business
+
+        But honestly? Don't overthink it. Just start with Maya. She'll guide you through everything.
+
+        👉 Your workspace is ready: ${process.env.BASE_URL || 'https://sselfie.ai'}/workspace
+
+        I'm literally cheering you on from Iceland. Let's build something that makes people stop scrolling.
+
+        Your biggest fan,
+        Sandra 💫
+
+        P.S. If you get stuck on anything, just reply to this email. I read every single one.
       `
     },
     'studio-pro': {
-      subject: '💎 Welcome to SSELFIE Studio Pro! Your 1:1 call awaits',
+      subject: 'Holy sh*t, you went all in! Welcome to Studio Pro 💎',
       body: `
-        Hi ${user.firstName || 'there'},
-        
-        Welcome to SSELFIE Studio Pro! You've made the best investment in your business.
-        
-        Your VIP treatment includes:
-        ✓ Everything in Studio
-        ✓ Personal 1:1 setup call with my team
-        ✓ Priority support
-        
-        👉 Book your call: ${process.env.BASE_URL}/onboarding
-        
-        I can't wait to personally help you succeed.
-        
-        Your success partner,
-        Sandra
+        Hey ${user.firstName || 'superstar'}!
+
+        I am SO proud of you right now. You didn't just buy something. You invested in yourself in the biggest way possible.
+
+        Studio Pro means you get EVERYTHING:
+        • All of SSELFIE Studio
+        • Personal setup call with my team
+        • Priority everything
+        • Direct line to me when you need it
+
+        But here's the thing... you already have everything you need to succeed. This just makes it faster and easier.
+
+        👉 Start here: ${process.env.BASE_URL || 'https://sselfie.ai'}/workspace
+        👉 Book your VIP call: ${process.env.BASE_URL || 'https://sselfie.ai'}/vip-call
+
+        I can't wait to personally help you build something that changes everything.
+
+        Your success is my success,
+        Sandra 🔥
+
+        P.S. You're about to surprise yourself with what you're capable of. I've seen it happen hundreds of times.
       `
     }
   };
 
-  const template = templates[plan as keyof typeof templates] || templates['ai-pack'];
+  const template = templates[plan as keyof typeof templates] || templates['free'];
   
   // In production, integrate with email service (SendGrid, Mailchimp, etc.)
   console.log(`Sending email to ${user.email}:`);
