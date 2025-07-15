@@ -756,6 +756,14 @@ Create prompts that feel like iconic fashion campaign moments that would make so
         return res.status(401).json({ error: 'Authentication required' });
       }
       
+      // 🚨 CRITICAL SECURITY AUDIT: Log authentication details for debugging
+      console.log('🔍 MAYA GENERATION AUTH AUDIT:', {
+        authUserId,
+        email: claims.email,
+        firstName: claims.first_name,
+        timestamp: new Date().toISOString()
+      });
+      
       // Get the correct database user ID
       let user = await storage.getUser(authUserId);
       if (!user && claims.email) {
@@ -763,11 +771,17 @@ Create prompts that feel like iconic fashion campaign moments that would make so
       }
       
       if (!user) {
+        console.log(`❌ CRITICAL: No user found for auth ID ${authUserId} or email ${claims.email}`);
         return res.status(404).json({ error: 'User not found' });
       }
       
       const userId = user.id;
-      console.log(`Maya generating images for database user ${userId} (auth: ${authUserId})`);
+      console.log(`🔒 MAYA GENERATION SECURITY AUDIT:`, {
+        authUserId,
+        dbUserId: userId,
+        userEmail: user.email,
+        timestamp: new Date().toISOString()
+      });
       
       if (!customPrompt) {
         return res.status(400).json({ error: 'Custom prompt is required' });
@@ -789,7 +803,18 @@ Create prompts that feel like iconic fashion campaign moments that would make so
 
       // 🚨 CRITICAL: ZERO FALLBACKS - User MUST have completed trained model
       const userModel = await storage.getUserModelByUserId(userId);
+      
+      // 🔍 SECURITY AUDIT: Log model details for debugging
+      console.log(`🔍 USER MODEL AUDIT for ${userId}:`, {
+        modelExists: !!userModel,
+        trainingStatus: userModel?.trainingStatus,
+        triggerWord: userModel?.triggerWord,
+        replicateModelId: userModel?.replicateModelId,
+        userEmail: user.email
+      });
+      
       if (!userModel) {
+        console.log(`❌ CRITICAL: No model found for user ${userId} (${user.email})`);
         return res.status(400).json({ 
           error: 'No AI model found for user. Please train your model first.',
           requiresTraining: true,
@@ -798,6 +823,7 @@ Create prompts that feel like iconic fashion campaign moments that would make so
       }
       
       if (userModel.trainingStatus !== 'completed') {
+        console.log(`❌ CRITICAL: Incomplete model for user ${userId} - status: ${userModel.trainingStatus}`);
         return res.status(400).json({ 
           error: `AI model training ${userModel.trainingStatus}. Please wait for completion.`,
           trainingStatus: userModel.trainingStatus,
@@ -808,12 +834,16 @@ Create prompts that feel like iconic fashion campaign moments that would make so
       
       // Verify trigger word exists
       if (!userModel.triggerWord) {
+        console.log(`❌ CRITICAL: Missing trigger word for user ${userId}`);
         return res.status(400).json({ 
           error: 'Model missing trigger word. Please retrain your model.',
           requiresTraining: true,
           redirectTo: '/simple-training'
         });
       }
+      
+      // 🔒 SECURITY VERIFICATION: Confirm user owns this model
+      console.log(`✅ SECURITY VERIFIED: User ${userId} (${user.email}) has valid model ${userModel.replicateModelId} with trigger "${userModel.triggerWord}"`);
 
       console.log(`Maya generating images for user ${userId} with prompt: ${customPrompt}`);
 

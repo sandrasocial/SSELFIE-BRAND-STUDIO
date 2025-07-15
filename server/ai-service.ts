@@ -228,8 +228,17 @@ export class AIService {
 
     // 🚨 CRITICAL SECURITY FIX: Use user's unique replicate_model_id for LoRA weights
     const userLoRAWeights = `sandrasocial/${userModel.replicateModelId}`;
-    console.log(`🔒 SECURE: Using user's unique LoRA model: ${userLoRAWeights}`);
-    console.log(`🔒 SECURE: Using user's unique trigger word: ${userModel.triggerWord}`);
+    
+    // 🚨 CRITICAL SECURITY AUDIT: Comprehensive logging for debugging Sandra image issue
+    console.log(`🔒 CRITICAL SECURITY AUDIT - AI SERVICE:`, {
+      userId,
+      userModelId: userModel.id,
+      replicateModelId: userModel.replicateModelId,
+      triggerWord: userModel.triggerWord,
+      userLoRAWeights,
+      trainingStatus: userModel.trainingStatus,
+      timestamp: new Date().toISOString()
+    });
 
     // Use SAME API format as image-generation-service.ts for consistency
     const fluxModelVersion = 'black-forest-labs/flux-dev-lora:a53fd9255ecba80d99eaab4706c698f861fd47b098012607557385416e46aae5';
@@ -252,7 +261,8 @@ export class AIService {
       }
     };
     
-    console.log('🔒 SECURITY FIX: API request with user-specific LoRA:', JSON.stringify(requestBody, null, 2));
+    // 🚨 CRITICAL: Log full API request for Sandra image debugging
+    console.log('🔒 SECURITY FIX: FULL REPLICATE API REQUEST:', JSON.stringify(requestBody, null, 2));
     
     const response = await fetch(FLUX_MODEL_CONFIG.apiUrl, {
       method: 'POST',
@@ -269,7 +279,16 @@ export class AIService {
     }
 
     const prediction = await response.json();
-    console.log('🔒 SECURE: Generation started with user-specific model for prediction:', prediction.id);
+    
+    // 🚨 CRITICAL: Log Replicate response for debugging
+    console.log('🔒 REPLICATE API RESPONSE:', {
+      predictionId: prediction.id,
+      status: prediction.status,
+      userId,
+      userLoRAWeights,
+      timestamp: new Date().toISOString()
+    });
+    
     return prediction.id;
   }
 
