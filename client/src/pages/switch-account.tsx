@@ -19,7 +19,7 @@ export default function SwitchAccount() {
       <PreLoginNavigationUnified />
       
       <HeroFullBleed
-        backgroundImage={SandraImages.editorial.luxury2}
+        backgroundImage="https://i.postimg.cc/76vVdbWY/out-0-7.png"
         tagline="Switch to different account"
         title="CHOOSE ACCOUNT"
         ctaText="Select Different Email"
