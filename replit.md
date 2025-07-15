@@ -728,9 +728,15 @@ The platform has become overly complex with multiple pricing tiers, broken onboa
 - **AUTH BRIDGE**: Ready for deployment, will show branded experience once cache cleared
 - **ADMIN ACCESS**: User needs to login with `ssa@ssasocial.com` for unlimited generation privileges
 
+**BRANDED AUTH BYPASS ISSUE FIXED (July 15, 2025):**
+- **PROBLEM IDENTIFIED**: Multiple components redirecting directly to /api/login instead of branded /login bridge
+- **FILES UPDATED**: pre-login-navigation-unified.tsx, auth-form.tsx, email-capture-modal.tsx, inline-email-capture.tsx, free-tier-signup.tsx, welcome.tsx, test-login.tsx
+- **SOLUTION IMPLEMENTED**: All login redirects now use branded /login bridge for consistent user experience
+- **RESULT**: Users will now see custom SSELFIE Studio branding before OAuth instead of generic Replit screen
+
 **IMMEDIATE SOLUTION:**
 - Clear browser DNS cache or try incognito mode to bypass local DNS issues
-- Domain and deployment are actually working correctly
+- All login flows now show branded authentication experience
 - **✅ ROUTE FILES SYNCHRONIZED**: ai-images.ts, checkout.ts, automation.ts, styleguide-routes.ts all using Replit Auth
 - **✅ ADMIN PRIVILEGES ACTIVE**: Sandra (ssa@ssasocial.com) has unlimited generation and admin access
 - **✅ DATABASE SCHEMA FIXED**: Added missing 'started_at' column to user_models table

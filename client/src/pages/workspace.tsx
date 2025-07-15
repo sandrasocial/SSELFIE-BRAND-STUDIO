@@ -132,7 +132,7 @@ export default function Workspace() {
             Continue with Google to access your studio space.
           </p>
           <a
-            href="/api/login"
+            href="/login"
             className="inline-block px-8 py-4 text-xs uppercase tracking-wide border border-black hover:bg-black hover:text-white transition-all duration-300"
           >
             Continue with Google

@@ -89,7 +89,7 @@ export default function Profile() {
             Please sign in to access your profile.
           </p>
           <a
-            href="/api/login"
+            href="/login"
             className="text-xs uppercase tracking-wider text-[#0a0a0a] border-b border-[#0a0a0a] pb-1"
           >
             Sign In

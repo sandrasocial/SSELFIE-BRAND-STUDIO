@@ -65,7 +65,7 @@ export function PreLoginNavigationUnified({ transparent = true }: PreLoginNaviga
               Blog
             </button>
             <button
-              onClick={() => window.location.href = '/api/login'}
+              onClick={() => window.location.href = '/login'}
               className="text-xs uppercase tracking-[0.4em] text-white/80 hover:text-white transition-all duration-300"
             >
               Login
@@ -124,7 +124,7 @@ export function PreLoginNavigationUnified({ transparent = true }: PreLoginNaviga
             </button>
             <button
               onClick={() => {
-                window.location.href = '/api/login';
+                window.location.href = '/login';
                 setMobileMenuOpen(false);
               }}
               className="text-sm uppercase tracking-[0.4em] text-white/70 hover:text-white transition-all duration-300 mt-8"

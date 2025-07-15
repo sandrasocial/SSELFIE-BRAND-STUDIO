@@ -372,7 +372,7 @@ export default function AIGenerator() {
             Continue with Google to access your brand photoshoot.
           </p>
           <a
-            href="/api/login"
+            href="/login"
             className="inline-block px-8 py-4 text-xs uppercase tracking-wide border border-black hover:bg-black hover:text-white transition-all duration-300"
           >
             Continue with Google
