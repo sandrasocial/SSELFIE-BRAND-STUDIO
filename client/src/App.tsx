@@ -148,7 +148,7 @@ function Router() {
       <Route path="/thank-you" component={ThankYou} />
       <Route path="/payment-success" component={PaymentSuccess} />
       <Route path="/auth-success" component={AuthSuccess} />
-      <Route path="/login" component={AuthBridge} />
+      <Route path="/login" component={Login} />
       <Route path="/auth" component={AuthBridge} />
       <Route path="/sign-in" component={AuthBridge} />
       <Route path="/auth-custom" component={AuthLogin} />

@@ -167,7 +167,7 @@ export default function EditorialLanding() {
                 Blog
               </button>
               <button
-                onClick={() => window.location.href = '/api/login'}
+                onClick={() => setLocation('/login')}
                 className="text-xs uppercase tracking-[0.4em] text-white/80 hover:text-white transition-all duration-300"
               >
                 Login
@@ -183,7 +183,7 @@ export default function EditorialLanding() {
             </button>
             
             <button
-              onClick={() => window.location.href = '/api/login'}
+              onClick={() => setLocation('/login')}
               className="hidden md:block px-6 py-3 border border-white/50 text-white text-xs uppercase tracking-[0.3em] hover:bg-white hover:text-black transition-all duration-300"
             >
               Start Here
@@ -221,13 +221,13 @@ export default function EditorialLanding() {
               Blog
             </button>
             <button
-              onClick={() => { window.location.href = '/api/login'; setMobileMenuOpen(false); }}
+              onClick={() => { setLocation('/login'); setMobileMenuOpen(false); }}
               className="text-sm uppercase tracking-[0.4em] text-white/80 hover:text-white transition-all duration-300"
             >
               Login
             </button>
             <button
-              onClick={() => { window.location.href = '/api/login'; setMobileMenuOpen(false); }}
+              onClick={() => { setLocation('/login'); setMobileMenuOpen(false); }}
               className="px-8 py-4 border border-white/50 text-white text-xs uppercase tracking-[0.3em] hover:bg-white hover:text-black transition-all duration-300 mt-8"
             >
               Start Here
@@ -271,7 +271,7 @@ export default function EditorialLanding() {
           </p>
           
           <button
-            onClick={() => window.location.href = '/api/login'}
+            onClick={() => setLocation('/login')}
             className="inline-block text-[10px] sm:text-xs uppercase tracking-[0.25em] sm:tracking-[0.3em] text-white border-b border-white/30 pb-1 sm:pb-2 hover:border-white hover:tracking-[0.3em] sm:hover:tracking-[0.35em] transition-all duration-300"
           >
             START FOR FREE
