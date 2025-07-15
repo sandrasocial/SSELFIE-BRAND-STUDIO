@@ -1,4 +1,4 @@
-import React, { useEffect } from "react";
+import React, { useEffect, lazy, Suspense } from "react";
 import { Switch, Route, useLocation, Redirect } from "wouter";
 import { queryClient } from "./lib/queryClient";
 import { QueryClientProvider } from "@tanstack/react-query";
@@ -45,7 +45,7 @@ import FlatlayLibrary from "@/pages/flatlay-library";
 import Maya from "@/pages/maya";
 import Victoria from "@/pages/victoria";
 import VictoriaChat from "@/pages/victoria-chat";
-import { lazy, Suspense, useEffect } from "react";
+
 import VictoriaBuilder from '@/pages/victoria-builder';
 import VictoriaPreview from '@/pages/victoria-preview';
 import PhotoSelection from "@/pages/photo-selection";
