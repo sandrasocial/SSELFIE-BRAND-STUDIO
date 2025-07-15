@@ -3996,6 +3996,48 @@ Consider this workflow optimized and ready for implementation! ⚙️`
 
 
 
+  // Force session deserialization test
+  app.get('/api/test-deserialize', async (req, res) => {
+    try {
+      console.log('🔍 [MANUAL DESERIALIZE] Starting manual deserialization test');
+      console.log('🔍 [MANUAL DESERIALIZE] Session ID:', req.sessionID);
+      console.log('🔍 [MANUAL DESERIALIZE] Session exists:', !!req.session);
+      console.log('🔍 [MANUAL DESERIALIZE] Session passport:', req.session?.passport);
+      
+      if (req.session?.passport?.user) {
+        const userId = req.session.passport.user;
+        console.log('🔍 [MANUAL DESERIALIZE] Found user ID in session:', userId);
+        
+        const user = await storage.getUser(userId);
+        console.log('🔍 [MANUAL DESERIALIZE] User lookup result:', user ? 'FOUND' : 'NOT FOUND');
+        
+        res.json({
+          sessionId: req.sessionID,
+          hasSession: !!req.session,
+          passportData: req.session?.passport,
+          userFound: !!user,
+          userData: user ? {
+            id: user.id,
+            email: user.email,
+            firstName: user.firstName
+          } : null,
+          reqIsAuthenticated: req.isAuthenticated?.(),
+          reqUser: !!req.user
+        });
+      } else {
+        res.json({
+          sessionId: req.sessionID,
+          hasSession: !!req.session,
+          passportData: req.session?.passport,
+          error: 'No user ID in session passport data'
+        });
+      }
+    } catch (error) {
+      console.error('❌ [MANUAL DESERIALIZE] Error:', error);
+      res.status(500).json({ error: error.message });
+    }
+  });
+
   const httpServer = createServer(app);
   return httpServer;
 }
