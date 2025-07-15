@@ -41,11 +41,18 @@ export async function generateImages(request: GenerateImagesRequest): Promise<Ge
 
 
     // ✅ ACCOUNT CLEANED: Use user's trained model version directly
-    const userModelVersion = userModel.replicateVersionId;
+    let userModelVersion = userModel.replicateVersionId;
     
     if (!userModelVersion) {
       throw new Error('User model version not found - training may need to be redone after account cleanup');
     }
+    
+    // 🔧 CRITICAL FIX: Extract just the version hash if full version string stored
+    if (userModelVersion.includes(':')) {
+      userModelVersion = userModelVersion.split(':').pop(); // Get the hash after the colon
+    }
+    
+    console.log(`🔧 MODEL VERSION FIX - User: ${userId}, Using version hash: ${userModelVersion}`);
     
     // 🎯 CRITICAL: Trigger word MUST be at the very beginning for maximum likeness
     let finalPrompt = customPrompt;

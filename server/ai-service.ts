@@ -215,7 +215,12 @@ export class AIService {
 
     // ✅ ACCOUNT CLEANED: Use user's trained model version directly (no LoRA needed)
     // After cleanup, user models are standalone and don't need base FLUX model
-    const userModelVersion = userModel.replicateVersionId;
+    let userModelVersion = userModel.replicateVersionId;
+    
+    // 🔧 CRITICAL FIX: Extract just the version hash if full version string stored
+    if (userModelVersion && userModelVersion.includes(':')) {
+      userModelVersion = userModelVersion.split(':').pop(); // Get the hash after the colon
+    }
     
     if (!userModelVersion) {
       throw new Error('User model version not found - training may need to be redone after account cleanup');
