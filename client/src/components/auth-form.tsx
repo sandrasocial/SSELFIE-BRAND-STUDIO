@@ -12,8 +12,8 @@ export const AuthForm: React.FC<AuthFormProps> = ({ type }) => {
     e.preventDefault();
     setIsLoading(true);
     
-    // Redirect to Google OAuth
-    window.location.href = '/login';
+    // Redirect to Replit OAuth
+    window.location.href = '/api/login';
   };
 
   const isLogin = type === 'login';
@@ -42,20 +42,20 @@ export const AuthForm: React.FC<AuthFormProps> = ({ type }) => {
           disabled={isLoading}
           className="w-full py-4 border border-[#f5f5f5] text-[#f5f5f5] text-sm tracking-[0.2em] uppercase font-inter font-light hover:bg-[#f5f5f5] hover:text-[#0a0a0a] transition-all duration-300 disabled:opacity-50"
         >
-          {isLoading ? 'Connecting...' : (isLogin ? 'Continue with Google' : 'Start with Google')}
+          {isLoading ? 'Connecting...' : (isLogin ? 'Continue with Account' : 'Start with Account')}
         </button>
 
         {/* Divider */}
         <div className="text-center">
           <span className="text-[#f5f5f5]/50 text-xs font-inter">
-            Secure authentication powered by Google
+            Secure authentication powered by Replit
           </span>
         </div>
 
-        {/* Google OAuth Notice */}
+        {/* OAuth Notice */}
         <div className="text-center pt-6 border-t border-[#f5f5f5]/20">
           <p className="text-[#f5f5f5]/70 text-sm font-inter">
-            Sign in or create account with Google
+            Sign in or create account securely
           </p>
           <p className="text-[#f5f5f5]/50 text-xs font-inter mt-2">
             No passwords to remember. One click access.
@@ -66,7 +66,7 @@ export const AuthForm: React.FC<AuthFormProps> = ({ type }) => {
       {/* Footer Note */}
       <div className="mt-8 pt-6 border-t border-[#f5f5f5]/20">
         <p className="text-[#f5f5f5]/50 text-xs leading-relaxed font-inter">
-          Secure Google authentication. Your data is protected and we never share your information.
+          Secure authentication. Your data is protected and we never share your information.
         </p>
       </div>
     </div>
