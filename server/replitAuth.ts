@@ -160,6 +160,12 @@ export async function setupAuth(app: Express) {
       }
     }
     
+    // CRITICAL: Break infinite loops - if we see repeated login attempts, stop
+    if (req.query.error) {
+      console.log('🔍 Login attempted with error parameter, showing error page');
+      return res.redirect(`/?auth_error=${req.query.error}`);
+    }
+    
     // Check if user is already authenticated (unless forcing account selection)
     if (!forceAccountSelection && req.isAuthenticated() && req.user?.expires_at) {
       const now = Math.floor(Date.now() / 1000);
@@ -215,11 +221,38 @@ export async function setupAuth(app: Express) {
     const hostname = req.hostname;
     
     console.log(`🔍 OAuth callback for hostname: ${hostname}`);
+    console.log(`🔍 Callback query params:`, req.query);
     
-    // Use the ACTUAL hostname for the callback, not forced domain
-    passport.authenticate(`replitauth:${hostname}`, {
-      successRedirect: '/workspace',
-      failureRedirect: '/api/login',
+    // CRITICAL: Prevent infinite loops by checking for errors
+    if (req.query.error) {
+      console.error('❌ OAuth error in callback:', req.query.error, req.query.error_description);
+      return res.redirect('/?error=oauth_failed');
+    }
+    
+    // Use the ACTUAL hostname for the callback
+    passport.authenticate(`replitauth:${hostname}`, (err, user, info) => {
+      console.log(`🔍 OAuth authenticate result:`, { err: !!err, user: !!user, info });
+      
+      if (err) {
+        console.error('❌ OAuth callback error:', err);
+        return res.redirect('/?error=auth_error');
+      }
+      
+      if (!user) {
+        console.error('❌ OAuth callback: No user returned. Info:', info);
+        return res.redirect('/?error=no_user');
+      }
+      
+      req.logIn(user, (loginErr) => {
+        if (loginErr) {
+          console.error('❌ Login error after OAuth:', loginErr);
+          return res.redirect('/?error=login_failed');
+        }
+        
+        console.log('✅ OAuth callback successful for user:', user.claims?.email);
+        console.log('✅ Redirecting to workspace...');
+        res.redirect('/workspace');
+      });
     })(req, res, next);
   });
 
