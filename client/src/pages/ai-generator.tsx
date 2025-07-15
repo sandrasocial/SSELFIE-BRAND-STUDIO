@@ -338,7 +338,18 @@ export default function AIGenerator() {
       <div className="min-h-screen bg-white">
         <MemberNavigation />
         <div className="pt-32 pb-16 text-center">
-          <h1>Please log in to access Your Brand Photoshoot</h1>
+          <h1 className="font-serif text-4xl mb-6 text-black font-light uppercase tracking-wide">
+            Hey There
+          </h1>
+          <p className="text-lg text-gray-600 mb-8 max-w-md mx-auto">
+            Continue with Google to access your brand photoshoot.
+          </p>
+          <a
+            href="/api/login"
+            className="inline-block px-8 py-4 text-xs uppercase tracking-wide border border-black hover:bg-black hover:text-white transition-all duration-300"
+          >
+            Continue with Google
+          </a>
         </div>
       </div>
     );
