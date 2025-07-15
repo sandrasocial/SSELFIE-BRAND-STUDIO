@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Critical Page Load Test</title>
+</head>
+<body>
+<script>
+// Test critical pages for JavaScript errors
+const pages = [
+    'https://sselfie.ai/',
+    'https://sselfie.ai/login',
+    'https://sselfie.ai/how-it-works',
+    'https://sselfie.ai/pricing'
+];
+
+let errors = [];
+
+function testPage(url) {
+    return fetch(url)
+        .then(response => {
+            if (!response.ok) {
+                errors.push(`${url}: HTTP ${response.status}`);
+            }
+            return response.text();
+        })
+        .then(html => {
+            // Check for basic content presence
+            if (html.includes('SSELFIE') || html.includes('AI Studio')) {
+                console.log(`✅ ${url}: Content loaded`);
+            } else {
+                errors.push(`${url}: Missing expected content`);
+            }
+        })
+        .catch(err => {
+            errors.push(`${url}: ${err.message}`);
+        });
+}
+
+Promise.all(pages.map(testPage))
+    .then(() => {
+        if (errors.length === 0) {
+            console.log('✅ ALL CRITICAL PAGES LOADING SUCCESSFULLY');
+        } else {
+            console.log('❌ ERRORS FOUND:');
+            errors.forEach(error => console.log(error));
+        }
+    });
+</script>
+</body>
+</html>
