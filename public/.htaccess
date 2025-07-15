@@ -1,29 +1,29 @@
-# SSELFIE Studio - Domain Access Configuration
-# Force HTTPS and handle www redirects
-
-RewriteEngine On
-
-# Redirect www to non-www (301 permanent redirect)
-RewriteCond %{HTTP_HOST} ^www\.sselfie\.ai [NC]
-RewriteRule ^(.*)$ https://sselfie.ai/$1 [R=301,L]
-
-# Force HTTPS
-RewriteCond %{HTTPS} off
-RewriteCond %{HTTP_HOST} ^sselfie\.ai [NC]
-RewriteRule ^(.*)$ https://sselfie.ai/$1 [R=301,L]
-
-# Cache static assets
-<FilesMatch "\.(css|js|png|jpg|jpeg|gif|ico|svg|woff|woff2)$">
-    ExpiresActive On
-    ExpiresDefault "access plus 1 year"
-    Header append Cache-Control "public, immutable"
+# Cache-busting headers for preventing browser caching issues
+<FilesMatch "\.(js|css|html)$">
+    Header set Cache-Control "no-cache, no-store, must-revalidate"
+    Header set Pragma "no-cache"
+    Header set Expires "0"
 </FilesMatch>
+
+# Force HTTPS for sselfie.ai
+RewriteEngine On
+RewriteCond %{HTTPS} off
+RewriteCond %{HTTP_HOST} ^sselfie\.ai$
+RewriteRule ^(.*)$ https://%{HTTP_HOST}%{REQUEST_URI} [L,R=301]
+
+# Redirect www to non-www
+RewriteCond %{HTTP_HOST} ^www\.sselfie\.ai$
+RewriteRule ^(.*)$ https://sselfie.ai/$1 [L,R=301]
 
 # Security headers
 Header always set X-Content-Type-Options nosniff
 Header always set X-Frame-Options DENY
 Header always set X-XSS-Protection "1; mode=block"
-Header always set Referrer-Policy "strict-origin-when-cross-origin"
-
-# Enable HSTS (HTTP Strict Transport Security)
 Header always set Strict-Transport-Security "max-age=63072000; includeSubDomains; preload"
+
+# Prevent caching of API responses
+<LocationMatch "^/api">
+    Header set Cache-Control "no-store, no-cache, must-revalidate, proxy-revalidate"
+    Header set Pragma "no-cache"
+    Header set Expires "0"
+</LocationMatch>
