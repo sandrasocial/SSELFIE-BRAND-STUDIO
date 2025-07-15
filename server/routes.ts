@@ -998,7 +998,7 @@ Create prompts that feel like iconic fashion campaign moments that would make so
     }
   });
 
-  app.get('/api/maya-chats/:chatId/messages', async (req: any, res) => {
+  app.get('/api/maya-chats/:chatId/messages', isAuthenticated, async (req: any, res) => {
     try {
       const { chatId } = req.params;
       const messages = await storage.getMayaChatMessages(parseInt(chatId));
@@ -1027,7 +1027,7 @@ Create prompts that feel like iconic fashion campaign moments that would make so
     }
   });
 
-  app.post('/api/maya-chats/:chatId/messages', async (req: any, res) => {
+  app.post('/api/maya-chats/:chatId/messages', isAuthenticated, async (req: any, res) => {
     try {
       const { chatId } = req.params;
       const { role, content, imagePreview, generatedPrompt } = req.body;
