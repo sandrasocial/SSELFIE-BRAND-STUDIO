@@ -37,8 +37,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
     const protocol = req.header('x-forwarded-proto') || req.protocol;
     const userAgent = req.headers['user-agent'] || '';
     
-    // Debug logging for domain access issues
-    console.log(`Domain access: ${protocol}://${hostname}${req.url} - User-Agent: ${userAgent.substring(0, 50)}`);
+    // Debug logging for domain access issues (only for sselfie.ai requests)
+    if (hostname.includes('sselfie.ai')) {
+      console.log(`SSELFIE Domain: ${protocol}://${hostname}${req.url} - UA: ${userAgent.substring(0, 30)}`);
+    }
     
     // CRITICAL: Redirect www subdomain BEFORE SSL checks to avoid certificate mismatch
     if (hostname === 'www.sselfie.ai') {
@@ -58,10 +60,16 @@ export async function registerRoutes(app: Express): Promise<Server> {
       return res.redirect(301, `https://${hostname}${req.url}`);
     }
     
-    // Set proper headers for domain caching
-    if (hostname === 'sselfie.ai') {
+    // Set proper headers for domain caching and DNS resolution
+    if (hostname === 'sselfie.ai' || hostname === 'www.sselfie.ai') {
       res.setHeader('Cache-Control', 'public, max-age=300'); // 5 minute cache
       res.setHeader('Vary', 'Origin, User-Agent');
+      res.setHeader('X-Content-Type-Options', 'nosniff');
+      res.setHeader('X-Frame-Options', 'DENY');
+      res.setHeader('Strict-Transport-Security', 'max-age=63072000; includeSubDomains; preload');
+      
+      // Help browsers with DNS resolution
+      res.setHeader('Link', '<https://sselfie.ai>; rel=canonical');
     }
     
     next();
