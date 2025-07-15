@@ -441,7 +441,7 @@ export class DatabaseStorage implements IStorage {
       userId,
       triggerWord,
       trainingStatus: 'pending',
-      modelName: 'Sandra AI Model',
+      modelName: `${userId}-selfie-lora`, // Consistent with training service
     };
 
     return await this.createUserModel(modelData);

@@ -293,9 +293,9 @@ export class ModelTrainingService {
       
       // CRITICAL FIX: Also save the full model path for direct usage
       if (status === 'completed') {
-        // The trained model should be available at: sandrasocial/{modelName}
-        updateData.trainedModelPath = `sandrasocial/${userModel.modelName}`;
-        console.log('Model training completed - trained model available at:', updateData.trainedModelPath);
+        // 🔒 SECURITY FIX: The trained model should be available at: sandrasocial/{replicateModelId}
+        updateData.trainedModelPath = `sandrasocial/${userModel.replicateModelId}`;
+        console.log('🔒 SECURITY FIX: Model training completed - trained model available at:', updateData.trainedModelPath);
       }
       
       await storage.updateUserModel(userId, updateData);

@@ -805,7 +805,7 @@ Create prompts that feel like iconic fashion campaign moments that would make so
 
       // Use black-forest-labs/flux-dev-lora with user's trained LoRA weights
       const modelVersion = 'black-forest-labs/flux-dev-lora:a53fd9255ecba80d99eaab4706c698f861fd47b098012607557385416e46aae5';
-      console.log(`Maya using black-forest-labs/flux-dev-lora with LoRA: sandrasocial/${userModel.modelName}`);
+      console.log(`🔒 SECURITY FIX: Maya using black-forest-labs/flux-dev-lora with LoRA: sandrasocial/${userModel.replicateModelId}`);
 
       // 🔑 NEW: Use AIService with tracker system (no auto-save to gallery)
       const trackingResult = await AIService.generateSSELFIE({
@@ -3517,7 +3517,7 @@ Consider this workflow optimized and ready for implementation! ⚙️`
       
       // Use black-forest-labs/flux-dev-lora with user's trained LoRA weights  
       const modelVersion = 'black-forest-labs/flux-dev-lora:a53fd9255ecba80d99eaab4706c698f861fd47b098012607557385416e46aae5';
-      console.log(`AI-Photoshoot using black-forest-labs/flux-dev-lora with LoRA: sandrasocial/${userModel.modelName}`);
+      console.log(`🔒 SECURITY FIX: AI-Photoshoot using black-forest-labs/flux-dev-lora with LoRA: sandrasocial/${userModel.replicateModelId}`);
 
       // Use correct FLUX LoRA image generation service (same as Maya)
       const { generateImages } = await import('./image-generation-service');
