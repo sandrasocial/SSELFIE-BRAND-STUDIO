@@ -1370,13 +1370,12 @@ Create prompts that feel like iconic fashion campaign moments that would make so
         replicateModelId: userModel.replicateModelId,
         triggerWord: userModel.triggerWord,
         trainingStatus: userModel.trainingStatus,
-        isPlaceholder: userModel.replicateModelId?.includes('real_training_started') || userModel.replicateModelId?.includes('training_'),
         createdAt: userModel.createdAt,
         hasRealTraining: false
       };
 
-      // Check if this is a real Replicate training
-      if (userModel.replicateModelId && !verification.isPlaceholder) {
+      // ONLY real Replicate training IDs exist - NO placeholders allowed
+      if (userModel.replicateModelId) {
         try {
           const response = await fetch(`https://api.replicate.com/v1/predictions/${userModel.replicateModelId}`, {
             headers: {
@@ -1416,18 +1415,8 @@ Create prompts that feel like iconic fashion campaign moments that would make so
       let status = userModel.trainingStatus;
       let isRealTraining = false;
       
-      // Check if this is a real Replicate training ID or placeholder
-      if (userModel.replicateModelId && userModel.replicateModelId.startsWith('real_training_started')) {
-        // This is a placeholder - training hasn't actually started on Replicate
-        status = 'placeholder';
-        progress = 0;
-        isRealTraining = false;
-      } else if (userModel.replicateModelId && userModel.replicateModelId.startsWith('training_')) {
-        // This is also a placeholder format
-        status = 'placeholder';
-        progress = 0;
-        isRealTraining = false;
-      } else if (userModel.replicateModelId) {
+      // ONLY real Replicate training IDs exist - NO placeholder checking
+      if (userModel.replicateModelId) {
         // Check real Replicate status
         try {
           const response = await fetch(`https://api.replicate.com/v1/trainings/${userModel.replicateModelId}`, {
@@ -1973,7 +1962,7 @@ Create prompts that feel like iconic fashion campaign moments that would make so
       const hasRealTrainedModel = userModel && 
         userModel.trainingStatus === 'completed' && 
         userModel.replicateModelId && 
-        !userModel.replicateModelId.includes('placeholder') &&
+
         userModel.replicateModelId.startsWith('urn:air:flux1');
       
       if (hasRealTrainedModel) {
