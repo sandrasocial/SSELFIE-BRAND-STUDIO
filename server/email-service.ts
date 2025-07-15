@@ -22,8 +22,8 @@ export async function sendWelcomeEmail(data: EmailCaptureData) {
   const isFreePlan = data.plan === 'free';
   
   const subject = isFreePlan 
-    ? "Okay, let's do this thing. Your 5 FREE photos are waiting..."
-    : "Holy sh*t, you actually did it! Welcome to SSELFIE Studio!";
+    ? "Hey gorgeous! Your FREE photos are ready 💫"
+    : "You amazing human! Welcome to SSELFIE Studio 🚀";
 
   const htmlContent = isFreePlan ? getFreeWelcomeHTML() : getStudioWelcomeHTML();
 
@@ -319,7 +319,7 @@ function getFreeWelcomeHTML(): string {
     <head>
       <meta charset="utf-8">
       <meta name="viewport" content="width=device-width, initial-scale=1">
-      <title>Okay let's do this thing</title>
+      <title>Hey gorgeous! Your photos are ready</title>
       <style>
         body { 
           font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif; 
@@ -401,11 +401,11 @@ function getFreeWelcomeHTML(): string {
           <div class="logo">SSELFIE</div>
         </div>
         
-        <h1>Well, look who actually did something...</h1>
+        <h1>Hey gorgeous!</h1>
         
-        <p>Most people just scroll past and keep dreaming. But you? You actually signed up for something. That's already more than 90% of people do.</p>
+        <p>So you actually signed up! I'm honestly so excited for you right now.</p>
         
-        <p>Your 5 FREE photos are waiting, but real talk - this isn't really about the photos. It's about you finally seeing what everyone else sees when you stop hiding.</p>
+        <p>Your 5 FREE photos are waiting, and between you and me? This is going to be the confidence boost you didn't even know you needed.</p>
         
         <div class="steps">
           <div class="step">
@@ -422,20 +422,16 @@ function getFreeWelcomeHTML(): string {
           </div>
         </div>
         
-        <p>No pressure, no weird sales calls, no "believe in yourself" bullshit. Just good photos.</p>
+        <p>No pressure, no weird sales stuff. Just really good photos and maybe a little confidence boost too.</p>
         
-        <a href="${loginUrl}" class="cta-button">Okay Let's Do This</a>
+        <a href="${loginUrl}" class="cta-button">Let's Do This</a>
         
-        <p>This is how it starts. Not with some big dramatic moment, just with actually doing the thing.</p>
+        <p>Ready to see what you're capable of? Let's go.</p>
         
         <div class="signature">
-          <p>Sandra<br>
-          <em>The girl who gets it</em></p>
+          <p>Your new best friend who happens to be really good with AI,<br>Sandra ✨</p>
+          <p><em>P.S. I believe in you. Like, really believe in you.</em></p>
         </div>
-        
-        <p style="font-size: 12px; color: #666; margin-top: 40px;">
-          You signed up for this, so here's your welcome email. That's it - I'm not gonna spam you with daily "motivation" emails or whatever.
-        </p>
       </div>
     </body>
     </html>
