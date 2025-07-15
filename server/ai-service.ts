@@ -217,8 +217,10 @@ export class AIService {
       throw new Error('User model not ready for generation. Training must be completed first.');
     }
 
-    console.log(`🔒 SECURE: Using only user's trained model: sandrasocial/${userModel.modelName}`);
-    console.log(`🔒 SECURE: Using only user's trigger word: ${userModel.triggerWord}`);
+    // 🚨 CRITICAL SECURITY FIX: Use user's unique replicate_model_id for LoRA weights
+    const userLoRAWeights = `sandrasocial/${userModel.replicateModelId}`;
+    console.log(`🔒 SECURE: Using user's unique LoRA model: ${userLoRAWeights}`);
+    console.log(`🔒 SECURE: Using user's unique trigger word: ${userModel.triggerWord}`);
 
     // Use SAME API format as image-generation-service.ts for consistency
     const fluxModelVersion = 'black-forest-labs/flux-dev-lora:a53fd9255ecba80d99eaab4706c698f861fd47b098012607557385416e46aae5';
@@ -228,7 +230,7 @@ export class AIService {
       input: {
         prompt: prompt,
         guidance: 2.8,              // OPTIMIZED: Reduced from 3.0 to 2.8 for more natural results
-        lora_weights: `sandrasocial/${userModel.modelName}`, // User's trained LoRA weights
+        lora_weights: userLoRAWeights, // 🔒 CRITICAL: User's unique trained LoRA weights
         lora_scale: 1.0,           // OPTIMAL: Standard scale for personal LoRAs (0.9-1.0)
         num_inference_steps: 40,    // OPTIMIZED: Increased from 35 to 40 for higher quality
         num_outputs: 3,            // Generate 3 focused images
@@ -241,7 +243,7 @@ export class AIService {
       }
     };
     
-    console.log('🔒 SECURE: API request body:', JSON.stringify(requestBody, null, 2));
+    console.log('🔒 SECURITY FIX: API request with user-specific LoRA:', JSON.stringify(requestBody, null, 2));
     
     const response = await fetch(FLUX_MODEL_CONFIG.apiUrl, {
       method: 'POST',
