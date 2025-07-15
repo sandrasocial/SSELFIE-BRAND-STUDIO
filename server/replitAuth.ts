@@ -59,6 +59,13 @@ function updateUserSession(
 async function upsertUser(
   claims: any,
 ) {
+  console.log('🔄 Upserting user:', claims["sub"], claims["email"]);
+  
+  // Check if this is the admin user
+  if (claims["email"] === "ssa@ssasocial.com") {
+    console.log('👑 Setting admin privileges for ssa@ssasocial.com');
+  }
+  
   await storage.upsertUser({
     id: claims["sub"],
     email: claims["email"],

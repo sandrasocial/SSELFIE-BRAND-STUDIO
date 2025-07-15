@@ -1,5 +1,5 @@
 import type { Express } from "express";
-import { isAuthenticated } from "../googleAuth";
+import { isAuthenticated } from "../replitAuth";
 import { storage } from "../storage";
 import { sendWelcomeEmail } from "../email-service";
 import Stripe from "stripe";
