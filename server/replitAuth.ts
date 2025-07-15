@@ -177,9 +177,10 @@ export async function setupAuth(app: Express) {
       console.log(`🔍 Login requested for hostname: ${hostname}`);
       console.log(`🔍 Available strategies: ${req.app.locals.authDomains.join(', ')}`);
       
-      // CRITICAL: Redirect to sselfie.ai for proper authentication instead of localhost
-      if (hostname === 'localhost' || hostname.includes('replit.dev')) {
-        console.log('🔄 Redirecting to production domain for authentication');
+      // CRITICAL: For development domains, still authenticate with the development strategy
+      // This allows both sselfie.ai AND replit.dev to work independently
+      if (!hasStrategy) {
+        console.log('🔄 No strategy found for hostname, redirecting to production domain');
         return res.redirect(302, 'https://sselfie.ai/api/login');
       }
       
