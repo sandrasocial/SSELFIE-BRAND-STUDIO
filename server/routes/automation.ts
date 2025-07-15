@@ -7,7 +7,7 @@ export function registerAutomationRoutes(app: Express) {
   app.post('/api/automation/welcome-email', isAuthenticated, async (req: any, res) => {
     try {
       const { plan } = req.body;
-      const userId = req.user.id;
+      const userId = req.user.claims.sub;
       
       const user = await storage.getUser(userId);
       if (!user) {
@@ -26,7 +26,7 @@ export function registerAutomationRoutes(app: Express) {
   app.post('/api/automation/setup-onboarding', isAuthenticated, async (req: any, res) => {
     try {
       const { plan } = req.body;
-      const userId = req.user.id;
+      const userId = req.user.claims.sub;
 
       // Check if onboarding data already exists
       const existingOnboarding = await storage.getUserOnboardingData(userId);
@@ -53,7 +53,7 @@ export function registerAutomationRoutes(app: Express) {
   app.post('/api/automation/update-subscription', isAuthenticated, async (req: any, res) => {
     try {
       const { plan } = req.body;
-      const userId = req.user.id;
+      const userId = req.user.claims.sub;
 
       // Check if subscription already exists
       const existingSubscription = await storage.getUserSubscription(userId);
@@ -82,7 +82,7 @@ export function registerAutomationRoutes(app: Express) {
   app.post('/api/automation/email-sequence', isAuthenticated, async (req: any, res) => {
     try {
       const { sequenceType, step } = req.body;
-      const userId = req.user.id;
+      const userId = req.user.claims.sub;
       
       // In production, integrate with email automation service
       // For now, just log the automation trigger
@@ -99,7 +99,7 @@ export function registerAutomationRoutes(app: Express) {
   app.post('/api/automation/bulk-ai-generation', isAuthenticated, async (req: any, res) => {
     try {
       const { prompts } = req.body;
-      const userId = req.user.id;
+      const userId = req.user.claims.sub;
 
       if (!Array.isArray(prompts) || prompts.length === 0) {
         return res.status(400).json({ message: 'Prompts array is required' });

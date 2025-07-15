@@ -46,7 +46,7 @@ export function registerAiImageRoutes(app: Express) {
   // Get user's AI images
   app.get('/api/ai-images', isAuthenticated, async (req: any, res) => {
     try {
-      const userId = req.user.id;
+      const userId = req.user.claims.sub;
       const images = await storage.getUserAiImages(userId);
       res.json(images);
     } catch (error) {
@@ -58,7 +58,7 @@ export function registerAiImageRoutes(app: Express) {
   // Upload selfies
   app.post('/api/ai-images/upload', isAuthenticated, upload.array('selfies', 15), async (req: any, res) => {
     try {
-      const userId = req.user.id;
+      const userId = req.user.claims.sub;
       const files = req.files as Express.Multer.File[];
       
       if (!files || files.length === 0) {
@@ -121,7 +121,7 @@ export function registerAiImageRoutes(app: Express) {
   // Generate single AI image
   app.post('/api/ai-images/generate', isAuthenticated, async (req: any, res) => {
     try {
-      const userId = req.user.id;
+      const userId = req.user.claims.sub;
       const { prompt } = req.body;
 
       if (!prompt) {
@@ -170,7 +170,7 @@ export function registerAiImageRoutes(app: Express) {
   // Delete AI image
   app.delete('/api/ai-images/:id', isAuthenticated, async (req: any, res) => {
     try {
-      const userId = req.user.id;
+      const userId = req.user.claims.sub;
       const imageId = parseInt(req.params.id);
 
       // Verify ownership
