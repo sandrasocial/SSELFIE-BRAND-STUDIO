@@ -221,16 +221,26 @@ export class AIService {
       throw new Error('User model version not found - training may need to be redone after account cleanup');
     }
     
+    // 🎯 CRITICAL: Ensure trigger word is at the beginning for maximum likeness
+    const triggerWord = userModel.triggerWord;
+    let enhancedPrompt = prompt;
+    
+    // Force trigger word to beginning if not already there
+    if (!enhancedPrompt.startsWith(triggerWord)) {
+      enhancedPrompt = enhancedPrompt.replace(triggerWord, '').trim();
+      enhancedPrompt = `${triggerWord} ${enhancedPrompt}`;
+    }
+
     const requestBody = {
       version: userModelVersion, // Use user's trained model directly
       input: {
-        prompt: prompt,
-        guidance: 2.8,
-        num_inference_steps: 40,
+        prompt: enhancedPrompt,
+        guidance: 3.5,              // 🔧 INCREASED: Higher guidance for stronger likeness 
+        num_inference_steps: 50,    // 🔧 INCREASED: More steps for better quality
         num_outputs: 3,
         aspect_ratio: "3:4",
         output_format: "png",
-        output_quality: 90,
+        output_quality: 95,         // 🔧 INCREASED: Higher quality output
         megapixels: "1",
         go_fast: false,
         disable_safety_checker: false
