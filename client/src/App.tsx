@@ -41,7 +41,7 @@ import AdminUsers from "@/pages/admin-users";
 import AdminEmails from "@/pages/admin-emails";
 import AdminSettings from "@/pages/admin-settings";
 import CustomPhotoshootLibrary from "@/pages/custom-photoshoot-library";
-import FlatlayLibrary from "@/pages/flatlay-library-optimized";
+import FlatlayLibrary from "@/pages/flatlay-library";
 import Maya from "@/pages/maya";
 import Victoria from "@/pages/victoria";
 import VictoriaChat from "@/pages/victoria-chat";
