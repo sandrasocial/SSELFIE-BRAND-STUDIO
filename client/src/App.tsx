@@ -41,7 +41,10 @@ import AdminUsers from "@/pages/admin-users";
 import AdminEmails from "@/pages/admin-emails";
 import AdminSettings from "@/pages/admin-settings";
 import CustomPhotoshootLibrary from "@/pages/custom-photoshoot-library";
+// Test import to verify component loads
+console.log('Importing FlatlayLibrary...');
 import FlatlayLibrary from "@/pages/flatlay-library";
+console.log('FlatlayLibrary imported successfully:', FlatlayLibrary);
 import FlatlayLibraryTest from "@/pages/flatlay-library-test";
 import FlatlayMinimal from "@/pages/flatlay-minimal";
 import RouteTest from "@/pages/route-test";
@@ -143,6 +146,7 @@ function ProtectedRoute({ component: Component, ...props }) {
 }
 
 function Router() {
+  console.log('Router component rendering...');
   return (
     <Switch>
       {/* STREAMLINED USER JOURNEY: Landing → Simple Checkout → Payment Success → Onboarding → Workspace */}
@@ -159,9 +163,11 @@ function Router() {
             <div><a href="/workspace" className="text-blue-600 underline">Go to Workspace</a></div>
             <div><a href="/victoria-preview" className="text-blue-600 underline">Go to Victoria Preview</a></div>
             <div><a href="/maya" className="text-blue-600 underline">Go to Maya</a></div>
+            <div><a href="/flatlay-library" className="text-blue-600 underline">Test Flatlay Library Route</a></div>
           </div>
         </div>
       )} />
+      <Route path="/flatlay-test" component={() => <div className="p-8 bg-blue-100"><h1>FLATLAY TEST ROUTE WORKING!</h1></div>} />
       <Route path="/old-landing" component={Landing} />
       <Route path="/about" component={About} />
       <Route path="/how-it-works" component={HowItWorks} />
@@ -198,7 +204,7 @@ function Router() {
       <Route path="/ai-photoshoot" component={(props) => <ProtectedRoute component={AIPhotoshoot} {...props} />} />
       <Route path="/sandra-photoshoot" component={(props) => <ProtectedRoute component={SandraPhotoshoot} {...props} />} />
       <Route path="/custom-photoshoot-library" component={(props) => <ProtectedRoute component={CustomPhotoshootLibrary} {...props} />} />
-      <Route path="/flatlay-library" component={RouteTest} />
+      <Route path="/flatlay-library" component={(props) => <ProtectedRoute component={FlatlayLibrary} {...props} />} />
       <Route path="/flatlay-library-full" component={(props) => <ProtectedRoute component={FlatlayLibrary} {...props} />} />
       <Route path="/sandra-ai" component={(props) => <ProtectedRoute component={SandraAI} {...props} />} />
       <Route path="/ai-generator" component={(props) => <ProtectedRoute component={AIGenerator} {...props} />} />
@@ -262,36 +268,6 @@ function Router() {
 }
 
 function App() {
-  // Enhanced domain access handling
-  useEffect(() => {
-    try {
-      console.log('SSELFIE Studio: App initializing...');
-      
-      // Force HTTPS redirect if needed
-      if (window.location.protocol === 'http:' && window.location.hostname === 'sselfie.ai') {
-        window.location.href = window.location.href.replace('http:', 'https:');
-        return;
-      }
-      
-      // Handle www subdomain redirect
-      if (window.location.hostname === 'www.sselfie.ai') {
-        window.location.href = window.location.href.replace('www.sselfie.ai', 'sselfie.ai');
-        return;
-      }
-      
-      // Check for domain access issues
-      const issues = detectBrowserIssues();
-      if (issues.length > 0) {
-        console.warn('Browser compatibility issues detected:', issues);
-        showDomainHelp();
-      }
-      
-      console.log('SSELFIE Studio: Domain access validated, app ready');
-    } catch (error) {
-      console.error('Error in App initialization:', error);
-    }
-  }, []);
-
   console.log('SSELFIE Studio: App rendering...');
 
   return (
