@@ -428,7 +428,8 @@ export default function Maya() {
           content: msg.content,
           timestamp: msg.createdAt,
           generatedPrompt: msg.generatedPrompt,
-          canGenerate: !!msg.generatedPrompt
+          canGenerate: !!msg.generatedPrompt,
+          imagePreview: msg.imagePreview ? JSON.parse(msg.imagePreview) : undefined
         }));
         setMessages(formattedMessages);
         setCurrentChatId(chatId);
