@@ -603,9 +603,17 @@ Your goal is to have a natural conversation, understand their vision deeply, and
           // Create professional prompt based on conversation context
           const styleContext = message + ' ' + conversationHistory.slice(-3).map(msg => msg.content).join(' ');
           
-          // Get user's trained model for trigger word
+          // 🚨 CRITICAL: ZERO FALLBACKS - User MUST have completed trained model
           const userModel = await storage.getUserModelByUserId(userId);
-          const triggerWord = userModel?.triggerWord || '';
+          if (!userModel || userModel.trainingStatus !== 'completed' || !userModel.triggerWord) {
+            return res.status(400).json({ 
+              error: 'Your AI model is not ready for generation. Please complete training first.',
+              requiresTraining: true,
+              redirectTo: '/simple-training'
+            });
+          }
+          
+          const triggerWord = userModel.triggerWord;
           
           // Maya's expert prompt generation - Enhanced for WOW factor dynamic scenes
           const promptResponse = await client.messages.create({
@@ -721,10 +729,32 @@ Create prompts that feel like iconic fashion campaign moments that would make so
         });
       }
 
-      // Get user's trained model
+      // 🚨 CRITICAL: ZERO FALLBACKS - User MUST have completed trained model
       const userModel = await storage.getUserModelByUserId(userId);
-      if (!userModel || userModel.trainingStatus !== 'completed') {
-        return res.status(400).json({ error: 'User model not ready for generation' });
+      if (!userModel) {
+        return res.status(400).json({ 
+          error: 'No AI model found for user. Please train your model first.',
+          requiresTraining: true,
+          redirectTo: '/simple-training'
+        });
+      }
+      
+      if (userModel.trainingStatus !== 'completed') {
+        return res.status(400).json({ 
+          error: `AI model training ${userModel.trainingStatus}. Please wait for completion.`,
+          trainingStatus: userModel.trainingStatus,
+          requiresTraining: true,
+          redirectTo: '/simple-training'
+        });
+      }
+      
+      // Verify trigger word exists
+      if (!userModel.triggerWord) {
+        return res.status(400).json({ 
+          error: 'Model missing trigger word. Please retrain your model.',
+          requiresTraining: true,
+          redirectTo: '/simple-training'
+        });
       }
 
       console.log(`Maya generating images for user ${userId} with prompt: ${customPrompt}`);
@@ -3337,20 +3367,38 @@ Consider this workflow optimized and ready for implementation! ⚙️`
       }
       
       if (!user) {
-        return res.status(400).json({ error: 'User not found in database' });
+        return res.status(400).json({ error: 'User not found' });
       }
       
-      console.log(`Using database user ID ${user.id} for model lookup`);
-      
-      const userModel = await storage.getUserModel(user.id);
-      if (!userModel || userModel.trainingStatus !== 'completed') {
+      // 🚨 CRITICAL: ZERO FALLBACKS - User MUST have completed trained model
+      const userModel = await storage.getUserModelByUserId(user.id);
+      if (!userModel) {
         return res.status(400).json({ 
-          error: 'User model not ready. Please complete AI training first.',
-          trainingStatus: userModel?.trainingStatus || 'not_started',
-          databaseUserId: user.id,
-          authUserId: authUserId
+          error: 'No AI model found for user. Please train your model first.',
+          requiresTraining: true,
+          redirectTo: '/simple-training'
         });
       }
+      
+      if (userModel.trainingStatus !== 'completed') {
+        return res.status(400).json({ 
+          error: `AI model training ${userModel.trainingStatus}. Please wait for completion.`,
+          trainingStatus: userModel.trainingStatus,
+          requiresTraining: true,
+          redirectTo: '/simple-training'
+        });
+      }
+      
+      // Verify trigger word exists
+      if (!userModel.triggerWord) {
+        return res.status(400).json({ 
+          error: 'Model missing trigger word. Please retrain your model.',
+          requiresTraining: true,
+          redirectTo: '/simple-training'
+        });
+      }
+      
+      console.log(`Using database user ID ${user.id} for model lookup with trigger word: ${userModel.triggerWord}`);
       
       // Use black-forest-labs/flux-dev-lora with user's trained LoRA weights  
       const modelVersion = 'black-forest-labs/flux-dev-lora:a53fd9255ecba80d99eaab4706c698f861fd47b098012607557385416e46aae5';
@@ -3466,6 +3514,34 @@ Consider this workflow optimized and ready for implementation! ⚙️`
       
       if (!category || !subcategory) {
         return res.status(400).json({ error: 'Category and subcategory are required' });
+      }
+      
+      // 🚨 CRITICAL: ZERO FALLBACKS - User MUST have completed trained model
+      const userModel = await storage.getUserModelByUserId(userId);
+      if (!userModel) {
+        return res.status(400).json({ 
+          error: 'No AI model found for user. Please train your model first.',
+          requiresTraining: true,
+          redirectTo: '/simple-training'
+        });
+      }
+      
+      if (userModel.trainingStatus !== 'completed') {
+        return res.status(400).json({ 
+          error: `AI model training ${userModel.trainingStatus}. Please wait for completion.`,
+          trainingStatus: userModel.trainingStatus,
+          requiresTraining: true,
+          redirectTo: '/simple-training'
+        });
+      }
+      
+      // Verify trigger word exists
+      if (!userModel.triggerWord) {
+        return res.status(400).json({ 
+          error: 'Model missing trigger word. Please retrain your model.',
+          requiresTraining: true,
+          redirectTo: '/simple-training'
+        });
       }
       
       const { ModelTrainingService } = await import('./model-training-service');

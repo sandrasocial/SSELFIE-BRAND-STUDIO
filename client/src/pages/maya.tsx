@@ -299,6 +299,20 @@ export default function Maya() {
           window.location.href = '/pricing';
           return;
         }
+        
+        // Check if it's a model validation error
+        if (data.requiresTraining) {
+          toast({
+            title: "AI Model Required",
+            description: data.error || "Please complete your AI model training first.",
+            variant: "destructive",
+          });
+          setTimeout(() => {
+            setLocation(data.redirectTo || '/simple-training');
+          }, 1500);
+          return;
+        }
+        
         throw new Error(data.error || 'Failed to generate images');
       }
       
