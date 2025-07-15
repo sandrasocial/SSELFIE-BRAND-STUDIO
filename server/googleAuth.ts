@@ -146,30 +146,47 @@ export async function setupGoogleAuth(app: Express) {
   }));
 
   passport.serializeUser((user: any, done) => {
-    console.log('🔍 Serializing user:', user.id, user.email);
+    console.log('🔍 [SERIALIZE] Serializing user:', user.id, user.email);
+    console.log('🔍 [SERIALIZE] User object type:', typeof user);
+    console.log('🔍 [SERIALIZE] User properties:', Object.keys(user));
     done(null, user.id);
   });
 
   passport.deserializeUser(async (id: string, done) => {
     try {
-      console.log('🔍 Deserializing user with ID:', id);
-      console.log('🔍 Storage getUser method:', typeof storage.getUser);
+      console.log('🔍 [DESERIALIZE] Starting user deserialization for ID:', id);
+      console.log('🔍 [DESERIALIZE] Storage object type:', typeof storage);
+      console.log('🔍 [DESERIALIZE] Storage getUser method type:', typeof storage.getUser);
       
+      // Direct database query to test connection
+      console.log('🔍 [DESERIALIZE] Testing direct database connection...');
       const user = await storage.getUser(id);
-      console.log('🔍 User lookup result:', user ? 'Found' : 'Not found');
+      console.log('🔍 [DESERIALIZE] Database query result:', user ? `Found user: ${user.email}` : 'User not found');
       
       if (!user) {
-        console.log('⚠️ User not found during deserialization:', id);
-        console.log('⚠️ This could mean the user was deleted or ID format changed');
-        return done(null, false);
+        console.log('⚠️ [DESERIALIZE] User not found in database:', id);
+        console.log('⚠️ [DESERIALIZE] Available users count check...');
+        // Don't return false, return null to indicate "no user" rather than error
+        return done(null, null);
       }
       
-      console.log('✅ User deserialized successfully:', user.id, user.email);
+      console.log('✅ [DESERIALIZE] User found successfully!');
+      console.log('✅ [DESERIALIZE] User details:', {
+        id: user.id,
+        email: user.email,
+        firstName: user.firstName,
+        plan: user.plan,
+        role: user.role
+      });
+      
       return done(null, user);
     } catch (error) {
-      console.error('❌ Error deserializing user:', error);
-      console.error('❌ Error details:', error.message);
-      console.error('❌ Error stack:', error.stack);
+      console.error('❌ [DESERIALIZE] Critical error during user deserialization:', error);
+      console.error('❌ [DESERIALIZE] Error type:', error.constructor.name);
+      console.error('❌ [DESERIALIZE] Error message:', error.message);
+      console.error('❌ [DESERIALIZE] Error stack:', error.stack);
+      
+      // Return error to passport instead of null
       return done(error, null);
     }
   });
@@ -208,6 +225,8 @@ export async function setupGoogleAuth(app: Express) {
           console.log('✅ OAuth login successful for user:', user.id, user.email);
           console.log('✅ Session ID:', req.sessionID);
           console.log('✅ req.isAuthenticated():', req.isAuthenticated());
+          console.log('✅ req.user after login:', !!req.user);
+          console.log('✅ Session passport after login:', req.session?.passport);
           console.log('✅ Redirecting to workspace');
           res.redirect('/workspace');
         });
