@@ -1,5 +1,5 @@
 import React, { useState, useRef } from 'react';
-import MemberNavigation from '@/components/member-navigation';
+import { MemberNavigation } from '@/components/member-navigation';
 import { useAuth } from '@/hooks/use-auth';
 import { useMutation } from '@tanstack/react-query';
 import { apiRequest } from '@/lib/queryClient';

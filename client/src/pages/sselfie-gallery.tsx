@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { useAuth } from '@/hooks/use-auth';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import MemberNavigation from '@/components/member-navigation';
+import { MemberNavigation } from '@/components/member-navigation';
 import { PaymentVerification } from '@/components/payment-verification';
 import { HeroFullBleed } from '@/components/hero-full-bleed';
 import { SandraImages } from '@/lib/sandra-images';

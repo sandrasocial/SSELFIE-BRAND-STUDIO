@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { useAuth } from '@/hooks/use-auth';
 import { useQuery } from '@tanstack/react-query';
 import { Link } from 'wouter';
-import MemberNavigation from '@/components/member-navigation';
+import { MemberNavigation } from '@/components/member-navigation';
 import { PaymentVerification } from '@/components/payment-verification';
 import { SandraImages } from '@/lib/sandra-images';
 
