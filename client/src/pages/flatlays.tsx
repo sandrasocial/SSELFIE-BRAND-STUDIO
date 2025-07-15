@@ -2,6 +2,9 @@ import { useState } from "react";
 import MemberNavigation from "@/components/member-navigation";
 import { flatlayCollections } from "@/lib/flatlay-collections";
 
+console.log('FlatlayLibrary component loading...');
+console.log('Collections loaded:', flatlayCollections.length);
+
 // Convert to object format for easier access
 const collections = flatlayCollections.reduce((acc, collection) => {
   acc[collection.id] = {
@@ -13,6 +16,7 @@ const collections = flatlayCollections.reduce((acc, collection) => {
 }, {} as Record<string, { name: string; description: string; images: string[] }>);
 
 export default function FlatlayLibrary() {
+  console.log('FlatlayLibrary component rendering...');
   const [selectedCollection, setSelectedCollection] = useState<string | null>(null);
 
   const collectionKeys = Object.keys(collections);
