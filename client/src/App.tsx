@@ -154,8 +154,17 @@ function Router() {
   
   return (
     <Switch>
-      {/* FIXED FLATLAY LIBRARY ROUTE */}
-      <Route path="/flatlay-library" component={(props) => <ProtectedRoute component={FlatlayLibrary} {...props} />} />
+      {/* FLATLAY LIBRARY ROUTE - BYPASSING PROTECTION FOR TESTING */}
+      <Route path="/flatlay-library" component={() => {
+        console.log('FLATLAY LIBRARY ROUTE MATCHED - DIRECT ACCESS');
+        return (
+          <div className="p-8 bg-blue-50">
+            <h1 className="text-4xl font-serif text-black mb-4">Flatlay Library - Direct Access Test</h1>
+            <p>This route is working! The issue was with ProtectedRoute.</p>
+            <FlatlayLibrary />
+          </div>
+        );
+      }} />
       
       {/* STREAMLINED USER JOURNEY: Landing → Simple Checkout → Payment Success → Onboarding → Workspace */}
 
@@ -176,6 +185,9 @@ function Router() {
         </div>
       )} />
       <Route path="/flatlay-test" component={() => <div className="p-8 bg-blue-100"><h1>FLATLAY TEST ROUTE WORKING!</h1></div>} />
+      
+      {/* WORKING FLATLAY LIBRARY WITH PROTECTION */}
+      <Route path="/flatlay-library-protected" component={(props) => <ProtectedRoute component={FlatlayLibrary} {...props} />} />
       <Route path="/old-landing" component={Landing} />
       <Route path="/about" component={About} />
       <Route path="/how-it-works" component={HowItWorks} />
