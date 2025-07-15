@@ -32,22 +32,29 @@ export function getSession() {
     tableName: "sessions",
   });
   
-  // Determine if we should use secure cookies based on environment
-  const isProduction = process.env.NODE_ENV === 'production';
-  const useSecureCookies = isProduction || process.env.FORCE_HTTPS === 'true';
+  // PRODUCTION STABILITY: Always use secure cookies for sselfie.ai domain
+  const isSSELFIEDomain = process.env.REPLIT_DOMAINS?.includes('sselfie.ai');
+  const useSecureCookies = isSSELFIEDomain || process.env.NODE_ENV === 'production';
   
-  console.log('🍪 Session config:', { isProduction, useSecureCookies });
+  console.log('🔒 PRODUCTION SESSION CONFIG:', { 
+    domain: process.env.REPLIT_DOMAINS,
+    isSSELFIEDomain, 
+    useSecureCookies,
+    sessionTtl: sessionTtl / (24 * 60 * 60 * 1000) + ' days'
+  });
   
   return session({
     secret: process.env.SESSION_SECRET!,
     store: sessionStore,
     resave: false,
     saveUninitialized: false,
+    rolling: true, // Extend session on each request
     cookie: {
       httpOnly: true,
       secure: useSecureCookies,
       maxAge: sessionTtl,
-      sameSite: 'lax'
+      sameSite: 'lax',
+      domain: isSSELFIEDomain ? '.sselfie.ai' : undefined // Allow subdomains
     },
   });
 }
@@ -268,35 +275,54 @@ export async function setupAuth(app: Express) {
 
 export const isAuthenticated: RequestHandler = async (req, res, next) => {
   const user = req.user as any;
+  const sessionId = req.sessionID;
+  const now = Math.floor(Date.now() / 1000);
 
-  console.log('🔍 Auth check:', {
+  // PRODUCTION LOGGING: Detailed auth state for debugging
+  const authState = {
+    sessionId: sessionId?.substring(0, 8) + '...',
     isAuthenticated: req.isAuthenticated?.() || false,
     hasUser: !!user,
     userEmail: user?.claims?.email,
-    expiresAt: user?.expires_at
-  });
+    userId: user?.claims?.sub,
+    expiresAt: user?.expires_at,
+    currentTime: now,
+    timeToExpiry: user?.expires_at ? (user.expires_at - now) : 'N/A',
+    hasRefreshToken: !!user?.refresh_token
+  };
 
+  console.log('🔒 PRODUCTION AUTH CHECK:', authState);
+
+  // Check basic authentication
   if (!req.isAuthenticated() || !user?.expires_at) {
+    console.log('❌ Auth failed: No session or expiry');
     return res.status(401).json({ message: "Unauthorized" });
   }
 
-  const now = Math.floor(Date.now() / 1000);
-  if (now <= user.expires_at) {
+  // Check token expiry with 5-minute buffer for refresh
+  const refreshBuffer = 5 * 60; // 5 minutes
+  if (now <= (user.expires_at - refreshBuffer)) {
+    console.log('✅ Auth valid: Token has time remaining');
     return next();
   }
 
+  // Attempt token refresh for near-expiry tokens
   const refreshToken = user.refresh_token;
   if (!refreshToken) {
+    console.log('❌ Auth failed: No refresh token available');
     res.status(401).json({ message: "Unauthorized" });
     return;
   }
 
   try {
+    console.log('🔄 Refreshing token for user:', user.claims?.email);
     const config = await getOidcConfig();
     const tokenResponse = await client.refreshTokenGrant(config, refreshToken);
     updateUserSession(user, tokenResponse);
+    console.log('✅ Token refreshed successfully for:', user.claims?.email);
     return next();
   } catch (error) {
+    console.error('❌ Token refresh failed:', error.message);
     res.status(401).json({ message: "Unauthorized" });
     return;
   }
