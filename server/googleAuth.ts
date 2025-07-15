@@ -203,8 +203,10 @@ export async function setupGoogleAuth(app: Express) {
           console.log('✅ req.isAuthenticated():', req.isAuthenticated());
           console.log('✅ req.user after login:', !!req.user);
           console.log('✅ Session passport after login:', req.session?.passport);
-          console.log('✅ Redirecting to production domain workspace');
-          res.redirect('https://sselfie.ai/workspace');
+          console.log('✅ Redirecting to SAME DOMAIN workspace to maintain session');
+          const redirectUrl = `https://${req.get('host')}/workspace`;
+          console.log('✅ Redirect URL:', redirectUrl);
+          res.redirect(redirectUrl);
         });
       })(req, res, next);
     }
@@ -216,7 +218,7 @@ export async function setupGoogleAuth(app: Express) {
         console.error('❌ Logout error:', err);
         return res.status(500).json({ error: 'Logout failed' });
       }
-      res.redirect('https://sselfie.ai/');
+      res.redirect(`https://${req.get('host')}/`);
     });
   });
 
