@@ -14,19 +14,25 @@ export const flatlayCollections: FlatlayCollection[] = [
     name: "Luxury Minimal",
     description: "Refined minimalism with luxury touches",
     images: [
-      // Will be populated with uploaded images
-      "/attached_assets/luxury-minimal-1.jpg",
-      "/attached_assets/luxury-minimal-2.jpg",
-      "/attached_assets/luxury-minimal-3.jpg",
-      "/attached_assets/luxury-minimal-4.jpg",
-      "/attached_assets/luxury-minimal-5.jpg",
-      "/attached_assets/luxury-minimal-6.jpg",
-      "/attached_assets/luxury-minimal-7.jpg",
-      "/attached_assets/luxury-minimal-8.jpg",
-      "/attached_assets/luxury-minimal-9.jpg",
-      "/attached_assets/luxury-minimal-10.jpg",
-      "/attached_assets/luxury-minimal-11.jpg",
-      "/attached_assets/luxury-minimal-12.jpg"
+      "https://i.postimg.cc/1tfNMJvk/file-16.png",
+      "https://i.postimg.cc/6qZ4xTJz/file-19.png",
+      "https://i.postimg.cc/4NzH8K1x/file-20.png",
+      "https://i.postimg.cc/V5ysqFhW/file-21.png",
+      "https://i.postimg.cc/yY9cwp7B/file-22.png",
+      "https://i.postimg.cc/bvFZG1q3/file-23.png",
+      "https://i.postimg.cc/C1Bzbd1Y/file-24.png",
+      "https://i.postimg.cc/Y95jRkGF/file-25.png",
+      "https://i.postimg.cc/sgr7yP2W/file-26.png",
+      "https://i.postimg.cc/5t9zQxLN/file-27.png",
+      "https://i.postimg.cc/3wLvgPFj/file-28.png",
+      "https://i.postimg.cc/x13Hdkk4/file-31.png",
+      "https://i.postimg.cc/HWFbv1DB/file-32.png",
+      "https://i.postimg.cc/PfCmMrcC/file-33.png",
+      "https://i.postimg.cc/kMRbbY68/file-44.png",
+      "https://i.postimg.cc/kXrtFNKH/file-45.png",
+      "https://i.postimg.cc/Z54BXTfF/file-46.png",
+      "https://i.postimg.cc/htszBH6F/file-47.png",
+      "https://i.postimg.cc/0NN62V1z/file-48.png"
     ]
   },
   {
