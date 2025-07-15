@@ -183,7 +183,14 @@ export class DatabaseStorage implements IStorage {
       const [user] = await db
         .update(users)
         .set({
-          ...userData,
+          firstName: userData.firstName,
+          lastName: userData.lastName,
+          profileImageUrl: userData.profileImageUrl,
+          role: userData.role,
+          monthlyGenerationLimit: userData.monthlyGenerationLimit,
+          plan: userData.plan,
+          mayaAiAccess: userData.mayaAiAccess,
+          victoriaAiAccess: userData.victoriaAiAccess,
           updatedAt: new Date(),
         })
         .where(eq(users.id, userData.id))
@@ -208,6 +215,11 @@ export class DatabaseStorage implements IStorage {
             firstName: userData.firstName,
             lastName: userData.lastName,
             profileImageUrl: userData.profileImageUrl,
+            role: userData.role,
+            monthlyGenerationLimit: userData.monthlyGenerationLimit,
+            plan: userData.plan,
+            mayaAiAccess: userData.mayaAiAccess,
+            victoriaAiAccess: userData.victoriaAiAccess,
             updatedAt: new Date(),
           })
           .where(eq(users.email, userData.email))
