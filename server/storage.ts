@@ -506,38 +506,7 @@ export class DatabaseStorage implements IStorage {
     return subscription;
   }
 
-  // Flatlay Collections - NEVER USE STOCK PHOTOS
-  async getFlatlayCollections() {
-    // Return curated flatlay collections from actual flatlay gallery
-    // This should pull from a real flatlay gallery, not stock photos
-    return [
-      {
-        name: 'Luxury Minimal',
-        images: [
-          // These would be actual flatlay gallery URLs from your library
-          '/api/flatlay-gallery/luxury-minimal-1.jpg',
-          '/api/flatlay-gallery/luxury-minimal-2.jpg',
-          '/api/flatlay-gallery/luxury-minimal-3.jpg'
-        ]
-      },
-      {
-        name: 'Editorial Magazine', 
-        images: [
-          '/api/flatlay-gallery/editorial-1.jpg',
-          '/api/flatlay-gallery/editorial-2.jpg',
-          '/api/flatlay-gallery/editorial-3.jpg'
-        ]
-      },
-      {
-        name: 'Business Professional',
-        images: [
-          '/api/flatlay-gallery/business-1.jpg',
-          '/api/flatlay-gallery/business-2.jpg',
-          '/api/flatlay-gallery/business-3.jpg'
-        ]
-      }
-    ];
-  }
+
 
   async createSubscription(data: InsertSubscription): Promise<Subscription> {
     const [subscription] = await db.insert(subscriptions).values(data).returning();
