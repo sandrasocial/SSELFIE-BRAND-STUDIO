@@ -262,6 +262,9 @@ The platform has become overly complex with multiple pricing tiers, broken onboa
 - **Simplified User Journey**: Start Here → Branded Login Page → Replit Auth → Workspace
 - **Consistent Navigation**: Updated both editorial-landing.tsx and pre-login-navigation-unified.tsx
 - **Better UX Flow**: Users get branded experience before authentication instead of abrupt redirect
+- **Clear Instructions Added**: Step-by-step explanation of what happens during login process
+- **Confusion Elimination**: Changed generic "Replit login" messaging to clear account creation/sign-in flow
+- **User-Friendly Copy**: Updated all text to be welcoming for both new and returning users
 
 ## Current Project Status & Progress
 
