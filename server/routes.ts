@@ -4096,12 +4096,12 @@ Consider this workflow optimized and ready for implementation! ⚙️`
     res.sendFile(path.join(process.cwd(), 'debug-oauth-flow.html'));
   });
 
-  // OAuth configuration debug endpoint
+  // Replit OAuth configuration debug endpoint
   app.get('/api/debug-oauth', (req, res) => {
     const config = {
-      clientId: process.env.GOOGLE_CLIENT_ID ? `${process.env.GOOGLE_CLIENT_ID.substring(0, 10)}...` : 'Missing',
-      clientSecret: process.env.GOOGLE_CLIENT_SECRET ? `${process.env.GOOGLE_CLIENT_SECRET.substring(0, 10)}...` : 'Missing',
-      callbackURL: `https://sselfie.ai/api/auth/google/callback`,
+      replitDomains: process.env.REPLIT_DOMAINS ? 'Present' : 'Missing',
+      replId: process.env.REPL_ID ? 'Present' : 'Missing',
+      callbackURL: `https://sselfie.ai/api/callback`,
       authUrl: `/api/login`,
       sessionSecret: process.env.SESSION_SECRET ? 'Present' : 'Missing',
       environment: process.env.NODE_ENV,

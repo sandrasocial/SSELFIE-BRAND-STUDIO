@@ -363,29 +363,24 @@ export class ModelTrainingService {
     console.log('REAL image generation for user:', userId, 'prompt:', customPrompt);
     
     try {
-      // Get user's trained model or use demo model
+      // ZERO FALLBACKS: Every user MUST have their own trained model
       const userModel = await storage.getUserModelByUserId(userId);
-      let modelToUse = 'a31d246656f2cec416d6d895d11cbb0b4b7b8eb2719fac75cf7d73c441b08f36'; // Default FLUX model
-      let triggerWord = 'subject'; // Default trigger for demo model
       
-      if (userModel && userModel.trainingStatus === 'completed') {
-        // Check if we have a proper version ID
-        if (userModel.replicateVersionId) {
-          // Extract just the version hash from the full version string
-          const versionHash = userModel.replicateVersionId.split(':').pop();
-          if (versionHash && versionHash.length > 10) {
-            modelToUse = versionHash;
-            triggerWord = userModel.triggerWord || `user${userId}`;
-            console.log('Using trained model version hash:', modelToUse, 'with trigger:', triggerWord);
-          } else {
-            console.log('Invalid version hash format, using demo model');
-          }
-        } else {
-          console.log('No version ID available, using demo model');
-        }
-      } else {
-        console.log('Using demo model for user without trained model');
+      if (!userModel || userModel.trainingStatus !== 'completed' || !userModel.replicateVersionId) {
+        throw new Error('USER_MODEL_NOT_TRAINED: User must train their AI model before generating images. No fallback models allowed.');
       }
+      
+      // Extract version hash from Replicate version ID
+      const versionHash = userModel.replicateVersionId.split(':').pop();
+      
+      if (!versionHash || versionHash.length < 10) {
+        throw new Error('INVALID_MODEL_VERSION: User model version is corrupted. Must retrain AI model.');
+      }
+      
+      const modelToUse = versionHash;
+      const triggerWord = userModel.triggerWord || `user${userId}`;
+      
+      console.log('✅ Using trained model for user:', userId, 'version:', modelToUse, 'trigger:', triggerWord);
       
       // Handle prompt formatting and enhancement
       let basePrompt;
