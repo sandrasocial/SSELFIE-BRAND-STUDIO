@@ -6,11 +6,20 @@ import cors from 'cors';
 import Stripe from 'stripe';
 import path from 'path';
 import { fileURLToPath } from 'url';
+import { Pool } from 'pg';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
 const app = express();
+
+// Initialize PostgreSQL pool for session checking
+const pool = new Pool({
+  connectionString: process.env.DATABASE_URL,
+  ssl: {
+    rejectUnauthorized: false
+  }
+});
 
 // CORS configuration for production
 app.use(cors({
@@ -24,10 +33,11 @@ app.use(express.json({ limit: '50mb' }));
 app.use(express.urlencoded({ extended: false, limit: '50mb' }));
 
 // Initialize Stripe
+let stripe;
 if (!process.env.STRIPE_SECRET_KEY) {
   console.warn('⚠️ STRIPE_SECRET_KEY not found - Payment features disabled');
 } else {
-  const stripe = new Stripe(process.env.STRIPE_SECRET_KEY, {
+  stripe = new Stripe(process.env.STRIPE_SECRET_KEY, {
     apiVersion: "2023-10-16",
   });
 }
@@ -80,8 +90,12 @@ app.get('/api/logout', (req, res) => {
   }
 });
 
-app.get('/api/auth/user', (req, res) => {
-  console.log('🔄 Production /api/auth/user - temporary redirect fix');
+app.get('/api/auth/user', async (req, res) => {
+  console.log('🔄 Production /api/auth/user - checking session');
+  console.log('🔄 Session ID:', req.sessionID);
+  console.log('🔄 Session exists:', !!req.session);
+  console.log('🔄 Session passport:', req.session?.passport);
+  console.log('🔄 Session user:', req.session?.passport?.user);
   
   // Check if we have session data from successful OAuth
   if (req.session?.passport?.user) {
@@ -101,6 +115,42 @@ app.get('/api/auth/user', (req, res) => {
     };
     
     return res.json(userData);
+  }
+  
+  console.log('❌ No session data found - checking if session exists in database');
+  
+  // Check if session exists in database directly
+  try {
+    const sessionCheck = await pool.query(
+      'SELECT sess FROM sessions WHERE sid = $1',
+      [req.sessionID]
+    );
+    
+    if (sessionCheck.rows.length > 0) {
+      console.log('✅ Session found in database:', sessionCheck.rows[0].sess);
+      const sessionData = sessionCheck.rows[0].sess;
+      
+      if (sessionData.passport?.user) {
+        console.log('✅ User found in session data');
+        const userData = {
+          id: sessionData.passport.user.id || sessionData.passport.user,
+          email: sessionData.passport.user.email || 'unknown@example.com',
+          firstName: sessionData.passport.user.firstName || 'User',
+          lastName: sessionData.passport.user.lastName || '',
+          profileImageUrl: sessionData.passport.user.profileImageUrl || null,
+          plan: sessionData.passport.user.plan || 'free',
+          role: sessionData.passport.user.role || 'user',
+          monthlyGenerationLimit: sessionData.passport.user.monthlyGenerationLimit || 5,
+          generationsUsedThisMonth: sessionData.passport.user.generationsUsedThisMonth || 0
+        };
+        
+        return res.json(userData);
+      }
+    }
+    
+    console.log('❌ No valid session found in database');
+  } catch (error) {
+    console.error('❌ Database session check error:', error);
   }
   
   // No session, return 401
