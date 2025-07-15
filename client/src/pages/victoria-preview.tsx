@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { MemberNavigation } from '@/components/member-navigation';
+import MemberNavigation from '@/components/member-navigation';
 import { HeroFullBleed } from '@/components/HeroFullBleed';
 import { EditorialImageBreak } from '@/components/EditorialImageBreak';
 import { EditorialStory } from '@/components/editorial-story';

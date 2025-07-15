@@ -1,4 +1,4 @@
-import { MemberNavigation } from '@/components/member-navigation';
+import MemberNavigation from '@/components/member-navigation';
 
 export default function FlatlayMinimal() {
   return (
