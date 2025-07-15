@@ -1298,6 +1298,10 @@ Create prompts that feel like iconic fashion campaign moments that would make so
         source: source || 'landing_page'
       };
       
+      // Store email in database for Sandra's email list
+      await storage.captureEmail(emailData);
+      
+      // Send welcome email
       const result = await sendWelcomeEmail(emailData);
       
       if (result.success) {
