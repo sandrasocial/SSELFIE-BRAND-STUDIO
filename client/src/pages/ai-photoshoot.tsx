@@ -790,7 +790,7 @@ export default function AIPhotoshootPage() {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
-          customPrompt: prompt.prompt.replace('[triggerword]', userModel?.triggerWord || 'useradmin_sandra_2025')
+          customPrompt: prompt.prompt.replace(/\[triggerword\]/g, userModel?.triggerWord || '')
         }),
       });
 
