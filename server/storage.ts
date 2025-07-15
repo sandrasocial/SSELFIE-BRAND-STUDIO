@@ -99,6 +99,7 @@ export interface IStorage {
   
   // Subscription operations
   getSubscription(userId: string): Promise<Subscription | undefined>;
+  getUserSubscription(userId: string): Promise<Subscription | undefined>;
   createSubscription(data: InsertSubscription): Promise<Subscription>;
   
   // Usage operations
@@ -499,6 +500,14 @@ export class DatabaseStorage implements IStorage {
 
   // Subscription operations
   async getSubscription(userId: string): Promise<Subscription | undefined> {
+    const [subscription] = await db
+      .select()
+      .from(subscriptions)
+      .where(eq(subscriptions.userId, userId));
+    return subscription;
+  }
+
+  async getUserSubscription(userId: string): Promise<Subscription | undefined> {
     const [subscription] = await db
       .select()
       .from(subscriptions)
