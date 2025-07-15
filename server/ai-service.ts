@@ -40,8 +40,9 @@ export class AIService {
     }
 
     // Create temporary generation tracking record (NOT in ai_images gallery table)
+    // Use the actual userId passed to this function for tracker ownership
     const generationTracker = await storage.createGenerationTracker({
-      userId,
+      userId: userId, // Direct auth ID for generation trackers
       predictionId: '', // Will be updated after API call
       prompt: prompt || 'Custom Maya AI prompt generation',
       style,
