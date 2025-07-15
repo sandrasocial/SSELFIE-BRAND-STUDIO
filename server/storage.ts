@@ -52,7 +52,7 @@ import {
   type InsertMayaChatMessage,
 } from "@shared/schema";
 import { db } from "./db";
-import { eq, and, desc, gte } from "drizzle-orm";
+import { eq, and, desc, gte, lte } from "drizzle-orm";
 
 // Interface for storage operations
 export interface IStorage {
@@ -90,6 +90,8 @@ export interface IStorage {
   createUserModel(data: InsertUserModel): Promise<UserModel>;
   updateUserModel(userId: string, data: Partial<UserModel>): Promise<UserModel>;
   ensureUserModel(userId: string): Promise<UserModel>;
+  deleteUserModel(userId: string): Promise<void>;
+  getMonthlyRetrainCount(userId: string, month: number, year: number): Promise<number>;
   
   // Selfie Upload operations
   getSelfieUploads(userId: string): Promise<SelfieUpload[]>;
@@ -450,6 +452,29 @@ export class DatabaseStorage implements IStorage {
       .from(userModels)
       .where(eq(userModels.trainingStatus, status))
       .orderBy(desc(userModels.createdAt));
+  }
+
+  async deleteUserModel(userId: string): Promise<void> {
+    console.log(`🗑️ Deleting user model for user: ${userId}`);
+    await db.delete(userModels).where(eq(userModels.userId, userId));
+  }
+
+  async getMonthlyRetrainCount(userId: string, month: number, year: number): Promise<number> {
+    // Get start and end dates for the month
+    const startDate = new Date(year, month, 1);
+    const endDate = new Date(year, month + 1, 0);
+    
+    // Count models created this month (retraining creates new models)
+    const models = await db
+      .select()
+      .from(userModels)
+      .where(and(
+        eq(userModels.userId, userId),
+        gte(userModels.createdAt, startDate),
+        lte(userModels.createdAt, endDate)
+      ));
+    
+    return models.length;
   }
 
   // Add methods to work with actual database columns
