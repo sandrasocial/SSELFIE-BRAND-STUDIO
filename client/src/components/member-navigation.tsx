@@ -82,10 +82,7 @@ export function MemberNavigation({ transparent = true }: MemberNavigationProps) 
             {navItems.map((item) => (
               <button
                 key={item.path}
-                onClick={() => {
-                  console.log('🔍 Navigation Click - Setting location to:', item.path);
-                  setLocation(item.path);
-                }}
+                onClick={() => setLocation(item.path)}
                 className={`text-xs uppercase tracking-[0.4em] transition-all duration-300 ${
                   isActive(item.path)
                     ? 'text-white'
@@ -127,7 +124,6 @@ export function MemberNavigation({ transparent = true }: MemberNavigationProps) 
               <button
                 key={item.path}
                 onClick={() => {
-                  console.log('🔍 Mobile Navigation Click - Setting location to:', item.path);
                   setLocation(item.path);
                   setMobileMenuOpen(false);
                 }}

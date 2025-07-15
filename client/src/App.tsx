@@ -41,10 +41,7 @@ import AdminUsers from "@/pages/admin-users";
 import AdminEmails from "@/pages/admin-emails";
 import AdminSettings from "@/pages/admin-settings";
 import CustomPhotoshootLibrary from "@/pages/custom-photoshoot-library";
-// Test import to verify component loads
-console.log('🔍 App.tsx: Starting FlatlayLibrary import...');
-import FlatlayLibrary from "@/pages/flatlay-library";
-console.log('🔍 App.tsx: FlatlayLibrary imported successfully:', FlatlayLibrary);
+import FlatlayLibrary from "@/pages/flatlays";
 import FlatlayLibraryTest from "@/pages/flatlay-library-test";
 import FlatlayMinimal from "@/pages/flatlay-minimal";
 import RouteTest from "@/pages/route-test";
@@ -146,43 +143,11 @@ function ProtectedRoute({ component: Component, ...props }) {
 }
 
 function Router() {
-  console.log('Router component rendering...');
-  
-  // Debug current location
   const [location] = useLocation();
-  console.log('🔍 Router Debug - Current location:', location);
-  console.log('🔍 Router Debug - window.location.pathname:', window.location.pathname);
-  console.log('🔍 Router Debug - window.location.href:', window.location.href);
   
   return (
     <Switch>
-      {/* FLATLAYS ROUTE - MATCHING NAVIGATION */}
-      <Route path="/flatlays">
-        <div className="min-h-screen p-8 bg-green-50">
-          <h1 className="text-4xl font-serif mb-4 text-green-800">✅ FLATLAYS ROUTE WORKING!</h1>
-          <p className="text-lg mb-4">Navigation and route are now aligned.</p>
-          <div className="mt-8 p-4 bg-green-200 rounded">
-            <p className="text-green-900 font-medium">SUCCESS: /flatlays route matched</p>
-            <p className="text-sm">Path: {window.location.pathname}</p>
-          </div>
-        </div>
-      </Route>
-      
-      {/* BACKUP FLATLAY-LIBRARY ROUTE */}
-      <Route path="/flatlay-library">
-        <div className="min-h-screen p-8 bg-blue-50">
-          <h1 className="text-4xl font-serif mb-4 text-blue-800">✅ BACKUP ROUTE!</h1>
-          <p>You accessed the old /flatlay-library route</p>
-          <div className="mt-4">
-            <button 
-              onClick={() => window.location.href = '/flatlays'}
-              className="bg-blue-600 text-white px-4 py-2 rounded"
-            >
-              Go to /flatlays
-            </button>
-          </div>
-        </div>
-      </Route>
+      <Route path="/flatlays" component={FlatlayLibrary} />
       
       {/* STREAMLINED USER JOURNEY: Landing → Simple Checkout → Payment Success → Onboarding → Workspace */}
 
@@ -305,41 +270,12 @@ function Router() {
         );
       }} />
 
-      {/* 404 DIAGNOSTIC */}
-      <Route component={({ params }) => {
-        console.log('🚨 FALLBACK ROUTE HIT - NO MATCH FOUND');
-        console.log('🚨 Router location state:', location);
-        console.log('🚨 Window pathname:', window.location.pathname);
-        console.log('🚨 Route params:', params);
-        
-        return (
-          <div className="min-h-screen p-8 bg-red-50">
-            <h1 className="text-4xl font-serif mb-4 text-red-800">🚨 ROUTE NOT FOUND</h1>
-            <div className="space-y-2 text-sm font-mono">
-              <p><strong>Expected:</strong> /flatlay-library</p>
-              <p><strong>Router location:</strong> {location}</p>
-              <p><strong>Window pathname:</strong> {window.location.pathname}</p>
-              <p><strong>Are they matching?</strong> {location === '/flatlay-library' ? '✅ YES' : '❌ NO'}</p>
-            </div>
-            <div className="mt-8 p-4 bg-red-100 rounded">
-              <h3 className="font-bold mb-2">Debugging Steps:</h3>
-              <ol className="list-decimal list-inside space-y-1 text-sm">
-                <li>Check console for navigation click logs</li>
-                <li>Verify setLocation is being called</li>
-                <li>Check if route path matches exactly</li>
-              </ol>
-            </div>
-          </div>
-        );
-      }} />
+      <Route component={NotFound} />
     </Switch>
   );
 }
 
 function App() {
-  console.log('🔍 SSELFIE Studio: App rendering...');
-  console.log('🔍 Current URL:', window.location.href);
-  console.log('🔍 QueryClient ready:', !!queryClient);
 
   return (
     <QueryClientProvider client={queryClient}>
