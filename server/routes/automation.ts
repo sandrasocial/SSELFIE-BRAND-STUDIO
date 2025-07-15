@@ -49,32 +49,84 @@ export function registerAutomationRoutes(app: Express) {
     }
   });
 
-  // Update subscription automation
-  app.post('/api/automation/update-subscription', isAuthenticated, async (req: any, res) => {
+  // Update subscription automation (FIXED: Works both with auth and email)
+  app.post('/api/automation/update-subscription', async (req: any, res) => {
     try {
-      const { plan } = req.body;
-      const userId = (req.user as any)?.claims?.sub;
-
-      // Check if subscription already exists
-      const existingSubscription = await storage.getUserSubscription(userId);
+      const { plan, email, userId } = req.body;
       
-      if (!existingSubscription) {
-        await storage.createSubscription({
-          userId,
-          plan,
-          status: 'active',
-        });
-      } else {
-        await storage.updateSubscription(existingSubscription.id, {
-          plan,
-          status: 'active',
+      let targetUserId = userId;
+      
+      // If no userId provided, try to get from authentication
+      if (!targetUserId && req.isAuthenticated()) {
+        targetUserId = (req.user as any)?.claims?.sub;
+      }
+      
+      // If still no userId, try to find user by email
+      if (!targetUserId && email) {
+        const user = await storage.getUserByEmail(email);
+        if (user) {
+          targetUserId = user.id;
+        }
+      }
+      
+      if (!targetUserId) {
+        return res.status(400).json({ 
+          message: 'User identification required. Provide userId, email, or authenticate.' 
         });
       }
 
-      res.json({ message: 'Subscription updated successfully' });
+      // Use the new upgrade method
+      await storage.upgradeUserToPremium(targetUserId, plan);
+
+      res.json({ 
+        message: 'User upgraded successfully',
+        userId: targetUserId,
+        plan: plan
+      });
     } catch (error) {
       console.error('Subscription update error:', error);
       res.status(500).json({ message: 'Failed to update subscription' });
+    }
+  });
+
+  // NEW: Direct user upgrade endpoint for post-payment processing
+  app.post('/api/upgrade-user', async (req: any, res) => {
+    try {
+      const { email, plan } = req.body;
+      
+      if (!email || !plan) {
+        return res.status(400).json({ 
+          message: 'Email and plan are required' 
+        });
+      }
+
+      // Find user by email
+      const user = await storage.getUserByEmail(email);
+      if (!user) {
+        return res.status(404).json({ 
+          message: 'User not found with this email' 
+        });
+      }
+
+      // Upgrade user to premium
+      const upgradedUser = await storage.upgradeUserToPremium(user.id, plan);
+
+      res.json({ 
+        message: 'User upgraded successfully',
+        userId: user.id,
+        email: user.email,
+        plan: plan,
+        upgradeDetails: {
+          previousPlan: user.plan,
+          newPlan: upgradedUser.plan,
+          monthlyLimit: upgradedUser.monthlyGenerationLimit,
+          mayaAccess: upgradedUser.mayaAiAccess,
+          victoriaAccess: upgradedUser.victoriaAiAccess
+        }
+      });
+    } catch (error) {
+      console.error('User upgrade error:', error);
+      res.status(500).json({ message: 'Failed to upgrade user' });
     }
   });
 
