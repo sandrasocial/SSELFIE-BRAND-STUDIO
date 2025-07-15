@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import MemberNavigation from '@/components/member-navigation';
+import { MemberNavigation } from '@/components/member-navigation';
 import { SandraImages } from '@/lib/sandra-images';
 import { Link } from 'wouter';
 import { useQuery } from '@tanstack/react-query';

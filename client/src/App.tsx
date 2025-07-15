@@ -41,10 +41,7 @@ import AdminUsers from "@/pages/admin-users";
 import AdminEmails from "@/pages/admin-emails";
 import AdminSettings from "@/pages/admin-settings";
 import CustomPhotoshootLibrary from "@/pages/custom-photoshoot-library";
-import FlatlayLibrary from "@/pages/flatlays";
-import FlatlayLibraryTest from "@/pages/flatlay-library-test";
-import FlatlayMinimal from "@/pages/flatlay-minimal";
-import RouteTest from "@/pages/route-test";
+import FlatlayLibrary from "@/pages/flatlay-library";
 import Maya from "@/pages/maya";
 import Victoria from "@/pages/victoria";
 import VictoriaChat from "@/pages/victoria-chat";
@@ -96,7 +93,6 @@ function SmartHome() {
 // Protected wrapper component that handles authentication
 function ProtectedRoute({ component: Component, ...props }) {
   const { isAuthenticated, isLoading, user } = useAuth();
-  const [shouldRedirect, setShouldRedirect] = React.useState(false);
   
   // Enhanced logging for debugging navigation issues
   React.useEffect(() => {
@@ -104,19 +100,6 @@ function ProtectedRoute({ component: Component, ...props }) {
       console.log('ProtectedRoute state:', { isAuthenticated, isLoading, hasUser: !!user });
     }
   }, [isAuthenticated, isLoading, user]);
-  
-  // Handle redirect timing - hooks must be at top level
-  React.useEffect(() => {
-    if (!isAuthenticated && !isLoading) {
-      const timer = setTimeout(() => {
-        setShouldRedirect(true);
-      }, 100); // 100ms delay to allow authentication state to stabilize
-      
-      return () => clearTimeout(timer);
-    } else {
-      setShouldRedirect(false);
-    }
-  }, [isAuthenticated, isLoading]);
   
   if (isLoading) {
     return (
@@ -127,6 +110,17 @@ function ProtectedRoute({ component: Component, ...props }) {
   }
   
   if (!isAuthenticated) {
+    // Add a small delay to prevent unnecessary redirects during state changes
+    const [shouldRedirect, setShouldRedirect] = React.useState(false);
+    
+    React.useEffect(() => {
+      const timer = setTimeout(() => {
+        setShouldRedirect(true);
+      }, 100); // 100ms delay to allow authentication state to stabilize
+      
+      return () => clearTimeout(timer);
+    }, []);
+    
     if (!shouldRedirect) {
       return (
         <div className="min-h-screen flex items-center justify-center">
@@ -143,12 +137,8 @@ function ProtectedRoute({ component: Component, ...props }) {
 }
 
 function Router() {
-  const [location] = useLocation();
-  
   return (
     <Switch>
-      <Route path="/flatlays" component={(props) => <ProtectedRoute component={FlatlayLibrary} {...props} />} />
-      
       {/* STREAMLINED USER JOURNEY: Landing → Simple Checkout → Payment Success → Onboarding → Workspace */}
 
       {/* PUBLIC PAGES */}
@@ -157,25 +147,15 @@ function Router() {
       {/* DEVELOPMENT TEST PAGE */}
       <Route path="/test" component={() => (
         <div className="p-8">
-          <h1 className="text-2xl mb-4">🔧 ROUTING DIAGNOSTICS</h1>
-          <p>Basic navigation test - if you see this, React Router is working.</p>
+          <h1 className="text-2xl mb-4">Navigation Test</h1>
+          <p>If you can see this, navigation is working!</p>
           <div className="mt-4 space-y-2">
             <div><a href="/workspace" className="text-blue-600 underline">Go to Workspace</a></div>
-            <div><a href="/flatlay-library" className="text-blue-600 underline bg-yellow-200 px-2 py-1">🎯 Test Flatlay Library Route</a></div>
-            <div><a href="/flatlay-test" className="text-blue-600 underline">Test Simple Route</a></div>
-          </div>
-          <div className="mt-6 p-4 bg-blue-50 rounded">
-            <h3 className="font-bold">Current Router Status:</h3>
-            <p>Location: {window.location.pathname}</p>
-            <p>Protocol: {window.location.protocol}</p>
-            <p>Host: {window.location.host}</p>
+            <div><a href="/victoria-preview" className="text-blue-600 underline">Go to Victoria Preview</a></div>
+            <div><a href="/maya" className="text-blue-600 underline">Go to Maya</a></div>
           </div>
         </div>
       )} />
-      <Route path="/flatlay-test" component={() => <div className="p-8 bg-blue-100"><h1>FLATLAY TEST ROUTE WORKING!</h1></div>} />
-      
-      {/* WORKING FLATLAY LIBRARY WITH PROTECTION */}
-      <Route path="/flatlay-library-protected" component={(props) => <ProtectedRoute component={FlatlayLibrary} {...props} />} />
       <Route path="/old-landing" component={Landing} />
       <Route path="/about" component={About} />
       <Route path="/how-it-works" component={HowItWorks} />
@@ -213,7 +193,6 @@ function Router() {
       <Route path="/sandra-photoshoot" component={(props) => <ProtectedRoute component={SandraPhotoshoot} {...props} />} />
       <Route path="/custom-photoshoot-library" component={(props) => <ProtectedRoute component={CustomPhotoshootLibrary} {...props} />} />
       <Route path="/flatlay-library" component={(props) => <ProtectedRoute component={FlatlayLibrary} {...props} />} />
-      <Route path="/flatlay-library-full" component={(props) => <ProtectedRoute component={FlatlayLibrary} {...props} />} />
       <Route path="/sandra-ai" component={(props) => <ProtectedRoute component={SandraAI} {...props} />} />
       <Route path="/ai-generator" component={(props) => <ProtectedRoute component={AIGenerator} {...props} />} />
       <Route path="/gallery" component={(props) => <ProtectedRoute component={SSELFIEGallery} {...props} />} />
@@ -276,6 +255,37 @@ function Router() {
 }
 
 function App() {
+  // Enhanced domain access handling
+  useEffect(() => {
+    try {
+      console.log('SSELFIE Studio: App initializing...');
+      
+      // Force HTTPS redirect if needed
+      if (window.location.protocol === 'http:' && window.location.hostname === 'sselfie.ai') {
+        window.location.href = window.location.href.replace('http:', 'https:');
+        return;
+      }
+      
+      // Handle www subdomain redirect
+      if (window.location.hostname === 'www.sselfie.ai') {
+        window.location.href = window.location.href.replace('www.sselfie.ai', 'sselfie.ai');
+        return;
+      }
+      
+      // Check for domain access issues
+      const issues = detectBrowserIssues();
+      if (issues.length > 0) {
+        console.warn('Browser compatibility issues detected:', issues);
+        showDomainHelp();
+      }
+      
+      console.log('SSELFIE Studio: Domain access validated, app ready');
+    } catch (error) {
+      console.error('Error in App initialization:', error);
+    }
+  }, []);
+
+  console.log('SSELFIE Studio: App rendering...');
 
   return (
     <QueryClientProvider client={queryClient}>

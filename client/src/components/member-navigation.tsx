@@ -6,7 +6,7 @@ interface MemberNavigationProps {
   transparent?: boolean;
 }
 
-function MemberNavigation({ transparent = true }: MemberNavigationProps) {
+export function MemberNavigation({ transparent = true }: MemberNavigationProps) {
   const [, setLocation] = useLocation();
   const [location] = useLocation();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
@@ -43,7 +43,7 @@ function MemberNavigation({ transparent = true }: MemberNavigationProps) {
     { path: '/ai-training', label: 'Train' },
     { path: '/maya', label: 'Photoshoot' },
     { path: '/gallery', label: 'Gallery' },
-    { path: '/flatlays', label: 'Flatlays' },
+    { path: '/flatlay-library', label: 'Flatlays' },
     { path: '/profile', label: 'Profile' },
     ...(isAdmin ? [{ path: '/admin', label: 'Admin' }] : []),
   ];
@@ -168,5 +168,3 @@ function MemberNavigation({ transparent = true }: MemberNavigationProps) {
     </nav>
   );
 }
-
-export default MemberNavigation;

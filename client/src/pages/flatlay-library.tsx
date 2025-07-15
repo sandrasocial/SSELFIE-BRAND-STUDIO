@@ -1,9 +1,9 @@
-import { useState, useCallback, useMemo } from 'react';
+import { useState, useCallback } from 'react';
 import { useAuth } from "@/hooks/use-auth";
 import { useToast } from "@/hooks/use-toast";
 import { useQueryClient } from "@tanstack/react-query";
 import { HeroFullBleed } from '@/components/HeroFullBleed';
-import MemberNavigation from '@/components/member-navigation';
+import { MemberNavigation } from '@/components/member-navigation';
 import { SandraImages } from '@/lib/sandra-images';
 
 interface FlatlayImage {
@@ -3955,7 +3955,6 @@ export default function FlatlayLibrary() {
   const [selectedCollection, setSelectedCollection] = useState<FlatlayCollection>(flatlayCollections[0]);
   const [fullSizeImage, setFullSizeImage] = useState<string | null>(null);
   const [favoriteImages, setFavoriteImages] = useState<Set<string>>(new Set());
-  const [displayCount, setDisplayCount] = useState(20); // Start with 20 images
 
   // Fetch user subscription to check plan
   const { data: subscription } = useQuery({
@@ -3963,18 +3962,7 @@ export default function FlatlayLibrary() {
     enabled: isAuthenticated
   });
 
-  const isPremiumUser = subscription?.plan === 'sselfie-studio' || user?.plan === 'admin' || user?.email === 'ssa@ssasocial.com';
-
-  // Memoize displayed images to prevent re-calculation on every render
-  const displayedImages = useMemo(() => {
-    return selectedCollection.images.slice(0, displayCount);
-  }, [selectedCollection.images, displayCount]);
-
-  const hasMoreImages = displayCount < selectedCollection.images.length;
-
-  const loadMoreImages = useCallback(() => {
-    setDisplayCount(prev => Math.min(prev + 20, selectedCollection.images.length));
-  }, [selectedCollection.images.length]);
+  const isPremiumUser = subscription?.plan === 'sselfie-studio' || user?.plan === 'admin';
 
   // Save flatlay to gallery
   const saveToGallery = useCallback(async (imageUrl: string, imageTitle: string) => {
@@ -3984,7 +3972,6 @@ export default function FlatlayLibrary() {
         headers: {
           'Content-Type': 'application/json',
         },
-        credentials: 'include',
         body: JSON.stringify({
           imageUrls: [imageUrl],
           prompt: `Flatlay: ${imageTitle}`
@@ -4091,10 +4078,7 @@ export default function FlatlayLibrary() {
           {flatlayCollections.map((collection) => (
             <div
               key={collection.id}
-              onClick={() => {
-                setSelectedCollection(collection);
-                setDisplayCount(20); // Reset to 20 images when switching collections
-              }}
+              onClick={() => setSelectedCollection(collection)}
               className={`cursor-pointer group transition-all duration-300 ${
                 selectedCollection.id === collection.id
                   ? 'ring-2 ring-black'
@@ -4127,7 +4111,7 @@ export default function FlatlayLibrary() {
           </div>
 
           <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4">
-            {displayedImages.map((image) => (
+            {selectedCollection.images.map((image) => (
               <div
                 key={image.id}
                 className="group relative aspect-square bg-gray-100 overflow-hidden cursor-pointer"
@@ -4154,24 +4138,12 @@ export default function FlatlayLibrary() {
               </div>
             ))}
           </div>
-
-          {/* Load More Button */}
-          {hasMoreImages && (
-            <div className="text-center mt-8">
-              <button
-                onClick={loadMoreImages}
-                className="bg-black text-white px-8 py-3 text-sm uppercase tracking-wider hover:bg-gray-800 transition-colors"
-              >
-                Load More Images ({displayCount} of {selectedCollection.images.length})
-              </button>
-            </div>
-          )}
         </div>
 
         {/* Collection Stats */}
         <div className="text-center py-8 border-t border-gray-100">
           <p className="text-sm text-gray-500">
-            Showing {displayedImages.length} of {selectedCollection.images.length} professional flatlays in {selectedCollection.name} collection
+            {selectedCollection.images.length} professional flatlays in {selectedCollection.name} collection
           </p>
         </div>
       </div>

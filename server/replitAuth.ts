@@ -38,7 +38,7 @@ export function getSession() {
     saveUninitialized: false,
     cookie: {
       httpOnly: true,
-      secure: process.env.NODE_ENV === 'production' && !process.env.REPLIT_DOMAINS?.includes('localhost'), // Only secure in production
+      secure: true,
       maxAge: sessionTtl,
       sameSite: 'lax', // Fixed for cross-browser compatibility
       // domain: undefined // Let browser handle domain automatically
