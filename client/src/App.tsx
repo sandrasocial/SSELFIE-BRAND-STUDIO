@@ -147,8 +147,16 @@ function ProtectedRoute({ component: Component, ...props }) {
 
 function Router() {
   console.log('Router component rendering...');
+  
+  // Debug current location
+  const [location] = useLocation();
+  console.log('Current location:', location);
+  
   return (
     <Switch>
+      {/* FIXED FLATLAY LIBRARY ROUTE */}
+      <Route path="/flatlay-library" component={(props) => <ProtectedRoute component={FlatlayLibrary} {...props} />} />
+      
       {/* STREAMLINED USER JOURNEY: Landing → Simple Checkout → Payment Success → Onboarding → Workspace */}
 
       {/* PUBLIC PAGES */}
