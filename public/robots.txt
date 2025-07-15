@@ -1,12 +1,9 @@
 User-agent: *
 Allow: /
-Disallow: /api/
-Disallow: /workspace/
-Disallow: /admin/
-Disallow: /checkout/
 
-# Main sitemap
 Sitemap: https://sselfie.ai/sitemap.xml
 
-# Crawl-delay for better server performance
-Crawl-delay: 1
+# Block test pages from indexing
+Disallow: /test-*
+Disallow: /debug-*
+Disallow: /api/

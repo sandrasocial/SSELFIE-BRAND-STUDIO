@@ -30,6 +30,23 @@ import { z } from "zod";
 const DEFAULT_MODEL_STR = "claude-sonnet-4-20250514";
 
 export async function registerRoutes(app: Express): Promise<Server> {
+  // Force HTTPS redirect for production domain
+  app.use((req, res, next) => {
+    // Check if request is coming to custom domain without HTTPS
+    if (req.hostname === 'sselfie.ai' && req.header('x-forwarded-proto') !== 'https') {
+      return res.redirect(301, `https://${req.hostname}${req.url}`);
+    }
+    next();
+  });
+
+  // Handle www redirect
+  app.use((req, res, next) => {
+    if (req.hostname === 'www.sselfie.ai') {
+      return res.redirect(301, `https://sselfie.ai${req.url}`);
+    }
+    next();
+  });
+
   // Auth middleware - setup Replit authentication FIRST  
   await setupAuth(app);
   

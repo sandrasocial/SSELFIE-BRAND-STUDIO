@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect } from "react";
 import { Switch, Route, useLocation } from "wouter";
 import { queryClient } from "./lib/queryClient";
 import { QueryClientProvider } from "@tanstack/react-query";
@@ -6,6 +6,7 @@ import { Toaster } from "@/components/ui/toaster";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { useAuth } from "@/hooks/useAuth";
 import { useQuery } from "@tanstack/react-query";
+import { redirectToHttps, detectBrowserIssues, showDomainHelp } from "./utils/browserCompat";
 import NotFound from "@/pages/not-found";
 import Landing from "@/pages/landing";
 import EditorialLanding from "@/pages/editorial-landing";
@@ -51,6 +52,7 @@ import BrandOnboarding from "@/pages/brand-onboarding";
 import Welcome from "@/pages/welcome";
 import AuthSuccess from "@/pages/auth-success";
 import Login from "@/pages/login";
+import DomainHelp from "@/pages/domain-help";
 
 // Removed duplicate photoshoot imports - using existing system
 
@@ -134,6 +136,7 @@ function Router() {
       <Route path="/terms" component={Terms} />
       <Route path="/privacy" component={Privacy} />
       <Route path="/pricing" component={Pricing} />
+      <Route path="/domain-help" component={DomainHelp} />
 
       {/* PAYMENT FLOW */}
       <Route path="/checkout" component={Checkout} />
@@ -218,6 +221,16 @@ function Router() {
 }
 
 function App() {
+  // Browser compatibility check for domain access
+  useEffect(() => {
+    const issues = detectBrowserIssues();
+    if (issues.length > 0) {
+      console.warn('Browser compatibility issues detected:', issues);
+      showDomainHelp();
+    }
+    redirectToHttps();
+  }, []);
+
   return (
     <QueryClientProvider client={queryClient}>
       <TooltipProvider>
