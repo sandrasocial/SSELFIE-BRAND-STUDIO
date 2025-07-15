@@ -7,7 +7,18 @@ import { GlobalFooter } from '@/components/global-footer';
 import { SandraImages } from '@/lib/sandra-images';
 
 export default function Workspace() {
-  const { user, isAuthenticated } = useAuth();
+  const { user, isAuthenticated, isLoading, error } = useAuth();
+  
+  // Debug authentication state
+  useEffect(() => {
+    console.log('🔍 Workspace auth state:', {
+      isAuthenticated,
+      isLoading,
+      hasUser: !!user,
+      userEmail: user?.email,
+      error: error?.message
+    });
+  }, [isAuthenticated, isLoading, user, error]);
 
   // Fetch user data
   const { data: aiImages = [] } = useQuery({
@@ -107,6 +118,17 @@ export default function Workspace() {
       plan: isPremiumUser ? 'Studio' : 'Free'
     };
   };
+
+  if (isLoading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-white">
+        <div className="text-center">
+          <div className="animate-spin w-8 h-8 border-2 border-black border-t-transparent rounded-full mx-auto mb-4"></div>
+          <p className="text-sm text-gray-600">Loading your workspace...</p>
+        </div>
+      </div>
+    );
+  }
 
   if (!isAuthenticated) {
     return (
