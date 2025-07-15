@@ -180,9 +180,26 @@ export async function setupGoogleAuth(app: Express) {
       console.log('🔍 Google callback received:', req.url);
       console.log('🔍 Query params:', req.query);
       
-      passport.authenticate('google', { 
-        failureRedirect: '/api/login?error=auth_failed',
-        successRedirect: '/workspace'
+      passport.authenticate('google', (err, user, info) => {
+        if (err) {
+          console.error('❌ OAuth callback error:', err);
+          return res.status(500).json({ error: 'OAuth authentication failed', details: err.message });
+        }
+        
+        if (!user) {
+          console.log('❌ No user returned from OAuth');
+          return res.status(401).json({ error: 'Authentication failed', info });
+        }
+        
+        req.logIn(user, (err) => {
+          if (err) {
+            console.error('❌ Login session error:', err);
+            return res.status(500).json({ error: 'Session creation failed', details: err.message });
+          }
+          
+          console.log('✅ OAuth login successful, redirecting to workspace');
+          res.redirect('/workspace');
+        });
       })(req, res, next);
     }
   );
