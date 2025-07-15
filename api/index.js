@@ -83,44 +83,67 @@ app.get('/api/logout', (req, res) => {
 });
 
 app.get('/api/auth/user', (req, res) => {
-  console.log('🔄 Production /api/auth/user - checking session');
-  console.log('🔄 Session ID:', req.sessionID);
-  console.log('🔄 Session exists:', !!req.session);
-  console.log('🔄 Session passport:', req.session?.passport);
-  console.log('🔄 Session user:', req.session?.passport?.user);
+  console.log('🔄 Production /api/auth/user - proxying to development server');
   
-  // Check if we have session data from successful OAuth
-  if (req.session?.passport?.user) {
-    console.log('✅ Found session user, constructing response');
-    
-    // Construct user response from session data
-    const userData = {
-      id: req.session.passport.user.id || req.session.passport.user,
-      email: req.session.passport.user.email || 'unknown@example.com',
-      firstName: req.session.passport.user.firstName || 'User',
-      lastName: req.session.passport.user.lastName || '',
-      profileImageUrl: req.session.passport.user.profileImageUrl || null,
-      plan: req.session.passport.user.plan || 'free',
-      role: req.session.passport.user.role || 'user',
-      monthlyGenerationLimit: req.session.passport.user.monthlyGenerationLimit || 5,
-      generationsUsedThisMonth: req.session.passport.user.generationsUsedThisMonth || 0
-    };
-    
-    console.log('✅ Returning user data:', userData);
-    return res.json(userData);
+  // Proxy request to development server with all cookies
+  const developmentUrl = 'https://e33979fc-c9be-4f0d-9a7b-6a3e83046828-00-3ij9k7qy14rai.picard.replit.dev/api/auth/user';
+  
+  // Forward all cookies to development server
+  const headers = {};
+  if (req.headers.cookie) {
+    headers.Cookie = req.headers.cookie;
   }
   
-  console.log('❌ No session data found - user not authenticated');
-  
-  // No session, return 401
-  res.status(401).json({ message: "Not authenticated - no session data" });
+  fetch(developmentUrl, {
+    headers,
+    credentials: 'include'
+  })
+  .then(response => response.json())
+  .then(data => {
+    console.log('✅ Development server response:', data);
+    res.json(data);
+  })
+  .catch(error => {
+    console.error('❌ Development server error:', error);
+    res.status(401).json({ message: "Not authenticated - proxy error" });
+  });
 });
 
-// Catch all API routes and redirect to development
+// Catch all API routes and proxy to development
 app.use('/api/*', (req, res) => {
-  console.log('🔄 Production API catch-all - redirecting to development server:', req.originalUrl);
+  console.log('🔄 Production API catch-all - proxying to development server:', req.originalUrl);
   const developmentUrl = 'https://e33979fc-c9be-4f0d-9a7b-6a3e83046828-00-3ij9k7qy14rai.picard.replit.dev' + req.originalUrl;
-  res.redirect(developmentUrl);
+  
+  // Forward all cookies to development server
+  const headers = {};
+  if (req.headers.cookie) {
+    headers.Cookie = req.headers.cookie;
+  }
+  
+  // Forward method and body for POST requests
+  const options = {
+    method: req.method,
+    headers,
+    credentials: 'include'
+  };
+  
+  if (req.method === 'POST' && req.body) {
+    options.body = JSON.stringify(req.body);
+    headers['Content-Type'] = 'application/json';
+  }
+  
+  fetch(developmentUrl, options)
+  .then(response => {
+    res.status(response.status);
+    return response.json();
+  })
+  .then(data => {
+    res.json(data);
+  })
+  .catch(error => {
+    console.error('❌ Development server proxy error:', error);
+    res.status(500).json({ message: "Proxy error" });
+  });
 });
 
 // Clear session endpoint for testing
