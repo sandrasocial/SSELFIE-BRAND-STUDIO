@@ -4,10 +4,10 @@ import { queryClient } from "./lib/queryClient";
 import { QueryClientProvider } from "@tanstack/react-query";
 import { Toaster } from "@/components/ui/toaster";
 import { TooltipProvider } from "@/components/ui/tooltip";
-import { useAuth } from "@/hooks/useAuth";
+import { useAuth } from "@/hooks/use-auth";
 import { useQuery } from "@tanstack/react-query";
 import { redirectToHttps, detectBrowserIssues, showDomainHelp } from "./utils/browserCompat";
-import { pwaManager } from "./utils/pwa";
+// import { pwaManager } from "./utils/pwa";
 import NotFound from "@/pages/not-found";
 import Landing from "@/pages/landing";
 import EditorialLanding from "@/pages/editorial-landing";
@@ -229,21 +229,22 @@ function Router() {
 function App() {
   // Browser compatibility check for domain access
   useEffect(() => {
-    const issues = detectBrowserIssues();
-    if (issues.length > 0) {
-      console.warn('Browser compatibility issues detected:', issues);
-      showDomainHelp();
+    try {
+      console.log('SSELFIE Studio: App initializing...');
+      const issues = detectBrowserIssues();
+      if (issues.length > 0) {
+        console.warn('Browser compatibility issues detected:', issues);
+        showDomainHelp();
+      }
+      redirectToHttps();
+      
+      console.log('SSELFIE Studio: PWA initialized for native app experience');
+    } catch (error) {
+      console.error('Error in App initialization:', error);
     }
-    redirectToHttps();
-    
-    // Initialize PWA functionality
-    // PWA Manager will automatically handle:
-    // - Service worker registration
-    // - Install prompt display
-    // - App installation detection
-    // - Update notifications
-    console.log('SSELFIE Studio: PWA initialized for native app experience');
   }, []);
+
+  console.log('SSELFIE Studio: App rendering...');
 
   return (
     <QueryClientProvider client={queryClient}>

@@ -89,6 +89,7 @@ export interface IStorage {
   getUserModelByUserId(userId: string): Promise<UserModel | undefined>;
   createUserModel(data: InsertUserModel): Promise<UserModel>;
   updateUserModel(userId: string, data: Partial<UserModel>): Promise<UserModel>;
+  ensureUserModel(userId: string): Promise<UserModel>;
   
   // Selfie Upload operations
   getSelfieUploads(userId: string): Promise<SelfieUpload[]>;
@@ -420,6 +421,27 @@ export class DatabaseStorage implements IStorage {
       .where(eq(userModels.userId, userId))
       .returning();
     return updated;
+  }
+
+  async ensureUserModel(userId: string): Promise<UserModel> {
+    // Check if user model already exists
+    const existingModel = await this.getUserModel(userId);
+    if (existingModel) {
+      console.log('✅ User model already exists for user:', userId);
+      return existingModel;
+    }
+
+    // Create new user model
+    console.log('🔄 Creating new user model for user:', userId);
+    const triggerWord = `user${userId}_${Date.now()}`;
+    const modelData: InsertUserModel = {
+      userId,
+      triggerWord,
+      trainingStatus: 'pending',
+      modelName: 'Sandra AI Model',
+    };
+
+    return await this.createUserModel(modelData);
   }
 
   async getUserModelsByStatus(status: string): Promise<UserModel[]> {
