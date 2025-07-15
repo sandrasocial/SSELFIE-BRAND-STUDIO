@@ -1968,9 +1968,15 @@ Create prompts that feel like iconic fashion campaign moments that would make so
 
       // Handle retraining with usage limits based on user plan
       let userModel = await storage.getUserModelByUserId(dbUserId);
-      const isRealTraining = userModel && userModel.trainingStatus === 'completed' && userModel.replicateModelId && !userModel.replicateModelId.includes('placeholder');
       
-      if (isRealTraining) {
+      // Check if user has ACTUALLY trained before (not just placeholder model)
+      const hasRealTrainedModel = userModel && 
+        userModel.trainingStatus === 'completed' && 
+        userModel.replicateModelId && 
+        !userModel.replicateModelId.includes('placeholder') &&
+        userModel.replicateModelId.startsWith('urn:air:flux1');
+      
+      if (hasRealTrainedModel) {
         // This is a RETRAINING scenario - user already has a REAL trained model
         // Get user's subscription plan
         const subscription = await storage.getSubscription(dbUserId);
@@ -2002,7 +2008,7 @@ Create prompts that feel like iconic fashion campaign moments that would make so
           }
         }
         
-        console.log(`🔄 User ${dbUserId} is retraining (${isFreePlan ? 'FREE' : 'PREMIUM'} plan)`);
+        console.log(`🔄 User ${dbUserId} is retraining their REAL model (${isFreePlan ? 'FREE' : 'PREMIUM'} plan)`);
         
         // Delete old model completely before retraining
         await storage.deleteUserModel(dbUserId);
@@ -2016,11 +2022,12 @@ Create prompts that feel like iconic fashion campaign moments that would make so
           startedAt: new Date()
         });
       } else {
-        // This is FIRST TRAINING scenario - delete any placeholder models and create fresh
-        console.log(`🆕 User ${dbUserId} is training for the first time (removing any placeholder models)`);
+        // This is FIRST TRAINING scenario - allow for ALL users (free and premium)
+        console.log(`🆕 User ${dbUserId} is training for the first time (FREE users allowed for first training)`);
         
         if (userModel) {
-          // Delete placeholder model
+          // Delete any existing placeholder or incomplete model
+          console.log(`🗑️ Removing existing placeholder/incomplete model for user ${dbUserId}`);
           await storage.deleteUserModel(dbUserId);
         }
         
