@@ -137,6 +137,23 @@ export async function setupAuth(app: Express) {
     // Check if this is a forced account selection (for switching)
     const forceAccountSelection = req.query.prompt === 'select_account';
     
+    // For account switching, always force logout and re-authentication
+    if (forceAccountSelection) {
+      console.log('🔍 Account switching requested - forcing logout and re-authentication');
+      if (req.isAuthenticated()) {
+        req.logout(() => {
+          req.session.destroy((err) => {
+            if (err) console.error('❌ Session destroy error:', err);
+            res.clearCookie('connect.sid');
+            console.log('✅ Session cleared for account switching');
+            // Continue with authentication flow after logout
+            authenticateUser();
+          });
+        });
+        return;
+      }
+    }
+    
     // Check if user is already authenticated (unless forcing account selection)
     if (!forceAccountSelection && req.isAuthenticated() && req.user?.expires_at) {
       const now = Math.floor(Date.now() / 1000);
@@ -146,44 +163,50 @@ export async function setupAuth(app: Express) {
       }
     }
     
-    // Get the correct hostname for strategy matching
-    let hostname = req.hostname;
-    
-    // Special handling for development
-    if (hostname === 'localhost' || hostname.includes('localhost')) {
-      hostname = 'localhost';
+    function authenticateUser() {
+      
+      // Get the correct hostname for strategy matching
+      let hostname = req.hostname;
+      
+      // Special handling for development
+      if (hostname === 'localhost' || hostname.includes('localhost')) {
+        hostname = 'localhost';
+      }
+      
+      console.log(`🔍 Login requested for hostname: ${hostname}`);
+      console.log(`🔍 Available strategies: ${req.app.locals.authDomains.join(', ')}`);
+      
+      // Check if we have a strategy for this hostname
+      const strategyName = `replitauth:${hostname}`;
+      const hasStrategy = req.app.locals.authDomains.includes(hostname);
+      
+      if (!hasStrategy) {
+        console.error(`❌ No auth strategy found for hostname: ${hostname}`);
+        console.error(`❌ Available domains: ${req.app.locals.authDomains.join(', ')}`);
+        return res.status(500).json({ 
+          error: 'Authentication not configured for this domain',
+          hostname,
+          availableDomains: req.app.locals.authDomains
+        });
+      }
+      
+      const authOptions: any = {
+        scope: ["openid", "email", "profile", "offline_access"],
+      };
+      
+      // Force account selection only when explicitly requested
+      if (forceAccountSelection) {
+        authOptions.prompt = "select_account";
+        console.log('🔍 Forcing account selection for account switching');
+      } else {
+        console.log('🔍 Login requested - starting authentication flow');
+      }
+      
+      passport.authenticate(strategyName, authOptions)(req, res, next);
     }
     
-    console.log(`🔍 Login requested for hostname: ${hostname}`);
-    console.log(`🔍 Available strategies: ${req.app.locals.authDomains.join(', ')}`);
-    
-    // Check if we have a strategy for this hostname
-    const strategyName = `replitauth:${hostname}`;
-    const hasStrategy = req.app.locals.authDomains.includes(hostname);
-    
-    if (!hasStrategy) {
-      console.error(`❌ No auth strategy found for hostname: ${hostname}`);
-      console.error(`❌ Available domains: ${req.app.locals.authDomains.join(', ')}`);
-      return res.status(500).json({ 
-        error: 'Authentication not configured for this domain',
-        hostname,
-        availableDomains: req.app.locals.authDomains
-      });
-    }
-    
-    const authOptions: any = {
-      scope: ["openid", "email", "profile", "offline_access"],
-    };
-    
-    // Force account selection only when explicitly requested
-    if (forceAccountSelection) {
-      authOptions.prompt = "select_account";
-      console.log('🔍 Forcing account selection for account switching');
-    } else {
-      console.log('🔍 Login requested - starting authentication flow');
-    }
-    
-    passport.authenticate(strategyName, authOptions)(req, res, next);
+    // Start authentication flow
+    authenticateUser();
   });
 
   app.get("/api/callback", (req, res, next) => {
