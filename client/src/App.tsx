@@ -188,6 +188,29 @@ function Router() {
       
       {/* DEBUGGING */}
       <Route path="/test-login" component={TestLogin} />
+      <Route path="/debug-auth" component={() => {
+        const { user, isAuthenticated, isLoading, error } = useAuth();
+        return (
+          <div className="p-8">
+            <h1 className="text-2xl mb-4">Authentication Debug</h1>
+            <div className="space-y-2">
+              <p>isLoading: {isLoading.toString()}</p>
+              <p>isAuthenticated: {isAuthenticated.toString()}</p>
+              <p>error: {error?.message || 'none'}</p>
+              <p>user: {user ? JSON.stringify(user, null, 2) : 'null'}</p>
+              <p>hostname: {window.location.hostname}</p>
+              <p>origin: {window.location.origin}</p>
+              <div className="mt-4">
+                <a href="/api/login" className="bg-blue-500 text-white px-4 py-2 rounded mr-2">Try Login</a>
+                <a href="https://e33979fc-c9be-4f0d-9a7b-6a3e83046828-00-3ij9k7qy14rai.picard.replit.dev/workspace" 
+                   className="bg-green-500 text-white px-4 py-2 rounded">
+                  Go to Dev Server Workspace
+                </a>
+              </div>
+            </div>
+          </div>
+        );
+      }} />
 
       <Route component={NotFound} />
     </Switch>
