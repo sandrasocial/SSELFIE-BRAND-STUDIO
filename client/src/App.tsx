@@ -55,6 +55,7 @@ import AuthSuccess from "@/pages/auth-success";
 import Login from "@/pages/login";
 import AuthLogin from "@/pages/auth-login";
 import AuthBridge from "@/pages/auth-bridge";
+import CustomLogin from "@/pages/custom-login";
 import LoginPrompt from "@/components/LoginPrompt";
 import DomainHelp from "@/pages/domain-help";
 import SwitchAccount from "@/pages/switch-account";
@@ -175,10 +176,10 @@ function Router() {
       <Route path="/thank-you" component={ThankYou} />
       <Route path="/payment-success" component={PaymentSuccess} />
       <Route path="/auth-success" component={AuthSuccess} />
-      <Route path="/login" component={Login} />
+      <Route path="/login" component={CustomLogin} />
       <Route path="/switch-account" component={SwitchAccount} />
       <Route path="/auth" component={AuthBridge} />
-      <Route path="/sign-in" component={AuthBridge} />
+      <Route path="/sign-in" component={CustomLogin} />
       <Route path="/auth-custom" component={AuthLogin} />
 
       {/* PROTECTED ROUTES */}
