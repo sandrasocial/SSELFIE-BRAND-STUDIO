@@ -1,0 +1,11 @@
+# SSELFIE Studio - Netlify/Vercel redirects
+# Handle www subdomain and force HTTPS
+
+# Redirect www to apex domain
+https://www.sselfie.ai/* https://sselfie.ai/:splat 301!
+
+# Force HTTPS
+http://sselfie.ai/* https://sselfie.ai/:splat 301!
+
+# SPA fallback - serve index.html for all non-API routes
+/*    /index.html   200

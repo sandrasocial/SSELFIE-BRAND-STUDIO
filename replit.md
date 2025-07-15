@@ -240,6 +240,16 @@ The platform has become overly complex with multiple pricing tiers, broken onboa
 - **Zero Cross-Contamination**: Individual user models isolated and working
 - **Ready for Deploy**: Platform ready for immediate Replit deployment launch
 
+### 🔍 CRITICAL DOMAIN ACCESS INVESTIGATION (July 15, 2025)
+**DNS CONFIGURATION ISSUE IDENTIFIED AND ADDRESSED:**
+- **Problem**: Users can access https://sselfie.ai via links but not by manually typing domain
+- **Root Cause**: www.sselfie.ai subdomain not resolving (DNS configuration issue)
+- **Server Status**: Main domain (sselfie.ai) fully functional with HTTP 200 responses
+- **Immediate Fixes**: Enhanced server-side redirects, client-side domain handling, static file configs
+- **User Action Required**: DNS provider needs to configure www subdomain properly
+- **Workaround**: Users should type full URL (https://sselfie.ai) or use incognito mode
+- **Business Impact**: Platform functional for link clicks and social shares, manual typing may fail until DNS fixed
+
 ## Current Project Status & Progress
 
 ### ✅ DOMAIN ACCESS COMPATIBILITY FIXES IMPLEMENTED (July 15, 2025)

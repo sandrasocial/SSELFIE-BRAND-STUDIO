@@ -35,20 +35,33 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.use((req, res, next) => {
     const hostname = req.hostname;
     const protocol = req.header('x-forwarded-proto') || req.protocol;
+    const userAgent = req.headers['user-agent'] || '';
+    
+    // Debug logging for domain access issues
+    console.log(`Domain access: ${protocol}://${hostname}${req.url} - User-Agent: ${userAgent.substring(0, 50)}`);
     
     // CRITICAL: Redirect www subdomain BEFORE SSL checks to avoid certificate mismatch
     if (hostname === 'www.sselfie.ai') {
+      console.log('Redirecting www to apex domain');
       return res.redirect(301, `https://sselfie.ai${req.url}`);
     }
     
     // Handle any other sselfie.ai subdomains
     if (hostname.endsWith('.sselfie.ai') && hostname !== 'sselfie.ai') {
+      console.log(`Redirecting subdomain ${hostname} to apex domain`);
       return res.redirect(301, `https://sselfie.ai${req.url}`);
     }
     
     // Force HTTPS for production domain (after subdomain redirects)
     if (hostname === 'sselfie.ai' && protocol !== 'https') {
+      console.log('Forcing HTTPS for sselfie.ai');
       return res.redirect(301, `https://${hostname}${req.url}`);
+    }
+    
+    // Set proper headers for domain caching
+    if (hostname === 'sselfie.ai') {
+      res.setHeader('Cache-Control', 'public, max-age=300'); // 5 minute cache
+      res.setHeader('Vary', 'Origin, User-Agent');
     }
     
     next();

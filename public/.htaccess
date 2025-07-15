@@ -1,28 +1,29 @@
-# Force HTTPS redirect
-RewriteEngine On
-RewriteCond %{HTTPS} off
-RewriteRule ^(.*)$ https://%{HTTP_HOST}%{REQUEST_URI} [L,R=301]
+# SSELFIE Studio - Domain Access Configuration
+# Force HTTPS and handle www redirects
 
-# Force www to non-www
-RewriteCond %{HTTP_HOST} ^www\.(.*)$ [NC]
-RewriteRule ^(.*)$ https://%1%{REQUEST_URI} [R=301,L]
+RewriteEngine On
+
+# Redirect www to non-www (301 permanent redirect)
+RewriteCond %{HTTP_HOST} ^www\.sselfie\.ai [NC]
+RewriteRule ^(.*)$ https://sselfie.ai/$1 [R=301,L]
+
+# Force HTTPS
+RewriteCond %{HTTPS} off
+RewriteCond %{HTTP_HOST} ^sselfie\.ai [NC]
+RewriteRule ^(.*)$ https://sselfie.ai/$1 [R=301,L]
 
 # Cache static assets
-<IfModule mod_expires.c>
-  ExpiresActive on
-  ExpiresByType text/css "access plus 1 year"
-  ExpiresByType application/javascript "access plus 1 year"
-  ExpiresByType image/png "access plus 1 year"
-  ExpiresByType image/jpg "access plus 1 year"
-  ExpiresByType image/jpeg "access plus 1 year"
-  ExpiresByType image/gif "access plus 1 year"
-  ExpiresByType image/svg+xml "access plus 1 year"
-</IfModule>
+<FilesMatch "\.(css|js|png|jpg|jpeg|gif|ico|svg|woff|woff2)$">
+    ExpiresActive On
+    ExpiresDefault "access plus 1 year"
+    Header append Cache-Control "public, immutable"
+</FilesMatch>
 
 # Security headers
-<IfModule mod_headers.c>
-  Header always set X-Content-Type-Options nosniff
-  Header always set X-Frame-Options DENY
-  Header always set X-XSS-Protection "1; mode=block"
-  Header always set Strict-Transport-Security "max-age=63072000; includeSubDomains; preload"
-</IfModule>
+Header always set X-Content-Type-Options nosniff
+Header always set X-Frame-Options DENY
+Header always set X-XSS-Protection "1; mode=block"
+Header always set Referrer-Policy "strict-origin-when-cross-origin"
+
+# Enable HSTS (HTTP Strict Transport Security)
+Header always set Strict-Transport-Security "max-age=63072000; includeSubDomains; preload"
