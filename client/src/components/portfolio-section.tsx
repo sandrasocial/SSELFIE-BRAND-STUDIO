@@ -129,7 +129,7 @@ export const PortfolioSection = () => {
         </div>
       </div>
 
-      <style jsx>{`
+      <style jsx="true">{`
         /* Portfolio Section */
         .portfolio-section {
           padding: 0;

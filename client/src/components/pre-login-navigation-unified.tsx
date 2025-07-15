@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useLocation } from 'wouter';
+import { InstallButton } from '@/components/ui/install-button';
 
 interface PreLoginNavigationUnifiedProps {
   transparent?: boolean;
@@ -64,6 +65,10 @@ export function PreLoginNavigationUnified({ transparent = true }: PreLoginNaviga
             >
               Blog
             </button>
+            <InstallButton 
+              variant="minimal" 
+              className="text-xs uppercase tracking-[0.4em] text-white/80 hover:text-white no-underline"
+            />
             <button
               onClick={() => window.location.href = '/login'}
               className="text-xs uppercase tracking-[0.4em] text-white/80 hover:text-white transition-all duration-300"
