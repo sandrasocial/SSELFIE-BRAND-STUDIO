@@ -27,7 +27,7 @@ export function getSession() {
   const pgStore = connectPg(session);
   const sessionStore = new pgStore({
     conString: process.env.DATABASE_URL,
-    createTableIfMissing: false,
+    createTableIfMissing: true, // CRITICAL: Allow table creation if missing
     ttl: sessionTtl,
     tableName: "sessions",
   });
@@ -38,10 +38,10 @@ export function getSession() {
     saveUninitialized: false,
     cookie: {
       httpOnly: true,
-      secure: true,
+      secure: process.env.NODE_ENV === 'production', // Dynamic based on environment
       maxAge: sessionTtl,
-      sameSite: 'lax', // Fixed for cross-browser compatibility
-      // domain: undefined // Let browser handle domain automatically
+      sameSite: 'lax',
+      domain: process.env.NODE_ENV === 'production' ? '.sselfie.ai' : undefined, // Allow subdomains in production
     },
   });
 }
@@ -101,18 +101,30 @@ export async function setupAuth(app: Express) {
     verified(null, user);
   };
 
-  for (const domain of process.env
-    .REPLIT_DOMAINS!.split(",")) {
+  // Register strategies for all domains (including localhost for development)
+  const domains = process.env.REPLIT_DOMAINS!.split(",");
+  
+  // Add localhost for development if not already included
+  if (!domains.includes('localhost') && process.env.NODE_ENV === 'development') {
+    domains.push('localhost');
+  }
+  
+  for (const domain of domains) {
+    const callbackURL = domain === 'localhost' 
+      ? `http://localhost:5000/api/callback`
+      : `https://${domain}/api/callback`;
+      
     const strategy = new Strategy(
       {
         name: `replitauth:${domain}`,
         config,
         scope: "openid email profile offline_access",
-        callbackURL: `https://${domain}/api/callback`,
+        callbackURL,
       },
       verify,
     );
     passport.use(strategy);
+    console.log(`✅ Registered auth strategy for: ${domain}`);
   }
 
   passport.serializeUser((user: Express.User, cb) => cb(null, user));
