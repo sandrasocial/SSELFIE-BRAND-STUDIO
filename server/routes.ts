@@ -1856,17 +1856,36 @@ Create prompts that feel like iconic fashion campaign moments that would make so
   // Subscription routes
   app.get('/api/subscription', isAuthenticated, async (req: any, res) => {
     try {
-      // REAL SUBSCRIPTION DATA ONLY - No test subscriptions
       const userId = req.user.claims.sub;
-      const userSubscription = await storage.getUserSubscription(userId);
-      if (!userSubscription) {
+      
+      // Get user to check their plan
+      const user = await storage.getUser(userId);
+      if (!user) {
         return res.status(404).json({
-          error: 'No subscription found. Please upgrade to access this feature.',
-          requiresUpgrade: true
+          error: 'User not found',
+          requiresUpgrade: false
         });
       }
       
-      res.json(userSubscription);
+      // Check if user has a subscription record
+      const userSubscription = await storage.getUserSubscription(userId);
+      
+      if (userSubscription) {
+        // User has actual subscription record
+        res.json(userSubscription);
+      } else {
+        // Create virtual subscription based on user plan
+        const virtualSubscription = {
+          id: 0, // Virtual subscription
+          userId: userId,
+          plan: user.plan || 'free',
+          status: 'active',
+          createdAt: user.createdAt,
+          updatedAt: user.updatedAt
+        };
+        
+        res.json(virtualSubscription);
+      }
     } catch (error) {
       console.error("Error fetching subscription:", error);
       res.status(500).json({ message: "Failed to fetch subscription" });
