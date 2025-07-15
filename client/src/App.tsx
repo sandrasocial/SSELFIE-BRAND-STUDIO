@@ -147,7 +147,7 @@ function Router() {
   
   return (
     <Switch>
-      <Route path="/flatlays" component={FlatlayLibrary} />
+      <Route path="/flatlays" component={(props) => <ProtectedRoute component={FlatlayLibrary} {...props} />} />
       
       {/* STREAMLINED USER JOURNEY: Landing → Simple Checkout → Payment Success → Onboarding → Workspace */}
 
