@@ -9,11 +9,25 @@ export const PLAN_LIMITS = {
     description: 'Unlimited admin access',
     resetMonthly: false
   },
+  'free': {
+    totalGenerations: null,
+    monthlyGenerations: 6, // 6 free images per month (allows 2 generations of 3 images each)
+    cost: 0,
+    description: '6 AI generations per month',
+    resetMonthly: true
+  },
   'FREE': {
     totalGenerations: null,
     monthlyGenerations: 6, // 6 free images per month (allows 2 generations of 3 images each)
     cost: 0,
     description: '6 AI generations per month',
+    resetMonthly: true
+  },
+  'sselfie-studio': {
+    totalGenerations: null,
+    monthlyGenerations: 100, // $47/month for 100 images
+    cost: 47,
+    description: '100 AI generations per month + Maya + Victoria + Studio',
     resetMonthly: true
   },
   'SSELFIE_STUDIO': {
@@ -106,7 +120,7 @@ export class UsageService {
     const adminEmails = ['ssa@ssasocial.com', 'sandrajonna@gmail.com', 'sandra@sselfie.ai'];
     
     // Admin users get unlimited access
-    if (user && adminEmails.includes(user.email)) {
+    if (user && (adminEmails.includes(user.email) || user.role === 'admin')) {
       console.log(`👑 Admin user detected: ${user.email} - granting unlimited access`);
       return {
         canGenerate: true,
