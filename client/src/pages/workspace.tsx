@@ -305,7 +305,7 @@ export default function Workspace() {
               </Link>
 
               {/* Library Widget */}
-              <Link href="/flatlays" className="group">
+              <Link href="/flatlay-library" className="group">
                 <div className="relative overflow-hidden bg-black" style={{ aspectRatio: '21/9' }}>
                   <img 
                     src={SandraImages.flatlays.luxury}
