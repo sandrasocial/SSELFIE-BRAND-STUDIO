@@ -40,16 +40,18 @@ export function useAuth() {
   // User is authenticated only if data exists, is not null, and has valid user properties
   const isAuthenticated = !!(user && user.id);
 
-  // Enhanced logging for debugging
-  if (process.env.NODE_ENV === 'development') {
-    console.log('useAuth state:', { 
-      isAuthenticated, 
-      isLoading, 
-      hasUser: !!user, 
-      userId: user?.id,
-      isStale 
-    });
-  }
+  // Enhanced logging for debugging - only log changes to reduce console noise
+  React.useEffect(() => {
+    if (process.env.NODE_ENV === 'development') {
+      console.log('useAuth state change:', { 
+        isAuthenticated, 
+        isLoading, 
+        hasUser: !!user, 
+        userId: user?.id,
+        email: user?.email 
+      });
+    }
+  }, [isAuthenticated, isLoading, user?.id]);
 
   return {
     user,
