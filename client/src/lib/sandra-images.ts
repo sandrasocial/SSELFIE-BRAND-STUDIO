@@ -107,12 +107,7 @@ export const SandraImages = {
     "https://i.postimg.cc/SshCMPnd/out-1-17.webp",
   ],
 
-  // PLACEHOLDERS (For components in dev)
-  placeholder: {
-    square: "https://i.postimg.cc/5t9zQxLN/file-27.png",
-    landscape: "https://i.postimg.cc/brm1yv3n/out-0-3.png",
-    portrait: "https://i.postimg.cc/76vVdbWY/out-0-7.png",
-  }
+
 };
 
 // IMAGE USAGE RULES

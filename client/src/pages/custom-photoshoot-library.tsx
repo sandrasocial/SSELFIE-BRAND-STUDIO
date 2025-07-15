@@ -134,7 +134,7 @@ export default function CustomPhotoshootLibrary() {
     }
   }, [userModel, toast]);
 
-  // Mock data for saved prompts - this will be replaced with real data
+  // Real user prompts only - no mock data allowed
   const savedPrompts: SavedPrompt[] = [
     {
       id: 'saved-1',

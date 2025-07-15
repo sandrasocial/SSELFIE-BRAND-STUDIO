@@ -270,8 +270,8 @@ Please respond in this JSON format:
 
       } catch (openaiError) {
         console.error('OpenAI API error:', openaiError);
-        console.log('Both AI APIs failed, using intelligent fallback system');
-        return this.fallbackSandraResponse(message, userId);
+        console.error('Both AI APIs failed - no fallback allowed');
+        throw new Error('AI service unavailable. Please try again later.');
       }
     }
   }
@@ -463,8 +463,9 @@ Only include elements specifically mentioned or strongly implied. Return empty a
       .map(([keyword]) => keyword);
   }
 
-  // Sandra AI as specialized photoshoot agent - creates 3 style button alternatives
+  // REMOVED: No fallback responses allowed - AI service must be available
   private static async fallbackSandraResponse(message: string, userId: string): Promise<any> {
+    throw new Error('AI service unavailable. Please try again later.');
     const lowerMessage = message.toLowerCase();
     
     // Get conversation history for learning user preferences

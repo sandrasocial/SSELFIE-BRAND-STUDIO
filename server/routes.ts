@@ -6,7 +6,7 @@ import { rachelAgent } from "./agents/rachel-agent";
 import path from "path";
 import fs from "fs";
 // Removed photoshoot routes - using existing checkout system
-import { registerStyleguideRoutes } from "./routes/styleguide-routes";
+
 import { UsageService, API_COSTS } from './usage-service';
 import { UserUsage } from '@shared/schema';
 // import Anthropic from '@anthropic-ai/sdk'; // DISABLED - API key issues
@@ -16,7 +16,7 @@ import { eq } from "drizzle-orm";
 import { db } from "./db";
 import session from 'express-session';
 
-import { registerAiImageRoutes } from './routes/ai-images';
+
 import { registerCheckoutRoutes } from './routes/checkout';
 import { registerAutomationRoutes } from './routes/automation';
 // Email service import moved inline to avoid conflicts
@@ -138,18 +138,11 @@ export async function registerRoutes(app: Express): Promise<Server> {
     try {
       console.log('🔍 Testing auth success flow');
       
-      // Simulate creating a test user like auth would do
-      const testUserData = {
-        id: 'test_user_' + Date.now(),
-        email: 'test@example.com',
-        firstName: 'Test',
-        lastName: 'User',
-        profileImageUrl: null,
-      };
-      
-      console.log('🔍 Creating test user:', testUserData);
-      const user = await storage.upsertUser(testUserData);
-      console.log('✅ Test user created:', user.id);
+      // PRODUCTION: Use real authenticated user only - NO TEST USERS
+      return res.status(401).json({ 
+        error: 'Authentication required. Please log in first.',
+        requiresAuth: true
+      });
       
       // Test user usage initialization (this might be failing)
       console.log('🔍 Testing user usage initialization');
@@ -718,9 +711,12 @@ Create prompts that feel like iconic fashion campaign moments that would make so
         }
 
       } catch (error) {
-        console.error('Claude API error, using fallback:', error);
-        // Fallback response if Claude fails
-        response = `I love working with you on this vision! Tell me more about the mood you're going for - are we thinking editorial sophistication, natural lifestyle energy, or something more dramatic? I want to make sure we capture exactly what you're envisioning.`;
+        console.error('Claude API error - no fallback allowed:', error);
+        // NO FALLBACK RESPONSES - AI service must be available
+        return res.status(503).json({ 
+          error: 'AI service temporarily unavailable. Please try again later.',
+          serviceUnavailable: true
+        });
       }
       
       res.json({
@@ -1869,20 +1865,19 @@ Create prompts that feel like iconic fashion campaign moments that would make so
 
 
   // Subscription routes
-  app.get('/api/subscription', async (req: any, res) => {
+  app.get('/api/subscription', isAuthenticated, async (req: any, res) => {
     try {
-      // For new user testing, simulate active subscription
-      const testSubscription = {
-        id: 1,
-        userId: "test_user",
-        plan: 'sselfie-studio',
-        status: 'active',
-        stripeCustomerId: 'test_customer',
-        stripeSubscriptionId: 'test_subscription',
-        createdAt: new Date().toISOString(),
-        updatedAt: new Date().toISOString()
-      };
-      res.json(testSubscription);
+      // REAL SUBSCRIPTION DATA ONLY - No test subscriptions
+      const userId = req.user.claims.sub;
+      const userSubscription = await storage.getUserSubscription(userId);
+      if (!userSubscription) {
+        return res.status(404).json({
+          error: 'No subscription found. Please upgrade to access this feature.',
+          requiresUpgrade: true
+        });
+      }
+      
+      res.json(userSubscription);
     } catch (error) {
       console.error("Error fetching subscription:", error);
       res.status(500).json({ message: "Failed to fetch subscription" });
@@ -2092,64 +2087,57 @@ Create prompts that feel like iconic fashion campaign moments that would make so
     }
   });
 
-  // Styleguide API endpoints for user testing
-  app.get('/api/styleguide', async (req: any, res) => {
+  // Styleguide API endpoints - REAL DATA ONLY
+  app.get('/api/styleguide', isAuthenticated, async (req: any, res) => {
     try {
-      // Return mock styleguide with user AI images
-      const mockStyleguide = {
-        id: 1,
-        userId: "test_user",
-        templateId: "refined-minimalist",
-        templateName: "Refined Minimalist",
-        colors: {
-          primary: "#0a0a0a",
-          secondary: "#ffffff",
-          accent: "#f5f5f5"
-        },
-        typography: {
-          headline: "Times New Roman",
-          body: "System Sans"
-        },
-        content: {
-          brandStory: "Test brand story",
-          mission: "Test mission"
-        },
-        aiImages: [
-          "https://i.postimg.cc/rwTG02cZ/out-1-23.png",
-          "https://i.postimg.cc/bNF14sGc/out-1-4.png",
-          "https://i.postimg.cc/nrKdm7Vj/out-2-4.webp"
-        ],
-        status: "draft",
-        createdAt: new Date().toISOString(),
-        updatedAt: new Date().toISOString()
-      };
-      res.json(mockStyleguide);
+      const userId = req.user.claims.sub;
+      
+      // Get real user styleguide from database
+      const userProfile = await storage.getUserProfile(userId);
+      if (!userProfile) {
+        return res.status(404).json({ 
+          error: 'No styleguide found. Please complete your brand onboarding first.',
+          requiresOnboarding: true
+        });
+      }
+      
+      // Return real user data only
+      res.json({
+        id: userProfile.id,
+        userId: userId,
+        ...userProfile,
+        status: "active",
+        createdAt: userProfile.createdAt,
+        updatedAt: userProfile.updatedAt
+      });
+      
     } catch (error) {
       console.error("Error fetching styleguide:", error);
-      res.status(500).json({ message: "Failed to fetch styleguide" });
+      res.status(500).json({ error: "Failed to fetch styleguide" });
     }
   });
 
-  app.post('/api/styleguide', async (req: any, res) => {
+  app.post('/api/styleguide', isAuthenticated, async (req: any, res) => {
     try {
+      const userId = req.user.claims.sub;
       const styleguideData = req.body;
       
-      // For testing, return success response
-      const mockResponse = {
-        success: true,
-        message: "Styleguide created successfully",
-        styleguide: {
-          id: 1,
-          ...styleguideData,
-          createdAt: new Date().toISOString(),
-          updatedAt: new Date().toISOString()
-        }
-      };
+      // Save real user data to database
+      const userProfile = await storage.upsertUserProfile({
+        userId: userId,
+        ...styleguideData,
+        updatedAt: new Date()
+      });
       
-      res.json(mockResponse);
+      res.json({
+        success: true,
+        message: "Styleguide saved successfully",
+        styleguide: userProfile
+      });
+      
     } catch (error) {
-      console.error("Error creating styleguide:", error);
-      res.status(500).json({ message: "Failed to create styleguide" });
+      console.error("Error saving styleguide:", error);
+      res.status(500).json({ error: "Failed to save styleguide" });
     }
   });
 
@@ -3044,8 +3032,8 @@ Consider this workflow optimized and ready for implementation! ⚙️`
       // Calculate conversion rate (subscriptions / users)
       const conversionRate = totalUsers > 0 ? (activeSubscriptions / totalUsers) * 100 : 0;
       
-      // Mock agent tasks for now (will be real when agents are fully activated)
-      const agentTasks = Math.floor(Math.random() * 50) + 200;
+      // Real agent tasks from database (placeholder until agent tasks table exists)
+      const agentTasks = 0; // Will be real when agent task tracking is implemented
       
       return {
         totalUsers,
@@ -3057,15 +3045,8 @@ Consider this workflow optimized and ready for implementation! ⚙️`
       };
     } catch (error) {
       console.error('Analytics error:', error);
-      // Fallback to demo data if database queries fail
-      return {
-        totalUsers: 1247,
-        activeSubscriptions: 89,
-        aiImagesGenerated: 3421,
-        revenue: 8633, // 89 * 97
-        conversionRate: 7.2,
-        agentTasks: 156
-      };
+      // NO FALLBACK DATA - Real analytics required
+      throw new Error('Failed to fetch real analytics data');
     }
   }
 
@@ -3097,7 +3078,7 @@ Consider this workflow optimized and ready for implementation! ⚙️`
   });
 
   // Register AI Images routes
-  registerAiImageRoutes(app);
+
 
   // Register Checkout routes
   registerCheckoutRoutes(app);
@@ -3105,8 +3086,7 @@ Consider this workflow optimized and ready for implementation! ⚙️`
   // Register Automation routes
   registerAutomationRoutes(app);
 
-  // Register Styleguide routes
-  registerStyleguideRoutes(app);
+
 
   // Removed duplicate photoshoot routes - using existing checkout system
 
@@ -3965,17 +3945,23 @@ Consider this workflow optimized and ready for implementation! ⚙️`
 
   app.get('/api/marketing/metrics', async (req: any, res) => {
     try {
-      // Mock metrics for demo - replace with real analytics
-      const metrics = {
-        totalReach: 125000,
-        totalEngagement: 12500,
-        conversions: 15,
-        revenue: 1455, // €97 * 15 conversions
-        roi: 245,
-        activeSubscribers: 8200
-      };
+      // REAL METRICS ONLY - get from user's authenticated account
+      if (!req.isAuthenticated()) {
+        return res.status(401).json({ error: 'Authentication required' });
+      }
       
-      res.json(metrics);
+      const userId = req.user.claims.sub;
+      
+      // Get real metrics from database
+      const userAnalytics = await storage.getUserAnalytics(userId);
+      if (!userAnalytics) {
+        return res.status(404).json({ 
+          error: 'No analytics data found. Complete your business setup first.',
+          requiresSetup: true
+        });
+      }
+      
+      res.json(userAnalytics);
     } catch (error) {
       console.error('Metrics fetch error:', error);
       res.status(500).json({ message: 'Failed to fetch metrics' });
@@ -3984,15 +3970,21 @@ Consider this workflow optimized and ready for implementation! ⚙️`
 
   app.get('/api/marketing/automations', async (req: any, res) => {
     try {
-      // Mock automation status - replace with real data
-      const automations = [
-        { id: 'content', status: 'active', progress: 75, lastUpdate: new Date() },
-        { id: 'email', status: 'active', progress: 60, lastUpdate: new Date() },
-        { id: 'social', status: 'active', progress: 90, lastUpdate: new Date() },
-        { id: 'ads', status: 'pending', progress: 0, lastUpdate: new Date() },
-        { id: 'seo', status: 'active', progress: 45, lastUpdate: new Date() },
-        { id: 'integration', status: 'completed', progress: 100, lastUpdate: new Date() }
-      ];
+      // REAL AUTOMATION DATA ONLY - Authentication required
+      if (!req.isAuthenticated()) {
+        return res.status(401).json({ error: 'Authentication required' });
+      }
+      
+      const userId = req.user.claims.sub;
+      
+      // Get real automation data from database
+      const automations = await storage.getUserAutomations(userId);
+      if (!automations || automations.length === 0) {
+        return res.status(404).json({ 
+          error: 'No automation data found. Set up your business automations first.',
+          requiresSetup: true
+        });
+      }
       
       res.json(automations);
     } catch (error) {
