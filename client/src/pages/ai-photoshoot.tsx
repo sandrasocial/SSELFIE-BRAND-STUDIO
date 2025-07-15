@@ -857,7 +857,9 @@ export default function AIPhotoshootPage() {
         attempts++;
         setGenerationProgress(Math.min(90, (attempts / maxAttempts) * 90));
         
-        const response = await fetch(`/api/generation-tracker/${trackerId}`);
+        const response = await fetch(`/api/generation-tracker/${trackerId}`, {
+          credentials: 'include'
+        });
         if (!response.ok) throw new Error('Failed to fetch tracker status');
         
         const tracker = await response.json();
