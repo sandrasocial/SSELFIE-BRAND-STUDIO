@@ -1,49 +1,58 @@
+// PRODUCTION API FOR SSELFIE.AI DOMAIN
+// Synchronized with development Google OAuth setup
 import express from 'express';
 import session from 'express-session';
 import cors from 'cors';
 import Stripe from 'stripe';
+import path from 'path';
+import { fileURLToPath } from 'url';
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 
 const app = express();
 
+// CORS configuration for production
+app.use(cors({
+  origin: ['https://sselfie.ai', 'https://www.sselfie.ai'],
+  credentials: true,
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+  allowedHeaders: ['Content-Type', 'Authorization', 'Cookie']
+}));
+
+app.use(express.json({ limit: '50mb' }));
+app.use(express.urlencoded({ extended: false, limit: '50mb' }));
+
 // Initialize Stripe
 if (!process.env.STRIPE_SECRET_KEY) {
-  throw new Error('Missing required Stripe secret: STRIPE_SECRET_KEY');
+  console.warn('⚠️ STRIPE_SECRET_KEY not found - Payment features disabled');
+} else {
+  const stripe = new Stripe(process.env.STRIPE_SECRET_KEY, {
+    apiVersion: "2023-10-16",
+  });
 }
-const stripe = new Stripe(process.env.STRIPE_SECRET_KEY, {
-  apiVersion: "2023-10-16",
-});
 
-// Middleware
-app.use(cors());
-app.use(express.json());
-
-// Session middleware for Vercel
+// Session configuration for production
 app.use(session({
-  secret: process.env.SESSION_SECRET || 'vercel-session-secret',
+  secret: process.env.SESSION_SECRET || 'production-session-secret',
   resave: false,
   saveUninitialized: false,
   cookie: {
-    secure: process.env.NODE_ENV === 'production',
+    secure: true, // Always secure for HTTPS production
     httpOnly: true,
-    maxAge: 24 * 60 * 60 * 1000 // 24 hours
+    maxAge: 7 * 24 * 60 * 60 * 1000, // 1 week
+    sameSite: 'lax',
+    domain: 'sselfie.ai'
   }
 }));
 
-// Simple auth endpoints for Vercel
+// Production notice - redirect to development for now
 app.get('/api/login', (req, res) => {
-  const testUserId = "test" + Math.floor(Math.random() * 100000);
-  req.session.userId = testUserId;
-  req.session.userEmail = "testuser@example.com";
-  req.session.firstName = "Test";
-  req.session.lastName = "User";
-  req.session.createdAt = new Date().toISOString();
+  console.log('🔄 Production login request - redirecting to development server');
   
-  console.log('Vercel Login: Created test user session:', testUserId);
-  
-  // Check for redirect parameter
-  const redirectTo = req.query.redirect || '/workspace';
-  console.log('Redirecting to:', redirectTo);
-  res.redirect(redirectTo);
+  // Redirect to development server for proper Google OAuth
+  const developmentUrl = 'https://e33979fc-c9be-4f0d-9a7b-6a3e83046828-00-3ij9k7qy14rai.picard.replit.dev' + req.url;
+  res.redirect(developmentUrl);
 });
 
 app.get('/api/logout', (req, res) => {
