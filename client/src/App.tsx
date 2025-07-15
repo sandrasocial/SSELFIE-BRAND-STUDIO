@@ -53,6 +53,7 @@ import Welcome from "@/pages/welcome";
 import AuthSuccess from "@/pages/auth-success";
 import Login from "@/pages/login";
 import AuthLogin from "@/pages/auth-login";
+import AuthBridge from "@/pages/auth-bridge";
 import LoginPrompt from "@/components/LoginPrompt";
 import DomainHelp from "@/pages/domain-help";
 
@@ -100,8 +101,8 @@ function ProtectedRoute({ component: Component, ...props }) {
   }
   
   if (!isAuthenticated) {
-    // Show branded login instead of direct API redirect
-    return <LoginPrompt title="Authentication Required" message="Please sign in to access this feature" />;
+    // Use auth bridge for smooth redirect
+    return <AuthBridge />;
   }
   
   return <Component {...props} />;
@@ -146,9 +147,10 @@ function Router() {
       <Route path="/thank-you" component={ThankYou} />
       <Route path="/payment-success" component={PaymentSuccess} />
       <Route path="/auth-success" component={AuthSuccess} />
-      <Route path="/login" component={AuthLogin} />
-      <Route path="/auth" component={AuthLogin} />
-      <Route path="/sign-in" component={AuthLogin} />
+      <Route path="/login" component={AuthBridge} />
+      <Route path="/auth" component={AuthBridge} />
+      <Route path="/sign-in" component={AuthBridge} />
+      <Route path="/auth-custom" component={AuthLogin} />
 
       {/* PROTECTED ROUTES */}
       <Route path="/workspace" component={(props) => <ProtectedRoute component={Workspace} {...props} />} />
