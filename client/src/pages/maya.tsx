@@ -280,12 +280,14 @@ export default function Maya() {
 
   // 🔑 NEW: Generate images using tracker system (preview-first workflow)
   const generateImages = async (prompt: string) => {
+    console.log('🎨 Maya: Starting image generation:', { prompt, user });
     setIsGenerating(true);
     setGeneratedImages([]);
     setGenerationProgress(0);
     setCurrentTrackerId(null);
     
     try {
+      console.log('🔐 Maya: Making authenticated request to /api/maya-generate-images');
       const response = await fetch('/api/maya-generate-images', {
         method: 'POST',
         headers: {
@@ -296,9 +298,28 @@ export default function Maya() {
       });
 
       const data = await response.json();
+      console.log('📡 Maya: Server response:', { status: response.status, ok: response.ok, data });
 
       // Handle usage limit errors with upgrade prompts
       if (!response.ok) {
+        console.error('Maya generation error:', {
+          status: response.status,
+          statusText: response.statusText,
+          data
+        });
+        
+        if (response.status === 401) {
+          toast({
+            title: "Authentication Required",
+            description: "Please log in to use Maya AI image generation.",
+            variant: "destructive",
+          });
+          setTimeout(() => {
+            window.location.href = '/login';
+          }, 1500);
+          return;
+        }
+        
         if (response.status === 403 && data.upgrade) {
           // Remove toast - Maya explains everything in chat
           window.location.href = '/pricing';
@@ -322,12 +343,16 @@ export default function Maya() {
       }
       
       if (data.success && data.trackerId) {
+        console.log('✅ Maya: Generation started successfully, tracking ID:', data.trackerId);
         setCurrentTrackerId(data.trackerId);
         
         // Start polling tracker for completion
         pollForTrackerCompletion(data.trackerId);
         
-        // Remove toast - Maya explains everything in chat
+        toast({
+          title: "Maya is creating your photos",
+          description: "Your images are generating - watch the preview appear below!",
+        });
       }
     } catch (error) {
       console.error('Error generating images:', error);
