@@ -1,4 +1,5 @@
 import { useQuery } from "@tanstack/react-query";
+import { useEffect } from "react";
 
 export function useAuth() {
   const { data: user, isLoading, error, isStale } = useQuery({
@@ -41,7 +42,7 @@ export function useAuth() {
   const isAuthenticated = !!(user && user.id);
 
   // Enhanced logging for debugging - only log changes to reduce console noise
-  React.useEffect(() => {
+  useEffect(() => {
     if (process.env.NODE_ENV === 'development') {
       console.log('useAuth state change:', { 
         isAuthenticated, 
