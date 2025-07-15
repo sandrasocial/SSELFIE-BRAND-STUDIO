@@ -168,3 +168,5 @@ export function MemberNavigation({ transparent = true }: MemberNavigationProps) 
     </nav>
   );
 }
+
+export default MemberNavigation;
