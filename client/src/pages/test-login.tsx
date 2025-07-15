@@ -6,7 +6,7 @@ export default function TestLogin() {
   const { user, isAuthenticated, isLoading } = useAuth();
 
   const handleLogin = () => {
-    window.location.href = '/api/login';
+    window.location.href = '/login';
   };
 
   const handleClearSession = async () => {

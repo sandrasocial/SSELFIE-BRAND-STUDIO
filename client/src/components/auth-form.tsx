@@ -13,7 +13,7 @@ export const AuthForm: React.FC<AuthFormProps> = ({ type }) => {
     setIsLoading(true);
     
     // Redirect to Google OAuth
-    window.location.href = '/api/login';
+    window.location.href = '/login';
   };
 
   const isLogin = type === 'login';

@@ -957,7 +957,7 @@ export default function AIPhotoshootPage() {
             You need to be signed in to access AI Photoshoot.
           </p>
           <a
-            href="/api/login"
+            href="/login"
             style={{
               display: 'inline-block',
               padding: '16px 32px',

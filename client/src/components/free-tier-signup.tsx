@@ -14,12 +14,12 @@ export default function FreeTierSignup() {
     // Store email and redirect to login for free tier
     localStorage.setItem('preSignupEmail', email);
     localStorage.setItem('selectedPlan', 'free');
-    window.location.href = 'https://e33979fc-c9be-4f0d-9a7b-6a3e83046828-00-3ij9k7qy14rai.picard.replit.dev/api/login';
+    window.location.href = '/login';
   };
 
   const handleDirectSignup = () => {
     localStorage.setItem('selectedPlan', 'free');
-    window.location.href = 'https://e33979fc-c9be-4f0d-9a7b-6a3e83046828-00-3ij9k7qy14rai.picard.replit.dev/api/login';
+    window.location.href = '/login';
   };
 
   return (

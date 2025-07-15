@@ -187,7 +187,7 @@ export default function OnboardingNew() {
           <p className="text-gray-600 mb-8">
             You need to be signed in to complete onboarding.
           </p>
-          <a href="/api/login" className="text-xs uppercase tracking-wider text-black hover:underline">
+          <a href="/login" className="text-xs uppercase tracking-wider text-black hover:underline">
             SIGN IN
           </a>
         </div>

@@ -114,7 +114,7 @@ export default function Workspace() {
             You need to be signed in to access your STUDIO.
           </p>
           <a
-            href="/api/login"
+            href="/login"
             style={{
               display: 'inline-block',
               padding: '16px 32px',
