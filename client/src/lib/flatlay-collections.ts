@@ -86,18 +86,18 @@ export const flatlayCollections: FlatlayCollection[] = [
     name: "Fitness & Health",
     description: "Wellness and active lifestyle inspiration",
     images: [
-      "/attached_assets/fitness-1.jpg",
-      "/attached_assets/fitness-2.jpg",
-      "/attached_assets/fitness-3.jpg",
-      "/attached_assets/fitness-4.jpg",
-      "/attached_assets/fitness-5.jpg",
-      "/attached_assets/fitness-6.jpg",
-      "/attached_assets/fitness-7.jpg",
-      "/attached_assets/fitness-8.jpg",
-      "/attached_assets/fitness-9.jpg",
-      "/attached_assets/fitness-10.jpg",
-      "/attached_assets/fitness-11.jpg",
-      "/attached_assets/fitness-12.jpg"
+      "https://i.postimg.cc/B6tjSDtb/Fitness-Aesthetic59.png",
+      "https://i.postimg.cc/yNR6YHHq/Fitness-Aesthetic6.png",
+      "https://i.postimg.cc/LX7nnXZT/Fitness-Aesthetic60.png",
+      "https://i.postimg.cc/JhpyCKrS/Fitness-Aesthetic61.png",
+      "https://i.postimg.cc/JhryFSLb/Fitness-Aesthetic62.png",
+      "https://i.postimg.cc/vTJgSBYB/Fitness-Aesthetic63.png",
+      "https://i.postimg.cc/SxpY6J11/Fitness-Aesthetic64.png",
+      "https://i.postimg.cc/fWp9bHcN/Fitness-Aesthetic65.png",
+      "https://i.postimg.cc/dtCTZ86T/Fitness-Aesthetic66.png",
+      "https://i.postimg.cc/02tyVnf4/Fitness-Aesthetic7.png",
+      "https://i.postimg.cc/SNQKL3W8/Fitness-Aesthetic8.png",
+      "https://i.postimg.cc/C57xTsVz/Fitness-Aesthetic9.png"
     ]
   },
   {
