@@ -11,9 +11,9 @@ export const PLAN_LIMITS = {
   },
   'FREE': {
     totalGenerations: null,
-    monthlyGenerations: 5, // 5 free images per month
+    monthlyGenerations: 6, // 6 free images per month (allows 2 generations of 3 images each)
     cost: 0,
-    description: '5 AI generations per month',
+    description: '6 AI generations per month',
     resetMonthly: true
   },
   'SSELFIE_STUDIO': {
