@@ -7,14 +7,8 @@ async function throwIfResNotOk(res: Response) {
   }
 }
 
-// Force development server URL in development mode
+// Use current domain's API endpoints for production
 function getApiUrl(url: string): string {
-  // Always redirect to dev server when accessing from sselfie.ai
-  if (window.location.hostname === 'sselfie.ai') {
-    const devUrl = `https://e33979fc-c9be-4f0d-9a7b-6a3e83046828-00-3ij9k7qy14rai.picard.replit.dev${url}`;
-    return devUrl;
-  }
-  
   return url;
 }
 
