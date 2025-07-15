@@ -199,6 +199,29 @@ The platform has become overly complex with multiple pricing tiers, broken onboa
 
 ## Current Project Status & Progress
 
+### ✅ FREEMIUM MODEL TRAINING LIMITS IMPLEMENTED (July 15, 2025)
+**FREE USER TRAINING RESTRICTIONS & UPGRADE FLOW:**
+- **Free Plan Limit**: Users can only train their AI model once before needing to upgrade
+- **Premium Plan Limit**: SSELFIE Studio subscribers get 3 retrains per month  
+- **Admin Exception**: Admin users (ssa@ssasocial.com) have unlimited retraining
+- **Error Handling**: Clear upgrade messaging with automatic redirect to pricing page
+- **Database Cleanup**: Proper old model deletion before retraining to prevent conflicts
+- **Plan Detection**: System checks subscription status to apply correct limits
+
+**Technical Implementation:**
+- Enhanced `/api/start-model-training` endpoint with plan-based limit checking
+- Added `upgradeRequired` flag in error responses for frontend handling  
+- Updated frontend error handling to redirect free users to pricing page
+- Monthly retrain count tracking with proper date range filtering
+- Sandra's warm voice in all training completion messages (removed technical model names)
+- Fixed routing from training completion to Maya chat interface
+
+**Business Impact:**
+- Clear upgrade path for free users who want to retrain their AI models
+- Premium subscribers get reasonable retraining flexibility (3x per month)
+- Proper revenue funnel from free tier training limits to paid subscriptions
+- Prevents abuse of free model training while encouraging upgrades
+
 ### ✅ AUTHENTICATION SYSTEM CLEANUP & ACCOUNT SWITCHING (July 15, 2025)
 **COMPLETE GOOGLE AUTH REMOVAL & REPLIT AUTH OPTIMIZATION:**
 - **Google Auth Completely Removed**: Eliminated all Google Auth code, files, and references to prevent confusion

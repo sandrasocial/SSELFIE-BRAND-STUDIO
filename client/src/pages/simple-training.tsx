@@ -75,6 +75,12 @@ export default function SimpleTraining() {
       const response = await apiRequest('POST', '/api/start-model-training', {
         selfieImages: images
       });
+      
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw errorData;
+      }
+      
       return response.json();
     },
     onSuccess: () => {
@@ -86,13 +92,28 @@ export default function SimpleTraining() {
         description: "Your AI model is now training. This takes about 20 minutes.",
       });
     },
-    onError: (error) => {
+    onError: (error: any) => {
       console.error('Training failed:', error);
-      toast({
-        title: "Training Failed",
-        description: "Images too large or network error. Please try again.",
-        variant: "destructive",
-      });
+      
+      if (error.upgradeRequired && error.planType === 'free') {
+        // Free user hit retraining limit
+        toast({
+          title: "Upgrade Required",
+          description: error.message,
+          variant: "destructive",
+        });
+        
+        // Show upgrade dialog or redirect
+        setTimeout(() => {
+          window.location.href = '/pricing';
+        }, 3000);
+      } else {
+        toast({
+          title: "Training Failed",
+          description: error.message || "Images too large or network error. Please try again.",
+          variant: "destructive",
+        });
+      }
     }
   });
 

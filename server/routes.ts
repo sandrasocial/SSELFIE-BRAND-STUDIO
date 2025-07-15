@@ -1971,24 +1971,37 @@ Create prompts that feel like iconic fashion campaign moments that would make so
       const triggerWord = `user${dbUserId.replace(/[^a-zA-Z0-9]/g, '_')}_${Date.now()}`;
       const modelName = `${dbUserId}-selfie-lora`;
 
-      // Handle retraining with usage limits
+      // Handle retraining with usage limits based on user plan
       let userModel = await storage.getUserModelByUserId(dbUserId);
       if (userModel) {
-        // Check retraining limits (max 3 retrains per month)
-        const currentMonth = new Date().getMonth();
-        const currentYear = new Date().getFullYear();
+        // Get user's subscription plan
+        const subscription = await storage.getSubscription(dbUserId);
+        const isFreePlan = !subscription || subscription.plan === 'free';
+        const isAdmin = await storage.hasUnlimitedGenerations(dbUserId);
         
-        // Count retrains this month
-        const retrainCount = await storage.getMonthlyRetrainCount(dbUserId, currentMonth, currentYear);
-        
-        if (retrainCount >= 3) {
-          return res.status(400).json({ 
-            message: "You've reached your monthly retraining limit (3 times per month). Please try again next month or contact support.",
-            limitReached: true
-          });
+        if (!isAdmin) {
+          // Check retraining limits based on plan
+          const currentMonth = new Date().getMonth();
+          const currentYear = new Date().getFullYear();
+          const retrainCount = await storage.getMonthlyRetrainCount(dbUserId, currentMonth, currentYear);
+          
+          if (isFreePlan && retrainCount >= 1) {
+            return res.status(400).json({ 
+              message: "Free users can only train their AI model once. Upgrade to SSELFIE Studio ($47/month) for unlimited retraining and 100 images per month.",
+              limitReached: true,
+              upgradeRequired: true,
+              planType: 'free'
+            });
+          } else if (!isFreePlan && retrainCount >= 3) {
+            return res.status(400).json({ 
+              message: "You've reached your monthly retraining limit (3 times per month). Please try again next month or contact support.",
+              limitReached: true,
+              planType: 'premium'
+            });
+          }
         }
         
-        console.log(`🔄 User ${dbUserId} is retraining (${retrainCount + 1}/3 this month)`);
+        console.log(`🔄 User ${dbUserId} is retraining (${isFreePlan ? 'FREE' : 'PREMIUM'} plan)`);
         
         // Delete old model completely before retraining
         await storage.deleteUserModel(dbUserId);
