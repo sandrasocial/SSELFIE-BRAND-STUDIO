@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { useAuth } from '@/hooks/use-auth';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { MemberNavigation } from '@/components/member-navigation';
-import { PaymentVerification } from '@/components/payment-verification';
+// Removed PaymentVerification - free users should access gallery
 import { HeroFullBleed } from '@/components/hero-full-bleed';
 import { SandraImages } from '@/lib/sandra-images';
 import { apiRequest } from '@/lib/queryClient';
@@ -162,7 +162,6 @@ export default function SSELFIEGallery() {
   }
 
   return (
-    <PaymentVerification>
       <div className="min-h-screen bg-white touch-manipulation" style={{ 
         fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif',
         fontWeight: 300,
@@ -726,6 +725,5 @@ export default function SSELFIEGallery() {
           </div>
         </section>
       </div>
-    </PaymentVerification>
   );
 }

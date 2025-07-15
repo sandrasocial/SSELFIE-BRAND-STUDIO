@@ -1,6 +1,6 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { MemberNavigation } from '@/components/member-navigation';
-import { PaymentVerification } from '@/components/payment-verification';
+// Removed PaymentVerification - free users should access training
 import { SandraImages } from '@/lib/sandra-images';
 import { useAuth } from '@/hooks/use-auth';
 import { Link } from 'wouter';
@@ -197,7 +197,6 @@ export default function SimpleTraining() {
   // Training completed view
   if (isTrainingStarted || (userModel && userModel.trainingStatus === 'training')) {
     return (
-      <PaymentVerification>
         <div style={{ 
           minHeight: '100vh', 
           background: '#ffffff',
@@ -369,7 +368,6 @@ export default function SimpleTraining() {
             </div>
           </section>
         </div>
-      </PaymentVerification>
     );
   }
 
@@ -409,7 +407,6 @@ export default function SimpleTraining() {
   // Show model completed view with retrain option
   if (userModel && userModel.trainingStatus === 'completed' && !isRetrainingMode) {
     return (
-      <PaymentVerification>
         <div style={{ 
           minHeight: '100vh', 
           background: '#ffffff',
@@ -555,12 +552,10 @@ export default function SimpleTraining() {
             </div>
           </section>
         </div>
-      </PaymentVerification>
     );
   }
 
   return (
-    <PaymentVerification>
       <div style={{ 
         minHeight: '100vh', 
         background: '#ffffff',
@@ -1204,6 +1199,5 @@ export default function SimpleTraining() {
           }
         `}</style>
       </div>
-    </PaymentVerification>
   );
 }

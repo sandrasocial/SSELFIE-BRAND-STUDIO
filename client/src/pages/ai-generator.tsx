@@ -3,7 +3,7 @@ import { useAuth } from '@/hooks/use-auth';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { useToast } from '@/hooks/use-toast';
 import { MemberNavigation } from '@/components/member-navigation';
-import { PaymentVerification } from '@/components/payment-verification';
+// Removed PaymentVerification - free users should access AI generator
 import { SandraImages } from '@/lib/sandra-images';
 import { apiRequest } from '@/lib/queryClient';
 import UsageTracker from '@/components/UsageTracker';
@@ -383,7 +383,6 @@ export default function AIGenerator() {
   }
 
   return (
-    <PaymentVerification>
       <div className="min-h-screen bg-white">
         <MemberNavigation />
         
@@ -471,7 +470,6 @@ export default function AIGenerator() {
           )}
         </div>
       </div>
-    </PaymentVerification>
   );
 }
 

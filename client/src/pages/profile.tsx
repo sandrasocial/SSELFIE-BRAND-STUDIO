@@ -4,7 +4,7 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { useToast } from '@/hooks/use-toast';
 import { apiRequest } from '@/lib/queryClient';
 import { MemberNavigation } from '@/components/member-navigation';
-import { PaymentVerification } from '@/components/payment-verification';
+// Removed PaymentVerification - free users should access profile
 import { SandraImages } from '@/lib/sandra-images';
 
 export default function Profile() {
@@ -100,7 +100,6 @@ export default function Profile() {
   }
 
   return (
-    <PaymentVerification>
       <div className="min-h-screen bg-white">
         <MemberNavigation />
         
@@ -369,6 +368,5 @@ export default function Profile() {
           </div>
         </main>
       </div>
-    </PaymentVerification>
   );
 }
