@@ -45,7 +45,7 @@ import FlatlayLibrary from "@/pages/flatlay-library";
 import Maya from "@/pages/maya";
 import Victoria from "@/pages/victoria";
 import VictoriaChat from "@/pages/victoria-chat";
-import { lazy, Suspense } from "react";
+import { lazy, Suspense, useEffect } from "react";
 import VictoriaBuilder from '@/pages/victoria-builder';
 import VictoriaPreview from '@/pages/victoria-preview';
 import PhotoSelection from "@/pages/photo-selection";
@@ -74,7 +74,7 @@ function SmartHome() {
 
   // Always show STUDIO workspace as the home page for authenticated users
   // Onboarding is only shown once via direct navigation after first login/payment
-  React.useEffect(() => {
+  useEffect(() => {
     if (!isLoading) {
       setLocation('/workspace');
     }
@@ -97,7 +97,7 @@ function ProtectedRoute({ component: Component, ...props }) {
   const [, setLocation] = useLocation();
   
   // Enhanced logging for debugging navigation issues
-  React.useEffect(() => {
+  useEffect(() => {
     if (process.env.NODE_ENV === 'development') {
       console.log('ProtectedRoute state:', { isAuthenticated, isLoading, hasUser: !!user });
     }
