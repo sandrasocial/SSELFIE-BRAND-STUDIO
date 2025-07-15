@@ -4,6 +4,20 @@ import "./index.css";
 
 console.log('SSELFIE Studio: Starting React app...');
 
+// Test render a simple component first to debug
+function TestComponent() {
+  return (
+    <div style={{ padding: '20px', fontFamily: 'Arial, sans-serif' }}>
+      <h1>SSELFIE Studio Test Page</h1>
+      <p>React is working! Server time: {new Date().toISOString()}</p>
+      <p>Environment: {import.meta.env.NODE_ENV}</p>
+      <div style={{ marginTop: '20px' }}>
+        <a href="/test" style={{ color: 'blue', textDecoration: 'underline' }}>Go to Navigation Test</a>
+      </div>
+    </div>
+  );
+}
+
 try {
   const rootElement = document.getElementById("root");
   if (!rootElement) {
@@ -13,10 +27,17 @@ try {
   console.log('SSELFIE Studio: Root element found, creating React root...');
   const root = createRoot(rootElement);
   
-  console.log('SSELFIE Studio: Rendering App component...');
-  root.render(<App />);
+  console.log('SSELFIE Studio: Rendering test component first...');
+  // Render test component first to ensure React works
+  root.render(<TestComponent />);
   
-  console.log('SSELFIE Studio: App rendered successfully');
+  // After 3 seconds, load the full app
+  setTimeout(() => {
+    console.log('SSELFIE Studio: Loading full app...');
+    root.render(<App />);
+  }, 3000);
+  
+  console.log('SSELFIE Studio: Test component rendered successfully');
 } catch (error) {
   console.error('SSELFIE Studio: Error starting app:', error);
   

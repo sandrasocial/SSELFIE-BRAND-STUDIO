@@ -211,9 +211,9 @@ function Router() {
               <p>origin: {window.location.origin}</p>
               <div className="mt-4">
                 <a href="/login" className="bg-blue-500 text-white px-4 py-2 rounded mr-2">Try Login</a>
-                <a href="https://e33979fc-c9be-4f0d-9a7b-6a3e83046828-00-3ij9k7qy14rai.picard.replit.dev/workspace" 
+                <a href="/workspace" 
                    className="bg-green-500 text-white px-4 py-2 rounded">
-                  Go to Dev Server Workspace
+                  Go to Workspace
                 </a>
               </div>
             </div>
