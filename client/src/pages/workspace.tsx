@@ -17,9 +17,17 @@ export default function Workspace() {
     enabled: isAuthenticated
   });
 
-  const { data: userModel } = useQuery({
+  const { data: userModel, refetch: refetchUserModel } = useQuery({
     queryKey: ['/api/user-model'],
-    enabled: isAuthenticated
+    enabled: isAuthenticated,
+    refetchInterval: (data) => {
+      // Auto-refresh every 10 seconds if training is in progress
+      const isTraining = data?.trainingStatus === 'training' || 
+                        data?.trainingStatus === 'starting' ||
+                        data?.trainingStatus === 'processing' ||
+                        (data?.replicateModelId && data?.trainingStatus !== 'completed' && data?.trainingStatus !== 'failed');
+      return isTraining ? 10000 : false; // 10 seconds if training, otherwise no auto-refresh
+    }
   });
 
   const { data: subscription } = useQuery({
@@ -37,9 +45,12 @@ export default function Workspace() {
 
   // Simplified User Journey - 3 clear steps
   const getJourneySteps = () => {
-    // Step 1: Upload Photos
+    // Step 1: Upload Photos - Enhanced training status detection
     const step1Complete = userModel?.trainingStatus === 'completed';
-    const step1InProgress = userModel?.trainingStatus === 'training';
+    const step1InProgress = userModel?.trainingStatus === 'training' || 
+                          userModel?.trainingStatus === 'starting' ||
+                          userModel?.trainingStatus === 'processing' ||
+                          (userModel?.replicateModelId && userModel?.trainingStatus !== 'completed' && userModel?.trainingStatus !== 'failed');
     
     // Step 2: Take Photos  
     const step2Ready = step1Complete;
@@ -56,9 +67,9 @@ export default function Workspace() {
         timeEstimate: '2 minutes',
         status: step1Complete ? 'complete' : step1InProgress ? 'progress' : 'start',
         statusMessage: step1Complete ? 'Done! Ready for photos' : 
-                      step1InProgress ? 'Getting your photos ready...' : 
+                      step1InProgress ? 'AI training in progress... (Check back in a few minutes)' : 
                       'Start here first',
-        link: '/ai-training',
+        link: step1InProgress ? '#' : '/ai-training', // Don't link to training page if already training
         image: "https://i.postimg.cc/bNF14sGc/out-1-4.png",
         nextStep: step1Complete ? null : 'Upload a few selfies to get started'
       },
@@ -210,12 +221,15 @@ export default function Workspace() {
                     
                     {/* Minimalist Status Badge */}
                     <div className="absolute top-4 left-4">
-                      <div className={`px-2 py-1 text-xs font-light ${
+                      <div className={`px-2 py-1 text-xs font-light flex items-center gap-2 ${
                         step.status === 'complete' ? 'bg-black/80 text-white' :
-                        step.status === 'progress' ? 'bg-black/60 text-white' :
+                        step.status === 'progress' ? 'bg-yellow-500/90 text-black' :
                         step.status === 'ready' ? 'bg-white/90 text-black' :
                         'bg-white/70 text-gray-600'
                       }`}>
+                        {step.status === 'progress' && (
+                          <div className="w-2 h-2 bg-black rounded-full animate-pulse"></div>
+                        )}
                         {step.statusMessage}
                       </div>
                     </div>
@@ -256,6 +270,22 @@ export default function Workspace() {
                         <p className="text-sm text-black font-light">
                           {step.nextStep}
                         </p>
+                      </div>
+                    )}
+                    
+                    {/* Training Progress Indicator */}
+                    {step.id === 'upload' && step.status === 'progress' && (
+                      <div className="pt-4 border-t border-gray-200">
+                        <div className="text-xs tracking-[0.2em] uppercase text-gray-500 mb-2">
+                          Training Status
+                        </div>
+                        <p className="text-sm text-black font-light">
+                          Your AI model is being trained. This usually takes 10-15 minutes. 
+                          You can safely close this page and come back later.
+                        </p>
+                        <div className="mt-3 w-full bg-gray-200 rounded-none h-1">
+                          <div className="h-1 bg-yellow-500 rounded-none animate-pulse" style={{ width: '50%' }}></div>
+                        </div>
                       </div>
                     )}
                   </div>
