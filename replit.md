@@ -208,11 +208,12 @@ The platform has become overly complex with multiple pricing tiers, broken onboa
 - **Database Cleanup**: Proper old model deletion before retraining to prevent conflicts
 - **Plan Detection**: System checks subscription status to apply correct limits
 
-**CRITICAL BUG FIXES APPLIED:**
-- **Free User Issue**: Fixed blocking of first training attempt - now allows 1 training total
-- **Premium User Issue**: Fixed limit check from >=3 to >=4 to allow proper 3 retrains per month
-- **Placeholder Model Issue**: Fixed logic to distinguish between placeholder models and real trained models
-- **Logic Separation**: Clearly separated first training vs. retraining scenarios for accurate limits
+**CRITICAL BUG FIXES APPLIED (UPDATED):**
+- **Free User Training Restored**: Fixed critical bug where free users were blocked from first training due to placeholder model detection
+- **Real Model Detection**: Enhanced logic to only block retraining when user has ACTUAL completed Replicate model (urn:air:flux1)
+- **Placeholder Model Handling**: Correctly distinguishes between real trained models and placeholder/incomplete models
+- **First Training Access**: Free users can now complete their first training without being redirected to pricing page
+- **Retraining Limits**: Proper enforcement only applies to users who have successfully completed their first training
 
 ### ✅ COMPREHENSIVE SECURITY AUDIT COMPLETED (July 15, 2025)
 **ALL PLACEHOLDERS, FALLBACKS, AND MOCK DATA ELIMINATED:**
