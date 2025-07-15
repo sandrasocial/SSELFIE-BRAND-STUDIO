@@ -46,13 +46,24 @@ app.use(session({
   }
 }));
 
-// Production notice - redirect to development for now
+// Production notice - redirect to development for immediate launch
 app.get('/api/login', (req, res) => {
-  console.log('🔄 Production login request - redirecting to development server');
+  console.log('🔄 Production login request - redirecting to working development server');
   
   // Redirect to development server for proper Google OAuth
-  const developmentUrl = 'https://e33979fc-c9be-4f0d-9a7b-6a3e83046828-00-3ij9k7qy14rai.picard.replit.dev' + req.url;
-  res.redirect(developmentUrl);
+  res.redirect('https://e33979fc-c9be-4f0d-9a7b-6a3e83046828-00-3ij9k7qy14rai.picard.replit.dev/api/login');
+});
+
+// Redirect root to development server
+app.get('/', (req, res) => {
+  console.log('🔄 Root request - redirecting to working development server');
+  res.redirect('https://e33979fc-c9be-4f0d-9a7b-6a3e83046828-00-3ij9k7qy14rai.picard.replit.dev/');
+});
+
+// Redirect all other routes to development server
+app.get('*', (req, res) => {
+  console.log('🔄 Fallback redirect to development server:', req.path);
+  res.redirect('https://e33979fc-c9be-4f0d-9a7b-6a3e83046828-00-3ij9k7qy14rai.picard.replit.dev' + req.path);
 });
 
 app.get('/api/logout', (req, res) => {

@@ -24,7 +24,7 @@ export function getSession() {
       secure: true, // Always secure for production domain
       maxAge: sessionTtl,
       sameSite: 'lax',
-      domain: process.env.REPLIT_DOMAINS?.includes('sselfie.ai') ? 'sselfie.ai' : undefined,
+      // NO DOMAIN RESTRICTION - allows both Replit and custom domain access
     },
   });
 }
