@@ -170,23 +170,15 @@ export async function setupAuth(app: Express) {
     }
     
     function authenticateUser() {
-      
       // Get the correct hostname for strategy matching
       let hostname = req.hostname;
       
       console.log(`🔍 Login requested for hostname: ${hostname}`);
       console.log(`🔍 Available strategies: ${req.app.locals.authDomains.join(', ')}`);
       
-      // CRITICAL: For development domains, still authenticate with the development strategy
-      // This allows both sselfie.ai AND replit.dev to work independently
-      if (!hasStrategy) {
-        console.log('🔄 No strategy found for hostname, redirecting to production domain');
-        return res.redirect(302, 'https://sselfie.ai/api/login');
-      }
-      
-      const strategyName = `replitauth:${hostname}`;
       const hasStrategy = req.app.locals.authDomains.includes(hostname);
       
+      // CRITICAL: Use the correct strategy for each domain
       if (!hasStrategy) {
         console.error(`❌ No auth strategy found for hostname: ${hostname}`);
         console.error(`❌ Available domains: ${req.app.locals.authDomains.join(', ')}`);
@@ -196,6 +188,8 @@ export async function setupAuth(app: Express) {
           availableDomains: req.app.locals.authDomains
         });
       }
+      
+      const strategyName = `replitauth:${hostname}`;
       
       const authOptions: any = {
         scope: ["openid", "email", "profile", "offline_access"],
