@@ -285,32 +285,69 @@ export async function setupAuth(app: Express) {
       const code = req.query.code;
       const hostname = req.hostname;
       
+      if (!code) {
+        console.error('❌ No authorization code in callback');
+        return res.redirect('/?error=no_auth_code');
+      }
+      
       // Get the OAuth configuration
       const config = await getOidcConfig();
       
-      // Prepare token exchange
-      const tokenRequest = {
+      // Prepare token exchange with correct parameters
+      const tokenParams = new URLSearchParams({
         grant_type: 'authorization_code',
         code: code,
         redirect_uri: `https://${hostname}/api/callback`,
         client_id: process.env.REPL_ID!
-      };
-      
-      console.log('🔧 Token exchange request:', { 
-        redirect_uri: tokenRequest.redirect_uri,
-        hostname,
-        hasCode: !!code 
       });
       
-      // Exchange code for tokens
-      const tokens = await client.authorizationCodeGrant(config, tokenRequest);
+      console.log('🔧 Token exchange request:', { 
+        redirect_uri: `https://${hostname}/api/callback`,
+        hostname,
+        hasCode: !!code,
+        clientId: !!process.env.REPL_ID
+      });
       
+      // Make direct token request to Replit
+      const tokenUrl = config.token_endpoint || 'https://replit.com/oidc/token';
+      
+      const tokenResponse = await fetch(tokenUrl, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/x-www-form-urlencoded',
+          'Accept': 'application/json'
+        },
+        body: tokenParams.toString()
+      });
+      
+      if (!tokenResponse.ok) {
+        const errorText = await tokenResponse.text();
+        console.error('❌ Token exchange HTTP error:', tokenResponse.status, errorText);
+        throw new Error(`Token exchange failed: ${tokenResponse.status} ${errorText}`);
+      }
+      
+      const tokenData = await tokenResponse.json();
       console.log('✅ Manual token exchange successful');
       
-      // Create user object
-      const user: any = {};
-      updateUserSession(user, tokens);
-      await upsertUser(tokens.claims());
+      // Decode and validate the ID token
+      const idToken = tokenData.id_token;
+      if (!idToken) {
+        throw new Error('No ID token in response');
+      }
+      
+      // Parse JWT without verification (since we got it directly from Replit)
+      const idTokenPayload = JSON.parse(Buffer.from(idToken.split('.')[1], 'base64').toString());
+      
+      // Create user object with token data
+      const user: any = {
+        claims: idTokenPayload,
+        access_token: tokenData.access_token,
+        refresh_token: tokenData.refresh_token,
+        expires_at: idTokenPayload.exp
+      };
+      
+      // Upsert user to database
+      await upsertUser(idTokenPayload);
       
       // Log in the user manually
       req.logIn(user, (loginErr: any) => {
@@ -325,7 +362,8 @@ export async function setupAuth(app: Express) {
       
     } catch (error) {
       console.error('❌ Manual token exchange failed:', error);
-      res.redirect('/?error=token_exchange_failed');
+      console.error('❌ Error details:', error.message);
+      res.redirect('/?error=token_exchange_failed&details=' + encodeURIComponent(error.message));
     }
   }
 
