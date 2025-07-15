@@ -38,10 +38,9 @@ export function getSession() {
     saveUninitialized: false,
     cookie: {
       httpOnly: true,
-      secure: process.env.NODE_ENV === 'production', // Dynamic based on environment
+      secure: false, // Always false for development compatibility
       maxAge: sessionTtl,
-      sameSite: 'lax',
-      domain: process.env.NODE_ENV === 'production' ? '.sselfie.ai' : undefined, // Allow subdomains in production
+      sameSite: 'lax'
     },
   });
 }
@@ -101,21 +100,14 @@ export async function setupAuth(app: Express) {
     verified(null, user);
   };
 
-  // Register strategies for all domains (including localhost for development)
+  // Register strategies for configured domains only (NO localhost)
   const domains = process.env.REPLIT_DOMAINS!.split(",");
-  
-  // Add localhost for development if not already included
-  if (!domains.includes('localhost') && process.env.NODE_ENV === 'development') {
-    domains.push('localhost');
-  }
   
   // Make domains available in the route handlers
   app.locals.authDomains = domains;
   
   for (const domain of domains) {
-    const callbackURL = domain === 'localhost' 
-      ? `http://localhost:5000/api/callback`
-      : `https://${domain}/api/callback`;
+    const callbackURL = `https://${domain}/api/callback`;
       
     const strategy = new Strategy(
       {
@@ -168,11 +160,6 @@ export async function setupAuth(app: Express) {
       // Get the correct hostname for strategy matching
       let hostname = req.hostname;
       
-      // Special handling for development
-      if (hostname === 'localhost' || hostname.includes('localhost')) {
-        hostname = 'localhost';
-      }
-      
       console.log(`🔍 Login requested for hostname: ${hostname}`);
       console.log(`🔍 Available strategies: ${req.app.locals.authDomains.join(', ')}`);
       
@@ -212,16 +199,11 @@ export async function setupAuth(app: Express) {
   app.get("/api/callback", (req, res, next) => {
     let hostname = req.hostname;
     
-    // Special handling for development
-    if (hostname === 'localhost' || hostname.includes('localhost')) {
-      hostname = 'localhost';
-    }
-    
     console.log(`🔍 OAuth callback for hostname: ${hostname}`);
     
     passport.authenticate(`replitauth:${hostname}`, {
-      successRedirect: `${req.protocol}://${req.get('host')}/workspace`,
-      failureRedirect: `${req.protocol}://${req.get('host')}/api/login`,
+      successRedirect: '/workspace',
+      failureRedirect: '/api/login',
     })(req, res, next);
   });
 
