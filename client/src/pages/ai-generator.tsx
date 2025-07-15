@@ -99,6 +99,19 @@ export default function AIGenerator() {
       }
     },
     onError: (error: Error) => {
+      // Check if it's a model validation error
+      if (error.message.includes('AI model not found') || error.message.includes('Please train your model')) {
+        toast({
+          title: "AI Model Required",
+          description: "Please complete your AI model training first.",
+          variant: "destructive",
+        });
+        setTimeout(() => {
+          window.location.href = '/simple-training';
+        }, 1500);
+        return;
+      }
+      
       // Check if it's a usage limit error
       if (error.message.includes('Usage limit reached') || error.message.includes('Generation limit reached')) {
         toast({
@@ -323,6 +336,20 @@ export default function AIGenerator() {
       
     } catch (error) {
       console.error('Custom generation error:', error);
+      
+      // Check if it's a model validation error
+      if (error.message.includes('AI model not found') || error.message.includes('Please train your model')) {
+        toast({
+          title: "AI Model Required",
+          description: "Please complete your AI model training first.",
+          variant: "destructive",
+        });
+        setTimeout(() => {
+          window.location.href = '/simple-training';
+        }, 1500);
+        return;
+      }
+      
       toast({
         title: "Generation Failed",
         description: "Try again or choose a different style",
