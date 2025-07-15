@@ -1974,25 +1974,29 @@ Create prompts that feel like iconic fashion campaign moments that would make so
       // Handle retraining with usage limits based on user plan
       let userModel = await storage.getUserModelByUserId(dbUserId);
       if (userModel) {
+        // This is a RETRAINING scenario - user already has a model
         // Get user's subscription plan
         const subscription = await storage.getSubscription(dbUserId);
         const isFreePlan = !subscription || subscription.plan === 'free';
         const isAdmin = await storage.hasUnlimitedGenerations(dbUserId);
         
         if (!isAdmin) {
-          // Check retraining limits based on plan
-          const currentMonth = new Date().getMonth();
-          const currentYear = new Date().getFullYear();
-          const retrainCount = await storage.getMonthlyRetrainCount(dbUserId, currentMonth, currentYear);
-          
-          if (isFreePlan && retrainCount >= 1) {
+          // For retraining, free users are blocked after their first training
+          if (isFreePlan) {
             return res.status(400).json({ 
               message: "Free users can only train their AI model once. Upgrade to SSELFIE Studio ($47/month) for unlimited retraining and 100 images per month.",
               limitReached: true,
               upgradeRequired: true,
               planType: 'free'
             });
-          } else if (!isFreePlan && retrainCount >= 3) {
+          }
+          
+          // Premium users can retrain up to 3 times per month
+          const currentMonth = new Date().getMonth();
+          const currentYear = new Date().getFullYear();
+          const retrainCount = await storage.getMonthlyRetrainCount(dbUserId, currentMonth, currentYear);
+          
+          if (retrainCount >= 3) {
             return res.status(400).json({ 
               message: "You've reached your monthly retraining limit (3 times per month). Please try again next month or contact support.",
               limitReached: true,
@@ -2015,6 +2019,8 @@ Create prompts that feel like iconic fashion campaign moments that would make so
           startedAt: new Date()
         });
       } else {
+        // This is FIRST TRAINING scenario - allowed for all users including free
+        console.log(`🆕 User ${dbUserId} is training for the first time`);
         userModel = await storage.createUserModel({
           userId: dbUserId,
           triggerWord,
