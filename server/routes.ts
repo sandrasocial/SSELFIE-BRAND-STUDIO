@@ -3953,6 +3953,26 @@ Consider this workflow optimized and ready for implementation! ⚙️`
     res.sendFile(path.join(process.cwd(), 'test-auth-flow.html'));
   });
 
+  // OAuth debug flow route
+  app.get('/debug-oauth-flow', (req, res) => {
+    res.sendFile(path.join(process.cwd(), 'debug-oauth-flow.html'));
+  });
+
+  // OAuth configuration debug endpoint
+  app.get('/api/debug-oauth', (req, res) => {
+    const config = {
+      clientId: process.env.GOOGLE_CLIENT_ID ? `${process.env.GOOGLE_CLIENT_ID.substring(0, 10)}...` : 'Missing',
+      clientSecret: process.env.GOOGLE_CLIENT_SECRET ? `${process.env.GOOGLE_CLIENT_SECRET.substring(0, 10)}...` : 'Missing',
+      callbackURL: `https://sselfie.ai/api/auth/google/callback`,
+      authUrl: `/api/login`,
+      sessionSecret: process.env.SESSION_SECRET ? 'Present' : 'Missing',
+      environment: process.env.NODE_ENV,
+      timestamp: new Date().toISOString()
+    };
+    
+    res.json(config);
+  });
+
   // Quick auth test endpoint (no auth required)
   app.get('/api/quick-auth-test', (req, res) => {
     const authStatus = {

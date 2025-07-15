@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>OAuth Flow Debug</title>
+    <style>
+        body { font-family: Arial, sans-serif; max-width: 800px; margin: 0 auto; padding: 20px; }
+        .step { margin: 20px 0; padding: 15px; border: 1px solid #ddd; border-radius: 5px; }
+        .result { margin: 10px 0; padding: 10px; background: #f5f5f5; border-radius: 3px; }
+        button { padding: 10px 20px; margin: 10px 0; }
+        .success { color: green; }
+        .error { color: red; }
+        .info { color: blue; }
+        pre { background: #f8f8f8; padding: 10px; border-radius: 3px; overflow-x: auto; }
+    </style>
+</head>
+<body>
+    <h1>SSELFIE OAuth Flow Debug</h1>
+    <p><strong>Domain:</strong> <span id="current-domain"></span></p>
+    
+    <div class="step">
+        <h3>Step 1: Check OAuth Configuration</h3>
+        <button onclick="checkOAuthConfig()">Check OAuth Config</button>
+        <div id="oauth-config-result" class="result"></div>
+    </div>
+    
+    <div class="step">
+        <h3>Step 2: Test Login Endpoint</h3>
+        <button onclick="testLoginEndpoint()">Test /api/login</button>
+        <div id="login-test-result" class="result"></div>
+    </div>
+    
+    <div class="step">
+        <h3>Step 3: Test Callback Endpoint</h3>
+        <button onclick="testCallbackEndpoint()">Test Callback Endpoint</button>
+        <div id="callback-test-result" class="result"></div>
+    </div>
+    
+    <div class="step">
+        <h3>Step 4: Start Full OAuth Flow</h3>
+        <button onclick="startOAuthFlow()">Start OAuth Flow</button>
+        <div id="oauth-flow-result" class="result"></div>
+    </div>
+
+    <script>
+        document.getElementById('current-domain').textContent = window.location.hostname;
+        
+        async function checkOAuthConfig() {
+            const resultDiv = document.getElementById('oauth-config-result');
+            try {
+                const response = await fetch('/api/debug-oauth');
+                const data = await response.json();
+                resultDiv.innerHTML = `<div class="success">✅ OAuth Config:</div><pre>${JSON.stringify(data, null, 2)}</pre>`;
+            } catch (error) {
+                resultDiv.innerHTML = `<div class="error">❌ Error: ${error.message}</div>`;
+            }
+        }
+        
+        async function testLoginEndpoint() {
+            const resultDiv = document.getElementById('login-test-result');
+            try {
+                // Test with fetch but don't follow redirects
+                const response = await fetch('/api/login', { redirect: 'manual' });
+                const location = response.headers.get('location');
+                
+                if (response.status === 302 && location) {
+                    resultDiv.innerHTML = `<div class="success">✅ Login redirect working</div>
+                                          <div class="info">Status: ${response.status}</div>
+                                          <div class="info">Redirect URL: ${location}</div>`;
+                } else {
+                    resultDiv.innerHTML = `<div class="error">❌ Unexpected response: ${response.status}</div>`;
+                }
+            } catch (error) {
+                resultDiv.innerHTML = `<div class="error">❌ Error: ${error.message}</div>`;
+            }
+        }
+        
+        async function testCallbackEndpoint() {
+            const resultDiv = document.getElementById('callback-test-result');
+            try {
+                // Test with a fake code parameter
+                const response = await fetch('/api/auth/google/callback?code=test_code&state=test_state', {
+                    redirect: 'manual'
+                });
+                
+                resultDiv.innerHTML = `<div class="info">Callback endpoint response:</div>
+                                      <div class="info">Status: ${response.status}</div>
+                                      <div class="info">Headers: ${JSON.stringify(Object.fromEntries(response.headers.entries()), null, 2)}</div>`;
+                
+                if (response.status === 404) {
+                    resultDiv.innerHTML += `<div class="error">❌ 404 Error - Callback endpoint not found!</div>`;
+                } else if (response.status >= 400) {
+                    const text = await response.text();
+                    resultDiv.innerHTML += `<div class="info">Response body: ${text}</div>`;
+                }
+            } catch (error) {
+                resultDiv.innerHTML = `<div class="error">❌ Error: ${error.message}</div>`;
+            }
+        }
+        
+        function startOAuthFlow() {
+            const resultDiv = document.getElementById('oauth-flow-result');
+            resultDiv.innerHTML = '<div class="info">🔄 Starting OAuth flow...</div>';
+            
+            // Add error handler for the window
+            const originalOnError = window.onerror;
+            window.onerror = function(message, source, lineno, colno, error) {
+                resultDiv.innerHTML += `<div class="error">❌ JavaScript Error: ${message}</div>`;
+                if (originalOnError) originalOnError(message, source, lineno, colno, error);
+            };
+            
+            // Navigate to OAuth flow
+            window.location.href = '/api/login';
+        }
+        
+        // Check for OAuth callback parameters in URL
+        window.onload = function() {
+            const urlParams = new URLSearchParams(window.location.search);
+            if (urlParams.has('code') || urlParams.has('error')) {
+                const info = document.createElement('div');
+                info.className = 'step';
+                info.innerHTML = `<h3>OAuth Callback Detected</h3>
+                                 <div class="info">Code: ${urlParams.get('code') || 'N/A'}</div>
+                                 <div class="info">Error: ${urlParams.get('error') || 'N/A'}</div>
+                                 <div class="info">State: ${urlParams.get('state') || 'N/A'}</div>`;
+                document.body.insertBefore(info, document.body.firstChild);
+            }
+        };
+    </script>
+</body>
+</html>
