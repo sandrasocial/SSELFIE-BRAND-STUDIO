@@ -405,6 +405,25 @@ The platform has become overly complex with multiple pricing tiers, broken onboa
 
 **Launch Readiness:** Training workflow must be completed by users - no shortcuts allowed
 
+### 🔍 MAYA AI GENERATION ISSUE DIAGNOSED (July 15, 2025)
+**COMPREHENSIVE AUDIT COMPLETED - ROOT CAUSE IDENTIFIED:**
+- **🚨 ISSUE:** sandrajonna@gmail.com can chat with Maya but no images appear after clicking generate
+- **ROOT CAUSE:** Database shows training_status: 'not_started' but user claims model is ready
+- **VALIDATION BLOCKING:** Server blocks Maya AI generation at line 786 (userModel.trainingStatus !== 'completed')
+- **GENERATION FAILURE:** No generation tracker created = no API calls = no images
+- **DATABASE INCONSISTENCY:** model_name exists (43782722-selfie-lora) but no replicate_model_id
+
+**Maya AI Generation Flow Analysis:**
+1. User clicks "generate" in Maya chat interface
+2. Frontend calls /api/maya-generate-images with prompt
+3. Server validates user has completed trained model
+4. Server returns 400 error: "AI model training not_started"
+5. Frontend shows error, no generation tracker created
+6. User sees "starting" but no actual generation happens
+7. No images appear because generation never started
+
+**Solution Required:** Verify if sandrajonna has trained model and fix database inconsistency
+
 ### ✅ WELCOME EMAIL VOICE FIXED - SANDRA'S WARM BESTFRIEND TONE IMPLEMENTED (July 15, 2025)
 **CRITICAL EMAIL EXPERIENCE IMPROVED:**
 - **🚨 ELIMINATED CONDESCENDING LANGUAGE**: Removed "Well, look who actually did something" - replaced with warm "Hey gorgeous!"
