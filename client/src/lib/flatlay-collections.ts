@@ -182,5 +182,45 @@ export const flatlayCollections: FlatlayCollection[] = [
       "https://i.postimg.cc/mD1fXfzP/118.png",
       "https://i.postimg.cc/D0VVRjLB/119.png"
     ]
+  },
+  {
+    id: "luxury-lifestyle",
+    name: "Luxury Lifestyle",
+    description: "Premium lifestyle and sophisticated living",
+    images: [
+      "https://i.postimg.cc/4yfqrH9R/file-37.png",
+      "https://i.postimg.cc/7hKdDP3G/file-38.png",
+      "https://i.postimg.cc/26ZSVJcS/file-39.png",
+      "https://i.postimg.cc/DzW2MHKP/file-4.png",
+      "https://i.postimg.cc/d3ctdBpm/file-40.png",
+      "https://i.postimg.cc/8P1TSjS5/file-41.png",
+      "https://i.postimg.cc/vZTM4kDw/file-42.png",
+      "https://i.postimg.cc/8C3CkDbY/file-45.png",
+      "https://i.postimg.cc/VN56c5XM/file-46.png",
+      "https://i.postimg.cc/Xq1HmHW9/file-47.png",
+      "https://i.postimg.cc/xTqFM2G5/file-48.png",
+      "https://i.postimg.cc/VsKVJ6t5/file-49.png",
+      "https://i.postimg.cc/YSJpKRrK/file-5.png",
+      "https://i.postimg.cc/PxYdtDJL/file-51.png",
+      "https://i.postimg.cc/Nf0ZDTt1/file-52.png",
+      "https://i.postimg.cc/j5rG4Fq5/file-53.png",
+      "https://i.postimg.cc/hjbNy1h0/file-56.png",
+      "https://i.postimg.cc/dQ6zG6bs/file-57.png",
+      "https://i.postimg.cc/m26J5DZK/file-58.png",
+      "https://i.postimg.cc/y8gt4Hkx/file-59.png",
+      "https://i.postimg.cc/VsXNwx07/file-6.png",
+      "https://i.postimg.cc/nhy5nPDk/file-60.png",
+      "https://i.postimg.cc/dtBtkGBr/file-61.png",
+      "https://i.postimg.cc/kggMxD1Z/file-62.png",
+      "https://i.postimg.cc/Bn7SNsRv/file-63.png",
+      "https://i.postimg.cc/dQ9K4wyK/file-65.png",
+      "https://i.postimg.cc/FsWXXppW/file-68.png",
+      "https://i.postimg.cc/rsgXmNkp/file-69.png",
+      "https://i.postimg.cc/BbCsFGx4/file-7.png",
+      "https://i.postimg.cc/Pfbd9109/file-8.png",
+      "https://i.postimg.cc/Kjbx4Y30/file-84.png",
+      "https://i.postimg.cc/P5CsXDFt/file-87.png",
+      "https://i.postimg.cc/yNRM9HHt/file-88.png"
+    ]
   }
 ];
