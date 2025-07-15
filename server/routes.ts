@@ -39,24 +39,23 @@ export async function registerRoutes(app: Express): Promise<Server> {
     
     // Debug logging for domain access issues (only for sselfie.ai requests)
     if (hostname.includes('sselfie.ai')) {
-      console.log(`SSELFIE Domain: ${protocol}://${hostname}${req.url} - UA: ${userAgent.substring(0, 30)}`);
+
     }
     
-    // CRITICAL: Redirect www subdomain BEFORE SSL checks to avoid certificate mismatch
     if (hostname === 'www.sselfie.ai') {
-      console.log('Redirecting www to apex domain');
+
       return res.redirect(301, `https://sselfie.ai${req.url}`);
     }
     
     // Handle any other sselfie.ai subdomains
     if (hostname.endsWith('.sselfie.ai') && hostname !== 'sselfie.ai') {
-      console.log(`Redirecting subdomain ${hostname} to apex domain`);
+
       return res.redirect(301, `https://sselfie.ai${req.url}`);
     }
     
     // Force HTTPS for production domain (after subdomain redirects)
     if (hostname === 'sselfie.ai' && protocol !== 'https') {
-      console.log('Forcing HTTPS for sselfie.ai');
+
       return res.redirect(301, `https://${hostname}${req.url}`);
     }
     
@@ -150,7 +149,6 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Test route to simulate auth success and trigger potential errors
   app.get('/api/test-auth-success', async (req, res) => {
     try {
-      console.log('🔍 Testing auth success flow');
       
       // PRODUCTION: Use real authenticated user only - NO TEST USERS
       return res.status(401).json({ 
@@ -159,7 +157,6 @@ export async function registerRoutes(app: Express): Promise<Server> {
       });
       
       // Test user usage initialization (this might be failing)
-      console.log('🔍 Testing user usage initialization');
       const existingUsage = await storage.getUserUsage(user.id);
       if (!existingUsage) {
         await storage.createUserUsage({
@@ -170,13 +167,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
           lastResetDate: new Date(),
         });
       }
-      console.log('✅ User usage test passed');
       
       res.json({ success: true, user, message: 'Auth success flow test passed' });
     } catch (error) {
-      console.error('❌ Auth success test error:', error);
-      console.error('❌ Error details:', error.message);
-      console.error('❌ Error stack:', error.stack);
       res.status(500).json({ error: error.message, stack: error.stack });
     }
   });
@@ -197,7 +190,6 @@ export async function registerRoutes(app: Express): Promise<Server> {
         plan: 'free' // Test with free plan
       };
       
-      console.log('Testing email send to:', user.email);
       const emailResult = await sendPostAuthWelcomeEmail(welcomeEmailData);
       
       res.json({
@@ -208,7 +200,6 @@ export async function registerRoutes(app: Express): Promise<Server> {
       });
       
     } catch (error) {
-      console.error('Test email error:', error);
       res.status(500).json({ error: 'Failed to send test email' });
     }
   });
@@ -216,7 +207,6 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // PUBLIC ENDPOINT: Chat with Sandra AI for photoshoot prompts - MUST BE FIRST, NO AUTH
   app.post('/api/sandra-chat', async (req: any, res) => {
     try {
-      console.log('Sandra chat request received:', req.body);
       const { message, history } = req.body;
       
       if (!message) {
@@ -292,7 +282,6 @@ I have ALL collections ready - just tell me your mood! ✨`;
       });
       
     } catch (error) {
-      console.error('Sandra chat error:', error);
       res.status(500).json({ error: error.message || 'Failed to chat with Sandra AI' });
     }
   });
@@ -339,14 +328,12 @@ I have ALL collections ready - just tell me your mood! ✨`;
       // Send "The Selfie Queen Guide" email
       await EmailService.sendSelfieQueenGuide(email, source || 'homepage');
       
-      console.log(`Selfie Queen Guide sent to ${email} from ${source}`);
       res.json({ 
         success: true, 
         message: 'Guide sent successfully'
       });
       
     } catch (error) {
-      console.error('Signup gift error:', error);
       res.status(500).json({ error: 'Failed to send guide' });
     }
   });
@@ -372,7 +359,6 @@ I have ALL collections ready - just tell me your mood! ✨`;
         createdAt: new Date()
       });
       
-      console.log(`Prompt "${name}" saved to library for user ${userId}`);
       res.json({ 
         success: true, 
         prompt: savedPrompt,
@@ -380,7 +366,6 @@ I have ALL collections ready - just tell me your mood! ✨`;
       });
       
     } catch (error) {
-      console.error('Save prompt error:', error);
       res.status(500).json({ error: 'Failed to save prompt to library' });
     }
   });
@@ -405,7 +390,6 @@ I have ALL collections ready - just tell me your mood! ✨`;
         createdAt: new Date()
       });
       
-      console.log(`Inspiration photo saved for user ${userId}`);
       res.json({ 
         success: true, 
         photo: inspirationPhoto,
@@ -413,7 +397,6 @@ I have ALL collections ready - just tell me your mood! ✨`;
       });
       
     } catch (error) {
-      console.error('Upload inspiration error:', error);
       res.status(500).json({ error: 'Failed to save inspiration photo' });
     }
   });
@@ -425,7 +408,6 @@ I have ALL collections ready - just tell me your mood! ✨`;
       const photos = await storage.getInspirationPhotos(userId);
       res.json(photos);
     } catch (error) {
-      console.error('Get inspiration photos error:', error);
       res.status(500).json({ error: 'Failed to get inspiration photos' });
     }
   });
@@ -439,7 +421,6 @@ I have ALL collections ready - just tell me your mood! ✨`;
       await storage.deleteInspirationPhoto(parseInt(id), userId);
       res.json({ success: true, message: 'Inspiration photo deleted' });
     } catch (error) {
-      console.error('Delete inspiration photo error:', error);
       res.status(500).json({ error: 'Failed to delete inspiration photo' });
     }
   });
@@ -450,7 +431,6 @@ I have ALL collections ready - just tell me your mood! ✨`;
       const { plan } = req.body; // 'sselfie-studio' or 'sselfie-studio-pro'
       const userId = req.user.claims.sub;
       
-      console.log(`Setting up plan ${plan} for user ${userId}`);
       
       // Validate plan
       if (!['free', 'sselfie-studio'].includes(plan)) {
@@ -462,7 +442,6 @@ I have ALL collections ready - just tell me your mood! ✨`;
       const existingUsage = await storage.getUserUsage(userId);
       
       if (existingSubscription && existingUsage) {
-        console.log(`User ${userId} already has subscription and usage setup`);
         return res.json({
           success: true,
           subscription: existingSubscription,
@@ -483,9 +462,7 @@ I have ALL collections ready - just tell me your mood! ✨`;
             currentPeriodStart: new Date(),
             currentPeriodEnd: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000) // 30 days
           });
-          console.log(`Created subscription for user ${userId}:`, subscription);
         } catch (subError) {
-          console.error('Subscription creation error:', subError);
           throw new Error(`Failed to create subscription: ${subError.message}`);
         }
       }
@@ -507,14 +484,11 @@ I have ALL collections ready - just tell me your mood! ✨`;
             isLimitReached: false,
             lastGenerationAt: null
           });
-          console.log(`Created user usage for user ${userId}:`, userUsage);
         } catch (usageError) {
-          console.error('User usage creation error:', usageError);
           throw new Error(`Failed to create user usage: ${usageError.message}`);
         }
       }
       
-      console.log(`Plan setup complete: ${plan}, Maya/Victoria Access: true, Limit: ${monthlyLimit}`);
       
       // Send post-authentication welcome email
       try {
@@ -526,17 +500,13 @@ I have ALL collections ready - just tell me your mood! ✨`;
             plan: plan as 'free' | 'sselfie-studio'
           };
           
-          console.log('Sending post-authentication welcome email to:', user.email);
           const emailResult = await sendPostAuthWelcomeEmail(welcomeEmailData);
           
           if (emailResult.success) {
-            console.log('Welcome email sent successfully:', emailResult.id);
           } else {
-            console.error('Welcome email failed:', emailResult.error);
           }
         }
       } catch (emailError) {
-        console.error('Welcome email error (non-blocking):', emailError);
       }
       
       res.json({
@@ -548,8 +518,6 @@ I have ALL collections ready - just tell me your mood! ✨`;
       });
       
     } catch (error) {
-      console.error('Plan setup error:', error);
-      console.error('Error details:', error.message, error.stack);
       res.status(500).json({ 
         message: 'Failed to setup plan',
         error: error.message,
@@ -569,16 +537,12 @@ I have ALL collections ready - just tell me your mood! ✨`;
       }
 
       // Get user context for personalized responses
-      console.log('Maya chat: Getting user data for userId:', userId);
       const user = await storage.getUser(userId);
-      console.log('Maya chat: User found:', user ? 'yes' : 'no');
       
       let onboardingData = null;
       try {
         onboardingData = await storage.getOnboardingData(userId);
-        console.log('Maya chat: Onboarding data found:', onboardingData ? 'yes' : 'no');
       } catch (error) {
-        console.log('Maya chat: No onboarding data found, continuing without it');
         onboardingData = null;
       }
       
@@ -658,7 +622,6 @@ Your goal is to have a natural conversation, understand their vision deeply, and
           // Create professional prompt based on conversation context
           const styleContext = message + ' ' + conversationHistory.slice(-3).map(msg => msg.content).join(' ');
           
-          // 🚨 CRITICAL: ZERO FALLBACKS - User MUST have completed trained model
           const userModel = await storage.getUserModelByUserId(userId);
           if (!userModel || userModel.trainingStatus !== 'completed' || !userModel.triggerWord) {
             return res.status(400).json({ 
@@ -725,7 +688,6 @@ Create prompts that feel like iconic fashion campaign moments that would make so
         }
 
       } catch (error) {
-        console.error('Claude API error - no fallback allowed:', error);
         // NO FALLBACK RESPONSES - AI service must be available
         return res.status(503).json({ 
           error: 'AI service temporarily unavailable. Please try again later.',
@@ -740,7 +702,6 @@ Create prompts that feel like iconic fashion campaign moments that would make so
         timestamp: new Date().toISOString()
       });
     } catch (error) {
-      console.error('Maya chat error:', error);
       res.status(500).json({ error: 'Failed to process Maya chat' });
     }
   });
@@ -756,14 +717,6 @@ Create prompts that feel like iconic fashion campaign moments that would make so
         return res.status(401).json({ error: 'Authentication required' });
       }
       
-      // 🚨 CRITICAL SECURITY AUDIT: Log authentication details for debugging
-      console.log('🔍 MAYA GENERATION AUTH AUDIT:', {
-        authUserId,
-        email: claims.email,
-        firstName: claims.first_name,
-        timestamp: new Date().toISOString()
-      });
-      
       // Get the correct database user ID
       let user = await storage.getUser(authUserId);
       if (!user && claims.email) {
@@ -771,26 +724,17 @@ Create prompts that feel like iconic fashion campaign moments that would make so
       }
       
       if (!user) {
-        console.log(`❌ CRITICAL: No user found for auth ID ${authUserId} or email ${claims.email}`);
         return res.status(404).json({ error: 'User not found' });
       }
       
       const userId = user.id;
-      console.log(`🔒 MAYA GENERATION SECURITY AUDIT:`, {
-        authUserId,
-        dbUserId: userId,
-        userEmail: user.email,
-        timestamp: new Date().toISOString()
-      });
       
       if (!customPrompt) {
         return res.status(400).json({ error: 'Custom prompt is required' });
       }
 
-      // CRITICAL: Check usage limits BEFORE generation
       const usageCheck = await UsageService.checkUsageLimit(userId);
       if (!usageCheck.canGenerate) {
-        console.log(`Maya generation blocked for user ${userId}: ${usageCheck.reason}`);
         return res.status(403).json({ 
           error: 'Usage limit reached',
           reason: usageCheck.reason,
@@ -801,55 +745,31 @@ Create prompts that feel like iconic fashion campaign moments that would make so
         });
       }
 
-      // 🚨 CRITICAL: ZERO FALLBACKS - User MUST have completed trained model
+      // ZERO FALLBACKS - User MUST have completed trained model
       const userModel = await storage.getUserModelByUserId(userId);
       
-      // 🔍 SECURITY AUDIT: Log model details for debugging
-      console.log(`🔍 USER MODEL AUDIT for ${userId}:`, {
-        modelExists: !!userModel,
-        trainingStatus: userModel?.trainingStatus,
-        triggerWord: userModel?.triggerWord,
-        replicateModelId: userModel?.replicateModelId,
-        userEmail: user.email
-      });
-      
       if (!userModel) {
-        console.log(`❌ CRITICAL: No model found for user ${userId} (${user.email})`);
         return res.status(400).json({ 
-          error: 'No AI model found for user. Please train your model first.',
-          requiresTraining: true,
-          redirectTo: '/simple-training'
+          error: 'No AI model found. Please train your model first.',
+          requiresTraining: true
         });
       }
       
       if (userModel.trainingStatus !== 'completed') {
-        console.log(`❌ CRITICAL: Incomplete model for user ${userId} - status: ${userModel.trainingStatus}`);
         return res.status(400).json({ 
           error: `AI model training ${userModel.trainingStatus}. Please wait for completion.`,
-          trainingStatus: userModel.trainingStatus,
-          requiresTraining: true,
-          redirectTo: '/simple-training'
+          requiresTraining: true
         });
       }
       
-      // Verify trigger word exists
-      if (!userModel.triggerWord) {
-        console.log(`❌ CRITICAL: Missing trigger word for user ${userId}`);
+      if (!userModel.triggerWord || !userModel.replicateModelId) {
         return res.status(400).json({ 
-          error: 'Model missing trigger word. Please retrain your model.',
-          requiresTraining: true,
-          redirectTo: '/simple-training'
+          error: 'Invalid model configuration. Please retrain your model.',
+          requiresTraining: true
         });
       }
-      
-      // 🔒 SECURITY VERIFICATION: Confirm user owns this model
-      console.log(`✅ SECURITY VERIFIED: User ${userId} (${user.email}) has valid model ${userModel.replicateModelId} with trigger "${userModel.triggerWord}"`);
 
-      console.log(`Maya generating images for user ${userId} with prompt: ${customPrompt}`);
-
-      // Use black-forest-labs/flux-dev-lora with user's trained LoRA weights
-      const modelVersion = 'black-forest-labs/flux-dev-lora:a53fd9255ecba80d99eaab4706c698f861fd47b098012607557385416e46aae5';
-      console.log(`🔒 SECURITY FIX: Maya using black-forest-labs/flux-dev-lora with LoRA: sandrasocial/${userModel.replicateModelId}`);
+      // Use user's trained LoRA model only
 
       // 🔑 NEW: Use AIService with tracker system (no auto-save to gallery)
       const trackingResult = await AIService.generateSSELFIE({
@@ -859,11 +779,9 @@ Create prompts that feel like iconic fashion campaign moments that would make so
         prompt: customPrompt
       });
 
-      console.log('✅ Maya generation initiated with tracker system:', trackingResult);
 
       // Start background polling for completion (updates tracker, NOT gallery)
       AIService.pollGenerationStatus(trackingResult.trackerId, trackingResult.predictionId).catch(err => {
-        console.error('❌ Background polling failed:', err);
       });
 
       res.json({
@@ -875,7 +793,6 @@ Create prompts that feel like iconic fashion campaign moments that would make so
       });
 
     } catch (error) {
-      console.error('Maya image generation error:', error);
       
       // Handle specific Replicate API errors with user-friendly messages
       if (error.message.includes('502')) {
@@ -905,7 +822,6 @@ Create prompts that feel like iconic fashion campaign moments that would make so
       const { trackerId } = req.params;
       const tracker = await storage.getGenerationTracker(parseInt(trackerId));
       
-      console.log('🔍 Tracker lookup:', { trackerId, found: !!tracker });
       
       if (!tracker) {
         return res.status(404).json({ error: 'Generation tracker not found' });
@@ -926,11 +842,9 @@ Create prompts that feel like iconic fashion campaign moments that would make so
       }
       
       const dbUserId = user.id;
-      console.log('🔐 Auth verification:', { authUserId, dbUserId, trackerUserId: tracker.userId });
       
       // Check if tracker belongs to this user (tracker stores database ID)
       if (tracker.userId !== dbUserId) {
-        console.log('❌ Auth mismatch - tracker belongs to different user');
         return res.status(403).json({ error: 'Unauthorized access to tracker' });
       }
       
@@ -963,7 +877,6 @@ Create prompts that feel like iconic fashion campaign moments that would make so
         createdAt: tracker.createdAt
       });
     } catch (error) {
-      console.error('Error fetching generation tracker:', error);
       res.status(500).json({ error: 'Failed to fetch generation status' });
     }
   });
@@ -997,9 +910,7 @@ Create prompts that feel like iconic fashion campaign moments that would make so
         return res.status(403).json({ error: 'Unauthorized access to tracker' });
       }
       
-      console.log(`🔍 Auth conversion: ${authUserId} -> ${dbUserId}`);
       
-      console.log(`🖼️ Converting ${selectedImageUrls.length} temp URLs to permanent gallery for user ${dbUserId}`);
       
       // Convert temp URLs to permanent S3 storage
       const { ImageStorageService } = await import('./image-storage-service');
@@ -1023,9 +934,7 @@ Create prompts that feel like iconic fashion campaign moments that would make so
           });
           
           savedImages.push(savedImage);
-          console.log(`✅ Saved image to gallery: ${savedImage.id} (${permanentUrl})`);
         } catch (error) {
-          console.error('Error saving image to gallery:', error);
           // Continue with other images even if one fails
         }
       }
@@ -1037,7 +946,6 @@ Create prompts that feel like iconic fashion campaign moments that would make so
         message: `Successfully saved ${savedImages.length} images to your gallery permanently!`
       });
     } catch (error) {
-      console.error('Error saving preview images to gallery:', error);
       res.status(500).json({ error: 'Failed to save images to gallery' });
     }
   });
@@ -1049,7 +957,6 @@ Create prompts that feel like iconic fashion campaign moments that would make so
       const chats = await storage.getMayaChats(userId);
       res.json(chats);
     } catch (error) {
-      console.error('Error fetching Maya chats:', error);
       res.status(500).json({ error: 'Failed to fetch chat history' });
     }
   });
@@ -1060,7 +967,6 @@ Create prompts that feel like iconic fashion campaign moments that would make so
       const messages = await storage.getMayaChatMessages(parseInt(chatId));
       res.json(messages);
     } catch (error) {
-      console.error('Error fetching Maya chat messages:', error);
       res.status(500).json({ error: 'Failed to fetch chat messages' });
     }
   });
@@ -1078,7 +984,6 @@ Create prompts that feel like iconic fashion campaign moments that would make so
       
       res.json(chat);
     } catch (error) {
-      console.error('Error creating Maya chat:', error);
       res.status(500).json({ error: 'Failed to create chat' });
     }
   });
@@ -1098,7 +1003,6 @@ Create prompts that feel like iconic fashion campaign moments that would make so
       
       res.json(message);
     } catch (error) {
-      console.error('Error creating Maya chat message:', error);
       res.status(500).json({ error: 'Failed to save message' });
     }
   });
@@ -1109,16 +1013,12 @@ Create prompts that feel like iconic fashion campaign moments that would make so
       const userId = req.user.claims.sub;
       
       // Get user's AI selfie images (70-80% of photos)
-      console.log(`Fetching gallery for user ${userId}...`);
       const aiImages = await storage.getAIImages(userId);
-      console.log(`AI images found:`, aiImages?.length || 0);
-      console.log(`First AI image sample:`, JSON.stringify(aiImages?.[0], null, 2));
       
       const userSelfies = (aiImages || [])
         .filter(img => {
           // Simplified filter - just accept all images with any URL field
           const hasUrl = !!(img.imageUrl || img.url || img.image_url);
-          console.log(`Image ${img.id}: hasUrl=${hasUrl}, imageUrl='${img.imageUrl}'`);
           return hasUrl;
         })
         .map(img => ({
@@ -1130,7 +1030,6 @@ Create prompts that feel like iconic fashion campaign moments that would make so
           isSelected: false // For onboarding selection
         }));
       
-      console.log(`Converted selfies:`, userSelfies.length);
       
       // Get flatlay collections from actual flatlay gallery (NO STOCK PHOTOS)
       const flatlayCollections = await storage.getFlatlayCollections();
@@ -1142,7 +1041,6 @@ Create prompts that feel like iconic fashion campaign moments that would make so
         totalFlatlays: flatlayCollections.reduce((acc, col) => acc + col.images.length, 0)
       });
     } catch (error) {
-      console.error('Error fetching user gallery:', error);
       res.status(500).json({ error: 'Failed to fetch user gallery' });
     }
   });
@@ -1173,7 +1071,6 @@ Create prompts that feel like iconic fashion campaign moments that would make so
         flatlayCollection: selections.selectedFlatlayCollection || 'Editorial Magazine'
       });
     } catch (error) {
-      console.error('Error fetching photo selections:', error);
       res.status(500).json({ error: 'Failed to fetch photo selections' });
     }
   });
@@ -1184,7 +1081,6 @@ Create prompts that feel like iconic fashion campaign moments that would make so
       const userId = req.user.claims.sub;
       const { selfieIds, flatlayCollection } = req.body;
       
-      console.log(`Saving photo selections for user ${userId}:`, { selfieIds, flatlayCollection });
       
       // Save selections to database
       await storage.savePhotoSelections({
@@ -1199,7 +1095,6 @@ Create prompts that feel like iconic fashion campaign moments that would make so
         selections: { selfieIds, flatlayCollection }
       });
     } catch (error) {
-      console.error('Error saving photo selections:', error);
       res.status(500).json({ error: 'Failed to save photo selections' });
     }
   });
@@ -1210,7 +1105,6 @@ Create prompts that feel like iconic fashion campaign moments that would make so
       const userId = req.user.claims.sub;
       const { htmlContent, pageName } = req.body;
       
-      console.log(`Publishing landing page for user: ${userId}, page: ${pageName}`);
       
       if (!htmlContent || !pageName) {
         return res.status(400).json({ error: 'HTML content and page name required' });
@@ -1264,7 +1158,6 @@ Create prompts that feel like iconic fashion campaign moments that would make so
       });
       
     } catch (error) {
-      console.error('Error publishing landing page:', error);
       res.status(500).json({ error: 'Failed to publish landing page' });
     }
   });
@@ -1275,7 +1168,6 @@ Create prompts that feel like iconic fashion campaign moments that would make so
       const userId = req.user.claims.sub;
       const { pageName, pages } = req.body;
       
-      console.log(`Publishing multi-page website for user: ${userId}, website: ${pageName}`);
       
       if (!pageName || !pages || !pages.home) {
         return res.status(400).json({ error: 'Website name and home page content required' });
@@ -1334,7 +1226,6 @@ Create prompts that feel like iconic fashion campaign moments that would make so
       });
       
     } catch (error) {
-      console.error('Error publishing multi-page website:', error);
       res.status(500).json({ error: 'Failed to publish multi-page website' });
     }
   });
@@ -1366,7 +1257,6 @@ Create prompts that feel like iconic fashion campaign moments that would make so
         res.status(500).json({ error: 'Failed to send email' });
       }
     } catch (error) {
-      console.error('Email capture error:', error);
       res.status(500).json({ error: 'Internal server error' });
     }
   });
@@ -1398,7 +1288,6 @@ Create prompts that feel like iconic fashion campaign moments that would make so
       });
       
     } catch (error) {
-      console.error('Victoria AI access error:', error);
       res.status(500).json({ error: 'Internal server error' });
     }
   });
@@ -1416,7 +1305,6 @@ Create prompts that feel like iconic fashion campaign moments that would make so
       
       res.json(messages);
     } catch (error) {
-      console.error('Victoria chat history error:', error);
       res.status(500).json({ error: 'Failed to fetch chat history' });
     }
   });
@@ -1456,13 +1344,11 @@ Create prompts that feel like iconic fashion campaign moments that would make so
             verification.replicateCreatedAt = replicateData.created_at;
           }
         } catch (error) {
-          console.error('Error checking Replicate:', error);
         }
       }
 
       res.json(verification);
     } catch (error) {
-      console.error('Error verifying training:', error);
       res.status(500).json({ error: 'Failed to verify training' });
     }
   });
@@ -1516,10 +1402,8 @@ Create prompts that feel like iconic fashion campaign moments that would make so
               progress = 10;
             }
             
-            console.log(`Training ${userModel.replicateModelId}: ${status} (${progress}%)`);
           }
         } catch (error) {
-          console.error('Error checking Replicate status:', error);
         }
       }
 
@@ -1533,49 +1417,15 @@ Create prompts that feel like iconic fashion campaign moments that would make so
         estimatedCompletion: userModel.estimatedCompletionTime
       });
     } catch (error) {
-      console.error('Error fetching training progress:', error);
       res.status(500).json({ error: 'Failed to fetch training progress' });
     }
   });
 
-  // CRITICAL FIX: Add domain redirect for proper authentication
-  app.get('/api/check-domain', (req, res) => {
-    const hostname = req.hostname;
-    console.log('🔍 Domain check requested from:', hostname);
-    
-    // If accessing from localhost or replit.dev, redirect to sselfie.ai for proper auth
-    if (hostname === 'localhost' || hostname.includes('replit.dev')) {
-      const redirectUrl = `https://sselfie.ai${req.originalUrl}`;
-      console.log('🔄 Redirecting to production domain:', redirectUrl);
-      return res.redirect(302, redirectUrl);
-    }
-    
-    res.json({ 
-      domain: hostname, 
-      isProduction: hostname === 'sselfie.ai',
-      authReady: hostname === 'sselfie.ai'
-    });
-  });
+
 
   // Authentication already set up at the beginning of this function
 
-  // DEBUGGING: Add a test endpoint to check auth status
-  app.get('/api/debug-auth', async (req: any, res) => {
-    console.log('🔍 Debug auth check:');
-    console.log('- req.isAuthenticated():', req.isAuthenticated ? req.isAuthenticated() : 'function not available');
-    console.log('- req.user exists:', !!req.user);
-    console.log('- req.session exists:', !!req.session);
-    console.log('- Session ID:', req.session?.id);
-    console.log('- User claims:', req.user?.claims);
-    
-    res.json({
-      isAuthenticated: req.isAuthenticated ? req.isAuthenticated() : false,
-      hasUser: !!req.user,
-      hasSession: !!req.session,
-      sessionId: req.session?.id,
-      userClaims: req.user?.claims || null
-    });
-  });
+
 
   // Email capture endpoint (NON-AUTHENTICATED) - Must be before auth routes
   app.post('/api/email-capture', async (req, res) => {
@@ -1595,18 +1445,15 @@ Create prompts that feel like iconic fashion campaign moments that would make so
         converted: false
       });
       
-      console.log('Email captured successfully:', capture);
-      
       // Send welcome email (optional, don't fail if it doesn't work)
       try {
         await sendWelcomeEmail({ email, plan, source } as EmailCaptureData);
       } catch (emailError) {
-        console.log('Email sending failed, but capture succeeded:', emailError);
+        // Silent fail for email
       }
       
       res.json({ success: true, captureId: capture.id });
     } catch (error) {
-      console.error('Email capture error:', error);
       res.status(500).json({ error: 'Failed to capture email' });
     }
   });
@@ -1618,7 +1465,6 @@ Create prompts that feel like iconic fashion campaign moments that would make so
       const user = await storage.getUser(userId);
       res.json(user);
     } catch (error) {
-      console.error("Error fetching user:", error);
       res.status(500).json({ message: "Failed to fetch user" });
     }
   });
@@ -1630,7 +1476,6 @@ Create prompts that feel like iconic fashion campaign moments that would make so
       const profile = await storage.getUserProfile(userId);
       res.json(profile || {});
     } catch (error) {
-      console.error("Error fetching profile:", error);
       res.status(500).json({ message: "Failed to fetch profile" });
     }
   });
@@ -1642,7 +1487,6 @@ Create prompts that feel like iconic fashion campaign moments that would make so
       const profile = await storage.upsertUserProfile(profileData);
       res.json(profile);
     } catch (error) {
-      console.error("Error updating profile:", error);
       res.status(500).json({ message: "Failed to update profile" });
     }
   });
@@ -1654,7 +1498,6 @@ Create prompts that feel like iconic fashion campaign moments that would make so
       const projects = await storage.getUserProjects(userId);
       res.json(projects);
     } catch (error) {
-      console.error("Error fetching projects:", error);
       res.status(500).json({ message: "Failed to fetch projects" });
     }
   });
@@ -1666,7 +1509,6 @@ Create prompts that feel like iconic fashion campaign moments that would make so
       const project = await storage.createProject(projectData);
       res.json(project);
     } catch (error) {
-      console.error("Error creating project:", error);
       res.status(500).json({ message: "Failed to create project" });
     }
   });
@@ -1677,7 +1519,6 @@ Create prompts that feel like iconic fashion campaign moments that would make so
       // Get real user AI images from database using direct SQL query
       const userId = req.user.claims.sub;
       
-      console.log(`Fetching AI images for user ${userId}...`);
       
       // Direct database query to bypass ORM issues
       const { db } = await import('./db');
@@ -1690,14 +1531,11 @@ Create prompts that feel like iconic fashion campaign moments that would make so
         .where(eq(aiImages.userId, userId))
         .orderBy(desc(aiImages.createdAt));
       
-      console.log(`AI images for user ${userId}:`, realAiImages?.length || 0, 'images found');
       
       // Return real images if available, otherwise return empty array
       res.json(realAiImages || []);
       
     } catch (error) {
-      console.error("Error fetching AI images:", error);
-      console.error("Full error:", error?.message, error?.stack);
       res.status(500).json({ message: "Failed to fetch AI images", error: error?.message });
     }
   });
@@ -1707,7 +1545,6 @@ Create prompts that feel like iconic fashion campaign moments that would make so
     try {
       const userId = req.user.claims.sub;
       
-      console.log(`Fetching gallery images (saved only) for user ${userId}...`);
       
       // Direct database query to get only images saved through /api/save-to-gallery
       const { db } = await import('./db');
@@ -1722,12 +1559,10 @@ Create prompts that feel like iconic fashion campaign moments that would make so
         .where(eq(aiImages.userId, userId))
         .orderBy(desc(aiImages.createdAt));
       
-      console.log(`Gallery images for user ${userId}:`, galleryImages?.length || 0, 'saved images found');
       
       res.json(galleryImages || []);
       
     } catch (error) {
-      console.error("Error fetching gallery images:", error);
       res.status(500).json({ message: "Failed to fetch gallery images", 
         error: error.message 
       });
@@ -1739,7 +1574,6 @@ Create prompts that feel like iconic fashion campaign moments that would make so
     try {
       const userId = req.user.claims.sub;
       
-      console.log(`Starting image migration to S3 for user ${userId}...`);
       
       const { ImageStorageService } = await import('./image-storage-service');
       await ImageStorageService.migrateTempImagesToS3(userId);
@@ -1750,7 +1584,6 @@ Create prompts that feel like iconic fashion campaign moments that would make so
       });
       
     } catch (error) {
-      console.error('Migration error:', error);
       res.status(500).json({ 
         error: error.message,
         message: 'Migration failed' 
@@ -1764,7 +1597,6 @@ Create prompts that feel like iconic fashion campaign moments that would make so
       const imageId = parseInt(req.params.id);
       const userId = req.user.claims.sub;
       
-      console.log(`Deleting AI image ${imageId} for user ${userId}...`);
       
       if (!imageId || isNaN(imageId)) {
         return res.status(400).json({ message: "Invalid image ID" });
@@ -1796,12 +1628,10 @@ Create prompts that feel like iconic fashion campaign moments that would make so
           eq(aiImages.userId, userId)
         ));
       
-      console.log(`Image deletion result:`, result);
       
       res.json({ success: true, message: "Image deleted successfully" });
       
     } catch (error) {
-      console.error("Error deleting AI image:", error);
       res.status(500).json({ message: "Failed to delete image", error: error?.message });
     }
   });
@@ -1813,7 +1643,6 @@ Create prompts that feel like iconic fashion campaign moments that would make so
       const aiImage = await storage.createAiImage(aiImageData);
       res.json(aiImage);
     } catch (error) {
-      console.error("Error creating AI image:", error);
       res.status(500).json({ message: "Failed to create AI image" });
     }
   });
@@ -1824,7 +1653,6 @@ Create prompts that feel like iconic fashion campaign moments that would make so
       const templates = await storage.getActiveTemplates();
       res.json(templates);
     } catch (error) {
-      console.error("Error fetching templates:", error);
       res.status(500).json({ message: "Failed to fetch templates" });
     }
   });
@@ -1838,7 +1666,6 @@ Create prompts that feel like iconic fashion campaign moments that would make so
       }
       res.json(template);
     } catch (error) {
-      console.error("Error fetching template:", error);
       res.status(500).json({ message: "Failed to fetch template" });
     }
   });
@@ -1862,7 +1689,6 @@ Create prompts that feel like iconic fashion campaign moments that would make so
   // TESTING: Check actual Replicate training status
   app.get('/api/test-replicate-training', async (req: any, res) => {
     try {
-      console.log('🔧 TESTING: Checking active Replicate training jobs');
       
       // Get models currently marked as training using direct SQL
       const trainingModels = await db.select().from(userModels).where(eq(userModels.trainingStatus, 'training'));
@@ -1871,7 +1697,6 @@ Create prompts that feel like iconic fashion campaign moments that would make so
       for (const model of trainingModels) {
         if (model.replicateModelId) {
           try {
-            console.log(`🔍 Checking Replicate model: ${model.replicateModelId}`);
             
             // Check with Replicate API
             const response = await fetch(`https://api.replicate.com/v1/trainings/${model.replicateModelId}`, {
@@ -1931,7 +1756,6 @@ Create prompts that feel like iconic fashion campaign moments that would make so
         message: 'Replicate training status check complete'
       });
     } catch (error) {
-      console.error('🔧 TEST: Error:', error);
       res.status(500).json({ error: error.message });
     }
   });
@@ -1972,7 +1796,6 @@ Create prompts that feel like iconic fashion campaign moments that would make so
         res.json(virtualSubscription);
       }
     } catch (error) {
-      console.error("Error fetching subscription:", error);
       res.status(500).json({ message: "Failed to fetch subscription" });
     }
   });
@@ -1983,7 +1806,6 @@ Create prompts that feel like iconic fashion campaign moments that would make so
       const authUserId = req.user.claims.sub;
       const claims = req.user.claims;
       
-      console.log(`🔍 Live user model endpoint - auth ID: ${authUserId}`);
       
       // Get the correct database user ID
       let user = await storage.getUser(authUserId);
@@ -2008,7 +1830,6 @@ Create prompts that feel like iconic fashion campaign moments that would make so
       const userModel = await storage.getUserModelByUserId(dbUserId);
       
       if (userModel) {
-        console.log('✅ Found existing user model:', userModel);
         res.json(userModel);
       } else {
         // Create new user model
@@ -2019,11 +1840,9 @@ Create prompts that feel like iconic fashion campaign moments that would make so
           trainingStatus: 'pending',
           modelName: `${user.firstName || 'User'} AI Model`
         });
-        console.log('✅ Created new user model:', newModel);
         res.json(newModel);
       }
     } catch (error) {
-      console.error("❌ Error fetching user model:", error);
       res.status(500).json({ message: "Failed to fetch user model" });
     }
   });
@@ -2032,7 +1851,6 @@ Create prompts that feel like iconic fashion campaign moments that would make so
     try {
       const authUserId = req.user.claims.sub;
       const claims = req.user.claims;
-      console.log(`🔍 Live training endpoint - auth ID: ${authUserId}`);
 
       const { selfieImages } = req.body;
       
@@ -2053,7 +1871,6 @@ Create prompts that feel like iconic fashion campaign moments that would make so
       }
 
       const dbUserId = user.id;
-      console.log(`🚀 Starting LIVE model training for user ${dbUserId} with ${selfieImages.length} images`);
 
       // Generate unique trigger word for this user
       const triggerWord = `user${dbUserId.replace(/[^a-zA-Z0-9]/g, '_')}_${Date.now()}`;
@@ -2100,7 +1917,6 @@ Create prompts that feel like iconic fashion campaign moments that would make so
           }
         }
         
-        console.log(`🔄 User ${dbUserId} is retraining their REAL model (${isFreePlan ? 'FREE' : 'PREMIUM'} plan)`);
         
         // Delete old model completely before retraining
         await storage.deleteUserModel(dbUserId);
@@ -2115,11 +1931,9 @@ Create prompts that feel like iconic fashion campaign moments that would make so
         });
       } else {
         // This is FIRST TRAINING scenario - allow for ALL users (free and premium)
-        console.log(`🆕 User ${dbUserId} is training for the first time (FREE users allowed for first training)`);
         
         if (userModel) {
           // Delete any existing placeholder or incomplete model
-          console.log(`🗑️ Removing existing placeholder/incomplete model for user ${dbUserId}`);
           await storage.deleteUserModel(dbUserId);
         }
         
@@ -2133,7 +1947,6 @@ Create prompts that feel like iconic fashion campaign moments that would make so
       }
 
       // Start REAL Replicate training
-      console.log('🔥 Starting REAL Replicate API training...');
       const { ModelTrainingService } = await import('./model-training-service');
       
       const result = await ModelTrainingService.startModelTraining(dbUserId, selfieImages);
@@ -2152,9 +1965,7 @@ Create prompts that feel like iconic fashion campaign moments that would make so
         triggerWord: triggerWord
       });
       
-      console.log('✅ LIVE Replicate training started for user:', dbUserId);
     } catch (error) {
-      console.error("❌ LIVE model training failed:", error);
       res.status(500).json({ 
         message: "Model training failed", 
         error: error.message
@@ -2172,13 +1983,11 @@ Create prompts that feel like iconic fashion campaign moments that would make so
         return res.status(401).json({ message: "Authentication required" });
       }
       
-      console.log('Checking REAL training status for authenticated user:', userId);
       const { ModelTrainingService } = await import('./model-training-service');
       const status = await ModelTrainingService.checkTrainingStatus(userId);
       res.json(status);
       
     } catch (error) {
-      console.error("Error checking REAL training status:", error);
       res.status(500).json({ 
         message: "Failed to check training status", 
         error: error.message 
@@ -2211,7 +2020,6 @@ Create prompts that feel like iconic fashion campaign moments that would make so
       });
       
     } catch (error) {
-      console.error("Error fetching styleguide:", error);
       res.status(500).json({ error: "Failed to fetch styleguide" });
     }
   });
@@ -2235,7 +2043,6 @@ Create prompts that feel like iconic fashion campaign moments that would make so
       });
       
     } catch (error) {
-      console.error("Error saving styleguide:", error);
       res.status(500).json({ error: "Failed to save styleguide" });
     }
   });
@@ -2249,17 +2056,14 @@ Create prompts that feel like iconic fashion campaign moments that would make so
         return res.status(401).json({ message: "Not authenticated" });
       }
 
-      console.log('GET /api/onboarding - fetching for user:', userId);
       
       // Try to get existing onboarding data
       const onboardingData = await storage.getUserOnboardingData(userId);
       
       if (onboardingData) {
-        console.log('Found existing onboarding data:', onboardingData);
         res.json(onboardingData);
       } else {
         // Return default state for new users
-        console.log('No existing onboarding data, returning defaults');
         res.json({ 
           currentStep: 1,
           completed: false,
@@ -2267,7 +2071,6 @@ Create prompts that feel like iconic fashion campaign moments that would make so
         });
       }
     } catch (error) {
-      console.error('Error fetching onboarding data:', error);
       res.status(500).json({ message: "Failed to fetch onboarding data" });
     }
   });
@@ -2280,8 +2083,6 @@ Create prompts that feel like iconic fashion campaign moments that would make so
         return res.status(401).json({ message: "Not authenticated" });
       }
 
-      console.log('POST /api/onboarding - saving data for user:', userId);
-      console.log('Received data:', JSON.stringify(req.body, null, 2));
       
       try {
         // Ensure user exists in database first
@@ -2292,31 +2093,22 @@ Create prompts that feel like iconic fashion campaign moments that would make so
         
         // Check if user already has onboarding data
         const existingData = await storage.getUserOnboardingData(userId);
-        console.log('Existing data check result:', existingData ? 'found' : 'not found');
         
         let savedData;
         if (existingData) {
           // Update existing onboarding data
-          console.log('Updating existing onboarding data...');
           savedData = await storage.updateOnboardingData(userId, req.body);
-          console.log('Updated existing onboarding data successfully');
         } else {
           // Create new onboarding data
-          console.log('Creating new onboarding data...');
           const onboardingData = {
             userId,
             ...req.body
           };
           savedData = await storage.createOnboardingData(onboardingData);
-          console.log('Created new onboarding data successfully');
         }
         
-        console.log('Onboarding data saved successfully:', savedData);
         res.json(savedData);
       } catch (dbError) {
-        console.error('Database operation failed:', dbError);
-        console.error('Error details:', dbError.message);
-        console.error('Stack trace:', dbError.stack);
         
         // Return detailed error for debugging
         res.status(500).json({ 
@@ -2326,7 +2118,6 @@ Create prompts that feel like iconic fashion campaign moments that would make so
         });
       }
     } catch (error) {
-      console.error('Error saving onboarding data:', error);
       res.status(500).json({ message: "Failed to save onboarding data" });
     }
   });
@@ -2338,7 +2129,6 @@ Create prompts that feel like iconic fashion campaign moments that would make so
       const selfies = await storage.getUserSelfieUploads(userId);
       res.json(selfies);
     } catch (error) {
-      console.error("Error fetching selfies:", error);
       res.status(500).json({ message: "Failed to fetch selfies" });
     }
   });
@@ -2357,7 +2147,6 @@ Create prompts that feel like iconic fashion campaign moments that would make so
       
       res.json(selfie);
     } catch (error) {
-      console.error("Error uploading selfie:", error);
       res.status(500).json({ message: "Failed to upload selfie" });
     }
   });
@@ -2368,7 +2157,6 @@ Create prompts that feel like iconic fashion campaign moments that would make so
       const { message } = req.body;
       const userId = req.user.claims.sub;
       
-      console.log(`Personal Branding Sandra chat request from user ${userId}: "${message}"`);
       
       // Check if user has PRO access for Sandra AI
       const hasPROAccess = await storage.hasSandraAIAccess(userId);
@@ -2398,7 +2186,6 @@ Create prompts that feel like iconic fashion campaign moments that would make so
       });
       
     } catch (error) {
-      console.error("Personal Branding Sandra error:", error);
       res.status(500).json({ 
         message: "I'm having a technical moment, but I'm here for you! Try asking me again - I'm excited to help you build your personal brand.",
         error: error.message 
@@ -2430,7 +2217,6 @@ Create prompts that feel like iconic fashion campaign moments that would make so
       
       res.json(response);
     } catch (error) {
-      console.error("Error with Sandra AI:", error);
       res.status(500).json({ message: "Sandra AI temporarily unavailable" });
     }
   });
@@ -2441,7 +2227,6 @@ Create prompts that feel like iconic fashion campaign moments that would make so
       const { message } = req.body;
       const userId = req.session?.userId || req.user?.claims?.sub || '42585527';
       
-      console.log(`Sandra AI chat request from user ${userId}: "${message}"`);
       
       // Get user's inspiration photos for visual context
       const inspirationPhotos = await storage.getInspirationPhotos(userId);
@@ -2461,7 +2246,6 @@ Create prompts that feel like iconic fashion campaign moments that would make so
       });
       
     } catch (error) {
-      console.error("Sandra AI error:", error);
       res.status(500).json({ 
         message: "Hey! I'm having a tech moment. Try asking me again - I'm excited to help!",
         error: error.message 
@@ -2480,7 +2264,6 @@ Create prompts that feel like iconic fashion campaign moments that would make so
       res.json(evolution);
       
     } catch (error) {
-      console.error("Style evolution error:", error);
       res.status(500).json({ message: "Failed to get style evolution" });
     }
   });
@@ -2491,7 +2274,6 @@ Create prompts that feel like iconic fashion campaign moments that would make so
       const { imageUrl, userId } = req.body;
       const actualUserId = userId || req.user.claims.sub;
       
-      console.log('Saving image to gallery with permanent storage:', { actualUserId, imageUrl });
       
       // Import the image storage service
       const { ImageStorageService } = await import('./image-storage-service');
@@ -2503,7 +2285,6 @@ Create prompts that feel like iconic fashion campaign moments that would make so
         `gallery_${Date.now()}`
       );
       
-      console.log('Image stored permanently:', { originalUrl: imageUrl, permanentUrl });
       
       // Save to gallery using permanent S3 URL
       const savedImage = await storage.saveAIImage({
@@ -2521,7 +2302,6 @@ Create prompts that feel like iconic fashion campaign moments that would make so
         permanentUrl: permanentUrl
       });
     } catch (error) {
-      console.error('Save to gallery error:', error);
       res.status(500).json({ 
         success: false,
         message: 'Failed to save image to gallery',
@@ -2535,7 +2315,6 @@ Create prompts that feel like iconic fashion campaign moments that would make so
     try {
       const userId = req.user.claims.sub;
       
-      console.log('Starting image migration to permanent storage for user:', userId);
       
       // Import the image storage service
       const { ImageStorageService } = await import('./image-storage-service');
@@ -2548,7 +2327,6 @@ Create prompts that feel like iconic fashion campaign moments that would make so
         message: 'All images have been migrated to permanent storage'
       });
     } catch (error) {
-      console.error('Migration error:', error);
       res.status(500).json({ 
         success: false,
         message: 'Failed to migrate images',
@@ -2565,7 +2343,6 @@ Create prompts that feel like iconic fashion campaign moments that would make so
       // Create system prompt for Sandra AI Designer
       const systemPrompt = `You are Sandra, the founder of SSELFIE Studio - an AI-powered personal branding platform. You're an expert brand strategist and designer with authentic Icelandic directness mixed with Rachel-from-Friends warmth.
 
-CRITICAL DESIGN RULES (NEVER BREAK THESE):
 - NO EMOJIS OR ICONS EVER - use text only (×, +, AI, etc.)
 - Times New Roman for headlines, Inter for body text
 - Colors ONLY: #0a0a0a (black), #ffffff (white), #f5f5f5 (light gray), #666666 (dark gray), #e5e5e5 (border gray)
@@ -2610,7 +2387,6 @@ You help users design and customize their ${context === 'dashboard-builder' ? 'p
         }
 
         const data = await response.json();
-        console.log('Claude API response structure:', JSON.stringify(data, null, 2));
         
         // Handle response safely  
         if (data.content && Array.isArray(data.content) && data.content.length > 0) {
@@ -2619,7 +2395,6 @@ You help users design and customize their ${context === 'dashboard-builder' ? 'p
           sandraResponse = data.content;
         }
       } catch (apiError) {
-        console.error('Claude API Error:', apiError);
         sandraResponse = ""; // Will fall back to intelligent responses below
       }
 
@@ -2647,7 +2422,6 @@ You help users design and customize their ${context === 'dashboard-builder' ? 'p
         suggestions: [] // Can add design suggestions here later
       });
     } catch (error) {
-      console.error("Error in Sandra AI chat:", error);
       res.status(500).json({ message: "Failed to get Sandra AI response" });
     }
   });
@@ -2662,7 +2436,6 @@ You help users design and customize their ${context === 'dashboard-builder' ? 'p
       const brandbook = await storage.createBrandbook({ userId, ...brandbookData });
       res.json(brandbook);
     } catch (error) {
-      console.error("Error creating brandbook:", error);
       res.status(500).json({ message: "Failed to create brandbook" });
     }
   });
@@ -2679,7 +2452,6 @@ You help users design and customize their ${context === 'dashboard-builder' ? 'p
       
       res.json(brandbook);
     } catch (error) {
-      console.error("Error fetching brandbook:", error);
       res.status(500).json({ message: "Failed to fetch brandbook" });
     }
   });
@@ -2694,7 +2466,6 @@ You help users design and customize their ${context === 'dashboard-builder' ? 'p
       const brandbook = await storage.updateBrandbook(userId, parseInt(id), updateData);
       res.json(brandbook);
     } catch (error) {
-      console.error("Error updating brandbook:", error);
       res.status(500).json({ message: "Failed to update brandbook" });
     }
   });
@@ -2708,7 +2479,6 @@ You help users design and customize their ${context === 'dashboard-builder' ? 'p
       const response = generateBrandbookDesignerResponse(message, context.brandbook, context.onboardingData, context.chatHistory);
       res.json(response);
     } catch (error) {
-      console.error("Error in Sandra AI brandbook designer:", error);
       res.status(500).json({ message: "Failed to get Sandra AI response" });
     }
   });
@@ -2723,7 +2493,6 @@ You help users design and customize their ${context === 'dashboard-builder' ? 'p
       const dashboard = await storage.saveDashboard(userId, { config, onboardingData });
       res.json(dashboard);
     } catch (error) {
-      console.error("Error saving dashboard:", error);
       res.status(500).json({ message: "Failed to save dashboard" });
     }
   });
@@ -2737,7 +2506,6 @@ You help users design and customize their ${context === 'dashboard-builder' ? 'p
       const landingPage = await storage.saveLandingPage(userId, { config, onboardingData, template });
       res.json(landingPage);
     } catch (error) {
-      console.error("Error saving landing page:", error);
       res.status(500).json({ message: "Failed to save landing page" });
     }
   });
@@ -2756,7 +2524,6 @@ You help users design and customize their ${context === 'dashboard-builder' ? 'p
       
       next();
     } catch (error) {
-      console.error('Admin access check error:', error);
       res.status(500).json({ message: 'Access check failed' });
     }
   };
@@ -2765,7 +2532,6 @@ You help users design and customize their ${context === 'dashboard-builder' ? 'p
     try {
       // SANDRA'S AGENT TEAM - FULLY ACTIVATED
       // Allow full access for Sandra's business automation
-      console.log('Agent communication request:', req.body);
 
       const { agentId, task, context } = req.body;
       
@@ -2877,7 +2643,6 @@ Ready to turn your massive following into paying customers! Send me access and I
 → Conservative 0.1% conversion = 120 customers = €11,640/month
 → With your engaged audience, 2-5% conversion is realistic
 
-**CRITICAL:** Your followers are getting cold! We need to monetize NOW.
 → Instagram story campaigns promoting €97 AI photoshoot
 → Email sequences to your 2500 Flodesk subscribers
 → ManyChat funnels converting your 5000 subscribers
@@ -2920,7 +2685,6 @@ Consider this workflow optimized and ready for implementation! ⚙️`
       
       res.json({ response, agent: agentId });
     } catch (error) {
-      console.error('Error communicating with agent:', error);
       res.status(500).json({ message: 'Failed to communicate with agent' });
     }
   });
@@ -2929,7 +2693,6 @@ Consider this workflow optimized and ready for implementation! ⚙️`
     try {
       // SANDRA'S AGENT TEAM - FULLY ACTIVATED
       // Allow full access for Sandra's business automation
-      console.log('Agent communication request:', req.body);
 
       // Return your complete AI agent team without Anthropic dependency
       const agents = [
@@ -3108,7 +2871,6 @@ Consider this workflow optimized and ready for implementation! ⚙️`
       
       res.json(agents);
     } catch (error) {
-      console.error('Error fetching agents:', error);
       res.status(500).json({ message: 'Failed to fetch agents' });
     }
   });
@@ -3143,7 +2905,6 @@ Consider this workflow optimized and ready for implementation! ⚙️`
         agentTasks
       };
     } catch (error) {
-      console.error('Analytics error:', error);
       // NO FALLBACK DATA - Real analytics required
       throw new Error('Failed to fetch real analytics data');
     }
@@ -3155,7 +2916,6 @@ Consider this workflow optimized and ready for implementation! ⚙️`
       const stats = await getRealBusinessAnalytics();
       res.json(stats);
     } catch (error) {
-      console.error('Stats fetch error:', error);
       res.status(500).json({ error: 'Failed to fetch stats' });
     }
   });
@@ -3171,7 +2931,6 @@ Consider this workflow optimized and ready for implementation! ⚙️`
       const users = await storage.getAllUsers();
       res.json(users);
     } catch (error) {
-      console.error('Admin users fetch error:', error);
       res.status(500).json({ error: 'Failed to fetch users' });
     }
   });
@@ -3197,7 +2956,6 @@ Consider this workflow optimized and ready for implementation! ⚙️`
       await EmailService.sendWelcomeEmail(user.email, user.first_name || 'Beautiful', 'ai-pack');
       res.json({ success: true, message: 'Test email sent successfully' });
     } catch (error: any) {
-      console.error('Test email error:', error);
       res.status(500).json({ error: error.message });
     }
   });;
@@ -3222,7 +2980,6 @@ Consider this workflow optimized and ready for implementation! ⚙️`
       
       // 🔑 NEW: Start background polling with tracker system (NO AUTO-SAVE TO GALLERY)
       AIService.pollGenerationStatus(result.trackerId, result.predictionId)
-        .catch(error => console.error('Background polling failed:', error));
       
       res.json({ 
         success: true, 
@@ -3232,7 +2989,6 @@ Consider this workflow optimized and ready for implementation! ⚙️`
         message: 'SSELFIE generation started - images will show for preview before saving to gallery.' 
       });
     } catch (error) {
-      console.error('SSELFIE generation error:', error);
       
       // Check if it's a usage limit error
       if (error.message.includes('Generation limit reached')) {
@@ -3262,7 +3018,6 @@ Consider this workflow optimized and ready for implementation! ⚙️`
       // Start background polling for all generations
       Object.values(results).forEach(({ aiImageId, predictionId }) => {
         AIService.pollGenerationStatus(aiImageId, predictionId)
-          .catch(error => console.error('Background polling failed:', error));
       });
       
       res.json({ 
@@ -3271,7 +3026,6 @@ Consider this workflow optimized and ready for implementation! ⚙️`
         message: 'Multiple SSELFIE styles generation started.' 
       });
     } catch (error) {
-      console.error('Multiple SSELFIE generation error:', error);
       res.status(500).json({ error: error.message });
     }
   });
@@ -3285,7 +3039,6 @@ Consider this workflow optimized and ready for implementation! ⚙️`
       
       res.json(status);
     } catch (error) {
-      console.error('Status check error:', error);
       res.status(500).json({ error: error.message });
     }
   });
@@ -3299,7 +3052,6 @@ Consider this workflow optimized and ready for implementation! ⚙️`
       
       res.json({ success: true, message: 'Status updated' });
     } catch (error) {
-      console.error('Status update error:', error);
       res.status(500).json({ error: error.message });
     }
   });
@@ -3333,7 +3085,6 @@ Consider this workflow optimized and ready for implementation! ⚙️`
         res.status(400).json({ error: 'No prediction ID available' });
       }
     } catch (error) {
-      console.error('Force update error:', error);
       res.status(500).json({ error: error.message });
     }
   });
@@ -3355,7 +3106,6 @@ Consider this workflow optimized and ready for implementation! ⚙️`
       
       res.json({ success: true, message: 'Selection saved successfully' });
     } catch (error) {
-      console.error('Selection save error:', error);
       res.status(500).json({ error: error.message });
     }
   });
@@ -3391,7 +3141,6 @@ Consider this workflow optimized and ready for implementation! ⚙️`
         });
       }
     } catch (error) {
-      console.error('Error fetching brand onboarding:', error);
       res.status(500).json({ message: 'Failed to fetch brand onboarding data' });
     }
   });
@@ -3404,7 +3153,6 @@ Consider this workflow optimized and ready for implementation! ⚙️`
       const saved = await storage.saveBrandOnboarding(brandData);
       res.json(saved);
     } catch (error) {
-      console.error('Error saving brand onboarding:', error);
       res.status(500).json({ message: 'Failed to save brand onboarding data' });
     }
   });
@@ -3432,7 +3180,6 @@ Consider this workflow optimized and ready for implementation! ⚙️`
       
       res.json(sandraResponse);
     } catch (error) {
-      console.error('Sandra chat error:', error);
       res.status(500).json({ error: error.message });
     }
   });
@@ -3457,7 +3204,6 @@ Consider this workflow optimized and ready for implementation! ⚙️`
         generatedPrompt: generatedPrompt
       });
     } catch (error) {
-      console.error('Sandra custom prompt error:', error);
       res.status(500).json({ error: error.message });
     }
   });
@@ -3477,7 +3223,6 @@ Consider this workflow optimized and ready for implementation! ⚙️`
       
       res.json(result);
     } catch (error) {
-      console.error('Custom prompt generation error:', error);
       res.status(500).json({ error: error.message });
     }
   });
@@ -3488,7 +3233,6 @@ Consider this workflow optimized and ready for implementation! ⚙️`
       const images = await storage.getUserGeneratedImages(userId);
       res.json(images);
     } catch (error) {
-      console.error('Generated images fetch error:', error);
       res.status(500).json({ error: error.message });
     }
   });
@@ -3509,7 +3253,6 @@ Consider this workflow optimized and ready for implementation! ⚙️`
       const savedImage = await storage.saveGeneratedImage(parseInt(imageId), selectedUrl);
       res.json(savedImage);
     } catch (error) {
-      console.error('Save generated image error:', error);
       res.status(500).json({ error: error.message });
     }
   });
@@ -3524,20 +3267,17 @@ Consider this workflow optimized and ready for implementation! ⚙️`
         return res.status(401).json({ error: 'Authentication required' });
       }
       
-      console.log(`AI-Photoshoot generating images for authenticated user ${authUserId}`);
       
       if (!prompt) {
         return res.status(400).json({ error: 'Prompt is required for image generation' });
       }
       
-      console.log('AI-PHOTOSHOOT: Using correct FLUX LoRA model for built-in prompts:', { authUserId, prompt, count });
       
       // Get database user ID using same mapping logic as auth endpoint
       let user = await storage.getUser(authUserId);
       
       // If not found by auth ID, try by email (same as auth endpoint)
       if (!user && req.user?.claims?.email) {
-        console.log(`User not found by auth ID ${authUserId}, checking by email: ${req.user.claims.email}`);
         user = await storage.getUserByEmail(req.user.claims.email);
       }
       
@@ -3545,7 +3285,6 @@ Consider this workflow optimized and ready for implementation! ⚙️`
         return res.status(400).json({ error: 'User not found' });
       }
       
-      // 🚨 CRITICAL: ZERO FALLBACKS - User MUST have completed trained model
       const userModel = await storage.getUserModelByUserId(user.id);
       if (!userModel) {
         return res.status(400).json({ 
@@ -3573,11 +3312,9 @@ Consider this workflow optimized and ready for implementation! ⚙️`
         });
       }
       
-      console.log(`Using database user ID ${user.id} for model lookup with trigger word: ${userModel.triggerWord}`);
       
       // Use black-forest-labs/flux-dev-lora with user's trained LoRA weights  
       const modelVersion = 'black-forest-labs/flux-dev-lora:a53fd9255ecba80d99eaab4706c698f861fd47b098012607557385416e46aae5';
-      console.log(`🔒 SECURITY FIX: AI-Photoshoot using black-forest-labs/flux-dev-lora with LoRA: sandrasocial/${userModel.replicateModelId}`);
 
       // Use correct FLUX LoRA image generation service (same as Maya)
       const { generateImages } = await import('./image-generation-service');
@@ -3603,7 +3340,6 @@ Consider this workflow optimized and ready for implementation! ⚙️`
       });
       
     } catch (error) {
-      console.error('AI-PHOTOSHOOT FLUX LoRA generation error:', error);
       res.status(500).json({ 
         error: error.message,
         isRealGeneration: true
@@ -3625,7 +3361,6 @@ Consider this workflow optimized and ready for implementation! ⚙️`
         count: recentImages.length 
       });
     } catch (error) {
-      console.error('Get session images error:', error);
       res.status(500).json({ 
         message: 'Failed to get session images',
         error: error.message 
@@ -3643,7 +3378,6 @@ Consider this workflow optimized and ready for implementation! ⚙️`
         return res.status(400).json({ error: 'At least one image URL is required' });
       }
       
-      console.log('Saving selected images:', { userId, count: imageUrls.length, prompt });
       
       // Import the image storage service
       const { ImageStorageService } = await import('./image-storage-service');
@@ -3674,7 +3408,6 @@ Consider this workflow optimized and ready for implementation! ⚙️`
       });
       
     } catch (error) {
-      console.error('Save selected images error:', error);
       res.status(500).json({ error: error.message });
     }
   });
@@ -3691,7 +3424,6 @@ Consider this workflow optimized and ready for implementation! ⚙️`
         return res.status(400).json({ error: 'Category and subcategory are required' });
       }
       
-      // 🚨 CRITICAL: ZERO FALLBACKS - User MUST have completed trained model
       const userModel = await storage.getUserModelByUserId(userId);
       if (!userModel) {
         return res.status(400).json({ 
@@ -3722,10 +3454,8 @@ Consider this workflow optimized and ready for implementation! ⚙️`
       const { ModelTrainingService } = await import('./model-training-service');
       const result = await ModelTrainingService.generateUserImagesFromCategory(userId, category, subcategory);
       
-      console.log('Generation result:', result); // Debug log
       res.json(result);
     } catch (error) {
-      console.error('User image generation error:', error);
       res.status(500).json({ error: error.message });
     }
   });
@@ -3737,7 +3467,6 @@ Consider this workflow optimized and ready for implementation! ⚙️`
       const images = await storage.getUserGeneratedImages(userId);
       res.json(images);
     } catch (error) {
-      console.error('Get generated images error:', error);
       res.status(500).json({ error: error.message });
     }
   });
@@ -3765,7 +3494,6 @@ Consider this workflow optimized and ready for implementation! ⚙️`
       const prediction = await response.json();
       res.json(prediction);
     } catch (error) {
-      console.error('Check generation status error:', error);
       res.status(500).json({ error: error.message });
     }
   });
@@ -3776,7 +3504,6 @@ Consider this workflow optimized and ready for implementation! ⚙️`
       // For new user testing, return null (no existing brandbook)
       res.json(null);
     } catch (error) {
-      console.error('Error fetching brandbook:', error);
       res.status(500).json({ message: 'Failed to fetch brandbook' });
     }
   });
@@ -3814,7 +3541,6 @@ Consider this workflow optimized and ready for implementation! ⚙️`
       
       res.json(brandbook);
     } catch (error) {
-      console.error('Error saving brandbook:', error);
       res.status(500).json({ message: 'Failed to save brandbook' });
     }
   });
@@ -3825,7 +3551,6 @@ Consider this workflow optimized and ready for implementation! ⚙️`
       const authUserId = req.user.claims.sub;
       const claims = req.user.claims;
       
-      console.log(`🔍 Usage status check - Auth ID: ${authUserId}, Email: ${claims.email}`);
       
       // Get the correct database user ID
       let user = await storage.getUser(authUserId);
@@ -3837,14 +3562,11 @@ Consider this workflow optimized and ready for implementation! ⚙️`
         return res.status(404).json({ error: 'User not found' });
       }
       
-      console.log(`👤 Found user: ${user.email}, Plan: ${user.plan}`);
       
       const dbUserId = user.id;
       
-      // CRITICAL: Check admin emails regardless of plan field
       const adminEmails = ['ssa@ssasocial.com', 'sandrajonna@gmail.com', 'sandra@sselfie.ai'];
       if (adminEmails.includes(user.email)) {
-        console.log(`👑 Admin user detected: ${user.email} - granting unlimited access`);
         return res.json({
           plan: 'admin',
           canGenerate: true,
@@ -3870,7 +3592,6 @@ Consider this workflow optimized and ready for implementation! ⚙️`
       const usageStatus = await UsageService.checkUsageLimit(dbUserId);
       res.json(usageStatus);
     } catch (error) {
-      console.error('Error getting usage status:', error);
       res.status(500).json({ error: 'Failed to get usage status' });
     }
   });
@@ -3894,7 +3615,6 @@ Consider this workflow optimized and ready for implementation! ⚙️`
       const stats = await UsageService.getUserStats(dbUserId);
       res.json(stats || {});
     } catch (error) {
-      console.error('Error getting usage stats:', error);
       res.status(500).json({ error: 'Failed to get usage stats' });
     }
   });
@@ -3912,7 +3632,6 @@ Consider this workflow optimized and ready for implementation! ⚙️`
       const stats = await UsageService.getUserStats(userId);
       res.json({ success: true, stats });
     } catch (error) {
-      console.error('Error initializing usage:', error);
       res.status(500).json({ error: error.message });
     }
   });
@@ -3929,7 +3648,6 @@ Consider this workflow optimized and ready for implementation! ⚙️`
       const analysis = await UsageService.getUserCostAnalysis(userId);
       res.json(analysis || {});
     } catch (error) {
-      console.error('Error getting usage analysis:', error);
       res.status(500).json({ error: 'Failed to get usage analysis' });
     }
   });
@@ -3940,7 +3658,6 @@ Consider this workflow optimized and ready for implementation! ⚙️`
       const { imageId } = req.params;
       const userId = req.user.claims.sub;
       
-      console.log('Toggle favorite for user:', userId, 'image:', imageId);
       
       // Use session-based favorites with user-specific storage
       if (!req.session.favorites) {
@@ -3961,7 +3678,6 @@ Consider this workflow optimized and ready for implementation! ⚙️`
         req.session.favorites[userId].push(imageIdNum);
       }
       
-      console.log('Updated favorites for user:', userId, 'favorites:', req.session.favorites[userId]);
       
       res.json({ 
         success: true, 
@@ -3969,7 +3685,6 @@ Consider this workflow optimized and ready for implementation! ⚙️`
         message: !isCurrentlyFavorite ? "Added to favorites" : "Removed from favorites"
       });
     } catch (error) {
-      console.error("Error toggling favorite:", error);
       res.status(500).json({ message: "Failed to update favorite" });
     }
   });
@@ -3980,14 +3695,12 @@ Consider this workflow optimized and ready for implementation! ⚙️`
       const userId = req.user.claims.sub;
       const userFavorites = req.session?.favorites?.[userId] || [];
       
-      console.log('Getting favorites for user:', userId, 'favorites:', userFavorites);
       
       res.json({ 
         favorites: userFavorites,
         count: userFavorites.length
       });
     } catch (error) {
-      console.error("Error fetching favorites:", error);
       res.status(500).json({ message: "Failed to fetch favorites" });
     }
   });
@@ -4037,7 +3750,6 @@ Consider this workflow optimized and ready for implementation! ⚙️`
       
       res.json(result);
     } catch (error) {
-      console.error('Marketing launch error:', error);
       res.status(500).json({ message: 'Failed to launch marketing automation' });
     }
   });
@@ -4062,7 +3774,6 @@ Consider this workflow optimized and ready for implementation! ⚙️`
       
       res.json(userAnalytics);
     } catch (error) {
-      console.error('Metrics fetch error:', error);
       res.status(500).json({ message: 'Failed to fetch metrics' });
     }
   });
@@ -4087,7 +3798,6 @@ Consider this workflow optimized and ready for implementation! ⚙️`
       
       res.json(automations);
     } catch (error) {
-      console.error('Automations fetch error:', error);
       res.status(500).json({ message: 'Failed to fetch automations' });
     }
   });
@@ -4097,7 +3807,6 @@ Consider this workflow optimized and ready for implementation! ⚙️`
     try {
       const { campaignType, audience, approved = false } = req.body;
       
-      console.log('Rachel creating email campaign:', { campaignType, audience, approved });
       
       const campaign = await rachelAgent.createEmailCampaign(campaignType, audience);
       const voiceAnalysis = await rachelAgent.analyzeVoiceConsistency(campaign.content);
@@ -4120,7 +3829,6 @@ Consider this workflow optimized and ready for implementation! ⚙️`
       });
       
     } catch (error) {
-      console.error('Rachel email campaign error:', error);
       res.status(500).json({ error: 'Failed to create email campaign' });
     }
   });
@@ -4129,12 +3837,10 @@ Consider this workflow optimized and ready for implementation! ⚙️`
   app.post('/api/rachel/create-instagram-content', async (req, res) => {
     try {
       const { contentType } = req.body;
-      console.log('Rachel creating Instagram content:', contentType);
       
       const content = await rachelAgent.createInstagramContent(contentType);
       res.json(content);
     } catch (error) {
-      console.error('Rachel Instagram content error:', error);
       res.status(500).json({ error: 'Failed to create Instagram content' });
     }
   });
@@ -4146,7 +3852,6 @@ Consider this workflow optimized and ready for implementation! ⚙️`
       const analysis = await rachelAgent.analyzeVoiceConsistency(content);
       res.json(analysis);
     } catch (error) {
-      console.error('Rachel voice analysis error:', error);
       res.status(500).json({ error: 'Failed to analyze voice' });
     }
   });
@@ -4181,12 +3886,10 @@ Consider this workflow optimized and ready for implementation! ⚙️`
           return next(); // Let the app handle it (404 or React route)
         }
         
-        console.log(`Serving published landing page for: ${username}`);
         res.setHeader('Content-Type', 'text/html');
         res.send(landingPage.htmlContent);
       })
       .catch(error => {
-        console.error('Error checking landing page:', error);
         next(); // Continue to other routes on error
       });
   });
@@ -4235,17 +3938,11 @@ Consider this workflow optimized and ready for implementation! ⚙️`
   // Force session deserialization test
   app.get('/api/test-deserialize', async (req, res) => {
     try {
-      console.log('🔍 [MANUAL DESERIALIZE] Starting manual deserialization test');
-      console.log('🔍 [MANUAL DESERIALIZE] Session ID:', req.sessionID);
-      console.log('🔍 [MANUAL DESERIALIZE] Session exists:', !!req.session);
-      console.log('🔍 [MANUAL DESERIALIZE] Session passport:', req.session?.passport);
       
       if (req.session?.passport?.user) {
         const userId = req.session.passport.user;
-        console.log('🔍 [MANUAL DESERIALIZE] Found user ID in session:', userId);
         
         const user = await storage.getUser(userId);
-        console.log('🔍 [MANUAL DESERIALIZE] User lookup result:', user ? 'FOUND' : 'NOT FOUND');
         
         res.json({
           sessionId: req.sessionID,
@@ -4269,7 +3966,6 @@ Consider this workflow optimized and ready for implementation! ⚙️`
         });
       }
     } catch (error) {
-      console.error('❌ [MANUAL DESERIALIZE] Error:', error);
       res.status(500).json({ error: error.message });
     }
   });
@@ -4359,7 +4055,6 @@ Keep it conversational, actionable, and authentically Sandra. Focus on immediate
     }
 
   } catch (error) {
-    console.error('Rachel AI Error:', error);
     return `Hey Sandra! Rachel here - I'm having a tiny technical moment, but I'm ready to help with "${task}". 
 
 **MY FULL ACTIVATION IS READY:**

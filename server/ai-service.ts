@@ -3,7 +3,6 @@ import { UsageService, API_COSTS } from './usage-service';
 
 // FLUX model configuration for SSELFIE generation - SECURE VERSION
 const FLUX_MODEL_CONFIG = {
-  // ALL FALLBACK MODELS PERMANENTLY REMOVED FOR PRODUCTION SECURITY
   // Each user must have their own completed trained model
   apiUrl: 'https://api.replicate.com/v1/predictions'
   // ALL HARDCODED PROMPTS REMOVED - Maya AI generates authentic prompts only
@@ -27,7 +26,6 @@ export class AIService {
   static async generateSSELFIE(request: ImageGenerationRequest): Promise<{ trackerId: number; predictionId: string; usageStatus: any }> {
     const { userId, imageBase64, style, prompt } = request;
     
-    // CRITICAL: Validate user model completion FIRST - NO FALLBACKS
     const userModel = await storage.getUserModelByUserId(userId);
     if (!userModel || userModel.trainingStatus !== 'completed') {
       throw new Error('User model not ready for generation. Training must be completed first.');
@@ -83,7 +81,6 @@ export class AIService {
         usageStatus: updatedUsage
       };
     } catch (error) {
-      console.error('FLUX API call failed:', error);
       // Update generation tracker with error status
       await storage.updateGenerationTracker(generationTracker.id, {
         status: 'failed',
@@ -116,28 +113,22 @@ export class AIService {
     try {
       const status = await this.checkGenerationStatus(predictionId);
       
-      console.log('🔄 Updating generation tracker status:', { trackerId, predictionId, status: status.status, outputCount: status.output?.length });
       
       switch (status.status) {
         case 'succeeded':
           if (status.output && status.output.length > 0) {
             // 🔑 KEY CHANGE: Store TEMP URLs only for preview - NO AUTO-SAVE TO GALLERY
-            console.log('✅ Generation complete - storing temp URLs for preview only (NOT auto-saving to gallery)');
             
             await storage.updateGenerationTracker(trackerId, {
               imageUrls: JSON.stringify(status.output), // Store TEMP Replicate URLs for preview
               status: 'completed'
             });
             
-            // 🚨 CRITICAL FIX: Update Maya chat message with image preview
             try {
               await this.updateMayaChatWithImages(trackerId, status.output);
-              console.log('✅ Maya chat message updated with generated images:', trackerId);
             } catch (error) {
-              console.error('❌ Failed to update Maya chat with images:', error);
             }
             
-            console.log('📋 Generation tracker updated with temp URLs for user selection:', trackerId);
           }
           break;
           
@@ -163,7 +154,6 @@ export class AIService {
           break;
       }
     } catch (error) {
-      console.error('Error updating generation tracker status:', error);
       throw error;
     }
   }
@@ -182,11 +172,9 @@ export class AIService {
       generationStatus: 'completed'
     });
     
-    console.log('Force updated generation with completed images:', aiImageId);
   }
 
   private static async buildFluxPrompt(style: string, customPrompt?: string, userId?: string): Promise<string> {
-    // CRITICAL: Get user's trained model - NO FALLBACKS ALLOWED
     if (!userId) {
       throw new Error('User ID is required for image generation');
     }
@@ -216,7 +204,6 @@ export class AIService {
       throw new Error('REPLICATE_API_TOKEN not configured');
     }
 
-    // CRITICAL: Get user's trained model - NO FALLBACKS ALLOWED
     if (!userId) {
       throw new Error('User ID is required for image generation');
     }
@@ -226,19 +213,8 @@ export class AIService {
       throw new Error('User model not ready for generation. Training must be completed first.');
     }
 
-    // 🚨 CRITICAL SECURITY FIX: Use user's unique replicate_model_id for LoRA weights
+    // Use user's unique replicate_model_id for LoRA weights
     const userLoRAWeights = `sandrasocial/${userModel.replicateModelId}`;
-    
-    // 🚨 CRITICAL SECURITY AUDIT: Comprehensive logging for debugging Sandra image issue
-    console.log(`🔒 CRITICAL SECURITY AUDIT - AI SERVICE:`, {
-      userId,
-      userModelId: userModel.id,
-      replicateModelId: userModel.replicateModelId,
-      triggerWord: userModel.triggerWord,
-      userLoRAWeights,
-      trainingStatus: userModel.trainingStatus,
-      timestamp: new Date().toISOString()
-    });
 
     // Use SAME API format as image-generation-service.ts for consistency
     const fluxModelVersion = 'black-forest-labs/flux-dev-lora:a53fd9255ecba80d99eaab4706c698f861fd47b098012607557385416e46aae5';
@@ -248,7 +224,6 @@ export class AIService {
       input: {
         prompt: prompt,
         guidance: 2.8,              // OPTIMIZED: Reduced from 3.0 to 2.8 for more natural results
-        lora_weights: userLoRAWeights, // 🔒 CRITICAL: User's unique trained LoRA weights
         lora_scale: 1.0,           // OPTIMAL: Standard scale for personal LoRAs (0.9-1.0)
         num_inference_steps: 40,    // OPTIMIZED: Increased from 35 to 40 for higher quality
         num_outputs: 3,            // Generate 3 focused images
@@ -261,8 +236,7 @@ export class AIService {
       }
     };
     
-    // 🚨 CRITICAL: Log full API request for Sandra image debugging
-    console.log('🔒 SECURITY FIX: FULL REPLICATE API REQUEST:', JSON.stringify(requestBody, null, 2));
+    // Generate with user's model
     
     const response = await fetch(FLUX_MODEL_CONFIG.apiUrl, {
       method: 'POST',
@@ -279,16 +253,6 @@ export class AIService {
     }
 
     const prediction = await response.json();
-    
-    // 🚨 CRITICAL: Log Replicate response for debugging
-    console.log('🔒 REPLICATE API RESPONSE:', {
-      predictionId: prediction.id,
-      status: prediction.status,
-      userId,
-      userLoRAWeights,
-      timestamp: new Date().toISOString()
-    });
-    
     return prediction.id;
   }
 
@@ -326,7 +290,6 @@ export class AIService {
         await new Promise(resolve => setTimeout(resolve, 2000));
         attempts++;
       } catch (error) {
-        console.error(`Status check attempt ${attempts} failed:`, error);
         attempts++;
         
         if (attempts >= maxAttempts) {
@@ -340,20 +303,17 @@ export class AIService {
     }
   }
 
-  // 🚨 CRITICAL FIX: Update Maya chat message with generated images
   private static async updateMayaChatWithImages(trackerId: number, imageUrls: string[]): Promise<void> {
     try {
       // Get the generation tracker to find the user
       const tracker = await storage.getGenerationTracker(trackerId);
       if (!tracker) {
-        console.error('❌ Generation tracker not found for chat update:', trackerId);
         return;
       }
 
       // Find the most recent Maya chat message with a generated_prompt for this user
       const mayaChats = await storage.getMayaChats(tracker.userId);
       if (!mayaChats || mayaChats.length === 0) {
-        console.error('❌ No Maya chats found for user:', tracker.userId);
         return;
       }
 
@@ -367,7 +327,6 @@ export class AIService {
         .sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime())[0];
 
       if (!mayaMessageWithPrompt) {
-        console.error('❌ No Maya message with generated_prompt found to update with images');
         return;
       }
 
@@ -376,14 +335,7 @@ export class AIService {
         imagePreview: JSON.stringify(imageUrls)
       });
 
-      console.log('✅ Maya chat message updated with image preview:', {
-        messageId: mayaMessageWithPrompt.id,
-        imageCount: imageUrls.length,
-        trackerId
-      });
-
     } catch (error) {
-      console.error('❌ Error updating Maya chat with images:', error);
       throw error;
     }
   }

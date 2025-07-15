@@ -57,7 +57,7 @@ export class ModelTrainingService {
 
   // Create ZIP file with user's selfie images for training
   static async createImageZip(selfieImages: string[], userId: string): Promise<string> {
-    console.log('Creating real training ZIP for user:', userId, 'with', selfieImages.length, 'images');
+
     
     // Create temporary directory for ZIP creation
     const tempDir = path.join(process.cwd(), 'temp_training');
@@ -80,7 +80,6 @@ export class ModelTrainingService {
         
         // More flexible image validation to accept different formats
         if (!imageData.includes('data:image/') && imageData.length < 100) {
-          console.warn(`Invalid image data at index ${i}, skipping`);
           continue;
         }
         
@@ -96,14 +95,12 @@ export class ModelTrainingService {
           
           // Validate buffer has reasonable size (at least 500 bytes for valid image - reduced for testing)
           if (imageBuffer.length < 500) {
-            console.warn(`Image ${i + 1} too small (${imageBuffer.length} bytes), skipping`);
             continue;
           }
           
-          console.log(`Adding image ${i + 1} (${imageBuffer.length} bytes) to ZIP`);
+
           archive.append(imageBuffer, { name: `image_${i + 1}.jpg` });
         } catch (error) {
-          console.error(`Failed to process image ${i + 1}:`, error);
           continue;
         }
       }
@@ -116,45 +113,35 @@ export class ModelTrainingService {
         output.on('error', reject);
       });
       
-      console.log('ZIP file created successfully:', zipPath);
-      
       // For now, serve the ZIP directly from our server to avoid S3 region issues
       // Keep the ZIP file in temp directory for serving
       const localZipUrl = `https://${process.env.REPLIT_DOMAINS?.split(',')[0] || 'localhost:5000'}/training-zip/${path.basename(zipPath)}`;
-      
-      console.log('Training ZIP ready for Replicate access:', localZipUrl);
       return localZipUrl;
       
     } catch (error) {
-      console.error('Error creating/uploading ZIP:', error);
       throw error;
     }
   }
 
   // Start training a new model for user
   static async startModelTraining(userId: string, selfieImages: string[]): Promise<{ trainingId: string; status: string }> {
-    console.log('Starting REAL model training for user:', userId);
+
     
     try {
       // Check if user already has a model
       const existingModel = await storage.getUserModelByUserId(userId);
       if (existingModel) {
-        console.log('User already has a model, updating for retraining');
         // For retraining, we'll update the existing model
       }
       
       // Generate unique trigger word for this user
       const triggerWord = this.generateTriggerWord(userId);
-      console.log('Generated trigger word:', triggerWord);
       
       // For immediate testing, create a temporary training record and upload files
       // Once we resolve the API destination issue, this will be replaced with real training
-      console.log('REAL training files created, setting up model record for user:', userId);
       
       // Create the actual ZIP file for training
-      console.log('Creating training ZIP file for', selfieImages.length, 'images');
       const zipUrl = await this.createImageZip(selfieImages, userId);
-      console.log('Training ZIP uploaded to S3:', zipUrl);
       
       // Create user-specific model first
       const modelName = `${userId}-selfie-lora`;
@@ -175,7 +162,6 @@ export class ModelTrainingService {
 
       // Model might already exist, which is OK
       if (!createModelResponse.ok && createModelResponse.status !== 422) {
-        console.log('Model creation failed, but continuing with training');
       }
 
       // Start real Replicate training using the model-specific trainings endpoint
@@ -208,7 +194,6 @@ export class ModelTrainingService {
         throw new Error(`Replicate training failed: ${JSON.stringify(trainingData)}`);
       }
 
-      console.log('Training setup completed for user:', userId, 'with trigger word:', triggerWord);
       
       // Update model with actual training ID
       await storage.updateUserModel(userId, {
@@ -218,7 +203,6 @@ export class ModelTrainingService {
         trainingProgress: 0
       });
       
-      console.log('REAL Replicate training started:', trainingData.id);
       
       return {
         trainingId: trainingData.id,
@@ -226,7 +210,6 @@ export class ModelTrainingService {
       };
       
     } catch (error) {
-      console.error('Training start error:', error);
       throw error;
     }
   }
@@ -252,7 +235,6 @@ export class ModelTrainingService {
       }
       
       const trainingData = await trainingStatusResponse.json();
-      console.log('Real Replicate training status:', trainingData.status);
       
       let progress = 0;
       let status = 'training';
@@ -284,18 +266,13 @@ export class ModelTrainingService {
       // Extract and save the model version when training succeeds
       if (status === 'completed' && trainingData.output?.version) {
         updateData.replicateVersionId = trainingData.output.version;
-        console.log('Saving completed model version:', trainingData.output.version);
       } else if (status === 'completed' && trainingData.version) {
         // Some training responses have version directly on the object
         updateData.replicateVersionId = trainingData.version;
-        console.log('Saving completed model version (direct):', trainingData.version);
       }
       
-      // CRITICAL FIX: Also save the full model path for direct usage
       if (status === 'completed') {
-        // 🔒 SECURITY FIX: The trained model should be available at: sandrasocial/{replicateModelId}
         updateData.trainedModelPath = `sandrasocial/${userModel.replicateModelId}`;
-        console.log('🔒 SECURITY FIX: Model training completed - trained model available at:', updateData.trainedModelPath);
       }
       
       await storage.updateUserModel(userId, updateData);
@@ -303,7 +280,6 @@ export class ModelTrainingService {
       return { status, progress };
       
     } catch (error) {
-      console.error('Error checking REAL training status:', error);
       throw error;
     }
   }
@@ -348,7 +324,6 @@ export class ModelTrainingService {
   ): Promise<{ images: string[]; generatedImageId?: number; predictionId?: string }> {
     // Convert category/subcategory to professional prompt
     const promptTemplate = this.getPromptFromCategorySubcategory(category, subcategory);
-    console.log(`Converting ${category}/${subcategory} to prompt:`, promptTemplate);
     
     // Use the custom prompt generation method
     return this.generateUserImages(userId, promptTemplate, count);
@@ -360,7 +335,6 @@ export class ModelTrainingService {
     customPrompt: string,
     count: number = 4
   ): Promise<{ images: string[]; generatedImageId?: number; predictionId?: string }> {
-    console.log('REAL image generation for user:', userId, 'prompt:', customPrompt);
     
     try {
       // ZERO FALLBACKS: Every user MUST have their own trained model
@@ -380,7 +354,6 @@ export class ModelTrainingService {
       const modelToUse = versionHash;
       const triggerWord = userModel.triggerWord || `user${userId}`;
       
-      console.log('✅ Using trained model for user:', userId, 'version:', modelToUse, 'trigger:', triggerWord);
       
       // Handle prompt formatting and enhancement
       let basePrompt;
@@ -408,8 +381,6 @@ export class ModelTrainingService {
       
       let finalPrompt = `${basePrompt}, ${hairColorConsistency}, ${filmEnhancement}, ${fashionEnhancement}, ${environmentalEnhancement}, ${subtleRetouching}`;
       
-      console.log('Original prompt:', customPrompt);
-      console.log('Final prompt for generation:', finalPrompt);
 
       // Call REAL Replicate API for image generation with optimal realistic settings
       const requestBody = {
@@ -421,14 +392,12 @@ export class ModelTrainingService {
           aspect_ratio: "4:3", // Wider aspect for environmental scenes
           output_format: "jpg",
           output_quality: 95,
-          guidance_scale: 3, // CRITICAL - higher for more realistic/less fake results
           num_inference_steps: 28, // Optimal for film-like quality (same as AI Photoshoot)
           go_fast: false, // Quality over speed
           seed: Math.floor(Math.random() * 1000000)
         }
       };
       
-      console.log('REAL Replicate API request:', JSON.stringify(requestBody, null, 2));
 
       const response = await fetch('https://api.replicate.com/v1/predictions', {
         method: 'POST',
@@ -439,11 +408,9 @@ export class ModelTrainingService {
         body: JSON.stringify(requestBody)
       });
 
-      console.log('Replicate API response status:', response.status);
       
       const prediction = await response.json();
       
-      console.log('Replicate API response:', JSON.stringify(prediction, null, 2));
       
       if (!response.ok) {
         throw new Error(`Replicate API error (${response.status}): ${JSON.stringify(prediction)}`);
@@ -454,7 +421,6 @@ export class ModelTrainingService {
       }
       
       // For immediate testing, poll the prediction to get results
-      console.log('Waiting for image generation completion...');
       
       // Wait for completion (polling)
       let attempts = 0;
@@ -470,10 +436,8 @@ export class ModelTrainingService {
         });
         
         const statusData = await statusResponse.json();
-        console.log(`Generation attempt ${attempts + 1}:`, statusData.status);
         
         if (statusData.status === 'succeeded' && statusData.output) {
-          console.log('REAL image generation completed successfully!');
           return {
             images: Array.isArray(statusData.output) ? statusData.output : [statusData.output],
             predictionId: prediction.id
@@ -488,7 +452,6 @@ export class ModelTrainingService {
       throw new Error('Image generation timed out after 5 minutes');
       
     } catch (error) {
-      console.error('REAL image generation error:', error);
       throw new Error(`Failed to generate images: ${error.message}`);
     }
   }
