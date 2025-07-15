@@ -32,7 +32,7 @@ if (!process.env.STRIPE_SECRET_KEY) {
   });
 }
 
-// Session configuration for production
+// Session configuration for production - NO DOMAIN RESTRICTION
 app.use(session({
   secret: process.env.SESSION_SECRET || 'production-session-secret',
   resave: false,
@@ -41,8 +41,8 @@ app.use(session({
     secure: true, // Always secure for HTTPS production
     httpOnly: true,
     maxAge: 7 * 24 * 60 * 60 * 1000, // 1 week
-    sameSite: 'lax',
-    domain: 'sselfie.ai'
+    sameSite: 'lax'
+    // REMOVED: domain restriction for cross-domain compatibility
   }
 }));
 
@@ -81,8 +81,30 @@ app.get('/api/logout', (req, res) => {
 });
 
 app.get('/api/auth/user', (req, res) => {
-  console.log('🔄 Production /api/auth/user - redirecting to development server');
-  res.redirect('https://e33979fc-c9be-4f0d-9a7b-6a3e83046828-00-3ij9k7qy14rai.picard.replit.dev/api/auth/user');
+  console.log('🔄 Production /api/auth/user - temporary redirect fix');
+  
+  // Check if we have session data from successful OAuth
+  if (req.session?.passport?.user) {
+    console.log('✅ Found session user, constructing response');
+    
+    // Construct user response from session data
+    const userData = {
+      id: req.session.passport.user.id || req.session.passport.user,
+      email: req.session.passport.user.email || 'unknown@example.com',
+      firstName: req.session.passport.user.firstName || 'User',
+      lastName: req.session.passport.user.lastName || '',
+      profileImageUrl: req.session.passport.user.profileImageUrl || null,
+      plan: req.session.passport.user.plan || 'free',
+      role: req.session.passport.user.role || 'user',
+      monthlyGenerationLimit: req.session.passport.user.monthlyGenerationLimit || 5,
+      generationsUsedThisMonth: req.session.passport.user.generationsUsedThisMonth || 0
+    };
+    
+    return res.json(userData);
+  }
+  
+  // No session, return 401
+  res.status(401).json({ message: "Not authenticated - no session data" });
 });
 
 // Catch all API routes and redirect to development
