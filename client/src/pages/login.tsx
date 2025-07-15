@@ -15,9 +15,9 @@ export default function Login() {
       
       <HeroFullBleed
         backgroundImage={SandraImages.editorial.luxury1}
-        tagline="Access your transformation"
-        title="WELCOME BACK"
-        ctaText="Sign In to Your Studio"
+        tagline="Sign In or Create Account"
+        title="JOIN SSELFIE"
+        ctaText="Access Your Studio"
         onCtaClick={handleLogin}
         fullHeight={false}
       />
@@ -25,28 +25,44 @@ export default function Login() {
       <main className="max-w-4xl mx-auto px-8 py-16">
         <div className="text-center mb-16">
           <h2 className="text-3xl font-light mb-6" style={{ fontFamily: 'Times New Roman, serif' }}>
-            Enter Your Creative Workspace
+            Create Account or Sign In
           </h2>
           <p className="text-lg text-[#666666] max-w-2xl mx-auto font-light leading-relaxed">
-            Your personal brand studio is waiting. Access Maya AI for professional photoshoots, 
-            Victoria AI for brand strategy, and your complete business-building ecosystem.
+            Sign in to access your AI photography studio, brand strategy tools, and complete business-building platform. If you're new, you'll create your account during the secure login process.
           </p>
         </div>
 
         <div className="max-w-md mx-auto">
           <div className="bg-[#f5f5f5] p-12 text-center">
-            <h3 className="text-2xl font-light mb-8" style={{ fontFamily: 'Times New Roman, serif' }}>
-              Secure Access
+            <h3 className="text-2xl font-light mb-4" style={{ fontFamily: 'Times New Roman, serif' }}>
+              Welcome to SSELFIE Studio
             </h3>
+            
+            <p className="text-sm text-[#666666] mb-8 leading-relaxed">
+              Create your account or sign in using your email address. You'll be redirected to a secure login page to complete authentication.
+            </p>
             
             <button 
               onClick={handleLogin}
               className="w-full bg-[#0a0a0a] text-white px-8 py-4 text-xs uppercase tracking-wider hover:bg-[#333] transition-colors mb-6"
             >
-              Sign In to SSELFIE Studio
+              Continue with Email
             </button>
             
-            <div className="text-sm text-[#666666] space-y-2">
+            <div className="text-xs text-[#666666] space-y-3 border-t border-[#e0e0e0] pt-6">
+              <p className="font-medium">What happens next:</p>
+              <div className="text-left space-y-2">
+                <p>• You'll be taken to a secure authentication page</p>
+                <p>• New users: Create account with your email</p>
+                <p>• Returning users: Sign in with your existing account</p>
+                <p>• Access your SSELFIE Studio workspace immediately</p>
+              </div>
+              <div className="text-center mt-4 pt-3 border-t border-[#e0e0e0]">
+                <p className="text-[#888888]">Powered by secure authentication</p>
+              </div>
+            </div>
+            
+            <div className="text-sm text-[#666666] space-y-2 mt-8">
               <p>New to SSELFIE Studio?</p>
               <a 
                 href="/simple-checkout" 
