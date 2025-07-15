@@ -21,9 +21,10 @@ export function getSession() {
     saveUninitialized: false,
     cookie: {
       httpOnly: true,
-      secure: process.env.NODE_ENV === 'production' || process.env.REPLIT_DOMAINS?.includes('sselfie.ai'),
+      secure: true, // Always secure for production domain
       maxAge: sessionTtl,
       sameSite: 'lax',
+      domain: process.env.REPLIT_DOMAINS?.includes('sselfie.ai') ? 'sselfie.ai' : undefined,
     },
   });
 }
@@ -205,6 +206,8 @@ export const isAuthenticated: RequestHandler = async (req, res, next) => {
   console.log('- req.user exists:', !!req.user);
   console.log('- req.user:', req.user);
   console.log('- req.session:', req.session);
+  console.log('- req.sessionID:', req.sessionID);
+  console.log('- cookies:', req.headers.cookie);
 
   if (!req.isAuthenticated?.() || !req.user) {
     console.log('❌ Authentication failed - unauthorized');
