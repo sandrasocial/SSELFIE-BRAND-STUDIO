@@ -9,11 +9,18 @@ async function throwIfResNotOk(res: Response) {
 
 // Force development server URL in development mode
 function getApiUrl(url: string): string {
-  // If we're on production domain but in development, redirect to dev server
-  if (window.location.hostname === 'sselfie.ai' && import.meta.env.DEV) {
-    // Use the Replit development domain
-    return `https://e33979fc-c9be-4f0d-9a7b-6a3e83046828-00-3ij9k7qy14rai.picard.replit.dev${url}`;
+  console.log('🔍 getApiUrl called with:', url);
+  console.log('🔍 Current hostname:', window.location.hostname);
+  console.log('🔍 DEV mode:', import.meta.env.DEV);
+  
+  // Always redirect to dev server when accessing from sselfie.ai
+  if (window.location.hostname === 'sselfie.ai') {
+    const devUrl = `https://e33979fc-c9be-4f0d-9a7b-6a3e83046828-00-3ij9k7qy14rai.picard.replit.dev${url}`;
+    console.log('🔍 Redirecting to dev server:', devUrl);
+    return devUrl;
   }
+  
+  console.log('🔍 Using original URL:', url);
   return url;
 }
 
