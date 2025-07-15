@@ -112,9 +112,9 @@ export default function EditorialLanding() {
     const emailCaptured = localStorage.getItem('emailCaptured');
     
     if (emailCaptured) {
-      // Email already captured, proceed directly to dev server for authentication
+      // Email already captured, proceed to authentication
       if (plan === 'free') {
-        window.location.href = 'https://e33979fc-c9be-4f0d-9a7b-6a3e83046828-00-3ij9k7qy14rai.picard.replit.dev/api/login';
+        window.location.href = '/api/login';
       } else {
         setLocation('/checkout');
       }
