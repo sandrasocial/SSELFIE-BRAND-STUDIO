@@ -268,6 +268,9 @@ The platform has become overly complex with multiple pricing tiers, broken onboa
 - **Session Persistence Fix**: Eliminated forced re-authentication for returning users
 - **Smart Authentication**: Login page now checks if user is already authenticated before showing login form
 - **Account Switching**: Only forces re-authentication when explicitly switching accounts via /api/switch-account
+- **Branded Account Switching**: Created warm, friendly `/switch-account` page using Sandra's voice instead of generic auth
+- **Proper Account Selection**: Fixed account switching to actually allow users to choose different email addresses
+- **User-Friendly Messaging**: Added Sandra's warm, best-friend language explaining the account switching process
 
 ## Current Project Status & Progress
 
