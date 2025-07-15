@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useAuth } from '@/hooks/use-auth';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { useToast } from '@/hooks/use-toast';
@@ -53,7 +53,7 @@ export default function Profile() {
     goals: profile?.goals || ''
   });
 
-  React.useEffect(() => {
+  useEffect(() => {
     if (profile) {
       setFormData({
         fullName: profile.fullName || '',

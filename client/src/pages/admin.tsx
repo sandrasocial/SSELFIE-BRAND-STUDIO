@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { useAuth } from "@/hooks/use-auth";
 import { apiRequest } from "@/lib/queryClient";
@@ -41,7 +41,7 @@ export default function AdminDashboard() {
   const [agentResponse, setAgentResponse] = useState('');
 
   // SECURE ADMIN ACCESS - Only Sandra can access admin dashboard
-  React.useEffect(() => {
+  useEffect(() => {
     if (!isLoading && (!isAuthenticated || user?.email !== 'ssa@ssasocial.com')) {
       setLocation('/');
       return;
