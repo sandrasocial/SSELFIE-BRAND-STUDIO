@@ -81,23 +81,15 @@ app.get('/api/logout', (req, res) => {
 });
 
 app.get('/api/auth/user', (req, res) => {
-  if (!req.session?.userId) {
-    return res.status(401).json({ message: "Not authenticated" });
-  }
+  console.log('🔄 Production /api/auth/user - redirecting to development server');
+  res.redirect('https://e33979fc-c9be-4f0d-9a7b-6a3e83046828-00-3ij9k7qy14rai.picard.replit.dev/api/auth/user');
+});
 
-  const testUser = {
-    id: req.session.userId,
-    email: req.session.userEmail || "testuser@example.com",
-    firstName: req.session.firstName || "Test",
-    lastName: req.session.lastName || "User",
-    profileImageUrl: null,
-    stripeCustomerId: null,
-    stripeSubscriptionId: null,
-    createdAt: req.session.createdAt || new Date().toISOString(),
-    updatedAt: new Date().toISOString()
-  };
-
-  res.json(testUser);
+// Catch all API routes and redirect to development
+app.use('/api/*', (req, res) => {
+  console.log('🔄 Production API catch-all - redirecting to development server:', req.originalUrl);
+  const developmentUrl = 'https://e33979fc-c9be-4f0d-9a7b-6a3e83046828-00-3ij9k7qy14rai.picard.replit.dev' + req.originalUrl;
+  res.redirect(developmentUrl);
 });
 
 // Clear session endpoint for testing

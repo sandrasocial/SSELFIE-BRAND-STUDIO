@@ -66,34 +66,11 @@ export async function setupGoogleAuth(app: Express) {
   app.use(passport.initialize());
   app.use(passport.session());
 
-  // Fixed callback URLs for Google OAuth
-  const getCallbackURL = (req?: any) => {
-    if (process.env.NODE_ENV === 'production') {
-      return 'https://sselfie.ai/api/auth/google/callback';
-    }
-    
-    // For Replit development
-    const host = req?.get('host');
-    if (host && host.includes('replit.dev')) {
-      return `https://${host}/api/auth/google/callback`;
-    }
-    
-    // For localhost development
-    return 'http://localhost:5000/api/auth/google/callback';
-  };
-
-  // Google OAuth Strategy with custom domain callback URL
-  const domains = process.env.REPLIT_DOMAINS?.split(',') || ['localhost:5000'];
-  const customDomain = domains.find(domain => domain.includes('sselfie.ai'));
-  const fallbackDomain = domains[0];
-  
-  const primaryDomain = customDomain || fallbackDomain;
-  const callbackURL = primaryDomain.includes('localhost') 
-    ? `http://${primaryDomain}/api/auth/google/callback`
-    : `https://${primaryDomain}/api/auth/google/callback`;
+  // EMERGENCY LAUNCH FIX: Use Replit domain for immediate OAuth functionality
+  const replitDomain = 'e33979fc-c9be-4f0d-9a7b-6a3e83046828-00-3ij9k7qy14rai.picard.replit.dev';
+  const callbackURL = `https://${replitDomain}/api/auth/google/callback`;
   
   console.log('🔍 Google OAuth callback URL:', callbackURL);
-  console.log('🔍 Available domains:', domains);
   console.log('🔍 Google Client ID (first 10 chars):', googleClientId.substring(0, 10) + '...');
   console.log('🔍 Google Client Secret (first 10 chars):', googleClientSecret.substring(0, 10) + '...');
   
