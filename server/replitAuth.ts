@@ -119,9 +119,17 @@ export async function setupAuth(app: Express) {
   passport.deserializeUser((user: Express.User, cb) => cb(null, user));
 
   app.get("/api/login", (req, res, next) => {
-    console.log('🔍 Login requested - forcing account selection for user switching');
+    // Check if user is already authenticated
+    if (req.isAuthenticated() && req.user?.expires_at) {
+      const now = Math.floor(Date.now() / 1000);
+      if (now <= req.user.expires_at) {
+        console.log('✅ User already authenticated, redirecting to workspace');
+        return res.redirect('/workspace');
+      }
+    }
+    
+    console.log('🔍 Login requested - starting authentication flow');
     passport.authenticate(`replitauth:${req.hostname}`, {
-      prompt: "login consent",
       scope: ["openid", "email", "profile", "offline_access"],
     })(req, res, next);
   });
@@ -167,8 +175,11 @@ export async function setupAuth(app: Express) {
         res.clearCookie('connect.sid');
         console.log('✅ Session cleared for account switch');
         
-        // Redirect to login which will force account selection
-        res.redirect('/api/login');
+        // Force account selection for switching
+        passport.authenticate(`replitauth:${req.hostname}`, {
+          prompt: "login consent",
+          scope: ["openid", "email", "profile", "offline_access"],
+        })(req, res, () => {});
       });
     });
   });

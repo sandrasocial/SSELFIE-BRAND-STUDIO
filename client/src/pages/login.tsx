@@ -1,13 +1,40 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { PreLoginNavigationUnified } from '@/components/pre-login-navigation-unified';
 import { HeroFullBleed } from '@/components/HeroFullBleed';
 import { SandraImages } from '@/lib/sandra-images';
+import { useAuth } from '@/hooks/use-auth';
+import { useLocation } from 'wouter';
 
 export default function Login() {
+  const { isAuthenticated, isLoading } = useAuth();
+  const [, setLocation] = useLocation();
+
+  // If user is already authenticated, redirect to workspace
+  useEffect(() => {
+    if (!isLoading && isAuthenticated) {
+      console.log('✅ User already authenticated, redirecting to workspace');
+      setLocation('/workspace');
+    }
+  }, [isAuthenticated, isLoading, setLocation]);
+
   const handleLogin = () => {
-    // Redirect to Google OAuth endpoint
+    // Redirect to authentication endpoint
     window.location.href = '/api/login';
   };
+
+  // Show loading while checking authentication
+  if (isLoading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="animate-spin w-8 h-8 border-4 border-black border-t-transparent rounded-full" />
+      </div>
+    );
+  }
+
+  // Don't show login page if user is already authenticated
+  if (isAuthenticated) {
+    return null;
+  }
 
   return (
     <div className="min-h-screen bg-white">

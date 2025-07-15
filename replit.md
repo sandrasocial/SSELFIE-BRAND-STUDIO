@@ -265,6 +265,9 @@ The platform has become overly complex with multiple pricing tiers, broken onboa
 - **Clear Instructions Added**: Step-by-step explanation of what happens during login process
 - **Confusion Elimination**: Changed generic "Replit login" messaging to clear account creation/sign-in flow
 - **User-Friendly Copy**: Updated all text to be welcoming for both new and returning users
+- **Session Persistence Fix**: Eliminated forced re-authentication for returning users
+- **Smart Authentication**: Login page now checks if user is already authenticated before showing login form
+- **Account Switching**: Only forces re-authentication when explicitly switching accounts via /api/switch-account
 
 ## Current Project Status & Progress
 
