@@ -86,10 +86,17 @@ export async function registerRoutes(app: Express): Promise<Server> {
       userId: req.user?.id || null,
       userEmail: req.user?.email || null,
       sessionId: req.sessionID,
+      sessionExists: !!req.session,
+      passportData: req.session?.passport || null,
       timestamp: new Date().toISOString()
     };
     
     res.json(authStatus);
+  });
+
+  // Session debugging tool
+  app.get('/test-session-debug', (req, res) => {
+    res.sendFile(require('path').join(__dirname, '../test-session-debug.html'));
   });
 
   // Debug route to check OAuth configuration

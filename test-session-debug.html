@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Session Debugging - SSELFIE Authentication</title>
+    <style>
+        body { font-family: -apple-system, system-ui; margin: 40px; background: #f5f5f5; }
+        .container { max-width: 800px; margin: 0 auto; background: white; padding: 30px; border-radius: 8px; }
+        .result { margin: 20px 0; padding: 15px; border-radius: 5px; white-space: pre-wrap; font-family: monospace; font-size: 12px; }
+        .success { background: #d4edda; border: 1px solid #c3e6cb; color: #155724; }
+        .error { background: #f8d7da; border: 1px solid #f5c6cb; color: #721c24; }
+        .info { background: #d1ecf1; border: 1px solid #bee5eb; color: #0c5460; }
+        button { background: #000; color: white; border: none; padding: 12px 24px; border-radius: 4px; cursor: pointer; margin: 10px 5px; }
+        button:hover { background: #333; }
+        .status { margin: 20px 0; font-weight: bold; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>SSELFIE Session Debugging Tool</h1>
+        <p>This tool helps debug the authentication session persistence issue.</p>
+        
+        <div class="status" id="auth-status">Checking authentication status...</div>
+        
+        <button onclick="checkAuthStatus()">1. Check Auth Status</button>
+        <button onclick="checkSessionInfo()">2. Check Session Info</button>
+        <button onclick="testLogin()">3. Test Login Flow</button>
+        <button onclick="checkQuickAuth()">4. Quick Auth Test</button>
+        
+        <div id="auth-result" class="result"></div>
+        <div id="session-result" class="result"></div>
+        <div id="login-result" class="result"></div>
+        <div id="quick-result" class="result"></div>
+        
+        <h3>Debug Analysis</h3>
+        <div id="analysis" class="result info"></div>
+    </div>
+
+    <script>
+        function showResult(elementId, message, type = 'info') {
+            const element = document.getElementById(elementId);
+            element.className = `result ${type}`;
+            element.textContent = message;
+        }
+
+        async function checkAuthStatus() {
+            try {
+                const response = await fetch('/api/auth/user', {
+                    credentials: 'include'
+                });
+                
+                if (response.ok) {
+                    const user = await response.json();
+                    showResult('auth-result', 
+                        `✅ AUTHENTICATED!\n` +
+                        `User ID: ${user.id}\n` +
+                        `Email: ${user.email}\n` +
+                        `Name: ${user.firstName} ${user.lastName}\n` +
+                        `Plan: ${user.plan || 'free'}\n` +
+                        `Role: ${user.role || 'user'}`, 
+                        'success'
+                    );
+                    document.getElementById('auth-status').textContent = 'Status: ✅ AUTHENTICATED';
+                } else {
+                    const error = await response.text();
+                    showResult('auth-result', 
+                        `❌ NOT AUTHENTICATED\n` +
+                        `Status: ${response.status}\n` +
+                        `Response: ${error}`, 
+                        'error'
+                    );
+                    document.getElementById('auth-status').textContent = 'Status: ❌ NOT AUTHENTICATED';
+                }
+            } catch (error) {
+                showResult('auth-result', `❌ Auth Error: ${error.message}`, 'error');
+            }
+        }
+
+        async function checkSessionInfo() {
+            try {
+                const response = await fetch('/api/auth-debug', {
+                    credentials: 'include'
+                });
+                
+                if (response.ok) {
+                    const data = await response.json();
+                    showResult('session-result', 
+                        `Session Information:\n` +
+                        `Session ID: ${data.session.id}\n` +
+                        `Session Exists: ${data.session.exists}\n` +
+                        `Passport Data: ${JSON.stringify(data.session.passport, null, 2)}\n` +
+                        `Is Authenticated: ${data.isAuthenticated}\n` +
+                        `User Object: ${JSON.stringify(data.user, null, 2)}`, 
+                        'info'
+                    );
+                } else {
+                    showResult('session-result', `Session check failed: ${response.status}`, 'error');
+                }
+            } catch (error) {
+                showResult('session-result', `Session Error: ${error.message}`, 'error');
+            }
+        }
+
+        async function testLogin() {
+            showResult('login-result', 'Redirecting to Google OAuth...', 'info');
+            window.location.href = '/api/login';
+        }
+
+        async function checkQuickAuth() {
+            try {
+                const response = await fetch('/api/quick-auth-test', {
+                    credentials: 'include'
+                });
+                
+                if (response.ok) {
+                    const data = await response.json();
+                    showResult('quick-result', 
+                        `Quick Auth Test:\n` +
+                        `Is Authenticated: ${data.isAuthenticated}\n` +
+                        `Has User: ${data.hasUser}\n` +
+                        `User ID: ${data.userId}\n` +
+                        `User Email: ${data.userEmail}\n` +
+                        `Session ID: ${data.sessionId}\n` +
+                        `Timestamp: ${data.timestamp}`, 
+                        data.isAuthenticated ? 'success' : 'error'
+                    );
+                } else {
+                    showResult('quick-result', `Quick auth test failed: ${response.status}`, 'error');
+                }
+            } catch (error) {
+                showResult('quick-result', `Quick Auth Error: ${error.message}`, 'error');
+            }
+        }
+
+        // Auto-run initial checks
+        window.onload = function() {
+            checkAuthStatus();
+            setTimeout(checkSessionInfo, 1000);
+            setTimeout(checkQuickAuth, 2000);
+        };
+    </script>
+</body>
+</html>

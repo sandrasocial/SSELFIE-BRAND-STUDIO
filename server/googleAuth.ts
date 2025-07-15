@@ -146,23 +146,31 @@ export async function setupGoogleAuth(app: Express) {
   }));
 
   passport.serializeUser((user: any, done) => {
+    console.log('🔍 Serializing user:', user.id, user.email);
     done(null, user.id);
   });
 
   passport.deserializeUser(async (id: string, done) => {
     try {
       console.log('🔍 Deserializing user with ID:', id);
+      console.log('🔍 Storage getUser method:', typeof storage.getUser);
+      
       const user = await storage.getUser(id);
+      console.log('🔍 User lookup result:', user ? 'Found' : 'Not found');
+      
       if (!user) {
         console.log('⚠️ User not found during deserialization:', id);
+        console.log('⚠️ This could mean the user was deleted or ID format changed');
         return done(null, false);
       }
+      
       console.log('✅ User deserialized successfully:', user.id, user.email);
-      done(null, user);
+      return done(null, user);
     } catch (error) {
       console.error('❌ Error deserializing user:', error);
-      console.error('❌ Error details:', error.message, error.stack);
-      done(null, false);
+      console.error('❌ Error details:', error.message);
+      console.error('❌ Error stack:', error.stack);
+      return done(error, null);
     }
   });
 
@@ -197,7 +205,10 @@ export async function setupGoogleAuth(app: Express) {
             return res.status(500).json({ error: 'Session creation failed', details: err.message });
           }
           
-          console.log('✅ OAuth login successful, redirecting to workspace');
+          console.log('✅ OAuth login successful for user:', user.id, user.email);
+          console.log('✅ Session ID:', req.sessionID);
+          console.log('✅ req.isAuthenticated():', req.isAuthenticated());
+          console.log('✅ Redirecting to workspace');
           res.redirect('/workspace');
         });
       })(req, res, next);
