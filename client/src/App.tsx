@@ -52,6 +52,8 @@ import BrandOnboarding from "@/pages/brand-onboarding";
 import Welcome from "@/pages/welcome";
 import AuthSuccess from "@/pages/auth-success";
 import Login from "@/pages/login";
+import AuthLogin from "@/pages/auth-login";
+import LoginPrompt from "@/components/LoginPrompt";
 import DomainHelp from "@/pages/domain-help";
 
 // Removed duplicate photoshoot imports - using existing system
@@ -98,9 +100,8 @@ function ProtectedRoute({ component: Component, ...props }) {
   }
   
   if (!isAuthenticated) {
-    // Redirect to login for unauthenticated users
-    window.location.href = '/api/login';
-    return null;
+    // Show branded login instead of direct API redirect
+    return <LoginPrompt title="Authentication Required" message="Please sign in to access this feature" />;
   }
   
   return <Component {...props} />;
@@ -145,7 +146,9 @@ function Router() {
       <Route path="/thank-you" component={ThankYou} />
       <Route path="/payment-success" component={PaymentSuccess} />
       <Route path="/auth-success" component={AuthSuccess} />
-      <Route path="/login" component={Login} />
+      <Route path="/login" component={AuthLogin} />
+      <Route path="/auth" component={AuthLogin} />
+      <Route path="/sign-in" component={AuthLogin} />
 
       {/* PROTECTED ROUTES */}
       <Route path="/workspace" component={(props) => <ProtectedRoute component={Workspace} {...props} />} />
