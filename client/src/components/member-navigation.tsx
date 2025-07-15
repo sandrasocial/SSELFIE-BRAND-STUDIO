@@ -52,9 +52,7 @@ export function MemberNavigation({ transparent = true }: MemberNavigationProps) 
     window.location.href = '/api/logout';
   };
 
-  const handleSwitchAccount = () => {
-    window.location.href = '/api/switch-account';
-  };
+
 
   return (
     <nav className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${
@@ -92,12 +90,7 @@ export function MemberNavigation({ transparent = true }: MemberNavigationProps) 
                 {item.label}
               </button>
             ))}
-            <button
-              onClick={handleSwitchAccount}
-              className="text-xs uppercase tracking-[0.4em] text-white/80 hover:text-white transition-all duration-300"
-            >
-              Switch Account
-            </button>
+
             <button
               onClick={handleLogout}
               className="text-xs uppercase tracking-[0.4em] text-white/80 hover:text-white transition-all duration-300"
@@ -136,15 +129,7 @@ export function MemberNavigation({ transparent = true }: MemberNavigationProps) 
                 {item.label}
               </button>
             ))}
-            <button
-              onClick={() => {
-                handleSwitchAccount();
-                setMobileMenuOpen(false);
-              }}
-              className="text-sm uppercase tracking-[0.4em] text-white/70 hover:text-white transition-all duration-300"
-            >
-              Switch Account
-            </button>
+
             <button
               onClick={() => {
                 handleLogout();
