@@ -182,7 +182,7 @@ export default function RachelChat() {
                 >
                   <option value="">Select campaign type...</option>
                   <option value="launch_announcement">Launch Announcement</option>
-                  <option value="demo_showcase">Demo Showcase</option>
+                  {/* Demo option removed - real campaigns only */}
                   <option value="direct_sales">Direct Sales</option>
                   <option value="nurture_sequence">Nurture Sequence</option>
                   <option value="win_back">Win Back Campaign</option>

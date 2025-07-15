@@ -709,7 +709,7 @@ function ResultsStep({ generatedImages, selectedImages, onImageSelection, onUseT
                       alt={`Generated ${latestGeneration.category} ${latestGeneration.subcategory} option ${index + 1}`}
                       className="w-full h-64 object-cover border border-[#e5e5e5]"
                       onError={(e) => {
-                        // Fallback to Sandra gallery if image fails to load
+                        // Image loading failed - user must train their own model
                         (e.target as HTMLImageElement).src = SandraImages.aiGallery[index % SandraImages.aiGallery.length];
                       }}
                     />
