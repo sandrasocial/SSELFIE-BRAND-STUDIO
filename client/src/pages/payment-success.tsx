@@ -17,17 +17,71 @@ export default function PaymentSuccess() {
     const urlParams = new URLSearchParams(window.location.search);
     const plan = urlParams.get('plan');
     
-    // Show success message regardless of auth status
-    toast({
-      title: "Payment Successful!",
-      description: "Welcome to SSELFIE Studio! Please sign in to access your account.",
-    });
+    // If user is authenticated and we have a plan, trigger upgrade immediately
+    if (isAuthenticated && user && plan) {
+      triggerUserUpgrade(plan);
+    } else {
+      // Show success message and store plan for later
+      toast({
+        title: "Payment Successful!",
+        description: "Welcome to SSELFIE Studio! Please sign in to access your account.",
+      });
 
-    // Store the plan for after authentication
-    if (plan) {
-      localStorage.setItem('userPlan', plan);
+      // Store the plan for after authentication
+      if (plan) {
+        localStorage.setItem('userPlan', plan);
+      }
     }
-  }, [toast]);
+  }, [toast, isAuthenticated, user]);
+
+  // Trigger upgrade automation after successful payment
+  const triggerUserUpgrade = async (plan: string) => {
+    try {
+      // Method 1: Try with authenticated user data
+      if (user?.email) {
+        const upgradeResponse = await fetch('/api/upgrade-user', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            email: user.email,
+            plan: plan === 'ai-pack' ? 'sselfie-studio' : 'sselfie-studio'
+          })
+        });
+
+        if (upgradeResponse.ok) {
+          const upgradeData = await upgradeResponse.json();
+          console.log('✅ User upgrade successful:', upgradeData);
+          
+          toast({
+            title: "Account Upgraded!",
+            description: `Welcome to SSELFIE Studio! You now have ${upgradeData.upgradeDetails.monthlyLimit} monthly generations.`,
+          });
+          
+          // Clear stored plan
+          localStorage.removeItem('userPlan');
+          return;
+        }
+      }
+
+      // Method 2: Fallback to automation endpoints (if authenticated)
+      if (isAuthenticated) {
+        await fetch('/api/automation/update-subscription', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          credentials: 'include',
+          body: JSON.stringify({ plan: plan === 'ai-pack' ? 'sselfie-studio' : 'sselfie-studio' })
+        });
+        
+        toast({
+          title: "Account Upgraded!",
+          description: "Welcome to SSELFIE Studio Premium!",
+        });
+      }
+    } catch (error) {
+      console.error('Upgrade automation failed:', error);
+      // Don't show error to user - they still got their payment processed
+    }
+  };
 
   // Get plan details from URL
   const urlParams = new URLSearchParams(window.location.search);

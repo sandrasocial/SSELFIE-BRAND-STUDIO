@@ -101,6 +101,10 @@ export interface IStorage {
   getSubscription(userId: string): Promise<Subscription | undefined>;
   getUserSubscription(userId: string): Promise<Subscription | undefined>;
   createSubscription(data: InsertSubscription): Promise<Subscription>;
+  updateSubscription(id: number, updates: Partial<Subscription>): Promise<Subscription>;
+  
+  // User plan upgrade operations
+  upgradeUserToPremium(userId: string, plan: string): Promise<User>;
   
   // Usage operations
   getUserUsage(userId: string): Promise<UserUsage | undefined>;
@@ -959,6 +963,73 @@ export class DatabaseStorage implements IStorage {
       console.error('Error checking unlimited generations:', error);
       return false;
     }
+  }
+
+  // Missing subscription methods implementation
+  async getSubscription(userId: string): Promise<Subscription | undefined> {
+    const [subscription] = await db
+      .select()
+      .from(subscriptions)
+      .where(eq(subscriptions.userId, userId));
+    return subscription;
+  }
+
+  async getUserSubscription(userId: string): Promise<Subscription | undefined> {
+    return this.getSubscription(userId);
+  }
+
+  async createSubscription(data: InsertSubscription): Promise<Subscription> {
+    const [subscription] = await db
+      .insert(subscriptions)
+      .values(data)
+      .returning();
+    return subscription;
+  }
+
+  async updateSubscription(id: number, updates: Partial<Subscription>): Promise<Subscription> {
+    const [subscription] = await db
+      .update(subscriptions)
+      .set({ ...updates, updatedAt: new Date() })
+      .where(eq(subscriptions.id, id))
+      .returning();
+    return subscription;
+  }
+
+  // User plan upgrade method
+  async upgradeUserToPremium(userId: string, plan: string): Promise<User> {
+    console.log(`🔄 Upgrading user ${userId} to plan: ${plan}`);
+    
+    // Update user plan
+    const [updatedUser] = await db
+      .update(users)
+      .set({ 
+        plan: plan,
+        monthlyGenerationLimit: plan === 'sselfie-studio' ? 100 : 100, // 100 generations for premium
+        mayaAiAccess: true,
+        victoriaAiAccess: true,
+        updatedAt: new Date()
+      })
+      .where(eq(users.id, userId))
+      .returning();
+
+    // Create or update subscription record
+    const existingSubscription = await this.getSubscription(userId);
+    
+    if (existingSubscription) {
+      await this.updateSubscription(existingSubscription.id, {
+        plan: plan,
+        status: 'active'
+      });
+    } else {
+      await this.createSubscription({
+        userId,
+        plan,
+        status: 'active'
+      });
+    }
+
+    console.log(`✅ User ${userId} successfully upgraded to ${plan}`);
+    return updatedUser;
   }
 }
 
