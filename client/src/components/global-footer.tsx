@@ -40,7 +40,7 @@ export const GlobalFooter: React.FC = () => {
                 </Link>
               </li>
               <li>
-                <Link href="/flatlay-library" className="text-white/60 hover:text-white transition-colors text-sm">
+                <Link href="/flatlays" className="text-white/60 hover:text-white transition-colors text-sm">
                   Flatlay Library
                 </Link>
               </li>
