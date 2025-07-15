@@ -4214,6 +4214,11 @@ Consider this workflow optimized and ready for implementation! ⚙️`
     }
   });
 
+  // Add authentication test route
+  app.get('/test-auth-flow.html', (req, res) => {
+    res.sendFile('test-auth-flow.html', { root: '.' });
+  });
+
   const httpServer = createServer(app);
   return httpServer;
 }

@@ -1,102 +1,88 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>Auth Flow Test</title>
+    <title>SSELFIE Authentication Test</title>
     <style>
-        body { font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; }
-        .step { margin: 20px 0; padding: 15px; border: 1px solid #ddd; border-radius: 5px; }
-        .result { margin: 10px 0; padding: 10px; background: #f5f5f5; border-radius: 3px; }
-        button { padding: 10px 20px; margin: 10px 0; }
+        body { font-family: Arial, sans-serif; max-width: 800px; margin: 0 auto; padding: 20px; }
+        .test-section { margin: 20px 0; padding: 15px; border: 1px solid #ddd; }
+        .status { font-weight: bold; }
         .success { color: green; }
         .error { color: red; }
-        .info { color: blue; }
+        .pending { color: orange; }
+        button { padding: 10px 20px; margin: 5px; cursor: pointer; }
     </style>
 </head>
 <body>
-    <h1>SSELFIE Authentication Flow Test</h1>
-    <p><strong>Status:</strong> Testing authentication flow on domain: <span id="current-domain"></span></p>
+    <h1>SSELFIE Studio Authentication Test</h1>
     
-    <div class="step">
-        <h3>Step 1: Check Authentication Status</h3>
-        <button onclick="checkAuth()">Check Auth Status</button>
-        <div id="auth-result" class="result"></div>
+    <div class="test-section">
+        <h3>Current Domain: <span id="currentDomain"></span></h3>
+        <p>Testing authentication flow for development and production domains.</p>
     </div>
-    
-    <div class="step">
-        <h3>Step 2: Start Google Login</h3>
-        <button onclick="startLogin()">Start Google Login</button>
-        <div id="login-result" class="result"></div>
+
+    <div class="test-section">
+        <h3>Authentication Status</h3>
+        <div id="authStatus" class="status pending">Checking...</div>
+        <button onclick="checkAuth()">Refresh Auth Status</button>
     </div>
-    
-    <div class="step">
-        <h3>Step 3: Test After Login</h3>
-        <button onclick="testAfterLogin()">Test After Login</button>
-        <div id="after-login-result" class="result"></div>
+
+    <div class="test-section">
+        <h3>Login Flow Test</h3>
+        <button onclick="testLogin()">Test Login Flow</button>
+        <button onclick="testLogout()">Test Logout</button>
+        <div id="loginStatus"></div>
     </div>
-    
-    <div class="step">
-        <h3>Step 4: Logout</h3>
-        <button onclick="logout()">Logout</button>
-        <div id="logout-result" class="result"></div>
+
+    <div class="test-section">
+        <h3>Domain Redirect Test</h3>
+        <button onclick="window.open('https://sselfie.ai/api/login', '_blank')">Test Production Login</button>
+        <button onclick="window.open('/api/login', '_blank')">Test Current Domain Login</button>
     </div>
 
     <script>
+        // Set current domain
+        document.getElementById('currentDomain').textContent = window.location.hostname;
+
         async function checkAuth() {
-            const resultDiv = document.getElementById('auth-result');
+            const statusEl = document.getElementById('authStatus');
+            statusEl.textContent = 'Checking...';
+            statusEl.className = 'status pending';
+            
             try {
-                const response = await fetch('/api/auth/user', {
-                    credentials: 'include'
+                const response = await fetch('/api/auth/user', { 
+                    credentials: 'include',
+                    cache: 'no-cache'
                 });
                 
                 if (response.ok) {
                     const user = await response.json();
-                    resultDiv.innerHTML = `<div class="success">✅ Authenticated as: ${user.email} (${user.id})</div>`;
+                    statusEl.textContent = `✅ Authenticated as: ${user.email}`;
+                    statusEl.className = 'status success';
+                } else if (response.status === 401) {
+                    statusEl.textContent = '❌ Not authenticated (401)';
+                    statusEl.className = 'status error';
                 } else {
-                    resultDiv.innerHTML = `<div class="error">❌ Not authenticated (${response.status})</div>`;
+                    statusEl.textContent = `❌ Error: ${response.status}`;
+                    statusEl.className = 'status error';
                 }
             } catch (error) {
-                resultDiv.innerHTML = `<div class="error">❌ Error: ${error.message}</div>`;
+                statusEl.textContent = `❌ Network error: ${error.message}`;
+                statusEl.className = 'status error';
             }
         }
-        
-        function startLogin() {
-            const resultDiv = document.getElementById('login-result');
-            resultDiv.innerHTML = '<div class="info">🔄 Redirecting to Google...</div>';
+
+        function testLogin() {
+            document.getElementById('loginStatus').innerHTML = 'Redirecting to login...';
             window.location.href = '/api/login';
         }
-        
-        async function testAfterLogin() {
-            const resultDiv = document.getElementById('after-login-result');
-            try {
-                const response = await fetch('/api/auth/user', {
-                    credentials: 'include'
-                });
-                
-                if (response.ok) {
-                    const user = await response.json();
-                    resultDiv.innerHTML = `<div class="success">✅ Login successful! User: ${user.email}</div>`;
-                } else {
-                    resultDiv.innerHTML = `<div class="error">❌ Login failed (${response.status})</div>`;
-                }
-            } catch (error) {
-                resultDiv.innerHTML = `<div class="error">❌ Error: ${error.message}</div>`;
-            }
+
+        function testLogout() {
+            document.getElementById('loginStatus').innerHTML = 'Logging out...';
+            window.location.href = '/api/logout';
         }
-        
-        async function logout() {
-            const resultDiv = document.getElementById('logout-result');
-            try {
-                window.location.href = '/api/logout';
-            } catch (error) {
-                resultDiv.innerHTML = `<div class="error">❌ Error: ${error.message}</div>`;
-            }
-        }
-        
-        // Auto-check auth status on page load
-        window.onload = function() {
-            document.getElementById('current-domain').textContent = window.location.hostname;
-            checkAuth();
-        };
+
+        // Check auth on page load
+        window.onload = checkAuth;
     </script>
 </body>
 </html>
