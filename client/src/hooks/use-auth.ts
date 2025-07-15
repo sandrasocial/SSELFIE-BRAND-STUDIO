@@ -3,57 +3,60 @@ import { useQuery } from "@tanstack/react-query";
 export function useAuth() {
   const { data: user, isLoading, error, isStale } = useQuery({
     queryKey: ["/api/auth/user"],
-    retry: 1, // Allow one retry
-    retryDelay: 500, // Wait 500ms before retry
+    retry: false, // CRITICAL: Disable retry to prevent infinite loading
     refetchOnWindowFocus: false,
     refetchOnMount: true,
     refetchOnReconnect: false,
-    staleTime: 30 * 1000, // Consider fresh for 30 seconds to prevent rapid re-checks
-    gcTime: 10 * 60 * 1000, // 10 minutes
+    staleTime: 60 * 1000, // Consider fresh for 60 seconds
+    gcTime: 5 * 60 * 1000, // 5 minutes cache
     throwOnError: false,
     queryFn: async () => {
+      console.log('🔍 Auth check: Making request to /api/auth/user');
+      
       try {
         const response = await fetch('/api/auth/user', {
           credentials: 'include',
-          cache: 'no-cache' // Always check with server
+          cache: 'no-cache'
         });
         
+        console.log('🔍 Auth check: Response status:', response.status);
+        
         if (!response.ok) {
-          // For 401 errors, return null (not authenticated)
           if (response.status === 401) {
-            return null;
+            console.log('🔍 Auth check: User not authenticated (401)');
+            return null; // Not authenticated
           }
-          throw new Error(`Authentication check failed: ${response.status}`);
+          throw new Error(`Auth failed: ${response.status}`);
         }
         
         const userData = await response.json();
-        console.log('Auth check successful:', userData.email);
+        console.log('✅ Auth check: User authenticated:', userData.email);
         return userData;
       } catch (error) {
-        console.log('Auth check failed:', error.message);
-        // For any error, treat as not authenticated
-        return null;
+        console.log('❌ Auth check: Error:', error.message);
+        return null; // Treat errors as not authenticated
       }
     }
   });
 
-  // User is authenticated only if data exists, is not null, and has valid user properties
+  // CRITICAL: Determine authentication state
   const isAuthenticated = !!(user && user.id);
+  
+  // CRITICAL: Don't consider it loading if we got a definitive answer (even if null)
+  const actuallyLoading = isLoading && user === undefined;
 
-  // Enhanced logging for debugging
-  if (process.env.NODE_ENV === 'development') {
-    console.log('useAuth state:', { 
-      isAuthenticated, 
-      isLoading, 
-      hasUser: !!user, 
-      userId: user?.id,
-      isStale 
-    });
-  }
+  console.log('🔍 useAuth final state:', { 
+    isAuthenticated, 
+    actuallyLoading, 
+    hasUser: !!user, 
+    userId: user?.id,
+    rawLoading: isLoading,
+    userData: user
+  });
 
   return {
     user,
-    isLoading,
+    isLoading: actuallyLoading, // Fixed loading state
     isAuthenticated,
     error,
     isStale
