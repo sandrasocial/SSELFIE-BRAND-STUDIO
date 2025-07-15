@@ -96,6 +96,7 @@ function SmartHome() {
 // Protected wrapper component that handles authentication
 function ProtectedRoute({ component: Component, ...props }) {
   const { isAuthenticated, isLoading, user } = useAuth();
+  const [shouldRedirect, setShouldRedirect] = React.useState(false);
   
   // Enhanced logging for debugging navigation issues
   React.useEffect(() => {
@@ -103,6 +104,19 @@ function ProtectedRoute({ component: Component, ...props }) {
       console.log('ProtectedRoute state:', { isAuthenticated, isLoading, hasUser: !!user });
     }
   }, [isAuthenticated, isLoading, user]);
+  
+  // Handle redirect timing - hooks must be at top level
+  React.useEffect(() => {
+    if (!isAuthenticated && !isLoading) {
+      const timer = setTimeout(() => {
+        setShouldRedirect(true);
+      }, 100); // 100ms delay to allow authentication state to stabilize
+      
+      return () => clearTimeout(timer);
+    } else {
+      setShouldRedirect(false);
+    }
+  }, [isAuthenticated, isLoading]);
   
   if (isLoading) {
     return (
@@ -113,17 +127,6 @@ function ProtectedRoute({ component: Component, ...props }) {
   }
   
   if (!isAuthenticated) {
-    // Add a small delay to prevent unnecessary redirects during state changes
-    const [shouldRedirect, setShouldRedirect] = React.useState(false);
-    
-    React.useEffect(() => {
-      const timer = setTimeout(() => {
-        setShouldRedirect(true);
-      }, 100); // 100ms delay to allow authentication state to stabilize
-      
-      return () => clearTimeout(timer);
-    }, []);
-    
     if (!shouldRedirect) {
       return (
         <div className="min-h-screen flex items-center justify-center">
