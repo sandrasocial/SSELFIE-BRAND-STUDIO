@@ -861,11 +861,13 @@ Create prompts that feel like iconic fashion campaign moments that would make so
       const { trackerId } = req.params;
       const tracker = await storage.getGenerationTracker(parseInt(trackerId));
       
+      console.log('🔍 Tracker lookup:', { trackerId, found: !!tracker });
+      
       if (!tracker) {
         return res.status(404).json({ error: 'Generation tracker not found' });
       }
       
-      // Verify user owns this tracker - convert auth ID to database ID
+      // Verify user owns this tracker - handle both auth ID and database ID
       const authUserId = req.user.claims.sub;
       const claims = req.user.claims;
       
@@ -879,8 +881,12 @@ Create prompts that feel like iconic fashion campaign moments that would make so
         return res.status(404).json({ error: 'User not found' });
       }
       
-      const userId = user.id;
-      if (tracker.userId !== userId) {
+      const dbUserId = user.id;
+      console.log('🔐 Auth verification:', { authUserId, dbUserId, trackerUserId: tracker.userId });
+      
+      // Check if tracker belongs to this user (tracker stores database ID)
+      if (tracker.userId !== dbUserId) {
+        console.log('❌ Auth mismatch - tracker belongs to different user');
         return res.status(403).json({ error: 'Unauthorized access to tracker' });
       }
       
