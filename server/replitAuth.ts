@@ -184,6 +184,12 @@ export async function setupAuth(app: Express) {
       console.log(`🔍 Login requested for hostname: ${hostname}`);
       console.log(`🔍 Available strategies: ${req.app.locals.authDomains.join(', ')}`);
       
+      // CRITICAL: For localhost development, redirect to production domain for authentication
+      if (hostname === 'localhost' || hostname.includes('localhost')) {
+        console.log('🔄 Localhost detected - redirecting to sselfie.ai for authentication');
+        return res.redirect('https://sselfie.ai/api/login');
+      }
+      
       const hasStrategy = req.app.locals.authDomains.includes(hostname);
       
       // CRITICAL: Use the correct strategy for each domain
