@@ -78,6 +78,20 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Quick auth test endpoint (no auth required)
+  app.get('/api/quick-auth-test', (req, res) => {
+    const authStatus = {
+      isAuthenticated: req.isAuthenticated?.() || false,
+      hasUser: !!req.user,
+      userId: req.user?.id || null,
+      userEmail: req.user?.email || null,
+      sessionId: req.sessionID,
+      timestamp: new Date().toISOString()
+    };
+    
+    res.json(authStatus);
+  });
+
   // Debug route to check OAuth configuration
   app.get('/api/debug-oauth', async (req, res) => {
     try {
@@ -3935,9 +3949,25 @@ Consider this workflow optimized and ready for implementation! ⚙️`
   });
 
   // Test auth flow route
-  app.get('/test-auth-flow.html', (req, res) => {
+  app.get('/test-auth-flow', (req, res) => {
     res.sendFile(path.join(process.cwd(), 'test-auth-flow.html'));
   });
+
+  // Quick auth test endpoint (no auth required)
+  app.get('/api/quick-auth-test', (req, res) => {
+    const authStatus = {
+      isAuthenticated: req.isAuthenticated?.() || false,
+      hasUser: !!req.user,
+      userId: req.user?.id || null,
+      userEmail: req.user?.email || null,
+      sessionId: req.sessionID,
+      timestamp: new Date().toISOString()
+    };
+    
+    res.json(authStatus);
+  });
+
+
 
   const httpServer = createServer(app);
   return httpServer;
