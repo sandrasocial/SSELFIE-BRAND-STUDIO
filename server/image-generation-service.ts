@@ -78,15 +78,15 @@ export async function generateImages(request: GenerateImagesRequest): Promise<Ge
       finalPrompt = `${finalPrompt}${hairEnhancementSpecs}`;
     }
 
-    // Build input with user's individual trained model - OPTIMIZED FOR LIKENESS
+    // Build input with user's individual trained model - BALANCED FOR PURE LIKENESS
     const input: any = {
       prompt: finalPrompt,
-      guidance: 3.5,              // 🔧 HIGHER: Stronger adherence to user's trained features
-      num_inference_steps: 50,    // 🔧 MORE STEPS: Higher quality and better likeness
+      guidance: 2.5,              // 🔧 BALANCED: Let user's model dominate without base model interference
+      num_inference_steps: 28,    // 🔧 OPTIMAL: Standard steps for trained models to avoid over-processing
       num_outputs: 3,
       aspect_ratio: "3:4",
       output_format: "png",
-      output_quality: 95,         // 🔧 PREMIUM: Highest quality output
+      output_quality: 90,         // 🔧 HIGH: Good quality without over-enhancement
       megapixels: "1",
       go_fast: false,
       disable_safety_checker: false

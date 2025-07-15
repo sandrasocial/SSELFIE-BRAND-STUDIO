@@ -240,12 +240,12 @@ export class AIService {
       version: userModelVersion, // Use user's trained model directly
       input: {
         prompt: enhancedPrompt,
-        guidance: 3.5,              // 🔧 INCREASED: Higher guidance for stronger likeness 
-        num_inference_steps: 50,    // 🔧 INCREASED: More steps for better quality
+        guidance: 2.5,              // 🔧 BALANCED: Let user's model dominate without base model interference
+        num_inference_steps: 28,    // 🔧 OPTIMAL: Standard steps for trained models to avoid over-processing
         num_outputs: 3,
         aspect_ratio: "3:4",
         output_format: "png",
-        output_quality: 95,         // 🔧 INCREASED: Higher quality output
+        output_quality: 90,         // 🔧 HIGH: Good quality without over-enhancement
         megapixels: "1",
         go_fast: false,
         disable_safety_checker: false
