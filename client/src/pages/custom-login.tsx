@@ -8,10 +8,11 @@ export default function CustomLogin() {
   const { isAuthenticated } = useAuth();
 
   // Redirect if already authenticated
-  if (isAuthenticated) {
-    setLocation("/workspace");
-    return null;
-  }
+  React.useEffect(() => {
+    if (isAuthenticated) {
+      setLocation("/workspace");
+    }
+  }, [isAuthenticated, setLocation]);
 
   const handleLogin = async () => {
     setIsLoading(true);

@@ -109,6 +109,9 @@ export async function setupAuth(app: Express) {
     domains.push('localhost');
   }
   
+  // Make domains available in the route handlers
+  app.locals.authDomains = domains;
+  
   for (const domain of domains) {
     const callbackURL = domain === 'localhost' 
       ? `http://localhost:5000/api/callback`
@@ -143,6 +146,31 @@ export async function setupAuth(app: Express) {
       }
     }
     
+    // Get the correct hostname for strategy matching
+    let hostname = req.hostname;
+    
+    // Special handling for development
+    if (hostname === 'localhost' || hostname.includes('localhost')) {
+      hostname = 'localhost';
+    }
+    
+    console.log(`🔍 Login requested for hostname: ${hostname}`);
+    console.log(`🔍 Available strategies: ${req.app.locals.authDomains.join(', ')}`);
+    
+    // Check if we have a strategy for this hostname
+    const strategyName = `replitauth:${hostname}`;
+    const hasStrategy = req.app.locals.authDomains.includes(hostname);
+    
+    if (!hasStrategy) {
+      console.error(`❌ No auth strategy found for hostname: ${hostname}`);
+      console.error(`❌ Available domains: ${req.app.locals.authDomains.join(', ')}`);
+      return res.status(500).json({ 
+        error: 'Authentication not configured for this domain',
+        hostname,
+        availableDomains: req.app.locals.authDomains
+      });
+    }
+    
     const authOptions: any = {
       scope: ["openid", "email", "profile", "offline_access"],
     };
@@ -155,11 +183,20 @@ export async function setupAuth(app: Express) {
       console.log('🔍 Login requested - starting authentication flow');
     }
     
-    passport.authenticate(`replitauth:${req.hostname}`, authOptions)(req, res, next);
+    passport.authenticate(strategyName, authOptions)(req, res, next);
   });
 
   app.get("/api/callback", (req, res, next) => {
-    passport.authenticate(`replitauth:${req.hostname}`, {
+    let hostname = req.hostname;
+    
+    // Special handling for development
+    if (hostname === 'localhost' || hostname.includes('localhost')) {
+      hostname = 'localhost';
+    }
+    
+    console.log(`🔍 OAuth callback for hostname: ${hostname}`);
+    
+    passport.authenticate(`replitauth:${hostname}`, {
       successRedirect: `${req.protocol}://${req.get('host')}/workspace`,
       failureRedirect: `${req.protocol}://${req.get('host')}/api/login`,
     })(req, res, next);
