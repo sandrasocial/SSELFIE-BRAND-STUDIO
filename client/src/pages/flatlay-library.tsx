@@ -2,7 +2,7 @@ import { useState, useCallback } from 'react';
 import { useAuth } from "@/hooks/use-auth";
 import { useToast } from "@/hooks/use-toast";
 import { useQueryClient } from "@tanstack/react-query";
-import { HeroFullBleed } from '@/components/HeroFullBleed';
+import { HeroFullBleed } from '@/components/hero-full-bleed';
 import { MemberNavigation } from '@/components/member-navigation';
 import { SandraImages } from '@/lib/sandra-images';
 
@@ -4058,7 +4058,7 @@ export default function FlatlayLibrary() {
         title="Flatlay Library"
         subtitle="Professional styled flatlays to elevate your brand"
         backgroundImage={SandraImages.flatlays.workspace1}
-        textPosition="center"
+        alignment="center"
       />
 
       {/* Collection Selector */}
