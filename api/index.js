@@ -6,20 +6,13 @@ import cors from 'cors';
 import Stripe from 'stripe';
 import path from 'path';
 import { fileURLToPath } from 'url';
-import { Pool } from 'pg';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
 const app = express();
 
-// Initialize PostgreSQL pool for session checking
-const pool = new Pool({
-  connectionString: process.env.DATABASE_URL,
-  ssl: {
-    rejectUnauthorized: false
-  }
-});
+// Simple session configuration for production
 
 // CORS configuration for production
 app.use(cors({
@@ -42,7 +35,7 @@ if (!process.env.STRIPE_SECRET_KEY) {
   });
 }
 
-// Session configuration for production - NO DOMAIN RESTRICTION
+// Simple session configuration for production
 app.use(session({
   secret: process.env.SESSION_SECRET || 'production-session-secret',
   resave: false,
@@ -52,7 +45,6 @@ app.use(session({
     httpOnly: true,
     maxAge: 7 * 24 * 60 * 60 * 1000, // 1 week
     sameSite: 'lax'
-    // REMOVED: domain restriction for cross-domain compatibility
   }
 }));
 
@@ -90,7 +82,7 @@ app.get('/api/logout', (req, res) => {
   }
 });
 
-app.get('/api/auth/user', async (req, res) => {
+app.get('/api/auth/user', (req, res) => {
   console.log('🔄 Production /api/auth/user - checking session');
   console.log('🔄 Session ID:', req.sessionID);
   console.log('🔄 Session exists:', !!req.session);
@@ -114,44 +106,11 @@ app.get('/api/auth/user', async (req, res) => {
       generationsUsedThisMonth: req.session.passport.user.generationsUsedThisMonth || 0
     };
     
+    console.log('✅ Returning user data:', userData);
     return res.json(userData);
   }
   
-  console.log('❌ No session data found - checking if session exists in database');
-  
-  // Check if session exists in database directly
-  try {
-    const sessionCheck = await pool.query(
-      'SELECT sess FROM sessions WHERE sid = $1',
-      [req.sessionID]
-    );
-    
-    if (sessionCheck.rows.length > 0) {
-      console.log('✅ Session found in database:', sessionCheck.rows[0].sess);
-      const sessionData = sessionCheck.rows[0].sess;
-      
-      if (sessionData.passport?.user) {
-        console.log('✅ User found in session data');
-        const userData = {
-          id: sessionData.passport.user.id || sessionData.passport.user,
-          email: sessionData.passport.user.email || 'unknown@example.com',
-          firstName: sessionData.passport.user.firstName || 'User',
-          lastName: sessionData.passport.user.lastName || '',
-          profileImageUrl: sessionData.passport.user.profileImageUrl || null,
-          plan: sessionData.passport.user.plan || 'free',
-          role: sessionData.passport.user.role || 'user',
-          monthlyGenerationLimit: sessionData.passport.user.monthlyGenerationLimit || 5,
-          generationsUsedThisMonth: sessionData.passport.user.generationsUsedThisMonth || 0
-        };
-        
-        return res.json(userData);
-      }
-    }
-    
-    console.log('❌ No valid session found in database');
-  } catch (error) {
-    console.error('❌ Database session check error:', error);
-  }
+  console.log('❌ No session data found - user not authenticated');
   
   // No session, return 401
   res.status(401).json({ message: "Not authenticated - no session data" });
