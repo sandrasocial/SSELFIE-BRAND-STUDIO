@@ -40,18 +40,20 @@ export const flatlayCollections: FlatlayCollection[] = [
     name: "Editorial Magazine",
     description: "High-fashion editorial sophistication",
     images: [
-      "/attached_assets/editorial-1.jpg",
-      "/attached_assets/editorial-2.jpg",
-      "/attached_assets/editorial-3.jpg",
-      "/attached_assets/editorial-4.jpg",
-      "/attached_assets/editorial-5.jpg",
-      "/attached_assets/editorial-6.jpg",
-      "/attached_assets/editorial-7.jpg",
-      "/attached_assets/editorial-8.jpg",
-      "/attached_assets/editorial-9.jpg",
-      "/attached_assets/editorial-10.jpg",
-      "/attached_assets/editorial-11.jpg",
-      "/attached_assets/editorial-12.jpg"
+      "https://i.postimg.cc/02VLGyr8/1.png",
+      "https://i.postimg.cc/xjR7Y1vK/10.png",
+      "https://i.postimg.cc/TwC83VLX/100.png",
+      "https://i.postimg.cc/90nvGcY8/101.png",
+      "https://i.postimg.cc/j25pwDPn/102.png",
+      "https://i.postimg.cc/9F43cqcv/103.png",
+      "https://i.postimg.cc/QNYGLqZQ/104.png",
+      "https://i.postimg.cc/fT1GyTLk/105.png",
+      "https://i.postimg.cc/rwWvrX0j/106.png",
+      "https://i.postimg.cc/CKg9CPbg/107.png",
+      "https://i.postimg.cc/hG162L07/108.png",
+      "https://i.postimg.cc/636Sg8Hb/109.png",
+      "https://i.postimg.cc/hPtYGRsN/11.png",
+      "https://i.postimg.cc/gJM5WGQz/110.png"
     ]
   },
   {
