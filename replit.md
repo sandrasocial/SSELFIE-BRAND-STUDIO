@@ -369,7 +369,7 @@ The platform has become overly complex with multiple pricing tiers, broken onboa
 - Removed PaymentVerification wrapper from 4 critical member pages 
 - Maintained authentication protection via MemberNavigation and useAuth hooks
 - Usage limits properly enforced at API level via plan-based tracking
-- Free users get 5 generations/month, premium users get 100 generations/month
+- Free users get 6 generations/month (2 complete sessions of 3 images each), premium users get 100 generations/month
 - Training limits enforced: free users get 1 training, premium users get unlimited retraining
 
 ### ✅ PRODUCTION LAUNCH READY - SSELFIE.AI (July 15, 2025)
