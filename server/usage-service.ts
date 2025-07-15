@@ -101,6 +101,22 @@ export class UsageService {
 
   // Check if user can generate images
   static async checkUsageLimit(userId: string): Promise<UsageCheck> {
+    // CRITICAL: Check if user is admin first
+    const user = await storage.getUser(userId);
+    const adminEmails = ['ssa@ssasocial.com', 'sandrajonna@gmail.com', 'sandra@sselfie.ai'];
+    
+    // Admin users get unlimited access
+    if (user && adminEmails.includes(user.email)) {
+      console.log(`👑 Admin user detected: ${user.email} - granting unlimited access`);
+      return {
+        canGenerate: true,
+        remainingGenerations: 999999,
+        totalUsed: 0,
+        totalAllowed: 999999,
+        reason: 'Admin: Unlimited access'
+      };
+    }
+    
     let usage = await storage.getUserUsage(userId);
     
     // Auto-initialize usage for new users with FREE plan
