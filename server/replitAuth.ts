@@ -47,7 +47,7 @@ export function getSession() {
     secret: process.env.SESSION_SECRET!,
     store: sessionStore,
     resave: false,
-    saveUninitialized: false,
+    saveUninitialized: true, // CRITICAL: Required for OAuth state verification
     rolling: true, // Extend session on each request
     cookie: {
       httpOnly: true,
