@@ -73,6 +73,14 @@ async function upsertUser(
     lastName: claims["last_name"],
     profileImageUrl: claims["profile_image_url"],
   });
+
+  // Ensure user model exists for both accounts
+  console.log('🔄 Ensuring user model exists for:', claims["email"]);
+  try {
+    await storage.ensureUserModel(claims["sub"]);
+  } catch (error) {
+    console.error('❌ Failed to ensure user model:', error);
+  }
 }
 
 export async function setupAuth(app: Express) {
@@ -111,8 +119,9 @@ export async function setupAuth(app: Express) {
   passport.deserializeUser((user: Express.User, cb) => cb(null, user));
 
   app.get("/api/login", (req, res, next) => {
+    console.log('🔍 Login requested - forcing account selection for user switching');
     passport.authenticate(`replitauth:${req.hostname}`, {
-      prompt: "login",  // Remove "consent" to skip permission screen for returning users
+      prompt: "login consent",
       scope: ["openid", "email", "profile", "offline_access"],
     })(req, res, next);
   });
@@ -125,13 +134,42 @@ export async function setupAuth(app: Express) {
   });
 
   app.get("/api/logout", (req, res) => {
+    console.log('🔍 Logout requested for user:', req.user?.claims?.email);
     req.logout(() => {
-      res.redirect(
-        client.buildEndSessionUrl(config, {
+      // Clear session completely to allow account switching
+      req.session.destroy((err) => {
+        if (err) {
+          console.error('❌ Session destroy error:', err);
+        }
+        res.clearCookie('connect.sid');
+        console.log('✅ User logged out successfully, session cleared');
+        
+        // Build end session URL with prompt=select_account for account switching
+        const endSessionUrl = client.buildEndSessionUrl(config, {
           client_id: process.env.REPL_ID!,
           post_logout_redirect_uri: `${req.protocol}://${req.hostname}`,
-        }).href
-      );
+        }).href;
+        
+        res.redirect(endSessionUrl);
+      });
+    });
+  });
+
+  // Add account switching route
+  app.get("/api/switch-account", (req, res) => {
+    console.log('🔍 Account switch requested for user:', req.user?.claims?.email);
+    req.logout(() => {
+      // Clear session completely
+      req.session.destroy((err) => {
+        if (err) {
+          console.error('❌ Session destroy error during account switch:', err);
+        }
+        res.clearCookie('connect.sid');
+        console.log('✅ Session cleared for account switch');
+        
+        // Redirect to login which will force account selection
+        res.redirect('/api/login');
+      });
     });
   });
 }

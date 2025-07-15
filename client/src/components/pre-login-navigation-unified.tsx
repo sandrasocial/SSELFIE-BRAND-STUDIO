@@ -70,7 +70,7 @@ export function PreLoginNavigationUnified({ transparent = true }: PreLoginNaviga
               className="text-xs uppercase tracking-[0.4em] text-white/80 hover:text-white no-underline"
             />
             <button
-              onClick={() => window.location.href = '/login'}
+              onClick={() => window.location.href = '/api/login'}
               className="text-xs uppercase tracking-[0.4em] text-white/80 hover:text-white transition-all duration-300"
             >
               Login

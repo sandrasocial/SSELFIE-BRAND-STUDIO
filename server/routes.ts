@@ -85,10 +85,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     });
   });
 
-  // Google OAuth test page
-  app.get('/test-google-auth', (req, res) => {
-    res.sendFile(path.join(process.cwd(), 'test-google-auth.html'));
-  });
+
 
 
 
@@ -113,24 +110,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     res.sendFile(require('path').join(__dirname, '../test-session-debug.html'));
   });
 
-  // Debug route to check OAuth configuration
-  app.get('/api/debug-oauth', async (req, res) => {
-    try {
-      const clientId = process.env.GOOGLE_CLIENT_ID;
-      const clientSecret = process.env.GOOGLE_CLIENT_SECRET;
-      
-      res.json({
-        hasClientId: !!clientId,
-        hasClientSecret: !!clientSecret,
-        clientIdPrefix: clientId ? clientId.substring(0, 20) + '...' : 'NOT_SET',
-        clientSecretPrefix: clientSecret ? clientSecret.substring(0, 20) + '...' : 'NOT_SET',
-        domains: process.env.REPLIT_DOMAINS?.split(','),
-        nodeEnv: process.env.NODE_ENV
-      });
-    } catch (error) {
-      res.status(500).json({ error: error.message });
-    }
-  });
+
 
   // Test route to simulate auth success and trigger potential errors
   app.get('/api/test-auth-success', async (req, res) => {
