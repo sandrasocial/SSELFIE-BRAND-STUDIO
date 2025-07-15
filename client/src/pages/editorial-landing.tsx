@@ -183,10 +183,10 @@ export default function EditorialLanding() {
             </button>
             
             <button
-              onClick={() => handleGetStarted('sselfie-studio')}
+              onClick={() => window.location.href = '/api/login'}
               className="hidden md:block px-6 py-3 border border-white/50 text-white text-xs uppercase tracking-[0.3em] hover:bg-white hover:text-black transition-all duration-300"
             >
-              Get Started
+              Start Here
             </button>
           </div>
         </div>
@@ -227,10 +227,10 @@ export default function EditorialLanding() {
               Login
             </button>
             <button
-              onClick={() => { handleGetStarted('sselfie-studio'); setMobileMenuOpen(false); }}
+              onClick={() => { window.location.href = '/api/login'; setMobileMenuOpen(false); }}
               className="px-8 py-4 border border-white/50 text-white text-xs uppercase tracking-[0.3em] hover:bg-white hover:text-black transition-all duration-300 mt-8"
             >
-              Get Started
+              Start Here
             </button>
             
             {/* Close Button */}
@@ -271,7 +271,7 @@ export default function EditorialLanding() {
           </p>
           
           <button
-            onClick={() => handleGetStarted('free')}
+            onClick={() => window.location.href = '/api/login'}
             className="inline-block text-[10px] sm:text-xs uppercase tracking-[0.25em] sm:tracking-[0.3em] text-white border-b border-white/30 pb-1 sm:pb-2 hover:border-white hover:tracking-[0.3em] sm:hover:tracking-[0.35em] transition-all duration-300"
           >
             START FOR FREE
