@@ -1971,10 +1971,31 @@ Create prompts that feel like iconic fashion campaign moments that would make so
       const triggerWord = `user${dbUserId.replace(/[^a-zA-Z0-9]/g, '_')}_${Date.now()}`;
       const modelName = `${dbUserId}-selfie-lora`;
 
-      // Update or create user model for training
+      // Handle retraining with usage limits
       let userModel = await storage.getUserModelByUserId(dbUserId);
       if (userModel) {
-        userModel = await storage.updateUserModel(dbUserId, {
+        // Check retraining limits (max 3 retrains per month)
+        const currentMonth = new Date().getMonth();
+        const currentYear = new Date().getFullYear();
+        
+        // Count retrains this month
+        const retrainCount = await storage.getMonthlyRetrainCount(dbUserId, currentMonth, currentYear);
+        
+        if (retrainCount >= 3) {
+          return res.status(400).json({ 
+            message: "You've reached your monthly retraining limit (3 times per month). Please try again next month or contact support.",
+            limitReached: true
+          });
+        }
+        
+        console.log(`🔄 User ${dbUserId} is retraining (${retrainCount + 1}/3 this month)`);
+        
+        // Delete old model completely before retraining
+        await storage.deleteUserModel(dbUserId);
+        
+        // Create fresh model
+        userModel = await storage.createUserModel({
+          userId: dbUserId,
           triggerWord,
           modelName,
           trainingStatus: 'training',

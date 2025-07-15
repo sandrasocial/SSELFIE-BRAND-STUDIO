@@ -463,7 +463,7 @@ export default function SimpleTraining() {
                 margin: '0 auto 40px auto',
                 opacity: 0.9
               }}>
-                Your personal SSELFIE AI model "{userModel.modelName}" is trained and ready to create stunning professional images.
+                Girl, your AI is officially trained and ready to create some seriously gorgeous photos! Time to see what magic we can make together.
               </p>
 
               <div style={{
@@ -473,7 +473,7 @@ export default function SimpleTraining() {
                 flexWrap: 'wrap',
                 marginBottom: '40px'
               }}>
-                <Link href="/sandra-photoshoot">
+                <Link href="/maya">
                   <div style={{
                     display: 'inline-block',
                     padding: '16px 32px',
