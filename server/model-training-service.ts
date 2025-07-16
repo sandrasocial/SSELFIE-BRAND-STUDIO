@@ -344,16 +344,14 @@ export class ModelTrainingService {
         throw new Error('USER_MODEL_NOT_TRAINED: User must train their AI model before generating images. No fallback models allowed.');
       }
       
-      // 🔧 CORRECT ARCHITECTURE: Use user's individual trained model directly
-      // User's model (e.g., sandrasocial/42585527-selfie-lora) is a complete trained model, not just LoRA weights
-      const userTrainedModel = userModel.replicateVersionId; // User's complete trained model
+      // Extract version hash from Replicate version ID
+      const versionHash = userModel.replicateVersionId.split(':').pop();
       
-      if (!userTrainedModel) {
-        throw new Error('User trained model not found - training may need to be redone');
+      if (!versionHash || versionHash.length < 10) {
+        throw new Error('INVALID_MODEL_VERSION: User model version is corrupted. Must retrain AI model.');
       }
       
-      // Extract just the version hash from the full model string (sandrasocial/42585527-selfie-lora:hash -> hash)
-      const versionHash = userTrainedModel.includes(':') ? userTrainedModel.split(':')[1] : userTrainedModel;
+      const modelToUse = versionHash;
       const triggerWord = userModel.triggerWord || `user${userId}`;
       
       
@@ -384,9 +382,9 @@ export class ModelTrainingService {
       let finalPrompt = `${basePrompt}, ${hairColorConsistency}, ${filmEnhancement}, ${fashionEnhancement}, ${environmentalEnhancement}, ${subtleRetouching}`;
       
 
-      // Call REAL Replicate API using base FLUX model + user's individual LoRA - CORRECT ARCHITECTURE
+      // Call REAL Replicate API for image generation with optimal realistic settings
       const requestBody = {
-        version: versionHash, // Use user's individual trained model version hash
+        version: modelToUse,
         input: {
           prompt: finalPrompt,
           negative_prompt: "portrait, headshot, passport photo, studio shot, centered face, isolated subject, corporate headshot, ID photo, school photo, posed, glossy skin, shiny skin, oily skin, plastic skin, overly polished, artificial lighting, fake appearance, heavily airbrushed, perfect skin, flawless complexion, heavy digital enhancement, strong beauty filter, unrealistic skin texture, synthetic appearance, smooth skin, airbrushed, retouched, magazine retouching, digital perfection, waxy skin, doll-like skin, porcelain skin, flawless makeup, heavy foundation, concealer, smooth face, perfect complexion, digital smoothing, beauty app filter, Instagram filter, snapchat filter, face tune, photoshop skin, shiny face, polished skin, reflective skin, wet skin, slick skin, lacquered skin, varnished skin, glossy finish, artificial shine, digital glow, skin blur, inconsistent hair color, wrong hair color, blonde hair, light hair, short hair, straight hair, flat hair, limp hair, greasy hair, stringy hair, unflattering hair, bad hair day, messy hair, unkempt hair, oily hair, lifeless hair, dull hair, damaged hair",
@@ -394,8 +392,7 @@ export class ModelTrainingService {
           aspect_ratio: "4:3", // Wider aspect for environmental scenes
           output_format: "jpg",
           output_quality: 95,
-          num_inference_steps: 35, // 🔧 EXACT: Use same perfect settings as Maya/AI Photoshoot
-          guidance: 2.89,          // 🔧 EXACT: Use same perfect settings as Maya/AI Photoshoot
+          num_inference_steps: 28, // Optimal for film-like quality (same as AI Photoshoot)
           go_fast: false, // Quality over speed
           seed: Math.floor(Math.random() * 1000000)
         }

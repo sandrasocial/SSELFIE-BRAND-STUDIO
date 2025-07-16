@@ -40,28 +40,22 @@ export async function generateImages(request: GenerateImagesRequest): Promise<Ge
     const savedImage = await storage.saveAIImage(aiImageData);
 
 
-    // 🔧 CORRECT ARCHITECTURE: Use user's individual trained model directly
-    // User's model (e.g., sandrasocial/42585527-selfie-lora) is a complete trained model, not just LoRA weights
-    const userTrainedModel = userModel.replicateVersionId; // User's complete trained model
+    // ✅ ACCOUNT CLEANED: Use user's trained model version directly
+    const userModelVersion = userModel.replicateVersionId;
     
-    if (!userTrainedModel) {
-      throw new Error('User trained model not found - training may need to be redone');
+    if (!userModelVersion) {
+      throw new Error('User model version not found - training may need to be redone after account cleanup');
     }
     
-    // Extract just the version hash from the full model string (sandrasocial/42585527-selfie-lora:hash -> hash)
-    const versionHash = userTrainedModel.includes(':') ? userTrainedModel.split(':')[1] : userTrainedModel;
-    
-    console.log(`🔧 ARCHITECTURE FIX - User: ${userId}, User Trained Model: ${userTrainedModel}, Version Hash: ${versionHash}`);
-    console.log(`🔍 CORRECT APPROACH - Using base FLUX + individual user LoRA weights`);
-    
-    // 🎯 CRITICAL: Trigger word MUST be at the very beginning for maximum likeness
+    // Ensure the prompt starts with the user's trigger word for maximum likeness
     let finalPrompt = customPrompt;
-    
-    // Remove any existing trigger word and force it to the beginning
-    finalPrompt = finalPrompt.replace(new RegExp(triggerWord, 'gi'), '').trim();
-    finalPrompt = `${triggerWord} ${finalPrompt}`;
-    
-    console.log(`🎯 LIKENESS CHECK - User: ${userId}, Trigger: "${triggerWord}", Final prompt starts with: "${finalPrompt.substring(0, 50)}..."`);
+    if (!finalPrompt.includes(triggerWord)) {
+      finalPrompt = `${triggerWord} ${customPrompt}`;
+    } else {
+      // If trigger word exists but not at start, move it to beginning
+      finalPrompt = finalPrompt.replace(triggerWord, '').trim();
+      finalPrompt = `${triggerWord} ${finalPrompt}`;
+    }
     
     // Maya AI should provide complete authentic prompts - minimal enhancement only
     const naturalTextureSpecs = ", raw photo, natural skin glow, visible texture, film grain, unretouched confidence, editorial cover portrait";
@@ -78,22 +72,19 @@ export async function generateImages(request: GenerateImagesRequest): Promise<Ge
       finalPrompt = `${finalPrompt}${hairEnhancementSpecs}`;
     }
 
-    // Build input for base FLUX model + user's individual LoRA - CORRECT ARCHITECTURE
+    // Build input with user's individual trained model
     const input: any = {
       prompt: finalPrompt,
-      guidance: 2.89,             // 🔧 EXACT: Yesterday's confirmed perfect setting
-      num_inference_steps: 35,    // 🔧 EXACT: Yesterday's confirmed perfect setting
+      guidance: 2.8,
+      num_inference_steps: 40,
       num_outputs: 3,
       aspect_ratio: "3:4",
       output_format: "png",
-      output_quality: 100,        // 🔧 EXACT: Yesterday's confirmed perfect setting
+      output_quality: 90,
       megapixels: "1",
       go_fast: false,
-      disable_safety_checker: false,
-      // LoRA settings will be added in request body
+      disable_safety_checker: false
     };
-    
-    console.log('🔍 DEBUG INPUT:', JSON.stringify(input, null, 2));
     
 
     
@@ -111,7 +102,7 @@ export async function generateImages(request: GenerateImagesRequest): Promise<Ge
             'Content-Type': 'application/json',
           },
           body: JSON.stringify({
-            version: versionHash, // Use user's individual trained model version hash
+            version: userModelVersion, // Use user's individual trained model
             input
           }),
         });
