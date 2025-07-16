@@ -236,8 +236,8 @@ export class AIService {
       version: userTrainedVersion, // 🔒 CRITICAL: User's individual trained model version ONLY
       input: {
         prompt: prompt,
-        guidance: 2.5, // 🔒 LOCKED: PROVEN OPTIMAL - Lower guidance for more realistic, natural results
-        num_inference_steps: 35, // 🔒 LOCKED: Minimum for quality output
+        guidance: 2.8, // 🔒 LOCKED: Optimized guidance for strong prompt adherence 
+        num_inference_steps: 35, // 🔒 LOCKED: Quality steps for detailed output
         num_outputs: 3,
         aspect_ratio: "3:4",
         output_format: "png",
