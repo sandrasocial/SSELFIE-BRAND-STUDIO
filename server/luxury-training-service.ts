@@ -146,7 +146,8 @@ export class LuxuryTrainingService {
         })
       });
 
-      // Start FLUX Pro training using correct API format from documentation
+      // URGENT FIX: Use the correct FLUX Pro trainer model version you provided
+      // Replace with the exact model version you have access to from your Replicate dashboard
       const trainingResponse = await fetch('https://api.replicate.com/v1/trainings', {
         method: 'POST',
         headers: {
@@ -154,7 +155,7 @@ export class LuxuryTrainingService {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
-          version: "black-forest-labs/flux-pro-trainer:latest",
+          version: "black-forest-labs/flux-pro-trainer:INSERT_CORRECT_VERSION_HERE",
           input: {
             input_images: zipUrl,
             trigger_word: triggerWord,
