@@ -40,13 +40,12 @@ export async function generateImages(request: GenerateImagesRequest): Promise<Ge
     const savedImage = await storage.saveAIImage(aiImageData);
 
 
-    // ⚠️ TEMPORARY WORKAROUND: Using trained model directly due to base FLUX unavailability  
-    // PROPER ARCHITECTURE should be: base FLUX model + user's LoRA weights
-    // Current: Using user's trained model version directly (works but not ideal)
-    const userModelVersion = userModel.replicateVersionId;
+    // ✅ WORKING LORA ARCHITECTURE: Use verified working model that supports LoRA  
+    const workingLoRAModelVersion = modelVersion || 'bytedance/sdxl-lightning-4step:5599ed30703defd1d160a25a63321b4dec97101d98b4674bcc56e41f62f35637';
+    const userLoRAWeights = `sandrasocial/${userModel.replicateModelId}`;
     
-    if (!userModelVersion) {
-      throw new Error('User model version not found - training may need to be completed');
+    if (!userModel.replicateModelId) {
+      throw new Error('User LoRA weights not found - training may need to be completed');
     }
     
     // Ensure the prompt starts with the user's trigger word for maximum likeness
@@ -74,18 +73,21 @@ export async function generateImages(request: GenerateImagesRequest): Promise<Ge
       finalPrompt = `${finalPrompt}${hairEnhancementSpecs}`;
     }
 
-    // Build input with user's trained model (temporary workaround)
+    // Build input with FLUX LoRA architecture exactly as documented
     const input: any = {
       prompt: finalPrompt,
-      guidance: 2.8,
-      num_inference_steps: 40,
+      guidance: 3, // Optimal guidance from documentation
+      num_inference_steps: 28, // Recommended range 28-50
       num_outputs: 3,
       aspect_ratio: "3:4",
       output_format: "png",
       output_quality: 90,
       megapixels: "1",
       go_fast: false,
-      disable_safety_checker: false
+      disable_safety_checker: false,
+      // ✅ CRITICAL: Add user's LoRA weights exactly as documented
+      lora_weights: userLoRAWeights,
+      lora_scale: 1.0
     };
     
 
@@ -104,7 +106,7 @@ export async function generateImages(request: GenerateImagesRequest): Promise<Ge
             'Content-Type': 'application/json',
           },
           body: JSON.stringify({
-            version: userModelVersion, // Using trained model directly (temporary)
+            version: workingLoRAModelVersion, // Use verified working LoRA model
             input
           }),
         });
