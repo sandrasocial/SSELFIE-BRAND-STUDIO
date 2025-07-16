@@ -22,6 +22,8 @@ import session from 'express-session';
 
 import { registerCheckoutRoutes } from './routes/checkout';
 import { registerAutomationRoutes } from './routes/automation';
+import { ExternalAPIService } from './integrations/external-api-service';
+import { AgentAutomationTasks } from './integrations/agent-automation-tasks';
 // Email service import moved inline to avoid conflicts
 import { sendWelcomeEmail, sendPostAuthWelcomeEmail, EmailCaptureData, WelcomeEmailData } from "./email-service";
 import { AIService } from './ai-service';
@@ -4167,6 +4169,149 @@ Consider this workflow optimized and ready for implementation! ⚙️`
         error: 'Retroactive update check failed',
         details: error.message 
       });
+    }
+  });
+
+  // ═══════════════════════════════════════════════════════════════
+  // EXTERNAL INTEGRATIONS - SANDRA'S AI AGENT AUTOMATION SYSTEM
+  // ═══════════════════════════════════════════════════════════════
+
+  // Integration Health Check - Admin only
+  app.get('/api/integrations/health', isAuthenticated, async (req: any, res) => {
+    try {
+      // Check if user is admin
+      const claims = req.user.claims;
+      if (claims.email !== 'ssa@ssasocial.com') {
+        return res.status(403).json({ error: 'Admin access required' });
+      }
+
+      const health = await ExternalAPIService.checkAllIntegrations();
+      
+      res.json({
+        status: 'checked',
+        integrations: health,
+        timestamp: new Date().toISOString(),
+        summary: {
+          total: Object.keys(health).length,
+          active: Object.values(health).filter(Boolean).length,
+          inactive: Object.values(health).filter(v => !v).length
+        }
+      });
+    } catch (error) {
+      res.status(500).json({ error: 'Failed to check integration health' });
+    }
+  });
+
+  // Flodesk Subscriber Import - Admin only
+  app.post('/api/integrations/flodesk/import', isAuthenticated, async (req: any, res) => {
+    try {
+      const claims = req.user.claims;
+      if (claims.email !== 'ssa@ssasocial.com') {
+        return res.status(403).json({ error: 'Admin access required' });
+      }
+
+      console.log('🔄 Starting Flodesk subscriber import...');
+      
+      const subscribers = await ExternalAPIService.getFlodeskSubscribers();
+      console.log(`📧 Found ${subscribers.length} Flodesk subscribers`);
+      
+      const imported = await ExternalAPIService.importSubscribersToSSELFIE(subscribers);
+      console.log(`✅ Successfully imported ${imported} subscribers`);
+      
+      res.json({
+        success: true,
+        totalFound: subscribers.length,
+        imported,
+        message: `Successfully imported ${imported} out of ${subscribers.length} Flodesk subscribers`
+      });
+    } catch (error) {
+      console.error('Flodesk import error:', error);
+      res.status(500).json({ error: 'Failed to import Flodesk subscribers' });
+    }
+  });
+
+  // Execute Agent Automation Task - Admin only
+  app.post('/api/integrations/execute-task', isAuthenticated, async (req: any, res) => {
+    try {
+      const claims = req.user.claims;
+      if (claims.email !== 'ssa@ssasocial.com') {
+        return res.status(403).json({ error: 'Admin access required' });
+      }
+
+      const { taskId, agentId, parameters } = req.body;
+      
+      if (!taskId || !agentId) {
+        return res.status(400).json({ error: 'taskId and agentId are required' });
+      }
+
+      console.log(`🤖 Executing task ${taskId} for agent ${agentId}...`);
+      
+      const result = await AgentAutomationTasks.executeTask(taskId, agentId, parameters);
+      
+      res.json({
+        success: result.success,
+        taskId,
+        agentId,
+        result: result.result,
+        error: result.error,
+        executedAt: new Date().toISOString()
+      });
+    } catch (error) {
+      res.status(500).json({ error: 'Failed to execute automation task' });
+    }
+  });
+
+  // Instagram Analytics - Admin only
+  app.get('/api/integrations/instagram/analytics', isAuthenticated, async (req: any, res) => {
+    try {
+      const claims = req.user.claims;
+      if (claims.email !== 'ssa@ssasocial.com') {
+        return res.status(403).json({ error: 'Admin access required' });
+      }
+
+      const { timeframe = 'week' } = req.query;
+      const analytics = await ExternalAPIService.getInstagramAnalytics(timeframe as any);
+      
+      res.json({
+        success: true,
+        timeframe,
+        analytics,
+        generated: new Date().toISOString()
+      });
+    } catch (error) {
+      res.status(500).json({ error: 'Failed to fetch Instagram analytics' });
+    }
+  });
+
+  // Get Agent Automation Tasks - Admin only
+  app.get('/api/integrations/agent-tasks', isAuthenticated, async (req: any, res) => {
+    try {
+      const claims = req.user.claims;
+      if (claims.email !== 'ssa@ssasocial.com') {
+        return res.status(403).json({ error: 'Admin access required' });
+      }
+
+      const { agentId, category } = req.query;
+      
+      let tasks = AgentAutomationTasks.getAllTasks();
+      
+      if (agentId) {
+        tasks = AgentAutomationTasks.getTasksByAgent(agentId as string);
+      }
+      
+      if (category) {
+        tasks = AgentAutomationTasks.getTasksByCategory(category as string);
+      }
+      
+      res.json({
+        success: true,
+        tasks,
+        totalTasks: tasks.length,
+        categories: ['email', 'social', 'crm', 'analytics', 'workflow'],
+        agents: ['sophia', 'ava', 'rachel', 'martha']
+      });
+    } catch (error) {
+      res.status(500).json({ error: 'Failed to fetch automation tasks' });
     }
   });
 
