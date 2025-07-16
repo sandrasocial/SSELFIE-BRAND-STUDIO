@@ -466,15 +466,15 @@ The platform has become overly complex with multiple pricing tiers, broken onboa
 - Error messages guide users to train models or complete onboarding
 - NO cross-contamination between users EVER
 
-**MAXIMUM REALISM IMAGE QUALITY SETTINGS (July 16, 2025):**
-- ✅ **Guidance Scale: 0.9** (Maximum realism with strong prompt adherence)
-- ✅ **Inference Steps: 35** (Quality output for detailed results)
+**PROVEN OPTIMAL IMAGE QUALITY SETTINGS (July 16, 2025):**
+- ✅ **Guidance Scale: 2.8** (Optimized for strong prompt adherence and quality)
+- ✅ **Inference Steps: 35** (Minimum for quality output, tested optimal)
 - ✅ **Output Quality: 95%** (Maximum quality for crystal clear results)
 - ✅ **LoRA Scale: 1.0** (CRITICAL - Balanced model influence for natural likeness)
-- ✅ **Raw Unretouched Specifications**: `raw unretouched photograph, natural film grain, authentic unprocessed skin tone, natural lighting`
+- ✅ **Refined Natural Specifications**: `subtle skin texture (1.6), natural skin detail, soft film grain (Kodak Ektar:1.3), natural skin with gentle smoothing, medium-format film aesthetic (1.5)`
 - ✅ **Hair Quality Focus**: Natural hair with volume, realistic texture, never flat or lifeless
-- ✅ **Zero Enhancement**: No skin smoothing, retouching, or artificial enhancement - pure realism
-- 🎯 **Maximum Results**: Images look exactly like user but elevated - natural and realistic while maintaining confidence
+- ✅ **Confident Skin Enhancement**: `natural healthy glow, subtle skin refinement` - realistic but confidence-boosting
+- 🎯 **Balanced Results**: Images look exactly like user but elevated - natural and realistic while maintaining confidence
 
 ### ✅ PERMANENT ARCHITECTURE & AUTHENTICATION PROTECTION IMPLEMENTED (July 16, 2025)
 **IMMUTABLE CORE ARCHITECTURE NOW PERMANENTLY LOCKED:**

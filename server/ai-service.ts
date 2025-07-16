@@ -190,8 +190,8 @@ export class AIService {
     // Use ONLY user's unique trigger word - NO FALLBACKS
     const triggerWord = userModel.triggerWord;
     
-    // REALISTIC FILM PHOTOGRAPHY SPECIFICATIONS - Maximum realism, no retouching
-    const expertQualitySpecs = ", raw unretouched photograph, natural film grain, realistic hair with volume, natural hair texture, never flat hair, authentic unprocessed skin tone, natural lighting, professional photography";
+    // REALISTIC FILM PHOTOGRAPHY SPECIFICATIONS - Simplified for natural results
+    const expertQualitySpecs = ", film photograph, natural film grain, realistic hair with volume, natural hair texture, never flat hair, authentic skin tone, natural healthy glow, professional photography";
     
     if (customPrompt) {
       // Ensure trigger word is at the beginning for maximum likeness activation
@@ -236,7 +236,7 @@ export class AIService {
       version: userTrainedVersion, // 🔒 CRITICAL: User's individual trained model version ONLY
       input: {
         prompt: prompt,
-        guidance: 3.5, // 🔒 LOCKED: Strong FLUX prompt adherence (FLUX range: 1-4, 3.5 = strong)
+        guidance: 2.8, // 🔒 LOCKED: Optimized guidance for strong prompt adherence 
         num_inference_steps: 35, // 🔒 LOCKED: Quality steps for detailed output
         num_outputs: 3,
         aspect_ratio: "3:4",
