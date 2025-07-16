@@ -114,6 +114,17 @@ export const templates = pgTable("templates", {
   createdAt: timestamp("created_at").defaultNow(),
 });
 
+// Agent conversations table for chat persistence
+export const agentConversations = pgTable("agent_conversations", {
+  id: serial("id").primaryKey(),
+  agentId: varchar("agent_id").notNull(),
+  userId: varchar("user_id").references(() => users.id, { onDelete: "cascade" }).notNull(),
+  userMessage: text("user_message").notNull(),
+  agentResponse: text("agent_response").notNull(),
+  devPreview: jsonb("dev_preview"),
+  timestamp: timestamp("timestamp").defaultNow(),
+});
+
 // User subscriptions table
 export const subscriptions = pgTable("subscriptions", {
   id: serial("id").primaryKey(),
@@ -365,6 +376,7 @@ export const insertBrandOnboardingSchema = createInsertSchema(brandOnboarding).o
 export const insertUserLandingPageSchema = createInsertSchema(userLandingPages).omit({ id: true, createdAt: true, updatedAt: true });
 export const insertMayaChatSchema = createInsertSchema(mayaChats).omit({ id: true, createdAt: true, updatedAt: true });
 export const insertMayaChatMessageSchema = createInsertSchema(mayaChatMessages).omit({ id: true, createdAt: true });
+export const insertAgentConversationSchema = createInsertSchema(agentConversations).omit({ id: true, timestamp: true });
 
 
 
@@ -409,6 +421,8 @@ export type InsertBrandOnboarding = z.infer<typeof insertBrandOnboardingSchema>;
 export type BrandOnboarding = typeof brandOnboarding.$inferSelect;
 export type InsertUserLandingPage = z.infer<typeof insertUserLandingPageSchema>;
 export type UserLandingPage = typeof userLandingPages.$inferSelect;
+export type InsertAgentConversation = z.infer<typeof insertAgentConversationSchema>;
+export type AgentConversation = typeof agentConversations.$inferSelect;
 
 // Generation tracker schemas and types
 export const insertGenerationTrackerSchema = createInsertSchema(generationTrackers).omit({ id: true, createdAt: true, updatedAt: true });
