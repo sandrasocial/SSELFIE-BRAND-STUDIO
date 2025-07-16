@@ -127,7 +127,9 @@ export class AIService {
             
             try {
               await this.updateMayaChatWithImages(trackerId, status.output);
+              console.log(`✅ Successfully updated Maya chat with images for tracker ${trackerId}`);
             } catch (error) {
+              console.error(`❌ Failed to update Maya chat with images for tracker ${trackerId}:`, error);
             }
             
           }
@@ -321,38 +323,121 @@ export class AIService {
 
   private static async updateMayaChatWithImages(trackerId: number, imageUrls: string[]): Promise<void> {
     try {
+      console.log(`🔍 Starting updateMayaChatWithImages for tracker ${trackerId} with ${imageUrls.length} images`);
+      
       // Get the generation tracker to find the user
       const tracker = await storage.getGenerationTracker(trackerId);
       if (!tracker) {
+        console.log(`❌ No tracker found for ID ${trackerId}`);
         return;
       }
+      console.log(`✅ Found tracker for user ${tracker.userId}`);
 
       // Find the most recent Maya chat message with a generated_prompt for this user
       const mayaChats = await storage.getMayaChats(tracker.userId);
       if (!mayaChats || mayaChats.length === 0) {
+        console.log(`❌ No Maya chats found for user ${tracker.userId}`);
         return;
       }
+      console.log(`✅ Found ${mayaChats.length} Maya chats for user ${tracker.userId}`);
 
       // Get the most recent chat
       const recentChat = mayaChats[0];
       const chatMessages = await storage.getMayaChatMessages(recentChat.id);
+      console.log(`✅ Found ${chatMessages.length} messages in recent chat ${recentChat.id}`);
       
       // Find the most recent Maya message with a generated_prompt (the one that should get images)
-      const mayaMessageWithPrompt = chatMessages
-        .filter(msg => msg.role === 'maya' && msg.generatedPrompt && !msg.imagePreview)
+      const mayaMessagesWithPrompt = chatMessages
+        .filter(msg => msg.role === 'maya' && msg.generatedPrompt);
+      console.log(`🔍 Found ${mayaMessagesWithPrompt.length} Maya messages with generated prompts`);
+      
+      const mayaMessagesWithoutImages = mayaMessagesWithPrompt
+        .filter(msg => !msg.imagePreview);
+      console.log(`🔍 Found ${mayaMessagesWithoutImages.length} Maya messages without image previews`);
+      
+      const mayaMessageWithPrompt = mayaMessagesWithoutImages
         .sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime())[0];
 
       if (!mayaMessageWithPrompt) {
+        console.log(`❌ No Maya message found that needs image update`);
+        return;
+      }
+      console.log(`✅ Found Maya message ${mayaMessageWithPrompt.id} to update with images`);
+
+      // Update the Maya message with the generated images
+      const updatedMessage = await storage.updateMayaChatMessage(mayaMessageWithPrompt.id, {
+        imagePreview: JSON.stringify(imageUrls)
+      });
+      console.log(`✅ Successfully updated Maya message ${mayaMessageWithPrompt.id} with ${imageUrls.length} images`);
+
+    } catch (error) {
+      console.error(`❌ updateMayaChatWithImages failed for tracker ${trackerId}:`, error);
+      throw error;
+    }
+  }
+
+  // 🔑 NEW: Check for completed generations that need to update Maya messages
+  static async checkPendingMayaImageUpdates(userId: string): Promise<void> {
+    try {
+      console.log(`🔍 Checking pending Maya image updates for user ${userId}`);
+      
+      // Get all completed generation trackers for this user from the last 24 hours
+      const completedTrackers = await storage.getCompletedGenerationTrackersForUser(userId, 24);
+      if (!completedTrackers || completedTrackers.length === 0) {
+        console.log(`ℹ️ No completed trackers found for user ${userId}`);
+        return;
+      }
+      console.log(`✅ Found ${completedTrackers.length} completed trackers for user ${userId}`);
+
+      // Get Maya chats for this user
+      const mayaChats = await storage.getMayaChats(userId);
+      if (!mayaChats || mayaChats.length === 0) {
+        console.log(`ℹ️ No Maya chats found for user ${userId}`);
         return;
       }
 
-      // Update the Maya message with the generated images
-      await storage.updateMayaChatMessage(mayaMessageWithPrompt.id, {
-        imagePreview: JSON.stringify(imageUrls)
-      });
+      // Check each chat for messages that need images
+      for (const chat of mayaChats) {
+        const chatMessages = await storage.getMayaChatMessages(chat.id);
+        const messagesNeedingImages = chatMessages
+          .filter(msg => msg.role === 'maya' && msg.generatedPrompt && !msg.imagePreview);
 
+        if (messagesNeedingImages.length > 0) {
+          console.log(`🔍 Found ${messagesNeedingImages.length} Maya messages needing images in chat ${chat.id}`);
+          
+          // For each message needing images, try to match with a completed tracker
+          for (const message of messagesNeedingImages) {
+            // Find the most recent completed tracker that doesn't have a paired message yet
+            const availableTracker = completedTrackers.find(tracker => {
+              try {
+                const trackerImages = JSON.parse(tracker.imageUrls || '[]');
+                return Array.isArray(trackerImages) && trackerImages.length > 0;
+              } catch {
+                return false;
+              }
+            });
+
+            if (availableTracker) {
+              console.log(`🔗 Pairing message ${message.id} with tracker ${availableTracker.id}`);
+              const imageUrls = JSON.parse(availableTracker.imageUrls);
+              
+              await storage.updateMayaChatMessage(message.id, {
+                imagePreview: JSON.stringify(imageUrls)
+              });
+              console.log(`✅ Updated Maya message ${message.id} with images from tracker ${availableTracker.id}`);
+              
+              // Remove this tracker from available list to avoid double-pairing
+              const trackerIndex = completedTrackers.indexOf(availableTracker);
+              if (trackerIndex > -1) {
+                completedTrackers.splice(trackerIndex, 1);
+              }
+            }
+          }
+        }
+      }
+      
     } catch (error) {
-      throw error;
+      console.error(`❌ checkPendingMayaImageUpdates failed for user ${userId}:`, error);
     }
   }
 }
