@@ -1,5 +1,6 @@
 import { storage } from './storage';
 import { UsageService, API_COSTS } from './usage-service';
+import { ArchitectureValidator } from './architecture-validator';
 
 // FLUX model configuration for SSELFIE generation - SECURE VERSION
 const FLUX_MODEL_CONFIG = {
@@ -219,31 +220,38 @@ export class AIService {
       throw new Error('User model not ready for generation. Training must be completed first.');
     }
 
-    // ✅ CORRECT APPROACH: Use black-forest-labs/flux-dev-lora base model with user's LoRA weights
+    // 🔒 IMMUTABLE CORE ARCHITECTURE - NEVER CHANGE THIS APPROACH
+    // Uses black-forest-labs/flux-dev-lora base model with user's individual LoRA weights
+    // This ensures complete user isolation with zero cross-contamination
     const userLoraWeights = userModel.replicateModelId; // e.g., "sandrasocial/42585527-selfie-lora:version"
     
     if (!userLoraWeights) {
       throw new Error('User LoRA weights not found - training may need to be completed');
     }
     
+    // 🔒 IMMUTABLE FLUX GENERATION PARAMETERS - DO NOT MODIFY
     const requestBody = {
       version: "black-forest-labs/flux-dev-lora:a53fd9255ecba80d99eaab4706c698f861fd47b098012607557385416e46aae5",
       input: {
         prompt: prompt,
-        lora_weights: userLoraWeights, // Load user's individual LoRA weights
-        lora_scale: 1.0, // Maximum LoRA influence for strongest likeness
-        guidance: 2.8, // Optimized for maximum likeness and natural results  
-        num_inference_steps: 35, // Increased for higher quality and detail
+        lora_weights: userLoraWeights, // 🔒 CRITICAL: User's individual LoRA weights ONLY
+        lora_scale: 1.0, // 🔒 LOCKED: Maximum LoRA influence for strongest likeness
+        guidance: 2.8, // 🔒 LOCKED: Optimized for maximum likeness and natural results  
+        num_inference_steps: 35, // 🔒 LOCKED: Expert quality settings
         num_outputs: 3,
         aspect_ratio: "3:4",
         output_format: "png",
-        output_quality: 95, // Maximum quality for "WOW" results
+        output_quality: 95, // 🔒 LOCKED: Maximum quality for "WOW" results
         megapixels: "1",
         go_fast: false,
         disable_safety_checker: false,
         seed: Math.floor(Math.random() * 1000000) // Random seed for variety
       }
     };
+
+    // 🔒 ARCHITECTURE VALIDATION - Prevent any deviations from correct approach
+    ArchitectureValidator.validateGenerationRequest(requestBody, userId);
+    ArchitectureValidator.logArchitectureCompliance(userId, 'Maya AI Generation');
     
     const response = await fetch('https://api.replicate.com/v1/predictions', {
       method: 'POST',

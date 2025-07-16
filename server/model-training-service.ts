@@ -42,6 +42,9 @@ export const GENERATION_SETTINGS = {
   megapixels: "1"
 };
 
+// 🔒 IMMUTABLE CORE ARCHITECTURE - TRAINING SERVICE
+// Creates individual LoRA models for each user using ostris/flux-dev-lora-trainer
+// Each user gets ONLY their own trained LoRA weights - NO EXCEPTIONS
 export class ModelTrainingService {
   // Configure AWS S3 (ensure US East 1 for global access and Replicate compatibility)
   private static s3 = new AWS.S3({

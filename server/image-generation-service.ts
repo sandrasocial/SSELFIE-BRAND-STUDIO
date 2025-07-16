@@ -1,5 +1,6 @@
 import { storage } from './storage';
 import type { InsertAIImage } from '@shared/schema-simplified';
+import { ArchitectureValidator } from './architecture-validator';
 
 export interface GenerateImagesRequest {
   userId: string;
@@ -72,25 +73,35 @@ export async function generateImages(request: GenerateImagesRequest): Promise<Ge
       finalPrompt = `${finalPrompt}${premiumHairSpecs}`;
     }
 
-    // ✅ CORRECT APPROACH: Use black-forest-labs/flux-dev-lora base model with user's LoRA weights
+    // 🔒 IMMUTABLE CORE ARCHITECTURE - NEVER CHANGE THIS APPROACH
+    // Uses black-forest-labs/flux-dev-lora base model with user's individual LoRA weights
+    // This ensures complete user isolation with zero cross-contamination
     const userLoraWeights = userModelName; // e.g., "sandrasocial/42585527-selfie-lora:version"
 
-    // Build input for black-forest-labs/flux-dev-lora with user's LoRA weights - EXPERT SETTINGS
+    // 🔒 IMMUTABLE FLUX GENERATION PARAMETERS - DO NOT MODIFY
     const input: any = {
       prompt: finalPrompt,
-      lora_weights: userLoraWeights, // Load user's individual LoRA weights
-      lora_scale: 1.0, // Maximum LoRA influence for strongest likeness
-      guidance: 2.8, // Optimized for maximum likeness and natural results  
-      num_inference_steps: 35, // Increased for higher quality and detail
+      lora_weights: userLoraWeights, // 🔒 CRITICAL: User's individual LoRA weights ONLY
+      lora_scale: 1.0, // 🔒 LOCKED: Maximum LoRA influence for strongest likeness
+      guidance: 2.8, // 🔒 LOCKED: Optimized for maximum likeness and natural results  
+      num_inference_steps: 35, // 🔒 LOCKED: Expert quality settings
       num_outputs: 3,
       aspect_ratio: "3:4",
       output_format: "png",
-      output_quality: 95, // Maximum quality for "WOW" results
+      output_quality: 95, // 🔒 LOCKED: Maximum quality for "WOW" results
       megapixels: "1",
       go_fast: false,
       disable_safety_checker: false,
       seed: Math.floor(Math.random() * 1000000) // Random seed for variety
     };
+
+    // 🔒 ARCHITECTURE VALIDATION - Prevent any deviations from correct approach
+    const requestBody = {
+      version: "black-forest-labs/flux-dev-lora:a53fd9255ecba80d99eaab4706c698f861fd47b098012607557385416e46aae5",
+      input
+    };
+    ArchitectureValidator.validateGenerationRequest(requestBody, userId);
+    ArchitectureValidator.logArchitectureCompliance(userId, 'AI Photoshoot Generation');
     
 
     
@@ -107,10 +118,7 @@ export async function generateImages(request: GenerateImagesRequest): Promise<Ge
             'Authorization': `Token ${process.env.REPLICATE_API_TOKEN}`,
             'Content-Type': 'application/json',
           },
-          body: JSON.stringify({
-            version: "black-forest-labs/flux-dev-lora:a53fd9255ecba80d99eaab4706c698f861fd47b098012607557385416e46aae5",
-            input
-          }),
+          body: JSON.stringify(requestBody),
         });
 
         if (replicateResponse.ok) {
