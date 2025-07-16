@@ -219,7 +219,8 @@ function AgentChat({ agentId, agentName, role, status, currentTask, metrics }: A
     mutationFn: async (content: string) => {
       const response = await apiRequest('POST', '/api/agent-chat', { 
         agentId: agentId, 
-        message: content 
+        message: content,
+        conversationHistory: chatHistory.slice(-10) // Send last 10 messages for context
       });
       return response.json();
     },
@@ -262,10 +263,12 @@ function AgentChat({ agentId, agentName, role, status, currentTask, metrics }: A
       };
       setChatHistory(prev => [...prev, newMessage, agentResponse]);
       
-      // Show development preview if agent provided one
-      if (parsedDevPreview) {
-        setDevPreviewData(parsedDevPreview);
+      // Show development preview if agent provided one (check both sources)
+      if (parsedDevPreview || data.devPreview) {
+        const previewData = parsedDevPreview || data.devPreview;
+        setDevPreviewData(previewData);
         setShowDevPreview(true);
+        console.log('Dev preview detected:', previewData);
       }
       // Legacy preview support
       else if (data.hasPreview && agentId === 'victoria') {

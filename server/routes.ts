@@ -3610,6 +3610,16 @@ Remember: You are ${agent.name} - a fully empowered team member who can implemen
           apiKey: process.env.ANTHROPIC_API_KEY
         });
 
+        // Get conversation history for this agent from request
+        const conversationHistory = req.body.conversationHistory || [];
+        
+        // Build conversation context
+        const conversationContext = conversationHistory.length > 0 
+          ? `\n\nCONVERSATION HISTORY:\n${conversationHistory.map((msg: any) => 
+              `${msg.type === 'user' ? 'Sandra' : agent.name}: ${msg.content}`
+            ).join('\n')}\n\n`
+          : '';
+
         // Get intelligent response from Anthropic with enhanced context
         const completion = await anthropic.messages.create({
           model: "claude-sonnet-4-20250514",
@@ -3622,8 +3632,8 @@ Remember: You are ${agent.name} - a fully empowered team member who can implemen
 Agent Context: You are ${agent.name}, ${agent.role}, with complete implementation access to the platform.
 
 Your Authentic Voice: ${agent.voice}
-
-User Request: ${message}
+${conversationContext}
+Current Request: ${message}
 
 RESPONSE STYLE: Be conversational, authentic, and concise. Use your personality but keep it brief and helpful.
 
