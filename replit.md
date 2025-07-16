@@ -338,7 +338,7 @@ The platform has become overly complex with multiple pricing tiers, broken onboa
 - ✅ **Guidance Scale: 2.8** (Optimized for strong prompt adherence and quality)
 - ✅ **Inference Steps: 35** (Minimum for quality output, tested optimal)
 - ✅ **Output Quality: 95%** (Maximum quality for crystal clear results)
-- ✅ **LoRA Scale: 1.0-1.3** (Maximum model influence for strongest likeness)
+- ✅ **LoRA Scale: 1.2** (CRITICAL - Strong model influence for maximum likeness)
 - ✅ **Refined Natural Specifications**: `subtle skin texture (1.6), natural skin detail, soft film grain (Kodak Ektar:1.3), natural skin with gentle smoothing, medium-format film aesthetic (1.5)`
 - ✅ **Hair Quality Focus**: Natural hair with volume, realistic texture, never flat or lifeless
 - ✅ **Confident Skin Enhancement**: `natural healthy glow, subtle skin refinement` - realistic but confidence-boosting
