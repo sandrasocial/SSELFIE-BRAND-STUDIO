@@ -37,7 +37,7 @@ export function MemberNavigation({ transparent = true }: MemberNavigationProps) 
   // Check if user is admin (Sandra)
   const isAdmin = user?.email === 'ssa@ssasocial.com';
 
-  // Member navigation items (removed admin from main nav)
+  // Member navigation items (NO ADMIN LINK - CONFIRMED CLEAN)
   const navItems = [
     { path: '/workspace', label: 'Studio' },
     { path: '/ai-training', label: 'Train' },
@@ -71,10 +71,10 @@ export function MemberNavigation({ transparent = true }: MemberNavigationProps) 
             }}
             className="font-serif text-xl font-light tracking-wide text-white hover:opacity-70 transition-opacity duration-300"
           >
-            SSELFIE
+            SSELFIE ✓
           </button>
           
-          {/* Desktop Navigation */}
+          {/* Desktop Navigation - CLEAN NO ADMIN */}
           <div className="hidden md:flex items-center space-x-6 lg:space-x-10">
             {navItems.map((item) => (
               <button
