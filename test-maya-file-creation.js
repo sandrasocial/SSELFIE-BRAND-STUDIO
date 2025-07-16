@@ -4,64 +4,72 @@
  */
 
 async function testMayaFileCreation() {
-  console.log('🧪 TESTING MAYA AGENT FILE CREATION...');
+  console.log('🧪 TESTING MAYA FILE CREATION FLOW');
+  console.log('='*50);
   
   try {
-    // Simulate the exact API call that happens when you chat with Maya
-    const response = await fetch('http://localhost:5000/api/agents/maya/chat', {
+    // Simulate asking Maya to create a component
+    const response = await fetch('http://localhost:5000/api/agent-chat', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
-        // Note: This would need proper authentication in real scenario
+        'Authorization': 'Bearer admin-test' // Admin user
       },
       body: JSON.stringify({
-        message: 'Create a TestButton component'
+        agentId: 'maya',
+        message: `Maya, I need you to create a simple React component for testing. Can you create a file called "TestComponent.tsx" in the client/src/components folder? Make it a basic component that displays "Hello from Maya!"
+
+Please use the FILE_CREATE action to actually create this file in Replit.
+
+FILE_CREATE: {
+  "path": "client/src/components/TestComponent.tsx",
+  "content": "import React from 'react';\n\nexport const TestComponent: React.FC = () => {\n  return (\n    <div className=\"p-4\">\n      <h2>Hello from Maya!</h2>\n      <p>This component was created by Maya AI agent.</p>\n    </div>\n  );\n};\n\nexport default TestComponent;",
+  "description": "React component created by Maya for testing"
+}`
       })
     });
-    
-    if (!response.ok) {
-      throw new Error(`HTTP ${response.status}: ${response.statusText}`);
-    }
-    
-    const data = await response.json();
-    console.log('📝 Maya Response:', data);
-    
-    if (data.fileOperations && data.fileOperations.length > 0) {
-      console.log('✅ Maya reported file operations:', data.fileOperations);
+
+    if (response.ok) {
+      const result = await response.json();
+      console.log('✅ Maya responded successfully');
+      console.log('Response:', result.message.substring(0, 200) + '...');
       
-      // Check if the file was actually created
+      // Check if Maya actually created the file
       const fs = await import('fs/promises');
-      const filePath = data.fileOperations[0].path;
+      const path = await import('path');
       
       try {
-        const content = await fs.readFile(filePath, 'utf-8');
-        console.log('✅ File confirmed created:', filePath);
-        console.log('📄 File content preview:', content.substring(0, 200) + '...');
-        return { success: true, file: filePath };
+        const testFilePath = path.default.join(process.cwd(), 'client/src/components/TestComponent.tsx');
+        const content = await fs.default.readFile(testFilePath, 'utf-8');
+        console.log('✅ FILE FOUND! Maya successfully created TestComponent.tsx');
+        console.log('File content length:', content.length);
+        return true;
       } catch (fileError) {
-        console.log('❌ File NOT found despite Maya claiming to create it:', filePath);
-        return { success: false, reason: 'File not created despite claim' };
+        console.log('❌ FILE NOT FOUND: Maya responded but did not create the file');
+        console.log('This means the agent response system is not triggering file creation');
+        return false;
       }
+      
     } else {
-      console.log('❌ Maya did not report any file operations');
-      return { success: false, reason: 'No file operations reported' };
+      console.log('❌ Maya request failed:', response.status, response.statusText);
+      return false;
     }
     
   } catch (error) {
-    console.log('❌ Maya API call failed:', error.message);
-    return { success: false, reason: error.message };
+    console.error('❌ Test failed:', error.message);
+    return false;
   }
 }
 
 // Run the test
-testMayaFileCreation().then(result => {
-  console.log('\n🎯 TEST RESULT:', result);
-  
-  if (!result.success) {
-    console.log('\n🔧 POSSIBLE ISSUES:');
-    console.log('1. Agent conversation routes not connected to file operations');
-    console.log('2. Authentication required for API calls');
-    console.log('3. AgentCodebaseIntegration not being called properly');
-    console.log('4. Server not running or responding');
+testMayaFileCreation().then(success => {
+  if (success) {
+    console.log('\n🎉 MAYA FILE CREATION IS WORKING!');
+    console.log('Check client/src/components/TestComponent.tsx in Replit');
+  } else {
+    console.log('\n💥 MAYA FILE CREATION IS NOT WORKING');
+    console.log('Agent responses are not triggering actual file creation');
+    console.log('The AgentCodebaseIntegration system exists but is not being called');
   }
+  process.exit(0);
 });

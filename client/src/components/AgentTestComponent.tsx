@@ -1,15 +1,19 @@
 import React from 'react';
 
-export default function AgentTestComponent() {
+interface AgentTestComponentProps {
+  message: string;
+}
+
+export const AgentTestComponent: React.FC<AgentTestComponentProps> = ({ message }) => {
   return (
-    <div className="bg-white p-6">
-      <h3 className="text-xl mb-4">Agent Test Component</h3>
-      <p className="text-gray-600">
-        This component was created by the agent file system test on {new Date().toISOString()}
+    <div className="p-4 bg-white border border-gray-200 rounded-lg">
+      <h3 className="text-lg font-semibold text-gray-900">Agent Test Component</h3>
+      <p className="text-gray-600">{message}</p>
+      <p className="text-xs text-gray-400 mt-2">
+        Created by: AgentCodebaseIntegration System
       </p>
-      <div className="mt-4 text-sm text-green-600">
-        ✅ If you can see this file, agents CAN create real files!
-      </div>
     </div>
   );
-}
+};
+
+export default AgentTestComponent;
