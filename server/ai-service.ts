@@ -213,30 +213,25 @@ export class AIService {
       throw new Error('User model not ready for generation. Training must be completed first.');
     }
 
-    // ✅ WORKING LORA ARCHITECTURE: Use verified working model that supports LoRA
-    const workingLoRAModelVersion = 'bytedance/sdxl-lightning-4step:5599ed30703defd1d160a25a63321b4dec97101d98b4674bcc56e41f62f35637';
-    const userLoRAWeights = `sandrasocial/${userModel.replicateModelId}`;
+    // ✅ CORRECT APPROACH: Use user's trained model version for generation
+    const userModelVersion = userModel.replicateVersionId;
     
-    if (!userModel.replicateModelId) {
-      throw new Error('User LoRA weights not found - training may need to be completed');
+    if (!userModelVersion) {
+      throw new Error('User model version not found - training may need to be completed');
     }
     
     const requestBody = {
-      version: workingLoRAModelVersion, // Use verified working LoRA model
+      version: userModelVersion, // Use user's trained model version
       input: {
         prompt: prompt,
-        guidance: 3, // Optimal guidance from documentation
-        num_inference_steps: 28, // Recommended range 28-50
+        guidance_scale: 3, // Use guidance_scale for FLUX
+        num_inference_steps: 28, // FLUX dev needs around 28 steps
         num_outputs: 3,
         aspect_ratio: "3:4",
         output_format: "png",
         output_quality: 90,
-        megapixels: "1",
-        go_fast: false,
         disable_safety_checker: false,
-        // ✅ CRITICAL: Add user's LoRA weights exactly as documented
-        lora_weights: userLoRAWeights,
-        lora_scale: 1.0
+        model: "dev" // Use dev model for quality
       }
     };
     
