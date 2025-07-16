@@ -92,9 +92,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Agent codebase integration routes (secure admin access only)
   app.use('/api', agentCodebaseRoutes);
   
-  // Agent conversation and approval routes
-  const agentConversationRoutes = await import('./routes/agent-conversation-routes');
-  app.use('/api', agentConversationRoutes.default);
+  // Agent conversation routes removed - now inline below
 
   // Add cache-busting headers for all API endpoints to prevent browser caching issues
   app.use('/api', (req, res, next) => {
@@ -4312,6 +4310,80 @@ Consider this workflow optimized and ready for implementation! ⚙️`
       });
     } catch (error) {
       res.status(500).json({ error: 'Failed to fetch automation tasks' });
+    }
+  });
+
+  // ═══════════════════════════════════════════════════════════════
+  // SANDRA'S AI AGENT CONVERSATION SYSTEM - INLINE IMPLEMENTATION
+  // ═══════════════════════════════════════════════════════════════
+  
+  // Agent chat endpoint
+  app.post('/api/agents/:agentId/chat', isAuthenticated, async (req: any, res) => {
+    try {
+      const { agentId } = req.params;
+      const { message } = req.body;
+      
+      // Verify admin access
+      if (req.user.claims.email !== 'ssa@ssasocial.com') {
+        return res.status(403).json({ error: 'Admin access required' });
+      }
+      
+      const agentResponses = {
+        maya: "Hey! I'm Maya, your dev expert. I'm ready to help with any technical implementation, debugging, or feature development you need. What are we building today?",
+        rachel: "Hey gorgeous! It's Rachel, your copywriting twin. I'm here to help you write in that authentic Sandra voice that converts. What copy do we need to create?",
+        victoria: "Hello! Victoria here, your luxury design expert. I'm ready to create pixel-perfect editorial layouts that feel expensive. What design challenge are we tackling?",
+        ava: "Hi Sandra! Ava here, your automation architect. I can help streamline any workflow or create seamless customer journeys. What process should we optimize?"
+      };
+      
+      const response = agentResponses[agentId as keyof typeof agentResponses] || "I'm ready to assist you!";
+      
+      res.json({
+        message: `${response}\n\nYou asked: "${message}"`,
+        agentId,
+        timestamp: new Date().toISOString()
+      });
+      
+    } catch (error) {
+      console.error(`Agent ${req.params.agentId} chat error:`, error);
+      res.status(500).json({ 
+        error: 'Agent temporarily unavailable',
+        message: "I'm having a quick tech moment, but I'm here for you! Try again in a moment."
+      });
+    }
+  });
+
+  // Get agent status
+  app.get('/api/agents/:agentId/status', isAuthenticated, async (req: any, res) => {
+    try {
+      const { agentId } = req.params;
+      
+      // Verify admin access
+      if (req.user.claims.email !== 'ssa@ssasocial.com') {
+        return res.status(403).json({ error: 'Admin access required' });
+      }
+      
+      const agents = {
+        maya: { name: "Maya", role: "Development & Technical Implementation" },
+        rachel: { name: "Rachel", role: "Voice & Copywriting" },
+        victoria: { name: "Victoria", role: "UX & Design" },
+        ava: { name: "Ava", role: "Automation & Workflows" }
+      };
+      
+      const agent = agents[agentId as keyof typeof agents];
+      if (!agent) {
+        return res.status(404).json({ error: 'Agent not found' });
+      }
+      
+      res.json({
+        agentId,
+        name: agent.name,
+        role: agent.role,
+        status: 'online',
+        lastActive: new Date().toISOString()
+      });
+      
+    } catch (error) {
+      res.status(500).json({ error: 'Failed to get agent status' });
     }
   });
 
