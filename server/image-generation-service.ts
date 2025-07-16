@@ -73,16 +73,21 @@ export async function generateImages(request: GenerateImagesRequest): Promise<Ge
       finalPrompt = `${finalPrompt}${premiumHairSpecs}`;
     }
 
-    // 🔒 IMMUTABLE CORE ARCHITECTURE - NEVER CHANGE THIS APPROACH
-    // Uses black-forest-labs/flux-dev-lora base model with user's individual LoRA weights
-    // This ensures complete user isolation with zero cross-contamination
-    const userLoraWeights = userModelName; // e.g., "sandrasocial/42585527-selfie-lora:version"
+    // 🔒 IMMUTABLE CORE ARCHITECTURE - USES USER'S INDIVIDUAL TRAINED MODEL DIRECTLY
+    // Each user has their own trained FLUX model version for complete isolation
+    // This ensures zero cross-contamination between users
+    
+    // Get user's trained model version
+    const userModel = await storage.getUserModelByUserId(userId);
+    if (!userModel || !userModel.replicateVersionId) {
+      throw new Error('User model not ready for generation. Training must be completed first.');
+    }
+    
+    const userTrainedVersion = `${userModel.replicateModelId}:${userModel.replicateVersionId}`;
 
     // 🔒 IMMUTABLE FLUX GENERATION PARAMETERS - DO NOT MODIFY
     const input: any = {
       prompt: finalPrompt,
-      lora_weights: userLoraWeights, // 🔒 CRITICAL: User's individual LoRA weights ONLY
-      lora_scale: 1.0, // 🔒 LOCKED: Maximum LoRA influence for strongest likeness
       guidance: 2.8, // 🔒 LOCKED: Optimized for maximum likeness and natural results  
       num_inference_steps: 35, // 🔒 LOCKED: Expert quality settings
       num_outputs: 3,
@@ -97,7 +102,7 @@ export async function generateImages(request: GenerateImagesRequest): Promise<Ge
 
     // 🔒 ARCHITECTURE VALIDATION - Prevent any deviations from correct approach
     const requestBody = {
-      version: "black-forest-labs/flux-dev-lora:a53fd9255ecba80d99eaab4706c698f861fd47b098012607557385416e46aae5",
+      version: userTrainedVersion, // 🔒 CRITICAL: User's individual trained model version ONLY
       input
     };
     ArchitectureValidator.validateGenerationRequest(requestBody, userId);

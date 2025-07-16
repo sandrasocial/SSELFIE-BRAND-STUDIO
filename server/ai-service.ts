@@ -220,22 +220,20 @@ export class AIService {
       throw new Error('User model not ready for generation. Training must be completed first.');
     }
 
-    // 🔒 IMMUTABLE CORE ARCHITECTURE - NEVER CHANGE THIS APPROACH
-    // Uses black-forest-labs/flux-dev-lora base model with user's individual LoRA weights
-    // This ensures complete user isolation with zero cross-contamination
-    const userLoraWeights = userModel.replicateModelId; // e.g., "sandrasocial/42585527-selfie-lora:version"
+    // 🔒 IMMUTABLE CORE ARCHITECTURE - USES USER'S INDIVIDUAL TRAINED MODEL DIRECTLY
+    // Each user has their own trained FLUX model version for complete isolation
+    // This ensures zero cross-contamination between users
+    const userTrainedVersion = `${userModel.replicateModelId}:${userModel.replicateVersionId}`;
     
-    if (!userLoraWeights) {
-      throw new Error('User LoRA weights not found - training may need to be completed');
+    if (!userModel.replicateVersionId) {
+      throw new Error('User model version not found - training may need to be completed');
     }
     
     // 🔒 IMMUTABLE FLUX GENERATION PARAMETERS - DO NOT MODIFY
     const requestBody = {
-      version: "black-forest-labs/flux-dev-lora:a53fd9255ecba80d99eaab4706c698f861fd47b098012607557385416e46aae5",
+      version: userTrainedVersion, // 🔒 CRITICAL: User's individual trained model version ONLY
       input: {
         prompt: prompt,
-        lora_weights: userLoraWeights, // 🔒 CRITICAL: User's individual LoRA weights ONLY
-        lora_scale: 1.0, // 🔒 LOCKED: Maximum LoRA influence for strongest likeness
         guidance: 2.8, // 🔒 LOCKED: Optimized for maximum likeness and natural results  
         num_inference_steps: 35, // 🔒 LOCKED: Expert quality settings
         num_outputs: 3,

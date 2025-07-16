@@ -1,0 +1,91 @@
+To set this up you can use:
+
+export REPLICATE_API_TOKEN=r8_XN9EOKRoCZ0JvdsDkLVHjCBXl8w3xst3pNZNd
+
+Visibility
+
+Copy
+Some application frameworks and tools also support a text file named .env which you can edit to include the same token:
+
+REPLICATE_API_TOKEN=r8_XN9EOKRoCZ0JvdsDkLVHjCBXl8w3xst3pNZNd
+
+Visibility
+
+Copy
+The Replicate API uses the Authorization HTTP header to authenticate requests. If you’re using a client library this is handled for you.
+
+You can test that your access token is setup correctly by using our account.get endpoint:
+
+What is cURL?
+curl https://api.replicate.com/v1/account -H "Authorization: Bearer $REPLICATE_API_TOKEN"
+# {"type":"user","username":"aron","name":"Aron Carroll","github_url":"https://github.com/aron"}
+
+Copy
+If it is working correctly you will see a JSON object returned containing some information about your account, otherwise ensure that your token is available:
+
+echo "$REPLICATE_API_TOKEN"
+# "r8_xyz"
+
+Copy
+Setup
+NodeJS supports two module formats ESM and CommonJS. Below details the setup for each environment. After setup, the code is identical regardless of module format.
+
+ESM
+First you’ll need to ensure you have a NodeJS project:
+
+npm create esm -y
+
+Copy
+Then install the replicate JavaScript library using npm:
+
+npm install replicate
+
+Copy
+To use the library, first import and create an instance of it:
+
+import Replicate from "replicate";
+
+const replicate = new Replicate();
+
+Copy
+This will use the REPLICATE_API_TOKEN API token you’ve setup in your environment for authorization.
+
+CommonJS
+First you’ll need to ensure you have a NodeJS project:
+
+npm create -y
+
+Copy
+Then install the replicate JavaScript library using npm:
+
+npm install replicate
+
+Copy
+To use the library, first import and create an instance of it:
+
+const Replicate = require("replicate");
+
+const replicate = new Replicate();
+
+Copy
+This will use the REPLICATE_API_TOKEN API token you’ve setup in your environment for authorization.
+
+Run the model
+Use the replicate.run() method to run the model:
+
+const input = {
+    prompt: "style of 80s cyberpunk, a portrait photo",
+    lora_weights: "fofr/flux-80s-cyberpunk"
+};
+
+const output = await replicate.run("black-forest-labs/flux-dev-lora", { input });
+for (const [index, item] of Object.entries(output)) {
+  await writeFile(`output_${index}.webp`, item);
+}
+//=> output_0.webp written to disk
+
+Copy
+You can learn about pricing for this model on the model page.
+
+The run() function returns the output directly, which you can then use or pass as the input to another model. If you want to access the full prediction object (not just the output), use the replicate.predictions.create() method instead. This will include the prediction id, status, logs, etc.
+

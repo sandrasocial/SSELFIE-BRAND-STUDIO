@@ -199,6 +199,17 @@ The platform has become overly complex with multiple pricing tiers, broken onboa
 
 ## Current Project Status & Progress
 
+### ✅ CRITICAL IMAGE GENERATION ARCHITECTURE FIX COMPLETED (July 16, 2025)
+**FLUX MODEL API ISSUE RESOLVED - USERS CAN NOW GENERATE IMAGES:**
+- **Root Cause Identified**: Using incorrect FLUX API format (base model + LoRA weights vs individual trained model)
+- **API Format Fixed**: Changed from `black-forest-labs/flux-dev-lora` + `lora_weights` to user's individual trained model version
+- **Architecture Corrected**: Now uses `{userModel}:{versionId}` format that Replicate API requires
+- **Both Services Updated**: ai-service.ts (Maya AI) and image-generation-service.ts (AI Photoshoot) both fixed
+- **Complete User Isolation**: Each user generates with ONLY their individual trained model version
+- **Zero Cross-Contamination**: No shared models or fallbacks - every generation uses user's personal AI model
+- **API Testing Confirmed**: Direct model version approach successful, LoRA weights approach rejected by API
+- **User Experience Restored**: Both Maya AI chat and AI Photoshoot now functional for image generation
+
 ### ✅ MAYA CHAT IMAGE DISPLAY ISSUE COMPLETELY FIXED (July 15, 2025)
 **CRITICAL BUG RESOLVED - MAYA IMAGES NOW APPEAR IN CHAT:**
 - **Root Cause Identified**: generation_trackers had completed images but maya_chat_messages.image_preview remained NULL
