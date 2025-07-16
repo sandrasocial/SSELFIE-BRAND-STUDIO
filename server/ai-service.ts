@@ -213,44 +213,29 @@ export class AIService {
       throw new Error('User model not ready for generation. Training must be completed first.');
     }
 
-    // 🔧 CORRECT ARCHITECTURE: Use user's individual trained model directly
-    // User's model (e.g., sandrasocial/42585527-selfie-lora) is a complete trained model, not just LoRA weights
-    const userTrainedModel = userModel.replicateVersionId; // User's complete trained model
+    // ✅ ACCOUNT CLEANED: Use user's trained model version directly (no LoRA needed)
+    // After cleanup, user models are standalone and don't need base FLUX model
+    const userModelVersion = userModel.replicateVersionId;
     
-    if (!userTrainedModel) {
-      throw new Error('User trained model not found - training may need to be redone');
+    if (!userModelVersion) {
+      throw new Error('User model version not found - training may need to be redone after account cleanup');
     }
     
-    // Extract just the version hash from the full model string (sandrasocial/42585527-selfie-lora:hash -> hash)
-    const versionHash = userTrainedModel.includes(':') ? userTrainedModel.split(':')[1] : userTrainedModel;
-    
-    // 🎯 CRITICAL: Ensure trigger word is at the beginning for maximum likeness
-    const triggerWord = userModel.triggerWord;
-    let enhancedPrompt = prompt;
-    
-    // Force trigger word to beginning if not already there
-    if (!enhancedPrompt.startsWith(triggerWord)) {
-      enhancedPrompt = enhancedPrompt.replace(triggerWord, '').trim();
-      enhancedPrompt = `${triggerWord} ${enhancedPrompt}`;
-    }
-
     const requestBody = {
-      version: versionHash, // Use user's individual trained model version hash
+      version: userModelVersion, // Use user's trained model directly
       input: {
-        prompt: enhancedPrompt,
-        guidance: 2.89,             // 🔧 EXACT: Yesterday's confirmed perfect setting
-        num_inference_steps: 35,    // 🔧 EXACT: Yesterday's confirmed perfect setting
+        prompt: prompt,
+        guidance: 2.8,
+        num_inference_steps: 40,
         num_outputs: 3,
         aspect_ratio: "3:4",
         output_format: "png",
-        output_quality: 100,        // 🔧 EXACT: Yesterday's confirmed perfect setting
+        output_quality: 90,
         megapixels: "1",
         go_fast: false,
         disable_safety_checker: false
       }
     };
-    
-    console.log('🔍 DEBUG REQUEST BODY:', JSON.stringify(requestBody, null, 2));
     
     // Generate with user's model
     
@@ -264,21 +249,8 @@ export class AIService {
     });
 
     if (!response.ok) {
-      const errorText = await response.text();
-      console.error('🚨 FLUX API ERROR:', {
-        status: response.status,
-        statusText: response.statusText,
-        errorText: errorText
-      });
-      
-      let error;
-      try {
-        error = JSON.parse(errorText);
-      } catch {
-        error = { detail: errorText };
-      }
-      
-      throw new Error(`FLUX API error (${response.status}): ${error.detail || error.message || response.statusText}`);
+      const error = await response.json();
+      throw new Error(`FLUX API error: ${error.detail || response.statusText}`);
     }
 
     const prediction = await response.json();
