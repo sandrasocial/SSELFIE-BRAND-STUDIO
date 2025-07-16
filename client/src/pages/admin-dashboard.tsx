@@ -1,5 +1,5 @@
 import { useAuth } from "@/hooks/use-auth";
-import { useQuery, useMutation } from "@tanstack/react-query";
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { queryClient } from "@/lib/queryClient";
 import { Link, useLocation } from "wouter";
 import { useEffect, useState } from "react";
@@ -9,6 +9,7 @@ import { VisualDesignPreview } from "@/components/visual-design-preview";
 export default function AdminDashboard() {
   const { user, isAuthenticated, isLoading } = useAuth();
   const [, setLocation] = useLocation();
+  const queryClientInstance = useQueryClient();
 
   // Redirect if not admin
   useEffect(() => {
@@ -24,11 +25,37 @@ export default function AdminDashboard() {
     retry: false
   });
 
-  const { data: agents = [], isLoading: agentsLoading } = useQuery({
+  const { data: agents = [], isLoading: agentsLoading, error: agentsError } = useQuery({
     queryKey: ['/api/agents'],
     enabled: isAuthenticated && user?.email === 'ssa@ssasocial.com',
-    retry: false
+    retry: false,
+    refetchOnMount: true,
+    refetchOnWindowFocus: true,
+    staleTime: 0
   });
+
+  // Debug logging
+  console.log('Admin Dashboard - Agents data:', { 
+    agents, 
+    agentsLoading, 
+    agentsError, 
+    agentsCount: agents.length,
+    isAuthenticated,
+    userEmail: user?.email,
+    timestamp: new Date().toISOString()
+  });
+
+  // Force clear cache and refetch if needed
+  useEffect(() => {
+    if (isAuthenticated && user?.email === 'ssa@ssasocial.com') {
+      queryClientInstance.invalidateQueries({ queryKey: ['/api/agents'] });
+    }
+  }, [isAuthenticated, user?.email, queryClientInstance]);
+
+  const refreshAgents = () => {
+    queryClientInstance.invalidateQueries({ queryKey: ['/api/agents'] });
+    queryClientInstance.refetchQueries({ queryKey: ['/api/agents'] });
+  };
 
   if (isLoading) {
     return (
@@ -90,10 +117,38 @@ export default function AdminDashboard() {
 
           {/* AI Agent Team */}
           <section className="mb-12">
-            <h2 className="font-serif text-2xl mb-6">AI Agent Team</h2>
+            <div className="flex items-center justify-between mb-6">
+              <h2 className="font-serif text-2xl">AI Agent Team</h2>
+              <button 
+                onClick={refreshAgents}
+                className="px-4 py-2 bg-black text-white text-sm uppercase tracking-wide hover:bg-gray-800"
+              >
+                Refresh Agents ({agents.length})
+              </button>
+            </div>
             {agentsLoading ? (
               <div className="border border-gray-200 p-6 text-center">
                 <div className="text-sm text-gray-600">Loading AI agents...</div>
+              </div>
+            ) : agentsError ? (
+              <div className="border border-red-200 bg-red-50 p-6 text-center">
+                <div className="text-sm text-red-600">Error loading agents: {agentsError.message}</div>
+                <button 
+                  onClick={refreshAgents}
+                  className="mt-2 px-4 py-2 bg-red-600 text-white text-sm"
+                >
+                  Retry
+                </button>
+              </div>
+            ) : agents.length === 0 ? (
+              <div className="border border-yellow-200 bg-yellow-50 p-6 text-center">
+                <div className="text-sm text-yellow-600">No agents found. Expected 9 agents.</div>
+                <button 
+                  onClick={refreshAgents}
+                  className="mt-2 px-4 py-2 bg-yellow-600 text-white text-sm"
+                >
+                  Refresh
+                </button>
               </div>
             ) : (
               <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-6">
@@ -103,9 +158,9 @@ export default function AdminDashboard() {
                     agentId={agent.id} 
                     agentName={agent.name} 
                     role={agent.role}
-                    status={agent.status}
-                    currentTask={agent.currentTask}
-                    metrics={agent.metrics}
+                    status={agent.status || 'active'}
+                    currentTask={agent.currentTask || 'Ready to assist'}
+                    metrics={agent.metrics || { tasksCompleted: 0, efficiency: 100, lastActivity: new Date() }}
                   />
                 ))}
               </div>
