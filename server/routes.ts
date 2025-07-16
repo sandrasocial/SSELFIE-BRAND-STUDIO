@@ -3452,17 +3452,26 @@ Consider this workflow optimized and ready for implementation! ⚙️`
       }
       
       
-      // Use black-forest-labs/flux-dev-lora with user's trained LoRA weights  
-      const modelVersion = 'black-forest-labs/flux-dev-lora';
+      // 🔒 IMMUTABLE CORE ARCHITECTURE - USE USER'S INDIVIDUAL TRAINED MODEL ONLY
+      // NEVER use base model + LoRA approach - this violates core architecture
+      // Each user has their own complete trained FLUX model for isolation
+      
+      if (!userModel.replicateModelId || !userModel.replicateVersionId) {
+        return res.status(400).json({ 
+          error: 'User model not ready for generation. Training must be completed first.',
+          requiresTraining: true,
+          redirectTo: '/simple-training'
+        });
+      }
 
-      // Use correct FLUX LoRA image generation service (same as Maya)
+      // Use correct FLUX individual model generation service (same as Maya)
       const { generateImages } = await import('./image-generation-service');
       const result = await generateImages({
         userId: user.id, // Use database user ID
         category: 'built-in-prompt',
         subcategory: 'ai-photoshoot',
         triggerWord: userModel.triggerWord,
-        modelVersion: modelVersion,
+        modelVersion: `${userModel.replicateModelId}:${userModel.replicateVersionId}`,
         customPrompt: prompt.replace('[triggerword]', userModel.triggerWord)
       });
       
