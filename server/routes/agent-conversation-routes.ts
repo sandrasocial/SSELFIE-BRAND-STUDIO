@@ -274,6 +274,8 @@ export function registerAgentRoutes(app: Express) {
       const { message } = req.body;
       const userId = req.user.claims.sub;
       
+      console.log(`🤖 AGENT CHAT REQUEST: ${agentId} - "${message}"`);
+      
       // Verify admin access
       if (req.user.claims.email !== 'ssa@ssasocial.com') {
         return res.status(403).json({ error: 'Admin access required' });

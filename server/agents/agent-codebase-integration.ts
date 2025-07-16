@@ -104,7 +104,9 @@ export class AgentCodebaseIntegration {
         timestamp: new Date()
       });
       
-      console.log(`✅ Agent ${agentId} created/modified: ${filePath}`);
+      console.log(`✅ AGENT FILE OPERATION SUCCESS: Agent ${agentId} created/modified: ${filePath}`);
+      console.log(`📂 Full path: ${fullPath}`);
+      console.log(`📄 Content length: ${content.length} characters`);
     } catch (error) {
       throw new Error(`File write error: ${error.message}`);
     }
