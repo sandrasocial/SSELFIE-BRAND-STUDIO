@@ -297,22 +297,30 @@ The platform has become overly complex with multiple pricing tiers, broken onboa
 - API endpoints responding correctly (/api/auth/user returns 200)
 - Account switching functionality ready for testing
 
-### ✅ CRITICAL ARCHITECTURE CORRECTION - PROPER FLUX LORA IMPLEMENTATION (July 16, 2025)
-**CORRECT FLUX MODEL ARCHITECTURE IMPLEMENTED:**
-- **✅ BASE MODEL**: Using `black-forest-labs/flux-dev-lora:a53fd9255...` base model (CORRECT per documentation)
-- **✅ LORA WEIGHTS**: Loading individual user LoRA weights via `lora_weights` parameter 
-- **✅ EXPERT PARAMETERS**: `guidance: 2.8`, `num_inference_steps: 35`, `output_quality: 95`, `lora_scale: 1.0` for maximum quality
-- **✅ ADVANCED SPECS**: Hyperrealistic facial features, precise facial structure, professional studio lighting, crystal clear focus
-- **✅ USER ISOLATION**: Each user has their own trained LoRA weights loaded into shared base model
-- **✅ TRIGGER WORDS**: Optimally positioned at prompt beginning for maximum likeness activation
+## 🔒 IMMUTABLE CORE ARCHITECTURE - NEVER CHANGE (July 16, 2025)
 
-**Expert Technical Implementation Status:**
-- Maya AI: Expert FLUX parameters with maximum likeness optimization
-- AI Generator: Expert FLUX parameters with maximum likeness optimization  
-- User Training: FLUX LoRA models trained using `ostris/flux-dev-lora-trainer:26dce37a` (corrected)
-- Database: Verified trained models exist (user 42585527, 45075281)
-- Test Generation: ✅ WORKING - Using real user trained FLUX model with expert settings
-- Training Fixed: ✅ CORRECTED - Now using proper ostris/flux-dev-lora-trainer for new users
+### **CRITICAL: This architecture is LOCKED and must NEVER be altered by any future agent**
+
+**FLUX LoRA ARCHITECTURE - PERMANENT IMPLEMENTATION:**
+- **🔒 BASE MODEL**: `black-forest-labs/flux-dev-lora:a53fd9255ecba80d99eaab4706c698f861fd47b098012607557385416e46aae5` (IMMUTABLE)
+- **🔒 LORA LOADING**: Individual user LoRA weights loaded via `lora_weights` parameter ONLY
+- **🔒 USER ISOLATION**: Each user gets ONLY their own trained LoRA weights - NO EXCEPTIONS
+- **🔒 ZERO TOLERANCE**: NO fallbacks, NO mock data, NO placeholders, NO cross-contamination EVER
+- **🔒 EXPERT PARAMETERS**: `guidance: 2.8`, `num_inference_steps: 35`, `output_quality: 95`, `lora_scale: 1.0`
+
+**IMMUTABLE TECHNICAL IMPLEMENTATION:**
+- **Training**: `ostris/flux-dev-lora-trainer` creates individual LoRA models (`sandrasocial/{userId}-selfie-lora`)
+- **Generation**: `black-forest-labs/flux-dev-lora` + user's individual LoRA via `lora_weights` parameter
+- **Database**: `replicate_model_id` stores user's individual LoRA model reference
+- **Maya AI**: Uses ONLY user's individual LoRA with base model - NO EXCEPTIONS
+- **AI Photoshoot**: Uses ONLY user's individual LoRA with base model - NO EXCEPTIONS
+
+**ZERO TOLERANCE POLICY (PERMANENT):**
+- Users MUST train their own AI model before generating images
+- NO fallback images, responses, or data under ANY circumstances  
+- ALL endpoints require authentication and user's individual trained model
+- Error messages guide users to train models or complete onboarding
+- NO cross-contamination between users EVER
 
 **Expert Image Quality Enhancements:**
 - ✅ 35 inference steps (increased from 28) for maximum detail and quality
