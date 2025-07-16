@@ -4,7 +4,7 @@ import { queryClient } from "@/lib/queryClient";
 import { Link, useLocation } from "wouter";
 import { useEffect, useState } from "react";
 import { apiRequest } from "@/lib/queryClient";
-import { AdminNavigation } from "@/components/admin-navigation";
+// Admin navigation is now inline
 
 interface AgentChatProps {
   agentId: string;
@@ -226,7 +226,7 @@ export default function AdminDashboard() {
 
   return (
     <div className="min-h-screen bg-gray-50">
-      {/* Admin Navigation */}
+      {/* Admin Navigation - Inline */}
       <AdminNavigation />
       
       {/* Content with top padding for fixed nav */}
