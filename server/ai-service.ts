@@ -240,7 +240,7 @@ export class AIService {
       version: userModelVersion, // Use user's trained model directly
       input: {
         prompt: enhancedPrompt,
-        guidance: 2.5,              // 🔧 BALANCED: Let user's model dominate without base model interference
+        guidance: 2.8,              // 🔧 ENHANCED: Stronger adherence to user's trained features
         num_inference_steps: 34,    // 🔧 OPTIMAL: Perfect steps for trained model likeness
         num_outputs: 3,
         aspect_ratio: "3:4",
@@ -248,7 +248,9 @@ export class AIService {
         output_quality: 90,         // 🔧 HIGH: Good quality without over-enhancement
         megapixels: "1",
         go_fast: false,
-        disable_safety_checker: false
+        disable_safety_checker: false,
+        scheduler: "K_EULER_ANCESTRAL",  // 🔧 ENHANCED: Better detail preservation and likeness
+        strength: 0.95                   // 🔧 MAXIMUM: Full strength application of trained model
       }
     };
     

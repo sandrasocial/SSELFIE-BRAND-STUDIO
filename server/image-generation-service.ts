@@ -81,7 +81,7 @@ export async function generateImages(request: GenerateImagesRequest): Promise<Ge
     // Build input with user's individual trained model - CLEAN SETTINGS
     const input: any = {
       prompt: finalPrompt,
-      guidance: 2.5,              // 🔧 BALANCED: Let user's model dominate without base model interference
+      guidance: 2.8,              // 🔧 ENHANCED: Stronger adherence to user's trained features
       num_inference_steps: 34,    // 🔧 OPTIMAL: Perfect steps for trained model likeness
       num_outputs: 3,
       aspect_ratio: "3:4",
@@ -89,7 +89,9 @@ export async function generateImages(request: GenerateImagesRequest): Promise<Ge
       output_quality: 90,         // 🔧 HIGH: Good quality without over-enhancement
       megapixels: "1",
       go_fast: false,
-      disable_safety_checker: false
+      disable_safety_checker: false,
+      scheduler: "K_EULER_ANCESTRAL",  // 🔧 ENHANCED: Better detail preservation and likeness
+      strength: 0.95                   // 🔧 MAXIMUM: Full strength application of trained model
     };
     
     console.log('🔍 DEBUG INPUT:', JSON.stringify(input, null, 2));
