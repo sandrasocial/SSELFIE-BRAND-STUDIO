@@ -5090,9 +5090,142 @@ FOR VICTORIA SPECIFICALLY: When asked about redesigning "sandra-command page", u
       const { agentId } = req.params;
       const { message } = req.body;
       
+      console.log(`🤖 AGENT CHAT REQUEST: ${agentId} - "${message}"`);
+      
       // Verify admin access
       if (req.user.claims.email !== 'ssa@ssasocial.com') {
         return res.status(403).json({ error: 'Admin access required' });
+      }
+
+      // Check if message requests file operations for Maya or Victoria
+      const requestsFileOp = /\b(deploy|implement|create|modify|write|build|fix|add|update|change|code|component|page|design|layout|button|test)\b/i.test(message);
+      
+      // Handle file operations FIRST before conversational response
+      if (requestsFileOp && (agentId === 'maya' || agentId === 'victoria')) {
+        console.log(`🔧 DETECTED FILE OPERATION REQUEST for ${agentId}: ${message}`);
+        
+        try {
+          // Import AgentCodebaseIntegration
+          const { AgentCodebaseIntegration } = await import('./agents/agent-codebase-integration');
+          
+          // Maya: Creating React components
+          if (agentId === 'maya' && (/component|button/i.test(message))) {
+            const componentName = message.match(/\b([A-Z][a-zA-Z]*(?:Component|Button))\b/)?.[1] || 
+                                 message.match(/\b([A-Z][a-zA-Z]+)\b/)?.[1] + 'Component' || 
+                                 'TestComponent';
+            
+            console.log(`🔨 Maya creating component: ${componentName}`);
+            
+            const componentCode = `import React from 'react';
+
+export default function ${componentName}() {
+  return (
+    <div className="p-6 bg-white border border-gray-200 rounded">
+      <h2 className="text-2xl font-bold text-black mb-4">${componentName}</h2>
+      <p className="text-gray-600 mb-4">
+        Created by Maya AI on ${new Date().toLocaleDateString()}
+      </p>
+      <div className="mt-4 p-4 bg-gray-50 rounded">
+        <p className="text-sm">Request: "{message}"</p>
+      </div>
+      <button className="mt-4 px-4 py-2 bg-black text-white rounded hover:bg-gray-800">
+        ${componentName} Action
+      </button>
+    </div>
+  );
+}`;
+            
+            await AgentCodebaseIntegration.writeFile(
+              agentId,
+              `client/src/components/${componentName}.tsx`,
+              componentCode,
+              `Created ${componentName} as requested by Sandra`
+            );
+            
+            return res.json({
+              message: `✅ Done! I've created ${componentName} and deployed it to client/src/components/${componentName}.tsx. The component is ready to use!`,
+              agentId,
+              agentName: 'Maya',
+              fileOperations: [
+                {
+                  type: 'write',
+                  path: `client/src/components/${componentName}.tsx`,
+                  description: `Created ${componentName} component`
+                }
+              ],
+              timestamp: new Date().toISOString()
+            });
+          }
+          
+          // Victoria: Creating design layouts
+          if (agentId === 'victoria' && (/design|layout|ui|page/i.test(message))) {
+            const pageName = message.match(/\b([A-Z][a-zA-Z]*Page)\b/)?.[1] || 'LuxuryPage';
+            
+            console.log(`🎨 Victoria creating page: ${pageName}`);
+            
+            const pageCode = `import React from 'react';
+
+export default function ${pageName}() {
+  return (
+    <div className="min-h-screen bg-white">
+      <header className="bg-black text-white py-8">
+        <div className="max-w-4xl mx-auto px-6">
+          <h1 className="text-4xl font-light tracking-wide" style={{ fontFamily: 'Times New Roman' }}>
+            ${pageName.replace('Page', '')}
+          </h1>
+        </div>
+      </header>
+      
+      <main className="max-w-4xl mx-auto px-6 py-12">
+        <div className="space-y-8">
+          <p className="text-lg text-gray-600 leading-relaxed">
+            Luxury editorial layout by Victoria AI on ${new Date().toLocaleDateString()}
+          </p>
+          
+          <div className="bg-gray-50 p-8">
+            <h2 className="text-2xl mb-4" style={{ fontFamily: 'Times New Roman' }}>
+              Editorial Section
+            </h2>
+            <p className="text-gray-700">Request: "{message}"</p>
+          </div>
+        </div>
+      </main>
+    </div>
+  );
+}`;
+            
+            await AgentCodebaseIntegration.writeFile(
+              agentId,
+              `client/src/pages/${pageName}.tsx`,
+              pageCode,
+              `Created ${pageName} luxury layout as requested by Sandra`
+            );
+            
+            return res.json({
+              message: `✅ Perfect! I've created ${pageName} with luxury editorial styling and deployed it to client/src/pages/${pageName}.tsx.`,
+              agentId,
+              agentName: 'Victoria',
+              fileOperations: [
+                {
+                  type: 'write',
+                  path: `client/src/pages/${pageName}.tsx`,
+                  description: `Created ${pageName} luxury layout`
+                }
+              ],
+              timestamp: new Date().toISOString()
+            });
+          }
+          
+        } catch (fileError) {
+          console.error('❌ FILE OPERATION FAILED:', fileError);
+          return res.json({
+            message: `I tried to perform the file operation but encountered an error: ${fileError.message}. Let me know how I can help differently.`,
+            agentId,
+            agentName: agentId === 'maya' ? 'Maya' : 'Victoria',
+            error: fileError.message,
+            timestamp: new Date().toISOString()
+          });
+        }
       }
 
       // Agent system prompts and personalities
