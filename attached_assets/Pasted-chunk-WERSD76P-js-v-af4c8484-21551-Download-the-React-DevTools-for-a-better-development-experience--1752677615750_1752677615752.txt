@@ -1,0 +1,47 @@
+chunk-WERSD76P.js?v=af4c8484:21551 Download the React DevTools for a better development experience: https://reactjs.org/link/react-devtools
+pwa.ts:44 SSELFIE Studio: Service Worker registered ServiceWorkerRegistration
+App.tsx:309 SSELFIE Studio: App rendering...
+use-auth.ts:63 🔍 useAuth final state: Object
+use-auth.ts:14 🔍 Auth check: Making request to /api/auth/user
+App.tsx:104 ProtectedRoute state: Object
+App.tsx:282 SSELFIE Studio: App initializing...
+App.tsx:303 SSELFIE Studio: Domain access validated, app ready
+use-auth.ts:22 🔍 Auth check: Response status: 200
+use-auth.ts:48 ✅ Auth check: User authenticated: ssa@ssasocial.com
+use-auth.ts:63 🔍 useAuth final state: Object
+use-auth.ts:63 🔍 useAuth final state: Object
+use-auth.ts:63 🔍 useAuth final state: Object
+App.tsx:104 ProtectedRoute state: Object
+use-auth.ts:63 🔍 useAuth final state: Object
+use-auth.ts:63 🔍 useAuth final state: Object
+workspace:1 Error while trying to use the following icon from the Manifest: https://e33979fc-c9be-4f0d-9a7b-6a3e83046828-00-3ij9k7qy14rai.picard.replit.dev/icon-192.svg (Download error or resource isn't a valid image)
+use-auth.ts:63 🔍 useAuth final state: Object
+use-auth.ts:63 🔍 useAuth final state: Object
+use-auth.ts:63 🔍 useAuth final state: Object
+use-auth.ts:63 🔍 useAuth final state: Object
+use-auth.ts:63 🔍 useAuth final state: Object
+use-auth.ts:63 🔍 useAuth final state: Object
+use-auth.ts:63 🔍 useAuth final state: Object
+use-auth.ts:63 🔍 useAuth final state: Object
+use-auth.ts:63 🔍 useAuth final state: Object
+use-auth.ts:63 🔍 useAuth final state: Object
+ai-photoshoot.tsx:1170 AI-PHOTOSHOOT: Preview modal check - showPreviewModal: false generatedImages.length: 0
+use-auth.ts:63 🔍 useAuth final state: Object
+App.tsx:104 ProtectedRoute state: Object
+use-auth.ts:63 🔍 useAuth final state: Object
+use-auth.ts:63 🔍 useAuth final state: Object
+use-auth.ts:63 🔍 useAuth final state: Object
+ai-photoshoot.tsx:1170 AI-PHOTOSHOOT: Preview modal check - showPreviewModal: false generatedImages.length: 0
+use-auth.ts:63 🔍 useAuth final state: Object
+use-auth.ts:63 🔍 useAuth final state: Object
+use-auth.ts:63 🔍 useAuth final state: Object
+ai-photoshoot.tsx:1170 AI-PHOTOSHOOT: Preview modal check - showPreviewModal: false generatedImages.length: 0
+use-auth.ts:63 🔍 useAuth final state: Object
+api/maya-generate-images:1  Failed to load resource: the server responded with a status of 500 (Internal Server Error)
+ai-photoshoot.tsx:840 Error generating images: Error: Failed to generate images with Maya. Please try again.
+    at ai-photoshoot.tsx:824:15
+(anonymous) @ ai-photoshoot.tsx:840
+use-auth.ts:63 🔍 useAuth final state: Object
+ai-photoshoot.tsx:1170 AI-PHOTOSHOOT: Preview modal check - showPreviewModal: false generatedImages.length: 0
+use-auth.ts:63 🔍 useAuth final state: Object
+use-auth.ts:63 🔍 useAuth final state: Object
