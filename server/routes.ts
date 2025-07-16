@@ -1464,6 +1464,77 @@ Create prompts that feel like iconic fashion campaign moments that would make so
     }
   });
 
+  // 🏆 LUXURY TRAINING ENDPOINT - FLUX PRO TRAINER for Premium Users
+  app.post('/api/start-luxury-training', isAuthenticated, async (req: any, res) => {
+    try {
+      const { selfieImages } = req.body;
+      const userId = req.user.claims.sub;
+      
+      if (!selfieImages || !Array.isArray(selfieImages) || selfieImages.length === 0) {
+        return res.status(400).json({ error: 'At least one selfie image is required for luxury training' });
+      }
+
+      // Import luxury training service
+      const { LuxuryTrainingService } = await import('./luxury-training-service');
+      
+      // Start luxury FLUX Pro training
+      const trainingResult = await LuxuryTrainingService.startLuxuryTraining(userId, selfieImages);
+      
+      res.json({
+        success: true,
+        trainingId: trainingResult.trainingId,
+        status: trainingResult.status,
+        model: trainingResult.model,
+        message: 'Luxury FLUX Pro training started! Your ultra-realistic model will be ready in 30-45 minutes.',
+        estimatedCompletion: new Date(Date.now() + 40 * 60 * 1000).toISOString() // 40 minutes
+      });
+      
+    } catch (error) {
+      console.error('Luxury training error:', error);
+      
+      if (error.message?.includes('Premium subscription required')) {
+        return res.status(403).json({ 
+          error: 'Luxury training requires €67/month premium subscription',
+          upgrade: true,
+          upgradeUrl: '/pricing'
+        });
+      }
+      
+      res.status(500).json({ 
+        error: error.message || 'Failed to start luxury training',
+        details: 'Please ensure you have a premium subscription and try again'
+      });
+    }
+  });
+
+  // 🏆 LUXURY TRAINING STATUS - Enhanced monitoring for FLUX Pro
+  app.get('/api/luxury-training-status/:userId', isAuthenticated, async (req: any, res) => {
+    try {
+      const { userId } = req.params;
+      
+      // Import luxury training service
+      const { LuxuryTrainingService } = await import('./luxury-training-service');
+      
+      // Check luxury training status
+      const statusResult = await LuxuryTrainingService.checkLuxuryTrainingStatus(userId);
+      
+      res.json({
+        status: statusResult.status,
+        progress: statusResult.progress,
+        finetune_id: statusResult.finetune_id,
+        isLuxury: true,
+        qualityLevel: 'Ultra-Realistic Professional',
+        estimatedTimeRemaining: statusResult.progress < 100 ? `${Math.max(0, 40 - Math.round(statusResult.progress * 0.4))} minutes` : '0 minutes'
+      });
+      
+    } catch (error) {
+      console.error('Luxury training status error:', error);
+      res.status(500).json({ 
+        error: error.message || 'Failed to check luxury training status'
+      });
+    }
+  });
+
 
 
   // Authentication already set up at the beginning of this function
