@@ -316,7 +316,10 @@ export async function setupAuth(app: Express) {
       // CRITICAL: Use openid-client's authorizationCodeGrant method instead of manual fetch
       console.log('🔧 Using openid-client for token exchange...');
       
-      const tokenSet = await client.authorizationCodeGrant(config, {
+      // Create proper URL object for currentUrl parameter (required by openid-client v5+)
+      const currentUrl = new URL(`https://${hostname}/api/callback?code=${code}`);
+      
+      const tokenSet = await client.authorizationCodeGrant(config, currentUrl, {
         code: code,
         redirect_uri: `https://${hostname}/api/callback`
       });
