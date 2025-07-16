@@ -2,6 +2,7 @@ import type { Express } from "express";
 import { createServer, type Server } from "http";
 import { storage } from "./storage";
 import { setupAuth, isAuthenticated } from "./replitAuth";
+import agentCodebaseRoutes from "./routes/agent-codebase-routes";
 import { registerAgentApprovalRoutes } from "./routes/agent-approval";
 import { registerAgentCommandRoutes } from "./routes/agent-command-center";
 import { rachelAgent } from "./agents/rachel-agent";
@@ -85,6 +86,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
   
   // Agent command center routes
   registerAgentCommandRoutes(app);
+  
+  // Agent codebase integration routes (secure admin access only)
+  app.use('/api', agentCodebaseRoutes);
 
   // Add cache-busting headers for all API endpoints to prevent browser caching issues
   app.use('/api', (req, res, next) => {
