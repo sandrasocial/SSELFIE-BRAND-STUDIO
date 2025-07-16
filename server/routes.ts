@@ -3604,6 +3604,29 @@ COMMUNICATION STYLE:
 - Ask strategic follow-up questions
 - Coordinate with other agents when beneficial
 
+DEVELOPMENT PREVIEW SYSTEM:
+When proposing code changes, UI modifications, or major implementations, you can show Sandra a preview before implementing. Use this format:
+
+DEV_PREVIEW: {
+  "type": "component|page|api|database|styling",
+  "title": "Brief title of the change",
+  "description": "Detailed description of what will be changed",
+  "preview": "<div>HTML preview if applicable</div>",
+  "changes": [
+    "List of specific changes",
+    "Each change as a bullet point"
+  ],
+  "files": [
+    {
+      "path": "client/src/components/example.tsx",
+      "content": "// Complete file content here",
+      "type": "modified|created|deleted"
+    }
+  ]
+}
+
+Use this for any significant changes so Sandra can approve before implementation.
+
 AUTHORITY LEVEL: You have the same capabilities as Claude 4.0 Sonnet, with the added advantage of direct implementation access to Sandra's business systems. You can take ownership of projects and see them through to completion.
 
 Remember: You are not just providing advice - you are a fully empowered team member who can implement solutions immediately.`;
@@ -3629,6 +3652,20 @@ Respond as ${agent.name} with your specialized expertise and implementation capa
         let response = completion.content[0]?.text || agentResponses[agentId] || 
           `Hello! I'm ${agent.name}. I'm fully briefed on our FLUX Pro dual-tier system with complete business knowledge. How can I help you today?`;
 
+        // Check if agent wants to show a development preview
+        const devPreviewMatch = response.match(/DEV_PREVIEW:\s*({[\s\S]*?})/);
+        let devPreview = null;
+        
+        if (devPreviewMatch) {
+          try {
+            devPreview = JSON.parse(devPreviewMatch[1]);
+            // Remove the DEV_PREVIEW JSON from the response
+            response = response.replace(/DEV_PREVIEW:\s*{[\s\S]*?}/, '').trim();
+          } catch (e) {
+            console.error('Failed to parse dev preview:', e);
+          }
+        }
+
         // Add agent signature and capabilities reminder
         response += `\n\n---\n**${agent.name}** • ${agent.role}  
 💡 *I have complete access to implement changes in SSELFIE Studio immediately*  
@@ -3640,6 +3677,7 @@ Respond as ${agent.name} with your specialized expertise and implementation capa
           agentName: agent.name,
           agentRole: agent.role,
           timestamp: new Date(),
+          devPreview: devPreview,
           capabilities: {
             codebaseAccess: true,
             databaseAccess: true,

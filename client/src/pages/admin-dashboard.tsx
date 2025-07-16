@@ -5,6 +5,7 @@ import { Link, useLocation } from "wouter";
 import { useEffect, useState } from "react";
 import { apiRequest } from "@/lib/queryClient";
 import { VisualDesignPreview } from "@/components/visual-design-preview";
+import { DevPreviewModal } from "@/components/dev-preview-modal";
 
 export default function AdminDashboard() {
   const { user, isAuthenticated, isLoading } = useAuth();
@@ -191,6 +192,8 @@ function AgentChat({ agentId, agentName, role, status, currentTask, metrics }: A
   const [showPreview, setShowPreview] = useState(false);
   const [previewContent, setPreviewContent] = useState('');
   const [previewType, setPreviewType] = useState<'component' | 'layout' | 'page' | 'email'>('component');
+  const [showDevPreview, setShowDevPreview] = useState(false);
+  const [devPreviewData, setDevPreviewData] = useState<any>(null);
 
   const sendMessage = useMutation({
     mutationFn: async (content: string) => {
@@ -221,8 +224,13 @@ function AgentChat({ agentId, agentName, role, status, currentTask, metrics }: A
       };
       setChatHistory(prev => [...prev, newMessage, agentResponse]);
       
-      // Show preview if agent provided one
-      if (data.hasPreview && agentId === 'victoria') {
+      // Show development preview if agent provided one
+      if (data.devPreview) {
+        setDevPreviewData(data.devPreview);
+        setShowDevPreview(true);
+      }
+      // Legacy preview support
+      else if (data.hasPreview && agentId === 'victoria') {
         setPreviewContent(data.previewContent);
         setPreviewType(data.previewType || 'component');
         setShowPreview(true);
@@ -332,6 +340,30 @@ function AgentChat({ agentId, agentName, role, status, currentTask, metrics }: A
           </div>
         </div>
       )}
+
+      {/* Development Preview Modal */}
+      <DevPreviewModal
+        isOpen={showDevPreview}
+        onClose={() => setShowDevPreview(false)}
+        agentName={agentName}
+        previewData={devPreviewData || {
+          type: 'component',
+          title: 'Development Preview',
+          description: 'Preview of proposed changes',
+          changes: []
+        }}
+        onApprove={() => {
+          sendMessage.mutate("✅ APPROVED! Please implement these changes immediately.");
+          setShowDevPreview(false);
+        }}
+        onReject={(feedback) => {
+          const rejectMessage = feedback 
+            ? `❌ Please revise this implementation. Feedback: ${feedback}`
+            : "❌ Please revise this implementation with a different approach.";
+          sendMessage.mutate(rejectMessage);
+          setShowDevPreview(false);
+        }}
+      />
       
       <div className="p-4 border-t border-gray-200 bg-gray-50">
         <form onSubmit={(e) => {
