@@ -40,19 +40,15 @@ export async function generateImages(request: GenerateImagesRequest): Promise<Ge
     const savedImage = await storage.saveAIImage(aiImageData);
 
 
-    // ✅ ACCOUNT CLEANED: Use user's trained model version directly
-    let userModelVersion = userModel.replicateVersionId;
+    // ✅ CRITICAL FIX: Use the correct model ID that worked yesterday
+    let userModelVersion = userModel.replicateModelId; // Use the short model ID instead of version ID
     
     if (!userModelVersion) {
-      throw new Error('User model version not found - training may need to be redone after account cleanup');
+      throw new Error('User model ID not found - training may need to be redone');
     }
     
-    // 🔧 CRITICAL FIX: Extract just the version hash if full version string stored
-    if (userModelVersion.includes(':')) {
-      userModelVersion = userModelVersion.split(':').pop(); // Get the hash after the colon
-    }
-    
-    console.log(`🔧 MODEL VERSION FIX - User: ${userId}, Using version hash: ${userModelVersion}`);
+    console.log(`🔧 MODEL FIX - User: ${userId}, Using model ID: ${userModelVersion} (was working yesterday)`);
+    console.log(`🔍 FULL MODEL DEBUG - Model ID: ${userModel.replicateModelId}, Version ID: ${userModel.replicateVersionId}`);
     
     // 🎯 CRITICAL: Trigger word MUST be at the very beginning for maximum likeness
     let finalPrompt = customPrompt;
@@ -61,10 +57,22 @@ export async function generateImages(request: GenerateImagesRequest): Promise<Ge
     finalPrompt = finalPrompt.replace(new RegExp(triggerWord, 'gi'), '').trim();
     finalPrompt = `${triggerWord} ${finalPrompt}`;
     
-    console.log(`🎯 LIKENESS CHECK - User: ${userId}, Trigger: "${triggerWord}", Final prompt starts with: "${finalPrompt.substring(0, 100)}..."`);
-    console.log(`🔍 PURE PROMPT TEST - Full prompt: "${finalPrompt}"`);
+    console.log(`🎯 LIKENESS CHECK - User: ${userId}, Trigger: "${triggerWord}", Final prompt starts with: "${finalPrompt.substring(0, 50)}..."`);
     
-    // NO ENHANCEMENTS - using exactly what Maya provides for testing
+    // Maya AI should provide complete authentic prompts - minimal enhancement only
+    const naturalTextureSpecs = ", raw photo, natural skin glow, visible texture, film grain, unretouched confidence, editorial cover portrait";
+    
+    const hairEnhancementSpecs = ", hair with natural volume and movement, soft textured hair styling, hair flowing naturally, hair never flat or lifeless";
+    
+    // Only add natural texture if not already present
+    if (!finalPrompt.toLowerCase().includes('film grain') && !finalPrompt.toLowerCase().includes('raw photo')) {
+      finalPrompt = `${finalPrompt}${naturalTextureSpecs}`;
+    }
+    
+    // Always add hair enhancement specifications for better hair quality
+    if (!finalPrompt.toLowerCase().includes('hair with') && !finalPrompt.toLowerCase().includes('voluminous hair')) {
+      finalPrompt = `${finalPrompt}${hairEnhancementSpecs}`;
+    }
 
     // Build input with user's individual trained model - YESTERDAY'S PERFECT SETTINGS
     const input: any = {
