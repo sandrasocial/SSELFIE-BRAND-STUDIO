@@ -78,7 +78,7 @@ export async function generateImages(request: GenerateImagesRequest): Promise<Ge
     // Build input with black forest labs FLUX model + user's LoRA weights - EXPERT SETTINGS
     const input: any = {
       prompt: finalPrompt,
-      guidance: 2.8, // Optimized for maximum likeness and natural results  
+      guidance_scale: 2.8, // Optimized for maximum likeness and natural results  
       lora_weights: loraModelName, // User's trained LoRA weights
       lora_scale: 1.0, // Maximum LoRA influence for strongest likeness
       num_inference_steps: 35, // Increased for higher quality and detail

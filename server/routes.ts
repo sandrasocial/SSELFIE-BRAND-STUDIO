@@ -845,7 +845,6 @@ Create prompts that feel like iconic fashion campaign moments that would make so
 
     } catch (error) {
       console.error('Maya generation error:', error);
-      console.error('User model data:', userModel);
       
       // Handle specific Replicate API errors with user-friendly messages
       if (error.message.includes('502')) {
