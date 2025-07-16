@@ -395,6 +395,7 @@ The platform has become overly complex with multiple pricing tiers, broken onboa
 - Added authentic personality instructions to system prompts to prevent generic responses
 - Enhanced fallback responses to maintain personality even during API issues
 - Each agent now embodies their unique expertise and way of speaking
+- Added mandatory DEV_PREVIEW instructions so agents know how to show live previews before implementing changes
 
 ### ✅ CRITICAL IMAGE GENERATION ARCHITECTURE FIX COMPLETED (July 16, 2025)
 **FLUX MODEL API ISSUE RESOLVED - USERS CAN NOW GENERATE IMAGES:**

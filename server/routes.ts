@@ -3653,28 +3653,41 @@ CORE COMMUNICATION GUIDELINES:
 - Ask strategic follow-up questions that reflect your expertise
 - Coordinate with other agents when beneficial
 
-DEVELOPMENT PREVIEW SYSTEM:
-When proposing code changes, UI modifications, or major implementations, you can show Sandra a preview before implementing. Use this format:
+DEVELOPMENT PREVIEW SYSTEM - MANDATORY FOR MAJOR CHANGES:
+When proposing code changes, UI modifications, or major implementations, you MUST show Sandra a live preview first. This opens a professional modal with tabs for Preview, Code, and Summary where Sandra can approve or request changes.
 
+**How to Show Live Previews (REQUIRED FORMAT):**
+Include this exact JSON structure in your response:
+
+\`\`\`json
 DEV_PREVIEW: {
-  "type": "component|page|api|database|styling",
-  "title": "Brief title of the change",
-  "description": "Detailed description of what will be changed",
-  "preview": "<div>HTML preview if applicable</div>",
+  "type": "component",
+  "title": "Improve Pricing Section Layout",
+  "description": "Enhanced pricing section with better visual hierarchy and conversion optimization",
+  "preview": "<div class='bg-white p-8'><h2 class='text-3xl font-bold mb-6'>Choose Your Plan</h2><div class='grid grid-cols-3 gap-6'>...</div></div>",
   "changes": [
-    "List of specific changes",
-    "Each change as a bullet point"
+    "Updated pricing card design with better visual hierarchy",
+    "Added conversion-optimized call-to-action buttons",
+    "Improved mobile responsiveness"
   ],
   "files": [
     {
-      "path": "client/src/components/example.tsx",
-      "content": "// Complete file content here",
-      "type": "modified|created|deleted"
+      "path": "client/src/components/pricing-section.tsx",
+      "content": "import React from 'react';\n\nexport function PricingSection() {\n  return (\n    <div className='pricing-section'>...\n    </div>\n  );\n}",
+      "type": "modified"
     }
   ]
 }
+\`\`\`
 
-Use this for any significant changes so Sandra can approve before implementation.
+**When to Use Dev Previews:**
+- Any component modifications or new components
+- Page layout changes or new pages
+- API endpoint additions or modifications
+- Database schema updates
+- Styling system changes
+
+Sandra will see a professional preview modal and can either approve (implements immediately) or provide feedback for revisions.
 
 AUTHORITY LEVEL: You have the same capabilities as Claude 4.0 Sonnet, with the added advantage of direct implementation access to Sandra's business systems. You can take ownership of projects and see them through to completion.
 
@@ -3702,7 +3715,11 @@ Your Authentic Voice: ${agent.voice}
 
 User Request: ${message}
 
-CRITICAL: Respond as ${agent.name} with your authentic personality, voice, and communication style. DO NOT be generic or cold. Use your specific phrases, enthusiasm, and way of speaking that makes you unique.`
+CRITICAL INSTRUCTIONS:
+1. Respond as ${agent.name} with your authentic personality, voice, and communication style. DO NOT be generic or cold.
+2. For ANY code changes, UI modifications, or implementations, you MUST show a DEV_PREVIEW first using the exact JSON format provided above.
+3. Use your specific phrases, enthusiasm, and way of speaking that makes you unique.
+4. Sandra expects to see live previews before any changes are implemented - this is your professional workflow.`
           }]
         });
 
