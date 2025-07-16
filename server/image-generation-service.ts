@@ -57,32 +57,35 @@ export async function generateImages(request: GenerateImagesRequest): Promise<Ge
       finalPrompt = `${triggerWord} ${finalPrompt}`;
     }
     
-    // Maya AI should provide complete authentic prompts - minimal enhancement only
-    const naturalTextureSpecs = ", raw photo, natural skin glow, visible texture, film grain, unretouched confidence, editorial cover portrait";
+    // EXPERT ENHANCEMENT: Maximum likeness and professional quality
+    const expertQualitySpecs = ", raw photo, natural skin glow, visible texture, film grain, unretouched confidence, editorial cover portrait, hyperrealistic facial features, authentic skin tone, natural eye detail, precise facial structure, professional studio lighting, crystal clear focus";
     
-    const hairEnhancementSpecs = ", hair with natural volume and movement, soft textured hair styling, hair flowing naturally, hair never flat or lifeless";
+    const premiumHairSpecs = ", hair with natural volume and movement, soft textured hair styling, hair flowing naturally, voluminous healthy hair, never flat or lifeless hair, professional hair styling";
     
-    // Only add natural texture if not already present
+    // Only add expert quality specs if not already present
     if (!finalPrompt.toLowerCase().includes('film grain') && !finalPrompt.toLowerCase().includes('raw photo')) {
-      finalPrompt = `${finalPrompt}${naturalTextureSpecs}`;
+      finalPrompt = `${finalPrompt}${expertQualitySpecs}`;
     }
     
-    // Always add hair enhancement specifications for better hair quality
+    // Always add premium hair specifications for better hair quality
     if (!finalPrompt.toLowerCase().includes('hair with') && !finalPrompt.toLowerCase().includes('voluminous hair')) {
-      finalPrompt = `${finalPrompt}${hairEnhancementSpecs}`;
+      finalPrompt = `${finalPrompt}${premiumHairSpecs}`;
     }
 
-    // Build input with user's trained FLUX model
+    // Build input with user's trained FLUX model - EXPERT SETTINGS FOR MAXIMUM QUALITY
     const input: any = {
       prompt: finalPrompt,
-      guidance_scale: 3, // Use guidance_scale for FLUX
-      num_inference_steps: 28, // FLUX dev needs around 28 steps  
+      guidance_scale: 2.8, // Optimized for maximum likeness and natural results
+      num_inference_steps: 35, // Increased for higher quality and detail
       num_outputs: 3,
       aspect_ratio: "3:4",
       output_format: "png",
-      output_quality: 90,
+      output_quality: 95, // Maximum quality for "WOW" results
       disable_safety_checker: false,
-      model: "dev" // Use dev model for quality
+      model: "dev", // Use dev model for quality
+      seed: Math.floor(Math.random() * 1000000), // Random seed for variety
+      lora_scale: 1.0, // Maximum LoRA influence for strongest likeness
+      apply_watermark: false // Clean professional images
     };
     
 

@@ -187,12 +187,18 @@ export class AIService {
     // Use ONLY user's unique trigger word - NO FALLBACKS
     const triggerWord = userModel.triggerWord;
     
-    // MANDATORY: Natural texture specifications for authentic results
-    const naturalTextureSpecs = ", raw photo, natural skin glow, visible texture, film grain, unretouched confidence, editorial cover portrait";
+    // EXPERT SPECIFICATIONS: Maximum likeness and authentic results
+    const expertQualitySpecs = ", raw photo, natural skin glow, visible texture, film grain, unretouched confidence, editorial cover portrait, hyperrealistic facial features, authentic skin tone, natural eye detail, precise facial structure, professional studio lighting, crystal clear focus";
     
     if (customPrompt) {
-      // Custom prompt from Maya AI should already include trigger word and be authentic
-      return `${triggerWord} ${customPrompt}${naturalTextureSpecs}`;
+      // Ensure trigger word is at the beginning for maximum likeness activation
+      let finalPrompt = customPrompt;
+      if (!finalPrompt.startsWith(triggerWord)) {
+        // Remove trigger word if it exists elsewhere and place at beginning
+        finalPrompt = finalPrompt.replace(new RegExp(triggerWord, 'gi'), '').trim();
+        finalPrompt = `${triggerWord} ${finalPrompt}`;
+      }
+      return `${finalPrompt}${expertQualitySpecs}`;
     }
     
     // Fallback should never be used - Maya should always provide custom prompt
@@ -224,14 +230,17 @@ export class AIService {
       version: userModelVersion, // Use user's trained model version
       input: {
         prompt: prompt,
-        guidance_scale: 3, // Use guidance_scale for FLUX
-        num_inference_steps: 28, // FLUX dev needs around 28 steps
+        guidance_scale: 2.8, // Optimized for maximum likeness and natural results
+        num_inference_steps: 35, // Increased for higher quality and detail
         num_outputs: 3,
         aspect_ratio: "3:4",
         output_format: "png",
-        output_quality: 90,
+        output_quality: 95, // Maximum quality for "WOW" results
         disable_safety_checker: false,
-        model: "dev" // Use dev model for quality
+        model: "dev", // Use dev model for quality
+        seed: Math.floor(Math.random() * 1000000), // Random seed for variety
+        lora_scale: 1.0, // Maximum LoRA influence for strongest likeness
+        apply_watermark: false // Clean professional images
       }
     };
     
