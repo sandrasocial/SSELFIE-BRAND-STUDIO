@@ -1,6 +1,7 @@
 import express, { type Request, Response, NextFunction } from "express";
 import { registerRoutes } from "./routes";
 import { setupVite, serveStatic, log } from "./vite";
+import { TrainingCompletionMonitor } from "./training-completion-monitor";
 import cors from "cors";
 
 const app = express();
@@ -61,6 +62,11 @@ app.use((req, res, next) => {
     res.status(status).json({ message });
     throw err;
   });
+
+  // Start the training completion monitor
+  const monitor = TrainingCompletionMonitor.getInstance();
+  monitor.startMonitoring();
+  console.log('🚀 Training Completion Monitor started - will check for stuck trainings every 2 minutes');
 
   // importantly only setup vite in development and after
   // setting up all the other routes so the catch-all route

@@ -93,6 +93,7 @@ export interface IStorage {
   ensureUserModel(userId: string): Promise<UserModel>;
   deleteUserModel(userId: string): Promise<void>;
   getMonthlyRetrainCount(userId: string, month: number, year: number): Promise<number>;
+  getAllInProgressTrainings(): Promise<UserModel[]>;
   
   // Selfie Upload operations
   getSelfieUploads(userId: string): Promise<SelfieUpload[]>;
@@ -480,6 +481,14 @@ export class DatabaseStorage implements IStorage {
   async deleteUserModel(userId: string): Promise<void> {
     console.log(`🗑️ Deleting user model for user: ${userId}`);
     await db.delete(userModels).where(eq(userModels.userId, userId));
+  }
+
+  async getAllInProgressTrainings(): Promise<UserModel[]> {
+    return await db
+      .select()
+      .from(userModels)
+      .where(eq(userModels.trainingStatus, 'training'))
+      .orderBy(desc(userModels.createdAt));
   }
 
   async getMonthlyRetrainCount(userId: string, month: number, year: number): Promise<number> {
