@@ -105,6 +105,13 @@ function ProtectedRoute({ component: Component, ...props }) {
       console.log('ProtectedRoute state:', { isAuthenticated, isLoading, hasUser: !!user });
     }
   }, [isAuthenticated, isLoading, user]);
+
+  // FIXED: Move useEffect outside conditional to follow Rules of Hooks
+  useEffect(() => {
+    if (!isLoading && !isAuthenticated) {
+      setLocation("/login");
+    }
+  }, [isLoading, isAuthenticated, setLocation]);
   
   if (isLoading) {
     return (
@@ -115,11 +122,6 @@ function ProtectedRoute({ component: Component, ...props }) {
   }
   
   if (!isAuthenticated) {
-    // Direct redirect to login instead of using auth bridge
-    React.useEffect(() => {
-      setLocation("/login");
-    }, [setLocation]);
-    
     return (
       <div className="min-h-screen flex items-center justify-center">
         <div className="animate-spin w-8 h-8 border-4 border-black border-t-transparent rounded-full" />
@@ -141,6 +143,23 @@ function Router() {
       {/* PUBLIC PAGES */}
       <Route path="/" component={EditorialLanding} />
       
+      {/* AUTHENTICATION REDIRECT PAGE */}
+      <Route path="/login" component={() => {
+        // Immediate redirect to Replit Auth
+        React.useEffect(() => {
+          window.location.href = '/api/login';
+        }, []);
+        
+        return (
+          <div className="min-h-screen flex items-center justify-center">
+            <div className="text-center">
+              <div className="animate-spin w-8 h-8 border-4 border-black border-t-transparent rounded-full mx-auto mb-4" />
+              <p>Redirecting to login...</p>
+            </div>
+          </div>
+        );
+      }} />
+
       {/* DEVELOPMENT TEST PAGE */}
       <Route path="/test" component={() => (
         <div className="p-8">
@@ -172,7 +191,6 @@ function Router() {
       <Route path="/thank-you" component={ThankYou} />
       <Route path="/payment-success" component={PaymentSuccess} />
       <Route path="/auth-success" component={AuthSuccess} />
-      <Route path="/login" component={CustomLogin} />
       <Route path="/switch-account" component={SwitchAccount} />
       <Route path="/auth" component={AuthBridge} />
       <Route path="/sign-in" component={CustomLogin} />
