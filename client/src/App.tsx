@@ -225,15 +225,15 @@ function Router() {
       <Route path="/victoria-preview" component={(props) => <ProtectedRoute component={VictoriaPreview} {...props} />} />
       
       {/* SANDRA'S ADMIN DASHBOARD */}
-      <Route path="/admin" component={AdminDashboard} />
-      <Route path="/sandra-admin" component={AdminDashboard} />
-      <Route path="/admin/users" component={AdminUsers} />
-      <Route path="/admin/emails" component={AdminEmails} />
-      <Route path="/admin/settings" component={AdminSettings} />
-      <Route path="/agent-approval" component={AgentApproval} />
-      <Route path="/admin/agent-approval" component={AgentApproval} />
-      <Route path="/agent-command" component={AgentCommandCenter} />
-      <Route path="/admin/agent-command" component={AgentCommandCenter} />
+      <Route path="/admin" component={(props) => <ProtectedRoute component={AdminDashboard} {...props} />} />
+      <Route path="/sandra-admin" component={(props) => <ProtectedRoute component={AdminDashboard} {...props} />} />
+      <Route path="/admin/users" component={(props) => <ProtectedRoute component={AdminUsers} {...props} />} />
+      <Route path="/admin/emails" component={(props) => <ProtectedRoute component={AdminEmails} {...props} />} />
+      <Route path="/admin/settings" component={(props) => <ProtectedRoute component={AdminSettings} {...props} />} />
+      <Route path="/agent-approval" component={(props) => <ProtectedRoute component={AgentApproval} {...props} />} />
+      <Route path="/admin/agent-approval" component={(props) => <ProtectedRoute component={AgentApproval} {...props} />} />
+      <Route path="/agent-command" component={(props) => <ProtectedRoute component={AgentCommandCenter} {...props} />} />
+      <Route path="/admin/agent-command" component={(props) => <ProtectedRoute component={AgentCommandCenter} {...props} />} />
       <Route path="/admin/progress" component={() => <div className="p-8">Admin Progress - Coming Soon</div>} />
       <Route path="/admin/roadmap" component={() => <div className="p-8">Admin Roadmap - Coming Soon</div>} />
       <Route path="/admin/ai-models" component={() => <div className="p-8">AI Models Management - Coming Soon</div>} />
