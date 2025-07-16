@@ -58,10 +58,10 @@ export async function generateImages(request: GenerateImagesRequest): Promise<Ge
       finalPrompt = `${triggerWord} ${finalPrompt}`;
     }
     
-    // PROVEN OPTIMAL SPECIFICATIONS: Natural but confident - realistic skin with subtle enhancement
-    const expertQualitySpecs = ", raw photograph, subtle skin texture (1.6), natural skin detail, soft film grain (Kodak Ektar:1.3), natural skin with gentle smoothing, medium-format film aesthetic (1.5), realistic hair with volume, natural hair texture, never flat hair, hyperrealistic facial features, authentic skin tone, natural healthy glow, subtle skin refinement, professional photography";
+    // REALISTIC FILM PHOTOGRAPHY SPECIFICATIONS - Simplified for natural results  
+    const expertQualitySpecs = ", raw film photograph, natural skin detail, soft 35mm film grain, authentic film photography, natural hair with volume, professional photography on film camera, natural lighting";
     
-    const premiumHairSpecs = ", natural hair with volume and movement, realistic hair texture, voluminous healthy hair, never flat or lifeless hair, natural hair flow";
+    const premiumHairSpecs = ", voluminous hair with natural movement, healthy hair texture, natural hair flow";
     
     // Only add expert quality specs if not already present
     if (!finalPrompt.toLowerCase().includes('film grain') && !finalPrompt.toLowerCase().includes('raw photo')) {

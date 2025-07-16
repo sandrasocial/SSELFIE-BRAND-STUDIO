@@ -21,84 +21,84 @@ const PROMPT_COLLECTIONS = {
         name: 'Morning Solitude',
         category: 'Inner Peace',
         description: 'Finding stillness in the storm - the morning ritual that saved your sanity',
-        prompt: 'raw photo, visible skin pores, film grain, unretouched natural skin texture, subsurface scattering, photographed on film, [triggerword], woman in soft neutral clothing sitting in meditation pose by large window, morning light gently illuminating her peaceful face, eyes closed in deep contemplation, natural untouched beauty, hair in simple loose style, hands resting gently, shot on Leica Q2 with 28mm f/1.7 lens, meditation photography, soft morning lighting, inner peace aesthetic'
+        prompt: 'film photograph, natural film grain, [triggerword], woman in soft neutral clothing sitting in meditation pose by large window, morning light gently illuminating her peaceful face, eyes closed in deep contemplation, natural untouched beauty, hair in simple loose style, hands resting gently, shot on Leica Q2 with 28mm f/1.7 lens, meditation photography, soft morning lighting, inner peace aesthetic'
       },
       {
         id: 'ocean-therapy-walk',
         name: 'Ocean Healing',
         category: 'Nature Therapy',
         description: 'Where the ocean became your therapist - finding peace in endless horizons',
-        prompt: 'raw photo, visible skin pores, film grain, unretouched natural skin texture, subsurface scattering, photographed on film, [triggerword], woman in flowing linen dress walking alone on empty beach at dawn, ocean waves gently reaching shore, contemplative expression while processing thoughts, hair moving naturally in sea breeze, bare feet in sand, shot on Canon EOS R5 with 85mm f/1.4 lens, ocean therapy photography, golden dawn lighting, healing solitude aesthetic'
+        prompt: 'film photograph, natural film grain, [triggerword], woman in flowing linen dress walking alone on empty beach at dawn, ocean waves gently reaching shore, contemplative expression while processing thoughts, hair moving naturally in sea breeze, bare feet in sand, shot on Canon EOS R5 with 85mm f/1.4 lens, ocean therapy photography, golden dawn lighting, healing solitude aesthetic'
       },
       {
         id: 'journal-writing-ritual',
         name: 'Truth on Paper',
         category: 'Emotional Release',
         description: 'Writing your way through the pain - where honesty becomes healing',
-        prompt: 'raw photo, visible skin pores, film grain, unretouched natural skin texture, subsurface scattering, photographed on film, [triggerword], woman in oversized cashmere sweater writing in leather journal at wooden table, soft afternoon light streaming through window, focused expression while processing emotions through words, minimal makeup revealing natural features, hair naturally falling around face, shot on Fujifilm GFX 100S with 63mm f/2.8 lens, journaling photography, natural writing light, emotional processing aesthetic'
+        prompt: 'film photograph, natural film grain, [triggerword], woman in oversized cashmere sweater writing in leather journal at wooden table, soft afternoon light streaming through window, focused expression while processing emotions through words, minimal makeup revealing natural features, hair naturally falling around face, shot on Fujifilm GFX 100S with 63mm f/2.8 lens, journaling photography, natural writing light, emotional processing aesthetic'
       },
       {
         id: 'therapy-session-breakthrough',
         name: 'Breakthrough Moment',
         category: 'Professional Healing',
         description: 'The session where everything clicked - when vulnerability became strength',
-        prompt: 'raw photo, visible skin pores, film grain, unretouched natural skin texture, subsurface scattering, photographed on film, [triggerword], woman in comfortable clothing sitting in therapy chair, soft natural light from office window, genuine expression of realization and understanding, hands clasped thoughtfully, natural beauty without artifice, shot on Sony A7R IV with 50mm f/1.2 lens, therapy session photography, soft office lighting, healing breakthrough aesthetic'
+        prompt: 'film photograph, natural film grain, [triggerword], woman in comfortable clothing sitting in therapy chair, soft natural light from office window, genuine expression of realization and understanding, hands clasped thoughtfully, natural beauty without artifice, shot on Sony A7R IV with 50mm f/1.2 lens, therapy session photography, soft office lighting, healing breakthrough aesthetic'
       },
       {
         id: 'single-mom-bedtime-strength',
         name: 'Bedtime Strength',
         category: 'Maternal Resilience',
         description: 'After tucking them in - the quiet moment when you realize how strong you really are',
-        prompt: 'raw photo, visible skin pores, film grain, unretouched natural skin texture, subsurface scattering, photographed on film, [triggerword], woman in soft pajamas sitting on edge of child\'s bed after bedtime story, gentle nightlight creating warm glow, peaceful expression of maternal strength, natural beauty in domestic moment, hair in relaxed evening style, shot on Leica M11 with 50mm f/1.4 lens, maternal strength photography, warm evening lighting, single mother resilience aesthetic'
+        prompt: 'film photograph, natural film grain, [triggerword], woman in soft pajamas sitting on edge of child\'s bed after bedtime story, gentle nightlight creating warm glow, peaceful expression of maternal strength, natural beauty in domestic moment, hair in relaxed evening style, shot on Leica M11 with 50mm f/1.4 lens, maternal strength photography, warm evening lighting, single mother resilience aesthetic'
       },
       {
         id: 'mirror-self-acceptance',
         name: 'Mirror Truth',
         category: 'Self-Acceptance',
         description: 'Looking in the mirror and finally seeing your worth - the moment everything changed',
-        prompt: 'raw photo, visible skin pores, film grain, unretouched natural skin texture, subsurface scattering, photographed on film, [triggerword], woman looking at herself in bathroom mirror with gentle acceptance, soft natural light from window, genuine expression of self-recognition and worth, no makeup revealing natural beauty, hair in honest morning state, shot on Canon EOS R6 with 85mm f/1.2 lens, self-acceptance photography, natural bathroom lighting, authentic self-love aesthetic'
+        prompt: 'film photograph, natural film grain, [triggerword], woman looking at herself in bathroom mirror with gentle acceptance, soft natural light from window, genuine expression of self-recognition and worth, no makeup revealing natural beauty, hair in honest morning state, shot on Canon EOS R6 with 85mm f/1.2 lens, self-acceptance photography, natural bathroom lighting, authentic self-love aesthetic'
       },
       {
         id: 'forest-therapy-walk',
         name: 'Forest Healing',
         category: 'Nature Connection',
         description: 'When trees became your teachers - finding wisdom in ancient growth',
-        prompt: 'raw photo, visible skin pores, film grain, unretouched natural skin texture, subsurface scattering, photographed on film, [triggerword], woman in earth-toned layers walking slowly through forest path, dappled sunlight filtering through trees, serene expression while connecting with nature, natural windswept hair, hands touching tree bark gently, shot on Fujifilm X-T5 with 35mm f/1.4 lens, forest therapy photography, natural woodland lighting, earth connection aesthetic'
+        prompt: 'film photograph, natural film grain, [triggerword], woman in earth-toned layers walking slowly through forest path, dappled sunlight filtering through trees, serene expression while connecting with nature, natural windswept hair, hands touching tree bark gently, shot on Fujifilm X-T5 with 35mm f/1.4 lens, forest therapy photography, natural woodland lighting, earth connection aesthetic'
       },
       {
         id: 'crying-release-moment',
         name: 'Sacred Tears',
         category: 'Emotional Honesty',
         description: 'The tears that washed away the old you - sacred release of what no longer serves',
-        prompt: 'raw photo, visible skin pores, film grain, unretouched natural skin texture, subsurface scattering, photographed on film, [triggerword], woman in soft clothing allowing tears to flow naturally, sitting by window with gentle light, vulnerable expression of emotional release, natural beauty in raw moment, hair naturally framing face, shot on Leica SL2 with 90mm f/2 lens, emotional release photography, soft natural lighting, vulnerable healing aesthetic'
+        prompt: 'film photograph, natural film grain, [triggerword], woman in soft clothing allowing tears to flow naturally, sitting by window with gentle light, vulnerable expression of emotional release, natural beauty in raw moment, hair naturally framing face, shot on Leica SL2 with 90mm f/2 lens, emotional release photography, soft natural lighting, vulnerable healing aesthetic'
       },
       {
         id: 'book-wisdom-absorption',
         name: 'Wisdom Gathering',
         category: 'Learning to Heal',
         description: 'Finding answers in pages - when books became your healing guides',
-        prompt: 'raw photo, visible skin pores, film grain, unretouched natural skin texture, subsurface scattering, photographed on film, [triggerword], woman in cozy reading nook surrounded by self-help and healing books, soft reading light creating warm atmosphere, contemplative expression while absorbing wisdom, natural beauty in learning moment, hair in comfortable reading style, shot on Sony A7R V with 85mm f/1.4 lens, reading for healing photography, warm lamp lighting, knowledge seeking aesthetic'
+        prompt: 'film photograph, natural film grain, [triggerword], woman in cozy reading nook surrounded by self-help and healing books, soft reading light creating warm atmosphere, contemplative expression while absorbing wisdom, natural beauty in learning moment, hair in comfortable reading style, shot on Sony A7R V with 85mm f/1.4 lens, reading for healing photography, warm lamp lighting, knowledge seeking aesthetic'
       },
       {
         id: 'phoenix-rising-portrait',
         name: 'Phoenix Rising',
         category: 'Transformation',
         description: 'The woman you became after the fire - stronger, wiser, unbreakable',
-        prompt: 'raw photo, visible skin pores, film grain, unretouched natural skin texture, subsurface scattering, photographed on film, [triggerword], woman in flowing white clothing standing in golden field at sunset, powerful yet serene expression of transformation, hair flowing in evening breeze, arms slightly outstretched feeling freedom, natural radiant beauty, shot on Canon EOS R5 with 70-200mm f/2.8 lens, transformation photography, golden hour lighting, phoenix rising aesthetic'
+        prompt: 'film photograph, natural film grain, [triggerword], woman in flowing white clothing standing in golden field at sunset, powerful yet serene expression of transformation, hair flowing in evening breeze, arms slightly outstretched feeling freedom, natural radiant beauty, shot on Canon EOS R5 with 70-200mm f/2.8 lens, transformation photography, golden hour lighting, phoenix rising aesthetic'
       },
       {
         id: 'new-beginning-sunrise',
         name: 'New Dawn',
         category: 'Fresh Starts',
         description: 'Watching the sunrise with new eyes - when hope returned to your heart',
-        prompt: 'raw photo, visible skin pores, film grain, unretouched natural skin texture, subsurface scattering, photographed on film, [triggerword], woman in warm sweater watching sunrise from mountain viewpoint, soft golden light illuminating hopeful expression, natural beauty in moment of renewal, hair gently moved by morning breeze, hands wrapped around coffee mug, shot on Fujifilm GFX 50S with 110mm f/2 lens, sunrise hope photography, golden dawn lighting, new beginning aesthetic'
+        prompt: 'film photograph, natural film grain, [triggerword], woman in warm sweater watching sunrise from mountain viewpoint, soft golden light illuminating hopeful expression, natural beauty in moment of renewal, hair gently moved by morning breeze, hands wrapped around coffee mug, shot on Fujifilm GFX 50S with 110mm f/2 lens, sunrise hope photography, golden dawn lighting, new beginning aesthetic'
       },
       {
         id: 'strength-in-stillness',
         name: 'Stillness Strength',
         category: 'Inner Power',
         description: 'The power you found in stillness - when silence became your superpower',
-        prompt: 'raw photo, visible skin pores, film grain, unretouched natural skin texture, subsurface scattering, photographed on film, [triggerword], woman sitting in peaceful meditation in minimalist room, soft natural light creating gentle shadows, expression of deep inner strength and peace, natural beauty in contemplative moment, hair in simple natural style, shot on Leica Q2 Monochrom with natural lighting, inner strength photography, peaceful lighting, quiet power aesthetic'
+        prompt: 'film photograph, natural film grain, [triggerword], woman sitting in peaceful meditation in minimalist room, soft natural light creating gentle shadows, expression of deep inner strength and peace, natural beauty in contemplative moment, hair in simple natural style, shot on Leica Q2 Monochrom with natural lighting, inner strength photography, peaceful lighting, quiet power aesthetic'
       }
     ]
   },
@@ -114,98 +114,98 @@ const PROMPT_COLLECTIONS = {
         name: 'VOGUE Transformative Strength',
         category: 'Magazine Covers',
         description: "That moment when you realize your power. Hair perfectly swept, blazer on point, gaze that says everything.",
-        prompt: '[triggerword] woman long dark hair swept over one shoulder, direct powerful gaze at camera, wearing black off-shoulder blazer, minimal gold jewelry, pure white backdrop, shot on Hasselblad H6D-100c with 80mm lens f/2.8, beauty dish with fill light, raw photo, visible skin pores, film grain, unretouched natural skin texture, subsurface scattering, transformative strength editorial portrait'
+        prompt: '[triggerword] woman long dark hair swept over one shoulder, direct powerful gaze at camera, wearing black off-shoulder blazer, minimal gold jewelry, pure white backdrop, shot on Hasselblad H6D-100c with 80mm lens f/2.8, beauty dish with fill light, film photograph, natural film grain, transformative strength editorial portrait'
       },
       {
         id: 'elle-confidence-rebirth',
         name: 'ELLE Confidence Rebirth',
         category: 'Magazine Covers',
         description: "That little knowing smile because you've figured it out. Natural waves, silk cami, pure confidence.",
-        prompt: '[triggerword] woman long dark hair natural waves, slight smile knowing expression, wearing simple black silk camisole, no excessive jewelry, soft gray seamless background, shot on Canon 5DS R with 85mm f/1.2L lens, window light with silver reflector, raw photo, authentic skin texture, film grain, unretouched beauty, subsurface scattering, quiet confidence portrait'
+        prompt: '[triggerword] woman long dark hair natural waves, slight smile knowing expression, wearing simple black silk camisole, no excessive jewelry, soft gray seamless background, shot on Canon 5DS R with 85mm f/1.2L lens, window light with silver reflector, film photograph, natural film grain, quiet confidence portrait'
       },
       {
         id: 'harpers-bazaar-phoenix',
         name: "HARPER'S BAZAAR Phoenix",
         category: 'Magazine Covers',
         description: "CEO energy in that perfect suit. Hair sleek, posture strong, ready to take on the world.",
-        prompt: '[triggerword] woman long sleek dark hair center part, three-quarter turn strong posture, wearing structured black suit jacket deep V, layered delicate necklaces, neutral beige backdrop, shot on Phase One XF IQ4 150MP with 110mm lens f/2.8, three-point studio lighting, raw photo, natural skin visible, film grain, unretouched power, magazine cover editorial'
+        prompt: '[triggerword] woman long sleek dark hair center part, three-quarter turn strong posture, wearing structured black suit jacket deep V, layered delicate necklaces, neutral beige backdrop, shot on Phase One XF IQ4 150MP with 110mm lens f/2.8, three-point studio lighting, film photograph, natural skin visible, film grain, unretouched power, magazine cover editorial'
       },
       {
         id: 'marie-claire-survivor',
         name: 'MARIE CLAIRE Survivor',
         category: 'Magazine Covers',
         description: "When you've been through it all and came out stronger. Tousled hair, cashmere comfort, unshakeable determination.",
-        prompt: '[triggerword] woman long dark tousled hair, looking past camera with determination, wearing black cashmere turtleneck, single gold ring visible, warm white background, shot on Leica S3 with 70mm Summarit-S f/2.5, soft continuous lighting, raw photo, lived-in skin texture, film grain, unretouched authenticity, emotional strength portrait'
+        prompt: '[triggerword] woman long dark tousled hair, looking past camera with determination, wearing black cashmere turtleneck, single gold ring visible, warm white background, shot on Leica S3 with 70mm Summarit-S f/2.5, soft continuous lighting, film photograph, lived-in skin texture, film grain, unretouched authenticity, emotional strength portrait'
       },
       {
         id: 'cosmopolitan-comeback',
         name: 'COSMOPOLITAN Comeback',
         category: 'Magazine Covers',
         description: "Pure joy because you're winning at life. That real laugh, gorgeous hair, perfect blazer moment.",
-        prompt: '[triggerword] woman long dark voluminous hair, genuine laugh caught mid-moment, wearing black blazer over lace cami, statement earrings, bright white studio, shot on Sony A1 with 135mm GM lens f/1.8, strobe with softbox, raw photo, expression lines visible, natural skin, film grain, unretouched joy, celebratory editorial'
+        prompt: '[triggerword] woman long dark voluminous hair, genuine laugh caught mid-moment, wearing black blazer over lace cami, statement earrings, bright white studio, shot on Sony A1 with 135mm GM lens f/1.8, strobe with softbox, film photograph, expression lines visible, natural skin, film grain, unretouched joy, celebratory editorial'
       },
       {
         id: 'glamour-rising',
         name: 'GLAMOUR Rising',
         category: 'Magazine Covers',
         description: "That direct eye contact that says you're not playing anymore. Hair perfectly tucked, simple dress, maximum impact.",
-        prompt: '[triggerword] woman long dark hair one side behind ear, direct confident eye contact, wearing simple black dress, delicate gold chain, clean white cyclorama, shot on Nikon Z9 with 105mm f/1.4 lens, beauty lighting setup, raw photo, real skin texture, visible pores, film grain, unretouched natural power, cover portrait'
+        prompt: '[triggerword] woman long dark hair one side behind ear, direct confident eye contact, wearing simple black dress, delicate gold chain, clean white cyclorama, shot on Nikon Z9 with 105mm f/1.4 lens, beauty lighting setup, film photograph, real skin texture, visible pores, film grain, unretouched natural power, cover portrait'
       },
       {
         id: 'instyle-empire',
         name: 'INSTYLE Empire',
         category: 'Magazine Covers',
         description: "Boss mode activated. Low ponytail, power suit, standing like you own the room - because you do.",
-        prompt: '[triggerword] woman long dark hair in low ponytail, CEO stance facing camera, wearing black power suit with white shirt, minimal jewelry, gray paper backdrop, shot on Fujifilm GFX100 II with 110mm f/2 lens, classic portrait lighting, raw photo, professional strength, natural skin detail, film grain, unretouched leadership'
+        prompt: '[triggerword] woman long dark hair in low ponytail, CEO stance facing camera, wearing black power suit with white shirt, minimal jewelry, gray paper backdrop, shot on Fujifilm GFX100 II with 110mm f/2 lens, classic portrait lighting, film photograph, professional strength, natural skin detail, film grain, unretouched leadership'
       },
       {
         id: 'tatler-triumph',
         name: 'TATLER Triumph',
         category: 'Magazine Covers',
         description: "Old Hollywood glamour meets modern power. Those waves, that velvet, pearls that whisper elegance.",
-        prompt: '[triggerword] woman long dark hair Hollywood waves, regal bearing, wearing black velvet blazer, pearl earrings, rich navy backdrop, shot on Pentax 645Z with 90mm f/2.8 lens, Rembrandt lighting, raw photo, mature beauty, skin texture visible, medium format grain, unretouched elegance, luxury survivor portrait'
+        prompt: '[triggerword] woman long dark hair Hollywood waves, regal bearing, wearing black velvet blazer, pearl earrings, rich navy backdrop, shot on Pentax 645Z with 90mm f/2.8 lens, Rembrandt lighting, film photograph, mature beauty, skin texture visible, medium format grain, unretouched elegance, luxury survivor portrait'
       },
       {
         id: 'w-magazine-warrior',
         name: 'W MAGAZINE Warrior',
         category: 'Magazine Covers',
         description: "Your profile is art. Sleek hair, that incredible architectural top, strength in every line.",
-        prompt: '[triggerword] woman long dark straight hair, profile showing strength, wearing architectural black top, single statement earring, black seamless background, shot on RED Komodo with 85mm cinema lens, dramatic side light, raw photo, skin in harsh light, film grain, unretouched fierce beauty, artistic power portrait'
+        prompt: '[triggerword] woman long dark straight hair, profile showing strength, wearing architectural black top, single statement earring, black seamless background, shot on RED Komodo with 85mm cinema lens, dramatic side light, film photograph, skin in harsh light, film grain, unretouched fierce beauty, artistic power portrait'
       },
       {
         id: 'forbes-founder',
         name: 'FORBES Founder',
         category: 'Magazine Covers',
         description: "The founder energy is real. Professional hair, perfect blazer, ready to change the world with your business.",
-        prompt: '[triggerword] woman long dark professional hair, business portrait angle, wearing black blazer white shirt, watch visible, corporate gray backdrop, shot on Canon R5 with 70-200mm f/2.8 at 135mm, corporate headshot lighting, raw photo, approachable CEO energy, natural skin, film grain, unretouched success story'
+        prompt: '[triggerword] woman long dark professional hair, business portrait angle, wearing black blazer white shirt, watch visible, corporate gray backdrop, shot on Canon R5 with 70-200mm f/2.8 at 135mm, corporate headshot lighting, film photograph, approachable CEO energy, natural skin, film grain, unretouched success story'
       },
       {
         id: 'rock-bottom-truth',
         name: 'Rock Bottom Truth',
         category: 'Journey Story',
         description: "We all have those rock bottom moments. This is yours - raw, real, and the beginning of your comeback story.",
-        prompt: '[triggerword] woman long dark disheveled hair, sitting on floor against white wall, wearing oversized black sweater, knees pulled up, morning window light creating shadows, shot on Leica Q2 with 28mm Summilux, available light only, raw photo, tired eyes visible, natural exhausted skin, heavy grain, unretouched vulnerability, documentary style'
+        prompt: '[triggerword] woman long dark disheveled hair, sitting on floor against white wall, wearing oversized black sweater, knees pulled up, morning window light creating shadows, shot on Leica Q2 with 28mm Summilux, available light only, film photograph, tired eyes visible, natural exhausted skin, heavy grain, unretouched vulnerability, documentary style'
       },
       {
         id: 'first-brave-selfie',
         name: 'First Brave Selfie',
         category: 'Journey Story',
         description: "Remember your first brave selfie? That moment you decided to show up. This is where it all started.",
-        prompt: '[triggerword] woman long dark messy hair, holding phone up taking selfie, wearing simple black t-shirt, bedroom background soft focus, natural morning light, shot on iPhone 15 Pro portrait mode feel, handheld casual angle, raw photo, no makeup skin texture, authentic moment, film grain, unretouched courage beginning'
+        prompt: '[triggerword] woman long dark messy hair, holding phone up taking selfie, wearing simple black t-shirt, bedroom background soft focus, natural morning light, shot on iPhone 15 Pro portrait mode feel, handheld casual angle, film photograph, no makeup skin texture, authentic moment, film grain, unretouched courage beginning'
       },
       {
         id: 'coffee-and-camera',
         name: 'Coffee and Camera',
         category: 'Journey Story',
         description: "That 7am hustle with coffee in one hand, phone in the other. Building your empire one morning at a time.",
-        prompt: '[triggerword] woman long dark hair in messy bun, one hand holding coffee other holding phone, wearing black robe, kitchen counter background, 7am golden hour through window, shot on Canon 5D Mark IV with 35mm f/1.4, lifestyle documentary, raw photo, morning skin no makeup, visible texture, grain, unretouched daily ritual'
+        prompt: '[triggerword] woman long dark hair in messy bun, one hand holding coffee other holding phone, wearing black robe, kitchen counter background, 7am golden hour through window, shot on Canon 5D Mark IV with 35mm f/1.4, lifestyle documentary, film photograph, morning skin no makeup, visible texture, grain, unretouched daily ritual'
       },
       {
         id: 'building-momentum',
         name: 'Building Momentum',
         category: 'Journey Story',
         description: "The grind is real but so are you. Hair half up, laptop open, ring light on - building your dreams pixel by pixel.",
-        prompt: '[triggerword] woman long dark hair half up, sitting at laptop with ring light, wearing black tank top, home office setup visible, afternoon natural light, shot on Sony A7R V with 50mm f/1.2, environmental portrait, raw photo, focused expression, real skin, film grain, unretouched work in progress'
+        prompt: '[triggerword] woman long dark hair half up, sitting at laptop with ring light, wearing black tank top, home office setup visible, afternoon natural light, shot on Sony A7R V with 50mm f/1.2, environmental portrait, film photograph, focused expression, real skin, film grain, unretouched work in progress'
       }
     ]
   },
@@ -221,84 +221,84 @@ const PROMPT_COLLECTIONS = {
         name: 'Copenhagen Commute',
         category: 'Urban Movement',
         description: 'Cycling through the city with effortless grace - sustainable luxury in motion',
-        prompt: 'raw photo, visible skin pores, film grain, unretouched natural skin texture, subsurface scattering, photographed on film, [triggerword], woman cycling vintage bicycle through Copenhagen streets, wearing tailored wool coat and leather crossbody bag, colorful Nordic buildings in background, natural confident expression, hair moving gently in breeze, minimal gold jewelry, shot on Leica Q2 with 28mm f/1.7 lens, street photography style, natural daylight, Scandinavian urban aesthetic'
+        prompt: 'film photograph, natural film grain, [triggerword], woman cycling vintage bicycle through Copenhagen streets, wearing tailored wool coat and leather crossbody bag, colorful Nordic buildings in background, natural confident expression, hair moving gently in breeze, minimal gold jewelry, shot on Leica Q2 with 28mm f/1.7 lens, street photography style, natural daylight, Scandinavian urban aesthetic'
       },
       {
         id: 'milan-fashion-walk',
         name: 'Milan Fashion District',
         category: 'Style in Motion',
         description: 'Walking through the fashion capital with innate style - where elegance meets everyday',
-        prompt: 'raw photo, visible skin pores, film grain, unretouched natural skin texture, subsurface scattering, photographed on film, [triggerword], woman in elevated basics walking through Milano fashion district, long camel coat and designer accessories, Italian architecture backdrop, natural purposeful stride, serene focused expression, hair styled effortlessly, shot on Canon EOS R5 with 85mm f/1.4 lens, street fashion photography, golden hour lighting, Italian elegance aesthetic'
+        prompt: 'film photograph, natural film grain, [triggerword], woman in elevated basics walking through Milano fashion district, long camel coat and designer accessories, Italian architecture backdrop, natural purposeful stride, serene focused expression, hair styled effortlessly, shot on Canon EOS R5 with 85mm f/1.4 lens, street fashion photography, golden hour lighting, Italian elegance aesthetic'
       },
       {
         id: 'london-crosswalk-moment',
         name: 'London Crosswalk',
         category: 'City Navigation',
         description: 'Navigating the city with quiet confidence - urban moments that feel cinematic',
-        prompt: 'raw photo, visible skin pores, film grain, unretouched natural skin texture, subsurface scattering, photographed on film, [triggerword], woman in trench coat crossing busy London street, classic British architecture background, natural determined expression while navigating crosswalk, minimal scarf and leather boots, hair moving with city breeze, shot on Fujifilm GFX 100S with 63mm f/2.8 lens, documentary street photography, overcast natural lighting, British urban aesthetic'
+        prompt: 'film photograph, natural film grain, [triggerword], woman in trench coat crossing busy London street, classic British architecture background, natural determined expression while navigating crosswalk, minimal scarf and leather boots, hair moving with city breeze, shot on Fujifilm GFX 100S with 63mm f/2.8 lens, documentary street photography, overcast natural lighting, British urban aesthetic'
       },
       {
         id: 'paris-metro-entrance',
         name: 'Parisian Metro',
         category: 'Transit Elegance',
         description: 'Even the mundane becomes elegant - French sophistication in everyday moments',
-        prompt: 'raw photo, visible skin pores, film grain, unretouched natural skin texture, subsurface scattering, photographed on film, [triggerword], woman in neutral turtleneck and tailored coat descending into Parisian metro station, Art Nouveau metro entrance visible, contemplative expression while moving through transit, minimal jewelry and structured bag, natural confident posture, shot on Leica M11 with 50mm f/1.4 lens, urban documentary photography, soft Paris lighting, French metropolitan aesthetic'
+        prompt: 'film photograph, natural film grain, [triggerword], woman in neutral turtleneck and tailored coat descending into Parisian metro station, Art Nouveau metro entrance visible, contemplative expression while moving through transit, minimal jewelry and structured bag, natural confident posture, shot on Leica M11 with 50mm f/1.4 lens, urban documentary photography, soft Paris lighting, French metropolitan aesthetic'
       },
       {
         id: 'brooklyn-bridge-walk',
         name: 'Bridge Crossing',
         category: 'Urban Exploration',
         description: 'Taking the longer route for the better view - finding beauty in city infrastructure',
-        prompt: 'raw photo, visible skin pores, film grain, unretouched natural skin texture, subsurface scattering, photographed on film, [triggerword], woman in wool sweater and jeans walking across urban bridge, city skyline in background, peaceful expression while taking in views, hair in natural loose style, hands in coat pockets, shot on Sony A7R IV with 70-200mm f/2.8 lens, bridge photography, golden hour lighting, metropolitan lifestyle aesthetic'
+        prompt: 'film photograph, natural film grain, [triggerword], woman in wool sweater and jeans walking across urban bridge, city skyline in background, peaceful expression while taking in views, hair in natural loose style, hands in coat pockets, shot on Sony A7R IV with 70-200mm f/2.8 lens, bridge photography, golden hour lighting, metropolitan lifestyle aesthetic'
       },
       {
         id: 'stockholm-old-town',
         name: 'Stockholm Gamla Stan',
         category: 'Historic Wandering',
         description: 'Moving through cobblestone streets with timeless grace - where history meets modernity',
-        prompt: 'raw photo, visible skin pores, film grain, unretouched natural skin texture, subsurface scattering, photographed on film, [triggerword], woman in Scandinavian minimalist outfit walking through Stockholm old town cobblestone streets, colorful medieval buildings backdrop, serene expression while exploring, minimal Nordic styling, natural confident stride, shot on Canon EOS R6 with 50mm f/1.2 lens, historic street photography, Nordic natural lighting, Swedish heritage aesthetic'
+        prompt: 'film photograph, natural film grain, [triggerword], woman in Scandinavian minimalist outfit walking through Stockholm old town cobblestone streets, colorful medieval buildings backdrop, serene expression while exploring, minimal Nordic styling, natural confident stride, shot on Canon EOS R6 with 50mm f/1.2 lens, historic street photography, Nordic natural lighting, Swedish heritage aesthetic'
       },
       {
         id: 'rainy-amsterdam-umbrella',
         name: 'Amsterdam Rain',
         category: 'Weather Elegance',
         description: 'Even rainy days look elegant when you move with intention and style',
-        prompt: 'raw photo, visible skin pores, film grain, unretouched natural skin texture, subsurface scattering, photographed on film, [triggerword], woman with classic black umbrella walking along Amsterdam canal, wearing long wool coat and leather boots, Dutch canal houses reflected in rain puddles, peaceful expression despite weather, hair protected under umbrella, shot on Fujifilm X-T5 with 35mm f/1.4 lens, rainy day photography, soft overcast lighting, Dutch urban resilience aesthetic'
+        prompt: 'film photograph, natural film grain, [triggerword], woman with classic black umbrella walking along Amsterdam canal, wearing long wool coat and leather boots, Dutch canal houses reflected in rain puddles, peaceful expression despite weather, hair protected under umbrella, shot on Fujifilm X-T5 with 35mm f/1.4 lens, rainy day photography, soft overcast lighting, Dutch urban resilience aesthetic'
       },
       {
         id: 'barcelona-morning-market',
         name: 'Barcelona Market Walk',
         category: 'Local Exploration',
         description: 'Navigating local markets with curiosity and confidence - where culture meets cuisine',
-        prompt: 'raw photo, visible skin pores, film grain, unretouched natural skin texture, subsurface scattering, photographed on film, [triggerword], woman in linen shirt walking through Barcelona morning market, colorful produce stalls and Spanish architecture, natural interested expression while observing local life, woven market bag in hand, minimal Mediterranean styling, shot on Leica SL2 with 90mm f/2 lens, market documentary photography, warm morning light, Spanish cultural immersion aesthetic'
+        prompt: 'film photograph, natural film grain, [triggerword], woman in linen shirt walking through Barcelona morning market, colorful produce stalls and Spanish architecture, natural interested expression while observing local life, woven market bag in hand, minimal Mediterranean styling, shot on Leica SL2 with 90mm f/2 lens, market documentary photography, warm morning light, Spanish cultural immersion aesthetic'
       },
       {
         id: 'tokyo-shibuya-crossing',
         name: 'Tokyo Navigation',
         category: 'Cultural Adaptation',
         description: 'Moving through foreign spaces with quiet confidence - cultural exploration with grace',
-        prompt: 'raw photo, visible skin pores, film grain, unretouched natural skin texture, subsurface scattering, photographed on film, [triggerword], woman in minimalist black outfit navigating Tokyo crosswalk, neon signs and urban energy in background, calm focused expression amid city chaos, sleek modern styling, hair in simple elegant style, shot on Sony A7R V with 85mm f/1.4 lens, urban crowd photography, neon-lit evening atmosphere, metropolitan confidence aesthetic'
+        prompt: 'film photograph, natural film grain, [triggerword], woman in minimalist black outfit navigating Tokyo crosswalk, neon signs and urban energy in background, calm focused expression amid city chaos, sleek modern styling, hair in simple elegant style, shot on Sony A7R V with 85mm f/1.4 lens, urban crowd photography, neon-lit evening atmosphere, metropolitan confidence aesthetic'
       },
       {
         id: 'edinburgh-royal-mile',
         name: 'Edinburgh Heritage',
         category: 'Historic Cities',
         description: 'Walking through centuries of history with contemporary confidence',
-        prompt: 'raw photo, visible skin pores, film grain, unretouched natural skin texture, subsurface scattering, photographed on film, [triggerword], woman in tartan scarf and wool coat walking down Edinburgh Royal Mile, historic Scottish architecture surrounding, thoughtful expression while appreciating heritage, natural windswept hair, traditional yet modern styling, shot on Nikon Z9 with 24-70mm f/2.8 lens, heritage street photography, Scottish natural lighting, Celtic urban exploration aesthetic'
+        prompt: 'film photograph, natural film grain, [triggerword], woman in tartan scarf and wool coat walking down Edinburgh Royal Mile, historic Scottish architecture surrounding, thoughtful expression while appreciating heritage, natural windswept hair, traditional yet modern styling, shot on Nikon Z9 with 24-70mm f/2.8 lens, heritage street photography, Scottish natural lighting, Celtic urban exploration aesthetic'
       },
       {
         id: 'vancouver-seawall-stroll',
         name: 'Coastal City Walk',
         category: 'Nature Meets Urban',
         description: 'Where city meets sea - finding harmony between urban and natural worlds',
-        prompt: 'raw photo, visible skin pores, film grain, unretouched natural skin texture, subsurface scattering, photographed on film, [triggerword], woman in layered neutral clothing walking along Vancouver seawall, mountains and water visible in background, peaceful expression while enjoying coastal breeze, hair moving naturally in ocean air, comfortable walking shoes and crossbody bag, shot on Canon EOS R5 with 70-200mm f/2.8 lens, coastal urban photography, Pacific Northwest lighting, maritime city aesthetic'
+        prompt: 'film photograph, natural film grain, [triggerword], woman in layered neutral clothing walking along Vancouver seawall, mountains and water visible in background, peaceful expression while enjoying coastal breeze, hair moving naturally in ocean air, comfortable walking shoes and crossbody bag, shot on Canon EOS R5 with 70-200mm f/2.8 lens, coastal urban photography, Pacific Northwest lighting, maritime city aesthetic'
       },
       {
         id: 'zurich-tram-commute',
         name: 'Swiss Precision',
         category: 'Efficient Movement',
         description: 'Moving through the city with Swiss precision and understated luxury',
-        prompt: 'raw photo, visible skin pores, film grain, unretouched natural skin texture, subsurface scattering, photographed on film, [triggerword], woman in quality basics waiting for Zurich tram, Swiss Alps visible in distance, composed expression while commuting efficiently, minimal luxury accessories, hair in neat natural style, shot on Fujifilm GFX 50S with 110mm f/2 lens, Swiss urban photography, clean Alpine lighting, efficient luxury lifestyle aesthetic'
+        prompt: 'film photograph, natural film grain, [triggerword], woman in quality basics waiting for Zurich tram, Swiss Alps visible in distance, composed expression while commuting efficiently, minimal luxury accessories, hair in neat natural style, shot on Fujifilm GFX 50S with 110mm f/2 lens, Swiss urban photography, clean Alpine lighting, efficient luxury lifestyle aesthetic'
       }
     ]
   },
@@ -314,84 +314,84 @@ const PROMPT_COLLECTIONS = {
         name: 'Morning Coffee Ritual',
         category: 'Daily Moments',
         description: 'The quiet luxury of a perfect morning - simplicity elevated to art',
-        prompt: 'raw photo, visible skin pores, film grain, unretouched natural skin texture, subsurface scattering, photographed on film, [triggerword], woman in oversized cream cashmere sweater holding ceramic coffee mug by large window, soft morning light streaming through sheer curtains, minimal Scandinavian interior with natural wood and white walls, serene contemplative expression, effortless tousled hair, sitting in modern chair, shot on Leica Q2 with 28mm f/1.7 lens, natural window lighting, hygge lifestyle photography, cozy home aesthetic, morning ritual vibes'
+        prompt: 'film photograph, natural film grain, [triggerword], woman in oversized cream cashmere sweater holding ceramic coffee mug by large window, soft morning light streaming through sheer curtains, minimal Scandinavian interior with natural wood and white walls, serene contemplative expression, effortless tousled hair, sitting in modern chair, shot on Leica Q2 with 28mm f/1.7 lens, natural window lighting, hygge lifestyle photography, cozy home aesthetic, morning ritual vibes'
       },
       {
         id: 'parisian-cafe-afternoon',
         name: 'Café Afternoon',
         category: 'Urban Elegance',
         description: 'Lost in thought at your favorite café - where time moves differently',
-        prompt: 'raw photo, visible skin pores, film grain, unretouched natural skin texture, subsurface scattering, photographed on film, [triggerword], woman in neutral turtleneck and tailored coat sitting at marble café table, Parisian street visible through large windows, soft afternoon light filtering in, thoughtful distant gaze, minimal gold jewelry, espresso cup and leather notebook on table, shot on Canon EOS R5 with 85mm f/1.4 lens, café window lighting, European lifestyle photography, urban sophistication aesthetic'
+        prompt: 'film photograph, natural film grain, [triggerword], woman in neutral turtleneck and tailored coat sitting at marble café table, Parisian street visible through large windows, soft afternoon light filtering in, thoughtful distant gaze, minimal gold jewelry, espresso cup and leather notebook on table, shot on Canon EOS R5 with 85mm f/1.4 lens, café window lighting, European lifestyle photography, urban sophistication aesthetic'
       },
       {
         id: 'london-walk-golden-hour',
         name: 'London Golden Hour',
         category: 'City Wandering',
         description: 'Evening stroll through the city - finding beauty in urban moments',
-        prompt: 'raw photo, visible skin pores, film grain, unretouched natural skin texture, subsurface scattering, photographed on film, [triggerword], woman in long wool coat walking down tree-lined London street during golden hour, soft natural light catching her profile, peaceful contemplative expression, hair moving gently in breeze, minimal scarf and leather boots, shot on Fujifilm GFX 100S with 63mm f/2.8 lens, golden hour street photography, European urban aesthetic, natural city wandering vibes'
+        prompt: 'film photograph, natural film grain, [triggerword], woman in long wool coat walking down tree-lined London street during golden hour, soft natural light catching her profile, peaceful contemplative expression, hair moving gently in breeze, minimal scarf and leather boots, shot on Fujifilm GFX 100S with 63mm f/2.8 lens, golden hour street photography, European urban aesthetic, natural city wandering vibes'
       },
       {
         id: 'home-cooking-ritual',
         name: 'Cooking at Home',
         category: 'Domestic Luxury',
         description: 'Creating something beautiful in your kitchen - everyday moments made precious',
-        prompt: 'raw photo, visible skin pores, film grain, unretouched natural skin texture, subsurface scattering, photographed on film, [triggerword], woman in linen apron preparing fresh ingredients in bright minimalist kitchen, white marble counters and wooden cutting boards, soft natural focus while cooking, sleeves casually rolled up, hair loosely tied back, shot on Sony A7R IV with 50mm f/1.2 lens, kitchen lifestyle photography, natural home lighting, culinary minimalism aesthetic'
+        prompt: 'film photograph, natural film grain, [triggerword], woman in linen apron preparing fresh ingredients in bright minimalist kitchen, white marble counters and wooden cutting boards, soft natural focus while cooking, sleeves casually rolled up, hair loosely tied back, shot on Sony A7R IV with 50mm f/1.2 lens, kitchen lifestyle photography, natural home lighting, culinary minimalism aesthetic'
       },
       {
         id: 'bookstore-browsing',
         name: 'Literary Wandering',
         category: 'Cultural Moments',
         description: 'Discovering your next favorite book - intellectual curiosity in beautiful spaces',
-        prompt: 'raw photo, visible skin pores, film grain, unretouched natural skin texture, subsurface scattering, photographed on film, [triggerword], woman in soft cardigan browsing books in independent bookstore, warm afternoon light filtering through tall windows, gentle contemplative expression while reading book spine, minimal accessories, stacks of books and cozy reading nooks around, shot on Leica M11 with 50mm f/1.4 lens, bookstore ambient lighting, literary lifestyle photography, intellectual curiosity aesthetic'
+        prompt: 'film photograph, natural film grain, [triggerword], woman in soft cardigan browsing books in independent bookstore, warm afternoon light filtering through tall windows, gentle contemplative expression while reading book spine, minimal accessories, stacks of books and cozy reading nooks around, shot on Leica M11 with 50mm f/1.4 lens, bookstore ambient lighting, literary lifestyle photography, intellectual curiosity aesthetic'
       },
       {
         id: 'milan-shopping-stroll',
         name: 'Milan Shopping',
         category: 'Fashion Moments',
         description: 'Curating your wardrobe in the fashion capital - where style meets intention',
-        prompt: 'raw photo, visible skin pores, film grain, unretouched natural skin texture, subsurface scattering, photographed on film, [triggerword], woman in elevated basics examining beautiful garment in Milano boutique, soft retail lighting highlighting textures, focused expression while appreciating quality, elegant posture, designer bag and minimal jewelry, shot on Canon EOS R6 with 85mm f/1.2 lens, boutique lifestyle photography, luxury retail lighting, Italian fashion aesthetic'
+        prompt: 'film photograph, natural film grain, [triggerword], woman in elevated basics examining beautiful garment in Milano boutique, soft retail lighting highlighting textures, focused expression while appreciating quality, elegant posture, designer bag and minimal jewelry, shot on Canon EOS R6 with 85mm f/1.2 lens, boutique lifestyle photography, luxury retail lighting, Italian fashion aesthetic'
       },
       {
         id: 'iceland-nature-moment',
         name: 'Nordic Nature',
         category: 'Natural Beauty',
         description: 'Finding solitude in stunning landscapes - where nature meets sophisticated style',
-        prompt: 'raw photo, visible skin pores, film grain, unretouched natural skin texture, subsurface scattering, photographed on film, [triggerword], woman in wool coat and cashmere scarf standing beside Icelandic landscape, dramatic natural lighting from Nordic sky, serene expression while taking in vast beauty, hair moving in fresh air, minimal but warm styling, shot on Fujifilm X-T5 with 35mm f/1.4 lens, Nordic landscape photography, natural dramatic lighting, Scandinavian outdoor aesthetic'
+        prompt: 'film photograph, natural film grain, [triggerword], woman in wool coat and cashmere scarf standing beside Icelandic landscape, dramatic natural lighting from Nordic sky, serene expression while taking in vast beauty, hair moving in fresh air, minimal but warm styling, shot on Fujifilm X-T5 with 35mm f/1.4 lens, Nordic landscape photography, natural dramatic lighting, Scandinavian outdoor aesthetic'
       },
       {
         id: 'norwegian-fjord-reflection',
         name: 'Fjord Contemplation',
         category: 'Peaceful Moments',
         description: 'Silent moments by the water - where thoughts become clearer',
-        prompt: 'raw photo, visible skin pores, film grain, unretouched natural skin texture, subsurface scattering, photographed on film, [triggerword], woman in neutral knit sweater sitting by Norwegian fjord, soft Nordic light reflecting on water, peaceful introspective expression, hair in relaxed natural style, hands wrapped around warm drink, shot on Leica SL2 with 90mm f/2 lens, fjord lifestyle photography, natural reflection lighting, Norwegian tranquility aesthetic'
+        prompt: 'film photograph, natural film grain, [triggerword], woman in neutral knit sweater sitting by Norwegian fjord, soft Nordic light reflecting on water, peaceful introspective expression, hair in relaxed natural style, hands wrapped around warm drink, shot on Leica SL2 with 90mm f/2 lens, fjord lifestyle photography, natural reflection lighting, Norwegian tranquility aesthetic'
       },
       {
         id: 'evening-bath-ritual',
         name: 'Evening Ritual',
         category: 'Self-Care Luxury',
         description: 'The luxury of time for yourself - evening rituals as meditation',
-        prompt: 'raw photo, visible skin pores, film grain, unretouched natural skin texture, subsurface scattering, photographed on film, [triggerword], woman in silk robe preparing evening bath in marble bathroom, soft candlelight creating warm glow, peaceful expression while adding oils to water, hair in loose low bun, minimal luxury bath products arranged aesthetically, shot on Sony A7R V with 85mm f/1.4 lens, bathroom candlelight photography, intimate spa lighting, self-care luxury aesthetic'
+        prompt: 'film photograph, natural film grain, [triggerword], woman in silk robe preparing evening bath in marble bathroom, soft candlelight creating warm glow, peaceful expression while adding oils to water, hair in loose low bun, minimal luxury bath products arranged aesthetically, shot on Sony A7R V with 85mm f/1.4 lens, bathroom candlelight photography, intimate spa lighting, self-care luxury aesthetic'
       },
       {
         id: 'morning-yoga-practice',
         name: 'Morning Movement',
         category: 'Wellness Ritual',
         description: 'Starting the day with intention - mindful movement in beautiful light',
-        prompt: 'raw photo, visible skin pores, film grain, unretouched natural skin texture, subsurface scattering, photographed on film, [triggerword], woman in neutral yoga wear practicing gentle stretches by large window, morning light filtering through sheer curtains, serene focused expression, hair in simple natural style, minimal room with plants and natural textures, shot on Canon EOS R5 with 50mm f/1.2 lens, wellness lifestyle photography, soft morning light, mindful living aesthetic'
+        prompt: 'film photograph, natural film grain, [triggerword], woman in neutral yoga wear practicing gentle stretches by large window, morning light filtering through sheer curtains, serene focused expression, hair in simple natural style, minimal room with plants and natural textures, shot on Canon EOS R5 with 50mm f/1.2 lens, wellness lifestyle photography, soft morning light, mindful living aesthetic'
       },
       {
         id: 'weekend-market-flowers',
         name: 'Fresh Flowers',
         category: 'Weekend Rituals',
         description: 'Choosing flowers for your home - small luxuries that elevate everyday life',
-        prompt: 'raw photo, visible skin pores, film grain, unretouched natural skin texture, subsurface scattering, photographed on film, [triggerword], woman in cream sweater selecting white peonies at European flower market, soft natural morning light, gentle concentration while choosing blooms, woven basket with other flowers, minimal jewelry and natural styling, shot on Fujifilm GFX 50S with 110mm f/2 lens, flower market photography, natural outdoor lighting, botanical lifestyle aesthetic'
+        prompt: 'film photograph, natural film grain, [triggerword], woman in cream sweater selecting white peonies at European flower market, soft natural morning light, gentle concentration while choosing blooms, woven basket with other flowers, minimal jewelry and natural styling, shot on Fujifilm GFX 50S with 110mm f/2 lens, flower market photography, natural outdoor lighting, botanical lifestyle aesthetic'
       },
       {
         id: 'cozy-reading-afternoon',
         name: 'Reading Corner',
         category: 'Quiet Luxury',
         description: 'Sunday afternoon with a good book - the luxury of uninterrupted time',
-        prompt: 'raw photo, visible skin pores, film grain, unretouched natural skin texture, subsurface scattering, photographed on film, [triggerword], woman in soft knit sweater reading book in cozy corner with throw blanket, natural light from window creating soft shadows, peaceful absorbed expression, hair in relaxed style, tea cup on side table, shot on Leica Q2 Monochrom with natural lighting, hygge lifestyle photography, cozy home aesthetic, reading sanctuary vibes'
+        prompt: 'film photograph, natural film grain, [triggerword], woman in soft knit sweater reading book in cozy corner with throw blanket, natural light from window creating soft shadows, peaceful absorbed expression, hair in relaxed style, tea cup on side table, shot on Leica Q2 Monochrom with natural lighting, hygge lifestyle photography, cozy home aesthetic, reading sanctuary vibes'
       }
     ]
   },
@@ -407,84 +407,84 @@ const PROMPT_COLLECTIONS = {
         name: 'Power Profile',
         category: 'Editorial Authority',
         description: 'The profile shot that stops everyone mid-scroll - pure editorial power',
-        prompt: 'raw photo, visible skin pores, film grain, unretouched natural skin texture, subsurface scattering, photographed on film, [triggerword], striking profile portrait in black leather jacket and designer sunglasses, dramatic side lighting creating strong shadows, confident expression with slight upward gaze, hair slicked back in sophisticated style, minimal statement jewelry, shot on Hasselblad H6D-400c with 80mm f/1.9 lens, high contrast black and white photography, studio fashion editorial aesthetic'
+        prompt: 'film photograph, natural film grain, [triggerword], striking profile portrait in black leather jacket and designer sunglasses, dramatic side lighting creating strong shadows, confident expression with slight upward gaze, hair slicked back in sophisticated style, minimal statement jewelry, shot on Hasselblad H6D-400c with 80mm f/1.9 lens, high contrast black and white photography, studio fashion editorial aesthetic'
       },
       {
         id: 'dramatic-shadow-play',
         name: 'Shadow Drama',
         category: 'Cinematic Fashion',
         description: 'When shadows become your co-star - architectural lighting meets high fashion',
-        prompt: 'raw photo, visible skin pores, film grain, unretouched natural skin texture, subsurface scattering, photographed on film, [triggerword], woman in black turtleneck with dramatic window shadows creating geometric patterns across face, intense direct gaze, hair in perfect voluminous waves, natural editorial makeup, shot on Canon EOS R5 with 85mm f/1.2 lens, architectural shadow photography, high contrast lighting, Peter Lindbergh inspired aesthetic'
+        prompt: 'film photograph, natural film grain, [triggerword], woman in black turtleneck with dramatic window shadows creating geometric patterns across face, intense direct gaze, hair in perfect voluminous waves, natural editorial makeup, shot on Canon EOS R5 with 85mm f/1.2 lens, architectural shadow photography, high contrast lighting, Peter Lindbergh inspired aesthetic'
       },
       {
         id: 'minimalist-power-pose',
         name: 'Minimalist Authority',
         category: 'Clean Editorial',
         description: 'Less is more when you have this much presence - minimalist editorial perfection',
-        prompt: 'raw photo, visible skin pores, film grain, unretouched natural skin texture, subsurface scattering, photographed on film, [triggerword], woman in simple black blazer against pure white background, arms crossed in confident power pose, direct intense eye contact, natural beauty with defined features, hair in sleek low bun, shot on Leica S3 with 120mm f/2.5 lens, clean studio photography, perfect even lighting, minimalist fashion editorial'
+        prompt: 'film photograph, natural film grain, [triggerword], woman in simple black blazer against pure white background, arms crossed in confident power pose, direct intense eye contact, natural beauty with defined features, hair in sleek low bun, shot on Leica S3 with 120mm f/2.5 lens, clean studio photography, perfect even lighting, minimalist fashion editorial'
       },
       {
         id: 'haute-couture-moment',
         name: 'Haute Couture',
         category: 'High Fashion',
         description: 'Wearing fashion like armor - when clothes become art on your body',
-        prompt: 'raw photo, visible skin pores, film grain, unretouched natural skin texture, subsurface scattering, photographed on film, [triggerword], model in sculptural black designer piece with dramatic architectural details, powerful stance with hands positioned elegantly, serious editorial expression, hair styled in avant-garde fashion, shot on Fujifilm GFX 100S with 63mm f/2.8 lens, high fashion photography, dramatic studio lighting, couture editorial aesthetic'
+        prompt: 'film photograph, natural film grain, [triggerword], model in sculptural black designer piece with dramatic architectural details, powerful stance with hands positioned elegantly, serious editorial expression, hair styled in avant-garde fashion, shot on Fujifilm GFX 100S with 63mm f/2.8 lens, high fashion photography, dramatic studio lighting, couture editorial aesthetic'
       },
       {
         id: 'intimate-close-portrait',
         name: 'Intimate Authority',
         category: 'Beauty Editorial',
         description: 'When the camera gets close enough to see your soul - raw beauty meets editorial perfection',
-        prompt: 'raw photo, visible skin pores, film grain, unretouched natural skin texture, subsurface scattering, photographed on film, [triggerword], extreme close-up portrait focusing on eyes and natural skin texture, hand gently touching face, vulnerable yet powerful expression, natural dewy skin with visible pores, hair falling naturally around face, shot on Sony A7R IV with 85mm f/1.4 lens, beauty editorial photography, soft directional lighting, intimate fashion aesthetic'
+        prompt: 'film photograph, natural film grain, [triggerword], extreme close-up portrait focusing on eyes and natural skin texture, hand gently touching face, vulnerable yet powerful expression, natural dewy skin with visible pores, hair falling naturally around face, shot on Sony A7R IV with 85mm f/1.4 lens, beauty editorial photography, soft directional lighting, intimate fashion aesthetic'
       },
       {
         id: 'chair-power-pose',
         name: 'Boardroom Queen',
         category: 'Corporate Elegance',
         description: 'Sitting like you own every room you enter - corporate power meets editorial sophistication',
-        prompt: 'raw photo, visible skin pores, film grain, unretouched natural skin texture, subsurface scattering, photographed on film, [triggerword], woman in tailored black blazer sitting in modern chair with confident posture, one hand draped elegantly, direct authoritative gaze, professional yet striking styling, hair in polished waves, shot on Nikon Z9 with 105mm f/1.4 lens, corporate editorial photography, clean professional lighting, executive fashion aesthetic'
+        prompt: 'film photograph, natural film grain, [triggerword], woman in tailored black blazer sitting in modern chair with confident posture, one hand draped elegantly, direct authoritative gaze, professional yet striking styling, hair in polished waves, shot on Nikon Z9 with 105mm f/1.4 lens, corporate editorial photography, clean professional lighting, executive fashion aesthetic'
       },
       {
         id: 'artistic-silhouette-drama',
         name: 'Silhouette Drama',
         category: 'Artistic Editorial',
         description: 'When your silhouette tells the whole story - artistic drama meets fashion',
-        prompt: 'raw photo, visible skin pores, film grain, unretouched natural skin texture, subsurface scattering, photographed on film, [triggerword], dramatic silhouette in flowing black garment with strong rim lighting, profile creating powerful graphic element, hair movement captured in motion, artistic pose with fabric flowing, shot on Leica SL2 with 90mm f/2 lens, silhouette photography, dramatic backlighting, artistic fashion editorial'
+        prompt: 'film photograph, natural film grain, [triggerword], dramatic silhouette in flowing black garment with strong rim lighting, profile creating powerful graphic element, hair movement captured in motion, artistic pose with fabric flowing, shot on Leica SL2 with 90mm f/2 lens, silhouette photography, dramatic backlighting, artistic fashion editorial'
       },
       {
         id: 'casual-luxury-portrait',
         name: 'Effortless Luxury',
         category: 'Modern Editorial',
         description: 'Making casual look like a million dollars - effortless sophistication',
-        prompt: 'raw photo, visible skin pores, film grain, unretouched natural skin texture, subsurface scattering, photographed on film, [triggerword], woman in simple white tank top and jeans sitting on stool, natural confident expression, minimal makeup highlighting natural beauty, hair in effortless textured style, shot on Canon EOS R6 with 50mm f/1.2 lens, casual editorial photography, natural studio lighting, modern simplicity aesthetic'
+        prompt: 'film photograph, natural film grain, [triggerword], woman in simple white tank top and jeans sitting on stool, natural confident expression, minimal makeup highlighting natural beauty, hair in effortless textured style, shot on Canon EOS R6 with 50mm f/1.2 lens, casual editorial photography, natural studio lighting, modern simplicity aesthetic'
       },
       {
         id: 'emotional-intensity-portrait',
         name: 'Emotional Intensity',
         category: 'Raw Editorial',
         description: 'When emotion becomes fashion - raw intensity meets editorial sophistication',
-        prompt: 'raw photo, visible skin pores, film grain, unretouched natural skin texture, subsurface scattering, photographed on film, [triggerword], woman in black sleeveless top with hand running through hair, eyes closed in moment of introspection, natural emotional expression, textured messy hair, visible natural skin texture, shot on Fujifilm X-T5 with 56mm f/1.2 lens, emotional portrait photography, moody natural lighting, raw editorial aesthetic'
+        prompt: 'film photograph, natural film grain, [triggerword], woman in black sleeveless top with hand running through hair, eyes closed in moment of introspection, natural emotional expression, textured messy hair, visible natural skin texture, shot on Fujifilm X-T5 with 56mm f/1.2 lens, emotional portrait photography, moody natural lighting, raw editorial aesthetic'
       },
       {
         id: 'profile-elegance-study',
         name: 'Profile Elegance',
         category: 'Classic Editorial',
         description: 'The timeless profile that belongs in a gallery - classic beauty meets modern edge',
-        prompt: 'raw photo, visible skin pores, film grain, unretouched natural skin texture, subsurface scattering, photographed on film, [triggerword], elegant profile portrait with hair in messy top knot, natural contemplative expression, minimal ear jewelry catching light, clean natural makeup, shot on Leica M11 with 50mm f/1.4 lens, classic portrait photography, soft side lighting, timeless editorial elegance'
+        prompt: 'film photograph, natural film grain, [triggerword], elegant profile portrait with hair in messy top knot, natural contemplative expression, minimal ear jewelry catching light, clean natural makeup, shot on Leica M11 with 50mm f/1.4 lens, classic portrait photography, soft side lighting, timeless editorial elegance'
       },
       {
         id: 'fashion-rebellion-moment',
         name: 'Fashion Rebellion',
         category: 'Edgy Editorial',
         description: 'When fashion becomes rebellion - edgy sophistication with attitude',
-        prompt: 'raw photo, visible skin pores, film grain, unretouched natural skin texture, subsurface scattering, photographed on film, [triggerword], woman in all-black ensemble with rebellious styling, confident defiant expression, natural textured hair with movement, bold minimal makeup, dramatic pose with attitude, shot on Sony A7R V with 85mm f/1.4 lens, edgy fashion photography, dramatic contrast lighting, rebellious editorial aesthetic'
+        prompt: 'film photograph, natural film grain, [triggerword], woman in all-black ensemble with rebellious styling, confident defiant expression, natural textured hair with movement, bold minimal makeup, dramatic pose with attitude, shot on Sony A7R V with 85mm f/1.4 lens, edgy fashion photography, dramatic contrast lighting, rebellious editorial aesthetic'
       },
       {
         id: 'sophisticated-mystery',
         name: 'Sophisticated Mystery',
         category: 'Mysterious Editorial',
         description: 'The mystery that makes people want to know your story - sophisticated intrigue',
-        prompt: 'raw photo, visible skin pores, film grain, unretouched natural skin texture, subsurface scattering, photographed on film, [triggerword], mysterious portrait with partial face in shadow, wearing elegant black clothing, enigmatic expression with slight smile, natural beauty enhanced by dramatic lighting, hair partially covering one side of face, shot on Hasselblad X2D 100C with 90mm f/2.5 lens, mysterious portrait photography, chiaroscuro lighting, sophisticated enigma aesthetic'
+        prompt: 'film photograph, natural film grain, [triggerword], mysterious portrait with partial face in shadow, wearing elegant black clothing, enigmatic expression with slight smile, natural beauty enhanced by dramatic lighting, hair partially covering one side of face, shot on Hasselblad X2D 100C with 90mm f/2.5 lens, mysterious portrait photography, chiaroscuro lighting, sophisticated enigma aesthetic'
       }
     ]
   },
@@ -500,84 +500,84 @@ const PROMPT_COLLECTIONS = {
         name: 'Beach Sunset Dreams',
         category: 'Coastal Luxury',
         description: 'Full scenery - Where ocean meets sky in perfect golden light',
-        prompt: 'raw photo, visible skin pores, film grain, unretouched natural skin texture, subsurface scattering, photographed on film, [triggerword], woman in flowing white linen dress walking along pristine beach at golden hour, endless ocean and dramatic sunset sky in background, hair flowing in ocean breeze, natural serene expression, bare feet in soft sand, shot on Canon EOS R5 with 24-70mm f/2.8 lens, full body beach photography, golden hour lighting, coastal luxury aesthetic'
+        prompt: 'film photograph, natural film grain, [triggerword], woman in flowing white linen dress walking along pristine beach at golden hour, endless ocean and dramatic sunset sky in background, hair flowing in ocean breeze, natural serene expression, bare feet in soft sand, shot on Canon EOS R5 with 24-70mm f/2.8 lens, full body beach photography, golden hour lighting, coastal luxury aesthetic'
       },
       {
         id: 'rooftop-city-portrait',
         name: 'Rooftop Authority',
         category: 'Urban Sunset',
         description: 'Portrait - City lights beginning to twinkle as golden hour peaks',
-        prompt: 'raw photo, visible skin pores, film grain, unretouched natural skin texture, subsurface scattering, photographed on film, [triggerword], close-up portrait on luxury penthouse rooftop during golden hour, city skyline softly blurred in background, warm sunset light illuminating face, natural confident expression, hair gently moved by evening breeze, minimal gold jewelry catching light, shot on Sony A7R IV with 85mm f/1.4 lens, rooftop portrait photography, golden hour backlighting, urban luxury aesthetic'
+        prompt: 'film photograph, natural film grain, [triggerword], close-up portrait on luxury penthouse rooftop during golden hour, city skyline softly blurred in background, warm sunset light illuminating face, natural confident expression, hair gently moved by evening breeze, minimal gold jewelry catching light, shot on Sony A7R IV with 85mm f/1.4 lens, rooftop portrait photography, golden hour backlighting, urban luxury aesthetic'
       },
       {
         id: 'beach-club-champagne',
         name: 'Beach Club Elegance',
         category: 'Social Luxury',
         description: 'Half body - The golden hour toast that defines summer luxury',
-        prompt: 'raw photo, visible skin pores, film grain, unretouched natural skin texture, subsurface scattering, photographed on film, [triggerword], elegant woman in designer swimwear and sheer cover-up holding champagne glass at exclusive beach club, Mykonos-style white architecture and ocean in background, natural sophisticated expression, hair in effortless beach waves, shot on Leica Q2 with 28mm f/1.7 lens, half-body beach club photography, golden hour ambient lighting, Mediterranean luxury aesthetic'
+        prompt: 'film photograph, natural film grain, [triggerword], elegant woman in designer swimwear and sheer cover-up holding champagne glass at exclusive beach club, Mykonos-style white architecture and ocean in background, natural sophisticated expression, hair in effortless beach waves, shot on Leica Q2 with 28mm f/1.7 lens, half-body beach club photography, golden hour ambient lighting, Mediterranean luxury aesthetic'
       },
       {
         id: 'yacht-deck-sunset',
         name: 'Yacht Deck Dreams',
         category: 'Nautical Luxury',
         description: 'Full scenery - Living the yacht life as the sun kisses the horizon',
-        prompt: 'raw photo, visible skin pores, film grain, unretouched natural skin texture, subsurface scattering, photographed on film, [triggerword], woman in elegant white dress on luxury yacht deck at sunset, endless ocean and dramatic sky creating stunning backdrop, natural windswept hair, peaceful expression while watching sunset, designer accessories, shot on Fujifilm GFX 100S with 63mm f/2.8 lens, yacht lifestyle photography, golden hour over water, nautical luxury aesthetic'
+        prompt: 'film photograph, natural film grain, [triggerword], woman in elegant white dress on luxury yacht deck at sunset, endless ocean and dramatic sky creating stunning backdrop, natural windswept hair, peaceful expression while watching sunset, designer accessories, shot on Fujifilm GFX 100S with 63mm f/2.8 lens, yacht lifestyle photography, golden hour over water, nautical luxury aesthetic'
       },
       {
         id: 'infinity-pool-portrait',
         name: 'Infinity Pool Goddess',
         category: 'Resort Luxury',
         description: 'Portrait - Where pool meets sky in golden perfection',
-        prompt: 'raw photo, visible skin pores, film grain, unretouched natural skin texture, subsurface scattering, photographed on film, [triggerword], portrait by infinity pool edge during golden hour, pool water reflecting warm sunset colors, natural relaxed expression with eyes gently closed feeling warm light, wet hair slicked back elegantly, minimal makeup highlighting natural glow, shot on Nikon Z9 with 105mm f/1.4 lens, poolside portrait photography, golden hour reflection lighting, resort luxury aesthetic'
+        prompt: 'film photograph, natural film grain, [triggerword], portrait by infinity pool edge during golden hour, pool water reflecting warm sunset colors, natural relaxed expression with eyes gently closed feeling warm light, wet hair slicked back elegantly, minimal makeup highlighting natural glow, shot on Nikon Z9 with 105mm f/1.4 lens, poolside portrait photography, golden hour reflection lighting, resort luxury aesthetic'
       },
       {
         id: 'rooftop-dinner-ambiance',
         name: 'Rooftop Dining',
         category: 'Evening Luxury',
         description: 'Half body - The golden hour dinner where everything feels perfect',
-        prompt: 'raw photo, visible skin pores, film grain, unretouched natural skin texture, subsurface scattering, photographed on film, [triggerword], sophisticated woman at rooftop restaurant table during golden hour, elegant dinner setting with city views, natural contemplative expression while enjoying wine, designer dress and delicate jewelry, hair styled in loose elegant waves, shot on Canon EOS R6 with 50mm f/1.2 lens, dining lifestyle photography, warm golden hour lighting, rooftop luxury aesthetic'
+        prompt: 'film photograph, natural film grain, [triggerword], sophisticated woman at rooftop restaurant table during golden hour, elegant dinner setting with city views, natural contemplative expression while enjoying wine, designer dress and delicate jewelry, hair styled in loose elegant waves, shot on Canon EOS R6 with 50mm f/1.2 lens, dining lifestyle photography, warm golden hour lighting, rooftop luxury aesthetic'
       },
       {
         id: 'beach-walk-meditation',
         name: 'Beach Walk Serenity',
         category: 'Mindful Luxury',
         description: 'Full scenery - Finding peace in paradise as day transitions to night',
-        prompt: 'raw photo, visible skin pores, film grain, unretouched natural skin texture, subsurface scattering, photographed on film, [triggerword], woman in neutral linen clothing walking along water edge at golden hour, dramatic sky with soft clouds, peaceful meditative expression, natural windswept hair, hands gently touching flowing fabric, shot on Leica SL2 with 90mm f/2 lens, beach meditation photography, golden hour serenity lighting, mindful luxury aesthetic'
+        prompt: 'film photograph, natural film grain, [triggerword], woman in neutral linen clothing walking along water edge at golden hour, dramatic sky with soft clouds, peaceful meditative expression, natural windswept hair, hands gently touching flowing fabric, shot on Leica SL2 with 90mm f/2 lens, beach meditation photography, golden hour serenity lighting, mindful luxury aesthetic'
       },
       {
         id: 'balcony-wine-moment',
         name: 'Balcony Wine Hour',
         category: 'Private Luxury',
         description: 'Portrait - The private moment that feels like a movie scene',
-        prompt: 'raw photo, visible skin pores, film grain, unretouched natural skin texture, subsurface scattering, photographed on film, [triggerword], intimate portrait on private balcony during golden hour, wine glass in hand, natural content expression while watching sunset, hair catching golden light, wearing silk robe or elegant loungewear, shot on Sony A7R V with 85mm f/1.4 lens, balcony lifestyle photography, warm evening lighting, intimate luxury aesthetic'
+        prompt: 'film photograph, natural film grain, [triggerword], intimate portrait on private balcony during golden hour, wine glass in hand, natural content expression while watching sunset, hair catching golden light, wearing silk robe or elegant loungewear, shot on Sony A7R V with 85mm f/1.4 lens, balcony lifestyle photography, warm evening lighting, intimate luxury aesthetic'
       },
       {
         id: 'beach-club-pool-edge',
         name: 'Pool Edge Paradise',
         category: 'Poolside Luxury',
         description: 'Half body - The pool edge moment where time stands still',
-        prompt: 'raw photo, visible skin pores, film grain, unretouched natural skin texture, subsurface scattering, photographed on film, [triggerword], woman sitting on edge of beach club pool during golden hour, legs in crystal blue water, designer bikini and flowing kimono, natural serene expression, hair in beachy waves with golden highlights, shot on Fujifilm X-T5 with 35mm f/1.4 lens, poolside photography, golden hour pool lighting, beach club luxury aesthetic'
+        prompt: 'film photograph, natural film grain, [triggerword], woman sitting on edge of beach club pool during golden hour, legs in crystal blue water, designer bikini and flowing kimono, natural serene expression, hair in beachy waves with golden highlights, shot on Fujifilm X-T5 with 35mm f/1.4 lens, poolside photography, golden hour pool lighting, beach club luxury aesthetic'
       },
       {
         id: 'rooftop-panoramic-view',
         name: 'Rooftop Panorama',
         category: 'Urban Views',
         description: 'Full scenery - The city view that makes everything worth it',
-        prompt: 'raw photo, visible skin pores, film grain, unretouched natural skin texture, subsurface scattering, photographed on film, [triggerword], woman on luxury rooftop terrace with panoramic city view during golden hour, wearing flowing evening dress, natural expression of awe at the view, hair moving in gentle evening breeze, shot on Hasselblad H6D-400c with 80mm f/1.9 lens, rooftop panoramic photography, golden hour cityscape lighting, urban luxury aesthetic'
+        prompt: 'film photograph, natural film grain, [triggerword], woman on luxury rooftop terrace with panoramic city view during golden hour, wearing flowing evening dress, natural expression of awe at the view, hair moving in gentle evening breeze, shot on Hasselblad H6D-400c with 80mm f/1.9 lens, rooftop panoramic photography, golden hour cityscape lighting, urban luxury aesthetic'
       },
       {
         id: 'sunset-champagne-toast',
         name: 'Champagne Sunset',
         category: 'Celebration Luxury',
         description: 'Portrait - The toast that celebrates your beautiful life',
-        prompt: 'raw photo, visible skin pores, film grain, unretouched natural skin texture, subsurface scattering, photographed on film, [triggerword], close-up portrait raising champagne glass toward golden sunset, warm light illuminating face and glass, natural joyful expression of gratitude, hair glowing in backlight, elegant dress and jewelry, shot on Leica M11 with 50mm f/1.4 lens, celebration portrait photography, golden hour backlighting, luxury celebration aesthetic'
+        prompt: 'film photograph, natural film grain, [triggerword], close-up portrait raising champagne glass toward golden sunset, warm light illuminating face and glass, natural joyful expression of gratitude, hair glowing in backlight, elegant dress and jewelry, shot on Leica M11 with 50mm f/1.4 lens, celebration portrait photography, golden hour backlighting, luxury celebration aesthetic'
       },
       {
         id: 'beach-hammock-serenity',
         name: 'Hammock Serenity',
         category: 'Relaxation Luxury',
         description: 'Half body - The hammock moment where life feels perfect',
-        prompt: 'raw photo, visible skin pores, film grain, unretouched natural skin texture, subsurface scattering, photographed on film, [triggerword], woman relaxing in beach hammock during golden hour, tropical paradise and ocean in soft focus background, natural peaceful expression with eyes gently closed, flowing white dress and natural hair, shot on Canon EOS R5 with 70-200mm f/2.8 lens, beach relaxation photography, warm golden hour lighting, tropical luxury aesthetic'
+        prompt: 'film photograph, natural film grain, [triggerword], woman relaxing in beach hammock during golden hour, tropical paradise and ocean in soft focus background, natural peaceful expression with eyes gently closed, flowing white dress and natural hair, shot on Canon EOS R5 with 70-200mm f/2.8 lens, beach relaxation photography, warm golden hour lighting, tropical luxury aesthetic'
       }
     ]
   },
@@ -593,84 +593,84 @@ const PROMPT_COLLECTIONS = {
         name: 'Concrete Defiance',
         category: 'Industrial Power',
         description: 'Portrait - When concrete becomes your canvas and attitude is your armor',
-        prompt: 'raw photo, visible skin pores, film grain, unretouched natural skin texture, subsurface scattering, photographed on film, [triggerword], powerful portrait against raw concrete wall, wearing all black leather jacket and dark clothing, intense direct gaze with subtle defiant expression, hair in edgy textured style, natural moody makeup, shot on Canon EOS R5 with 85mm f/1.2 lens, urban portrait photography, harsh directional lighting creating dramatic shadows, industrial rebellion aesthetic'
+        prompt: 'film photograph, natural film grain, [triggerword], powerful portrait against raw concrete wall, wearing all black leather jacket and dark clothing, intense direct gaze with subtle defiant expression, hair in edgy textured style, natural moody makeup, shot on Canon EOS R5 with 85mm f/1.2 lens, urban portrait photography, harsh directional lighting creating dramatic shadows, industrial rebellion aesthetic'
       },
       {
         id: 'warehouse-district-walk',
         name: 'Warehouse District',
         category: 'Industrial Streets',
         description: 'Full scenery - Walking through the city like you own every street',
-        prompt: 'raw photo, visible skin pores, film grain, unretouched natural skin texture, subsurface scattering, photographed on film, [triggerword], woman in dark streetwear walking through industrial warehouse district, abandoned buildings and urban decay in background, natural confident stride, windswept hair, hands in pockets, shot on Fujifilm GFX 100S with 63mm f/2.8 lens, street documentary photography, overcast urban lighting, industrial urban aesthetic'
+        prompt: 'film photograph, natural film grain, [triggerword], woman in dark streetwear walking through industrial warehouse district, abandoned buildings and urban decay in background, natural confident stride, windswept hair, hands in pockets, shot on Fujifilm GFX 100S with 63mm f/2.8 lens, street documentary photography, overcast urban lighting, industrial urban aesthetic'
       },
       {
         id: 'fire-escape-rebel',
         name: 'Fire Escape Rebel',
         category: 'Urban Architecture',
         description: 'Half body - The metal stairs that lead to your empire',
-        prompt: 'raw photo, visible skin pores, film grain, unretouched natural skin texture, subsurface scattering, photographed on film, [triggerword], edgy portrait on metal fire escape stairs, wearing dark denim jacket and urban accessories, natural rebellious expression while looking out over city, hair catching urban wind, minimal dark makeup, shot on Sony A7R IV with 50mm f/1.2 lens, architectural portrait photography, moody urban lighting, fire escape rebellion aesthetic'
+        prompt: 'film photograph, natural film grain, [triggerword], edgy portrait on metal fire escape stairs, wearing dark denim jacket and urban accessories, natural rebellious expression while looking out over city, hair catching urban wind, minimal dark makeup, shot on Sony A7R IV with 50mm f/1.2 lens, architectural portrait photography, moody urban lighting, fire escape rebellion aesthetic'
       },
       {
         id: 'subway-tunnel-authority',
         name: 'Underground Authority',
         category: 'Subway Culture',
         description: 'Portrait - Where the underground becomes your domain',
-        prompt: 'raw photo, visible skin pores, film grain, unretouched natural skin texture, subsurface scattering, photographed on film, [triggerword], intense portrait in subway tunnel or underpass, wearing black hoodie or urban streetwear, natural serious expression with piercing gaze, hair in street-style waves, dramatic tunnel lighting creating stark contrasts, shot on Nikon Z9 with 85mm f/1.8 lens, underground photography, dramatic artificial lighting, subway culture aesthetic'
+        prompt: 'film photograph, natural film grain, [triggerword], intense portrait in subway tunnel or underpass, wearing black hoodie or urban streetwear, natural serious expression with piercing gaze, hair in street-style waves, dramatic tunnel lighting creating stark contrasts, shot on Nikon Z9 with 85mm f/1.8 lens, underground photography, dramatic artificial lighting, subway culture aesthetic'
       },
       {
         id: 'rooftop-city-overlook',
         name: 'Rooftop Overlord',
         category: 'Urban Heights',
         description: 'Full scenery - The city spread below like your conquered territory',
-        prompt: 'raw photo, visible skin pores, film grain, unretouched natural skin texture, subsurface scattering, photographed on film, [triggerword], woman standing on urban rooftop overlooking city skyline, wearing dark coat and urban fashion, natural powerful stance, hair flowing in city wind, hands confidently positioned, shot on Leica SL2 with 90mm f/2 lens, rooftop cityscape photography, dramatic urban lighting, city conquest aesthetic'
+        prompt: 'film photograph, natural film grain, [triggerword], woman standing on urban rooftop overlooking city skyline, wearing dark coat and urban fashion, natural powerful stance, hair flowing in city wind, hands confidently positioned, shot on Leica SL2 with 90mm f/2 lens, rooftop cityscape photography, dramatic urban lighting, city conquest aesthetic'
       },
       {
         id: 'alley-shadow-mystery',
         name: 'Alley Shadows',
         category: 'Urban Noir',
         description: 'Half body - Where shadows dance and mysteries are born',
-        prompt: 'raw photo, visible skin pores, film grain, unretouched natural skin texture, subsurface scattering, photographed on film, [triggerword], moody portrait in narrow urban alley with dramatic shadows, wearing dark clothing with interesting textures, natural mysterious expression, hair partially in shadow, edgy minimal makeup, shot on Canon EOS R6 with 50mm f/1.2 lens, alley noir photography, harsh shadow lighting, urban mystery aesthetic'
+        prompt: 'film photograph, natural film grain, [triggerword], moody portrait in narrow urban alley with dramatic shadows, wearing dark clothing with interesting textures, natural mysterious expression, hair partially in shadow, edgy minimal makeup, shot on Canon EOS R6 with 50mm f/1.2 lens, alley noir photography, harsh shadow lighting, urban mystery aesthetic'
       },
       {
         id: 'graffiti-wall-statement',
         name: 'Graffiti Statement',
         category: 'Street Art',
         description: 'Portrait - When street art meets personal rebellion',
-        prompt: 'raw photo, visible skin pores, film grain, unretouched natural skin texture, subsurface scattering, photographed on film, [triggerword], bold portrait against colorful graffiti wall, wearing edgy street fashion, natural confident expression with slight attitude, hair in urban street style, bold minimal makeup, shot on Fujifilm X-T5 with 35mm f/1.4 lens, street art photography, urban natural lighting, graffiti culture aesthetic'
+        prompt: 'film photograph, natural film grain, [triggerword], bold portrait against colorful graffiti wall, wearing edgy street fashion, natural confident expression with slight attitude, hair in urban street style, bold minimal makeup, shot on Fujifilm X-T5 with 35mm f/1.4 lens, street art photography, urban natural lighting, graffiti culture aesthetic'
       },
       {
         id: 'parking-garage-solitude',
         name: 'Parking Garage Mood',
         category: 'Concrete Spaces',
         description: 'Full scenery - Finding beauty in the most unlikely urban spaces',
-        prompt: 'raw photo, visible skin pores, film grain, unretouched natural skin texture, subsurface scattering, photographed on film, [triggerword], atmospheric shot in concrete parking garage, wearing dark minimalist clothing, natural contemplative expression, hair naturally falling, hands in relaxed position, shot on Sony A7R V with 24-70mm f/2.8 lens, parking garage photography, harsh fluorescent lighting mixed with shadows, concrete brutalism aesthetic'
+        prompt: 'film photograph, natural film grain, [triggerword], atmospheric shot in concrete parking garage, wearing dark minimalist clothing, natural contemplative expression, hair naturally falling, hands in relaxed position, shot on Sony A7R V with 24-70mm f/2.8 lens, parking garage photography, harsh fluorescent lighting mixed with shadows, concrete brutalism aesthetic'
       },
       {
         id: 'bridge-underpass-mood',
         name: 'Bridge Underpass',
         category: 'Urban Structures',
         description: 'Half body - Where concrete arches frame your strength',
-        prompt: 'raw photo, visible skin pores, film grain, unretouched natural skin texture, subsurface scattering, photographed on film, [triggerword], powerful portrait under concrete bridge or overpass, wearing urban streetwear with layered textures, natural intense expression, hair with urban wind movement, dramatic architectural shadows, shot on Leica M11 with 50mm f/1.4 lens, bridge architecture photography, dramatic concrete lighting, urban structure aesthetic'
+        prompt: 'film photograph, natural film grain, [triggerword], powerful portrait under concrete bridge or overpass, wearing urban streetwear with layered textures, natural intense expression, hair with urban wind movement, dramatic architectural shadows, shot on Leica M11 with 50mm f/1.4 lens, bridge architecture photography, dramatic concrete lighting, urban structure aesthetic'
       },
       {
         id: 'industrial-window-light',
         name: 'Industrial Window',
         category: 'Factory Spaces',
         description: 'Portrait - When factory windows become your spotlight',
-        prompt: 'raw photo, visible skin pores, film grain, unretouched natural skin texture, subsurface scattering, photographed on film, [triggerword], dramatic portrait by large industrial window, wearing dark fitted clothing, natural serious expression with window light illuminating face, hair in edgy natural style, minimal urban makeup, shot on Hasselblad H6D-400c with 80mm f/1.9 lens, industrial portrait photography, harsh window lighting, factory rebellion aesthetic'
+        prompt: 'film photograph, natural film grain, [triggerword], dramatic portrait by large industrial window, wearing dark fitted clothing, natural serious expression with window light illuminating face, hair in edgy natural style, minimal urban makeup, shot on Hasselblad H6D-400c with 80mm f/1.9 lens, industrial portrait photography, harsh window lighting, factory rebellion aesthetic'
       },
       {
         id: 'street-corner-confidence',
         name: 'Street Corner Power',
         category: 'Urban Intersection',
         description: 'Full scenery - Owning every corner of the concrete jungle',
-        prompt: 'raw photo, visible skin pores, film grain, unretouched natural skin texture, subsurface scattering, photographed on film, [triggerword], confident stance at urban street corner, wearing edgy street fashion, natural powerful expression while surveying territory, hair in street-style movement, urban accessories, shot on Canon EOS R5 with 24-70mm f/2.8 lens, street corner photography, urban intersection lighting, street power aesthetic'
+        prompt: 'film photograph, natural film grain, [triggerword], confident stance at urban street corner, wearing edgy street fashion, natural powerful expression while surveying territory, hair in street-style movement, urban accessories, shot on Canon EOS R5 with 24-70mm f/2.8 lens, street corner photography, urban intersection lighting, street power aesthetic'
       },
       {
         id: 'concrete-steps-ascension',
         name: 'Concrete Ascension',
         category: 'Urban Architecture',
         description: 'Half body - Climbing the concrete steps to your throne',
-        prompt: 'raw photo, visible skin pores, film grain, unretouched natural skin texture, subsurface scattering, photographed on film, [triggerword], dynamic portrait on concrete steps or urban stairs, wearing dark streetwear with interesting details, natural determined expression, hair catching urban breeze, confident ascending posture, shot on Fujifilm GFX 50S with 110mm f/2 lens, concrete stairs photography, architectural urban lighting, ascension power aesthetic'
+        prompt: 'film photograph, natural film grain, [triggerword], dynamic portrait on concrete steps or urban stairs, wearing dark streetwear with interesting details, natural determined expression, hair catching urban breeze, confident ascending posture, shot on Fujifilm GFX 50S with 110mm f/2 lens, concrete stairs photography, architectural urban lighting, ascension power aesthetic'
       }
     ]
   }
