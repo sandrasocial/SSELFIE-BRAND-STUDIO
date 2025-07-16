@@ -190,8 +190,8 @@ export class AIService {
     // Use ONLY user's unique trigger word - NO FALLBACKS
     const triggerWord = userModel.triggerWord;
     
-    // PROVEN OPTIMAL SPECIFICATIONS: Hyperrealistic natural photos exactly like user but elevated
-    const expertQualitySpecs = ", raw photograph, visible skin pores (1.7), natural skin texture (1.8), film grain (Kodak Ektar:1.5), unretouched natural skin, medium-format film aesthetic (1.6), realistic hair with volume, natural hair texture, never flat hair, hyperrealistic facial features, authentic skin tone, natural imperfections, subtle blemishes, realistic skin pores with natural matte finish (2.0), professional photography";
+    // PROVEN OPTIMAL SPECIFICATIONS: Natural but confident - realistic skin with subtle enhancement
+    const expertQualitySpecs = ", raw photograph, subtle skin texture (1.6), natural skin detail, soft film grain (Kodak Ektar:1.3), natural skin with gentle smoothing, medium-format film aesthetic (1.5), realistic hair with volume, natural hair texture, never flat hair, hyperrealistic facial features, authentic skin tone, natural healthy glow, subtle skin refinement, professional photography";
     
     if (customPrompt) {
       // Ensure trigger word is at the beginning for maximum likeness activation
