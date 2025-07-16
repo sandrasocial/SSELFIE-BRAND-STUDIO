@@ -24,6 +24,7 @@ import { registerAutomationRoutes } from './routes/automation';
 // Email service import moved inline to avoid conflicts
 import { sendWelcomeEmail, sendPostAuthWelcomeEmail, EmailCaptureData, WelcomeEmailData } from "./email-service";
 import { AIService } from './ai-service';
+import { ArchitectureValidator } from './architecture-validator';
 import { z } from "zod";
 
 // Anthropic disabled for testing - API key issues
@@ -733,13 +734,13 @@ Create prompts that feel like iconic fashion campaign moments that would make so
   // Maya AI Image Generation endpoint - LIVE AUTHENTICATION WITH USAGE LIMITS
   app.post('/api/maya-generate-images', isAuthenticated, async (req: any, res) => {
     try {
-      const { customPrompt } = req.body;
-      const authUserId = req.user?.claims?.sub;
-      const claims = req.user.claims;
+      // 🔒 PERMANENT ARCHITECTURE VALIDATION - NEVER REMOVE
+      const authUserId = ArchitectureValidator.validateAuthentication(req);
+      await ArchitectureValidator.validateUserModel(authUserId);
+      ArchitectureValidator.enforceZeroTolerance();
       
-      if (!authUserId) {
-        return res.status(401).json({ error: 'Authentication required' });
-      }
+      const { customPrompt } = req.body;
+      const claims = req.user.claims;
       
       // Get the correct database user ID
       let user = await storage.getUser(authUserId);
@@ -3409,12 +3410,12 @@ Consider this workflow optimized and ready for implementation! ⚙️`
   // AI Image Generation with Custom Prompts - LIVE AUTHENTICATION
   app.post('/api/generate-images', isAuthenticated, async (req: any, res) => {
     try {
-      const authUserId = req.user?.claims?.sub;
-      const { prompt, count = 3 } = req.body;
+      // 🔒 PERMANENT ARCHITECTURE VALIDATION - NEVER REMOVE
+      const authUserId = ArchitectureValidator.validateAuthentication(req);
+      await ArchitectureValidator.validateUserModel(authUserId);
+      ArchitectureValidator.enforceZeroTolerance();
       
-      if (!authUserId) {
-        return res.status(401).json({ error: 'Authentication required' });
-      }
+      const { prompt, count = 3 } = req.body;
       
       
       if (!prompt) {
