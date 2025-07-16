@@ -24,6 +24,21 @@ export function useAuth() {
         if (!response.ok) {
           if (response.status === 401) {
             console.log('🔍 Auth check: User not authenticated (401)');
+            
+            // Check if this is a token refresh failure that requires re-login
+            try {
+              const errorData = await response.json();
+              if (errorData.needsLogin) {
+                console.log('🔄 Token refresh failed, redirecting to login');
+                // Small delay to prevent immediate redirect loops
+                setTimeout(() => {
+                  window.location.href = '/api/login';
+                }, 1000);
+              }
+            } catch (e) {
+              // Ignore JSON parsing errors for error responses
+            }
+            
             return null; // Not authenticated
           }
           throw new Error(`Auth failed: ${response.status}`);
