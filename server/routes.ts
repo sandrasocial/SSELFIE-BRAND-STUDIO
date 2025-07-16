@@ -1841,6 +1841,36 @@ Create prompts that feel like iconic fashion campaign moments that would make so
 
 
 
+  // TEST: Premium tier detection fix
+  app.post('/api/test-tier-detection', async (req: any, res) => {
+    try {
+      const { userId } = req.body;
+      
+      const user = await storage.getUser(userId);
+      if (!user) {
+        return res.status(404).json({ error: 'User not found' });
+      }
+      
+      // Test the fixed logic
+      const isPremium = user.plan === 'sselfie-studio-premium' || user.plan === 'SSELFIE_STUDIO';
+      const isAdmin = await storage.hasUnlimitedGenerations(userId);
+      
+      res.json({
+        success: true,
+        userId: userId,
+        email: user.email,
+        plan: user.plan,
+        isPremium: isPremium,
+        isAdmin: isAdmin,
+        shouldGetFluxPro: isPremium || isAdmin,
+        message: isPremium || isAdmin ? '🏆 This user should get FLUX Pro training' : '📱 This user should get standard FLUX training'
+      });
+      
+    } catch (error) {
+      res.status(500).json({ error: error.message });
+    }
+  });
+
   // TESTING: Check actual Replicate training status
   app.get('/api/test-replicate-training', async (req: any, res) => {
     try {
@@ -2042,9 +2072,8 @@ Create prompts that feel like iconic fashion campaign moments that would make so
       
       if (hasRealTrainedModel) {
         // This is a RETRAINING scenario - user already has a REAL trained model
-        // Get user's subscription plan
-        const subscription = await storage.getSubscription(dbUserId);
-        const isFreePlan = !subscription || subscription.plan === 'free';
+        // Check user's plan directly from user object
+        const isFreePlan = !user.plan || user.plan === 'free';
         const isAdmin = await storage.hasUnlimitedGenerations(dbUserId);
         
         if (!isAdmin) {
@@ -2102,9 +2131,16 @@ Create prompts that feel like iconic fashion campaign moments that would make so
       }
 
       // 🚀 DUAL-TIER TRAINING SYSTEM: Automatically choose FLUX Pro for premium users
-      const subscription = await storage.getSubscription(dbUserId);
-      const isPremium = subscription && (subscription.plan === 'sselfie-studio-premium' || subscription.plan === 'SSELFIE_STUDIO');
+      // Check user's plan directly (not separate subscription table)
+      const isPremium = user.plan === 'sselfie-studio-premium' || user.plan === 'SSELFIE_STUDIO';
       const isAdmin = await storage.hasUnlimitedGenerations(dbUserId);
+      
+      console.log(`🔍 TIER DETECTION for user ${dbUserId}:`, {
+        userPlan: user.plan,
+        isPremium,
+        isAdmin,
+        email: user.email
+      });
       
       if (isPremium || isAdmin) {
         // 🏆 PREMIUM USERS: Start FLUX Pro luxury training
