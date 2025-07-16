@@ -37,7 +37,7 @@ export function MemberNavigation({ transparent = true }: MemberNavigationProps) 
   // Check if user is admin (Sandra)
   const isAdmin = user?.email === 'ssa@ssasocial.com';
 
-  // Member navigation items
+  // Member navigation items (removed admin from main nav)
   const navItems = [
     { path: '/workspace', label: 'Studio' },
     { path: '/ai-training', label: 'Train' },
@@ -45,7 +45,6 @@ export function MemberNavigation({ transparent = true }: MemberNavigationProps) 
     { path: '/gallery', label: 'Gallery' },
     { path: '/flatlay-library', label: 'Flatlays' },
     { path: '/profile', label: 'Profile' },
-    ...(isAdmin ? [{ path: '/admin', label: 'Admin' }] : []),
   ];
 
   const handleLogout = () => {
