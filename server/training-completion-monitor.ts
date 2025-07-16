@@ -42,19 +42,37 @@ export class TrainingCompletionMonitor {
       if (trainingData.status === 'succeeded') {
         console.log(`✅ Training completed! Updating database for user ${userId}`);
         
-        // Get the trained model version
-        let versionId = null;
-        if (trainingData.version) {
-          versionId = trainingData.version;
+        // Check if this is FLUX Pro training (has output finetune_id) or standard FLUX (has version)
+        const isFluxPro = trainingData.output && typeof trainingData.output === 'string';
+        
+        if (isFluxPro) {
+          // 🏆 FLUX Pro training completion
+          console.log(`🏆 FLUX Pro training completed! finetune_id: ${trainingData.output}`);
+          
+          await storage.updateUserModel(userId, {
+            trainingStatus: 'completed',
+            finetuneId: trainingData.output, // Store finetune_id for FLUX Pro inference
+            isLuxury: true,
+            modelType: 'flux-pro',
+            updatedAt: new Date()
+          });
+          
+        } else {
+          // 📱 Standard FLUX training completion
+          let versionId = null;
+          if (trainingData.version) {
+            versionId = trainingData.version;
+          }
+          
+          await storage.updateUserModel(userId, {
+            trainingStatus: 'completed',
+            replicateVersionId: versionId,
+            trainedModelPath: `sandrasocial/${userId}-selfie-lora`,
+            isLuxury: false,
+            modelType: 'flux-standard',
+            updatedAt: new Date()
+          });
         }
-
-        // Update database with completion
-        await storage.updateUserModel(userId, {
-          trainingStatus: 'completed',
-          replicateVersionId: versionId,
-          trainedModelPath: `sandrasocial/${userId}-selfie-lora`,
-          updatedAt: new Date()
-        });
 
         console.log(`🎉 Database updated! User ${userId} training completed`);
         return true;

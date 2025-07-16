@@ -2060,24 +2060,78 @@ Create prompts that feel like iconic fashion campaign moments that would make so
         });
       }
 
-      // Start REAL Replicate training
-      const { ModelTrainingService } = await import('./model-training-service');
+      // 🚀 DUAL-TIER TRAINING SYSTEM: Automatically choose FLUX Pro for premium users
+      const subscription = await storage.getSubscription(dbUserId);
+      const isPremium = subscription && (subscription.plan === 'sselfie-studio-premium' || subscription.plan === 'SSELFIE_STUDIO');
+      const isAdmin = await storage.hasUnlimitedGenerations(dbUserId);
       
-      const result = await ModelTrainingService.startModelTraining(dbUserId, selfieImages);
-      
-      // Update model with Replicate training ID
-      await storage.updateUserModel(dbUserId, {
-        replicateModelId: result.trainingId
-      });
-      
-      res.json({
-        success: true,
-        message: "AI model training started successfully",
-        trainingId: result.trainingId,
-        status: result.status,
-        estimatedCompletionTime: "20 minutes",
-        triggerWord: triggerWord
-      });
+      if (isPremium || isAdmin) {
+        // 🏆 PREMIUM USERS: Start FLUX Pro luxury training
+        console.log(`🏆 Starting FLUX Pro luxury training for premium user: ${dbUserId}`);
+        
+        const { LuxuryTrainingService } = await import('./luxury-training-service');
+        
+        try {
+          const luxuryResult = await LuxuryTrainingService.startLuxuryTraining(dbUserId, selfieImages);
+          
+          res.json({
+            success: true,
+            message: "🏆 FLUX Pro luxury training started! Ultra-realistic model ready in 30-45 minutes.",
+            trainingId: luxuryResult.trainingId,
+            status: luxuryResult.status,
+            modelType: 'flux-pro',
+            isLuxury: true,
+            estimatedCompletionTime: "40 minutes",
+            triggerWord: triggerWord
+          });
+          
+        } catch (error) {
+          // Fallback to standard training if FLUX Pro fails
+          console.log(`⚠️ FLUX Pro training failed for ${dbUserId}, falling back to standard FLUX:`, error.message);
+          
+          const { ModelTrainingService } = await import('./model-training-service');
+          const result = await ModelTrainingService.startModelTraining(dbUserId, selfieImages);
+          
+          await storage.updateUserModel(dbUserId, {
+            replicateModelId: result.trainingId,
+            modelType: 'flux-standard',
+            isLuxury: false
+          });
+          
+          res.json({
+            success: true,
+            message: "📱 Standard FLUX training started (FLUX Pro temporarily unavailable)",
+            trainingId: result.trainingId,
+            status: result.status,
+            modelType: 'flux-standard',
+            estimatedCompletionTime: "20 minutes",
+            triggerWord: triggerWord
+          });
+        }
+        
+      } else {
+        // 📱 FREE USERS: Standard FLUX training
+        console.log(`📱 Starting standard FLUX training for free user: ${dbUserId}`);
+        
+        const { ModelTrainingService } = await import('./model-training-service');
+        const result = await ModelTrainingService.startModelTraining(dbUserId, selfieImages);
+        
+        await storage.updateUserModel(dbUserId, {
+          replicateModelId: result.trainingId,
+          modelType: 'flux-standard',
+          isLuxury: false
+        });
+        
+        res.json({
+          success: true,
+          message: "📱 AI model training started successfully",
+          trainingId: result.trainingId,
+          status: result.status,
+          modelType: 'flux-standard',
+          estimatedCompletionTime: "20 minutes",
+          triggerWord: triggerWord
+        });
+      }
       
     } catch (error) {
       res.status(500).json({ 
