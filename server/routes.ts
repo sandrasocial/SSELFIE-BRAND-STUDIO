@@ -155,33 +155,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
 
 
-  // Test route to simulate auth success and trigger potential errors
-  app.get('/api/test-auth-success', async (req, res) => {
-    try {
-      
-      // PRODUCTION: Use real authenticated user only - NO TEST USERS
-      return res.status(401).json({ 
-        error: 'Authentication required. Please log in first.',
-        requiresAuth: true
-      });
-      
-      // Test user usage initialization (this might be failing)
-      const existingUsage = await storage.getUserUsage(user.id);
-      if (!existingUsage) {
-        await storage.createUserUsage({
-          userId: user.id,
-          plan: 'free',
-          monthlyGenerationsAllowed: 5,
-          monthlyGenerationsUsed: 0,
-          lastResetDate: new Date(),
-        });
-      }
-      
-      res.json({ success: true, user, message: 'Auth success flow test passed' });
-    } catch (error) {
-      res.status(500).json({ error: error.message, stack: error.stack });
-    }
-  });
+
 
   // Test email endpoint for debugging
   app.post('/api/test-email', isAuthenticated, async (req: any, res) => {
