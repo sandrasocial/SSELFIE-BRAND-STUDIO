@@ -248,10 +248,11 @@ export class AIService {
         output_quality: 90,         // 🔧 HIGH: Good quality without over-enhancement
         megapixels: "1",
         go_fast: false,
-        disable_safety_checker: false,
-        // Note: Advanced LoRA settings removed - not compatible with this FLUX version
+        disable_safety_checker: false
       }
     };
+    
+    console.log('🔍 DEBUG REQUEST BODY:', JSON.stringify(requestBody, null, 2));
     
     // Generate with user's model
     

@@ -78,7 +78,7 @@ export async function generateImages(request: GenerateImagesRequest): Promise<Ge
       finalPrompt = `${finalPrompt}${hairEnhancementSpecs}`;
     }
 
-    // Build input with user's individual trained model - MAXIMUM LIKENESS SETTINGS
+    // Build input with user's individual trained model - CLEAN SETTINGS
     const input: any = {
       prompt: finalPrompt,
       guidance: 2.5,              // 🔧 BALANCED: Let user's model dominate without base model interference
@@ -89,9 +89,10 @@ export async function generateImages(request: GenerateImagesRequest): Promise<Ge
       output_quality: 90,         // 🔧 HIGH: Good quality without over-enhancement
       megapixels: "1",
       go_fast: false,
-      disable_safety_checker: false,
-      // Note: Advanced LoRA settings removed - not compatible with this FLUX version
+      disable_safety_checker: false
     };
+    
+    console.log('🔍 DEBUG INPUT:', JSON.stringify(input, null, 2));
     
 
     
