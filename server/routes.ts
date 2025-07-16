@@ -828,6 +828,8 @@ Create prompts that feel like iconic fashion campaign moments that would make so
       });
 
     } catch (error) {
+      console.error('Maya generation error:', error);
+      console.error('User model data:', userModel);
       
       // Handle specific Replicate API errors with user-friendly messages
       if (error.message.includes('502')) {
@@ -846,7 +848,8 @@ Create prompts that feel like iconic fashion campaign moments that would make so
       
       res.status(500).json({ 
         error: 'Failed to generate images with Maya. Please try again.',
-        retryable: true 
+        retryable: true,
+        debug: error.message
       });
     }
   });
