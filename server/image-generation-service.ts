@@ -78,21 +78,21 @@ export async function generateImages(request: GenerateImagesRequest): Promise<Ge
       finalPrompt = `${finalPrompt}${hairEnhancementSpecs}`;
     }
 
-    // Build input with user's individual trained model - OPTIMIZED USER-TESTED SETTINGS
+    // Build input with user's individual trained model - MAXIMUM CONSISTENCY SETTINGS
     const input: any = {
       prompt: finalPrompt,
-      guidance: 2.89,             // 🔧 USER TESTED: Exact setting that produced "really good" results
-      num_inference_steps: 35,    // 🔧 USER TESTED: Perfect step count for maximum likeness
+      guidance: 3.5,              // 🔧 INCREASED: Higher guidance for stronger model adherence
+      num_inference_steps: 40,    // 🔧 INCREASED: More steps for consistent likeness across all outputs
       num_outputs: 3,
       aspect_ratio: "3:4",
       output_format: "png",
-      output_quality: 100,        // 🔧 USER TESTED: Maximum quality setting
+      output_quality: 100,        // 🔧 MAXIMUM: Best quality output
       megapixels: "1",
       go_fast: false,
       disable_safety_checker: false,
-      lora_scale: 1,              // 🔧 USER TESTED: Full LoRA model strength
-      prompt_strength: 1,         // 🔧 USER TESTED: Maximum prompt adherence
-      extra_lora_scale: 1         // 🔧 USER TESTED: Additional LoRA emphasis
+      lora_scale: 1.2,            // 🔧 INCREASED: Stronger LoRA application
+      prompt_strength: 1.0,       // 🔧 MAXIMUM: Full prompt adherence
+      extra_lora_scale: 1.0       // 🔧 MAXIMUM: Additional model emphasis
     };
     
     console.log('🔍 DEBUG INPUT:', JSON.stringify(input, null, 2));
