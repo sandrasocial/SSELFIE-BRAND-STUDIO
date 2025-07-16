@@ -20,7 +20,14 @@ export class ArchitectureValidator {
       throw new Error('Architecture violation: Must use individual user model only');
     }
     
+    // 🔒 ENHANCED VALIDATION: Ensure no LoRA parameters in V2 architecture
+    if (requestBody.input?.lora_weights || requestBody.input?.extra_lora) {
+      console.error('🚨 ARCHITECTURE VIOLATION: LoRA parameters detected in V2 architecture');
+      throw new Error('Architecture violation: V2 uses individual models only, no LoRA parameters');
+    }
+    
     console.log(`✅ Architecture validation passed for user: ${userId}`);
+    console.log(`✅ Using individual model version: ${requestBody.version}`);
   }
   
   /**
