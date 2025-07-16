@@ -213,14 +213,16 @@ export class AIService {
       throw new Error('User model not ready for generation. Training must be completed first.');
     }
 
-    // 🔧 CORRECT ARCHITECTURE: Base FLUX model + user's individual LoRA weights
-    // User trains LoRA model (e.g., sandrasocial/42585527-selfie-lora) used WITH base FLUX
-    const baseFluxModel = "39ed52f2a78e934b3ba6e2a89f5b1c712de7dfea535525255b1aa35c5565e08b"; // black-forest-labs/flux-dev latest
-    const userLoraModel = userModel.replicateVersionId; // User's trained LoRA (e.g., sandrasocial/42585527-selfie-lora:hash)
+    // 🔧 CORRECT ARCHITECTURE: Use user's individual trained model directly
+    // User's model (e.g., sandrasocial/42585527-selfie-lora) is a complete trained model, not just LoRA weights
+    const userTrainedModel = userModel.replicateVersionId; // User's complete trained model
     
-    if (!userLoraModel) {
-      throw new Error('User LoRA model not found - training may need to be redone');
+    if (!userTrainedModel) {
+      throw new Error('User trained model not found - training may need to be redone');
     }
+    
+    // Extract just the version hash from the full model string (sandrasocial/42585527-selfie-lora:hash -> hash)
+    const versionHash = userTrainedModel.includes(':') ? userTrainedModel.split(':')[1] : userTrainedModel;
     
     // 🎯 CRITICAL: Ensure trigger word is at the beginning for maximum likeness
     const triggerWord = userModel.triggerWord;
@@ -233,7 +235,7 @@ export class AIService {
     }
 
     const requestBody = {
-      version: baseFluxModel, // Use base FLUX model
+      version: versionHash, // Use user's individual trained model version hash
       input: {
         prompt: enhancedPrompt,
         guidance: 2.89,             // 🔧 EXACT: Yesterday's confirmed perfect setting
@@ -244,11 +246,7 @@ export class AIService {
         output_quality: 100,        // 🔧 EXACT: Yesterday's confirmed perfect setting
         megapixels: "1",
         go_fast: false,
-        disable_safety_checker: false,
-        lora_weights: userLoraModel, // 🔧 CRITICAL: User's individual trained LoRA
-        lora_scale: 1,              // 🔧 EXACT: Yesterday's confirmed perfect setting
-        prompt_strength: 1,         // 🔧 EXACT: Yesterday's confirmed perfect setting
-        extra_lora_scale: 1         // 🔧 EXACT: Yesterday's confirmed perfect setting
+        disable_safety_checker: false
       }
     };
     
