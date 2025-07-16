@@ -72,12 +72,14 @@ export async function generateImages(request: GenerateImagesRequest): Promise<Ge
       finalPrompt = `${finalPrompt}${premiumHairSpecs}`;
     }
 
-    // Extract just the model name from the full model ID (remove version part)
-    const loraModelName = userModelName.split(':')[0]; // e.g., "sandrasocial/42585527-selfie-lora"
+    // ✅ CORRECT APPROACH: Use black-forest-labs/flux-dev-lora base model with user's LoRA weights
+    const userLoraWeights = userModelName; // e.g., "sandrasocial/42585527-selfie-lora:version"
 
-    // Build input for user's individual trained LoRA model - EXPERT SETTINGS
+    // Build input for black-forest-labs/flux-dev-lora with user's LoRA weights - EXPERT SETTINGS
     const input: any = {
       prompt: finalPrompt,
+      lora_weights: userLoraWeights, // Load user's individual LoRA weights
+      lora_scale: 1.0, // Maximum LoRA influence for strongest likeness
       guidance: 2.8, // Optimized for maximum likeness and natural results  
       num_inference_steps: 35, // Increased for higher quality and detail
       num_outputs: 3,
@@ -106,7 +108,7 @@ export async function generateImages(request: GenerateImagesRequest): Promise<Ge
             'Content-Type': 'application/json',
           },
           body: JSON.stringify({
-            version: userModelName, // Use user's individual trained model directly
+            version: "black-forest-labs/flux-dev-lora:a53fd9255ecba80d99eaab4706c698f861fd47b098012607557385416e46aae5",
             input
           }),
         });

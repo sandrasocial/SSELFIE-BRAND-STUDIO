@@ -219,17 +219,19 @@ export class AIService {
       throw new Error('User model not ready for generation. Training must be completed first.');
     }
 
-    // ✅ CORRECT APPROACH: Use user's individual trained LoRA model directly
-    const userModelId = userModel.replicateModelId; // e.g., "sandrasocial/42585527-selfie-lora:version"
+    // ✅ CORRECT APPROACH: Use black-forest-labs/flux-dev-lora base model with user's LoRA weights
+    const userLoraWeights = userModel.replicateModelId; // e.g., "sandrasocial/42585527-selfie-lora:version"
     
-    if (!userModelId) {
-      throw new Error('User LoRA model not found - training may need to be completed');
+    if (!userLoraWeights) {
+      throw new Error('User LoRA weights not found - training may need to be completed');
     }
     
     const requestBody = {
-      version: userModelId, // Use user's trained individual model directly
+      version: "black-forest-labs/flux-dev-lora:a53fd9255ecba80d99eaab4706c698f861fd47b098012607557385416e46aae5",
       input: {
         prompt: prompt,
+        lora_weights: userLoraWeights, // Load user's individual LoRA weights
+        lora_scale: 1.0, // Maximum LoRA influence for strongest likeness
         guidance: 2.8, // Optimized for maximum likeness and natural results  
         num_inference_steps: 35, // Increased for higher quality and detail
         num_outputs: 3,
