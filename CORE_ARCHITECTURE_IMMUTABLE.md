@@ -1,49 +1,51 @@
-# 🔒 SSELFIE STUDIO - IMMUTABLE CORE ARCHITECTURE
+# 🔒 SSELFIE STUDIO - IMMUTABLE CORE ARCHITECTURE V2 (UPDATED)
 
-## ⚠️ CRITICAL WARNING FOR ALL FUTURE AGENTS ⚠️
+## ⚠️ CRITICAL UPDATE - JULY 16, 2025 ⚠️
 
-**THIS ARCHITECTURE IS LOCKED AND MUST NEVER BE CHANGED**
+**THIS ARCHITECTURE HAS BEEN UPDATED TO V2 AND IS NOW LOCKED**
 
-The user has explicitly stated this architecture has been changed too many times and must remain permanent. Any agent that attempts to modify this core architecture will be violating direct user requirements.
+Based on user feedback and quality testing, the architecture has been updated to use individual user models for better quality and isolation. This V2 architecture is now PERMANENT and must never be changed.
 
-## 🔒 FLUX LoRA ARCHITECTURE (PERMANENT)
+## 🔒 FLUX INDIVIDUAL MODEL ARCHITECTURE (PERMANENT)
 
-### Base Model (IMMUTABLE)
+### Individual User Models (IMMUTABLE)
+Each user has their own complete trained FLUX model:
 ```
-black-forest-labs/flux-dev-lora:a53fd9255ecba80d99eaab4706c698f861fd47b098012607557385416e46aae5
+sandrasocial/{userId}-selfie-lora:{versionId}
 ```
 
-### User LoRA Loading (IMMUTABLE)
+### User Model Generation (IMMUTABLE)
 ```json
 {
-  "version": "black-forest-labs/flux-dev-lora:a53fd...",
+  "version": "sandrasocial/{userId}-selfie-lora:{versionId}",
   "input": {
-    "lora_weights": "sandrasocial/{userId}-selfie-lora:version",
-    "lora_scale": 1.0,
+    "prompt": "user{userId} professional headshot...",
     "guidance": 2.8,
     "num_inference_steps": 35,
-    "output_quality": 95
+    "output_quality": 95,
+    "num_outputs": 3,
+    "aspect_ratio": "3:4"
   }
 }
 ```
 
 ### Training Architecture (IMMUTABLE)
 - **Training Model**: `ostris/flux-dev-lora-trainer:26dce37af90b9d997eeb970d92e47de3064d46c300504ae376c75bef6a9022d2`
-- **Output**: Individual LoRA models `sandrasocial/{userId}-selfie-lora`
-- **Storage**: Database stores `replicate_model_id` pointing to user's individual LoRA
+- **Output**: Individual complete models `sandrasocial/{userId}-selfie-lora`
+- **Storage**: Database stores `replicate_model_id` and `replicate_version_id`
 
 ## 🚫 ZERO TOLERANCE POLICY (PERMANENT)
 
 ### What Is FORBIDDEN:
-- Using individual model versions directly (WRONG approach)
+- Using base model + LoRA weights approach (OLD V1 approach)
 - Any fallback models or placeholder data
 - Cross-contamination between users
 - Mock images or shared models
-- Any approach other than base model + individual LoRA
+- Any approach other than individual user models
 
 ### What Is REQUIRED:
-- Every user MUST train their own individual LoRA model
-- Generation MUST use black-forest-labs/flux-dev-lora + user's LoRA only
+- Every user MUST train their own individual complete model
+- Generation MUST use user's individual model version ONLY
 - NO exceptions for any user under any circumstances
 - Error messages guide users to complete training
 
@@ -52,21 +54,23 @@ black-forest-labs/flux-dev-lora:a53fd9255ecba80d99eaab4706c698f861fd47b098012607
 ### Core Services (LOCKED)
 - `server/ai-service.ts` - Maya AI image generation
 - `server/image-generation-service.ts` - AI Photoshoot service  
-- `server/model-training-service.ts` - User LoRA training
-- `server/training-status-checker.ts` - Training completion tracking
+- `server/routes.ts` - Direct API endpoints
+- `server/model-training-service.ts` - User model training
 
 ### Implementation Details
-Both generation services MUST use this exact pattern:
+ALL generation services MUST use this exact pattern:
 ```typescript
+const userTrainedVersion = `${userModel.replicateModelId}:${userModel.replicateVersionId}`;
+
 const requestBody = {
-  version: "black-forest-labs/flux-dev-lora:a53fd9255ecba80d99eaab4706c698f861fd47b098012607557385416e46aae5",
+  version: userTrainedVersion, // User's individual trained model ONLY
   input: {
     prompt: finalPrompt,
-    lora_weights: userModel.replicateModelId, // User's individual LoRA
-    lora_scale: 1.0,
     guidance: 2.8,
     num_inference_steps: 35,
-    output_quality: 95
+    output_quality: 95,
+    num_outputs: 3,
+    aspect_ratio: "3:4"
   }
 };
 ```
