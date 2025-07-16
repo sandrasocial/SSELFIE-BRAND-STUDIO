@@ -344,12 +344,13 @@ export class ModelTrainingService {
         throw new Error('USER_MODEL_NOT_TRAINED: User must train their AI model before generating images. No fallback models allowed.');
       }
       
-      // 🔧 CORRECT ARCHITECTURE: Use user's individual trained model directly
-      // Each user has their own trained FLUX model (e.g., sandrasocial/42585527-selfie-lora)
-      const userTrainedModel = userModel.replicateVersionId; // User's individual trained model
+      // 🔧 CORRECT ARCHITECTURE: Base FLUX model + user's individual LoRA weights
+      // User trains LoRA model (e.g., sandrasocial/42585527-selfie-lora) used WITH base FLUX
+      const baseFluxModel = "39ed52f2a78e934b3ba6e2a89f5b1c712de7dfea535525255b1aa35c5565e08b"; // black-forest-labs/flux-dev latest
+      const userLoraModel = userModel.replicateVersionId; // User's trained LoRA
       
-      if (!userTrainedModel) {
-        throw new Error('User model not found - training may need to be redone');
+      if (!userLoraModel) {
+        throw new Error('User LoRA model not found - training may need to be redone');
       }
       const triggerWord = userModel.triggerWord || `user${userId}`;
       
@@ -383,7 +384,7 @@ export class ModelTrainingService {
 
       // Call REAL Replicate API using base FLUX model + user's individual LoRA - CORRECT ARCHITECTURE
       const requestBody = {
-        version: userTrainedModel, // Use user's individual trained model
+        version: baseFluxModel, // Use base FLUX model
         input: {
           prompt: finalPrompt,
           negative_prompt: "portrait, headshot, passport photo, studio shot, centered face, isolated subject, corporate headshot, ID photo, school photo, posed, glossy skin, shiny skin, oily skin, plastic skin, overly polished, artificial lighting, fake appearance, heavily airbrushed, perfect skin, flawless complexion, heavy digital enhancement, strong beauty filter, unrealistic skin texture, synthetic appearance, smooth skin, airbrushed, retouched, magazine retouching, digital perfection, waxy skin, doll-like skin, porcelain skin, flawless makeup, heavy foundation, concealer, smooth face, perfect complexion, digital smoothing, beauty app filter, Instagram filter, snapchat filter, face tune, photoshop skin, shiny face, polished skin, reflective skin, wet skin, slick skin, lacquered skin, varnished skin, glossy finish, artificial shine, digital glow, skin blur, inconsistent hair color, wrong hair color, blonde hair, light hair, short hair, straight hair, flat hair, limp hair, greasy hair, stringy hair, unflattering hair, bad hair day, messy hair, unkempt hair, oily hair, lifeless hair, dull hair, damaged hair",
@@ -393,6 +394,10 @@ export class ModelTrainingService {
           output_quality: 95,
           num_inference_steps: 35, // 🔧 EXACT: Use same perfect settings as Maya/AI Photoshoot
           guidance: 2.89,          // 🔧 EXACT: Use same perfect settings as Maya/AI Photoshoot
+          lora_weights: userLoraModel, // 🔧 CRITICAL: User's individual trained LoRA
+          lora_scale: 1,           // 🔧 EXACT: Use same perfect settings as Maya/AI Photoshoot
+          prompt_strength: 1,      // 🔧 EXACT: Use same perfect settings as Maya/AI Photoshoot
+          extra_lora_scale: 1,     // 🔧 EXACT: Use same perfect settings as Maya/AI Photoshoot
           go_fast: false, // Quality over speed
           seed: Math.floor(Math.random() * 1000000)
         }

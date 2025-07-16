@@ -40,15 +40,16 @@ export async function generateImages(request: GenerateImagesRequest): Promise<Ge
     const savedImage = await storage.saveAIImage(aiImageData);
 
 
-    // 🔧 CORRECT ARCHITECTURE: Use user's individual trained model directly
-    // Each user has their own trained FLUX model (e.g., sandrasocial/42585527-selfie-lora)
-    const userTrainedModel = userModel.replicateVersionId; // User's individual trained model
+    // 🔧 CORRECT ARCHITECTURE: Base FLUX model + user's individual LoRA weights  
+    // User trains LoRA model (e.g., sandrasocial/42585527-selfie-lora) used WITH base FLUX
+    const baseFluxModel = "39ed52f2a78e934b3ba6e2a89f5b1c712de7dfea535525255b1aa35c5565e08b"; // black-forest-labs/flux-dev latest
+    const userLoraModel = userModel.replicateVersionId; // User's trained LoRA
     
-    if (!userTrainedModel) {
-      throw new Error('User model not found - training may need to be redone');
+    if (!userLoraModel) {
+      throw new Error('User LoRA model not found - training may need to be redone');
     }
     
-    console.log(`🔧 ARCHITECTURE FIX - User: ${userId}, User Trained Model: ${userTrainedModel}`);
+    console.log(`🔧 ARCHITECTURE FIX - User: ${userId}, Base FLUX Model: ${baseFluxModel}, User LoRA: ${userLoraModel}`);
     console.log(`🔍 CORRECT APPROACH - Using base FLUX + individual user LoRA weights`);
     
     // 🎯 CRITICAL: Trigger word MUST be at the very beginning for maximum likeness
@@ -87,10 +88,7 @@ export async function generateImages(request: GenerateImagesRequest): Promise<Ge
       megapixels: "1",
       go_fast: false,
       disable_safety_checker: false,
-      // User's individual trained model handles its own LoRA weights internally
-      lora_scale: 1,              // 🔧 EXACT: Yesterday's confirmed perfect setting
-      prompt_strength: 1,         // 🔧 EXACT: Yesterday's confirmed perfect setting
-      extra_lora_scale: 1         // 🔧 EXACT: Yesterday's confirmed perfect setting
+      // LoRA settings will be added in request body
     };
     
     console.log('🔍 DEBUG INPUT:', JSON.stringify(input, null, 2));
@@ -111,8 +109,14 @@ export async function generateImages(request: GenerateImagesRequest): Promise<Ge
             'Content-Type': 'application/json',
           },
           body: JSON.stringify({
-            version: userTrainedModel, // Use user's individual trained model
-            input
+            version: baseFluxModel, // Use base FLUX model
+            input: {
+              ...input,
+              lora_weights: userLoraModel, // Add user's LoRA weights to input  
+              lora_scale: 1,              // 🔧 EXACT: Yesterday's confirmed perfect setting
+              prompt_strength: 1,         // 🔧 EXACT: Yesterday's confirmed perfect setting
+              extra_lora_scale: 1         // 🔧 EXACT: Yesterday's confirmed perfect setting
+            }
           }),
         });
 
