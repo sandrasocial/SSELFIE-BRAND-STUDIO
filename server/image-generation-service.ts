@@ -78,7 +78,7 @@ export async function generateImages(request: GenerateImagesRequest): Promise<Ge
     // Build input with black forest labs FLUX model + user's LoRA weights - EXPERT SETTINGS
     const input: any = {
       prompt: finalPrompt,
-      guidance_scale: 2.8, // Optimized for maximum likeness and natural results  
+      guidance: 2.8, // Optimized for maximum likeness and natural results  
       lora_weights: loraModelName, // User's trained LoRA weights
       lora_scale: 1.0, // Maximum LoRA influence for strongest likeness
       num_inference_steps: 35, // Increased for higher quality and detail
@@ -108,7 +108,7 @@ export async function generateImages(request: GenerateImagesRequest): Promise<Ge
             'Content-Type': 'application/json',
           },
           body: JSON.stringify({
-            version: "black-forest-labs/flux-dev-lora:a53fd9255ecba80d99eaab4706c698f861fd47b098012607557385416e46aae5", // Use black forest labs model
+            version: "black-forest-labs/flux-dev-lora", // Use black forest labs model
             input
           }),
         });

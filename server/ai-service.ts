@@ -230,10 +230,10 @@ export class AIService {
     const loraModelName = userModelName.split(':')[0]; // e.g., "sandrasocial/42585527-selfie-lora"
     
     const requestBody = {
-      model: "black-forest-labs/flux-dev-lora", // Use black forest labs model
+      version: "black-forest-labs/flux-dev-lora", // Use black forest labs model
       input: {
         prompt: prompt,
-        guidance_scale: 2.8, // Optimized for maximum likeness and natural results  
+        guidance: 2.8, // Optimized for maximum likeness and natural results  
         lora_weights: loraModelName, // User's trained LoRA weights
         lora_scale: 1.0, // Maximum LoRA influence for strongest likeness
         num_inference_steps: 35, // Increased for higher quality and detail
