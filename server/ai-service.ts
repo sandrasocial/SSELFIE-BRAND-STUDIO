@@ -240,18 +240,18 @@ export class AIService {
       version: userModelVersion, // Use user's trained model directly
       input: {
         prompt: enhancedPrompt,
-        guidance: 3.5,              // 🔧 INCREASED: Higher guidance for stronger model adherence
-        num_inference_steps: 40,    // 🔧 INCREASED: More steps for consistent likeness across all outputs
+        guidance: 2.89,             // 🔧 EXACT: Yesterday's confirmed perfect setting
+        num_inference_steps: 35,    // 🔧 EXACT: Yesterday's confirmed perfect setting
         num_outputs: 3,
         aspect_ratio: "3:4",
         output_format: "png",
-        output_quality: 100,        // 🔧 MAXIMUM: Best quality output
+        output_quality: 100,        // 🔧 EXACT: Yesterday's confirmed perfect setting
         megapixels: "1",
         go_fast: false,
         disable_safety_checker: false,
-        lora_scale: 1.2,            // 🔧 INCREASED: Stronger LoRA application
-        prompt_strength: 1.0,       // 🔧 MAXIMUM: Full prompt adherence
-        extra_lora_scale: 1.0       // 🔧 MAXIMUM: Additional model emphasis
+        lora_scale: 1,              // 🔧 EXACT: Yesterday's confirmed perfect setting
+        prompt_strength: 1,         // 🔧 EXACT: Yesterday's confirmed perfect setting
+        extra_lora_scale: 1         // 🔧 EXACT: Yesterday's confirmed perfect setting
       }
     };
     

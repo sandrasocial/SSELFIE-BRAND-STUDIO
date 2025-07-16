@@ -61,38 +61,26 @@ export async function generateImages(request: GenerateImagesRequest): Promise<Ge
     finalPrompt = finalPrompt.replace(new RegExp(triggerWord, 'gi'), '').trim();
     finalPrompt = `${triggerWord} ${finalPrompt}`;
     
-    console.log(`🎯 LIKENESS CHECK - User: ${userId}, Trigger: "${triggerWord}", Final prompt starts with: "${finalPrompt.substring(0, 50)}..."`);
+    console.log(`🎯 LIKENESS CHECK - User: ${userId}, Trigger: "${triggerWord}", Final prompt starts with: "${finalPrompt.substring(0, 100)}..."`);
+    console.log(`🔍 PURE PROMPT TEST - Full prompt: "${finalPrompt}"`);
     
-    // Maya AI should provide complete authentic prompts - minimal enhancement only
-    const naturalTextureSpecs = ", raw photo, natural skin glow, visible texture, film grain, unretouched confidence, editorial cover portrait";
-    
-    const hairEnhancementSpecs = ", hair with natural volume and movement, soft textured hair styling, hair flowing naturally, hair never flat or lifeless";
-    
-    // Only add natural texture if not already present
-    if (!finalPrompt.toLowerCase().includes('film grain') && !finalPrompt.toLowerCase().includes('raw photo')) {
-      finalPrompt = `${finalPrompt}${naturalTextureSpecs}`;
-    }
-    
-    // Always add hair enhancement specifications for better hair quality
-    if (!finalPrompt.toLowerCase().includes('hair with') && !finalPrompt.toLowerCase().includes('voluminous hair')) {
-      finalPrompt = `${finalPrompt}${hairEnhancementSpecs}`;
-    }
+    // NO ENHANCEMENTS - using exactly what Maya provides for testing
 
-    // Build input with user's individual trained model - MAXIMUM CONSISTENCY SETTINGS
+    // Build input with user's individual trained model - YESTERDAY'S PERFECT SETTINGS
     const input: any = {
       prompt: finalPrompt,
-      guidance: 3.5,              // 🔧 INCREASED: Higher guidance for stronger model adherence
-      num_inference_steps: 40,    // 🔧 INCREASED: More steps for consistent likeness across all outputs
+      guidance: 2.89,             // 🔧 EXACT: Yesterday's confirmed perfect setting
+      num_inference_steps: 35,    // 🔧 EXACT: Yesterday's confirmed perfect setting
       num_outputs: 3,
       aspect_ratio: "3:4",
       output_format: "png",
-      output_quality: 100,        // 🔧 MAXIMUM: Best quality output
+      output_quality: 100,        // 🔧 EXACT: Yesterday's confirmed perfect setting
       megapixels: "1",
       go_fast: false,
       disable_safety_checker: false,
-      lora_scale: 1.2,            // 🔧 INCREASED: Stronger LoRA application
-      prompt_strength: 1.0,       // 🔧 MAXIMUM: Full prompt adherence
-      extra_lora_scale: 1.0       // 🔧 MAXIMUM: Additional model emphasis
+      lora_scale: 1,              // 🔧 EXACT: Yesterday's confirmed perfect setting
+      prompt_strength: 1,         // 🔧 EXACT: Yesterday's confirmed perfect setting
+      extra_lora_scale: 1         // 🔧 EXACT: Yesterday's confirmed perfect setting
     };
     
     console.log('🔍 DEBUG INPUT:', JSON.stringify(input, null, 2));
