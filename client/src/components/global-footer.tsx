@@ -88,16 +88,6 @@ export const GlobalFooter: React.FC = () => {
                   Admin
                 </Link>
               </li>
-              <li>
-                <Link href="/privacy" className="text-white/60 hover:text-white transition-colors text-sm">
-                  Privacy Policy
-                </Link>
-              </li>
-              <li>
-                <Link href="/terms" className="text-white/60 hover:text-white transition-colors text-sm">
-                  Terms of Service
-                </Link>
-              </li>
             </ul>
           </div>
         </div>
