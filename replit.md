@@ -251,6 +251,17 @@ The platform has become overly complex with multiple pricing tiers, broken onboa
 - Maintained security restrictions while enabling proper development workflow
 - Authentication system now works correctly for both localhost and production domains
 
+### ✅ CRITICAL IMAGE GENERATION ARCHITECTURE FIX COMPLETED (July 16, 2025)
+**FLUX MODEL API ISSUE RESOLVED - USERS CAN NOW GENERATE IMAGES:**
+- **Root Cause Identified**: Using incorrect FLUX API format (base model + LoRA weights vs individual trained model)
+- **API Format Fixed**: Changed from `black-forest-labs/flux-dev-lora` + `lora_weights` to user's individual trained model version
+- **Architecture Corrected**: Now uses `{userModel}:{versionId}` format that Replicate API requires
+- **Both Services Updated**: ai-service.ts (Maya AI) and image-generation-service.ts (AI Photoshoot) both fixed
+- **Complete User Isolation**: Each user generates with ONLY their individual trained model version
+- **Zero Cross-Contamination**: No shared models or fallbacks - every generation uses user's personal AI model
+- **API Testing Confirmed**: Direct model version approach successful, LoRA weights approach rejected by API
+- **User Experience Restored**: Both Maya AI chat and AI Photoshoot now functional for image generation
+
 ### ✅ CRITICAL TRAINING COMPLETION SYNC SYSTEM IMPLEMENTED (July 16, 2025)
 **PRODUCTION BUG RESOLVED - USERS NO LONGER GET STUCK IN TRAINING:**
 - **Root Cause Identified**: Training completed successfully in Replicate API but platform database wasn't updated
