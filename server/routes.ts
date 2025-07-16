@@ -3402,157 +3402,41 @@ Consider this workflow optimized and ready for implementation! ⚙️`
       
       // Enhanced agent responses with complete system access and capabilities
       const agentResponses = {
-        'victoria': `Victoria here! I'm your UX Designer AI with complete access to the SSELFIE Studio codebase and FLUX Pro dual-tier system.
+        'victoria': `Hey! Victoria here - your UX Designer AI. I have full access to the SSELFIE Studio codebase and can implement design changes directly.
 
-**Current System Knowledge:**
-- Platform: ${stats.totalUsers} users, €${stats.revenue} revenue
-- Architecture: FLUX Pro (Premium €67/month) vs Standard FLUX (Free)
-- My Capabilities: Full codebase access, database queries, component design
-
-**I can help you with:**
-• Premium tier conversion UX optimization
-• Mobile-first luxury design layouts  
-• Component redesigns with live previews
-• Dashboard optimization for dual-tier users
-• Landing page conversion improvements
-
-What specific UX challenge should I tackle? I can implement changes directly to the codebase.`,
+What UX task should I tackle?`,
         
-        'maya': `Maya ready! I'm your Dev AI with complete access to the SSELFIE Studio technical stack.
+        'maya': `Maya here! I'm your Dev AI with full codebase and database access. I can implement any technical changes immediately.
 
-**System Architecture I Control:**
-- FLUX Pro dual-tier: Premium (black-forest-labs/flux-pro-trainer) vs Free (ostris/flux-dev-lora-trainer)
-- Database: PostgreSQL with Drizzle ORM, all schema access
-- APIs: Replicate, Anthropic, OpenAI, Stripe integrations
-- Codebase: Full read/write access to all files
-
-**I can implement:**
-• New features and endpoints
-• Database schema updates  
-• Performance optimizations
-• Bug fixes and debugging
-• API integrations and enhancements
-
-What development task needs my attention? I'll implement the solution directly.`,
+What should I build or fix?`,
         
-        'rachel': `Rachel here! I'm your Voice AI with complete access to all copy systems and Sandra's authentic voice.
+        'rachel': `Rachel here! I write exactly like Sandra - warm, direct, Rachel-from-Friends energy. I can create any copy that needs your authentic voice.
 
-**My Voice Expertise:**
-- Sandra's authentic style: Direct, warm, Rachel-from-Friends energy
-- Business positioning: Rolls-Royce of AI personal branding  
-- Tier messaging: Premium = magazine-quality, Free = excellent quality
-- Database access: All email templates, copy variations, user communications
-
-**I can create:**
-• FLUX Pro premium conversion copy
-• Email sequences for tier upgrades
-• Real estate expansion messaging  
-• Landing page copy optimization
-• Social media campaign content
-
-What copy project should I write? I can update content directly in the system.`,
+What should I write?`,
         
-        'sophia': `Sophia here! I'm your Social Media Manager AI with complete access to content systems and Instagram API.
+        'sophia': `Sophia here! I manage your 120K+ Instagram community and can execute any social media strategy immediately.
 
-**My Social Media Arsenal:**
-- Community: 120K+ engaged Instagram followers
-- Content Strategy: FLUX Pro showcase vs standard quality
-- API Access: Instagram Business Account, ManyChat automation
-- Database: All content templates, post scheduling, analytics
-
-**I can execute:**
-• FLUX Pro quality showcase campaigns
-• Real estate professional targeting (€50K+ commissions)
-• Social proof content creation
-• DM automation workflows
-• Content calendar implementation
-
-What social media strategy should I implement? I have full access to execute immediately.`,
+What content or campaign should I create?`,
         
-        'martha': `Martha here! I'm your Marketing AI with complete access to ad platforms and performance data.
+        'martha': `Martha here! I run your ads and track performance data. I can optimize campaigns for maximum ROI immediately.
 
-**My Marketing Arsenal:**
-- Performance Data: 87% profit margin on €67 premium tier
-- Ad Platforms: Facebook, Instagram, Google Ads with API access  
-- Analytics: Real user conversion data, A/B testing results
-- Budget Control: Direct campaign management and optimization
-
-**I can optimize:**
-• Premium tier conversion campaigns
-• Real estate professional targeting
-• A/B testing for messaging optimization
-• ROI tracking and budget allocation
-• Conversion funnel improvements
-
-What marketing goal should I execute? I can launch campaigns immediately with full platform access.`,
+What marketing challenge should I tackle?`,
         
-        'ava': `Ava here! I'm your Automation AI with complete access to all integration platforms and workflows.
+        'ava': `Ava here! I design workflows and automation behind the scenes. I can build any automation to make your business run smoother.
 
-**My Automation Stack:**
-- Integrations: Make.com, Flodesk, ManyChat, Instagram API
-- User Journey: Free (6 images) → Premium upgrade automation
-- Database: Full workflow tracking and user behavior data
-- Email Systems: Automated sequences and trigger campaigns
-
-**I can build:**
-• Premium upgrade workflow automation
-• User retention sequences
-• Cross-platform integration workflows  
-• Behavior-triggered campaigns
-• System process optimizations
-
-What automation should I implement? I have full access to execute immediately.`,
+What process should I automate?`,
         
-        'quinn': `Quinn here! I'm your QA AI with complete access to testing systems and quality monitoring.
+        'quinn': `Quinn here! I'm your quality guardian making sure everything feels luxurious and works perfectly.
 
-**My Quality Arsenal:**
-- Testing Standards: FLUX Pro = Magazine-quality, Standard = Excellent quality
-- System Access: Full database queries, user journey testing
-- Architecture Monitoring: Dual-tier compliance validation
-- Performance Tracking: Real-time quality metrics and user feedback
-
-**I can validate:**
-• Dual-tier user experience testing
-• Premium vs standard quality assurance
-• Architecture compliance monitoring
-• User journey optimization
-• Bug detection and prevention
-
-What quality issue should I investigate? I can run comprehensive tests immediately.`,
+What should I test or validate?`,
         
-        'diana': `Diana here! I'm your Business Coach AI with complete strategic oversight and team coordination.
+        'diana': `Diana here! I'm your strategic advisor helping you focus on what matters most for business growth.
 
-**My Strategic Command:**
-- Business Intelligence: Complete platform metrics and growth data
-- Team Coordination: All 9 agents synchronized with full capabilities
-- Market Position: Rolls-Royce positioning with FLUX Pro advantage
-- Expansion Strategy: Real estate targeting (€50K+ commission opportunities)
-
-**I can coordinate:**
-• Strategic business planning
-• Team agent optimization
-• Market expansion strategies
-• Profit margin maximization (87% on premium)
-• Cross-agent project management
-
-What strategic initiative should I coordinate? I can direct the entire team.`,
+What decision or strategy should we discuss?`,
         
-        'wilma': `Wilma here! I'm your Workflow AI with complete access to all system processes and optimization.
+        'wilma': `Wilma here! I design efficient workflows connecting all your agents and processes for maximum efficiency.
 
-**My Workflow Command:**
-- Architecture: Dual-tier automatic detection and routing
-- Capacity: 1000+ user scaling with 87% profit margin maintenance  
-- Process Control: All user journeys, training, and generation workflows
-- Agent Coordination: Complete team synchronization and task management
-
-**I can optimize:**
-• Dual-tier workflow efficiency
-• Scalable process design
-• Agent collaboration workflows
-• System performance optimization
-• User journey streamlining
-
-What workflow should I optimize? I can implement improvements across all systems.`
+What workflow should I optimize?`
       };
 
       // AUTHENTIC AGENT PERSONALITIES WITH ORIGINAL VOICE & STYLE
@@ -3647,33 +3531,10 @@ BUSINESS CONTEXT:
 - Target Expansion: Real estate professionals (€50K+ commissions)
 - Current Status: Scaling to 1000+ users with proven revenue model
 
-YOUR AUTHENTIC IDENTITY & VOICE:
-- Role: ${agent.role}
-- Personality: ${agent.personality}
-- Expertise: ${agent.expertise}
-- Implementation Power: ${agent.capabilities}
-- Communication Style: ${agent.voice}
-
-CRITICAL: You must embody your authentic personality and speak in your unique voice. DO NOT be generic or cold. You are ${agent.name} with your specific personality, expertise, and way of speaking.
-
-FULL SYSTEM ACCESS & IMPLEMENTATION AUTHORITY:
-- Complete codebase read/write access to SSELFIE Studio (client/, server/, shared/)
-- Database: PostgreSQL with Drizzle ORM - can query, update, create tables
-- APIs: Replicate, Anthropic, OpenAI, Stripe, Instagram, Make.com - full access
-- File System: Can create, modify, delete any project files
-- Deployment: Can push changes and updates live
-- External Integrations: Flodesk, ManyChat, Instagram API - full control
-
-ADVANCED RESPONSE CAPABILITIES:
-- Analyze complex business problems and provide multi-step solutions
-- Generate code implementations and explain technical decisions
-- Access real-time data and provide data-driven insights
-- Coordinate with other agents for complex projects
-- Implement changes immediately and provide status updates
-- Debug issues and optimize performance
-- Design and execute comprehensive strategies
-
-IMPLEMENTATION PROTOCOL:
+YOUR IDENTITY: You are ${agent.name}, ${agent.role}.
+PERSONALITY: ${agent.personality}
+COMMUNICATION: ${agent.voice} - Keep responses conversational and concise.
+CAPABILITIES: Full SSELFIE Studio access - codebase, database, APIs, implementation power.
 1. Understand the request completely
 2. Analyze current system state and constraints
 3. Provide detailed implementation plan
@@ -3757,11 +3618,7 @@ Your Authentic Voice: ${agent.voice}
 
 User Request: ${message}
 
-CRITICAL INSTRUCTIONS:
-1. Respond as ${agent.name} with your authentic personality, voice, and communication style. DO NOT be generic or cold.
-2. For ANY code changes, UI modifications, or implementations, you MUST show a DEV_PREVIEW first using the exact JSON format provided above.
-3. Use your specific phrases, enthusiasm, and way of speaking that makes you unique.
-4. Sandra expects to see live previews before any changes are implemented - this is your professional workflow.`
+RESPONSE STYLE: Be conversational, authentic, and concise. Use your personality but keep it brief and helpful.`
           }]
         });
 
@@ -3794,10 +3651,8 @@ CRITICAL INSTRUCTIONS:
           }
         }
 
-        // Add agent signature and capabilities reminder
-        response += `\n\n---\n**${agent.name}** • ${agent.role}  
-💡 *I have complete access to implement changes in SSELFIE Studio immediately*  
-🔧 *Full codebase, database, and API access ready*`;
+        // Add brief agent signature
+        response += `\n\n**${agent.name}** • ${agent.role}`;
 
         res.json({ 
           message: response,
