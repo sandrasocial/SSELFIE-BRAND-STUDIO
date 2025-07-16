@@ -232,39 +232,132 @@ function AgentChat({ agentId, agentName, role, status, currentTask, metrics }: A
         timestamp: new Date()
       };
 
-      // Parse DEV_PREVIEW from agent response with enhanced detection
+      // Enhanced DEV_PREVIEW parsing for Victoria's design responses
       let parsedDevPreview = null;
       let cleanedMessage = data.message;
       
       try {
-        // Look for DEV_PREVIEW JSON in the response - multiple patterns
-        let devPreviewMatch = data.message.match(/DEV_PREVIEW:\s*({[\s\S]*?})/);
+        console.log('🔍 Checking message for DEV_PREVIEW:', data.message.substring(0, 200) + '...');
+        
+        // Multiple parsing patterns for better detection
+        let devPreviewMatch = null;
+        
+        // Pattern 1: Standard DEV_PREVIEW with colon
+        devPreviewMatch = data.message.match(/DEV_PREVIEW:\s*({[\s\S]*?}(?:\s*})*)/);
+        
+        // Pattern 2: JSON code block with DEV_PREVIEW
         if (!devPreviewMatch) {
-          // Try alternate pattern with code blocks
           devPreviewMatch = data.message.match(/```json\s*DEV_PREVIEW:\s*({[\s\S]*?})\s*```/);
         }
+        
+        // Pattern 3: JSON code block without DEV_PREVIEW prefix but has "type" property
         if (!devPreviewMatch) {
-          // Try pattern without DEV_PREVIEW prefix
           devPreviewMatch = data.message.match(/```json\s*({[\s\S]*?"type"[\s\S]*?})\s*```/);
         }
         
-        if (devPreviewMatch) {
-          console.log('Raw DEV_PREVIEW found:', devPreviewMatch[1]);
-          // Clean up the JSON before parsing
+        // Pattern 4: Direct JSON with "type" property (Victoria's responses)
+        if (!devPreviewMatch) {
+          devPreviewMatch = data.message.match(/({[\s\S]*?"type"[\s\S]*?"title"[\s\S]*?})/);
+        }
+        
+        // Pattern 5: Multiline JSON object (handle Victoria's formatted responses)
+        if (!devPreviewMatch) {
+          const lines = data.message.split('\n');
+          let jsonStart = -1;
+          let jsonEnd = -1;
+          let braceCount = 0;
+          
+          for (let i = 0; i < lines.length; i++) {
+            const line = lines[i].trim();
+            if (line.includes('"type"') && line.includes('{')) {
+              jsonStart = i;
+              break;
+            }
+          }
+          
+          if (jsonStart >= 0) {
+            for (let i = jsonStart; i < lines.length; i++) {
+              const line = lines[i];
+              for (const char of line) {
+                if (char === '{') braceCount++;
+                if (char === '}') braceCount--;
+                if (braceCount === 0 && line.includes('}')) {
+                  jsonEnd = i;
+                  break;
+                }
+              }
+              if (jsonEnd >= 0) break;
+            }
+            
+            if (jsonEnd >= 0) {
+              const jsonString = lines.slice(jsonStart, jsonEnd + 1).join('\n');
+              const match = jsonString.match(/({[\s\S]*})/);
+              if (match) {
+                devPreviewMatch = [null, match[1]];
+              }
+            }
+          }
+        }
+        
+        if (devPreviewMatch && devPreviewMatch[1]) {
+          console.log('🎯 Raw DEV_PREVIEW found:', devPreviewMatch[1]);
+          
+          // Advanced JSON cleaning for Victoria's responses
           let jsonString = devPreviewMatch[1]
             .replace(/\n\s*/g, ' ')  // Remove newlines and extra spaces
-            .replace(/,\s*}/g, '}')  // Remove trailing commas
-            .replace(/,\s*]/g, ']')  // Remove trailing commas in arrays
-            .replace(/\.\.\.\[Truncated\]/g, ''); // Remove truncation markers
+            .replace(/,\s*}/g, '}')  // Remove trailing commas from objects
+            .replace(/,\s*]/g, ']')  // Remove trailing commas from arrays
+            .replace(/\.\.\.\[Truncated\]/g, '') // Remove truncation markers
+            .replace(/([{,]\s*)([a-zA-Z_][a-zA-Z0-9_]*)\s*:/g, '$1"$2":') // Quote unquoted keys
+            .replace(/:\s*([^",\{\[\]}\s][^,\}\]]*[^",\}\]\s])\s*([,\}])/g, ':"$1"$2') // Quote unquoted string values
+            .trim();
+          
+          // Handle incomplete JSON (common in Victoria's responses)
+          if (!jsonString.endsWith('}')) {
+            const openBraces = (jsonString.match(/{/g) || []).length;
+            const closeBraces = (jsonString.match(/}/g) || []).length;
+            for (let i = closeBraces; i < openBraces; i++) {
+              jsonString += '}';
+            }
+          }
+          
+          console.log('🧹 Cleaned JSON string:', jsonString);
           
           parsedDevPreview = JSON.parse(jsonString);
-          console.log('Parsed DEV_PREVIEW:', parsedDevPreview);
+          console.log('✅ Successfully parsed DEV_PREVIEW:', parsedDevPreview);
+          
           // Remove the DEV_PREVIEW JSON from the displayed message
-          cleanedMessage = data.message.replace(/```json\s*DEV_PREVIEW:[\s\S]*?```/g, '').replace(/DEV_PREVIEW:\s*{[\s\S]*?}/g, '').trim();
+          cleanedMessage = data.message
+            .replace(/```json\s*DEV_PREVIEW:[\s\S]*?```/g, '')
+            .replace(/DEV_PREVIEW:\s*{[\s\S]*?}/g, '')
+            .replace(/```json\s*{[\s\S]*?"type"[\s\S]*?}\s*```/g, '')
+            .replace(/{[\s\S]*?"type"[\s\S]*?"title"[\s\S]*?}/g, '')
+            .trim();
+        } else {
+          console.log('❌ No DEV_PREVIEW pattern matched');
         }
       } catch (error) {
-        console.error('Failed to parse DEV_PREVIEW:', error);
-        console.error('Raw message:', data.message);
+        console.error('❌ Failed to parse DEV_PREVIEW:', error.message);
+        console.error('Raw message sample:', data.message.substring(0, 500));
+        console.log('🔧 Trying fallback detection for Victoria design responses...');
+        
+        // Fallback: Check if Victoria is providing design guidance without proper JSON
+        if (data.agentId === 'victoria' && (
+          data.message.includes('design') || 
+          data.message.includes('layout') || 
+          data.message.includes('component') ||
+          data.message.includes('styling') ||
+          data.message.includes('luxury')
+        )) {
+          console.log('🎨 Victoria design response detected, creating synthetic preview');
+          parsedDevPreview = {
+            type: 'component',
+            title: 'Victoria Design Suggestion',
+            description: 'Design improvements suggested by Victoria',
+            preview: `<div class="bg-white p-6"><h3 class="text-xl mb-4">Victoria's Design Suggestion</h3><p class="text-gray-600">${data.message.substring(0, 200)}...</p></div>`,
+            changes: ['Victoria provided design guidance - check full message for details']
+          };
+        }
       }
 
       const agentResponse = {
