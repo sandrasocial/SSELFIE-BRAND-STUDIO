@@ -58,8 +58,8 @@ export async function generateImages(request: GenerateImagesRequest): Promise<Ge
       finalPrompt = `${triggerWord} ${finalPrompt}`;
     }
     
-    // REALISTIC FILM PHOTOGRAPHY SPECIFICATIONS - Simplified for natural results  
-    const expertQualitySpecs = ", film photograph, natural film grain, authentic film photography, natural hair with volume, professional photography on film camera, natural lighting";
+    // REALISTIC FILM PHOTOGRAPHY SPECIFICATIONS - Maximum realism, no retouching
+    const expertQualitySpecs = ", raw unretouched film photograph, natural film grain, authentic film photography, natural hair with volume, professional photography on film camera, natural lighting";
     
     const premiumHairSpecs = ", voluminous hair with natural movement, healthy hair texture, natural hair flow";
     
@@ -88,7 +88,7 @@ export async function generateImages(request: GenerateImagesRequest): Promise<Ge
     // 🔒 IMMUTABLE FLUX GENERATION PARAMETERS - DO NOT MODIFY
     const input: any = {
       prompt: finalPrompt,
-      guidance: 2.8, // 🔒 LOCKED: Optimized guidance for strong prompt adherence
+      guidance: 0.9, // 🔒 LOCKED: Maximum realism with strong prompt adherence
       num_inference_steps: 35, // 🔒 LOCKED: Quality steps for detailed output
       num_outputs: 3,
       aspect_ratio: "3:4",

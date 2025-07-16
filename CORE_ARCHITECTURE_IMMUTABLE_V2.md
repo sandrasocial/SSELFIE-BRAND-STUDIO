@@ -26,7 +26,7 @@
 ### **3. GENERATION ARCHITECTURE**
 - **API Format**: `version: "sandrasocial/{userId}-selfie-lora:{versionId}"`
 - **Parameters**: 
-  - `guidance: 2.8` (optimal natural results)
+  - `guidance: 0.9` (maximum realism with strong prompt adherence)
   - `num_inference_steps: 35` (expert quality)
   - `output_quality: 95` (maximum clarity)
   - `go_fast: false` (quality over speed)
@@ -54,7 +54,7 @@ const requestBody = {
   version: `${userModel.replicateModelId}:${userModel.replicateVersionId}`,
   input: {
     prompt: userPrompt,
-    guidance: 2.8,
+    guidance: 0.9,
     num_inference_steps: 35,
     num_outputs: 3,
     aspect_ratio: "3:4",
