@@ -329,14 +329,15 @@ The platform has become overly complex with multiple pricing tiers, broken onboa
 - Automatic prevention system ensures no future training sync issues
 - Platform ready for 1000+ users with guaranteed training completion flow
 
-### ✅ ALL PREMIUM USERS UPGRADED TO FLUX PRO SYSTEM (July 16, 2025)
+### ✅ ALL PREMIUM USERS UPGRADED TO FLUX PRO SYSTEM (July 16, 2025) - CORRECTED
 **COMPLETE PREMIUM USER MIGRATION TO DUAL-TIER ARCHITECTURE:**
 - **3 Premium Users Updated**: All existing premium users now configured for FLUX Pro access
+- **Critical Fix Applied**: Updated all premium user models from flux-standard to flux-pro with luxury flag
 - **Plan Standardization**: Updated to `sselfie-studio-premium` with 300 monthly generations
 - **Subscription Records**: Created active subscriptions for all premium users  
 - **Automatic Tier Detection**: Premium users automatically routed to FLUX Pro luxury training
 - **Admin Override Maintained**: Admin user (ssa@ssasocial.com) retains unlimited generations
-- **Database Consistency**: All premium users validated for proper FLUX Pro access
+- **Database Consistency**: All premium users validated for proper FLUX Pro access (verified July 16, 2025)
 - **Business Value**: €67/month premium tier with €4 training costs (87% profit margin)
 
 **Premium Users Configured:**
