@@ -218,41 +218,64 @@ export class AIService {
     }
     
     const userModel = await storage.getUserModelByUserId(userId);
-    if (!userModel || userModel.trainingStatus !== 'completed') {
+    if (!userModel) {
       throw new Error('User model not ready for generation. Training must be completed first.');
     }
 
-    // 🔒 IMMUTABLE CORE ARCHITECTURE - USES USER'S INDIVIDUAL TRAINED MODEL DIRECTLY
-    // Each user has their own trained FLUX model version for complete isolation
-    // This ensures zero cross-contamination between users
-    const userTrainedVersion = `${userModel.replicateModelId}:${userModel.replicateVersionId}`;
-    
-    if (!userModel.replicateVersionId) {
-      throw new Error('User model version not found - training may need to be completed');
+    const user = await storage.getUser(userId);
+    const isPremium = user?.plan === 'sselfie-studio' || user?.plan === 'sselfie-studio-premium' || user?.plan === 'SSELFIE_STUDIO' || user?.role === 'admin';
+
+    let requestBody: any;
+
+    if (isPremium && userModel.isLuxury && userModel.finetuneId) {
+      // 🏆 PREMIUM USERS: FLUX Pro Ultra-Realistic Quality
+      console.log(`🏆 Using FLUX Pro model for premium user: ${userId}`);
+      
+      requestBody = {
+        version: "black-forest-labs/flux-pro-finetuned:latest",
+        input: {
+          prompt: prompt,
+          finetune_id: userModel.finetuneId, // Use luxury finetune_id from training
+          finetune_strength: 0.8, // Strong influence for ultra-realistic results
+          guidance_scale: 3.5,
+          num_inference_steps: 28,
+          num_outputs: 3,
+          aspect_ratio: "3:4",
+          output_format: "png",
+          output_quality: 95, // Premium quality
+          megapixels: "1",
+          seed: Math.floor(Math.random() * 1000000)
+        }
+      };
+      
+    } else if (userModel.trainingStatus === 'completed' && userModel.replicateVersionId) {
+      // 📱 FREE USERS: Standard FLUX Quality  
+      console.log(`📱 Using standard FLUX model for user: ${userId}`);
+      
+      const userTrainedVersion = `${userModel.replicateModelId}:${userModel.replicateVersionId}`;
+      
+      requestBody = {
+        version: userTrainedVersion,
+        input: {
+          prompt: prompt,
+          guidance: 3.5,
+          num_inference_steps: 50,
+          num_outputs: 3,
+          aspect_ratio: "3:4",
+          output_format: "png",
+          output_quality: 100,
+          megapixels: "1",
+          go_fast: false,
+          disable_safety_checker: false,
+          seed: Math.floor(Math.random() * 1000000)
+        }
+      };
+      
+    } else {
+      throw new Error('User model not ready for generation. Training must be completed first.');
     }
-    
-    // 🔥 WOW FACTOR ENHANCEMENT - ENHANCED PARAMETERS + V2 ARCHITECTURE
-    const requestBody = {
-      version: userTrainedVersion, // 🔒 CRITICAL: User's individual trained model version ONLY
-      input: {
-        prompt: prompt,
-        guidance: 3.5, // 🔥 ENHANCED: Maximum guidance for ultra-sharp results
-        num_inference_steps: 50, // 🔥 ENHANCED: Maximum steps for finest details
-        num_outputs: 3,
-        aspect_ratio: "3:4",
-        output_format: "png",
-        output_quality: 100, // 🔥 ENHANCED: Maximum quality
-        megapixels: "1", // 🔥 ENHANCED: Maximum allowed resolution
-        go_fast: false, // 🔥 ENHANCED: Full quality mode (no speed optimizations)
-        disable_safety_checker: false,
-        seed: Math.floor(Math.random() * 1000000)
-      }
-    };
 
     // 🔒 PERMANENT ARCHITECTURE VALIDATION - NEVER REMOVE
-    ArchitectureValidator.validateGenerationRequest(requestBody, userId);
-
-    // 🔒 ARCHITECTURE VALIDATION - Prevent any deviations from correct approach
     ArchitectureValidator.validateGenerationRequest(requestBody, userId);
     ArchitectureValidator.logArchitectureCompliance(userId, 'Maya AI Generation');
     

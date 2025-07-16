@@ -78,33 +78,59 @@ export async function generateImages(request: GenerateImagesRequest): Promise<Ge
     // This ensures zero cross-contamination between users
     
     // Get user's trained model version
-    const userModel = await storage.getUserModelByUserId(userId);
     if (!userModel || !userModel.replicateVersionId) {
       throw new Error('User model not ready for generation. Training must be completed first.');
     }
-    
-    const userTrainedVersion = `${userModel.replicateModelId}:${userModel.replicateVersionId}`;
 
-    // 🔥 WOW FACTOR ENHANCEMENT - ENHANCED PARAMETERS + V2 ARCHITECTURE
-    const input: any = {
-      prompt: finalPrompt,
-      guidance: 3.5, // 🔥 ENHANCED: Maximum guidance for ultra-sharp results
-      num_inference_steps: 50, // 🔥 ENHANCED: Maximum steps for finest details
-      num_outputs: 3,
-      aspect_ratio: "3:4",
-      output_format: "png",
-      output_quality: 100, // 🔥 ENHANCED: Maximum quality
-      megapixels: "1", // 🔥 ENHANCED: Maximum allowed resolution
-      go_fast: false, // 🔥 ENHANCED: Full quality mode (no speed optimizations)
-      disable_safety_checker: false,
-      seed: Math.floor(Math.random() * 1000000)
-    };
+    const user = await storage.getUser(userId);
+    const isPremium = user?.plan === 'sselfie-studio' || user?.plan === 'sselfie-studio-premium' || user?.plan === 'SSELFIE_STUDIO' || user?.role === 'admin';
 
-    // 🔒 V2 ARCHITECTURE - Using individual user trained model
-    const requestBody = {
-      version: userTrainedVersion, // 🔒 CRITICAL: User's individual trained model version ONLY
-      input
-    };
+    let requestBody: any;
+
+    if (isPremium && userModel.isLuxury && userModel.finetuneId) {
+      // 🏆 PREMIUM USERS: FLUX Pro Ultra-Realistic Quality for AI Photoshoot
+      console.log(`🏆 Using FLUX Pro model for premium AI Photoshoot: ${userId}`);
+      
+      requestBody = {
+        version: "black-forest-labs/flux-pro-finetuned:latest",
+        input: {
+          prompt: finalPrompt,
+          finetune_id: userModel.finetuneId, // Use luxury finetune_id from training
+          finetune_strength: 0.8, // Strong influence for ultra-realistic results
+          guidance_scale: 3.5,
+          num_inference_steps: 28,
+          num_outputs: 3,
+          aspect_ratio: "3:4",
+          output_format: "png",
+          output_quality: 95, // Premium quality
+          megapixels: "1",
+          seed: Math.floor(Math.random() * 1000000)
+        }
+      };
+      
+    } else {
+      // 📱 FREE USERS: Standard FLUX Quality for AI Photoshoot
+      console.log(`📱 Using standard FLUX model for AI Photoshoot: ${userId}`);
+      
+      const userTrainedVersion = `${userModel.replicateModelId}:${userModel.replicateVersionId}`;
+      
+      requestBody = {
+        version: userTrainedVersion, // 🔒 CRITICAL: User's individual trained model version ONLY
+        input: {
+          prompt: finalPrompt,
+          guidance: 3.5, // 🔥 ENHANCED: Maximum guidance for ultra-sharp results
+          num_inference_steps: 50, // 🔥 ENHANCED: Maximum steps for finest details
+          num_outputs: 3,
+          aspect_ratio: "3:4",
+          output_format: "png",
+          output_quality: 100, // 🔥 ENHANCED: Maximum quality
+          megapixels: "1", // 🔥 ENHANCED: Maximum allowed resolution
+          go_fast: false, // 🔥 ENHANCED: Full quality mode (no speed optimizations)
+          disable_safety_checker: false,
+          seed: Math.floor(Math.random() * 1000000)
+        }
+      };
+    }
     ArchitectureValidator.validateGenerationRequest(requestBody, userId);
     ArchitectureValidator.logArchitectureCompliance(userId, 'AI Photoshoot Generation');
     

@@ -203,7 +203,7 @@ export const selfieUploads = pgTable("selfie_uploads", {
   createdAt: timestamp("created_at").defaultNow(),
 });
 
-// User AI Models table for individual trained models
+// User AI Models table for individual trained models - Enhanced for FLUX Pro
 export const userModels = pgTable("user_models", {
   id: serial("id").primaryKey(),
   userId: varchar("user_id").references(() => users.id).notNull().unique(), // One model per user
@@ -211,8 +211,15 @@ export const userModels = pgTable("user_models", {
   replicateVersionId: varchar("replicate_version_id"), // The actual trained model version to use
   trainedModelPath: varchar("trained_model_path"), // sandrasocial/{modelName}
   triggerWord: varchar("trigger_word").notNull().unique(),
-  trainingStatus: varchar("training_status").default('pending'), // pending, training, completed, failed
+  trainingStatus: varchar("training_status").default('pending'), // pending, training, completed, failed, luxury_training, luxury_completed
   modelName: varchar("model_name"),
+  // FLUX Pro luxury fields for premium users
+  isLuxury: boolean("is_luxury").default(false), // Premium FLUX Pro model
+  finetuneId: varchar("finetune_id"), // FLUX Pro finetune ID for ultra-realistic generation
+  modelType: varchar("model_type").default('flux-dev'), // flux-dev or flux-pro
+  trainingProgress: integer("training_progress").default(0), // 0-100%
+  estimatedCompletionTime: timestamp("estimated_completion_time"),
+  failureReason: text("failure_reason"),
   startedAt: timestamp("started_at"),
   createdAt: timestamp("created_at").defaultNow(),
   updatedAt: timestamp("updated_at").defaultNow(),
