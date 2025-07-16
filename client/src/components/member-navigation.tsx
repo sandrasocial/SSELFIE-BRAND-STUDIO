@@ -71,7 +71,7 @@ export function MemberNavigation({ transparent = true }: MemberNavigationProps) 
             }}
             className="font-serif text-xl font-light tracking-wide text-white hover:opacity-70 transition-opacity duration-300"
           >
-            SSELFIE ✓
+            SSELFIE UPDATED 2025
           </button>
           
           {/* Desktop Navigation - CLEAN NO ADMIN */}
