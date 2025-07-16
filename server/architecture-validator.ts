@@ -18,9 +18,9 @@ export class ArchitectureValidator {
       throw new Error('Architecture violation: Must use individual user model only');
     }
     
-    // CRITICAL: Verify no base model + LoRA approach
-    if (requestBody.input?.lora_weights || requestBody.model) {
-      throw new Error('Architecture violation: Base model + LoRA approach is forbidden');
+    // CRITICAL: Verify no base model + LoRA approach (V1 forbidden patterns)
+    if (requestBody.input?.lora_weights || requestBody.input?.lora_scale || requestBody.model) {
+      throw new Error('Architecture violation: Base model + LoRA approach is forbidden - must use individual user models');
     }
     
     // CRITICAL: Verify required parameters
