@@ -122,8 +122,18 @@ export async function setupAuth(app: Express) {
     verified(null, user);
   };
 
-  // Register strategies for configured domains only (NO localhost)
-  const domains = process.env.REPLIT_DOMAINS!.split(",");
+  // Register strategies for configured domains
+  let domains = process.env.REPLIT_DOMAINS!.split(",");
+  
+  // Add development domain if not present (from Replit environment)
+  const replitHost = process.env.REPL_SLUG && process.env.REPL_OWNER 
+    ? `${process.env.REPL_ID}-00-${process.env.REPL_SLUG}.${process.env.REPL_OWNER}.replit.dev`
+    : null;
+    
+  if (replitHost && !domains.includes(replitHost)) {
+    domains.push(replitHost);
+    console.log(`🔧 Added development domain: ${replitHost}`);
+  }
   
   // Make domains available in the route handlers
   app.locals.authDomains = domains;
@@ -195,10 +205,11 @@ export async function setupAuth(app: Express) {
       console.log(`🔍 Login requested for hostname: ${hostname}`);
       console.log(`🔍 Available strategies: ${req.app.locals.authDomains.join(', ')}`);
       
-      // CRITICAL: For localhost development, redirect to production domain for authentication
-      if (hostname === 'localhost' || hostname.includes('localhost')) {
-        console.log('🔄 Localhost detected - redirecting to sselfie.ai for authentication');
-        return res.redirect('https://sselfie.ai/api/login');
+      // Handle localhost development - redirect to configured development domain
+      if (hostname === 'localhost' || hostname === '127.0.0.1') {
+        const devDomain = domains.find(d => d.includes('replit.dev')) || 'sselfie.ai';
+        console.log(`🔄 Localhost detected - redirecting to ${devDomain} for authentication`);
+        return res.redirect(`https://${devDomain}/api/login`);
       }
       
       const hasStrategy = req.app.locals.authDomains.includes(hostname);
