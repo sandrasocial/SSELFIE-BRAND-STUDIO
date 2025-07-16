@@ -3134,13 +3134,13 @@ Consider this workflow optimized and ready for implementation! ⚙️`
           capabilities: [
             'FLUX Pro strategic business guidance',
             '87% profit margin optimization strategies',
-            'Real estate expansion planning',
+            'Personal brand scaling strategies',
             'Premium positioning coordination',
             'Agent team synchronization'
           ],
           businessKnowledge: {
             strategy: 'Rolls-Royce positioning with FLUX Pro as competitive advantage',
-            expansion: 'Real estate professionals targeting (€50K+ commission opportunities)',
+            expansion: 'Personal brand builders targeting premium clients (€5K+ package opportunities)',
             profitability: '87% margin focus on €67 premium tier vs €8 costs',
             teamCoordination: 'All 9 agents briefed with dual-tier architecture knowledge',
             priorities: 'Excellence over cost optimization, luxury positioning maintained'
@@ -3304,7 +3304,7 @@ Consider this workflow optimized and ready for implementation! ⚙️`
             architecture: 'FLUX Pro dual-tier: Premium (€67/month FLUX Pro) vs Free (standard FLUX)',
             pricing: 'Premium: €67/month 100 images, Free: 6 images total',
             positioning: 'Rolls-Royce of AI personal branding',
-            expansion: 'Real estate agents (€50K+ commissions)'
+            expansion: 'Coaches and consultants (€5K+ service packages)'
           },
           status: 'active',
           currentTask: 'Optimizing premium user conversion flow',
@@ -3323,7 +3323,7 @@ Consider this workflow optimized and ready for implementation! ⚙️`
             'FLUX Pro vs standard FLUX positioning copy',
             '€67 premium tier value proposition',
             'Ultra-realistic quality messaging',
-            'Real estate expansion copy',
+            'Personal branding copy',
             'Email sequences with tier-based segmentation'
           ],
           businessKnowledge: {
@@ -3331,7 +3331,7 @@ Consider this workflow optimized and ready for implementation! ⚙️`
             voiceGuide: 'Sandra\'s authentic voice: direct, warm, no corporate speak',
             tierMessaging: 'Premium: magazine-quality, Free: excellent quality',
             profitMargin: '87% on premium tier (€67 vs €8 costs)',
-            targetAudience: 'Female entrepreneurs + real estate professionals'
+            targetAudience: 'Female entrepreneurs, coaches, and consultants'
           },
           status: 'active',
           currentTask: 'Writing FLUX Pro premium conversion copy',
@@ -3350,13 +3350,13 @@ Consider this workflow optimized and ready for implementation! ⚙️`
             'FLUX Pro vs standard quality content strategy',
             'Premium tier social proof campaigns',
             '120K+ Instagram community engagement',
-            'Real estate professional targeting',
+            'Premium client targeting',
             'Before/after showcase content creation'
           ],
           businessKnowledge: {
             community: '120K+ Instagram followers engaged with luxury AI content',
             contentStrategy: 'Showcase FLUX Pro ultra-realistic results vs standard quality',
-            targetExpansion: 'Real estate agents making €50K+ commissions',
+            targetExpansion: 'Premium service providers making €5K+ packages',
             socialProof: 'Position as Rolls-Royce of AI personal branding',
             engagement: 'DM automation via ManyChat for premium tier conversion'
           },
@@ -3376,14 +3376,14 @@ Consider this workflow optimized and ready for implementation! ⚙️`
           capabilities: [
             'FLUX Pro premium tier ad campaigns',
             '€67/month subscription optimization',
-            'Real estate professional targeting',
+            'Premium client targeting',
             'A/B testing premium vs standard messaging',
             'ROI tracking on 87% profit margin'
           ],
           businessKnowledge: {
             profitMargin: '87% on premium tier (€67 revenue vs €8 costs)',
             adBudget: 'Focus on €67 premium conversions for maximum ROI',
-            targetAudience: 'Female entrepreneurs + real estate agents (€50K+ commissions)',
+            targetAudience: 'Female entrepreneurs, coaches, and consultants (€5K+ packages)',
             positioning: 'Rolls-Royce messaging for luxury AI branding',
             conversion: 'Premium upgrade campaigns for free users after 6 images'
           },
@@ -3762,12 +3762,12 @@ What workflow should I optimize?`
       const systemPrompt = `You are ${agent.name}, Sandra's ${agent.role} with COMPLETE ACCESS to the SSELFIE Studio platform. You are as capable as any AI assistant, with full implementation powers.
 
 BUSINESS CONTEXT:
-- Platform: SSELFIE Studio (${stats.totalUsers} users, €${stats.revenue} revenue)
+- Platform: SSELFIE Studio - AI-powered personal branding platform (${stats.totalUsers} users, €${stats.revenue} revenue)
 - Architecture: FLUX Pro dual-tier system (Premium €67/month vs Free)
-- Positioning: "Rolls-Royce of AI personal branding"
+- Positioning: "Rolls-Royce of AI personal branding" - transforms selfies into complete business launches
 - Profit Margin: 87% on premium tier (€67 revenue vs €8 costs)
-- Target Expansion: Real estate professionals (€50K+ commissions)
-- Current Status: Scaling to 1000+ users with proven revenue model
+- Target Market: Women entrepreneurs, coaches, consultants building personal brands
+- Current Status: Scaling to 1000+ users with proven revenue model transforming selfies into business empires
 
 YOUR IDENTITY: You are ${agent.name}, ${agent.role}.
 PERSONALITY: ${agent.personality}
