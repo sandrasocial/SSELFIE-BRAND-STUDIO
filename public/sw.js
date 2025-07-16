@@ -1,9 +1,9 @@
 // SSELFIE Studio Service Worker
 // Provides offline functionality and app-like experience
 
-const CACHE_NAME = 'sselfie-studio-v1';
-const STATIC_CACHE = 'sselfie-static-v1';
-const DYNAMIC_CACHE = 'sselfie-dynamic-v1';
+const CACHE_NAME = 'sselfie-studio-v2';
+const STATIC_CACHE = 'sselfie-static-v2';
+const DYNAMIC_CACHE = 'sselfie-dynamic-v2';
 
 // Assets to cache for offline functionality
 const STATIC_ASSETS = [
@@ -49,9 +49,14 @@ self.addEventListener('activate', (event) => {
   self.clients.claim();
 });
 
-// Fetch event - serve from cache when offline
+// Fetch event - DEVELOPMENT MODE: Minimal caching to prevent stale content
 self.addEventListener('fetch', (event) => {
   const { request } = event;
+  
+  // Skip caching for development to prevent stale content issues
+  if (request.url.includes('localhost') || request.url.includes('replit.dev')) {
+    return; // Don't cache development requests
+  }
   
   // Skip non-GET requests
   if (request.method !== 'GET') {
