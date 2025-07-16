@@ -37,7 +37,8 @@ export function MemberNavigation({ transparent = true }: MemberNavigationProps) 
   // Check if user is admin (Sandra)
   const isAdmin = user?.email === 'ssa@ssasocial.com';
 
-  // Member navigation items (admin link removed - access via footer)
+  // Member navigation items - CLEAN (no admin access)
+  // MEMBER NAVIGATION - NO ADMIN ACCESS (Use footer Legal section)
   const navItems = [
     { path: '/workspace', label: 'Studio' },
     { path: '/ai-training', label: 'Train' },
