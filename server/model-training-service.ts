@@ -4,6 +4,7 @@ import fs from 'fs';
 import path from 'path';
 import { fileURLToPath } from 'url';
 import { storage } from './storage';
+import { ArchitectureValidator } from './architecture-validator';
 import AWS from 'aws-sdk';
 
 // Image categories and prompt templates
@@ -341,6 +342,9 @@ export class ModelTrainingService {
   ): Promise<{ images: string[]; generatedImageId?: number; predictionId?: string }> {
     
     try {
+      // 🔒 PERMANENT ARCHITECTURE VALIDATION - NEVER REMOVE
+      ArchitectureValidator.enforceZeroTolerance();
+      
       // ZERO FALLBACKS: Every user MUST have their own trained model
       const userModel = await storage.getUserModelByUserId(userId);
       

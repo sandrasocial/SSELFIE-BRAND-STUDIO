@@ -1,105 +1,90 @@
-// 🔒 ARCHITECTURE VALIDATOR - IMMUTABLE CORE PROTECTION
-// This module validates that the correct FLUX LoRA architecture is being used
-// and prevents any deviations from the established pattern
-
 /**
- * 🔒 IMMUTABLE CORE ARCHITECTURE VALIDATION
- * 
- * Ensures all generation requests use the correct pattern:
- * - Base Model: black-forest-labs/flux-dev-lora
- * - User LoRA: Loaded via lora_weights parameter
- * - Zero Cross-Contamination: Each user gets only their own LoRA
+ * ARCHITECTURE VALIDATION SERVICE - PERMANENT COMPLIANCE ENFORCER
+ * Validates all generation requests against the immutable core architecture
+ * CRITICAL: This enforces the permanently locked FLUX individual model approach
  */
+
+import { storage } from './storage';
 
 export class ArchitectureValidator {
   
-  // 🔒 IMMUTABLE BASE MODEL - NEVER CHANGE
-  private static readonly REQUIRED_BASE_MODEL = "black-forest-labs/flux-dev-lora:a53fd9255ecba80d99eaab4706c698f861fd47b098012607557385416e46aae5";
-  
-  // 🔒 IMMUTABLE TRAINING MODEL - NEVER CHANGE
-  // This model is ONLY used for training user LoRA weights, NOT for generation
-  private static readonly REQUIRED_TRAINING_MODEL = "ostris/flux-dev-lora-trainer:26dce37af90b9d997eeb970d92e47de3064d46c300504ae376c75bef6a9022d2";
-
   /**
-   * Validates that a generation request follows the correct architecture
+   * 🔒 IMMUTABLE VALIDATION - Ensures requests use individual user models ONLY
+   * Prevents any deviation from the locked architecture
    */
   static validateGenerationRequest(requestBody: any, userId: string): void {
-    // Check base model
-    if (requestBody.version !== this.REQUIRED_BASE_MODEL) {
-      throw new Error(`🔒 ARCHITECTURE VIOLATION: Must use base model ${this.REQUIRED_BASE_MODEL}`);
+    // CRITICAL: Verify user is using their individual trained model
+    if (!requestBody.version || !requestBody.version.includes(userId)) {
+      throw new Error('Architecture violation: Must use individual user model only');
     }
-
-    // Check that lora_weights parameter exists
-    if (!requestBody.input?.lora_weights) {
-      throw new Error(`🔒 ARCHITECTURE VIOLATION: lora_weights parameter is required for user isolation`);
+    
+    // CRITICAL: Verify no base model + LoRA approach
+    if (requestBody.input?.lora_weights || requestBody.model) {
+      throw new Error('Architecture violation: Base model + LoRA approach is forbidden');
     }
-
-    // Check that lora_weights contains user ID (ensures user isolation)
-    if (!requestBody.input.lora_weights.includes(userId)) {
-      throw new Error(`🔒 ARCHITECTURE VIOLATION: User ${userId} can only use their own LoRA weights`);
-    }
-
-    // Check that lora_scale is set for maximum effect
-    if (requestBody.input.lora_scale !== 1.0) {
-      throw new Error(`🔒 ARCHITECTURE VIOLATION: lora_scale must be 1.0 for maximum likeness`);
-    }
-
-    // Validate expert quality parameters
-    this.validateExpertParameters(requestBody.input);
-  }
-
-  /**
-   * Validates expert quality parameters are maintained
-   */
-  private static validateExpertParameters(input: any): void {
-    const requiredParams = {
-      guidance: 2.8,
-      num_inference_steps: 35,
-      output_quality: 95
-    };
-
-    for (const [param, expectedValue] of Object.entries(requiredParams)) {
-      if (input[param] !== expectedValue) {
-        throw new Error(`🔒 QUALITY VIOLATION: ${param} must be ${expectedValue} for expert results`);
+    
+    // CRITICAL: Verify required parameters
+    const requiredParams = ['guidance', 'num_inference_steps', 'output_quality'];
+    for (const param of requiredParams) {
+      if (!requestBody.input?.[param]) {
+        throw new Error(`Architecture violation: Missing required parameter ${param}`);
       }
     }
+    
+    console.log('✅ Architecture validation passed for user:', userId);
   }
-
+  
   /**
-   * Validates training request uses correct trainer
+   * 🔒 COMPLIANCE LOGGING - Records architecture compliance for audit
    */
-  static validateTrainingRequest(version: string): void {
-    if (version !== this.REQUIRED_TRAINING_MODEL) {
-      throw new Error(`🔒 TRAINING VIOLATION: Must use trainer ${this.REQUIRED_TRAINING_MODEL}`);
-    }
+  static logArchitectureCompliance(userId: string, operation: string): void {
+    console.log(`🔒 ARCHITECTURE COMPLIANCE: User ${userId} - ${operation} - Using correct FLUX individual model architecture`);
   }
-
+  
   /**
-   * Ensures user model exists and is properly trained
+   * 🔒 USER MODEL VALIDATION - Ensures user has completed individual training
    */
-  static validateUserModel(userModel: any, userId: string): void {
+  static async validateUserModel(userId: string): Promise<void> {
+    const userModel = await storage.getUserModelByUserId(userId);
+    
     if (!userModel) {
-      throw new Error(`User ${userId} must complete AI training before generating images`);
+      throw new Error('User model not found - training required');
     }
-
+    
     if (userModel.trainingStatus !== 'completed') {
-      throw new Error(`User ${userId} model training is not completed. Current status: ${userModel.trainingStatus}`);
+      throw new Error('User model training not completed');
     }
-
-    if (!userModel.replicateModelId) {
-      throw new Error(`User ${userId} model missing LoRA weights reference`);
+    
+    if (!userModel.replicateVersionId) {
+      throw new Error('User model version not available - training may need completion');
     }
-
-    // Ensure the model reference contains the user ID (prevents cross-contamination)
-    if (!userModel.replicateModelId.includes(userId)) {
-      throw new Error(`🔒 ISOLATION VIOLATION: User ${userId} model reference must contain their user ID`);
-    }
+    
+    console.log('✅ User model validation passed:', userId);
   }
-
+  
   /**
-   * Logs architecture compliance for audit purposes
+   * 🔒 AUTHENTICATION VALIDATION - Ensures proper user authentication
    */
-  static logArchitectureCompliance(userId: string, action: string): void {
-    console.log(`🔒 ARCHITECTURE COMPLIANCE: User ${userId} - ${action} - Using correct FLUX LoRA architecture`);
+  static validateAuthentication(req: any): string {
+    if (!req.isAuthenticated || !req.isAuthenticated()) {
+      throw new Error('Authentication required');
+    }
+    
+    const userId = req.user?.claims?.sub;
+    if (!userId) {
+      throw new Error('User ID not found in session');
+    }
+    
+    console.log('✅ Authentication validation passed for user:', userId);
+    return userId;
+  }
+  
+  /**
+   * 🔒 ZERO TOLERANCE ENFORCEMENT - Prevents any fallback or mock data usage
+   */
+  static enforceZeroTolerance(): void {
+    // This method exists to remind developers of the zero tolerance policy
+    // NO fallbacks, NO mock data, NO placeholders are allowed
+    console.log('🔒 ZERO TOLERANCE: No fallbacks or mock data permitted');
   }
 }

@@ -247,6 +247,9 @@ export class AIService {
       }
     };
 
+    // 🔒 PERMANENT ARCHITECTURE VALIDATION - NEVER REMOVE
+    ArchitectureValidator.validateGenerationRequest(requestBody, userId);
+
     // 🔒 ARCHITECTURE VALIDATION - Prevent any deviations from correct approach
     ArchitectureValidator.validateGenerationRequest(requestBody, userId);
     ArchitectureValidator.logArchitectureCompliance(userId, 'Maya AI Generation');
