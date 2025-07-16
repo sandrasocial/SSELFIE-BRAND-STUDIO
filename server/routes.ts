@@ -3120,6 +3120,7 @@ Consider this workflow optimized and ready for implementation! ⚙️`
       let revenue = 15132; // Current known revenue from replit.md
       
       try {
+        const { users } = await import('@shared/schema');
         const userCount = await db.select().from(users);
         totalUsers = userCount.length;
       } catch (e) {
@@ -3767,17 +3768,29 @@ CRITICAL INSTRUCTIONS:
         let response = completion.content[0]?.text || agentResponses[agentId] || 
           `Hello! I'm ${agent.name}. I'm fully briefed on our FLUX Pro dual-tier system with complete business knowledge. How can I help you today?`;
 
-        // Check if agent wants to show a development preview
-        const devPreviewMatch = response.match(/DEV_PREVIEW:\s*({[\s\S]*?})/);
+        // Check if agent wants to show a development preview - improved parsing
+        const devPreviewMatch = response.match(/DEV_PREVIEW:\s*({(?:[^{}]|{[^{}]*})*})/);
         let devPreview = null;
         
         if (devPreviewMatch) {
           try {
-            devPreview = JSON.parse(devPreviewMatch[1]);
+            // Clean up the JSON string before parsing
+            let jsonString = devPreviewMatch[1];
+            
+            // Fix common JSON formatting issues from AI responses
+            jsonString = jsonString
+              .replace(/\n\s*/g, ' ')  // Remove newlines and extra spaces
+              .replace(/,\s*}/g, '}')  // Remove trailing commas
+              .replace(/,\s*]/g, ']')  // Remove trailing commas in arrays
+              .replace(/([{,]\s*)([a-zA-Z_][a-zA-Z0-9_]*)\s*:/g, '$1"$2":'); // Quote unquoted keys
+            
+            devPreview = JSON.parse(jsonString);
             // Remove the DEV_PREVIEW JSON from the response
-            response = response.replace(/DEV_PREVIEW:\s*{[\s\S]*?}/, '').trim();
+            response = response.replace(/DEV_PREVIEW:\s*{(?:[^{}]|{[^{}]*})*}/, '').trim();
           } catch (e) {
             console.error('Failed to parse dev preview:', e);
+            console.error('JSON string was:', devPreviewMatch[1]);
+            // Don't fail the entire response, just skip dev preview
           }
         }
 
