@@ -40,9 +40,9 @@ export async function generateImages(request: GenerateImagesRequest): Promise<Ge
     const savedImage = await storage.saveAIImage(aiImageData);
 
 
-    // 🚨 CRITICAL ARCHITECTURE FIX: Use base FLUX model + user's LoRA weights
-    // After training, users get individual LoRA models that work with base FLUX model
-    const baseFluxModelVersion = "5ac9c5e0e3e5e39b40f82b4067de6ba58ad8ad3daf2c7c6ea28f4b23a93ad22a";
+    // 🔧 CORRECT ARCHITECTURE: Use black-forest-labs/flux-dev-lora as the base model
+    // User's individual trained model is a FLUX LoRA that works with this base model
+    const baseFluxModelVersion = "a53fd9255ecba80d99eaab4706c698f861fd47b098012607557385416e46aae5";
     const userLoraWeights = userModel.replicateVersionId; // This is the user's trained LoRA
     
     if (!userLoraWeights) {
