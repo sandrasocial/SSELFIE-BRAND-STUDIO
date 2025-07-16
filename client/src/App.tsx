@@ -36,10 +36,7 @@ import AIGenerator from "@/pages/ai-generator";
 import AIPhotoshoot from "@/pages/ai-photoshoot";
 import SimpleTraining from "@/pages/simple-training";
 import TestLogin from "@/pages/test-login";
-import AdminDashboard from "@/pages/admin";
-import AdminUsers from "@/pages/admin-users";
-import AdminEmails from "@/pages/admin-emails";
-import AdminSettings from "@/pages/admin-settings";
+import AdminDashboard from "@/pages/admin-dashboard";
 import AgentApproval from "@/pages/agent-approval";
 import AgentCommandCenter from "@/pages/agent-command-center";
 import AgentDashboard from "@/pages/agent-dashboard";
@@ -230,9 +227,7 @@ function Router() {
       <Route path="/admin" component={(props) => <ProtectedRoute component={AdminDashboard} {...props} />} />
       <Route path="/admin-access-only" component={AdminAccessOnly} />
       <Route path="/sandra-admin" component={(props) => <ProtectedRoute component={AdminDashboard} {...props} />} />
-      <Route path="/admin/users" component={(props) => <ProtectedRoute component={AdminUsers} {...props} />} />
-      <Route path="/admin/emails" component={(props) => <ProtectedRoute component={AdminEmails} {...props} />} />
-      <Route path="/admin/settings" component={(props) => <ProtectedRoute component={AdminSettings} {...props} />} />
+      {/* Old admin routes archived - all functionality moved to main admin dashboard */}
       <Route path="/agent-approval" component={(props) => <ProtectedRoute component={AgentApproval} {...props} />} />
       <Route path="/admin/agent-approval" component={(props) => <ProtectedRoute component={AgentApproval} {...props} />} />
       <Route path="/agent-command" component={(props) => <ProtectedRoute component={AgentCommandCenter} {...props} />} />
