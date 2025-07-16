@@ -83,6 +83,30 @@ Model Path: sandrasocial/45038279-selfie-lora ✅
 - **Monitoring**: Real-time status visibility in server logs
 - **Quality**: Production-grade training completion flow
 
-## Status: RESOLVED ✅
+### Critical Follow-Up Fix: Model Reference Format (July 16, 2025)
 
-The training completion sync system is now operational and has successfully fixed the immediate customer issue while preventing all future occurrences.
+#### Additional Issue Discovered
+After implementing the training completion monitor, discovered users still couldn't generate images due to incorrect model reference format in database.
+
+#### Root Cause
+- Training completion monitor updated `replicate_model_id` with training IDs instead of model paths
+- Generation code expected format: `sandrasocial/{userId}-selfie-lora:{versionId}`
+- Database contained: `{trainingId}:{versionId}` (incorrect)
+
+#### Solution Applied
+```sql
+UPDATE user_models 
+SET replicate_model_id = 'sandrasocial/' || user_id || '-selfie-lora'
+WHERE training_status = 'completed' 
+  AND replicate_model_id NOT LIKE 'sandrasocial/%';
+```
+
+#### Verification
+- ✅ All completed user models now have correct format
+- ✅ Replicate API models are accessible 
+- ✅ Generation endpoints properly protected with authentication
+- ✅ Users can now generate images with Maya AI and AI Photoshoot
+
+## Status: COMPLETELY RESOLVED ✅
+
+Both the training completion sync system and model reference format issues are now operational. Users can train their models and generate images successfully.
