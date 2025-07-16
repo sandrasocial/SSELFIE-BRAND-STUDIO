@@ -40,16 +40,18 @@ export async function generateImages(request: GenerateImagesRequest): Promise<Ge
     const savedImage = await storage.saveAIImage(aiImageData);
 
 
-    // 🔧 CORRECT ARCHITECTURE: Base FLUX model + user's individual LoRA weights  
-    // User trains LoRA model (e.g., sandrasocial/42585527-selfie-lora) used WITH base FLUX
-    const baseFluxModel = "39ed52f2a78e934b3ba6e2a89f5b1c712de7dfea535525255b1aa35c5565e08b"; // black-forest-labs/flux-dev latest
-    const userLoraModel = userModel.replicateVersionId; // User's trained LoRA
+    // 🔧 CORRECT ARCHITECTURE: Use user's individual trained model directly
+    // User's model (e.g., sandrasocial/42585527-selfie-lora) is a complete trained model, not just LoRA weights
+    const userTrainedModel = userModel.replicateVersionId; // User's complete trained model
     
-    if (!userLoraModel) {
-      throw new Error('User LoRA model not found - training may need to be redone');
+    if (!userTrainedModel) {
+      throw new Error('User trained model not found - training may need to be redone');
     }
     
-    console.log(`🔧 ARCHITECTURE FIX - User: ${userId}, Base FLUX Model: ${baseFluxModel}, User LoRA: ${userLoraModel}`);
+    // Extract just the version hash from the full model string (sandrasocial/42585527-selfie-lora:hash -> hash)
+    const versionHash = userTrainedModel.includes(':') ? userTrainedModel.split(':')[1] : userTrainedModel;
+    
+    console.log(`🔧 ARCHITECTURE FIX - User: ${userId}, User Trained Model: ${userTrainedModel}, Version Hash: ${versionHash}`);
     console.log(`🔍 CORRECT APPROACH - Using base FLUX + individual user LoRA weights`);
     
     // 🎯 CRITICAL: Trigger word MUST be at the very beginning for maximum likeness
@@ -109,14 +111,8 @@ export async function generateImages(request: GenerateImagesRequest): Promise<Ge
             'Content-Type': 'application/json',
           },
           body: JSON.stringify({
-            version: baseFluxModel, // Use base FLUX model
-            input: {
-              ...input,
-              lora_weights: userLoraModel, // Add user's LoRA weights to input  
-              lora_scale: 1,              // 🔧 EXACT: Yesterday's confirmed perfect setting
-              prompt_strength: 1,         // 🔧 EXACT: Yesterday's confirmed perfect setting
-              extra_lora_scale: 1         // 🔧 EXACT: Yesterday's confirmed perfect setting
-            }
+            version: versionHash, // Use user's individual trained model version hash
+            input
           }),
         });
 
