@@ -213,17 +213,13 @@ export class AIService {
       throw new Error('User model not ready for generation. Training must be completed first.');
     }
 
-    // ✅ ACCOUNT CLEANED: Use user's trained model version directly (no LoRA needed)
-    // After cleanup, user models are standalone and don't need base FLUX model
-    let userModelVersion = userModel.replicateVersionId;
+    // 🚨 CRITICAL ARCHITECTURE FIX: Use base FLUX model + user's LoRA weights
+    // After training, users get individual LoRA models that work with base FLUX model
+    const baseFluxModelVersion = "5ac9c5e0e3e5e39b40f82b4067de6ba58ad8ad3daf2c7c6ea28f4b23a93ad22a";
+    const userLoraWeights = userModel.replicateVersionId; // This is the user's trained LoRA
     
-    // 🔧 CRITICAL FIX: Extract just the version hash if full version string stored
-    if (userModelVersion && userModelVersion.includes(':')) {
-      userModelVersion = userModelVersion.split(':').pop(); // Get the hash after the colon
-    }
-    
-    if (!userModelVersion) {
-      throw new Error('User model version not found - training may need to be redone after account cleanup');
+    if (!userLoraWeights) {
+      throw new Error('User LoRA weights not found - training may need to be redone');
     }
     
     // 🎯 CRITICAL: Ensure trigger word is at the beginning for maximum likeness
@@ -237,7 +233,7 @@ export class AIService {
     }
 
     const requestBody = {
-      version: userModelVersion, // Use user's trained model directly
+      version: baseFluxModelVersion, // Use base FLUX model version
       input: {
         prompt: enhancedPrompt,
         guidance: 2.89,             // 🔧 EXACT: Yesterday's confirmed perfect setting
@@ -249,6 +245,7 @@ export class AIService {
         megapixels: "1",
         go_fast: false,
         disable_safety_checker: false,
+        lora_weights: userLoraWeights, // 🔧 CRITICAL: User's individual trained LoRA
         lora_scale: 1,              // 🔧 EXACT: Yesterday's confirmed perfect setting
         prompt_strength: 1,         // 🔧 EXACT: Yesterday's confirmed perfect setting
         extra_lora_scale: 1         // 🔧 EXACT: Yesterday's confirmed perfect setting

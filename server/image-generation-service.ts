@@ -40,15 +40,17 @@ export async function generateImages(request: GenerateImagesRequest): Promise<Ge
     const savedImage = await storage.saveAIImage(aiImageData);
 
 
-    // ✅ CRITICAL FIX: Use the correct model ID that worked yesterday
-    let userModelVersion = userModel.replicateModelId; // Use the short model ID instead of version ID
+    // 🚨 CRITICAL ARCHITECTURE FIX: Use base FLUX model + user's LoRA weights
+    // After training, users get individual LoRA models that work with base FLUX model
+    const baseFluxModelVersion = "5ac9c5e0e3e5e39b40f82b4067de6ba58ad8ad3daf2c7c6ea28f4b23a93ad22a";
+    const userLoraWeights = userModel.replicateVersionId; // This is the user's trained LoRA
     
-    if (!userModelVersion) {
-      throw new Error('User model ID not found - training may need to be redone');
+    if (!userLoraWeights) {
+      throw new Error('User LoRA weights not found - training may need to be redone');
     }
     
-    console.log(`🔧 MODEL FIX - User: ${userId}, Using model ID: ${userModelVersion} (was working yesterday)`);
-    console.log(`🔍 FULL MODEL DEBUG - Model ID: ${userModel.replicateModelId}, Version ID: ${userModel.replicateVersionId}`);
+    console.log(`🔧 ARCHITECTURE FIX - User: ${userId}, Base FLUX Version: ${baseFluxModelVersion}, User LoRA: ${userLoraWeights}`);
+    console.log(`🔍 CORRECT APPROACH - Using base FLUX + individual user LoRA weights`);
     
     // 🎯 CRITICAL: Trigger word MUST be at the very beginning for maximum likeness
     let finalPrompt = customPrompt;
@@ -74,7 +76,7 @@ export async function generateImages(request: GenerateImagesRequest): Promise<Ge
       finalPrompt = `${finalPrompt}${hairEnhancementSpecs}`;
     }
 
-    // Build input with user's individual trained model - YESTERDAY'S PERFECT SETTINGS
+    // Build input for base FLUX model + user's individual LoRA - CORRECT ARCHITECTURE
     const input: any = {
       prompt: finalPrompt,
       guidance: 2.89,             // 🔧 EXACT: Yesterday's confirmed perfect setting
@@ -86,6 +88,7 @@ export async function generateImages(request: GenerateImagesRequest): Promise<Ge
       megapixels: "1",
       go_fast: false,
       disable_safety_checker: false,
+      lora_weights: userLoraWeights,  // 🔧 CRITICAL: User's individual trained LoRA
       lora_scale: 1,              // 🔧 EXACT: Yesterday's confirmed perfect setting
       prompt_strength: 1,         // 🔧 EXACT: Yesterday's confirmed perfect setting
       extra_lora_scale: 1         // 🔧 EXACT: Yesterday's confirmed perfect setting
@@ -109,7 +112,7 @@ export async function generateImages(request: GenerateImagesRequest): Promise<Ge
             'Content-Type': 'application/json',
           },
           body: JSON.stringify({
-            version: userModelVersion, // Use user's individual trained model
+            version: baseFluxModelVersion, // Use base FLUX model version, not user's trained model directly
             input
           }),
         });
