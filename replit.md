@@ -339,10 +339,10 @@ The platform has become overly complex with multiple pricing tiers, broken onboa
 - ✅ **Inference Steps: 35** (Minimum for quality output, tested optimal)
 - ✅ **Output Quality: 95%** (Maximum quality for crystal clear results)
 - ✅ **LoRA Scale: 1.0-1.3** (Maximum model influence for strongest likeness)
-- ✅ **Advanced Natural Specifications**: `visible skin pores (1.7), natural skin texture (1.8), film grain (Kodak Ektar:1.5), unretouched natural skin, medium-format film aesthetic (1.6), realistic hair with volume`
+- ✅ **Refined Natural Specifications**: `subtle skin texture (1.6), natural skin detail, soft film grain (Kodak Ektar:1.3), natural skin with gentle smoothing, medium-format film aesthetic (1.5)`
 - ✅ **Hair Quality Focus**: Natural hair with volume, realistic texture, never flat or lifeless
-- ✅ **Skin Realism**: `realistic skin pores with natural matte finish (2.0), natural imperfections, subtle blemishes`
-- 🎯 **Research-Backed Results**: Images look exactly like user but elevated, raw and realistic with visible skin pores
+- ✅ **Confident Skin Enhancement**: `natural healthy glow, subtle skin refinement` - realistic but confidence-boosting
+- 🎯 **Balanced Results**: Images look exactly like user but elevated - natural and realistic while maintaining confidence
 
 ### ✅ PERMANENT ARCHITECTURE & AUTHENTICATION PROTECTION IMPLEMENTED (July 16, 2025)
 **IMMUTABLE CORE ARCHITECTURE NOW PERMANENTLY LOCKED:**
@@ -424,9 +424,10 @@ The platform has become overly complex with multiple pricing tiers, broken onboa
 - **Optimal Parameters Identified**: Guidance 2.5, Steps 35, specific natural skin/hair prompts
 - **Implementation Complete**: Updated both ai-service.ts and image-generation-service.ts
 - **Key Improvements**: Lower guidance scale (2.5 vs 2.8) for more realistic results
-- **Advanced Prompting**: Added weighted parameters for skin pores (1.7), skin texture (1.8), film grain (1.5)
-- **Hair Quality Enhanced**: Natural volume specifications, never flat hair requirements
-- **Expected Results**: Photos look exactly like user but elevated with visible skin pores, natural texture
+- **Refined Prompting**: Balanced approach - `subtle skin texture (1.6), natural skin detail, gentle smoothing`
+- **Hair Quality Enhanced**: Natural volume specifications, never flat hair requirements  
+- **Confidence-First Results**: Natural and realistic while avoiding harsh imperfections or deep wrinkles
+- **Expected Results**: Photos look exactly like user but elevated with subtle enhancement and healthy glow
 
 ### ✅ PRODUCTION DEPLOYMENT READY (July 15, 2025)
 **CRITICAL LAUNCH DAY FIXES COMPLETED FOR 1000+ USER SCALE:**
