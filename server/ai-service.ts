@@ -213,16 +213,17 @@ export class AIService {
       throw new Error('User model not ready for generation. Training must be completed first.');
     }
 
-    // ✅ ACCOUNT CLEANED: Use user's trained model version directly (no LoRA needed)
-    // After cleanup, user models are standalone and don't need base FLUX model
+    // ⚠️ TEMPORARY WORKAROUND: Using trained model directly due to base FLUX unavailability
+    // PROPER ARCHITECTURE should be: base FLUX model + user's LoRA weights
+    // Current: Using user's trained model version directly (works but not ideal)
     const userModelVersion = userModel.replicateVersionId;
     
     if (!userModelVersion) {
-      throw new Error('User model version not found - training may need to be redone after account cleanup');
+      throw new Error('User model version not found - training may need to be completed');
     }
     
     const requestBody = {
-      version: userModelVersion, // Use user's trained model directly
+      version: userModelVersion, // Using trained model directly (temporary)
       input: {
         prompt: prompt,
         guidance: 2.8,

@@ -297,6 +297,26 @@ The platform has become overly complex with multiple pricing tiers, broken onboa
 - API endpoints responding correctly (/api/auth/user returns 200)
 - Account switching functionality ready for testing
 
+### ⚠️ CRITICAL ARCHITECTURAL ISSUE IDENTIFIED (July 16, 2025)
+**FLUX LORA ARCHITECTURE IMPLEMENTATION STATUS:**
+- **🚨 CURRENT ISSUE**: System using trained models directly instead of proper FLUX LoRA architecture
+- **❌ WRONG APPROACH**: `version: userModel.replicateVersionId` (standalone trained model)
+- **✅ CORRECT APPROACH**: `version: 'black-forest-labs/flux-dev'` + `lora_weights: userModel.replicateModelId` + trigger word
+- **⚠️ TEMPORARY WORKAROUND**: Using trained model directly since base FLUX models unavailable in account
+- **🔧 REQUIRED FIX**: Need access to base FLUX model for proper LoRA architecture
+
+**Technical Implementation Status:**
+- Maya AI: Uses temporary workaround (trained model directly) - functional but not ideal
+- AI Generator: Uses temporary workaround (trained model directly) - functional but not ideal
+- User Training: Produces LoRA models but system treats them as standalone models
+- Trigger Words: Working correctly (`user42585527`, `user45075281`)
+
+**Business Impact:**
+- ✅ Platform functional: Users can generate images
+- ✅ User isolation: Each user gets their own images (no cross-contamination)
+- ⚠️ Architecture concern: Not using industry-standard FLUX LoRA approach
+- 🎯 Action needed: Implement proper base FLUX model + LoRA weights approach
+
 ### ✅ PRODUCTION DEPLOYMENT READY (July 15, 2025)
 **CRITICAL LAUNCH DAY FIXES COMPLETED FOR 1000+ USER SCALE:**
 - **Development Server Confirmed Working**: All authentication, API endpoints, and React app functioning perfectly

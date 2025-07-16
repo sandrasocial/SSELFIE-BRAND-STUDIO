@@ -40,11 +40,13 @@ export async function generateImages(request: GenerateImagesRequest): Promise<Ge
     const savedImage = await storage.saveAIImage(aiImageData);
 
 
-    // ✅ ACCOUNT CLEANED: Use user's trained model version directly
+    // ⚠️ TEMPORARY WORKAROUND: Using trained model directly due to base FLUX unavailability  
+    // PROPER ARCHITECTURE should be: base FLUX model + user's LoRA weights
+    // Current: Using user's trained model version directly (works but not ideal)
     const userModelVersion = userModel.replicateVersionId;
     
     if (!userModelVersion) {
-      throw new Error('User model version not found - training may need to be redone after account cleanup');
+      throw new Error('User model version not found - training may need to be completed');
     }
     
     // Ensure the prompt starts with the user's trigger word for maximum likeness
@@ -72,7 +74,7 @@ export async function generateImages(request: GenerateImagesRequest): Promise<Ge
       finalPrompt = `${finalPrompt}${hairEnhancementSpecs}`;
     }
 
-    // Build input with user's individual trained model
+    // Build input with user's trained model (temporary workaround)
     const input: any = {
       prompt: finalPrompt,
       guidance: 2.8,
@@ -102,7 +104,7 @@ export async function generateImages(request: GenerateImagesRequest): Promise<Ge
             'Content-Type': 'application/json',
           },
           body: JSON.stringify({
-            version: userModelVersion, // Use user's individual trained model
+            version: userModelVersion, // Using trained model directly (temporary)
             input
           }),
         });
