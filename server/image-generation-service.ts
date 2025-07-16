@@ -40,16 +40,15 @@ export async function generateImages(request: GenerateImagesRequest): Promise<Ge
     const savedImage = await storage.saveAIImage(aiImageData);
 
 
-    // 🔧 CORRECT ARCHITECTURE: Use black-forest-labs/flux-dev-lora as the base model
-    // User's individual trained model is a FLUX LoRA that works with this base model
-    const baseFluxModelVersion = "a53fd9255ecba80d99eaab4706c698f861fd47b098012607557385416e46aae5";
-    const userLoraWeights = userModel.replicateVersionId; // This is the user's trained LoRA
+    // 🔧 CORRECT ARCHITECTURE: Use user's individual trained model directly
+    // Each user has their own trained FLUX model (e.g., sandrasocial/42585527-selfie-lora)
+    const userTrainedModel = userModel.replicateVersionId; // User's individual trained model
     
-    if (!userLoraWeights) {
-      throw new Error('User LoRA weights not found - training may need to be redone');
+    if (!userTrainedModel) {
+      throw new Error('User model not found - training may need to be redone');
     }
     
-    console.log(`🔧 ARCHITECTURE FIX - User: ${userId}, Base FLUX Version: ${baseFluxModelVersion}, User LoRA: ${userLoraWeights}`);
+    console.log(`🔧 ARCHITECTURE FIX - User: ${userId}, User Trained Model: ${userTrainedModel}`);
     console.log(`🔍 CORRECT APPROACH - Using base FLUX + individual user LoRA weights`);
     
     // 🎯 CRITICAL: Trigger word MUST be at the very beginning for maximum likeness
@@ -88,7 +87,7 @@ export async function generateImages(request: GenerateImagesRequest): Promise<Ge
       megapixels: "1",
       go_fast: false,
       disable_safety_checker: false,
-      lora_weights: userLoraWeights,  // 🔧 CRITICAL: User's individual trained LoRA
+      // User's individual trained model handles its own LoRA weights internally
       lora_scale: 1,              // 🔧 EXACT: Yesterday's confirmed perfect setting
       prompt_strength: 1,         // 🔧 EXACT: Yesterday's confirmed perfect setting
       extra_lora_scale: 1         // 🔧 EXACT: Yesterday's confirmed perfect setting
@@ -112,7 +111,7 @@ export async function generateImages(request: GenerateImagesRequest): Promise<Ge
             'Content-Type': 'application/json',
           },
           body: JSON.stringify({
-            version: baseFluxModelVersion, // Use base FLUX model version, not user's trained model directly
+            version: userTrainedModel, // Use user's individual trained model
             input
           }),
         });

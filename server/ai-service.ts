@@ -213,13 +213,12 @@ export class AIService {
       throw new Error('User model not ready for generation. Training must be completed first.');
     }
 
-    // 🔧 CORRECT ARCHITECTURE: Use black-forest-labs/flux-dev-lora as the base model
-    // User's individual trained model is a FLUX LoRA that works with this base model
-    const baseFluxModelVersion = "a53fd9255ecba80d99eaab4706c698f861fd47b098012607557385416e46aae5";
-    const userLoraWeights = userModel.replicateVersionId; // This is the user's trained LoRA
+    // 🔧 CORRECT ARCHITECTURE: Use user's individual trained model directly
+    // Each user has their own trained FLUX model (e.g., sandrasocial/42585527-selfie-lora)
+    const userTrainedModel = userModel.replicateVersionId; // User's individual trained model
     
-    if (!userLoraWeights) {
-      throw new Error('User LoRA weights not found - training may need to be redone');
+    if (!userTrainedModel) {
+      throw new Error('User model not found - training may need to be redone');
     }
     
     // 🎯 CRITICAL: Ensure trigger word is at the beginning for maximum likeness
@@ -233,7 +232,7 @@ export class AIService {
     }
 
     const requestBody = {
-      version: baseFluxModelVersion, // Use base FLUX model version
+      version: userTrainedModel, // Use user's individual trained model
       input: {
         prompt: enhancedPrompt,
         guidance: 2.89,             // 🔧 EXACT: Yesterday's confirmed perfect setting
@@ -244,11 +243,7 @@ export class AIService {
         output_quality: 100,        // 🔧 EXACT: Yesterday's confirmed perfect setting
         megapixels: "1",
         go_fast: false,
-        disable_safety_checker: false,
-        lora_weights: userLoraWeights, // 🔧 CRITICAL: User's individual trained LoRA
-        lora_scale: 1,              // 🔧 EXACT: Yesterday's confirmed perfect setting
-        prompt_strength: 1,         // 🔧 EXACT: Yesterday's confirmed perfect setting
-        extra_lora_scale: 1         // 🔧 EXACT: Yesterday's confirmed perfect setting
+        disable_safety_checker: false
       }
     };
     
@@ -266,8 +261,21 @@ export class AIService {
     });
 
     if (!response.ok) {
-      const error = await response.json();
-      throw new Error(`FLUX API error: ${error.detail || response.statusText}`);
+      const errorText = await response.text();
+      console.error('🚨 FLUX API ERROR:', {
+        status: response.status,
+        statusText: response.statusText,
+        errorText: errorText
+      });
+      
+      let error;
+      try {
+        error = JSON.parse(errorText);
+      } catch {
+        error = { detail: errorText };
+      }
+      
+      throw new Error(`FLUX API error (${response.status}): ${error.detail || error.message || response.statusText}`);
     }
 
     const prediction = await response.json();
