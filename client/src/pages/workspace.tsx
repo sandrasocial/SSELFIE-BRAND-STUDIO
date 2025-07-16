@@ -25,6 +25,7 @@ export default function Workspace() {
       const isTraining = data?.trainingStatus === 'training' || 
                         data?.trainingStatus === 'starting' ||
                         data?.trainingStatus === 'processing' ||
+                        data?.trainingStatus === 'pending' ||
                         (data?.replicateModelId && data?.trainingStatus !== 'completed' && data?.trainingStatus !== 'failed');
       return isTraining ? 10000 : false; // 10 seconds if training, otherwise no auto-refresh
     }
@@ -53,6 +54,7 @@ export default function Workspace() {
     const step1InProgress = userModel?.trainingStatus === 'training' || 
                           userModel?.trainingStatus === 'starting' ||
                           userModel?.trainingStatus === 'processing' ||
+                          userModel?.trainingStatus === 'pending' ||
                           (userModel?.replicateModelId && userModel?.trainingStatus !== 'completed' && userModel?.trainingStatus !== 'failed');
     
     // Step 2: Take Photos  
