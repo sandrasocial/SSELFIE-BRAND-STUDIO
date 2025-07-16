@@ -165,6 +165,11 @@ Sandra's revolutionary AI-powered business management system with specialized ag
 
 ## Sandra's AI Agent Team - COMPLETE FLUX PRO SYSTEM INTEGRATION (July 16, 2025)
 
+**USER PREFERENCE UPDATE (July 16, 2025):**
+- **Communication Style**: Agent responses should be concise and conversational for regular chat
+- **Response Length**: Shorter, focused responses instead of detailed explanations
+- **Tone**: Maintain authentic personalities but keep interactions brief and helpful
+
 **ALL 9 AGENTS FULLY BRIEFED WITH COMPLETE FLUX PRO DUAL-TIER KNOWLEDGE:**
 - **Victoria (UX Designer AI)**: FLUX Pro dual-tier UX optimization, premium conversion design, luxury positioning
 - **Maya (Dev AI)**: Complete technical mastery - FLUX Pro architecture, automatic tier detection, full codebase access
