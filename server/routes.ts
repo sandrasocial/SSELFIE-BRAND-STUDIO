@@ -810,6 +810,13 @@ Create prompts that feel like iconic fashion campaign moments that would make so
       AIService.pollGenerationStatus(trackingResult.trackerId, trackingResult.predictionId).catch(err => {
       });
 
+      // 🔑 NEW: Check for pending Maya image updates when generation starts
+      setTimeout(() => {
+        AIService.checkPendingMayaImageUpdates(userId).catch(err => {
+          console.error('Failed to check pending Maya image updates:', err);
+        });
+      }, 1000); // Small delay to ensure the message was saved
+
       res.json({
         success: true,
         trackerId: trackingResult.trackerId,
@@ -4124,6 +4131,35 @@ Consider this workflow optimized and ready for implementation! ⚙️`
   // Add authentication test route
   app.get('/test-auth-flow.html', (req, res) => {
     res.sendFile('test-auth-flow.html', { root: '.' });
+  });
+
+  // 🧪 TEMPORARY: Test retroactive Maya chat updates (NO AUTH for testing)
+  app.post('/api/test-retroactive-maya-updates', async (req: any, res) => {
+    try {
+      const { userId } = req.body;
+      
+      if (!userId) {
+        return res.status(400).json({ error: 'userId required' });
+      }
+      
+      console.log(`🧪 Testing retroactive Maya updates for user ${userId}`);
+      
+      // Call the function directly
+      await AIService.checkPendingMayaImageUpdates(userId);
+      
+      res.json({ 
+        success: true, 
+        message: `Retroactive Maya update check completed for user ${userId}`,
+        userId
+      });
+      
+    } catch (error) {
+      console.error('❌ Test retroactive Maya updates failed:', error);
+      res.status(500).json({ 
+        error: 'Retroactive update check failed',
+        details: error.message 
+      });
+    }
   });
 
   const httpServer = createServer(app);
