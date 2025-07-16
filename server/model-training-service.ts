@@ -164,8 +164,8 @@ export class ModelTrainingService {
       if (!createModelResponse.ok && createModelResponse.status !== 422) {
       }
 
-      // Start real Replicate training using the model-specific trainings endpoint
-      const trainingResponse = await fetch('https://api.replicate.com/v1/models/ostris/flux-dev-lora-trainer/versions/e440909d3512c31646ee2e0c7d6f6f4923224863a6a10c494606e79fb5844497/trainings', {
+      // Start real Replicate training using the CORRECT model version
+      const trainingResponse = await fetch('https://api.replicate.com/v1/models/ostris/flux-dev-lora-trainer/versions/26dce37af90b9d997eeb970d92e47de3064d46c300504ae376c75bef6a9022d2/trainings', {
         method: 'POST',
         headers: {
           'Authorization': `Token ${process.env.REPLICATE_API_TOKEN}`,

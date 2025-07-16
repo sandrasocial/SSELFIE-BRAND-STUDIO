@@ -307,9 +307,10 @@ The platform has become overly complex with multiple pricing tiers, broken onboa
 **Technical Implementation Status:**
 - Maya AI: Now uses user's trained FLUX model with proper parameters
 - AI Generator: Now uses user's trained FLUX model with proper parameters  
-- User Training: FLUX LoRA models trained using `ostris/flux-dev-lora-trainer:26dce37a`
+- User Training: FLUX LoRA models trained using `ostris/flux-dev-lora-trainer:26dce37a` (corrected)
 - Database: Verified trained models exist (user 42585527, 45075281)
 - Test Generation: ✅ WORKING - Using real user trained FLUX model (prediction n0etz8g0a1rma0cr237855ppnc)
+- Training Fixed: ✅ CORRECTED - Now using proper ostris/flux-dev-lora-trainer:26dce37af90b9d997eeb970d92e47de3064d46c300504ae376c75bef6a9022d2 for new users
 
 **Image Quality Impact:**
 - ✅ Back to proper FLUX quality - this should restore "WOW" level images
