@@ -335,7 +335,7 @@ The platform has become overly complex with multiple pricing tiers, broken onboa
 - NO cross-contamination between users EVER
 
 **PROVEN OPTIMAL IMAGE QUALITY SETTINGS (July 16, 2025):**
-- ✅ **Guidance Scale: 2.5** (PROVEN OPTIMAL - Lower guidance for more realistic, natural results)
+- ✅ **Guidance Scale: 2.8** (Optimized for strong prompt adherence and quality)
 - ✅ **Inference Steps: 35** (Minimum for quality output, tested optimal)
 - ✅ **Output Quality: 95%** (Maximum quality for crystal clear results)
 - ✅ **LoRA Scale: 1.0-1.3** (Maximum model influence for strongest likeness)
