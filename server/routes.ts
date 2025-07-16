@@ -754,7 +754,7 @@ Create prompts that feel like iconic fashion campaign moments that would make so
       }
 
       // ZERO FALLBACKS - User MUST have completed trained model
-      const userModel = await storage.getUserModelByUserId(userId);
+      let userModel = await storage.getUserModelByUserId(userId);
       
       if (!userModel) {
         return res.status(400).json({ 
@@ -763,17 +763,41 @@ Create prompts that feel like iconic fashion campaign moments that would make so
         });
       }
       
-      // Admin users (ssa@ssasocial.com) can bypass training requirements for testing
-      const isAdmin = claims.email === 'ssa@ssasocial.com';
+      // Auto-detect completed training status from Replicate API if marked as training
+      if (userModel.trainingStatus === 'training' && userModel.replicateModelId) {
+        try {
+          const response = await fetch(`https://api.replicate.com/v1/trainings/${userModel.replicateModelId}`, {
+            headers: {
+              'Authorization': `Token ${process.env.REPLICATE_API_TOKEN}`
+            }
+          });
+          
+          if (response.ok) {
+            const replicateData = await response.json();
+            if (replicateData.status === 'succeeded') {
+              console.log(`✅ Auto-detected completed training for user ${userId}`);
+              // Update database with completed status
+              await storage.updateUserModel(userId, {
+                trainingStatus: 'completed',
+                replicateVersionId: replicateData.output?.version || replicateData.version
+              });
+              // Refresh userModel data
+              userModel = await storage.getUserModelByUserId(userId);
+            }
+          }
+        } catch (error) {
+          console.error('Failed to check Replicate training status:', error);
+        }
+      }
       
-      if (!isAdmin && userModel.trainingStatus !== 'completed') {
+      if (userModel.trainingStatus !== 'completed') {
         return res.status(400).json({ 
           error: `AI model training ${userModel.trainingStatus}. Please wait for completion.`,
           requiresTraining: true
         });
       }
       
-      if (!isAdmin && (!userModel.triggerWord || !userModel.replicateModelId)) {
+      if (!userModel.triggerWord || !userModel.replicateModelId) {
         return res.status(400).json({ 
           error: 'Invalid model configuration. Please retrain your model.',
           requiresTraining: true
@@ -3531,13 +3555,40 @@ Consider this workflow optimized and ready for implementation! ⚙️`
         return res.status(400).json({ error: 'Category and subcategory are required' });
       }
       
-      const userModel = await storage.getUserModelByUserId(userId);
+      let userModel = await storage.getUserModelByUserId(userId);
       if (!userModel) {
         return res.status(400).json({ 
           error: 'No AI model found for user. Please train your model first.',
           requiresTraining: true,
           redirectTo: '/simple-training'
         });
+      }
+      
+      // Auto-detect completed training status from Replicate API if marked as training
+      if (userModel.trainingStatus === 'training' && userModel.replicateModelId) {
+        try {
+          const response = await fetch(`https://api.replicate.com/v1/trainings/${userModel.replicateModelId}`, {
+            headers: {
+              'Authorization': `Token ${process.env.REPLICATE_API_TOKEN}`
+            }
+          });
+          
+          if (response.ok) {
+            const replicateData = await response.json();
+            if (replicateData.status === 'succeeded') {
+              console.log(`✅ Auto-detected completed training for user ${userId}`);
+              // Update database with completed status
+              await storage.updateUserModel(userId, {
+                trainingStatus: 'completed',
+                replicateVersionId: replicateData.output?.version || replicateData.version
+              });
+              // Refresh userModel data
+              userModel = await storage.getUserModelByUserId(userId);
+            }
+          }
+        } catch (error) {
+          console.error('Failed to check Replicate training status:', error);
+        }
       }
       
       if (userModel.trainingStatus !== 'completed') {
