@@ -97,6 +97,7 @@ export async function generateImages(request: GenerateImagesRequest): Promise<Ge
       megapixels: "1",
       go_fast: false,
       disable_safety_checker: false,
+      lora_scale: 1.2, // 🔒 CRITICAL: Strong LoRA influence for maximum likeness
       seed: Math.floor(Math.random() * 1000000) // Random seed for variety
     };
 
