@@ -88,22 +88,19 @@ export async function generateImages(request: GenerateImagesRequest): Promise<Ge
     let requestBody: any;
 
     if (isPremium && userModel.isLuxury && userModel.finetuneId) {
-      // 🏆 PREMIUM USERS: FLUX Pro - Cost-Optimized Premium Quality (€0.40 vs €0.70)
-      console.log(`🏆 Using FLUX Pro for premium AI Photoshoot: ${userId}`);
+      // 🏆 PREMIUM USERS: FLUX 1.1 Pro Ultra - 6x Faster + Highest Quality + 4MP Resolution
+      console.log(`🏆 Using FLUX 1.1 Pro Ultra Finetuned for premium AI Photoshoot: ${userId}`);
       
       requestBody = {
-        model: "black-forest-labs/flux-pro-finetuned",
+        model: "black-forest-labs/flux-1.1-pro-ultra-finetuned",
         input: {
           prompt: finalPrompt,
           finetune_id: userModel.finetuneId, // Use luxury finetune_id from FLUX Pro trainer
           finetune_strength: 0.8, // Strong influence for ultra-realistic results
-          guidance_scale: 3.5,
-          num_inference_steps: 28,
-          num_outputs: 3,
           aspect_ratio: "3:4",
           output_format: "png",
           output_quality: 95, // Premium quality
-          megapixels: "1",
+          safety_tolerance: 2,
           seed: Math.floor(Math.random() * 1000000)
         }
       };
