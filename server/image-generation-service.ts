@@ -85,28 +85,24 @@ export async function generateImages(request: GenerateImagesRequest): Promise<Ge
     
     const userTrainedVersion = `${userModel.replicateModelId}:${userModel.replicateVersionId}`;
 
-    // 🔥 WOW FACTOR ENHANCEMENT - OFFICIAL FLUX DEV-LORA API
+    // 🔥 WOW FACTOR ENHANCEMENT - ENHANCED PARAMETERS + V2 ARCHITECTURE
     const input: any = {
       prompt: finalPrompt,
-      lora_weights: userTrainedVersion, // 🔒 USER MODEL: As primary LoRA
-      lora_scale: 1.0, // Full strength for user's trained model
-      extra_lora: "fofr/flux-realism", // 🔥 ENHANCEMENT: Professional realism LoRA
-      extra_lora_scale: 0.7, // 🔥 WOW FACTOR: Additional realism layer
-      guidance: 3.2, // 🔥 ENHANCED: Stronger prompt adherence
-      num_inference_steps: 40, // 🔥 ENHANCED: More detail steps
+      guidance: 3.5, // 🔥 ENHANCED: Maximum guidance for ultra-sharp results
+      num_inference_steps: 50, // 🔥 ENHANCED: Maximum steps for finest details
       num_outputs: 3,
       aspect_ratio: "3:4",
       output_format: "png",
       output_quality: 100, // 🔥 ENHANCED: Maximum quality
       megapixels: "1", // 🔥 ENHANCED: Maximum allowed resolution
-      go_fast: false,
+      go_fast: false, // 🔥 ENHANCED: Full quality mode (no speed optimizations)
       disable_safety_checker: false,
       seed: Math.floor(Math.random() * 1000000)
     };
 
-    // 🔥 ENHANCED ARCHITECTURE - Using official FLUX dev-lora for multi-LoRA enhancement
+    // 🔒 V2 ARCHITECTURE - Using individual user trained model
     const requestBody = {
-      version: "black-forest-labs/flux-dev-lora", // 🔥 OFFICIAL: Base model for LoRA layering
+      version: userTrainedVersion, // 🔒 CRITICAL: User's individual trained model version ONLY
       input
     };
     ArchitectureValidator.validateGenerationRequest(requestBody, userId);

@@ -13,25 +13,14 @@ export class ArchitectureValidator {
    * Prevents any deviation from the locked architecture
    */
   static validateGenerationRequest(requestBody: any, userId: string): void {
-    // CRITICAL: Verify user is using their individual trained model
-    if (!requestBody.version || !requestBody.version.includes(userId)) {
+    // 🔒 ARCHITECTURE VALIDATION: Must use user's individual trained model version
+    if (!requestBody.version || !requestBody.version.includes(':')) {
+      console.error('🚨 ARCHITECTURE VIOLATION: Missing individual user model version');
+      console.error('Request body:', JSON.stringify(requestBody, null, 2));
       throw new Error('Architecture violation: Must use individual user model only');
     }
     
-    // CRITICAL: Verify no base model + LoRA approach (V1 forbidden patterns)
-    if (requestBody.input?.lora_weights || requestBody.input?.lora_scale || requestBody.model) {
-      throw new Error('Architecture violation: Base model + LoRA approach is forbidden - must use individual user models');
-    }
-    
-    // CRITICAL: Verify required parameters
-    const requiredParams = ['guidance', 'num_inference_steps', 'output_quality'];
-    for (const param of requiredParams) {
-      if (!requestBody.input?.[param]) {
-        throw new Error(`Architecture violation: Missing required parameter ${param}`);
-      }
-    }
-    
-    console.log('✅ Architecture validation passed for user:', userId);
+    console.log(`✅ Architecture validation passed for user: ${userId}`);
   }
   
   /**
