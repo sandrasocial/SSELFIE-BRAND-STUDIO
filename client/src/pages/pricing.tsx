@@ -23,18 +23,18 @@ export default function Pricing() {
     // Update meta description
     const metaDescription = document.querySelector('meta[name="description"]');
     if (metaDescription) {
-      metaDescription.setAttribute('content', 'Start FREE with 5 AI images/month or upgrade to SSELFIE Studio ($47/month) for 100 images + complete brand ecosystem. Maya AI stylist + Victoria AI strategist included.');
+      metaDescription.setAttribute('content', 'Start FREE with 6 AI images/month or upgrade to SSELFIE Studio (€67/month) for 100 ultra-realistic images + luxury AI models. Maya AI stylist included.');
     }
 
     // Update Open Graph tags
     const ogTitle = document.querySelector('meta[property="og:title"]');
     if (ogTitle) {
-      ogTitle.setAttribute('content', 'Pricing - Start FREE or $47/month | SSELFIE Studio AI Branding');
+      ogTitle.setAttribute('content', 'Pricing - Start FREE or €67/month | SSELFIE Studio Luxury AI');
     }
 
     const ogDescription = document.querySelector('meta[property="og:description"]');
     if (ogDescription) {
-      ogDescription.setAttribute('content', 'Choose your plan: FREE (5 AI images) or SSELFIE Studio ($47/month, 100 images). Maya AI celebrity stylist + Victoria AI brand strategist. Start building your brand today.');
+      ogDescription.setAttribute('content', 'Choose your plan: FREE (6 AI images) or SSELFIE Studio (€67/month, 100 ultra-realistic images). FLUX Pro luxury quality for premium users.');
     }
 
     const ogUrl = document.querySelector('meta[property="og:url"]');
@@ -45,12 +45,12 @@ export default function Pricing() {
     // Update Twitter Card tags
     const twitterTitle = document.querySelector('meta[property="twitter:title"]');
     if (twitterTitle) {
-      twitterTitle.setAttribute('content', 'SSELFIE Studio Pricing - Start FREE or $47/month');
+      twitterTitle.setAttribute('content', 'SSELFIE Studio Pricing - Start FREE or €67/month');
     }
 
     const twitterDescription = document.querySelector('meta[property="twitter:description"]');
     if (twitterDescription) {
-      twitterDescription.setAttribute('content', 'AI personal branding platform with celebrity stylist Maya and brand strategist Victoria. Start FREE today.');
+      twitterDescription.setAttribute('content', 'Luxury AI personal branding platform with ultra-realistic FLUX Pro models. Maya AI celebrity stylist included. Start FREE today.');
     }
 
     // Add structured data for pricing
@@ -68,19 +68,19 @@ export default function Pricing() {
         {
           "@type": "Offer",
           "name": "FREE Plan",
-          "description": "5 AI images per month with Maya AI photographer chat and Victoria AI brand strategist",
+          "description": "6 AI images per month with Maya AI photographer chat",
           "price": "0",
-          "priceCurrency": "USD",
+          "priceCurrency": "EUR",
           "availability": "https://schema.org/InStock",
           "url": "https://sselfie.ai/pricing",
           "priceValidUntil": "2025-12-31"
         },
         {
           "@type": "Offer", 
-          "name": "SSELFIE Studio",
-          "description": "100 AI images per month, unlimited AI agents, luxury collections, custom domains",
-          "price": "47",
-          "priceCurrency": "USD",
+          "name": "SSELFIE Studio Premium",
+          "description": "100 ultra-realistic AI images per month, FLUX Pro luxury models, unlimited Maya AI chat",
+          "price": "67",
+          "priceCurrency": "EUR",
           "availability": "https://schema.org/InStock",
           "url": "https://sselfie.ai/checkout",
           "priceValidUntil": "2025-12-31"
@@ -126,10 +126,10 @@ export default function Pricing() {
       setShowEmailModal(true);
     } else {
       toast({
-        title: "SSELFIE Studio", 
-        description: "Redirecting to checkout for $47/month plan...",
+        title: "SSELFIE Studio Premium", 
+        description: "Redirecting to checkout for €67/month luxury plan...",
       });
-      localStorage.setItem('selectedPlan', 'sselfie-studio');
+      localStorage.setItem('selectedPlan', 'sselfie-studio-premium');
       setLocation('/checkout');
     }
   };
@@ -213,7 +213,7 @@ export default function Pricing() {
                      itemProp="description">
                   <div className="flex items-start">
                     <span className="text-black group-hover:text-white mr-3 flex-shrink-0">•</span>
-                    <span className="text-sm sm:text-base">5 AI images per month</span>
+                    <span className="text-sm sm:text-base">6 AI images per month</span>
                   </div>
                   <div className="flex items-start">
                     <span className="text-black group-hover:text-white mr-3 flex-shrink-0">•</span>
@@ -221,11 +221,11 @@ export default function Pricing() {
                   </div>
                   <div className="flex items-start">
                     <span className="text-black group-hover:text-white mr-3 flex-shrink-0">•</span>
-                    <span className="text-sm sm:text-base">Victoria AI brand strategist</span>
+                    <span className="text-sm sm:text-base">Standard FLUX quality</span>
                   </div>
                   <div className="flex items-start">
                     <span className="text-black group-hover:text-white mr-3 flex-shrink-0">•</span>
-                    <span className="text-sm sm:text-base">Basic templates access</span>
+                    <span className="text-sm sm:text-base">One AI model training</span>
                   </div>
                 </div>
                 
@@ -249,41 +249,41 @@ export default function Pricing() {
                 </div>
                 
                 <h3 className="font-serif text-xl sm:text-2xl md:text-3xl font-light mb-4 sm:mb-6 mt-2 sm:mt-0"
-                    itemProp="name">SSELFIE Studio</h3>
+                    itemProp="name">SSELFIE Studio Premium</h3>
                 <div className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-light mb-6 sm:mb-8">
-                  <span itemProp="price">$47</span>
+                  <span itemProp="price">€67</span>
                   <span className="text-sm sm:text-base md:text-lg text-gray-400">/month</span>
                 </div>
                 
                 <div className="space-y-3 sm:space-y-4 mb-8 sm:mb-10 md:mb-12 text-left">
                   <div className="flex items-start">
                     <span className="text-white mr-3">•</span>
-                    <span className="text-sm">100 AI images per month</span>
+                    <span className="text-sm">100 ultra-realistic AI images</span>
                   </div>
                   <div className="flex items-start">
                     <span className="text-white mr-3">•</span>
-                    <span className="text-sm">Maya AI + Victoria AI unlimited</span>
+                    <span className="text-sm">FLUX Pro luxury models</span>
                   </div>
                   <div className="flex items-start">
                     <span className="text-white mr-3">•</span>
-                    <span className="text-sm">Luxury flatlay collections</span>
+                    <span className="text-sm">Maya AI unlimited chat</span>
                   </div>
                   <div className="flex items-start">
                     <span className="text-white mr-3">•</span>
-                    <span className="text-sm">Landing pages + custom domain</span>
+                    <span className="text-sm">Premium training quality</span>
                   </div>
                   <div className="flex items-start">
                     <span className="text-white mr-3">•</span>
-                    <span className="text-sm">Priority support</span>
+                    <span className="text-sm">Commercial usage rights</span>
                   </div>
                 </div>
                 
                 <button
                   onClick={() => handleGetStarted('sselfie-studio')}
                   className="w-full py-3 sm:py-4 border border-white text-white text-xs sm:text-sm uppercase tracking-[0.25em] sm:tracking-[0.3em] hover:bg-white hover:text-black transition-all duration-300"
-                  aria-label="Get SSELFIE Studio plan for $47 per month with 100 AI images"
+                  aria-label="Get SSELFIE Studio Premium plan for €67 per month with 100 ultra-realistic AI images"
                 >
-                  Get Started
+                  Get Premium
                 </button>
               </div>
               
@@ -316,13 +316,13 @@ export default function Pricing() {
                    itemType="https://schema.org/Question">
                 <h3 className="font-serif text-lg sm:text-xl font-light text-black leading-tight"
                     itemProp="name">
-                  What's the difference between FREE and Studio?
+                  What's the difference between FREE and Premium?
                 </h3>
                 <div itemScope itemType="https://schema.org/Answer">
                   <p className="text-sm sm:text-base text-gray-600 font-light leading-relaxed"
                      itemProp="text">
-                    FREE: 5 AI images per month + basic chat with MAYA & VICTORIA. 
-                    SSELFIE Studio ($47/month): 100 AI images + unlimited AI agents + complete brand ecosystem + custom domains.
+                    FREE: 6 AI images per month + Maya AI chat with standard FLUX quality. 
+                    Premium (€67/month): 100 ultra-realistic images with FLUX Pro luxury models + unlimited Maya AI chat.
                   </p>
                 </div>
               </div>
@@ -353,7 +353,7 @@ export default function Pricing() {
                 <div itemScope itemType="https://schema.org/Answer">
                   <p className="text-sm sm:text-base text-gray-600 font-light leading-relaxed"
                      itemProp="text">
-                    MAYA is your celebrity stylist/photographer who creates editorial images. VICTORIA is your brand strategist who builds complete websites. Both are AI agents trained on Sandra's expertise.
+                    MAYA is your AI photographer who creates ultra-realistic editorial images that look exactly like you. She's trained on luxury fashion photography and professional styling expertise.
                   </p>
                 </div>
               </div>
@@ -363,12 +363,12 @@ export default function Pricing() {
                    itemType="https://schema.org/Question">
                 <h3 className="font-serif text-lg sm:text-xl font-light text-black leading-tight"
                     itemProp="name">
-                  Can I upgrade from FREE to Studio later?
+                  Can I upgrade from FREE to Premium later?
                 </h3>
                 <div itemScope itemType="https://schema.org/Answer">
                   <p className="text-sm sm:text-base text-gray-600 font-light leading-relaxed"
                      itemProp="text">
-                    Absolutely. Start free, upgrade to Studio anytime when you're ready for the full ecosystem 
+                    Absolutely. Start free, upgrade to Premium anytime when you're ready for ultra-realistic FLUX Pro quality 
                     and 100 monthly images.
                   </p>
                 </div>
@@ -403,9 +403,9 @@ export default function Pricing() {
               <button 
                 onClick={() => handleGetStarted('sselfie-studio')}
                 className="w-full sm:w-auto bg-white text-black px-6 sm:px-8 py-3 sm:py-4 text-xs sm:text-sm uppercase tracking-[0.25em] sm:tracking-[0.3em] hover:bg-gray-100 transition-all duration-300"
-                aria-label="Get SSELFIE Studio plan for $47 per month"
+                aria-label="Get SSELFIE Studio Premium plan for €67 per month"
               >
-                Get Studio $47/mo
+                Get Premium €67/mo
               </button>
             </div>
           </div>

@@ -25,16 +25,23 @@ export const PLAN_LIMITS = {
   },
   'sselfie-studio': {
     totalGenerations: null,
-    monthlyGenerations: 100, // $47/month for 100 images
-    cost: 47,
-    description: '100 AI generations per month + Maya + Victoria + Studio',
+    monthlyGenerations: 100, // €67/month for 100 ultra-realistic images with FLUX Pro
+    cost: 67,
+    description: '100 luxury AI generations per month + Maya AI + FLUX Pro models',
+    resetMonthly: true
+  },
+  'sselfie-studio-premium': {
+    totalGenerations: null,
+    monthlyGenerations: 100, // €67/month for 100 ultra-realistic images with FLUX Pro
+    cost: 67,
+    description: '100 luxury AI generations per month + Maya AI + FLUX Pro models',
     resetMonthly: true
   },
   'SSELFIE_STUDIO': {
     totalGenerations: null,
-    monthlyGenerations: 100, // $47/month for 100 images
-    cost: 47,
-    description: '100 AI generations per month + Maya + Victoria + Studio',
+    monthlyGenerations: 100, // €67/month for 100 ultra-realistic images with FLUX Pro
+    cost: 67,
+    description: '100 luxury AI generations per month + Maya AI + FLUX Pro models',
     resetMonthly: true
   },
   'ai-pack': {
