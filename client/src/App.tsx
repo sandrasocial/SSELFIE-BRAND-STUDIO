@@ -40,6 +40,8 @@ import AdminDashboard from "@/pages/admin";
 import AdminUsers from "@/pages/admin-users";
 import AdminEmails from "@/pages/admin-emails";
 import AdminSettings from "@/pages/admin-settings";
+import AgentApproval from "@/pages/agent-approval";
+import AgentCommandCenter from "@/pages/agent-command-center";
 import CustomPhotoshootLibrary from "@/pages/custom-photoshoot-library";
 import FlatlayLibrary from "@/pages/flatlay-library";
 import Maya from "@/pages/maya";
@@ -210,6 +212,10 @@ function Router() {
       <Route path="/admin/users" component={AdminUsers} />
       <Route path="/admin/emails" component={AdminEmails} />
       <Route path="/admin/settings" component={AdminSettings} />
+      <Route path="/agent-approval" component={AgentApproval} />
+      <Route path="/admin/agent-approval" component={AgentApproval} />
+      <Route path="/agent-command" component={AgentCommandCenter} />
+      <Route path="/admin/agent-command" component={AgentCommandCenter} />
       <Route path="/admin/progress" component={() => <div className="p-8">Admin Progress - Coming Soon</div>} />
       <Route path="/admin/roadmap" component={() => <div className="p-8">Admin Roadmap - Coming Soon</div>} />
       <Route path="/admin/ai-models" component={() => <div className="p-8">AI Models Management - Coming Soon</div>} />
