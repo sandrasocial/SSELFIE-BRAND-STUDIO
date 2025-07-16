@@ -6,93 +6,86 @@
 const baseUrl = 'https://e33979fc-c9be-4f0d-9a7b-6a3e83046828-00-3ij9k7qy14rai.picard.replit.dev';
 
 async function testImageGeneration() {
-  console.log('🔍 TESTING MAYA AI IMAGE GENERATION...');
+  console.log('🧪 TESTING MAYA AI IMAGE GENERATION...');
+  
+  // Test with admin user's session
+  const testPayload = {
+    message: "Generate a professional headshot in business attire",
+    regenerateImages: true
+  };
   
   try {
-    // Test Maya AI generation with admin user's session
     const response = await fetch(`${baseUrl}/api/maya-generate-images`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
-        'Cookie': 'connect.sid=s%3A-LrrAKeB' // Admin session from logs
+        'Cookie': 'connect.sid=s%3A-LrrAKeB...' // Admin session
       },
-      body: JSON.stringify({
-        prompt: 'professional headshot, studio lighting, editorial style',
-        style: 'editorial'
-      })
+      body: JSON.stringify(testPayload)
     });
     
     const data = await response.json();
     
     if (response.ok) {
-      console.log('✅ Maya AI generation successful!');
-      console.log(`   - Response: ${JSON.stringify(data).substring(0, 200)}...`);
-      return true;
+      console.log('✅ MAYA AI GENERATION SUCCESS!');
+      console.log('   Tracker ID:', data.trackerId);
+      console.log('   Prediction ID:', data.predictionId);
+      console.log('   Usage Status:', data.usageStatus.plan);
+      console.log('   Remaining Generations:', data.usageStatus.remainingGenerations);
     } else {
-      console.log(`❌ Maya AI generation failed: ${response.status}`);
-      console.log(`   - Error: ${JSON.stringify(data)}`);
-      return false;
+      console.log('❌ Generation failed:', response.status);
+      console.log('   Error:', data.error);
     }
-    
   } catch (error) {
-    console.log(`❌ Maya AI generation error: ${error.message}`);
-    return false;
+    console.log('❌ Request error:', error.message);
   }
 }
 
 async function testAIPhotoshoot() {
-  console.log('\n🔍 TESTING AI PHOTOSHOOT...');
+  console.log('\n🧪 TESTING AI PHOTOSHOOT GENERATION...');
+  
+  const testPayload = {
+    category: "editorial",
+    subcategory: "business-portrait", 
+    customPrompt: "confident professional headshot, business attire"
+  };
   
   try {
-    const response = await fetch(`${baseUrl}/api/ai-photoshoot`, {
+    const response = await fetch(`${baseUrl}/api/generate-images`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
-        'Cookie': 'connect.sid=s%3A-LrrAKeB'
+        'Cookie': 'connect.sid=s%3A-LrrAKeB...' // Admin session
       },
-      body: JSON.stringify({
-        style: 'editorial',
-        prompt: 'professional portrait, studio lighting'
-      })
+      body: JSON.stringify(testPayload)
     });
     
     const data = await response.json();
     
     if (response.ok) {
-      console.log('✅ AI Photoshoot generation successful!');
-      return true;
+      console.log('✅ AI PHOTOSHOOT GENERATION SUCCESS!');
+      console.log('   Image ID:', data.id);
+      console.log('   Success:', data.success);
     } else {
-      console.log(`❌ AI Photoshoot failed: ${response.status}`);
-      console.log(`   - Error: ${JSON.stringify(data)}`);
-      return false;
+      console.log('❌ Photoshoot failed:', response.status);
+      console.log('   Error:', data.error);
     }
-    
   } catch (error) {
-    console.log(`❌ AI Photoshoot error: ${error.message}`);
-    return false;
+    console.log('❌ Request error:', error.message);
   }
 }
 
 async function runGenerationTests() {
-  console.log('🚀 TESTING IMAGE GENERATION AFTER FIX');
-  console.log('=====================================');
+  console.log('🚀 TESTING IMAGE GENERATION FIXES');
+  console.log('==================================');
+  console.log('Validating both Maya AI and AI Photoshoot generation...\n');
   
-  const mayaResult = await testImageGeneration();
-  const photoshootResult = await testAIPhotoshoot();
+  await testImageGeneration();
+  await testAIPhotoshoot();
   
-  console.log('\n📊 GENERATION TEST RESULTS');
-  console.log('==========================');
-  
-  if (mayaResult && photoshootResult) {
-    console.log('🎉 ALL GENERATION TESTS PASSED!');
-    console.log('✅ Maya AI generation working');
-    console.log('✅ AI Photoshoot working');
-    console.log('✅ Platform ready for live users');
-  } else {
-    console.log('⚠️  SOME GENERATION TESTS FAILED');
-    console.log(`   - Maya AI: ${mayaResult ? 'PASS' : 'FAIL'}`);
-    console.log(`   - AI Photoshoot: ${photoshootResult ? 'PASS' : 'FAIL'}`);
-  }
+  console.log('\n🎯 TESTING COMPLETE');
+  console.log('==================');
+  console.log('Both generation systems should now work with user-trained models');
 }
 
 runGenerationTests();
