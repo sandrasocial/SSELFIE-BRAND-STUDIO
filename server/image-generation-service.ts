@@ -88,14 +88,14 @@ export async function generateImages(request: GenerateImagesRequest): Promise<Ge
     let requestBody: any;
 
     if (isPremium && userModel.isLuxury && userModel.finetuneId) {
-      // 🏆 PREMIUM USERS: FLUX Pro Ultra-Realistic Quality for AI Photoshoot
-      console.log(`🏆 Using FLUX Pro model for premium AI Photoshoot: ${userId}`);
+      // 🏆 PREMIUM USERS: FLUX 1.1 Pro Ultra - Maximum Quality for AI Photoshoot
+      console.log(`🏆 Using FLUX 1.1 Pro Ultra for premium AI Photoshoot: ${userId}`);
       
       requestBody = {
-        version: "black-forest-labs/flux-pro-finetuned:latest",
+        model: "black-forest-labs/flux-1.1-pro-ultra-finetuned",
         input: {
           prompt: finalPrompt,
-          finetune_id: userModel.finetuneId, // Use luxury finetune_id from training
+          finetune_id: userModel.finetuneId, // Use luxury finetune_id from FLUX Pro trainer
           finetune_strength: 0.8, // Strong influence for ultra-realistic results
           guidance_scale: 3.5,
           num_inference_steps: 28,

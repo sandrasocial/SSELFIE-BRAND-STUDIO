@@ -146,8 +146,7 @@ export class LuxuryTrainingService {
         })
       });
 
-      // URGENT FIX: Use the correct FLUX Pro trainer model version you provided
-      // Replace with the exact model version you have access to from your Replicate dashboard
+      // 🏆 FLUX PRO TRAINER - Correct API format from Black Forest Labs documentation
       const trainingResponse = await fetch('https://api.replicate.com/v1/trainings', {
         method: 'POST',
         headers: {
@@ -155,7 +154,7 @@ export class LuxuryTrainingService {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
-          version: "black-forest-labs/flux-pro-trainer:INSERT_CORRECT_VERSION_HERE",
+          model: "black-forest-labs/flux-pro-trainer",
           input: {
             input_images: zipUrl,
             trigger_word: triggerWord,
