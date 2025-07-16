@@ -3644,28 +3644,38 @@ FOR VICTORIA SPECIFICALLY: When asked about redesigning "sandra-command page", u
         let response = completion.content[0]?.text || agentResponses[agentId] || 
           `Hello! I'm ${agent.name}. I'm fully briefed on our FLUX Pro dual-tier system with complete business knowledge. How can I help you today?`;
 
-        // Check if agent wants to show a development preview - improved parsing
-        const devPreviewMatch = response.match(/DEV_PREVIEW:\s*({(?:[^{}]|{[^{}]*})*})/);
+        // Check if agent wants to show a development preview - enhanced parsing
         let devPreview = null;
+        
+        // Try multiple parsing patterns
+        let devPreviewMatch = response.match(/DEV_PREVIEW:\s*({(?:[^{}]|{[^{}]*})*})/);
+        if (!devPreviewMatch) {
+          // Try parsing from code blocks
+          devPreviewMatch = response.match(/```json\s*DEV_PREVIEW:\s*({[\s\S]*?})\s*```/);
+        }
+        if (!devPreviewMatch) {
+          // Try parsing JSON blocks that contain "type" property (likely dev previews)
+          devPreviewMatch = response.match(/```json\s*({[\s\S]*?"type"[\s\S]*?})\s*```/);
+        }
         
         if (devPreviewMatch) {
           try {
+            console.log('Server: Raw DEV_PREVIEW found:', devPreviewMatch[1]);
             // Clean up the JSON string before parsing
-            let jsonString = devPreviewMatch[1];
-            
-            // Fix common JSON formatting issues from AI responses
-            jsonString = jsonString
+            let jsonString = devPreviewMatch[1]
               .replace(/\n\s*/g, ' ')  // Remove newlines and extra spaces
               .replace(/,\s*}/g, '}')  // Remove trailing commas
               .replace(/,\s*]/g, ']')  // Remove trailing commas in arrays
+              .replace(/\.\.\.\[Truncated\]/g, '')  // Remove truncation markers
               .replace(/([{,]\s*)([a-zA-Z_][a-zA-Z0-9_]*)\s*:/g, '$1"$2":'); // Quote unquoted keys
             
             devPreview = JSON.parse(jsonString);
+            console.log('Server: Parsed DEV_PREVIEW successfully:', devPreview);
             // Remove the DEV_PREVIEW JSON from the response
-            response = response.replace(/DEV_PREVIEW:\s*{(?:[^{}]|{[^{}]*})*}/, '').trim();
+            response = response.replace(/```json\s*DEV_PREVIEW:[\s\S]*?```/g, '').replace(/DEV_PREVIEW:\s*{(?:[^{}]|{[^{}]*})*}/g, '').trim();
           } catch (e) {
-            console.error('Failed to parse dev preview:', e);
-            console.error('JSON string was:', devPreviewMatch[1]);
+            console.error('Server: Failed to parse dev preview:', e);
+            console.error('Server: JSON string was:', devPreviewMatch[1]);
             // Don't fail the entire response, just skip dev preview
           }
         }

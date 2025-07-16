@@ -232,20 +232,39 @@ function AgentChat({ agentId, agentName, role, status, currentTask, metrics }: A
         timestamp: new Date()
       };
 
-      // Parse DEV_PREVIEW from agent response
+      // Parse DEV_PREVIEW from agent response with enhanced detection
       let parsedDevPreview = null;
       let cleanedMessage = data.message;
       
       try {
-        // Look for DEV_PREVIEW JSON in the response
-        const devPreviewMatch = data.message.match(/DEV_PREVIEW:\s*({[\s\S]*?})/);
+        // Look for DEV_PREVIEW JSON in the response - multiple patterns
+        let devPreviewMatch = data.message.match(/DEV_PREVIEW:\s*({[\s\S]*?})/);
+        if (!devPreviewMatch) {
+          // Try alternate pattern with code blocks
+          devPreviewMatch = data.message.match(/```json\s*DEV_PREVIEW:\s*({[\s\S]*?})\s*```/);
+        }
+        if (!devPreviewMatch) {
+          // Try pattern without DEV_PREVIEW prefix
+          devPreviewMatch = data.message.match(/```json\s*({[\s\S]*?"type"[\s\S]*?})\s*```/);
+        }
+        
         if (devPreviewMatch) {
-          parsedDevPreview = JSON.parse(devPreviewMatch[1]);
+          console.log('Raw DEV_PREVIEW found:', devPreviewMatch[1]);
+          // Clean up the JSON before parsing
+          let jsonString = devPreviewMatch[1]
+            .replace(/\n\s*/g, ' ')  // Remove newlines and extra spaces
+            .replace(/,\s*}/g, '}')  // Remove trailing commas
+            .replace(/,\s*]/g, ']')  // Remove trailing commas in arrays
+            .replace(/\.\.\.\[Truncated\]/g, ''); // Remove truncation markers
+          
+          parsedDevPreview = JSON.parse(jsonString);
+          console.log('Parsed DEV_PREVIEW:', parsedDevPreview);
           // Remove the DEV_PREVIEW JSON from the displayed message
-          cleanedMessage = data.message.replace(/DEV_PREVIEW:\s*{[\s\S]*?}/, '').trim();
+          cleanedMessage = data.message.replace(/```json\s*DEV_PREVIEW:[\s\S]*?```/g, '').replace(/DEV_PREVIEW:\s*{[\s\S]*?}/g, '').trim();
         }
       } catch (error) {
         console.error('Failed to parse DEV_PREVIEW:', error);
+        console.error('Raw message:', data.message);
       }
 
       const agentResponse = {
@@ -266,9 +285,14 @@ function AgentChat({ agentId, agentName, role, status, currentTask, metrics }: A
       // Show development preview if agent provided one (check both sources)
       if (parsedDevPreview || data.devPreview) {
         const previewData = parsedDevPreview || data.devPreview;
+        console.log('Setting dev preview data:', previewData);
         setDevPreviewData(previewData);
         setShowDevPreview(true);
-        console.log('Dev preview detected:', previewData);
+        
+        // Force a small delay to ensure state updates
+        setTimeout(() => {
+          console.log('Dev preview modal should be open:', showDevPreview);
+        }, 100);
       }
       // Legacy preview support
       else if (data.hasPreview && agentId === 'victoria') {
