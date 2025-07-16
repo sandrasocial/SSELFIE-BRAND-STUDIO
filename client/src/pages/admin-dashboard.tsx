@@ -4,6 +4,7 @@ import { queryClient } from "@/lib/queryClient";
 import { Link, useLocation } from "wouter";
 import { useEffect, useState } from "react";
 import { apiRequest } from "@/lib/queryClient";
+import { VisualDesignPreview } from "@/components/visual-design-preview";
 
 export default function AdminDashboard() {
   const { user, isAuthenticated, isLoading } = useAuth();
@@ -106,6 +107,9 @@ interface AgentChatProps {
 function AgentChat({ agentId, agentName, role }: AgentChatProps) {
   const [message, setMessage] = useState('');
   const [chatHistory, setChatHistory] = useState<any[]>([]);
+  const [showPreview, setShowPreview] = useState(false);
+  const [previewContent, setPreviewContent] = useState('');
+  const [previewType, setPreviewType] = useState<'component' | 'layout' | 'page' | 'email'>('component');
 
   const sendMessage = useMutation({
     mutationFn: async (content: string) => {
@@ -123,9 +127,20 @@ function AgentChat({ agentId, agentName, role }: AgentChatProps) {
         id: Date.now() + 1,
         type: 'agent',
         content: data.message,
-        timestamp: new Date()
+        timestamp: new Date(),
+        hasPreview: data.hasPreview,
+        previewContent: data.previewContent,
+        previewType: data.previewType
       };
       setChatHistory(prev => [...prev, newMessage, agentResponse]);
+      
+      // Show preview if agent provided one
+      if (data.hasPreview && agentId === 'victoria') {
+        setPreviewContent(data.previewContent);
+        setPreviewType(data.previewType || 'component');
+        setShowPreview(true);
+      }
+      
       setMessage('');
     }
   });
@@ -139,7 +154,7 @@ function AgentChat({ agentId, agentName, role }: AgentChatProps) {
       
       <div className="h-64 overflow-y-auto p-4 space-y-3">
         {chatHistory.length === 0 ? (
-          <div className="text-gray-500 text-sm">Ready to assist you</div>
+          <div className="text-gray-500 text-sm">Ready to assist you - connected to Claude API</div>
         ) : (
           chatHistory.map((msg) => (
             <div key={msg.id} className={`${msg.type === 'user' ? 'text-right' : 'text-left'}`}>
@@ -147,11 +162,54 @@ function AgentChat({ agentId, agentName, role }: AgentChatProps) {
                 msg.type === 'user' ? 'bg-black text-white' : 'bg-gray-100'
               }`}>
                 <div className="text-sm">{msg.content}</div>
+                {msg.hasPreview && (
+                  <button
+                    onClick={() => {
+                      setPreviewContent(msg.previewContent);
+                      setPreviewType(msg.previewType);
+                      setShowPreview(true);
+                    }}
+                    className="text-xs mt-1 underline"
+                  >
+                    View Design Preview
+                  </button>
+                )}
               </div>
             </div>
           ))
         )}
       </div>
+      
+      {/* Visual Design Preview Modal */}
+      {showPreview && (
+        <div className="fixed inset-0 z-50 bg-black/50 flex items-center justify-center p-4">
+          <div className="bg-white max-w-4xl w-full max-h-[90vh] overflow-auto">
+            <div className="p-4 border-b border-gray-200 flex items-center justify-between">
+              <h3 className="font-serif text-xl">{agentName} Design Preview</h3>
+              <button
+                onClick={() => setShowPreview(false)}
+                className="text-sm uppercase tracking-wide hover:text-gray-600"
+              >
+                Close
+              </button>
+            </div>
+            <VisualDesignPreview
+              designContent={previewContent}
+              previewType={previewType}
+              onApprove={(approved) => {
+                if (approved) {
+                  // Send approval message
+                  sendMessage.mutate("Approved! Please implement this design.");
+                } else {
+                  // Send revision request
+                  sendMessage.mutate("Please revise this design with my feedback.");
+                }
+                setShowPreview(false);
+              }}
+            />
+          </div>
+        </div>
+      )}
       
       <div className="p-4 border-t border-gray-200">
         <form onSubmit={(e) => {

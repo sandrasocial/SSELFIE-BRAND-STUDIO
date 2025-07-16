@@ -4317,7 +4317,7 @@ Consider this workflow optimized and ready for implementation! ⚙️`
   // SANDRA'S AI AGENT CONVERSATION SYSTEM - INLINE IMPLEMENTATION
   // ═══════════════════════════════════════════════════════════════
   
-  // Agent chat endpoint
+  // Agent chat endpoint with FULL API INTEGRATION
   app.post('/api/agents/:agentId/chat', isAuthenticated, async (req: any, res) => {
     try {
       const { agentId } = req.params;
@@ -4327,20 +4327,139 @@ Consider this workflow optimized and ready for implementation! ⚙️`
       if (req.user.claims.email !== 'ssa@ssasocial.com') {
         return res.status(403).json({ error: 'Admin access required' });
       }
-      
-      const agentResponses = {
-        maya: "Hey! I'm Maya, your dev expert. I'm ready to help with any technical implementation, debugging, or feature development you need. What are we building today?",
-        rachel: "Hey gorgeous! It's Rachel, your copywriting twin. I'm here to help you write in that authentic Sandra voice that converts. What copy do we need to create?",
-        victoria: "Hello! Victoria here, your luxury design expert. I'm ready to create pixel-perfect editorial layouts that feel expensive. What design challenge are we tackling?",
-        ava: "Hi Sandra! Ava here, your automation architect. I can help streamline any workflow or create seamless customer journeys. What process should we optimize?"
+
+      // Agent system prompts and personalities
+      const agentConfigs = {
+        maya: {
+          name: "Maya",
+          role: "Dev AI Expert",
+          systemPrompt: "You are Maya, Sandra's senior full-stack developer AI. You specialize in luxury digital experiences, React/TypeScript, and building clean, fast code. You explain technical concepts in Sandra's accessible style - direct but warm. You focus on implementation, debugging, and feature development. Always ask for approval before making changes.",
+          apiModel: "claude-sonnet-4-20250514"
+        },
+        rachel: {
+          name: "Rachel", 
+          role: "Voice AI Copywriter",
+          systemPrompt: "You are Rachel, Sandra's copywriting twin who writes exactly like her. You master Sandra's Rachel-from-Friends + Icelandic directness voice. No corporate speak, just real conversations that convert. You handle all copywriting, emails, and content with Sandra's authentic tone. Always present options for approval.",
+          apiModel: "claude-sonnet-4-20250514"
+        },
+        victoria: {
+          name: "Victoria",
+          role: "UX Designer AI", 
+          systemPrompt: "You are Victoria, Sandra's luxury editorial design expert with Vogue/Chanel aesthetic. You create pixel-perfect layouts with Times New Roman typography and maintain strict no-icons, sharp-edges luxury design system. You speak like Sandra's design-savvy best friend. Always show visual previews when possible.",
+          apiModel: "claude-sonnet-4-20250514"
+        },
+        ava: {
+          name: "Ava",
+          role: "Automation AI",
+          systemPrompt: "You are Ava, Sandra's behind-the-scenes workflow architect. You design invisible automation that feels like personal assistance. Expert in business operations, webhooks, email sequences, payment flows. You create Swiss-watch precision workflows. Always map out automation before implementing.",
+          apiModel: "claude-sonnet-4-20250514"
+        }
       };
+
+      const agent = agentConfigs[agentId as keyof typeof agentConfigs];
+      if (!agent) {
+        return res.status(404).json({ error: 'Agent not found' });
+      }
+
+      let agentResponse = "";
+
+      // Try Claude API first (primary)
+      if (process.env.ANTHROPIC_API_KEY) {
+        try {
+          console.log(`🤖 ${agent.name} processing request with Claude API`);
+          const response = await fetch('https://api.anthropic.com/v1/messages', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+              'x-api-key': process.env.ANTHROPIC_API_KEY,
+              'anthropic-version': '2023-06-01'
+            },
+            body: JSON.stringify({
+              model: agent.apiModel,
+              max_tokens: 2000,
+              system: agent.systemPrompt,
+              messages: [{ role: 'user', content: message }]
+            })
+          });
+
+          if (response.ok) {
+            const data = await response.json();
+            agentResponse = data.content[0]?.text || "";
+            console.log(`✅ ${agent.name} responded via Claude API`);
+          } else {
+            console.log(`⚠️ Claude API error for ${agent.name}: ${response.status}`);
+          }
+        } catch (error) {
+          console.error(`❌ Claude API failed for ${agent.name}:`, error);
+        }
+      }
+
+      // Fallback to OpenAI if Claude fails
+      if (!agentResponse && process.env.OPENAI_API_KEY) {
+        try {
+          console.log(`🤖 ${agent.name} trying OpenAI as fallback`);
+          const response = await fetch('https://api.openai.com/v1/chat/completions', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+              'Authorization': `Bearer ${process.env.OPENAI_API_KEY}`
+            },
+            body: JSON.stringify({
+              model: "gpt-4o",
+              max_tokens: 2000,
+              messages: [
+                { role: "system", content: agent.systemPrompt },
+                { role: "user", content: message }
+              ]
+            })
+          });
+
+          if (response.ok) {
+            const data = await response.json();
+            agentResponse = data.choices[0]?.message?.content || "";
+            console.log(`✅ ${agent.name} responded via OpenAI`);
+          }
+        } catch (error) {
+          console.error(`❌ OpenAI API failed for ${agent.name}:`, error);
+        }
+      }
+
+      // Intelligent fallback responses if both APIs fail
+      if (!agentResponse) {
+        const fallbackResponses = {
+          maya: "Hey! I'm Maya, your dev expert. I'm ready to help with technical implementation, debugging, and feature development. Claude API is temporarily unavailable, but I'm here to assist!",
+          rachel: "Hey gorgeous! It's Rachel, your copywriting twin. I'm here to help you write in that authentic Sandra voice that converts. API connection issue, but let's chat anyway!",
+          victoria: "Hello! Victoria here, your luxury design expert. I'm ready to create pixel-perfect editorial layouts. Having API connectivity issues, but I can still provide design guidance!",
+          ava: "Hi Sandra! Ava here, your automation architect. I can help streamline workflows and create seamless customer journeys. API temporarily down, but workflow planning is still on!"
+        };
+        agentResponse = fallbackResponses[agentId as keyof typeof fallbackResponses] || "I'm ready to assist you!";
+      }
+
+      // For Victoria, check if response includes design elements for preview
+      let hasPreview = false;
+      let previewContent = "";
+      let previewType = "component";
       
-      const response = agentResponses[agentId as keyof typeof agentResponses] || "I'm ready to assist you!";
-      
+      if (agentId === 'victoria' && agentResponse) {
+        // Simple heuristics to detect design content
+        if (agentResponse.includes('component') || agentResponse.includes('<') || agentResponse.includes('className')) {
+          hasPreview = true;
+          previewContent = agentResponse;
+          previewType = agentResponse.includes('page') ? 'page' : 
+                       agentResponse.includes('layout') ? 'layout' : 
+                       agentResponse.includes('email') ? 'email' : 'component';
+        }
+      }
+
       res.json({
-        message: `${response}\n\nYou asked: "${message}"`,
+        message: agentResponse,
         agentId,
-        timestamp: new Date().toISOString()
+        agentName: agent.name,
+        hasPreview,
+        previewContent,
+        previewType,
+        timestamp: new Date().toISOString(),
+        apiUsed: agentResponse.length > 100 ? 'AI' : 'fallback'
       });
       
     } catch (error) {
