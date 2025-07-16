@@ -16,7 +16,8 @@ export class ArchitectureValidator {
   // 🔒 IMMUTABLE BASE MODEL - NEVER CHANGE
   private static readonly REQUIRED_BASE_MODEL = "black-forest-labs/flux-dev-lora:a53fd9255ecba80d99eaab4706c698f861fd47b098012607557385416e46aae5";
   
-  // 🔒 IMMUTABLE TRAINING MODEL - NEVER CHANGE  
+  // 🔒 IMMUTABLE TRAINING MODEL - NEVER CHANGE
+  // This model is ONLY used for training user LoRA weights, NOT for generation
   private static readonly REQUIRED_TRAINING_MODEL = "ostris/flux-dev-lora-trainer:26dce37af90b9d997eeb970d92e47de3064d46c300504ae376c75bef6a9022d2";
 
   /**
