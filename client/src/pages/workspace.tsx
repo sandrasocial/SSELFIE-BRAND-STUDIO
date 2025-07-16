@@ -232,7 +232,7 @@ export default function Workspace() {
                     <div className="absolute top-4 left-4">
                       <div className={`px-2 py-1 text-xs font-light flex items-center gap-2 ${
                         step.status === 'complete' ? 'bg-black/80 text-white' :
-                        step.status === 'progress' ? 'bg-yellow-500/90 text-black' :
+                        step.status === 'progress' ? 'bg-black/80 text-white' :
                         step.status === 'ready' ? 'bg-white/90 text-black' :
                         'bg-white/70 text-gray-600'
                       }`}>
@@ -293,7 +293,7 @@ export default function Workspace() {
                           You can safely close this page and come back later.
                         </p>
                         <div className="mt-3 w-full bg-gray-200 rounded-none h-1">
-                          <div className="h-1 bg-yellow-500 rounded-none animate-pulse" style={{ width: '50%' }}></div>
+                          <div className="h-1 bg-black rounded-none animate-pulse" style={{ width: '50%' }}></div>
                         </div>
                       </div>
                     )}
