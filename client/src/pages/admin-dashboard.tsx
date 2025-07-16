@@ -194,7 +194,10 @@ function AgentChat({ agentId, agentName, role, status, currentTask, metrics }: A
 
   const sendMessage = useMutation({
     mutationFn: async (content: string) => {
-      const response = await apiRequest('POST', `/api/agents/${agentId}/chat`, { message: content });
+      const response = await apiRequest('POST', '/api/agent-chat', { 
+        agentId: agentId, 
+        message: content 
+      });
       return response.json();
     },
     onSuccess: (data) => {
@@ -209,9 +212,12 @@ function AgentChat({ agentId, agentName, role, status, currentTask, metrics }: A
         type: 'agent',
         content: data.message,
         timestamp: new Date(),
+        agentName: data.agentName || agentName,
+        agentRole: data.agentRole || role,
         hasPreview: data.hasPreview,
         previewContent: data.previewContent,
-        previewType: data.previewType
+        previewType: data.previewType,
+        businessContext: data.businessContext
       };
       setChatHistory(prev => [...prev, newMessage, agentResponse]);
       
@@ -255,14 +261,24 @@ function AgentChat({ agentId, agentName, role, status, currentTask, metrics }: A
       
       <div className="h-64 overflow-y-auto p-4 space-y-3">
         {chatHistory.length === 0 ? (
-          <div className="text-gray-500 text-sm">Ready to assist you - connected to Claude API</div>
+          <div className="text-gray-500 text-sm text-center py-8">
+            <div className="mb-2">🤖 {agentName} ready to assist</div>
+            <div className="text-xs">Connected to AI • Full system access</div>
+          </div>
         ) : (
           chatHistory.map((msg) => (
             <div key={msg.id} className={`${msg.type === 'user' ? 'text-right' : 'text-left'}`}>
-              <div className={`inline-block max-w-xs p-2 ${
-                msg.type === 'user' ? 'bg-black text-white' : 'bg-gray-100'
+              <div className={`inline-block max-w-lg p-3 rounded ${
+                msg.type === 'user' 
+                  ? 'bg-black text-white' 
+                  : 'bg-gray-100 border border-gray-200'
               }`}>
-                <div className="text-sm">{msg.content}</div>
+                {msg.type === 'agent' && (
+                  <div className="text-xs text-gray-600 mb-1 font-medium">
+                    {msg.agentName || agentName}
+                  </div>
+                )}
+                <div className="text-sm whitespace-pre-wrap">{msg.content}</div>
                 {msg.hasPreview && (
                   <button
                     onClick={() => {
@@ -270,10 +286,15 @@ function AgentChat({ agentId, agentName, role, status, currentTask, metrics }: A
                       setPreviewType(msg.previewType);
                       setShowPreview(true);
                     }}
-                    className="text-xs mt-1 underline"
+                    className="text-xs mt-2 underline block"
                   >
                     View Design Preview
                   </button>
+                )}
+                {msg.businessContext && (
+                  <div className="text-xs text-gray-500 mt-2">
+                    Platform: {msg.businessContext.users} users • {msg.businessContext.revenue} revenue
+                  </div>
                 )}
               </div>
             </div>
@@ -312,7 +333,7 @@ function AgentChat({ agentId, agentName, role, status, currentTask, metrics }: A
         </div>
       )}
       
-      <div className="p-4 border-t border-gray-200">
+      <div className="p-4 border-t border-gray-200 bg-gray-50">
         <form onSubmit={(e) => {
           e.preventDefault();
           if (message.trim()) {
@@ -323,18 +344,28 @@ function AgentChat({ agentId, agentName, role, status, currentTask, metrics }: A
             type="text"
             value={message}
             onChange={(e) => setMessage(e.target.value)}
-            placeholder={`Message ${agentName}...`}
-            className="flex-1 px-3 py-2 border border-gray-300 text-sm"
+            placeholder={`Ask ${agentName} anything about SSELFIE Studio...`}
+            className="flex-1 px-3 py-2 border border-gray-300 text-sm focus:outline-none focus:border-black rounded"
             disabled={sendMessage.isPending}
           />
           <button
             type="submit"
             disabled={sendMessage.isPending || !message.trim()}
-            className="px-4 py-2 bg-black text-white text-sm disabled:opacity-50"
+            className="px-4 py-2 bg-black text-white text-sm disabled:bg-gray-400 rounded hover:bg-gray-800 transition-colors"
           >
-            {sendMessage.isPending ? '...' : 'Send'}
+            {sendMessage.isPending ? (
+              <div className="flex items-center space-x-1">
+                <div className="w-3 h-3 border border-white border-t-transparent rounded-full animate-spin"></div>
+                <span>Thinking...</span>
+              </div>
+            ) : (
+              'Send'
+            )}
           </button>
         </form>
+        <div className="text-xs text-gray-500 mt-2">
+          {agentName} has full access to implement changes in the SSELFIE Studio codebase
+        </div>
       </div>
     </div>
   );

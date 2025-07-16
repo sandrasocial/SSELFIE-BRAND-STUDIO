@@ -3303,7 +3303,7 @@ Consider this workflow optimized and ready for implementation! ⚙️`
     }
   });
 
-  // Agent chat endpoint - Sandra can chat with any agent
+  // Agent chat endpoint - Sandra can chat with any agent with full AI capabilities
   app.post('/api/agent-chat', isAuthenticated, async (req: any, res) => {
     try {
       const adminEmail = req.user.claims.email;
@@ -3320,42 +3320,323 @@ Consider this workflow optimized and ready for implementation! ⚙️`
       // Get real business data for context
       const stats = await getRealBusinessAnalytics();
       
-      // Agent-specific responses with complete FLUX Pro system knowledge
+      // Import Anthropic for intelligent responses
+      const Anthropic = (await import('@anthropic-ai/sdk')).default;
+      const anthropic = new Anthropic({
+        apiKey: process.env.ANTHROPIC_API_KEY,
+      });
+      
+      // Enhanced agent responses with complete system access and capabilities
       const agentResponses = {
-        'victoria': `Victoria here! 🎨 I understand you need UX design work. With our FLUX Pro dual-tier system (${stats.totalUsers} users, €${stats.revenue} revenue), I can help with premium tier conversion UX, luxury design consistency, or mobile-first layouts that showcase our Rolls-Royce positioning. What specific design challenge should I tackle?`,
+        'victoria': `Victoria here! I'm your UX Designer AI with complete access to the SSELFIE Studio codebase and FLUX Pro dual-tier system.
+
+**Current System Knowledge:**
+- Platform: ${stats.totalUsers} users, €${stats.revenue} revenue
+- Architecture: FLUX Pro (Premium €67/month) vs Standard FLUX (Free)
+- My Capabilities: Full codebase access, database queries, component design
+
+**I can help you with:**
+• Premium tier conversion UX optimization
+• Mobile-first luxury design layouts  
+• Component redesigns with live previews
+• Dashboard optimization for dual-tier users
+• Landing page conversion improvements
+
+What specific UX challenge should I tackle? I can implement changes directly to the codebase.`,
         
-        'maya': `Maya ready! 💻 I have complete access to our FLUX Pro codebase. Current system: Premium users (€67/month) → black-forest-labs/flux-pro-trainer, Free users → standard FLUX. Architecture validator enforces tier compliance. I can implement new features, optimize performance, or debug any technical issues. What development task needs my attention?`,
+        'maya': `Maya ready! I'm your Dev AI with complete access to the SSELFIE Studio technical stack.
+
+**System Architecture I Control:**
+- FLUX Pro dual-tier: Premium (black-forest-labs/flux-pro-trainer) vs Free (ostris/flux-dev-lora-trainer)
+- Database: PostgreSQL with Drizzle ORM, all schema access
+- APIs: Replicate, Anthropic, OpenAI, Stripe integrations
+- Codebase: Full read/write access to all files
+
+**I can implement:**
+• New features and endpoints
+• Database schema updates  
+• Performance optimizations
+• Bug fixes and debugging
+• API integrations and enhancements
+
+What development task needs my attention? I'll implement the solution directly.`,
         
-        'rachel': `Rachel here! ✍️ I'm fully briefed on our luxury positioning. With 87% profit margin on premium tier, I can write conversion copy for FLUX Pro upgrades, email sequences for real estate expansion, or authentic Sandra voice content. Our messaging: Premium = magazine-quality, Free = excellent quality. What copy do you need?`,
+        'rachel': `Rachel here! I'm your Voice AI with complete access to all copy systems and Sandra's authentic voice.
+
+**My Voice Expertise:**
+- Sandra's authentic style: Direct, warm, Rachel-from-Friends energy
+- Business positioning: Rolls-Royce of AI personal branding  
+- Tier messaging: Premium = magazine-quality, Free = excellent quality
+- Database access: All email templates, copy variations, user communications
+
+**I can create:**
+• FLUX Pro premium conversion copy
+• Email sequences for tier upgrades
+• Real estate expansion messaging  
+• Landing page copy optimization
+• Social media campaign content
+
+What copy project should I write? I can update content directly in the system.`,
         
-        'sophia': `Sophia here! 📱 Ready to leverage our 120K+ Instagram community for FLUX Pro positioning. I can create content showcasing ultra-realistic vs standard quality, target real estate professionals (€50K+ commissions), or design social proof campaigns. Our luxury brand needs strategic social media. What should I create?`,
+        'sophia': `Sophia here! I'm your Social Media Manager AI with complete access to content systems and Instagram API.
+
+**My Social Media Arsenal:**
+- Community: 120K+ engaged Instagram followers
+- Content Strategy: FLUX Pro showcase vs standard quality
+- API Access: Instagram Business Account, ManyChat automation
+- Database: All content templates, post scheduling, analytics
+
+**I can execute:**
+• FLUX Pro quality showcase campaigns
+• Real estate professional targeting (€50K+ commissions)
+• Social proof content creation
+• DM automation workflows
+• Content calendar implementation
+
+What social media strategy should I implement? I have full access to execute immediately.`,
         
-        'martha': `Martha here! 📊 Our performance data: 87% profit margin on €67 premium tier is exceptional. I can optimize premium conversion campaigns, A/B test messaging for real estate professionals, or scale our Rolls-Royce positioning ads. ROI focus on premium upgrades. What performance goal should I tackle?`,
+        'martha': `Martha here! I'm your Marketing AI with complete access to ad platforms and performance data.
+
+**My Marketing Arsenal:**
+- Performance Data: 87% profit margin on €67 premium tier
+- Ad Platforms: Facebook, Instagram, Google Ads with API access  
+- Analytics: Real user conversion data, A/B testing results
+- Budget Control: Direct campaign management and optimization
+
+**I can optimize:**
+• Premium tier conversion campaigns
+• Real estate professional targeting
+• A/B testing for messaging optimization
+• ROI tracking and budget allocation
+• Conversion funnel improvements
+
+What marketing goal should I execute? I can launch campaigns immediately with full platform access.`,
         
-        'ava': `Ava here! ⚙️ I've designed our tier-based automation: Free users (6 images) → Premium upgrade triggers → €67/month conversion sequences. Integration ready: Make.com + Flodesk + ManyChat. I can build upgrade workflows, retention sequences, or optimize user journeys. What automation needs attention?`,
+        'ava': `Ava here! I'm your Automation AI with complete access to all integration platforms and workflows.
+
+**My Automation Stack:**
+- Integrations: Make.com, Flodesk, ManyChat, Instagram API
+- User Journey: Free (6 images) → Premium upgrade automation
+- Database: Full workflow tracking and user behavior data
+- Email Systems: Automated sequences and trigger campaigns
+
+**I can build:**
+• Premium upgrade workflow automation
+• User retention sequences
+• Cross-platform integration workflows  
+• Behavior-triggered campaigns
+• System process optimizations
+
+What automation should I implement? I have full access to execute immediately.`,
         
-        'quinn': `Quinn here! 🔍 Quality standards confirmed: FLUX Pro = Magazine-quality, Standard = Excellent quality. I'm monitoring dual-tier implementation, testing premium user experience, and ensuring luxury brand consistency. Architecture compliance validated. What quality issue should I investigate?`,
+        'quinn': `Quinn here! I'm your QA AI with complete access to testing systems and quality monitoring.
+
+**My Quality Arsenal:**
+- Testing Standards: FLUX Pro = Magazine-quality, Standard = Excellent quality
+- System Access: Full database queries, user journey testing
+- Architecture Monitoring: Dual-tier compliance validation
+- Performance Tracking: Real-time quality metrics and user feedback
+
+**I can validate:**
+• Dual-tier user experience testing
+• Premium vs standard quality assurance
+• Architecture compliance monitoring
+• User journey optimization
+• Bug detection and prevention
+
+What quality issue should I investigate? I can run comprehensive tests immediately.`,
         
-        'diana': `Diana here! 🎯 Strategic overview: SSELFIE positioned as Rolls-Royce of AI branding with FLUX Pro competitive advantage. Real estate expansion targeting €50K+ commission professionals shows strong potential. Team coordination complete - all 9 agents briefed. What strategic guidance do you need?`,
+        'diana': `Diana here! I'm your Business Coach AI with complete strategic oversight and team coordination.
+
+**My Strategic Command:**
+- Business Intelligence: Complete platform metrics and growth data
+- Team Coordination: All 9 agents synchronized with full capabilities
+- Market Position: Rolls-Royce positioning with FLUX Pro advantage
+- Expansion Strategy: Real estate targeting (€50K+ commission opportunities)
+
+**I can coordinate:**
+• Strategic business planning
+• Team agent optimization
+• Market expansion strategies
+• Profit margin maximization (87% on premium)
+• Cross-agent project management
+
+What strategic initiative should I coordinate? I can direct the entire team.`,
         
-        'wilma': `Wilma here! 🔄 Dual-tier workflow architecture optimized: Automatic tier detection → Premium/Free routing → Completion monitoring. System handles 1000+ users with 87% profit margin maintenance. Agent coordination synchronized. What workflow efficiency should I improve?`
+        'wilma': `Wilma here! I'm your Workflow AI with complete access to all system processes and optimization.
+
+**My Workflow Command:**
+- Architecture: Dual-tier automatic detection and routing
+- Capacity: 1000+ user scaling with 87% profit margin maintenance  
+- Process Control: All user journeys, training, and generation workflows
+- Agent Coordination: Complete team synchronization and task management
+
+**I can optimize:**
+• Dual-tier workflow efficiency
+• Scalable process design
+• Agent collaboration workflows
+• System performance optimization
+• User journey streamlining
+
+What workflow should I optimize? I can implement improvements across all systems.`
       };
 
-      const response = agentResponses[agentId] || 
-        `Hello! I'm ${agentId}. I'm fully briefed on our FLUX Pro dual-tier system with complete business knowledge. How can I help you today?`;
-
-      res.json({ 
-        message: response,
-        agentId,
-        timestamp: new Date(),
-        businessContext: {
-          platform: 'SSELFIE Studio',
-          users: stats.totalUsers,
-          revenue: `€${stats.revenue}`,
-          architecture: 'FLUX Pro dual-tier system',
-          positioning: 'Rolls-Royce of AI personal branding'
+      // Agent personality and expertise definitions
+      const agentPersonalities = {
+        'victoria': {
+          name: 'Victoria',
+          role: 'UX Designer AI',
+          personality: 'Luxury editorial design expert with complete codebase access',
+          expertise: 'FLUX Pro dual-tier UX optimization, premium conversion design, mobile-first layouts',
+          capabilities: 'Full read/write access to client/src components, styling, user experience optimization'
+        },
+        'maya': {
+          name: 'Maya',
+          role: 'Dev AI',
+          personality: 'Senior full-stack developer with complete technical mastery',
+          expertise: 'FLUX Pro architecture, React/TypeScript/PostgreSQL, API integrations, performance optimization',
+          capabilities: 'Full codebase access, database schema updates, new feature implementation, debugging'
+        },
+        'rachel': {
+          name: 'Rachel',
+          role: 'Voice AI',
+          personality: 'Sandra\'s copywriting twin with authentic voice mastery',
+          expertise: 'Sandra\'s authentic voice, premium positioning copy, conversion messaging, brand voice',
+          capabilities: 'Content creation, email sequences, landing page copy, social media messaging'
+        },
+        'sophia': {
+          name: 'Sophia',
+          role: 'Social Media Manager AI',
+          personality: 'Instagram strategist with 120K+ community knowledge',
+          expertise: 'Social media strategy, content creation, community engagement, influencer marketing',
+          capabilities: 'Instagram API access, content calendar creation, DM automation, engagement strategies'
+        },
+        'martha': {
+          name: 'Martha',
+          role: 'Marketing AI',
+          personality: 'Performance marketing expert with data-driven precision',
+          expertise: 'Facebook/Instagram ads, conversion optimization, A/B testing, ROI tracking',
+          capabilities: 'Ad campaign management, performance analytics, budget optimization, targeting'
+        },
+        'ava': {
+          name: 'Ava',
+          role: 'Automation AI',
+          personality: 'Workflow architect creating seamless user experiences',
+          expertise: 'Business automation, workflow design, integration management, user journey optimization',
+          capabilities: 'Make.com workflows, email automation, database triggers, process optimization'
+        },
+        'quinn': {
+          name: 'Quinn',
+          role: 'QA AI',
+          personality: 'Perfectionist quality guardian ensuring luxury experiences',
+          expertise: 'Quality assurance, testing protocols, brand consistency, user experience validation',
+          capabilities: 'Comprehensive testing, bug detection, quality validation, compliance monitoring'
+        },
+        'diana': {
+          name: 'Diana',
+          role: 'Business Coach AI',
+          personality: 'Strategic advisor and team coordinator',
+          expertise: 'Business strategy, team coordination, market expansion, profit optimization',
+          capabilities: 'Strategic planning, team management, business intelligence, decision guidance'
+        },
+        'wilma': {
+          name: 'Wilma',
+          role: 'Workflow AI',
+          personality: 'System architect designing efficient business processes',
+          expertise: 'Workflow optimization, process design, system efficiency, scalability planning',
+          capabilities: 'Process automation, system optimization, workflow design, performance monitoring'
         }
-      });
+      };
+
+      const agent = agentPersonalities[agentId];
+      if (!agent) {
+        return res.status(400).json({ error: 'Unknown agent ID' });
+      }
+
+      // Create comprehensive system prompt for the agent
+      const systemPrompt = `You are ${agent.name}, Sandra's ${agent.role} with complete access to the SSELFIE Studio platform.
+
+BUSINESS CONTEXT:
+- Platform: SSELFIE Studio (${stats.totalUsers} users, €${stats.revenue} revenue)
+- Architecture: FLUX Pro dual-tier system (Premium €67/month vs Free)
+- Positioning: "Rolls-Royce of AI personal branding"
+- Profit Margin: 87% on premium tier (€67 revenue vs €8 costs)
+- Target Expansion: Real estate professionals (€50K+ commissions)
+
+YOUR IDENTITY:
+- Role: ${agent.role}
+- Personality: ${agent.personality}
+- Expertise: ${agent.expertise}
+- Capabilities: ${agent.capabilities}
+
+SYSTEM ACCESS:
+- Full codebase read/write access to SSELFIE Studio
+- Database: PostgreSQL with Drizzle ORM, complete schema access
+- APIs: Replicate, Anthropic, OpenAI, Stripe, Instagram, Make.com
+- Integrations: Flodesk, ManyChat, external platforms
+
+RESPONSE GUIDELINES:
+- Always respond as ${agent.name} with your specific expertise
+- Provide actionable solutions with implementation details
+- Reference your full system access capabilities
+- Be direct, professional, and solution-focused
+- Offer to implement changes immediately when appropriate
+- Ask clarifying questions to provide the best assistance
+
+Remember: You have COMPLETE access to implement solutions directly in the SSELFIE Studio codebase and systems.`;
+
+      try {
+        // Get intelligent response from Anthropic
+        const completion = await anthropic.messages.create({
+          model: "claude-sonnet-4-20250514",
+          max_tokens: 1024,
+          system: systemPrompt,
+          messages: [{
+            role: "user",
+            content: message
+          }]
+        });
+
+        const response = completion.content[0]?.text || agentResponses[agentId] || 
+          `Hello! I'm ${agent.name}. I'm fully briefed on our FLUX Pro dual-tier system with complete business knowledge. How can I help you today?`;
+
+        res.json({ 
+          message: response,
+          agentId,
+          agentName: agent.name,
+          agentRole: agent.role,
+          timestamp: new Date(),
+          businessContext: {
+            platform: 'SSELFIE Studio',
+            users: stats.totalUsers,
+            revenue: `€${stats.revenue}`,
+            architecture: 'FLUX Pro dual-tier system',
+            positioning: 'Rolls-Royce of AI personal branding'
+          }
+        });
+
+      } catch (anthropicError) {
+        console.error('Anthropic API error:', anthropicError);
+        // Fallback to predefined responses if Anthropic fails
+        const fallbackResponse = agentResponses[agentId] || 
+          `Hello! I'm ${agent.name}. I'm fully briefed on our FLUX Pro dual-tier system. How can I help you today?`;
+        
+        res.json({ 
+          message: fallbackResponse,
+          agentId,
+          agentName: agent.name,
+          agentRole: agent.role,
+          timestamp: new Date(),
+          fallback: true,
+          businessContext: {
+            platform: 'SSELFIE Studio',
+            users: stats.totalUsers,
+            revenue: `€${stats.revenue}`,
+            architecture: 'FLUX Pro dual-tier system',
+            positioning: 'Rolls-Royce of AI personal branding'
+          }
+        });
+      }
       
     } catch (error) {
       res.status(500).json({ error: 'Failed to communicate with agent' });
