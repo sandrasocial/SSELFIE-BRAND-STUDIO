@@ -1464,6 +1464,47 @@ Create prompts that feel like iconic fashion campaign moments that would make so
     }
   });
 
+  // 🧪 ADMIN TEST ENDPOINT - Verify FLUX Pro access for admin users
+  app.post('/api/admin/test-flux-pro', isAuthenticated, async (req: any, res) => {
+    try {
+      const userId = req.user.claims.sub;
+      const user = await storage.getUser(userId);
+      
+      if (!user || user.role !== 'admin') {
+        return res.status(403).json({ error: 'Admin access required' });
+      }
+      
+      const subscription = await storage.getSubscription(userId);
+      const isPremium = subscription && (subscription.plan === 'sselfie-studio-premium' || subscription.plan === 'SSELFIE_STUDIO');
+      const isAdmin = await storage.hasUnlimitedGenerations(userId);
+      const hasFluxProAccess = isPremium || isAdmin;
+      
+      res.json({
+        success: true,
+        userId,
+        adminStatus: {
+          role: user.role,
+          plan: user.plan,
+          monthlyLimit: user.monthlyGenerationLimit,
+          isAdmin,
+          hasFluxProAccess,
+          subscription: subscription ? { 
+            plan: subscription.plan, 
+            status: subscription.status 
+          } : null
+        },
+        fluxProReady: hasFluxProAccess,
+        message: hasFluxProAccess 
+          ? '🏆 Admin user ready for FLUX Pro luxury training!' 
+          : '❌ Admin user needs premium access for FLUX Pro'
+      });
+      
+    } catch (error) {
+      console.error('Admin test error:', error);
+      res.status(500).json({ error: 'Failed admin test' });
+    }
+  });
+
   // 🏆 LUXURY TRAINING ENDPOINT - FLUX PRO TRAINER for Premium Users
   app.post('/api/start-luxury-training', isAuthenticated, async (req: any, res) => {
     try {
