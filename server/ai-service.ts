@@ -219,23 +219,18 @@ export class AIService {
       throw new Error('User model not ready for generation. Training must be completed first.');
     }
 
-    // ✅ CORRECT APPROACH: Use black forest labs FLUX model with user's LoRA weights
-    const userModelName = userModel.replicateModelId; // e.g., "sandrasocial/42585527-selfie-lora:version"
+    // ✅ CORRECT APPROACH: Use user's individual trained LoRA model directly
+    const userModelId = userModel.replicateModelId; // e.g., "sandrasocial/42585527-selfie-lora:version"
     
-    if (!userModelName) {
+    if (!userModelId) {
       throw new Error('User LoRA model not found - training may need to be completed');
     }
     
-    // Extract just the model name from the full model ID (remove version part)
-    const loraModelName = userModelName.split(':')[0]; // e.g., "sandrasocial/42585527-selfie-lora"
-    
     const requestBody = {
-      version: "black-forest-labs/flux-dev-lora", // Use black forest labs model
+      version: userModelId, // Use user's trained individual model directly
       input: {
         prompt: prompt,
         guidance: 2.8, // Optimized for maximum likeness and natural results  
-        lora_weights: loraModelName, // User's trained LoRA weights
-        lora_scale: 1.0, // Maximum LoRA influence for strongest likeness
         num_inference_steps: 35, // Increased for higher quality and detail
         num_outputs: 3,
         aspect_ratio: "3:4",
@@ -248,9 +243,7 @@ export class AIService {
       }
     };
     
-    // Generate with user's model
-    
-    const response = await fetch(FLUX_MODEL_CONFIG.apiUrl, {
+    const response = await fetch('https://api.replicate.com/v1/predictions', {
       method: 'POST',
       headers: {
         'Authorization': `Token ${process.env.REPLICATE_API_TOKEN}`,
