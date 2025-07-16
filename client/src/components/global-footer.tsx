@@ -74,6 +74,21 @@ export const GlobalFooter: React.FC = () => {
             <h3 className="text-xs uppercase tracking-[0.3em] text-white/80 mb-6">Legal</h3>
             <ul className="space-y-3">
               <li>
+                <Link href="/terms" className="text-white/60 hover:text-white transition-colors text-sm">
+                  Terms of Service
+                </Link>
+              </li>
+              <li>
+                <Link href="/privacy" className="text-white/60 hover:text-white transition-colors text-sm">
+                  Privacy Policy
+                </Link>
+              </li>
+              <li>
+                <Link href="/admin" className="text-white/60 hover:text-white transition-colors text-sm">
+                  Admin
+                </Link>
+              </li>
+              <li>
                 <Link href="/privacy" className="text-white/60 hover:text-white transition-colors text-sm">
                   Privacy Policy
                 </Link>

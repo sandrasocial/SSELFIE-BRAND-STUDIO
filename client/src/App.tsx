@@ -63,6 +63,7 @@ import LoginPrompt from "@/components/LoginPrompt";
 import DomainHelp from "@/pages/domain-help";
 import SwitchAccount from "@/pages/switch-account";
 import LaunchCountdown from "@/pages/launch-countdown";
+import AdminAccessOnly from "@/pages/admin-access-only";
 
 // Removed duplicate photoshoot imports - using existing system
 
@@ -227,6 +228,7 @@ function Router() {
       
       {/* SANDRA'S ADMIN DASHBOARD */}
       <Route path="/admin" component={(props) => <ProtectedRoute component={AdminDashboard} {...props} />} />
+      <Route path="/admin-access-only" component={AdminAccessOnly} />
       <Route path="/sandra-admin" component={(props) => <ProtectedRoute component={AdminDashboard} {...props} />} />
       <Route path="/admin/users" component={(props) => <ProtectedRoute component={AdminUsers} {...props} />} />
       <Route path="/admin/emails" component={(props) => <ProtectedRoute component={AdminEmails} {...props} />} />

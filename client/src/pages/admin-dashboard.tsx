@@ -4,6 +4,7 @@ import { queryClient } from "@/lib/queryClient";
 import { Link, useLocation } from "wouter";
 import { useEffect, useState } from "react";
 import { apiRequest } from "@/lib/queryClient";
+import { AdminNavigation } from "@/components/admin-navigation";
 
 interface AgentChatProps {
   agentId: string;
@@ -200,7 +201,7 @@ export default function AdminDashboard() {
   // Redirect if not admin
   useEffect(() => {
     if (!isLoading && (!isAuthenticated || user?.email !== 'ssa@ssasocial.com')) {
-      setLocation('/');
+      setLocation('/admin-access-only');
       return;
     }
   }, [isAuthenticated, isLoading, user, setLocation]);
@@ -225,20 +226,13 @@ export default function AdminDashboard() {
 
   return (
     <div className="min-h-screen bg-gray-50">
-      {/* Top Navigation */}
-      <div className="bg-white border-b border-gray-200">
-        <div className="max-w-7xl mx-auto px-6 py-4">
-          <div className="flex items-center justify-between">
-            <div>
-              <h1 className="editorial-headline text-2xl">SSELFIE Studio</h1>
-              <div className="eyebrow-text text-gray-600">Admin Command Center</div>
-            </div>
-            <Link href="/" className="text-sm hover:underline">← Back to Platform</Link>
-          </div>
-        </div>
-      </div>
+      {/* Admin Navigation */}
+      <AdminNavigation />
+      
+      {/* Content with top padding for fixed nav */}
+      <div className="pt-20">
 
-      <div className="max-w-7xl mx-auto px-6 py-8">
+        <div className="max-w-7xl mx-auto px-6 py-8">
         {/* Business Metrics */}
         <section className="mb-12">
           <h2 className="editorial-headline text-xl mb-6">Business Overview</h2>
