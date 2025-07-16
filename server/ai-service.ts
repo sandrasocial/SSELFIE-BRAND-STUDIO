@@ -228,11 +228,11 @@ export class AIService {
     let requestBody: any;
 
     if (isPremium && userModel.isLuxury && userModel.finetuneId) {
-      // 🏆 PREMIUM USERS: FLUX 1.1 Pro Ultra - Maximum Quality for €67/month subscribers
-      console.log(`🏆 Using FLUX 1.1 Pro Ultra for premium user: ${userId}`);
+      // 🏆 PREMIUM USERS: FLUX Pro - Cost-Optimized Premium Quality (€0.40 vs €0.70)
+      console.log(`🏆 Using FLUX Pro for premium user: ${userId}`);
       
       requestBody = {
-        model: "black-forest-labs/flux-1.1-pro-ultra-finetuned",
+        model: "black-forest-labs/flux-pro-finetuned",
         input: {
           prompt: prompt,
           finetune_id: userModel.finetuneId, // Use luxury finetune_id from FLUX Pro trainer
