@@ -203,7 +203,7 @@ The platform has become overly complex with multiple pricing tiers, broken onboa
 **ROOT CAUSE IDENTIFIED AND FIXED - USERS NOW GET PERFECT LIKENESS:**
 - **Critical Model Version Bug**: Database stored full Replicate version strings instead of version hashes, causing API to use wrong models
 - **Complete Fix Implemented**: Added version hash extraction in both image-generation-service.ts and ai-service.ts
-- **Perfect Settings Calibrated**: Guidance 2.8, Steps 34, Quality 90%, Scheduler K_EULER_ANCESTRAL, Strength 0.95 - enhanced settings for maximum likeness
+- **Perfect Settings Calibrated**: Guidance 2.89, Steps 35, Quality 100%, lora_scale 1.0, prompt_strength 1.0, extra_lora_scale 1.0 - user-tested settings producing "really good" likeness
 - **Model Verification**: Both users (42585527, 45075281) now use correct individual trained model versions
 - **Trigger Word Optimization**: User trigger words properly positioned at beginning of all prompts
 - **Zero Base Model Interference**: Settings prevent base FLUX model from contaminating user's unique features
