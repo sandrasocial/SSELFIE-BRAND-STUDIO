@@ -219,28 +219,32 @@ export class AIService {
       throw new Error('User model not ready for generation. Training must be completed first.');
     }
 
-    // ✅ CORRECT APPROACH: Use user's trained model version for generation
-    const userModelVersion = userModel.replicateVersionId;
+    // ✅ CORRECT APPROACH: Use black forest labs FLUX model with user's LoRA weights
+    const userModelName = userModel.replicateModelId; // e.g., "sandrasocial/42585527-selfie-lora:version"
     
-    if (!userModelVersion) {
-      throw new Error('User model version not found - training may need to be completed');
+    if (!userModelName) {
+      throw new Error('User LoRA model not found - training may need to be completed');
     }
     
+    // Extract just the model name from the full model ID (remove version part)
+    const loraModelName = userModelName.split(':')[0]; // e.g., "sandrasocial/42585527-selfie-lora"
+    
     const requestBody = {
-      version: userModelVersion, // Use user's trained model version
+      version: "black-forest-labs/flux-dev-lora:a53fd9255ecba80d99eaab4706c698f861fd47b098012607557385416e46aae5", // Use black forest labs model
       input: {
         prompt: prompt,
-        guidance_scale: 2.8, // Optimized for maximum likeness and natural results
+        guidance: 2.8, // Optimized for maximum likeness and natural results  
+        lora_weights: loraModelName, // User's trained LoRA weights
+        lora_scale: 1.0, // Maximum LoRA influence for strongest likeness
         num_inference_steps: 35, // Increased for higher quality and detail
         num_outputs: 3,
         aspect_ratio: "3:4",
         output_format: "png",
         output_quality: 95, // Maximum quality for "WOW" results
+        megapixels: "1",
+        go_fast: false,
         disable_safety_checker: false,
-        model: "dev", // Use dev model for quality
-        seed: Math.floor(Math.random() * 1000000), // Random seed for variety
-        lora_scale: 1.0, // Maximum LoRA influence for strongest likeness
-        apply_watermark: false // Clean professional images
+        seed: Math.floor(Math.random() * 1000000) // Random seed for variety
       }
     };
     
