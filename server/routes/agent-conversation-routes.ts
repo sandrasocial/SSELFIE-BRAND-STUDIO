@@ -427,7 +427,7 @@ export default function ${pageName}() {
           },
           body: JSON.stringify({
             model: 'claude-3-sonnet-20240229',
-            max_tokens: 1500,
+            max_tokens: 4000,
             messages: [
               { role: 'user', content: `${agent.systemPrompt}\n\nSandra's message: ${message}` }
             ]
