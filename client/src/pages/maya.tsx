@@ -418,25 +418,57 @@ export default function Maya() {
 
   const loadChatHistory = async (chatId: number) => {
     try {
+      console.log('Loading chat history for chatId:', chatId);
       const messagesResponse = await fetch(`/api/maya-chats/${chatId}/messages`, {
         credentials: 'include'
       });
+      
       if (messagesResponse.ok) {
         const dbMessages = await messagesResponse.json();
-        const formattedMessages: ChatMessage[] = dbMessages.map((msg: any) => ({
-          role: msg.role,
-          content: msg.content,
-          timestamp: msg.createdAt,
-          generatedPrompt: msg.generatedPrompt,
-          canGenerate: !!msg.generatedPrompt,
-          imagePreview: msg.imagePreview ? JSON.parse(msg.imagePreview) : undefined
-        }));
-        setMessages(formattedMessages);
+        console.log('Loaded messages from database:', dbMessages);
+        
+        // If no messages found, start with Maya's welcome
+        if (!dbMessages || dbMessages.length === 0) {
+          setMessages([{
+            role: 'maya',
+            content: `Hey ${user?.firstName || 'gorgeous'}! Welcome back to our conversation. What new vision are we creating today?`,
+            timestamp: new Date().toISOString()
+          }]);
+        } else {
+          const formattedMessages: ChatMessage[] = dbMessages.map((msg: any) => ({
+            role: msg.role,
+            content: msg.content,
+            timestamp: msg.createdAt,
+            generatedPrompt: msg.generatedPrompt,
+            canGenerate: !!msg.generatedPrompt,
+            imagePreview: msg.imagePreview ? JSON.parse(msg.imagePreview) : undefined
+          }));
+          setMessages(formattedMessages);
+        }
+        setCurrentChatId(chatId);
+        
+        // Clear any generated images from previous session
+        setGeneratedImages([]);
+        setCurrentTrackerId(null);
+      } else {
+        console.error('Failed to load messages:', messagesResponse.status);
+        // Fallback to new conversation
+        setMessages([{
+          role: 'maya',
+          content: `Hey ${user?.firstName || 'gorgeous'}! I'm Maya. Let's create something amazing together!`,
+          timestamp: new Date().toISOString()
+        }]);
         setCurrentChatId(chatId);
       }
     } catch (error) {
       console.error('Error loading chat history:', error);
-      // Remove toast - Maya explains everything in chat
+      // Fallback to new conversation
+      setMessages([{
+        role: 'maya',
+        content: `Hey ${user?.firstName || 'gorgeous'}! I'm Maya. Let's create something amazing together!`,
+        timestamp: new Date().toISOString()
+      }]);
+      setCurrentChatId(chatId);
     }
   };
 
