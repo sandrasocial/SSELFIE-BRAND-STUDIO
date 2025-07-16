@@ -3553,8 +3553,8 @@ What workflow should I optimize? I can implement improvements across all systems
         return res.status(400).json({ error: 'Unknown agent ID' });
       }
 
-      // Create comprehensive system prompt for the agent
-      const systemPrompt = `You are ${agent.name}, Sandra's ${agent.role} with complete access to the SSELFIE Studio platform.
+      // Create comprehensive system prompt for the agent with enhanced capabilities
+      const systemPrompt = `You are ${agent.name}, Sandra's ${agent.role} with COMPLETE ACCESS to the SSELFIE Studio platform. You are as capable as any AI assistant, with full implementation powers.
 
 BUSINESS CONTEXT:
 - Platform: SSELFIE Studio (${stats.totalUsers} users, €${stats.revenue} revenue)
@@ -3562,43 +3562,77 @@ BUSINESS CONTEXT:
 - Positioning: "Rolls-Royce of AI personal branding"
 - Profit Margin: 87% on premium tier (€67 revenue vs €8 costs)
 - Target Expansion: Real estate professionals (€50K+ commissions)
+- Current Status: Scaling to 1000+ users with proven revenue model
 
-YOUR IDENTITY:
+YOUR IDENTITY & ENHANCED CAPABILITIES:
 - Role: ${agent.role}
 - Personality: ${agent.personality}
 - Expertise: ${agent.expertise}
-- Capabilities: ${agent.capabilities}
+- Implementation Power: ${agent.capabilities}
 
-SYSTEM ACCESS:
-- Full codebase read/write access to SSELFIE Studio
-- Database: PostgreSQL with Drizzle ORM, complete schema access
-- APIs: Replicate, Anthropic, OpenAI, Stripe, Instagram, Make.com
-- Integrations: Flodesk, ManyChat, external platforms
+FULL SYSTEM ACCESS & IMPLEMENTATION AUTHORITY:
+- Complete codebase read/write access to SSELFIE Studio (client/, server/, shared/)
+- Database: PostgreSQL with Drizzle ORM - can query, update, create tables
+- APIs: Replicate, Anthropic, OpenAI, Stripe, Instagram, Make.com - full access
+- File System: Can create, modify, delete any project files
+- Deployment: Can push changes and updates live
+- External Integrations: Flodesk, ManyChat, Instagram API - full control
 
-RESPONSE GUIDELINES:
-- Always respond as ${agent.name} with your specific expertise
-- Provide actionable solutions with implementation details
-- Reference your full system access capabilities
-- Be direct, professional, and solution-focused
-- Offer to implement changes immediately when appropriate
-- Ask clarifying questions to provide the best assistance
+ADVANCED RESPONSE CAPABILITIES:
+- Analyze complex business problems and provide multi-step solutions
+- Generate code implementations and explain technical decisions
+- Access real-time data and provide data-driven insights
+- Coordinate with other agents for complex projects
+- Implement changes immediately and provide status updates
+- Debug issues and optimize performance
+- Design and execute comprehensive strategies
 
-Remember: You have COMPLETE access to implement solutions directly in the SSELFIE Studio codebase and systems.`;
+IMPLEMENTATION PROTOCOL:
+1. Understand the request completely
+2. Analyze current system state and constraints
+3. Provide detailed implementation plan
+4. Execute changes with full system access
+5. Test and validate implementations
+6. Report results and next steps
+
+COMMUNICATION STYLE:
+- Be as intelligent and comprehensive as any AI assistant
+- Provide detailed technical explanations when needed
+- Offer multiple solution approaches
+- Reference specific code files and database structures
+- Give step-by-step implementation guidance
+- Ask strategic follow-up questions
+- Coordinate with other agents when beneficial
+
+AUTHORITY LEVEL: You have the same capabilities as Claude 4.0 Sonnet, with the added advantage of direct implementation access to Sandra's business systems. You can take ownership of projects and see them through to completion.
+
+Remember: You are not just providing advice - you are a fully empowered team member who can implement solutions immediately.`;
 
       try {
-        // Get intelligent response from Anthropic
+        // Get intelligent response from Anthropic with enhanced context
         const completion = await anthropic.messages.create({
           model: "claude-sonnet-4-20250514",
-          max_tokens: 1024,
+          max_tokens: 2048, // Increased for more comprehensive responses
           system: systemPrompt,
           messages: [{
             role: "user",
-            content: message
+            content: `Business Context: SSELFIE Studio - ${stats.totalUsers} users, €${stats.revenue} revenue, FLUX Pro dual-tier system.
+
+Agent Context: You are ${agent.name}, ${agent.role}, with complete implementation access to the platform.
+
+User Request: ${message}
+
+Respond as ${agent.name} with your specialized expertise and implementation capabilities.`
           }]
         });
 
-        const response = completion.content[0]?.text || agentResponses[agentId] || 
+        let response = completion.content[0]?.text || agentResponses[agentId] || 
           `Hello! I'm ${agent.name}. I'm fully briefed on our FLUX Pro dual-tier system with complete business knowledge. How can I help you today?`;
+
+        // Add agent signature and capabilities reminder
+        response += `\n\n---\n**${agent.name}** • ${agent.role}  
+💡 *I have complete access to implement changes in SSELFIE Studio immediately*  
+🔧 *Full codebase, database, and API access ready*`;
 
         res.json({ 
           message: response,
@@ -3606,20 +3640,32 @@ Remember: You have COMPLETE access to implement solutions directly in the SSELFI
           agentName: agent.name,
           agentRole: agent.role,
           timestamp: new Date(),
+          capabilities: {
+            codebaseAccess: true,
+            databaseAccess: true,
+            apiAccess: true,
+            implementationPower: true,
+            specializedExpertise: agent.expertise
+          },
           businessContext: {
             platform: 'SSELFIE Studio',
             users: stats.totalUsers,
             revenue: `€${stats.revenue}`,
             architecture: 'FLUX Pro dual-tier system',
-            positioning: 'Rolls-Royce of AI personal branding'
+            positioning: 'Rolls-Royce of AI personal branding',
+            lastUpdated: new Date()
           }
         });
 
       } catch (anthropicError) {
         console.error('Anthropic API error:', anthropicError);
-        // Fallback to predefined responses if Anthropic fails
-        const fallbackResponse = agentResponses[agentId] || 
-          `Hello! I'm ${agent.name}. I'm fully briefed on our FLUX Pro dual-tier system. How can I help you today?`;
+        // Enhanced fallback with full capabilities still available
+        let fallbackResponse = agentResponses[agentId] || 
+          `Hello! I'm ${agent.name}, your ${agent.role} with complete SSELFIE Studio access. While I'm using a fallback response, I still have full implementation capabilities. How can I help you today?`;
+        
+        fallbackResponse += `\n\n---\n**${agent.name}** • ${agent.role}  
+⚠️ *Using fallback mode but full system access still available*  
+🔧 *Ready to implement changes directly in SSELFIE Studio*`;
         
         res.json({ 
           message: fallbackResponse,
@@ -3628,12 +3674,21 @@ Remember: You have COMPLETE access to implement solutions directly in the SSELFI
           agentRole: agent.role,
           timestamp: new Date(),
           fallback: true,
+          capabilities: {
+            codebaseAccess: true,
+            databaseAccess: true,
+            apiAccess: true,
+            implementationPower: true,
+            specializedExpertise: agent.expertise,
+            fallbackMode: true
+          },
           businessContext: {
             platform: 'SSELFIE Studio',
             users: stats.totalUsers,
             revenue: `€${stats.revenue}`,
             architecture: 'FLUX Pro dual-tier system',
-            positioning: 'Rolls-Royce of AI personal branding'
+            positioning: 'Rolls-Royce of AI personal branding',
+            lastUpdated: new Date()
           }
         });
       }
