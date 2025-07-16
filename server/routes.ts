@@ -89,6 +89,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
   
   // Agent codebase integration routes (secure admin access only)
   app.use('/api', agentCodebaseRoutes);
+  
+  // Agent conversation and approval routes
+  const agentConversationRoutes = await import('./routes/agent-conversation-routes');
+  app.use('/api', agentConversationRoutes.default);
 
   // Add cache-busting headers for all API endpoints to prevent browser caching issues
   app.use('/api', (req, res, next) => {
