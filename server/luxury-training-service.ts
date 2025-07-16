@@ -117,10 +117,10 @@ export class LuxuryTrainingService {
         throw new Error('User not found');
       }
 
-      // Check premium subscription status
-      const subscription = await storage.getUserSubscription(userId);
-      if (!subscription || subscription.planId !== 'sselfie-studio') {
-        throw new Error('Premium subscription required for luxury training');
+      // Check premium subscription status (support both plan formats)
+      const isPremium = user.plan === 'sselfie-studio' || user.plan === 'sselfie-studio-premium' || user.plan === 'SSELFIE_STUDIO' || user.role === 'admin';
+      if (!isPremium) {
+        throw new Error('Premium subscription (€67/month) required for FLUX Pro luxury training');
       }
 
       // Generate luxury trigger word
@@ -146,24 +146,25 @@ export class LuxuryTrainingService {
         })
       });
 
-      // Start FLUX Pro training with premium parameters
-      const trainingResponse = await fetch('https://api.replicate.com/v1/models/black-forest-labs/flux-pro-trainer/versions/latest/trainings', {
+      // Start FLUX Pro training using correct API format from documentation
+      const trainingResponse = await fetch('https://api.replicate.com/v1/trainings', {
         method: 'POST',
         headers: {
           'Authorization': `Token ${process.env.REPLICATE_API_TOKEN}`,
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
+          version: "black-forest-labs/flux-pro-trainer:latest",
           input: {
             input_images: zipUrl,
             trigger_word: triggerWord,
-            mode: LUXURY_GENERATION_SETTINGS.mode,
-            priority: LUXURY_GENERATION_SETTINGS.priority,
-            finetune_type: LUXURY_GENERATION_SETTINGS.finetune_type,
-            lora_rank: LUXURY_GENERATION_SETTINGS.lora_rank,
-            training_steps: LUXURY_GENERATION_SETTINGS.training_steps,
-            learning_rate: LUXURY_GENERATION_SETTINGS.learning_rate,
-            captioning: LUXURY_GENERATION_SETTINGS.captioning
+            mode: "general",
+            priority: "quality",
+            finetune_type: "full",
+            lora_rank: 32,
+            training_steps: 300,
+            learning_rate: 1e-5,
+            captioning: "captioning-disabled"
           },
           destination: `sandrasocial/${modelName}`
         })
