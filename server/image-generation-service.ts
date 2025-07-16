@@ -59,7 +59,7 @@ export async function generateImages(request: GenerateImagesRequest): Promise<Ge
     }
     
     // REALISTIC FILM PHOTOGRAPHY SPECIFICATIONS - Simplified for natural results  
-    const expertQualitySpecs = ", raw film photograph, natural skin detail, soft 35mm film grain, authentic film photography, natural hair with volume, professional photography on film camera, natural lighting";
+    const expertQualitySpecs = ", film photograph, natural film grain, authentic film photography, natural hair with volume, professional photography on film camera, natural lighting";
     
     const premiumHairSpecs = ", voluminous hair with natural movement, healthy hair texture, natural hair flow";
     
