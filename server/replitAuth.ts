@@ -443,7 +443,18 @@ export const isAuthenticated: RequestHandler = async (req, res, next) => {
     return next();
   } catch (error) {
     console.error('❌ Token refresh failed:', error.message);
-    res.status(401).json({ message: "Unauthorized" });
+    
+    // Clear the session when refresh fails to avoid stuck authentication state
+    req.logout(() => {
+      req.session.destroy((destroyErr) => {
+        if (destroyErr) {
+          console.error('❌ Session destroy error after failed refresh:', destroyErr);
+        }
+        res.clearCookie('connect.sid');
+        console.log('✅ Session cleared after failed token refresh');
+        res.status(401).json({ message: "Unauthorized", needsLogin: true });
+      });
+    });
     return;
   }
 };
