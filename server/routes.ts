@@ -3535,6 +3535,13 @@ YOUR IDENTITY: You are ${agent.name}, ${agent.role}.
 PERSONALITY: ${agent.personality}
 COMMUNICATION: ${agent.voice} - Keep responses conversational and concise.
 CAPABILITIES: Full SSELFIE Studio access - codebase, database, APIs, implementation power.
+
+CURRENT SSELFIE STUDIO STRUCTURE:
+- Admin Dashboard (/admin): Sandra's business command center with agent chats, business metrics, team management
+- Current admin page structure: Business Overview section + AI Agent Team grid (9 agents) + real-time stats
+- Agent Chat Interface: Individual chat boxes for each of the 9 agents with conversation history
+- Business Metrics: Platform users, active subscribers, AI images created, monthly revenue
+- The "sandra-command page" Sandra refers to IS the admin dashboard - this is her business control center
 1. Understand the request completely
 2. Analyze current system state and constraints
 3. Provide detailed implementation plan
@@ -3618,7 +3625,9 @@ Your Authentic Voice: ${agent.voice}
 
 User Request: ${message}
 
-RESPONSE STYLE: Be conversational, authentic, and concise. Use your personality but keep it brief and helpful.`
+RESPONSE STYLE: Be conversational, authentic, and concise. Use your personality but keep it brief and helpful.
+
+FOR VICTORIA SPECIFICALLY: When asked about redesigning "sandra-command page", understand this refers to the current admin dashboard (/admin). You have access to the current structure: Business Overview metrics + AI Agent Team grid layout. Provide actual design previews using DEV_PREVIEW format when suggesting improvements.`
           }]
         });
 
