@@ -336,9 +336,11 @@ The platform has become overly complex with multiple pricing tiers, broken onboa
 - **✅ ERROR CATEGORIZATION**: Enhanced error handling for overloaded (529), authentication (401), and general API failures
 - **✅ USER EXPERIENCE MAINTAINED**: Maya never shows technical errors - always responds with helpful, encouraging messages
 
-**MODEL ARCHITECTURE VERIFICATION COMPLETED:**
+**CRITICAL MODEL ARCHITECTURE CORRECTION COMPLETED:**
+- **🚨 MAJOR ARCHITECTURE FIX**: Corrected generation to use `black-forest-labs/flux-dev-lora:a53fd9255ecba80d99eaab4706c698f861fd47b098012607557385416e46aae5` model with user's LoRA weights
 - **✅ TRAINING MODEL CONFIRMED**: All new users use `ostris/flux-dev-lora-trainer:26dce37af90b9d997eeb970d92e47de3064d46c300504ae376c75bef6a9022d2`
-- **✅ GENERATION MODEL VERIFIED**: Users generate with their individual trained model versions
+- **✅ GENERATION ARCHITECTURE FIXED**: Both ai-service.ts and image-generation-service.ts now use black forest labs FLUX model + individual user LoRA weights
+- **✅ SEAMLESS GENERATION**: Users no longer generate with individual model versions - uses shared FLUX model with personal LoRA weights
 - **✅ DATABASE INTEGRITY FIXED**: Updated user 45075281's missing `replicate_version_id` to complete model configuration
 - **✅ ZERO TOLERANCE MAINTAINED**: No fallbacks, mock data, or shared models - every user requires individual training
 - **✅ EXPERT QUALITY SETTINGS**: 35 steps, 2.8 guidance, 95% quality, 1.0 LoRA scale for maximum "WOW" factor
