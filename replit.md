@@ -308,6 +308,21 @@ The platform has become overly complex with multiple pricing tiers, broken onboa
 - API endpoints responding correctly (/api/auth/user returns 200)
 - Account switching functionality ready for testing
 
+## BUSINESS STRATEGY DECISION: FREE USER IMAGE ALLOCATION (July 16, 2025)
+
+**FINAL DECISION: 3 Images Per Generation (Premium Experience Strategy)**
+- **Free Users**: 2 generations × 3 images = 6 total images
+- **Reasoning**: Quality over quantity drives better conversions
+- **User Psychology**: 3 options feel premium, increase satisfaction and upgrade likelihood
+- **Business Impact**: Higher conversion rates from impressed users vs. more attempts with less impressive results
+- **Competitive Advantage**: Premium positioning - users see true AI potential immediately
+
+**Alternative Considered and Rejected:**
+- 6 generations × 1 image = 6 total (rejected: feels cheap, no choice)
+- 3 generations × 2 images = 6 total (rejected: reduces impact per generation)
+
+**Implementation**: Current 3-image system maintained for optimal user experience and conversion rates.
+
 ## 🔒 IMMUTABLE CORE ARCHITECTURE - NEVER CHANGE (UPDATED July 16, 2025)
 
 ### **CRITICAL: This architecture is LOCKED and must NEVER be altered by any future agent**
