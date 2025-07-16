@@ -231,22 +231,25 @@ export class AIService {
       throw new Error('User model version not found - training may need to be completed');
     }
     
-    // 🔥 ENHANCED FLUX GENERATION PARAMETERS - OPTIMIZED FOR WOW FACTOR
+    // 🔥 WOW FACTOR ENHANCEMENT - OFFICIAL FLUX DEV-LORA API
     const requestBody = {
-      version: userTrainedVersion, // 🔒 CRITICAL: User's individual trained model version ONLY
+      version: "black-forest-labs/flux-dev-lora", // 🔥 OFFICIAL: Use base model for LoRA enhancement
       input: {
         prompt: prompt,
-        guidance: 3.2, // 🔥 ENHANCED: Increased for stronger prompt adherence and WOW factor
-        num_inference_steps: 40, // 🔥 ENHANCED: More steps for higher detail quality
+        lora_weights: userTrainedVersion, // 🔒 USER MODEL: As primary LoRA
+        lora_scale: 1.0, // Full strength for user's trained model
+        extra_lora: "fofr/flux-realism", // 🔥 ENHANCEMENT: Professional realism LoRA
+        extra_lora_scale: 0.7, // 🔥 WOW FACTOR: Additional realism layer
+        guidance: 3.2, // 🔥 ENHANCED: Stronger prompt adherence
+        num_inference_steps: 40, // 🔥 ENHANCED: More detail steps
         num_outputs: 3,
         aspect_ratio: "3:4",
         output_format: "png",
-        output_quality: 100, // 🔥 ENHANCED: Maximum quality for WOW results
-        megapixels: "1.5", // 🔥 ENHANCED: Higher resolution for sharper details
+        output_quality: 100, // 🔥 ENHANCED: Maximum quality
+        megapixels: "1", // 🔥 ENHANCED: Maximum allowed resolution
         go_fast: false,
         disable_safety_checker: false,
-        // 🔒 V2 ARCHITECTURE: No LoRA parameters - using individual trained model
-        seed: Math.floor(Math.random() * 1000000) // Random seed for variety
+        seed: Math.floor(Math.random() * 1000000)
       }
     };
 
