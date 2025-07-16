@@ -85,16 +85,16 @@ export async function generateImages(request: GenerateImagesRequest): Promise<Ge
     
     const userTrainedVersion = `${userModel.replicateModelId}:${userModel.replicateVersionId}`;
 
-    // 🔒 IMMUTABLE FLUX GENERATION PARAMETERS - DO NOT MODIFY
+    // 🔥 ENHANCED FLUX GENERATION PARAMETERS - OPTIMIZED FOR WOW FACTOR
     const input: any = {
       prompt: finalPrompt,
-      guidance: 2.8, // 🔒 LOCKED: Optimized guidance for strong prompt adherence
-      num_inference_steps: 35, // 🔒 LOCKED: Quality steps for detailed output
+      guidance: 3.2, // 🔥 ENHANCED: Increased for stronger prompt adherence and WOW factor
+      num_inference_steps: 40, // 🔥 ENHANCED: More steps for higher detail quality
       num_outputs: 3,
       aspect_ratio: "3:4",
       output_format: "png",
-      output_quality: 95, // 🔒 LOCKED: Maximum quality for "WOW" results
-      megapixels: "1",
+      output_quality: 100, // 🔥 ENHANCED: Maximum quality for WOW results
+      megapixels: "1.5", // 🔥 ENHANCED: Higher resolution for sharper details
       go_fast: false,
       disable_safety_checker: false,
       // 🔒 V2 ARCHITECTURE: No LoRA parameters - using individual trained model
