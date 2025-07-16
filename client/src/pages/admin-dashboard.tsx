@@ -24,6 +24,12 @@ export default function AdminDashboard() {
     retry: false
   });
 
+  const { data: agents = [], isLoading: agentsLoading } = useQuery({
+    queryKey: ['/api/agents'],
+    enabled: isAuthenticated && user?.email === 'ssa@ssasocial.com',
+    retry: false
+  });
+
   if (isLoading) {
     return (
       <div className="min-h-screen bg-gray-50 flex items-center justify-center">
@@ -85,12 +91,25 @@ export default function AdminDashboard() {
           {/* AI Agent Team */}
           <section className="mb-12">
             <h2 className="font-serif text-2xl mb-6">AI Agent Team</h2>
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-              <AgentChat agentId="maya" agentName="Maya" role="Dev AI Expert" />
-              <AgentChat agentId="rachel" agentName="Rachel" role="Voice AI Copywriter" />
-              <AgentChat agentId="victoria" agentName="Victoria" role="UX Designer AI" />
-              <AgentChat agentId="ava" agentName="Ava" role="Automation AI" />
-            </div>
+            {agentsLoading ? (
+              <div className="border border-gray-200 p-6 text-center">
+                <div className="text-sm text-gray-600">Loading AI agents...</div>
+              </div>
+            ) : (
+              <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-6">
+                {agents.map((agent: any) => (
+                  <AgentChat 
+                    key={agent.id}
+                    agentId={agent.id} 
+                    agentName={agent.name} 
+                    role={agent.role}
+                    status={agent.status}
+                    currentTask={agent.currentTask}
+                    metrics={agent.metrics}
+                  />
+                ))}
+              </div>
+            )}
           </section>
         </div>
       </div>
@@ -102,9 +121,16 @@ interface AgentChatProps {
   agentId: string;
   agentName: string;
   role: string;
+  status?: string;
+  currentTask?: string;
+  metrics?: {
+    tasksCompleted: number;
+    efficiency: number;
+    lastActivity: Date;
+  };
 }
 
-function AgentChat({ agentId, agentName, role }: AgentChatProps) {
+function AgentChat({ agentId, agentName, role, status, currentTask, metrics }: AgentChatProps) {
   const [message, setMessage] = useState('');
   const [chatHistory, setChatHistory] = useState<any[]>([]);
   const [showPreview, setShowPreview] = useState(false);
@@ -148,8 +174,28 @@ function AgentChat({ agentId, agentName, role }: AgentChatProps) {
   return (
     <div className="border border-gray-200 bg-white">
       <div className="p-4 border-b border-gray-200">
-        <div className="text-sm text-gray-600 mb-1">{role}</div>
+        <div className="flex items-center justify-between mb-2">
+          <div className="text-sm text-gray-600">{role}</div>
+          {status && (
+            <span className={`px-2 py-1 text-xs rounded ${
+              status === 'active' ? 'bg-green-100 text-green-800' :
+              status === 'working' ? 'bg-blue-100 text-blue-800' :
+              'bg-gray-100 text-gray-600'
+            }`}>
+              {status}
+            </span>
+          )}
+        </div>
         <h3 className="font-serif text-xl">{agentName}</h3>
+        {currentTask && (
+          <div className="text-xs text-gray-500 mt-1">Current: {currentTask}</div>
+        )}
+        {metrics && (
+          <div className="flex text-xs text-gray-500 mt-2 space-x-4">
+            <span>Tasks: {metrics.tasksCompleted}</span>
+            <span>Efficiency: {metrics.efficiency}%</span>
+          </div>
+        )}
       </div>
       
       <div className="h-64 overflow-y-auto p-4 space-y-3">
