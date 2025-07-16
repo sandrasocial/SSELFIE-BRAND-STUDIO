@@ -84,7 +84,7 @@ export const GlobalFooter: React.FC = () => {
                 </Link>
               </li>
               <li>
-                <Link href="/admin" className="text-white/60 hover:text-white transition-colors text-sm font-medium">
+                <Link href="/sandra-command" className="text-white/60 hover:text-white transition-colors text-sm font-medium">
                   Admin
                 </Link>
               </li>

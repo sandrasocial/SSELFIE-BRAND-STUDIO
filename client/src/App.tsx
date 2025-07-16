@@ -227,6 +227,7 @@ function Router() {
       <Route path="/admin" component={(props) => <ProtectedRoute component={AdminDashboard} {...props} />} />
       <Route path="/admin-access-only" component={AdminAccessOnly} />
       <Route path="/sandra-admin" component={(props) => <ProtectedRoute component={AdminDashboard} {...props} />} />
+      <Route path="/sandra-command" component={(props) => <ProtectedRoute component={AdminDashboard} {...props} />} />
       {/* Old admin routes archived - all functionality moved to main admin dashboard */}
       <Route path="/agent-approval" component={(props) => <ProtectedRoute component={AgentApproval} {...props} />} />
       <Route path="/admin/agent-approval" component={(props) => <ProtectedRoute component={AgentApproval} {...props} />} />
