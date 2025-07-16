@@ -50,6 +50,9 @@ import {
   type InsertMayaChat,
   type MayaChatMessage,
   type InsertMayaChatMessage,
+  agentConversations,
+  type AgentConversation,
+  type InsertAgentConversation,
 } from "@shared/schema";
 import { db } from "./db";
 import { eq, and, desc, gte, lte } from "drizzle-orm";
@@ -886,6 +889,29 @@ export class DatabaseStorage implements IStorage {
       .from(brandOnboarding)
       .where(eq(brandOnboarding.userId, userId));
     return data;
+  }
+
+  // Agent Conversations (for admin dashboard persistence)
+  async saveAgentConversation(agentId: string, userId: string, userMessage: string, agentResponse: string, devPreview?: any): Promise<AgentConversation> {
+    const [conversation] = await db.insert(agentConversations).values({
+      agentId,
+      userId,
+      userMessage,
+      agentResponse,
+      devPreview
+    }).returning();
+    return conversation;
+  }
+
+  async getAgentConversations(agentId: string, userId: string): Promise<AgentConversation[]> {
+    const conversations = await db.select()
+      .from(agentConversations)
+      .where(and(
+        eq(agentConversations.agentId, agentId),
+        eq(agentConversations.userId, userId)
+      ))
+      .orderBy(agentConversations.timestamp);
+    return conversations;
   }
 
   // Sandra AI conversation operations (minimal implementation)

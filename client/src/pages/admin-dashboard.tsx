@@ -195,6 +195,26 @@ function AgentChat({ agentId, agentName, role, status, currentTask, metrics }: A
   const [showDevPreview, setShowDevPreview] = useState(false);
   const [devPreviewData, setDevPreviewData] = useState<any>(null);
 
+  // Load chat history from localStorage on component mount
+  useEffect(() => {
+    const savedHistory = localStorage.getItem(`agent-chat-${agentId}`);
+    if (savedHistory) {
+      try {
+        const parsed = JSON.parse(savedHistory);
+        setChatHistory(parsed);
+      } catch (error) {
+        console.error('Failed to load chat history:', error);
+      }
+    }
+  }, [agentId]);
+
+  // Save chat history to localStorage whenever it changes
+  useEffect(() => {
+    if (chatHistory.length > 0) {
+      localStorage.setItem(`agent-chat-${agentId}`, JSON.stringify(chatHistory));
+    }
+  }, [chatHistory, agentId]);
+
   const sendMessage = useMutation({
     mutationFn: async (content: string) => {
       const response = await apiRequest('POST', '/api/agent-chat', { 
@@ -210,23 +230,41 @@ function AgentChat({ agentId, agentName, role, status, currentTask, metrics }: A
         content: message,
         timestamp: new Date()
       };
+
+      // Parse DEV_PREVIEW from agent response
+      let parsedDevPreview = null;
+      let cleanedMessage = data.message;
+      
+      try {
+        // Look for DEV_PREVIEW JSON in the response
+        const devPreviewMatch = data.message.match(/DEV_PREVIEW:\s*({[\s\S]*?})/);
+        if (devPreviewMatch) {
+          parsedDevPreview = JSON.parse(devPreviewMatch[1]);
+          // Remove the DEV_PREVIEW JSON from the displayed message
+          cleanedMessage = data.message.replace(/DEV_PREVIEW:\s*{[\s\S]*?}/, '').trim();
+        }
+      } catch (error) {
+        console.error('Failed to parse DEV_PREVIEW:', error);
+      }
+
       const agentResponse = {
         id: Date.now() + 1,
         type: 'agent',
-        content: data.message,
+        content: cleanedMessage,
         timestamp: new Date(),
         agentName: data.agentName || agentName,
         agentRole: data.agentRole || role,
         hasPreview: data.hasPreview,
         previewContent: data.previewContent,
         previewType: data.previewType,
-        businessContext: data.businessContext
+        businessContext: data.businessContext,
+        devPreview: parsedDevPreview
       };
       setChatHistory(prev => [...prev, newMessage, agentResponse]);
       
       // Show development preview if agent provided one
-      if (data.devPreview) {
-        setDevPreviewData(data.devPreview);
+      if (parsedDevPreview) {
+        setDevPreviewData(parsedDevPreview);
         setShowDevPreview(true);
       }
       // Legacy preview support
@@ -287,6 +325,21 @@ function AgentChat({ agentId, agentName, role, status, currentTask, metrics }: A
                   </div>
                 )}
                 <div className="text-sm whitespace-pre-wrap">{msg.content}</div>
+                
+                {/* DEV_PREVIEW Button */}
+                {msg.devPreview && (
+                  <button
+                    onClick={() => {
+                      setDevPreviewData(msg.devPreview);
+                      setShowDevPreview(true);
+                    }}
+                    className="text-xs mt-2 underline block text-blue-600 hover:text-blue-800"
+                  >
+                    🔧 View Development Preview
+                  </button>
+                )}
+                
+                {/* Legacy Preview Button */}
                 {msg.hasPreview && (
                   <button
                     onClick={() => {
@@ -299,6 +352,7 @@ function AgentChat({ agentId, agentName, role, status, currentTask, metrics }: A
                     View Design Preview
                   </button>
                 )}
+                
                 {msg.businessContext && (
                   <div className="text-xs text-gray-500 mt-2">
                     Platform: {msg.businessContext.users} users • {msg.businessContext.revenue} revenue
@@ -395,8 +449,17 @@ function AgentChat({ agentId, agentName, role, status, currentTask, metrics }: A
             )}
           </button>
         </form>
-        <div className="text-xs text-gray-500 mt-2">
-          {agentName} has full access to implement changes in the SSELFIE Studio codebase
+        <div className="text-xs text-gray-500 mt-2 flex items-center justify-between">
+          <span>{agentName} has full access to implement changes in the SSELFIE Studio codebase</span>
+          <button
+            onClick={() => {
+              setChatHistory([]);
+              localStorage.removeItem(`agent-chat-${agentId}`);
+            }}
+            className="text-xs text-red-500 hover:text-red-700 underline"
+          >
+            Clear Chat
+          </button>
         </div>
       </div>
     </div>
