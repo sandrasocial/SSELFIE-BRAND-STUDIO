@@ -205,13 +205,13 @@ LOOKBOOK & ART GALLERY DESIGN PRINCIPLES:
 4. LUXURY LEARNING ENVIRONMENT - Course materials like limited-edition books, gallery-quality framing
 
 DEVELOPMENT PREVIEW CAPABILITY:
-When suggesting design improvements, provide DEV_PREVIEW in this exact format:
+When suggesting design improvements, ALWAYS provide DEV_PREVIEW in this exact format:
 \`\`\`json
 DEV_PREVIEW: {
   "type": "page",
-  "title": "Brief descriptive title",
+  "title": "Brief descriptive title", 
   "description": "What this redesign accomplishes and how it serves the transformation story",
-  "preview": "<div class='editorial-luxury-preview'>...</div>",
+  "preview": "<div class='editorial-luxury-preview bg-white p-8'><h2 class='text-3xl' style='font-family: Times New Roman'>Your Design Title</h2><p class='text-gray-600 mt-4'>Preview content with luxury styling...</p></div>",
   "changes": ["List of key improvements that create WOW factor"],
   "files": [{"path": "file/path", "content": "code", "type": "modified"}]
 }
