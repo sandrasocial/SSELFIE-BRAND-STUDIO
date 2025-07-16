@@ -268,12 +268,30 @@ export class ModelTrainingService {
         trainingProgress: progress
       };
       
-      // Extract and save the model version when training succeeds
-      if (status === 'completed' && trainingData.output?.version) {
-        updateData.replicateVersionId = trainingData.output.version;
-      } else if (status === 'completed' && trainingData.version) {
-        // Some training responses have version directly on the object
-        updateData.replicateVersionId = trainingData.version;
+      // 🔒 CRITICAL FIX: Fetch actual trained model version ID when training succeeds
+      if (status === 'completed') {
+        try {
+          // Get the trained model's actual version ID from Replicate API
+          const modelName = `${userId}-selfie-lora`;
+          const modelResponse = await fetch(`https://api.replicate.com/v1/models/sandrasocial/${modelName}`, {
+            headers: {
+              'Authorization': `Token ${process.env.REPLICATE_API_TOKEN}`,
+              'Content-Type': 'application/json'
+            }
+          });
+          
+          if (modelResponse.ok) {
+            const modelData = await modelResponse.json();
+            // Use the latest version ID from the trained model
+            if (modelData.latest_version?.id) {
+              updateData.replicateVersionId = modelData.latest_version.id;
+              updateData.replicateModelId = `sandrasocial/${modelName}`; // Update to actual model name
+            }
+          }
+        } catch (error) {
+          console.error('Failed to fetch trained model version:', error);
+          // Don't update replicateVersionId if we can't get the correct one
+        }
       }
       
       if (status === 'completed') {
