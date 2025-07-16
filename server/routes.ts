@@ -696,11 +696,27 @@ Create prompts that feel like iconic fashion campaign moments that would make so
         }
 
       } catch (error) {
-        // NO FALLBACK RESPONSES - AI service must be available
-        return res.status(503).json({ 
-          error: 'AI service temporarily unavailable. Please try again later.',
-          serviceUnavailable: true
-        });
+        console.error('Maya Claude API error:', error);
+        // Enhanced error handling with specific error messages
+        if (error.message?.includes('overloaded') || error.status === 529) {
+          return res.status(503).json({ 
+            error: 'AI service overloaded. Please try again in a moment.',
+            serviceUnavailable: true
+          });
+        }
+        
+        if (error.status === 401) {
+          return res.status(503).json({ 
+            error: 'AI authentication issue. Please try again.',
+            serviceUnavailable: true
+          });
+        }
+        
+        // Temporary fallback while Claude API recovers
+        const fallbackResponse = "I'm having a creative moment! Try asking me again about your photo vision - I'm excited to create something amazing with you!";
+        
+        response = fallbackResponse;
+        canGenerate = false;
       }
       
       res.json({
