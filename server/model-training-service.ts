@@ -195,9 +195,10 @@ export class ModelTrainingService {
       }
 
       
-      // Update model with actual training ID
+      // ✅ CRITICAL FIX: Store training ID temporarily during training
+      // The replicateModelId will be updated to the final model version when training completes
       await storage.updateUserModel(userId, {
-        replicateModelId: trainingData.id,
+        replicateModelId: trainingData.id, // Temporary training ID - will be updated to model version on completion
         triggerWord: triggerWord,
         trainingStatus: 'training',
         trainingProgress: 0
