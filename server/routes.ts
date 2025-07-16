@@ -5101,11 +5101,11 @@ FOR VICTORIA SPECIFICALLY: When asked about redesigning "sandra-command page", u
       const requestsFileOp = /\b(deploy|implement|create|modify|write|build|fix|add|update|change|code|component|page|design|layout|button|test)\b/i.test(message);
       
       // Handle file operations FIRST before conversational response
-      if (requestsFileOp && (agentId === 'maya' || agentId === 'victoria')) {
+      if (requestsFileOp && (agentId === 'maya' || agentId === 'victoria' || agentId === 'ava' || agentId === 'wilma')) {
         console.log(`🔧 DETECTED FILE OPERATION REQUEST for ${agentId}: ${message}`);
         
         try {
-          // Import AgentCodebaseIntegration
+          // Import AgentCodebaseIntegration for real file operations
           const { AgentCodebaseIntegration } = await import('./agents/agent-codebase-integration');
           
           // Maya: Creating React components
@@ -5210,6 +5210,96 @@ export default function ${pageName}() {
                   type: 'write',
                   path: `client/src/pages/${pageName}.tsx`,
                   description: `Created ${pageName} luxury layout`
+                }
+              ],
+              timestamp: new Date().toISOString()
+            });
+          }
+          
+          // Ava: Creating email automations
+          if (agentId === 'ava' && (/email|automation|sequence|workflow/i.test(message))) {
+            console.log(`📧 Ava creating email automation based on: ${message}`);
+            
+            const automationName = message.match(/\b([A-Z][a-zA-Z\s]+?)(?:\s+automation|\s+sequence|email)/i)?.[1] || 'Welcome';
+            
+            const automationConfig = {
+              name: `${automationName} Automation`,
+              trigger: 'user_signup',
+              emails: [
+                {
+                  subject: `Welcome to SSELFIE Studio, gorgeous!`,
+                  content: `Hey there!\n\nSandra here - welcome to the most exclusive AI personal branding experience on the planet.\n\nRequest context: "${message}"\n\nYour transformation starts now.\n\nXoxo,\nSandra`,
+                  delay: 0
+                }
+              ],
+              targetAudience: 'New SSELFIE Studio users'
+            };
+            
+            const fileName = await AgentCodebaseIntegration.createEmailAutomation(agentId, automationConfig);
+            
+            return res.json({
+              message: `✅ Perfect! I've created the ${automationName} automation system and deployed it to ${fileName}. The email sequence is ready to activate!`,
+              agentId,
+              agentName: 'Ava',
+              fileOperations: [
+                {
+                  type: 'write',
+                  path: fileName,
+                  description: `Created ${automationName} email automation`
+                }
+              ],
+              timestamp: new Date().toISOString()
+            });
+          }
+          
+          // Wilma: Creating multi-agent workflows
+          if (agentId === 'wilma' && (/workflow|process|coordination|agents/i.test(message))) {
+            console.log(`🔄 Wilma creating workflow based on: ${message}`);
+            
+            const workflowName = message.match(/\b([A-Z][a-zA-Z\s]+?)(?:\s+workflow|\s+process)/i)?.[1] || 'Business Launch';
+            
+            const workflowConfig = {
+              name: `${workflowName} Workflow`,
+              description: `Multi-agent coordination for ${workflowName.toLowerCase()} process`,
+              steps: [
+                {
+                  agentId: 'maya',
+                  action: 'Setup technical infrastructure',
+                  inputs: { requirements: message },
+                  outputs: ['infrastructure', 'endpoints']
+                },
+                {
+                  agentId: 'victoria',
+                  action: 'Design user interface',
+                  inputs: { brand: 'SSELFIE luxury' },
+                  outputs: ['design', 'components']
+                },
+                {
+                  agentId: 'rachel',
+                  action: 'Create marketing copy',
+                  inputs: { audience: 'female entrepreneurs' },
+                  outputs: ['copy', 'messaging']
+                },
+                {
+                  agentId: 'ava',
+                  action: 'Deploy automation sequences',
+                  inputs: { triggers: 'user actions' },
+                  outputs: ['automations', 'workflows']
+                }
+              ]
+            };
+            
+            const fileName = await AgentCodebaseIntegration.createWorkflow(agentId, workflowConfig);
+            
+            return res.json({
+              message: `✅ Brilliant! I've orchestrated the ${workflowName} workflow with Maya, Victoria, Rachel, and Ava coordination. Deployed to ${fileName} and ready for execution!`,
+              agentId,
+              agentName: 'Wilma',
+              fileOperations: [
+                {
+                  type: 'write',
+                  path: fileName,
+                  description: `Created ${workflowName} multi-agent workflow`
                 }
               ],
               timestamp: new Date().toISOString()
