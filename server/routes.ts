@@ -1841,6 +1841,50 @@ Create prompts that feel like iconic fashion campaign moments that would make so
 
 
 
+  // TEST: Complete user training status check
+  app.post('/api/test-user-training-status', async (req: any, res) => {
+    try {
+      const { userId } = req.body;
+      
+      const user = await storage.getUser(userId);
+      if (!user) {
+        return res.status(404).json({ error: 'User not found' });
+      }
+      
+      const userModel = await storage.getUserModelByUserId(userId);
+      const isPremium = user.plan === 'sselfie-studio-premium' || user.plan === 'SSELFIE_STUDIO';
+      const isAdmin = await storage.hasUnlimitedGenerations(userId);
+      
+      res.json({
+        success: true,
+        user: {
+          id: userId,
+          email: user.email,
+          plan: user.plan,
+          isPremium,
+          isAdmin,
+          shouldGetFluxPro: isPremium || isAdmin
+        },
+        model: userModel ? {
+          id: userModel.id,
+          trainingStatus: userModel.trainingStatus,
+          modelType: userModel.modelType,
+          isLuxury: userModel.isLuxury,
+          replicateModelId: userModel.replicateModelId,
+          triggerWord: userModel.triggerWord,
+          createdAt: userModel.createdAt
+        } : null,
+        canGenerate: userModel && userModel.trainingStatus === 'completed',
+        message: userModel && userModel.trainingStatus === 'completed' 
+          ? '✅ User can generate images with their trained model'
+          : '⚠️ User needs to complete training before generating images'
+      });
+      
+    } catch (error) {
+      res.status(500).json({ error: error.message });
+    }
+  });
+
   // TEST: Premium tier detection fix
   app.post('/api/test-tier-detection', async (req: any, res) => {
     try {
