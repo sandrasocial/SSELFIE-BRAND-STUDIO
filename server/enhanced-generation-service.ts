@@ -115,7 +115,7 @@ export class EnhancedGenerationService {
       input: {
         prompt: enhancedPrompt,
         guidance: 2.8, // 🔒 CORE_ARCHITECTURE_IMMUTABLE_V2.md: optimal natural results
-        num_inference_steps: 35, // 🔒 CORE_ARCHITECTURE_IMMUTABLE_V2.md: expert quality
+        num_inference_steps: 40, // 🔧 USER OPTIMIZED: More steps for higher quality
         num_outputs: 3,
         aspect_ratio: "3:4", // 🔒 CORE_ARCHITECTURE_IMMUTABLE_V2.md: portrait format
         output_format: "png",

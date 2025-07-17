@@ -100,7 +100,7 @@ export async function generateImages(request: GenerateImagesRequest): Promise<Ge
           prompt: finalPrompt,
           guidance: 2.8, // 🔧 USER OPTIMIZED: Lower guidance for better natural results
           num_inference_steps: 40, // 🔧 USER OPTIMIZED: More steps for higher quality
-          num_outputs: 4,
+          num_outputs: 3,
           aspect_ratio: "3:4", 
           output_format: "png",
           output_quality: 95, // 🔧 USER OPTIMIZED: Higher quality output
