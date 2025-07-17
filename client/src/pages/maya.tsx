@@ -179,6 +179,7 @@ export default function Maya() {
           await fetch(`/api/maya-chats/${currentChatId}/messages`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
+            credentials: 'include',
             body: JSON.stringify({
               role: 'user',
               content: userMessage.content
@@ -188,6 +189,7 @@ export default function Maya() {
           await fetch(`/api/maya-chats/${currentChatId}/messages`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
+            credentials: 'include',
             body: JSON.stringify({
               role: 'maya',
               content: mayaMessage.content,
