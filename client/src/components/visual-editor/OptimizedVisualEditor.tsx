@@ -199,6 +199,7 @@ export function OptimizedVisualEditor({ className = '' }: OptimizedVisualEditorP
   const [selectedImages, setSelectedImages] = useState<string[]>([]);
   const [uploadedFiles, setUploadedFiles] = useState<File[]>([]);
   const [isDragOver, setIsDragOver] = useState(false);
+  const [iframeLoading, setIframeLoading] = useState(true);
   const [currentAgent, setCurrentAgent] = useState<Agent>(() => {
     const agentIdFromUrl = new URLSearchParams(window.location.search).get('agent');
     return agentIdFromUrl ? agents.find(a => a.id === agentIdFromUrl) || agents[0] : agents[0];
@@ -1206,7 +1207,10 @@ export function OptimizedVisualEditor({ className = '' }: OptimizedVisualEditorP
               className="border-black text-black hover:bg-black hover:text-white"
               onClick={() => {
                 if (iframeRef.current) {
-                  iframeRef.current.src = iframeRef.current.src;
+                  setIframeLoading(true);
+                  // Force complete reload with cache busting
+                  const currentSrc = iframeRef.current.src.split('?')[0]; // Remove existing params
+                  iframeRef.current.src = currentSrc + '?refresh=' + Date.now();
                 }
               }}
             >
@@ -1223,22 +1227,84 @@ export function OptimizedVisualEditor({ className = '' }: OptimizedVisualEditorP
 
             {/* Live Development Preview */}
             <div className="flex-1 relative">
+              {/* Loading overlay */}
+              {iframeLoading && (
+                <div className="absolute inset-0 bg-white flex items-center justify-center z-10">
+                  <div className="text-center">
+                    <div className="w-8 h-8 border-2 border-black border-t-transparent rounded-full animate-spin mx-auto mb-3"></div>
+                    <div className="text-sm text-gray-600">Loading SSELFIE Studio...</div>
+                  </div>
+                </div>
+              )}
+              
               <iframe
                 ref={iframeRef}
                 src={window.location.origin}
                 className="w-full h-full border-0"
                 title="Live SSELFIE Studio"
-                sandbox="allow-same-origin allow-scripts allow-forms allow-popups allow-top-navigation"
+                sandbox="allow-same-origin allow-scripts allow-forms allow-popups allow-top-navigation allow-downloads allow-presentation"
+                allow="fullscreen; picture-in-picture; web-share; camera; microphone; geolocation"
+                referrerPolicy="no-referrer-when-downgrade"
                 onLoad={() => {
                   console.log('🚀 Live SSELFIE Studio loaded');
-                  // Add hover effects for elements
+                  setIframeLoading(false);
+                  
+                  // Enhanced image loading fix for iframe
                   setTimeout(() => {
-                    const hoverStyles = `
-                      * { transition: box-shadow 0.2s ease !important; }
-                      *:hover { box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.3) !important; }
-                    `;
-                    injectChangesToLivePreview(hoverStyles);
-                  }, 1000);
+                    try {
+                      const iframeDoc = iframeRef.current?.contentDocument || iframeRef.current?.contentWindow?.document;
+                      if (iframeDoc) {
+                        // Add meta tags for proper image loading
+                        const metaReferrer = iframeDoc.createElement('meta');
+                        metaReferrer.setAttribute('name', 'referrer');
+                        metaReferrer.setAttribute('content', 'no-referrer-when-downgrade');
+                        iframeDoc.head?.appendChild(metaReferrer);
+                        
+                        // Enhanced image loading fix
+                        const fixImages = () => {
+                          const images = iframeDoc.querySelectorAll('img');
+                          console.log(`🖼️ Found ${images.length} images in iframe`);
+                          
+                          images.forEach((img, index) => {
+                            if (!img.complete || img.naturalWidth === 0) {
+                              console.log(`🔄 Reloading image ${index + 1}:`, img.src);
+                              const originalSrc = img.src;
+                              
+                              // Set crossorigin attribute for better loading
+                              img.crossOrigin = 'anonymous';
+                              img.referrerPolicy = 'no-referrer-when-downgrade';
+                              
+                              // Force reload with cache busting
+                              img.src = '';
+                              setTimeout(() => {
+                                img.src = originalSrc + (originalSrc.includes('?') ? '&' : '?') + 'v=' + Date.now();
+                              }, 100);
+                            }
+                          });
+                        };
+                        
+                        // Initial fix
+                        fixImages();
+                        
+                        // Fix again after DOM changes
+                        const observer = new MutationObserver(() => {
+                          fixImages();
+                        });
+                        observer.observe(iframeDoc.body, { childList: true, subtree: true });
+                        
+                        // Add hover effects for elements
+                        setTimeout(() => {
+                          const hoverStyles = `
+                            * { transition: box-shadow 0.2s ease !important; }
+                            *:hover { box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.3) !important; }
+                          `;
+                          injectChangesToLivePreview(hoverStyles);
+                        }, 1000);
+                      }
+                    } catch (error) {
+                      console.warn('Could not access iframe content:', error);
+                    }
+                  }, 500);
                 }}
               />
             </div>
