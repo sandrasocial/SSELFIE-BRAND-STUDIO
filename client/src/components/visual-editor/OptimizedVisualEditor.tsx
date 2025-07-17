@@ -4,6 +4,7 @@ import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Panel, PanelGroup, PanelResizeHandle } from 'react-resizable-panels';
+import { Textarea } from '@/components/ui/textarea';
 import { 
   Eye, 
   Edit3,
@@ -12,6 +13,8 @@ import {
   Settings,
   ChevronLeft,
   ChevronRight,
+  ChevronDown,
+  ChevronUp,
   Palette,
   Type,
   Layout,
@@ -140,6 +143,7 @@ export function OptimizedVisualEditor({ className = '' }: OptimizedVisualEditorP
   const [uploadedFiles, setUploadedFiles] = useState<File[]>([]);
   const [isDragOver, setIsDragOver] = useState(false);
   const [currentAgent, setCurrentAgent] = useState<Agent>(agents[0]);
+  const [showQuickActions, setShowQuickActions] = useState(false);
   const [workflowActive, setWorkflowActive] = useState(false);
   const [workflowStage, setWorkflowStage] = useState('Design');
   const iframeRef = useRef<HTMLIFrameElement>(null);
@@ -639,36 +643,98 @@ export function OptimizedVisualEditor({ className = '' }: OptimizedVisualEditorP
             </div>
           </div>
 
-          {/* Quick Workflow Starters */}
+          {/* Quick Actions & Workflow Starters - Collapsible */}
           {!workflowActive && (
             <div className="mt-3 space-y-1">
-              <div className="text-xs font-medium text-gray-600 mb-2">Quick Start Workflows:</div>
-              <div className="grid grid-cols-1 gap-1">
+              <div className="flex items-center justify-between">
+                <div className="text-xs font-medium text-gray-600">Quick Actions & Workflows</div>
                 <Button
-                  variant="outline"
+                  variant="ghost"
                   size="sm"
-                  className="text-xs h-7 justify-start border-black text-black hover:bg-black hover:text-white"
-                  onClick={() => startWorkflow("Create a new landing page design and implement it")}
+                  className="h-6 w-6 p-0"
+                  onClick={() => setShowQuickActions(!showQuickActions)}
                 >
-                  New Landing Page
-                </Button>
-                <Button
-                  variant="outline"
-                  size="sm"
-                  className="text-xs h-7 justify-start border-black text-black hover:bg-black hover:text-white"
-                  onClick={() => startWorkflow("Design and build a pricing section")}
-                >
-                  Pricing Section
-                </Button>
-                <Button
-                  variant="outline"
-                  size="sm"
-                  className="text-xs h-7 justify-start border-black text-black hover:bg-black hover:text-white"
-                  onClick={() => startWorkflow("Create an image gallery component")}
-                >
-                  Image Gallery
+                  {showQuickActions ? <ChevronUp className="w-3 h-3" /> : <ChevronDown className="w-3 h-3" />}
                 </Button>
               </div>
+              
+              {showQuickActions && (
+                <div className="space-y-3">
+                  {/* Quick Start Workflows */}
+                  <div>
+                    <div className="text-xs font-medium text-gray-500 mb-2">Workflows:</div>
+                    <div className="grid grid-cols-1 gap-1">
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        className="text-xs h-7 justify-start border-black text-black hover:bg-black hover:text-white"
+                        onClick={() => startWorkflow("Create a new landing page design and implement it")}
+                      >
+                        New Landing Page
+                      </Button>
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        className="text-xs h-7 justify-start border-black text-black hover:bg-black hover:text-white"
+                        onClick={() => startWorkflow("Design and build a pricing section")}
+                      >
+                        Pricing Section
+                      </Button>
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        className="text-xs h-7 justify-start border-black text-black hover:bg-black hover:text-white"
+                        onClick={() => startWorkflow("Create an image gallery component")}
+                      >
+                        Image Gallery
+                      </Button>
+                    </div>
+                  </div>
+
+                  {/* Quick Commands */}
+                  <div>
+                    <div className="text-xs font-medium text-gray-500 mb-2">Quick Commands:</div>
+                    <div className="space-y-1">
+                      {quickCommands.map((command, index) => (
+                        <Button
+                          key={index}
+                          variant="outline"
+                          size="sm"
+                          className="w-full justify-start text-xs h-7 border-gray-300 text-gray-700 hover:bg-gray-100"
+                          onClick={() => {
+                            if (command.styles) {
+                              injectChangesToLivePreview(command.styles);
+                              toast({
+                                title: 'Style Applied',
+                                description: command.label,
+                              });
+                            } else {
+                              sendMessage(command.command);
+                            }
+                          }}
+                        >
+                          {command.icon}
+                          <span className="ml-2">{command.label}</span>
+                        </Button>
+                      ))}
+                      
+                      {/* Victoria Image Generation Button */}
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        className="w-full justify-start text-xs h-7 bg-purple-50 border-purple-200 hover:bg-purple-100"
+                        onClick={generateImagesWithVictoria}
+                        disabled={isLoading}
+                      >
+                        <Sparkles className="w-3 h-3" />
+                        <span className="ml-2">
+                          {isLoading ? 'Generating...' : 'Generate Images'}
+                        </span>
+                      </Button>
+                    </div>
+                  </div>
+                </div>
+              )}
             </div>
           )}
         </div>
@@ -682,49 +748,6 @@ export function OptimizedVisualEditor({ className = '' }: OptimizedVisualEditorP
           </TabsList>
 
           <TabsContent value="chat" className="flex-1 flex flex-col mt-0">
-            {/* Quick Commands */}
-            <div className="p-4 border-b border-gray-200">
-              <h4 className="font-medium text-sm mb-3">Quick Commands</h4>
-              <div className="space-y-2">
-                {quickCommands.map((command, index) => (
-                  <Button
-                    key={index}
-                    variant="outline"
-                    size="sm"
-                    className="w-full justify-start text-xs"
-                    onClick={() => {
-                      if (command.styles) {
-                        injectChangesToLivePreview(command.styles);
-                        toast({
-                          title: 'Style Applied',
-                          description: command.label,
-                        });
-                      } else {
-                        sendMessage(command.command);
-                      }
-                    }}
-                  >
-                    {command.icon}
-                    <span className="ml-2">{command.label}</span>
-                  </Button>
-                ))}
-                
-                {/* Victoria Image Generation Button */}
-                <Button
-                  variant="outline"
-                  size="sm"
-                  className="w-full justify-start text-xs bg-purple-50 border-purple-200 hover:bg-purple-100"
-                  onClick={generateImagesWithVictoria}
-                  disabled={isLoading}
-                >
-                  <Sparkles className="w-4 h-4" />
-                  <span className="ml-2">
-                    {isLoading ? 'Generating...' : 'Generate Images'}
-                  </span>
-                </Button>
-              </div>
-            </div>
-
             {/* Chat Messages */}
             <div className="flex-1 overflow-y-auto p-4 space-y-3">
               {chatMessages.length === 0 && (
@@ -824,10 +847,10 @@ export function OptimizedVisualEditor({ className = '' }: OptimizedVisualEditorP
               )}
             </div>
 
-            {/* Chat Input with Upload */}
+            {/* Chat Input with Upload - Multi-line */}
             <div className="p-4 border-t border-gray-200">
               <div className="flex space-x-2">
-                <div className="flex items-center space-x-1">
+                <div className="flex flex-col space-y-1">
                   <input
                     ref={fileInputRef}
                     type="file"
@@ -840,17 +863,18 @@ export function OptimizedVisualEditor({ className = '' }: OptimizedVisualEditorP
                     variant="outline"
                     size="sm"
                     onClick={() => fileInputRef.current?.click()}
-                    className="px-2 border-black text-black hover:bg-black hover:text-white"
+                    className="px-3 border-black text-black hover:bg-black hover:text-white"
                     title="Upload inspiration images"
                   >
-                    Upload
+                    <Paperclip className="w-3 h-3" />
                   </Button>
                 </div>
-                <Input
+                <Textarea
                   value={messageInput}
                   onChange={(e) => setMessageInput(e.target.value)}
                   placeholder={`Ask ${currentAgent.name} for ${currentAgent.workflowStage.toLowerCase()} help or upload inspiration images...`}
-                  className="flex-1 text-sm"
+                  className="flex-1 text-sm resize-none"
+                  rows={3}
                   onKeyPress={(e) => {
                     if (e.key === 'Enter' && !e.shiftKey) {
                       e.preventDefault();
@@ -860,11 +884,11 @@ export function OptimizedVisualEditor({ className = '' }: OptimizedVisualEditorP
                 />
                 <Button
                   size="sm"
-                  className="bg-black text-white hover:bg-gray-800"
+                  className="bg-black text-white hover:bg-gray-800 self-end"
                   onClick={() => sendMessage(messageInput)}
                   disabled={!messageInput.trim() || isLoading}
                 >
-                  <span className="text-sm">Send</span>
+                  Send
                 </Button>
               </div>
             </div>
