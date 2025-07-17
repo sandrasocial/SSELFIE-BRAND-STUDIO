@@ -114,7 +114,7 @@ export class EnhancedGenerationService {
       version: userTrainedVersion, // 🔒 USER'S INDIVIDUAL MODEL (V2 COMPLIANCE)
       input: {
         prompt: enhancedPrompt,
-        guidance: 3.5, // 🔧 OPTIMIZED: Higher guidance for better facial likeness
+        guidance: 2.8, // 🔧 OPTIMIZED: Balanced guidance for natural facial expressions
         num_inference_steps: 50, // 🔧 OPTIMIZED: More steps for better detail retention  
         num_outputs: 3,
         aspect_ratio: "3:4",

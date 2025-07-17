@@ -66,8 +66,8 @@ export async function generateImages(request: GenerateImagesRequest): Promise<Ge
     
     finalPrompt = promptParts.join(', ');
     
-    // OPTIMIZED SPECIFICATIONS FOR FACIAL LIKENESS - Enhanced for LoRA activation
-    const expertQualitySpecs = `, film photograph shot on Hasselblad, raw photo, visible skin pores, unretouched natural skin texture, natural beauty with light skin retouch, authentic ${triggerWord} facial features, professional portrait photography, high detail facial accuracy`;
+    // OPTIMIZED SPECIFICATIONS FOR NATURAL EXPRESSIONS - Enhanced for authentic look
+    const expertQualitySpecs = `, film photograph shot on Hasselblad, raw photo, visible skin pores, unretouched natural skin texture, natural beauty with light skin retouch, authentic ${triggerWord} facial features, professional portrait photography, high detail facial accuracy, natural expression, subtle expression, no excessive smiling, authentic facial expression`;
     
     const premiumHairSpecs = ", realistic hair with volume and natural texture, never flat hair, natural hair flow and movement";
     
@@ -105,7 +105,7 @@ export async function generateImages(request: GenerateImagesRequest): Promise<Ge
         version: userTrainedVersion, // 🔒 CRITICAL: User's individual trained model version ONLY
         input: {
           prompt: finalPrompt,
-          guidance: 3.5, // 🔧 OPTIMIZED: Higher guidance for better facial likeness with LoRA
+          guidance: 2.8, // 🔧 OPTIMIZED: Balanced guidance for natural facial expressions
           num_inference_steps: 50, // 🔧 OPTIMIZED: More steps for better detail retention
           num_outputs: 3,
           aspect_ratio: "3:4",
