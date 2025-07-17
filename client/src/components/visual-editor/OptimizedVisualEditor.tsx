@@ -698,7 +698,7 @@ export function OptimizedVisualEditor({ className = '' }: OptimizedVisualEditorP
             <TabsTrigger value="flatlays" className="text-sm">Flatlays</TabsTrigger>
           </TabsList>
 
-          <TabsContent value="chat" className="flex-1 flex flex-col mt-0 h-full">
+          <TabsContent value="chat" className="flex-1 overflow-y-auto mt-0" style={{ height: 'calc(100vh - 250px)' }}>
             {/* Quick Commands - MacBook Optimized */}
             <div className="p-3 border-b border-gray-200">
               <h4 className="font-medium text-sm mb-2">Quick Commands</h4>
@@ -742,11 +742,10 @@ export function OptimizedVisualEditor({ className = '' }: OptimizedVisualEditorP
               </div>
             </div>
 
-            {/* Chat Messages - MacBook Optimized */}
+            {/* Chat Messages */}
             <div 
               ref={chatMessagesRef}
-              className="overflow-y-auto p-4 space-y-3" 
-              style={{ height: '300px', maxHeight: '300px' }}
+              className="p-4 space-y-3"
             >
               {chatMessages.length === 0 && (
                 <div className="text-center text-gray-500 text-sm">
@@ -845,8 +844,8 @@ export function OptimizedVisualEditor({ className = '' }: OptimizedVisualEditorP
               )}
             </div>
 
-            {/* Chat Input with Upload - Fixed at Bottom */}
-            <div className="p-4 border-t border-gray-200 bg-white flex-shrink-0">
+            {/* Chat Input with Upload */}
+            <div className="p-4 border-t border-gray-200 bg-white">
               <div className="flex space-x-2">
                 <div className="flex items-center space-x-2">
                   <input
