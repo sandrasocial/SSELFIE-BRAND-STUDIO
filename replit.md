@@ -588,6 +588,20 @@ The platform has become overly complex with multiple pricing tiers, broken onboa
 - Verified complete user model isolation with no fallback to shared models
 - Fixed Maya chat image preview system: retroactive update linked 13 completed generations to chat messages
 
+### ✅ TRAINING SYSTEM CRITICAL FIX COMPLETED (July 17, 2025)
+**SYSTEM-WIDE TRAINING CAPABILITY RESTORED FOR ALL USERS:**
+- **Root Cause Fixed**: Method call mismatch `startTraining` → `startModelTraining` in routes.ts causing 500 errors
+- **Missing Method Added**: `generateCustomPrompt` method created for backward compatibility
+- **All Services Verified**: Maya AI, AI Photoshoot, and Enhanced Generation all operational
+- **User Impact**: Training system now works for all 4 existing users + future users
+- **Architecture Maintained**: V2 individual model architecture preserved with zero changes to user isolation
+
+**Technical Resolution**: 
+- Fixed ModelTrainingService method calls across all endpoints
+- Verified all generation services use correct method names
+- Complete user journey tested from training → generation → gallery
+- System ready for Sandra's model retraining with better quality training data
+
 ### ✅ REVERTED TO PROVEN JULY 16 SUCCESSFUL SETTINGS (July 17, 2025)
 **RESTORED OPTIMAL PARAMETERS THAT CREATED SUCCESSFUL FACIAL LIKENESS:**
 - **Generation Parameters**: Reverted to guidance 2.5, steps 35, quality 90 (exact July 16 settings)
