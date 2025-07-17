@@ -272,206 +272,103 @@ function AgentChat({ agentId, agentName, role, status, currentTask, metrics }: A
       try {
         console.log('🔍 Checking message for DEV_PREVIEW:', data.message.substring(0, 200) + '...');
         
-        // Multiple parsing patterns for better detection
-        let jsonMatch = null;
-        
-        // Pattern 1: Look for Victoria's <DEV_PREVIEW> format with JSON code blocks
-        const victoriaDevPreviewPattern = /<DEV_PREVIEW>\s*```json\s*(\{[\s\S]*?\})\s*```\s*<\/DEV_PREVIEW>/;
-        jsonMatch = data.message.match(victoriaDevPreviewPattern);
-        
-        if (jsonMatch) {
-          parsedDevPreview = JSON.parse(jsonMatch[1]);
-          console.log('✅ Victoria DEV_PREVIEW format detected and parsed');
-        } else {
-          // Pattern 2: Look for ```json blocks (Victoria's new format) - handle truncation
-          const jsonBlockPattern = /```json\s*(\{[\s\S]*?)(?:```|$)/s;
-          jsonMatch = data.message.match(jsonBlockPattern);
+        // ROBUST JSON EXTRACTION AND PARSING
+        const extractValidJson = (message) => {
+          console.log('🔍 Starting robust JSON extraction...');
           
-          if (jsonMatch) {
-            // Try to parse the JSON, handle potential truncation
-            let jsonString = jsonMatch[1];
+          // Pattern 1: Complete ```json blocks
+          const completeJsonPattern = /```json\s*(\{[^`]*\})\s*```/s;
+          let match = message.match(completeJsonPattern);
+          
+          if (match) {
+            console.log('✅ Found complete JSON block with closing ```');
+            return match[1];
+          }
+          
+          // Pattern 2: Truncated ```json blocks - find the valid JSON object
+          const openJsonPattern = /```json\s*(\{[\s\S]*?)(?:```|$)/s;
+          match = message.match(openJsonPattern);
+          
+          if (match) {
+            console.log('🔧 Found truncated JSON block, extracting valid part...');
+            const jsonStr = match[1];
             
-            console.log('🔍 Raw JSON string length:', jsonString.length);
-            console.log('🔍 JSON ends with:', jsonString.slice(-10));
+            // Parse character by character to find complete JSON object
+            let braceCount = 0;
+            let inString = false;
+            let escapeNext = false;
             
-            // Victoria's advanced JSON completion system
-            if (!jsonString.trim().endsWith('}')) {
-              console.log('🔧 JSON appears truncated, attempting completion...');
-              console.log('🔍 Original length:', jsonString.length);
+            for (let i = 0; i < jsonStr.length; i++) {
+              const char = jsonStr[i];
               
-              // Handle specific Victoria truncation patterns
-              let completed = jsonString;
-              
-              // Pattern 1: Incomplete changes array
-              if (completed.includes('"changes":') && !completed.includes('"changes": [')) {
-                completed = completed.replace('"changes":', '"changes": [');
-                console.log('🔧 Fixed changes array declaration');
+              if (escapeNext) {
+                escapeNext = false;
+                continue;
               }
               
-              // Pattern 2: Incomplete string in changes array (most common)
-              if (completed.includes('"changes": [') && !completed.includes(']')) {
-                const changesStart = completed.indexOf('"changes": [') + '"changes": ['.length;
-                const afterChanges = completed.substring(changesStart);
-                
-                // Count quotes to see if we're in a string
-                const quotes = (afterChanges.match(/"/g) || []).length;
-                if (quotes % 2 === 1) {
-                  // We're inside an incomplete string
-                  completed += '... (response truncated)"';
-                  console.log('🔧 Completed incomplete string');
-                }
-                
-                // Close the changes array
-                if (!completed.includes('],')) {
-                  completed += ']';
-                  console.log('🔧 Closed changes array');
-                }
+              if (char === '\\') {
+                escapeNext = true;
+                continue;
               }
               
-              // Pattern 3: Incomplete object properties after changes
-              const missingCommas = [',"preview":', ',"filePath":', ',"fileContent":'];
-              for (const prop of missingCommas) {
-                if (!completed.includes(prop) && completed.includes(']')) {
-                  const arrayCloseIndex = completed.lastIndexOf(']');
-                  const afterArray = completed.substring(arrayCloseIndex);
-                  if (!afterArray.includes(prop.substring(1))) {
-                    completed += prop.substring(1) + '"(truncated)"';
-                    console.log(`🔧 Added missing property: ${prop.substring(2)}`);
+              if (char === '"' && !escapeNext) {
+                inString = !inString;
+                continue;
+              }
+              
+              if (!inString) {
+                if (char === '{') {
+                  braceCount++;
+                } else if (char === '}') {
+                  braceCount--;
+                  if (braceCount === 0) {
+                    // Found complete JSON object
+                    const validJson = jsonStr.substring(0, i + 1);
+                    console.log('✅ Extracted complete JSON object:', validJson.length, 'chars');
+                    return validJson;
                   }
                 }
               }
-              
-              // Pattern 4: Close any remaining structures
-              const openBraces = (completed.match(/{/g) || []).length;
-              const closeBraces = (completed.match(/}/g) || []).length;
-              const openBrackets = (completed.match(/\[/g) || []).length;
-              const closeBrackets = (completed.match(/\]/g) || []).length;
-              
-              // Close unclosed arrays first
-              for (let i = closeBrackets; i < openBrackets; i++) {
-                completed += ']';
-                console.log('🔧 Closed unclosed array');
-              }
-              
-              // Close unclosed objects
-              for (let i = closeBraces; i < openBraces; i++) {
-                completed += '}';
-                console.log('🔧 Closed unclosed object');
-              }
-              
-              jsonString = completed;
-              console.log('🔧 Final completion length:', jsonString.length);
-              console.log('🔧 Ends with:', jsonString.slice(-20));
             }
-            
+          }
+          
+          return null;
+        };
+        
+        // Extract JSON and attempt parsing
+        const jsonString = extractValidJson(data.message);
+        let jsonMatch = null;
+        
+        if (jsonString) {
+          console.log('🔍 JSON extracted, attempting to parse...');
+          console.log('🔍 JSON preview:', jsonString.substring(0, 150) + '...');
+          
+          try {
             parsedDevPreview = JSON.parse(jsonString);
-            console.log('✅ Victoria JSON block detected and parsed');
-          } else {
-            // Pattern 3: Look for DEV_PREVIEW: { ... } format
-            const devPreviewPattern = /DEV_PREVIEW:\s*(\{[\s\S]*?\})/;
-            jsonMatch = data.message.match(devPreviewPattern);
+            console.log('✅ JSON parsed successfully!');
+            console.log('✅ Preview data:', {
+              type: parsedDevPreview.type,
+              title: parsedDevPreview.title,
+              hasChanges: Array.isArray(parsedDevPreview.changes),
+              changesCount: parsedDevPreview.changes?.length || 0
+            });
+          } catch (parseError) {
+            console.error('❌ JSON parsing failed:', parseError.message);
+            console.log('🔍 Failed JSON sample:', jsonString.substring(0, 200));
             
-            if (jsonMatch) {
-              parsedDevPreview = JSON.parse(jsonMatch[1]);
-              console.log('✅ DEV_PREVIEW colon format detected and parsed');
+            // Create fallback for Victoria design responses
+            if (data.agentId === 'victoria' && jsonString.includes('"type"')) {
+              console.log('🎨 Creating fallback for Victoria design response');
+              parsedDevPreview = {
+                type: 'component',
+                title: 'Victoria Design Response',
+                description: 'Victoria provided design suggestions',
+                changes: ['Design suggestions from Victoria'],
+                preview: 'Victoria provided design guidance',
+                fallback: true
+              };
             }
           }
-        }
-        let devPreviewMatch = null;
-        
-        // Pattern 1: Standard DEV_PREVIEW with colon
-        devPreviewMatch = data.message.match(/DEV_PREVIEW:\s*({[\s\S]*?}(?:\s*})*)/);
-        
-        // Pattern 2: JSON code block with DEV_PREVIEW
-        if (!devPreviewMatch) {
-          devPreviewMatch = data.message.match(/```json\s*DEV_PREVIEW:\s*({[\s\S]*?})\s*```/);
-        }
-        
-        // Pattern 3: JSON code block without DEV_PREVIEW prefix but has "type" property
-        if (!devPreviewMatch) {
-          devPreviewMatch = data.message.match(/```json\s*({[\s\S]*?"type"[\s\S]*?})\s*```/);
-        }
-        
-        // Pattern 4: Direct JSON with "type" property (Victoria's responses)
-        if (!devPreviewMatch) {
-          devPreviewMatch = data.message.match(/({[\s\S]*?"type"[\s\S]*?"title"[\s\S]*?})/);
-        }
-        
-        // Pattern 5: Multiline JSON object (handle Victoria's formatted responses)
-        if (!devPreviewMatch) {
-          const lines = data.message.split('\n');
-          let jsonStart = -1;
-          let jsonEnd = -1;
-          let braceCount = 0;
-          
-          for (let i = 0; i < lines.length; i++) {
-            const line = lines[i].trim();
-            if (line.includes('"type"') && line.includes('{')) {
-              jsonStart = i;
-              break;
-            }
-          }
-          
-          if (jsonStart >= 0) {
-            for (let i = jsonStart; i < lines.length; i++) {
-              const line = lines[i];
-              for (const char of line) {
-                if (char === '{') braceCount++;
-                if (char === '}') braceCount--;
-                if (braceCount === 0 && line.includes('}')) {
-                  jsonEnd = i;
-                  break;
-                }
-              }
-              if (jsonEnd >= 0) break;
-            }
-            
-            if (jsonEnd >= 0) {
-              const jsonString = lines.slice(jsonStart, jsonEnd + 1).join('\n');
-              const match = jsonString.match(/({[\s\S]*})/);
-              if (match) {
-                devPreviewMatch = [null, match[1]];
-              }
-            }
-          }
-        }
-        
-        if (devPreviewMatch && devPreviewMatch[1]) {
-          console.log('🎯 Raw DEV_PREVIEW found:', devPreviewMatch[1]);
-          
-          // Advanced JSON cleaning for Victoria's responses
-          let jsonString = devPreviewMatch[1]
-            .replace(/\n\s*/g, ' ')  // Remove newlines and extra spaces
-            .replace(/,\s*}/g, '}')  // Remove trailing commas from objects
-            .replace(/,\s*]/g, ']')  // Remove trailing commas from arrays
-            .replace(/\.\.\.\[Truncated\]/g, '') // Remove truncation markers
-            .replace(/([{,]\s*)([a-zA-Z_][a-zA-Z0-9_]*)\s*:/g, '$1"$2":') // Quote unquoted keys
-            .replace(/:\s*([^",\{\[\]}\s][^,\}\]]*[^",\}\]\s])\s*([,\}])/g, ':"$1"$2') // Quote unquoted string values
-            .trim();
-          
-          // Handle incomplete JSON (common in Victoria's responses)
-          if (!jsonString.endsWith('}')) {
-            const openBraces = (jsonString.match(/{/g) || []).length;
-            const closeBraces = (jsonString.match(/}/g) || []).length;
-            for (let i = closeBraces; i < openBraces; i++) {
-              jsonString += '}';
-            }
-          }
-          
-          console.log('🧹 Cleaned JSON string:', jsonString);
-          
-          parsedDevPreview = JSON.parse(jsonString);
-          console.log('✅ Successfully parsed DEV_PREVIEW:', parsedDevPreview);
-          
-          // Remove the DEV_PREVIEW JSON from the displayed message
-          cleanedMessage = data.message
-            .replace(/```json\s*DEV_PREVIEW:[\s\S]*?```/g, '')
-            .replace(/DEV_PREVIEW:\s*{[\s\S]*?}/g, '')
-            .replace(/```json\s*{[\s\S]*?"type"[\s\S]*?}\s*```/g, '')
-            .replace(/{[\s\S]*?"type"[\s\S]*?"title"[\s\S]*?}/g, '')
-            .trim();
-        } else {
-          console.log('❌ No DEV_PREVIEW pattern matched');
         }
       } catch (error) {
         console.error('❌ Failed to parse DEV_PREVIEW:', error.message);
