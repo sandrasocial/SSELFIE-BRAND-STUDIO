@@ -13,46 +13,38 @@ export class ArchitectureValidator {
    * Premium users must use FLUX Pro, free users must use standard FLUX
    */
   static validateGenerationRequest(requestBody: any, userId: string, isPremium: boolean = false): void {
-    if (isPremium) {
-      // 🏆 PREMIUM VALIDATION: Must use FLUX Pro with finetune_id
-      if (requestBody.version !== "black-forest-labs/flux-pro-finetuned:latest") {
-        console.error('🚨 PREMIUM ARCHITECTURE VIOLATION: Premium user not using FLUX Pro');
-        console.error('Request body:', JSON.stringify(requestBody, null, 2));
-        throw new Error('Premium architecture violation: Must use FLUX Pro model');
-      }
-      
-      if (!requestBody.input?.finetune_id) {
-        console.error('🚨 PREMIUM ARCHITECTURE VIOLATION: Missing finetune_id for FLUX Pro');
-        throw new Error('Premium architecture violation: FLUX Pro requires finetune_id');
-      }
-      
-      console.log(`✅ Premium FLUX Pro validation passed for user: ${userId}`);
-      console.log(`✅ Using FLUX Pro with finetune_id: ${requestBody.input.finetune_id}`);
-      
-    } else {
-      // 📱 FREE USER VALIDATION: Must use individual trained model version
-      if (!requestBody.version || !requestBody.version.includes(':')) {
-        console.error('🚨 FREE ARCHITECTURE VIOLATION: Missing individual user model version');
-        console.error('Request body:', JSON.stringify(requestBody, null, 2));
-        throw new Error('Free architecture violation: Must use individual user model only');
-      }
-      
-      // Ensure no premium-only parameters
-      if (requestBody.input?.finetune_id) {
-        console.error('🚨 FREE ARCHITECTURE VIOLATION: Free user attempting to use FLUX Pro');
-        throw new Error('Free architecture violation: FLUX Pro requires premium subscription');
-      }
-      
-      console.log(`✅ Free FLUX validation passed for user: ${userId}`);
-      console.log(`✅ Using individual model version: ${requestBody.version}`);
+    // 🔒 V2 ARCHITECTURE: ALL users use individual trained models (no FLUX Pro distinction)
+    // This matches CORE_ARCHITECTURE_IMMUTABLE_V2.md - complete user isolation with individual models
+    
+    if (!requestBody.version || !requestBody.version.includes(':')) {
+      console.error('🚨 ARCHITECTURE VIOLATION: Missing individual user model version');
+      console.error('Request body:', JSON.stringify(requestBody, null, 2));
+      throw new Error('Architecture violation: Must use individual user model only');
     }
+    
+    // Ensure proper individual model format (username/modelid:versionid)
+    const versionParts = requestBody.version.split(':');
+    if (versionParts.length !== 2) {
+      console.error('🚨 ARCHITECTURE VIOLATION: Invalid model version format');
+      throw new Error('Architecture violation: Invalid model version format - must be username/model:version');
+    }
+    
+    // Ensure no premium-only parameters (finetune_id not used in V2 architecture)
+    if (requestBody.input?.finetune_id) {
+      console.error('🚨 ARCHITECTURE VIOLATION: finetune_id not permitted in V2 individual model architecture');
+      throw new Error('Architecture violation: V2 uses individual models, not finetune_id');
+    }
+    
+    const userType = isPremium ? 'Premium' : 'Free';
+    console.log(`✅ ${userType} user validation passed for user: ${userId}`);
+    console.log(`✅ Using individual model version: ${requestBody.version}`);
   }
   
   /**
    * 🔒 COMPLIANCE LOGGING - Records architecture compliance for audit
    */
   static logArchitectureCompliance(userId: string, operation: string): void {
-    console.log(`🔒 ARCHITECTURE COMPLIANCE: User ${userId} - ${operation} - Using correct FLUX individual model architecture`);
+    console.log(`🔒 ARCHITECTURE COMPLIANCE: User ${userId} - ${operation} - Using correct V2 individual model architecture`);
   }
   
   /**
