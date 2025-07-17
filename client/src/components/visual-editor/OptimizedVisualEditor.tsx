@@ -740,9 +740,9 @@ export function OptimizedVisualEditor({ className = '' }: OptimizedVisualEditorP
             <TabsTrigger value="flatlays" className="text-xs">Flatlays</TabsTrigger>
           </TabsList>
 
-          <TabsContent value="chat" className="flex-1 flex flex-col mt-0 h-full">
+          <TabsContent value="chat" className="flex-1 flex flex-col mt-0">
             {/* Chat Messages - Expanded Space */}
-            <div className="flex-1 overflow-y-auto p-1 md:p-2 space-y-1 md:space-y-2" style={{ minHeight: '300px' }}>
+            <div className="flex-1 overflow-y-auto p-1 md:p-2 space-y-1 md:space-y-2" style={{ minHeight: '300px', maxHeight: 'calc(100vh - 250px)' }}>
               {chatMessages.length === 0 && (
                 <div className="text-center text-gray-500 text-sm">
                   <div className="mb-2">Chat</div>
@@ -840,8 +840,8 @@ export function OptimizedVisualEditor({ className = '' }: OptimizedVisualEditorP
               )}
             </div>
 
-            {/* Chat Input with Upload - Positioned at Bottom */}
-            <div className="mt-auto px-1 py-0.5 border-t border-gray-200 bg-white">
+            {/* Chat Input with Upload - Multi-line */}
+            <div className="px-1 py-0.5 border-t border-gray-200">
               <div className="flex space-x-1">
                 <div className="flex flex-col space-y-1">
                   <input
