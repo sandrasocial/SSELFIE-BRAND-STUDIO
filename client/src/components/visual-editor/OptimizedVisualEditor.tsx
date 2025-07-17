@@ -12,8 +12,6 @@ import {
   Settings,
   ChevronLeft,
   ChevronRight,
-  ChevronUp,
-  ChevronDown,
   Palette,
   Type,
   Layout,
@@ -144,28 +142,10 @@ export function OptimizedVisualEditor({ className = '' }: OptimizedVisualEditorP
   const [currentAgent, setCurrentAgent] = useState<Agent>(agents[0]);
   const [workflowActive, setWorkflowActive] = useState(false);
   const [workflowStage, setWorkflowStage] = useState('Design');
-  const [showWorkflowSection, setShowWorkflowSection] = useState(false);
-  const [showQuickCommands, setShowQuickCommands] = useState(false);
   const iframeRef = useRef<HTMLIFrameElement>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const chatPanelRef = useRef<HTMLDivElement>(null);
-  const chatMessagesRef = useRef<HTMLDivElement>(null);
   const { toast } = useToast();
-
-  // Simple autoscroll only for new messages when user is at bottom
-  useEffect(() => {
-    if (chatMessagesRef.current && chatMessages.length > 0) {
-      const container = chatMessagesRef.current;
-      const isAtBottom = container.scrollTop + container.clientHeight >= container.scrollHeight - 10;
-      
-      // Only auto-scroll if user is already at the bottom
-      if (isAtBottom) {
-        setTimeout(() => {
-          container.scrollTop = container.scrollHeight;
-        }, 50);
-      }
-    }
-  }, [chatMessages]);
 
   // Fetch user's AI gallery
   const { data: aiImages = [] } = useQuery<AIImage[]>({
@@ -586,8 +566,8 @@ export function OptimizedVisualEditor({ className = '' }: OptimizedVisualEditorP
   return (
     <div className={`h-screen bg-white ${className}`}>
       <PanelGroup direction="horizontal" className="h-full">
-        {/* Chat Panel - Optimized for Desktop */}
-        <Panel defaultSize={35} minSize={25} maxSize={55}>
+        {/* Chat Panel - Resizable */}
+        <Panel defaultSize={30} minSize={20} maxSize={50}>
           <div 
             ref={chatPanelRef}
             className={`h-full border-r border-gray-200 bg-white flex flex-col ${isDragOver ? 'bg-blue-50 border-blue-300' : ''}`}
@@ -604,11 +584,11 @@ export function OptimizedVisualEditor({ className = '' }: OptimizedVisualEditorP
                 </div>
               </div>
             )}
-        {/* Chat Header with Agent Workflow - Compact */}
-        <div className="p-3 border-b border-gray-200 shrink-0">
-          <div className="flex items-center justify-between mb-2">
+        {/* Chat Header with Agent Workflow */}
+        <div className="p-4 border-b border-gray-200">
+          <div className="flex items-center justify-between mb-3">
             <div className="flex items-center space-x-2">
-              <div className="w-8 h-8 bg-black flex items-center justify-center rounded">
+              <div className="w-8 h-8 bg-black flex items-center justify-center">
                 <span className="text-white text-sm font-medium">{currentAgent.name[0]}</span>
               </div>
               <div>
@@ -619,162 +599,139 @@ export function OptimizedVisualEditor({ className = '' }: OptimizedVisualEditorP
             <Button
               variant={showPropertiesPanel ? "default" : "outline"}
               size="sm"
-              className="border-black text-black hover:bg-black hover:text-white text-xs h-7 px-2"
+              className="border-black text-black hover:bg-black hover:text-white"
               onClick={() => setShowPropertiesPanel(!showPropertiesPanel)}
             >
               Settings
             </Button>
           </div>
 
-          {/* Workflow Progress - Compact Collapsible */}
-          <div className="space-y-1">
-            <div className="flex items-center justify-between cursor-pointer py-1" onClick={() => setShowWorkflowSection(!showWorkflowSection)}>
+          {/* Workflow Progress */}
+          <div className="space-y-2">
+            <div className="flex items-center justify-between">
               <span className="text-xs font-medium text-gray-600">Design Studio Workflow</span>
-              <div className="flex items-center space-x-1">
-                {workflowActive && (
-                  <Badge variant="secondary" className="text-xs bg-gray-100 text-black border border-gray-300 h-4 px-1">
-                    {workflowStage}
-                  </Badge>
-                )}
-                {showWorkflowSection ? <ChevronUp className="w-3 h-3" /> : <ChevronDown className="w-3 h-3" />}
-              </div>
+              {workflowActive && (
+                <Badge variant="secondary" className="text-xs bg-gray-100 text-black border border-gray-300">
+                  Active: {workflowStage}
+                </Badge>
+              )}
             </div>
-            {showWorkflowSection && (
-              <>
-                <div className="flex space-x-2">
-                  {agents.map((agent, index) => (
-                    <div
-                      key={agent.id}
-                      className={`flex-1 h-3 rounded ${
-                        agent.id === currentAgent.id
-                          ? 'bg-black'
-                          : agents.findIndex(a => a.id === currentAgent.id) > index
-                          ? 'bg-gray-400'
-                          : 'bg-gray-200'
-                      }`}
-                    />
-                  ))}
-                </div>
-                <div className="flex justify-between text-sm text-gray-500">
-                  {agents.map(agent => (
-                    <span key={agent.id} className={agent.id === currentAgent.id ? 'font-medium text-black' : ''}>
-                      {agent.name}
-                    </span>
-                  ))}
-                </div>
-              </>
-            )}
+            <div className="flex space-x-1">
+              {agents.map((agent, index) => (
+                <div
+                  key={agent.id}
+                  className={`flex-1 h-2 ${
+                    agent.id === currentAgent.id
+                      ? 'bg-black'
+                      : agents.findIndex(a => a.id === currentAgent.id) > index
+                      ? 'bg-gray-400'
+                      : 'bg-gray-200'
+                  }`}
+                />
+              ))}
+            </div>
+            <div className="flex justify-between text-xs text-gray-500">
+              {agents.map(agent => (
+                <span key={agent.id} className={agent.id === currentAgent.id ? 'font-medium text-black' : ''}>
+                  {agent.name}
+                </span>
+              ))}
+            </div>
           </div>
 
-          {/* Quick Workflow Starters - Collapsible */}
+          {/* Quick Workflow Starters */}
           {!workflowActive && (
             <div className="mt-3 space-y-1">
-              <div className="flex items-center justify-between cursor-pointer" onClick={() => setShowQuickCommands(!showQuickCommands)}>
-                <div className="text-xs font-medium text-gray-600">Quick Start Workflows</div>
-                {showQuickCommands ? <ChevronUp className="w-3 h-3" /> : <ChevronDown className="w-3 h-3" />}
+              <div className="text-xs font-medium text-gray-600 mb-2">Quick Start Workflows:</div>
+              <div className="grid grid-cols-1 gap-1">
+                <Button
+                  variant="outline"
+                  size="sm"
+                  className="text-xs h-7 justify-start border-black text-black hover:bg-black hover:text-white"
+                  onClick={() => startWorkflow("Create a new landing page design and implement it")}
+                >
+                  New Landing Page
+                </Button>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  className="text-xs h-7 justify-start border-black text-black hover:bg-black hover:text-white"
+                  onClick={() => startWorkflow("Design and build a pricing section")}
+                >
+                  Pricing Section
+                </Button>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  className="text-xs h-7 justify-start border-black text-black hover:bg-black hover:text-white"
+                  onClick={() => startWorkflow("Create an image gallery component")}
+                >
+                  Image Gallery
+                </Button>
               </div>
-              {showQuickCommands && (
-                <div className="grid grid-cols-1 gap-1 mt-2">
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    className="text-xs h-7 justify-start border-black text-black hover:bg-black hover:text-white"
-                    onClick={() => startWorkflow("Create a new landing page design and implement it")}
-                  >
-                    New Landing Page
-                  </Button>
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    className="text-xs h-7 justify-start border-black text-black hover:bg-black hover:text-white"
-                    onClick={() => startWorkflow("Design and build a pricing section")}
-                  >
-                    Pricing Section
-                  </Button>
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    className="text-xs h-7 justify-start border-black text-black hover:bg-black hover:text-white"
-                    onClick={() => startWorkflow("Create an image gallery component")}
-                  >
-                    Image Gallery
-                  </Button>
-                </div>
-              )}
             </div>
           )}
         </div>
 
         {/* Tabs for Chat, Gallery, and Flatlay Library */}
-        <Tabs value={activeTab} onValueChange={setActiveTab} className="flex-1 flex flex-col min-h-0">
-          <TabsList className="grid w-full grid-cols-3 mx-3 mt-2 shrink-0">
-            <TabsTrigger value="chat" className="text-sm">Chat</TabsTrigger>
-            <TabsTrigger value="gallery" className="text-sm">Gallery</TabsTrigger>
-            <TabsTrigger value="flatlays" className="text-sm">Flatlays</TabsTrigger>
+        <Tabs value={activeTab} onValueChange={setActiveTab} className="flex-1 flex flex-col">
+          <TabsList className="grid w-full grid-cols-3 mx-4 mt-4">
+            <TabsTrigger value="chat" className="text-xs">Chat</TabsTrigger>
+            <TabsTrigger value="gallery" className="text-xs">Gallery</TabsTrigger>
+            <TabsTrigger value="flatlays" className="text-xs">Flatlays</TabsTrigger>
           </TabsList>
 
-          <TabsContent value="chat" className="flex-1 flex flex-col mt-0 min-h-0">
-            {/* Quick Commands - Compact Collapsible */}
-            <div className="border-b border-gray-200 shrink-0">
-              <div className="p-2 cursor-pointer flex items-center justify-between" onClick={() => setShowQuickCommands(!showQuickCommands)}>
-                <h4 className="font-medium text-xs">Quick Commands</h4>
-                {showQuickCommands ? <ChevronUp className="w-3 h-3" /> : <ChevronDown className="w-3 h-3" />}
-              </div>
-              {showQuickCommands && (
-                <div className="px-2 pb-2 space-y-1">
-                  {quickCommands.map((command, index) => (
-                    <Button
-                      key={index}
-                      variant="outline"
-                      size="sm"
-                      className="w-full justify-start text-xs h-8"
-                      onClick={() => {
-                        if (command.styles) {
-                          injectChangesToLivePreview(command.styles);
-                          toast({
-                            title: 'Style Applied',
-                            description: command.label,
-                          });
-                        } else {
-                          sendMessage(command.command);
-                        }
-                      }}
-                    >
-                      {command.icon}
-                      <span className="ml-2">{command.label}</span>
-                    </Button>
-                  ))}
-                  
-                  {/* Victoria Image Generation Button */}
+          <TabsContent value="chat" className="flex-1 flex flex-col mt-0">
+            {/* Quick Commands */}
+            <div className="p-4 border-b border-gray-200">
+              <h4 className="font-medium text-sm mb-3">Quick Commands</h4>
+              <div className="space-y-2">
+                {quickCommands.map((command, index) => (
                   <Button
+                    key={index}
                     variant="outline"
                     size="sm"
-                    className="w-full justify-start text-xs h-8 bg-purple-50 border-purple-200 hover:bg-purple-100"
-                    onClick={generateImagesWithVictoria}
-                    disabled={isLoading}
+                    className="w-full justify-start text-xs"
+                    onClick={() => {
+                      if (command.styles) {
+                        injectChangesToLivePreview(command.styles);
+                        toast({
+                          title: 'Style Applied',
+                          description: command.label,
+                        });
+                      } else {
+                        sendMessage(command.command);
+                      }
+                    }}
                   >
-                    <Sparkles className="w-4 h-4" />
-                    <span className="ml-2">
-                      {isLoading ? 'Generating...' : 'Generate Images'}
-                    </span>
+                    {command.icon}
+                    <span className="ml-2">{command.label}</span>
                   </Button>
-                </div>
-              )}
+                ))}
+                
+                {/* Victoria Image Generation Button */}
+                <Button
+                  variant="outline"
+                  size="sm"
+                  className="w-full justify-start text-xs bg-purple-50 border-purple-200 hover:bg-purple-100"
+                  onClick={generateImagesWithVictoria}
+                  disabled={isLoading}
+                >
+                  <Sparkles className="w-4 h-4" />
+                  <span className="ml-2">
+                    {isLoading ? 'Generating...' : 'Generate Images'}
+                  </span>
+                </Button>
+              </div>
             </div>
 
-            {/* Chat Messages - Maximum Space Usage */}
-            <div 
-              ref={chatMessagesRef}
-              className="flex-1 overflow-y-auto p-2 space-y-2"
-              style={{ 
-                scrollbarWidth: 'thin',
-                scrollbarColor: '#d1d5db #f3f4f6'
-              }}
-            >
+            {/* Chat Messages */}
+            <div className="flex-1 overflow-y-auto p-4 space-y-3">
               {chatMessages.length === 0 && (
-                <div className="text-center text-gray-500 py-8">
-                  <div className="text-lg mb-2">Start chatting with {currentAgent.name}</div>
-                  <div className="text-sm">Ask for {currentAgent.workflowStage.toLowerCase()} help or upload inspiration images...</div>
+                <div className="text-center text-gray-500 text-sm">
+                  <div className="mb-2">Chat</div>
+                  <div>Start chatting with {currentAgent.name}</div>
+                  <div className="text-xs">Ask for {currentAgent.workflowStage.toLowerCase()}, upload images, or start a workflow</div>
                 </div>
               )}
               
@@ -789,7 +746,7 @@ export function OptimizedVisualEditor({ className = '' }: OptimizedVisualEditorP
                       : message.isHandoff
                       ? 'mx-2 bg-blue-50 border border-blue-200 text-blue-900'
                       : 'mr-4 bg-gray-100 text-gray-900'
-                  } p-3 rounded-lg text-sm break-words whitespace-pre-wrap`}
+                  } p-3 rounded-lg text-sm`}
                 >
                   {/* Agent Name Header */}
                   {agent && !message.isHandoff && (
@@ -867,8 +824,8 @@ export function OptimizedVisualEditor({ className = '' }: OptimizedVisualEditorP
               )}
             </div>
 
-            {/* Chat Input with Upload - Compact */}
-            <div className="p-2 border-t border-gray-200 bg-white shrink-0">
+            {/* Chat Input with Upload */}
+            <div className="p-4 border-t border-gray-200">
               <div className="flex space-x-2">
                 <div className="flex items-center space-x-1">
                   <input
@@ -883,7 +840,7 @@ export function OptimizedVisualEditor({ className = '' }: OptimizedVisualEditorP
                     variant="outline"
                     size="sm"
                     onClick={() => fileInputRef.current?.click()}
-                    className="px-2 border-black text-black hover:bg-black hover:text-white text-xs h-8"
+                    className="px-2 border-black text-black hover:bg-black hover:text-white"
                     title="Upload inspiration images"
                   >
                     Upload
@@ -892,8 +849,8 @@ export function OptimizedVisualEditor({ className = '' }: OptimizedVisualEditorP
                 <Input
                   value={messageInput}
                   onChange={(e) => setMessageInput(e.target.value)}
-                  placeholder={`Ask ${currentAgent.name} for ${currentAgent.workflowStage.toLowerCase()} help...`}
-                  className="flex-1 text-sm h-8 border border-black focus:border-black focus:ring-black"
+                  placeholder={`Ask ${currentAgent.name} for ${currentAgent.workflowStage.toLowerCase()} help or upload inspiration images...`}
+                  className="flex-1 text-sm"
                   onKeyPress={(e) => {
                     if (e.key === 'Enter' && !e.shiftKey) {
                       e.preventDefault();
@@ -903,11 +860,11 @@ export function OptimizedVisualEditor({ className = '' }: OptimizedVisualEditorP
                 />
                 <Button
                   size="sm"
-                  className="bg-black text-white hover:bg-gray-800 px-3 h-8"
+                  className="bg-black text-white hover:bg-gray-800"
                   onClick={() => sendMessage(messageInput)}
                   disabled={!messageInput.trim() || isLoading}
                 >
-                  <span className="text-xs">Send</span>
+                  <span className="text-sm">Send</span>
                 </Button>
               </div>
             </div>
@@ -1051,23 +1008,23 @@ export function OptimizedVisualEditor({ className = '' }: OptimizedVisualEditorP
         {/* Resize Handle */}
         <PanelResizeHandle className="w-2 bg-gray-100 hover:bg-gray-200 transition-colors" />
 
-        {/* Main Live Preview Panel - Optimized for Desktop */}
-        <Panel defaultSize={65} minSize={35}>
+        {/* Main Live Preview Panel - Resizable */}
+        <Panel defaultSize={70} minSize={30}>
           <div className="h-full flex flex-col">
-        {/* Top Toolbar - Desktop Optimized */}
-        <div className="border-b border-gray-200 px-6 py-4 flex items-center justify-between bg-gray-50">
-          <div className="flex items-center space-x-6">
-            <Badge variant="secondary" className="bg-black text-white border-black px-4 py-2">
-              <div className="w-3 h-3 bg-white mr-3 rounded-full"></div>
+        {/* Top Toolbar */}
+        <div className="border-b border-gray-200 px-4 py-2 flex items-center justify-between bg-gray-50">
+          <div className="flex items-center space-x-4">
+            <Badge variant="secondary" className="bg-black text-white border-black">
+              <div className="w-2 h-2 bg-white mr-2"></div>
               LIVE PREVIEW
             </Badge>
           </div>
           
-          <div className="flex items-center space-x-3">
+          <div className="flex items-center space-x-2">
             <Button 
               variant="outline" 
-              size="default"
-              className="border-black text-black hover:bg-black hover:text-white px-6"
+              size="sm"
+              className="border-black text-black hover:bg-black hover:text-white"
               onClick={() => {
                 if (iframeRef.current) {
                   iframeRef.current.src = iframeRef.current.src;
@@ -1076,10 +1033,10 @@ export function OptimizedVisualEditor({ className = '' }: OptimizedVisualEditorP
             >
               Refresh
             </Button>
-            <Button variant="outline" size="default" className="border-black text-black hover:bg-black hover:text-white px-6">
+            <Button variant="outline" size="sm" className="border-black text-black hover:bg-black hover:text-white">
               Save
             </Button>
-            <Button variant="default" size="default" className="bg-black text-white hover:bg-gray-800 px-6">
+            <Button variant="default" size="sm" className="bg-black text-white hover:bg-gray-800">
               Deploy
             </Button>
           </div>
@@ -1115,8 +1072,8 @@ export function OptimizedVisualEditor({ className = '' }: OptimizedVisualEditorP
             <PanelResizeHandle className="w-2 bg-gray-100 hover:bg-gray-200 transition-colors" />
             <Panel defaultSize={30} minSize={15} maxSize={40}>
               <div className="h-full border-l border-gray-200 bg-white flex flex-col">
-                {/* Properties Header - Desktop Optimized */}
-                <div className="p-6 border-b border-gray-200 flex items-center justify-between">
+                {/* Properties Header */}
+                <div className="p-4 border-b border-gray-200 flex items-center justify-between">
                   <h3 className="font-medium text-sm">Properties</h3>
                   <Button
                     variant="ghost"
