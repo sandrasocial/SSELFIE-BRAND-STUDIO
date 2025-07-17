@@ -706,14 +706,14 @@ export function OptimizedVisualEditor({ className = '' }: OptimizedVisualEditorP
         </div>
 
         {/* Tabs for Chat, Gallery, and Flatlay Library */}
-        <Tabs value={activeTab} onValueChange={setActiveTab} className="flex-1 flex flex-col overflow-hidden">
+        <Tabs value={activeTab} onValueChange={setActiveTab} className="flex-1 flex flex-col min-h-0">
           <TabsList className="grid w-full grid-cols-3 mx-6 mt-4 shrink-0">
             <TabsTrigger value="chat" className="text-sm">Chat</TabsTrigger>
             <TabsTrigger value="gallery" className="text-sm">Gallery</TabsTrigger>
             <TabsTrigger value="flatlays" className="text-sm">Flatlays</TabsTrigger>
           </TabsList>
 
-          <TabsContent value="chat" className="flex-1 flex flex-col mt-0 overflow-hidden">
+          <TabsContent value="chat" className="flex-1 flex flex-col mt-0 min-h-0">
             {/* Quick Commands - Collapsible */}
             <div className="border-b border-gray-200 shrink-0">
               <div className="p-4 cursor-pointer flex items-center justify-between" onClick={() => setShowQuickCommands(!showQuickCommands)}>
