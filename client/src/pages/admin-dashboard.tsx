@@ -560,8 +560,34 @@ function AgentChat({ agentId, agentName, role, status, currentTask, metrics }: A
           description: 'Preview of proposed changes',
           changes: []
         }}
-        onApprove={() => {
-          sendMessage.mutate("✅ APPROVED! Please implement these changes immediately.");
+        onApprove={async () => {
+          // If there's fileContent, create the actual file
+          if (devPreviewData?.fileContent && devPreviewData?.filePath) {
+            try {
+              const response = await fetch('/api/admin/approve-component', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                  agentId: agentName.toLowerCase(),
+                  filePath: devPreviewData.filePath,
+                  fileContent: devPreviewData.fileContent,
+                  adminToken: 'sandra-admin-2025'
+                })
+              });
+              
+              const result = await response.json();
+              
+              if (result.success) {
+                sendMessage.mutate(`✅ APPROVED & IMPLEMENTED! Component created at ${result.filePath}`);
+              } else {
+                sendMessage.mutate(`❌ Approval failed: ${result.error}`);
+              }
+            } catch (error) {
+              sendMessage.mutate(`❌ Implementation error: ${error.message}`);
+            }
+          } else {
+            sendMessage.mutate("✅ APPROVED! Please implement these changes immediately.");
+          }
           setShowDevPreview(false);
         }}
         onReject={(feedback) => {

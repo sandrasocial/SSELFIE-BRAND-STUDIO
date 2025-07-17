@@ -3609,6 +3609,43 @@ If Sandra asks you to create a file or implement code, respond enthusiastically 
     }
   });
 
+  // ADMIN DEV PREVIEW APPROVAL ENDPOINT - CREATES FILES WHEN APPROVED
+  // This endpoint handles approval of Victoria's component previews and creates actual files
+  app.post('/api/admin/approve-component', async (req, res) => {
+    try {
+      const { agentId, filePath, fileContent, adminToken } = req.body;
+      
+      // Verify admin token
+      if (adminToken !== 'sandra-admin-2025') {
+        return res.status(403).json({ error: 'Admin token required' });
+      }
+      
+      console.log(`✅ COMPONENT APPROVAL: ${agentId} - Creating ${filePath}`);
+      
+      // Use AgentCodebaseIntegration to create the file
+      const { AgentCodebaseIntegration } = await import('./agents/agent-codebase-integration');
+      
+      await AgentCodebaseIntegration.writeFile(
+        agentId,
+        filePath,
+        fileContent,
+        `Component approved by Sandra via dev preview`
+      );
+      
+      return res.json({
+        success: true,
+        message: `✅ Component created at ${filePath}`,
+        filePath,
+        agentId,
+        timestamp: new Date().toISOString()
+      });
+      
+    } catch (error) {
+      console.error('❌ Component approval error:', error);
+      res.status(500).json({ error: 'Component creation failed', details: error.message });
+    }
+  });
+
   // ADMIN AGENT FILE CREATION ENDPOINT - NO AUTHENTICATION REQUIRED
   // This endpoint allows agents to create files when Sandra is using admin dashboard
   app.post('/api/admin/agent-file-operation', async (req, res) => {
