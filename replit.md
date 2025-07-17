@@ -600,7 +600,7 @@ The platform has become overly complex with multiple pricing tiers, broken onboa
 **GENERATION PARAMETERS FIXED TO MATCH WORKING SUCCESS PATTERN:**
 - **Root Cause Identified**: Generation parameters not matching successful generation ID 352 that created working images
 - **Working Model Version**: Updated database to use b9fab7abf5819f4c99e78d84d9f049b30b5ba7c63407221604030862ae0be927 (proven working)
-- **Restored Working Parameters**: guidance: 3.5, num_inference_steps: 28, num_outputs: 4, output_quality: 90
+- **User Optimized Parameters**: guidance: 2.8, num_inference_steps: 40, num_outputs: 3, output_quality: 95
 - **Simplified Prompt Structure**: Based on successful generation pattern with clean realism base + trigger word + description
 - **Fixed Both Services**: Updated server/ai-service.ts Maya AI and server/image-generation-service.ts AI Photoshoot
 - **Database Updated**: User model now uses exact version that created successful undefined_1752607983217.png image
