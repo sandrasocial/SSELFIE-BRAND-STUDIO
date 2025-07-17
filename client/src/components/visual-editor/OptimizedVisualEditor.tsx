@@ -145,7 +145,15 @@ export function OptimizedVisualEditor({ className = '' }: OptimizedVisualEditorP
   const iframeRef = useRef<HTMLIFrameElement>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const chatPanelRef = useRef<HTMLDivElement>(null);
+  const chatMessagesRef = useRef<HTMLDivElement>(null);
   const { toast } = useToast();
+
+  // Auto-scroll to bottom when new messages arrive
+  useEffect(() => {
+    if (chatMessagesRef.current) {
+      chatMessagesRef.current.scrollTop = chatMessagesRef.current.scrollHeight;
+    }
+  }, [chatMessages]);
 
   // Fetch user's AI gallery
   const { data: aiImages = [] } = useQuery<AIImage[]>({
@@ -726,7 +734,11 @@ export function OptimizedVisualEditor({ className = '' }: OptimizedVisualEditorP
             </div>
 
             {/* Chat Messages */}
-            <div className="flex-1 overflow-y-auto p-4 space-y-3">
+            <div 
+              ref={chatMessagesRef}
+              className="flex-1 overflow-y-auto p-4 space-y-3" 
+              style={{ maxHeight: 'calc(100vh - 500px)', minHeight: '300px' }}
+            >
               {chatMessages.length === 0 && (
                 <div className="text-center text-gray-500 text-sm">
                   <div className="mb-2">Chat</div>
@@ -746,7 +758,7 @@ export function OptimizedVisualEditor({ className = '' }: OptimizedVisualEditorP
                       : message.isHandoff
                       ? 'mx-2 bg-blue-50 border border-blue-200 text-blue-900'
                       : 'mr-4 bg-gray-100 text-gray-900'
-                  } p-3 rounded-lg text-sm`}
+                  } p-3 rounded-lg text-sm break-words whitespace-pre-wrap`}
                 >
                   {/* Agent Name Header */}
                   {agent && !message.isHandoff && (
