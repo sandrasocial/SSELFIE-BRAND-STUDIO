@@ -29,6 +29,7 @@ interface ChatMessage {
   type: 'user' | 'agent';
   content: string;
   timestamp: Date;
+  imagePreview?: string[];
 }
 
 interface AIImage {
@@ -184,9 +185,15 @@ export function OptimizedVisualEditor({ className = '' }: OptimizedVisualEditorP
           description: 'Victoria is creating new images for your design',
         });
         
-        // Send message to Victoria about the new images
+        // Send message to Victoria about the new images with preview placeholder
         const message = "I just generated new editorial images for you to use in the design. They'll appear in your gallery shortly. Please use them to create a consistent luxury style across the pages.";
-        sendMessage(message);
+        const messageWithPreview: ChatMessage = {
+          type: 'agent',
+          content: message,
+          timestamp: new Date(),
+          imagePreview: [] // Will be populated when images are ready
+        };
+        setChatMessages(prev => [...prev, messageWithPreview]);
         
         // Poll for completion if we got a prediction ID
         if (data.predictionId) {
@@ -216,6 +223,17 @@ export function OptimizedVisualEditor({ className = '' }: OptimizedVisualEditorP
               title: 'Images Ready!',
               description: 'Your new editorial images are available in the gallery',
             });
+            
+            // Update the last chat message with image previews
+            setChatMessages(prev => {
+              const updated = [...prev];
+              const lastMessage = updated[updated.length - 1];
+              if (lastMessage && lastMessage.type === 'agent' && !lastMessage.imagePreview?.length) {
+                lastMessage.imagePreview = Array.isArray(data.output) ? data.output : [data.output];
+              }
+              return updated;
+            });
+            
             // Refresh gallery data
             window.location.reload();
           } else if (data.status === 'failed') {
@@ -422,6 +440,33 @@ export function OptimizedVisualEditor({ className = '' }: OptimizedVisualEditorP
                   } p-3 rounded-lg text-sm`}
                 >
                   {message.content}
+                  
+                  {/* Image Preview like Maya */}
+                  {message.imagePreview && message.imagePreview.length > 0 && (
+                    <div className="mt-3 space-y-2">
+                      <div className="text-xs opacity-70">Generated Images:</div>
+                      <div className="grid grid-cols-2 gap-2">
+                        {message.imagePreview.map((imageUrl, imgIndex) => (
+                          <div key={imgIndex} className="relative group">
+                            <img
+                              src={imageUrl}
+                              alt={`Generated image ${imgIndex + 1}`}
+                              className="w-full h-24 object-cover rounded border"
+                              loading="lazy"
+                            />
+                            <div className="absolute inset-0 bg-black bg-opacity-0 group-hover:bg-opacity-30 transition-opacity rounded flex items-center justify-center">
+                              <button
+                                className="opacity-0 group-hover:opacity-100 text-white text-xs bg-black bg-opacity-50 px-2 py-1 rounded transition-opacity"
+                                onClick={() => window.open(imageUrl, '_blank')}
+                              >
+                                View Full
+                              </button>
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  )}
                 </div>
               ))}
               
@@ -479,8 +524,8 @@ export function OptimizedVisualEditor({ className = '' }: OptimizedVisualEditorP
               )}
             </div>
 
-            {/* Gallery Images Grid */}
-            <div className="flex-1 overflow-y-auto p-4">
+            {/* Gallery Images Grid - Fixed scrolling */}
+            <div className="flex-1 overflow-y-auto p-4" style={{ maxHeight: 'calc(100vh - 400px)' }}>
               {aiImages.length === 0 ? (
                 <div className="text-center text-gray-500 text-sm">
                   <div className="mb-2">🖼️</div>
@@ -547,8 +592,8 @@ export function OptimizedVisualEditor({ className = '' }: OptimizedVisualEditorP
               )}
             </div>
 
-            {/* Flatlay Collections */}
-            <div className="flex-1 overflow-y-auto">
+            {/* Flatlay Collections - Fixed scrolling */}
+            <div className="flex-1 overflow-y-auto" style={{ maxHeight: 'calc(100vh - 400px)' }}>
               {flatlayCollections.map((collection) => (
                 <div key={collection.id} className="border-b border-gray-200">
                   <div className="p-4">
