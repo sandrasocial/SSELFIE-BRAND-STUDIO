@@ -90,24 +90,32 @@ export class EnhancedGenerationService {
     console.log(`🔥 ENHANCED GENERATION: Using ${enhancementLevel} enhancement`);
     console.log(`🎨 Enhancement LoRA: ${enhancement.description}`);
     
-    // 🎯 OPTIMIZE PROMPT FOR ENHANCEMENT
+    // 🎯 OPTIMIZE PROMPT FOR ENHANCEMENT (USING WORKING STRUCTURE FROM ID 352)
     let enhancedPrompt = customPrompt;
     
-    // Ensure user trigger word is at start
-    if (!enhancedPrompt.includes(userModel.triggerWord)) {
-      enhancedPrompt = `${userModel.triggerWord} ${enhancedPrompt}`;
-    }
+    // Clean the custom prompt first to avoid duplication
+    const triggerWord = userModel.triggerWord;
+    enhancedPrompt = enhancedPrompt.replace(new RegExp(triggerWord, 'gi'), '').trim();
+    
+    // Remove existing realism terms if present to avoid duplication
+    const existingTerms = ['raw photo', 'visible skin pores', 'film grain', 'unretouched natural skin texture', 
+                          'subsurface scattering', 'photographed on film'];
+    existingTerms.forEach(term => {
+      enhancedPrompt = enhancedPrompt.replace(new RegExp(term, 'gi'), '').trim();
+    });
+    
+    // Clean up extra commas and spaces
+    enhancedPrompt = enhancedPrompt.replace(/,\s*,/g, ',').replace(/^\s*,\s*|\s*,\s*$/g, '').trim();
+    
+    // 🔧 WORKING STRUCTURE: Realism base + trigger word + clean description (matches successful ID 352)
+    enhancedPrompt = `raw photo, visible skin pores, film grain, unretouched natural skin texture, subsurface scattering, photographed on film, ${triggerWord}, ${enhancedPrompt}`;
     
     // Add enhancement trigger words if specified
     if (enhancement.triggerWords && !enhancedPrompt.toLowerCase().includes(enhancement.triggerWords.toLowerCase())) {
       enhancedPrompt = `${enhancedPrompt}, ${enhancement.triggerWords}`;
     }
     
-    // Add professional quality specifications
-    const professionalSpecs = ", professional photography, studio lighting, high-end portrait, film photography";
-    if (!enhancedPrompt.toLowerCase().includes('professional') && !enhancedPrompt.toLowerCase().includes('studio')) {
-      enhancedPrompt = `${enhancedPrompt}${professionalSpecs}`;
-    }
+    console.log(`🔧 ENHANCED GENERATION WORKING PROMPT: ${enhancedPrompt}`);
     
     // 🔥 ENHANCED GENERATION REQUEST WITH EXTRA LORA
     const enhancedRequestBody = {
