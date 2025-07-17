@@ -6277,17 +6277,30 @@ APPROVAL WORKFLOW:
       
       console.log(`🔄 ADMIN RETRAIN: Starting optimal parameter retrain for user ${userId} (${user.email})`);
       
-      // Get original training images from AWS S3 (stored during initial training)
-      const selfieImages = [
-        `https://sselfie-training-zips.s3.eu-north-1.amazonaws.com/images/${userId}/${userId}_training_image_1.jpg`,
-        `https://sselfie-training-zips.s3.eu-north-1.amazonaws.com/images/${userId}/${userId}_training_image_2.jpg`,
-        `https://sselfie-training-zips.s3.eu-north-1.amazonaws.com/images/${userId}/${userId}_training_image_3.jpg`,
-        `https://sselfie-training-zips.s3.eu-north-1.amazonaws.com/images/${userId}/${userId}_training_image_4.jpg`,
-        `https://sselfie-training-zips.s3.eu-north-1.amazonaws.com/images/${userId}/${userId}_training_image_5.jpg`
-      ];
+      // Use the original uploaded ZIP file (find the oldest one for this user)
+      const fs = require('fs');
+      const path = require('path');
+      const tempDir = path.join(process.cwd(), 'temp_training');
       
-      // Start retraining with optimal parameters
-      const retrainResult = await ModelTrainingService.startModelTraining(userId, selfieImages);
+      let originalZipUrl = null;
+      if (fs.existsSync(tempDir)) {
+        const files = fs.readdirSync(tempDir);
+        const userZipFiles = files.filter(f => f.includes(`training_${userId}_`) && f.endsWith('.zip'));
+        if (userZipFiles.length > 0) {
+          // Use the oldest ZIP file (smallest timestamp)
+          const oldestZip = userZipFiles.sort()[0];
+          originalZipUrl = `https://${process.env.REPLIT_DOMAINS?.split(',')[0] || 'localhost:5000'}/training-zip/${oldestZip}`;
+        }
+      }
+      
+      if (!originalZipUrl) {
+        return res.status(400).json({ error: 'No original training ZIP file found for user' });
+      }
+      
+      console.log(`📁 Using original ZIP file: ${originalZipUrl}`);
+      
+      // Start retraining with the original ZIP file and optimal parameters
+      const retrainResult = await ModelTrainingService.retrainWithOptimalParameters(userId, originalZipUrl);
       
       console.log(`✅ ADMIN RETRAIN: Successfully started for user ${userId}`);
       console.log(`🔍 Training ID: ${retrainResult.trainingId}`);
