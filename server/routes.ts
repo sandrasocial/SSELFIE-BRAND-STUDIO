@@ -4573,6 +4573,10 @@ FOR VICTORIA SPECIFICALLY: When asked about redesigning "sandra-command page", u
         return res.status(400).json({ error: 'Custom prompt is required' });
       }
 
+      // CRITICAL: Validate user has completed training BEFORE generation
+      const { GenerationValidator } = await import('./generation-validator');
+      await GenerationValidator.enforceGenerationRequirements(userId);
+
       const { ModelTrainingService } = await import('./model-training-service');
       const result = await ModelTrainingService.generateCustomPrompt(userId, customPrompt);
       
@@ -4842,6 +4846,10 @@ FOR VICTORIA SPECIFICALLY: When asked about redesigning "sandra-command page", u
         });
       }
       
+      // CRITICAL: Validate user has completed training BEFORE generation
+      const { GenerationValidator } = await import('./generation-validator');
+      await GenerationValidator.enforceGenerationRequirements(userId);
+
       const { ModelTrainingService } = await import('./model-training-service');
       const result = await ModelTrainingService.generateUserImagesFromCategory(userId, category, subcategory);
       

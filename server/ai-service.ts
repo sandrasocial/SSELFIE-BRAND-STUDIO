@@ -1,6 +1,7 @@
 import { storage } from './storage';
 import { UsageService, API_COSTS } from './usage-service';
 import { ArchitectureValidator } from './architecture-validator';
+import { GenerationValidator } from './generation-validator';
 
 // FLUX model configuration for SSELFIE generation - SECURE VERSION
 const FLUX_MODEL_CONFIG = {
@@ -27,10 +28,9 @@ export class AIService {
   static async generateSSELFIE(request: ImageGenerationRequest): Promise<{ trackerId: number; predictionId: string; usageStatus: any }> {
     const { userId, imageBase64, style, prompt } = request;
     
-    const userModel = await storage.getUserModelByUserId(userId);
-    if (!userModel || userModel.trainingStatus !== 'completed') {
-      throw new Error('User model not ready for generation. Training must be completed first.');
-    }
+    // CRITICAL: Enforce strict validation - NO FALLBACKS ALLOWED
+    const userRequirements = await GenerationValidator.enforceGenerationRequirements(userId);
+    console.log(`🔒 VALIDATED: User ${userId} can generate with trigger word: ${userRequirements.triggerWord}`);
     
     // 1. Check usage limits AFTER model validation
     const usageCheck = await UsageService.checkUsageLimit(userId);
