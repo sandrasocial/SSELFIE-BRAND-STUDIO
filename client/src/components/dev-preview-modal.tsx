@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { X, Check, RotateCcw, Copy, Download } from 'lucide-react';
+import { LiveComponentPreview } from './LiveComponentPreview';
 
 interface DevPreviewModalProps {
   isOpen: boolean;
@@ -13,6 +14,8 @@ interface DevPreviewModalProps {
     preview?: string;
     changes?: string[];
     files?: { path: string; content: string; type: 'modified' | 'created' | 'deleted' }[];
+    fileContent?: string;  // Victoria's component code
+    filePath?: string;     // The file path for the component
   };
   onApprove: () => void;
   onReject: (feedback?: string) => void;
@@ -97,7 +100,14 @@ export function DevPreviewModal({
                 <p className="text-sm text-gray-600 mb-4">{previewData.description}</p>
               </div>
               
-              {previewData.preview ? (
+              {/* Use LiveComponentPreview for Victoria's components */}
+              {previewData.fileContent && previewData.type === 'component' ? (
+                <LiveComponentPreview 
+                  fileContent={previewData.fileContent}
+                  componentName={previewData.filePath?.split('/').pop()?.replace('.tsx', '')}
+                  type={previewData.type}
+                />
+              ) : previewData.preview ? (
                 <div className="border border-gray-200 rounded-lg overflow-hidden">
                   <div className="bg-gray-100 px-3 py-2 text-xs text-gray-600 border-b">
                     Preview - {previewData.type}
@@ -120,31 +130,54 @@ export function DevPreviewModal({
           {activeTab === 'code' && (
             <div className="p-6">
               <div className="space-y-4">
-                {previewData.files?.map((file, index) => (
-                  <div key={index} className="border border-gray-200 rounded-lg overflow-hidden">
+                {/* Show Victoria's fileContent if available */}
+                {previewData.fileContent && previewData.filePath ? (
+                  <div className="border border-gray-200 rounded-lg overflow-hidden">
                     <div className="bg-gray-100 px-3 py-2 flex items-center justify-between">
                       <div className="flex items-center space-x-2">
-                        <span className="text-sm font-mono">{file.path}</span>
-                        <span className={`text-xs px-2 py-1 rounded ${
-                          file.type === 'created' ? 'bg-green-100 text-green-800' :
-                          file.type === 'modified' ? 'bg-blue-100 text-blue-800' :
-                          'bg-red-100 text-red-800'
-                        }`}>
-                          {file.type}
+                        <span className="text-sm font-mono">{previewData.filePath}</span>
+                        <span className="text-xs px-2 py-1 rounded bg-green-100 text-green-800">
+                          created
                         </span>
                       </div>
                       <button
-                        onClick={() => copyToClipboard(file.content)}
+                        onClick={() => copyToClipboard(previewData.fileContent || '')}
                         className="p-1 hover:bg-gray-200 rounded"
                       >
                         <Copy className="w-4 h-4" />
                       </button>
                     </div>
-                    <pre className="p-4 text-sm overflow-x-auto bg-gray-50">
-                      <code>{file.content}</code>
+                    <pre className="p-4 text-sm overflow-x-auto bg-gray-50 max-h-96">
+                      <code>{previewData.fileContent}</code>
                     </pre>
                   </div>
-                )) || (
+                ) : previewData.files?.length ? (
+                  previewData.files.map((file, index) => (
+                    <div key={index} className="border border-gray-200 rounded-lg overflow-hidden">
+                      <div className="bg-gray-100 px-3 py-2 flex items-center justify-between">
+                        <div className="flex items-center space-x-2">
+                          <span className="text-sm font-mono">{file.path}</span>
+                          <span className={`text-xs px-2 py-1 rounded ${
+                            file.type === 'created' ? 'bg-green-100 text-green-800' :
+                            file.type === 'modified' ? 'bg-blue-100 text-blue-800' :
+                            'bg-red-100 text-red-800'
+                          }`}>
+                            {file.type}
+                          </span>
+                        </div>
+                        <button
+                          onClick={() => copyToClipboard(file.content)}
+                          className="p-1 hover:bg-gray-200 rounded"
+                        >
+                          <Copy className="w-4 h-4" />
+                        </button>
+                      </div>
+                      <pre className="p-4 text-sm overflow-x-auto bg-gray-50 max-h-96">
+                        <code>{file.content}</code>
+                      </pre>
+                    </div>
+                  ))
+                ) : (
                   <div className="text-center py-8 text-gray-500">
                     No code changes to preview
                   </div>
