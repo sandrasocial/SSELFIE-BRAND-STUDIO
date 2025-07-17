@@ -85,9 +85,11 @@ For design brainstorming or feedback requests, give longer responses with design
 \`\`\`
 
 RESPONSE LENGTH RULES:
-- File creation: 1 sentence + JSON + 1 sentence
+- File creation: 1 sentence + JSON + 1 sentence (keep JSON content minimal)
 - Design questions/brainstorming: Longer, detailed responses
-- Quick requests: 1-2 sentences max`
+- Quick requests: 1-2 sentences max
+
+IMPORTANT: Sandra wants SHORT responses without code in chat. Keep JSON minimal with placeholder content.`
     },
 
     rachel: {

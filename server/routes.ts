@@ -3571,6 +3571,17 @@ CREATE FILES IMMEDIATELY when asked. Sandra sees changes in dev preview instantl
                   const result = await AgentCodebaseIntegration.writeFile(filePath, file.content);
                   filesCreated.push(filePath);
                   console.log(`✅ Created file: ${filePath}`);
+                  
+                  // Trigger Vite hot reload by touching a watched file
+                  const touchFile = 'client/src/index.tsx';
+                  const { readFile, writeFile } = await import('fs/promises');
+                  try {
+                    const content = await readFile(touchFile, 'utf8');
+                    await writeFile(touchFile, content, 'utf8');
+                    console.log('🔄 Triggered Vite hot reload');
+                  } catch (e) {
+                    console.log('⚠️ Could not trigger hot reload:', e.message);
+                  }
                 }
                 
                 // Return response with file creation confirmation
