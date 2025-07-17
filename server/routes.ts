@@ -1469,7 +1469,7 @@ Create prompts that feel like iconic fashion campaign moments that would make so
     }
   });
 
-  // 🧪 ADMIN TEST ENDPOINT - Verify FLUX Pro access for admin users
+  // 🧪 ADMIN TEST ENDPOINT - Verify individual model access for admin users
   app.post('/api/admin/test-flux-pro', isAuthenticated, async (req: any, res) => {
     try {
       const userId = req.user.claims.sub;
@@ -1500,8 +1500,8 @@ Create prompts that feel like iconic fashion campaign moments that would make so
         },
         fluxProReady: hasFluxProAccess,
         message: hasFluxProAccess 
-          ? '🏆 Admin user ready for FLUX Pro luxury training!' 
-          : '❌ Admin user needs premium access for FLUX Pro'
+          ? '🏆 Admin user ready for individual model luxury training!' 
+          : '❌ Admin user needs model training completion'
       });
       
     } catch (error) {
@@ -1523,7 +1523,7 @@ Create prompts that feel like iconic fashion campaign moments that would make so
       // Import luxury training service
       const { LuxuryTrainingService } = await import('./luxury-training-service');
       
-      // Start luxury FLUX Pro training
+      // Start luxury individual model training
       const trainingResult = await LuxuryTrainingService.startLuxuryTraining(userId, selfieImages);
       
       res.json({
@@ -1531,7 +1531,7 @@ Create prompts that feel like iconic fashion campaign moments that would make so
         trainingId: trainingResult.trainingId,
         status: trainingResult.status,
         model: trainingResult.model,
-        message: 'Luxury FLUX Pro training started! Your ultra-realistic model will be ready in 30-45 minutes.',
+        message: 'Luxury individual model training started! Your ultra-realistic model will be ready in 30-45 minutes.',
         estimatedCompletion: new Date(Date.now() + 40 * 60 * 1000).toISOString() // 40 minutes
       });
       
