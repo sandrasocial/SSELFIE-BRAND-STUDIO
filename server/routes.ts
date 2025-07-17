@@ -3518,7 +3518,7 @@ If Sandra asks you to create a file or implement code, respond enthusiastically 
           content: message
         });
 
-        console.log(`💬 Conversation with ${agentId}: ${messages.length} messages (${recentHistory.length} from history + 1 current)`);
+        console.log(`💬 Conversation with ${agentId}: ${messages.length} messages (${conversationHistory ? conversationHistory.length : 0} from history + 1 current)`);
 
         const completion = await client.messages.create({
           model: "claude-sonnet-4-20250514",
@@ -3544,23 +3544,28 @@ If Sandra asks you to create a file or implement code, respond enthusiastically 
       } catch (aiError) {
         console.error('❌ AI service failed:', aiError);
         
-        // Fallback to personality-based response
+        // Enhanced fallback with full personalities
+        const { getAgentPersonality } = await import('./agents/agent-personalities');
+        const personality = getAgentPersonality(agentId);
+        
         const fallbackResponses = {
-          maya: "Hey Sandra! Maya here, your Dev AI. I'm ready to build whatever you need for SSELFIE Studio. What should I code for you?",
-          victoria: "Victoria here! Your UX Designer AI. I'm excited to create some gorgeous luxury designs for you. What shall we work on?",
-          rachel: "Rachel here! Your copywriting twin. Ready to write copy that converts hearts into customers. What do you need?",
-          ava: "Ava here! Your Automation AI. I can streamline any workflow you have in mind. What should I automate?",
-          quinn: "Quinn here! Your QA guardian. Ready to ensure everything meets our luxury standards. What should I test?",
-          sophia: "Sophia here! Your Social Media Manager. Ready to create content for your 120K+ community. What's the plan?",
-          martha: "Martha here! Your Marketing AI. Ready to optimize those 87% profit margins. What campaigns should we run?",
-          diana: "Diana here! Your business coach. Ready to provide strategic guidance for SSELFIE Studio. What should we discuss?",
-          wilma: "Wilma here! Your workflow architect. Ready to design efficient processes. What should I optimize?"
+          maya: `Hey Sandra! ${personality.name} here, your ${personality.role}. I'm ready to build whatever you need for SSELFIE Studio. What should I code for you? I can actually create files in the system!`,
+          victoria: `${personality.name} here! Your ${personality.role}. I'm SO excited to create some gorgeous luxury designs for you! Think Times New Roman, sharp edges, that Vogue editorial aesthetic we love. What shall we work on?`,
+          rachel: `${personality.name} here! Your ${personality.role}. Ready to write copy that converts hearts into customers with that authentic Sandra voice. What do you need?`,
+          ava: `${personality.name} here! Your ${personality.role}. I can streamline any workflow you have in mind for our dual-tier system. What should I automate?`,
+          quinn: `${personality.name} here! Your ${personality.role}. Ready to ensure everything meets our luxury Rolls-Royce standards. What should I test?`,
+          sophia: `${personality.name} here! Your ${personality.role}. Ready to create content for your 120K+ community. What's the plan?`,
+          martha: `${personality.name} here! Your ${personality.role}. Ready to optimize those 87% profit margins. What campaigns should we run?`,
+          diana: `${personality.name} here! Your ${personality.role}. Ready to provide strategic guidance for SSELFIE Studio. What should we discuss?`,
+          wilma: `${personality.name} here! Your ${personality.role}. Ready to design efficient processes. What should I optimize?`
         };
 
         return res.json({
           success: true,
-          message: fallbackResponses[agentId] || `✅ Agent ${agentId} is ready to help with SSELFIE Studio!`,
+          message: fallbackResponses[agentId] || `✅ ${personality.name}, your ${personality.role}, is ready to help with SSELFIE Studio!`,
           agentId,
+          agentName: personality.name,
+          agentRole: personality.role,
           adminToken: 'verified',
           canCreateFiles: true,
           timestamp: new Date().toISOString()
