@@ -680,52 +680,45 @@ export function OptimizedVisualEditor({ className = '' }: OptimizedVisualEditorP
             <TabsTrigger value="flatlays" className="text-xs">Flatlays</TabsTrigger>
           </TabsList>
 
-          <TabsContent value="chat" className="flex-1 flex flex-col mt-0">
-            {/* Quick Commands */}
-            <div className="p-4 border-b border-gray-200">
-              <h4 className="font-medium text-sm mb-3">Quick Commands</h4>
-              <div className="space-y-2">
-                {quickCommands.map((command, index) => (
-                  <Button
-                    key={index}
-                    variant="outline"
-                    size="sm"
-                    className="w-full justify-start text-xs"
-                    onClick={() => {
-                      if (command.styles) {
-                        injectChangesToLivePreview(command.styles);
-                        toast({
-                          title: 'Style Applied',
-                          description: command.label,
-                        });
-                      } else {
-                        sendMessage(command.command);
-                      }
-                    }}
-                  >
-                    {command.icon}
-                    <span className="ml-2">{command.label}</span>
-                  </Button>
-                ))}
-                
-                {/* Victoria Image Generation Button */}
+          <TabsContent value="chat" className="flex-1 flex flex-col mt-0 min-h-0">
+            {/* Quick Commands - Compact Version */}
+            <div className="p-3 border-b border-gray-200 flex-shrink-0">
+              <div className="grid grid-cols-2 gap-1 text-xs">
                 <Button
                   variant="outline"
                   size="sm"
-                  className="w-full justify-start text-xs bg-purple-50 border-purple-200 hover:bg-purple-100"
-                  onClick={generateImagesWithVictoria}
-                  disabled={isLoading}
+                  className="h-6 text-xs justify-start border-black text-black hover:bg-black hover:text-white"
+                  onClick={() => {
+                    injectChangesToLivePreview(`
+                      * { font-family: 'Times New Roman', serif !important; }
+                      h1, h2, h3 { font-weight: 300 !important; letter-spacing: 0.5px !important; }
+                      body { background: #ffffff !important; color: #0a0a0a !important; }
+                    `);
+                    toast({ title: 'Luxury Typography Applied' });
+                  }}
                 >
-                  <Sparkles className="w-4 h-4" />
-                  <span className="ml-2">
-                    {isLoading ? 'Generating...' : 'Generate Images'}
-                  </span>
+                  Typography
+                </Button>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  className="h-6 text-xs justify-start border-black text-black hover:bg-black hover:text-white"
+                  onClick={() => {
+                    injectChangesToLivePreview(`
+                      body { background: linear-gradient(135deg, #f5f5f5 0%, #ffffff 100%) !important; }
+                      h1 { font-size: 4rem !important; font-weight: 100 !important; text-align: center !important; }
+                      .hero { min-height: 100vh !important; display: flex !important; align-items: center !important; }
+                    `);
+                    toast({ title: 'Vogue Mode Applied' });
+                  }}
+                >
+                  Vogue Mode
                 </Button>
               </div>
             </div>
 
-            {/* Chat Messages */}
-            <div className="flex-1 overflow-y-auto p-4 space-y-3">
+            {/* Chat Messages - Fixed height container */}
+            <div className="flex-1 min-h-0 overflow-y-auto p-4 space-y-3">
               {chatMessages.length === 0 && (
                 <div className="text-center text-gray-500 text-sm">
                   <div className="mb-2">Chat</div>
