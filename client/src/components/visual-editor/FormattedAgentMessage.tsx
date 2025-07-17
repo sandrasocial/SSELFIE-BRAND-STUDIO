@@ -246,7 +246,7 @@ export function FormattedAgentMessage({ content, agentName, timestamp }: Formatt
               </div>
             </div>
             <span className="text-xs text-gray-500">
-              {timestamp.toLocaleTimeString()}
+              {timestamp instanceof Date ? timestamp.toLocaleTimeString() : new Date(timestamp).toLocaleTimeString()}
             </span>
           </div>
         </div>

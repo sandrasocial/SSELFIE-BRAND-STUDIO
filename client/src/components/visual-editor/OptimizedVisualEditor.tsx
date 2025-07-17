@@ -923,7 +923,7 @@ export function OptimizedVisualEditor({ className = '' }: OptimizedVisualEditorP
                     <div className="ml-2 bg-black text-white p-2 rounded-lg text-sm">
                       <div className="whitespace-pre-wrap">{message.content}</div>
                       <div className="text-xs opacity-60 mt-1">
-                        {message.timestamp.toLocaleTimeString()}
+                        {message.timestamp instanceof Date ? message.timestamp.toLocaleTimeString() : new Date(message.timestamp).toLocaleTimeString()}
                       </div>
                     </div>
                   ) : message.isHandoff ? (
