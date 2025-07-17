@@ -359,6 +359,28 @@ The platform has become overly complex with multiple pricing tiers, broken onboa
 - Enhanced user experience with coherent, contextual agent interactions
 - Admin dashboard ready for productive conversations with specialized AI team
 
+### ✅ CRITICAL IMAGE GENERATION SYSTEM RESTORED (July 17, 2025)
+**COMPLETE SYSTEM ROLLBACK FROM BROKEN FLUX PRO CONFIGURATION:**
+- **Crisis Resolved**: Image generation was completely down after FLUX Pro model changes broke live platform
+- **Root Cause Fixed**: Mixed model states (flux-standard vs flux-pro) caused API call failures between services
+- **Database Corruption Repaired**: Fixed admin user (ssa@ssasocial.com) model configuration with proper replicate_version_id
+- **API Configuration Restored**: Rolled back to last working flux-dev-lora version-based API format
+- **Complete System Validation**: All tests pass - Maya AI and AI Photoshoot endpoints operational
+- **Platform Status**: 🟢 LIVE - Users can now generate images using their individual trained models
+
+**Technical Rollback Details:**
+- Removed broken FLUX 1.1 Pro Ultra configuration from ai-service.ts and image-generation-service.ts
+- Restored working `version: userTrainedVersion` API format for all users
+- Fixed database inconsistencies where users had flux-standard models without replicate_version_id
+- All users with completed training now have proper model configurations for generation
+- Zero tolerance maintained - each user uses only their individual trained model
+
+**Business Continuity Restored:**
+- Critical platform functionality operational for 1000+ users
+- €15,132 revenue platform no longer blocked by technical issues
+- Admin dashboard fully accessible with working agent chat system
+- All 9 AI agents operational with complete codebase access
+
 ### ✅ COMPREHENSIVE PRE-DEPLOYMENT AUDIT COMPLETED (July 16, 2025)
 **PLATFORM READY FOR PRODUCTION DEPLOYMENT:**
 - **Database Integrity Validated**: All premium users have correct finetune_id values for FLUX 1.1 Pro Ultra generation

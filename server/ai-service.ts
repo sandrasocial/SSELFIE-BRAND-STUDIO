@@ -227,27 +227,9 @@ export class AIService {
 
     let requestBody: any;
 
-    if (isPremium && userModel.isLuxury && userModel.finetuneId) {
-      // 🏆 PREMIUM USERS: FLUX 1.1 Pro Ultra - 6x Faster + Highest Quality + 4MP Resolution
-      console.log(`🏆 Using FLUX 1.1 Pro Ultra Finetuned for premium user: ${userId}`);
-      
-      requestBody = {
-        model: "black-forest-labs/flux-1.1-pro-ultra-finetuned",
-        input: {
-          prompt: prompt,
-          finetune_id: userModel.finetuneId, // Use luxury finetune_id from FLUX Pro trainer
-          finetune_strength: 0.8, // Strong influence for ultra-realistic results
-          aspect_ratio: "3:4",
-          output_format: "png",
-          output_quality: 95, // Premium quality
-          safety_tolerance: 2,
-          seed: Math.floor(Math.random() * 1000000)
-        }
-      };
-      
-    } else if (userModel.trainingStatus === 'completed' && userModel.replicateVersionId) {
-      // 📱 FREE USERS: Standard FLUX Quality  
-      console.log(`📱 Using standard FLUX model for user: ${userId}`);
+    // 🔒 RESTORE WORKING CONFIGURATION: Use user's individual trained model
+    if (userModel.trainingStatus === 'completed' && userModel.replicateVersionId) {
+      console.log(`✅ Using user's individual trained FLUX model: ${userId}`);
       
       const userTrainedVersion = `${userModel.replicateModelId}:${userModel.replicateVersionId}`;
       
