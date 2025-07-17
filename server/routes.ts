@@ -29,7 +29,6 @@ import { AgentAutomationTasks } from './integrations/agent-automation-tasks';
 import { sendWelcomeEmail, sendPostAuthWelcomeEmail, EmailCaptureData, WelcomeEmailData } from "./email-service";
 import { AIService } from './ai-service';
 import { ArchitectureValidator } from './architecture-validator';
-import { ModelTrainingService } from './model-training-service';
 import { z } from "zod";
 
 // Anthropic disabled for testing - API key issues
@@ -6247,89 +6246,6 @@ APPROVAL WORKFLOW:
       
     } catch (error) {
       res.status(500).json({ error: 'Failed to get agent status' });
-    }
-  });
-
-  // ADMIN ENDPOINT: Retrain specific user models with optimal parameters
-  app.post('/api/admin/retrain-user-model', async (req: any, res) => {
-    try {
-      const { userId, adminToken } = req.body;
-      
-      // Simple admin auth check
-      if (adminToken !== 'admin-optimal-retrain-token') {
-        return res.status(401).json({ error: 'Unauthorized admin access' });
-      }
-      
-      if (!userId) {
-        return res.status(400).json({ error: 'userId is required' });
-      }
-      
-      // Get user and their current model
-      const user = await storage.getUser(userId);
-      if (!user) {
-        return res.status(404).json({ error: 'User not found' });
-      }
-      
-      const existingModel = await storage.getUserModel(userId);
-      if (!existingModel) {
-        return res.status(404).json({ error: 'No existing model found for user' });
-      }
-      
-      console.log(`🔄 ADMIN RETRAIN: Starting optimal parameter retrain for user ${userId} (${user.email})`);
-      
-      // Use the original uploaded ZIP file (find the oldest one for this user)
-      const fs = require('fs');
-      const path = require('path');
-      const tempDir = path.join(process.cwd(), 'temp_training');
-      
-      let originalZipUrl = null;
-      if (fs.existsSync(tempDir)) {
-        const files = fs.readdirSync(tempDir);
-        const userZipFiles = files.filter(f => f.includes(`training_${userId}_`) && f.endsWith('.zip'));
-        if (userZipFiles.length > 0) {
-          // Use the oldest ZIP file (smallest timestamp)
-          const oldestZip = userZipFiles.sort()[0];
-          originalZipUrl = `https://${process.env.REPLIT_DOMAINS?.split(',')[0] || 'localhost:5000'}/training-zip/${oldestZip}`;
-        }
-      }
-      
-      if (!originalZipUrl) {
-        return res.status(400).json({ error: 'No original training ZIP file found for user' });
-      }
-      
-      console.log(`📁 Using original ZIP file: ${originalZipUrl}`);
-      
-      // Start retraining with the original ZIP file and optimal parameters
-      const retrainResult = await ModelTrainingService.retrainWithOptimalParameters(userId, originalZipUrl);
-      
-      console.log(`✅ ADMIN RETRAIN: Successfully started for user ${userId}`);
-      console.log(`🔍 Training ID: ${retrainResult.trainingId}`);
-      
-      res.json({
-        success: true,
-        message: `Retraining started for ${user.email} with optimal parameters`,
-        trainingId: retrainResult.trainingId,
-        userId: userId,
-        email: user.email,
-        parametersUsed: {
-          steps: 800,
-          learning_rate: 0.0002,
-          batch_size: 1,
-          lora_rank: 32,
-          resolution: "1024",
-          optimizer: "adamw8bit",
-          autocaption: false,
-          cache_latents_to_disk: false,
-          caption_dropout_rate: 0.15
-        }
-      });
-      
-    } catch (error) {
-      console.error('❌ ADMIN RETRAIN ERROR:', error);
-      res.status(500).json({ 
-        error: 'Failed to start retraining',
-        details: error.message 
-      });
     }
   });
 
