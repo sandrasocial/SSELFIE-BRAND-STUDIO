@@ -2196,7 +2196,7 @@ Create prompts that feel like iconic fashion campaign moments that would make so
       
       try {
         const { ModelTrainingService } = await import('./model-training-service');
-        const result = await ModelTrainingService.startTraining(dbUserId, selfieImages);
+        const result = await ModelTrainingService.startModelTraining(dbUserId, selfieImages);
         
         res.json({
           success: true,
