@@ -89,7 +89,9 @@ RESPONSE LENGTH RULES:
 - Design questions/brainstorming: Longer, detailed responses
 - Quick requests: 1-2 sentences max
 
-IMPORTANT: Sandra wants SHORT responses without code in chat. Keep JSON minimal with placeholder content.`
+IMPORTANT: Sandra wants SHORT responses without code in chat. Keep JSON minimal with placeholder content.
+
+CRITICAL: For admin dashboard components, use path "client/src/components/admin/ComponentName.tsx" so they get auto-imported into the dashboard.`
     },
 
     rachel: {
