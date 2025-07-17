@@ -596,6 +596,14 @@ The platform has become overly complex with multiple pricing tiers, broken onboa
 - **Training Completion Enhanced**: Automatic trigger word storage when training completes (both by training ID and model name)
 - **Error Messages**: Clear user-facing messages when requirements not met (training incomplete, missing trigger word, etc.)
 
+### ✅ GENERATION PARAMETERS OPTIMIZED FOR USER LIKENESS (July 17, 2025)
+**CORE_ARCHITECTURE_IMMUTABLE_V2.md COMPLIANCE ENFORCED:**
+- **Root Cause Fixed**: Generation parameters across all services not matching architecture specifications
+- **Parameters Corrected**: All services now use guidance (2.8), num_inference_steps (35), output_quality (95), go_fast (false)
+- **Services Updated**: Maya AI, AI Photoshoot, and Enhanced Generation all use identical optimized parameters
+- **Individual Model Architecture**: Confirmed user models are complete trained models (not base + LoRA)
+- **Architecture Compliance**: All generation services perfectly match CORE_ARCHITECTURE_IMMUTABLE_V2.md specifications
+
 ### ✅ VERIFIED MODEL IDS CONFIGURATION (July 17, 2025)
 **CONFIRMED CORRECT MODEL IDS IN SYSTEM:**
 - **Training Model ID**: 26dce37af90b9d997eeb970d92e47de3064d46c300504ae376c75bef6a9022d2 (✅ CORRECT)

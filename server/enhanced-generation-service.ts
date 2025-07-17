@@ -114,15 +114,13 @@ export class EnhancedGenerationService {
       version: userTrainedVersion, // 🔒 USER'S INDIVIDUAL MODEL (V2 COMPLIANCE)
       input: {
         prompt: enhancedPrompt,
-        lora_scale: 0.9, // 🔧 FLUX LORA OPTIMAL: Strong enough to capture trained features without over-fitting
-        guidance: 2.6, // 🔧 FLUX LORA OPTIMAL: Sweet spot for prompt following with natural generation
-        num_inference_steps: 40, // 🔧 FLUX LORA OPTIMAL: Enough detail without diminishing returns
+        guidance: 2.8, // 🔒 CORE_ARCHITECTURE_IMMUTABLE_V2.md: optimal natural results
+        num_inference_steps: 35, // 🔒 CORE_ARCHITECTURE_IMMUTABLE_V2.md: expert quality
         num_outputs: 3,
-        aspect_ratio: "3:4", // 🔧 FLUX LORA OPTIMAL: Most natural for portraits
+        aspect_ratio: "3:4", // 🔒 CORE_ARCHITECTURE_IMMUTABLE_V2.md: portrait format
         output_format: "png",
-        output_quality: 90,
-        megapixels: "1",
-        go_fast: false,
+        output_quality: 95, // 🔒 CORE_ARCHITECTURE_IMMUTABLE_V2.md: maximum clarity
+        go_fast: false, // 🔒 CORE_ARCHITECTURE_IMMUTABLE_V2.md: quality over speed
         disable_safety_checker: false,
         // 🔥 ENHANCEMENT LAYER - NEW PARAMETERS
         extra_lora: enhancement.model,
