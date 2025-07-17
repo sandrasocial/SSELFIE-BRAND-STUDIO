@@ -1260,37 +1260,120 @@ export function OptimizedVisualEditor({ className = '' }: OptimizedVisualEditorP
                         metaReferrer.setAttribute('content', 'no-referrer-when-downgrade');
                         iframeDoc.head?.appendChild(metaReferrer);
                         
-                        // Enhanced image loading fix
+                        // Ultra-aggressive image loading fix with multiple strategies
                         const fixImages = () => {
                           const images = iframeDoc.querySelectorAll('img');
                           console.log(`🖼️ Found ${images.length} images in iframe`);
                           
                           images.forEach((img, index) => {
-                            if (!img.complete || img.naturalWidth === 0) {
-                              console.log(`🔄 Reloading image ${index + 1}:`, img.src);
+                            const isBroken = !img.complete || 
+                                           img.naturalWidth === 0 || 
+                                           img.naturalHeight === 0 ||
+                                           img.src === '' ||
+                                           img.src.includes('undefined');
+                            
+                            if (isBroken) {
+                              console.log(`🔄 Fixing broken image ${index + 1}:`, img.src);
                               const originalSrc = img.src;
                               
-                              // Set crossorigin attribute for better loading
+                              // Strategy 1: Enhanced loading attributes
                               img.crossOrigin = 'anonymous';
                               img.referrerPolicy = 'no-referrer-when-downgrade';
+                              img.loading = 'eager';
+                              img.decoding = 'sync';
                               
-                              // Force reload with cache busting
+                              // Strategy 2: CSS display fixes
+                              img.style.display = 'block';
+                              img.style.maxWidth = '100%';
+                              img.style.height = 'auto';
+                              img.style.objectFit = 'cover';
+                              
+                              // Strategy 3: Force reload with aggressive cache busting
                               img.src = '';
                               setTimeout(() => {
-                                img.src = originalSrc + (originalSrc.includes('?') ? '&' : '?') + 'v=' + Date.now();
-                              }, 100);
+                                const cacheBuster = (originalSrc.includes('?') ? '&' : '?') + 
+                                                  `t=${Date.now()}&r=${Math.random()}`;
+                                img.src = originalSrc + cacheBuster;
+                                
+                                // Strategy 4: Fallback reload after delay
+                                setTimeout(() => {
+                                  if (img.naturalWidth === 0) {
+                                    console.log(`🔄 Final fallback for: ${originalSrc}`);
+                                    img.src = originalSrc.split('?')[0] + '?force=' + Date.now();
+                                  }
+                                }, 2000);
+                              }, 150);
                             }
                           });
+                          
+                          // Strategy 5: Add CSS to force image display
+                          if (!iframeDoc.getElementById('force-image-display')) {
+                            const style = iframeDoc.createElement('style');
+                            style.id = 'force-image-display';
+                            style.innerHTML = `
+                              img {
+                                display: block !important;
+                                max-width: 100% !important;
+                                height: auto !important;
+                                object-fit: cover !important;
+                                background: transparent !important;
+                              }
+                              img[src=""], img:not([src]) {
+                                display: none !important;
+                              }
+                            `;
+                            iframeDoc.head.appendChild(style);
+                          }
                         };
                         
                         // Initial fix
                         fixImages();
                         
-                        // Fix again after DOM changes
-                        const observer = new MutationObserver(() => {
-                          fixImages();
+                        // Enhanced DOM change monitoring with aggressive re-fixing
+                        const observer = new MutationObserver((mutations) => {
+                          let hasImageChanges = false;
+                          mutations.forEach(mutation => {
+                            if (mutation.type === 'childList') {
+                              mutation.addedNodes.forEach(node => {
+                                if (node.nodeType === 1) { // Element node
+                                  const element = node as Element;
+                                  if (element.tagName === 'IMG' || element.querySelector('img')) {
+                                    hasImageChanges = true;
+                                  }
+                                }
+                              });
+                            }
+                            if (mutation.type === 'attributes' && 
+                                mutation.target.nodeType === 1 &&
+                                (mutation.target as Element).tagName === 'IMG') {
+                              hasImageChanges = true;
+                            }
+                          });
+                          
+                          if (hasImageChanges) {
+                            console.log('🔄 Image-related DOM changes detected, re-fixing images');
+                            setTimeout(fixImages, 200);
+                          }
                         });
-                        observer.observe(iframeDoc.body, { childList: true, subtree: true });
+                        
+                        observer.observe(iframeDoc.body, { 
+                          childList: true, 
+                          subtree: true,
+                          attributes: true,
+                          attributeFilter: ['src', 'crossorigin', 'loading']
+                        });
+                        
+                        // Periodic aggressive image checking
+                        const periodicCheck = setInterval(() => {
+                          console.log('🔄 Periodic image check running...');
+                          fixImages();
+                        }, 10000); // Check every 10 seconds
+                        
+                        // Store cleanup function
+                        (iframeDoc as any).__imageCleanup = () => {
+                          observer.disconnect();
+                          clearInterval(periodicCheck);
+                        };
                         
                         // Add hover effects for elements
                         setTimeout(() => {
