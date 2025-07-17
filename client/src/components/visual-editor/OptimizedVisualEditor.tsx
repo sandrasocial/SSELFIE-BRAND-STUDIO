@@ -3,6 +3,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { Panel, PanelGroup, PanelResizeHandle } from 'react-resizable-panels';
 import { 
   Eye, 
   Edit3,
@@ -17,7 +18,8 @@ import {
   Wand2,
   Image,
   Heart,
-  Star
+  Star,
+  Sparkles
 } from 'lucide-react';
 import { apiRequest } from '@/lib/queryClient';
 import { useToast } from '@/hooks/use-toast';
@@ -166,6 +168,74 @@ export function OptimizedVisualEditor({ className = '' }: OptimizedVisualEditorP
     setActiveTab('chat'); // Switch back to chat tab
   };
 
+  // Generate new AI images via Victoria using existing endpoint
+  const generateImagesWithVictoria = async () => {
+    setIsLoading(true);
+    try {
+      const response = await apiRequest('POST', '/api/generate-user-images', {
+        category: 'luxury-editorial',
+        subcategory: 'design-content'
+      });
+      
+      if (response.ok) {
+        const data = await response.json();
+        toast({
+          title: 'Images Generating',
+          description: 'Victoria is creating new images for your design',
+        });
+        
+        // Send message to Victoria about the new images
+        const message = "I just generated new editorial images for you to use in the design. They'll appear in your gallery shortly. Please use them to create a consistent luxury style across the pages.";
+        sendMessage(message);
+        
+        // Poll for completion if we got a prediction ID
+        if (data.predictionId) {
+          pollForImageCompletion(data.predictionId);
+        }
+      }
+    } catch (error) {
+      toast({
+        title: 'Generation Failed',
+        description: 'Could not generate images. Please try again.',
+        variant: 'destructive',
+      });
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  // Poll for image generation completion
+  const pollForImageCompletion = async (predictionId: string) => {
+    const checkStatus = async () => {
+      try {
+        const response = await apiRequest('GET', `/api/check-generation/${predictionId}`);
+        if (response.ok) {
+          const data = await response.json();
+          if (data.status === 'succeeded' && data.output) {
+            toast({
+              title: 'Images Ready!',
+              description: 'Your new editorial images are available in the gallery',
+            });
+            // Refresh gallery data
+            window.location.reload();
+          } else if (data.status === 'failed') {
+            toast({
+              title: 'Generation Failed',
+              description: 'Image generation failed. Please try again.',
+              variant: 'destructive',
+            });
+          } else if (data.status === 'processing') {
+            // Continue polling
+            setTimeout(checkStatus, 3000);
+          }
+        }
+      } catch (error) {
+        console.error('Error checking generation status:', error);
+      }
+    };
+    checkStatus();
+  };
+
   // Send message to Victoria
   const sendMessage = async (message: string) => {
     if (!message.trim()) return;
@@ -255,9 +325,11 @@ export function OptimizedVisualEditor({ className = '' }: OptimizedVisualEditorP
   ];
 
   return (
-    <div className={`h-screen flex bg-white ${className}`}>
-      {/* Chat Panel - Always Visible */}
-      <div className="w-80 border-r border-gray-200 bg-white flex flex-col">
+    <div className={`h-screen bg-white ${className}`}>
+      <PanelGroup direction="horizontal" className="h-full">
+        {/* Chat Panel - Resizable */}
+        <Panel defaultSize={30} minSize={20} maxSize={50}>
+          <div className="h-full border-r border-gray-200 bg-white flex flex-col">
         {/* Chat Header */}
         <div className="p-4 border-b border-gray-200 flex items-center justify-between">
           <div className="flex items-center space-x-2">
@@ -313,6 +385,20 @@ export function OptimizedVisualEditor({ className = '' }: OptimizedVisualEditorP
                     <span className="ml-2">{command.label}</span>
                   </Button>
                 ))}
+                
+                {/* Victoria Image Generation Button */}
+                <Button
+                  variant="outline"
+                  size="sm"
+                  className="w-full justify-start text-xs bg-purple-50 border-purple-200 hover:bg-purple-100"
+                  onClick={generateImagesWithVictoria}
+                  disabled={isLoading}
+                >
+                  <Sparkles className="w-4 h-4" />
+                  <span className="ml-2">
+                    {isLoading ? 'Generating...' : 'Generate Images'}
+                  </span>
+                </Button>
               </div>
             </div>
 
@@ -504,12 +590,15 @@ export function OptimizedVisualEditor({ className = '' }: OptimizedVisualEditorP
             </div>
           </TabsContent>
         </Tabs>
+          </div>
+        </Panel>
 
+        {/* Resize Handle */}
+        <PanelResizeHandle className="w-2 bg-gray-100 hover:bg-gray-200 transition-colors" />
 
-      </div>
-
-      {/* Main Live Preview */}
-      <div className="flex-1 flex flex-col">
+        {/* Main Live Preview Panel - Resizable */}
+        <Panel defaultSize={70} minSize={30}>
+          <div className="h-full flex flex-col">
         {/* Top Toolbar */}
         <div className="border-b border-gray-200 px-4 py-2 flex items-center justify-between bg-gray-50">
           <div className="flex items-center space-x-4">
@@ -538,46 +627,50 @@ export function OptimizedVisualEditor({ className = '' }: OptimizedVisualEditorP
           </div>
         </div>
 
-        {/* Live Development Preview */}
-        <div className="flex-1 relative">
-          <iframe
-            ref={iframeRef}
-            src={window.location.origin}
-            className="w-full h-full border-0"
-            title="Live SSELFIE Studio"
-            sandbox="allow-same-origin allow-scripts allow-forms allow-popups allow-top-navigation"
-            onLoad={() => {
-              console.log('🚀 Live SSELFIE Studio loaded');
-              // Add hover effects for elements
-              setTimeout(() => {
-                const hoverStyles = `
-                  * { transition: box-shadow 0.2s ease !important; }
-                  *:hover { box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.3) !important; }
-                `;
-                injectChangesToLivePreview(hoverStyles);
-              }, 1000);
-            }}
-          />
-        </div>
-      </div>
-
-      {/* Properties Panel - Only shows when button clicked */}
-      {showPropertiesPanel && (
-        <div className="w-80 border-l border-gray-200 bg-white flex flex-col">
-          {/* Properties Header */}
-          <div className="p-4 border-b border-gray-200 flex items-center justify-between">
-            <h3 className="font-medium text-sm">Properties</h3>
-            <Button
-              variant="ghost"
-              size="sm"
-              onClick={() => setShowPropertiesPanel(false)}
-            >
-              <ChevronRight className="w-4 h-4" />
-            </Button>
+            {/* Live Development Preview */}
+            <div className="flex-1 relative">
+              <iframe
+                ref={iframeRef}
+                src={window.location.origin}
+                className="w-full h-full border-0"
+                title="Live SSELFIE Studio"
+                sandbox="allow-same-origin allow-scripts allow-forms allow-popups allow-top-navigation"
+                onLoad={() => {
+                  console.log('🚀 Live SSELFIE Studio loaded');
+                  // Add hover effects for elements
+                  setTimeout(() => {
+                    const hoverStyles = `
+                      * { transition: box-shadow 0.2s ease !important; }
+                      *:hover { box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.3) !important; }
+                    `;
+                    injectChangesToLivePreview(hoverStyles);
+                  }, 1000);
+                }}
+              />
+            </div>
           </div>
+        </Panel>
 
-          {/* Live Style Controls */}
-          <div className="p-4 border-b border-gray-200">
+        {/* Properties Panel - Only shows when button clicked */}
+        {showPropertiesPanel && (
+          <>
+            <PanelResizeHandle className="w-2 bg-gray-100 hover:bg-gray-200 transition-colors" />
+            <Panel defaultSize={30} minSize={15} maxSize={40}>
+              <div className="h-full border-l border-gray-200 bg-white flex flex-col">
+                {/* Properties Header */}
+                <div className="p-4 border-b border-gray-200 flex items-center justify-between">
+                  <h3 className="font-medium text-sm">Properties</h3>
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    onClick={() => setShowPropertiesPanel(false)}
+                  >
+                    <ChevronRight className="w-4 h-4" />
+                  </Button>
+                </div>
+
+                {/* Live Style Controls */}
+                <div className="p-4 border-b border-gray-200">
             <h4 className="font-medium text-sm mb-3">Text Color</h4>
             <div className="flex items-center space-x-2 mb-4">
               <input
@@ -620,10 +713,10 @@ export function OptimizedVisualEditor({ className = '' }: OptimizedVisualEditorP
               className="text-sm mb-4"
               placeholder="E.G. MY-CUSTOM-CLASS"
             />
-          </div>
+                </div>
 
-          {/* Apply to Live Preview */}
-          <div className="p-4 border-b border-gray-200">
+                {/* Apply to Live Preview */}
+                <div className="p-4 border-b border-gray-200">
             <h4 className="font-medium text-sm mb-3">Apply to Live Preview</h4>
             <Button
               variant="default"
@@ -648,10 +741,10 @@ export function OptimizedVisualEditor({ className = '' }: OptimizedVisualEditorP
             >
               🎨 Apply Styles Live
             </Button>
-          </div>
+                </div>
 
-          {/* Quick Actions */}
-          <div className="p-4 border-b border-gray-200">
+                {/* Quick Actions */}
+                <div className="p-4 border-b border-gray-200">
             <h4 className="font-medium text-sm mb-3">Quick Actions</h4>
             <div className="space-y-2">
               <Button variant="outline" size="sm" className="w-full justify-start text-sm">
@@ -667,10 +760,10 @@ export function OptimizedVisualEditor({ className = '' }: OptimizedVisualEditorP
                 Upload Image
               </Button>
             </div>
-          </div>
+                </div>
 
-          {/* Victoria Quick Commands */}
-          <div className="p-4">
+                {/* Victoria Quick Commands */}
+                <div className="p-4">
             <h4 className="font-medium text-sm mb-3">Victoria Quick Commands</h4>
             <div className="space-y-2">
               <Button 
@@ -721,10 +814,13 @@ export function OptimizedVisualEditor({ className = '' }: OptimizedVisualEditorP
               >
                 👑 Vogue Mode
               </Button>
-            </div>
-          </div>
-        </div>
-      )}
+                </div>
+                </div>
+              </div>
+            </Panel>
+          </>
+        )}
+      </PanelGroup>
     </div>
   );
 }
