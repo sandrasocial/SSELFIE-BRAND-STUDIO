@@ -569,7 +569,7 @@ export function OptimizedVisualEditor({ className = '' }: OptimizedVisualEditorP
         <Panel defaultSize={30} minSize={20} maxSize={50}>
           <div 
             ref={chatPanelRef}
-            className={`h-full border-r border-gray-200 bg-white flex flex-col ${isDragOver ? 'bg-blue-50 border-blue-300' : ''}`}
+            className={`h-full border-r border-gray-200 bg-white flex flex-col min-h-0 ${isDragOver ? 'bg-blue-50 border-blue-300' : ''}`}
             onDragOver={handleDragOver}
             onDragLeave={handleDragLeave}
             onDrop={handleDrop}
@@ -584,7 +584,7 @@ export function OptimizedVisualEditor({ className = '' }: OptimizedVisualEditorP
               </div>
             )}
         {/* Chat Header with Agent Workflow */}
-        <div className="p-4 border-b border-gray-200">
+        <div className="p-4 border-b border-gray-200 flex-shrink-0">
           <div className="flex items-center justify-between mb-3">
             <div className="flex items-center space-x-2">
               <div className="w-8 h-8 bg-black flex items-center justify-center">
@@ -673,8 +673,8 @@ export function OptimizedVisualEditor({ className = '' }: OptimizedVisualEditorP
         </div>
 
         {/* Tabs for Chat, Gallery, and Flatlay Library */}
-        <Tabs value={activeTab} onValueChange={setActiveTab} className="flex-1 flex flex-col">
-          <TabsList className="grid w-full grid-cols-3 mx-4 mt-4">
+        <Tabs value={activeTab} onValueChange={setActiveTab} className="flex-1 flex flex-col min-h-0">
+          <TabsList className="grid w-full grid-cols-3 mx-4 mt-4 flex-shrink-0">
             <TabsTrigger value="chat" className="text-xs">Chat</TabsTrigger>
             <TabsTrigger value="gallery" className="text-xs">Gallery</TabsTrigger>
             <TabsTrigger value="flatlays" className="text-xs">Flatlays</TabsTrigger>
@@ -952,10 +952,10 @@ export function OptimizedVisualEditor({ className = '' }: OptimizedVisualEditorP
             </div>
 
             {/* Flatlay Collections - Fixed scrolling */}
-            <div className="flex-1 min-h-0 overflow-y-auto">
+            <div className="flex-1 min-h-0 overflow-y-auto p-4">
               {flatlayCollections.map((collection) => (
-                <div key={collection.id} className="border-b border-gray-200">
-                  <div className="p-4">
+                <div key={collection.id} className="border-b border-gray-200 pb-4 mb-4">
+                  <div>
                     <h5 className="font-medium text-sm mb-2">{collection.name}</h5>
                     <p className="text-xs text-gray-600 mb-3">{collection.description}</p>
                     
