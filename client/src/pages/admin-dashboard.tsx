@@ -10,6 +10,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import TestAdminCard from '@/components/admin/TestAdminCard';
+import AgentDashboard from '@/components/admin/AgentDashboard';
 
 // Agent Configuration for the visual cards
 const AGENT_CONFIGS = [
@@ -175,6 +176,7 @@ export default function AdminDashboard() {
         <div className="max-w-7xl mx-auto px-6 py-8">
           {/* File Creation Test */}
           <TestAdminCard />
+          <AgentDashboard />
           
           {/* Business Metrics */}
           <section className="mb-12">
