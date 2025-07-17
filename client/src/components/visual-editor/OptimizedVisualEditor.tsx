@@ -994,7 +994,6 @@ export function OptimizedVisualEditor({ className = '' }: OptimizedVisualEditorP
             </div>
           </TabsContent>
         </Tabs>
-          </div>
         </Panel>
 
         {/* Resize Handle */}
