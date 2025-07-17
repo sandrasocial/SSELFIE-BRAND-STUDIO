@@ -71,7 +71,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
       res.setHeader('Cache-Control', 'public, max-age=300'); // 5 minute cache
       res.setHeader('Vary', 'Origin, User-Agent');
       res.setHeader('X-Content-Type-Options', 'nosniff');
-      res.setHeader('X-Frame-Options', 'DENY');
+      // Relaxed X-Frame-Options for development compatibility
+      res.setHeader('X-Frame-Options', 'SAMEORIGIN');
       res.setHeader('Strict-Transport-Security', 'max-age=63072000; includeSubDomains; preload');
       
       // Help browsers with DNS resolution
