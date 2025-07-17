@@ -190,28 +190,23 @@ export class AIService {
     // Use ONLY user's unique trigger word - NO FALLBACKS
     const triggerWord = userModel.triggerWord;
     
-    // REVERTED TO PROVEN JULY 16 SPECIFICATIONS - These created the successful image
-    const expertQualitySpecs = `, film photograph, natural film grain, realistic hair with volume, natural hair texture, never flat hair, authentic skin tone, natural healthy glow, professional photography, subtle skin texture, natural skin detail, gentle smoothing`;
+    // 🔧 FLUX DEV LORA OPTIMAL PROMPT STRUCTURE - For maximum facial likeness
+    const realismBase = `raw photo, visible skin pores, film grain, unretouched natural skin texture, subsurface scattering, photographed on film`;
+    const cameraSpecs = `shot on Canon EOS R5 with 85mm f/1.4 lens`;
+    const naturalQualities = `natural expression, minimal makeup highlighting natural features, authentic skin texture, unprocessed natural beauty`;
     
     if (customPrompt) {
-      // OPTIMIZED: Ensure trigger word appears multiple times for stronger facial likeness
+      // CRITICAL: Trigger word placement at beginning for strongest facial activation
       let finalPrompt = customPrompt;
       
       // Remove existing trigger word instances first
       finalPrompt = finalPrompt.replace(new RegExp(triggerWord, 'gi'), '').trim();
       
-      // Add trigger word at beginning AND reinforce halfway through prompt
-      const promptParts = finalPrompt.split(',').map(part => part.trim());
-      const midPoint = Math.floor(promptParts.length / 2);
-      
-      // Insert trigger word at beginning and middle for stronger activation
-      promptParts.unshift(triggerWord);
-      if (promptParts.length > 3) {
-        promptParts.splice(midPoint, 0, `${triggerWord} portrait`);
-      }
-      
-      finalPrompt = promptParts.join(', ');
-      return `${finalPrompt}${expertQualitySpecs}`;
+      // FLUX LORA OPTIMAL: Single trigger word at beginning (don't repeat - reduces quality)
+      // Structure: realism base + trigger word + user description + camera specs + natural qualities
+      const optimizedPrompt = `${realismBase}, ${triggerWord}, ${finalPrompt}, ${cameraSpecs}, natural lighting, ${naturalQualities}`;
+      console.log(`🔧 MAYA FLUX LORA OPTIMIZED PROMPT: ${optimizedPrompt}`);
+      return optimizedPrompt;
     }
     
     // Fallback should never be used - Maya should always provide custom prompt
@@ -247,12 +242,13 @@ export class AIService {
         version: userTrainedVersion,
         input: {
           prompt: prompt,
-          guidance: 2.5, // 🔧 REVERTED: Proven optimal from July 16 success
-          num_inference_steps: 35, // 🔧 REVERTED: Original working steps 
+          lora_scale: 0.9, // 🔧 FLUX LORA OPTIMAL: Strong enough to capture trained features without over-fitting
+          guidance: 2.6, // 🔧 FLUX LORA OPTIMAL: Sweet spot for prompt following with natural generation
+          num_inference_steps: 40, // 🔧 FLUX LORA OPTIMAL: Enough detail without diminishing returns
           num_outputs: 3,
-          aspect_ratio: "3:4",
+          aspect_ratio: "3:4", // 🔧 FLUX LORA OPTIMAL: Most natural for portraits
           output_format: "png",
-          output_quality: 90, // 🔧 REVERTED: Balanced quality setting
+          output_quality: 90,
           megapixels: "1",
           go_fast: false,
           disable_safety_checker: false,

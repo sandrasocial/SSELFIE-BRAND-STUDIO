@@ -52,38 +52,31 @@ export async function generateImages(request: GenerateImagesRequest): Promise<Ge
       throw new Error('User LoRA model not found - training may need to be completed');
     }
     
-    // OPTIMIZED: Multiple trigger word placements for stronger facial likeness
-    let finalPrompt = customPrompt;
+    // 🔧 FLUX DEV LORA OPTIMAL PROMPT STRUCTURE - For maximum facial likeness
+    const realismBase = `raw photo, visible skin pores, film grain, unretouched natural skin texture, subsurface scattering, photographed on film`;
+    const cameraSpecs = `shot on Canon EOS R5 with 85mm f/1.4 lens`;
+    const naturalQualities = `natural expression, minimal makeup highlighting natural features, authentic skin texture, unprocessed natural beauty`;
+    
+    // Clean the custom prompt first
+    let cleanPrompt = customPrompt;
     
     // Remove existing trigger word instances first  
-    finalPrompt = finalPrompt.replace(new RegExp(triggerWord, 'gi'), '').trim();
+    cleanPrompt = cleanPrompt.replace(new RegExp(triggerWord, 'gi'), '').trim();
     
-    // Add trigger word at beginning AND reinforce in middle for stronger activation
-    const promptParts = finalPrompt.split(',').map(part => part.trim());
-    const midPoint = Math.floor(promptParts.length / 2);
+    // Remove existing realism terms if present to avoid duplication
+    const existingTerms = ['raw photo', 'film grain', 'visible skin pores', 'unretouched', 'subsurface scattering', 'photographed on film'];
+    existingTerms.forEach(term => {
+      cleanPrompt = cleanPrompt.replace(new RegExp(term, 'gi'), '').trim();
+    });
     
-    // Insert trigger word at beginning and middle for maximum facial likeness
-    promptParts.unshift(triggerWord);
-    if (promptParts.length > 3) {
-      promptParts.splice(midPoint, 0, `${triggerWord} portrait`);
-    }
+    // Clean up extra commas and spaces
+    cleanPrompt = cleanPrompt.replace(/,\s*,/g, ',').replace(/^\s*,\s*|\s*,\s*$/g, '').trim();
     
-    finalPrompt = promptParts.join(', ');
+    // FLUX LORA OPTIMAL: Single trigger word placement for best results
+    // Structure: realism base + trigger word + user description + camera specs + natural qualities
+    const finalPrompt = `${realismBase}, ${triggerWord}, ${cleanPrompt}, ${cameraSpecs}, natural lighting, ${naturalQualities}`;
     
-    // REVERTED TO PROVEN JULY 16 SPECIFICATIONS - These created the successful image
-    const expertQualitySpecs = `, film photograph, natural film grain, authentic film photography, natural hair with volume, professional photography on film camera, natural lighting, subtle skin texture, natural skin detail, gentle smoothing`;
-    
-    const premiumHairSpecs = ", realistic hair with volume and natural texture, never flat hair, natural hair flow and movement";
-    
-    // Only add expert quality specs if not already present
-    if (!finalPrompt.toLowerCase().includes('film grain') && !finalPrompt.toLowerCase().includes('raw photo')) {
-      finalPrompt = `${finalPrompt}${expertQualitySpecs}`;
-    }
-    
-    // Always add premium hair specifications for better hair quality
-    if (!finalPrompt.toLowerCase().includes('hair with') && !finalPrompt.toLowerCase().includes('voluminous hair')) {
-      finalPrompt = `${finalPrompt}${premiumHairSpecs}`;
-    }
+    console.log(`🔧 FLUX LORA OPTIMIZED PROMPT: ${finalPrompt}`);
 
     // 🔒 IMMUTABLE CORE ARCHITECTURE - USES USER'S INDIVIDUAL TRAINED MODEL DIRECTLY
     // Each user has their own trained FLUX model version for complete isolation
@@ -109,12 +102,13 @@ export async function generateImages(request: GenerateImagesRequest): Promise<Ge
         version: userTrainedVersion, // 🔒 CRITICAL: User's individual trained model version ONLY
         input: {
           prompt: finalPrompt,
-          guidance: 2.5, // 🔧 REVERTED: Proven optimal from July 16 success
-          num_inference_steps: 35, // 🔧 REVERTED: Original working steps
+          lora_scale: 0.9, // 🔧 FLUX LORA OPTIMAL: Strong enough to capture trained features without over-fitting
+          guidance: 2.6, // 🔧 FLUX LORA OPTIMAL: Sweet spot for prompt following with natural generation
+          num_inference_steps: 40, // 🔧 FLUX LORA OPTIMAL: Enough detail without diminishing returns
           num_outputs: 3,
-          aspect_ratio: "3:4",
+          aspect_ratio: "3:4", // 🔧 FLUX LORA OPTIMAL: Most natural for portraits
           output_format: "png",
-          output_quality: 90, // 🔧 REVERTED: Balanced quality setting
+          output_quality: 90,
           megapixels: "1",
           go_fast: false,
           disable_safety_checker: false,
