@@ -42,6 +42,10 @@ interface ChatMessage {
   workflowStage?: string;
 }
 
+interface CollapsibleCodeBlockProps {
+  content: string;
+}
+
 interface AIImage {
   id: number;
   imageUrl: string;
@@ -128,6 +132,45 @@ const agents: Agent[] = [
     workflowStage: 'Quality Assurance'
   }
 ];
+
+function CollapsibleCodeBlock({ content }: CollapsibleCodeBlockProps) {
+  const [isExpanded, setIsExpanded] = useState(false);
+  
+  // Check if content has code blocks or is very long
+  const hasCodeBlocks = content.includes('```') || content.includes('<') || content.includes('{');
+  const isLongContent = content.length > 300;
+  const shouldCollapse = hasCodeBlocks || isLongContent;
+  
+  if (!shouldCollapse) {
+    return <div className="whitespace-pre-wrap">{content}</div>;
+  }
+  
+  const preview = content.substring(0, 150) + (content.length > 150 ? '...' : '');
+  
+  return (
+    <div className="space-y-2">
+      <div className="whitespace-pre-wrap">
+        {isExpanded ? content : preview}
+      </div>
+      <button
+        onClick={() => setIsExpanded(!isExpanded)}
+        className="text-xs text-gray-500 hover:text-black border border-gray-200 px-2 py-1 rounded hover:bg-gray-50 transition-colors"
+      >
+        {isExpanded ? (
+          <>
+            <ChevronUp className="w-3 h-3 inline mr-1" />
+            Show less
+          </>
+        ) : (
+          <>
+            <ChevronDown className="w-3 h-3 inline mr-1" />
+            Show more
+          </>
+        )}
+      </button>
+    </div>
+  );
+}
 
 export function OptimizedVisualEditor({ className = '' }: OptimizedVisualEditorProps) {
   const [showPropertiesPanel, setShowPropertiesPanel] = useState(false);
@@ -698,6 +741,15 @@ export function OptimizedVisualEditor({ className = '' }: OptimizedVisualEditorP
         <div className="p-2 border-b border-gray-200">
           <div className="flex items-center justify-between mb-2">
             <div className="flex items-center space-x-2">
+              <Button
+                variant="ghost"
+                size="sm"
+                className="h-6 w-6 p-0 hover:bg-gray-100"
+                onClick={() => window.location.href = '/sandra-command'}
+                title="Back to Dashboard"
+              >
+                <ChevronLeft className="w-4 h-4" />
+              </Button>
               <div className="w-6 h-6 bg-black flex items-center justify-center">
                 <span className="text-white text-xs font-medium">{currentAgent.name[0]}</span>
               </div>
@@ -880,7 +932,11 @@ export function OptimizedVisualEditor({ className = '' }: OptimizedVisualEditorP
                     </div>
                   )}
                   
-                  {message.content}
+                  {message.type === 'agent' ? (
+                    <CollapsibleCodeBlock content={message.content} />
+                  ) : (
+                    <div className="whitespace-pre-wrap">{message.content}</div>
+                  )}
                   
                   {/* Generated Image Preview like Maya */}
                   {message.imagePreview && message.imagePreview.length > 0 && (
