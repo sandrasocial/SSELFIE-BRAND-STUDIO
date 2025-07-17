@@ -83,6 +83,9 @@ export default function AdminDashboard() {
               <Link href="/admin" className="text-sm uppercase tracking-wide hover:text-gray-300">
                 Dashboard
               </Link>
+              <Link href="/visual-editor" className="text-sm uppercase tracking-wide hover:text-gray-300">
+                Visual Editor
+              </Link>
             </div>
           </div>
           <div className="flex items-center space-x-4">

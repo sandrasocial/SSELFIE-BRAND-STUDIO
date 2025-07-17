@@ -37,6 +37,7 @@ import AIPhotoshoot from "@/pages/ai-photoshoot";
 import SimpleTraining from "@/pages/simple-training";
 import TestLogin from "@/pages/test-login";
 import AdminDashboard from "@/pages/admin-dashboard";
+import AdminVisualEditor from "@/pages/admin-visual-editor";
 import AgentApproval from "@/pages/agent-approval";
 import AgentCommandCenter from "@/pages/agent-command-center";
 import AgentDashboard from "@/pages/agent-dashboard";
@@ -225,6 +226,8 @@ function Router() {
       
       {/* SANDRA'S ADMIN DASHBOARD */}
       <Route path="/admin" component={(props) => <ProtectedRoute component={AdminDashboard} {...props} />} />
+      <Route path="/admin/visual-editor" component={(props) => <ProtectedRoute component={AdminVisualEditor} {...props} />} />
+      <Route path="/visual-editor" component={(props) => <ProtectedRoute component={AdminVisualEditor} {...props} />} />
       <Route path="/admin-access-only" component={AdminAccessOnly} />
       <Route path="/sandra-admin" component={(props) => <ProtectedRoute component={AdminDashboard} {...props} />} />
       <Route path="/sandra-command" component={(props) => <ProtectedRoute component={AdminDashboard} {...props} />} />
