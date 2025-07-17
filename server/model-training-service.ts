@@ -183,7 +183,7 @@ export class ModelTrainingService {
             learning_rate: 1e-5, // 🔧 PROVEN WORKING: Conservative learning rate prevents overfitting while maintaining realism
             batch_size: 1, // 🔧 PROVEN WORKING: Single batch for precise training
             lora_rank: 16, // 🔧 PROVEN WORKING: Perfect balance prevents overfitting while maintaining quality
-            resolution: "1024", // 🔧 OPTIMAL: High resolution for detailed facial features
+            resolution: "512", // 🔧 PROVEN WORKING: Resolution that creates successful facial accuracy without overfitting
             optimizer: "adamw8bit", // 🔧 OPTIMAL: Memory efficient optimizer
             autocaption: false, // 🔧 OPTIMAL: Manual captioning for better control
             cache_latents_to_disk: false, // 🔧 OPTIMAL: Memory optimization
