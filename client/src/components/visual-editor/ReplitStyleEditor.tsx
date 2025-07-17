@@ -38,6 +38,43 @@ export function ReplitStyleEditor({
 
   useEffect(() => {
     setShowLivePreview(true);
+    
+    // Listen for agent changes
+    const handleAgentChanges = (event: CustomEvent) => {
+      const { content } = event.detail;
+      if (content) {
+        // Extract CSS from agent suggestions and apply to live preview
+        const cssMatch = content.match(/```css\n([\s\S]*?)\n```/);
+        if (cssMatch) {
+          injectChangesToLivePreview(cssMatch[1]);
+        }
+        
+        // Look for style suggestions in the content
+        const styleMatch = content.match(/style="([^"]*)"/) || content.match(/class="([^"]*)"/);
+        if (styleMatch) {
+          const dynamicStyles = `
+            .agent-suggested {
+              ${styleMatch[1].includes('style=') ? styleMatch[1] : ''}
+            }
+            .${styleMatch[1]} {
+              transition: all 0.3s ease;
+              animation: highlight 1s ease;
+            }
+            @keyframes highlight {
+              0% { box-shadow: 0 0 0 2px #3b82f6; }
+              100% { box-shadow: 0 0 0 0 transparent; }
+            }
+          `;
+          injectChangesToLivePreview(dynamicStyles);
+        }
+      }
+    };
+    
+    window.addEventListener('applyAgentChanges', handleAgentChanges as EventListener);
+    
+    return () => {
+      window.removeEventListener('applyAgentChanges', handleAgentChanges as EventListener);
+    };
   }, []);
 
   const handleContentChange = (newContent: string) => {
@@ -71,6 +108,40 @@ export function ReplitStyleEditor({
     }
   };
 
+  // Enhanced live preview with change injection
+  const injectChangesToLivePreview = (changes: string) => {
+    if (iframeRef.current && showLivePreview) {
+      try {
+        const iframe = iframeRef.current;
+        const iframeDoc = iframe.contentDocument || iframe.contentWindow?.document;
+        if (iframeDoc) {
+          // Inject CSS changes
+          const styleElement = iframeDoc.createElement('style');
+          styleElement.innerHTML = changes;
+          iframeDoc.head.appendChild(styleElement);
+          console.log('🎨 Live changes injected:', changes);
+        }
+      } catch (error) {
+        console.warn('Could not inject changes to live preview:', error);
+      }
+    }
+  };
+
+  // Apply style changes to live preview
+  useEffect(() => {
+    if (showLivePreview && (selectedTextColor !== '#000000' || selectedFontSize !== 16 || selectedMargin !== '16px' || customCSSClass)) {
+      const styleChanges = `
+        .visual-editor-selection {
+          color: ${selectedTextColor} !important;
+          font-size: ${selectedFontSize}px !important;
+          margin: ${selectedMargin} !important;
+        }
+        ${customCSSClass ? `.${customCSSClass} { /* Custom styles will be applied */ }` : ''}
+      `;
+      injectChangesToLivePreview(styleChanges);
+    }
+  }, [selectedTextColor, selectedFontSize, selectedMargin, customCSSClass, showLivePreview]);
+
   return (
     <div className={`h-full flex bg-white ${className}`}>
       {/* Main Content Area - Live Preview */}
@@ -84,31 +155,128 @@ export function ReplitStyleEditor({
               onClick={() => setShowLivePreview(!showLivePreview)}
             >
               <Eye className="w-4 h-4 mr-1" />
-              {showLivePreview ? "Live Preview" : "Static Content"}
+              {showLivePreview ? "Live Development Preview" : "Static Editor"}
             </Button>
+            {showLivePreview && (
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => {
+                  if (iframeRef.current) {
+                    iframeRef.current.src = iframeRef.current.src; // Refresh iframe
+                  }
+                }}
+              >
+                🔄 Refresh
+              </Button>
+            )}
           </div>
           
           <div className="flex items-center space-x-2">
             <Button variant="outline" size="sm" onClick={() => onSave?.(content)}>
               <Save className="w-4 h-4 mr-1" />
-              Save
+              Save Changes
+            </Button>
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => {
+                navigator.clipboard.writeText(window.location.origin + '/visual-editor');
+                alert('Visual editor URL copied to clipboard!');
+              }}
+            >
+              📋 Share Editor
             </Button>
           </div>
         </div>
 
         {/* Live Development Preview */}
         {showLivePreview ? (
-          <div className="flex-1">
+          <div className="flex-1 relative">
             <iframe
               ref={iframeRef}
               src={window.location.origin}
-              className="w-full h-full border-0"
+              className="w-full h-full border-0 visual-editor-iframe"
               title="Live Development Preview"
-              sandbox="allow-same-origin allow-scripts allow-forms allow-popups"
+              sandbox="allow-same-origin allow-scripts allow-forms allow-popups allow-top-navigation"
               onLoad={() => {
-                console.log('Live preview loaded');
+                console.log('🚀 Live SSELFIE Studio loaded in preview');
+                
+                // Auto-apply any pending style changes
+                if (selectedTextColor !== '#000000' || selectedFontSize !== 16 || selectedMargin !== '16px') {
+                  setTimeout(() => {
+                    const styleChanges = `
+                      body { 
+                        transition: all 0.3s ease; 
+                      }
+                      .visual-editor-selection, .agent-highlight {
+                        color: ${selectedTextColor} !important;
+                        font-size: ${selectedFontSize}px !important;
+                        margin: ${selectedMargin} !important;
+                        transition: all 0.3s ease !important;
+                      }
+                      .victoria-enhancement {
+                        animation: victoria-magic 0.8s ease-out;
+                      }
+                      @keyframes victoria-magic {
+                        0% { 
+                          transform: scale(1); 
+                          box-shadow: 0 0 0 0 rgba(59, 130, 246, 0.7); 
+                        }
+                        50% { 
+                          transform: scale(1.02); 
+                          box-shadow: 0 0 20px 10px rgba(59, 130, 246, 0.3); 
+                        }
+                        100% { 
+                          transform: scale(1); 
+                          box-shadow: 0 0 0 0 rgba(59, 130, 246, 0); 
+                        }
+                      }
+                    `;
+                    injectChangesToLivePreview(styleChanges);
+                  }, 1000);
+                }
+                
+                // Enable element highlighting on hover
+                setTimeout(() => {
+                  const hoverStyles = `
+                    * {
+                      transition: box-shadow 0.2s ease !important;
+                    }
+                    *:hover {
+                      box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.3) !important;
+                      cursor: pointer !important;
+                    }
+                    .editable-element {
+                      position: relative;
+                    }
+                    .editable-element::after {
+                      content: "✏️ Edit with Victoria";
+                      position: absolute;
+                      top: -25px;
+                      left: 0;
+                      background: rgba(0, 0, 0, 0.8);
+                      color: white;
+                      padding: 2px 6px;
+                      border-radius: 3px;
+                      font-size: 11px;
+                      opacity: 0;
+                      transition: opacity 0.2s ease;
+                      pointer-events: none;
+                      z-index: 1000;
+                    }
+                    .editable-element:hover::after {
+                      opacity: 1;
+                    }
+                  `;
+                  injectChangesToLivePreview(hoverStyles);
+                }, 1500);
               }}
             />
+            {/* Live Preview Indicator */}
+            <div className="absolute top-2 right-2 bg-green-500 text-white px-2 py-1 rounded text-xs font-medium">
+              🔴 LIVE
+            </div>
           </div>
         ) : (
           /* Static Content Editing */
@@ -205,6 +373,30 @@ export function ReplitStyleEditor({
           </div>
         </div>
 
+        {/* Live Style Application */}
+        <div className="p-4 border-t border-gray-200">
+          <h4 className="font-medium text-gray-900 mb-3">Apply to Live Preview</h4>
+          <Button
+            variant="default"
+            size="sm"
+            className="w-full mb-3"
+            onClick={() => {
+              const styleChanges = `
+                .visual-editor-selection, .selected-element {
+                  color: ${selectedTextColor} !important;
+                  font-size: ${selectedFontSize}px !important;
+                  margin: ${selectedMargin} !important;
+                  transition: all 0.3s ease !important;
+                }
+                ${customCSSClass ? `.${customCSSClass} { border: 2px solid #3b82f6; }` : ''}
+              `;
+              injectChangesToLivePreview(styleChanges);
+            }}
+          >
+            🎨 Apply Styles Live
+          </Button>
+        </div>
+
         {/* Quick Actions */}
         <div className="p-4 border-t border-gray-200">
           <h4 className="font-medium text-gray-900 mb-3">Quick Actions</h4>
@@ -249,6 +441,104 @@ export function ReplitStyleEditor({
             className="hidden"
             onChange={handleImageUpload}
           />
+        </div>
+
+        {/* Victoria Quick Commands */}
+        <div className="p-4 border-t border-gray-200">
+          <h4 className="font-medium text-gray-900 mb-3">Victoria Quick Commands</h4>
+          <div className="space-y-1">
+            <Button
+              variant="ghost"
+              size="sm"
+              className="w-full justify-start text-xs"
+              onClick={() => {
+                const luxuryStyles = `
+                  * { font-family: 'Times New Roman', serif !important; }
+                  h1, h2, h3 { font-weight: 300 !important; letter-spacing: 0.5px !important; }
+                  body { background: #ffffff !important; color: #0a0a0a !important; }
+                  .victoria-enhancement { animation: victoria-magic 0.8s ease-out; }
+                `;
+                injectChangesToLivePreview(luxuryStyles);
+              }}
+            >
+              ✨ Apply Luxury Typography
+            </Button>
+            <Button
+              variant="ghost"
+              size="sm"
+              className="w-full justify-start text-xs"
+              onClick={() => {
+                const editorialStyles = `
+                  .container { max-width: 1200px !important; margin: 0 auto !important; }
+                  section { padding: 4rem 2rem !important; }
+                  .editorial-spacing { margin-bottom: 3rem !important; }
+                  .victoria-enhancement { animation: victoria-magic 0.8s ease-out; }
+                `;
+                injectChangesToLivePreview(editorialStyles);
+              }}
+            >
+              📖 Editorial Layout
+            </Button>
+            <Button
+              variant="ghost"
+              size="sm"
+              className="w-full justify-start text-xs"
+              onClick={() => {
+                const vogueModeStyles = `
+                  body { background: linear-gradient(135deg, #f5f5f5 0%, #ffffff 100%) !important; }
+                  h1 { font-size: 4rem !important; font-weight: 100 !important; text-align: center !important; }
+                  .hero { min-height: 100vh !important; display: flex !important; align-items: center !important; }
+                  .victoria-enhancement { animation: victoria-magic 0.8s ease-out; }
+                `;
+                injectChangesToLivePreview(vogueModeStyles);
+              }}
+            >
+              👑 Vogue Mode
+            </Button>
+          </div>
+        </div>
+
+        {/* Platform Navigation Shortcuts */}
+        <div className="p-4 border-t border-gray-200">
+          <h4 className="font-medium text-gray-900 mb-3">Navigate Platform</h4>
+          <div className="space-y-1">
+            <Button
+              variant="ghost"
+              size="sm"
+              className="w-full justify-start text-xs"
+              onClick={() => {
+                if (iframeRef.current) {
+                  iframeRef.current.src = window.location.origin;
+                }
+              }}
+            >
+              🏠 Landing Page
+            </Button>
+            <Button
+              variant="ghost"
+              size="sm"
+              className="w-full justify-start text-xs"
+              onClick={() => {
+                if (iframeRef.current) {
+                  iframeRef.current.src = window.location.origin + '/workspace';
+                }
+              }}
+            >
+              💼 Workspace
+            </Button>
+            <Button
+              variant="ghost"
+              size="sm"
+              className="w-full justify-start text-xs"
+              onClick={() => {
+                if (iframeRef.current) {
+                  iframeRef.current.src = window.location.origin + '/admin';
+                }
+              }}
+            >
+              ⚙️ Admin Dashboard
+            </Button>
+          </div>
         </div>
       </div>
 
