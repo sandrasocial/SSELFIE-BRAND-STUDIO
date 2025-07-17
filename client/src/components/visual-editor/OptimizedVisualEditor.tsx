@@ -742,7 +742,7 @@ export function OptimizedVisualEditor({ className = '' }: OptimizedVisualEditorP
 
           <TabsContent value="chat" className="flex-1 flex flex-col mt-0">
             {/* Chat Messages - Expanded Space */}
-            <div className="flex-1 overflow-y-auto p-4 space-y-3" style={{ minHeight: '300px' }}>
+            <div className="flex-1 overflow-y-auto p-2 space-y-2" style={{ minHeight: '350px' }}>
               {chatMessages.length === 0 && (
                 <div className="text-center text-gray-500 text-sm">
                   <div className="mb-2">Chat</div>
@@ -758,15 +758,15 @@ export function OptimizedVisualEditor({ className = '' }: OptimizedVisualEditorP
                   key={index}
                   className={`${
                     message.type === 'user' 
-                      ? 'ml-4 bg-black text-white' 
+                      ? 'ml-2 bg-black text-white' 
                       : message.isHandoff
-                      ? 'mx-2 bg-blue-50 border border-blue-200 text-blue-900'
-                      : 'mr-4 bg-gray-100 text-gray-900'
-                  } p-3 rounded-lg text-sm`}
+                      ? 'mx-1 bg-blue-50 border border-blue-200 text-blue-900'
+                      : 'mr-2 bg-gray-100 text-gray-900'
+                  } p-2 rounded-lg text-sm`}
                 >
                   {/* Agent Name Header */}
                   {agent && !message.isHandoff && (
-                    <div className="flex items-center space-x-2 mb-2 pb-2 border-b border-gray-200">
+                    <div className="flex items-center space-x-2 mb-1 pb-1 border-b border-gray-200">
                       <div className="w-4 h-4 bg-black" />
                       <span className="font-medium text-xs">{agent.name}</span>
                       <span className="text-xs text-gray-500">·</span>
@@ -841,8 +841,8 @@ export function OptimizedVisualEditor({ className = '' }: OptimizedVisualEditorP
             </div>
 
             {/* Chat Input with Upload - Multi-line */}
-            <div className="p-2 border-t border-gray-200">
-              <div className="flex space-x-2">
+            <div className="p-1 border-t border-gray-200">
+              <div className="flex space-x-1">
                 <div className="flex flex-col space-y-1">
                   <input
                     ref={fileInputRef}
