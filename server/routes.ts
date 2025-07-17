@@ -1,5 +1,6 @@
 import type { Express } from "express";
 import { createServer, type Server } from "http";
+import { setupRollbackRoutes } from './routes/rollback.js';
 import { storage } from "./storage";
 import { setupAuth, isAuthenticated } from "./replitAuth";
 import agentCodebaseRoutes from "./routes/agent-codebase-routes";
@@ -82,6 +83,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   // Auth middleware - setup Replit authentication FIRST  
   await setupAuth(app);
+  
+  // Rollback system routes
+  setupRollbackRoutes(app);
   
   // Agent approval system routes
   registerAgentApprovalRoutes(app);
@@ -3568,6 +3572,19 @@ CREATE FILES IMMEDIATELY when asked. Sandra sees changes in dev preview instantl
                   console.log(`📁 Creating file: ${filePath}`);
                   console.log(`📄 Content preview: ${file.content.substring(0, 100)}...`);
                   
+                  // Create backup of existing file if it exists
+                  const { readFile: readFileBackup } = await import('fs/promises');
+                  let backupCreated = false;
+                  try {
+                    const existingContent = await readFileBackup(filePath, 'utf8');
+                    const backupPath = filePath.replace('.tsx', '.backup.tsx');
+                    await AgentCodebaseIntegration.writeFile(backupPath, existingContent);
+                    console.log(`📦 Created backup: ${backupPath}`);
+                    backupCreated = true;
+                  } catch (e) {
+                    // File doesn't exist, no backup needed
+                  }
+                  
                   const result = await AgentCodebaseIntegration.writeFile(filePath, file.content);
                   filesCreated.push(filePath);
                   console.log(`✅ Created file: ${filePath}`);
@@ -3629,6 +3646,8 @@ CREATE FILES IMMEDIATELY when asked. Sandra sees changes in dev preview instantl
                   adminToken: 'verified',
                   canCreateFiles: true,
                   filesCreated: filesCreated,
+                  backupsCreated: filesCreated.filter(f => f.includes('.backup.')),
+                  rollbackAvailable: true,
                   timestamp: new Date().toISOString()
                 });
               }
