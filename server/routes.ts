@@ -4140,18 +4140,24 @@ CORE COMMUNICATION GUIDELINES:
 DEVELOPMENT PREVIEW SYSTEM - MANDATORY FOR MAJOR CHANGES:
 When proposing code changes, UI modifications, or major implementations, you MUST show Sandra a live preview first. This opens a professional modal with tabs for Preview, Code, and Summary where Sandra can approve or request changes.
 
+**DIRECT FILE ACCESS CAPABILITIES:**
+You have complete file system access through these commands:
+- READ_FILE: Access any file in the codebase by saying "Let me check [filename]" or "Reading the current [file]..."
+- WRITE_FILE: Create or modify files by providing the content and saying "Creating [filename]" or "Updating [file]..."
+- BROWSE_DIRECTORY: Explore directory structures by mentioning directory names
+
 **How to Show Live Previews (REQUIRED FORMAT):**
 Include this exact JSON structure in your response:
 
 \`\`\`json
 DEV_PREVIEW: {
   "type": "component",
-  "title": "Improve Pricing Section Layout",
+  "title": "Improve Pricing Section Layout", 
   "description": "Enhanced pricing section with better visual hierarchy and conversion optimization",
   "preview": "<div class='bg-white p-8'><h2 class='text-3xl font-bold mb-6'>Choose Your Plan</h2><div class='grid grid-cols-3 gap-6'>...</div></div>",
   "changes": [
     "Updated pricing card design with better visual hierarchy",
-    "Added conversion-optimized call-to-action buttons",
+    "Added conversion-optimized call-to-action buttons", 
     "Improved mobile responsiveness"
   ],
   "files": [
@@ -4194,6 +4200,57 @@ Remember: You are ${agent.name} - a fully empowered team member who can implemen
             ).join('\n')}\n\n`
           : '';
 
+        // Check for file access requests BEFORE sending to Anthropic
+        const { AgentCodebaseIntegration } = await import('../agents/agent-codebase-integration');
+        
+        // Process file access requests
+        let fileAccessContext = '';
+        let fileOperations = [];
+        
+        // Check for READ_FILE requests
+        const readFileMatches = message.match(/(?:read|check|see|show|examine|look at|analyze)\s+(?:the\s+)?([^\s]+\.(?:ts|tsx|js|jsx|css|md|json|txt))/gi);
+        if (readFileMatches) {
+          for (const match of readFileMatches) {
+            const filePathMatch = match.match(/([^\s]+\.(?:ts|tsx|js|jsx|css|md|json|txt))/i);
+            if (filePathMatch) {
+              try {
+                const filePath = filePathMatch[1];
+                const fileContent = await AgentCodebaseIntegration.readFile(agentId, filePath);
+                fileAccessContext += `\n\nFILE CONTENT - ${filePath}:\n\`\`\`\n${fileContent}\n\`\`\`\n`;
+                fileOperations.push({ type: 'read', path: filePath, success: true });
+              } catch (error) {
+                fileAccessContext += `\n\nFILE ACCESS ERROR - ${filePathMatch[1]}: ${error.message}\n`;
+                fileOperations.push({ type: 'read', path: filePathMatch[1], success: false, error: error.message });
+              }
+            }
+          }
+        }
+        
+        // Check for directory browsing requests
+        const dirMatches = message.match(/(?:browse|list|show|explore)\s+(?:the\s+)?([^\s]+)\s+(?:directory|folder|dir)/gi);
+        if (dirMatches) {
+          for (const match of dirMatches) {
+            const dirMatch = match.match(/(?:browse|list|show|explore)\s+(?:the\s+)?([^\s]+)/i);
+            if (dirMatch) {
+              try {
+                const dirPath = dirMatch[1];
+                const fs = await import('fs/promises');
+                const path = await import('path');
+                const fullPath = path.join(process.cwd(), dirPath);
+                const entries = await fs.readdir(fullPath, { withFileTypes: true });
+                const dirListing = entries.map(entry => 
+                  `${entry.isDirectory() ? '📁' : '📄'} ${entry.name}`
+                ).join('\n');
+                fileAccessContext += `\n\nDIRECTORY LISTING - ${dirPath}:\n${dirListing}\n`;
+                fileOperations.push({ type: 'browse', path: dirPath, success: true });
+              } catch (error) {
+                fileAccessContext += `\n\nDIRECTORY ACCESS ERROR - ${dirMatch[1]}: ${error.message}\n`;
+                fileOperations.push({ type: 'browse', path: dirMatch[1], success: false, error: error.message });
+              }
+            }
+          }
+        }
+
         // Get intelligent response from Anthropic with enhanced context
         const completion = await anthropic.messages.create({
           model: "claude-sonnet-4-20250514",
@@ -4207,6 +4264,7 @@ Agent Context: You are ${agent.name}, ${agent.role}, with complete implementatio
 
 Your Authentic Voice: ${agent.voice}
 ${conversationContext}
+${fileAccessContext}
 Current Request: ${message}
 
 RESPONSE STYLE: Be conversational, authentic, and concise. Use your personality but keep it brief and helpful.
@@ -4217,6 +4275,29 @@ FOR VICTORIA SPECIFICALLY: When asked about redesigning "sandra-command page", u
 
         let response = completion.content[0]?.text || agentResponses[agentId] || 
           `Hello! I'm ${agent.name}. I'm fully briefed on our individual model dual-tier system with complete business knowledge. How can I help you today?`;
+
+        // Process file write requests in the response
+        const writeRequests = response.match(/(?:Creating|Writing|Updating|Saving)\s+([^\s]+\.(?:ts|tsx|js|jsx|css|md|json|txt))/gi);
+        if (writeRequests) {
+          for (const writeRequest of writeRequests) {
+            const filePathMatch = writeRequest.match(/([^\s]+\.(?:ts|tsx|js|jsx|css|md|json|txt))/i);
+            if (filePathMatch) {
+              const filePath = filePathMatch[1];
+              // Look for code content in the response
+              const codeBlockMatch = response.match(new RegExp(`\`\`\`(?:typescript|javascript|tsx|jsx|css|json)?([\\s\\S]*?)\`\`\``, 'i'));
+              if (codeBlockMatch) {
+                try {
+                  await AgentCodebaseIntegration.writeFile(agentId, filePath, codeBlockMatch[1].trim(), `Created by ${agent.name}`);
+                  fileOperations.push({ type: 'write', path: filePath, success: true });
+                  response += `\n\n✅ Successfully created ${filePath}`;
+                } catch (error) {
+                  fileOperations.push({ type: 'write', path: filePath, success: false, error: error.message });
+                  response += `\n\n❌ Failed to create ${filePath}: ${error.message}`;
+                }
+              }
+            }
+          }
+        }
 
         // Check if agent wants to show a development preview - enhanced parsing
         let devPreview = null;
@@ -4264,12 +4345,15 @@ FOR VICTORIA SPECIFICALLY: When asked about redesigning "sandra-command page", u
           agentRole: agent.role,
           timestamp: new Date(),
           devPreview: devPreview,
+          fileOperations: fileOperations,
           capabilities: {
             codebaseAccess: true,
             databaseAccess: true,
             apiAccess: true,
             implementationPower: true,
-            specializedExpertise: agent.expertise
+            specializedExpertise: agent.expertise,
+            directFileAccess: true,
+            livePreview: true
           },
           businessContext: {
             platform: 'SSELFIE Studio',

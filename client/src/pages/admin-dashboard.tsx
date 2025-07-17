@@ -615,7 +615,8 @@ function AgentChat({ agentId, agentName, role, status, currentTask, metrics }: A
         previewContent: data.previewContent,
         previewType: data.previewType,
         businessContext: data.businessContext,
-        devPreview: parsedDevPreview
+        devPreview: parsedDevPreview,
+        fileOperations: data.fileOperations || []
       };
       setChatHistory(prev => [...prev, newMessage, agentResponse]);
       
@@ -717,6 +718,19 @@ function AgentChat({ agentId, agentName, role, status, currentTask, metrics }: A
                   </button>
                 )}
                 
+                {/* File Operations Display */}
+                {msg.fileOperations && msg.fileOperations.length > 0 && (
+                  <div className="text-xs mt-2 p-2 bg-blue-50 border border-blue-200 rounded">
+                    <div className="font-medium text-blue-800 mb-1">📁 File Operations:</div>
+                    {msg.fileOperations.map((op, index) => (
+                      <div key={index} className={`text-blue-700 ${op.success ? '' : 'text-red-700'}`}>
+                        {op.success ? '✅' : '❌'} {op.type.toUpperCase()}: {op.path}
+                        {op.error && <div className="text-red-600 text-xs ml-4">Error: {op.error}</div>}
+                      </div>
+                    ))}
+                  </div>
+                )}
+
                 {msg.businessContext && (
                   <div className="text-xs text-gray-500 mt-2">
                     Platform: {msg.businessContext.users} users • {msg.businessContext.revenue} revenue
