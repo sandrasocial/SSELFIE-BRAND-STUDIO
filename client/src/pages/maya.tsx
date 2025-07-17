@@ -129,6 +129,7 @@ export default function Maya() {
 
     try {
       // Create chat if this is the first user message (messages.length === 1 means only Maya's welcome)
+      let chatIdForSaving = currentChatId;
       if (!currentChatId && messages.length === 1) {
         const chatTitle = messageContent.slice(0, 50) + (messageContent.length > 50 ? '...' : '');
         const chatResponse = await fetch('/api/maya-chats', {
@@ -143,6 +144,7 @@ export default function Maya() {
         
         if (chatResponse.ok) {
           const chat = await chatResponse.json();
+          chatIdForSaving = chat.id;
           setCurrentChatId(chat.id);
           // Invalidate chat history to refresh sidebar immediately
           queryClient.invalidateQueries({ queryKey: ['/api/maya-chats'] });
@@ -174,9 +176,9 @@ export default function Maya() {
       setMessages(prev => [...prev, mayaMessage]);
 
       // Save both messages to database if we have a chat ID
-      if (currentChatId) {
+      if (chatIdForSaving) {
         try {
-          await fetch(`/api/maya-chats/${currentChatId}/messages`, {
+          await fetch(`/api/maya-chats/${chatIdForSaving}/messages`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             credentials: 'include',
@@ -186,7 +188,7 @@ export default function Maya() {
             })
           });
 
-          await fetch(`/api/maya-chats/${currentChatId}/messages`, {
+          await fetch(`/api/maya-chats/${chatIdForSaving}/messages`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             credentials: 'include',
