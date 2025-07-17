@@ -223,7 +223,7 @@ export class AIService {
     }
 
     const user = await storage.getUser(userId);
-    const isPremium = user?.plan === 'sselfie-studio' || user?.plan === 'sselfie-studio-premium' || user?.plan === 'SSELFIE_STUDIO' || user?.role === 'admin';
+    const isPremium = user?.plan === 'sselfie-studio' || user?.role === 'admin';
 
     let requestBody: any;
 

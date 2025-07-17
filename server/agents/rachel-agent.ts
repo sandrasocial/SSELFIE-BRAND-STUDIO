@@ -217,7 +217,7 @@ I know what you're thinking - "Sandra, this sounds too good to be true." But I'v
 
 Ready to see what your brand could look like?
 
-[Book Your €97 AI Brand Photoshoot]
+[Book Your €47 AI Brand Photoshoot]
 
 Your mess is your message,
 Sandra
@@ -225,7 +225,7 @@ Sandra
 P.S. I only have limited spots available because each person gets their own custom AI model. Don't wait on this one.
       `,
       audience,
-      callToAction: "Book Your €97 AI Brand Photoshoot",
+      callToAction: "Book Your €47 AI Brand Photoshoot",
       personalizedElements: ["Personal greeting", "Sandra's authentic voice", "Scarcity element"]
     };
   }
@@ -238,7 +238,7 @@ P.S. I only have limited spots available because each person gets their own cust
 Create Instagram ${contentType} content as Sandra:
 
 VOICE: ${JSON.stringify(voiceProfile)}
-GOAL: Drive followers to email list and €97 AI photoshoot sales
+GOAL: Drive followers to email list and €47 AI photoshoot sales
 AUDIENCE: 120K Instagram followers interested in personal branding
 
 Create authentic Sandra voice content with:
@@ -268,7 +268,7 @@ Create authentic Sandra voice content with:
       return {
         caption: content,
         hashtags: ["#SSELFIEStudio", "#AIPhotography", "#PersonalBranding", "#WomenInBusiness", "#BrandPhotos"],
-        callToAction: "Link in bio to book your €97 AI Brand Photoshoot"
+        callToAction: "Link in bio to book your €47 AI Brand Photoshoot"
       };
 
     } catch (error) {
@@ -276,7 +276,7 @@ Create authentic Sandra voice content with:
       return {
         caption: "Your selfies are about to become your superpower. New AI brand photoshoot service live now - link in bio!",
         hashtags: ["#SSELFIEStudio", "#AIPhotography", "#PersonalBranding"],
-        callToAction: "Book your €97 AI Brand Photoshoot - link in bio"
+        callToAction: "Book your €47 AI Brand Photoshoot - link in bio"
       };
     }
   }
