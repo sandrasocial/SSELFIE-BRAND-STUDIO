@@ -148,10 +148,19 @@ export function OptimizedVisualEditor({ className = '' }: OptimizedVisualEditorP
   const chatMessagesRef = useRef<HTMLDivElement>(null);
   const { toast } = useToast();
 
-  // Auto-scroll to bottom when new messages arrive
+  // Auto-scroll to show agent's message start when new messages arrive
   useEffect(() => {
-    if (chatMessagesRef.current) {
-      chatMessagesRef.current.scrollTop = chatMessagesRef.current.scrollHeight;
+    if (chatMessagesRef.current && chatMessages.length > 0) {
+      const lastMessage = chatMessages[chatMessages.length - 1];
+      if (lastMessage.type === 'agent') {
+        // Scroll to show the start of the agent's message, not the very bottom
+        const scrollContainer = chatMessagesRef.current;
+        const scrollHeight = scrollContainer.scrollHeight;
+        const clientHeight = scrollContainer.clientHeight;
+        const maxScroll = scrollHeight - clientHeight;
+        // Scroll to 80% of the way down to show agent message start
+        scrollContainer.scrollTop = Math.max(0, maxScroll * 0.8);
+      }
     }
   }, [chatMessages]);
 
@@ -689,7 +698,7 @@ export function OptimizedVisualEditor({ className = '' }: OptimizedVisualEditorP
             <TabsTrigger value="flatlays" className="text-xs">Flatlays</TabsTrigger>
           </TabsList>
 
-          <TabsContent value="chat" className="flex-1 flex flex-col mt-0">
+          <TabsContent value="chat" className="flex-1 flex flex-col mt-0 h-full">
             {/* Quick Commands */}
             <div className="p-4 border-b border-gray-200">
               <h4 className="font-medium text-sm mb-3">Quick Commands</h4>
@@ -737,7 +746,7 @@ export function OptimizedVisualEditor({ className = '' }: OptimizedVisualEditorP
             <div 
               ref={chatMessagesRef}
               className="flex-1 overflow-y-auto p-4 space-y-3" 
-              style={{ maxHeight: 'calc(100vh - 500px)', minHeight: '300px' }}
+              style={{ maxHeight: 'calc(100vh - 600px)', minHeight: '200px' }}
             >
               {chatMessages.length === 0 && (
                 <div className="text-center text-gray-500 text-sm">
@@ -836,8 +845,8 @@ export function OptimizedVisualEditor({ className = '' }: OptimizedVisualEditorP
               )}
             </div>
 
-            {/* Chat Input with Upload */}
-            <div className="p-4 border-t border-gray-200">
+            {/* Chat Input with Upload - Always Visible */}
+            <div className="p-4 border-t border-gray-200 bg-white">
               <div className="flex space-x-2">
                 <div className="flex items-center space-x-1">
                   <input
@@ -862,7 +871,7 @@ export function OptimizedVisualEditor({ className = '' }: OptimizedVisualEditorP
                   value={messageInput}
                   onChange={(e) => setMessageInput(e.target.value)}
                   placeholder={`Ask ${currentAgent.name} for ${currentAgent.workflowStage.toLowerCase()} help or upload inspiration images...`}
-                  className="flex-1 text-sm"
+                  className="flex-1 text-sm border-2 border-black focus:border-black focus:ring-black"
                   onKeyPress={(e) => {
                     if (e.key === 'Enter' && !e.shiftKey) {
                       e.preventDefault();
