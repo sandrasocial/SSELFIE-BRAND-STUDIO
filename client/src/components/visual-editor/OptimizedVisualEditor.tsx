@@ -152,24 +152,17 @@ export function OptimizedVisualEditor({ className = '' }: OptimizedVisualEditorP
   const chatMessagesRef = useRef<HTMLDivElement>(null);
   const { toast } = useToast();
 
-  // Smart scroll - preserve manual scroll position, only auto-scroll when near bottom
+  // Simple autoscroll only for new messages when user is at bottom
   useEffect(() => {
     if (chatMessagesRef.current && chatMessages.length > 0) {
-      const lastMessage = chatMessages[chatMessages.length - 1];
       const container = chatMessagesRef.current;
+      const isAtBottom = container.scrollTop + container.clientHeight >= container.scrollHeight - 10;
       
-      // Check if user has manually scrolled up from the bottom
-      const isNearBottom = container.scrollTop + container.clientHeight >= container.scrollHeight - 50;
-      
-      // Only auto-scroll for new agent messages if user is near bottom
-      if (lastMessage.type === 'agent' && isNearBottom) {
+      // Only auto-scroll if user is already at the bottom
+      if (isAtBottom) {
         setTimeout(() => {
-          const scrollHeight = container.scrollHeight;
-          const clientHeight = container.clientHeight;
-          const maxScroll = scrollHeight - clientHeight;
-          // Gentle scroll to show agent message start
-          container.scrollTop = Math.max(0, maxScroll * 0.8);
-        }, 100);
+          container.scrollTop = container.scrollHeight;
+        }, 50);
       }
     }
   }, [chatMessages]);
@@ -772,8 +765,11 @@ export function OptimizedVisualEditor({ className = '' }: OptimizedVisualEditorP
             {/* Chat Messages - Optimized Space Usage */}
             <div 
               ref={chatMessagesRef}
-              className="flex-1 overflow-y-auto p-4 space-y-3 chat-scroll"
-              style={{ minHeight: '200px' }}
+              className="flex-1 overflow-y-auto p-4 space-y-3"
+              style={{ 
+                scrollbarWidth: 'thin',
+                scrollbarColor: '#d1d5db #f3f4f6'
+              }}
             >
               {chatMessages.length === 0 && (
                 <div className="text-center text-gray-500 py-8">
