@@ -19,7 +19,7 @@ const offers = [
   {
     number: "02",
     title: "SSELFIE Studio",
-    price: "€97/month",
+    price: "€47/month",
     description: "Everything you need to build your personal brand in 20 minutes. AI images, luxury templates, instant setup.",
     imageSrc: SandraImages.editorial.laptop1,
     imageAlt: "Sandra in studio",
@@ -30,7 +30,7 @@ const offers = [
   {
     number: "03",
     title: "SSELFIE Studio",
-    price: "€147/month",
+    price: "€47/month",
     description: "Full platform access. For when you're ready to show up, get seen, and finally get paid for being you.",
     imageSrc: SandraImages.editorial.mirror,
     imageAlt: "Sandra portrait",

@@ -30,20 +30,7 @@ export const PLAN_LIMITS = {
     description: 'Unlimited AI generations per month + Maya AI chat',
     resetMonthly: true
   },
-  'sselfie-studio-premium': {
-    totalGenerations: null,
-    monthlyGenerations: 100, // €47/month for unlimited AI images
-    cost: 47,
-    description: 'Unlimited AI generations per month + Maya AI chat',
-    resetMonthly: true
-  },
-  'SSELFIE_STUDIO': {
-    totalGenerations: null,
-    monthlyGenerations: 100, // €47/month for unlimited AI images
-    cost: 47,
-    description: 'Unlimited AI generations per month + Maya AI chat',
-    resetMonthly: true
-  },
+
   'ai-pack': {
     totalGenerations: 100,
     monthlyGenerations: null, // Legacy one-time purchase

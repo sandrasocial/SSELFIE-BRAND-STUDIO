@@ -3481,7 +3481,7 @@ You are chatting with Sandra, the founder of SSELFIE Studio, in her admin dashbo
 
 Key Business Context:
 - Platform: 1000+ users, €15,132 revenue 
-- FLUX Pro (€67/month premium) vs standard FLUX (free)
+- Two tiers: FREE (6 generations/month) and Premium €47/month (unlimited)
 - Target: Female entrepreneurs, coaches, consultants
 - Your Role: ${personality.role}
 
