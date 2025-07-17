@@ -765,18 +765,17 @@ export function OptimizedVisualEditor({ className = '' }: OptimizedVisualEditorP
             {/* Chat Messages - Optimized Space Usage */}
             <div 
               ref={chatMessagesRef}
-              className="flex-1 overflow-y-auto px-4 py-6 space-y-4"
+              className="flex-1 overflow-y-auto px-4 py-3 space-y-3"
               style={{ 
                 scrollbarWidth: 'thin',
-                scrollbarColor: '#d1d5db #f3f4f6',
-                minHeight: '400px'
+                scrollbarColor: '#d1d5db #f3f4f6'
               }}
             >
               {chatMessages.length === 0 && (
-                <div className="text-center text-gray-500 py-12">
-                  <div className="text-lg mb-3">Start chatting with {currentAgent.name}</div>
-                  <div className="text-sm leading-relaxed max-w-sm mx-auto">
-                    Ask for {currentAgent.workflowStage.toLowerCase()} help, upload inspiration images, or try the quick commands above.
+                <div className="text-center text-gray-500 py-8">
+                  <div className="text-base mb-2">Start chatting with {currentAgent.name}</div>
+                  <div className="text-sm text-gray-400">
+                    Ask for {currentAgent.workflowStage.toLowerCase()} help or upload images
                   </div>
                 </div>
               )}
@@ -788,11 +787,11 @@ export function OptimizedVisualEditor({ className = '' }: OptimizedVisualEditorP
                   key={index}
                   className={`${
                     message.type === 'user' 
-                      ? 'ml-6 bg-black text-white' 
+                      ? 'ml-4 bg-black text-white' 
                       : message.isHandoff
                       ? 'mx-2 bg-blue-50 border border-blue-200 text-blue-900'
-                      : 'mr-6 bg-gray-100 text-gray-900'
-                  } p-4 rounded-lg text-sm break-words whitespace-pre-wrap leading-relaxed shadow-sm`}
+                      : 'mr-4 bg-gray-100 text-gray-900'
+                  } p-3 rounded-lg text-sm break-words whitespace-pre-wrap`}
                 >
                   {/* Agent Name Header */}
                   {agent && !message.isHandoff && (
@@ -870,10 +869,9 @@ export function OptimizedVisualEditor({ className = '' }: OptimizedVisualEditorP
               )}
             </div>
 
-            {/* Chat Input with Upload - Optimized Layout */}
-            <div className="p-4 border-t border-gray-200 bg-white shrink-0">
-              {/* Upload Button Row */}
-              <div className="flex items-center space-x-3 mb-3">
+            {/* Chat Input with Upload - Compact Layout */}
+            <div className="p-3 border-t border-gray-200 bg-white shrink-0">
+              <div className="flex space-x-2 items-end">
                 <input
                   ref={fileInputRef}
                   type="file"
@@ -886,26 +884,19 @@ export function OptimizedVisualEditor({ className = '' }: OptimizedVisualEditorP
                   variant="outline"
                   size="sm"
                   onClick={() => fileInputRef.current?.click()}
-                  className="px-4 py-2 border-black text-black hover:bg-black hover:text-white"
+                  className="px-3 py-1.5 border-black text-black hover:bg-black hover:text-white shrink-0"
                   title="Upload inspiration images"
                 >
-                  Upload Images
+                  Upload
                 </Button>
-                <span className="text-xs text-gray-500">
-                  Ask {currentAgent.name} for {currentAgent.workflowStage.toLowerCase()} help
-                </span>
-              </div>
-              
-              {/* Message Input Row */}
-              <div className="flex space-x-3 items-end">
                 <div className="flex-1">
                   <textarea
                     value={messageInput}
                     onChange={(e) => setMessageInput(e.target.value)}
-                    placeholder={`Type your message here... (Shift+Enter for new line, Enter to send)`}
-                    className="w-full resize-none border-2 border-black focus:border-black focus:ring-black rounded-md px-3 py-2 text-sm min-h-[44px] max-h-[120px] overflow-y-auto"
+                    placeholder={`Ask ${currentAgent.name} for help... (Shift+Enter for new line)`}
+                    className="w-full resize-none border-2 border-black focus:border-black focus:ring-black rounded-md px-3 py-2 text-sm min-h-[36px] max-h-[80px] overflow-y-auto"
                     style={{ 
-                      lineHeight: '1.4',
+                      lineHeight: '1.3',
                       scrollbarWidth: 'thin',
                       scrollbarColor: '#d1d5db #f3f4f6'
                     }}
@@ -920,17 +911,17 @@ export function OptimizedVisualEditor({ className = '' }: OptimizedVisualEditorP
                       // Auto-resize textarea
                       const target = e.target as HTMLTextAreaElement;
                       target.style.height = 'auto';
-                      target.style.height = Math.min(target.scrollHeight, 120) + 'px';
+                      target.style.height = Math.min(target.scrollHeight, 80) + 'px';
                     }}
                   />
                 </div>
                 <Button
-                  size="default"
-                  className="bg-black text-white hover:bg-gray-800 px-6 py-2.5 shrink-0"
+                  size="sm"
+                  className="bg-black text-white hover:bg-gray-800 px-4 py-2 shrink-0"
                   onClick={() => sendMessage(messageInput)}
                   disabled={!messageInput.trim() || isLoading}
                 >
-                  {isLoading ? 'Sending...' : 'Send'}
+                  {isLoading ? '...' : 'Send'}
                 </Button>
               </div>
             </div>
