@@ -58,11 +58,11 @@ VOICE PROFILE: ${JSON.stringify(voiceProfile)}
 
 CAMPAIGN TYPE: ${campaignType}
 AUDIENCE: ${audience} (2500 Flodesk subscribers)
-PRODUCT: €97 SSELFIE AI Brand Photoshoot
+PRODUCT: €47 SSELFIE AI Brand Photoshoot
 
 REQUIREMENTS:
 - Use Sandra's exact speaking style and catchphrases
-- Focus on immediate €97 conversions
+- Focus on immediate €47 conversions
 - Personal stories and authentic experiences
 - Call-to-action that drives sales
 - Subject line that gets opened
@@ -96,7 +96,7 @@ Write the complete email with subject line.
         subject,
         content: emailContent,
         audience,
-        callToAction: "Book Your €97 AI Brand Photoshoot",
+        callToAction: "Book Your €47 AI Brand Photoshoot",
         personalizedElements: ["User's name", "Previous engagement", "Instagram following"]
       };
 
@@ -120,7 +120,7 @@ SANDRA'S VOICE PROFILE: ${JSON.stringify(voiceProfile)}
 Rate 1-100:
 - Tone Consistency: How well does it match Sandra's Rachel-from-Friends + Icelandic style?
 - Brand Alignment: Does it reflect her business values and messaging?
-- Conversion Optimization: Will this drive €97 sales?
+- Conversion Optimization: Will this drive €47 sales?
 - Authenticity Score: Does it sound genuinely like Sandra?
 
 Return JSON format: {"toneConsistency": X, "brandAlignment": X, "conversionOptimization": X, "authenticityScore": X}
@@ -211,7 +211,7 @@ You know how I'm always talking about your mess being your message? Well, I took
 
 I'm calling it SSELFIE AI Brand Photoshoot, and it's exactly what it sounds like. Upload your selfies, and my AI creates stunning professional brand photos that look like you hired a €5000 photographer.
 
-The best part? It's only €97. 
+The best part? It's only €47. 
 
 I know what you're thinking - "Sandra, this sounds too good to be true." But I've been testing it myself, and the results are incredible. We're talking magazine-quality brand photos from your phone selfies.
 

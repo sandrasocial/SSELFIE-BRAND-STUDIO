@@ -1475,7 +1475,7 @@ Create prompts that feel like iconic fashion campaign moments that would make so
       }
       
       const subscription = await storage.getSubscription(userId);
-      const isPremium = subscription && (subscription.plan === 'sselfie-studio-premium' || subscription.plan === 'SSELFIE_STUDIO');
+      const isPremium = subscription && (subscription.plan === 'sselfie-studio');
       const isAdmin = await storage.hasUnlimitedGenerations(userId);
       const hasFluxProAccess = isPremium || isAdmin;
       
@@ -1852,7 +1852,7 @@ Create prompts that feel like iconic fashion campaign moments that would make so
       }
       
       const userModel = await storage.getUserModelByUserId(userId);
-      const isPremium = user.plan === 'sselfie-studio-premium' || user.plan === 'SSELFIE_STUDIO';
+      const isPremium = user.plan === 'sselfie-studio';
       const isAdmin = await storage.hasUnlimitedGenerations(userId);
       
       res.json({
@@ -1896,7 +1896,7 @@ Create prompts that feel like iconic fashion campaign moments that would make so
       }
       
       // Test the fixed logic
-      const isPremium = user.plan === 'sselfie-studio-premium' || user.plan === 'SSELFIE_STUDIO';
+      const isPremium = user.plan === 'sselfie-studio';
       const isAdmin = await storage.hasUnlimitedGenerations(userId);
       
       res.json({
@@ -2174,9 +2174,9 @@ Create prompts that feel like iconic fashion campaign moments that would make so
         });
       }
 
-      // 🚀 DUAL-TIER TRAINING SYSTEM: Automatically choose FLUX Pro for premium users
+      // Simple plan checking - no more FLUX Pro complexity
       // Check user's plan directly (not separate subscription table)
-      const isPremium = user.plan === 'sselfie-studio-premium' || user.plan === 'SSELFIE_STUDIO';
+      const isPremium = user.plan === 'sselfie-studio';
       const isAdmin = await storage.hasUnlimitedGenerations(dbUserId);
       
       console.log(`🔍 TIER DETECTION for user ${dbUserId}:`, {
@@ -2186,71 +2186,29 @@ Create prompts that feel like iconic fashion campaign moments that would make so
         email: user.email
       });
       
-      if (isPremium || isAdmin) {
-        // 🏆 PREMIUM USERS: Start FLUX Pro luxury training
-        console.log(`🏆 Starting FLUX Pro luxury training for premium user: ${dbUserId}`);
-        
-        const { LuxuryTrainingService } = await import('./luxury-training-service');
-        
-        try {
-          const luxuryResult = await LuxuryTrainingService.startLuxuryTraining(dbUserId, selfieImages);
-          
-          res.json({
-            success: true,
-            message: "🏆 FLUX Pro luxury training started! Ultra-realistic model ready in 30-45 minutes.",
-            trainingId: luxuryResult.trainingId,
-            status: luxuryResult.status,
-            modelType: 'flux-pro',
-            isLuxury: true,
-            estimatedCompletionTime: "40 minutes",
-            triggerWord: triggerWord
-          });
-          
-        } catch (error) {
-          // Fallback to standard training if FLUX Pro fails
-          console.log(`⚠️ FLUX Pro training failed for ${dbUserId}, falling back to standard FLUX:`, error.message);
-          
-          const { ModelTrainingService } = await import('./model-training-service');
-          const result = await ModelTrainingService.startModelTraining(dbUserId, selfieImages);
-          
-          await storage.updateUserModel(dbUserId, {
-            replicateModelId: result.trainingId,
-            modelType: 'flux-standard',
-            isLuxury: false
-          });
-          
-          res.json({
-            success: true,
-            message: "📱 Standard FLUX training started (FLUX Pro temporarily unavailable)",
-            trainingId: result.trainingId,
-            status: result.status,
-            modelType: 'flux-standard',
-            estimatedCompletionTime: "20 minutes",
-            triggerWord: triggerWord
-          });
-        }
-        
-      } else {
-        // 📱 FREE USERS: Standard FLUX training
-        console.log(`📱 Starting standard FLUX training for free user: ${dbUserId}`);
-        
+      // Always use standard FLUX training - no more premium/luxury complexity
+      console.log(`📸 Starting standard FLUX training for user: ${dbUserId}`);
+      
+      try {
         const { ModelTrainingService } = await import('./model-training-service');
-        const result = await ModelTrainingService.startModelTraining(dbUserId, selfieImages);
-        
-        await storage.updateUserModel(dbUserId, {
-          replicateModelId: result.trainingId,
-          modelType: 'flux-standard',
-          isLuxury: false
-        });
+        const result = await ModelTrainingService.startTraining(dbUserId, selfieImages);
         
         res.json({
           success: true,
-          message: "📱 AI model training started successfully",
+          message: "✨ FLUX AI model training started! Your personal AI model will be ready in 30-45 minutes.",
           trainingId: result.trainingId,
           status: result.status,
           modelType: 'flux-standard',
-          estimatedCompletionTime: "20 minutes",
+          isLuxury: false,
+          estimatedCompletionTime: "40 minutes",
           triggerWord: triggerWord
+        });
+        
+      } catch (error) {
+        console.log(`❌ Training failed for ${dbUserId}:`, error.message);
+        res.status(500).json({ 
+          message: "AI model training failed", 
+          error: error.message
         });
       }
       
