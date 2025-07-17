@@ -698,17 +698,17 @@ export function OptimizedVisualEditor({ className = '' }: OptimizedVisualEditorP
             <TabsTrigger value="flatlays" className="text-sm">Flatlays</TabsTrigger>
           </TabsList>
 
-          <TabsContent value="chat" className="flex-1 overflow-y-auto mt-0" style={{ height: 'calc(100vh - 250px)' }}>
-            {/* Quick Commands - MacBook Optimized */}
-            <div className="p-3 border-b border-gray-200">
-              <h4 className="font-medium text-sm mb-2">Quick Commands</h4>
-              <div className="space-y-2">
+          <TabsContent value="chat" className="flex-1 flex flex-col mt-0 h-full">
+            {/* Quick Commands - Desktop Optimized */}
+            <div className="p-6 border-b border-gray-200">
+              <h4 className="font-medium text-base mb-4">Quick Commands</h4>
+              <div className="space-y-3">
                 {quickCommands.map((command, index) => (
                   <Button
                     key={index}
                     variant="outline"
                     size="sm"
-                    className="w-full justify-start text-xs h-8 border-black text-black hover:bg-black hover:text-white"
+                    className="w-full justify-start text-sm h-11"
                     onClick={() => {
                       if (command.styles) {
                         injectChangesToLivePreview(command.styles);
@@ -730,7 +730,7 @@ export function OptimizedVisualEditor({ className = '' }: OptimizedVisualEditorP
                 <Button
                   variant="outline"
                   size="sm"
-                  className="w-full justify-start text-xs h-8 border-black text-black hover:bg-black hover:text-white"
+                  className="w-full justify-start text-xs bg-purple-50 border-purple-200 hover:bg-purple-100"
                   onClick={generateImagesWithVictoria}
                   disabled={isLoading}
                 >
@@ -745,7 +745,8 @@ export function OptimizedVisualEditor({ className = '' }: OptimizedVisualEditorP
             {/* Chat Messages */}
             <div 
               ref={chatMessagesRef}
-              className="p-4 space-y-3"
+              className="flex-1 overflow-y-auto p-4 space-y-3" 
+              style={{ maxHeight: 'calc(100vh - 650px)', minHeight: '250px' }}
             >
               {chatMessages.length === 0 && (
                 <div className="text-center text-gray-500 text-sm">
@@ -844,9 +845,9 @@ export function OptimizedVisualEditor({ className = '' }: OptimizedVisualEditorP
               )}
             </div>
 
-            {/* Chat Input with Upload */}
-            <div className="p-4 border-t border-gray-200 bg-white">
-              <div className="flex space-x-2">
+            {/* Chat Input with Upload - Desktop Optimized */}
+            <div className="p-6 border-t border-gray-200 bg-white">
+              <div className="flex space-x-3">
                 <div className="flex items-center space-x-2">
                   <input
                     ref={fileInputRef}
@@ -858,9 +859,9 @@ export function OptimizedVisualEditor({ className = '' }: OptimizedVisualEditorP
                   />
                   <Button
                     variant="outline"
-                    size="sm"
+                    size="default"
                     onClick={() => fileInputRef.current?.click()}
-                    className="px-3 border-black text-black hover:bg-black hover:text-white"
+                    className="px-4 border-black text-black hover:bg-black hover:text-white"
                     title="Upload inspiration images"
                   >
                     Upload
@@ -870,7 +871,7 @@ export function OptimizedVisualEditor({ className = '' }: OptimizedVisualEditorP
                   value={messageInput}
                   onChange={(e) => setMessageInput(e.target.value)}
                   placeholder={`Ask ${currentAgent.name} for ${currentAgent.workflowStage.toLowerCase()} help or upload inspiration images...`}
-                  className="flex-1 text-sm h-9 border-2 border-black focus:border-black focus:ring-black"
+                  className="flex-1 text-base h-10 border-2 border-black focus:border-black focus:ring-black"
                   onKeyPress={(e) => {
                     if (e.key === 'Enter' && !e.shiftKey) {
                       e.preventDefault();
@@ -879,12 +880,12 @@ export function OptimizedVisualEditor({ className = '' }: OptimizedVisualEditorP
                   }}
                 />
                 <Button
-                  size="sm"
-                  className="bg-black text-white hover:bg-gray-800 px-4"
+                  size="default"
+                  className="bg-black text-white hover:bg-gray-800 px-6"
                   onClick={() => sendMessage(messageInput)}
                   disabled={!messageInput.trim() || isLoading}
                 >
-                  <span className="text-sm">Send</span>
+                  <span className="text-base">Send</span>
                 </Button>
               </div>
             </div>
