@@ -98,12 +98,12 @@ export async function generateImages(request: GenerateImagesRequest): Promise<Ge
         version: userTrainedVersion, // 🔒 CRITICAL: User's individual trained model version ONLY
         input: {
           prompt: finalPrompt,
-          guidance: 3.5, // 🔧 RESTORED WORKING SETTINGS: Stronger guidance for better likeness
-          num_inference_steps: 28, // 🔧 RESTORED WORKING SETTINGS: Optimal quality/speed balance
+          guidance: 2.8, // 🔧 USER OPTIMIZED: Lower guidance for better natural results
+          num_inference_steps: 40, // 🔧 USER OPTIMIZED: More steps for higher quality
           num_outputs: 4,
           aspect_ratio: "3:4", 
           output_format: "png",
-          output_quality: 90, // 🔧 RESTORED WORKING SETTINGS: Balanced quality
+          output_quality: 95, // 🔧 USER OPTIMIZED: Higher quality output
           go_fast: false, 
           disable_safety_checker: false,
           seed: Math.floor(Math.random() * 1000000)
