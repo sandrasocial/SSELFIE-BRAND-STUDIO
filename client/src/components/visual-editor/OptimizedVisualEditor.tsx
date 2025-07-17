@@ -132,7 +132,21 @@ const agents: Agent[] = [
 export function OptimizedVisualEditor({ className = '' }: OptimizedVisualEditorProps) {
   const [showPropertiesPanel, setShowPropertiesPanel] = useState(false);
   const [activeTab, setActiveTab] = useState('chat');
-  const [chatMessages, setChatMessages] = useState<ChatMessage[]>([]);
+  const [chatMessages, setChatMessages] = useState<ChatMessage[]>(() => {
+    // Load conversation history from localStorage
+    const savedConversations = localStorage.getItem('visual-editor-conversations');
+    if (savedConversations) {
+      try {
+        const parsed = JSON.parse(savedConversations);
+        const agentKey = new URLSearchParams(window.location.search).get('agent') || 'victoria';
+        return parsed[agentKey] || [];
+      } catch (e) {
+        console.warn('Failed to parse saved conversations:', e);
+        return [];
+      }
+    }
+    return [];
+  });
   const [messageInput, setMessageInput] = useState('');
   const [selectedTextColor, setSelectedTextColor] = useState('#000000');
   const [selectedFontSize, setSelectedFontSize] = useState(16);
@@ -142,7 +156,10 @@ export function OptimizedVisualEditor({ className = '' }: OptimizedVisualEditorP
   const [selectedImages, setSelectedImages] = useState<string[]>([]);
   const [uploadedFiles, setUploadedFiles] = useState<File[]>([]);
   const [isDragOver, setIsDragOver] = useState(false);
-  const [currentAgent, setCurrentAgent] = useState<Agent>(agents[0]);
+  const [currentAgent, setCurrentAgent] = useState<Agent>(() => {
+    const agentIdFromUrl = new URLSearchParams(window.location.search).get('agent');
+    return agentIdFromUrl ? agents.find(a => a.id === agentIdFromUrl) || agents[0] : agents[0];
+  });
   const [showQuickActions, setShowQuickActions] = useState(false);
   const [workflowActive, setWorkflowActive] = useState(false);
   const [workflowStage, setWorkflowStage] = useState('Design');
@@ -150,6 +167,29 @@ export function OptimizedVisualEditor({ className = '' }: OptimizedVisualEditorP
   const fileInputRef = useRef<HTMLInputElement>(null);
   const chatPanelRef = useRef<HTMLDivElement>(null);
   const { toast } = useToast();
+
+  // Save conversations to localStorage whenever messages change
+  useEffect(() => {
+    const saveConversations = () => {
+      const savedConversations = localStorage.getItem('visual-editor-conversations');
+      let conversations = {};
+      
+      if (savedConversations) {
+        try {
+          conversations = JSON.parse(savedConversations);
+        } catch (e) {
+          console.warn('Failed to parse existing conversations:', e);
+        }
+      }
+
+      conversations[currentAgent.id] = chatMessages;
+      localStorage.setItem('visual-editor-conversations', JSON.stringify(conversations));
+    };
+
+    if (chatMessages.length > 0) {
+      saveConversations();
+    }
+  }, [chatMessages, currentAgent.id]);
 
   // Fetch user's AI gallery
   const { data: aiImages = [] } = useQuery<AIImage[]>({
@@ -421,8 +461,23 @@ export function OptimizedVisualEditor({ className = '' }: OptimizedVisualEditorP
     };
 
     setChatMessages(prev => [...prev, handoffMessage]);
+    
+    // Load conversation history for new agent
+    const savedConversations = localStorage.getItem('visual-editor-conversations');
+    let newAgentMessages: ChatMessage[] = [];
+    
+    if (savedConversations) {
+      try {
+        const parsed = JSON.parse(savedConversations);
+        newAgentMessages = parsed[nextAgent.id] || [];
+      } catch (e) {
+        console.warn('Failed to load conversations for new agent:', e);
+      }
+    }
+    
     setCurrentAgent(nextAgent);
     setWorkflowStage(nextAgent.workflowStage);
+    setChatMessages(newAgentMessages);
 
     // Auto-send context to next agent
     setTimeout(() => {
