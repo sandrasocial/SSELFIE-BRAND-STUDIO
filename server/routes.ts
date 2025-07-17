@@ -1540,7 +1540,7 @@ Create prompts that feel like iconic fashion campaign moments that would make so
       
       if (error.message?.includes('Premium subscription required')) {
         return res.status(403).json({ 
-          error: 'Luxury training requires €67/month premium subscription',
+          error: 'Luxury training requires €47/month premium subscription',
           upgrade: true,
           upgradeUrl: '/pricing'
         });
@@ -1553,7 +1553,7 @@ Create prompts that feel like iconic fashion campaign moments that would make so
     }
   });
 
-  // 🏆 LUXURY TRAINING STATUS - Enhanced monitoring for FLUX Pro
+  // 🏆 LUXURY TRAINING STATUS - Enhanced monitoring for individual models
   app.get('/api/luxury-training-status/:userId', isAuthenticated, async (req: any, res) => {
     try {
       const { userId } = req.params;
@@ -1912,7 +1912,7 @@ Create prompts that feel like iconic fashion campaign moments that would make so
         isPremium: isPremium,
         isAdmin: isAdmin,
         shouldGetFluxPro: isPremium || isAdmin,
-        message: isPremium || isAdmin ? '🏆 This user should get FLUX Pro training' : '📱 This user should get standard FLUX training'
+        message: isPremium || isAdmin ? '🏆 This user gets premium individual model training' : '📱 This user gets standard individual model training'
       });
       
     } catch (error) {
@@ -2973,11 +2973,11 @@ Consider this workflow optimized and ready for implementation! ⚙️`
           role: 'Dev AI',
           personality: 'Senior full-stack developer with complete SSELFIE Studio technical mastery',
           capabilities: [
-            'FLUX Pro dual-tier architecture implementation',
+            'Individual model architecture implementation',
             'React/TypeScript/PostgreSQL/Drizzle ORM expertise', 
-            'Replicate API integration (FLUX Pro + standard FLUX)',
+            'Replicate API integration with individual trained models',
             'Replit Auth + session management',
-            'Database schema optimization for dual-tier system'
+            'Database schema optimization for individual model system'
           ],
           technicalKnowledge: {
             architecture: 'Main route: /api/start-model-training with automatic tier detection',
@@ -2987,7 +2987,7 @@ Consider this workflow optimized and ready for implementation! ⚙️`
             codebase: 'Full access to server/routes.ts, ai-service.ts, training services'
           },
           status: 'active',
-          currentTask: 'Monitoring FLUX Pro dual-tier implementation',
+          currentTask: 'Monitoring individual model architecture implementation',
           metrics: {
             tasksCompleted: 167,
             efficiency: 96,
@@ -3095,21 +3095,21 @@ Consider this workflow optimized and ready for implementation! ⚙️`
           role: 'Personal Mentor & Business Coach AI',
           personality: 'Sandra\'s strategic advisor with complete business intelligence and team coordination',
           capabilities: [
-            'FLUX Pro strategic business guidance',
+            'Individual model strategic business guidance',
             '87% profit margin optimization strategies',
             'Personal brand scaling strategies',
             'Premium positioning coordination',
             'Agent team synchronization'
           ],
           businessKnowledge: {
-            strategy: 'Rolls-Royce positioning with FLUX Pro as competitive advantage',
+            strategy: 'Rolls-Royce positioning with individual trained models as competitive advantage',
             expansion: 'Personal brand builders targeting premium clients (€5K+ package opportunities)',
-            profitability: '87% margin focus on €67 premium tier vs €8 costs',
+            profitability: '87% margin focus on €47 premium tier vs €8 costs',
             teamCoordination: 'All 9 agents briefed with dual-tier architecture knowledge',
             priorities: 'Excellence over cost optimization, luxury positioning maintained'
           },
           status: 'active',
-          currentTask: 'Coordinating FLUX Pro expansion strategy',
+          currentTask: 'Coordinating individual model expansion strategy',
           metrics: {
             tasksCompleted: 189,
             efficiency: 98,
@@ -3122,7 +3122,7 @@ Consider this workflow optimized and ready for implementation! ⚙️`
           role: 'Workflow AI',
           personality: 'Workflow architect specializing in dual-tier system efficiency and scalability',
           capabilities: [
-            'FLUX Pro dual-tier workflow design',
+            'Individual model workflow design',
             'Premium conversion process automation',
             'Agent collaboration optimization',
             'Scalable tier-based user journeys',
@@ -3132,11 +3132,11 @@ Consider this workflow optimized and ready for implementation! ⚙️`
             workflows: 'Dual-tier user journey: Free → Premium upgrade automation',
             scalability: '1000+ user capacity with automatic tier detection',
             efficiency: 'Streamlined processes for 87% profit margin maintenance',
-            agentCoordination: 'All 9 agents synchronized with FLUX Pro system knowledge',
+            agentCoordination: 'All 9 agents synchronized with individual model system knowledge',
             compliance: 'Architecture validator workflows prevent tier violations'
           },
           status: 'working',
-          currentTask: 'Optimizing dual-tier workflow efficiency',
+          currentTask: 'Optimizing individual model workflow efficiency',
           metrics: {
             tasksCompleted: 267,
             efficiency: 96,
@@ -3256,16 +3256,16 @@ Consider this workflow optimized and ready for implementation! ⚙️`
           role: 'UX Designer AI',
           personality: 'Luxury editorial design expert who creates Vogue-level aesthetics with full business context',
           capabilities: [
-            'FLUX Pro dual-tier system UX optimization',
+            'Individual model system UX optimization',
             'Premium vs free user experience design',
-            '€67/month subscription conversion UX',
+            '€47/month subscription conversion UX',
             'Times New Roman luxury design system',
             'Mobile-first responsive luxury layouts'
           ],
           businessKnowledge: {
             platform: 'SSELFIE Studio - 1000+ users, €15,132 revenue',
-            architecture: 'FLUX Pro dual-tier: Premium (€67/month FLUX Pro) vs Free (standard FLUX)',
-            pricing: 'Premium: €67/month 100 images, Free: 6 images total',
+            architecture: 'Individual model dual-tier: Premium (€47/month) vs Free (standard)',
+            pricing: 'Premium: €47/month unlimited images, Free: 6 images total',
             positioning: 'Rolls-Royce of AI personal branding',
             expansion: 'Coaches and consultants (€5K+ service packages)'
           },
@@ -3283,8 +3283,8 @@ Consider this workflow optimized and ready for implementation! ⚙️`
           role: 'Voice AI',
           personality: 'Sandra\'s copywriting twin with complete business knowledge and Rachel-from-Friends energy',
           capabilities: [
-            'FLUX Pro vs standard FLUX positioning copy',
-            '€67 premium tier value proposition',
+            'Individual model vs standard positioning copy',
+            '€47 premium tier value proposition',
             'Ultra-realistic quality messaging',
             'Personal branding copy',
             'Email sequences with tier-based segmentation'
@@ -3293,11 +3293,11 @@ Consider this workflow optimized and ready for implementation! ⚙️`
             platform: 'SSELFIE Studio - positioning as luxury AI leader',
             voiceGuide: 'Sandra\'s authentic voice: direct, warm, no corporate speak',
             tierMessaging: 'Premium: magazine-quality, Free: excellent quality',
-            profitMargin: '87% on premium tier (€67 vs €8 costs)',
+            profitMargin: '87% on premium tier (€47 vs €8 costs)',
             targetAudience: 'Female entrepreneurs, coaches, and consultants'
           },
           status: 'active',
-          currentTask: 'Writing FLUX Pro premium conversion copy',
+          currentTask: 'Writing individual model premium conversion copy',
           metrics: {
             tasksCompleted: 167,
             efficiency: 96,
@@ -3308,9 +3308,9 @@ Consider this workflow optimized and ready for implementation! ⚙️`
           id: 'sophia',
           name: 'Sophia',
           role: 'Social Media Manager AI',
-          personality: 'Instagram strategist who knows Sandra\'s 120K+ community and FLUX Pro positioning',
+          personality: 'Instagram strategist who knows Sandra\'s 120K+ community and individual model positioning',
           capabilities: [
-            'FLUX Pro vs standard quality content strategy',
+            'Individual model vs standard quality content strategy',
             'Premium tier social proof campaigns',
             '120K+ Instagram community engagement',
             'Premium client targeting',
@@ -3318,13 +3318,13 @@ Consider this workflow optimized and ready for implementation! ⚙️`
           ],
           businessKnowledge: {
             community: '120K+ Instagram followers engaged with luxury AI content',
-            contentStrategy: 'Showcase FLUX Pro ultra-realistic results vs standard quality',
+            contentStrategy: 'Showcase individual model ultra-realistic results vs standard quality',
             targetExpansion: 'Premium service providers making €5K+ packages',
             socialProof: 'Position as Rolls-Royce of AI personal branding',
             engagement: 'DM automation via ManyChat for premium tier conversion'
           },
           status: 'active',
-          currentTask: 'Creating FLUX Pro showcase content strategy',
+          currentTask: 'Creating individual model showcase content strategy',
           metrics: {
             tasksCompleted: 189,
             efficiency: 94,
@@ -3337,15 +3337,15 @@ Consider this workflow optimized and ready for implementation! ⚙️`
           role: 'Performance Marketing AI',
           personality: 'Data-driven ads expert who scales premium positioning with precision',
           capabilities: [
-            'FLUX Pro premium tier ad campaigns',
-            '€67/month subscription optimization',
+            'Individual model premium tier ad campaigns',
+            '€47/month subscription optimization',
             'Premium client targeting',
             'A/B testing premium vs standard messaging',
             'ROI tracking on 87% profit margin'
           ],
           businessKnowledge: {
-            profitMargin: '87% on premium tier (€67 revenue vs €8 costs)',
-            adBudget: 'Focus on €67 premium conversions for maximum ROI',
+            profitMargin: '87% on premium tier (€47 revenue vs €8 costs)',
+            adBudget: 'Focus on €47 premium conversions for maximum ROI',
             targetAudience: 'Female entrepreneurs, coaches, and consultants (€5K+ packages)',
             positioning: 'Rolls-Royce messaging for luxury AI branding',
             conversion: 'Premium upgrade campaigns for free users after 6 images'
@@ -3366,7 +3366,7 @@ Consider this workflow optimized and ready for implementation! ⚙️`
           capabilities: [
             'Dual-tier user journey automation',
             'Premium upgrade workflow triggers',
-            'Email sequences for FLUX Pro positioning',
+            'Email sequences for individual model positioning',
             'ManyChat flows for tier-based messaging',
             'Database workflow optimization'
           ],
@@ -3375,10 +3375,10 @@ Consider this workflow optimized and ready for implementation! ⚙️`
             triggers: 'Usage limit reached → Premium conversion sequence',
             integrations: 'Make.com + Flodesk + ManyChat + Instagram API',
             userJourney: 'Onboarding → Training → Generation → Tier upgrade prompts',
-            retention: 'Premium user engagement sequences for €67/month retention'
+            retention: 'Premium user engagement sequences for €47/month retention'
           },
           status: 'working',
-          currentTask: 'Building FLUX Pro tier upgrade automation',
+          currentTask: 'Building individual model tier upgrade automation',
           metrics: {
             tasksCompleted: 128,
             efficiency: 97,
@@ -3391,21 +3391,21 @@ Consider this workflow optimized and ready for implementation! ⚙️`
           role: 'QA AI',
           personality: 'Perfectionist quality guardian ensuring luxury brand experiences across dual-tier system',
           capabilities: [
-            'FLUX Pro quality validation',
+            'Individual model quality validation',
             'Dual-tier user experience testing',
             'Premium vs standard quality assurance',
             'Architecture compliance monitoring',
             'Luxury brand consistency audits'
           ],
           businessKnowledge: {
-            qualityStandards: 'FLUX Pro: Magazine-quality, Standard: Excellent quality',
+            qualityStandards: 'Individual model: Magazine-quality, Standard: Excellent quality',
             testing: 'Premium user experience vs free user journey validation',
             compliance: 'Architecture validator enforcement across all generations',
             brandConsistency: 'Rolls-Royce positioning maintained across all touchpoints',
             userExperience: 'Seamless tier detection with zero confusion'
           },
           status: 'monitoring',
-          currentTask: 'Auditing FLUX Pro dual-tier implementation',
+          currentTask: 'Auditing individual model dual-tier implementation',
           metrics: {
             tasksCompleted: 256,
             efficiency: 99,
@@ -3991,7 +3991,7 @@ What workflow should I optimize?`
           name: 'Maya',
           role: 'Dev AI',
           personality: 'Senior full-stack developer specializing in luxury digital experiences. Expert in Next.js, TypeScript, Supabase, performance optimization. Builds clean, fast code that powers beautiful experiences. Explains technical concepts in Sandra\'s accessible style.',
-          expertise: 'FLUX Pro architecture, React/TypeScript/PostgreSQL, API integrations, performance optimization, clean code',
+          expertise: 'Individual model architecture, React/TypeScript/PostgreSQL, API integrations, performance optimization, clean code',
           capabilities: 'Full codebase access, database schema updates, new feature implementation, debugging',
           voice: 'Technical but approachable. Says things like "Here\'s what I\'m thinking technically..." and "This is gonna make the platform so much faster!" Explains complex stuff simply.'
         },
@@ -4063,9 +4063,9 @@ What workflow should I optimize?`
 
 BUSINESS CONTEXT:
 - Platform: SSELFIE Studio - AI-powered personal branding platform (${stats.totalUsers} users, €${stats.revenue} revenue)
-- Architecture: FLUX Pro dual-tier system (Premium €67/month vs Free)
+- Architecture: Individual model dual-tier system (Premium €47/month vs Free)
 - Positioning: "Rolls-Royce of AI personal branding" - transforms selfies into complete business launches
-- Profit Margin: 87% on premium tier (€67 revenue vs €8 costs)
+- Profit Margin: 87% on premium tier (€47 revenue vs €8 costs)
 - Target Market: Women entrepreneurs, coaches, consultants building personal brands
 - Current Status: Scaling to 1000+ users with proven revenue model transforming selfies into business empires
 
@@ -4165,7 +4165,7 @@ Remember: You are ${agent.name} - a fully empowered team member who can implemen
           system: systemPrompt,
           messages: [{
             role: "user",
-            content: `Business Context: SSELFIE Studio - ${stats.totalUsers} users, €${stats.revenue} revenue, FLUX Pro dual-tier system.
+            content: `Business Context: SSELFIE Studio - ${stats.totalUsers} users, €${stats.revenue} revenue, Individual model dual-tier system.
 
 Agent Context: You are ${agent.name}, ${agent.role}, with complete implementation access to the platform.
 
@@ -4180,7 +4180,7 @@ FOR VICTORIA SPECIFICALLY: When asked about redesigning "sandra-command page", u
         });
 
         let response = completion.content[0]?.text || agentResponses[agentId] || 
-          `Hello! I'm ${agent.name}. I'm fully briefed on our FLUX Pro dual-tier system with complete business knowledge. How can I help you today?`;
+          `Hello! I'm ${agent.name}. I'm fully briefed on our individual model dual-tier system with complete business knowledge. How can I help you today?`;
 
         // Check if agent wants to show a development preview - enhanced parsing
         let devPreview = null;
@@ -4239,7 +4239,7 @@ FOR VICTORIA SPECIFICALLY: When asked about redesigning "sandra-command page", u
             platform: 'SSELFIE Studio',
             users: stats.totalUsers,
             revenue: `€${stats.revenue}`,
-            architecture: 'FLUX Pro dual-tier system',
+            architecture: 'Individual model dual-tier system',
             positioning: 'Rolls-Royce of AI personal branding',
             lastUpdated: new Date()
           }
@@ -4274,7 +4274,7 @@ FOR VICTORIA SPECIFICALLY: When asked about redesigning "sandra-command page", u
             platform: 'SSELFIE Studio',
             users: stats.totalUsers,
             revenue: `€${stats.revenue}`,
-            architecture: 'FLUX Pro dual-tier system',
+            architecture: 'Individual model dual-tier system',
             positioning: 'Rolls-Royce of AI personal branding',
             lastUpdated: new Date()
           }
