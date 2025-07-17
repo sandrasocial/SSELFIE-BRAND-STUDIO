@@ -601,6 +601,7 @@ The platform has become overly complex with multiple pricing tiers, broken onboa
 - **Root Cause Identified**: Generation parameters not matching successful generation ID 352 that created working images
 - **Working Model Version**: Updated database to use b9fab7abf5819f4c99e78d84d9f049b30b5ba7c63407221604030862ae0be927 (proven working)
 - **User Optimized Parameters**: guidance: 2.8, num_inference_steps: 40, num_outputs: 3, output_quality: 95
+- **Maya Chat Message Persistence Fixed**: Resolved race condition where messages weren't saved for new chats due to timing issue with chat ID state
 - **Simplified Prompt Structure**: Based on successful generation pattern with clean realism base + trigger word + description
 - **Fixed Both Services**: Updated server/ai-service.ts Maya AI and server/image-generation-service.ts AI Photoshoot
 - **Database Updated**: User model now uses exact version that created successful undefined_1752607983217.png image
