@@ -133,6 +133,8 @@ function ProtectedRoute({ component: Component, ...props }) {
 }
 
 function Router() {
+  const { isAuthenticated } = useAuth();
+  
   return (
     <Switch>
       {/* STREAMLINED USER JOURNEY: Landing → Simple Checkout → Payment Success → Onboarding → Workspace */}
@@ -140,8 +142,9 @@ function Router() {
       {/* LAUNCH COUNTDOWN */}
       <Route path="/launch" component={LaunchCountdown} />
       
-      {/* PUBLIC PAGES */}
+      {/* PUBLIC PAGES - Always accessible */}
       <Route path="/" component={EditorialLanding} />
+      <Route path="/landing" component={EditorialLanding} />
       
       {/* AUTHENTICATION REDIRECT PAGE */}
       <Route path="/login" component={() => {
