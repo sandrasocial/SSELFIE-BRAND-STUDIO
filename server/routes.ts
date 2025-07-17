@@ -23,6 +23,7 @@ import session from 'express-session';
 
 import { registerCheckoutRoutes } from './routes/checkout';
 import { registerAutomationRoutes } from './routes/automation';
+import { registerEnterpriseRoutes } from './routes/enterprise-routes';
 import { ExternalAPIService } from './integrations/external-api-service';
 import { AgentAutomationTasks } from './integrations/agent-automation-tasks';
 // Email service import moved inline to avoid conflicts
@@ -4355,6 +4356,10 @@ FOR VICTORIA SPECIFICALLY: When asked about redesigning "sandra-command page", u
 
   // Register Automation routes
   registerAutomationRoutes(app);
+
+  // Register Enterprise Scaling routes (Phase 3)
+  registerEnterpriseRoutes(app);
+  console.log('✅ Enterprise scaling routes registered');
 
 
 
