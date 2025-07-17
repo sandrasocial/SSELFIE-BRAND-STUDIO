@@ -3491,7 +3491,13 @@ Consider this workflow optimized and ready for implementation! ⚙️`
 
         const systemPrompt = `${personality.instructions}
 
-You are chatting with Sandra, the founder of SSELFIE Studio, in her admin dashboard. You have DIRECT FILE CREATION ACCESS to the codebase.
+You are chatting with Sandra, the founder of SSELFIE Studio, in her admin dashboard. You have FULL CODEBASE ACCESS - both READ and WRITE capabilities.
+
+CODEBASE ACCESS:
+- READ FILES: You can read any file in the codebase to understand existing code
+- WRITE FILES: Create/modify files immediately - Sandra sees changes in dev preview instantly
+- ANALYZE CODE: Review existing implementation before making changes
+- FULL ACCESS: server/, client/, shared/, vite.config.ts, package.json, etc.
 
 WORKFLOW:
 - Victoria: Create files immediately → Sandra approves → handoff to Maya
@@ -3504,6 +3510,8 @@ Key Business Context:
 - Two tiers: FREE (6 generations/month) and Premium €47/month (unlimited)
 - Target: Female entrepreneurs, coaches, consultants
 - Your Role: ${personality.role}
+
+IMPORTANT: When Sandra asks about existing files or code, READ the files first to understand the current implementation. Then create/modify as needed.
 
 CREATE FILES IMMEDIATELY when asked. Sandra sees changes in dev preview instantly. When she says "approve", trigger handoff to next agent.`;
 
@@ -3548,8 +3556,35 @@ CREATE FILES IMMEDIATELY when asked. Sandra sees changes in dev preview instantl
           messages: messages,
         });
 
-        const aiResponse = completion.content[0]?.text || 'Agent response not available';
+        let aiResponse = completion.content[0]?.text || 'Agent response not available';
         console.log('✅ Real AI response generated');
+        
+        // Enhanced file reading capability - Check if agent requested file reading
+        if (aiResponse.includes('READ_FILE:') || aiResponse.includes('read file:') || aiResponse.includes('show me the file:')) {
+          console.log('📖 Agent requested file reading - processing...');
+          
+          try {
+            // Extract file path from response
+            const filePathMatch = aiResponse.match(/(?:READ_FILE:|read file:|show me the file:)\s*([^\s\n]+)/i);
+            if (filePathMatch) {
+              const filePath = filePathMatch[1].trim();
+              console.log(`📖 Agent wants to read: ${filePath}`);
+              
+              // Import and use the file reading capability
+              const { AgentCodebaseIntegration } = await import('./agents/agent-codebase-integration');
+              const fileContent = await AgentCodebaseIntegration.readFile(agentId, filePath);
+              
+              console.log(`📄 File content loaded: ${fileContent.length} characters`);
+              
+              // Append file content to response
+              aiResponse = aiResponse + `\n\n**File Content (${filePath}):**\n\`\`\`\n${fileContent}\n\`\`\``;
+              console.log('✅ File content appended to agent response');
+            }
+          } catch (fileError) {
+            console.log('❌ File reading failed:', fileError.message);
+            aiResponse = aiResponse + `\n\n**File Reading Error:** ${fileError.message}`;
+          }
+        }
 
         // Check if the AI response contains file creation JSON
         if (aiResponse.includes('```json') && aiResponse.includes('file_creation')) {
@@ -4292,6 +4327,14 @@ FOR VICTORIA SPECIFICALLY: When asked about redesigning "sandra-command page", u
 
   // Register AI Images routes
 
+  // Register Agent Codebase Access routes
+  try {
+    const { default: agentCodebaseRoutes } = await import('./routes/agent-codebase-routes');
+    app.use('/api/admin', agentCodebaseRoutes);
+    console.log('✅ Agent codebase routes registered');
+  } catch (error) {
+    console.log('⚠️ Agent codebase routes not available:', error.message);
+  }
 
   // Register Checkout routes
   registerCheckoutRoutes(app);
