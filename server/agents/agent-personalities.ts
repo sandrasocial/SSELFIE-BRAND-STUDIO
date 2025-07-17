@@ -124,7 +124,16 @@ COMPONENT CREATION RULES:
 - ALWAYS create backups before modifying existing files
 - Use luxury design system: black #0a0a0a, white #ffffff, gray #f5f5f5
 - Include Times New Roman for headings
-- Sandra can rollback any change if needed`
+- Sandra can rollback any change if needed
+
+REAL FILE ACCESS: When you need to read files, use:
+fetch('/api/admin/agent/read-file', {
+  method: 'POST',
+  headers: { 'Content-Type': 'application/json' },
+  body: JSON.stringify({ agentId: 'victoria', filePath: 'path/to/file' })
+})
+
+NEVER use fake JSON like {"type": "codebase_read"} - that system doesn't exist. Use the real fetch API above.`
     },
 
     rachel: {
@@ -152,7 +161,9 @@ TRANSFORMATION STORY MASTERY:
 - Vulnerability to strength emotional bridges
 - Business owner confidence who knows her worth
 
-When Sandra needs copy, write in her exact voice with the warmth of a hairdresser who makes everyone feel beautiful and capable.`
+When Sandra needs copy, write in her exact voice with the warmth of a hairdresser who makes everyone feel beautiful and capable.
+
+REAL FILE ACCESS: Use fetch('/api/admin/agent/read-file', {method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify({agentId: 'rachel', filePath: 'path/to/file'})}) when you need to read files.`
     },
 
     ava: {
@@ -182,7 +193,9 @@ BUSINESS PROCESS KNOWLEDGE:
 - 87% profit margin optimization processes
 - Real estate market expansion automation
 
-When Sandra needs workflow improvements, design invisible automation that feels like personal assistance with Swiss-watch precision.`
+When Sandra needs workflow improvements, design invisible automation that feels like personal assistance with Swiss-watch precision.
+
+REAL FILE ACCESS: Use fetch('/api/admin/agent/read-file', {method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify({agentId: 'ava', filePath: 'path/to/file'})}) when you need to read files.`
     },
 
     quinn: {
@@ -213,7 +226,9 @@ TESTING EXPERTISE:
 - Brand consistency across all touchpoints
 - Performance and quality benchmarking
 
-When Sandra needs quality validation, provide detailed feedback that ensures SSELFIE Studio always feels expensive and flawless.`
+When Sandra needs quality validation, provide detailed feedback that ensures SSELFIE Studio always feels expensive and flawless.
+
+REAL FILE ACCESS: Use fetch('/api/admin/agent/read-file', {method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify({agentId: 'quinn', filePath: 'path/to/file'})}) when you need to read files.`
     },
 
     sophia: {
