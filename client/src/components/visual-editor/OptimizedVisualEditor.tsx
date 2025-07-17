@@ -571,7 +571,7 @@ export function OptimizedVisualEditor({ className = '' }: OptimizedVisualEditorP
     <div className={`h-screen bg-white ${className}`}>
       <PanelGroup direction="horizontal" className="h-full">
         {/* Chat Panel - Resizable */}
-        <Panel defaultSize={30} minSize={20} maxSize={50}>
+        <Panel defaultSize={35} minSize={25} maxSize={50}>
           <div 
             ref={chatPanelRef}
             className={`h-full border-r border-gray-200 bg-white flex flex-col ${isDragOver ? 'bg-blue-50 border-blue-300' : ''}`}
@@ -588,35 +588,35 @@ export function OptimizedVisualEditor({ className = '' }: OptimizedVisualEditorP
                 </div>
               </div>
             )}
-        {/* Chat Header with Agent Workflow */}
-        <div className="p-4 border-b border-gray-200">
-          <div className="flex items-center justify-between mb-3">
+        {/* Chat Header with Agent Workflow - Compact */}
+        <div className="p-2 border-b border-gray-200">
+          <div className="flex items-center justify-between mb-2">
             <div className="flex items-center space-x-2">
-              <div className="w-8 h-8 bg-black flex items-center justify-center">
-                <span className="text-white text-sm font-medium">{currentAgent.name[0]}</span>
+              <div className="w-6 h-6 bg-black flex items-center justify-center">
+                <span className="text-white text-xs font-medium">{currentAgent.name[0]}</span>
               </div>
               <div>
-                <div className="font-medium text-sm">{currentAgent.name}</div>
+                <div className="font-medium text-xs">{currentAgent.name}</div>
                 <div className="text-xs text-gray-500">{currentAgent.role}</div>
               </div>
             </div>
             <Button
               variant={showPropertiesPanel ? "default" : "outline"}
               size="sm"
-              className="border-black text-black hover:bg-black hover:text-white"
+              className="border-black text-black hover:bg-black hover:text-white text-xs px-2 py-1"
               onClick={() => setShowPropertiesPanel(!showPropertiesPanel)}
             >
               Settings
             </Button>
           </div>
 
-          {/* Workflow Progress */}
-          <div className="space-y-2">
+          {/* Workflow Progress - Compact */}
+          <div className="space-y-1">
             <div className="flex items-center justify-between">
-              <span className="text-xs font-medium text-gray-600">Design Studio Workflow</span>
+              <span className="text-xs font-medium text-gray-600">Workflow</span>
               {workflowActive && (
-                <Badge variant="secondary" className="text-xs bg-gray-100 text-black border border-gray-300">
-                  Active: {workflowStage}
+                <Badge variant="secondary" className="text-xs bg-gray-100 text-black border border-gray-300 px-1 py-0">
+                  {workflowStage}
                 </Badge>
               )}
             </div>
@@ -624,7 +624,7 @@ export function OptimizedVisualEditor({ className = '' }: OptimizedVisualEditorP
               {agents.map((agent, index) => (
                 <div
                   key={agent.id}
-                  className={`flex-1 h-2 ${
+                  className={`flex-1 h-1 ${
                     agent.id === currentAgent.id
                       ? 'bg-black'
                       : agents.findIndex(a => a.id === currentAgent.id) > index
@@ -634,18 +634,11 @@ export function OptimizedVisualEditor({ className = '' }: OptimizedVisualEditorP
                 />
               ))}
             </div>
-            <div className="flex justify-between text-xs text-gray-500">
-              {agents.map(agent => (
-                <span key={agent.id} className={agent.id === currentAgent.id ? 'font-medium text-black' : ''}>
-                  {agent.name}
-                </span>
-              ))}
-            </div>
           </div>
 
           {/* Quick Actions & Workflow Starters - Collapsible */}
           {!workflowActive && (
-            <div className="mt-3 space-y-1">
+            <div className="mt-2 space-y-1">
               <div className="flex items-center justify-between">
                 <div className="text-xs font-medium text-gray-600">Quick Actions & Workflows</div>
                 <Button
@@ -741,15 +734,15 @@ export function OptimizedVisualEditor({ className = '' }: OptimizedVisualEditorP
 
         {/* Tabs for Chat, Gallery, and Flatlay Library */}
         <Tabs value={activeTab} onValueChange={setActiveTab} className="flex-1 flex flex-col">
-          <TabsList className="grid w-full grid-cols-3 mx-4 mt-4">
+          <TabsList className="grid w-full grid-cols-3 mx-2 mt-2">
             <TabsTrigger value="chat" className="text-xs">Chat</TabsTrigger>
             <TabsTrigger value="gallery" className="text-xs">Gallery</TabsTrigger>
             <TabsTrigger value="flatlays" className="text-xs">Flatlays</TabsTrigger>
           </TabsList>
 
           <TabsContent value="chat" className="flex-1 flex flex-col mt-0">
-            {/* Chat Messages */}
-            <div className="flex-1 overflow-y-auto p-4 space-y-3">
+            {/* Chat Messages - Expanded Space */}
+            <div className="flex-1 overflow-y-auto p-4 space-y-3" style={{ minHeight: '300px' }}>
               {chatMessages.length === 0 && (
                 <div className="text-center text-gray-500 text-sm">
                   <div className="mb-2">Chat</div>
@@ -848,7 +841,7 @@ export function OptimizedVisualEditor({ className = '' }: OptimizedVisualEditorP
             </div>
 
             {/* Chat Input with Upload - Multi-line */}
-            <div className="p-4 border-t border-gray-200">
+            <div className="p-2 border-t border-gray-200">
               <div className="flex space-x-2">
                 <div className="flex flex-col space-y-1">
                   <input
@@ -1033,7 +1026,7 @@ export function OptimizedVisualEditor({ className = '' }: OptimizedVisualEditorP
         <PanelResizeHandle className="w-2 bg-gray-100 hover:bg-gray-200 transition-colors" />
 
         {/* Main Live Preview Panel - Resizable */}
-        <Panel defaultSize={70} minSize={30}>
+        <Panel defaultSize={65} minSize={30}>
           <div className="h-full flex flex-col">
         {/* Top Toolbar */}
         <div className="border-b border-gray-200 px-4 py-2 flex items-center justify-between bg-gray-50">
