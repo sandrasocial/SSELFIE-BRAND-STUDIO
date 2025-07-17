@@ -840,36 +840,34 @@ export function OptimizedVisualEditor({ className = '' }: OptimizedVisualEditorP
               )}
             </div>
 
-            {/* Chat Input with Upload - Compact at bottom */}
-            <div className="flex-shrink-0 px-1 py-0.5 border-t border-gray-200">
-              <div className="flex space-x-1 items-end">
-                <div className="flex flex-col">
-                  <input
-                    ref={fileInputRef}
-                    type="file"
-                    accept="image/*"
-                    multiple
-                    onChange={(e) => handleFileUpload(e.target.files)}
-                    className="hidden"
-                  />
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    onClick={() => fileInputRef.current?.click()}
-                    className="px-2 py-1 border-black text-black hover:bg-black hover:text-white"
-                    title="Upload images"
-                  >
-                    <Paperclip className="w-3 h-3" />
-                  </Button>
-                </div>
-                <Textarea
+            {/* Chat Input - Ultra compact at bottom */}
+            <div className="flex-shrink-0 px-1 border-t border-gray-200" style={{ padding: '2px 4px' }}>
+              <div className="flex gap-1 items-center">
+                <input
+                  ref={fileInputRef}
+                  type="file"
+                  accept="image/*"
+                  multiple
+                  onChange={(e) => handleFileUpload(e.target.files)}
+                  className="hidden"
+                />
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => fileInputRef.current?.click()}
+                  className="p-1 border-black text-black hover:bg-black hover:text-white h-6 w-6"
+                  title="Upload"
+                >
+                  <Paperclip className="w-3 h-3" />
+                </Button>
+                <input
+                  type="text"
                   value={messageInput}
                   onChange={(e) => setMessageInput(e.target.value)}
                   placeholder={`Ask ${currentAgent.name} for help...`}
-                  className="flex-1 text-xs resize-none border border-gray-200 px-2 py-1 rounded min-h-[2rem] max-h-[4rem]"
-                  rows={2}
+                  className="flex-1 text-xs border border-gray-200 px-2 py-1 rounded h-6 focus:outline-none focus:border-black"
                   onKeyPress={(e) => {
-                    if (e.key === 'Enter' && !e.shiftKey) {
+                    if (e.key === 'Enter') {
                       e.preventDefault();
                       sendMessage(messageInput);
                     }
@@ -877,7 +875,7 @@ export function OptimizedVisualEditor({ className = '' }: OptimizedVisualEditorP
                 />
                 <Button
                   size="sm"
-                  className="bg-black text-white hover:bg-gray-800 px-2 py-1 text-xs"
+                  className="bg-black text-white hover:bg-gray-800 px-2 py-1 text-xs h-6"
                   onClick={() => sendMessage(messageInput)}
                   disabled={!messageInput.trim() || isLoading}
                 >
