@@ -88,6 +88,15 @@ export function LiveComponentPreview({ fileContent, componentName, type }: LiveC
         .replace(/htmlFor=/g, 'for=')
         // Handle self-closing tags
         .replace(/<(\w+)([^>]*?)\s*\/>/g, '<$1$2></$1>')
+        // Handle image imports and assets
+        .replace(/src=\{([^}]+)\}/g, (match, srcContent) => {
+          // Handle @assets imports
+          if (srcContent.includes('@assets/')) {
+            return 'src="https://via.placeholder.com/400x300?text=Image+Preview"';
+          }
+          // Handle other image variables
+          return 'src="https://via.placeholder.com/400x300?text=Image+Preview"';
+        })
         // Remove React-specific attributes and complex expressions
         .replace(/\{[^}]*\}/g, (match) => {
           // Keep simple string content, remove complex expressions
@@ -164,7 +173,7 @@ export function LiveComponentPreview({ fileContent, componentName, type }: LiveC
         <div className="space-y-4">
           <div className="text-sm text-blue-600 bg-blue-50 p-3 rounded">
             <strong>Live Preview:</strong> This is a simplified rendering of Victoria's component. 
-            The actual implementation will include full React functionality, proper state management, and interactive features.
+            Images show as placeholders, but the actual implementation will include full React functionality, proper image loading, state management, and interactive features.
           </div>
           <div className="border rounded-lg p-4 bg-gray-50">
             <div 
