@@ -3589,39 +3589,85 @@ CREATE FILES IMMEDIATELY when asked. Sandra sees changes in dev preview instantl
                   filesCreated.push(filePath);
                   console.log(`✅ Created file: ${filePath}`);
                   
-                  // For admin dashboard components, also update the admin dashboard to import them
-                  if (filePath.includes('components/admin/') || filePath.includes('AdminDashboard')) {
-                    try {
+                  // Auto-import new components to relevant pages
+                  try {
+                    const { readFile, writeFile } = await import('fs/promises');
+                    const componentName = file.filename.replace('.tsx', '');
+                    
+                    if (filePath.includes('components/admin/')) {
+                      // Admin dashboard auto-import
                       const adminDashboardPath = 'client/src/pages/admin-dashboard.tsx';
-                      const { readFile, writeFile } = await import('fs/promises');
                       const adminContent = await readFile(adminDashboardPath, 'utf8');
-                      
-                      // Add import for the new component
-                      const componentName = file.filename.replace('.tsx', '');
                       const importStatement = `import ${componentName} from '@/components/admin/${componentName}';`;
                       
                       if (!adminContent.includes(importStatement)) {
-                        // Add import after existing imports
                         const importLine = `import TestAdminCard from '@/components/admin/TestAdminCard';`;
                         const updatedContent = adminContent.replace(
                           importLine,
                           importLine + '\n' + importStatement
                         );
                         await writeFile(adminDashboardPath, updatedContent, 'utf8');
-                        console.log(`🔗 Auto-imported ${componentName} into admin dashboard`);
                         
-                        // Also add the component to display after TestAdminCard
                         const displayContent = await readFile(adminDashboardPath, 'utf8');
                         const finalContent = displayContent.replace(
                           '<TestAdminCard />',
                           `<TestAdminCard />\n          <${componentName} />`
                         );
                         await writeFile(adminDashboardPath, finalContent, 'utf8');
-                        console.log(`🎨 Auto-added ${componentName} to dashboard display`);
+                        console.log(`🔗 Auto-imported ${componentName} into admin dashboard`);
                       }
-                    } catch (e) {
-                      console.log('⚠️ Could not auto-import component:', e.message);
+                    } else {
+                      // Auto-import to all main pages that could use the component
+                      const pagesToUpdate = [
+                        { path: 'client/src/pages/landing-page.tsx', insertAfter: '<div className="min-h-screen' },
+                        { path: 'client/src/pages/workspace.tsx', insertAfter: '<div className="min-h-screen' },
+                        { path: 'client/src/pages/pricing-page.tsx', insertAfter: '<div className="min-h-screen' },
+                        { path: 'client/src/pages/about-page.tsx', insertAfter: '<div className="min-h-screen' },
+                        { path: 'client/src/pages/home-page.tsx', insertAfter: '<div className="min-h-screen' }
+                      ];
+                      
+                      let importAdded = false;
+                      for (const page of pagesToUpdate) {
+                        try {
+                          const pageContent = await readFile(page.path, 'utf8');
+                          const importStatement = `import ${componentName} from '@/components/${componentName}';`;
+                          
+                          if (!pageContent.includes(importStatement) && !importAdded) {
+                            // Add import after existing imports
+                            const lines = pageContent.split('\\n');
+                            let lastImportIndex = -1;
+                            
+                            for (let i = 0; i < lines.length; i++) {
+                              if (lines[i].trim().startsWith('import ')) {
+                                lastImportIndex = i;
+                              }
+                            }
+                            
+                            if (lastImportIndex >= 0) {
+                              lines.splice(lastImportIndex + 1, 0, importStatement);
+                              
+                              // Add component to page content after the insertAfter marker
+                              const updatedContent = lines.join('\\n');
+                              const componentDisplay = `\\n      <${componentName} />`;
+                              
+                              const finalContent = updatedContent.replace(
+                                new RegExp(`(${page.insertAfter.replace(/[.*+?^${}()|[\\]\\\\]/g, '\\\\$&')}[^>]*>)`),
+                                `$1${componentDisplay}`
+                              );
+                              
+                              await writeFile(page.path, finalContent, 'utf8');
+                              console.log(`🔗 Auto-imported ${componentName} into ${page.path}`);
+                              importAdded = true;
+                              break;
+                            }
+                          }
+                        } catch (pageError) {
+                          // Page doesn't exist or can't be updated, continue to next
+                        }
+                      }
                     }
+                  } catch (importError) {
+                    console.log('⚠️ Could not auto-import component:', importError.message);
                   }
                   
                   // Trigger Vite hot reload
