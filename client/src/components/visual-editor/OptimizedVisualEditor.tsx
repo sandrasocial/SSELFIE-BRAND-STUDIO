@@ -443,12 +443,18 @@ export function OptimizedVisualEditor({ className = '' }: OptimizedVisualEditorP
         content: msg.content
       }));
 
+      console.log('📤 Sending to agent:', {
+        agentId,
+        messageLength: message.length,
+        conversationHistoryLength: conversationHistory.length,
+        workflowStage
+      });
+
       const response = await apiRequest('POST', '/api/admin/agent-chat-bypass', {
         agentId: agentId,
         message: message,
         adminToken: 'sandra-admin-2025',
         conversationHistory: conversationHistory,
-        conversationHistoryLength: conversationHistory.length,
         workflowContext: {
           stage: workflowStage,
           previousWork: chatMessages.filter(msg => msg.agentName && msg.agentName !== agentId).slice(-3)
