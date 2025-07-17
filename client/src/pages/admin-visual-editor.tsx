@@ -1,6 +1,6 @@
 import React, { useEffect } from 'react';
 import { useAuth } from '@/hooks/use-auth';
-import { AgentChatEditor } from '@/components/visual-editor/AgentChatEditor';
+import { OptimizedVisualEditor } from '@/components/visual-editor/OptimizedVisualEditor';
 import { useLocation } from 'wouter';
 
 export default function AdminVisualEditor() {
@@ -41,7 +41,7 @@ export default function AdminVisualEditor() {
 
   return (
     <div className="h-screen overflow-hidden">
-      <AgentChatEditor />
+      <OptimizedVisualEditor />
     </div>
   );
 }
