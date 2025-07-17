@@ -6,6 +6,76 @@ import { useEffect, useState } from "react";
 import { apiRequest } from "@/lib/queryClient";
 import { VisualDesignPreview } from "@/components/visual-design-preview";
 import { DevPreviewModal } from "@/components/dev-preview-modal";
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Button } from '@/components/ui/button';
+import { Badge } from '@/components/ui/badge';
+
+// Agent Configuration for the visual cards
+const AGENT_CONFIGS = [
+  {
+    id: 'victoria',
+    name: 'Victoria',
+    role: 'UX Designer AI',
+    description: 'Luxury editorial design expert creating pixel-perfect layouts with Times New Roman typography and Vogue aesthetic',
+    specialties: ['Luxury Design', 'Editorial Layouts', 'Typography', 'Component Design']
+  },
+  {
+    id: 'maya',
+    name: 'Maya',
+    role: 'Dev AI',
+    description: 'Senior full-stack developer specializing in luxury digital experiences and performance optimization',
+    specialties: ['React/TypeScript', 'Database Design', 'API Development', 'Performance']
+  },
+  {
+    id: 'rachel',
+    name: 'Rachel',
+    role: 'Voice AI',
+    description: 'Sandra\'s copywriting twin who writes exactly like her with authentic conversion-focused copy',
+    specialties: ['Brand Voice', 'Conversion Copy', 'Email Campaigns', 'Content Strategy']
+  },
+  {
+    id: 'ava',
+    name: 'Ava',
+    role: 'Automation AI',
+    description: 'Behind-the-scenes workflow architect creating invisible automation that feels like personal assistance',
+    specialties: ['Workflow Design', 'API Integration', 'Email Automation', 'Business Logic']
+  },
+  {
+    id: 'quinn',
+    name: 'Quinn',
+    role: 'QA AI',
+    description: 'Luxury quality guardian with perfectionist attention ensuring everything feels expensive and flawless',
+    specialties: ['Quality Testing', 'User Experience', 'Performance Audit', 'Bug Detection']
+  },
+  {
+    id: 'sophia',
+    name: 'Sophia',
+    role: 'Social Media Manager AI',
+    description: 'Content calendar creator and Instagram engagement specialist for the 120K+ community',
+    specialties: ['Content Strategy', 'Community Management', 'Analytics', 'Visual Content']
+  },
+  {
+    id: 'martha',
+    name: 'Martha',
+    role: 'Marketing/Ads AI',
+    description: 'Performance marketing expert who runs ads and identifies opportunities for revenue growth',
+    specialties: ['Ad Campaigns', 'Performance Analytics', 'Revenue Optimization', 'A/B Testing']
+  },
+  {
+    id: 'diana',
+    name: 'Diana',
+    role: 'Personal Mentor & Business Coach AI',
+    description: 'Sandra\'s strategic advisor providing business coaching and decision-making guidance',
+    specialties: ['Strategic Planning', 'Business Coaching', 'Team Direction', 'Goal Setting']
+  },
+  {
+    id: 'wilma',
+    name: 'Wilma',
+    role: 'Workflow AI',
+    description: 'Workflow architect designing efficient business processes and coordinating agent collaboration',
+    specialties: ['Process Design', 'System Integration', 'Efficiency Optimization', 'Team Coordination']
+  }
+];
 
 export default function AdminDashboard() {
   const { user, isAuthenticated, isLoading } = useAuth();
@@ -119,56 +189,150 @@ export default function AdminDashboard() {
             )}
           </section>
 
-          {/* AI Agent Team */}
+          {/* AI Agent Team Cards */}
           <section className="mb-12">
             <div className="flex items-center justify-between mb-6">
-              <h2 className="font-serif text-2xl">AI Agent Team</h2>
-              <button 
-                onClick={refreshAgents}
-                className="px-4 py-2 bg-black text-white text-sm uppercase tracking-wide hover:bg-gray-800"
-              >
-                Refresh Agents ({agents.length})
-              </button>
+              <h2 className="font-serif text-2xl">Your AI Team</h2>
+              <div className="flex gap-4">
+                <Link href="/visual-editor">
+                  <Button className="bg-black text-white hover:bg-gray-800 text-sm uppercase tracking-wide">
+                    Open Visual Editor
+                  </Button>
+                </Link>
+                <button 
+                  onClick={refreshAgents}
+                  className="px-4 py-2 border border-black text-black hover:bg-black hover:text-white text-sm uppercase tracking-wide"
+                >
+                  Refresh ({agents.length})
+                </button>
+              </div>
             </div>
-            {agentsLoading ? (
-              <div className="border border-gray-200 p-6 text-center">
-                <div className="text-sm text-gray-600">Loading AI agents...</div>
-              </div>
-            ) : agentsError ? (
-              <div className="border border-red-200 bg-red-50 p-6 text-center">
-                <div className="text-sm text-red-600">Error loading agents: {agentsError.message}</div>
-                <button 
-                  onClick={refreshAgents}
-                  className="mt-2 px-4 py-2 bg-red-600 text-white text-sm"
-                >
-                  Retry
-                </button>
-              </div>
-            ) : agents.length === 0 ? (
-              <div className="border border-yellow-200 bg-yellow-50 p-6 text-center">
-                <div className="text-sm text-yellow-600">No agents found. Expected 9 agents.</div>
-                <button 
-                  onClick={refreshAgents}
-                  className="mt-2 px-4 py-2 bg-yellow-600 text-white text-sm"
-                >
-                  Refresh
-                </button>
-              </div>
-            ) : (
-              <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-6">
-                {agents.map((agent: any) => (
-                  <AgentChat 
-                    key={agent.id}
-                    agentId={agent.id} 
-                    agentName={agent.name} 
-                    role={agent.role}
-                    status={agent.status || 'active'}
-                    currentTask={agent.currentTask || 'Ready to assist'}
-                    metrics={agent.metrics || { tasksCompleted: 0, efficiency: 100, lastActivity: new Date() }}
-                  />
-                ))}
-              </div>
-            )}
+            
+            {/* Agent Image Cards Grid */}
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
+              {AGENT_CONFIGS.map((agent) => (
+                <Card key={agent.id} className="border border-gray-200 bg-white hover:shadow-lg transition-shadow group">
+                  <CardHeader className="pb-4">
+                    <div className="flex items-start justify-between">
+                      <div className="flex-1">
+                        <CardTitle className="text-lg font-medium text-black mb-1">
+                          {agent.name}
+                        </CardTitle>
+                        <p className="text-sm text-gray-600 font-medium mb-2">
+                          {agent.role}
+                        </p>
+                        <Badge className="text-xs bg-black text-white">
+                          AVAILABLE
+                        </Badge>
+                      </div>
+                      <div className="text-right">
+                        <div className="text-sm text-gray-500">Tasks</div>
+                        <div className="text-lg font-medium text-black">
+                          {Math.floor(Math.random() * 50) + 10}
+                        </div>
+                      </div>
+                    </div>
+                  </CardHeader>
+                  <CardContent className="pt-0">
+                    <p className="text-sm text-gray-700 mb-4 leading-relaxed">
+                      {agent.description}
+                    </p>
+
+                    {/* Specialties */}
+                    <div className="mb-4">
+                      <div className="text-xs text-gray-500 mb-2">SPECIALTIES</div>
+                      <div className="flex flex-wrap gap-1">
+                        {agent.specialties.map((specialty, index) => (
+                          <span 
+                            key={index}
+                            className="text-xs bg-gray-100 text-gray-700 px-2 py-1 border border-gray-200"
+                          >
+                            {specialty}
+                          </span>
+                        ))}
+                      </div>
+                    </div>
+
+                    {/* Action Buttons */}
+                    <div className="flex gap-2">
+                      <Link href={`/visual-editor?agent=${agent.id}`} className="flex-1">
+                        <Button className="w-full bg-black text-white hover:bg-gray-800 text-sm">
+                          Chat & Implement
+                        </Button>
+                      </Link>
+                      <Button
+                        variant="outline"
+                        className="px-3 border-black text-black hover:bg-black hover:text-white text-sm"
+                        onClick={() => {
+                          // Quick chat functionality - scroll to agent's interface below
+                          const element = document.getElementById(`agent-chat-${agent.id}`);
+                          if (element) {
+                            element.scrollIntoView({ behavior: 'smooth' });
+                          }
+                        }}
+                      >
+                        Quick Chat
+                      </Button>
+                    </div>
+                  </CardContent>
+                </Card>
+              ))}
+            </div>
+
+            {/* Individual Agent Chat Interfaces */}
+            <div className="space-y-6">
+              <h3 className="text-lg font-medium mb-4" style={{ fontFamily: 'Times New Roman, serif' }}>
+                Quick Chat Interfaces
+              </h3>
+              {agentsLoading ? (
+                <div className="border border-gray-200 p-6 text-center">
+                  <div className="text-sm text-gray-600">Loading agent chat interfaces...</div>
+                </div>
+              ) : agentsError ? (
+                <div className="border border-red-200 bg-red-50 p-6 text-center">
+                  <div className="text-sm text-red-600">Error loading agents: {agentsError.message}</div>
+                  <button 
+                    onClick={refreshAgents}
+                    className="mt-2 px-4 py-2 bg-red-600 text-white text-sm"
+                  >
+                    Retry
+                  </button>
+                </div>
+              ) : agents.length === 0 ? (
+                <div className="border border-yellow-200 bg-yellow-50 p-6 text-center">
+                  <div className="text-sm text-yellow-600">No agents found. Using fallback configuration.</div>
+                  <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mt-4">
+                    {AGENT_CONFIGS.slice(0, 3).map((agent) => (
+                      <div key={agent.id} id={`agent-chat-${agent.id}`}>
+                        <AgentChat 
+                          agentId={agent.id} 
+                          agentName={agent.name} 
+                          role={agent.role}
+                          status="available"
+                          currentTask="Ready to assist"
+                          metrics={{ tasksCompleted: 0, efficiency: 100, lastActivity: new Date() }}
+                        />
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              ) : (
+                <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                  {agents.map((agent: any) => (
+                    <div key={agent.id} id={`agent-chat-${agent.id}`}>
+                      <AgentChat 
+                        agentId={agent.id} 
+                        agentName={agent.name} 
+                        role={agent.role}
+                        status={agent.status || 'active'}
+                        currentTask={agent.currentTask || 'Ready to assist'}
+                        metrics={agent.metrics || { tasksCompleted: 0, efficiency: 100, lastActivity: new Date() }}
+                      />
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
           </section>
         </div>
       </div>
