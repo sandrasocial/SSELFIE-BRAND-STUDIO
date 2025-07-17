@@ -237,14 +237,14 @@ export class AIService {
         version: userTrainedVersion,
         input: {
           prompt: prompt,
-          guidance: 3.5,
-          num_inference_steps: 50,
+          guidance: 2.8, // 🔒 CORE_ARCHITECTURE_IMMUTABLE_V2: optimal natural results
+          num_inference_steps: 35, // 🔒 CORE_ARCHITECTURE_IMMUTABLE_V2: expert quality
           num_outputs: 3,
           aspect_ratio: "3:4",
           output_format: "png",
-          output_quality: 100,
+          output_quality: 95, // 🔒 CORE_ARCHITECTURE_IMMUTABLE_V2: maximum clarity
           megapixels: "1",
-          go_fast: false,
+          go_fast: false, // 🔒 CORE_ARCHITECTURE_IMMUTABLE_V2: quality over speed
           disable_safety_checker: false,
           seed: Math.floor(Math.random() * 1000000)
         }
