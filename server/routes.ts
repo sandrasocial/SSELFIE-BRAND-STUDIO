@@ -3437,21 +3437,26 @@ Consider this workflow optimized and ready for implementation! ⚙️`
       
       console.log(`🤖 ADMIN AGENT CHAT: ${agentId} - "${message.substring(0, 50)}..."`);
       
-      // Check if this is a file creation request
+      // Enhanced file creation detection including JSON responses
       const messageText = message.toLowerCase();
-      const isFileCreationRequest = messageText.includes('create') && 
-                                   (messageText.includes('file') || 
-                                    messageText.includes('component') || 
-                                    messageText.includes('.tsx') || 
-                                    messageText.includes('.ts'));
+      const isFileCreationRequest = (
+        (messageText.includes('create') && 
+         (messageText.includes('file') || messageText.includes('component'))) ||
+        messageText.includes('.tsx') ||
+        messageText.includes('.ts') ||
+        messageText.includes('file_creation') ||
+        messageText.includes('"type": "file_creation"') ||
+        (messageText.includes('admin dashboard') && messageText.includes('redesign')) ||
+        (messageText.includes('agent cards') && messageText.includes('component'))
+      );
                                    
-      console.log('🔍 File creation check:', { 
-        message: messageText, 
+      console.log('🔍 Enhanced file creation check:', { 
+        message: messageText.substring(0, 100) + '...',
         hasCreate: messageText.includes('create'),
         hasFile: messageText.includes('file'),
         hasComponent: messageText.includes('component'),
-        hasTsx: messageText.includes('.tsx'),
-        hasTsFile: messageText.includes('.ts'),
+        hasFileCreation: messageText.includes('file_creation'),
+        hasAdminDashboard: messageText.includes('admin dashboard'),
         isFileCreationRequest 
       });
       
@@ -3534,6 +3539,46 @@ If Sandra asks you to create a file or implement code, respond enthusiastically 
 
         const aiResponse = completion.content[0]?.text || 'Agent response not available';
         console.log('✅ Real AI response generated');
+
+        // Check if the AI response contains file creation JSON
+        if (aiResponse.includes('```json') && aiResponse.includes('file_creation')) {
+          console.log('🔧 AI response contains file creation JSON - processing...');
+          
+          try {
+            // Extract JSON from response
+            const jsonMatch = aiResponse.match(/```json\n([\s\S]*?)\n```/);
+            if (jsonMatch) {
+              const jsonData = JSON.parse(jsonMatch[1]);
+              
+              if (jsonData.type === 'file_creation' && jsonData.files) {
+                console.log('📁 Creating files from AI response...');
+                
+                for (const file of jsonData.files) {
+                  const { AgentCodebaseIntegration } = await import('./agents/AgentCodebaseIntegration');
+                  const filePath = file.path || `client/src/components/${file.filename}`;
+                  
+                  await AgentCodebaseIntegration.writeFile(filePath, file.content);
+                  console.log(`✅ Created file: ${filePath}`);
+                }
+                
+                // Return response with file creation confirmation
+                return res.json({
+                  success: true,
+                  message: aiResponse,
+                  agentId,
+                  agentName: personality.name,
+                  agentRole: personality.role,
+                  adminToken: 'verified',
+                  canCreateFiles: true,
+                  filesCreated: jsonData.files.map(f => f.path || `client/src/components/${f.filename}`),
+                  timestamp: new Date().toISOString()
+                });
+              }
+            }
+          } catch (jsonError) {
+            console.error('❌ Failed to parse JSON from AI response:', jsonError);
+          }
+        }
 
         return res.json({
           success: true,

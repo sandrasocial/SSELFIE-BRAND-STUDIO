@@ -488,14 +488,32 @@ export function OptimizedVisualEditor({ className = '' }: OptimizedVisualEditorP
           const htmlMatch = responseText.match(/```html\n([\s\S]*?)\n```/);
           if (htmlMatch) {
             console.log('🏗️ Victoria provided HTML changes:', htmlMatch[1]);
-            // Could inject HTML changes here if needed
           }
           
-          // Look for component creation requests
-          if (responseText.toLowerCase().includes('create') && 
-              (responseText.toLowerCase().includes('component') || responseText.toLowerCase().includes('file'))) {
-            console.log('📁 Victoria wants to create a component - this will trigger file creation');
+          // Check for file creation JSON response
+          if (responseText.includes('```json') && responseText.includes('file_creation')) {
+            console.log('📁 Victoria provided file creation JSON - files should be created automatically');
+            toast({
+              title: 'Victoria is creating files!',
+              description: 'New components are being added to the codebase',
+            });
           }
+        }
+
+        // Check if server responded with filesCreated array
+        if (data.filesCreated && data.filesCreated.length > 0) {
+          console.log('✅ Files successfully created:', data.filesCreated);
+          toast({
+            title: `${data.agentName} created ${data.filesCreated.length} file(s)`,
+            description: `Files: ${data.filesCreated.map(f => f.split('/').pop()).join(', ')}`,
+          });
+          
+          // Trigger a page refresh to see new components
+          setTimeout(() => {
+            if (iframeRef.current) {
+              iframeRef.current.src = iframeRef.current.src;
+            }
+          }, 1000);
         }
 
         // Check for handoff signals
