@@ -148,18 +148,24 @@ export function OptimizedVisualEditor({ className = '' }: OptimizedVisualEditorP
   const chatMessagesRef = useRef<HTMLDivElement>(null);
   const { toast } = useToast();
 
-  // Auto-scroll to show agent's message start when new messages arrive
+  // Smart scroll - preserve manual scroll position, only auto-scroll when near bottom
   useEffect(() => {
     if (chatMessagesRef.current && chatMessages.length > 0) {
       const lastMessage = chatMessages[chatMessages.length - 1];
-      if (lastMessage.type === 'agent') {
-        // Scroll to show the start of the agent's message, not the very bottom
-        const scrollContainer = chatMessagesRef.current;
-        const scrollHeight = scrollContainer.scrollHeight;
-        const clientHeight = scrollContainer.clientHeight;
-        const maxScroll = scrollHeight - clientHeight;
-        // Scroll to 80% of the way down to show agent message start
-        scrollContainer.scrollTop = Math.max(0, maxScroll * 0.8);
+      const container = chatMessagesRef.current;
+      
+      // Check if user has manually scrolled up from the bottom
+      const isNearBottom = container.scrollTop + container.clientHeight >= container.scrollHeight - 50;
+      
+      // Only auto-scroll for new agent messages if user is near bottom
+      if (lastMessage.type === 'agent' && isNearBottom) {
+        setTimeout(() => {
+          const scrollHeight = container.scrollHeight;
+          const clientHeight = container.clientHeight;
+          const maxScroll = scrollHeight - clientHeight;
+          // Gentle scroll to show agent message start
+          container.scrollTop = Math.max(0, maxScroll * 0.8);
+        }, 100);
       }
     }
   }, [chatMessages]);
@@ -742,11 +748,18 @@ export function OptimizedVisualEditor({ className = '' }: OptimizedVisualEditorP
               </div>
             </div>
 
-            {/* Chat Messages */}
+            {/* Chat Messages - Manual Scrolling Enabled */}
             <div 
               ref={chatMessagesRef}
-              className="flex-1 overflow-y-auto p-4 space-y-3" 
-              style={{ maxHeight: 'calc(100vh - 650px)', minHeight: '250px' }}
+              className="flex-1 overflow-y-scroll p-4 space-y-3 chat-scroll" 
+              style={{ 
+                maxHeight: 'calc(100vh - 650px)', 
+                minHeight: '250px',
+                overflowY: 'scroll',
+                scrollBehavior: 'smooth',
+                scrollbarWidth: 'thin',
+                scrollbarColor: '#d1d5db #f3f4f6'
+              }}
             >
               {chatMessages.length === 0 && (
                 <div className="text-center text-gray-500 text-sm">
