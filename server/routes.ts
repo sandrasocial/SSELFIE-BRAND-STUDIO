@@ -3559,11 +3559,17 @@ CREATE FILES IMMEDIATELY when asked. Sandra sees changes in dev preview instantl
               if (jsonData.type === 'file_creation' && jsonData.files) {
                 console.log('📁 Creating files from AI response...');
                 
+                const filesCreated = [];
+                
                 for (const file of jsonData.files) {
-                  const { AgentCodebaseIntegration } = await import('./agents/AgentCodebaseIntegration');
+                  const { AgentCodebaseIntegration } = await import('./agents/AgentCodebaseIntegration.js');
                   const filePath = file.path || `client/src/components/${file.filename}`;
                   
-                  await AgentCodebaseIntegration.writeFile(filePath, file.content);
+                  console.log(`📁 Creating file: ${filePath}`);
+                  console.log(`📄 Content preview: ${file.content.substring(0, 100)}...`);
+                  
+                  const result = await AgentCodebaseIntegration.writeFile(filePath, file.content);
+                  filesCreated.push(filePath);
                   console.log(`✅ Created file: ${filePath}`);
                 }
                 
@@ -3576,7 +3582,7 @@ CREATE FILES IMMEDIATELY when asked. Sandra sees changes in dev preview instantl
                   agentRole: personality.role,
                   adminToken: 'verified',
                   canCreateFiles: true,
-                  filesCreated: jsonData.files.map(f => f.path || `client/src/components/${f.filename}`),
+                  filesCreated: filesCreated,
                   timestamp: new Date().toISOString()
                 });
               }
