@@ -86,31 +86,34 @@ export function LiveComponentPreview({ fileContent, componentName, type }: LiveC
         // Convert JSX syntax to HTML
         .replace(/className=/g, 'class=')
         .replace(/htmlFor=/g, 'for=')
-        // Handle self-closing tags
+        // Handle self-closing tags first
         .replace(/<(\w+)([^>]*?)\s*\/>/g, '<$1$2></$1>')
-        // Handle image imports and assets
-        .replace(/src=\{([^}]+)\}/g, (match, srcContent) => {
-          // Handle @assets imports
-          if (srcContent.includes('@assets/')) {
-            return 'src="https://via.placeholder.com/400x300?text=Image+Preview"';
+        // Handle ALL image src patterns comprehensively
+        .replace(/src=\{[^}]*\}/g, 'src="https://via.placeholder.com/400x300/f5f5f5/333333?text=Image+Preview"')
+        // Handle complex style objects with backgroundImage (fixed nested braces)
+        .replace(/style=\{\{.*?\}\}/g, (match) => {
+          if (match.includes('backgroundImage')) {
+            return 'style="background-image: url(https://via.placeholder.com/400x300/f5f5f5/333333?text=Background+Image); background-size: cover; background-position: center;"';
           }
-          // Handle other image variables
-          return 'src="https://via.placeholder.com/400x300?text=Image+Preview"';
+          return 'style=""';
         })
-        // Remove React-specific attributes and complex expressions
+        // Handle simple backgroundImage patterns  
+        .replace(/backgroundImage:\s*[`'"][^`'"]*[`'"]/g, 'background-image: url("https://via.placeholder.com/400x300/f5f5f5/333333?text=Background+Image")')
+        // Handle url() patterns in template literals
+        .replace(/url\([^)]*\)/g, 'url(https://via.placeholder.com/400x300/f5f5f5/333333?text=Background+Image)')
+        // Handle any remaining complex expressions - but preserve simple text content
         .replace(/\{[^}]*\}/g, (match) => {
-          // Keep simple string content, remove complex expressions
           const content = match.slice(1, -1).trim();
-          if (content.startsWith('"') && content.endsWith('"')) {
+          // Keep simple quoted strings
+          if ((content.startsWith('"') && content.endsWith('"')) || 
+              (content.startsWith("'") && content.endsWith("'"))) {
             return content.slice(1, -1);
           }
-          if (content.startsWith("'") && content.endsWith("'")) {
-            return content.slice(1, -1);
-          }
-          // For simple variables or content, return placeholder
+          // Keep simple variable names as placeholders
           if (/^[a-zA-Z_$][a-zA-Z0-9_$]*$/.test(content)) {
             return `[${content}]`;
           }
+          // Remove complex expressions
           return '';
         });
 
