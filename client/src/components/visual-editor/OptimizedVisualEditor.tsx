@@ -437,9 +437,9 @@ export function OptimizedVisualEditor({ className = '' }: OptimizedVisualEditorP
     setIsLoading(true);
 
     try {
-      // Get conversation history for agent to learn and improve
+      // Get conversation history for agent to learn and improve - proper format
       const conversationHistory = chatMessages.map(msg => ({
-        type: msg.type === 'user' ? 'human' : 'assistant',
+        type: msg.type, // Keep original 'user' and 'agent' format
         content: msg.content
       }));
 
@@ -448,6 +448,7 @@ export function OptimizedVisualEditor({ className = '' }: OptimizedVisualEditorP
         message: message,
         adminToken: 'sandra-admin-2025',
         conversationHistory: conversationHistory,
+        conversationHistoryLength: conversationHistory.length,
         workflowContext: {
           stage: workflowStage,
           previousWork: chatMessages.filter(msg => msg.agentName && msg.agentName !== agentId).slice(-3)
