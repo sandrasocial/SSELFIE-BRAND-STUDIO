@@ -87,27 +87,9 @@ export async function generateImages(request: GenerateImagesRequest): Promise<Ge
 
     let requestBody: any;
 
-    if (isPremium && userModel.isLuxury && userModel.finetuneId) {
-      // 🏆 PREMIUM USERS: FLUX 1.1 Pro Ultra - 6x Faster + Highest Quality + 4MP Resolution
-      console.log(`🏆 Using FLUX 1.1 Pro Ultra Finetuned for premium AI Photoshoot: ${userId}`);
-      
-      requestBody = {
-        model: "black-forest-labs/flux-1.1-pro-ultra-finetuned",
-        input: {
-          prompt: finalPrompt,
-          finetune_id: userModel.finetuneId, // Use luxury finetune_id from FLUX Pro trainer
-          finetune_strength: 0.8, // Strong influence for ultra-realistic results
-          aspect_ratio: "3:4",
-          output_format: "png",
-          output_quality: 95, // Premium quality
-          safety_tolerance: 2,
-          seed: Math.floor(Math.random() * 1000000)
-        }
-      };
-      
-    } else {
-      // 📱 FREE USERS: Standard FLUX Quality for AI Photoshoot
-      console.log(`📱 Using standard FLUX model for AI Photoshoot: ${userId}`);
+    // 🔒 RESTORE WORKING CONFIGURATION: Use user's individual trained model
+    if (userModel.trainingStatus === 'completed' && userModel.replicateVersionId) {
+      console.log(`✅ Using user's individual trained FLUX model for AI Photoshoot: ${userId}`);
       
       const userTrainedVersion = `${userModel.replicateModelId}:${userModel.replicateVersionId}`;
       
@@ -115,18 +97,21 @@ export async function generateImages(request: GenerateImagesRequest): Promise<Ge
         version: userTrainedVersion, // 🔒 CRITICAL: User's individual trained model version ONLY
         input: {
           prompt: finalPrompt,
-          guidance: 3.5, // 🔥 ENHANCED: Maximum guidance for ultra-sharp results
-          num_inference_steps: 50, // 🔥 ENHANCED: Maximum steps for finest details
+          guidance: 3.5,
+          num_inference_steps: 50,
           num_outputs: 3,
           aspect_ratio: "3:4",
           output_format: "png",
-          output_quality: 100, // 🔥 ENHANCED: Maximum quality
-          megapixels: "1", // 🔥 ENHANCED: Maximum allowed resolution
-          go_fast: false, // 🔥 ENHANCED: Full quality mode (no speed optimizations)
+          output_quality: 100,
+          megapixels: "1",
+          go_fast: false,
           disable_safety_checker: false,
           seed: Math.floor(Math.random() * 1000000)
         }
       };
+      
+    } else {
+      throw new Error('User model not ready for generation. Training must be completed first.');
     }
     ArchitectureValidator.validateGenerationRequest(requestBody, userId);
     ArchitectureValidator.logArchitectureCompliance(userId, 'AI Photoshoot Generation');
