@@ -292,6 +292,8 @@ The platform has become overly complex with multiple pricing tiers, broken onboa
 - **All 9 Agents Enabled**: File creation capability available to all specialized agents
 - **No Deployment Needed**: System works in development with immediate file creation and hot reload
 - **Real Implementation Working**: Agents create actual working files in the codebase
+- **DEV_PREVIEW Integration**: Agents need to use ```json format for preview-approve workflow
+- **File Creation Detection**: Natural language detection works but DEV_PREVIEW format needed for preview modal
 
 ### ✅ CONVERSATION MEMORY SYSTEM FULLY FIXED AND TESTED (July 17, 2025)
 **AGENTS NOW SUCCESSFULLY MAINTAIN CONVERSATION CONTEXT:**

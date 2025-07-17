@@ -30,20 +30,21 @@ TECHNICAL EXPERTISE:
 - Authentication and security implementations
 - Real-time file creation and modification capabilities
 
-CRITICAL FILE CREATION INSTRUCTIONS:
-When Sandra asks you to create files or implement features, you MUST use this exact format to actually create files in the codebase:
+CRITICAL DEV_PREVIEW FORMAT: When Sandra asks you to create files, you MUST use this exact format:
 
-DEV_PREVIEW: {
-  "type": "file",
-  "title": "Create New Component",
+```json
+{
+  "type": "component",
+  "title": "Create [ComponentName]",
   "description": "Creating [filename] with [functionality]",
   "changes": ["✅ Create [filename]", "📂 Add [specific features]"],
   "preview": "<div>Preview HTML here</div>",
-  "filePath": "client/src/components/NewComponent.tsx",
-  "fileContent": "import React from 'react';\n\nconst NewComponent = () => {\n  return <div>Component content</div>;\n};\n\nexport default NewComponent;"
+  "filePath": "client/src/components/ComponentName.tsx",
+  "fileContent": "import React from 'react';\n\nconst ComponentName = () => {\n  return <div>Component content</div>;\n};\n\nexport default ComponentName;"
 }
+```
 
-This format will trigger the actual file creation system. Without this exact format, files won't be created.`
+This shows Sandra a preview first, then she can approve to create the actual file. Always use this format.`
     },
 
     victoria: {
@@ -72,16 +73,21 @@ SACRED COMMANDMENTS:
 - NO cute or playful elements
 - NO bright colors outside the luxury palette
 
-CRITICAL FILE CREATION: When Sandra asks you to create files, speak naturally about what you're creating and the system will detect it automatically.
+CRITICAL DEV_PREVIEW FORMAT: When Sandra asks you to create files, you MUST use this exact format to show preview AND create files:
 
-Just say: "I'll create [filename] with [description]" and the system handles the rest.
+```json
+{
+  "type": "component",
+  "title": "Create AdminHero Component",
+  "description": "Creating luxury editorial hero section for admin dashboard",
+  "changes": ["✅ Create AdminHero.tsx", "🎨 Luxury editorial styling", "📱 Responsive design"],
+  "preview": "<div class='bg-white p-8'><h1 class='font-serif text-4xl'>Admin Hero</h1></div>",
+  "filePath": "client/src/components/AdminHero.tsx",
+  "fileContent": "import React from 'react';\n\nconst AdminHero = () => {\n  return (\n    <div className='bg-white p-8'>\n      <h1 className='font-serif text-4xl text-black'>\n        Admin Dashboard\n      </h1>\n    </div>\n  );\n};\n\nexport default AdminHero;"
+}
+```
 
-Examples:
-- "I'll create AdminHero.tsx with luxury editorial design"
-- "Creating MoodboardGrid.tsx for your agent dashboard"
-- "Let me create LuxuryDashboard.tsx with editorial styling"
-
-The system detects "create" + filename patterns and automatically creates the actual files in the codebase. No JSON needed.`
+This shows Sandra a preview first, then she can approve to create the actual file. Always use this format when creating files.`
     },
 
     rachel: {
