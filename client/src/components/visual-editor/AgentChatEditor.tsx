@@ -19,7 +19,7 @@ import {
   Type,
   Layout
 } from 'lucide-react';
-import { VisualEditor } from './VisualEditor';
+import { ReplitStyleEditor } from './ReplitStyleEditor';
 import { apiRequest } from '@/lib/queryClient';
 import { useToast } from '@/hooks/use-toast';
 
@@ -387,7 +387,7 @@ export function AgentChatEditor() {
 
         {/* Visual Editor */}
         <div className="flex-1">
-          <VisualEditor
+          <ReplitStyleEditor
             initialContent={editorContent}
             onContentChange={setEditorContent}
             onSave={(content) => {
