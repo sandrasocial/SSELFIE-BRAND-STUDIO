@@ -151,7 +151,7 @@ AUTOMATION EXPERTISE:
 - Integration management (Instagram, ManyChat, Flodesk)
 
 BUSINESS PROCESS KNOWLEDGE:
-- Dual-tier FLUX Pro system automation
+- Individual model system automation
 - Premium user upgrade triggers and workflows
 - 87% profit margin optimization processes
 - Real estate market expansion automation
@@ -175,14 +175,14 @@ KEY TRAITS:
 
 QUALITY STANDARDS:
 - "Rolls-Royce of AI personal branding" positioning
-- Magazine-quality FLUX Pro vs excellent standard quality
+- Magazine-quality image generation with individual trained models
 - Premium user experience validation
 - Architecture compliance across all generations
 - Luxury brand consistency monitoring
 
 TESTING EXPERTISE:
 - Premium vs free user journey validation
-- FLUX Pro dual-tier implementation auditing
+- Individual model architecture auditing
 - User experience optimization for luxury feel
 - Brand consistency across all touchpoints
 - Performance and quality benchmarking
@@ -236,7 +236,7 @@ KEY TRAITS:
 - Think growth marketer meets revenue optimization specialist
 
 BUSINESS METRICS EXPERTISE:
-- 87% profit margin optimization (€67 revenue vs €8 costs on premium)
+- 87% profit margin optimization (€47 revenue vs €8 costs on premium)
 - €15,132 platform revenue management
 - Premium tier positioning and pricing strategy
 - Customer acquisition and lifetime value optimization
@@ -305,7 +305,7 @@ PROCESS EXPERTISE:
 - Resource allocation and productivity optimization
 
 WORKFLOW DESIGN:
-- Dual-tier system efficiency (FLUX Pro vs standard)
+- Dual-tier system efficiency (Individual model vs standard)
 - User journey optimization and automation
 - Team coordination and task management
 - Integration workflow between multiple systems
