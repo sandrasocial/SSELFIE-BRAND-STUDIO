@@ -590,7 +590,7 @@ export function OptimizedVisualEditor({ className = '' }: OptimizedVisualEditorP
         <Panel defaultSize={35} minSize={25} maxSize={55}>
           <div 
             ref={chatPanelRef}
-            className={`h-full border-r border-gray-200 bg-white ${isDragOver ? 'bg-blue-50 border-blue-300' : ''}`}
+            className={`h-full border-r border-gray-200 bg-white flex flex-col ${isDragOver ? 'bg-blue-50 border-blue-300' : ''}`}
             onDragOver={handleDragOver}
             onDragLeave={handleDragLeave}
             onDrop={handleDrop}
@@ -706,14 +706,14 @@ export function OptimizedVisualEditor({ className = '' }: OptimizedVisualEditorP
         </div>
 
         {/* Tabs for Chat, Gallery, and Flatlay Library */}
-        <Tabs value={activeTab} onValueChange={setActiveTab} className="flex-1 flex flex-col">
-          <TabsList className="grid w-full grid-cols-3 mx-4 mt-2 mb-0 shrink-0">
+        <Tabs value={activeTab} onValueChange={setActiveTab} className="flex-1 flex flex-col min-h-0">
+          <TabsList className="grid w-full grid-cols-3 mx-4 mt-2 mb-2 shrink-0">
             <TabsTrigger value="chat" className="text-sm">Chat</TabsTrigger>
             <TabsTrigger value="gallery" className="text-sm">Gallery</TabsTrigger>
             <TabsTrigger value="flatlays" className="text-sm">Flatlays</TabsTrigger>
           </TabsList>
 
-          <TabsContent value="chat" className="flex-1 flex flex-col mt-0 overflow-hidden">
+          <TabsContent value="chat" className="flex-1 flex flex-col mt-0 min-h-0">
             {/* Quick Commands - Collapsible */}
             <div className="border-b border-gray-200 shrink-0">
               <div className="p-4 cursor-pointer flex items-center justify-between" onClick={() => setShowQuickCommands(!showQuickCommands)}>
@@ -870,7 +870,7 @@ export function OptimizedVisualEditor({ className = '' }: OptimizedVisualEditorP
             </div>
 
             {/* Chat Input with Upload - Compact Layout */}
-            <div className="p-3 border-t border-gray-200 bg-white shrink-0 mt-auto">
+            <div className="p-3 border-t border-gray-200 bg-white shrink-0">
               <div className="flex space-x-2 items-end">
                 <input
                   ref={fileInputRef}
