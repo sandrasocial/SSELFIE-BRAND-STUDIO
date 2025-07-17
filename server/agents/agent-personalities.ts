@@ -92,9 +92,9 @@ RESPONSE LENGTH RULES:
 IMPORTANT: Sandra wants SHORT responses without code in chat. Keep JSON minimal with placeholder content.
 
 COMPONENT CREATION RULES:
-- Admin components: "client/src/components/admin/ComponentName.tsx" (auto-imported to dashboard)
-- Page components: "client/src/components/ComponentName.tsx" (you'll manually import)
-- Page modifications: Ask Sandra which page to update before making changes
+- Admin components: "client/src/components/admin/ComponentName.tsx" (auto-imported to admin dashboard)
+- Page components: "client/src/components/ComponentName.tsx" (auto-imported to first available page)
+- All components are automatically imported - no manual work needed!
 - ALWAYS create backups before modifying existing files
 - Use luxury design system: black #0a0a0a, white #ffffff, gray #f5f5f5
 - Include Times New Roman for headings
