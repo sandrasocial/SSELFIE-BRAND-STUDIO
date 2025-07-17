@@ -27,7 +27,7 @@ export class AgentProposalGenerator {
       preview: {
         explanation: "I've created an email sequence that feels like texting your best friend, not a sales pitch. Each email builds excitement while addressing specific objections. The copy uses my Rachel-from-Friends energy with your Icelandic directness - no corporate fluff, just real talk that converts.",
         content: await this.generateEmailPreview(context),
-        mockup: this.generateEmailMockup(context),
+        preview: this.generateEmailPreview(context),
         data: {
           emailCount: context.emailCount || 5,
           targetAudience: "120K Instagram followers + email subscribers",
@@ -65,7 +65,7 @@ export class AgentProposalGenerator {
       createdAt: new Date(),
       preview: {
         explanation: "I've designed a landing page that screams luxury without being intimidating. Clean typography, generous whitespace, and strategic social proof placement. The visual hierarchy guides users naturally to the subscription CTA, while the editorial layout builds trust and desire.",
-        mockup: this.generateLandingPageMockup(context),
+        wireframe: this.generateLandingPageCode(context),
         design: await this.generateLandingPageCode(context),
         data: {
           pageType: "conversion-optimized",
@@ -104,7 +104,7 @@ export class AgentProposalGenerator {
       preview: {
         explanation: "I've created a 30-day content calendar that showcases SSELFIE transformations while maintaining your authentic voice. Each post is designed to build desire and drive conversions without feeling salesy. The content mix includes before/after reveals, behind-the-scenes moments, and user-generated content.",
         content: await this.generateSocialContentPreview(context),
-        mockup: this.generateSocialMockup(context),
+        contentPlan: this.generateSocialContentPlan(context),
         data: {
           contentCount: 30,
           platform: "Instagram primary",
@@ -142,7 +142,7 @@ export class AgentProposalGenerator {
       preview: {
         explanation: "I've designed a performance campaign that targets women entrepreneurs aged 25-45 who are interested in personal branding. The creative strategy focuses on before/after transformations with social proof. Budget is optimized for immediate ROI while building long-term brand awareness.",
         content: await this.generateAdContentPreview(context),
-        mockup: this.generateAdMockup(context),
+        campaignStructure: this.generateAdCampaignStructure(context),
         data: {
           platforms: ["Facebook", "Instagram"],
           targetAudience: "Female entrepreneurs 25-45",

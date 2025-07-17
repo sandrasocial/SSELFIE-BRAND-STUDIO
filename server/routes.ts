@@ -2982,7 +2982,7 @@ Consider this workflow optimized and ready for implementation! ⚙️`
           technicalKnowledge: {
             architecture: 'Main route: /api/start-model-training with automatic tier detection',
             models: 'All Users: Individual flux-standard models with complete isolation',
-            database: 'userModels: modelType, isLuxury, finetuneId fields for tier tracking',
+            database: 'userModels: modelType, trainingStatus, replicateVersionId for individual model tracking',
             services: 'LuxuryTrainingService vs ModelTrainingService, dual-tier completion monitor',
             codebase: 'Full access to server/routes.ts, ai-service.ts, training services'
           },
