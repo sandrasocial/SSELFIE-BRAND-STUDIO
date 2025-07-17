@@ -9,7 +9,6 @@ interface LiveComponentPreviewProps {
 
 export function LiveComponentPreview({ fileContent, componentName, type }: LiveComponentPreviewProps) {
   const [error, setError] = useState<string | null>(null);
-  const [Component, setComponent] = useState<React.ComponentType | null>(null);
 
   // Mock imports for common dependencies
   const mockImports = {
@@ -60,7 +59,7 @@ export function LiveComponentPreview({ fileContent, componentName, type }: LiveC
     }
   };
 
-  const processComponent = useMemo(() => {
+  const processedHtml = useMemo(() => {
     if (!fileContent || type !== 'component') {
       return null;
     }
@@ -71,70 +70,42 @@ export function LiveComponentPreview({ fileContent, componentName, type }: LiveC
       // Extract JSX from the component
       let jsxContent = fileContent;
 
-      // Remove imports (replace with our mocks)
+      // Remove imports 
       jsxContent = jsxContent.replace(/import\s+.*?from\s+['"][^'"]*['"];?\s*/g, '');
 
-      // Extract the component function/content
-      const componentMatch = jsxContent.match(/(?:export\s+(?:default\s+)?(?:function\s+\w+|const\s+\w+\s*=)|function\s+\w+)\s*\([^)]*\)\s*(?::\s*[^{]+)?\s*{([\s\S]*)}(?:\s*;?\s*export\s+default\s+\w+;?)?/);
-      
-      if (!componentMatch) {
-        // Try to extract just the JSX return statement
-        const returnMatch = jsxContent.match(/return\s*\(([\s\S]*?)\);?\s*(?:}|$)/);
-        if (returnMatch) {
-          const jsxCode = returnMatch[1].trim();
-          return () => {
-            try {
-              // Create a simple function component that returns the JSX
-              return React.createElement('div', { 
-                dangerouslySetInnerHTML: { 
-                  __html: `<div class="live-preview-content">${jsxCode.replace(/className=/g, 'class=')}</div>`
-                }
-              });
-            } catch (e) {
-              return React.createElement('div', { className: 'p-4 text-red-600' }, 
-                `Preview Error: ${e.message}`
-              );
-            }
-          };
-        }
-        
-        throw new Error('Could not extract component structure');
-      }
-
-      const componentBody = componentMatch[1];
-      
-      // Extract the return statement
-      const returnMatch = componentBody.match(/return\s*\(([\s\S]*?)\);?\s*$/);
+      // Extract the return statement JSX
+      const returnMatch = jsxContent.match(/return\s*\(([\s\S]*?)\);?\s*(?:}|$)/);
       if (!returnMatch) {
         throw new Error('Could not find component return statement');
       }
 
       const jsxCode = returnMatch[1].trim();
 
-      // Create a preview-safe version of the JSX
-      let previewJsx = jsxCode
-        // Convert className to class for HTML rendering
+      // Convert JSX to safe HTML for preview
+      let previewHtml = jsxCode
+        // Convert JSX syntax to HTML
         .replace(/className=/g, 'class=')
-        // Handle common Tailwind classes
-        .replace(/class="([^"]*)"/g, (match, classes) => {
-          // Keep Tailwind classes as-is since they should work
-          return `class="${classes}"`;
-        })
-        // Remove any function calls or complex expressions
+        .replace(/htmlFor=/g, 'for=')
+        // Handle self-closing tags
+        .replace(/<(\w+)([^>]*?)\s*\/>/g, '<$1$2></$1>')
+        // Remove React-specific attributes and complex expressions
         .replace(/\{[^}]*\}/g, (match) => {
-          // Keep simple text content, remove complex expressions
-          if (match.includes('(') || match.includes('function') || match.includes('=>')) {
-            return '';
+          // Keep simple string content, remove complex expressions
+          const content = match.slice(1, -1).trim();
+          if (content.startsWith('"') && content.endsWith('"')) {
+            return content.slice(1, -1);
           }
-          return match;
+          if (content.startsWith("'") && content.endsWith("'")) {
+            return content.slice(1, -1);
+          }
+          // For simple variables or content, return placeholder
+          if (/^[a-zA-Z_$][a-zA-Z0-9_$]*$/.test(content)) {
+            return `[${content}]`;
+          }
+          return '';
         });
 
-      // Return a component that renders the JSX safely
-      return () => (
-        <div className="live-preview-wrapper">
-          <div dangerouslySetInnerHTML={{ __html: previewJsx }} />
-        </div>
-      );
+      return previewHtml;
 
     } catch (err) {
       console.error('Component processing error:', err);
@@ -143,9 +114,7 @@ export function LiveComponentPreview({ fileContent, componentName, type }: LiveC
     }
   }, [fileContent, type]);
 
-  useEffect(() => {
-    setComponent(processComponent);
-  }, [processComponent]);
+  // No longer using dynamic component state
 
   if (type !== 'component') {
     return (
@@ -175,7 +144,7 @@ export function LiveComponentPreview({ fileContent, componentName, type }: LiveC
     );
   }
 
-  if (!Component) {
+  if (!processedHtml) {
     return (
       <div className="border border-gray-200 rounded-lg p-8 text-center">
         <div className="text-gray-400 mb-2">Processing component...</div>
@@ -198,9 +167,10 @@ export function LiveComponentPreview({ fileContent, componentName, type }: LiveC
             The actual implementation will include full React functionality, proper state management, and interactive features.
           </div>
           <div className="border rounded-lg p-4 bg-gray-50">
-            <React.Suspense fallback={<div>Loading preview...</div>}>
-              <Component />
-            </React.Suspense>
+            <div 
+              className="live-preview-content"
+              dangerouslySetInnerHTML={{ __html: processedHtml }} 
+            />
           </div>
         </div>
       </div>
