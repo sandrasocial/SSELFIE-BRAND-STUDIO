@@ -29,6 +29,7 @@ import { AgentAutomationTasks } from './integrations/agent-automation-tasks';
 import { sendWelcomeEmail, sendPostAuthWelcomeEmail, EmailCaptureData, WelcomeEmailData } from "./email-service";
 import { AIService } from './ai-service';
 import { ArchitectureValidator } from './architecture-validator';
+import { ModelTrainingService } from './model-training-service';
 import { z } from "zod";
 
 // Anthropic disabled for testing - API key issues
@@ -6246,6 +6247,76 @@ APPROVAL WORKFLOW:
       
     } catch (error) {
       res.status(500).json({ error: 'Failed to get agent status' });
+    }
+  });
+
+  // ADMIN ENDPOINT: Retrain specific user models with optimal parameters
+  app.post('/api/admin/retrain-user-model', async (req: any, res) => {
+    try {
+      const { userId, adminToken } = req.body;
+      
+      // Simple admin auth check
+      if (adminToken !== 'admin-optimal-retrain-token') {
+        return res.status(401).json({ error: 'Unauthorized admin access' });
+      }
+      
+      if (!userId) {
+        return res.status(400).json({ error: 'userId is required' });
+      }
+      
+      // Get user and their current model
+      const user = await storage.getUser(userId);
+      if (!user) {
+        return res.status(404).json({ error: 'User not found' });
+      }
+      
+      const existingModel = await storage.getUserModel(userId);
+      if (!existingModel) {
+        return res.status(404).json({ error: 'No existing model found for user' });
+      }
+      
+      console.log(`🔄 ADMIN RETRAIN: Starting optimal parameter retrain for user ${userId} (${user.email})`);
+      
+      // Get original training images from AWS S3 (stored during initial training)
+      const selfieImages = [
+        `https://sselfie-training-zips.s3.eu-north-1.amazonaws.com/images/${userId}/${userId}_training_image_1.jpg`,
+        `https://sselfie-training-zips.s3.eu-north-1.amazonaws.com/images/${userId}/${userId}_training_image_2.jpg`,
+        `https://sselfie-training-zips.s3.eu-north-1.amazonaws.com/images/${userId}/${userId}_training_image_3.jpg`,
+        `https://sselfie-training-zips.s3.eu-north-1.amazonaws.com/images/${userId}/${userId}_training_image_4.jpg`,
+        `https://sselfie-training-zips.s3.eu-north-1.amazonaws.com/images/${userId}/${userId}_training_image_5.jpg`
+      ];
+      
+      // Start retraining with optimal parameters
+      const retrainResult = await ModelTrainingService.startModelTraining(userId, selfieImages);
+      
+      console.log(`✅ ADMIN RETRAIN: Successfully started for user ${userId}`);
+      console.log(`🔍 Training ID: ${retrainResult.trainingId}`);
+      
+      res.json({
+        success: true,
+        message: `Retraining started for ${user.email} with optimal parameters`,
+        trainingId: retrainResult.trainingId,
+        userId: userId,
+        email: user.email,
+        parametersUsed: {
+          steps: 800,
+          learning_rate: 0.0002,
+          batch_size: 1,
+          lora_rank: 32,
+          resolution: "1024",
+          optimizer: "adamw8bit",
+          autocaption: false,
+          cache_latents_to_disk: false,
+          caption_dropout_rate: 0.15
+        }
+      });
+      
+    } catch (error) {
+      console.error('❌ ADMIN RETRAIN ERROR:', error);
+      res.status(500).json({ 
+        error: 'Failed to start retraining',
+        details: error.message 
+      });
     }
   });
 
