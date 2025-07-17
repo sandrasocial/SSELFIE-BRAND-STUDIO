@@ -114,12 +114,12 @@ export class EnhancedGenerationService {
       version: userTrainedVersion, // 🔒 USER'S INDIVIDUAL MODEL (V2 COMPLIANCE)
       input: {
         prompt: enhancedPrompt,
-        guidance: 2.8, // 🔧 OPTIMIZED: Balanced guidance for natural facial expressions
-        num_inference_steps: 50, // 🔧 OPTIMIZED: More steps for better detail retention  
+        guidance: 2.5, // 🔧 REVERTED: Proven optimal from July 16 success
+        num_inference_steps: 35, // 🔧 REVERTED: Original working steps
         num_outputs: 3,
         aspect_ratio: "3:4",
         output_format: "png",
-        output_quality: 100, // 🔧 OPTIMIZED: Maximum quality for facial accuracy
+        output_quality: 90, // 🔧 REVERTED: Balanced quality setting
         megapixels: "1",
         go_fast: false,
         disable_safety_checker: false,

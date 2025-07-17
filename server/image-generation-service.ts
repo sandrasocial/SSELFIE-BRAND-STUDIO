@@ -66,8 +66,8 @@ export async function generateImages(request: GenerateImagesRequest): Promise<Ge
     
     finalPrompt = promptParts.join(', ');
     
-    // OPTIMIZED SPECIFICATIONS FOR NATURAL EXPRESSIONS - Enhanced for authentic look
-    const expertQualitySpecs = `, film photograph shot on Hasselblad, raw photo, visible skin pores, unretouched natural skin texture, natural beauty with light skin retouch, authentic ${triggerWord} facial features, professional portrait photography, high detail facial accuracy, natural expression, subtle expression, no excessive smiling, authentic facial expression`;
+    // REVERTED TO PROVEN JULY 16 SPECIFICATIONS - These created the successful image
+    const expertQualitySpecs = `, film photograph, natural film grain, authentic film photography, natural hair with volume, professional photography on film camera, natural lighting, subtle skin texture, natural skin detail, gentle smoothing`;
     
     const premiumHairSpecs = ", realistic hair with volume and natural texture, never flat hair, natural hair flow and movement";
     
@@ -105,12 +105,12 @@ export async function generateImages(request: GenerateImagesRequest): Promise<Ge
         version: userTrainedVersion, // 🔒 CRITICAL: User's individual trained model version ONLY
         input: {
           prompt: finalPrompt,
-          guidance: 2.8, // 🔧 OPTIMIZED: Balanced guidance for natural facial expressions
-          num_inference_steps: 50, // 🔧 OPTIMIZED: More steps for better detail retention
+          guidance: 2.5, // 🔧 REVERTED: Proven optimal from July 16 success
+          num_inference_steps: 35, // 🔧 REVERTED: Original working steps
           num_outputs: 3,
           aspect_ratio: "3:4",
           output_format: "png",
-          output_quality: 100, // 🔧 OPTIMIZED: Maximum quality for facial accuracy
+          output_quality: 90, // 🔧 REVERTED: Balanced quality setting
           megapixels: "1",
           go_fast: false,
           disable_safety_checker: false,
