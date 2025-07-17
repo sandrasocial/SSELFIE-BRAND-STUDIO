@@ -697,16 +697,16 @@ export function OptimizedVisualEditor({ className = '' }: OptimizedVisualEditorP
         </div>
 
         {/* Tabs for Chat, Gallery, and Flatlay Library */}
-        <Tabs value={activeTab} onValueChange={setActiveTab} className="flex-1 flex flex-col">
-          <TabsList className="grid w-full grid-cols-3 mx-6 mt-4">
+        <Tabs value={activeTab} onValueChange={setActiveTab} className="flex-1 flex flex-col overflow-hidden">
+          <TabsList className="grid w-full grid-cols-3 mx-6 mt-4 shrink-0">
             <TabsTrigger value="chat" className="text-sm">Chat</TabsTrigger>
             <TabsTrigger value="gallery" className="text-sm">Gallery</TabsTrigger>
             <TabsTrigger value="flatlays" className="text-sm">Flatlays</TabsTrigger>
           </TabsList>
 
-          <TabsContent value="chat" className="flex-1 flex flex-col mt-0 h-full">
+          <TabsContent value="chat" className="flex-1 flex flex-col mt-0 overflow-hidden">
             {/* Quick Commands - Desktop Optimized */}
-            <div className="p-6 border-b border-gray-200">
+            <div className="p-6 border-b border-gray-200 shrink-0">
               <h4 className="font-medium text-base mb-4">Quick Commands</h4>
               <div className="space-y-3">
                 {quickCommands.map((command, index) => (
@@ -751,8 +751,7 @@ export function OptimizedVisualEditor({ className = '' }: OptimizedVisualEditorP
             {/* Chat Messages - Manual Scrolling Fixed */}
             <div 
               ref={chatMessagesRef}
-              className="flex-1 overflow-y-auto p-4 space-y-3 chat-scroll" 
-              style={{ maxHeight: 'calc(100vh - 400px)' }}
+              className="flex-1 overflow-y-auto p-4 space-y-3 chat-scroll min-h-0"
             >
               {chatMessages.length === 0 && (
                 <div className="text-center text-gray-500 text-sm">
@@ -852,7 +851,7 @@ export function OptimizedVisualEditor({ className = '' }: OptimizedVisualEditorP
             </div>
 
             {/* Chat Input with Upload - Desktop Optimized */}
-            <div className="p-6 border-t border-gray-200 bg-white">
+            <div className="p-6 border-t border-gray-200 bg-white shrink-0">
               <div className="flex space-x-3">
                 <div className="flex items-center space-x-2">
                   <input
