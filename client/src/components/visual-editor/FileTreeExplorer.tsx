@@ -88,6 +88,13 @@ export function FileTreeExplorer({ onFileSelect, selectedAgent }: FileTreeExplor
   const handleFileClick = async (filePath: string) => {
     if (filePath.match(/\.(ts|tsx|js|jsx|css|md|json|txt|html)$/)) {
       try {
+        // Check if multi-tab editor is available and use it
+        if ((window as any).openFileInMultiTabEditor) {
+          (window as any).openFileInMultiTabEditor(filePath);
+          return;
+        }
+
+        // Fallback to original behavior
         const response = await apiRequest('POST', '/api/admin/agent/read-file', {
           agentId: selectedAgent,
           filePath: filePath,
