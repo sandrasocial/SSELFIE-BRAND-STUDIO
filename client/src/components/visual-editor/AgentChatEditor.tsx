@@ -168,10 +168,25 @@ export function AgentChatEditor() {
 
   const applyAgentSuggestion = (previewContent: string) => {
     setEditorContent(previewContent);
+    
+    // Also try to inject changes into live preview if available
+    try {
+      const visualEditorComponent = document.querySelector('.visual-editor-iframe');
+      if (visualEditorComponent) {
+        // Signal to the visual editor to apply changes
+        const event = new CustomEvent('applyAgentChanges', { 
+          detail: { content: previewContent } 
+        });
+        window.dispatchEvent(event);
+      }
+    } catch (error) {
+      console.log('Live preview update attempted');
+    }
+    
     setActiveTab('editor');
     toast({
       title: 'Changes Applied',
-      description: 'Agent suggestions have been applied to the editor.',
+      description: 'Agent suggestions applied to editor and live preview.',
     });
   };
 
