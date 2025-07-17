@@ -335,28 +335,6 @@ export class AIService {
       }
       console.log(`✅ Found tracker for user ${tracker.userId}`);
 
-      // 🔑 Convert temporary Replicate URLs to permanent S3 URLs for Maya chat
-      const { ImageStorageService } = await import('./image-storage-service');
-      const permanentUrls: string[] = [];
-      
-      for (let i = 0; i < imageUrls.length; i++) {
-        try {
-          const permanentUrl = await ImageStorageService.storeImagePermanently(
-            imageUrls[i], 
-            tracker.userId, 
-            `maya_${trackerId}_${i}`
-          );
-          permanentUrls.push(permanentUrl);
-          console.log(`✅ Converted image ${i + 1}/${imageUrls.length} to permanent S3 URL`);
-        } catch (error) {
-          console.error(`❌ Failed to convert image ${i + 1} to permanent storage:`, error);
-          // Use original URL as fallback
-          permanentUrls.push(imageUrls[i]);
-        }
-      }
-
-      console.log(`✅ Successfully converted ${permanentUrls.length} images to permanent S3 storage`);
-
       // Find the most recent Maya chat message with a generated_prompt for this user
       const mayaChats = await storage.getMayaChats(tracker.userId);
       if (!mayaChats || mayaChats.length === 0) {
@@ -388,11 +366,11 @@ export class AIService {
       }
       console.log(`✅ Found Maya message ${mayaMessageWithPrompt.id} to update with images`);
 
-      // Update the Maya message with the permanent S3 URLs instead of temporary Replicate URLs
+      // Update the Maya message with the generated images
       const updatedMessage = await storage.updateMayaChatMessage(mayaMessageWithPrompt.id, {
-        imagePreview: JSON.stringify(permanentUrls)
+        imagePreview: JSON.stringify(imageUrls)
       });
-      console.log(`✅ Successfully updated Maya message ${mayaMessageWithPrompt.id} with ${permanentUrls.length} permanent S3 images`);
+      console.log(`✅ Successfully updated Maya message ${mayaMessageWithPrompt.id} with ${imageUrls.length} images`);
 
     } catch (error) {
       console.error(`❌ updateMayaChatWithImages failed for tracker ${trackerId}:`, error);
