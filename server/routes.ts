@@ -3499,53 +3499,8 @@ Consider this workflow optimized and ready for implementation! ⚙️`
       
       if (isFileCreationRequest) {
         console.log('🔧 FILE CREATION REQUEST DETECTED');
-        
-        // Create simple test component content
-        const content = `import React from 'react';
-
-export default function TestComponent() {
-  return (
-    <div className="p-4 bg-gray-100 rounded-lg">
-      <h2 className="text-lg font-bold">Maya was here!</h2>
-      <p className="text-sm text-gray-600">
-        This file was actually created by Maya AI on ${new Date().toISOString()}
-      </p>
-      <p className="text-xs text-gray-500">
-        Agent: ${agentId} | Admin Token: Verified ✅
-      </p>
-    </div>
-  );
-}`;
-        
-        try {
-          // Use the existing agent codebase integration
-          const { AgentCodebaseIntegration } = await import('./agents/agent-codebase-integration');
-          await AgentCodebaseIntegration.writeFile(agentId, 'client/src/components/TestComponent.tsx', content, 'Test component created by Maya AI');
-          
-          console.log('✅ FILE CREATED SUCCESSFULLY');
-          
-          return res.json({
-            success: true,
-            message: `✅ I actually created the file client/src/components/TestComponent.tsx! You can check the file system to confirm it exists.`,
-            agentId,
-            fileCreated: true,
-            filePath: 'client/src/components/TestComponent.tsx',
-            adminToken: 'verified',
-            timestamp: new Date().toISOString()
-          });
-          
-        } catch (fileError) {
-          console.error('❌ File creation failed:', fileError);
-          return res.json({
-            success: true,
-            message: `I tried to create the file but encountered an error: ${fileError.message}. The system integration needs debugging.`,
-            agentId,
-            fileCreated: false,
-            error: fileError.message,
-            adminToken: 'verified',
-            timestamp: new Date().toISOString()
-          });
-        }
+        console.log('🔍 Skipping automatic TestComponent.tsx creation - letting AI agent handle it properly');
+        // REMOVED: Hardcoded TestComponent.tsx creation - this was preventing agents from creating specific files
       }
 
       // REAL AI AGENT RESPONSE WITH ANTHROPIC INTEGRATION
@@ -5442,7 +5397,7 @@ FOR VICTORIA SPECIFICALLY: When asked about redesigning "sandra-command page", u
           if (agentId === 'maya' && (/component|button/i.test(message))) {
             const componentName = message.match(/\b([A-Z][a-zA-Z]*(?:Component|Button))\b/)?.[1] || 
                                  message.match(/\b([A-Z][a-zA-Z]+)\b/)?.[1] + 'Component' || 
-                                 'TestComponent';
+                                 'UserRequestedComponent';
             
             console.log(`🔨 Maya creating component: ${componentName}`);
             

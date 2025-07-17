@@ -81,7 +81,7 @@ export function registerAgentConversationRoutes(app: Express) {
           
           // Example: If Maya is asked to create a component
           if (agentId === 'maya' && /component/i.test(message)) {
-            const componentName = message.match(/\b([A-Z][a-zA-Z]+Component)\b/)?.[1] || 'TestComponent';
+            const componentName = message.match(/\b([A-Z][a-zA-Z]+(?:Component)?)\b/)?.[1] || 'UserRequestedComponent';
             const componentCode = `import React from 'react';
 
 export default function ${componentName}() {
