@@ -769,16 +769,21 @@ export function OptimizedVisualEditor({ className = '' }: OptimizedVisualEditorP
               )}
             </div>
 
-            {/* Chat Messages - Manual Scrolling Fixed */}
+            {/* Chat Messages - Optimized Space Usage */}
             <div 
               ref={chatMessagesRef}
               className="flex-1 overflow-y-auto p-4 space-y-3 chat-scroll min-h-0"
+              style={{ 
+                minHeight: '300px',
+                maxHeight: 'calc(100vh - 320px)'
+              }}
             >
               {chatMessages.length === 0 && (
-                <div className="text-center text-gray-500 text-sm">
-                  <div className="mb-2">Chat</div>
-                  <div>Start chatting with {currentAgent.name}</div>
-                  <div className="text-xs">Ask for {currentAgent.workflowStage.toLowerCase()}, upload images, or start a workflow</div>
+                <div className="flex items-center justify-center h-full min-h-[200px] text-center text-gray-500">
+                  <div>
+                    <div className="text-lg mb-2">Start chatting with {currentAgent.name}</div>
+                    <div className="text-sm">Ask for {currentAgent.workflowStage.toLowerCase()} help or upload inspiration images...</div>
+                  </div>
                 </div>
               )}
               
@@ -872,7 +877,7 @@ export function OptimizedVisualEditor({ className = '' }: OptimizedVisualEditorP
             </div>
 
             {/* Chat Input with Upload - Desktop Optimized */}
-            <div className="p-6 border-t border-gray-200 bg-white shrink-0">
+            <div className="p-4 border-t border-gray-200 bg-white shrink-0">
               <div className="flex space-x-3">
                 <div className="flex items-center space-x-2">
                   <input
