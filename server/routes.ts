@@ -3584,12 +3584,23 @@ CREATE FILES IMMEDIATELY when asked. Sandra sees changes in dev preview instantl
                       const importStatement = `import ${componentName} from '@/components/admin/${componentName}';`;
                       
                       if (!adminContent.includes(importStatement)) {
+                        // Add import after existing imports
+                        const importLine = `import TestAdminCard from '@/components/admin/TestAdminCard';`;
                         const updatedContent = adminContent.replace(
-                          /import.*from.*;\n/g, 
-                          (match) => match + importStatement + '\n'
+                          importLine,
+                          importLine + '\n' + importStatement
                         );
                         await writeFile(adminDashboardPath, updatedContent, 'utf8');
                         console.log(`🔗 Auto-imported ${componentName} into admin dashboard`);
+                        
+                        // Also add the component to display after TestAdminCard
+                        const displayContent = await readFile(adminDashboardPath, 'utf8');
+                        const finalContent = displayContent.replace(
+                          '<TestAdminCard />',
+                          `<TestAdminCard />\n          <${componentName} />`
+                        );
+                        await writeFile(adminDashboardPath, finalContent, 'utf8');
+                        console.log(`🎨 Auto-added ${componentName} to dashboard display`);
                       }
                     } catch (e) {
                       console.log('⚠️ Could not auto-import component:', e.message);
