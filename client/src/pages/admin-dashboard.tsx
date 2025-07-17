@@ -275,21 +275,42 @@ function AgentChat({ agentId, agentName, role, status, currentTask, metrics }: A
         // Multiple parsing patterns for better detection
         let jsonMatch = null;
         
-        // Pattern 1: Look for ```json blocks
-        const jsonBlockPattern = /```json\s*(\{[\s\S]*?\})\s*```/;
-        jsonMatch = data.message.match(jsonBlockPattern);
+        // Pattern 1: Look for Victoria's <DEV_PREVIEW> format with JSON code blocks
+        const victoriaDevPreviewPattern = /<DEV_PREVIEW>\s*```json\s*(\{[\s\S]*?\})\s*```\s*<\/DEV_PREVIEW>/;
+        jsonMatch = data.message.match(victoriaDevPreviewPattern);
         
         if (jsonMatch) {
           parsedDevPreview = JSON.parse(jsonMatch[1]);
-          console.log('✅ DEV_PREVIEW JSON block detected and parsed');
+          console.log('✅ Victoria DEV_PREVIEW format detected and parsed');
         } else {
-          // Pattern 2: Look for DEV_PREVIEW: { ... } format
-          const devPreviewPattern = /DEV_PREVIEW:\s*(\{[\s\S]*?\})/;
-          jsonMatch = data.message.match(devPreviewPattern);
+          // Pattern 2: Look for ```json blocks (Victoria's new format)
+          const jsonBlockPattern = /```json\s*(\{[\s\S]*?\})\s*```/;
+          jsonMatch = data.message.match(jsonBlockPattern);
           
           if (jsonMatch) {
-            parsedDevPreview = JSON.parse(jsonMatch[1]);
-            console.log('✅ DEV_PREVIEW colon format detected and parsed');
+            // Try to parse the JSON, handle potential truncation
+            let jsonString = jsonMatch[1];
+            
+            // Handle incomplete JSON (common in Victoria's responses)
+            if (!jsonString.endsWith('}')) {
+              const openBraces = (jsonString.match(/{/g) || []).length;
+              const closeBraces = (jsonString.match(/}/g) || []).length;
+              for (let i = closeBraces; i < openBraces; i++) {
+                jsonString += '}';
+              }
+            }
+            
+            parsedDevPreview = JSON.parse(jsonString);
+            console.log('✅ Victoria JSON block detected and parsed');
+          } else {
+            // Pattern 3: Look for DEV_PREVIEW: { ... } format
+            const devPreviewPattern = /DEV_PREVIEW:\s*(\{[\s\S]*?\})/;
+            jsonMatch = data.message.match(devPreviewPattern);
+            
+            if (jsonMatch) {
+              parsedDevPreview = JSON.parse(jsonMatch[1]);
+              console.log('✅ DEV_PREVIEW colon format detected and parsed');
+            }
           }
         }
         let devPreviewMatch = null;
