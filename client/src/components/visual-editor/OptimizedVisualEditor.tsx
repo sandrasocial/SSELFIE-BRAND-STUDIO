@@ -740,9 +740,9 @@ export function OptimizedVisualEditor({ className = '' }: OptimizedVisualEditorP
             <TabsTrigger value="flatlays" className="text-xs">Flatlays</TabsTrigger>
           </TabsList>
 
-          <TabsContent value="chat" className="flex-1 flex flex-col mt-0 min-h-0">
+          <TabsContent value="chat" className="flex-1 flex flex-col mt-0">
             {/* Chat Messages - Expanded Space */}
-            <div className="flex-1 overflow-y-auto p-1 md:p-2 space-y-1 md:space-y-2">
+            <div className="flex-1 overflow-y-auto p-1 md:p-2 space-y-1 md:space-y-2" style={{ minHeight: '300px' }}>
               {chatMessages.length === 0 && (
                 <div className="text-center text-gray-500 text-sm">
                   <div className="mb-2">Chat</div>
@@ -840,34 +840,36 @@ export function OptimizedVisualEditor({ className = '' }: OptimizedVisualEditorP
               )}
             </div>
 
-            {/* Chat Input - Ultra compact at bottom */}
-            <div className="flex-shrink-0 px-1 border-t border-gray-200" style={{ padding: '2px 4px' }}>
-              <div className="flex gap-1 items-center">
-                <input
-                  ref={fileInputRef}
-                  type="file"
-                  accept="image/*"
-                  multiple
-                  onChange={(e) => handleFileUpload(e.target.files)}
-                  className="hidden"
-                />
-                <Button
-                  variant="outline"
-                  size="sm"
-                  onClick={() => fileInputRef.current?.click()}
-                  className="p-1 border-black text-black hover:bg-black hover:text-white h-6 w-6"
-                  title="Upload"
-                >
-                  <Paperclip className="w-3 h-3" />
-                </Button>
-                <input
-                  type="text"
+            {/* Chat Input with Upload - Multi-line */}
+            <div className="px-1 py-0.5 border-t border-gray-200">
+              <div className="flex space-x-1">
+                <div className="flex flex-col space-y-1">
+                  <input
+                    ref={fileInputRef}
+                    type="file"
+                    accept="image/*"
+                    multiple
+                    onChange={(e) => handleFileUpload(e.target.files)}
+                    className="hidden"
+                  />
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() => fileInputRef.current?.click()}
+                    className="px-3 border-black text-black hover:bg-black hover:text-white"
+                    title="Upload inspiration images"
+                  >
+                    <Paperclip className="w-3 h-3" />
+                  </Button>
+                </div>
+                <Textarea
                   value={messageInput}
                   onChange={(e) => setMessageInput(e.target.value)}
-                  placeholder={`Ask ${currentAgent.name} for help...`}
-                  className="flex-1 text-xs border border-gray-200 px-2 py-1 rounded h-6 focus:outline-none focus:border-black"
+                  placeholder={`Ask ${currentAgent.name} for ${currentAgent.workflowStage.toLowerCase()} help or upload inspiration images...`}
+                  className="flex-1 text-sm md:text-sm text-xs resize-none border border-gray-200 p-2 rounded"
+                  rows={3}
                   onKeyPress={(e) => {
-                    if (e.key === 'Enter') {
+                    if (e.key === 'Enter' && !e.shiftKey) {
                       e.preventDefault();
                       sendMessage(messageInput);
                     }
@@ -875,7 +877,7 @@ export function OptimizedVisualEditor({ className = '' }: OptimizedVisualEditorP
                 />
                 <Button
                   size="sm"
-                  className="bg-black text-white hover:bg-gray-800 px-2 py-1 text-xs h-6"
+                  className="bg-black text-white hover:bg-gray-800 self-end"
                   onClick={() => sendMessage(messageInput)}
                   disabled={!messageInput.trim() || isLoading}
                 >
