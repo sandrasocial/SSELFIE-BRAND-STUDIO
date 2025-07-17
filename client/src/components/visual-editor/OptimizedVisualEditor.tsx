@@ -1239,14 +1239,14 @@ export function OptimizedVisualEditor({ className = '' }: OptimizedVisualEditorP
               
               <iframe
                 ref={iframeRef}
-                src="http://localhost:5000"
+                src={window.location.origin}
                 className="w-full h-full border-0"
                 title="Live SSELFIE Studio"
                 sandbox="allow-same-origin allow-scripts allow-forms allow-popups allow-top-navigation allow-downloads allow-presentation"
                 allow="fullscreen; picture-in-picture; web-share; camera; microphone; geolocation"
                 referrerPolicy="no-referrer-when-downgrade"
                 onLoad={() => {
-                  console.log('🚀 Live SSELFIE Studio loaded');
+                  console.log('🚀 Live SSELFIE Studio loaded in visual editor');
                   setIframeLoading(false);
                   
                   // Enhanced image loading fix for iframe
