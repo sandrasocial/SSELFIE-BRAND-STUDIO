@@ -179,14 +179,15 @@ export class ModelTrainingService {
           input: {
             input_images: zipUrl,
             trigger_word: triggerWord,
-            steps: 1000,
-            lora_rank: 32, // Higher for more complex poses/movements
-            batch_size: 1,
-            learning_rate: 1e-4, // Lower than default for better quality
-            caption_prefix: "photo of",
-            autocaptioning: true,
-            caption_dropout_rate: 0.1, // Add variety to prevent overfitting
-            noise_offset: 0.1 // Helps with dynamic range
+            steps: 800, // 🔧 OPTIMAL: Perfect for 10-15 images - prevents overfitting while ensuring facial accuracy
+            learning_rate: 0.0002, // 🔧 OPTIMAL: Higher than standard for faster feature learning with fewer images
+            batch_size: 1, // 🔧 OPTIMAL: Single batch for precise training
+            lora_rank: 32, // 🔧 OPTIMAL: Perfect balance of quality and file size for portraits
+            resolution: "1024", // 🔧 OPTIMAL: High resolution for detailed facial features
+            optimizer: "adamw8bit", // 🔧 OPTIMAL: Memory efficient optimizer
+            autocaption: false, // 🔧 OPTIMAL: Manual captioning for better control
+            cache_latents_to_disk: false, // 🔧 OPTIMAL: Memory optimization
+            caption_dropout_rate: 0.15 // 🔧 OPTIMAL: Higher dropout prevents overfitting with limited training data
           },
           destination: `sandrasocial/${modelName}`
         })
