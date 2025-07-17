@@ -443,7 +443,22 @@ export default function Maya() {
             timestamp: msg.createdAt,
             generatedPrompt: msg.generatedPrompt,
             canGenerate: !!msg.generatedPrompt,
-            imagePreview: msg.imagePreview ? JSON.parse(msg.imagePreview) : undefined
+            imagePreview: msg.imagePreview ? (() => {
+              try {
+                const parsed = JSON.parse(msg.imagePreview);
+                // Filter out invalid URLs like "Converting to permanent storage..."
+                if (Array.isArray(parsed)) {
+                  return parsed.filter(url => 
+                    typeof url === 'string' && 
+                    (url.startsWith('http') || url.startsWith('https'))
+                  );
+                }
+                return undefined;
+              } catch (e) {
+                console.warn('Failed to parse image preview:', e);
+                return undefined;
+              }
+            })() : undefined
           }));
           setMessages(formattedMessages);
         }
