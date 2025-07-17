@@ -742,11 +742,11 @@ export function OptimizedVisualEditor({ className = '' }: OptimizedVisualEditorP
               </div>
             </div>
 
-            {/* Chat Messages */}
+            {/* Chat Messages - Fixed Height */}
             <div 
               ref={chatMessagesRef}
-              className="flex-1 overflow-y-auto p-4 space-y-3" 
-              style={{ maxHeight: 'calc(100vh - 400px)', minHeight: '300px' }}
+              className="overflow-y-auto p-4 space-y-3" 
+              style={{ height: 'calc(100vh - 500px)', minHeight: '200px' }}
             >
               {chatMessages.length === 0 && (
                 <div className="text-center text-gray-500 text-sm">
@@ -845,8 +845,8 @@ export function OptimizedVisualEditor({ className = '' }: OptimizedVisualEditorP
               )}
             </div>
 
-            {/* Chat Input with Upload */}
-            <div className="p-4 border-t border-gray-200 bg-white">
+            {/* Chat Input with Upload - Fixed at Bottom */}
+            <div className="p-4 border-t border-gray-200 bg-white flex-shrink-0">
               <div className="flex space-x-2">
                 <div className="flex items-center space-x-2">
                   <input
