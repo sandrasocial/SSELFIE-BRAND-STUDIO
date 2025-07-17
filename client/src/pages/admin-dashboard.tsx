@@ -283,8 +283,8 @@ function AgentChat({ agentId, agentName, role, status, currentTask, metrics }: A
           parsedDevPreview = JSON.parse(jsonMatch[1]);
           console.log('✅ Victoria DEV_PREVIEW format detected and parsed');
         } else {
-          // Pattern 2: Look for ```json blocks (Victoria's new format)
-          const jsonBlockPattern = /```json\s*(\{[\s\S]*?\})\s*```/;
+          // Pattern 2: Look for ```json blocks (Victoria's new format) - handle truncation
+          const jsonBlockPattern = /```json\s*(\{[\s\S]*?)(?:\s*```|$)/;
           jsonMatch = data.message.match(jsonBlockPattern);
           
           if (jsonMatch) {
@@ -304,16 +304,35 @@ function AgentChat({ agentId, agentName, role, status, currentTask, metrics }: A
                 jsonString = jsonString.replace('"changes"', '"changes": [');
               }
               
-              // If we're in the middle of an array element, close it
+              // More sophisticated array completion
               if (jsonString.includes('[') && !jsonString.includes(']')) {
-                // Count open quotes to see if we're in a string
-                const quoteCount = (jsonString.match(/"/g) || []).length;
+                // Find the last occurrence of an opening bracket
+                const lastBracketIndex = jsonString.lastIndexOf('[');
+                const afterBracket = jsonString.substring(lastBracketIndex + 1);
+                
+                // Count open quotes after the last bracket to see if we're in a string
+                const quoteCount = (afterBracket.match(/"/g) || []).length;
                 if (quoteCount % 2 === 1) {
                   // We're in an incomplete string, close it
                   jsonString += '"';
                 }
-                // Close the array
+                
+                // If there's content after the bracket, add a comma before closing
+                if (afterBracket.trim() && !afterBracket.trim().endsWith(',')) {
+                  jsonString += ',';
+                }
+                
+                // Add a placeholder completion message and close the array
+                jsonString += '"... (truncated)"';
                 jsonString += ']';
+              }
+              
+              // Handle incomplete strings at the end
+              const lastQuoteIndex = jsonString.lastIndexOf('"');
+              const afterLastQuote = jsonString.substring(lastQuoteIndex + 1);
+              if (!afterLastQuote.includes('"') && afterLastQuote.includes(':')) {
+                // We have an incomplete value after a colon
+                jsonString += '"(truncated)"';
               }
               
               // Close any remaining open braces
