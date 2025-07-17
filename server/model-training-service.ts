@@ -168,7 +168,7 @@ export class ModelTrainingService {
       if (!createModelResponse.ok && createModelResponse.status !== 422) {
       }
 
-      // Start real Replicate training using the CORRECT model version
+      // Start real Replicate training using the CORRECT model version  
       const trainingResponse = await fetch('https://api.replicate.com/v1/models/ostris/flux-dev-lora-trainer/versions/26dce37af90b9d997eeb970d92e47de3064d46c300504ae376c75bef6a9022d2/trainings', {
         method: 'POST',
         headers: {
@@ -211,6 +211,75 @@ export class ModelTrainingService {
       });
       console.log(`✅ Training ID stored successfully for user ${userId}`);
       
+      
+      return {
+        trainingId: trainingData.id,
+        status: 'training'
+      };
+      
+    } catch (error) {
+      throw error;
+    }
+  }
+
+  // RETRAIN existing model with optimal parameters using original ZIP file
+  static async retrainWithOptimalParameters(userId: string, originalZipUrl: string): Promise<{ trainingId: string; status: string }> {
+    try {
+      // Get existing model info
+      const existingModel = await storage.getUserModelByUserId(userId);
+      if (!existingModel) {
+        throw new Error('No existing model found for user');
+      }
+
+      // Generate trigger word (same as original)
+      const triggerWord = this.generateTriggerWord(userId);
+      
+      // Use existing model name
+      const modelName = `${userId}-selfie-lora`;
+
+      console.log(`🔄 Starting retraining for model: sandrasocial/${modelName}`);
+      console.log(`📁 Using original ZIP: ${originalZipUrl}`);
+
+      // Start retraining with optimal parameters
+      const trainingResponse = await fetch('https://api.replicate.com/v1/models/ostris/flux-dev-lora-trainer/versions/26dce37af90b9d997eeb970d92e47de3064d46c300504ae376c75bef6a9022d2/trainings', {
+        method: 'POST',
+        headers: {
+          'Authorization': `Token ${process.env.REPLICATE_API_TOKEN}`,
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          input: {
+            input_images: originalZipUrl,
+            trigger_word: triggerWord,
+            steps: 800, // 🔧 OPTIMAL: Perfect for 10-15 images - prevents overfitting while ensuring facial accuracy
+            learning_rate: 0.0002, // 🔧 OPTIMAL: Higher than standard for faster feature learning with fewer images
+            batch_size: 1, // 🔧 OPTIMAL: Single batch for precise training
+            lora_rank: 32, // 🔧 OPTIMAL: Perfect balance of quality and file size for portraits
+            resolution: "1024", // 🔧 OPTIMAL: High resolution for detailed facial features
+            optimizer: "adamw8bit", // 🔧 OPTIMAL: Memory efficient optimizer
+            autocaption: false, // 🔧 OPTIMAL: Manual captioning for better control
+            cache_latents_to_disk: false, // 🔧 OPTIMAL: Memory optimization
+            caption_dropout_rate: 0.15 // 🔧 OPTIMAL: Higher dropout prevents overfitting with limited training data
+          },
+          destination: `sandrasocial/${modelName}`
+        })
+      });
+
+      const trainingData = await trainingResponse.json();
+      
+      if (!trainingResponse.ok) {
+        throw new Error(`Replicate retraining failed: ${JSON.stringify(trainingData)}`);
+      }
+
+      // Update model with new training ID
+      console.log(`🔍 Storing training ID: ${trainingData.id} for user ${userId}`);
+      await storage.updateUserModel(userId, {
+        replicateModelId: trainingData.id, // New training ID - will be updated to model version on completion
+        triggerWord: triggerWord,
+        trainingStatus: 'training',
+        trainingProgress: 0
+      });
+      console.log(`✅ Training ID stored successfully for user ${userId}`);
       
       return {
         trainingId: trainingData.id,
