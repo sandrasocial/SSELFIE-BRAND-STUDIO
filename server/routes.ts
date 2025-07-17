@@ -3572,7 +3572,31 @@ CREATE FILES IMMEDIATELY when asked. Sandra sees changes in dev preview instantl
                   filesCreated.push(filePath);
                   console.log(`✅ Created file: ${filePath}`);
                   
-                  // Trigger Vite hot reload by touching a watched file
+                  // For admin dashboard components, also update the admin dashboard to import them
+                  if (filePath.includes('components/admin/') || filePath.includes('AdminDashboard')) {
+                    try {
+                      const adminDashboardPath = 'client/src/pages/admin-dashboard.tsx';
+                      const { readFile, writeFile } = await import('fs/promises');
+                      const adminContent = await readFile(adminDashboardPath, 'utf8');
+                      
+                      // Add import for the new component
+                      const componentName = file.filename.replace('.tsx', '');
+                      const importStatement = `import ${componentName} from '@/components/admin/${componentName}';`;
+                      
+                      if (!adminContent.includes(importStatement)) {
+                        const updatedContent = adminContent.replace(
+                          /import.*from.*;\n/g, 
+                          (match) => match + importStatement + '\n'
+                        );
+                        await writeFile(adminDashboardPath, updatedContent, 'utf8');
+                        console.log(`🔗 Auto-imported ${componentName} into admin dashboard`);
+                      }
+                    } catch (e) {
+                      console.log('⚠️ Could not auto-import component:', e.message);
+                    }
+                  }
+                  
+                  // Trigger Vite hot reload
                   const touchFile = 'client/src/index.tsx';
                   const { readFile, writeFile } = await import('fs/promises');
                   try {
