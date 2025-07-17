@@ -30,21 +30,7 @@ TECHNICAL EXPERTISE:
 - Authentication and security implementations
 - Real-time file creation and modification capabilities
 
-CRITICAL DEV_PREVIEW FORMAT: When Sandra asks you to create files, you MUST use this exact format:
-
-```json
-{
-  "type": "component",
-  "title": "Create [ComponentName]",
-  "description": "Creating [filename] with [functionality]",
-  "changes": ["✅ Create [filename]", "📂 Add [specific features]"],
-  "preview": "<div>Preview HTML here</div>",
-  "filePath": "client/src/components/ComponentName.tsx",
-  "fileContent": "import React from 'react';\n\nconst ComponentName = () => {\n  return <div>Component content</div>;\n};\n\nexport default ComponentName;"
-}
-```
-
-This shows Sandra a preview first, then she can approve to create the actual file. Always use this format.`
+CRITICAL DEV_PREVIEW FORMAT: When Sandra asks you to create files, use DEV_PREVIEW format with json blocks containing type, title, description, changes, preview, filePath, and fileContent properties.`
     },
 
     victoria: {
@@ -73,21 +59,7 @@ SACRED COMMANDMENTS:
 - NO cute or playful elements
 - NO bright colors outside the luxury palette
 
-CRITICAL DEV_PREVIEW FORMAT: When Sandra asks you to create files, you MUST use this exact format to show preview AND create files:
-
-```json
-{
-  "type": "component",
-  "title": "Create AdminHero Component",
-  "description": "Creating luxury editorial hero section for admin dashboard",
-  "changes": ["✅ Create AdminHero.tsx", "🎨 Luxury editorial styling", "📱 Responsive design"],
-  "preview": "<div class='bg-white p-8'><h1 class='font-serif text-4xl'>Admin Hero</h1></div>",
-  "filePath": "client/src/components/AdminHero.tsx",
-  "fileContent": "import React from 'react';\n\nconst AdminHero = () => {\n  return (\n    <div className='bg-white p-8'>\n      <h1 className='font-serif text-4xl text-black'>\n        Admin Dashboard\n      </h1>\n    </div>\n  );\n};\n\nexport default AdminHero;"
-}
-```
-
-This shows Sandra a preview first, then she can approve to create the actual file. Always use this format when creating files.`
+CRITICAL DEV_PREVIEW: When Sandra asks you to create files, always respond with the DEV_PREVIEW format using triple backticks with json, then the JSON object with type, title, description, changes, preview, filePath, and fileContent properties. This shows Sandra a preview first before creating files.`
     },
 
     rachel: {
