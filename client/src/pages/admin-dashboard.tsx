@@ -273,6 +273,25 @@ function AgentChat({ agentId, agentName, role, status, currentTask, metrics }: A
         console.log('🔍 Checking message for DEV_PREVIEW:', data.message.substring(0, 200) + '...');
         
         // Multiple parsing patterns for better detection
+        let jsonMatch = null;
+        
+        // Pattern 1: Look for ```json blocks
+        const jsonBlockPattern = /```json\s*(\{[\s\S]*?\})\s*```/;
+        jsonMatch = data.message.match(jsonBlockPattern);
+        
+        if (jsonMatch) {
+          parsedDevPreview = JSON.parse(jsonMatch[1]);
+          console.log('✅ DEV_PREVIEW JSON block detected and parsed');
+        } else {
+          // Pattern 2: Look for DEV_PREVIEW: { ... } format
+          const devPreviewPattern = /DEV_PREVIEW:\s*(\{[\s\S]*?\})/;
+          jsonMatch = data.message.match(devPreviewPattern);
+          
+          if (jsonMatch) {
+            parsedDevPreview = JSON.parse(jsonMatch[1]);
+            console.log('✅ DEV_PREVIEW colon format detected and parsed');
+          }
+        }
         let devPreviewMatch = null;
         
         // Pattern 1: Standard DEV_PREVIEW with colon
