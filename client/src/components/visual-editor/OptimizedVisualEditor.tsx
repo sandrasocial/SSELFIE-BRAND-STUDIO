@@ -12,6 +12,8 @@ import {
   Settings,
   ChevronLeft,
   ChevronRight,
+  ChevronUp,
+  ChevronDown,
   Palette,
   Type,
   Layout,
@@ -142,6 +144,8 @@ export function OptimizedVisualEditor({ className = '' }: OptimizedVisualEditorP
   const [currentAgent, setCurrentAgent] = useState<Agent>(agents[0]);
   const [workflowActive, setWorkflowActive] = useState(false);
   const [workflowStage, setWorkflowStage] = useState('Design');
+  const [showWorkflowSection, setShowWorkflowSection] = useState(false);
+  const [showQuickCommands, setShowQuickCommands] = useState(false);
   const iframeRef = useRef<HTMLIFrameElement>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const chatPanelRef = useRef<HTMLDivElement>(null);
@@ -629,69 +633,81 @@ export function OptimizedVisualEditor({ className = '' }: OptimizedVisualEditorP
             </Button>
           </div>
 
-          {/* Workflow Progress - Desktop Optimized */}
+          {/* Workflow Progress - Collapsible */}
           <div className="space-y-3">
-            <div className="flex items-center justify-between">
+            <div className="flex items-center justify-between cursor-pointer" onClick={() => setShowWorkflowSection(!showWorkflowSection)}>
               <span className="text-sm font-medium text-gray-600">Design Studio Workflow</span>
-              {workflowActive && (
-                <Badge variant="secondary" className="text-xs bg-gray-100 text-black border border-gray-300">
-                  Active: {workflowStage}
-                </Badge>
-              )}
+              <div className="flex items-center space-x-2">
+                {workflowActive && (
+                  <Badge variant="secondary" className="text-xs bg-gray-100 text-black border border-gray-300">
+                    Active: {workflowStage}
+                  </Badge>
+                )}
+                {showWorkflowSection ? <ChevronUp className="w-4 h-4" /> : <ChevronDown className="w-4 h-4" />}
+              </div>
             </div>
-            <div className="flex space-x-2">
-              {agents.map((agent, index) => (
-                <div
-                  key={agent.id}
-                  className={`flex-1 h-3 rounded ${
-                    agent.id === currentAgent.id
-                      ? 'bg-black'
-                      : agents.findIndex(a => a.id === currentAgent.id) > index
-                      ? 'bg-gray-400'
-                      : 'bg-gray-200'
-                  }`}
-                />
-              ))}
-            </div>
-            <div className="flex justify-between text-sm text-gray-500">
-              {agents.map(agent => (
-                <span key={agent.id} className={agent.id === currentAgent.id ? 'font-medium text-black' : ''}>
-                  {agent.name}
-                </span>
-              ))}
-            </div>
+            {showWorkflowSection && (
+              <>
+                <div className="flex space-x-2">
+                  {agents.map((agent, index) => (
+                    <div
+                      key={agent.id}
+                      className={`flex-1 h-3 rounded ${
+                        agent.id === currentAgent.id
+                          ? 'bg-black'
+                          : agents.findIndex(a => a.id === currentAgent.id) > index
+                          ? 'bg-gray-400'
+                          : 'bg-gray-200'
+                      }`}
+                    />
+                  ))}
+                </div>
+                <div className="flex justify-between text-sm text-gray-500">
+                  {agents.map(agent => (
+                    <span key={agent.id} className={agent.id === currentAgent.id ? 'font-medium text-black' : ''}>
+                      {agent.name}
+                    </span>
+                  ))}
+                </div>
+              </>
+            )}
           </div>
 
-          {/* Quick Workflow Starters */}
+          {/* Quick Workflow Starters - Collapsible */}
           {!workflowActive && (
             <div className="mt-3 space-y-1">
-              <div className="text-xs font-medium text-gray-600 mb-2">Quick Start Workflows:</div>
-              <div className="grid grid-cols-1 gap-1">
-                <Button
-                  variant="outline"
-                  size="sm"
-                  className="text-xs h-7 justify-start border-black text-black hover:bg-black hover:text-white"
-                  onClick={() => startWorkflow("Create a new landing page design and implement it")}
-                >
-                  New Landing Page
-                </Button>
-                <Button
-                  variant="outline"
-                  size="sm"
-                  className="text-xs h-7 justify-start border-black text-black hover:bg-black hover:text-white"
-                  onClick={() => startWorkflow("Design and build a pricing section")}
-                >
-                  Pricing Section
-                </Button>
-                <Button
-                  variant="outline"
-                  size="sm"
-                  className="text-xs h-7 justify-start border-black text-black hover:bg-black hover:text-white"
-                  onClick={() => startWorkflow("Create an image gallery component")}
-                >
-                  Image Gallery
-                </Button>
+              <div className="flex items-center justify-between cursor-pointer" onClick={() => setShowQuickCommands(!showQuickCommands)}>
+                <div className="text-xs font-medium text-gray-600">Quick Start Workflows</div>
+                {showQuickCommands ? <ChevronUp className="w-3 h-3" /> : <ChevronDown className="w-3 h-3" />}
               </div>
+              {showQuickCommands && (
+                <div className="grid grid-cols-1 gap-1 mt-2">
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    className="text-xs h-7 justify-start border-black text-black hover:bg-black hover:text-white"
+                    onClick={() => startWorkflow("Create a new landing page design and implement it")}
+                  >
+                    New Landing Page
+                  </Button>
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    className="text-xs h-7 justify-start border-black text-black hover:bg-black hover:text-white"
+                    onClick={() => startWorkflow("Design and build a pricing section")}
+                  >
+                    Pricing Section
+                  </Button>
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    className="text-xs h-7 justify-start border-black text-black hover:bg-black hover:text-white"
+                    onClick={() => startWorkflow("Create an image gallery component")}
+                  >
+                    Image Gallery
+                  </Button>
+                </div>
+              )}
             </div>
           )}
         </div>
@@ -705,47 +721,52 @@ export function OptimizedVisualEditor({ className = '' }: OptimizedVisualEditorP
           </TabsList>
 
           <TabsContent value="chat" className="flex-1 flex flex-col mt-0 overflow-hidden">
-            {/* Quick Commands - Desktop Optimized */}
-            <div className="p-6 border-b border-gray-200 shrink-0">
-              <h4 className="font-medium text-base mb-4">Quick Commands</h4>
-              <div className="space-y-3">
-                {quickCommands.map((command, index) => (
+            {/* Quick Commands - Collapsible */}
+            <div className="border-b border-gray-200 shrink-0">
+              <div className="p-4 cursor-pointer flex items-center justify-between" onClick={() => setShowQuickCommands(!showQuickCommands)}>
+                <h4 className="font-medium text-sm">Quick Commands</h4>
+                {showQuickCommands ? <ChevronUp className="w-4 h-4" /> : <ChevronDown className="w-4 h-4" />}
+              </div>
+              {showQuickCommands && (
+                <div className="px-4 pb-4 space-y-2">
+                  {quickCommands.map((command, index) => (
+                    <Button
+                      key={index}
+                      variant="outline"
+                      size="sm"
+                      className="w-full justify-start text-xs h-8"
+                      onClick={() => {
+                        if (command.styles) {
+                          injectChangesToLivePreview(command.styles);
+                          toast({
+                            title: 'Style Applied',
+                            description: command.label,
+                          });
+                        } else {
+                          sendMessage(command.command);
+                        }
+                      }}
+                    >
+                      {command.icon}
+                      <span className="ml-2">{command.label}</span>
+                    </Button>
+                  ))}
+                  
+                  {/* Victoria Image Generation Button */}
                   <Button
-                    key={index}
                     variant="outline"
                     size="sm"
-                    className="w-full justify-start text-sm h-11"
-                    onClick={() => {
-                      if (command.styles) {
-                        injectChangesToLivePreview(command.styles);
-                        toast({
-                          title: 'Style Applied',
-                          description: command.label,
-                        });
-                      } else {
-                        sendMessage(command.command);
-                      }
-                    }}
+                    className="w-full justify-start text-xs h-8 bg-purple-50 border-purple-200 hover:bg-purple-100"
+                    onClick={generateImagesWithVictoria}
+                    disabled={isLoading}
                   >
-                    {command.icon}
-                    <span className="ml-2">{command.label}</span>
+                    <Sparkles className="w-4 h-4" />
+                    <span className="ml-2">
+                      {isLoading ? 'Generating...' : 'Generate Images'}
+                    </span>
                   </Button>
-                ))}
-                
-                {/* Victoria Image Generation Button */}
-                <Button
-                  variant="outline"
-                  size="sm"
-                  className="w-full justify-start text-xs bg-purple-50 border-purple-200 hover:bg-purple-100"
-                  onClick={generateImagesWithVictoria}
-                  disabled={isLoading}
-                >
-                  <Sparkles className="w-4 h-4" />
-                  <span className="ml-2">
-                    {isLoading ? 'Generating...' : 'Generate Images'}
-                  </span>
-                </Button>
-              </div>
+                </div>
+              )}
             </div>
 
             {/* Chat Messages - Manual Scrolling Fixed */}
