@@ -33,6 +33,10 @@ interface ChatMessage {
   timestamp: Date;
   imagePreview?: string[];
   uploadedImages?: string[];
+  agentName?: string;
+  handoffTo?: string;
+  isHandoff?: boolean;
+  workflowStage?: string;
 }
 
 interface AIImage {
@@ -65,6 +69,63 @@ interface OptimizedVisualEditorProps {
   className?: string;
 }
 
+interface Agent {
+  id: string;
+  name: string;
+  role: string;
+  expertise: string[];
+  color: string;
+  nextAgent?: string;
+  workflowStage: string;
+}
+
+const agents: Agent[] = [
+  {
+    id: 'victoria',
+    name: 'Victoria',
+    role: 'UX Designer AI',
+    expertise: ['Design', 'UI/UX', 'Visual Editor', 'Components'],
+    color: 'bg-purple-500',
+    nextAgent: 'maya',
+    workflowStage: 'Design'
+  },
+  {
+    id: 'maya',
+    name: 'Maya',
+    role: 'Dev AI',
+    expertise: ['Development', 'Code', 'API', 'Technical Implementation'],
+    color: 'bg-blue-500',
+    nextAgent: 'rachel',
+    workflowStage: 'Development'
+  },
+  {
+    id: 'rachel',
+    name: 'Rachel',
+    role: 'Voice AI',
+    expertise: ['Copywriting', 'Content', 'Voice', 'Marketing Copy'],
+    color: 'bg-pink-500',
+    nextAgent: 'ava',
+    workflowStage: 'Content'
+  },
+  {
+    id: 'ava',
+    name: 'Ava',
+    role: 'Automation AI',
+    expertise: ['Workflows', 'Automation', 'Business Logic'],
+    color: 'bg-green-500',
+    nextAgent: 'quinn',
+    workflowStage: 'Automation'
+  },
+  {
+    id: 'quinn',
+    name: 'Quinn',
+    role: 'QA AI',
+    expertise: ['Quality Assurance', 'Testing', 'Validation'],
+    color: 'bg-orange-500',
+    workflowStage: 'Quality Assurance'
+  }
+];
+
 export function OptimizedVisualEditor({ className = '' }: OptimizedVisualEditorProps) {
   const [showPropertiesPanel, setShowPropertiesPanel] = useState(false);
   const [activeTab, setActiveTab] = useState('chat');
@@ -78,6 +139,9 @@ export function OptimizedVisualEditor({ className = '' }: OptimizedVisualEditorP
   const [selectedImages, setSelectedImages] = useState<string[]>([]);
   const [uploadedFiles, setUploadedFiles] = useState<File[]>([]);
   const [isDragOver, setIsDragOver] = useState(false);
+  const [currentAgent, setCurrentAgent] = useState<Agent>(agents[0]);
+  const [workflowActive, setWorkflowActive] = useState(false);
+  const [workflowStage, setWorkflowStage] = useState('Design');
   const iframeRef = useRef<HTMLIFrameElement>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const chatPanelRef = useRef<HTMLDivElement>(null);
@@ -327,62 +391,141 @@ export function OptimizedVisualEditor({ className = '' }: OptimizedVisualEditorP
     handleFileUpload(e.dataTransfer.files);
   };
 
-  // Send message to Victoria with conversation memory
-  const sendMessage = async (message: string) => {
-    if (!message.trim()) return;
+  // Agent handoff system
+  const handoffToNextAgent = async (currentAgentId: string, handoffContext: string) => {
+    const current = agents.find(a => a.id === currentAgentId);
+    const nextAgent = current?.nextAgent ? agents.find(a => a.id === current.nextAgent) : null;
+    
+    if (!nextAgent) {
+      toast({
+        title: 'Workflow Complete',
+        description: 'All agents have completed their work!',
+      });
+      setWorkflowActive(false);
+      return;
+    }
 
-    const userMessage: ChatMessage = {
-      type: 'user',
-      content: message,
-      timestamp: new Date()
+    // Create handoff message
+    const handoffMessage: ChatMessage = {
+      type: 'agent',
+      content: `🔄 **Handoff to ${nextAgent.name}**\n\n${current?.name} completed: ${handoffContext}\n\nNow passing to ${nextAgent.name} for ${nextAgent.workflowStage}...`,
+      timestamp: new Date(),
+      agentName: currentAgentId,
+      handoffTo: nextAgent.id,
+      isHandoff: true,
+      workflowStage: nextAgent.workflowStage
     };
 
-    setChatMessages(prev => [...prev, userMessage]);
-    setMessageInput('');
+    setChatMessages(prev => [...prev, handoffMessage]);
+    setCurrentAgent(nextAgent);
+    setWorkflowStage(nextAgent.workflowStage);
+
+    // Auto-send context to next agent
+    setTimeout(() => {
+      sendMessageToAgent(nextAgent.id, `Taking over from ${current?.name}. Context: ${handoffContext}. Please continue with ${nextAgent.workflowStage}.`);
+    }, 1000);
+  };
+
+  // Send message to specific agent with conversation memory
+  const sendMessageToAgent = async (agentId: string, message: string) => {
+    if (!message.trim()) return;
+
     setIsLoading(true);
 
     try {
-      // Get conversation history for Victoria to learn and improve
+      // Get conversation history for agent to learn and improve
       const conversationHistory = chatMessages.map(msg => ({
         type: msg.type === 'user' ? 'human' : 'assistant',
         content: msg.content
       }));
 
       const response = await apiRequest('POST', '/api/admin/agent-chat-bypass', {
-        agentName: 'victoria',
+        agentName: agentId,
         message: message,
-        conversationHistory: conversationHistory
+        conversationHistory: conversationHistory,
+        workflowContext: {
+          stage: workflowStage,
+          previousWork: chatMessages.filter(msg => msg.agentName && msg.agentName !== agentId).slice(-3)
+        }
       });
 
       const data = await response.json();
       
       if (data.response) {
+        const agent = agents.find(a => a.id === agentId);
         const agentMessage: ChatMessage = {
           type: 'agent',
           content: data.response,
-          timestamp: new Date()
+          timestamp: new Date(),
+          agentName: agentId,
+          workflowStage: agent?.workflowStage
         };
         setChatMessages(prev => [...prev, agentMessage]);
 
-        // Auto-apply CSS changes from Victoria's response
-        const cssMatch = data.response.match(/```css\n([\s\S]*?)\n```/);
-        if (cssMatch) {
-          injectChangesToLivePreview(cssMatch[1]);
-          toast({
-            title: 'Victoria Applied Changes',
-            description: 'Design updates applied to live preview',
-          });
+        // Auto-apply changes based on agent type
+        if (agentId === 'victoria') {
+          const cssMatch = data.response.match(/```css\n([\s\S]*?)\n```/);
+          if (cssMatch) {
+            injectChangesToLivePreview(cssMatch[1]);
+            toast({
+              title: 'Victoria Applied Changes',
+              description: 'Design updates applied to live preview',
+            });
+          }
+        }
+
+        // Check for handoff signals
+        if (data.response.includes('HANDOFF:') || data.response.includes('Ready for next stage')) {
+          const handoffContext = data.response.split('HANDOFF:')[1] || `${agent?.workflowStage} completed`;
+          setTimeout(() => {
+            handoffToNextAgent(agentId, handoffContext.trim());
+          }, 2000);
         }
       }
     } catch (error) {
       toast({
         title: 'Error',
-        description: 'Failed to send message to Victoria',
+        description: `Failed to send message to ${agents.find(a => a.id === agentId)?.name}`,
         variant: 'destructive',
       });
     } finally {
       setIsLoading(false);
     }
+  };
+
+  // Send message to current agent
+  const sendMessage = async (message: string) => {
+    if (!message.trim()) return;
+
+    const userMessage: ChatMessage = {
+      type: 'user',
+      content: message,
+      timestamp: new Date(),
+      workflowStage: workflowStage
+    };
+
+    setChatMessages(prev => [...prev, userMessage]);
+    setMessageInput('');
+    
+    await sendMessageToAgent(currentAgent.id, message);
+  };
+
+  // Start workflow from beginning
+  const startWorkflow = (initialRequest: string) => {
+    setWorkflowActive(true);
+    setCurrentAgent(agents[0]);
+    setWorkflowStage(agents[0].workflowStage);
+    
+    const workflowMessage: ChatMessage = {
+      type: 'agent',
+      content: `🚀 **Design Studio Workflow Started**\n\nStarting with ${agents[0].name} for ${agents[0].workflowStage}...`,
+      timestamp: new Date(),
+      isHandoff: true,
+      workflowStage: 'Design'
+    };
+    
+    setChatMessages(prev => [...prev, workflowMessage]);
+    sendMessageToAgent(agents[0].id, initialRequest);
   };
 
   const quickCommands = [
@@ -439,24 +582,92 @@ export function OptimizedVisualEditor({ className = '' }: OptimizedVisualEditorP
                 </div>
               </div>
             )}
-        {/* Chat Header */}
-        <div className="p-4 border-b border-gray-200 flex items-center justify-between">
-          <div className="flex items-center space-x-2">
-            <div className="w-8 h-8 bg-black rounded-full flex items-center justify-center">
-              <span className="text-white text-sm font-medium">V</span>
+        {/* Chat Header with Agent Workflow */}
+        <div className="p-4 border-b border-gray-200">
+          <div className="flex items-center justify-between mb-3">
+            <div className="flex items-center space-x-2">
+              <div className={`w-8 h-8 ${currentAgent.color} rounded-full flex items-center justify-center`}>
+                <span className="text-white text-sm font-medium">{currentAgent.name[0]}</span>
+              </div>
+              <div>
+                <div className="font-medium text-sm">{currentAgent.name}</div>
+                <div className="text-xs text-gray-500">{currentAgent.role}</div>
+              </div>
             </div>
-            <div>
-              <div className="font-medium text-sm">Victoria</div>
-              <div className="text-xs text-gray-500">UX Designer AI</div>
+            <Button
+              variant={showPropertiesPanel ? "default" : "outline"}
+              size="sm"
+              onClick={() => setShowPropertiesPanel(!showPropertiesPanel)}
+            >
+              <Settings className="w-4 h-4" />
+            </Button>
+          </div>
+
+          {/* Workflow Progress */}
+          <div className="space-y-2">
+            <div className="flex items-center justify-between">
+              <span className="text-xs font-medium text-gray-600">Design Studio Workflow</span>
+              {workflowActive && (
+                <Badge variant="secondary" className="text-xs bg-green-100 text-green-700">
+                  Active: {workflowStage}
+                </Badge>
+              )}
+            </div>
+            <div className="flex space-x-1">
+              {agents.map((agent, index) => (
+                <div
+                  key={agent.id}
+                  className={`flex-1 h-2 rounded-full ${
+                    agent.id === currentAgent.id
+                      ? agent.color
+                      : agents.findIndex(a => a.id === currentAgent.id) > index
+                      ? 'bg-gray-400'
+                      : 'bg-gray-200'
+                  }`}
+                />
+              ))}
+            </div>
+            <div className="flex justify-between text-xs text-gray-500">
+              {agents.map(agent => (
+                <span key={agent.id} className={agent.id === currentAgent.id ? 'font-medium text-black' : ''}>
+                  {agent.name}
+                </span>
+              ))}
             </div>
           </div>
-          <Button
-            variant={showPropertiesPanel ? "default" : "outline"}
-            size="sm"
-            onClick={() => setShowPropertiesPanel(!showPropertiesPanel)}
-          >
-            <Settings className="w-4 h-4" />
-          </Button>
+
+          {/* Quick Workflow Starters */}
+          {!workflowActive && (
+            <div className="mt-3 space-y-1">
+              <div className="text-xs font-medium text-gray-600 mb-2">Quick Start Workflows:</div>
+              <div className="grid grid-cols-1 gap-1">
+                <Button
+                  variant="outline"
+                  size="sm"
+                  className="text-xs h-7 justify-start"
+                  onClick={() => startWorkflow("Create a new landing page design and implement it")}
+                >
+                  🎨 New Landing Page
+                </Button>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  className="text-xs h-7 justify-start"
+                  onClick={() => startWorkflow("Design and build a pricing section")}
+                >
+                  💰 Pricing Section
+                </Button>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  className="text-xs h-7 justify-start"
+                  onClick={() => startWorkflow("Create an image gallery component")}
+                >
+                  🖼️ Image Gallery
+                </Button>
+              </div>
+            </div>
+          )}
         </div>
 
         {/* Tabs for Chat, Gallery, and Flatlay Library */}
@@ -516,20 +727,34 @@ export function OptimizedVisualEditor({ className = '' }: OptimizedVisualEditorP
               {chatMessages.length === 0 && (
                 <div className="text-center text-gray-500 text-sm">
                   <div className="mb-2">💬</div>
-                  <div>Start chatting with Victoria!</div>
-                  <div className="text-xs">Ask for design help, code changes, or content updates.</div>
+                  <div>Start chatting with {currentAgent.name}!</div>
+                  <div className="text-xs">Ask for {currentAgent.workflowStage.toLowerCase()}, upload images, or start a workflow.</div>
                 </div>
               )}
               
-              {chatMessages.map((message, index) => (
+              {chatMessages.map((message, index) => {
+                const agent = message.agentName ? agents.find(a => a.id === message.agentName) : null;
+                return (
                 <div
                   key={index}
                   className={`${
                     message.type === 'user' 
                       ? 'ml-4 bg-black text-white' 
+                      : message.isHandoff
+                      ? 'mx-2 bg-blue-50 border border-blue-200 text-blue-900'
                       : 'mr-4 bg-gray-100 text-gray-900'
                   } p-3 rounded-lg text-sm`}
                 >
+                  {/* Agent Name Header */}
+                  {agent && !message.isHandoff && (
+                    <div className="flex items-center space-x-2 mb-2 pb-2 border-b border-gray-200">
+                      <div className={`w-4 h-4 ${agent.color} rounded-full`} />
+                      <span className="font-medium text-xs">{agent.name}</span>
+                      <span className="text-xs text-gray-500">·</span>
+                      <span className="text-xs text-gray-500">{agent.workflowStage}</span>
+                    </div>
+                  )}
+                  
                   {message.content}
                   
                   {/* Generated Image Preview like Maya */}
@@ -586,11 +811,12 @@ export function OptimizedVisualEditor({ className = '' }: OptimizedVisualEditorP
                     </div>
                   )}
                 </div>
-              ))}
+                );
+              })}
               
               {isLoading && (
                 <div className="mr-4 bg-gray-100 text-gray-900 p-3 rounded-lg text-sm">
-                  Victoria is thinking...
+                  {currentAgent.name} is thinking...
                 </div>
               )}
             </div>
@@ -620,7 +846,7 @@ export function OptimizedVisualEditor({ className = '' }: OptimizedVisualEditorP
                 <Input
                   value={messageInput}
                   onChange={(e) => setMessageInput(e.target.value)}
-                  placeholder="Ask Victoria for help or upload inspiration images..."
+                  placeholder={`Ask ${currentAgent.name} for ${currentAgent.workflowStage.toLowerCase()} help or upload inspiration images...`}
                   className="flex-1 text-sm"
                   onKeyPress={(e) => {
                     if (e.key === 'Enter' && !e.shiftKey) {
