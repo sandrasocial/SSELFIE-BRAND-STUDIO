@@ -12,6 +12,8 @@ import { Badge } from '@/components/ui/badge';
 import TestAdminCard from '@/components/admin/TestAdminCard';
 import AdminHero from '@/components/admin/AdminHero';
 import AgentDashboard from '@/components/admin/AgentDashboard';
+import AgentAnalyticsDashboard from '@/components/admin/AgentAnalyticsDashboard';
+import EnhancedAgentCoordination from '@/components/admin/EnhancedAgentCoordination';
 
 // Agent Configuration for the visual cards
 const AGENT_CONFIGS = [
@@ -83,6 +85,7 @@ const AGENT_CONFIGS = [
 export default function AdminDashboard() {
   const { user, isAuthenticated, isLoading } = useAuth();
   const [, setLocation] = useLocation();
+  const [activeTab, setActiveTab] = useState('dashboard');
   const queryClientInstance = useQueryClient();
 
   // Redirect if not admin
@@ -153,9 +156,24 @@ export default function AdminDashboard() {
               <div className="font-serif text-lg tracking-wide">SANDRA COMMAND</div>
             </Link>
             <div className="flex space-x-6">
-              <Link href="/sandra-command" className="text-sm uppercase tracking-wide hover:text-gray-300">
+              <button 
+                onClick={() => setActiveTab('dashboard')}
+                className={`text-sm uppercase tracking-wide hover:text-gray-300 ${activeTab === 'dashboard' ? 'text-white border-b border-white' : ''}`}
+              >
                 Dashboard
-              </Link>
+              </button>
+              <button 
+                onClick={() => setActiveTab('analytics')}
+                className={`text-sm uppercase tracking-wide hover:text-gray-300 ${activeTab === 'analytics' ? 'text-white border-b border-white' : ''}`}
+              >
+                Analytics
+              </button>
+              <button 
+                onClick={() => setActiveTab('coordination')}
+                className={`text-sm uppercase tracking-wide hover:text-gray-300 ${activeTab === 'coordination' ? 'text-white border-b border-white' : ''}`}
+              >
+                Coordination
+              </button>
               <Link href="/visual-editor" className="text-sm uppercase tracking-wide hover:text-gray-300">
                 Visual Editor
               </Link>
@@ -175,12 +193,27 @@ export default function AdminDashboard() {
       {/* Content */}
       <div className="pt-4">
         <div className="max-w-7xl mx-auto px-6 py-8">
-          {/* File Creation Test */}
-          <TestAdminCard />
-          <AdminHero />
-          <AgentDashboard />
+          {/* Conditional Tab Content */}
+          {activeTab === 'dashboard' && (
+            <>
+              {/* File Creation Test */}
+              <TestAdminCard />
+              <AdminHero />
+              <AgentDashboard />
+            </>
+          )}
           
-          {/* Business Metrics */}
+          {activeTab === 'analytics' && (
+            <AgentAnalyticsDashboard />
+          )}
+          
+          {activeTab === 'coordination' && (
+            <EnhancedAgentCoordination />
+          )}
+          
+          {activeTab === 'dashboard' && (
+            <>
+              {/* Business Metrics */}
           <section className="mb-12">
             <h2 className="font-serif text-2xl mb-6">Business Overview</h2>
             {statsLoading ? (
@@ -342,6 +375,8 @@ export default function AdminDashboard() {
               )}
             </div>
           </section>
+            </>
+          )}
         </div>
       </div>
     </div>

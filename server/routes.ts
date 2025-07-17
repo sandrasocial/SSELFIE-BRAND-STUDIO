@@ -4332,6 +4332,11 @@ FOR VICTORIA SPECIFICALLY: When asked about redesigning "sandra-command page", u
     const { default: agentCodebaseRoutes } = await import('./routes/agent-codebase-routes');
     app.use('/api/admin', agentCodebaseRoutes);
     console.log('✅ Agent codebase routes registered');
+
+    // Agent analytics routes (Phase 2)
+    const agentAnalyticsRoutes = (await import('./routes/agent-analytics-routes')).default;
+    app.use('/api/admin', agentAnalyticsRoutes);
+    console.log('✅ Agent analytics routes registered');
   } catch (error) {
     console.log('⚠️ Agent codebase routes not available:', error.message);
   }
