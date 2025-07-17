@@ -740,9 +740,9 @@ export function OptimizedVisualEditor({ className = '' }: OptimizedVisualEditorP
             <TabsTrigger value="flatlays" className="text-xs">Flatlays</TabsTrigger>
           </TabsList>
 
-          <TabsContent value="chat" className="flex-1 flex flex-col mt-0">
+          <TabsContent value="chat" className="flex-1 flex flex-col mt-0 min-h-0">
             {/* Chat Messages - Expanded Space */}
-            <div className="flex-1 overflow-y-auto p-1 md:p-2 space-y-1 md:space-y-2" style={{ minHeight: '300px' }}>
+            <div className="flex-1 overflow-y-auto p-1 md:p-2 space-y-1 md:space-y-2">
               {chatMessages.length === 0 && (
                 <div className="text-center text-gray-500 text-sm">
                   <div className="mb-2">Chat</div>
@@ -840,10 +840,10 @@ export function OptimizedVisualEditor({ className = '' }: OptimizedVisualEditorP
               )}
             </div>
 
-            {/* Chat Input with Upload - Multi-line */}
-            <div className="px-1 py-0.5 border-t border-gray-200">
-              <div className="flex space-x-1">
-                <div className="flex flex-col space-y-1">
+            {/* Chat Input with Upload - Compact at bottom */}
+            <div className="flex-shrink-0 px-1 py-0.5 border-t border-gray-200">
+              <div className="flex space-x-1 items-end">
+                <div className="flex flex-col">
                   <input
                     ref={fileInputRef}
                     type="file"
@@ -856,8 +856,8 @@ export function OptimizedVisualEditor({ className = '' }: OptimizedVisualEditorP
                     variant="outline"
                     size="sm"
                     onClick={() => fileInputRef.current?.click()}
-                    className="px-3 border-black text-black hover:bg-black hover:text-white"
-                    title="Upload inspiration images"
+                    className="px-2 py-1 border-black text-black hover:bg-black hover:text-white"
+                    title="Upload images"
                   >
                     <Paperclip className="w-3 h-3" />
                   </Button>
@@ -865,9 +865,9 @@ export function OptimizedVisualEditor({ className = '' }: OptimizedVisualEditorP
                 <Textarea
                   value={messageInput}
                   onChange={(e) => setMessageInput(e.target.value)}
-                  placeholder={`Ask ${currentAgent.name} for ${currentAgent.workflowStage.toLowerCase()} help or upload inspiration images...`}
-                  className="flex-1 text-sm md:text-sm text-xs resize-none border border-gray-200 p-2 rounded"
-                  rows={3}
+                  placeholder={`Ask ${currentAgent.name} for help...`}
+                  className="flex-1 text-xs resize-none border border-gray-200 px-2 py-1 rounded min-h-[2rem] max-h-[4rem]"
+                  rows={2}
                   onKeyPress={(e) => {
                     if (e.key === 'Enter' && !e.shiftKey) {
                       e.preventDefault();
@@ -877,7 +877,7 @@ export function OptimizedVisualEditor({ className = '' }: OptimizedVisualEditorP
                 />
                 <Button
                   size="sm"
-                  className="bg-black text-white hover:bg-gray-800 self-end"
+                  className="bg-black text-white hover:bg-gray-800 px-2 py-1 text-xs"
                   onClick={() => sendMessage(messageInput)}
                   disabled={!messageInput.trim() || isLoading}
                 >
