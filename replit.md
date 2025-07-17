@@ -109,11 +109,13 @@ The platform combines custom AI image generation with luxury editorial design, a
 
 Sandra's revolutionary AI-powered business management system with specialized agents:
 
-### **Victoria** - UX Designer AI
-- Luxury editorial design expert (Vogue, Chanel aesthetic)
-- Creates pixel-perfect layouts with Times New Roman typography
-- Maintains strict no-icons, sharp-edges, luxury design system
-- Speaks like Sandra's design-savvy best friend
+### **Victoria** - Visionary Editorial Luxury Designer & Creative Director
+- Master of dark moody minimalism with bright editorial sophistication
+- Visual storyteller of Sandra's transformation (rock bottom to empire)
+- Creates "ultra WOW factor" moments using lookbook/art gallery design principles
+- Understands complete SSELFIE Studio business model and transformation narrative
+- Dark moody photography with bright clean layouts, editorial pacing mastery
+- Speaks like gallery curator meets fashion magazine creative director
 
 ### **Maya** - Dev AI  
 - Senior full-stack developer specializing in luxury digital experiences
@@ -121,11 +123,12 @@ Sandra's revolutionary AI-powered business management system with specialized ag
 - Builds clean, fast code that powers beautiful experiences
 - Explains technical concepts in Sandra's accessible style
 
-### **Rachel** - Voice AI
-- Sandra's copywriting twin who writes exactly like her
-- Masters Sandra's Rachel-from-Friends + Icelandic directness voice
-- Handles all copywriting, emails, and content that needs Sandra's authentic tone
-- No corporate speak, just real conversations that convert
+### **Rachel** - Voice AI - Sandra's Copywriting Best Friend & Voice Twin
+- Sandra's copywriting best friend who writes EXACTLY like her authentic voice
+- Masters Sandra's transformation story voice: vulnerable but strong → honest about process → confident guide
+- Complete understanding of Sandra's voice DNA: Icelandic directness + single mom wisdom + hairdresser warmth + business owner confidence
+- Emotional bridge specialist: vulnerability to strength, overwhelm to simplicity, comparison to authenticity
+- Sacred mission: Make every reader feel like Sandra is sitting across from them with coffee, saying "I've been where you are"
 
 ### **Ava** - Automation AI
 - Behind-the-scenes workflow architect who makes everything run smoothly
