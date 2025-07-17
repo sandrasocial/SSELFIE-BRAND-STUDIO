@@ -612,7 +612,7 @@ export function OptimizedVisualEditor({ className = '' }: OptimizedVisualEditorP
               </div>
             )}
         {/* Chat Header with Agent Workflow - Desktop Optimized */}
-        <div className="p-6 border-b border-gray-200">
+        <div className="p-4 border-b border-gray-200 shrink-0">
           <div className="flex items-center justify-between mb-4">
             <div className="flex items-center space-x-3">
               <div className="w-10 h-10 bg-black flex items-center justify-center rounded">
@@ -772,7 +772,8 @@ export function OptimizedVisualEditor({ className = '' }: OptimizedVisualEditorP
             {/* Chat Messages - Optimized Space Usage */}
             <div 
               ref={chatMessagesRef}
-              className="flex-1 overflow-y-auto p-4 space-y-3 chat-scroll min-h-0"
+              className="flex-1 overflow-y-auto p-4 space-y-3 chat-scroll"
+              style={{ minHeight: '200px' }}
             >
               {chatMessages.length === 0 && (
                 <div className="text-center text-gray-500 py-8">
@@ -871,7 +872,7 @@ export function OptimizedVisualEditor({ className = '' }: OptimizedVisualEditorP
             </div>
 
             {/* Chat Input with Upload - Desktop Optimized */}
-            <div className="p-4 border-t border-gray-200 bg-white shrink-0">
+            <div className="p-3 border-t border-gray-200 bg-white shrink-0">
               <div className="flex space-x-3">
                 <div className="flex items-center space-x-2">
                   <input
