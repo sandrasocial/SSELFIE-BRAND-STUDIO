@@ -748,18 +748,11 @@ export function OptimizedVisualEditor({ className = '' }: OptimizedVisualEditorP
               </div>
             </div>
 
-            {/* Chat Messages - Manual Scrolling Enabled */}
+            {/* Chat Messages - Manual Scrolling Fixed */}
             <div 
               ref={chatMessagesRef}
-              className="flex-1 overflow-y-scroll p-4 space-y-3 chat-scroll" 
-              style={{ 
-                maxHeight: 'calc(100vh - 650px)', 
-                minHeight: '250px',
-                overflowY: 'scroll',
-                scrollBehavior: 'smooth',
-                scrollbarWidth: 'thin',
-                scrollbarColor: '#d1d5db #f3f4f6'
-              }}
+              className="flex-1 overflow-y-auto p-4 space-y-3 chat-scroll" 
+              style={{ maxHeight: 'calc(100vh - 400px)' }}
             >
               {chatMessages.length === 0 && (
                 <div className="text-center text-gray-500 text-sm">
