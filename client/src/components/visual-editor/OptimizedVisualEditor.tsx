@@ -19,7 +19,9 @@ import {
   Image,
   Heart,
   Star,
-  Sparkles
+  Sparkles,
+  Upload,
+  Paperclip
 } from 'lucide-react';
 import { apiRequest } from '@/lib/queryClient';
 import { useToast } from '@/hooks/use-toast';
@@ -30,6 +32,7 @@ interface ChatMessage {
   content: string;
   timestamp: Date;
   imagePreview?: string[];
+  uploadedImages?: string[];
 }
 
 interface AIImage {
@@ -73,7 +76,11 @@ export function OptimizedVisualEditor({ className = '' }: OptimizedVisualEditorP
   const [customCSSClass, setCustomCSSClass] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [selectedImages, setSelectedImages] = useState<string[]>([]);
+  const [uploadedFiles, setUploadedFiles] = useState<File[]>([]);
+  const [isDragOver, setIsDragOver] = useState(false);
   const iframeRef = useRef<HTMLIFrameElement>(null);
+  const fileInputRef = useRef<HTMLInputElement>(null);
+  const chatPanelRef = useRef<HTMLDivElement>(null);
   const { toast } = useToast();
 
   // Fetch user's AI gallery
@@ -254,7 +261,73 @@ export function OptimizedVisualEditor({ className = '' }: OptimizedVisualEditorP
     checkStatus();
   };
 
-  // Send message to Victoria
+  // Handle file upload
+  const handleFileUpload = async (files: FileList | null) => {
+    if (!files || files.length === 0) return;
+
+    const imageFiles = Array.from(files).filter(file => 
+      file.type.startsWith('image/')
+    );
+
+    if (imageFiles.length === 0) {
+      toast({
+        title: 'Invalid Files',
+        description: 'Please upload image files only.',
+        variant: 'destructive',
+      });
+      return;
+    }
+
+    // Convert images to base64 for preview
+    const imageUrls: string[] = [];
+    const promises = imageFiles.map(file => {
+      return new Promise<void>((resolve) => {
+        const reader = new FileReader();
+        reader.onload = (e) => {
+          if (e.target?.result) {
+            imageUrls.push(e.target.result as string);
+          }
+          resolve();
+        };
+        reader.readAsDataURL(file);
+      });
+    });
+
+    await Promise.all(promises);
+    
+    // Show upload preview message
+    const uploadMessage: ChatMessage = {
+      type: 'user',
+      content: `I've uploaded ${imageFiles.length} inspiration image${imageFiles.length > 1 ? 's' : ''} for you to analyze.`,
+      timestamp: new Date(),
+      uploadedImages: imageUrls
+    };
+    
+    setChatMessages(prev => [...prev, uploadMessage]);
+    
+    // Send to Victoria with image context
+    const contextMessage = `I've just uploaded ${imageFiles.length} inspiration image${imageFiles.length > 1 ? 's' : ''} for you to analyze. Please analyze the style, colors, composition, and design elements. Use these as inspiration for our design work.`;
+    sendMessage(contextMessage);
+  };
+
+  // Drag and drop handlers
+  const handleDragOver = (e: React.DragEvent) => {
+    e.preventDefault();
+    setIsDragOver(true);
+  };
+
+  const handleDragLeave = (e: React.DragEvent) => {
+    e.preventDefault();
+    setIsDragOver(false);
+  };
+
+  const handleDrop = (e: React.DragEvent) => {
+    e.preventDefault();
+    setIsDragOver(false);
+    handleFileUpload(e.dataTransfer.files);
+  };
+
+  // Send message to Victoria with conversation memory
   const sendMessage = async (message: string) => {
     if (!message.trim()) return;
 
@@ -269,13 +342,16 @@ export function OptimizedVisualEditor({ className = '' }: OptimizedVisualEditorP
     setIsLoading(true);
 
     try {
+      // Get conversation history for Victoria to learn and improve
+      const conversationHistory = chatMessages.map(msg => ({
+        type: msg.type === 'user' ? 'human' : 'assistant',
+        content: msg.content
+      }));
+
       const response = await apiRequest('POST', '/api/admin/agent-chat-bypass', {
-        agentId: 'victoria',
+        agentName: 'victoria',
         message: message,
-        conversationHistory: chatMessages.map(msg => ({
-          type: msg.type === 'user' ? 'human' : 'assistant',
-          content: msg.content
-        }))
+        conversationHistory: conversationHistory
       });
 
       const data = await response.json();
@@ -347,7 +423,22 @@ export function OptimizedVisualEditor({ className = '' }: OptimizedVisualEditorP
       <PanelGroup direction="horizontal" className="h-full">
         {/* Chat Panel - Resizable */}
         <Panel defaultSize={30} minSize={20} maxSize={50}>
-          <div className="h-full border-r border-gray-200 bg-white flex flex-col">
+          <div 
+            ref={chatPanelRef}
+            className={`h-full border-r border-gray-200 bg-white flex flex-col ${isDragOver ? 'bg-blue-50 border-blue-300' : ''}`}
+            onDragOver={handleDragOver}
+            onDragLeave={handleDragLeave}
+            onDrop={handleDrop}
+          >
+            {isDragOver && (
+              <div className="absolute inset-0 bg-blue-50 bg-opacity-90 flex items-center justify-center z-50 border-2 border-dashed border-blue-300">
+                <div className="text-center">
+                  <Upload className="w-8 h-8 text-blue-500 mx-auto mb-2" />
+                  <div className="text-blue-700 font-medium">Drop inspiration images here</div>
+                  <div className="text-blue-600 text-sm">Victoria will analyze them for you</div>
+                </div>
+              </div>
+            )}
         {/* Chat Header */}
         <div className="p-4 border-b border-gray-200 flex items-center justify-between">
           <div className="flex items-center space-x-2">
@@ -441,7 +532,7 @@ export function OptimizedVisualEditor({ className = '' }: OptimizedVisualEditorP
                 >
                   {message.content}
                   
-                  {/* Image Preview like Maya */}
+                  {/* Generated Image Preview like Maya */}
                   {message.imagePreview && message.imagePreview.length > 0 && (
                     <div className="mt-3 space-y-2">
                       <div className="text-xs opacity-70">Generated Images:</div>
@@ -451,6 +542,33 @@ export function OptimizedVisualEditor({ className = '' }: OptimizedVisualEditorP
                             <img
                               src={imageUrl}
                               alt={`Generated image ${imgIndex + 1}`}
+                              className="w-full h-24 object-cover rounded border"
+                              loading="lazy"
+                            />
+                            <div className="absolute inset-0 bg-black bg-opacity-0 group-hover:bg-opacity-30 transition-opacity rounded flex items-center justify-center">
+                              <button
+                                className="opacity-0 group-hover:opacity-100 text-white text-xs bg-black bg-opacity-50 px-2 py-1 rounded transition-opacity"
+                                onClick={() => window.open(imageUrl, '_blank')}
+                              >
+                                View Full
+                              </button>
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+
+                  {/* Uploaded Images Preview */}
+                  {message.uploadedImages && message.uploadedImages.length > 0 && (
+                    <div className="mt-3 space-y-2">
+                      <div className="text-xs opacity-70">Uploaded Images:</div>
+                      <div className="grid grid-cols-2 gap-2">
+                        {message.uploadedImages.map((imageUrl, imgIndex) => (
+                          <div key={imgIndex} className="relative group">
+                            <img
+                              src={imageUrl}
+                              alt={`Uploaded image ${imgIndex + 1}`}
                               className="w-full h-24 object-cover rounded border"
                               loading="lazy"
                             />
@@ -477,13 +595,32 @@ export function OptimizedVisualEditor({ className = '' }: OptimizedVisualEditorP
               )}
             </div>
 
-            {/* Chat Input */}
+            {/* Chat Input with Upload */}
             <div className="p-4 border-t border-gray-200">
               <div className="flex space-x-2">
+                <div className="flex items-center space-x-1">
+                  <input
+                    ref={fileInputRef}
+                    type="file"
+                    accept="image/*"
+                    multiple
+                    onChange={(e) => handleFileUpload(e.target.files)}
+                    className="hidden"
+                  />
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() => fileInputRef.current?.click()}
+                    className="px-2"
+                    title="Upload inspiration images"
+                  >
+                    <Paperclip className="w-4 h-4" />
+                  </Button>
+                </div>
                 <Input
                   value={messageInput}
                   onChange={(e) => setMessageInput(e.target.value)}
-                  placeholder="Ask Victoria for help..."
+                  placeholder="Ask Victoria for help or upload inspiration images..."
                   className="flex-1 text-sm"
                   onKeyPress={(e) => {
                     if (e.key === 'Enter' && !e.shiftKey) {
