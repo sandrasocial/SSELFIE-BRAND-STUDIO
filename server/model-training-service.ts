@@ -307,6 +307,15 @@ export class ModelTrainingService {
     }
   }
 
+  // Generate images using custom prompt - wrapper for backward compatibility
+  static async generateCustomPrompt(
+    userId: string,
+    customPrompt: string,
+    count: number = 4
+  ): Promise<{ images: string[]; generatedImageId?: number; predictionId?: string }> {
+    return this.generateUserImages(userId, customPrompt, count);
+  }
+
   // Convert category/subcategory to professional prompt using templates
   static getPromptFromCategorySubcategory(category: string, subcategory: string): string {
     const categoryLower = category.toLowerCase();
