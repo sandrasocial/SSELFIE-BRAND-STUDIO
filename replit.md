@@ -596,6 +596,14 @@ The platform has become overly complex with multiple pricing tiers, broken onboa
 - **Training Completion Enhanced**: Automatic trigger word storage when training completes (both by training ID and model name)
 - **Error Messages**: Clear user-facing messages when requirements not met (training incomplete, missing trigger word, etc.)
 
+### ✅ VERIFIED MODEL IDS CONFIGURATION (July 17, 2025)
+**CONFIRMED CORRECT MODEL IDS IN SYSTEM:**
+- **Training Model ID**: 26dce37af90b9d997eeb970d92e47de3064d46c300504ae376c75bef6a9022d2 (✅ CORRECT)
+- **Generation Architecture**: Individual user models only (sandrasocial/{userId}-selfie-lora:{versionId})
+- **Zero Fallbacks Policy**: Users ONLY use their trained models - NO exceptions, NO fallbacks ever
+- **Architecture Validator**: enforceZeroTolerance() method prevents any fallback usage
+- **Error Handling**: Clear error messages when user model not ready - "User must train their AI model before generating images. No fallback models allowed."
+
 **Technical Implementation**:
 - Created `generation-validator.ts` with comprehensive user model validation
 - Enhanced training completion monitor to store trigger words automatically
