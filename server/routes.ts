@@ -3470,6 +3470,10 @@ Consider this workflow optimized and ready for implementation! ⚙️`
         const personality = getAgentPersonality(agentId);
         
         // Use Anthropic AI for real responses
+        if (!process.env.ANTHROPIC_API_KEY) {
+          throw new Error('ANTHROPIC_API_KEY not configured');
+        }
+        
         const anthropic = await import('@anthropic-ai/sdk');
         const client = new anthropic.default({
           apiKey: process.env.ANTHROPIC_API_KEY,
@@ -3518,7 +3522,8 @@ If Sandra asks you to create a file or implement code, respond enthusiastically 
           content: message
         });
 
-        console.log(`💬 Conversation with ${agentId}: ${messages.length} messages (${conversationHistory ? conversationHistory.length : 0} from history + 1 current)`);
+        const historyCount = conversationHistory && Array.isArray(conversationHistory) ? conversationHistory.length : 0;
+        console.log(`💬 Conversation with ${agentId}: ${messages.length} messages (${historyCount} from history + 1 current)`);
 
         const completion = await client.messages.create({
           model: "claude-sonnet-4-20250514",
@@ -3527,7 +3532,7 @@ If Sandra asks you to create a file or implement code, respond enthusiastically 
           messages: messages,
         });
 
-        const aiResponse = completion.content[0].text;
+        const aiResponse = completion.content[0]?.text || 'Agent response not available';
         console.log('✅ Real AI response generated');
 
         return res.json({

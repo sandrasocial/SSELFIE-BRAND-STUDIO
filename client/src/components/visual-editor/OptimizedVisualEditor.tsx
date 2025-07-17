@@ -477,13 +477,24 @@ export function OptimizedVisualEditor({ className = '' }: OptimizedVisualEditorP
         // Auto-apply changes based on agent type
         const responseText = data.message || data.response;
         if (agentId === 'victoria') {
+          // Look for CSS injection patterns
           const cssMatch = responseText.match(/```css\n([\s\S]*?)\n```/);
           if (cssMatch) {
+            console.log('🎨 Victoria provided CSS changes:', cssMatch[1]);
             injectChangesToLivePreview(cssMatch[1]);
-            toast({
-              title: 'Victoria Applied Changes',
-              description: 'Design updates applied to live preview',
-            });
+          }
+          
+          // Look for HTML/component changes
+          const htmlMatch = responseText.match(/```html\n([\s\S]*?)\n```/);
+          if (htmlMatch) {
+            console.log('🏗️ Victoria provided HTML changes:', htmlMatch[1]);
+            // Could inject HTML changes here if needed
+          }
+          
+          // Look for component creation requests
+          if (responseText.toLowerCase().includes('create') && 
+              (responseText.toLowerCase().includes('component') || responseText.toLowerCase().includes('file'))) {
+            console.log('📁 Victoria wants to create a component - this will trigger file creation');
           }
         }
 
