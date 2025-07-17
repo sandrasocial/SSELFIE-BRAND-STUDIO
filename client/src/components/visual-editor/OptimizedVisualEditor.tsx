@@ -583,8 +583,8 @@ export function OptimizedVisualEditor({ className = '' }: OptimizedVisualEditorP
   return (
     <div className={`h-screen bg-white ${className}`}>
       <PanelGroup direction="horizontal" className="h-full">
-        {/* Chat Panel - Resizable */}
-        <Panel defaultSize={30} minSize={20} maxSize={50}>
+        {/* Chat Panel - Optimized for Desktop */}
+        <Panel defaultSize={35} minSize={25} maxSize={55}>
           <div 
             ref={chatPanelRef}
             className={`h-full border-r border-gray-200 bg-white flex flex-col ${isDragOver ? 'bg-blue-50 border-blue-300' : ''}`}
@@ -601,16 +601,16 @@ export function OptimizedVisualEditor({ className = '' }: OptimizedVisualEditorP
                 </div>
               </div>
             )}
-        {/* Chat Header with Agent Workflow */}
-        <div className="p-4 border-b border-gray-200">
-          <div className="flex items-center justify-between mb-3">
-            <div className="flex items-center space-x-2">
-              <div className="w-8 h-8 bg-black flex items-center justify-center">
-                <span className="text-white text-sm font-medium">{currentAgent.name[0]}</span>
+        {/* Chat Header with Agent Workflow - Desktop Optimized */}
+        <div className="p-6 border-b border-gray-200">
+          <div className="flex items-center justify-between mb-4">
+            <div className="flex items-center space-x-3">
+              <div className="w-10 h-10 bg-black flex items-center justify-center rounded">
+                <span className="text-white text-base font-medium">{currentAgent.name[0]}</span>
               </div>
               <div>
-                <div className="font-medium text-sm">{currentAgent.name}</div>
-                <div className="text-xs text-gray-500">{currentAgent.role}</div>
+                <div className="font-medium text-base">{currentAgent.name}</div>
+                <div className="text-sm text-gray-500">{currentAgent.role}</div>
               </div>
             </div>
             <Button
@@ -623,21 +623,21 @@ export function OptimizedVisualEditor({ className = '' }: OptimizedVisualEditorP
             </Button>
           </div>
 
-          {/* Workflow Progress */}
-          <div className="space-y-2">
+          {/* Workflow Progress - Desktop Optimized */}
+          <div className="space-y-3">
             <div className="flex items-center justify-between">
-              <span className="text-xs font-medium text-gray-600">Design Studio Workflow</span>
+              <span className="text-sm font-medium text-gray-600">Design Studio Workflow</span>
               {workflowActive && (
                 <Badge variant="secondary" className="text-xs bg-gray-100 text-black border border-gray-300">
                   Active: {workflowStage}
                 </Badge>
               )}
             </div>
-            <div className="flex space-x-1">
+            <div className="flex space-x-2">
               {agents.map((agent, index) => (
                 <div
                   key={agent.id}
-                  className={`flex-1 h-2 ${
+                  className={`flex-1 h-3 rounded ${
                     agent.id === currentAgent.id
                       ? 'bg-black'
                       : agents.findIndex(a => a.id === currentAgent.id) > index
@@ -647,7 +647,7 @@ export function OptimizedVisualEditor({ className = '' }: OptimizedVisualEditorP
                 />
               ))}
             </div>
-            <div className="flex justify-between text-xs text-gray-500">
+            <div className="flex justify-between text-sm text-gray-500">
               {agents.map(agent => (
                 <span key={agent.id} className={agent.id === currentAgent.id ? 'font-medium text-black' : ''}>
                   {agent.name}
@@ -692,23 +692,23 @@ export function OptimizedVisualEditor({ className = '' }: OptimizedVisualEditorP
 
         {/* Tabs for Chat, Gallery, and Flatlay Library */}
         <Tabs value={activeTab} onValueChange={setActiveTab} className="flex-1 flex flex-col">
-          <TabsList className="grid w-full grid-cols-3 mx-4 mt-4">
-            <TabsTrigger value="chat" className="text-xs">Chat</TabsTrigger>
-            <TabsTrigger value="gallery" className="text-xs">Gallery</TabsTrigger>
-            <TabsTrigger value="flatlays" className="text-xs">Flatlays</TabsTrigger>
+          <TabsList className="grid w-full grid-cols-3 mx-6 mt-4">
+            <TabsTrigger value="chat" className="text-sm">Chat</TabsTrigger>
+            <TabsTrigger value="gallery" className="text-sm">Gallery</TabsTrigger>
+            <TabsTrigger value="flatlays" className="text-sm">Flatlays</TabsTrigger>
           </TabsList>
 
           <TabsContent value="chat" className="flex-1 flex flex-col mt-0 h-full">
-            {/* Quick Commands */}
-            <div className="p-4 border-b border-gray-200">
-              <h4 className="font-medium text-sm mb-3">Quick Commands</h4>
-              <div className="space-y-2">
+            {/* Quick Commands - Desktop Optimized */}
+            <div className="p-6 border-b border-gray-200">
+              <h4 className="font-medium text-base mb-4">Quick Commands</h4>
+              <div className="space-y-3">
                 {quickCommands.map((command, index) => (
                   <Button
                     key={index}
                     variant="outline"
                     size="sm"
-                    className="w-full justify-start text-xs"
+                    className="w-full justify-start text-sm h-11"
                     onClick={() => {
                       if (command.styles) {
                         injectChangesToLivePreview(command.styles);
@@ -746,7 +746,7 @@ export function OptimizedVisualEditor({ className = '' }: OptimizedVisualEditorP
             <div 
               ref={chatMessagesRef}
               className="flex-1 overflow-y-auto p-4 space-y-3" 
-              style={{ maxHeight: 'calc(100vh - 600px)', minHeight: '200px' }}
+              style={{ maxHeight: 'calc(100vh - 650px)', minHeight: '250px' }}
             >
               {chatMessages.length === 0 && (
                 <div className="text-center text-gray-500 text-sm">
@@ -845,10 +845,10 @@ export function OptimizedVisualEditor({ className = '' }: OptimizedVisualEditorP
               )}
             </div>
 
-            {/* Chat Input with Upload - Always Visible */}
-            <div className="p-4 border-t border-gray-200 bg-white">
-              <div className="flex space-x-2">
-                <div className="flex items-center space-x-1">
+            {/* Chat Input with Upload - Desktop Optimized */}
+            <div className="p-6 border-t border-gray-200 bg-white">
+              <div className="flex space-x-3">
+                <div className="flex items-center space-x-2">
                   <input
                     ref={fileInputRef}
                     type="file"
@@ -859,9 +859,9 @@ export function OptimizedVisualEditor({ className = '' }: OptimizedVisualEditorP
                   />
                   <Button
                     variant="outline"
-                    size="sm"
+                    size="default"
                     onClick={() => fileInputRef.current?.click()}
-                    className="px-2 border-black text-black hover:bg-black hover:text-white"
+                    className="px-4 border-black text-black hover:bg-black hover:text-white"
                     title="Upload inspiration images"
                   >
                     Upload
@@ -871,7 +871,7 @@ export function OptimizedVisualEditor({ className = '' }: OptimizedVisualEditorP
                   value={messageInput}
                   onChange={(e) => setMessageInput(e.target.value)}
                   placeholder={`Ask ${currentAgent.name} for ${currentAgent.workflowStage.toLowerCase()} help or upload inspiration images...`}
-                  className="flex-1 text-sm border-2 border-black focus:border-black focus:ring-black"
+                  className="flex-1 text-base h-10 border-2 border-black focus:border-black focus:ring-black"
                   onKeyPress={(e) => {
                     if (e.key === 'Enter' && !e.shiftKey) {
                       e.preventDefault();
@@ -880,12 +880,12 @@ export function OptimizedVisualEditor({ className = '' }: OptimizedVisualEditorP
                   }}
                 />
                 <Button
-                  size="sm"
-                  className="bg-black text-white hover:bg-gray-800"
+                  size="default"
+                  className="bg-black text-white hover:bg-gray-800 px-6"
                   onClick={() => sendMessage(messageInput)}
                   disabled={!messageInput.trim() || isLoading}
                 >
-                  <span className="text-sm">Send</span>
+                  <span className="text-base">Send</span>
                 </Button>
               </div>
             </div>
@@ -1029,23 +1029,23 @@ export function OptimizedVisualEditor({ className = '' }: OptimizedVisualEditorP
         {/* Resize Handle */}
         <PanelResizeHandle className="w-2 bg-gray-100 hover:bg-gray-200 transition-colors" />
 
-        {/* Main Live Preview Panel - Resizable */}
-        <Panel defaultSize={70} minSize={30}>
+        {/* Main Live Preview Panel - Optimized for Desktop */}
+        <Panel defaultSize={65} minSize={35}>
           <div className="h-full flex flex-col">
-        {/* Top Toolbar */}
-        <div className="border-b border-gray-200 px-4 py-2 flex items-center justify-between bg-gray-50">
-          <div className="flex items-center space-x-4">
-            <Badge variant="secondary" className="bg-black text-white border-black">
-              <div className="w-2 h-2 bg-white mr-2"></div>
+        {/* Top Toolbar - Desktop Optimized */}
+        <div className="border-b border-gray-200 px-6 py-4 flex items-center justify-between bg-gray-50">
+          <div className="flex items-center space-x-6">
+            <Badge variant="secondary" className="bg-black text-white border-black px-4 py-2">
+              <div className="w-3 h-3 bg-white mr-3 rounded-full"></div>
               LIVE PREVIEW
             </Badge>
           </div>
           
-          <div className="flex items-center space-x-2">
+          <div className="flex items-center space-x-3">
             <Button 
               variant="outline" 
-              size="sm"
-              className="border-black text-black hover:bg-black hover:text-white"
+              size="default"
+              className="border-black text-black hover:bg-black hover:text-white px-6"
               onClick={() => {
                 if (iframeRef.current) {
                   iframeRef.current.src = iframeRef.current.src;
@@ -1054,10 +1054,10 @@ export function OptimizedVisualEditor({ className = '' }: OptimizedVisualEditorP
             >
               Refresh
             </Button>
-            <Button variant="outline" size="sm" className="border-black text-black hover:bg-black hover:text-white">
+            <Button variant="outline" size="default" className="border-black text-black hover:bg-black hover:text-white px-6">
               Save
             </Button>
-            <Button variant="default" size="sm" className="bg-black text-white hover:bg-gray-800">
+            <Button variant="default" size="default" className="bg-black text-white hover:bg-gray-800 px-6">
               Deploy
             </Button>
           </div>
@@ -1093,8 +1093,8 @@ export function OptimizedVisualEditor({ className = '' }: OptimizedVisualEditorP
             <PanelResizeHandle className="w-2 bg-gray-100 hover:bg-gray-200 transition-colors" />
             <Panel defaultSize={30} minSize={15} maxSize={40}>
               <div className="h-full border-l border-gray-200 bg-white flex flex-col">
-                {/* Properties Header */}
-                <div className="p-4 border-b border-gray-200 flex items-center justify-between">
+                {/* Properties Header - Desktop Optimized */}
+                <div className="p-6 border-b border-gray-200 flex items-center justify-between">
                   <h3 className="font-medium text-sm">Properties</h3>
                   <Button
                     variant="ghost"
