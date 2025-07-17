@@ -3491,19 +3491,25 @@ If Sandra asks you to create a file or implement code, respond enthusiastically 
         const messages = [];
         
         // Add conversation history (last 10 messages for context)
-        const recentHistory = conversationHistory.slice(-10);
-        for (const historyItem of recentHistory) {
-          if (historyItem.type === 'user') {
-            messages.push({
-              role: "user",
-              content: historyItem.content
-            });
-          } else if (historyItem.type === 'agent') {
-            messages.push({
-              role: "assistant", 
-              content: historyItem.content
-            });
+        if (conversationHistory && Array.isArray(conversationHistory)) {
+          const recentHistory = conversationHistory.slice(-10);
+          console.log(`📝 Processing ${recentHistory.length} conversation history items`);
+          
+          for (const historyItem of recentHistory) {
+            if (historyItem.type === 'user') {
+              messages.push({
+                role: "user",
+                content: historyItem.content
+              });
+            } else if (historyItem.type === 'agent') {
+              messages.push({
+                role: "assistant", 
+                content: historyItem.content
+              });
+            }
           }
+        } else {
+          console.log('⚠️ No conversation history provided or invalid format');
         }
         
         // Add current message
