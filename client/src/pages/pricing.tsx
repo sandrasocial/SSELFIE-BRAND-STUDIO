@@ -23,18 +23,18 @@ export default function Pricing() {
     // Update meta description
     const metaDescription = document.querySelector('meta[name="description"]');
     if (metaDescription) {
-      metaDescription.setAttribute('content', 'Start FREE with 6 AI images/month or upgrade to SSELFIE Studio (€67/month) for 100 ultra-realistic images + luxury AI models. Maya AI stylist included.');
+      metaDescription.setAttribute('content', 'Start with SSELFIE AI Images (€47 one-time) or upgrade to SSELFIE Studio (€97/month or €147/month) for complete personal branding solution.');
     }
 
     // Update Open Graph tags
     const ogTitle = document.querySelector('meta[property="og:title"]');
     if (ogTitle) {
-      ogTitle.setAttribute('content', 'Pricing - Start FREE or €67/month | SSELFIE Studio Luxury AI');
+      ogTitle.setAttribute('content', 'Pricing - €47 AI Images or €97/€147 Studio | SSELFIE');
     }
 
     const ogDescription = document.querySelector('meta[property="og:description"]');
     if (ogDescription) {
-      ogDescription.setAttribute('content', 'Choose your plan: FREE (6 AI images) or SSELFIE Studio (€67/month, 100 ultra-realistic images). FLUX Pro luxury quality for premium users.');
+      ogDescription.setAttribute('content', 'Choose your plan: SSELFIE AI Images (€47 one-time) or SSELFIE Studio (€97/month or €147/month) for complete personal branding.');
     }
 
     const ogUrl = document.querySelector('meta[property="og:url"]');
@@ -45,12 +45,12 @@ export default function Pricing() {
     // Update Twitter Card tags
     const twitterTitle = document.querySelector('meta[property="twitter:title"]');
     if (twitterTitle) {
-      twitterTitle.setAttribute('content', 'SSELFIE Studio Pricing - Start FREE or €67/month');
+      twitterTitle.setAttribute('content', 'SSELFIE Pricing - €47 AI Images or €97/€147 Studio');
     }
 
     const twitterDescription = document.querySelector('meta[property="twitter:description"]');
     if (twitterDescription) {
-      twitterDescription.setAttribute('content', 'Luxury AI personal branding platform with ultra-realistic FLUX Pro models. Maya AI celebrity stylist included. Start FREE today.');
+      twitterDescription.setAttribute('content', 'AI personal branding platform. Start with €47 AI images or get the full Studio experience from €97/month.');
     }
 
     // Add structured data for pricing
@@ -67,22 +67,32 @@ export default function Pricing() {
       "offers": [
         {
           "@type": "Offer",
-          "name": "FREE Plan",
-          "description": "6 AI images per month with Maya AI photographer chat",
-          "price": "0",
+          "name": "SSELFIE AI Images",
+          "description": "Upload 10-15 selfies, get 30 luxury AI images back",
+          "price": "47",
           "priceCurrency": "EUR",
           "availability": "https://schema.org/InStock",
-          "url": "https://sselfie.ai/pricing",
+          "url": "https://sselfie.ai/ai-images",
           "priceValidUntil": "2025-12-31"
         },
         {
           "@type": "Offer", 
-          "name": "SSELFIE Studio Premium",
-          "description": "100 ultra-realistic AI images per month, FLUX Pro luxury models, unlimited Maya AI chat",
-          "price": "67",
+          "name": "SSELFIE Studio Founding Member",
+          "description": "Everything you need to build your personal brand in 20 minutes",
+          "price": "97",
           "priceCurrency": "EUR",
           "availability": "https://schema.org/InStock",
-          "url": "https://sselfie.ai/checkout",
+          "url": "https://sselfie.ai/studio",
+          "priceValidUntil": "2025-12-31"
+        },
+        {
+          "@type": "Offer", 
+          "name": "SSELFIE Studio Standard",
+          "description": "Full platform access for established personal brands",
+          "price": "147",
+          "priceCurrency": "EUR",
+          "availability": "https://schema.org/InStock",
+          "url": "https://sselfie.ai/studio-standard",
           "priceValidUntil": "2025-12-31"
         }
       ],
