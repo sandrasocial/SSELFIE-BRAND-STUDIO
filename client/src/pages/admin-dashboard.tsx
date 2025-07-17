@@ -146,11 +146,11 @@ export default function AdminDashboard() {
       <nav className="bg-black text-white px-4 py-3">
         <div className="max-w-7xl mx-auto flex items-center justify-between">
           <div className="flex items-center space-x-8">
-            <Link href="/admin">
-              <div className="font-serif text-lg tracking-wide">SSELFIE ADMIN</div>
+            <Link href="/sandra-command">
+              <div className="font-serif text-lg tracking-wide">SANDRA COMMAND</div>
             </Link>
             <div className="flex space-x-6">
-              <Link href="/admin" className="text-sm uppercase tracking-wide hover:text-gray-300">
+              <Link href="/sandra-command" className="text-sm uppercase tracking-wide hover:text-gray-300">
                 Dashboard
               </Link>
               <Link href="/visual-editor" className="text-sm uppercase tracking-wide hover:text-gray-300">
