@@ -11,14 +11,29 @@ const router = Router();
 
 /**
  * ADMIN AUTHENTICATION CHECK
+ * For agent file access - check both user auth and admin token
  */
 const isAdmin = (req: any, res: any, next: any) => {
   try {
+    // Check for admin token from agent system
+    const adminToken = req.headers['x-admin-token'];
+    if (adminToken === process.env.ADMIN_TOKEN) {
+      return next();
+    }
+    
+    // Fallback to user authentication for direct access
     if (!req.user || req.user.claims?.email !== 'ssa@ssasocial.com') {
+      console.log('🔍 AGENT FILE ACCESS AUTH:', {
+        hasUser: !!req.user,
+        email: req.user?.claims?.email,
+        hasAdminToken: !!adminToken,
+        userAgent: req.headers['user-agent']
+      });
       return res.status(403).json({ error: 'Admin access required' });
     }
     next();
   } catch (error) {
+    console.error('Authentication check failed:', error);
     res.status(500).json({ error: 'Authentication check failed' });
   }
 };
