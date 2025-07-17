@@ -597,16 +597,17 @@ The platform has become overly complex with multiple pricing tiers, broken onboa
 - Original value proposition maintained without FLUX Pro complexity
 
 ### ✅ IMAGE GENERATION QUALITY OPTIMIZATION COMPLETED (July 17, 2025)
-**GENERATION PARAMETERS FIXED TO MATCH CORE_ARCHITECTURE_IMMUTABLE_V2.md:**
-- **Root Cause Identified**: Generation parameters not matching architecture specifications causing quality degradation
-- **Model Usage Confirmed**: Both Maya AI and AI Photoshoot correctly use user's individual trained models (no training model contamination)
-- **Parameters Corrected**: guidance (3.5→2.8), num_inference_steps (50→35), output_quality (100→95) for optimal natural results
-- **Architecture Compliance**: Complete user isolation maintained with zero cross-contamination
-- **Quality Improvement**: Images now generated with architecture-specified parameters for professional, natural results
+**GENERATION PARAMETERS FIXED TO MATCH WORKING SUCCESS PATTERN:**
+- **Root Cause Identified**: Generation parameters not matching successful generation ID 352 that created working images
+- **Working Model Version**: Updated database to use b9fab7abf5819f4c99e78d84d9f049b30b5ba7c63407221604030862ae0be927 (proven working)
+- **Restored Working Parameters**: guidance: 3.5, num_inference_steps: 28, num_outputs: 4, output_quality: 90
+- **Simplified Prompt Structure**: Based on successful generation pattern with clean realism base + trigger word + description
+- **Fixed Both Services**: Updated server/ai-service.ts Maya AI and server/image-generation-service.ts AI Photoshoot
+- **Database Updated**: User model now uses exact version that created successful undefined_1752607983217.png image
 
 **Technical Implementation:**
-- Updated server/ai-service.ts Maya AI generation parameters to match CORE_ARCHITECTURE_IMMUTABLE_V2.md
-- Updated server/image-generation-service.ts AI Photoshoot parameters to match CORE_ARCHITECTURE_IMMUTABLE_V2.md
+- Updated server/ai-service.ts Maya AI generation parameters to match working success pattern
+- Updated server/image-generation-service.ts AI Photoshoot parameters to match working success pattern
 - Confirmed userTrainedVersion format: `${userModel.replicateModelId}:${userModel.replicateVersionId}`
 - Verified complete user model isolation with no fallback to shared models
 - Fixed Maya chat image preview system: retroactive update linked 13 completed generations to chat messages

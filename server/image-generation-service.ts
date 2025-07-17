@@ -52,11 +52,7 @@ export async function generateImages(request: GenerateImagesRequest): Promise<Ge
       throw new Error('User LoRA model not found - training may need to be completed');
     }
     
-    // 🔧 FLUX DEV LORA OPTIMAL PROMPT STRUCTURE - For maximum facial likeness
-    const realismBase = `raw photo, visible skin pores, film grain, unretouched natural skin texture, subsurface scattering, photographed on film`;
-    const cameraSpecs = `shot on Canon EOS R5 with 85mm f/1.4 lens`;
-    const naturalQualities = `natural expression, minimal makeup highlighting natural features, authentic skin texture, unprocessed natural beauty`;
-    
+    // 🔧 RESTORED WORKING PROMPT STRUCTURE - Based on successful generation ID 352
     // Clean the custom prompt first
     let cleanPrompt = customPrompt;
     
@@ -64,7 +60,8 @@ export async function generateImages(request: GenerateImagesRequest): Promise<Ge
     cleanPrompt = cleanPrompt.replace(new RegExp(triggerWord, 'gi'), '').trim();
     
     // Remove existing realism terms if present to avoid duplication
-    const existingTerms = ['raw photo', 'film grain', 'visible skin pores', 'unretouched', 'subsurface scattering', 'photographed on film'];
+    const existingTerms = ['raw photo', 'film grain', 'visible skin pores', 'unretouched natural skin texture', 
+                          'subsurface scattering', 'photographed on film'];
     existingTerms.forEach(term => {
       cleanPrompt = cleanPrompt.replace(new RegExp(term, 'gi'), '').trim();
     });
@@ -72,11 +69,10 @@ export async function generateImages(request: GenerateImagesRequest): Promise<Ge
     // Clean up extra commas and spaces
     cleanPrompt = cleanPrompt.replace(/,\s*,/g, ',').replace(/^\s*,\s*|\s*,\s*$/g, '').trim();
     
-    // FLUX LORA OPTIMAL: Single trigger word placement for best results
-    // Structure: realism base + trigger word + user description + camera specs + natural qualities
-    const finalPrompt = `${realismBase}, ${triggerWord}, ${cleanPrompt}, ${cameraSpecs}, natural lighting, ${naturalQualities}`;
+    // 🔧 WORKING STRUCTURE: Realism base + trigger word + clean description (matches successful ID 352)
+    const finalPrompt = `raw photo, visible skin pores, film grain, unretouched natural skin texture, subsurface scattering, photographed on film, ${triggerWord}, ${cleanPrompt}`;
     
-    console.log(`🔧 FLUX LORA OPTIMIZED PROMPT: ${finalPrompt}`);
+    console.log(`🔧 AI PHOTOSHOOT RESTORED WORKING PROMPT: ${finalPrompt}`);
 
     // 🔒 IMMUTABLE CORE ARCHITECTURE - USES USER'S INDIVIDUAL TRAINED MODEL DIRECTLY
     // Each user has their own trained FLUX model version for complete isolation
@@ -102,13 +98,13 @@ export async function generateImages(request: GenerateImagesRequest): Promise<Ge
         version: userTrainedVersion, // 🔒 CRITICAL: User's individual trained model version ONLY
         input: {
           prompt: finalPrompt,
-          guidance: 2.8, // 🔒 CORE_ARCHITECTURE_IMMUTABLE_V2.md: optimal natural results
-          num_inference_steps: 35, // 🔒 CORE_ARCHITECTURE_IMMUTABLE_V2.md: expert quality
-          num_outputs: 3,
-          aspect_ratio: "3:4", // 🔒 CORE_ARCHITECTURE_IMMUTABLE_V2.md: portrait format
+          guidance: 3.5, // 🔧 RESTORED WORKING SETTINGS: Stronger guidance for better likeness
+          num_inference_steps: 28, // 🔧 RESTORED WORKING SETTINGS: Optimal quality/speed balance
+          num_outputs: 4,
+          aspect_ratio: "3:4", 
           output_format: "png",
-          output_quality: 95, // 🔒 CORE_ARCHITECTURE_IMMUTABLE_V2.md: maximum clarity
-          go_fast: false, // 🔒 CORE_ARCHITECTURE_IMMUTABLE_V2.md: quality over speed
+          output_quality: 90, // 🔧 RESTORED WORKING SETTINGS: Balanced quality
+          go_fast: false, 
           disable_safety_checker: false,
           seed: Math.floor(Math.random() * 1000000)
         }

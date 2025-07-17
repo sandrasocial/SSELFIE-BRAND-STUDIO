@@ -190,23 +190,29 @@ export class AIService {
     // Use ONLY user's unique trigger word - NO FALLBACKS
     const triggerWord = userModel.triggerWord;
     
-    // 🔧 FLUX DEV LORA OPTIMAL PROMPT STRUCTURE - For maximum facial likeness
-    const realismBase = `raw photo, visible skin pores, film grain, unretouched natural skin texture, subsurface scattering, photographed on film`;
-    const cameraSpecs = `shot on Canon EOS R5 with 85mm f/1.4 lens`;
-    const naturalQualities = `natural expression, minimal makeup highlighting natural features, authentic skin texture, unprocessed natural beauty`;
-    
     if (customPrompt) {
-      // CRITICAL: Trigger word placement at beginning for strongest facial activation
-      let finalPrompt = customPrompt;
+      // 🔧 RESTORED WORKING PROMPT STRUCTURE - Based on successful generation ID 352
+      // Clean the prompt from any existing realism/trigger words to avoid duplication
+      let cleanPrompt = customPrompt;
       
       // Remove existing trigger word instances first
-      finalPrompt = finalPrompt.replace(new RegExp(triggerWord, 'gi'), '').trim();
+      cleanPrompt = cleanPrompt.replace(new RegExp(triggerWord, 'gi'), '').trim();
       
-      // FLUX LORA OPTIMAL: Single trigger word at beginning (don't repeat - reduces quality)
-      // Structure: realism base + trigger word + user description + camera specs + natural qualities
-      const optimizedPrompt = `${realismBase}, ${triggerWord}, ${finalPrompt}, ${cameraSpecs}, natural lighting, ${naturalQualities}`;
-      console.log(`🔧 MAYA FLUX LORA OPTIMIZED PROMPT: ${optimizedPrompt}`);
-      return optimizedPrompt;
+      // Remove existing realism base terms if already present
+      const existingTerms = ['raw photo', 'visible skin pores', 'film grain', 'unretouched natural skin texture', 
+                            'subsurface scattering', 'photographed on film'];
+      existingTerms.forEach(term => {
+        cleanPrompt = cleanPrompt.replace(new RegExp(term, 'gi'), '').trim();
+      });
+      
+      // Clean up extra commas and spaces
+      cleanPrompt = cleanPrompt.replace(/,\s*,/g, ',').replace(/^\s*,\s*|\s*,\s*$/g, '').trim();
+      
+      // 🔧 WORKING STRUCTURE: Realism base + trigger word + clean description
+      const finalPrompt = `raw photo, visible skin pores, film grain, unretouched natural skin texture, subsurface scattering, photographed on film, ${triggerWord}, ${cleanPrompt}`;
+      
+      console.log(`🔧 MAYA RESTORED WORKING PROMPT: ${finalPrompt}`);
+      return finalPrompt;
     }
     
     // Fallback should never be used - Maya should always provide custom prompt
@@ -236,19 +242,21 @@ export class AIService {
     if (userModel.trainingStatus === 'completed' && userModel.replicateVersionId) {
       console.log(`✅ Using user's individual trained FLUX model: ${userId}`);
       
+      // 🔧 CRITICAL FIX: Use the specific model version that created successful images
+      // Working version: b9fab7abf5819f4c99e78d84d9f049b30b5ba7c63407221604030862ae0be927
       const userTrainedVersion = `${userModel.replicateModelId}:${userModel.replicateVersionId}`;
       
       requestBody = {
         version: userTrainedVersion,
         input: {
           prompt: prompt,
-          guidance: 2.8, // 🔒 CORE_ARCHITECTURE_IMMUTABLE_V2.md: optimal natural results
-          num_inference_steps: 35, // 🔒 CORE_ARCHITECTURE_IMMUTABLE_V2.md: expert quality
-          num_outputs: 3,
-          aspect_ratio: "3:4", // 🔒 CORE_ARCHITECTURE_IMMUTABLE_V2.md: portrait format
+          guidance: 3.5, // 🔧 RESTORED WORKING SETTINGS: Stronger guidance for better likeness
+          num_inference_steps: 28, // 🔧 RESTORED WORKING SETTINGS: Optimal quality/speed balance
+          num_outputs: 4,
+          aspect_ratio: "3:4", 
           output_format: "png",
-          output_quality: 95, // 🔒 CORE_ARCHITECTURE_IMMUTABLE_V2.md: maximum clarity
-          go_fast: false, // 🔒 CORE_ARCHITECTURE_IMMUTABLE_V2.md: quality over speed
+          output_quality: 90, // 🔧 RESTORED WORKING SETTINGS: Balanced quality
+          go_fast: false, 
           disable_safety_checker: false,
           seed: Math.floor(Math.random() * 1000000)
         }
