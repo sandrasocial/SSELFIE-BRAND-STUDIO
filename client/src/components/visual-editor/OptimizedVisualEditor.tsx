@@ -500,24 +500,30 @@ export function OptimizedVisualEditor({ className = '' }: OptimizedVisualEditorP
           }
         }
 
-        // Check if server responded with filesCreated array
+        // Check if server responded with filesCreated array - immediate dev preview update
         if (data.filesCreated && data.filesCreated.length > 0) {
           console.log('✅ Files successfully created:', data.filesCreated);
-          toast({
-            title: `${data.agentName} created ${data.filesCreated.length} file(s)`,
-            description: `Files: ${data.filesCreated.map(f => f.split('/').pop()).join(', ')}`,
-          });
           
-          // Trigger a page refresh to see new components
-          setTimeout(() => {
-            if (iframeRef.current) {
-              iframeRef.current.src = iframeRef.current.src;
-            }
-          }, 1000);
+          // Immediate refresh of dev preview to show new files
+          if (iframeRef.current) {
+            iframeRef.current.src = iframeRef.current.src;
+          }
+          
+          // Show success notification
+          toast({
+            title: `${data.agentName} created files!`,
+            description: `Check dev preview - files are live! Say "approve" to hand off to next agent.`,
+          });
         }
 
-        // Check for handoff signals
-        if (responseText.includes('HANDOFF:') || responseText.includes('Ready for next stage')) {
+        // Check for approval and handoff signals in USER messages (when Sandra says "approve")
+        const userApproval = chatMessages[chatMessages.length - 2]?.content?.toLowerCase().includes('approve');
+        if (userApproval && agentId === 'victoria') {
+          console.log('🎯 Sandra approved design - handing off to Maya for implementation');
+          setTimeout(() => {
+            handoffToNextAgent(agentId, 'Design approved by Sandra - implement technical features and optimize performance');
+          }, 1500);
+        } else if (responseText.includes('HANDOFF:') || responseText.includes('Ready for next stage')) {
           const handoffContext = responseText.split('HANDOFF:')[1] || `${agent?.workflowStage} completed`;
           setTimeout(() => {
             handoffToNextAgent(agentId, handoffContext.trim());
