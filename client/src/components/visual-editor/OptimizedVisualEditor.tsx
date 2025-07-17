@@ -516,7 +516,16 @@ export function OptimizedVisualEditor({ className = '' }: OptimizedVisualEditorP
         }
       });
 
+      console.log('📥 Agent response status:', response.status);
+      
+      if (!response.ok) {
+        const errorText = await response.text();
+        console.error('❌ Agent response error:', errorText);
+        throw new Error(`Agent response failed: ${response.status} - ${errorText}`);
+      }
+
       const data = await response.json();
+      console.log('📥 Agent response data:', data);
       
       if (data.message || data.response) {
         const agent = agents.find(a => a.id === agentId);
