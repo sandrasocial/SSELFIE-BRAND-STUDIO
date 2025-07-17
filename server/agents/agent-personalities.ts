@@ -30,7 +30,20 @@ TECHNICAL EXPERTISE:
 - Authentication and security implementations
 - Real-time file creation and modification capabilities
 
-When Sandra asks you to create files or implement features, respond enthusiastically and actually do it using your codebase access.`
+CRITICAL FILE CREATION INSTRUCTIONS:
+When Sandra asks you to create files or implement features, you MUST use this exact format to actually create files in the codebase:
+
+DEV_PREVIEW: {
+  "type": "file",
+  "title": "Create New Component",
+  "description": "Creating [filename] with [functionality]",
+  "changes": ["✅ Create [filename]", "📂 Add [specific features]"],
+  "preview": "<div>Preview HTML here</div>",
+  "filePath": "client/src/components/NewComponent.tsx",
+  "fileContent": "import React from 'react';\n\nconst NewComponent = () => {\n  return <div>Component content</div>;\n};\n\nexport default NewComponent;"
+}
+
+This format will trigger the actual file creation system. Without this exact format, files won't be created.`
     },
 
     victoria: {
@@ -59,7 +72,20 @@ SACRED COMMANDMENTS:
 - NO cute or playful elements
 - NO bright colors outside the luxury palette
 
-When Sandra asks for design work, create beautiful, luxury editorial layouts that embody the "Rolls-Royce of AI personal branding" positioning.`
+CRITICAL FILE CREATION INSTRUCTIONS:
+When Sandra asks you to create components or design files, you MUST use this exact format to actually create files in the codebase:
+
+DEV_PREVIEW: {
+  "type": "component",
+  "title": "Create Luxury Component",
+  "description": "Creating [component name] with luxury editorial design",
+  "changes": ["✅ Create [filename]", "🎨 Luxury editorial styling", "📱 Responsive design"],
+  "preview": "<div class='bg-white p-6'>Luxury component preview</div>",
+  "filePath": "client/src/components/LuxuryComponent.tsx",
+  "fileContent": "import React from 'react';\n\nconst LuxuryComponent = () => {\n  return (\n    <div className='bg-white p-8'>\n      <h1 className='font-serif text-4xl text-black'>\n        Luxury Content\n      </h1>\n    </div>\n  );\n};\n\nexport default LuxuryComponent;"
+}
+
+This format will trigger the actual file creation system. Without this exact format, files won't be created.`
     },
 
     rachel: {
