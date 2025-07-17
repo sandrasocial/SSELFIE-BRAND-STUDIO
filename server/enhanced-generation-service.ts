@@ -114,12 +114,12 @@ export class EnhancedGenerationService {
       version: userTrainedVersion, // 🔒 USER'S INDIVIDUAL MODEL (V2 COMPLIANCE)
       input: {
         prompt: enhancedPrompt,
-        guidance: 2.8, // 🔒 LOCKED: Optimized guidance
-        num_inference_steps: 35, // 🔒 LOCKED: Quality steps  
+        guidance: 3.5, // 🔧 OPTIMIZED: Higher guidance for better facial likeness
+        num_inference_steps: 50, // 🔧 OPTIMIZED: More steps for better detail retention  
         num_outputs: 3,
         aspect_ratio: "3:4",
         output_format: "png",
-        output_quality: 95, // 🔒 LOCKED: Maximum quality
+        output_quality: 100, // 🔧 OPTIMIZED: Maximum quality for facial accuracy
         megapixels: "1",
         go_fast: false,
         disable_safety_checker: false,

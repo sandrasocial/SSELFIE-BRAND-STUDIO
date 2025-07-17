@@ -190,17 +190,27 @@ export class AIService {
     // Use ONLY user's unique trigger word - NO FALLBACKS
     const triggerWord = userModel.triggerWord;
     
-    // REALISTIC FILM PHOTOGRAPHY SPECIFICATIONS - Simplified for natural results
-    const expertQualitySpecs = ", film photograph, natural film grain, realistic hair with volume, natural hair texture, never flat hair, authentic skin tone, natural healthy glow, professional photography";
+    // OPTIMIZED SPECIFICATIONS FOR FACIAL LIKENESS - Enhanced for LoRA activation
+    const expertQualitySpecs = `, film photograph shot on Hasselblad, raw photo, visible skin pores, unretouched natural skin texture, natural beauty with light skin retouch, realistic hair with volume and natural texture, never flat hair, authentic ${triggerWord} facial features, natural healthy glow, professional portrait photography, high detail facial accuracy`;
     
     if (customPrompt) {
-      // Ensure trigger word is at the beginning for maximum likeness activation
+      // OPTIMIZED: Ensure trigger word appears multiple times for stronger facial likeness
       let finalPrompt = customPrompt;
-      if (!finalPrompt.startsWith(triggerWord)) {
-        // Remove trigger word if it exists elsewhere and place at beginning
-        finalPrompt = finalPrompt.replace(new RegExp(triggerWord, 'gi'), '').trim();
-        finalPrompt = `${triggerWord} ${finalPrompt}`;
+      
+      // Remove existing trigger word instances first
+      finalPrompt = finalPrompt.replace(new RegExp(triggerWord, 'gi'), '').trim();
+      
+      // Add trigger word at beginning AND reinforce halfway through prompt
+      const promptParts = finalPrompt.split(',').map(part => part.trim());
+      const midPoint = Math.floor(promptParts.length / 2);
+      
+      // Insert trigger word at beginning and middle for stronger activation
+      promptParts.unshift(triggerWord);
+      if (promptParts.length > 3) {
+        promptParts.splice(midPoint, 0, `${triggerWord} portrait`);
       }
+      
+      finalPrompt = promptParts.join(', ');
       return `${finalPrompt}${expertQualitySpecs}`;
     }
     
@@ -237,14 +247,14 @@ export class AIService {
         version: userTrainedVersion,
         input: {
           prompt: prompt,
-          guidance: 2.8, // 🔒 CORE_ARCHITECTURE_IMMUTABLE_V2: optimal natural results
-          num_inference_steps: 35, // 🔒 CORE_ARCHITECTURE_IMMUTABLE_V2: expert quality
+          guidance: 3.5, // 🔧 OPTIMIZED: Higher guidance for better facial likeness with LoRA
+          num_inference_steps: 50, // 🔧 OPTIMIZED: More steps for better detail retention
           num_outputs: 3,
           aspect_ratio: "3:4",
           output_format: "png",
-          output_quality: 95, // 🔒 CORE_ARCHITECTURE_IMMUTABLE_V2: maximum clarity
+          output_quality: 100, // 🔧 OPTIMIZED: Maximum quality for facial accuracy
           megapixels: "1",
-          go_fast: false, // 🔒 CORE_ARCHITECTURE_IMMUTABLE_V2: quality over speed
+          go_fast: false,
           disable_safety_checker: false,
           seed: Math.floor(Math.random() * 1000000)
         }
