@@ -48,20 +48,28 @@ export async function generateImages(request: GenerateImagesRequest): Promise<Ge
       throw new Error('User LoRA model not found - training may need to be completed');
     }
     
-    // Ensure the prompt starts with the user's trigger word for maximum likeness
+    // OPTIMIZED: Multiple trigger word placements for stronger facial likeness
     let finalPrompt = customPrompt;
-    if (!finalPrompt.includes(triggerWord)) {
-      finalPrompt = `${triggerWord} ${customPrompt}`;
-    } else {
-      // If trigger word exists but not at start, move it to beginning
-      finalPrompt = finalPrompt.replace(triggerWord, '').trim();
-      finalPrompt = `${triggerWord} ${finalPrompt}`;
+    
+    // Remove existing trigger word instances first  
+    finalPrompt = finalPrompt.replace(new RegExp(triggerWord, 'gi'), '').trim();
+    
+    // Add trigger word at beginning AND reinforce in middle for stronger activation
+    const promptParts = finalPrompt.split(',').map(part => part.trim());
+    const midPoint = Math.floor(promptParts.length / 2);
+    
+    // Insert trigger word at beginning and middle for maximum facial likeness
+    promptParts.unshift(triggerWord);
+    if (promptParts.length > 3) {
+      promptParts.splice(midPoint, 0, `${triggerWord} portrait`);
     }
     
-    // REALISTIC FILM PHOTOGRAPHY SPECIFICATIONS - Simplified for natural results  
-    const expertQualitySpecs = ", film photograph, natural film grain, authentic film photography, natural hair with volume, professional photography on film camera, natural lighting";
+    finalPrompt = promptParts.join(', ');
     
-    const premiumHairSpecs = ", voluminous hair with natural movement, healthy hair texture, natural hair flow";
+    // OPTIMIZED SPECIFICATIONS FOR FACIAL LIKENESS - Enhanced for LoRA activation
+    const expertQualitySpecs = `, film photograph shot on Hasselblad, raw photo, visible skin pores, unretouched natural skin texture, natural beauty with light skin retouch, authentic ${triggerWord} facial features, professional portrait photography, high detail facial accuracy`;
+    
+    const premiumHairSpecs = ", realistic hair with volume and natural texture, never flat hair, natural hair flow and movement";
     
     // Only add expert quality specs if not already present
     if (!finalPrompt.toLowerCase().includes('film grain') && !finalPrompt.toLowerCase().includes('raw photo')) {
@@ -97,14 +105,14 @@ export async function generateImages(request: GenerateImagesRequest): Promise<Ge
         version: userTrainedVersion, // 🔒 CRITICAL: User's individual trained model version ONLY
         input: {
           prompt: finalPrompt,
-          guidance: 2.8, // 🔒 CORE_ARCHITECTURE_IMMUTABLE_V2: optimal natural results
-          num_inference_steps: 35, // 🔒 CORE_ARCHITECTURE_IMMUTABLE_V2: expert quality
+          guidance: 3.5, // 🔧 OPTIMIZED: Higher guidance for better facial likeness with LoRA
+          num_inference_steps: 50, // 🔧 OPTIMIZED: More steps for better detail retention
           num_outputs: 3,
           aspect_ratio: "3:4",
           output_format: "png",
-          output_quality: 95, // 🔒 CORE_ARCHITECTURE_IMMUTABLE_V2: maximum clarity
+          output_quality: 100, // 🔧 OPTIMIZED: Maximum quality for facial accuracy
           megapixels: "1",
-          go_fast: false, // 🔒 CORE_ARCHITECTURE_IMMUTABLE_V2: quality over speed
+          go_fast: false,
           disable_safety_checker: false,
           seed: Math.floor(Math.random() * 1000000)
         }
