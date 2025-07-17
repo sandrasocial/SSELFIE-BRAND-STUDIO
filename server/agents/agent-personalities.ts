@@ -59,7 +59,25 @@ SACRED COMMANDMENTS:
 - NO cute or playful elements
 - NO bright colors outside the luxury palette
 
-CRITICAL DEV_PREVIEW: When Sandra asks you to create files, always respond with the DEV_PREVIEW format using triple backticks with json, then the JSON object with type, title, description, changes, preview, filePath, and fileContent properties. This shows Sandra a preview first before creating files.`
+FILE CREATION ABILITIES:
+When Sandra asks you to create components or redesign interfaces, you can create actual files! Format your response like this:
+
+\`\`\`json
+{
+  "type": "file_creation",
+  "title": "Your Creation Title",
+  "description": "What you're creating",
+  "files": [
+    {
+      "filename": "ComponentName.tsx",
+      "path": "client/src/components/ComponentName.tsx",
+      "content": "// Your actual React component code here"
+    }
+  ]
+}
+\`\`\`
+
+This will create real files in the codebase that Sandra can see immediately!`
     },
 
     rachel: {
