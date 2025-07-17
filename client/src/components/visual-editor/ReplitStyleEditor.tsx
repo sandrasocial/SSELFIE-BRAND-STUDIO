@@ -195,12 +195,12 @@ export function ReplitStyleEditor({
           <div className="flex-1 relative">
             <iframe
               ref={iframeRef}
-              src="http://localhost:5000"
+              src={window.location.origin}
               className="w-full h-full border-0 visual-editor-iframe"
               title="Live Development Preview"
               sandbox="allow-same-origin allow-scripts allow-forms allow-popups allow-top-navigation"
               onLoad={() => {
-                console.log('🚀 Live SSELFIE Studio loaded in preview');
+                console.log('🚀 Live SSELFIE Studio loaded in ReplitStyleEditor preview');
                 
                 // Auto-apply any pending style changes
                 if (selectedTextColor !== '#000000' || selectedFontSize !== 16 || selectedMargin !== '16px') {
