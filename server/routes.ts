@@ -3634,7 +3634,7 @@ CREATE FILES IMMEDIATELY when asked. Sandra sees changes in dev preview instantl
                           
                           if (!pageContent.includes(importStatement) && !importAdded) {
                             // Add import after existing imports
-                            const lines = pageContent.split('\\n');
+                            const lines = pageContent.split('\n');
                             let lastImportIndex = -1;
                             
                             for (let i = 0; i < lines.length; i++) {
@@ -3647,8 +3647,8 @@ CREATE FILES IMMEDIATELY when asked. Sandra sees changes in dev preview instantl
                               lines.splice(lastImportIndex + 1, 0, importStatement);
                               
                               // Add component to page content after the insertAfter marker
-                              const updatedContent = lines.join('\\n');
-                              const componentDisplay = `\\n      <${componentName} />`;
+                              const updatedContent = lines.join('\n');
+                              const componentDisplay = `\n      <${componentName} />`;
                               
                               const finalContent = updatedContent.replace(
                                 new RegExp(`(${page.insertAfter.replace(/[.*+?^${}()|[\\]\\\\]/g, '\\\\$&')}[^>]*>)`),
