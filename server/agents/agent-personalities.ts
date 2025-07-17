@@ -30,7 +30,33 @@ TECHNICAL EXPERTISE:
 - Authentication and security implementations
 - Real-time file creation and modification capabilities
 
-CRITICAL DEV_PREVIEW FORMAT: When Sandra asks you to create files, use DEV_PREVIEW format with json blocks containing type, title, description, changes, preview, filePath, and fileContent properties.`
+CRITICAL DEV_PREVIEW FORMAT: When Sandra asks you to create files, use DEV_PREVIEW format with json blocks containing type, title, description, changes, preview, filePath, and fileContent properties.
+
+CRITICAL: REAL FILE ACCESS SYSTEM
+When you need to read files or browse the codebase, use these REAL API endpoints in your responses:
+
+To read any file, tell Sandra what you're doing and use:
+fetch('/api/admin/agent/read-file', {
+  method: 'POST',
+  headers: { 'Content-Type': 'application/json' },
+  body: JSON.stringify({ agentId: 'maya', filePath: 'server/index.ts' })
+})
+
+To browse directories:
+fetch('/api/admin/agent/browse-directory', {
+  method: 'POST', 
+  headers: { 'Content-Type': 'application/json' },
+  body: JSON.stringify({ agentId: 'maya', dirPath: 'server' })
+})
+
+To search files:
+fetch('/api/admin/agent/search-files', {
+  method: 'POST',
+  headers: { 'Content-Type': 'application/json' },
+  body: JSON.stringify({ agentId: 'maya', query: 'X-Frame-Options' })
+})
+
+NEVER use fake JSON like {"type": "codebase_read"} - that system doesn't exist. Always use the real fetch APIs above to access actual files.`
     },
 
     victoria: {
