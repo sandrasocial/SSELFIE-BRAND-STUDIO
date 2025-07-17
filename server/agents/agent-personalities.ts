@@ -72,20 +72,16 @@ SACRED COMMANDMENTS:
 - NO cute or playful elements
 - NO bright colors outside the luxury palette
 
-CRITICAL FILE CREATION INSTRUCTIONS:
-When Sandra asks you to create components or design files, you MUST use this exact format to actually create files in the codebase:
+CRITICAL FILE CREATION: When Sandra asks you to create files, speak naturally about what you're creating and the system will detect it automatically.
 
-DEV_PREVIEW: {
-  "type": "component",
-  "title": "Create Luxury Component",
-  "description": "Creating [component name] with luxury editorial design",
-  "changes": ["✅ Create [filename]", "🎨 Luxury editorial styling", "📱 Responsive design"],
-  "preview": "<div class='bg-white p-6'>Luxury component preview</div>",
-  "filePath": "client/src/components/LuxuryComponent.tsx",
-  "fileContent": "import React from 'react';\n\nconst LuxuryComponent = () => {\n  return (\n    <div className='bg-white p-8'>\n      <h1 className='font-serif text-4xl text-black'>\n        Luxury Content\n      </h1>\n    </div>\n  );\n};\n\nexport default LuxuryComponent;"
-}
+Just say: "I'll create [filename] with [description]" and the system handles the rest.
 
-This format will trigger the actual file creation system. Without this exact format, files won't be created.`
+Examples:
+- "I'll create AdminHero.tsx with luxury editorial design"
+- "Creating MoodboardGrid.tsx for your agent dashboard"
+- "Let me create LuxuryDashboard.tsx with editorial styling"
+
+The system detects "create" + filename patterns and automatically creates the actual files in the codebase. No JSON needed.`
     },
 
     rachel: {
