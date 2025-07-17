@@ -586,7 +586,7 @@ export function OptimizedVisualEditor({ className = '' }: OptimizedVisualEditorP
         <div className="p-4 border-b border-gray-200">
           <div className="flex items-center justify-between mb-3">
             <div className="flex items-center space-x-2">
-              <div className={`w-8 h-8 ${currentAgent.color} rounded-full flex items-center justify-center`}>
+              <div className="w-8 h-8 bg-black flex items-center justify-center">
                 <span className="text-white text-sm font-medium">{currentAgent.name[0]}</span>
               </div>
               <div>
@@ -597,9 +597,10 @@ export function OptimizedVisualEditor({ className = '' }: OptimizedVisualEditorP
             <Button
               variant={showPropertiesPanel ? "default" : "outline"}
               size="sm"
+              className="border-black text-black hover:bg-black hover:text-white"
               onClick={() => setShowPropertiesPanel(!showPropertiesPanel)}
             >
-              <Settings className="w-4 h-4" />
+              Settings
             </Button>
           </div>
 
@@ -608,7 +609,7 @@ export function OptimizedVisualEditor({ className = '' }: OptimizedVisualEditorP
             <div className="flex items-center justify-between">
               <span className="text-xs font-medium text-gray-600">Design Studio Workflow</span>
               {workflowActive && (
-                <Badge variant="secondary" className="text-xs bg-green-100 text-green-700">
+                <Badge variant="secondary" className="text-xs bg-gray-100 text-black border border-gray-300">
                   Active: {workflowStage}
                 </Badge>
               )}
@@ -617,9 +618,9 @@ export function OptimizedVisualEditor({ className = '' }: OptimizedVisualEditorP
               {agents.map((agent, index) => (
                 <div
                   key={agent.id}
-                  className={`flex-1 h-2 rounded-full ${
+                  className={`flex-1 h-2 ${
                     agent.id === currentAgent.id
-                      ? agent.color
+                      ? 'bg-black'
                       : agents.findIndex(a => a.id === currentAgent.id) > index
                       ? 'bg-gray-400'
                       : 'bg-gray-200'
@@ -644,26 +645,26 @@ export function OptimizedVisualEditor({ className = '' }: OptimizedVisualEditorP
                 <Button
                   variant="outline"
                   size="sm"
-                  className="text-xs h-7 justify-start"
+                  className="text-xs h-7 justify-start border-black text-black hover:bg-black hover:text-white"
                   onClick={() => startWorkflow("Create a new landing page design and implement it")}
                 >
-                  🎨 New Landing Page
+                  New Landing Page
                 </Button>
                 <Button
                   variant="outline"
                   size="sm"
-                  className="text-xs h-7 justify-start"
+                  className="text-xs h-7 justify-start border-black text-black hover:bg-black hover:text-white"
                   onClick={() => startWorkflow("Design and build a pricing section")}
                 >
-                  💰 Pricing Section
+                  Pricing Section
                 </Button>
                 <Button
                   variant="outline"
                   size="sm"
-                  className="text-xs h-7 justify-start"
+                  className="text-xs h-7 justify-start border-black text-black hover:bg-black hover:text-white"
                   onClick={() => startWorkflow("Create an image gallery component")}
                 >
-                  🖼️ Image Gallery
+                  Image Gallery
                 </Button>
               </div>
             </div>
@@ -726,9 +727,9 @@ export function OptimizedVisualEditor({ className = '' }: OptimizedVisualEditorP
             <div className="flex-1 overflow-y-auto p-4 space-y-3">
               {chatMessages.length === 0 && (
                 <div className="text-center text-gray-500 text-sm">
-                  <div className="mb-2">💬</div>
-                  <div>Start chatting with {currentAgent.name}!</div>
-                  <div className="text-xs">Ask for {currentAgent.workflowStage.toLowerCase()}, upload images, or start a workflow.</div>
+                  <div className="mb-2">Chat</div>
+                  <div>Start chatting with {currentAgent.name}</div>
+                  <div className="text-xs">Ask for {currentAgent.workflowStage.toLowerCase()}, upload images, or start a workflow</div>
                 </div>
               )}
               
@@ -748,7 +749,7 @@ export function OptimizedVisualEditor({ className = '' }: OptimizedVisualEditorP
                   {/* Agent Name Header */}
                   {agent && !message.isHandoff && (
                     <div className="flex items-center space-x-2 mb-2 pb-2 border-b border-gray-200">
-                      <div className={`w-4 h-4 ${agent.color} rounded-full`} />
+                      <div className="w-4 h-4 bg-black" />
                       <span className="font-medium text-xs">{agent.name}</span>
                       <span className="text-xs text-gray-500">·</span>
                       <span className="text-xs text-gray-500">{agent.workflowStage}</span>
@@ -837,10 +838,10 @@ export function OptimizedVisualEditor({ className = '' }: OptimizedVisualEditorP
                     variant="outline"
                     size="sm"
                     onClick={() => fileInputRef.current?.click()}
-                    className="px-2"
+                    className="px-2 border-black text-black hover:bg-black hover:text-white"
                     title="Upload inspiration images"
                   >
-                    <Paperclip className="w-4 h-4" />
+                    Upload
                   </Button>
                 </div>
                 <Input
@@ -857,6 +858,7 @@ export function OptimizedVisualEditor({ className = '' }: OptimizedVisualEditorP
                 />
                 <Button
                   size="sm"
+                  className="bg-black text-white hover:bg-gray-800"
                   onClick={() => sendMessage(messageInput)}
                   disabled={!messageInput.trim() || isLoading}
                 >
@@ -891,7 +893,7 @@ export function OptimizedVisualEditor({ className = '' }: OptimizedVisualEditorP
             <div className="flex-1 overflow-y-auto p-4" style={{ maxHeight: 'calc(100vh - 400px)' }}>
               {aiImages.length === 0 ? (
                 <div className="text-center text-gray-500 text-sm">
-                  <div className="mb-2">🖼️</div>
+                  <div className="mb-2">Gallery</div>
                   <div>No AI images yet</div>
                   <div className="text-xs">Generate some images first in Maya AI or AI Photoshoot</div>
                 </div>
@@ -923,8 +925,8 @@ export function OptimizedVisualEditor({ className = '' }: OptimizedVisualEditorP
                         </div>
                       )}
                       {image.isFavorite && (
-                        <div className="absolute top-2 left-2">
-                          <Heart className="w-4 h-4 text-red-500 fill-current" />
+                        <div className="absolute top-2 left-2 w-4 h-4 bg-black text-white flex items-center justify-center text-xs">
+                          ♥
                         </div>
                       )}
                     </div>
@@ -1010,8 +1012,8 @@ export function OptimizedVisualEditor({ className = '' }: OptimizedVisualEditorP
         {/* Top Toolbar */}
         <div className="border-b border-gray-200 px-4 py-2 flex items-center justify-between bg-gray-50">
           <div className="flex items-center space-x-4">
-            <Badge variant="secondary" className="bg-green-500 text-white">
-              <div className="w-2 h-2 bg-white rounded-full mr-2"></div>
+            <Badge variant="secondary" className="bg-black text-white border-black">
+              <div className="w-2 h-2 bg-white mr-2"></div>
               LIVE PREVIEW
             </Badge>
           </div>
@@ -1020,17 +1022,20 @@ export function OptimizedVisualEditor({ className = '' }: OptimizedVisualEditorP
             <Button 
               variant="outline" 
               size="sm"
+              className="border-black text-black hover:bg-black hover:text-white"
               onClick={() => {
                 if (iframeRef.current) {
                   iframeRef.current.src = iframeRef.current.src;
                 }
               }}
             >
-              🔄 Refresh
+              Refresh
             </Button>
-            <Button variant="outline" size="sm">
-              <Save className="w-4 h-4 mr-1" />
+            <Button variant="outline" size="sm" className="border-black text-black hover:bg-black hover:text-white">
               Save
+            </Button>
+            <Button variant="default" size="sm" className="bg-black text-white hover:bg-gray-800">
+              Deploy
             </Button>
           </div>
         </div>
@@ -1071,9 +1076,10 @@ export function OptimizedVisualEditor({ className = '' }: OptimizedVisualEditorP
                   <Button
                     variant="ghost"
                     size="sm"
+                    className="text-black hover:bg-gray-100"
                     onClick={() => setShowPropertiesPanel(false)}
                   >
-                    <ChevronRight className="w-4 h-4" />
+                    ×
                   </Button>
                 </div>
 
@@ -1138,7 +1144,7 @@ export function OptimizedVisualEditor({ className = '' }: OptimizedVisualEditorP
                     margin: ${selectedMargin} !important;
                     transition: all 0.3s ease !important;
                   }
-                  ${customCSSClass ? `.${customCSSClass} { border: 2px solid #3b82f6; }` : ''}
+                  ${customCSSClass ? `.${customCSSClass} { border: 2px solid #000000; }` : ''}
                 `;
                 injectChangesToLivePreview(styles);
                 toast({
@@ -1147,7 +1153,7 @@ export function OptimizedVisualEditor({ className = '' }: OptimizedVisualEditorP
                 });
               }}
             >
-              🎨 Apply Styles Live
+              Apply Styles Live
             </Button>
                 </div>
 
@@ -1155,16 +1161,16 @@ export function OptimizedVisualEditor({ className = '' }: OptimizedVisualEditorP
                 <div className="p-4 border-b border-gray-200">
             <h4 className="font-medium text-sm mb-3">Quick Actions</h4>
             <div className="space-y-2">
-              <Button variant="outline" size="sm" className="w-full justify-start text-sm">
+              <Button variant="outline" size="sm" className="w-full justify-start text-sm border-black text-black hover:bg-black hover:text-white">
                 Add Heading
               </Button>
-              <Button variant="outline" size="sm" className="w-full justify-start text-sm">
+              <Button variant="outline" size="sm" className="w-full justify-start text-sm border-black text-black hover:bg-black hover:text-white">
                 Add Text Block
               </Button>
-              <Button variant="outline" size="sm" className="w-full justify-start text-sm">
+              <Button variant="outline" size="sm" className="w-full justify-start text-sm border-black text-black hover:bg-black hover:text-white">
                 Add Button
               </Button>
-              <Button variant="outline" size="sm" className="w-full justify-start text-sm">
+              <Button variant="outline" size="sm" className="w-full justify-start text-sm border-black text-black hover:bg-black hover:text-white">
                 Upload Image
               </Button>
             </div>
@@ -1177,7 +1183,7 @@ export function OptimizedVisualEditor({ className = '' }: OptimizedVisualEditorP
               <Button 
                 variant="outline" 
                 size="sm" 
-                className="w-full justify-start text-sm"
+                className="w-full justify-start text-sm border-black text-black hover:bg-black hover:text-white"
                 onClick={() => {
                   const luxuryStyles = `
                     * { font-family: 'Times New Roman', serif !important; }
@@ -1188,12 +1194,12 @@ export function OptimizedVisualEditor({ className = '' }: OptimizedVisualEditorP
                   toast({ title: 'Luxury Typography Applied' });
                 }}
               >
-                ✨ Apply Luxury Typography
+                Apply Luxury Typography
               </Button>
               <Button 
                 variant="outline" 
                 size="sm" 
-                className="w-full justify-start text-sm"
+                className="w-full justify-start text-sm border-black text-black hover:bg-black hover:text-white"
                 onClick={() => {
                   const editorialStyles = `
                     .container { max-width: 1200px !important; margin: 0 auto !important; }
@@ -1204,12 +1210,12 @@ export function OptimizedVisualEditor({ className = '' }: OptimizedVisualEditorP
                   toast({ title: 'Editorial Layout Applied' });
                 }}
               >
-                📖 Editorial Layout
+                Editorial Layout
               </Button>
               <Button 
                 variant="outline" 
                 size="sm" 
-                className="w-full justify-start text-sm"
+                className="w-full justify-start text-sm border-black text-black hover:bg-black hover:text-white"
                 onClick={() => {
                   const vogueModeStyles = `
                     body { background: linear-gradient(135deg, #f5f5f5 0%, #ffffff 100%) !important; }
@@ -1220,7 +1226,7 @@ export function OptimizedVisualEditor({ className = '' }: OptimizedVisualEditorP
                   toast({ title: 'Vogue Mode Applied' });
                 }}
               >
-                👑 Vogue Mode
+                Vogue Mode
               </Button>
                 </div>
                 </div>
