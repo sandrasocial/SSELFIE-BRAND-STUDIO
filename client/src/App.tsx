@@ -35,12 +35,8 @@ import SSELFIEGallery from "@/pages/sselfie-gallery";
 import AIGenerator from "@/pages/ai-generator";
 import AIPhotoshoot from "@/pages/ai-photoshoot";
 import SimpleTraining from "@/pages/simple-training";
-import TestLogin from "@/pages/test-login";
 import AdminDashboard from "@/pages/admin-dashboard";
 import AdminVisualEditor from "@/pages/admin-visual-editor";
-import AgentApproval from "@/pages/agent-approval";
-import AgentCommandCenter from "@/pages/agent-command-center";
-import AgentDashboard from "@/pages/agent-dashboard";
 import CustomPhotoshootLibrary from "@/pages/custom-photoshoot-library";
 import FlatlayLibrary from "@/pages/flatlay-library";
 import Maya from "@/pages/maya";
@@ -60,7 +56,7 @@ import CustomLogin from "@/pages/custom-login";
 import LoginPrompt from "@/components/LoginPrompt";
 import DomainHelp from "@/pages/domain-help";
 import SwitchAccount from "@/pages/switch-account";
-import LaunchCountdown from "@/pages/launch-countdown";
+
 import AdminAccessOnly from "@/pages/admin-access-only";
 
 // Removed duplicate photoshoot imports - using existing system
@@ -137,8 +133,7 @@ function Router() {
     <Switch>
       {/* STREAMLINED USER JOURNEY: Landing → Simple Checkout → Payment Success → Onboarding → Workspace */}
 
-      {/* LAUNCH COUNTDOWN */}
-      <Route path="/launch" component={LaunchCountdown} />
+      {/* LAUNCH COUNTDOWN - ARCHIVED */}
       
       {/* PUBLIC PAGES */}
       <Route path="/" component={EditorialLanding} />
@@ -232,12 +227,6 @@ function Router() {
       <Route path="/sandra-admin" component={(props) => <ProtectedRoute component={AdminDashboard} {...props} />} />
       <Route path="/sandra-command" component={(props) => <ProtectedRoute component={AdminDashboard} {...props} />} />
       {/* Old admin routes archived - all functionality moved to main admin dashboard */}
-      <Route path="/agent-approval" component={(props) => <ProtectedRoute component={AgentApproval} {...props} />} />
-      <Route path="/admin/agent-approval" component={(props) => <ProtectedRoute component={AgentApproval} {...props} />} />
-      <Route path="/agent-command" component={(props) => <ProtectedRoute component={AgentCommandCenter} {...props} />} />
-      <Route path="/admin/agent-command" component={(props) => <ProtectedRoute component={AgentCommandCenter} {...props} />} />
-      <Route path="/agent-dashboard" component={(props) => <ProtectedRoute component={AgentDashboard} {...props} />} />
-      <Route path="/admin/agents" component={(props) => <ProtectedRoute component={AgentDashboard} {...props} />} />
       <Route path="/admin/progress" component={() => <div className="p-8">Admin Progress - Coming Soon</div>} />
       <Route path="/admin/roadmap" component={() => <div className="p-8">Admin Roadmap - Coming Soon</div>} />
       <Route path="/admin/ai-models" component={() => <div className="p-8">AI Models Management - Coming Soon</div>} />
@@ -247,8 +236,7 @@ function Router() {
       {/* ADMIN MARKETING AUTOMATION */}
       <Route path="/marketing-automation" component={(props) => <ProtectedRoute component={lazy(() => import('@/pages/marketing-automation'))} {...props} />} />
       
-      {/* DEBUGGING */}
-      <Route path="/test-login" component={TestLogin} />
+      {/* DEBUGGING - TestLogin archived */}
       <Route path="/debug-auth" component={() => {
         const { user, isAuthenticated, isLoading, error } = useAuth();
         return (
