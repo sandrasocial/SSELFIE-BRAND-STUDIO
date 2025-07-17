@@ -29,6 +29,7 @@ import {
 import { apiRequest } from '@/lib/queryClient';
 import { useToast } from '@/hooks/use-toast';
 import { useQuery } from '@tanstack/react-query';
+import { IntegratedAgentChat } from './IntegratedAgentChat';
 
 interface ChatMessage {
   type: 'user' | 'agent';
@@ -1482,6 +1483,30 @@ export function OptimizedVisualEditor({ className = '' }: OptimizedVisualEditorP
           </>
         )}
       </PanelGroup>
+      
+      {/* Integrated Agent Chat - Replit Style */}
+      <IntegratedAgentChat 
+        selectedAgent={currentAgent.id}
+        onFileChange={(filePath, content) => {
+          console.log('🔧 File changed:', filePath);
+          // Refresh live preview when files change
+          if (iframeRef.current) {
+            const currentSrc = iframeRef.current.src.split('?')[0];
+            iframeRef.current.src = currentSrc + '?refresh=' + Date.now();
+          }
+          toast({
+            title: 'File Updated',
+            description: `${filePath} has been modified`,
+          });
+        }}
+        onDirectoryBrowse={(path) => {
+          console.log('📁 Directory browsed:', path);
+          toast({
+            title: 'Directory Browsed',
+            description: `Explored ${path}`,
+          });
+        }}
+      />
     </div>
   );
 }
