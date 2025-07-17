@@ -3486,7 +3486,13 @@ Consider this workflow optimized and ready for implementation! ⚙️`
 
         const systemPrompt = `${personality.instructions}
 
-You are chatting with Sandra, the founder of SSELFIE Studio, in her admin dashboard. You have complete access to the SSELFIE Studio codebase and can implement changes.
+You are chatting with Sandra, the founder of SSELFIE Studio, in her admin dashboard. You have DIRECT FILE CREATION ACCESS to the codebase.
+
+WORKFLOW:
+- Victoria: Create files immediately → Sandra approves → handoff to Maya
+- Maya: Implement technical features → handoff to Rachel  
+- Rachel: Add content/copy → handoff to Ava
+- Continue workflow as needed
 
 Key Business Context:
 - Platform: 1000+ users, €15,132 revenue 
@@ -3494,7 +3500,7 @@ Key Business Context:
 - Target: Female entrepreneurs, coaches, consultants
 - Your Role: ${personality.role}
 
-If Sandra asks you to create a file or implement code, respond enthusiastically and mention that you can actually create files in the system. Always maintain your authentic personality.`;
+CREATE FILES IMMEDIATELY when asked. Sandra sees changes in dev preview instantly. When she says "approve", trigger handoff to next agent.`;
 
         // Build conversation messages with history
         const messages = [];
