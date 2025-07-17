@@ -152,17 +152,17 @@ export function OptimizedVisualEditor({ className = '' }: OptimizedVisualEditorP
   const chatMessagesRef = useRef<HTMLDivElement>(null);
   const { toast } = useToast();
 
-  // Simple autoscroll only for new messages when user is at bottom
+  // Simple autoscroll only for new messages when user is at bottom  
   useEffect(() => {
-    if (chatMessagesRef.current && chatMessages.length > 0) {
+    if (chatMessagesRef.current && chatMessages.length > 1) {
       const container = chatMessagesRef.current;
-      const isAtBottom = container.scrollTop + container.clientHeight >= container.scrollHeight - 10;
+      const isAtBottom = container.scrollTop + container.clientHeight >= container.scrollHeight - 20;
       
-      // Only auto-scroll if user is already at the bottom
-      if (isAtBottom) {
-        setTimeout(() => {
+      // Only auto-scroll if user is already near the bottom AND there are actual messages
+      if (isAtBottom && chatMessages.length > 0) {
+        requestAnimationFrame(() => {
           container.scrollTop = container.scrollHeight;
-        }, 50);
+        });
       }
     }
   }, [chatMessages]);
@@ -949,7 +949,7 @@ export function OptimizedVisualEditor({ className = '' }: OptimizedVisualEditorP
             </div>
 
             {/* Gallery Images Grid - Fixed scrolling */}
-            <div className="flex-1 overflow-y-auto p-4" style={{ maxHeight: 'calc(100vh - 400px)' }}>
+            <div className="flex-1 overflow-y-auto p-4">
               {aiImages.length === 0 ? (
                 <div className="text-center text-gray-500 text-sm">
                   <div className="mb-2">Gallery</div>
@@ -1017,7 +1017,7 @@ export function OptimizedVisualEditor({ className = '' }: OptimizedVisualEditorP
             </div>
 
             {/* Flatlay Collections - Fixed scrolling */}
-            <div className="flex-1 overflow-y-auto" style={{ maxHeight: 'calc(100vh - 400px)' }}>
+            <div className="flex-1 overflow-y-auto">
               {flatlayCollections.map((collection) => (
                 <div key={collection.id} className="border-b border-gray-200">
                   <div className="p-4">
