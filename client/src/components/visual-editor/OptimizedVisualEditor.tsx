@@ -604,39 +604,39 @@ export function OptimizedVisualEditor({ className = '' }: OptimizedVisualEditorP
                 </div>
               </div>
             )}
-        {/* Chat Header with Agent Workflow - Desktop Optimized */}
-        <div className="p-4 border-b border-gray-200 shrink-0">
-          <div className="flex items-center justify-between mb-4">
-            <div className="flex items-center space-x-3">
-              <div className="w-10 h-10 bg-black flex items-center justify-center rounded">
-                <span className="text-white text-base font-medium">{currentAgent.name[0]}</span>
+        {/* Chat Header with Agent Workflow - Compact */}
+        <div className="p-3 border-b border-gray-200 shrink-0">
+          <div className="flex items-center justify-between mb-2">
+            <div className="flex items-center space-x-2">
+              <div className="w-8 h-8 bg-black flex items-center justify-center rounded">
+                <span className="text-white text-sm font-medium">{currentAgent.name[0]}</span>
               </div>
               <div>
-                <div className="font-medium text-base">{currentAgent.name}</div>
-                <div className="text-sm text-gray-500">{currentAgent.role}</div>
+                <div className="font-medium text-sm">{currentAgent.name}</div>
+                <div className="text-xs text-gray-500">{currentAgent.role}</div>
               </div>
             </div>
             <Button
               variant={showPropertiesPanel ? "default" : "outline"}
               size="sm"
-              className="border-black text-black hover:bg-black hover:text-white"
+              className="border-black text-black hover:bg-black hover:text-white text-xs h-7 px-2"
               onClick={() => setShowPropertiesPanel(!showPropertiesPanel)}
             >
               Settings
             </Button>
           </div>
 
-          {/* Workflow Progress - Collapsible */}
-          <div className="space-y-3">
-            <div className="flex items-center justify-between cursor-pointer" onClick={() => setShowWorkflowSection(!showWorkflowSection)}>
-              <span className="text-sm font-medium text-gray-600">Design Studio Workflow</span>
-              <div className="flex items-center space-x-2">
+          {/* Workflow Progress - Compact Collapsible */}
+          <div className="space-y-1">
+            <div className="flex items-center justify-between cursor-pointer py-1" onClick={() => setShowWorkflowSection(!showWorkflowSection)}>
+              <span className="text-xs font-medium text-gray-600">Design Studio Workflow</span>
+              <div className="flex items-center space-x-1">
                 {workflowActive && (
-                  <Badge variant="secondary" className="text-xs bg-gray-100 text-black border border-gray-300">
-                    Active: {workflowStage}
+                  <Badge variant="secondary" className="text-xs bg-gray-100 text-black border border-gray-300 h-4 px-1">
+                    {workflowStage}
                   </Badge>
                 )}
-                {showWorkflowSection ? <ChevronUp className="w-4 h-4" /> : <ChevronDown className="w-4 h-4" />}
+                {showWorkflowSection ? <ChevronUp className="w-3 h-3" /> : <ChevronDown className="w-3 h-3" />}
               </div>
             </div>
             {showWorkflowSection && (
@@ -707,21 +707,21 @@ export function OptimizedVisualEditor({ className = '' }: OptimizedVisualEditorP
 
         {/* Tabs for Chat, Gallery, and Flatlay Library */}
         <Tabs value={activeTab} onValueChange={setActiveTab} className="flex-1 flex flex-col min-h-0">
-          <TabsList className="grid w-full grid-cols-3 mx-6 mt-4 shrink-0">
+          <TabsList className="grid w-full grid-cols-3 mx-3 mt-2 shrink-0">
             <TabsTrigger value="chat" className="text-sm">Chat</TabsTrigger>
             <TabsTrigger value="gallery" className="text-sm">Gallery</TabsTrigger>
             <TabsTrigger value="flatlays" className="text-sm">Flatlays</TabsTrigger>
           </TabsList>
 
           <TabsContent value="chat" className="flex-1 flex flex-col mt-0 min-h-0">
-            {/* Quick Commands - Collapsible */}
+            {/* Quick Commands - Compact Collapsible */}
             <div className="border-b border-gray-200 shrink-0">
-              <div className="p-4 cursor-pointer flex items-center justify-between" onClick={() => setShowQuickCommands(!showQuickCommands)}>
-                <h4 className="font-medium text-sm">Quick Commands</h4>
-                {showQuickCommands ? <ChevronUp className="w-4 h-4" /> : <ChevronDown className="w-4 h-4" />}
+              <div className="p-2 cursor-pointer flex items-center justify-between" onClick={() => setShowQuickCommands(!showQuickCommands)}>
+                <h4 className="font-medium text-xs">Quick Commands</h4>
+                {showQuickCommands ? <ChevronUp className="w-3 h-3" /> : <ChevronDown className="w-3 h-3" />}
               </div>
               {showQuickCommands && (
-                <div className="px-4 pb-4 space-y-2">
+                <div className="px-2 pb-2 space-y-1">
                   {quickCommands.map((command, index) => (
                     <Button
                       key={index}
@@ -762,10 +762,10 @@ export function OptimizedVisualEditor({ className = '' }: OptimizedVisualEditorP
               )}
             </div>
 
-            {/* Chat Messages - Optimized Space Usage */}
+            {/* Chat Messages - Maximum Space Usage */}
             <div 
               ref={chatMessagesRef}
-              className="flex-1 overflow-y-auto p-4 space-y-3"
+              className="flex-1 overflow-y-auto p-2 space-y-2"
               style={{ 
                 scrollbarWidth: 'thin',
                 scrollbarColor: '#d1d5db #f3f4f6'
@@ -867,10 +867,10 @@ export function OptimizedVisualEditor({ className = '' }: OptimizedVisualEditorP
               )}
             </div>
 
-            {/* Chat Input with Upload - Desktop Optimized */}
-            <div className="p-3 border-t border-gray-200 bg-white shrink-0">
-              <div className="flex space-x-3">
-                <div className="flex items-center space-x-2">
+            {/* Chat Input with Upload - Compact */}
+            <div className="p-2 border-t border-gray-200 bg-white shrink-0">
+              <div className="flex space-x-2">
+                <div className="flex items-center space-x-1">
                   <input
                     ref={fileInputRef}
                     type="file"
@@ -881,9 +881,9 @@ export function OptimizedVisualEditor({ className = '' }: OptimizedVisualEditorP
                   />
                   <Button
                     variant="outline"
-                    size="default"
+                    size="sm"
                     onClick={() => fileInputRef.current?.click()}
-                    className="px-4 border-black text-black hover:bg-black hover:text-white"
+                    className="px-2 border-black text-black hover:bg-black hover:text-white text-xs h-8"
                     title="Upload inspiration images"
                   >
                     Upload
@@ -892,8 +892,8 @@ export function OptimizedVisualEditor({ className = '' }: OptimizedVisualEditorP
                 <Input
                   value={messageInput}
                   onChange={(e) => setMessageInput(e.target.value)}
-                  placeholder={`Ask ${currentAgent.name} for ${currentAgent.workflowStage.toLowerCase()} help or upload inspiration images...`}
-                  className="flex-1 text-base h-10 border-2 border-black focus:border-black focus:ring-black"
+                  placeholder={`Ask ${currentAgent.name} for ${currentAgent.workflowStage.toLowerCase()} help...`}
+                  className="flex-1 text-sm h-8 border border-black focus:border-black focus:ring-black"
                   onKeyPress={(e) => {
                     if (e.key === 'Enter' && !e.shiftKey) {
                       e.preventDefault();
@@ -902,12 +902,12 @@ export function OptimizedVisualEditor({ className = '' }: OptimizedVisualEditorP
                   }}
                 />
                 <Button
-                  size="default"
-                  className="bg-black text-white hover:bg-gray-800 px-6"
+                  size="sm"
+                  className="bg-black text-white hover:bg-gray-800 px-3 h-8"
                   onClick={() => sendMessage(messageInput)}
                   disabled={!messageInput.trim() || isLoading}
                 >
-                  <span className="text-base">Send</span>
+                  <span className="text-xs">Send</span>
                 </Button>
               </div>
             </div>
