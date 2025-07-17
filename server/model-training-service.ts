@@ -201,12 +201,14 @@ export class ModelTrainingService {
       
       // ✅ CRITICAL FIX: Store training ID temporarily during training
       // The replicateModelId will be updated to the final model version when training completes
+      console.log(`🔍 Storing training ID: ${trainingData.id} for user ${userId}`);
       await storage.updateUserModel(userId, {
         replicateModelId: trainingData.id, // Temporary training ID - will be updated to model version on completion
         triggerWord: triggerWord,
         trainingStatus: 'training',
         trainingProgress: 0
       });
+      console.log(`✅ Training ID stored successfully for user ${userId}`);
       
       
       return {
