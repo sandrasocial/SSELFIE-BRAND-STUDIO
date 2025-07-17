@@ -691,14 +691,14 @@ export function OptimizedVisualEditor({ className = '' }: OptimizedVisualEditorP
         </div>
 
         {/* Tabs for Chat, Gallery, and Flatlay Library */}
-        <Tabs value={activeTab} onValueChange={setActiveTab} className="flex-1 flex flex-col">
+        <Tabs value={activeTab} onValueChange={setActiveTab} className="flex-1 flex flex-col" style={{ height: 'calc(100vh - 180px)' }}>
           <TabsList className="grid w-full grid-cols-3 mx-6 mt-4">
             <TabsTrigger value="chat" className="text-sm">Chat</TabsTrigger>
             <TabsTrigger value="gallery" className="text-sm">Gallery</TabsTrigger>
             <TabsTrigger value="flatlays" className="text-sm">Flatlays</TabsTrigger>
           </TabsList>
 
-          <TabsContent value="chat" className="flex-1 flex flex-col mt-0 h-full">
+          <TabsContent value="chat" className="flex-1 flex flex-col mt-0" style={{ height: 'calc(100vh - 200px)' }}>
             {/* Quick Commands - Desktop Optimized */}
             <div className="p-6 border-b border-gray-200">
               <h4 className="font-medium text-base mb-4">Quick Commands</h4>
@@ -746,7 +746,7 @@ export function OptimizedVisualEditor({ className = '' }: OptimizedVisualEditorP
             <div 
               ref={chatMessagesRef}
               className="flex-1 overflow-y-auto p-4 space-y-3" 
-              style={{ maxHeight: 'calc(100vh - 650px)', minHeight: '250px' }}
+              style={{ maxHeight: 'calc(100vh - 450px)', minHeight: '200px' }}
             >
               {chatMessages.length === 0 && (
                 <div className="text-center text-gray-500 text-sm">
@@ -845,9 +845,9 @@ export function OptimizedVisualEditor({ className = '' }: OptimizedVisualEditorP
               )}
             </div>
 
-            {/* Chat Input with Upload - Desktop Optimized */}
-            <div className="p-6 border-t border-gray-200 bg-white">
-              <div className="flex space-x-3">
+            {/* Chat Input with Upload - Always Visible */}
+            <div className="p-4 border-t border-gray-200 bg-white mt-auto">
+              <div className="flex space-x-2">
                 <div className="flex items-center space-x-2">
                   <input
                     ref={fileInputRef}
@@ -859,9 +859,9 @@ export function OptimizedVisualEditor({ className = '' }: OptimizedVisualEditorP
                   />
                   <Button
                     variant="outline"
-                    size="default"
+                    size="sm"
                     onClick={() => fileInputRef.current?.click()}
-                    className="px-4 border-black text-black hover:bg-black hover:text-white"
+                    className="px-3 border-black text-black hover:bg-black hover:text-white"
                     title="Upload inspiration images"
                   >
                     Upload
@@ -871,7 +871,7 @@ export function OptimizedVisualEditor({ className = '' }: OptimizedVisualEditorP
                   value={messageInput}
                   onChange={(e) => setMessageInput(e.target.value)}
                   placeholder={`Ask ${currentAgent.name} for ${currentAgent.workflowStage.toLowerCase()} help or upload inspiration images...`}
-                  className="flex-1 text-base h-10 border-2 border-black focus:border-black focus:ring-black"
+                  className="flex-1 text-sm h-9 border-2 border-black focus:border-black focus:ring-black"
                   onKeyPress={(e) => {
                     if (e.key === 'Enter' && !e.shiftKey) {
                       e.preventDefault();
@@ -880,12 +880,12 @@ export function OptimizedVisualEditor({ className = '' }: OptimizedVisualEditorP
                   }}
                 />
                 <Button
-                  size="default"
-                  className="bg-black text-white hover:bg-gray-800 px-6"
+                  size="sm"
+                  className="bg-black text-white hover:bg-gray-800 px-4"
                   onClick={() => sendMessage(messageInput)}
                   disabled={!messageInput.trim() || isLoading}
                 >
-                  <span className="text-base">Send</span>
+                  <span className="text-sm">Send</span>
                 </Button>
               </div>
             </div>
