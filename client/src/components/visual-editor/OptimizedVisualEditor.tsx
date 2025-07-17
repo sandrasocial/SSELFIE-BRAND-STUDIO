@@ -765,17 +765,19 @@ export function OptimizedVisualEditor({ className = '' }: OptimizedVisualEditorP
             {/* Chat Messages - Optimized Space Usage */}
             <div 
               ref={chatMessagesRef}
-              className="flex-1 overflow-y-auto p-4 space-y-3"
+              className="flex-1 overflow-y-auto px-4 py-6 space-y-4"
               style={{ 
                 scrollbarWidth: 'thin',
                 scrollbarColor: '#d1d5db #f3f4f6',
-                minHeight: '300px'
+                minHeight: '400px'
               }}
             >
               {chatMessages.length === 0 && (
-                <div className="text-center text-gray-500 py-8">
-                  <div className="text-lg mb-2">Start chatting with {currentAgent.name}</div>
-                  <div className="text-sm">Ask for {currentAgent.workflowStage.toLowerCase()} help or upload inspiration images...</div>
+                <div className="text-center text-gray-500 py-12">
+                  <div className="text-lg mb-3">Start chatting with {currentAgent.name}</div>
+                  <div className="text-sm leading-relaxed max-w-sm mx-auto">
+                    Ask for {currentAgent.workflowStage.toLowerCase()} help, upload inspiration images, or try the quick commands above.
+                  </div>
                 </div>
               )}
               
@@ -786,11 +788,11 @@ export function OptimizedVisualEditor({ className = '' }: OptimizedVisualEditorP
                   key={index}
                   className={`${
                     message.type === 'user' 
-                      ? 'ml-4 bg-black text-white' 
+                      ? 'ml-6 bg-black text-white' 
                       : message.isHandoff
                       ? 'mx-2 bg-blue-50 border border-blue-200 text-blue-900'
-                      : 'mr-4 bg-gray-100 text-gray-900'
-                  } p-3 rounded-lg text-sm break-words whitespace-pre-wrap`}
+                      : 'mr-6 bg-gray-100 text-gray-900'
+                  } p-4 rounded-lg text-sm break-words whitespace-pre-wrap leading-relaxed shadow-sm`}
                 >
                   {/* Agent Name Header */}
                   {agent && !message.isHandoff && (
@@ -868,47 +870,67 @@ export function OptimizedVisualEditor({ className = '' }: OptimizedVisualEditorP
               )}
             </div>
 
-            {/* Chat Input with Upload - Desktop Optimized */}
-            <div className="p-3 border-t border-gray-200 bg-white shrink-0">
-              <div className="flex space-x-3">
-                <div className="flex items-center space-x-2">
-                  <input
-                    ref={fileInputRef}
-                    type="file"
-                    accept="image/*"
-                    multiple
-                    onChange={(e) => handleFileUpload(e.target.files)}
-                    className="hidden"
-                  />
-                  <Button
-                    variant="outline"
-                    size="default"
-                    onClick={() => fileInputRef.current?.click()}
-                    className="px-4 border-black text-black hover:bg-black hover:text-white"
-                    title="Upload inspiration images"
-                  >
-                    Upload
-                  </Button>
-                </div>
-                <Input
-                  value={messageInput}
-                  onChange={(e) => setMessageInput(e.target.value)}
-                  placeholder={`Ask ${currentAgent.name} for ${currentAgent.workflowStage.toLowerCase()} help or upload inspiration images...`}
-                  className="flex-1 text-base h-10 border-2 border-black focus:border-black focus:ring-black"
-                  onKeyPress={(e) => {
-                    if (e.key === 'Enter' && !e.shiftKey) {
-                      e.preventDefault();
-                      sendMessage(messageInput);
-                    }
-                  }}
+            {/* Chat Input with Upload - Optimized Layout */}
+            <div className="p-4 border-t border-gray-200 bg-white shrink-0">
+              {/* Upload Button Row */}
+              <div className="flex items-center space-x-3 mb-3">
+                <input
+                  ref={fileInputRef}
+                  type="file"
+                  accept="image/*"
+                  multiple
+                  onChange={(e) => handleFileUpload(e.target.files)}
+                  className="hidden"
                 />
                 <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => fileInputRef.current?.click()}
+                  className="px-4 py-2 border-black text-black hover:bg-black hover:text-white"
+                  title="Upload inspiration images"
+                >
+                  Upload Images
+                </Button>
+                <span className="text-xs text-gray-500">
+                  Ask {currentAgent.name} for {currentAgent.workflowStage.toLowerCase()} help
+                </span>
+              </div>
+              
+              {/* Message Input Row */}
+              <div className="flex space-x-3 items-end">
+                <div className="flex-1">
+                  <textarea
+                    value={messageInput}
+                    onChange={(e) => setMessageInput(e.target.value)}
+                    placeholder={`Type your message here... (Shift+Enter for new line, Enter to send)`}
+                    className="w-full resize-none border-2 border-black focus:border-black focus:ring-black rounded-md px-3 py-2 text-sm min-h-[44px] max-h-[120px] overflow-y-auto"
+                    style={{ 
+                      lineHeight: '1.4',
+                      scrollbarWidth: 'thin',
+                      scrollbarColor: '#d1d5db #f3f4f6'
+                    }}
+                    rows={1}
+                    onKeyDown={(e) => {
+                      if (e.key === 'Enter' && !e.shiftKey) {
+                        e.preventDefault();
+                        sendMessage(messageInput);
+                      }
+                    }}
+                    onInput={(e) => {
+                      // Auto-resize textarea
+                      const target = e.target as HTMLTextAreaElement;
+                      target.style.height = 'auto';
+                      target.style.height = Math.min(target.scrollHeight, 120) + 'px';
+                    }}
+                  />
+                </div>
+                <Button
                   size="default"
-                  className="bg-black text-white hover:bg-gray-800 px-6"
+                  className="bg-black text-white hover:bg-gray-800 px-6 py-2.5 shrink-0"
                   onClick={() => sendMessage(messageInput)}
                   disabled={!messageInput.trim() || isLoading}
                 >
-                  <span className="text-base">Send</span>
+                  {isLoading ? 'Sending...' : 'Send'}
                 </Button>
               </div>
             </div>
