@@ -226,7 +226,8 @@ function AgentChat({ agentId, agentName, role, status, currentTask, metrics }: A
         body: JSON.stringify({
           agentId,
           message: content,
-          adminToken: 'sandra-admin-2025'
+          adminToken: 'sandra-admin-2025',
+          conversationHistory: chatHistory.slice(-10) // Send last 10 messages for context
         })
       });
       

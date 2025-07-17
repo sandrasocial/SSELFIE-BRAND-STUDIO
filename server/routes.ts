@@ -3463,8 +3463,13 @@ Consider this workflow optimized and ready for implementation! ⚙️`
     console.log('🔧 ADMIN AGENT CHAT BYPASS ENDPOINT HIT!');
     
     try {
-      const { agentId, message, adminToken } = req.body;
-      console.log('📝 Request body:', { agentId, message: message?.substring(0, 30), adminToken });
+      const { agentId, message, adminToken, conversationHistory = [] } = req.body;
+      console.log('📝 Request body:', { 
+        agentId, 
+        message: message?.substring(0, 30), 
+        adminToken,
+        conversationHistoryLength: conversationHistory.length 
+      });
       
       // Simple admin verification - in production this would be more secure
       if (adminToken !== 'sandra-admin-2025') {
@@ -3569,16 +3574,38 @@ Key Business Context:
 
 If Sandra asks you to create a file or implement code, respond enthusiastically and mention that you can actually create files in the system. Always maintain your authentic personality.`;
 
+        // Build conversation messages with history
+        const messages = [];
+        
+        // Add conversation history (last 10 messages for context)
+        const recentHistory = conversationHistory.slice(-10);
+        for (const historyItem of recentHistory) {
+          if (historyItem.type === 'user') {
+            messages.push({
+              role: "user",
+              content: historyItem.content
+            });
+          } else if (historyItem.type === 'agent') {
+            messages.push({
+              role: "assistant", 
+              content: historyItem.content
+            });
+          }
+        }
+        
+        // Add current message
+        messages.push({
+          role: "user",
+          content: message
+        });
+
+        console.log(`💬 Conversation with ${agentId}: ${messages.length} messages (${recentHistory.length} from history + 1 current)`);
+
         const completion = await client.messages.create({
           model: "claude-sonnet-4-20250514",
           max_tokens: 1024,
           system: systemPrompt,
-          messages: [
-            {
-              role: "user",
-              content: message
-            }
-          ],
+          messages: messages,
         });
 
         const aiResponse = completion.content[0].text;
