@@ -291,13 +291,39 @@ function AgentChat({ agentId, agentName, role, status, currentTask, metrics }: A
             // Try to parse the JSON, handle potential truncation
             let jsonString = jsonMatch[1];
             
-            // Handle incomplete JSON (common in Victoria's responses)
+            console.log('🔍 Raw JSON string length:', jsonString.length);
+            console.log('🔍 JSON ends with:', jsonString.slice(-10));
+            
+            // Advanced JSON completion for Victoria's truncated responses
             if (!jsonString.endsWith('}')) {
+              console.log('🔧 JSON appears truncated, attempting completion...');
+              
+              // Handle incomplete arrays (most common truncation point)
+              if (jsonString.includes('"changes"') && !jsonString.includes('"changes": [')) {
+                // Fix incomplete changes array declaration
+                jsonString = jsonString.replace('"changes"', '"changes": [');
+              }
+              
+              // If we're in the middle of an array element, close it
+              if (jsonString.includes('[') && !jsonString.includes(']')) {
+                // Count open quotes to see if we're in a string
+                const quoteCount = (jsonString.match(/"/g) || []).length;
+                if (quoteCount % 2 === 1) {
+                  // We're in an incomplete string, close it
+                  jsonString += '"';
+                }
+                // Close the array
+                jsonString += ']';
+              }
+              
+              // Close any remaining open braces
               const openBraces = (jsonString.match(/{/g) || []).length;
               const closeBraces = (jsonString.match(/}/g) || []).length;
               for (let i = closeBraces; i < openBraces; i++) {
                 jsonString += '}';
               }
+              
+              console.log('🔧 Completed JSON:', jsonString.slice(-50));
             }
             
             parsedDevPreview = JSON.parse(jsonString);
