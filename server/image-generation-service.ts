@@ -113,7 +113,7 @@ export async function generateImages(request: GenerateImagesRequest): Promise<Ge
     } else {
       throw new Error('User model not ready for generation. Training must be completed first.');
     }
-    ArchitectureValidator.validateGenerationRequest(requestBody, userId);
+    ArchitectureValidator.validateGenerationRequest(requestBody, userId, isPremium);
     ArchitectureValidator.logArchitectureCompliance(userId, 'AI Photoshoot Generation');
     
 
