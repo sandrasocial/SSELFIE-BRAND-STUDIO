@@ -29,6 +29,7 @@ import {
 import { apiRequest } from '@/lib/queryClient';
 import { useToast } from '@/hooks/use-toast';
 import { useQuery } from '@tanstack/react-query';
+import { FileTreeExplorer } from './FileTreeExplorer';
 
 interface ChatMessage {
   type: 'user' | 'agent';
@@ -891,12 +892,13 @@ export function OptimizedVisualEditor({ className = '' }: OptimizedVisualEditorP
           )}
         </div>
 
-        {/* Tabs for Chat, Gallery, and Flatlay Library */}
+        {/* Tabs for Chat, Gallery, Flatlay Library, and File Tree */}
         <Tabs value={activeTab} onValueChange={setActiveTab} className="flex-1 flex flex-col">
-          <TabsList className="grid w-full grid-cols-3 mx-1 md:mx-2 mt-1 md:mt-2">
+          <TabsList className="grid w-full grid-cols-4 mx-1 md:mx-2 mt-1 md:mt-2">
             <TabsTrigger value="chat" className="text-xs">Chat</TabsTrigger>
             <TabsTrigger value="gallery" className="text-xs">Gallery</TabsTrigger>
             <TabsTrigger value="flatlays" className="text-xs">Flatlays</TabsTrigger>
+            <TabsTrigger value="files" className="text-xs">Files</TabsTrigger>
           </TabsList>
 
           <TabsContent value="chat" className="flex-1 flex flex-col mt-0">
@@ -1180,6 +1182,29 @@ export function OptimizedVisualEditor({ className = '' }: OptimizedVisualEditorP
                 </div>
               ))}
             </div>
+          </TabsContent>
+
+          <TabsContent value="files" className="flex-1 flex flex-col mt-0">
+            <FileTreeExplorer 
+              selectedAgent={currentAgent.id}
+              onFileSelect={(filePath, content) => {
+                // Add file content to chat context for agent
+                const fileMessage: ChatMessage = {
+                  type: 'user',
+                  content: `I'm looking at file: ${filePath}\n\nFile content:\n\`\`\`\n${content.substring(0, 1000)}${content.length > 1000 ? '...\n[Content truncated - file is ' + content.length + ' characters]' : ''}\n\`\`\`\n\nPlease analyze this file and help me understand or improve it.`,
+                  timestamp: new Date()
+                };
+                setChatMessages(prev => [...prev, fileMessage]);
+                
+                // Switch to chat tab to see the context
+                setActiveTab('chat');
+                
+                toast({
+                  title: 'File Loaded',
+                  description: `${filePath} content added to chat context`,
+                });
+              }}
+            />
           </TabsContent>
         </Tabs>
           </div>
