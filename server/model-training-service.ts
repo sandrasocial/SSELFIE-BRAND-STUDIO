@@ -179,10 +179,10 @@ export class ModelTrainingService {
           input: {
             input_images: zipUrl,
             trigger_word: triggerWord,
-            steps: 600, // 🔧 FIXED: Reduced from 800 to prevent overfitting and maintain natural appearance
-            learning_rate: 0.0001, // 🔧 FIXED: Reduced from 0.0002 to prevent overfitting and maintain realism
-            batch_size: 1, // 🔧 OPTIMAL: Single batch for precise training
-            lora_rank: 16, // 🔧 FIXED: Reduced from 32 to prevent overfitting while maintaining quality
+            steps: 1000, // 🔧 PROVEN WORKING: Exact parameters that created successful model with facial accuracy
+            learning_rate: 1e-5, // 🔧 PROVEN WORKING: Conservative learning rate prevents overfitting while maintaining realism
+            batch_size: 1, // 🔧 PROVEN WORKING: Single batch for precise training
+            lora_rank: 16, // 🔧 PROVEN WORKING: Perfect balance prevents overfitting while maintaining quality
             resolution: "1024", // 🔧 OPTIMAL: High resolution for detailed facial features
             optimizer: "adamw8bit", // 🔧 OPTIMAL: Memory efficient optimizer
             autocaption: false, // 🔧 OPTIMAL: Manual captioning for better control
