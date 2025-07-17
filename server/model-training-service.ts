@@ -33,13 +33,13 @@ export const PROMPT_TEMPLATES = {
 };
 
 export const GENERATION_SETTINGS = {
-  aspect_ratio: "4:3",
-  output_format: "jpg", 
-  output_quality: 95,
-  guidance: 2.8,              // OPTIMIZED: Reduced from 3.0 to 2.8 for more natural results
-  num_inference_steps: 40,    // OPTIMIZED: Increased from 28 to 40 for higher quality
+  aspect_ratio: "3:4",        // 🔧 FLUX LORA OPTIMAL: Most natural for portraits
+  output_format: "png", 
+  output_quality: 90,
+  lora_scale: 0.9,            // 🔧 FLUX LORA OPTIMAL: Strong enough to capture trained features without over-fitting
+  guidance: 2.6,              // 🔧 FLUX LORA OPTIMAL: Sweet spot for prompt following with natural generation
+  num_inference_steps: 40,    // 🔧 FLUX LORA OPTIMAL: Enough detail without diminishing returns
   go_fast: false,
-  lora_scale: 1.0,
   megapixels: "1"
 };
 
@@ -423,12 +423,14 @@ export class ModelTrainingService {
         input: {
           prompt: finalPrompt,
           negative_prompt: "portrait, headshot, passport photo, studio shot, centered face, isolated subject, corporate headshot, ID photo, school photo, posed, glossy skin, shiny skin, oily skin, plastic skin, overly polished, artificial lighting, fake appearance, heavily airbrushed, perfect skin, flawless complexion, heavy digital enhancement, strong beauty filter, unrealistic skin texture, synthetic appearance, smooth skin, airbrushed, retouched, magazine retouching, digital perfection, waxy skin, doll-like skin, porcelain skin, flawless makeup, heavy foundation, concealer, smooth face, perfect complexion, digital smoothing, beauty app filter, Instagram filter, snapchat filter, face tune, photoshop skin, shiny face, polished skin, reflective skin, wet skin, slick skin, lacquered skin, varnished skin, glossy finish, artificial shine, digital glow, skin blur, inconsistent hair color, wrong hair color, blonde hair, light hair, short hair, straight hair, flat hair, limp hair, greasy hair, stringy hair, unflattering hair, bad hair day, messy hair, unkempt hair, oily hair, lifeless hair, dull hair, damaged hair",
+          lora_scale: 0.9, // 🔧 FLUX LORA OPTIMAL: Strong enough to capture trained features without over-fitting
+          guidance: 2.6, // 🔧 FLUX LORA OPTIMAL: Sweet spot for prompt following with natural generation
+          num_inference_steps: 40, // 🔧 FLUX LORA OPTIMAL: Enough detail without diminishing returns
           num_outputs: count,
-          aspect_ratio: "4:3", // Wider aspect for environmental scenes
-          output_format: "jpg",
-          output_quality: 95,
-          num_inference_steps: 28, // Optimal for film-like quality (same as AI Photoshoot)
-          go_fast: false, // Quality over speed
+          aspect_ratio: "3:4", // 🔧 FLUX LORA OPTIMAL: Most natural for portraits
+          output_format: "png",
+          output_quality: 90,
+          go_fast: false,
           seed: Math.floor(Math.random() * 1000000)
         }
       };
