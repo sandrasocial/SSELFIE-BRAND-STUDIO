@@ -81,7 +81,59 @@ export class TrainingCompletionMonitor {
   }
 
   /**
-   * Check all in-progress trainings
+   * Check for completed models by directly querying Replicate API using model name pattern
+   * This works even if training ID wasn't stored in database
+   */
+  static async checkModelByName(userId: string, modelName: string): Promise<boolean> {
+    try {
+      console.log(`🔍 Checking model by name: sandrasocial/${modelName} for user ${userId}`);
+      
+      const response = await fetch(`https://api.replicate.com/v1/models/sandrasocial/${modelName}`, {
+        headers: {
+          'Authorization': `Token ${process.env.REPLICATE_API_TOKEN}`,
+          'Content-Type': 'application/json'
+        }
+      });
+
+      if (response.status === 404) {
+        console.log(`⏳ Model sandrasocial/${modelName} not yet available`);
+        return false;
+      }
+
+      if (!response.ok) {
+        console.error(`❌ Replicate API error for model ${modelName}: ${response.status}`);
+        return false;
+      }
+
+      const modelData = await response.json();
+      
+      if (modelData.latest_version?.id) {
+        console.log(`✅ Model completed! Updating database for user ${userId}`);
+        console.log(`📋 Latest version: ${modelData.latest_version.id}`);
+        
+        await storage.updateUserModel(userId, {
+          trainingStatus: 'completed',
+          replicateModelId: `sandrasocial/${modelName}`,
+          replicateVersionId: modelData.latest_version.id,
+          trainingProgress: 100,
+          modelType: 'flux-standard',
+          updatedAt: new Date()
+        });
+
+        console.log(`🎉 Database updated! User ${userId} training completed`);
+        return true;
+      }
+
+      return false;
+
+    } catch (error) {
+      console.error(`❌ Error checking model ${modelName}:`, error);
+      return false;
+    }
+  }
+
+  /**
+   * Check all in-progress trainings - Enhanced version that works without training ID
    */
   static async checkAllInProgressTrainings(): Promise<void> {
     try {
@@ -98,11 +150,31 @@ export class TrainingCompletionMonitor {
       console.log(`📊 Found ${inProgressModels.length} in-progress trainings to check`);
 
       for (const userModel of inProgressModels) {
-        if (userModel.replicateModelId) {
-          await this.checkAndUpdateTraining(userModel.replicateModelId, userModel.userId);
+        const timeSinceStart = Date.now() - new Date(userModel.createdAt || new Date()).getTime();
+        const minutesSinceStart = timeSinceStart / (1000 * 60);
+        
+        console.log(`⏱️ User ${userModel.userId}: ${Math.round(minutesSinceStart)} minutes since training started`);
+        
+        // Only check models that have been training for at least 8 minutes (training typically takes 10+ minutes)
+        if (minutesSinceStart >= 8) {
+          let updated = false;
+          
+          // Method 1: Check by training ID if available
+          if (userModel.replicateModelId && userModel.replicateModelId.startsWith('rdt_')) {
+            console.log(`🔍 Checking by training ID: ${userModel.replicateModelId}`);
+            updated = await this.checkAndUpdateTraining(userModel.replicateModelId, userModel.userId);
+          }
+          
+          // Method 2: Check by model name pattern (fallback for models without stored training ID)
+          if (!updated && userModel.modelName) {
+            console.log(`🔍 Checking by model name: ${userModel.modelName}`);
+            updated = await this.checkModelByName(userModel.userId, userModel.modelName);
+          }
           
           // Wait 1 second between API calls to avoid rate limiting
           await new Promise(resolve => setTimeout(resolve, 1000));
+        } else {
+          console.log(`⏳ User ${userModel.userId}: Training too recent, waiting...`);
         }
       }
 
