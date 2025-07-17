@@ -9,6 +9,7 @@ import { DevPreviewModal } from "@/components/dev-preview-modal";
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
+import TestAdminCard from '@/components/admin/TestAdminCard';
 
 // Agent Configuration for the visual cards
 const AGENT_CONFIGS = [
@@ -172,6 +173,9 @@ export default function AdminDashboard() {
       {/* Content */}
       <div className="pt-4">
         <div className="max-w-7xl mx-auto px-6 py-8">
+          {/* File Creation Test */}
+          <TestAdminCard />
+          
           {/* Business Metrics */}
           <section className="mb-12">
             <h2 className="font-serif text-2xl mb-6">Business Overview</h2>
