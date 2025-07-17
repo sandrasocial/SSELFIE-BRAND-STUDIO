@@ -588,16 +588,16 @@ The platform has become overly complex with multiple pricing tiers, broken onboa
 - Verified complete user model isolation with no fallback to shared models
 - Fixed Maya chat image preview system: retroactive update linked 13 completed generations to chat messages
 
-### ✅ FLUX LoRA OPTIMIZATION FOR NATURAL EXPRESSIONS COMPLETED (July 17, 2025)
-**COMPREHENSIVE PARAMETER TUNING FOR AUTHENTIC FACIAL EXPRESSIONS:**
-- **Generation Parameters**: Guidance optimized to 2.8, steps 35→50, quality 95→100 for natural results
-- **Anti-Fake Smiling**: Added "no excessive smiling, authentic facial expression, natural expression, subtle expression" specifications
-- **Multiple Trigger Word Placement**: Enhanced prompt engineering with trigger word at beginning + middle for better likeness
-- **Facial Accuracy Specifications**: Added "authentic user42585527 facial features" and "high detail facial accuracy" to prompts
-- **Services Updated**: Maya AI, AI Photoshoot, and Enhanced Generation all optimized for natural expressions
+### ✅ REVERTED TO PROVEN JULY 16 SUCCESSFUL SETTINGS (July 17, 2025)
+**RESTORED OPTIMAL PARAMETERS THAT CREATED SUCCESSFUL FACIAL LIKENESS:**
+- **Generation Parameters**: Reverted to guidance 2.5, steps 35, quality 90 (exact July 16 settings)
+- **Prompt Specifications**: Simplified back to proven July 16 natural film photography specs
+- **Multiple Trigger Word Placement**: Maintained enhanced trigger word positioning for facial activation
+- **Anti-Smiling**: Maintained natural expression specifications to prevent fake smiles
+- **Services Updated**: Maya AI, AI Photoshoot, and Enhanced Generation all using proven settings
 - **Architecture Maintained**: V2 individual model architecture preserved with zero changes to user isolation
 
-**Expected Impact**: Natural, authentic facial expressions without fake-looking excessive smiles while maintaining facial likeness and editorial quality.
+**Expected Impact**: Restored facial likeness accuracy using the exact parameters that created the successful image at https://sselfie-training-zips.s3.eu-north-1.amazonaws.com/images/undefined/undefined_1752655445458.png
 
 ### ✅ COMPREHENSIVE PRE-DEPLOYMENT AUDIT COMPLETED (July 16, 2025)
 **PLATFORM READY FOR PRODUCTION DEPLOYMENT:**
