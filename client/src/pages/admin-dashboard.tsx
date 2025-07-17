@@ -227,7 +227,10 @@ function AgentChat({ agentId, agentName, role, status, currentTask, metrics }: A
           agentId,
           message: content,
           adminToken: 'sandra-admin-2025',
-          conversationHistory: chatHistory.slice(-10) // Send last 10 messages for context
+          conversationHistory: chatHistory.slice(-10).map(msg => ({
+            type: msg.type,
+            content: msg.content
+          })) // Send last 10 messages with proper format
         })
       });
       
@@ -244,6 +247,8 @@ function AgentChat({ agentId, agentName, role, status, currentTask, metrics }: A
         content: message,
         timestamp: new Date()
       };
+
+      // Agent response will be created below after parsing
 
       // Enhanced DEV_PREVIEW parsing and file creation detection
       let parsedDevPreview = null;
