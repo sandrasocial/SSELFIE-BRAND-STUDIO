@@ -1470,7 +1470,7 @@ Create prompts that feel like iconic fashion campaign moments that would make so
   });
 
   // 🧪 ADMIN TEST ENDPOINT - Verify individual model access for admin users
-  app.post('/api/admin/test-flux-pro', isAuthenticated, async (req: any, res) => {
+  app.post('/api/admin/test-individual-model', isAuthenticated, async (req: any, res) => {
     try {
       const userId = req.user.claims.sub;
       const user = await storage.getUser(userId);
@@ -1567,7 +1567,7 @@ Create prompts that feel like iconic fashion campaign moments that would make so
       res.json({
         status: statusResult.status,
         progress: statusResult.progress,
-        finetune_id: statusResult.finetune_id,
+        individual_model: statusResult.replicate_model_id,
         isLuxury: true,
         qualityLevel: 'Ultra-Realistic Professional',
         estimatedTimeRemaining: statusResult.progress < 100 ? `${Math.max(0, 40 - Math.round(statusResult.progress * 0.4))} minutes` : '0 minutes'
@@ -2981,7 +2981,7 @@ Consider this workflow optimized and ready for implementation! ⚙️`
           ],
           technicalKnowledge: {
             architecture: 'Main route: /api/start-model-training with automatic tier detection',
-            models: 'Premium: black-forest-labs/flux-pro-trainer, Free: ostris/flux-dev-lora-trainer',
+            models: 'All Users: Individual flux-standard models with complete isolation',
             database: 'userModels: modelType, isLuxury, finetuneId fields for tier tracking',
             services: 'LuxuryTrainingService vs ModelTrainingService, dual-tier completion monitor',
             codebase: 'Full access to server/routes.ts, ai-service.ts, training services'

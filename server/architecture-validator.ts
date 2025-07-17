@@ -1,7 +1,7 @@
 /**
- * FLUX PRO DUAL-TIER ARCHITECTURE VALIDATOR
- * Validates all generation requests against the dual-tier FLUX architecture
- * CRITICAL: Enforces premium users get FLUX Pro, free users get standard FLUX
+ * CORE ARCHITECTURE V2 VALIDATOR - INDIVIDUAL MODEL ARCHITECTURE
+ * Validates all generation requests against CORE_ARCHITECTURE_IMMUTABLE_V2.md
+ * CRITICAL: ALL users use individual trained models with complete isolation
  */
 
 import { storage } from './storage';
@@ -9,8 +9,8 @@ import { storage } from './storage';
 export class ArchitectureValidator {
   
   /**
-   * 🚀 DUAL-TIER VALIDATION - Ensures correct FLUX model for user tier
-   * Premium users must use FLUX Pro, free users must use standard FLUX
+   * 🔒 INDIVIDUAL MODEL VALIDATION - Ensures correct user model architecture
+   * ALL users must use their individual trained models with zero cross-contamination
    */
   static validateGenerationRequest(requestBody: any, userId: string, isPremium: boolean = false): void {
     // 🔒 V2 ARCHITECTURE: ALL users use individual trained models (no FLUX Pro distinction)

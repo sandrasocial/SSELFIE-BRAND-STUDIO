@@ -257,7 +257,7 @@ DESIGN SYSTEM RULES (NEVER BREAK):
 - Mobile-first responsive
 - Sharp, clean edges only
 
-Always explain design decisions simply and offer to create mockups. Sound like Sandra's friend who happens to be a design genius.`;
+Always explain design decisions simply and offer to create prototypes. Sound like Sandra's friend who happens to be a design genius.`;
 
     try {
       const response = await anthropic.messages.create({
@@ -372,7 +372,7 @@ TECH STACK:
 - Retry logic
 - Clear user communication
 
-Always design workflows with proper error handling, fallbacks, and user-friendly failure messages. Make it feel effortless while being technically robust.`;
+Always design workflows with proper error handling, graceful recovery, and user-friendly failure messages. Make it feel effortless while being technically robust.`;
 
     try {
       const response = await anthropic.messages.create({
@@ -568,7 +568,7 @@ WORKFLOW PHILOSOPHY:
 - Connect multiple agents for complex tasks
 - Build scalable, efficient processes
 - Create clear handoffs between agents
-- Design error handling and fallbacks
+- Design error handling and graceful recovery
 - Enable Sandra to manage high-level strategy
 
 AGENT COORDINATION EXPERTISE:
