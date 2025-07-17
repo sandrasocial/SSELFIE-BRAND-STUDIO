@@ -46,8 +46,16 @@ export default function SimpleTraining() {
         setStartTime(new Date(userModel.startedAt));
       }
     } else if (userModel && userModel.trainingStatus === 'completed') {
-      console.log('✅ Found completed training:', userModel);
-      // Don't set training started, user can retrain
+      console.log('✅ Found completed training on page load - redirecting to workspace');
+      // Training is already completed, redirect to workspace
+      toast({
+        title: "Training Already Complete!",
+        description: "Your AI model is ready. Redirecting to workspace...",
+      });
+      
+      setTimeout(() => {
+        window.location.href = '/workspace';
+      }, 2000);
     }
   }, [userModel, isAuthenticated]);
 
@@ -60,9 +68,28 @@ export default function SimpleTraining() {
       
       const interval = setInterval(async () => {
         // Update user model data
-        await refetchUserModel();
+        const updatedData = await refetchUserModel();
         
-        // Get progress data if we have user model
+        // Check if training completed
+        if (updatedData?.data?.trainingStatus === 'completed') {
+          console.log('✅ Training completed! Redirecting to workspace...');
+          setIsTrainingStarted(false);
+          setTrainingProgress(100);
+          
+          // Show success message and redirect
+          toast({
+            title: "Training Complete!",
+            description: "Your AI model is ready. Redirecting to workspace...",
+          });
+          
+          setTimeout(() => {
+            window.location.href = '/workspace';
+          }, 2000);
+          
+          return; // Exit early to avoid further polling
+        }
+        
+        // Get progress data if we have user model and still training
         if (userModel?.id) {
           try {
             const progressResponse = await fetch(`/api/training-progress/${userModel.id}`, {
