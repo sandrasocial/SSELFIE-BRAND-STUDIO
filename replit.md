@@ -165,12 +165,14 @@ Sandra's revolutionary AI-powered business management system with specialized ag
 
 ## Sandra's AI Agent Team - COMPLETE FLUX PRO SYSTEM INTEGRATION (July 16, 2025)
 
-**USER PREFERENCE UPDATE (July 16, 2025):**
+**USER PREFERENCE UPDATE (July 17, 2025):**
+- **Victoria Response Length**: Quick, actionable responses (1-2 sentences) for file creation, longer responses only for design brainstorming
+- **File Creation Workflow**: Victoria creates files directly → dev preview shows immediately → Sandra says "approve" → handoff to Maya
 - **Communication Style**: Agent responses should be concise and conversational for regular chat
 - **Response Length**: Shorter, focused responses instead of detailed explanations
 - **Tone**: Maintain authentic personalities but keep interactions brief and helpful
-- **Conversation Memory**: Agents must remember context throughout conversations (fixed - now sending last 10 messages as context)
-- **Dev Preview System**: Victoria and other agents should show design previews when suggesting changes (fixed - improved parsing and detection)
+- **Conversation Memory**: Agents must remember context throughout conversations (fixed)
+- **Direct File Access**: Agents create actual files in codebase with immediate dev preview updates
 
 **ALL 9 AGENTS FULLY BRIEFED WITH COMPLETE FLUX PRO DUAL-TIER KNOWLEDGE:**
 - **Victoria (UX Designer AI)**: FLUX Pro dual-tier UX optimization, premium conversion design, luxury positioning
