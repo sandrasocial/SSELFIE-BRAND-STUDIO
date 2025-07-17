@@ -452,11 +452,11 @@ export function OptimizedVisualEditor({ className = '' }: OptimizedVisualEditorP
 
       const data = await response.json();
       
-      if (data.response) {
+      if (data.message || data.response) {
         const agent = agents.find(a => a.id === agentId);
         const agentMessage: ChatMessage = {
           type: 'agent',
-          content: data.response,
+          content: data.message || data.response,
           timestamp: new Date(),
           agentName: agentId,
           workflowStage: agent?.workflowStage
@@ -464,8 +464,9 @@ export function OptimizedVisualEditor({ className = '' }: OptimizedVisualEditorP
         setChatMessages(prev => [...prev, agentMessage]);
 
         // Auto-apply changes based on agent type
+        const responseText = data.message || data.response;
         if (agentId === 'victoria') {
-          const cssMatch = data.response.match(/```css\n([\s\S]*?)\n```/);
+          const cssMatch = responseText.match(/```css\n([\s\S]*?)\n```/);
           if (cssMatch) {
             injectChangesToLivePreview(cssMatch[1]);
             toast({
@@ -476,8 +477,8 @@ export function OptimizedVisualEditor({ className = '' }: OptimizedVisualEditorP
         }
 
         // Check for handoff signals
-        if (data.response.includes('HANDOFF:') || data.response.includes('Ready for next stage')) {
-          const handoffContext = data.response.split('HANDOFF:')[1] || `${agent?.workflowStage} completed`;
+        if (responseText.includes('HANDOFF:') || responseText.includes('Ready for next stage')) {
+          const handoffContext = responseText.split('HANDOFF:')[1] || `${agent?.workflowStage} completed`;
           setTimeout(() => {
             handoffToNextAgent(agentId, handoffContext.trim());
           }, 2000);
