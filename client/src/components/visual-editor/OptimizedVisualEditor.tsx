@@ -699,16 +699,16 @@ export function OptimizedVisualEditor({ className = '' }: OptimizedVisualEditorP
           </TabsList>
 
           <TabsContent value="chat" className="flex-1 flex flex-col mt-0 h-full">
-            {/* Quick Commands - Desktop Optimized */}
-            <div className="p-6 border-b border-gray-200">
-              <h4 className="font-medium text-base mb-4">Quick Commands</h4>
-              <div className="space-y-3">
+            {/* Quick Commands - MacBook Optimized */}
+            <div className="p-3 border-b border-gray-200">
+              <h4 className="font-medium text-sm mb-2">Quick Commands</h4>
+              <div className="space-y-2">
                 {quickCommands.map((command, index) => (
                   <Button
                     key={index}
                     variant="outline"
                     size="sm"
-                    className="w-full justify-start text-sm h-11"
+                    className="w-full justify-start text-xs h-8 border-black text-black hover:bg-black hover:text-white"
                     onClick={() => {
                       if (command.styles) {
                         injectChangesToLivePreview(command.styles);
@@ -730,7 +730,7 @@ export function OptimizedVisualEditor({ className = '' }: OptimizedVisualEditorP
                 <Button
                   variant="outline"
                   size="sm"
-                  className="w-full justify-start text-xs bg-purple-50 border-purple-200 hover:bg-purple-100"
+                  className="w-full justify-start text-xs h-8 border-black text-black hover:bg-black hover:text-white"
                   onClick={generateImagesWithVictoria}
                   disabled={isLoading}
                 >
@@ -742,11 +742,11 @@ export function OptimizedVisualEditor({ className = '' }: OptimizedVisualEditorP
               </div>
             </div>
 
-            {/* Chat Messages - Fixed Height */}
+            {/* Chat Messages - MacBook Optimized */}
             <div 
               ref={chatMessagesRef}
               className="overflow-y-auto p-4 space-y-3" 
-              style={{ height: 'calc(100vh - 500px)', minHeight: '200px' }}
+              style={{ height: '300px', maxHeight: '300px' }}
             >
               {chatMessages.length === 0 && (
                 <div className="text-center text-gray-500 text-sm">
