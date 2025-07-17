@@ -284,7 +284,7 @@ function AgentChat({ agentId, agentName, role, status, currentTask, metrics }: A
           console.log('✅ Victoria DEV_PREVIEW format detected and parsed');
         } else {
           // Pattern 2: Look for ```json blocks (Victoria's new format) - handle truncation
-          const jsonBlockPattern = /```json\s*(\{[\s\S]*?)(?:\s*```|$)/;
+          const jsonBlockPattern = /```json\s*(\{[\s\S]*?)(?:```|$)/s;
           jsonMatch = data.message.match(jsonBlockPattern);
           
           if (jsonMatch) {
@@ -294,55 +294,74 @@ function AgentChat({ agentId, agentName, role, status, currentTask, metrics }: A
             console.log('🔍 Raw JSON string length:', jsonString.length);
             console.log('🔍 JSON ends with:', jsonString.slice(-10));
             
-            // Advanced JSON completion for Victoria's truncated responses
-            if (!jsonString.endsWith('}')) {
+            // Victoria's advanced JSON completion system
+            if (!jsonString.trim().endsWith('}')) {
               console.log('🔧 JSON appears truncated, attempting completion...');
+              console.log('🔍 Original length:', jsonString.length);
               
-              // Handle incomplete arrays (most common truncation point)
-              if (jsonString.includes('"changes"') && !jsonString.includes('"changes": [')) {
-                // Fix incomplete changes array declaration
-                jsonString = jsonString.replace('"changes"', '"changes": [');
+              // Handle specific Victoria truncation patterns
+              let completed = jsonString;
+              
+              // Pattern 1: Incomplete changes array
+              if (completed.includes('"changes":') && !completed.includes('"changes": [')) {
+                completed = completed.replace('"changes":', '"changes": [');
+                console.log('🔧 Fixed changes array declaration');
               }
               
-              // More sophisticated array completion
-              if (jsonString.includes('[') && !jsonString.includes(']')) {
-                // Find the last occurrence of an opening bracket
-                const lastBracketIndex = jsonString.lastIndexOf('[');
-                const afterBracket = jsonString.substring(lastBracketIndex + 1);
+              // Pattern 2: Incomplete string in changes array (most common)
+              if (completed.includes('"changes": [') && !completed.includes(']')) {
+                const changesStart = completed.indexOf('"changes": [') + '"changes": ['.length;
+                const afterChanges = completed.substring(changesStart);
                 
-                // Count open quotes after the last bracket to see if we're in a string
-                const quoteCount = (afterBracket.match(/"/g) || []).length;
-                if (quoteCount % 2 === 1) {
-                  // We're in an incomplete string, close it
-                  jsonString += '"';
+                // Count quotes to see if we're in a string
+                const quotes = (afterChanges.match(/"/g) || []).length;
+                if (quotes % 2 === 1) {
+                  // We're inside an incomplete string
+                  completed += '... (response truncated)"';
+                  console.log('🔧 Completed incomplete string');
                 }
                 
-                // If there's content after the bracket, add a comma before closing
-                if (afterBracket.trim() && !afterBracket.trim().endsWith(',')) {
-                  jsonString += ',';
+                // Close the changes array
+                if (!completed.includes('],')) {
+                  completed += ']';
+                  console.log('🔧 Closed changes array');
                 }
-                
-                // Add a placeholder completion message and close the array
-                jsonString += '"... (truncated)"';
-                jsonString += ']';
               }
               
-              // Handle incomplete strings at the end
-              const lastQuoteIndex = jsonString.lastIndexOf('"');
-              const afterLastQuote = jsonString.substring(lastQuoteIndex + 1);
-              if (!afterLastQuote.includes('"') && afterLastQuote.includes(':')) {
-                // We have an incomplete value after a colon
-                jsonString += '"(truncated)"';
+              // Pattern 3: Incomplete object properties after changes
+              const missingCommas = [',"preview":', ',"filePath":', ',"fileContent":'];
+              for (const prop of missingCommas) {
+                if (!completed.includes(prop) && completed.includes(']')) {
+                  const arrayCloseIndex = completed.lastIndexOf(']');
+                  const afterArray = completed.substring(arrayCloseIndex);
+                  if (!afterArray.includes(prop.substring(1))) {
+                    completed += prop.substring(1) + '"(truncated)"';
+                    console.log(`🔧 Added missing property: ${prop.substring(2)}`);
+                  }
+                }
               }
               
-              // Close any remaining open braces
-              const openBraces = (jsonString.match(/{/g) || []).length;
-              const closeBraces = (jsonString.match(/}/g) || []).length;
+              // Pattern 4: Close any remaining structures
+              const openBraces = (completed.match(/{/g) || []).length;
+              const closeBraces = (completed.match(/}/g) || []).length;
+              const openBrackets = (completed.match(/\[/g) || []).length;
+              const closeBrackets = (completed.match(/\]/g) || []).length;
+              
+              // Close unclosed arrays first
+              for (let i = closeBrackets; i < openBrackets; i++) {
+                completed += ']';
+                console.log('🔧 Closed unclosed array');
+              }
+              
+              // Close unclosed objects
               for (let i = closeBraces; i < openBraces; i++) {
-                jsonString += '}';
+                completed += '}';
+                console.log('🔧 Closed unclosed object');
               }
               
-              console.log('🔧 Completed JSON:', jsonString.slice(-50));
+              jsonString = completed;
+              console.log('🔧 Final completion length:', jsonString.length);
+              console.log('🔧 Ends with:', jsonString.slice(-20));
             }
             
             parsedDevPreview = JSON.parse(jsonString);
