@@ -569,12 +569,12 @@ export function OptimizedVisualEditor({ className = '' }: OptimizedVisualEditorP
 
   return (
     <div className={`h-screen bg-white ${className}`}>
-      <PanelGroup direction="horizontal" className="h-full">
+      <PanelGroup direction="horizontal" className="h-full md:flex-row flex-col">
         {/* Chat Panel - Resizable */}
-        <Panel defaultSize={35} minSize={25} maxSize={50}>
+        <Panel defaultSize={35} minSize={25} maxSize={50} className="md:min-w-0 min-h-[40vh] md:min-h-0">
           <div 
             ref={chatPanelRef}
-            className={`h-full border-r border-gray-200 bg-white flex flex-col ${isDragOver ? 'bg-blue-50 border-blue-300' : ''}`}
+            className={`h-full border-r md:border-r border-b md:border-b-0 border-gray-200 bg-white flex flex-col ${isDragOver ? 'bg-blue-50 border-blue-300' : ''}`}
             onDragOver={handleDragOver}
             onDragLeave={handleDragLeave}
             onDrop={handleDrop}
@@ -734,7 +734,7 @@ export function OptimizedVisualEditor({ className = '' }: OptimizedVisualEditorP
 
         {/* Tabs for Chat, Gallery, and Flatlay Library */}
         <Tabs value={activeTab} onValueChange={setActiveTab} className="flex-1 flex flex-col">
-          <TabsList className="grid w-full grid-cols-3 mx-2 mt-2">
+          <TabsList className="grid w-full grid-cols-3 mx-1 md:mx-2 mt-1 md:mt-2">
             <TabsTrigger value="chat" className="text-xs">Chat</TabsTrigger>
             <TabsTrigger value="gallery" className="text-xs">Gallery</TabsTrigger>
             <TabsTrigger value="flatlays" className="text-xs">Flatlays</TabsTrigger>
@@ -742,7 +742,7 @@ export function OptimizedVisualEditor({ className = '' }: OptimizedVisualEditorP
 
           <TabsContent value="chat" className="flex-1 flex flex-col mt-0">
             {/* Chat Messages - Expanded Space */}
-            <div className="flex-1 overflow-y-auto p-2 space-y-2" style={{ minHeight: '350px' }}>
+            <div className="flex-1 overflow-y-auto p-1 md:p-2 space-y-1 md:space-y-2" style={{ minHeight: '300px' }}>
               {chatMessages.length === 0 && (
                 <div className="text-center text-gray-500 text-sm">
                   <div className="mb-2">Chat</div>
@@ -841,7 +841,7 @@ export function OptimizedVisualEditor({ className = '' }: OptimizedVisualEditorP
             </div>
 
             {/* Chat Input with Upload - Multi-line */}
-            <div className="p-1 border-t border-gray-200">
+            <div className="px-1 py-0.5 border-t border-gray-200">
               <div className="flex space-x-1">
                 <div className="flex flex-col space-y-1">
                   <input
@@ -866,7 +866,7 @@ export function OptimizedVisualEditor({ className = '' }: OptimizedVisualEditorP
                   value={messageInput}
                   onChange={(e) => setMessageInput(e.target.value)}
                   placeholder={`Ask ${currentAgent.name} for ${currentAgent.workflowStage.toLowerCase()} help or upload inspiration images...`}
-                  className="flex-1 text-sm resize-none"
+                  className="flex-1 text-sm md:text-sm text-xs resize-none border border-gray-200 p-2 rounded"
                   rows={3}
                   onKeyPress={(e) => {
                     if (e.key === 'Enter' && !e.shiftKey) {
@@ -1026,10 +1026,10 @@ export function OptimizedVisualEditor({ className = '' }: OptimizedVisualEditorP
         <PanelResizeHandle className="w-2 bg-gray-100 hover:bg-gray-200 transition-colors" />
 
         {/* Main Live Preview Panel - Resizable */}
-        <Panel defaultSize={65} minSize={30}>
+        <Panel defaultSize={65} minSize={30} className="md:min-w-0 min-h-[60vh] md:min-h-0">
           <div className="h-full flex flex-col">
         {/* Top Toolbar */}
-        <div className="border-b border-gray-200 px-4 py-2 flex items-center justify-between bg-gray-50">
+        <div className="border-b border-gray-200 px-2 md:px-4 py-1 md:py-2 flex items-center justify-between bg-gray-50">
           <div className="flex items-center space-x-4">
             <Badge variant="secondary" className="bg-black text-white border-black">
               <div className="w-2 h-2 bg-white mr-2"></div>
