@@ -195,7 +195,7 @@ export function ReplitStyleEditor({
           <div className="flex-1 relative">
             <iframe
               ref={iframeRef}
-              src={window.location.origin}
+              src="http://localhost:5000"
               className="w-full h-full border-0 visual-editor-iframe"
               title="Live Development Preview"
               sandbox="allow-same-origin allow-scripts allow-forms allow-popups allow-top-navigation"

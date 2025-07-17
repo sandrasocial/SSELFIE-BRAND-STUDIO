@@ -4336,6 +4336,15 @@ FOR VICTORIA SPECIFICALLY: When asked about redesigning "sandra-command page", u
     console.log('⚠️ Agent codebase routes not available:', error.message);
   }
 
+  // Register Enhanced Agent File Access routes
+  try {
+    const { default: agentFileAccessRoutes } = await import('./routes/agent-file-access');
+    app.use('/api/admin/agent', agentFileAccessRoutes);
+    console.log('✅ Agent file access routes registered');
+  } catch (error) {
+    console.log('⚠️ Agent file access routes not available:', error.message);
+  }
+
   // Register Checkout routes
   registerCheckoutRoutes(app);
 
