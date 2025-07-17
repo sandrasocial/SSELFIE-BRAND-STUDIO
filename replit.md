@@ -488,6 +488,24 @@ The platform has become overly complex with multiple pricing tiers, broken onboa
 - Maya AI, AI Photoshoot, and Enhanced Generation all operational
 - System ready for user growth without generation blocking issues
 
+### ✅ MAYA CHAT PERMANENT IMAGE STORAGE FIX IMPLEMENTED (July 17, 2025)
+**ROOT CAUSE FIXED - BROKEN IMAGE URLS RESOLVED:**
+- **Problem Identified**: Maya chat displaying temporary Replicate URLs that expire after 1 hour causing broken images
+- **Solution Implemented**: Updated `updateMayaChatWithImages()` to convert all images to permanent S3 storage before saving to chat
+- **User Experience Fixed**: Maya chat now shows permanent S3 URLs that never expire
+- **Preview Mode Corrected**: No more "These are temporary preview images" - all images are now permanent from generation
+
+**Technical Implementation:**
+- Enhanced `ai-service.ts` to use `ImageStorageService.storeImagePermanently()` for all Maya chat images
+- Fixed existing Maya chat message ID 80 by converting broken Replicate URLs to permanent S3 storage
+- All future Maya generations will automatically use permanent S3 URLs for chat display
+- Image storage workflow: Replicate generation → S3 conversion → permanent chat display
+
+**User Impact:**
+- Maya chat images remain visible permanently instead of breaking after 1 hour
+- Consistent user experience between Maya chat and gallery (both use permanent S3 URLs)
+- No more "Preview Mode" confusion - all displayed images are permanent from the start
+
 ### ✅ VISUAL EDITOR IMAGE UPLOAD & ENHANCED UI COMPLETED (July 17, 2025)
 **COMPREHENSIVE UPLOAD SYSTEM WITH MEMORY & PREVIEW:**
 - **Paperclip Upload Button**: Click-to-upload inspiration images directly in Victoria chat interface
