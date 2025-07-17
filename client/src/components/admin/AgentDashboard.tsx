@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { useNavigate } from 'wouter';
+import { useLocation } from 'wouter';
 
 interface Agent {
   id: string;
@@ -101,7 +101,7 @@ const agents: Agent[] = [
 
 const AgentDashboard: React.FC = () => {
   const [selectedAgent, setSelectedAgent] = useState<string | null>(null);
-  const navigate = useNavigate();
+  const [location, setLocation] = useLocation();
 
   const getStatusColor = (status: Agent['status']) => {
     switch (status) {
@@ -114,7 +114,7 @@ const AgentDashboard: React.FC = () => {
 
   const handleAgentChat = (agentId: string) => {
     // Navigate to visual editor with selected agent
-    navigate(`/visual-editor?agent=${agentId}`);
+    setLocation(`/visual-editor?agent=${agentId}`);
   };
 
   const handleQuickChat = (agentId: string) => {
@@ -137,7 +137,7 @@ const AgentDashboard: React.FC = () => {
               </p>
             </div>
             <Button 
-              onClick={() => navigate('/visual-editor')}
+              onClick={() => setLocation('/visual-editor')}
               className="bg-black text-white hover:bg-gray-800"
             >
               Open Visual Editor
