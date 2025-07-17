@@ -590,7 +590,7 @@ export function OptimizedVisualEditor({ className = '' }: OptimizedVisualEditorP
         <Panel defaultSize={35} minSize={25} maxSize={55}>
           <div 
             ref={chatPanelRef}
-            className={`h-full border-r border-gray-200 bg-white flex flex-col ${isDragOver ? 'bg-blue-50 border-blue-300' : ''}`}
+            className={`h-full border-r border-gray-200 bg-white ${isDragOver ? 'bg-blue-50 border-blue-300' : ''}`}
             onDragOver={handleDragOver}
             onDragLeave={handleDragLeave}
             onDrop={handleDrop}
@@ -706,14 +706,14 @@ export function OptimizedVisualEditor({ className = '' }: OptimizedVisualEditorP
         </div>
 
         {/* Tabs for Chat, Gallery, and Flatlay Library */}
-        <Tabs value={activeTab} onValueChange={setActiveTab} className="flex-1 flex flex-col min-h-0">
-          <TabsList className="grid w-full grid-cols-3 mx-6 mt-4 shrink-0">
+        <Tabs value={activeTab} onValueChange={setActiveTab} className="flex-1 flex flex-col">
+          <TabsList className="grid w-full grid-cols-3 mx-4 mt-2 mb-0 shrink-0">
             <TabsTrigger value="chat" className="text-sm">Chat</TabsTrigger>
             <TabsTrigger value="gallery" className="text-sm">Gallery</TabsTrigger>
             <TabsTrigger value="flatlays" className="text-sm">Flatlays</TabsTrigger>
           </TabsList>
 
-          <TabsContent value="chat" className="flex-1 flex flex-col mt-0 min-h-0">
+          <TabsContent value="chat" className="flex-1 flex flex-col mt-0 overflow-hidden">
             {/* Quick Commands - Collapsible */}
             <div className="border-b border-gray-200 shrink-0">
               <div className="p-4 cursor-pointer flex items-center justify-between" onClick={() => setShowQuickCommands(!showQuickCommands)}>
@@ -765,14 +765,14 @@ export function OptimizedVisualEditor({ className = '' }: OptimizedVisualEditorP
             {/* Chat Messages - Optimized Space Usage */}
             <div 
               ref={chatMessagesRef}
-              className="flex-1 overflow-y-auto px-4 py-3 space-y-3"
+              className="flex-1 overflow-y-auto px-4 py-2 space-y-3"
               style={{ 
                 scrollbarWidth: 'thin',
                 scrollbarColor: '#d1d5db #f3f4f6'
               }}
             >
               {chatMessages.length === 0 && (
-                <div className="text-center text-gray-500 py-8">
+                <div className="text-center text-gray-500 py-6">
                   <div className="text-base mb-2">Start chatting with {currentAgent.name}</div>
                   <div className="text-sm text-gray-400">
                     Ask for {currentAgent.workflowStage.toLowerCase()} help or upload images
@@ -870,7 +870,7 @@ export function OptimizedVisualEditor({ className = '' }: OptimizedVisualEditorP
             </div>
 
             {/* Chat Input with Upload - Compact Layout */}
-            <div className="p-3 border-t border-gray-200 bg-white shrink-0">
+            <div className="p-3 border-t border-gray-200 bg-white shrink-0 mt-auto">
               <div className="flex space-x-2 items-end">
                 <input
                   ref={fileInputRef}
