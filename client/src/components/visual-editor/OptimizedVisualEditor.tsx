@@ -912,51 +912,6 @@ export function OptimizedVisualEditor({ className = '' }: OptimizedVisualEditorP
                 </Button>
               </div>
             </div>
-
-            {/* Chat Input with Upload - Desktop Optimized */}
-            <div className="p-3 border-t border-gray-200 bg-white shrink-0">
-              <div className="flex space-x-3">
-                <div className="flex items-center space-x-2">
-                  <input
-                    ref={fileInputRef}
-                    type="file"
-                    accept="image/*"
-                    multiple
-                    onChange={(e) => handleFileUpload(e.target.files)}
-                    className="hidden"
-                  />
-                  <Button
-                    variant="outline"
-                    size="default"
-                    onClick={() => fileInputRef.current?.click()}
-                    className="px-4 border-black text-black hover:bg-black hover:text-white"
-                    title="Upload inspiration images"
-                  >
-                    Upload
-                  </Button>
-                </div>
-                <Input
-                  value={messageInput}
-                  onChange={(e) => setMessageInput(e.target.value)}
-                  placeholder={`Ask ${currentAgent.name} for ${currentAgent.workflowStage.toLowerCase()} help or upload inspiration images...`}
-                  className="flex-1 text-base h-10 border-2 border-black focus:border-black focus:ring-black"
-                  onKeyPress={(e) => {
-                    if (e.key === 'Enter' && !e.shiftKey) {
-                      e.preventDefault();
-                      sendMessage(messageInput);
-                    }
-                  }}
-                />
-                <Button
-                  size="default"
-                  className="bg-black text-white hover:bg-gray-800 px-6"
-                  onClick={() => sendMessage(messageInput)}
-                  disabled={!messageInput.trim() || isLoading}
-                >
-                  <span className="text-base">Send</span>
-                </Button>
-              </div>
-            </div>
           </TabsContent>
 
           <TabsContent value="gallery" className="flex-1 flex flex-col mt-0">
