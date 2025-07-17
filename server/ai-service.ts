@@ -255,7 +255,7 @@ export class AIService {
     }
 
     // 🔒 PERMANENT ARCHITECTURE VALIDATION - NEVER REMOVE
-    ArchitectureValidator.validateGenerationRequest(requestBody, userId);
+    ArchitectureValidator.validateGenerationRequest(requestBody, userId, isPremium);
     ArchitectureValidator.logArchitectureCompliance(userId, 'Maya AI Generation');
     
     const response = await fetch('https://api.replicate.com/v1/predictions', {

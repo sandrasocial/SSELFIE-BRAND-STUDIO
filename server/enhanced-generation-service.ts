@@ -131,7 +131,9 @@ export class EnhancedGenerationService {
     };
     
     // 🔒 VALIDATE ENHANCED REQUEST (ENSURE V2 COMPLIANCE)
-    ArchitectureValidator.validateGenerationRequest(enhancedRequestBody, userId);
+    const user = await storage.getUser(userId);
+    const isPremium = user?.plan === 'sselfie-studio' || user?.role === 'admin';
+    ArchitectureValidator.validateGenerationRequest(enhancedRequestBody, userId, isPremium);
     ArchitectureValidator.logArchitectureCompliance(userId, `Enhanced Generation (${enhancementLevel})`);
     
     console.log('🔥 Enhanced generation parameters:', {
