@@ -567,6 +567,7 @@ The platform has become overly complex with multiple pricing tiers, broken onboa
 - Updated server/image-generation-service.ts AI Photoshoot parameters to match CORE_ARCHITECTURE_IMMUTABLE_V2.md
 - Confirmed userTrainedVersion format: `${userModel.replicateModelId}:${userModel.replicateVersionId}`
 - Verified complete user model isolation with no fallback to shared models
+- Fixed Maya chat image preview system: retroactive update linked 13 completed generations to chat messages
 
 ### ✅ COMPREHENSIVE PRE-DEPLOYMENT AUDIT COMPLETED (July 16, 2025)
 **PLATFORM READY FOR PRODUCTION DEPLOYMENT:**
