@@ -18,23 +18,23 @@ export default function Pricing() {
   // SEO Meta tags setup
   useEffect(() => {
     // Update page title
-    document.title = "Pricing - SSELFIE Studio | AI Personal Branding Platform Starting FREE";
+    document.title = "Pricing - SSELFIE Studio | Start FREE or €47/month";
     
     // Update meta description
     const metaDescription = document.querySelector('meta[name="description"]');
     if (metaDescription) {
-      metaDescription.setAttribute('content', 'Start with SSELFIE AI Images (€47 one-time) or upgrade to SSELFIE Studio (€97/month or €147/month) for complete personal branding solution.');
+      metaDescription.setAttribute('content', 'Start FREE with 6 AI images/month or upgrade to SSELFIE Studio (€47/month) for unlimited AI images and Maya AI chat.');
     }
 
     // Update Open Graph tags
     const ogTitle = document.querySelector('meta[property="og:title"]');
     if (ogTitle) {
-      ogTitle.setAttribute('content', 'Pricing - €47 AI Images or €97/€147 Studio | SSELFIE');
+      ogTitle.setAttribute('content', 'Pricing - Start FREE or €47/month | SSELFIE Studio');
     }
 
     const ogDescription = document.querySelector('meta[property="og:description"]');
     if (ogDescription) {
-      ogDescription.setAttribute('content', 'Choose your plan: SSELFIE AI Images (€47 one-time) or SSELFIE Studio (€97/month or €147/month) for complete personal branding.');
+      ogDescription.setAttribute('content', 'Choose your plan: FREE (6 AI images/month) or SSELFIE Studio (€47/month) for unlimited AI images and full platform access.');
     }
 
     const ogUrl = document.querySelector('meta[property="og:url"]');
@@ -45,12 +45,12 @@ export default function Pricing() {
     // Update Twitter Card tags
     const twitterTitle = document.querySelector('meta[property="twitter:title"]');
     if (twitterTitle) {
-      twitterTitle.setAttribute('content', 'SSELFIE Pricing - €47 AI Images or €97/€147 Studio');
+      twitterTitle.setAttribute('content', 'SSELFIE Studio Pricing - Start FREE or €47/month');
     }
 
     const twitterDescription = document.querySelector('meta[property="twitter:description"]');
     if (twitterDescription) {
-      twitterDescription.setAttribute('content', 'AI personal branding platform. Start with €47 AI images or get the full Studio experience from €97/month.');
+      twitterDescription.setAttribute('content', 'AI personal branding platform. Start FREE with 6 images/month or upgrade to €47/month for unlimited access.');
     }
 
     // Add structured data for pricing
@@ -67,32 +67,22 @@ export default function Pricing() {
       "offers": [
         {
           "@type": "Offer",
-          "name": "SSELFIE AI Images",
-          "description": "Upload 10-15 selfies, get 30 luxury AI images back",
+          "name": "FREE Plan",
+          "description": "6 AI images per month with Maya AI photographer chat",
+          "price": "0",
+          "priceCurrency": "EUR",
+          "availability": "https://schema.org/InStock",
+          "url": "https://sselfie.ai/pricing",
+          "priceValidUntil": "2025-12-31"
+        },
+        {
+          "@type": "Offer", 
+          "name": "SSELFIE Studio",
+          "description": "Unlimited AI images, Maya AI chat, and full platform access",
           "price": "47",
           "priceCurrency": "EUR",
           "availability": "https://schema.org/InStock",
-          "url": "https://sselfie.ai/ai-images",
-          "priceValidUntil": "2025-12-31"
-        },
-        {
-          "@type": "Offer", 
-          "name": "SSELFIE Studio Founding Member",
-          "description": "Everything you need to build your personal brand in 20 minutes",
-          "price": "97",
-          "priceCurrency": "EUR",
-          "availability": "https://schema.org/InStock",
-          "url": "https://sselfie.ai/studio",
-          "priceValidUntil": "2025-12-31"
-        },
-        {
-          "@type": "Offer", 
-          "name": "SSELFIE Studio Standard",
-          "description": "Full platform access for established personal brands",
-          "price": "147",
-          "priceCurrency": "EUR",
-          "availability": "https://schema.org/InStock",
-          "url": "https://sselfie.ai/studio-standard",
+          "url": "https://sselfie.ai/checkout",
           "priceValidUntil": "2025-12-31"
         }
       ],

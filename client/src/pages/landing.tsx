@@ -231,7 +231,7 @@ export default function Landing() {
               className="text-3xl font-light mb-6 tracking-[-0.01em]"
               style={{ fontFamily: 'Times New Roman, serif' }}
             >
-              €97/month
+              €47/month
             </h3>
             <div className="space-y-4 text-left mb-8">
               <div className="flex items-center">
@@ -310,7 +310,7 @@ export default function Landing() {
             onClick={handleGetStarted}
             className="bg-white text-[#0a0a0a] px-12 py-4 text-[11px] tracking-[0.3em] uppercase hover:bg-[#f5f5f5] transition-all duration-300"
           >
-            Transform My Selfies - €97
+            Start My AI Photoshoot - €47
           </button>
           <p className="text-sm text-white/60 mt-6">
             Join 1,200+ women who stopped making excuses and started looking like CEOs

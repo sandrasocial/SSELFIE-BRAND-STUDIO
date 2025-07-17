@@ -35,7 +35,7 @@ The platform combines custom AI image generation with luxury editorial design, a
 ### Core Business Components
 - **AI Image Generation**: FLUX-trained custom model for editorial selfie transformation
 - **Studio Builder**: One-click business setup with luxury templates
-- **Pricing System**: Tiered subscription model (€47 AI Pack, €97/€147 Studio)
+- **Pricing System**: FREE tier with 6 generations/month, €47/month premium with unlimited generations
 - **Workspace Interface**: Dashboard for managing AI images, templates, and business setup
 
 ### UI Component Library
@@ -359,27 +359,27 @@ The platform has become overly complex with multiple pricing tiers, broken onboa
 - Enhanced user experience with coherent, contextual agent interactions
 - Admin dashboard ready for productive conversations with specialized AI team
 
-### ✅ CRITICAL IMAGE GENERATION SYSTEM RESTORED (July 17, 2025)
-**COMPLETE SYSTEM ROLLBACK FROM BROKEN FLUX PRO CONFIGURATION:**
-- **Crisis Resolved**: Image generation was completely down after FLUX Pro model changes broke live platform
-- **Root Cause Fixed**: Mixed model states (flux-standard vs flux-pro) caused API call failures between services
-- **Database Corruption Repaired**: Fixed admin user (ssa@ssasocial.com) model configuration with proper replicate_version_id
-- **API Configuration Restored**: Rolled back to last working flux-dev-lora version-based API format
-- **Complete System Validation**: All tests pass - Maya AI and AI Photoshoot endpoints operational
-- **Platform Status**: 🟢 LIVE - Users can now generate images using their individual trained models
+### ✅ COMPLETE SYSTEM ROLLBACK TO WORKING STATE (July 17, 2025)
+**FLUX PRO CONFIGURATION COMPLETELY REMOVED - SYSTEM RESTORED:**
+- **Crisis Resolved**: Rolled back from broken €67/month FLUX Pro to original FREE and €47/month structure
+- **Pricing Fixed**: Landing page, pricing page, and usage service all restored to €47/month premium
+- **Authentication Simplified**: Removed complex premium tier detection, now uses simple 'sselfie-studio' plan check
+- **Training Logic Restored**: All users now use standard FLUX dev-lora training (no more luxury/premium complexity)
+- **Database Consistency**: Fixed mixed model states and premium plan confusion
+- **Platform Status**: 🟢 LIVE - Original business model fully operational
 
 **Technical Rollback Details:**
-- Removed broken FLUX 1.1 Pro Ultra configuration from ai-service.ts and image-generation-service.ts
-- Restored working `version: userTrainedVersion` API format for all users
-- Fixed database inconsistencies where users had flux-standard models without replicate_version_id
-- All users with completed training now have proper model configurations for generation
-- Zero tolerance maintained - each user uses only their individual trained model
+- Updated usage-service.ts: €67 → €47 for all premium plans, removed FLUX Pro references
+- Fixed routes.ts: removed all 'sselfie-studio-premium' and 'SSELFIE_STUDIO' premium detection logic
+- Simplified training logic: all users get standard FLUX training regardless of plan
+- Updated landing page: €97 → €47, removed FLUX Pro messaging
+- Updated pricing page: restored original FREE and €47/month structure
 
-**Business Continuity Restored:**
-- Critical platform functionality operational for 1000+ users
-- €15,132 revenue platform no longer blocked by technical issues
-- Admin dashboard fully accessible with working agent chat system
-- All 9 AI agents operational with complete codebase access
+**Business Model Restored:**
+- FREE tier: 6 generations per month
+- Premium tier: €47/month for unlimited generations + Maya AI chat
+- Zero confusion: simple two-tier structure without complex premium detection
+- Original value proposition maintained without FLUX Pro complexity
 
 ### ✅ COMPREHENSIVE PRE-DEPLOYMENT AUDIT COMPLETED (July 16, 2025)
 **PLATFORM READY FOR PRODUCTION DEPLOYMENT:**
