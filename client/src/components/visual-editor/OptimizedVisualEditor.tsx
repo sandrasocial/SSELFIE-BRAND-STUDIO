@@ -31,6 +31,7 @@ import { useToast } from '@/hooks/use-toast';
 import { useQuery } from '@tanstack/react-query';
 import { FileTreeExplorer } from './FileTreeExplorer';
 import { MultiTabEditor } from './MultiTabEditor';
+import { FormattedAgentMessage } from './FormattedAgentMessage';
 
 interface ChatMessage {
   type: 'user' | 'agent';
@@ -917,30 +918,26 @@ export function OptimizedVisualEditor({ className = '' }: OptimizedVisualEditorP
               {chatMessages.map((message, index) => {
                 const agent = message.agentName ? agents.find(a => a.id === message.agentName) : null;
                 return (
-                <div
-                  key={index}
-                  className={`${
-                    message.type === 'user' 
-                      ? 'ml-2 bg-black text-white' 
-                      : message.isHandoff
-                      ? 'mx-1 bg-blue-50 border border-blue-200 text-blue-900'
-                      : 'mr-2 bg-gray-100 text-gray-900'
-                  } p-2 rounded-lg text-sm`}
-                >
-                  {/* Agent Name Header */}
-                  {agent && !message.isHandoff && (
-                    <div className="flex items-center space-x-2 mb-1 pb-1 border-b border-gray-200">
-                      <div className="w-4 h-4 bg-black" />
-                      <span className="font-medium text-xs">{agent.name}</span>
-                      <span className="text-xs text-gray-500">·</span>
-                      <span className="text-xs text-gray-500">{agent.workflowStage}</span>
+                <div key={index} className="max-w-[95%] w-full">
+                  {message.type === 'user' ? (
+                    <div className="ml-2 bg-black text-white p-2 rounded-lg text-sm">
+                      <div className="whitespace-pre-wrap">{message.content}</div>
+                      <div className="text-xs opacity-60 mt-1">
+                        {message.timestamp.toLocaleTimeString()}
+                      </div>
                     </div>
-                  )}
-                  
-                  {message.type === 'agent' ? (
-                    <CollapsibleCodeBlock content={message.content} />
+                  ) : message.isHandoff ? (
+                    <div className="mx-1 bg-blue-50 border border-blue-200 text-blue-900 p-2 rounded-lg text-sm">
+                      <CollapsibleCodeBlock content={message.content} />
+                    </div>
                   ) : (
-                    <div className="whitespace-pre-wrap">{message.content}</div>
+                    <div className="mr-2">
+                      <FormattedAgentMessage
+                        content={message.content}
+                        agentName={agent?.name}
+                        timestamp={message.timestamp}
+                      />
+                    </div>
                   )}
                   
                   {/* Generated Image Preview like Maya */}
