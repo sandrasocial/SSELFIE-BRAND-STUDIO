@@ -440,8 +440,9 @@ export function OptimizedVisualEditor({ className = '' }: OptimizedVisualEditorP
       }));
 
       const response = await apiRequest('POST', '/api/admin/agent-chat-bypass', {
-        agentName: agentId,
+        agentId: agentId,
         message: message,
+        adminToken: 'sandra-admin-2025',
         conversationHistory: conversationHistory,
         workflowContext: {
           stage: workflowStage,
