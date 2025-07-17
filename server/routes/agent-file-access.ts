@@ -332,4 +332,81 @@ router.get('/project-overview/:agentId', isAdmin, async (req, res) => {
   }
 });
 
+/**
+ * WRITE FILE CONTENT
+ * Allows agents to create or modify files in the codebase
+ */
+router.post('/write-file', isAdmin, async (req, res) => {
+  try {
+    const { agentId, filePath, content } = req.body;
+    
+    if (!agentId || !filePath || content === undefined) {
+      return res.status(400).json({ error: 'Agent ID, file path, and content required' });
+    }
+    
+    // Security: Only allow writing within project directory
+    const normalizedPath = path.normalize(filePath);
+    if (normalizedPath.includes('..') || normalizedPath.startsWith('/')) {
+      return res.status(403).json({ 
+        error: `Agent ${agentId} denied write access to ${filePath} - invalid path`
+      });
+    }
+    
+    // Additional security: restrict write access to certain directories
+    const allowedWriteDirs = [
+      'client/src',
+      'server',
+      'shared',
+      'temp_training',
+      'data'
+    ];
+    
+    const isWriteAllowed = allowedWriteDirs.some(allowed => 
+      normalizedPath.startsWith(allowed + '/') || normalizedPath === allowed
+    );
+    
+    if (!isWriteAllowed) {
+      return res.status(403).json({
+        error: `Agent ${agentId} denied write access to ${filePath} - restricted directory`
+      });
+    }
+    
+    const fullPath = path.join(process.cwd(), normalizedPath);
+    
+    // Ensure directory exists
+    const dir = path.dirname(fullPath);
+    try {
+      await fs.mkdir(dir, { recursive: true });
+    } catch (error) {
+      console.error('Failed to create directory:', error);
+    }
+    
+    // Write file content
+    await fs.writeFile(fullPath, content, 'utf-8');
+    const stats = await fs.stat(fullPath);
+    
+    console.log(`✏️ Agent ${agentId} wrote file: ${filePath} (${content.length} chars)`);
+    
+    res.json({
+      success: true,
+      agentId,
+      filePath,
+      bytesWritten: content.length,
+      fileInfo: {
+        size: stats.size,
+        lastModified: stats.mtime,
+        extension: path.extname(filePath)
+      }
+    });
+    
+  } catch (error) {
+    console.error(`❌ File write error for agent ${req.body.agentId}:`, error);
+    res.status(500).json({
+      error: 'Failed to write file',
+      details: error.message,
+      filePath: req.body.filePath
+    });
+  }
+});
+
 export default router;

@@ -30,6 +30,7 @@ import { apiRequest } from '@/lib/queryClient';
 import { useToast } from '@/hooks/use-toast';
 import { useQuery } from '@tanstack/react-query';
 import { FileTreeExplorer } from './FileTreeExplorer';
+import { MultiTabEditor } from './MultiTabEditor';
 
 interface ChatMessage {
   type: 'user' | 'agent';
@@ -892,13 +893,14 @@ export function OptimizedVisualEditor({ className = '' }: OptimizedVisualEditorP
           )}
         </div>
 
-        {/* Tabs for Chat, Gallery, Flatlay Library, and File Tree */}
+        {/* Tabs for Chat, Gallery, Flatlay Library, File Tree, and Editor */}
         <Tabs value={activeTab} onValueChange={setActiveTab} className="flex-1 flex flex-col">
-          <TabsList className="grid w-full grid-cols-4 mx-1 md:mx-2 mt-1 md:mt-2">
+          <TabsList className="grid w-full grid-cols-5 mx-1 md:mx-2 mt-1 md:mt-2">
             <TabsTrigger value="chat" className="text-xs">Chat</TabsTrigger>
             <TabsTrigger value="gallery" className="text-xs">Gallery</TabsTrigger>
             <TabsTrigger value="flatlays" className="text-xs">Flatlays</TabsTrigger>
             <TabsTrigger value="files" className="text-xs">Files</TabsTrigger>
+            <TabsTrigger value="editor" className="text-xs">Editor</TabsTrigger>
           </TabsList>
 
           <TabsContent value="chat" className="flex-1 flex flex-col mt-0">
@@ -1203,6 +1205,30 @@ export function OptimizedVisualEditor({ className = '' }: OptimizedVisualEditorP
                   title: 'File Loaded',
                   description: `${filePath} content added to chat context`,
                 });
+              }}
+            />
+          </TabsContent>
+
+          <TabsContent value="editor" className="flex-1 flex flex-col mt-0">
+            <MultiTabEditor 
+              selectedAgent={currentAgent.id}
+              onFileChange={(filePath, content) => {
+                // Notify when files are saved - could trigger dev preview refresh
+                toast({
+                  title: 'File Updated',
+                  description: `${filePath} changes saved`,
+                });
+                
+                // Refresh live preview if it's a key file
+                if (filePath.includes('component') || filePath.includes('page')) {
+                  if (iframeRef.current) {
+                    setTimeout(() => {
+                      if (iframeRef.current) {
+                        iframeRef.current.src = iframeRef.current.src;
+                      }
+                    }, 1000);
+                  }
+                }
               }}
             />
           </TabsContent>
