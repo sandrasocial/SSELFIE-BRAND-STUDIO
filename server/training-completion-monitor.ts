@@ -48,11 +48,21 @@ export class TrainingCompletionMonitor {
           versionId = trainingData.version;
         }
         
+        // CRITICAL: Extract and store the trigger word from existing model data
+        const existingModel = await storage.getUserModelByUserId(userId);
+        let triggerWord = existingModel?.triggerWord;
+        
+        // If no trigger word exists, generate one following the pattern
+        if (!triggerWord) {
+          triggerWord = `user${userId}`;
+          console.log(`🆔 Generated trigger word: ${triggerWord} for user ${userId}`);
+        }
+        
         await storage.updateUserModel(userId, {
           trainingStatus: 'completed',
           replicateVersionId: versionId,
+          triggerWord: triggerWord, // CRITICAL: Ensure trigger word is stored
           trainedModelPath: `sandrasocial/${userId}-selfie-lora`,
-          isLuxury: false,
           modelType: 'flux-standard',
           updatedAt: new Date()
         });
@@ -111,10 +121,21 @@ export class TrainingCompletionMonitor {
         console.log(`✅ Model completed! Updating database for user ${userId}`);
         console.log(`📋 Latest version: ${modelData.latest_version.id}`);
         
+        // CRITICAL: Extract and store the trigger word from existing model data
+        const existingModel = await storage.getUserModelByUserId(userId);
+        let triggerWord = existingModel?.triggerWord;
+        
+        // If no trigger word exists, generate one following the pattern
+        if (!triggerWord) {
+          triggerWord = `user${userId}`;
+          console.log(`🆔 Generated trigger word: ${triggerWord} for user ${userId}`);
+        }
+        
         await storage.updateUserModel(userId, {
           trainingStatus: 'completed',
           replicateModelId: `sandrasocial/${modelName}`,
           replicateVersionId: modelData.latest_version.id,
+          triggerWord: triggerWord, // CRITICAL: Ensure trigger word is stored
           trainingProgress: 100,
           modelType: 'flux-standard',
           updatedAt: new Date()

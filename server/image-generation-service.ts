@@ -1,6 +1,7 @@
 import { storage } from './storage';
 import type { InsertAIImage } from '@shared/schema-simplified';
 import { ArchitectureValidator } from './architecture-validator';
+import { GenerationValidator } from './generation-validator';
 
 export interface GenerateImagesRequest {
   userId: string;
@@ -18,12 +19,15 @@ export interface GenerateImagesResponse {
 }
 
 export async function generateImages(request: GenerateImagesRequest): Promise<GenerateImagesResponse> {
-  const { userId, category, subcategory, triggerWord, modelVersion, customPrompt } = request;
+  const { userId, category, subcategory, customPrompt } = request;
   
-  const userModel = await storage.getUserModel(userId);
-  if (!userModel || userModel.trainingStatus !== 'completed') {
-    throw new Error('User model not ready for generation. Training must be completed first.');
-  }
+  // CRITICAL: Enforce strict validation - NO FALLBACKS ALLOWED
+  const userRequirements = await GenerationValidator.enforceGenerationRequirements(userId);
+  console.log(`🔒 VALIDATED: User ${userId} can generate with trigger word: ${userRequirements.triggerWord}`);
+  
+  // Use validated trigger word and model version (not from request parameters)
+  const triggerWord = userRequirements.triggerWord;
+  const modelVersion = userRequirements.modelVersion;
   
   try {
 
