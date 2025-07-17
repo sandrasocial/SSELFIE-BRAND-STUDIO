@@ -16,7 +16,8 @@ import {
   Download,
   Upload,
   Image,
-  Type
+  Type,
+  Layout
 } from 'lucide-react';
 import { VisualEditor } from './VisualEditor';
 import { apiRequest } from '@/lib/queryClient';
@@ -181,6 +182,16 @@ export function AgentChatEditor() {
       icon: <Type className="w-4 h-4" />
     },
     {
+      label: 'Redesign Workspace',
+      prompt: 'Redesign the workspace section with luxury editorial styling, better layout, and improved user flow',
+      icon: <Layout className="w-4 h-4" />
+    },
+    {
+      label: 'Enhance Navigation',
+      prompt: 'Improve the navigation design with better typography, spacing, and luxury brand feel',
+      icon: <Settings className="w-4 h-4" />
+    },
+    {
       label: 'Add Image Gallery',
       prompt: 'Add a beautiful image gallery section that showcases AI-generated photos in a grid layout',
       icon: <Image className="w-4 h-4" />
@@ -188,12 +199,12 @@ export function AgentChatEditor() {
     {
       label: 'Create Pricing Cards',
       prompt: 'Design elegant pricing cards for FREE and €47/month plans with luxury styling',
-      icon: <Settings className="w-4 h-4" />
+      icon: <Wand2 className="w-4 h-4" />
     },
     {
-      label: 'Optimize Layout',
-      prompt: 'Review the current editor content and suggest improvements for mobile responsiveness and visual hierarchy',
-      icon: <Wand2 className="w-4 h-4" />
+      label: 'Optimize Mobile',
+      prompt: 'Review the current platform and suggest improvements for mobile responsiveness and visual hierarchy',
+      icon: <Code className="w-4 h-4" />
     }
   ];
 
