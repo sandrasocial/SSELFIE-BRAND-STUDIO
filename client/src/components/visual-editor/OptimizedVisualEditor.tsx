@@ -32,6 +32,7 @@ import { MultiTabEditor } from './MultiTabEditor';
 import { FormattedAgentMessage } from './FormattedAgentMessage';
 import { AgentChatControls } from './AgentChatControls';
 import AgentEnhancementDashboard from '../AgentEnhancementDashboard';
+import { flatlayCollections } from '@/data/flatlay-collections';
 
 interface ChatMessage {
   type: 'user' | 'agent';
@@ -283,47 +284,6 @@ export function OptimizedVisualEditor({ className = '' }: OptimizedVisualEditorP
   const { data: aiImages = [] } = useQuery<AIImage[]>({
     queryKey: ['/api/ai-images'],
   });
-
-  // Flatlay collections data - Using placeholder images until real ones are uploaded
-  const flatlayCollections: FlatlayCollection[] = [
-    {
-      id: 'luxury-minimal',
-      name: 'Luxury Minimal',
-      description: 'Clean white backgrounds, designer accessories, minimal styling',
-      aesthetic: 'Clean sophistication with generous white space',
-      backgroundImage: '/placeholder-flatlay.svg',
-      images: [
-        { id: 'lm-1', url: '/placeholder-flatlay.svg', title: 'Clean Workspace', category: 'Luxury Minimal', description: 'Upload flatlay images to /public/flatlays/luxury-minimal/' },
-        { id: 'lm-2', url: '/placeholder-flatlay.svg', title: 'Minimal Setup', category: 'Luxury Minimal', description: 'Upload flatlay images to /public/flatlays/luxury-minimal/' },
-        { id: 'lm-3', url: '/placeholder-flatlay.svg', title: 'Beauty Minimal', category: 'Luxury Minimal', description: 'Upload flatlay images to /public/flatlays/luxury-minimal/' },
-        { id: 'lm-4', url: '/placeholder-flatlay.svg', title: 'Planning Flatlay', category: 'Luxury Minimal', description: 'Upload flatlay images to /public/flatlays/luxury-minimal/' },
-        { id: 'lm-5', url: '/placeholder-flatlay.svg', title: 'Executive Setup', category: 'Luxury Minimal', description: 'Upload flatlay images to /public/flatlays/luxury-minimal/' }
-      ]
-    },
-    {
-      id: 'editorial-magazine',
-      name: 'Editorial Magazine',
-      description: 'Dark moody flatlays with fashion magazines, sophisticated lighting',
-      aesthetic: 'Sophisticated editorial magazine style with dark luxury elements',
-      backgroundImage: 'https://i.postimg.cc/02VLGyr8/1.png',
-      images: [
-        { id: 'em-1', url: 'https://i.postimg.cc/02VLGyr8/1.png', title: 'Vogue Editorial', category: 'Editorial Magazine', description: 'Editorial Magazine aesthetic flatlay' },
-        { id: 'em-2', url: 'https://i.postimg.cc/DZ4xvx1J/2.png', title: 'Dark Magazine', category: 'Editorial Magazine', description: 'Editorial Magazine aesthetic flatlay' },
-        { id: 'em-3', url: 'https://i.postimg.cc/vmGLpBxK/3.png', title: 'Fashion Editorial', category: 'Editorial Magazine', description: 'Editorial Magazine aesthetic flatlay' }
-      ]
-    },
-    {
-      id: 'business-professional',
-      name: 'Business Professional',
-      description: 'Professional business flatlays with laptops, planners, and office elements',
-      aesthetic: 'Clean professional business aesthetic',
-      backgroundImage: 'https://i.postimg.cc/6Q8hP6vF/businesspro-01.png',
-      images: [
-        { id: 'bp-1', url: 'https://i.postimg.cc/6Q8hP6vF/businesspro-01.png', title: 'Professional Setup', category: 'Business Professional', description: 'Business Professional flatlay' },
-        { id: 'bp-2', url: 'https://i.postimg.cc/L8pydC1W/businesspro-02.png', title: 'Office Essentials', category: 'Business Professional', description: 'Business Professional flatlay' }
-      ]
-    }
-  ];
 
   // Live CSS injection
   const injectChangesToLivePreview = (changes: string) => {
