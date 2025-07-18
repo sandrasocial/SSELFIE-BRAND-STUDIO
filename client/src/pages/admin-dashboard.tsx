@@ -14,6 +14,7 @@ import AdminHero from '@/components/admin/AdminHero';
 import AgentDashboard from '@/components/admin/AgentDashboard';
 import AgentAnalyticsDashboard from '@/components/admin/AgentAnalyticsDashboard';
 import EnhancedAgentCoordination from '@/components/admin/EnhancedAgentCoordination';
+import AgentEnhancementDashboard from '@/components/AgentEnhancementDashboard';
 
 // Agent Configuration for the visual cards
 const AGENT_CONFIGS = [
@@ -174,6 +175,12 @@ export default function AdminDashboard() {
               >
                 Coordination
               </button>
+              <button 
+                onClick={() => setActiveTab('enhancements')}
+                className={`text-sm uppercase tracking-wide hover:text-gray-300 ${activeTab === 'enhancements' ? 'text-white border-b border-white' : ''}`}
+              >
+                Enhancements
+              </button>
               <Link href="/visual-editor" className="text-sm uppercase tracking-wide hover:text-gray-300">
                 Visual Editor
               </Link>
@@ -209,6 +216,10 @@ export default function AdminDashboard() {
           
           {activeTab === 'coordination' && (
             <EnhancedAgentCoordination />
+          )}
+          
+          {activeTab === 'enhancements' && (
+            <AgentEnhancementDashboard />
           )}
           
           {activeTab === 'dashboard' && (
