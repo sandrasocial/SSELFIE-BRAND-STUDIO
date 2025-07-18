@@ -112,12 +112,18 @@ export class AutoFileWriter {
           console.error(`❌ Failed to auto-write ${filePath}:`, error);
         }
         
-        // AUTO-INTEGRATION: If admin component was created, auto-integrate it
+        // AUTO-INTEGRATION: Handle different component types
         if (filePath.includes('client/src/components/admin/')) {
           try {
             await this.autoIntegrateAdminComponent(filePath, block.content);
           } catch (integrationError) {
             console.error(`⚠️ Admin component integration failed for ${filePath}:`, integrationError);
+          }
+        } else if (filePath.includes('client/src/pages/') && filePath.includes('-redesigned.tsx')) {
+          try {
+            await this.autoIntegrateRedesignedPage(filePath, block.content, context);
+          } catch (integrationError) {
+            console.error(`⚠️ Page integration failed for ${filePath}:`, integrationError);
           }
         }
       }
@@ -131,29 +137,65 @@ export class AutoFileWriter {
    */
   static determineFilePath(block, agentId, context) {
     const content = block.content;
+    const contextLower = context.toLowerCase();
     
     // REACT COMPONENT DETECTION
     if (content.includes('export default function') || content.includes('export function') || content.includes('function ')) {
       const componentMatch = content.match(/(?:export\s+(?:default\s+)?)?function\s+([A-Z][a-zA-Z0-9]*)/);
       if (componentMatch) {
         const componentName = componentMatch[1];
+        const componentLower = componentName.toLowerCase();
         
-        // Admin Dashboard components - CREATE AS COMPONENTS, NOT PAGES
-        if (componentName.includes('Admin') || componentName.includes('Dashboard') || context.toLowerCase().includes('admin') || context.toLowerCase().includes('dashboard')) {
+        // PAGES: Detect page redesign requests (create as pages, not components)
+        if (contextLower.includes('page') && (
+          contextLower.includes('redesign') || 
+          contextLower.includes('create') || 
+          contextLower.includes('new page')
+        )) {
+          // Determine page type from context and component name
+          if (contextLower.includes('landing') || componentLower.includes('landing')) {
+            return `client/src/pages/landing-redesigned.tsx`;
+          }
+          if (contextLower.includes('pricing') || componentLower.includes('pricing')) {
+            return `client/src/pages/pricing-redesigned.tsx`;
+          }
+          if (contextLower.includes('workspace') || componentLower.includes('workspace')) {
+            return `client/src/pages/workspace-redesigned.tsx`;
+          }
+          if (contextLower.includes('onboarding') || componentLower.includes('onboarding')) {
+            return `client/src/pages/onboarding-redesigned.tsx`;
+          }
+          // Generic page creation
+          return `client/src/pages/${componentName.toLowerCase()}.tsx`;
+        }
+        
+        // COMPONENTS: Admin Dashboard components
+        if (componentName.includes('Admin') || componentName.includes('Dashboard') || 
+            contextLower.includes('admin') || contextLower.includes('dashboard')) {
           return `client/src/components/admin/${componentName}.tsx`;
         }
         
-        // Visual editor components
-        if (componentName.includes('Editor') || componentName.includes('Tab') || componentName.includes('Tree')) {
+        // COMPONENTS: Visual editor components
+        if (componentName.includes('Editor') || componentName.includes('Tab') || 
+            componentName.includes('Tree') || contextLower.includes('editor') || 
+            contextLower.includes('visual')) {
           return `client/src/components/visual-editor/${componentName}.tsx`;
         }
         
-        // Hero components
-        if (componentName.includes('Hero') || componentName.includes('Landing') || componentName.includes('Header')) {
+        // COMPONENTS: UI components (Hero, Card, Modal, etc.)
+        if (componentName.includes('Hero') || componentName.includes('Card') || 
+            componentName.includes('Modal') || componentName.includes('Button') ||
+            componentName.includes('Form') || componentName.includes('Header') ||
+            componentName.includes('Footer') || componentName.includes('Nav')) {
           return `client/src/components/${componentName}.tsx`;
         }
         
-        // Regular components
+        // CONTEXT-BASED COMPONENT DETECTION
+        if (contextLower.includes('component') || contextLower.includes('redesign') && !contextLower.includes('page')) {
+          return `client/src/components/${componentName}.tsx`;
+        }
+        
+        // Default: Regular components
         return `client/src/components/${componentName}.tsx`;
       }
     }
@@ -163,10 +205,12 @@ export class AutoFileWriter {
       const constMatch = content.match(/const\s+([A-Z][a-zA-Z0-9]*)\s*=\s*\(/);
       if (constMatch) {
         const componentName = constMatch[1];
-        if (componentName.includes('Admin') || componentName.includes('Dashboard') || context.toLowerCase().includes('admin')) {
+        
+        // Apply same logic as function components
+        if (componentName.includes('Admin') || componentName.includes('Dashboard') || contextLower.includes('admin') || contextLower.includes('dashboard')) {
           return `client/src/components/admin/${componentName}.tsx`;
         }
-        if (componentName.includes('Editor') || componentName.includes('Tab') || componentName.includes('Tree')) {
+        if (componentName.includes('Editor') || componentName.includes('Tab') || componentName.includes('Tree') || contextLower.includes('editor') || contextLower.includes('visual')) {
           return `client/src/components/visual-editor/${componentName}.tsx`;
         }
         return `client/src/components/${componentName}.tsx`;
@@ -257,5 +301,63 @@ export class AutoFileWriter {
     fs.writeFileSync(adminDashboardPath, updatedContent);
     
     console.log(`✅ Auto-integrated ${componentName} into admin dashboard`);
+  }
+  
+  /**
+   * Auto-integrates redesigned pages by creating route links
+   */
+  static async autoIntegrateRedesignedPage(filePath, componentContent, context) {
+    const fs = require('fs');
+    const path = require('path');
+    
+    // Extract page name from file path
+    const pageName = path.basename(filePath, '.tsx');
+    const originalPageName = pageName.replace('-redesigned', '');
+    
+    // Read the main App.tsx file
+    const appPath = 'client/src/App.tsx';
+    if (!fs.existsSync(appPath)) {
+      console.log(`⚠️ App.tsx not found at ${appPath}`);
+      return;
+    }
+    
+    const appContent = fs.readFileSync(appPath, 'utf8');
+    
+    // Check if page is already imported
+    const componentNamePascal = pageName.split('-').map(word => 
+      word.charAt(0).toUpperCase() + word.slice(1)
+    ).join('');
+    
+    const importStatement = `import ${componentNamePascal} from "@/pages/${pageName}";`;
+    if (appContent.includes(importStatement)) {
+      console.log(`✅ ${pageName} already integrated in App.tsx`);
+      return;
+    }
+    
+    // Add import after other page imports
+    const existingImports = appContent.match(/import .* from ["']@\/pages\/.*["'];/g) || [];
+    
+    let updatedContent = appContent;
+    if (existingImports.length > 0) {
+      const lastImport = existingImports[existingImports.length - 1];
+      const importIndex = appContent.indexOf(lastImport) + lastImport.length;
+      updatedContent = appContent.slice(0, importIndex) + 
+                     `\n${importStatement}` + 
+                     appContent.slice(importIndex);
+    }
+    
+    // Add route (commented out by default so it doesn't break existing routes)
+    const routeComment = `\n          {/* <Route path="/${originalPageName}-redesigned" component={${componentNamePascal}} /> */}`;
+    const routeIndex = updatedContent.indexOf('</Switch>');
+    if (routeIndex !== -1) {
+      updatedContent = updatedContent.slice(0, routeIndex) + 
+                      routeComment + 
+                      updatedContent.slice(routeIndex);
+    }
+    
+    // Write the updated App.tsx
+    fs.writeFileSync(appPath, updatedContent);
+    
+    console.log(`✅ Auto-integrated ${pageName} into App.tsx (route commented out)`);
   }
 }
