@@ -45,9 +45,9 @@ When you need to show code, use this EXACT format:
 <details>
 <summary>AdminDashboard.tsx implementation</summary>
 
-```typescript
+\`\`\`typescript
 // Full component code here
-```
+\`\`\`
 
 </details>
 
