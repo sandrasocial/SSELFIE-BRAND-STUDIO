@@ -1054,7 +1054,7 @@ export function OptimizedVisualEditor({ className = '' }: OptimizedVisualEditorP
             />
             
             {/* Chat Messages - Expanded Space */}
-            <div ref={chatContainerRef} className="flex-1 overflow-y-auto p-1 md:p-2 space-y-1 md:space-y-2" style={{ minHeight: '300px', maxHeight: 'calc(100vh - 250px)' }}>
+            <div ref={chatContainerRef} className="flex-1 overflow-y-auto p-1 md:p-2 space-y-1 md:space-y-2" style={{ minHeight: '150px', maxHeight: 'calc(100vh - 400px)' }}>
               {chatMessages.length === 0 && (
                 <div className="text-center text-gray-500 text-sm">
                   <div className="mb-2">Chat</div>
@@ -1153,7 +1153,7 @@ export function OptimizedVisualEditor({ className = '' }: OptimizedVisualEditorP
             </div>
 
             {/* Chat Input with Upload - Multi-line */}
-            <div className="px-1 py-0.5 border-t border-gray-200">
+            <div className="px-2 py-2 border-t border-gray-200 flex-shrink-0">
               <div className="flex space-x-1">
                 <div className="flex flex-col space-y-1">
                   <input
@@ -1179,7 +1179,7 @@ export function OptimizedVisualEditor({ className = '' }: OptimizedVisualEditorP
                   onChange={(e) => setMessageInput(e.target.value)}
                   placeholder={`Ask ${currentAgent.name} for ${currentAgent.workflowStage.toLowerCase()} help or upload inspiration images...`}
                   className="flex-1 text-sm md:text-sm text-xs resize-none border border-gray-200 p-2 rounded"
-                  rows={3}
+                  rows={2}
                   onKeyPress={(e) => {
                     if (e.key === 'Enter' && !e.shiftKey) {
                       e.preventDefault();
