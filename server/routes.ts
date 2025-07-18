@@ -3632,13 +3632,34 @@ CREATE FILES IMMEDIATELY when asked. Sandra sees changes in dev preview instantl
             const filesModified = [];
             
             // ENHANCED UNIVERSAL CODE BLOCK DETECTION - Extract ALL code blocks and determine target files
-            const codeBlockPattern = /```(?:typescript|tsx|javascript|js|css|html|json|)\n?([\s\S]*?)```/gi;
-            const codeBlocks = [...aiResponse.matchAll(codeBlockPattern)];
+            const codeBlocks = [];
+            
+            // Pattern 1: Standard triple backticks ```typescript ... ```
+            const standardPattern = /```(?:typescript|tsx|javascript|js|css|html|json|)\n?([\s\S]*?)```/gi;
+            let match;
+            while ((match = standardPattern.exec(aiResponse)) !== null) {
+              codeBlocks.push({
+                content: match[1].trim(),
+                index: match.index,
+                fullMatch: match[0]
+              });
+            }
+            
+            // Pattern 2: Victoria's format ``typescript ... ``
+            const victoriaPattern = /``(?:typescript|tsx|javascript|js|css|html|json|)\n?([\s\S]*?)``/gi;
+            while ((match = victoriaPattern.exec(aiResponse)) !== null) {
+              codeBlocks.push({
+                content: match[1].trim(),
+                index: match.index,
+                fullMatch: match[0]
+              });
+            }
             
             console.log(`🔍 Found ${codeBlocks.length} code blocks in AI response`);
             
             for (let i = 0; i < codeBlocks.length; i++) {
-              const codeContent = codeBlocks[i][1];
+              const codeBlock = codeBlocks[i];
+              const codeContent = codeBlock.content;
               let targetFile = null;
               
               console.log(`🔧 Processing code block ${i + 1}:`);
@@ -3646,12 +3667,13 @@ CREATE FILES IMMEDIATELY when asked. Sandra sees changes in dev preview instantl
               console.log(`📏 Code length: ${codeContent.length} characters`);
               
               // Method 1: Look for file mentions in the text surrounding the code block
-              const beforeCodeBlock = aiResponse.substring(0, codeBlocks[i].index);
-              const afterCodeBlock = aiResponse.substring(codeBlocks[i].index + codeBlocks[i][0].length);
+              const beforeCodeBlock = aiResponse.substring(0, codeBlock.index);
+              const afterCodeBlock = aiResponse.substring(codeBlock.index + codeBlock.fullMatch.length);
               const contextText = beforeCodeBlock.slice(-200) + afterCodeBlock.slice(0, 200);
               
               // Check for explicit file mentions
               const filePatterns = [
+                { pattern: /AdminDashboard\.tsx/i, path: 'client/src/components/admin/AdminDashboard.tsx' },
                 { pattern: /MultiTabEditor\.tsx/i, path: 'client/src/components/visual-editor/MultiTabEditor.tsx' },
                 { pattern: /FileTreeExplorer\.tsx/i, path: 'client/src/components/visual-editor/FileTreeExplorer.tsx' },
                 { pattern: /OptimizedVisualEditor\.tsx/i, path: 'client/src/components/visual-editor/OptimizedVisualEditor.tsx' },
@@ -3677,6 +3699,7 @@ CREATE FILES IMMEDIATELY when asked. Sandra sees changes in dev preview instantl
               if (!targetFile) {
                 // Enhanced React component patterns
                 const componentPatterns = [
+                  /const\s+(AdminDashboard)\s*:\s*React\.FC/,  // const AdminDashboard: React.FC (specific)
                   /const\s+([A-Z][a-zA-Z]*)\s*:\s*React\.FC/,  // const ComponentName: React.FC
                   /export\s+default\s+function\s+([A-Z][a-zA-Z]*)/,  // export default function ComponentName
                   /export\s+const\s+([A-Z][a-zA-Z]*)\s*=\s*\(/,  // export const ComponentName = (
@@ -3694,7 +3717,13 @@ CREATE FILES IMMEDIATELY when asked. Sandra sees changes in dev preview instantl
                     if (componentName.endsWith('Props')) {
                       componentName = componentName.slice(0, -5);
                     }
-                    targetFile = `client/src/components/${componentName}.tsx`;
+                    
+                    // Special handling for AdminDashboard
+                    if (componentName === 'AdminDashboard') {
+                      targetFile = `client/src/components/admin/AdminDashboard.tsx`;
+                    } else {
+                      targetFile = `client/src/components/${componentName}.tsx`;
+                    }
                     console.log(`🎯 Detected component name: ${componentName} -> ${targetFile}`);
                     break;
                   }
