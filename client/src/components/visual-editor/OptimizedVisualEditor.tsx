@@ -701,8 +701,8 @@ export function OptimizedVisualEditor({ className = '' }: OptimizedVisualEditorP
           responseText.includes('IMMEDIATE ACTION') ||
           responseText.includes('PROGRESS UPDATE') ||
           // Agent-specific continuous work patterns
-          (agentId === 'maya' && responseText.includes('```')) || // Maya continues after code changes
-          (agentId === 'victoria' && responseText.includes('design')) || // Victoria continues with design iterations
+          (agentId === 'zara' && responseText.includes('```')) || // Zara continues after code changes
+          (agentId === 'aria' && responseText.includes('design')) || // Aria continues with design iterations
           (agentId === 'rachel' && responseText.includes('copy')) || // Rachel continues with copywriting
           (agentId === 'ava' && responseText.includes('workflow')) || // Ava continues with automation
           (agentId === 'quinn' && responseText.includes('testing')) || // Quinn continues with QA
@@ -720,25 +720,25 @@ export function OptimizedVisualEditor({ className = '' }: OptimizedVisualEditorP
         }
 
         // Auto-apply changes based on agent type
-        if (agentId === 'victoria') {
+        if (agentId === 'aria') {
           // Look for CSS injection patterns
           const cssMatch = responseText.match(/```css\n([\s\S]*?)\n```/);
           if (cssMatch) {
-            console.log('🎨 Victoria provided CSS changes:', cssMatch[1]);
+            console.log('🎨 Aria provided CSS changes:', cssMatch[1]);
             injectChangesToLivePreview(cssMatch[1]);
           }
           
           // Look for HTML/component changes
           const htmlMatch = responseText.match(/```html\n([\s\S]*?)\n```/);
           if (htmlMatch) {
-            console.log('🏗️ Victoria provided HTML changes:', htmlMatch[1]);
+            console.log('🏗️ Aria provided HTML changes:', htmlMatch[1]);
           }
           
           // Check for file creation JSON response
           if (responseText.includes('```json') && responseText.includes('file_creation')) {
-            console.log('📁 Victoria provided file creation JSON - files should be created automatically');
+            console.log('📁 Aria provided file creation JSON - files should be created automatically');
             toast({
-              title: 'Victoria is creating files!',
+              title: 'Aria is creating files!',
               description: 'New components are being added to the codebase',
             });
           }
@@ -762,8 +762,8 @@ export function OptimizedVisualEditor({ className = '' }: OptimizedVisualEditorP
 
         // Check for approval and handoff signals in USER messages (when Sandra says "approve")
         const userApproval = chatMessages[chatMessages.length - 2]?.content?.toLowerCase().includes('approve');
-        if (userApproval && agentId === 'victoria') {
-          console.log('🎯 Sandra approved design - handing off to Maya for implementation');
+        if (userApproval && agentId === 'aria') {
+          console.log('🎯 Sandra approved design - handing off to Zara for implementation');
           setTimeout(() => {
             handoffToNextAgent(agentId, 'Design approved by Sandra - implement technical features and optimize performance');
           }, 1500);
