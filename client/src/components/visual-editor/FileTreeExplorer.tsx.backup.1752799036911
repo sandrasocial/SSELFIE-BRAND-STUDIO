@@ -124,40 +124,32 @@ export function FileTreeExplorer({ onFileSelect, selectedAgent }: FileTreeExplor
     return (
       <div key={entry.path}>
         <div
-          className={`flex items-center py-1 px-2 hover:bg-gray-100 cursor-pointer text-sm ${
-            entry.type === 'directory' ? 'font-medium' : ''
-          }`}
-          style={{ paddingLeft: paddingLeft + 8 }}
-          onClick={() => {
-            if (entry.type === 'directory') {
-              toggleDirectory(entry.path);
-            } else {
-              handleFileClick(entry.path);
-            }
-          }}
+          className={`flex items-center py-1 px-2 hover:bg-gray-50 cursor-pointer text-sm`}
+          style={{ paddingLeft: `${paddingLeft + 8}px` }}
+          onClick={() => entry.type === 'directory' ? toggleDirectory(entry.path) : handleFileClick(entry.path)}
         >
           {entry.type === 'directory' && (
-            <span className="mr-1 text-gray-600 w-4 text-center">
+            <span className="mr-2 text-xs select-none">
               {isExpanded ? '▼' : '▶'}
             </span>
           )}
-          {entry.type === 'file' && (
-            <span className="mr-1 text-gray-600 w-4 text-center">
-              📄
-            </span>
-          )}
-          <span className="truncate">{entry.name}</span>
+          <span className={`${entry.type === 'directory' ? 'font-medium' : ''} truncate flex-1`}>
+            {entry.name}
+          </span>
           {entry.type === 'file' && entry.size && (
-            <span className="ml-auto text-xs text-gray-500">
+            <span className="text-xs text-gray-400 ml-2">
               {formatFileSize(entry.size)}
             </span>
           )}
         </div>
-
-        {/* Render children if directory is expanded */}
+        
         {entry.type === 'directory' && isExpanded && entry.children && (
           <div>
-            {entry.children.map(child => renderTreeEntry(child, level + 1))}
+            {entry.children
+              .filter(child => !searchTerm || 
+                child.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                child.type === 'directory')
+              .map(child => renderTreeEntry(child, level + 1))}
           </div>
         )}
       </div>
@@ -165,11 +157,9 @@ export function FileTreeExplorer({ onFileSelect, selectedAgent }: FileTreeExplor
   };
 
   const formatFileSize = (bytes: number): string => {
-    if (bytes === 0) return '0 B';
-    const k = 1024;
-    const sizes = ['B', 'KB', 'MB', 'GB'];
-    const i = Math.floor(Math.log(bytes) / Math.log(k));
-    return parseFloat((bytes / Math.pow(k, i)).toFixed(1)) + ' ' + sizes[i];
+    if (bytes < 1024) return `${bytes}B`;
+    if (bytes < 1024 * 1024) return `${Math.round(bytes / 1024)}KB`;
+    return `${Math.round(bytes / (1024 * 1024))}MB`;
   };
 
   const filteredTree = searchTerm 
@@ -205,6 +195,26 @@ export function FileTreeExplorer({ onFileSelect, selectedAgent }: FileTreeExplor
         )}
 
         {!isLoading && filteredTree.map(entry => renderTreeEntry(entry))}
+      </div>
+
+      {/* Quick Actions */}
+      <div className="p-3 border-t border-gray-200 space-y-2">
+        <Button
+          variant="outline"
+          size="sm"
+          className="w-full text-xs border-black text-black hover:bg-black hover:text-white"
+          onClick={() => loadDirectory('.')}
+        >
+          Refresh Tree
+        </Button>
+        <Button
+          variant="outline"
+          size="sm"
+          className="w-full text-xs border-black text-black hover:bg-black hover:text-white"
+          onClick={() => setExpandedDirs(new Set(['client', 'server', 'shared']))}
+        >
+          Collapse All
+        </Button>
       </div>
     </div>
   );
