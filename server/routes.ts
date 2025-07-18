@@ -3359,8 +3359,9 @@ Consider this workflow optimized and ready for implementation! ⚙️`
       
       // Always check for saved memory when starting a new conversation or after clearing
       console.log(`💭 Checking for saved memory for ${agentId}...`);
-      // Skip complex memory system for now
-      const savedMemory = null;
+      // Re-enable memory system
+      const { ConversationManager } = await import('./agents/ConversationManager');
+      const savedMemory = await ConversationManager.restoreAgentMemory(agentId, userId);
       
       // If we have saved memory AND conversation doesn't already contain memory restoration
       if (savedMemory && !workingHistory.some(msg => msg.content?.includes('CONVERSATION MEMORY RESTORED'))) {
@@ -3396,13 +3397,19 @@ ${savedMemory.recentDecisions.map(decision => `• ${decision}`).join('\n')}
         console.log(`📝 No saved memory found for ${agentId} - starting fresh conversation`);
       }
       
-      // TEMPORARILY DISABLE AUTO-CLEAR to debug agent behavior issues
-      // const managementResult = await ConversationManager.manageConversationLength(
-      //   agentId, 
-      //   userId, 
-      //   workingHistory
-      // );
-      console.log(`🔍 SKIPPING auto-clear management for debugging - conversation has ${workingHistory.length} messages`);
+      // Re-enable conversation management for proper memory handling
+      const managementResult = await ConversationManager.manageConversationLength(
+        agentId, 
+        userId, 
+        workingHistory
+      );
+      
+      if (managementResult.shouldClear) {
+        console.log(`🔄 Conversation cleared for ${agentId} - memory preserved`);
+        workingHistory = managementResult.newHistory;
+      } else {
+        console.log(`🔍 Conversation management: ${workingHistory.length} messages, no clearing needed`);
+      }
       
       // Get agent personality and enhanced prompt
       const agentPersonality = await import('./agents/agent-personalities');
