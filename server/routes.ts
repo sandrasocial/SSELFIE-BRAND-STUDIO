@@ -4625,6 +4625,15 @@ FOR VICTORIA SPECIFICALLY: When asked about redesigning "sandra-command page", u
   registerEnterpriseRoutes(app);
   console.log('✅ Enterprise scaling routes registered');
 
+  // Register Agent Enhancement routes
+  try {
+    const agentEnhancementRoutes = (await import('./routes/agent-enhancements')).default;
+    app.use(agentEnhancementRoutes);
+    console.log('✅ Agent enhancement routes registered');
+  } catch (error) {
+    console.log('⚠️ Agent enhancement routes not available:', error.message);
+  }
+
 
 
   // Removed duplicate photoshoot routes - using existing checkout system
