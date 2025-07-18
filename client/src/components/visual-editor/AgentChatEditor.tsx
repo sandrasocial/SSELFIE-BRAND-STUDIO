@@ -45,15 +45,15 @@ interface Agent {
 
 const agents: Agent[] = [
   {
-    id: 'victoria',
-    name: 'Victoria',
+    id: 'aria',
+    name: 'Aria',
     role: 'UX Designer AI',
     status: 'active',
     expertise: ['Design', 'UI/UX', 'Visual Editor', 'Components']
   },
   {
-    id: 'maya',
-    name: 'Maya',
+    id: 'zara',
+    name: 'Zara',
     role: 'Dev AI',
     status: 'active',
     expertise: ['Development', 'Code', 'API', 'Technical']

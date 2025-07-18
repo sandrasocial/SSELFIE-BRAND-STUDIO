@@ -85,8 +85,8 @@ export default function EnhancedAgentCoordination() {
   });
 
   const projectTypes = [
-    { id: 'design', name: 'Design Project', description: 'UI/UX design and visual identity work', startAgent: 'victoria' },
-    { id: 'technical', name: 'Technical Project', description: 'Development and implementation work', startAgent: 'maya' },
+    { id: 'design', name: 'Design Project', description: 'UI/UX design and visual identity work', startAgent: 'aria' },
+    { id: 'technical', name: 'Technical Project', description: 'Development and implementation work', startAgent: 'zara' },
     { id: 'content', name: 'Content Project', description: 'Content strategy and copywriting', startAgent: 'rachel' },
     { id: 'marketing', name: 'Marketing Campaign', description: 'Marketing and revenue optimization', startAgent: 'martha' },
     { id: 'strategy', name: 'Strategic Planning', description: 'Business strategy and coordination', startAgent: 'diana' },
@@ -94,8 +94,8 @@ export default function EnhancedAgentCoordination() {
   ];
 
   const agentNames: Record<string, string> = {
-    victoria: 'Victoria',
-    maya: 'Maya',
+    aria: 'Aria',
+    zara: 'Zara',
     rachel: 'Rachel',
     ava: 'Ava',
     quinn: 'Quinn',
@@ -119,7 +119,7 @@ export default function EnhancedAgentCoordination() {
 
   const getNextActions = (stage: string): string[] => {
     const stageActions: Record<string, string[]> = {
-      design_concept: ['Create design mockups', 'Establish style guidelines', 'Coordinate with Maya for implementation'],
+      design_concept: ['Create design mockups', 'Establish style guidelines', 'Coordinate with Zara for implementation'],
       technical_implementation: ['Write component code', 'Set up database schema', 'Configure API endpoints'],
       content_creation: ['Develop brand voice', 'Write copy content', 'Create content guidelines'],
       marketing_campaigns: ['Develop campaign strategy', 'Set up tracking', 'Create ad content'],

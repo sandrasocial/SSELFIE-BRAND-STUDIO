@@ -441,14 +441,16 @@ sandra@dibssocial.com: Session expires July 25, 2025 (168+ hours remaining)
 **BREAKTHROUGH: CUSTOM DEVELOPMENT AGENTS COMPLETELY SEPARATED FROM LIVE APP**
 - **Identity Confusion Resolved**: Custom development agents renamed from Maya/Victoria → Zara/Aria
 - **Live App Protection**: Member-facing Victoria (landing page builder) and Maya (photoshoot/stylist) agents remain untouched
-- **Complete Implementation**: Updated 15+ files including agent personalities, admin dashboard, route references
+- **Complete Implementation**: Updated 20+ files including agent personalities, admin dashboard, route references
 - **Visual Editor Integration**: Agent chat interface updated to use new names (Zara for dev, Aria for design)
-- **Frontend References Fixed**: OptimizedVisualEditor.tsx updated with correct agent names (aria, zara)
+- **Frontend References Fixed**: All components updated with correct agent names (aria, zara)
+- **Database API Fixed**: Agents API endpoint now uses correct schema column names (agentId vs agent_name)
 - **Route References Fixed**: All agent conversation routes updated in enhanced and standard files
 - **Auto-File Writer Updated**: File path detection system updated for new agent names
 - **Authentication Redirect Loop Fixed**: AuthExplainer now checks authentication status before showing login page
 - **Agent Behavior Fixed**: Agents now distinguish between casual conversation and actual tasks
 - **Documentation Updated**: replit.md documentation reflects critical separation between custom dev agents and live member agents
+- **Database Error Resolved**: Fixed column name mismatches in agentConversations and agentPerformanceMetrics queries
 
 **Technical Implementation:**
 - server/agents/agent-personalities.ts: Updated core agent definitions
