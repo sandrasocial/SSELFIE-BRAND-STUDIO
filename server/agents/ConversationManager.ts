@@ -61,7 +61,7 @@ export class ConversationManager {
   /**
    * Create intelligent summary of conversation history
    */
-  private static async createConversationSummary(
+  static async createConversationSummary(
     agentId: string,
     userId: string,
     history: any[]
@@ -160,7 +160,7 @@ export class ConversationManager {
   /**
    * Save agent memory to database
    */
-  private static async saveAgentMemory(summary: ConversationSummary): Promise<void> {
+  static async saveAgentMemory(summary: ConversationSummary): Promise<void> {
     try {
       // Save to agent_conversations table as a special memory entry
       // Fix parameter order: agentId, userId, userMessage, agentResponse, devPreview
