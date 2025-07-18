@@ -1,6 +1,6 @@
 import React from 'react';
 
-export default function AdminHero() {
+export default function AdminHeroRedesigned() {
   return (
     <div className="relative w-full h-screen overflow-hidden bg-black">
       {/* Full-bleed background with editorial gradient */}
@@ -52,10 +52,10 @@ export default function AdminHero() {
               className="text-4xl md:text-5xl font-light text-white mb-2"
               style={{ fontFamily: 'Times New Roman, serif' }}
             >
-              90
+              €67
             </div>
             <div className="text-sm text-gray-300 uppercase tracking-widest">
-              Days to Empire
+              Monthly Revenue
             </div>
           </div>
           
@@ -72,22 +72,27 @@ export default function AdminHero() {
           </div>
         </div>
         
-        {/* Luxury CTA button */}
-        <button className="group relative px-12 py-4 border border-white text-white font-light uppercase tracking-widest transition-all duration-300 hover:bg-white hover:text-black">
-          <span className="relative z-10">Enter Dashboard</span>
-          <div className="absolute inset-0 bg-white transform scale-x-0 group-hover:scale-x-100 transition-transform duration-300 origin-left"></div>
-        </button>
+        {/* Luxury action buttons */}
+        <div className="flex flex-col sm:flex-row gap-6">
+          <button 
+            className="px-8 py-3 bg-white text-black font-light uppercase tracking-widest hover:bg-gray-100 transition-colors duration-300"
+            style={{ fontFamily: 'Times New Roman, serif' }}
+          >
+            View Analytics
+          </button>
+          
+          <button 
+            className="px-8 py-3 border border-white text-white font-light uppercase tracking-widest hover:bg-white hover:text-black transition-colors duration-300"
+            style={{ fontFamily: 'Times New Roman, serif' }}
+          >
+            Manage Agents
+          </button>
+        </div>
       </div>
       
-      {/* Bottom editorial accent */}
-      <div className="absolute bottom-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-white to-transparent opacity-30"></div>
-      
-      {/* Scroll indicator */}
-      <div className="absolute bottom-8 left-1/2 transform -translate-x-1/2 text-white opacity-60">
-        <div className="flex flex-col items-center">
-          <div className="w-px h-16 bg-white opacity-30 mb-2"></div>
-          <div className="text-xs uppercase tracking-widest">Scroll</div>
-        </div>
+      {/* Minimalist scroll indicator */}
+      <div className="absolute bottom-8 left-1/2 transform -translate-x-1/2">
+        <div className="w-px h-16 bg-white opacity-30"></div>
       </div>
     </div>
   );
