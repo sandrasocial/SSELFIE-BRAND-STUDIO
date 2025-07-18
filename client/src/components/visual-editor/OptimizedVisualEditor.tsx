@@ -30,6 +30,7 @@ import { useQuery } from '@tanstack/react-query';
 import { FileTreeExplorer } from './FileTreeExplorer';
 import { MultiTabEditor } from './MultiTabEditor';
 import { FormattedAgentMessage } from './FormattedAgentMessage';
+import { AgentChatControls } from './AgentChatControls';
 import AgentEnhancementDashboard from '../AgentEnhancementDashboard';
 
 interface ChatMessage {
@@ -238,6 +239,8 @@ export function OptimizedVisualEditor({ className = '' }: OptimizedVisualEditorP
   const [customCSSClass, setCustomCSSClass] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [selectedImages, setSelectedImages] = useState<string[]>([]);
+  const [agentController, setAgentController] = useState<AbortController | null>(null);
+  const [isPaused, setIsPaused] = useState(false);
   const [uploadedFiles, setUploadedFiles] = useState<File[]>([]);
   const [isDragOver, setIsDragOver] = useState(false);
   const [iframeLoading, setIframeLoading] = useState(true);
@@ -570,10 +573,57 @@ export function OptimizedVisualEditor({ className = '' }: OptimizedVisualEditorP
     }, 1000);
   };
 
+  // Agent control handlers
+  const handleStopAgent = () => {
+    if (agentController) {
+      agentController.abort();
+      setAgentController(null);
+    }
+    setIsLoading(false);
+    setIsPaused(false);
+    
+    const stopMessage: ChatMessage = {
+      type: 'agent',
+      content: '🛑 **Work stopped by user**\n\nI\'ve stopped my current task. Let me know how you\'d like to proceed!',
+      timestamp: new Date(),
+      agentName: currentAgent.name,
+    };
+    setChatMessages(prev => [...prev, stopMessage]);
+  };
+
+  const handlePauseAgent = () => {
+    setIsPaused(!isPaused);
+    const pauseMessage: ChatMessage = {
+      type: 'agent',
+      content: isPaused 
+        ? '▶️ **Work resumed**\n\nContinuing where I left off...'
+        : '⏸️ **Work paused**\n\nI\'ve paused my current task. Click resume when you\'re ready to continue.',
+      timestamp: new Date(),
+      agentName: currentAgent.name,
+    };
+    setChatMessages(prev => [...prev, pauseMessage]);
+  };
+
+  const handleRollbackAgent = () => {
+    // Remove last 2 messages (user + agent response)
+    setChatMessages(prev => prev.slice(0, -2));
+    
+    const rollbackMessage: ChatMessage = {
+      type: 'agent',
+      content: '↶ **Rolled back**\n\nI\'ve undone my last response. What would you like me to do instead?',
+      timestamp: new Date(),
+      agentName: currentAgent.name,
+    };
+    setChatMessages(prev => [...prev, rollbackMessage]);
+  };
+
   // Send message to specific agent with conversation memory
   const sendMessageToAgent = async (agentId: string, message: string) => {
-    if (!message.trim()) return;
+    if (!message.trim() || isPaused) return;
 
+    // Create abort controller for this request
+    const controller = new AbortController();
+    setAgentController(controller);
     setIsLoading(true);
 
     try {
@@ -590,15 +640,22 @@ export function OptimizedVisualEditor({ className = '' }: OptimizedVisualEditorP
         workflowStage
       });
 
-      const response = await apiRequest('POST', '/api/admin/agent-chat-bypass', {
-        agentId: agentId,
-        message: message,
-        adminToken: 'sandra-admin-2025',
-        conversationHistory: conversationHistory,
-        workflowContext: {
-          stage: workflowStage,
-          previousWork: chatMessages.filter(msg => msg.agentName && msg.agentName !== agentId).slice(-3)
-        }
+      const response = await fetch('/api/admin/agent-chat-bypass', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          agentId: agentId,
+          message: message,
+          adminToken: 'sandra-admin-2025',
+          conversationHistory: conversationHistory,
+          workflowContext: {
+            stage: workflowStage,
+            previousWork: chatMessages.filter(msg => msg.agentName && msg.agentName !== agentId).slice(-3)
+          }
+        }),
+        signal: controller.signal
       });
 
       console.log('📥 Agent response status:', response.status);
@@ -723,12 +780,17 @@ export function OptimizedVisualEditor({ className = '' }: OptimizedVisualEditorP
         }
       }
     } catch (error) {
-      toast({
-        title: 'Error',
-        description: `Failed to send message to ${agents.find(a => a.id === agentId)?.name}`,
-        variant: 'destructive',
-      });
+      if (error.name === 'AbortError') {
+        console.log('Agent request aborted by user');
+      } else {
+        toast({
+          title: 'Error',
+          description: `Failed to send message to ${agents.find(a => a.id === agentId)?.name}`,
+          variant: 'destructive',
+        });
+      }
     } finally {
+      setAgentController(null);
       setIsLoading(false);
     }
   };
@@ -987,6 +1049,15 @@ export function OptimizedVisualEditor({ className = '' }: OptimizedVisualEditorP
           </TabsList>
 
           <TabsContent value="chat" className="flex-1 flex flex-col mt-0">
+            {/* Agent Chat Controls */}
+            <AgentChatControls
+              isLoading={isLoading}
+              onStop={handleStopAgent}
+              onPause={handlePauseAgent}
+              onRollback={handleRollbackAgent}
+              canRollback={chatMessages.length > 0}
+            />
+            
             {/* Chat Messages - Expanded Space */}
             <div className="flex-1 overflow-y-auto p-1 md:p-2 space-y-1 md:space-y-2" style={{ minHeight: '300px', maxHeight: 'calc(100vh - 250px)' }}>
               {chatMessages.length === 0 && (

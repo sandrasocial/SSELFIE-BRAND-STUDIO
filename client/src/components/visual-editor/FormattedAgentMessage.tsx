@@ -24,6 +24,45 @@ export function FormattedAgentMessage({ content, agentName, timestamp }: Formatt
     });
   };
 
+  // Extract meaningful description from context
+  const extractCodeDescription = (beforeText: string, code: string): string => {
+    // Look for component creation patterns
+    if (code.includes('export function') || code.includes('export default')) {
+      const componentMatch = code.match(/export\s+(?:function|default)\s+(\w+)/);
+      if (componentMatch) {
+        return `Creating ${componentMatch[1]} component with luxury styling and editorial design`;
+      }
+    }
+    
+    // Look for file modification patterns
+    if (beforeText.includes('Creating') || beforeText.includes('Building')) {
+      const descMatch = beforeText.match(/(?:Creating|Building)\s+([^.!]+)/i);
+      if (descMatch) {
+        return descMatch[1].trim();
+      }
+    }
+    
+    // Look for explicit descriptions in the text
+    const sentences = beforeText.split(/[.!]\s+/);
+    const lastSentence = sentences[sentences.length - 1];
+    if (lastSentence && lastSentence.length > 10 && lastSentence.length < 100) {
+      return lastSentence.trim();
+    }
+    
+    // Default descriptions based on file types
+    if (code.includes('interface') || code.includes('type')) {
+      return 'TypeScript interfaces and type definitions';
+    }
+    if (code.includes('className') && code.includes('return')) {
+      return 'React component with Tailwind CSS styling';
+    }
+    if (code.includes('app.') || code.includes('router.')) {
+      return 'Express.js server routes and middleware';
+    }
+    
+    return 'Code implementation with luxury design standards';
+  };
+
   const formatMessage = (text: string) => {
     const parts = [];
     let currentIndex = 0;
@@ -44,56 +83,65 @@ export function FormattedAgentMessage({ content, agentName, timestamp }: Formatt
         );
       }
 
-      // Add code block
+      // Extract description from context before code block
+      const beforeText = text.slice(Math.max(0, match.index - 200), match.index);
+      const description = extractCodeDescription(beforeText, match[2]);
+      
+      // Add code block with description
       const language = normalizeLanguage(match[1] || 'text');
       const code = match[2];
       const isExpanded = expandedBlocks.has(codeBlockIndex);
       
       parts.push(
-        <div key={`code-${codeBlockIndex}`} className="mb-3">
-          <div className="border border-gray-200 rounded-lg overflow-hidden">
-            {/* Code block header */}
-            <div className="bg-gray-50 px-3 py-2 border-b border-gray-200 flex items-center justify-between">
-              <div className="flex items-center space-x-2">
-                <span className="text-xs font-medium text-gray-600 uppercase">
-                  {language}
-                </span>
-                <span className="text-xs text-gray-400">
-                  {code.split('\n').length} lines
-                </span>
+        <div key={`code-${codeBlockIndex}`} className="mb-4">
+          <div className="border border-black rounded-lg overflow-hidden">
+            {/* Code block header with description */}
+            <div className="bg-gray-50 px-4 py-3 border-b border-gray-200">
+              <div className="flex items-center justify-between mb-2">
+                <div className="flex items-center space-x-2">
+                  <span className="text-xs font-medium text-black uppercase tracking-wide">
+                    {language}
+                  </span>
+                  <span className="text-xs text-gray-500">
+                    {code.split('\n').length} lines
+                  </span>
+                </div>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => toggleCodeBlock(codeBlockIndex)}
+                  className="text-xs h-7 px-3 border-black text-black hover:bg-black hover:text-white"
+                >
+                  {isExpanded ? 'Collapse' : 'View Code'}
+                </Button>
               </div>
-              <Button
-                variant="ghost"
-                size="sm"
-                onClick={() => toggleCodeBlock(codeBlockIndex)}
-                className="text-xs h-6 px-2"
-              >
-                {isExpanded ? 'Collapse' : 'Expand'}
-              </Button>
+              {description && (
+                <p className="text-sm text-gray-700 leading-relaxed">
+                  {description}
+                </p>
+              )}
             </div>
             
             {/* Code content */}
-            <div className={`relative ${isExpanded ? '' : 'max-h-32 overflow-hidden'}`}>
-              <SyntaxHighlighter
-                language={language}
-                style={oneDark}
-                customStyle={{
-                  margin: 0,
-                  padding: '12px',
-                  fontSize: '14px',
-                  lineHeight: '1.5',
-                  backgroundColor: '#1e1e1e'
-                }}
-                showLineNumbers={isExpanded}
-                wrapLines={true}
-                wrapLongLines={true}
-              >
-                {code}
-              </SyntaxHighlighter>
-              {!isExpanded && code.split('\n').length > 8 && (
-                <div className="absolute bottom-0 left-0 right-0 h-8 bg-gradient-to-t from-gray-900 to-transparent pointer-events-none"></div>
-              )}
-            </div>
+            {isExpanded && (
+              <div className="max-h-96 overflow-y-auto">
+                <SyntaxHighlighter
+                  language={language}
+                  style={oneDark}
+                  showLineNumbers={true}
+                  wrapLines={true}
+                  customStyle={{
+                    margin: 0,
+                    padding: '16px',
+                    background: '#1e1e1e',
+                    fontSize: '13px',
+                    lineHeight: '1.4'
+                  }}
+                >
+                  {code}
+                </SyntaxHighlighter>
+              </div>
+            )}
           </div>
         </div>
       );
