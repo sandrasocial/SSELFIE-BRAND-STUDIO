@@ -3346,25 +3346,13 @@ Consider this workflow optimized and ready for implementation! ⚙️`
         conversationHistory
       );
       
-      // Continue with file reading and auto-writing logic
-      const { AutoFileWriter } = await import('./auto-file-writer');
-      const processingResult = await AutoFileWriter.processForFileOperations(
-        agentId,
-        message,
-        conversationHistory || []
-      );
+      // Get agent personality and enhanced prompt
+      const agentPersonality = await import('./agents/agent-personalities');
+      const personalityData = agentPersonality.getAgentPersonality(agentId);
       
-      if (processingResult.error) {
-        console.error('Auto file writer error:', processingResult.error);
-        return res.status(500).json({ 
-          error: 'File processing failed',
-          details: processingResult.error 
-        });
-      }
-      
-      // Enhanced system prompt with SSELFIE technical standards
-      const systemPrompt = `${await import('./agents/agent-personalities')}
-      
+      // Build system prompt with agent context
+      const systemPrompt = `${personalityData.instructions}
+
 SSELFIE_TECH_STANDARDS:
 - Architecture: React + Wouter + PostgreSQL + Drizzle ORM + Express + Tailwind
 - Database: Use existing schema from @shared/schema.ts
@@ -3380,10 +3368,6 @@ AGENT_CONTEXT:
 - All agents have full codebase access via file operations
 - Use claude-sonnet-4-20250514 for optimal performance
 - Provide actionable solutions with real implementation`;
-      
-      // Get agent personality and enhanced prompt
-      const agentPersonality = await import('./agents/agent-personalities');
-      const personalityData = agentPersonality.getAgentPersonality(agentId);
       
       // Combine with conversation history for Claude
       const fullHistory = managementResult.conversationHistory || conversationHistory || [];
@@ -3411,10 +3395,25 @@ AGENT_CONTEXT:
       const responseText = response.content[0].text;
       
       // Process any file operations in the response
-      const fileOperations = await AutoFileWriter.processCodeBlocks(
-        responseText,
-        processingResult.context
-      );
+      let fileOperations: any[] = [];
+      try {
+        const { AutoFileWriter } = await import('./agents/auto-file-writer.js');
+        const { AgentCodebaseIntegration } = await import('./agents/AgentCodebaseIntegration.js');
+        
+        const result = await AutoFileWriter.processCodeBlocks(
+          agentId,
+          responseText,
+          AgentCodebaseIntegration
+        );
+        
+        fileOperations = result.filesWritten || [];
+        
+        if (fileOperations.length > 0) {
+          console.log(`✅ Auto-wrote ${fileOperations.length} files: ${fileOperations.map(f => f.filePath).join(', ')}`);
+        }
+      } catch (fileError) {
+        console.log('❌ File operation failed:', fileError.message);
+      }
       
       // Save conversation to database
       const { AgentLearningSystem } = await import('./agents/agent-learning-system');
