@@ -486,9 +486,16 @@ The platform has become overly complex with multiple pricing tiers, broken onboa
 
 **MAYA SPECIFICALLY VERIFIED:**
 - Successfully identified correct component (FileTreeExplorer.tsx vs FilesTab.tsx)
-- Applied proper CSS fix for scrolling functionality 
+- Applied proper CSS fix for scrolling functionality in FileTreeExplorer.tsx (line 194)
+- Fixed parent container height constraints in OptimizedVisualEditor.tsx (added h-0 to TabsContent)
 - File modifications appeared in live codebase with automatic backup creation
 - Build pipeline recovered successfully from temporary syntax errors
+
+**SCROLLING ISSUE RESOLUTION:**
+- ✅ **Root Cause**: Parent TabsContent needed h-0 class for flexbox height calculation
+- ✅ **Fix Applied**: Added h-0 to TabsContent classes in OptimizedVisualEditor.tsx (lines 1182, 1205)
+- ✅ **FileTreeExplorer CSS**: overflow-y-auto max-h-full properly implemented on line 194
+- ✅ **Live Preview**: Changes applied and hot-reloaded successfully
 
 **Complete System Unification:**
 - **Live File Reading**: All 9 agents automatically read files when mentioned in conversation
