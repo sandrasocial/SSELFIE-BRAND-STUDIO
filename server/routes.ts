@@ -3590,7 +3590,7 @@ Consider this workflow optimized and ready for implementation! ⚙️`
       }
       
       // Process any code blocks for file writing
-      const { AutoFileWriter } = await import('./agents/auto-file-writer.ts');
+      const { AutoFileWriter } = await import('./agents/auto-file-writer.js');
       try {
         const { AgentCodebaseIntegration } = await import('./agents/AgentCodebaseIntegration.js');
         const { filesWritten, modifiedResponse } = await AutoFileWriter.processCodeBlocks(
