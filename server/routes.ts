@@ -6,6 +6,7 @@ import { setupAuth, isAuthenticated } from "./replitAuth";
 import agentCodebaseRoutes from "./routes/agent-codebase-routes";
 import { registerAgentApprovalRoutes } from "./routes/agent-approval";
 import { registerAgentCommandRoutes } from "./routes/agent-command-center";
+import agentFileAccessRoutes from "./routes/agent-file-access";
 import { rachelAgent } from "./agents/rachel-agent";
 import path from "path";
 import fs from "fs";
@@ -97,6 +98,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
   
   // Agent codebase integration routes (secure admin access only)
   app.use('/api', agentCodebaseRoutes);
+  
+  // Agent file access routes (secure admin access only)
+  app.use('/api/admin/agent', agentFileAccessRoutes);
   
   // Agent conversation routes removed - now inline below
 
