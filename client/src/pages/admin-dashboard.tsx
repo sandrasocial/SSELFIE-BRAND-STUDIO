@@ -15,7 +15,7 @@ import AdminHeroRedesigned from '@/components/admin/AdminHeroRedesigned';
 import AgentDashboard from '@/components/admin/AgentDashboard';
 import AgentAnalyticsDashboard from '@/components/admin/AgentAnalyticsDashboard';
 import EnhancedAgentCoordination from '@/components/admin/EnhancedAgentCoordination';
-import AgentEnhancementDashboard from '@/components/AgentEnhancementDashboard';
+import AgentEnhancementDashboard from '@/components/admin/AgentEnhancementDashboard';
 
 // Agent Configuration for the visual cards
 const AGENT_CONFIGS = [

@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
-import { Button } from './ui/button';
+import { Button } from '../ui/button';
 
 interface AgentEnhancement {
   id: string;

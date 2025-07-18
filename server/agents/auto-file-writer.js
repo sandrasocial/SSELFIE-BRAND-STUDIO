@@ -119,11 +119,23 @@ export class AutoFileWriter {
           } catch (integrationError) {
             console.error(`⚠️ Admin component integration failed for ${filePath}:`, integrationError);
           }
+        } else if (filePath.includes('client/src/components/visual-editor/')) {
+          try {
+            await this.autoIntegrateVisualEditorComponent(filePath, block.content);
+          } catch (integrationError) {
+            console.error(`⚠️ Visual editor integration failed for ${filePath}:`, integrationError);
+          }
         } else if (filePath.includes('client/src/pages/') && filePath.includes('-redesigned.tsx')) {
           try {
             await this.autoIntegrateRedesignedPage(filePath, block.content, context);
           } catch (integrationError) {
             console.error(`⚠️ Page integration failed for ${filePath}:`, integrationError);
+          }
+        } else if (filePath.includes('client/src/components/') && !filePath.includes('/admin/') && !filePath.includes('/visual-editor/')) {
+          try {
+            await this.autoIntegrateGenericComponent(filePath, block.content);
+          } catch (integrationError) {
+            console.error(`⚠️ Generic component integration failed for ${filePath}:`, integrationError);
           }
         }
       }
@@ -359,5 +371,80 @@ export class AutoFileWriter {
     fs.writeFileSync(appPath, updatedContent);
     
     console.log(`✅ Auto-integrated ${pageName} into App.tsx (route commented out)`);
+  }
+  
+  /**
+   * Auto-integrates visual editor components
+   */
+  static async autoIntegrateVisualEditorComponent(filePath, componentContent) {
+    const fs = require('fs');
+    const path = require('path');
+    
+    // Extract component name from file path
+    const componentName = path.basename(filePath, '.tsx');
+    
+    // Read the main visual editor file
+    const visualEditorPath = 'client/src/components/visual-editor/OptimizedVisualEditor.tsx';
+    if (!fs.existsSync(visualEditorPath)) {
+      console.log(`⚠️ Visual editor not found at ${visualEditorPath}`);
+      return;
+    }
+    
+    const visualEditorContent = fs.readFileSync(visualEditorPath, 'utf8');
+    
+    // Check if component is already imported
+    const importStatement = `import ${componentName} from './${componentName}';`;
+    if (visualEditorContent.includes(importStatement)) {
+      console.log(`✅ ${componentName} already integrated in visual editor`);
+      return;
+    }
+    
+    // Add import after other visual editor imports
+    const lastImportIndex = visualEditorContent.lastIndexOf("} from './");
+    if (lastImportIndex !== -1) {
+      const nextLineIndex = visualEditorContent.indexOf('\n', lastImportIndex);
+      const updatedContent = visualEditorContent.slice(0, nextLineIndex) + 
+                            `\nimport ${componentName} from './${componentName}';` + 
+                            visualEditorContent.slice(nextLineIndex);
+      
+      // Write the updated visual editor
+      fs.writeFileSync(visualEditorPath, updatedContent);
+      
+      console.log(`✅ Auto-integrated ${componentName} into visual editor`);
+    }
+  }
+  
+  /**
+   * Auto-integrates generic components (creates index export)
+   */
+  static async autoIntegrateGenericComponent(filePath, componentContent) {
+    const fs = require('fs');
+    const path = require('path');
+    
+    // Extract component name from file path
+    const componentName = path.basename(filePath, '.tsx');
+    
+    // Create or update components index file
+    const componentsIndexPath = 'client/src/components/index.ts';
+    let indexContent = '';
+    
+    if (fs.existsSync(componentsIndexPath)) {
+      indexContent = fs.readFileSync(componentsIndexPath, 'utf8');
+    }
+    
+    // Check if component is already exported
+    const exportStatement = `export { default as ${componentName} } from './${componentName}';`;
+    if (indexContent.includes(exportStatement)) {
+      console.log(`✅ ${componentName} already exported in components index`);
+      return;
+    }
+    
+    // Add export to index
+    indexContent += `\n${exportStatement}`;
+    
+    // Write the updated index
+    fs.writeFileSync(componentsIndexPath, indexContent);
+    
+    console.log(`✅ Auto-integrated ${componentName} into components index`);
   }
 }
