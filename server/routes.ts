@@ -3197,34 +3197,29 @@ Consider this workflow optimized and ready for implementation! ⚙️`
 
 
 
-  // LIVE DATABASE ANALYTICS - NO MOCK DATA
+  // LIVE DATABASE ANALYTICS - NO MOCK DATA  
   async function getRealBusinessAnalytics() {
     console.log('📊 Fetching LIVE analytics from database...');
     
     try {
-      const { users, subscriptions, generationTrackers, agentConversations } = await import('@shared/schema');
+      // Direct SQL queries to avoid schema mismatches - using real live data
+      const totalUsersResult = await db.execute("SELECT COUNT(*) as count FROM users");
+      const totalUsers = parseInt(totalUsersResult.rows[0]?.count as string) || 0;
       
-      // Get real user count from database
-      const userCount = await db.select().from(users);
-      const totalUsers = userCount.length;
+      const activeSubscriptionsResult = await db.execute("SELECT COUNT(*) as count FROM subscriptions WHERE status = 'active'");
+      const activeSubscriptions = parseInt(activeSubscriptionsResult.rows[0]?.count as string) || 0;
       
-      // Get real subscription count from database
-      const subscriptionData = await db.select().from(subscriptions);
-      const activeSubscriptions = subscriptionData.filter(sub => sub.status === 'active').length;
+      const aiGenerationsResult = await db.execute("SELECT COUNT(*) as count FROM generation_trackers");
+      const aiImagesGenerated = parseInt(aiGenerationsResult.rows[0]?.count as string) || 0;
       
-      // Get real AI image generation count from database
-      const generationData = await db.select().from(generationTrackers);
-      const aiImagesGenerated = generationData.length;
+      const agentConversationsResult = await db.execute("SELECT COUNT(*) as count FROM agent_conversations");
+      const agentTasks = parseInt(agentConversationsResult.rows[0]?.count as string) || 0;
       
       // Calculate real revenue from active subscriptions (€47 per premium)
       const revenue = activeSubscriptions * 47;
       
       // Calculate real conversion rate
       const conversionRate = totalUsers > 0 ? (activeSubscriptions / totalUsers) * 100 : 0;
-      
-      // Get real agent task count from conversations
-      const agentConversationData = await db.select().from(agentConversations);
-      const agentTasks = agentConversationData.length;
       
       const stats = {
         totalUsers,

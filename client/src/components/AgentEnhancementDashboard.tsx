@@ -142,13 +142,13 @@ export default function AgentEnhancementDashboard() {
                 <div className="text-xs text-gray-600">
                   <div className="font-medium mb-1">Suggested Actions:</div>
                   <ul className="list-disc list-inside space-y-1">
-                    {alert.suggestedActions.map((action, index) => (
+                    {alert.suggestedActions && alert.suggestedActions.map ? alert.suggestedActions.map((action, index) => (
                       <li key={index}>{action}</li>
-                    ))}
+                    )) : <li>No actions available</li>}
                   </ul>
                 </div>
                 <div className="mt-2 text-xs text-gray-500">
-                  Affected Agents: {alert.affectedAgents.join(', ')}
+                  Affected Agents: {alert.affectedAgents && alert.affectedAgents.join ? alert.affectedAgents.join(', ') : 'None'}
                 </div>
               </div>
             ))}
