@@ -3595,43 +3595,124 @@ CREATE FILES IMMEDIATELY when asked. Sandra sees changes in dev preview instantl
         
         // ENHANCED FILE OPERATION POST-PROCESSING
         // Check for code blocks that should be written to files
-        if (aiResponse.includes('```typescript') || aiResponse.includes('```tsx') || aiResponse.includes('```css')) {
+        if (aiResponse.includes('```typescript') || aiResponse.includes('```tsx') || aiResponse.includes('```css') || aiResponse.includes('```javascript') || aiResponse.includes('```js')) {
           console.log('🔧 Detected code blocks in AI response - processing for file operations...');
           
           try {
             const { AgentCodebaseIntegration } = await import('./agents/agent-codebase-integration');
             const filesModified = [];
             
-            // Look for specific file mentions and associated code blocks
-            const filePatterns = [
-              { pattern: /MultiTabEditor\.tsx.*?```(?:typescript|tsx)\n([\s\S]*?)```/gis, path: 'client/src/components/visual-editor/MultiTabEditor.tsx' },
-              { pattern: /FileTreeExplorer\.tsx.*?```(?:typescript|tsx)\n([\s\S]*?)```/gis, path: 'client/src/components/visual-editor/FileTreeExplorer.tsx' },
-              { pattern: /OptimizedVisualEditor\.tsx.*?```(?:typescript|tsx)\n([\s\S]*?)```/gis, path: 'client/src/components/visual-editor/OptimizedVisualEditor.tsx' },
-              { pattern: /IntegratedAgentChat\.tsx.*?```(?:typescript|tsx)\n([\s\S]*?)```/gis, path: 'client/src/components/visual-editor/IntegratedAgentChat.tsx' }
-            ];
+            // UNIVERSAL CODE BLOCK DETECTION - Extract ALL code blocks and determine target files
+            const codeBlockPattern = /```(?:typescript|tsx|javascript|js|css|)\n([\s\S]*?)```/gi;
+            const codeBlocks = [...aiResponse.matchAll(codeBlockPattern)];
             
-            for (const { pattern, path } of filePatterns) {
-              const matches = [...aiResponse.matchAll(pattern)];
-              if (matches.length > 0) {
-                const codeContent = matches[0][1];
-                console.log(`🔧 Found code for ${path} - writing file...`);
+            console.log(`🔍 Found ${codeBlocks.length} code blocks in AI response`);
+            
+            for (let i = 0; i < codeBlocks.length; i++) {
+              const codeContent = codeBlocks[i][1];
+              let targetFile = null;
+              
+              console.log(`🔧 Processing code block ${i + 1}:`);
+              console.log(`📄 Code content preview: ${codeContent.substring(0, 100)}...`);
+              console.log(`📏 Code length: ${codeContent.length} characters`);
+              
+              // Method 1: Look for file mentions in the text surrounding the code block
+              const beforeCodeBlock = aiResponse.substring(0, codeBlocks[i].index);
+              const afterCodeBlock = aiResponse.substring(codeBlocks[i].index + codeBlocks[i][0].length);
+              const contextText = beforeCodeBlock.slice(-200) + afterCodeBlock.slice(0, 200);
+              
+              // Check for explicit file mentions
+              const filePatterns = [
+                { pattern: /MultiTabEditor\.tsx/i, path: 'client/src/components/visual-editor/MultiTabEditor.tsx' },
+                { pattern: /FileTreeExplorer\.tsx/i, path: 'client/src/components/visual-editor/FileTreeExplorer.tsx' },
+                { pattern: /OptimizedVisualEditor\.tsx/i, path: 'client/src/components/visual-editor/OptimizedVisualEditor.tsx' },
+                { pattern: /IntegratedAgentChat\.tsx/i, path: 'client/src/components/visual-editor/IntegratedAgentChat.tsx' },
+                { pattern: /AgentChatEditor\.tsx/i, path: 'client/src/components/visual-editor/AgentChatEditor.tsx' },
+                { pattern: /([A-Z][a-zA-Z]*Component)\.tsx/i, path: 'client/src/components/$1.tsx' },
+                { pattern: /([A-Z][a-zA-Z]*Page)\.tsx/i, path: 'client/src/pages/$1.tsx' }
+              ];
+              
+              for (const { pattern, path } of filePatterns) {
+                if (pattern.test(contextText)) {
+                  if (path.includes('$1')) {
+                    const match = contextText.match(pattern);
+                    targetFile = path.replace('$1', match[1]);
+                  } else {
+                    targetFile = path;
+                  }
+                  break;
+                }
+              }
+              
+              // Method 2: If no explicit file mentioned, infer from code content
+              if (!targetFile) {
+                // Look for React component patterns
+                const componentPatterns = [
+                  /const\s+([A-Z][a-zA-Z]*)\s*:\s*React\.FC/,  // const ComponentName: React.FC
+                  /export\s+default\s+function\s+([A-Z][a-zA-Z]*)/,  // export default function ComponentName
+                  /export\s+const\s+([A-Z][a-zA-Z]*)/,  // export const ComponentName
+                  /function\s+([A-Z][a-zA-Z]*)\s*\(/,  // function ComponentName(
+                  /export\s+default\s+([A-Z][a-zA-Z]*)/  // export default ComponentName
+                ];
                 
-                await AgentCodebaseIntegration.writeFile(agentId, path, codeContent);
-                filesModified.push(path);
-                console.log(`✅ Successfully updated: ${path}`);
+                for (const pattern of componentPatterns) {
+                  const match = codeContent.match(pattern);
+                  if (match) {
+                    const componentName = match[1];
+                    targetFile = `client/src/components/${componentName}.tsx`;
+                    console.log(`🎯 Detected component name: ${componentName} -> ${targetFile}`);
+                    break;
+                  }
+                }
+                
+                // Special case: If message mentions scrolling fix, target FileTreeExplorer
+                if (messageText.includes('scrolling') && codeContent.includes('overflow')) {
+                  targetFile = 'client/src/components/visual-editor/FileTreeExplorer.tsx';
+                }
+                
+                // If still no target file found, check message content for component names
+                if (!targetFile) {
+                  const messageComponentMatch = message.match(/(?:called|named)\s+([A-Z][a-zA-Z]*)/i);
+                  if (messageComponentMatch) {
+                    const componentName = messageComponentMatch[1];
+                    targetFile = `client/src/components/${componentName}.tsx`;
+                    console.log(`🎯 Detected component name from message: ${componentName} -> ${targetFile}`);
+                  }
+                }
+              }
+              
+              // Method 3: Default based on agent and content type
+              if (!targetFile) {
+                if (agentId === 'maya' && codeContent.includes('useState')) {
+                  targetFile = `client/src/components/Maya${Date.now()}.tsx`;
+                } else if (agentId === 'victoria' && codeContent.includes('className')) {
+                  targetFile = `client/src/components/Victoria${Date.now()}.tsx`;
+                }
+              }
+              
+              if (targetFile) {
+                console.log(`🔧 Writing code block ${i + 1} to: ${targetFile}`);
+                await AgentCodebaseIntegration.writeFile(agentId, targetFile, codeContent, `Code block from agent response`);
+                filesModified.push(targetFile);
+                console.log(`✅ Successfully wrote to: ${targetFile}`);
+              } else {
+                console.log(`⚠️ Could not determine target file for code block ${i + 1}`);
               }
             }
             
-            // If no specific file matches, look for general code blocks with file hints
-            if (filesModified.length === 0 && messageText.includes('scrolling')) {
-              const codeBlockMatch = aiResponse.match(/```(?:typescript|tsx)\n([\s\S]*?)```/);
-              if (codeBlockMatch) {
-                const targetFile = 'client/src/components/visual-editor/MultiTabEditor.tsx';
-                console.log(`🔧 Applying scrolling fix to ${targetFile}...`);
-                
-                await AgentCodebaseIntegration.writeFile(agentId, targetFile, codeBlockMatch[1]);
-                filesModified.push(targetFile);
-                console.log(`✅ Successfully applied scrolling fix to: ${targetFile}`);
+            // Report file modifications in response
+            if (filesModified.length > 0) {
+              aiResponse = `✅ **Files Modified Successfully:**\n${filesModified.map(f => `- ${f}`).join('\n')}\n\n${aiResponse}`;
+              
+              // Trigger dev preview refresh
+              const { readFile, writeFile } = await import('fs/promises');
+              try {
+                const touchFile = 'client/src/index.tsx';
+                const content = await readFile(touchFile, 'utf8');
+                await writeFile(touchFile, content, 'utf8');
+                console.log('🔄 Triggered dev preview refresh');
+              } catch (e) {
+                console.log('⚠️ Could not trigger refresh:', e.message);
               }
             }
             
@@ -3844,6 +3925,9 @@ CREATE FILES IMMEDIATELY when asked. Sandra sees changes in dev preview instantl
           agentRole: personality.role,
           adminToken: 'verified',
           canCreateFiles: true,
+          fileCreated: aiResponse.includes('Files Modified Successfully'),
+          filesModified: aiResponse.includes('Files Modified Successfully') ? 
+            aiResponse.match(/- (.*\.tsx?)/g)?.map(f => f.replace('- ', '')) || [] : [],
           timestamp: new Date().toISOString()
         });
 
