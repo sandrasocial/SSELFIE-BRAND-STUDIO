@@ -125,20 +125,8 @@ export function IntegratedAgentChat({
         (currentAgent === 'wilma' && responseText.includes('optimization'))
       );
 
-      // Auto-continue working if agent indicates more work needed
-      if (shouldContinueWorking && !responseText.includes('COMPLETION REPORT')) {
-        setTimeout(() => {
-          // Auto-send continuation message
-          const agentName = agents.find(a => a.id === currentAgent)?.name;
-          setMessage(`Continue with your next step, ${agentName}. Work continuously like Replit agents until complete.`);
-          // Auto-submit after brief delay
-          setTimeout(() => {
-            if (document.querySelector('form button[type="submit"]')) {
-              (document.querySelector('form button[type="submit"]') as HTMLButtonElement).click();
-            }
-          }, 500);
-        }, 2000);
-      }
+      // Note: Auto-continue functionality removed per user request
+      // Users can manually continue conversations by typing "continue" or similar
       
       setMessage('');
     }
@@ -340,9 +328,10 @@ export function IntegratedAgentChat({
                 setChatHistory([]);
                 localStorage.removeItem(`visual-editor-chat-${currentAgent}`);
               }}
-              className="text-xs text-red-500 hover:text-red-700 underline"
+              className="text-xs text-green-600 hover:text-green-800 font-bold"
+              title="Start new chat"
             >
-              Clear Chat
+              + New Chat
             </button>
           </div>
         </div>
