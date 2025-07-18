@@ -36,9 +36,14 @@ export function IntegratedAgentChat({
 
   const agents = [
     { id: 'maya', name: 'Maya', role: 'Dev AI', icon: Code },
-    { id: 'victoria', name: 'Victoria', role: 'Design AI', icon: FileText },
-    { id: 'rachel', name: 'Rachel', role: 'Copy AI', icon: FileText },
-    { id: 'ava', name: 'Ava', role: 'Automation AI', icon: Folder }
+    { id: 'victoria', name: 'Victoria', role: 'UX Designer AI', icon: FileText },
+    { id: 'rachel', name: 'Rachel', role: 'Voice AI', icon: FileText },
+    { id: 'ava', name: 'Ava', role: 'Automation AI', icon: Folder },
+    { id: 'quinn', name: 'Quinn', role: 'QA AI', icon: FileText },
+    { id: 'sophia', name: 'Sophia', role: 'Social Media Manager AI', icon: FileText },
+    { id: 'martha', name: 'Martha', role: 'Marketing/Ads AI', icon: FileText },
+    { id: 'diana', name: 'Diana', role: 'Personal Mentor & Business Coach AI', icon: FileText },
+    { id: 'wilma', name: 'Wilma', role: 'Workflow AI', icon: Folder }
   ];
 
   const sendMessage = useMutation({
@@ -93,6 +98,43 @@ export function IntegratedAgentChat({
             onDirectoryBrowse(op.path);
           }
         });
+      }
+
+      // Check for continuous work patterns - enhanced for all 9 agents
+      const responseText = data.message || '';
+      const shouldContinueWorking = (
+        responseText.includes('CONTINUING WORK') ||
+        responseText.includes('NEXT STEP') ||
+        responseText.includes('Let me also') ||
+        responseText.includes('I\'ll continue') ||
+        responseText.includes('Now I need to') ||
+        responseText.includes('IMMEDIATE ACTION') ||
+        responseText.includes('PROGRESS UPDATE') ||
+        // Agent-specific continuous work patterns
+        (currentAgent === 'maya' && responseText.includes('```')) ||
+        (currentAgent === 'victoria' && responseText.includes('design')) ||
+        (currentAgent === 'rachel' && responseText.includes('copy')) ||
+        (currentAgent === 'ava' && responseText.includes('workflow')) ||
+        (currentAgent === 'quinn' && responseText.includes('testing')) ||
+        (currentAgent === 'sophia' && responseText.includes('social')) ||
+        (currentAgent === 'martha' && responseText.includes('marketing')) ||
+        (currentAgent === 'diana' && responseText.includes('strategy')) ||
+        (currentAgent === 'wilma' && responseText.includes('optimization'))
+      );
+
+      // Auto-continue working if agent indicates more work needed
+      if (shouldContinueWorking && !responseText.includes('COMPLETION REPORT')) {
+        setTimeout(() => {
+          // Auto-send continuation message
+          const agentName = agents.find(a => a.id === currentAgent)?.name;
+          setMessage(`Continue with your next step, ${agentName}. Work continuously like Replit agents until complete.`);
+          // Auto-submit after brief delay
+          setTimeout(() => {
+            if (document.querySelector('form button[type="submit"]')) {
+              (document.querySelector('form button[type="submit"]') as HTMLButtonElement).click();
+            }
+          }, 500);
+        }, 2000);
       }
       
       setMessage('');
