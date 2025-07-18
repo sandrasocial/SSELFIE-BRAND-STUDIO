@@ -66,6 +66,16 @@ export class AutoFileWriter {
     
     console.log(`🔍 Found ${codeBlocks.length} code blocks for auto-writing`);
     
+    // If no code blocks found, log details for debugging
+    if (codeBlocks.length === 0) {
+      console.log(`🚨 NO CODE BLOCKS DETECTED - Common issues:`);
+      console.log(`   - Missing triple backticks: \`\`\`typescript`);
+      console.log(`   - Missing component export: "export default function ComponentName()"`);
+      console.log(`   - Missing React imports: "import React from 'react';"`);
+      console.log(`   - Code too short (minimum 10 characters required)`);
+      console.log(`   - Response text preview: "${aiResponse.substring(0, 200)}..."`);
+    }
+    
     // Process each code block
     for (let i = 0; i < codeBlocks.length; i++) {
       const block = codeBlocks[i];
