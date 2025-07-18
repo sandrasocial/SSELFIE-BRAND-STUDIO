@@ -31,6 +31,7 @@ import { FileTreeExplorer } from './FileTreeExplorer';
 import { MultiTabEditor } from './MultiTabEditor';
 import { FormattedAgentMessage } from './FormattedAgentMessage';
 
+import { AgentChatControls } from './AgentChatControls';
 import { FileCreationConfirmation } from './FileCreationConfirmation';
 import AgentEnhancementDashboard from '../AgentEnhancementDashboard';
 import { flatlayCollections } from '@/data/flatlay-collections';
@@ -1044,6 +1045,16 @@ export function OptimizedVisualEditor({ className = '' }: OptimizedVisualEditorP
           </TabsList>
 
           <TabsContent value="chat" className="flex-1 flex flex-col mt-0">
+            {/* Minimal Chat Controls - Subtle Icon */}
+            <div className="flex justify-end px-2 py-1">
+              <AgentChatControls
+                isLoading={isLoading}
+                onStop={handleStopAgent}
+                onPause={handlePauseAgent}
+                onRollback={handleRollbackAgent}
+                canRollback={chatMessages.length > 0}
+              />
+            </div>
             
             {/* Chat Messages - Expanded Space */}
             <div ref={chatContainerRef} className="flex-1 overflow-y-auto p-1 md:p-2 space-y-1 md:space-y-2" style={{ minHeight: '300px', maxHeight: 'calc(100vh - 250px)' }}>
