@@ -3519,8 +3519,32 @@ AGENT_CONTEXT:
         console.log('❌ File operation failed:', fileError.message);
       }
       
-      // Save conversation to database (simplified for now)
-      console.log('💾 Conversation completed successfully');
+      // Save conversation to database
+      await storage.saveAgentConversation(agentId, userId, message, responseText, fileOperations);
+      console.log('💾 Conversation saved to database');
+      
+      // CRITICAL FIX: Always save conversation memory after each interaction
+      // This ensures agents remember context even for short conversations
+      try {
+        if (managementResult.newHistory.length > 2) { // Only save if we have meaningful conversation
+          const fullConversationHistory = [
+            ...managementResult.newHistory,
+            { role: 'user', content: message },
+            { role: 'assistant', content: responseText }
+          ];
+          
+          const summary = await ConversationManager.createConversationSummary(
+            agentId, 
+            userId, 
+            fullConversationHistory
+          );
+          
+          await ConversationManager.saveAgentMemory(summary);
+          console.log(`💾 Agent memory updated for ${agentId} - ${summary.keyTasks.length} tasks, ${summary.recentDecisions.length} decisions`);
+        }
+      } catch (memoryError) {
+        console.error('Memory save failed:', memoryError.message);
+      }
       
       // Return response with file operations
       res.json({
