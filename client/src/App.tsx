@@ -251,6 +251,7 @@ function Router() {
       <Route path="/marketing-automation" component={(props) => <ProtectedRoute component={lazy(() => import('@/pages/marketing-automation'))} {...props} />} />
       
       {/* DEBUGGING */}
+      <Route path="/test" component={LiveTestComponent} />
       <Route path="/test-login" component={TestLogin} />
       <Route path="/debug-auth" component={() => {
         const { user, isAuthenticated, isLoading, error } = useAuth();
