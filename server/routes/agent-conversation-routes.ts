@@ -510,39 +510,51 @@ export default function ${pageName}() {
         return res.status(403).json({ error: 'Admin access required' });
       }
       
-      const agents = Object.entries(AGENT_CONFIGS).map(([id, config]) => ({
-        id,
-        name: config.name,
-        role: config.role,
-        status: 'online',
-        capabilities: getAgentCapabilities(id)
-      }));
+      // Safe guard against undefined AGENT_CONFIGS
+      if (!AGENT_CONFIGS || typeof AGENT_CONFIGS !== 'object') {
+        return res.json({ agents: [] });
+      }
+      
+      const agents = Object.entries(AGENT_CONFIGS).map(([id, config]) => {
+        if (!config || typeof config !== 'object') {
+          return null;
+        }
+        return {
+          id,
+          name: config.name || id,
+          role: config.role || 'AI Assistant',
+          status: 'online',
+          capabilities: getAgentCapabilities(id)
+        };
+      }).filter(Boolean); // Remove any null entries
       
       res.json({ agents });
       
     } catch (error) {
+      console.error('Agent fetch error:', error);
       res.status(500).json({ error: 'Failed to list agents' });
     }
   });
 }
 
 function getAgentCapabilities(agentId: string): string[] {
-  const capabilities = {
-    maya: [
-      'React component development',
-      'API endpoint creation',
-      'Database operations',
-      'Performance optimization',
-      'Technical debugging',
-      'Feature implementation'
-    ],
-    rachel: [
-      'Email sequence writing',
-      'Instagram content creation',
-      'Landing page copy',
-      'Brand voice development',
-      'Conversion copywriting',
-      'Content strategy'
+  try {
+    const capabilities = {
+      maya: [
+        'React component development',
+        'API endpoint creation',
+        'Database operations',
+        'Performance optimization',
+        'Technical debugging',
+        'Feature implementation'
+      ],
+      rachel: [
+        'Email sequence writing',
+        'Instagram content creation',
+        'Landing page copy',
+        'Brand voice development',
+        'Conversion copywriting',
+        'Content strategy'
     ],
     victoria: [
       'UI/UX design',
@@ -563,4 +575,8 @@ function getAgentCapabilities(agentId: string): string[] {
   };
   
   return capabilities[agentId as keyof typeof capabilities] || [];
+  } catch (error) {
+    console.error('Error getting agent capabilities:', error);
+    return ['Chat assistance'];
+  }
 }
