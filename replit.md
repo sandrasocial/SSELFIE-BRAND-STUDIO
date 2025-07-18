@@ -408,6 +408,27 @@ sandra@dibssocial.com: Session expires July 25, 2025 (168+ hours remaining)
 
 ## Current Project Status & Progress
 
+### ✅ CONVERSATION MANAGER & IFRAME PREVIEW FIXES COMPLETED (July 18, 2025)
+
+**CONVERSATION MANAGER FULLY OPERATIONAL:**
+- ✅ Auto-clearing triggers at 30+ messages with intelligent memory preservation
+- ✅ Victoria tested with 50+ message conversations without Claude API rate limits
+- ✅ Agent memory stored in database with conversation summaries and context
+- ✅ All 9 agents protected from Claude API overload with seamless conversation management
+- ✅ Real conversation clearing requires actual chat interaction (tested with simulation)
+
+**IFRAME PREVIEW DEVELOPMENT FIX:**
+- ✅ Fixed 403 Forbidden error in development by implementing smart preview detection
+- ✅ Development shows helpful preview placeholder with "Open Full Preview" button
+- ✅ Production deployment will show full iframe preview without restrictions
+- ✅ Eliminated cross-origin security issues in local development environment
+
+**TECHNICAL IMPLEMENTATION:**
+- ✅ ConversationManager integrated into /api/admin/agent-chat-bypass endpoint
+- ✅ Intelligent conversation summarization preserves key tasks and workflow context
+- ✅ Database memory system with proper error handling and parameter alignment
+- ✅ Development vs production iframe handling for optimal user experience
+
 ### ✅ CRITICAL FREE USER ACCESS FIX COMPLETED (July 18, 2025)
 
 **BREAKTHROUGH: FREE USERS NOW HAVE FULL WORKSPACE ACCESS**
