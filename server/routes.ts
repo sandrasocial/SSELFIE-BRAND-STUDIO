@@ -3197,59 +3197,50 @@ Consider this workflow optimized and ready for implementation! ⚙️`
 
 
 
-  // REAL BUSINESS ANALYTICS FUNCTION
+  // LIVE DATABASE ANALYTICS - NO MOCK DATA
   async function getRealBusinessAnalytics() {
+    console.log('📊 Fetching LIVE analytics from database...');
+    
     try {
-      // Get real counts from database with error handling
-      let totalUsers = 0;
-      let activeSubscriptions = 0;
-      let aiImagesGenerated = 0;
-      let revenue = 15132; // Current known revenue from replit.md
+      const { users, subscriptions, generationTrackers, agentConversations } = await import('@shared/schema');
       
-      try {
-        const { users } = await import('@shared/schema');
-        const userCount = await db.select().from(users);
-        totalUsers = userCount.length;
-      } catch (e) {
-        console.log('Error fetching users:', e.message);
-        totalUsers = 1000; // Known value from replit.md
-      }
+      // Get real user count from database
+      const userCount = await db.select().from(users);
+      const totalUsers = userCount.length;
       
-      try {
-        // Try to get AI images from generation_trackers table if it exists
-        const { generationTrackers } = await import('@shared/schema');
-        const imageCount = await db.select().from(generationTrackers);
-        aiImagesGenerated = imageCount.length;
-      } catch (e) {
-        console.log('Error fetching AI images:', e.message);
-        aiImagesGenerated = 2500; // Estimated based on platform usage
-      }
+      // Get real subscription count from database
+      const subscriptionData = await db.select().from(subscriptions);
+      const activeSubscriptions = subscriptionData.filter(sub => sub.status === 'active').length;
       
-      // Calculate estimated active subscriptions from revenue
-      activeSubscriptions = Math.floor(revenue / 97); // €97 per subscription
+      // Get real AI image generation count from database
+      const generationData = await db.select().from(generationTrackers);
+      const aiImagesGenerated = generationData.length;
       
-      // Calculate conversion rate
+      // Calculate real revenue from active subscriptions (€47 per premium)
+      const revenue = activeSubscriptions * 47;
+      
+      // Calculate real conversion rate
       const conversionRate = totalUsers > 0 ? (activeSubscriptions / totalUsers) * 100 : 0;
       
-      return {
+      // Get real agent task count from conversations
+      const agentConversationData = await db.select().from(agentConversations);
+      const agentTasks = agentConversationData.length;
+      
+      const stats = {
         totalUsers,
         activeSubscriptions,
         aiImagesGenerated,
         revenue,
         conversionRate: parseFloat(conversionRate.toFixed(1)),
-        agentTasks: 891 // Estimated based on agent activity
+        agentTasks
       };
+      
+      console.log('✅ LIVE DATABASE ANALYTICS:', stats);
+      return stats;
+      
     } catch (error) {
-      console.error('Analytics error:', error);
-      // Return known metrics from replit.md as fallback
-      return {
-        totalUsers: 1000,
-        activeSubscriptions: 156,
-        aiImagesGenerated: 2500,
-        revenue: 15132,
-        conversionRate: 15.6,
-        agentTasks: 891
-      };
+      console.error('❌ Database analytics failed:', error);
+      throw new Error(`Unable to fetch live analytics: ${error.message}`);
     }
   }
 
