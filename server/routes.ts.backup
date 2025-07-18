@@ -3469,102 +3469,273 @@ Consider this workflow optimized and ready for implementation! ⚙️`
     }
   });
 
-  // SIMPLIFIED ADMIN AGENT CHAT ENDPOINT
+  // ADMIN AGENT CHAT ENDPOINT - AUTHENTICATION BYPASS FOR SANDRA
+  // This endpoint allows Sandra to chat with agents without auth headers
   app.post('/api/admin/agent-chat-bypass', async (req, res) => {
     console.log('🔧 ADMIN AGENT CHAT BYPASS ENDPOINT HIT!');
     
     try {
       let { agentId, message, adminToken, conversationHistory = [] } = req.body;
+      console.log('📝 Request body:', { 
+        agentId, 
+        message: message?.substring(0, 30), 
+        adminToken,
+        conversationHistoryLength: conversationHistory.length 
+      });
       
-      // Simple admin verification
+      // Simple admin verification - in production this would be more secure
       if (adminToken !== 'sandra-admin-2025') {
         console.log('❌ Admin token verification failed');
         return res.status(403).json({ error: 'Admin token required' });
       }
       
-      console.log(`🤖 ADMIN AGENT CHAT: ${agentId} - "${message?.substring(0, 50)}..."`);
+      console.log(`🤖 ADMIN AGENT CHAT: ${agentId} - "${message.substring(0, 50)}..."`);
       
-      // Get agent personality and setup
-      const { getAgentPersonality } = await import('./agents/agent-personalities');
-      const personality = getAgentPersonality(agentId);
+      // ENHANCED FILE OPERATION PRE-PROCESSING - Check if user wants file operations
+      const messageText = message.toLowerCase();
       
-      // Get Claude API integration
-      const Anthropic = (await import('@anthropic-ai/sdk')).default;
-      const anthropic = new Anthropic({
-        apiKey: process.env.ANTHROPIC_API_KEY,
-      });
-      
-      console.log(`🎭 Using personality for ${personality.name}: ${personality.role}`);
-      
-      // Create enhanced prompt with agent personality and conversation history
-      const conversationMessages = conversationHistory.map((msg: any) => ({
-        role: msg.role === 'user' ? 'user' as const : 'assistant' as const,
-        content: msg.content
-      }));
-      
-      // Add current message
-      conversationMessages.push({
-        role: 'user' as const,
-        content: message
-      });
-      
-      console.log(`🧠 Sending to Claude with ${conversationMessages.length} messages`);
-      
-      // Get AI response from Claude using agent personality
-      const claudeResponse = await anthropic.messages.create({
-        model: "claude-sonnet-4-20250514",
-        max_tokens: 2000,
-        system: personality.instructions,
-        messages: conversationMessages
-      });
-      
-      let aiResponse = claudeResponse.content[0].text;
-      console.log(`🎯 Claude response received: ${aiResponse.length} characters`);
-      
-      // Process any code blocks for file writing
-      const { AutoFileWriter } = await import('./agents/auto-file-writer');
-      try {
-        const { filesWritten, modifiedResponse } = await AutoFileWriter.processCodeBlocks(
-          aiResponse,
-          agentId,
-          'Admin chat request'
-        );
+      // Pre-process file reading requests
+      if (messageText.includes('check') || messageText.includes('read') || messageText.includes('show me')) {
+        const fileKeywords = ['multitabeditor', 'filetreeexplorer', 'optimizedvisualeditor', '.tsx', '.ts', '.css', 'component'];
+        const mentionedFile = fileKeywords.find(keyword => messageText.includes(keyword));
         
-        if (filesWritten.length > 0) {
-          console.log(`✅ Auto-wrote ${filesWritten.length} files: ${filesWritten.join(', ')}`);
-          aiResponse = modifiedResponse + `\n\n**Files Created:** ${filesWritten.join(', ')}`;
+        if (mentionedFile) {
+          console.log(`📖 Pre-processing file read request for: ${mentionedFile}`);
+          
+          try {
+            const { AgentCodebaseIntegration } = await import('./agents/agent-codebase-integration');
+            
+            let filePath = '';
+            if (mentionedFile.includes('multitabeditor')) {
+              filePath = 'client/src/components/visual-editor/MultiTabEditor.tsx';
+            } else if (mentionedFile.includes('filetreeexplorer')) {
+              filePath = 'client/src/components/visual-editor/FileTreeExplorer.tsx';
+            } else if (mentionedFile.includes('optimizedvisualeditor')) {
+              filePath = 'client/src/components/visual-editor/OptimizedVisualEditor.tsx';
+            } else if (mentionedFile.endsWith('.tsx') || mentionedFile.endsWith('.ts')) {
+              filePath = `client/src/components/visual-editor/${mentionedFile}`;
+            }
+            
+            if (filePath) {
+              const fileContent = await AgentCodebaseIntegration.readFile(agentId, filePath);
+              console.log(`✅ Pre-read file: ${filePath} (${fileContent.length} chars)`);
+              
+              // Add file content to user message for AI context
+              message = `${message}\n\n**Current ${filePath} content:**\n\`\`\`typescript\n${fileContent}\n\`\`\``;
+            }
+          } catch (fileError) {
+            console.log(`❌ Pre-read failed for ${mentionedFile}:`, fileError.message);
+          }
         }
-      } catch (fileError) {
-        console.log('❌ File operation failed:', fileError.message);
       }
       
-      // Save conversation to database
+      // Enhanced file operation detection
+      const isFileCreationRequest = (
+        (messageText.includes('create') && 
+         (messageText.includes('file') || messageText.includes('component'))) ||
+        messageText.includes('.tsx') ||
+        messageText.includes('.ts') ||
+        messageText.includes('scrolling') ||
+        messageText.includes('fix') ||
+        messageText.includes('add') ||
+        messageText.includes('implement') ||
+        messageText.includes('modify') ||
+        messageText.includes('update')
+      );
+                                   
+      console.log('🔍 Enhanced file creation check:', { 
+        message: messageText.substring(0, 100) + '...',
+        hasCreate: messageText.includes('create'),
+        hasFile: messageText.includes('file'),
+        hasComponent: messageText.includes('component'),
+        hasScrolling: messageText.includes('scrolling'),
+        hasFix: messageText.includes('fix'),
+        isFileCreationRequest 
+      });
+
+      // REAL AI AGENT RESPONSE WITH ANTHROPIC INTEGRATION
       try {
+        console.log('🤖 Connecting to real AI agent...');
+        
+        // Import the real agent personalities and AI service
+        const { getAgentPersonality } = await import('./agents/agent-personalities');
+        const personality = getAgentPersonality(agentId);
+        
+        // Use Anthropic AI for real responses
+        if (!process.env.ANTHROPIC_API_KEY) {
+          throw new Error('ANTHROPIC_API_KEY not configured');
+        }
+        
+        const anthropic = await import('@anthropic-ai/sdk');
+        const client = new anthropic.default({
+          apiKey: process.env.ANTHROPIC_API_KEY,
+        });
+
+        const systemPrompt = `${personality.instructions}
+
+You are chatting with Sandra, the founder of SSELFIE Studio, in her admin dashboard. You have FULL CODEBASE ACCESS - both READ and WRITE capabilities.
+
+CODEBASE ACCESS:
+- READ FILES: You can read any file in the codebase to understand existing code
+- WRITE FILES: Create/modify files immediately - Sandra sees changes in dev preview instantly
+- ANALYZE CODE: Review existing implementation before making changes
+- FULL ACCESS: server/, client/, shared/, vite.config.ts, package.json, etc.
+
+WORKFLOW:
+- Victoria: Create files immediately → Sandra approves → handoff to Maya
+- Maya: Implement technical features → handoff to Rachel  
+- Rachel: Add content/copy → handoff to Ava
+- Continue workflow as needed
+
+Key Business Context:
+- Platform: 1000+ users, €15,132 revenue 
+- Two tiers: FREE (6 generations/month) and Premium €47/month (unlimited)
+- Target: Female entrepreneurs, coaches, consultants
+- Your Role: ${personality.role}
+
+IMPORTANT: When Sandra asks about existing files or code, READ the files first to understand the current implementation. Then create/modify as needed.
+
+CREATE FILES IMMEDIATELY when asked. Sandra sees changes in dev preview instantly. When she says "approve", trigger handoff to next agent.`;
+
+        // Build conversation messages with history
+        const messages = [];
+        
+        // Add conversation history (last 10 messages for context)
+        if (conversationHistory && Array.isArray(conversationHistory)) {
+          const recentHistory = conversationHistory.slice(-10);
+          console.log(`📝 Processing ${recentHistory.length} conversation history items`);
+          
+          for (const historyItem of recentHistory) {
+            if (historyItem.type === 'user') {
+              messages.push({
+                role: "user",
+                content: historyItem.content
+              });
+            } else if (historyItem.type === 'agent') {
+              messages.push({
+                role: "assistant", 
+                content: historyItem.content
+              });
+            }
+          }
+        } else {
+          console.log('⚠️ No conversation history provided or invalid format');
+        }
+        
+        // Add current message
+        messages.push({
+          role: "user",
+          content: message
+        });
+
+        const historyCount = conversationHistory && Array.isArray(conversationHistory) ? conversationHistory.length : 0;
+        console.log(`💬 Conversation with ${agentId}: ${messages.length} messages (${historyCount} from history + 1 current)`);
+
+        const completion = await client.messages.create({
+          model: "claude-sonnet-4-20250514",
+          max_tokens: 1024,
+          system: systemPrompt,
+          messages: messages,
+        });
+
+        let aiResponse = completion.content[0]?.text || 'Agent response not available';
+        console.log('✅ Real AI response generated');
+        
+        // AUTOMATIC FILE WRITING SYSTEM - REPLIT STYLE
+        // Check for ANY code blocks that should be written to files
+        if (aiResponse.includes('```')) {
+          console.log('🔧 Detected code blocks in AI response - processing for file operations...');
+          
+          try {
+            const { AgentCodebaseIntegration } = await import('./agents/agent-codebase-integration');
+            const { AutoFileWriter } = await import('./agents/auto-file-writer');
+            
+            // Process code blocks automatically
+            const { filesWritten, modifiedResponse } = await AutoFileWriter.processCodeBlocks(
+              agentId, 
+              aiResponse, 
+              AgentCodebaseIntegration
+            );
+            
+            // Update response to show file operations
+            if (filesWritten.length > 0) {
+              aiResponse = modifiedResponse;
+              console.log(`✅ Auto-wrote ${filesWritten.length} files`);
+              
+              // Trigger dev preview refresh
+              try {
+                const { readFile, writeFile } = await import('fs/promises');
+                const touchFile = 'client/src/index.tsx';
+                const content = await readFile(touchFile, 'utf8');
+                await writeFile(touchFile, content, 'utf8');
+                console.log('🔄 Triggered dev preview refresh for file changes');
+              } catch (e) {
+                console.log('⚠️ Could not trigger refresh:', e.message);
+              }
+            }
+            
+          } catch (fileError) {
+            console.log('❌ File operation failed:', fileError.message);
+          }
+        }
+        
+        let response = aiResponse;
+        
+        // Save conversation to database
         await storage.saveAgentConversation({
-          userId: 'admin-sandra',
+          userId: user.id,
           agentId,
           message: message || '',
-          response: aiResponse,
+          response,
           timestamp: new Date()
         });
-        console.log(`💾 Conversation saved to database`);
-      } catch (dbError) {
-        console.log('❌ Database save failed:', dbError.message);
+        
+        console.log(`✅ Agent ${agentId} response complete (${response.length} chars)`);
+        res.json({ response });
+        
+      } catch (error) {
+        console.error('❌ Agent chat error:', error);
+        res.status(500).json({ 
+          error: 'Failed to get agent response',
+          details: error.message
+        });
       }
-      
-      console.log(`✅ Agent ${agentId} response complete (${aiResponse.length} chars)`);
-      res.json({ response: aiResponse });
-      
-    } catch (error) {
-      console.error('❌ Agent chat error:', error);
-      res.status(500).json({ 
-        error: 'Failed to get agent response',
-        details: error.message
-      });
-    }
-  });
+    });
 
-  // Complete the register routes function
-  const httpServer = createServer(app);
-  return httpServer;
-}
+    // Enhanced file operations system endpoint
+    app.post('/api/agent-file-operation', isAuthenticated, async (req, res) => {
+      try {
+        const { agentId, operation, filePath, content } = req.body;
+        const user = req.user;
+        
+        console.log(`📁 Agent ${agentId} file operation: ${operation} on ${filePath}`);
+        
+        // Import the file system integration
+        const { AgentCodebaseIntegration } = await import('./agents/agent-codebase-integration');
+        
+        let result;
+        switch (operation) {
+          case 'read':
+            result = await AgentCodebaseIntegration.readFile(agentId, filePath);
+            break;
+          case 'write':
+            result = await AgentCodebaseIntegration.writeFile(agentId, filePath, content, 'Direct agent file operation');
+            break;
+          case 'list':
+            result = await AgentCodebaseIntegration.listFiles(agentId, filePath || '.');
+            break;
+          default:
+            throw new Error(`Unknown operation: ${operation}`);
+        }
+        
+        console.log(`✅ File operation ${operation} completed`);
+        res.json({ success: true, result });
+        
+      } catch (error) {
+        console.error('❌ Agent file operation error:', error);
+        res.status(500).json({ 
+          error: 'File operation failed',
+          details: error.message
+        });
+      }
+    });
