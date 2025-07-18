@@ -284,20 +284,20 @@ export function OptimizedVisualEditor({ className = '' }: OptimizedVisualEditorP
     queryKey: ['/api/ai-images'],
   });
 
-  // Flatlay collections data
+  // Flatlay collections data - Using placeholder images until real ones are uploaded
   const flatlayCollections: FlatlayCollection[] = [
     {
       id: 'luxury-minimal',
       name: 'Luxury Minimal',
       description: 'Clean white backgrounds, designer accessories, minimal styling',
       aesthetic: 'Clean sophistication with generous white space',
-      backgroundImage: 'https://i.postimg.cc/1tfNMJvk/file-16.png',
+      backgroundImage: '/placeholder-flatlay.svg',
       images: [
-        { id: 'lm-1', url: 'https://i.postimg.cc/1tfNMJvk/file-16.png', title: 'Clean Workspace', category: 'Luxury Minimal', description: 'Clean sophisticated lifestyle flatlay' },
-        { id: 'lm-2', url: 'https://i.postimg.cc/6qZ4xTJz/file-19.png', title: 'Minimal Setup', category: 'Luxury Minimal', description: 'Clean sophisticated lifestyle flatlay' },
-        { id: 'lm-3', url: 'https://i.postimg.cc/4NzH8K1x/file-20.png', title: 'Beauty Minimal', category: 'Luxury Minimal', description: 'Clean sophisticated lifestyle flatlay' },
-        { id: 'lm-4', url: 'https://i.postimg.cc/V5ysqFhW/file-21.png', title: 'Planning Flatlay', category: 'Luxury Minimal', description: 'Clean sophisticated lifestyle flatlay' },
-        { id: 'lm-5', url: 'https://i.postimg.cc/yY9cwp7B/file-22.png', title: 'Executive Setup', category: 'Luxury Minimal', description: 'Clean sophisticated lifestyle flatlay' }
+        { id: 'lm-1', url: '/placeholder-flatlay.svg', title: 'Clean Workspace', category: 'Luxury Minimal', description: 'Upload flatlay images to /public/flatlays/luxury-minimal/' },
+        { id: 'lm-2', url: '/placeholder-flatlay.svg', title: 'Minimal Setup', category: 'Luxury Minimal', description: 'Upload flatlay images to /public/flatlays/luxury-minimal/' },
+        { id: 'lm-3', url: '/placeholder-flatlay.svg', title: 'Beauty Minimal', category: 'Luxury Minimal', description: 'Upload flatlay images to /public/flatlays/luxury-minimal/' },
+        { id: 'lm-4', url: '/placeholder-flatlay.svg', title: 'Planning Flatlay', category: 'Luxury Minimal', description: 'Upload flatlay images to /public/flatlays/luxury-minimal/' },
+        { id: 'lm-5', url: '/placeholder-flatlay.svg', title: 'Executive Setup', category: 'Luxury Minimal', description: 'Upload flatlay images to /public/flatlays/luxury-minimal/' }
       ]
     },
     {
