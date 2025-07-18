@@ -3569,15 +3569,16 @@ Consider this workflow optimized and ready for implementation! ⚙️`
       // Process any code blocks for file writing
       const { AutoFileWriter } = await import('./agents/auto-file-writer');
       try {
+        const { AgentCodebaseIntegration } = await import('./agents/agent-codebase-integration');
         const { filesWritten, modifiedResponse } = await AutoFileWriter.processCodeBlocks(
-          aiResponse,
           agentId,
-          'Admin chat request'
+          aiResponse,
+          AgentCodebaseIntegration
         );
         
         if (filesWritten.length > 0) {
-          console.log(`✅ Auto-wrote ${filesWritten.length} files: ${filesWritten.join(', ')}`);
-          aiResponse = modifiedResponse + `\n\n**Files Created:** ${filesWritten.join(', ')}`;
+          console.log(`✅ Auto-wrote ${filesWritten.length} files: ${filesWritten.map(f => f.filePath).join(', ')}`);
+          aiResponse = modifiedResponse + `\n\n**Files Created:** ${filesWritten.map(f => f.filePath).join(', ')}\n\n*The file tree should refresh automatically to show new files.*`;
         }
       } catch (fileError) {
         console.log('❌ File operation failed:', fileError.message);

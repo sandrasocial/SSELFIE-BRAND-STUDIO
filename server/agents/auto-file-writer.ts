@@ -29,16 +29,37 @@ export class AutoFileWriter {
     const filesWritten: FileWriteResult[] = [];
     let modifiedResponse = aiResponse;
     
-    // Extract all code blocks
-    const codeBlockRegex = /```(?:typescript|tsx|javascript|js|css|html|json|)\n?([\s\S]*?)```/gi;
+    // Extract all code blocks with enhanced detection for collapsible sections
+    const codeBlockRegex = /```(?:typescript|tsx|javascript|js|css|html|json|react|)\s*\n?([\s\S]*?)```/gi;
     const codeBlocks: CodeBlock[] = [];
     let match;
     
+    // First check for code blocks inside details/summary tags
+    const detailsRegex = /<details>[\s\S]*?<summary>[\s\S]*?<\/summary>\s*([\s\S]*?)<\/details>/gi;
+    let detailsMatch;
+    while ((detailsMatch = detailsRegex.exec(aiResponse)) !== null) {
+      const detailsContent = detailsMatch[1];
+      let innerMatch;
+      while ((innerMatch = codeBlockRegex.exec(detailsContent)) !== null) {
+        const content = innerMatch[1].trim();
+        if (content.length > 10) {
+          codeBlocks.push({
+            content,
+            language: innerMatch[0].match(/```(\w+)/)?.[1] || 'typescript'
+          });
+        }
+      }
+    }
+    
+    // Then check for regular code blocks
     while ((match = codeBlockRegex.exec(aiResponse)) !== null) {
-      codeBlocks.push({
-        content: match[1].trim(),
-        language: match[0].match(/```(\w+)/)?.[1] || 'typescript'
-      });
+      const content = match[1].trim();
+      if (content.length > 10) {
+        codeBlocks.push({
+          content,
+          language: match[0].match(/```(\w+)/)?.[1] || 'typescript'
+        });
+      }
     }
     
     console.log(`🔍 Found ${codeBlocks.length} code blocks for auto-writing`);
@@ -60,10 +81,10 @@ export class AutoFileWriter {
           
           console.log(`✅ AUTO-WROTE: ${filePath} (${block.content.length} chars)`);
           
-          // Replace code block with confirmation
+          // Replace code block with confirmation  
           modifiedResponse = modifiedResponse.replace(
             /```[^`]*```/,
-            `✅ **Created**: \`${filePath}\` (${block.content.length} characters)`
+            `✅ **Created**: \`${filePath}\` (${block.content.length} characters)\n\n*File tree will refresh automatically to show new files.*`
           );
           
         } catch (error) {
@@ -89,14 +110,14 @@ export class AutoFileWriter {
     const content = block.content;
     
     // REACT COMPONENT DETECTION
-    if (content.includes('export default function') || content.includes('export function')) {
-      const componentMatch = content.match(/export\s+(?:default\s+)?function\s+([A-Z][a-zA-Z0-9]*)/);
+    if (content.includes('export default function') || content.includes('export function') || content.includes('function ')) {
+      const componentMatch = content.match(/(?:export\s+(?:default\s+)?)?function\s+([A-Z][a-zA-Z0-9]*)/);
       if (componentMatch) {
         const componentName = componentMatch[1];
         
-        // Admin components
-        if (componentName.includes('Admin') || context.toLowerCase().includes('admin')) {
-          return `client/src/components/admin/${componentName}.tsx`;
+        // Admin Dashboard components
+        if (componentName.includes('Admin') || componentName.includes('Dashboard') || context.toLowerCase().includes('admin') || context.toLowerCase().includes('dashboard')) {
+          return `client/src/pages/admin-dashboard-redesigned.tsx`;
         }
         
         // Visual editor components
