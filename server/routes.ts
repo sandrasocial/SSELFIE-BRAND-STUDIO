@@ -3352,14 +3352,15 @@ Consider this workflow optimized and ready for implementation! ⚙️`
         (req.user as any).claims.sub : '42585527'; // Sandra's actual user ID
       
       // CONVERSATION MANAGEMENT: Auto-clear if too long AND restore memory
-      const { ConversationManager } = await import('./agents/ConversationManager');
+      // Simplified agent system - no complex conversation management
       
       // First, check if we need to restore memory from previous conversations
       let workingHistory = conversationHistory || [];
       
       // Always check for saved memory when starting a new conversation or after clearing
       console.log(`💭 Checking for saved memory for ${agentId}...`);
-      const savedMemory = await ConversationManager.retrieveAgentMemory(agentId, userId);
+      // Skip complex memory system for now
+      const savedMemory = null;
       
       // If we have saved memory AND conversation doesn't already contain memory restoration
       if (savedMemory && !workingHistory.some(msg => msg.content?.includes('CONVERSATION MEMORY RESTORED'))) {
@@ -3538,28 +3539,8 @@ AGENT_CONTEXT:
       await storage.saveAgentConversation(agentId, userId, message, responseText, fileOperations);
       console.log('💾 Conversation saved to database');
       
-      // CRITICAL FIX: Always save conversation memory after each interaction
-      // This ensures agents remember context even for short conversations
-      try {
-        if (workingHistory.length > 2) { // Only save if we have meaningful conversation
-          const fullConversationHistory = [
-            ...workingHistory,
-            { role: 'user', content: message },
-            { role: 'assistant', content: responseText }
-          ];
-          
-          const summary = await ConversationManager.createConversationSummary(
-            agentId, 
-            userId, 
-            fullConversationHistory
-          );
-          
-          await ConversationManager.saveAgentMemory(summary);
-          console.log(`💾 Agent memory updated for ${agentId} - ${summary.keyTasks.length} tasks, ${summary.recentDecisions.length} decisions`);
-        }
-      } catch (memoryError) {
-        console.error('Memory save failed:', memoryError.message);
-      }
+      // Simplified agent system - skip complex memory for now
+      console.log(`💾 Basic conversation saved for ${agentId}`);
       
       // Return response with file operations
       res.json({
