@@ -3014,27 +3014,40 @@ Consider this workflow optimized and ready for implementation! ⚙️`
 
   app.get('/api/agents', async (req: any, res) => {
     try {
-      // Get real agent conversation data from database
-      const agentStats = await db
-        .select({
-          agentName: agentConversations.agent_name,
-          conversationCount: sql<number>`COUNT(*)::int`
-        })
-        .from(agentConversations)
-        .groupBy(agentConversations.agent_name);
+      // Get real agent conversation data from database with error handling
+      let agentStats = [];
+      let performanceMetrics = [];
+      
+      try {
+        agentStats = await db
+          .select({
+            agentName: agentConversations.agentId,
+            conversationCount: sql<number>`COUNT(*)::int`
+          })
+          .from(agentConversations)
+          .groupBy(agentConversations.agentId);
+      } catch (dbError) {
+        console.log('Agent fetch error:', dbError);
+        agentStats = [];
+      }
 
-      // Get real performance metrics from database
-      const performanceMetrics = await db
-        .select()
-        .from(agentPerformanceMetrics);
+      // Get real performance metrics from database with error handling
+      try {
+        performanceMetrics = await db
+          .select()
+          .from(agentPerformanceMetrics);
+      } catch (dbError) {
+        console.log('Performance metrics fetch error:', dbError);
+        performanceMetrics = [];
+      }
 
       // Helper function to get real metrics for an agent
       const getRealMetrics = (agentId: string) => {
         const conversations = agentStats.find(s => s.agentName === agentId)?.conversationCount || 0;
-        const performance = performanceMetrics.find(p => p.agent_id === agentId);
+        const performance = performanceMetrics.find(p => p.agentId === agentId);
         return {
           tasksCompleted: conversations,
-          efficiency: performance ? Math.round(performance.success_rate * 100) : 0,
+          efficiency: performance ? Math.round(performance.successRate * 100) : 0,
           lastActivity: new Date()
         };
       };
@@ -3042,8 +3055,8 @@ Consider this workflow optimized and ready for implementation! ⚙️`
       // Return your complete AI agent team with REAL data only
       const agents = [
         {
-          id: 'victoria',
-          name: 'Victoria',
+          id: 'aria',
+          name: 'Aria',
           role: 'UX Designer AI',
           personality: 'Luxury editorial design expert who speaks like Sandra\'s design-savvy best friend',
           capabilities: [
@@ -3054,11 +3067,11 @@ Consider this workflow optimized and ready for implementation! ⚙️`
           ],
           status: 'active',
           currentTask: 'Optimizing studio dashboard layout',
-          metrics: getRealMetrics('victoria')
+          metrics: getRealMetrics('aria')
         },
         {
-          id: 'maya',
-          name: 'Maya',
+          id: 'zara',
+          name: 'Zara',
           role: 'Dev AI',
           personality: 'Senior full-stack developer with complete SSELFIE Studio technical mastery',
           capabilities: [
@@ -3077,7 +3090,7 @@ Consider this workflow optimized and ready for implementation! ⚙️`
           },
           status: 'active',
           currentTask: 'Monitoring individual model architecture implementation',
-          metrics: getRealMetrics('maya')
+          metrics: getRealMetrics('zara')
         },
         {
           id: 'rachel',

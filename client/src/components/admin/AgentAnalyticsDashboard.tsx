@@ -54,8 +54,8 @@ export default function AgentAnalyticsDashboard() {
   });
 
   const agentNames: Record<string, string> = {
-    victoria: 'Victoria',
-    maya: 'Maya',
+    aria: 'Aria',
+    zara: 'Zara',
     rachel: 'Rachel',
     ava: 'Ava',
     quinn: 'Quinn',

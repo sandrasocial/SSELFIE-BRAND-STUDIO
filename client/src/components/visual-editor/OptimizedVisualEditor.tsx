@@ -93,12 +93,12 @@ interface Agent {
 
 const agents: Agent[] = [
   {
-    id: 'victoria',
-    name: 'Victoria',
+    id: 'aria',
+    name: 'Aria',
     role: 'UX Designer AI',
     expertise: ['Luxury Design', 'Editorial Layouts', 'Typography', 'Component Design'],
     color: 'bg-purple-500',
-    nextAgent: 'maya',
+    nextAgent: 'zara',
     workflowStage: 'Design'
   },
   {
@@ -170,7 +170,7 @@ const agents: Agent[] = [
     role: 'Workflow AI',
     expertise: ['Process Optimization', 'Automation Design', 'Efficiency', 'System Integration'],
     color: 'bg-yellow-500',
-    nextAgent: 'victoria',
+    nextAgent: 'aria',
     workflowStage: 'Workflow'
   }
 ];
@@ -225,7 +225,7 @@ export function OptimizedVisualEditor({ className = '' }: OptimizedVisualEditorP
     if (savedConversations) {
       try {
         const parsed = JSON.parse(savedConversations);
-        const agentKey = new URLSearchParams(window.location.search).get('agent') || 'victoria';
+        const agentKey = new URLSearchParams(window.location.search).get('agent') || 'aria';
         return parsed[agentKey] || [];
       } catch (e) {
         console.warn('Failed to parse saved conversations:', e);
