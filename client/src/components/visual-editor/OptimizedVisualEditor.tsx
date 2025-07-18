@@ -938,98 +938,27 @@ export function OptimizedVisualEditor({ className = '' }: OptimizedVisualEditorP
             </div>
           </div>
 
-          {/* Quick Actions & Workflow Starters - Collapsible */}
+          {/* Quick Actions & Workflow Starters - Minimal Popup */}
           {!workflowActive && (
-            <div className="mt-2 space-y-1">
-              <div className="flex items-center justify-between">
-                <div className="text-xs font-medium text-gray-600">Quick Actions & Workflows</div>
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  className="h-6 w-6 p-0"
-                  onClick={() => setShowQuickActions(!showQuickActions)}
-                >
-                  {showQuickActions ? '▲' : '▼'}
-                </Button>
-              </div>
-              
-              {showQuickActions && (
-                <div className="space-y-3">
-                  {/* Quick Start Workflows */}
-                  <div>
-                    <div className="text-xs font-medium text-gray-500 mb-2">Workflows:</div>
-                    <div className="grid grid-cols-1 gap-1">
-                      <Button
-                        variant="outline"
-                        size="sm"
-                        className="text-xs h-7 justify-start border-black text-black hover:bg-black hover:text-white"
-                        onClick={() => startWorkflow("Create a new landing page design and implement it")}
-                      >
-                        New Landing Page
-                      </Button>
-                      <Button
-                        variant="outline"
-                        size="sm"
-                        className="text-xs h-7 justify-start border-black text-black hover:bg-black hover:text-white"
-                        onClick={() => startWorkflow("Design and build a pricing section")}
-                      >
-                        Pricing Section
-                      </Button>
-                      <Button
-                        variant="outline"
-                        size="sm"
-                        className="text-xs h-7 justify-start border-black text-black hover:bg-black hover:text-white"
-                        onClick={() => startWorkflow("Create an image gallery component")}
-                      >
-                        Image Gallery
-                      </Button>
-                    </div>
-                  </div>
-
-                  {/* Quick Commands */}
-                  <div>
-                    <div className="text-xs font-medium text-gray-500 mb-2">Quick Commands:</div>
-                    <div className="space-y-1">
-                      {quickCommands.map((command, index) => (
-                        <Button
-                          key={index}
-                          variant="outline"
-                          size="sm"
-                          className="w-full justify-start text-xs h-7 border-gray-300 text-gray-700 hover:bg-gray-100"
-                          onClick={() => {
-                            if (command.styles) {
-                              injectChangesToLivePreview(command.styles);
-                              toast({
-                                title: 'Style Applied',
-                                description: command.label,
-                              });
-                            } else {
-                              sendMessage(command.command);
-                            }
-                          }}
-                        >
-                          {command.icon}
-                          <span className="ml-2">{command.label}</span>
-                        </Button>
-                      ))}
-                      
-                      {/* Victoria Image Generation Button */}
-                      <Button
-                        variant="outline"
-                        size="sm"
-                        className="w-full justify-start text-xs h-7 bg-purple-50 border-purple-200 hover:bg-purple-100"
-                        onClick={generateImagesWithVictoria}
-                        disabled={isLoading}
-                      >
-                        <Sparkles className="w-3 h-3" />
-                        <span className="ml-2">
-                          {isLoading ? 'Generating...' : 'Generate Images'}
-                        </span>
-                      </Button>
-                    </div>
-                  </div>
-                </div>
-              )}
+            <div className="mt-2 flex items-center justify-between">
+              <div className="text-xs font-medium text-gray-600">Quick Actions</div>
+              <QuickActionsPopup
+                isLoading={isLoading}
+                onStartWorkflow={startWorkflow}
+                onQuickCommand={(command) => {
+                  if (command.styles) {
+                    injectChangesToLivePreview(command.styles);
+                    toast({
+                      title: 'Style Applied',
+                      description: command.label,
+                    });
+                  } else {
+                    sendMessage(command.command);
+                  }
+                }}
+                onGenerateImages={generateImagesWithVictoria}
+                quickCommands={quickCommands}
+              />
             </div>
           )}
         </div>

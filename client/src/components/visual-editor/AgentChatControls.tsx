@@ -1,6 +1,5 @@
 import React from 'react';
 import { Button } from '@/components/ui/button';
-import { Settings } from 'lucide-react';
 
 interface AgentChatControlsProps {
   isLoading: boolean;
@@ -69,10 +68,10 @@ export function AgentChatControls({
       variant="ghost"
       size="sm"
       onClick={handleOpenControls}
-      className="w-6 h-6 p-0 text-gray-400 hover:text-gray-600"
+      className="w-6 h-6 p-0 text-gray-400 hover:text-gray-600 text-xs"
       title="Open chat controls"
     >
-      <Settings className="w-4 h-4" />
+      ···
     </Button>
   );
 }

@@ -1,6 +1,5 @@
 import React from 'react';
 import { Button } from '@/components/ui/button';
-import { Zap, Sparkles, Palette, Type, Layout, Wand2 } from 'lucide-react';
 
 interface QuickActionsPopupProps {
   isLoading: boolean;
@@ -122,7 +121,7 @@ export function QuickActionsPopup({
               `).join('')}
               
               <button class="generate-btn" onclick="window.opener.postMessage({action: 'generate'}, '*')" ${isLoading ? 'disabled' : ''}>
-                ⚡ ${isLoading ? 'Generating...' : 'Generate Images'}
+                ${isLoading ? 'Generating...' : 'Generate Images'}
               </button>
             </div>
           </div>
@@ -153,10 +152,10 @@ export function QuickActionsPopup({
       variant="ghost"
       size="sm"
       onClick={handleOpenWorkflows}
-      className="w-6 h-6 p-0 text-gray-400 hover:text-gray-600"
+      className="w-6 h-6 p-0 text-gray-400 hover:text-gray-600 text-xs"
       title="Open workflows & quick actions"
     >
-      <Zap className="w-4 h-4" />
+      •••
     </Button>
   );
 }
