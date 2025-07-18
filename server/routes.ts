@@ -3361,6 +3361,16 @@ CRITICAL: APPROVAL-BASED INTERACTION SYSTEM
 - Only execute after explicit approval ("yes", "proceed", "go ahead", "approve")
 - If someone asks for continuous work, say "Continue with your next step" - that means work continuously
 
+CRITICAL: REAL FILE CREATION ONLY
+**NEVER CREATE FAKE FILE RESPONSES!**
+- Only create actual files with real code in triple backticks: ```typescript
+- Never mention file paths without actual code blocks
+- Never create fake "View Code" buttons or collapsible sections
+- Never create fake file descriptions like "56 lines" or "typescript" without actual code
+- If you cannot create actual working code, say "I need approval to create the actual files"
+- All file creation must result in actual files in the filesystem
+- FAKE RESPONSES MISLEAD USERS AND WASTE THEIR TIME
+
 SSELFIE_TECH_STANDARDS:
 - Architecture: React + Wouter + PostgreSQL + Drizzle ORM + Express + Tailwind
 - Database: Use existing schema from @shared/schema.ts

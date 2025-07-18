@@ -46,6 +46,24 @@ export class AutoFileWriter {
       }
     }
     
+    // SPECIAL DETECTION FOR VICTORIA'S FAKE RESPONSES
+    // Look for file paths followed by descriptions but no actual code
+    const fakeFilePattern = /(client\/src\/[^\s]+\.tsx?)\s*-\s*([^\n]+)/g;
+    let fakeMatch;
+    while ((fakeMatch = fakeFilePattern.exec(aiResponse)) !== null) {
+      const filePath = fakeMatch[1];
+      const description = fakeMatch[2];
+      
+      // Check if there's actual code following this file path
+      const followingText = aiResponse.substring(fakeMatch.index + fakeMatch[0].length, fakeMatch.index + fakeMatch[0].length + 500);
+      const hasActualCode = followingText.includes('```') || followingText.includes('import ') || followingText.includes('export ');
+      
+      if (!hasActualCode) {
+        console.log(`🚨 DETECTED FAKE FILE CREATION: ${filePath} - ${description}`);
+        console.log(`🚨 NO ACTUAL CODE FOUND FOR: ${filePath}`);
+      }
+    }
+    
     console.log(`🔍 Found ${codeBlocks.length} code blocks for auto-writing`);
     
     // Process each code block
