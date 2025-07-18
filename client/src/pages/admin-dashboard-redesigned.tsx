@@ -388,11 +388,22 @@ export default function AdminDashboardRedesigned() {
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
               {AGENTS.map((agent) => (
                 <Card key={agent.id} className="border-black h-96">
-                  <CardHeader className="border-b border-gray-200">
-                    <CardTitle className="font-serif text-black">{agent.name}</CardTitle>
-                    <p className="text-sm text-gray-600">{agent.role}</p>
+                  <CardHeader className="border-b border-gray-200 pb-3">
+                    <div className="flex justify-between items-start">
+                      <div>
+                        <CardTitle className="font-serif text-black">{agent.name}</CardTitle>
+                        <p className="text-sm text-gray-600">{agent.role}</p>
+                      </div>
+                      <button
+                        onClick={() => window.open(`/visual-editor?agent=${agent.id}`, '_blank')}
+                        className="text-xs border border-black text-black px-2 py-1 hover:bg-black hover:text-white transition-colors"
+                        title="Open in Visual Editor"
+                      >
+                        Open in Editor
+                      </button>
+                    </div>
                   </CardHeader>
-                  <CardContent className="p-0 h-80">
+                  <CardContent className="p-0 h-72">
                     <AgentChat agentId={agent.id} agentName={agent.name} />
                   </CardContent>
                 </Card>

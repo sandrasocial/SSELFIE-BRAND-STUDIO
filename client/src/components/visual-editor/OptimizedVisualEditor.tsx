@@ -174,7 +174,11 @@ function CollapsibleCodeBlock({ content }: CollapsibleCodeBlockProps) {
 
 export function OptimizedVisualEditor({ className = '' }: OptimizedVisualEditorProps) {
   const [showPropertiesPanel, setShowPropertiesPanel] = useState(false);
-  const [activeTab, setActiveTab] = useState('chat');
+  const [activeTab, setActiveTab] = useState(() => {
+    // If agent parameter is provided, start with agent chat tab
+    const agentParam = new URLSearchParams(window.location.search).get('agent');
+    return agentParam ? 'agent' : 'chat';
+  });
   const [chatMessages, setChatMessages] = useState<ChatMessage[]>(() => {
     // Load conversation history from localStorage
     const savedConversations = localStorage.getItem('visual-editor-conversations');
