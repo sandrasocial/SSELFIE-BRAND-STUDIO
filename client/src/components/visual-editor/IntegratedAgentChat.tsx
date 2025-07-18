@@ -1,5 +1,5 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { Send, ChevronDown, ChevronUp, FileText, Code, Folder } from 'lucide-react';
+import { Send, FileText, Code, Folder } from 'lucide-react';
 import { useMutation } from '@tanstack/react-query';
 import { Button } from '@/components/ui/button';
 
@@ -112,7 +112,7 @@ export function IntegratedAgentChat({
         >
           <Code className="w-4 h-4 mr-2" />
           Chat with {agents.find(a => a.id === currentAgent)?.name}
-          <ChevronUp className="w-4 h-4 ml-2" />
+          ▲
         </Button>
       </div>
     );
@@ -129,7 +129,7 @@ export function IntegratedAgentChat({
             variant="ghost"
             size="sm"
           >
-            <ChevronDown className="w-4 h-4" />
+            ▼
           </Button>
         </div>
         
