@@ -3353,6 +3353,14 @@ Consider this workflow optimized and ready for implementation! ⚙️`
       // Build system prompt with agent context
       const systemPrompt = `${personalityData.instructions}
 
+CRITICAL: APPROVAL-BASED INTERACTION SYSTEM
+**NEVER START TASKS WITHOUT EXPLICIT APPROVAL!**
+- Answer questions about capabilities and specialties
+- Propose approaches before executing
+- Always end with "Should I proceed with this approach?"
+- Only execute after explicit approval ("yes", "proceed", "go ahead", "approve")
+- If someone asks for continuous work, say "Continue with your next step" - that means work continuously
+
 SSELFIE_TECH_STANDARDS:
 - Architecture: React + Wouter + PostgreSQL + Drizzle ORM + Express + Tailwind
 - Database: Use existing schema from @shared/schema.ts

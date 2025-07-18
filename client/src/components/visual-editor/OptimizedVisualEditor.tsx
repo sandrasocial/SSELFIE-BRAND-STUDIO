@@ -556,7 +556,11 @@ export function OptimizedVisualEditor({ className = '' }: OptimizedVisualEditorP
   // Agent control handlers
   const handleStopAgent = () => {
     if (agentController) {
-      agentController.abort();
+      try {
+        agentController.abort();
+      } catch (error) {
+        console.log('Agent already stopped');
+      }
       setAgentController(null);
     }
     setIsLoading(false);
