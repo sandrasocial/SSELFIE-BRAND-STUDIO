@@ -114,8 +114,8 @@ export function QuickActionsPopup({
           <div class="section">
             <h3>Quick Commands</h3>
             <div class="commands">
-              ${quickCommands.map(cmd => `
-                <button class="command-btn" onclick="window.opener.postMessage({action: 'command', data: ${JSON.stringify(cmd)}}, '*')">
+              ${quickCommands.map((cmd, index) => `
+                <button class="command-btn" onclick="window.opener.postMessage({action: 'command', data: {label: '${cmd.label}', command: '${cmd.command}', index: ${index}}}, '*')">
                   ${cmd.label}
                 </button>
               `).join('')}
@@ -137,7 +137,9 @@ export function QuickActionsPopup({
       if (event.data.action === 'workflow') {
         onStartWorkflow(event.data.data);
       } else if (event.data.action === 'command') {
-        onQuickCommand(event.data.data);
+        // Find the original command by index to preserve all properties
+        const originalCommand = quickCommands[event.data.data.index];
+        onQuickCommand(originalCommand);
       } else if (event.data.action === 'generate') {
         onGenerateImages();
       }
