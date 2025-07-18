@@ -13,8 +13,6 @@ import {
   Settings,
   ChevronLeft,
   ChevronRight,
-  ChevronDown,
-  ChevronUp,
   Palette,
   Type,
   Layout,
@@ -161,13 +159,11 @@ function CollapsibleCodeBlock({ content }: CollapsibleCodeBlockProps) {
       >
         {isExpanded ? (
           <>
-            <ChevronUp className="w-3 h-3 inline mr-1" />
-            Show less
+            ▲ Show less
           </>
         ) : (
           <>
-            <ChevronDown className="w-3 h-3 inline mr-1" />
-            Show more
+            ▼ Show more
           </>
         )}
       </button>
@@ -809,7 +805,7 @@ export function OptimizedVisualEditor({ className = '' }: OptimizedVisualEditorP
                   className="h-6 w-6 p-0"
                   onClick={() => setShowQuickActions(!showQuickActions)}
                 >
-                  {showQuickActions ? <ChevronUp className="w-3 h-3" /> : <ChevronDown className="w-3 h-3" />}
+                  {showQuickActions ? '▲' : '▼'}
                 </Button>
               </div>
               
