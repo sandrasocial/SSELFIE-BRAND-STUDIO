@@ -106,30 +106,56 @@ export function ReplitStyleEditor({
           </div>
         </div>
 
-        {/* Safe Development Preview */}
+        {/* Smart Live Preview */}
         {showLivePreview ? (
           <div className="flex-1 relative">
-            <div className="w-full h-full bg-white flex items-center justify-center">
-              <div className="text-center p-8">
-                <div className="text-3xl mb-4" style={{ fontFamily: 'Times New Roman, serif' }}>
-                  SSELFIE Studio
-                </div>
-                <div className="w-12 h-px bg-black mx-auto mb-4"></div>
-                <div className="text-lg mb-3 font-light">Live Editor Preview</div>
-                <div className="text-sm text-gray-600 mb-6">
-                  Preview opens safely in a new window to avoid security restrictions.
-                </div>
-                <button
-                  onClick={() => {
-                    console.log('🚀 Opening live preview from Replit Style Editor');
-                    window.open('/', '_blank');
-                  }}
-                  className="px-6 py-3 bg-black text-white border border-black hover:bg-gray-800 transition-colors"
-                >
-                  OPEN LIVE PREVIEW
-                </button>
-              </div>
-            </div>
+            {(() => {
+              const isProduction = window.location.hostname !== 'localhost' && !window.location.hostname.includes('replit.dev');
+              
+              if (isProduction) {
+                // Production: Show actual iframe preview
+                return (
+                  <iframe
+                    ref={iframeRef}
+                    src="/"
+                    className="w-full h-full border-0"
+                    title="Live Preview"
+                    onLoad={() => {
+                      console.log('🚀 Replit Style Editor: Live preview loaded successfully');
+                    }}
+                    onError={(e) => {
+                      console.error('Live preview failed to load:', e);
+                    }}
+                  />
+                );
+              } else {
+                // Development: Show safe placeholder to avoid CSP issues
+                return (
+                  <div className="w-full h-full bg-white flex items-center justify-center">
+                    <div className="text-center p-8">
+                      <div className="text-3xl mb-4" style={{ fontFamily: 'Times New Roman, serif' }}>
+                        SSELFIE Studio
+                      </div>
+                      <div className="w-12 h-px bg-black mx-auto mb-4"></div>
+                      <div className="text-lg mb-3 font-light">Development Preview</div>
+                      <div className="text-sm text-gray-600 mb-6">
+                        In development mode, preview opens safely in a new window. 
+                        In production, live preview will be embedded here.
+                      </div>
+                      <button
+                        onClick={() => {
+                          console.log('🚀 Opening live preview from Replit Style Editor');
+                          window.open('/', '_blank');
+                        }}
+                        className="px-6 py-3 bg-black text-white border border-black hover:bg-gray-800 transition-colors"
+                      >
+                        OPEN LIVE PREVIEW
+                      </button>
+                    </div>
+                  </div>
+                );
+              }
+            })()}
             {/* Live Preview Indicator */}
             <div className="absolute top-2 right-2 bg-green-500 text-white px-2 py-1 rounded text-xs font-medium">
               🟢 LIVE
