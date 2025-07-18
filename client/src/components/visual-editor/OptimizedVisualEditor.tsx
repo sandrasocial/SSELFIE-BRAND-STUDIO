@@ -255,6 +255,7 @@ export function OptimizedVisualEditor({ className = '' }: OptimizedVisualEditorP
   const iframeRef = useRef<HTMLIFrameElement>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const chatPanelRef = useRef<HTMLDivElement>(null);
+  const chatContainerRef = useRef<HTMLDivElement>(null);
   const { toast } = useToast();
 
   // Save conversations to localStorage whenever messages change
@@ -279,6 +280,25 @@ export function OptimizedVisualEditor({ className = '' }: OptimizedVisualEditorP
       saveConversations();
     }
   }, [chatMessages, currentAgent.id]);
+
+  // Auto-scroll chat to bottom when new messages are added (only for agent chat)
+  useEffect(() => {
+    if (activeTab === 'chat' && chatContainerRef.current) {
+      const scrollToBottom = () => {
+        const container = chatContainerRef.current;
+        if (container) {
+          container.scrollTo({
+            top: container.scrollHeight,
+            behavior: 'smooth'
+          });
+        }
+      };
+      
+      // Small delay to ensure content is rendered
+      const timeoutId = setTimeout(scrollToBottom, 100);
+      return () => clearTimeout(timeoutId);
+    }
+  }, [chatMessages, activeTab]);
 
   // Fetch user's AI gallery
   const { data: aiImages = [] } = useQuery<AIImage[]>({
@@ -1019,7 +1039,7 @@ export function OptimizedVisualEditor({ className = '' }: OptimizedVisualEditorP
             />
             
             {/* Chat Messages - Expanded Space */}
-            <div className="flex-1 overflow-y-auto p-1 md:p-2 space-y-1 md:space-y-2" style={{ minHeight: '300px', maxHeight: 'calc(100vh - 250px)' }}>
+            <div ref={chatContainerRef} className="flex-1 overflow-y-auto p-1 md:p-2 space-y-1 md:space-y-2" style={{ minHeight: '300px', maxHeight: 'calc(100vh - 250px)' }}>
               {chatMessages.length === 0 && (
                 <div className="text-center text-gray-500 text-sm">
                   <div className="mb-2">Chat</div>
