@@ -30,6 +30,7 @@ import { useQuery } from '@tanstack/react-query';
 import { FileTreeExplorer } from './FileTreeExplorer';
 import { MultiTabEditor } from './MultiTabEditor';
 import { FormattedAgentMessage } from './FormattedAgentMessage';
+import AgentEnhancementDashboard from '../AgentEnhancementDashboard';
 
 interface ChatMessage {
   type: 'user' | 'agent';
@@ -892,12 +893,13 @@ export function OptimizedVisualEditor({ className = '' }: OptimizedVisualEditorP
 
         {/* Tabs for Chat, Gallery, Flatlay Library, File Tree, and Editor */}
         <Tabs value={activeTab} onValueChange={setActiveTab} className="flex-1 flex flex-col">
-          <TabsList className="grid w-full grid-cols-5 mx-1 md:mx-2 mt-1 md:mt-2">
+          <TabsList className="grid w-full grid-cols-6 mx-1 md:mx-2 mt-1 md:mt-2">
             <TabsTrigger value="chat" className="text-xs">Chat</TabsTrigger>
             <TabsTrigger value="gallery" className="text-xs">Gallery</TabsTrigger>
             <TabsTrigger value="flatlays" className="text-xs">Flatlays</TabsTrigger>
             <TabsTrigger value="files" className="text-xs">Files</TabsTrigger>
             <TabsTrigger value="editor" className="text-xs">Editor</TabsTrigger>
+            <TabsTrigger value="enhancements" className="text-xs">AI+</TabsTrigger>
           </TabsList>
 
           <TabsContent value="chat" className="flex-1 flex flex-col mt-0">
@@ -1224,6 +1226,12 @@ export function OptimizedVisualEditor({ className = '' }: OptimizedVisualEditorP
                 }
               }}
             />
+          </TabsContent>
+
+          <TabsContent value="enhancements" className="flex-1 flex flex-col mt-0">
+            <div className="flex-1 overflow-y-auto">
+              <AgentEnhancementDashboard />
+            </div>
           </TabsContent>
         </Tabs>
           </div>
