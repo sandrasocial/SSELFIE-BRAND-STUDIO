@@ -3338,12 +3338,54 @@ Consider this workflow optimized and ready for implementation! ⚙️`
       const userId = authMethod === 'session' && req.user ? 
         (req.user as any).claims.sub : '42585527'; // Sandra's actual user ID
       
-      // CONVERSATION MANAGEMENT: Auto-clear if too long
+      // CONVERSATION MANAGEMENT: Auto-clear if too long AND restore memory
       const { ConversationManager } = await import('./agents/ConversationManager');
+      
+      // First, check if we need to restore memory from previous conversations
+      let workingHistory = conversationHistory || [];
+      
+      // If this is a short conversation, restore saved memory context
+      if (workingHistory.length <= 5) {
+        console.log(`💭 Checking for saved memory for ${agentId}...`);
+        const savedMemory = await ConversationManager.retrieveAgentMemory(agentId, userId);
+        
+        if (savedMemory) {
+          console.log(`🧠 Restoring memory for ${agentId}: ${savedMemory.keyTasks.length} tasks, ${savedMemory.recentDecisions.length} decisions`);
+          
+          // Add memory context at the beginning of conversation
+          const memoryMessage = {
+            role: 'system',
+            content: `**CONVERSATION MEMORY RESTORED**
+
+**Previous Context:** ${savedMemory.currentContext}
+
+**Key Tasks Completed:**
+${savedMemory.keyTasks.map(task => `• ${task}`).join('\n')}
+
+**Recent Decisions:**
+${savedMemory.recentDecisions.map(decision => `• ${decision}`).join('\n')}
+
+**Current Workflow Stage:** ${savedMemory.workflowStage}
+
+**Timestamp:** ${new Date(savedMemory.timestamp).toLocaleString()}
+
+---
+
+**Continuing our conversation with full context...**`
+          };
+          
+          workingHistory = [memoryMessage, ...workingHistory];
+          console.log(`✅ Memory restored: conversation now has ${workingHistory.length} messages with context`);
+        } else {
+          console.log(`📝 No saved memory found for ${agentId} - starting fresh conversation`);
+        }
+      }
+      
+      // Now manage conversation length (auto-clear if too long)
       const managementResult = await ConversationManager.manageConversationLength(
         agentId, 
         userId, 
-        conversationHistory
+        workingHistory
       );
       
       // Get agent personality and enhanced prompt
