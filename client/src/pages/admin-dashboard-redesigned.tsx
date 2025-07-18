@@ -1,223 +1,84 @@
-import React, { useState } from 'react';
-import { useQuery } from '@tanstack/react-query';
-import { useAuth } from '@/hooks/use-auth';
-import { Button } from '@/components/ui/button';
+import React from 'react';
 
-export default function AdminDashboard() {
-  const { user } = useAuth();
-  const [activeSection, setActiveSection] = useState('overview');
-
-  const { data: stats } = useQuery({
-    queryKey: ['/api/admin/stats'],
-    enabled: user?.email === 'ssa@ssasocial.com'
-  });
-
-  const navigationItems = [
-    { id: 'overview', label: 'Empire Overview', count: stats?.totalUsers || 0 },
-    { id: 'users', label: 'Community', count: stats?.activeUsers || 0 },
-    { id: 'generations', label: 'AI Creations', count: stats?.totalGenerations || 0 },
-    { id: 'subscriptions', label: 'Revenue', count: `€${stats?.monthlyRevenue || 0}` },
-    { id: 'content', label: 'Content Library', count: stats?.totalContent || 0 },
-    { id: 'analytics', label: 'Performance', count: stats?.conversionRate || '0%' }
-  ];
-
+export default function AdminHeroSection() {
   return (
-    <div className="min-h-screen bg-white">
-      {/* Editorial Header */}
-      <header className="border-b border-gray-200 px-12 py-8">
-        <div className="flex items-center justify-between">
-          <div>
-            <h1 
-              className="text-5xl font-serif text-black uppercase tracking-wider mb-2"
-              style={{ fontFamily: 'Times New Roman, serif' }}
-            >
-              Sandra Command Center
-            </h1>
-            <p className="text-sm text-gray-600 tracking-wide">
-              Where empires are built, one transformation at a time
-            </p>
-          </div>
-          <div className="text-right">
-            <div className="text-sm text-gray-500 mb-1">Today's Impact</div>
-            <div className="text-2xl font-light">{stats?.todaySignups || 0} new dreams launched</div>
-          </div>
+    <div className="relative w-full h-screen bg-black overflow-hidden">
+      {/* Full-bleed background with editorial gradient */}
+      <div className="absolute inset-0 bg-gradient-to-br from-black via-gray-900 to-black"></div>
+      
+      {/* Editorial overlay pattern */}
+      <div className="absolute inset-0 opacity-10">
+        <div className="grid grid-cols-12 h-full">
+          {Array.from({ length: 12 }).map((_, i) => (
+            <div key={i} className="border-r border-white/20 h-full"></div>
+          ))}
         </div>
-      </header>
-
-      <div className="flex">
-        {/* Luxury Navigation Sidebar */}
-        <nav className="w-80 bg-gray-50 min-h-screen p-8">
-          <div className="space-y-6">
-            {navigationItems.map((item) => (
-              <button
-                key={item.id}
-                onClick={() => setActiveSection(item.id)}
-                className={`w-full text-left p-6 border transition-all duration-300 ${
-                  activeSection === item.id
-                    ? 'bg-black text-white border-black'
-                    : 'bg-white text-black border-gray-200 hover:border-black'
-                }`}
-              >
-                <div className="flex justify-between items-center">
-                  <span className="text-lg font-light tracking-wide">{item.label}</span>
-                  <span className="text-sm font-mono">{item.count}</span>
-                </div>
-              </button>
-            ))}
-          </div>
-        </nav>
-
-        {/* Main Content Area */}
-        <main className="flex-1 p-12">
-          {activeSection === 'overview' && <OverviewSection stats={stats} />}
-          {activeSection === 'users' && <UsersSection />}
-          {activeSection === 'generations' && <GenerationsSection />}
-          {activeSection === 'subscriptions' && <SubscriptionsSection />}
-          {activeSection === 'content' && <ContentSection />}
-          {activeSection === 'analytics' && <AnalyticsSection />}
-        </main>
       </div>
-    </div>
-  );
-}
 
-function OverviewSection({ stats }) {
-  return (
-    <div className="space-y-12">
-      <div>
-        <h2 
-          className="text-4xl font-serif text-black uppercase tracking-wide mb-8"
-          style={{ fontFamily: 'Times New Roman, serif' }}
+      {/* Main content with luxury editorial layout */}
+      <div className="relative z-10 flex flex-col justify-center items-start h-full px-16 max-w-7xl mx-auto">
+        {/* Editorial date stamp */}
+        <div className="text-white/60 text-sm font-light tracking-[0.2em] uppercase mb-8">
+          {new Date().toLocaleDateString('en-US', { 
+            weekday: 'long', 
+            year: 'numeric', 
+            month: 'long', 
+            day: 'numeric' 
+          })}
+        </div>
+
+        {/* Main headline - Times New Roman luxury */}
+        <h1 
+          className="text-white font-light tracking-[-0.02em] leading-[0.9] mb-6"
+          style={{ 
+            fontFamily: 'Times New Roman, serif',
+            fontSize: 'clamp(3rem, 8vw, 8rem)'
+          }}
         >
-          Empire Status Report
-        </h2>
-      </div>
+          SANDRA'S
+          <br />
+          COMMAND
+          <br />
+          CENTER
+        </h1>
 
-      {/* Key Metrics Grid */}
-      <div className="grid grid-cols-3 gap-8">
-        <div className="bg-gray-50 p-8 border border-gray-200">
-          <div className="text-sm text-gray-600 mb-2 uppercase tracking-wide">Total Transformations</div>
-          <div className="text-4xl font-light mb-2">{stats?.totalUsers || 0}</div>
-          <div className="text-sm text-gray-500">Women who stopped hiding</div>
+        {/* Subtitle with editorial spacing */}
+        <div className="flex items-center mb-12">
+          <div className="w-12 h-px bg-white/40 mr-6"></div>
+          <p className="text-white/80 text-lg font-light tracking-wide max-w-md">
+            Your empire dashboard. Where phone strategies become million-dollar movements.
+          </p>
         </div>
-        
-        <div className="bg-gray-50 p-8 border border-gray-200">
-          <div className="text-sm text-gray-600 mb-2 uppercase tracking-wide">AI Generations</div>
-          <div className="text-4xl font-light mb-2">{stats?.totalGenerations || 0}</div>
-          <div className="text-sm text-gray-500">Confidence created</div>
-        </div>
-        
-        <div className="bg-gray-50 p-8 border border-gray-200">
-          <div className="text-sm text-gray-600 mb-2 uppercase tracking-wide">Monthly Revenue</div>
-          <div className="text-4xl font-light mb-2">€{stats?.monthlyRevenue || 0}</div>
-          <div className="text-sm text-gray-500">Empire growth</div>
-        </div>
-      </div>
 
-      {/* Recent Activity */}
-      <div className="border-t border-gray-200 pt-12">
-        <h3 
-          className="text-2xl font-serif text-black uppercase tracking-wide mb-8"
-          style={{ fontFamily: 'Times New Roman, serif' }}
-        >
-          Recent Transformations
-        </h3>
-        
-        <div className="space-y-4">
-          {stats?.recentActivity?.map((activity, index) => (
-            <div key={index} className="flex justify-between items-center p-4 bg-gray-50 border border-gray-200">
-              <div>
-                <div className="font-light">{activity.user}</div>
-                <div className="text-sm text-gray-600">{activity.action}</div>
-              </div>
-              <div className="text-sm text-gray-500">{activity.timestamp}</div>
-            </div>
-          )) || (
-            <div className="text-center py-12 text-gray-500">
-              Loading the latest empire updates...
-            </div>
-          )}
+        {/* Editorial stats row */}
+        <div className="flex items-center space-x-12 text-white/60">
+          <div className="text-center">
+            <div className="text-2xl font-light text-white mb-1">120K+</div>
+            <div className="text-xs uppercase tracking-widest">Followers Built</div>
+          </div>
+          <div className="w-px h-12 bg-white/20"></div>
+          <div className="text-center">
+            <div className="text-2xl font-light text-white mb-1">90</div>
+            <div className="text-xs uppercase tracking-widest">Days To Empire</div>
+          </div>
+          <div className="w-px h-12 bg-white/20"></div>
+          <div className="text-center">
+            <div className="text-2xl font-light text-white mb-1">∞</div>
+            <div className="text-xs uppercase tracking-widest">Possibilities</div>
+          </div>
         </div>
       </div>
-    </div>
-  );
-}
 
-function UsersSection() {
-  return (
-    <div className="space-y-8">
-      <h2 
-        className="text-4xl font-serif text-black uppercase tracking-wide"
-        style={{ fontFamily: 'Times New Roman, serif' }}
-      >
-        Community Management
-      </h2>
-      <div className="text-gray-600">
-        User management interface coming soon...
+      {/* Bottom editorial border */}
+      <div className="absolute bottom-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-white/40 to-transparent"></div>
+      
+      {/* Corner editorial details */}
+      <div className="absolute top-8 right-8 text-white/40 text-xs uppercase tracking-widest transform rotate-90 origin-top-right">
+        SSELFIE STUDIO
       </div>
-    </div>
-  );
-}
-
-function GenerationsSection() {
-  return (
-    <div className="space-y-8">
-      <h2 
-        className="text-4xl font-serif text-black uppercase tracking-wide"
-        style={{ fontFamily: 'Times New Roman, serif' }}
-      >
-        AI Creation Analytics
-      </h2>
-      <div className="text-gray-600">
-        Generation analytics coming soon...
-      </div>
-    </div>
-  );
-}
-
-function SubscriptionsSection() {
-  return (
-    <div className="space-y-8">
-      <h2 
-        className="text-4xl font-serif text-black uppercase tracking-wide"
-        style={{ fontFamily: 'Times New Roman, serif' }}
-      >
-        Revenue Dashboard
-      </h2>
-      <div className="text-gray-600">
-        Revenue analytics coming soon...
-      </div>
-    </div>
-  );
-}
-
-function ContentSection() {
-  return (
-    <div className="space-y-8">
-      <h2 
-        className="text-4xl font-serif text-black uppercase tracking-wide"
-        style={{ fontFamily: 'Times New Roman, serif' }}
-      >
-        Content Management
-      </h2>
-      <div className="text-gray-600">
-        Content library coming soon...
-      </div>
-    </div>
-  );
-}
-
-function AnalyticsSection() {
-  return (
-    <div className="space-y-8">
-      <h2 
-        className="text-4xl font-serif text-black uppercase tracking-wide"
-        style={{ fontFamily: 'Times New Roman, serif' }}
-      >
-        Performance Analytics
-      </h2>
-      <div className="text-gray-600">
-        Advanced analytics coming soon...
+      
+      <div className="absolute bottom-8 left-8 text-white/40 text-xs uppercase tracking-widest">
+        EST. 2024 × LUXURY DIGITAL
       </div>
     </div>
   );

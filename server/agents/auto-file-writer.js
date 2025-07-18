@@ -14,7 +14,7 @@ export class AutoFileWriter {
     let modifiedResponse = aiResponse;
     
     // Extract all code blocks with enhanced detection for collapsible sections
-    const codeBlockRegex = /```(?:typescript|tsx|javascript|js|css|html|json|react|)\s*\n?([\s\S]*?)```/gi;
+    const codeBlockRegex = /```(?:typescript|tsx|javascript|js|css|html|json|react)?\s*\n?([\s\S]*?)```/gi;
     const codeBlocks = [];
     let match;
     
@@ -73,7 +73,9 @@ export class AutoFileWriter {
       console.log(`   - Missing component export: "export default function ComponentName()"`);
       console.log(`   - Missing React imports: "import React from 'react';"`);
       console.log(`   - Code too short (minimum 10 characters required)`);
-      console.log(`   - Response text preview: "${aiResponse.substring(0, 200)}..."`);
+      console.log(`🔍 Response text preview: "${aiResponse.substring(0, 500)}..."`);
+      console.log(`🔍 Testing regex pattern: ${codeBlockRegex.source}`);
+      console.log(`🔍 Looking for triple backticks in response: ${aiResponse.includes('```')}`);
     }
     
     // Process each code block
