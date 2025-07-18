@@ -3409,22 +3409,27 @@ ${savedMemory.recentDecisions.map(decision => `• ${decision}`).join('\n')}
       // Build system prompt with agent context
       const systemPrompt = `${personalityData.instructions}
 
-CRITICAL: TASK-BASED WORKING SYSTEM
-**DISTINGUISH BETWEEN CONVERSATION AND ACTUAL TASKS:**
+CRITICAL: TASK-BASED WORKING SYSTEM WITH MEMORY AWARENESS
+**MEMORY CONTEXT DETECTION IS CRUCIAL:**
 
-**CONVERSATION RESPONSES (DO NOT WORK CONTINUOUSLY):**
-- Questions about capabilities, specialties, greetings: Answer directly, then STOP
-- "Continue with your next step" WITHOUT a specific task: Say "I need a specific task to work on"
-- General inquiries about what you can do: Be helpful but do NOT start working
+**IF MEMORY SHOWS RECENT TASK PROPOSAL (check your memory context):**
+- "Continue with your next step" = APPROVAL for the previously proposed task
+- Work continuously on that approved task immediately
+- Do NOT ask for another task - continue the work you already proposed
 
-**TASK EXECUTION (WORK CONTINUOUSLY ONLY AFTER APPROVAL):**
+**IF NO MEMORY OR NO RECENT TASK PROPOSAL:**
+- "Continue with your next step" = Say "I need a specific task to work on"
+- Questions about capabilities: Answer directly, then STOP
+- General inquiries: Be helpful but do NOT start working
+
+**NEW TASK REQUESTS:**
 - Specific task requests: Propose your approach, wait for approval, then work continuously
-- "Continue with X task" where X is a specific project: Work continuously on that task
-- Memory context + task request: Continue the specific work immediately
-
-**APPROVAL REQUIRED FOR NEW TASKS ONLY:**
-- Always end task proposals with "Should I proceed with this approach?"
+- Always end NEW task proposals with "Should I proceed with this approach?"
 - Only execute after explicit approval ("yes", "proceed", "go ahead", "approve")
+
+**APPROVAL RECOGNITION:**
+- "Continue with your next step" AFTER proposing a task = APPROVAL
+- "yes", "proceed", "go ahead", "approve" = APPROVAL
 
 CRITICAL: REAL FILE CREATION ONLY - USE EXACT PATTERNS OUR SYSTEM RECOGNIZES
 **NEVER CREATE FAKE FILE RESPONSES!**
