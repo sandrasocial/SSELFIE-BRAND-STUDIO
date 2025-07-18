@@ -3516,6 +3516,25 @@ Consider this workflow optimized and ready for implementation! ⚙️`
       
       console.log(`🤖 ADMIN AGENT CHAT: ${agentId} - "${message?.substring(0, 50)}..."`);
       
+      // Get user ID for conversation management
+      const userId = authMethod === 'session' && req.user ? 
+        (req.user as any).claims.sub : '42585527'; // Sandra's actual user ID
+      
+      // CONVERSATION MANAGEMENT: Auto-clear if too long
+      const { ConversationManager } = await import('./agents/ConversationManager');
+      const managementResult = await ConversationManager.manageConversationLength(
+        agentId, 
+        userId, 
+        conversationHistory
+      );
+      
+      // Use managed conversation history (may be cleared with memory preserved)
+      let managedHistory = managementResult.newHistory;
+      
+      if (managementResult.shouldClear) {
+        console.log(`🧠 Conversation auto-cleared for ${agentId} - memory preserved in database`);
+      }
+      
       // Get agent personality and setup
       const { getAgentPersonality } = await import('./agents/agent-personalities');
       const personality = getAgentPersonality(agentId);
@@ -3528,8 +3547,8 @@ Consider this workflow optimized and ready for implementation! ⚙️`
       
       console.log(`🎭 Using personality for ${personality.name}: ${personality.role}`);
       
-      // Create enhanced prompt with agent personality and conversation history
-      const conversationMessages = conversationHistory.map((msg: any) => ({
+      // Create enhanced prompt with managed conversation history
+      const conversationMessages = managedHistory.map((msg: any) => ({
         role: msg.role === 'user' ? 'user' as const : 'assistant' as const,
         content: msg.content
       }));
@@ -3540,7 +3559,7 @@ Consider this workflow optimized and ready for implementation! ⚙️`
         content: message
       });
       
-      console.log(`🧠 Sending to Claude with ${conversationMessages.length} messages`);
+      console.log(`🧠 Sending to Claude with ${conversationMessages.length} messages (managed)`);
       console.log(`🎭 System prompt length: ${personality.instructions.length} characters`);
       
       // Get AI response from Claude using agent personality
@@ -3590,9 +3609,6 @@ Consider this workflow optimized and ready for implementation! ⚙️`
       
       // Save conversation to database with proper user identification
       try {
-        const userId = authMethod === 'session' && req.user ? 
-          (req.user as any).claims.sub : '42585527'; // Sandra's actual user ID
-        
         // Use neon connection to match actual database schema
         const { db } = await import('./db');
         
@@ -3602,10 +3618,16 @@ Consider this workflow optimized and ready for implementation! ⚙️`
             userMessage: message || '',
             agentResponse: aiResponse,
             authMethod,
+            conversationCleared: managementResult.shouldClear,
             timestamp: new Date()
           }).replace(/'/g, "''")}', 'admin-chat', NOW())
         `);
         console.log(`💾 Conversation saved to database for user: ${userId}`);
+        
+        // Clean up old memories periodically
+        if (Math.random() < 0.1) { // 10% chance to cleanup
+          await ConversationManager.cleanupOldMemories(agentId, userId);
+        }
       } catch (dbError) {
         console.log('❌ Database save failed:', dbError.message);
       }
