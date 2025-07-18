@@ -27,7 +27,7 @@ import { registerEnterpriseRoutes } from './routes/enterprise-routes';
 import { ExternalAPIService } from './integrations/external-api-service';
 import { AgentAutomationTasks } from './integrations/agent-automation-tasks';
 // Email service import moved inline to avoid conflicts
-import { sendWelcomeEmail, sendPostAuthWelcomeEmail, EmailCaptureData, WelcomeEmailData } from "./email-service";
+import { EmailService } from "./email-service";
 import { AIService } from './ai-service';
 import { ArchitectureValidator } from './architecture-validator';
 import { z } from "zod";
@@ -2230,6 +2230,17 @@ Create prompts that feel like iconic fashion campaign moments that would make so
       try {
         const { ModelTrainingService } = await import('./model-training-service');
         const result = await ModelTrainingService.startModelTraining(dbUserId, selfieImages);
+        
+        // Send training started email
+        try {
+          const { EmailService } = await import('./email-service');
+          const userName = user.firstName && user.lastName ? `${user.firstName} ${user.lastName}` : user.firstName;
+          await EmailService.sendTrainingStartedEmail(user.email, userName);
+          console.log('✅ Training started email sent to:', user.email);
+        } catch (emailError) {
+          console.error('❌ Failed to send training started email:', emailError);
+          // Don't fail the training if email fails
+        }
         
         res.json({
           success: true,

@@ -6,570 +6,323 @@ if (!process.env.RESEND_API_KEY) {
 
 const resend = new Resend(process.env.RESEND_API_KEY);
 
+// Type definitions for legacy compatibility
 export interface EmailCaptureData {
   email: string;
-  plan: 'free' | 'sselfie-studio';
-  source: string;
+  firstName?: string;
+  source?: string;
 }
 
 export interface WelcomeEmailData {
   email: string;
   firstName?: string;
-  plan: 'free' | 'sselfie-studio';
+  plan?: string;
 }
 
-export async function sendWelcomeEmail(data: EmailCaptureData) {
-  const isFreePlan = data.plan === 'free';
-  
-  const subject = isFreePlan 
-    ? "Hey gorgeous! Your FREE photos are ready 💫"
-    : "You amazing human! Welcome to SSELFIE Studio 🚀";
-
-  const htmlContent = isFreePlan ? getFreeWelcomeHTML() : getStudioWelcomeHTML();
-
-  try {
-    const result = await resend.emails.send({
-      from: 'Sandra <sandra@sselfie.ai>',
-      to: [data.email],
-      subject,
-      html: htmlContent,
-    });
-
-    return { success: true, id: result.data?.id };
-  } catch (error) {
-    console.error('Email send failed:', error);
-    return { success: false, error: error.message };
-  }
+// Legacy function exports for compatibility
+export async function sendWelcomeEmail(email: string, firstName?: string, plan?: string) {
+  return EmailService.sendModelReadyEmail(email, firstName);
 }
 
 export async function sendPostAuthWelcomeEmail(data: WelcomeEmailData) {
-  const isFreePlan = data.plan === 'free';
-  const firstName = data.firstName || '';
+  return EmailService.sendModelReadyEmail(data.email, data.firstName);
+}
+
+export class EmailService {
   
-  const subject = isFreePlan 
-    ? `${firstName ? firstName + ', ' : ''}okay let's get you those photos...`
-    : `${firstName ? firstName + ', ' : ''}you're IN! Time to build your empire 🎉`;
+  // Send model training completion notification
+  static async sendModelReadyEmail(userEmail: string, userName?: string) {
+    try {
+      const firstName = userName?.split(' ')[0] || 'gorgeous';
+      
+      const emailContent = `
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Your AI Model is Ready!</title>
+  <style>
+    body { 
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; 
+      line-height: 1.6; 
+      color: #0a0a0a; 
+      margin: 0; 
+      padding: 0; 
+      background-color: #ffffff;
+    }
+    .container { 
+      max-width: 600px; 
+      margin: 0 auto; 
+      padding: 40px 20px; 
+    }
+    .header {
+      text-align: center;
+      margin-bottom: 40px;
+    }
+    .logo {
+      font-family: 'Times New Roman', serif;
+      font-size: 32px;
+      font-weight: normal;
+      letter-spacing: 0.2em;
+      color: #0a0a0a;
+      margin-bottom: 20px;
+    }
+    .content {
+      background: #ffffff;
+      padding: 40px;
+      border: 1px solid #f0f0f0;
+    }
+    .greeting {
+      font-size: 18px;
+      margin-bottom: 20px;
+      color: #0a0a0a;
+    }
+    .main-text {
+      font-size: 16px;
+      margin-bottom: 20px;
+      color: #333333;
+    }
+    .cta-button {
+      display: inline-block;
+      background-color: #0a0a0a;
+      color: #ffffff;
+      padding: 16px 32px;
+      text-decoration: none;
+      font-size: 14px;
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      margin: 30px 0;
+      border: none;
+    }
+    .cta-button:hover {
+      background-color: #333333;
+    }
+    .footer {
+      margin-top: 40px;
+      font-size: 14px;
+      color: #666666;
+      text-align: center;
+    }
+    .signature {
+      margin-top: 30px;
+      font-style: italic;
+      color: #666666;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="header">
+      <div class="logo">SSELFIE STUDIO</div>
+      <p style="color: #666666; font-size: 14px; text-transform: uppercase; letter-spacing: 0.1em;">Your AI Model is Ready</p>
+    </div>
+    
+    <div class="content">
+      <div class="greeting">Hey ${firstName}! 🎉</div>
+      
+      <div class="main-text">
+        Your AI model just finished training and honestly? I'm SO excited for you to see it!
+      </div>
+      
+      <div class="main-text">
+        You know that feeling when you get your photos back from a really good photographer and you're like "Wait, is that actually me?" That's exactly what's about to happen, except these photos are going to be even better because they're completely customized to YOU.
+      </div>
+      
+      <div class="main-text">
+        Your personal AI model learned everything about your features, your style, your vibe - and now it's ready to create photos that look like they came from a professional shoot, but way more personal and authentic to who you are.
+      </div>
+      
+      <a href="https://sselfie.ai/workspace" class="cta-button">Create Your First Photos</a>
+      
+      <div class="main-text">
+        Pro tip: Start with the "Professional Headshots" collection - those always turn out incredible and are perfect for updating your LinkedIn, website, or social media. Then have fun with the other styles!
+      </div>
+      
+      <div class="main-text">
+        Can't wait to see what you create. Seriously, I'm living for this moment when you see your first AI photos 💕
+      </div>
+      
+      <div class="signature">
+        xx Sandra<br>
+        <small style="color: #999;">Your Personal Branding Bestie</small>
+      </div>
+    </div>
+    
+    <div class="footer">
+      <p>SSELFIE Studio - Where Your Personal Brand Gets Born</p>
+      <p style="font-size: 12px; color: #999;">If you have any questions, just reply to this email. I read every single one!</p>
+    </div>
+  </div>
+</body>
+</html>`;
 
-  const htmlContent = isFreePlan ? getPostAuthFreeHTML(firstName) : getPostAuthStudioHTML(firstName);
+      const result = await resend.emails.send({
+        from: 'Sandra from SSELFIE Studio <sandra@sselfie.ai>',
+        to: userEmail,
+        subject: `${firstName}, your AI model is ready! Time to create some magic ✨`,
+        html: emailContent,
+        text: `Hey ${firstName}! 
 
-  try {
-    const result = await resend.emails.send({
-      from: 'Sandra <sandra@sselfie.ai>',
-      to: [data.email],
-      subject,
-      html: htmlContent,
-    });
+Your AI model just finished training and I'm SO excited for you to see it!
 
-    console.log('Post-authentication welcome email sent successfully:', result.data?.id);
-    return { success: true, id: result.data?.id };
-  } catch (error) {
-    console.error('Post-authentication email send failed:', error);
-    return { success: false, error: error.message };
+You know that feeling when you get your photos back from a really good photographer and you're like "Wait, is that actually me?" That's exactly what's about to happen.
+
+Your personal AI model learned everything about your features, your style, your vibe - and now it's ready to create photos that look like they came from a professional shoot.
+
+Ready to create your first photos? Go to: https://sselfie.ai/workspace
+
+Pro tip: Start with the "Professional Headshots" collection - those always turn out incredible and are perfect for updating your LinkedIn, website, or social media.
+
+Can't wait to see what you create!
+
+xx Sandra
+Your Personal Branding Bestie
+
+SSELFIE Studio - Where Your Personal Brand Gets Born`
+      });
+
+      console.log('✅ Model ready email sent successfully:', result.data?.id);
+      return { success: true, emailId: result.data?.id };
+      
+    } catch (error) {
+      console.error('❌ Failed to send model ready email:', error);
+      return { success: false, error: error.message };
+    }
   }
-}
 
-function getPostAuthFreeHTML(firstName: string): string {
-  const workspaceUrl = `https://${process.env.REPLIT_DOMAINS?.split(',')[0] || 'localhost:5000'}/workspace`;
-  
-  return `
-    <!DOCTYPE html>
-    <html>
-    <head>
-      <meta charset="utf-8">
-      <meta name="viewport" content="width=device-width, initial-scale=1">
-      <title>Let's get you those photos!</title>
-      <style>
-        body { 
-          font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif; 
-          line-height: 1.6; 
-          color: #0a0a0a; 
-          margin: 0; 
-          padding: 0; 
-          background: #ffffff;
-        }
-        .container { 
-          max-width: 600px; 
-          margin: 0 auto; 
-          padding: 40px 20px; 
-        }
-        .header { 
-          text-align: center; 
-          margin-bottom: 40px; 
-          border-bottom: 1px solid #f0f0f0;
-          padding-bottom: 20px;
-        }
-        .logo { 
-          font-family: 'Times New Roman', serif; 
-          font-size: 32px; 
-          font-weight: 300; 
-          letter-spacing: 0.2em; 
-          color: #0a0a0a; 
-          margin-bottom: 10px;
-        }
-        h1 { 
-          font-family: 'Times New Roman', serif; 
-          font-size: 28px; 
-          font-weight: 300;
-          margin: 20px 0;
-        }
-        .greeting {
-          font-size: 18px;
-          margin-bottom: 20px;
-          color: #333;
-        }
-        .cta-button {
-          display: inline-block;
-          background: #0a0a0a;
-          color: white;
-          padding: 15px 30px;
-          text-decoration: none;
-          font-size: 14px;
-          letter-spacing: 0.1em;
-          text-transform: uppercase;
-          margin: 20px 0;
-        }
-        .feature-list {
-          background: #f8f8f8;
-          padding: 20px;
-          margin: 20px 0;
-        }
-        .feature-item {
-          margin: 10px 0;
-          color: #333;
-        }
-        .signature {
-          margin-top: 30px;
-          font-style: italic;
-          color: #666;
-        }
-      </style>
-    </head>
-    <body>
-      <div class="container">
-        <div class="header">
-          <div class="logo">SSELFIE</div>
-          <div style="font-size: 12px; letter-spacing: 0.2em; color: #666;">STUDIO</div>
-        </div>
-        
-        <h1>${firstName ? `Hey ${firstName}!` : 'Hey gorgeous!'}</h1>
-        
-        <div class="greeting">
-          So you actually signed up! I'm honestly so excited for you right now.
-        </div>
-        
-        <p>Listen, I know this might feel a little scary or weird. Trust me, I get it. But you know what? You took the first step and that's literally the hardest part.</p>
-        
-        <p>Your 5 FREE photos are ready to go. And between you and me? These aren't just any photos. They're the kind that make you go "wait, is that actually me?" in the best possible way.</p>
-        
-        <div style="text-align: center;">
-          <a href="${workspaceUrl}" class="cta-button">Let's Do This</a>
-        </div>
-        
-        <div class="feature-list">
-          <h3 style="margin-top: 0; font-family: 'Times New Roman', serif;">Here's what you get (completely free):</h3>
-          <div class="feature-item">• 5 AI photos per month (no BS, actually free)</div>
-          <div class="feature-item">• Maya - your AI photographer who's literally a styling genius</div>
-          <div class="feature-item">• All the luxury flatlays you need for content</div>
-          <div class="feature-item">• Access to everything until you decide if you want more</div>
-        </div>
-        
-        <p>Here's what's gonna happen next: You'll upload a few selfies (yes, the ones on your phone right now are perfect). Maya, your AI photographer, will work her magic. And then you'll see yourself in a completely new way.</p>
-        
-        <p>No pressure, no weird sales stuff. Just really good photos and honestly? Maybe a little confidence boost too.</p>
-        
-        <div class="signature">
-          <p>Can't wait to see what you create,<br>Sandra</p>
-          <p style="font-size: 12px; color: #999;">Your new best friend who happens to be really good with AI</p>
-        </div>
+  // Send training started confirmation email
+  static async sendTrainingStartedEmail(userEmail: string, userName?: string) {
+    try {
+      const firstName = userName?.split(' ')[0] || 'gorgeous';
+      
+      const emailContent = `
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Your AI Model is Training!</title>
+  <style>
+    body { 
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; 
+      line-height: 1.6; 
+      color: #0a0a0a; 
+      margin: 0; 
+      padding: 0; 
+      background-color: #ffffff;
+    }
+    .container { 
+      max-width: 600px; 
+      margin: 0 auto; 
+      padding: 40px 20px; 
+    }
+    .header {
+      text-align: center;
+      margin-bottom: 40px;
+    }
+    .logo {
+      font-family: 'Times New Roman', serif;
+      font-size: 32px;
+      font-weight: normal;
+      letter-spacing: 0.2em;
+      color: #0a0a0a;
+      margin-bottom: 20px;
+    }
+    .content {
+      background: #ffffff;
+      padding: 40px;
+      border: 1px solid #f0f0f0;
+    }
+    .greeting {
+      font-size: 18px;
+      margin-bottom: 20px;
+      color: #0a0a0a;
+    }
+    .main-text {
+      font-size: 16px;
+      margin-bottom: 20px;
+      color: #333333;
+    }
+    .footer {
+      margin-top: 40px;
+      font-size: 14px;
+      color: #666666;
+      text-align: center;
+    }
+    .signature {
+      margin-top: 30px;
+      font-style: italic;
+      color: #666666;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="header">
+      <div class="logo">SSELFIE STUDIO</div>
+      <p style="color: #666666; font-size: 14px; text-transform: uppercase; letter-spacing: 0.1em;">Training In Progress</p>
+    </div>
+    
+    <div class="content">
+      <div class="greeting">Hey ${firstName}!</div>
+      
+      <div class="main-text">
+        Your AI model just started training and I'm honestly so excited for you! 
       </div>
-    </body>
-    </html>
-  `;
-}
+      
+      <div class="main-text">
+        The AI is studying your selfies right now, learning all the little details that make you uniquely beautiful. It's like having a personal photographer who's getting to know exactly how to capture your best angles and expressions.
+      </div>
+      
+      <div class="main-text">
+        This usually takes about 15-20 minutes (sometimes up to 30 if our servers are busy), and I'll send you another email the moment it's ready.
+      </div>
+      
+      <div class="main-text">
+        You can totally close this page and go live your life - no need to sit here watching it train! When it's done, you'll get an email from me and then the real fun begins.
+      </div>
+      
+      <div class="signature">
+        xx Sandra<br>
+        <small style="color: #999;">Your Personal Branding Bestie</small>
+      </div>
+    </div>
+    
+    <div class="footer">
+      <p>SSELFIE Studio - Where Your Personal Brand Gets Born</p>
+    </div>
+  </div>
+</body>
+</html>`;
 
-function getPostAuthStudioHTML(firstName: string): string {
-  const workspaceUrl = `https://${process.env.REPLIT_DOMAINS?.split(',')[0] || 'localhost:5000'}/workspace`;
-  
-  return `
-    <!DOCTYPE html>
-    <html>
-    <head>
-      <meta charset="utf-8">
-      <meta name="viewport" content="width=device-width, initial-scale=1">
-      <title>Holy sh*t, you did it!</title>
-      <style>
-        body { 
-          font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif; 
-          line-height: 1.6; 
-          color: #0a0a0a; 
-          margin: 0; 
-          padding: 0; 
-          background: #ffffff;
-        }
-        .container { 
-          max-width: 600px; 
-          margin: 0 auto; 
-          padding: 40px 20px; 
-        }
-        .header { 
-          text-align: center; 
-          margin-bottom: 40px; 
-          border-bottom: 1px solid #f0f0f0;
-          padding-bottom: 20px;
-        }
-        .logo { 
-          font-family: 'Times New Roman', serif; 
-          font-size: 32px; 
-          font-weight: 300; 
-          letter-spacing: 0.2em; 
-          color: #0a0a0a; 
-          margin-bottom: 10px;
-        }
-        h1 { 
-          font-family: 'Times New Roman', serif; 
-          font-size: 28px; 
-          font-weight: 300;
-          margin: 20px 0;
-        }
-        .greeting {
-          font-size: 18px;
-          margin-bottom: 20px;
-          color: #333;
-        }
-        .cta-button {
-          display: inline-block;
-          background: #0a0a0a;
-          color: white;
-          padding: 15px 30px;
-          text-decoration: none;
-          font-size: 14px;
-          letter-spacing: 0.1em;
-          text-transform: uppercase;
-          margin: 20px 0;
-        }
-        .feature-list {
-          background: #f8f8f8;
-          padding: 20px;
-          margin: 20px 0;
-        }
-        .feature-item {
-          margin: 10px 0;
-          color: #333;
-        }
-        .signature {
-          margin-top: 30px;
-          font-style: italic;
-          color: #666;
-        }
-      </style>
-    </head>
-    <body>
-      <div class="container">
-        <div class="header">
-          <div class="logo">SSELFIE</div>
-          <div style="font-size: 12px; letter-spacing: 0.2em; color: #666;">STUDIO</div>
-        </div>
-        
-        <h1>${firstName ? `${firstName}, you amazing human!` : 'You amazing human!'}</h1>
-        
-        <div class="greeting">
-          Seriously, you just made one of the best decisions ever. I'm so excited for you right now!
-        </div>
-        
-        <p>Can we talk for a sec? Most people spend forever making excuses about why they're not ready. "Maybe next month" or "I don't know if this will work" or "I need to think about it more."</p>
-        
-        <p>But you? You just went for it. And honestly, that tells me everything I need to know about how this is gonna go for you.</p>
-        
-        <div style="text-align: center;">
-          <a href="${workspaceUrl}" class="cta-button">Let's Build Your Empire</a>
-        </div>
-        
-        <div class="feature-list">
-          <h3 style="margin-top: 0; font-family: 'Times New Roman', serif;">What you just unlocked:</h3>
-          <div class="feature-item">• 100 AI photos monthly (that's like 47 cents per professional photo)</div>
-          <div class="feature-item">• Maya - your personal AI celebrity stylist who's obsessed with making you look incredible</div>
-          <div class="feature-item">• Victoria - your AI brand strategist who builds websites that actually convert</div>
-          <div class="feature-item">• Every single luxury flatlay collection for endless content</div>
-          <div class="feature-item">• Custom domains so your website is actually YOURS</div>
-          <div class="feature-item">• Direct access to my team when you need help</div>
-        </div>
-        
-        <p>Here's what happens next: You'll upload some selfies, Maya will create magic with them, and then Victoria will help you turn it all into a real business that actually makes money.</p>
-        
-        <p>This isn't a "someday when I'm ready" thing anymore. This is your moment. Right now.</p>
-        
-        <p><strong>Welcome to the club of women who stopped waiting for permission.</strong></p>
-        
-        <div class="signature">
-          <p>So proud of you already,<br>Sandra</p>
-          <p style="font-size: 12px; color: #999;">Your biggest cheerleader (and that's not changing)</p>
-        </div>
-      </div>
-    </body>
-    </html>
-  `;
-}
+      const result = await resend.emails.send({
+        from: 'Sandra from SSELFIE Studio <sandra@sselfie.ai>',
+        to: userEmail,
+        subject: `${firstName}, your AI model is training! Get ready for magic ✨`,
+        html: emailContent,
+        text: `Hey ${firstName}!
 
-function getFreeWelcomeHTML(): string {
-  const loginUrl = `${process.env.REPLIT_DOMAINS?.split(',')[0] || 'localhost:5000'}/api/login`;
-  
-  return `
-    <!DOCTYPE html>
-    <html>
-    <head>
-      <meta charset="utf-8">
-      <meta name="viewport" content="width=device-width, initial-scale=1">
-      <title>Hey gorgeous! Your photos are ready</title>
-      <style>
-        body { 
-          font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif; 
-          line-height: 1.6; 
-          color: #0a0a0a; 
-          margin: 0; 
-          padding: 0; 
-        }
-        .container { 
-          max-width: 600px; 
-          margin: 0 auto; 
-          padding: 40px 20px; 
-        }
-        .header { 
-          text-align: center; 
-          margin-bottom: 40px; 
-        }
-        .logo { 
-          font-family: 'Times New Roman', serif; 
-          font-size: 24px; 
-          font-weight: 300; 
-          letter-spacing: 0.1em; 
-          color: #0a0a0a; 
-        }
-        h1 { 
-          font-family: 'Times New Roman', serif; 
-          font-size: 28px; 
-          font-weight: 300; 
-          margin: 30px 0 20px; 
-          line-height: 1.3; 
-        }
-        p { 
-          margin: 20px 0; 
-          font-size: 16px; 
-        }
-        .cta-button { 
-          display: inline-block; 
-          background: #0a0a0a; 
-          color: white; 
-          padding: 16px 32px; 
-          text-decoration: none; 
-          text-transform: uppercase; 
-          letter-spacing: 0.1em; 
-          font-size: 12px; 
-          margin: 30px 0; 
-        }
-        .steps { 
-          background: #f5f5f5; 
-          padding: 30px; 
-          margin: 30px 0; 
-        }
-        .step { 
-          margin: 15px 0; 
-          display: flex; 
-          align-items: flex-start; 
-        }
-        .step-number { 
-          background: #0a0a0a; 
-          color: white; 
-          width: 24px; 
-          height: 24px; 
-          border-radius: 50%; 
-          display: flex; 
-          align-items: center; 
-          justify-content: center; 
-          font-size: 12px; 
-          margin-right: 15px; 
-          flex-shrink: 0; 
-        }
-        .signature { 
-          margin-top: 40px; 
-          font-style: italic; 
-        }
-      </style>
-    </head>
-    <body>
-      <div class="container">
-        <div class="header">
-          <div class="logo">SSELFIE</div>
-        </div>
-        
-        <h1>Hey gorgeous!</h1>
-        
-        <p>So you actually signed up! I'm honestly so excited for you right now.</p>
-        
-        <p>Your 5 FREE photos are waiting, and between you and me? This is going to be the confidence boost you didn't even know you needed.</p>
-        
-        <div class="steps">
-          <div class="step">
-            <div class="step-number">1</div>
-            <div>Upload your phone selfies (literally just grab your phone)</div>
-          </div>
-          <div class="step">
-            <div class="step-number">2</div>
-            <div>Maya (your AI stylist) helps you figure out what vibe you're going for</div>
-          </div>
-          <div class="step">
-            <div class="step-number">3</div>
-            <div>Get back photos that make you go "wait, is that actually me?"</div>
-          </div>
-        </div>
-        
-        <p>No pressure, no weird sales stuff. Just really good photos and maybe a little confidence boost too.</p>
-        
-        <a href="${loginUrl}" class="cta-button">Let's Do This</a>
-        
-        <p>Ready to see what you're capable of? Let's go.</p>
-        
-        <div class="signature">
-          <p>Your new best friend who happens to be really good with AI,<br>Sandra ✨</p>
-          <p><em>P.S. I believe in you. Like, really believe in you.</em></p>
-        </div>
-      </div>
-    </body>
-    </html>
-  `;
-}
+Your AI model just started training and I'm honestly so excited for you!
 
-function getStudioWelcomeHTML(): string {
-  const loginUrl = `${process.env.REPLIT_DOMAINS?.split(',')[0] || 'localhost:5000'}/api/login`;
-  
-  return `
-    <!DOCTYPE html>
-    <html>
-    <head>
-      <meta charset="utf-8">
-      <meta name="viewport" content="width=device-width, initial-scale=1">
-      <title>You actually bought it!</title>
-      <style>
-        body { 
-          font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif; 
-          line-height: 1.6; 
-          color: #0a0a0a; 
-          margin: 0; 
-          padding: 0; 
-        }
-        .container { 
-          max-width: 600px; 
-          margin: 0 auto; 
-          padding: 40px 20px; 
-        }
-        .header { 
-          text-align: center; 
-          margin-bottom: 40px; 
-        }
-        .logo { 
-          font-family: 'Times New Roman', serif; 
-          font-size: 24px; 
-          font-weight: 300; 
-          letter-spacing: 0.1em; 
-          color: #0a0a0a; 
-        }
-        h1 { 
-          font-family: 'Times New Roman', serif; 
-          font-size: 28px; 
-          font-weight: 300; 
-          margin: 30px 0 20px; 
-          line-height: 1.3; 
-        }
-        p { 
-          margin: 20px 0; 
-          font-size: 16px; 
-        }
-        .cta-button { 
-          display: inline-block; 
-          background: #0a0a0a; 
-          color: white; 
-          padding: 16px 32px; 
-          text-decoration: none; 
-          text-transform: uppercase; 
-          letter-spacing: 0.1em; 
-          font-size: 12px; 
-          margin: 30px 0; 
-        }
-        .features { 
-          background: #f5f5f5; 
-          padding: 30px; 
-          margin: 30px 0; 
-        }
-        .feature { 
-          margin: 15px 0; 
-          display: flex; 
-          align-items: flex-start; 
-        }
-        .feature-bullet { 
-          color: #0a0a0a; 
-          margin-right: 10px; 
-          font-weight: bold; 
-        }
-        .signature { 
-          margin-top: 40px; 
-          font-style: italic; 
-        }
-      </style>
-    </head>
-    <body>
-      <div class="container">
-        <div class="header">
-          <div class="logo">SSELFIE STUDIO</div>
-        </div>
-        
-        <h1>Wait, you actually bought it?</h1>
-        
-        <p>I'm sitting here looking at your order and honestly? I'm a little emotional. Do you know how many women spend MONTHS talking themselves out of investing in their dreams?</p>
-        
-        <p>But not you. You said "fuck it, I'm doing this." And that right there? That's exactly why you're going to absolutely crush this.</p>
-        
-        <div class="features">
-          <div class="feature">
-            <div class="feature-bullet">•</div>
-            <div>100 AI photos monthly (that's like getting a professional photographer for 47 cents per shot)</div>
-          </div>
-          <div class="feature">
-            <div class="feature-bullet">•</div>
-            <div>Maya - literally the best AI stylist I've ever seen (she's obsessed with making you look incredible)</div>
-          </div>
-          <div class="feature">
-            <div class="feature-bullet">•</div>
-            <div>Victoria - your AI brand strategist who builds websites that actually convert</div>
-          </div>
-          <div class="feature">
-            <div class="feature-bullet">•</div>
-            <div>Every single luxury flatlay collection (no more "I don't know what to post")</div>
-          </div>
-          <div class="feature">
-            <div class="feature-bullet">•</div>
-            <div>Custom domains so your website is actually YOURS</div>
-          </div>
-          <div class="feature">
-            <div class="feature-bullet">•</div>
-            <div>Direct access to my team when you need help (we actually respond)</div>
-          </div>
-        </div>
-        
-        <p>This isn't some "maybe someday" thing anymore. This is happening. Right now.</p>
-        
-        <a href="${loginUrl}" class="cta-button">Let's Build Your Empire</a>
-        
-        <p>Welcome to the women who decided to stop waiting for permission to build something incredible.</p>
-        
-        <div class="signature">
-          <p>So freaking proud of you,<br>Sandra<br>
-          <em>Your biggest cheerleader</em></p>
-        </div>
-        
-        <p style="font-size: 12px; color: #666; margin-top: 40px;">
-          You just invested in yourself. That's the hardest part - now we get to do the fun stuff.
-        </p>
-      </div>
-    </body>
-    </html>
-  `;
+The AI is studying your selfies right now, learning all the little details that make you uniquely beautiful. It's like having a personal photographer who's getting to know exactly how to capture your best angles.
+
+This usually takes about 15-20 minutes, and I'll send you another email the moment it's ready.
+
+You can totally close this page and go live your life - no need to sit here watching it train!
+
+xx Sandra
+Your Personal Branding Bestie
+
+SSELFIE Studio - Where Your Personal Brand Gets Born`
+      });
+
+      console.log('✅ Training started email sent successfully:', result.data?.id);
+      return { success: true, emailId: result.data?.id };
+      
+    } catch (error) {
+      console.error('❌ Failed to send training started email:', error);
+      return { success: false, error: error.message };
+    }
+  }
 }
