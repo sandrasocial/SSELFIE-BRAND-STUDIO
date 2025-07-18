@@ -31,6 +31,7 @@ import { FileTreeExplorer } from './FileTreeExplorer';
 import { MultiTabEditor } from './MultiTabEditor';
 import { FormattedAgentMessage } from './FormattedAgentMessage';
 import { AgentChatControls } from './AgentChatControls';
+import { FileCreationConfirmation } from './FileCreationConfirmation';
 import AgentEnhancementDashboard from '../AgentEnhancementDashboard';
 import { flatlayCollections } from '@/data/flatlay-collections';
 
@@ -1662,6 +1663,9 @@ export function OptimizedVisualEditor({ className = '' }: OptimizedVisualEditorP
           </>
         )}
       </PanelGroup>
+      
+      {/* File Creation Confirmation System */}
+      <FileCreationConfirmation onFileSelect={handleFileSelect} />
     </div>
   );
 }
