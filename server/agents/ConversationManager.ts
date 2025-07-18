@@ -73,60 +73,85 @@ export class ConversationManager {
     let currentContext = '';
     let workflowStage = 'ongoing';
 
-    // Analyze messages for important content
-    for (const message of history.slice(-20)) { // Look at last 20 messages
+    // Analyze messages for important content - look at more messages for better context
+    for (const message of history.slice(-40)) { // Look at last 40 messages for richer context
       if (message.role === 'user') {
-        // Extract task requests
-        if (message.content.includes('create') || message.content.includes('build') || message.content.includes('implement')) {
-          keyTasks.push(message.content.substring(0, 100) + '...');
+        // Extract specific task requests with better patterns
+        const content = message.content.toLowerCase();
+        if (content.includes('create') || content.includes('build') || content.includes('implement') || 
+            content.includes('design') || content.includes('fix') || content.includes('add') ||
+            content.includes('update') || content.includes('make') || content.includes('develop')) {
+          const task = message.content.substring(0, 120).replace(/\n/g, ' ').trim();
+          if (task && !keyTasks.includes(task)) {
+            keyTasks.push(task);
+          }
         }
       } else if (message.role === 'assistant') {
-        // Extract completed work
-        if (message.content.includes('✅') || message.content.includes('completed') || message.content.includes('created')) {
+        // Extract completed work with better pattern matching
+        const content = message.content.toLowerCase();
+        if (content.includes('✅') || content.includes('completed') || content.includes('created') || 
+            content.includes('implemented') || content.includes('fixed') || content.includes('added') ||
+            content.includes('updated') || content.includes('built')) {
           const lines = message.content.split('\n');
           for (const line of lines) {
-            if (line.includes('✅') || line.includes('completed')) {
-              keyTasks.push(line.trim().substring(0, 100));
+            if (line.includes('✅') || line.includes('completed') || line.includes('created') ||
+                line.includes('implemented') || line.includes('fixed')) {
+              const task = line.trim().substring(0, 120).replace(/[✅]/g, '').trim();
+              if (task && !keyTasks.includes(task)) {
+                keyTasks.push(task);
+              }
             }
           }
         }
         
-        // Extract decisions made
-        if (message.content.includes('decided') || message.content.includes('chose') || message.content.includes('using')) {
+        // Extract decisions made with better pattern matching
+        if (content.includes('decided') || content.includes('chose') || content.includes('using') ||
+            content.includes('selected') || content.includes('approach')) {
           const lines = message.content.split('\n');
           for (const line of lines) {
-            if (line.includes('decided') || line.includes('chose')) {
-              recentDecisions.push(line.trim().substring(0, 100));
+            if (line.includes('decided') || line.includes('chose') || line.includes('approach')) {
+              const decision = line.trim().substring(0, 120);
+              if (decision && !recentDecisions.includes(decision)) {
+                recentDecisions.push(decision);
+              }
             }
           }
         }
       }
     }
 
-    // Determine current context from recent messages
-    const recentMessages = history.slice(-5);
-    const recentContent = recentMessages.map(m => m.content).join(' ');
+    // Determine current context from entire conversation, not just recent messages
+    const fullContent = history.map(m => m.content).join(' ').toLowerCase();
     
-    if (recentContent.includes('admin') || recentContent.includes('dashboard')) {
-      currentContext = 'Working on admin dashboard design and functionality';
+    if (fullContent.includes('admin') && fullContent.includes('dashboard')) {
+      currentContext = 'Working on Sandra\'s admin dashboard with agent chat interfaces and luxury design';
       workflowStage = 'admin-dashboard';
-    } else if (recentContent.includes('component') || recentContent.includes('file')) {
-      currentContext = 'Creating and modifying React components';
-      workflowStage = 'component-development';
-    } else if (recentContent.includes('preview') || recentContent.includes('iframe')) {
-      currentContext = 'Fixing preview and iframe functionality';
+    } else if (fullContent.includes('test') && fullContent.includes('component')) {
+      currentContext = 'Creating and testing React components with proper file system integration';
+      workflowStage = 'component-testing';
+    } else if (fullContent.includes('memory') && fullContent.includes('agent')) {
+      currentContext = 'Implementing and debugging agent memory systems for conversation continuity';
+      workflowStage = 'memory-system';
+    } else if (fullContent.includes('preview') || fullContent.includes('iframe')) {
+      currentContext = 'Fixing preview and iframe functionality in visual editor';
       workflowStage = 'preview-debugging';
+    } else if (fullContent.includes('visual') && fullContent.includes('editor')) {
+      currentContext = 'Enhancing visual editor interface and agent integration';
+      workflowStage = 'visual-editor';
+    } else if (fullContent.includes('file') && fullContent.includes('creation')) {
+      currentContext = 'Implementing file creation system for agents';
+      workflowStage = 'file-system';
     } else {
-      currentContext = 'General development and design work';
+      currentContext = 'General SSELFIE Studio development and design work';
       workflowStage = 'development';
     }
 
     return {
       agentId,
       userId,
-      keyTasks: keyTasks.slice(0, 10), // Keep top 10 tasks
+      keyTasks: [...new Set(keyTasks)].slice(0, 15), // Remove duplicates and keep top 15 tasks
       currentContext,
-      recentDecisions: recentDecisions.slice(0, 5), // Keep top 5 decisions
+      recentDecisions: [...new Set(recentDecisions)].slice(0, 8), // Remove duplicates and keep top 8 decisions
       workflowStage,
       timestamp: new Date()
     };
