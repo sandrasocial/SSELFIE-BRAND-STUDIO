@@ -2,6 +2,9 @@ import React, { useState, useRef, useEffect } from 'react';
 import { Send, FileText, Code, Folder } from 'lucide-react';
 import { useMutation } from '@tanstack/react-query';
 import { Button } from '@/components/ui/button';
+import ReactMarkdown from 'react-markdown';
+import { Prism as SyntaxHighlighter } from 'react-syntax-highlighter';
+import { oneDark } from 'react-syntax-highlighter/dist/esm/styles/prism';
 
 interface AgentChatMessage {
   id: number;
@@ -210,7 +213,58 @@ export function IntegratedAgentChat({
                     {msg.agentName}
                   </div>
                 )}
-                <div className="text-sm whitespace-pre-wrap">{msg.content}</div>
+                <div className="text-sm">
+                  <ReactMarkdown
+                    components={{
+                      code({ node, inline, className, children, ...props }) {
+                        const match = /language-(\w+)/.exec(className || '');
+                        const language = match ? match[1] : 'typescript';
+                        
+                        return !inline ? (
+                          <SyntaxHighlighter
+                            style={oneDark}
+                            language={language}
+                            PreTag="div"
+                            className="rounded-md text-xs"
+                            {...props}
+                          >
+                            {String(children).replace(/\n$/, '')}
+                          </SyntaxHighlighter>
+                        ) : (
+                          <code className="bg-gray-200 px-1 py-0.5 rounded text-xs font-mono" {...props}>
+                            {children}
+                          </code>
+                        );
+                      },
+                      details({ children, ...props }) {
+                        return (
+                          <details className="my-2 border border-gray-300 rounded-md" {...props}>
+                            {children}
+                          </details>
+                        );
+                      },
+                      summary({ children, ...props }) {
+                        return (
+                          <summary className="cursor-pointer p-2 bg-gray-50 hover:bg-gray-100 font-medium text-sm border-b border-gray-200" {...props}>
+                            {children}
+                          </summary>
+                        );
+                      },
+                      h1: ({ children }) => <h1 className="text-lg font-bold font-serif mt-4 mb-2">{children}</h1>,
+                      h2: ({ children }) => <h2 className="text-base font-bold font-serif mt-3 mb-2">{children}</h2>,
+                      h3: ({ children }) => <h3 className="text-sm font-bold font-serif mt-2 mb-1">{children}</h3>,
+                      ul: ({ children }) => <ul className="list-disc list-inside space-y-1 ml-2">{children}</ul>,
+                      ol: ({ children }) => <ol className="list-decimal list-inside space-y-1 ml-2">{children}</ol>,
+                      li: ({ children }) => <li className="text-sm">{children}</li>,
+                      p: ({ children }) => <p className="mb-2 leading-relaxed">{children}</p>,
+                      strong: ({ children }) => <strong className="font-semibold">{children}</strong>,
+                      em: ({ children }) => <em className="italic">{children}</em>,
+                      blockquote: ({ children }) => <blockquote className="border-l-4 border-gray-300 pl-3 italic text-gray-600">{children}</blockquote>,
+                    }}
+                  >
+                    {msg.content}
+                  </ReactMarkdown>
+                </div>
                 
                 {/* File Operations */}
                 {msg.fileOperations && msg.fileOperations.length > 0 && (
