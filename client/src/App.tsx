@@ -144,9 +144,10 @@ function Router() {
       {/* PUBLIC PAGES */}
       <Route path="/" component={EditorialLanding} />
       
-      {/* AUTHENTICATION REDIRECT PAGE */}
-      <Route path="/login" component={() => {
-        // Immediate redirect to Replit Auth
+      {/* BRANDED AUTHENTICATION PAGES */}
+      <Route path="/login" component={AuthExplainer} />
+      <Route path="/login-direct" component={() => {
+        // Direct redirect to Replit Auth (for cases that need immediate redirect)
         React.useEffect(() => {
           window.location.href = '/api/login';
         }, []);

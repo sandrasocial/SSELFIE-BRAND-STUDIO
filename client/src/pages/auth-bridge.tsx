@@ -41,7 +41,7 @@ export default function AuthBridge() {
             Secure Login Setup
           </h3>
           <p className="text-sm text-gray-700 mb-4">
-            You'll be taken to a secure login page. This uses the same technology that powers many professional development platforms.
+            You'll be taken to a secure login page. The next screen may mention technical terms, but this is just the enterprise-grade security system that protects your data.
           </p>
           <p className="text-xs text-gray-600 mb-3">
             • Your SSELFIE Studio account and data remain completely private
