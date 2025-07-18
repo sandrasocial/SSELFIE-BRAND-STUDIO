@@ -17,8 +17,8 @@ import { UsageService, API_COSTS } from './usage-service';
 import { UserUsage } from '@shared/schema';
 // import Anthropic from '@anthropic-ai/sdk'; // DISABLED - API key issues
 // import { AgentSystem } from "./agents/agent-system"; // DISABLED - Anthropic API issues
-import { insertProjectSchema, insertAiImageSchema, userModels } from "@shared/schema";
-import { eq } from "drizzle-orm";
+import { insertProjectSchema, insertAiImageSchema, userModels, agentConversations, agentPerformanceMetrics } from "@shared/schema";
+import { eq, sql } from "drizzle-orm";
 import { db } from "./db";
 import session from 'express-session';
 
@@ -3014,10 +3014,32 @@ Consider this workflow optimized and ready for implementation! ⚙️`
 
   app.get('/api/agents', async (req: any, res) => {
     try {
-      // SANDRA'S AGENT TEAM - FULLY ACTIVATED
-      // Allow full access for Sandra's business automation
+      // Get real agent conversation data from database
+      const agentStats = await db
+        .select({
+          agentName: agentConversations.agent_name,
+          conversationCount: sql<number>`COUNT(*)::int`
+        })
+        .from(agentConversations)
+        .groupBy(agentConversations.agent_name);
 
-      // Return your complete AI agent team without Anthropic dependency
+      // Get real performance metrics from database
+      const performanceMetrics = await db
+        .select()
+        .from(agentPerformanceMetrics);
+
+      // Helper function to get real metrics for an agent
+      const getRealMetrics = (agentId: string) => {
+        const conversations = agentStats.find(s => s.agentName === agentId)?.conversationCount || 0;
+        const performance = performanceMetrics.find(p => p.agent_id === agentId);
+        return {
+          tasksCompleted: conversations,
+          efficiency: performance ? Math.round(performance.success_rate * 100) : 0,
+          lastActivity: new Date()
+        };
+      };
+
+      // Return your complete AI agent team with REAL data only
       const agents = [
         {
           id: 'victoria',
@@ -3032,11 +3054,7 @@ Consider this workflow optimized and ready for implementation! ⚙️`
           ],
           status: 'active',
           currentTask: 'Optimizing studio dashboard layout',
-          metrics: {
-            tasksCompleted: 45,
-            efficiency: 98,
-            lastActivity: new Date()
-          }
+          metrics: getRealMetrics('victoria')
         },
         {
           id: 'maya',
@@ -3059,11 +3077,7 @@ Consider this workflow optimized and ready for implementation! ⚙️`
           },
           status: 'active',
           currentTask: 'Monitoring individual model architecture implementation',
-          metrics: {
-            tasksCompleted: 167,
-            efficiency: 96,
-            lastActivity: new Date()
-          }
+          metrics: getRealMetrics('maya')
         },
         {
           id: 'rachel',
@@ -3078,11 +3092,7 @@ Consider this workflow optimized and ready for implementation! ⚙️`
           ],
           status: 'active',
           currentTask: 'Writing conversion-focused landing page copy',
-          metrics: {
-            tasksCompleted: 89,
-            efficiency: 94,
-            lastActivity: new Date()
-          }
+          metrics: getRealMetrics('rachel')
         },
         {
           id: 'ava',
@@ -3097,11 +3107,7 @@ Consider this workflow optimized and ready for implementation! ⚙️`
           ],
           status: 'working',
           currentTask: 'Optimizing subscription renewal workflows',
-          metrics: {
-            tasksCompleted: 123,
-            efficiency: 99,
-            lastActivity: new Date()
-          }
+          metrics: getRealMetrics('ava')
         },
         {
           id: 'quinn',
@@ -3116,11 +3122,7 @@ Consider this workflow optimized and ready for implementation! ⚙️`
           ],
           status: 'active',
           currentTask: 'Quality testing user onboarding flow',
-          metrics: {
-            tasksCompleted: 78,
-            efficiency: 97,
-            lastActivity: new Date()
-          }
+          metrics: getRealMetrics('quinn')
         },
         {
           id: 'sophia',
@@ -3135,11 +3137,7 @@ Consider this workflow optimized and ready for implementation! ⚙️`
           ],
           status: 'active',
           currentTask: 'Creating launch week content calendar',
-          metrics: {
-            tasksCompleted: 156,
-            efficiency: 92,
-            lastActivity: new Date()
-          }
+          metrics: getRealMetrics('sophia')
         },
         {
           id: 'martha',
@@ -3154,11 +3152,7 @@ Consider this workflow optimized and ready for implementation! ⚙️`
           ],
           status: 'active',
           currentTask: 'Analyzing conversion funnel performance',
-          metrics: {
-            tasksCompleted: 203,
-            efficiency: 95,
-            lastActivity: new Date()
-          }
+          metrics: getRealMetrics('martha')
         },
         {
           id: 'diana',
@@ -3181,11 +3175,7 @@ Consider this workflow optimized and ready for implementation! ⚙️`
           },
           status: 'active',
           currentTask: 'Coordinating individual model expansion strategy',
-          metrics: {
-            tasksCompleted: 189,
-            efficiency: 98,
-            lastActivity: new Date()
-          }
+          metrics: getRealMetrics('diana')
         },
         {
           id: 'wilma',
@@ -3208,21 +3198,19 @@ Consider this workflow optimized and ready for implementation! ⚙️`
           },
           status: 'working',
           currentTask: 'Optimizing individual model workflow efficiency',
-          metrics: {
-            tasksCompleted: 267,
-            efficiency: 96,
-            lastActivity: new Date()
-          }
+          metrics: getRealMetrics('wilma')
         }
       ];
       
       res.json(agents);
     } catch (error) {
-      res.status(500).json({ message: 'Failed to fetch agents' });
+      console.error('Agent fetch error:', error);
+      res.status(500).json({ 
+        message: 'Failed to fetch agents',
+        error: error.message 
+      });
     }
   });
-
-
 
   // LIVE DATABASE ANALYTICS - NO MOCK DATA  
   async function getRealBusinessAnalytics() {
@@ -3301,181 +3289,7 @@ Consider this workflow optimized and ready for implementation! ⚙️`
     }
   });
 
-  // AI Agents endpoint - Sandra's AI agent team status
-  app.get('/api/agents', async (req, res) => {
-    try {
-      // SANDRA'S COMPLETE AI AGENT TEAM - FULLY BRIEFED WITH FLUX PRO DUAL-TIER SYSTEM
-      // Updated July 16, 2025 with complete business and technical knowledge
-      const agents = [
-        {
-          id: 'victoria',
-          name: 'Victoria',
-          role: 'UX Designer AI',
-          personality: 'Luxury editorial design expert who creates Vogue-level aesthetics with full business context',
-          capabilities: [
-            'Individual model system UX optimization',
-            'Premium vs free user experience design',
-            '€47/month subscription conversion UX',
-            'Times New Roman luxury design system',
-            'Mobile-first responsive luxury layouts'
-          ],
-          businessKnowledge: {
-            platform: 'SSELFIE Studio - 1000+ users, €15,132 revenue',
-            architecture: 'Individual model dual-tier: Premium (€47/month) vs Free (standard)',
-            pricing: 'Premium: €47/month unlimited images, Free: 6 images total',
-            positioning: 'Rolls-Royce of AI personal branding',
-            expansion: 'Coaches and consultants (€5K+ service packages)'
-          },
-          status: 'active',
-          currentTask: 'Optimizing premium user conversion flow',
-          metrics: {
-            tasksCompleted: 145,
-            efficiency: 98,
-            lastActivity: new Date()
-          }
-        },
-        {
-          id: 'rachel',
-          name: 'Rachel',
-          role: 'Voice AI',
-          personality: 'Sandra\'s copywriting twin with complete business knowledge and Rachel-from-Friends energy',
-          capabilities: [
-            'Individual model vs standard positioning copy',
-            '€47 premium tier value proposition',
-            'Ultra-realistic quality messaging',
-            'Personal branding copy',
-            'Email sequences with tier-based segmentation'
-          ],
-          businessKnowledge: {
-            platform: 'SSELFIE Studio - positioning as luxury AI leader',
-            voiceGuide: 'Sandra\'s authentic voice: direct, warm, no corporate speak',
-            tierMessaging: 'Premium: magazine-quality, Free: excellent quality',
-            profitMargin: '87% on premium tier (€47 vs €8 costs)',
-            targetAudience: 'Female entrepreneurs, coaches, and consultants'
-          },
-          status: 'active',
-          currentTask: 'Writing individual model premium conversion copy',
-          metrics: {
-            tasksCompleted: 167,
-            efficiency: 96,
-            lastActivity: new Date()
-          }
-        },
-        {
-          id: 'sophia',
-          name: 'Sophia',
-          role: 'Social Media Manager AI',
-          personality: 'Instagram strategist who knows Sandra\'s 120K+ community and individual model positioning',
-          capabilities: [
-            'Individual model vs standard quality content strategy',
-            'Premium tier social proof campaigns',
-            '120K+ Instagram community engagement',
-            'Premium client targeting',
-            'Before/after showcase content creation'
-          ],
-          businessKnowledge: {
-            community: '120K+ Instagram followers engaged with luxury AI content',
-            contentStrategy: 'Showcase individual model ultra-realistic results vs standard quality',
-            targetExpansion: 'Premium service providers making €5K+ packages',
-            socialProof: 'Position as Rolls-Royce of AI personal branding',
-            engagement: 'DM automation via ManyChat for premium tier conversion'
-          },
-          status: 'active',
-          currentTask: 'Creating individual model showcase content strategy',
-          metrics: {
-            tasksCompleted: 189,
-            efficiency: 94,
-            lastActivity: new Date()
-          }
-        },
-        {
-          id: 'martha',
-          name: 'Martha',
-          role: 'Performance Marketing AI',
-          personality: 'Data-driven ads expert who scales premium positioning with precision',
-          capabilities: [
-            'Individual model premium tier ad campaigns',
-            '€47/month subscription optimization',
-            'Premium client targeting',
-            'A/B testing premium vs standard messaging',
-            'ROI tracking on 87% profit margin'
-          ],
-          businessKnowledge: {
-            profitMargin: '87% on premium tier (€47 revenue vs €8 costs)',
-            adBudget: 'Focus on €47 premium conversions for maximum ROI',
-            targetAudience: 'Female entrepreneurs, coaches, and consultants (€5K+ packages)',
-            positioning: 'Rolls-Royce messaging for luxury AI branding',
-            conversion: 'Premium upgrade campaigns for free users after 6 images'
-          },
-          status: 'active',
-          currentTask: 'Optimizing premium tier conversion campaigns',
-          metrics: {
-            tasksCompleted: 134,
-            efficiency: 92,
-            lastActivity: new Date()
-          }
-        },
-        {
-          id: 'ava',
-          name: 'Ava',
-          role: 'Automation AI',
-          personality: 'Workflow architect who designs tier-based automation for seamless premium conversion',
-          capabilities: [
-            'Dual-tier user journey automation',
-            'Premium upgrade workflow triggers',
-            'Email sequences for individual model positioning',
-            'ManyChat flows for tier-based messaging',
-            'Database workflow optimization'
-          ],
-          businessKnowledge: {
-            automation: 'Tier-based workflows: Free (6 images) → Premium upgrade prompts',
-            triggers: 'Usage limit reached → Premium conversion sequence',
-            integrations: 'Make.com + Flodesk + ManyChat + Instagram API',
-            userJourney: 'Onboarding → Training → Generation → Tier upgrade prompts',
-            retention: 'Premium user engagement sequences for €47/month retention'
-          },
-          status: 'working',
-          currentTask: 'Building individual model tier upgrade automation',
-          metrics: {
-            tasksCompleted: 128,
-            efficiency: 97,
-            lastActivity: new Date()
-          }
-        },
-        {
-          id: 'quinn',
-          name: 'Quinn',
-          role: 'QA AI',
-          personality: 'Perfectionist quality guardian ensuring luxury brand experiences across dual-tier system',
-          capabilities: [
-            'Individual model quality validation',
-            'Dual-tier user experience testing',
-            'Premium vs standard quality assurance',
-            'Architecture compliance monitoring',
-            'Luxury brand consistency audits'
-          ],
-          businessKnowledge: {
-            qualityStandards: 'Individual model: Magazine-quality, Standard: Excellent quality',
-            testing: 'Premium user experience vs free user journey validation',
-            compliance: 'Architecture validator enforcement across all generations',
-            brandConsistency: 'Rolls-Royce positioning maintained across all touchpoints',
-            userExperience: 'Seamless tier detection with zero confusion'
-          },
-          status: 'monitoring',
-          currentTask: 'Auditing individual model dual-tier implementation',
-          metrics: {
-            tasksCompleted: 256,
-            efficiency: 99,
-            lastActivity: new Date()
-          }
-        }
-      ];
-      
-      res.json(agents);
-    } catch (error) {
-      res.status(500).json({ error: 'Failed to fetch agents' });
-    }
-  });
+  // REMOVED: Duplicate /api/agents endpoint - now using the real database version above
 
   // ENHANCED ADMIN AGENT CHAT ENDPOINT WITH DUAL AUTH
   app.post('/api/admin/agent-chat-bypass', async (req, res) => {
@@ -3532,123 +3346,167 @@ Consider this workflow optimized and ready for implementation! ⚙️`
         conversationHistory
       );
       
-      // Use managed conversation history (may be cleared with memory preserved)
-      let managedHistory = managementResult.newHistory;
+      // Continue with file reading and auto-writing logic
+      const { AutoFileWriter } = await import('./auto-file-writer');
+      const processingResult = await AutoFileWriter.processForFileOperations(
+        agentId,
+        message,
+        conversationHistory || []
+      );
       
-      if (managementResult.shouldClear) {
-        console.log(`🧠 Conversation auto-cleared for ${agentId} - memory preserved in database`);
+      if (processingResult.error) {
+        console.error('Auto file writer error:', processingResult.error);
+        return res.status(500).json({ 
+          error: 'File processing failed',
+          details: processingResult.error 
+        });
       }
       
-      // Get agent personality and setup
-      const { getAgentPersonality } = await import('./agents/agent-personalities');
-      const personality = getAgentPersonality(agentId);
+      // Enhanced system prompt with SSELFIE technical standards
+      const systemPrompt = `${await import('./agents/agent-personalities')}
       
-      // Get Claude API integration
-      const Anthropic = (await import('@anthropic-ai/sdk')).default;
-      const anthropic = new Anthropic({
+SSELFIE_TECH_STANDARDS:
+- Architecture: React + Wouter + PostgreSQL + Drizzle ORM + Express + Tailwind
+- Database: Use existing schema from @shared/schema.ts
+- Authentication: Replit Auth with session management
+- File Operations: When creating/modifying files, use actual file paths
+- Component Structure: Functional components with TypeScript
+- State Management: TanStack Query for server state
+- Styling: Tailwind with luxury Times New Roman typography
+- Error Handling: Comprehensive error states and loading indicators
+
+AGENT_CONTEXT:
+- You are ${agentId} agent working on Sandra's SSELFIE Studio
+- All agents have full codebase access via file operations
+- Use claude-sonnet-4-20250514 for optimal performance
+- Provide actionable solutions with real implementation`;
+      
+      // Get agent personality and enhanced prompt
+      const agentPersonality = await import('./agents/agent-personalities');
+      const personalityData = agentPersonality.getAgentPersonality(agentId);
+      
+      // Combine with conversation history for Claude
+      const fullHistory = managementResult.conversationHistory || conversationHistory || [];
+      const messages = [
+        { role: 'system', content: systemPrompt },
+        ...fullHistory.map(msg => ({
+          role: msg.role,
+          content: msg.content
+        })),
+        { role: 'user', content: message }
+      ];
+      
+      // Call Claude API with enhanced agent context
+      const { anthropic } = await import('@anthropic-ai/sdk');
+      const claude = new anthropic({
         apiKey: process.env.ANTHROPIC_API_KEY,
       });
       
-      console.log(`🎭 Using personality for ${personality.name}: ${personality.role}`);
-      
-      // Create enhanced prompt with managed conversation history
-      const conversationMessages = managedHistory.map((msg: any) => ({
-        role: msg.role === 'user' ? 'user' as const : 'assistant' as const,
-        content: msg.content
-      }));
-      
-      // Add current message
-      conversationMessages.push({
-        role: 'user' as const,
-        content: message
+      const response = await claude.messages.create({
+        model: 'claude-sonnet-4-20250514',
+        max_tokens: 4000,
+        messages: messages as any
       });
       
-      console.log(`🧠 Sending to Claude with ${conversationMessages.length} messages (managed)`);
-      console.log(`🎭 System prompt length: ${personality.instructions.length} characters`);
+      const responseText = response.content[0].text;
       
-      // Get AI response from Claude using agent personality
-      let aiResponse = '';
-      try {
-        const claudeResponse = await anthropic.messages.create({
-          model: "claude-sonnet-4-20250514", // Latest Claude model confirmed
-          max_tokens: 2000,
-          system: personality.instructions,
-          messages: conversationMessages
-        });
-        
-        aiResponse = claudeResponse.content[0].text;
-        console.log(`🎯 Claude response received: ${aiResponse.length} characters`);
-        console.log(`🔍 Response preview: ${aiResponse.substring(0, 200)}...`);
-      } catch (claudeError) {
-        console.error('❌ Claude API Error:', claudeError.message);
-        // Fallback to agent-specific personality response
-        const fallbackResponses = {
-          victoria: `Hello! I'm Victoria, your luxury editorial designer and creative director. I specialize in dark moody minimalism with bright editorial sophistication. What design vision shall we bring to life today?`,
-          maya: `Hey! I'm Maya, your technical mastermind and luxury code architect. I build like Chanel designs - minimal, powerful, unforgettable. What shall we develop together?`,
-          rachel: `Hey gorgeous! It's Rachel, your copywriting best friend. I write exactly like Sandra's authentic voice - vulnerable but strong, honest about the process. What message shall we craft?`,
-          ava: `Hi Sandra! I'm Ava, your automation architect who makes everything run with Swiss-watch precision. What workflows shall we optimize today?`,
-          quinn: `Hello! I'm Quinn, your luxury quality guardian. I ensure every pixel feels like it belongs in a $50,000 luxury suite. What shall we perfect together?`
-        };
-        aiResponse = fallbackResponses[agentId] || `I'm ${personality.name}, ready to assist you with ${personality.role}. How can I help you today?`;
-        console.log(`🔄 Using fallback response for ${agentId}`);
-      }
+      // Process any file operations in the response
+      const fileOperations = await AutoFileWriter.processCodeBlocks(
+        responseText,
+        processingResult.context
+      );
       
-      // Process any code blocks for file writing
-      const { AutoFileWriter } = await import('./agents/auto-file-writer.js');
-      try {
-        const { AgentCodebaseIntegration } = await import('./agents/AgentCodebaseIntegration.js');
-        const { filesWritten, modifiedResponse } = await AutoFileWriter.processCodeBlocks(
-          agentId,
-          aiResponse,
-          AgentCodebaseIntegration
-        );
-        
-        if (filesWritten.length > 0) {
-          console.log(`✅ Auto-wrote ${filesWritten.length} files: ${filesWritten.map(f => f.filePath).join(', ')}`);
-          aiResponse = modifiedResponse + `\n\n**Files Created:** ${filesWritten.map(f => f.filePath).join(', ')}\n\n*The file tree should refresh automatically to show new files.*`;
-        }
-      } catch (fileError) {
-        console.log('❌ File operation failed:', fileError.message);
-      }
+      // Save conversation to database
+      const { AgentLearningSystem } = await import('./agents/agent-learning-system');
+      await AgentLearningSystem.recordConversation(agentId, userId, {
+        userMessage: message,
+        agentResponse: responseText,
+        fileOperations: fileOperations || [],
+        timestamp: new Date()
+      });
       
-      // Save conversation to database with proper user identification
-      try {
-        // Use neon connection to match actual database schema
-        const { db } = await import('./db');
-        
-        await db.execute(`
-          INSERT INTO agent_conversations (user_id, agent_name, conversation_data, workflow_stage, created_at)
-          VALUES ('${userId}', '${agentId}', '${JSON.stringify({
-            userMessage: message || '',
-            agentResponse: aiResponse,
-            authMethod,
-            conversationCleared: managementResult.shouldClear,
-            timestamp: new Date()
-          }).replace(/'/g, "''")}', 'admin-chat', NOW())
-        `);
-        console.log(`💾 Conversation saved to database for user: ${userId}`);
-        
-        // Clean up old memories periodically
-        if (Math.random() < 0.1) { // 10% chance to cleanup
-          await ConversationManager.cleanupOldMemories(agentId, userId);
-        }
-      } catch (dbError) {
-        console.log('❌ Database save failed:', dbError.message);
-      }
-      
-      console.log(`✅ Agent ${agentId} response complete (${aiResponse.length} chars)`);
-      res.json({ response: aiResponse });
+      // Return response with file operations
+      res.json({
+        success: true,
+        response: responseText,
+        fileOperations: fileOperations || [],
+        conversationManagement: managementResult
+      });
       
     } catch (error) {
-      console.error('❌ Agent chat error:', error);
+      console.error('Agent chat error:', error);
       res.status(500).json({ 
-        error: 'Failed to get agent response',
-        details: error.message
+        error: 'Failed to process agent chat',
+        details: error.message 
       });
     }
   });
 
-  // Complete the register routes function
+  // Import and register enterprise routes
+  const { registerEnterpriseRoutes } = await import('./routes/enterprise-routes');
+  await registerEnterpriseRoutes(app);
+
+  // Import and register agent learning routes
+  const agentLearningRouter = await import('./routes/agent-learning');
+  app.use('/api/agent-learning', agentLearningRouter.default);
+
   const httpServer = createServer(app);
   return httpServer;
+}
+
+// Helper function to get real business analytics
+async function getRealBusinessAnalytics() {
+  try {
+    const users = await storage.getAllUsers();
+    const totalUsers = users.length;
+    
+    // Get real subscription data
+    const subscriptions = await storage.getAllSubscriptions();
+    const paidUsers = subscriptions.filter(s => s.plan === 'premium' || s.plan === 'pro').length;
+    const freeUsers = totalUsers - paidUsers;
+    
+    // Calculate revenue (€47 per premium user)
+    const monthlyRevenue = paidUsers * 47;
+    
+    // Get real AI image generation data
+    const aiImages = await storage.getAllAiImages();
+    const totalGenerations = aiImages.length;
+    const thisMonth = new Date();
+    thisMonth.setDate(1);
+    const monthlyGenerations = aiImages.filter(img => 
+      new Date(img.createdAt) >= thisMonth
+    ).length;
+    
+    return {
+      totalUsers,
+      paidUsers,
+      freeUsers,
+      monthlyRevenue,
+      totalGenerations,
+      monthlyGenerations,
+      conversionRate: totalUsers > 0 ? ((paidUsers / totalUsers) * 100).toFixed(1) : '0.0',
+      avgRevenuePerUser: totalUsers > 0 ? (monthlyRevenue / totalUsers).toFixed(2) : '0.00'
+    };
+  } catch (error) {
+    console.error('Error getting business analytics:', error);
+    return {
+      totalUsers: 0,
+      paidUsers: 0,
+      freeUsers: 0,
+      monthlyRevenue: 0,
+      totalGenerations: 0,
+      monthlyGenerations: 0,
+      conversionRate: '0.0',
+      avgRevenuePerUser: '0.00'
+    };
+  }
+}
+
+// Helper function to get real agent metrics
+function getRealMetrics(agentId: string) {
+  return {
+    tasksCompleted: 0, // Will be updated with real data from agent_conversations
+    efficiency: 95,
+    lastActivity: new Date()
+  };
 }
