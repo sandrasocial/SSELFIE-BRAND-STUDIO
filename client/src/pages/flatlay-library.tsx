@@ -1,7 +1,7 @@
 import { useState, useCallback } from 'react';
 import { useAuth } from "@/hooks/use-auth";
 import { useToast } from "@/hooks/use-toast";
-import { useQueryClient } from "@tanstack/react-query";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { HeroFullBleed } from '@/components/hero-full-bleed';
 import { MemberNavigation } from '@/components/member-navigation';
 import { SandraImages } from '@/lib/sandra-images';
