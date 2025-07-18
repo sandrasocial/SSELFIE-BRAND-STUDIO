@@ -111,6 +111,15 @@ export class AutoFileWriter {
           
           console.error(`❌ Failed to auto-write ${filePath}:`, error);
         }
+        
+        // AUTO-INTEGRATION: If admin component was created, auto-integrate it
+        if (filePath.includes('client/src/components/admin/')) {
+          try {
+            await this.autoIntegrateAdminComponent(filePath, block.content);
+          } catch (integrationError) {
+            console.error(`⚠️ Admin component integration failed for ${filePath}:`, integrationError);
+          }
+        }
       }
     }
     
@@ -129,14 +138,19 @@ export class AutoFileWriter {
       if (componentMatch) {
         const componentName = componentMatch[1];
         
-        // Admin Dashboard components
+        // Admin Dashboard components - CREATE AS COMPONENTS, NOT PAGES
         if (componentName.includes('Admin') || componentName.includes('Dashboard') || context.toLowerCase().includes('admin') || context.toLowerCase().includes('dashboard')) {
-          return `client/src/pages/admin-dashboard-redesigned.tsx`;
+          return `client/src/components/admin/${componentName}.tsx`;
         }
         
         // Visual editor components
         if (componentName.includes('Editor') || componentName.includes('Tab') || componentName.includes('Tree')) {
           return `client/src/components/visual-editor/${componentName}.tsx`;
+        }
+        
+        // Hero components
+        if (componentName.includes('Hero') || componentName.includes('Landing') || componentName.includes('Header')) {
+          return `client/src/components/${componentName}.tsx`;
         }
         
         // Regular components
@@ -149,8 +163,11 @@ export class AutoFileWriter {
       const constMatch = content.match(/const\s+([A-Z][a-zA-Z0-9]*)\s*=\s*\(/);
       if (constMatch) {
         const componentName = constMatch[1];
-        if (componentName.includes('Admin')) {
+        if (componentName.includes('Admin') || componentName.includes('Dashboard') || context.toLowerCase().includes('admin')) {
           return `client/src/components/admin/${componentName}.tsx`;
+        }
+        if (componentName.includes('Editor') || componentName.includes('Tab') || componentName.includes('Tree')) {
+          return `client/src/components/visual-editor/${componentName}.tsx`;
         }
         return `client/src/components/${componentName}.tsx`;
       }
@@ -185,5 +202,60 @@ export class AutoFileWriter {
     }
     
     return null;
+  }
+  
+  /**
+   * Auto-integrates admin components into the main admin dashboard
+   */
+  static async autoIntegrateAdminComponent(filePath, componentContent) {
+    const fs = require('fs');
+    const path = require('path');
+    
+    // Extract component name from file path
+    const componentName = path.basename(filePath, '.tsx');
+    
+    // Read the main admin dashboard file
+    const adminDashboardPath = 'client/src/pages/admin-dashboard.tsx';
+    if (!fs.existsSync(adminDashboardPath)) {
+      console.log(`⚠️ Admin dashboard not found at ${adminDashboardPath}`);
+      return;
+    }
+    
+    const adminDashboardContent = fs.readFileSync(adminDashboardPath, 'utf8');
+    
+    // Check if component is already imported
+    const importStatement = `import ${componentName} from '@/components/admin/${componentName}';`;
+    if (adminDashboardContent.includes(importStatement)) {
+      console.log(`✅ ${componentName} already integrated in admin dashboard`);
+      return;
+    }
+    
+    // Find existing admin component imports
+    const existingImports = adminDashboardContent.match(/import.*from ['"]@\/components\/admin\/.*['"];/g) || [];
+    
+    // Add new import after existing admin imports
+    let updatedContent = adminDashboardContent;
+    if (existingImports.length > 0) {
+      const lastImport = existingImports[existingImports.length - 1];
+      const importIndex = adminDashboardContent.indexOf(lastImport) + lastImport.length;
+      updatedContent = adminDashboardContent.slice(0, importIndex) + 
+                     `\nimport ${componentName} from '@/components/admin/${componentName}';` + 
+                     adminDashboardContent.slice(importIndex);
+    } else {
+      // Add after regular imports
+      const importMatch = adminDashboardContent.match(/import.*from ['"]@\/components\/.*['"];/);
+      if (importMatch) {
+        const lastImport = importMatch[importMatch.length - 1];
+        const importIndex = adminDashboardContent.indexOf(lastImport) + lastImport.length;
+        updatedContent = adminDashboardContent.slice(0, importIndex) + 
+                       `\nimport ${componentName} from '@/components/admin/${componentName}';` + 
+                       adminDashboardContent.slice(importIndex);
+      }
+    }
+    
+    // Write the updated admin dashboard
+    fs.writeFileSync(adminDashboardPath, updatedContent);
+    
+    console.log(`✅ Auto-integrated ${componentName} into admin dashboard`);
   }
 }

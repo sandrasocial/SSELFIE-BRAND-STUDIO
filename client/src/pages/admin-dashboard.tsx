@@ -11,6 +11,7 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import TestAdminCard from '@/components/admin/TestAdminCard';
 import AdminHero from '@/components/admin/AdminHero';
+import AdminHeroRedesigned from '@/components/admin/AdminHeroRedesigned';
 import AgentDashboard from '@/components/admin/AgentDashboard';
 import AgentAnalyticsDashboard from '@/components/admin/AgentAnalyticsDashboard';
 import EnhancedAgentCoordination from '@/components/admin/EnhancedAgentCoordination';
@@ -87,6 +88,7 @@ function AdminDashboardOld() {
   const { user, isAuthenticated, isLoading } = useAuth();
   const [, setLocation] = useLocation();
   const [activeTab, setActiveTab] = useState('dashboard');
+  const [useNewHero, setUseNewHero] = useState(false);
   const queryClientInstance = useQueryClient();
 
   // Redirect if not admin
@@ -203,9 +205,27 @@ function AdminDashboardOld() {
           {/* Conditional Tab Content */}
           {activeTab === 'dashboard' && (
             <>
+              {/* Hero Component Toggle */}
+              <div className="mb-8 p-4 bg-white border border-gray-200">
+                <div className="flex items-center justify-between">
+                  <h3 className="font-serif text-lg">Admin Hero Component</h3>
+                  <button
+                    onClick={() => setUseNewHero(!useNewHero)}
+                    className="px-4 py-2 bg-black text-white hover:bg-gray-800 text-sm uppercase tracking-wide"
+                  >
+                    {useNewHero ? 'Use Original Hero' : 'Use New Redesigned Hero'}
+                  </button>
+                </div>
+                <p className="text-sm text-gray-600 mt-2">
+                  {useNewHero ? 'Currently showing the new redesigned hero component created by Aria' : 'Currently showing the original admin hero component'}
+                </p>
+              </div>
+              
+              {/* Hero Component */}
+              {useNewHero ? <AdminHeroRedesigned /> : <AdminHero />}
+              
               {/* File Creation Test */}
               <TestAdminCard />
-              <AdminHero />
               <AgentDashboard />
             </>
           )}
