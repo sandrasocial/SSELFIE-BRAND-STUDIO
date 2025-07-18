@@ -80,8 +80,15 @@ export class ConversationManager {
         const content = message.content.toLowerCase();
         if (content.includes('create') || content.includes('build') || content.includes('implement') || 
             content.includes('design') || content.includes('fix') || content.includes('add') ||
-            content.includes('update') || content.includes('make') || content.includes('develop')) {
-          const task = message.content.substring(0, 120).replace(/\n/g, ' ').trim();
+            content.includes('update') || content.includes('make') || content.includes('develop') ||
+            content.includes('hero') || content.includes('ready to start')) {
+          let task = message.content.substring(0, 120).replace(/\n/g, ' ').trim();
+          
+          // Special handling for specific contexts
+          if (content.includes('hero') && content.includes('admin')) {
+            task = 'Create full-bleed hero image for admin dashboard with luxury editorial design';
+          }
+          
           if (task && !keyTasks.includes(task)) {
             keyTasks.push(task);
           }
@@ -123,8 +130,13 @@ export class ConversationManager {
     // Enhanced context detection from entire conversation for Replit-style memory
     const fullContent = history.map(m => m.content).join(' ').toLowerCase();
     
-    // More sophisticated context detection with chat management patterns
-    if (fullContent.includes('chat') && fullContent.includes('management')) {
+    // More sophisticated context detection with current task patterns
+    if (fullContent.includes('hero') && (fullContent.includes('admin') || fullContent.includes('dashboard'))) {
+      currentContext = 'Creating luxury full-bleed hero image for Sandra\'s admin dashboard with editorial design and Times New Roman typography';
+      workflowStage = 'admin-hero-design';
+      // Add the current task to keyTasks for proper memory
+      keyTasks.push('Create full-bleed hero image for admin dashboard with luxury editorial design');
+    } else if (fullContent.includes('chat') && fullContent.includes('management')) {
       currentContext = 'Implementing Replit-style chat management system with save/load functionality and enhanced memory';
       workflowStage = 'chat-management';
     } else if (fullContent.includes('admin') && fullContent.includes('dashboard')) {
