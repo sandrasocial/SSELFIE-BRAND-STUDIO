@@ -586,8 +586,36 @@ export function OptimizedVisualEditor({ className = '' }: OptimizedVisualEditorP
         };
         setChatMessages(prev => [...prev, agentMessage]);
 
-        // Auto-apply changes based on agent type
+        // Show notification for file operations (code blocks automatically written)
         const responseText = data.message || data.response;
+        if (responseText.includes('Files Modified Successfully') || responseText.includes('✅')) {
+          toast({
+            title: `${agent?.name} updated files`,
+            description: 'Code changes applied automatically. Check file explorer for updates.',
+          });
+        }
+
+        // Check for continuous work patterns - if agent wants to continue working
+        const shouldContinueWorking = (
+          responseText.includes('CONTINUING WORK') ||
+          responseText.includes('NEXT STEP') ||
+          responseText.includes('Let me also') ||
+          responseText.includes('I\'ll continue') ||
+          responseText.includes('Now I need to') ||
+          responseText.includes('IMMEDIATE ACTION') ||
+          responseText.includes('PROGRESS UPDATE') ||
+          (agentId === 'maya' && responseText.includes('```')) || // Maya continues after code changes
+          (agentId === 'victoria' && responseText.includes('design')) // Victoria continues with design iterations
+        );
+
+        // Auto-continue working if agent indicates more work needed
+        if (shouldContinueWorking && !responseText.includes('COMPLETION REPORT')) {
+          setTimeout(() => {
+            sendMessageToAgent(agentId, `Continue with your next step. Work continuously like Replit agents until the task is complete.`);
+          }, 2000); // Brief pause to let user see progress
+        }
+
+        // Auto-apply changes based on agent type
         if (agentId === 'victoria') {
           // Look for CSS injection patterns
           const cssMatch = responseText.match(/```css\n([\s\S]*?)\n```/);
