@@ -1,45 +1,70 @@
-`typescript
-// client/src/components/TestButton.tsx
 import React from 'react';
 
 interface TestButtonProps {
-  children?: React.ReactNode;
+  children: React.ReactNode;
+  variant?: 'primary' | 'secondary' | 'outline';
+  size?: 'small' | 'medium' | 'large';
   onClick?: () => void;
+  disabled?: boolean;
+  className?: string;
 }
 
-export default function TestButton({ children = "Test Button", onClick }: TestButtonProps) {
-  const handleClick = () => {
-    console.log("Victoria's test button clicked - file writing confirmed!");
-    onClick?.();
+export default function TestButton({ 
+  children, 
+  variant = 'primary', 
+  size = 'medium',
+  onClick,
+  disabled = false,
+  className = ''
+}: TestButtonProps) {
+  const baseStyles = `
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif
+    font-weight: 300
+    letter-spacing: -0.01em
+    text-transform: uppercase
+    transition-all duration-300
+    cursor-pointer
+    border-none
+    outline-none
+    focus:outline-none
+    disabled:opacity-50
+    disabled:cursor-not-allowed
+  `;
+
+  const variants = {
+    primary: `
+      bg-black text-white
+      hover:bg-gray-800
+      active:bg-gray-900
+    `,
+    secondary: `
+      bg-white text-black border border-black
+      hover:bg-gray-50
+      active:bg-gray-100
+    `,
+    outline: `
+      bg-transparent text-black border border-black
+      hover:bg-black hover:text-white
+      active:bg-gray-900
+    `
+  };
+
+  const sizes = {
+    small: 'px-4 py-2 text-sm',
+    medium: 'px-6 py-3 text-base',
+    large: 'px-8 py-4 text-lg'
   };
 
   return (
     <button
-      onClick={handleClick}
-      className="test-button"
-      style={{
-        fontFamily: 'Times New Roman, serif',
-        fontSize: '1.2rem',
-        fontWeight: 200,
-        textTransform: 'uppercase',
-        letterSpacing: '-0.01em',
-        backgroundColor: '#0a0a0a',
-        color: '#ffffff',
-        border: 'none',
-        padding: '16px 32px',
-        cursor: 'pointer',
-        transition: 'all 0.3s ease',
-      }}
-      onMouseEnter={(e) => {
-        e.currentTarget.style.backgroundColor = '#ffffff';
-        e.currentTarget.style.color = '#0a0a0a';
-        e.currentTarget.style.border = '1px solid #0a0a0a';
-      }}
-      onMouseLeave={(e) => {
-        e.currentTarget.style.backgroundColor = '#0a0a0a';
-        e.currentTarget.style.color = '#ffffff';
-        e.currentTarget.style.border = 'none';
-      }}
+      onClick={onClick}
+      disabled={disabled}
+      className={`
+        ${baseStyles}
+        ${variants[variant]}
+        ${sizes[size]}
+        ${className}
+      `.replace(/\s+/g, ' ').trim()}
     >
       {children}
     </button>
