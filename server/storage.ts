@@ -138,6 +138,11 @@ export interface IStorage {
   getSandraConversations(userId: string): Promise<any[]>;
   saveSandraConversation(data: any): Promise<any>;
 
+  // Agent conversation operations
+  saveAgentConversation(agentId: string, userId: string, userMessage: string, agentResponse: string, fileOperations: any[], conversationId?: string): Promise<AgentConversation>;
+  getAgentConversations(agentId: string, userId: string): Promise<AgentConversation[]>;
+  getAllAgentConversations(userId: string): Promise<AgentConversation[]>;
+
   // Landing page operations
   createLandingPage(data: InsertLandingPage): Promise<LandingPage>;
   getLandingPages(userId: string): Promise<LandingPage[]>;
@@ -834,13 +839,13 @@ export class DatabaseStorage implements IStorage {
   }
 
   // Agent Conversations (for admin dashboard persistence)
-  async saveAgentConversation(agentId: string, userId: string, userMessage: string, agentResponse: string, devPreview?: any): Promise<AgentConversation> {
+  async saveAgentConversation(agentId: string, userId: string, userMessage: string, agentResponse: string, fileOperations?: any[], conversationId?: string): Promise<AgentConversation> {
     const [conversation] = await db.insert(agentConversations).values({
       agentId,
       userId,
       userMessage,
       agentResponse,
-      devPreview
+      devPreview: fileOperations ? JSON.stringify({ fileOperations, conversationId }) : null
     }).returning();
     return conversation;
   }
@@ -852,6 +857,14 @@ export class DatabaseStorage implements IStorage {
         eq(agentConversations.agentId, agentId),
         eq(agentConversations.userId, userId)
       ))
+      .orderBy(agentConversations.timestamp);
+    return conversations;
+  }
+
+  async getAllAgentConversations(userId: string): Promise<AgentConversation[]> {
+    const conversations = await db.select()
+      .from(agentConversations)
+      .where(eq(agentConversations.userId, userId))
       .orderBy(agentConversations.timestamp);
     return conversations;
   }
