@@ -35,13 +35,22 @@ export default function AuthBridge() {
           <div className="animate-spin w-8 h-8 border-4 border-black border-t-transparent rounded-full" />
         </div>
 
-        {/* Reassuring Message */}
+        {/* Explanation Message */}
         <div className="bg-gray-50 border border-gray-200 p-6 text-center">
+          <h3 className="text-sm font-medium text-black mb-3">
+            Secure Login Setup
+          </h3>
           <p className="text-sm text-gray-700 mb-4">
-            Just one quick step to access your studio
+            You'll be taken to a secure login page. This uses the same technology that powers many professional development platforms.
           </p>
-          <p className="text-xs text-gray-500 leading-relaxed">
-            Your personal AI and data are always secure and private
+          <p className="text-xs text-gray-600 mb-3">
+            • Your SSELFIE Studio account and data remain completely private
+          </p>
+          <p className="text-xs text-gray-600 mb-3">
+            • We only access your basic profile information (name, email)
+          </p>
+          <p className="text-xs text-gray-600">
+            • Your AI models and photos are exclusively yours
           </p>
         </div>
 

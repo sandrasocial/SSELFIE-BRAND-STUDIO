@@ -56,6 +56,7 @@ import AuthSuccess from "@/pages/auth-success";
 import Login from "@/pages/login";
 import AuthLogin from "@/pages/auth-login";
 import AuthBridge from "@/pages/auth-bridge";
+import AuthExplainer from "@/pages/auth-explainer";
 import CustomLogin from "@/pages/custom-login";
 import LoginPrompt from "@/components/LoginPrompt";
 import DomainHelp from "@/pages/domain-help";
