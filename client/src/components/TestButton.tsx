@@ -2,69 +2,29 @@ import React from 'react';
 
 interface TestButtonProps {
   children: React.ReactNode;
-  variant?: 'primary' | 'secondary' | 'outline';
-  size?: 'small' | 'medium' | 'large';
   onClick?: () => void;
-  disabled?: boolean;
+  variant?: 'primary' | 'secondary';
   className?: string;
 }
 
 export default function TestButton({ 
   children, 
-  variant = 'primary', 
-  size = 'medium',
-  onClick,
-  disabled = false,
-  className = ''
+  onClick, 
+  variant = 'primary',
+  className = '' 
 }: TestButtonProps) {
-  const baseStyles = `
-    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif
-    font-weight: 300
-    letter-spacing: -0.01em
-    text-transform: uppercase
-    transition-all duration-300
-    cursor-pointer
-    border-none
-    outline-none
-    focus:outline-none
-    disabled:opacity-50
-    disabled:cursor-not-allowed
-  `;
-
+  const baseStyles = "px-8 py-4 border-2 font-serif text-lg uppercase tracking-wide transition-all duration-300 hover:transition-all hover:duration-300";
+  
   const variants = {
-    primary: `
-      bg-black text-white
-      hover:bg-gray-800
-      active:bg-gray-900
-    `,
-    secondary: `
-      bg-white text-black border border-black
-      hover:bg-gray-50
-      active:bg-gray-100
-    `,
-    outline: `
-      bg-transparent text-black border border-black
-      hover:bg-black hover:text-white
-      active:bg-gray-900
-    `
-  };
-
-  const sizes = {
-    small: 'px-4 py-2 text-sm',
-    medium: 'px-6 py-3 text-base',
-    large: 'px-8 py-4 text-lg'
+    primary: "border-black text-black bg-white hover:bg-black hover:text-white",
+    secondary: "border-black text-white bg-black hover:bg-white hover:text-black"
   };
 
   return (
     <button
       onClick={onClick}
-      disabled={disabled}
-      className={`
-        ${baseStyles}
-        ${variants[variant]}
-        ${sizes[size]}
-        ${className}
-      `.replace(/\s+/g, ' ').trim()}
+      className={`${baseStyles} ${variants[variant]} ${className}`}
+      style={{ fontFamily: 'Times New Roman, serif' }}
     >
       {children}
     </button>
