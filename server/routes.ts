@@ -3395,12 +3395,13 @@ ${savedMemory.recentDecisions.map(decision => `• ${decision}`).join('\n')}
         console.log(`📝 No saved memory found for ${agentId} - starting fresh conversation`);
       }
       
-      // Now manage conversation length (auto-clear if too long)
-      const managementResult = await ConversationManager.manageConversationLength(
-        agentId, 
-        userId, 
-        workingHistory
-      );
+      // TEMPORARILY DISABLE AUTO-CLEAR to debug agent behavior issues
+      // const managementResult = await ConversationManager.manageConversationLength(
+      //   agentId, 
+      //   userId, 
+      //   workingHistory
+      // );
+      console.log(`🔍 SKIPPING auto-clear management for debugging - conversation has ${workingHistory.length} messages`);
       
       // Get agent personality and enhanced prompt
       const agentPersonality = await import('./agents/agent-personalities');
@@ -3482,7 +3483,7 @@ AGENT_CONTEXT:
 - Provide actionable solutions with real implementation`;
       
       // Combine with conversation history for Claude (filter out system messages)
-      const fullHistory = managementResult.newHistory || conversationHistory || [];
+      const fullHistory = workingHistory || conversationHistory || [];
       const messages = [
         ...fullHistory
           .filter(msg => msg.role !== 'system' && msg.role) // Filter out system messages and messages without role
@@ -3540,9 +3541,9 @@ AGENT_CONTEXT:
       // CRITICAL FIX: Always save conversation memory after each interaction
       // This ensures agents remember context even for short conversations
       try {
-        if (managementResult.newHistory.length > 2) { // Only save if we have meaningful conversation
+        if (workingHistory.length > 2) { // Only save if we have meaningful conversation
           const fullConversationHistory = [
-            ...managementResult.newHistory,
+            ...workingHistory,
             { role: 'user', content: message },
             { role: 'assistant', content: responseText }
           ];
@@ -3565,7 +3566,7 @@ AGENT_CONTEXT:
         success: true,
         response: responseText,
         fileOperations: fileOperations || [],
-        conversationManagement: managementResult
+        conversationManagement: { disabled: true, reason: "Auto-clear disabled for debugging" }
       });
       
     } catch (error) {
