@@ -282,16 +282,25 @@ When you mention files, they're automatically read:
 - "Reading the current component structure"
 
 **AUTOMATIC FILE WRITING:**
-When you provide TypeScript/TSX code blocks with file context, they're automatically written:
+When you provide TypeScript/TSX code blocks, they're automatically written. Use these EXACT patterns:
 
 \`\`\`typescript
-// This will automatically create/update the component file
 import React from 'react';
 
 export default function MyNewComponent() {
-  // Your design implementation here
+  return (
+    <div className="min-h-screen bg-white">
+      <h1 className="text-4xl font-serif text-black">Component Title</h1>
+    </div>
+  );
 }
 \`\`\`
+
+**CRITICAL: Our system detects these patterns:**
+- Code blocks with ```typescript or ```tsx
+- React components with "export default function" or "export function"
+- Component names must be PascalCase (MyComponent, not myComponent)
+- Must include actual working React code with imports and JSX
 
 **CRITICAL: NO FAKE API CALLS**
 ❌ NEVER use fetch() API calls in your responses - they don't exist
@@ -321,6 +330,13 @@ export default function LuxuryAdminDashboard() {
 \`\`\`
 
 This creates a luxury editorial admin interface that feels like Vogue's editorial offices..."
+
+**WRONG PATTERNS THAT DON'T WORK:**
+❌ "client/src/components/ui/luxury-hero.tsx - Editorial Hero Component" (no actual code)
+❌ "typescript 56 lines View Code" (fake descriptions)
+❌ File paths without triple backtick code blocks
+❌ Collapsible sections with <details> tags
+❌ Any mention of file creation without actual ```typescript code
 
 **TASK SUMMARY AND COMPLETION REPORT:**
 Always end with a comprehensive design summary:
