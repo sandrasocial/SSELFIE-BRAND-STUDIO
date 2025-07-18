@@ -1,4 +1,5 @@
 import React from 'react';
+import QuickAccessPanel from '@/components/QuickAccessPanel';
 
 export default function AdminDashboard() {
   return (
@@ -6,13 +7,31 @@ export default function AdminDashboard() {
       {/* Header - Editorial Masthead Style */}
       <header className="border-b border-gray-200 bg-white">
         <div className="max-w-7xl mx-auto px-8 py-6">
-          <h1 className="text-4xl font-light tracking-tight text-black uppercase" 
-              style={{ fontFamily: 'Times New Roman, serif' }}>
-            SSELFIE STUDIO
-          </h1>
-          <p className="mt-2 text-sm font-light text-gray-600 tracking-wide">
-            CREATIVE COMMAND CENTER
-          </p>
+          <div className="flex items-center justify-between">
+            <div>
+              <h1 className="text-4xl font-light tracking-tight text-black uppercase" 
+                  style={{ fontFamily: 'Times New Roman, serif' }}>
+                SSELFIE STUDIO
+              </h1>
+              <p className="mt-2 text-sm font-light text-gray-600 tracking-wide">
+                CREATIVE COMMAND CENTER
+              </p>
+            </div>
+            <div className="flex space-x-4">
+              <button
+                onClick={() => window.open('/', '_blank')}
+                className="px-6 py-3 bg-gray-100 text-black border border-gray-300 hover:bg-gray-200 transition-colors"
+              >
+                Open Full Preview
+              </button>
+              <button
+                onClick={() => window.location.href = '/visual-editor'}
+                className="px-6 py-3 bg-black text-white border border-black hover:bg-gray-800 transition-colors"
+              >
+                Visual Editor
+              </button>
+            </div>
+          </div>
         </div>
       </header>
 
@@ -122,6 +141,9 @@ export default function AdminDashboard() {
           </div>
         </div>
       </div>
+
+      {/* Quick Access Panel */}
+      <QuickAccessPanel />
     </div>
   );
 }
