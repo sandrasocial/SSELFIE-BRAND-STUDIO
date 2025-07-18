@@ -3344,18 +3344,18 @@ Consider this workflow optimized and ready for implementation! ⚙️`
       // First, check if we need to restore memory from previous conversations
       let workingHistory = conversationHistory || [];
       
-      // If this is a short conversation, restore saved memory context
-      if (workingHistory.length <= 5) {
-        console.log(`💭 Checking for saved memory for ${agentId}...`);
-        const savedMemory = await ConversationManager.retrieveAgentMemory(agentId, userId);
+      // Always check for saved memory when starting a new conversation or after clearing
+      console.log(`💭 Checking for saved memory for ${agentId}...`);
+      const savedMemory = await ConversationManager.retrieveAgentMemory(agentId, userId);
+      
+      // If we have saved memory AND conversation doesn't already contain memory restoration
+      if (savedMemory && !workingHistory.some(msg => msg.content?.includes('CONVERSATION MEMORY RESTORED'))) {
+        console.log(`🧠 Restoring memory for ${agentId}: ${savedMemory.keyTasks.length} tasks, ${savedMemory.recentDecisions.length} decisions`);
         
-        if (savedMemory) {
-          console.log(`🧠 Restoring memory for ${agentId}: ${savedMemory.keyTasks.length} tasks, ${savedMemory.recentDecisions.length} decisions`);
-          
-          // Add memory context at the beginning of conversation
-          const memoryMessage = {
-            role: 'system',
-            content: `**CONVERSATION MEMORY RESTORED**
+        // Add memory context at the beginning of conversation
+        const memoryMessage = {
+          role: 'system',
+          content: `**CONVERSATION MEMORY RESTORED**
 
 **Previous Context:** ${savedMemory.currentContext}
 
@@ -3367,18 +3367,19 @@ ${savedMemory.recentDecisions.map(decision => `• ${decision}`).join('\n')}
 
 **Current Workflow Stage:** ${savedMemory.workflowStage}
 
-**Timestamp:** ${new Date(savedMemory.timestamp).toLocaleString()}
+**Last Updated:** ${new Date(savedMemory.timestamp).toLocaleString()}
 
 ---
 
-**Continuing our conversation with full context...**`
-          };
-          
-          workingHistory = [memoryMessage, ...workingHistory];
-          console.log(`✅ Memory restored: conversation now has ${workingHistory.length} messages with context`);
-        } else {
-          console.log(`📝 No saved memory found for ${agentId} - starting fresh conversation`);
-        }
+**Continue from where we left off with full context awareness...**`
+        };
+        
+        workingHistory = [memoryMessage, ...workingHistory];
+        console.log(`✅ Memory restored: conversation now has ${workingHistory.length} messages with context`);
+      } else if (savedMemory) {
+        console.log(`📋 Memory exists but already restored in conversation - skipping duplicate restoration`);
+      } else {
+        console.log(`📝 No saved memory found for ${agentId} - starting fresh conversation`);
       }
       
       // Now manage conversation length (auto-clear if too long)
