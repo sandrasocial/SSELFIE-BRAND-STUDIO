@@ -3427,7 +3427,7 @@ Consider this workflow optimized and ready for implementation! ⚙️`
     console.log('🔧 ADMIN AGENT CHAT BYPASS ENDPOINT HIT!');
     
     try {
-      const { agentId, message, adminToken, conversationHistory = [] } = req.body;
+      let { agentId, message, adminToken, conversationHistory = [] } = req.body;
       console.log('📝 Request body:', { 
         agentId, 
         message: message?.substring(0, 30), 
