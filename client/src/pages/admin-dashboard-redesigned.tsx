@@ -75,6 +75,7 @@ function AgentChat({ agentId, agentName }: { agentId: string; agentName: string 
         body: JSON.stringify({
           agentId,
           message,
+          // Session-based auth is preferred, token as fallback
           adminToken: 'sandra-admin-2025',
           conversationHistory: chatHistory.slice(-10)
         })

@@ -3469,18 +3469,43 @@ Consider this workflow optimized and ready for implementation! ⚙️`
     }
   });
 
-  // SIMPLIFIED ADMIN AGENT CHAT ENDPOINT
+  // ENHANCED ADMIN AGENT CHAT ENDPOINT WITH DUAL AUTH
   app.post('/api/admin/agent-chat-bypass', async (req, res) => {
-    console.log('🔧 ADMIN AGENT CHAT BYPASS ENDPOINT HIT!');
+    console.log('🔧 ADMIN AGENT CHAT ENDPOINT HIT!');
     
     try {
       let { agentId, message, adminToken, conversationHistory = [] } = req.body;
       
-      // Simple admin verification
-      if (adminToken !== 'sandra-admin-2025') {
-        console.log('❌ Admin token verification failed');
-        return res.status(403).json({ error: 'Admin token required' });
+      // Enhanced authentication: Session-based OR token-based
+      let isAuthorized = false;
+      let authMethod = '';
+      
+      // Method 1: Session-based authentication (preferred)
+      if (req.isAuthenticated && req.isAuthenticated()) {
+        const user = req.user as any;
+        if (user?.claims?.email === 'ssa@ssasocial.com') {
+          isAuthorized = true;
+          authMethod = 'session';
+          console.log('✅ Session-based admin auth successful for Sandra');
+        }
       }
+      
+      // Method 2: Token-based authentication (fallback)
+      if (!isAuthorized && adminToken === 'sandra-admin-2025') {
+        isAuthorized = true;
+        authMethod = 'token';
+        console.log('✅ Token-based admin auth successful');
+      }
+      
+      if (!isAuthorized) {
+        console.log('❌ Admin authentication failed - not Sandra or invalid token');
+        return res.status(403).json({ 
+          error: 'Admin access required',
+          details: 'Must be logged in as Sandra or provide valid admin token'
+        });
+      }
+      
+      console.log(`🔐 Admin authenticated via ${authMethod}`)
       
       console.log(`🤖 ADMIN AGENT CHAT: ${agentId} - "${message?.substring(0, 50)}..."`);
       
@@ -3538,16 +3563,19 @@ Consider this workflow optimized and ready for implementation! ⚙️`
         console.log('❌ File operation failed:', fileError.message);
       }
       
-      // Save conversation to database
+      // Save conversation to database with proper user identification
       try {
+        const userId = authMethod === 'session' && req.user ? 
+          (req.user as any).claims.sub : 'admin-sandra';
+        
         await storage.saveAgentConversation({
-          userId: 'admin-sandra',
+          userId,
           agentId,
           message: message || '',
           response: aiResponse,
           timestamp: new Date()
         });
-        console.log(`💾 Conversation saved to database`);
+        console.log(`💾 Conversation saved to database for user: ${userId}`);
       } catch (dbError) {
         console.log('❌ Database save failed:', dbError.message);
       }
