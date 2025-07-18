@@ -1393,8 +1393,15 @@ export function OptimizedVisualEditor({ className = '' }: OptimizedVisualEditorP
               size="sm"
               className="border-black text-black hover:bg-black hover:text-white"
               onClick={() => {
-                // Open preview in new window
-                window.open('/', '_blank');
+                const isProduction = window.location.hostname !== 'localhost' && !window.location.hostname.includes('replit.dev');
+                if (isProduction && iframeRef.current) {
+                  // In production, refresh the iframe
+                  const currentSrc = iframeRef.current.src.split('?')[0];
+                  iframeRef.current.src = currentSrc + '?refresh=' + Date.now();
+                } else {
+                  // In development, open in new window
+                  window.open('/', '_blank');
+                }
               }}
             >
               Refresh
@@ -1418,38 +1425,64 @@ export function OptimizedVisualEditor({ className = '' }: OptimizedVisualEditorP
 
             {/* Live Development Preview */}
             <div className="flex-1 relative">
-              {/* Safe Development Preview - Eliminates CSP and sandbox warnings */}
-              <div className="w-full h-full bg-white flex items-center justify-center">
-                <div className="text-center p-8 max-w-lg">
-                  <div className="text-4xl mb-6" style={{ fontFamily: 'Times New Roman, serif', fontWeight: 300 }}>
-                    SSELFIE Studio
-                  </div>
-                  <div className="w-16 h-px bg-black mx-auto mb-6"></div>
-                  <div className="text-lg mb-4 font-light">Visual Editor Preview</div>
-                  <div className="text-sm text-gray-600 mb-8 leading-relaxed">
-                    Preview opens in a separate window to avoid security restrictions. 
-                    File changes update automatically in the live site.
-                  </div>
-                  <div className="space-y-4">
-                    <button
-                      onClick={() => window.open('/', '_blank')}
-                      className="w-full px-6 py-3 bg-black text-white border border-black hover:bg-gray-800 transition-colors font-light tracking-wide"
-                    >
-                      OPEN LIVE PREVIEW
-                    </button>
-                    <div className="text-xs text-gray-500">
-                      Changes to components save automatically
+              {/* Smart Preview - Shows iframe in production, safe placeholder in development */}
+              {(() => {
+                const isProduction = window.location.hostname !== 'localhost' && !window.location.hostname.includes('replit.dev');
+                const isDevelopment = window.location.hostname === 'localhost' || window.location.hostname.includes('replit.dev');
+                
+                if (isProduction) {
+                  // Production: Show actual iframe preview
+                  return (
+                    <iframe
+                      ref={iframeRef}
+                      src="/"
+                      className="w-full h-full border-0"
+                      title="Live Preview"
+                      onLoad={() => {
+                        console.log('Live preview loaded successfully');
+                      }}
+                      onError={(e) => {
+                        console.error('Live preview failed to load:', e);
+                      }}
+                    />
+                  );
+                } else {
+                  // Development: Show safe placeholder to avoid CSP issues
+                  return (
+                    <div className="w-full h-full bg-white flex items-center justify-center">
+                      <div className="text-center p-8 max-w-lg">
+                        <div className="text-4xl mb-6" style={{ fontFamily: 'Times New Roman, serif', fontWeight: 300 }}>
+                          SSELFIE Studio
+                        </div>
+                        <div className="w-16 h-px bg-black mx-auto mb-6"></div>
+                        <div className="text-lg mb-4 font-light">Development Preview</div>
+                        <div className="text-sm text-gray-600 mb-8 leading-relaxed">
+                          In development mode, preview opens safely in a new window to avoid security restrictions. 
+                          In production, live preview will be embedded here.
+                        </div>
+                        <div className="space-y-4">
+                          <button
+                            onClick={() => window.open('/', '_blank')}
+                            className="w-full px-6 py-3 bg-black text-white border border-black hover:bg-gray-800 transition-colors font-light tracking-wide"
+                          >
+                            OPEN LIVE PREVIEW
+                          </button>
+                          <div className="text-xs text-gray-500">
+                            Changes to components save automatically
+                          </div>
+                        </div>
+                        <div className="mt-8 pt-6 border-t border-gray-200">
+                          <div className="text-xs text-gray-400 mb-2">Environment</div>
+                          <div className="flex items-center justify-center space-x-2">
+                            <div className="w-2 h-2 bg-orange-500 rounded-full"></div>
+                            <span className="text-xs text-gray-600">Development mode</span>
+                          </div>
+                        </div>
+                      </div>
                     </div>
-                  </div>
-                  <div className="mt-8 pt-6 border-t border-gray-200">
-                    <div className="text-xs text-gray-400 mb-2">Preview Status</div>
-                    <div className="flex items-center justify-center space-x-2">
-                      <div className="w-2 h-2 bg-green-500 rounded-full"></div>
-                      <span className="text-xs text-gray-600">Live site operational</span>
-                    </div>
-                  </div>
-                </div>
-              </div>
+                  );
+                }
+              })()}
             </div>
           </div>
         </Panel>
