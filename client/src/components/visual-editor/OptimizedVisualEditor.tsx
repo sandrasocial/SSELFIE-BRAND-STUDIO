@@ -1406,6 +1406,14 @@ export function OptimizedVisualEditor({ className = '' }: OptimizedVisualEditorP
             <Button variant="outline" size="sm" className="border-black text-black hover:bg-black hover:text-white">
               Save
             </Button>
+            <Button 
+              variant="outline" 
+              size="sm" 
+              className="border-black text-black hover:bg-black hover:text-white"
+              onClick={() => window.open('/', '_blank')}
+            >
+              Open Preview
+            </Button>
             <Button variant="default" size="sm" className="bg-black text-white hover:bg-gray-800">
               Deploy
             </Button>
