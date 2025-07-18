@@ -3546,8 +3546,12 @@ AGENT_CONTEXT:
       await storage.saveAgentConversation(agentId, userId, message, responseText, fileOperations);
       console.log('💾 Conversation saved to database');
       
-      // Simplified agent system - skip complex memory for now
-      console.log(`💾 Basic conversation saved for ${agentId}`);
+      // Re-enable memory summarization - this is critical for proper agent memory
+      // Force memory summary creation for all conversations to ensure proper task detection
+      console.log(`🧠 Creating memory summary for ${agentId} after ${workingHistory.length} messages`);
+      const summary = await ConversationManager.createConversationSummary(agentId, userId, workingHistory);
+      await ConversationManager.saveAgentMemory(summary);
+      console.log(`💾 Memory summary saved for ${agentId}: ${summary.keyTasks.length} tasks, ${summary.recentDecisions.length} decisions`);
       
       // Return response with file operations
       res.json({
