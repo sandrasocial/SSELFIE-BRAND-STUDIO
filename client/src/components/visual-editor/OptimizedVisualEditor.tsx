@@ -32,6 +32,7 @@ import { MultiTabEditor } from './MultiTabEditor';
 import { FormattedAgentMessage } from './FormattedAgentMessage';
 
 import { AgentChatControls } from './AgentChatControls';
+import { QuickActionsPopup } from './QuickActionsPopup';
 import { FileCreationConfirmation } from './FileCreationConfirmation';
 import AgentEnhancementDashboard from '../AgentEnhancementDashboard';
 import { flatlayCollections } from '@/data/flatlay-collections';
