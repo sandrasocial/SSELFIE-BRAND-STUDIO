@@ -2018,17 +2018,49 @@ Create prompts that feel like iconic fashion campaign moments that would make so
         // User has actual subscription record
         res.json(userSubscription);
       } else {
-        // Create virtual subscription based on user plan
-        const virtualSubscription = {
-          id: 0, // Virtual subscription
-          userId: userId,
-          plan: user.plan || 'free',
-          status: 'active',
-          createdAt: user.createdAt,
-          updatedAt: user.updatedAt
-        };
+        // FIXED: Auto-initialize free users with subscription and usage
+        const plan = user.plan || 'free';
         
-        res.json(virtualSubscription);
+        // Create actual subscription record for all users
+        try {
+          const newSubscription = await storage.createSubscription({
+            userId: userId,
+            plan: plan,
+            status: 'active',
+            currentPeriodStart: new Date(),
+            currentPeriodEnd: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000)
+          });
+          
+          // Also ensure usage tracking exists
+          const existingUsage = await storage.getUserUsage(userId);
+          if (!existingUsage) {
+            const monthlyLimit = plan === 'free' ? 6 : 100;
+            await storage.createUserUsage({
+              userId: userId,
+              plan: plan,
+              monthlyGenerationsAllowed: monthlyLimit,
+              monthlyGenerationsUsed: 0,
+              totalCostIncurred: "0.0000",
+              currentPeriodStart: new Date(),
+              currentPeriodEnd: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000),
+              isLimitReached: false,
+              lastGenerationAt: null
+            });
+          }
+          
+          res.json(newSubscription);
+        } catch (error) {
+          // Fallback to virtual subscription if database creation fails
+          const virtualSubscription = {
+            id: 0,
+            userId: userId,
+            plan: plan,
+            status: 'active',
+            createdAt: user.createdAt,
+            updatedAt: user.updatedAt
+          };
+          res.json(virtualSubscription);
+        }
       }
     } catch (error) {
       res.status(500).json({ message: "Failed to fetch subscription" });

@@ -44,11 +44,9 @@ export function PaymentVerification({ children, requiredPlan }: PaymentVerificat
       return;
     }
 
-    // Check if user has valid subscription (including virtual subscriptions for free users)
-    const userHasValidSubscription = subscription && subscription.status === 'active';
-    
-    if (requiredPlan) {
-      // Check for specific plan requirement
+    // FIXED: Free users should get immediate access to workspace
+    // Only block access if user needs specific premium features
+    if (requiredPlan && requiredPlan !== 'free') {
       const hasRequiredPlan = subscription?.plan === requiredPlan;
       if (!hasRequiredPlan) {
         toast({
@@ -61,17 +59,8 @@ export function PaymentVerification({ children, requiredPlan }: PaymentVerificat
       }
     }
 
-    // Allow access if user has subscription OR if they're a free user (subscription API now returns virtual subscriptions)
-    if (!userHasValidSubscription) {
-      toast({
-        title: "Payment Required",
-        description: "Please complete your payment to access member features.",
-        variant: "destructive",
-      });
-      setLocation('/pricing');
-      return;
-    }
-
+    // Allow access to all authenticated users (free and premium)
+    // The subscription endpoint creates virtual subscriptions for free users
     setHasAccess(true);
     setIsChecking(false);
   }, [isAuthenticated, subscription, subscriptionLoading, requiredPlan, user?.email, toast, setLocation]);
