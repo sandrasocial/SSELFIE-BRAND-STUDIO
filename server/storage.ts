@@ -65,20 +65,20 @@ export interface IStorage {
   getAllUsers(): Promise<User[]>;
   upsertUser(user: UpsertUser): Promise<User>;
   updateUserProfile(userId: string, updates: Partial<User>): Promise<User>;
-  
+
   // User Profile operations
   getUserProfile(userId: string): Promise<UserProfile | undefined>;
   upsertUserProfile(data: InsertUserProfile): Promise<UserProfile>;
-  
+
   // Onboarding operations
   getOnboardingData(userId: string): Promise<OnboardingData | undefined>;
   saveOnboardingData(data: InsertOnboardingData): Promise<OnboardingData>;
   updateOnboardingData(userId: string, data: Partial<OnboardingData>): Promise<OnboardingData>;
-  
+
   // AI Image operations (GALLERY ONLY - permanent S3 URLs)
   getAIImages(userId: string): Promise<AiImage[]>;
   saveAIImage(data: InsertAiImage): Promise<AiImage>;
-  
+
   // Generation Tracker operations (TEMP PREVIEW ONLY)
   createGenerationTracker(data: InsertGenerationTracker): Promise<GenerationTracker>;
   updateGenerationTracker(id: number, updates: Partial<GenerationTracker>): Promise<GenerationTracker>;
@@ -86,7 +86,7 @@ export interface IStorage {
   getUserGenerationTrackers(userId: string): Promise<GenerationTracker[]>;
   getCompletedGenerationTrackersForUser(userId: string, hoursBack: number): Promise<GenerationTracker[]>;
   updateAIImage(id: number, data: Partial<AiImage>): Promise<AiImage>;
-  
+
   // User Model operations
   getUserModel(userId: string): Promise<UserModel | undefined>;
   getUserModelByUserId(userId: string): Promise<UserModel | undefined>;
@@ -96,58 +96,58 @@ export interface IStorage {
   deleteUserModel(userId: string): Promise<void>;
   getMonthlyRetrainCount(userId: string, month: number, year: number): Promise<number>;
   getAllInProgressTrainings(): Promise<UserModel[]>;
-  
+
   // Selfie Upload operations
   getSelfieUploads(userId: string): Promise<SelfieUpload[]>;
   saveSelfieUpload(data: InsertSelfieUpload): Promise<SelfieUpload>;
-  
+
   // Subscription operations
   getSubscription(userId: string): Promise<Subscription | undefined>;
   getUserSubscription(userId: string): Promise<Subscription | undefined>;
   createSubscription(data: InsertSubscription): Promise<Subscription>;
   updateSubscription(id: number, updates: Partial<Subscription>): Promise<Subscription>;
-  
+
   // User plan upgrade operations
   upgradeUserToPremium(userId: string, plan: string): Promise<User>;
-  
+
   // Usage operations
   getUserUsage(userId: string): Promise<UserUsage | undefined>;
   createUserUsage(data: InsertUserUsage): Promise<UserUsage>;
   updateUserUsage(userId: string, data: Partial<UserUsage>): Promise<UserUsage>;
 
 
-  
+
   // Victoria chat operations
   createVictoriaChat(data: InsertVictoriaChat): Promise<VictoriaChat>;
   getVictoriaChats(userId: string): Promise<VictoriaChat[]>;
   getVictoriaChatsBySession(userId: string, sessionId: string): Promise<VictoriaChat[]>;
-  
+
   // Maya chat operations
   getMayaChats(userId: string): Promise<MayaChat[]>;
   createMayaChat(data: InsertMayaChat): Promise<MayaChat>;
   getMayaChatMessages(chatId: number): Promise<MayaChatMessage[]>;
   createMayaChatMessage(data: InsertMayaChatMessage): Promise<MayaChatMessage>;
   updateMayaChatMessage(messageId: number, data: Partial<MayaChatMessage>): Promise<MayaChatMessage>;
-  
+
   // Photo selections operations
   savePhotoSelections(data: InsertPhotoSelection): Promise<PhotoSelection>;
   getPhotoSelections(userId: string): Promise<PhotoSelection | undefined>;
   getInspirationPhotos(userId: string): Promise<any[]>;
-  
+
   // Sandra AI conversation operations
   getSandraConversations(userId: string): Promise<any[]>;
   saveSandraConversation(data: any): Promise<any>;
-  
+
   // Landing page operations
   createLandingPage(data: InsertLandingPage): Promise<LandingPage>;
   getLandingPages(userId: string): Promise<LandingPage[]>;
-  
+
   // User landing pages operations (live hosting)
   createUserLandingPage(data: InsertUserLandingPage): Promise<UserLandingPage>;
   getUserLandingPages(userId: string): Promise<UserLandingPage[]>;
   getUserLandingPageBySlug(slug: string): Promise<UserLandingPage | undefined>;
   updateUserLandingPage(id: number, data: Partial<UserLandingPage>): Promise<UserLandingPage | undefined>;
-  
+
   // Email Capture operations
   captureEmail(data: InsertEmailCapture): Promise<EmailCapture>;
 
@@ -177,7 +177,7 @@ export class DatabaseStorage implements IStorage {
 
   async upsertUser(userData: UpsertUser): Promise<User> {
     console.log('🔄 Upserting user:', userData.id, userData.email);
-    
+
     // Special admin setup for ssa@ssasocial.com
     if (userData.email === 'ssa@ssasocial.com') {
       userData.role = 'admin';
@@ -187,10 +187,10 @@ export class DatabaseStorage implements IStorage {
       userData.victoriaAiAccess = true;
       console.log('👑 Setting admin privileges for ssa@ssasocial.com');
     }
-    
+
     // First try to find existing user by ID
     let existingUser = await this.getUser(userData.id);
-    
+
     if (existingUser) {
       console.log('✅ Found existing user by ID, updating...');
       const [user] = await db
@@ -210,14 +210,14 @@ export class DatabaseStorage implements IStorage {
         .returning();
       return user;
     }
-    
+
     // If not found by ID, check by email and update that record with new ID
     if (userData.email) {
       const [userByEmail] = await db
         .select()
         .from(users)
         .where(eq(users.email, userData.email));
-        
+
       if (userByEmail) {
         console.log('✅ Found existing user by email, updating with new Replit ID...');
         // Update the existing user record with the new Replit ID
@@ -240,7 +240,7 @@ export class DatabaseStorage implements IStorage {
         return updatedUser;
       }
     }
-    
+
     // User doesn't exist by ID or email, create new one
     console.log('🆕 Creating new user...');
     try {
@@ -286,7 +286,7 @@ export class DatabaseStorage implements IStorage {
   async upsertUserProfile(data: InsertUserProfile): Promise<UserProfile> {
     // Check if profile exists
     const existingProfile = await this.getUserProfile(data.userId);
-    
+
     if (existingProfile) {
       // Update existing profile
       const [profile] = await db
@@ -370,11 +370,11 @@ export class DatabaseStorage implements IStorage {
       .set({ ...updates, updatedAt: new Date() })
       .where(eq(generationTrackers.id, id))
       .returning();
-    
+
     if (!updatedTracker) {
       throw new Error(`Generation tracker with id ${id} not found`);
     }
-    
+
     return updatedTracker;
   }
 
@@ -388,7 +388,7 @@ export class DatabaseStorage implements IStorage {
 
   async getCompletedGenerationTrackersForUser(userId: string, hoursBack: number): Promise<GenerationTracker[]> {
     const timeThreshold = new Date(Date.now() - hoursBack * 60 * 60 * 1000);
-    
+
     return await db
       .select()
       .from(generationTrackers)
@@ -485,7 +485,7 @@ export class DatabaseStorage implements IStorage {
     // Get start and end dates for the month
     const startDate = new Date(year, month, 1);
     const endDate = new Date(year, month + 1, 0);
-    
+
     // Count models created this month (retraining creates new models)
     const models = await db
       .select()
@@ -495,7 +495,7 @@ export class DatabaseStorage implements IStorage {
         gte(userModels.createdAt, startDate),
         lte(userModels.createdAt, endDate)
       ));
-    
+
     return models.length;
   }
 
@@ -622,7 +622,7 @@ export class DatabaseStorage implements IStorage {
   async getGenerationLimits(userId: string): Promise<{ allowed: number; used: number }> {
     const usage = await this.getUserUsage(userId);
     const plan = await this.getUserPlan(userId);
-    
+
     // Admin users get unlimited access
     if (plan === 'admin') {
       return {
@@ -630,10 +630,10 @@ export class DatabaseStorage implements IStorage {
         used: usage?.monthlyGenerationsUsed || 0
       };
     }
-    
+
     // Default limits based on plan
     const defaultAllowed = plan === 'free' ? 5 : 100;
-    
+
     return {
       allowed: usage?.monthlyGenerationsAllowed || defaultAllowed,
       used: usage?.monthlyGenerationsUsed || 0
@@ -657,7 +657,7 @@ export class DatabaseStorage implements IStorage {
       .update(photoshootSessions)
       .set({ isActive: false })
       .where(eq(photoshootSessions.userId, data.userId));
-    
+
     // Create new active session
     const [session] = await db.insert(photoshootSessions).values(data).returning();
     return session;
@@ -983,7 +983,7 @@ export class DatabaseStorage implements IStorage {
   // User plan upgrade method
   async upgradeUserToPremium(userId: string, plan: string): Promise<User> {
     console.log(`🔄 Upgrading user ${userId} to plan: ${plan}`);
-    
+
     // Update user plan
     const [updatedUser] = await db
       .update(users)
@@ -999,7 +999,7 @@ export class DatabaseStorage implements IStorage {
 
     // Create or update subscription record
     const existingSubscription = await this.getSubscription(userId);
-    
+
     if (existingSubscription) {
       await this.updateSubscription(existingSubscription.id, {
         plan: plan,
@@ -1015,7 +1015,7 @@ export class DatabaseStorage implements IStorage {
 
     // CRITICAL: Initialize or update user usage record for the new plan
     const existingUsage = await this.getUserUsage(userId);
-    
+
     if (existingUsage) {
       // Update existing usage with new plan limits
       await this.updateUserUsage(userId, {

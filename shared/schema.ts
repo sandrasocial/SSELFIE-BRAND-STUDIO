@@ -175,29 +175,29 @@ export const usageHistory = pgTable("usage_history", {
 export const onboardingData = pgTable("onboarding_data", {
   id: serial("id").primaryKey(),
   userId: varchar("user_id").references(() => users.id).notNull(),
-  
+
   // Step 1: Brand Story
   brandStory: text("brand_story"),
   personalMission: text("personal_mission"),
-  
+
   // Step 2: Business Goals
   businessGoals: text("business_goals"),
   targetAudience: text("target_audience"),
   businessType: varchar("business_type"),
-  
+
   // Step 3: Voice & Style
   brandVoice: text("brand_voice"),
   stylePreferences: varchar("style_preferences"),
-  
+
   // Step 4: AI Training
   selfieUploadStatus: varchar("selfie_upload_status").default("pending"), // pending, processing, completed
   aiTrainingStatus: varchar("ai_training_status").default("not_started"), // not_started, in_progress, completed
-  
+
   // Progress tracking
   currentStep: integer("current_step").default(1),
   completed: boolean("completed").default(false),
   completedAt: timestamp("completed_at"),
-  
+
   createdAt: timestamp("created_at").defaultNow(),
   updatedAt: timestamp("updated_at").defaultNow(),
 });
@@ -437,17 +437,17 @@ export type InsertGenerationTracker = z.infer<typeof insertGenerationTrackerSche
 
 
 // Email capture table for lead generation
-export const emailCaptures = pgTable("email_captures", {
-  id: serial("id").primaryKey(),
-  email: varchar("email").notNull(),
-  plan: varchar("plan").notNull(), // free, sselfie-studio
-  source: varchar("source").notNull(), // landing_page, pricing_page, etc
-  captured: timestamp("captured").defaultNow(),
-  converted: boolean("converted").default(false),
-  userId: varchar("user_id").references(() => users.id), // Set after user signs up
+export const emailCaptures = pgTable('email_captures', {
+  id: serial('id').primaryKey(),
+  email: varchar('email', { length: 255 }).notNull(),
+  plan: varchar('plan', { length: 50 }).notNull().default('free'),
+  source: varchar('source', { length: 100 }).notNull().default('landing_page'),
+  captured: timestamp('captured').notNull().defaultNow(),
+  converted: boolean('converted').notNull().default(false),
+  createdAt: timestamp('created_at').notNull().defaultNow(),
+  updatedAt: timestamp('updated_at').notNull().defaultNow()
 });
 
-export const insertEmailCaptureSchema = createInsertSchema(emailCaptures).omit({ id: true, createdAt: true });
 export type EmailCapture = typeof emailCaptures.$inferSelect;
 export type InsertEmailCapture = typeof emailCaptures.$inferInsert;
 
@@ -478,3 +478,42 @@ export type InsertUsageHistory = typeof usageHistory.$inferInsert;
 // Export styleguide tables and types  
 export { userStyleguides, styleguideTemplates } from "./styleguide-schema";
 export type { UserStyleguide, StyleguideTemplate, InsertUserStyleguide, InsertStyleguideTemplate } from "./styleguide-schema";
+
+// Export all types for easier importing
+export type { 
+  User, 
+  InsertUser, 
+  Project, 
+  InsertProject, 
+  AiImage, 
+  InsertAiImage, 
+  Template, 
+  Subscription, 
+  InsertSubscription, 
+  UserProfile, 
+  InsertUserProfile, 
+  OnboardingData, 
+  InsertOnboardingData, 
+  SelfieUpload, 
+  InsertSelfieUpload, 
+  UserModel, 
+  InsertUserModel, 
+  BrandOnboarding, 
+  InsertBrandOnboarding, 
+  UserLandingPage, 
+  InsertUserLandingPage, 
+  UserUsage, 
+  InsertUserUsage,
+  GenerationTracker,
+  InsertGenerationTracker,
+  MayaChat,
+  InsertMayaChat,
+  MayaChatMessage,
+  InsertMayaChatMessage,
+  PhotoSelection,
+  InsertPhotoSelection,
+  AgentConversation,
+  InsertAgentConversation,
+  EmailCapture,
+  InsertEmailCapture
+};
