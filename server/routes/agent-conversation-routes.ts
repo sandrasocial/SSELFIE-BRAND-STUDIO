@@ -291,10 +291,10 @@ export function registerAgentRoutes(app: Express) {
       const requestsFileOp = /\b(deploy|implement|create|modify|write|build|fix|add|update|change|code|component|page|design|layout)\b/i.test(message);
       
       // If admin requests file operations for capable agents
-      if (requestsFileOp && (agentId === 'maya' || agentId === 'victoria')) {
+      if (requestsFileOp && (agentId === 'zara' || agentId === 'aria')) {
         try {
-          // Maya: Creating React components
-          if (agentId === 'maya' && /component/i.test(message)) {
+          // Zara: Creating React components
+          if (agentId === 'zara' && /component/i.test(message)) {
             const componentName = message.match(/\b([A-Z][a-zA-Z]+(?:Component)?)\b/)?.[1] || 'UserRequestedComponent';
             const componentCode = `import React from 'react';
 
@@ -335,8 +335,8 @@ export default function ${componentName}() {
             });
           }
           
-          // Victoria: Creating design layouts
-          if (agentId === 'victoria' && (/design|layout|ui|page/i.test(message))) {
+          // Aria: Creating design layouts
+          if (agentId === 'aria' && (/design|layout|ui|page/i.test(message))) {
             const pageName = message.match(/\b([A-Z][a-zA-Z]+Page?)\b/)?.[1] || 'LuxuryPage';
             const pageCode = `import React from 'react';
 
@@ -356,7 +356,7 @@ export default function ${pageName}() {
       <main className="max-w-4xl mx-auto px-6 py-12">
         <div className="space-y-8">
           <p className="text-lg text-gray-600 leading-relaxed">
-            Luxury editorial layout created by Victoria AI on ${new Date().toLocaleDateString()}
+            Luxury editorial layout created by Aria AI on ${new Date().toLocaleDateString()}
           </p>
           
           <div className="bg-gray-50 p-8">

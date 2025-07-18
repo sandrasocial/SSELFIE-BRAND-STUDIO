@@ -8,8 +8,8 @@ import { AgentApprovalSystem } from './agent-approval-system';
 export async function createAdminRedesignProposal(): Promise<void> {
   
   // Victoria's UX Design Proposal
-  const victoriaProposal = await AgentApprovalSystem.createProposal(
-    'victoria',
+  const ariaProposal = await AgentApprovalSystem.createProposal(
+    'aria',
     'Victoria',
     {
       type: 'design',
@@ -344,7 +344,7 @@ export const adminCopy = {
     subtitle: "They're working 24/7 so you don't have to",
     chatButton: "Chat with Your Team",
     statuses: {
-      victoria: "Victoria is perfecting your user experience",
+      aria: "Aria is perfecting your user experience",
       rachel: "Rachel is writing copy that converts",
       maya: "Maya is optimizing your tech magic",
       ava: "Ava is automating your success",

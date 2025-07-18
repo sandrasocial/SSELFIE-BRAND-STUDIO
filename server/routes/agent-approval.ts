@@ -108,7 +108,7 @@ let proposals: AgentProposal[] = [
   },
   {
     id: 'victoria-landing-001',
-    agentId: 'victoria',
+    agentId: 'aria',
     agentName: 'Victoria',
     type: 'landing-page',
     title: 'SSELFIE Studio Premium Landing Page',

@@ -165,21 +165,21 @@ export class AutoFileWriter {
     }
     
     // AGENT CONTEXT-BASED DETECTION
-    if (agentId === 'victoria') {
-      // Victoria creates UI components by default
+    if (agentId === 'aria') {
+      // Aria creates UI components by default
       const nameMatch = content.match(/(?:function|const)\s+([A-Z][a-zA-Z0-9]*)/);
       if (nameMatch) {
         return `client/src/components/${nameMatch[1]}.tsx`;
       }
-      return `client/src/components/VictoriaGenerated.tsx`;
+      return `client/src/components/AriaGenerated.tsx`;
     }
     
-    if (agentId === 'maya') {
-      // Maya creates backend/API components
+    if (agentId === 'zara') {
+      // Zara creates backend/API components
       if (content.includes('app.')) {
         return `server/routes.ts`;
       }
-      return `client/src/components/MayaGenerated.tsx`;
+      return `client/src/components/ZaraGenerated.tsx`;
     }
     
     return null;

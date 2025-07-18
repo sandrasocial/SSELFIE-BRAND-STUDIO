@@ -18,7 +18,7 @@ export const victoriaDesignValidation: AgentEnhancement = {
   id: 'victoria-design-validation',
   name: 'Real-time Design System Validation',
   description: 'Automatically validates all designs against SSELFIE luxury brand standards',
-  agentId: 'victoria',
+  agentId: 'aria',
   priority: 'HIGH',
   status: 'ACTIVE',
   implementation: `
@@ -37,7 +37,7 @@ export const mayaTestingGeneration: AgentEnhancement = {
   id: 'maya-testing-generation',
   name: 'Automated Testing Generation',
   description: 'Generates unit and integration tests for every component created',
-  agentId: 'maya',
+  agentId: 'zara',
   priority: 'HIGH',
   status: 'ACTIVE',
   implementation: `
