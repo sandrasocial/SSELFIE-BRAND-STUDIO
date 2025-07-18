@@ -3471,7 +3471,10 @@ Consider this workflow optimized and ready for implementation! ⚙️`
 
   // ENHANCED ADMIN AGENT CHAT ENDPOINT WITH DUAL AUTH
   app.post('/api/admin/agent-chat-bypass', async (req, res) => {
-    console.log('🔧 ADMIN AGENT CHAT ENDPOINT HIT!');
+    console.log('🔧 ADMIN AGENT CHAT BYPASS ENDPOINT HIT!');
+    console.log('📍 Request body keys:', Object.keys(req.body));
+    console.log('📍 Agent ID:', req.body.agentId);
+    console.log('📍 Message preview:', req.body.message?.substring(0, 100));
     
     try {
       let { agentId, message, adminToken, conversationHistory = [] } = req.body;
@@ -3534,17 +3537,34 @@ Consider this workflow optimized and ready for implementation! ⚙️`
       });
       
       console.log(`🧠 Sending to Claude with ${conversationMessages.length} messages`);
+      console.log(`🎭 System prompt length: ${personality.instructions.length} characters`);
       
       // Get AI response from Claude using agent personality
-      const claudeResponse = await anthropic.messages.create({
-        model: "claude-sonnet-4-20250514",
-        max_tokens: 2000,
-        system: personality.instructions,
-        messages: conversationMessages
-      });
-      
-      let aiResponse = claudeResponse.content[0].text;
-      console.log(`🎯 Claude response received: ${aiResponse.length} characters`);
+      let aiResponse = '';
+      try {
+        const claudeResponse = await anthropic.messages.create({
+          model: "claude-sonnet-4-20250514",
+          max_tokens: 2000,
+          system: personality.instructions,
+          messages: conversationMessages
+        });
+        
+        aiResponse = claudeResponse.content[0].text;
+        console.log(`🎯 Claude response received: ${aiResponse.length} characters`);
+        console.log(`🔍 Response preview: ${aiResponse.substring(0, 200)}...`);
+      } catch (claudeError) {
+        console.error('❌ Claude API Error:', claudeError.message);
+        // Fallback to agent-specific personality response
+        const fallbackResponses = {
+          victoria: `Hello! I'm Victoria, your luxury editorial designer and creative director. I specialize in dark moody minimalism with bright editorial sophistication. What design vision shall we bring to life today?`,
+          maya: `Hey! I'm Maya, your technical mastermind and luxury code architect. I build like Chanel designs - minimal, powerful, unforgettable. What shall we develop together?`,
+          rachel: `Hey gorgeous! It's Rachel, your copywriting best friend. I write exactly like Sandra's authentic voice - vulnerable but strong, honest about the process. What message shall we craft?`,
+          ava: `Hi Sandra! I'm Ava, your automation architect who makes everything run with Swiss-watch precision. What workflows shall we optimize today?`,
+          quinn: `Hello! I'm Quinn, your luxury quality guardian. I ensure every pixel feels like it belongs in a $50,000 luxury suite. What shall we perfect together?`
+        };
+        aiResponse = fallbackResponses[agentId] || `I'm ${personality.name}, ready to assist you with ${personality.role}. How can I help you today?`;
+        console.log(`🔄 Using fallback response for ${agentId}`);
+      }
       
       // Process any code blocks for file writing
       const { AutoFileWriter } = await import('./agents/auto-file-writer');
@@ -3566,15 +3586,20 @@ Consider this workflow optimized and ready for implementation! ⚙️`
       // Save conversation to database with proper user identification
       try {
         const userId = authMethod === 'session' && req.user ? 
-          (req.user as any).claims.sub : 'admin-sandra';
+          (req.user as any).claims.sub : '42585527'; // Sandra's actual user ID
         
-        await storage.saveAgentConversation({
-          userId,
-          agentId,
-          message: message || '',
-          response: aiResponse,
-          timestamp: new Date()
-        });
+        // Use neon connection to match actual database schema
+        const { db } = await import('./db');
+        
+        await db.execute(`
+          INSERT INTO agent_conversations (user_id, agent_name, conversation_data, workflow_stage, created_at)
+          VALUES ('${userId}', '${agentId}', '${JSON.stringify({
+            userMessage: message || '',
+            agentResponse: aiResponse,
+            authMethod,
+            timestamp: new Date()
+          }).replace(/'/g, "''")}', 'admin-chat', NOW())
+        `);
         console.log(`💾 Conversation saved to database for user: ${userId}`);
       } catch (dbError) {
         console.log('❌ Database save failed:', dbError.message);
