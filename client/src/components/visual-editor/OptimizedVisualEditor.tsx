@@ -1179,7 +1179,7 @@ export function OptimizedVisualEditor({ className = '' }: OptimizedVisualEditorP
             </div>
           </TabsContent>
 
-          <TabsContent value="files" className="flex-1 flex flex-col mt-0 h-0">
+          <TabsContent value="files" className="flex-1 flex flex-col mt-0">
             <FileTreeExplorer 
               selectedAgent={currentAgent.id}
               onFileSelect={(filePath, content) => {
@@ -1202,7 +1202,7 @@ export function OptimizedVisualEditor({ className = '' }: OptimizedVisualEditorP
             />
           </TabsContent>
 
-          <TabsContent value="editor" className="flex-1 flex flex-col mt-0 h-0">
+          <TabsContent value="editor" className="flex-1 flex flex-col mt-0">
             <MultiTabEditor 
               selectedAgent={currentAgent.id}
               onFileChange={(filePath, content) => {
