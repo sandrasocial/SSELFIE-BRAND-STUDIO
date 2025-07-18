@@ -109,7 +109,7 @@ The platform combines custom AI image generation with luxury editorial design, a
 
 Sandra's revolutionary AI-powered business management system with specialized agents:
 
-### **Victoria** - Visionary Editorial Luxury Designer & Creative Director
+### **Aria** - Visionary Editorial Luxury Designer & Creative Director (Custom Dev Agent)
 - Master of dark moody minimalism with bright editorial sophistication
 - Visual storyteller of Sandra's transformation (rock bottom to empire)
 - Creates "ultra WOW factor" moments using lookbook/art gallery design principles
@@ -117,12 +117,14 @@ Sandra's revolutionary AI-powered business management system with specialized ag
 - Dark moody photography with bright clean layouts, editorial pacing mastery
 - Speaks like gallery curator meets fashion magazine creative director
 
-### **Maya** - Dev AI - Technical Mastermind & Luxury Code Architect
+### **Zara** - Dev AI - Technical Mastermind & Luxury Code Architect (Custom Dev Agent)
 - Sandra's technical partner who transforms vision into flawless code - builds like Chanel designs (minimal, powerful, unforgettable)
 - Master of SSELFIE architecture: Individual model system, luxury performance (sub-second load times), Replit infrastructure optimization
 - Technical superpowers: Next.js 14, TypeScript, Tailwind luxury design system, Replit Database, individual model training/inference
 - Performance obsession: Every component <100ms, scalable foundation for global expansion, bank-level security
 - Real-time development with DEV_PREVIEW format and complete codebase access via actual API endpoints
+
+**CRITICAL NOTE:** Aria and Zara are custom development agents, completely separate from the live member-facing Victoria and Maya agents to protect live app functionality.
 
 ### **Rachel** - Voice AI - Sandra's Copywriting Best Friend & Voice Twin
 - Sandra's copywriting best friend who writes EXACTLY like her authentic voice
@@ -433,6 +435,31 @@ sandra@dibssocial.com: Session expires July 25, 2025 (168+ hours remaining)
 - All core systems operational and tested
 - Authentication persistence verified with real user data
 - Complete platform ready for Sandra's live agent testing and production deployment
+
+### ✅ CRITICAL AGENT IDENTITY SEPARATION COMPLETED (July 18, 2025)
+
+**BREAKTHROUGH: CUSTOM DEVELOPMENT AGENTS RENAMED TO PROTECT LIVE APP**
+- **Identity Confusion Resolved**: Custom development agents renamed from Maya/Victoria → Zara/Aria
+- **Live App Protection**: Member-facing Victoria (landing page builder) and Maya (photoshoot/stylist) agents remain untouched
+- **Complete Implementation**: Updated 15+ files including agent personalities, admin dashboard, route references
+- **Visual Editor Integration**: Agent chat interface updated to use new names (Zara for dev, Aria for design)
+- **Route References Fixed**: All agent conversation routes updated in enhanced and standard files
+- **Auto-File Writer Updated**: File path detection system updated for new agent names
+- **Documentation Updated**: replit.md documentation reflects critical separation between custom dev agents and live member agents
+
+**Technical Implementation:**
+- server/agents/agent-personalities.ts: Updated core agent definitions
+- client/src/components/admin/AgentDashboard.tsx: Updated agent cards to use Aria/Zara
+- client/src/components/visual-editor/IntegratedAgentChat.tsx: Updated agent selection
+- server/routes/agent-conversation-routes.ts: Updated file operation logic
+- server/agents/auto-file-writer.js: Updated agent-specific path detection
+- All approval and enhancement systems updated with new agent names
+
+**Business Impact:**
+- Live SSELFIE Studio member agents (Victoria/Maya) completely protected from any custom development confusion
+- Custom development agents (Aria/Zara) now clearly separated for Sandra's admin workflow
+- No risk of accidentally breaking live member-facing functionality
+- Clear distinction between custom development tools and live platform features
 
 ## Current Project Status & Progress
 

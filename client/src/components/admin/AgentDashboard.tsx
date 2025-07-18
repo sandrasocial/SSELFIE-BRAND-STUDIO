@@ -17,8 +17,8 @@ interface Agent {
 
 const agents: Agent[] = [
   {
-    id: 'victoria',
-    name: 'Victoria',
+    id: 'aria',
+    name: 'Aria',
     role: 'UX Designer AI',
     description: 'Luxury editorial design expert creating pixel-perfect layouts with Times New Roman typography',
     specialties: ['Vogue Aesthetic', 'Luxury Design', 'Editorial Layouts', 'Component Design'],
@@ -26,8 +26,8 @@ const agents: Agent[] = [
     tasksCompleted: 47
   },
   {
-    id: 'maya',
-    name: 'Maya',
+    id: 'zara',
+    name: 'Zara',
     role: 'Dev AI',
     description: 'Senior full-stack developer specializing in luxury digital experiences and performance optimization',
     specialties: ['React/TypeScript', 'Database Design', 'API Development', 'Performance'],

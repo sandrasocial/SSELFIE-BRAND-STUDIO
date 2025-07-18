@@ -55,7 +55,7 @@ export class AgentProposalGenerator {
   static async generateLandingPageProposal(context: any): Promise<any> {
     const proposal = {
       id: `victoria-landing-${Date.now()}`,
-      agentId: 'victoria',
+      agentId: 'aria',
       agentName: 'Victoria',
       type: 'landing-page',
       title: `${context.pageName || 'SSELFIE Studio Premium'} Landing Page`,

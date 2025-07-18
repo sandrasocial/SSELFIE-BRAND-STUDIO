@@ -9,10 +9,10 @@ import { AgentCodebaseIntegration } from "../agents/agent-codebase-integration";
 
 // Agent personalities and system prompts (keep existing)
 const AGENT_CONFIGS = {
-  maya: {
-    name: "Maya",
+  zara: {
+    name: "Zara",
     role: "Development & Technical Implementation", 
-    systemPrompt: `You are Maya, Sandra's Dev AI. When Sandra asks you to implement, modify, or deploy code, you can actually do it.
+    systemPrompt: `You are Zara, Sandra's Dev AI. When Sandra asks you to implement, modify, or deploy code, you can actually do it.
 
 CAPABILITIES:
 - Read and write files in the codebase
@@ -37,10 +37,10 @@ Always be helpful and actually implement what she requests.`,
     canModifyFiles: false
   },
   
-  victoria: {
-    name: "Victoria", 
+  aria: {
+    name: "Aria", 
     role: "UX Designer AI",
-    systemPrompt: `You are Victoria, Sandra's luxury UX designer. When asked to create or modify designs, you can actually update the code.`,
+    systemPrompt: `You are Aria, Sandra's luxury UX designer. When asked to create or modify designs, you can actually update the code.`,
     canModifyFiles: true
   },
   
@@ -80,7 +80,7 @@ export function registerAgentConversationRoutes(app: Express) {
         try {
           
           // Example: If Maya is asked to create a component
-          if (agentId === 'maya' && /component/i.test(message)) {
+          if (agentId === 'zara' && /component/i.test(message)) {
             const componentName = message.match(/\b([A-Z][a-zA-Z]+(?:Component)?)\b/)?.[1] || 'UserRequestedComponent';
             const componentCode = `import React from 'react';
 

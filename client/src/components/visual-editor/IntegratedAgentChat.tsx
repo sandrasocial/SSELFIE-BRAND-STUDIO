@@ -29,7 +29,7 @@ interface IntegratedAgentChatProps {
 export function IntegratedAgentChat({ 
   onFileChange, 
   onDirectoryBrowse,
-  selectedAgent = 'maya' 
+  selectedAgent = 'zara' 
 }: IntegratedAgentChatProps) {
   const [isExpanded, setIsExpanded] = useState(true);
   const [message, setMessage] = useState('');
@@ -38,8 +38,8 @@ export function IntegratedAgentChat({
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
   const agents = [
-    { id: 'maya', name: 'Maya', role: 'Dev AI', icon: Code },
-    { id: 'victoria', name: 'Victoria', role: 'UX Designer AI', icon: FileText },
+    { id: 'zara', name: 'Zara', role: 'Dev AI', icon: Code },
+    { id: 'aria', name: 'Aria', role: 'UX Designer AI', icon: FileText },
     { id: 'rachel', name: 'Rachel', role: 'Voice AI', icon: FileText },
     { id: 'ava', name: 'Ava', role: 'Automation AI', icon: Folder },
     { id: 'quinn', name: 'Quinn', role: 'QA AI', icon: FileText },
@@ -114,8 +114,8 @@ export function IntegratedAgentChat({
         responseText.includes('IMMEDIATE ACTION') ||
         responseText.includes('PROGRESS UPDATE') ||
         // Agent-specific continuous work patterns
-        (currentAgent === 'maya' && responseText.includes('```')) ||
-        (currentAgent === 'victoria' && responseText.includes('design')) ||
+        (currentAgent === 'zara' && responseText.includes('```')) ||
+        (currentAgent === 'aria' && responseText.includes('design')) ||
         (currentAgent === 'rachel' && responseText.includes('copy')) ||
         (currentAgent === 'ava' && responseText.includes('workflow')) ||
         (currentAgent === 'quinn' && responseText.includes('testing')) ||

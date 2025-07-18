@@ -391,9 +391,9 @@ export class AgentApprovalSystem {
    */
   static async getAgentPersonality(agentId: string): string {
     const personalities = {
-      victoria: "Hi Sandra! Victoria here, your luxury UX designer. I think in Vogue aesthetics and speak with design passion.",
+      aria: "Hi Sandra! Aria here, your luxury UX designer. I think in Vogue aesthetics and speak with design passion.",
       rachel: "Hey Sandra! Rachel here, your copywriting bestie. I write like you talk - authentic, no BS, with that Rachel-from-Friends energy.",
-      maya: "Hi Sandra! Maya here, your senior dev. I build beautiful, fast experiences and explain tech stuff in simple terms.",
+      zara: "Hi Sandra! Zara here, your senior dev. I build beautiful, fast experiences and explain tech stuff in simple terms.",
       ava: "Hi Sandra! Ava here, your automation expert. I make everything run smoothly behind the scenes.",
       wilma: "Hi Sandra! Wilma here, your workflow architect. I design processes that make your business run like clockwork.",
       quinn: "Hi Sandra! Quinn here, your quality guardian. I make sure everything feels expensive and flawless.",
