@@ -3373,10 +3373,10 @@ AGENT_CONTEXT:
       const fullHistory = managementResult.newHistory || conversationHistory || [];
       const messages = [
         ...fullHistory
-          .filter(msg => msg.role !== 'system') // Filter out system messages
+          .filter(msg => msg.role !== 'system' && msg.role) // Filter out system messages and messages without role
           .map(msg => ({
-            role: msg.role,
-            content: msg.content
+            role: msg.role === 'ai' ? 'assistant' : msg.role, // Convert 'ai' to 'assistant'
+            content: msg.content || msg.message || '' // Handle different content fields
           })),
         { role: 'user', content: message }
       ];
