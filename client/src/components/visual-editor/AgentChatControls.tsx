@@ -17,7 +17,7 @@ export function AgentChatControls({
   canRollback = false 
 }: AgentChatControlsProps) {
   return (
-    <div className="flex items-center space-x-2 mb-4">
+    <div className="flex items-center space-x-2 mb-2 px-2">
       {isLoading && (
         <>
           <Button
