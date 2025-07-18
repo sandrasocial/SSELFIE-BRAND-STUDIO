@@ -34,7 +34,7 @@ import { FormattedAgentMessage } from './FormattedAgentMessage';
 import { AgentChatControls } from './AgentChatControls';
 import { QuickActionsPopup } from './QuickActionsPopup';
 import { FileCreationConfirmation } from './FileCreationConfirmation';
-import AgentEnhancementDashboard from '../AgentEnhancementDashboard';
+import AgentEnhancementDashboard from '../admin/AgentEnhancementDashboard';
 import { flatlayCollections } from '@/data/flatlay-collections';
 
 interface ChatMessage {

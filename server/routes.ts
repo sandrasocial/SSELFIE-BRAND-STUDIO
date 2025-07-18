@@ -3725,6 +3725,113 @@ AGENT_CONTEXT:
   const agentLearningRouter = await import('./routes/agent-learning');
   app.use('/api/agent-learning', agentLearningRouter.default);
 
+  // ADMIN AGENT ENHANCEMENT ENDPOINTS
+  app.get('/api/agent-enhancements', isAuthenticated, async (req: any, res) => {
+    const isAdmin = req.user?.claims?.email === 'ssa@ssasocial.com';
+    if (!isAdmin) {
+      return res.status(403).json({ error: 'Admin access required' });
+    }
+    
+    try {
+      // Return mock enhancements for now - replace with real data as needed
+      const enhancements = [
+        {
+          id: 'aria-design-speed',
+          name: 'Design Speed Enhancement',
+          description: 'Optimize Aria\'s design component generation speed',
+          agentId: 'aria',
+          priority: 'HIGH' as const,
+          status: 'ACTIVE' as const,
+          implementation: 'Enhanced template generation with cached design patterns'
+        },
+        {
+          id: 'zara-code-quality',
+          name: 'Code Quality Improvement',
+          description: 'Enhance Zara\'s TypeScript code generation accuracy',
+          agentId: 'zara',
+          priority: 'MEDIUM' as const,
+          status: 'PENDING' as const,
+          implementation: 'Improved AST parsing and validation'
+        }
+      ];
+      
+      res.json({ enhancements, lastUpdated: new Date() });
+    } catch (error) {
+      res.status(500).json({ error: 'Failed to fetch enhancements' });
+    }
+  });
+
+  app.get('/api/predictive-alerts', isAuthenticated, async (req: any, res) => {
+    const isAdmin = req.user?.claims?.email === 'ssa@ssasocial.com';
+    if (!isAdmin) {
+      return res.status(403).json({ error: 'Admin access required' });
+    }
+    
+    try {
+      const alerts = [
+        {
+          id: 'performance-alert-1',
+          type: 'PERFORMANCE' as const,
+          severity: 'MEDIUM' as const,
+          message: 'Agent response times have increased by 15% over the last hour',
+          suggestedActions: ['Check Claude API rate limits', 'Review conversation complexity'],
+          affectedAgents: ['aria', 'zara']
+        }
+      ];
+      
+      res.json({ alerts, timestamp: new Date() });
+    } catch (error) {
+      res.status(500).json({ error: 'Failed to fetch alerts' });
+    }
+  });
+
+  app.get('/api/agent-tools', isAuthenticated, async (req: any, res) => {
+    const isAdmin = req.user?.claims?.email === 'ssa@ssasocial.com';
+    if (!isAdmin) {
+      return res.status(403).json({ error: 'Admin access required' });
+    }
+    
+    try {
+      const tools = [
+        {
+          id: 'auto-file-writer',
+          name: 'Auto File Writer',
+          createdBy: 'system',
+          description: 'Automatically creates and integrates component files from agent responses',
+          code: 'Enhanced path detection and auto-integration system',
+          usage: 'Active for all admin agents'
+        }
+      ];
+      
+      res.json({ tools });
+    } catch (error) {
+      res.status(500).json({ error: 'Failed to fetch agent tools' });
+    }
+  });
+
+  app.get('/api/enhancement-dashboard', isAuthenticated, async (req: any, res) => {
+    const isAdmin = req.user?.claims?.email === 'ssa@ssasocial.com';
+    if (!isAdmin) {
+      return res.status(403).json({ error: 'Admin access required' });
+    }
+    
+    try {
+      const dashboardData = {
+        totalEnhancements: 2,
+        activeEnhancements: 1,
+        pendingEnhancements: 1,
+        totalAlerts: 1,
+        criticalAlerts: 0,
+        agentToolsActive: 1,
+        lastUpdateTime: new Date()
+      };
+      
+      res.json(dashboardData);
+    } catch (error) {
+      res.status(500).json({ error: 'Failed to fetch dashboard data' });
+    }
+  });
+
   const httpServer = createServer(app);
   return httpServer;
 }
