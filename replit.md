@@ -372,12 +372,14 @@ sandra@dibssocial.com: Session expires July 25, 2025 (168+ hours remaining)
 - ✅ Seamless experience across browser sessions
 - ✅ Secure cookie configuration with proper domain handling
 
-### ✅ CRITICAL AGENT MEMORY PERSISTENCE FIX COMPLETED (July 18, 2025)
+### ✅ CRITICAL AGENT BEHAVIOR FIXES COMPLETED (July 18, 2025)
 
-**BREAKTHROUGH: AGENT MEMORY NOW PERSISTS AFTER EVERY CONVERSATION**
-- **Root Cause Identified**: Memory only saved after 30+ messages but conversations restarted before threshold
-- **Immediate Memory Persistence**: Agents now save memory after each interaction regardless of conversation length
-- **Memory Retrieval Working**: Agents successfully restore context from previous conversations
+**BREAKTHROUGH: AGENTS NOW BEHAVE CORRECTLY WITH CONVERSATION VS TASK DETECTION**
+- **Root Cause Identified**: Agents working continuously on casual conversations instead of only on specific tasks
+- **System Prompt Fixed**: Updated approval system to distinguish between conversation and actual tasks
+- **Conversation Behavior**: Agents now answer questions directly without starting continuous work
+- **Task Behavior**: Agents only work continuously after receiving specific approved tasks
+- **Memory Persistence**: Memory now saves after each interaction regardless of conversation length
 - **Enhanced ConversationManager**: Made createConversationSummary and saveAgentMemory public methods
 - **Database Integration**: All conversations saved with memory summaries in agent_conversations table
 - **Context Continuity Fixed**: Agents remember previous tasks, decisions, and workflow stages across sessions
