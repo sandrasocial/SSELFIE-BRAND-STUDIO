@@ -51,6 +51,7 @@ import VictoriaBuilder from '@/pages/victoria-builder';
 import VictoriaPreview from '@/pages/victoria-preview';
 import PhotoSelection from "@/pages/photo-selection";
 import LiveTestComponent from "@/components/LiveTestComponent";
+import TestPage from "@/components/TestPage";
 import BrandOnboarding from "@/pages/brand-onboarding";
 import Welcome from "@/pages/welcome";
 import AuthSuccess from "@/pages/auth-success";
@@ -252,6 +253,7 @@ function Router() {
       
       {/* DEBUGGING */}
       <Route path="/test" component={LiveTestComponent} />
+      <Route path="/test-buttons" component={TestPage} />
       <Route path="/test-login" component={TestLogin} />
       <Route path="/debug-auth" component={() => {
         const { user, isAuthenticated, isLoading, error } = useAuth();
