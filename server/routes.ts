@@ -3623,16 +3623,16 @@ CREATE FILES IMMEDIATELY when asked. Sandra sees changes in dev preview instantl
         console.log('✅ Real AI response generated');
         
         // ENHANCED FILE OPERATION POST-PROCESSING
-        // Check for code blocks that should be written to files
-        if (aiResponse.includes('```typescript') || aiResponse.includes('```tsx') || aiResponse.includes('```css') || aiResponse.includes('```javascript') || aiResponse.includes('```js')) {
+        // Check for ANY code blocks that should be written to files
+        if (aiResponse.includes('```')) {
           console.log('🔧 Detected code blocks in AI response - processing for file operations...');
           
           try {
             const { AgentCodebaseIntegration } = await import('./agents/agent-codebase-integration');
             const filesModified = [];
             
-            // UNIVERSAL CODE BLOCK DETECTION - Extract ALL code blocks and determine target files
-            const codeBlockPattern = /```(?:typescript|tsx|javascript|js|css|)\n([\s\S]*?)```/gi;
+            // ENHANCED UNIVERSAL CODE BLOCK DETECTION - Extract ALL code blocks and determine target files
+            const codeBlockPattern = /```(?:typescript|tsx|javascript|js|css|html|json|)\n?([\s\S]*?)```/gi;
             const codeBlocks = [...aiResponse.matchAll(codeBlockPattern)];
             
             console.log(`🔍 Found ${codeBlocks.length} code blocks in AI response`);
@@ -3675,37 +3675,69 @@ CREATE FILES IMMEDIATELY when asked. Sandra sees changes in dev preview instantl
               
               // Method 2: If no explicit file mentioned, infer from code content
               if (!targetFile) {
-                // Look for React component patterns
+                // Enhanced React component patterns
                 const componentPatterns = [
                   /const\s+([A-Z][a-zA-Z]*)\s*:\s*React\.FC/,  // const ComponentName: React.FC
                   /export\s+default\s+function\s+([A-Z][a-zA-Z]*)/,  // export default function ComponentName
-                  /export\s+const\s+([A-Z][a-zA-Z]*)/,  // export const ComponentName
+                  /export\s+const\s+([A-Z][a-zA-Z]*)\s*=\s*\(/,  // export const ComponentName = (
                   /function\s+([A-Z][a-zA-Z]*)\s*\(/,  // function ComponentName(
-                  /export\s+default\s+([A-Z][a-zA-Z]*)/  // export default ComponentName
+                  /export\s+default\s+([A-Z][a-zA-Z]*)/,  // export default ComponentName
+                  /interface\s+([A-Z][a-zA-Z]*Props)/,  // interface ComponentNameProps  
+                  /const\s+([A-Z][a-zA-Z]*)\s*=\s*\(/  // const ComponentName = (
                 ];
                 
                 for (const pattern of componentPatterns) {
                   const match = codeContent.match(pattern);
                   if (match) {
-                    const componentName = match[1];
+                    let componentName = match[1];
+                    // Remove "Props" suffix if it exists
+                    if (componentName.endsWith('Props')) {
+                      componentName = componentName.slice(0, -5);
+                    }
                     targetFile = `client/src/components/${componentName}.tsx`;
                     console.log(`🎯 Detected component name: ${componentName} -> ${targetFile}`);
                     break;
                   }
                 }
                 
-                // Special case: If message mentions scrolling fix, target FileTreeExplorer
-                if (messageText.includes('scrolling') && codeContent.includes('overflow')) {
-                  targetFile = 'client/src/components/visual-editor/FileTreeExplorer.tsx';
+                // Special cases based on content and context
+                if (!targetFile) {
+                  // Scrolling fix specifically for FileTreeExplorer
+                  if (messageText.includes('scrolling') && (codeContent.includes('overflow') || codeContent.includes('max-h'))) {
+                    targetFile = 'client/src/components/visual-editor/FileTreeExplorer.tsx';
+                    console.log('🎯 Detected scrolling fix -> FileTreeExplorer.tsx');
+                  }
+                  // Visual editor related components
+                  else if (codeContent.includes('MultiTabEditor') || messageText.includes('editor') || messageText.includes('tab')) {
+                    targetFile = 'client/src/components/visual-editor/MultiTabEditor.tsx';
+                    console.log('🎯 Detected editor-related content -> MultiTabEditor.tsx');
+                  }
+                  // Agent chat related
+                  else if (codeContent.includes('agent') || codeContent.includes('chat') || messageText.includes('agent')) {
+                    targetFile = 'client/src/components/visual-editor/AgentChatEditor.tsx';
+                    console.log('🎯 Detected agent chat content -> AgentChatEditor.tsx');
+                  }
                 }
                 
-                // If still no target file found, check message content for component names
+                // Check message content for explicit component names
                 if (!targetFile) {
-                  const messageComponentMatch = message.match(/(?:called|named)\s+([A-Z][a-zA-Z]*)/i);
-                  if (messageComponentMatch) {
-                    const componentName = messageComponentMatch[1];
-                    targetFile = `client/src/components/${componentName}.tsx`;
-                    console.log(`🎯 Detected component name from message: ${componentName} -> ${targetFile}`);
+                  const messageComponentPatterns = [
+                    /(?:create|build|make|called|named|component|file)\s+([A-Z][a-zA-Z]*)/gi,
+                    /([A-Z][a-zA-Z]*)\s+(?:component|file)/gi,
+                    /(?:for|in|the)\s+([A-Z][a-zA-Z]*\.tsx)/gi
+                  ];
+                  
+                  for (const pattern of messageComponentPatterns) {
+                    const matches = [...message.matchAll(pattern)];
+                    if (matches.length > 0) {
+                      let componentName = matches[0][1];
+                      if (componentName.endsWith('.tsx')) {
+                        componentName = componentName.slice(0, -4);
+                      }
+                      targetFile = `client/src/components/${componentName}.tsx`;
+                      console.log(`🎯 Detected component name from message: ${componentName} -> ${targetFile}`);
+                      break;
+                    }
                   }
                 }
               }
@@ -3729,32 +3761,17 @@ CREATE FILES IMMEDIATELY when asked. Sandra sees changes in dev preview instantl
               }
             }
             
-            // Report file modifications in response
+            // Report file modifications in response and trigger refresh
             if (filesModified.length > 0) {
               aiResponse = `✅ **Files Modified Successfully:**\n${filesModified.map(f => `- ${f}`).join('\n')}\n\n${aiResponse}`;
               
-              // Trigger dev preview refresh
+              // Trigger dev preview refresh by touching index.tsx
               const { readFile, writeFile } = await import('fs/promises');
               try {
                 const touchFile = 'client/src/index.tsx';
                 const content = await readFile(touchFile, 'utf8');
                 await writeFile(touchFile, content, 'utf8');
-                console.log('🔄 Triggered dev preview refresh');
-              } catch (e) {
-                console.log('⚠️ Could not trigger refresh:', e.message);
-              }
-            }
-            
-            if (filesModified.length > 0) {
-              aiResponse = `✅ **Files Modified Successfully:**\n${filesModified.map(f => `- ${f}`).join('\n')}\n\n${aiResponse}`;
-              
-              // Trigger dev preview refresh
-              const { readFile, writeFile } = await import('fs/promises');
-              try {
-                const touchFile = 'client/src/index.tsx';
-                const content = await readFile(touchFile, 'utf8');
-                await writeFile(touchFile, content, 'utf8');
-                console.log('🔄 Triggered dev preview refresh');
+                console.log('🔄 Triggered dev preview refresh for file changes');
               } catch (e) {
                 console.log('⚠️ Could not trigger refresh:', e.message);
               }
