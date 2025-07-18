@@ -862,7 +862,7 @@ export function OptimizedVisualEditor({ className = '' }: OptimizedVisualEditorP
     <div className={`h-screen bg-white ${className}`}>
       <PanelGroup direction="horizontal" className="h-full md:flex-row flex-col">
         {/* Chat Panel - Resizable */}
-        <Panel defaultSize={35} minSize={25} maxSize={50} className="md:min-w-0 min-h-[40vh] md:min-h-0">
+        <Panel id="chat-panel" defaultSize={35} minSize={25} maxSize={50} className="md:min-w-0 min-h-[40vh] md:min-h-0">
           <div 
             ref={chatPanelRef}
             className={`h-full border-r md:border-r border-b md:border-b-0 border-gray-200 bg-white flex flex-col ${isDragOver ? 'bg-blue-50 border-blue-300' : ''}`}
@@ -1391,7 +1391,7 @@ export function OptimizedVisualEditor({ className = '' }: OptimizedVisualEditorP
         <PanelResizeHandle className="w-2 bg-gray-100 hover:bg-gray-200 transition-colors" />
 
         {/* Main Live Preview Panel - Resizable */}
-        <Panel defaultSize={65} minSize={30} className="md:min-w-0 min-h-[60vh] md:min-h-0">
+        <Panel id="preview-panel" defaultSize={showDesignTools ? 40 : 65} minSize={30} className="md:min-w-0 min-h-[60vh] md:min-h-0">
           <div className="h-full flex flex-col">
         {/* Top Toolbar */}
         <div className="border-b border-gray-200 px-2 md:px-4 py-1 md:py-2 flex items-center justify-between bg-gray-50">
