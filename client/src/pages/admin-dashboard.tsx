@@ -15,6 +15,7 @@ import AgentDashboard from '@/components/admin/AgentDashboard';
 import AgentAnalyticsDashboard from '@/components/admin/AgentAnalyticsDashboard';
 import EnhancedAgentCoordination from '@/components/admin/EnhancedAgentCoordination';
 import AgentEnhancementDashboard from '@/components/AgentEnhancementDashboard';
+import AdminDashboardRedesigned from './admin-dashboard-redesigned';
 
 // Agent Configuration for the visual cards
 const AGENT_CONFIGS = [
@@ -83,7 +84,7 @@ const AGENT_CONFIGS = [
   }
 ];
 
-export default function AdminDashboard() {
+function AdminDashboardOld() {
   const { user, isAuthenticated, isLoading } = useAuth();
   const [, setLocation] = useLocation();
   const [activeTab, setActiveTab] = useState('dashboard');
@@ -909,3 +910,6 @@ function StatCard({ title, value, subtitle }: { title: string; value: string | n
     </div>
   );
 }
+
+// Export the redesigned version as default
+export default AdminDashboardRedesigned;
