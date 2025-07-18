@@ -473,6 +473,70 @@ export type UpsertDomain = typeof domains.$inferInsert;
 export type UserUsage = typeof userUsage.$inferSelect;
 export type InsertUserUsage = typeof userUsage.$inferInsert;
 export type UsageHistory = typeof usageHistory.$inferSelect;
+
+// Agent Learning & Training System Tables
+export const agentLearning = pgTable("agent_learning", {
+  id: serial("id").primaryKey(),
+  agentId: varchar("agent_id").notNull(),
+  taskType: varchar("task_type").notNull(),
+  context: text("context").notNull(),
+  outcome: varchar("outcome").notNull(), // 'success', 'failure', 'partial'
+  learningNotes: text("learning_notes").notNull(),
+  metadata: jsonb("metadata").default({}),
+  timestamp: timestamp("timestamp").defaultNow().notNull(),
+  userId: varchar("user_id"), // Optional: track which user's task this was
+});
+
+export const agentKnowledgeBase = pgTable("agent_knowledge_base", {
+  id: serial("id").primaryKey(),
+  agentId: varchar("agent_id").notNull(),
+  topic: varchar("topic").notNull(),
+  content: text("content").notNull(),
+  source: varchar("source").notNull(), // 'conversation', 'training', 'documentation', 'experience'
+  confidence: decimal("confidence").notNull(), // 0.0 to 1.0
+  lastUpdated: timestamp("last_updated").defaultNow().notNull(),
+  tags: text("tags").array(), // For categorization
+});
+
+export const agentPerformanceMetrics = pgTable("agent_performance_metrics", {
+  id: serial("id").primaryKey(),
+  agentId: varchar("agent_id").notNull(),
+  taskType: varchar("task_type").notNull(),
+  successRate: decimal("success_rate").notNull(),
+  averageTime: integer("average_time").default(0), // in milliseconds
+  userSatisfactionScore: decimal("user_satisfaction_score").default(0),
+  totalTasks: integer("total_tasks").default(0),
+  improvementTrend: varchar("improvement_trend").default('stable'), // 'improving', 'stable', 'declining'
+  lastUpdated: timestamp("last_updated").defaultNow().notNull(),
+});
+
+export const agentTrainingSessions = pgTable("agent_training_sessions", {
+  id: serial("id").primaryKey(),
+  agentId: varchar("agent_id").notNull(),
+  sessionType: varchar("session_type").notNull(), // 'manual', 'automatic', 'feedback'
+  trainingData: jsonb("training_data").notNull(),
+  improvements: text("improvements"),
+  performanceGain: decimal("performance_gain"),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+  trainedBy: varchar("trained_by"), // User ID who initiated training
+});
+
+// Agent Learning Schemas
+export const insertAgentLearningSchema = createInsertSchema(agentLearning);
+export type InsertAgentLearning = z.infer<typeof insertAgentLearningSchema>;
+export type AgentLearning = typeof agentLearning.$inferSelect;
+
+export const insertAgentKnowledgeBaseSchema = createInsertSchema(agentKnowledgeBase);
+export type InsertAgentKnowledgeBase = z.infer<typeof insertAgentKnowledgeBaseSchema>;
+export type AgentKnowledgeBase = typeof agentKnowledgeBase.$inferSelect;
+
+export const insertAgentPerformanceMetricsSchema = createInsertSchema(agentPerformanceMetrics);
+export type InsertAgentPerformanceMetrics = z.infer<typeof insertAgentPerformanceMetricsSchema>;
+export type AgentPerformanceMetrics = typeof agentPerformanceMetrics.$inferSelect;
+
+export const insertAgentTrainingSessionsSchema = createInsertSchema(agentTrainingSessions);
+export type InsertAgentTrainingSession = z.infer<typeof insertAgentTrainingSessionsSchema>;
+export type AgentTrainingSession = typeof agentTrainingSessions.$inferSelect;
 export type InsertUsageHistory = typeof usageHistory.$inferInsert;
 
 // Export styleguide tables and types  

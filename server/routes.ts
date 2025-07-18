@@ -7,6 +7,7 @@ import agentCodebaseRoutes from "./routes/agent-codebase-routes";
 import { registerAgentApprovalRoutes } from "./routes/agent-approval";
 import { registerAgentCommandRoutes } from "./routes/agent-command-center";
 import agentFileAccessRoutes from "./routes/agent-file-access";
+import agentLearningRoutes from "./routes/agent-learning";
 import { rachelAgent } from "./agents/rachel-agent";
 import path from "path";
 import fs from "fs";
@@ -101,6 +102,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
   
   // Agent file access routes (secure admin access only)
   app.use('/api/admin/agent', agentFileAccessRoutes);
+  
+  // Agent learning & training routes  
+  app.use('/api/agent-learning', agentLearningRoutes);
   
   // Agent conversation routes removed - now inline below
 
