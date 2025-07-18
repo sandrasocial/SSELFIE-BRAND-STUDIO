@@ -258,7 +258,11 @@ export async function setupAuth(app: Express) {
       
       const authOptions: any = {
         scope: ["openid", "email", "profile", "offline_access"],
-        prompt: forceAccountSelection ? "select_account" : "login consent"
+        prompt: forceAccountSelection ? "select_account" : "login consent",
+        // Custom parameters to improve branding
+        client_name: "SSELFIE Studio",
+        application_name: "SSELFIE Studio",
+        app_name: "SSELFIE Studio"
       };
       
       if (forceAccountSelection) {
