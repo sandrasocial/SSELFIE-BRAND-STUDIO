@@ -11,15 +11,15 @@
   "categories": ["photo", "productivity", "business", "lifestyle"],
   "icons": [
     {
-      "src": "/icon-192.svg",
+      "src": "https://i.postimg.cc/65NtYqMK/Black-transperent-logo.png",
       "sizes": "192x192",
-      "type": "image/svg+xml",
+      "type": "image/png",
       "purpose": "any maskable"
     },
     {
-      "src": "/icon-512.svg",
+      "src": "https://i.postimg.cc/65NtYqMK/Black-transperent-logo.png",
       "sizes": "512x512",
-      "type": "image/svg+xml",
+      "type": "image/png",
       "purpose": "any maskable"
     }
   ],
@@ -43,21 +43,21 @@
       "short_name": "Maya",
       "description": "Start AI photoshoot with Maya",
       "url": "/maya",
-      "icons": [{ "src": "/icon-192.svg", "sizes": "192x192" }]
+      "icons": [{ "src": "https://i.postimg.cc/65NtYqMK/Black-transperent-logo.png", "sizes": "192x192" }]
     },
     {
       "name": "Victoria Brand Builder",
       "short_name": "Victoria",
       "description": "Build your brand with Victoria",
       "url": "/victoria",
-      "icons": [{ "src": "/icon-192.svg", "sizes": "192x192" }]
+      "icons": [{ "src": "https://i.postimg.cc/65NtYqMK/Black-transperent-logo.png", "sizes": "192x192" }]
     },
     {
       "name": "Gallery",
       "short_name": "Gallery",
       "description": "View your AI photos",
       "url": "/gallery",
-      "icons": [{ "src": "/icon-192.svg", "sizes": "192x192" }]
+      "icons": [{ "src": "https://i.postimg.cc/65NtYqMK/Black-transperent-logo.png", "sizes": "192x192" }]
     }
   ]
 }
