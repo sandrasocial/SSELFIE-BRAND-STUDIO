@@ -1391,7 +1391,7 @@ export function OptimizedVisualEditor({ className = '' }: OptimizedVisualEditorP
         <PanelResizeHandle className="w-2 bg-gray-100 hover:bg-gray-200 transition-colors" />
 
         {/* Main Live Preview Panel - Resizable */}
-        <Panel id="preview-panel" defaultSize={showDesignTools ? 40 : 65} minSize={30} className="md:min-w-0 min-h-[60vh] md:min-h-0">
+        <Panel id="preview-panel" defaultSize={showDesignTools ? 45 : 65} minSize={30} className="md:min-w-0 min-h-[60vh] md:min-h-0">
           <div className="h-full flex flex-col">
         {/* Top Toolbar */}
         <div className="border-b border-gray-200 px-2 md:px-4 py-1 md:py-2 flex items-center justify-between bg-gray-50">
@@ -1506,7 +1506,7 @@ export function OptimizedVisualEditor({ className = '' }: OptimizedVisualEditorP
         {showPropertiesPanel && (
           <>
             <PanelResizeHandle className="w-2 bg-gray-100 hover:bg-gray-200 transition-colors" />
-            <Panel defaultSize={30} minSize={15} maxSize={40}>
+            <Panel id="properties-panel" defaultSize={20} minSize={15} maxSize={30}>
               <div className="h-full border-l border-gray-200 bg-white flex flex-col">
                 {/* Properties Header */}
                 <div className="p-4 border-b border-gray-200 flex items-center justify-between">
