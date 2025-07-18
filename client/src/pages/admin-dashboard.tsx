@@ -855,15 +855,34 @@ function AgentChat({ agentId, agentName, role, status, currentTask, metrics }: A
         </form>
         <div className="text-xs text-gray-500 mt-2 flex items-center justify-between">
           <span>{agentName} has full access to implement changes in the SSELFIE Studio codebase</span>
-          <button
-            onClick={() => {
-              setChatHistory([]);
-              localStorage.removeItem(`agent-chat-${agentId}`);
-            }}
-            className="text-xs text-red-500 hover:text-red-700 underline"
-          >
-            Clear Chat
-          </button>
+          <div className="flex space-x-3">
+            <button
+              onClick={() => {
+                if (chatHistory.length > 0) {
+                  const newHistory = chatHistory.slice(0, -1);
+                  setChatHistory(newHistory);
+                  if (newHistory.length === 0) {
+                    localStorage.removeItem(`agent-chat-${agentId}`);
+                  } else {
+                    localStorage.setItem(`agent-chat-${agentId}`, JSON.stringify(newHistory));
+                  }
+                }
+              }}
+              disabled={chatHistory.length === 0}
+              className="text-xs text-blue-500 hover:text-blue-700 underline disabled:text-gray-400 disabled:no-underline"
+            >
+              Rollback
+            </button>
+            <button
+              onClick={() => {
+                setChatHistory([]);
+                localStorage.removeItem(`agent-chat-${agentId}`);
+              }}
+              className="text-xs text-red-500 hover:text-red-700 underline"
+            >
+              Clear Chat
+            </button>
+          </div>
         </div>
       </div>
     </div>
