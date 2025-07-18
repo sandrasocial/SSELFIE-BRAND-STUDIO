@@ -93,7 +93,7 @@ const agents: Agent[] = [
     id: 'victoria',
     name: 'Victoria',
     role: 'UX Designer AI',
-    expertise: ['Design', 'UI/UX', 'Visual Editor', 'Components'],
+    expertise: ['Luxury Design', 'Editorial Layouts', 'Typography', 'Component Design'],
     color: 'bg-purple-500',
     nextAgent: 'maya',
     workflowStage: 'Design'
@@ -102,7 +102,7 @@ const agents: Agent[] = [
     id: 'maya',
     name: 'Maya',
     role: 'Dev AI',
-    expertise: ['Development', 'Code', 'API', 'Technical Implementation'],
+    expertise: ['React/TypeScript', 'Database Design', 'API Development', 'Performance'],
     color: 'bg-blue-500',
     nextAgent: 'rachel',
     workflowStage: 'Development'
@@ -111,7 +111,7 @@ const agents: Agent[] = [
     id: 'rachel',
     name: 'Rachel',
     role: 'Voice AI',
-    expertise: ['Copywriting', 'Content', 'Voice', 'Marketing Copy'],
+    expertise: ['Brand Voice', 'Conversion Copy', 'Email Campaigns', 'Content Strategy'],
     color: 'bg-pink-500',
     nextAgent: 'ava',
     workflowStage: 'Content'
@@ -120,7 +120,7 @@ const agents: Agent[] = [
     id: 'ava',
     name: 'Ava',
     role: 'Automation AI',
-    expertise: ['Workflows', 'Automation', 'Business Logic'],
+    expertise: ['Workflow Design', 'API Integration', 'Email Automation', 'Business Logic'],
     color: 'bg-green-500',
     nextAgent: 'quinn',
     workflowStage: 'Automation'
@@ -129,9 +129,46 @@ const agents: Agent[] = [
     id: 'quinn',
     name: 'Quinn',
     role: 'QA AI',
-    expertise: ['Quality Assurance', 'Testing', 'Validation'],
+    expertise: ['Quality Testing', 'User Experience', 'Performance Audit', 'Bug Detection'],
     color: 'bg-orange-500',
+    nextAgent: 'sophia',
     workflowStage: 'Quality Assurance'
+  },
+  {
+    id: 'sophia',
+    name: 'Sophia',
+    role: 'Social Media Manager AI',
+    expertise: ['Instagram Growth', 'Content Strategy', 'Community Building', 'Analytics'],
+    color: 'bg-teal-500',
+    nextAgent: 'martha',
+    workflowStage: 'Social Media'
+  },
+  {
+    id: 'martha',
+    name: 'Martha',
+    role: 'Marketing/Ads AI',
+    expertise: ['Performance Marketing', 'A/B Testing', 'Revenue Optimization', 'Analytics'],
+    color: 'bg-red-500',
+    nextAgent: 'diana',
+    workflowStage: 'Marketing'
+  },
+  {
+    id: 'diana',
+    name: 'Diana',
+    role: 'Personal Mentor & Business Coach AI',
+    expertise: ['Strategic Planning', 'Business Coaching', 'Decision Making', 'Team Coordination'],
+    color: 'bg-indigo-500',
+    nextAgent: 'wilma',
+    workflowStage: 'Strategy'
+  },
+  {
+    id: 'wilma',
+    name: 'Wilma',
+    role: 'Workflow AI',
+    expertise: ['Process Optimization', 'Automation Design', 'Efficiency', 'System Integration'],
+    color: 'bg-yellow-500',
+    nextAgent: 'victoria',
+    workflowStage: 'Workflow'
   }
 ];
 
@@ -604,8 +641,16 @@ export function OptimizedVisualEditor({ className = '' }: OptimizedVisualEditorP
           responseText.includes('Now I need to') ||
           responseText.includes('IMMEDIATE ACTION') ||
           responseText.includes('PROGRESS UPDATE') ||
+          // Agent-specific continuous work patterns
           (agentId === 'maya' && responseText.includes('```')) || // Maya continues after code changes
-          (agentId === 'victoria' && responseText.includes('design')) // Victoria continues with design iterations
+          (agentId === 'victoria' && responseText.includes('design')) || // Victoria continues with design iterations
+          (agentId === 'rachel' && responseText.includes('copy')) || // Rachel continues with copywriting
+          (agentId === 'ava' && responseText.includes('workflow')) || // Ava continues with automation
+          (agentId === 'quinn' && responseText.includes('testing')) || // Quinn continues with QA
+          (agentId === 'sophia' && responseText.includes('social')) || // Sophia continues with social media
+          (agentId === 'martha' && responseText.includes('marketing')) || // Martha continues with marketing
+          (agentId === 'diana' && responseText.includes('strategy')) || // Diana continues with strategy
+          (agentId === 'wilma' && responseText.includes('optimization')) // Wilma continues with workflows
         );
 
         // Auto-continue working if agent indicates more work needed
