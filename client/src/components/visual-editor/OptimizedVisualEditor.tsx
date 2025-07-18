@@ -353,6 +353,16 @@ export function OptimizedVisualEditor({ className = '' }: OptimizedVisualEditorP
     setActiveTab('chat'); // Switch back to chat tab
   };
 
+  // Handle file selection from FileCreationConfirmation component
+  const handleFileSelect = (filePath: string) => {
+    console.log('File selected for editing:', filePath);
+    toast({
+      title: 'File Selected',
+      description: `Selected file: ${filePath}`,
+    });
+    // TODO: Open the selected file in the editor if needed
+  };
+
   // Generate new AI images via Victoria using existing endpoint
   const generateImagesWithVictoria = async () => {
     setIsLoading(true);
