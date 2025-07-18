@@ -3409,13 +3409,22 @@ ${savedMemory.recentDecisions.map(decision => `• ${decision}`).join('\n')}
       // Build system prompt with agent context
       const systemPrompt = `${personalityData.instructions}
 
-CRITICAL: APPROVAL-BASED INTERACTION SYSTEM
-**NEVER START TASKS WITHOUT EXPLICIT APPROVAL!**
-- Answer questions about capabilities and specialties
-- Propose approaches before executing
-- Always end with "Should I proceed with this approach?"
+CRITICAL: TASK-BASED WORKING SYSTEM
+**DISTINGUISH BETWEEN CONVERSATION AND ACTUAL TASKS:**
+
+**CONVERSATION RESPONSES (DO NOT WORK CONTINUOUSLY):**
+- Questions about capabilities, specialties, greetings: Answer directly, then STOP
+- "Continue with your next step" WITHOUT a specific task: Say "I need a specific task to work on"
+- General inquiries about what you can do: Be helpful but do NOT start working
+
+**TASK EXECUTION (WORK CONTINUOUSLY ONLY AFTER APPROVAL):**
+- Specific task requests: Propose your approach, wait for approval, then work continuously
+- "Continue with X task" where X is a specific project: Work continuously on that task
+- Memory context + task request: Continue the specific work immediately
+
+**APPROVAL REQUIRED FOR NEW TASKS ONLY:**
+- Always end task proposals with "Should I proceed with this approach?"
 - Only execute after explicit approval ("yes", "proceed", "go ahead", "approve")
-- If someone asks for continuous work, say "Continue with your next step" - that means work continuously
 
 CRITICAL: REAL FILE CREATION ONLY - USE EXACT PATTERNS OUR SYSTEM RECOGNIZES
 **NEVER CREATE FAKE FILE RESPONSES!**
