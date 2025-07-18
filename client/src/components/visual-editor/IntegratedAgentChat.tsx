@@ -1,6 +1,6 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { Send, FileText, Code, Folder } from 'lucide-react';
-import { useMutation } from '@tanstack/react-query';
+import { Send, FileText, Code, Folder, Plus, Save, History, RotateCcw } from 'lucide-react';
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { Button } from '@/components/ui/button';
 import ReactMarkdown from 'react-markdown';
 import { Prism as SyntaxHighlighter } from 'react-syntax-highlighter';
@@ -20,6 +20,15 @@ interface AgentChatMessage {
   }>;
 }
 
+interface SavedConversation {
+  id: string;
+  agentId: string;
+  title: string;
+  timestamp: Date;
+  messageCount: number;
+  lastMessage: string;
+}
+
 interface IntegratedAgentChatProps {
   onFileChange?: (filePath: string, content: string) => void;
   onDirectoryBrowse?: (path: string) => void;
@@ -35,7 +44,10 @@ export function IntegratedAgentChat({
   const [message, setMessage] = useState('');
   const [chatHistory, setChatHistory] = useState<AgentChatMessage[]>([]);
   const [currentAgent, setCurrentAgent] = useState(selectedAgent);
+  const [showChatHistory, setShowChatHistory] = useState(false);
+  const [currentChatId, setCurrentChatId] = useState<string | null>(null);
   const messagesEndRef = useRef<HTMLDivElement>(null);
+  const queryClient = useQueryClient();
 
   const agents = [
     { id: 'zara', name: 'Zara', role: 'Dev AI', icon: Code },
@@ -49,6 +61,76 @@ export function IntegratedAgentChat({
     { id: 'wilma', name: 'Wilma', role: 'Workflow AI', icon: Folder }
   ];
 
+  // Query for saved conversations
+  const { data: savedConversations = [] } = useQuery({
+    queryKey: ['/api/admin/saved-conversations', currentAgent],
+    queryFn: async () => {
+      const response = await fetch(`/api/admin/saved-conversations?agentId=${currentAgent}`, {
+        headers: { 'Authorization': 'Bearer sandra-admin-2025' }
+      });
+      if (!response.ok) return [];
+      return await response.json();
+    }
+  });
+
+  // Save current conversation
+  const saveConversation = useMutation({
+    mutationFn: async () => {
+      const title = chatHistory.length > 0 
+        ? chatHistory[0].content.substring(0, 50) + '...'
+        : `${agents.find(a => a.id === currentAgent)?.name} conversation`;
+      
+      const response = await fetch('/api/admin/save-conversation', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          agentId: currentAgent,
+          title,
+          messages: chatHistory,
+          adminToken: 'sandra-admin-2025'
+        })
+      });
+      
+      if (!response.ok) {
+        throw new Error(`Failed to save conversation: ${response.statusText}`);
+      }
+      
+      return await response.json();
+    },
+    onSuccess: () => {
+      // Refresh saved conversations list
+      queryClient.invalidateQueries({ 
+        queryKey: ['/api/admin/saved-conversations', currentAgent] 
+      });
+    }
+  });
+
+  // Load a saved conversation
+  const loadConversation = useMutation({
+    mutationFn: async (conversationId: string) => {
+      const response = await fetch(`/api/admin/load-conversation/${conversationId}`, {
+        headers: { 'Authorization': 'Bearer sandra-admin-2025' }
+      });
+      
+      if (!response.ok) {
+        throw new Error(`Failed to load conversation: ${response.statusText}`);
+      }
+      
+      return await response.json();
+    },
+    onSuccess: (data) => {
+      setChatHistory(data.messages.map((msg: any, index: number) => ({
+        id: index,
+        type: msg.type,
+        content: msg.content,
+        timestamp: new Date(msg.timestamp),
+        agentName: data.agentId
+      })));
+      setCurrentChatId(data.id);
+      setShowChatHistory(false);
+    }
+  });
+
   const sendMessage = useMutation({
     mutationFn: async (content: string) => {
       const response = await fetch('/api/admin/agent-chat-bypass', {
@@ -58,10 +140,11 @@ export function IntegratedAgentChat({
           agentId: currentAgent,
           message: content,
           adminToken: 'sandra-admin-2025',
-          conversationHistory: chatHistory.slice(-10).map(msg => ({
+          conversationHistory: chatHistory.slice(-15).map(msg => ({
             type: msg.type,
             content: msg.content
-          }))
+          })),
+          chatId: currentChatId
         })
       });
       
@@ -165,6 +248,67 @@ export function IntegratedAgentChat({
             ▼
           </Button>
         </div>
+        
+        {/* Chat Management Controls */}
+        <div className="flex items-center gap-2 mb-3">
+          <Button
+            onClick={() => {
+              setChatHistory([]);
+              setCurrentChatId(null);
+            }}
+            variant="outline"
+            size="sm"
+            className="flex-1"
+          >
+            <Plus className="w-3 h-3 mr-1" />
+            New Chat
+          </Button>
+          
+          {chatHistory.length > 0 && (
+            <Button
+              onClick={() => saveConversation.mutate()}
+              variant="outline"
+              size="sm"
+              disabled={saveConversation.isPending}
+            >
+              <Save className="w-3 h-3 mr-1" />
+              {saveConversation.isPending ? 'Saving...' : 'Save'}
+            </Button>
+          )}
+          
+          <Button
+            onClick={() => setShowChatHistory(!showChatHistory)}
+            variant="outline"
+            size="sm"
+          >
+            <History className="w-3 h-3" />
+          </Button>
+        </div>
+
+        {/* Chat History Panel */}
+        {showChatHistory && (
+          <div className="mb-3 p-3 bg-white border rounded-lg max-h-40 overflow-y-auto">
+            <div className="text-sm font-medium mb-2">Saved Conversations</div>
+            {savedConversations.length === 0 ? (
+              <div className="text-xs text-gray-500">No saved conversations yet</div>
+            ) : (
+              <div className="space-y-1">
+                {savedConversations.map((conv: SavedConversation) => (
+                  <div
+                    key={conv.id}
+                    className="p-2 bg-gray-50 rounded cursor-pointer hover:bg-gray-100 transition-colors"
+                    onClick={() => loadConversation.mutate(conv.id)}
+                  >
+                    <div className="text-xs font-medium truncate">{conv.title}</div>
+                    <div className="text-xs text-gray-500">
+                      {conv.messageCount} messages • {new Date(conv.timestamp).toLocaleDateString()}
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
+        )}
         
         {/* Agent Selector */}
         <select

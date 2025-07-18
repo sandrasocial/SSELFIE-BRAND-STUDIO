@@ -3582,6 +3582,133 @@ AGENT_CONTEXT:
   const { registerEnterpriseRoutes } = await import('./routes/enterprise-routes');
   await registerEnterpriseRoutes(app);
 
+  // Chat Management API Routes
+  app.post('/api/admin/save-conversation', async (req, res) => {
+    try {
+      const { agentId, title, messages, adminToken } = req.body;
+      
+      // Admin authentication check
+      if (adminToken !== 'sandra-admin-2025' && 
+          !(req.isAuthenticated() && req.user?.claims?.email === 'ssa@ssasocial.com')) {
+        return res.status(401).json({ error: 'Unauthorized' });
+      }
+
+      const userId = req.user?.claims?.sub || 'admin-sandra';
+      const conversationId = `conv_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
+      
+      const conversationData = {
+        id: conversationId,
+        agentId,
+        userId,
+        title,
+        messages,
+        messageCount: messages.length,
+        timestamp: new Date(),
+        lastMessage: messages.length > 0 ? messages[messages.length - 1].content.substring(0, 100) : ''
+      };
+      
+      // Save to agent_conversations table with special format for saved conversations
+      await storage.saveAgentConversation(
+        agentId,
+        userId,
+        `SAVED_CONVERSATION: ${title}`,
+        JSON.stringify(conversationData),
+        [],
+        conversationId
+      );
+      
+      console.log(`💾 Conversation saved: ${conversationId} (${messages.length} messages)`);
+      
+      res.json({ 
+        success: true, 
+        conversationId,
+        message: 'Conversation saved successfully' 
+      });
+      
+    } catch (error) {
+      console.error('Save conversation error:', error);
+      res.status(500).json({ error: 'Failed to save conversation' });
+    }
+  });
+
+  app.get('/api/admin/saved-conversations', async (req, res) => {
+    try {
+      const { agentId } = req.query;
+      
+      // Admin authentication check
+      const adminToken = req.headers.authorization?.replace('Bearer ', '');
+      if (adminToken !== 'sandra-admin-2025' && 
+          !(req.isAuthenticated() && req.user?.claims?.email === 'ssa@ssasocial.com')) {
+        return res.status(401).json({ error: 'Unauthorized' });
+      }
+
+      const userId = req.user?.claims?.sub || 'admin-sandra';
+      
+      // Get saved conversations from database
+      const conversations = await storage.getAgentConversations(agentId as string, userId);
+      
+      const savedConversations = conversations
+        .filter(conv => conv.userMessage.startsWith('SAVED_CONVERSATION:'))
+        .map(conv => {
+          try {
+            const data = JSON.parse(conv.agentResponse);
+            return {
+              id: data.id,
+              agentId: data.agentId,
+              title: data.title,
+              timestamp: data.timestamp,
+              messageCount: data.messageCount,
+              lastMessage: data.lastMessage
+            };
+          } catch {
+            return null;
+          }
+        })
+        .filter(Boolean)
+        .sort((a, b) => new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime());
+      
+      res.json(savedConversations);
+      
+    } catch (error) {
+      console.error('Get saved conversations error:', error);
+      res.status(500).json({ error: 'Failed to get saved conversations' });
+    }
+  });
+
+  app.get('/api/admin/load-conversation/:conversationId', async (req, res) => {
+    try {
+      const { conversationId } = req.params;
+      
+      // Admin authentication check
+      const adminToken = req.headers.authorization?.replace('Bearer ', '');
+      if (adminToken !== 'sandra-admin-2025' && 
+          !(req.isAuthenticated() && req.user?.claims?.email === 'ssa@ssasocial.com')) {
+        return res.status(401).json({ error: 'Unauthorized' });
+      }
+
+      const userId = req.user?.claims?.sub || 'admin-sandra';
+      
+      // Find conversation in database
+      const conversations = await storage.getAllAgentConversations(userId);
+      const conversation = conversations.find(conv => 
+        conv.userMessage.startsWith('SAVED_CONVERSATION:') && 
+        conv.agentResponse.includes(conversationId)
+      );
+      
+      if (!conversation) {
+        return res.status(404).json({ error: 'Conversation not found' });
+      }
+      
+      const conversationData = JSON.parse(conversation.agentResponse);
+      
+      res.json(conversationData);
+      
+    } catch (error) {
+      console.error('Load conversation error:', error);
+      res.status(500).json({ error: 'Failed to load conversation' });
+    }
+  });
+
   // Import and register agent learning routes
   const agentLearningRouter = await import('./routes/agent-learning');
   app.use('/api/agent-learning', agentLearningRouter.default);

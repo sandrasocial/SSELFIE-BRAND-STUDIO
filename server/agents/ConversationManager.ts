@@ -59,7 +59,7 @@ export class ConversationManager {
   }
 
   /**
-   * Create intelligent summary of conversation history
+   * Create intelligent summary of conversation history (Enhanced for Replit-style memory)
    */
   static async createConversationSummary(
     agentId: string,
@@ -73,8 +73,8 @@ export class ConversationManager {
     let currentContext = '';
     let workflowStage = 'ongoing';
 
-    // Analyze messages for important content - look at more messages for better context
-    for (const message of history.slice(-40)) { // Look at last 40 messages for richer context
+    // Enhanced analysis - look at ALL messages for maximum context preservation
+    for (const message of history) { // Analyze entire conversation history
       if (message.role === 'user') {
         // Extract specific task requests with better patterns
         const content = message.content.toLowerCase();
@@ -120,29 +120,33 @@ export class ConversationManager {
       }
     }
 
-    // Determine current context from entire conversation, not just recent messages
+    // Enhanced context detection from entire conversation for Replit-style memory
     const fullContent = history.map(m => m.content).join(' ').toLowerCase();
     
-    if (fullContent.includes('admin') && fullContent.includes('dashboard')) {
-      currentContext = 'Working on Sandra\'s admin dashboard with agent chat interfaces and luxury design';
+    // More sophisticated context detection with chat management patterns
+    if (fullContent.includes('chat') && fullContent.includes('management')) {
+      currentContext = 'Implementing Replit-style chat management system with save/load functionality and enhanced memory';
+      workflowStage = 'chat-management';
+    } else if (fullContent.includes('admin') && fullContent.includes('dashboard')) {
+      currentContext = 'Working on Sandra\'s admin dashboard with agent chat interfaces and luxury design systems';
       workflowStage = 'admin-dashboard';
-    } else if (fullContent.includes('test') && fullContent.includes('component')) {
-      currentContext = 'Creating and testing React components with proper file system integration';
-      workflowStage = 'component-testing';
     } else if (fullContent.includes('memory') && fullContent.includes('agent')) {
-      currentContext = 'Implementing and debugging agent memory systems for conversation continuity';
+      currentContext = 'Implementing and debugging agent memory systems for conversation continuity and context preservation';
       workflowStage = 'memory-system';
-    } else if (fullContent.includes('preview') || fullContent.includes('iframe')) {
-      currentContext = 'Fixing preview and iframe functionality in visual editor';
-      workflowStage = 'preview-debugging';
+    } else if (fullContent.includes('auto-clear') || (fullContent.includes('conversation') && fullContent.includes('management'))) {
+      currentContext = 'Debugging conversation management and auto-clear interference with agent behavior patterns';
+      workflowStage = 'conversation-debugging';
     } else if (fullContent.includes('visual') && fullContent.includes('editor')) {
-      currentContext = 'Enhancing visual editor interface and agent integration';
+      currentContext = 'Enhancing visual editor interface with multi-tab editing and agent integration';
       workflowStage = 'visual-editor';
     } else if (fullContent.includes('file') && fullContent.includes('creation')) {
-      currentContext = 'Implementing file creation system for agents';
+      currentContext = 'Implementing agent file creation system with real filesystem integration';
       workflowStage = 'file-system';
+    } else if (fullContent.includes('test') && fullContent.includes('component')) {
+      currentContext = 'Creating and testing React components with proper TypeScript and styling integration';
+      workflowStage = 'component-testing';
     } else {
-      currentContext = 'General SSELFIE Studio development and design work';
+      currentContext = 'General SSELFIE Studio development with luxury editorial design standards';
       workflowStage = 'development';
     }
 
