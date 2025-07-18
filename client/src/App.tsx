@@ -50,6 +50,7 @@ import VictoriaChat from "@/pages/victoria-chat";
 import VictoriaBuilder from '@/pages/victoria-builder';
 import VictoriaPreview from '@/pages/victoria-preview';
 import PhotoSelection from "@/pages/photo-selection";
+import LiveTestComponent from "@/components/LiveTestComponent";
 import BrandOnboarding from "@/pages/brand-onboarding";
 import Welcome from "@/pages/welcome";
 import AuthSuccess from "@/pages/auth-success";
