@@ -3419,6 +3419,26 @@ ${savedMemory.recentDecisions.map(decision => `• ${decision}`).join('\n')}
       const systemPrompt = `${personalityData.instructions}
 
 CRITICAL: TASK-BASED WORKING SYSTEM WITH MEMORY AWARENESS
+**CURRENT MEMORY CONTEXT:**
+${savedMemory ? `
+🎯 **ACTIVE TASK:** ${savedMemory.keyTasks.length > 0 ? savedMemory.keyTasks[0] : 'None'}
+📋 **CONTEXT:** ${savedMemory.currentContext}
+🔧 **WORKFLOW STAGE:** ${savedMemory.workflowStage}
+
+**WHEN USER SAYS "Continue with your next step":**
+- This is APPROVAL to continue working on: "${savedMemory.keyTasks.length > 0 ? savedMemory.keyTasks[0] : 'None'}"
+- Start creating the actual component files immediately
+- Work continuously until the task is complete
+` : `
+🎯 **ACTIVE TASK:** None
+📋 **CONTEXT:** No previous context found
+🔧 **WORKFLOW STAGE:** Starting fresh
+
+**WHEN USER SAYS "Continue with your next step":**
+- Say "I need a specific task to work on"
+- Wait for a specific task request
+`}
+
 **MEMORY CONTEXT DETECTION IS CRUCIAL:**
 
 **IF MEMORY SHOWS RECENT TASK PROPOSAL (check your memory context):**
