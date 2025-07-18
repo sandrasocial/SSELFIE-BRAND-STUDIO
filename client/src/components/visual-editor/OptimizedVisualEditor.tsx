@@ -1436,62 +1436,12 @@ export function OptimizedVisualEditor({ className = '' }: OptimizedVisualEditorP
                   console.log('🚀 Live SSELFIE Studio loaded in visual editor');
                   setIframeLoading(false);
                   
-                  // Enhanced image loading fix for iframe
-                  setTimeout(() => {
-                    try {
-                      const iframeDoc = iframeRef.current?.contentDocument || iframeRef.current?.contentWindow?.document;
-                      if (iframeDoc) {
-                        // Add meta tags for proper image loading
-                        const metaReferrer = iframeDoc.createElement('meta');
-                        metaReferrer.setAttribute('name', 'referrer');
-                        metaReferrer.setAttribute('content', 'no-referrer-when-downgrade');
-                        iframeDoc.head?.appendChild(metaReferrer);
-                        
-                        // Enhanced image loading fix
-                        const fixImages = () => {
-                          const images = iframeDoc.querySelectorAll('img');
-                          console.log(`🖼️ Found ${images.length} images in iframe`);
-                          
-                          images.forEach((img, index) => {
-                            if (!img.complete || img.naturalWidth === 0) {
-                              console.log(`🔄 Reloading image ${index + 1}:`, img.src);
-                              const originalSrc = img.src;
-                              
-                              // Set crossorigin attribute for better loading
-                              img.crossOrigin = 'anonymous';
-                              img.referrerPolicy = 'no-referrer-when-downgrade';
-                              
-                              // Force reload with cache busting
-                              img.src = '';
-                              setTimeout(() => {
-                                img.src = originalSrc + (originalSrc.includes('?') ? '&' : '?') + 'v=' + Date.now();
-                              }, 100);
-                            }
-                          });
-                        };
-                        
-                        // Initial fix
-                        fixImages();
-                        
-                        // Fix again after DOM changes
-                        const observer = new MutationObserver(() => {
-                          fixImages();
-                        });
-                        observer.observe(iframeDoc.body, { childList: true, subtree: true });
-                        
-                        // Add hover effects for elements
-                        setTimeout(() => {
-                          const hoverStyles = `
-                            * { transition: box-shadow 0.2s ease !important; }
-                            *:hover { box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.3) !important; }
-                          `;
-                          injectChangesToLivePreview(hoverStyles);
-                        }, 1000);
-                      }
-                    } catch (error) {
-                      console.warn('Could not access iframe content:', error);
-                    }
-                  }, 500);
+                  // Skip cross-origin iframe content access - not needed for live preview
+                  console.log('✅ Live preview loaded successfully - cross-origin access skipped for security');
+                }}
+                onError={(e) => {
+                  console.error('❌ Iframe loading error:', e);
+                  setIframeLoading(false);
                 }}
               />
             </div>
