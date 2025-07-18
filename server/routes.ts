@@ -602,7 +602,7 @@ Your goal is to have a natural conversation, understand their vision deeply, and
         }));
 
         const claudeResponse = await client.messages.create({
-          model: "claude-3-5-sonnet-20241022",
+          model: "claude-sonnet-4-20250514", // Latest Claude model confirmed
           max_tokens: 1000,
           system: mayaSystemPrompt,
           messages: [
@@ -640,7 +640,7 @@ Your goal is to have a natural conversation, understand their vision deeply, and
           
           // Maya's expert prompt generation - Enhanced for WOW factor dynamic scenes
           const promptResponse = await client.messages.create({
-            model: "claude-3-5-sonnet-20241022",
+            model: "claude-sonnet-4-20250514", // Latest Claude model confirmed
             max_tokens: 800,
             system: `You are Maya, the world's most sought-after celebrity stylist who creates ICONIC moments. Your job is to generate DYNAMIC, exciting AI prompts that create "WOW" factor images that make people stop scrolling.
 
@@ -3570,7 +3570,7 @@ Consider this workflow optimized and ready for implementation! ⚙️`
       let aiResponse = '';
       try {
         const claudeResponse = await anthropic.messages.create({
-          model: "claude-sonnet-4-20250514",
+          model: "claude-sonnet-4-20250514", // Latest Claude model confirmed
           max_tokens: 2000,
           system: personality.instructions,
           messages: conversationMessages
