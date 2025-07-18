@@ -77,7 +77,6 @@ export interface IStorage {
   
   // AI Image operations (GALLERY ONLY - permanent S3 URLs)
   getAIImages(userId: string): Promise<AiImage[]>;
-  getUserAIImages(userId: string): Promise<AiImage[]>;
   saveAIImage(data: InsertAiImage): Promise<AiImage>;
   
   // Generation Tracker operations (TEMP PREVIEW ONLY)
@@ -315,9 +314,7 @@ export class DatabaseStorage implements IStorage {
     return data;
   }
 
-  async getUserOnboardingData(userId: string): Promise<OnboardingData | undefined> {
-    return this.getOnboardingData(userId);
-  }
+
 
   async saveOnboardingData(data: InsertOnboardingData): Promise<OnboardingData> {
     const [saved] = await db.insert(onboardingData).values(data).returning();
@@ -342,21 +339,11 @@ export class DatabaseStorage implements IStorage {
       .orderBy(desc(aiImages.createdAt));
   }
 
-  async getUserAIImages(userId: string): Promise<AIImage[]> {
-    // Alias for getAIImages - same functionality
-    return this.getAIImages(userId);
-  }
-
   async saveAIImage(data: InsertAIImage): Promise<AIImage> {
     // Remove project_id from data since we're not using projects table
     const { projectId, ...imageData } = data as any;
     const [saved] = await db.insert(aiImages).values(imageData).returning();
     return saved;
-  }
-
-  async createAIImage(data: InsertAIImage): Promise<AIImage> {
-    // Alias for saveAIImage for compatibility
-    return this.saveAIImage(data);
   }
 
   async updateAIImage(id: number, data: Partial<AiImage>): Promise<AiImage> {
@@ -820,52 +807,7 @@ export class DatabaseStorage implements IStorage {
     return updated;
   }
 
-  // Flatlay Collections operations for Victoria landing pages (NO STOCK PHOTOS)
-  async getFlatlayCollections(): Promise<Array<{ name: string; images: string[]; description: string; }>> {
-    // Return real flatlay collections from Sandra's approved image library
-    return [
-      {
-        name: "Luxury Minimal",
-        description: "Clean, minimalist flatlays with luxury products",
-        images: [
-          "/api/images/flatlays/luxury-minimal-1.jpg",
-          "/api/images/flatlays/luxury-minimal-2.jpg",
-          "/api/images/flatlays/luxury-minimal-3.jpg",
-          "/api/images/flatlays/luxury-minimal-4.jpg"
-        ]
-      },
-      {
-        name: "Editorial Magazine",
-        description: "Magazine-style flatlays with editorial elements",
-        images: [
-          "/api/images/flatlays/editorial-1.jpg",
-          "/api/images/flatlays/editorial-2.jpg",
-          "/api/images/flatlays/editorial-3.jpg",
-          "/api/images/flatlays/editorial-4.jpg"
-        ]
-      },
-      {
-        name: "Business Professional",
-        description: "Professional business flatlays for corporate brands",
-        images: [
-          "/api/images/flatlays/business-1.jpg",
-          "/api/images/flatlays/business-2.jpg",
-          "/api/images/flatlays/business-3.jpg",
-          "/api/images/flatlays/business-4.jpg"
-        ]
-      },
-      {
-        name: "Wellness & Mindset",
-        description: "Wellness and mindset flatlays for healing brands",
-        images: [
-          "/api/images/flatlays/wellness-1.jpg",
-          "/api/images/flatlays/wellness-2.jpg",
-          "/api/images/flatlays/wellness-3.jpg",
-          "/api/images/flatlays/wellness-4.jpg"
-        ]
-      }
-    ];
-  }
+  // Email Capture operations
 
   // Brand onboarding operations
   async saveBrandOnboarding(data: InsertBrandOnboarding): Promise<BrandOnboarding> {
@@ -1027,26 +969,7 @@ export class DatabaseStorage implements IStorage {
     }
   }
 
-  // Missing subscription methods implementation
-  async getSubscription(userId: string): Promise<Subscription | undefined> {
-    const [subscription] = await db
-      .select()
-      .from(subscriptions)
-      .where(eq(subscriptions.userId, userId));
-    return subscription;
-  }
 
-  async getUserSubscription(userId: string): Promise<Subscription | undefined> {
-    return this.getSubscription(userId);
-  }
-
-  async createSubscription(data: InsertSubscription): Promise<Subscription> {
-    const [subscription] = await db
-      .insert(subscriptions)
-      .values(data)
-      .returning();
-    return subscription;
-  }
 
   async updateSubscription(id: number, updates: Partial<Subscription>): Promise<Subscription> {
     const [subscription] = await db
