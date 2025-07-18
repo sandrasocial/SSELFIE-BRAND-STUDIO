@@ -3361,7 +3361,7 @@ Consider this workflow optimized and ready for implementation! ⚙️`
       console.log(`💭 Checking for saved memory for ${agentId}...`);
       // Re-enable memory system
       const { ConversationManager } = await import('./agents/ConversationManager');
-      const savedMemory = await ConversationManager.restoreAgentMemory(agentId, userId);
+      const savedMemory = await ConversationManager.retrieveAgentMemory(agentId, userId);
       
       // If we have saved memory AND conversation doesn't already contain memory restoration
       if (savedMemory && !workingHistory.some(msg => msg.content?.includes('CONVERSATION MEMORY RESTORED'))) {
