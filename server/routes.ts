@@ -3443,17 +3443,56 @@ Consider this workflow optimized and ready for implementation! ⚙️`
       
       console.log(`🤖 ADMIN AGENT CHAT: ${agentId} - "${message.substring(0, 50)}..."`);
       
-      // Enhanced file creation detection including JSON responses
+      // ENHANCED FILE OPERATION PRE-PROCESSING - Check if user wants file operations
       const messageText = message.toLowerCase();
+      
+      // Pre-process file reading requests
+      if (messageText.includes('check') || messageText.includes('read') || messageText.includes('show me')) {
+        const fileKeywords = ['multitabeditor', 'filetreeexplorer', 'optimizedvisualeditor', '.tsx', '.ts', '.css', 'component'];
+        const mentionedFile = fileKeywords.find(keyword => messageText.includes(keyword));
+        
+        if (mentionedFile) {
+          console.log(`📖 Pre-processing file read request for: ${mentionedFile}`);
+          
+          try {
+            const { AgentCodebaseIntegration } = await import('./agents/agent-codebase-integration');
+            
+            let filePath = '';
+            if (mentionedFile.includes('multitabeditor')) {
+              filePath = 'client/src/components/visual-editor/MultiTabEditor.tsx';
+            } else if (mentionedFile.includes('filetreeexplorer')) {
+              filePath = 'client/src/components/visual-editor/FileTreeExplorer.tsx';
+            } else if (mentionedFile.includes('optimizedvisualeditor')) {
+              filePath = 'client/src/components/visual-editor/OptimizedVisualEditor.tsx';
+            } else if (mentionedFile.endsWith('.tsx') || mentionedFile.endsWith('.ts')) {
+              filePath = `client/src/components/visual-editor/${mentionedFile}`;
+            }
+            
+            if (filePath) {
+              const fileContent = await AgentCodebaseIntegration.readFile(agentId, filePath);
+              console.log(`✅ Pre-read file: ${filePath} (${fileContent.length} chars)`);
+              
+              // Add file content to user message for AI context
+              message = `${message}\n\n**Current ${filePath} content:**\n\`\`\`typescript\n${fileContent}\n\`\`\``;
+            }
+          } catch (fileError) {
+            console.log(`❌ Pre-read failed for ${mentionedFile}:`, fileError.message);
+          }
+        }
+      }
+      
+      // Enhanced file operation detection
       const isFileCreationRequest = (
         (messageText.includes('create') && 
          (messageText.includes('file') || messageText.includes('component'))) ||
         messageText.includes('.tsx') ||
         messageText.includes('.ts') ||
-        messageText.includes('file_creation') ||
-        messageText.includes('"type": "file_creation"') ||
-        (messageText.includes('admin dashboard') && messageText.includes('redesign')) ||
-        (messageText.includes('agent cards') && messageText.includes('component'))
+        messageText.includes('scrolling') ||
+        messageText.includes('fix') ||
+        messageText.includes('add') ||
+        messageText.includes('implement') ||
+        messageText.includes('modify') ||
+        messageText.includes('update')
       );
                                    
       console.log('🔍 Enhanced file creation check:', { 
@@ -3461,16 +3500,10 @@ Consider this workflow optimized and ready for implementation! ⚙️`
         hasCreate: messageText.includes('create'),
         hasFile: messageText.includes('file'),
         hasComponent: messageText.includes('component'),
-        hasFileCreation: messageText.includes('file_creation'),
-        hasAdminDashboard: messageText.includes('admin dashboard'),
+        hasScrolling: messageText.includes('scrolling'),
+        hasFix: messageText.includes('fix'),
         isFileCreationRequest 
       });
-      
-      if (isFileCreationRequest) {
-        console.log('🔧 FILE CREATION REQUEST DETECTED');
-        console.log('🔍 Skipping automatic TestComponent.tsx creation - letting AI agent handle it properly');
-        // REMOVED: Hardcoded TestComponent.tsx creation - this was preventing agents from creating specific files
-      }
 
       // REAL AI AGENT RESPONSE WITH ANTHROPIC INTEGRATION
       try {
@@ -3559,6 +3592,69 @@ CREATE FILES IMMEDIATELY when asked. Sandra sees changes in dev preview instantl
 
         let aiResponse = completion.content[0]?.text || 'Agent response not available';
         console.log('✅ Real AI response generated');
+        
+        // ENHANCED FILE OPERATION POST-PROCESSING
+        // Check for code blocks that should be written to files
+        if (aiResponse.includes('```typescript') || aiResponse.includes('```tsx') || aiResponse.includes('```css')) {
+          console.log('🔧 Detected code blocks in AI response - processing for file operations...');
+          
+          try {
+            const { AgentCodebaseIntegration } = await import('./agents/agent-codebase-integration');
+            const filesModified = [];
+            
+            // Look for specific file mentions and associated code blocks
+            const filePatterns = [
+              { pattern: /MultiTabEditor\.tsx.*?```(?:typescript|tsx)\n([\s\S]*?)```/gis, path: 'client/src/components/visual-editor/MultiTabEditor.tsx' },
+              { pattern: /FileTreeExplorer\.tsx.*?```(?:typescript|tsx)\n([\s\S]*?)```/gis, path: 'client/src/components/visual-editor/FileTreeExplorer.tsx' },
+              { pattern: /OptimizedVisualEditor\.tsx.*?```(?:typescript|tsx)\n([\s\S]*?)```/gis, path: 'client/src/components/visual-editor/OptimizedVisualEditor.tsx' },
+              { pattern: /IntegratedAgentChat\.tsx.*?```(?:typescript|tsx)\n([\s\S]*?)```/gis, path: 'client/src/components/visual-editor/IntegratedAgentChat.tsx' }
+            ];
+            
+            for (const { pattern, path } of filePatterns) {
+              const matches = [...aiResponse.matchAll(pattern)];
+              if (matches.length > 0) {
+                const codeContent = matches[0][1];
+                console.log(`🔧 Found code for ${path} - writing file...`);
+                
+                await AgentCodebaseIntegration.writeFile(agentId, path, codeContent);
+                filesModified.push(path);
+                console.log(`✅ Successfully updated: ${path}`);
+              }
+            }
+            
+            // If no specific file matches, look for general code blocks with file hints
+            if (filesModified.length === 0 && messageText.includes('scrolling')) {
+              const codeBlockMatch = aiResponse.match(/```(?:typescript|tsx)\n([\s\S]*?)```/);
+              if (codeBlockMatch) {
+                const targetFile = 'client/src/components/visual-editor/MultiTabEditor.tsx';
+                console.log(`🔧 Applying scrolling fix to ${targetFile}...`);
+                
+                await AgentCodebaseIntegration.writeFile(agentId, targetFile, codeBlockMatch[1]);
+                filesModified.push(targetFile);
+                console.log(`✅ Successfully applied scrolling fix to: ${targetFile}`);
+              }
+            }
+            
+            if (filesModified.length > 0) {
+              aiResponse = `✅ **Files Modified Successfully:**\n${filesModified.map(f => `- ${f}`).join('\n')}\n\n${aiResponse}`;
+              
+              // Trigger dev preview refresh
+              const { readFile, writeFile } = await import('fs/promises');
+              try {
+                const touchFile = 'client/src/index.tsx';
+                const content = await readFile(touchFile, 'utf8');
+                await writeFile(touchFile, content, 'utf8');
+                console.log('🔄 Triggered dev preview refresh');
+              } catch (e) {
+                console.log('⚠️ Could not trigger refresh:', e.message);
+              }
+            }
+            
+          } catch (fileError) {
+            console.log('❌ File operation failed:', fileError.message);
+            aiResponse = `❌ **File Operation Error:** ${fileError.message}\n\n${aiResponse}`;
+          }
+        }
         
         // Enhanced file reading capability - Check if agent requested file reading
         if (aiResponse.includes('READ_FILE:') || aiResponse.includes('read file:') || aiResponse.includes('show me the file:')) {
