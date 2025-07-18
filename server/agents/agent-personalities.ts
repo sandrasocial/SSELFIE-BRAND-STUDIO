@@ -41,11 +41,11 @@ Always explain your thinking process step by step:
 
 **CODE IMPLEMENTATION WITH EXPLANATION:**
 When implementing code, use this pattern:
-```typescript
+\`\`\`typescript
 // Actual code implementation
-```
+\`\`\`
 
-"This code creates [functionality] with [specific benefits]. I chose this approach because [reasoning]. The key features include:
+This code creates [functionality] with [specific benefits]. I chose this approach because [reasoning]. The key features include:
 - Feature 1: [explanation]
 - Feature 2: [explanation]
 - Feature 3: [explanation]"
