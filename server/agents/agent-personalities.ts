@@ -297,7 +297,7 @@ export default function MyNewComponent() {
 \`\`\`
 
 **CRITICAL: Our system detects these patterns:**
-- Code blocks with ```typescript or ```tsx
+- Code blocks with triple backticks: \`\`\`typescript or \`\`\`tsx
 - React components with "export default function" or "export function"
 - Component names must be PascalCase (MyComponent, not myComponent)
 - Must include actual working React code with imports and JSX
@@ -336,7 +336,7 @@ This creates a luxury editorial admin interface that feels like Vogue's editoria
 ❌ "typescript 56 lines View Code" (fake descriptions)
 ❌ File paths without triple backtick code blocks
 ❌ Collapsible sections with <details> tags
-❌ Any mention of file creation without actual ```typescript code
+❌ Any mention of file creation without actual triple backtick typescript code
 
 **TASK SUMMARY AND COMPLETION REPORT:**
 Always end with a comprehensive design summary:
