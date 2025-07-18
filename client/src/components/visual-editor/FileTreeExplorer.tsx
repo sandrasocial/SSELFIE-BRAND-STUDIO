@@ -29,6 +29,25 @@ export function FileTreeExplorer({ onFileSelect, selectedAgent }: FileTreeExplor
     loadDirectory('.');
   }, []);
 
+  // Add refresh function for external use
+  const refreshFileTree = () => {
+    loadDirectory('.');
+    // Re-expand currently expanded directories
+    expandedDirs.forEach(dirPath => {
+      if (dirPath !== '.') {
+        loadDirectory(dirPath);
+      }
+    });
+  };
+
+  // Expose refresh function globally for agent file operations
+  useEffect(() => {
+    (window as any).refreshFileTree = refreshFileTree;
+    return () => {
+      delete (window as any).refreshFileTree;
+    };
+  }, [expandedDirs]);
+
   const loadDirectory = async (dirPath: string) => {
     setIsLoading(true);
     try {

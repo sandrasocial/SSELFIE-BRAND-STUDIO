@@ -625,11 +625,18 @@ export function OptimizedVisualEditor({ className = '' }: OptimizedVisualEditorP
 
         // Show notification for file operations (code blocks automatically written)
         const responseText = data.message || data.response;
-        if (responseText.includes('Files Modified Successfully') || responseText.includes('✅')) {
+        if (responseText.includes('Files Modified Successfully') || responseText.includes('✅') || responseText.includes('Files Created:') || responseText.includes('Created:**')) {
           toast({
             title: `${agent?.name} updated files`,
-            description: 'Code changes applied automatically. Check file explorer for updates.',
+            description: 'Code changes applied automatically. File tree refreshing...',
           });
+          
+          // Trigger file tree refresh
+          setTimeout(() => {
+            if ((window as any).refreshFileTree) {
+              (window as any).refreshFileTree();
+            }
+          }, 1000);
         }
 
         // Check for continuous work patterns - if agent wants to continue working
