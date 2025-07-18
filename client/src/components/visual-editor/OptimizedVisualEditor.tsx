@@ -1426,7 +1426,7 @@ export function OptimizedVisualEditor({ className = '' }: OptimizedVisualEditorP
               
               <iframe
                 ref={iframeRef}
-                src={window.location.origin}
+                src="http://localhost:5000"
                 className="w-full h-full border-0"
                 title="Live SSELFIE Studio"
                 sandbox="allow-same-origin allow-scripts allow-forms allow-popups allow-top-navigation allow-downloads allow-presentation"

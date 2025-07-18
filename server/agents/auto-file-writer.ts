@@ -71,7 +71,7 @@ export class AutoFileWriter {
       
       if (filePath) {
         try {
-          await AgentCodebaseIntegration.writeFile(agentId, filePath, block.content, `Auto-created by ${agentId}`);
+          await AgentCodebaseIntegration.writeFile(filePath, block.content);
           
           filesWritten.push({
             filePath,
