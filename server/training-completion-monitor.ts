@@ -67,6 +67,20 @@ export class TrainingCompletionMonitor {
           updatedAt: new Date()
         });
 
+        // Send model ready email notification
+        try {
+          const user = await storage.getUser(userId);
+          if (user?.email) {
+            const { EmailService } = await import('./email-service');
+            const userName = user.firstName && user.lastName ? `${user.firstName} ${user.lastName}` : user.firstName;
+            await EmailService.sendModelReadyEmail(user.email, userName);
+            console.log('✅ Model ready email sent to:', user.email);
+          }
+        } catch (emailError) {
+          console.error('❌ Failed to send model ready email:', emailError);
+          // Don't fail the completion if email fails
+        }
+
         console.log(`🎉 Database updated! User ${userId} training completed`);
         return true;
 
@@ -140,6 +154,20 @@ export class TrainingCompletionMonitor {
           modelType: 'flux-standard',
           updatedAt: new Date()
         });
+
+        // Send model ready email notification
+        try {
+          const user = await storage.getUser(userId);
+          if (user?.email) {
+            const { EmailService } = await import('./email-service');
+            const userName = user.firstName && user.lastName ? `${user.firstName} ${user.lastName}` : user.firstName;
+            await EmailService.sendModelReadyEmail(user.email, userName);
+            console.log('✅ Model ready email sent to:', user.email);
+          }
+        } catch (emailError) {
+          console.error('❌ Failed to send model ready email:', emailError);
+          // Don't fail the completion if email fails
+        }
 
         console.log(`🎉 Database updated! User ${userId} training completed`);
         return true;
