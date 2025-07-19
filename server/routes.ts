@@ -4554,6 +4554,58 @@ AGENT_CONTEXT:
     }
   });
 
+  // Flux Collection Preview Generation (Admin Only)
+  app.post('/api/generate-collection-preview', isAuthenticated, async (req, res) => {
+    try {
+      const userId = req.user?.claims?.sub;
+      if (!userId || req.user?.claims?.email !== 'ssa@ssasocial.com') {
+        return res.status(403).json({ message: 'Admin access required' });
+      }
+
+      const { prompt, collectionId } = req.body;
+      if (!prompt) {
+        return res.status(400).json({ message: 'Prompt is required' });
+      }
+
+      // Get Sandra's user model (admin user)
+      const userModel = await storage.getUserModel(userId);
+      if (!userModel || userModel.trainingStatus !== 'completed') {
+        return res.status(400).json({ message: 'Sandra\'s AI model not ready for collection preview generation' });
+      }
+
+      // Generate preview image using Sandra's model with enhanced optimization
+      const enhancedPrompt = `[triggerword] ${prompt}, professional photography, magazine quality, editorial style, luxury aesthetic, film photograph, natural film grain`;
+      
+      const result = await ImageGenerationService.generateImagesWithUserModel(
+        userId,
+        enhancedPrompt,
+        1, // Single preview image
+        true // isPremium = true for admin
+      );
+
+      console.log('🎨 FLUX COLLECTION PREVIEW generated:', {
+        userId,
+        collectionId,
+        prompt: prompt.substring(0, 100) + '...',
+        predictionId: result.predictionId
+      });
+
+      res.json({
+        success: true,
+        predictionId: result.predictionId,
+        generatedImageId: result.generatedImageId,
+        message: 'Collection preview generation started with Sandra\'s model'
+      });
+
+    } catch (error) {
+      console.error('Collection preview generation error:', error);
+      res.status(500).json({ 
+        message: 'Failed to generate collection preview',
+        error: error.message 
+      });
+    }
+  });
+
   const httpServer = createServer(app);
   return httpServer;
 }
