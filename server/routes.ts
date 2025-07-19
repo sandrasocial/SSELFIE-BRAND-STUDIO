@@ -17,7 +17,7 @@ import { UsageService, API_COSTS } from './usage-service';
 import { UserUsage } from '@shared/schema';
 // import Anthropic from '@anthropic-ai/sdk'; // DISABLED - API key issues
 // import { AgentSystem } from "./agents/agent-system"; // DISABLED - Anthropic API issues
-import { insertProjectSchema, insertAiImageSchema, userModels, agentConversations, agentPerformanceMetrics } from "@shared/schema";
+import { insertProjectSchema, insertAiImageSchema, userModels, agentConversations, agentPerformanceMetrics, userWebsiteOnboarding } from "@shared/schema";
 import { eq, sql } from "drizzle-orm";
 import { db } from "./db";
 import session from 'express-session';
