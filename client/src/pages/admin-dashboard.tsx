@@ -215,76 +215,7 @@ function AdminDashboardOld() {
               </div>
             </div>
             
-            {/* Agent Image Cards Grid */}
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
-              {[].map((agent) => (
-                <Card key={agent.id} className="border border-gray-200 bg-white hover:shadow-lg transition-shadow group">
-                  <CardHeader className="pb-4">
-                    <div className="flex items-start justify-between">
-                      <div className="flex-1">
-                        <CardTitle className="text-lg font-medium text-black mb-1">
-                          {agent.name}
-                        </CardTitle>
-                        <p className="text-sm text-gray-600 font-medium mb-2">
-                          {agent.role}
-                        </p>
-                        <Badge className="text-xs bg-black text-white">
-                          AVAILABLE
-                        </Badge>
-                      </div>
-                      <div className="text-right">
-                        <div className="text-sm text-gray-500">Tasks</div>
-                        <div className="text-lg font-medium text-black">
-                          {Math.floor(Math.random() * 50) + 10}
-                        </div>
-                      </div>
-                    </div>
-                  </CardHeader>
-                  <CardContent className="pt-0">
-                    <p className="text-sm text-gray-700 mb-4 leading-relaxed">
-                      {agent.description}
-                    </p>
 
-                    {/* Specialties */}
-                    <div className="mb-4">
-                      <div className="text-xs text-gray-500 mb-2">SPECIALTIES</div>
-                      <div className="flex flex-wrap gap-1">
-                        {agent.specialties.map((specialty, index) => (
-                          <span 
-                            key={index}
-                            className="text-xs bg-gray-100 text-gray-700 px-2 py-1 border border-gray-200"
-                          >
-                            {specialty}
-                          </span>
-                        ))}
-                      </div>
-                    </div>
-
-                    {/* Action Buttons */}
-                    <div className="flex gap-2">
-                      <Link href={`/visual-editor?agent=${agent.id}`} className="flex-1">
-                        <Button className="w-full bg-black text-white hover:bg-gray-800 text-sm">
-                          Chat & Implement
-                        </Button>
-                      </Link>
-                      <Button
-                        variant="outline"
-                        className="px-3 border-black text-black hover:bg-black hover:text-white text-sm"
-                        onClick={() => {
-                          // Quick chat functionality - scroll to agent's interface below
-                          const element = document.getElementById(`agent-chat-${agent.id}`);
-                          if (element) {
-                            element.scrollIntoView({ behavior: 'smooth' });
-                          }
-                        }}
-                      >
-                        Quick Chat
-                      </Button>
-                    </div>
-                  </CardContent>
-                </Card>
-              ))}
-            </div>
 
             {/* Individual Agent Chat Interfaces */}
             <div className="space-y-6">
