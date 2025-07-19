@@ -38,12 +38,17 @@ interface IntegratedAgentChatProps {
 export function IntegratedAgentChat({ 
   onFileChange, 
   onDirectoryBrowse,
-  selectedAgent = 'zara' 
+  selectedAgent
 }: IntegratedAgentChatProps) {
   const [isExpanded, setIsExpanded] = useState(true);
   const [message, setMessage] = useState('');
   const [chatHistory, setChatHistory] = useState<AgentChatMessage[]>([]);
-  const [currentAgent, setCurrentAgent] = useState(selectedAgent);
+  const [currentAgent, setCurrentAgent] = useState(() => {
+    // Check URL parameter first, then use selectedAgent prop, then default to 'zara'
+    const urlParams = new URLSearchParams(window.location.search);
+    const agentFromUrl = urlParams.get('agent');
+    return agentFromUrl || selectedAgent || 'zara';
+  });
   const [showChatHistory, setShowChatHistory] = useState(false);
   const [currentChatId, setCurrentChatId] = useState<string | null>(null);
   const messagesEndRef = useRef<HTMLDivElement>(null);

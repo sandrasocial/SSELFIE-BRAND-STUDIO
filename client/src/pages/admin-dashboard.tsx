@@ -307,21 +307,7 @@ function AdminDashboardOld() {
                 </div>
               ) : agents.length === 0 ? (
                 <div className="border border-yellow-200 bg-yellow-50 p-6 text-center">
-                  <div className="text-sm text-yellow-600">No agents found. Using fallback configuration.</div>
-                  <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mt-4">
-                    {AGENT_CONFIGS.slice(0, 3).map((agent) => (
-                      <div key={agent.id} id={`agent-chat-${agent.id}`}>
-                        <AgentChat 
-                          agentId={agent.id} 
-                          agentName={agent.name} 
-                          role={agent.role}
-                          status="available"
-                          currentTask="Ready to assist"
-                          metrics={{ tasksCompleted: 0, efficiency: 100, lastActivity: new Date() }}
-                        />
-                      </div>
-                    ))}
-                  </div>
+                  <div className="text-sm text-yellow-600">No agents available for quick chat.</div>
                 </div>
               ) : (
                 <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
