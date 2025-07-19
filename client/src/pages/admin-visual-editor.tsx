@@ -31,16 +31,24 @@ export default function AdminVisualEditor() {
   // Redirect non-admin users
   useEffect(() => {
     if (!isLoading && (!user || user.email !== 'ssa@ssasocial.com')) {
+      console.log('AdminVisualEditor: Redirecting non-admin user', { user, isLoading });
       setLocation('/');
     }
   }, [user, isLoading, setLocation]);
 
-  if (!user || user.email !== 'ssa@ssasocial.com') {
+  // Only block render if we're sure it's not Sandra
+  if (!isLoading && (!user || user.email !== 'ssa@ssasocial.com')) {
+    console.log('AdminVisualEditor: Blocking render for non-admin', { user, isLoading });
     return null;
   }
 
+  console.log('AdminVisualEditor: Rendering for admin user', { user: user?.email, isLoading });
+
   return (
     <div className="h-screen overflow-hidden">
+      <div className="p-4 bg-blue-100 text-blue-800 mb-4">
+        DEBUG: AdminVisualEditor loaded for {user?.email}
+      </div>
       <OptimizedVisualEditor />
     </div>
   );
