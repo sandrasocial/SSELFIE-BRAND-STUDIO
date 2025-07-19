@@ -356,7 +356,7 @@ export default function FluxCollectionManager() {
                 Approval Status
               </h3>
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                {findingMyselfAgainCollection.prompts.map((prompt) => (
+                {healingMindsetCollection.prompts.map((prompt) => (
                   <div key={prompt.id} className={`p-4 border ${
                     approvedImages[prompt.id] 
                       ? 'border-green-500 bg-green-50' 
@@ -381,7 +381,7 @@ export default function FluxCollectionManager() {
               </div>
               <div className="mt-6 text-center">
                 <p className="text-sm text-[#666]">
-                  {Object.keys(approvedImages).length} of {findingMyselfAgainCollection.prompts.length} cover images approved
+                  {Object.keys(approvedImages).length} of {healingMindsetCollection.prompts.length} cover images approved
                 </p>
               </div>
             </div>
