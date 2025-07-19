@@ -4,6 +4,7 @@ import { apiRequest } from '@/lib/queryClient';
 import { useToast } from '@/hooks/use-toast';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { findingMyselfAgainCollection } from '../data/collections/finding-myself-again';
 
 interface FluxPreviewApprovalSystemProps {
   userId: string;
@@ -77,11 +78,28 @@ export default function FluxPreviewApprovalSystem({ userId, onApproval }: FluxPr
       </CardHeader>
       <CardContent>
         <div className="space-y-4">
+          {/* Quick Prompt Selection */}
+          <div className="mb-4">
+            <h3 className="text-sm font-medium mb-2">Quick Select from "Finding Myself Again" Collection:</h3>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
+              {findingMyselfAgainCollection.prompts.slice(0, 4).map((prompt) => (
+                <button
+                  key={prompt.id}
+                  onClick={() => setSelectedPrompt(prompt.prompt)}
+                  className="text-left p-2 text-xs bg-gray-100 hover:bg-gray-200 rounded border"
+                >
+                  <div className="font-medium">{prompt.title}</div>
+                  <div className="text-gray-600 truncate">{prompt.prompt.substring(0, 60)}...</div>
+                </button>
+              ))}
+            </div>
+          </div>
+
           <div>
             <textarea
               value={selectedPrompt}
               onChange={(e) => setSelectedPrompt(e.target.value)}
-              placeholder="Enter prompt with [triggerword] placeholder..."
+              placeholder="Enter prompt with [triggerword] placeholder or select one above..."
               className="w-full h-24 p-3 border border-gray-300 rounded-lg"
             />
             
