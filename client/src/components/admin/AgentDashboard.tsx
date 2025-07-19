@@ -3,105 +3,35 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { useLocation } from 'wouter';
+import { useQuery } from '@tanstack/react-query';
 
 interface Agent {
   id: string;
   name: string;
   role: string;
-  description: string;
-  specialties: string[];
+  personality?: string;
+  capabilities?: string[];
   status: 'active' | 'working' | 'available';
-  tasksCompleted: number;
   currentTask?: string;
+  metrics: {
+    tasksCompleted: number;
+    efficiency: number;
+    lastActivity: Date;
+  };
 }
-
-const agents: Agent[] = [
-  {
-    id: 'aria',
-    name: 'Aria',
-    role: 'UX Designer AI',
-    description: 'Luxury editorial design expert creating pixel-perfect layouts with Times New Roman typography',
-    specialties: ['Vogue Aesthetic', 'Luxury Design', 'Editorial Layouts', 'Component Design'],
-    status: 'available',
-    tasksCompleted: 47
-  },
-  {
-    id: 'zara',
-    name: 'Zara',
-    role: 'Dev AI',
-    description: 'Senior full-stack developer specializing in luxury digital experiences and performance optimization',
-    specialties: ['React/TypeScript', 'Database Design', 'API Development', 'Performance'],
-    status: 'available',
-    tasksCompleted: 32
-  },
-  {
-    id: 'rachel',
-    name: 'Rachel',
-    role: 'Voice AI',
-    description: 'Sandra\'s copywriting twin who writes exactly like her with authentic conversion-focused copy',
-    specialties: ['Brand Voice', 'Conversion Copy', 'Email Campaigns', 'Content Strategy'],
-    status: 'available',
-    tasksCompleted: 28
-  },
-  {
-    id: 'ava',
-    name: 'Ava',
-    role: 'Automation AI',
-    description: 'Behind-the-scenes workflow architect creating invisible automation that feels like personal assistance',
-    specialties: ['Workflow Design', 'API Integration', 'Email Automation', 'Business Logic'],
-    status: 'available',
-    tasksCompleted: 19
-  },
-  {
-    id: 'quinn',
-    name: 'Quinn',
-    role: 'QA AI',
-    description: 'Luxury quality guardian with perfectionist attention ensuring everything feels expensive and flawless',
-    specialties: ['Quality Testing', 'User Experience', 'Performance Audit', 'Bug Detection'],
-    status: 'available',
-    tasksCompleted: 15
-  },
-  {
-    id: 'sophia',
-    name: 'Sophia',
-    role: 'Social Media Manager AI',
-    description: 'Content calendar creator and Instagram engagement specialist for the 120K+ community',
-    specialties: ['Content Strategy', 'Community Management', 'Analytics', 'Visual Content'],
-    status: 'available',
-    tasksCompleted: 23
-  },
-  {
-    id: 'martha',
-    name: 'Martha',
-    role: 'Marketing/Ads AI',
-    description: 'Performance marketing expert who runs ads and identifies opportunities for revenue growth',
-    specialties: ['Ad Campaigns', 'Performance Analytics', 'Revenue Optimization', 'A/B Testing'],
-    status: 'available',
-    tasksCompleted: 12
-  },
-  {
-    id: 'diana',
-    name: 'Diana',
-    role: 'Personal Mentor & Business Coach AI',
-    description: 'Sandra\'s strategic advisor providing business coaching and decision-making guidance',
-    specialties: ['Strategic Planning', 'Business Coaching', 'Team Direction', 'Goal Setting'],
-    status: 'available',
-    tasksCompleted: 8
-  },
-  {
-    id: 'wilma',
-    name: 'Wilma',
-    role: 'Workflow AI',
-    description: 'Workflow architect designing efficient business processes and coordinating agent collaboration',
-    specialties: ['Process Design', 'System Integration', 'Efficiency Optimization', 'Team Coordination'],
-    status: 'available',
-    tasksCompleted: 6
-  }
-];
 
 const AgentDashboard: React.FC = () => {
   const [selectedAgent, setSelectedAgent] = useState<string | null>(null);
   const [location, setLocation] = useLocation();
+
+  // Fetch live agents data from API (includes Olga!)
+  const { data: agents = [], isLoading: agentsLoading, error: agentsError } = useQuery({
+    queryKey: ['/api/agents'],
+    retry: false,
+    refetchOnMount: true,
+    refetchOnWindowFocus: true,
+    staleTime: 0
+  });
 
   const getStatusColor = (status: Agent['status']) => {
     switch (status) {
@@ -122,6 +52,28 @@ const AgentDashboard: React.FC = () => {
     // This will open a quick chat modal (to be implemented)
   };
 
+  if (agentsLoading) {
+    return (
+      <div className="min-h-screen bg-white flex items-center justify-center">
+        <div className="text-center">
+          <div className="animate-spin w-8 h-8 border-2 border-black border-t-transparent rounded-full mx-auto mb-4" />
+          <p className="text-sm text-gray-600">Loading your agent team...</p>
+        </div>
+      </div>
+    );
+  }
+
+  if (agentsError) {
+    return (
+      <div className="min-h-screen bg-white flex items-center justify-center">
+        <div className="text-center">
+          <p className="text-red-600 mb-4">Failed to load agents</p>
+          <Button onClick={() => window.location.reload()}>Retry</Button>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="min-h-screen bg-white">
       {/* Header */}
@@ -133,7 +85,7 @@ const AgentDashboard: React.FC = () => {
                 Agent Command Center
               </h1>
               <p className="text-gray-600 mt-2">
-                Your complete AI team ready for implementation and design work
+                Your complete AI team ({agents.length} agents) ready for implementation and design work
               </p>
             </div>
             <Button 
@@ -170,7 +122,7 @@ const AgentDashboard: React.FC = () => {
                   <div className="text-right">
                     <div className="text-sm text-gray-500">Tasks</div>
                     <div className="text-lg font-medium text-black">
-                      {agent.tasksCompleted}
+                      {agent.metrics?.tasksCompleted || 0}
                     </div>
                   </div>
                 </div>
@@ -178,29 +130,31 @@ const AgentDashboard: React.FC = () => {
 
               <CardContent className="pt-0">
                 <p className="text-sm text-gray-700 mb-4 leading-relaxed">
-                  {agent.description}
+                  {agent.personality || 'AI agent ready for tasks'}
                 </p>
-
-                {/* Specialties */}
-                <div className="mb-4">
-                  <div className="text-xs text-gray-500 mb-2">SPECIALTIES</div>
-                  <div className="flex flex-wrap gap-1">
-                    {agent.specialties.map((specialty, index) => (
-                      <span 
-                        key={index}
-                        className="text-xs bg-gray-100 text-gray-700 px-2 py-1 border border-gray-200"
-                      >
-                        {specialty}
-                      </span>
-                    ))}
-                  </div>
-                </div>
 
                 {/* Current Task */}
                 {agent.currentTask && (
-                  <div className="mb-4 p-3 bg-gray-50 border border-gray-200">
+                  <div className="mb-4">
                     <div className="text-xs text-gray-500 mb-1">CURRENT TASK</div>
-                    <div className="text-sm text-gray-700">{agent.currentTask}</div>
+                    <p className="text-xs text-gray-700">{agent.currentTask}</p>
+                  </div>
+                )}
+
+                {/* Capabilities */}
+                {agent.capabilities && agent.capabilities.length > 0 && (
+                  <div className="mb-4">
+                    <div className="text-xs text-gray-500 mb-2">CAPABILITIES</div>
+                    <div className="flex flex-wrap gap-1">
+                      {agent.capabilities.slice(0, 3).map((capability, index) => (
+                        <span 
+                          key={index}
+                          className="text-xs bg-gray-100 text-gray-700 px-2 py-1 rounded"
+                        >
+                          {capability.length > 25 ? capability.substring(0, 25) + '...' : capability}
+                        </span>
+                      ))}
+                    </div>
                   </div>
                 )}
 
@@ -247,7 +201,7 @@ const AgentDashboard: React.FC = () => {
           </Card>
           <Card className="border border-gray-200">
             <CardContent className="p-6 text-center">
-              <div className="text-2xl font-light text-black">9</div>
+              <div className="text-2xl font-light text-black">{agents.length}</div>
               <div className="text-sm text-gray-600">AI Agents Ready</div>
             </CardContent>
           </Card>
