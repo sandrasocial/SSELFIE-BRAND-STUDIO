@@ -63,7 +63,8 @@ export function IntegratedAgentChat({
     { id: 'sophia', name: 'Sophia', role: 'Social Media Manager AI', icon: FileText },
     { id: 'martha', name: 'Martha', role: 'Marketing/Ads AI', icon: FileText },
     { id: 'diana', name: 'Diana', role: 'Personal Mentor & Business Coach AI', icon: FileText },
-    { id: 'wilma', name: 'Wilma', role: 'Workflow AI', icon: Folder }
+    { id: 'wilma', name: 'Wilma', role: 'Workflow AI', icon: Folder },
+    { id: 'olga', name: 'Olga', role: 'Repository Organizer AI', icon: Folder }
   ];
 
   // Query for saved conversations
