@@ -69,6 +69,7 @@ import SwitchAccount from "@/pages/switch-account";
 import LaunchCountdown from "@/pages/launch-countdown";
 import AdminAccessOnly from "@/pages/admin-access-only";
 import Build from "@/pages/build";
+import FluxCollectionManager from "@/pages/flux-collection-manager";
 
 // Removed duplicate photoshoot imports - using existing system
 
@@ -233,6 +234,7 @@ function Router() {
       <Route path="/victoria-builder" component={(props) => <ProtectedRoute component={VictoriaBuilder} {...props} />} />
       <Route path="/victoria-preview" component={(props) => <ProtectedRoute component={VictoriaPreview} {...props} />} />
       <Route path="/build" component={(props) => <ProtectedRoute component={Build} {...props} />} />
+      <Route path="/flux-collection-manager" component={(props) => <ProtectedRoute component={FluxCollectionManager} {...props} />} />
       
       {/* SANDRA'S ADMIN DASHBOARD */}
       <Route path="/admin" component={(props) => <ProtectedRoute component={AdminDashboard} {...props} />} />
