@@ -52,27 +52,20 @@ export async function generateImages(request: GenerateImagesRequest): Promise<Ge
       throw new Error('User LoRA model not found - training may need to be completed');
     }
     
-    // 🔧 RESTORED WORKING PROMPT STRUCTURE - Based on successful generation ID 352
-    // Clean the custom prompt first
+    // ✨ MAYA'S FULL CREATIVE CONTROL - NO HARDCODED PREFIXES
+    // Clean the custom prompt and add trigger word only
     let cleanPrompt = customPrompt;
     
-    // Remove existing trigger word instances first  
+    // Remove existing trigger word instances to avoid duplication
     cleanPrompt = cleanPrompt.replace(new RegExp(triggerWord, 'gi'), '').trim();
-    
-    // Remove existing realism terms if present to avoid duplication
-    const existingTerms = ['raw photo', 'film grain', 'visible skin pores', 'unretouched natural skin texture', 
-                          'subsurface scattering', 'photographed on film'];
-    existingTerms.forEach(term => {
-      cleanPrompt = cleanPrompt.replace(new RegExp(term, 'gi'), '').trim();
-    });
     
     // Clean up extra commas and spaces
     cleanPrompt = cleanPrompt.replace(/,\s*,/g, ',').replace(/^\s*,\s*|\s*,\s*$/g, '').trim();
     
-    // 🔧 WORKING STRUCTURE: Realism base + trigger word + clean description (matches successful ID 352)
-    const finalPrompt = `raw photo, visible skin pores, film grain, unretouched natural skin texture, subsurface scattering, photographed on film, ${triggerWord}, ${cleanPrompt}`;
+    // ✨ PURE MAYA CREATIVITY: Just trigger word + Maya's full creative prompt
+    const finalPrompt = `${triggerWord}, ${cleanPrompt}`;
     
-    console.log(`🔧 AI PHOTOSHOOT RESTORED WORKING PROMPT: ${finalPrompt}`);
+    console.log(`✨ MAYA'S PURE CREATIVE PROMPT: ${finalPrompt}`);
 
     // 🔒 IMMUTABLE CORE ARCHITECTURE - USES USER'S INDIVIDUAL TRAINED MODEL DIRECTLY
     // Each user has their own trained FLUX model version for complete isolation
