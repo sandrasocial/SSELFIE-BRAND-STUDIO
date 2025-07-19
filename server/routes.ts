@@ -2913,9 +2913,247 @@ You help users design and customize their ${context === 'dashboard-builder' ? 'p
         isCompleted: onboarding[0]?.isCompleted || false
       });
     } catch (error) {
+      console.error("Get build onboarding error:", error);
       res.status(500).json({ error: "Failed to retrieve onboarding data" });
     }
   });
+
+  // POST /api/victoria-website-chat - Victoria website consultation
+  app.post("/api/victoria-website-chat", isAuthenticated, async (req, res) => {
+    try {
+      const userId = req.user?.claims?.sub;
+      if (!userId) {
+        return res.status(401).json({ error: "Authentication required" });
+      }
+
+      const { message, onboardingData, conversationHistory } = req.body;
+
+      if (!message || !onboardingData) {
+        return res.status(400).json({ error: "Message and onboarding data required" });
+      }
+
+      // For Phase 2 - Simple HTML generation based on user input
+      // Later this will integrate with actual Victoria AI agent
+      
+      const isInitialRequest = conversationHistory.length <= 1;
+      const isWebsiteGenerationRequest = message.toLowerCase().includes('generate') || 
+                                       message.toLowerCase().includes('create') || 
+                                       message.toLowerCase().includes('build') ||
+                                       isInitialRequest;
+
+      let response = '';
+      let websiteHtml = null;
+      let isComplete = false;
+
+      if (isWebsiteGenerationRequest) {
+        // Generate initial website HTML
+        websiteHtml = generateWebsiteHtml(onboardingData, message);
+        response = `I've created a beautiful homepage for "${onboardingData.personalBrandName}"! 
+
+The design captures your story and presents your ${onboardingData.businessType.toLowerCase()} services in an elegant, editorial style. I've included:
+
+✓ Hero section with your brand message
+✓ About section telling your story  
+✓ Services section highlighting what you offer
+✓ Contact section for potential clients
+
+What would you like me to adjust? I can modify colors, layout, content, or add additional pages like a portfolio or testimonials section.`;
+        
+        isComplete = false; // Not complete until user approves
+      } else {
+        // Handle regular conversation
+        response = `I understand you'd like to ${message.toLowerCase()}. Let me help you with that!
+
+Could you be more specific about what you'd like me to change? For example:
+- "Make the colors more professional"
+- "Add a section about my background"
+- "Change the headline to focus on results"
+- "Add my contact information"
+
+I'm here to make your website perfect!`;
+      }
+
+      res.json({
+        success: true,
+        response,
+        websiteHtml,
+        isComplete,
+        conversationId: `victoria-${userId}-${Date.now()}`
+      });
+
+    } catch (error) {
+      console.error("Victoria website chat error:", error);
+      res.status(500).json({ error: "Failed to process Victoria chat" });
+    }
+  });
+
+  // HTML Generation function for Victoria
+  function generateWebsiteHtml(onboardingData: any, userMessage: string) {
+    const brandName = onboardingData.personalBrandName || 'Your Brand';
+    const story = onboardingData.story || 'Your story here';
+    const businessType = onboardingData.businessType || 'Business';
+    const targetAudience = onboardingData.targetAudience || 'clients';
+    const goals = onboardingData.goals || 'success';
+
+    return `<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>${brandName} - ${businessType}</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            background-color: #fff;
+        }
+        
+        .hero {
+            min-height: 80vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            background: linear-gradient(135deg, #f5f5f5 0%, #e8e8e8 100%);
+            padding: 4rem 2rem;
+        }
+        
+        .hero h1 {
+            font-family: 'Times New Roman', serif;
+            font-size: 3.5rem;
+            font-weight: normal;
+            margin-bottom: 1rem;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+        }
+        
+        .hero p {
+            font-size: 1.2rem;
+            max-width: 600px;
+            margin: 0 auto 2rem;
+            color: #666;
+        }
+        
+        .section {
+            padding: 4rem 2rem;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        
+        .section h2 {
+            font-family: 'Times New Roman', serif;
+            font-size: 2.5rem;
+            text-align: center;
+            margin-bottom: 3rem;
+            letter-spacing: 1px;
+        }
+        
+        .about-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 4rem;
+            align-items: center;
+            margin-top: 2rem;
+        }
+        
+        .services-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 2rem;
+            margin-top: 2rem;
+        }
+        
+        .service-card {
+            padding: 2rem;
+            background: #f8f8f8;
+            border-radius: 8px;
+            text-align: center;
+        }
+        
+        .service-card h3 {
+            font-family: 'Times New Roman', serif;
+            font-size: 1.5rem;
+            margin-bottom: 1rem;
+        }
+        
+        .contact {
+            background: #f5f5f5;
+            text-align: center;
+        }
+        
+        .btn {
+            display: inline-block;
+            padding: 1rem 2rem;
+            background: #000;
+            color: #fff;
+            text-decoration: none;
+            border-radius: 4px;
+            margin-top: 1rem;
+            font-weight: 500;
+        }
+        
+        @media (max-width: 768px) {
+            .hero h1 { font-size: 2.5rem; }
+            .about-grid { grid-template-columns: 1fr; }
+        }
+    </style>
+</head>
+<body>
+    <section class="hero">
+        <div>
+            <h1>${brandName}</h1>
+            <p>Transforming ${targetAudience} through ${businessType.toLowerCase()} services that deliver real results</p>
+            <a href="#contact" class="btn">Get Started</a>
+        </div>
+    </section>
+    
+    <section class="section">
+        <h2>About</h2>
+        <div class="about-grid">
+            <div>
+                <h3>My Story</h3>
+                <p>${story}</p>
+            </div>
+            <div>
+                <h3>My Mission</h3>
+                <p>My goal is to help ${targetAudience} achieve ${goals} through personalized ${businessType.toLowerCase()} services. I believe in creating meaningful transformation that lasts.</p>
+            </div>
+        </div>
+    </section>
+    
+    <section class="section">
+        <h2>Services</h2>
+        <div class="services-grid">
+            <div class="service-card">
+                <h3>1:1 Consulting</h3>
+                <p>Personalized ${businessType.toLowerCase()} sessions designed specifically for ${targetAudience}</p>
+            </div>
+            <div class="service-card">
+                <h3>Group Programs</h3>
+                <p>Comprehensive programs that bring together like-minded ${targetAudience} for shared growth</p>
+            </div>
+            <div class="service-card">
+                <h3>Resources</h3>
+                <p>Curated tools and materials to support your journey towards ${goals}</p>
+            </div>
+        </div>
+    </section>
+    
+    <section class="section contact" id="contact">
+        <h2>Ready to Get Started?</h2>
+        <p>Let's work together to achieve ${goals}</p>
+        <a href="mailto:hello@${brandName.toLowerCase().replace(/\s+/g, '')}.com" class="btn">Contact Me</a>
+    </section>
+</body>
+</html>`;
+  }
 
   // GET /api/build/conversation - Get or create chat conversation
   app.get("/api/build/conversation", isAuthenticated, async (req, res) => {
