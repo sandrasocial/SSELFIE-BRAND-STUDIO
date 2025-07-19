@@ -167,18 +167,33 @@ export class ElenaWorkflowSystem {
     const steps: WorkflowStep[] = [];
     let stepCounter = 1;
     
-    // Elena starts with coordination
+    // Elena ALWAYS starts with coordination (mandatory first step)
     steps.push({
       id: `step_${stepCounter++}`,
       agentId: 'elena',
       agentName: 'Elena',
       taskDescription: 'Analyze requirements and coordinate agent workflow',
-      estimatedTime: '5 minutes',
+      estimatedTime: '3 minutes',
       dependencies: [],
-      deliverables: ['Workflow coordination plan', 'Agent task assignments'],
+      deliverables: ['Workflow coordination plan', 'Agent task assignments', 'File creation assessment'],
       priority: 'high'
     });
     
+    // Olga file organization step (when new files will be created)
+    const willCreateFiles = analysis.category === 'design' || analysis.category === 'development';
+    if (willCreateFiles) {
+      steps.push({
+        id: `step_${stepCounter++}`,
+        agentId: 'olga',
+        agentName: 'Olga',
+        taskDescription: 'Analyze file structure and prepare organization plan for new components',
+        estimatedTime: '2 minutes',
+        dependencies: ['step_1'],
+        deliverables: ['File organization plan', 'Conflict prevention analysis', 'Integration roadmap'],
+        priority: 'high'
+      });
+    }
+
     // Add agent-specific steps based on category
     if (analysis.category === 'design') {
       steps.push({
@@ -186,8 +201,8 @@ export class ElenaWorkflowSystem {
         agentId: 'aria',
         agentName: 'Aria',
         taskDescription: 'Create luxury editorial design components',
-        estimatedTime: '15-20 minutes',
-        dependencies: ['step_1'],
+        estimatedTime: '8-12 minutes',
+        dependencies: willCreateFiles ? ['step_1', 'step_2'] : ['step_1'],
         deliverables: ['React components', 'Times New Roman typography', 'Editorial layouts'],
         priority: 'high'
       });
@@ -198,7 +213,7 @@ export class ElenaWorkflowSystem {
           agentId: 'zara',
           agentName: 'Zara',
           taskDescription: 'Integrate design components and ensure technical excellence',
-          estimatedTime: '10-15 minutes',
+          estimatedTime: '6-8 minutes',
           dependencies: [`step_${stepCounter - 1}`],
           deliverables: ['Working components', 'Routing integration', 'Performance optimization'],
           priority: 'high'
@@ -212,8 +227,8 @@ export class ElenaWorkflowSystem {
         agentId: 'zara',
         agentName: 'Zara',
         taskDescription: 'Implement technical solution with luxury code architecture',
-        estimatedTime: '20-30 minutes',
-        dependencies: ['step_1'],
+        estimatedTime: '10-15 minutes',
+        dependencies: willCreateFiles ? ['step_1', 'step_2'] : ['step_1'],
         deliverables: ['Code implementation', 'Database integration', 'API endpoints'],
         priority: 'high'
       });
@@ -225,7 +240,7 @@ export class ElenaWorkflowSystem {
         agentId: 'rachel',
         agentName: 'Rachel',
         taskDescription: 'Create authentic Sandra voice content',
-        estimatedTime: '10-15 minutes',
+        estimatedTime: '5-8 minutes',
         dependencies: ['step_1'],
         deliverables: ['Copy text', 'Voice-consistent messaging', 'Emotional bridge content'],
         priority: 'high'
@@ -238,7 +253,7 @@ export class ElenaWorkflowSystem {
         agentId: 'maya',
         agentName: 'Maya',
         taskDescription: 'Apply advanced AI optimization and parameter tuning',
-        estimatedTime: '15-20 minutes',
+        estimatedTime: '8-12 minutes',
         dependencies: ['step_1'],
         deliverables: ['Optimized parameters', 'Quality improvements', 'Performance metrics'],
         priority: 'high'
@@ -252,20 +267,34 @@ export class ElenaWorkflowSystem {
         agentId: 'quinn',
         agentName: 'Quinn',
         taskDescription: 'Quality assurance and luxury standards verification',
-        estimatedTime: '10 minutes',
-        dependencies: steps.filter(s => s.agentId !== 'elena' && s.agentId !== 'quinn').map(s => s.id),
+        estimatedTime: '5 minutes',
+        dependencies: steps.filter(s => s.agentId !== 'elena' && s.agentId !== 'quinn' && s.agentId !== 'olga').map(s => s.id),
         deliverables: ['Quality report', 'Standards compliance', 'Testing verification'],
         priority: 'medium'
       });
     }
+
+    // Final Olga organization step (if files were created)
+    if (willCreateFiles) {
+      steps.push({
+        id: `step_${stepCounter++}`,
+        agentId: 'olga',
+        agentName: 'Olga',
+        taskDescription: 'Finalize file organization and ensure clean architecture',
+        estimatedTime: '2 minutes',
+        dependencies: steps.filter(s => s.agentId !== 'elena' && s.agentId !== 'olga').map(s => s.id),
+        deliverables: ['Final file organization', 'Clean architecture confirmation', 'Integration verification'],
+        priority: 'medium'
+      });
+    }
     
-    // Elena completes with final coordination
+    // Elena completes with final coordination (mandatory last step)
     steps.push({
       id: `step_${stepCounter++}`,
       agentId: 'elena',
       agentName: 'Elena',
       taskDescription: 'Final workflow completion and delivery confirmation',
-      estimatedTime: '5 minutes',
+      estimatedTime: '2 minutes',
       dependencies: steps.slice(1).map(s => s.id),
       deliverables: ['Completion summary', 'Business impact report', 'Next steps recommendations'],
       priority: 'high'
