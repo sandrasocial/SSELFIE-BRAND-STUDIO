@@ -21,6 +21,7 @@ import AgentPerformanceMonitor from '@/components/admin/AgentPerformanceMonitor'
 import AgentAccountabilityTracker from '@/components/admin/AgentAccountabilityTracker';
 import AgentWorkflowAccelerator from '@/components/admin/AgentWorkflowAccelerator';
 import AgentCoordinationDashboard from '@/components/admin/AgentCoordinationDashboard';
+import AgentUtilizationOptimizer from '@/components/admin/AgentUtilizationOptimizer';
 import AgentPowerDashboard from '@/components/admin/AgentPowerDashboard';
 import DualModeAgentChat from '@/components/admin/DualModeAgentChat';
 import WorkflowCreator from '@/components/Elena/WorkflowCreator';
@@ -216,6 +217,7 @@ function AdminDashboardOld() {
           {activeTab === 'performance' && (
             <div className="space-y-6">
               <AgentPowerDashboard />
+              <AgentUtilizationOptimizer />
               <AgentPerformanceMonitor />
               <AgentAccountabilityTracker />
               <AgentWorkflowAccelerator />
