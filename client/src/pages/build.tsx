@@ -53,16 +53,29 @@ export default function Build() {
     if (existingOnboarding?.onboarding?.isCompleted) {
       console.log('✅ Setting onboarding data:', existingOnboarding.onboarding);
       setOnboardingData(existingOnboarding.onboarding);
-      setCurrentStage('chat');
+      
+      // Check if style preferences are saved - if not, go to style stage
+      const hasStyleData = existingOnboarding.onboarding.colorPreferences && 
+        Object.keys(existingOnboarding.onboarding.colorPreferences).length > 0;
+      
+      if (hasStyleData) {
+        console.log('✅ Style data found, moving to chat');
+        setCurrentStage('chat');
+      } else {
+        console.log('🎨 No style data, moving to style selection');
+        setCurrentStage('style');
+      }
     }
   }, [existingOnboarding]);
 
   const handleOnboardingComplete = (data: any) => {
+    console.log('🔍 Onboarding complete, moving to style stage:', data);
     setOnboardingData(data);
     setCurrentStage('style');
   };
 
   const handleStyleComplete = (styleData: any) => {
+    console.log('🔍 Style complete, moving to chat stage:', styleData);
     setOnboardingData({
       ...onboardingData,
       ...styleData
