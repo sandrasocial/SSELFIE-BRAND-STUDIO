@@ -13,6 +13,7 @@ import TestAdminCard from '@/components/admin/TestAdminCard';
 import AdminHero from '@/components/admin/AdminHero';
 import AdminHeroRedesigned from '@/components/admin/AdminHeroRedesigned';
 import AgentDashboard from '@/components/admin/AgentDashboard';
+import AgentDirectorInterface from '@/components/admin/AgentDirectorInterface';
 import AgentAnalyticsDashboard from '@/components/admin/AgentAnalyticsDashboard';
 import EnhancedAgentCoordination from '@/components/admin/EnhancedAgentCoordination';
 import AgentEnhancementDashboard from '@/components/admin/AgentEnhancementDashboard';
@@ -101,6 +102,12 @@ function AdminDashboardOld() {
             </Link>
             <div className="flex space-x-6">
               <button 
+                onClick={() => setActiveTab('director')}
+                className={`text-sm uppercase tracking-wide hover:text-gray-300 ${activeTab === 'director' ? 'text-white border-b border-white' : ''}`}
+              >
+                Elena CEO
+              </button>
+              <button 
                 onClick={() => setActiveTab('dashboard')}
                 className={`text-sm uppercase tracking-wide hover:text-gray-300 ${activeTab === 'dashboard' ? 'text-white border-b border-white' : ''}`}
               >
@@ -150,6 +157,16 @@ function AdminDashboardOld() {
       <div className="pt-4">
         <div className="max-w-7xl mx-auto px-6 py-8">
           {/* Conditional Tab Content */}
+          {activeTab === 'director' && (
+            <div className="space-y-8">
+              <div>
+                <h1 className="text-3xl font-serif text-black mb-2">Elena - AI Agent Director & CEO</h1>
+                <p className="text-gray-600">Strategic vision coordination • Multi-agent workflow orchestration • Performance oversight</p>
+              </div>
+              <AgentDirectorInterface />
+            </div>
+          )}
+          
           {activeTab === 'dashboard' && (
             <>
               {/* Hero Component Toggle */}
