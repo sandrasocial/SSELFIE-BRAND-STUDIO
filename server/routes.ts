@@ -238,7 +238,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       let sandraResponse;
       let suggestedPrompt = null;
       
-      // Intelligent prompt generation from ALL collections
+      // Intelligent prompt generation from ALL collections - USER'S OWN TRIGGER WORD ONLY
       if (message.toLowerCase().includes('healing') || message.toLowerCase().includes('wellness') || message.toLowerCase().includes('meditation') || message.toLowerCase().includes('ocean') || message.toLowerCase().includes('peaceful')) {
         suggestedPrompt = `${triggerWord} woman standing at ocean edge, arms raised to sky in release, waves washing over feet, wearing flowing earth-toned top and cream pants, overcast moody sky, muted color palette, emotional liberation moment, healing journey photography`;
         sandraResponse = `OMG yes! Healing energy is EVERYTHING for wellness content! I've selected the perfect "Arms to the Sky" prompt from our Healing & Mindset Collection - it captures that emotional liberation and connection to nature that your audience craves! 
