@@ -512,12 +512,43 @@ export default function VictoriaBuilder() {
         </div>
         
         <div className="flex-1 bg-white">
-          <iframe
-            ref={previewRef}
-            className="w-full h-full border-0"
-            title="Landing Page Preview"
-            sandbox="allow-same-origin"
-          />
+          {(() => {
+            const isProduction = window.location.hostname !== 'localhost' && !window.location.hostname.includes('replit.dev');
+            
+            if (isProduction) {
+              // Production: Safe preview placeholder
+              return (
+                <div className="w-full h-full flex flex-col items-center justify-center bg-gray-50">
+                  <div className="text-center p-8">
+                    <div className="text-2xl mb-4" style={{ fontFamily: 'Times New Roman, serif' }}>
+                      Landing Page Preview
+                    </div>
+                    <div className="w-12 h-px bg-black mx-auto mb-4"></div>
+                    <p className="text-gray-600 mb-4 font-light">
+                      Preview opens in new window
+                    </p>
+                    <button
+                      onClick={() => window.open('/', '_blank', 'width=1200,height=800')}
+                      className="bg-black text-white px-4 py-2 hover:bg-gray-800 transition-colors font-light text-sm"
+                    >
+                      Open Preview
+                    </button>
+                  </div>
+                </div>
+              );
+            } else {
+              // Development: Actual iframe
+              return (
+                <iframe
+                  ref={previewRef}
+                  src="http://localhost:5000"
+                  className="w-full h-full border-0"
+                  title="Landing Page Preview"
+                  sandbox="allow-same-origin"
+                />
+              );
+            }
+          })()}
         </div>
         
         <div className="bg-gray-50 px-6 py-4 border-t border-gray-200">

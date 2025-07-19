@@ -113,25 +113,45 @@ export function ReplitStyleEditor({
               const isProduction = window.location.hostname !== 'localhost' && !window.location.hostname.includes('replit.dev');
               
               if (isProduction) {
-                // Production: Show actual iframe preview
+                // Production: Show safe preview button instead of iframe
+                return (
+                  <div className="w-full h-full bg-white flex flex-col items-center justify-center border border-gray-200">
+                    <div className="text-center p-8">
+                      <div className="text-3xl mb-4" style={{ fontFamily: 'Times New Roman, serif' }}>
+                        Live Preview
+                      </div>
+                      <div className="w-12 h-px bg-black mx-auto mb-6"></div>
+                      <p className="text-gray-600 mb-6 font-light">
+                        Open preview in new window for security
+                      </p>
+                      <button
+                        onClick={() => window.open('/', '_blank', 'width=1200,height=800')}
+                        className="bg-black text-white px-6 py-3 hover:bg-gray-800 transition-colors font-light"
+                        style={{ fontFamily: 'Times New Roman, serif' }}
+                      >
+                        Open Live Preview
+                      </button>
+                    </div>
+                  </div>
+                );
+              } else {
+                // Development: Show actual iframe
                 return (
                   <iframe
                     ref={iframeRef}
-                    src="/"
+                    src="http://localhost:5000"
                     className="w-full h-full border-0"
                     title="Live Preview"
                     onLoad={() => {
-                      console.log('🚀 Replit Style Editor: Live preview loaded successfully');
+                      console.log('🚀 Development: Live preview loaded successfully');
                     }}
                     onError={(e) => {
-                      console.error('Live preview failed to load:', e);
+                      console.error('Development preview failed to load:', e);
                     }}
                   />
                 );
-              } else {
-                // Development: Show safe placeholder to avoid CSP issues
-                return (
-                  <div className="w-full h-full bg-white flex items-center justify-center">
+              }
+            })()}
                     <div className="text-center p-8">
                       <div className="text-3xl mb-4" style={{ fontFamily: 'Times New Roman, serif' }}>
                         SSELFIE Studio
