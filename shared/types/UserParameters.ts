@@ -5,21 +5,32 @@ export interface UserParameters {
   loraScale: number;          // 0.7-1.0 range for personalization strength
   outputQuality: number;      // 75-98 range for file quality
   
-  // User Analysis Data (Phase 2)
-  skinTone?: 'light' | 'medium' | 'dark';
-  hairTexture?: 'straight' | 'wavy' | 'curly';
-  facialStructure?: 'oval' | 'round' | 'square';
-  preferredLighting?: 'natural' | 'dramatic' | 'soft';
+  // Phase 2: User Analysis Data
+  skinTone?: 'light' | 'medium' | 'dark' | 'fair' | 'olive' | 'tan';
+  hairTexture?: 'straight' | 'wavy' | 'curly' | 'coily';
+  facialStructure?: 'oval' | 'round' | 'square' | 'angular' | 'heart-shaped';
+  lightingPreference?: 'natural-light' | 'studio-light' | 'golden-hour' | 'soft-diffused';
   
-  // Quality Learning (Phase 3)
+  // Phase 3: Quality Learning Data
   successRate?: number;       // 0-1 based on generation history
+  learningConfidence?: number; // 0-1 confidence in optimization
+  generationHistory?: number; // Number of generations for this user
   optimizationLevel?: 'basic' | 'adaptive' | 'advanced';
 }
 
-// Example usage for optimization service
-export class MayaOptimizationService {
-  async generateOptimizedImage(prompt: string, userParams: UserParameters): Promise<string> {
-    console.log("Using optimized parameters:", userParams);
-    return "optimized-image-url";
-  }
+// Maya Phase 2: Advanced User Analysis Interface
+export interface MayaAnalysis {
+  skinTone: string;
+  hairTexture: string;
+  facialStructure: string;
+  lightingPreference: string;
+  optimizationRecommendations: Partial<UserParameters>;
+}
+
+// Maya Phase 3: Quality Learning Interface
+export interface MayaLearning {
+  successPatterns: any[];
+  failurePatterns: any[];
+  improvedParameters: UserParameters;
+  confidenceScore: number;
 }

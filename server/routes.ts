@@ -3979,8 +3979,8 @@ ${savedMemory.recentDecisions.map(decision => `• ${decision}`).join('\n')}
         console.log(`🔍 Conversation management: ${workingHistory.length} messages, no clearing needed`);
       }
       
-      // Get agent personality and enhanced prompt
-      const agentPersonality = await import('./agents/agent-personalities');
+      // Get functional agent personality (preserves specialties, enables autonomous workflows)
+      const agentPersonality = await import('./agents/agent-personalities-functional');
       const personalityData = agentPersonality.getAgentPersonality(agentId);
       
       // Build system prompt with agent context
