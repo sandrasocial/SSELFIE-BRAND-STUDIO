@@ -32,8 +32,8 @@ export default function FluxPreviewApprovalSystem({ prompt, onApproveImage }: Fl
   const generatePreviews = async () => {
     setIsGenerating(true);
     try {
-      // Generate 4 variations using Sandra's model ONLY
-      const results = await Promise.all([1, 2, 3, 4].map(async (i) => {
+      // Generate 3 variations using Sandra's model ONLY
+      const results = await Promise.all([1, 2, 3].map(async (i) => {
         const result = await generateImage({
           prompt: `${prompt.prompt}, professional photography, editorial quality, variation ${i}`,
           guidance_scale: prompt.parameters.guidance,
@@ -95,14 +95,14 @@ export default function FluxPreviewApprovalSystem({ prompt, onApproveImage }: Fl
         disabled={isGenerating}
         className="bg-gold-400 text-black px-4 py-2 rounded-md font-medium hover:bg-gold-500 transition-colors disabled:opacity-50"
       >
-        {isGenerating ? 'Generating 4 Previews...' : 'Generate Previews (Sandra Model)'}
+        {isGenerating ? 'Generating 3 Previews...' : 'Generate Previews (Sandra Model)'}
       </button>
 
       {/* Preview Grid */}
       {previewImages.length > 0 && (
         <div className="mt-6">
           <h4 className="font-medium mb-3">Select Best Image for Cover:</h4>
-          <div className="grid grid-cols-2 gap-4 mb-4">
+          <div className="grid grid-cols-3 gap-4 mb-4">
             {previewImages.map((imageUrl, index) => (
               <div key={index} className="relative">
                 <img
