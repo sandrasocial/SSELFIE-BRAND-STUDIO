@@ -986,8 +986,8 @@ export function OptimizedVisualEditor({ className = '' }: OptimizedVisualEditorP
               />
             </div>
             
-            {/* Chat Messages - Expanded Space */}
-            <div ref={chatContainerRef} className="flex-1 overflow-y-auto p-1 md:p-2 space-y-1 md:space-y-2" style={{ minHeight: '300px', maxHeight: 'calc(100vh - 250px)' }}>
+            {/* Chat Messages - Responsive with Better Mobile Handling */}
+            <div ref={chatContainerRef} className="flex-1 overflow-y-auto p-1 md:p-2 space-y-1 md:space-y-2" style={{ minHeight: '200px', maxHeight: 'calc(100vh - 180px)' }}>
               {chatMessages.length === 0 && (
                 <div className="text-center text-gray-500 text-sm">
                   <div className="mb-2">Chat</div>
@@ -1111,8 +1111,8 @@ export function OptimizedVisualEditor({ className = '' }: OptimizedVisualEditorP
                   value={messageInput}
                   onChange={(e) => setMessageInput(e.target.value)}
                   placeholder={`Ask ${currentAgent.name} for ${currentAgent.workflowStage.toLowerCase()} help or upload inspiration images...`}
-                  className="flex-1 text-sm md:text-sm text-xs resize-none border border-gray-200 p-2 rounded"
-                  rows={3}
+                  className="flex-1 text-sm resize-none border border-gray-200 p-2 rounded min-h-[60px] max-h-[120px]"
+                  rows={2}
                   onKeyPress={(e) => {
                     if (e.key === 'Enter' && !e.shiftKey) {
                       e.preventDefault();
@@ -1221,8 +1221,8 @@ export function OptimizedVisualEditor({ className = '' }: OptimizedVisualEditorP
               )}
             </div>
 
-            {/* Flatlay Collections - Fixed scrolling */}
-            <div className="flex-1 overflow-y-auto" style={{ maxHeight: 'calc(100vh - 400px)' }}>
+            {/* Flatlay Collections - Using Local Data with Fixed Scrolling */}
+            <div className="flex-1 overflow-y-auto" style={{ maxHeight: 'calc(100vh - 200px)' }}>
               {flatlayCollections.map((collection) => (
                 <div key={collection.id} className="border-b border-gray-200">
                   <div className="p-4">
@@ -1246,6 +1246,15 @@ export function OptimizedVisualEditor({ className = '' }: OptimizedVisualEditorP
                               alt={image.title}
                               className="w-full h-full object-cover"
                               loading="lazy"
+                              onError={(e) => {
+                                // Fallback for broken images
+                                const target = e.target as HTMLImageElement;
+                                target.style.display = 'none';
+                                const parent = target.parentElement;
+                                if (parent) {
+                                  parent.innerHTML = '<div class="w-full h-full bg-gray-200 flex items-center justify-center text-xs text-gray-500">Image not found</div>';
+                                }
+                              }}
                             />
                           </div>
                           {selectedImages.includes(image.url) && (
@@ -1265,26 +1274,28 @@ export function OptimizedVisualEditor({ className = '' }: OptimizedVisualEditorP
           </TabsContent>
 
           <TabsContent value="files" className="flex-1 flex flex-col mt-0">
-            <FileTreeExplorer 
-              selectedAgent={currentAgent.id}
-              onFileSelect={(filePath, content) => {
-                // Add file content to chat context for agent
-                const fileMessage: ChatMessage = {
-                  type: 'user',
-                  content: `I'm looking at file: ${filePath}\n\nFile content:\n\`\`\`\n${content.substring(0, 1000)}${content.length > 1000 ? '...\n[Content truncated - file is ' + content.length + ' characters]' : ''}\n\`\`\`\n\nPlease analyze this file and help me understand or improve it.`,
-                  timestamp: new Date()
-                };
-                setChatMessages(prev => [...prev, fileMessage]);
-                
-                // Switch to chat tab to see the context
-                setActiveTab('chat');
-                
-                toast({
-                  title: 'File Loaded',
-                  description: `${filePath} content added to chat context`,
-                });
-              }}
-            />
+            <div className="flex-1 overflow-y-auto" style={{ maxHeight: 'calc(100vh - 200px)' }}>
+              <FileTreeExplorer 
+                selectedAgent={currentAgent.id}
+                onFileSelect={(filePath, content) => {
+                  // Add file content to chat context for agent
+                  const fileMessage: ChatMessage = {
+                    type: 'user',
+                    content: `I'm looking at file: ${filePath}\n\nFile content:\n\`\`\`\n${content.substring(0, 1000)}${content.length > 1000 ? '...\n[Content truncated - file is ' + content.length + ' characters]' : ''}\n\`\`\`\n\nPlease analyze this file and help me understand or improve it.`,
+                    timestamp: new Date()
+                  };
+                  setChatMessages(prev => [...prev, fileMessage]);
+                  
+                  // Switch to chat tab to see the context
+                  setActiveTab('chat');
+                  
+                  toast({
+                    title: 'File Loaded',
+                    description: `${filePath} content added to chat context`,
+                  });
+                }}
+              />
+            </div>
           </TabsContent>
 
           <TabsContent value="editor" className="flex-1 flex flex-col mt-0">
