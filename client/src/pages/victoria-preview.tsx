@@ -429,12 +429,40 @@ export default function VictoriaPreview() {
               {/* Right: Live iframe preview */}
               <div className="space-y-8">
                 <div className="aspect-[3/4] border border-gray-200 overflow-hidden">
-                  <iframe
-                    ref={previewRef}
-                    className="w-full h-full border-0"
-                    title="Landing Page Preview"
-                    sandbox="allow-same-origin"
-                  />
+                  {(() => {
+                    const isProduction = window.location.hostname !== 'localhost' && !window.location.hostname.includes('replit.dev');
+                    
+                    if (isProduction) {
+                      // Production: Safe preview placeholder
+                      return (
+                        <div className="w-full h-full flex flex-col items-center justify-center bg-gray-50">
+                          <div className="text-center p-6">
+                            <div className="text-xl mb-3" style={{ fontFamily: 'Times New Roman, serif' }}>
+                              Preview Ready
+                            </div>
+                            <div className="w-8 h-px bg-black mx-auto mb-3"></div>
+                            <button
+                              onClick={() => window.open('/', '_blank', 'width=1200,height=800')}
+                              className="bg-black text-white px-3 py-2 hover:bg-gray-800 transition-colors font-light text-sm"
+                            >
+                              Open Preview
+                            </button>
+                          </div>
+                        </div>
+                      );
+                    } else {
+                      // Development: Actual iframe
+                      return (
+                        <iframe
+                          ref={previewRef}
+                          src="http://localhost:5000"
+                          className="w-full h-full border-0"
+                          title="Landing Page Preview"
+                          sandbox="allow-same-origin"
+                        />
+                      );
+                    }
+                  })()}
                 </div>
                 
                 <div className="text-center space-y-4">
