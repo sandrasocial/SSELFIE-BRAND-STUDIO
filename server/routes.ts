@@ -3584,8 +3584,24 @@ Consider this workflow optimized and ready for implementation! ⚙️`
         };
       };
 
-      // Return your complete AI agent team with REAL data only
+      // Return your complete AI agent team with REAL data only (Elena added as CEO/Director)
       const agents = [
+        {
+          id: 'elena',
+          name: 'Elena',
+          role: 'AI Agent Director & CEO',
+          personality: 'Sandra\'s AI Agent Director and strategic business partner. Master of transforming Sandra\'s vision into coordinated agent workflows.',
+          capabilities: [
+            'Strategic business planning and vision translation',
+            'Multi-agent workflow design and orchestration',
+            'Real-time agent performance monitoring and error detection',
+            'Business decision analysis with revenue impact assessment',
+            'Agent instruction optimization based on performance history'
+          ],
+          status: 'active',
+          currentTask: 'Strategic vision coordination and agent oversight',
+          metrics: getRealMetrics('elena')
+        },
         {
           id: 'aria',
           name: 'Aria',
