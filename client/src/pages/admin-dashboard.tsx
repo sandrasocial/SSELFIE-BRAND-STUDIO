@@ -345,7 +345,7 @@ function AgentChat({ agentId, agentName, role, status, currentTask, metrics }: A
 
       // Enhanced DEV_PREVIEW parsing and file creation detection
       let parsedDevPreview = null;
-      let cleanedMessage = data.message || 'Agent response received';
+      let cleanedMessage = data.response || data.message || 'Agent response received';
       
       // Check if this was a file creation response
       if (data.fileCreated && data.filePath) {
@@ -363,7 +363,7 @@ function AgentChat({ agentId, agentName, role, status, currentTask, metrics }: A
       }
       
       try {
-        console.log('🔍 Checking message for DEV_PREVIEW:', data.message.substring(0, 200) + '...');
+        console.log('🔍 Checking message for DEV_PREVIEW:', cleanedMessage ? cleanedMessage.substring(0, 200) + '...' : 'No message content');
         
         // ROBUST JSON EXTRACTION AND PARSING
         const extractValidJson = (message) => {
@@ -429,7 +429,7 @@ function AgentChat({ agentId, agentName, role, status, currentTask, metrics }: A
         };
         
         // Extract JSON and attempt parsing
-        const jsonString = extractValidJson(data.message);
+        const jsonString = extractValidJson(cleanedMessage);
         let jsonMatch = null;
         
         if (jsonString) {
@@ -465,23 +465,23 @@ function AgentChat({ agentId, agentName, role, status, currentTask, metrics }: A
         }
       } catch (error) {
         console.error('❌ Failed to parse DEV_PREVIEW:', error.message);
-        console.error('Raw message sample:', data.message.substring(0, 500));
+        console.error('Raw message sample:', cleanedMessage ? cleanedMessage.substring(0, 500) : 'No message content');
         console.log('🔧 Trying fallback detection for Victoria design responses...');
         
         // Fallback: Check if Victoria is providing design guidance without proper JSON
-        if (data.agentId === 'victoria' && (
-          data.message.includes('design') || 
-          data.message.includes('layout') || 
-          data.message.includes('component') ||
-          data.message.includes('styling') ||
-          data.message.includes('luxury')
+        if (data.agentId === 'victoria' && cleanedMessage && (
+          cleanedMessage.includes('design') || 
+          cleanedMessage.includes('layout') || 
+          cleanedMessage.includes('component') ||
+          cleanedMessage.includes('styling') ||
+          cleanedMessage.includes('luxury')
         )) {
           console.log('🎨 Victoria design response detected, creating synthetic preview');
           parsedDevPreview = {
             type: 'component',
             title: 'Victoria Design Suggestion',
             description: 'Design improvements suggested by Victoria',
-            preview: `<div class="bg-white p-6"><h3 class="text-xl mb-4">Victoria's Design Suggestion</h3><p class="text-gray-600">${data.message.substring(0, 200)}...</p></div>`,
+            preview: `<div class="bg-white p-6"><h3 class="text-xl mb-4">Victoria's Design Suggestion</h3><p class="text-gray-600">${cleanedMessage.substring(0, 200)}...</p></div>`,
             changes: ['Victoria provided design guidance - check full message for details']
           };
         }
