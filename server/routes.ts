@@ -2861,8 +2861,14 @@ You help users design and customize their ${context === 'dashboard-builder' ? 'p
         result = await db
           .update(userWebsiteOnboarding)
           .set({
-            personalBrandName, story, businessType, targetAudience, goals,
-            brandKeywords, isCompleted: true, updatedAt: new Date()
+            personalBrandName,
+            story,
+            businessType,
+            targetAudience,
+            goals,
+            brandKeywords,
+            isCompleted: true,
+            updatedAt: new Date()
           })
           .where(eq(userWebsiteOnboarding.userId, userId))
           .returning();
@@ -2870,8 +2876,14 @@ You help users design and customize their ${context === 'dashboard-builder' ? 'p
         result = await db
           .insert(userWebsiteOnboarding)
           .values({
-            userId, personalBrandName, story, businessType, targetAudience, goals,
-            brandKeywords, isCompleted: true
+            userId,
+            personalBrandName,
+            story,
+            businessType,
+            targetAudience,
+            goals,
+            brandKeywords,
+            isCompleted: true
           })
           .returning();
       }
