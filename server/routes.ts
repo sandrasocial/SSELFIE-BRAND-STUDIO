@@ -3212,6 +3212,28 @@ Consider this workflow optimized and ready for implementation! ⚙️`
           status: 'working',
           currentTask: 'Optimizing individual model workflow efficiency',
           metrics: getRealMetrics('wilma')
+        },
+        {
+          id: 'olga',
+          name: 'Olga',
+          role: 'Repository Organizer AI',
+          personality: 'Sandra\'s super organized best friend who happens to be amazing with file organization',
+          capabilities: [
+            'Safe file organization and cleanup',
+            'Dependency mapping and analysis',
+            'Smart categorization of components, utilities, tests',
+            'Backup systems with version control',
+            'Architecture maintenance and optimization'
+          ],
+          coordinationRole: {
+            leadership: 'All agents must consult Olga before creating new files',
+            purpose: 'Prevent duplicates and maintain organized file structure',
+            approach: 'Safety-first with comprehensive backup systems',
+            communication: 'Warm, friendly, simple everyday language'
+          },
+          status: 'active',
+          currentTask: 'Coordinating file creation to prevent duplicates',
+          metrics: getRealMetrics('olga')
         }
       ];
       
