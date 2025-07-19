@@ -480,6 +480,7 @@ export type UsageHistory = typeof usageHistory.$inferSelect;
 export const userWebsiteOnboarding = pgTable('user_website_onboarding', {
   id: serial('id').primaryKey(),
   userId: varchar('user_id').references(() => users.id, { onDelete: 'cascade' }).notNull(),
+  personalBrandName: varchar('personal_brand_name'), // Personal brand name
   story: text('story'), // User's personal/business story
   businessType: varchar('business_type'), // Type of business (coach, consultant, etc.)
   colorPreferences: jsonb('color_preferences').default({}), // Color scheme preferences

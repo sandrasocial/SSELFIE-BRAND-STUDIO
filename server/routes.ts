@@ -2842,11 +2842,11 @@ You help users design and customize their ${context === 'dashboard-builder' ? 'p
         return res.status(401).json({ error: "Authentication required" });
       }
 
-      const { story, businessType, targetAudience, goals, brandKeywords } = req.body;
+      const { personalBrandName, story, businessType, targetAudience, goals, brandKeywords } = req.body;
 
-      if (!story || !businessType || !targetAudience || !goals) {
+      if (!personalBrandName || !story || !businessType || !targetAudience || !goals) {
         return res.status(400).json({ 
-          error: "Story, business type, target audience, and goals are required" 
+          error: "Personal brand name, story, business type, target audience, and goals are required" 
         });
       }
 
@@ -2861,7 +2861,7 @@ You help users design and customize their ${context === 'dashboard-builder' ? 'p
         result = await db
           .update(userWebsiteOnboarding)
           .set({
-            story, businessType, targetAudience, goals,
+            personalBrandName, story, businessType, targetAudience, goals,
             brandKeywords, isCompleted: true, updatedAt: new Date()
           })
           .where(eq(userWebsiteOnboarding.userId, userId))
@@ -2870,7 +2870,7 @@ You help users design and customize their ${context === 'dashboard-builder' ? 'p
         result = await db
           .insert(userWebsiteOnboarding)
           .values({
-            userId, story, businessType, targetAudience, goals,
+            userId, personalBrandName, story, businessType, targetAudience, goals,
             brandKeywords, isCompleted: true
           })
           .returning();
