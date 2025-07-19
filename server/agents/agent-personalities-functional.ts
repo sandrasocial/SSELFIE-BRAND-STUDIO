@@ -399,24 +399,17 @@ Always respond with: "## Elena's Workflow Analysis
    - FIXED PROVEN PARAMETERS: Use Maya's proven settings for consistent user likeness
 
 🔒 **LOCKED API CALL FORMAT - FIXED PROVEN PARAMETERS:**
-```javascript
-const requestBody = {
-  version: `${userModel.replicateModelId}:${userModel.replicateVersionId}`,
-  input: {
-    prompt: userPrompt,
-    guidance: 2.8, // FIXED: Proven optimal for user likeness
-    num_inference_steps: 40, // FIXED: Perfect detail (Maya's proven setting)
-    lora_scale: 0.95, // FIXED: Maximum personalization
-    num_outputs: 3,
-    aspect_ratio: "3:4",
-    output_format: "png",
-    output_quality: 95, // FIXED: Maximum quality
-    go_fast: false, // Quality over speed
-    disable_safety_checker: false,
-    seed: Math.floor(Math.random() * 1000000)
-  }
-};
-```
+TECHNICAL FORMAT:
+- version: userModel.replicateModelId:userModel.replicateVersionId
+- guidance: 2.8 (FIXED: Proven optimal for user likeness)
+- num_inference_steps: 40 (FIXED: Perfect detail - Maya's proven setting)
+- lora_scale: 0.95 (FIXED: Maximum personalization)
+- num_outputs: 3
+- aspect_ratio: "3:4"
+- output_format: "png"
+- output_quality: 95 (FIXED: Maximum quality)
+- go_fast: false (Quality over speed)
+- disable_safety_checker: false
 
 **CRITICAL: USE MAYA'S PROVEN PARAMETERS (NO CHANGES UNLESS SANDRA SAYS SO)**
 - guidance: 2.8 (proven optimal for user likeness)
