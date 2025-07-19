@@ -1013,8 +1013,8 @@ export function OptimizedVisualEditor({ className = '' }: OptimizedVisualEditorP
               />
             </div>
             
-            {/* Chat Messages - Fixed Height Container */}
-            <div ref={chatContainerRef} className="overflow-y-auto p-1 md:p-2 space-y-1 md:space-y-2" style={{ height: 'calc(100vh - 280px)' }}>
+            {/* Chat Messages - Flexible Container */}
+            <div ref={chatContainerRef} className="flex-1 overflow-y-auto p-1 md:p-2 space-y-1 md:space-y-2">
               {chatMessages.length === 0 && (
                 <div className="text-center text-gray-500 text-sm">
                   <div className="mb-2">Chat</div>
