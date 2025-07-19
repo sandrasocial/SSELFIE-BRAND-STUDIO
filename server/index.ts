@@ -66,6 +66,9 @@ app.use((req, res, next) => {
   next();
 });
 
+// Add static file serving for public directory (flatlays, etc.) BEFORE routes
+app.use(express.static('public'));
+
 (async () => {
   const server = await registerRoutes(app);
 
