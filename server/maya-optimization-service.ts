@@ -5,32 +5,19 @@ import { UserParameters } from '../shared/types/UserParameters';
 export class MayaOptimizationService {
   
   /**
-   * Get optimized parameters for user's specific characteristics
-   * Phase 1: Basic user-adaptive optimization
+   * FIXED PARAMETERS FOR CONSISTENT USER LIKENESS (Sandra's Request)
+   * Returns proven parameter settings for all users to ensure consistency
+   * NO dynamic optimization that causes images to not look like users
    */
   static async getOptimizedParameters(userId: string): Promise<UserParameters> {
-    try {
-      console.log(`🔍 MAYA OPTIMIZATION: Analyzing user ${userId} for parameter optimization`);
-      
-      // Get user's training data and generation history
-      const userModel = await storage.getUserModelByUserId(userId);
-      const user = await storage.getUser(userId);
-      
-      if (!userModel || !user) {
-        console.log(`⚠️ User data not found, using default optimized parameters`);
-        return this.getDefaultOptimizedParameters();
-      }
-      
-      // Phase 1: Analyze user profile for basic optimization
-      const optimizedParams = await this.analyzeUserCharacteristics(userId, userModel, user);
-      
-      console.log(`✅ MAYA OPTIMIZATION: Generated parameters for user ${userId}:`, optimizedParams);
-      return optimizedParams;
-      
-    } catch (error) {
-      console.error(`❌ MAYA OPTIMIZATION ERROR for user ${userId}:`, error);
-      return this.getDefaultOptimizedParameters();
-    }
+    console.log(`🔒 MAYA FIXED PARAMETERS: Using proven settings for user ${userId} (no dynamic changes)`);
+    
+    // Return fixed proven parameters for all users
+    // These settings have been tested and produce the best user likeness
+    const fixedParams = this.getDefaultOptimizedParameters();
+    
+    console.log(`✅ MAYA FIXED PARAMS for user ${userId}:`, fixedParams);
+    return fixedParams;
   }
   
   /**
@@ -136,14 +123,16 @@ export class MayaOptimizationService {
   }
   
   /**
-   * Default optimized parameters for new users
+   * FIXED PROVEN PARAMETERS - NO DYNAMIC CHANGES (Sandra's Request)
+   * These parameters have been proven to create the best user likeness
+   * DO NOT modify unless Sandra explicitly requests changes
    */
   private static getDefaultOptimizedParameters(): UserParameters {
     return {
-      guidance: 2.8, // Proven optimal for editorial quality
-      inferenceSteps: 40, // High quality detail
-      loraScale: 0.95, // Strong personalization
-      outputQuality: 95 // Maximum quality
+      guidance: 2.8, // FIXED: Proven optimal for user likeness
+      inferenceSteps: 40, // FIXED: Perfect detail without over-processing  
+      loraScale: 0.95, // FIXED: Maximum personalization
+      outputQuality: 95 // FIXED: Maximum quality
     };
   }
   
