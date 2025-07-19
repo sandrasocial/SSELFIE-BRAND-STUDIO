@@ -35,7 +35,7 @@ export default function FluxPreviewApprovalSystem({ prompt, onApproveImage }: Fl
       // Generate 4 variations using Sandra's model ONLY
       const results = await Promise.all([1, 2, 3, 4].map(async (i) => {
         const result = await generateImage({
-          prompt: `${prompt.prompt}, sandra_model_trigger_word, professional photography, editorial quality, variation ${i}`,
+          prompt: `${prompt.prompt}, professional photography, editorial quality, variation ${i}`,
           guidance_scale: prompt.parameters.guidance,
           num_inference_steps: prompt.parameters.steps,
           lora_scale: prompt.parameters.lora_strength,
