@@ -217,7 +217,7 @@ function AdminDashboardOld() {
             
             {/* Agent Image Cards Grid */}
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
-              {AGENT_CONFIGS.map((agent) => (
+              {[].map((agent) => (
                 <Card key={agent.id} className="border border-gray-200 bg-white hover:shadow-lg transition-shadow group">
                   <CardHeader className="pb-4">
                     <div className="flex items-start justify-between">
