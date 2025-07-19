@@ -4,6 +4,7 @@ import { createServer, type Server } from "http";
 import { setupRollbackRoutes } from './routes/rollback.js';
 import { storage } from "./storage";
 import { setupAuth, isAuthenticated } from "./replitAuth";
+import { ElenaWorkflowSystem } from "./elena-workflow-system";
 import agentCodebaseRoutes from "./routes/agent-codebase-routes";
 import { registerAgentApprovalRoutes } from "./routes/agent-approval";
 import { registerAgentCommandRoutes } from "./routes/agent-command-center";
@@ -4416,6 +4417,80 @@ AGENT_CONTEXT:
       res.json(dashboardData);
     } catch (error) {
       res.status(500).json({ error: 'Failed to fetch dashboard data' });
+    }
+  });
+
+  // Elena Workflow Creation System API
+  app.post('/api/elena/create-workflow', isAuthenticated, async (req, res) => {
+    try {
+      const { request } = req.body;
+      const userId = req.user?.claims?.sub;
+      
+      if (!request) {
+        return res.status(400).json({ error: 'Workflow request is required' });
+      }
+      
+      console.log(`🎯 ELENA: Creating workflow for user ${userId}: "${request}"`);
+      
+      const workflow = await ElenaWorkflowSystem.createWorkflowFromRequest(userId, request);
+      
+      res.json({
+        success: true,
+        workflow,
+        message: `Elena created "${workflow.name}" workflow with ${workflow.steps.length} steps`
+      });
+      
+    } catch (error) {
+      console.error('Elena workflow creation error:', error);
+      res.status(500).json({ 
+        error: 'Failed to create workflow',
+        details: error instanceof Error ? error.message : 'Unknown error'
+      });
+    }
+  });
+  
+  app.post('/api/elena/execute-workflow', isAuthenticated, async (req, res) => {
+    try {
+      const { workflowId } = req.body;
+      const userId = req.user?.claims?.sub;
+      
+      console.log(`🚀 ELENA: Executing workflow ${workflowId} for user ${userId}`);
+      
+      await ElenaWorkflowSystem.executeWorkflow(workflowId, userId);
+      
+      res.json({
+        success: true,
+        message: 'Workflow execution started',
+        workflowId
+      });
+      
+    } catch (error) {
+      console.error('Elena workflow execution error:', error);
+      res.status(500).json({ 
+        error: 'Failed to execute workflow',
+        details: error instanceof Error ? error.message : 'Unknown error'
+      });
+    }
+  });
+  
+  app.get('/api/elena/workflow-status/:workflowId', isAuthenticated, async (req, res) => {
+    try {
+      const { workflowId } = req.params;
+      
+      const status = await ElenaWorkflowSystem.getWorkflowStatus(workflowId);
+      
+      res.json({
+        success: true,
+        workflowId,
+        status
+      });
+      
+    } catch (error) {
+      console.error('Elena workflow status error:', error);
+      res.status(500).json({ 
+        error: 'Failed to get workflow status',
+        details: error instanceof Error ? error.message : 'Unknown error'
+      });
     }
   });
 
