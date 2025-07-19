@@ -1346,7 +1346,97 @@ Create prompts that feel like iconic fashion campaign moments that would make so
     }
   });
 
-  // Victoria AI Chat endpoint - COMING SOON STATUS
+  // Victoria Website Building Chat - Sandra's Voice Twin
+  app.post('/api/victoria-website-chat', isAuthenticated, async (req: any, res) => {
+    try {
+      const { message, onboardingData, conversationHistory, userId } = req.body;
+      const userIdFromAuth = req.user.claims.sub;
+      
+      if (!message) {
+        return res.status(400).json({ error: 'Message is required' });
+      }
+
+      // Check if user has Victoria access (all users have access to BUILD feature)
+      const hasAccess = await storage.hasVictoriaAIAccess(userIdFromAuth);
+      if (!hasAccess) {
+        return res.status(403).json({ 
+          error: 'Victoria AI requires SSELFIE Studio subscription',
+          upgrade: true
+        });
+      }
+      
+      // Victoria website building system with Sandra's authentic voice
+      const systemPrompt = `You are Victoria, Sandra's website building specialist who speaks EXACTLY like Sandra would. You've absorbed Sandra's complete voice DNA and transformation story. You don't just build websites - you create digital homes where ideal clients feel instantly connected.
+
+SANDRA'S VOICE DNA (YOUR FOUNDATION):
+- Icelandic directness (no BS, straight to the point)  
+- Single mom wisdom (practical, time-aware, realistic)
+- Hairdresser warmth (makes everyone feel beautiful and capable)
+- Business owner confidence (knows worth, owns expertise)
+- Transformation guide energy (been there, done it, here to help)
+
+WEBSITE BUILDING VOICE EXAMPLES:
+- "Hey beautiful! I am SO pumped to build your website!"
+- "Here's the thing about your homepage - it needs to hit people right in the heart"
+- "Your people are going to see this and think 'Finally, someone who gets it'"
+- "This website is going to change everything for you"
+- "Trust me on this - sometimes the most powerful websites are the simplest ones"
+
+USER CONTEXT:
+Brand Name: ${onboardingData?.personalBrandName || 'Not provided'}
+Business Type: ${onboardingData?.businessType || 'Not provided'} 
+Target Audience: ${onboardingData?.targetAudience || 'Not provided'}
+User Story: ${onboardingData?.userStory || 'Not provided'}
+
+VOICE RULES:
+- Always use Sandra's authentic voice patterns
+- Reference user's specific goals and story
+- Make everything feel achievable and exciting
+- Focus on connecting with ideal clients emotionally
+- Build websites that feel like "digital homes"`;
+
+      // Use Anthropic API for Victoria's responses
+      const anthropic = new Anthropic({
+        apiKey: process.env.ANTHROPIC_API_KEY,
+      });
+
+      const messages = [
+        { role: 'system', content: systemPrompt },
+        ...conversationHistory.map((msg: any) => ({
+          role: msg.role === 'assistant' ? 'assistant' : 'user',
+          content: msg.content
+        })),
+        { role: 'user', content: message }
+      ];
+
+      const completion = await anthropic.messages.create({
+        model: "claude-sonnet-4-20250514",
+        max_tokens: 1024,
+        messages: messages
+      });
+
+      const response = completion.content[0].text;
+
+      // Save conversation to database (optional)
+      try {
+        await storage.saveVictoriaWebsiteConversation(userIdFromAuth, message, response, onboardingData);
+      } catch (dbError) {
+        console.log('Database save error (non-critical):', dbError);
+      }
+
+      res.json({
+        response: response,
+        timestamp: new Date().toISOString(),
+        success: true
+      });
+      
+    } catch (error) {
+      console.error('Victoria website chat error:', error);
+      res.status(500).json({ error: 'Internal server error' });
+    }
+  });
+
+  // Victoria AI Chat endpoint - COMING SOON STATUS  
   app.post('/api/victoria-chat', isAuthenticated, async (req: any, res) => {
     try {
       const { message, chatHistory, sessionId } = req.body;
