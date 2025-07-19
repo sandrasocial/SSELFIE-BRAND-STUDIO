@@ -23,6 +23,7 @@ import AgentWorkflowAccelerator from '@/components/admin/AgentWorkflowAccelerato
 import AgentCoordinationDashboard from '@/components/admin/AgentCoordinationDashboard';
 import AgentPowerDashboard from '@/components/admin/AgentPowerDashboard';
 import DualModeAgentChat from '@/components/admin/DualModeAgentChat';
+import WorkflowCreator from '@/components/Elena/WorkflowCreator';
 
 // Agent configurations now fetched dynamically from API (includes Olga automatically)
 
@@ -163,6 +164,12 @@ function AdminDashboardOld() {
                 <h1 className="text-3xl font-serif text-black mb-2">Elena - AI Agent Director & CEO</h1>
                 <p className="text-gray-600">Strategic vision coordination • Multi-agent workflow orchestration • Performance oversight</p>
               </div>
+              
+              {/* Elena's Workflow Creator */}
+              <div className="bg-white border border-gray-200 p-6">
+                <WorkflowCreator />
+              </div>
+              
               <AgentDirectorInterface />
             </div>
           )}
