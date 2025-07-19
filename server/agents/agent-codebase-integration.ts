@@ -289,6 +289,230 @@ export class AgentCodebaseIntegration {
       throw new Error(`Restore error: ${error.message}`);
     }
   }
+
+  /**
+   * TERMINAL/CONSOLE OPERATIONS
+   * Execute terminal commands like Replit agents
+   */
+  static async executeCommand(
+    agentId: string, 
+    command: string, 
+    workingDirectory?: string
+  ): Promise<{ stdout: string; stderr: string; success: boolean }> {
+    try {
+      const cwd = workingDirectory ? path.join(process.cwd(), workingDirectory) : process.cwd();
+      
+      // Security: Allow only safe commands
+      const allowedCommands = [
+        'npm', 'node', 'npx', 'tsx', 'tsc',
+        'git', 'ls', 'cat', 'grep', 'find',
+        'cp', 'mv', 'mkdir', 'rm', 'chmod',
+        'drizzle-kit', 'vite', 'tailwind'
+      ];
+      
+      const commandParts = command.trim().split(/\s+/);
+      const baseCommand = commandParts[0];
+      
+      if (!allowedCommands.includes(baseCommand)) {
+        throw new Error(`Command '${baseCommand}' not allowed for security reasons`);
+      }
+      
+      console.log(`🔧 Agent ${agentId} executing: ${command}`);
+      const { stdout, stderr } = await execAsync(command, { cwd });
+      
+      // Log the operation
+      await this.logOperation({
+        type: 'execute',
+        path: cwd,
+        content: command,
+        description: `Agent ${agentId} executed: ${command}`,
+        agentId,
+        timestamp: new Date()
+      });
+      
+      console.log(`✅ Command executed successfully`);
+      return { stdout, stderr, success: true };
+      
+    } catch (error) {
+      console.error(`❌ Command failed:`, error);
+      return { 
+        stdout: '', 
+        stderr: error.message, 
+        success: false 
+      };
+    }
+  }
+
+  /**
+   * PACKAGE MANAGEMENT
+   * Install dependencies automatically like Replit agents
+   */
+  static async installPackage(
+    agentId: string, 
+    packageName: string, 
+    isDev: boolean = false
+  ): Promise<{ success: boolean; output: string }> {
+    try {
+      const flag = isDev ? '--save-dev' : '--save';
+      const command = `npm install ${flag} ${packageName}`;
+      
+      const result = await this.executeCommand(agentId, command);
+      
+      if (result.success) {
+        console.log(`✅ Package ${packageName} installed successfully`);
+        return { success: true, output: result.stdout };
+      } else {
+        return { success: false, output: result.stderr };
+      }
+    } catch (error) {
+      return { success: false, output: error.message };
+    }
+  }
+
+  /**
+   * ERROR DETECTION & ANALYSIS
+   * Analyze code for potential issues like Replit agents
+   */
+  static async analyzeCodeForErrors(
+    agentId: string, 
+    filePath: string
+  ): Promise<{ errors: Array<{line: number, message: string, severity: 'error' | 'warning'}>; suggestions: string[] }> {
+    try {
+      const content = await this.readFile(agentId, filePath);
+      const errors = [];
+      const suggestions = [];
+      
+      // Basic TypeScript/JavaScript error detection
+      const lines = content.split('\n');
+      
+      for (let i = 0; i < lines.length; i++) {
+        const line = lines[i];
+        const lineNumber = i + 1;
+        
+        // Common error patterns
+        if (line.includes('console.log') && filePath.includes('prod')) {
+          errors.push({
+            line: lineNumber,
+            message: 'console.log found in production code',
+            severity: 'warning'
+          });
+          suggestions.push('Remove console.log statements from production code');
+        }
+        
+        if (line.includes('any') && filePath.includes('.ts')) {
+          errors.push({
+            line: lineNumber,
+            message: 'Using "any" type reduces type safety',
+            severity: 'warning'
+          });
+          suggestions.push('Replace "any" with specific types for better type safety');
+        }
+        
+        if (line.includes('== ') && !line.includes('=== ')) {
+          errors.push({
+            line: lineNumber,
+            message: 'Use strict equality (===) instead of loose equality (==)',
+            severity: 'warning'
+          });
+          suggestions.push('Use === for strict equality comparison');
+        }
+        
+        if (line.match(/import.*from\s+['"][^'"]*['"]/)) {
+          const importMatch = line.match(/from\s+['"]([^'"]*)['"]/);
+          if (importMatch && importMatch[1].startsWith('./') && !importMatch[1].includes('.')) {
+            errors.push({
+              line: lineNumber,
+              message: 'Missing file extension in relative import',
+              severity: 'error'
+            });
+            suggestions.push('Add file extensions to relative imports for better compatibility');
+          }
+        }
+      }
+      
+      return { errors, suggestions };
+    } catch (error) {
+      throw new Error(`Code analysis error: ${error.message}`);
+    }
+  }
+
+  /**
+   * DATABASE SCHEMA OPERATIONS
+   * Handle database migrations like Replit agents
+   */
+  static async runDatabaseMigration(
+    agentId: string, 
+    migrationName?: string
+  ): Promise<{ success: boolean; output: string }> {
+    try {
+      const command = migrationName 
+        ? `npx drizzle-kit migrate --name ${migrationName}`
+        : `npx drizzle-kit push`;
+      
+      const result = await this.executeCommand(agentId, command);
+      
+      if (result.success) {
+        console.log(`✅ Database migration completed`);
+        return { success: true, output: result.stdout };
+      } else {
+        return { success: false, output: result.stderr };
+      }
+    } catch (error) {
+      return { success: false, output: error.message };
+    }
+  }
+
+  /**
+   * PROJECT DEPENDENCY ANALYSIS
+   * Analyze and suggest missing dependencies
+   */
+  static async analyzeDependencies(agentId: string): Promise<{
+    missing: string[];
+    outdated: string[];
+    suggestions: string[];
+  }> {
+    try {
+      // Read package.json
+      const packageJson = JSON.parse(await this.readFile(agentId, 'package.json'));
+      const dependencies = { ...packageJson.dependencies, ...packageJson.devDependencies };
+      
+      const missing = [];
+      const outdated = [];
+      const suggestions = [];
+      
+      // Check for common missing dependencies based on code analysis
+      const commonFiles = [
+        'server/index.ts',
+        'client/src/App.tsx',
+        'shared/schema.ts'
+      ];
+      
+      for (const file of commonFiles) {
+        try {
+          const content = await this.readFile(agentId, file);
+          
+          // Check for missing dependencies
+          if (content.includes('import') && content.includes('@tanstack/react-query') && !dependencies['@tanstack/react-query']) {
+            missing.push('@tanstack/react-query');
+          }
+          
+          if (content.includes('drizzle-orm') && !dependencies['drizzle-orm']) {
+            missing.push('drizzle-orm');
+          }
+          
+          if (content.includes('express') && !dependencies['express']) {
+            missing.push('express');
+          }
+        } catch (error) {
+          // File doesn't exist, skip
+        }
+      }
+      
+      return { missing: [...new Set(missing)], outdated, suggestions };
+    } catch (error) {
+      throw new Error(`Dependency analysis error: ${error.message}`);
+    }
+  }
   
   /**
    * EMAIL AUTOMATION CREATION
