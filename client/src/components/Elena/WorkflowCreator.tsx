@@ -195,6 +195,35 @@ Example: Design and implement a new onboarding flow with progress tracking"
               </div>
             </div>
             
+            {/* Workflow Refinement */}
+            <div className="bg-yellow-50 border border-yellow-200 p-4 rounded-lg">
+              <h4 className="font-medium text-yellow-900 mb-2">Need to refine this workflow?</h4>
+              <p className="text-yellow-800 text-sm mb-3">
+                Update your request below and Elena will create a new optimized workflow.
+              </p>
+              <Textarea
+                value={request}
+                onChange={(e) => setRequest(e.target.value)}
+                placeholder="Modify your request to refine the workflow..."
+                className="mb-2 bg-white"
+              />
+              <Button 
+                onClick={handleCreateWorkflow}
+                disabled={isCreating}
+                size="sm"
+                variant="outline"
+              >
+                {isCreating ? (
+                  <>
+                    <Loader2 className="mr-2 h-3 w-3 animate-spin" />
+                    Refining...
+                  </>
+                ) : (
+                  'Refine Workflow'
+                )}
+              </Button>
+            </div>
+            
             <p className="text-gray-600">{workflow.description}</p>
             
             <div className="bg-blue-50 p-4 rounded-lg">
