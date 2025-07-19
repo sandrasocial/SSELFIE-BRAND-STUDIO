@@ -51,7 +51,7 @@ export default function AgentEnhancementDashboard() {
   });
 
   // Fetch enhancement dashboard
-  const { data: dashboardData } = useQuery({
+  const { data: dashboardData, isLoading: dashboardLoading, error: dashboardError } = useQuery({
     queryKey: ['/api/enhancement-dashboard'],
     refetchInterval: 60000
   });
@@ -102,22 +102,35 @@ export default function AgentEnhancementDashboard() {
       </div>
 
       {/* Overview Cards */}
-      {dashboardData && (
+      {dashboardLoading ? (
+        <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+          {[1,2,3,4].map(i => (
+            <div key={i} className="bg-white border border-gray-200 p-4 rounded animate-pulse">
+              <div className="h-8 bg-gray-200 rounded mb-2"></div>
+              <div className="h-4 bg-gray-200 rounded w-3/4"></div>
+            </div>
+          ))}
+        </div>
+      ) : dashboardError ? (
+        <div className="bg-red-50 border border-red-200 rounded p-4">
+          <p className="text-red-700 text-sm">Unable to load dashboard data</p>
+        </div>
+      ) : (
         <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
           <div className="bg-white border border-gray-200 p-4 rounded">
-            <div className="text-2xl font-bold text-black">{dashboardData.overview.totalEnhancements}</div>
+            <div className="text-2xl font-bold text-black">{dashboardData?.totalEnhancements || 0}</div>
             <div className="text-sm text-gray-600">Total Enhancements</div>
           </div>
           <div className="bg-white border border-gray-200 p-4 rounded">
-            <div className="text-2xl font-bold text-green-600">{dashboardData.overview.activeEnhancements}</div>
+            <div className="text-2xl font-bold text-green-600">{dashboardData?.activeEnhancements || 0}</div>
             <div className="text-sm text-gray-600">Active Enhancements</div>
           </div>
           <div className="bg-white border border-gray-200 p-4 rounded">
-            <div className="text-2xl font-bold text-red-600">{dashboardData.overview.criticalAlerts}</div>
+            <div className="text-2xl font-bold text-red-600">{dashboardData?.criticalAlerts || 0}</div>
             <div className="text-sm text-gray-600">Critical Alerts</div>
           </div>
           <div className="bg-white border border-gray-200 p-4 rounded">
-            <div className="text-2xl font-bold text-orange-600">{dashboardData.overview.highPriorityAlerts}</div>
+            <div className="text-2xl font-bold text-orange-600">{dashboardData?.highPriorityAlerts || 0}</div>
             <div className="text-sm text-gray-600">High Priority Alerts</div>
           </div>
         </div>
