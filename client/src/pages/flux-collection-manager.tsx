@@ -8,7 +8,7 @@ import { apiRequest } from '@/lib/queryClient';
 import { useToast } from '@/hooks/use-toast';
 import { MemberNavigation } from '@/components/member-navigation';
 import FluxPreviewApprovalSystem from '../components/FluxPreviewApprovalSystem';
-import { healingMindsetCollection } from '../data/collections/healing-mindset';
+import { findingMyselfAgainCollection } from '../data/collections/finding-myself-again';
 
 // Current AI Photoshoot Collections
 const CURRENT_COLLECTIONS = {
@@ -328,11 +328,11 @@ export default function FluxCollectionManager() {
               Cover Image Preview & Approval
             </h2>
             <p className="text-[#666] mb-8">
-              Generate and approve cover images for the "HEALING MINDSET" collection using Sandra's trained model.
+              Generate and approve cover images for the "Finding Myself Again" collection using Sandra's trained model.
             </p>
 
             <div className="space-y-8">
-              {healingMindsetCollection.prompts.map((prompt) => (
+              {findingMyselfAgainCollection.prompts.map((prompt) => (
                 <FluxPreviewApprovalSystem
                   key={prompt.id}
                   prompt={prompt}
@@ -356,7 +356,7 @@ export default function FluxCollectionManager() {
                 Approval Status
               </h3>
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                {healingMindsetCollection.prompts.map((prompt) => (
+                {findingMyselfAgainCollection.prompts.map((prompt) => (
                   <div key={prompt.id} className={`p-4 border ${
                     approvedImages[prompt.id] 
                       ? 'border-green-500 bg-green-50' 
@@ -381,7 +381,7 @@ export default function FluxCollectionManager() {
               </div>
               <div className="mt-6 text-center">
                 <p className="text-sm text-[#666]">
-                  {Object.keys(approvedImages).length} of {healingMindsetCollection.prompts.length} cover images approved
+                  {Object.keys(approvedImages).length} of {findingMyselfAgainCollection.prompts.length} cover images approved
                 </p>
               </div>
             </div>

@@ -9,7 +9,7 @@ export const findingMyselfAgainCollection = {
     {
       id: 1,
       title: "Taking Back My Mornings",
-      prompt: "Woman sitting by large window with morning golden light streaming in, holding white ceramic coffee mug with both hands, wearing oversized cream sweater, hair in messy bun, peaceful but determined expression, clean modern apartment, moment of quiet solitude, editorial lifestyle photography, soft natural lighting, 85mm lens",
+      prompt: "[triggerword] sitting by large window with morning golden light streaming in, holding white ceramic coffee mug with both hands, wearing oversized cream sweater, hair in messy bun, peaceful but determined expression, clean modern apartment, moment of quiet solitude, editorial lifestyle photography, soft natural lighting, 85mm lens",
       parameters: {
         guidance: 2.9,
         steps: 38,
@@ -31,7 +31,7 @@ export const findingMyselfAgainCollection = {
     {
       id: 3,
       title: "Small Victories",
-      prompt: "Woman in kitchen preparing healthy meal, chopping fresh vegetables on wooden cutting board, golden hour light streaming through kitchen window, wearing simple white t-shirt and jeans, content smile, organized clean space, taking care of herself, lifestyle photography, warm natural tones",
+      prompt: "[triggerword] in kitchen preparing healthy meal, chopping fresh vegetables on wooden cutting board, golden hour light streaming through kitchen window, wearing simple white t-shirt and jeans, content smile, organized clean space, taking care of herself, lifestyle photography, warm natural tones",
       parameters: {
         guidance: 2.8,
         steps: 35,
@@ -53,7 +53,7 @@ export const findingMyselfAgainCollection = {
     {
       id: 5,
       title: "Finding My Voice Again",
-      prompt: "Woman writing in journal at wooden desk, surrounded by inspiring books and plants, natural light from side window, wearing cozy cardigan, thoughtful expression, pen in hand, papers scattered creatively, rediscovering herself through words, warm intimate lighting",
+      prompt: "[triggerword] writing in journal at wooden desk, surrounded by inspiring books and plants, natural light from side window, wearing cozy cardigan, thoughtful expression, pen in hand, papers scattered creatively, rediscovering herself through words, warm intimate lighting",
       parameters: {
         guidance: 2.9,
         steps: 38,
@@ -75,7 +75,7 @@ export const findingMyselfAgainCollection = {
     {
       id: 7,
       title: "My Space, My Rules",
-      prompt: "Woman rearranging furniture in bright living room, making space her own, wearing comfortable clothes, satisfied expression, boxes nearby suggesting fresh start, large windows with natural light, creating sanctuary, home renovation mood, editorial lifestyle",
+      prompt: "[triggerword] rearranging furniture in bright living room, making space her own, wearing comfortable clothes, satisfied expression, boxes nearby suggesting fresh start, large windows with natural light, creating sanctuary, home renovation mood, editorial lifestyle",
       parameters: {
         guidance: 2.7,
         steps: 36,
@@ -97,7 +97,7 @@ export const findingMyselfAgainCollection = {
     {
       id: 9,
       title: "New Connections",
-      prompt: "Woman at coffee shop working on laptop, gentle smile, surrounded by warm café atmosphere, natural conversations happening around her, rebuilding social confidence, soft window light, independent but open energy, editorial documentary style",
+      prompt: "[triggerword] at coffee shop working on laptop, gentle smile, surrounded by warm café atmosphere, natural conversations happening around her, rebuilding social confidence, soft window light, independent but open energy, editorial documentary style",
       parameters: {
         guidance: 2.8,
         steps: 37,
@@ -119,7 +119,7 @@ export const findingMyselfAgainCollection = {
     {
       id: 11,
       title: "Future Planning",
-      prompt: "Woman sitting at desk with vision board, calendar, and planning materials, natural light from large window, wearing comfortable sweater, focused but hopeful expression, maps or travel brochures visible, planning next chapter, lifestyle editorial photography",
+      prompt: "[triggerword] sitting at desk with vision board, calendar, and planning materials, natural light from large window, wearing comfortable sweater, focused but hopeful expression, maps or travel brochures visible, planning next chapter, lifestyle editorial photography",
       parameters: {
         guidance: 2.9,
         steps: 39,
