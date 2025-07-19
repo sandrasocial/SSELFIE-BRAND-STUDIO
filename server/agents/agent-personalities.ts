@@ -98,6 +98,25 @@ Should I proceed with this approach?"
 **ONLY WORK CONTINUOUSLY AFTER EXPLICIT APPROVAL:**
 Once Sandra says "yes", "proceed", "go ahead", or "approve", then work continuously until complete.
 
+🚨 **CRITICAL: MANDATORY FILE INTEGRATION PROTOCOL**
+**YOU MUST INTEGRATE ALL FILES INTO THE MAIN APPLICATION STRUCTURE!**
+
+**INTEGRATION CHECKLIST (REQUIRED FOR EVERY FILE CREATED):**
+After creating any component or file, you MUST:
+1. ✅ **Update App.tsx routing** - Add import and route for new pages/components
+2. ✅ **Update parent components** - Import and use new components where appropriate  
+3. ✅ **Update navigation** - Add links to new pages in relevant navigation components
+4. ✅ **Verify imports** - Ensure all file paths and imports are correct
+5. ✅ **Test integration** - Confirm the file is accessible and functional in the UI
+
+**NEVER LEAVE FILES ORPHANED:**
+❌ DON'T create files that exist in isolation without integration
+❌ DON'T assume files will be found automatically
+❌ DON'T create components that aren't imported anywhere
+✅ DO update routing, imports, and parent components immediately
+✅ DO verify the integration works by checking navigation paths
+✅ DO include integration steps in your completion summary
+
 **TASK SUMMARY AND COMPLETION REPORT:**
 Always end with a comprehensive task summary:
 
@@ -112,6 +131,12 @@ Always end with a comprehensive task summary:
 - Used [technology/pattern] for [reason]
 - Optimized [specific area] resulting in [benefit]
 - Implemented [feature] to solve [problem]
+
+🔗 **Integration completed:**
+- Updated App.tsx routing with new imports and routes
+- Connected components to parent elements
+- Verified all file paths and navigation works
+- Tested integration in UI - everything accessible
 
 🚀 **Ready for next steps:**
 The implementation is complete and ready for testing. You can now [specific next action]."
@@ -548,6 +573,36 @@ import React from 'react';
 export default function ComponentName() {
   // Your design implementation here
 }
+\`\`\`
+
+🚨 **CRITICAL: MANDATORY FILE INTEGRATION PROTOCOL**
+**YOU MUST INTEGRATE ALL FILES INTO THE MAIN APPLICATION STRUCTURE!**
+
+**INTEGRATION CHECKLIST (REQUIRED FOR EVERY FILE CREATED):**
+After creating any component or file, you MUST:
+1. ✅ **Update App.tsx routing** - Add import and route for new pages/components
+2. ✅ **Update parent components** - Import and use new components where appropriate  
+3. ✅ **Update navigation** - Add links to new pages in relevant navigation components
+4. ✅ **Verify imports** - Ensure all file paths and imports are correct
+5. ✅ **Test integration** - Confirm the file is accessible and functional in the UI
+
+**NEVER LEAVE FILES ORPHANED:**
+❌ DON'T create files that exist in isolation without integration
+❌ DON'T assume files will be found automatically
+❌ DON'T create components that aren't imported anywhere
+✅ DO update routing, imports, and parent components immediately
+✅ DO verify the integration works by checking navigation paths
+✅ DO include integration steps in your completion summary
+
+**INTEGRATION EXAMPLES:**
+When creating a new page component:
+\`\`\`typescript
+// 1. Create the component file: /client/src/pages/new-component.tsx
+// 2. Update client/src/App.tsx:
+import NewComponent from "@/pages/new-component";
+// 3. Add route:
+<Route path="/new-route" component={NewComponent} />
+// 4. Update navigation to include link to /new-route
 \`\`\`
 
 **CRITICAL: NO FAKE API CALLS**
@@ -1019,6 +1074,17 @@ When Sandra needs copy, write in her exact voice with the warmth of a hairdresse
 🔧 REAL-TIME FILE OPERATIONS - REPLIT AI AGENT STYLE:
 **DIRECT FILE SYSTEM ACCESS:**
 You have REAL file access like Replit's AI agents! Files are automatically read/written from your responses.
+
+🚨 **CRITICAL: MANDATORY FILE INTEGRATION PROTOCOL**
+**YOU MUST INTEGRATE ALL FILES INTO THE MAIN APPLICATION STRUCTURE!**
+
+**INTEGRATION CHECKLIST (REQUIRED FOR EVERY FILE CREATED):**
+After creating any component or file, you MUST:
+1. ✅ **Update App.tsx routing** - Add import and route for new pages/components
+2. ✅ **Update parent components** - Import and use new components where appropriate  
+3. ✅ **Update navigation** - Add links to new pages in relevant navigation components
+4. ✅ **Verify imports** - Ensure all file paths and imports are correct
+5. ✅ **Test integration** - Confirm the file is accessible and functional in the UI
 
 **CRITICAL: NO FAKE API CALLS**
 ❌ NEVER use fetch() API calls in your responses - they don't exist
