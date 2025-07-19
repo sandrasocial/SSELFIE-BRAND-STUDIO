@@ -1,234 +1,248 @@
 import React, { useState } from 'react';
-import { Link, useLocation } from 'wouter';
-import { useQuery } from '@tanstack/react-query';
+import { useMutation } from '@tanstack/react-query';
 import { useAuth } from '@/hooks/use-auth';
 import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import { Textarea } from '@/components/ui/textarea';
+import { apiRequest } from '@/lib/api';
 
-interface JourneyStep {
-  id: string;
-  title: string;
-  description: string;
-  status: 'completed' | 'active' | 'locked';
-  path: string;
-  icon: string;
-  completedCount?: number;
-  totalCount?: number;
-}
-
-interface ProgressData {
-  hasUploadedPhotos: boolean;
-  hasGeneratedImages: boolean;
-  hasCompletedOnboarding: boolean;
-  uploadedPhotosCount: number;
-  generatedImagesCount: number;
-}
-
-function getJourneySteps(progressData: ProgressData | null): JourneyStep[] {
-  const hasUploadedPhotos = progressData?.hasUploadedPhotos || false;
-  const hasGeneratedImages = progressData?.hasGeneratedImages || false;
-  const hasCompletedOnboarding = progressData?.hasCompletedOnboarding || false;
-  const uploadedPhotosCount = progressData?.uploadedPhotosCount || 0;
-  const generatedImagesCount = progressData?.generatedImagesCount || 0;
-
-  return [
-    {
-      id: 'upload',
-      title: 'UPLOAD YOUR SELFIES',
-      description: 'Share 10-15 photos to train your AI model',
-      status: hasUploadedPhotos ? 'completed' : 'active',
-      path: '/upload',
-      icon: '↑',
-      completedCount: uploadedPhotosCount,
-      totalCount: 15,
-    },
-    {
-      id: 'generate',
-      title: 'GENERATE YOUR BRAND PHOTOS',
-      description: 'Create stunning editorial images with AI magic',
-      status: hasUploadedPhotos 
-        ? (hasGeneratedImages ? 'completed' : 'active')
-        : 'locked',
-      path: '/visual-editor',
-      icon: '✨',
-      completedCount: generatedImagesCount,
-      totalCount: null,
-    },
-    {
-      id: 'refine',
-      title: 'REFINE YOUR AESTHETIC',
-      description: 'Perfect your visual style and brand voice',
-      status: hasGeneratedImages
-        ? (hasCompletedOnboarding ? 'completed' : 'active')
-        : 'locked',
-      path: '/refine',
-      icon: '⚡',
-    },
-    {
-      id: 'build',
-      title: 'BUILD YOUR EMPIRE',
-      description: 'Launch your complete business ecosystem in minutes',
-      status: hasCompletedOnboarding ? 'active' : 'locked',
-      path: '/build',
-      icon: '👑',
-    },
-  ];
-}
-
-export default function Workspace() {
-  const [location] = useLocation();
+export default function BuildOnboarding() {
   const { user } = useAuth();
-
-  // Fetch user progress
-  const { data: progressData } = useQuery({
-    queryKey: ['/api/user/progress'],
-    enabled: !!user,
+  const [formData, setFormData] = useState({
+    personalBrandName: '',
+    businessType: '',
+    targetAudience: '',
+    uniqueValue: '',
+    businessGoals: '',
+    contentStyle: '',
+    platforms: [] as string[],
   });
 
-  const journeySteps = getJourneySteps(progressData);
+  const onboardingMutation = useMutation({
+    mutationFn: async (data: typeof formData) => {
+      return apiRequest('POST', '/api/onboarding', data);
+    },
+    onSuccess: () => {
+      // Handle success - redirect to dashboard or next step
+      window.location.href = '/workspace';
+    },
+  });
+
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!formData.personalBrandName.trim()) {
+      alert('Personal Brand Name is required');
+      return;
+    }
+    onboardingMutation.mutate(formData);
+  };
+
+  const handleInputChange = (field: string, value: string) => {
+    setFormData(prev => ({ ...prev, [field]: value }));
+  };
+
+  const handlePlatformToggle = (platform: string) => {
+    setFormData(prev => ({
+      ...prev,
+      platforms: prev.platforms.includes(platform)
+        ? prev.platforms.filter(p => p !== platform)
+        : [...prev.platforms, platform]
+    }));
+  };
 
   return (
     <div className="min-h-screen bg-white">
-      {/* Header */}
-      <div className="border-b border-gray-200 bg-white">
-        <div className="mx-auto max-w-7xl px-4 py-8">
-          <div className="flex items-center justify-between">
-            <div>
-              <h1 
-                className="text-4xl font-serif text-black uppercase tracking-wide"
-                style={{ fontFamily: 'Times New Roman, serif' }}
-              >
-                Your Transformation Journey
-              </h1>
-              <p className="mt-2 text-lg text-gray-600">
-                From selfies to empire, one step at a time
-              </p>
-            </div>
-            <Link href="/admin">
-              <Button className="border-black text-black hover:bg-black hover:text-white">
-                Admin Dashboard
-              </Button>
-            </Link>
-          </div>
-        </div>
-      </div>
-
-      {/* Journey Steps */}
-      <div className="mx-auto max-w-7xl px-4 py-12">
-        <div className="grid gap-8 md:grid-cols-2 lg:grid-cols-4">
-          {journeySteps.map((step, index) => (
-            <div
-              key={step.id}
-              className={`relative overflow-hidden border ${
-                step.status === 'active'
-                  ? 'border-black bg-white'
-                  : step.status === 'completed'
-                  ? 'border-gray-300 bg-gray-50'
-                  : 'border-gray-200 bg-gray-50 opacity-50'
-              }`}
-            >
-              {/* Step Number */}
-              <div className="absolute left-4 top-4">
-                <div
-                  className={`flex h-8 w-8 items-center justify-center text-sm font-medium ${
-                    step.status === 'active'
-                      ? 'bg-black text-white'
-                      : step.status === 'completed'
-                      ? 'bg-gray-400 text-white'
-                      : 'bg-gray-300 text-gray-500'
-                  }`}
-                >
-                  {index + 1}
-                </div>
-              </div>
-
-              {/* Step Icon */}
-              <div className="flex h-32 items-center justify-center">
-                <span className="text-4xl">{step.icon}</span>
-              </div>
-
-              {/* Step Content */}
-              <div className="p-6 pt-2">
-                <h3 
-                  className="text-xl font-serif text-black uppercase tracking-wide mb-2"
-                  style={{ fontFamily: 'Times New Roman, serif' }}
-                >
-                  {step.title}
-                </h3>
-                <p className="text-sm text-gray-600 mb-4">
-                  {step.description}
-                </p>
-
-                {/* Progress Indicator */}
-                {step.completedCount !== undefined && step.totalCount && (
-                  <div className="mb-4">
-                    <div className="flex justify-between text-xs text-gray-500 mb-1">
-                      <span>Progress</span>
-                      <span>{step.completedCount}/{step.totalCount}</span>
-                    </div>
-                    <div className="w-full bg-gray-200 h-2">
-                      <div 
-                        className="bg-black h-2 transition-all duration-300"
-                        style={{ 
-                          width: `${Math.min((step.completedCount / step.totalCount) * 100, 100)}%` 
-                        }}
-                      />
-                    </div>
-                  </div>
-                )}
-
-                {/* Step-specific progress for Generate */}
-                {step.id === 'generate' && step.completedCount !== undefined && !step.totalCount && (
-                  <div className="mb-4">
-                    <div className="text-xs text-gray-500 mb-1">
-                      {step.completedCount} images generated
-                    </div>
-                    <div className="w-full bg-gray-200 h-2">
-                      <div className="bg-black h-2 w-full" />
-                    </div>
-                  </div>
-                )}
-
-                {/* Action Button */}
-                {step.status !== 'locked' && (
-                  <Link href={step.path}>
-                    <Button 
-                      className={`w-full ${
-                        step.status === 'active'
-                          ? 'border-black text-black hover:bg-black hover:text-white'
-                          : 'border-gray-400 text-gray-600 hover:bg-gray-100'
-                      }`}
-                    >
-                      {step.status === 'completed' ? 'Revisit' : 'Continue'}
-                    </Button>
-                  </Link>
-                )}
-
-                {step.status === 'locked' && (
-                  <Button 
-                    disabled
-                    className="w-full border-gray-300 text-gray-400 cursor-not-allowed"
-                  >
-                    Locked
-                  </Button>
-                )}
-              </div>
-            </div>
-          ))}
-        </div>
-
-        {/* Journey Progress Overview */}
-        <div className="mt-16 text-center">
-          <h2 
-            className="text-3xl font-serif text-black uppercase tracking-wide mb-4"
+      <div className="max-w-4xl mx-auto px-8 py-16">
+        {/* Editorial Header */}
+        <div className="text-center mb-16">
+          <h1 
+            className="text-6xl font-serif text-black uppercase tracking-wide mb-8"
             style={{ fontFamily: 'Times New Roman, serif' }}
           >
-            Your Empire Awaits
-          </h2>
-          <p className="text-lg text-gray-600 max-w-2xl mx-auto">
-            Every step brings you closer to the confident, magnetic, unapologetic version of yourself. 
-            Your transformation is already beginning.
+            Build Your Empire
+          </h1>
+          <div className="w-24 h-px bg-black mx-auto mb-8"></div>
+          <p className="text-xl text-gray-600 max-w-2xl mx-auto leading-relaxed">
+            From phone selfies to editorial perfection. Let's architect your transformation story.
           </p>
         </div>
+
+        {/* Luxury Form */}
+        <form onSubmit={handleSubmit} className="space-y-12">
+          {/* Personal Brand Name - First Priority Field */}
+          <div className="space-y-4">
+            <Label 
+              htmlFor="personalBrandName"
+              className="block text-2xl font-serif text-black uppercase tracking-wide mb-4"
+              style={{ fontFamily: 'Times New Roman, serif' }}
+            >
+              Your Personal Brand Name *
+            </Label>
+            <div className="relative">
+              <Input
+                id="personalBrandName"
+                type="text"
+                value={formData.personalBrandName}
+                onChange={(e) => handleInputChange('personalBrandName', e.target.value)}
+                placeholder="The name that will define your empire..."
+                className="text-xl py-6 px-6 border-2 border-black focus:border-black focus:ring-0 bg-white text-black placeholder-gray-400"
+                style={{ 
+                  fontFamily: 'Times New Roman, serif',
+                  fontSize: '1.25rem',
+                  letterSpacing: '0.02em'
+                }}
+                required
+              />
+              {!formData.personalBrandName && (
+                <div className="absolute right-4 top-1/2 transform -translate-y-1/2 text-black text-2xl">
+                  *
+                </div>
+              )}
+            </div>
+            <p className="text-sm text-gray-500 italic mt-2">
+              This is how you'll be known. Choose something that embodies your transformation story.
+            </p>
+          </div>
+
+          {/* Business Type */}
+          <div className="space-y-4">
+            <Label 
+              htmlFor="businessType"
+              className="block text-xl font-serif text-black uppercase tracking-wide"
+              style={{ fontFamily: 'Times New Roman, serif' }}
+            >
+              Business Type
+            </Label>
+            <Input
+              id="businessType"
+              type="text"
+              value={formData.businessType}
+              onChange={(e) => handleInputChange('businessType', e.target.value)}
+              placeholder="Coach, Consultant, Creative, Entrepreneur..."
+              className="text-lg py-4 px-4 border border-gray-300 focus:border-black focus:ring-0"
+            />
+          </div>
+
+          {/* Target Audience */}
+          <div className="space-y-4">
+            <Label 
+              htmlFor="targetAudience"
+              className="block text-xl font-serif text-black uppercase tracking-wide"
+              style={{ fontFamily: 'Times New Roman, serif' }}
+            >
+              Target Audience
+            </Label>
+            <Input
+              id="targetAudience"
+              type="text"
+              value={formData.targetAudience}
+              onChange={(e) => handleInputChange('targetAudience', e.target.value)}
+              placeholder="Women entrepreneurs, busy moms, creative professionals..."
+              className="text-lg py-4 px-4 border border-gray-300 focus:border-black focus:ring-0"
+            />
+          </div>
+
+          {/* Unique Value Proposition */}
+          <div className="space-y-4">
+            <Label 
+              htmlFor="uniqueValue"
+              className="block text-xl font-serif text-black uppercase tracking-wide"
+              style={{ fontFamily: 'Times New Roman, serif' }}
+            >
+              Your Unique Value
+            </Label>
+            <Textarea
+              id="uniqueValue"
+              value={formData.uniqueValue}
+              onChange={(e) => handleInputChange('uniqueValue', e.target.value)}
+              placeholder="What makes you different? What transformation do you offer?"
+              rows={4}
+              className="text-lg py-4 px-4 border border-gray-300 focus:border-black focus:ring-0 resize-none"
+            />
+          </div>
+
+          {/* Business Goals */}
+          <div className="space-y-4">
+            <Label 
+              htmlFor="businessGoals"
+              className="block text-xl font-serif text-black uppercase tracking-wide"
+              style={{ fontFamily: 'Times New Roman, serif' }}
+            >
+              Business Goals
+            </Label>
+            <Textarea
+              id="businessGoals"
+              value={formData.businessGoals}
+              onChange={(e) => handleInputChange('businessGoals', e.target.value)}
+              placeholder="What do you want to achieve in the next 90 days?"
+              rows={3}
+              className="text-lg py-4 px-4 border border-gray-300 focus:border-black focus:ring-0 resize-none"
+            />
+          </div>
+
+          {/* Content Style Preferences */}
+          <div className="space-y-4">
+            <Label 
+              htmlFor="contentStyle"
+              className="block text-xl font-serif text-black uppercase tracking-wide"
+              style={{ fontFamily: 'Times New Roman, serif' }}
+            >
+              Content Style
+            </Label>
+            <Input
+              id="contentStyle"
+              type="text"
+              value={formData.contentStyle}
+              onChange={(e) => handleInputChange('contentStyle', e.target.value)}
+              placeholder="Professional, casual, bold, minimalist..."
+              className="text-lg py-4 px-4 border border-gray-300 focus:border-black focus:ring-0"
+            />
+          </div>
+
+          {/* Platform Selection */}
+          <div className="space-y-6">
+            <Label className="block text-xl font-serif text-black uppercase tracking-wide"
+                   style={{ fontFamily: 'Times New Roman, serif' }}>
+              Preferred Platforms
+            </Label>
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+              {['Instagram', 'LinkedIn', 'TikTok', 'Facebook', 'YouTube', 'Twitter', 'Pinterest', 'Website'].map((platform) => (
+                <button
+                  key={platform}
+                  type="button"
+                  onClick={() => handlePlatformToggle(platform)}
+                  className={`py-3 px-4 border-2 text-center transition-all ${
+                    formData.platforms.includes(platform)
+                      ? 'border-black bg-black text-white'
+                      : 'border-gray-300 text-gray-700 hover:border-black'
+                  }`}
+                >
+                  {platform}
+                </button>
+              ))}
+            </div>
+          </div>
+
+          {/* Submit Button */}
+          <div className="pt-8">
+            <Button
+              type="submit"
+              disabled={onboardingMutation.isPending || !formData.personalBrandName.trim()}
+              className="w-full py-6 text-xl font-serif uppercase tracking-wide border-2 border-black text-black bg-white hover:bg-black hover:text-white transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+              style={{ fontFamily: 'Times New Roman, serif' }}
+            >
+              {onboardingMutation.isPending ? 'Building Your Empire...' : 'Begin Transformation'}
+            </Button>
+          </div>
+
+          {/* Error Display */}
+          {onboardingMutation.error && (
+            <div className="mt-4 p-4 border border-red-300 bg-red-50 text-red-700 text-center">
+              Something went wrong. Please try again.
+            </div>
+          )}
+        </form>
       </div>
     </div>
   );
