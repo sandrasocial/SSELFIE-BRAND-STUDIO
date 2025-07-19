@@ -3,6 +3,7 @@ import { SSELFIE_TECH_STANDARDS } from './sselfie-tech-standards';
 import { ENHANCED_AGENT_CAPABILITIES } from './enhanced-agent-capabilities';
 import { STATUS_REPORTING_INSTRUCTIONS } from './status-reporting-instructions';
 import { OLGA_ORGANIZER_CAPABILITIES } from './olga-organizer-capabilities';
+import { AGENT_COORDINATION_PROTOCOL } from './agent-coordination-protocol';
 
 export interface AgentPersonality {
   id: string;
