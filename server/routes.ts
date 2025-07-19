@@ -4176,7 +4176,40 @@ AGENT_CONTEXT:
   app.get('/api/agent-coordination-metrics', isAuthenticated, getAgentCoordinationMetrics);
   app.get('/api/agent-statuses', getAgentStatuses);
   app.get('/api/agent-accountability/:agentId', getAgentAccountability);
+  
+  // Enhanced Handoff System API routes
+  app.post('/api/workflows/enhanced-handoff', isAuthenticated, async (req, res) => {
+    try {
+      const { workflowId, handoffContext } = req.body;
+      const userId = req.user?.claims?.sub || req.user?.id;
+      
+      const { EnhancedHandoffSystem } = await import('./workflows/enhanced-handoff-system');
+      const result = await EnhancedHandoffSystem.executeEnhancedHandoff(workflowId, userId, handoffContext);
+      
+      res.json(result);
+    } catch (error) {
+      console.error('Enhanced handoff error:', error);
+      res.status(500).json({ error: 'Failed to execute enhanced handoff' });
+    }
+  });
+  
+  // Agent Utilization Optimization
+  app.get('/api/workflows/optimize-utilization', isAuthenticated, async (req, res) => {
+    try {
+      const userId = req.user?.claims?.sub || req.user?.id;
+      
+      const { EnhancedHandoffSystem } = await import('./workflows/enhanced-handoff-system');
+      const optimization = await EnhancedHandoffSystem.optimizeAgentUtilization(userId);
+      
+      res.json(optimization);
+    } catch (error) {
+      console.error('Agent utilization optimization error:', error);
+      res.status(500).json({ error: 'Failed to optimize agent utilization' });
+    }
+  });
+  
   console.log('✅ Agent Performance Monitor API routes registered');
+  console.log('✅ Enhanced Handoff System API routes registered');
   
   await registerEnterpriseRoutes(app);
   
