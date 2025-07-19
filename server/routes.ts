@@ -27,6 +27,7 @@ import session from 'express-session';
 import { registerCheckoutRoutes } from './routes/checkout';
 import { registerAutomationRoutes } from './routes/automation';
 import { registerEnterpriseRoutes } from './routes/enterprise-routes';
+import agentPerformanceMonitor from './routes/agent-performance-monitor';
 import { ExternalAPIService } from './integrations/external-api-service';
 import { AgentAutomationTasks } from './integrations/agent-automation-tasks';
 // Email service import moved inline to avoid conflicts
@@ -4155,6 +4156,9 @@ AGENT_CONTEXT:
   app.use(agentStatusRoutes.default);
   console.log('✅ Enhanced Agent Capabilities routes registered');
   await registerEnterpriseRoutes(app);
+  
+  // Register Agent Performance Monitor routes
+  app.use('/', agentPerformanceMonitor);
 
   // Chat Management API Routes
   app.post('/api/admin/save-conversation', async (req, res) => {
