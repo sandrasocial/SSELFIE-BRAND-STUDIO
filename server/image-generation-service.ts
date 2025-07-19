@@ -3,6 +3,45 @@ import type { InsertAIImage } from '@shared/schema-simplified';
 import { ArchitectureValidator } from './architecture-validator';
 import { GenerationValidator } from './generation-validator';
 
+/**
+ * Enhance prompt with hair quality optimization - matches Maya's enhancement system
+ */
+function enhancePromptForHairQuality(prompt: string): string {
+  console.log(`💇‍♀️ AI PHOTOSHOOT HAIR QUALITY ENHANCEMENT: Analyzing prompt for hair optimization`);
+  
+  // Hair quality enhancement keywords
+  const hairEnhancements = [
+    'natural hair movement',
+    'detailed hair strands', 
+    'realistic hair texture',
+    'individual hair strand definition',
+    'professional hair lighting'
+  ];
+  
+  // Check if prompt already contains hair-related terms
+  const hasHairTerms = prompt.toLowerCase().includes('hair') || 
+                      prompt.toLowerCase().includes('strand') ||
+                      prompt.toLowerCase().includes('texture');
+  
+  // If prompt mentions hair, enhance it with quality terms
+  if (hasHairTerms) {
+    const enhancement = hairEnhancements[Math.floor(Math.random() * hairEnhancements.length)];
+    const enhancedPrompt = `${prompt}, ${enhancement}`;
+    console.log(`✨ AI PHOTOSHOOT HAIR ENHANCED: Added "${enhancement}"`);
+    return enhancedPrompt;
+  }
+  
+  // For prompts without explicit hair terms, add subtle hair quality boost
+  if (prompt.toLowerCase().includes('portrait') || prompt.toLowerCase().includes('face')) {
+    const enhancedPrompt = `${prompt}, natural hair detail and movement`;
+    console.log(`✨ AI PHOTOSHOOT PORTRAIT HAIR BOOST: Added natural hair detail`);
+    return enhancedPrompt;
+  }
+  
+  console.log(`📝 AI PHOTOSHOOT PROMPT UNCHANGED: No hair enhancement needed`);
+  return prompt;
+}
+
 export interface GenerateImagesRequest {
   userId: string;
   category: string;
@@ -69,10 +108,13 @@ export async function generateImages(request: GenerateImagesRequest): Promise<Ge
     // Clean up extra commas and spaces
     cleanPrompt = cleanPrompt.replace(/,\s*,/g, ',').replace(/^\s*,\s*|\s*,\s*$/g, '').trim();
     
-    // 🔧 WORKING STRUCTURE: Realism base + trigger word + clean description (matches successful ID 352)
-    const finalPrompt = `raw photo, visible skin pores, film grain, unretouched natural skin texture, subsurface scattering, photographed on film, ${triggerWord}, ${cleanPrompt}`;
+    // 🚀 MAYA HAIR OPTIMIZATION: Enhanced prompt with hair quality focus for AI Photoshoot
+    const hairOptimizedPrompt = enhancePromptForHairQuality(cleanPrompt);
     
-    console.log(`🔧 AI PHOTOSHOOT RESTORED WORKING PROMPT: ${finalPrompt}`);
+    // 🔧 WORKING STRUCTURE: Realism base + trigger word + hair-optimized description (matches Maya quality)
+    const finalPrompt = `raw photo, visible skin pores, film grain, unretouched natural skin texture, subsurface scattering, photographed on film, ${triggerWord}, ${hairOptimizedPrompt}`;
+    
+    console.log(`🔧 AI PHOTOSHOOT HAIR-OPTIMIZED PROMPT: ${finalPrompt}`);
 
     // 🔒 IMMUTABLE CORE ARCHITECTURE - USES USER'S INDIVIDUAL TRAINED MODEL DIRECTLY
     // Each user has their own trained FLUX model version for complete isolation
@@ -94,17 +136,21 @@ export async function generateImages(request: GenerateImagesRequest): Promise<Ge
       
       const userTrainedVersion = `${userModel.replicateModelId}:${userModel.replicateVersionId}`;
       
+      // 🚀 MAYA OPTIMIZATION INTEGRATION: Get user-adaptive parameters for AI Photoshoot
+      const { MayaOptimizationService } = await import('./maya-optimization-service');
+      const optimizedParams = await MayaOptimizationService.getOptimizedParameters(userId);
+      
       requestBody = {
         version: userTrainedVersion, // 🔒 CRITICAL: User's individual trained model version ONLY
         input: {
           prompt: finalPrompt,
-          guidance: 2.8, // ✅ RESTORED: Optimal guidance for editorial quality
-          num_inference_steps: 40, // ✅ RESTORED: Higher steps for superior detail
-          lora_scale: 0.95, // ✅ RESTORED: Strong LoRA influence for personalized results
+          guidance: optimizedParams.guidance || 2.8, // 🚀 UPGRADED: User-adaptive guidance
+          num_inference_steps: optimizedParams.inferenceSteps || 40, // 🚀 UPGRADED: Quality-based steps
+          lora_scale: optimizedParams.loraScale || 0.95, // 🚀 UPGRADED: Hair quality optimized LoRA scale
           num_outputs: 3,
           aspect_ratio: "3:4", 
           output_format: "png",
-          output_quality: 95, // ✅ MAINTAINED: High quality output
+          output_quality: optimizedParams.outputQuality || 95, // 🚀 UPGRADED: Role-based quality setting
           go_fast: false, 
           disable_safety_checker: false,
           seed: Math.floor(Math.random() * 1000000)
@@ -116,6 +162,17 @@ export async function generateImages(request: GenerateImagesRequest): Promise<Ge
     }
     ArchitectureValidator.validateGenerationRequest(requestBody, userId, isPremium);
     ArchitectureValidator.logArchitectureCompliance(userId, 'AI Photoshoot Generation');
+    
+    // 📊 LOG OPTIMIZATION PARAMETERS FOR AI PHOTOSHOOT MONITORING
+    console.log(`🚀 MAYA OPTIMIZATION ACTIVE for AI Photoshoot user ${userId}:`, {
+      guidance: requestBody.input.guidance,
+      steps: requestBody.input.num_inference_steps,
+      loraScale: requestBody.input.lora_scale,
+      quality: requestBody.input.output_quality,
+      isPremium,
+      userRole: user?.role,
+      collection: 'AI Photoshoot'
+    });
     
 
     
