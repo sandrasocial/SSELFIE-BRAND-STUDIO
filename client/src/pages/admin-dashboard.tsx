@@ -16,6 +16,8 @@ import AgentDashboard from '@/components/admin/AgentDashboard';
 import AgentAnalyticsDashboard from '@/components/admin/AgentAnalyticsDashboard';
 import EnhancedAgentCoordination from '@/components/admin/EnhancedAgentCoordination';
 import AgentEnhancementDashboard from '@/components/admin/AgentEnhancementDashboard';
+import AgentPerformanceMonitor from '@/components/admin/AgentPerformanceMonitor';
+import AgentAccountabilityTracker from '@/components/admin/AgentAccountabilityTracker';
 
 // Agent configurations now fetched dynamically from API (includes Olga automatically)
 
@@ -118,6 +120,12 @@ function AdminDashboardOld() {
               >
                 Enhancements
               </button>
+              <button 
+                onClick={() => setActiveTab('performance')}
+                className={`text-sm uppercase tracking-wide hover:text-gray-300 ${activeTab === 'performance' ? 'text-white border-b border-white' : ''}`}
+              >
+                Performance
+              </button>
               <Link href="/visual-editor" className="text-sm uppercase tracking-wide hover:text-gray-300">
                 Visual Editor
               </Link>
@@ -175,6 +183,13 @@ function AdminDashboardOld() {
           
           {activeTab === 'enhancements' && (
             <AgentEnhancementDashboard />
+          )}
+          
+          {activeTab === 'performance' && (
+            <div className="space-y-6">
+              <AgentPerformanceMonitor />
+              <AgentAccountabilityTracker />
+            </div>
           )}
           
           {activeTab === 'dashboard' && (
