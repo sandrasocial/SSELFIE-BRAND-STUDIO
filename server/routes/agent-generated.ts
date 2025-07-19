@@ -1,85 +1,53 @@
-// client/src/data/collections/finding-myself-again.ts
+// client/src/data/collections/finding-myself.ts
 
-export const findingMyselfAgainCollection = {
-  id: 'finding-myself-again',
-  title: 'Finding Myself Again',
-  description: 'Raw, authentic moments of rebuilding after loss. Real healing, not Instagram healing.',
-  story: 'Sometimes life breaks you open. This collection captures the quiet strength of rebuilding - the real moments of rediscovering who you are after loss or heartbreak.',
-  coverImage: '', // You'll select after preview generation
-  category: 'lifestyle',
-  tags: ['healing', 'authentic', 'self-discovery', 'raw', 'scandinavian'],
+export const findingMyselfCollection = {
+  id: 'finding-myself',
+  title: 'Finding Myself',
+  description: 'A journey of self-discovery through authentic moments and elevated style',
+  coverImage: '/images/collections/finding-myself-cover.jpg',
+  tags: ['self-discovery', 'authentic', 'editorial', 'empowerment'],
   prompts: [
     {
-      id: 'dawn-coffee-solitude',
-      title: 'Dawn Coffee Solitude',
-      description: 'First light, first breath of a new day',
-      prompt: '[triggerword] holding white ceramic mug at sunrise window, wearing oversized beige sweater, golden morning light streaming in, contemplative peaceful expression, minimalist Scandinavian kitchen, authentic quiet moment, film grain texture',
-      category: 'morning-rituals'
+      id: 'mirror-moment',
+      title: 'Mirror Reflection',
+      prompt: 'Editorial portrait of [triggerword] in an oversized cream blazer over a simple white tee, standing before a large vintage mirror in soft morning light. Natural makeup, hair swept back effortlessly. The mirror reflects not just her image but a sense of quiet contemplation and self-acceptance. Scandinavian minimalist interior, muted tones, professional fashion photography, shot with 85mm lens, shallow depth of field',
+      category: 'self-reflection',
+      mood: 'contemplative'
     },
     {
-      id: 'empty-room-strength',
-      title: 'Empty Room Strength',
-      description: 'Standing tall in new spaces',
-      prompt: '[triggerword] standing in bright empty room with white walls, wearing simple black turtleneck, hands at sides, confident posture, large windows with natural light, minimalist space, sense of new beginnings, documentary style',
-      category: 'fresh-starts'
+      id: 'golden-hour-confidence', 
+      title: 'Golden Hour Awakening',
+      prompt: 'Cinematic portrait of [triggerword] in a flowing camel coat, standing by floor-to-ceiling windows during golden hour. Hair catches the warm light, genuine smile, eyes full of determination. Modern luxury apartment setting, clean lines, warm golden light streaming across her face. Editorial fashion photography, natural authentic moment, Vogue-style composition',
+      category: 'empowerment',
+      mood: 'confident'
     },
     {
-      id: 'rain-window-processing',
-      title: 'Rain Window Processing',
-      description: 'Letting emotions flow like rain',
-      prompt: '[triggerword] sitting by rain-streaked window, wearing soft gray cashmere, natural side lighting, genuine contemplative expression, water droplets on glass, moody atmospheric mood, honest emotional moment, cinematic composition',
-      category: 'emotional-processing'
+      id: 'cozy-vulnerability',
+      title: 'Quiet Strength',
+      prompt: 'Intimate portrait of [triggerword] in an oversized cashmere sweater in soft beige, sitting cross-legged on a plush velvet sofa. Holding a warm cup of tea, natural gentle smile, soft window light. Cozy luxury living room with textured throws and plants. Raw authentic moment capturing inner peace and self-acceptance, shot with 50mm lens, warm tones',
+      category: 'authenticity',
+      mood: 'peaceful'
     },
     {
-      id: 'bathroom-mirror-truth',
-      title: 'Bathroom Mirror Truth',
-      description: 'Raw honesty with yourself',
-      prompt: '[triggerword] looking into simple bathroom mirror, no makeup, natural morning light, genuine self-acceptance expression, clean white tiles, honest vulnerable moment, authentic self-discovery, soft natural lighting',
-      category: 'self-acceptance'
+      id: 'power-stride',
+      title: 'Stepping Into Power',
+      prompt: 'Dynamic editorial shot of [triggerword] walking confidently in a perfectly tailored black blazer and wide-leg trousers. Hair flowing behind her, purposeful stride, head held high. Modern glass office building or city street background, dramatic shadows and light. Capturing that moment of stepping into your power, professional fashion photography, editorial lighting',
+      category: 'empowerment', 
+      mood: 'powerful'
     },
     {
-      id: 'autumn-path-forward',
-      title: 'Autumn Path Forward',
-      description: 'Walking toward something better',
-      prompt: '[triggerword] walking down leaf-covered path, wearing long camel wool coat, back view showing movement, autumn trees overhead, golden hour lighting, sense of purpose and direction, cinematic depth, hopeful journey',
-      category: 'moving-forward'
+      id: 'creative-space',
+      title: 'In My Element',
+      prompt: 'Lifestyle portrait of [triggerword] in a relaxed linen shirt and high-waisted jeans, working in a beautiful creative space. Natural focused expression, surrounded by inspiration boards, plants, and warm lighting. Authentic moment of being in flow, doing what she loves. Scandinavian workspace aesthetic, soft natural light, 35mm lens, editorial lifestyle photography',
+      category: 'authenticity',
+      mood: 'inspired'
     },
     {
-      id: 'journal-lamplight-clarity',
-      title: 'Journal Lamplight Clarity',
-      description: 'Writing your way through',
-      prompt: '[triggerword] writing in leather journal at wooden desk, wearing cream knit sweater, warm desk lamp lighting, focused concentration, scattered papers nearby, authentic moment of processing through words, cozy study atmosphere',
-      category: 'self-reflection'
-    },
-    {
-      id: 'golden-bench-peace',
-      title: 'Golden Bench Peace',
-      description: 'Finding strength in solitude',
-      prompt: '[triggerword] sitting alone on park bench during golden hour, wearing wool peacoat, peaceful serene expression, warm sunset glow, trees in background, beautiful solitude moment, sense of inner peace found',
-      category: 'peaceful-solitude'
-    },
-    {
-      id: 'kitchen-self-nurture',
-      title: 'Kitchen Self Nurture',
-      description: 'Learning to care for yourself',
-      prompt: '[triggerword] preparing simple meal in bright kitchen, wearing linen apron over white tee, focused on cooking, natural window light, fresh ingredients visible, sense of self-care and nourishment, authentic domestic moment',
-      category: 'self-nurturing'
-    },
-    {
-      id: 'armchair-wisdom-books',
-      title: 'Armchair Wisdom Books',
-      description: 'Finding answers in quiet reading',
-      prompt: '[triggerword] reading book in comfortable armchair, wearing cozy cardigan, soft reading lamp, surrounded by green plants, peaceful learning atmosphere, genuine growth mindset moment, warm cozy lighting',
-      category: 'seeking-wisdom'
-    },
-    {
-      id: 'morning-yoga-renewal',
-      title: 'Morning Yoga Renewal',
-      description: 'Gentle movement toward healing',
-      prompt: '[triggerword] doing gentle yoga stretches by large window, wearing simple athletic wear, soft morning light, sense of physical and emotional renewal, peaceful movement, authentic wellness moment, not performative',
-      category: 'gentle-renewal'
+      id: 'evening-elegance',
+      title: 'Refined Grace',
+      prompt: 'Elegant portrait of [triggerword] in a silk slip dress in deep emerald, sitting gracefully in a velvet armchair. Soft romantic lighting, natural confident expression, hair styled in loose waves. Luxury hotel lounge or sophisticated interior, warm ambient lighting. Capturing refined femininity and self-assurance, shot with 85mm lens, editorial portrait style',
+      category: 'elegance',
+      mood: 'sophisticated'
     }
-  ],
-  createdAt: new Date(),
-  updatedAt: new Date()
+  ]
 };
