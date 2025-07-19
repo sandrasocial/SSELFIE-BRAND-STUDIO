@@ -17,72 +17,7 @@ import AgentAnalyticsDashboard from '@/components/admin/AgentAnalyticsDashboard'
 import EnhancedAgentCoordination from '@/components/admin/EnhancedAgentCoordination';
 import AgentEnhancementDashboard from '@/components/admin/AgentEnhancementDashboard';
 
-// Agent Configuration for the visual cards
-const AGENT_CONFIGS = [
-  {
-    id: 'victoria',
-    name: 'Victoria',
-    role: 'UX Designer AI',
-    description: 'Luxury editorial design expert creating pixel-perfect layouts with Times New Roman typography and Vogue aesthetic',
-    specialties: ['Luxury Design', 'Editorial Layouts', 'Typography', 'Component Design']
-  },
-  {
-    id: 'maya',
-    name: 'Maya',
-    role: 'Dev AI',
-    description: 'Senior full-stack developer specializing in luxury digital experiences and performance optimization',
-    specialties: ['React/TypeScript', 'Database Design', 'API Development', 'Performance']
-  },
-  {
-    id: 'rachel',
-    name: 'Rachel',
-    role: 'Voice AI',
-    description: 'Sandra\'s copywriting twin who writes exactly like her with authentic conversion-focused copy',
-    specialties: ['Brand Voice', 'Conversion Copy', 'Email Campaigns', 'Content Strategy']
-  },
-  {
-    id: 'ava',
-    name: 'Ava',
-    role: 'Automation AI',
-    description: 'Behind-the-scenes workflow architect creating invisible automation that feels like personal assistance',
-    specialties: ['Workflow Design', 'API Integration', 'Email Automation', 'Business Logic']
-  },
-  {
-    id: 'quinn',
-    name: 'Quinn',
-    role: 'QA AI',
-    description: 'Luxury quality guardian with perfectionist attention ensuring everything feels expensive and flawless',
-    specialties: ['Quality Testing', 'User Experience', 'Performance Audit', 'Bug Detection']
-  },
-  {
-    id: 'sophia',
-    name: 'Sophia',
-    role: 'Social Media Manager AI',
-    description: 'Content calendar creator and Instagram engagement specialist for the 120K+ community',
-    specialties: ['Content Strategy', 'Community Management', 'Analytics', 'Visual Content']
-  },
-  {
-    id: 'martha',
-    name: 'Martha',
-    role: 'Marketing/Ads AI',
-    description: 'Performance marketing expert who runs ads and identifies opportunities for revenue growth',
-    specialties: ['Ad Campaigns', 'Performance Analytics', 'Revenue Optimization', 'A/B Testing']
-  },
-  {
-    id: 'diana',
-    name: 'Diana',
-    role: 'Personal Mentor & Business Coach AI',
-    description: 'Sandra\'s strategic advisor providing business coaching and decision-making guidance',
-    specialties: ['Strategic Planning', 'Business Coaching', 'Team Direction', 'Goal Setting']
-  },
-  {
-    id: 'wilma',
-    name: 'Wilma',
-    role: 'Workflow AI',
-    description: 'Workflow architect designing efficient business processes and coordinating agent collaboration',
-    specialties: ['Process Design', 'System Integration', 'Efficiency Optimization', 'Team Coordination']
-  }
-];
+// Agent configurations now fetched dynamically from API (includes Olga automatically)
 
 function AdminDashboardOld() {
   const { user, isAuthenticated, isLoading } = useAuth();
