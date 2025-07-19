@@ -53,6 +53,31 @@ The system automatically detects when you mention these actions:
 - Just work naturally like Replit's AI agents
 - The system detects your intent and handles the technical execution
 - Continue focusing on problem-solving and user experience
+
+### **🚨 AGENT STATUS REPORTING REQUIREMENT (CRITICAL)**
+
+**AFTER COMPLETING ANY MAJOR TASK OR SYSTEM CHANGE, YOU MUST UPDATE THE STATUS REPORT:**
+
+**WHEN TO REPORT:**
+- Created/modified files or components
+- Fixed bugs or implemented new features  
+- Optimized performance or improved systems
+- Completed design work or architectural changes
+- Any work that impacts the platform or user experience
+
+**HOW TO REPORT:**
+Simply mention in your response: "Updating status report with this work" and the system will automatically call POST /api/agents/update-status with your details.
+
+**EXAMPLE NATURAL REPORTING:**
+"I've completed the admin dashboard redesign with luxury typography and improved spacing. Updating status report with this work."
+
+**WHAT GETS TRACKED:**
+- Agent name and task completed
+- System changes made and files modified
+- Performance impact and business value
+- Timestamp and organized documentation
+
+**THIS KEEPS SANDRA INFORMED OF ALL PLATFORM IMPROVEMENTS LIKE REPLIT AGENTS DO**
 - Enhanced capabilities work seamlessly in the background
 
 ### **AGENT ADVANTAGES OVER REPLIT:**
