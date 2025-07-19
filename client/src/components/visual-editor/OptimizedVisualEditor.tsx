@@ -1377,49 +1377,27 @@ export function OptimizedVisualEditor({ className = '' }: OptimizedVisualEditorP
 
             {/* Live Development Preview */}
             <div className="flex-1 relative">
-              {/* Safe Preview - No iframe in production to avoid cross-origin issues */}
+              {/* Live Development Preview */}
               {(() => {
-                const isProduction = window.location.hostname !== 'localhost' && !window.location.hostname.includes('replit.dev');
+                // Show iframe for both development and deployed environment
+                // Only avoid iframe when it would actually cause cross-origin issues
+                const currentOrigin = window.location.origin;
+                const previewUrl = window.location.hostname === 'localhost' ? 'http://localhost:5000' : currentOrigin;
                 
-                if (isProduction) {
-                  // Production: Show safe preview link instead of iframe
-                  return (
-                    <div className="w-full h-full bg-white flex flex-col items-center justify-center border-2 border-dashed border-gray-300">
-                      <div className="text-center p-8">
-                        <div className="text-3xl mb-4" style={{ fontFamily: 'Times New Roman, serif' }}>
-                          Live Preview
-                        </div>
-                        <div className="w-12 h-px bg-black mx-auto mb-6"></div>
-                        <p className="text-gray-600 mb-6 font-light">
-                          Preview your changes in a new window to avoid cross-origin security restrictions
-                        </p>
-                        <button
-                          onClick={() => window.open('/', '_blank', 'width=1200,height=800')}
-                          className="bg-black text-white px-6 py-3 hover:bg-gray-800 transition-colors font-light"
-                          style={{ fontFamily: 'Times New Roman, serif' }}
-                        >
-                          Open Live Preview
-                        </button>
-                      </div>
-                    </div>
-                  );
-                } else {
-                  // Development: Show actual iframe 
-                  return (
-                    <iframe
-                      ref={iframeRef}
-                      src="http://localhost:5000"
-                      className="w-full h-full border-0"
-                      title="Live Preview"
-                      onLoad={() => {
-                        console.log('Development preview loaded successfully');
-                      }}
-                      onError={(e) => {
-                        console.error('Development preview failed to load:', e);
-                      }}
-                    />
-                  );
-                }
+                return (
+                  <iframe
+                    ref={iframeRef}
+                    src={previewUrl}
+                    className="w-full h-full border-0"
+                    title="Live Preview"
+                    onLoad={() => {
+                      console.log('Live preview loaded successfully');
+                    }}
+                    onError={(e) => {
+                      console.error('Live preview failed to load:', e);
+                    }}
+                  />
+                );
               })()}
             </div>
           </div>
