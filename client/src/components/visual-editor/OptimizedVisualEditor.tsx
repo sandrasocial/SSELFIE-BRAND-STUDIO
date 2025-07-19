@@ -172,8 +172,17 @@ const agents: Agent[] = [
     role: 'Workflow AI',
     expertise: ['Process Optimization', 'Automation Design', 'Efficiency', 'System Integration'],
     color: 'bg-yellow-500',
-    nextAgent: 'aria',
+    nextAgent: 'olga',
     workflowStage: 'Workflow'
+  },
+  {
+    id: 'olga',
+    name: 'Olga',
+    role: 'Repository Organizer AI',
+    expertise: ['File Organization', 'Architecture Cleanup', 'Dependency Analysis', 'Safe Refactoring'],
+    color: 'bg-cyan-500',
+    nextAgent: 'aria',
+    workflowStage: 'Organization'
   }
 ];
 
