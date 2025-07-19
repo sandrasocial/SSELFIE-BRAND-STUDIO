@@ -189,6 +189,7 @@ Sandra's revolutionary AI-powered business management system with specialized ag
 - **Tone**: Maintain authentic personalities but keep interactions brief and helpful
 - **Conversation Memory**: Agents must remember context throughout conversations (fixed)
 - **Direct File Access**: Agents create actual files in codebase with immediate dev preview updates
+- **Olga Communication Style**: Warm, simple everyday language like best friend - short responses, no technical jargon, reassuring and friendly
 
 **ALL 10 AGENTS FULLY BRIEFED WITH COMPLETE FLUX PRO DUAL-TIER KNOWLEDGE:**
 - **Victoria (UX Designer AI)**: FLUX Pro dual-tier UX optimization, premium conversion design, luxury positioning
