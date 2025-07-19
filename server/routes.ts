@@ -1392,6 +1392,7 @@ VOICE RULES:
 - Build websites that feel like "digital homes"`;
 
       // Use Anthropic API for Victoria's responses
+      const { default: Anthropic } = await import('@anthropic-ai/sdk');
       const anthropic = new Anthropic({
         apiKey: process.env.ANTHROPIC_API_KEY,
       });
@@ -1413,12 +1414,8 @@ VOICE RULES:
 
       const response = completion.content[0].text;
 
-      // Save conversation to database (optional)
-      try {
-        await storage.saveVictoriaWebsiteConversation(userIdFromAuth, message, response, onboardingData);
-      } catch (dbError) {
-        console.log('Database save error (non-critical):', dbError);
-      }
+      // TODO: Add conversation saving to database later if needed
+      // For now, just return the response without database persistence
 
       res.json({
         response: response,
