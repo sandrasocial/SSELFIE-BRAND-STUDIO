@@ -611,13 +611,13 @@ import NewComponent from "@/pages/new-component";
 ✅ Use natural language + code blocks for real file operations
 ✅ Files are automatically read when mentioned, written when code provided
 
-🎨 **CRITICAL: ADMIN DASHBOARD DESIGN REQUIREMENTS**
-**MANDATORY DESIGN PATTERNS FOR ALL ADMIN PAGES:**
+🎨 **CRITICAL: MANDATORY DESIGN PATTERNS FOR ALL PAGES**
+**REQUIRED DESIGN ELEMENTS FOR EVERY DESIGN PROJECT:**
 
 1. **NAVIGATION SYSTEM (REQUIRED ON EVERY PAGE):**
    - Use same style as global navigation menu from landing page
    - Consistent typography and spacing matching main site navigation
-   - Include admin-specific menu items with proper hierarchy
+   - Include appropriate menu items with proper hierarchy for each section
    - Maintain luxury editorial design standards throughout
 
 2. **FULL BLEED HERO IMAGES (REQUIRED ON MAIN PAGES):**
@@ -640,22 +640,22 @@ import NewComponent from "@/pages/new-component";
 
 5. **PORTFOLIO-STYLE COMPONENTS (REQUIRED FOR UNIQUENESS):**
    - Create unique layouts similar to existing portfolio component
-   - Showcase admin data in editorial gallery format
-   - Use luxury presentation standards for admin metrics/content
+   - Showcase data/content in editorial gallery format
+   - Use luxury presentation standards for all content types
    - Maintain magazine-quality visual presentation
 
 6. **EDITORIAL FOUNDATION COMPONENTS (STARTING POINTS):**
    - Use editorial and about components as base templates
-   - Adapt existing luxury patterns for admin functionality
+   - Adapt existing luxury patterns for any functionality
    - Maintain Times New Roman typography throughout
    - Follow established spacing and layout rhythm
 
-**AUTHENTIC IMAGE REQUIREMENTS:**
+**AUTHENTIC IMAGE REQUIREMENTS (ALL DESIGNS):**
 ✅ ONLY use images from gallery and flatlay library
 ✅ Pull from existing SSELFIE Studio authentic image collections
 ✅ Maintain editorial luxury standards with real brand assets
 ❌ NEVER use placeholder or stock images
-❌ NEVER create generic admin interfaces
+❌ NEVER create generic interfaces - always luxury editorial
 
 🚀 **CRITICAL: APPROVAL-BASED CREATIVE PATTERN**
 **NEVER START DESIGN WORK WITHOUT EXPLICIT APPROVAL!**

@@ -323,19 +323,19 @@ The platform has become overly complex with multiple pricing tiers, broken onboa
 ### ✅ ADMIN DASHBOARD REDESIGN WORKFLOW CREATED (July 19, 2025)
 
 **COMPREHENSIVE AGENT TESTING PROTOCOL ESTABLISHED:**
-- ✅ **Aria Enhanced**: Updated with specific admin dashboard design requirements
-- ✅ **Design Patterns Defined**: Navigation, hero images, cards, page breaks, portfolio-style components
-- ✅ **Authentic Assets Required**: Only gallery and flatlay library images allowed
+- ✅ **Aria Enhanced**: Updated with mandatory design requirements for ALL pages
+- ✅ **Universal Design Patterns**: Navigation, hero images, cards, page breaks, portfolio-style components
+- ✅ **Authentic Assets Required**: Only gallery and flatlay library images allowed  
 - ✅ **Integration Testing**: Complete workflow to test file integration protocol
 - ✅ **Quality Standards**: Luxury editorial design with Times New Roman typography
-- ✅ **Functionality Preservation**: All admin features must remain operational
+- ✅ **All Project Types**: Requirements apply to admin, BUILD feature, and any design work
 
-**Design Requirements Added to Aria:**
+**Universal Design Requirements Added to Aria:**
 1. Navigation system matching global site style on every page
 2. Full bleed hero images from authentic SSELFIE collections  
 3. Image + text overlay cards with editorial magazine styling
 4. Full bleed image page breaks for visual rhythm
-5. Portfolio-style components for unique admin data presentation
+5. Portfolio-style components for unique data presentation
 6. Editorial foundation components as starting templates
 
 **Testing Workflow Created:**
