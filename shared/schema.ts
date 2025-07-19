@@ -114,6 +114,8 @@ export const templates = pgTable("templates", {
   createdAt: timestamp("created_at").defaultNow(),
 });
 
+
+
 // Agent conversations table for chat persistence
 export const agentConversations = pgTable("agent_conversations", {
   id: serial("id").primaryKey(),
