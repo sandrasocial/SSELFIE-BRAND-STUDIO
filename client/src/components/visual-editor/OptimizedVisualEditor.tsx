@@ -104,8 +104,8 @@ const agents: Agent[] = [
     workflowStage: 'Design'
   },
   {
-    id: 'maya',
-    name: 'Maya',
+    id: 'zara',
+    name: 'Zara',
     role: 'Dev AI',
     expertise: ['React/TypeScript', 'Database Design', 'API Development', 'Performance'],
     color: 'bg-blue-500',
@@ -227,7 +227,7 @@ export function OptimizedVisualEditor({ className = '' }: OptimizedVisualEditorP
     if (savedConversations) {
       try {
         const parsed = JSON.parse(savedConversations);
-        const agentKey = new URLSearchParams(window.location.search).get('agent') || 'aria';
+        const agentKey = new URLSearchParams(window.location.search).get('agent') || 'zara';
         return parsed[agentKey] || [];
       } catch (e) {
         console.warn('Failed to parse saved conversations:', e);
@@ -250,7 +250,12 @@ export function OptimizedVisualEditor({ className = '' }: OptimizedVisualEditorP
   // Removed iframeLoading state - no longer using iframes
   const [currentAgent, setCurrentAgent] = useState<Agent>(() => {
     const agentIdFromUrl = new URLSearchParams(window.location.search).get('agent');
-    return agentIdFromUrl ? agents.find(a => a.id === agentIdFromUrl) || agents[0] : agents[0];
+    if (agentIdFromUrl) {
+      const foundAgent = agents.find(a => a.id === agentIdFromUrl);
+      if (foundAgent) return foundAgent;
+    }
+    // Default to 'zara' (Dev AI) instead of 'aria'
+    return agents.find(a => a.id === 'zara') || agents[0];
   });
   const [showQuickActions, setShowQuickActions] = useState(false);
   const [workflowActive, setWorkflowActive] = useState(false);
