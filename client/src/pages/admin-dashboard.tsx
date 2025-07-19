@@ -21,6 +21,7 @@ import AgentAccountabilityTracker from '@/components/admin/AgentAccountabilityTr
 import AgentWorkflowAccelerator from '@/components/admin/AgentWorkflowAccelerator';
 import AgentCoordinationDashboard from '@/components/admin/AgentCoordinationDashboard';
 import AgentPowerDashboard from '@/components/admin/AgentPowerDashboard';
+import DualModeAgentChat from '@/components/admin/DualModeAgentChat';
 
 // Agent configurations now fetched dynamically from API (includes Olga automatically)
 
@@ -238,7 +239,10 @@ function AdminDashboardOld() {
             
 
 
-            {/* Individual Agent Chat Interfaces */}
+            {/* Dual Mode Agent Chat */}
+            <DualModeAgentChat />
+            
+          {/* Individual Agent Chat Interfaces */}
             <div className="space-y-6">
               <h3 className="text-lg font-medium mb-4" style={{ fontFamily: 'Times New Roman, serif' }}>
                 Quick Chat Interfaces
