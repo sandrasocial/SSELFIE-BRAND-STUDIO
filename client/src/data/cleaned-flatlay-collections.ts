@@ -244,5 +244,136 @@ export const cleanedFlatlayCollections: FlatlayCollection[] = [
         description: 'Wellness mindset lifestyle flatlay'
       }
     ]
+  },
+  {
+    id: 'pink-girly',
+    name: 'Pink and Girly',
+    description: 'Feminine pink aesthetic with girly accessories and soft textures',
+    aesthetic: 'Sweet feminine charm with playful pink tones',
+    backgroundImage: '/flatlays/pink-girly/pink-girly-251.png',
+    colors: ['#ffc0cb', '#ffb6c1', '#f0f0f0', '#ffffff', '#ff69b4'],
+    fonts: ['Times New Roman', 'Playfair Display', 'Dancing Script'],
+    images: [
+      {
+        id: 'pg-1',
+        url: '/flatlays/pink-girly/pink-girly-251.png',
+        title: 'Pink Paradise',
+        category: 'Pink and Girly',
+        description: 'Pink and girly lifestyle flatlay'
+      },
+      {
+        id: 'pg-2',
+        url: '/flatlays/pink-girly/pink-girly-252.png',
+        title: 'Feminine Touch',
+        category: 'Pink and Girly',
+        description: 'Pink and girly lifestyle flatlay'
+      },
+      {
+        id: 'pg-3',
+        url: '/flatlays/pink-girly/pink-girly-253.png',
+        title: 'Sweet Setup',
+        category: 'Pink and Girly',
+        description: 'Pink and girly lifestyle flatlay'
+      },
+      {
+        id: 'pg-4',
+        url: '/flatlays/pink-girly/pink-girly-254.png',
+        title: 'Girly Glamour',
+        category: 'Pink and Girly',
+        description: 'Pink and girly lifestyle flatlay'
+      },
+      {
+        id: 'pg-5',
+        url: '/flatlays/pink-girly/pink-girly-255.png',
+        title: 'Pink Perfection',
+        category: 'Pink and Girly',
+        description: 'Pink and girly lifestyle flatlay'
+      },
+      {
+        id: 'pg-6',
+        url: '/flatlays/pink-girly/pink-girly-256.png',
+        title: 'Feminine Vibes',
+        category: 'Pink and Girly',
+        description: 'Pink and girly lifestyle flatlay'
+      }
+    ]
+  },
+  {
+    id: 'coastal-vibes',
+    name: 'Coastal Vibes',
+    description: 'Ocean-inspired flatlays with nautical elements, shells, and beach aesthetics',
+    aesthetic: 'Breezy coastal charm with oceanic blues and sandy neutrals',
+    backgroundImage: '/flatlays/luxury-minimal/luxury-minimal-001.png', // Placeholder until coastal images exist
+    colors: ['#87ceeb', '#e0f6ff', '#f0f8ff', '#ffffff', '#20b2aa'],
+    fonts: ['Times New Roman', 'Source Sans Pro', 'Merriweather'],
+    images: [
+      {
+        id: 'cv-1',
+        url: '/flatlays/luxury-minimal/luxury-minimal-001.png', // Placeholder
+        title: 'Ocean Breeze',
+        category: 'Coastal Vibes',
+        description: 'Coastal vibes lifestyle flatlay - Coming Soon'
+      },
+      {
+        id: 'cv-2',
+        url: '/flatlays/luxury-minimal/luxury-minimal-002.png', // Placeholder
+        title: 'Beach Essentials',
+        category: 'Coastal Vibes',
+        description: 'Coastal vibes lifestyle flatlay - Coming Soon'
+      },
+      {
+        id: 'cv-3',
+        url: '/flatlays/luxury-minimal/luxury-minimal-003.png', // Placeholder
+        title: 'Nautical Style',
+        category: 'Coastal Vibes',
+        description: 'Coastal vibes lifestyle flatlay - Coming Soon'
+      },
+      {
+        id: 'cv-4',
+        url: '/flatlays/luxury-minimal/luxury-minimal-004.png', // Placeholder
+        title: 'Seaside Serenity',
+        category: 'Coastal Vibes',
+        description: 'Coastal vibes lifestyle flatlay - Coming Soon'
+      }
+    ]
+  },
+  {
+    id: 'cream-aesthetic',
+    name: 'Cream Aesthetic',
+    description: 'Warm cream tones with soft textures and cozy minimalist vibes',
+    aesthetic: 'Soft sophisticated warmth with creamy neutral tones',
+    backgroundImage: '/flatlays/luxury-minimal/luxury-minimal-005.png', // Placeholder until cream images exist
+    colors: ['#f5f5dc', '#faf0e6', '#fff8dc', '#ffffff', '#deb887'],
+    fonts: ['Times New Roman', 'Libre Baskerville', 'Lora'],
+    images: [
+      {
+        id: 'ca-1',
+        url: '/flatlays/luxury-minimal/luxury-minimal-005.png', // Placeholder
+        title: 'Cream Dream',
+        category: 'Cream Aesthetic',
+        description: 'Cream aesthetic lifestyle flatlay - Coming Soon'
+      },
+      {
+        id: 'ca-2',
+        url: '/flatlays/luxury-minimal/luxury-minimal-006.png', // Placeholder
+        title: 'Soft Textures',
+        category: 'Cream Aesthetic',
+        description: 'Cream aesthetic lifestyle flatlay - Coming Soon'
+      },
+      {
+        id: 'ca-3',
+        url: '/flatlays/european-luxury/european-luxury-101.png', // Placeholder
+        title: 'Cozy Minimal',
+        category: 'Cream Aesthetic',
+        description: 'Cream aesthetic lifestyle flatlay - Coming Soon'
+      },
+      {
+        id: 'ca-4',
+        url: '/flatlays/european-luxury/european-luxury-102.png', // Placeholder
+        title: 'Warm Elegance',
+        category: 'Cream Aesthetic',
+        description: 'Cream aesthetic lifestyle flatlay - Coming Soon'
+      }
+    ]
   }
 ];
