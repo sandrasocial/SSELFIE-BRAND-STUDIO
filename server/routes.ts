@@ -3904,11 +3904,19 @@ Consider this workflow optimized and ready for implementation! ⚙️`
   app.post('/api/admin/agent-chat-bypass', async (req, res) => {
     console.log('🔧 ADMIN AGENT CHAT BYPASS ENDPOINT HIT!');
     console.log('📍 Request body keys:', Object.keys(req.body));
-    console.log('📍 Agent ID:', req.body.agentId);
+    console.log('📍 agentName from request:', req.body.agentName);
+    console.log('📍 agentId from request:', req.body.agentId);
     console.log('📍 Message preview:', req.body.message?.substring(0, 100));
     
     try {
-      let { agentId, message, adminToken, conversationHistory = [] } = req.body;
+      let { agentId, agentName, message, adminToken, conversationHistory = [] } = req.body;
+      
+      // Map agentName to agentId if provided
+      if (agentName && !agentId) {
+        agentId = agentName.toLowerCase();
+      }
+      
+      console.log(`🔍 Agent mapping debug - agentName: "${agentName}", agentId: "${agentId}"`);
       
       // Enhanced authentication: Session-based OR token-based
       let isAuthorized = false;
@@ -3940,6 +3948,9 @@ Consider this workflow optimized and ready for implementation! ⚙️`
       }
       
       console.log(`🔐 Admin authenticated via ${authMethod}`)
+      
+      // Add debug before getting agentId
+      console.log(`🔍 PRE-MAPPING DEBUG: agentName="${req.body.agentName}", agentId="${req.body.agentId}"`);
       
       console.log(`🤖 ADMIN AGENT CHAT: ${agentId} - "${message?.substring(0, 50)}..."`);
       
