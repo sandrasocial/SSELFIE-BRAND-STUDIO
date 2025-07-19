@@ -2987,6 +2987,38 @@ I'm here to make your website perfect!`;
     }
   });
 
+  // POST /api/build/style-preferences - Save style preferences
+  app.post("/api/build/style-preferences", isAuthenticated, async (req, res) => {
+    try {
+      const userId = req.user?.claims?.sub;
+      if (!userId) {
+        return res.status(401).json({ error: "Authentication required" });
+      }
+
+      const { styleData } = req.body;
+
+      if (!styleData) {
+        return res.status(400).json({ error: "Style data required" });
+      }
+
+      // Update existing onboarding record with style preferences
+      const result = await db
+        .update(userWebsiteOnboarding)
+        .set({ 
+          colorPreferences: styleData,
+          updatedAt: new Date()
+        })
+        .where(eq(userWebsiteOnboarding.userId, userId))
+        .returning();
+
+      res.json({ success: true, styleData });
+
+    } catch (error) {
+      console.error("Style preferences error:", error);
+      res.status(500).json({ error: "Failed to save style preferences" });
+    }
+  });
+
   // HTML Generation function for Victoria
   function generateWebsiteHtml(onboardingData: any, userMessage: string) {
     const brandName = onboardingData.personalBrandName || 'Your Brand';

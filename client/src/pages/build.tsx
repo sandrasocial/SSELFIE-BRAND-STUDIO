@@ -4,12 +4,13 @@ import { useQuery } from '@tanstack/react-query';
 import { MemberNavigation } from '@/components/member-navigation';
 import { GlobalFooter } from '@/components/global-footer';
 import { BuildOnboarding } from '@/components/build/BuildOnboarding';
+import { BrandStyleOnboarding } from '@/components/build/BrandStyleOnboarding';
 import { VictoriaWebsiteChat } from '@/components/build/VictoriaWebsiteChat';
 import { Link } from 'wouter';
 
 export default function Build() {
   const { user, isAuthenticated, isLoading } = useAuth();
-  const [currentStage, setCurrentStage] = useState<'onboarding' | 'chat' | 'editor'>('onboarding');
+  const [currentStage, setCurrentStage] = useState<'onboarding' | 'style' | 'chat' | 'editor'>('onboarding');
   const [onboardingData, setOnboardingData] = useState<any>(null);
   const [websiteData, setWebsiteData] = useState<any>(null);
 
@@ -48,14 +49,24 @@ export default function Build() {
 
   // Determine current stage based on existing data
   React.useEffect(() => {
-    if (existingOnboarding?.isCompleted) {
-      setOnboardingData(existingOnboarding);
+    console.log('🔍 existingOnboarding:', existingOnboarding);
+    if (existingOnboarding?.onboarding?.isCompleted) {
+      console.log('✅ Setting onboarding data:', existingOnboarding.onboarding);
+      setOnboardingData(existingOnboarding.onboarding);
       setCurrentStage('chat');
     }
   }, [existingOnboarding]);
 
   const handleOnboardingComplete = (data: any) => {
     setOnboardingData(data);
+    setCurrentStage('style');
+  };
+
+  const handleStyleComplete = (styleData: any) => {
+    setOnboardingData({
+      ...onboardingData,
+      ...styleData
+    });
     setCurrentStage('chat');
   };
 
@@ -112,9 +123,14 @@ export default function Build() {
           />
         )}
 
+        {currentStage === 'style' && (
+          <BrandStyleOnboarding 
+            onComplete={handleStyleComplete}
+          />
+        )}
+
         {currentStage === 'chat' && onboardingData && (
           <VictoriaWebsiteChat
-            userId={user.id}
             onboardingData={onboardingData}
             onWebsiteGenerated={handleWebsiteGenerated}
           />
@@ -149,6 +165,10 @@ export default function Build() {
           <div className="flex items-center justify-center space-x-2 text-sm text-gray-500">
             <span className={currentStage === 'onboarding' ? 'text-black font-medium' : ''}>
               Tell Your Story
+            </span>
+            <span>→</span>
+            <span className={currentStage === 'style' ? 'text-black font-medium' : ''}>
+              Choose Your Style
             </span>
             <span>→</span>
             <span className={currentStage === 'chat' ? 'text-black font-medium' : ''}>
