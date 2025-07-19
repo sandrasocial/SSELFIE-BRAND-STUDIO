@@ -295,7 +295,7 @@ export class ElenaWorkflowSystem {
   }
   
   private static calculateEstimatedDuration(steps: WorkflowStep[]): string {
-    // Parse time estimates and calculate total
+    // Parse time estimates and calculate total (AI agents work much faster)
     let totalMinutes = 0;
     
     steps.forEach(step => {
@@ -309,13 +309,12 @@ export class ElenaWorkflowSystem {
       }
     });
     
-    if (totalMinutes < 60) {
-      return `${totalMinutes} minutes`;
-    } else {
-      const hours = Math.floor(totalMinutes / 60);
-      const minutes = totalMinutes % 60;
-      return minutes > 0 ? `${hours}h ${minutes}m` : `${hours}h`;
+    // Cap maximum workflow time at 25 minutes for AI agent realism
+    if (totalMinutes > 25) {
+      totalMinutes = 25;
     }
+    
+    return `${totalMinutes} minutes`;
   }
   
   private static async saveWorkflow(workflow: CustomWorkflow): Promise<void> {
