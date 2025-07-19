@@ -331,24 +331,16 @@ export default function FluxCollectionManager() {
               Generate and approve cover images for the "Finding Myself Again" collection using Sandra's trained model.
             </p>
 
-            <div className="space-y-8">
-              {findingMyselfAgainCollection.prompts.map((prompt) => (
-                <FluxPreviewApprovalSystem
-                  key={prompt.id}
-                  prompt={prompt}
-                  onApproveImage={(promptId: number, imageUrl: string) => {
-                    setApprovedImages(prev => ({
-                      ...prev,
-                      [promptId]: imageUrl
-                    }));
-                    toast({
-                      title: "Cover Image Approved",
-                      description: `Cover image for "${prompt.title}" has been approved and saved.`,
-                    });
-                  }}
-                />
-              ))}
-            </div>
+            <FluxPreviewApprovalSystem
+              userId={user?.id || '42585527'}
+              onApproval={(imageUrl: string) => {
+                // Handle the approved cover image
+                toast({
+                  title: "Cover Image Approved",
+                  description: "Cover image has been approved and saved for the collection.",
+                });
+              }}
+            />
 
             {/* Approval Summary */}
             <div className="mt-12 bg-[#f5f5f5] p-8">
