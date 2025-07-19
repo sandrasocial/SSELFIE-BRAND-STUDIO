@@ -30,46 +30,46 @@ const flatlayCollections: FlatlayCollection[] = [
     name: 'Luxury Minimal',
     description: 'Clean white backgrounds, designer accessories, minimal styling',
     aesthetic: 'Clean sophistication with generous white space',
-    backgroundImage: 'https://i.postimg.cc/1tfNMJvk/file-16.png',
+    backgroundImage: '/flatlays/luxury-minimal/luxury-minimal-001.png',
     images: [
       {
         id: 'lm-1',
-        url: 'https://i.postimg.cc/1tfNMJvk/file-16.png',
+        url: '/flatlays/luxury-minimal/luxury-minimal-001.png',
         title: 'Clean Workspace',
         category: 'Luxury Minimal',
         description: 'Clean sophisticated lifestyle flatlay'
       },
       {
         id: 'lm-2',
-        url: 'https://i.postimg.cc/6qZ4xTJz/file-19.png',
+        url: '/flatlays/luxury-minimal/luxury-minimal-002.png',
         title: 'Minimal Setup',
         category: 'Luxury Minimal',
         description: 'Clean sophisticated lifestyle flatlay'
       },
       {
         id: 'lm-3',
-        url: 'https://i.postimg.cc/4NzH8K1x/file-20.png',
+        url: '/flatlays/luxury-minimal/luxury-minimal-003.png',
         title: 'Beauty Minimal',
         category: 'Luxury Minimal',
         description: 'Clean sophisticated lifestyle flatlay'
       },
       {
         id: 'lm-4',
-        url: 'https://i.postimg.cc/V5ysqFhW/file-21.png',
+        url: '/flatlays/luxury-minimal/luxury-minimal-004.png',
         title: 'Planning Flatlay',
         category: 'Luxury Minimal',
         description: 'Clean sophisticated lifestyle flatlay'
       },
       {
         id: 'lm-5',
-        url: 'https://i.postimg.cc/yY9cwp7B/file-22.png',
+        url: '/flatlays/luxury-minimal/luxury-minimal-005.png',
         title: 'Executive Setup',
         category: 'Luxury Minimal',
         description: 'Clean sophisticated lifestyle flatlay'
       },
       {
         id: 'lm-6',
-        url: 'https://i.postimg.cc/bvFZG1q3/file-23.png',
+        url: '/flatlays/luxury-minimal/luxury-minimal-006.png',
         title: 'Content Creation',
         category: 'Luxury Minimal',
         description: 'Clean sophisticated lifestyle flatlay'
