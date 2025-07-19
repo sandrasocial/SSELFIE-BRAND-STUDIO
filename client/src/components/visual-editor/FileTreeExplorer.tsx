@@ -252,15 +252,30 @@ export function FileTreeExplorer({ onFileSelect, selectedAgent }: FileTreeExplor
             <span className="text-xs text-gray-400">
               {lastRefreshTime.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
             </span>
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={refreshFileTree}
-              disabled={isLoading}
-              className="text-xs px-2 py-1"
-            >
-              {isLoading ? 'Loading...' : 'Refresh'}
-            </Button>
+            <div className="flex items-center space-x-1">
+              <Button
+                variant="outline" 
+                size="sm"
+                onClick={refreshFileTree}
+                disabled={isLoading}
+                className="text-xs px-2 py-1"
+              >
+                {isLoading ? 'Loading...' : 'Refresh'}
+              </Button>
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={() => {
+                  // Toggle file watching on/off
+                  const isCurrentlyWatching = (window as any).fileWatchingEnabled !== false;
+                  (window as any).fileWatchingEnabled = !isCurrentlyWatching;
+                }}
+                className="text-xs px-2 py-1"
+                title="Toggle auto-refresh"
+              >
+                👁
+              </Button>
+            </div>
           </div>
         </div>
       </div>

@@ -100,11 +100,36 @@ export class AgentCodebaseIntegration {
     try {
       const fullPath = path.join(process.cwd(), filePath);
       
-      // Create backup if file exists
+      // Create directory if it doesn't exist
+      const dir = path.dirname(fullPath);
+      await fs.mkdir(dir, { recursive: true });
+      
+      // Enhanced backup system with version control
       try {
         const existing = await fs.readFile(fullPath, 'utf-8');
-        const backupPath = `${fullPath}.backup.${Date.now()}`;
+        const backupDir = path.join(path.dirname(fullPath), '.sselfie-backups');
+        await fs.mkdir(backupDir, { recursive: true });
+        
+        const timestamp = Date.now();
+        const fileName = path.basename(fullPath);
+        const backupPath = path.join(backupDir, `${fileName}.backup.${timestamp}`);
+        
         await fs.writeFile(backupPath, existing);
+        
+        // Keep only last 10 backups per file
+        const backupFiles = await fs.readdir(backupDir);
+        const fileBackups = backupFiles
+          .filter(f => f.startsWith(`${fileName}.backup.`))
+          .sort()
+          .reverse();
+        
+        if (fileBackups.length > 10) {
+          for (const oldBackup of fileBackups.slice(10)) {
+            await fs.unlink(path.join(backupDir, oldBackup));
+          }
+        }
+        
+        console.log(`📂 Created backup: ${backupPath}`);
       } catch (error) {
         // File doesn't exist, no backup needed
       }
@@ -127,6 +152,141 @@ export class AgentCodebaseIntegration {
       console.log(`📄 Content length: ${content.length} characters`);
     } catch (error) {
       throw new Error(`File write error: ${error.message}`);
+    }
+  }
+
+  /**
+   * Multi-file operations for batch processing like Replit agents
+   */
+  static async writeMultipleFiles(
+    agentId: string, 
+    files: Array<{ filePath: string; content: string; description: string }>
+  ): Promise<Array<{ filePath: string; success: boolean; error?: string }>> {
+    const results = [];
+    
+    console.log(`🚀 BATCH FILE OPERATION: Agent ${agentId} processing ${files.length} files`);
+    
+    // Process files in parallel for better performance
+    const operations = files.map(async (file) => {
+      try {
+        await this.writeFile(agentId, file.filePath, file.content, file.description);
+        return { 
+          filePath: file.filePath, 
+          success: true 
+        };
+      } catch (error) {
+        console.error(`❌ Failed to write ${file.filePath}:`, error);
+        return { 
+          filePath: file.filePath, 
+          success: false, 
+          error: error.message 
+        };
+      }
+    });
+    
+    const operationResults = await Promise.all(operations);
+    
+    const successCount = operationResults.filter(r => r.success).length;
+    console.log(`✅ BATCH OPERATION COMPLETE: ${successCount}/${files.length} files written successfully`);
+    
+    return operationResults;
+  }
+
+  /**
+   * File diff and version control system
+   */
+  static async getFileDiff(
+    agentId: string, 
+    filePath: string, 
+    version1?: string, 
+    version2?: string
+  ): Promise<{ diff: string; versions: string[] }> {
+    try {
+      const fullPath = path.join(process.cwd(), filePath);
+      const backupDir = path.join(path.dirname(fullPath), '.sselfie-backups');
+      const fileName = path.basename(fullPath);
+      
+      // Get available versions
+      const versions = [];
+      try {
+        const backupFiles = await fs.readdir(backupDir);
+        const fileBackups = backupFiles
+          .filter(f => f.startsWith(`${fileName}.backup.`))
+          .sort()
+          .reverse();
+        
+        versions.push(...fileBackups);
+      } catch (error) {
+        // No backup directory
+      }
+      
+      // Read current file and specified versions
+      const current = await fs.readFile(fullPath, 'utf-8');
+      let compareContent = '';
+      
+      if (version1) {
+        const versionPath = path.join(backupDir, version1);
+        compareContent = await fs.readFile(versionPath, 'utf-8');
+      } else if (versions.length > 0) {
+        const latestBackup = path.join(backupDir, versions[0]);
+        compareContent = await fs.readFile(latestBackup, 'utf-8');
+      }
+      
+      // Simple diff calculation (line-by-line)
+      const currentLines = current.split('\n');
+      const compareLines = compareContent.split('\n');
+      const diff = this.calculateDiff(compareLines, currentLines);
+      
+      return { diff, versions };
+    } catch (error) {
+      throw new Error(`Diff error: ${error.message}`);
+    }
+  }
+
+  static calculateDiff(oldLines: string[], newLines: string[]): string {
+    const diffLines = [];
+    const maxLen = Math.max(oldLines.length, newLines.length);
+    
+    for (let i = 0; i < maxLen; i++) {
+      const oldLine = oldLines[i] || '';
+      const newLine = newLines[i] || '';
+      
+      if (oldLine !== newLine) {
+        if (oldLines[i] === undefined) {
+          diffLines.push(`+ ${newLine}`);
+        } else if (newLines[i] === undefined) {
+          diffLines.push(`- ${oldLine}`);
+        } else {
+          diffLines.push(`- ${oldLine}`);
+          diffLines.push(`+ ${newLine}`);
+        }
+      } else {
+        diffLines.push(`  ${newLine}`);
+      }
+    }
+    
+    return diffLines.join('\n');
+  }
+
+  /**
+   * Restore file from backup
+   */
+  static async restoreFromBackup(
+    agentId: string, 
+    filePath: string, 
+    backupVersion: string
+  ): Promise<void> {
+    try {
+      const fullPath = path.join(process.cwd(), filePath);
+      const backupDir = path.join(path.dirname(fullPath), '.sselfie-backups');
+      const backupPath = path.join(backupDir, backupVersion);
+      
+      const backupContent = await fs.readFile(backupPath, 'utf-8');
+      await this.writeFile(agentId, filePath, backupContent, `Restored from backup: ${backupVersion}`);
+      
+      console.log(`🔄 Restored ${filePath} from backup: ${backupVersion}`);
+    } catch (error) {
+      throw new Error(`Restore error: ${error.message}`);
     }
   }
   
