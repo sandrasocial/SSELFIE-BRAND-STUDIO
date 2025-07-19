@@ -44,7 +44,7 @@ const AgentDashboard: React.FC = () => {
 
   const handleAgentChat = (agentId: string) => {
     // Navigate to visual editor with selected agent
-    setLocation(`/visual-editor?agent=${agentId}`);
+    setLocation(`/admin/visual-editor?agent=${agentId}`);
   };
 
   const handleQuickChat = (agentId: string) => {
@@ -54,7 +54,7 @@ const AgentDashboard: React.FC = () => {
       element.scrollIntoView({ behavior: 'smooth' });
     } else {
       // Fallback: navigate to visual editor if quick chat not found
-      setLocation(`/visual-editor?agent=${agentId}`);
+      setLocation(`/admin/visual-editor?agent=${agentId}`);
     }
   };
 
