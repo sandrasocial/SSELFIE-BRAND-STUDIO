@@ -8,7 +8,7 @@ import { apiRequest } from '@/lib/queryClient';
 import { useToast } from '@/hooks/use-toast';
 import { MemberNavigation } from '@/components/member-navigation';
 import FluxPreviewApprovalSystem from '../components/FluxPreviewApprovalSystem';
-import { findingMyselfAgainCollection } from '../data/collections/finding-myself-again';
+import { healingMindsetCollection } from '../data/collections/healing-mindset';
 
 // Current AI Photoshoot Collections
 const CURRENT_COLLECTIONS = {
@@ -328,11 +328,11 @@ export default function FluxCollectionManager() {
               Cover Image Preview & Approval
             </h2>
             <p className="text-[#666] mb-8">
-              Generate and approve cover images for the "Finding Myself Again" collection using Sandra's trained model.
+              Generate and approve cover images for the "HEALING MINDSET" collection using Sandra's trained model.
             </p>
 
             <div className="space-y-8">
-              {findingMyselfAgainCollection.prompts.map((prompt) => (
+              {healingMindsetCollection.prompts.map((prompt) => (
                 <FluxPreviewApprovalSystem
                   key={prompt.id}
                   prompt={prompt}
