@@ -35,7 +35,7 @@ import { AgentChatControls } from './AgentChatControls';
 import { QuickActionsPopup } from './QuickActionsPopup';
 import { FileCreationConfirmation } from './FileCreationConfirmation';
 import AgentEnhancementDashboard from '../admin/AgentEnhancementDashboard';
-import { flatlayCollections } from '@/data/flatlay-collections';
+import { workspaceFlatlayCollections } from '@/data/workspace-flatlay-collections';
 
 interface ChatMessage {
   type: 'user' | 'agent';
@@ -1234,9 +1234,9 @@ export function OptimizedVisualEditor({ className = '' }: OptimizedVisualEditorP
               )}
             </div>
 
-            {/* Flatlay Collections - Using Local Data with Fixed Scrolling */}
+            {/* Flatlay Collections - Using Workspace Data for Pro Members */}
             <div className="flex-1 overflow-y-auto" style={{ maxHeight: 'calc(100vh - 200px)' }}>
-              {flatlayCollections.map((collection) => (
+              {workspaceFlatlayCollections.map((collection) => (
                 <div key={collection.id} className="border-b border-gray-200">
                   <div className="p-4">
                     <h5 className="font-medium text-sm mb-2">{collection.name}</h5>

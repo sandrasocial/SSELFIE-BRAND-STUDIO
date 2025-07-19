@@ -3596,6 +3596,10 @@ AGENT_CONTEXT:
   // Enhanced Agent Capabilities routes for Replit parity
   const { agentEnhancementRoutes } = await import('./routes/agent-enhancement-routes.js');
   app.use('/api/agent-enhancements', agentEnhancementRoutes);
+  
+  // Agent status report routes
+  const agentStatusRoutes = await import('./routes/agent-status-routes');
+  app.use(agentStatusRoutes.default);
   console.log('✅ Enhanced Agent Capabilities routes registered');
   await registerEnterpriseRoutes(app);
 
