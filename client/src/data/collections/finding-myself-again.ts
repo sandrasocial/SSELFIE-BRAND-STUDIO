@@ -71,6 +71,28 @@ export const findingMyselfAgainCollection = {
         lora_strength: 0.95
       },
       mood: "Moving forward"
+    },
+    {
+      id: 7,
+      title: "Setting Boundaries",
+      prompt: "[triggerword] sitting confidently at clean white desk, looking directly at camera with gentle but firm expression, wearing structured blazer, hands folded, natural light through window, organized space, embodying quiet strength and self-respect, professional headshot style, soft shadows",
+      parameters: {
+        guidance: 2.8,
+        steps: 40,
+        lora_strength: 0.95
+      },
+      mood: "Quiet strength"
+    },
+    {
+      id: 8,
+      title: "Celebrating Small Wins",
+      prompt: "[triggerword] raising a glass of wine in toast to herself, sitting at small bistro table with flowers, genuine smile, wearing elegant dress, warm evening light, moment of self-celebration, sophisticated but intimate, portrait photography, celebrating personal growth",
+      parameters: {
+        guidance: 2.8,
+        steps: 40,
+        lora_strength: 0.95
+      },
+      mood: "Self-celebration"
     }
   ]
 };

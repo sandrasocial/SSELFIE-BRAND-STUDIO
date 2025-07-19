@@ -81,8 +81,8 @@ export default function FluxPreviewApprovalSystem({ userId, onApproval }: FluxPr
           {/* Quick Prompt Selection */}
           <div className="mb-4">
             <h3 className="text-sm font-medium mb-2">Quick Select from "Finding Myself Again" Collection:</h3>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
-              {findingMyselfAgainCollection.prompts.slice(0, 4).map((prompt) => (
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-2">
+              {findingMyselfAgainCollection.prompts.slice(0, 8).map((prompt) => (
                 <button
                   key={prompt.id}
                   onClick={() => setSelectedPrompt(prompt.prompt)}
