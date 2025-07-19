@@ -101,7 +101,18 @@ export default function Workspace() {
         statusMessage: step3Ready ? 'Ready to shoot' : 'Train your AI first',
         link: step3Ready ? '/ai-photoshoot' : '#',
         image: "https://i.postimg.cc/4N8v1bP5/IMG-6564.jpg",
-        nextStep: step3Ready ? 'Generate photos and build your brand' : null
+        nextStep: step3Ready ? 'Create photos then build your website' : null
+      },
+      {
+        id: 'build',
+        title: 'Build Your Website',
+        description: 'Create your complete business website with Victoria as your design consultant.',
+        timeEstimate: '15 minutes',
+        status: step1Complete ? 'ready' : 'locked',
+        statusMessage: step1Complete ? 'Ready to build' : 'Train your AI first',
+        link: step1Complete ? '/build' : '#',
+        image: "https://i.postimg.cc/L5wCZBWV/website-build.jpg",
+        nextStep: step1Complete ? 'Chat with Victoria to build your website' : null
       }
     ];
   };

@@ -474,6 +474,74 @@ export type UserUsage = typeof userUsage.$inferSelect;
 export type InsertUserUsage = typeof userUsage.$inferInsert;
 export type UsageHistory = typeof usageHistory.$inferSelect;
 
+// BUILD FEATURE TABLES
+
+// User Website Onboarding - stores user preferences for website generation
+export const userWebsiteOnboarding = pgTable('user_website_onboarding', {
+  id: serial('id').primaryKey(),
+  userId: varchar('user_id').references(() => users.id, { onDelete: 'cascade' }).notNull(),
+  story: text('story'), // User's personal/business story
+  businessType: varchar('business_type'), // Type of business (coach, consultant, etc.)
+  colorPreferences: jsonb('color_preferences').default({}), // Color scheme preferences
+  targetAudience: text('target_audience'), // Who they serve
+  brandKeywords: jsonb('brand_keywords').default([]), // Key brand terms
+  goals: text('goals'), // What they want to achieve
+  currentStep: varchar('current_step').default('story'), // Onboarding progress
+  isCompleted: boolean('is_completed').default(false),
+  createdAt: timestamp('created_at').defaultNow(),
+  updatedAt: timestamp('updated_at').defaultNow(),
+});
+
+// User Generated Websites - stores the actual generated websites
+export const userGeneratedWebsites = pgTable('user_generated_websites', {
+  id: serial('id').primaryKey(),
+  userId: varchar('user_id').references(() => users.id, { onDelete: 'cascade' }).notNull(),
+  onboardingId: integer('onboarding_id').references(() => userWebsiteOnboarding.id, { onDelete: 'cascade' }),
+  title: varchar('title').notNull(), // Website title
+  subdomain: varchar('subdomain', { length: 63 }).unique(), // Unique subdomain (max 63 chars)
+  htmlContent: text('html_content').notNull(), // Generated HTML
+  cssContent: text('css_content').notNull(), // Generated CSS
+  jsContent: text('js_content').default(''), // Optional JavaScript
+  metadata: jsonb('metadata').default({}), // SEO metadata, social tags, etc.
+  isPublished: boolean('is_published').default(false),
+  status: varchar('status').default('draft'), // draft, published, archived
+  templateUsed: varchar('template_used'), // Which template was used as base
+  customizations: jsonb('customizations').default({}), // User customizations
+  analytics: jsonb('analytics').default({}), // Visit stats, etc.
+  seoScore: integer('seo_score').default(0), // SEO optimization score
+  createdAt: timestamp('created_at').defaultNow(),
+  updatedAt: timestamp('updated_at').defaultNow(),
+  publishedAt: timestamp('published_at'),
+});
+
+// Website Builder Conversations - stores BUILD Victoria chat conversations
+export const websiteBuilderConversations = pgTable('website_builder_conversations', {
+  id: serial('id').primaryKey(),
+  userId: varchar('user_id').references(() => users.id, { onDelete: 'cascade' }).notNull(),
+  websiteId: integer('website_id').references(() => userGeneratedWebsites.id, { onDelete: 'cascade' }),
+  onboardingId: integer('onboarding_id').references(() => userWebsiteOnboarding.id, { onDelete: 'cascade' }),
+  messages: jsonb('messages').notNull().default([]), // Chat message history
+  context: jsonb('context').default({}), // Conversation context (current step, user preferences, etc.)
+  lastActivity: timestamp('last_activity').defaultNow(),
+  isActive: boolean('is_active').default(true),
+  conversationType: varchar('conversation_type').default('onboarding'), // onboarding, editing, support
+  createdAt: timestamp('created_at').defaultNow(),
+  updatedAt: timestamp('updated_at').defaultNow(),
+});
+
+// BUILD feature insert schemas
+export const insertUserWebsiteOnboardingSchema = createInsertSchema(userWebsiteOnboarding).omit({ id: true, createdAt: true, updatedAt: true });
+export const insertUserGeneratedWebsitesSchema = createInsertSchema(userGeneratedWebsites).omit({ id: true, createdAt: true, updatedAt: true, publishedAt: true });
+export const insertWebsiteBuilderConversationsSchema = createInsertSchema(websiteBuilderConversations).omit({ id: true, createdAt: true, updatedAt: true, lastActivity: true });
+
+// BUILD feature type exports
+export type UserWebsiteOnboarding = typeof userWebsiteOnboarding.$inferSelect;
+export type InsertUserWebsiteOnboarding = z.infer<typeof insertUserWebsiteOnboardingSchema>;
+export type UserGeneratedWebsite = typeof userGeneratedWebsites.$inferSelect;
+export type InsertUserGeneratedWebsite = z.infer<typeof insertUserGeneratedWebsitesSchema>;
+export type WebsiteBuilderConversation = typeof websiteBuilderConversations.$inferSelect;
+export type InsertWebsiteBuilderConversation = z.infer<typeof insertWebsiteBuilderConversationsSchema>;
+
 // Agent Learning & Training System Tables
 export const agentLearning = pgTable("agent_learning", {
   id: serial("id").primaryKey(),
