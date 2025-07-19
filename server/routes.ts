@@ -4173,7 +4173,7 @@ AGENT_CONTEXT:
   
   // Agent Performance Monitor API routes
   const { getAgentCoordinationMetrics, getAgentStatuses, getAgentAccountability } = await import('./routes/agent-performance-monitor');
-  app.get('/api/agent-coordination-metrics', getAgentCoordinationMetrics);
+  app.get('/api/agent-coordination-metrics', isAuthenticated, getAgentCoordinationMetrics);
   app.get('/api/agent-statuses', getAgentStatuses);
   app.get('/api/agent-accountability/:agentId', getAgentAccountability);
   console.log('✅ Agent Performance Monitor API routes registered');
