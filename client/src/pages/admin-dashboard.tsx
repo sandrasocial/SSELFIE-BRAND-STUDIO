@@ -18,6 +18,9 @@ import EnhancedAgentCoordination from '@/components/admin/EnhancedAgentCoordinat
 import AgentEnhancementDashboard from '@/components/admin/AgentEnhancementDashboard';
 import AgentPerformanceMonitor from '@/components/admin/AgentPerformanceMonitor';
 import AgentAccountabilityTracker from '@/components/admin/AgentAccountabilityTracker';
+import AgentWorkflowAccelerator from '@/components/admin/AgentWorkflowAccelerator';
+import AgentCoordinationDashboard from '@/components/admin/AgentCoordinationDashboard';
+import AgentPowerDashboard from '@/components/admin/AgentPowerDashboard';
 
 // Agent configurations now fetched dynamically from API (includes Olga automatically)
 
@@ -187,8 +190,11 @@ function AdminDashboardOld() {
           
           {activeTab === 'performance' && (
             <div className="space-y-6">
+              <AgentPowerDashboard />
               <AgentPerformanceMonitor />
               <AgentAccountabilityTracker />
+              <AgentWorkflowAccelerator />
+              <AgentCoordinationDashboard />
             </div>
           )}
           
