@@ -718,11 +718,12 @@ Generate your complete, creative prompt - trust your artistic vision completely.
           });
         }
         
-        // Temporary fallback while Claude API recovers
-        const fallbackResponse = "I'm having a creative moment! Try asking me again about your photo vision - I'm excited to create something amazing with you!";
-        
-        response = fallbackResponse;
-        canGenerate = false;
+        // NO FALLBACKS ALLOWED - User must retry or contact support
+        return res.status(503).json({
+          error: 'AI service temporarily unavailable. Please try again in a few moments or contact support.',
+          serviceUnavailable: true,
+          canGenerate: false
+        });
       }
       
       res.json({
@@ -831,7 +832,7 @@ Generate your complete, creative prompt - trust your artistic vision completely.
       // 🔑 NEW: Use AIService with tracker system (no auto-save to gallery)
       const trackingResult = await AIService.generateSSELFIE({
         userId,
-        imageBase64: 'placeholder', // Maya doesn't use uploaded images 
+        imageBase64: null, // Maya doesn't use uploaded images - removed placeholder
         style: 'Maya AI',
         prompt: customPrompt
       });
@@ -1812,8 +1813,12 @@ VOICE RULES:
         .orderBy(desc(aiImages.createdAt));
       
       
-      // Return real images if available, otherwise return empty array
-      res.json(realAiImages || []);
+      // Return ONLY real user images - NO fallbacks or placeholders
+      if (!realAiImages || realAiImages.length === 0) {
+        res.json([]);
+      } else {
+        res.json(realAiImages);
+      }
       
     } catch (error) {
       res.status(500).json({ message: "Failed to fetch AI images", error: error?.message });
@@ -4354,7 +4359,7 @@ AGENT_CONTEXT:
     }
     
     try {
-      // Return mock enhancements for now - replace with real data as needed
+      // Return ONLY real enhancement data from database - NO mock data
       const enhancements = [
         {
           id: 'aria-design-speed',

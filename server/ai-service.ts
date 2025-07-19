@@ -187,8 +187,11 @@ export class AIService {
       throw new Error('User model not ready for generation. Training must be completed first.');
     }
     
-    // Use ONLY user's unique trigger word - NO FALLBACKS
+    // Use ONLY user's unique trigger word - STRICT VALIDATION
     const triggerWord = userModel.triggerWord;
+    if (!triggerWord) {
+      throw new Error('User model missing trigger word. Please retrain your model.');
+    }
     
     if (customPrompt) {
       // 🔧 RESTORED WORKING PROMPT STRUCTURE - Based on successful generation ID 352
@@ -218,8 +221,8 @@ export class AIService {
       return finalPrompt;
     }
     
-    // Fallback should never be used - Maya should always provide custom prompt
-    throw new Error('Custom prompt required - no hardcoded prompts allowed');
+    // NO HARDCODED PROMPTS ALLOWED - User must provide custom prompt
+    throw new Error('Custom prompt required. Please provide your photo vision for generation.');
   }
   
   /**
