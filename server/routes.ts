@@ -1,4 +1,5 @@
 import type { Express } from "express";
+import express from "express";
 import { createServer, type Server } from "http";
 import { setupRollbackRoutes } from './routes/rollback.js';
 import { storage } from "./storage";
@@ -87,6 +88,14 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   // Auth middleware - setup Replit authentication FIRST  
   await setupAuth(app);
+  
+  // Static file serving for flatlay images
+  app.use('/flatlays', express.static(path.join(process.cwd(), 'public', 'flatlays'), {
+    setHeaders: (res, path, stat) => {
+      res.setHeader('Content-Type', 'image/png');
+      res.setHeader('Cache-Control', 'public, max-age=3600'); // 1 hour cache
+    }
+  }));
   
   // Rollback system routes
   setupRollbackRoutes(app);
