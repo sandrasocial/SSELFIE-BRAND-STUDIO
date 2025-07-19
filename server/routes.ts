@@ -3909,7 +3909,7 @@ Consider this workflow optimized and ready for implementation! ⚙️`
     console.log('📍 Message preview:', req.body.message?.substring(0, 100));
     
     try {
-      let { agentId, agentName, message, adminToken, conversationHistory = [] } = req.body;
+      let { agentId, agentName, message, adminToken, conversationHistory = [], conversationId } = req.body;
       
       // Map agentName to agentId if provided
       if (agentName && !agentId) {
@@ -3958,11 +3958,24 @@ Consider this workflow optimized and ready for implementation! ⚙️`
       const userId = authMethod === 'session' && req.user ? 
         (req.user as any).claims.sub : '42585527'; // Sandra's actual user ID
       
-      // CONVERSATION MANAGEMENT: Auto-clear if too long AND restore memory
-      // Simplified agent system - no complex conversation management
+      // ENHANCED CONVERSATION MANAGEMENT FOR FLUX: Full conversation continuity
       
-      // First, check if we need to restore memory from previous conversations
+      // First, retrieve the actual conversation history from database for continuity
       let workingHistory = conversationHistory || [];
+      
+      // For Flux, always retrieve the complete conversation history from database
+      if (agentId === 'flux' && conversationId) {
+        console.log(`🗄️ Retrieving full conversation history for Flux (conversationId: ${conversationId})`);
+        try {
+          const fullHistory = await storage.getAgentConversationHistory(agentId, userId, conversationId);
+          if (fullHistory && fullHistory.length > 0) {
+            workingHistory = fullHistory;
+            console.log(`✅ Retrieved ${fullHistory.length} messages from database for Flux conversation continuity`);
+          }
+        } catch (error) {
+          console.log(`⚠️ Could not retrieve conversation history for Flux: ${error.message}`);
+        }
+      }
       
       // Always check for saved memory when starting a new conversation or after clearing
       console.log(`💭 Checking for saved memory for ${agentId}...`);
@@ -4299,6 +4312,41 @@ AGENT_CONTEXT:
     } catch (error) {
       console.error('Save conversation error:', error);
       res.status(500).json({ error: 'Failed to save conversation' });
+    }
+  });
+
+  // Agent conversation history endpoint for Flux continuity
+  app.get('/api/agent-conversations/:agentId', async (req, res) => {
+    try {
+      const { agentId } = req.params;
+      
+      // Admin authentication check
+      const adminToken = req.headers.authorization?.replace('Bearer ', '');
+      if (adminToken !== 'sandra-admin-2025' && 
+          !(req.isAuthenticated() && req.user?.claims?.email === 'ssa@ssasocial.com')) {
+        return res.status(401).json({ error: 'Unauthorized' });
+      }
+
+      const userId = req.user?.claims?.sub || '42585527'; // Sandra's user ID
+      
+      // Get conversation history from database
+      const conversations = await storage.getAgentConversations(agentId, userId);
+      
+      // Filter out memory entries for cleaner conversation display
+      const regularConversations = conversations.filter(conv => 
+        !conv.userMessage.includes('**CONVERSATION_MEMORY**') &&
+        !conv.userMessage.startsWith('SAVED_CONVERSATION:')
+      );
+      
+      res.json({ 
+        success: true, 
+        conversations: regularConversations,
+        count: regularConversations.length
+      });
+      
+    } catch (error) {
+      console.error('Failed to load agent conversations:', error);
+      res.status(500).json({ error: 'Failed to load conversations' });
     }
   });
 

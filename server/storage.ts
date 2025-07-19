@@ -141,6 +141,7 @@ export interface IStorage {
   // Agent conversation operations
   saveAgentConversation(agentId: string, userId: string, userMessage: string, agentResponse: string, fileOperations: any[], conversationId?: string): Promise<AgentConversation>;
   getAgentConversations(agentId: string, userId: string): Promise<AgentConversation[]>;
+  getAgentConversationHistory(agentId: string, userId: string, conversationId?: string): Promise<any[]>;
   getAllAgentConversations(userId: string): Promise<AgentConversation[]>;
 
   // Landing page operations
@@ -859,6 +860,22 @@ export class DatabaseStorage implements IStorage {
       ))
       .orderBy(agentConversations.timestamp);
     return conversations;
+  }
+
+  async getAgentConversationHistory(agentId: string, userId: string, conversationId?: string): Promise<any[]> {
+    const conversations = await db.select()
+      .from(agentConversations)
+      .where(and(
+        eq(agentConversations.agentId, agentId),
+        eq(agentConversations.userId, userId)
+      ))
+      .orderBy(agentConversations.timestamp);
+    
+    // Convert to message format for conversation continuity
+    return conversations.map(conv => [
+      { role: 'user', content: conv.userMessage },
+      { role: 'ai', content: conv.agentResponse }
+    ]).flat();
   }
 
   async getAllAgentConversations(userId: string): Promise<AgentConversation[]> {
