@@ -110,71 +110,25 @@ export function ReplitStyleEditor({
         {showLivePreview ? (
           <div className="flex-1 relative">
             {(() => {
-              const isProduction = window.location.hostname !== 'localhost' && !window.location.hostname.includes('replit.dev');
+              // Show iframe for both development and deployed environment
+              // Use same origin to avoid cross-origin issues
+              const currentOrigin = window.location.origin;
+              const previewUrl = window.location.hostname === 'localhost' ? 'http://localhost:5000' : currentOrigin;
               
-              if (isProduction) {
-                // Production: Show safe preview button instead of iframe
-                return (
-                  <div className="w-full h-full bg-white flex flex-col items-center justify-center border border-gray-200">
-                    <div className="text-center p-8">
-                      <div className="text-3xl mb-4" style={{ fontFamily: 'Times New Roman, serif' }}>
-                        Live Preview
-                      </div>
-                      <div className="w-12 h-px bg-black mx-auto mb-6"></div>
-                      <p className="text-gray-600 mb-6 font-light">
-                        Open preview in new window for security
-                      </p>
-                      <button
-                        onClick={() => window.open('/', '_blank', 'width=1200,height=800')}
-                        className="bg-black text-white px-6 py-3 hover:bg-gray-800 transition-colors font-light"
-                        style={{ fontFamily: 'Times New Roman, serif' }}
-                      >
-                        Open Live Preview
-                      </button>
-                    </div>
-                  </div>
-                );
-              } else {
-                // Development: Show actual iframe
-                return (
-                  <iframe
-                    ref={iframeRef}
-                    src="http://localhost:5000"
-                    className="w-full h-full border-0"
-                    title="Live Preview"
-                    onLoad={() => {
-                      console.log('🚀 Development: Live preview loaded successfully');
-                    }}
-                    onError={(e) => {
-                      console.error('Development preview failed to load:', e);
-                    }}
-                  />
-                );
-              }
-            })()}
-                    <div className="text-center p-8">
-                      <div className="text-3xl mb-4" style={{ fontFamily: 'Times New Roman, serif' }}>
-                        SSELFIE Studio
-                      </div>
-                      <div className="w-12 h-px bg-black mx-auto mb-4"></div>
-                      <div className="text-lg mb-3 font-light">Development Preview</div>
-                      <div className="text-sm text-gray-600 mb-6">
-                        In development mode, preview opens safely in a new window. 
-                        In production, live preview will be embedded here.
-                      </div>
-                      <button
-                        onClick={() => {
-                          console.log('🚀 Opening live preview from Replit Style Editor');
-                          window.open('/', '_blank');
-                        }}
-                        className="px-6 py-3 bg-black text-white border border-black hover:bg-gray-800 transition-colors"
-                      >
-                        OPEN LIVE PREVIEW
-                      </button>
-                    </div>
-                  </div>
-                );
-              }
+              return (
+                <iframe
+                  ref={iframeRef}
+                  src={previewUrl}
+                  className="w-full h-full border-0"
+                  title="Live Preview"
+                  onLoad={() => {
+                    console.log('Live preview loaded successfully');
+                  }}
+                  onError={(e) => {
+                    console.error('Live preview failed to load:', e);
+                  }}
+                />
+              );
             })()}
             {/* Live Preview Indicator */}
             <div className="absolute top-2 right-2 bg-green-500 text-white px-2 py-1 rounded text-xs font-medium">
