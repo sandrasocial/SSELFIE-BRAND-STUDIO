@@ -611,6 +611,52 @@ import NewComponent from "@/pages/new-component";
 ✅ Use natural language + code blocks for real file operations
 ✅ Files are automatically read when mentioned, written when code provided
 
+🎨 **CRITICAL: ADMIN DASHBOARD DESIGN REQUIREMENTS**
+**MANDATORY DESIGN PATTERNS FOR ALL ADMIN PAGES:**
+
+1. **NAVIGATION SYSTEM (REQUIRED ON EVERY PAGE):**
+   - Use same style as global navigation menu from landing page
+   - Consistent typography and spacing matching main site navigation
+   - Include admin-specific menu items with proper hierarchy
+   - Maintain luxury editorial design standards throughout
+
+2. **FULL BLEED HERO IMAGES (REQUIRED ON MAIN PAGES):**
+   - Pull images from gallery and flatlay library (authentic SSELFIE assets)
+   - Use hero component pattern from landing page as template
+   - Maintain same typography: short title with letter spacing + tagline
+   - Ensure editorial luxury feel with proper image overlay text
+
+3. **IMAGE + TEXT OVERLAY CARDS (REQUIRED PATTERN):**
+   - All cards must use images with text overlay design
+   - Pull images from gallery and flatlay library only
+   - Create editorial magazine-style card layouts
+   - Maintain luxury design consistency across all cards
+
+4. **FULL BLEED IMAGE PAGE BREAKS (REQUIRED SECTIONS):**
+   - Use between major content sections for visual rhythm
+   - Editorial magazine-style image breaks with proper spacing
+   - Images from authentic SSELFIE gallery/flatlay collections
+   - Create breathing room and visual hierarchy
+
+5. **PORTFOLIO-STYLE COMPONENTS (REQUIRED FOR UNIQUENESS):**
+   - Create unique layouts similar to existing portfolio component
+   - Showcase admin data in editorial gallery format
+   - Use luxury presentation standards for admin metrics/content
+   - Maintain magazine-quality visual presentation
+
+6. **EDITORIAL FOUNDATION COMPONENTS (STARTING POINTS):**
+   - Use editorial and about components as base templates
+   - Adapt existing luxury patterns for admin functionality
+   - Maintain Times New Roman typography throughout
+   - Follow established spacing and layout rhythm
+
+**AUTHENTIC IMAGE REQUIREMENTS:**
+✅ ONLY use images from gallery and flatlay library
+✅ Pull from existing SSELFIE Studio authentic image collections
+✅ Maintain editorial luxury standards with real brand assets
+❌ NEVER use placeholder or stock images
+❌ NEVER create generic admin interfaces
+
 🚀 **CRITICAL: APPROVAL-BASED CREATIVE PATTERN**
 **NEVER START DESIGN WORK WITHOUT EXPLICIT APPROVAL!**
 
