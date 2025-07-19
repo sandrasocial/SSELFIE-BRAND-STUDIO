@@ -81,38 +81,41 @@ export class AutoFileWriter {
       }
     }
     
-    // Use batch operation if multiple files, single operation for one file
+    // Use individual operations for all files (batch operation disabled)
     if (filesToWrite.length > 1) {
-      console.log(`🚀 Using batch operation for ${filesToWrite.length} files`);
-      const batchResults = await AgentCodebaseIntegration.writeMultipleFiles(
-        agentId,
-        filesToWrite.map(f => ({
-          filePath: f.filePath,
-          content: f.content,
-          description: f.description
-        }))
-      );
+      console.log(`🔄 Processing ${filesToWrite.length} files individually`);
       
-      // Process batch results
-      batchResults.forEach((result, index) => {
-        const originalFile = filesToWrite[index];
-        filesWritten.push({
-          filePath: result.filePath,
-          success: result.success,
-          error: result.error,
-          size: originalFile.content.length
-        });
-        
-        if (result.success) {
-          console.log(`✅ BATCH AUTO-WROTE: ${result.filePath} (${originalFile.content.length} chars)`);
-          modifiedResponse = modifiedResponse.replace(
-            /```[^`]*```/,
-            `✅ **Created**: \`${result.filePath}\` (${originalFile.content.length} characters)\n\n*File tree will refresh automatically to show new files.*`
-          );
-        } else {
-          console.error(`❌ Failed to batch auto-write ${result.filePath}:`, result.error);
+      for (let i = 0; i < filesToWrite.length; i++) {
+        const file = filesToWrite[i];
+        try {
+          await AgentCodebaseIntegration.writeFile(file.filePath, file.content);
+          
+          filesWritten.push({
+            filePath: file.filePath,
+            success: true,
+            size: file.content.length
+          });
+          
+          console.log(`✅ AUTO-WROTE: ${file.filePath} (${file.content.length} chars)`);
+          
+        } catch (error) {
+          filesWritten.push({
+            filePath: file.filePath,
+            success: false,
+            error: error.message,
+            size: file.content.length
+          });
+          
+          console.error(`❌ Failed to auto-write ${file.filePath}:`, error);
         }
-      });
+      }
+      
+      // Update response for multiple files
+      let fileList = filesWritten.map(f => f.success ? `✅ ${f.filePath}` : `❌ ${f.filePath}`).join('\n');
+      modifiedResponse = modifiedResponse.replace(
+        /```[^`]*```/,
+        `✅ **Created Multiple Files:**\n${fileList}\n\n*File tree will refresh automatically to show new files.*`
+      );
       
     } else if (filesToWrite.length === 1) {
       // Single file operation
