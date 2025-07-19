@@ -1398,7 +1398,6 @@ VOICE RULES:
       });
 
       const messages = [
-        { role: 'system', content: systemPrompt },
         ...conversationHistory.map((msg: any) => ({
           role: msg.role === 'assistant' ? 'assistant' : 'user',
           content: msg.content
@@ -1409,6 +1408,7 @@ VOICE RULES:
       const completion = await anthropic.messages.create({
         model: "claude-sonnet-4-20250514",
         max_tokens: 1024,
+        system: systemPrompt,
         messages: messages
       });
 
