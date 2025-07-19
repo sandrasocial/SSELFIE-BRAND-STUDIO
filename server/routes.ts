@@ -738,9 +738,14 @@ Generate your complete, creative prompt - trust your artistic vision completely.
   });
 
   // Maya AI Image Generation endpoint - LIVE AUTHENTICATION WITH USAGE LIMITS
-  // Generic image generation endpoint for Flux Preview System
+  // 🔒 CORE ARCHITECTURE COMPLIANT - Flux Preview System for Admin Only
   app.post('/api/generate-image', isAuthenticated, async (req: any, res) => {
     try {
+      // 🔒 PERMANENT ARCHITECTURE VALIDATION - NEVER REMOVE
+      const authUserId = ArchitectureValidator.validateAuthentication(req);
+      await ArchitectureValidator.validateUserModel(authUserId);
+      ArchitectureValidator.enforceZeroTolerance();
+      
       const userId = req.user.claims.sub;
       const user = await storage.getUser(userId);
       
@@ -749,40 +754,55 @@ Generate your complete, creative prompt - trust your artistic vision completely.
         return res.status(403).json({ error: 'Admin access required for image generation' });
       }
 
-      const { prompt, model_id, guidance_scale, num_inference_steps, lora_scale, aspect_ratio } = req.body;
+      const { prompt, guidance_scale, num_inference_steps, aspect_ratio } = req.body;
       
       if (!prompt) {
         return res.status(400).json({ error: 'Prompt is required' });
       }
 
-      // For Flux preview system - use Sandra's high-quality trained model directly
-      // Sandra's model configuration for premium cover images
-      const sandraModelVersion = "sandrasocial/sseelfie-ai:5e49e0b4a3b7b5c2e7e8d8a5a8c1b5e8d5c2b5e8"; // Sandra's trained model
-      const sandraTriggerWord = "sseelfie"; // Sandra's trigger word
+      // 🔒 CORE ARCHITECTURE: Use authenticated user's individual trained model
+      // ZERO FALLBACKS: Every user MUST have their own trained model
+      const userModel = await storage.getUserModelByUserId(userId);
       
-      // High-quality prompt with Sandra's enhancements
-      const enhancedPrompt = `${sandraTriggerWord} ${prompt}, professional photography, editorial quality, luxury lifestyle, high-end fashion, beautiful lighting, premium aesthetic, cinematic composition, authentic film photography, natural beauty`;
+      if (!userModel || userModel.trainingStatus !== 'completed' || !userModel.replicateVersionId) {
+        return res.status(400).json({ 
+          error: 'USER_MODEL_NOT_TRAINED: Admin must have completed model training to generate Flux previews. No fallback models allowed.',
+          requiresTraining: true
+        });
+      }
       
-      // Call Replicate API directly with optimal settings for cover images
+      // 🔒 LOCKED FORMAT: sandrasocial/{userId}-selfie-lora:{versionId}
+      const modelVersion = `${userModel.replicateModelId}:${userModel.replicateVersionId}`;
+      const triggerWord = userModel.triggerWord || `user${userId}`;
+      
+      // Enhanced prompt with Sandra's expert settings (user can adjust)
+      const enhancedPrompt = `${triggerWord} ${prompt}, professional photography, editorial quality, luxury lifestyle, high-end fashion, beautiful lighting, premium aesthetic, cinematic composition, authentic film photography, natural beauty`;
+      
+      // 🔒 LOCKED API FORMAT: Core architecture parameters (Sandra can adjust quality settings)
+      const requestBody = {
+        version: modelVersion,
+        input: {
+          prompt: enhancedPrompt,
+          guidance: guidance_scale || 2.8, // Sandra can adjust
+          num_inference_steps: num_inference_steps || 35, // Sandra can adjust  
+          num_outputs: 1,
+          aspect_ratio: aspect_ratio || "3:4",
+          output_format: "png",
+          output_quality: 95, // Maximum clarity (Sandra can adjust)
+          go_fast: false, // Quality over speed
+          disable_safety_checker: false,
+          seed: Math.floor(Math.random() * 1000000)
+        }
+      };
+
+      // Call Replicate API with locked architecture format
       const response = await fetch('https://api.replicate.com/v1/predictions', {
         method: 'POST',
         headers: {
           'Authorization': `Token ${process.env.REPLICATE_API_TOKEN}`,
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({
-          version: sandraModelVersion,
-          input: {
-            prompt: enhancedPrompt,
-            guidance_scale: guidance_scale || 3.5,
-            num_inference_steps: num_inference_steps || 50,
-            lora_scale: lora_scale || 0.8,
-            aspect_ratio: aspect_ratio || "3:4",
-            seed: Math.floor(Math.random() * 1000000),
-            scheduler: "DPMSolverMultistepScheduler",
-            safety_tolerance: 2
-          }
-        })
+        body: JSON.stringify(requestBody)
       });
 
       if (!response.ok) {
@@ -813,7 +833,7 @@ Generate your complete, creative prompt - trust your artistic vision completely.
       });
       
     } catch (error) {
-      console.error('Generic image generation error:', error);
+      console.error('Architecture-compliant image generation error:', error);
       res.status(500).json({ 
         error: 'Failed to generate image',
         message: error.message 
