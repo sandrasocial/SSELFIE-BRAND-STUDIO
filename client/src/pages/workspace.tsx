@@ -111,7 +111,7 @@ export default function Workspace() {
         status: step1Complete ? 'ready' : 'locked',
         statusMessage: step1Complete ? 'Ready to build' : 'Train your AI first',
         link: step1Complete ? '/build' : '#',
-        image: "https://i.postimg.cc/L5wCZBWV/website-build.jpg",
+        image: "https://i.postimg.cc/HWFbv1DB/file-32.png",
         nextStep: step1Complete ? 'Chat with Victoria to build your website' : null
       }
     ];
@@ -260,7 +260,7 @@ export default function Workspace() {
                     <div className="absolute inset-0 flex items-center justify-center">
                       <div className="text-white text-center">
                         <div className="font-serif text-3xl md:text-4xl font-light tracking-[0.4em] uppercase">
-                          {index === 0 ? 'T R A I N' : index === 1 ? 'S T Y L E' : 'P H O T O S H O O T'}
+                          {index === 0 ? 'T R A I N' : index === 1 ? 'S T Y L E' : index === 2 ? 'P H O T O S H O O T' : 'B U I L D'}
                         </div>
                         <div className="text-xs tracking-[0.2em] uppercase opacity-80 mt-2">
                           Step {index + 1}
