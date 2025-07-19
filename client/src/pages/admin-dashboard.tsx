@@ -139,6 +139,9 @@ function AdminDashboardOld() {
               >
                 Performance
               </button>
+              <Link href="/flux-collection-manager" className="text-sm uppercase tracking-wide hover:text-gray-300">
+                Flux Collections
+              </Link>
               <Link href="/visual-editor" className="text-sm uppercase tracking-wide hover:text-gray-300">
                 Visual Editor
               </Link>
