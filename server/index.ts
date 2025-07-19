@@ -2,6 +2,7 @@ import express, { type Request, Response, NextFunction } from "express";
 import { registerRoutes } from "./routes";
 import { setupVite, serveStatic, log } from "./vite";
 import { TrainingCompletionMonitor } from "./training-completion-monitor";
+import { registerCoverImageRoutes } from "./routes/cover-image-routes";
 import cors from "cors";
 
 const app = express();
@@ -71,6 +72,9 @@ app.use(express.static('public'));
 
 (async () => {
   const server = await registerRoutes(app);
+  
+  // Register cover image routes for Flux approval system
+  registerCoverImageRoutes(app);
 
   app.use((err: any, _req: Request, res: Response, _next: NextFunction) => {
     const status = err.status || err.statusCode || 500;

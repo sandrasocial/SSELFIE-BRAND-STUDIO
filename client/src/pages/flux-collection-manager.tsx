@@ -7,6 +7,8 @@ import { Input } from '@/components/ui/input';
 import { apiRequest } from '@/lib/queryClient';
 import { useToast } from '@/hooks/use-toast';
 import { MemberNavigation } from '@/components/member-navigation';
+import FluxPreviewApprovalSystem from '../components/FluxPreviewApprovalSystem';
+import { findingMyselfAgainCollection } from '../data/collections/finding-myself-again';
 
 // Current AI Photoshoot Collections
 const CURRENT_COLLECTIONS = {
@@ -43,6 +45,8 @@ const CURRENT_COLLECTIONS = {
 export default function FluxCollectionManager() {
   const { user, isAuthenticated } = useAuth();
   const { toast } = useToast();
+  const [activeTab, setActiveTab] = useState<'chat' | 'preview-approval'>('chat');
+  const [approvedImages, setApprovedImages] = useState<Record<number, string>>({});
   const [selectedCollection, setSelectedCollection] = useState<string | null>(null);
   const [fluxChat, setFluxChat] = useState<Array<{role: string, content: string}>>([]);
   const [fluxInput, setFluxInput] = useState('');
@@ -175,40 +179,30 @@ export default function FluxCollectionManager() {
         <div className="flex justify-center mb-8">
           <div className="bg-[#f5f5f5] p-1">
             <button
-              onClick={() => setViewMode('current')}
+              onClick={() => setActiveTab('chat')}
               className={`px-8 py-3 transition-colors ${
-                viewMode === 'current' 
+                activeTab === 'chat' 
                   ? 'bg-black text-white' 
                   : 'text-[#666] hover:text-black'
               }`}
             >
-              Current Collections
+              Chat with Flux
             </button>
             <button
-              onClick={() => setViewMode('update')}
+              onClick={() => setActiveTab('preview-approval')}
               className={`px-8 py-3 transition-colors ${
-                viewMode === 'update' 
+                activeTab === 'preview-approval' 
                   ? 'bg-black text-white' 
                   : 'text-[#666] hover:text-black'
               }`}
             >
-              Update Existing
-            </button>
-            <button
-              onClick={() => setViewMode('create')}
-              className={`px-8 py-3 transition-colors ${
-                viewMode === 'create' 
-                  ? 'bg-black text-white' 
-                  : 'text-[#666] hover:text-black'
-              }`}
-            >
-              Create New
+              Preview & Approval
             </button>
           </div>
         </div>
 
-        {/* Current Collections View */}
-        {viewMode === 'current' && (
+        {/* Chat Mode */}
+        {activeTab === 'chat' && (
           <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
             {Object.values(CURRENT_COLLECTIONS).map((collection) => (
               <div key={collection.id} className="bg-[#f5f5f5] p-8">
@@ -327,8 +321,75 @@ export default function FluxCollectionManager() {
           </div>
         )}
 
-        {/* Create New Collection */}
-        {viewMode === 'create' && (
+        {/* Preview & Approval Mode */}
+        {activeTab === 'preview-approval' && (
+          <div>
+            <h2 className="text-2xl font-light mb-6" style={{ fontFamily: 'Times New Roman, serif' }}>
+              Cover Image Preview & Approval
+            </h2>
+            <p className="text-[#666] mb-8">
+              Generate and approve cover images for the "Finding Myself Again" collection using Sandra's trained model.
+            </p>
+
+            <div className="space-y-8">
+              {findingMyselfAgainCollection.prompts.map((prompt) => (
+                <FluxPreviewApprovalSystem
+                  key={prompt.id}
+                  prompt={prompt}
+                  onApproveImage={(promptId: number, imageUrl: string) => {
+                    setApprovedImages(prev => ({
+                      ...prev,
+                      [promptId]: imageUrl
+                    }));
+                    toast({
+                      title: "Cover Image Approved",
+                      description: `Cover image for "${prompt.title}" has been approved and saved.`,
+                    });
+                  }}
+                />
+              ))}
+            </div>
+
+            {/* Approval Summary */}
+            <div className="mt-12 bg-[#f5f5f5] p-8">
+              <h3 className="text-xl font-light mb-4" style={{ fontFamily: 'Times New Roman, serif' }}>
+                Approval Status
+              </h3>
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                {findingMyselfAgainCollection.prompts.map((prompt) => (
+                  <div key={prompt.id} className={`p-4 border ${
+                    approvedImages[prompt.id] 
+                      ? 'border-green-500 bg-green-50' 
+                      : 'border-gray-300 bg-white'
+                  }`}>
+                    <h4 className="font-medium text-sm mb-2">{prompt.title}</h4>
+                    <div className="flex items-center gap-2">
+                      {approvedImages[prompt.id] ? (
+                        <>
+                          <div className="w-3 h-3 bg-green-500 rounded-full"></div>
+                          <span className="text-xs text-green-700">Approved</span>
+                        </>
+                      ) : (
+                        <>
+                          <div className="w-3 h-3 bg-gray-400 rounded-full"></div>
+                          <span className="text-xs text-gray-600">Pending</span>
+                        </>
+                      )}
+                    </div>
+                  </div>
+                ))}
+              </div>
+              <div className="mt-6 text-center">
+                <p className="text-sm text-[#666]">
+                  {Object.keys(approvedImages).length} of {findingMyselfAgainCollection.prompts.length} cover images approved
+                </p>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* Create New Collection - Hidden for now */}
+        {false && (
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-12">
             {/* Flux Chat Interface */}
             <div className="bg-[#f5f5f5] p-8">

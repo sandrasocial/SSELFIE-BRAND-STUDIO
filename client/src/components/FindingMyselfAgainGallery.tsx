@@ -4,11 +4,12 @@ import PromptCard from './PromptCard';
 import { findingMyselfAgainCollection } from '../../data/collections/finding-myself-again';
 import { useAuth } from '../../hooks/useAuth';
 
-export default function FindingMyselfAgainGallery() {
+interface FindingMyselfAgainGalleryProps {
+  onPromptSelect: (prompt: any) => void;
+}
+
+export default function FindingMyselfAgainGallery({ onPromptSelect }: FindingMyselfAgainGalleryProps) {
   const { user } = useAuth();
-  
-  // Sandra's model identifier - this would come from user profile
-  const sandrasModel = user?.trained_model_id || "sandra_sselfie_model_v1";
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-warm-cream to-white p-6">
@@ -32,7 +33,7 @@ export default function FindingMyselfAgainGallery() {
             <PromptCard 
               key={prompt.id} 
               prompt={prompt} 
-              userModel={sandrasModel}
+              onPromptSelect={onPromptSelect}
             />
           ))}
         </div>

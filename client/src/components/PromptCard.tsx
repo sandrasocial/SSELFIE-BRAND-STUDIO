@@ -1,7 +1,7 @@
 // client/src/components/collections/PromptCard.tsx
 import React, { useState, useEffect } from 'react';
 import { generateImage } from '../../services/imageGeneration';
-import { useAuth } from '../../hooks/useAuth';
+import { useAuth } from '../../hooks/use-auth';
 
 interface PromptCardProps {
   prompt: {
@@ -18,85 +18,49 @@ interface PromptCardProps {
   userModel: string; // Sandra's trained model identifier
 }
 
-export default function PromptCard({ prompt, userModel }: PromptCardProps) {
-  const [previewImage, setPreviewImage] = useState<string | null>(null);
-  const [isGenerating, setIsGenerating] = useState(false);
-  const [error, setError] = useState<string | null>(null);
+interface PromptCardProps {
+  prompt: {
+    id: number;
+    title: string;
+    prompt: string;
+    parameters: {
+      guidance: number;
+      steps: number;
+      lora_strength: number;
+    };
+    mood: string;
+    coverImageUrl?: string; // Pre-approved cover image from database
+  };
+  onPromptSelect: (prompt: any) => void; // User selects this prompt for their generation
+}
+
+export default function PromptCard({ prompt, onPromptSelect }: PromptCardProps) {
   const { user } = useAuth();
 
-  // Generate preview image using Sandra's model
-  const generatePreview = async () => {
-    setIsGenerating(true);
-    setError(null);
-    
-    try {
-      const result = await generateImage({
-        prompt: `${prompt.prompt}, sandra_model_trigger_word, professional photography, editorial quality`,
-        guidance_scale: prompt.parameters.guidance,
-        num_inference_steps: prompt.parameters.steps,
-        lora_scale: prompt.parameters.lora_strength,
-        model_id: userModel,
-        aspect_ratio: "3:4",
-        user_id: user?.id
-      });
-      
-      if (result.success && result.image_url) {
-        setPreviewImage(result.image_url);
-      } else {
-        setError('Failed to generate preview');
-      }
-    } catch (err) {
-      setError('Generation error');
-      console.error('Preview generation failed:', err);
-    } finally {
-      setIsGenerating(false);
-    }
-  };
-
-  // Auto-generate preview on mount
-  useEffect(() => {
-    if (userModel && !previewImage) {
-      generatePreview();
-    }
-  }, [userModel, prompt.id]);
-
   return (
-    <div className="bg-white rounded-lg shadow-lg overflow-hidden transition-all duration-300 hover:shadow-2xl">
-      {/* Preview Image Section */}
+    <div 
+      className="bg-white rounded-lg shadow-lg overflow-hidden transition-all duration-300 hover:shadow-2xl cursor-pointer"
+      onClick={() => onPromptSelect(prompt)}
+    >
+      {/* Cover Image Section - Shows Sandra's pre-approved photos */}
       <div className="aspect-[3/4] relative bg-gradient-to-br from-warm-cream to-soft-gray">
-        {isGenerating ? (
-          <div className="absolute inset-0 flex items-center justify-center">
-            <div className="text-center">
-              <div className="animate-spin w-8 h-8 border-2 border-gold-400 border-t-transparent rounded-full mx-auto mb-3"></div>
-              <p className="text-sm text-charcoal/60">Generating with your model...</p>
-            </div>
-          </div>
-        ) : previewImage ? (
+        {prompt.coverImageUrl ? (
           <img 
-            src={previewImage} 
+            src={prompt.coverImageUrl} 
             alt={prompt.title}
             className="w-full h-full object-cover"
           />
-        ) : error ? (
-          <div className="absolute inset-0 flex items-center justify-center">
-            <div className="text-center p-4">
-              <p className="text-sm text-red-600 mb-2">{error}</p>
-              <button 
-                onClick={generatePreview}
-                className="text-xs text-gold-600 hover:text-gold-800 underline"
-              >
-                Try Again
-              </button>
-            </div>
-          </div>
         ) : (
           <div className="absolute inset-0 flex items-center justify-center">
-            <button 
-              onClick={generatePreview}
-              className="bg-gold-400 text-black px-4 py-2 rounded-full text-sm font-medium hover:bg-gold-500 transition-colors"
-            >
-              Generate Preview
-            </button>
+            <div className="text-center p-4">
+              <div className="bg-gold-400/20 rounded-full p-4 mb-3 mx-auto w-16 h-16 flex items-center justify-center">
+                <svg className="w-8 h-8 text-gold-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z" />
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15 13a3 3 0 11-6 0 3 3 0 016 0z" />
+                </svg>
+              </div>
+              <p className="text-sm text-charcoal/60">Cover photo pending</p>
+            </div>
           </div>
         )}
         
@@ -123,16 +87,21 @@ export default function PromptCard({ prompt, userModel }: PromptCardProps) {
           <span>LoRA: {prompt.parameters.lora_strength}</span>
         </div>
 
-        {/* Action Buttons */}
+        {/* User Action - Generate with THEIR model */}
         <div className="flex gap-2">
           <button 
-            onClick={generatePreview}
-            disabled={isGenerating}
-            className="flex-1 bg-charcoal text-white py-2 px-3 rounded-md text-sm font-medium hover:bg-charcoal/90 transition-colors disabled:opacity-50"
+            onClick={(e) => {
+              e.stopPropagation();
+              onPromptSelect(prompt);
+            }}
+            className="flex-1 bg-charcoal text-white py-2 px-3 rounded-md text-sm font-medium hover:bg-charcoal/90 transition-colors"
           >
-            {isGenerating ? 'Generating...' : 'Use This Prompt'}
+            Use This Prompt
           </button>
-          <button className="p-2 border border-charcoal/20 rounded-md hover:bg-gray-50 transition-colors">
+          <button 
+            onClick={(e) => e.stopPropagation()}
+            className="p-2 border border-charcoal/20 rounded-md hover:bg-gray-50 transition-colors"
+          >
             <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
             </svg>
