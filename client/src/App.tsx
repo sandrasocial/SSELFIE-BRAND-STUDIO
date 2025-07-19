@@ -37,6 +37,7 @@ import AIPhotoshoot from "@/pages/ai-photoshoot";
 import SimpleTraining from "@/pages/simple-training";
 import TestLogin from "@/pages/test-login";
 import AdminDashboard from "@/pages/admin-dashboard";
+import AdminDashboardRedesigned from "@/pages/admin-dashboard-redesigned";
 import AdminVisualEditor from "@/pages/admin-visual-editor";
 import AgentApproval from "@/pages/agent-approval";
 import AgentCommandCenter from "@/pages/agent-command-center";
@@ -53,6 +54,7 @@ import PhotoSelection from "@/pages/photo-selection";
 import LiveTestComponent from "@/components/LiveTestComponent";
 import TestPage from "@/components/TestPage";
 import BrandOnboarding from "@/pages/brand-onboarding";
+import TestAgentWork from "@/pages/test-agent-work";
 import Welcome from "@/pages/welcome";
 import AuthSuccess from "@/pages/auth-success";
 import Login from "@/pages/login";
@@ -256,6 +258,7 @@ function Router() {
       
       {/* DEBUGGING */}
       <Route path="/test" component={LiveTestComponent} />
+      <Route path="/test-agent-work" component={TestAgentWork} />
       <Route path="/test-buttons" component={TestPage} />
       <Route path="/test-login" component={TestLogin} />
       <Route path="/debug-auth" component={() => {
