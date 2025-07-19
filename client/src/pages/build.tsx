@@ -1,7 +1,10 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { useAuth } from '@/hooks/use-auth';
+import { useQuery } from '@tanstack/react-query';
 import { MemberNavigation } from '@/components/member-navigation';
 import { GlobalFooter } from '@/components/global-footer';
+import { BuildOnboarding } from '@/components/build/BuildOnboarding';
+import { VictoriaWebsiteChat } from '@/components/build/VictoriaWebsiteChat';
 import { Link } from 'wouter';
 
 export default function Build() {
