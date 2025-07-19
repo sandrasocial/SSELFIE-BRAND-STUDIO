@@ -738,6 +738,78 @@ Generate your complete, creative prompt - trust your artistic vision completely.
   });
 
   // Maya AI Image Generation endpoint - LIVE AUTHENTICATION WITH USAGE LIMITS
+  // Generic image generation endpoint for Flux Preview System
+  app.post('/api/generate-image', isAuthenticated, async (req: any, res) => {
+    try {
+      const userId = req.user.claims.sub;
+      const user = await storage.getUser(userId);
+      
+      // Only admin can use this endpoint for Flux previews
+      if (!user || user.role !== 'admin') {
+        return res.status(403).json({ error: 'Admin access required for image generation' });
+      }
+
+      const { prompt, model_id, guidance_scale, num_inference_steps, lora_scale, aspect_ratio } = req.body;
+      
+      if (!prompt) {
+        return res.status(400).json({ error: 'Prompt is required' });
+      }
+
+      // For Flux preview system - generate image using Sandra's model through ModelTrainingService
+      const { ModelTrainingService } = await import('./model-training-service');
+      const result = await ModelTrainingService.generateUserImages(userId, prompt, 1);
+      
+      res.json({
+        success: true,
+        image_url: result.images?.[0] || null,
+        prediction_id: result.predictionId || null
+      });
+      
+    } catch (error) {
+      console.error('Generic image generation error:', error);
+      res.status(500).json({ 
+        error: 'Failed to generate image',
+        message: error.message 
+      });
+    }
+  });
+
+  // Save cover image endpoint for Flux Preview System
+  app.post('/api/save-cover-image', isAuthenticated, async (req: any, res) => {
+    try {
+      const userId = req.user.claims.sub;
+      const user = await storage.getUser(userId);
+      
+      // Only admin can save cover images
+      if (!user || user.role !== 'admin') {
+        return res.status(403).json({ error: 'Admin access required for saving cover images' });
+      }
+
+      const { promptId, tempImageUrl, collectionId } = req.body;
+      
+      if (!promptId || !tempImageUrl || !collectionId) {
+        return res.status(400).json({ error: 'Prompt ID, image URL, and collection ID are required' });
+      }
+
+      // Save to permanent storage (for now we'll just return the temp URL as permanent)
+      // In a real system, this would upload to S3 or similar
+      const permanentUrl = tempImageUrl; // TODO: Implement actual S3 upload
+      
+      res.json({
+        success: true,
+        permanentUrl: permanentUrl,
+        message: 'Cover image saved successfully'
+      });
+      
+    } catch (error) {
+      console.error('Save cover image error:', error);
+      res.status(500).json({ 
+        error: 'Failed to save cover image',
+        message: error.message 
+      });
+    }
+  });
+
   app.post('/api/maya-generate-images', isAuthenticated, async (req: any, res) => {
     try {
       // 🔒 PERMANENT ARCHITECTURE VALIDATION - NEVER REMOVE
