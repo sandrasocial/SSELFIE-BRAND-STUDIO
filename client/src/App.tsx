@@ -55,6 +55,7 @@ import LiveTestComponent from "@/components/LiveTestComponent";
 import TestPage from "@/components/TestPage";
 import BrandOnboarding from "@/pages/brand-onboarding";
 import TestAgentWork from "@/pages/test-agent-work";
+import TestMayaOptimization from "@/pages/test-maya-optimization";
 import Welcome from "@/pages/welcome";
 import AuthSuccess from "@/pages/auth-success";
 import Login from "@/pages/login";
@@ -259,6 +260,7 @@ function Router() {
       {/* DEBUGGING */}
       <Route path="/test" component={LiveTestComponent} />
       <Route path="/test-agent-work" component={TestAgentWork} />
+      <Route path="/test-maya-optimization" component={(props) => <ProtectedRoute component={TestMayaOptimization} {...props} />} />
       <Route path="/test-buttons" component={TestPage} />
       <Route path="/test-login" component={TestLogin} />
       <Route path="/debug-auth" component={() => {
