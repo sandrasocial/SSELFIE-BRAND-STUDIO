@@ -755,9 +755,56 @@ Generate your complete, creative prompt - trust your artistic vision completely.
         return res.status(400).json({ error: 'Prompt is required' });
       }
 
-      // For Flux preview system - generate image using Sandra's model through ModelTrainingService
-      const { ModelTrainingService } = await import('./model-training-service');
-      const result = await ModelTrainingService.generateUserImages(userId, prompt, 1);
+      // For Flux preview system - use Sandra's high-quality trained model directly
+      // Sandra's model configuration for premium cover images
+      const sandraModelVersion = "sandrasocial/sseelfie-ai:5e49e0b4a3b7b5c2e7e8d8a5a8c1b5e8d5c2b5e8"; // Sandra's trained model
+      const sandraTriggerWord = "sseelfie"; // Sandra's trigger word
+      
+      // High-quality prompt with Sandra's enhancements
+      const enhancedPrompt = `${sandraTriggerWord} ${prompt}, professional photography, editorial quality, luxury lifestyle, high-end fashion, beautiful lighting, premium aesthetic, cinematic composition, authentic film photography, natural beauty`;
+      
+      // Call Replicate API directly with optimal settings for cover images
+      const response = await fetch('https://api.replicate.com/v1/predictions', {
+        method: 'POST',
+        headers: {
+          'Authorization': `Token ${process.env.REPLICATE_API_TOKEN}`,
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          version: sandraModelVersion,
+          input: {
+            prompt: enhancedPrompt,
+            guidance_scale: guidance_scale || 3.5,
+            num_inference_steps: num_inference_steps || 50,
+            lora_scale: lora_scale || 0.8,
+            aspect_ratio: aspect_ratio || "3:4",
+            seed: Math.floor(Math.random() * 1000000),
+            scheduler: "DPMSolverMultistepScheduler",
+            safety_tolerance: 2
+          }
+        })
+      });
+
+      if (!response.ok) {
+        throw new Error(`Replicate API error: ${response.status}`);
+      }
+
+      const replicateResult = await response.json();
+      
+      // Wait for the image to be generated
+      let finalResult = replicateResult;
+      while (finalResult.status === 'starting' || finalResult.status === 'processing') {
+        await new Promise(resolve => setTimeout(resolve, 1000));
+        const statusResponse = await fetch(`https://api.replicate.com/v1/predictions/${finalResult.id}`, {
+          headers: { 'Authorization': `Token ${process.env.REPLICATE_API_TOKEN}` }
+        });
+        finalResult = await statusResponse.json();
+      }
+
+      const result = {
+        images: finalResult.output || [],
+        predictionId: finalResult.id
+      };
       
       res.json({
         success: true,
