@@ -23,6 +23,8 @@ export function FileTreeExplorer({ onFileSelect, selectedAgent }: FileTreeExplor
   const [searchTerm, setSearchTerm] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [expandedDirs, setExpandedDirs] = useState<Set<string>>(new Set(['client', 'server', 'shared']));
+  const [isWatching, setIsWatching] = useState(false);
+  const [lastRefreshTime, setLastRefreshTime] = useState<Date>(new Date());
 
   // Load initial directory structure
   useEffect(() => {
@@ -31,6 +33,7 @@ export function FileTreeExplorer({ onFileSelect, selectedAgent }: FileTreeExplor
 
   // Add refresh function for external use
   const refreshFileTree = () => {
+    setLastRefreshTime(new Date());
     loadDirectory('.');
     // Re-expand currently expanded directories
     expandedDirs.forEach(dirPath => {
@@ -40,11 +43,37 @@ export function FileTreeExplorer({ onFileSelect, selectedAgent }: FileTreeExplor
     });
   };
 
-  // Expose refresh function globally for agent file operations
+  // Real-time file watching for external changes
   useEffect(() => {
+    // Expose refresh function globally for agent file operations
     (window as any).refreshFileTree = refreshFileTree;
+    
+    // Set up file watching interval to detect external changes
+    const watchInterval = setInterval(() => {
+      // Only refresh if the file tree tab is active to avoid unnecessary API calls
+      const activeTab = (window as any).activeFileTab;
+      if (activeTab === 'files') {
+        setIsWatching(true);
+        refreshFileTree();
+        // Hide watching indicator after 500ms
+        setTimeout(() => setIsWatching(false), 500);
+      }
+    }, 5000); // Check every 5 seconds when files tab is active
+    
+    // Set up visibility change listener to refresh when tab becomes visible
+    const handleVisibilityChange = () => {
+      if (!document.hidden) {
+        // Page became visible, refresh file tree
+        setTimeout(refreshFileTree, 500);
+      }
+    };
+    
+    document.addEventListener('visibilitychange', handleVisibilityChange);
+    
     return () => {
       delete (window as any).refreshFileTree;
+      clearInterval(watchInterval);
+      document.removeEventListener('visibilitychange', handleVisibilityChange);
     };
   }, [expandedDirs]);
 
@@ -207,6 +236,33 @@ export function FileTreeExplorer({ onFileSelect, selectedAgent }: FileTreeExplor
           onChange={(e) => setSearchTerm(e.target.value)}
           className="text-sm border-black focus:border-black"
         />
+        <div className="flex items-center justify-between mt-2">
+          <div className="flex items-center space-x-2">
+            <span className="text-xs text-gray-500">
+              {filteredTree.length} items
+            </span>
+            {isWatching && (
+              <div className="flex items-center space-x-1">
+                <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse"></div>
+                <span className="text-xs text-green-600">Syncing</span>
+              </div>
+            )}
+          </div>
+          <div className="flex items-center space-x-2">
+            <span className="text-xs text-gray-400">
+              {lastRefreshTime.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+            </span>
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={refreshFileTree}
+              disabled={isLoading}
+              className="text-xs px-2 py-1"
+            >
+              {isLoading ? 'Loading...' : 'Refresh'}
+            </Button>
+          </div>
+        </div>
       </div>
 
       {/* File Tree */}

@@ -964,7 +964,15 @@ export function OptimizedVisualEditor({ className = '' }: OptimizedVisualEditorP
         </div>
 
         {/* Tabs for Chat, Gallery, Flatlay Library, File Tree, and Editor */}
-        <Tabs value={activeTab} onValueChange={setActiveTab} className="flex-1 flex flex-col">
+        <Tabs 
+          value={activeTab} 
+          onValueChange={(value) => {
+            setActiveTab(value);
+            // Track active tab for file watching
+            (window as any).activeFileTab = value;
+          }} 
+          className="flex-1 flex flex-col"
+        >
           <TabsList className="grid w-full grid-cols-6 mx-1 md:mx-2 mt-1 md:mt-2">
             <TabsTrigger value="chat" className="text-xs">Chat</TabsTrigger>
             <TabsTrigger value="gallery" className="text-xs">Gallery</TabsTrigger>
