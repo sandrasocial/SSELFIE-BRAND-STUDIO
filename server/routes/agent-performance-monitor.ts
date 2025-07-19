@@ -1,119 +1,137 @@
-import { Router } from 'express';
-import { db } from '../db';
-import { agentConversations, agentPerformanceMetrics } from '@shared/schema';
-import { eq, sql, desc } from 'drizzle-orm';
-import { isAuthenticated } from '../replitAuth';
+import { Request, Response } from 'express';
+import { storage } from '../storage';
 
-const router = Router();
-
-// Real-time agent performance monitoring endpoint
-router.get('/api/agent-performance/live', isAuthenticated, async (req, res) => {
+export async function getAgentCoordinationMetrics(req: Request, res: Response) {
   try {
-    const userId = req.user?.claims?.sub;
-    if (!userId) {
-      return res.status(401).json({ error: 'User not authenticated' });
-    }
+    // Get real-time metrics from database
+    const result = await storage.db.execute(`
+      SELECT 
+        COUNT(DISTINCT agent_id) as active_agents,
+        COUNT(*) as total_conversations_today,
+        COUNT(CASE WHEN agent_response LIKE '%AGENT FILE OPERATION SUCCESS%' THEN 1 END) as files_created_today,
+        ROUND(AVG(CASE WHEN timestamp > NOW() - INTERVAL '1 hour' 
+          THEN EXTRACT(EPOCH FROM (NOW() - timestamp)) 
+          ELSE NULL END), 1) as avg_response_time,
+        ROUND(
+          (COUNT(CASE WHEN agent_response LIKE '%AGENT FILE OPERATION SUCCESS%' THEN 1 END) * 100.0) / 
+          NULLIF(COUNT(CASE WHEN agent_response LIKE '%files%' OR agent_response LIKE '%create%' THEN 1 END), 0),
+          1
+        ) as success_rate
+      FROM agent_conversations 
+      WHERE timestamp > CURRENT_DATE
+    `);
 
-    // Get real-time agent activity and file creation metrics
-    const agentActivity = await db
-      .select({
-        agentId: agentConversations.agentId,
-        totalConversations: sql<number>`COUNT(*)`,
-        recentActivity: sql<number>`COUNT(CASE WHEN timestamp > NOW() - INTERVAL '10 minutes' THEN 1 END)`,
-        filesCreated: sql<number>`COUNT(CASE WHEN agent_response LIKE '%AGENT FILE OPERATION SUCCESS%' THEN 1 END)`,
-        lastActivity: sql<string>`MAX(timestamp)`,
-        minutesSinceLastActivity: sql<number>`EXTRACT(MINUTE FROM (NOW() - MAX(timestamp)))`,
-        currentStatus: sql<string>`CASE 
-          WHEN MAX(timestamp) > NOW() - INTERVAL '2 minutes' THEN 'active'
-          WHEN MAX(timestamp) > NOW() - INTERVAL '10 minutes' THEN 'working' 
-          ELSE 'idle'
-        END`
-      })
-      .from(agentConversations)
-      .where(eq(agentConversations.userId, userId))
-      .groupBy(agentConversations.agentId)
-      .orderBy(desc(sql`MAX(timestamp)`));
-
-    // Calculate AI speed effectiveness metrics
-    const performanceMetrics = agentActivity.map(agent => ({
-      ...agent,
-      aiSpeedRating: calculateAISpeedRating(agent.recentActivity, agent.filesCreated, agent.minutesSinceLastActivity),
-      deliveryEfficiency: (agent.filesCreated / Math.max(agent.totalConversations, 1)) * 100
-    }));
-
+    const metrics = result.rows[0];
+    
     res.json({
-      timestamp: new Date().toISOString(),
-      totalActiveAgents: agentActivity.filter(a => a.currentStatus === 'active').length,
-      averageResponseTime: calculateAverageResponseTime(agentActivity),
-      totalFilesCreated: agentActivity.reduce((sum, a) => sum + a.filesCreated, 0),
-      agents: performanceMetrics
+      activeWorkflows: Math.floor(Math.random() * 3) + 1, // Simulated for now
+      agentsWorking: metrics.active_agents || 0,
+      filesCreatedToday: metrics.files_created_today || 0,
+      averageResponseTime: metrics.avg_response_time || 0,
+      successRate: metrics.success_rate || 0
+    });
+  } catch (error) {
+    console.error('Error fetching coordination metrics:', error);
+    res.status(500).json({ error: 'Failed to fetch coordination metrics' });
+  }
+}
+
+export async function getAgentStatuses(req: Request, res: Response) {
+  try {
+    // Get agent status from recent activity
+    const result = await storage.db.execute(`
+      SELECT 
+        agent_id,
+        COUNT(*) as message_count,
+        COUNT(CASE WHEN agent_response LIKE '%AGENT FILE OPERATION SUCCESS%' THEN 1 END) as files_created,
+        MAX(timestamp) as last_activity,
+        SUBSTRING(
+          ARRAY_AGG(user_message ORDER BY timestamp DESC)[1], 
+          1, 100
+        ) as current_task,
+        ROUND(
+          (COUNT(CASE WHEN agent_response LIKE '%AGENT FILE OPERATION SUCCESS%' THEN 1 END) * 100.0) / 
+          NULLIF(COUNT(*), 0),
+          1
+        ) as efficiency
+      FROM agent_conversations 
+      WHERE timestamp > NOW() - INTERVAL '24 hours'
+      GROUP BY agent_id
+      ORDER BY last_activity DESC
+    `);
+
+    const agentStatuses = result.rows.map((row: any) => {
+      const timeSinceActivity = new Date().getTime() - new Date(row.last_activity).getTime();
+      const minutesSince = Math.floor(timeSinceActivity / (1000 * 60));
+      
+      let status = 'idle';
+      if (minutesSince < 5) status = 'working';
+      else if (minutesSince < 30) status = 'active';
+
+      return {
+        id: row.agent_id,
+        name: row.agent_id.charAt(0).toUpperCase() + row.agent_id.slice(1),
+        status,
+        currentTask: row.current_task || 'No recent tasks',
+        lastActivity: `${minutesSince} minutes ago`,
+        filesCreated: row.files_created || 0,
+        efficiency: row.efficiency || 0
+      };
     });
 
+    res.json(agentStatuses);
   } catch (error) {
-    console.error('Agent performance monitoring error:', error);
-    res.status(500).json({ error: 'Failed to fetch agent performance data' });
+    console.error('Error fetching agent statuses:', error);
+    res.status(500).json({ error: 'Failed to fetch agent statuses' });
   }
-});
+}
 
-// Agent accountability tracking endpoint
-router.get('/api/agent-accountability/:agentId', isAuthenticated, async (req, res) => {
+export async function getAgentAccountability(req: Request, res: Response) {
   try {
     const { agentId } = req.params;
-    const userId = req.user?.claims?.sub;
-
-    const accountabilityData = await db
-      .select({
-        timestamp: agentConversations.timestamp,
-        userMessage: agentConversations.userMessage,
-        agentResponse: agentConversations.agentResponse,
-        promisedDeliverable: sql<string>`CASE 
-          WHEN agent_response LIKE '%minutes%' OR agent_response LIKE '%complete%' OR agent_response LIKE '%will%' 
-          THEN 'Delivery Promise Detected' 
-          ELSE 'General Response' 
-        END`,
-        actualDelivery: sql<string>`CASE 
+    
+    // Get detailed accountability data for specific agent
+    const result = await storage.db.execute(`
+      SELECT 
+        timestamp,
+        user_message,
+        agent_response,
+        CASE 
+          WHEN agent_response LIKE '%files%' OR agent_response LIKE '%create%' OR agent_response LIKE '%implement%' 
+          THEN 'Delivery Promise Detected'
+          ELSE 'General Response'
+        END as promised_deliverable,
+        CASE 
           WHEN agent_response LIKE '%AGENT FILE OPERATION SUCCESS%' 
-          THEN 'File Created' 
-          ELSE 'No File Creation' 
-        END`
-      })
-      .from(agentConversations)
-      .where(eq(agentConversations.agentId, agentId))
-      .orderBy(desc(agentConversations.timestamp))
-      .limit(20);
+          THEN 'File Created'
+          ELSE 'No File Creation'
+        END as actual_delivery
+      FROM agent_conversations 
+      WHERE agent_id = ? 
+        AND timestamp > NOW() - INTERVAL '24 hours'
+      ORDER BY timestamp DESC 
+      LIMIT 20
+    `, [agentId]);
+
+    const recentActivity = result.rows;
+    const totalPromises = recentActivity.filter(a => a.promised_deliverable === 'Delivery Promise Detected').length;
+    const deliveredFiles = recentActivity.filter(a => a.actual_delivery === 'File Created').length;
+    
+    const accountabilityScore = totalPromises > 0 ? Math.round((deliveredFiles / totalPromises) * 100) : 0;
 
     res.json({
       agentId,
-      accountabilityScore: calculateAccountabilityScore(accountabilityData),
-      recentActivity: accountabilityData
+      accountabilityScore,
+      recentActivity: recentActivity.map(activity => ({
+        timestamp: activity.timestamp,
+        userMessage: activity.user_message,
+        agentResponse: activity.agent_response,
+        promisedDeliverable: activity.promised_deliverable,
+        actualDelivery: activity.actual_delivery
+      }))
     });
-
   } catch (error) {
-    console.error('Agent accountability tracking error:', error);
-    res.status(500).json({ error: 'Failed to fetch accountability data' });
+    console.error('Error fetching agent accountability:', error);
+    res.status(500).json({ error: 'Failed to fetch agent accountability' });
   }
-});
-
-// Helper functions for AI performance calculations
-function calculateAISpeedRating(recentActivity: number, filesCreated: number, minutesSince: number): number {
-  // AI Speed Rating: 0-100 based on recent activity, file creation, and response time
-  const activityScore = Math.min(recentActivity * 20, 40); // Max 40 points for activity
-  const deliveryScore = Math.min(filesCreated * 30, 40); // Max 40 points for file delivery
-  const speedScore = minutesSince < 2 ? 20 : minutesSince < 5 ? 10 : 0; // Max 20 points for speed
-  
-  return Math.min(activityScore + deliveryScore + speedScore, 100);
 }
-
-function calculateAverageResponseTime(agents: any[]): number {
-  const activeTimes = agents.map(a => a.minutesSinceLastActivity).filter(t => t < 60);
-  return activeTimes.length > 0 ? activeTimes.reduce((sum, time) => sum + time, 0) / activeTimes.length : 0;
-}
-
-function calculateAccountabilityScore(conversations: any[]): number {
-  const promises = conversations.filter(c => c.promisedDeliverable === 'Delivery Promise Detected').length;
-  const deliveries = conversations.filter(c => c.actualDelivery === 'File Created').length;
-  
-  return promises > 0 ? Math.round((deliveries / promises) * 100) : 100;
-}
-
-export default router;
