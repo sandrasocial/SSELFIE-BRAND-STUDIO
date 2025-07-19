@@ -19,6 +19,7 @@ export class AutoFileWriter {
   
   /**
    * Automatically detects and writes code blocks to appropriate files
+   * Enhanced with batch operations for better performance
    */
   static async processCodeBlocks(
     agentId: string, 
@@ -64,39 +65,83 @@ export class AutoFileWriter {
     
     console.log(`🔍 Found ${codeBlocks.length} code blocks for auto-writing`);
     
-    // Process each code block
+    // Prepare files for batch operation
+    const filesToWrite = [];
     for (let i = 0; i < codeBlocks.length; i++) {
       const block = codeBlocks[i];
       const filePath = this.determineFilePath(block, agentId, aiResponse);
       
       if (filePath) {
-        try {
-          await AgentCodebaseIntegration.writeFile(filePath, block.content);
-          
-          filesWritten.push({
-            filePath,
-            success: true,
-            size: block.content.length
-          });
-          
-          console.log(`✅ AUTO-WROTE: ${filePath} (${block.content.length} chars)`);
-          
-          // Replace code block with confirmation  
+        filesToWrite.push({
+          filePath,
+          content: block.content,
+          description: `Auto-generated from code block ${i + 1}`,
+          originalBlock: block
+        });
+      }
+    }
+    
+    // Use batch operation if multiple files, single operation for one file
+    if (filesToWrite.length > 1) {
+      console.log(`🚀 Using batch operation for ${filesToWrite.length} files`);
+      const batchResults = await AgentCodebaseIntegration.writeMultipleFiles(
+        agentId,
+        filesToWrite.map(f => ({
+          filePath: f.filePath,
+          content: f.content,
+          description: f.description
+        }))
+      );
+      
+      // Process batch results
+      batchResults.forEach((result, index) => {
+        const originalFile = filesToWrite[index];
+        filesWritten.push({
+          filePath: result.filePath,
+          success: result.success,
+          error: result.error,
+          size: originalFile.content.length
+        });
+        
+        if (result.success) {
+          console.log(`✅ BATCH AUTO-WROTE: ${result.filePath} (${originalFile.content.length} chars)`);
           modifiedResponse = modifiedResponse.replace(
             /```[^`]*```/,
-            `✅ **Created**: \`${filePath}\` (${block.content.length} characters)\n\n*File tree will refresh automatically to show new files.*`
+            `✅ **Created**: \`${result.filePath}\` (${originalFile.content.length} characters)\n\n*File tree will refresh automatically to show new files.*`
           );
-          
-        } catch (error) {
-          filesWritten.push({
-            filePath,
-            success: false,
-            error: error.message,
-            size: block.content.length
-          });
-          
-          console.error(`❌ Failed to auto-write ${filePath}:`, error);
+        } else {
+          console.error(`❌ Failed to batch auto-write ${result.filePath}:`, result.error);
         }
+      });
+      
+    } else if (filesToWrite.length === 1) {
+      // Single file operation
+      const file = filesToWrite[0];
+      try {
+        await AgentCodebaseIntegration.writeFile(file.filePath, file.content);
+        
+        filesWritten.push({
+          filePath: file.filePath,
+          success: true,
+          size: file.content.length
+        });
+        
+        console.log(`✅ AUTO-WROTE: ${file.filePath} (${file.content.length} chars)`);
+        
+        modifiedResponse = modifiedResponse.replace(
+          /```[^`]*```/,
+          `✅ **Created**: \`${file.filePath}\` (${file.content.length} characters)\n\n*File tree will refresh automatically to show new files.*`
+        );
+        
+      } catch (error) {
+        filesWritten.push({
+          filePath: file.filePath,
+          success: false,
+          error: error.message,
+          size: file.content.length
+        });
+        
+        console.error(`❌ Failed to auto-write ${file.filePath}:`, error);
       }
     }
     

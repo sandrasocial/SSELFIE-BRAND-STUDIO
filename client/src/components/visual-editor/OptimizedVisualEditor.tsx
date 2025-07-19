@@ -685,10 +685,15 @@ export function OptimizedVisualEditor({ className = '' }: OptimizedVisualEditorP
             description: 'Code changes applied automatically. File tree refreshing...',
           });
           
-          // Trigger file tree refresh
+          // Trigger file tree refresh and live preview refresh
           setTimeout(() => {
             if ((window as any).refreshFileTree) {
               (window as any).refreshFileTree();
+            }
+            
+            // Trigger live preview refresh if available
+            if ((window as any).refreshLivePreview) {
+              (window as any).refreshLivePreview();
             }
           }, 1000);
         }
@@ -1405,12 +1410,21 @@ export function OptimizedVisualEditor({ className = '' }: OptimizedVisualEditorP
                 
                 return (
                   <iframe
+                    id="live-preview-iframe"
                     ref={iframeRef}
                     src={previewUrl}
                     className="w-full h-full border-0"
                     title="Live Preview"
                     onLoad={() => {
                       console.log('Live preview loaded successfully');
+                      // Expose refresh function globally for auto-refresh
+                      (window as any).refreshLivePreview = () => {
+                        if (iframeRef.current) {
+                          const currentSrc = iframeRef.current.src.split('?')[0];
+                          iframeRef.current.src = currentSrc + '?refresh=' + Date.now();
+                          console.log('🔄 Live preview auto-refreshed');
+                        }
+                      };
                     }}
                     onError={(e) => {
                       console.error('Live preview failed to load:', e);
