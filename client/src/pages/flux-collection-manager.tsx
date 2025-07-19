@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useMutation } from '@tanstack/react-query';
 import { useAuth } from '@/hooks/use-auth';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
@@ -48,6 +48,36 @@ export default function FluxCollectionManager() {
   const [fluxInput, setFluxInput] = useState('');
   const [isGenerating, setIsGenerating] = useState(false);
   const [viewMode, setViewMode] = useState<'create' | 'update' | 'current'>('current');
+  
+  // Persistent conversation ID for memory continuity
+  const [conversationId] = useState(() => `flux-session-${Date.now()}`);
+
+  // Load existing conversation history on mount for continuity
+  useEffect(() => {
+    const loadFluxConversation = async () => {
+      if (!isAuthenticated || user?.email !== 'ssa@ssasocial.com') return;
+      
+      try {
+        const response = await apiRequest('GET', `/api/agent-conversations/flux`);
+        const result = await response.json();
+        
+        if (result.conversations && result.conversations.length > 0) {
+          // Convert database format to chat format
+          const chatHistory = result.conversations.map((conv: any) => [
+            { role: 'user', content: conv.userMessage },
+            { role: 'assistant', content: conv.agentResponse }
+          ]).flat();
+          
+          setFluxChat(chatHistory);
+          console.log(`✅ Loaded ${chatHistory.length} messages from Flux conversation history`);
+        }
+      } catch (error) {
+        console.log('No existing Flux conversation found, starting fresh');
+      }
+    };
+
+    loadFluxConversation();
+  }, [isAuthenticated, user?.email]);
 
   // Admin access check
   if (!isAuthenticated || user?.email !== 'ssa@ssasocial.com') {
@@ -63,13 +93,14 @@ export default function FluxCollectionManager() {
     );
   }
 
-  // Chat with Flux mutation
+  // Chat with Flux mutation with persistent conversation ID for memory continuity
   const chatWithFluxMutation = useMutation({
     mutationFn: async (message: string) => {
       const response = await apiRequest('POST', '/api/admin/agent-chat-bypass', {
         agentName: 'Flux',
         message: message,
-        conversationId: `flux-collection-${Date.now()}`
+        conversationId: conversationId,
+        conversationHistory: fluxChat
       });
       return response.json();
     },
