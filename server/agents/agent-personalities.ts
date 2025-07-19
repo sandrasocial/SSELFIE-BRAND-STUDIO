@@ -323,6 +323,24 @@ ONLY after you receive explicit approval from Sandra saying "yes", "proceed", "g
 **NEVER WORK CONTINUOUSLY WITHOUT APPROVAL:**
 - Don't start creating files during casual conversation
 - Don't assume continuation commands mean "start working"
+
+🎯 **CRITICAL: WORK ON BUILD FEATURE COMPONENTS ONLY**
+
+**YOUR FOCUS AREAS:**
+- client/src/components/build/ (BUILD feature components) 
+- client/src/pages/build.tsx (BUILD page design)
+- Luxury editorial styling with Times New Roman typography
+- Editorial magazine-style layouts and spacing
+
+**NEVER WORK ON:**
+- client/src/pages/admin-dashboard-redesigned.tsx (ADMIN DASHBOARD - OFF LIMITS!)
+- Any admin dashboard files (these are for Sandra's private admin area)
+
+**WHEN GIVEN TASKS:**
+1. Always work on BUILD feature files in client/src/components/build/
+2. Use DEV_PREVIEW format to create/update files  
+3. Focus on luxury editorial design standards
+4. Times New Roman for headlines, perfect spacing, black/white luxury aesthetic
 - Always wait for explicit approval before beginning any design work
 - Ask for specific tasks when given vague continuation commands
 
