@@ -2833,6 +2833,163 @@ You help users design and customize their ${context === 'dashboard-builder' ? 'p
     }
   });
 
+  // BUILD FEATURE API ROUTES (Added by Zara)
+  // POST /api/build/onboarding - Save user onboarding data
+  app.post("/api/build/onboarding", isAuthenticated, async (req, res) => {
+    try {
+      const userId = req.user?.claims?.sub;
+      if (!userId) {
+        return res.status(401).json({ error: "Authentication required" });
+      }
+
+      const { story, businessType, targetAudience, goals, brandKeywords } = req.body;
+
+      if (!story || !businessType || !targetAudience || !goals) {
+        return res.status(400).json({ 
+          error: "Story, business type, target audience, and goals are required" 
+        });
+      }
+
+      const existingOnboarding = await db
+        .select()
+        .from(userWebsiteOnboarding)
+        .where(eq(userWebsiteOnboarding.userId, userId))
+        .limit(1);
+
+      let result;
+      if (existingOnboarding.length > 0) {
+        result = await db
+          .update(userWebsiteOnboarding)
+          .set({
+            story, businessType, targetAudience, goals,
+            brandKeywords, isCompleted: true, updatedAt: new Date()
+          })
+          .where(eq(userWebsiteOnboarding.userId, userId))
+          .returning();
+      } else {
+        result = await db
+          .insert(userWebsiteOnboarding)
+          .values({
+            userId, story, businessType, targetAudience, goals,
+            brandKeywords, isCompleted: true
+          })
+          .returning();
+      }
+
+      res.json({ success: true, onboarding: result[0], isCompleted: true });
+    } catch (error) {
+      console.error("Build onboarding error:", error);
+      res.status(500).json({ error: "Failed to save onboarding data" });
+    }
+  });
+
+  // GET /api/build/onboarding - Get existing onboarding
+  app.get("/api/build/onboarding", isAuthenticated, async (req, res) => {
+    try {
+      const userId = req.user?.claims?.sub;
+      if (!userId) return res.status(401).json({ error: "Authentication required" });
+
+      const onboarding = await db
+        .select()
+        .from(userWebsiteOnboarding)
+        .where(eq(userWebsiteOnboarding.userId, userId))
+        .limit(1);
+
+      res.json({ 
+        success: true, 
+        onboarding: onboarding[0] || null,
+        isCompleted: onboarding[0]?.isCompleted || false
+      });
+    } catch (error) {
+      res.status(500).json({ error: "Failed to retrieve onboarding data" });
+    }
+  });
+
+  // GET /api/build/conversation - Get or create chat conversation
+  app.get("/api/build/conversation", isAuthenticated, async (req, res) => {
+    try {
+      const userId = req.user?.claims?.sub;
+      if (!userId) return res.status(401).json({ error: "Authentication required" });
+
+      let conversation = await db
+        .select()
+        .from(websiteBuilderConversations)
+        .where(eq(websiteBuilderConversations.userId, userId))
+        .limit(1);
+
+      if (conversation.length === 0) {
+        const newConversation = await db
+          .insert(websiteBuilderConversations)
+          .values({ userId, messages: [], status: "active" })
+          .returning();
+        conversation = newConversation;
+      }
+
+      res.json({ 
+        success: true, 
+        id: conversation[0].id,
+        messages: conversation[0].messages || []
+      });
+    } catch (error) {
+      res.status(500).json({ error: "Failed to get conversation" });
+    }
+  });
+
+  // POST /api/build/chat - Handle Victoria website chat messages
+  app.post("/api/build/chat", isAuthenticated, async (req, res) => {
+    try {
+      const userId = req.user?.claims?.sub;
+      if (!userId) return res.status(401).json({ error: "Authentication required" });
+
+      const { message, conversationId, onboardingData } = req.body;
+      if (!message || !conversationId) {
+        return res.status(400).json({ error: "Message and conversation ID are required" });
+      }
+
+      const conversation = await db
+        .select()
+        .from(websiteBuilderConversations)
+        .where(and(
+          eq(websiteBuilderConversations.id, conversationId),
+          eq(websiteBuilderConversations.userId, userId)
+        ))
+        .limit(1);
+
+      if (conversation.length === 0) {
+        return res.status(404).json({ error: "Conversation not found" });
+      }
+
+      // Create messages using Rachel's Victoria personality
+      const userMessage = { id: Date.now().toString(), role: 'user', content: message, timestamp: new Date() };
+      
+      let victoriaResponse = "";
+      if (message.toLowerCase().includes("hi") || message.toLowerCase().includes("ready")) {
+        victoriaResponse = `Welcome! I'm Victoria, your website consultant. I'm thrilled to help transform your beautiful story into a stunning website that converts visitors into clients. What excites you most about having your own professional website?`;
+      } else if (message.toLowerCase().includes("design")) {
+        victoriaResponse = `Perfect! Let's talk design. Based on your story, I'm envisioning a luxury editorial style - clean, sophisticated, and absolutely magnetic. Which direction feels most like 'you': Minimal Luxury, Editorial Chic, or Personal Brand warmth?`;
+      } else {
+        victoriaResponse = `I love your thoughtfulness! For ${onboardingData?.businessType || 'your business'}, authenticity is everything. Let's create something that showcases your expertise while maintaining that luxury, editorial feel. What's the main action you want visitors to take on your website?`;
+      }
+
+      const assistantMessage = { id: (Date.now() + 1).toString(), role: 'assistant', content: victoriaResponse, timestamp: new Date() };
+      const existingMessages = conversation[0].messages || [];
+      const updatedMessages = [...existingMessages, userMessage, assistantMessage];
+
+      await db
+        .update(websiteBuilderConversations)
+        .set({ messages: updatedMessages, updatedAt: new Date() })
+        .where(eq(websiteBuilderConversations.id, conversationId));
+
+      res.json({ 
+        success: true, 
+        messages: updatedMessages,
+        websiteGenerated: message.toLowerCase().includes("preview")
+      });
+    } catch (error) {
+      res.status(500).json({ error: "Failed to process chat message" });
+    }
+  });
+
   // Agent system routes with proper admin access
   const isAdmin = async (req: any, res: any, next: any) => {
     try {
