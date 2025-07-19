@@ -1,0 +1,389 @@
+eruda.js:2 🔍 useAuth final state: {isAuthenticated: true, actuallyLoading: false, hasUser: true, userId: '42585527', rawLoading: false, …}
+eruda.js:2 🔍 useAuth final state: {isAuthenticated: true, actuallyLoading: false, hasUser: true, userId: '42585527', rawLoading: false, …}
+eruda.js:2 Admin Dashboard - Agents data: {agents: Array(10), agentsLoading: false, agentsError: null, agentsCount: 10, isAuthenticated: true, …}
+eruda.js:2 DevPreviewModal render: {isOpen: false, previewData: {…}}
+eruda.js:2 DevPreviewModal render: {isOpen: false, previewData: {…}}
+eruda.js:2 DevPreviewModal render: {isOpen: false, previewData: {…}}
+eruda.js:2 DevPreviewModal render: {isOpen: false, previewData: {…}}
+eruda.js:2 DevPreviewModal render: {isOpen: false, previewData: {…}}
+eruda.js:2 DevPreviewModal render: {isOpen: false, previewData: {…}}
+eruda.js:2 DevPreviewModal render: {isOpen: false, previewData: {…}}
+eruda.js:2 DevPreviewModal render: {isOpen: false, previewData: {…}}
+eruda.js:2 DevPreviewModal render: {isOpen: false, previewData: {…}}
+eruda.js:2 DevPreviewModal render: {isOpen: false, previewData: {…}}
+eruda.js:2 🔍 useAuth final state: {isAuthenticated: true, actuallyLoading: false, hasUser: true, userId: '42585527', rawLoading: false, …}
+eruda.js:2 Admin Dashboard - Agents data: {agents: Array(10), agentsLoading: false, agentsError: null, agentsCount: 10, isAuthenticated: true, …}
+eruda.js:2 DevPreviewModal render: {isOpen: false, previewData: {…}}
+eruda.js:2 DevPreviewModal render: {isOpen: false, previewData: {…}}
+eruda.js:2 DevPreviewModal render: {isOpen: false, previewData: {…}}
+eruda.js:2 DevPreviewModal render: {isOpen: false, previewData: {…}}
+eruda.js:2 DevPreviewModal render: {isOpen: false, previewData: {…}}
+eruda.js:2 DevPreviewModal render: {isOpen: false, previewData: {…}}
+eruda.js:2 DevPreviewModal render: {isOpen: false, previewData: {…}}
+eruda.js:2 DevPreviewModal render: {isOpen: false, previewData: {…}}
+eruda.js:2 DevPreviewModal render: {isOpen: false, previewData: {…}}
+eruda.js:2 DevPreviewModal render: {isOpen: false, previewData: {…}}
+eruda.js:2 🔍 Auth check: Making request to /api/auth/user
+eruda.js:2 🔍 useAuth final state: {isAuthenticated: true, actuallyLoading: false, hasUser: true, userId: '42585527', rawLoading: false, …}
+eruda.js:2 Admin Dashboard - Agents data: {agents: Array(10), agentsLoading: false, agentsError: null, agentsCount: 10, isAuthenticated: true, …}
+eruda.js:2 DevPreviewModal render: {isOpen: false, previewData: {…}}
+eruda.js:2 DevPreviewModal render: {isOpen: false, previewData: {…}}
+eruda.js:2 DevPreviewModal render: {isOpen: false, previewData: {…}}
+eruda.js:2 DevPreviewModal render: {isOpen: false, previewData: {…}}
+eruda.js:2 DevPreviewModal render: {isOpen: false, previewData: {…}}
+eruda.js:2 DevPreviewModal render: {isOpen: false, previewData: {…}}
+eruda.js:2 DevPreviewModal render: {isOpen: false, previewData: {…}}
+eruda.js:2 DevPreviewModal render: {isOpen: false, previewData: {…}}
+eruda.js:2 DevPreviewModal render: {isOpen: false, previewData: {…}}
+eruda.js:2 DevPreviewModal render: {isOpen: false, previewData: {…}}
+eruda.js:2 DevPreviewModal render: {isOpen: false, previewData: {…}}
+eruda.js:2 🔍 Auth check: Response status: 200
+eruda.js:2 ✅ Auth check: User authenticated: ssa@ssasocial.com
+eruda.js:2 🔍 useAuth final state: {isAuthenticated: true, actuallyLoading: false, hasUser: true, userId: '42585527', rawLoading: false, …}
+eruda.js:2 🔍 useAuth final state: {isAuthenticated: true, actuallyLoading: false, hasUser: true, userId: '42585527', rawLoading: false, …}
+eruda.js:2 Admin Dashboard - Agents data: {agents: Array(10), agentsLoading: false, agentsError: null, agentsCount: 10, isAuthenticated: true, …}
+eruda.js:2 DevPreviewModal render: {isOpen: false, previewData: {…}}
+eruda.js:2 DevPreviewModal render: {isOpen: false, previewData: {…}}
+eruda.js:2 DevPreviewModal render: {isOpen: false, previewData: {…}}
+eruda.js:2 DevPreviewModal render: {isOpen: false, previewData: {…}}
+eruda.js:2 DevPreviewModal render: {isOpen: false, previewData: {…}}
+eruda.js:2 DevPreviewModal render: {isOpen: false, previewData: {…}}
+eruda.js:2 DevPreviewModal render: {isOpen: false, previewData: {…}}
+eruda.js:2 DevPreviewModal render: {isOpen: false, previewData: {…}}
+eruda.js:2 DevPreviewModal render: {isOpen: false, previewData: {…}}
+eruda.js:2 DevPreviewModal render: {isOpen: false, previewData: {…}}
+eruda.js:2 🔍 useAuth final state: {isAuthenticated: true, actuallyLoading: false, hasUser: true, userId: '42585527', rawLoading: false, …}
+eruda.js:2 Admin Dashboard - Agents data: {agents: Array(10), agentsLoading: false, agentsError: null, agentsCount: 10, isAuthenticated: true, …}
+eruda.js:2 DevPreviewModal render: {isOpen: false, previewData: {…}}
+eruda.js:2 DevPreviewModal render: {isOpen: false, previewData: {…}}
+eruda.js:2 DevPreviewModal render: {isOpen: false, previewData: {…}}
+eruda.js:2 DevPreviewModal render: {isOpen: false, previewData: {…}}
+eruda.js:2 DevPreviewModal render: {isOpen: false, previewData: {…}}
+eruda.js:2 DevPreviewModal render: {isOpen: false, previewData: {…}}
+eruda.js:2 DevPreviewModal render: {isOpen: false, previewData: {…}}
+eruda.js:2 DevPreviewModal render: {isOpen: false, previewData: {…}}
+eruda.js:2 DevPreviewModal render: {isOpen: false, previewData: {…}}
+eruda.js:2 DevPreviewModal render: {isOpen: false, previewData: {…}}
+eruda.js:2 🔍 useAuth final state: {isAuthenticated: true, actuallyLoading: false, hasUser: true, userId: '42585527', rawLoading: false, …}
+eruda.js:2 Admin Dashboard - Agents data: {agents: Array(10), agentsLoading: false, agentsError: null, agentsCount: 10, isAuthenticated: true, …}
+eruda.js:2 DevPreviewModal render: {isOpen: false, previewData: {…}}
+eruda.js:2 DevPreviewModal render: {isOpen: false, previewData: {…}}
+eruda.js:2 DevPreviewModal render: {isOpen: false, previewData: {…}}
+eruda.js:2 DevPreviewModal render: {isOpen: false, previewData: {…}}
+eruda.js:2 DevPreviewModal render: {isOpen: false, previewData: {…}}
+eruda.js:2 DevPreviewModal render: {isOpen: false, previewData: {…}}
+eruda.js:2 DevPreviewModal render: {isOpen: false, previewData: {…}}
+eruda.js:2 DevPreviewModal render: {isOpen: false, previewData: {…}}
+eruda.js:2 DevPreviewModal render: {isOpen: false, previewData: {…}}
+eruda.js:2 DevPreviewModal render: {isOpen: false, previewData: {…}}
+eruda.js:2 🔍 useAuth final state: {isAuthenticated: true, actuallyLoading: false, hasUser: true, userId: '42585527', rawLoading: false, …}
+eruda.js:2 Admin Dashboard - Agents data: {agents: Array(10), agentsLoading: false, agentsError: null, agentsCount: 10, isAuthenticated: true, …}
+eruda.js:2 DevPreviewModal render: {isOpen: false, previewData: {…}}
+eruda.js:2 DevPreviewModal render: {isOpen: false, previewData: {…}}
+eruda.js:2 DevPreviewModal render: {isOpen: false, previewData: {…}}
+eruda.js:2 DevPreviewModal render: {isOpen: false, previewData: {…}}
+eruda.js:2 DevPreviewModal render: {isOpen: false, previewData: {…}}
+eruda.js:2 DevPreviewModal render: {isOpen: false, previewData: {…}}
+eruda.js:2 DevPreviewModal render: {isOpen: false, previewData: {…}}
+eruda.js:2 DevPreviewModal render: {isOpen: false, previewData: {…}}
+eruda.js:2 DevPreviewModal render: {isOpen: false, previewData: {…}}
+eruda.js:2 DevPreviewModal render: {isOpen: false, previewData: {…}}
+eruda.js:2 DevPreviewModal render: {isOpen: false, previewData: {…}}
+eruda.js:2 🔍 useAuth final state: {isAuthenticated: true, actuallyLoading: false, hasUser: true, userId: '42585527', rawLoading: false, …}
+eruda.js:2 Admin Dashboard - Agents data: {agents: Array(10), agentsLoading: false, agentsError: null, agentsCount: 10, isAuthenticated: true, …}
+eruda.js:2 DevPreviewModal render: {isOpen: false, previewData: {…}}
+eruda.js:2 DevPreviewModal render: {isOpen: false, previewData: {…}}
+eruda.js:2 DevPreviewModal render: {isOpen: false, previewData: {…}}
+eruda.js:2 DevPreviewModal render: {isOpen: false, previewData: {…}}
+eruda.js:2 DevPreviewModal render: {isOpen: false, previewData: {…}}
+eruda.js:2 DevPreviewModal render: {isOpen: false, previewData: {…}}
+eruda.js:2 DevPreviewModal render: {isOpen: false, previewData: {…}}
+eruda.js:2 DevPreviewModal render: {isOpen: false, previewData: {…}}
+eruda.js:2 DevPreviewModal render: {isOpen: false, previewData: {…}}
+eruda.js:2 DevPreviewModal render: {isOpen: false, previewData: {…}}
+eruda.js:2 🔍 useAuth final state: {isAuthenticated: true, actuallyLoading: false, hasUser: true, userId: '42585527', rawLoading: false, …}
+eruda.js:2 Admin Dashboard - Agents data: {agents: Array(10), agentsLoading: false, agentsError: null, agentsCount: 10, isAuthenticated: true, …}
+eruda.js:2 DevPreviewModal render: {isOpen: false, previewData: {…}}
+eruda.js:2 DevPreviewModal render: {isOpen: false, previewData: {…}}
+eruda.js:2 DevPreviewModal render: {isOpen: false, previewData: {…}}
+eruda.js:2 DevPreviewModal render: {isOpen: false, previewData: {…}}
+eruda.js:2 DevPreviewModal render: {isOpen: false, previewData: {…}}
+eruda.js:2 DevPreviewModal render: {isOpen: false, previewData: {…}}
+eruda.js:2 DevPreviewModal render: {isOpen: false, previewData: {…}}
+eruda.js:2 DevPreviewModal render: {isOpen: false, previewData: {…}}
+eruda.js:2 DevPreviewModal render: {isOpen: false, previewData: {…}}
+eruda.js:2 DevPreviewModal render: {isOpen: false, previewData: {…}}
+eruda.js:2 🔍 useAuth final state: {isAuthenticated: true, actuallyLoading: false, hasUser: true, userId: '42585527', rawLoading: false, …}
+eruda.js:2 Admin Dashboard - Agents data: {agents: Array(10), agentsLoading: false, agentsError: null, agentsCount: 10, isAuthenticated: true, …}
+eruda.js:2 DevPreviewModal render: {isOpen: false, previewData: {…}}
+eruda.js:2 DevPreviewModal render: {isOpen: false, previewData: {…}}
+eruda.js:2 DevPreviewModal render: {isOpen: false, previewData: {…}}
+eruda.js:2 DevPreviewModal render: {isOpen: false, previewData: {…}}
+eruda.js:2 DevPreviewModal render: {isOpen: false, previewData: {…}}
+eruda.js:2 DevPreviewModal render: {isOpen: false, previewData: {…}}
+eruda.js:2 DevPreviewModal render: {isOpen: false, previewData: {…}}
+eruda.js:2 DevPreviewModal render: {isOpen: false, previewData: {…}}
+eruda.js:2 DevPreviewModal render: {isOpen: false, previewData: {…}}
+eruda.js:2 DevPreviewModal render: {isOpen: false, previewData: {…}}
+eruda.js:2 DevPreviewModal render: {isOpen: false, previewData: {…}}
+eruda.js:2 🔍 useAuth final state: {isAuthenticated: true, actuallyLoading: false, hasUser: true, userId: '42585527', rawLoading: false, …}
+eruda.js:2 Admin Dashboard - Agents data: {agents: Array(10), agentsLoading: false, agentsError: null, agentsCount: 10, isAuthenticated: true, …}
+eruda.js:2 DevPreviewModal render: {isOpen: false, previewData: {…}}
+eruda.js:2 DevPreviewModal render: {isOpen: false, previewData: {…}}
+eruda.js:2 DevPreviewModal render: {isOpen: false, previewData: {…}}
+eruda.js:2 DevPreviewModal render: {isOpen: false, previewData: {…}}
+eruda.js:2 DevPreviewModal render: {isOpen: false, previewData: {…}}
+eruda.js:2 DevPreviewModal render: {isOpen: false, previewData: {…}}
+eruda.js:2 DevPreviewModal render: {isOpen: false, previewData: {…}}
+eruda.js:2 DevPreviewModal render: {isOpen: false, previewData: {…}}
+eruda.js:2 DevPreviewModal render: {isOpen: false, previewData: {…}}
+eruda.js:2 DevPreviewModal render: {isOpen: false, previewData: {…}}
+eruda.js:2 🔍 useAuth final state: {isAuthenticated: true, actuallyLoading: false, hasUser: true, userId: '42585527', rawLoading: false, …}
+eruda.js:2 🔍 useAuth final state: {isAuthenticated: true, actuallyLoading: false, hasUser: true, userId: '42585527', rawLoading: false, …}
+eruda.js:2 Admin Dashboard - Agents data: {agents: Array(10), agentsLoading: false, agentsError: null, agentsCount: 10, isAuthenticated: true, …}
+eruda.js:2 DevPreviewModal render: {isOpen: false, previewData: {…}}
+eruda.js:2 DevPreviewModal render: {isOpen: false, previewData: {…}}
+eruda.js:2 DevPreviewModal render: {isOpen: false, previewData: {…}}
+eruda.js:2 DevPreviewModal render: {isOpen: false, previewData: {…}}
+eruda.js:2 DevPreviewModal render: {isOpen: false, previewData: {…}}
+eruda.js:2 DevPreviewModal render: {isOpen: false, previewData: {…}}
+eruda.js:2 DevPreviewModal render: {isOpen: false, previewData: {…}}
+eruda.js:2 DevPreviewModal render: {isOpen: false, previewData: {…}}
+eruda.js:2 DevPreviewModal render: {isOpen: false, previewData: {…}}
+eruda.js:2 DevPreviewModal render: {isOpen: false, previewData: {…}}
+_app-273ebf2f9c71f0fe.js:38  POST https://replit.com/graphql net::ERR_CONNECTION_CLOSED
+(anonymous) @ _app-273ebf2f9c71f0fe.js:38
+(anonymous) @ _app-273ebf2f9c71f0fe.js:25
+e @ _app-273ebf2f9c71f0fe.js:14
+t.subscribe @ _app-273ebf2f9c71f0fe.js:14
+e.consumeQueue @ _app-273ebf2f9c71f0fe.js:25
+(anonymous) @ _app-273ebf2f9c71f0fe.js:25
+n @ _app-273ebf2f9c71f0fe.js:38
+setTimeout
+(anonymous) @ _app-273ebf2f9c71f0fe.js:38
+e.scheduleQueueConsumption @ _app-273ebf2f9c71f0fe.js:25
+(anonymous) @ _app-273ebf2f9c71f0fe.js:25
+e @ _app-273ebf2f9c71f0fe.js:14
+t.subscribe @ _app-273ebf2f9c71f0fe.js:14
+(anonymous) @ _app-273ebf2f9c71f0fe.js:25
+e @ _app-273ebf2f9c71f0fe.js:14
+t.subscribe @ _app-273ebf2f9c71f0fe.js:14
+e.try @ _app-273ebf2f9c71f0fe.js:25
+e.start @ _app-273ebf2f9c71f0fe.js:25
+t.request @ _app-273ebf2f9c71f0fe.js:25
+(anonymous) @ _app-273ebf2f9c71f0fe.js:14
+(anonymous) @ _app-273ebf2f9c71f0fe.js:14
+(anonymous) @ _app-273ebf2f9c71f0fe.js:25
+(anonymous) @ _app-273ebf2f9c71f0fe.js:14
+e.execute @ _app-273ebf2f9c71f0fe.js:14
+e.getObservableFromLink @ _app-273ebf2f9c71f0fe.js:11
+(anonymous) @ _app-273ebf2f9c71f0fe.js:11
+(anonymous) @ _app-273ebf2f9c71f0fe.js:11
+(anonymous) @ _app-273ebf2f9c71f0fe.js:11
+(anonymous) @ _app-273ebf2f9c71f0fe.js:11
+s @ _app-273ebf2f9c71f0fe.js:11
+e.mutate @ _app-273ebf2f9c71f0fe.js:11
+e.mutate @ _app-273ebf2f9c71f0fe.js:11
+(anonymous) @ _app-273ebf2f9c71f0fe.js:14
+e.wait @ 1965-1620f2ecf395a424.js:1
+u @ 8830-1f9180136747feb3.js:1
+(anonymous) @ 8830-1f9180136747feb3.js:1
+n @ _app-273ebf2f9c71f0fe.js:38
+eruda.js:2 SSELFIE Studio: Service Worker registered ServiceWorkerRegistration {installing: null, waiting: null, active: ServiceWorker, navigationPreload: NavigationPreloadManager, scope: 'https://e33979fc-c9be-4f0d-9a7b-6a3e83046828-00-3ij9k7qy14rai.picard.replit.dev/', …}
+eruda.js:2 SSELFIE Studio: App rendering...
+eruda.js:2 🔍 useAuth final state: {isAuthenticated: false, actuallyLoading: true, hasUser: false, userId: undefined, rawLoading: true, …}
+eruda.js:2 🔍 Auth check: Making request to /api/auth/user
+eruda.js:2 ProtectedRoute state: {isAuthenticated: false, isLoading: true, hasUser: false}
+eruda.js:2 SSELFIE Studio: App initializing...
+eruda.js:2 SSELFIE Studio: Domain access validated, app ready
+Unrecognized feature: 'ambient-light-sensor'.
+Unrecognized feature: 'ambient-light-sensor'.
+Unrecognized feature: 'ambient-light-sensor'.
+Unrecognized feature: 'ambient-light-sensor'.
+Unrecognized feature: 'ambient-light-sensor'.
+Unrecognized feature: 'battery'.
+Unrecognized feature: 'battery'.
+Unrecognized feature: 'battery'.
+Unrecognized feature: 'battery'.
+Unrecognized feature: 'battery'.
+Unrecognized feature: 'execution-while-not-rendered'.
+Unrecognized feature: 'execution-while-not-rendered'.
+Unrecognized feature: 'execution-while-not-rendered'.
+Unrecognized feature: 'execution-while-not-rendered'.
+Unrecognized feature: 'execution-while-not-rendered'.
+Unrecognized feature: 'execution-while-out-of-viewport'.
+Unrecognized feature: 'execution-while-out-of-viewport'.
+Unrecognized feature: 'execution-while-out-of-viewport'.
+Unrecognized feature: 'execution-while-out-of-viewport'.
+Unrecognized feature: 'execution-while-out-of-viewport'.
+Unrecognized feature: 'layout-animations'.
+Unrecognized feature: 'layout-animations'.
+Unrecognized feature: 'layout-animations'.
+Unrecognized feature: 'layout-animations'.
+Unrecognized feature: 'layout-animations'.
+Unrecognized feature: 'legacy-image-formats'.
+Unrecognized feature: 'legacy-image-formats'.
+Unrecognized feature: 'legacy-image-formats'.
+Unrecognized feature: 'legacy-image-formats'.
+Unrecognized feature: 'legacy-image-formats'.
+Unrecognized feature: 'navigation-override'.
+Unrecognized feature: 'navigation-override'.
+Unrecognized feature: 'navigation-override'.
+Unrecognized feature: 'navigation-override'.
+Unrecognized feature: 'navigation-override'.
+Unrecognized feature: 'oversized-images'.
+Unrecognized feature: 'oversized-images'.
+Unrecognized feature: 'oversized-images'.
+Unrecognized feature: 'oversized-images'.
+Unrecognized feature: 'oversized-images'.
+Unrecognized feature: 'publickey-credentials'.
+Unrecognized feature: 'publickey-credentials'.
+Unrecognized feature: 'publickey-credentials'.
+Unrecognized feature: 'publickey-credentials'.
+Unrecognized feature: 'publickey-credentials'.
+Unrecognized feature: 'speaker-selection'.
+Unrecognized feature: 'speaker-selection'.
+Unrecognized feature: 'speaker-selection'.
+Unrecognized feature: 'speaker-selection'.
+Unrecognized feature: 'speaker-selection'.
+Unrecognized feature: 'unoptimized-images'.
+Unrecognized feature: 'unoptimized-images'.
+Unrecognized feature: 'unoptimized-images'.
+Unrecognized feature: 'unoptimized-images'.
+Unrecognized feature: 'unoptimized-images'.
+Unrecognized feature: 'unsized-media'.
+Unrecognized feature: 'unsized-media'.
+Unrecognized feature: 'unsized-media'.
+Unrecognized feature: 'unsized-media'.
+Unrecognized feature: 'unsized-media'.
+Allow attribute will take precedence over 'allowfullscreen'.
+Allow attribute will take precedence over 'allowfullscreen'.
+Allow attribute will take precedence over 'allowfullscreen'.
+Allow attribute will take precedence over 'allowfullscreen'.
+Allow attribute will take precedence over 'allowfullscreen'.
+Allow attribute will take precedence over 'allowpaymentrequest'.
+Allow attribute will take precedence over 'allowpaymentrequest'.
+Allow attribute will take precedence over 'allowpaymentrequest'.
+Allow attribute will take precedence over 'allowpaymentrequest'.
+Allow attribute will take precedence over 'allowpaymentrequest'.
+1965-1620f2ecf395a424.js:1 Unrecognized feature: 'pointer-lock'.
+(anonymous) @ 1965-1620f2ecf395a424.js:1
+(anonymous) @ main-4febe28657eec7c3.js:1
+n @ main-4febe28657eec7c3.js:1
+u @ main-4febe28657eec7c3.js:1
+(anonymous) @ main-4febe28657eec7c3.js:1
+(anonymous) @ main-4febe28657eec7c3.js:1
+(anonymous) @ 1965-1620f2ecf395a424.js:1
+(anonymous) @ 1965-1620f2ecf395a424.js:1
+(anonymous) @ main-4febe28657eec7c3.js:1
+n @ main-4febe28657eec7c3.js:1
+u @ main-4febe28657eec7c3.js:1
+(anonymous) @ main-4febe28657eec7c3.js:1
+(anonymous) @ main-4febe28657eec7c3.js:1
+(anonymous) @ 1965-1620f2ecf395a424.js:1
+navigateTo @ 1965-1620f2ecf395a424.js:1
+navigate @ 1965-1620f2ecf395a424.js:1
+back @ 1965-1620f2ecf395a424.js:1
+(anonymous) @ 1965-1620f2ecf395a424.js:1
+(anonymous) @ _app-273ebf2f9c71f0fe.js:11
+(anonymous) @ _app-273ebf2f9c71f0fe.js:6
+onClick @ _app-273ebf2f9c71f0fe.js:11
+(anonymous) @ _app-273ebf2f9c71f0fe.js:1
+eB @ framework-af0204fa086793af.js:1
+eH @ framework-af0204fa086793af.js:1
+(anonymous) @ framework-af0204fa086793af.js:1
+re @ framework-af0204fa086793af.js:1
+rt @ framework-af0204fa086793af.js:1
+(anonymous) @ framework-af0204fa086793af.js:1
+uT @ framework-af0204fa086793af.js:1
+eM @ framework-af0204fa086793af.js:1
+ru @ framework-af0204fa086793af.js:1
+tB @ framework-af0204fa086793af.js:1
+tD @ framework-af0204fa086793af.js:1
+n @ _app-273ebf2f9c71f0fe.js:38
+eruda.js:2 🔍 Auth check: Response status: 200
+eruda.js:2 ✅ Auth check: User authenticated: ssa@ssasocial.com
+eruda.js:2 🔍 useAuth final state: {isAuthenticated: true, actuallyLoading: false, hasUser: true, userId: '42585527', rawLoading: false, …}
+eruda.js:2 🔍 useAuth final state: {isAuthenticated: true, actuallyLoading: false, hasUser: true, userId: '42585527', rawLoading: false, …}
+eruda.js:2 Admin Dashboard - Agents data: {agents: Array(0), agentsLoading: true, agentsError: null, agentsCount: 0, isAuthenticated: true, …}
+eruda.js:2 ProtectedRoute state: {isAuthenticated: true, isLoading: false, hasUser: true}
+Error while parsing the 'sandbox' attribute: 'allow-downloads-without-user-activation' is an invalid sandbox flag.
+Error while parsing the 'sandbox' attribute: 'allow-downloads-without-user-activation' is an invalid sandbox flag.
+Error while parsing the 'sandbox' attribute: 'allow-downloads-without-user-activation' is an invalid sandbox flag.
+Error while parsing the 'sandbox' attribute: 'allow-downloads-without-user-activation' is an invalid sandbox flag.
+Error while parsing the 'sandbox' attribute: 'allow-downloads-without-user-activation' is an invalid sandbox flag.
+Error while parsing the 'sandbox' attribute: 'allow-downloads-without-user-activation' is an invalid sandbox flag.
+Error while parsing the 'sandbox' attribute: 'allow-downloads-without-user-activation' is an invalid sandbox flag.
+Error while parsing the 'sandbox' attribute: 'allow-downloads-without-user-activation' is an invalid sandbox flag.
+workspace_iframe.html:32 Error while parsing the 'sandbox' attribute: 'allow-downloads-without-user-activation' is an invalid sandbox flag.
+framework-af0204fa086793af.js:1 Error while parsing the 'sandbox' attribute: 'allow-downloads-without-user-activation' is an invalid sandbox flag.
+_ @ framework-af0204fa086793af.js:1
+(anonymous) @ framework-af0204fa086793af.js:1
+uD @ framework-af0204fa086793af.js:1
+uI @ framework-af0204fa086793af.js:1
+uM @ framework-af0204fa086793af.js:1
+uS @ framework-af0204fa086793af.js:1
+C @ framework-af0204fa086793af.js:1
+z @ framework-af0204fa086793af.js:1
+e33979fc-c9be-4f0d-9a7b-6a3e83046828-00-3ij9k7qy14rai.picard.replit.dev/__replco/workspace_iframe.html?initialPath=%2Fadmin&id=%3Argo0%3A:32 Error while parsing the 'sandbox' attribute: 'allow-downloads-without-user-activation' is an invalid sandbox flag.
+workspace_iframe.html:32 Error while parsing the 'sandbox' attribute: 'allow-downloads-without-user-activation' is an invalid sandbox flag.
+framework-af0204fa086793af.js:1 Error while parsing the 'sandbox' attribute: 'allow-downloads-without-user-activation' is an invalid sandbox flag.
+_ @ framework-af0204fa086793af.js:1
+(anonymous) @ framework-af0204fa086793af.js:1
+uD @ framework-af0204fa086793af.js:1
+uI @ framework-af0204fa086793af.js:1
+uM @ framework-af0204fa086793af.js:1
+uS @ framework-af0204fa086793af.js:1
+C @ framework-af0204fa086793af.js:1
+z @ framework-af0204fa086793af.js:1
+e33979fc-c9be-4f0d-9a7b-6a3e83046828-00-3ij9k7qy14rai.picard.replit.dev/__replco/workspace_iframe.html?initialPath=%2Fadmin&id=%3Argo0%3A:32 Error while parsing the 'sandbox' attribute: 'allow-downloads-without-user-activation' is an invalid sandbox flag.
+e33979fc-c9be-4f0d-9a7b-6a3e83046828-00-3ij9k7qy14rai.picard.replit.dev/__replco/workspace_iframe.html?initialPath=%2F&id=%3Args5%3A:32 Error while parsing the 'sandbox' attribute: 'allow-downloads-without-user-activation' is an invalid sandbox flag.
+workspace_iframe.html:32 Error while parsing the 'sandbox' attribute: 'allow-downloads-without-user-activation' is an invalid sandbox flag.
+eruda.js:2 SSELFIE Studio: Service Worker registered ServiceWorkerRegistration {installing: null, waiting: null, active: ServiceWorker, navigationPreload: NavigationPreloadManager, scope: 'https://e33979fc-c9be-4f0d-9a7b-6a3e83046828-00-3ij9k7qy14rai.picard.replit.dev/', …}
+eruda.js:2 SSELFIE Studio: App rendering...
+eruda.js:2 🔍 useAuth final state: {isAuthenticated: false, actuallyLoading: true, hasUser: false, userId: undefined, rawLoading: true, …}
+eruda.js:2 🔍 Auth check: Making request to /api/auth/user
+eruda.js:2 ProtectedRoute state: {isAuthenticated: false, isLoading: true, hasUser: false}
+eruda.js:2 SSELFIE Studio: App initializing...
+eruda.js:2 SSELFIE Studio: Domain access validated, app ready
+eruda.js:2 🔍 Auth check: Response status: 200
+eruda.js:2 ✅ Auth check: User authenticated: ssa@ssasocial.com
+eruda.js:2 🔍 useAuth final state: {isAuthenticated: true, actuallyLoading: false, hasUser: true, userId: '42585527', rawLoading: false, …}
+eruda.js:2 🔍 useAuth final state: {isAuthenticated: true, actuallyLoading: false, hasUser: true, userId: '42585527', rawLoading: false, …}
+eruda.js:2 Admin Dashboard - Agents data: {agents: Array(0), agentsLoading: true, agentsError: null, agentsCount: 0, isAuthenticated: true, …}
+eruda.js:2 ProtectedRoute state: {isAuthenticated: true, isLoading: false, hasUser: true}
+eruda.js:2 🔍 useAuth final state: {isAuthenticated: true, actuallyLoading: false, hasUser: true, userId: '42585527', rawLoading: false, …}
+eruda.js:2 Admin Dashboard - Agents data: {agents: Array(10), agentsLoading: false, agentsError: null, agentsCount: 10, isAuthenticated: true, …}
+eruda.js:2 DevPreviewModal render: {isOpen: false, previewData: {…}}
+eruda.js:2 DevPreviewModal render: {isOpen: false, previewData: {…}}
+eruda.js:2 DevPreviewModal render: {isOpen: false, previewData: {…}}
+eruda.js:2 DevPreviewModal render: {isOpen: false, previewData: {…}}
+eruda.js:2 DevPreviewModal render: {isOpen: false, previewData: {…}}
+eruda.js:2 DevPreviewModal render: {isOpen: false, previewData: {…}}
+eruda.js:2 DevPreviewModal render: {isOpen: false, previewData: {…}}
+eruda.js:2 DevPreviewModal render: {isOpen: false, previewData: {…}}
+eruda.js:2 DevPreviewModal render: {isOpen: false, previewData: {…}}
+eruda.js:2 DevPreviewModal render: {isOpen: false, previewData: {…}}
+eruda.js:2 DevPreviewModal render: {isOpen: false, previewData: {…}}
+eruda.js:2 🔍 useAuth final state: {isAuthenticated: true, actuallyLoading: false, hasUser: true, userId: '42585527', rawLoading: false, …}
+eruda.js:2 Admin Dashboard - Agents data: {agents: Array(10), agentsLoading: false, agentsError: null, agentsCount: 10, isAuthenticated: true, …}
+eruda.js:2 DevPreviewModal render: {isOpen: false, previewData: {…}}
+eruda.js:2 DevPreviewModal render: {isOpen: false, previewData: {…}}
+eruda.js:2 DevPreviewModal render: {isOpen: false, previewData: {…}}
+eruda.js:2 DevPreviewModal render: {isOpen: false, previewData: {…}}
+eruda.js:2 DevPreviewModal render: {isOpen: false, previewData: {…}}
+eruda.js:2 DevPreviewModal render: {isOpen: false, previewData: {…}}
+eruda.js:2 DevPreviewModal render: {isOpen: false, previewData: {…}}
+eruda.js:2 DevPreviewModal render: {isOpen: false, previewData: {…}}
+eruda.js:2 DevPreviewModal render: {isOpen: false, previewData: {…}}
+eruda.js:2 DevPreviewModal render: {isOpen: false, previewData: {…}}
+eruda.js:2 [vite] server connection lost. Polling for restart...
+eruda.js:2 SSELFIE Studio: Service Worker registered ServiceWorkerRegistration {installing: null, waiting: null, active: ServiceWorker, navigationPreload: NavigationPreloadManager, scope: 'https://e33979fc-c9be-4f0d-9a7b-6a3e83046828-00-3ij9k7qy14rai.picard.replit.dev/', …}
+eruda.js:2 SSELFIE Studio: App rendering...
+eruda.js:2 SSELFIE Studio: App initializing...
+eruda.js:2 SSELFIE Studio: Domain access validated, app ready
+eruda.js:2 [vite] server connection lost. Polling for restart...
+Console.js:61 SSELFIE Studio: Service Worker registered ServiceWorkerRegistration {installing: null, waiting: null, active: ServiceWorker, navigationPreload: NavigationPreloadManager, scope: 'https://e33979fc-c9be-4f0d-9a7b-6a3e83046828-00-3ij9k7qy14rai.picard.replit.dev/', …}
+Console.js:61 SSELFIE Studio: App rendering...
+Console.js:61 SSELFIE Studio: App initializing...
+Console.js:61 SSELFIE Studio: Domain access validated, app ready
