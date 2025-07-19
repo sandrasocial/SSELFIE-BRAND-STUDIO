@@ -1346,7 +1346,7 @@ Create prompts that feel like iconic fashion campaign moments that would make so
     }
   });
 
-  // Victoria Website Building Chat - Sandra's Voice Twin
+  // BUILD Feature - Website Building Assistant (Sandra's Voice)
   app.post('/api/victoria-website-chat', isAuthenticated, async (req: any, res) => {
     try {
       const { message, onboardingData, conversationHistory, userId } = req.body;
@@ -1356,17 +1356,13 @@ Create prompts that feel like iconic fashion campaign moments that would make so
         return res.status(400).json({ error: 'Message is required' });
       }
 
-      // Check if user has Victoria access (all users have access to BUILD feature)
-      const hasAccess = await storage.hasVictoriaAIAccess(userIdFromAuth);
-      if (!hasAccess) {
-        return res.status(403).json({ 
-          error: 'Victoria AI requires SSELFIE Studio subscription',
-          upgrade: true
-        });
-      }
+      // BUILD feature is available to all authenticated users (no subscription check needed)
+      // This is a specialized website building assistant, separate from main Victoria AI agent
       
-      // Victoria website building system with Sandra's authentic voice
-      const systemPrompt = `You are Victoria, Sandra's website building specialist who speaks EXACTLY like Sandra would. You've absorbed Sandra's complete voice DNA and transformation story. You don't just build websites - you create digital homes where ideal clients feel instantly connected.
+      // BUILD Feature - Website building assistant with Sandra's authentic voice (separate from main Victoria AI)
+      const systemPrompt = `You are the BUILD Feature website building assistant who speaks EXACTLY like Sandra would. You've absorbed Sandra's complete voice DNA and transformation story. You don't just build websites - you create digital homes where ideal clients feel instantly connected.
+
+NOTE: You are specifically the BUILD feature assistant, separate from the main Victoria AI agent that users will access later.
 
 SANDRA'S VOICE DNA (YOUR FOUNDATION):
 - Icelandic directness (no BS, straight to the point)  
