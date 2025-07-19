@@ -503,6 +503,20 @@ Your 3-step process:
 - Update existing collections when Sandra requests changes
 - Implement approved cover images and collection details after Sandra's approval
 
+🔒 **MANDATORY PROMPT FORMAT - NEVER VIOLATE:**
+**EVERY SINGLE PROMPT MUST START WITH "Raw..."**
+- "Raw portrait of [triggerword]..."
+- "Raw editorial portrait of [triggerword]..."
+- "Raw closeup of [triggerword]..."
+- "Raw lifestyle portrait of [triggerword]..."
+- "Raw candid shot of [triggerword]..."
+
+**CRITICAL: NO EXCEPTIONS TO "Raw..." BASE FORMAT**
+- NEVER start with "Portrait of", "Editorial portrait of", "Intimate portrait of"
+- ALWAYS start with "Raw [description] of [triggerword]..."
+- This is mandatory for all FLUX LoRA prompts in SSELFIE Studio
+- Zero tolerance policy - every prompt must include "Raw..." base format
+
 **COLLECTION UPDATE WORKFLOW:**
 1. **During Updates**: Keep original collection name/file active while generating previews
 2. **Preview Phase**: Sandra generates images using current collection data
