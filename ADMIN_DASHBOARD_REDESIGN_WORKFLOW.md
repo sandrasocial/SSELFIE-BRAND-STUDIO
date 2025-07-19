@@ -5,7 +5,7 @@ Complete redesign and restructure of the admin dashboard using Aria (UX Designer
 
 ## Design Requirements (Updated in Aria's Personality)
 
-### ✅ MANDATORY DESIGN PATTERNS FOR ALL ADMIN PAGES:
+### ✅ MANDATORY DESIGN PATTERNS FOR ALL PAGES (UNIVERSAL REQUIREMENTS):
 
 1. **NAVIGATION SYSTEM (REQUIRED ON EVERY PAGE):**
    - Use same style as global navigation menu from landing page
