@@ -1413,39 +1413,30 @@ export function OptimizedVisualEditor({ className = '' }: OptimizedVisualEditorP
           </div>
         </div>
 
-            {/* Live Development Preview */}
+            {/* Universal Live Preview - Works in all environments */}
             <div className="flex-1 relative">
-              {/* Live Development Preview */}
-              {(() => {
-                // Show iframe for both development and deployed environment
-                // Only avoid iframe when it would actually cause cross-origin issues
-                const currentOrigin = window.location.origin;
-                const previewUrl = window.location.hostname === 'localhost' ? 'http://localhost:5000' : currentOrigin;
-                
-                return (
-                  <iframe
-                    id="live-preview-iframe"
-                    ref={iframeRef}
-                    src={previewUrl}
-                    className="w-full h-full border-0"
-                    title="Live Preview"
-                    onLoad={() => {
-                      console.log('Live preview loaded successfully');
-                      // Expose refresh function globally for auto-refresh
-                      (window as any).refreshLivePreview = () => {
-                        if (iframeRef.current) {
-                          const currentSrc = iframeRef.current.src.split('?')[0];
-                          iframeRef.current.src = currentSrc + '?refresh=' + Date.now();
-                          console.log('🔄 Live preview auto-refreshed');
-                        }
-                      };
-                    }}
-                    onError={(e) => {
-                      console.error('Live preview failed to load:', e);
-                    }}
-                  />
-                );
-              })()}
+              <iframe
+                id="live-preview-iframe"
+                ref={iframeRef}
+                src={window.location.origin}
+                className="w-full h-full border-0"
+                title="Live Preview"
+                sandbox="allow-same-origin allow-scripts allow-forms allow-top-navigation"
+                onLoad={() => {
+                  console.log('Live preview loaded successfully');
+                  // Expose refresh function globally for auto-refresh
+                  (window as any).refreshLivePreview = () => {
+                    if (iframeRef.current) {
+                      const currentSrc = iframeRef.current.src.split('?')[0];
+                      iframeRef.current.src = currentSrc + '?refresh=' + Date.now();
+                      console.log('🔄 Live preview auto-refreshed');
+                    }
+                  };
+                }}
+                onError={(e) => {
+                  console.error('Live preview error:', e);
+                }}
+              />
             </div>
           </div>
         </Panel>

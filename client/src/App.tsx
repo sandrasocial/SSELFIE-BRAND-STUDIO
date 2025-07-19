@@ -112,7 +112,8 @@ function ProtectedRoute({ component: Component, ...props }) {
   // FIXED: Move useEffect outside conditional to follow Rules of Hooks
   useEffect(() => {
     if (!isLoading && !isAuthenticated) {
-      setLocation("/login");
+      // Use proper authentication flow instead of broken login route
+      window.location.href = '/api/login';
     }
   }, [isLoading, isAuthenticated, setLocation]);
   
@@ -230,7 +231,7 @@ function Router() {
       
       {/* SANDRA'S ADMIN DASHBOARD */}
       <Route path="/admin" component={(props) => <ProtectedRoute component={AdminDashboard} {...props} />} />
-      <Route path="/admin/visual-editor" component={AdminVisualEditor} />
+      <Route path="/admin/visual-editor" component={(props) => <ProtectedRoute component={AdminVisualEditor} {...props} />} />
       <Route path="/visual-editor" component={(props) => <ProtectedRoute component={AdminVisualEditor} {...props} />} />
       <Route path="/admin-access-only" component={AdminAccessOnly} />
       <Route path="/sandra-admin" component={(props) => <ProtectedRoute component={AdminDashboard} {...props} />} />
