@@ -48,8 +48,14 @@ const AgentDashboard: React.FC = () => {
   };
 
   const handleQuickChat = (agentId: string) => {
-    setSelectedAgent(agentId);
-    // This will open a quick chat modal (to be implemented)
+    // Scroll to the quick chat interface in the admin dashboard
+    const element = document.getElementById(`agent-chat-${agentId}`);
+    if (element) {
+      element.scrollIntoView({ behavior: 'smooth' });
+    } else {
+      // Fallback: navigate to visual editor if quick chat not found
+      setLocation(`/visual-editor?agent=${agentId}`);
+    }
   };
 
   if (agentsLoading) {
