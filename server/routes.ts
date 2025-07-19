@@ -3592,6 +3592,11 @@ AGENT_CONTEXT:
 
   // Import and register enterprise routes
   const { registerEnterpriseRoutes } = await import('./routes/enterprise-routes');
+  
+  // Enhanced Agent Capabilities routes for Replit parity
+  const { agentEnhancementRoutes } = await import('./routes/agent-enhancement-routes.js');
+  app.use('/api/agent-enhancements', agentEnhancementRoutes);
+  console.log('✅ Enhanced Agent Capabilities routes registered');
   await registerEnterpriseRoutes(app);
 
   // Chat Management API Routes
