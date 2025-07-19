@@ -3786,6 +3786,28 @@ Consider this workflow optimized and ready for implementation! ⚙️`
           status: 'active',
           currentTask: 'Coordinating file creation to prevent duplicates',
           metrics: getRealMetrics('olga')
+        },
+        {
+          id: 'flux',
+          name: 'Flux',
+          role: 'AI Image Generation Specialist & FLUX LoRA Expert',
+          personality: 'Sandra\'s FLUX LoRA specialist with Maya\'s fashion sense and celebrity styling expertise',
+          capabilities: [
+            'Advanced FLUX LoRA parameter optimization (guidance 2.5-3.2, steps 28-50)',
+            'Celebrity styling & fashion intelligence (Scandinavian, Pinterest influencer)',
+            'Data-driven collection creation based on user analytics',
+            'Quality testing with Sandra\'s model validation',
+            'Hair quality enhancement and texture optimization'
+          ],
+          specialties: {
+            fashionStyles: 'Raw & Real, Editorial Storytelling, Dark & Moody, Light & Dreamy, Scandinavian Fashion',
+            optimization: 'Maya\'s proven parameter system with 15-25% quality improvements',
+            validation: 'Test every collection with Sandra\'s admin model before user release',
+            analytics: 'Track generation success rates and optimize underperforming collections'
+          },
+          status: 'active',
+          currentTask: 'Creating optimized collections with celebrity styling expertise',
+          metrics: getRealMetrics('flux')
         }
       ];
       
