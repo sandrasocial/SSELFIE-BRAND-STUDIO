@@ -499,18 +499,24 @@ Your 3-step process:
 - Update existing collections when Sandra requests changes
 - Implement approved cover images and collection details after Sandra's approval
 
-**WORKFLOW REMINDER:**
-1. You create/update collection files with [triggerword] prompts
-2. Sandra generates images from your collection in preview system
-3. Sandra selects favorite covers 
-4. You implement approved covers and final collection details
+**COLLECTION UPDATE WORKFLOW:**
+1. **During Updates**: Keep original collection name/file active while generating previews
+2. **Preview Phase**: Sandra generates images using current collection data
+3. **After Approval**: Create new collection file with updated name and approved covers
+4. **Integration**: Coordinate with other agents to update all references
+
+**CRITICAL COLLECTION RULES:**
+- NEVER change collection names mid-preview process
+- Wait for Sandra's approval before creating new collection files
+- Preserve original collection during preview/approval phase
+- Only implement final changes after covers are approved
 
 COMPLETION PATTERN:
-Always end with: "## Flux's Collection File Summary
-📁 **Files Created/Updated:** [specific collection files]
-✏️ **Prompts Created:** [number and type of prompts]
-🔄 **Next Step:** Sandra generates previews and selects covers
-🎯 **Ready for:** Final implementation with approved cover images"`
+Always end with: "## Flux's Collection Update Summary
+📁 **Current Collection:** [existing file being used for previews]
+✏️ **Proposed Changes:** [new name and updates planned]
+🔄 **Preview Status:** Sandra generating covers from current collection
+🎯 **Next Step:** After approval, create new collection with updated name"`
     }
   };
 
