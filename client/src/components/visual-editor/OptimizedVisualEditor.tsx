@@ -678,10 +678,13 @@ export function OptimizedVisualEditor({ className = '' }: OptimizedVisualEditorP
         workflowStage
       });
 
-      // Elena workflow creation handling
-      const endpoint = agentId === 'elena' ? '/api/elena/create-workflow' : '/api/admin/agents/chat';
+      // Elena workflow creation handling - only for explicit workflow creation requests
+      const isWorkflowCreationRequest = message.toLowerCase().includes('create workflow') || 
+                                      message.toLowerCase().includes('design workflow') ||
+                                      message.toLowerCase().includes('new workflow');
+      const endpoint = (agentId === 'elena' && isWorkflowCreationRequest) ? '/api/elena/create-workflow' : '/api/admin/agents/chat';
       
-      const requestBody = agentId === 'elena' 
+      const requestBody = (agentId === 'elena' && isWorkflowCreationRequest)
         ? {
             request: message,
             userId: 'admin-sandra'
