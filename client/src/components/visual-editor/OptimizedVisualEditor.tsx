@@ -256,10 +256,8 @@ export function OptimizedVisualEditor({ className = '' }: OptimizedVisualEditorP
     const agentParam = new URLSearchParams(window.location.search).get('agent');
     return agentParam ? 'agent' : 'chat';
   });
-  const [chatMessages, setChatMessages] = useState<ChatMessage[]>(() => {
-    // Load conversation history from database instead of localStorage
-    return [];
-  });
+  const [chatMessages, setChatMessages] = useState<ChatMessage[]>([]);
+  const [isLoadingHistory, setIsLoadingHistory] = useState(false);
   const [messageInput, setMessageInput] = useState('');
   const [selectedTextColor, setSelectedTextColor] = useState('#000000');
   const [selectedFontSize, setSelectedFontSize] = useState(16);
@@ -286,7 +284,6 @@ export function OptimizedVisualEditor({ className = '' }: OptimizedVisualEditorP
   const [workflowActive, setWorkflowActive] = useState(false);
   const [workflowStage, setWorkflowStage] = useState('Design');
   const [activeWorkingAgent, setActiveWorkingAgent] = useState<string | null>(null);
-  const [isLoadingHistory, setIsLoadingHistory] = useState(false);
   const iframeRef = useRef<HTMLIFrameElement>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const chatPanelRef = useRef<HTMLDivElement>(null);
