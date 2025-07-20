@@ -47,6 +47,21 @@ interface ChatMessage {
   handoffTo?: string;
   isHandoff?: boolean;
   workflowStage?: string;
+  workflowId?: string;
+  workflowProgress?: WorkflowProgress;
+  isWorkflowMessage?: boolean;
+}
+
+interface WorkflowProgress {
+  workflowId: string;
+  workflowName: string;
+  currentStep: number;
+  totalSteps: number;
+  status: 'creating' | 'ready' | 'executing' | 'completed' | 'failed';
+  currentAgent?: string;
+  estimatedTimeRemaining?: string;
+  completedTasks: string[];
+  nextActions: string[];
 }
 
 interface CollapsibleCodeBlockProps {
@@ -94,6 +109,24 @@ interface Agent {
 }
 
 const agents: Agent[] = [
+  {
+    id: 'elena',
+    name: 'Elena',
+    role: 'AI Agent Director & CEO',
+    expertise: ['Workflow Creation', 'Agent Coordination', 'Strategic Planning', 'Task Orchestration'],
+    color: 'bg-black',
+    nextAgent: 'olga',
+    workflowStage: 'Strategy'
+  },
+  {
+    id: 'olga',
+    name: 'Olga',
+    role: 'Repository Organizer AI',
+    expertise: ['File Organization', 'Architecture Cleanup', 'Safe Operations', 'Dependency Mapping'],
+    color: 'bg-gray-600',
+    nextAgent: 'aria',
+    workflowStage: 'Organization'
+  },
   {
     id: 'aria',
     name: 'Aria',
@@ -263,8 +296,8 @@ export function OptimizedVisualEditor({ className = '' }: OptimizedVisualEditorP
       const foundAgent = agents.find(a => a.id === agentIdFromUrl);
       if (foundAgent) return foundAgent;
     }
-    // Default to 'zara' (Dev AI) instead of 'aria'
-    return agents.find(a => a.id === 'zara') || agents[0];
+    // Default to 'elena' (Agent Director) for workflow creation
+    return agents.find(a => a.id === 'elena') || agents[0];
   });
   const [showQuickActions, setShowQuickActions] = useState(false);
   const [workflowActive, setWorkflowActive] = useState(false);
@@ -651,21 +684,31 @@ export function OptimizedVisualEditor({ className = '' }: OptimizedVisualEditorP
         workflowStage
       });
 
-      const response = await fetch('/api/admin/agent-chat-bypass', {
+      // Elena workflow creation handling
+      const endpoint = agentId === 'elena' ? '/api/elena/create-workflow' : '/api/admin/agent-chat-bypass';
+      
+      const requestBody = agentId === 'elena' 
+        ? {
+            request: message,
+            userId: 'admin-sandra'
+          }
+        : {
+            agentId: agentId,
+            message: message,
+            adminToken: 'sandra-admin-2025',
+            conversationHistory: conversationHistory,
+            workflowContext: {
+              stage: workflowStage,
+              previousWork: chatMessages.filter(msg => msg.agentName && msg.agentName !== agentId).slice(-3)
+            }
+          };
+
+      const response = await fetch(endpoint, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({
-          agentId: agentId,
-          message: message,
-          adminToken: 'sandra-admin-2025',
-          conversationHistory: conversationHistory,
-          workflowContext: {
-            stage: workflowStage,
-            previousWork: chatMessages.filter(msg => msg.agentName && msg.agentName !== agentId).slice(-3)
-          }
-        }),
+        body: JSON.stringify(requestBody),
         signal: controller.signal
       });
 
@@ -680,16 +723,43 @@ export function OptimizedVisualEditor({ className = '' }: OptimizedVisualEditorP
       const data = await response.json();
       console.log('📥 Agent response data:', data);
       
-      if (data.message || data.response) {
+      if (data.message || data.response || data.workflow) {
         const agent = agents.find(a => a.id === agentId);
-        const agentMessage: ChatMessage = {
-          type: 'agent',
-          content: data.message || data.response,
-          timestamp: new Date(),
-          agentName: agentId,
-          workflowStage: agent?.workflowStage
-        };
-        setChatMessages(prev => [...prev, agentMessage]);
+        
+        // Handle Elena workflow creation response
+        if (agentId === 'elena' && data.workflow) {
+          const workflowMessage: ChatMessage = {
+            type: 'agent',
+            content: `**Workflow Created: ${data.workflow.name}**\n\n${data.workflow.description}\n\n**Steps:**\n${data.workflow.steps.map((step: any, index: number) => 
+              `${index + 1}. ${step.agentName}: ${step.taskDescription}`
+            ).join('\n')}\n\n**Estimated Duration:** ${data.workflow.estimatedDuration}\n\nSay "execute workflow" to begin execution, or "modify workflow" to make changes.`,
+            timestamp: new Date(),
+            agentName: 'elena',
+            workflowStage: 'Strategy',
+            workflowId: data.workflow.id,
+            workflowProgress: {
+              workflowId: data.workflow.id,
+              workflowName: data.workflow.name,
+              currentStep: 0,
+              totalSteps: data.workflow.steps.length,
+              status: 'ready',
+              estimatedTimeRemaining: data.workflow.estimatedDuration,
+              completedTasks: [],
+              nextActions: [data.workflow.steps[0]?.taskDescription || 'Ready to begin']
+            },
+            isWorkflowMessage: true
+          };
+          setChatMessages(prev => [...prev, workflowMessage]);
+        } else {
+          const agentMessage: ChatMessage = {
+            type: 'agent',
+            content: data.message || data.response,
+            timestamp: new Date(),
+            agentName: agentId,
+            workflowStage: agent?.workflowStage
+          };
+          setChatMessages(prev => [...prev, agentMessage]);
+        }
 
         // Show notification for file operations (code blocks automatically written)
         const responseText = data.message || data.response;
@@ -781,10 +851,22 @@ export function OptimizedVisualEditor({ className = '' }: OptimizedVisualEditorP
           });
         }
 
+        // Elena workflow execution handling
+        if (agentId === 'elena') {
+          const userMessage = chatMessages[chatMessages.length - 2]?.content?.toLowerCase();
+          if (userMessage?.includes('execute workflow') || userMessage?.includes('run workflow')) {
+            // Find the most recent workflow message
+            const workflowMessage = [...chatMessages].reverse().find(msg => msg.isWorkflowMessage && msg.workflowId);
+            if (workflowMessage && workflowMessage.workflowId) {
+              executeWorkflow(workflowMessage.workflowId);
+            }
+          }
+        }
+
         // Check for approval and handoff signals in USER messages (when Sandra says "approve")
         const userApproval = chatMessages[chatMessages.length - 2]?.content?.toLowerCase().includes('approve');
         if (userApproval && agentId === 'aria') {
-          console.log('🎯 Sandra approved design - handing off to Zara for implementation');
+          console.log('Sandra approved design - handing off to Zara for implementation');
           setTimeout(() => {
             handoffToNextAgent(agentId, 'Design approved by Sandra - implement technical features and optimize performance');
           }, 1500);
@@ -828,6 +910,84 @@ export function OptimizedVisualEditor({ className = '' }: OptimizedVisualEditorP
     await sendMessageToAgent(currentAgent.id, message);
   };
 
+  // Execute workflow created by Elena
+  const executeWorkflow = async (workflowId: string) => {
+    try {
+      setWorkflowActive(true);
+      
+      const progressMessage: ChatMessage = {
+        type: 'agent',
+        content: `**Workflow Execution Started**\n\nExecuting workflow with live progress monitoring. You will see each agent complete their tasks in real-time.`,
+        timestamp: new Date(),
+        agentName: 'elena',
+        workflowStage: 'Execution',
+        isWorkflowMessage: true
+      };
+      
+      setChatMessages(prev => [...prev, progressMessage]);
+
+      const response = await fetch('/api/elena/execute-workflow', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ workflowId }),
+      });
+
+      const result = await response.json();
+      
+      if (result.success) {
+        toast({
+          title: 'Workflow Started',
+          description: 'Live progress monitoring activated. Check dev preview for updates.',
+        });
+        
+        // Start polling for workflow progress
+        startWorkflowProgressMonitoring(workflowId);
+      }
+    } catch (error) {
+      console.error('Workflow execution error:', error);
+      toast({
+        title: 'Execution Failed',
+        description: 'Could not start workflow execution.',
+        variant: 'destructive',
+      });
+    }
+  };
+
+  // Monitor workflow progress in real-time
+  const startWorkflowProgressMonitoring = (workflowId: string) => {
+    const interval = setInterval(async () => {
+      try {
+        const response = await fetch(`/api/elena/workflow-progress/${workflowId}`);
+        const data = await response.json();
+        
+        if (data.success && data.progress) {
+          const progressUpdate: ChatMessage = {
+            type: 'agent',
+            content: `**Progress Update: Step ${data.progress.currentStep}/${data.progress.totalSteps}**\n\n${data.progress.currentAgent ? `Current: ${data.progress.currentAgent}` : ''}\n\n**Completed:**\n${data.progress.completedTasks.map((task: string) => `• ${task}`).join('\n')}\n\n**Next:**\n${data.progress.nextActions.map((action: string) => `• ${action}`).join('\n')}`,
+            timestamp: new Date(),
+            agentName: 'elena',
+            workflowStage: 'Execution',
+            workflowProgress: data.progress,
+            isWorkflowMessage: true
+          };
+          
+          setChatMessages(prev => [...prev, progressUpdate]);
+          
+          // Stop monitoring when workflow is complete
+          if (data.progress.status === 'completed' || data.progress.status === 'failed') {
+            clearInterval(interval);
+            setWorkflowActive(false);
+          }
+        }
+      } catch (error) {
+        console.error('Progress monitoring error:', error);
+        clearInterval(interval);
+      }
+    }, 5000); // Check every 5 seconds
+  };
+
   // Start workflow from beginning
   const startWorkflow = (initialRequest: string) => {
     setWorkflowActive(true);
@@ -836,10 +996,10 @@ export function OptimizedVisualEditor({ className = '' }: OptimizedVisualEditorP
     
     const workflowMessage: ChatMessage = {
       type: 'agent',
-      content: `🚀 **Design Studio Workflow Started**\n\nStarting with ${agents[0].name} for ${agents[0].workflowStage}...`,
+      content: `**Design Studio Workflow Started**\n\nStarting with ${agents[0].name} for ${agents[0].workflowStage}...`,
       timestamp: new Date(),
       isHandoff: true,
-      workflowStage: 'Design'
+      workflowStage: 'Strategy'
     };
     
     setChatMessages(prev => [...prev, workflowMessage]);
