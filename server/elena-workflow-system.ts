@@ -473,23 +473,20 @@ export class ElenaWorkflowSystem {
         },
         body: JSON.stringify({
           agentId: agentName.toLowerCase(),
-          message: `🚨 CRITICAL: DIRECT FILE MODIFICATION REQUIRED
+          message: `🚨 ELENA COORDINATION: MODIFY EXISTING FILES ONLY
 
-When working on this task, you MUST modify the ACTUAL file directly, not create separate versions.
+As Elena, I'm coordinating you to work on: ${task}
 
-❌ WRONG: Create "admin-dashboard-redesigned.tsx"
-✅ CORRECT: Modify "admin-dashboard.tsx" directly
+CRITICAL INSTRUCTIONS:
+1. MODIFY the existing admin-dashboard.tsx file directly
+2. DO NOT create any new components or separate files
+3. Update the EXISTING content in client/src/pages/admin-dashboard.tsx
+4. Focus on improving what's already there
 
+TARGET: client/src/pages/admin-dashboard.tsx
 TASK: ${task}
-TARGET FILE: ${targetFile || 'Determine from task context'}
 
-REQUIREMENTS:
-1. Modify the actual file that Sandra is using
-2. Make changes appear immediately in live preview
-3. If creating components, add imports to target file
-4. NO separate redesigned files - work on the real file!
-
-EXECUTE THIS TASK NOW - MODIFY THE ACTUAL FILE!`,
+Elena has already identified the target file. Just improve the existing structure.`,
           adminToken: 'sandra-admin-2025',
           conversationHistory: [],
           workflowContext: {
