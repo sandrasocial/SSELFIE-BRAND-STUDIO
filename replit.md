@@ -687,6 +687,51 @@ Sandra reported: "Elena creates workflows but agents don't start, and server ref
 - Real-time progress tracking shows Sandra exactly what each agent is doing
 - Complete workflow persistence means no more lost work on server refresh
 
+## ✅ AWS S3 PERMISSIONS ISSUE FIXED - TRAINING UPLOADS RESTORED (July 20, 2025)
+
+**CRITICAL S3 PERMISSIONS ISSUE RESOLVED:**
+- ❌ **Previous Issue**: AWS S3 bucket policy only allowed access to `sselfie-training-zips/*` but upload code was using `sselfie-training`
+- ❌ **Upload Failures**: "User is not authorized to perform: s3:GetObject" errors during training image uploads
+- ❌ **ACL Conflicts**: Upload service using `ACL: 'private'` conflicting with public bucket access needed for Replicate
+
+**S3 CONFIGURATION FIXES IMPLEMENTED:**
+- ✅ **Bucket Policy Updated**: Now supports both `sselfie-training` and `sselfie-training-zips` buckets with proper permissions
+- ✅ **Added s3:PutObject**: Training uploads now have proper write permissions alongside read permissions
+- ✅ **Added s3:ListBucket**: Bucket listing permissions for proper S3 operations
+- ✅ **Removed Private ACL**: Upload service no longer sets `ACL: 'private'` - bucket policy handles permissions
+- ✅ **Aligned Bucket Names**: All services now use `AWS_S3_BUCKET` environment variable (`sselfie-training-zips`)
+
+**TECHNICAL FIXES:**
+- Updated bucket-policy.json with comprehensive permissions for both training buckets
+- Fixed bulletproof-upload-service.ts to use correct bucket name and remove conflicting ACL
+- Aligned image-storage-service.ts bucket configuration with environment variable
+- Removed private ACL upload parameter that was blocking Replicate access
+
+**BUCKET POLICY NOW INCLUDES:**
+```json
+{
+  "Version": "2012-10-17",
+  "Statement": [
+    {
+      "Sid": "AllowTrainingImageAccess",
+      "Effect": "Allow", 
+      "Principal": "*",
+      "Action": ["s3:GetObject", "s3:PutObject"],
+      "Resource": ["arn:aws:s3:::sselfie-training/*", "arn:aws:s3:::sselfie-training-zips/*"]
+    },
+    {
+      "Sid": "AllowListBucket",
+      "Effect": "Allow",
+      "Principal": "*", 
+      "Action": "s3:ListBucket",
+      "Resource": ["arn:aws:s3:::sselfie-training", "arn:aws:s3:::sselfie-training-zips"]
+    }
+  ]
+}
+```
+
+**STATUS**: S3 permissions fixed - training image uploads should now work without authorization errors
+
 ## ✅ ELENA COORDINATION ROLE CLARIFIED AND FIXED (July 20, 2025)
 
 **CRITICAL ROLE CONFUSION RESOLVED:**

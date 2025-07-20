@@ -2,11 +2,27 @@
   "Version": "2012-10-17",
   "Statement": [
     {
-      "Sid": "PublicReadGetObject",
+      "Sid": "AllowTrainingImageAccess",
       "Effect": "Allow",
       "Principal": "*",
-      "Action": "s3:GetObject",
-      "Resource": "arn:aws:s3:::sselfie-training-zips/*"
+      "Action": [
+        "s3:GetObject",
+        "s3:PutObject"
+      ],
+      "Resource": [
+        "arn:aws:s3:::sselfie-training/*",
+        "arn:aws:s3:::sselfie-training-zips/*"
+      ]
+    },
+    {
+      "Sid": "AllowListBucket",
+      "Effect": "Allow", 
+      "Principal": "*",
+      "Action": "s3:ListBucket",
+      "Resource": [
+        "arn:aws:s3:::sselfie-training",
+        "arn:aws:s3:::sselfie-training-zips"
+      ]
     }
   ]
 }
