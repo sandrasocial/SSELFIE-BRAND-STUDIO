@@ -2388,8 +2388,19 @@ VOICE RULES:
 
       const { selfieImages } = req.body;
       
-      if (!selfieImages || selfieImages.length < 5) {
-        return res.status(400).json({ message: "At least 5 selfie images required for training" });
+      // 🛡️ BULLETPROOF VALIDATION: Strict image requirements
+      if (!selfieImages || !Array.isArray(selfieImages)) {
+        return res.status(400).json({ 
+          message: "Invalid image data. Please select valid selfie images.",
+          requiresRestart: true 
+        });
+      }
+      
+      if (selfieImages.length < 10) {
+        return res.status(400).json({ 
+          message: `Only ${selfieImages.length} images provided. At least 10 selfies required for training.`,
+          requiresRestart: true 
+        });
       }
 
       // Get or create user
@@ -2491,12 +2502,12 @@ VOICE RULES:
         email: user.email
       });
       
-      // Always use standard FLUX training - no more premium/luxury complexity
-      console.log(`📸 Starting standard FLUX training for user: ${dbUserId}`);
+      // 🛡️ USE BULLETPROOF UPLOAD SERVICE - Prevents cross-contamination
+      console.log(`📸 Starting bulletproof FLUX training for user: ${dbUserId}`);
       
       try {
-        const { ModelTrainingService } = await import('./model-training-service');
-        const result = await ModelTrainingService.startModelTraining(dbUserId, selfieImages);
+        const { BulletproofUploadService } = await import('./bulletproof-upload-service');
+        const result = await BulletproofUploadService.completeBulletproofUpload(dbUserId, selfieImages);
         
         // Send training started email
         try {
@@ -2509,22 +2520,32 @@ VOICE RULES:
           // Don't fail the training if email fails
         }
         
+        if (!result.success) {
+          return res.status(400).json({
+            success: false,
+            message: "Training validation failed. Please fix the issues below and try again.",
+            errors: result.errors,
+            requiresRestart: result.requiresRestart
+          });
+        }
+        
         res.json({
           success: true,
-          message: "✨ FLUX AI model training started! Your personal AI model will be ready in 30-45 minutes.",
+          message: "✨ BULLETPROOF training started! Your personal AI model will be ready in 30-45 minutes.",
           trainingId: result.trainingId,
-          status: result.status,
-          modelType: 'flux-standard',
+          status: 'training',
+          modelType: 'flux-bulletproof',
           isLuxury: false,
           estimatedCompletionTime: "40 minutes",
-          triggerWord: triggerWord
+          triggerWord: `user${dbUserId}`
         });
         
       } catch (error) {
-        console.log(`❌ Training failed for ${dbUserId}:`, error.message);
+        console.log(`❌ Bulletproof training failed for ${dbUserId}:`, error.message);
         res.status(500).json({ 
-          message: "AI model training failed", 
-          error: error.message
+          message: "AI model training failed - please restart upload process", 
+          error: error.message,
+          requiresRestart: true
         });
       }
       
