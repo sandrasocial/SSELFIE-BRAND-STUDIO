@@ -238,14 +238,21 @@ export default function SimpleTraining() {
   };
 
   const handleStartTraining = async () => {
-    // 🛡️ BULLETPROOF VALIDATION: Strict requirements
+    // 🛡️ CRITICAL FRONTEND VALIDATION: NEVER ALLOW LESS THAN 10 IMAGES
     if (selfieImages.length < 10) {
       toast({
-        title: "Need More Photos",
-        description: "Please upload at least 10 selfies for bulletproof training.",
+        title: "❌ CRITICAL: Need More Photos",
+        description: `Only ${selfieImages.length} photos uploaded. MINIMUM 10 selfies required - no exceptions.`,
         variant: "destructive",
       });
       return;
+    }
+    
+    if (selfieImages.length < 15) {
+      toast({
+        title: "⚠️ Recommendation",
+        description: `${selfieImages.length} photos uploaded. 15-20 recommended for best results.`,
+      });
     }
 
     setUploadErrors([]);
