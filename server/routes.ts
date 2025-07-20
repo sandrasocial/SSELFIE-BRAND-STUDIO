@@ -4827,6 +4827,33 @@ AGENT_CONTEXT:
   const agentLearningRouter = await import('./routes/agent-learning');
   app.use('/api/agent-learning', agentLearningRouter.default);
 
+  // Elena Workflow Status Endpoint (matches frontend polling URL)
+  app.get('/api/elena/workflow-status/:workflowId', async (req, res) => {
+    try {
+      const { workflowId } = req.params;
+      
+      console.log(`🔍 Elena workflow status check: ${workflowId}`);
+      
+      // Import Elena workflow system
+      const { ElenaWorkflowSystem } = await import('./elena-workflow-system');
+      
+      // Get current workflow status
+      const progress = await ElenaWorkflowSystem.getWorkflowProgress(workflowId);
+      
+      res.json({
+        success: true,
+        progress: progress
+      });
+
+    } catch (error) {
+      console.error('Elena workflow status error:', error);
+      res.status(500).json({
+        error: 'Failed to get workflow status',
+        details: error instanceof Error ? error.message : 'Unknown error'
+      });
+    }
+  });
+
   // ADMIN AGENT ENHANCEMENT ENDPOINTS
   app.get('/api/agent-enhancements', isAuthenticated, async (req: any, res) => {
     const isAdmin = req.user?.claims?.email === 'ssa@ssasocial.com';
