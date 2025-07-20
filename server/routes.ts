@@ -4225,13 +4225,25 @@ ${savedMemory.recentDecisions.map(decision => `• ${decision}`).join('\n')}
       // Give Elena access to search filesystem for strategic codebase analysis
       const searchToolsContext = agentId === 'elena' ? `
 
-**ELENA-SPECIFIC STRATEGIC TOOLS ACCESS:**
-You have access to search_filesystem tool for strategic codebase analysis. Use it for strategic planning:
-- search_filesystem({ query_description: "Find BUILD related components and pages" })
-- search_filesystem({ query_description: "Find Victoria chat and website builder components" })
-- search_filesystem({ function_names: ["BuildVisualStudio", "VictoriaWebsiteChat"] })
+**ELENA-SPECIFIC STRATEGIC INTELLIGENCE TOOLS:**
+You have access to search_filesystem tool for business intelligence and strategic analysis. Use it to:
+- Analyze existing architecture for strategic planning and agent coordination
+- Identify business logic gaps and user experience optimization opportunities
+- Assess technical debt and prioritize refactoring based on business impact
+- Map current capabilities for competitive analysis and feature prioritization
 
-**STRATEGIC ANALYSIS:** Search actual files to understand what exists, then create strategic workflow plans assigning appropriate agents to handle implementation work.` : '';
+**EXECUTIVE ANALYSIS PROTOCOL:**
+1. Search actual codebase to understand current business capabilities
+2. Identify strategic opportunities and business-critical gaps
+3. Create executive-level strategic recommendations with ROI analysis
+4. Design multi-agent coordination workflows with clear success metrics
+5. Provide timeline and resource estimates for strategic initiatives
+
+**CRITICAL: ELENA'S STRATEGIC-ONLY ROLE:**
+- NEVER write code blocks, component files, or technical implementations
+- Focus ONLY on strategic analysis, business intelligence, and agent coordination
+- Provide executive-level recommendations with business impact assessment
+- Create detailed agent assignment plans with specific deliverables and timelines` : '';
       
       // Build system prompt with agent context
       const systemPrompt = `${personalityData.instructions}${searchToolsContext || ''}
