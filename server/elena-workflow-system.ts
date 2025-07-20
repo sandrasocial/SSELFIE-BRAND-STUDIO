@@ -545,12 +545,38 @@ Elena has already identified the target file. Just improve the existing structur
   
   // Load workflows from persistent storage on startup
   static {
-    this.loadPersistedWorkflows();
+    this.loadPersistedWorkflows().catch(() => {
+      console.log('💾 ELENA: Failed to load persisted workflows, starting fresh');
+    });
   }
   
-  private static loadPersistedWorkflows() {
+  private static async loadPersistedWorkflows() {
     try {
-      console.log('💾 ELENA: No previous workflows found, starting fresh');
+      const { readFileSync, existsSync } = await import('fs');
+      const { join } = await import('path');
+      const storageFile = join(process.cwd(), 'workflow-storage.json');
+      
+      if (existsSync(storageFile)) {
+        const data = JSON.parse(readFileSync(storageFile, 'utf8'));
+        
+        // Restore workflows
+        if (data.workflows) {
+          for (const [id, workflow] of Object.entries(data.workflows)) {
+            this.workflows.set(id, workflow as CustomWorkflow);
+          }
+        }
+        
+        // Restore progress
+        if (data.progress) {
+          for (const [id, progress] of Object.entries(data.progress)) {
+            this.workflowProgress.set(id, progress);
+          }
+        }
+        
+        console.log(`💾 ELENA: Loaded ${this.workflows.size} workflows and ${this.workflowProgress.size} progress entries from storage`);
+      } else {
+        console.log('💾 ELENA: No previous workflows found, starting fresh');
+      }
     } catch (error) {
       console.log('💾 ELENA: No previous workflows found, starting fresh');
     }
@@ -558,9 +584,20 @@ Elena has already identified the target file. Just improve the existing structur
   
   private static async saveWorkflowsToDisk() {
     try {
-      console.log(`💾 ELENA: Workflows saved to memory successfully`);
+      const { writeFileSync } = await import('fs');
+      const { join } = await import('path');
+      const storageFile = join(process.cwd(), 'workflow-storage.json');
+      
+      const data = {
+        workflows: Object.fromEntries(this.workflows),
+        progress: Object.fromEntries(this.workflowProgress),
+        lastSaved: new Date().toISOString()
+      };
+      
+      writeFileSync(storageFile, JSON.stringify(data, null, 2));
+      console.log(`💾 ELENA: Workflows saved to disk successfully (${this.workflows.size} workflows, ${this.workflowProgress.size} progress entries)`);
     } catch (error) {
-      console.error('💾 ELENA: Failed to save workflows to memory:', error);
+      console.error('💾 ELENA: Failed to save workflows to disk:', error);
     }
   }
 }
