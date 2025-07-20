@@ -25,6 +25,7 @@ import AgentUtilizationOptimizer from '@/components/admin/AgentUtilizationOptimi
 import AgentPowerDashboard from '@/components/admin/AgentPowerDashboard';
 import DualModeAgentChat from '@/components/admin/DualModeAgentChat';
 import WorkflowCreator from '@/components/Elena/WorkflowCreator';
+import { ElenaCoordinationPanel } from '@/components/visual-editor/ElenaCoordinationPanel';
 
 // Agent configurations now fetched dynamically from API (includes Olga automatically)
 
