@@ -4373,7 +4373,7 @@ AGENT_CONTEXT:
         status: 'active',
         conversationId: conversationId,
         timestamp: new Date().toISOString(),
-        workflowStage: requestBody.workflowContext?.stage || 'Active',
+        workflowStage: req.body.workflowContext?.stage || 'Active',
         fileOperations: fileOperations || [],
         filesCreated: fileOperations.map(f => ({
           path: f.filePath,
