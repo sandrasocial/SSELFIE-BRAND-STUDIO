@@ -327,6 +327,19 @@ export class ElenaWorkflowSystem {
     
     return `${totalMinutes} minutes`;
   }
+
+  /**
+   * Get workflows for a specific user
+   */
+  static async getUserWorkflows(userId: string): Promise<CustomWorkflow[]> {
+    this.loadPersistedWorkflows(); // Ensure we have latest data
+    const userWorkflows = Array.from(this.workflows.values())
+      .filter(workflow => workflow.requestedBy === userId)
+      .sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
+    
+    console.log(`📋 ELENA: Found ${userWorkflows.length} workflows for user ${userId}`);
+    return userWorkflows;
+  }
   
   private static async saveWorkflow(workflow: CustomWorkflow): Promise<void> {
     // Store workflow in database for execution tracking
