@@ -4858,6 +4858,10 @@ AGENT_CONTEXT:
     }
   });
 
+  // Register backup management routes
+  const { registerBackupManagementRoutes } = await import('./routes/backup-management-routes');
+  registerBackupManagementRoutes(app);
+
   const httpServer = createServer(app);
   return httpServer;
 }
