@@ -4206,8 +4206,19 @@ ${savedMemory.recentDecisions.map(decision => `• ${decision}`).join('\n')}
       const agentPersonality = await import('./agents/agent-personalities-functional');
       const personalityData = agentPersonality.getAgentPersonality(agentId);
       
+      // Give Elena access to search filesystem for accurate codebase analysis
+      const searchToolsContext = agentId === 'elena' ? `
+
+**ELENA-SPECIFIC TOOLS ACCESS:**
+You have access to search_filesystem tool for accurate codebase analysis. ALWAYS use it before providing analysis:
+- search_filesystem({ query_description: "Find BUILD related components and pages" })
+- search_filesystem({ query_description: "Find Victoria chat and website builder components" })
+- search_filesystem({ function_names: ["BuildVisualStudio", "VictoriaWebsiteChat"] })
+
+**MANDATORY:** Search actual files before making any status assessments. Base all analysis on real code, not assumptions.` : '';
+      
       // Build system prompt with agent context
-      const systemPrompt = `${personalityData.instructions}
+      const systemPrompt = `${personalityData.instructions}${searchToolsContext || ''}
 
 CRITICAL: TASK-BASED WORKING SYSTEM WITH MEMORY AWARENESS
 **CURRENT MEMORY CONTEXT:**
