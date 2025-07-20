@@ -858,10 +858,25 @@ export function OptimizedVisualEditor({ className = '' }: OptimizedVisualEditorP
         };
       } else if (agentId === 'elena' && isWorkflowExecutionRequest) {
         const lastWorkflowMessage = chatMessages.slice().reverse().find(msg => msg.workflowId);
-        requestBody = {
-          workflowId: lastWorkflowMessage?.workflowId,
-          userId: 'admin-sandra'
-        };
+        if (lastWorkflowMessage?.workflowId) {
+          requestBody = {
+            workflowId: lastWorkflowMessage.workflowId,
+            userId: 'admin-sandra'
+          };
+        } else {
+          // If no workflow ID found, treat as regular Elena chat
+          endpoint = '/api/admin/agents/chat';
+          requestBody = {
+            agentId: agentId,
+            message: message,
+            adminToken: 'sandra-admin-2025',
+            conversationHistory: conversationHistory,
+            workflowContext: {
+              stage: workflowStage,
+              previousWork: chatMessages.filter(msg => msg.agentName && msg.agentName !== agentId).slice(-3)
+            }
+          };
+        }
       } else {
         requestBody = {
           agentId: agentId,
@@ -922,17 +937,18 @@ export function OptimizedVisualEditor({ className = '' }: OptimizedVisualEditorP
             isWorkflowMessage: true
           };
           setChatMessages(prev => [...prev, workflowMessage]);
-        } else if (agentId === 'elena' && data.executionId) {
+        } else if (agentId === 'elena' && (data.executionId || data.success)) {
           // Handle Elena workflow execution response
+          const workflowId = data.workflowId || chatMessages.slice().reverse().find(msg => msg.workflowId)?.workflowId;
           const executionMessage: ChatMessage = {
             type: 'agent',
-            content: `**Workflow Execution Started**\n\n🚀 Starting workflow execution with ID: ${data.executionId}\n\nI am now coordinating all agents to complete the workflow steps. You will see live progress updates as each agent completes their tasks.\n\n**Status:** Executing\n**Progress:** 0% complete`,
+            content: `**Workflow Execution Started**\n\n🚀 Starting workflow execution${data.executionId ? ` with ID: ${data.executionId}` : ''}\n\nI am now coordinating all agents to complete the workflow steps. You will see live progress updates as each agent completes their tasks.\n\n**Status:** Executing\n**Progress:** 0% complete`,
             timestamp: new Date(),
             agentName: 'elena',
             workflowStage: 'Executing',
-            workflowId: data.workflowId || 'unknown',
+            workflowId: workflowId || 'unknown',
             workflowProgress: {
-              workflowId: data.workflowId || 'unknown',
+              workflowId: workflowId || 'unknown',
               workflowName: 'Executing Workflow',
               currentStep: 0,
               totalSteps: 1,
@@ -946,8 +962,8 @@ export function OptimizedVisualEditor({ className = '' }: OptimizedVisualEditorP
           setChatMessages(prev => [...prev, executionMessage]);
           
           // Start polling for workflow progress
-          if (data.workflowId) {
-            startWorkflowProgressPolling(data.workflowId);
+          if (workflowId) {
+            startWorkflowProgressPolling(workflowId);
           }
         } else {
           const agentMessage: ChatMessage = {
