@@ -1452,6 +1452,13 @@ export function OptimizedVisualEditor({ className = '' }: OptimizedVisualEditorP
           </TabsContent>
 
           <TabsContent value="files" className="flex-1 flex flex-col mt-0 min-h-0">
+            {/* Files Header */}
+            <div className="p-4 border-b border-gray-200">
+              <h4 className="font-medium text-sm">Files</h4>
+              <p className="text-xs text-gray-600 mt-1">Select files from the Files tab to edit them here</p>
+            </div>
+            
+            {/* File Tree Explorer */}
             <div className="flex-1 overflow-y-auto">
               <FileTreeExplorer 
                 selectedAgent={currentAgent.id}
@@ -1477,7 +1484,15 @@ export function OptimizedVisualEditor({ className = '' }: OptimizedVisualEditorP
           </TabsContent>
 
           <TabsContent value="editor" className="flex-1 flex flex-col mt-0 min-h-0">
-            <MultiTabEditor 
+            {/* Editor Header */}
+            <div className="p-4 border-b border-gray-200">
+              <h4 className="font-medium text-sm">Editor</h4>
+              <p className="text-xs text-gray-600 mt-1">No files open</p>
+            </div>
+            
+            {/* Multi Tab Editor */}
+            <div className="flex-1 min-h-0">
+              <MultiTabEditor 
               selectedAgent={currentAgent.id}
               onFileChange={(filePath, content) => {
                 // Notify when files are saved - could trigger dev preview refresh
@@ -1497,10 +1512,18 @@ export function OptimizedVisualEditor({ className = '' }: OptimizedVisualEditorP
                   }
                 }
               }}
-            />
+              />
+            </div>
           </TabsContent>
 
           <TabsContent value="enhancements" className="flex-1 flex flex-col mt-0 min-h-0">
+            {/* Enhancements Header */}
+            <div className="p-4 border-b border-gray-200">
+              <h4 className="font-medium text-sm">Agent Enhancement System</h4>
+              <p className="text-xs text-gray-600 mt-1">Advanced capabilities and collaboration framework for all 9 agents</p>
+            </div>
+            
+            {/* Enhancement Dashboard */}
             <div className="flex-1 overflow-y-auto">
               <AgentEnhancementDashboard />
             </div>
