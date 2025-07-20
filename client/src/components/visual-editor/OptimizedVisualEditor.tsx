@@ -30,6 +30,7 @@ import { useQuery } from '@tanstack/react-query';
 import { FileTreeExplorer } from './FileTreeExplorer';
 import { MultiTabEditor } from './MultiTabEditor';
 import { FormattedAgentMessage } from './FormattedAgentMessage';
+import { ElenaCoordinationPanel } from './ElenaCoordinationPanel';
 
 import { AgentChatControls } from './AgentChatControls';
 import { QuickActionsPopup } from './QuickActionsPopup';
@@ -256,18 +257,7 @@ export function OptimizedVisualEditor({ className = '' }: OptimizedVisualEditorP
     return agentParam ? 'agent' : 'chat';
   });
   const [chatMessages, setChatMessages] = useState<ChatMessage[]>(() => {
-    // Load conversation history from localStorage
-    const savedConversations = localStorage.getItem('visual-editor-conversations');
-    if (savedConversations) {
-      try {
-        const parsed = JSON.parse(savedConversations);
-        const agentKey = new URLSearchParams(window.location.search).get('agent') || 'zara';
-        return parsed[agentKey] || [];
-      } catch (e) {
-        console.warn('Failed to parse saved conversations:', e);
-        return [];
-      }
-    }
+    // Load conversation history from database instead of localStorage
     return [];
   });
   const [messageInput, setMessageInput] = useState('');
@@ -301,22 +291,73 @@ export function OptimizedVisualEditor({ className = '' }: OptimizedVisualEditorP
   const chatContainerRef = useRef<HTMLDivElement>(null);
   const { toast } = useToast();
 
-  // Save conversations to localStorage whenever messages change
+  // Load conversation history from database when agent changes
   useEffect(() => {
-    const saveConversations = () => {
-      const savedConversations = localStorage.getItem('visual-editor-conversations');
-      let conversations = {};
-      
-      if (savedConversations) {
-        try {
-          conversations = JSON.parse(savedConversations);
-        } catch (e) {
-          console.warn('Failed to parse existing conversations:', e);
+    const loadConversationHistory = async () => {
+      try {
+        const response = await fetch(`/api/admin/agent-conversation-history/${currentAgent.id}`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ adminToken: 'sandra-admin-2025' })
+        });
+        
+        if (response.ok) {
+          const data = await response.json();
+          if (data.conversations && data.conversations.length > 0) {
+            const formattedMessages: ChatMessage[] = data.conversations.map((conv: any) => [
+              {
+                type: 'user' as const,
+                content: conv.user_message,
+                timestamp: new Date(conv.timestamp),
+                agentName: currentAgent.id
+              },
+              {
+                type: 'agent' as const,
+                content: conv.agent_response,
+                timestamp: new Date(conv.timestamp),
+                agentName: currentAgent.id
+              }
+            ]).flat();
+            setChatMessages(formattedMessages);
+          } else {
+            setChatMessages([]);
+          }
         }
+      } catch (error) {
+        console.error('Failed to load conversation history:', error);
+        setChatMessages([]);
       }
+    };
 
-      conversations[currentAgent.id] = chatMessages;
-      localStorage.setItem('visual-editor-conversations', JSON.stringify(conversations));
+    loadConversationHistory();
+  }, [currentAgent.id]);
+
+  // Save conversations to database whenever messages change
+  useEffect(() => {
+    const saveConversations = async () => {
+      if (chatMessages.length === 0) return;
+      
+      try {
+        const lastMessage = chatMessages[chatMessages.length - 1];
+        if (lastMessage.type === 'agent') {
+          // Save the complete conversation pair to database
+          const userMessage = chatMessages[chatMessages.length - 2];
+          if (userMessage && userMessage.type === 'user') {
+            await fetch('/api/admin/agent-conversation-save', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({
+                adminToken: 'sandra-admin-2025',
+                agentId: currentAgent.id,
+                userMessage: userMessage.content,
+                agentResponse: lastMessage.content
+              })
+            });
+          }
+        }
+      } catch (error) {
+        console.error('Failed to save conversation:', error);
+      }
     };
 
     if (chatMessages.length > 0) {
@@ -1162,12 +1203,24 @@ export function OptimizedVisualEditor({ className = '' }: OptimizedVisualEditorP
         >
           <TabsList className="flex w-full mx-1 md:mx-2 mt-1 md:mt-2 h-9 bg-gray-100 rounded-md p-1">
             <TabsTrigger value="chat" className="flex-1 text-xs h-7 rounded-sm data-[state=active]:bg-white data-[state=active]:shadow-sm">Chat</TabsTrigger>
+            <TabsTrigger value="elena" className="flex-1 text-xs h-7 rounded-sm data-[state=active]:bg-white data-[state=active]:shadow-sm bg-black text-white">Elena</TabsTrigger>
             <TabsTrigger value="gallery" className="flex-1 text-xs h-7 rounded-sm data-[state=active]:bg-white data-[state=active]:shadow-sm">Gallery</TabsTrigger>
             <TabsTrigger value="flatlays" className="flex-1 text-xs h-7 rounded-sm data-[state=active]:bg-white data-[state=active]:shadow-sm">Flatlays</TabsTrigger>
             <TabsTrigger value="files" className="flex-1 text-xs h-7 rounded-sm data-[state=active]:bg-white data-[state=active]:shadow-sm">Files</TabsTrigger>
             <TabsTrigger value="editor" className="flex-1 text-xs h-7 rounded-sm data-[state=active]:bg-white data-[state=active]:shadow-sm">Editor</TabsTrigger>
             <TabsTrigger value="enhancements" className="flex-1 text-xs h-7 rounded-sm data-[state=active]:bg-white data-[state=active]:shadow-sm">AI+</TabsTrigger>
           </TabsList>
+
+          {/* Elena Coordination Tab */}
+          <TabsContent value="elena" className="flex-1 flex flex-col mt-0 min-h-0">
+            <ElenaCoordinationPanel 
+              onAgentSelect={(agentId) => {
+                setCurrentAgent(agents.find(a => a.id === agentId) || agents[0]);
+                setActiveTab('chat');
+              }}
+              currentWorkflow={workflowActive ? 'Admin Dashboard Enhancement' : undefined}
+            />
+          </TabsContent>
 
           <TabsContent value="chat" className="flex flex-col">
             {/* Minimal Chat Controls - Subtle Icon */}

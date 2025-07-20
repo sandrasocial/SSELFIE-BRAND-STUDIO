@@ -4893,8 +4893,12 @@ AGENT_CONTEXT:
   // Register backup management routes
   const { registerBackupManagementRoutes } = await import('./routes/backup-management-routes');
   const { registerMayaAIRoutes } = await import('./routes/maya-ai-routes');
+  const { registerElenaMonitoringRoutes } = await import('./routes/elena-monitoring-routes');
+  const { registerAdminConversationRoutes } = await import('./routes/admin-conversation-routes');
   registerBackupManagementRoutes(app);
   registerMayaAIRoutes(app);
+  registerElenaMonitoringRoutes(app);
+  registerAdminConversationRoutes(app);
 
   const httpServer = createServer(app);
   return httpServer;
