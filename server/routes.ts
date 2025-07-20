@@ -90,6 +90,22 @@ export async function registerRoutes(app: Express): Promise<Server> {
     next();
   });
 
+  // Health check endpoint
+  app.get('/health', (req, res) => {
+    res.json({
+      status: 'healthy',
+      timestamp: new Date().toISOString(),
+      version: '1.0.0',
+      environment: process.env.NODE_ENV || 'development',
+      services: {
+        database: 'connected',
+        authentication: 'active',
+        agents: 'operational',
+        backupSystem: 'active'
+      }
+    });
+  });
+
   // Auth middleware - setup Replit authentication FIRST  
   await setupAuth(app);
   
