@@ -118,7 +118,7 @@ export class BulletproofUploadService {
     
     const errors: string[] = [];
     const s3Urls: string[] = [];
-    const bucketName = process.env.AWS_S3_BUCKET || 'sselfie-training';
+    const bucketName = process.env.AWS_S3_BUCKET || 'sselfie-training-zips';
     
     for (let i = 0; i < validImages.length; i++) {
       try {
@@ -128,13 +128,13 @@ export class BulletproofUploadService {
         
         const fileName = `user-${userId}/training-image-${i + 1}-${Date.now()}.jpg`;
         
-        // Upload to S3
+        // Upload to S3 with public read access for Replicate training
         const uploadResult = await this.s3.upload({
           Bucket: bucketName,
           Key: fileName,
           Body: imageBuffer,
-          ContentType: 'image/jpeg',
-          ACL: 'private'
+          ContentType: 'image/jpeg'
+          // No ACL specified - bucket policy handles permissions
         }).promise();
         
         // Verify upload success
@@ -208,7 +208,7 @@ export class BulletproofUploadService {
       for (let i = 0; i < s3Urls.length; i++) {
         try {
           const s3Key = s3Urls[i].split('/').slice(-2).join('/'); // Extract key from URL
-          const bucketName = process.env.AWS_S3_BUCKET || 'sselfie-training';
+          const bucketName = process.env.AWS_S3_BUCKET || 'sselfie-training-zips';
           
           const s3Object = await this.s3.getObject({
             Bucket: bucketName,
