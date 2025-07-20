@@ -2437,7 +2437,9 @@ VOICE RULES:
         
         // Replace original images with compressed versions for training
         // Now using compressed images to prevent 413 errors
-        var processedSelfieImages = compressedImages.map(img => `data:image/jpeg;base64,${img}`);
+        var processedSelfieImages = compressedImages.map(img => 
+          img.startsWith('data:') ? img : `data:image/jpeg;base64,${img}`
+        );
         
       } catch (compressionError) {
         console.error('❌ Image compression failed:', compressionError);
