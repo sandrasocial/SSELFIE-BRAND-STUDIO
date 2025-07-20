@@ -315,10 +315,34 @@ export function OptimizedVisualEditor({ className = '' }: OptimizedVisualEditorP
                 type: 'agent' as const,
                 content: conv.agent_response,
                 timestamp: new Date(conv.timestamp),
-                agentName: currentAgent.id
+                agentName: currentAgent.id,
+                // Restore workflow context if it exists in the response
+                workflowId: conv.agent_response.includes('Workflow ID:') ? 
+                  conv.agent_response.match(/Workflow ID:\s*(\w+)/)?.[1] : undefined
               }
             ]).flat();
             setChatMessages(formattedMessages);
+            
+            // If Elena and we have workflow messages, start polling active workflows
+            if (currentAgent.id === 'elena') {
+              const workflowMessages = formattedMessages.filter(msg => msg.workflowId);
+              if (workflowMessages.length > 0) {
+                const lastWorkflowId = workflowMessages[workflowMessages.length - 1].workflowId;
+                if (lastWorkflowId) {
+                  console.log(`🔄 Restored Elena conversation with workflow ${lastWorkflowId}, checking status...`);
+                  // Check workflow status and start polling if still active
+                  fetch(`/api/elena/workflow-status/${lastWorkflowId}`)
+                    .then(res => res.json())
+                    .then(statusData => {
+                      if (statusData.success && statusData.progress.status === 'executing') {
+                        console.log('🚀 Resuming workflow polling for active workflow');
+                        startWorkflowProgressPolling(lastWorkflowId);
+                      }
+                    })
+                    .catch(err => console.log('Could not check workflow status:', err));
+                }
+              }
+            }
           } else {
             setChatMessages([]);
           }
@@ -328,7 +352,7 @@ export function OptimizedVisualEditor({ className = '' }: OptimizedVisualEditorP
         setChatMessages([]);
       } finally {
         // Delay to prevent immediate save attempts on loaded messages
-        setTimeout(() => setIsLoadingHistory(false), 1000);
+        setTimeout(() => setIsLoadingHistory(false), 100);
       }
     };
 
