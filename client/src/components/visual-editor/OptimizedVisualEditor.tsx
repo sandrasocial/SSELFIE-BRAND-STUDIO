@@ -1141,7 +1141,7 @@ export function OptimizedVisualEditor({ className = '' }: OptimizedVisualEditorP
             // Track active tab for file watching
             (window as any).activeFileTab = value;
           }} 
-          className="flex-1 flex flex-col min-h-0 relative"
+          className="flex-1 flex flex-col min-h-0"
         >
           <TabsList className="flex w-full mx-1 md:mx-2 mt-1 md:mt-2 h-9 bg-gray-100 rounded-md p-1">
             <TabsTrigger value="chat" className="flex-1 text-xs h-7 rounded-sm data-[state=active]:bg-white data-[state=active]:shadow-sm">Chat</TabsTrigger>
@@ -1152,7 +1152,7 @@ export function OptimizedVisualEditor({ className = '' }: OptimizedVisualEditorP
             <TabsTrigger value="enhancements" className="flex-1 text-xs h-7 rounded-sm data-[state=active]:bg-white data-[state=active]:shadow-sm">AI+</TabsTrigger>
           </TabsList>
 
-          <TabsContent value="chat" className="flex flex-col h-full">
+          <TabsContent value="chat" className="flex flex-col">
             {/* Minimal Chat Controls - Subtle Icon */}
             <div className="flex justify-end px-2 py-1 flex-shrink-0">
               <AgentChatControls
@@ -1310,7 +1310,7 @@ export function OptimizedVisualEditor({ className = '' }: OptimizedVisualEditorP
             </div>
           </TabsContent>
 
-          <TabsContent value="gallery" className="flex flex-col h-full">
+          <TabsContent value="gallery" className="flex flex-col">
             {/* Gallery Header */}
             <div className="p-4 border-b border-gray-200">
               <div className="flex items-center justify-between mb-3">
@@ -1378,7 +1378,7 @@ export function OptimizedVisualEditor({ className = '' }: OptimizedVisualEditorP
             </div>
           </TabsContent>
 
-          <TabsContent value="flatlays" className="flex flex-col h-full">
+          <TabsContent value="flatlays" className="flex flex-col">
             {/* Flatlay Header */}
             <div className="p-4 border-b border-gray-200">
               <div className="flex items-center justify-between mb-3">
@@ -1451,7 +1451,7 @@ export function OptimizedVisualEditor({ className = '' }: OptimizedVisualEditorP
             </div>
           </TabsContent>
 
-          <TabsContent value="files" className="flex flex-col h-full">
+          <TabsContent value="files" className="flex flex-col">
             {/* Files Header */}
             <div className="p-4 border-b border-gray-200">
               <h4 className="font-medium text-sm">Files</h4>
@@ -1483,7 +1483,7 @@ export function OptimizedVisualEditor({ className = '' }: OptimizedVisualEditorP
             </div>
           </TabsContent>
 
-          <TabsContent value="editor" className="flex flex-col h-full">
+          <TabsContent value="editor" className="flex flex-col">
             {/* Editor Header */}
             <div className="p-4 border-b border-gray-200">
               <h4 className="font-medium text-sm">Editor</h4>
@@ -1516,7 +1516,7 @@ export function OptimizedVisualEditor({ className = '' }: OptimizedVisualEditorP
             </div>
           </TabsContent>
 
-          <TabsContent value="enhancements" className="flex flex-col h-full">
+          <TabsContent value="enhancements" className="flex flex-col">
             {/* Enhancements Header */}
             <div className="p-4 border-b border-gray-200">
               <h4 className="font-medium text-sm">Agent Enhancement System</h4>
