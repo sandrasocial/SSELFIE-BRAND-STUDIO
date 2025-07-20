@@ -6,7 +6,6 @@ import { Link } from 'wouter';
 import { useToast } from '@/hooks/use-toast';
 import { useMutation, useQuery } from '@tanstack/react-query';
 import { apiRequest } from '@/lib/queryClient';
-import { PhotoPermissionNotification } from '@/components/PhotoPermissionNotification';
 
 export default function SimpleTraining() {
   // Always call hooks in the same order
@@ -20,7 +19,6 @@ export default function SimpleTraining() {
   const [startTime, setStartTime] = useState<Date | null>(null);
   const [estimatedTimeRemaining, setEstimatedTimeRemaining] = useState<string>('');
   const [isRetrainingMode, setIsRetrainingMode] = useState(false);
-  const [showPhotoPermission, setShowPhotoPermission] = useState(false);
   const [uploadErrors, setUploadErrors] = useState<string[]>([]);
   
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -126,48 +124,47 @@ export default function SimpleTraining() {
     }
   }, [trainingProgress, startTime]);
 
-  // Start model training mutation
+  // Start bulletproof model training mutation
   const startTraining = useMutation({
     mutationFn: async (images: string[]) => {
       const response = await apiRequest('POST', '/api/start-model-training', {
         selfieImages: images
       });
-      
-      if (!response.ok) {
-        const errorData = await response.json();
-        throw errorData;
-      }
-      
-      return response.json();
+      return response;
     },
-    onSuccess: () => {
-      setIsTrainingStarted(true);
-      setStartTime(new Date());
-      setTrainingProgress(5); // Initial progress
-      toast({
-        title: "Training Started!",
-        description: "Your AI model is now training. This takes about 20 minutes.",
-      });
-    },
-    onError: (error: any) => {
-      console.error('Training failed:', error);
-      
-      if (error.upgradeRequired && error.planType === 'free') {
-        // Free user hit retraining limit
+    onSuccess: (data: any) => {
+      if (data.success) {
+        setIsTrainingStarted(true);
+        setStartTime(new Date());
+        setTrainingProgress(5); // Initial progress
         toast({
-          title: "Upgrade Required",
-          description: error.message,
+          title: "Bulletproof Training Started!",
+          description: "Your AI model training has begun with full validation.",
+        });
+      } else {
+        // Handle validation errors from bulletproof service
+        setUploadErrors(data.errors || []);
+        toast({
+          title: "Training Validation Failed",
+          description: `Please fix these issues: ${data.errors?.join(', ')}`,
           variant: "destructive",
         });
-        
-        // Show upgrade dialog or redirect
-        setTimeout(() => {
-          window.location.href = '/pricing';
-        }, 3000);
+      }
+    },
+    onError: (error: any) => {
+      console.error('Bulletproof training failed:', error);
+      
+      if (error.requiresRestart) {
+        setUploadErrors([error.message]);
+        toast({
+          title: "Training Failed",
+          description: "Please restart upload process and try again.",
+          variant: "destructive",
+        });
       } else {
         toast({
           title: "Training Failed",
-          description: error.message || "Images too large or network error. Please try again.",
+          description: error.message || "Training system error. Please try again.",
           variant: "destructive",
         });
       }
@@ -176,11 +173,23 @@ export default function SimpleTraining() {
 
   const handleFileSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
     const files = Array.from(e.target.files || []);
+    
+    // 🛡️ BULLETPROOF VALIDATION: Strict requirements
     const validFiles = files.filter(file => {
       const isImage = file.type.startsWith('image/');
       const isUnder10MB = file.size <= 10 * 1024 * 1024;
-      return isImage && isUnder10MB;
+      const isMinSize = file.size >= 10240; // At least 10KB for quality
+      return isImage && isUnder10MB && isMinSize;
     });
+    
+    if (validFiles.length !== files.length) {
+      toast({
+        title: "Invalid files",
+        description: "Please upload only high-quality image files (10KB-10MB).",
+        variant: "destructive",
+      });
+    }
+    
     setSelfieImages(prev => [...prev, ...validFiles]);
   };
 
@@ -229,26 +238,43 @@ export default function SimpleTraining() {
   };
 
   const handleStartTraining = async () => {
-    if (selfieImages.length < 5) {
+    // 🛡️ BULLETPROOF VALIDATION: Strict requirements
+    if (selfieImages.length < 10) {
       toast({
         title: "Need More Photos",
-        description: "Please upload at least 5 selfies for best results.",
+        description: "Please upload at least 10 selfies for bulletproof training.",
         variant: "destructive",
       });
       return;
     }
 
+    setUploadErrors([]);
+    
     toast({
-      title: "Compressing Images",
-      description: "Preparing your photos for training...",
+      title: "Starting Bulletproof Training",
+      description: "Validating and preparing your photos for training...",
     });
 
-    // Compress images to reduce file size
-    const compressedImages = await Promise.all(
-      selfieImages.map(file => compressImage(file))
-    );
+    try {
+      // Convert to base64 for bulletproof service
+      const base64Images = await Promise.all(
+        selfieImages.map(file => {
+          return new Promise<string>((resolve) => {
+            const reader = new FileReader();
+            reader.onloadend = () => resolve(reader.result as string);
+            reader.readAsDataURL(file);
+          });
+        })
+      );
 
-    startTraining.mutate(compressedImages);
+      startTraining.mutate(base64Images);
+    } catch (error) {
+      toast({
+        title: "Upload Failed",
+        description: "Failed to process images. Please try again.",
+        variant: "destructive",
+      });
+    }
   };
 
   // Training completed view
