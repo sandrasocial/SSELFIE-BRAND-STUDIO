@@ -197,42 +197,41 @@ export default function SimpleTraining() {
     setSelfieImages(prev => prev.filter((_, i) => i !== index));
   };
 
-  // Compress image to reduce file size
+  // Compress image to prevent 413 errors - optimized for AI training
   const compressImage = (file: File): Promise<string> => {
-    return new Promise((resolve) => {
+    return new Promise((resolve, reject) => {
       const canvas = document.createElement('canvas');
       const ctx = canvas.getContext('2d');
       const img = new Image();
       
       img.onload = () => {
-        // Set max dimensions to reduce file size
-        const maxWidth = 800;
-        const maxHeight = 800;
-        
-        let { width, height } = img;
-        
-        // Calculate new dimensions
-        if (width > height) {
-          if (width > maxWidth) {
-            height = (height * maxWidth) / width;
-            width = maxWidth;
+        try {
+          // Optimal dimensions for AI training (1024x1024 max)
+          const maxWidth = 1024;
+          const maxHeight = 1024;
+          
+          let { width, height } = img;
+          
+          // Calculate new dimensions maintaining aspect ratio
+          if (width > maxWidth || height > maxHeight) {
+            const ratio = Math.min(maxWidth / width, maxHeight / height);
+            width *= ratio;
+            height *= ratio;
           }
-        } else {
-          if (height > maxHeight) {
-            width = (width * maxHeight) / height;
-            height = maxHeight;
-          }
+          
+          canvas.width = width;
+          canvas.height = height;
+          
+          // Draw and compress with high quality for AI training
+          ctx?.drawImage(img, 0, 0, width, height);
+          const compressedBase64 = canvas.toDataURL('image/jpeg', 0.85); // 85% quality for AI training
+          resolve(compressedBase64);
+        } catch (error) {
+          reject(error);
         }
-        
-        canvas.width = width;
-        canvas.height = height;
-        
-        // Draw and compress
-        ctx?.drawImage(img, 0, 0, width, height);
-        const compressedBase64 = canvas.toDataURL('image/jpeg', 0.7); // 70% quality
-        resolve(compressedBase64.split(',')[1]);
       };
       
+      img.onerror = () => reject(new Error('Failed to load image'));
       img.src = URL.createObjectURL(file);
     });
   };
@@ -263,24 +262,32 @@ export default function SimpleTraining() {
     });
 
     try {
-      // Convert to base64 for bulletproof service
-      const base64Images = await Promise.all(
-        selfieImages.map(file => {
-          return new Promise<string>((resolve) => {
-            const reader = new FileReader();
-            reader.onloadend = () => resolve(reader.result as string);
-            reader.readAsDataURL(file);
-          });
+      // Compress images to prevent 413 errors while maintaining AI training quality
+      toast({
+        title: "Processing Images",
+        description: "Compressing images for optimal training...",
+      });
+      
+      const compressedBase64Images = await Promise.all(
+        selfieImages.map(async (file) => {
+          try {
+            return await compressImage(file);
+          } catch (error) {
+            console.error('Failed to compress image:', error);
+            throw new Error(`Failed to process image: ${file.name}`);
+          }
         })
       );
 
-      startTraining.mutate(base64Images);
+      console.log(`✅ Compressed ${compressedBase64Images.length} images successfully`);
+      startTraining.mutate(compressedBase64Images);
     } catch (error) {
       toast({
         title: "Upload Failed",
-        description: "Failed to process images. Please try again.",
+        description: "Failed to process images. Please try again with different photos.",
         variant: "destructive",
       });
+      console.error('Image processing failed:', error);
     }
   };
 

@@ -2426,6 +2426,28 @@ VOICE RULES:
       
       console.log(`🛡️ TRAINING GATE 0 PASSED: ${selfieImages.length} images provided for user ${authUserId}`);
 
+      // 🗜️ SERVER-SIDE IMAGE COMPRESSION to prevent 413 errors
+      console.log(`🗜️ Starting server-side compression for ${selfieImages.length} images...`);
+      try {
+        const { ImageCompressionService } = await import('./image-compression-service');
+        const { compressedImages, compressionStats } = await ImageCompressionService.compressImagesForTraining(selfieImages);
+        
+        console.log(`✅ Compression complete: ${compressionStats.compressionRatio.toFixed(1)}% size reduction`);
+        console.log(`📊 Total size: ${(compressionStats.totalOriginalSize / 1024 / 1024).toFixed(2)}MB → ${(compressionStats.totalCompressedSize / 1024 / 1024).toFixed(2)}MB`);
+        
+        // Replace original images with compressed versions for training
+        // Now using compressed images to prevent 413 errors
+        var processedSelfieImages = compressedImages.map(img => `data:image/jpeg;base64,${img}`);
+        
+      } catch (compressionError) {
+        console.error('❌ Image compression failed:', compressionError);
+        return res.status(400).json({
+          message: "Image processing failed. Please try with different photos or smaller file sizes.",
+          error: compressionError.message,
+          requiresRestart: true
+        });
+      }
+
       // Get or create user
       let user = await storage.getUser(authUserId);
       if (!user) {
@@ -2530,7 +2552,7 @@ VOICE RULES:
       
       try {
         const { BulletproofUploadService } = await import('./bulletproof-upload-service');
-        const result = await BulletproofUploadService.completeBulletproofUpload(dbUserId, selfieImages);
+        const result = await BulletproofUploadService.completeBulletproofUpload(dbUserId, processedSelfieImages || selfieImages);
         
         // Send training started email
         try {
