@@ -1152,7 +1152,7 @@ export function OptimizedVisualEditor({ className = '' }: OptimizedVisualEditorP
             <TabsTrigger value="enhancements" className="text-xs">AI+</TabsTrigger>
           </TabsList>
 
-          <TabsContent value="chat" className="flex flex-col h-full mt-0 min-h-0">
+          <TabsContent value="chat" className="flex-1 flex flex-col mt-0 min-h-0">
             {/* Minimal Chat Controls - Subtle Icon */}
             <div className="flex justify-end px-2 py-1">
               <AgentChatControls
@@ -1310,7 +1310,7 @@ export function OptimizedVisualEditor({ className = '' }: OptimizedVisualEditorP
             </div>
           </TabsContent>
 
-          <TabsContent value="gallery" className="flex flex-col h-full mt-0">
+          <TabsContent value="gallery" className="flex-1 flex flex-col mt-0 min-h-0">
             {/* Gallery Header */}
             <div className="p-4 border-b border-gray-200">
               <div className="flex items-center justify-between mb-3">
@@ -1378,7 +1378,7 @@ export function OptimizedVisualEditor({ className = '' }: OptimizedVisualEditorP
             </div>
           </TabsContent>
 
-          <TabsContent value="flatlays" className="flex flex-col h-full mt-0">
+          <TabsContent value="flatlays" className="flex-1 flex flex-col mt-0 min-h-0">
             {/* Flatlay Header */}
             <div className="p-4 border-b border-gray-200">
               <div className="flex items-center justify-between mb-3">
@@ -1451,7 +1451,7 @@ export function OptimizedVisualEditor({ className = '' }: OptimizedVisualEditorP
             </div>
           </TabsContent>
 
-          <TabsContent value="files" className="flex flex-col h-full mt-0">
+          <TabsContent value="files" className="flex-1 flex flex-col mt-0 min-h-0">
             <div className="flex-1 overflow-y-auto">
               <FileTreeExplorer 
                 selectedAgent={currentAgent.id}
@@ -1476,7 +1476,7 @@ export function OptimizedVisualEditor({ className = '' }: OptimizedVisualEditorP
             </div>
           </TabsContent>
 
-          <TabsContent value="editor" className="flex flex-col h-full mt-0">
+          <TabsContent value="editor" className="flex-1 flex flex-col mt-0 min-h-0">
             <MultiTabEditor 
               selectedAgent={currentAgent.id}
               onFileChange={(filePath, content) => {
@@ -1500,7 +1500,7 @@ export function OptimizedVisualEditor({ className = '' }: OptimizedVisualEditorP
             />
           </TabsContent>
 
-          <TabsContent value="enhancements" className="flex flex-col h-full mt-0">
+          <TabsContent value="enhancements" className="flex-1 flex flex-col mt-0 min-h-0">
             <div className="flex-1 overflow-y-auto">
               <AgentEnhancementDashboard />
             </div>
