@@ -1143,13 +1143,13 @@ export function OptimizedVisualEditor({ className = '' }: OptimizedVisualEditorP
           }} 
           className="flex-1 flex flex-col min-h-0"
         >
-          <TabsList className="grid w-full grid-cols-6 mx-1 md:mx-2 mt-1 md:mt-2">
-            <TabsTrigger value="chat" className="text-xs">Chat</TabsTrigger>
-            <TabsTrigger value="gallery" className="text-xs">Gallery</TabsTrigger>
-            <TabsTrigger value="flatlays" className="text-xs">Flatlays</TabsTrigger>
-            <TabsTrigger value="files" className="text-xs">Files</TabsTrigger>
-            <TabsTrigger value="editor" className="text-xs">Editor</TabsTrigger>
-            <TabsTrigger value="enhancements" className="text-xs">AI+</TabsTrigger>
+          <TabsList className="flex w-full mx-1 md:mx-2 mt-1 md:mt-2 h-9 bg-gray-100 rounded-md p-1">
+            <TabsTrigger value="chat" className="flex-1 text-xs h-7 rounded-sm data-[state=active]:bg-white data-[state=active]:shadow-sm">Chat</TabsTrigger>
+            <TabsTrigger value="gallery" className="flex-1 text-xs h-7 rounded-sm data-[state=active]:bg-white data-[state=active]:shadow-sm">Gallery</TabsTrigger>
+            <TabsTrigger value="flatlays" className="flex-1 text-xs h-7 rounded-sm data-[state=active]:bg-white data-[state=active]:shadow-sm">Flatlays</TabsTrigger>
+            <TabsTrigger value="files" className="flex-1 text-xs h-7 rounded-sm data-[state=active]:bg-white data-[state=active]:shadow-sm">Files</TabsTrigger>
+            <TabsTrigger value="editor" className="flex-1 text-xs h-7 rounded-sm data-[state=active]:bg-white data-[state=active]:shadow-sm">Editor</TabsTrigger>
+            <TabsTrigger value="enhancements" className="flex-1 text-xs h-7 rounded-sm data-[state=active]:bg-white data-[state=active]:shadow-sm">AI+</TabsTrigger>
           </TabsList>
 
           <TabsContent value="chat" className="flex-1 flex flex-col mt-0 min-h-0">
