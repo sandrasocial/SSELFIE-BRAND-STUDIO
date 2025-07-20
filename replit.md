@@ -356,11 +356,11 @@ The platform has become overly complex with multiple pricing tiers, broken onboa
 - **Visual Studio Integration**: ✅ BUILD interface with full Elena agent coordination
 
 **User-Facing BUILD Agents Integration Complete:**
-- **BUILD_AGENTS Configuration**: Victoria, Zara, and Aria properly configured for users
+- **BUILD_AGENTS Configuration**: Victoria and Maya ONLY - properly configured for users
 - **Agent Selector**: Working agent switching with Victoria as default for users
-- **Live Agent Chat**: Real-time communication with user-facing agents via API endpoints
-- **Elena Admin-Only**: Elena remains exclusively for admin coordination, not exposed to users
-- **Multi-Agent Handoffs**: User agents coordinate among themselves for BUILD tasks
+- **Live Agent Chat**: Real-time communication with Victoria and Maya via API endpoints
+- **Admin-Only Agents**: Elena, Zara, Aria, Rachel, etc. remain exclusively for admin coordination
+- **Restricted Access**: Users can ONLY access Victoria (UX Designer) and Maya (AI Photographer)
 
 **Technical Implementation:**
 - Enhanced BuildVisualStudio.tsx with full agent integration and chat functionality
@@ -369,11 +369,11 @@ The platform has become overly complex with multiple pricing tiers, broken onboa
 - Complete file creation, memory management, and handoff capabilities verified
 
 **Business Impact:**
-- BUILD feature ready for user-facing Victoria, Zara, and Aria coordination
-- User agents can perform live file creation, memory retention, and task coordination
-- Elena remains admin-only for Sandra's strategic workflow coordination
-- Visual studio provides professional development environment with user-appropriate AI assistance
-- Clear separation between user-facing agents and admin-only Elena coordination
+- BUILD feature ready with ONLY Victoria and Maya for users
+- Users get UX design guidance (Victoria) and AI photography assistance (Maya)
+- All other agents (Elena, Zara, Aria, Rachel, etc.) remain admin-only for Sandra
+- Visual studio provides controlled user experience with limited agent access
+- CRITICAL: Users cannot access development, creative direction, or strategic agents
 
 ### ✅ REPLIT-STYLE AGENT CHAT FORMATTING COMPLETED (July 17, 2025)
 **PROFESSIONAL AGENT COMMUNICATION MATCHING REPLIT'S INTERFACE:**
