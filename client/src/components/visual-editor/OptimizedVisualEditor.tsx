@@ -4,7 +4,7 @@ import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Panel, PanelGroup, PanelResizeHandle } from 'react-resizable-panels';
-import { Textarea } from '@/components/ui/textarea';
+
 import { 
   Eye, 
   Edit3,
@@ -1297,15 +1297,15 @@ export function OptimizedVisualEditor({ className = '' }: OptimizedVisualEditorP
                     <Paperclip className="w-3 h-3" />
                   </Button>
                 </div>
-                <Textarea
+                <textarea
                   value={messageInput}
                   onChange={(e) => setMessageInput(e.target.value)}
                   placeholder={`Ask ${currentAgent.name} for ${currentAgent.workflowStage.toLowerCase()} help or upload inspiration images...`}
                   className="flex-1 text-sm resize-none border border-gray-200 p-2 rounded"
                   style={{
-                    height: '40px',
-                    minHeight: '40px', 
-                    maxHeight: '40px',
+                    height: '40px !important',
+                    minHeight: '40px !important', 
+                    maxHeight: '40px !important',
                     overflow: 'hidden'
                   }}
                   rows={1}
