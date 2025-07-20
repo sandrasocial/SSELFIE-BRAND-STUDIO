@@ -738,6 +738,25 @@ Sandra reported: "Elena creates workflows but agents don't start, and server ref
 
 **STATUS**: S3 permissions fixed and bucket security hardened - no risk of random model creation
 
+## ✅ ELENA WORKFLOW POLLING ENDPOINT FIXED (July 20, 2025)
+
+**CRITICAL FRONTEND WORKFLOW POLLING ISSUE RESOLVED:**
+- ❌ **Previous Issue**: OptimizedVisualEditor was calling `/api/elena/workflow-status/{workflowId}` but endpoint didn't exist
+- ❌ **HTML Response Error**: Frontend received "<!DOCTYPE" HTML instead of JSON causing parsing errors
+- ❌ **Workflow Progress Broken**: Elena workflows created successfully but progress polling failed
+
+**TECHNICAL FIX IMPLEMENTED:**
+- ✅ **Elena Workflow Status Endpoint Added**: Created `/api/elena/workflow-status/:workflowId` endpoint in server/routes.ts
+- ✅ **ElenaWorkflowSystem Integration**: Endpoint properly calls `ElenaWorkflowSystem.getWorkflowProgress(workflowId)`
+- ✅ **JSON Response Format**: Returns proper JSON with `{success: true, progress: {...}}` structure
+- ✅ **Error Handling**: Proper try/catch with 500 error responses for failed workflow lookups
+
+**BUSINESS IMPACT:**
+- Elena workflows now show real-time progress updates in OptimizedVisualEditor
+- No more "SyntaxError: Unexpected token '<'" errors when polling workflow status  
+- Complete workflow lifecycle now functional: creation → execution → progress monitoring → completion
+- Professional development workflow restored with live progress tracking
+
 ## ✅ ELENA COORDINATION ROLE CLARIFIED AND FIXED (July 20, 2025)
 
 **CRITICAL ROLE CONFUSION RESOLVED:**
