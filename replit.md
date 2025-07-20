@@ -730,7 +730,13 @@ Sandra reported: "Elena creates workflows but agents don't start, and server ref
 }
 ```
 
-**STATUS**: S3 permissions fixed - training image uploads should now work without authorization errors
+**CRITICAL UPDATE**: Removed ALL bucket fallbacks to prevent random model creation
+- ✅ **Single Bucket Only**: Only `sselfie-training-zips` bucket used (from AWS_S3_BUCKET environment)
+- ✅ **No Fallbacks**: Removed all `|| 'fallback-bucket'` code that could create random models
+- ✅ **Environment Required**: Code now throws errors if AWS_S3_BUCKET is not set (prevents wrong bucket usage)
+- ✅ **Bucket Policy Focused**: Updated policy to only include `sselfie-training-zips` bucket
+
+**STATUS**: S3 permissions fixed and bucket security hardened - no risk of random model creation
 
 ## ✅ ELENA COORDINATION ROLE CLARIFIED AND FIXED (July 20, 2025)
 

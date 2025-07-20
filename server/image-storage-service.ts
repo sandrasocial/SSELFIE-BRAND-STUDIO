@@ -13,7 +13,7 @@ export class ImageStorageService {
     region: 'us-east-1'
   });
 
-  private static readonly BUCKET_NAME = process.env.AWS_S3_BUCKET || 'sselfie-training-zips';
+  private static readonly BUCKET_NAME = process.env.AWS_S3_BUCKET;
 
   /**
    * Downloads image from Replicate URL and uploads to S3 for permanent storage
@@ -21,6 +21,10 @@ export class ImageStorageService {
   static async storeImagePermanently(replicateUrl: string, userId: string, imageId: string): Promise<string> {
     try {
       console.log(`Storing image permanently: ${replicateUrl}`);
+      
+      if (!this.BUCKET_NAME) {
+        throw new Error('AWS_S3_BUCKET environment variable is required');
+      }
       
       // Download image from Replicate with error handling
       const response = await fetch(replicateUrl, {
