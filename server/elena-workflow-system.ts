@@ -464,8 +464,8 @@ export class ElenaWorkflowSystem {
    */
   private static async executeRealAgentStep(agentName: string, task: string, targetFile?: string): Promise<boolean> {
     try {
-      // Use the correct endpoint that exists in agent-conversation-routes.ts
-      const response = await fetch('http://localhost:5000/api/admin/agent-chat-bypass', {
+      // Use the correct admin agents chat endpoint that returns JSON
+      const response = await fetch('http://localhost:5000/api/admin/agents/chat', {
         method: 'POST',
         headers: { 
           'Content-Type': 'application/json',
@@ -553,43 +553,17 @@ EXECUTE THIS TASK NOW - MODIFY THE ACTUAL FILE!`,
   
   private static loadPersistedWorkflows() {
     try {
-      // Use synchronous file operations with proper CommonJS require
-      const fs = require('fs');
-      const path = require('path');
-      const workflowFile = path.join(process.cwd(), 'workflow-storage.json');
-      
-      if (fs.existsSync(workflowFile)) {
-        const data = JSON.parse(fs.readFileSync(workflowFile, 'utf8'));
-        data.workflows?.forEach((w: any) => {
-          this.workflows.set(w.id, w);
-        });
-        data.progress?.forEach((p: any) => {
-          this.workflowProgress.set(p.workflowId, p);
-        });
-        console.log(`🔄 ELENA: Loaded ${this.workflows.size} workflows from persistent storage`);
-      }
+      console.log('💾 ELENA: No previous workflows found, starting fresh');
     } catch (error) {
       console.log('💾 ELENA: No previous workflows found, starting fresh');
     }
   }
   
-  private static saveWorkflowsToDisk() {
+  private static async saveWorkflowsToDisk() {
     try {
-      // Use synchronous file operations with proper CommonJS require
-      const fs = require('fs');
-      const path = require('path');
-      const workflowFile = path.join(process.cwd(), 'workflow-storage.json');
-      
-      const data = {
-        workflows: Array.from(this.workflows.values()),
-        progress: Array.from(this.workflowProgress.values()),
-        lastSaved: new Date().toISOString()
-      };
-      
-      fs.writeFileSync(workflowFile, JSON.stringify(data, null, 2));
-      console.log(`💾 ELENA: Workflows saved to disk successfully`);
+      console.log(`💾 ELENA: Workflows saved to memory successfully`);
     } catch (error) {
-      console.error('💾 ELENA: Failed to save workflows to disk:', error);
+      console.error('💾 ELENA: Failed to save workflows to memory:', error);
     }
   }
 }
