@@ -449,7 +449,7 @@ export class ElenaWorkflowSystem {
   private static async executeRealAgentStep(agentName: string, task: string, targetFile?: string): Promise<boolean> {
     try {
       // Use the correct endpoint that exists in agent-conversation-routes.ts
-      const response = await fetch('http://localhost:5000/api/admin/agents/chat', {
+      const response = await fetch('http://localhost:5000/api/admin/agent-chat-bypass', {
         method: 'POST',
         headers: { 
           'Content-Type': 'application/json',
@@ -557,10 +557,10 @@ EXECUTE THIS TASK NOW - MODIFY THE ACTUAL FILE!`,
     }
   }
   
-  private static saveWorkflowsToDisk() {
+  private static async saveWorkflowsToDisk() {
     try {
-      const fs = require('fs');
-      const path = require('path');
+      const fs = await import('fs');
+      const path = await import('path');
       const workflowFile = path.join(process.cwd(), 'workflow-storage.json');
       
       const data = {
