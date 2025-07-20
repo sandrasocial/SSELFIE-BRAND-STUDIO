@@ -1755,5 +1755,7 @@ export function OptimizedVisualEditor({ className = '' }: OptimizedVisualEditorP
       {/* File Creation Confirmation System */}
       <FileCreationConfirmation onFileSelect={handleFileSelect} />
     </div>
+    </div>
+    </div>
   );
 }
