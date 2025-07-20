@@ -1034,10 +1034,10 @@ export function OptimizedVisualEditor({ className = '' }: OptimizedVisualEditorP
   return (
     <div className={`h-full bg-white ${className} flex`}>
       {/* Chat Panel - Fixed Simple Layout */}
-      <div className="w-1/3 h-full border-r border-gray-200 bg-white flex flex-col overflow-hidden">
+      <div className="w-1/3 h-full border-r border-gray-200 bg-white flex flex-col">
         <div 
           ref={chatPanelRef}
-          className={`h-full flex flex-col ${isDragOver ? 'bg-blue-50 border-blue-300' : ''}`}
+          className={`flex-1 flex flex-col min-h-0 ${isDragOver ? 'bg-blue-50 border-blue-300' : ''}`}
           onDragOver={handleDragOver}
           onDragLeave={handleDragLeave}
           onDrop={handleDrop}
