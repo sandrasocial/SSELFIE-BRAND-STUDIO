@@ -4203,7 +4203,7 @@ ${savedMemory.recentDecisions.map(decision => `• ${decision}`).join('\n')}
       }
       
       // Get functional agent personality (preserves specialties, enables autonomous workflows)
-      const agentPersonality = await import('./agents/agent-personalities-functional');
+      const agentPersonality = await import('./agents/agent-personalities-clean');
       const personalityData = agentPersonality.getAgentPersonality(agentId);
       
       // Give Elena access to search filesystem for accurate codebase analysis
