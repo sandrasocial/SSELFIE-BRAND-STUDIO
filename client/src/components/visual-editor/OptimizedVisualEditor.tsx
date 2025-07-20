@@ -118,15 +118,7 @@ const agents: Agent[] = [
     nextAgent: 'olga',
     workflowStage: 'Strategy'
   },
-  {
-    id: 'olga',
-    name: 'Olga',
-    role: 'Repository Organizer AI',
-    expertise: ['File Organization', 'Architecture Cleanup', 'Safe Operations', 'Dependency Mapping'],
-    color: 'bg-gray-600',
-    nextAgent: 'aria',
-    workflowStage: 'Organization'
-  },
+
   {
     id: 'aria',
     name: 'Aria',
@@ -1040,17 +1032,16 @@ export function OptimizedVisualEditor({ className = '' }: OptimizedVisualEditorP
   ];
 
   return (
-    <div className={`h-full bg-white ${className}`}>
-      <PanelGroup direction="horizontal" className="h-full">
-        {/* Chat Panel - Resizable */}
-        <Panel id="chat-panel" defaultSize={35} minSize={25} maxSize={50} className="md:min-w-0">
-          <div 
-            ref={chatPanelRef}
-            className={`h-full border-r border-gray-200 bg-white flex flex-col overflow-hidden ${isDragOver ? 'bg-blue-50 border-blue-300' : ''}`}
-            onDragOver={handleDragOver}
-            onDragLeave={handleDragLeave}
-            onDrop={handleDrop}
-          >
+    <div className={`h-full bg-white ${className} flex`}>
+      {/* Chat Panel - Fixed Simple Layout */}
+      <div className="w-1/3 h-full border-r border-gray-200 bg-white flex flex-col overflow-hidden">
+        <div 
+          ref={chatPanelRef}
+          className={`h-full flex flex-col ${isDragOver ? 'bg-blue-50 border-blue-300' : ''}`}
+          onDragOver={handleDragOver}
+          onDragLeave={handleDragLeave}
+          onDrop={handleDrop}
+        >
             {isDragOver && (
               <div className="absolute inset-0 bg-blue-50 bg-opacity-90 flex items-center justify-center z-50 border-2 border-dashed border-blue-300">
                 <div className="text-center">
@@ -1515,15 +1506,11 @@ export function OptimizedVisualEditor({ className = '' }: OptimizedVisualEditorP
             </div>
           </TabsContent>
         </Tabs>
-          </div>
-        </Panel>
+        </div>
+      </div>
 
-        {/* Resize Handle */}
-        <PanelResizeHandle className="w-2 bg-gray-100 hover:bg-gray-200 transition-colors" />
-
-        {/* Main Live Preview Panel - Resizable */}
-        <Panel id="preview-panel" defaultSize={showPropertiesPanel ? 45 : 65} minSize={30} className="md:min-w-0">
-          <div className="h-full flex flex-col">
+      {/* Main Live Preview Panel - Fixed Simple Layout */}
+      <div className={`${showPropertiesPanel ? 'w-1/3' : 'w-2/3'} h-full flex flex-col`}>
         {/* Top Toolbar */}
         <div className="border-b border-gray-200 px-2 md:px-4 py-1 md:py-2 flex items-center justify-between bg-gray-50">
           <div className="flex items-center space-x-4">
@@ -1599,14 +1586,10 @@ export function OptimizedVisualEditor({ className = '' }: OptimizedVisualEditorP
               />
             </div>
           </div>
-        </Panel>
 
-        {/* Properties Panel - Only shows when button clicked */}
-        {showPropertiesPanel && (
-          <>
-            <PanelResizeHandle className="w-2 bg-gray-100 hover:bg-gray-200 transition-colors" />
-            <Panel id="properties-panel" defaultSize={20} minSize={15} maxSize={30}>
-              <div className="h-full border-l border-gray-200 bg-white flex flex-col">
+      {/* Properties Panel - Conditional */}
+      {showPropertiesPanel && (
+        <div className="w-1/3 h-full border-l border-gray-200 bg-white flex flex-col overflow-y-auto">
                 {/* Properties Header */}
                 <div className="p-4 border-b border-gray-200 flex items-center justify-between">
                   <h3 className="font-medium text-sm">Properties</h3>
@@ -1767,11 +1750,8 @@ export function OptimizedVisualEditor({ className = '' }: OptimizedVisualEditorP
               </Button>
                 </div>
                 </div>
-              </div>
-            </Panel>
-          </>
-        )}
-      </PanelGroup>
+        </div>
+      )}
       
       {/* File Creation Confirmation System */}
       <FileCreationConfirmation onFileSelect={handleFileSelect} />
