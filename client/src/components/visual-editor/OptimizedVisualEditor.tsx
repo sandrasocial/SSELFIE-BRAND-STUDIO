@@ -1161,7 +1161,7 @@ export function OptimizedVisualEditor({ className = '' }: OptimizedVisualEditorP
             <TabsTrigger value="enhancements" className="text-xs">AI+</TabsTrigger>
           </TabsList>
 
-          <TabsContent value="chat" className="flex flex-col flex-1 mt-0 min-h-0">
+          <TabsContent value="chat" className="flex flex-col h-full mt-0 min-h-0">
             {/* Minimal Chat Controls - Subtle Icon */}
             <div className="flex justify-end px-2 py-1">
               <AgentChatControls
@@ -1341,7 +1341,7 @@ export function OptimizedVisualEditor({ className = '' }: OptimizedVisualEditorP
             </div>
 
             {/* Gallery Images Grid - Fixed scrolling */}
-            <div className="flex-1 overflow-y-auto p-4" style={{ maxHeight: 'calc(100vh - 400px)' }}>
+            <div className="flex-1 overflow-y-auto p-4">
               {aiImages.length === 0 ? (
                 <div className="text-center text-gray-500 text-sm">
                   <div className="mb-2">Gallery</div>
@@ -1409,7 +1409,7 @@ export function OptimizedVisualEditor({ className = '' }: OptimizedVisualEditorP
             </div>
 
             {/* Flatlay Collections - Using Workspace Data for Pro Members */}
-            <div className="flex-1 overflow-y-auto" style={{ maxHeight: 'calc(100vh - 200px)' }}>
+            <div className="flex-1 overflow-y-auto">
               {workspaceFlatlayCollections.map((collection) => (
                 <div key={collection.id} className="border-b border-gray-200">
                   <div className="p-4">
@@ -1461,7 +1461,7 @@ export function OptimizedVisualEditor({ className = '' }: OptimizedVisualEditorP
           </TabsContent>
 
           <TabsContent value="files" className="flex flex-col h-full mt-0">
-            <div className="flex-1 overflow-y-auto" style={{ maxHeight: 'calc(100vh - 200px)' }}>
+            <div className="flex-1 overflow-y-auto">
               <FileTreeExplorer 
                 selectedAgent={currentAgent.id}
                 onFileSelect={(filePath, content) => {
