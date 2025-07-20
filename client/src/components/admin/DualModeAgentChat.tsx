@@ -212,7 +212,7 @@ export default function DualModeAgentChat() {
         </CardHeader>
         <CardContent>
           {/* Chat Messages */}
-          <div className="space-y-4 mb-6 max-h-96 overflow-y-auto">
+          <div className="space-y-4 mb-6 max-h-[600px] overflow-y-auto">
             {conversation.length === 0 ? (
               <div className="text-center text-gray-500 py-8">
                 Start a conversation with {selectedAgent.name} in {chatMode} mode
@@ -224,7 +224,7 @@ export default function DualModeAgentChat() {
                   className={`flex ${msg.sender === 'user' ? 'justify-end' : 'justify-start'}`}
                 >
                   <div
-                    className={`max-w-xs lg:max-w-md px-4 py-2 rounded-lg ${
+                    className={`max-w-lg lg:max-w-2xl px-4 py-2 rounded-lg ${
                       msg.sender === 'user'
                         ? 'bg-black text-white'
                         : 'bg-gray-100 text-gray-800'
