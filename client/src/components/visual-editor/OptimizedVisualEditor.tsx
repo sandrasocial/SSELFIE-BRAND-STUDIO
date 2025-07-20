@@ -1041,12 +1041,12 @@ export function OptimizedVisualEditor({ className = '' }: OptimizedVisualEditorP
 
   return (
     <div className={`h-full bg-white ${className}`}>
-      <PanelGroup direction="horizontal" className="h-full md:flex-row flex-col">
+      <PanelGroup direction="horizontal" className="h-full">
         {/* Chat Panel - Resizable */}
         <Panel id="chat-panel" defaultSize={35} minSize={25} maxSize={50} className="md:min-w-0">
           <div 
             ref={chatPanelRef}
-            className={`h-full border-r md:border-r border-b md:border-b-0 border-gray-200 bg-white flex flex-col overflow-hidden ${isDragOver ? 'bg-blue-50 border-blue-300' : ''}`}
+            className={`h-full border-r border-gray-200 bg-white flex flex-col overflow-hidden ${isDragOver ? 'bg-blue-50 border-blue-300' : ''}`}
             onDragOver={handleDragOver}
             onDragLeave={handleDragLeave}
             onDrop={handleDrop}
