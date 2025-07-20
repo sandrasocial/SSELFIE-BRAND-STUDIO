@@ -15,10 +15,10 @@ export function registerElenaMonitoringRoutes(app: Express) {
       // Get recent agent activity from conversations
       const recentActivity = await db
         .select({
-          agent_id: agentConversations.agent_id,
-          agent_response: agentConversations.agent_response,
+          agent_id: agentConversations.agentId,
+          agent_response: agentConversations.agentResponse,
           timestamp: agentConversations.timestamp,
-          user_message: agentConversations.user_message
+          user_message: agentConversations.userMessage
         })
         .from(agentConversations)
         .where(sql`${agentConversations.timestamp} > NOW() - INTERVAL '10 minutes'`)
@@ -60,12 +60,12 @@ export function registerElenaMonitoringRoutes(app: Express) {
         const lastActivity = await db
           .select({
             timestamp: agentConversations.timestamp,
-            user_message: agentConversations.user_message,
-            agent_response: agentConversations.agent_response
+            user_message: agentConversations.userMessage,
+            agent_response: agentConversations.agentResponse
           })
           .from(agentConversations)
-          .where(sql`${agentConversations.agent_id} = ${agentId}`)
-          .orderBy(sql`${agentConversations.timestamp} DESC`)
+          .where(eq(agentConversations.agentId, agentId))
+          .orderBy(desc(agentConversations.timestamp))
           .limit(1);
 
         const isActive = lastActivity.length > 0 && 
