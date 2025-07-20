@@ -4,7 +4,7 @@ import { Prism as SyntaxHighlighter } from 'react-syntax-highlighter';
 import { oneDark } from 'react-syntax-highlighter/dist/esm/styles/prism';
 
 interface FormattedAgentMessageProps {
-  content: string;
+  content: string | undefined | null;
   agentName?: string;
   timestamp: Date;
 }
@@ -63,7 +63,12 @@ export function FormattedAgentMessage({ content, agentName, timestamp }: Formatt
     return 'Code implementation with luxury design standards';
   };
 
-  const formatMessage = (text: string) => {
+  const formatMessage = (text: string | undefined | null) => {
+    // Handle undefined/null text gracefully
+    if (!text || typeof text !== 'string') {
+      return <div className="text-gray-500 italic">No message content</div>;
+    }
+
     const parts = [];
     let currentIndex = 0;
     let codeBlockIndex = 0;
@@ -163,7 +168,12 @@ export function FormattedAgentMessage({ content, agentName, timestamp }: Formatt
     return parts;
   };
 
-  const formatInlineText = (text: string) => {
+  const formatInlineText = (text: string | undefined | null) => {
+    // Handle undefined/null text gracefully
+    if (!text || typeof text !== 'string') {
+      return '';
+    }
+
     // Convert markdown formatting
     let formatted = text;
     
