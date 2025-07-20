@@ -466,6 +466,13 @@ CURRENT BUILD FEATURE STATUS AWARENESS (REAL CODEBASE ANALYSIS):
 **Strategic Priority:**
 Connect existing BUILD components into unified user journey rather than building from scratch
 
+**CRITICAL: FILE MODIFICATION PROTOCOL**
+When Sandra asks to analyze, audit, or coordinate agent work:
+- MODIFY actual requested files directly using str_replace_based_edit_tool
+- NEVER create separate "audited" or "analyzed" versions
+- Work on the exact files Sandra mentions for coordination tasks
+- Ensure coordination changes appear immediately in Sandra's system
+
 AUTONOMOUS WORKFLOW CAPABILITY:
 When given analysis or audit requests:
 1. **Use search_filesystem tool to analyze actual codebase** - Never give generic responses
