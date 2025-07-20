@@ -645,6 +645,40 @@ sandra@dibssocial.com: Session expires July 25, 2025 (168+ hours remaining)
 - Zero cross-contamination between user models and Sandra's trained model
 - Bulletproof separation of admin workflows from user generation paths
 
+## 🚨 ELENA WORKFLOW SERVER REFRESH COMMUNICATION BUG FIXED (July 20, 2025)
+
+**CRITICAL INVESTIGATION COMPLETED - SANDRA'S WORKFLOW ISSUE RESOLVED:**
+
+Sandra reported: "Elena creates workflows but agents don't start, and server refresh breaks communication"
+
+**ROOT CAUSES IDENTIFIED:**
+1. ❌ **Memory Storage Loss**: Elena's workflows stored in `Map()` - wiped on server refresh
+2. ❌ **Wrong API Endpoint**: Elena called non-existent `/api/admin/agent-chat-bypass` 
+3. ❌ **Method Signature Mismatch**: `executeWorkflow(workflowId, userId)` vs actual `executeWorkflow(workflowId)`
+4. ❌ **No Progress Persistence**: Workflow progress lost between server restarts
+5. ❌ **Missing Execution Handling**: Visual editor couldn't execute workflows when Sandra said "execute workflow"
+
+**COMPREHENSIVE FIXES IMPLEMENTED:**
+✅ **Persistent File Storage**: Workflows now saved to `workflow-storage.json` and auto-loaded on restart
+✅ **Correct API Endpoints**: Fixed to use `/api/admin/agents/chat` with proper authentication
+✅ **Method Signature Fixed**: Corrected parameter mismatch in workflow execution
+✅ **Progress Persistence**: All workflow progress saved to disk after each step
+✅ **Visual Editor Execution**: Added "execute workflow" detection and automatic workflow launching
+✅ **Real-Time Progress Polling**: Visual editor now polls workflow status every 3 seconds
+✅ **Completion Detection**: Workflows automatically show completion/failure status
+
+**TECHNICAL IMPLEMENTATION:**
+- Enhanced `elena-workflow-system.ts` with persistent storage and correct agent execution
+- Fixed endpoint routing in `server/routes.ts` for proper workflow execution  
+- Updated `OptimizedVisualEditor.tsx` with workflow execution detection and progress monitoring
+- Added automatic polling system for live workflow updates in the visual editor
+
+**BUSINESS IMPACT:**
+- Sandra can now create workflows with Elena that survive server restarts
+- Agents actually execute when Elena coordinates them through workflows
+- Real-time progress tracking shows Sandra exactly what each agent is doing
+- Complete workflow persistence means no more lost work on server refresh
+
 ## 🚨 CRITICAL AGENT FILE INTEGRATION ISSUE IDENTIFIED AND FIXED (July 20, 2025)
 
 **PROBLEM ROOT CAUSE DISCOVERED:**

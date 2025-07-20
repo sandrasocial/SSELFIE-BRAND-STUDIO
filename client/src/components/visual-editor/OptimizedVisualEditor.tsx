@@ -269,6 +269,7 @@ export function OptimizedVisualEditor({ className = '' }: OptimizedVisualEditorP
   const [selectedImages, setSelectedImages] = useState<string[]>([]);
   const [agentController, setAgentController] = useState<AbortController | null>(null);
   const [isPaused, setIsPaused] = useState(false);
+  const [workflowPollingInterval, setWorkflowPollingInterval] = useState<NodeJS.Timeout | null>(null);
   const [uploadedFiles, setUploadedFiles] = useState<File[]>([]);
   const [isDragOver, setIsDragOver] = useState(false);
   // Removed iframeLoading state - no longer using iframes
@@ -571,6 +572,76 @@ export function OptimizedVisualEditor({ className = '' }: OptimizedVisualEditorP
     checkStatus();
   };
 
+  // Workflow progress polling function
+  const startWorkflowProgressPolling = (workflowId: string) => {
+    // Clear any existing polling
+    if (workflowPollingInterval) {
+      clearInterval(workflowPollingInterval);
+    }
+    
+    const pollProgress = async () => {
+      try {
+        const response = await fetch(`/api/elena/workflow-status/${workflowId}`);
+        if (response.ok) {
+          const data = await response.json();
+          if (data.progress) {
+            // Update the last workflow message with progress
+            setChatMessages(prev => {
+              const updated = [...prev];
+              const lastWorkflowIndex = updated.findLastIndex(msg => msg.workflowId === workflowId);
+              if (lastWorkflowIndex !== -1) {
+                updated[lastWorkflowIndex] = {
+                  ...updated[lastWorkflowIndex],
+                  workflowProgress: data.progress,
+                  content: `**Workflow Progress Update**\n\n**Step:** ${data.progress.currentStep}/${data.progress.totalSteps}\n**Current Agent:** ${data.progress.currentAgent || 'Coordinating'}\n**Status:** ${data.progress.status}\n\n**Completed Tasks:**\n${data.progress.completedTasks.join('\n')}\n\n**Next Actions:**\n${data.progress.nextActions.join('\n')}`
+                };
+              }
+              return updated;
+            });
+            
+            // Stop polling if workflow is completed or failed
+            if (data.progress.status === 'completed' || data.progress.status === 'failed') {
+              if (workflowPollingInterval) {
+                clearInterval(workflowPollingInterval);
+                setWorkflowPollingInterval(null);
+              }
+              
+              // Add completion message
+              const completionMessage: ChatMessage = {
+                type: 'agent',
+                content: data.progress.status === 'completed' 
+                  ? `**🎉 Workflow Completed Successfully!**\n\nAll agents have completed their assigned tasks. The workflow has been executed and your files have been updated.`
+                  : `**❌ Workflow Failed**\n\nThe workflow encountered an error and could not be completed. Please check the logs for details.`,
+                timestamp: new Date(),
+                agentName: 'elena',
+                workflowStage: 'Complete'
+              };
+              setChatMessages(prev => [...prev, completionMessage]);
+            }
+          }
+        }
+      } catch (error) {
+        console.error('Failed to poll workflow progress:', error);
+      }
+    };
+    
+    // Start polling every 3 seconds
+    const interval = setInterval(pollProgress, 3000);
+    setWorkflowPollingInterval(interval);
+    
+    // Initial poll
+    pollProgress();
+  };
+
+  // Clean up polling on unmount
+  useEffect(() => {
+    return () => {
+      if (workflowPollingInterval) {
+        clearInterval(workflowPollingInterval);
+      }
+    };
+  }, [workflowPollingInterval]);
+
   // Handle file upload
   const handleFileUpload = async (files: FileList | null) => {
     if (!files || files.length === 0) return;
@@ -759,27 +830,50 @@ export function OptimizedVisualEditor({ className = '' }: OptimizedVisualEditorP
         workflowStage
       });
 
-      // Elena workflow creation handling - only for explicit workflow creation requests
+      // Elena workflow handling - creation and execution
       const isWorkflowCreationRequest = message.toLowerCase().includes('create workflow') || 
                                       message.toLowerCase().includes('design workflow') ||
                                       message.toLowerCase().includes('new workflow');
-      const endpoint = (agentId === 'elena' && isWorkflowCreationRequest) ? '/api/elena/create-workflow' : '/api/admin/agents/chat';
       
-      const requestBody = (agentId === 'elena' && isWorkflowCreationRequest)
-        ? {
-            request: message,
-            userId: 'admin-sandra'
+      const isWorkflowExecutionRequest = message.toLowerCase().includes('execute workflow') || 
+                                       message.toLowerCase().includes('start workflow') ||
+                                       message.toLowerCase().includes('run workflow');
+      
+      let endpoint = '/api/admin/agents/chat';
+      if (agentId === 'elena' && isWorkflowCreationRequest) {
+        endpoint = '/api/elena/create-workflow';
+      } else if (agentId === 'elena' && isWorkflowExecutionRequest) {
+        // Check for workflow ID in conversation history
+        const lastWorkflowMessage = chatMessages.slice().reverse().find(msg => msg.workflowId);
+        if (lastWorkflowMessage?.workflowId) {
+          endpoint = '/api/elena/execute-workflow';
+        }
+      }
+      
+      let requestBody;
+      if (agentId === 'elena' && isWorkflowCreationRequest) {
+        requestBody = {
+          request: message,
+          userId: 'admin-sandra'
+        };
+      } else if (agentId === 'elena' && isWorkflowExecutionRequest) {
+        const lastWorkflowMessage = chatMessages.slice().reverse().find(msg => msg.workflowId);
+        requestBody = {
+          workflowId: lastWorkflowMessage?.workflowId,
+          userId: 'admin-sandra'
+        };
+      } else {
+        requestBody = {
+          agentId: agentId,
+          message: message,
+          adminToken: 'sandra-admin-2025',
+          conversationHistory: conversationHistory,
+          workflowContext: {
+            stage: workflowStage,
+            previousWork: chatMessages.filter(msg => msg.agentName && msg.agentName !== agentId).slice(-3)
           }
-        : {
-            agentId: agentId,
-            message: message,
-            adminToken: 'sandra-admin-2025',
-            conversationHistory: conversationHistory,
-            workflowContext: {
-              stage: workflowStage,
-              previousWork: chatMessages.filter(msg => msg.agentName && msg.agentName !== agentId).slice(-3)
-            }
-          };
+        };
+      }
 
       const response = await fetch(endpoint, {
         method: 'POST',
@@ -810,7 +904,7 @@ export function OptimizedVisualEditor({ className = '' }: OptimizedVisualEditorP
             type: 'agent',
             content: `**Workflow Created: ${data.workflow.name}**\n\n${data.workflow.description}\n\n**Steps:**\n${data.workflow.steps.map((step: any, index: number) => 
               `${index + 1}. ${step.agentName}: ${step.taskDescription}`
-            ).join('\n')}\n\n**Estimated Duration:** ${data.workflow.estimatedDuration}\n\nSay "execute workflow" to begin execution, or "modify workflow" to make changes.`,
+            ).join('\n')}\n\n**Estimated Duration:** ${data.workflow.estimatedDuration}\n\n**Status:** Ready for execution\n\nSay "execute workflow" to begin execution, or "modify workflow" to make changes.`,
             timestamp: new Date(),
             agentName: 'elena',
             workflowStage: 'Strategy',
@@ -828,6 +922,33 @@ export function OptimizedVisualEditor({ className = '' }: OptimizedVisualEditorP
             isWorkflowMessage: true
           };
           setChatMessages(prev => [...prev, workflowMessage]);
+        } else if (agentId === 'elena' && data.executionId) {
+          // Handle Elena workflow execution response
+          const executionMessage: ChatMessage = {
+            type: 'agent',
+            content: `**Workflow Execution Started**\n\n🚀 Starting workflow execution with ID: ${data.executionId}\n\nI am now coordinating all agents to complete the workflow steps. You will see live progress updates as each agent completes their tasks.\n\n**Status:** Executing\n**Progress:** 0% complete`,
+            timestamp: new Date(),
+            agentName: 'elena',
+            workflowStage: 'Executing',
+            workflowId: data.workflowId || 'unknown',
+            workflowProgress: {
+              workflowId: data.workflowId || 'unknown',
+              workflowName: 'Executing Workflow',
+              currentStep: 0,
+              totalSteps: 1,
+              status: 'executing',
+              estimatedTimeRemaining: 'In progress...',
+              completedTasks: [],
+              nextActions: ['Starting workflow execution...']
+            },
+            isWorkflowMessage: true
+          };
+          setChatMessages(prev => [...prev, executionMessage]);
+          
+          // Start polling for workflow progress
+          if (data.workflowId) {
+            startWorkflowProgressPolling(data.workflowId);
+          }
         } else {
           const agentMessage: ChatMessage = {
             type: 'agent',

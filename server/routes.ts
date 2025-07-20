@@ -4824,12 +4824,14 @@ AGENT_CONTEXT:
       
       console.log(`🚀 ELENA: Executing workflow ${workflowId} for user ${userId}`);
       
-      await ElenaWorkflowSystem.executeWorkflow(workflowId, userId);
+      // Fix: Use correct method signature (only workflowId parameter)
+      const result = await ElenaWorkflowSystem.executeWorkflow(workflowId);
       
       res.json({
         success: true,
         message: 'Workflow execution started',
-        workflowId
+        workflowId,
+        executionId: result.executionId
       });
       
     } catch (error) {
@@ -4845,12 +4847,13 @@ AGENT_CONTEXT:
     try {
       const { workflowId } = req.params;
       
-      const status = await ElenaWorkflowSystem.getWorkflowStatus(workflowId);
+      // Fix: Use correct method name (getWorkflowProgress, not getWorkflowStatus)
+      const progress = await ElenaWorkflowSystem.getWorkflowProgress(workflowId);
       
       res.json({
         success: true,
         workflowId,
-        status
+        progress
       });
       
     } catch (error) {

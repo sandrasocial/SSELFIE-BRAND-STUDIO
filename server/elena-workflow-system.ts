@@ -56,8 +56,9 @@ export class ElenaWorkflowSystem {
       riskLevel: workflowAnalysis.riskLevel
     };
     
-    // Store workflow for execution
+    // Store workflow for execution with persistence
     this.workflows.set(workflow.id, workflow);
+    this.saveWorkflowsToDisk(); // Persist to survive server restarts
     
     console.log(`✅ ELENA: Workflow "${workflow.name}" created with ${workflow.steps.length} steps`);
     return workflow;
@@ -369,7 +370,7 @@ export class ElenaWorkflowSystem {
     // Create execution ID for tracking
     const executionId = `exec_${workflowId}_${Date.now()}`;
     
-    // Initialize workflow progress
+    // Initialize workflow progress with persistence
     this.workflowProgress.set(workflowId, {
       workflowId,
       workflowName: workflow.name,
@@ -381,6 +382,8 @@ export class ElenaWorkflowSystem {
       completedTasks: [],
       nextActions: [workflow.steps[0]?.taskDescription || 'Starting workflow...']
     });
+    
+    this.saveWorkflowsToDisk(); // Persist progress
     
     // Start workflow execution in background
     this.executeWorkflowSteps(workflow, executionId);
@@ -432,9 +435,10 @@ export class ElenaWorkflowSystem {
         // Real agent processing time
         await new Promise(resolve => setTimeout(resolve, 5000));
         
-        // Update next actions
+        // Update next actions and persist progress
         const nextStep = workflow.steps[i + 1];
         progress.nextActions = nextStep ? [nextStep.taskDescription] : ['Real workflow complete'];
+        this.saveWorkflowsToDisk(); // Persist progress after each step
       }
     }
     
@@ -447,6 +451,7 @@ export class ElenaWorkflowSystem {
     }
     
     workflow.status = 'completed';
+    this.saveWorkflowsToDisk(); // Final persistence
     console.log(`✅ ELENA: REAL WORKFLOW ${workflow.id} completed with verified file changes`);
   }
   
@@ -455,11 +460,12 @@ export class ElenaWorkflowSystem {
    */
   private static async executeRealAgentStep(agentName: string, task: string, targetFile?: string): Promise<boolean> {
     try {
-      const response = await fetch('http://localhost:5000/api/admin/agent-chat-bypass', {
+      // Use the correct endpoint that exists in agent-conversation-routes.ts
+      const response = await fetch('http://localhost:5000/api/admin/agents/chat', {
         method: 'POST',
         headers: { 
           'Content-Type': 'application/json',
-          'Authorization': 'Bearer elena-workflow-execution'
+          'X-Admin-Token': 'sandra-admin-2025'
         },
         body: JSON.stringify({
           agentId: agentName.toLowerCase(),
@@ -480,7 +486,13 @@ REQUIREMENTS:
 4. NO separate redesigned files - work on the real file!
 
 EXECUTE THIS TASK NOW - MODIFY THE ACTUAL FILE!`,
-          token: 'elena-workflow-system'
+          adminToken: 'sandra-admin-2025',
+          conversationHistory: [],
+          workflowContext: {
+            stage: 'workflow-execution',
+            isElenaDirected: true,
+            targetFile: targetFile
+          }
         })
       });
       
@@ -525,7 +537,53 @@ EXECUTE THIS TASK NOW - MODIFY THE ACTUAL FILE!`,
   
   /**
    * Storage for active workflows and progress
+   * Using persistent storage to survive server restarts
    */
   private static workflows = new Map<string, CustomWorkflow>();
   private static workflowProgress = new Map<string, any>();
+  
+  // Load workflows from persistent storage on startup
+  static {
+    this.loadPersistedWorkflows();
+  }
+  
+  private static loadPersistedWorkflows() {
+    try {
+      // For now, use file-based persistence until database schema is ready
+      const fs = require('fs');
+      const path = require('path');
+      const workflowFile = path.join(process.cwd(), 'workflow-storage.json');
+      
+      if (fs.existsSync(workflowFile)) {
+        const data = JSON.parse(fs.readFileSync(workflowFile, 'utf8'));
+        data.workflows?.forEach((w: any) => {
+          this.workflows.set(w.id, w);
+        });
+        data.progress?.forEach((p: any) => {
+          this.workflowProgress.set(p.workflowId, p);
+        });
+        console.log(`🔄 ELENA: Loaded ${this.workflows.size} workflows from persistent storage`);
+      }
+    } catch (error) {
+      console.log('💾 ELENA: No previous workflows found, starting fresh');
+    }
+  }
+  
+  private static saveWorkflowsToDisk() {
+    try {
+      const fs = require('fs');
+      const path = require('path');
+      const workflowFile = path.join(process.cwd(), 'workflow-storage.json');
+      
+      const data = {
+        workflows: Array.from(this.workflows.values()),
+        progress: Array.from(this.workflowProgress.values()),
+        lastSaved: new Date().toISOString()
+      };
+      
+      fs.writeFileSync(workflowFile, JSON.stringify(data, null, 2));
+    } catch (error) {
+      console.error('💾 ELENA: Failed to save workflows to disk:', error);
+    }
+  }
 }
