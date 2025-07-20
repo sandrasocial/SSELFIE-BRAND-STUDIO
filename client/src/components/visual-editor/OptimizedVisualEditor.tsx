@@ -677,7 +677,7 @@ export function OptimizedVisualEditor({ className = '' }: OptimizedVisualEditorP
       });
 
       // Elena workflow creation handling
-      const endpoint = agentId === 'elena' ? '/api/elena/create-workflow' : '/api/admin/agent-chat-bypass';
+      const endpoint = agentId === 'elena' ? '/api/elena/create-workflow' : '/api/admin/agents/chat';
       
       const requestBody = agentId === 'elena' 
         ? {
