@@ -4364,11 +4364,22 @@ AGENT_CONTEXT:
       await ConversationManager.saveAgentMemory(summary);
       console.log(`💾 Memory summary saved for ${agentId}: ${summary.keyTasks.length} tasks, ${summary.recentDecisions.length} decisions`);
       
-      // Return response with file operations
+      // Return enhanced response with file operations for live preview
       res.json({
         success: true,
-        response: responseText,
+        message: responseText,
+        response: responseText, // Keep both for compatibility
+        agentName: agentName || agentId,
+        status: 'active',
+        conversationId: conversationId,
+        timestamp: new Date().toISOString(),
+        workflowStage: requestBody.workflowContext?.stage || 'Active',
         fileOperations: fileOperations || [],
+        filesCreated: fileOperations.map(f => ({
+          path: f.filePath,
+          type: f.type || 'file',
+          status: 'created'
+        })),
         conversationManagement: { disabled: true, reason: "Auto-clear disabled for debugging" }
       });
       

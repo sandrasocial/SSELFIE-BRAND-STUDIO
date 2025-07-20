@@ -294,6 +294,7 @@ export function OptimizedVisualEditor({ className = '' }: OptimizedVisualEditorP
   const [showQuickActions, setShowQuickActions] = useState(false);
   const [workflowActive, setWorkflowActive] = useState(false);
   const [workflowStage, setWorkflowStage] = useState('Design');
+  const [activeWorkingAgent, setActiveWorkingAgent] = useState<string | null>(null);
   const iframeRef = useRef<HTMLIFrameElement>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const chatPanelRef = useRef<HTMLDivElement>(null);
@@ -661,6 +662,7 @@ export function OptimizedVisualEditor({ className = '' }: OptimizedVisualEditorP
     const controller = new AbortController();
     setAgentController(controller);
     setIsLoading(true);
+    setActiveWorkingAgent(agentId); // Start pulsating indicator
 
     try {
       // Get conversation history for agent to learn and improve - proper format
@@ -833,7 +835,10 @@ export function OptimizedVisualEditor({ className = '' }: OptimizedVisualEditorP
           
           // Immediate refresh of dev preview to show new files
           if (iframeRef.current) {
-            iframeRef.current.src = iframeRef.current.src;
+            // Add cache-busting parameter to ensure fresh reload
+            const currentSrc = iframeRef.current.src;
+            const separator = currentSrc.includes('?') ? '&' : '?';
+            iframeRef.current.src = `${currentSrc}${separator}_refresh=${Date.now()}`;
           }
           
           // Show success notification
@@ -882,6 +887,7 @@ export function OptimizedVisualEditor({ className = '' }: OptimizedVisualEditorP
     } finally {
       setAgentController(null);
       setIsLoading(false);
+      setActiveWorkingAgent(null); // Stop pulsating indicator
     }
   };
 
@@ -1088,7 +1094,11 @@ export function OptimizedVisualEditor({ className = '' }: OptimizedVisualEditorP
           <div className="space-y-1">
             <div className="flex items-center justify-between">
               <span className="text-xs font-medium text-gray-600">Workflow</span>
-              {workflowActive && (
+              {activeWorkingAgent ? (
+                <Badge variant="secondary" className="text-xs bg-blue-100 text-blue-800 border border-blue-300 px-1 py-0 animate-pulse">
+                  {agents.find(a => a.id === activeWorkingAgent)?.name} Working...
+                </Badge>
+              ) : workflowActive && (
                 <Badge variant="secondary" className="text-xs bg-gray-100 text-black border border-gray-300 px-1 py-0">
                   {workflowStage}
                 </Badge>
@@ -1099,7 +1109,9 @@ export function OptimizedVisualEditor({ className = '' }: OptimizedVisualEditorP
                 <div
                   key={agent.id}
                   className={`flex-1 h-1 ${
-                    agent.id === currentAgent.id
+                    agent.id === activeWorkingAgent
+                      ? 'bg-blue-500 animate-pulse' // Pulsating blue for working agent
+                      : agent.id === currentAgent.id
                       ? 'bg-black'
                       : agents.findIndex(a => a.id === currentAgent.id) > index
                       ? 'bg-gray-400'
