@@ -271,6 +271,11 @@ function AdminDashboardOld() {
             {/* Dual Mode Agent Chat */}
             <DualModeAgentChat />
             
+            {/* Elena's Workflow Monitor - Real-time Process Tracking */}
+            <div className="mt-8">
+              <ElenaCoordinationPanel />
+            </div>
+            
           {/* Individual Agent Chat Interfaces */}
             <div className="space-y-6">
               <h3 className="text-lg font-medium mb-4" style={{ fontFamily: 'Times New Roman, serif' }}>
