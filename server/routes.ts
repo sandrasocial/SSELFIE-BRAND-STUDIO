@@ -11,6 +11,7 @@ import { registerAgentCommandRoutes } from "./routes/agent-command-center";
 import agentFileAccessRoutes from "./routes/agent-file-access";
 import agentLearningRoutes from "./routes/agent-learning";
 import elenaWorkflowRoutes from "./routes/elena-workflow-routes";
+import { registerAgentRoutes } from "./routes/agent-conversation-routes";
 import { rachelAgent } from "./agents/rachel-agent";
 import path from "path";
 import fs from "fs";
@@ -4895,3 +4896,6 @@ function getRealMetrics(agentId: string) {
     lastActivity: new Date()
   };
 }
+
+// Register agent conversation routes
+registerAgentRoutes(app);
