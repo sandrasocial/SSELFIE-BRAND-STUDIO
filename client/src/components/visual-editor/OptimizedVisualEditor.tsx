@@ -1141,8 +1141,7 @@ export function OptimizedVisualEditor({ className = '' }: OptimizedVisualEditorP
             // Track active tab for file watching
             (window as any).activeFileTab = value;
           }} 
-          className="flex-1 flex flex-col"
-          style={{height: 'calc(100vh - 200px)'}}
+          className="flex-1 flex flex-col min-h-0"
         >
           <TabsList className="grid w-full grid-cols-6 mx-1 md:mx-2 mt-1 md:mt-2">
             <TabsTrigger value="chat" className="text-xs">Chat</TabsTrigger>
@@ -1153,7 +1152,7 @@ export function OptimizedVisualEditor({ className = '' }: OptimizedVisualEditorP
             <TabsTrigger value="enhancements" className="text-xs">AI+</TabsTrigger>
           </TabsList>
 
-          <TabsContent value="chat" className="flex-1 mt-0 flex flex-col" style={{height: '100%'}}>
+          <TabsContent value="chat" className="flex-1 flex flex-col mt-0 min-h-0">
             {/* Minimal Chat Controls - Subtle Icon */}
             <div className="flex justify-end px-2 py-1 flex-shrink-0">
               <AgentChatControls
@@ -1166,7 +1165,7 @@ export function OptimizedVisualEditor({ className = '' }: OptimizedVisualEditorP
             </div>
             
             {/* Chat Messages - Flexible Container with proper height calculation */}
-            <div ref={chatContainerRef} className="overflow-y-auto p-1 md:p-2 space-y-1 md:space-y-2 flex-1">
+            <div ref={chatContainerRef} className="flex-1 overflow-y-auto p-1 md:p-2 space-y-1 md:space-y-2 min-h-0">
               {chatMessages.length === 0 && (
                 <div className="text-center text-gray-500 text-sm">
                   <div className="mb-2">Chat</div>
@@ -1265,18 +1264,7 @@ export function OptimizedVisualEditor({ className = '' }: OptimizedVisualEditorP
             </div>
 
             {/* Chat Input with Upload - FORCED Fixed at bottom */}
-            <div 
-              className="px-1 py-1 border-t border-gray-200 flex-shrink-0" 
-              style={{
-                height: '60px',
-                minHeight: '60px',
-                maxHeight: '60px',
-                position: 'sticky',
-                bottom: 0,
-                background: 'white',
-                zIndex: 10
-              }}
-            >
+            <div className="px-1 py-1 border-t border-gray-200 flex-shrink-0 bg-white h-[60px] min-h-[60px] max-h-[60px]">
               <div className="flex space-x-1 h-full items-center">
                 <div className="flex flex-col space-y-1">
                   <input
