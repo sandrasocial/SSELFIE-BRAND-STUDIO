@@ -118,7 +118,12 @@ export class BulletproofUploadService {
     
     const errors: string[] = [];
     const s3Urls: string[] = [];
-    const bucketName = process.env.AWS_S3_BUCKET || 'sselfie-training-zips';
+    const bucketName = process.env.AWS_S3_BUCKET;
+    
+    if (!bucketName) {
+      errors.push('❌ CRITICAL: AWS_S3_BUCKET environment variable is required');
+      return { success: false, errors, s3Urls };
+    }
     
     for (let i = 0; i < validImages.length; i++) {
       try {
@@ -208,7 +213,12 @@ export class BulletproofUploadService {
       for (let i = 0; i < s3Urls.length; i++) {
         try {
           const s3Key = s3Urls[i].split('/').slice(-2).join('/'); // Extract key from URL
-          const bucketName = process.env.AWS_S3_BUCKET || 'sselfie-training-zips';
+          const bucketName = process.env.AWS_S3_BUCKET;
+          
+          if (!bucketName) {
+            errors.push(`❌ CRITICAL: AWS_S3_BUCKET environment variable is required`);
+            break;
+          }
           
           const s3Object = await this.s3.getObject({
             Bucket: bucketName,
