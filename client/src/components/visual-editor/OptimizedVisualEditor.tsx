@@ -1046,7 +1046,7 @@ export function OptimizedVisualEditor({ className = '' }: OptimizedVisualEditorP
         <Panel id="chat-panel" defaultSize={35} minSize={25} maxSize={50} className="md:min-w-0 min-h-[40vh] md:min-h-0">
           <div 
             ref={chatPanelRef}
-            className={`h-full border-r md:border-r border-b md:border-b-0 border-gray-200 bg-white flex flex-col ${isDragOver ? 'bg-blue-50 border-blue-300' : ''}`}
+            className={`h-full border-r md:border-r border-b md:border-b-0 border-gray-200 bg-white flex flex-col overflow-hidden ${isDragOver ? 'bg-blue-50 border-blue-300' : ''}`}
             onDragOver={handleDragOver}
             onDragLeave={handleDragLeave}
             onDrop={handleDrop}
@@ -1150,7 +1150,7 @@ export function OptimizedVisualEditor({ className = '' }: OptimizedVisualEditorP
             // Track active tab for file watching
             (window as any).activeFileTab = value;
           }} 
-          className="flex-1 flex flex-col"
+          className="flex-1 flex flex-col min-h-0"
         >
           <TabsList className="grid w-full grid-cols-6 mx-1 md:mx-2 mt-1 md:mt-2">
             <TabsTrigger value="chat" className="text-xs">Chat</TabsTrigger>
@@ -1161,7 +1161,7 @@ export function OptimizedVisualEditor({ className = '' }: OptimizedVisualEditorP
             <TabsTrigger value="enhancements" className="text-xs">AI+</TabsTrigger>
           </TabsList>
 
-          <TabsContent value="chat" className="flex flex-col h-full mt-0">
+          <TabsContent value="chat" className="flex flex-col flex-1 mt-0 min-h-0">
             {/* Minimal Chat Controls - Subtle Icon */}
             <div className="flex justify-end px-2 py-1">
               <AgentChatControls
@@ -1173,8 +1173,8 @@ export function OptimizedVisualEditor({ className = '' }: OptimizedVisualEditorP
               />
             </div>
             
-            {/* Chat Messages - Flexible Container */}
-            <div ref={chatContainerRef} className="flex-1 overflow-y-auto p-1 md:p-2 space-y-1 md:space-y-2">
+            {/* Chat Messages - Flexible Container with proper height calculation */}
+            <div ref={chatContainerRef} className="flex-1 overflow-y-auto p-1 md:p-2 space-y-1 md:space-y-2 min-h-0">
               {chatMessages.length === 0 && (
                 <div className="text-center text-gray-500 text-sm">
                   <div className="mb-2">Chat</div>
@@ -1272,8 +1272,8 @@ export function OptimizedVisualEditor({ className = '' }: OptimizedVisualEditorP
               )}
             </div>
 
-            {/* Chat Input with Upload - Multi-line */}
-            <div className="px-1 py-0.5 border-t border-gray-200">
+            {/* Chat Input with Upload - Fixed at bottom */}
+            <div className="px-1 py-0.5 border-t border-gray-200 flex-shrink-0">
               <div className="flex space-x-1">
                 <div className="flex flex-col space-y-1">
                   <input
