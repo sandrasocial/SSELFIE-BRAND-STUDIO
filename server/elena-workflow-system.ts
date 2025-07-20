@@ -155,8 +155,8 @@ export class ElenaWorkflowSystem {
       agents.push('quinn');
     }
     
-    // Elena always coordinates
-    agents.push('elena');
+    // Elena coordinates at the workflow level, not as an executing agent
+    // Remove Elena from executing agent list to prevent infinite loops
     
     return [...new Set(agents)]; // Remove duplicates
   }
@@ -168,17 +168,8 @@ export class ElenaWorkflowSystem {
     const steps: WorkflowStep[] = [];
     let stepCounter = 1;
     
-    // Elena ALWAYS starts with coordination (mandatory first step)
-    steps.push({
-      id: `step_${stepCounter++}`,
-      agentId: 'elena',
-      agentName: 'Elena',
-      taskDescription: 'Analyze requirements and coordinate agent workflow',
-      estimatedTime: '3 minutes',
-      dependencies: [],
-      deliverables: ['Workflow coordination plan', 'Agent task assignments', 'File creation assessment'],
-      priority: 'high'
-    });
+    // Elena coordinates but doesn't execute as a step (to prevent infinite loops)
+    // Elena's coordination happens at the workflow level, not as an individual step
     
     // Olga file organization step (when new files will be created)
     const willCreateFiles = analysis.category === 'design' || analysis.category === 'development';
@@ -289,17 +280,7 @@ export class ElenaWorkflowSystem {
       });
     }
     
-    // Elena completes with final coordination (mandatory last step)
-    steps.push({
-      id: `step_${stepCounter++}`,
-      agentId: 'elena',
-      agentName: 'Elena',
-      taskDescription: 'Final workflow completion and delivery confirmation',
-      estimatedTime: '2 minutes',
-      dependencies: steps.slice(1).map(s => s.id),
-      deliverables: ['Completion summary', 'Business impact report', 'Next steps recommendations'],
-      priority: 'high'
-    });
+    // Elena tracks completion automatically, no need for recursive execution step
     
     return steps;
   }
@@ -417,6 +398,13 @@ export class ElenaWorkflowSystem {
         progress.currentStep = i + 1;
         progress.currentAgent = step.agentName;
         progress.nextActions = [step.taskDescription];
+        
+        // Skip Elena self-execution to prevent infinite loops
+        if (step.agentName === 'Elena' || step.agentId === 'elena') {
+          console.log(`⏭️ ELENA: Skipping self-execution for step: ${step.taskDescription}`);
+          progress.completedTasks.push(`✅ Elena: Coordination completed automatically`);
+          continue;
+        }
         
         // REAL AGENT EXECUTION - Call actual agent with direct file modification instructions
         console.log(`🤖 ELENA: REAL EXECUTION - ${step.agentName} working on: ${step.taskDescription}`);
