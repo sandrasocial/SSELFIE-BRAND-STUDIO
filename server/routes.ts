@@ -135,8 +135,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Agent learning & training routes  
   app.use('/api/agent-learning', agentLearningRoutes);
   
-  // Elena workflow routes for visual editor integration
-  app.use('/api/elena', elenaWorkflowRoutes);
+  // Elena workflow routes for visual editor integration (admin access)
+  app.use('/api/admin/elena', elenaWorkflowRoutes);
   
 
 

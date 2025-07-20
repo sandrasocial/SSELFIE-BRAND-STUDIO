@@ -423,6 +423,9 @@ export class ElenaWorkflowSystem {
         // Real agent processing time
         await new Promise(resolve => setTimeout(resolve, 5000));
         
+        // Save progress after each step
+        this.saveWorkflowsToDisk();
+        
         // Update next actions and persist progress
         const nextStep = workflow.steps[i + 1];
         progress.nextActions = nextStep ? [nextStep.taskDescription] : ['Real workflow complete'];
@@ -537,7 +540,7 @@ EXECUTE THIS TASK NOW - MODIFY THE ACTUAL FILE!`,
   
   private static loadPersistedWorkflows() {
     try {
-      // For now, use file-based persistence until database schema is ready
+      // Use synchronous file operations with proper CommonJS require
       const fs = require('fs');
       const path = require('path');
       const workflowFile = path.join(process.cwd(), 'workflow-storage.json');
@@ -557,10 +560,11 @@ EXECUTE THIS TASK NOW - MODIFY THE ACTUAL FILE!`,
     }
   }
   
-  private static async saveWorkflowsToDisk() {
+  private static saveWorkflowsToDisk() {
     try {
-      const fs = await import('fs');
-      const path = await import('path');
+      // Use synchronous file operations with proper CommonJS require
+      const fs = require('fs');
+      const path = require('path');
       const workflowFile = path.join(process.cwd(), 'workflow-storage.json');
       
       const data = {
@@ -570,6 +574,7 @@ EXECUTE THIS TASK NOW - MODIFY THE ACTUAL FILE!`,
       };
       
       fs.writeFileSync(workflowFile, JSON.stringify(data, null, 2));
+      console.log(`💾 ELENA: Workflows saved to disk successfully`);
     } catch (error) {
       console.error('💾 ELENA: Failed to save workflows to disk:', error);
     }
