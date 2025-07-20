@@ -8,58 +8,58 @@ export const findingMyselfAgainCollection = {
   tags: ['recovery', 'authentic', 'vulnerability', 'strength', 'editorial'],
   prompts: [
     {
-      id: 'morning-light-healing',
-      title: 'First Light',
-      prompt: 'Raw editorial portrait of [triggerword] in an oversized white button-down shirt, standing by a large window in soft morning light. Hair naturally tousled, no makeup, genuine peaceful expression. Holding a warm cup of coffee, steam rising. Clean white bedroom setting, unmade bed in background, golden hour lighting streaming across her face. Capturing the quiet strength of new beginnings, shot with 85mm lens, natural authentic moment',
+      id: 'morning-awakening',
+      title: 'First Breath of Freedom',
+      prompt: 'Intimate editorial portrait of [triggerword] in an oversized cream knit sweater, sitting cross-legged on rumpled white sheets by a sunlit window. Hair naturally tousled, bare face glowing in golden morning light, holding a steaming mug with both hands. Vulnerable yet peaceful expression, capturing that first moment of choosing yourself again. Shot with 85mm lens, soft natural lighting, raw authentic beauty',
       category: 'healing',
       mood: 'peaceful'
     },
     {
-      id: 'mirror-confrontation',
-      title: 'Facing Myself',
-      prompt: 'Intimate portrait of [triggerword] standing before a bathroom mirror in a simple gray tank top and jeans. Vulnerable honest expression, making eye contact with herself in reflection. Natural lighting from window, no artifice, raw authentic moment. Capturing that pivotal moment of self-acceptance and truth, editorial portrait photography, 50mm lens, soft natural light',
+      id: 'mirror-truth',
+      title: 'Meeting Myself',
+      prompt: 'Raw portrait of [triggerword] facing a vintage mirror in simple black cotton tee and high-waisted jeans. Direct honest gaze meeting her own reflection, natural makeup-free skin, hair pulled back carelessly. Bathroom setting with marble surfaces, natural window light creating soft shadows. Capturing the courage it takes to truly see yourself, editorial documentary style, 50mm lens',
       category: 'truth',
       mood: 'vulnerable'
     },
     {
-      id: 'nature-reconnection',
-      title: 'Breathing Again',
-      prompt: 'Editorial outdoor portrait of [triggerword] in a flowing cream linen dress, walking barefoot through tall grass during golden hour. Hair flowing naturally in gentle breeze, eyes closed, arms slightly outstretched, genuine smile of freedom. Wildflower field or meadow setting, warm golden light, capturing the moment of reconnecting with life and joy. Shot with 35mm lens, natural movement, editorial lifestyle photography',
+      id: 'nature-healing',
+      title: 'Wild and Free',
+      prompt: 'Editorial outdoor portrait of [triggerword] in flowing white linen dress, dancing barefoot in a wildflower meadow during golden hour. Arms outstretched, head tilted back with genuine laughter, hair catching sunlight and breeze. Tall grass and wildflowers swaying around her, warm golden light, capturing pure joy and reconnection with life. Shot with 35mm lens, natural movement, ethereal mood',
       category: 'freedom',
-      mood: 'liberating'
+      mood: 'joyful'
     },
     {
-      id: 'cozy-self-care',
+      id: 'self-nurturing',
       title: 'Learning to Rest',
-      prompt: 'Cozy lifestyle portrait of [triggerword] curled up in an oversized knit sweater in soft sage green, reading a book on a plush sofa. Natural relaxed expression, surrounded by soft throws and pillows, warm lamp lighting. Capturing the importance of rest and self-nurturing in healing, intimate home setting, shot with 50mm lens, warm cozy tones',
+      prompt: 'Cozy lifestyle portrait of [triggerword] wrapped in a soft camel cashmere throw, reading by a fireplace with tea on side table. Wearing simple gray cotton pajamas, natural relaxed expression, surrounded by books and plants. Warm amber lighting from fire and candles, capturing the radical act of rest and self-care. Shot with 50mm lens, intimate homey atmosphere',
       category: 'self-care',
       mood: 'nurturing'
     },
     {
-      id: 'creative-awakening',
-      title: 'Rediscovering Passion',
-      prompt: 'Artistic portrait of [triggerword] in a paint-splattered white shirt and vintage jeans, working on a canvas in a sunlit studio space. Focused creative expression, natural concentrated look, hair pulled back casually. Art supplies scattered around, natural window light, capturing the joy of rediscovering creative passion. Editorial lifestyle photography, 35mm lens, authentic creative moment',
+      id: 'creative-rebirth',
+      title: 'Colors of My Soul',
+      prompt: 'Artistic portrait of [triggerword] in paint-splattered white button-down and vintage denim, creating art in a sunlit studio. Concentrated creative expression, hair loosely braided, hands covered in colorful paint. Canvases and art supplies scattered around, natural north light streaming in, capturing the return of passion and creativity. Editorial lifestyle photography, 35mm lens',
       category: 'creativity',
       mood: 'inspired'
     },
     {
-      id: 'strength-emerging',
-      title: 'Inner Warrior',
-      prompt: 'Powerful portrait of [triggerword] in a structured black blazer over a simple white tee, standing confidently with arms crossed. Strong determined expression, head held high, natural makeup highlighting her features. Modern minimalist background, dramatic side lighting, capturing emerging inner strength and resilience. Editorial portrait photography, 85mm lens, confident powerful mood',
+      id: 'inner-strength',
+      title: 'Warrior Rising',
+      prompt: 'Powerful editorial portrait of [triggerword] in structured black blazer over soft white silk camisole, standing with confident posture against modern concrete wall. Strong direct gaze, subtle natural makeup, hair sleekly styled. Dramatic side lighting creating bold shadows, capturing newfound inner strength and resilience. Shot with 85mm lens, editorial fashion photography style',
       category: 'strength',
       mood: 'powerful'
     },
     {
-      id: 'evening-reflection',
-      title: 'Quiet Victory',
-      prompt: 'Elegant evening portrait of [triggerword] in a flowing silk slip dress in deep navy, sitting gracefully by a window at dusk. Gentle contemplative smile, looking out at city lights or sunset, wine glass in hand. Capturing a moment of quiet celebration and reflection on how far she\'s come. Warm ambient lighting, shot with 85mm lens, sophisticated editorial style',
+      id: 'evening-grace',
+      title: 'Gentle Victory',
+      prompt: 'Elegant twilight portrait of [triggerword] in flowing sage green silk dress, sitting gracefully on a velvet armchair by tall windows. Soft contemplative smile, glass of wine in hand, city lights twinkling outside. Warm ambient lighting mixing golden interior light with blue hour outside, capturing quiet celebration of personal growth. Shot with 85mm lens, sophisticated mood',
       category: 'reflection',
       mood: 'contemplative'
     },
     {
-      id: 'new-chapter',
-      title: 'Ready for Tomorrow',
-      prompt: 'Dynamic editorial portrait of [triggerword] in a flowing camel coat walking confidently down a tree-lined street. Natural genuine smile, hair catching sunlight, purposeful stride with head held high. Urban autumn setting with golden leaves, capturing the energy of someone ready to embrace their new chapter. Shot with 35mm lens, natural movement, editorial street photography style',
+      id: 'new-horizon',
+      title: 'Walking Into Tomorrow',
+      prompt: 'Dynamic street portrait of [triggerword] striding confidently in flowing camel trench coat and fitted black turtleneck, walking down tree-lined avenue. Natural radiant smile, hair moving with purposeful stride, autumn leaves scattered on path. Golden hour lighting filtering through trees, capturing someone fully ready to embrace their future. Shot with 35mm lens, editorial street photography',
       category: 'future',
       mood: 'optimistic'
     }

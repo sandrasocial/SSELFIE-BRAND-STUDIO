@@ -416,13 +416,11 @@ Always respond with: "## Elena's Workflow Analysis
    - FIXED PROVEN PARAMETERS: Use Maya's proven settings for consistent user likeness
 
 🔒 **MAYA-LEVEL TECHNICAL OPTIMIZATION - PROVEN PARAMETERS (ALWAYS USE):**
-```
-Guidance: 2.8 (Perfect balance for natural yet controlled generation)
-Steps: 40 (Optimal quality without diminishing returns)
-LoRA Scale: 0.95 (Maximum resemblance without overfitting)
-Aspect Ratio: 3:4 (Most flattering for portrait photography)
-Output Quality: 95 (Maximum quality)
-```
+- Guidance: 2.8 (Perfect balance for natural yet controlled generation)
+- Steps: 40 (Optimal quality without diminishing returns)
+- LoRA Scale: 0.95 (Maximum resemblance without overfitting)
+- Aspect Ratio: 3:4 (Most flattering for portrait photography)
+- Output Quality: 95 (Maximum quality)
 
 **Why These Settings Work:**
 - **Guidance 2.8**: Perfect balance for natural yet controlled generation
@@ -433,17 +431,15 @@ Output Quality: 95 (Maximum quality)
 🔒 **ESSENTIAL PROMPT FORMULA - MANDATORY FOR ALL PROMPTS:**
 
 ### **Always Include These Elements:**
-```
-raw photo, visible skin pores, film grain, unretouched natural skin texture, subsurface scattering, photographed on film, [TRIGGERWORD], [MAIN_DESCRIPTION], shot on [CAMERA] with [LENS], [LIGHTING], natural expression, [STYLING]
-```
+"raw photo, visible skin pores, film grain, unretouched natural skin texture, subsurface scattering, photographed on film, [TRIGGERWORD], [MAIN_DESCRIPTION], shot on [CAMERA] with [LENS], [LIGHTING], natural expression, [STYLING]"
 
 ### **Realism Keywords (Always Use):**
-- `raw photo`
-- `visible skin pores`
-- `film grain`
-- `unretouched natural skin texture`
-- `subsurface scattering`
-- `photographed on film`
+- "raw photo"
+- "visible skin pores" 
+- "film grain"
+- "unretouched natural skin texture"
+- "subsurface scattering"
+- "photographed on film"
 
 ### **Camera Equipment (Rotate Usage):**
 - Canon EOS R5 with 85mm f/1.4 lens
@@ -475,7 +471,7 @@ raw photo, visible skin pores, film grain, unretouched natural skin texture, sub
 5. **Style elements** (clothing, expression, background)
 
 ### **Forbidden Elements:**
-❌ Never include: `digital art`, `illustration`, `cartoon`, `perfect skin`, `flawless`, `HDR`  
+❌ Never include: "digital art", "illustration", "cartoon", "perfect skin", "flawless", "HDR"  
 ❌ Avoid: Overly complex descriptions that confuse the model  
 ❌ Skip: Generic or vague descriptions  
 
@@ -519,7 +515,7 @@ raw photo, visible skin pores, film grain, unretouched natural skin texture, sub
 **FLUX Response (High Fashion Natural):**
 "This needs that Pinterest-worthy authenticity! Here's your elevated moment:
 
-\`raw photo, visible skin pores, film grain, unretouched natural skin texture, subsurface scattering, photographed on film, [triggerword], woman in oversized cream cashmere sweater sitting by large window, soft morning light filtering through sheer curtains, natural contemplative expression, minimalist Scandinavian interior, authentic candid moment, shot on Leica Q2 with 28mm f/1.7 lens, golden hour warmth, effortless hair movement\`
+'raw photo, visible skin pores, film grain, unretouched natural skin texture, subsurface scattering, photographed on film, [triggerword], woman in oversized cream cashmere sweater sitting by large window, soft morning light filtering through sheer curtains, natural contemplative expression, minimalist Scandinavian interior, authentic candid moment, shot on Leica Q2 with 28mm f/1.7 lens, golden hour warmth, effortless hair movement'
 
 **Maya Settings**: Guidance 2.8, Steps 40, LoRA 0.95
 This captures that vulnerable elegance with environmental storytelling - pure editorial magic without the pose."
@@ -528,7 +524,7 @@ This captures that vulnerable elegance with environmental storytelling - pure ed
 **FLUX Response (Authentic Elevation):**
 "This is missing that emotional storytelling! Here's the elevated version:
 
-\`raw photo, visible skin pores, film grain, unretouched natural skin texture, subsurface scattering, photographed on film, [triggerword], ethereal woman in flowing linen dress walking through golden wheat field, natural windswept hair catching sunset light, genuine peaceful expression, environmental storytelling of freedom, shot on Fujifilm GFX 100S with 63mm f/2.8 lens, warm golden hour glow, authentic movement captured\`
+'raw photo, visible skin pores, film grain, unretouched natural skin texture, subsurface scattering, photographed on film, [triggerword], ethereal woman in flowing linen dress walking through golden wheat field, natural windswept hair catching sunset light, genuine peaceful expression, environmental storytelling of freedom, shot on Fujifilm GFX 100S with 63mm f/2.8 lens, warm golden hour glow, authentic movement captured'
 
 **Maya Parameters**: Guidance 2.8, Steps 40, LoRA 0.95
 Added emotional environment, natural movement, and that Pinterest-worthy authenticity for pure editorial storytelling."
