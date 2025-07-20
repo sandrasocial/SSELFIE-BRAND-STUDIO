@@ -343,16 +343,20 @@ export function OptimizedVisualEditor({ className = '' }: OptimizedVisualEditorP
           // Save the complete conversation pair to database
           const userMessage = chatMessages[chatMessages.length - 2];
           if (userMessage && userMessage.type === 'user') {
-            await fetch('/api/admin/agent-conversation-save', {
+            const response = await fetch('/api/admin/agent-conversation-save', {
               method: 'POST',
               headers: { 'Content-Type': 'application/json' },
               body: JSON.stringify({
                 adminToken: 'sandra-admin-2025',
-                agentId: currentAgent.id,
-                userMessage: userMessage.content,
-                agentResponse: lastMessage.content
+                agentId: currentAgent.id || 'unknown',
+                userMessage: userMessage.content || '',
+                agentResponse: lastMessage.content || ''
               })
             });
+            
+            if (!response.ok) {
+              console.error('Failed to save conversation:', await response.text());
+            }
           }
         }
       } catch (error) {

@@ -23,13 +23,12 @@ export function registerAdminConversationRoutes(app: Express) {
       // Get conversation history for this agent, last 50 interactions
       const conversations = await db
         .select({
-          user_message: agentConversations.user_message,
-          agent_response: agentConversations.agent_response,
-          timestamp: agentConversations.timestamp,
-          session_id: agentConversations.session_id
+          user_message: agentConversations.userMessage,
+          agent_response: agentConversations.agentResponse,
+          timestamp: agentConversations.timestamp
         })
         .from(agentConversations)
-        .where(eq(agentConversations.agent_id, agentId))
+        .where(eq(agentConversations.agentId, agentId))
         .orderBy(desc(agentConversations.timestamp))
         .limit(50);
 
@@ -68,11 +67,10 @@ export function registerAdminConversationRoutes(app: Express) {
       const [savedConversation] = await db
         .insert(agentConversations)
         .values({
-          user_id: req.user?.claims?.sub || 'admin-sandra',
-          agent_id: agentId,
-          user_message: userMessage,
-          agent_response: agentResponse,
-          session_id: `admin-${Date.now()}`,
+          userId: req.user?.claims?.sub || 'admin-sandra',
+          agentId: agentId || 'unknown',
+          userMessage: userMessage || '',
+          agentResponse: agentResponse || '',
           timestamp: new Date()
         })
         .returning();
@@ -107,7 +105,7 @@ export function registerAdminConversationRoutes(app: Express) {
       // Delete conversation history for this agent
       await db
         .delete(agentConversations)
-        .where(eq(agentConversations.agent_id, agentId));
+        .where(eq(agentConversations.agentId, agentId));
 
       res.json({
         success: true,
