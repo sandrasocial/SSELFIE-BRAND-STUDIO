@@ -1032,9 +1032,11 @@ export function OptimizedVisualEditor({ className = '' }: OptimizedVisualEditorP
   ];
 
   return (
-    <div className={`h-screen bg-white ${className} flex`}>
-      {/* Chat Panel - Fixed Simple Layout */}
-      <div className="w-1/3 h-full border-r border-gray-200 bg-white flex flex-col">
+    <div className={`h-screen bg-white ${className}`}>
+      <PanelGroup direction="horizontal">
+        {/* Chat Panel - Resizable */}
+        <Panel defaultSize={33} minSize={25} maxSize={50}>
+          <div className="h-full border-r border-gray-200 bg-white flex flex-col">
         <div 
           ref={chatPanelRef}
           className={`flex-1 flex flex-col min-h-0 ${isDragOver ? 'bg-blue-50 border-blue-300' : ''}`}
@@ -1530,10 +1532,17 @@ export function OptimizedVisualEditor({ className = '' }: OptimizedVisualEditorP
           </TabsContent>
         </Tabs>
         </div>
-      </div>
-
-      {/* Main Live Preview Panel - Fixed Simple Layout */}
-      <div className={`${showPropertiesPanel ? 'w-1/3' : 'w-2/3'} h-full flex flex-col`}>
+          </div>
+        </Panel>
+        
+        {/* Resize Handle */}
+        <PanelResizeHandle className="w-2 bg-gray-200 hover:bg-gray-300 transition-colors duration-200 flex items-center justify-center">
+          <div className="w-1 h-8 bg-gray-400 rounded-full"></div>
+        </PanelResizeHandle>
+        
+        {/* Preview Panel - Resizable */}
+        <Panel defaultSize={67} minSize={50}>
+          <div className="h-full flex flex-col">
         {/* Top Toolbar */}
         <div className="border-b border-gray-200 px-2 md:px-4 py-1 md:py-2 flex items-center justify-between bg-gray-50">
           <div className="flex items-center space-x-4">
@@ -1608,11 +1617,10 @@ export function OptimizedVisualEditor({ className = '' }: OptimizedVisualEditorP
                 }}
               />
             </div>
-          </div>
-
-      {/* Properties Panel - Conditional */}
-      {showPropertiesPanel && (
-        <div className="w-1/3 h-full border-l border-gray-200 bg-white flex flex-col overflow-y-auto">
+            
+            {/* Properties Panel - Conditional */}
+            {showPropertiesPanel && (
+              <div className="w-1/3 h-full border-l border-gray-200 bg-white flex flex-col overflow-y-auto">
                 {/* Properties Header */}
                 <div className="p-4 border-b border-gray-200 flex items-center justify-between">
                   <h3 className="font-medium text-sm">Properties</h3>
@@ -1772,9 +1780,12 @@ export function OptimizedVisualEditor({ className = '' }: OptimizedVisualEditorP
                 Vogue Mode
               </Button>
             </div>
+                </div>
+              </div>
+            )}
           </div>
-        </div>
-      )}
+        </Panel>
+      </PanelGroup>
       
       {/* File Creation Confirmation System */}
       <FileCreationConfirmation onFileSelect={handleFileSelect} />
