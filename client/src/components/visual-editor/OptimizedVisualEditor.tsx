@@ -1153,9 +1153,9 @@ export function OptimizedVisualEditor({ className = '' }: OptimizedVisualEditorP
             <TabsTrigger value="enhancements" className="text-xs">AI+</TabsTrigger>
           </TabsList>
 
-          <TabsContent value="chat" className="flex-1 mt-0" style={{display: 'grid', gridTemplateRows: 'auto 1fr auto', height: '100%'}}>
+          <TabsContent value="chat" className="flex-1 mt-0 flex flex-col" style={{height: '100%'}}>
             {/* Minimal Chat Controls - Subtle Icon */}
-            <div className="flex justify-end px-2 py-1">
+            <div className="flex justify-end px-2 py-1 flex-shrink-0">
               <AgentChatControls
                 isLoading={isLoading}
                 onStop={handleStopAgent}
@@ -1166,7 +1166,7 @@ export function OptimizedVisualEditor({ className = '' }: OptimizedVisualEditorP
             </div>
             
             {/* Chat Messages - Flexible Container with proper height calculation */}
-            <div ref={chatContainerRef} className="overflow-y-auto p-1 md:p-2 space-y-1 md:space-y-2 min-h-0">
+            <div ref={chatContainerRef} className="overflow-y-auto p-1 md:p-2 space-y-1 md:space-y-2 flex-1">
               {chatMessages.length === 0 && (
                 <div className="text-center text-gray-500 text-sm">
                   <div className="mb-2">Chat</div>
@@ -1264,9 +1264,20 @@ export function OptimizedVisualEditor({ className = '' }: OptimizedVisualEditorP
               )}
             </div>
 
-            {/* Chat Input with Upload - Fixed at bottom */}
-            <div className="px-1 py-1 border-t border-gray-200" style={{height: '60px', minHeight: '60px', maxHeight: '60px'}}>
-              <div className="flex space-x-1">
+            {/* Chat Input with Upload - FORCED Fixed at bottom */}
+            <div 
+              className="px-1 py-1 border-t border-gray-200 flex-shrink-0" 
+              style={{
+                height: '60px',
+                minHeight: '60px',
+                maxHeight: '60px',
+                position: 'sticky',
+                bottom: 0,
+                background: 'white',
+                zIndex: 10
+              }}
+            >
+              <div className="flex space-x-1 h-full items-center">
                 <div className="flex flex-col space-y-1">
                   <input
                     ref={fileInputRef}
@@ -1280,7 +1291,7 @@ export function OptimizedVisualEditor({ className = '' }: OptimizedVisualEditorP
                     variant="outline"
                     size="sm"
                     onClick={() => fileInputRef.current?.click()}
-                    className="px-3 border-black text-black hover:bg-black hover:text-white"
+                    className="px-3 border-black text-black hover:bg-black hover:text-white h-8"
                     title="Upload inspiration images"
                   >
                     <Paperclip className="w-3 h-3" />
@@ -1290,7 +1301,13 @@ export function OptimizedVisualEditor({ className = '' }: OptimizedVisualEditorP
                   value={messageInput}
                   onChange={(e) => setMessageInput(e.target.value)}
                   placeholder={`Ask ${currentAgent.name} for ${currentAgent.workflowStage.toLowerCase()} help or upload inspiration images...`}
-                  className="flex-1 text-sm resize-none border border-gray-200 p-2 rounded h-10 min-h-[40px] max-h-[40px]"
+                  className="flex-1 text-sm resize-none border border-gray-200 p-2 rounded"
+                  style={{
+                    height: '40px',
+                    minHeight: '40px', 
+                    maxHeight: '40px',
+                    overflow: 'hidden'
+                  }}
                   rows={1}
                   onKeyPress={(e) => {
                     if (e.key === 'Enter' && !e.shiftKey) {
@@ -1301,7 +1318,7 @@ export function OptimizedVisualEditor({ className = '' }: OptimizedVisualEditorP
                 />
                 <Button
                   size="sm"
-                  className="bg-black text-white hover:bg-gray-800 self-end"
+                  className="bg-black text-white hover:bg-gray-800 h-8"
                   onClick={() => sendMessage(messageInput)}
                   disabled={!messageInput.trim() || isLoading}
                 >

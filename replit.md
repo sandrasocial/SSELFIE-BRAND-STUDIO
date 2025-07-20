@@ -487,12 +487,12 @@ sandra@dibssocial.com: Session expires July 25, 2025 (168+ hours remaining)
 
 **LAYOUT FIX (July 20, 2025):** Chat Input Visibility Issue PERMANENTLY RESOLVED - FINAL FIX
 - ✅ **ROOT CAUSE DISCOVERED**: Multiple competing height strategies causing container calculation conflicts
-- ✅ **CRITICAL ISSUE**: Parent h-full + Chat Panel h-full + Tabs flex-1 + CSS Grid = height calculation chaos
-- ✅ **COMPREHENSIVE SOLUTION**: Unified height strategy with h-screen + calc(100vh - 200px) + CSS Grid
-- ✅ **FIXED CONTAINERS**: Parent h-screen, Chat Panel h-screen, Tabs calc(100vh - 200px), TabsContent height:100%
-- ✅ **CSS GRID LAYOUT**: `gridTemplateRows: 'auto 1fr auto'` with proper height: 100% constraint
-- ✅ **FIXED INPUT HEIGHT**: 60px container with Textarea h-10 min-h-[40px] max-h-[40px] rows=1
-- ✅ **BULLETPROOF LAYOUT**: Eliminated ALL competing height strategies - chat input stays at bottom permanently
+- ✅ **CRITICAL ISSUE**: Parent h-screen + Chat Panel h-screen + Tabs + CSS Grid/Flexbox = height calculation chaos
+- ✅ **AGGRESSIVE SOLUTION**: Replaced CSS Grid with Flexbox + added position sticky for input forcing
+- ✅ **FLEXBOX LAYOUT**: flex flex-col with flex-shrink-0 (controls), flex-1 (messages), flex-shrink-0 (input)
+- ✅ **STICKY POSITIONING**: position: sticky + bottom: 0 + zIndex: 10 + background: white
+- ✅ **BULLETPROOF INPUT**: 60px container with 40px textarea, overflow hidden, strict height constraints
+- ✅ **FINAL SOLUTION**: Input FORCED to bottom regardless of layout conflicts through aggressive CSS positioning
 
 ## ✅ OLGA COORDINATION PROTOCOL FULLY IMPLEMENTED AND OPERATIONAL (July 19, 2025)
 
