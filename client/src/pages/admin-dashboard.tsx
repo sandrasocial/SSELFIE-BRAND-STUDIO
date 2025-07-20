@@ -10,7 +10,6 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import TestAdminCard from '@/components/admin/TestAdminCard';
-import AdminHero from '@/components/admin/AdminHero';
 import AdminHeroRedesigned from '@/components/admin/AdminHeroRedesigned';
 import AgentDashboard from '@/components/admin/AgentDashboard';
 import AgentDirectorInterface from '@/components/admin/AgentDirectorInterface';
@@ -185,20 +184,17 @@ function AdminDashboardOld() {
               <div className="mb-8 p-4 bg-white border border-gray-200">
                 <div className="flex items-center justify-between">
                   <h3 className="font-serif text-lg">Admin Hero Component</h3>
-                  <button
-                    onClick={() => setUseNewHero(!useNewHero)}
-                    className="px-4 py-2 bg-black text-white hover:bg-gray-800 text-sm uppercase tracking-wide"
-                  >
-                    {useNewHero ? 'Use Original Hero' : 'Use New Redesigned Hero'}
-                  </button>
+                  <div className="px-4 py-2 bg-green-600 text-white text-sm uppercase tracking-wide">
+                    ✅ ELENA'S REDESIGN APPLIED
+                  </div>
                 </div>
                 <p className="text-sm text-gray-600 mt-2">
-                  {useNewHero ? 'Currently showing the new redesigned hero component created by Aria' : 'Currently showing the original admin hero component'}
+                  Elena's workflow completed successfully! The admin hero has been redesigned by Aria with luxury editorial styling.
                 </p>
               </div>
               
-              {/* Hero Component */}
-              {useNewHero ? <AdminHeroRedesigned /> : <AdminHero />}
+              {/* Hero Component - Always use redesigned version */}
+              <AdminHeroRedesigned />
               
               {/* File Creation Test */}
               <TestAdminCard />
