@@ -10,7 +10,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import TestAdminCard from '@/components/admin/TestAdminCard';
-import AdminHeroRedesigned from '@/components/admin/AdminHeroRedesigned';
+// Admin dashboard - updated design
 import AgentDashboard from '@/components/admin/AgentDashboard';
 import AgentDirectorInterface from '@/components/admin/AgentDirectorInterface';
 import AgentAnalyticsDashboard from '@/components/admin/AgentAnalyticsDashboard';
@@ -180,21 +180,69 @@ function AdminDashboardOld() {
           
           {activeTab === 'dashboard' && (
             <>
-              {/* Hero Component Toggle */}
-              <div className="mb-8 p-4 bg-white border border-gray-200">
-                <div className="flex items-center justify-between">
-                  <h3 className="font-serif text-lg">Admin Hero Component</h3>
-                  <div className="px-4 py-2 bg-green-600 text-white text-sm uppercase tracking-wide">
-                    ✅ ELENA'S REDESIGN APPLIED
+              {/* Admin Dashboard Hero Section - Luxury Editorial Design */}
+              <div className="relative w-full h-96 mb-12 overflow-hidden bg-black">
+                {/* Editorial gradient background */}
+                <div className="absolute inset-0 bg-gradient-to-br from-black via-gray-900 to-black"></div>
+                
+                {/* Content container */}
+                <div className="relative z-10 flex flex-col justify-center items-center h-full px-8 text-center">
+                  {/* Main headline - Times New Roman editorial style */}
+                  <h1 
+                    className="text-4xl md:text-6xl font-light text-white uppercase tracking-wide mb-6 leading-tight"
+                    style={{ fontFamily: 'Times New Roman, serif' }}
+                  >
+                    Sandra's Command Center
+                  </h1>
+                  
+                  {/* Editorial subheadline */}
+                  <p 
+                    className="text-lg md:text-xl text-white font-light italic mb-8 max-w-2xl leading-relaxed"
+                    style={{ fontFamily: 'Times New Roman, serif' }}
+                  >
+                    Where empires are built, one authentic story at a time
+                  </p>
+                  
+                  {/* Luxury stats grid */}
+                  <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+                    <div className="text-center">
+                      <div 
+                        className="text-3xl md:text-4xl font-light text-white mb-1"
+                        style={{ fontFamily: 'Times New Roman, serif' }}
+                      >
+                        120K+
+                      </div>
+                      <div className="text-xs text-gray-300 uppercase tracking-widest">
+                        Followers Built
+                      </div>
+                    </div>
+                    
+                    <div className="text-center">
+                      <div 
+                        className="text-3xl md:text-4xl font-light text-white mb-1"
+                        style={{ fontFamily: 'Times New Roman, serif' }}
+                      >
+                        €15K+
+                      </div>
+                      <div className="text-xs text-gray-300 uppercase tracking-widest">
+                        Monthly Revenue
+                      </div>
+                    </div>
+                    
+                    <div className="text-center">
+                      <div 
+                        className="text-3xl md:text-4xl font-light text-white mb-1"
+                        style={{ fontFamily: 'Times New Roman, serif' }}
+                      >
+                        1000+
+                      </div>
+                      <div className="text-xs text-gray-300 uppercase tracking-widest">
+                        Lives Transformed
+                      </div>
+                    </div>
                   </div>
                 </div>
-                <p className="text-sm text-gray-600 mt-2">
-                  Elena's workflow completed successfully! The admin hero has been redesigned by Aria with luxury editorial styling.
-                </p>
               </div>
-              
-              {/* Hero Component - Always use redesigned version */}
-              <AdminHeroRedesigned />
               
               {/* File Creation Test */}
               <TestAdminCard />
