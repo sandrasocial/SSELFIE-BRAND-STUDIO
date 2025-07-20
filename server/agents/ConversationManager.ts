@@ -142,7 +142,13 @@ export class ConversationManager {
     } else if (fullContent.includes('admin') && fullContent.includes('dashboard')) {
       currentContext = 'Working on Sandra\'s admin dashboard with agent chat interfaces and luxury design systems';
       workflowStage = 'admin-dashboard';
-    } else if (fullContent.includes('memory') && fullContent.includes('agent')) {
+    } else if (fullContent.includes('build') && fullContent.includes('analysis')) {
+      currentContext = 'Conducting comprehensive BUILD feature analysis including component status, gaps identification, and strategic planning for Step 4 implementation';
+      workflowStage = 'build-analysis';
+      keyTasks.push('Analyze BUILD feature status and identify missing components');
+      keyTasks.push('Create comprehensive component gap analysis');
+      keyTasks.push('Provide strategic implementation roadmap');
+    } else if (fullContent.includes('memory') && (fullContent.includes('agent') || fullContent.includes('test'))) {
       currentContext = 'Implementing and debugging agent memory systems for conversation continuity and context preservation';
       workflowStage = 'memory-system';
     } else if (fullContent.includes('auto-clear') || (fullContent.includes('conversation') && fullContent.includes('management'))) {
