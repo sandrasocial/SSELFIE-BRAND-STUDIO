@@ -202,8 +202,10 @@ export default function BrandOnboarding() {
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-black mb-2">Business Name *</label>
+              <label htmlFor="business-name" className="block text-sm font-medium text-black mb-2">Business Name *</label>
               <Input
+                id="business-name"
+                name="businessName"
                 value={formData.businessName}
                 onChange={(e) => handleInputChange('businessName', e.target.value)}
                 placeholder="Your business or personal brand name"
@@ -212,8 +214,10 @@ export default function BrandOnboarding() {
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-black mb-2">Tagline *</label>
+              <label htmlFor="tagline" className="block text-sm font-medium text-black mb-2">Tagline *</label>
               <Input
+                id="tagline"
+                name="tagline"
                 value={formData.tagline}
                 onChange={(e) => handleInputChange('tagline', e.target.value)}
                 placeholder="A powerful one-liner that captures what you do"
@@ -222,8 +226,10 @@ export default function BrandOnboarding() {
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-black mb-2">Your Personal Story *</label>
+              <label htmlFor="personal-story" className="block text-sm font-medium text-black mb-2">Your Personal Story *</label>
               <Textarea
+                id="personal-story"
+                name="personalStory"
                 value={formData.personalStory}
                 onChange={(e) => handleInputChange('personalStory', e.target.value)}
                 placeholder="Share your journey, background, and what makes your story unique. This will appear on your landing page."
@@ -232,8 +238,10 @@ export default function BrandOnboarding() {
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-black mb-2">Why Did You Start This Business?</label>
+              <label htmlFor="why-started" className="block text-sm font-medium text-black mb-2">Why Did You Start This Business?</label>
               <Textarea
+                id="why-started"
+                name="whyStarted"
                 value={formData.whyStarted}
                 onChange={(e) => handleInputChange('whyStarted', e.target.value)}
                 placeholder="What motivated you to begin this journey? What problem did you see that needed solving?"
@@ -251,8 +259,10 @@ export default function BrandOnboarding() {
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-black mb-2">Who Is Your Target Client? *</label>
+              <label htmlFor="target-client" className="block text-sm font-medium text-black mb-2">Who Is Your Target Client? *</label>
               <Textarea
+                id="target-client"
+                name="targetClient"
                 value={formData.targetClient}
                 onChange={(e) => handleInputChange('targetClient', e.target.value)}
                 placeholder="Describe your ideal client in detail. Demographics, psychographics, their current situation."
@@ -261,8 +271,10 @@ export default function BrandOnboarding() {
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-black mb-2">What Problem Do You Solve? *</label>
+              <label htmlFor="problem-solve" className="block text-sm font-medium text-black mb-2">What Problem Do You Solve? *</label>
               <Textarea
+                id="problem-solve"
+                name="problemYouSolve"
                 value={formData.problemYouSolve}
                 onChange={(e) => handleInputChange('problemYouSolve', e.target.value)}
                 placeholder="What specific challenge, pain point, or desire do you address for your clients?"
@@ -271,8 +283,10 @@ export default function BrandOnboarding() {
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-black mb-2">Your Unique Approach *</label>
+              <label htmlFor="unique-approach" className="block text-sm font-medium text-black mb-2">Your Unique Approach *</label>
               <Textarea
+                id="unique-approach"
+                name="uniqueApproach"
                 value={formData.uniqueApproach}
                 onChange={(e) => handleInputChange('uniqueApproach', e.target.value)}
                 placeholder="What makes your solution different? What's your unique methodology or perspective?"
@@ -290,8 +304,10 @@ export default function BrandOnboarding() {
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-black mb-2">Primary Offer/Service *</label>
+              <label htmlFor="primary-offer" className="block text-sm font-medium text-black mb-2">Primary Offer/Service *</label>
               <Input
+                id="primary-offer"
+                name="primaryOffer"
                 value={formData.primaryOffer}
                 onChange={(e) => handleInputChange('primaryOffer', e.target.value)}
                 placeholder="Your main service or product"
@@ -300,8 +316,10 @@ export default function BrandOnboarding() {
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-black mb-2">Primary Offer Price *</label>
+              <label htmlFor="primary-offer-price" className="block text-sm font-medium text-black mb-2">Primary Offer Price *</label>
               <Input
+                id="primary-offer-price"
+                name="primaryOfferPrice"
                 value={formData.primaryOfferPrice}
                 onChange={(e) => handleInputChange('primaryOfferPrice', e.target.value)}
                 placeholder="€2,500 or Starting at €1,000"
@@ -310,8 +328,10 @@ export default function BrandOnboarding() {
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-black mb-2">Secondary Offer/Service</label>
+              <label htmlFor="secondary-offer" className="block text-sm font-medium text-black mb-2">Secondary Offer/Service</label>
               <Input
+                id="secondary-offer"
+                name="secondaryOffer"
                 value={formData.secondaryOffer}
                 onChange={(e) => handleInputChange('secondaryOffer', e.target.value)}
                 placeholder="Additional service or product (optional)"
@@ -320,8 +340,10 @@ export default function BrandOnboarding() {
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-black mb-2">Secondary Offer Price</label>
+              <label htmlFor="secondary-offer-price" className="block text-sm font-medium text-black mb-2">Secondary Offer Price</label>
               <Input
+                id="secondary-offer-price"
+                name="secondaryOfferPrice"
                 value={formData.secondaryOfferPrice}
                 onChange={(e) => handleInputChange('secondaryOfferPrice', e.target.value)}
                 placeholder="Price for secondary offer"
@@ -330,8 +352,10 @@ export default function BrandOnboarding() {
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-black mb-2">Free Resource/Lead Magnet</label>
+              <label htmlFor="free-resource" className="block text-sm font-medium text-black mb-2">Free Resource/Lead Magnet</label>
               <Input
+                id="free-resource"
+                name="freeResource"
                 value={formData.freeResource}
                 onChange={(e) => handleInputChange('freeResource', e.target.value)}
                 placeholder="Free guide, consultation, or resource you offer"
@@ -349,8 +373,10 @@ export default function BrandOnboarding() {
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-black mb-2">Email Address *</label>
+              <label htmlFor="email" className="block text-sm font-medium text-black mb-2">Email Address *</label>
               <Input
+                id="email"
+                name="email"
                 type="email"
                 value={formData.email}
                 onChange={(e) => handleInputChange('email', e.target.value)}
@@ -360,8 +386,10 @@ export default function BrandOnboarding() {
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-black mb-2">Instagram Handle</label>
+              <label htmlFor="instagram-handle" className="block text-sm font-medium text-black mb-2">Instagram Handle</label>
               <Input
+                id="instagram-handle"
+                name="instagramHandle"
                 value={formData.instagramHandle}
                 onChange={(e) => handleInputChange('instagramHandle', e.target.value)}
                 placeholder="@yourinsta"
@@ -370,8 +398,10 @@ export default function BrandOnboarding() {
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-black mb-2">Website URL</label>
+              <label htmlFor="website-url" className="block text-sm font-medium text-black mb-2">Website URL</label>
               <Input
+                id="website-url"
+                name="websiteUrl"
                 value={formData.websiteUrl}
                 onChange={(e) => handleInputChange('websiteUrl', e.target.value)}
                 placeholder="https://yourwebsite.com"
@@ -380,8 +410,10 @@ export default function BrandOnboarding() {
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-black mb-2">Location</label>
+              <label htmlFor="location" className="block text-sm font-medium text-black mb-2">Location</label>
               <Input
+                id="location"
+                name="location"
                 value={formData.location}
                 onChange={(e) => handleInputChange('location', e.target.value)}
                 placeholder="City, Country"
@@ -390,8 +422,10 @@ export default function BrandOnboarding() {
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-black mb-2">Brand Personality *</label>
+              <label htmlFor="brand-personality" className="block text-sm font-medium text-black mb-2">Brand Personality *</label>
               <Input
+                id="brand-personality"
+                name="brandPersonality"
                 value={formData.brandPersonality}
                 onChange={(e) => handleInputChange('brandPersonality', e.target.value)}
                 placeholder="sophisticated, warm, bold, minimalist, luxury, approachable"
@@ -400,8 +434,10 @@ export default function BrandOnboarding() {
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-black mb-2">Core Brand Values</label>
+              <label htmlFor="brand-values" className="block text-sm font-medium text-black mb-2">Core Brand Values</label>
               <Textarea
+                id="brand-values"
+                name="brandValues"
                 value={formData.brandValues}
                 onChange={(e) => handleInputChange('brandValues', e.target.value)}
                 placeholder="List 3-5 core values that drive your business (e.g., authenticity, excellence, innovation)"
