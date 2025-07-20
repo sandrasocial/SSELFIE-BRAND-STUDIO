@@ -1040,7 +1040,7 @@ export function OptimizedVisualEditor({ className = '' }: OptimizedVisualEditorP
   ];
 
   return (
-    <div className={`h-screen bg-white ${className}`}>
+    <div className={`h-full bg-white ${className}`}>
       <PanelGroup direction="horizontal" className="h-full md:flex-row flex-col">
         {/* Chat Panel - Resizable */}
         <Panel id="chat-panel" defaultSize={35} minSize={25} maxSize={50} className="md:min-w-0 min-h-[40vh] md:min-h-0">
