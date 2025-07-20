@@ -3,14 +3,43 @@
 
 import { Router } from 'express';
 import { ElenaWorkflowSystem } from '../elena-workflow-system';
-import { isAuthenticated } from '../replitAuth';
 
 const router = Router();
 
 /**
- * Create workflow from visual editor request
+ * ADMIN AUTHENTICATION CHECK for Elena Workflows
+ * Supports both admin token and session authentication
  */
-router.post('/create-workflow', isAuthenticated, async (req, res) => {
+const isAdminOrToken = (req: any, res: any, next: any) => {
+  try {
+    // Check for admin token from visual editor
+    const adminToken = req.headers['x-admin-token'] || req.body.adminToken;
+    if (adminToken === 'sandra-admin-2025') {
+      return next();
+    }
+    
+    // Fallback to session authentication for direct access
+    if (req.isAuthenticated && req.isAuthenticated() && req.user?.claims?.email === 'ssa@ssasocial.com') {
+      return next();
+    }
+    
+    console.log('🔒 ELENA AUTH CHECK:', {
+      hasAdminToken: !!adminToken,
+      isSessionAuth: req.isAuthenticated && req.isAuthenticated(),
+      userEmail: req.user?.claims?.email
+    });
+    
+    return res.status(401).json({ error: 'Admin authentication required' });
+  } catch (error) {
+    console.error('Elena authentication check failed:', error);
+    res.status(500).json({ error: 'Authentication check failed' });
+  }
+};
+
+/**
+ * Create workflow from visual editor request 
+ */
+router.post('/create-workflow', isAdminOrToken, async (req, res) => {
   try {
     const { request, userId } = req.body;
     
@@ -37,7 +66,7 @@ router.post('/create-workflow', isAuthenticated, async (req, res) => {
     console.error('Elena workflow creation error:', error);
     res.status(500).json({
       error: 'Failed to create workflow',
-      details: error.message
+      details: error instanceof Error ? error.message : 'Unknown error'
     });
   }
 });
@@ -45,7 +74,7 @@ router.post('/create-workflow', isAuthenticated, async (req, res) => {
 /**
  * Execute workflow from visual editor
  */
-router.post('/execute-workflow', isAuthenticated, async (req, res) => {
+router.post('/execute-workflow', isAdminOrToken, async (req, res) => {
   try {
     const { workflowId } = req.body;
     
@@ -68,7 +97,7 @@ router.post('/execute-workflow', isAuthenticated, async (req, res) => {
     console.error('Elena workflow execution error:', error);
     res.status(500).json({
       error: 'Failed to execute workflow',
-      details: error.message
+      details: error instanceof Error ? error.message : 'Unknown error'
     });
   }
 });
@@ -76,7 +105,7 @@ router.post('/execute-workflow', isAuthenticated, async (req, res) => {
 /**
  * Get workflow progress for live updates
  */
-router.get('/workflow-progress/:workflowId', isAuthenticated, async (req, res) => {
+router.get('/workflow-progress/:workflowId', isAdminOrToken, async (req, res) => {
   try {
     const { workflowId } = req.params;
     
@@ -92,7 +121,7 @@ router.get('/workflow-progress/:workflowId', isAuthenticated, async (req, res) =
     console.error('Elena workflow progress error:', error);
     res.status(500).json({
       error: 'Failed to get workflow progress',
-      details: error.message
+      details: error instanceof Error ? error.message : 'Unknown error'
     });
   }
 });

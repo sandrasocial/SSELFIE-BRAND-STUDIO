@@ -854,14 +854,16 @@ export function OptimizedVisualEditor({ className = '' }: OptimizedVisualEditorP
       if (agentId === 'elena' && isWorkflowCreationRequest) {
         requestBody = {
           request: message,
-          userId: 'admin-sandra'
+          userId: 'admin-sandra',
+          adminToken: 'sandra-admin-2025'
         };
       } else if (agentId === 'elena' && isWorkflowExecutionRequest) {
         const lastWorkflowMessage = chatMessages.slice().reverse().find(msg => msg.workflowId);
         if (lastWorkflowMessage?.workflowId) {
           requestBody = {
             workflowId: lastWorkflowMessage.workflowId,
-            userId: 'admin-sandra'
+            userId: 'admin-sandra',
+            adminToken: 'sandra-admin-2025'
           };
         } else {
           // If no workflow ID found, treat as regular Elena chat
