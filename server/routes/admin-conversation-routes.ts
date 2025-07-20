@@ -22,13 +22,9 @@ export function registerAdminConversationRoutes(app: Express) {
 
       // Get conversation history for this agent, last 50 interactions
       const conversations = await db
-        .select({
-          user_message: agentConversations.userMessage,
-          agent_response: agentConversations.agentResponse,
-          timestamp: agentConversations.timestamp
-        })
+        .select()
         .from(agentConversations)
-        .where(eq(agentConversations.agentId, agentId))
+        .where(sql`${agentConversations.agentId} = ${agentId}`)
         .orderBy(desc(agentConversations.timestamp))
         .limit(50);
 
@@ -63,21 +59,16 @@ export function registerAdminConversationRoutes(app: Express) {
         return res.status(400).json({ error: 'Missing required fields' });
       }
 
-      // Save conversation to database
-      const [savedConversation] = await db
-        .insert(agentConversations)
-        .values({
-          userId: req.user?.claims?.sub || 'admin-sandra',
-          agentId: agentId || 'unknown',
-          userMessage: userMessage || '',
-          agentResponse: agentResponse || '',
-          timestamp: new Date()
-        })
-        .returning();
+      // Save conversation to database using raw SQL to ensure correct field mapping
+      const [savedConversation] = await db.execute(sql`
+        INSERT INTO agent_conversations (agent_id, user_id, user_message, agent_response, timestamp)
+        VALUES (${agentId}, ${req.user?.claims?.sub || 'admin-sandra'}, ${userMessage}, ${agentResponse}, NOW())
+        RETURNING id, agent_id, timestamp
+      `);
 
       res.json({
         success: true,
-        conversationId: savedConversation.id,
+        conversationId: savedConversation.rows?.[0]?.id || 'saved',
         agentId,
         saved: true
       });
@@ -103,9 +94,7 @@ export function registerAdminConversationRoutes(app: Express) {
       }
 
       // Delete conversation history for this agent
-      await db
-        .delete(agentConversations)
-        .where(eq(agentConversations.agentId, agentId));
+      await db.execute(sql`DELETE FROM agent_conversations WHERE agent_id = ${agentId}`);
 
       res.json({
         success: true,
