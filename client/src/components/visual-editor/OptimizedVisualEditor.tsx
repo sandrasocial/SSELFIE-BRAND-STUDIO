@@ -285,6 +285,7 @@ export function OptimizedVisualEditor({ className = '' }: OptimizedVisualEditorP
   const [workflowActive, setWorkflowActive] = useState(false);
   const [workflowStage, setWorkflowStage] = useState('Design');
   const [activeWorkingAgent, setActiveWorkingAgent] = useState<string | null>(null);
+  const [isLoadingHistory, setIsLoadingHistory] = useState(false);
   const iframeRef = useRef<HTMLIFrameElement>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const chatPanelRef = useRef<HTMLDivElement>(null);
@@ -294,6 +295,7 @@ export function OptimizedVisualEditor({ className = '' }: OptimizedVisualEditorP
   // Load conversation history from database when agent changes
   useEffect(() => {
     const loadConversationHistory = async () => {
+      setIsLoadingHistory(true);
       try {
         const response = await fetch(`/api/admin/agent-conversation-history/${currentAgent.id}`, {
           method: 'POST',
@@ -326,36 +328,65 @@ export function OptimizedVisualEditor({ className = '' }: OptimizedVisualEditorP
       } catch (error) {
         console.error('Failed to load conversation history:', error);
         setChatMessages([]);
+      } finally {
+        // Delay to prevent immediate save attempts on loaded messages
+        setTimeout(() => setIsLoadingHistory(false), 1000);
       }
     };
 
     loadConversationHistory();
   }, [currentAgent.id]);
 
-  // Save conversations to database whenever messages change
+  // Save conversations to database whenever NEW messages are added (not when loading history)
   useEffect(() => {
+    // Don't save while loading conversation history
+    if (isLoadingHistory) return;
+    
     const saveConversations = async () => {
-      if (chatMessages.length === 0) return;
+      if (chatMessages.length < 2) return; // Need at least user + agent message
       
       try {
         const lastMessage = chatMessages[chatMessages.length - 1];
-        if (lastMessage.type === 'agent') {
+        if (lastMessage.type === 'agent' && lastMessage.content) {
           // Save the complete conversation pair to database
           const userMessage = chatMessages[chatMessages.length - 2];
-          if (userMessage && userMessage.type === 'user') {
-            const response = await fetch('/api/admin/agent-conversation-save', {
-              method: 'POST',
-              headers: { 'Content-Type': 'application/json' },
-              body: JSON.stringify({
-                adminToken: 'sandra-admin-2025',
-                agentId: currentAgent.id || 'unknown',
-                userMessage: userMessage.content || '',
-                agentResponse: lastMessage.content || ''
-              })
-            });
+          if (userMessage && userMessage.type === 'user' && userMessage.content) {
+            // Only save if both messages have actual content
+            const userContent = typeof userMessage.content === 'string' ? userMessage.content.trim() : '';
+            const agentContent = typeof lastMessage.content === 'string' ? lastMessage.content.trim() : '';
             
-            if (!response.ok) {
-              console.error('Failed to save conversation:', await response.text());
+            if (userContent.length > 0 && agentContent.length > 0) {
+              // Check if this conversation pair is already in the database (avoid duplicates)
+              const isNewConversation = !chatMessages.some((msg, index) => 
+                index < chatMessages.length - 2 && 
+                msg.type === 'user' && 
+                msg.content === userContent &&
+                chatMessages[index + 1]?.content === agentContent
+              );
+              
+              if (isNewConversation) {
+                const response = await fetch('/api/admin/agent-conversation-save', {
+                  method: 'POST',
+                  headers: { 'Content-Type': 'application/json' },
+                  body: JSON.stringify({
+                    adminToken: 'sandra-admin-2025',
+                    agentId: currentAgent.id || 'unknown',
+                    userMessage: userContent,
+                    agentResponse: agentContent
+                  })
+                });
+                
+                if (!response.ok) {
+                  const errorText = await response.text();
+                  console.error('Failed to save conversation:', errorText);
+                } else {
+                  console.log('✅ Conversation saved successfully for', currentAgent.id);
+                }
+              } else {
+                console.log('⚠️ Skipping save - duplicate conversation detected');
+              }
+            } else {
+              console.log('⚠️ Skipping save - empty content:', { userLength: userContent.length, agentLength: agentContent.length });
             }
           }
         }
@@ -364,10 +395,15 @@ export function OptimizedVisualEditor({ className = '' }: OptimizedVisualEditorP
       }
     };
 
-    if (chatMessages.length > 0) {
-      saveConversations();
+    // Only attempt to save if we have actual messages with content and we're not loading history
+    if (chatMessages.length >= 2 && !isLoadingHistory) {
+      const lastMessage = chatMessages[chatMessages.length - 1];
+      if (lastMessage.type === 'agent' && lastMessage.content) {
+        // Add a small delay to ensure the message is finalized
+        setTimeout(saveConversations, 500);
+      }
     }
-  }, [chatMessages, currentAgent.id]);
+  }, [chatMessages, currentAgent.id, isLoadingHistory]);
 
   // Auto-scroll chat to bottom when new messages are added (only for agent chat)
   useEffect(() => {
