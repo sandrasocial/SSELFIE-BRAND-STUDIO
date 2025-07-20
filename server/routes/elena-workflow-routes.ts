@@ -103,11 +103,13 @@ router.post('/execute-workflow', isAdminOrToken, async (req, res) => {
 });
 
 /**
- * Get workflow progress for live updates
+ * Get workflow progress for live updates (POST for admin token authentication)
  */
-router.get('/workflow-progress/:workflowId', isAdminOrToken, async (req, res) => {
+router.post('/workflow-progress/:workflowId', isAdminOrToken, async (req, res) => {
   try {
     const { workflowId } = req.params;
+    
+    console.log(`ELENA PROGRESS CHECK: Workflow ${workflowId}`);
     
     // Get current workflow status
     const progress = await ElenaWorkflowSystem.getWorkflowProgress(workflowId);

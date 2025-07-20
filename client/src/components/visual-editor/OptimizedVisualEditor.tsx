@@ -838,12 +838,12 @@ export function OptimizedVisualEditor({ className = '' }: OptimizedVisualEditorP
       
       let endpoint = '/api/admin/agents/chat';
       if (agentId === 'elena' && isWorkflowCreationRequest) {
-        endpoint = '/api/elena/create-workflow';
+        endpoint = '/api/admin/elena/create-workflow';
       } else if (agentId === 'elena' && isWorkflowExecutionRequest) {
         // Check for workflow ID in conversation history
         const lastWorkflowMessage = chatMessages.slice().reverse().find(msg => msg.workflowId);
         if (lastWorkflowMessage?.workflowId) {
-          endpoint = '/api/elena/execute-workflow';
+          endpoint = '/api/admin/elena/execute-workflow';
         }
       }
       
@@ -1144,12 +1144,15 @@ export function OptimizedVisualEditor({ className = '' }: OptimizedVisualEditorP
       
       setChatMessages(prev => [...prev, progressMessage]);
 
-      const response = await fetch('/api/elena/execute-workflow', {
+      const response = await fetch('/api/admin/elena/execute-workflow', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({ workflowId }),
+        body: JSON.stringify({ 
+          workflowId,
+          adminToken: 'sandra-admin-2025'
+        }),
       });
 
       const result = await response.json();
@@ -1177,7 +1180,11 @@ export function OptimizedVisualEditor({ className = '' }: OptimizedVisualEditorP
   const startWorkflowProgressMonitoring = (workflowId: string) => {
     const interval = setInterval(async () => {
       try {
-        const response = await fetch(`/api/elena/workflow-progress/${workflowId}`);
+        const response = await fetch(`/api/admin/elena/workflow-progress/${workflowId}`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ adminToken: 'sandra-admin-2025' })
+        });
         const data = await response.json();
         
         if (data.success && data.progress) {

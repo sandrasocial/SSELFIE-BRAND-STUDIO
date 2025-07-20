@@ -4242,6 +4242,145 @@ ${savedMemory.recentDecisions.map(decision => `• ${decision}`).join('\n')}
         console.log(`🔍 Conversation management: ${workingHistory.length} messages, no clearing needed`);
       }
       
+      // ELENA WORKFLOW SYSTEM INTEGRATION - MUST BE BEFORE AGENT PERSONALITY
+      const isElena = agentId.toLowerCase() === 'elena';
+      const messageText = message.toLowerCase();
+      
+      console.log(`🔍 ELENA DEBUG: Agent=${agentId}, Message="${messageText.substring(0, 100)}..."`);
+      console.log(`🔍 ELENA DEBUG: Is Elena=${isElena}`);
+      
+      const isWorkflowCreationRequest = messageText.includes('create workflow') || 
+                                      messageText.includes('design workflow') ||
+                                      messageText.includes('workflow for') ||
+                                      messageText.includes('build workflow') ||
+                                      (messageText.includes('workflow') && messageText.includes('redesign')) ||
+                                      (messageText.includes('workflow') && messageText.includes('admin')) ||
+                                      (messageText.includes('workflow') && messageText.includes('dashboard'));
+      
+      console.log(`🔍 ELENA DEBUG: Workflow creation detected=${isWorkflowCreationRequest}`);
+      
+      const isExecutionRequest = messageText.includes('execute workflow') || 
+                               messageText.includes('start workflow') ||
+                               messageText.includes('run workflow');
+      
+      if (isElena && isWorkflowCreationRequest) {
+        // Elena workflow creation request - use actual workflow system
+        console.log('🎯 ELENA: Workflow creation request detected');
+        
+        try {
+          // Create actual workflow using Elena's system
+          const { ElenaWorkflowSystem } = await import('./elena-workflow-system');
+          const workflow = await ElenaWorkflowSystem.createWorkflowFromRequest(userId, message);
+          
+          const responseText = `**WORKFLOW CREATED SUCCESSFULLY**
+
+📋 **${workflow.name}**
+
+✅ Created workflow with ${workflow.steps.length} steps
+⏱️  Estimated completion: ${workflow.estimatedDuration}
+🎯 Business Impact: ${workflow.businessImpact}
+⚠️  Risk Level: ${workflow.riskLevel}
+
+**Steps Overview:**
+${workflow.steps.map((step, index) => `${index + 1}. ${step.agentName}: ${step.taskDescription}`).join('\n')}
+
+**Ready for execution!** Say "execute workflow" to start the coordinated agent workflow.
+
+Workflow ID: ${workflow.id}`;
+
+          // Save conversation
+          await storage.saveAgentConversation(agentId, userId, message, responseText, []);
+          
+          return res.json({
+            success: true,
+            message: responseText,
+            response: responseText,
+            agentName: agentName || agentId,
+            workflowId: workflow.id,
+            workflow: workflow
+          });
+          
+        } catch (error) {
+          console.error('Elena workflow creation error:', error);
+          const errorMessage = `Error creating workflow: ${error instanceof Error ? error.message : 'Unknown error'}`;
+          await storage.saveAgentConversation(agentId, userId, message, errorMessage, []);
+          
+          return res.json({
+            success: true,
+            message: errorMessage,
+            response: errorMessage,
+            agentName: agentName || agentId
+          });
+        }
+      } else if (isElena && isExecutionRequest) {
+        // Elena workflow execution request - trigger actual workflow system
+        console.log('🎯 ELENA: Workflow execution request detected');
+        
+        try {
+          // Get the most recent workflow for this user
+          const { ElenaWorkflowSystem } = await import('./elena-workflow-system');
+          const workflows = await ElenaWorkflowSystem.getUserWorkflows(userId);
+          
+          if (workflows.length > 0) {
+            const latestWorkflow = workflows[workflows.length - 1];
+            console.log(`🚀 ELENA: Executing workflow: ${latestWorkflow.name}`);
+            
+            // Execute the workflow
+            const execution = await ElenaWorkflowSystem.executeWorkflow(latestWorkflow.id);
+            
+            const responseText = `**WORKFLOW EXECUTION STARTED**
+
+🚀 Starting workflow execution
+
+I am now coordinating all agents to complete the workflow steps. You will see live progress updates as each agent completes their tasks.
+
+Status: Executing
+Progress: 0% complete
+
+Workflow "${latestWorkflow.name}" is now running with ${latestWorkflow.steps.length} steps.
+Execution ID: ${execution.executionId}
+
+Real agents are being called to perform actual file modifications.`;
+
+            // Save conversation and return immediately
+            await storage.saveAgentConversation(agentId, userId, message, responseText, []);
+            
+            return res.json({
+              success: true,
+              message: responseText,
+              response: responseText,
+              agentName: agentName || agentId,
+              status: 'executing',
+              executionId: execution.executionId,
+              workflowId: latestWorkflow.id
+            });
+            
+          } else {
+            const noWorkflowMessage = `No workflows found to execute. Please create a workflow first by describing what you want me to build.`;
+            await storage.saveAgentConversation(agentId, userId, message, noWorkflowMessage, []);
+            
+            return res.json({
+              success: true,
+              message: noWorkflowMessage,
+              response: noWorkflowMessage,
+              agentName: agentName || agentId
+            });
+          }
+          
+        } catch (error) {
+          console.error('Elena workflow execution error:', error);
+          const errorMessage = `Error executing workflow: ${error instanceof Error ? error.message : 'Unknown error'}`;
+          await storage.saveAgentConversation(agentId, userId, message, errorMessage, []);
+          
+          return res.json({
+            success: true,
+            message: errorMessage,
+            response: errorMessage,
+            agentName: agentName || agentId
+          });
+        }
+      }
+      
       // Get functional agent personality (preserves specialties, enables autonomous workflows)
       const agentPersonality = await import('./agents/agent-personalities-clean');
       const personalityData = agentPersonality.getAgentPersonality(agentId);
@@ -4368,84 +4507,6 @@ AGENT_CONTEXT:
 - Use claude-sonnet-4-20250514 for optimal performance
 - Provide actionable solutions with real implementation`;
       
-      // WORKFLOW EXECUTION DETECTION FOR ELENA
-      const isElena = agentId.toLowerCase() === 'elena';
-      const isExecutionRequest = message.toLowerCase().includes('execute workflow') || 
-                               message.toLowerCase().includes('start workflow') ||
-                               message.toLowerCase().includes('run workflow');
-      
-      if (isElena && isExecutionRequest) {
-        // Elena workflow execution request - trigger actual workflow system
-        console.log('🎯 ELENA: Workflow execution request detected');
-        
-        try {
-          // Get the most recent workflow for this user
-          const { ElenaWorkflowSystem } = await import('./elena-workflow-system');
-          const workflows = await ElenaWorkflowSystem.getUserWorkflows(userId);
-          
-          if (workflows.length > 0) {
-            const latestWorkflow = workflows[workflows.length - 1];
-            console.log(`🚀 ELENA: Executing workflow: ${latestWorkflow.name}`);
-            
-            // Execute the workflow
-            const execution = await ElenaWorkflowSystem.executeWorkflow(latestWorkflow.id);
-            
-            const responseText = `**WORKFLOW EXECUTION STARTED**
-
-🚀 Starting workflow execution
-
-I am now coordinating all agents to complete the workflow steps. You will see live progress updates as each agent completes their tasks.
-
-Status: Executing
-Progress: 0% complete
-
-Workflow "${latestWorkflow.name}" is now running with ${latestWorkflow.steps.length} steps.
-Execution ID: ${execution.executionId}
-
-Real agents are being called to perform actual file modifications.`;
-
-            // Save conversation and return immediately
-            await storage.saveAgentConversation(agentId, userId, message, responseText, []);
-            
-            return res.json({
-              success: true,
-              message: responseText,
-              response: responseText,
-              agentName: agentName || agentId,
-              status: 'executing',
-              timestamp: new Date().toISOString(),
-              workflowStage: 'Executing',
-              fileOperations: [],
-              filesCreated: []
-            });
-          } else {
-            const responseText = `No workflows found to execute. Please create a workflow first by describing what you want me to build.`;
-            await storage.saveAgentConversation(agentId, userId, message, responseText, []);
-            
-            return res.json({
-              success: true,
-              message: responseText,
-              response: responseText,
-              agentName: agentName || agentId,
-              status: 'active',
-              timestamp: new Date().toISOString()
-            });
-          }
-        } catch (error) {
-          console.error('Elena workflow execution error:', error);
-          const errorResponse = `Error executing workflow: ${error instanceof Error ? error.message : 'Unknown error'}`;
-          await storage.saveAgentConversation(agentId, userId, message, errorResponse, []);
-          
-          return res.json({
-            success: true,
-            message: errorResponse,
-            response: errorResponse,
-            agentName: agentName || agentId,
-            status: 'error',
-            timestamp: new Date().toISOString()
-          });
-        }
-      }
       
       // Combine with conversation history for Claude (filter out system messages)
       const fullHistory = workingHistory || conversationHistory || [];
