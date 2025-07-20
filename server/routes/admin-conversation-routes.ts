@@ -56,19 +56,31 @@ export function registerAdminConversationRoutes(app: Express) {
       }
 
       if (!agentId || !userMessage || !agentResponse) {
+        console.log('❌ Missing fields:', { agentId, userMessage: !!userMessage, agentResponse: !!agentResponse });
         return res.status(400).json({ error: 'Missing required fields' });
       }
 
-      // Save conversation to database using raw SQL to ensure correct field mapping
-      const [savedConversation] = await db.execute(sql`
-        INSERT INTO agent_conversations (agent_id, user_id, user_message, agent_response, timestamp)
-        VALUES (${agentId}, ${req.user?.claims?.sub || 'admin-sandra'}, ${userMessage}, ${agentResponse}, NOW())
-        RETURNING id, agent_id, timestamp
-      `);
+      console.log('💾 Saving conversation for agent:', agentId);
+      console.log('📤 User message length:', userMessage.length);
+      console.log('📤 Agent response length:', agentResponse.length);
+
+      // Save conversation to database using Drizzle ORM
+      const savedConversations = await db
+        .insert(agentConversations)
+        .values({
+          agentId: agentId,
+          userId: req.user?.claims?.sub || 'admin-sandra',
+          userMessage: userMessage,
+          agentResponse: agentResponse
+        })
+        .returning({ id: agentConversations.id, agentId: agentConversations.agentId, timestamp: agentConversations.timestamp });
+
+      const savedConversation = savedConversations[0];
+      console.log('✅ Conversation saved:', savedConversation?.id);
 
       res.json({
         success: true,
-        conversationId: savedConversation.rows?.[0]?.id || 'saved',
+        conversationId: savedConversation?.id || 'saved',
         agentId,
         saved: true
       });
@@ -93,8 +105,8 @@ export function registerAdminConversationRoutes(app: Express) {
         return res.status(403).json({ error: 'Invalid admin token' });
       }
 
-      // Delete conversation history for this agent
-      await db.execute(sql`DELETE FROM agent_conversations WHERE agent_id = ${agentId}`);
+      // Delete conversation history for this agent using Drizzle ORM
+      await db.delete(agentConversations).where(eq(agentConversations.agentId, agentId));
 
       res.json({
         success: true,
