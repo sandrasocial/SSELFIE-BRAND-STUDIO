@@ -1748,14 +1748,13 @@ export function OptimizedVisualEditor({ className = '' }: OptimizedVisualEditorP
               >
                 Vogue Mode
               </Button>
-                </div>
-                </div>
+            </div>
+          </div>
         </div>
       )}
       
       {/* File Creation Confirmation System */}
       <FileCreationConfirmation onFileSelect={handleFileSelect} />
-      </div>
     </div>
   );
 }
