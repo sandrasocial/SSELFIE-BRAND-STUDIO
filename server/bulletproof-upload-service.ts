@@ -25,7 +25,7 @@ export class BulletproofUploadService {
    * STEP 1: VALIDATE UPLOADED IMAGES
    * - Check file types and sizes
    * - Verify image content
-   * - Ensure minimum count (10 images)
+   * - Ensure minimum count (10-20 images) - CRITICAL REQUIREMENT
    */
   static async validateUploadedImages(
     userId: string, 
@@ -36,14 +36,23 @@ export class BulletproofUploadService {
     const errors: string[] = [];
     const validImages: string[] = [];
     
+    // 🛡️ CRITICAL CHECK 1: No images at all
     if (!imageFiles || imageFiles.length === 0) {
-      errors.push('No images provided. Please upload at least 10 selfies.');
+      errors.push('❌ CRITICAL: No images provided. Upload at least 10 selfies before training.');
       return { success: false, errors, validImages };
     }
     
+    // 🛡️ CRITICAL CHECK 2: Less than minimum required
     if (imageFiles.length < 10) {
-      errors.push(`Only ${imageFiles.length} images provided. Need at least 10 selfies for training.`);
+      errors.push(`❌ CRITICAL: Only ${imageFiles.length} images provided. MINIMUM 10 selfies required - no exceptions.`);
       return { success: false, errors, validImages };
+    }
+    
+    console.log(`🛡️ VALIDATION GATE 1 PASSED: ${imageFiles.length} images provided (meets minimum 10)`);
+    
+    // 🛡️ CRITICAL CHECK 3: Recommended minimum for quality
+    if (imageFiles.length < 15) {
+      console.log(`⚠️  WARNING: Only ${imageFiles.length} images - recommend 15-20 for best results`);
     }
     
     for (let i = 0; i < imageFiles.length; i++) {
@@ -81,9 +90,16 @@ export class BulletproofUploadService {
       }
     }
     
+    // 🛡️ CRITICAL CHECK 4: Final validation after processing
+    if (validImages.length < 10) {
+      errors.push(`❌ CRITICAL: Only ${validImages.length} valid images after processing. Need minimum 10 valid images.`);
+      console.log(`❌ VALIDATION FAILED: Insufficient valid images (${validImages.length}/10 minimum)`);
+      return { success: false, errors, validImages };
+    }
+    
     const success = validImages.length >= 10 && errors.length === 0;
     
-    console.log(`✅ VALIDATION: ${validImages.length} valid images, ${errors.length} errors`);
+    console.log(`✅ VALIDATION GATE 2 PASSED: ${validImages.length} valid images, ${errors.length} errors`);
     
     return { success, errors, validImages };
   }
@@ -137,9 +153,16 @@ export class BulletproofUploadService {
       }
     }
     
+    // 🛡️ CRITICAL GATE 2: Final S3 validation
+    if (s3Urls.length < 10) {
+      errors.push(`❌ CRITICAL: Only ${s3Urls.length} images uploaded to S3. Need minimum 10.`);
+      console.log(`❌ S3 UPLOAD FAILED: Insufficient uploads (${s3Urls.length}/10 minimum)`);
+      return { success: false, errors, s3Urls };
+    }
+    
     const success = s3Urls.length >= 10 && errors.length === 0;
     
-    console.log(`✅ S3 UPLOAD: ${s3Urls.length} images uploaded, ${errors.length} errors`);
+    console.log(`✅ S3 GATE 2 PASSED: ${s3Urls.length} images uploaded, ${errors.length} errors`);
     
     return { success, errors, s3Urls };
   }
@@ -148,7 +171,7 @@ export class BulletproofUploadService {
    * STEP 3: CREATE TRAINING ZIP WITH VERIFICATION
    * - Download from S3 to ensure integrity
    * - Create ZIP file with proper structure
-   * - Verify ZIP file completeness
+   * - CRITICAL: NEVER create ZIP with less than 10 images
    */
   static async createTrainingZip(
     userId: string, 
@@ -157,6 +180,16 @@ export class BulletproofUploadService {
     console.log(`📦 ZIP CREATION: Starting for user ${userId}`);
     
     const errors: string[] = [];
+    
+    // 🛡️ CRITICAL GATE 3: Check S3 URLs count before ANY ZIP operations
+    if (!s3Urls || s3Urls.length < 10) {
+      errors.push(`❌ CRITICAL: Cannot create ZIP - only ${s3Urls?.length || 0} S3 URLs. Need minimum 10.`);
+      console.log(`❌ ZIP CREATION BLOCKED: Insufficient S3 URLs (${s3Urls?.length || 0}/10 minimum)`);
+      return { success: false, errors, zipUrl: null };
+    }
+    
+    console.log(`🛡️ ZIP GATE 3 PASSED: ${s3Urls.length} S3 URLs available (meets minimum 10)`);
+    
     const tempDir = path.join(process.cwd(), 'temp_training');
     
     if (!fs.existsSync(tempDir)) {
@@ -203,9 +236,36 @@ export class BulletproofUploadService {
         output.on('error', reject);
       });
       
-      // Verify ZIP file exists and has content
+      // 🛡️ CRITICAL GATE 4: Verify ZIP has enough content
       const zipStats = fs.statSync(zipPath);
-      if (zipStats.size < 1024) { // ZIP must be at least 1KB
+      const minZipSize = 50 * 1024; // At least 50KB for 10+ images
+      
+      if (zipStats.size < minZipSize) {
+        errors.push(`❌ CRITICAL: ZIP file too small (${zipStats.size} bytes). Expected at least ${minZipSize} bytes for 10+ images.`);
+        console.log(`❌ ZIP VALIDATION FAILED: File too small (${zipStats.size}/${minZipSize} bytes minimum)`);
+        return { success: false, errors, zipUrl: null };
+      }
+      
+      console.log(`🛡️ ZIP GATE 4 PASSED: ZIP file ${zipStats.size} bytes (meets minimum ${minZipSize})`);
+      
+      // 🛡️ CRITICAL GATE 5: Count actual files in ZIP
+      let actualFileCount = 0;
+      for (let i = 0; i < s3Urls.length; i++) {
+        // Count successful additions (errors would have been logged above)
+        if (!errors.some(e => e.includes(`image ${i + 1}`))) {
+          actualFileCount++;
+        }
+      }
+      
+      if (actualFileCount < 10) {
+        errors.push(`❌ CRITICAL: Only ${actualFileCount} files successfully added to ZIP. Need minimum 10.`);
+        console.log(`❌ ZIP FILE COUNT FAILED: Only ${actualFileCount}/10 minimum files in ZIP`);
+        return { success: false, errors, zipUrl: null };
+      }
+      
+      console.log(`🛡️ ZIP GATE 5 PASSED: ${actualFileCount} files in ZIP (meets minimum 10)`);
+      
+      if (zipStats.size < 1024) { // ZIP must be at least 1KB (legacy check)
         errors.push('ZIP file creation failed - file too small');
         return { success: false, errors, zipUrl: null };
       }

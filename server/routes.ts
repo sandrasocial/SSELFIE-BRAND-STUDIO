@@ -2388,20 +2388,26 @@ VOICE RULES:
 
       const { selfieImages } = req.body;
       
-      // 🛡️ BULLETPROOF VALIDATION: Strict image requirements
+      // 🛡️ CRITICAL BULLETPROOF VALIDATION: NEVER ALLOW LESS THAN 10 IMAGES
       if (!selfieImages || !Array.isArray(selfieImages)) {
+        console.log(`❌ TRAINING BLOCKED: Invalid image data for user ${authUserId}`);
         return res.status(400).json({ 
-          message: "Invalid image data. Please select valid selfie images.",
+          message: "❌ CRITICAL: Invalid image data. Please select valid selfie images.",
           requiresRestart: true 
         });
       }
       
       if (selfieImages.length < 10) {
+        console.log(`❌ TRAINING BLOCKED: Insufficient images (${selfieImages.length}/10) for user ${authUserId}`);
         return res.status(400).json({ 
-          message: `Only ${selfieImages.length} images provided. At least 10 selfies required for training.`,
-          requiresRestart: true 
+          message: `❌ CRITICAL: Only ${selfieImages.length} images provided. MINIMUM 10 selfies required - NO EXCEPTIONS.`,
+          requiresRestart: true,
+          imageCount: selfieImages.length,
+          minimumRequired: 10
         });
       }
+      
+      console.log(`🛡️ TRAINING GATE 0 PASSED: ${selfieImages.length} images provided for user ${authUserId}`);
 
       // Get or create user
       let user = await storage.getUser(authUserId);
