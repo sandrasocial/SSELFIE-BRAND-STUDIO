@@ -1506,7 +1506,6 @@ export function OptimizedVisualEditor({ className = '' }: OptimizedVisualEditorP
             </div>
           </TabsContent>
         </Tabs>
-        </div>
       </div>
 
       {/* Main Live Preview Panel - Fixed Simple Layout */}
