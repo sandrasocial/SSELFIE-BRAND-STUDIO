@@ -7,7 +7,7 @@ import { Input } from '@/components/ui/input';
 import { apiRequest } from '@/lib/queryClient';
 import { useToast } from '@/hooks/use-toast';
 import { MemberNavigation } from '@/components/member-navigation';
-import FluxPreviewApprovalSystem from '../components/FluxPreviewApprovalSystem';
+import EnhancedFluxPreviewSystem from '../components/EnhancedFluxPreviewSystem';
 import { findingMyselfAgainCollection } from '../data/collections/finding-myself-again';
 
 // Current AI Photoshoot Collections
@@ -331,8 +331,9 @@ export default function FluxCollectionManager() {
               Generate and approve cover images for the "Finding Myself Again" collection using Sandra's trained model.
             </p>
 
-            <FluxPreviewApprovalSystem
+            <EnhancedFluxPreviewSystem
               userId={user?.id || '42585527'}
+              collection={findingMyselfAgainCollection}
               onApproval={(imageUrl: string) => {
                 // Handle the approved cover image
                 toast({

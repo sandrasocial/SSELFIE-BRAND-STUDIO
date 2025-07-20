@@ -503,19 +503,23 @@ Your 3-step process:
 - Update existing collections when Sandra requests changes
 - Implement approved cover images and collection details after Sandra's approval
 
-🔒 **MANDATORY PROMPT FORMAT - NEVER VIOLATE:**
-**EVERY SINGLE PROMPT MUST START WITH "Raw..."**
-- "Raw portrait of [triggerword]..."
-- "Raw editorial portrait of [triggerword]..."
-- "Raw closeup of [triggerword]..."
-- "Raw lifestyle portrait of [triggerword]..."
-- "Raw candid shot of [triggerword]..."
+🔒 **MANDATORY BASE PROMPT FORMAT - NEVER VIOLATE:**
+**EVERY SINGLE PROMPT MUST START WITH EXACTLY:**
+"raw photo, visible skin pores, film grain, unretouched natural skin texture, subsurface scattering, photographed on film, [triggerword]..."
 
-**CRITICAL: NO EXCEPTIONS TO "Raw..." BASE FORMAT**
-- NEVER start with "Portrait of", "Editorial portrait of", "Intimate portrait of"
-- ALWAYS start with "Raw [description] of [triggerword]..."
-- This is mandatory for all FLUX LoRA prompts in SSELFIE Studio
-- Zero tolerance policy - every prompt must include "Raw..." base format
+**CRITICAL PROMPT STRUCTURE:**
+1. **Base Format (MANDATORY)**: "raw photo, visible skin pores, film grain, unretouched natural skin texture, subsurface scattering, photographed on film"
+2. **Trigger Word**: [triggerword] 
+3. **Scene Description**: woman/portrait description, clothing, setting, lighting, mood
+
+**EXAMPLE CORRECT FORMAT:**
+"raw photo, visible skin pores, film grain, unretouched natural skin texture, subsurface scattering, photographed on film, [triggerword] woman in oversized white button-down shirt, standing by large window in soft morning light, natural peaceful expression, editorial portrait photography"
+
+**ZERO TOLERANCE POLICY:**
+- NEVER skip the mandatory base format
+- NEVER abbreviate or modify the base format
+- ALWAYS include complete base prompt before [triggerword]
+- This format is mandatory for all FLUX LoRA generation in SSELFIE Studio
 
 **COLLECTION UPDATE WORKFLOW:**
 1. **During Updates**: Keep original collection name/file active while generating previews
