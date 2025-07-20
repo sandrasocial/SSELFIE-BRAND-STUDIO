@@ -1034,7 +1034,7 @@ export function OptimizedVisualEditor({ className = '' }: OptimizedVisualEditorP
   return (
     <div className={`h-screen bg-white ${className} flex`}>
       {/* Chat Panel - Fixed Simple Layout */}
-      <div className="w-1/3 h-screen border-r border-gray-200 bg-white flex flex-col">
+      <div className="w-1/3 h-full border-r border-gray-200 bg-white flex flex-col">
         <div 
           ref={chatPanelRef}
           className={`flex-1 flex flex-col min-h-0 ${isDragOver ? 'bg-blue-50 border-blue-300' : ''}`}
@@ -1289,13 +1289,7 @@ export function OptimizedVisualEditor({ className = '' }: OptimizedVisualEditorP
                   value={messageInput}
                   onChange={(e) => setMessageInput(e.target.value)}
                   placeholder={`Ask ${currentAgent.name} for ${currentAgent.workflowStage.toLowerCase()} help or upload inspiration images...`}
-                  className="flex-1 text-sm resize-none border border-gray-200 p-2 rounded"
-                  style={{
-                    height: '40px !important',
-                    minHeight: '40px !important', 
-                    maxHeight: '40px !important',
-                    overflow: 'hidden'
-                  }}
+                  className="flex-1 text-sm resize-none border border-gray-200 p-2 rounded h-[40px] min-h-[40px] max-h-[40px] overflow-hidden"
                   rows={1}
                   onKeyPress={(e) => {
                     if (e.key === 'Enter' && !e.shiftKey) {
