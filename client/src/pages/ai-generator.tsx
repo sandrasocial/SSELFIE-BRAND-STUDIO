@@ -1024,7 +1024,10 @@ function SandraAIHelper({
           {/* Input */}
           <div className="p-4 border-t border-[#e5e5e5]">
             <div className="flex space-x-2">
+              <label htmlFor="sandra-chat-input" className="sr-only">Describe your vision to Sandra</label>
               <input
+                id="sandra-chat-input"
+                name="sandraVision"
                 type="text"
                 value={input}
                 onChange={(e) => onInputChange(e.target.value)}
@@ -1098,10 +1101,12 @@ function FluxCollectionCreator({ onClose, onSubmit, isCreating }: FluxCollection
 
           <form onSubmit={handleSubmit} className="space-y-6">
             <div>
-              <label className="block text-sm font-medium mb-2">
+              <label htmlFor="flux-style-description" className="block text-sm font-medium mb-2">
                 Style Description
               </label>
               <textarea
+                id="flux-style-description"
+                name="styleDescription"
                 value={styleDescription}
                 onChange={(e) => setStyleDescription(e.target.value)}
                 placeholder="Describe the visual style you want to create (e.g., 'Scandinavian minimalist editorial with natural lighting')"
@@ -1111,10 +1116,12 @@ function FluxCollectionCreator({ onClose, onSubmit, isCreating }: FluxCollection
             </div>
 
             <div>
-              <label className="block text-sm font-medium mb-2">
+              <label htmlFor="flux-target-audience" className="block text-sm font-medium mb-2">
                 Target Audience
               </label>
               <input
+                id="flux-target-audience"
+                name="targetAudience"
                 type="text"
                 value={targetAudience}
                 onChange={(e) => setTargetAudience(e.target.value)}
@@ -1125,10 +1132,12 @@ function FluxCollectionCreator({ onClose, onSubmit, isCreating }: FluxCollection
             </div>
 
             <div>
-              <label className="block text-sm font-medium mb-2">
+              <label htmlFor="flux-mood-keywords" className="block text-sm font-medium mb-2">
                 Mood Keywords
               </label>
               <input
+                id="flux-mood-keywords"
+                name="moodKeywords"
                 type="text"
                 value={moodKeywords}
                 onChange={(e) => setMoodKeywords(e.target.value)}

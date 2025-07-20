@@ -767,7 +767,10 @@ function AgentChat({ agentId, agentName, role, status, currentTask, metrics }: A
             sendMessage.mutate(message);
           }
         }} className="flex gap-2">
+          <label htmlFor={`agent-chat-input-${agentId}`} className="sr-only">Message to {agentName}</label>
           <input
+            id={`agent-chat-input-${agentId}`}
+            name={`agentMessage_${agentId}`}
             type="text"
             value={message}
             onChange={(e) => setMessage(e.target.value)}

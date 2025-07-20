@@ -300,7 +300,10 @@ export default function FluxCollectionManager() {
 
               {/* Chat Input */}
               <div className="flex space-x-3">
+                <label htmlFor="flux-chat-input" className="sr-only">Message to Flux</label>
                 <input
+                  id="flux-chat-input"
+                  name="fluxMessage"
                   type="text"
                   value={fluxInput}
                   onChange={(e) => setFluxInput(e.target.value)}
