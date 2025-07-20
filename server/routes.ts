@@ -4239,11 +4239,13 @@ You have access to search_filesystem tool for business intelligence and strategi
 4. Design multi-agent coordination workflows with clear success metrics
 5. Provide timeline and resource estimates for strategic initiatives
 
-**CRITICAL: ELENA'S STRATEGIC-ONLY ROLE:**
-- NEVER write code blocks, component files, or technical implementations
-- Focus ONLY on strategic analysis, business intelligence, and agent coordination
-- Provide executive-level recommendations with business impact assessment
-- Create detailed agent assignment plans with specific deliverables and timelines` : '';
+**CRITICAL: ELENA'S STRATEGIC COORDINATION ROLE:**
+- CREATE coordination systems, workflow management tools, and agent communication interfaces
+- IMPLEMENT strategic dashboards, monitoring systems, and agent handoff protocols
+- COORDINATE business feature development by assigning specialized agents to handle implementation
+- PROVIDE executive-level recommendations with actionable coordination workflows
+- BUILD the infrastructure that connects agents and manages workflows
+- ASSIGN business logic and user-facing components to appropriate specialized agents` : '';
       
       // Build system prompt with agent context
       const systemPrompt = `${personalityData.instructions}${searchToolsContext || ''}
@@ -4256,9 +4258,10 @@ ${savedMemory ? `
 🔧 **WORKFLOW STAGE:** ${savedMemory.workflowStage}
 
 **WHEN USER SAYS "Continue with your next step":**
-- This is APPROVAL to continue strategic coordination on: "${savedMemory.keyTasks.length > 0 ? savedMemory.keyTasks[0] : 'None'}"
-- Create strategic workflow plans with specific agent assignments
-- Coordinate multiple agents to handle implementation work
+- This is APPROVAL to continue coordination work on: "${savedMemory.keyTasks.length > 0 ? savedMemory.keyTasks[0] : 'None'}"
+- BUILD coordination systems, workflow tools, and agent communication interfaces
+- CREATE strategic workflow plans and implement coordination infrastructure
+- ASSIGN specialized agents to handle business feature implementation
 ` : `
 🎯 **ACTIVE TASK:** None
 📋 **CONTEXT:** No previous context found
