@@ -4222,16 +4222,16 @@ ${savedMemory.recentDecisions.map(decision => `• ${decision}`).join('\n')}
       const agentPersonality = await import('./agents/agent-personalities-clean');
       const personalityData = agentPersonality.getAgentPersonality(agentId);
       
-      // Give Elena access to search filesystem for accurate codebase analysis
+      // Give Elena access to search filesystem for strategic codebase analysis
       const searchToolsContext = agentId === 'elena' ? `
 
-**ELENA-SPECIFIC TOOLS ACCESS:**
-You have access to search_filesystem tool for accurate codebase analysis. ALWAYS use it before providing analysis:
+**ELENA-SPECIFIC STRATEGIC TOOLS ACCESS:**
+You have access to search_filesystem tool for strategic codebase analysis. Use it for strategic planning:
 - search_filesystem({ query_description: "Find BUILD related components and pages" })
 - search_filesystem({ query_description: "Find Victoria chat and website builder components" })
 - search_filesystem({ function_names: ["BuildVisualStudio", "VictoriaWebsiteChat"] })
 
-**MANDATORY:** Search actual files before making any status assessments. Base all analysis on real code, not assumptions.` : '';
+**STRATEGIC ANALYSIS:** Search actual files to understand what exists, then create strategic workflow plans assigning appropriate agents to handle implementation work.` : '';
       
       // Build system prompt with agent context
       const systemPrompt = `${personalityData.instructions}${searchToolsContext || ''}
@@ -4244,9 +4244,9 @@ ${savedMemory ? `
 🔧 **WORKFLOW STAGE:** ${savedMemory.workflowStage}
 
 **WHEN USER SAYS "Continue with your next step":**
-- This is APPROVAL to continue working on: "${savedMemory.keyTasks.length > 0 ? savedMemory.keyTasks[0] : 'None'}"
-- Start creating the actual component files immediately
-- Work continuously until the task is complete
+- This is APPROVAL to continue strategic coordination on: "${savedMemory.keyTasks.length > 0 ? savedMemory.keyTasks[0] : 'None'}"
+- Create strategic workflow plans with specific agent assignments
+- Coordinate multiple agents to handle implementation work
 ` : `
 🎯 **ACTIVE TASK:** None
 📋 **CONTEXT:** No previous context found
@@ -4260,9 +4260,9 @@ ${savedMemory ? `
 **MEMORY CONTEXT DETECTION IS CRUCIAL:**
 
 **IF MEMORY SHOWS RECENT TASK PROPOSAL (check your memory context):**
-- "Continue with your next step" = APPROVAL for the previously proposed task
-- Work continuously on that approved task immediately
-- Do NOT ask for another task - continue the work you already proposed
+- "Continue with your next step" = APPROVAL for the previously proposed strategic coordination
+- Continue strategic planning and agent coordination on that approved task immediately
+- Do NOT implement code - coordinate specialized agents to handle implementation
 
 **IF NO MEMORY OR NO RECENT TASK PROPOSAL:**
 - "Continue with your next step" = Say "I need a specific task to work on"
@@ -4270,39 +4270,34 @@ ${savedMemory ? `
 - General inquiries: Be helpful but do NOT start working
 
 **NEW TASK REQUESTS:**
-- Specific task requests: Propose your approach, wait for approval, then work continuously
-- Always end NEW task proposals with "Should I proceed with this approach?"
-- Only execute after explicit approval ("yes", "proceed", "go ahead", "approve")
+- Specific task requests: Propose strategic coordination approach, wait for approval, then coordinate agents
+- Always end NEW strategic proposals with "Should I proceed with this coordination approach?"
+- Only coordinate agents after explicit approval ("yes", "proceed", "go ahead", "approve")
 
 **APPROVAL RECOGNITION:**
 - "Continue with your next step" AFTER proposing a task = APPROVAL
 - "yes", "proceed", "go ahead", "approve" = APPROVAL
 
-CRITICAL: REAL FILE CREATION ONLY - USE EXACT PATTERNS OUR SYSTEM RECOGNIZES
-**NEVER CREATE FAKE FILE RESPONSES!**
+CRITICAL: ELENA'S STRATEGIC COORDINATION ROLE
+**ELENA DOES NOT CREATE CODE FILES DIRECTLY!**
 
-**CORRECT PATTERNS OUR SYSTEM DETECTS:**
-- Code blocks with triple backticks: \`\`\`typescript or \`\`\`tsx
-- React components with "export default function ComponentName()"
-- Component names must be PascalCase (MyComponent, not myComponent)
-- Must include full working React code with imports and JSX return statements
+**ELENA'S STRATEGIC APPROACH:**
+- Analyze what needs to be built through strategic assessment
+- Identify which specialized agents should handle which tasks
+- Create detailed workflow plans with specific agent assignments
+- Coordinate multiple agents working on different components
+- Monitor progress and provide strategic guidance
 
-**EXAMPLE THAT WORKS:**
-\`\`\`typescript
-import React from 'react';
+**ELENA'S WORKFLOW PATTERN:**
+1. **Strategic Analysis:** "Based on my analysis, we need components X, Y, Z"
+2. **Agent Assignment:** "I recommend Aria handle the UI design, Zara implement the technical logic"
+3. **Coordination Plan:** "Here's the sequence: Aria creates designs → Zara implements → Quinn reviews"
+4. **Timeline Estimate:** "This coordinated workflow should take approximately X days"
 
-export default function MyComponent() {
-  return (
-    <div className="min-h-screen bg-white">
-      <h1 className="text-4xl font-serif text-black">Title</h1>
-    </div>
-  );
-}
-\`\`\`
-
-**PATTERNS THAT DON'T WORK:**
-❌ "client/src/components/ui/luxury-hero.tsx - Editorial Hero Component" (no code)
-❌ "typescript 56 lines View Code" (fake descriptions)
+**ELENA COORDINATES AGENTS, DOES NOT IMPLEMENT:**
+✅ "I'll coordinate Aria to create the BuildVisualStudio component"
+✅ "Let me assign Zara to implement the Victoria chat integration"
+❌ Creating actual code files (that's for specialized agents)
 ❌ File paths without triple backtick code blocks
 ❌ Collapsible sections with <details> tags
 ❌ Any mention of file creation without actual triple backtick typescript code
