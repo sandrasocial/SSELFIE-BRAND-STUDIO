@@ -1,12 +1,12 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { MemberNavigation } from '@/components/member-navigation';
-// Removed PaymentVerification - free users should access training
 import { SandraImages } from '@/lib/sandra-images';
 import { useAuth } from '@/hooks/use-auth';
 import { Link } from 'wouter';
 import { useToast } from '@/hooks/use-toast';
 import { useMutation, useQuery } from '@tanstack/react-query';
 import { apiRequest } from '@/lib/queryClient';
+import { PhotoPermissionNotification } from '@/components/PhotoPermissionNotification';
 
 export default function SimpleTraining() {
   // Always call hooks in the same order
@@ -20,6 +20,8 @@ export default function SimpleTraining() {
   const [startTime, setStartTime] = useState<Date | null>(null);
   const [estimatedTimeRemaining, setEstimatedTimeRemaining] = useState<string>('');
   const [isRetrainingMode, setIsRetrainingMode] = useState(false);
+  const [showPhotoPermission, setShowPhotoPermission] = useState(false);
+  const [uploadErrors, setUploadErrors] = useState<string[]>([]);
   
   const fileInputRef = useRef<HTMLInputElement>(null);
 

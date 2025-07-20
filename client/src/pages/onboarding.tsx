@@ -77,14 +77,27 @@ export default function OnboardingNew() {
     mutationFn: async (selfieImages: string[]) => {
       return apiRequest('POST', '/api/start-model-training', { selfieImages });
     },
-    onSuccess: () => {
-      setFormData(prev => ({ ...prev, aiTrainingStatus: 'in_progress' }));
-      nextStep();
+    onSuccess: (response) => {
+      if (response.success) {
+        setFormData(prev => ({ ...prev, aiTrainingStatus: 'in_progress' }));
+        toast({
+          title: "Training Started!",
+          description: "Your bulletproof AI model training has begun.",
+        });
+        nextStep();
+      } else {
+        // Handle validation errors
+        toast({
+          title: "Training Validation Failed",
+          description: `Please fix these issues: ${response.errors?.join(', ')}`,
+          variant: "destructive",
+        });
+      }
     },
     onError: (error) => {
       toast({
         title: "Training failed",
-        description: "Failed to start AI training. Please try again.",
+        description: "Training system error. Please restart upload process.",
         variant: "destructive",
       });
     }
@@ -129,16 +142,18 @@ export default function OnboardingNew() {
   const handleFileUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
     const files = Array.from(event.target.files || []);
     
+    // 🛡️ BULLETPROOF VALIDATION: Strict requirements
     const validFiles = files.filter(file => {
       const isValidType = file.type.startsWith('image/');
       const isValidSize = file.size <= 10 * 1024 * 1024; // 10MB
-      return isValidType && isValidSize;
+      const isMinSize = file.size >= 10240; // At least 10KB for quality
+      return isValidType && isValidSize && isMinSize;
     });
 
     if (validFiles.length !== files.length) {
       toast({
         title: "Invalid files",
-        description: "Please upload only image files under 10MB.",
+        description: "Please upload only high-quality image files (10KB-10MB).",
         variant: "destructive",
       });
     }
