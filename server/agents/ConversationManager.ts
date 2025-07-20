@@ -59,7 +59,7 @@ export class ConversationManager {
   }
 
   /**
-   * Create intelligent summary of conversation history (Enhanced for Replit-style memory)
+   * Create intelligent summary of conversation history (Enhanced for Elena's strategic context)
    */
   static async createConversationSummary(
     agentId: string,
@@ -73,53 +73,72 @@ export class ConversationManager {
     let currentContext = '';
     let workflowStage = 'ongoing';
 
+    // Get the full conversation text for context analysis
+    const fullConversation = history.map(msg => msg.content).join(' ').toLowerCase();
+    
+    console.log(`🔍 ELENA MEMORY: Analyzing ${history.length} messages for context extraction`);
+
     // Enhanced analysis - look at ALL messages for maximum context preservation
-    for (const message of history) { // Analyze entire conversation history
+    for (const message of history) {
       if (message.role === 'user') {
-        // Extract specific task requests with better patterns
+        // Extract specific task requests with enhanced patterns for Elena
         const content = message.content.toLowerCase();
+        const originalContent = message.content;
+        
+        // BUILD-specific task detection
+        if (content.includes('build') && (content.includes('website') || content.includes('builder') || content.includes('step 4'))) {
+          keyTasks.push('BUILD feature development: Website builder implementation for Step 4');
+        }
+        
+        // Workflow and audit requests
+        if (content.includes('workflow') && (content.includes('audit') || content.includes('complete'))) {
+          keyTasks.push('Conduct comprehensive workflow audit and completion strategy');
+        }
+        
+        // Component analysis requests
+        if (content.includes('audit') && content.includes('component')) {
+          keyTasks.push('Comprehensive component analysis and gap identification');
+        }
+        
+        // General task patterns
         if (content.includes('create') || content.includes('build') || content.includes('implement') || 
             content.includes('design') || content.includes('fix') || content.includes('add') ||
             content.includes('update') || content.includes('make') || content.includes('develop') ||
-            content.includes('hero') || content.includes('ready to start')) {
-          let task = message.content.substring(0, 120).replace(/\n/g, ' ').trim();
-          
-          // Special handling for specific contexts
-          if (content.includes('hero') && content.includes('admin')) {
-            task = 'Create full-bleed hero image for admin dashboard with luxury editorial design';
-          }
-          
-          if (task && !keyTasks.includes(task)) {
+            content.includes('complete') || content.includes('ready to start')) {
+          let task = originalContent.substring(0, 150).replace(/\n/g, ' ').trim();
+          if (task && !keyTasks.some(existingTask => existingTask.includes(task.substring(0, 50)))) {
             keyTasks.push(task);
           }
         }
       } else if (message.role === 'assistant') {
-        // Extract completed work with better pattern matching
+        // Extract Elena's analysis and strategic decisions
         const content = message.content.toLowerCase();
-        if (content.includes('✅') || content.includes('completed') || content.includes('created') || 
-            content.includes('implemented') || content.includes('fixed') || content.includes('added') ||
-            content.includes('updated') || content.includes('built')) {
-          const lines = message.content.split('\n');
+        const originalContent = message.content;
+        
+        // Look for Elena's strategic analysis patterns
+        if (content.includes('strategic analysis') || content.includes('recommended workflow') || 
+            content.includes('next steps') || content.includes('workflow estimation')) {
+          const lines = originalContent.split('\n');
           for (const line of lines) {
-            if (line.includes('✅') || line.includes('completed') || line.includes('created') ||
-                line.includes('implemented') || line.includes('fixed')) {
-              const task = line.trim().substring(0, 120).replace(/[✅]/g, '').trim();
-              if (task && !keyTasks.includes(task)) {
-                keyTasks.push(task);
+            if (line.includes('**') && (line.includes('ANALYSIS') || line.includes('WORKFLOW') || 
+                line.includes('RECOMMENDATION') || line.includes('STEPS'))) {
+              const decision = line.trim().substring(0, 120);
+              if (decision && !recentDecisions.includes(decision)) {
+                recentDecisions.push(decision);
               }
             }
           }
         }
         
-        // Extract decisions made with better pattern matching
-        if (content.includes('decided') || content.includes('chose') || content.includes('using') ||
-            content.includes('selected') || content.includes('approach')) {
-          const lines = message.content.split('\n');
+        // Extract completion status
+        if (content.includes('✅') || content.includes('completed') || content.includes('created') || 
+            content.includes('implemented') || content.includes('fixed') || content.includes('added')) {
+          const lines = originalContent.split('\n');
           for (const line of lines) {
-            if (line.includes('decided') || line.includes('chose') || line.includes('approach')) {
-              const decision = line.trim().substring(0, 120);
-              if (decision && !recentDecisions.includes(decision)) {
-                recentDecisions.push(decision);
+            if (line.includes('✅') || line.toLowerCase().includes('completed')) {
+              const task = line.trim().substring(0, 120).replace(/[✅]/g, '').trim();
+              if (task && !keyTasks.some(existingTask => existingTask.includes(task.substring(0, 30)))) {
+                keyTasks.push(task);
               }
             }
           }
@@ -142,12 +161,13 @@ export class ConversationManager {
     } else if (fullContent.includes('admin') && fullContent.includes('dashboard')) {
       currentContext = 'Working on Sandra\'s admin dashboard with agent chat interfaces and luxury design systems';
       workflowStage = 'admin-dashboard';
-    } else if (fullContent.includes('build') && fullContent.includes('analysis')) {
-      currentContext = 'Conducting comprehensive BUILD feature analysis including component status, gaps identification, and strategic planning for Step 4 implementation';
+    } else if (fullContent.includes('build') && (fullContent.includes('analysis') || fullContent.includes('audit') || fullContent.includes('workflow'))) {
+      currentContext = 'Elena conducting comprehensive BUILD feature analysis including component status, gaps identification, and strategic planning for Step 4 implementation';
       workflowStage = 'build-analysis';
       keyTasks.push('Analyze BUILD feature status and identify missing components');
-      keyTasks.push('Create comprehensive component gap analysis');
+      keyTasks.push('Create comprehensive component gap analysis');  
       keyTasks.push('Provide strategic implementation roadmap');
+      keyTasks.push('Continue BUILD feature development workflow');
     } else if (fullContent.includes('memory') && (fullContent.includes('agent') || fullContent.includes('test'))) {
       currentContext = 'Implementing and debugging agent memory systems for conversation continuity and context preservation';
       workflowStage = 'memory-system';
