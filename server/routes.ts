@@ -1559,7 +1559,7 @@ VOICE RULES:
       });
 
       const messages = [
-        ...conversationHistory.map((msg: any) => ({
+        ...(conversationHistory || []).map((msg: any) => ({
           role: msg.role === 'assistant' ? 'assistant' : 'user',
           content: msg.content
         })),
@@ -4892,7 +4892,9 @@ AGENT_CONTEXT:
 
   // Register backup management routes
   const { registerBackupManagementRoutes } = await import('./routes/backup-management-routes');
+  const { registerMayaAIRoutes } = await import('./routes/maya-ai-routes');
   registerBackupManagementRoutes(app);
+  registerMayaAIRoutes(app);
 
   const httpServer = createServer(app);
   return httpServer;

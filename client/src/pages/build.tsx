@@ -1,7 +1,7 @@
 import React, { useEffect } from 'react';
 import { useAuth } from '@/hooks/use-auth';
 import { useLocation } from 'wouter';
-import BuildVisualStudio from '@/components/build/BuildVisualStudio';
+import EnhancedBuildVisualStudio from '@/components/build/EnhancedBuildVisualStudio';
 
 export default function Build() {
   const { user, isLoading } = useAuth();
@@ -41,7 +41,7 @@ export default function Build() {
 
   return (
     <div className="h-screen overflow-hidden">
-      <BuildVisualStudio />
+      <EnhancedBuildVisualStudio />
     </div>
   );
 }
