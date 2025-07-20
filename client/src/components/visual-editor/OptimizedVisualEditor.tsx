@@ -1032,9 +1032,9 @@ export function OptimizedVisualEditor({ className = '' }: OptimizedVisualEditorP
   ];
 
   return (
-    <div className={`h-full bg-white ${className} flex`}>
+    <div className={`h-screen bg-white ${className} flex`}>
       {/* Chat Panel - Fixed Simple Layout */}
-      <div className="w-1/3 h-full border-r border-gray-200 bg-white flex flex-col">
+      <div className="w-1/3 h-screen border-r border-gray-200 bg-white flex flex-col">
         <div 
           ref={chatPanelRef}
           className={`flex-1 flex flex-col min-h-0 ${isDragOver ? 'bg-blue-50 border-blue-300' : ''}`}
@@ -1141,7 +1141,8 @@ export function OptimizedVisualEditor({ className = '' }: OptimizedVisualEditorP
             // Track active tab for file watching
             (window as any).activeFileTab = value;
           }} 
-          className="flex-1 flex flex-col min-h-0"
+          className="flex-1 flex flex-col"
+          style={{height: 'calc(100vh - 200px)'}}
         >
           <TabsList className="grid w-full grid-cols-6 mx-1 md:mx-2 mt-1 md:mt-2">
             <TabsTrigger value="chat" className="text-xs">Chat</TabsTrigger>
@@ -1152,7 +1153,7 @@ export function OptimizedVisualEditor({ className = '' }: OptimizedVisualEditorP
             <TabsTrigger value="enhancements" className="text-xs">AI+</TabsTrigger>
           </TabsList>
 
-          <TabsContent value="chat" className="flex-1 mt-0 min-h-0" style={{display: 'grid', gridTemplateRows: 'auto 1fr auto'}}>
+          <TabsContent value="chat" className="flex-1 mt-0" style={{display: 'grid', gridTemplateRows: 'auto 1fr auto', height: '100%'}}>
             {/* Minimal Chat Controls - Subtle Icon */}
             <div className="flex justify-end px-2 py-1">
               <AgentChatControls
