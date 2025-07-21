@@ -50,13 +50,17 @@ Apply this S3 bucket policy to `sselfie-training-zips` bucket:
 }
 ```
 
-## HOW TO APPLY (AWS Console)
-1. Go to S3 Console → sselfie-training-zips bucket
+## HOW TO APPLY (AWS Console - CORRECT PLATFORM)
+**IMPORTANT**: This is an AWS S3 issue, not Google Cloud. Use AWS Console at https://console.aws.amazon.com
+
+1. Go to **AWS S3 Console** → sselfie-training-zips bucket
 2. Click "Permissions" tab
 3. Scroll to "Bucket policy" 
 4. Click "Edit"
 5. Replace existing policy with the JSON above
 6. Click "Save changes"
+
+**AWS ACCOUNT NEEDED**: You need access to AWS account ID: 440740774281 (where the S3 bucket exists)
 
 ## HOW TO APPLY (AWS CLI)
 ```bash

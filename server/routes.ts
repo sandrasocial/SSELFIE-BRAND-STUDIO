@@ -4109,6 +4109,55 @@ Consider this workflow optimized and ready for implementation! ⚙️`
     }
   });
 
+  // S3 POLICY FIX ENDPOINTS - CRITICAL ISSUE RESOLUTION
+  app.post('/api/admin/s3/fix-policy', isAuthenticated, async (req: any, res) => {
+    try {
+      const adminEmail = req.user.claims.email;
+      if (adminEmail !== 'ssa@ssasocial.com') {
+        return res.status(403).json({ error: 'Admin access required' });
+      }
+      
+      const { S3PolicyUpdater } = await import('./s3-policy-updater');
+      const result = await S3PolicyUpdater.applyFixedBucketPolicy();
+      res.json(result);
+    } catch (error) {
+      console.error('S3 policy fix error:', error);
+      res.status(500).json({ success: false, message: error.message });
+    }
+  });
+
+  app.get('/api/admin/s3/current-policy', isAuthenticated, async (req: any, res) => {
+    try {
+      const adminEmail = req.user.claims.email;
+      if (adminEmail !== 'ssa@ssasocial.com') {
+        return res.status(403).json({ error: 'Admin access required' });
+      }
+      
+      const { S3PolicyUpdater } = await import('./s3-policy-updater');
+      const result = await S3PolicyUpdater.getCurrentBucketPolicy();
+      res.json(result);
+    } catch (error) {
+      console.error('S3 policy check error:', error);
+      res.status(500).json({ success: false, message: error.message });
+    }
+  });
+
+  app.post('/api/admin/s3/test-access', isAuthenticated, async (req: any, res) => {
+    try {
+      const adminEmail = req.user.claims.email;
+      if (adminEmail !== 'ssa@ssasocial.com') {
+        return res.status(403).json({ error: 'Admin access required' });
+      }
+      
+      const { S3PolicyUpdater } = await import('./s3-policy-updater');
+      const result = await S3PolicyUpdater.testS3Access();
+      res.json(result);
+    } catch (error) {
+      console.error('S3 access test error:', error);
+      res.status(500).json({ success: false, message: error.message });
+    }
+  });
+
   // REMOVED: Duplicate /api/agents endpoint - now using the real database version above
 
   // ENHANCED ADMIN AGENT CHAT ENDPOINT WITH DUAL AUTH (MAIN ENDPOINT)
