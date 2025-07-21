@@ -1,5 +1,4 @@
 import { useQuery } from "@tanstack/react-query";
-import { Users, Calendar, DollarSign, TrendingUp, Eye, UserPlus } from "lucide-react";
 
 interface AdminStats {
   totalUsers: number;
@@ -59,100 +58,124 @@ export default function AdminDashboard() {
           <div className="w-16 h-[1px] bg-white mx-auto"></div>
         </div>
 
-        <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
+        <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-12">
           {/* Total Users Card */}
-          <div className="group bg-gradient-to-br from-gray-900 to-black border border-gray-800 p-8 hover:border-white/20 transition-all duration-500">
-            <div className="flex items-center justify-between mb-6">
-              <Users className="w-8 h-8 text-white/60 group-hover:text-white transition-colors" />
-              <div className="w-8 h-[1px] bg-white/20"></div>
-            </div>
-            <div className="space-y-4">
-              <h3 className="font-times text-sm tracking-[0.2em] text-white/60 uppercase">
-                Total Users
-              </h3>
-              <p className="font-times text-4xl font-light tracking-wider">
-                {stats?.totalUsers?.toLocaleString() || '—'}
-              </p>
+          <div className="group border border-white/20 hover:border-white/40 transition-all duration-300">
+            <div className="p-12 bg-black">
+              <div className="space-y-6">
+                <div className="flex items-center justify-between">
+                  <div className="text-white/40 font-times text-xs uppercase tracking-[0.3em]">
+                    USERS
+                  </div>
+                  <div className="w-8 h-[1px] bg-white/40"></div>
+                </div>
+                <h3 className="font-times text-sm tracking-[0.2em] text-white/60 uppercase">
+                  Total Users
+                </h3>
+                <p className="font-times text-5xl font-extralight tracking-wider text-white leading-none">
+                  {stats?.totalUsers?.toLocaleString() || '—'}
+                </p>
+              </div>
             </div>
           </div>
 
           {/* Active Users Card */}
-          <div className="group bg-gradient-to-br from-gray-900 to-black border border-gray-800 p-8 hover:border-white/20 transition-all duration-500">
-            <div className="flex items-center justify-between mb-6">
-              <UserPlus className="w-8 h-8 text-white/60 group-hover:text-white transition-colors" />
-              <div className="w-8 h-[1px] bg-white/20"></div>
-            </div>
-            <div className="space-y-4">
-              <h3 className="font-times text-sm tracking-[0.2em] text-white/60 uppercase">
-                Active Users
-              </h3>
-              <p className="font-times text-4xl font-light tracking-wider">
-                {stats?.activeUsers?.toLocaleString() || '—'}
-              </p>
+          <div className="group border border-white/20 hover:border-white/40 transition-all duration-300">
+            <div className="p-12 bg-black">
+              <div className="space-y-6">
+                <div className="flex items-center justify-between">
+                  <div className="text-white/40 font-times text-xs uppercase tracking-[0.3em]">
+                    ACTIVE
+                  </div>
+                  <div className="w-8 h-[1px] bg-white/40"></div>
+                </div>
+                <h3 className="font-times text-sm tracking-[0.2em] text-white/60 uppercase">
+                  Active Users
+                </h3>
+                <p className="font-times text-5xl font-extralight tracking-wider text-white leading-none">
+                  {stats?.activeUsers?.toLocaleString() || '—'}
+                </p>
+              </div>
             </div>
           </div>
 
           {/* Total Revenue Card */}
-          <div className="group bg-gradient-to-br from-gray-900 to-black border border-gray-800 p-8 hover:border-white/20 transition-all duration-500">
-            <div className="flex items-center justify-between mb-6">
-              <DollarSign className="w-8 h-8 text-white/60 group-hover:text-white transition-colors" />
-              <div className="w-8 h-[1px] bg-white/20"></div>
-            </div>
-            <div className="space-y-4">
-              <h3 className="font-times text-sm tracking-[0.2em] text-white/60 uppercase">
-                Total Revenue
-              </h3>
-              <p className="font-times text-4xl font-light tracking-wider">
-                ${stats?.totalRevenue?.toLocaleString() || '0'}
-              </p>
+          <div className="group border border-white/20 hover:border-white/40 transition-all duration-300">
+            <div className="p-12 bg-black">
+              <div className="space-y-6">
+                <div className="flex items-center justify-between">
+                  <div className="text-white/40 font-times text-xs uppercase tracking-[0.3em]">
+                    REVENUE
+                  </div>
+                  <div className="w-8 h-[1px] bg-white/40"></div>
+                </div>
+                <h3 className="font-times text-sm tracking-[0.2em] text-white/60 uppercase">
+                  Total Revenue
+                </h3>
+                <p className="font-times text-5xl font-extralight tracking-wider text-white leading-none">
+                  ${stats?.totalRevenue?.toLocaleString() || '0'}
+                </p>
+              </div>
             </div>
           </div>
 
           {/* Monthly Revenue Card */}
-          <div className="group bg-gradient-to-br from-gray-900 to-black border border-gray-800 p-8 hover:border-white/20 transition-all duration-500">
-            <div className="flex items-center justify-between mb-6">
-              <Calendar className="w-8 h-8 text-white/60 group-hover:text-white transition-colors" />
-              <div className="w-8 h-[1px] bg-white/20"></div>
-            </div>
-            <div className="space-y-4">
-              <h3 className="font-times text-sm tracking-[0.2em] text-white/60 uppercase">
-                Monthly Revenue
-              </h3>
-              <p className="font-times text-4xl font-light tracking-wider">
-                ${stats?.monthlyRevenue?.toLocaleString() || '0'}
-              </p>
+          <div className="group border border-white/20 hover:border-white/40 transition-all duration-300">
+            <div className="p-12 bg-black">
+              <div className="space-y-6">
+                <div className="flex items-center justify-between">
+                  <div className="text-white/40 font-times text-xs uppercase tracking-[0.3em]">
+                    MONTHLY
+                  </div>
+                  <div className="w-8 h-[1px] bg-white/40"></div>
+                </div>
+                <h3 className="font-times text-sm tracking-[0.2em] text-white/60 uppercase">
+                  Monthly Revenue
+                </h3>
+                <p className="font-times text-5xl font-extralight tracking-wider text-white leading-none">
+                  ${stats?.monthlyRevenue?.toLocaleString() || '0'}
+                </p>
+              </div>
             </div>
           </div>
 
           {/* Total Sessions Card */}
-          <div className="group bg-gradient-to-br from-gray-900 to-black border border-gray-800 p-8 hover:border-white/20 transition-all duration-500">
-            <div className="flex items-center justify-between mb-6">
-              <Eye className="w-8 h-8 text-white/60 group-hover:text-white transition-colors" />
-              <div className="w-8 h-[1px] bg-white/20"></div>
-            </div>
-            <div className="space-y-4">
-              <h3 className="font-times text-sm tracking-[0.2em] text-white/60 uppercase">
-                Total Sessions
-              </h3>
-              <p className="font-times text-4xl font-light tracking-wider">
-                {stats?.totalSessions?.toLocaleString() || '—'}
-              </p>
+          <div className="group border border-white/20 hover:border-white/40 transition-all duration-300">
+            <div className="p-12 bg-black">
+              <div className="space-y-6">
+                <div className="flex items-center justify-between">
+                  <div className="text-white/40 font-times text-xs uppercase tracking-[0.3em]">
+                    SESSIONS
+                  </div>
+                  <div className="w-8 h-[1px] bg-white/40"></div>
+                </div>
+                <h3 className="font-times text-sm tracking-[0.2em] text-white/60 uppercase">
+                  Total Sessions
+                </h3>
+                <p className="font-times text-5xl font-extralight tracking-wider text-white leading-none">
+                  {stats?.totalSessions?.toLocaleString() || '—'}
+                </p>
+              </div>
             </div>
           </div>
 
           {/* Conversion Rate Card */}
-          <div className="group bg-gradient-to-br from-gray-900 to-black border border-gray-800 p-8 hover:border-white/20 transition-all duration-500">
-            <div className="flex items-center justify-between mb-6">
-              <TrendingUp className="w-8 h-8 text-white/60 group-hover:text-white transition-colors" />
-              <div className="w-8 h-[1px] bg-white/20"></div>
-            </div>
-            <div className="space-y-4">
-              <h3 className="font-times text-sm tracking-[0.2em] text-white/60 uppercase">
-                Conversion Rate
-              </h3>
-              <p className="font-times text-4xl font-light tracking-wider">
-                {stats?.conversionRate || 0}%
-              </p>
+          <div className="group border border-white/20 hover:border-white/40 transition-all duration-300">
+            <div className="p-12 bg-black">
+              <div className="space-y-6">
+                <div className="flex items-center justify-between">
+                  <div className="text-white/40 font-times text-xs uppercase tracking-[0.3em]">
+                    CONVERSION
+                  </div>
+                  <div className="w-8 h-[1px] bg-white/40"></div>
+                </div>
+                <h3 className="font-times text-sm tracking-[0.2em] text-white/60 uppercase">
+                  Conversion Rate
+                </h3>
+                <p className="font-times text-5xl font-extralight tracking-wider text-white leading-none">
+                  {stats?.conversionRate || 0}%
+                </p>
+              </div>
             </div>
           </div>
         </div>
@@ -198,15 +221,25 @@ export default function AdminDashboard() {
 
             <button className="group p-8 bg-gradient-to-br from-gray-900 to-black border border-gray-800 hover:border-white/20 transition-all duration-500 text-left">
               <h3 className="font-times text-xl font-light tracking-wider mb-4 group-hover:text-white/90">
-                Empire Settings
+                Agent Command
               </h3>
               <p className="text-white/60 font-times text-sm tracking-wide">
-                System configuration
+                AI coordination center
               </p>
             </button>
           </div>
         </div>
       </section>
+
+      {/* Editorial Footer */}
+      <footer className="py-16 border-t border-gray-800">
+        <div className="max-w-7xl mx-auto px-4 text-center">
+          <div className="w-12 h-[1px] bg-white/40 mx-auto mb-8"></div>
+          <p className="font-times text-white/40 text-sm tracking-[0.2em] uppercase">
+            SSELFIE STUDIO EMPIRE COMMAND CENTER
+          </p>
+        </div>
+      </footer>
     </div>
   );
 }
