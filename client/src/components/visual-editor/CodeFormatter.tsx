@@ -72,7 +72,7 @@ export function CodeFormatter({
       if (!trimmedLine) return '';
 
       // Decrease indent for closing brackets
-      if (trimmedLine.startsWith('}') || trimmedLine.startsWith(']') || trimmedLine.startsWith(')'))) {
+      if (trimmedLine.startsWith('}') || trimmedLine.startsWith(']') || trimmedLine.startsWith(')')) {
         indentLevel = Math.max(0, indentLevel - 1);
       }
 

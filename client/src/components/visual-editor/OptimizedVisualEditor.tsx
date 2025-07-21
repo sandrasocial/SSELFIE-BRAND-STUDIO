@@ -40,6 +40,9 @@ import { CodeIntelligence } from './CodeIntelligence';
 import { EnhancedSyntaxHighlighter } from './SyntaxHighlighter';
 import { CodeFormatter } from './CodeFormatter';
 import { CodeEditor } from './CodeEditor';
+import { FileManagement } from './FileManagement';
+import { ProjectOrganization } from './ProjectOrganization';
+import { WorkspaceIntelligence } from './WorkspaceIntelligence';
 
 import { AgentChatControls } from './AgentChatControls';
 import { QuickActionsPopup } from './QuickActionsPopup';
@@ -1425,7 +1428,8 @@ export function OptimizedVisualEditor({ className = '' }: OptimizedVisualEditorP
             <TabsTrigger value="flatlays" className="flex-1 text-xs h-7 rounded-sm data-[state=active]:bg-white data-[state=active]:shadow-sm">Flatlays</TabsTrigger>
             <TabsTrigger value="files" className="flex-1 text-xs h-7 rounded-sm data-[state=active]:bg-white data-[state=active]:shadow-sm">Files</TabsTrigger>
             <TabsTrigger value="editor" className="flex-1 text-xs h-7 rounded-sm data-[state=active]:bg-white data-[state=active]:shadow-sm">Editor</TabsTrigger>
-            <TabsTrigger value="enhancements" className="flex-1 text-xs h-7 rounded-sm data-[state=active]:bg-white data-[state=active]:shadow-sm">AI+</TabsTrigger>
+            <TabsTrigger value="ai+" className="flex-1 text-xs h-7 rounded-sm data-[state=active]:bg-white data-[state=active]:shadow-sm">AI+</TabsTrigger>
+            <TabsTrigger value="workspace" className="flex-1 text-xs h-7 rounded-sm data-[state=active]:bg-white data-[state=active]:shadow-sm">Workspace</TabsTrigger>
           </TabsList>
 
           {/* Conversation Threading Tab */}
@@ -2016,6 +2020,79 @@ const styles = {
                   <strong>Next:</strong> Category 4 features will focus on advanced file management, project organization, and workspace intelligence.
                 </div>
               </div>
+            </div>
+          </TabsContent>
+
+          <TabsContent value="workspace" className="flex flex-col">
+            {/* Workspace Header */}
+            <div className="p-4 border-b border-gray-200">
+              <div className="flex items-center justify-between">
+                <div>
+                  <h4 className="font-medium text-sm flex items-center">
+                    <Settings className="w-4 h-4 mr-2" />
+                    Workspace Intelligence
+                  </h4>
+                  <p className="text-xs text-gray-600 mt-1">Category 4: Advanced file management & project organization</p>
+                </div>
+                <Badge variant="secondary" className="text-xs bg-black text-white">
+                  Category 4/10
+                </Badge>
+              </div>
+            </div>
+            
+            {/* Workspace Features */}
+            <div className="flex-1 overflow-y-auto">
+              <Tabs defaultValue="files" className="flex flex-col h-full">
+                <TabsList className="w-full mx-2 mt-2 h-8 bg-gray-100 rounded-md p-1">
+                  <TabsTrigger value="files" className="flex-1 text-xs h-6 rounded-sm">File Manager</TabsTrigger>
+                  <TabsTrigger value="project" className="flex-1 text-xs h-6 rounded-sm">Project Org</TabsTrigger>
+                  <TabsTrigger value="intelligence" className="flex-1 text-xs h-6 rounded-sm">AI Insights</TabsTrigger>
+                </TabsList>
+
+                <TabsContent value="files" className="flex-1 mt-2 mx-2">
+                  <FileManagement
+                    onFileSelect={(file) => {
+                      console.log('File selected:', file.path);
+                      toast({
+                        title: 'File Selected',
+                        description: `${file.name} - ${file.path}`,
+                      });
+                    }}
+                    onFolderSelect={(folder) => {
+                      console.log('Folder selected:', folder.path);
+                    }}
+                    showPreview={true}
+                    allowMultiSelect={true}
+                  />
+                </TabsContent>
+
+                <TabsContent value="project" className="flex-1 mt-2 mx-2">
+                  <ProjectOrganization
+                    onNavigateToFile={(path) => {
+                      console.log('Navigate to file:', path);
+                      toast({
+                        title: 'Navigate to File',
+                        description: path,
+                      });
+                    }}
+                  />
+                </TabsContent>
+
+                <TabsContent value="intelligence" className="flex-1 mt-2 mx-2">
+                  <WorkspaceIntelligence
+                    onApplyInsight={(insightId) => {
+                      console.log('Apply insight:', insightId);
+                      toast({
+                        title: 'Insight Applied',
+                        description: 'AI recommendation has been implemented',
+                      });
+                    }}
+                    onRefreshMetrics={() => {
+                      console.log('Refreshing metrics...');
+                    }}
+                  />
+                </TabsContent>
+              </Tabs>
             </div>
           </TabsContent>
         </Tabs>
