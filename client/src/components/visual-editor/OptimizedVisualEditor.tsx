@@ -34,6 +34,9 @@ import { ElenaCoordinationPanel } from './ElenaCoordinationPanel';
 import { ConversationThread } from './ConversationThread';
 import { EnhancedInput } from './EnhancedInput';
 import { MessageInteraction } from './MessageInteraction';
+import { CodeIntelligence } from './CodeIntelligence';
+import { EnhancedSyntaxHighlighter } from './SyntaxHighlighter';
+import { CodeFormatter } from './CodeFormatter';
 
 import { AgentChatControls } from './AgentChatControls';
 import { QuickActionsPopup } from './QuickActionsPopup';
@@ -1787,10 +1790,63 @@ export function OptimizedVisualEditor({ className = '' }: OptimizedVisualEditorP
           </TabsContent>
 
           <TabsContent value="editor" className="flex flex-col">
-            {/* Editor Header */}
+            {/* Editor Header with Category 3 Features */}
             <div className="p-4 border-b border-gray-200">
-              <h4 className="font-medium text-sm">Editor</h4>
-              <p className="text-xs text-gray-600 mt-1">No files open</p>
+              <div className="flex items-center justify-between">
+                <div>
+                  <h4 className="font-medium text-sm flex items-center">
+                    <Code className="w-4 h-4 mr-2" />
+                    Enhanced Code Editor
+                  </h4>
+                  <p className="text-xs text-gray-600 mt-1">Category 3: Code Intelligence & Syntax Features</p>
+                </div>
+                <Badge variant="secondary" className="text-xs">
+                  AI-Powered
+                </Badge>
+              </div>
+            </div>
+            
+            {/* Code Intelligence Demo */}
+            <div className="p-4 space-y-4">
+              <CodeIntelligence
+                content={`// Enhanced Code Intelligence Demo - Category 3 Features
+// Try typing to see auto-completion, syntax highlighting, and error detection
+
+interface AgentConfig {
+  name: string;
+  role: string;
+  capabilities: string[];
+  isActive: boolean;
+}
+
+function create${currentAgent.name}Agent(config: AgentConfig): AgentConfig {
+  return {
+    ...config,
+    isActive: true,
+    capabilities: [
+      'conversation_threading',
+      'enhanced_input',
+      'code_intelligence',
+      'syntax_highlighting'
+    ]
+  };
+}
+
+// Type here to test auto-completion (try 'interface', 'function', 'const')
+`}
+                language="typescript"
+                onChange={(code) => {
+                  // Add code changes to chat context
+                  console.log('Code Intelligence: Code updated', code.length, 'characters');
+                }}
+                onLanguageChange={(lang) => {
+                  console.log('Code Intelligence: Language changed to', lang);
+                }}
+                showLineNumbers={true}
+                enableAutoComplete={true}
+                enableErrorDetection={true}
+                readOnly={false}
+              />
             </div>
             
             {/* Multi Tab Editor */}
@@ -1798,13 +1854,11 @@ export function OptimizedVisualEditor({ className = '' }: OptimizedVisualEditorP
               <MultiTabEditor 
               selectedAgent={currentAgent.id}
               onFileChange={(filePath, content) => {
-                // Notify when files are saved - could trigger dev preview refresh
                 toast({
                   title: 'File Updated',
                   description: `${filePath} changes saved`,
                 });
                 
-                // Refresh live preview if it's a key file
                 if (filePath.includes('component') || filePath.includes('page')) {
                   if (iframeRef.current) {
                     setTimeout(() => {
@@ -1829,6 +1883,136 @@ export function OptimizedVisualEditor({ className = '' }: OptimizedVisualEditorP
             {/* Enhancement Dashboard */}
             <div className="flex-1 overflow-y-auto">
               <AgentEnhancementDashboard />
+            </div>
+          </TabsContent>
+
+          <TabsContent value="ai+" className="flex flex-col">
+            {/* AI+ Header */}
+            <div className="p-4 border-b border-gray-200">
+              <div className="flex items-center justify-between">
+                <div>
+                  <h4 className="font-medium text-sm flex items-center">
+                    <Zap className="w-4 h-4 mr-2" />
+                    AI+ Code Intelligence
+                  </h4>
+                  <p className="text-xs text-gray-600 mt-1">Category 3: Advanced code features & intelligent assistance</p>
+                </div>
+                <Badge variant="secondary" className="text-xs bg-black text-white">
+                  Category 3/10
+                </Badge>
+              </div>
+            </div>
+            
+            {/* AI+ Features Demo */}
+            <div className="flex-1 overflow-y-auto p-4 space-y-6">
+              {/* Code Intelligence */}
+              <div className="space-y-3">
+                <h5 className="text-sm font-medium">Live Code Intelligence</h5>
+                <CodeEditor
+                  initialCode={`// Category 3: Code Intelligence Features Demo
+// This editor includes all Replit AI agent parity features:
+
+interface ${currentAgent.name}Capabilities {
+  // ✓ Auto-completion
+  syntaxHighlighting: boolean;
+  errorDetection: boolean;
+  codeFormatting: boolean;
+  
+  // ✓ Multi-language support
+  supportedLanguages: ('typescript' | 'javascript' | 'css' | 'html')[];
+  
+  // ✓ Smart features
+  codeFolding: boolean;
+  lineNumbers: boolean;
+}
+
+// Try typing to see auto-completion in action
+const ${currentAgent.id}Config: ${currentAgent.name}Capabilities = {
+  syntaxHighlighting: true,
+  errorDetection: true,
+  codeFormatting: true,
+  supportedLanguages: ['typescript', 'javascript', 'css', 'html'],
+  codeFolding: true,
+  lineNumbers: true
+};
+
+// Test error detection (remove the semicolon to see)
+console.log('AI+ Code Intelligence is working!');`}
+                  initialLanguage="typescript"
+                  onCodeChange={(code) => console.log('AI+ Code changed:', code.length, 'chars')}
+                  readOnly={false}
+                  showFormatting={true}
+                  showPreview={true}
+                />
+              </div>
+
+              {/* Syntax Highlighter Demo */}
+              <div className="space-y-3">
+                <h5 className="text-sm font-medium">Enhanced Syntax Highlighting</h5>
+                <EnhancedSyntaxHighlighter
+                  code={`// Professional syntax highlighting with Replit-style features
+function createAgent(name: string, role: string) {
+  return {
+    id: name.toLowerCase(),
+    name,
+    role,
+    capabilities: [
+      'conversation_threading',
+      'enhanced_input', 
+      'code_intelligence'
+    ],
+    isActive: true
+  };
+}
+
+// CSS styling example
+const styles = {
+  container: 'flex items-center space-x-2',
+  button: 'bg-black text-white px-4 py-2 rounded',
+  badge: 'text-xs bg-gray-100 text-gray-800'
+};`}
+                  language="typescript"
+                  fileName="agent-example.ts"
+                  showLineNumbers={true}
+                  collapsible={true}
+                  showCopyButton={true}
+                  showDownloadButton={true}
+                />
+              </div>
+
+              {/* Category 3 Progress */}
+              <div className="bg-gray-50 rounded-lg p-4">
+                <h5 className="text-sm font-medium mb-3">Category 3 Implementation Status</h5>
+                <div className="space-y-2">
+                  <div className="flex items-center justify-between text-xs">
+                    <span>✓ Syntax Highlighting</span>
+                    <Badge variant="secondary" className="bg-green-100 text-green-800">Complete</Badge>
+                  </div>
+                  <div className="flex items-center justify-between text-xs">
+                    <span>✓ Code Completion</span>
+                    <Badge variant="secondary" className="bg-green-100 text-green-800">Complete</Badge>
+                  </div>
+                  <div className="flex items-center justify-between text-xs">
+                    <span>✓ Multi-language Support</span>
+                    <Badge variant="secondary" className="bg-green-100 text-green-800">Complete</Badge>
+                  </div>
+                  <div className="flex items-center justify-between text-xs">
+                    <span>✓ Code Formatting</span>
+                    <Badge variant="secondary" className="bg-green-100 text-green-800">Complete</Badge>
+                  </div>
+                  <div className="flex items-center justify-between text-xs">
+                    <span>✓ Error Detection</span>
+                    <Badge variant="secondary" className="bg-green-100 text-green-800">Complete</Badge>
+                  </div>
+                  <div className="flex items-center justify-between text-xs">
+                    <span>✓ Code Folding</span>
+                    <Badge variant="secondary" className="bg-green-100 text-green-800">Complete</Badge>
+                  </div>
+                </div>
+                <div className="mt-3 pt-3 border-t text-xs text-gray-600">
+                  <strong>Next:</strong> Category 4 features will focus on advanced file management, project organization, and workspace intelligence.
+                </div>
+              </div>
             </div>
           </TabsContent>
         </Tabs>

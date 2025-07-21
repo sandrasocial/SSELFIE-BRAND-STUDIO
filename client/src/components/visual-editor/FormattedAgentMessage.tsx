@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Prism as SyntaxHighlighter } from 'react-syntax-highlighter';
 import { oneDark } from 'react-syntax-highlighter/dist/esm/styles/prism';
+import { EnhancedSyntaxHighlighter } from './SyntaxHighlighter';
 
 interface FormattedAgentMessageProps {
   content: string | undefined | null;
