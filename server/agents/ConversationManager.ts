@@ -11,11 +11,12 @@ export interface ConversationSummary {
 }
 
 export class ConversationManager {
-  private static readonly MAX_MESSAGES = 500; // Much higher limit for workflow continuity
-  private static readonly SUMMARY_THRESHOLD = 450; // Start summarizing at this point
+  private static readonly MAX_MESSAGES = 10000; // MASSIVE limit - no auto-clearing
+  private static readonly SUMMARY_THRESHOLD = 9500; // Only warn when extremely high
 
   /**
-   * Check if conversation needs clearing and auto-clear with memory preservation
+   * Check if conversation needs clearing - DISABLED AUTO-CLEAR FUNCTIONALITY
+   * Elena's memory must persist across long sessions without interruption
    */
   static async manageConversationLength(
     agentId: string, 
@@ -23,39 +24,15 @@ export class ConversationManager {
     currentHistory: any[]
   ): Promise<{ shouldClear: boolean; summary?: ConversationSummary; newHistory: any[] }> {
     
-    console.log(`🧠 Conversation length check: ${currentHistory.length} messages for ${agentId}`);
+    console.log(`🧠 Conversation length check: ${currentHistory.length} messages for ${agentId} (AUTO-CLEAR DISABLED)`);
     
-    if (currentHistory.length < this.MAX_MESSAGES) {
-      return { shouldClear: false, newHistory: currentHistory };
+    // NEVER auto-clear - only return warning if extremely high
+    if (currentHistory.length >= this.SUMMARY_THRESHOLD) {
+      console.log(`⚠️  Long conversation detected (${currentHistory.length} messages) but auto-clear disabled for Elena's memory preservation`);
     }
-
-    console.log(`🔄 Auto-clearing conversation for ${agentId} - preserving memory...`);
-
-    // Create intelligent summary of the conversation
-    const summary = await this.createConversationSummary(agentId, userId, currentHistory);
     
-    // Save summary to database
-    await this.saveAgentMemory(summary);
-    
-    // Keep only the last 5 messages for context
-    const recentMessages = currentHistory.slice(-5);
-    
-    // Add summary as system context at the beginning with clear continuation instruction
-    const summaryMessage = {
-      role: 'system',
-      content: `**MEMORY CONTEXT PRESERVED**\n\n**CURRENT PROJECT:** ${summary.currentContext}\n\n**YOUR ACTIVE TASKS:**\n${summary.keyTasks.map(task => `• ${task}`).join('\n')}\n\n**YOUR RECENT DECISIONS:**\n${summary.recentDecisions.map(decision => `• ${decision}`).join('\n')}\n\n**PROJECT STAGE:** ${summary.workflowStage}\n\n**IMPORTANT:** You are continuing this exact conversation - maintain the same tone, context, and project understanding. Do not restart or reintroduce yourself.`
-    };
-
-    const newHistory = [summaryMessage, ...recentMessages];
-    
-    console.log(`✅ Conversation cleared: ${currentHistory.length} → ${newHistory.length} messages`);
-    console.log(`💾 Memory preserved in database for ${agentId}`);
-    
-    return { 
-      shouldClear: true, 
-      summary, 
-      newHistory 
-    };
+    // ALWAYS return shouldClear: false - no automatic conversation clearing
+    return { shouldClear: false, newHistory: currentHistory };
   }
 
   /**
@@ -191,9 +168,9 @@ export class ConversationManager {
     return {
       agentId,
       userId,
-      keyTasks: [...new Set(keyTasks)].slice(0, 15), // Remove duplicates and keep top 15 tasks
+      keyTasks: Array.from(new Set(keyTasks)).slice(0, 15), // Remove duplicates and keep top 15 tasks
       currentContext,
-      recentDecisions: [...new Set(recentDecisions)].slice(0, 8), // Remove duplicates and keep top 8 decisions
+      recentDecisions: Array.from(new Set(recentDecisions)).slice(0, 8), // Remove duplicates and keep top 8 decisions
       workflowStage,
       timestamp: new Date()
     };
@@ -223,7 +200,7 @@ export class ConversationManager {
       // Find the most recent memory entry
       const memoryEntry = conversations
         .filter(conv => conv.userMessage === '**CONVERSATION_MEMORY**')
-        .sort((a, b) => new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime())[0];
+        .sort((a, b) => new Date(b.timestamp || '').getTime() - new Date(a.timestamp || '').getTime())[0];
       
       if (memoryEntry) {
         return JSON.parse(memoryEntry.agentResponse);
@@ -244,7 +221,7 @@ export class ConversationManager {
       const conversations = await storage.getAgentConversations(userId, agentId);
       const memoryEntries = conversations
         .filter(conv => conv.userMessage === '**CONVERSATION_MEMORY**')
-        .sort((a, b) => new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime());
+        .sort((a, b) => new Date(b.timestamp || '').getTime() - new Date(a.timestamp || '').getTime());
       
       // Keep only the 3 most recent memory entries
       if (memoryEntries.length > 3) {
