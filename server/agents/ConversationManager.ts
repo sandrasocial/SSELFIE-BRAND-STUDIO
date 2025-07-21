@@ -62,29 +62,16 @@ export class ConversationManager {
         const content = message.content.toLowerCase();
         const originalContent = message.content;
         
-        // ADMIN DASHBOARD-specific task detection - HIGH PRIORITY
-        if (content.includes('admin') && content.includes('dashboard')) {
-          keyTasks.push(`Complete admin dashboard redesign: ${originalContent.substring(0, 200).replace(/\n/g, ' ').trim()}`);
-        }
-        
-        // BUILD-specific task detection
-        if (content.includes('build') && (content.includes('website') || content.includes('builder') || content.includes('step 4'))) {
-          keyTasks.push('BUILD feature development: Website builder implementation for Step 4');
-        }
-        
-        // Workflow and audit requests
-        if (content.includes('workflow') && (content.includes('audit') || content.includes('complete'))) {
-          keyTasks.push('Conduct comprehensive workflow audit and completion strategy');
-        }
-        
-        // Component analysis requests
-        if (content.includes('audit') && content.includes('component')) {
-          keyTasks.push('Comprehensive component analysis and gap identification');
-        }
-        
-        // DASHBOARD-specific features detection
-        if (content.includes('dashboard') && (content.includes('redesign') || content.includes('complete') || content.includes('hero') || content.includes('agent cards'))) {
-          keyTasks.push(`Dashboard development: ${originalContent.substring(0, 150).replace(/\n/g, ' ').trim()}`);
+        // DYNAMIC TASK EXTRACTION - Capture ANY task without hardcoded restrictions
+        // Look for task-indicating patterns and capture the full context
+        if (content.includes('let') || content.includes('need') || content.includes('want') || 
+            content.includes('should') || content.includes('can you') || content.includes('please')) {
+          
+          // Extract the actual task request without predetermined categories
+          let task = originalContent.substring(0, 300).replace(/\n/g, ' ').trim();
+          if (task && !keyTasks.some(existingTask => existingTask.includes(task.substring(0, 50)))) {
+            keyTasks.push(task);
+          }
         }
         
         // General task patterns
@@ -136,42 +123,16 @@ export class ConversationManager {
     // Enhanced context detection from entire conversation for Replit-style memory
     const fullContent = history.map(m => m.content).join(' ').toLowerCase();
     
-    // Dynamic context detection from conversation content - NO HARDCODED RESTRICTIONS
-    if (fullContent.includes('chat') && fullContent.includes('management')) {
-      currentContext = 'Implementing Replit-style chat management system with save/load functionality and enhanced memory';
-      workflowStage = 'chat-management';
-    } else if (fullContent.includes('admin') && fullContent.includes('dashboard')) {
-      currentContext = 'Complete admin dashboard redesign with full-bleed hero, agent cards, Visual Editor integration, todo list, calendar widget, Sophy content calendar, and Instagram analytics';
-      workflowStage = 'admin-dashboard';
-      // Ensure admin dashboard tasks are captured even if missed in message analysis
-      if (keyTasks.length === 0 || !keyTasks.some(task => task.includes('admin dashboard'))) {
-        keyTasks.push('Complete admin dashboard redesign with luxury features and integrations');
-      }
-    } else if (fullContent.includes('build') && (fullContent.includes('analysis') || fullContent.includes('audit') || fullContent.includes('workflow'))) {
-      currentContext = 'Elena conducting comprehensive BUILD feature analysis including component status, gaps identification, and strategic planning for Step 4 implementation';
-      workflowStage = 'build-analysis';
-      keyTasks.push('Analyze BUILD feature status and identify missing components');
-      keyTasks.push('Create comprehensive component gap analysis');  
-      keyTasks.push('Provide strategic implementation roadmap');
-      keyTasks.push('Continue BUILD feature development workflow');
-    } else if (fullContent.includes('memory') && (fullContent.includes('agent') || fullContent.includes('test'))) {
-      currentContext = 'Implementing and debugging agent memory systems for conversation continuity and context preservation';
-      workflowStage = 'memory-system';
-    } else if (fullContent.includes('auto-clear') || (fullContent.includes('conversation') && fullContent.includes('management'))) {
-      currentContext = 'Debugging conversation management and auto-clear interference with agent behavior patterns';
-      workflowStage = 'conversation-debugging';
-    } else if (fullContent.includes('visual') && fullContent.includes('editor')) {
-      currentContext = 'Enhancing visual editor interface with multi-tab editing and agent integration';
-      workflowStage = 'visual-editor';
-    } else if (fullContent.includes('file') && fullContent.includes('creation')) {
-      currentContext = 'Implementing agent file creation system with real filesystem integration';
-      workflowStage = 'file-system';
-    } else if (fullContent.includes('test') && fullContent.includes('component')) {
-      currentContext = 'Creating and testing React components with proper TypeScript and styling integration';
-      workflowStage = 'component-testing';
+    // DYNAMIC CONTEXT EXTRACTION - Capture the most recent task context without hardcoded restrictions
+    if (keyTasks.length > 0) {
+      // Use the most recent task as context
+      const mostRecentTask = keyTasks[keyTasks.length - 1];
+      currentContext = `Working on: ${mostRecentTask.substring(0, 150)}`;
+      workflowStage = 'active-task';
     } else {
-      currentContext = 'General SSELFIE Studio development with luxury editorial design standards';
-      workflowStage = 'development';
+      // Fallback to general workflow coordination
+      currentContext = 'Elena ready for workflow coordination and task assignment';
+      workflowStage = 'ready';
     }
 
     return {
