@@ -1,4 +1,5 @@
 import { useQuery } from "@tanstack/react-query";
+import AdminHeroSection from '@/components/admin/AdminHeroSection';
 
 interface AdminStats {
   totalUsers: number;
@@ -29,25 +30,12 @@ export default function AdminDashboard() {
 
   return (
     <div className="min-h-screen bg-black text-white">
-      {/* Full-Bleed Editorial Hero */}
-      <section className="relative h-[60vh] bg-gradient-to-br from-black via-gray-900 to-black overflow-hidden">
-        <div className="absolute inset-0 bg-black/40"></div>
-        <div className="relative z-10 h-full flex flex-col justify-center items-center text-center px-4">
-          <h1 className="font-times text-6xl md:text-8xl font-bold tracking-wider mb-8">
-            EMPIRE
-            <span className="block text-4xl md:text-5xl font-light mt-4 tracking-[0.3em]">
-              COMMAND CENTER
-            </span>
-          </h1>
-          <div className="w-24 h-[1px] bg-white mb-8"></div>
-          <p className="font-times text-xl md:text-2xl font-light tracking-wide max-w-2xl leading-relaxed">
-            Where transformation meets measurement. Your business intelligence refined to editorial perfection.
-          </p>
-        </div>
-        
-        {/* Editorial Design Element */}
-        <div className="absolute bottom-0 left-0 right-0 h-[1px] bg-gradient-to-r from-transparent via-white to-transparent"></div>
-      </section>
+      {/* Aria's Luxury AdminHeroSection Component */}
+      <AdminHeroSection 
+        title="SSELFIE Studio Empire"
+        subtitle="From Rock Bottom to Revenue Revolution"
+        description="Transform your vision into a luxury business empire through strategic design, editorial storytelling, and uncompromising excellence."
+      />
 
       {/* Gallery-Style Statistics */}
       <section className="py-24 px-4 max-w-7xl mx-auto">
