@@ -4,8 +4,13 @@
  * Multi-layer validation with automatic error detection and fixing
  */
 
-const fs = require('fs').promises;
-const path = require('path');
+import fs from 'fs';
+import path from 'path';
+import { fileURLToPath } from 'url';
+
+const fsPromises = fs.promises;
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 
 class ComprehensiveAgentSafety {
   constructor() {
@@ -226,7 +231,7 @@ class ComprehensiveAgentSafety {
       // Create backup if file exists
       if (await this.fileExists(filePath)) {
         const backupPath = `${filePath}.backup.${Date.now()}`;
-        await fs.copyFile(filePath, backupPath);
+        await fsPromises.copyFile(filePath, backupPath);
         console.log(`💾 SAFETY: Created backup at ${backupPath}`);
       }
 
@@ -249,11 +254,11 @@ class ComprehensiveAgentSafety {
       }
 
       // Write the file
-      await fs.writeFile(filePath, content, 'utf8');
+      await fsPromises.writeFile(filePath, content, 'utf8');
       console.log(`✅ SAFETY: Successfully wrote ${filePath}`);
 
       // Post-write verification
-      const written = await fs.readFile(filePath, 'utf8');
+      const written = await fsPromises.readFile(filePath, 'utf8');
       if (written !== content) {
         throw new Error('File content verification failed');
       }
@@ -271,7 +276,7 @@ class ComprehensiveAgentSafety {
    */
   async fileExists(filePath) {
     try {
-      await fs.access(filePath);
+      await fsPromises.access(filePath);
       return true;
     } catch {
       return false;
@@ -290,7 +295,7 @@ class ComprehensiveAgentSafety {
 
       // Use most recent backup
       const latestBackup = backupFiles[backupFiles.length - 1];
-      await fs.copyFile(latestBackup, filePath);
+      await fsPromises.copyFile(latestBackup, filePath);
       console.log(`🔄 SAFETY: Rolled back ${filePath} from ${latestBackup}`);
       
       return { success: true, backup: latestBackup };
@@ -307,7 +312,7 @@ class ComprehensiveAgentSafety {
     try {
       const dir = path.dirname(filePath);
       const filename = path.basename(filePath);
-      const files = await fs.readdir(dir);
+      const files = await fsPromises.readdir(dir);
       
       return files
         .filter(file => file.startsWith(`${filename}.backup.`))
@@ -320,4 +325,4 @@ class ComprehensiveAgentSafety {
 }
 
 // Export singleton instance
-module.exports = new ComprehensiveAgentSafety();
+export default new ComprehensiveAgentSafety();
