@@ -53,6 +53,9 @@ import { CollaborationHub } from './CollaborationHub';
 import { VersionHistory } from './VersionHistory';
 import { DeploymentManager } from './DeploymentManager';
 import { EnvironmentConfig } from './EnvironmentConfig';
+import { TestingSuite } from './TestingSuite';
+import { AccessibilityAuditor } from './AccessibilityAuditor';
+import { QualityAnalysis } from './QualityAnalysis';
 
 import { AgentChatControls } from './AgentChatControls';
 import { QuickActionsPopup } from './QuickActionsPopup';
@@ -1443,6 +1446,9 @@ export function OptimizedVisualEditor({ className = '' }: OptimizedVisualEditorP
             <TabsTrigger value="debug" className="flex-1 text-xs h-7 rounded-sm data-[state=active]:bg-white data-[state=active]:shadow-sm">Debug</TabsTrigger>
             <TabsTrigger value="version" className="flex-1 text-xs h-7 rounded-sm data-[state=active]:bg-white data-[state=active]:shadow-sm">Version</TabsTrigger>
             <TabsTrigger value="deploy" className="flex-1 text-xs h-7 rounded-sm data-[state=active]:bg-white data-[state=active]:shadow-sm">Deploy</TabsTrigger>
+            <TabsTrigger value="testing" className="flex-1 text-xs h-7 rounded-sm data-[state=active]:bg-white data-[state=active]:shadow-sm">Testing</TabsTrigger>
+            <TabsTrigger value="accessibility" className="flex-1 text-xs h-7 rounded-sm data-[state=active]:bg-white data-[state=active]:shadow-sm">A11y</TabsTrigger>
+            <TabsTrigger value="quality" className="flex-1 text-xs h-7 rounded-sm data-[state=active]:bg-white data-[state=active]:shadow-sm">Quality</TabsTrigger>
           </TabsList>
 
           {/* Conversation Threading Tab */}
@@ -2405,6 +2411,148 @@ const styles = {
               </Tabs>
             </div>
           </TabsContent>
+
+          {/* Testing Suite Tab */}
+          <TabsContent value="testing" className="flex-1 flex flex-col mt-0 min-h-0">
+            <div className="p-4 border-b border-gray-200">
+              <div className="flex items-center justify-between">
+                <div>
+                  <h4 className="font-medium text-sm flex items-center">
+                    <Bug className="w-4 h-4 mr-2" />
+                    Testing & Quality Assurance
+                  </h4>
+                  <p className="text-xs text-gray-600 mt-1">Category 8: Comprehensive testing suite with automated testing, code coverage, and quality metrics</p>
+                </div>
+                <Badge variant="secondary" className="text-xs bg-black text-white">
+                  Category 8/10
+                </Badge>
+              </div>
+            </div>
+            
+            <div className="flex-1 overflow-hidden">
+              <TestingSuite
+                onRunTests={(suiteId, testIds) => {
+                  console.log('Running tests:', suiteId, testIds);
+                  toast({
+                    title: 'Tests Started',
+                    description: `Running ${suiteId === 'all' ? 'all tests' : suiteId}`,
+                  });
+                }}
+                onStopTests={() => {
+                  console.log('Stopping tests');
+                  toast({
+                    title: 'Tests Stopped',
+                    description: 'Test execution cancelled',
+                  });
+                }}
+                onGenerateReport={(format) => {
+                  console.log('Generating report:', format);
+                  toast({
+                    title: 'Report Generated',
+                    description: `${format.toUpperCase()} report ready for download`,
+                  });
+                }}
+                onConfigureTest={(testId) => {
+                  console.log('Configuring test:', testId);
+                }}
+              />
+            </div>
+          </TabsContent>
+
+          {/* Accessibility Auditor Tab */}
+          <TabsContent value="accessibility" className="flex-1 flex flex-col mt-0 min-h-0">
+            <div className="p-4 border-b border-gray-200">
+              <div className="flex items-center justify-between">
+                <div>
+                  <h4 className="font-medium text-sm flex items-center">
+                    <Eye className="w-4 h-4 mr-2" />
+                    Accessibility Auditing
+                  </h4>
+                  <p className="text-xs text-gray-600 mt-1">WCAG 2.1 compliance auditing, accessibility testing, and inclusive design validation</p>
+                </div>
+                <Badge variant="secondary" className="text-xs bg-blue-100 text-blue-800">
+                  WCAG 2.1 AA
+                </Badge>
+              </div>
+            </div>
+            
+            <div className="flex-1 overflow-hidden">
+              <AccessibilityAuditor
+                onRunAudit={(url) => {
+                  console.log('Running accessibility audit:', url);
+                  toast({
+                    title: 'Accessibility Audit Started',
+                    description: 'Scanning for WCAG compliance issues...',
+                  });
+                }}
+                onFixIssue={(issueId) => {
+                  console.log('Fixing accessibility issue:', issueId);
+                  toast({
+                    title: 'Issue Fix Applied',
+                    description: 'Accessibility improvement implemented',
+                  });
+                }}
+                onExportReport={(format) => {
+                  console.log('Exporting accessibility report:', format);
+                  toast({
+                    title: 'Report Exported',
+                    description: `Accessibility report saved as ${format.toUpperCase()}`,
+                  });
+                }}
+                onConfigureSettings={() => {
+                  console.log('Configuring accessibility settings');
+                }}
+              />
+            </div>
+          </TabsContent>
+
+          {/* Quality Analysis Tab */}
+          <TabsContent value="quality" className="flex-1 flex flex-col mt-0 min-h-0">
+            <div className="p-4 border-b border-gray-200">
+              <div className="flex items-center justify-between">
+                <div>
+                  <h4 className="font-medium text-sm flex items-center">
+                    <Code className="w-4 h-4 mr-2" />
+                    Code Quality Analysis
+                  </h4>
+                  <p className="text-xs text-gray-600 mt-1">Static code analysis, security scanning, maintainability metrics, and quality gates</p>
+                </div>
+                <Badge variant="secondary" className="text-xs bg-purple-100 text-purple-800">
+                  SonarQube Style
+                </Badge>
+              </div>
+            </div>
+            
+            <div className="flex-1 overflow-hidden">
+              <QualityAnalysis
+                onRunAnalysis={() => {
+                  console.log('Running code quality analysis');
+                  toast({
+                    title: 'Quality Analysis Started',
+                    description: 'Analyzing code quality metrics...',
+                  });
+                }}
+                onFixIssue={(issueId) => {
+                  console.log('Fixing quality issue:', issueId);
+                  toast({
+                    title: 'Issue Fixed',
+                    description: 'Code quality improvement applied',
+                  });
+                }}
+                onConfigureGates={() => {
+                  console.log('Configuring quality gates');
+                }}
+                onExportReport={(format) => {
+                  console.log('Exporting quality report:', format);
+                  toast({
+                    title: 'Quality Report Exported',
+                    description: `Report saved as ${format.toUpperCase()}`,
+                  });
+                }}
+              />
+            </div>
+          </TabsContent>
+
         </Tabs>
         </div>
           </div>
