@@ -738,6 +738,32 @@ Sandra reported: "Elena creates workflows but agents don't start, and server ref
 
 **STATUS**: S3 permissions fixed and bucket security hardened - no risk of random model creation
 
+## 🚨 CRITICAL S3 PERMISSIONS ISSUE DISCOVERED - IMMEDIATE FIX REQUIRED (July 21, 2025)
+
+**CRITICAL USER IMPACT IDENTIFIED:**
+- ❌ **Active User Blocked**: User 45292112 (gloth.coaching@gmail.com) cannot upload training images
+- ❌ **S3 Access Denied**: "User sselfie-s3-user is not authorized to perform: s3:GetObject" errors
+- ❌ **Training Stuck**: 915+ minutes training time with no progress due to upload failures
+- ❌ **Revenue Impact**: Premium user cannot access €47/month features
+
+**ROOT CAUSE CONFIRMED:**
+- S3 bucket policy allows public (*) access but missing specific IAM user permissions
+- IAM user `arn:aws:iam::440740774281:user/sselfie-s3-user` needs explicit upload permissions
+- Current policy only has generic Principal: "*" but Replicate needs specific user access
+
+**IMMEDIATE FIX REQUIRED:**
+- Updated bucket policy created in `s3-bucket-policy-fix.json` with explicit IAM user permissions
+- Policy grants s3:GetObject, s3:PutObject, s3:DeleteObject, s3:ListBucket to sselfie-s3-user
+- Maintains public read access for Replicate training while securing user upload access
+
+**BUSINESS IMPACT:**
+- Critical training system failure blocking premium users from core platform features
+- User experiencing 15+ hour training delays - unacceptable for luxury brand positioning
+- Platform appears broken to users attempting to use primary AI model training feature
+- Revenue loss from premium subscribers unable to access paid functionality
+
+**STATUS**: S3 bucket policy fix created - awaiting application to resolve critical user blocking issue
+
 ## ✅ ELENA WORKFLOW POLLING ENDPOINT FIXED (July 20, 2025)
 
 **CRITICAL FRONTEND WORKFLOW POLLING ISSUE RESOLVED:**
