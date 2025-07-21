@@ -106,6 +106,6 @@ export default function AdminPage() {
           </div>
         </div>
       </section>
-    </AdminLayout>
+    </div>
   );
 }

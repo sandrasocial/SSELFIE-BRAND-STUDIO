@@ -4724,9 +4724,13 @@ I'll keep you updated as each agent completes their work. You can also check wor
         }
       }
       
-      // Get functional agent personality (preserves specialties, enables autonomous workflows)
+      // Get functional agent personality with crash prevention
       const agentPersonality = await import('./agents/agent-personalities-clean');
       const personalityData = agentPersonality.getAgentPersonality(agentId);
+      
+      // Apply mandatory crash prevention protocols to all agents
+      const AgentCrashPrevention = await import('./agents/agent-crash-prevention');
+      await AgentCrashPrevention.default.updateAllAgentSafety();
       
       // Give Elena access to search filesystem for strategic codebase analysis
       const searchToolsContext = agentId === 'elena' ? `
@@ -4882,15 +4886,28 @@ AGENT_CONTEXT:
       
       const responseText = response.content[0].text;
       
-      // Process any file operations in the response
+      // Process any file operations with bulletproof crash prevention
       let fileOperations: any[] = [];
       try {
+        // Apply comprehensive crash prevention validation to agent response
+        const AgentCrashPrevention = await import('./agents/agent-crash-prevention');
+        const validation = AgentCrashPrevention.default.validateAgentResponse(agentId, responseText);
+        
+        let validatedResponse = responseText;
+        
+        if (!validation.isValid) {
+          console.log(`🚨 CRASH PREVENTION: Agent ${agentId} created ${validation.violations.length} dangerous patterns`);
+          const intervention = AgentCrashPrevention.default.emergencyIntervention(agentId, responseText, validation.violations);
+          validatedResponse = intervention.fixedResponse;
+          console.log(`🔧 CRASH PREVENTION: Applied ${intervention.fixesApplied} emergency fixes`);
+        }
+        
         const { AutoFileWriter } = await import('./agents/auto-file-writer.js');
         const { AgentCodebaseIntegration } = await import('./agents/AgentCodebaseIntegration.js');
         
         const result = await AutoFileWriter.processCodeBlocks(
           agentId,
-          responseText,
+          validatedResponse,
           AgentCodebaseIntegration
         );
         
