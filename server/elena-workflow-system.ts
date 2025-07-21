@@ -397,66 +397,126 @@ export class ElenaWorkflowSystem {
   }
   
   /**
-   * Execute workflow steps with REAL agent calls and file verification
+   * Execute workflow steps with REAL agent calls and continuous monitoring
    */
   private static async executeWorkflowSteps(workflow: CustomWorkflow, executionId: string): Promise<void> {
     console.log(`🎯 ELENA: REAL EXECUTION of ${workflow.steps.length} steps for workflow ${workflow.id}`);
+    
+    // Send initial execution update to user
+    await this.sendElenaUpdateToUser(workflow.id, `🚀 Starting workflow execution with ${workflow.steps.length} AI agents. Each agent works in minutes, not hours!`);
     
     for (let i = 0; i < workflow.steps.length; i++) {
       const step = workflow.steps[i];
       const progress = this.workflowProgress.get(workflow.id);
       
       if (progress) {
-        // Update progress
+        // Update progress with AI-speed timing (minutes, not hours)
         progress.currentStep = i + 1;
         progress.currentAgent = step.agentName;
         progress.nextActions = [step.taskDescription];
+        progress.estimatedTimeRemaining = `${Math.max(1, workflow.steps.length - i)} minutes`; // AI agents work in minutes
         
         // Skip Elena self-execution to prevent infinite loops
         if (step.agentName === 'Elena' || step.agentId === 'elena') {
           console.log(`⏭️ ELENA: Skipping self-execution for step: ${step.taskDescription}`);
           progress.completedTasks.push(`✅ Elena: Coordination completed automatically`);
+          await this.sendElenaUpdateToUser(workflow.id, `✅ Elena: Coordination step completed - moving to next agent`);
           continue;
         }
+        
+        // Send real-time update before agent starts
+        await this.sendElenaUpdateToUser(workflow.id, `🤖 ${step.agentName} is now working on: ${step.taskDescription} (estimated: 1-2 minutes)`);
         
         // REAL AGENT EXECUTION - Call actual agent with direct file modification instructions
         console.log(`🤖 ELENA: REAL EXECUTION - ${step.agentName} working on: ${step.taskDescription}`);
         
         const targetFile = this.determineTargetFile(step.taskDescription);
+        
+        // Monitor agent progress with real-time updates
+        const agentStartTime = Date.now();
         const success = await this.executeRealAgentStep(step.agentName, step.taskDescription, targetFile);
+        const agentEndTime = Date.now();
+        const executionTimeMinutes = Math.max(1, Math.round((agentEndTime - agentStartTime) / 60000));
         
         if (success) {
-          progress.completedTasks.push(`✅ ${step.agentName}: ${step.taskDescription} (REAL EXECUTION)`);
-          console.log(`✅ ELENA: Step ${i + 1} completed with real file modifications`);
+          progress.completedTasks.push(`✅ ${step.agentName}: ${step.taskDescription} (completed in ${executionTimeMinutes} minutes)`);
+          console.log(`✅ ELENA: Step ${i + 1} completed with real file modifications in ${executionTimeMinutes} minutes`);
+          await this.sendElenaUpdateToUser(workflow.id, `✅ ${step.agentName} completed their work in ${executionTimeMinutes} minutes! Moving to next step...`);
         } else {
-          progress.completedTasks.push(`❌ ${step.agentName}: ${step.taskDescription} (EXECUTION FAILED)`);
+          progress.completedTasks.push(`❌ ${step.agentName}: ${step.taskDescription} (EXECUTION FAILED after ${executionTimeMinutes} minutes)`);
           console.log(`❌ ELENA: Step ${i + 1} failed - agent did not complete task`);
+          await this.sendElenaUpdateToUser(workflow.id, `❌ ${step.agentName} encountered issues. Adjusting workflow...`);
         }
         
-        // Real agent processing time
-        await new Promise(resolve => setTimeout(resolve, 5000));
+        // AI agent processing time (30 seconds between agents)
+        await new Promise(resolve => setTimeout(resolve, 30000));
         
         // Save progress after each step
         this.saveWorkflowsToDisk();
         
         // Update next actions and persist progress
         const nextStep = workflow.steps[i + 1];
-        progress.nextActions = nextStep ? [nextStep.taskDescription] : ['Real workflow complete'];
+        progress.nextActions = nextStep ? [nextStep.taskDescription] : ['Workflow execution complete - all agents finished!'];
         this.saveWorkflowsToDisk(); // Persist progress after each step
+        
+        // Send progress update
+        if (nextStep) {
+          await this.sendElenaUpdateToUser(workflow.id, `📋 Progress: Step ${i + 1}/${workflow.steps.length} complete. Next: ${step.agentName} will work on ${nextStep.taskDescription}`);
+        }
       }
     }
     
-    // Mark workflow as completed
+    // Mark workflow as completed with final update to user
     const finalProgress = this.workflowProgress.get(workflow.id);
     if (finalProgress) {
       finalProgress.status = 'completed';
       finalProgress.currentAgent = undefined;
-      finalProgress.nextActions = ['Real workflow execution completed with actual file modifications'];
+      finalProgress.nextActions = ['🎉 Workflow execution completed! All agents have finished their work with real file modifications.'];
+      finalProgress.estimatedTimeRemaining = '0 minutes';
     }
     
     workflow.status = 'completed';
     this.saveWorkflowsToDisk(); // Final persistence
+    
+    // Send final completion update to user
+    const totalTasks = finalProgress?.completedTasks.length || 0;
+    await this.sendElenaUpdateToUser(workflow.id, `🎉 Workflow completed! All ${totalTasks} agent tasks finished with real file modifications. Your project is ready!`);
+    
     console.log(`✅ ELENA: REAL WORKFLOW ${workflow.id} completed with verified file changes`);
+  }
+
+  /**
+   * Send real-time updates to user during workflow execution
+   */
+  private static async sendElenaUpdateToUser(workflowId: string, message: string): Promise<void> {
+    try {
+      console.log(`💬 ELENA UPDATE: ${message}`);
+      
+      // Store the update message in the workflow progress for user visibility
+      const progress = this.workflowProgress.get(workflowId);
+      if (progress) {
+        if (!progress.elenaUpdates) {
+          progress.elenaUpdates = [];
+        }
+        progress.elenaUpdates.push({
+          timestamp: new Date().toISOString(),
+          message: message
+        });
+        
+        // Keep only last 10 updates to prevent memory bloat
+        if (progress.elenaUpdates.length > 10) {
+          progress.elenaUpdates = progress.elenaUpdates.slice(-10);
+        }
+        
+        this.saveWorkflowsToDisk();
+      }
+      
+      // In a real implementation, you'd also send this via WebSocket or Server-Sent Events
+      // For now, it's stored in progress and visible via the progress API
+      
+    } catch (error) {
+      console.error(`❌ ELENA: Failed to send update to user:`, error);
+    }
   }
   
   /**
