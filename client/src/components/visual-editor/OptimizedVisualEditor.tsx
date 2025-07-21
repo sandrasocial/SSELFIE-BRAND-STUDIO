@@ -73,6 +73,11 @@ import { AnalyticsDashboard } from './AnalyticsDashboard';
 import { IntelligentAssistant } from './IntelligentAssistant';
 import { WorkflowAutomation } from './WorkflowAutomation';
 import { PluginManager } from './PluginManager';
+import { ConversationThreading } from './ConversationThreading';
+import { MessageRegeneration } from './MessageRegeneration';
+import { EnhancedMessageActions } from './EnhancedMessageActions';
+import { FileOperationDisplay } from './FileOperationDisplay';
+import { SmartSuggestions } from './SmartSuggestions';
 import { ExtensionHub } from './ExtensionHub';
 
 import { AgentChatControls } from './AgentChatControls';
@@ -329,6 +334,14 @@ export function OptimizedVisualEditor({ className = '' }: OptimizedVisualEditorP
   const [workflowActive, setWorkflowActive] = useState(false);
   const [workflowStage, setWorkflowStage] = useState('Design');
   const [activeWorkingAgent, setActiveWorkingAgent] = useState<string | null>(null);
+  
+  // Advanced Replit AI Features State
+  const [conversationThreads, setConversationThreads] = useState<any[]>([]);
+  const [showSuggestions, setShowSuggestions] = useState(true);
+  const [messageRegenerations, setMessageRegenerations] = useState<{[key: string]: string[]}>({});
+  const [fileOperations, setFileOperations] = useState<any[]>([]);
+  const [enhancedMessageActions, setEnhancedMessageActions] = useState<{[key: string]: any}>({});
+  
   const iframeRef = useRef<HTMLIFrameElement>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const chatPanelRef = useRef<HTMLDivElement>(null);
@@ -1535,15 +1548,46 @@ export function OptimizedVisualEditor({ className = '' }: OptimizedVisualEditorP
 
           {/* Conversation Threading Tab */}
           <TabsContent value="threads" className="flex-1 flex flex-col mt-0 min-h-0">
-            <ConversationThread 
+            <ConversationThreading
               agentId={currentAgent.id}
-              conversations={chatMessages}
-              onLoadConversation={(conversation) => {
-                setChatMessages(conversation.messages || []);
-                setActiveTab('chat');
+              conversations={conversationThreads}
+              currentConversation={chatMessages}
+              onCreateThread={(fromMessageId, threadName) => {
+                const messageIndex = parseInt(fromMessageId.split('-')[1]);
+                const threadMessages = chatMessages.slice(0, messageIndex + 1);
+                const newThread = {
+                  id: Date.now().toString(),
+                  name: threadName,
+                  messages: threadMessages,
+                  createdAt: new Date(),
+                  agentId: currentAgent.id
+                };
+                setConversationThreads(prev => [...prev, newThread]);
+                toast({ title: 'Thread created', description: `New thread "${threadName}" created` });
               }}
-              onDeleteConversation={() => {
-                // Refresh conversation list
+              onSwitchThread={(threadId) => {
+                const thread = conversationThreads.find(t => t.id === threadId);
+                if (thread) {
+                  setChatMessages(thread.messages);
+                  setActiveTab('chat');
+                  toast({ title: 'Thread switched', description: `Switched to "${thread.name}"` });
+                }
+              }}
+              onMergeThreads={(threadIds) => {
+                const threadsToMerge = conversationThreads.filter(t => threadIds.includes(t.id));
+                const mergedMessages = threadsToMerge.flatMap(t => t.messages);
+                const mergedThread = {
+                  id: Date.now().toString(),
+                  name: `Merged: ${threadsToMerge.map(t => t.name).join(', ')}`,
+                  messages: mergedMessages,
+                  createdAt: new Date(),
+                  agentId: currentAgent.id
+                };
+                setConversationThreads(prev => [
+                  ...prev.filter(t => !threadIds.includes(t.id)),
+                  mergedThread
+                ]);
+                toast({ title: 'Threads merged', description: 'Selected threads have been merged' });
               }}
             />
           </TabsContent>
@@ -1624,7 +1668,7 @@ export function OptimizedVisualEditor({ className = '' }: OptimizedVisualEditorP
                         agentName={agent?.name}
                         timestamp={message.timestamp instanceof Date ? message.timestamp : new Date(message.timestamp)}
                         onRegenerate={() => {
-                          // Regenerate agent response
+                          // Regenerate agent response using MessageRegeneration component
                           const lastUserMessage = chatMessages[index - 1];
                           if (lastUserMessage?.type === 'user') {
                             sendMessage(lastUserMessage.content);
@@ -1641,6 +1685,38 @@ export function OptimizedVisualEditor({ className = '' }: OptimizedVisualEditorP
                         content={message.content}
                         agentName={agent?.name}
                         timestamp={message.timestamp}
+                      />
+                      
+                      {/* Enhanced Message Actions for Replit AI Parity */}
+                      <EnhancedMessageActions
+                        messageId={`agent-${index}`}
+                        agentName={agent?.name || ''}
+                        onBookmark={(messageId) => {
+                          console.log('Bookmarked message:', messageId);
+                          setEnhancedMessageActions(prev => ({
+                            ...prev,
+                            [messageId]: { ...prev[messageId], bookmarked: true }
+                          }));
+                        }}
+                        onFeedback={(messageId, type) => {
+                          console.log('Feedback for message:', messageId, type);
+                          setEnhancedMessageActions(prev => ({
+                            ...prev,
+                            [messageId]: { ...prev[messageId], feedback: type }
+                          }));
+                        }}
+                        onShare={(messageId) => {
+                          console.log('Sharing message:', messageId);
+                          navigator.clipboard.writeText(message.content);
+                          toast({ title: 'Message copied to clipboard' });
+                        }}
+                        onFlag={(messageId, reason) => {
+                          console.log('Flagged message:', messageId, reason);
+                          setEnhancedMessageActions(prev => ({
+                            ...prev,
+                            [messageId]: { ...prev[messageId], flagged: reason }
+                          }));
+                        }}
                       />
                     </div>
                   )}
@@ -1709,8 +1785,53 @@ export function OptimizedVisualEditor({ className = '' }: OptimizedVisualEditorP
               )}
             </div>
 
-            {/* Enhanced Chat Input - Category 2 Implementation */}
+            {/* File Operations Display for Agent Actions */}
+            {fileOperations.length > 0 && (
+              <div className="px-2 py-2 border-t border-gray-200 bg-gray-50">
+                <FileOperationDisplay
+                  operations={fileOperations}
+                  onApprove={(operationId) => {
+                    setFileOperations(prev => prev.map(op => 
+                      op.id === operationId ? { ...op, status: 'approved' } : op
+                    ));
+                    toast({ title: 'File operation approved' });
+                  }}
+                  onReject={(operationId) => {
+                    setFileOperations(prev => prev.map(op => 
+                      op.id === operationId ? { ...op, status: 'rejected' } : op
+                    ));
+                    toast({ title: 'File operation rejected' });
+                  }}
+                  onViewDiff={(operationId) => {
+                    const operation = fileOperations.find(op => op.id === operationId);
+                    if (operation) {
+                      console.log('Viewing diff for operation:', operation);
+                      // Open diff view in editor tab
+                      setActiveTab('editor');
+                    }
+                  }}
+                />
+              </div>
+            )}
+            
+            {/* Enhanced Chat Input with Smart Suggestions */}
             <div className="px-1 py-1 border-t border-gray-200 flex-shrink-0 bg-white">
+              {showSuggestions && (
+                <SmartSuggestions
+                  agentId={currentAgent.id}
+                  context={{
+                    recentMessages: chatMessages.slice(-5),
+                    activeFile: currentFile,
+                    workflowStage
+                  }}
+                  onSuggestionClick={(suggestion) => {
+                    setMessageInput(suggestion);
+                    setShowSuggestions(false);
+                  }}
+                  onDismiss={() => setShowSuggestions(false)}
+                />
+              )}
+              
               <EnhancedInput
                 value={messageInput}
                 onChange={setMessageInput}
