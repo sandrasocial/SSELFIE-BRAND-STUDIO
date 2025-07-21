@@ -308,7 +308,7 @@ export function OptimizedVisualEditor({ className = '' }: OptimizedVisualEditorP
   });
   const [chatMessages, setChatMessages] = useState<ChatMessage[]>([]);
   const [isLoadingHistory, setIsLoadingHistory] = useState(false);
-  const [isSavingConversation, setIsSavingConversation] = useState(false);
+  const [lastSavedMessageId, setLastSavedMessageId] = useState<string>('');
   const [messageInput, setMessageInput] = useState('');
   const [selectedTextColor, setSelectedTextColor] = useState('#000000');
   const [selectedFontSize, setSelectedFontSize] = useState(16);
@@ -472,10 +472,10 @@ export function OptimizedVisualEditor({ className = '' }: OptimizedVisualEditorP
     };
   }, [showMoreDropdown]);
 
-  // Save conversations to database for ACTUAL user-agent exchanges only
+  // Save conversations to database - BULLETPROOF duplicate prevention
   useEffect(() => {
-    // Don't save while loading conversation history or already saving
-    if (isLoadingHistory || isSavingConversation) return;
+    // Don't save while loading conversation history
+    if (isLoadingHistory) return;
     
     const saveConversations = async () => {
       if (chatMessages.length < 2) return; // Need at least user + agent message
@@ -491,26 +491,13 @@ export function OptimizedVisualEditor({ className = '' }: OptimizedVisualEditorP
             const agentContent = typeof lastMessage.content === 'string' ? lastMessage.content.trim() : '';
             
             if (userContent.length > 0 && agentContent.length > 0) {
-              // Enhanced duplicate detection - prevent saving system-generated messages
-              const isSystemGenerated = (
-                lastMessage.isHandoff || // Handoff messages
-                lastMessage.workflowProgress || // Workflow progress updates
-                agentContent.includes('**Workflow Progress Update**') || // Workflow updates
-                agentContent.includes('Taking over from') || // Auto-handoff messages
-                agentContent.includes('Work stopped by user') || // Control messages
-                agentContent.includes('Work paused') || // Control messages
-                agentContent.includes('Work resumed') || // Control messages
-                agentContent.includes('Rolled back') || // Control messages
-                agentContent.includes('responds to') || // Coordination responses
-                userContent.includes('Continue with your next step') || // Auto-continue messages
-                userContent.startsWith('Taking over from') || // Auto-context messages
-                lastMessage.timestamp && // Check if message was just loaded from history
-                  Date.now() - lastMessage.timestamp.getTime() > 10000 // Messages older than 10 seconds are likely from history
-              );
+              // Create unique message ID for this conversation pair
+              const messageId = `${currentAgent.id}-${userContent.slice(0, 20)}-${agentContent.slice(0, 20)}-${Date.now()}`;
               
-              // Only save real user-initiated conversations, not system-generated ones
-              if (!isLoadingHistory && !isSystemGenerated && !isSavingConversation) {
-                setIsSavingConversation(true);
+              // BULLETPROOF: Only save if we haven't already saved this exact message
+              if (lastSavedMessageId !== messageId) {
+                setLastSavedMessageId(messageId);
+                
                 const response = await fetch('/api/admin/agent-conversation-save', {
                   method: 'POST',
                   headers: { 'Content-Type': 'application/json' },
@@ -528,11 +515,8 @@ export function OptimizedVisualEditor({ className = '' }: OptimizedVisualEditorP
                 } else {
                   console.log('✅ Conversation saved successfully for', currentAgent.id);
                 }
-                setIsSavingConversation(false);
-              } else if (isSystemGenerated) {
-                console.log('⚠️ Skipping save - system-generated message (handoff/workflow/control)');
               } else {
-                console.log('⚠️ Skipping save - currently loading history or already saving');
+                console.log('⚠️ Skipping save - already saved this exact message');
               }
             } else {
               console.log('⚠️ Skipping save - empty content:', { userLength: userContent.length, agentLength: agentContent.length });
@@ -552,7 +536,7 @@ export function OptimizedVisualEditor({ className = '' }: OptimizedVisualEditorP
         setTimeout(saveConversations, 500);
       }
     }
-  }, [chatMessages, currentAgent.id, isLoadingHistory, isSavingConversation]);
+  }, [chatMessages, currentAgent.id, isLoadingHistory, lastSavedMessageId]);
 
   // Auto-scroll chat to bottom when new messages are added (only for agent chat)
   useEffect(() => {
