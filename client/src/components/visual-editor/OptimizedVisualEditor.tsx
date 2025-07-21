@@ -24,7 +24,8 @@ import {
   Upload,
   Paperclip,
   Code,
-  Zap
+  Zap,
+  Bug
 } from 'lucide-react';
 import { apiRequest } from '@/lib/queryClient';
 import { useToast } from '@/hooks/use-toast';
@@ -43,6 +44,9 @@ import { CodeEditor } from './CodeEditor';
 import { FileManagement } from './FileManagement';
 import { ProjectOrganization } from './ProjectOrganization';
 import { WorkspaceIntelligence } from './WorkspaceIntelligence';
+import { DebugConsole } from './DebugConsole';
+import { TestRunner } from './TestRunner';
+import { PerformanceMonitor } from './PerformanceMonitor';
 
 import { AgentChatControls } from './AgentChatControls';
 import { QuickActionsPopup } from './QuickActionsPopup';
@@ -1430,6 +1434,7 @@ export function OptimizedVisualEditor({ className = '' }: OptimizedVisualEditorP
             <TabsTrigger value="editor" className="flex-1 text-xs h-7 rounded-sm data-[state=active]:bg-white data-[state=active]:shadow-sm">Editor</TabsTrigger>
             <TabsTrigger value="ai+" className="flex-1 text-xs h-7 rounded-sm data-[state=active]:bg-white data-[state=active]:shadow-sm">AI+</TabsTrigger>
             <TabsTrigger value="workspace" className="flex-1 text-xs h-7 rounded-sm data-[state=active]:bg-white data-[state=active]:shadow-sm">Workspace</TabsTrigger>
+            <TabsTrigger value="debug" className="flex-1 text-xs h-7 rounded-sm data-[state=active]:bg-white data-[state=active]:shadow-sm">Debug</TabsTrigger>
           </TabsList>
 
           {/* Conversation Threading Tab */}
@@ -2089,6 +2094,86 @@ const styles = {
                     }}
                     onRefreshMetrics={() => {
                       console.log('Refreshing metrics...');
+                    }}
+                  />
+                </TabsContent>
+              </Tabs>
+            </div>
+          </TabsContent>
+
+          <TabsContent value="debug" className="flex flex-col">
+            {/* Debug Header */}
+            <div className="p-4 border-b border-gray-200">
+              <div className="flex items-center justify-between">
+                <div>
+                  <h4 className="font-medium text-sm flex items-center">
+                    <Bug className="w-4 h-4 mr-2" />
+                    Debugging & Testing
+                  </h4>
+                  <p className="text-xs text-gray-600 mt-1">Category 5: Advanced debugging, testing, and performance monitoring</p>
+                </div>
+                <Badge variant="secondary" className="text-xs bg-black text-white">
+                  Category 5/10
+                </Badge>
+              </div>
+            </div>
+            
+            {/* Debug Features */}
+            <div className="flex-1 overflow-y-auto">
+              <Tabs defaultValue="console" className="flex flex-col h-full">
+                <TabsList className="w-full mx-2 mt-2 h-8 bg-gray-100 rounded-md p-1">
+                  <TabsTrigger value="console" className="flex-1 text-xs h-6 rounded-sm">Debug Console</TabsTrigger>
+                  <TabsTrigger value="tests" className="flex-1 text-xs h-6 rounded-sm">Test Runner</TabsTrigger>
+                  <TabsTrigger value="performance" className="flex-1 text-xs h-6 rounded-sm">Performance</TabsTrigger>
+                </TabsList>
+
+                <TabsContent value="console" className="flex-1 mt-2 mx-2">
+                  <DebugConsole
+                    onExecuteCommand={(command) => {
+                      console.log('Debug command:', command);
+                      toast({
+                        title: 'Debug Command Executed',
+                        description: command,
+                      });
+                    }}
+                    onSetBreakpoint={(line) => {
+                      console.log('Breakpoint set at line:', line);
+                    }}
+                    onClearBreakpoints={() => {
+                      console.log('All breakpoints cleared');
+                    }}
+                  />
+                </TabsContent>
+
+                <TabsContent value="tests" className="flex-1 mt-2 mx-2">
+                  <TestRunner
+                    onRunTest={(testId) => {
+                      console.log('Running test:', testId);
+                      toast({
+                        title: 'Test Started',
+                        description: `Running test: ${testId}`,
+                      });
+                    }}
+                    onRunSuite={(suiteId) => {
+                      console.log('Running test suite:', suiteId);
+                    }}
+                    onRunAll={() => {
+                      console.log('Running all tests');
+                    }}
+                  />
+                </TabsContent>
+
+                <TabsContent value="performance" className="flex-1 mt-2 mx-2">
+                  <PerformanceMonitor
+                    onOptimize={(componentId) => {
+                      console.log('Optimizing component:', componentId);
+                      toast({
+                        title: 'Component Optimization',
+                        description: `Optimizing ${componentId}...`,
+                      });
+                    }}
+                    onRefresh={() => {
+                      console.log('Refreshing performance metrics');
                     }}
                   />
                 </TabsContent>
