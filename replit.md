@@ -764,6 +764,12 @@ Sandra reported: "Elena creates workflows but agents don't start, and server ref
 
 **STATUS**: S3 bucket policy fix created - awaiting application to resolve critical user blocking issue
 
+**CRITICAL DISCOVERY (July 21, 2025):**
+- ✅ **Root Cause Confirmed**: Current S3 policy only allows public read access, missing IAM user upload permissions
+- ❌ **IAM Limitation**: The `sselfie-s3-user` cannot modify bucket policies due to explicit deny rules
+- 🔧 **Solution Ready**: Exact bucket policy fix prepared but must be applied through AWS Console
+- ⏰ **User Impact**: 940+ minutes of training failure for premium user
+
 ## ✅ ELENA WORKFLOW POLLING ENDPOINT FIXED (July 20, 2025)
 
 **CRITICAL FRONTEND WORKFLOW POLLING ISSUE RESOLVED:**
