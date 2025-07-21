@@ -360,13 +360,20 @@ The platform has become overly complex with multiple pricing tiers, broken onboa
 2. **Add Routing for Pages**: Update `client/src/App.tsx` with imports and routes
 3. **Update Parent Components**: Import and use new components where needed
 4. **Update Navigation**: Add links to new pages in relevant navigation components  
-5. **Verify Integration**: Confirm file works in live preview with no TypeScript errors
+5. **Verify Integration**: Confirm file works in live preview with no TypeScript errors + navigation links functional
 
-**Updated Agent Capabilities:**
-- **File Integration Protocol**: Mandatory for all 12 agents (Elena, Aria, Zara, Rachel, Maya, Ava, Quinn, Sophia, Martha, Diana, Wilma, Olga, Flux)
-- **Architecture Enforcement**: Correct paths and import patterns for SSELFIE Studio platform
-- **Live Preview Validation**: Every file creation verified to work in actual application
+**Enhanced File Integration Protocol (Updated July 21, 2025):**
+- **Analyze First Decision Tree**: Agents must check if files exist before creating - modify existing for redesigns, create new only for genuinely new features
+- **Navigation & Footer Updates**: Mandatory updates to navigation and footer links for ALL new pages created
+- **Architecture Enforcement**: Correct paths and import patterns for SSELFIE Studio platform  
+- **Live Preview Validation**: Every file creation/modification verified to work in actual application
 - **Zero Orphaned Files**: No more isolated files - everything integrates into live app immediately
+
+**Key Examples:**
+- ✅ "Admin dashboard redesign" → MODIFY existing `admin-dashboard.tsx` 
+- ✅ "Create blog system" → CREATE new `blog.tsx` + navigation links
+- ✅ "Improve user profile" → MODIFY existing `user-profile.tsx`
+- ❌ Never create new files for redesign requests
 
 ## ✅ ELENA COMMUNICATION STYLE FIXED - WARM BEST FRIEND PERSONALITY RESTORED (July 21, 2025)
 
