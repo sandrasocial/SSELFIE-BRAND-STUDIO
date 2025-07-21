@@ -3295,6 +3295,271 @@ I'm here to make your website perfect!`;
     }
   });
 
+  // ===============================================
+  // CONVERSATION THREADING API ENDPOINTS
+  // ===============================================
+
+  // GET /api/conversations/threads/:agentId - Get conversation threads for an agent
+  app.get("/api/conversations/threads/:agentId", isAuthenticated, async (req, res) => {
+    try {
+      const userId = req.user?.claims?.sub;
+      const { agentId } = req.params;
+      
+      if (!userId) {
+        return res.status(401).json({ error: "Authentication required" });
+      }
+
+      const conversations = await db
+        .select({
+          id: agentConversations.id,
+          conversationTitle: agentConversations.conversationTitle,
+          messageCount: agentConversations.messageCount,
+          lastAgentResponse: agentConversations.lastAgentResponse,
+          isStarred: agentConversations.isStarred,
+          isArchived: agentConversations.isArchived,
+          tags: agentConversations.tags,
+          createdAt: agentConversations.createdAt,
+          updatedAt: agentConversations.updatedAt
+        })
+        .from(agentConversations)
+        .where(
+          sql`${agentConversations.agentId} = ${agentId} 
+              AND ${agentConversations.userId} = ${userId}
+              AND ${agentConversations.conversationData} IS NOT NULL
+              AND ${agentConversations.isActive} = true`
+        )
+        .orderBy(sql`${agentConversations.updatedAt} DESC`)
+        .limit(50);
+
+      res.json({ success: true, conversations });
+    } catch (error) {
+      console.error("Error fetching conversation threads:", error);
+      res.status(500).json({ error: "Failed to fetch conversation threads" });
+    }
+  });
+
+  // GET /api/conversations/thread/:id - Get specific conversation thread
+  app.get("/api/conversations/thread/:id", isAuthenticated, async (req, res) => {
+    try {
+      const userId = req.user?.claims?.sub;
+      const { id } = req.params;
+      
+      if (!userId) {
+        return res.status(401).json({ error: "Authentication required" });
+      }
+
+      const conversation = await db
+        .select()
+        .from(agentConversations)
+        .where(
+          sql`${agentConversations.id} = ${parseInt(id)} 
+              AND ${agentConversations.userId} = ${userId}`
+        )
+        .limit(1);
+
+      if (conversation.length === 0) {
+        return res.status(404).json({ error: "Conversation not found" });
+      }
+
+      res.json({ success: true, conversation: conversation[0] });
+    } catch (error) {
+      console.error("Error fetching conversation thread:", error);
+      res.status(500).json({ error: "Failed to fetch conversation thread" });
+    }
+  });
+
+  // POST /api/conversations/thread/create - Create new conversation thread
+  app.post("/api/conversations/thread/create", isAuthenticated, async (req, res) => {
+    try {
+      const userId = req.user?.claims?.sub;
+      const { agentId, title, initialMessage, initialResponse } = req.body;
+      
+      if (!userId) {
+        return res.status(401).json({ error: "Authentication required" });
+      }
+
+      const conversationData = {
+        messages: [
+          {
+            type: 'user',
+            content: initialMessage,
+            timestamp: new Date().toISOString()
+          },
+          {
+            type: 'agent',
+            content: initialResponse,
+            timestamp: new Date().toISOString(),
+            agentName: agentId
+          }
+        ]
+      };
+
+      const newConversation = await db
+        .insert(agentConversations)
+        .values({
+          agentId,
+          userId,
+          userMessage: initialMessage,
+          agentResponse: initialResponse,
+          conversationTitle: title || `Conversation ${new Date().toLocaleDateString()}`,
+          conversationData: JSON.stringify(conversationData),
+          messageCount: 2,
+          lastAgentResponse: initialResponse,
+          isActive: true,
+          isStarred: false,
+          isArchived: false,
+          tags: JSON.stringify([])
+        })
+        .returning();
+
+      res.json({ success: true, conversation: newConversation[0] });
+    } catch (error) {
+      console.error("Error creating conversation thread:", error);
+      res.status(500).json({ error: "Failed to create conversation thread" });
+    }
+  });
+
+  // PUT /api/conversations/thread/:id/update - Update conversation thread
+  app.put("/api/conversations/thread/:id/update", isAuthenticated, async (req, res) => {
+    try {
+      const userId = req.user?.claims?.sub;
+      const { id } = req.params;
+      const { title, isStarred, isArchived, tags, conversationData } = req.body;
+      
+      if (!userId) {
+        return res.status(401).json({ error: "Authentication required" });
+      }
+
+      const updateData: any = { updatedAt: new Date() };
+      
+      if (title !== undefined) updateData.conversationTitle = title;
+      if (isStarred !== undefined) updateData.isStarred = isStarred;
+      if (isArchived !== undefined) updateData.isArchived = isArchived;
+      if (tags !== undefined) updateData.tags = JSON.stringify(tags);
+      if (conversationData !== undefined) {
+        updateData.conversationData = JSON.stringify(conversationData);
+        updateData.messageCount = conversationData.messages?.length || 0;
+        const lastMessage = conversationData.messages?.findLast((m: any) => m.type === 'agent');
+        if (lastMessage) updateData.lastAgentResponse = lastMessage.content;
+      }
+
+      const updatedConversation = await db
+        .update(agentConversations)
+        .set(updateData)
+        .where(
+          sql`${agentConversations.id} = ${parseInt(id)} 
+              AND ${agentConversations.userId} = ${userId}`
+        )
+        .returning();
+
+      if (updatedConversation.length === 0) {
+        return res.status(404).json({ error: "Conversation not found" });
+      }
+
+      res.json({ success: true, conversation: updatedConversation[0] });
+    } catch (error) {
+      console.error("Error updating conversation thread:", error);
+      res.status(500).json({ error: "Failed to update conversation thread" });
+    }
+  });
+
+  // DELETE /api/conversations/thread/:id - Delete conversation thread
+  app.delete("/api/conversations/thread/:id", isAuthenticated, async (req, res) => {
+    try {
+      const userId = req.user?.claims?.sub;
+      const { id } = req.params;
+      
+      if (!userId) {
+        return res.status(401).json({ error: "Authentication required" });
+      }
+
+      const deletedConversation = await db
+        .delete(agentConversations)
+        .where(
+          sql`${agentConversations.id} = ${parseInt(id)} 
+              AND ${agentConversations.userId} = ${userId}`
+        )
+        .returning();
+
+      if (deletedConversation.length === 0) {
+        return res.status(404).json({ error: "Conversation not found" });
+      }
+
+      res.json({ success: true, message: "Conversation deleted successfully" });
+    } catch (error) {
+      console.error("Error deleting conversation thread:", error);
+      res.status(500).json({ error: "Failed to delete conversation thread" });
+    }
+  });
+
+  // POST /api/conversations/thread/:id/branch - Create branch from conversation
+  app.post("/api/conversations/thread/:id/branch", isAuthenticated, async (req, res) => {
+    try {
+      const userId = req.user?.claims?.sub;
+      const { id } = req.params;
+      const { fromMessageId, newMessage, title } = req.body;
+      
+      if (!userId) {
+        return res.status(401).json({ error: "Authentication required" });
+      }
+
+      // Get the parent conversation
+      const parentConversation = await db
+        .select()
+        .from(agentConversations)
+        .where(
+          sql`${agentConversations.id} = ${parseInt(id)} 
+              AND ${agentConversations.userId} = ${userId}`
+        )
+        .limit(1);
+
+      if (parentConversation.length === 0) {
+        return res.status(404).json({ error: "Parent conversation not found" });
+      }
+
+      const parent = parentConversation[0];
+      const parentData = typeof parent.conversationData === 'string' 
+        ? JSON.parse(parent.conversationData) 
+        : parent.conversationData;
+
+      // Create branched conversation data (messages up to branch point + new message)
+      const branchedData = {
+        messages: [
+          ...parentData.messages.slice(0, fromMessageId + 1),
+          {
+            type: 'user',
+            content: newMessage,
+            timestamp: new Date().toISOString()
+          }
+        ]
+      };
+
+      const branchedConversation = await db
+        .insert(agentConversations)
+        .values({
+          agentId: parent.agentId,
+          userId,
+          userMessage: newMessage,
+          agentResponse: '', // Will be filled when agent responds
+          conversationTitle: title || `Branch from ${parent.conversationTitle}`,
+          conversationData: JSON.stringify(branchedData),
+          messageCount: branchedData.messages.length,
+          parentThreadId: parseInt(id),
+          branchedFromMessageId: fromMessageId.toString(),
+          isActive: true,
+          isStarred: false,
+          isArchived: false,
+          tags: parent.tags
+        })
+        .returning();
+
+      res.json({ success: true, conversation: branchedConversation[0] });
+    } catch (error) {
+      console.error("Error creating conversation branch:", error);
+      res.status(500).json({ error: "Failed to create conversation branch" });
+    }
+  });
+
   // POST /api/build/style-preferences - Save style preferences
   app.post("/api/build/style-preferences", isAuthenticated, async (req, res) => {
     try {
@@ -4379,19 +4644,14 @@ Workflow ID: ${workflow.id}`;
             // Execute the workflow
             const execution = await ElenaWorkflowSystem.executeWorkflow(latestWorkflow.id);
             
-            const responseText = `**WORKFLOW EXECUTION STARTED**
-
-🚀 Starting workflow execution
-
-I am now coordinating all agents to complete the workflow steps. You will see live progress updates as each agent completes their tasks.
-
-Status: Executing
-Progress: 0% complete
-
-Workflow "${latestWorkflow.name}" is now running with ${latestWorkflow.steps.length} steps.
-Execution ID: ${execution.executionId}
-
-Real agents are being called to perform actual file modifications.`;
+            // Elena should provide actual coordination response instead of fallback
+            const responseText = await getAgentResponseFromPersonality(
+              agentId, 
+              message, 
+              conversationHistory,
+              userId,
+              req
+            );
 
             // Save conversation and return immediately
             await storage.saveAgentConversation(agentId, userId, message, responseText, []);
@@ -4903,6 +5163,395 @@ AGENT_CONTEXT:
   // Import and register agent learning routes
   const agentLearningRouter = await import('./routes/agent-learning');
   app.use('/api/agent-learning', agentLearningRouter.default);
+
+  // CONVERSATION THREADING & MANAGEMENT API ENDPOINTS
+  
+  // Get all conversation threads for an agent
+  app.get('/api/admin/conversation-threads', async (req: any, res) => {
+    try {
+      // Admin authentication check
+      const adminToken = req.headers.authorization?.replace('Bearer ', '');
+      const isAuthenticated = req.isAuthenticated && req.isAuthenticated();
+      const isAdmin = (isAuthenticated && req.user?.claims?.email === 'ssa@ssasocial.com') || adminToken === 'sandra-admin-2025';
+      
+      if (!isAdmin) {
+        return res.status(403).json({ message: 'Admin access required' });
+      }
+
+      const { agentId } = req.query;
+      const userId = req.user?.claims?.sub || 'admin-sandra';
+
+      // Get threads for agent
+      const threads = await db
+        .select({
+          id: agentConversations.id,
+          title: agentConversations.conversationTitle,
+          agentId: agentConversations.agentId,
+          createdAt: agentConversations.createdAt,
+          updatedAt: agentConversations.updatedAt,
+          messageCount: agentConversations.messageCount,
+          isActive: agentConversations.isActive,
+          parentThreadId: agentConversations.parentThreadId,
+          branchedFromMessageId: agentConversations.branchedFromMessageId,
+          tags: agentConversations.tags
+        })
+        .from(agentConversations)
+        .where(
+          agentId 
+            ? and(eq(agentConversations.userId, userId), eq(agentConversations.agentId, agentId))
+            : eq(agentConversations.userId, userId)
+        )
+        .orderBy(desc(agentConversations.updatedAt));
+
+      res.json(threads);
+    } catch (error) {
+      console.error('Failed to get conversation threads:', error);
+      res.status(500).json({ message: 'Failed to get conversation threads' });
+    }
+  });
+
+  // Create new conversation thread
+  app.post('/api/admin/conversation-threads', async (req: any, res) => {
+    try {
+      // Admin authentication check
+      const adminToken = req.headers.authorization?.replace('Bearer ', '');
+      const isAuthenticated = req.isAuthenticated && req.isAuthenticated();
+      const isAdmin = (isAuthenticated && req.user?.claims?.email === 'ssa@ssasocial.com') || adminToken === 'sandra-admin-2025';
+      
+      if (!isAdmin) {
+        return res.status(403).json({ message: 'Admin access required' });
+      }
+
+      const { agentId, title, branchedFromMessageId } = req.body;
+      const userId = req.user?.claims?.sub || 'admin-sandra';
+
+      if (!agentId || !title) {
+        return res.status(400).json({ message: 'Agent ID and title are required' });
+      }
+
+      // Create new thread
+      const [newThread] = await db
+        .insert(agentConversations)
+        .values({
+          userId,
+          agentId,
+          conversationTitle: title,
+          messageCount: 0,
+          isActive: true,
+          branchedFromMessageId: branchedFromMessageId || null,
+          tags: []
+        })
+        .returning();
+
+      res.json(newThread);
+    } catch (error) {
+      console.error('Failed to create conversation thread:', error);
+      res.status(500).json({ message: 'Failed to create conversation thread' });
+    }
+  });
+
+  // Update conversation thread
+  app.patch('/api/admin/conversation-threads/:threadId', async (req: any, res) => {
+    try {
+      // Admin authentication check
+      const adminToken = req.headers.authorization?.replace('Bearer ', '');
+      const isAuthenticated = req.isAuthenticated && req.isAuthenticated();
+      const isAdmin = (isAuthenticated && req.user?.claims?.email === 'ssa@ssasocial.com') || adminToken === 'sandra-admin-2025';
+      
+      if (!isAdmin) {
+        return res.status(403).json({ message: 'Admin access required' });
+      }
+
+      const { threadId } = req.params;
+      const updates = req.body;
+      const userId = req.user?.claims?.sub || 'admin-sandra';
+
+      // Update thread
+      const [updatedThread] = await db
+        .update(agentConversations)
+        .set({
+          ...updates,
+          updatedAt: new Date()
+        })
+        .where(and(
+          eq(agentConversations.id, parseInt(threadId)),
+          eq(agentConversations.userId, userId)
+        ))
+        .returning();
+
+      if (!updatedThread) {
+        return res.status(404).json({ message: 'Thread not found' });
+      }
+
+      res.json(updatedThread);
+    } catch (error) {
+      console.error('Failed to update conversation thread:', error);
+      res.status(500).json({ message: 'Failed to update conversation thread' });
+    }
+  });
+
+  // Get messages for a specific thread
+  app.get('/api/admin/conversation-threads/:threadId/messages', async (req: any, res) => {
+    try {
+      // Admin authentication check
+      const adminToken = req.headers.authorization?.replace('Bearer ', '');
+      const isAuthenticated = req.isAuthenticated && req.isAuthenticated();
+      const isAdmin = (isAuthenticated && req.user?.claims?.email === 'ssa@ssasocial.com') || adminToken === 'sandra-admin-2025';
+      
+      if (!isAdmin) {
+        return res.status(403).json({ message: 'Admin access required' });
+      }
+
+      const { threadId } = req.params;
+      const userId = req.user?.claims?.sub || 'admin-sandra';
+
+      // Get messages for thread
+      const messages = await db
+        .select()
+        .from(agentConversations)
+        .where(and(
+          eq(agentConversations.id, parseInt(threadId)),
+          eq(agentConversations.userId, userId)
+        ))
+        .limit(1);
+
+      if (messages.length === 0) {
+        return res.status(404).json({ message: 'Thread not found' });
+      }
+
+      // Parse conversation data to extract individual messages
+      const conversation = messages[0];
+      const conversationData = conversation.conversationData as any;
+      
+      let messageList = [];
+      if (conversationData && Array.isArray(conversationData.messages)) {
+        messageList = conversationData.messages.map((msg: any, index: number) => ({
+          id: `${threadId}-${index}`,
+          type: msg.role === 'user' ? 'user' : 'agent',
+          content: msg.content,
+          timestamp: msg.timestamp || conversation.createdAt,
+          agentName: conversation.agentId,
+          threadId: threadId,
+          parentId: null
+        }));
+      }
+
+      res.json(messageList);
+    } catch (error) {
+      console.error('Failed to get thread messages:', error);
+      res.status(500).json({ message: 'Failed to get thread messages' });
+    }
+  });
+
+  // Edit a specific message
+  app.patch('/api/admin/conversation-messages/:messageId', async (req: any, res) => {
+    try {
+      // Admin authentication check
+      const adminToken = req.headers.authorization?.replace('Bearer ', '');
+      const isAuthenticated = req.isAuthenticated && req.isAuthenticated();
+      const isAdmin = (isAuthenticated && req.user?.claims?.email === 'ssa@ssasocial.com') || adminToken === 'sandra-admin-2025';
+      
+      if (!isAdmin) {
+        return res.status(403).json({ message: 'Admin access required' });
+      }
+
+      const { messageId } = req.params;
+      const { content } = req.body;
+      const userId = req.user?.claims?.sub || 'admin-sandra';
+
+      // Extract threadId and messageIndex from messageId format: threadId-messageIndex
+      const [threadId, messageIndex] = messageId.split('-');
+      
+      if (!threadId || messageIndex === undefined) {
+        return res.status(400).json({ message: 'Invalid message ID format' });
+      }
+
+      // Get the conversation
+      const [conversation] = await db
+        .select()
+        .from(agentConversations)
+        .where(and(
+          eq(agentConversations.id, parseInt(threadId)),
+          eq(agentConversations.userId, userId)
+        ));
+
+      if (!conversation) {
+        return res.status(404).json({ message: 'Conversation not found' });
+      }
+
+      // Update the specific message in conversation data
+      const conversationData = conversation.conversationData as any;
+      if (conversationData && Array.isArray(conversationData.messages)) {
+        const msgIndex = parseInt(messageIndex);
+        if (msgIndex >= 0 && msgIndex < conversationData.messages.length) {
+          conversationData.messages[msgIndex].content = content;
+          conversationData.messages[msgIndex].isEdited = true;
+          conversationData.messages[msgIndex].editedAt = new Date();
+
+          // Save updated conversation data
+          await db
+            .update(agentConversations)
+            .set({
+              conversationData: conversationData,
+              updatedAt: new Date()
+            })
+            .where(eq(agentConversations.id, parseInt(threadId)));
+
+          res.json({ success: true, messageId, content });
+        } else {
+          res.status(404).json({ message: 'Message not found' });
+        }
+      } else {
+        res.status(404).json({ message: 'No messages in conversation' });
+      }
+    } catch (error) {
+      console.error('Failed to edit message:', error);
+      res.status(500).json({ message: 'Failed to edit message' });
+    }
+  });
+
+  // Get conversation summaries for the conversation manager
+  app.get('/api/admin/conversation-summaries', async (req: any, res) => {
+    try {
+      // Admin authentication check
+      const adminToken = req.headers.authorization?.replace('Bearer ', '');
+      const isAuthenticated = req.isAuthenticated && req.isAuthenticated();
+      const isAdmin = (isAuthenticated && req.user?.claims?.email === 'ssa@ssasocial.com') || adminToken === 'sandra-admin-2025';
+      
+      if (!isAdmin) {
+        return res.status(403).json({ message: 'Admin access required' });
+      }
+
+      const userId = req.user?.claims?.sub || 'admin-sandra';
+
+      // Get all conversations with summary data
+      const conversations = await db
+        .select({
+          id: agentConversations.id,
+          title: agentConversations.conversationTitle,
+          agentId: agentConversations.agentId,
+          messageCount: agentConversations.messageCount,
+          createdAt: agentConversations.createdAt,
+          updatedAt: agentConversations.updatedAt,
+          lastMessage: agentConversations.lastAgentResponse,
+          tags: agentConversations.tags,
+          isStarred: agentConversations.isStarred,
+          isArchived: agentConversations.isArchived,
+          parentThreadId: agentConversations.parentThreadId
+        })
+        .from(agentConversations)
+        .where(eq(agentConversations.userId, userId))
+        .orderBy(desc(agentConversations.updatedAt));
+
+      // Add agent names and thread counts
+      const summaries = conversations.map(conv => ({
+        ...conv,
+        agentName: conv.agentId.charAt(0).toUpperCase() + conv.agentId.slice(1),
+        threadCount: 1, // TODO: Calculate actual thread count
+        lastMessage: conv.lastMessage || 'No messages yet',
+        tags: conv.tags || []
+      }));
+
+      res.json({ conversations: summaries });
+    } catch (error) {
+      console.error('Failed to get conversation summaries:', error);
+      res.status(500).json({ message: 'Failed to get conversation summaries' });
+    }
+  });
+
+  // Export conversation
+  app.get('/api/admin/conversations/:conversationId/export', async (req: any, res) => {
+    try {
+      // Admin authentication check
+      const adminToken = req.headers.authorization?.replace('Bearer ', '');
+      const isAuthenticated = req.isAuthenticated && req.isAuthenticated();
+      const isAdmin = (isAuthenticated && req.user?.claims?.email === 'ssa@ssasocial.com') || adminToken === 'sandra-admin-2025';
+      
+      if (!isAdmin) {
+        return res.status(403).json({ message: 'Admin access required' });
+      }
+
+      const { conversationId } = req.params;
+      const { format } = req.query;
+      const userId = req.user?.claims?.sub || 'admin-sandra';
+
+      // Get conversation
+      const [conversation] = await db
+        .select()
+        .from(agentConversations)
+        .where(and(
+          eq(agentConversations.id, parseInt(conversationId)),
+          eq(agentConversations.userId, userId)
+        ));
+
+      if (!conversation) {
+        return res.status(404).json({ message: 'Conversation not found' });
+      }
+
+      if (format === 'markdown') {
+        let markdown = `# ${conversation.conversationTitle}\n\n`;
+        markdown += `**Agent:** ${conversation.agentId}\n`;
+        markdown += `**Created:** ${conversation.createdAt}\n`;
+        markdown += `**Messages:** ${conversation.messageCount}\n\n`;
+        markdown += `---\n\n`;
+
+        const conversationData = conversation.conversationData as any;
+        if (conversationData && Array.isArray(conversationData.messages)) {
+          conversationData.messages.forEach((msg: any, index: number) => {
+            const speaker = msg.role === 'user' ? 'You' : conversation.agentId.charAt(0).toUpperCase() + conversation.agentId.slice(1);
+            markdown += `## ${speaker}\n\n${msg.content}\n\n`;
+          });
+        }
+
+        res.setHeader('Content-Type', 'text/markdown');
+        res.setHeader('Content-Disposition', `attachment; filename="conversation-${conversationId}.md"`);
+        res.send(markdown);
+      } else {
+        // JSON export
+        res.setHeader('Content-Type', 'application/json');
+        res.setHeader('Content-Disposition', `attachment; filename="conversation-${conversationId}.json"`);
+        res.json(conversation);
+      }
+    } catch (error) {
+      console.error('Failed to export conversation:', error);
+      res.status(500).json({ message: 'Failed to export conversation' });
+    }
+  });
+
+  // Delete conversation
+  app.delete('/api/admin/conversations/:conversationId', async (req: any, res) => {
+    try {
+      // Admin authentication check
+      const adminToken = req.headers.authorization?.replace('Bearer ', '');
+      const isAuthenticated = req.isAuthenticated && req.isAuthenticated();
+      const isAdmin = (isAuthenticated && req.user?.claims?.email === 'ssa@ssasocial.com') || adminToken === 'sandra-admin-2025';
+      
+      if (!isAdmin) {
+        return res.status(403).json({ message: 'Admin access required' });
+      }
+
+      const { conversationId } = req.params;
+      const userId = req.user?.claims?.sub || 'admin-sandra';
+
+      // Delete conversation
+      const result = await db
+        .delete(agentConversations)
+        .where(and(
+          eq(agentConversations.id, parseInt(conversationId)),
+          eq(agentConversations.userId, userId)
+        ))
+        .returning();
+
+      if (result.length === 0) {
+        return res.status(404).json({ message: 'Conversation not found' });
+      }
+
+      res.json({ success: true });
+    } catch (error) {
+      console.error('Failed to delete conversation:', error);
+      res.status(500).json({ message: 'Failed to delete conversation' });
+    }
+  });
 
   // Elena Workflow Status Endpoint (matches frontend polling URL)
   app.get('/api/elena/workflow-status/:workflowId', async (req, res) => {
