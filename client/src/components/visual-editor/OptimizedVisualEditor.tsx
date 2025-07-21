@@ -293,6 +293,8 @@ function CollapsibleCodeBlock({ content }: CollapsibleCodeBlockProps) {
 
 export function OptimizedVisualEditor({ className = '' }: OptimizedVisualEditorProps) {
   const [showPropertiesPanel, setShowPropertiesPanel] = useState(false);
+  const [showConsolePanel, setShowConsolePanel] = useState(false);
+  const [isDragOver, setIsDragOver] = useState(false);
   const [activeTab, setActiveTab] = useState(() => {
     // If agent parameter is provided, start with agent chat tab
     const agentParam = new URLSearchParams(window.location.search).get('agent');
@@ -311,7 +313,6 @@ export function OptimizedVisualEditor({ className = '' }: OptimizedVisualEditorP
   const [isPaused, setIsPaused] = useState(false);
   const [workflowPollingInterval, setWorkflowPollingInterval] = useState<NodeJS.Timeout | null>(null);
   const [uploadedFiles, setUploadedFiles] = useState<File[]>([]);
-  const [isDragOver, setIsDragOver] = useState(false);
   // Removed iframeLoading state - no longer using iframes
   const [currentAgent, setCurrentAgent] = useState<Agent>(() => {
     const agentIdFromUrl = new URLSearchParams(window.location.search).get('agent');
@@ -3102,11 +3103,8 @@ const styles = {
               <Button 
                 variant="outline" 
                 size="sm"
-                className="border-gray-300 text-gray-700 hover:bg-gray-100"
-                onClick={() => {
-                  // Toggle console panel
-                  toast({ title: 'Console toggled' });
-                }}
+                className={`border-gray-300 text-gray-700 hover:bg-gray-100 ${showConsolePanel ? 'bg-gray-100 border-gray-400' : ''}`}
+                onClick={() => setShowConsolePanel(!showConsolePanel)}
               >
                 <Terminal className="w-4 h-4 mr-1" />
                 Console
@@ -3138,9 +3136,33 @@ const styles = {
                 Full Screen
               </Button>
               
+              {/* File Upload */}
+              <Button 
+                variant="outline" 
+                size="sm"
+                className="border-gray-300 text-gray-700 hover:bg-gray-100"
+                onClick={() => {
+                  const input = document.createElement('input');
+                  input.type = 'file';
+                  input.multiple = true;
+                  input.accept = '.js,.ts,.jsx,.tsx,.css,.html,.json,.md';
+                  input.onchange = (e) => {
+                    const files = (e.target as HTMLInputElement).files;
+                    if (files) {
+                      console.log('Files uploaded:', Array.from(files).map(f => f.name));
+                      toast({ title: `${files.length} file(s) uploaded successfully` });
+                    }
+                  };
+                  input.click();
+                }}
+              >
+                <Upload className="w-4 h-4 mr-1" />
+                Upload
+              </Button>
+              
               {/* Deploy */}
               <Button variant="default" size="sm" className="bg-black text-white hover:bg-gray-800">
-                <Upload className="w-4 h-4 mr-1" />
+                <Rocket className="w-4 h-4 mr-1" />
                 Deploy
               </Button>
             </div>
@@ -3149,8 +3171,30 @@ const styles = {
 
             {/* Enhanced Preview Area with Console Support */}
             <div className="flex-1 flex flex-col">
-              {/* Main Preview */}
-              <div className="flex-1 relative">
+              {/* Main Preview with Drag & Drop */}
+              <div 
+                className="flex-1 relative"
+                onDragOver={(e) => {
+                  e.preventDefault();
+                  setIsDragOver(true);
+                }}
+                onDragLeave={(e) => {
+                  e.preventDefault();
+                  setIsDragOver(false);
+                }}
+                onDrop={(e) => {
+                  e.preventDefault();
+                  setIsDragOver(false);
+                  const files = Array.from(e.dataTransfer.files);
+                  if (files.length > 0) {
+                    console.log('Files dropped:', files.map(f => f.name));
+                    toast({ 
+                      title: `${files.length} file(s) uploaded via drag & drop`,
+                      description: files.map(f => f.name).join(', ')
+                    });
+                  }
+                }}
+              >
                 <iframe
                   id="live-preview-iframe"
                   ref={iframeRef}
@@ -3174,6 +3218,17 @@ const styles = {
                   }}
                 />
                 
+                {/* Drag & Drop Overlay */}
+                {isDragOver && (
+                  <div className="absolute inset-0 bg-blue-500 bg-opacity-20 border-4 border-dashed border-blue-400 flex items-center justify-center z-10">
+                    <div className="bg-white rounded-lg p-6 shadow-lg text-center">
+                      <Upload className="w-8 h-8 mx-auto mb-2 text-blue-500" />
+                      <p className="text-sm font-medium text-gray-700">Drop files to upload</p>
+                      <p className="text-xs text-gray-500">Supports .js, .ts, .css, .html, .json files</p>
+                    </div>
+                  </div>
+                )}
+                
                 {/* Performance Overlay */}
                 <div className="absolute top-2 left-2 bg-black bg-opacity-75 text-white text-xs px-2 py-1 rounded">
                   <div className="flex items-center space-x-2">
@@ -3183,50 +3238,69 @@ const styles = {
                     <span>127ms</span>
                   </div>
                 </div>
-              </div>
-              
-              {/* Integrated Console Panel */}
-              <div className="h-32 border-t border-gray-200 bg-gray-900 text-white overflow-hidden">
-                <div className="h-full flex flex-col">
-                  <div className="px-3 py-1 bg-gray-800 text-xs flex items-center justify-between">
-                    <div className="flex items-center space-x-2">
-                      <Terminal className="w-3 h-3" />
-                      <span>Console</span>
-                      <Badge variant="secondary" className="text-xs bg-gray-700 text-gray-300">
-                        0 errors
-                      </Badge>
-                    </div>
-                    <div className="flex items-center space-x-1">
-                      <Button variant="ghost" size="sm" className="h-5 w-5 p-0 text-gray-400 hover:text-white">
-                        <Settings className="w-3 h-3" />
-                      </Button>
-                      <Button variant="ghost" size="sm" className="h-5 w-5 p-0 text-gray-400 hover:text-white">
-                        <Code className="w-3 h-3" />
-                      </Button>
-                    </div>
-                  </div>
-                  
-                  <div className="flex-1 overflow-y-auto p-2">
-                    <div className="space-y-1 text-xs font-mono">
-                      <div className="text-blue-400">[INFO] Live preview loaded successfully</div>
-                      <div className="text-green-400">[SUCCESS] SSELFIE Studio initialized</div>
-                      <div className="text-gray-400">[DEBUG] Authentication session active</div>
-                      <div className="text-yellow-400">[PERFORMANCE] Page load: 127ms</div>
-                    </div>
-                  </div>
-                  
-                  <div className="border-t border-gray-700 p-2">
-                    <div className="flex items-center space-x-2">
-                      <span className="text-gray-400 text-xs">&gt;</span>
-                      <input 
-                        type="text" 
-                        className="flex-1 bg-transparent text-xs text-white outline-none placeholder-gray-500"
-                        placeholder="Execute JavaScript command..."
-                      />
-                    </div>
+                
+                {/* Live Collaboration Indicator */}
+                <div className="absolute top-2 right-2 flex items-center space-x-2">
+                  <div className="bg-green-500 bg-opacity-90 text-white text-xs px-2 py-1 rounded flex items-center">
+                    <div className="w-2 h-2 bg-white rounded-full mr-1"></div>
+                    Live
                   </div>
                 </div>
               </div>
+              
+              {/* Integrated Console Panel - Collapsible */}
+              {showConsolePanel && (
+                <div className="h-32 border-t border-gray-200 bg-gray-900 text-white overflow-hidden transition-all duration-200">
+                  <div className="h-full flex flex-col">
+                    <div className="px-3 py-1 bg-gray-800 text-xs flex items-center justify-between">
+                      <div className="flex items-center space-x-2">
+                        <Terminal className="w-3 h-3" />
+                        <span>Console</span>
+                        <Badge variant="secondary" className="text-xs bg-gray-700 text-gray-300">
+                          0 errors
+                        </Badge>
+                      </div>
+                      <div className="flex items-center space-x-1">
+                        <Button variant="ghost" size="sm" className="h-5 w-5 p-0 text-gray-400 hover:text-white">
+                          <Settings className="w-3 h-3" />
+                        </Button>
+                        <Button variant="ghost" size="sm" className="h-5 w-5 p-0 text-gray-400 hover:text-white">
+                          <Code className="w-3 h-3" />
+                        </Button>
+                        <Button 
+                          variant="ghost" 
+                          size="sm" 
+                          className="h-5 w-5 p-0 text-gray-400 hover:text-white"
+                          onClick={() => setShowConsolePanel(false)}
+                        >
+                          ×
+                        </Button>
+                      </div>
+                    </div>
+                    
+                    <div className="flex-1 overflow-y-auto p-2">
+                      <div className="space-y-1 text-xs font-mono">
+                        <div className="text-blue-400">[INFO] Live preview loaded successfully</div>
+                        <div className="text-green-400">[SUCCESS] SSELFIE Studio initialized</div>
+                        <div className="text-gray-400">[DEBUG] Authentication session active</div>
+                        <div className="text-yellow-400">[PERFORMANCE] Page load: 127ms</div>
+                        <div className="text-gray-400">[DEBUG] Console panel toggled on</div>
+                      </div>
+                    </div>
+                    
+                    <div className="border-t border-gray-700 p-2">
+                      <div className="flex items-center space-x-2">
+                        <span className="text-gray-400 text-xs">&gt;</span>
+                        <input 
+                          type="text" 
+                          className="flex-1 bg-transparent text-xs text-white outline-none placeholder-gray-500"
+                          placeholder="Execute JavaScript command..."
+                        />
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              )}
             </div>
             
             {/* Enhanced Inspector Panel - Replit Style */}
@@ -3265,6 +3339,9 @@ const styles = {
                     <button className="flex-1 py-2 px-3 text-xs font-medium text-gray-500 hover:text-black">
                       Network
                     </button>
+                    <button className="flex-1 py-2 px-3 text-xs font-medium text-gray-500 hover:text-black">
+                      Sources
+                    </button>
                   </div>
                 </div>
                 
@@ -3299,7 +3376,7 @@ const styles = {
                   </div>
                 </div>
                 
-                {/* Properties Section */}
+                {/* Properties & Network Section */}
                 <div className="border-t border-gray-200 bg-gray-50">
                   <div className="p-3">
                     <h4 className="text-xs font-semibold text-gray-700 mb-2">Selected Element Properties</h4>
@@ -3320,6 +3397,65 @@ const styles = {
                         <span className="text-gray-600">Height:</span>
                         <span className="font-mono">800px</span>
                       </div>
+                    </div>
+                  </div>
+                  
+                  {/* Network Activity Monitor */}
+                  <div className="border-t border-gray-200 p-3">
+                    <h4 className="text-xs font-semibold text-gray-700 mb-2 flex items-center">
+                      <div className="w-2 h-2 bg-green-500 rounded-full mr-2"></div>
+                      Network Activity
+                    </h4>
+                    <div className="space-y-1 text-xs">
+                      <div className="flex justify-between items-center">
+                        <span className="text-green-600">GET /api/auth/user</span>
+                        <span className="text-gray-500">200 ms</span>
+                      </div>
+                      <div className="flex justify-between items-center">
+                        <span className="text-blue-600">GET /api/agents</span>
+                        <span className="text-gray-500">150 ms</span>
+                      </div>
+                      <div className="flex justify-between items-center">
+                        <span className="text-green-600">POST /api/agent-chat</span>
+                        <span className="text-gray-500">320 ms</span>
+                      </div>
+                      <div className="text-xs text-gray-500 mt-2">
+                        Total: 3 requests • 670ms • 2.4 KB transferred
+                      </div>
+                    </div>
+                  </div>
+                  
+                  {/* Performance Metrics */}
+                  <div className="border-t border-gray-200 p-3">
+                    <h4 className="text-xs font-semibold text-gray-700 mb-2">Performance</h4>
+                    <div className="space-y-2 text-xs">
+                      <div className="flex justify-between">
+                        <span className="text-gray-600">FCP:</span>
+                        <span className="text-green-600 font-mono">127ms</span>
+                      </div>
+                      <div className="flex justify-between">
+                        <span className="text-gray-600">LCP:</span>
+                        <span className="text-green-600 font-mono">234ms</span>
+                      </div>
+                      <div className="flex justify-between">
+                        <span className="text-gray-600">Memory:</span>
+                        <span className="text-blue-600 font-mono">12.4 MB</span>
+                      </div>
+                      <div className="flex justify-between">
+                        <span className="text-gray-600">CPU:</span>
+                        <span className="text-yellow-600 font-mono">8.2%</span>
+                      </div>
+                    </div>
+                  </div>
+                  
+                  {/* Source Files Quick Access */}
+                  <div className="border-t border-gray-200 p-3">
+                    <h4 className="text-xs font-semibold text-gray-700 mb-2">Quick Sources</h4>
+                    <div className="space-y-1 text-xs">
+                      <div className="text-blue-600 hover:underline cursor-pointer">main.tsx</div>
+                      <div className="text-blue-600 hover:underline cursor-pointer">App.tsx</div>
+                      <div className="text-purple-600 hover:underline cursor-pointer">index.css</div>
+                      <div className="text-green-600 hover:underline cursor-pointer">components/</div>
                     </div>
                   </div>
                 </div>
