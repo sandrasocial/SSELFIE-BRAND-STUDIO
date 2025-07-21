@@ -4893,13 +4893,22 @@ AGENT_CONTEXT:
         const AgentCrashPrevention = await import('./agents/agent-crash-prevention');
         const validation = AgentCrashPrevention.default.validateAgentResponse(agentId, responseText);
         
-        let validatedResponse = responseText;
+        // Apply mandatory file integration protocol to prevent duplicate files
+        const AgentFileIntegration = await import('./agents/agent-file-integration-protocol');
+        const integrationCheck = await AgentFileIntegration.default.enforceIntegrationProtocol(agentId, responseText);
+        
+        let validatedResponse = integrationCheck.fixedResponse || integrationCheck.response || responseText;
         
         if (!validation.isValid) {
           console.log(`🚨 CRASH PREVENTION: Agent ${agentId} created ${validation.violations.length} dangerous patterns`);
           const intervention = AgentCrashPrevention.default.emergencyIntervention(agentId, responseText, validation.violations);
           validatedResponse = intervention.fixedResponse;
           console.log(`🔧 CRASH PREVENTION: Applied ${intervention.fixesApplied} emergency fixes`);
+        }
+        
+        if (integrationCheck.violations.length > 0) {
+          console.log(`🔗 FILE INTEGRATION: Agent ${agentId} tried to create ${integrationCheck.violations.length} duplicate files`);
+          console.log(`🔧 INTEGRATION FIX: Redirected to modify existing files instead`);
         }
         
         const { AutoFileWriter } = await import('./agents/auto-file-writer.js');

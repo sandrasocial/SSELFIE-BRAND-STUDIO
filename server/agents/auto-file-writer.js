@@ -252,9 +252,17 @@ export class AutoFileWriter {
           return `client/src/pages/${componentName.toLowerCase()}.tsx`;
         }
         
-        // COMPONENTS: Admin Dashboard components
+        // CRITICAL: Apply file integration protocol for admin dashboard
         if (componentName.includes('Admin') || componentName.includes('Dashboard') || 
             contextLower.includes('admin') || contextLower.includes('dashboard')) {
+          
+          // Check if this is a redesign request for existing admin dashboard
+          if (contextLower.includes('redesign') || contextLower.includes('improve') || 
+              contextLower.includes('enhance') || contextLower.includes('update')) {
+            console.log(`🔗 INTEGRATION: Redirecting admin dashboard redesign to existing file`);
+            return `client/src/pages/admin-dashboard.tsx`;
+          }
+          
           return `client/src/components/admin/${componentName}.tsx`;
         }
         

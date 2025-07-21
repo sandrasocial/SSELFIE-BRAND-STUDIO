@@ -1056,6 +1056,35 @@ Sandra reported: "Elena creates workflows but agents don't start, and server ref
 - Complete protection against broken imports, syntax errors, and file structure issues
 - Users experience stable, reliable agent functionality without technical failures
 
+## ✅ MANDATORY FILE INTEGRATION PROTOCOL IMPLEMENTED - PREVENTS ORPHANED FILES (July 21, 2025)
+
+**BREAKTHROUGH: COMPLETE FILE INTEGRATION PROTOCOL PREVENTS REPEAT OF ADMIN DASHBOARD ISSUE**
+- **Root Cause Fixed**: Agents were creating files but not integrating them into live application routing
+- **Mandatory Integration Protocol**: All agents now required to follow 5-step integration checklist for every file
+- **Architecture Compliance**: Enforced correct file locations based on SSELFIE Studio platform structure
+- **Live Preview Integration**: Every created file must be accessible and functional in dev preview
+- **TypeScript Validation**: Zero tolerance for import errors or broken component integration
+
+**5-Step Mandatory Integration Checklist (All Agents):**
+1. **Create File in Correct Location**: Components in `client/src/components/[category]/`, pages in `client/src/pages/`
+2. **Add Routing for Pages**: Update `client/src/App.tsx` with imports and routes
+3. **Update Parent Components**: Import and use new components where needed
+4. **Update Navigation**: Add links to new pages in relevant navigation components  
+5. **Verify Integration**: Confirm file works in live preview with no TypeScript errors + navigation links functional
+
+**Enhanced File Integration Protocol (Updated July 21, 2025):**
+- **Analyze First Decision Tree**: Agents must check if files exist before creating - modify existing for redesigns, create new only for genuinely new features
+- **Navigation & Footer Updates**: Mandatory updates to navigation and footer links for ALL new pages created
+- **Architecture Enforcement**: Correct paths and import patterns for SSELFIE Studio platform  
+- **Live Preview Validation**: Every file creation/modification verified to work in actual application
+- **Zero Orphaned Files**: No more isolated files - everything integrates into live app immediately
+
+**Key Examples:**
+- ✅ "Admin dashboard redesign" → MODIFY existing `admin-dashboard.tsx` 
+- ✅ "Create blog system" → CREATE new `blog.tsx` + navigation links
+- ✅ "Improve user profile" → MODIFY existing `user-profile.tsx`
+- ❌ Never create new files for redesign requests
+
 ## ✅ ELENA COORDINATION ROLE CLARIFIED AND FIXED (July 20, 2025)
 
 **CRITICAL ROLE CONFUSION RESOLVED:**
