@@ -1023,34 +1023,8 @@ export function OptimizedVisualEditor({ className = '' }: OptimizedVisualEditorP
             isWorkflowMessage: true
           };
           setChatMessages(prev => [...prev, workflowMessage]);
-        } else if (agentId === 'elena' && (data.executionId || data.success)) {
-          // Handle Elena workflow execution response
-          const workflowId = data.workflowId || chatMessages.slice().reverse().find(msg => msg.workflowId)?.workflowId;
-          const executionMessage: ChatMessage = {
-            type: 'agent',
-            content: `**Workflow Execution Started**\n\n🚀 Starting workflow execution${data.executionId ? ` with ID: ${data.executionId}` : ''}\n\nI am now coordinating all agents to complete the workflow steps. You will see live progress updates as each agent completes their tasks.\n\n**Status:** Executing\n**Progress:** 0% complete`,
-            timestamp: new Date(),
-            agentName: 'elena',
-            workflowStage: 'Executing',
-            workflowId: workflowId || 'unknown',
-            workflowProgress: {
-              workflowId: workflowId || 'unknown',
-              workflowName: 'Executing Workflow',
-              currentStep: 0,
-              totalSteps: 1,
-              status: 'executing',
-              estimatedTimeRemaining: 'In progress...',
-              completedTasks: [],
-              nextActions: ['Starting workflow execution...']
-            },
-            isWorkflowMessage: true
-          };
-          setChatMessages(prev => [...prev, executionMessage]);
-          
-          // Start polling for workflow progress
-          if (workflowId) {
-            startWorkflowProgressPolling(workflowId);
-          }
+        // REMOVED: Old Elena workflow execution template that was overriding her natural responses
+        // Elena now responds naturally through her personality without forced templates
         } else {
           const agentMessage: ChatMessage = {
             type: 'agent',
@@ -1222,7 +1196,7 @@ export function OptimizedVisualEditor({ className = '' }: OptimizedVisualEditorP
       
       const progressMessage: ChatMessage = {
         type: 'agent',
-        content: `**Workflow Execution Started**\n\nExecuting workflow with live progress monitoring. You will see each agent complete their tasks in real-time.`,
+        content: responseData.message || responseData.response || 'Elena is coordinating the workflow.',
         timestamp: new Date(),
         agentName: 'elena',
         workflowStage: 'Execution',
