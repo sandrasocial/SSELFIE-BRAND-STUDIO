@@ -232,7 +232,7 @@ export class AutoFileWriter {
    */
   static async writeFileWithIntegration(filePath: string, content: string, agentId: string): Promise<void> {
     // Use the existing AgentCodebaseIntegration but with enhanced integration
-    const { AgentCodebaseIntegration } = await import('./AgentCodebaseIntegration.js') as any;
+    const { AgentCodebaseIntegration } = await import('./AgentCodebaseIntegration.ts') as any;
     
     // Write the file to the workspace
     await AgentCodebaseIntegration.writeFile(filePath, content);
