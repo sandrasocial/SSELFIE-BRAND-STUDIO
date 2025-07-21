@@ -5,19 +5,24 @@ import { UserParameters } from '../shared/types/UserParameters';
 export class MayaOptimizationService {
   
   /**
-   * FIXED PARAMETERS FOR CONSISTENT USER LIKENESS (Sandra's Request)
-   * Returns proven parameter settings for all users to ensure consistency
-   * NO dynamic optimization that causes images to not look like users
+   * HIGH-QUALITY PARAMETERS MATCHING REFERENCE IMAGE (July 21, 2025)
+   * Based on analysis of high-quality image ID 405 (1752656115898.png)
+   * Using exact parameters that produced the best quality results
    */
   static async getOptimizedParameters(userId: string): Promise<UserParameters> {
-    console.log(`🔒 MAYA FIXED PARAMETERS: Using proven settings for user ${userId} (no dynamic changes)`);
+    console.log(`🚀 HIGH-QUALITY PARAMETERS: Using reference image settings for user ${userId}`);
     
-    // Return fixed proven parameters for all users
-    // These settings have been tested and produce the best user likeness
-    const fixedParams = this.getDefaultOptimizedParameters();
+    // HIGH-QUALITY PARAMETERS from successful image ID 405
+    // These settings produced the professional-grade results Sandra wants to match
+    const highQualityParams = {
+      guidance: 2.8,        // ✅ Proven optimal from reference image  
+      inferenceSteps: 40,   // ✅ Perfect detail level from reference
+      loraScale: 0.95,      // ✅ Maximum personalization from reference
+      outputQuality: 95     // ✅ Professional quality from reference
+    };
     
-    console.log(`✅ MAYA FIXED PARAMS for user ${userId}:`, fixedParams);
-    return fixedParams;
+    console.log(`✅ HIGH-QUALITY PARAMS for user ${userId}:`, highQualityParams);
+    return highQualityParams;
   }
   
   /**
