@@ -11,8 +11,8 @@ export interface ConversationSummary {
 }
 
 export class ConversationManager {
-  private static readonly MAX_MESSAGES = 200; // Increased limit - agents need more context
-  private static readonly SUMMARY_THRESHOLD = 180; // Start summarizing at this point
+  private static readonly MAX_MESSAGES = 500; // Much higher limit for workflow continuity
+  private static readonly SUMMARY_THRESHOLD = 450; // Start summarizing at this point
 
   /**
    * Check if conversation needs clearing and auto-clear with memory preservation
