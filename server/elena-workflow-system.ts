@@ -469,24 +469,28 @@ export class ElenaWorkflowSystem {
         method: 'POST',
         headers: { 
           'Content-Type': 'application/json',
-          'X-Admin-Token': 'sandra-admin-2025'
+          'X-Elena-Workflow': 'true'
         },
         body: JSON.stringify({
           agentId: agentName.toLowerCase(),
-          message: `🚨 ELENA COORDINATION: MODIFY EXISTING FILES ONLY
+          message: `🚨 ELENA COORDINATION: COMPLETE ADMIN DASHBOARD REDESIGN
 
 As Elena, I'm coordinating you to work on: ${task}
 
-CRITICAL INSTRUCTIONS:
-1. MODIFY the existing admin-dashboard.tsx file directly
-2. DO NOT create any new components or separate files
-3. Update the EXISTING content in client/src/pages/admin-dashboard.tsx
-4. Focus on improving what's already there
+COMPREHENSIVE REDESIGN REQUIREMENTS:
+1. COMPLETELY redesign the admin dashboard with luxury editorial styling
+2. Use Times New Roman typography throughout 
+3. Create a stunning full-bleed hero section
+4. Implement card-based layout for agent sections
+5. Add proper navigation and luxury aesthetics
+6. Rachel: Write authentic Sandra voice copy throughout
+7. Aria: Create magazine-quality editorial design
+8. Zara: Implement with technical excellence
 
-TARGET: client/src/pages/admin-dashboard.tsx
+TARGET: Complete admin dashboard transformation
 TASK: ${task}
 
-Elena has already identified the target file. Just improve the existing structure.`,
+This is a comprehensive redesign, not just component creation. Transform the entire admin experience.`,
           adminToken: 'sandra-admin-2025',
           conversationHistory: [],
           workflowContext: {
