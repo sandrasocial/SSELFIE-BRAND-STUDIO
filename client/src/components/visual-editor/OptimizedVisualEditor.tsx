@@ -32,6 +32,8 @@ import { MultiTabEditor } from './MultiTabEditor';
 import { FormattedAgentMessage } from './FormattedAgentMessage';
 import { ElenaCoordinationPanel } from './ElenaCoordinationPanel';
 import { ConversationThread } from './ConversationThread';
+import { EnhancedInput } from './EnhancedInput';
+import { MessageInteraction } from './MessageInteraction';
 
 import { AgentChatControls } from './AgentChatControls';
 import { QuickActionsPopup } from './QuickActionsPopup';
@@ -1473,7 +1475,26 @@ export function OptimizedVisualEditor({ className = '' }: OptimizedVisualEditorP
                 return (
                 <div key={index} className="max-w-[95%] w-full">
                   {message.type === 'user' ? (
-                    <div className="ml-2 bg-black text-white p-2 rounded-lg text-sm">
+                    <div className="ml-2 bg-black text-white p-2 rounded-lg text-sm relative">
+                      <MessageInteraction
+                        messageId={`user-${index}`}
+                        content={message.content}
+                        type="user"
+                        timestamp={message.timestamp instanceof Date ? message.timestamp : new Date(message.timestamp)}
+                        isEditable={true}
+                        onEdit={(newContent) => {
+                          const updatedMessages = [...chatMessages];
+                          updatedMessages[index].content = newContent;
+                          setChatMessages(updatedMessages);
+                        }}
+                        onBranch={(messageId) => {
+                          // Create new conversation branch from this message
+                          console.log('Branching from message:', messageId);
+                        }}
+                        onReply={(content) => {
+                          setMessageInput(`Regarding "${content.slice(0, 50)}${content.length > 50 ? '...' : ''}" - `);
+                        }}
+                      />
                       <div className="whitespace-pre-wrap">{message.content}</div>
                       <div className="text-xs opacity-60 mt-1">
                         {message.timestamp instanceof Date ? message.timestamp.toLocaleTimeString() : new Date(message.timestamp).toLocaleTimeString()}
@@ -1484,7 +1505,27 @@ export function OptimizedVisualEditor({ className = '' }: OptimizedVisualEditorP
                       <CollapsibleCodeBlock content={message.content} />
                     </div>
                   ) : (
-                    <div className="mr-2">
+                    <div className="mr-2 relative">
+                      <MessageInteraction
+                        messageId={`agent-${index}`}
+                        content={message.content}
+                        type="agent"
+                        agentName={agent?.name}
+                        timestamp={message.timestamp instanceof Date ? message.timestamp : new Date(message.timestamp)}
+                        onRegenerate={() => {
+                          // Regenerate agent response
+                          const lastUserMessage = chatMessages[index - 1];
+                          if (lastUserMessage?.type === 'user') {
+                            sendMessage(lastUserMessage.content);
+                          }
+                        }}
+                        onBranch={(messageId) => {
+                          console.log('Branching from agent message:', messageId);
+                        }}
+                        onReply={(content) => {
+                          setMessageInput(`Following up on: "${content.slice(0, 50)}${content.length > 50 ? '...' : ''}" - `);
+                        }}
+                      />
                       <FormattedAgentMessage
                         content={message.content}
                         agentName={agent?.name}
@@ -1557,50 +1598,18 @@ export function OptimizedVisualEditor({ className = '' }: OptimizedVisualEditorP
               )}
             </div>
 
-            {/* Chat Input with Upload - FORCED Fixed at bottom */}
-            <div className="px-1 py-1 border-t border-gray-200 flex-shrink-0 bg-white h-[60px] min-h-[60px] max-h-[60px]">
-              <div className="flex space-x-1 h-full items-center">
-                <div className="flex flex-col space-y-1">
-                  <input
-                    ref={fileInputRef}
-                    type="file"
-                    accept="image/*"
-                    multiple
-                    onChange={(e) => handleFileUpload(e.target.files)}
-                    className="hidden"
-                  />
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    onClick={() => fileInputRef.current?.click()}
-                    className="px-3 border-black text-black hover:bg-black hover:text-white h-8"
-                    title="Upload inspiration images"
-                  >
-                    <Paperclip className="w-3 h-3" />
-                  </Button>
-                </div>
-                <textarea
-                  value={messageInput}
-                  onChange={(e) => setMessageInput(e.target.value)}
-                  placeholder={`Ask ${currentAgent.name} for ${currentAgent.workflowStage.toLowerCase()} help or upload inspiration images...`}
-                  className="flex-1 text-sm resize-none border border-gray-200 p-2 rounded h-[40px] min-h-[40px] max-h-[40px] overflow-hidden"
-                  rows={1}
-                  onKeyPress={(e) => {
-                    if (e.key === 'Enter' && !e.shiftKey) {
-                      e.preventDefault();
-                      sendMessage(messageInput);
-                    }
-                  }}
-                />
-                <Button
-                  size="sm"
-                  className="bg-black text-white hover:bg-gray-800 h-8"
-                  onClick={() => sendMessage(messageInput)}
-                  disabled={!messageInput.trim() || isLoading}
-                >
-                  Send
-                </Button>
-              </div>
+            {/* Enhanced Chat Input - Category 2 Implementation */}
+            <div className="px-1 py-1 border-t border-gray-200 flex-shrink-0 bg-white">
+              <EnhancedInput
+                value={messageInput}
+                onChange={setMessageInput}
+                onSend={sendMessage}
+                onFileUpload={handleFileUpload}
+                placeholder={`Ask ${currentAgent.name} for ${currentAgent.workflowStage.toLowerCase()} help or upload inspiration images...`}
+                agentName={currentAgent.name}
+                isLoading={isLoading}
+                disabled={false}
+              />
             </div>
           </TabsContent>
 
