@@ -4,8 +4,13 @@
  * Ensures all agent work integrates into the live application
  */
 
-const fs = require('fs').promises;
-const path = require('path');
+import fs from 'fs';
+import path from 'path';
+import { fileURLToPath } from 'url';
+
+const fsPromises = fs.promises;
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 
 class AgentFileIntegrationProtocol {
   
@@ -234,4 +239,4 @@ This protocol is MANDATORY. No exceptions.`;
   }
 }
 
-module.exports = new AgentFileIntegrationProtocol();
+export default new AgentFileIntegrationProtocol();

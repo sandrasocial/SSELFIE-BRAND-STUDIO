@@ -4,11 +4,16 @@
  * WITH COMPREHENSIVE SAFETY VALIDATION TO PREVENT ALL CRASHES
  */
 
-const fs = require('fs').promises;
-const path = require('path');
+import fs from 'fs';
+import path from 'path';
+import { fileURLToPath } from 'url';
+
+const fsPromises = fs.promises;
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 
 // Import the comprehensive safety system
-const ComprehensiveAgentSafety = require('./comprehensive-agent-safety');
+import ComprehensiveAgentSafety from './comprehensive-agent-safety.js';
 
 // Enhanced validation patterns to prevent app crashes
 const CRITICAL_VALIDATION_PATTERNS = [
@@ -343,20 +348,21 @@ export class AutoFileWriter {
    * Auto-integrates admin components into the main admin dashboard
    */
   static async autoIntegrateAdminComponent(filePath, componentContent) {
-    const fs = require('fs');
-    const path = require('path');
+    // Using fsPromises and path from ES module imports
     
     // Extract component name from file path
     const componentName = path.basename(filePath, '.tsx');
     
     // Read the main admin dashboard file
     const adminDashboardPath = 'client/src/pages/admin-dashboard.tsx';
-    if (!fs.existsSync(adminDashboardPath)) {
+    try {
+      await fsPromises.access(adminDashboardPath);
+    } catch {
       console.log(`⚠️ Admin dashboard not found at ${adminDashboardPath}`);
       return;
     }
     
-    const adminDashboardContent = fs.readFileSync(adminDashboardPath, 'utf8');
+    const adminDashboardContent = await fsPromises.readFile(adminDashboardPath, 'utf8');
     
     // Check if component is already imported
     const importStatement = `import ${componentName} from '@/components/admin/${componentName}';`;
@@ -389,7 +395,7 @@ export class AutoFileWriter {
     }
     
     // Write the updated admin dashboard
-    fs.writeFileSync(adminDashboardPath, updatedContent);
+    await fsPromises.writeFile(adminDashboardPath, updatedContent);
     
     console.log(`✅ Auto-integrated ${componentName} into admin dashboard`);
   }
@@ -398,8 +404,7 @@ export class AutoFileWriter {
    * Auto-integrates redesigned pages by creating route links
    */
   static async autoIntegrateRedesignedPage(filePath, componentContent, context) {
-    const fs = require('fs');
-    const path = require('path');
+    // Using fsPromises and path from ES module imports
     
     // Extract page name from file path
     const pageName = path.basename(filePath, '.tsx');
@@ -407,12 +412,14 @@ export class AutoFileWriter {
     
     // Read the main App.tsx file
     const appPath = 'client/src/App.tsx';
-    if (!fs.existsSync(appPath)) {
+    try {
+      await fsPromises.access(appPath);
+    } catch {
       console.log(`⚠️ App.tsx not found at ${appPath}`);
       return;
     }
     
-    const appContent = fs.readFileSync(appPath, 'utf8');
+    const appContent = await fsPromises.readFile(appPath, 'utf8');
     
     // Check if page is already imported
     const componentNamePascal = pageName.split('-').map(word => 
@@ -447,7 +454,7 @@ export class AutoFileWriter {
     }
     
     // Write the updated App.tsx
-    fs.writeFileSync(appPath, updatedContent);
+    await fsPromises.writeFile(appPath, updatedContent);
     
     console.log(`✅ Auto-integrated ${pageName} into App.tsx (route commented out)`);
   }
@@ -456,20 +463,21 @@ export class AutoFileWriter {
    * Auto-integrates visual editor components
    */
   static async autoIntegrateVisualEditorComponent(filePath, componentContent) {
-    const fs = require('fs');
-    const path = require('path');
+    // Using fsPromises and path from ES module imports
     
     // Extract component name from file path
     const componentName = path.basename(filePath, '.tsx');
     
     // Read the main visual editor file
     const visualEditorPath = 'client/src/components/visual-editor/OptimizedVisualEditor.tsx';
-    if (!fs.existsSync(visualEditorPath)) {
+    try {
+      await fsPromises.access(visualEditorPath);
+    } catch {
       console.log(`⚠️ Visual editor not found at ${visualEditorPath}`);
       return;
     }
     
-    const visualEditorContent = fs.readFileSync(visualEditorPath, 'utf8');
+    const visualEditorContent = await fsPromises.readFile(visualEditorPath, 'utf8');
     
     // Check if component is already imported
     const importStatement = `import ${componentName} from './${componentName}';`;
@@ -487,7 +495,7 @@ export class AutoFileWriter {
                             visualEditorContent.slice(nextLineIndex);
       
       // Write the updated visual editor
-      fs.writeFileSync(visualEditorPath, updatedContent);
+      await fsPromises.writeFile(visualEditorPath, updatedContent);
       
       console.log(`✅ Auto-integrated ${componentName} into visual editor`);
     }
@@ -497,8 +505,7 @@ export class AutoFileWriter {
    * Auto-integrates generic components (creates index export)
    */
   static async autoIntegrateGenericComponent(filePath, componentContent) {
-    const fs = require('fs');
-    const path = require('path');
+    // Using fsPromises and path from ES module imports
     
     // Extract component name from file path
     const componentName = path.basename(filePath, '.tsx');
@@ -507,8 +514,11 @@ export class AutoFileWriter {
     const componentsIndexPath = 'client/src/components/index.ts';
     let indexContent = '';
     
-    if (fs.existsSync(componentsIndexPath)) {
-      indexContent = fs.readFileSync(componentsIndexPath, 'utf8');
+    try {
+      await fsPromises.access(componentsIndexPath);
+      indexContent = await fsPromises.readFile(componentsIndexPath, 'utf8');
+    } catch {
+      // File doesn't exist, will create new
     }
     
     // Check if component is already exported
@@ -522,7 +532,7 @@ export class AutoFileWriter {
     indexContent += `\n${exportStatement}`;
     
     // Write the updated index
-    fs.writeFileSync(componentsIndexPath, indexContent);
+    await fsPromises.writeFile(componentsIndexPath, indexContent);
     
     console.log(`✅ Auto-integrated ${componentName} into components index`);
   }
