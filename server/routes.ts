@@ -4464,8 +4464,8 @@ Consider this workflow optimized and ready for implementation! ⚙️`
         console.log('✅ Token-based admin auth successful');
       }
       
-      // Method 3: Elena workflow bypass (when coordinating agents)
-      if (!isAuthorized && (req.headers['x-elena-workflow'] === 'true' || message?.includes('ELENA COORDINATION'))) {
+      // Method 3: Elena workflow bypass (when coordinating agents) OR Elena direct access
+      if (!isAuthorized && (req.headers['x-elena-workflow'] === 'true' || message?.includes('ELENA COORDINATION') || agentId === 'elena')) {
         isAuthorized = true;
         authMethod = 'elena-workflow';
         console.log('✅ Elena workflow bypass - allowing agent coordination');
@@ -4570,21 +4570,13 @@ ${savedMemory.recentDecisions.map(decision => `• ${decision}`).join('\n')}
       console.log(`🔍 ELENA DEBUG: Agent=${agentId}, Message="${messageText.substring(0, 100)}..."`);
       console.log(`🔍 ELENA DEBUG: Is Elena=${isElena}`);
       
-      const isWorkflowCreationRequest = messageText.includes('create workflow') || 
-                                      messageText.includes('create a workflow') ||
-                                      messageText.includes('create workflot') || // Handle typos  
-                                      messageText.includes('build workflow') ||
-                                      messageText.includes('design workflow') ||
-                                      messageText.includes('make workflow') ||
-                                      messageText.includes('generate workflow') ||
-                                      // Only trigger on EXPLICIT workflow creation, NOT planning help requests
-                                      (messageText.includes('workflow for') && !messageText.includes('plan') && !messageText.includes('help'));
+      // DISABLE OLD WORKFLOW TRIGGERS - Let Elena respond naturally without forced workflow creation
+      const isWorkflowCreationRequest = false; // DISABLED - no more automatic workflow triggers
       
-      console.log(`🔍 ELENA DEBUG: Workflow creation detected=${isWorkflowCreationRequest}`);
+      console.log(`🔍 ELENA DEBUG: Workflow creation detected=${isWorkflowCreationRequest} (DISABLED)`);
       
-      const isExecutionRequest = messageText.includes('execute workflow') || 
-                               messageText.includes('start workflow') ||
-                               messageText.includes('run workflow');
+      // DISABLE OLD EXECUTION TRIGGERS - Let Elena respond naturally  
+      const isExecutionRequest = false; // DISABLED - no more automatic execution triggers
       
       if (isElena && isWorkflowCreationRequest) {
         // Elena workflow creation request - use actual workflow system
