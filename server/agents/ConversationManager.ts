@@ -126,13 +126,8 @@ export class ConversationManager {
     // Enhanced context detection from entire conversation for Replit-style memory
     const fullContent = history.map(m => m.content).join(' ').toLowerCase();
     
-    // More sophisticated context detection with current task patterns
-    if (fullContent.includes('hero') && (fullContent.includes('admin') || fullContent.includes('dashboard'))) {
-      currentContext = 'Creating luxury full-bleed hero image for Sandra\'s admin dashboard with editorial design and Times New Roman typography';
-      workflowStage = 'admin-hero-design';
-      // Add the current task to keyTasks for proper memory
-      keyTasks.push('Create full-bleed hero image for admin dashboard with luxury editorial design');
-    } else if (fullContent.includes('chat') && fullContent.includes('management')) {
+    // Dynamic context detection from conversation content - NO HARDCODED RESTRICTIONS
+    if (fullContent.includes('chat') && fullContent.includes('management')) {
       currentContext = 'Implementing Replit-style chat management system with save/load functionality and enhanced memory';
       workflowStage = 'chat-management';
     } else if (fullContent.includes('admin') && fullContent.includes('dashboard')) {
