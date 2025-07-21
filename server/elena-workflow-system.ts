@@ -402,8 +402,8 @@ export class ElenaWorkflowSystem {
   private static async executeWorkflowSteps(workflow: CustomWorkflow, executionId: string): Promise<void> {
     console.log(`🎯 ELENA: REAL EXECUTION of ${workflow.steps.length} steps for workflow ${workflow.id}`);
     
-    // Send initial execution update to user
-    await this.sendElenaUpdateToUser(workflow.id, `🚀 Starting workflow execution with ${workflow.steps.length} AI agents. Each agent works in minutes, not hours!`);
+    // Send friendly initial update to user
+    await this.sendElenaUpdateToUser(workflow.id, `Perfect! I'm coordinating ${workflow.steps.length} agents to work on this for you. I'll update you when they're done!`);
     
     for (let i = 0; i < workflow.steps.length; i++) {
       const step = workflow.steps[i];
@@ -424,8 +424,8 @@ export class ElenaWorkflowSystem {
           continue;
         }
         
-        // Send real-time update before agent starts
-        await this.sendElenaUpdateToUser(workflow.id, `🤖 ${step.agentName} is now working on: ${step.taskDescription} (estimated: 1-2 minutes)`);
+        // Elena coordinates privately with agents - no need to notify user of every step
+        console.log(`🤖 ELENA: Coordinating with ${step.agentName} on: ${step.taskDescription}`);
         
         // REAL AGENT EXECUTION - Call actual agent with direct file modification instructions
         console.log(`🤖 ELENA: REAL EXECUTION - ${step.agentName} working on: ${step.taskDescription}`);
@@ -441,15 +441,13 @@ export class ElenaWorkflowSystem {
         if (success) {
           progress.completedTasks.push(`✅ ${step.agentName}: ${step.taskDescription} (completed in ${executionTimeMinutes} minutes)`);
           console.log(`✅ ELENA: Step ${i + 1} completed with real file modifications in ${executionTimeMinutes} minutes`);
-          await this.sendElenaUpdateToUser(workflow.id, `✅ ${step.agentName} completed their work in ${executionTimeMinutes} minutes! Moving to next step...`);
         } else {
           progress.completedTasks.push(`❌ ${step.agentName}: ${step.taskDescription} (EXECUTION FAILED after ${executionTimeMinutes} minutes)`);
           console.log(`❌ ELENA: Step ${i + 1} failed - agent did not complete task`);
-          await this.sendElenaUpdateToUser(workflow.id, `❌ ${step.agentName} encountered issues. Adjusting workflow...`);
         }
         
-        // Send progress update while waiting
-        await this.sendElenaUpdateToUser(workflow.id, `📋 Progress: Step ${i + 1}/${workflow.steps.length} complete. Next: ${workflow.steps[i + 1]?.agentName || 'Final steps'} will work on ${workflow.steps[i + 1]?.taskDescription || 'completion'}`);
+        // Log progress internally - Elena coordinates privately with agents
+        console.log(`📋 ELENA COORDINATION: Step ${i + 1}/${workflow.steps.length} complete. Next: ${workflow.steps[i + 1]?.agentName || 'Final steps'}`);
         
         // AI agent processing time (reduced for faster execution)
         await new Promise(resolve => setTimeout(resolve, 15000));
