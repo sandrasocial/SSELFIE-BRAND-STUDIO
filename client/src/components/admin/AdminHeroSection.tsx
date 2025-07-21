@@ -7,7 +7,7 @@ interface AdminHeroSectionProps {
   backgroundImage?: string;
 }
 
-export const AdminHeroSection: React.FC<AdminHeroSectionProps> = ({
+const AdminHeroSection: React.FC<AdminHeroSectionProps> = ({
   title = "SSELFIE Studio Empire",
   subtitle = "From Rock Bottom to Revenue Revolution",
   description = "Transform your vision into a luxury business empire through strategic design, editorial storytelling, and uncompromising excellence.",
