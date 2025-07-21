@@ -1459,15 +1459,17 @@ export function OptimizedVisualEditor({ className = '' }: OptimizedVisualEditorP
           className="flex-1 flex flex-col min-h-0"
         >
           <div className="flex w-full mx-1 md:mx-2 mt-1 md:mt-2 h-9 bg-gray-100 rounded-md p-1">
-            {/* Core Navigation Tabs */}
-            <TabsTrigger value="chat" className="flex-1 text-xs h-7 rounded-sm data-[state=active]:bg-white data-[state=active]:shadow-sm">Chat</TabsTrigger>
-            <TabsTrigger value="gallery" className="flex-1 text-xs h-7 rounded-sm data-[state=active]:bg-white data-[state=active]:shadow-sm">Gallery</TabsTrigger>
-            <TabsTrigger value="flatlays" className="flex-1 text-xs h-7 rounded-sm data-[state=active]:bg-white data-[state=active]:shadow-sm">Flatlays</TabsTrigger>
-            <TabsTrigger value="files" className="flex-1 text-xs h-7 rounded-sm data-[state=active]:bg-white data-[state=active]:shadow-sm">Files</TabsTrigger>
-            <TabsTrigger value="elena" className="flex-1 text-xs h-7 rounded-sm data-[state=active]:bg-white data-[state=active]:shadow-sm bg-black text-white">Elena</TabsTrigger>
+            {/* Core Navigation Tabs - These work with the existing Tabs component */}
+            <TabsList className="flex h-7 bg-transparent p-0 space-x-1">
+              <TabsTrigger value="chat" className="flex-1 text-xs h-7 rounded-sm data-[state=active]:bg-white data-[state=active]:shadow-sm">Chat</TabsTrigger>
+              <TabsTrigger value="gallery" className="flex-1 text-xs h-7 rounded-sm data-[state=active]:bg-white data-[state=active]:shadow-sm">Gallery</TabsTrigger>
+              <TabsTrigger value="flatlays" className="flex-1 text-xs h-7 rounded-sm data-[state=active]:bg-white data-[state=active]:shadow-sm">Flatlays</TabsTrigger>
+              <TabsTrigger value="files" className="flex-1 text-xs h-7 rounded-sm data-[state=active]:bg-white data-[state=active]:shadow-sm">Files</TabsTrigger>
+              <TabsTrigger value="elena" className="flex-1 text-xs h-7 rounded-sm data-[state=active]:bg-white data-[state=active]:shadow-sm bg-black text-white">Elena</TabsTrigger>
+            </TabsList>
             
-            {/* More Dropdown */}
-            <div className="relative" ref={dropdownRef}>
+            {/* More Dropdown - Outside the TabsList to avoid RovingFocus conflict */}
+            <div className="relative ml-2" ref={dropdownRef}>
               <button
                 onClick={() => setShowMoreDropdown(!showMoreDropdown)}
                 className="flex items-center justify-center px-3 h-7 text-xs rounded-sm hover:bg-white hover:shadow-sm transition-colors"
