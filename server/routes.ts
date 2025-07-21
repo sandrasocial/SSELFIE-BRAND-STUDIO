@@ -138,6 +138,11 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Elena workflow routes for visual editor integration (admin access)
   app.use('/api/admin/elena', elenaWorkflowRoutes);
   
+  // Advanced agent features for Replit AI parity
+  const advancedAgentFeatures = await import('./routes/advanced-agent-features');
+  app.use('/api/admin', advancedAgentFeatures.default);
+  console.log('✅ Advanced Agent Features routes registered');
+  
 
 
   // Add cache-busting headers for all API endpoints to prevent browser caching issues
