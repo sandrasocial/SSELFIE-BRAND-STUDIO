@@ -1024,42 +1024,15 @@ export function OptimizedVisualEditor({ className = '' }: OptimizedVisualEditorP
       if (data.message || data.response || data.workflow) {
         const agent = agents.find(a => a.id === agentId);
         
-        // Handle Elena workflow creation response
-        if (agentId === 'elena' && data.workflow) {
-          const workflowMessage: ChatMessage = {
-            type: 'agent',
-            content: `**Workflow Created: ${data.workflow.name}**\n\n${data.workflow.description}\n\n**Steps:**\n${data.workflow.steps.map((step: any, index: number) => 
-              `${index + 1}. ${step.agentName}: ${step.taskDescription}`
-            ).join('\n')}\n\n**Estimated Duration:** ${data.workflow.estimatedDuration}\n\n**Status:** Ready for execution\n\nSay "execute workflow" to begin execution, or "modify workflow" to make changes.`,
-            timestamp: new Date(),
-            agentName: 'elena',
-            workflowStage: 'Strategy',
-            workflowId: data.workflow.id,
-            workflowProgress: {
-              workflowId: data.workflow.id,
-              workflowName: data.workflow.name,
-              currentStep: 0,
-              totalSteps: data.workflow.steps.length,
-              status: 'ready',
-              estimatedTimeRemaining: data.workflow.estimatedDuration,
-              completedTasks: [],
-              nextActions: [data.workflow.steps[0]?.taskDescription || 'Ready to begin']
-            },
-            isWorkflowMessage: true
-          };
-          setChatMessages(prev => [...prev, workflowMessage]);
-        // REMOVED: Old Elena workflow execution template that was overriding her natural responses
-        // Elena now responds naturally through her personality without forced templates
-        } else {
-          const agentMessage: ChatMessage = {
-            type: 'agent',
-            content: data.message || data.response,
-            timestamp: new Date(),
-            agentName: agentId,
-            workflowStage: agent?.workflowStage
-          };
-          setChatMessages(prev => [...prev, agentMessage]);
-        }
+        // Elena now responds naturally through her Claude personality without any forced formatting
+        const agentMessage: ChatMessage = {
+          type: 'agent',
+          content: data.message || data.response,
+          timestamp: new Date(),
+          agentName: agentId,
+          workflowStage: agent?.workflowStage
+        };
+        setChatMessages(prev => [...prev, agentMessage]);
 
         // Show notification for file operations (code blocks automatically written)
         const responseText = data.message || data.response;
