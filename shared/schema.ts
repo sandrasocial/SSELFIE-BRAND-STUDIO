@@ -116,7 +116,7 @@ export const templates = pgTable("templates", {
 
 
 
-// Agent conversations table for chat persistence
+// Agent conversations table for chat persistence with threading support
 export const agentConversations = pgTable("agent_conversations", {
   id: serial("id").primaryKey(),
   agentId: varchar("agent_id").notNull(),
@@ -125,6 +125,24 @@ export const agentConversations = pgTable("agent_conversations", {
   agentResponse: text("agent_response").notNull(),
   devPreview: jsonb("dev_preview"),
   timestamp: timestamp("timestamp").defaultNow(),
+  
+  // Enhanced conversation threading and management fields
+  conversationTitle: varchar("conversation_title"),
+  conversationData: jsonb("conversation_data"), // Store full conversation history
+  messageCount: integer("message_count").default(0),
+  lastAgentResponse: text("last_agent_response"),
+  isActive: boolean("is_active").default(true),
+  isStarred: boolean("is_starred").default(false),
+  isArchived: boolean("is_archived").default(false),
+  tags: jsonb("tags").default('[]'), // Array of string tags
+  
+  // Threading support
+  parentThreadId: integer("parent_thread_id"),
+  branchedFromMessageId: varchar("branched_from_message_id"),
+  
+  // Enhanced timestamps
+  createdAt: timestamp("created_at").defaultNow(),
+  updatedAt: timestamp("updated_at").defaultNow(),
 });
 
 // User subscriptions table

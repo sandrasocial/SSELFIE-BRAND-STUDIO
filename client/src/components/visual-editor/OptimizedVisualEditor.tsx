@@ -31,6 +31,7 @@ import { FileTreeExplorer } from './FileTreeExplorer';
 import { MultiTabEditor } from './MultiTabEditor';
 import { FormattedAgentMessage } from './FormattedAgentMessage';
 import { ElenaCoordinationPanel } from './ElenaCoordinationPanel';
+import { ConversationThread } from './ConversationThread';
 
 import { AgentChatControls } from './AgentChatControls';
 import { QuickActionsPopup } from './QuickActionsPopup';
@@ -1410,6 +1411,7 @@ export function OptimizedVisualEditor({ className = '' }: OptimizedVisualEditorP
         >
           <TabsList className="flex w-full mx-1 md:mx-2 mt-1 md:mt-2 h-9 bg-gray-100 rounded-md p-1">
             <TabsTrigger value="chat" className="flex-1 text-xs h-7 rounded-sm data-[state=active]:bg-white data-[state=active]:shadow-sm">Chat</TabsTrigger>
+            <TabsTrigger value="threads" className="flex-1 text-xs h-7 rounded-sm data-[state=active]:bg-white data-[state=active]:shadow-sm">Threads</TabsTrigger>
             <TabsTrigger value="elena" className="flex-1 text-xs h-7 rounded-sm data-[state=active]:bg-white data-[state=active]:shadow-sm bg-black text-white">Elena</TabsTrigger>
             <TabsTrigger value="gallery" className="flex-1 text-xs h-7 rounded-sm data-[state=active]:bg-white data-[state=active]:shadow-sm">Gallery</TabsTrigger>
             <TabsTrigger value="flatlays" className="flex-1 text-xs h-7 rounded-sm data-[state=active]:bg-white data-[state=active]:shadow-sm">Flatlays</TabsTrigger>
@@ -1417,6 +1419,21 @@ export function OptimizedVisualEditor({ className = '' }: OptimizedVisualEditorP
             <TabsTrigger value="editor" className="flex-1 text-xs h-7 rounded-sm data-[state=active]:bg-white data-[state=active]:shadow-sm">Editor</TabsTrigger>
             <TabsTrigger value="enhancements" className="flex-1 text-xs h-7 rounded-sm data-[state=active]:bg-white data-[state=active]:shadow-sm">AI+</TabsTrigger>
           </TabsList>
+
+          {/* Conversation Threading Tab */}
+          <TabsContent value="threads" className="flex-1 flex flex-col mt-0 min-h-0">
+            <ConversationThread 
+              agentId={currentAgent.id}
+              conversations={chatMessages}
+              onLoadConversation={(conversation) => {
+                setChatMessages(conversation.messages || []);
+                setActiveTab('chat');
+              }}
+              onDeleteConversation={() => {
+                // Refresh conversation list
+              }}
+            />
+          </TabsContent>
 
           {/* Elena Coordination Tab */}
           <TabsContent value="elena" className="flex-1 flex flex-col mt-0 min-h-0">
