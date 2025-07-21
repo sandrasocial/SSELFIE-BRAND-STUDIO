@@ -1,262 +1,292 @@
-import React, { useState } from 'react';
-import { Link } from 'wouter';
-import { motion } from 'framer-motion';
-import { ChevronRight, Settings, Users, BarChart3, Sparkles } from 'lucide-react';
+import { useState } from 'react';
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import { Button } from '@/components/ui/button';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Badge } from '@/components/ui/badge';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { Users, MessageSquare, Settings, TrendingUp, Activity, Crown } from 'lucide-react';
 
-// Agent interface for luxury card system
 interface Agent {
   id: string;
   name: string;
   role: string;
+  status: 'active' | 'offline' | 'busy';
   description: string;
-  status: 'active' | 'idle' | 'working';
-  icon: string;
-  color: string;
+  metrics: {
+    tasksCompleted: number;
+    responseTime: string;
+    satisfaction: number;
+  };
 }
 
-const luxuryAgents: Agent[] = [
+const agents: Agent[] = [
   {
-    id: 'rachel',
+    id: '1',
     name: 'Rachel',
-    role: 'Brand Voice Architect',
-    description: 'Crafting authentic Sandra voice throughout every touchpoint',
+    role: 'Content & Voice Strategist',
     status: 'active',
-    icon: '✍️',
-    color: 'from-rose-500 to-pink-600'
+    description: 'Masters Sandra\'s authentic voice and creates compelling content that resonates with SSELFIE\'s luxury audience.',
+    metrics: { tasksCompleted: 127, responseTime: '2.3s', satisfaction: 98 }
   },
   {
-    id: 'aria',
+    id: '2', 
     name: 'Aria',
-    role: 'Editorial Design Director',
-    description: 'Creating magazine-quality visual experiences',
-    status: 'working',
-    icon: '🎨',
-    color: 'from-purple-500 to-indigo-600'
+    role: 'Creative Design Director',
+    status: 'active',
+    description: 'Crafts stunning visual experiences that embody SSELFIE\'s editorial luxury and sophisticated aesthetic.',
+    metrics: { tasksCompleted: 89, responseTime: '1.8s', satisfaction: 97 }
   },
   {
-    id: 'zara',
+    id: '3',
+    name: 'Elena',
+    role: 'Strategic Operations Coordinator',
+    status: 'busy',
+    description: 'Orchestrates complex workflows and ensures seamless coordination across all SSELFIE initiatives.',
+    metrics: { tasksCompleted: 156, responseTime: '1.2s', satisfaction: 99 }
+  },
+  {
+    id: '4',
     name: 'Zara',
-    role: 'Technical Excellence Lead',
-    description: 'Building luxury digital experiences with flawless code',
+    role: 'Technical Innovation Lead',
     status: 'active',
-    icon: '⚡',
-    color: 'from-emerald-500 to-teal-600'
+    description: 'Transforms vision into flawless code, architecting luxury digital experiences with technical excellence.',
+    metrics: { tasksCompleted: 203, responseTime: '0.9s', satisfaction: 98 }
+  },
+  {
+    id: '5',
+    name: 'Victoria',
+    role: 'Client Experience Specialist',
+    status: 'active',
+    description: 'Delivers personalized luxury service and maintains SSELFIE\'s reputation for exceptional client relationships.',
+    metrics: { tasksCompleted: 234, responseTime: '1.5s', satisfaction: 99 }
+  },
+  {
+    id: '6',
+    name: 'Quinn',
+    role: 'Business Intelligence Analyst',
+    status: 'offline',
+    description: 'Provides data-driven insights and strategic analysis to optimize SSELFIE\'s performance and growth.',
+    metrics: { tasksCompleted: 67, responseTime: '3.1s', satisfaction: 96 }
   }
 ];
 
-export default function AdminDashboard() {
-  const [activeSection, setActiveSection] = useState<string>('overview');
+const getStatusColor = (status: string) => {
+  switch (status) {
+    case 'active': return 'bg-emerald-100 text-emerald-800 border-emerald-200';
+    case 'busy': return 'bg-amber-100 text-amber-800 border-amber-200';
+    case 'offline': return 'bg-gray-100 text-gray-600 border-gray-200';
+    default: return 'bg-gray-100 text-gray-600 border-gray-200';
+  }
+};
+
+export default function AdminPage() {
+  const [activeTab, setActiveTab] = useState('overview');
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-white to-gray-50">
-      {/* Luxury Navigation Header */}
-      <nav className="bg-white/80 backdrop-blur-sm border-b border-gray-200/50 sticky top-0 z-50">
-        <div className="max-w-7xl mx-auto px-6">
-          <div className="flex items-center justify-between h-16">
-            <div className="flex items-center space-x-8">
-              <Link href="/" className="flex items-center space-x-3">
-                <Sparkles className="h-8 w-8 text-indigo-600" />
-                <span className="font-serif text-2xl font-bold text-gray-900">
-                  SSELFIE Studio
-                </span>
-              </Link>
-              
-              <div className="hidden md:flex items-center space-x-6">
-                {['Overview', 'Agents', 'Analytics', 'Settings'].map((item) => (
-                  <button
-                    key={item}
-                    onClick={() => setActiveSection(item.toLowerCase())}
-                    className={`font-serif text-sm font-medium transition-all duration-200 px-3 py-2 rounded-lg ${
-                      activeSection === item.toLowerCase()
-                        ? 'text-indigo-600 bg-indigo-50'
-                        : 'text-gray-600 hover:text-gray-900 hover:bg-gray-50'
-                    }`}
-                  >
-                    {item}
-                  </button>
-                ))}
-              </div>
-            </div>
-            
-            <div className="flex items-center space-x-4">
-              <button className="p-2 text-gray-400 hover:text-gray-600 transition-colors">
-                <Settings className="h-5 w-5" />
-              </button>
-              <div className="h-8 w-8 bg-gradient-to-r from-indigo-500 to-purple-600 rounded-full"></div>
-            </div>
-          </div>
-        </div>
-      </nav>
-
-      {/* Hero Section - Full Bleed Magazine Style */}
-      <section className="relative overflow-hidden">
-        <div className="absolute inset-0 bg-gradient-to-r from-indigo-600 via-purple-600 to-pink-600 opacity-95"></div>
+    <div className="min-h-screen bg-gradient-to-br from-stone-50 to-amber-50">
+      {/* Luxury Hero Section */}
+      <div className="relative bg-gradient-to-r from-stone-900 via-stone-800 to-amber-900 text-white overflow-hidden">
         <div className="absolute inset-0 bg-black/20"></div>
-        
-        <div className="relative max-w-7xl mx-auto px-6 py-24">
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.8 }}
-            className="text-center"
-          >
-            <h1 className="font-serif text-5xl md:text-7xl font-bold text-white mb-6 leading-tight">
-              SSELFIE Studio
-              <span className="block text-3xl md:text-4xl font-light text-white/90 mt-2">
-                Admin Command Center
-              </span>
-            </h1>
-            
-            <p className="font-serif text-xl text-white/80 max-w-3xl mx-auto leading-relaxed mb-8">
-              Where luxury meets technology. Orchestrating AI agents to create 
-              extraordinary digital experiences with the sophistication of high fashion.
-            </p>
-            
-            <div className="flex flex-col sm:flex-row items-center justify-center space-y-4 sm:space-y-0 sm:space-x-6">
-              <button className="group bg-white text-gray-900 font-serif font-semibold px-8 py-4 rounded-xl hover:bg-gray-50 transition-all duration-200 flex items-center space-x-2">
-                <span>View Live Studio</span>
-                <ChevronRight className="h-5 w-5 group-hover:translate-x-1 transition-transform" />
-              </button>
-              
-              <button className="font-serif font-medium text-white border-2 border-white/30 px-8 py-4 rounded-xl hover:bg-white/10 transition-all duration-200">
-                System Analytics
-              </button>
+        <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-24">
+          <div className="text-center">
+            <div className="flex items-center justify-center mb-6">
+              <Crown className="w-12 h-12 text-amber-300 mr-4" />
+              <h1 className="text-6xl font-normal tracking-wide" style={{ fontFamily: 'Times New Roman, serif' }}>
+                SSELFIE STUDIO
+              </h1>
             </div>
-          </motion.div>
-        </div>
-        
-        {/* Elegant bottom curve */}
-        <div className="absolute bottom-0 left-0 right-0">
-          <svg viewBox="0 0 1440 120" className="w-full h-12 text-white">
-            <path fill="currentColor" d="M0,120V60c240-40,480-40,720,0s480,40,720,0V120z"></path>
-          </svg>
-        </div>
-      </section>
-
-      {/* Agent Cards Section */}
-      <section className="py-20 bg-white">
-        <div className="max-w-7xl mx-auto px-6">
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.6, delay: 0.2 }}
-            className="text-center mb-16"
-          >
-            <h2 className="font-serif text-4xl font-bold text-gray-900 mb-4">
-              Meet Your AI Dream Team
-            </h2>
-            <p className="font-serif text-lg text-gray-600 max-w-2xl mx-auto">
-              Three specialized AI agents working in perfect harmony to deliver 
-              luxury experiences that rival the world's finest brands.
+            <p className="text-xl text-stone-300 max-w-3xl mx-auto leading-relaxed" style={{ fontFamily: 'Times New Roman, serif' }}>
+              Command Center for Luxury Digital Excellence
             </p>
-          </motion.div>
-
-          <div className="grid md:grid-cols-3 gap-8">
-            {luxuryAgents.map((agent, index) => (
-              <motion.div
-                key={agent.id}
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.6, delay: 0.3 + index * 0.1 }}
-                className="group relative bg-white rounded-2xl shadow-lg hover:shadow-2xl transition-all duration-300 overflow-hidden border border-gray-100"
-              >
-                {/* Status indicator */}
-                <div className="absolute top-4 right-4">
-                  <div className={`w-3 h-3 rounded-full ${
-                    agent.status === 'active' ? 'bg-green-400' :
-                    agent.status === 'working' ? 'bg-amber-400' : 'bg-gray-300'
-                  } animate-pulse`}></div>
-                </div>
-
-                {/* Gradient header */}
-                <div className={`h-32 bg-gradient-to-r ${agent.color} relative`}>
-                  <div className="absolute inset-0 bg-black/10"></div>
-                  <div className="absolute bottom-4 left-6">
-                    <div className="text-4xl mb-2">{agent.icon}</div>
-                  </div>
-                </div>
-
-                <div className="p-6">
-                  <h3 className="font-serif text-2xl font-bold text-gray-900 mb-2">
-                    {agent.name}
-                  </h3>
-                  
-                  <p className="font-serif text-sm font-medium text-indigo-600 mb-3 uppercase tracking-wider">
-                    {agent.role}
-                  </p>
-                  
-                  <p className="font-serif text-gray-600 leading-relaxed mb-6">
-                    {agent.description}
-                  </p>
-
-                  <button className="group w-full bg-gray-50 hover:bg-gray-100 text-gray-900 font-serif font-medium py-3 px-4 rounded-xl transition-all duration-200 flex items-center justify-between">
-                    <span>View Details</span>
-                    <ChevronRight className="h-5 w-5 group-hover:translate-x-1 transition-transform" />
-                  </button>
-                </div>
-              </motion.div>
-            ))}
+            <div className="mt-8 flex items-center justify-center space-x-8">
+              <div className="text-center">
+                <div className="text-3xl font-bold text-amber-300">6</div>
+                <div className="text-sm text-stone-400">Active Agents</div>
+              </div>
+              <div className="text-center">
+                <div className="text-3xl font-bold text-amber-300">876</div>
+                <div className="text-sm text-stone-400">Tasks Completed</div>
+              </div>
+              <div className="text-center">
+                <div className="text-3xl font-bold text-amber-300">98%</div>
+                <div className="text-sm text-stone-400">Satisfaction Rate</div>
+              </div>
+            </div>
           </div>
         </div>
-      </section>
+      </div>
 
-      {/* Analytics Preview Section */}
-      <section className="py-20 bg-gradient-to-br from-gray-50 to-white">
-        <div className="max-w-7xl mx-auto px-6">
-          <div className="grid lg:grid-cols-2 gap-12 items-center">
-            <motion.div
-              initial={{ opacity: 0, x: -20 }}
-              animate={{ opacity: 1, x: 0 }}
-              transition={{ duration: 0.6 }}
-            >
-              <h2 className="font-serif text-4xl font-bold text-gray-900 mb-6">
-                Performance Analytics
-              </h2>
-              
-              <p className="font-serif text-lg text-gray-600 mb-8 leading-relaxed">
-                Track your AI agents' performance with luxury-grade analytics. 
-                Monitor response times, user satisfaction, and system efficiency 
-                with the precision of Swiss clockwork.
-              </p>
+      {/* Main Dashboard Content */}
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+        <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-8">
+          <TabsList className="grid w-full grid-cols-4 bg-white shadow-sm border">
+            <TabsTrigger value="overview" className="data-[state=active]:bg-stone-900 data-[state=active]:text-white">
+              <Activity className="w-4 h-4 mr-2" />
+              Overview
+            </TabsTrigger>
+            <TabsTrigger value="agents" className="data-[state=active]:bg-stone-900 data-[state=active]:text-white">
+              <Users className="w-4 h-4 mr-2" />
+              Agents
+            </TabsTrigger>
+            <TabsTrigger value="analytics" className="data-[state=active]:bg-stone-900 data-[state=active]:text-white">
+              <TrendingUp className="w-4 h-4 mr-2" />
+              Analytics
+            </TabsTrigger>
+            <TabsTrigger value="settings" className="data-[state=active]:bg-stone-900 data-[state=active]:text-white">
+              <Settings className="w-4 h-4 mr-2" />
+              Settings
+            </TabsTrigger>
+          </TabsList>
 
-              <div className="space-y-4">
-                {[
-                  { label: 'Agent Response Time', value: '0.3s avg', color: 'text-green-600' },
-                  { label: 'User Satisfaction', value: '98.5%', color: 'text-indigo-600' },
-                  { label: 'System Uptime', value: '99.9%', color: 'text-purple-600' }
-                ].map((stat, index) => (
-                  <div key={index} className="flex items-center justify-between p-4 bg-white rounded-xl border border-gray-100">
-                    <span className="font-serif font-medium text-gray-900">{stat.label}</span>
-                    <span className={`font-serif font-bold text-lg ${stat.color}`}>{stat.value}</span>
-                  </div>
-                ))}
-              </div>
-            </motion.div>
+          <TabsContent value="overview" className="space-y-8">
+            {/* Quick Stats */}
+            <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
+              {[
+                { title: 'Active Users', value: '2,847', change: '+12%', icon: Users },
+                { title: 'Total Sessions', value: '18,293', change: '+23%', icon: Activity },
+                { title: 'Avg Response Time', value: '1.6s', change: '-15%', icon: MessageSquare },
+                { title: 'System Health', value: '99.8%', change: '+0.2%', icon: TrendingUp }
+              ].map((stat, index) => (
+                <Card key={index} className="bg-white shadow-lg border-0 hover:shadow-xl transition-shadow">
+                  <CardContent className="p-6">
+                    <div className="flex items-center justify-between">
+                      <div>
+                        <p className="text-sm text-stone-600 font-medium">{stat.title}</p>
+                        <p className="text-3xl font-bold text-stone-900 mt-2" style={{ fontFamily: 'Times New Roman, serif' }}>
+                          {stat.value}
+                        </p>
+                        <p className="text-sm text-emerald-600 mt-1">{stat.change} from last month</p>
+                      </div>
+                      <stat.icon className="w-8 h-8 text-stone-400" />
+                    </div>
+                  </CardContent>
+                </Card>
+              ))}
+            </div>
 
-            <motion.div
-              initial={{ opacity: 0, x: 20 }}
-              animate={{ opacity: 1, x: 0 }}
-              transition={{ duration: 0.6, delay: 0.2 }}
-              className="bg-white p-8 rounded-2xl shadow-lg border border-gray-100"
-            >
-              <div className="flex items-center space-x-3 mb-6">
-                <BarChart3 className="h-8 w-8 text-indigo-600" />
-                <h3 className="font-serif text-2xl font-bold text-gray-900">Live Metrics</h3>
-              </div>
-              
-              {/* Placeholder for chart */}
-              <div className="h-64 bg-gradient-to-br from-indigo-50 to-purple-50 rounded-xl flex items-center justify-center border border-indigo-100">
-                <div className="text-center">
-                  <BarChart3 className="h-12 w-12 text-indigo-400 mx-auto mb-4" />
-                  <p className="font-serif text-indigo-600 font-medium">
-                    Real-time analytics visualization
-                  </p>
+            {/* Agent Status Overview */}
+            <Card className="bg-white shadow-lg border-0">
+              <CardHeader>
+                <CardTitle className="text-2xl font-normal" style={{ fontFamily: 'Times New Roman, serif' }}>
+                  Agent Performance Overview
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-6">
+                  {agents.slice(0, 6).map((agent) => (
+                    <div key={agent.id} className="p-6 bg-stone-50 rounded-lg border">
+                      <div className="flex items-center justify-between mb-4">
+                        <h3 className="font-semibold text-stone-900">{agent.name}</h3>
+                        <Badge className={getStatusColor(agent.status)}>
+                          {agent.status}
+                        </Badge>
+                      </div>
+                      <p className="text-sm text-stone-600 mb-4">{agent.role}</p>
+                      <div className="space-y-2 text-xs text-stone-500">
+                        <div className="flex justify-between">
+                          <span>Tasks:</span>
+                          <span className="font-medium">{agent.metrics.tasksCompleted}</span>
+                        </div>
+                        <div className="flex justify-between">
+                          <span>Response:</span>
+                          <span className="font-medium">{agent.metrics.responseTime}</span>
+                        </div>
+                        <div className="flex justify-between">
+                          <span>Rating:</span>
+                          <span className="font-medium">{agent.metrics.satisfaction}%</span>
+                        </div>
+                      </div>
+                    </div>
+                  ))}
                 </div>
-              </div>
-            </motion.div>
-          </div>
-        </div>
-      </section>
+              </CardContent>
+            </Card>
+          </TabsContent>
+
+          <TabsContent value="agents" className="space-y-8">
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+              {agents.map((agent) => (
+                <Card key={agent.id} className="bg-white shadow-lg border-0 hover:shadow-xl transition-all duration-300">
+                  <CardHeader className="pb-4">
+                    <div className="flex items-center justify-between">
+                      <div>
+                        <CardTitle className="text-xl font-normal mb-1" style={{ fontFamily: 'Times New Roman, serif' }}>
+                          {agent.name}
+                        </CardTitle>
+                        <p className="text-stone-600 font-medium">{agent.role}</p>
+                      </div>
+                      <Badge className={getStatusColor(agent.status)}>
+                        {agent.status}
+                      </Badge>
+                    </div>
+                  </CardHeader>
+                  <CardContent className="pt-0">
+                    <p className="text-stone-700 mb-6 leading-relaxed">{agent.description}</p>
+                    
+                    <div className="space-y-4">
+                      <div className="flex justify-between items-center">
+                        <span className="text-sm text-stone-600">Tasks Completed</span>
+                        <span className="font-bold text-stone-900">{agent.metrics.tasksCompleted}</span>
+                      </div>
+                      <div className="flex justify-between items-center">
+                        <span className="text-sm text-stone-600">Avg Response Time</span>
+                        <span className="font-bold text-stone-900">{agent.metrics.responseTime}</span>
+                      </div>
+                      <div className="flex justify-between items-center">
+                        <span className="text-sm text-stone-600">Satisfaction Rate</span>
+                        <span className="font-bold text-emerald-600">{agent.metrics.satisfaction}%</span>
+                      </div>
+                    </div>
+                    
+                    <div className="mt-6 pt-4 border-t flex space-x-3">
+                      <Button variant="outline" size="sm" className="flex-1">
+                        View Details
+                      </Button>
+                      <Button size="sm" className="flex-1 bg-stone-900 hover:bg-stone-800">
+                        Message
+                      </Button>
+                    </div>
+                  </CardContent>
+                </Card>
+              ))}
+            </div>
+          </TabsContent>
+
+          <TabsContent value="analytics" className="space-y-8">
+            <Card className="bg-white shadow-lg border-0">
+              <CardHeader>
+                <CardTitle className="text-2xl font-normal" style={{ fontFamily: 'Times New Roman, serif' }}>
+                  Performance Analytics
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="text-center py-12">
+                  <TrendingUp className="w-16 h-16 text-stone-400 mx-auto mb-4" />
+                  <p className="text-stone-600">Analytics dashboard coming soon...</p>
+                  <p className="text-sm text-stone-500 mt-2">Advanced metrics and insights will be available here</p>
+                </div>
+              </CardContent>
+            </Card>
+          </TabsContent>
+
+          <TabsContent value="settings" className="space-y-8">
+            <Card className="bg-white shadow-lg border-0">
+              <CardHeader>
+                <CardTitle className="text-2xl font-normal" style={{ fontFamily: 'Times New Roman, serif' }}>
+                  System Configuration
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="text-center py-12">
+                  <Settings className="w-16 h-16 text-stone-400 mx-auto mb-4" />
+                  <p className="text-stone-600">System settings coming soon...</p>
+                  <p className="text-sm text-stone-500 mt-2">Configure agents, preferences, and system parameters</p>
+                </div>
+              </CardContent>
+            </Card>
+          </TabsContent>
+        </Tabs>
+      </div>
     </div>
   );
 }
