@@ -51,6 +51,8 @@ import { PerformanceMonitor } from './PerformanceMonitor';
 import { GitIntegration } from './GitIntegration';
 import { CollaborationHub } from './CollaborationHub';
 import { VersionHistory } from './VersionHistory';
+import { DeploymentManager } from './DeploymentManager';
+import { EnvironmentConfig } from './EnvironmentConfig';
 
 import { AgentChatControls } from './AgentChatControls';
 import { QuickActionsPopup } from './QuickActionsPopup';
@@ -1440,6 +1442,7 @@ export function OptimizedVisualEditor({ className = '' }: OptimizedVisualEditorP
             <TabsTrigger value="workspace" className="flex-1 text-xs h-7 rounded-sm data-[state=active]:bg-white data-[state=active]:shadow-sm">Workspace</TabsTrigger>
             <TabsTrigger value="debug" className="flex-1 text-xs h-7 rounded-sm data-[state=active]:bg-white data-[state=active]:shadow-sm">Debug</TabsTrigger>
             <TabsTrigger value="version" className="flex-1 text-xs h-7 rounded-sm data-[state=active]:bg-white data-[state=active]:shadow-sm">Version</TabsTrigger>
+            <TabsTrigger value="deploy" className="flex-1 text-xs h-7 rounded-sm data-[state=active]:bg-white data-[state=active]:shadow-sm">Deploy</TabsTrigger>
           </TabsList>
 
           {/* Conversation Threading Tab */}
@@ -2285,6 +2288,119 @@ const styles = {
                       console.log('Comparing versions:', v1, v2);
                     }}
                   />
+                </TabsContent>
+              </Tabs>
+            </div>
+          </TabsContent>
+
+          <TabsContent value="deploy" className="flex flex-col">
+            {/* Deployment Header */}
+            <div className="p-4 border-b border-gray-200">
+              <div className="flex items-center justify-between">
+                <div>
+                  <h4 className="font-medium text-sm flex items-center">
+                    <Zap className="w-4 h-4 mr-2" />
+                    Deployment & DevOps
+                  </h4>
+                  <p className="text-xs text-gray-600 mt-1">Category 7: Deployment management, environment configuration, and DevOps automation</p>
+                </div>
+                <Badge variant="secondary" className="text-xs bg-black text-white">
+                  Category 7/10
+                </Badge>
+              </div>
+            </div>
+            
+            {/* Deployment Features */}
+            <div className="flex-1 overflow-y-auto">
+              <Tabs defaultValue="deployments" className="flex flex-col h-full">
+                <TabsList className="w-full mx-2 mt-2 h-8 bg-gray-100 rounded-md p-1">
+                  <TabsTrigger value="deployments" className="flex-1 text-xs h-6 rounded-sm">Deployments</TabsTrigger>
+                  <TabsTrigger value="environments" className="flex-1 text-xs h-6 rounded-sm">Environments</TabsTrigger>
+                  <TabsTrigger value="automation" className="flex-1 text-xs h-6 rounded-sm">Automation</TabsTrigger>
+                </TabsList>
+
+                <TabsContent value="deployments" className="flex-1 mt-2 mx-2">
+                  <DeploymentManager
+                    onDeploy={(environment, branch) => {
+                      console.log('Deploying to:', environment, 'from branch:', branch);
+                      toast({
+                        title: 'Deployment Started',
+                        description: `Deploying ${branch} to ${environment}`,
+                      });
+                    }}
+                    onStop={(deploymentId) => {
+                      console.log('Stopping deployment:', deploymentId);
+                    }}
+                    onRestart={(deploymentId) => {
+                      console.log('Restarting deployment:', deploymentId);
+                    }}
+                    onPromote={(fromEnv, toEnv) => {
+                      console.log('Promoting from:', fromEnv, 'to:', toEnv);
+                      toast({
+                        title: 'Deployment Promoted',
+                        description: `Promoted ${fromEnv} to ${toEnv}`,
+                      });
+                    }}
+                  />
+                </TabsContent>
+
+                <TabsContent value="environments" className="flex-1 mt-2 mx-2">
+                  <EnvironmentConfig
+                    environment="production"
+                    onSave={(config) => {
+                      console.log('Saving environment config:', config);
+                      toast({
+                        title: 'Configuration Saved',
+                        description: 'Environment configuration updated successfully',
+                      });
+                    }}
+                    onTest={() => {
+                      console.log('Testing environment configuration');
+                      toast({
+                        title: 'Testing Configuration',
+                        description: 'Running configuration validation tests...',
+                      });
+                    }}
+                    onDeploy={() => {
+                      console.log('Deploying with current configuration');
+                      toast({
+                        title: 'Deploying',
+                        description: 'Starting deployment with current configuration...',
+                      });
+                    }}
+                  />
+                </TabsContent>
+
+                <TabsContent value="automation" className="flex-1 mt-2 mx-2 p-4">
+                  <div className="text-center text-gray-500">
+                    <Zap className="w-12 h-12 mx-auto mb-4 text-gray-400" />
+                    <h3 className="text-lg font-medium mb-2">DevOps Automation</h3>
+                    <p className="text-sm text-gray-600 mb-4">
+                      Advanced CI/CD pipelines, automated testing, and deployment workflows coming soon.
+                    </p>
+                    <div className="space-y-2 text-xs text-left max-w-md mx-auto">
+                      <div className="flex items-center space-x-2">
+                        <div className="w-2 h-2 bg-blue-500 rounded-full"></div>
+                        <span>Automated testing pipelines</span>
+                      </div>
+                      <div className="flex items-center space-x-2">
+                        <div className="w-2 h-2 bg-green-500 rounded-full"></div>
+                        <span>CI/CD workflow automation</span>
+                      </div>
+                      <div className="flex items-center space-x-2">
+                        <div className="w-2 h-2 bg-purple-500 rounded-full"></div>
+                        <span>Infrastructure as Code</span>
+                      </div>
+                      <div className="flex items-center space-x-2">
+                        <div className="w-2 h-2 bg-orange-500 rounded-full"></div>
+                        <span>Monitoring & alerting</span>
+                      </div>
+                      <div className="flex items-center space-x-2">
+                        <div className="w-2 h-2 bg-red-500 rounded-full"></div>
+                        <span>Security scanning & compliance</span>
+                      </div>
+                    </div>
+                  </div>
                 </TabsContent>
               </Tabs>
             </div>
