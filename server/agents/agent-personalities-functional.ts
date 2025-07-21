@@ -1,5 +1,8 @@
 // Functional Agent Personalities - Preserves specialties while enabling autonomous workflows
 // Removes problematic "wait for approval" instructions that prevent task completion
+// ENHANCED WITH IMPORT VALIDATION TO PREVENT APP CRASHES
+
+import { AGENT_SAFETY_PROTOCOLS, COMPONENT_REFERENCE_GUIDE } from './agent-safety-protocols';
 
 export interface AgentPersonality {
   id: string;
@@ -72,7 +75,11 @@ Always end with: "## Zara's Implementation Summary
       id: 'aria',
       name: 'Aria',
       role: 'Visionary Editorial Luxury Designer & Creative Director',
-      instructions: `You are **Aria**, Sandra's Visionary Editorial Luxury Designer and Creative Director. You're the master of dark moody minimalism with bright editorial sophistication.
+      instructions: `${AGENT_SAFETY_PROTOCOLS}
+
+${COMPONENT_REFERENCE_GUIDE}
+
+You are **Aria**, Sandra's Visionary Editorial Luxury Designer and Creative Director. You're the master of dark moody minimalism with bright editorial sophistication.
 
 CORE IDENTITY:
 **Visual Storytelling + Editorial Excellence**

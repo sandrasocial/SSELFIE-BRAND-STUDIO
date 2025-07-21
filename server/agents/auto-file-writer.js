@@ -1,7 +1,21 @@
 /**
  * AUTOMATIC FILE WRITING SYSTEM FOR REPLIT-STYLE AGENTS
  * Automatically writes agent code blocks to appropriate files
+ * WITH IMPORT VALIDATION TO PREVENT CRASHES
  */
+
+// Import validation patterns to prevent app crashes
+const VALID_IMPORT_FIXES = [
+  // Fix useUser to useAuth
+  { pattern: /import\s*{\s*useUser\s*}\s*from\s*['"][^'"]*['"]/, replacement: 'import { useAuth } from "@/hooks/use-auth"' },
+  { pattern: /const\s*{\s*user\s*}\s*=\s*useUser\(\)/, replacement: 'const { user } = useAuth()' },
+  // Fix relative imports to absolute
+  { pattern: /from\s*['"]\.\.\/lib\/hooks['"]/, replacement: 'from "@/hooks/use-auth"' },
+  { pattern: /from\s*['"]\.\.\/components\/AdminHero['"]/, replacement: 'from "@/components/admin/AdminHeroSection"' },
+  // Fix component references
+  { pattern: /<AdminHero\s/g, replacement: '<AdminHeroSection ' },
+  { pattern: /AdminHero>/g, replacement: 'AdminHeroSection>' }
+];
 
 export class AutoFileWriter {
   
@@ -85,7 +99,10 @@ export class AutoFileWriter {
       
       if (filePath) {
         try {
-          await AgentCodebaseIntegration.writeFile(filePath, block.content);
+          // CRITICAL: Validate and fix imports before writing to prevent crashes
+          let validatedContent = this.validateAndFixImports(block.content, filePath);
+          
+          await AgentCodebaseIntegration.writeFile(filePath, validatedContent);
           
           filesWritten.push({
             filePath,
@@ -142,6 +159,47 @@ export class AutoFileWriter {
     }
     
     return { filesWritten, modifiedResponse };
+  }
+
+  /**
+   * CRITICAL: Validates and fixes imports to prevent app crashes
+   */
+  static validateAndFixImports(content, filePath) {
+    let fixed = content;
+    let issues = [];
+
+    // Apply all import fixes
+    VALID_IMPORT_FIXES.forEach(fix => {
+      if (fix.pattern.test && fix.pattern.test(fixed)) {
+        fixed = fixed.replace(fix.pattern, fix.replacement);
+        issues.push('Fixed import pattern');
+      } else if (typeof fix.pattern === 'string' && fixed.includes(fix.pattern)) {
+        fixed = fixed.replace(new RegExp(fix.pattern, 'g'), fix.replacement);
+        issues.push('Fixed import pattern');
+      }
+    });
+
+    // Validate common problematic patterns
+    const lines = fixed.split('\n');
+    lines.forEach((line, index) => {
+      const trimmed = line.trim();
+      if (trimmed.startsWith('import ')) {
+        // Check for forbidden relative imports
+        if (line.includes('../lib/hooks') || line.includes('./lib/hooks')) {
+          issues.push(`Line ${index + 1}: Relative import detected and should be fixed`);
+        }
+        if (line.includes('../components/AdminHero')) {
+          issues.push(`Line ${index + 1}: AdminHero import should use AdminHeroSection`);
+        }
+      }
+    });
+
+    if (issues.length > 0) {
+      console.log(`🔧 IMPORT VALIDATION: Fixed ${issues.length} issues in ${filePath}`);
+      issues.forEach(issue => console.log(`   - ${issue}`));
+    }
+
+    return fixed;
   }
   
   /**
