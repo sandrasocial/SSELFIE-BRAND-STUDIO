@@ -1,12 +1,4 @@
-client/src/components/admin/
-├── AdminDashboard.tsx          (main container - REDESIGN)
-├── AdminHeroSection.tsx               (luxury hero section - NEW)
-├── AdminNavigation.tsx         (luxury nav - NEW)
-├── AgentGrid.tsx              (agent cards container - NEW)
-├── AgentCard.tsx              (luxury agent cards - REDESIGN)
-├── AdminStats.tsx             (dashboard stats - NEW)
-└── AdminLayout.tsx            (wrapper layout - NEW)
-
 client/src/styles/admin/
-├── admin-luxury.css           (Times New Roman + luxury styles)
-└── admin-components.css       (component-specific styles)
+├── admin-luxury.css (Times New Roman + editorial styling)
+├── admin-hero.css (full-bleed hero styling)
+└── admin-cards.css (magazine-quality card styling)
