@@ -200,23 +200,16 @@ export class ConversationManager {
   }
 
   /**
-   * Save agent memory to database
+   * Save agent memory to database (DISABLED - prevents conversation corruption)
    */
   static async saveAgentMemory(summary: ConversationSummary): Promise<void> {
     try {
-      // Save to agent_conversations table as a special memory entry
-      // Fix parameter order: agentId, userId, userMessage, agentResponse, devPreview
-      await storage.saveAgentConversation(
-        summary.agentId,
-        summary.userId,
-        '**CONVERSATION_MEMORY**',
-        JSON.stringify(summary),
-        { workflowStage: summary.workflowStage }
-      );
-      
-      console.log(`💾 Agent memory saved for ${summary.agentId}`);
+      // DISABLED: This was causing conversation display corruption by saving 
+      // **CONVERSATION_MEMORY** entries that mixed with real conversations
+      // The memory is preserved through the conversation history itself
+      console.log(`💭 Memory preserved internally for ${summary.agentId}: ${summary.keyTasks.length} tasks (not saved to avoid display corruption)`);
     } catch (error) {
-      console.error('Failed to save agent memory:', error);
+      console.error('Failed to process agent memory:', error);
     }
   }
 
