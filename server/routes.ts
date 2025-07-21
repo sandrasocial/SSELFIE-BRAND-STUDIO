@@ -5008,6 +5008,61 @@ AGENT_CONTEXT:
       
       const responseText = response.content[0].text;
       
+      // ELENA POST-RESPONSE @ MENTION PROCESSING
+      if (isElena && responseText) {
+        const responseMentions = responseText.match(/@(\w+)/g);
+        if (responseMentions) {
+          console.log(`🔍 ELENA POST-RESPONSE @ MENTIONS DETECTED: ${responseMentions.join(', ')}`);
+          
+          // Process @ mentions found in Elena's response
+          const postCoordinationResults = [];
+          for (const mention of responseMentions) {
+            const mentionedAgent = mention.replace('@', '').toLowerCase();
+            const validAgents = ['aria', 'zara', 'rachel', 'ava', 'quinn', 'sophia', 'martha', 'diana', 'wilma', 'olga'];
+            
+            if (validAgents.includes(mentionedAgent)) {
+              console.log(`🤖 ELENA: Post-processing coordination with ${mentionedAgent}`);
+              
+              // Extract context around the @ mention
+              const mentionIndex = responseText.indexOf(mention);
+              const contextStart = Math.max(0, mentionIndex - 200);
+              const contextEnd = Math.min(responseText.length, mentionIndex + 500);
+              const contextForAgent = `Elena is coordinating with you: ${responseText.substring(contextStart, contextEnd)}`;
+              
+              try {
+                const coordinationResponse = await callAgentDirectly(mentionedAgent, contextForAgent, userId, workingHistory);
+                postCoordinationResults.push({
+                  agent: mentionedAgent,
+                  success: true,
+                  response: coordinationResponse.message
+                });
+                
+                console.log(`✅ ${mentionedAgent} responded: ${coordinationResponse.message.substring(0, 100)}...`);
+                
+                // Send a follow-up message to user showing agent coordination results
+                setTimeout(async () => {
+                  const followUpMessage = `Perfect! @${mentionedAgent.charAt(0).toUpperCase() + mentionedAgent.slice(1)} just responded:\n\n"${coordinationResponse.message.substring(0, 300)}..."\n\nI'll keep you updated as they work on this!`;
+                  await storage.saveAgentConversation(agentId, userId, `[Auto-coordination with ${mentionedAgent}]`, followUpMessage, []);
+                }, 2000); // Small delay to let the main response process first
+                
+              } catch (error) {
+                console.error(`❌ Failed post-response coordination with ${mentionedAgent}:`, error);
+                postCoordinationResults.push({
+                  agent: mentionedAgent,
+                  success: false,
+                  error: error instanceof Error ? error.message : 'Unknown error'
+                });
+              }
+            }
+          }
+          
+          // Log coordination results
+          if (postCoordinationResults.length > 0) {
+            console.log(`🎯 ELENA: Completed post-response coordination with ${postCoordinationResults.length} agents`);
+          }
+        }
+      }
+      
       // Process any file operations with bulletproof crash prevention
       let fileOperations: any[] = [];
       try {
