@@ -111,10 +111,12 @@ export async function generateImages(request: GenerateImagesRequest): Promise<Ge
     // 🚀 MAYA HAIR OPTIMIZATION: Enhanced prompt with hair quality focus for AI Photoshoot
     const hairOptimizedPrompt = enhancePromptForHairQuality(cleanPrompt);
     
-    // 🔧 WORKING STRUCTURE: Realism base + trigger word + hair-optimized description (matches Maya quality)
-    const finalPrompt = `raw photo, visible skin pores, film grain, unretouched natural skin texture, subsurface scattering, photographed on film, ${triggerWord}, ${hairOptimizedPrompt}`;
+    // 🚀 HIGH-QUALITY STRUCTURE: Based on reference image ID 405 (professional camera equipment + film aesthetic)
+    // Add professional camera equipment for high-quality results matching the reference image
+    const cameraEquipment = getRandomCameraEquipment();
+    const finalPrompt = `raw photo, visible skin pores, film grain, unretouched natural skin texture, subsurface scattering, photographed on film, ${triggerWord}, ${hairOptimizedPrompt}, ${cameraEquipment}, natural daylight, professional photography`;
     
-    console.log(`🔧 AI PHOTOSHOOT HAIR-OPTIMIZED PROMPT: ${finalPrompt}`);
+    console.log(`🚀 AI PHOTOSHOOT HIGH-QUALITY PROMPT: ${finalPrompt}`);
 
     // 🔒 IMMUTABLE CORE ARCHITECTURE - USES USER'S INDIVIDUAL TRAINED MODEL DIRECTLY
     // Each user has their own trained FLUX model version for complete isolation
@@ -314,4 +316,20 @@ async function pollForCompletion(imageId: number, predictionId: string): Promise
 
   // Start polling
   setTimeout(poll, 2000); // Initial delay of 2 seconds
+}
+
+/**
+ * HIGH-QUALITY CAMERA EQUIPMENT - Based on Reference Image Analysis
+ * Adds professional camera specifications that produced the best quality results
+ */
+function getRandomCameraEquipment(): string {
+  const professionalCameras = [
+    'shot on Leica Q2 with 28mm f/1.7 lens',        // ✅ From reference image ID 405
+    'shot on Canon EOS R5 with 85mm f/1.4 lens',    // ✅ From reference image ID 367
+    'shot on Sony A7R V with 24-70mm f/2.8 lens',   // ✅ From reference image ID 373
+    'shot on Canon EOS R6 with 85mm f/1.2 lens',    // ✅ From reference image ID 368
+    'shot on Canon EOS R5 with 70-200mm f/2.8 lens' // ✅ From reference image ID 370
+  ];
+  
+  return professionalCameras[Math.floor(Math.random() * professionalCameras.length)];
 }

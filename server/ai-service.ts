@@ -214,15 +214,34 @@ export class AIService {
       // 🚀 MAYA HAIR OPTIMIZATION: Enhanced prompt with hair quality focus
       const hairOptimizedPrompt = this.enhancePromptForHairQuality(cleanPrompt);
       
-      // 🔧 WORKING STRUCTURE: Realism base + trigger word + hair-optimized description
-      const finalPrompt = `raw photo, visible skin pores, film grain, unretouched natural skin texture, subsurface scattering, photographed on film, ${triggerWord}, ${hairOptimizedPrompt}`;
+      // 🚀 HIGH-QUALITY ENHANCEMENT: Add professional camera equipment like reference image ID 405
+      const cameraEquipment = this.getRandomCameraEquipment();
       
-      console.log(`🔧 MAYA HAIR-OPTIMIZED PROMPT: ${finalPrompt}`);
+      // 🚀 HIGH-QUALITY STRUCTURE: Based on reference image ID 405 (professional camera + film aesthetic)
+      const finalPrompt = `raw photo, visible skin pores, film grain, unretouched natural skin texture, subsurface scattering, photographed on film, ${triggerWord}, ${hairOptimizedPrompt}, ${cameraEquipment}, natural daylight, professional photography`;
+      
+      console.log(`🚀 MAYA HIGH-QUALITY PROMPT: ${finalPrompt}`);
       return finalPrompt;
     }
     
     // NO HARDCODED PROMPTS ALLOWED - User must provide custom prompt
     throw new Error('Custom prompt required. Please provide your photo vision for generation.');
+  }
+
+  /**
+   * HIGH-QUALITY CAMERA EQUIPMENT - Based on Reference Image Analysis
+   * Adds professional camera specifications that produced the best quality results in Maya chat
+   */
+  private static getRandomCameraEquipment(): string {
+    const professionalCameras = [
+      'shot on Leica Q2 with 28mm f/1.7 lens',        // ✅ From reference image ID 405
+      'shot on Canon EOS R5 with 85mm f/1.4 lens',    // ✅ From reference image ID 367
+      'shot on Sony A7R V with 24-70mm f/2.8 lens',   // ✅ From reference image ID 373
+      'shot on Canon EOS R6 with 85mm f/1.2 lens',    // ✅ From reference image ID 368
+      'shot on Canon EOS R5 with 70-200mm f/2.8 lens' // ✅ From reference image ID 370
+    ];
+    
+    return professionalCameras[Math.floor(Math.random() * professionalCameras.length)];
   }
   
   /**
