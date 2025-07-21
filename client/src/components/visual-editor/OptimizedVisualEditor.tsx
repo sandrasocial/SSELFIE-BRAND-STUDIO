@@ -349,25 +349,36 @@ export function OptimizedVisualEditor({ className = '' }: OptimizedVisualEditorP
         
         if (response.ok) {
           const data = await response.json();
+          console.log(`📚 Loading conversation history for ${currentAgent.id}:`, data.conversations?.length || 0, 'conversations');
+          
           if (data.conversations && data.conversations.length > 0) {
             const formattedMessages: ChatMessage[] = data.conversations.map((conv: any) => [
               {
                 type: 'user' as const,
-                content: conv.user_message,
+                content: conv.user_message || conv.userMessage,
                 timestamp: new Date(conv.timestamp),
                 agentName: currentAgent.id
               },
               {
                 type: 'agent' as const,
-                content: conv.agent_response,
+                content: conv.agent_response || conv.agentResponse,
                 timestamp: new Date(conv.timestamp),
                 agentName: currentAgent.id,
                 // Restore workflow context if it exists in the response
-                workflowId: conv.agent_response.includes('Workflow ID:') ? 
-                  conv.agent_response.match(/Workflow ID:\s*(\w+)/)?.[1] : undefined
+                workflowId: (conv.agent_response || conv.agentResponse)?.includes('Workflow ID:') ? 
+                  (conv.agent_response || conv.agentResponse)?.match(/Workflow ID:\s*(\w+)/)?.[1] : undefined
               }
             ]).flat();
+            
+            console.log(`✅ Formatted ${formattedMessages.length} messages for display`);
             setChatMessages(formattedMessages);
+            
+            // Force scroll to bottom after loading history
+            setTimeout(() => {
+              if (chatContainerRef.current) {
+                chatContainerRef.current.scrollTop = chatContainerRef.current.scrollHeight;
+              }
+            }, 100);
             
             // If Elena and we have workflow messages, start polling active workflows
             if (currentAgent.id === 'elena') {
@@ -390,15 +401,21 @@ export function OptimizedVisualEditor({ className = '' }: OptimizedVisualEditorP
               }
             }
           } else {
+            console.log(`📝 No conversation history found for ${currentAgent.id}`);
             setChatMessages([]);
           }
         }
       } catch (error) {
-        console.error('Failed to load conversation history:', error);
+        console.error(`❌ Failed to load conversation history for ${currentAgent.id}:`, error);
         setChatMessages([]);
+        toast({
+          title: 'History Load Failed',
+          description: `Could not load conversation history for ${currentAgent.name}`,
+          variant: 'destructive',
+        });
       } finally {
         // Delay to prevent immediate save attempts on loaded messages
-        setTimeout(() => setIsLoadingHistory(false), 100);
+        setTimeout(() => setIsLoadingHistory(false), 200);
       }
     };
 
