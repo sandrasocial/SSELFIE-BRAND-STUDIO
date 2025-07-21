@@ -13,6 +13,7 @@ import {
   Settings,
   ChevronLeft,
   ChevronRight,
+  ChevronDown,
   Palette,
   Type,
   Layout,
@@ -311,6 +312,7 @@ export function OptimizedVisualEditor({ className = '' }: OptimizedVisualEditorP
     return agents.find(a => a.id === 'elena') || agents[0];
   });
   const [showQuickActions, setShowQuickActions] = useState(false);
+  const [showMoreDropdown, setShowMoreDropdown] = useState(false);
   const [workflowActive, setWorkflowActive] = useState(false);
   const [workflowStage, setWorkflowStage] = useState('Design');
   const [activeWorkingAgent, setActiveWorkingAgent] = useState<string | null>(null);
@@ -318,6 +320,7 @@ export function OptimizedVisualEditor({ className = '' }: OptimizedVisualEditorP
   const fileInputRef = useRef<HTMLInputElement>(null);
   const chatPanelRef = useRef<HTMLDivElement>(null);
   const chatContainerRef = useRef<HTMLDivElement>(null);
+  const dropdownRef = useRef<HTMLDivElement>(null);
   const { toast } = useToast();
 
   // Load conversation history from database when agent changes
@@ -388,6 +391,23 @@ export function OptimizedVisualEditor({ className = '' }: OptimizedVisualEditorP
 
     loadConversationHistory();
   }, [currentAgent.id]);
+
+  // Handle clicking outside dropdown to close it
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
+        setShowMoreDropdown(false);
+      }
+    };
+
+    if (showMoreDropdown) {
+      document.addEventListener('mousedown', handleClickOutside);
+    }
+
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
+  }, [showMoreDropdown]);
 
   // Save conversations to database whenever NEW messages are added (not when loading history)
   useEffect(() => {
@@ -1438,27 +1458,130 @@ export function OptimizedVisualEditor({ className = '' }: OptimizedVisualEditorP
           }} 
           className="flex-1 flex flex-col min-h-0"
         >
-          <TabsList className="flex w-full mx-1 md:mx-2 mt-1 md:mt-2 h-9 bg-gray-100 rounded-md p-1">
+          <div className="flex w-full mx-1 md:mx-2 mt-1 md:mt-2 h-9 bg-gray-100 rounded-md p-1">
+            {/* Core Navigation Tabs */}
             <TabsTrigger value="chat" className="flex-1 text-xs h-7 rounded-sm data-[state=active]:bg-white data-[state=active]:shadow-sm">Chat</TabsTrigger>
-            <TabsTrigger value="threads" className="flex-1 text-xs h-7 rounded-sm data-[state=active]:bg-white data-[state=active]:shadow-sm">Threads</TabsTrigger>
-            <TabsTrigger value="elena" className="flex-1 text-xs h-7 rounded-sm data-[state=active]:bg-white data-[state=active]:shadow-sm bg-black text-white">Elena</TabsTrigger>
             <TabsTrigger value="gallery" className="flex-1 text-xs h-7 rounded-sm data-[state=active]:bg-white data-[state=active]:shadow-sm">Gallery</TabsTrigger>
             <TabsTrigger value="flatlays" className="flex-1 text-xs h-7 rounded-sm data-[state=active]:bg-white data-[state=active]:shadow-sm">Flatlays</TabsTrigger>
             <TabsTrigger value="files" className="flex-1 text-xs h-7 rounded-sm data-[state=active]:bg-white data-[state=active]:shadow-sm">Files</TabsTrigger>
-            <TabsTrigger value="editor" className="flex-1 text-xs h-7 rounded-sm data-[state=active]:bg-white data-[state=active]:shadow-sm">Editor</TabsTrigger>
-            <TabsTrigger value="ai+" className="flex-1 text-xs h-7 rounded-sm data-[state=active]:bg-white data-[state=active]:shadow-sm">AI+</TabsTrigger>
-            <TabsTrigger value="workspace" className="flex-1 text-xs h-7 rounded-sm data-[state=active]:bg-white data-[state=active]:shadow-sm">Workspace</TabsTrigger>
-            <TabsTrigger value="debug" className="flex-1 text-xs h-7 rounded-sm data-[state=active]:bg-white data-[state=active]:shadow-sm">Debug</TabsTrigger>
-            <TabsTrigger value="version" className="flex-1 text-xs h-7 rounded-sm data-[state=active]:bg-white data-[state=active]:shadow-sm">Version</TabsTrigger>
-            <TabsTrigger value="deploy" className="flex-1 text-xs h-7 rounded-sm data-[state=active]:bg-white data-[state=active]:shadow-sm">Deploy</TabsTrigger>
-            <TabsTrigger value="testing" className="flex-1 text-xs h-7 rounded-sm data-[state=active]:bg-white data-[state=active]:shadow-sm">Testing</TabsTrigger>
-            <TabsTrigger value="accessibility" className="flex-1 text-xs h-7 rounded-sm data-[state=active]:bg-white data-[state=active]:shadow-sm">A11y</TabsTrigger>
-            <TabsTrigger value="quality" className="flex-1 text-xs h-7 rounded-sm data-[state=active]:bg-white data-[state=active]:shadow-sm">Quality</TabsTrigger>
-            <TabsTrigger value="analytics" className="flex-1 text-xs h-7 rounded-sm data-[state=active]:bg-white data-[state=active]:shadow-sm">Analytics</TabsTrigger>
-            <TabsTrigger value="ai-assistant" className="flex-1 text-xs h-7 rounded-sm data-[state=active]:bg-white data-[state=active]:shadow-sm">AI Assistant</TabsTrigger>
-            <TabsTrigger value="automation" className="flex-1 text-xs h-7 rounded-sm data-[state=active]:bg-white data-[state=active]:shadow-sm">Automation</TabsTrigger>
-            <TabsTrigger value="plugins" className="flex-1 text-xs h-7 rounded-sm data-[state=active]:bg-white data-[state=active]:shadow-sm">Plugins</TabsTrigger>
-          </TabsList>
+            <TabsTrigger value="elena" className="flex-1 text-xs h-7 rounded-sm data-[state=active]:bg-white data-[state=active]:shadow-sm bg-black text-white">Elena</TabsTrigger>
+            
+            {/* More Dropdown */}
+            <div className="relative" ref={dropdownRef}>
+              <button
+                onClick={() => setShowMoreDropdown(!showMoreDropdown)}
+                className="flex items-center justify-center px-3 h-7 text-xs rounded-sm hover:bg-white hover:shadow-sm transition-colors"
+              >
+                More
+                <ChevronDown className="w-3 h-3 ml-1" />
+              </button>
+              
+              {showMoreDropdown && (
+                <div className="absolute top-8 right-0 w-48 bg-white border border-gray-200 rounded-md shadow-lg z-50">
+                  <div className="py-1">
+                    <button
+                      onClick={() => { setActiveTab('threads'); setShowMoreDropdown(false); }}
+                      className="w-full text-left px-3 py-2 text-xs hover:bg-gray-50 flex items-center"
+                    >
+                      <MessageSquare className="w-4 h-4 mr-2" />
+                      Conversation Threads
+                    </button>
+                    <button
+                      onClick={() => { setActiveTab('editor'); setShowMoreDropdown(false); }}
+                      className="w-full text-left px-3 py-2 text-xs hover:bg-gray-50 flex items-center"
+                    >
+                      <Edit3 className="w-4 h-4 mr-2" />
+                      Multi-Tab Editor
+                    </button>
+                    <button
+                      onClick={() => { setActiveTab('ai+'); setShowMoreDropdown(false); }}
+                      className="w-full text-left px-3 py-2 text-xs hover:bg-gray-50 flex items-center"
+                    >
+                      <Wand2 className="w-4 h-4 mr-2" />
+                      AI+ Intelligence
+                    </button>
+                    <button
+                      onClick={() => { setActiveTab('workspace'); setShowMoreDropdown(false); }}
+                      className="w-full text-left px-3 py-2 text-xs hover:bg-gray-50 flex items-center"
+                    >
+                      <Layout className="w-4 h-4 mr-2" />
+                      Development Environment
+                    </button>
+                    <button
+                      onClick={() => { setActiveTab('debug'); setShowMoreDropdown(false); }}
+                      className="w-full text-left px-3 py-2 text-xs hover:bg-gray-50 flex items-center"
+                    >
+                      <Bug className="w-4 h-4 mr-2" />
+                      Debug & Performance
+                    </button>
+                    <button
+                      onClick={() => { setActiveTab('version'); setShowMoreDropdown(false); }}
+                      className="w-full text-left px-3 py-2 text-xs hover:bg-gray-50 flex items-center"
+                    >
+                      <GitBranch className="w-4 h-4 mr-2" />
+                      Collaboration & Version
+                    </button>
+                    <button
+                      onClick={() => { setActiveTab('deploy'); setShowMoreDropdown(false); }}
+                      className="w-full text-left px-3 py-2 text-xs hover:bg-gray-50 flex items-center"
+                    >
+                      <Upload className="w-4 h-4 mr-2" />
+                      Deployment Manager
+                    </button>
+                    <button
+                      onClick={() => { setActiveTab('testing'); setShowMoreDropdown(false); }}
+                      className="w-full text-left px-3 py-2 text-xs hover:bg-gray-50 flex items-center"
+                    >
+                      <Settings className="w-4 h-4 mr-2" />
+                      Testing & Quality
+                    </button>
+                    <button
+                      onClick={() => { setActiveTab('accessibility'); setShowMoreDropdown(false); }}
+                      className="w-full text-left px-3 py-2 text-xs hover:bg-gray-50 flex items-center"
+                    >
+                      <Eye className="w-4 h-4 mr-2" />
+                      Accessibility Auditor
+                    </button>
+                    <button
+                      onClick={() => { setActiveTab('quality'); setShowMoreDropdown(false); }}
+                      className="w-full text-left px-3 py-2 text-xs hover:bg-gray-50 flex items-center"
+                    >
+                      <Star className="w-4 h-4 mr-2" />
+                      Quality Analysis
+                    </button>
+                    <button
+                      onClick={() => { setActiveTab('analytics'); setShowMoreDropdown(false); }}
+                      className="w-full text-left px-3 py-2 text-xs hover:bg-gray-50 flex items-center"
+                    >
+                      <Sparkles className="w-4 h-4 mr-2" />
+                      Advanced Analytics
+                    </button>
+                    <button
+                      onClick={() => { setActiveTab('ai-assistant'); setShowMoreDropdown(false); }}
+                      className="w-full text-left px-3 py-2 text-xs hover:bg-gray-50 flex items-center"
+                    >
+                      <Wand2 className="w-4 h-4 mr-2" />
+                      AI Assistant
+                    </button>
+                    <button
+                      onClick={() => { setActiveTab('automation'); setShowMoreDropdown(false); }}
+                      className="w-full text-left px-3 py-2 text-xs hover:bg-gray-50 flex items-center"
+                    >
+                      <Zap className="w-4 h-4 mr-2" />
+                      Workflow Automation
+                    </button>
+                    <button
+                      onClick={() => { setActiveTab('plugins'); setShowMoreDropdown(false); }}
+                      className="w-full text-left px-3 py-2 text-xs hover:bg-gray-50 flex items-center"
+                    >
+                      <Code className="w-4 h-4 mr-2" />
+                      Plugin & Extensions
+                    </button>
+                  </div>
+                </div>
+              )}
+            </div>
+          </div>
 
           {/* Conversation Threading Tab */}
           <TabsContent value="threads" className="flex-1 flex flex-col mt-0 min-h-0">
