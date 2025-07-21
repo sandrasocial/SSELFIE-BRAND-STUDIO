@@ -4939,12 +4939,13 @@ AGENT_CONTEXT:
       await storage.saveAgentConversation(agentId, userId, message, responseText, fileOperations);
       console.log('💾 Conversation saved to database');
       
-      // Re-enable memory summarization - this is critical for proper agent memory
-      // Force memory summary creation for all conversations to ensure proper task detection
-      console.log(`🧠 Creating memory summary for ${agentId} after ${workingHistory.length} messages`);
-      const summary = await ConversationManager.createConversationSummary(agentId, userId, workingHistory);
-      await ConversationManager.saveAgentMemory(summary);
-      console.log(`💾 Memory summary saved for ${agentId}: ${summary.keyTasks.length} tasks, ${summary.recentDecisions.length} decisions`);
+      // Save memory summary for Elena or when conversation reaches memory threshold
+      if (agentId === 'elena' && workingHistory.length >= 5) { // Only for Elena and after meaningful conversation
+        console.log(`🧠 Creating memory summary for ${agentId} after ${workingHistory.length} messages`);
+        const summary = await ConversationManager.createConversationSummary(agentId, userId, workingHistory);
+        await ConversationManager.saveAgentMemory(summary);
+        console.log(`💾 Memory summary saved for ${agentId}: ${summary.keyTasks.length} tasks, ${summary.recentDecisions.length} decisions`);
+      }
       
       // Return enhanced response with file operations for live preview
       res.json({
@@ -5099,6 +5100,7 @@ AGENT_CONTEXT:
       // Filter out memory entries for cleaner conversation display
       const regularConversations = conversations.filter(conv => 
         !conv.userMessage.includes('**CONVERSATION_MEMORY**') &&
+        conv.userMessage !== '**CONVERSATION_MEMORY**' &&
         !conv.userMessage.startsWith('SAVED_CONVERSATION:')
       );
       
