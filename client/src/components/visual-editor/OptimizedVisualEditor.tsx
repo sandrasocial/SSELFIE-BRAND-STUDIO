@@ -996,92 +996,78 @@ export function OptimizedVisualEditor({ className = '' }: OptimizedVisualEditorP
       if (data.message || data.response || data.workflow) {
         const agent = agents.find(a => a.id === agentId);
         
-        // For Elena, check if she's coordinating with other agents via @mentions
-        if (agentId === 'elena') {
-          // Elena's natural response goes through normal chat
-          const agentMessage: ChatMessage = {
-            type: 'agent',
-            content: data.message || data.response,
-            timestamp: new Date(),
-            agentName: agentId,
-            workflowStage: agent?.workflowStage
-          };
-          setChatMessages(prev => [...prev, agentMessage]);
-          
-          // Check for @mentions in Elena's response for agent coordination
-          const responseText = data.message || data.response;
-          const mentions = responseText.match(/@(\w+)/g);
-          
-          if (mentions) {
-            console.log('🎯 Elena mentioned agents:', mentions);
-            // Process each @mention for agent coordination
-            mentions.forEach(async (mention) => {
-              const mentionedAgentId = mention.substring(1).toLowerCase();
-              const mentionedAgent = agents.find(a => a.id === mentionedAgentId);
+        // Universal agent response handling with @mention coordination for ALL AGENTS
+        const agentMessage: ChatMessage = {
+          type: 'agent',
+          content: data.message || data.response,
+          timestamp: new Date(),
+          agentName: agentId,
+          workflowStage: agent?.workflowStage
+        };
+        setChatMessages(prev => [...prev, agentMessage]);
+        
+        // Check for @mentions in ANY agent's response for coordination
+        const responseText = data.message || data.response;
+        const mentions = responseText.match(/@(\w+)/g);
+        
+        if (mentions) {
+          console.log(`🎯 ${agent?.name} mentioned agents:`, mentions);
+          // Process each @mention for agent coordination
+          mentions.forEach(async (mention) => {
+            const mentionedAgentId = mention.substring(1).toLowerCase();
+            const mentionedAgent = agents.find(a => a.id === mentionedAgentId);
+            
+            if (mentionedAgent) {
+              console.log(`🤖 ${agent?.name} coordinating with ${mentionedAgentId}...`);
               
-              if (mentionedAgent) {
-                console.log(`🤖 Elena coordinating with ${mentionedAgentId}...`);
-                
-                // Extract context around the mention for the agent
-                const mentionIndex = responseText.indexOf(mention);
-                const contextStart = Math.max(0, mentionIndex - 100);
-                const contextEnd = Math.min(responseText.length, mentionIndex + 200);
-                const context = responseText.substring(contextStart, contextEnd);
-                
-                // Delay slightly to let Elena's response render first
-                setTimeout(async () => {
-                  try {
-                    const coordinationResponse = await fetch('/api/admin/agents/chat', {
-                      method: 'POST',
-                      headers: { 'Content-Type': 'application/json' },
-                      body: JSON.stringify({
-                        agentId: mentionedAgentId,
-                        message: `Elena is coordinating with you. Context: "${context}". Please respond with your specific expertise and work on this task.`,
-                        adminToken: 'sandra-admin-2025',
-                        conversationHistory: []
-                      })
-                    });
+              // Extract context around the mention for the agent
+              const mentionIndex = responseText.indexOf(mention);
+              const contextStart = Math.max(0, mentionIndex - 100);
+              const contextEnd = Math.min(responseText.length, mentionIndex + 200);
+              const context = responseText.substring(contextStart, contextEnd);
+              
+              // Delay slightly to let the response render first
+              setTimeout(async () => {
+                try {
+                  const coordinationResponse = await fetch('/api/admin/agents/chat', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                      agentId: mentionedAgentId,
+                      message: `${agent?.name} is coordinating with you. Context: "${context}". Please respond with your specific expertise and work on this task.`,
+                      adminToken: 'sandra-admin-2025',
+                      conversationHistory: []
+                    })
+                  });
+                  
+                  if (coordinationResponse.ok) {
+                    const coordData = await coordinationResponse.json();
                     
-                    if (coordinationResponse.ok) {
-                      const coordData = await coordinationResponse.json();
-                      
-                      // Add coordination response from the mentioned agent
-                      const coordinationMessage: ChatMessage = {
-                        type: 'agent',
-                        content: `**${mentionedAgent.name} responds to Elena's coordination:**\n\n${coordData.message || coordData.response}`,
-                        timestamp: new Date(),
-                        agentName: mentionedAgentId,
-                        workflowStage: mentionedAgent.workflowStage
-                      };
-                      setChatMessages(prev => [...prev, coordinationMessage]);
-                      
-                      // Show progress update
-                      toast({
-                        title: `${mentionedAgent.name} is working`,
-                        description: `Responding to Elena's coordination request`,
-                      });
-                    }
-                  } catch (error) {
-                    console.error(`Failed to coordinate with ${mentionedAgentId}:`, error);
+                    // Add coordination response from the mentioned agent
+                    const coordinationMessage: ChatMessage = {
+                      type: 'agent',
+                      content: `**${mentionedAgent.name} responds to ${agent?.name}'s coordination:**\n\n${coordData.message || coordData.response}`,
+                      timestamp: new Date(),
+                      agentName: mentionedAgentId,
+                      workflowStage: mentionedAgent.workflowStage
+                    };
+                    setChatMessages(prev => [...prev, coordinationMessage]);
+                    
+                    // Show progress update
+                    toast({
+                      title: `${mentionedAgent.name} is working`,
+                      description: `Responding to ${agent?.name}'s coordination request`,
+                    });
                   }
-                }, 1000 * mentions.indexOf(mention)); // Stagger multiple agent calls
-              }
-            });
-          }
-        } else {
-          // For all other agents, normal response handling
-          const agentMessage: ChatMessage = {
-            type: 'agent',
-            content: data.message || data.response,
-            timestamp: new Date(),
-            agentName: agentId,
-            workflowStage: agent?.workflowStage
-          };
-          setChatMessages(prev => [...prev, agentMessage]);
+                } catch (error) {
+                  console.error(`Failed to coordinate with ${mentionedAgentId}:`, error);
+                }
+              }, 1000 * mentions.indexOf(mention)); // Stagger multiple agent calls
+            }
+          });
         }
 
         // Show notification for file operations (code blocks automatically written)
-        const responseText = data.message || data.response;
         if (responseText.includes('Files Modified Successfully') || responseText.includes('✅') || responseText.includes('Files Created:') || responseText.includes('Created:**')) {
           toast({
             title: `${agent?.name} updated files`,
@@ -1101,7 +1087,7 @@ export function OptimizedVisualEditor({ className = '' }: OptimizedVisualEditorP
           }, 1000);
         }
 
-        // Check for continuous work patterns - if agent wants to continue working
+        // Check for continuous work patterns - if agent wants to continue working (ALL AGENTS)
         const shouldContinueWorking = (
           responseText.includes('CONTINUING WORK') ||
           responseText.includes('NEXT STEP') ||
@@ -1110,16 +1096,18 @@ export function OptimizedVisualEditor({ className = '' }: OptimizedVisualEditorP
           responseText.includes('Now I need to') ||
           responseText.includes('IMMEDIATE ACTION') ||
           responseText.includes('PROGRESS UPDATE') ||
-          // Agent-specific continuous work patterns
-          (agentId === 'zara' && responseText.includes('```')) || // Zara continues after code changes
+          // Agent-specific continuous work patterns for ALL AGENTS
+          (agentId === 'elena' && (responseText.includes('coordinating') || responseText.includes('@'))) || // Elena continues with coordination
           (agentId === 'aria' && responseText.includes('design')) || // Aria continues with design iterations
+          (agentId === 'zara' && responseText.includes('```')) || // Zara continues after code changes
           (agentId === 'rachel' && responseText.includes('copy')) || // Rachel continues with copywriting
           (agentId === 'ava' && responseText.includes('workflow')) || // Ava continues with automation
           (agentId === 'quinn' && responseText.includes('testing')) || // Quinn continues with QA
           (agentId === 'sophia' && responseText.includes('social')) || // Sophia continues with social media
           (agentId === 'martha' && responseText.includes('marketing')) || // Martha continues with marketing
           (agentId === 'diana' && responseText.includes('strategy')) || // Diana continues with strategy
-          (agentId === 'wilma' && responseText.includes('optimization')) // Wilma continues with workflows
+          (agentId === 'wilma' && responseText.includes('optimization')) || // Wilma continues with workflows
+          (agentId === 'olga' && (responseText.includes('organizing') || responseText.includes('cleanup'))) // Olga continues with organization
         );
 
         // Auto-continue working if agent indicates more work needed
@@ -1129,7 +1117,7 @@ export function OptimizedVisualEditor({ className = '' }: OptimizedVisualEditorP
           }, 2000); // Brief pause to let user see progress
         }
 
-        // Auto-apply changes based on agent type
+        // Auto-apply changes based on agent type - ALL AGENTS
         if (agentId === 'aria') {
           // Look for CSS injection patterns
           const cssMatch = responseText.match(/```css\n([\s\S]*?)\n```/);
@@ -1150,6 +1138,88 @@ export function OptimizedVisualEditor({ className = '' }: OptimizedVisualEditorP
             toast({
               title: 'Aria is creating files!',
               description: 'New components are being added to the codebase',
+            });
+          }
+        } else if (agentId === 'zara') {
+          // Zara handles technical implementation and backend work
+          const codeMatch = responseText.match(/```(?:typescript|javascript|tsx|ts|js)\n([\s\S]*?)\n```/);
+          if (codeMatch) {
+            console.log('⚙️ Zara provided technical implementation:', codeMatch[1].substring(0, 100) + '...');
+            toast({
+              title: 'Zara is implementing features!',
+              description: 'Backend and technical changes being applied',
+            });
+          }
+        } else if (agentId === 'rachel') {
+          // Rachel handles copywriting and content strategy
+          if (responseText.includes('```text') || responseText.includes('copy:') || responseText.includes('headline:')) {
+            console.log('📝 Rachel provided copywriting changes');
+            toast({
+              title: 'Rachel updated copy!',
+              description: 'Brand voice and content strategy applied',
+            });
+          }
+        } else if (agentId === 'ava') {
+          // Ava handles automation and workflow design
+          if (responseText.includes('workflow') || responseText.includes('automation') || responseText.includes('```yaml')) {
+            console.log('🔄 Ava provided automation workflows');
+            toast({
+              title: 'Ava created workflows!',
+              description: 'Business automation and processes implemented',
+            });
+          }
+        } else if (agentId === 'quinn') {
+          // Quinn handles quality testing and validation
+          if (responseText.includes('test') || responseText.includes('validation') || responseText.includes('```spec')) {
+            console.log('🧪 Quinn provided quality testing');
+            toast({
+              title: 'Quinn tested features!',
+              description: 'Quality assurance and testing completed',
+            });
+          }
+        } else if (agentId === 'sophia') {
+          // Sophia handles social media and community building
+          if (responseText.includes('social') || responseText.includes('instagram') || responseText.includes('content calendar')) {
+            console.log('📱 Sophia provided social media strategy');
+            toast({
+              title: 'Sophia created social content!',
+              description: 'Social media strategy and content ready',
+            });
+          }
+        } else if (agentId === 'martha') {
+          // Martha handles marketing and performance optimization
+          if (responseText.includes('marketing') || responseText.includes('campaign') || responseText.includes('analytics')) {
+            console.log('📊 Martha provided marketing optimization');
+            toast({
+              title: 'Martha optimized marketing!',
+              description: 'Performance marketing and analytics implemented',
+            });
+          }
+        } else if (agentId === 'diana') {
+          // Diana handles strategic planning and business coaching
+          if (responseText.includes('strategy') || responseText.includes('planning') || responseText.includes('business model')) {
+            console.log('🎯 Diana provided strategic guidance');
+            toast({
+              title: 'Diana created strategy!',
+              description: 'Business strategy and coaching guidance ready',
+            });
+          }
+        } else if (agentId === 'wilma') {
+          // Wilma handles workflow optimization and process design
+          if (responseText.includes('process') || responseText.includes('efficiency') || responseText.includes('optimization')) {
+            console.log('⚡ Wilma provided workflow optimization');
+            toast({
+              title: 'Wilma optimized workflows!',
+              description: 'Process efficiency and optimization implemented',
+            });
+          }
+        } else if (agentId === 'olga') {
+          // Olga handles file organization and architecture cleanup
+          if (responseText.includes('organized') || responseText.includes('cleanup') || responseText.includes('architecture')) {
+            console.log('🗂️ Olga provided file organization');
+            toast({
+              title: 'Olga organized files!',
+              description: 'File architecture and organization completed',
             });
           }
         }
@@ -1173,8 +1243,8 @@ export function OptimizedVisualEditor({ className = '' }: OptimizedVisualEditorP
           });
         }
 
-        // Elena workflow execution handling
-        if (agentId === 'elena') {
+        // Workflow execution handling for ALL coordination agents
+        if (agentId === 'elena' || agentId === 'diana' || agentId === 'wilma') {
           const userMessage = chatMessages[chatMessages.length - 2]?.content?.toLowerCase();
           if (userMessage?.includes('execute workflow') || userMessage?.includes('run workflow')) {
             // Find the most recent workflow message
@@ -1185,13 +1255,57 @@ export function OptimizedVisualEditor({ className = '' }: OptimizedVisualEditorP
           }
         }
 
-        // Check for approval and handoff signals in USER messages (when Sandra says "approve")
+        // Check for approval and handoff signals for ALL AGENTS
         const userApproval = chatMessages[chatMessages.length - 2]?.content?.toLowerCase().includes('approve');
-        if (userApproval && agentId === 'aria') {
-          console.log('Sandra approved design - handing off to Zara for implementation');
-          setTimeout(() => {
-            handoffToNextAgent(agentId, 'Design approved by Sandra - implement technical features and optimize performance');
-          }, 1500);
+        
+        // Agent-specific handoff logic for complete workflow chain
+        if (userApproval) {
+          if (agentId === 'aria') {
+            console.log('Sandra approved design - handing off to Zara for implementation');
+            setTimeout(() => {
+              handoffToNextAgent(agentId, 'Design approved by Sandra - implement technical features and optimize performance');
+            }, 1500);
+          } else if (agentId === 'zara') {
+            console.log('Sandra approved implementation - handing off to Rachel for copywriting');
+            setTimeout(() => {
+              handoffToNextAgent(agentId, 'Technical implementation approved - create compelling copy and content strategy');
+            }, 1500);
+          } else if (agentId === 'rachel') {
+            console.log('Sandra approved copy - handing off to Ava for automation');
+            setTimeout(() => {
+              handoffToNextAgent(agentId, 'Copy and content approved - implement automation and workflows');
+            }, 1500);
+          } else if (agentId === 'ava') {
+            console.log('Sandra approved automation - handing off to Quinn for QA');
+            setTimeout(() => {
+              handoffToNextAgent(agentId, 'Automation approved - perform quality testing and validation');
+            }, 1500);
+          } else if (agentId === 'quinn') {
+            console.log('Sandra approved QA - handing off to Sophia for social media');
+            setTimeout(() => {
+              handoffToNextAgent(agentId, 'Quality testing approved - create social media strategy and content');
+            }, 1500);
+          } else if (agentId === 'sophia') {
+            console.log('Sandra approved social strategy - handing off to Martha for marketing');
+            setTimeout(() => {
+              handoffToNextAgent(agentId, 'Social media strategy approved - optimize marketing and performance');
+            }, 1500);
+          } else if (agentId === 'martha') {
+            console.log('Sandra approved marketing - handing off to Diana for strategy');
+            setTimeout(() => {
+              handoffToNextAgent(agentId, 'Marketing optimization approved - provide strategic guidance and business coaching');
+            }, 1500);
+          } else if (agentId === 'diana') {
+            console.log('Sandra approved strategy - handing off to Wilma for workflow optimization');
+            setTimeout(() => {
+              handoffToNextAgent(agentId, 'Strategic guidance approved - optimize workflows and processes');
+            }, 1500);
+          } else if (agentId === 'wilma') {
+            console.log('Sandra approved workflow optimization - handing off to Olga for organization');
+            setTimeout(() => {
+              handoffToNextAgent(agentId, 'Workflow optimization approved - organize files and clean architecture');
+            }, 1500);
+          }
         } else if (responseText.includes('HANDOFF:') || responseText.includes('Ready for next stage')) {
           const handoffContext = responseText.split('HANDOFF:')[1] || `${agent?.workflowStage} completed`;
           setTimeout(() => {

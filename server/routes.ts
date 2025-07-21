@@ -4895,8 +4895,8 @@ I'll keep you updated as each agent completes their work. You can also check wor
         }
       }
       
-      // Get functional agent personality with crash prevention
-      const agentPersonality = await import('./agents/agent-personalities-clean');
+      // Get comprehensive agent personality with full instructions
+      const agentPersonality = await import('./agents/agent-personalities');
       const personalityData = agentPersonality.getAgentPersonality(agentId);
       
       // Apply mandatory crash prevention protocols to all agents
