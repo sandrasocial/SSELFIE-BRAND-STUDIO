@@ -154,7 +154,10 @@ ${this.mandatorySafetyProtocols}\``
       { pattern: /useUser/g, severity: 'CRITICAL', message: 'Agent used banned useUser hook' },
       { pattern: /AdminHero(?!Section)/g, severity: 'CRITICAL', message: 'Agent used non-existent AdminHero component' },
       { pattern: /import.*\.\.\//, severity: 'HIGH', message: 'Agent used relative imports' },
-      { pattern: /<[A-Z]\w*[^>]*(?<!\/)\s*$/gm, severity: 'HIGH', message: 'Agent created unclosed JSX tag' }
+      { pattern: /<[A-Z]\w*[^>]*(?<!\/)\s*$/gm, severity: 'HIGH', message: 'Agent created unclosed JSX tag' },
+      { pattern: /<\/div>\s*<\/div>/g, severity: 'CRITICAL', message: 'Agent created malformed JSX structure with wrong closing tags' },
+      { pattern: /<Link[^>]*>[\s\S]*?<\/div>\s*$/gm, severity: 'CRITICAL', message: 'Agent mixed Link and div closing tags' },
+      { pattern: /\s+}\s*,\s*$/gm, severity: 'HIGH', message: 'Agent created trailing comma syntax error' }
     ];
     
     const violations = [];
@@ -193,6 +196,13 @@ ${this.mandatorySafetyProtocols}\``
     fixedResponse = fixedResponse.replace(/AdminHero(?!Section)/g, 'AdminHeroSection');
     fixedResponse = fixedResponse.replace(/from\s*['"]\.\.\/lib\/hooks['"]/, 'from "@/hooks/use-auth"');
     fixedResponse = fixedResponse.replace(/from\s*['"]\.\.\/components\/admin\/AdminHero['"]/, 'from "@/components/admin/AdminHeroSection"');
+    
+    // Fix JSX structure issues
+    fixedResponse = fixedResponse.replace(/<Link([^>]*)>[\s\S]*?<\/div>\s*$/gm, (match) => {
+      return match.replace(/<\/div>\s*$/, '</Link>');
+    });
+    fixedResponse = fixedResponse.replace(/(<Link[^>]*>[\s\S]*?)<\/div>(\s*<\/Link>)/g, '$1$2');
+    fixedResponse = fixedResponse.replace(/,\s*$/gm, ''); // Remove trailing commas
     
     violations.forEach(violation => {
       console.log(`  🔧 FIXED: ${violation.message} (${violation.count} instances)`);
