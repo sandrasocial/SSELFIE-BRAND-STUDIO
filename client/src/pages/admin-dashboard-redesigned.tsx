@@ -1,6 +1,6 @@
-// client/src/components/qa/QATestingComponent.tsx
 import React, { useState, useEffect } from 'react';
 import { AlertCircle, CheckCircle2, Clock, FileCheck, Users, Activity } from 'lucide-react';
+import AdminHeroSection from '@/components/admin/AdminHeroSection';
 
 interface AgentStatus {
   name: string;
@@ -17,7 +17,7 @@ interface FileSystemTest {
   size?: number;
 }
 
-export default function QATestingComponent() {
+export default function AdminDashboardRedesigned() {
   const [agents, setAgents] = useState<AgentStatus[]>([
     { 
       name: 'Aria (Design Lead)', 
@@ -98,13 +98,20 @@ export default function QATestingComponent() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-white to-stone-50 p-8">
-      <div className="max-w-7xl mx-auto">
+    <div className="min-h-screen bg-slate-50">
+      {/* Luxury Hero Section */}
+      <AdminHeroSection 
+        title="AGENT TESTING STUDIO"
+        subtitle="Where AI Coordination Meets Luxury Standards"
+        description="Real-time validation of agent file creation capabilities with enterprise-grade quality assurance."
+      />
+      
+      <div className="max-w-7xl mx-auto p-8">
         {/* Header */}
         <div className="text-center mb-12">
-          <h1 className="text-5xl font-light text-slate-900 mb-4" style={{ fontFamily: 'Times New Roman, serif' }}>
+          <h2 className="text-5xl font-light text-slate-900 mb-4" style={{ fontFamily: 'Times New Roman, serif' }}>
             Quality Assurance Dashboard
-          </h1>
+          </h2>
           <p className="text-xl text-slate-600 font-light">
             Luxury-grade agent coordination monitoring
           </p>

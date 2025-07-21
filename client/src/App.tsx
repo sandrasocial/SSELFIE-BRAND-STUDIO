@@ -238,6 +238,7 @@ function Router() {
       
       {/* SANDRA'S ADMIN DASHBOARD */}
       <Route path="/admin" component={(props) => <ProtectedRoute component={AdminDashboard} {...props} />} />
+      <Route path="/admin-dashboard-redesigned" component={(props) => <ProtectedRoute component={AdminDashboardRedesigned} {...props} />} />
       <Route path="/admin/visual-editor" component={(props) => <ProtectedRoute component={AdminVisualEditor} {...props} />} />
       <Route path="/visual-editor" component={(props) => <ProtectedRoute component={AdminVisualEditor} {...props} />} />
       <Route path="/admin-access-only" component={AdminAccessOnly} />

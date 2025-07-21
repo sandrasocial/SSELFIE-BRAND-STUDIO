@@ -346,20 +346,27 @@ The platform has become overly complex with multiple pricing tiers, broken onboa
 - Success criteria defined for design quality, functionality preservation, and integration validation
 - Complete protocol ready for comprehensive agent testing
 
-## ✅ AGENT CAPABILITIES UPDATED WITH LATEST FILE MANAGEMENT FEATURES (July 21, 2025)
+## ✅ MANDATORY FILE INTEGRATION PROTOCOL IMPLEMENTED - PREVENTS ORPHANED FILES (July 21, 2025)
 
-**BREAKTHROUGH: ALL 12 AI AGENTS NOW EQUIPPED WITH ENHANCED FILE MANAGEMENT & CONSOLE FEATURES**
-- **Advanced File Management**: All agents now know about click-to-edit functionality in Files tab
-- **Multi-Tab Editor Integration**: Agents can direct users to open files directly in Multi-Tab Editor
-- **Console Panel Controls**: Agents aware of hide/show console toggle for improved preview visibility  
-- **Enhanced Visual Editor**: Complete understanding of 6-tab interface (Chat, Gallery, Flatlays, Files, Editor, AI+)
-- **Real-time File Operations**: Agents know about auto-save, dirty state tracking, and live file tree sync
+**BREAKTHROUGH: COMPLETE FILE INTEGRATION PROTOCOL PREVENTS REPEAT OF ADMIN DASHBOARD ISSUE**
+- **Root Cause Fixed**: Agents were creating files but not integrating them into live application routing
+- **Mandatory Integration Protocol**: All agents now required to follow 5-step integration checklist for every file
+- **Architecture Compliance**: Enforced correct file locations based on SSELFIE Studio platform structure
+- **Live Preview Integration**: Every created file must be accessible and functional in dev preview
+- **TypeScript Validation**: Zero tolerance for import errors or broken component integration
+
+**5-Step Mandatory Integration Checklist (All Agents):**
+1. **Create File in Correct Location**: Components in `client/src/components/[category]/`, pages in `client/src/pages/`
+2. **Add Routing for Pages**: Update `client/src/App.tsx` with imports and routes
+3. **Update Parent Components**: Import and use new components where needed
+4. **Update Navigation**: Add links to new pages in relevant navigation components  
+5. **Verify Integration**: Confirm file works in live preview with no TypeScript errors
 
 **Updated Agent Capabilities:**
-- **File Direct Editing**: "Click any file in Files tab → Opens directly in Multi-Tab Editor"
-- **Console Debugging**: "Toggle console panel for better preview and debugging"
-- **Live Preview**: "Cross-origin authentication handling with real-time updates"
-- **Multi-Agent Coordination**: All 12 agents (Elena, Aria, Zara, Rachel, Maya, Ava, Quinn, Sophia, Martha, Diana, Wilma, Olga, Flux) updated
+- **File Integration Protocol**: Mandatory for all 12 agents (Elena, Aria, Zara, Rachel, Maya, Ava, Quinn, Sophia, Martha, Diana, Wilma, Olga, Flux)
+- **Architecture Enforcement**: Correct paths and import patterns for SSELFIE Studio platform
+- **Live Preview Validation**: Every file creation verified to work in actual application
+- **Zero Orphaned Files**: No more isolated files - everything integrates into live app immediately
 
 ## ✅ ELENA COMMUNICATION STYLE FIXED - WARM BEST FRIEND PERSONALITY RESTORED (July 21, 2025)
 
