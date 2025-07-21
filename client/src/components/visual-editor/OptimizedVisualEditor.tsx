@@ -373,6 +373,14 @@ export function OptimizedVisualEditor({ className = '' }: OptimizedVisualEditorP
             console.log(`✅ Formatted ${formattedMessages.length} messages for display`);
             setChatMessages(formattedMessages);
             
+            // Show success notification for loaded history
+            if (formattedMessages.length > 0) {
+              toast({
+                title: `${currentAgent.name} History Loaded`,
+                description: `Restored ${Math.floor(formattedMessages.length / 2)} previous conversations`,
+              });
+            }
+            
             // Force scroll to bottom after loading history
             setTimeout(() => {
               if (chatContainerRef.current) {
