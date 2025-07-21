@@ -4,8 +4,10 @@
  * Updates all agent personalities with bulletproof safety protocols
  */
 
-const fs = require('fs').promises;
-const path = require('path');
+import fs from 'fs';
+import path from 'path';
+
+const fsPromises = fs.promises;
 
 class AgentCrashPrevention {
   
@@ -97,7 +99,7 @@ This is MANDATORY for ALL agents. No exceptions.`;
     try {
       // Read current agent personalities
       const agentPersonalitiesPath = path.join(__dirname, 'agent-personalities-functional.ts');
-      const content = await fs.readFile(agentPersonalitiesPath, 'utf8');
+      const content = await fsPromises.readFile(agentPersonalitiesPath, 'utf8');
       
       // Add safety protocols to each agent
       const agents = ['elena', 'aria', 'zara', 'maya', 'rachel', 'ava', 'quinn', 'sophia', 'martha', 'diana', 'wilma', 'olga', 'flux'];
@@ -130,7 +132,7 @@ ${this.mandatorySafetyProtocols}\``
       });
       
       // Write updated content
-      await fs.writeFile(agentPersonalitiesPath, updatedContent, 'utf8');
+      await fsPromises.writeFile(agentPersonalitiesPath, updatedContent, 'utf8');
       console.log('✅ CRASH PREVENTION: All agent personalities updated with mandatory safety protocols');
       
       return { success: true, agentsUpdated: agents.length };
@@ -202,4 +204,4 @@ ${this.mandatorySafetyProtocols}\``
   }
 }
 
-module.exports = new AgentCrashPrevention();
+export default new AgentCrashPrevention();
