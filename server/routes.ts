@@ -4646,7 +4646,7 @@ ${savedMemory.recentDecisions.map(decision => `• ${decision}`).join('\n')}
         console.log(`🔗 Direct agent call: ${targetAgentId} - "${coordinationMessage.substring(0, 100)}..."`);
         
         // Get the target agent's personality
-        const { getAgentPersonality } = await import('./agents/agent-personalities');
+        const { getAgentPersonality } = await import('./agents/agent-personalities-functional');
         const targetAgent = getAgentPersonality(targetAgentId);
         const targetAgentPersonality = targetAgent.instructions;
         
@@ -4896,7 +4896,7 @@ I'll keep you updated as each agent completes their work. You can also check wor
       }
       
       // Get comprehensive agent personality with full instructions
-      const agentPersonality = await import('./agents/agent-personalities');
+      const agentPersonality = await import('./agents/agent-personalities-functional');
       const personalityData = agentPersonality.getAgentPersonality(agentId);
       
       // Apply mandatory crash prevention protocols to all agents
