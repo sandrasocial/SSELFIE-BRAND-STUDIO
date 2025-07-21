@@ -996,15 +996,89 @@ export function OptimizedVisualEditor({ className = '' }: OptimizedVisualEditorP
       if (data.message || data.response || data.workflow) {
         const agent = agents.find(a => a.id === agentId);
         
-        // Elena now responds naturally through her Claude personality without any forced formatting
-        const agentMessage: ChatMessage = {
-          type: 'agent',
-          content: data.message || data.response,
-          timestamp: new Date(),
-          agentName: agentId,
-          workflowStage: agent?.workflowStage
-        };
-        setChatMessages(prev => [...prev, agentMessage]);
+        // For Elena, check if she's coordinating with other agents via @mentions
+        if (agentId === 'elena') {
+          // Elena's natural response goes through normal chat
+          const agentMessage: ChatMessage = {
+            type: 'agent',
+            content: data.message || data.response,
+            timestamp: new Date(),
+            agentName: agentId,
+            workflowStage: agent?.workflowStage
+          };
+          setChatMessages(prev => [...prev, agentMessage]);
+          
+          // Check for @mentions in Elena's response for agent coordination
+          const responseText = data.message || data.response;
+          const mentions = responseText.match(/@(\w+)/g);
+          
+          if (mentions) {
+            console.log('🎯 Elena mentioned agents:', mentions);
+            // Process each @mention for agent coordination
+            mentions.forEach(async (mention) => {
+              const mentionedAgentId = mention.substring(1).toLowerCase();
+              const mentionedAgent = agents.find(a => a.id === mentionedAgentId);
+              
+              if (mentionedAgent) {
+                console.log(`🤖 Elena coordinating with ${mentionedAgentId}...`);
+                
+                // Extract context around the mention for the agent
+                const mentionIndex = responseText.indexOf(mention);
+                const contextStart = Math.max(0, mentionIndex - 100);
+                const contextEnd = Math.min(responseText.length, mentionIndex + 200);
+                const context = responseText.substring(contextStart, contextEnd);
+                
+                // Delay slightly to let Elena's response render first
+                setTimeout(async () => {
+                  try {
+                    const coordinationResponse = await fetch('/api/admin/agents/chat', {
+                      method: 'POST',
+                      headers: { 'Content-Type': 'application/json' },
+                      body: JSON.stringify({
+                        agentId: mentionedAgentId,
+                        message: `Elena is coordinating with you. Context: "${context}". Please respond with your specific expertise and work on this task.`,
+                        adminToken: 'sandra-admin-2025',
+                        conversationHistory: []
+                      })
+                    });
+                    
+                    if (coordinationResponse.ok) {
+                      const coordData = await coordinationResponse.json();
+                      
+                      // Add coordination response from the mentioned agent
+                      const coordinationMessage: ChatMessage = {
+                        type: 'agent',
+                        content: `**${mentionedAgent.name} responds to Elena's coordination:**\n\n${coordData.message || coordData.response}`,
+                        timestamp: new Date(),
+                        agentName: mentionedAgentId,
+                        workflowStage: mentionedAgent.workflowStage
+                      };
+                      setChatMessages(prev => [...prev, coordinationMessage]);
+                      
+                      // Show progress update
+                      toast({
+                        title: `${mentionedAgent.name} is working`,
+                        description: `Responding to Elena's coordination request`,
+                      });
+                    }
+                  } catch (error) {
+                    console.error(`Failed to coordinate with ${mentionedAgentId}:`, error);
+                  }
+                }, 1000 * mentions.indexOf(mention)); // Stagger multiple agent calls
+              }
+            });
+          }
+        } else {
+          // For all other agents, normal response handling
+          const agentMessage: ChatMessage = {
+            type: 'agent',
+            content: data.message || data.response,
+            timestamp: new Date(),
+            agentName: agentId,
+            workflowStage: agent?.workflowStage
+          };
+          setChatMessages(prev => [...prev, agentMessage]);
+        }
 
         // Show notification for file operations (code blocks automatically written)
         const responseText = data.message || data.response;
