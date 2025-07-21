@@ -5126,7 +5126,6 @@ AGENT_CONTEXT:
       }
       
       // Process any file operations with bulletproof crash prevention
-      let fileOperations: any[] = [];
       try {
         // Apply comprehensive crash prevention validation to agent response
         const AgentCrashPrevention = await import('./agents/agent-crash-prevention');
