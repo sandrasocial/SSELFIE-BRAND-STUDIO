@@ -152,7 +152,7 @@ export default function AgentWorkflowAccelerator() {
       const task = quickTasks.find(t => t.id === taskId);
       if (!task) throw new Error('Task not found');
 
-      const response = await fetch('/api/admin/agent-chat-bypass', {
+      const response = await fetch('/api/admin/agents/chat', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json'

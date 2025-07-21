@@ -102,7 +102,7 @@ export function AgentChatEditor() {
         content: msg.content
       }));
 
-      const response = await apiRequest('POST', '/api/admin/agent-chat-bypass', {
+      const response = await apiRequest('POST', '/api/admin/agents/chat', {
         agentId: selectedAgent.id,
         message: inputMessage,
         conversationHistory,

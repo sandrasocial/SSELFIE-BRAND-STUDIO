@@ -4872,6 +4872,38 @@ AGENT_CONTEXT:
     }
   });
 
+  // UNIFIED AGENT CHAT BYPASS ENDPOINT - COMPATIBILITY WITH EXISTING FRONTEND
+  // This endpoint ensures compatibility with existing frontend components that reference /api/admin/agent-chat-bypass
+  app.post('/api/admin/agent-chat-bypass', async (req, res) => {
+    console.log('🔄 AGENT CHAT BYPASS: Redirecting to unified endpoint');
+    console.log('📍 Request body keys:', Object.keys(req.body));
+    
+    // Simply forward to the main unified endpoint
+    try {
+      const forwardRequest = {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(req.body)
+      };
+      
+      // Forward internally to the unified endpoint
+      const unifiedResponse = await fetch(`http://localhost:5000/api/admin/agents/chat`, forwardRequest);
+      const data = await unifiedResponse.json();
+      
+      // Return the response as-is
+      res.status(unifiedResponse.status).json(data);
+      
+    } catch (error) {
+      console.error('Agent chat bypass forward error:', error);
+      res.status(500).json({ 
+        error: 'Failed to process agent chat',
+        details: error.message 
+      });
+    }
+  });
+
   // Import and register agent learning routes
   const agentLearningRouter = await import('./routes/agent-learning');
   app.use('/api/agent-learning', agentLearningRouter.default);
