@@ -1107,7 +1107,7 @@ export function OptimizedVisualEditor({ className = '' }: OptimizedVisualEditorP
           }, 2000);
         }
       }
-    } catch (error) {
+    } catch (error: any) {
       if (error.name === 'AbortError') {
         console.log('Agent request aborted by user');
       } else {
@@ -1148,7 +1148,7 @@ export function OptimizedVisualEditor({ className = '' }: OptimizedVisualEditorP
       
       const progressMessage: ChatMessage = {
         type: 'agent',
-        content: responseData.message || responseData.response || 'Elena is coordinating the workflow.',
+        content: 'Elena is coordinating the workflow.',
         timestamp: new Date(),
         agentName: 'elena',
         workflowStage: 'Execution',
