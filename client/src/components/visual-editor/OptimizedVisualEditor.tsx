@@ -1606,7 +1606,20 @@ export function OptimizedVisualEditor({ className = '' }: OptimizedVisualEditorP
 
           <TabsContent value="chat" className="flex flex-col">
             {/* Minimal Chat Controls - Subtle Icon */}
-            <div className="flex justify-end px-2 py-1 flex-shrink-0">
+            <div className="flex justify-between items-center px-2 py-1 flex-shrink-0">
+              <Button
+                onClick={() => {
+                  setChatMessages([]);
+                  setMessageInput('');
+                  toast({ title: 'New Chat Started', description: 'Started fresh conversation with ' + currentAgent.name });
+                }}
+                variant="ghost"
+                size="sm"
+                className="text-xs text-gray-600 hover:text-gray-800 flex items-center gap-1"
+              >
+                <span className="text-sm">+</span>
+                New Chat
+              </Button>
               <AgentChatControls
                 isLoading={isLoading}
                 onStop={handleStopAgent}
