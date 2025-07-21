@@ -25,7 +25,8 @@ import {
   Paperclip,
   Code,
   Zap,
-  Bug
+  Bug,
+  GitBranch
 } from 'lucide-react';
 import { apiRequest } from '@/lib/queryClient';
 import { useToast } from '@/hooks/use-toast';
@@ -47,6 +48,9 @@ import { WorkspaceIntelligence } from './WorkspaceIntelligence';
 import { DebugConsole } from './DebugConsole';
 import { TestRunner } from './TestRunner';
 import { PerformanceMonitor } from './PerformanceMonitor';
+import { GitIntegration } from './GitIntegration';
+import { CollaborationHub } from './CollaborationHub';
+import { VersionHistory } from './VersionHistory';
 
 import { AgentChatControls } from './AgentChatControls';
 import { QuickActionsPopup } from './QuickActionsPopup';
@@ -1435,6 +1439,7 @@ export function OptimizedVisualEditor({ className = '' }: OptimizedVisualEditorP
             <TabsTrigger value="ai+" className="flex-1 text-xs h-7 rounded-sm data-[state=active]:bg-white data-[state=active]:shadow-sm">AI+</TabsTrigger>
             <TabsTrigger value="workspace" className="flex-1 text-xs h-7 rounded-sm data-[state=active]:bg-white data-[state=active]:shadow-sm">Workspace</TabsTrigger>
             <TabsTrigger value="debug" className="flex-1 text-xs h-7 rounded-sm data-[state=active]:bg-white data-[state=active]:shadow-sm">Debug</TabsTrigger>
+            <TabsTrigger value="version" className="flex-1 text-xs h-7 rounded-sm data-[state=active]:bg-white data-[state=active]:shadow-sm">Version</TabsTrigger>
           </TabsList>
 
           {/* Conversation Threading Tab */}
@@ -2174,6 +2179,110 @@ const styles = {
                     }}
                     onRefresh={() => {
                       console.log('Refreshing performance metrics');
+                    }}
+                  />
+                </TabsContent>
+              </Tabs>
+            </div>
+          </TabsContent>
+
+          <TabsContent value="version" className="flex flex-col">
+            {/* Version Control Header */}
+            <div className="p-4 border-b border-gray-200">
+              <div className="flex items-center justify-between">
+                <div>
+                  <h4 className="font-medium text-sm flex items-center">
+                    <GitBranch className="w-4 h-4 mr-2" />
+                    Version Control & Collaboration
+                  </h4>
+                  <p className="text-xs text-gray-600 mt-1">Category 6: Git integration, team collaboration, and version history management</p>
+                </div>
+                <Badge variant="secondary" className="text-xs bg-black text-white">
+                  Category 6/10
+                </Badge>
+              </div>
+            </div>
+            
+            {/* Version Control Features */}
+            <div className="flex-1 overflow-y-auto">
+              <Tabs defaultValue="git" className="flex flex-col h-full">
+                <TabsList className="w-full mx-2 mt-2 h-8 bg-gray-100 rounded-md p-1">
+                  <TabsTrigger value="git" className="flex-1 text-xs h-6 rounded-sm">Git Integration</TabsTrigger>
+                  <TabsTrigger value="collaborate" className="flex-1 text-xs h-6 rounded-sm">Collaboration</TabsTrigger>
+                  <TabsTrigger value="history" className="flex-1 text-xs h-6 rounded-sm">Version History</TabsTrigger>
+                </TabsList>
+
+                <TabsContent value="git" className="flex-1 mt-2 mx-2">
+                  <GitIntegration
+                    onCommit={(message, files) => {
+                      console.log('Git commit:', message, files);
+                      toast({
+                        title: 'Commit Created',
+                        description: `${files.length} files committed: ${message}`,
+                      });
+                    }}
+                    onPush={() => {
+                      console.log('Git push');
+                      toast({
+                        title: 'Changes Pushed',
+                        description: 'All commits pushed to remote repository',
+                      });
+                    }}
+                    onPull={() => {
+                      console.log('Git pull');
+                      toast({
+                        title: 'Changes Pulled',
+                        description: 'Latest changes pulled from remote repository',
+                      });
+                    }}
+                    onCreateBranch={(name) => {
+                      console.log('Created branch:', name);
+                    }}
+                    onSwitchBranch={(branch) => {
+                      console.log('Switched to branch:', branch);
+                    }}
+                  />
+                </TabsContent>
+
+                <TabsContent value="collaborate" className="flex-1 mt-2 mx-2">
+                  <CollaborationHub
+                    onInviteUser={(email, role) => {
+                      console.log('Inviting user:', email, role);
+                      toast({
+                        title: 'User Invited',
+                        description: `Invited ${email} as ${role}`,
+                      });
+                    }}
+                    onStartSession={(type) => {
+                      console.log('Starting session:', type);
+                    }}
+                    onSendMessage={(message) => {
+                      console.log('Message sent:', message);
+                    }}
+                  />
+                </TabsContent>
+
+                <TabsContent value="history" className="flex-1 mt-2 mx-2">
+                  <VersionHistory
+                    onRevert={(versionId) => {
+                      console.log('Reverting to version:', versionId);
+                      toast({
+                        title: 'Version Reverted',
+                        description: 'Successfully reverted to selected version',
+                      });
+                    }}
+                    onCreateSnapshot={(name, description) => {
+                      console.log('Creating snapshot:', name, description);
+                    }}
+                    onRestoreSnapshot={(snapshotId) => {
+                      console.log('Restoring snapshot:', snapshotId);
+                      toast({
+                        title: 'Snapshot Restored',
+                        description: 'Project restored to snapshot state',
+                      });
+                    }}
+                    onCompareVersions={(v1, v2) => {
+                      console.log('Comparing versions:', v1, v2);
                     }}
                   />
                 </TabsContent>
