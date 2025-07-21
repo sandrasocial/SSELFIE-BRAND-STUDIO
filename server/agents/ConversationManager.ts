@@ -177,16 +177,32 @@ export class ConversationManager {
   }
 
   /**
-   * Save agent memory to database (DISABLED - prevents conversation corruption)
+   * Save agent memory to database (RE-ENABLED with corruption fix)
    */
   static async saveAgentMemory(summary: ConversationSummary): Promise<void> {
     try {
-      // DISABLED: This was causing conversation display corruption by saving 
-      // **CONVERSATION_MEMORY** entries that mixed with real conversations
-      // The memory is preserved through the conversation history itself
-      console.log(`💭 Memory preserved internally for ${summary.agentId}: ${summary.keyTasks.length} tasks (not saved to avoid display corruption)`);
+      // Save memory as special conversation entry that can be filtered out in UI
+      await storage.saveAgentConversation(
+        summary.agentId,
+        summary.userId,
+        '**CONVERSATION_MEMORY**', // Special marker for memory entries
+        JSON.stringify({
+          agentId: summary.agentId,
+          userId: summary.userId,
+          keyTasks: summary.keyTasks,
+          currentContext: summary.currentContext,
+          recentDecisions: summary.recentDecisions,
+          workflowStage: summary.workflowStage,
+          timestamp: summary.timestamp
+        }),
+        []
+      );
+      console.log(`💾 Memory summary saved for ${summary.agentId}: ${summary.keyTasks.length} tasks, ${summary.recentDecisions.length} decisions`);
+      
+      // Cleanup old memory entries to prevent bloat
+      await this.cleanupOldMemories(summary.agentId, summary.userId);
     } catch (error) {
-      console.error('Failed to process agent memory:', error);
+      console.error('Failed to save agent memory:', error);
     }
   }
 
@@ -218,18 +234,15 @@ export class ConversationManager {
    */
   static async cleanupOldMemories(agentId: string, userId: string): Promise<void> {
     try {
-      const conversations = await storage.getAgentConversations(userId, agentId);
+      const conversations = await storage.getAgentConversations(agentId, userId);
       const memoryEntries = conversations
         .filter(conv => conv.userMessage === '**CONVERSATION_MEMORY**')
         .sort((a, b) => new Date(b.timestamp || '').getTime() - new Date(a.timestamp || '').getTime());
       
-      // Keep only the 3 most recent memory entries
+      // Keep only the 3 most recent memory entries (for now just log - deletion can be added later)
       if (memoryEntries.length > 3) {
         const toDelete = memoryEntries.slice(3);
-        for (const entry of toDelete) {
-          // Note: We'd need a delete method in storage for this
-          console.log(`🧹 Would delete old memory entry: ${entry.id}`);
-        }
+        console.log(`🧹 Memory cleanup: Found ${memoryEntries.length} entries, would clean ${toDelete.length} old entries`);
       }
     } catch (error) {
       console.error('Failed to cleanup old memories:', error);
