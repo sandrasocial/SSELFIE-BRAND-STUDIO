@@ -394,7 +394,7 @@ export function OptimizedVisualEditor({ className = '' }: OptimizedVisualEditorP
               }
             ]).flat();
             
-            console.log(`✅ Formatted ${formattedMessages.length} messages for display (filtered from ${data.conversations.length} total)`);
+            console.log(`✅ Formatted ${formattedMessages.length} messages for display (filtered from ${data.conversations.length} total conversations to ${regularConversations.length} regular conversations)`);
             setChatMessages(formattedMessages);
             
             // Show success notification for loaded history
@@ -490,12 +490,13 @@ export function OptimizedVisualEditor({ className = '' }: OptimizedVisualEditorP
             const agentContent = typeof lastMessage.content === 'string' ? lastMessage.content.trim() : '';
             
             if (userContent.length > 0 && agentContent.length > 0) {
-              // Check if this conversation pair is already in the database (avoid duplicates)
-              const isNewConversation = !chatMessages.some((msg, index) => 
-                index < chatMessages.length - 2 && 
+              // Check if this conversation pair is already in the loaded history (avoid duplicates)
+              // Only check conversations that were loaded from database, not the current new pair
+              const loadedMessages = chatMessages.slice(0, -2); // Exclude the current pair being saved
+              const isNewConversation = !loadedMessages.some((msg, index) => 
                 msg.type === 'user' && 
                 msg.content === userContent &&
-                chatMessages[index + 1]?.content === agentContent
+                loadedMessages[index + 1]?.content === agentContent
               );
               
               if (isNewConversation) {
