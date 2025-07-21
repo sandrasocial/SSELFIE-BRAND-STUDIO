@@ -1346,9 +1346,17 @@ export function OptimizedVisualEditor({ className = '' }: OptimizedVisualEditorP
             </div>
             <div className="flex space-x-1">
               {agents.map((agent, index) => (
-                <div
+                <button
                   key={agent.id}
-                  className={`flex-1 h-1 ${
+                  onClick={() => {
+                    setCurrentAgent(agent);
+                    setActiveTab('chat');
+                    toast({
+                      title: `Switched to ${agent.name}`,
+                      description: `Now chatting with ${agent.role}`,
+                    });
+                  }}
+                  className={`flex-1 h-1 transition-all duration-200 hover:h-2 cursor-pointer ${
                     agent.id === activeWorkingAgent
                       ? 'bg-blue-500 animate-pulse' // Pulsating blue for working agent
                       : agent.id === currentAgent.id
@@ -1356,7 +1364,8 @@ export function OptimizedVisualEditor({ className = '' }: OptimizedVisualEditorP
                       : agents.findIndex(a => a.id === currentAgent.id) > index
                       ? 'bg-gray-400'
                       : 'bg-gray-200'
-                  }`}
+                  } rounded`}
+                  title={`Switch to ${agent.name} - ${agent.role}`}
                 />
               ))}
             </div>
