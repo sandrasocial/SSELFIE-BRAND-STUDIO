@@ -5053,6 +5053,9 @@ AGENT_CONTEXT:
       
       const responseText = response.content[0].text;
       
+      // Initialize file operations array for collecting coordination results
+      let fileOperations: Array<any> = [];
+      
       // ELENA POST-RESPONSE @ MENTION PROCESSING
       if (isElena && responseText) {
         const responseMentions = responseText.match(/@(\w+)/g);
