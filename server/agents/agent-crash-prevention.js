@@ -15,6 +15,20 @@ class AgentCrashPrevention {
 
 CRITICAL: ALL AGENTS MUST FOLLOW THESE PROTOCOLS BEFORE CREATING/MODIFYING FILES
 
+**🔗 FILE INTEGRATION PROTOCOL - ANALYZE FIRST DECISION TREE**
+Before creating ANY file, agents MUST check:
+✅ Does this file already exist? → MODIFY existing file
+❌ Is this genuinely new functionality? → CREATE new file + navigation
+
+EXAMPLES:
+✅ CORRECT: "Redesign admin dashboard" → MODIFY client/src/pages/admin-dashboard.tsx
+❌ WRONG: "Redesign admin dashboard" → CREATE admin-dashboard-redesigned.tsx
+
+✅ CORRECT: "Improve user profile" → MODIFY client/src/pages/user-profile.tsx  
+❌ WRONG: "Improve user profile" → CREATE user-profile-improved.tsx
+
+NEVER create duplicate files for existing features - ALWAYS modify the existing file!
+
 **STAGE 1: PRE-CREATION VALIDATION**
 - NEVER use \`useUser\` hook → ALWAYS use \`useAuth\` from "@/hooks/use-auth"
 - NEVER use \`AdminHero\` component → ALWAYS use \`AdminHeroSection\`
