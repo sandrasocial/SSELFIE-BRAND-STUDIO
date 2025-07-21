@@ -11,8 +11,8 @@ export interface ConversationSummary {
 }
 
 export class ConversationManager {
-  private static readonly MAX_MESSAGES = 30; // Limit before auto-clear
-  private static readonly SUMMARY_THRESHOLD = 25; // Start summarizing at this point
+  private static readonly MAX_MESSAGES = 200; // Increased limit - agents need more context
+  private static readonly SUMMARY_THRESHOLD = 180; // Start summarizing at this point
 
   /**
    * Check if conversation needs clearing and auto-clear with memory preservation
@@ -40,10 +40,10 @@ export class ConversationManager {
     // Keep only the last 5 messages for context
     const recentMessages = currentHistory.slice(-5);
     
-    // Add summary as system context at the beginning
+    // Add summary as system context at the beginning with clear continuation instruction
     const summaryMessage = {
       role: 'system',
-      content: `**CONVERSATION MEMORY RESTORED**\n\n**Previous Context:**\n${summary.currentContext}\n\n**Key Tasks Completed:**\n${summary.keyTasks.map(task => `• ${task}`).join('\n')}\n\n**Recent Decisions:**\n${summary.recentDecisions.map(decision => `• ${decision}`).join('\n')}\n\n**Current Workflow Stage:** ${summary.workflowStage}\n\n---\n\n**Continuing from where we left off...**`
+      content: `**MEMORY CONTEXT PRESERVED**\n\n**CURRENT PROJECT:** ${summary.currentContext}\n\n**YOUR ACTIVE TASKS:**\n${summary.keyTasks.map(task => `• ${task}`).join('\n')}\n\n**YOUR RECENT DECISIONS:**\n${summary.recentDecisions.map(decision => `• ${decision}`).join('\n')}\n\n**PROJECT STAGE:** ${summary.workflowStage}\n\n**IMPORTANT:** You are continuing this exact conversation - maintain the same tone, context, and project understanding. Do not restart or reintroduce yourself.`
     };
 
     const newHistory = [summaryMessage, ...recentMessages];
