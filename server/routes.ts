@@ -4570,28 +4570,32 @@ ${savedMemory.recentDecisions.map(decision => `• ${decision}`).join('\n')}
       console.log(`🔍 ELENA DEBUG: Agent=${agentId}, Message="${messageText.substring(0, 100)}..."`);
       console.log(`🔍 ELENA DEBUG: Is Elena=${isElena}`);
       
-      // ELENA WORKFLOW DETECTION - Enable workflow coordination when Elena mentions agent assignments
-      const isWorkflowCreationRequest = isElena && (
+      // ELENA EXECUTION DETECTION - Check first for specific execution commands
+      const isExecutionRequest = isElena && (
+        messageText.includes('execute workflow') ||
+        messageText.includes('start workflow') ||
+        messageText.includes('execute the workflow') ||
+        messageText.includes('proceed with workflow') ||
+        messageText.includes('begin workflow') ||
+        messageText.includes('yes proceed') ||
+        messageText.includes('run workflow')
+      );
+      
+      // ELENA WORKFLOW DETECTION - Only create if NOT execution and mentions creation keywords
+      const isWorkflowCreationRequest = isElena && !isExecutionRequest && (
+        messageText.includes('create workflow') ||
+        messageText.includes('build workflow') ||
+        messageText.includes('make workflow') ||
         messageText.includes('agent assignment') ||
         messageText.includes('coordination plan') ||
-        messageText.includes('workflow') ||
-        messageText.includes('aria') ||
-        messageText.includes('zara') ||
-        messageText.includes('quinn')
+        (messageText.includes('workflow') && (messageText.includes('create') || messageText.includes('build') || messageText.includes('make'))) ||
+        (messageText.includes('aria') && messageText.includes('design')) ||
+        (messageText.includes('zara') && messageText.includes('code')) ||
+        (messageText.includes('quinn') && messageText.includes('test'))
       );
       
+      console.log(`🔍 ELENA DEBUG: Execution detected=${isExecutionRequest}`);
       console.log(`🔍 ELENA DEBUG: Workflow creation detected=${isWorkflowCreationRequest}`);
-      
-      // ELENA EXECUTION DETECTION - Enable when Elena coordinates agents
-      const isExecutionRequest = isElena && (
-        messageText.includes('execute') ||
-        messageText.includes('start') ||
-        messageText.includes('proceed') ||
-        messageText.includes('coordinate') ||
-        messageText.includes('begin') ||
-        messageText.includes('starting') ||
-        messageText.includes('coordination')
-      );
       
       if (isElena && isWorkflowCreationRequest) {
         // Elena workflow creation request - use actual workflow system
@@ -4602,21 +4606,8 @@ ${savedMemory.recentDecisions.map(decision => `• ${decision}`).join('\n')}
           const { ElenaWorkflowSystem } = await import('./elena-workflow-system');
           const workflow = await ElenaWorkflowSystem.createWorkflowFromRequest(userId, message);
           
-          const responseText = `**WORKFLOW CREATED SUCCESSFULLY**
-
-📋 **${workflow.name}**
-
-✅ Created workflow with ${workflow.steps.length} steps
-⏱️  Estimated completion: ${workflow.estimatedDuration}
-🎯 Business Impact: ${workflow.businessImpact}
-⚠️  Risk Level: ${workflow.riskLevel}
-
-**Steps Overview:**
-${workflow.steps.map((step, index) => `${index + 1}. ${step.agentName}: ${step.taskDescription}`).join('\n')}
-
-**Ready for execution!** Say "execute workflow" to start the coordinated agent workflow.
-
-Workflow ID: ${workflow.id}`;
+          // Elena responds naturally about workflow creation instead of template
+          const responseText = `Perfect! I've got this organized for you. I've created a workflow to coordinate the team - they know exactly what to do. Just say "execute workflow" when you're ready and I'll get everyone working on it together!`;
 
           // Save conversation
           await storage.saveAgentConversation(agentId, userId, message, responseText, []);
