@@ -533,17 +533,16 @@ export class ElenaWorkflowSystem {
         },
         body: JSON.stringify({
           agentId: agentName.toLowerCase(),
-          message: `🚨 ELENA COORDINATION: COMPLETE ADMIN DASHBOARD REDESIGN
+          message: `🚨 ELENA WORKFLOW COORDINATION
 
 As Elena, I'm coordinating you to work on: ${task}
 
-COMPREHENSIVE REDESIGN REQUIREMENTS:
-1. COMPLETELY redesign the admin dashboard with luxury editorial styling
-2. Use Times New Roman typography throughout 
-3. Create a stunning full-bleed hero section
-4. Implement card-based layout for agent sections
-5. Add proper navigation and luxury aesthetics
-6. Rachel: Write authentic Sandra voice copy throughout
+WORKFLOW TASK DETAILS:
+- Task: ${task}
+- Target: ${targetFile}
+- Priority: Complete this specific task with real file modifications
+- Standards: Maintain SSELFIE Studio luxury editorial design and architecture
+- Integration: Follow 5-step file integration protocol if creating new files
 7. Aria: Create magazine-quality editorial design
 8. Zara: Implement with technical excellence
 
