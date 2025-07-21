@@ -36,11 +36,20 @@ export function registerAdminConversationRoutes(app: Express) {
         
       console.log(`✅ Found ${conversations.length} conversations for ${agentId} (user: ${userId})`);
 
+      // Filter out memory entries from being displayed in UI
+      const regularConversations = conversations.filter(conv => 
+        !conv.userMessage?.includes('**CONVERSATION_MEMORY**') &&
+        conv.userMessage !== '**CONVERSATION_MEMORY**' &&
+        !conv.userMessage?.startsWith('SAVED_CONVERSATION:')
+      );
+      
+      console.log(`🔍 Filtered to ${regularConversations.length} regular conversations (removed ${conversations.length - regularConversations.length} memory/saved entries)`);
+
       res.json({
         success: true,
         agentId,
-        conversations: conversations.reverse(), // Show oldest first
-        count: conversations.length
+        conversations: regularConversations.reverse(), // Show oldest first
+        count: regularConversations.length
       });
 
     } catch (error) {
