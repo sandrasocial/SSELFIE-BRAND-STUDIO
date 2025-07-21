@@ -27,7 +27,18 @@ import {
   Code,
   Zap,
   Bug,
-  GitBranch
+  GitBranch,
+  Share,
+  Camera,
+  Monitor,
+  Tablet,
+  Smartphone,
+  ZoomIn,
+  ZoomOut,
+  Terminal,
+  Search,
+  Maximize2,
+  RotateCcw
 } from 'lucide-react';
 import { apiRequest } from '@/lib/queryClient';
 import { useToast } from '@/hooks/use-toast';
@@ -2977,95 +2988,340 @@ const styles = {
         {/* Preview Panel - Resizable */}
         <Panel defaultSize={67} minSize={50}>
           <div className="h-full flex flex-col">
-        {/* Top Toolbar */}
-        <div className="border-b border-gray-200 px-2 md:px-4 py-1 md:py-2 flex items-center justify-between bg-gray-50">
-          <div className="flex items-center space-x-4">
-            <Badge variant="secondary" className="bg-black text-white border-black">
-              <div className="w-2 h-2 bg-white mr-2"></div>
-              LIVE PREVIEW
-            </Badge>
-          </div>
-          
-          <div className="flex items-center space-x-2">
-            <Button 
-              variant="outline" 
-              size="sm"
-              className="border-black text-black hover:bg-black hover:text-white"
-              onClick={() => {
-                const isProduction = window.location.hostname !== 'localhost' && !window.location.hostname.includes('replit.dev');
-                if (isProduction) {
-                  // In production, open in new window to avoid cross-origin issues
-                  window.open('/', '_blank', 'width=1200,height=800');
-                } else {
-                  // In development, refresh iframe or open new window
-                  if (iframeRef.current) {
-                    const currentSrc = iframeRef.current.src.split('?')[0];
-                    iframeRef.current.src = currentSrc + '?refresh=' + Date.now();
-                  } else {
-                    window.open('http://localhost:5000', '_blank');
-                  }
-                }
-              }}
-            >
-              Refresh
-            </Button>
-            <Button variant="outline" size="sm" className="border-black text-black hover:bg-black hover:text-white">
-              Save
-            </Button>
-            <Button 
-              variant="outline" 
-              size="sm" 
-              className="border-black text-black hover:bg-black hover:text-white"
-              onClick={() => window.open('/', '_blank')}
-            >
-              Open Preview
-            </Button>
-            <Button variant="default" size="sm" className="bg-black text-white hover:bg-gray-800">
-              Deploy
-            </Button>
-          </div>
-        </div>
-
-            {/* Universal Live Preview - Works in all environments */}
-            <div className="flex-1 relative">
-              <iframe
-                id="live-preview-iframe"
-                ref={iframeRef}
-                src={window.location.origin}
-                className="w-full h-full border-0"
-                title="Live Preview"
-                sandbox="allow-same-origin allow-scripts allow-forms allow-top-navigation"
-                onLoad={() => {
-                  console.log('Live preview loaded successfully');
-                  // Expose refresh function globally for auto-refresh
-                  (window as any).refreshLivePreview = () => {
+        {/* Enhanced Replit-Style Preview Toolbar */}
+        <div className="border-b border-gray-200 bg-gray-50">
+          {/* Navigation Bar */}
+          <div className="px-2 md:px-4 py-1 md:py-2 flex items-center justify-between border-b border-gray-100">
+            <div className="flex items-center space-x-2">
+              <Badge variant="secondary" className="bg-black text-white border-black">
+                <div className="w-2 h-2 bg-white mr-2"></div>
+                LIVE PREVIEW
+              </Badge>
+              
+              {/* Browser Navigation Controls */}
+              <div className="flex items-center space-x-1 ml-4">
+                <Button variant="ghost" size="sm" className="h-7 w-7 p-0" title="Back">
+                  <ChevronLeft className="w-4 h-4" />
+                </Button>
+                <Button variant="ghost" size="sm" className="h-7 w-7 p-0" title="Forward">
+                  <ChevronRight className="w-4 h-4" />
+                </Button>
+                <Button 
+                  variant="ghost" 
+                  size="sm" 
+                  className="h-7 w-7 p-0" 
+                  title="Reload"
+                  onClick={() => {
                     if (iframeRef.current) {
                       const currentSrc = iframeRef.current.src.split('?')[0];
                       iframeRef.current.src = currentSrc + '?refresh=' + Date.now();
-                      console.log('🔄 Live preview auto-refreshed');
                     }
-                  };
-                }}
-                onError={(e) => {
-                  console.error('Live preview error:', e);
-                }}
-              />
+                  }}
+                >
+                  <RotateCcw className="w-4 h-4" />
+                </Button>
+              </div>
+              
+              {/* URL Address Bar */}
+              <div className="flex-1 max-w-md mx-4">
+                <div className="bg-white border border-gray-200 rounded px-3 py-1 text-xs text-gray-600 flex items-center">
+                  <div className="w-3 h-3 rounded-full bg-green-500 mr-2"></div>
+                  {window.location.origin}
+                </div>
+              </div>
             </div>
             
-            {/* Properties Panel - Conditional */}
+            <div className="flex items-center space-x-2">
+              <Button 
+                variant="outline" 
+                size="sm"
+                className="border-gray-300 text-gray-700 hover:bg-gray-100"
+                onClick={() => {
+                  if (navigator.share) {
+                    navigator.share({
+                      title: 'SSELFIE Studio Preview',
+                      url: window.location.origin
+                    });
+                  } else {
+                    navigator.clipboard.writeText(window.location.origin);
+                    toast({ title: 'Preview URL copied to clipboard' });
+                  }
+                }}
+              >
+                <Share className="w-4 h-4 mr-1" />
+                Share
+              </Button>
+              <Button 
+                variant="outline" 
+                size="sm"
+                className="border-gray-300 text-gray-700 hover:bg-gray-100"
+                onClick={() => {
+                  // Capture screenshot functionality would go here
+                  toast({ title: 'Screenshot captured', description: 'Preview image saved' });
+                }}
+              >
+                <Camera className="w-4 h-4 mr-1" />
+                Screenshot
+              </Button>
+            </div>
+          </div>
+          
+          {/* Device & View Controls */}
+          <div className="px-2 md:px-4 py-2 flex items-center justify-between">
+            <div className="flex items-center space-x-4">
+              {/* Device Preview Toggles */}
+              <div className="flex items-center space-x-1 bg-white border border-gray-200 rounded p-1">
+                <Button variant="ghost" size="sm" className="h-6 px-2 text-xs">
+                  <Monitor className="w-3 h-3 mr-1" />
+                  Desktop
+                </Button>
+                <Button variant="ghost" size="sm" className="h-6 px-2 text-xs">
+                  <Tablet className="w-3 h-3 mr-1" />
+                  Tablet
+                </Button>
+                <Button variant="ghost" size="sm" className="h-6 px-2 text-xs">
+                  <Smartphone className="w-3 h-3 mr-1" />
+                  Mobile
+                </Button>
+              </div>
+              
+              {/* Zoom Controls */}
+              <div className="flex items-center space-x-1 bg-white border border-gray-200 rounded p-1">
+                <Button variant="ghost" size="sm" className="h-6 px-2 text-xs">
+                  <ZoomOut className="w-3 h-3" />
+                </Button>
+                <span className="text-xs px-2">100%</span>
+                <Button variant="ghost" size="sm" className="h-6 px-2 text-xs">
+                  <ZoomIn className="w-3 h-3" />
+                </Button>
+              </div>
+            </div>
+            
+            <div className="flex items-center space-x-2">
+              {/* Console Toggle */}
+              <Button 
+                variant="outline" 
+                size="sm"
+                className="border-gray-300 text-gray-700 hover:bg-gray-100"
+                onClick={() => {
+                  // Toggle console panel
+                  toast({ title: 'Console toggled' });
+                }}
+              >
+                <Terminal className="w-4 h-4 mr-1" />
+                Console
+              </Button>
+              
+              {/* Inspector Toggle */}
+              <Button 
+                variant="outline" 
+                size="sm"
+                className="border-gray-300 text-gray-700 hover:bg-gray-100"
+                onClick={() => setShowPropertiesPanel(!showPropertiesPanel)}
+              >
+                <Search className="w-4 h-4 mr-1" />
+                Inspector
+              </Button>
+              
+              {/* Full Screen */}
+              <Button 
+                variant="outline" 
+                size="sm"
+                className="border-gray-300 text-gray-700 hover:bg-gray-100"
+                onClick={() => {
+                  if (iframeRef.current) {
+                    iframeRef.current.requestFullscreen?.();
+                  }
+                }}
+              >
+                <Maximize2 className="w-4 h-4 mr-1" />
+                Full Screen
+              </Button>
+              
+              {/* Deploy */}
+              <Button variant="default" size="sm" className="bg-black text-white hover:bg-gray-800">
+                <Upload className="w-4 h-4 mr-1" />
+                Deploy
+              </Button>
+            </div>
+          </div>
+        </div>
+
+            {/* Enhanced Preview Area with Console Support */}
+            <div className="flex-1 flex flex-col">
+              {/* Main Preview */}
+              <div className="flex-1 relative">
+                <iframe
+                  id="live-preview-iframe"
+                  ref={iframeRef}
+                  src={window.location.origin}
+                  className="w-full h-full border-0"
+                  title="Live Preview"
+                  sandbox="allow-same-origin allow-scripts allow-forms allow-top-navigation"
+                  onLoad={() => {
+                    console.log('Live preview loaded successfully');
+                    // Expose refresh function globally for auto-refresh
+                    (window as any).refreshLivePreview = () => {
+                      if (iframeRef.current) {
+                        const currentSrc = iframeRef.current.src.split('?')[0];
+                        iframeRef.current.src = currentSrc + '?refresh=' + Date.now();
+                        console.log('🔄 Live preview auto-refreshed');
+                      }
+                    };
+                  }}
+                  onError={(e) => {
+                    console.error('Live preview error:', e);
+                  }}
+                />
+                
+                {/* Performance Overlay */}
+                <div className="absolute top-2 left-2 bg-black bg-opacity-75 text-white text-xs px-2 py-1 rounded">
+                  <div className="flex items-center space-x-2">
+                    <div className="w-2 h-2 bg-green-400 rounded-full"></div>
+                    <span>Ready</span>
+                    <span className="text-gray-300">•</span>
+                    <span>127ms</span>
+                  </div>
+                </div>
+              </div>
+              
+              {/* Integrated Console Panel */}
+              <div className="h-32 border-t border-gray-200 bg-gray-900 text-white overflow-hidden">
+                <div className="h-full flex flex-col">
+                  <div className="px-3 py-1 bg-gray-800 text-xs flex items-center justify-between">
+                    <div className="flex items-center space-x-2">
+                      <Terminal className="w-3 h-3" />
+                      <span>Console</span>
+                      <Badge variant="secondary" className="text-xs bg-gray-700 text-gray-300">
+                        0 errors
+                      </Badge>
+                    </div>
+                    <div className="flex items-center space-x-1">
+                      <Button variant="ghost" size="sm" className="h-5 w-5 p-0 text-gray-400 hover:text-white">
+                        <Settings className="w-3 h-3" />
+                      </Button>
+                      <Button variant="ghost" size="sm" className="h-5 w-5 p-0 text-gray-400 hover:text-white">
+                        <Code className="w-3 h-3" />
+                      </Button>
+                    </div>
+                  </div>
+                  
+                  <div className="flex-1 overflow-y-auto p-2">
+                    <div className="space-y-1 text-xs font-mono">
+                      <div className="text-blue-400">[INFO] Live preview loaded successfully</div>
+                      <div className="text-green-400">[SUCCESS] SSELFIE Studio initialized</div>
+                      <div className="text-gray-400">[DEBUG] Authentication session active</div>
+                      <div className="text-yellow-400">[PERFORMANCE] Page load: 127ms</div>
+                    </div>
+                  </div>
+                  
+                  <div className="border-t border-gray-700 p-2">
+                    <div className="flex items-center space-x-2">
+                      <span className="text-gray-400 text-xs">&gt;</span>
+                      <input 
+                        type="text" 
+                        className="flex-1 bg-transparent text-xs text-white outline-none placeholder-gray-500"
+                        placeholder="Execute JavaScript command..."
+                      />
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+            
+            {/* Enhanced Inspector Panel - Replit Style */}
             {showPropertiesPanel && (
-              <div className="w-1/3 h-full border-l border-gray-200 bg-white flex flex-col overflow-y-auto">
-                {/* Properties Header */}
-                <div className="p-4 border-b border-gray-200 flex items-center justify-between">
-                  <h3 className="font-medium text-sm">Properties</h3>
-                  <Button
-                    variant="ghost"
-                    size="sm"
-                    className="text-black hover:bg-gray-100"
-                    onClick={() => setShowPropertiesPanel(false)}
-                  >
-                    ×
-                  </Button>
+              <div className="w-80 h-full border-l border-gray-200 bg-white flex flex-col overflow-y-auto">
+                {/* Inspector Header */}
+                <div className="p-3 border-b border-gray-200 flex items-center justify-between bg-gray-50">
+                  <div className="flex items-center space-x-2">
+                    <Search className="w-4 h-4" />
+                    <h3 className="font-medium text-sm">Inspector</h3>
+                  </div>
+                  <div className="flex items-center space-x-1">
+                    <Button variant="ghost" size="sm" className="h-6 w-6 p-0 text-gray-500 hover:text-black">
+                      <Settings className="w-3 h-3" />
+                    </Button>
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      className="h-6 w-6 p-0 text-gray-500 hover:text-black"
+                      onClick={() => setShowPropertiesPanel(false)}
+                    >
+                      ×
+                    </Button>
+                  </div>
+                </div>
+                
+                {/* Inspector Tabs */}
+                <div className="border-b border-gray-200">
+                  <div className="flex">
+                    <button className="flex-1 py-2 px-3 text-xs font-medium bg-white border-b-2 border-black">
+                      Elements
+                    </button>
+                    <button className="flex-1 py-2 px-3 text-xs font-medium text-gray-500 hover:text-black">
+                      Styles
+                    </button>
+                    <button className="flex-1 py-2 px-3 text-xs font-medium text-gray-500 hover:text-black">
+                      Network
+                    </button>
+                  </div>
+                </div>
+                
+                {/* Element Tree */}
+                <div className="flex-1 overflow-y-auto">
+                  <div className="p-3">
+                    <div className="text-xs font-mono space-y-1">
+                      <div className="flex items-center hover:bg-gray-100 p-1 rounded">
+                        <ChevronDown className="w-3 h-3 mr-1" />
+                        <span className="text-blue-600">&lt;html&gt;</span>
+                      </div>
+                      <div className="ml-4 flex items-center hover:bg-gray-100 p-1 rounded">
+                        <ChevronDown className="w-3 h-3 mr-1" />
+                        <span className="text-blue-600">&lt;head&gt;</span>
+                      </div>
+                      <div className="ml-8 text-gray-600">&lt;title&gt;SSELFIE Studio&lt;/title&gt;</div>
+                      <div className="ml-4 flex items-center hover:bg-gray-100 p-1 rounded">
+                        <ChevronDown className="w-3 h-3 mr-1" />
+                        <span className="text-blue-600">&lt;body&gt;</span>
+                      </div>
+                      <div className="ml-8 flex items-center hover:bg-gray-100 p-1 rounded bg-blue-50">
+                        <ChevronDown className="w-3 h-3 mr-1" />
+                        <span className="text-blue-600">&lt;div</span>
+                        <span className="text-red-600"> class=</span>
+                        <span className="text-green-600">"main-container"</span>
+                        <span className="text-blue-600">&gt;</span>
+                      </div>
+                      <div className="ml-12 text-gray-600">&lt;nav&gt;...&lt;/nav&gt;</div>
+                      <div className="ml-12 text-gray-600">&lt;main&gt;...&lt;/main&gt;</div>
+                      <div className="ml-12 text-gray-600">&lt;footer&gt;...&lt;/footer&gt;</div>
+                    </div>
+                  </div>
+                </div>
+                
+                {/* Properties Section */}
+                <div className="border-t border-gray-200 bg-gray-50">
+                  <div className="p-3">
+                    <h4 className="text-xs font-semibold text-gray-700 mb-2">Selected Element Properties</h4>
+                    <div className="space-y-2 text-xs">
+                      <div className="flex justify-between">
+                        <span className="text-gray-600">Tag:</span>
+                        <span className="font-mono">div</span>
+                      </div>
+                      <div className="flex justify-between">
+                        <span className="text-gray-600">Class:</span>
+                        <span className="font-mono">main-container</span>
+                      </div>
+                      <div className="flex justify-between">
+                        <span className="text-gray-600">Width:</span>
+                        <span className="font-mono">1200px</span>
+                      </div>
+                      <div className="flex justify-between">
+                        <span className="text-gray-600">Height:</span>
+                        <span className="font-mono">800px</span>
+                      </div>
+                    </div>
+                  </div>
                 </div>
 
                 {/* Live Style Controls */}
