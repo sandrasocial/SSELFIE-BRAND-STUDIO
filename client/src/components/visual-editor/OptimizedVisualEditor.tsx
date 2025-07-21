@@ -1933,8 +1933,40 @@ export function OptimizedVisualEditor({ className = '' }: OptimizedVisualEditorP
           <TabsContent value="files" className="flex flex-col">
             {/* Files Header */}
             <div className="p-4 border-b border-gray-200">
-              <h4 className="font-medium text-sm">Files</h4>
-              <p className="text-xs text-gray-600 mt-1">Select files from the Files tab to edit them here</p>
+              <div className="flex items-center justify-between">
+                <div>
+                  <h4 className="font-medium text-sm">Project Files</h4>
+                  <p className="text-xs text-gray-600 mt-1">
+                    <strong>Click files</strong> to open in editor or add to chat context
+                  </p>
+                </div>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => { setActiveTab('editor'); setShowMoreDropdown(false); }}
+                  className="border-black text-black hover:bg-black hover:text-white text-xs"
+                >
+                  <Edit3 className="w-3 h-3 mr-1" />
+                  Editor
+                </Button>
+              </div>
+              
+              {/* Instructions */}
+              <div className="mt-3 p-2 bg-blue-50 border border-blue-200 rounded text-xs">
+                <div className="flex items-start space-x-2">
+                  <div className="w-4 h-4 bg-blue-500 rounded text-white flex items-center justify-center text-xs mt-0.5">
+                    ?
+                  </div>
+                  <div className="flex-1">
+                    <div className="font-medium text-blue-900">How to edit files:</div>
+                    <div className="text-blue-700 mt-1">
+                      • <strong>Click any file</strong> → Opens directly in Multi-Tab Editor<br/>
+                      • Use "Editor" button above to access the Multi-Tab Editor<br/>
+                      • Files open as tabs with syntax highlighting and auto-save
+                    </div>
+                  </div>
+                </div>
+              </div>
             </div>
             
             {/* File Tree Explorer */}

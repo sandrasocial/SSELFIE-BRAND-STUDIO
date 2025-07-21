@@ -3,6 +3,7 @@ import { Button } from '@/components/ui/button';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Textarea } from '@/components/ui/textarea';
 import { Badge } from '@/components/ui/badge';
+import { Edit3 } from 'lucide-react';
 import { apiRequest } from '@/lib/queryClient';
 import { useToast } from '@/hooks/use-toast';
 
@@ -165,9 +166,15 @@ export function MultiTabEditor({ selectedAgent, onFileChange }: MultiTabEditorPr
   if (openTabs.length === 0) {
     return (
       <div className="h-full flex items-center justify-center text-gray-500 border border-gray-200 bg-gray-50">
-        <div className="text-center">
-          <div className="text-sm">No files open</div>
-          <div className="text-xs mt-1">Select files from the Files tab to edit them here</div>
+        <div className="text-center p-6">
+          <div className="w-12 h-12 bg-gray-300 rounded-lg flex items-center justify-center mx-auto mb-3">
+            <Edit3 className="w-6 h-6 text-gray-600" />
+          </div>
+          <div className="text-sm font-medium mb-2">Multi-Tab Editor Ready</div>
+          <div className="text-xs space-y-1">
+            <div>Click files in the <strong>Files tab</strong> to open them here</div>
+            <div className="text-gray-400">• Multiple files • Syntax highlighting • Auto-save</div>
+          </div>
         </div>
       </div>
     );
