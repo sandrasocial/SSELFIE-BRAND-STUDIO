@@ -9,31 +9,50 @@ All SSELFIE Studio agents now have the same capabilities as Replit's AI agents, 
 
 ### **NEW ENHANCED CAPABILITIES:**
 
-**1. TERMINAL/CONSOLE OPERATIONS**
+**1. ADVANCED FILE MANAGEMENT & DIRECT EDITING**
+- Click any file in Files tab → Opens directly in Multi-Tab Editor with syntax highlighting
+- Multiple file editing with auto-save and dirty state tracking
+- Real-time file tree synchronization and refresh capabilities
+- Usage: "Click the component file to open it in the editor" or "I'll edit this file directly"
+
+**2. CONSOLE PANEL TOGGLE & DEBUGGING**
+- Hide/show console panel with dedicated toolbar button for improved preview visibility
+- Network monitoring panel with comprehensive debugging tools
+- Performance profiling and runtime error handling
+- Usage: "Toggle the console panel for better preview" or "Let me check the console for errors"
+
+**3. TERMINAL/CONSOLE OPERATIONS**
 - Execute secure terminal commands with whitelist protection
 - Available commands: npm, git, drizzle-kit, vite, tailwind, node, npx, tsx, tsc
 - Usage: Simply mention the command - "I'll run npm install to add this package"
 - System automatically detects and executes via /api/agent-enhancements/execute-command
 
-**2. PACKAGE MANAGEMENT INTEGRATION**
+**4. ENHANCED VISUAL EDITOR WITH REPLIT PARITY**
+- Multi-tab interface: Chat, Gallery, Flatlays, Files, Editor, AI+ tabs
+- Live preview iframe with cross-origin authentication handling
+- Real-time file tree browsing with click-to-edit functionality
+- Agent selection dropdown with 12 specialized AI agents
+- Usage: "Let me open the visual editor" or "I'll edit this in the multi-tab editor"
+
+**5. PACKAGE MANAGEMENT INTEGRATION**
 - Automatically install missing dependencies when detected
 - Smart detection of required packages from code analysis
 - Usage: "I notice we need lodash - installing it automatically"
 - System handles via /api/agent-enhancements/install-package
 
-**3. CODE ANALYSIS & ERROR DETECTION**
+**6. CODE ANALYSIS & ERROR DETECTION**
 - Real-time TypeScript/JavaScript error detection
 - Best practice suggestions and code quality analysis
 - Usage: "Let me analyze this file for potential issues"
 - System analyzes via /api/agent-enhancements/analyze-code
 
-**4. DATABASE SCHEMA OPERATIONS**
+**7. DATABASE SCHEMA OPERATIONS**
 - Execute drizzle-kit migrations and schema changes
 - Safe database operations with validation
 - Usage: "I'll run the database migration to update the schema"
 - System executes via /api/agent-enhancements/run-migration
 
-**5. DEPENDENCY ANALYSIS & PROJECT HEALTH**
+**8. DEPENDENCY ANALYSIS & PROJECT HEALTH**
 - Monitor project dependencies for issues
 - Detect outdated packages and security vulnerabilities
 - Usage: "Checking project health and dependencies"
@@ -43,6 +62,10 @@ All SSELFIE Studio agents now have the same capabilities as Replit's AI agents, 
 
 **NATURAL LANGUAGE DETECTION:**
 The system automatically detects when you mention these actions:
+- "Click the file to edit" → Multi-Tab Editor opens file automatically
+- "Let me edit this file" → Direct file editing in Multi-Tab Editor
+- "Toggle the console" → Console panel hide/show functionality
+- "Check the preview" → Live preview iframe with debugging tools
 - "I'll install [package]" → Package management activates
 - "Let me run [command]" → Terminal execution activates
 - "I should check for errors" → Code analysis activates
@@ -106,11 +129,21 @@ Simply mention in your response: "Updating status report with this work" and the
 
 **DEVELOPMENT TASK (Aria/Zara):**
 "I'll fix the scrolling issue in the visual editor:
-1. Analyzing the current code for overflow problems...
-2. Installing any missing UI dependencies...
-3. Running the build to test changes...
-4. Checking for TypeScript errors...
+1. Opening the component file directly in Multi-Tab Editor...
+2. Analyzing the current code for overflow problems...
+3. Installing any missing UI dependencies...
+4. Testing changes with live preview and console monitoring...
+5. Running the build to test changes...
+6. Checking for TypeScript errors...
 All enhanced capabilities working automatically in background."
+
+**FILE MANAGEMENT TASK (Any Agent):**
+"Let me improve the file organization:
+1. Click files in Files tab to open them in the editor...
+2. Using multi-tab editing for simultaneous file changes...
+3. Toggle console panel to monitor for any errors...
+4. Real-time file tree synchronization during edits...
+File management system handles auto-save and dirty state tracking."
 
 **AUTOMATION SETUP (Ava):**
 "Setting up the email automation workflow:
