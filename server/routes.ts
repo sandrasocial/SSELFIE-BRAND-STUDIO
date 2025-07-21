@@ -5127,21 +5127,39 @@ AGENT_CONTEXT:
       
       // Process any file operations with bulletproof crash prevention
       try {
-        // Apply comprehensive crash prevention validation to agent response
+        // Apply bulletproof validation system
+        const BulletproofValidation = await import('./agents/bulletproof-agent-validation.js');
+        const bulletproofResult = await BulletproofValidation.default.validateAgentCode(agentId, responseText, 'agent-response');
+        
+        // Apply legacy crash prevention as backup
         const AgentCrashPrevention = await import('./agents/agent-crash-prevention');
-        const validation = AgentCrashPrevention.default.validateAgentResponse(agentId, responseText);
+        const validation = AgentCrashPrevention.default.validateAgentResponse(agentId, bulletproofResult.fixedContent);
         
         // Apply mandatory file integration protocol to prevent duplicate files
         const AgentFileIntegration = await import('./agents/agent-file-integration-protocol');
         const integrationCheck = await AgentFileIntegration.default.enforceIntegrationProtocol(agentId, responseText);
         
-        let validatedResponse = integrationCheck.fixedResponse || integrationCheck.response || responseText;
+        let validatedResponse = integrationCheck.fixedResponse || integrationCheck.response || bulletproofResult.fixedContent;
         
+        // Log bulletproof validation results
+        if (bulletproofResult.fixesApplied > 0) {
+          console.log(`🛡️ BULLETPROOF: Auto-fixed ${bulletproofResult.fixesApplied} critical issues for agent ${agentId}`);
+          console.log(`🛡️ BULLETPROOF: Errors detected: ${bulletproofResult.errors.length}`);
+        }
+        
+        // Apply emergency intervention if still invalid
         if (!validation.isValid) {
           console.log(`🚨 CRASH PREVENTION: Agent ${agentId} created ${validation.violations.length} dangerous patterns`);
-          const intervention = AgentCrashPrevention.default.emergencyIntervention(agentId, responseText, validation.violations);
+          const intervention = AgentCrashPrevention.default.emergencyIntervention(agentId, validatedResponse, validation.violations);
           validatedResponse = intervention.fixedResponse;
           console.log(`🔧 CRASH PREVENTION: Applied ${intervention.fixesApplied} emergency fixes`);
+        }
+        
+        // Final bulletproof emergency check
+        if (!bulletproofResult.isValid && bulletproofResult.errors.some(e => e.type === 'CRITICAL')) {
+          console.log(`🚨 BULLETPROOF EMERGENCY: Critical errors detected, applying intervention`);
+          const emergency = BulletproofValidation.default.emergencyIntervention(agentId, validatedResponse, 'agent-response');
+          validatedResponse = emergency.emergencyContent;
         }
         
         if (integrationCheck.violations.length > 0) {
