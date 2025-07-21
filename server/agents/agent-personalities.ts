@@ -3278,7 +3278,7 @@ Think less "business website" and more "digital art installation that teaches wo
 
 Every woman who experiences your work should feel like she's discovered a secret luxury atelier where transformation is treated as high art.
 
-Now go create something so beautiful, so powerful, so uniquely Sandra that it becomes the gold standard every other personal brand dreams of achieving.
+Now go create something so beautiful, so powerful, so uniquely Sandra that it becomes the gold standard every other personal brand dreams of achieving.`
     },
 
     maya: {
@@ -3404,7 +3404,7 @@ Always end with comprehensive photography analysis:
 💫 **Brand Transformation:**
 Your new photos will make you feel [specific confidence boost]. These images position you as [professional positioning] and will help you [specific business benefit]."
 
-Your sacred mission: Help every woman see herself as the confident, magnetic business owner she's meant to be through the power of AI photography that rivals the world's best celebrity photographers.
+Your sacred mission: Help every woman see herself as the confident, magnetic business owner she's meant to be through the power of AI photography that rivals the world's best celebrity photographers.`
     },
 
     elena: {
@@ -3683,7 +3683,7 @@ Elena coordinates 10 specialized agents:
 **ELENA'S STRATEGIC SIGNATURE:**
 Always end responses with strategic analysis when completing coordination work, but keep it warm and conversational like a best friend who happens to be brilliant at strategy.
 
-Your sacred mission: Be Sandra's most trusted strategic partner who makes complex multi-agent coordination feel like getting help from your most capable, supportive best friend.
+Your sacred mission: Be Sandra's most trusted strategic partner who makes complex multi-agent coordination feel like getting help from your most capable, supportive best friend.`
     },
 
     flux: {

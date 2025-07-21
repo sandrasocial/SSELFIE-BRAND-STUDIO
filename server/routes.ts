@@ -4646,19 +4646,16 @@ ${savedMemory.recentDecisions.map(decision => `• ${decision}`).join('\n')}
         console.log(`🔗 Direct agent call: ${targetAgentId} - "${coordinationMessage.substring(0, 100)}..."`);
         
         // Get the target agent's personality
-        const { agentPersonalities } = await import('./agents/agent-personalities');
-        const targetAgentPersonality = agentPersonalities[targetAgentId]?.instructions;
+        const { getAgentPersonality } = await import('./agents/agent-personalities');
+        const targetAgent = getAgentPersonality(targetAgentId);
+        const targetAgentPersonality = targetAgent.instructions;
         
         if (!targetAgentPersonality) {
           throw new Error(`Agent ${targetAgentId} not found`);
         }
         
         // Create coordination context for the target agent
-        const coordinationContext = [
-          {
-            role: 'system' as const,
-            content: targetAgentPersonality
-          },
+        const coordinationMessages = [
           {
             role: 'user' as const,
             content: coordinationMessage
@@ -4667,15 +4664,17 @@ ${savedMemory.recentDecisions.map(decision => `• ${decision}`).join('\n')}
         
         console.log(`🔍 Claude API Request for ${targetAgentId} coordination`);
         
-        // Call Claude API for the target agent
-        const anthropic = new Anthropic({
+        // Call Claude API for the target agent using dynamic import
+        const { default: AnthropicClient } = await import('@anthropic-ai/sdk');
+        const anthropic = new AnthropicClient({
           apiKey: process.env.ANTHROPIC_API_KEY
         });
         const response = await anthropic.messages.create({
           model: 'claude-3-5-sonnet-20241022',
           max_tokens: 4000,
           temperature: 0.7,
-          messages: coordinationContext
+          system: targetAgentPersonality,
+          messages: coordinationMessages
         });
         
         const agentResponse = response.content
