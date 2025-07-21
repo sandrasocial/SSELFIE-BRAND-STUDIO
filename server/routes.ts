@@ -4642,9 +4642,14 @@ ${savedMemory.recentDecisions.map(decision => `• ${decision}`).join('\n')}
           const { ElenaWorkflowSystem } = await import('./elena-workflow-system');
           const workflows = await ElenaWorkflowSystem.getUserWorkflows(userId);
           
+          console.log(`📋 ELENA: Found ${workflows.length} workflows for user ${userId}`);
+          workflows.forEach((w, i) => console.log(`  ${i}: ${w.id} (${w.status}) - ${w.name}`));
+          
           if (workflows.length > 0) {
-            const latestWorkflow = workflows[workflows.length - 1];
-            console.log(`🚀 ELENA: Executing workflow: ${latestWorkflow.name}`);
+            // Get the most recent ready workflow (workflows are already sorted by creation date DESC)
+            const latestWorkflow = workflows.find(w => w.status === 'ready') || workflows[0];
+            console.log(`🚀 ELENA: Selected workflow: ${latestWorkflow.name}`);
+            console.log(`🚀 ELENA: Executing workflow ${latestWorkflow.id} (status: ${latestWorkflow.status})`);
             
             // Execute the workflow
             const execution = await ElenaWorkflowSystem.executeWorkflow(latestWorkflow.id);
