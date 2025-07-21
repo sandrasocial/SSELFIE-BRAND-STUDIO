@@ -175,7 +175,7 @@ BuildVisualStudio.tsx (New Component)
 ## 🔄 COORDINATION WORKFLOW
 
 ### Agent Communication Method
-**Endpoint:** `/api/admin/agent-chat-bypass`  
+**Endpoint:** `/api/admin/agents/chat` (unified endpoint)  
 **Authentication:** Sandra's admin session  
 **Task Assignment:** Specific, measurable deliverables  
 **Verification:** Database monitoring + file creation confirmation

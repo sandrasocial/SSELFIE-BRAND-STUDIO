@@ -63,7 +63,7 @@ export default function DualModeAgentChat() {
         agentPrompt = `WORKFLOW MODE: ${content}. Create actual working files immediately. This is approved workflow execution - deliver tangible results.`;
       }
 
-      const response = await fetch('/api/admin/agent-chat-bypass', {
+      const response = await fetch('/api/admin/agents/chat', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
