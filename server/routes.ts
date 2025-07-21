@@ -4570,13 +4570,28 @@ ${savedMemory.recentDecisions.map(decision => `• ${decision}`).join('\n')}
       console.log(`🔍 ELENA DEBUG: Agent=${agentId}, Message="${messageText.substring(0, 100)}..."`);
       console.log(`🔍 ELENA DEBUG: Is Elena=${isElena}`);
       
-      // DISABLE OLD WORKFLOW TRIGGERS - Let Elena respond naturally without forced workflow creation
-      const isWorkflowCreationRequest = false; // DISABLED - no more automatic workflow triggers
+      // ELENA WORKFLOW DETECTION - Enable workflow coordination when Elena mentions agent assignments
+      const isWorkflowCreationRequest = isElena && (
+        messageText.includes('agent assignment') ||
+        messageText.includes('coordination plan') ||
+        messageText.includes('workflow') ||
+        messageText.includes('aria') ||
+        messageText.includes('zara') ||
+        messageText.includes('quinn')
+      );
       
-      console.log(`🔍 ELENA DEBUG: Workflow creation detected=${isWorkflowCreationRequest} (DISABLED)`);
+      console.log(`🔍 ELENA DEBUG: Workflow creation detected=${isWorkflowCreationRequest}`);
       
-      // DISABLE OLD EXECUTION TRIGGERS - Let Elena respond naturally  
-      const isExecutionRequest = false; // DISABLED - no more automatic execution triggers
+      // ELENA EXECUTION DETECTION - Enable when Elena coordinates agents
+      const isExecutionRequest = isElena && (
+        messageText.includes('execute') ||
+        messageText.includes('start') ||
+        messageText.includes('proceed') ||
+        messageText.includes('coordinate') ||
+        messageText.includes('begin') ||
+        messageText.includes('starting') ||
+        messageText.includes('coordination')
+      );
       
       if (isElena && isWorkflowCreationRequest) {
         // Elena workflow creation request - use actual workflow system
