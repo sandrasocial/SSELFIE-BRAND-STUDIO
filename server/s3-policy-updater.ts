@@ -1,4 +1,5 @@
 import AWS from 'aws-sdk';
+import fs from 'fs';
 
 /**
  * S3 Policy Updater - Fix Critical S3 Permissions Issue
@@ -70,7 +71,7 @@ export class S3PolicyUpdater {
       console.error('❌ S3 POLICY FIX: Failed to update bucket policy:', error);
       return { 
         success: false, 
-        message: `Failed to update S3 bucket policy: ${error instanceof Error ? error.message : 'Unknown error'}` 
+        message: `Failed to update S3 bucket policy: ${error.message}` 
       };
     }
   }
@@ -100,7 +101,7 @@ export class S3PolicyUpdater {
       return { 
         success: false, 
         policy: null, 
-        message: `Failed to get bucket policy: ${error instanceof Error ? error.message : 'Unknown error'}` 
+        message: `Failed to get bucket policy: ${error.message}` 
       };
     }
   }
@@ -148,7 +149,7 @@ export class S3PolicyUpdater {
       console.error('❌ S3 ACCESS TEST: Failed:', error);
       return { 
         success: false, 
-        message: `S3 access test failed: ${error instanceof Error ? error.message : 'Unknown error'}` 
+        message: `S3 access test failed: ${error.message}` 
       };
     }
   }
