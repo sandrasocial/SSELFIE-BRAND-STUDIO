@@ -4658,14 +4658,9 @@ Workflow ID: ${workflow.id}`;
             // Execute the workflow
             const execution = await ElenaWorkflowSystem.executeWorkflow(latestWorkflow.id);
             
-            // Elena should provide actual coordination response instead of fallback
-            const responseText = await getAgentResponseFromPersonality(
-              agentId, 
-              message, 
-              conversationHistory,
-              userId,
-              req
-            );
+            // Elena provides natural coordination response about workflow execution
+            const coordinationMessage = `Perfect! I'm now coordinating the team to get this done for you. ${execution.status === 'executing' ? 'The agents are working on it right now!' : 'Let me check what happened with the execution.'}`;
+            const responseText = coordinationMessage;
 
             // Save conversation and return immediately
             await storage.saveAgentConversation(agentId, userId, message, responseText, []);
