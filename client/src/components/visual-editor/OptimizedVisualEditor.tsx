@@ -38,7 +38,8 @@ import {
   Terminal,
   Search,
   Maximize2,
-  RotateCcw
+  RotateCcw,
+  Rocket
 } from 'lucide-react';
 import { apiRequest } from '@/lib/queryClient';
 import { useToast } from '@/hooks/use-toast';
