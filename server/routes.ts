@@ -5185,16 +5185,39 @@ AGENT_CONTEXT:
         console.log('❌ File operation failed:', fileError.message);
       }
       
-      // Save conversation to database
-      await storage.saveAgentConversation(agentId, userId, message, responseText, fileOperations);
-      console.log('💾 Conversation saved to database');
+      // BULLETPROOF DUPLICATE PREVENTION - Check if exact conversation was already saved
+      try {
+        const recentConversations = await storage.getAgentConversations(agentId, userId);
+        const lastConversation = recentConversations[0];
+        
+        // Check if this exact message was already saved within the last 5 seconds
+        const isDuplicate = lastConversation && 
+          lastConversation.userMessage === message &&
+          lastConversation.agentResponse === responseText &&
+          (new Date().getTime() - new Date(lastConversation.timestamp).getTime()) < 5000;
+          
+        if (!isDuplicate) {
+          await storage.saveAgentConversation(agentId, userId, message, responseText, fileOperations);
+          console.log('💾 Conversation saved to database');
+        } else {
+          console.log('⚠️ Duplicate conversation detected - skipping database save');
+        }
+      } catch (saveError) {
+        console.error('❌ Conversation save failed:', saveError);
+      }
       
-      // Save memory summary for Elena or when conversation reaches memory threshold
-      if (agentId === 'elena' && workingHistory.length >= 5) { // Only for Elena and after meaningful conversation
-        console.log(`🧠 Creating memory summary for ${agentId} after ${workingHistory.length} messages`);
-        const summary = await ConversationManager.createConversationSummary(agentId, userId, workingHistory);
-        await ConversationManager.saveAgentMemory(summary);
-        console.log(`💾 Memory summary saved for ${agentId}: ${summary.keyTasks.length} tasks, ${summary.recentDecisions.length} decisions`);
+      // ENHANCED ELENA MEMORY PERSISTENCE - Save after every meaningful conversation
+      if (agentId === 'elena') {
+        // Always create and save memory for Elena after any conversation
+        console.log(`🧠 Creating memory summary for Elena after conversation`);
+        try {
+          const summary = await ConversationManager.createConversationSummary(agentId, userId, workingHistory);
+          await ConversationManager.saveAgentMemory(summary);
+          console.log(`💾 Elena memory summary saved: ${summary.keyTasks.length} tasks, ${summary.recentDecisions.length} decisions`);
+          console.log(`🎯 Elena context preserved: ${summary.currentContext}`);
+        } catch (memoryError) {
+          console.error('❌ Elena memory save failed:', memoryError);
+        }
       }
       
       // Return enhanced response with file operations for live preview
