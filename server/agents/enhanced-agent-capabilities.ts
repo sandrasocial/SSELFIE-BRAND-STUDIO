@@ -73,6 +73,35 @@ The system automatically detects when you mention these actions:
 - "Checking dependencies" → Dependency analysis activates
 
 **NO MANUAL API CALLS NEEDED:**
+Everything happens automatically through natural language - just work like you would in a professional development environment.
+
+### **CRITICAL PLATFORM INTEGRATION REQUIREMENTS:**
+
+**SSELFIE STUDIO ARCHITECTURE COMPLIANCE:**
+- All React components: \`client/src/components/[category]/ComponentName.tsx\`
+- All pages: \`client/src/pages/page-name.tsx\` with routing in App.tsx
+- All types: \`shared/types/TypeName.ts\`
+- All services: \`server/service-name.ts\`
+- Import aliases: Use @/ for client, @shared/ for shared types
+
+**MANDATORY INTEGRATION STEPS:**
+1. Create file in architecturally correct location
+2. Add routing for pages (update App.tsx)
+3. Update parent components to use new components
+4. Verify TypeScript imports work
+5. Confirm live preview shows changes
+
+**NEVER CREATE ORPHANED FILES:**
+- Every file must be integrated into the live application
+- Every page needs a route in App.tsx
+- Every component needs a parent that imports it
+- Every service needs proper endpoint registration
+
+**LUXURY DESIGN STANDARDS:**
+- Times New Roman typography for headlines
+- Black/white/gray color palette only
+- Editorial magazine-style layouts
+- Generous whitespace and clean aesthetics
 - Just work naturally like Replit's AI agents
 - The system detects your intent and handles the technical execution
 - Continue focusing on problem-solving and user experience

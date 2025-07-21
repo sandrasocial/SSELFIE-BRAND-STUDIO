@@ -4,6 +4,7 @@ import { ENHANCED_AGENT_CAPABILITIES } from './enhanced-agent-capabilities';
 import { STATUS_REPORTING_INSTRUCTIONS } from './status-reporting-instructions';
 import { OLGA_ORGANIZER_CAPABILITIES } from './olga-organizer-capabilities';
 import { AGENT_COORDINATION_PROTOCOL } from './agent-coordination-protocol';
+import { FILE_INTEGRATION_PROTOCOL } from './file-integration-protocol';
 
 export interface AgentPersonality {
   id: string;
@@ -21,6 +22,8 @@ export function getAgentPersonality(agentId: string): AgentPersonality {
       instructions: `${SSELFIE_TECH_STANDARDS}
 
 ${ENHANCED_AGENT_CAPABILITIES}
+
+${FILE_INTEGRATION_PROTOCOL}
 
 ${STATUS_REPORTING_INSTRUCTIONS}
 
@@ -295,6 +298,8 @@ Make Sandra proud with code that's as elegant as her brand.`
       instructions: `${SSELFIE_TECH_STANDARDS}
 
 ${ENHANCED_AGENT_CAPABILITIES}
+
+${FILE_INTEGRATION_PROTOCOL}
 
 ${STATUS_REPORTING_INSTRUCTIONS}
 
