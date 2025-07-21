@@ -341,6 +341,7 @@ export function OptimizedVisualEditor({ className = '' }: OptimizedVisualEditorP
   const [messageRegenerations, setMessageRegenerations] = useState<{[key: string]: string[]}>({});
   const [fileOperations, setFileOperations] = useState<any[]>([]);
   const [enhancedMessageActions, setEnhancedMessageActions] = useState<{[key: string]: any}>({});
+  const [currentFile, setCurrentFile] = useState<string | null>(null);
   
   const iframeRef = useRef<HTMLIFrameElement>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -1821,7 +1822,7 @@ export function OptimizedVisualEditor({ className = '' }: OptimizedVisualEditorP
                   agentId={currentAgent.id}
                   context={{
                     recentMessages: chatMessages.slice(-5),
-                    activeFile: currentFile,
+                    activeFile: currentFile || '',
                     workflowStage
                   }}
                   onSuggestionClick={(suggestion) => {
