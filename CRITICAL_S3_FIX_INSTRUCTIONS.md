@@ -12,8 +12,24 @@ Users cannot upload training images due to S3 access denied errors:
 - **Status**: Cannot complete training due to S3 upload failures
 - **Training Time**: 915+ minutes stuck (since July 20, 2025)
 
-## ROOT CAUSE
-The S3 bucket policy only allows public access (*) but doesn't specifically allow the IAM user `sselfie-s3-user` to upload files.
+## ROOT CAUSE CONFIRMED
+The S3 bucket policy only allows public read access but explicitly denies the IAM user `sselfie-s3-user` from uploading files. Current policy:
+```json
+{
+  "Version": "2012-10-17",
+  "Statement": [
+    {
+      "Sid": "PublicReadGetObject",
+      "Effect": "Allow",
+      "Principal": "*",
+      "Action": "s3:GetObject",
+      "Resource": "arn:aws:s3:::sselfie-training-zips/*"
+    }
+  ]
+}
+```
+
+**CRITICAL**: The IAM user cannot update bucket policies due to explicit deny rules, so this must be fixed through AWS Console.
 
 ## IMMEDIATE FIX REQUIRED
 Apply this S3 bucket policy to `sselfie-training-zips` bucket:
