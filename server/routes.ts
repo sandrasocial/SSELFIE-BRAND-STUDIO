@@ -4685,10 +4685,56 @@ ${savedMemory.recentDecisions.map(decision => `• ${decision}`).join('\n')}
         
         console.log(`✅ ${targetAgentId} coordination response: ${agentResponse.substring(0, 100)}...`);
         
-        // Save the coordination exchange to database for the target agent
-        await storage.saveAgentConversation(targetAgentId, coordinatorUserId, coordinationMessage, agentResponse, []);
+        // CRITICAL FIX: Process file operations from coordinated agent responses
+        let coordinatedFileOperations: any[] = [];
+        try {
+          // Apply file integration protocol to coordinated agent response
+          const AgentFileIntegration = await import('./agents/agent-file-integration-protocol');
+          const integrationCheck = await AgentFileIntegration.default.enforceIntegrationProtocol(targetAgentId, agentResponse);
+          
+          let validatedResponse = integrationCheck.fixedResponse || integrationCheck.response || agentResponse;
+          
+          // Process code blocks from coordinated agent
+          const { AutoFileWriter } = await import('./agents/auto-file-writer.ts');
+          const { AgentCodebaseIntegration } = await import('./agents/AgentCodebaseIntegration.ts');
+          
+          const result = await AutoFileWriter.processCodeBlocks(
+            targetAgentId,
+            validatedResponse,
+            AgentCodebaseIntegration
+          );
+          
+          coordinatedFileOperations = result.filesWritten || [];
+          
+          if (coordinatedFileOperations.length > 0) {
+            console.log(`🔧 ${targetAgentId} coordination created ${coordinatedFileOperations.length} files: ${coordinatedFileOperations.map(f => f.filePath).join(', ')}`);
+          }
+        } catch (fileError) {
+          console.log(`❌ ${targetAgentId} coordination file operation failed:`, fileError.message);
+        }
         
-        return { message: agentResponse };
+        // SHARED WORKFLOW CONTEXT: Update agent progress with files created
+        const workflowId = coordinatorHistory.find(h => h.content?.includes?.('workflow_'))?.content?.match?.(/workflow_\d+_\w+/)?.[0];
+        if (workflowId) {
+          const SharedWorkflowContextManager = await import('./agents/shared-workflow-context');
+          await SharedWorkflowContextManager.default.updateAgentProgress(
+            workflowId,
+            targetAgentId,
+            agentResponse,
+            coordinatedFileOperations.map(f => f.filePath),
+            coordinatedFileOperations.length > 0 ? 'completed' : 'in_progress'
+          );
+        }
+        
+        // Save the coordination exchange to database for the target agent with file operations
+        await storage.saveAgentConversation(targetAgentId, coordinatorUserId, coordinationMessage, agentResponse, coordinatedFileOperations);
+        
+        return { 
+          message: agentResponse, 
+          filesCreated: coordinatedFileOperations,
+          agentId: targetAgentId,
+          workflowId: workflowId
+        };
       }
       
       // ELENA EXECUTION DETECTION - Check first for specific execution commands
@@ -5039,10 +5085,24 @@ AGENT_CONTEXT:
                 
                 console.log(`✅ ${mentionedAgent} responded: ${coordinationResponse.message.substring(0, 100)}...`);
                 
-                // Send a follow-up message to user showing agent coordination results
+                // Collect file operations from coordinated agents
+                if (coordinationResponse.filesCreated && coordinationResponse.filesCreated.length > 0) {
+                  fileOperations.push(...coordinationResponse.filesCreated);
+                  console.log(`📁 Added ${coordinationResponse.filesCreated.length} files from ${mentionedAgent} to Elena's file operations`);
+                }
+                
+                // Send a follow-up message to user showing agent coordination results and file operations
                 setTimeout(async () => {
-                  const followUpMessage = `Perfect! @${mentionedAgent.charAt(0).toUpperCase() + mentionedAgent.slice(1)} just responded:\n\n"${coordinationResponse.message.substring(0, 300)}..."\n\nI'll keep you updated as they work on this!`;
-                  await storage.saveAgentConversation(agentId, userId, `[Auto-coordination with ${mentionedAgent}]`, followUpMessage, []);
+                  let followUpMessage = `Perfect! @${mentionedAgent.charAt(0).toUpperCase() + mentionedAgent.slice(1)} just completed their work:\n\n"${coordinationResponse.message.substring(0, 300)}..."\n\n`;
+                  
+                  if (coordinationResponse.filesCreated && coordinationResponse.filesCreated.length > 0) {
+                    followUpMessage += `✅ Files created/modified:\n${coordinationResponse.filesCreated.map(f => `• ${f.filePath}`).join('\n')}\n\n`;
+                    followUpMessage += `The changes are now live in your dev preview!`;
+                  } else {
+                    followUpMessage += `I'll keep you updated as they work on this!`;
+                  }
+                  
+                  await storage.saveAgentConversation(agentId, userId, `[Auto-coordination with ${mentionedAgent}]`, followUpMessage, coordinationResponse.filesCreated || []);
                 }, 2000); // Small delay to let the main response process first
                 
               } catch (error) {
