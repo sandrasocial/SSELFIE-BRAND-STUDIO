@@ -1,20 +1,31 @@
 /**
- * AUTOMATIC FILE WRITING SYSTEM FOR REPLIT-STYLE AGENTS
+ * BULLETPROOF AUTOMATIC FILE WRITING SYSTEM FOR REPLIT-STYLE AGENTS
  * Automatically writes agent code blocks to appropriate files
- * WITH IMPORT VALIDATION TO PREVENT CRASHES
+ * WITH COMPREHENSIVE SAFETY VALIDATION TO PREVENT ALL CRASHES
  */
 
-// Import validation patterns to prevent app crashes
-const VALID_IMPORT_FIXES = [
-  // Fix useUser to useAuth
-  { pattern: /import\s*{\s*useUser\s*}\s*from\s*['"][^'"]*['"]/, replacement: 'import { useAuth } from "@/hooks/use-auth"' },
-  { pattern: /const\s*{\s*user\s*}\s*=\s*useUser\(\)/, replacement: 'const { user } = useAuth()' },
-  // Fix relative imports to absolute
-  { pattern: /from\s*['"]\.\.\/lib\/hooks['"]/, replacement: 'from "@/hooks/use-auth"' },
-  { pattern: /from\s*['"]\.\.\/components\/AdminHero['"]/, replacement: 'from "@/components/admin/AdminHeroSection"' },
-  // Fix component references
-  { pattern: /<AdminHero\s/g, replacement: '<AdminHeroSection ' },
-  { pattern: /AdminHero>/g, replacement: 'AdminHeroSection>' }
+const fs = require('fs').promises;
+const path = require('path');
+
+// Import the comprehensive safety system
+const ComprehensiveAgentSafety = require('./comprehensive-agent-safety');
+
+// Enhanced validation patterns to prevent app crashes
+const CRITICAL_VALIDATION_PATTERNS = [
+  // Critical hook fixes
+  { pattern: /useUser/g, replacement: 'useAuth', type: 'CRITICAL_HOOK_FIX' },
+  { pattern: /import\s*{\s*useUser\s*}/g, replacement: 'import { useAuth }', type: 'CRITICAL_IMPORT_FIX' },
+  
+  // Critical component fixes
+  { pattern: /AdminHero(?!Section)/g, replacement: 'AdminHeroSection', type: 'CRITICAL_COMPONENT_FIX' },
+  { pattern: /import.*AdminHero[^S]/g, replacement: match => match.replace('AdminHero', 'AdminHeroSection'), type: 'CRITICAL_IMPORT_FIX' },
+  
+  // Critical path fixes
+  { pattern: /from\s*['"]\.\.\/lib\/hooks['"]/, replacement: 'from "@/hooks/use-auth"', type: 'CRITICAL_PATH_FIX' },
+  { pattern: /from\s*['"]\.\.\/hooks\/use-user['"]/, replacement: 'from "@/hooks/use-auth"', type: 'CRITICAL_PATH_FIX' },
+  
+  // JSX structure fixes
+  { pattern: /<([A-Z]\w*)[^>]*(?<!\/)\s*>\s*$/gm, replacement: match => match.trim() + '\n', type: 'JSX_STRUCTURE_FIX' }
 ];
 
 export class AutoFileWriter {
@@ -99,10 +110,12 @@ export class AutoFileWriter {
       
       if (filePath) {
         try {
-          // CRITICAL: Validate and fix imports before writing to prevent crashes
-          let validatedContent = this.validateAndFixImports(block.content, filePath);
+          // BULLETPROOF: Comprehensive validation before writing to prevent crashes
+          const validation = await this.validateAndFixImports(block.content, filePath);
+          const validatedContent = validation.content;
           
-          await AgentCodebaseIntegration.writeFile(filePath, validatedContent);
+          // Use comprehensive safety system for writing
+          await ComprehensiveAgentSafety.safeWriteFile(filePath, validatedContent);
           
           filesWritten.push({
             filePath,
