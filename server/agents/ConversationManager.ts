@@ -62,6 +62,11 @@ export class ConversationManager {
         const content = message.content.toLowerCase();
         const originalContent = message.content;
         
+        // ADMIN DASHBOARD-specific task detection - HIGH PRIORITY
+        if (content.includes('admin') && content.includes('dashboard')) {
+          keyTasks.push(`Complete admin dashboard redesign: ${originalContent.substring(0, 200).replace(/\n/g, ' ').trim()}`);
+        }
+        
         // BUILD-specific task detection
         if (content.includes('build') && (content.includes('website') || content.includes('builder') || content.includes('step 4'))) {
           keyTasks.push('BUILD feature development: Website builder implementation for Step 4');
@@ -75,6 +80,11 @@ export class ConversationManager {
         // Component analysis requests
         if (content.includes('audit') && content.includes('component')) {
           keyTasks.push('Comprehensive component analysis and gap identification');
+        }
+        
+        // DASHBOARD-specific features detection
+        if (content.includes('dashboard') && (content.includes('redesign') || content.includes('complete') || content.includes('hero') || content.includes('agent cards'))) {
+          keyTasks.push(`Dashboard development: ${originalContent.substring(0, 150).replace(/\n/g, ' ').trim()}`);
         }
         
         // General task patterns
@@ -131,8 +141,12 @@ export class ConversationManager {
       currentContext = 'Implementing Replit-style chat management system with save/load functionality and enhanced memory';
       workflowStage = 'chat-management';
     } else if (fullContent.includes('admin') && fullContent.includes('dashboard')) {
-      currentContext = 'Working on Sandra\'s admin dashboard with agent chat interfaces and luxury design systems';
+      currentContext = 'Complete admin dashboard redesign with full-bleed hero, agent cards, Visual Editor integration, todo list, calendar widget, Sophy content calendar, and Instagram analytics';
       workflowStage = 'admin-dashboard';
+      // Ensure admin dashboard tasks are captured even if missed in message analysis
+      if (keyTasks.length === 0 || !keyTasks.some(task => task.includes('admin dashboard'))) {
+        keyTasks.push('Complete admin dashboard redesign with luxury features and integrations');
+      }
     } else if (fullContent.includes('build') && (fullContent.includes('analysis') || fullContent.includes('audit') || fullContent.includes('workflow'))) {
       currentContext = 'Elena conducting comprehensive BUILD feature analysis including component status, gaps identification, and strategic planning for Step 4 implementation';
       workflowStage = 'build-analysis';
