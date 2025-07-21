@@ -19,7 +19,7 @@ import fs from "fs";
 
 import { UsageService, API_COSTS } from './usage-service';
 import { UserUsage } from '@shared/schema';
-// import Anthropic from '@anthropic-ai/sdk'; // DISABLED - API key issues
+import Anthropic from '@anthropic-ai/sdk';
 // import { AgentSystem } from "./agents/agent-system"; // DISABLED - Anthropic API issues
 import { insertProjectSchema, insertAiImageSchema, userModels, agentConversations, agentPerformanceMetrics, userWebsiteOnboarding } from "@shared/schema";
 import { eq, sql } from "drizzle-orm";
@@ -4574,6 +4574,122 @@ ${savedMemory.recentDecisions.map(decision => `• ${decision}`).join('\n')}
       
       console.log(`🔍 ELENA DEBUG: Agent=${agentId}, Message="${messageText.substring(0, 100)}..."`);
       console.log(`🔍 ELENA DEBUG: Is Elena=${isElena}`);
+      
+      // ELENA @ MENTION DETECTION - Check for @ mentions to coordinate other agents
+      const mentionMatches = message.match(/@(\w+)/g);
+      if (isElena && mentionMatches) {
+        console.log(`🔍 ELENA @ MENTION DETECTED: ${mentionMatches.join(', ')}`);
+        
+        // Process @ mentions to coordinate agents directly
+        const coordinationResults = [];
+        for (const mention of mentionMatches) {
+          const mentionedAgent = mention.replace('@', '').toLowerCase();
+          const validAgents = ['aria', 'zara', 'rachel', 'ava', 'quinn', 'sophia', 'martha', 'diana', 'wilma', 'olga'];
+          
+          if (validAgents.includes(mentionedAgent)) {
+            console.log(`🤖 ELENA: Coordinating with ${mentionedAgent} via @ mention`);
+            
+            // Extract the message context for the mentioned agent
+            const contextForAgent = `Elena needs your help: ${message}`;
+            
+            // Call the mentioned agent directly with coordination context
+            try {
+              const coordinationResponse = await callAgentDirectly(mentionedAgent, contextForAgent, userId, workingHistory);
+              coordinationResults.push({
+                agent: mentionedAgent,
+                success: true,
+                response: coordinationResponse.message
+              });
+            } catch (error) {
+              console.error(`❌ Failed to coordinate with ${mentionedAgent}:`, error);
+              coordinationResults.push({
+                agent: mentionedAgent,
+                success: false,
+                error: error instanceof Error ? error.message : 'Unknown error'
+              });
+            }
+          }
+        }
+        
+        // Elena provides summary of coordination attempts
+        if (coordinationResults.length > 0) {
+          const successfulCoordination = coordinationResults.filter(r => r.success);
+          const failedCoordination = coordinationResults.filter(r => !r.success);
+          
+          let coordinationSummary = `Perfect! I've coordinated with the team:\n\n`;
+          
+          if (successfulCoordination.length > 0) {
+            coordinationSummary += `✅ Successfully coordinated with: ${successfulCoordination.map(r => r.agent).join(', ')}\n`;
+            successfulCoordination.forEach(r => {
+              coordinationSummary += `\n**${r.agent.charAt(0).toUpperCase() + r.agent.slice(1)}**: ${r.response.substring(0, 200)}...\n`;
+            });
+          }
+          
+          if (failedCoordination.length > 0) {
+            coordinationSummary += `\n⚠️ Unable to reach: ${failedCoordination.map(r => r.agent).join(', ')} (they'll catch up later)\n`;
+          }
+          
+          await storage.saveAgentConversation(agentId, userId, message, coordinationSummary, []);
+          
+          return res.json({
+            success: true,
+            message: coordinationSummary,
+            response: coordinationSummary,
+            agentName: agentName || agentId,
+            coordinationResults: coordinationResults
+          });
+        }
+      }
+      
+      // Helper function to call agents directly for coordination
+      async function callAgentDirectly(targetAgentId: string, coordinationMessage: string, coordinatorUserId: string, coordinatorHistory: any[]): Promise<{ message: string }> {
+        console.log(`🔗 Direct agent call: ${targetAgentId} - "${coordinationMessage.substring(0, 100)}..."`);
+        
+        // Get the target agent's personality
+        const { agentPersonalities } = await import('./agents/agent-personalities');
+        const targetAgentPersonality = agentPersonalities[targetAgentId]?.instructions;
+        
+        if (!targetAgentPersonality) {
+          throw new Error(`Agent ${targetAgentId} not found`);
+        }
+        
+        // Create coordination context for the target agent
+        const coordinationContext = [
+          {
+            role: 'system' as const,
+            content: targetAgentPersonality
+          },
+          {
+            role: 'user' as const,
+            content: coordinationMessage
+          }
+        ];
+        
+        console.log(`🔍 Claude API Request for ${targetAgentId} coordination`);
+        
+        // Call Claude API for the target agent
+        const anthropic = new Anthropic({
+          apiKey: process.env.ANTHROPIC_API_KEY
+        });
+        const response = await anthropic.messages.create({
+          model: 'claude-3-5-sonnet-20241022',
+          max_tokens: 4000,
+          temperature: 0.7,
+          messages: coordinationContext
+        });
+        
+        const agentResponse = response.content
+          .filter(content => content.type === 'text')
+          .map(content => content.text)
+          .join('\n');
+        
+        console.log(`✅ ${targetAgentId} coordination response: ${agentResponse.substring(0, 100)}...`);
+        
+        // Save the coordination exchange to database for the target agent
+        await storage.saveAgentConversation(targetAgentId, coordinatorUserId, coordinationMessage, agentResponse, []);
+        
+        return { message: agentResponse };
+      }
       
       // ELENA EXECUTION DETECTION - Check first for specific execution commands
       const isExecutionRequest = isElena && (
