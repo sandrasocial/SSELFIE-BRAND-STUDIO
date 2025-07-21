@@ -366,7 +366,17 @@ export function OptimizedVisualEditor({ className = '' }: OptimizedVisualEditorP
           console.log(`📚 Loading conversation history for ${currentAgent.id}:`, data.conversations?.length || 0, 'conversations');
           
           if (data.conversations && data.conversations.length > 0) {
-            const formattedMessages: ChatMessage[] = data.conversations.map((conv: any) => [
+            // Filter out memory and saved conversation entries on frontend as well
+            const regularConversations = data.conversations.filter((conv: any) => 
+              !conv.userMessage?.includes('**CONVERSATION_MEMORY**') &&
+              conv.userMessage !== '**CONVERSATION_MEMORY**' &&
+              !conv.userMessage?.startsWith('SAVED_CONVERSATION:') &&
+              !(conv.user_message?.includes('**CONVERSATION_MEMORY**')) &&
+              conv.user_message !== '**CONVERSATION_MEMORY**' &&
+              !conv.user_message?.startsWith('SAVED_CONVERSATION:')
+            );
+            
+            const formattedMessages: ChatMessage[] = regularConversations.map((conv: any) => [
               {
                 type: 'user' as const,
                 content: conv.user_message || conv.userMessage,
@@ -384,7 +394,7 @@ export function OptimizedVisualEditor({ className = '' }: OptimizedVisualEditorP
               }
             ]).flat();
             
-            console.log(`✅ Formatted ${formattedMessages.length} messages for display`);
+            console.log(`✅ Formatted ${formattedMessages.length} messages for display (filtered from ${data.conversations.length} total)`);
             setChatMessages(formattedMessages);
             
             // Show success notification for loaded history
