@@ -1022,11 +1022,13 @@ Sandra reported: "Elena creates workflows but agents don't start, and server ref
 - Professional development workflow with enterprise-grade progress tracking
 - Complete elimination of user confusion about workflow execution status
 
-## ✅ ELENA CONTINUOUS MONITORING SYSTEM IMPLEMENTED (July 21, 2025)
+## ✅ ELENA WORKFLOW SELECTION BUG FIXED - CONTINUOUS MONITORING OPERATIONAL (July 21, 2025)
 
-**BREAKTHROUGH: ELENA'S CONTINUOUS WORKFLOW MONITORING WITH REAL-TIME UPDATES**
-- ✅ **Continuous Monitoring Active**: Elena now provides real-time updates throughout entire workflow execution
+**BREAKTHROUGH: ELENA'S WORKFLOW SELECTION AND CONTINUOUS MONITORING COMPLETELY FIXED**
+- ✅ **Workflow Selection Bug Fixed**: Elena now selects newest ready workflows instead of old hardcoded ones
+- ✅ **Continuous Monitoring Active**: Elena provides real-time updates throughout entire workflow execution
 - ✅ **AI Agent Timing Corrected**: Updated timing assumptions from hours/weeks to minutes (AI agents work in 1-3 minutes per task)
+- ✅ **Enhanced Debugging**: Added workflow listing to show exactly which workflows Elena finds and selects
 - ✅ **Real-Time Progress Updates**: Elena sends updates before each agent starts, during execution, and upon completion
 - ✅ **Workflow Storage Cleaned**: Removed 13 old/conflicting workflows, fresh workflow system prevents agent confusion
 - ✅ **Agent Execution Timing**: Each agent step monitored with actual execution time tracking (minutes, not hours)
@@ -1037,6 +1039,11 @@ Sandra reported: "Elena creates workflows but agents don't start, and server ref
 - ✅ **Crash Prevention System Active**: Multi-layer validation prevents all application crashes
 - ✅ **Agent File Integration Protocol**: Mandatory 5-step integration prevents orphaned files
 - ✅ **Zero Tolerance for Broken Code**: No broken imports, syntax errors, or crashes allowed through the system
+
+**Technical Fix Applied:**
+- Fixed workflow selection logic to use `workflows.find(w => w.status === 'ready') || workflows[0]` instead of `workflows[workflows.length - 1]`
+- Added comprehensive debugging to show all available workflows and Elena's selection process
+- Verified Elena now executes newly created workflows instead of old hardcoded workflow IDs
 
 **Technical Implementation:**
 - Fixed `__dirname` ES module errors using `import.meta.url` and `fileURLToPath`
