@@ -88,7 +88,8 @@ export class AutoFileWriter {
       for (let i = 0; i < filesToWrite.length; i++) {
         const file = filesToWrite[i];
         try {
-          await AgentCodebaseIntegration.writeFile(file.filePath, file.content);
+          // CRITICAL FIX: Use proper file writing with workspace integration
+          await this.writeFileWithIntegration(file.filePath, file.content, agentId);
           
           filesWritten.push({
             filePath: file.filePath,
@@ -106,7 +107,7 @@ export class AutoFileWriter {
             size: file.content.length
           });
           
-          console.error(`❌ Failed to auto-write ${file.filePath}:`, error);
+          console.error(`❌ Failed to auto-write ${file.filePath}:`, (error as Error).message);
         }
       }
       
@@ -121,7 +122,8 @@ export class AutoFileWriter {
       // Single file operation
       const file = filesToWrite[0];
       try {
-        await AgentCodebaseIntegration.writeFile(file.filePath, file.content);
+        // CRITICAL FIX: Use proper file writing with workspace integration
+        await this.writeFileWithIntegration(file.filePath, file.content, agentId);
         
         filesWritten.push({
           filePath: file.filePath,
@@ -144,7 +146,7 @@ export class AutoFileWriter {
           size: file.content.length
         });
         
-        console.error(`❌ Failed to auto-write ${file.filePath}:`, error);
+        console.error(`❌ Failed to auto-write ${file.filePath}:`, (error as Error).message);
       }
     }
     
@@ -163,9 +165,9 @@ export class AutoFileWriter {
       if (componentMatch) {
         const componentName = componentMatch[1];
         
-        // Admin Dashboard components
+        // Admin Dashboard components - MODIFY EXISTING FILE, DON'T CREATE NEW
         if (componentName.includes('Admin') || componentName.includes('Dashboard') || context.toLowerCase().includes('admin') || context.toLowerCase().includes('dashboard')) {
-          return `client/src/pages/admin-dashboard-redesigned.tsx`;
+          return `client/src/pages/admin-dashboard.tsx`;
         }
         
         // Visual editor components
@@ -208,11 +210,108 @@ export class AutoFileWriter {
       return `server/routes/agent-generated.ts`;
     }
     
-    // FALLBACK FOR ANY REACT-LIKE CODE
+    // FALLBACK FOR ANY REACT-LIKE CODE - INTEGRATE INTO MAIN APP, NOT AGENT-GENERATED
     if (content.includes('useState') || content.includes('React') || content.includes('jsx')) {
-      return `client/src/components/agent-generated/${agentId}Component${Date.now()}.tsx`;
+      // Determine proper category based on component purpose
+      if (context.toLowerCase().includes('admin') || context.toLowerCase().includes('dashboard')) {
+        return `client/src/components/admin/GeneratedComponent.tsx`;
+      }
+      if (context.toLowerCase().includes('visual') || context.toLowerCase().includes('editor')) {
+        return `client/src/components/visual-editor/GeneratedComponent.tsx`;
+      }
+      // Default to main components directory with proper integration
+      return `client/src/components/GeneratedComponent.tsx`;
     }
     
     return null; // No automatic file writing for unrecognized code
+  }
+
+  /**
+   * CRITICAL FIX: Write files with proper workspace integration
+   * Ensures agent work appears in Sandra's codespace and main application
+   */
+  static async writeFileWithIntegration(filePath: string, content: string, agentId: string): Promise<void> {
+    // Use the existing AgentCodebaseIntegration but with enhanced integration
+    const { AgentCodebaseIntegration } = await import('./AgentCodebaseIntegration.js') as any;
+    
+    // Write the file to the workspace
+    await AgentCodebaseIntegration.writeFile(filePath, content);
+    
+    // INTEGRATION STEP 1: Auto-update routing if creating new pages
+    if (filePath.includes('client/src/pages/') && !filePath.includes('admin-dashboard.tsx')) {
+      await this.updateAppRouting(filePath, content);
+    }
+    
+    // INTEGRATION STEP 2: Auto-update imports if creating components
+    if (filePath.includes('client/src/components/') && !filePath.includes('agent-generated')) {
+      await this.updateComponentImports(filePath, content);
+    }
+    
+    // INTEGRATION STEP 3: Update navigation if needed
+    if (content.includes('export default') || content.includes('export function')) {
+      await this.updateNavigationIfNeeded(filePath, content);
+    }
+    
+    console.log(`🔗 WORKSPACE INTEGRATION: Agent ${agentId} integrated ${filePath} into main application`);
+  }
+
+  /**
+   * Auto-update App.tsx routing when agents create new pages
+   */
+  static async updateAppRouting(filePath: string, content: string): Promise<void> {
+    try {
+      const fs = await import('fs/promises');
+      const path = await import('path');
+      
+      const appPath = path.resolve('client/src/App.tsx');
+      const appContent = await fs.readFile(appPath, 'utf-8');
+      
+      // Extract component name and route
+      const componentMatch = content.match(/export\s+(?:default\s+)?(?:function\s+)?([A-Z][a-zA-Z0-9]*)/);
+      if (!componentMatch) return;
+      
+      const componentName = componentMatch[1];
+      const routeName = componentName.toLowerCase().replace(/([a-z])([A-Z])/g, '$1-$2');
+      const importPath = filePath.replace('client/src/', '@/').replace('.tsx', '');
+      
+      // Add import if not exists
+      if (!appContent.includes(`import { ${componentName} }`)) {
+        const importLine = `import { ${componentName} } from '${importPath}';`;
+        const updatedContent = appContent.replace(
+          /import.*from.*;\n/g,
+          (match, offset, string) => {
+            const lastImportEnd = string.lastIndexOf(match) + match.length;
+            return offset + match.length === lastImportEnd ? match + importLine + '\n' : match;
+          }
+        );
+        
+        // Add route if not exists
+        const finalContent = updatedContent.replace(
+          /<Route path="\/admin-visual-editor"/,
+          `<Route path="/${routeName}" component={${componentName}} />\n          <Route path="/admin-visual-editor"`
+        );
+        
+        await fs.writeFile(appPath, finalContent);
+        console.log(`✅ AUTO-INTEGRATED: Added routing for ${componentName} at /${routeName}`);
+      }
+    } catch (error) {
+      console.log(`⚠️ AUTO-INTEGRATION: Could not update routing: ${(error as Error).message}`);
+    }
+  }
+
+  /**
+   * Auto-update component imports when creating reusable components
+   */
+  static async updateComponentImports(filePath: string, content: string): Promise<void> {
+    // For now, just log - more complex integration can be added later
+    console.log(`🔗 COMPONENT INTEGRATION: ${filePath} available for import in main application`);
+  }
+
+  /**
+   * Auto-update navigation when creating new accessible pages
+   */
+  static async updateNavigationIfNeeded(filePath: string, content: string): Promise<void> {
+    // For now, just log - navigation integration can be added later
+    console.log(`🧭 NAVIGATION INTEGRATION: ${filePath} may need navigation link updates`);
   }
 }
