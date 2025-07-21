@@ -59,7 +59,66 @@ interface SmartSuggestionsProps {
   isVisible?: boolean;
 }
 
+// Simple fallback component for immediate usage
+interface SimpleSmartSuggestionsProps {
+  agentId: string;
+  context?: {
+    recentMessages?: any[];
+    activeFile?: string;
+    workflowStage?: string;
+  };
+  onSuggestionClick: (suggestion: string) => void;
+  onDismiss: () => void;
+}
+
 export function SmartSuggestions({
+  agentId,
+  context = {},
+  onSuggestionClick,
+  onDismiss
+}: SimpleSmartSuggestionsProps) {
+  const suggestions = [
+    'Fix authentication issue',
+    'Create new component',
+    'Debug performance problem',
+    'Add database migration',
+    'Update API endpoint',
+    'Implement file validation',
+    'Optimize workflow system'
+  ];
+
+  return (
+    <div className="mb-2 p-2 bg-gray-50 rounded border">
+      <div className="flex items-center justify-between mb-2">
+        <span className="text-xs font-medium text-gray-600">Suggestions for {agentId}</span>
+        <Button
+          variant="ghost"
+          size="sm"
+          onClick={onDismiss}
+          className="h-6 w-6 p-0"
+        >
+          ×
+        </Button>
+      </div>
+      <div className="grid grid-cols-2 gap-1">
+        {suggestions.slice(0, 4).map((suggestion, index) => (
+          <Button
+            key={index}
+            variant="outline"
+            size="sm"
+            className="text-xs h-7 justify-start"
+            onClick={() => onSuggestionClick(suggestion)}
+          >
+            {suggestion}
+          </Button>
+        ))}
+      </div>
+    </div>
+  );
+}
+
+// Advanced component for future enhancement
+export function AdvancedSmartSuggestions({
   agentId,
   agentName,
   conversationHistory,
