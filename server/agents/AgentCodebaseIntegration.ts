@@ -2,7 +2,7 @@ import fs from 'fs/promises';
 import path from 'path';
 
 export class AgentCodebaseIntegration {
-  static async writeFile(filePath, content) {
+  static async writeFile(filePath: string, content: string) {
     try {
       // Ensure directory exists
       const fullPath = path.resolve(filePath);
@@ -28,7 +28,7 @@ export class AgentCodebaseIntegration {
     }
   }
   
-  static async readFile(filePath) {
+  static async readFile(filePath: string) {
     try {
       const fullPath = path.resolve(filePath);
       const content = await fs.readFile(fullPath, 'utf8');
@@ -39,7 +39,7 @@ export class AgentCodebaseIntegration {
     }
   }
   
-  static async appendToFile(filePath, content) {
+  static async appendToFile(filePath: string, content: string) {
     try {
       const fullPath = path.resolve(filePath);
       await fs.appendFile(fullPath, content, 'utf8');

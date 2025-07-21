@@ -4917,8 +4917,8 @@ AGENT_CONTEXT:
           console.log(`🔧 INTEGRATION FIX: Redirected to modify existing files instead`);
         }
         
-        const { AutoFileWriter } = await import('./agents/auto-file-writer.js');
-        const { AgentCodebaseIntegration } = await import('./agents/AgentCodebaseIntegration.js');
+        const { AutoFileWriter } = await import('./agents/auto-file-writer.ts');
+        const { AgentCodebaseIntegration } = await import('./agents/AgentCodebaseIntegration.ts');
         
         const result = await AutoFileWriter.processCodeBlocks(
           agentId,
