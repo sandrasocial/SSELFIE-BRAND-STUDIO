@@ -4300,17 +4300,13 @@ ${savedMemory.recentDecisions.map(decision => `• ${decision}`).join('\n')}
       
       const isWorkflowCreationRequest = messageText.includes('create workflow') || 
                                       messageText.includes('create a workflow') ||
-                                      messageText.includes('create workflot') || // Handle typos
-                                      messageText.includes('design workflow') ||
-                                      messageText.includes('workflow for') ||
-                                      messageText.includes('workflot for') || // Handle typos
+                                      messageText.includes('create workflot') || // Handle typos  
                                       messageText.includes('build workflow') ||
-                                      (messageText.includes('workflow') && messageText.includes('redesign')) ||
-                                      (messageText.includes('workflot') && messageText.includes('redesign')) || // Handle typos
-                                      (messageText.includes('workflow') && messageText.includes('admin')) ||
-                                      (messageText.includes('workflot') && messageText.includes('admin')) || // Handle typos
-                                      (messageText.includes('workflow') && messageText.includes('dashboard')) ||
-                                      (messageText.includes('workflot') && messageText.includes('dashboard')); // Handle typos
+                                      messageText.includes('design workflow') ||
+                                      messageText.includes('make workflow') ||
+                                      messageText.includes('generate workflow') ||
+                                      // Only trigger on EXPLICIT workflow creation, NOT planning help requests
+                                      (messageText.includes('workflow for') && !messageText.includes('plan') && !messageText.includes('help'));
       
       console.log(`🔍 ELENA DEBUG: Workflow creation detected=${isWorkflowCreationRequest}`);
       
