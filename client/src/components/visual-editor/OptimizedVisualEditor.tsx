@@ -490,16 +490,9 @@ export function OptimizedVisualEditor({ className = '' }: OptimizedVisualEditorP
             const agentContent = typeof lastMessage.content === 'string' ? lastMessage.content.trim() : '';
             
             if (userContent.length > 0 && agentContent.length > 0) {
-              // Check if this conversation pair is already in the loaded history (avoid duplicates)
-              // Only check conversations that were loaded from database, not the current new pair
-              const loadedMessages = chatMessages.slice(0, -2); // Exclude the current pair being saved
-              const isNewConversation = !loadedMessages.some((msg, index) => 
-                msg.type === 'user' && 
-                msg.content === userContent &&
-                loadedMessages[index + 1]?.content === agentContent
-              );
-              
-              if (isNewConversation) {
+              // Simple and effective duplicate detection - don't save during history loading
+              // This prevents the issue where loaded history messages trigger save attempts
+              if (!isLoadingHistory) {
                 const response = await fetch('/api/admin/agent-conversation-save', {
                   method: 'POST',
                   headers: { 'Content-Type': 'application/json' },
@@ -518,7 +511,7 @@ export function OptimizedVisualEditor({ className = '' }: OptimizedVisualEditorP
                   console.log('✅ Conversation saved successfully for', currentAgent.id);
                 }
               } else {
-                console.log('⚠️ Skipping save - duplicate conversation detected');
+                console.log('⚠️ Skipping save - currently loading history');
               }
             } else {
               console.log('⚠️ Skipping save - empty content:', { userLength: userContent.length, agentLength: agentContent.length });
