@@ -4649,9 +4649,41 @@ ${savedMemory.recentDecisions.map(decision => `• ${decision}`).join('\n')}
             // Execute the workflow
             const execution = await ElenaWorkflowSystem.executeWorkflow(latestWorkflow.id);
             
-            // Elena provides natural coordination response about workflow execution
-            const coordinationMessage = `Perfect! I'm now coordinating the team to get this done for you. ${execution.status === 'executing' ? 'The agents are working on it right now!' : 'Let me check what happened with the execution.'}`;
+            // Elena provides natural coordination response with progress monitoring
+            const coordinationMessage = `Perfect! I'm now coordinating the team to get this done for you. The agents are working on it right now!
+
+I'll keep you updated as each agent completes their work. You can also check workflow progress below - I'm making sure everyone stays on track! 💪`;
             const responseText = coordinationMessage;
+            
+            // Start monitoring workflow progress to provide updates  
+            setTimeout(async () => {
+              try {
+                const { ElenaWorkflowSystem } = await import('./elena-workflow-system');
+                let checkCount = 0;
+                const maxChecks = 10; // Max 5 minutes monitoring
+                
+                const checkProgress = async () => {
+                  try {
+                    const progress = await ElenaWorkflowSystem.getWorkflowProgress(latestWorkflow.id);
+                    
+                    if (progress.status === 'completed') {
+                      const completionMessage = `Perfect! The team just finished your project. All ${progress.completedTasks.length} tasks completed with real file changes. Check out the updated admin dashboard!`;
+                      await storage.saveAgentConversation(agentId, userId, 'Workflow Status Update', completionMessage, []);
+                      console.log(`✅ ELENA: Workflow ${latestWorkflow.id} completion message sent to user`);
+                    } else if (progress.status === 'executing' && checkCount < maxChecks) {
+                      checkCount++;
+                      setTimeout(checkProgress, 30000); // Check again in 30 seconds
+                    }
+                  } catch (error) {
+                    console.log('⚠️ ELENA: Progress monitoring error:', error);
+                  }
+                };
+                
+                checkProgress();
+              } catch (error) {
+                console.log('⚠️ ELENA: Monitor startup error:', error);
+              }
+            }, 10000); // Start monitoring after 10 seconds
 
             // Save conversation and return immediately
             await storage.saveAgentConversation(agentId, userId, message, responseText, []);
