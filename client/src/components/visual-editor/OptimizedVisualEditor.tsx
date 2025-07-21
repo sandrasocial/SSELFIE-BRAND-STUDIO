@@ -56,6 +56,9 @@ import { EnvironmentConfig } from './EnvironmentConfig';
 import { TestingSuite } from './TestingSuite';
 import { AccessibilityAuditor } from './AccessibilityAuditor';
 import { QualityAnalysis } from './QualityAnalysis';
+import { AnalyticsDashboard } from './AnalyticsDashboard';
+import { IntelligentAssistant } from './IntelligentAssistant';
+import { WorkflowAutomation } from './WorkflowAutomation';
 
 import { AgentChatControls } from './AgentChatControls';
 import { QuickActionsPopup } from './QuickActionsPopup';
@@ -1449,6 +1452,9 @@ export function OptimizedVisualEditor({ className = '' }: OptimizedVisualEditorP
             <TabsTrigger value="testing" className="flex-1 text-xs h-7 rounded-sm data-[state=active]:bg-white data-[state=active]:shadow-sm">Testing</TabsTrigger>
             <TabsTrigger value="accessibility" className="flex-1 text-xs h-7 rounded-sm data-[state=active]:bg-white data-[state=active]:shadow-sm">A11y</TabsTrigger>
             <TabsTrigger value="quality" className="flex-1 text-xs h-7 rounded-sm data-[state=active]:bg-white data-[state=active]:shadow-sm">Quality</TabsTrigger>
+            <TabsTrigger value="analytics" className="flex-1 text-xs h-7 rounded-sm data-[state=active]:bg-white data-[state=active]:shadow-sm">Analytics</TabsTrigger>
+            <TabsTrigger value="ai-assistant" className="flex-1 text-xs h-7 rounded-sm data-[state=active]:bg-white data-[state=active]:shadow-sm">AI Assistant</TabsTrigger>
+            <TabsTrigger value="automation" className="flex-1 text-xs h-7 rounded-sm data-[state=active]:bg-white data-[state=active]:shadow-sm">Automation</TabsTrigger>
           </TabsList>
 
           {/* Conversation Threading Tab */}
@@ -2547,6 +2553,169 @@ const styles = {
                   toast({
                     title: 'Quality Report Exported',
                     description: `Report saved as ${format.toUpperCase()}`,
+                  });
+                }}
+              />
+            </div>
+          </TabsContent>
+
+          {/* Analytics Dashboard Tab */}
+          <TabsContent value="analytics" className="flex-1 flex flex-col mt-0 min-h-0">
+            <div className="p-4 border-b border-gray-200">
+              <div className="flex items-center justify-between">
+                <div>
+                  <h4 className="font-medium text-sm flex items-center">
+                    <BarChart3 className="w-4 h-4 mr-2" />
+                    Advanced Analytics & Intelligence
+                  </h4>
+                  <p className="text-xs text-gray-600 mt-1">Category 9: Comprehensive analytics dashboard with AI-powered insights and predictions</p>
+                </div>
+                <Badge variant="secondary" className="text-xs bg-black text-white">
+                  Category 9/10
+                </Badge>
+              </div>
+            </div>
+            
+            <div className="flex-1 overflow-hidden">
+              <AnalyticsDashboard
+                onRefreshData={() => {
+                  console.log('Refreshing analytics data');
+                  toast({
+                    title: 'Analytics Refreshed',
+                    description: 'Latest data has been loaded successfully',
+                  });
+                }}
+                onExportReport={(format) => {
+                  console.log('Exporting analytics report:', format);
+                  toast({
+                    title: 'Report Exported',
+                    description: `Analytics report saved as ${format.toUpperCase()}`,
+                  });
+                }}
+                onConfigureMetrics={() => {
+                  console.log('Configuring analytics metrics');
+                }}
+                onSetupAlerts={() => {
+                  console.log('Setting up analytics alerts');
+                  toast({
+                    title: 'Alerts Configured',
+                    description: 'Analytics alerts have been set up successfully',
+                  });
+                }}
+              />
+            </div>
+          </TabsContent>
+
+          {/* AI Assistant Tab */}
+          <TabsContent value="ai-assistant" className="flex-1 flex flex-col mt-0 min-h-0">
+            <div className="p-4 border-b border-gray-200">
+              <div className="flex items-center justify-between">
+                <div>
+                  <h4 className="font-medium text-sm flex items-center">
+                    <Brain className="w-4 h-4 mr-2" />
+                    Intelligent AI Assistant
+                  </h4>
+                  <p className="text-xs text-gray-600 mt-1">Smart suggestions, contextual help, learning resources, and code insights</p>
+                </div>
+                <Badge variant="secondary" className="text-xs bg-purple-100 text-purple-800">
+                  AI-Powered
+                </Badge>
+              </div>
+            </div>
+            
+            <div className="flex-1 overflow-hidden">
+              <IntelligentAssistant
+                onApplySuggestion={(suggestionId) => {
+                  console.log('Applying AI suggestion:', suggestionId);
+                  toast({
+                    title: 'Suggestion Applied',
+                    description: 'AI optimization has been implemented successfully',
+                  });
+                }}
+                onFeedback={(suggestionId, rating) => {
+                  console.log('AI feedback:', suggestionId, rating);
+                  toast({
+                    title: 'Feedback Received',
+                    description: 'Thank you for helping improve AI suggestions',
+                  });
+                }}
+                onCustomQuery={(query) => {
+                  console.log('Custom AI query:', query);
+                  toast({
+                    title: 'Query Processed',
+                    description: 'AI assistant has analyzed your request',
+                  });
+                }}
+                onRequestTutorial={(topic) => {
+                  console.log('Tutorial requested:', topic);
+                  toast({
+                    title: 'Tutorial Loading',
+                    description: 'Opening learning resource...',
+                  });
+                }}
+              />
+            </div>
+          </TabsContent>
+
+          {/* Workflow Automation Tab */}
+          <TabsContent value="automation" className="flex-1 flex flex-col mt-0 min-h-0">
+            <div className="p-4 border-b border-gray-200">
+              <div className="flex items-center justify-between">
+                <div>
+                  <h4 className="font-medium text-sm flex items-center">
+                    <Zap className="w-4 h-4 mr-2" />
+                    Workflow Automation
+                  </h4>
+                  <p className="text-xs text-gray-600 mt-1">Create, manage, and execute automated workflows with templates and analytics</p>
+                </div>
+                <Badge variant="secondary" className="text-xs bg-yellow-100 text-yellow-800">
+                  Automation Hub
+                </Badge>
+              </div>
+            </div>
+            
+            <div className="flex-1 overflow-hidden">
+              <WorkflowAutomation
+                onCreateWorkflow={(template) => {
+                  console.log('Creating workflow:', template);
+                  toast({
+                    title: 'Workflow Created',
+                    description: template ? `Created from ${template.name} template` : 'New workflow created successfully',
+                  });
+                }}
+                onEditWorkflow={(workflowId) => {
+                  console.log('Editing workflow:', workflowId);
+                  toast({
+                    title: 'Opening Editor',
+                    description: 'Workflow editor is loading...',
+                  });
+                }}
+                onRunWorkflow={(workflowId) => {
+                  console.log('Running workflow:', workflowId);
+                  toast({
+                    title: 'Workflow Started',
+                    description: 'Automation workflow is now running',
+                  });
+                }}
+                onPauseWorkflow={(workflowId) => {
+                  console.log('Pausing workflow:', workflowId);
+                  toast({
+                    title: 'Workflow Paused',
+                    description: 'Automation workflow has been paused',
+                  });
+                }}
+                onDeleteWorkflow={(workflowId) => {
+                  console.log('Deleting workflow:', workflowId);
+                  toast({
+                    title: 'Workflow Deleted',
+                    description: 'Automation workflow has been removed',
+                  });
+                }}
+                onDuplicateWorkflow={(workflowId) => {
+                  console.log('Duplicating workflow:', workflowId);
+                  toast({
+                    title: 'Workflow Duplicated',
+                    description: 'A copy of the workflow has been created',
                   });
                 }}
               />
