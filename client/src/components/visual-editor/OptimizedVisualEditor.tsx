@@ -472,71 +472,43 @@ export function OptimizedVisualEditor({ className = '' }: OptimizedVisualEditorP
     };
   }, [showMoreDropdown]);
 
-  // Save conversations to database - BULLETPROOF duplicate prevention
-  useEffect(() => {
-    // Don't save while loading conversation history
-    if (isLoadingHistory) return;
+  // MANUAL conversation saving only - NO automatic saving to prevent duplicates
+  const saveConversationManually = async () => {
+    if (chatMessages.length < 2) return;
     
-    const saveConversations = async () => {
-      if (chatMessages.length < 2) return; // Need at least user + agent message
+    const lastMessage = chatMessages[chatMessages.length - 1];
+    const userMessage = chatMessages[chatMessages.length - 2];
+    
+    if (lastMessage.type === 'agent' && userMessage.type === 'user' && 
+        lastMessage.content && userMessage.content) {
       
-      try {
-        const lastMessage = chatMessages[chatMessages.length - 1];
-        if (lastMessage.type === 'agent' && lastMessage.content) {
-          // Save the complete conversation pair to database
-          const userMessage = chatMessages[chatMessages.length - 2];
-          if (userMessage && userMessage.type === 'user' && userMessage.content) {
-            // Only save if both messages have actual content
-            const userContent = typeof userMessage.content === 'string' ? userMessage.content.trim() : '';
-            const agentContent = typeof lastMessage.content === 'string' ? lastMessage.content.trim() : '';
-            
-            if (userContent.length > 0 && agentContent.length > 0) {
-              // Create unique message ID for this conversation pair
-              const messageId = `${currentAgent.id}-${userContent.slice(0, 20)}-${agentContent.slice(0, 20)}-${Date.now()}`;
-              
-              // BULLETPROOF: Only save if we haven't already saved this exact message
-              if (lastSavedMessageId !== messageId) {
-                setLastSavedMessageId(messageId);
-                
-                const response = await fetch('/api/admin/agent-conversation-save', {
-                  method: 'POST',
-                  headers: { 'Content-Type': 'application/json' },
-                  body: JSON.stringify({
-                    adminToken: 'sandra-admin-2025',
-                    agentId: currentAgent.id || 'unknown',
-                    userMessage: userContent,
-                    agentResponse: agentContent
-                  })
-                });
-                
-                if (!response.ok) {
-                  const errorText = await response.text();
-                  console.error('Failed to save conversation:', errorText);
-                } else {
-                  console.log('✅ Conversation saved successfully for', currentAgent.id);
-                }
-              } else {
-                console.log('⚠️ Skipping save - already saved this exact message');
-              }
-            } else {
-              console.log('⚠️ Skipping save - empty content:', { userLength: userContent.length, agentLength: agentContent.length });
-            }
+      const userContent = typeof userMessage.content === 'string' ? userMessage.content.trim() : '';
+      const agentContent = typeof lastMessage.content === 'string' ? lastMessage.content.trim() : '';
+      
+      if (userContent.length > 0 && agentContent.length > 0) {
+        try {
+          const response = await fetch('/api/admin/agent-conversation-save', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              adminToken: 'sandra-admin-2025',
+              agentId: currentAgent.id || 'unknown',
+              userMessage: userContent,
+              agentResponse: agentContent
+            })
+          });
+          
+          if (response.ok) {
+            console.log('✅ Manual conversation saved successfully for', currentAgent.id);
+          } else {
+            console.error('Failed to save conversation:', await response.text());
           }
+        } catch (error) {
+          console.error('Failed to save conversation:', error);
         }
-      } catch (error) {
-        console.error('Failed to save conversation:', error);
-      }
-    };
-
-    // Only attempt to save if we have actual messages with content and we're not loading history
-    if (chatMessages.length >= 2 && !isLoadingHistory) {
-      const lastMessage = chatMessages[chatMessages.length - 1];
-      if (lastMessage.type === 'agent' && lastMessage.content) {
-        // Add a small delay to ensure the message is finalized
-        setTimeout(saveConversations, 500);
       }
     }
-  }, [chatMessages, currentAgent.id, isLoadingHistory, lastSavedMessageId]);
+  };
 
   // Auto-scroll chat to bottom when new messages are added (only for agent chat)
   useEffect(() => {
