@@ -22,7 +22,9 @@ import {
   Star,
   Sparkles,
   Upload,
-  Paperclip
+  Paperclip,
+  Code,
+  Zap
 } from 'lucide-react';
 import { apiRequest } from '@/lib/queryClient';
 import { useToast } from '@/hooks/use-toast';
@@ -37,6 +39,7 @@ import { MessageInteraction } from './MessageInteraction';
 import { CodeIntelligence } from './CodeIntelligence';
 import { EnhancedSyntaxHighlighter } from './SyntaxHighlighter';
 import { CodeFormatter } from './CodeFormatter';
+import { CodeEditor } from './CodeEditor';
 
 import { AgentChatControls } from './AgentChatControls';
 import { QuickActionsPopup } from './QuickActionsPopup';
