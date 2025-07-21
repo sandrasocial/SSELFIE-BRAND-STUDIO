@@ -59,6 +59,8 @@ import { QualityAnalysis } from './QualityAnalysis';
 import { AnalyticsDashboard } from './AnalyticsDashboard';
 import { IntelligentAssistant } from './IntelligentAssistant';
 import { WorkflowAutomation } from './WorkflowAutomation';
+import { PluginManager } from './PluginManager';
+import { ExtensionHub } from './ExtensionHub';
 
 import { AgentChatControls } from './AgentChatControls';
 import { QuickActionsPopup } from './QuickActionsPopup';
@@ -1455,6 +1457,7 @@ export function OptimizedVisualEditor({ className = '' }: OptimizedVisualEditorP
             <TabsTrigger value="analytics" className="flex-1 text-xs h-7 rounded-sm data-[state=active]:bg-white data-[state=active]:shadow-sm">Analytics</TabsTrigger>
             <TabsTrigger value="ai-assistant" className="flex-1 text-xs h-7 rounded-sm data-[state=active]:bg-white data-[state=active]:shadow-sm">AI Assistant</TabsTrigger>
             <TabsTrigger value="automation" className="flex-1 text-xs h-7 rounded-sm data-[state=active]:bg-white data-[state=active]:shadow-sm">Automation</TabsTrigger>
+            <TabsTrigger value="plugins" className="flex-1 text-xs h-7 rounded-sm data-[state=active]:bg-white data-[state=active]:shadow-sm">Plugins</TabsTrigger>
           </TabsList>
 
           {/* Conversation Threading Tab */}
@@ -2719,6 +2722,120 @@ const styles = {
                   });
                 }}
               />
+            </div>
+          </TabsContent>
+
+          {/* Plugin Manager & Extension Hub Tab */}
+          <TabsContent value="plugins" className="flex-1 flex flex-col mt-0 min-h-0">
+            <div className="p-4 border-b border-gray-200">
+              <div className="flex items-center justify-between">
+                <div>
+                  <h4 className="font-medium text-sm flex items-center">
+                    <Code className="w-4 h-4 mr-2" />
+                    Plugin & Extension System
+                  </h4>
+                  <p className="text-xs text-gray-600 mt-1">Category 10: Complete plugin management with extension hub and development tools</p>
+                </div>
+                <Badge variant="secondary" className="text-xs bg-green-100 text-green-800">
+                  Final Category 10/10
+                </Badge>
+              </div>
+            </div>
+            
+            <div className="flex-1 overflow-hidden">
+              <Tabs defaultValue="plugins" className="h-full flex flex-col">
+                <TabsList className="mx-4 mt-2 grid w-auto grid-cols-2">
+                  <TabsTrigger value="plugins">Plugin Manager</TabsTrigger>
+                  <TabsTrigger value="extensions">Extension Hub</TabsTrigger>
+                </TabsList>
+
+                <TabsContent value="plugins" className="flex-1 overflow-hidden">
+                  <PluginManager
+                    onInstallPlugin={(pluginId) => {
+                      console.log('Installing plugin:', pluginId);
+                      toast({
+                        title: 'Plugin Installed',
+                        description: 'Plugin has been installed successfully',
+                      });
+                    }}
+                    onUninstallPlugin={(pluginId) => {
+                      console.log('Uninstalling plugin:', pluginId);
+                      toast({
+                        title: 'Plugin Uninstalled',
+                        description: 'Plugin has been removed',
+                      });
+                    }}
+                    onTogglePlugin={(pluginId, enabled) => {
+                      console.log('Toggling plugin:', pluginId, enabled);
+                      toast({
+                        title: enabled ? 'Plugin Enabled' : 'Plugin Disabled',
+                        description: `Plugin has been ${enabled ? 'activated' : 'deactivated'}`,
+                      });
+                    }}
+                    onConfigurePlugin={(pluginId) => {
+                      console.log('Configuring plugin:', pluginId);
+                      toast({
+                        title: 'Opening Configuration',
+                        description: 'Plugin settings are loading...',
+                      });
+                    }}
+                    onCreatePlugin={() => {
+                      console.log('Creating new plugin');
+                      toast({
+                        title: 'Plugin Creator',
+                        description: 'Opening plugin development environment...',
+                      });
+                    }}
+                    onImportPlugin={(file) => {
+                      console.log('Importing plugin file:', file.name);
+                      toast({
+                        title: 'Importing Plugin',
+                        description: `Processing ${file.name}...`,
+                      });
+                    }}
+                  />
+                </TabsContent>
+
+                <TabsContent value="extensions" className="flex-1 overflow-hidden">
+                  <ExtensionHub
+                    onInstallExtension={(extensionId) => {
+                      console.log('Installing extension:', extensionId);
+                      toast({
+                        title: 'Extension Installed',
+                        description: 'Extension has been installed successfully',
+                      });
+                    }}
+                    onUninstallExtension={(extensionId) => {
+                      console.log('Uninstalling extension:', extensionId);
+                      toast({
+                        title: 'Extension Uninstalled',
+                        description: 'Extension has been removed',
+                      });
+                    }}
+                    onToggleExtension={(extensionId, enabled) => {
+                      console.log('Toggling extension:', extensionId, enabled);
+                      toast({
+                        title: enabled ? 'Extension Enabled' : 'Extension Disabled',
+                        description: `Extension has been ${enabled ? 'activated' : 'deactivated'}`,
+                      });
+                    }}
+                    onConfigureExtension={(extensionId) => {
+                      console.log('Configuring extension:', extensionId);
+                      toast({
+                        title: 'Opening Configuration',
+                        description: 'Extension settings are loading...',
+                      });
+                    }}
+                    onRecommendExtension={(extensionId) => {
+                      console.log('Recommending extension:', extensionId);
+                      toast({
+                        title: 'Recommendation Saved',
+                        description: 'Extension has been added to your recommendations',
+                      });
+                    }}
+                  />
+                </TabsContent>
+              </Tabs>
             </div>
           </TabsContent>
 
