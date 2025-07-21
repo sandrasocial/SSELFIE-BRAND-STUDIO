@@ -2565,7 +2565,7 @@ const styles = {
               <div className="flex items-center justify-between">
                 <div>
                   <h4 className="font-medium text-sm flex items-center">
-                    <BarChart3 className="w-4 h-4 mr-2" />
+                    <TrendingUp className="w-4 h-4 mr-2" />
                     Advanced Analytics & Intelligence
                   </h4>
                   <p className="text-xs text-gray-600 mt-1">Category 9: Comprehensive analytics dashboard with AI-powered insights and predictions</p>
