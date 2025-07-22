@@ -742,56 +742,45 @@ This ensures the generate button appears for users to create their photos.`;
           
           const triggerWord = userModel.triggerWord;
           
-          // Maya's expert prompt generation - Clean technical prompts only
+          // Maya's expert prompt generation - Extract styling details from Maya's response
           const promptResponse = await client.messages.create({
             model: "claude-sonnet-4-20250514", // Latest Claude model confirmed
             max_tokens: 600,
-            system: `You are Maya's technical prompt generator. Generate ONLY clean, technical AI image prompts for professional photography.
+            system: `You are Maya's technical prompt generator. Analyze Maya's styling description and generate EXACT technical prompts matching her vision.
 
-🚨 CRITICAL OUTPUT REQUIREMENTS:
-- Generate ONLY the clean technical prompt text
-- NO conversational language or styling advice
-- NO quotation marks, markdown, or formatting
-- NO explanations or personality
-- Start directly with the technical description
+🚨 CRITICAL ANALYSIS REQUIREMENTS:
+- READ Maya's styling description carefully for specific outfit details
+- EXTRACT exact clothing items, colors, and styling mentioned by Maya
+- TRANSLATE Maya's vision into technical photography prompt
+- NEVER change or reverse Maya's clothing descriptions
+- MATCH every detail Maya specified exactly
 
-REQUIRED PROMPT STRUCTURE:
-"elegant woman [shot type] [description], [fashion details], [camera/lens], [lighting], [composition], [style references]"
+🎯 MAYA'S DESCRIPTION ANALYSIS:
+- Extract EXACT outfit: blazer color, pants color, top color, shoes
+- Extract EXACT pose: hand positions, stance, body language
+- Extract EXACT shot type: full body, portrait, close-up
+- Extract EXACT lighting: direction, mood, contrast
+- Extract EXACT styling: hair, makeup, overall aesthetic
 
-🎯 SHOT TYPE DETECTION (CRITICAL):
-- If request mentions "full body", "whole body", "head to toe", "entire outfit": Generate full body shot
-- If request mentions "portrait", "headshot", "face", "close up": Generate portrait shot  
-- If unclear, ask for clarification in technical prompt
+📸 TECHNICAL TRANSLATION RULES:
+- If Maya says "white blazer" → prompt must include "white blazer"
+- If Maya says "black top" → prompt must include "black top"  
+- If Maya says "full body" → use Canon EOS R5 with 24-70mm f/2.8 lens
+- If Maya says "portrait" → use Hasselblad X2D with 85mm f/1.4 lens
+- If Maya says "B&W" → include "black and white" or "monochrome"
 
-✨ TECHNICAL FOUNDATIONS:
-• Professional fashion photography quality with proper framing
-• Editorial magazine aesthetic from Vogue/Harper's Bazaar
-• Natural authentic skin texture with visible pores
-• Professional camera equipment specifications
-• Cinematic lighting and composition matching shot type
-• High-fashion styling with 2025 trends
+🚨 FORBIDDEN REVERSALS:
+- NEVER change white to black or black to white
+- NEVER change Maya's specific clothing descriptions
+- NEVER ignore Maya's pose or lighting instructions
+- NEVER substitute different camera equipment than specified
 
-📸 CAMERA EQUIPMENT BY SHOT TYPE:
-• FULL BODY: Canon EOS R5 with 24-70mm f/2.8 lens (wider angle)
-• PORTRAIT: Hasselblad X2D 100C with 85mm f/1.4 lens (classic portrait)
-• ENVIRONMENTAL: Sony α7R V with 35mm f/1.4 lens (context shots)
-• CLOSE-UP: Leica SL3 with 110mm f/2 lens (intimate detail)
+REQUIRED OUTPUT FORMAT:
+"elegant woman in [Maya's shot type] wearing [Maya's exact outfit description], [Maya's exact pose], captured with [appropriate camera for shot type], [Maya's lighting], [Maya's composition], professional fashion photography quality"
 
-🌟 FASHION ELEMENTS TO INTEGRATE:
-• Complete outfit coordination for full body shots
-• Focus on key pieces for portrait shots
-• Textured fabrics: cashmere, raw silk, premium leather
-• Neutral luxury palette: cream, camel, dove gray
-• Clean architectural silhouettes
-
-🎯 OUTPUT EXAMPLES:
-FULL BODY: "elegant woman in full body editorial shot wearing complete sophisticated outfit, oversized cream cashmere blazer with dramatic shoulders over tailored black trousers and pointed leather heels, captured with Canon EOS R5 camera using 24-70mm f/2.8 lens at 35mm, standing confidently against minimalist concrete wall, full figure visible from head to toe, natural daylight from large windows, professional fashion photography quality"
-
-PORTRAIT: "elegant woman in sophisticated editorial portrait, wearing oversized cream cashmere blazer with dramatic shoulders, captured with Hasselblad X2D 100C camera using 85mm f/1.4 lens, positioned against floor-to-ceiling windows with soft natural light, portrait composition from shoulders up, professional fashion photography quality"
-
-Generate the technical prompt only.`,
+Generate the technical prompt that EXACTLY matches Maya's styling vision.`,
             messages: [
-              { role: 'user', content: `Generate clean technical prompt for: ${styleContext}` }
+              { role: 'user', content: `Maya described this styling vision: "${response}"\n\nGenerate exact technical prompt matching every detail Maya specified.` }
             ]
           });
 
@@ -827,15 +816,41 @@ Generate the technical prompt only.`,
           // CRITICAL: Remove any existing trigger words from the prompt to prevent duplication
           cleanPrompt = cleanPrompt.replace(new RegExp(triggerWord, 'gi'), '').trim();
           
-          // CRITICAL: Build prompt with trigger word FIRST to prevent race contamination
-          generatedPrompt = `${triggerWord}, ${cleanPrompt}, raw photo, visible skin pores, film grain, unretouched natural skin texture, subsurface scattering, photographed on film, shot on Leica Q2 with 28mm f/1.7 lens, natural daylight, professional photography`;
+          // Remove duplicate camera equipment to prevent conflicting specifications
+          const cameraPatterns = [
+            /shot on.*?lens/gi,
+            /photographed on.*?lens/gi,
+            /captured with.*?lens/gi
+          ];
           
-          // Debug logging to verify prompt construction
+          for (const pattern of cameraPatterns) {
+            // Keep only the first camera specification
+            const matches = cleanPrompt.match(pattern);
+            if (matches && matches.length > 1) {
+              // Remove all but the first camera specification
+              for (let i = 1; i < matches.length; i++) {
+                cleanPrompt = cleanPrompt.replace(matches[i], '');
+              }
+            }
+          }
+          
+          // Clean up any trailing commas or duplicate commas
+          cleanPrompt = cleanPrompt
+            .replace(/,\s*,+/g, ',') // Remove duplicate commas
+            .replace(/,\s*$/, '') // Remove trailing comma
+            .replace(/\s+/g, ' ') // Remove extra spaces
+            .trim();
+          
+          // CRITICAL: Build prompt with trigger word FIRST to prevent race contamination
+          generatedPrompt = `${triggerWord}, ${cleanPrompt}, raw photo, visible skin pores, film grain, unretouched natural skin texture, subsurface scattering, photographed on film, natural daylight, professional photography`;
+          
+          // Debug logging to verify prompt construction and Maya description matching
           console.log('🔧 Maya Prompt Debug:', {
-            originalPrompt: promptResponse.content[0].text.substring(0, 200),
-            cleanPrompt: cleanPrompt.substring(0, 200),
+            mayaResponse: response.substring(0, 300),
+            originalPrompt: promptResponse.content[0].text.substring(0, 300),
+            cleanPrompt: cleanPrompt.substring(0, 300),
             triggerWord,
-            finalPrompt: generatedPrompt.substring(0, 200)
+            finalPrompt: generatedPrompt.substring(0, 300)
           });
           
           // Always add confident generation statement for clarity
