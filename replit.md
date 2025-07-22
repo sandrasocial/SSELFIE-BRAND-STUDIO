@@ -1258,34 +1258,44 @@ user42585527, elegant woman in full body editorial shot wearing sophisticated bl
 - Bulletproof training service will create new model with validated clean images
 - No Maya AI or Photoshoot generation possible until new clean model completes training
 
-## 🚨 ROOT CAUSE DISCOVERED - WRONG API MODEL FOR GENERATION (July 22, 2025)
+## 🚨 ARCHITECTURE CORRECTED - BACK TO INDIVIDUAL USER MODELS (July 22, 2025)
 
-**BREAKTHROUGH: FIXED SYSTEMATIC CONTAMINATION - USING WRONG MODEL FOR GENERATION**
+**CORRECTION: REVERTED TO CORRECT INDIVIDUAL USER MODEL ARCHITECTURE**
 
-**CRITICAL ISSUE IDENTIFIED:**
-- ✅ **Wrong Generation Model**: We were using user's individual trained model directly instead of black-forest-labs/flux-dev-lora
-- ✅ **Correct Training Model**: ostris/flux-dev-lora-trainer for training (this was always correct)
-- ✅ **Wrong Generation Approach**: Using `version: userTrainedModel` instead of `extra_lora: userLoraModel`
-- ✅ **API Format Fixed**: Now using official Black Forest Labs FLUX model with user's LoRA as parameter
+**ARCHITECTURE CLARIFICATION:**
+- ✅ **Training Model**: `ostris/flux-dev-lora-trainer:26dce37a` → Creates individual complete model per user
+- ✅ **Generation Model**: User's individual trained model directly (`sandrasocial/{userId}-selfie-lora:{versionId}`)
+- ✅ **NO Black Forest Labs Approach**: Individual user models, NOT base model + LoRA weights
+- ✅ **CORE PRINCIPLES**: Each user has their own complete trained FLUX model for zero cross-contamination
 
-**THE SYSTEMATIC ERROR:**
-**Training (Correct)**: `ostris/flux-dev-lora-trainer` → Creates user's LoRA weights
-**Generation (WAS WRONG)**: Using user's individual model directly
-**Generation (NOW CORRECT)**: `black-forest-labs/flux-dev-lora` + `extra_lora: userLoraModel`
+**CORRECTED API FORMAT:**
+```javascript
+// CORRECT APPROACH (Individual User Models)
+requestBody = {
+  version: `${userModel.replicateModelId}:${userModel.replicateVersionId}`,
+  input: {
+    prompt: prompt,
+    guidance: 2.8,
+    num_inference_steps: 40,
+    num_outputs: 3,
+    aspect_ratio: "3:4",
+    go_fast: false,
+    output_quality: 95
+  }
+}
+```
 
-**TECHNICAL FIXES APPLIED:**
-- **ai-service.ts Fixed**: Changed from direct model version to Black Forest Labs + LoRA weights
-- **image-generation-service.ts Fixed**: Same architectural fix for AI Photoshoot feature
-- **Version Updated**: Using latest Black Forest Labs version `ae0d7d645446924cf1871e3ca8796e8318f72465d2b5af9323a835df93bf0917`
-- **Parameter Fixed**: Changed `guidance_scale` to `guidance` for Black Forest Labs API compatibility
-- **LoRA Integration**: User's trained weights now properly loaded as `extra_lora` parameter
+**TECHNICAL CORRECTIONS APPLIED:**
+- **ai-service.ts Corrected**: Back to user's individual trained model version approach
+- **image-generation-service.ts Corrected**: Same individual model architecture for AI Photoshoot
+- **Parameters Aligned**: Following CORE PRINCIPLES document specifications exactly
+- **Zero Cross-Contamination**: Complete user isolation with individual models only
 
 **USER IMPACT:**
-- Contaminated model status reset - user must retrain for clean model
-- Both Maya AI and AI Photoshoot will now use correct Black Forest Labs model
-- No more face mixing from wrong API architecture
-- Clean separation between training model (ostris) and generation model (black-forest-labs)
-- Professional results expected with correct model architecture
+- Individual user model architecture restored (correct approach)
+- Training status reset - user needs fresh clean training with 15+ selfies
+- Complete user isolation maintained for professional results
+- Architecture now matches CORE PRINCIPLES document exactly
 
 **UNIFIED PROMPT STRUCTURE IMPLEMENTED:**
 ```

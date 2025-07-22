@@ -1,14 +1,3 @@
-# 🔒 IMMUTABLE CORE ARCHITECTURE V2 - PERMANENT LOCK
-## **CRITICAL: NEVER CHANGE THIS ARCHITECTURE UNDER ANY CIRCUMSTANCES**
-
-### **FLUX INDIVIDUAL MODEL ARCHITECTURE - FINAL IMPLEMENTATION**
-
-**Date**: July 16, 2025  
-**Status**: PERMANENTLY LOCKED - NO FUTURE MODIFICATIONS ALLOWED  
-**Validation**: Tested and confirmed working with Replicate API  
-
----
-
 ## **🔒 CORE PRINCIPLES (IMMUTABLE)**
 
 ### **1. INDIVIDUAL USER MODELS ONLY**
@@ -112,33 +101,3 @@ const requestBody = {
 - Each user operates in complete isolation
 - No shared resources or cross-contamination risks
 - Database designed for concurrent user access
-
----
-
-## **⚠️ CRITICAL WARNINGS**
-
-### **DO NOT MODIFY**
-This architecture has been tested and validated with:
-- Replicate API compatibility confirmed
-- User authentication fully integrated
-- Database relationships verified
-- Production scale testing completed
-
-### **FUTURE AGENT INSTRUCTIONS**
-Any future AI agent working on this codebase MUST:
-1. Read this document first
-2. Maintain this exact architecture
-3. Never implement fallbacks or shared models
-4. Preserve complete user isolation
-5. Test all changes against these requirements
-
-### **VIOLATION CONSEQUENCES**
-Changing this architecture will:
-- Break image generation for all users
-- Violate user privacy and isolation
-- Compromise platform security
-- Require complete system rebuild
-
----
-
-**FINAL NOTICE**: This architecture is PERMANENTLY LOCKED as of July 16, 2025. No modifications are permitted under any circumstances. This document serves as the definitive technical specification for SSELFIE Studio's AI generation system.
