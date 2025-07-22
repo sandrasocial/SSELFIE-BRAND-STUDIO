@@ -925,39 +925,31 @@ Generate your complete, creative prompt - trust your artistic vision completely.
         return res.status(400).json({ error: 'Custom prompt is required' });
       }
 
-      // 🎯 MAYA PROMPT EXTRACTION: Extract ONLY visual elements, remove all personality text
+      // 🚀 MAYA PROMPT RESTORATION: Use full detailed prompts like successful July 17th generations
       function extractImagePromptFromRequest(userPrompt, triggerWord) {
-        // Remove all Maya personality and conversational text
-        let cleanPrompt = userPrompt.toLowerCase()
-          .replace(/maya.*?stylist/gi, '')
-          .replace(/photoshoot.*?stylist/gi, '')
-          .replace(/as your personal/gi, '')
-          .replace(/celebrity.*?makeup artist/gi, '')
-          .replace(/a-list.*?brands/gi, '')
-          .replace(/magazine-worthy.*?content/gi, '')
-          .replace(/shot on.*?lens/gi, '')
-          .replace(/natural daylight.*?photography/gi, '');
+        // Check if prompt already contains proper AI generation format (starts with trigger word or has detailed scene)
+        if (userPrompt.includes(triggerWord) || userPrompt.includes('shot on') || userPrompt.includes('raw photo')) {
+          console.log(`✅ USING FULL DETAILED PROMPT: Detected proper AI generation format`);
+          return userPrompt; // Use the full detailed prompt as-is
+        }
         
-        // Extract style/mood keywords only
-        const styles = [];
-        if (cleanPrompt.includes('glamorous') || cleanPrompt.includes('glamour')) styles.push('glamorous portrait');
-        if (cleanPrompt.includes('casual') || cleanPrompt.includes('relaxed')) styles.push('casual portrait');
-        if (cleanPrompt.includes('powerful') || cleanPrompt.includes('strong')) styles.push('powerful portrait');
-        if (cleanPrompt.includes('elegant') || cleanPrompt.includes('sophisticated')) styles.push('elegant portrait');
-        if (cleanPrompt.includes('editorial')) styles.push('editorial portrait');
-        if (cleanPrompt.includes('professional')) styles.push('professional portrait');
+        // For Maya's conversational responses, extract the quoted prompt section
+        const quotedPromptMatch = userPrompt.match(/"([^"]+)"/);
+        if (quotedPromptMatch) {
+          const extractedPrompt = quotedPromptMatch[1];
+          console.log(`✅ EXTRACTED QUOTED PROMPT: Found detailed prompt in quotes`);
+          return extractedPrompt;
+        }
         
-        // Extract lighting keywords
-        const lighting = [];
-        if (cleanPrompt.includes('golden hour') || cleanPrompt.includes('sunset')) lighting.push('golden hour lighting');
-        if (cleanPrompt.includes('natural light') || cleanPrompt.includes('window light')) lighting.push('natural lighting');
-        if (cleanPrompt.includes('studio') || cleanPrompt.includes('professional light')) lighting.push('studio lighting');
+        // If it's a short request, enhance it with proper format like July 17th successes
+        if (userPrompt.length < 100) {
+          const enhancedPrompt = `${triggerWord} ${userPrompt}, raw photo, visible skin pores, film grain, unretouched natural skin texture, natural beauty with light skin retouch, soft diffused lighting, hair with natural volume and movement, professional photography`;
+          console.log(`🚀 ENHANCED SHORT PROMPT: Added professional quality parameters`);
+          return enhancedPrompt;
+        }
         
-        // Build final CLEAN prompt - NO personality text
-        const baseStyle = styles.length > 0 ? styles[0] : 'editorial portrait';
-        const finalLighting = lighting.length > 0 ? lighting[0] : 'natural lighting';
-        
-        return `${baseStyle}, ${finalLighting}, professional styling, confident expression`;
+        console.log(`📝 USING ORIGINAL PROMPT: No modification needed`);
+        return userPrompt;
       }
 
       const usageCheck = await UsageService.checkUsageLimit(userId);
