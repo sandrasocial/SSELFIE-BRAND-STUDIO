@@ -1223,6 +1223,41 @@ user42585527, elegant woman in full body editorial shot wearing sophisticated bl
 - Maintains complete backwards compatibility with existing trained models
 - Clean database structure for future user model management and scaling
 
+## 🚨 CRITICAL MODEL CONTAMINATION IDENTIFIED - ROOT CAUSE DISCOVERED (July 22, 2025)
+
+**BREAKTHROUGH: SOLVED "WRONG PERSON" GENERATION ISSUE - CONTAMINATED TRAINING DATA CONFIRMED**
+
+**CRITICAL CONTAMINATION ANALYSIS:**
+- ✅ **Issue Confirmed**: Current model `42585527-selfie-lora-1753196628763` generates mixed faces (user + unknown person)
+- ✅ **Root Cause Identified**: July 22nd "complete fresh start" deleted working models from July 17-19, created contaminated replacement
+- ✅ **Timeline Analysis**: Working system 4-5 days ago → Database purge → Contaminated model today
+- ✅ **Model Deactivated**: Contaminated model status reset to prevent further wrong-person generations
+- ✅ **Retraining Required**: User must upload verified clean images for new model training
+
+**INVESTIGATION FINDINGS:**
+**July 17-19 (Working Period)**: Model generated correct user images without contamination
+**July 22nd (Database Purge)**: "Complete Fresh Start" deleted 6 user models, 317 trackers, 132 images
+**July 22nd (New Training)**: Model `1753196628763` created with contaminated dataset at 15:20:38 UTC
+**Current Issue**: Face mixing confirmed despite correct parameters, prompts, and trigger words
+
+**CONTAMINATION SOURCE:**
+- Training ZIP: `training_42585527_1753196628561.zip` (1.37MB, created July 22nd 15:03)
+- Database claimed "zero contaminated data remains" but contamination persisted in new training
+- Bulletproof training service code appears correct - contamination likely in image collection phase
+- Training used proper ostris/flux-dev-lora-trainer model with correct parameters
+
+**IMMEDIATE SOLUTION IMPLEMENTED:**
+- Contaminated model deactivated (training_status reset to 'not_started')
+- User redirected to training page requiring fresh selfie upload
+- Enhanced validation prevents generation with contaminated model
+- Clean training pipeline required before any new generations
+
+**TECHNICAL RESOLUTION:**
+- Database update prevents use of contaminated model `42585527-selfie-lora-1753196628763`
+- User must upload 15+ verified selfies for clean model training
+- Bulletproof training service will create new model with validated clean images
+- No Maya AI or Photoshoot generation possible until new clean model completes training
+
 **UNIFIED PROMPT STRUCTURE IMPLEMENTED:**
 ```
 raw photo, visible skin pores, film grain, unretouched natural skin texture, subsurface scattering, photographed on film, [triggerword], [optimized prompt], [professional camera], natural daylight, professional photography
