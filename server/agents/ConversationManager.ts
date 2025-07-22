@@ -59,25 +59,29 @@ export class ConversationManager {
     const recentMessages = history.slice(-3);
     console.log('🔍 RECENT MESSAGES FOR DEBUG:', recentMessages.map(m => ({ role: m.role, content: m.content.substring(0, 100) })));
 
-    // FRESH SESSION APPROACH - Only look at recent messages (last 5) to prevent old task accumulation
-    const recentHistory = history.slice(-5);
+    // ENHANCED SESSION APPROACH - Look at recent messages (last 10) for better context capture
+    const recentHistory = history.slice(-10);
     
     for (const message of recentHistory) {
-      if (message.role === 'user') {
+      if (message.role === 'user' || message.role === 'human') {
         // Extract specific task requests with enhanced patterns for Elena
         const content = message.content.toLowerCase();
         const originalContent = message.content;
         
-        // CURRENT SESSION TASK EXTRACTION - Only capture tasks from recent conversation
-        if (content.includes('let') || content.includes('need') || content.includes('want') || 
+        // ENHANCED TASK EXTRACTION - Capture all meaningful requests
+        if (content.includes('elena') || content.includes('need') || content.includes('want') || 
             content.includes('should') || content.includes('can you') || content.includes('please') ||
             content.includes('maya') || content.includes('analyze') || content.includes('test') ||
-            content.includes('quality') || content.includes('generation') || content.includes('photos')) {
+            content.includes('quality') || content.includes('generation') || content.includes('photos') ||
+            content.includes('check') || content.includes('verify') || content.includes('access') ||
+            content.includes('file') || content.includes('system') || content.includes('chat') ||
+            content.includes('implement') || content.includes('parameters') || content.includes('flux')) {
           
-          // Extract the actual task request without predetermined categories
-          let task = originalContent.substring(0, 300).replace(/\n/g, ' ').trim();
-          if (task && !keyTasks.some(existingTask => existingTask.includes(task.substring(0, 50)))) {
+          // Extract the actual task request with better context preservation
+          let task = originalContent.substring(0, 400).replace(/\n/g, ' ').trim();
+          if (task && task.length > 10 && !keyTasks.some(existingTask => existingTask.includes(task.substring(0, 30)))) {
             keyTasks.push(task);
+            console.log(`📝 TASK EXTRACTED: ${task.substring(0, 100)}...`);
           }
         }
         
