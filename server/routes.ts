@@ -1170,18 +1170,15 @@ Generate the technical prompt that EXACTLY matches Maya's styling vision.`,
 
       // Use user's trained LoRA model only
 
-      // 🔑 NEW: Use AIService with tracker system (no auto-save to gallery)
-      const trackingResult = await AIService.generateSSELFIE({
+      // 🎯 MAYA SEQUENTIAL GENERATION: Use new method for consistent 3-photo quality
+      const trackingResult = await AIService.generateMayaSequential({
         userId,
-        imageBase64: null, // Maya doesn't use uploaded images - removed placeholder
-        style: 'Maya AI',
-        prompt: customPrompt
+        customPrompt: customPrompt
       });
 
 
-      // Start background polling for completion (updates tracker, NOT gallery)
-      AIService.pollGenerationStatus(trackingResult.trackerId, trackingResult.predictionId).catch(err => {
-      });
+      // Sequential polling is automatically started by generateMayaSequential method
+      // No additional polling setup needed
 
       // 🔑 NEW: Check for pending Maya image updates when generation starts
       setTimeout(() => {
