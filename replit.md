@@ -1151,7 +1151,7 @@ user42585527, elegant woman in full body editorial shot wearing sophisticated bl
 - **Architecture**: Each user has their own complete trained model endpoint
 
 **Unified High-Quality Parameters (Image Generation Only):**
-- **guidance**: 2.8 (unified across ALL generation endpoints)
+- **guidance_scale**: 2.8 (unified across ALL generation endpoints - correct FLUX parameter)
 - **num_inference_steps**: 40 (unified across ALL generation endpoints)
 - **lora_scale**: 0.95 (unified across ALL generation endpoints)
 - **output_quality**: 95 (unified across ALL generation endpoints)
@@ -1162,7 +1162,21 @@ user42585527, elegant woman in full body editorial shot wearing sophisticated bl
 - Fixed `server/image-generation-service.ts`: Uses complete user model path for AI Photoshoot
 - Fixed `server/enhanced-generation-service.ts`: Uses complete user model path for enhanced generation
 - Fixed `server/model-training-service.ts`: Uses complete user model path for training images
-- **Training kept separate**: model-training-service.ts uses training-optimized parameters (2.5 guidance, 35 steps, 1.0 lora_scale)
+- **Training kept separate**: model-training-service.ts uses training-optimized parameters (2.5 guidance_scale, 35 steps, 1.0 lora_scale)
+
+## ✅ CRITICAL FLUX PARAMETER FIX - GUIDANCE_SCALE CORRECTED (July 22, 2025)
+
+**BREAKTHROUGH: FIXED MISSING GUIDANCE PARAMETER IN REPLICATE LOGS**
+- ✅ **Root Cause Fixed**: FLUX models use `guidance_scale` parameter, not `guidance`
+- ✅ **All Generation Services Updated**: Maya chat, AI Photoshoot, enhanced generation, preview generation
+- ✅ **Consistent API Parameters**: Now using correct FLUX API parameter names throughout platform
+- ✅ **Replicate Logs Fixed**: guidance_scale parameter now visible and working correctly
+- ✅ **Research Confirmed**: FLUX LoRA models require guidance_scale for classifier-free guidance control
+
+**Parameter Fix Applied:**
+- **Before**: `guidance: 2.8` ← Not recognized by FLUX models
+- **After**: `guidance_scale: 2.8` ← Correct FLUX API parameter
+- **Result**: Proper guidance control now working in all image generation
 - ✅ **Clean Code**: All emojis and icons removed from codebase per user requirement
 - ✅ **Production Build**: Frontend and backend building successfully for deployment
 
