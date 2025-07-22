@@ -2661,13 +2661,13 @@ VOICE RULES:
         });
       }
       
-      if (selfieImages.length < 10) {
-        console.log(`❌ TRAINING BLOCKED: Insufficient images (${selfieImages.length}/10) for user ${authUserId}`);
+      if (selfieImages.length < 12) {
+        console.log(`❌ TRAINING BLOCKED: Insufficient images (${selfieImages.length}/12) for user ${authUserId}`);
         return res.status(400).json({ 
-          message: `❌ CRITICAL: Only ${selfieImages.length} images provided. MINIMUM 10 selfies required - NO EXCEPTIONS.`,
+          message: `Insufficient images provided. Need ${12 - selfieImages.length} more photos for quality training.`,
           requiresRestart: true,
           imageCount: selfieImages.length,
-          minimumRequired: 10
+          minimumRequired: 12
         });
       }
       

@@ -238,10 +238,10 @@ export default function SimpleTraining() {
 
   const handleStartTraining = async () => {
     // 🛡️ CRITICAL FRONTEND VALIDATION: NEVER ALLOW LESS THAN 10 IMAGES
-    if (selfieImages.length < 10) {
+    if (selfieImages.length < 12) {
       toast({
-        title: "❌ CRITICAL: Need More Photos",
-        description: `Only ${selfieImages.length} photos uploaded. MINIMUM 10 selfies required - no exceptions.`,
+        title: "Need More Photos",
+        description: `Only ${selfieImages.length} photos uploaded. Minimum 12 selfies required for quality training.`,
         variant: "destructive",
       });
       return;
@@ -249,8 +249,8 @@ export default function SimpleTraining() {
     
     if (selfieImages.length < 15) {
       toast({
-        title: "⚠️ Recommendation",
-        description: `${selfieImages.length} photos uploaded. 15-20 recommended for best results.`,
+        title: "Recommendation",
+        description: `${selfieImages.length} photos uploaded. 15-18 recommended for optimal results.`,
       });
     }
 

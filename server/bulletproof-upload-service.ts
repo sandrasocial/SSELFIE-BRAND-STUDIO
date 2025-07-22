@@ -38,21 +38,21 @@ export class BulletproofUploadService {
     
     // 🛡️ CRITICAL CHECK 1: No images at all
     if (!imageFiles || imageFiles.length === 0) {
-      errors.push('❌ CRITICAL: No images provided. Upload at least 10 selfies before training.');
+      errors.push('No images provided. Upload at least 12 selfies before training.');
       return { success: false, errors, validImages };
     }
     
     // 🛡️ CRITICAL CHECK 2: Less than minimum required
-    if (imageFiles.length < 10) {
-      errors.push(`❌ CRITICAL: Only ${imageFiles.length} images provided. MINIMUM 10 selfies required - no exceptions.`);
+    if (imageFiles.length < 12) {
+      errors.push(`Only ${imageFiles.length} images provided. Minimum 12 selfies required for quality training.`);
       return { success: false, errors, validImages };
     }
     
-    console.log(`🛡️ VALIDATION GATE 1 PASSED: ${imageFiles.length} images provided (meets minimum 10)`);
+    console.log(`🛡️ VALIDATION GATE 1 PASSED: ${imageFiles.length} images provided (meets minimum 12)`);
     
     // 🛡️ CRITICAL CHECK 3: Recommended minimum for quality
     if (imageFiles.length < 15) {
-      console.log(`⚠️  WARNING: Only ${imageFiles.length} images - recommend 15-20 for best results`);
+      console.log(`⚠️  WARNING: Only ${imageFiles.length} images - recommend 15-18 for optimal results`);
     }
     
     for (let i = 0; i < imageFiles.length; i++) {
@@ -91,13 +91,13 @@ export class BulletproofUploadService {
     }
     
     // 🛡️ CRITICAL CHECK 4: Final validation after processing
-    if (validImages.length < 10) {
-      errors.push(`❌ CRITICAL: Only ${validImages.length} valid images after processing. Need minimum 10 valid images.`);
-      console.log(`❌ VALIDATION FAILED: Insufficient valid images (${validImages.length}/10 minimum)`);
+    if (validImages.length < 12) {
+      errors.push(`Only ${validImages.length} valid images after processing. Need minimum 12 valid images.`);
+      console.log(`❌ VALIDATION FAILED: Insufficient valid images (${validImages.length}/12 minimum)`);
       return { success: false, errors, validImages };
     }
     
-    const success = validImages.length >= 10 && errors.length === 0;
+    const success = validImages.length >= 12 && errors.length === 0;
     
     console.log(`✅ VALIDATION GATE 2 PASSED: ${validImages.length} valid images, ${errors.length} errors`);
     
@@ -248,10 +248,10 @@ export class BulletproofUploadService {
       
       // 🛡️ CRITICAL GATE 4: Verify ZIP has enough content
       const zipStats = fs.statSync(zipPath);
-      const minZipSize = 50 * 1024; // At least 50KB for 10+ images
+      const minZipSize = 60 * 1024; // At least 60KB for 12+ images
       
       if (zipStats.size < minZipSize) {
-        errors.push(`❌ CRITICAL: ZIP file too small (${zipStats.size} bytes). Expected at least ${minZipSize} bytes for 10+ images.`);
+        errors.push(`ZIP file too small (${zipStats.size} bytes). Expected at least ${minZipSize} bytes for 12+ images.`);
         console.log(`❌ ZIP VALIDATION FAILED: File too small (${zipStats.size}/${minZipSize} bytes minimum)`);
         return { success: false, errors, zipUrl: null };
       }
@@ -267,13 +267,13 @@ export class BulletproofUploadService {
         }
       }
       
-      if (actualFileCount < 10) {
-        errors.push(`❌ CRITICAL: Only ${actualFileCount} files successfully added to ZIP. Need minimum 10.`);
-        console.log(`❌ ZIP FILE COUNT FAILED: Only ${actualFileCount}/10 minimum files in ZIP`);
+      if (actualFileCount < 12) {
+        errors.push(`Only ${actualFileCount} files successfully added to ZIP. Need minimum 12.`);
+        console.log(`❌ ZIP FILE COUNT FAILED: Only ${actualFileCount}/12 minimum files in ZIP`);
         return { success: false, errors, zipUrl: null };
       }
       
-      console.log(`🛡️ ZIP GATE 5 PASSED: ${actualFileCount} files in ZIP (meets minimum 10)`);
+      console.log(`🛡️ ZIP GATE 5 PASSED: ${actualFileCount} files in ZIP (meets minimum 12)`);
       
       if (zipStats.size < 1024) { // ZIP must be at least 1KB (legacy check)
         errors.push('ZIP file creation failed - file too small');
@@ -345,11 +345,11 @@ export class BulletproofUploadService {
           input: {
             input_images: zipUrl,
             trigger_word: triggerWord,
-            steps: 1000,
+            steps: 1500,
             learning_rate: 1e-5,
             batch_size: 1,
-            lora_rank: 16,
-            resolution: "512",
+            lora_rank: 24,
+            resolution: "1024",
             optimizer: "adamw8bit",
             autocaption: false,
             cache_latents_to_disk: false,
