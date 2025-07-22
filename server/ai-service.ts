@@ -356,12 +356,29 @@ export class AIService {
       body: JSON.stringify(requestBody)
     });
 
+    // Get response text first to handle both success and error cases
+    const responseText = await response.text();
+    
     if (!response.ok) {
-      const error = await response.json();
-      throw new Error(`FLUX API error: ${error.detail || response.statusText}`);
+      let errorMessage;
+      try {
+        const error = JSON.parse(responseText);
+        errorMessage = error.detail || error.message || response.statusText;
+      } catch (parseError) {
+        // Handle HTML error responses
+        console.error('Replicate API HTML error response:', responseText.substring(0, 200));
+        errorMessage = `API error (${response.status}): ${response.statusText}`;
+      }
+      throw new Error(`FLUX API error: ${errorMessage}`);
     }
 
-    const prediction = await response.json();
+    let prediction;
+    try {
+      prediction = JSON.parse(responseText);
+    } catch (parseError) {
+      console.error('Failed to parse Replicate response as JSON:', responseText.substring(0, 200));
+      throw new Error('Invalid JSON response from Replicate API');
+    }
     return prediction.id;
   }
 
