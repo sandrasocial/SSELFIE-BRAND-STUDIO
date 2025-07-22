@@ -364,7 +364,7 @@ export class AIService {
         version: "ae0d7d645446924cf1871e3ca8796e8318f72465d2b5af9323a835df93bf0917", // 🔒 CORRECTED: black-forest-labs/flux-dev-lora latest version
         input: {
           prompt: prompt,
-          lora_weights: userLoraModel,  // ✅ CORRECTED: Using proper FLUX API parameter name
+          lora_weights: `sandrasocial/42585527-selfie-lora-1753201482760`,  // ✅ CORRECTED: Using model name without version hash
           lora_scale: 0.8,              // ✅ LoRA strength for natural results
           guidance: 2.8,                // ✅ CORE_ARCHITECTURE_V2: Professional natural results
           num_inference_steps: 40,      // ✅ CORE_ARCHITECTURE_V2: Enhanced quality steps
