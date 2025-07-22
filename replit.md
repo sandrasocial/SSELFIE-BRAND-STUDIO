@@ -1258,6 +1258,35 @@ user42585527, elegant woman in full body editorial shot wearing sophisticated bl
 - Bulletproof training service will create new model with validated clean images
 - No Maya AI or Photoshoot generation possible until new clean model completes training
 
+## 🚨 ROOT CAUSE DISCOVERED - WRONG API MODEL FOR GENERATION (July 22, 2025)
+
+**BREAKTHROUGH: FIXED SYSTEMATIC CONTAMINATION - USING WRONG MODEL FOR GENERATION**
+
+**CRITICAL ISSUE IDENTIFIED:**
+- ✅ **Wrong Generation Model**: We were using user's individual trained model directly instead of black-forest-labs/flux-dev-lora
+- ✅ **Correct Training Model**: ostris/flux-dev-lora-trainer for training (this was always correct)
+- ✅ **Wrong Generation Approach**: Using `version: userTrainedModel` instead of `extra_lora: userLoraModel`
+- ✅ **API Format Fixed**: Now using official Black Forest Labs FLUX model with user's LoRA as parameter
+
+**THE SYSTEMATIC ERROR:**
+**Training (Correct)**: `ostris/flux-dev-lora-trainer` → Creates user's LoRA weights
+**Generation (WAS WRONG)**: Using user's individual model directly
+**Generation (NOW CORRECT)**: `black-forest-labs/flux-dev-lora` + `extra_lora: userLoraModel`
+
+**TECHNICAL FIXES APPLIED:**
+- **ai-service.ts Fixed**: Changed from direct model version to Black Forest Labs + LoRA weights
+- **image-generation-service.ts Fixed**: Same architectural fix for AI Photoshoot feature
+- **Version Updated**: Using latest Black Forest Labs version `ae0d7d645446924cf1871e3ca8796e8318f72465d2b5af9323a835df93bf0917`
+- **Parameter Fixed**: Changed `guidance_scale` to `guidance` for Black Forest Labs API compatibility
+- **LoRA Integration**: User's trained weights now properly loaded as `extra_lora` parameter
+
+**USER IMPACT:**
+- Contaminated model status reset - user must retrain for clean model
+- Both Maya AI and AI Photoshoot will now use correct Black Forest Labs model
+- No more face mixing from wrong API architecture
+- Clean separation between training model (ostris) and generation model (black-forest-labs)
+- Professional results expected with correct model architecture
+
 **UNIFIED PROMPT STRUCTURE IMPLEMENTED:**
 ```
 raw photo, visible skin pores, film grain, unretouched natural skin texture, subsurface scattering, photographed on film, [triggerword], [optimized prompt], [professional camera], natural daylight, professional photography
