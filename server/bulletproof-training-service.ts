@@ -57,16 +57,16 @@ export class BulletproofTrainingService {
     
     // Check minimum count
     if (!imageFiles || imageFiles.length === 0) {
-      errors.push('No images provided. Upload at least 15 high-quality selfies before training.');
+      errors.push('No images provided. Upload at least 12 high-quality selfies before training.');
       return { success: false, errors, validImages };
     }
     
-    if (imageFiles.length < 15) {
-      errors.push(`Only ${imageFiles.length} images provided. Minimum 15 selfies required for quality training (research shows 15-27 images optimal for faces).`);
+    if (imageFiles.length < 12) {
+      errors.push(`Only ${imageFiles.length} images provided. Minimum 12 selfies required for quality training (12-18 recommended range).`);
       return { success: false, errors, validImages };
     }
     
-    console.log(`🛡️ VALIDATION: ${imageFiles.length} images provided (meets minimum 15)`);
+    console.log(`🛡️ VALIDATION: ${imageFiles.length} images provided (meets minimum 12)`);
     
     // Validate each image
     for (let i = 0; i < imageFiles.length; i++) {
@@ -105,8 +105,8 @@ export class BulletproofTrainingService {
     }
     
     // Final validation after processing
-    if (validImages.length < 15) {
-      errors.push(`Only ${validImages.length} valid images after processing. Need minimum 15 valid high-quality images.`);
+    if (validImages.length < 12) {
+      errors.push(`Only ${validImages.length} valid images after processing. Need minimum 12 valid high-quality images.`);
       return { success: false, errors, validImages };
     }
     
@@ -170,15 +170,15 @@ export class BulletproofTrainingService {
       
       // Verify ZIP has enough content
       const zipStats = fs.statSync(zipPath);
-      const minZipSize = 100 * 1024; // At least 100KB for 15+ images (updated requirement)
+      const minZipSize = 80 * 1024; // At least 80KB for 12+ images (updated requirement)
       
       if (zipStats.size < minZipSize) {
-        errors.push(`ZIP file too small (${zipStats.size} bytes). Expected at least ${minZipSize} bytes for 15+ images.`);
+        errors.push(`ZIP file too small (${zipStats.size} bytes). Expected at least ${minZipSize} bytes for 12+ images.`);
         return { success: false, errors, zipUrl: null };
       }
       
-      if (addedImages < 15) {
-        errors.push(`Only ${addedImages} files successfully added to ZIP. Need minimum 15.`);
+      if (addedImages < 12) {
+        errors.push(`Only ${addedImages} files successfully added to ZIP. Need minimum 12.`);
         return { success: false, errors, zipUrl: null };
       }
       
