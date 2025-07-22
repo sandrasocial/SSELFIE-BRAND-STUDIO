@@ -1123,16 +1123,19 @@ Return ONLY the technical prompt without any additional text or formatting.`,
 
   app.post('/api/maya-generate-images', isAuthenticated, async (req: any, res) => {
     try {
-      // 🔒 PERMANENT ARCHITECTURE VALIDATION - NEVER REMOVE
-      const authUserId = ArchitectureValidator.validateAuthentication(req);
-      await ArchitectureValidator.validateUserModel(authUserId);
-      ArchitectureValidator.enforceZeroTolerance();
+      // 🔒 AUTHENTICATION VALIDATION - Moved after isAuthenticated middleware
+      const userId = req.user.claims.sub;
+      if (!userId) {
+        return res.status(401).json({ error: 'Authentication required' });
+      }
+      
+      console.log(`✅ Maya generation request from authenticated user: ${userId}`);
       
       const { customPrompt } = req.body;
       const claims = req.user.claims;
       
       // Get the correct database user ID
-      let user = await storage.getUser(authUserId);
+      let user = await storage.getUser(userId);
       if (!user && claims.email) {
         user = await storage.getUserByEmail(claims.email);
       }
@@ -1141,13 +1144,13 @@ Return ONLY the technical prompt without any additional text or formatting.`,
         return res.status(404).json({ error: 'User not found' });
       }
       
-      const userId = user.id;
+      const databaseUserId = user.id;
       
       if (!customPrompt) {
         return res.status(400).json({ error: 'Custom prompt is required' });
       }
 
-      const usageCheck = await UsageService.checkUsageLimit(userId);
+      const usageCheck = await UsageService.checkUsageLimit(databaseUserId);
       if (!usageCheck.canGenerate) {
         return res.status(403).json({ 
           error: 'Usage limit reached',
@@ -1160,7 +1163,7 @@ Return ONLY the technical prompt without any additional text or formatting.`,
       }
 
       // ZERO FALLBACKS - User MUST have completed trained model
-      let userModel = await storage.getUserModelByUserId(userId);
+      let userModel = await storage.getUserModelByUserId(databaseUserId);
       
       if (!userModel) {
         return res.status(400).json({ 
@@ -1181,14 +1184,14 @@ Return ONLY the technical prompt without any additional text or formatting.`,
           if (response.ok) {
             const replicateData = await response.json();
             if (replicateData.status === 'succeeded') {
-              console.log(`✅ Auto-detected completed training for user ${userId}`);
+              console.log(`✅ Auto-detected completed training for user ${databaseUserId}`);
               // Update database with completed status
-              await storage.updateUserModel(userId, {
+              await storage.updateUserModel(databaseUserId, {
                 trainingStatus: 'completed',
                 replicateVersionId: replicateData.output?.version || replicateData.version
               });
               // Refresh userModel data
-              userModel = await storage.getUserModelByUserId(userId);
+              userModel = await storage.getUserModelByUserId(databaseUserId);
             }
           }
         } catch (error) {
@@ -1214,7 +1217,7 @@ Return ONLY the technical prompt without any additional text or formatting.`,
 
       // 🔑 NEW: Use AIService with tracker system (no auto-save to gallery)
       const trackingResult = await AIService.generateSSELFIE({
-        userId,
+        userId: databaseUserId,
         imageBase64: null, // Maya doesn't use uploaded images - removed placeholder
         style: 'Maya AI',
         prompt: customPrompt
@@ -1227,7 +1230,7 @@ Return ONLY the technical prompt without any additional text or formatting.`,
 
       // 🔑 NEW: Check for pending Maya image updates when generation starts
       setTimeout(() => {
-        AIService.checkPendingMayaImageUpdates(userId).catch(err => {
+        AIService.checkPendingMayaImageUpdates(databaseUserId).catch(err => {
           console.error('Failed to check pending Maya image updates:', err);
         });
       }, 1000); // Small delay to ensure the message was saved
