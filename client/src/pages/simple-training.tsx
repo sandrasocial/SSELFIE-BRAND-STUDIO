@@ -38,8 +38,10 @@ export default function SimpleTraining() {
       trainingStatus: userModel?.trainingStatus
     });
     
-    if (userModel && userModel.trainingStatus === 'training') {
-      console.log('🔄 Found active training on page load:', userModel);
+    // CRITICAL FIX: Only show training UI if user has REAL Replicate model ID
+    // This prevents false "training in progress" when user hasn't actually started
+    if (userModel && userModel.trainingStatus === 'training' && userModel.replicateModelId) {
+      console.log('🔄 Found REAL active training on page load:', userModel);
       setIsTrainingStarted(true);
       setTrainingProgress(userModel.trainingProgress || 0);
       if (userModel.startedAt) {
@@ -57,8 +59,15 @@ export default function SimpleTraining() {
         window.location.href = '/workspace';
       }, 2000);
     } else if (userModel) {
+      console.log('📝 No real training found - showing upload interface');
       console.log('🔄 Training status:', userModel.trainingStatus, '- staying on training page');
       // Reset any previous training state for fresh start
+      setIsTrainingStarted(false);
+      setTrainingProgress(0);
+      setStartTime(null);
+    } else {
+      // No user model at all - show upload interface
+      console.log('📝 No user model - showing upload interface');
       setIsTrainingStarted(false);
       setTrainingProgress(0);
       setStartTime(null);
@@ -67,7 +76,8 @@ export default function SimpleTraining() {
 
   // Poll for training status updates with progress
   useEffect(() => {
-    const isCurrentlyTraining = isTrainingStarted || (userModel && userModel.trainingStatus === 'training');
+    // CRITICAL FIX: Only poll if REAL training with Replicate model ID
+    const isCurrentlyTraining = isTrainingStarted || (userModel && userModel.trainingStatus === 'training' && userModel.replicateModelId);
     
     if (isCurrentlyTraining && isAuthenticated) {
       console.log('🔄 Training detected, starting status polling...');
