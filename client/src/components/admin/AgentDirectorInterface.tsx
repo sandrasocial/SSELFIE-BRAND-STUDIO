@@ -221,24 +221,9 @@ export default function AgentDirectorInterface() {
               )}
             </div>
 
-            {/* Chat Management Controls */}
+            {/* Quick Strategic Questions */}
             <div className="mb-4">
-              <div className="flex items-center justify-between mb-3">
-                <div className="text-sm font-medium text-gray-700">Strategic Focus Areas:</div>
-                <Button
-                  onClick={() => {
-                    setConversation([]);
-                    setMessage('');
-                    setProposedWorkflow(null);
-                  }}
-                  variant="outline"
-                  size="sm"
-                  className="flex items-center gap-1 text-xs"
-                >
-                  <span className="text-lg">+</span>
-                  New Chat
-                </Button>
-              </div>
+              <div className="text-sm font-medium text-gray-700 mb-2">Strategic Focus Areas:</div>
               <div className="grid grid-cols-1 gap-2">
                 {strategicQuestions.map((question, index) => (
                   <Button

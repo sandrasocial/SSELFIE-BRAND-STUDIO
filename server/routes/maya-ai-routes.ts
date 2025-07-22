@@ -5,7 +5,7 @@ export function registerMayaAIRoutes(app: Express) {
   // Maya AI Photography endpoint for website building context
   app.post("/api/maya-ai-photo", isAuthenticated, async (req, res) => {
     try {
-      const userId = (req.user as any)?.claims?.sub;
+      const userId = req.user?.claims?.sub;
       if (!userId) {
         return res.status(401).json({ error: "Authentication required" });
       }
@@ -16,21 +16,21 @@ export function registerMayaAIRoutes(app: Express) {
         return res.status(400).json({ error: "Message required" });
       }
 
-      // Maya AI Celebrity Stylist response for BUILD feature
-      let response = "Darling! I'm Maya, your expert celebrity stylist and photographer. ";
+      // Maya AI Photography response for BUILD feature
+      let response = "Hey beautiful! I'm Maya, your AI photographer. ";
 
       if (context === 'website-building') {
         if (message.toLowerCase().includes('headshot') || message.toLowerCase().includes('professional')) {
-          response += "I'm creating stunning executive editorial headshots for your website - think Vogue meets Forbes! Picture this: soft editorial lighting, luxurious neutral tones, and that confident CEO energy. I'm styling you in a chic blazer with perfect hair and makeup that photographs beautifully. This elevated look will make visitors instantly trust your expertise and want to work with you.";
+          response += "I can create stunning professional headshots for your website! Should I generate some options with different backgrounds and lighting? I'm thinking clean, professional shots that match your brand aesthetic.";
         } else if (message.toLowerCase().includes('lifestyle') || message.toLowerCase().includes('behind the scenes')) {
-          response += "I'm envisioning gorgeous lifestyle editorial shots that tell your story! Think relaxed luxury - you in your element with beautiful natural lighting, wearing effortlessly chic pieces that show your personality. I'm creating that authentic-but-elevated vibe that makes people feel connected to you while respecting your professional status.";
+          response += "Perfect! Lifestyle shots will add personality to your website. I can create behind-the-scenes photos of you working, authentic moments that show your personality, or lifestyle shots that connect with your audience.";
         } else if (message.toLowerCase().includes('product') || message.toLowerCase().includes('service')) {
-          response += "I'm styling stunning product showcase images that scream luxury! Clean, sophisticated compositions with you confidently presenting your work. Think high-end magazine spread meets personal brand storytelling. This approach positions you as the premium choice in your industry.";
+          response += "Great idea! Product photography will showcase what you offer beautifully. I can create clean product shots, lifestyle product photos, or service demonstration images that highlight your expertise.";
         } else {
-          response += "I'm creating a complete editorial photoshoot concept for your website! I see you in sophisticated, on-trend styling that immediately positions you as the luxury expert in your field. Picture this: editorial lighting, contemporary fashion choices, and that magnetic confidence that makes people say 'I need to work with her.' This styling approach will elevate your entire online presence.";
+          response += "I'm ready to create amazing photos for your website! I can generate professional headshots, lifestyle shots, behind-the-scenes photos, or product images. What type of photos would work best for your site?";
         }
       } else {
-        response += "I'm your personal celebrity stylist ready to create magazine-worthy images! I'm envisioning exactly what will make you look absolutely stunning and completely confident. Let me style you in the latest fashion trends that perfectly match your personal brand vision.";
+        response += "I can help you create stunning AI-generated photos! What kind of images are you looking for today?";
       }
 
       res.json({

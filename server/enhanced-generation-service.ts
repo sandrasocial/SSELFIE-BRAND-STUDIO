@@ -80,17 +80,17 @@ export class EnhancedGenerationService {
       throw new Error('User model version not found - training may need completion');
     }
     
-    // 🔒 INDIVIDUAL USER MODEL ARCHITECTURE (Fixed July 22, 2025)  
-    const userModelPath = userModel.replicateVersionId;
+    // 🔒 USER'S INDIVIDUAL TRAINED MODEL (IMMUTABLE V2)
+    const userTrainedVersion = `${userModel.replicateModelId}:${userModel.replicateVersionId}`;
     
     // 🔥 SELECT ENHANCEMENT BASED ON LEVEL
     const preset = this.ENHANCEMENT_PRESETS[enhancementLevel];
     const enhancement = this.ENHANCEMENT_LORAS[preset.lora];
     
-    console.log(`🔥 ENHANCED GENERATION: Using ${enhancementLevel} enhancement with individual model: ${userModelPath}`);
+    console.log(`🔥 ENHANCED GENERATION: Using ${enhancementLevel} enhancement`);
     console.log(`🎨 Enhancement LoRA: ${enhancement.description}`);
     
-    // 🎯 OPTIMIZE PROMPT FOR ENHANCEMENT
+    // 🎯 OPTIMIZE PROMPT FOR ENHANCEMENT (USING WORKING STRUCTURE FROM ID 352)
     let enhancedPrompt = customPrompt;
     
     // Clean the custom prompt first to avoid duplication
@@ -107,7 +107,7 @@ export class EnhancedGenerationService {
     // Clean up extra commas and spaces
     enhancedPrompt = enhancedPrompt.replace(/,\s*,/g, ',').replace(/^\s*,\s*|\s*,\s*$/g, '').trim();
     
-    // 🔧 WORKING STRUCTURE: Realism base + trigger word + clean description
+    // 🔧 WORKING STRUCTURE: Realism base + trigger word + clean description (matches successful ID 352)
     enhancedPrompt = `raw photo, visible skin pores, film grain, unretouched natural skin texture, subsurface scattering, photographed on film, ${triggerWord}, ${enhancedPrompt}`;
     
     // Add enhancement trigger words if specified
@@ -117,18 +117,17 @@ export class EnhancedGenerationService {
     
     console.log(`🔧 ENHANCED GENERATION WORKING PROMPT: ${enhancedPrompt}`);
     
-    // 🔥 INDIVIDUAL USER MODEL REQUEST WITH ENHANCEMENT
+    // 🔥 ENHANCED GENERATION REQUEST WITH EXTRA LORA
     const enhancedRequestBody = {
-      version: userModelPath, // ✅ COMPLETE individual user model path
+      version: userTrainedVersion, // 🔒 USER'S INDIVIDUAL MODEL (V2 COMPLIANCE)
       input: {
         prompt: enhancedPrompt,
-        guidance_scale: 2.8,         // ✅ Unified high-quality parameter (correct FLUX parameter)
-        num_inference_steps: 40,     // ✅ Unified high-quality parameter
-
+        guidance: 2.8, // 🔒 CORE_ARCHITECTURE_IMMUTABLE_V2.md: optimal natural results
+        num_inference_steps: 40, // 🔧 USER OPTIMIZED: More steps for higher quality
         num_outputs: 3,
         aspect_ratio: "3:4", // 🔒 CORE_ARCHITECTURE_IMMUTABLE_V2.md: portrait format
         output_format: "png",
-        output_quality: 95,         // ✅ Unified high-quality parameter
+        output_quality: 95, // 🔒 CORE_ARCHITECTURE_IMMUTABLE_V2.md: maximum clarity
         go_fast: false, // 🔒 CORE_ARCHITECTURE_IMMUTABLE_V2.md: quality over speed
         disable_safety_checker: false,
         // 🔥 ENHANCEMENT LAYER - NEW PARAMETERS

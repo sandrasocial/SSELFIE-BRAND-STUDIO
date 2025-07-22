@@ -402,8 +402,8 @@ export class ElenaWorkflowSystem {
   private static async executeWorkflowSteps(workflow: CustomWorkflow, executionId: string): Promise<void> {
     console.log(`🎯 ELENA: REAL EXECUTION of ${workflow.steps.length} steps for workflow ${workflow.id}`);
     
-    // Send friendly initial update to user
-    await this.sendElenaUpdateToUser(workflow.id, `Perfect! I'm coordinating ${workflow.steps.length} agents to work on this for you. I'll update you when they're done!`);
+    // Send initial execution update to user
+    await this.sendElenaUpdateToUser(workflow.id, `🚀 Starting workflow execution with ${workflow.steps.length} AI agents. Each agent works in minutes, not hours!`);
     
     for (let i = 0; i < workflow.steps.length; i++) {
       const step = workflow.steps[i];
@@ -424,8 +424,8 @@ export class ElenaWorkflowSystem {
           continue;
         }
         
-        // Elena coordinates privately with agents - no need to notify user of every step
-        console.log(`🤖 ELENA: Coordinating with ${step.agentName} on: ${step.taskDescription}`);
+        // Send real-time update before agent starts
+        await this.sendElenaUpdateToUser(workflow.id, `🤖 ${step.agentName} is now working on: ${step.taskDescription} (estimated: 1-2 minutes)`);
         
         // REAL AGENT EXECUTION - Call actual agent with direct file modification instructions
         console.log(`🤖 ELENA: REAL EXECUTION - ${step.agentName} working on: ${step.taskDescription}`);
@@ -441,16 +441,15 @@ export class ElenaWorkflowSystem {
         if (success) {
           progress.completedTasks.push(`✅ ${step.agentName}: ${step.taskDescription} (completed in ${executionTimeMinutes} minutes)`);
           console.log(`✅ ELENA: Step ${i + 1} completed with real file modifications in ${executionTimeMinutes} minutes`);
+          await this.sendElenaUpdateToUser(workflow.id, `✅ ${step.agentName} completed their work in ${executionTimeMinutes} minutes! Moving to next step...`);
         } else {
           progress.completedTasks.push(`❌ ${step.agentName}: ${step.taskDescription} (EXECUTION FAILED after ${executionTimeMinutes} minutes)`);
           console.log(`❌ ELENA: Step ${i + 1} failed - agent did not complete task`);
+          await this.sendElenaUpdateToUser(workflow.id, `❌ ${step.agentName} encountered issues. Adjusting workflow...`);
         }
         
-        // Log progress internally - Elena coordinates privately with agents
-        console.log(`📋 ELENA COORDINATION: Step ${i + 1}/${workflow.steps.length} complete. Next: ${workflow.steps[i + 1]?.agentName || 'Final steps'}`);
-        
-        // AI agent processing time (reduced for faster execution)
-        await new Promise(resolve => setTimeout(resolve, 15000));
+        // AI agent processing time (30 seconds between agents)
+        await new Promise(resolve => setTimeout(resolve, 30000));
         
         // Save progress after each step
         this.saveWorkflowsToDisk();
@@ -525,12 +524,12 @@ export class ElenaWorkflowSystem {
    */
   private static async executeRealAgentStep(agentName: string, task: string, targetFile?: string): Promise<boolean> {
     try {
-      // Use admin endpoint with proper authentication
-      const response = await fetch('http://localhost:5000/api/admin/agent-chat-bypass', {
+      // Use the correct admin agents chat endpoint that returns JSON
+      const response = await fetch('http://localhost:5000/api/admin/agents/chat', {
         method: 'POST',
         headers: { 
           'Content-Type': 'application/json',
-          'Authorization': 'Bearer sandra-admin-2025'
+          'X-Elena-Workflow': 'true'
         },
         body: JSON.stringify({
           agentId: agentName.toLowerCase(),
@@ -544,11 +543,13 @@ WORKFLOW TASK DETAILS:
 - Priority: Complete this specific task with real file modifications
 - Standards: Maintain SSELFIE Studio luxury editorial design and architecture
 - Integration: Follow 5-step file integration protocol if creating new files
+7. Aria: Create magazine-quality editorial design
+8. Zara: Implement with technical excellence
 
 TARGET: Complete admin dashboard transformation
 TASK: ${task}
 
-This is a comprehensive workflow step. Execute with real file modifications.`,
+This is a comprehensive redesign, not just component creation. Transform the entire admin experience.`,
           adminToken: 'sandra-admin-2025',
           conversationHistory: [],
           workflowContext: {

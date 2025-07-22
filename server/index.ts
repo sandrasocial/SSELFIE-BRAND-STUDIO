@@ -3,7 +3,6 @@ import { registerRoutes } from "./routes";
 import { setupVite, serveStatic, log } from "./vite";
 import { TrainingCompletionMonitor } from "./training-completion-monitor";
 import { registerCoverImageRoutes } from "./routes/cover-image-routes";
-import { TrackerSyncService } from "./tracker-sync-service";
 import cors from "cors";
 
 const app = express();
@@ -89,10 +88,6 @@ app.use(express.static('public'));
   const monitor = TrainingCompletionMonitor.getInstance();
   monitor.startMonitoring();
   console.log('🚀 Training Completion Monitor started - will check for stuck trainings every 2 minutes');
-
-  // Start the tracker sync service to fix stuck generations
-  TrackerSyncService.startPeriodicSync();
-  console.log('🚀 Tracker Sync Service started - will sync processing trackers with Replicate every 5 minutes');
 
   // importantly only setup vite in development and after
   // setting up all the other routes so the catch-all route

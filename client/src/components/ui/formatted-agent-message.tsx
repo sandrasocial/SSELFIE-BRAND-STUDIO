@@ -32,22 +32,24 @@ export function FormattedAgentMessage({
   const [copiedBlocks, setCopiedBlocks] = useState<Set<number>>(new Set());
 
   const toggleBlock = (index: number) => {
-    const currentArray = Array.from(expandedBlocks);
-    if (currentArray.includes(index)) {
-      setExpandedBlocks(new Set(currentArray.filter(i => i !== index)));
+    const newExpanded = new Set(expandedBlocks);
+    if (newExpanded.has(index)) {
+      newExpanded.delete(index);
     } else {
-      setExpandedBlocks(new Set([...currentArray, index]));
+      newExpanded.add(index);
     }
+    setExpandedBlocks(newExpanded);
   };
 
   const copyCode = async (code: string, index: number) => {
     try {
       await navigator.clipboard.writeText(code);
-      setCopiedBlocks(prev => new Set(Array.from(prev).concat([index])));
+      setCopiedBlocks(prev => new Set([...prev, index]));
       setTimeout(() => {
         setCopiedBlocks(prev => {
-          const newArray = Array.from(prev).filter(i => i !== index);
-          return new Set(newArray);
+          const newSet = new Set(prev);
+          newSet.delete(index);
+          return newSet;
         });
       }, 2000);
     } catch (error) {

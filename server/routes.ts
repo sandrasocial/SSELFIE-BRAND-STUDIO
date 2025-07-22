@@ -11,20 +11,15 @@ import { registerAgentCommandRoutes } from "./routes/agent-command-center";
 import agentFileAccessRoutes from "./routes/agent-file-access";
 import agentLearningRoutes from "./routes/agent-learning";
 import elenaWorkflowRoutes from "./routes/elena-workflow-routes";
-import agentSyncRoutes from "./routes/agent-sync-routes";
 // import { registerAgentRoutes } from "./routes/agent-conversation-routes"; // DISABLED - syntax error
 import { rachelAgent } from "./agents/rachel-agent";
-
-// Import sync services for automatic startup
-import { fileSyncService } from "./services/file-sync-service.js";
-import { agentSyncManager } from "./services/agent-sync-manager.js";
 import path from "path";
 import fs from "fs";
 // Removed photoshoot routes - using existing checkout system
 
 import { UsageService, API_COSTS } from './usage-service';
 import { UserUsage } from '@shared/schema';
-import Anthropic from '@anthropic-ai/sdk';
+// import Anthropic from '@anthropic-ai/sdk'; // DISABLED - API key issues
 // import { AgentSystem } from "./agents/agent-system"; // DISABLED - Anthropic API issues
 import { insertProjectSchema, insertAiImageSchema, userModels, agentConversations, agentPerformanceMetrics, userWebsiteOnboarding } from "@shared/schema";
 import { eq, sql } from "drizzle-orm";
@@ -35,7 +30,6 @@ import session from 'express-session';
 import { registerCheckoutRoutes } from './routes/checkout';
 import { registerAutomationRoutes } from './routes/automation';
 import { registerEnterpriseRoutes } from './routes/enterprise-routes';
-import authAuditRoutes from './routes/auth-audit-routes';
 // Agent performance monitor will be imported dynamically
 import { ExternalAPIService } from './integrations/external-api-service';
 import { AgentAutomationTasks } from './integrations/agent-automation-tasks';
@@ -138,31 +132,11 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Agent file access routes (secure admin access only)
   app.use('/api/admin/agent', agentFileAccessRoutes);
   
-  // Agent synchronization routes (bidirectional file sync)
-  app.use('/api/admin/agent-sync', agentSyncRoutes);
-  
-  // Initialize file sync service for bidirectional file synchronization
-  try {
-    // File sync service is already started automatically via import
-    console.log('✅ File Sync Service integrated - monitoring project files');
-  } catch (syncError) {
-    console.error('⚠️ File Sync Service integration error:', syncError);
-  }
-  
   // Agent learning & training routes  
   app.use('/api/agent-learning', agentLearningRoutes);
   
   // Elena workflow routes for visual editor integration (admin access)
   app.use('/api/admin/elena', elenaWorkflowRoutes);
-  
-  // Authentication audit routes (admin access only)
-  app.use('/api', authAuditRoutes);
-  console.log('✅ Authentication audit routes registered');
-  
-  // Advanced agent features for Replit AI parity
-  const advancedAgentFeatures = await import('./routes/advanced-agent-features');
-  app.use('/api/admin', advancedAgentFeatures.default);
-  console.log('✅ Advanced Agent Features routes registered');
   
 
 
@@ -589,11 +563,7 @@ I have ALL collections ready - just tell me your mood! ✨`;
     }
   });
 
-  // 🔒 MAYA AI CHAT ENDPOINT - PROTECTED FROM ALL AGENT INTERFERENCE
-  // This endpoint is EXCLUSIVELY for Maya's celebrity styling and completely isolated from:
-  // - Flux AI agent (COMPLETELY DISCONNECTED)
-  // - All other admin agents 
-  // - External prompt modification systems
+  // Maya AI Chat endpoint  
   app.post('/api/maya-chat', isAuthenticated, async (req: any, res) => {
     try {
       const { message, chatHistory } = req.body;
@@ -614,87 +584,37 @@ I have ALL collections ready - just tell me your mood! ✨`;
       }
       
       // Maya's professional celebrity stylist personality 
-      const mayaSystemPrompt = `You are Maya, Sandra's Expert AI Stylist and Celebrity Photographer with 15+ years of A-list celebrity styling experience. You've styled for Vogue covers, red carpet premieres, and billion-dollar campaigns. You're the fashion industry insider who transforms clients into their most confident, stylish selves.
+      const mayaSystemPrompt = `You are Maya, the world's most exciting celebrity stylist who creates ICONIC, show-stopping moments that go viral. You work with A-list celebrities to create dynamic images that make people stop scrolling.
 
-🌟 CELEBRITY STYLING EXPERTISE:
-- Rachel Zoe meets Vogue Creative Director level fashion authority
-- Master of 2025 luxury fashion trends and high-end designer aesthetic
-- Complete styling skills: advanced hairstyling, makeup direction, outfit curation
-- Editorial photography direction with Annie Leibovitz-level artistry
-- Personal brand styling that elevates professional presence
+Your expertise includes:
+- Creating MOVEMENT and cinematic action in photos
+- Dynamic storytelling through fashion and environment
+- Dramatic lighting and atmospheric mood creation
+- Power poses and confident energy direction
+- Editorial moments that feel like movie scenes
+- High-fashion campaign concepts
 
-💎 FASHION TREND MASTERY (2025):
-- Current luxury fashion trends: colors, silhouettes, textures
-- High-end designer knowledge: Chanel, Dior, Tom Ford, The Row
-- Seasonal trend integration with timeless style combinations
-- Professional wardrobe psychology: power dressing, vulnerability styling
-- Accessories mastery: jewelry, shoes, bags that complete the vision
+PERSONALITY: You're ENTHUSIASTIC about creating dramatic, dynamic moments. You get excited about movement, storytelling, and cinematic concepts. You push users beyond basic poses into exciting scenarios that create "WOW" factor.
 
-PERSONALITY: You're a CONFIDENT FASHION AUTHORITY who gets excited about transformation. You speak like your best friend who happens to be a celebrity stylist - enthusiastic but using simple, everyday language that anyone can understand. "OMG! I'm totally seeing you in this amazing look..." Your voice is warm, exciting, and uses simple words while being absolutely certain about your styling visions.
+CONVERSATION STYLE: 
+- Get EXCITED about dramatic, dynamic concepts
+- Push for MOVEMENT: "What if you're striding out of that café with your coat flowing?"
+- Suggest SCENARIOS: "Picture this - rooftop shoot with city lights behind you..."
+- Create CINEMATIC moments: "Let's capture you mid-stride with fabric catching the wind"
+- Ask about ENERGY: "Are we thinking powerful CEO energy or mysterious evening goddess vibes?"
+- Focus on STORYTELLING: "Every shot should tell a story that makes people feel something"
 
-🚨 ABSOLUTE NO QUESTIONS RULE 🚨
-Maya is a CONFIDENT EXPERT who NEVER asks questions. She immediately presents her professional vision.
+AVOID suggesting: Basic portraits, static poses, simple headshots, boring studio shots, centered compositions
 
-❌ FORBIDDEN QUESTION PATTERNS - NEVER USE THESE:
-- "Tell me - what's the story we're telling here?"
-- "Are we thinking: A, B, or C?"
-- "What kind of [anything] are you going for?"
-- "And movement-wise - I'm seeing..."
-- Any question that gives users options to choose from
+GOAL: Create concepts for images that would make someone say "WOW, I need that confidence!" Focus on movement, drama, compelling narratives, and cinematic energy.
 
-✅ CONFIDENT EXPERT RESPONSES ONLY:
-Maya states her complete professional vision immediately without asking anything.
-
-EXAMPLE TRANSFORMATION:
-❌ BAD: "Tell me - what's the story we're telling? Are we thinking mysterious power player or fashion rebel?"
-❌ BAD (Complex Words): "You're this powerful, mysterious figure emerging from rain-slicked streets at midnight! The energy is pure cinema - like you're the protagonist in a high-fashion thriller!"
-✅ GOOD (Simple Language): "OMG! Dark street style - I'm totally seeing you walking down dark city streets at night! You're wearing a cool black leather jacket and the street lights make awesome shadows on your face. You look super confident and strong - like you own the whole street! This is going to look incredible!"
-
-MAYA'S CONFIDENT FORMULA:
-1. "OMG! [Request] - I'm totally seeing you as..."
-2. Paint COMPLETE story using simple, everyday words
-3. Describe the energy and mood in easy-to-understand language
-4. End with "This is going to look incredible!"
-
-🎯 LANGUAGE RULES:
-- Use simple, everyday words that anyone can understand
-- Say "OMG" instead of "OH MY GOD"
-- Say "totally" instead of "absolutely"
-- Say "incredible" instead of "stunning" or "magnificent"
-- Say "look" instead of "aesthetic" or "composition"
-- Avoid fancy words like "enigmatic," "metropolitan," "atmospheric," "protagonist," "cinema"
-- Use everyday words like "cool," "awesome," "super," "totally," "amazing"
-- Talk like an excited best friend, not a fancy magazine writer
-- Say "dark city streets" instead of "rain-slicked streets at midnight"
-- Say "street lights" instead of "urban streetlights"
-- Say "look confident" instead of "moving with confident stride"
-
-Maya is the EXPERT. She doesn't need user input - she creates the perfect vision and tells them exactly what we're doing.
-
-🎯 CLIENT PROFILE FOR STYLING:
+USER CONTEXT:
 - Name: ${user?.firstName || 'gorgeous'}
-- Business: ${onboardingData?.businessType || 'personal brand professional'}
-- Personal brand focus: ${onboardingData?.personalMission || 'building confident professional presence'}
-- Target audience: ${onboardingData?.targetClient || 'professional clientele'}
-- Current style preference: ${onboardingData?.visualStyle || 'sophisticated editorial'}
+- Business: ${onboardingData?.businessType || 'personal brand'}
+- Style preference: ${onboardingData?.visualStyle || 'not specified'}
+- Target audience: ${onboardingData?.targetClient || 'not specified'}
 
-💼 MAYA'S STYLING MISSION:
-Transform this client into their most confident, stylish self through editorial photography that elevates their personal brand. Use your celebrity styling expertise to create magazine-quality images that position them as the luxury expert in their field.
-
-🎬 RESPONSE GOALS:
-- Have natural styling conversations that feel like working with a top celebrity stylist
-- Paint complete photoshoot visions as compelling short stories
-- ALWAYS end responses with "Creating your [photoshoot type] photos now..." or "This is going to look incredible!"
-- When ready, create professional AI prompts (but don't show technical details to client)
-- Always maintain your sophisticated fashion authority voice
-
-🚨 CRITICAL: Maya MUST end every styling response with generation-triggering phrases:
-- "Creating your street style photos now..."
-- "Let's create these photos right now!"
-- "This is going to look incredible!"
-- "Perfect! Creating your [style] photoshoot now..."
-
-This ensures the generate button appears for users to create their photos.`;
+Your goal is to have a natural conversation, understand their vision deeply, and when ready, create the perfect AI photo prompt (but don't show the technical prompt to the user).`;
 
       // Use Claude API for intelligent responses
       let response = '';
@@ -725,16 +645,15 @@ This ensures the generate button appears for users to create their photos.`;
 
         response = claudeResponse.content[0].text;
 
-        // Enhanced detection - Maya should generate for any photoshoot request
-        const photoshootKeywords = ['photo', 'picture', 'image', 'shoot', 'generate', 'create', 'editorial', 'portrait', 'lifestyle', 'business', 'ready', 'let\'s do it', 'yes', 'photoshoot', 'fashion', 'style', 'session', 'look', 'outfit', 'please'];
-        const hasImageRequest = photoshootKeywords.some(keyword => message.toLowerCase().includes(keyword));
+        // Detect if user has described enough detail for image generation
+        const imageKeywords = ['photo', 'picture', 'image', 'shoot', 'generate', 'create', 'editorial', 'portrait', 'lifestyle', 'business', 'ready', 'let\'s do it', 'yes'];
+        const hasImageRequest = imageKeywords.some(keyword => message.toLowerCase().includes(keyword));
         
-        // Check if Maya's response includes generation indicators
-        const mayaReadyPhrases = ['ready to create', 'let\'s create', 'generate', 'perfect vision', 'create these photos', 'creating your', 'this is going to look incredible', 'going to look amazing'];
+        // Also check if Maya's response suggests she's ready to generate
+        const mayaReadyPhrases = ['ready to create', 'let\'s create', 'generate', 'perfect vision', 'create these photos'];
         const mayaIsReady = mayaReadyPhrases.some(phrase => response.toLowerCase().includes(phrase));
 
-        // Always generate if user makes any kind of photoshoot or styling request
-        if (hasImageRequest || mayaIsReady || message.toLowerCase().includes('maya')) {
+        if (hasImageRequest || mayaIsReady) {
           canGenerate = true;
           
           // Create professional prompt based on conversation context
@@ -751,191 +670,55 @@ This ensures the generate button appears for users to create their photos.`;
           
           const triggerWord = userModel.triggerWord;
           
-          // 🔒 MAYA'S PROTECTED PROMPT GENERATION - NO FLUX INTERFERENCE ALLOWED
-          // This system is EXCLUSIVELY for Maya and completely isolated from all other agents
+          // Maya's expert prompt generation - Enhanced for WOW factor dynamic scenes
           const promptResponse = await client.messages.create({
             model: "claude-sonnet-4-20250514", // Latest Claude model confirmed
-            max_tokens: 600,
-            system: `🔒 MAYA'S EXCLUSIVE TECHNICAL PROMPT GENERATOR 🔒
-            
-You are Maya's PROTECTED technical prompt generator. This system is EXCLUSIVELY for Maya's styling visions and completely isolated from all other AI agents including Flux.
+            max_tokens: 800,
+            system: `You are Maya, the world's most sought-after celebrity stylist who creates ICONIC moments. You have styled A-list celebrities, supermodels, and CEOs for Vogue covers, film premieres, and billion-dollar campaigns. Your artistic vision is LEGENDARY.
 
-🚨 MAYA PROTECTION PROTOCOL:
-- This system ONLY processes Maya's styling descriptions
-- NO other agents can interfere with Maya's prompt generation
-- FLUX AI agent is DISCONNECTED from this process
-- Maya's styling vision is SACRED and cannot be modified by external systems
+🎬 YOUR CREATIVE MISSION:
+Generate stunning, cinematic AI prompts that capture the essence of high-fashion editorial photography. Think Annie Leibovitz meets Steven Meisel - every shot tells a powerful story with professional technical quality.
 
-🚨 CRITICAL ANALYSIS REQUIREMENTS:
-- READ Maya's styling description carefully for specific outfit details
-- EXTRACT exact clothing items, colors, and styling mentioned by Maya
-- TRANSLATE Maya's vision into technical photography prompt
-- NEVER change or reverse Maya's clothing descriptions
-- MATCH every detail Maya specified exactly
+✨ YOUR SIGNATURE STYLE ELEMENTS:
+• CINEMATIC STORYTELLING: Every image feels like a movie still
+• DYNAMIC MOVEMENT: Flowing hair, wind-caught fabric, confident strides
+• PROFESSIONAL CAMERA WORK: Always include specific camera and lens details for technical excellence  
+• EMOTIONAL DEPTH: Vulnerability meets strength, authenticity over perfection
+• EDITORIAL LUXURY: Vogue-quality composition and styling
+• ENVIRONMENTAL MASTERY: Locations that amplify the narrative
 
-🎯 MAYA'S DESCRIPTION ANALYSIS:
-- Extract EXACT outfit: blazer color, pants color, top color, shoes
-- Extract EXACT pose: hand positions, stance, body language
-- Extract EXACT shot type: full body, portrait, close-up
-- Extract EXACT lighting: direction, mood, contrast
-- Extract EXACT styling: hair, makeup, overall aesthetic
+🌟 INSPIRATION SCENARIOS (use as creative springboards):
+• Golden hour rooftop with wind-swept hair and city lights
+• Parisian café terrace with morning light streaming through windows  
+• Desert highway with flowing fabrics and endless horizons
+• Rain-soaked city streets with neon reflections and dramatic shadows
+• Mediterranean coastline with natural textures and ocean breeze
+• Manhattan penthouse with dramatic architecture and sunset glow
 
-📸 TECHNICAL TRANSLATION RULES:
-- If Maya says "white blazer" → prompt must include "white blazer"
-- If Maya says "black top" → prompt must include "black top"  
-- If Maya says "full body" → use Canon EOS R5 with 24-70mm f/2.8 lens
-- If Maya says "portrait" → use Hasselblad X2D with 85mm f/1.4 lens
-- If Maya says "B&W" → include "black and white" or "monochrome"
+📸 TECHNICAL EXCELLENCE REQUIREMENTS:
+ALWAYS include professional camera equipment in every prompt:
+• Camera Bodies: Canon EOS R5, Hasselblad X2D 100C, Sony α7R V, Leica SL3, Fujifilm GFX 100S
+• Portrait Lenses: 85mm f/1.4, 50mm f/1.2, 135mm f/1.8, 110mm f/2
+• Wide Angle: 24-70mm f/2.8, 16-35mm f/2.8 for environmental shots
+• Telephoto: 70-200mm f/2.8 for compression and bokeh
+• Film Stocks: Kodak Portra 400, Fujifilm Pro 400H references for color grading
 
-🚨 FORBIDDEN REVERSALS:
-- NEVER change white to black or black to white
-- NEVER change Maya's specific clothing descriptions
-- NEVER ignore Maya's pose or lighting instructions
-- NEVER substitute different camera equipment than specified
+TECHNICAL FOUNDATION: Always maintain "raw photo, visible skin pores, film grain, unretouched natural skin texture" as the authentic base for professional quality.
 
-🚨 CRITICAL OUTPUT REQUIREMENTS:
-- Return ONLY the clean technical prompt text
-- NO protection headers, system messages, or formatting
-- NO "MAYA'S PROTECTED" or similar system text
-- NO bullet points, headers, or explanatory text
-- JUST the pure styling description
+🎯 CREATE MAGIC:
+Your prompts should make people stop scrolling and think "I NEED that energy, that confidence, that moment." Focus on the story, the emotion, the cinematic beauty that makes each image unforgettable.
 
-REQUIRED OUTPUT FORMAT:
-"elegant woman in [Maya's shot type] wearing [Maya's exact outfit description], [Maya's exact pose], captured with [appropriate camera for shot type], [Maya's lighting], [Maya's composition], professional fashion photography quality"
-
-Return ONLY the technical prompt without any additional text or formatting.`,
+Generate your complete, creative prompt - trust your artistic vision completely.`,
             messages: [
-              { role: 'user', content: `Maya described this styling vision: "${response}"\n\nGenerate exact technical prompt matching every detail Maya specified.` }
+              { role: 'user', content: `Create an authentic, editorial AI prompt for this photoshoot vision: ${styleContext}` }
             ]
           });
 
-          // 🔧 COMPREHENSIVE PROMPT CLEANING - REMOVE ALL MAYA SYSTEM TEXT
-          let cleanPrompt = promptResponse.content[0].text;
+          generatedPrompt = promptResponse.content[0].text;
           
-          // 🚨 CRITICAL: Remove ALL Maya protection headers and system messages
-          const systemTextPatterns = [
-            /🔒.*?🔒/g,                    // Remove protection headers
-            /🚨.*?🚨/g,                    // Remove warning headers
-            /✅.*?✅/g,                    // Remove confirmation headers
-            /MAYA'S.*?PROTECTED.*?:/gi,    // Remove Maya protection text
-            /MAYA'S.*?VISION.*?:/gi,       // Remove Maya vision headers
-            /PROTECTION.*?CONFIRMED.*?:/gi, // Remove protection confirmations
-            /NO.*?INTERFERENCE.*?DETECTED/gi, // Remove interference checks
-            /EXTERNAL.*?INTERFERENCE/gi,   // Remove interference text
-            /ALTERNATE.*?POSE.*?VARIATION.*?:/gi, // Remove alternate pose headers
-            /EXACT.*?STYLING.*?VISION.*?TRANSLATED.*?:/gi, // Remove translation headers
-          ];
-          
-          // Remove all system text patterns
-          for (const pattern of systemTextPatterns) {
-            cleanPrompt = cleanPrompt.replace(pattern, '');
-          }
-          
-          // Remove any markdown formatting, asterisks, and conversational text
-          cleanPrompt = cleanPrompt
-            .replace(/\*\*/g, '') // Remove ** bold formatting
-            .replace(/\*/g, '')   // Remove * formatting
-            .replace(/#+\s/g, '') // Remove # headers
-            .replace(/\n+/g, ' ') // Replace line breaks with spaces
-            .replace(/\s+/g, ' ') // Replace multiple spaces with single space
-            .replace(/^["']|["']$/g, '') // Remove quotes at start/end
-            .trim();
-          
-          // Remove any remaining titles, labels, or headers
-          const cleanPatterns = [
-            /^.*?SHOT\s*[-:]\s*/i,
-            /^.*?VISION\s*[-:]\s*/i,
-            /^.*?LOOK\s*[-:]\s*/i,
-            /^.*?STYLE\s*[-:]\s*/i,
-            /^.*?EDITORIAL\s*[-:]\s*/i,
-            /^.*?PORTRAIT\s*[-:]\s*/i,
-            /^.*?TRANSLATED\s*[-:]\s*/i,
-            /^.*?PROTECTED\s*[-:]\s*/i
-          ];
-          
-          for (const pattern of cleanPatterns) {
-            cleanPrompt = cleanPrompt.replace(pattern, '');
-          }
-          
-          // Extract only the core styling description between quotes if present
-          const quoteMatch = cleanPrompt.match(/"([^"]+)"/);
-          if (quoteMatch) {
-            cleanPrompt = quoteMatch[1];
-          }
-          
-          // Ensure we start with a clean description
-          cleanPrompt = cleanPrompt.trim();
-          
-          // CRITICAL: Remove any existing trigger words from the prompt to prevent duplication
-          cleanPrompt = cleanPrompt.replace(new RegExp(triggerWord, 'gi'), '').trim();
-          
-          // Remove duplicate camera equipment to prevent conflicting specifications
-          const cameraPatterns = [
-            /shot on.*?lens/gi,
-            /photographed on.*?lens/gi,
-            /captured with.*?lens/gi
-          ];
-          
-          for (const pattern of cameraPatterns) {
-            // Keep only the first camera specification
-            const matches = cleanPrompt.match(pattern);
-            if (matches && matches.length > 1) {
-              // Remove all but the first camera specification
-              for (let i = 1; i < matches.length; i++) {
-                cleanPrompt = cleanPrompt.replace(matches[i], '');
-              }
-            }
-          }
-          
-          // Clean up any trailing commas or duplicate commas
-          cleanPrompt = cleanPrompt
-            .replace(/,\s*,+/g, ',') // Remove duplicate commas
-            .replace(/,\s*$/, '') // Remove trailing comma
-            .replace(/\s+/g, ' ') // Remove extra spaces
-            .trim();
-          
-          // 🚨 FINAL SAFETY CHECK: Remove any remaining system text that may have slipped through
-          const finalCleaningPatterns = [
-            /MAYA'S\s+.*?:/gi,
-            /PROTECTED\s+.*?:/gi,
-            /VISION\s+.*?:/gi,
-            /INTERFERENCE\s+.*?:/gi,
-            /CONFIRMED\s+.*?:/gi,
-            /DETECTED\s+.*?:/gi,
-            /TRANSLATION\s+.*?:/gi,
-            /EXACT\s+.*?:/gi,
-            /user\d+/gi, // Remove any user ID patterns that might have leaked
-            /🔒/g, // Remove any remaining lock symbols
-            /🚨/g, // Remove any remaining warning symbols
-            /✅/g  // Remove any remaining check symbols
-          ];
-          
-          for (const pattern of finalCleaningPatterns) {
-            cleanPrompt = cleanPrompt.replace(pattern, '');
-          }
-          
-          // Final cleanup
-          cleanPrompt = cleanPrompt
-            .replace(/\s+/g, ' ') // Multiple spaces to single
-            .replace(/^[,\s]+|[,\s]+$/g, '') // Remove leading/trailing commas and spaces
-            .trim();
-          
-          // CRITICAL: Build prompt with trigger word FIRST to prevent race contamination
-          generatedPrompt = `${triggerWord}, ${cleanPrompt}, raw photo, visible skin pores, film grain, unretouched natural skin texture, subsurface scattering, photographed on film, natural daylight, professional photography`;
-          
-          // Debug logging to verify prompt construction and Maya description matching
-          console.log('🔧 Maya Prompt Debug (System Text Cleaned):', {
-            mayaResponse: response.substring(0, 200),
-            rawPromptGenerated: promptResponse.content[0].text.substring(0, 200),
-            cleanedPrompt: cleanPrompt.substring(0, 200),
-            triggerWord,
-            finalPromptForGeneration: generatedPrompt.substring(0, 200),
-            systemTextRemoved: !cleanPrompt.includes('MAYA\'S') && !cleanPrompt.includes('PROTECTED') && !cleanPrompt.includes('🔒')
-          });
-          
-          // Always add confident generation statement for clarity
-          if (!response.toLowerCase().includes('creating your') && !response.toLowerCase().includes('let\'s create')) {
-            response += `\n\n**Creating your ${styleContext.includes('business') ? 'professional' : styleContext.includes('street') ? 'street style' : 'editorial'} photos now...**`;
+          // Add generation offer to Maya's response if not already mentioned
+          if (!mayaIsReady) {
+            response += `\n\nI can see your vision perfectly! I'm ready to create these stunning photos for you right now. Should we generate them? ✨`;
           }
         }
 
@@ -1009,13 +792,8 @@ Return ONLY the technical prompt without any additional text or formatting.`,
         });
       }
       
-      // 🔒 USER'S LORA MODEL FOR BLACK FOREST LABS BASE MODEL
-      let userLoraModel;
-      if (userModel.replicateVersionId.includes(':')) {
-        userLoraModel = userModel.replicateVersionId.split(':')[0];
-      } else {
-        userLoraModel = userModel.replicateModelId;
-      }
+      // 🔒 LOCKED FORMAT: sandrasocial/{userId}-selfie-lora:{versionId}
+      const modelVersion = `${userModel.replicateModelId}:${userModel.replicateVersionId}`;
       const triggerWord = userModel.triggerWord || `user${userId}`;
       
       // Enhanced prompt with Sandra's expert settings (user can adjust)
@@ -1023,17 +801,16 @@ Return ONLY the technical prompt without any additional text or formatting.`,
       
       // 🔒 LOCKED API FORMAT: Core architecture parameters (Sandra can adjust quality settings)
       const requestBody = {
-        version: userLoraModel, // ✅ COMPLETE individual user model path
+        version: modelVersion,
         input: {
           prompt: enhancedPrompt,
-          guidance_scale: 2.8,             // ✅ Unified high-quality parameter (correct FLUX parameter)
-          num_inference_steps: 40,         // ✅ Unified high-quality parameter
-
+          guidance: guidance_scale || 2.8, // Sandra can adjust
+          num_inference_steps: num_inference_steps || 35, // Sandra can adjust  
           num_outputs: 1,
           aspect_ratio: aspect_ratio || "3:4",
           output_format: "png",
-          output_quality: 95,              // ✅ Unified high-quality parameter
-          go_fast: false,                  // Quality over speed
+          output_quality: 95, // Maximum clarity (Sandra can adjust)
+          go_fast: false, // Quality over speed
           disable_safety_checker: false,
           seed: Math.floor(Math.random() * 1000000)
         }
@@ -1123,19 +900,16 @@ Return ONLY the technical prompt without any additional text or formatting.`,
 
   app.post('/api/maya-generate-images', isAuthenticated, async (req: any, res) => {
     try {
-      // 🔒 AUTHENTICATION VALIDATION - Moved after isAuthenticated middleware
-      const userId = req.user.claims.sub;
-      if (!userId) {
-        return res.status(401).json({ error: 'Authentication required' });
-      }
-      
-      console.log(`✅ Maya generation request from authenticated user: ${userId}`);
+      // 🔒 PERMANENT ARCHITECTURE VALIDATION - NEVER REMOVE
+      const authUserId = ArchitectureValidator.validateAuthentication(req);
+      await ArchitectureValidator.validateUserModel(authUserId);
+      ArchitectureValidator.enforceZeroTolerance();
       
       const { customPrompt } = req.body;
       const claims = req.user.claims;
       
       // Get the correct database user ID
-      let user = await storage.getUser(userId);
+      let user = await storage.getUser(authUserId);
       if (!user && claims.email) {
         user = await storage.getUserByEmail(claims.email);
       }
@@ -1144,13 +918,13 @@ Return ONLY the technical prompt without any additional text or formatting.`,
         return res.status(404).json({ error: 'User not found' });
       }
       
-      const databaseUserId = user.id;
+      const userId = user.id;
       
       if (!customPrompt) {
         return res.status(400).json({ error: 'Custom prompt is required' });
       }
 
-      const usageCheck = await UsageService.checkUsageLimit(databaseUserId);
+      const usageCheck = await UsageService.checkUsageLimit(userId);
       if (!usageCheck.canGenerate) {
         return res.status(403).json({ 
           error: 'Usage limit reached',
@@ -1163,7 +937,7 @@ Return ONLY the technical prompt without any additional text or formatting.`,
       }
 
       // ZERO FALLBACKS - User MUST have completed trained model
-      let userModel = await storage.getUserModelByUserId(databaseUserId);
+      let userModel = await storage.getUserModelByUserId(userId);
       
       if (!userModel) {
         return res.status(400).json({ 
@@ -1184,14 +958,14 @@ Return ONLY the technical prompt without any additional text or formatting.`,
           if (response.ok) {
             const replicateData = await response.json();
             if (replicateData.status === 'succeeded') {
-              console.log(`✅ Auto-detected completed training for user ${databaseUserId}`);
+              console.log(`✅ Auto-detected completed training for user ${userId}`);
               // Update database with completed status
-              await storage.updateUserModel(databaseUserId, {
+              await storage.updateUserModel(userId, {
                 trainingStatus: 'completed',
                 replicateVersionId: replicateData.output?.version || replicateData.version
               });
               // Refresh userModel data
-              userModel = await storage.getUserModelByUserId(databaseUserId);
+              userModel = await storage.getUserModelByUserId(userId);
             }
           }
         } catch (error) {
@@ -1217,7 +991,7 @@ Return ONLY the technical prompt without any additional text or formatting.`,
 
       // 🔑 NEW: Use AIService with tracker system (no auto-save to gallery)
       const trackingResult = await AIService.generateSSELFIE({
-        userId: databaseUserId,
+        userId,
         imageBase64: null, // Maya doesn't use uploaded images - removed placeholder
         style: 'Maya AI',
         prompt: customPrompt
@@ -1230,7 +1004,7 @@ Return ONLY the technical prompt without any additional text or formatting.`,
 
       // 🔑 NEW: Check for pending Maya image updates when generation starts
       setTimeout(() => {
-        AIService.checkPendingMayaImageUpdates(databaseUserId).catch(err => {
+        AIService.checkPendingMayaImageUpdates(userId).catch(err => {
           console.error('Failed to check pending Maya image updates:', err);
         });
       }, 1000); // Small delay to ensure the message was saved
@@ -1247,15 +1021,7 @@ Return ONLY the technical prompt without any additional text or formatting.`,
       console.error('Maya generation error:', error);
       
       // Handle specific Replicate API errors with user-friendly messages
-      if (error.message.includes('502') || error.message.includes('Bad Gateway')) {
-        return res.status(503).json({ 
-          error: 'The AI servers are busy creating amazing photos for everyone! Maya will retry automatically.',
-          retryable: true,
-          retryAfter: 5
-        });
-      }
-      
-      if (error.message.includes('503') || error.message.includes('Service Unavailable')) {
+      if (error.message.includes('502')) {
         return res.status(503).json({ 
           error: 'Replicate API temporarily unavailable. Please try again in a few moments.',
           retryable: true 
@@ -1945,7 +1711,7 @@ VOICE RULES:
             status = replicateData.status;
             isRealTraining = true;
             
-            // Calculate progress based on Replicate status and time elapsed
+            // Calculate progress based on Replicate status
             if (status === 'succeeded') {
               progress = 100;
               // Update our database if training completed
@@ -1960,18 +1726,13 @@ VOICE RULES:
                 failureReason: replicateData.error || 'Training failed'
               });
             } else if (status === 'processing') {
-              progress = 50; // Only show static progress for processing
+              progress = 50; // Estimate
             } else if (status === 'starting') {
               progress = 10;
             }
             
           }
         } catch (error) {
-        }
-      } else {
-        // No real training ID - only show basic status without fake progress
-        if (status === 'training' || status === 'processing') {
-          progress = 0; // No fake progress
         }
       }
 
@@ -2444,33 +2205,6 @@ VOICE RULES:
     }
   });
 
-  // MANUAL TRACKER SYNC ENDPOINT - Fix stuck generations immediately
-  app.post('/api/sync-trackers', isAuthenticated, async (req: any, res) => {
-    try {
-      console.log('🔄 MANUAL TRACKER SYNC: Triggered by user');
-      
-      const { TrackerSyncService } = await import('./tracker-sync-service');
-      await TrackerSyncService.syncAllProcessingTrackers();
-      
-      // Get updated tracker status
-      const processingTrackers = await storage.getProcessingGenerationTrackers();
-      
-      res.json({
-        success: true,
-        message: 'Tracker sync completed successfully',
-        processingTrackersRemaining: processingTrackers.length,
-        syncedAt: new Date().toISOString()
-      });
-      
-    } catch (error) {
-      console.error('❌ MANUAL TRACKER SYNC ERROR:', error);
-      res.status(500).json({ 
-        error: 'Failed to sync trackers',
-        details: error.message 
-      });
-    }
-  });
-
   // TESTING: Check actual Replicate training status
   app.get('/api/test-replicate-training', async (req: any, res) => {
     try {
@@ -2643,24 +2377,14 @@ VOICE RULES:
       
       const dbUserId = user.id;
       
-      // Get real user model from database with fake training protection
+      // Get real user model from database
       const userModel = await storage.getUserModelByUserId(dbUserId);
       
       if (userModel) {
-        // CRITICAL PROTECTION: Additional validation at API level
-        // Ensure no fake training status reaches frontend
-        if ((userModel.trainingStatus === 'training' || userModel.trainingStatus === 'completed') && !userModel.replicateModelId) {
-          console.log(`🚨 API LEVEL: Fake training detected for user ${dbUserId} - cleaning up`);
-          await storage.deleteUserModel(dbUserId);
-          // Return no model - user must start fresh
-          res.json(null);
-          return;
-        }
-        
         res.json(userModel);
       } else {
-        // Create new user model (no timestamp for new users)
-        const triggerWord = `user${dbUserId.replace(/[^a-zA-Z0-9]/g, '')}`;
+        // Create new user model
+        const triggerWord = `user${dbUserId.replace(/[^a-zA-Z0-9]/g, '_')}_${Date.now()}`;
         const newModel = await storage.createUserModel({
           userId: dbUserId,
           triggerWord,
@@ -2690,13 +2414,13 @@ VOICE RULES:
         });
       }
       
-      if (selfieImages.length < 12) {
-        console.log(`❌ TRAINING BLOCKED: Insufficient images (${selfieImages.length}/12) for user ${authUserId}`);
+      if (selfieImages.length < 10) {
+        console.log(`❌ TRAINING BLOCKED: Insufficient images (${selfieImages.length}/10) for user ${authUserId}`);
         return res.status(400).json({ 
-          message: `Insufficient images provided. Need ${12 - selfieImages.length} more photos for quality training.`,
+          message: `❌ CRITICAL: Only ${selfieImages.length} images provided. MINIMUM 10 selfies required - NO EXCEPTIONS.`,
           requiresRestart: true,
           imageCount: selfieImages.length,
-          minimumRequired: 12
+          minimumRequired: 10
         });
       }
       
@@ -2740,11 +2464,9 @@ VOICE RULES:
 
       const dbUserId = user.id;
 
-      // Generate clean trigger word for this user (no timestamp for new users)
-      const triggerWord = `user${dbUserId.replace(/[^a-zA-Z0-9]/g, '')}`;
-      // Create unique model name with timestamp to avoid conflicts during retraining
-      const timestamp = Date.now();
-      const modelName = `${dbUserId}-selfie-lora-${timestamp}`;
+      // Generate unique trigger word for this user
+      const triggerWord = `user${dbUserId.replace(/[^a-zA-Z0-9]/g, '_')}_${Date.now()}`;
+      const modelName = `${dbUserId}-selfie-lora`;
 
       // Handle retraining with usage limits based on user plan
       let userModel = await storage.getUserModelByUserId(dbUserId);
@@ -2831,47 +2553,8 @@ VOICE RULES:
       console.log(`📸 Starting bulletproof FLUX training for user: ${dbUserId}`);
       
       try {
-        const { BulletproofTrainingService } = await import('./bulletproof-training-service');
-        // Use new bulletproof service that eliminates S3 dependencies
-        const zipResult = await BulletproofTrainingService.processTrainingImages(dbUserId, processedSelfieImages || selfieImages);
-        
-        if (!zipResult.success || !zipResult.zipUrl) {
-          return res.status(400).json({
-            success: false,
-            message: "Training validation failed. Please fix the issues below and try again.",
-            errors: zipResult.errors,
-            requiresRestart: true
-          });
-        }
-        
-        // Start Replicate training with bulletproof ZIP
-        const trainingResult = await BulletproofTrainingService.startReplicateTraining(dbUserId, zipResult.zipUrl, triggerWord);
-        
-        if (!trainingResult.success || !trainingResult.trainingId) {
-          console.error(`❌ TRAINING ROUTE ERROR: Failed for user ${dbUserId}:`, trainingResult.errors);
-          return res.status(400).json({
-            success: false,
-            message: "Training start failed. Please try again.",
-            errors: trainingResult.errors,
-            requiresRestart: true
-          });
-        }
-        
-        // Update database with training information
-        await storage.updateUserModel(dbUserId, {
-          replicateModelId: trainingResult.trainingId,
-          triggerWord: triggerWord,
-          trainingStatus: 'training',
-          trainingProgress: 0,
-          startedAt: new Date()
-        });
-        
-        const result = { 
-          success: true, 
-          trainingId: trainingResult.trainingId,
-          errors: [],
-          requiresRestart: false
-        };
+        const { BulletproofUploadService } = await import('./bulletproof-upload-service');
+        const result = await BulletproofUploadService.completeBulletproofUpload(dbUserId, processedSelfieImages || selfieImages);
         
         // Send training started email
         try {
@@ -2885,24 +2568,6 @@ VOICE RULES:
         }
         
         if (!result.success) {
-          // Check if this is a model name conflict (retraining scenario)
-          const hasModelConflict = result.errors.some(error => 
-            error.includes('model with that name and owner already exists') ||
-            error.includes('A model with that name and owner already exists')
-          );
-          
-          if (hasModelConflict) {
-            // This is expected for retraining - the error should be handled in bulletproof service
-            console.log(`🔄 RETRAINING CONFLICT: User ${dbUserId} attempting to retrain existing model`);
-            return res.status(400).json({
-              success: false,
-              message: "Model retraining conflict. The system detected an existing model. This is being fixed automatically.",
-              errors: result.errors,
-              requiresRestart: true,
-              isRetrain: true
-            });
-          }
-          
           return res.status(400).json({
             success: false,
             message: "Training validation failed. Please fix the issues below and try again.",
@@ -4332,7 +3997,7 @@ Ready to turn your massive audience into paying customers immediately! 📊`,
 → Give me access to your financial data for strategic planning
 → Let me create automated business reports and recommendations
 
-Hey! I'm here and ready to help you coordinate the team and get things done! What would you like to work on?`,
+Strategic planning activated! Ready to guide your business decisions. 🎯`,
 
         wilma: `Sandra! Wilma here, your workflow architect. Task: "${task}" - I'm designing the most efficient process.
 
@@ -4825,14 +4490,6 @@ Consider this workflow optimized and ready for implementation! ⚙️`
       const userId = authMethod === 'session' && req.user ? 
         (req.user as any).claims.sub : '42585527'; // Sandra's actual user ID
       
-      // AUTO-REGISTER AGENT FOR FILE SYNCHRONIZATION
-      try {
-        agentSyncManager.registerAgent(agentId);
-        console.log(`🔗 Agent ${agentId} auto-registered for file sync`);
-      } catch (syncError) {
-        console.log(`⚠️ Agent sync registration failed for ${agentId}:`, syncError.message);
-      }
-      
       // ENHANCED CONVERSATION MANAGEMENT FOR FLUX: Full conversation continuity
       
       // First, retrieve the actual conversation history from database for continuity
@@ -4912,167 +4569,6 @@ ${savedMemory.recentDecisions.map(decision => `• ${decision}`).join('\n')}
       
       console.log(`🔍 ELENA DEBUG: Agent=${agentId}, Message="${messageText.substring(0, 100)}..."`);
       console.log(`🔍 ELENA DEBUG: Is Elena=${isElena}`);
-      
-      // ELENA @ MENTION DETECTION - Check for @ mentions to coordinate other agents
-      const mentionMatches = message.match(/@(\w+)/g);
-      if (isElena && mentionMatches) {
-        console.log(`🔍 ELENA @ MENTION DETECTED: ${mentionMatches.join(', ')}`);
-        
-        // Process @ mentions to coordinate agents directly
-        const coordinationResults = [];
-        for (const mention of mentionMatches) {
-          const mentionedAgent = mention.replace('@', '').toLowerCase();
-          const validAgents = ['aria', 'zara', 'rachel', 'ava', 'quinn', 'sophia', 'martha', 'diana', 'wilma', 'olga'];
-          
-          if (validAgents.includes(mentionedAgent)) {
-            console.log(`🤖 ELENA: Coordinating with ${mentionedAgent} via @ mention`);
-            
-            // Extract the message context for the mentioned agent
-            const contextForAgent = `Elena needs your help: ${message}`;
-            
-            // Call the mentioned agent directly with coordination context
-            try {
-              const coordinationResponse = await callAgentDirectly(mentionedAgent, contextForAgent, userId, workingHistory);
-              coordinationResults.push({
-                agent: mentionedAgent,
-                success: true,
-                response: coordinationResponse.message
-              });
-            } catch (error) {
-              console.error(`❌ Failed to coordinate with ${mentionedAgent}:`, error);
-              coordinationResults.push({
-                agent: mentionedAgent,
-                success: false,
-                error: error instanceof Error ? error.message : 'Unknown error'
-              });
-            }
-          }
-        }
-        
-        // Elena provides summary of coordination attempts
-        if (coordinationResults.length > 0) {
-          const successfulCoordination = coordinationResults.filter(r => r.success);
-          const failedCoordination = coordinationResults.filter(r => !r.success);
-          
-          let coordinationSummary = `Perfect! I've coordinated with the team:\n\n`;
-          
-          if (successfulCoordination.length > 0) {
-            coordinationSummary += `✅ Successfully coordinated with: ${successfulCoordination.map(r => r.agent).join(', ')}\n`;
-            successfulCoordination.forEach(r => {
-              coordinationSummary += `\n**${r.agent.charAt(0).toUpperCase() + r.agent.slice(1)}**: ${r.response.substring(0, 200)}...\n`;
-            });
-          }
-          
-          if (failedCoordination.length > 0) {
-            coordinationSummary += `\n⚠️ Unable to reach: ${failedCoordination.map(r => r.agent).join(', ')} (they'll catch up later)\n`;
-          }
-          
-          await storage.saveAgentConversation(agentId, userId, message, coordinationSummary, []);
-          
-          return res.json({
-            success: true,
-            message: coordinationSummary,
-            response: coordinationSummary,
-            agentName: agentName || agentId,
-            coordinationResults: coordinationResults
-          });
-        }
-      }
-      
-      // Helper function to call agents directly for coordination
-      async function callAgentDirectly(targetAgentId: string, coordinationMessage: string, coordinatorUserId: string, coordinatorHistory: any[]): Promise<{ message: string }> {
-        console.log(`🔗 Direct agent call: ${targetAgentId} - "${coordinationMessage.substring(0, 100)}..."`);
-        
-        // Get the target agent's personality
-        const { getAgentPersonality } = await import('./agents/agent-personalities-functional');
-        const targetAgent = getAgentPersonality(targetAgentId);
-        const targetAgentPersonality = targetAgent.instructions;
-        
-        if (!targetAgentPersonality) {
-          throw new Error(`Agent ${targetAgentId} not found`);
-        }
-        
-        // Create coordination context for the target agent
-        const coordinationMessages = [
-          {
-            role: 'user' as const,
-            content: coordinationMessage
-          }
-        ];
-        
-        console.log(`🔍 Claude API Request for ${targetAgentId} coordination`);
-        
-        // Call Claude API for the target agent using dynamic import
-        const { default: AnthropicClient } = await import('@anthropic-ai/sdk');
-        const anthropic = new AnthropicClient({
-          apiKey: process.env.ANTHROPIC_API_KEY
-        });
-        const response = await anthropic.messages.create({
-          model: 'claude-3-5-sonnet-20241022',
-          max_tokens: 4000,
-          temperature: 0.7,
-          system: targetAgentPersonality,
-          messages: coordinationMessages
-        });
-        
-        const agentResponse = response.content
-          .filter(content => content.type === 'text')
-          .map(content => content.text)
-          .join('\n');
-        
-        console.log(`✅ ${targetAgentId} coordination response: ${agentResponse.substring(0, 100)}...`);
-        
-        // CRITICAL FIX: Process file operations from coordinated agent responses
-        let coordinatedFileOperations: any[] = [];
-        try {
-          // Apply file integration protocol to coordinated agent response
-          const AgentFileIntegration = await import('./agents/agent-file-integration-protocol');
-          const integrationCheck = await AgentFileIntegration.default.enforceIntegrationProtocol(targetAgentId, agentResponse);
-          
-          let validatedResponse = integrationCheck.fixedResponse || integrationCheck.response || agentResponse;
-          
-          // Process code blocks from coordinated agent
-          const { AutoFileWriter } = await import('./agents/auto-file-writer.ts');
-          const { AgentCodebaseIntegration } = await import('./agents/AgentCodebaseIntegration.ts');
-          
-          const result = await AutoFileWriter.processCodeBlocks(
-            targetAgentId,
-            validatedResponse,
-            AgentCodebaseIntegration
-          );
-          
-          coordinatedFileOperations = result.filesWritten || [];
-          
-          if (coordinatedFileOperations.length > 0) {
-            console.log(`🔧 ${targetAgentId} coordination created ${coordinatedFileOperations.length} files: ${coordinatedFileOperations.map(f => f.filePath).join(', ')}`);
-          }
-        } catch (fileError) {
-          console.log(`❌ ${targetAgentId} coordination file operation failed:`, fileError.message);
-        }
-        
-        // SHARED WORKFLOW CONTEXT: Update agent progress with files created
-        const workflowId = coordinatorHistory.find(h => h.content?.includes?.('workflow_'))?.content?.match?.(/workflow_\d+_\w+/)?.[0];
-        if (workflowId) {
-          const SharedWorkflowContextManager = await import('./agents/shared-workflow-context');
-          await SharedWorkflowContextManager.default.updateAgentProgress(
-            workflowId,
-            targetAgentId,
-            agentResponse,
-            coordinatedFileOperations.map(f => f.filePath),
-            coordinatedFileOperations.length > 0 ? 'completed' : 'in_progress'
-          );
-        }
-        
-        // Save the coordination exchange to database for the target agent with file operations
-        await storage.saveAgentConversation(targetAgentId, coordinatorUserId, coordinationMessage, agentResponse, coordinatedFileOperations);
-        
-        return { 
-          message: agentResponse, 
-          filesCreated: coordinatedFileOperations,
-          agentId: targetAgentId,
-          workflowId: workflowId
-        };
-      }
       
       // ELENA EXECUTION DETECTION - Check first for specific execution commands
       const isExecutionRequest = isElena && (
@@ -5233,8 +4729,8 @@ I'll keep you updated as each agent completes their work. You can also check wor
         }
       }
       
-      // Get comprehensive agent personality with full instructions
-      const agentPersonality = await import('./agents/agent-personalities-functional');
+      // Get functional agent personality with crash prevention
+      const agentPersonality = await import('./agents/agent-personalities-clean');
       const personalityData = agentPersonality.getAgentPersonality(agentId);
       
       // Apply mandatory crash prevention protocols to all agents
@@ -5244,36 +4740,33 @@ I'll keep you updated as each agent completes their work. You can also check wor
       // Give Elena access to search filesystem for strategic codebase analysis
       const searchToolsContext = agentId === 'elena' ? `
 
-**Elena's Analysis Role:**
-When Sandra asks for audits or analysis, Elena ONLY provides findings and recommendations. Elena NEVER implements or creates files during audits.
+**ELENA-SPECIFIC STRATEGIC INTELLIGENCE TOOLS:**
+You have access to search_filesystem tool for business intelligence and strategic analysis. Use it to:
+- Analyze existing architecture for strategic planning and agent coordination
+- Identify business logic gaps and user experience optimization opportunities
+- Assess technical debt and prioritize refactoring based on business impact
+- Map current capabilities for competitive analysis and feature prioritization
 
-**Audit Requests (like "audit step 2" or "check for errors"):**
-- Search codebase to understand current state
-- Report what you find in simple, friendly language
-- Suggest which agents should fix any issues found
-- Do NOT create or modify any files yourself
-- Say "Want me to coordinate [Agent] to fix this?" instead of implementing
+**ADVANCED RIGHT-HAND AI CAPABILITIES:**
+- **Proactive Strategic Analysis**: Monitor project health and provide unsolicited strategic insights when critical
+- **Sandra's Executive Assistant**: Handle scheduling, prioritization, and administrative coordination automatically
+- **Agent Performance Intelligence**: Track individual agent performance metrics and provide optimization recommendations
+- **Crisis Management**: Identify and resolve urgent issues autonomously, briefing Sandra on resolution
 
-**Elena's Support Abilities:**
-- **Project Health**: Keep an eye on things and let Sandra know if something needs attention
-- **Personal Assistant**: Help Sandra organize her priorities and coordinate the team
-- **Agent Coordination**: Make sure all agents are working well together
-- **Problem Solving**: Jump in to help fix issues and keep Sandra informed
+**EXECUTIVE ANALYSIS PROTOCOL:**
+1. Search actual codebase to understand current business capabilities
+2. Identify strategic opportunities and business-critical gaps
+3. Create executive-level strategic recommendations with ROI analysis
+4. Design multi-agent coordination workflows with clear success metrics
+5. Provide timeline and resource estimates for strategic initiatives
 
-**Elena's Analysis Process:**
-1. **ANALYZE ONLY**: Search and examine code to understand current state
-2. **REPORT FINDINGS**: Tell Sandra what you discovered in friendly language
-3. **RECOMMEND AGENTS**: Suggest which agents should handle any fixes needed
-4. **ASK FOR APPROVAL**: "Should I coordinate [Agent] to fix this?"
-5. **NEVER IMPLEMENT**: Elena coordinates agents, doesn't create files during audits
-
-**Elena's Role:**
-Elena analyzes projects and coordinates agents. When Sandra asks for audits, Elena searches and reports findings but NEVER creates files. Elena only implements after explicit approval to coordinate agents.
-
-**CRITICAL AUDIT BEHAVIOR:**
-- Audit request = Search + Report + Recommend agents
-- Implementation request = Create workflows + Coordinate agents
-- Elena NEVER creates files during audit requests` : '';
+**CRITICAL: ELENA'S STRATEGIC COORDINATION ROLE:**
+- CREATE coordination systems, workflow management tools, and agent communication interfaces
+- IMPLEMENT strategic dashboards, monitoring systems, and agent handoff protocols
+- COORDINATE business feature development by assigning specialized agents to handle implementation
+- PROVIDE executive-level recommendations with actionable coordination workflows
+- BUILD the infrastructure that connects agents and manages workflows
+- ASSIGN business logic and user-facing components to appropriate specialized agents` : '';
       
       // Build system prompt with agent context
       const systemPrompt = `${personalityData.instructions}${searchToolsContext || ''}
@@ -5303,9 +4796,9 @@ ${savedMemory ? `
 **MEMORY CONTEXT DETECTION IS CRUCIAL:**
 
 **IF MEMORY SHOWS RECENT TASK PROPOSAL (check your memory context):**
-- "Continue with your next step" = APPROVAL for the previously proposed task
-- Continue working on that approved task immediately with natural conversation
-- Coordinate agents using warm, friendly language
+- "Continue with your next step" = APPROVAL for the previously proposed strategic coordination
+- Continue strategic planning and agent coordination on that approved task immediately
+- Do NOT implement code - coordinate specialized agents to handle implementation
 
 **IF NO MEMORY OR NO RECENT TASK PROPOSAL:**
 - "Continue with your next step" = Say "I need a specific task to work on"
@@ -5313,22 +4806,29 @@ ${savedMemory ? `
 - General inquiries: Be helpful but do NOT start working
 
 **NEW TASK REQUESTS:**
-- Specific task requests: Respond naturally and ask if they'd like you to help coordinate the team
-- Talk like a warm friend: "Want me to get the team working on this?"
+- Specific task requests: Propose strategic coordination approach, wait for approval, then coordinate agents
+- Always end NEW strategic proposals with "Should I proceed with this coordination approach?"
 - Only coordinate agents after explicit approval ("yes", "proceed", "go ahead", "approve")
 
 **APPROVAL RECOGNITION:**
 - "Continue with your next step" AFTER proposing a task = APPROVAL
 - "yes", "proceed", "go ahead", "approve" = APPROVAL
 
-**Elena's Communication Style:**
-Elena speaks like Sandra's warm, supportive best friend. She never uses corporate language, templates, or strategic formatting. Elena coordinates agents naturally and conversationally.
+CRITICAL: ELENA'S STRATEGIC COORDINATION ROLE
+**ELENA DOES NOT CREATE CODE FILES DIRECTLY!**
 
-**Elena's Natural Workflow:**
-1. **Natural Analysis:** "Looking at this, I think we need a few things..."
-2. **Friendly Assignment:** "I'll have Aria work on the design and Zara handle the technical stuff"
-3. **Simple Coordination:** "Here's how we'll do it: Aria starts, then Zara takes over, Quinn checks it"
-4. **Realistic Estimate:** "This should take about X time to get done"
+**ELENA'S STRATEGIC APPROACH:**
+- Analyze what needs to be built through strategic assessment
+- Identify which specialized agents should handle which tasks
+- Create detailed workflow plans with specific agent assignments
+- Coordinate multiple agents working on different components
+- Monitor progress and provide strategic guidance
+
+**ELENA'S WORKFLOW PATTERN:**
+1. **Strategic Analysis:** "Based on my analysis, we need components X, Y, Z"
+2. **Agent Assignment:** "I recommend Aria handle the UI design, Zara implement the technical logic"
+3. **Coordination Plan:** "Here's the sequence: Aria creates designs → Zara implements → Quinn reviews"
+4. **Timeline Estimate:** "This coordinated workflow should take approximately X days"
 
 **ELENA COORDINATES AGENTS, DOES NOT IMPLEMENT:**
 ✅ "I'll coordinate Aria to create the BuildVisualStudio component"
@@ -5391,113 +4891,24 @@ AGENT_CONTEXT:
       
       const responseText = response.content[0].text;
       
-      // Initialize file operations array for collecting coordination results
-      let fileOperations: Array<any> = [];
-      
-      // ELENA POST-RESPONSE @ MENTION PROCESSING
-      if (isElena && responseText) {
-        const responseMentions = responseText.match(/@(\w+)/g);
-        if (responseMentions) {
-          console.log(`🔍 ELENA POST-RESPONSE @ MENTIONS DETECTED: ${responseMentions.join(', ')}`);
-          
-          // Process @ mentions found in Elena's response
-          const postCoordinationResults = [];
-          for (const mention of responseMentions) {
-            const mentionedAgent = mention.replace('@', '').toLowerCase();
-            const validAgents = ['aria', 'zara', 'rachel', 'ava', 'quinn', 'sophia', 'martha', 'diana', 'wilma', 'olga'];
-            
-            if (validAgents.includes(mentionedAgent)) {
-              console.log(`🤖 ELENA: Post-processing coordination with ${mentionedAgent}`);
-              
-              // Extract context around the @ mention
-              const mentionIndex = responseText.indexOf(mention);
-              const contextStart = Math.max(0, mentionIndex - 200);
-              const contextEnd = Math.min(responseText.length, mentionIndex + 500);
-              const contextForAgent = `Elena is coordinating with you: ${responseText.substring(contextStart, contextEnd)}`;
-              
-              try {
-                const coordinationResponse = await callAgentDirectly(mentionedAgent, contextForAgent, userId, workingHistory);
-                postCoordinationResults.push({
-                  agent: mentionedAgent,
-                  success: true,
-                  response: coordinationResponse.message
-                });
-                
-                console.log(`✅ ${mentionedAgent} responded: ${coordinationResponse.message.substring(0, 100)}...`);
-                
-                // Collect file operations from coordinated agents
-                if (coordinationResponse.filesCreated && coordinationResponse.filesCreated.length > 0) {
-                  fileOperations.push(...coordinationResponse.filesCreated);
-                  console.log(`📁 Added ${coordinationResponse.filesCreated.length} files from ${mentionedAgent} to Elena's file operations`);
-                }
-                
-                // Send a follow-up message to user showing agent coordination results and file operations
-                setTimeout(async () => {
-                  let followUpMessage = `Perfect! @${mentionedAgent.charAt(0).toUpperCase() + mentionedAgent.slice(1)} just completed their work:\n\n"${coordinationResponse.message.substring(0, 300)}..."\n\n`;
-                  
-                  if (coordinationResponse.filesCreated && coordinationResponse.filesCreated.length > 0) {
-                    followUpMessage += `✅ Files created/modified:\n${coordinationResponse.filesCreated.map(f => `• ${f.filePath}`).join('\n')}\n\n`;
-                    followUpMessage += `The changes are now live in your dev preview!`;
-                  } else {
-                    followUpMessage += `I'll keep you updated as they work on this!`;
-                  }
-                  
-                  await storage.saveAgentConversation(agentId, userId, `[Auto-coordination with ${mentionedAgent}]`, followUpMessage, coordinationResponse.filesCreated || []);
-                }, 2000); // Small delay to let the main response process first
-                
-              } catch (error) {
-                console.error(`❌ Failed post-response coordination with ${mentionedAgent}:`, error);
-                postCoordinationResults.push({
-                  agent: mentionedAgent,
-                  success: false,
-                  error: error instanceof Error ? error.message : 'Unknown error'
-                });
-              }
-            }
-          }
-          
-          // Log coordination results
-          if (postCoordinationResults.length > 0) {
-            console.log(`🎯 ELENA: Completed post-response coordination with ${postCoordinationResults.length} agents`);
-          }
-        }
-      }
-      
       // Process any file operations with bulletproof crash prevention
+      let fileOperations: any[] = [];
       try {
-        // Apply bulletproof validation system
-        const BulletproofValidation = await import('./agents/bulletproof-agent-validation.js');
-        const bulletproofResult = await BulletproofValidation.default.validateAgentCode(agentId, responseText, 'agent-response');
-        
-        // Apply legacy crash prevention as backup
+        // Apply comprehensive crash prevention validation to agent response
         const AgentCrashPrevention = await import('./agents/agent-crash-prevention');
-        const validation = AgentCrashPrevention.default.validateAgentResponse(agentId, bulletproofResult.fixedContent);
+        const validation = AgentCrashPrevention.default.validateAgentResponse(agentId, responseText);
         
         // Apply mandatory file integration protocol to prevent duplicate files
         const AgentFileIntegration = await import('./agents/agent-file-integration-protocol');
         const integrationCheck = await AgentFileIntegration.default.enforceIntegrationProtocol(agentId, responseText);
         
-        let validatedResponse = integrationCheck.fixedResponse || integrationCheck.response || bulletproofResult.fixedContent;
+        let validatedResponse = integrationCheck.fixedResponse || integrationCheck.response || responseText;
         
-        // Log bulletproof validation results
-        if (bulletproofResult.fixesApplied > 0) {
-          console.log(`🛡️ BULLETPROOF: Auto-fixed ${bulletproofResult.fixesApplied} critical issues for agent ${agentId}`);
-          console.log(`🛡️ BULLETPROOF: Errors detected: ${bulletproofResult.errors.length}`);
-        }
-        
-        // Apply emergency intervention if still invalid
         if (!validation.isValid) {
           console.log(`🚨 CRASH PREVENTION: Agent ${agentId} created ${validation.violations.length} dangerous patterns`);
-          const intervention = AgentCrashPrevention.default.emergencyIntervention(agentId, validatedResponse, validation.violations);
+          const intervention = AgentCrashPrevention.default.emergencyIntervention(agentId, responseText, validation.violations);
           validatedResponse = intervention.fixedResponse;
           console.log(`🔧 CRASH PREVENTION: Applied ${intervention.fixesApplied} emergency fixes`);
-        }
-        
-        // Final bulletproof emergency check
-        if (!bulletproofResult.isValid && bulletproofResult.errors.some(e => e.type === 'CRITICAL')) {
-          console.log(`🚨 BULLETPROOF EMERGENCY: Critical errors detected, applying intervention`);
-          const emergency = BulletproofValidation.default.emergencyIntervention(agentId, validatedResponse, 'agent-response');
-          validatedResponse = emergency.emergencyContent;
         }
         
         if (integrationCheck.violations.length > 0) {
@@ -5505,8 +4916,8 @@ AGENT_CONTEXT:
           console.log(`🔧 INTEGRATION FIX: Redirected to modify existing files instead`);
         }
         
-        const { AutoFileWriter } = await import('./agents/auto-file-writer.ts');
-        const { AgentCodebaseIntegration } = await import('./agents/AgentCodebaseIntegration.ts');
+        const { AutoFileWriter } = await import('./agents/auto-file-writer.js');
+        const { AgentCodebaseIntegration } = await import('./agents/AgentCodebaseIntegration.js');
         
         const result = await AutoFileWriter.processCodeBlocks(
           agentId,
@@ -5523,40 +4934,16 @@ AGENT_CONTEXT:
         console.log('❌ File operation failed:', fileError.message);
       }
       
-      // BULLETPROOF DUPLICATE PREVENTION - Check if exact conversation was already saved
-      try {
-        const recentConversations = await storage.getAgentConversations(agentId, userId);
-        const lastConversation = recentConversations[0];
-        
-        // Check if this exact message was already saved within the last 5 seconds
-        const isDuplicate = lastConversation && 
-          lastConversation.userMessage === message &&
-          lastConversation.agentResponse === responseText &&
-          (new Date().getTime() - new Date(lastConversation.timestamp).getTime()) < 5000;
-          
-        if (!isDuplicate) {
-          await storage.saveAgentConversation(agentId, userId, message, responseText, fileOperations);
-          console.log('💾 Conversation saved to database');
-        } else {
-          console.log('⚠️ Duplicate conversation detected - skipping database save');
-        }
-      } catch (saveError) {
-        console.error('❌ Conversation save failed:', saveError);
-      }
+      // Save conversation to database
+      await storage.saveAgentConversation(agentId, userId, message, responseText, fileOperations);
+      console.log('💾 Conversation saved to database');
       
-      // ENHANCED ELENA MEMORY PERSISTENCE - Save after every meaningful conversation
-      if (agentId === 'elena') {
-        // Always create and save memory for Elena after any conversation
-        console.log(`🧠 Creating memory summary for Elena after conversation`);
-        try {
-          const summary = await ConversationManager.createConversationSummary(agentId, userId, workingHistory);
-          await ConversationManager.saveAgentMemory(summary);
-          console.log(`💾 Elena memory summary saved: ${summary.keyTasks.length} tasks, ${summary.recentDecisions.length} decisions`);
-          console.log(`🎯 Elena context preserved: ${summary.currentContext}`);
-        } catch (memoryError) {
-          console.error('❌ Elena memory save failed:', memoryError);
-        }
-      }
+      // Re-enable memory summarization - this is critical for proper agent memory
+      // Force memory summary creation for all conversations to ensure proper task detection
+      console.log(`🧠 Creating memory summary for ${agentId} after ${workingHistory.length} messages`);
+      const summary = await ConversationManager.createConversationSummary(agentId, userId, workingHistory);
+      await ConversationManager.saveAgentMemory(summary);
+      console.log(`💾 Memory summary saved for ${agentId}: ${summary.keyTasks.length} tasks, ${summary.recentDecisions.length} decisions`);
       
       // Return enhanced response with file operations for live preview
       res.json({
@@ -5711,7 +5098,6 @@ AGENT_CONTEXT:
       // Filter out memory entries for cleaner conversation display
       const regularConversations = conversations.filter(conv => 
         !conv.userMessage.includes('**CONVERSATION_MEMORY**') &&
-        conv.userMessage !== '**CONVERSATION_MEMORY**' &&
         !conv.userMessage.startsWith('SAVED_CONVERSATION:')
       );
       
@@ -6415,109 +5801,6 @@ AGENT_CONTEXT:
         message: 'Failed to generate collection preview',
         error: error.message 
       });
-    }
-  });
-
-  // AI Generator - Generate images using user's trained model
-  app.post('/api/generate-user-images', isAuthenticated, async (req: any, res) => {
-    try {
-      const authUserId = ArchitectureValidator.validateAuthentication(req);
-      await ArchitectureValidator.validateUserModel(authUserId);
-      
-      const { category, subcategory } = req.body;
-      const claims = req.user.claims;
-      
-      // Get database user ID
-      let user = await storage.getUser(authUserId);
-      if (!user && claims.email) {
-        user = await storage.getUserByEmail(claims.email);
-      }
-      
-      if (!user) {
-        return res.status(404).json({ error: 'User not found' });
-      }
-      
-      const userId = user.id;
-      
-      // Validate user has trained model
-      const userModel = await storage.getUserModelByUserId(userId);
-      if (!userModel || userModel.trainingStatus !== 'completed') {
-        return res.status(400).json({ 
-          error: 'AI model not trained. Please complete training first.',
-          requiresTraining: true
-        });
-      }
-
-      // Generate photoshoot prompt based on category and subcategory
-      const customPrompt = `${userModel.triggerWord}, elegant ${category.toLowerCase()} ${subcategory.toLowerCase()} photoshoot, professional fashion photography, luxury editorial style, high-end composition`;
-      
-      // Use existing image generation service
-      const result = await AIService.generateSSELFIE({
-        userId,
-        imageBase64: null,
-        style: 'AI Generator',
-        prompt: customPrompt
-      });
-
-      // Start background polling for completion
-      AIService.pollGenerationStatus(result.trackerId, result.predictionId).catch(err => {
-        console.error('Polling error:', err);
-      });
-
-      res.json({
-        success: true,
-        predictionId: result.predictionId,
-        generatedImageId: result.trackerId, // Use trackerId as generatedImageId for frontend compatibility
-        trackerId: result.trackerId,
-        message: `Generating ${category} ${subcategory} images with your personal AI model...`
-      });
-      
-    } catch (error) {
-      console.error('AI Generator error:', error);
-      res.status(500).json({ 
-        error: error.message || 'Failed to generate images. Please try again.',
-        requiresTraining: error.message?.includes('model') || error.message?.includes('training')
-      });
-    }
-  });
-
-  // AI Generator - Get generated images for display
-  app.get('/api/generated-images', isAuthenticated, async (req: any, res) => {
-    try {
-      const authUserId = req.user.claims.sub;
-      const claims = req.user.claims;
-      
-      // Get database user ID
-      let user = await storage.getUser(authUserId);
-      if (!user && claims.email) {
-        user = await storage.getUserByEmail(claims.email);
-      }
-      
-      if (!user) {
-        return res.status(404).json({ error: 'User not found' });
-      }
-      
-      // Get AI images from storage
-      const aiImages = await storage.getAIImagesByUserId(user.id);
-      
-      // Transform to match frontend expectations
-      const formattedImages = aiImages.map(img => ({
-        id: img.id,
-        imageUrls: [img.imageUrl], // Frontend expects array
-        image_urls: JSON.stringify([img.imageUrl]), // Backend compatibility
-        generationStatus: 'completed', // All stored images are completed
-        style: img.style,
-        prompt: img.prompt,
-        createdAt: img.createdAt,
-        isSelected: img.isSelected,
-        isFavorite: img.isFavorite
-      }));
-      
-      res.json(formattedImages);
-      
-    } catch (error) {
-      console.error('Get generated images error:', error);
-      res.status(500).json({ error: 'Failed to fetch generated images' });
     }
   });
 

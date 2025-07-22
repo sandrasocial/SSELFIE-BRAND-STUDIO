@@ -13,20 +13,31 @@ export class ArchitectureValidator {
    * ALL users must use their individual trained models with zero cross-contamination
    */
   static validateGenerationRequest(requestBody: any, userId: string, isPremium: boolean = false): void {
-    // 1. VALIDATE USER'S INDIVIDUAL MODEL - Each user must use their own complete model path
-    const version = requestBody.version;
-    if (!version || typeof version !== 'string') {
-      throw new Error('Architecture violation: Must use user\'s complete individual trained model path');
+    // 🔒 V2 ARCHITECTURE: ALL users use individual trained models (no FLUX Pro distinction)
+    // This matches CORE_ARCHITECTURE_IMMUTABLE_V2.md - complete user isolation with individual models
+    
+    if (!requestBody.version || !requestBody.version.includes(':')) {
+      console.error('🚨 ARCHITECTURE VIOLATION: Missing individual user model version');
+      console.error('Request body:', JSON.stringify(requestBody, null, 2));
+      throw new Error('Architecture violation: Must use individual user model only');
     }
     
-    // Individual model should be complete path like sandrasocial/42585527-selfie-lora:e1713c1
-    if (!version.includes(':') || !version.includes('/')) {
-      throw new Error('Architecture violation: Must use complete individual model path (owner/model:version)');
+    // Ensure proper individual model format (username/modelid:versionid)
+    const versionParts = requestBody.version.split(':');
+    if (versionParts.length !== 2) {
+      console.error('🚨 ARCHITECTURE VIOLATION: Invalid model version format');
+      throw new Error('Architecture violation: Invalid model version format - must be username/model:version');
     }
     
-    // 2. INDIVIDUAL MODEL ARCHITECTURE - Using complete trained model path
-    // User's individual trained model contains their identity and LoRA weights
-    console.log(`✅ Using user's complete individual trained model: ${requestBody.version}`);
+    // Ensure no premium-only parameters (finetune_id not used in V2 architecture)
+    if (requestBody.input?.finetune_id) {
+      console.error('🚨 ARCHITECTURE VIOLATION: finetune_id not permitted in V2 individual model architecture');
+      throw new Error('Architecture violation: V2 uses individual models, not finetune_id');
+    }
+    
+    const userType = isPremium ? 'Premium' : 'Free';
+    console.log(`✅ ${userType} user validation passed for user: ${userId}`);
+    console.log(`✅ Using individual model version: ${requestBody.version}`);
   }
   
   /**

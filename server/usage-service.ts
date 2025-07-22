@@ -1,6 +1,6 @@
 import { storage } from './storage';
 
-// Plan configuration with usage limits and costs - CLEAN TWO-TIER SYSTEM
+// Plan configuration with usage limits and costs
 export const PLAN_LIMITS = {
   'admin': {
     totalGenerations: null,
@@ -11,31 +11,30 @@ export const PLAN_LIMITS = {
   },
   'free': {
     totalGenerations: null,
-    monthlyGenerations: 6, // 6 free images per month
+    monthlyGenerations: 6, // 6 free images per month (allows 2 generations of 3 images each)
     cost: 0,
     description: '6 AI generations per month',
     resetMonthly: true
   },
   'FREE': {
     totalGenerations: null,
-    monthlyGenerations: 6, // 6 free images per month
+    monthlyGenerations: 6, // 6 free images per month (allows 2 generations of 3 images each)
     cost: 0,
     description: '6 AI generations per month',
     resetMonthly: true
   },
   'sselfie-studio': {
     totalGenerations: null,
-    monthlyGenerations: 100, // €67/month for 100 AI images
-    cost: 67,
-    description: '100 AI generations per month + Maya AI + Model training',
+    monthlyGenerations: 100, // €47/month for 100 AI images
+    cost: 47,
+    description: '100 AI generations per month + Maya AI chat',
     resetMonthly: true
   },
-  // Legacy pro plan - redirect to sselfie-studio for existing users
   'pro': {
     totalGenerations: null,
-    monthlyGenerations: 100, // Redirect to studio
-    cost: 67,
-    description: '100 AI generations per month + Maya AI + Model training',
+    monthlyGenerations: 100, // Pro plan with 100 images per month
+    cost: 47,
+    description: '100 AI generations per month + Maya AI + Victoria AI',
     resetMonthly: true
   },
 

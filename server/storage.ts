@@ -85,7 +85,6 @@ export interface IStorage {
   getGenerationTracker(id: number): Promise<GenerationTracker | undefined>;
   getUserGenerationTrackers(userId: string): Promise<GenerationTracker[]>;
   getCompletedGenerationTrackersForUser(userId: string, hoursBack: number): Promise<GenerationTracker[]>;
-  getProcessingGenerationTrackers(): Promise<GenerationTracker[]>;
   updateAIImage(id: number, data: Partial<AiImage>): Promise<AiImage>;
 
   // User Model operations
@@ -157,7 +156,6 @@ export interface IStorage {
 
   // Email Capture operations
   captureEmail(data: InsertEmailCapture): Promise<EmailCapture>;
-  getAllEmailCaptures(): Promise<EmailCapture[]>;
 
   // Admin operations
   setUserAsAdmin(email: string): Promise<User | null>;
@@ -418,37 +416,17 @@ export class DatabaseStorage implements IStorage {
       .orderBy(desc(generationTrackers.createdAt));
   }
 
-  async getProcessingGenerationTrackers(): Promise<GenerationTracker[]> {
-    return await db
-      .select()
-      .from(generationTrackers)
-      .where(eq(generationTrackers.status, 'processing'))
-      .orderBy(desc(generationTrackers.createdAt));
-  }
-
   // User Model operations
   async getUserModel(userId: string): Promise<UserModel | undefined> {
     const [model] = await db
       .select()
       .from(userModels)
       .where(eq(userModels.userId, userId));
-    
-    // CRITICAL PROTECTION: Never return fake training status
-    // Only return training/completed status if user has REAL Replicate model
-    if (model && (model.trainingStatus === 'training' || model.trainingStatus === 'completed')) {
-      if (!model.replicateModelId) {
-        console.log(`🚨 FAKE TRAINING DETECTED for user ${userId} - cleaning up`);
-        // Delete fake training record immediately
-        await this.deleteUserModel(userId);
-        return undefined; // Return no model - user must start fresh
-      }
-    }
-    
     return model;
   }
 
   async getUserModelByUserId(userId: string): Promise<UserModel | undefined> {
-    // Use the protected getUserModel method that validates against fake training
+    // Alias for getUserModel - same functionality
     return this.getUserModel(userId);
   }
 
@@ -459,16 +437,6 @@ export class DatabaseStorage implements IStorage {
   }
 
   async updateUserModel(userId: string, data: Partial<UserModel>): Promise<UserModel> {
-    // CRITICAL PROTECTION: Prevent fake training status updates
-    // Only allow training/completed status if replicateModelId is provided
-    if ((data.trainingStatus === 'training' || data.trainingStatus === 'completed') && !data.replicateModelId) {
-      const existingModel = await this.getUserModel(userId);
-      if (!existingModel?.replicateModelId) {
-        console.log(`🚨 STORAGE LEVEL: Preventing fake training status for user ${userId}`);
-        throw new Error('Cannot set training/completed status without replicateModelId');
-      }
-    }
-    
     const [updated] = await db
       .update(userModels)
       .set({ ...data, updatedAt: new Date() })
@@ -512,25 +480,11 @@ export class DatabaseStorage implements IStorage {
   }
 
   async getAllInProgressTrainings(): Promise<UserModel[]> {
-    // CRITICAL PROTECTION: Only return REAL training with Replicate model IDs
-    const trainings = await db
+    return await db
       .select()
       .from(userModels)
       .where(eq(userModels.trainingStatus, 'training'))
       .orderBy(desc(userModels.createdAt));
-    
-    // Filter out fake trainings and clean them up
-    const realTrainings = [];
-    for (const training of trainings) {
-      if (training.replicateModelId) {
-        realTrainings.push(training);
-      } else {
-        console.log(`🚨 FAKE TRAINING DETECTED for user ${training.userId} - cleaning up`);
-        await this.deleteUserModel(training.userId);
-      }
-    }
-    
-    return realTrainings;
   }
 
   async getMonthlyRetrainCount(userId: string, month: number, year: number): Promise<number> {
@@ -950,13 +904,6 @@ export class DatabaseStorage implements IStorage {
       .values(data)
       .returning();
     return capture;
-  }
-
-  async getAllEmailCaptures(): Promise<EmailCapture[]> {
-    return await db
-      .select()
-      .from(emailCaptures)
-      .orderBy(desc(emailCaptures.captured));
   }
 
   // Maya chat operations

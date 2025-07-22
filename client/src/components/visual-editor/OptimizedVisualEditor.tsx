@@ -51,7 +51,6 @@ import { ElenaCoordinationPanel } from './ElenaCoordinationPanel';
 import { ConversationThread } from './ConversationThread';
 import { EnhancedInput } from './EnhancedInput';
 import { MessageInteraction } from './MessageInteraction';
-import { FileSyncStatusIndicator } from './FileSyncStatusIndicator';
 import { CodeIntelligence } from './CodeIntelligence';
 import { EnhancedSyntaxHighlighter } from './SyntaxHighlighter';
 import { CodeFormatter } from './CodeFormatter';
@@ -74,11 +73,6 @@ import { AnalyticsDashboard } from './AnalyticsDashboard';
 import { IntelligentAssistant } from './IntelligentAssistant';
 import { WorkflowAutomation } from './WorkflowAutomation';
 import { PluginManager } from './PluginManager';
-import { ConversationThreading } from './ConversationThreading';
-import { MessageRegeneration } from './MessageRegeneration';
-import { EnhancedMessageActions } from './EnhancedMessageActions';
-import { FileOperationDisplay } from './FileOperationDisplay';
-import { SmartSuggestions } from './SmartSuggestions';
 import { ExtensionHub } from './ExtensionHub';
 
 import { AgentChatControls } from './AgentChatControls';
@@ -309,7 +303,6 @@ export function OptimizedVisualEditor({ className = '' }: OptimizedVisualEditorP
   });
   const [chatMessages, setChatMessages] = useState<ChatMessage[]>([]);
   const [isLoadingHistory, setIsLoadingHistory] = useState(false);
-  const [lastSavedMessageId, setLastSavedMessageId] = useState<string>('');
   const [messageInput, setMessageInput] = useState('');
   const [selectedTextColor, setSelectedTextColor] = useState('#000000');
   const [selectedFontSize, setSelectedFontSize] = useState(16);
@@ -336,15 +329,6 @@ export function OptimizedVisualEditor({ className = '' }: OptimizedVisualEditorP
   const [workflowActive, setWorkflowActive] = useState(false);
   const [workflowStage, setWorkflowStage] = useState('Design');
   const [activeWorkingAgent, setActiveWorkingAgent] = useState<string | null>(null);
-  
-  // Advanced Replit AI Features State
-  const [conversationThreads, setConversationThreads] = useState<any[]>([]);
-  const [showSuggestions, setShowSuggestions] = useState(true);
-  const [messageRegenerations, setMessageRegenerations] = useState<{[key: string]: string[]}>({});
-  const [fileOperations, setFileOperations] = useState<any[]>([]);
-  const [enhancedMessageActions, setEnhancedMessageActions] = useState<{[key: string]: any}>({});
-  const [currentFile, setCurrentFile] = useState<string | null>(null);
-  
   const iframeRef = useRef<HTMLIFrameElement>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const chatPanelRef = useRef<HTMLDivElement>(null);
@@ -368,17 +352,7 @@ export function OptimizedVisualEditor({ className = '' }: OptimizedVisualEditorP
           console.log(`📚 Loading conversation history for ${currentAgent.id}:`, data.conversations?.length || 0, 'conversations');
           
           if (data.conversations && data.conversations.length > 0) {
-            // Filter out memory and saved conversation entries on frontend as well
-            const regularConversations = data.conversations.filter((conv: any) => 
-              !conv.userMessage?.includes('**CONVERSATION_MEMORY**') &&
-              conv.userMessage !== '**CONVERSATION_MEMORY**' &&
-              !conv.userMessage?.startsWith('SAVED_CONVERSATION:') &&
-              !(conv.user_message?.includes('**CONVERSATION_MEMORY**')) &&
-              conv.user_message !== '**CONVERSATION_MEMORY**' &&
-              !conv.user_message?.startsWith('SAVED_CONVERSATION:')
-            );
-            
-            const formattedMessages: ChatMessage[] = regularConversations.map((conv: any) => [
+            const formattedMessages: ChatMessage[] = data.conversations.map((conv: any) => [
               {
                 type: 'user' as const,
                 content: conv.user_message || conv.userMessage,
@@ -396,7 +370,7 @@ export function OptimizedVisualEditor({ className = '' }: OptimizedVisualEditorP
               }
             ]).flat();
             
-            console.log(`✅ Formatted ${formattedMessages.length} messages for display (filtered from ${data.conversations.length} total conversations to ${regularConversations.length} regular conversations)`);
+            console.log(`✅ Formatted ${formattedMessages.length} messages for display`);
             setChatMessages(formattedMessages);
             
             // Show success notification for loaded history
@@ -473,43 +447,73 @@ export function OptimizedVisualEditor({ className = '' }: OptimizedVisualEditorP
     };
   }, [showMoreDropdown]);
 
-  // MANUAL conversation saving only - NO automatic saving to prevent duplicates
-  const saveConversationManually = async () => {
-    if (chatMessages.length < 2) return;
+  // Save conversations to database whenever NEW messages are added (not when loading history)
+  useEffect(() => {
+    // Don't save while loading conversation history
+    if (isLoadingHistory) return;
     
-    const lastMessage = chatMessages[chatMessages.length - 1];
-    const userMessage = chatMessages[chatMessages.length - 2];
-    
-    if (lastMessage.type === 'agent' && userMessage.type === 'user' && 
-        lastMessage.content && userMessage.content) {
+    const saveConversations = async () => {
+      if (chatMessages.length < 2) return; // Need at least user + agent message
       
-      const userContent = typeof userMessage.content === 'string' ? userMessage.content.trim() : '';
-      const agentContent = typeof lastMessage.content === 'string' ? lastMessage.content.trim() : '';
-      
-      if (userContent.length > 0 && agentContent.length > 0) {
-        try {
-          const response = await fetch('/api/admin/agent-conversation-save', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({
-              adminToken: 'sandra-admin-2025',
-              agentId: currentAgent.id || 'unknown',
-              userMessage: userContent,
-              agentResponse: agentContent
-            })
-          });
-          
-          if (response.ok) {
-            console.log('✅ Manual conversation saved successfully for', currentAgent.id);
-          } else {
-            console.error('Failed to save conversation:', await response.text());
+      try {
+        const lastMessage = chatMessages[chatMessages.length - 1];
+        if (lastMessage.type === 'agent' && lastMessage.content) {
+          // Save the complete conversation pair to database
+          const userMessage = chatMessages[chatMessages.length - 2];
+          if (userMessage && userMessage.type === 'user' && userMessage.content) {
+            // Only save if both messages have actual content
+            const userContent = typeof userMessage.content === 'string' ? userMessage.content.trim() : '';
+            const agentContent = typeof lastMessage.content === 'string' ? lastMessage.content.trim() : '';
+            
+            if (userContent.length > 0 && agentContent.length > 0) {
+              // Check if this conversation pair is already in the database (avoid duplicates)
+              const isNewConversation = !chatMessages.some((msg, index) => 
+                index < chatMessages.length - 2 && 
+                msg.type === 'user' && 
+                msg.content === userContent &&
+                chatMessages[index + 1]?.content === agentContent
+              );
+              
+              if (isNewConversation) {
+                const response = await fetch('/api/admin/agent-conversation-save', {
+                  method: 'POST',
+                  headers: { 'Content-Type': 'application/json' },
+                  body: JSON.stringify({
+                    adminToken: 'sandra-admin-2025',
+                    agentId: currentAgent.id || 'unknown',
+                    userMessage: userContent,
+                    agentResponse: agentContent
+                  })
+                });
+                
+                if (!response.ok) {
+                  const errorText = await response.text();
+                  console.error('Failed to save conversation:', errorText);
+                } else {
+                  console.log('✅ Conversation saved successfully for', currentAgent.id);
+                }
+              } else {
+                console.log('⚠️ Skipping save - duplicate conversation detected');
+              }
+            } else {
+              console.log('⚠️ Skipping save - empty content:', { userLength: userContent.length, agentLength: agentContent.length });
+            }
           }
-        } catch (error) {
-          console.error('Failed to save conversation:', error);
         }
+      } catch (error) {
+        console.error('Failed to save conversation:', error);
+      }
+    };
+
+    // Only attempt to save if we have actual messages with content and we're not loading history
+    if (chatMessages.length >= 2 && !isLoadingHistory) {
+      const lastMessage = chatMessages[chatMessages.length - 1];
+      if (lastMessage.type === 'agent' && lastMessage.content) {
+        // Add a small delay to ensure the message is finalized
+        setTimeout(saveConversations, 500);
       }
     }
-  };
+  }, [chatMessages, currentAgent.id, isLoadingHistory]);
 
   // Auto-scroll chat to bottom when new messages are added (only for agent chat)
   useEffect(() => {
@@ -935,21 +939,67 @@ export function OptimizedVisualEditor({ className = '' }: OptimizedVisualEditorP
         workflowStage
       });
 
-      // Elena always uses her natural conversational style through the main agent chat endpoint
-      // No special workflow endpoints - Elena handles everything naturally through her personality
-      const endpoint = '/api/admin/agents/chat';
+      // Elena workflow handling - creation and execution
+      const isWorkflowCreationRequest = message.toLowerCase().includes('create workflow') || 
+                                      message.toLowerCase().includes('design workflow') ||
+                                      message.toLowerCase().includes('new workflow');
       
-      // Elena always responds naturally through her Claude personality
-      const requestBody = {
-        agentId: agentId,
-        message: message,
-        adminToken: 'sandra-admin-2025',
-        conversationHistory: conversationHistory,
-        workflowContext: {
-          stage: workflowStage,
-          previousWork: chatMessages.filter(msg => msg.agentName && msg.agentName !== agentId).slice(-3)
+      const isWorkflowExecutionRequest = message.toLowerCase().includes('execute workflow') || 
+                                       message.toLowerCase().includes('start workflow') ||
+                                       message.toLowerCase().includes('run workflow');
+      
+      let endpoint = '/api/admin/agents/chat';
+      if (agentId === 'elena' && isWorkflowCreationRequest) {
+        endpoint = '/api/admin/elena/create-workflow';
+      } else if (agentId === 'elena' && isWorkflowExecutionRequest) {
+        // Check for workflow ID in conversation history
+        const lastWorkflowMessage = chatMessages.slice().reverse().find(msg => msg.workflowId);
+        if (lastWorkflowMessage?.workflowId) {
+          endpoint = '/api/admin/elena/execute-workflow';
         }
-      };
+      }
+      
+      let requestBody;
+      if (agentId === 'elena' && isWorkflowCreationRequest) {
+        requestBody = {
+          request: message,
+          userId: 'admin-sandra',
+          adminToken: 'sandra-admin-2025'
+        };
+      } else if (agentId === 'elena' && isWorkflowExecutionRequest) {
+        const lastWorkflowMessage = chatMessages.slice().reverse().find(msg => msg.workflowId);
+        if (lastWorkflowMessage?.workflowId) {
+          requestBody = {
+            workflowId: lastWorkflowMessage.workflowId,
+            userId: 'admin-sandra',
+            adminToken: 'sandra-admin-2025'
+          };
+        } else {
+          // If no workflow ID found, treat as regular Elena chat
+          endpoint = '/api/admin/agents/chat';
+          requestBody = {
+            agentId: agentId,
+            message: message,
+            adminToken: 'sandra-admin-2025',
+            conversationHistory: conversationHistory,
+            workflowContext: {
+              stage: workflowStage,
+              previousWork: chatMessages.filter(msg => msg.agentName && msg.agentName !== agentId).slice(-3)
+            }
+          };
+        }
+      } else {
+        requestBody = {
+          agentId: agentId,
+          message: message,
+          adminToken: 'sandra-admin-2025',
+          conversationHistory: conversationHistory,
+          workflowContext: {
+            stage: workflowStage,
+            previousWork: chatMessages.filter(msg => msg.agentName && msg.agentName !== agentId).slice(-3)
+          }
+        };
+      }
 
       const response = await fetch(endpoint, {
         method: 'POST',
@@ -974,7 +1024,7 @@ export function OptimizedVisualEditor({ className = '' }: OptimizedVisualEditorP
       if (data.message || data.response || data.workflow) {
         const agent = agents.find(a => a.id === agentId);
         
-        // Universal agent response handling with @mention coordination for ALL AGENTS
+        // Elena now responds naturally through her Claude personality without any forced formatting
         const agentMessage: ChatMessage = {
           type: 'agent',
           content: data.message || data.response,
@@ -983,69 +1033,9 @@ export function OptimizedVisualEditor({ className = '' }: OptimizedVisualEditorP
           workflowStage: agent?.workflowStage
         };
         setChatMessages(prev => [...prev, agentMessage]);
-        
-        // Check for @mentions in ANY agent's response for coordination
-        const responseText = data.message || data.response;
-        const mentions = responseText.match(/@(\w+)/g);
-        
-        if (mentions) {
-          console.log(`🎯 ${agent?.name} mentioned agents:`, mentions);
-          // Process each @mention for agent coordination
-          mentions.forEach(async (mention) => {
-            const mentionedAgentId = mention.substring(1).toLowerCase();
-            const mentionedAgent = agents.find(a => a.id === mentionedAgentId);
-            
-            if (mentionedAgent) {
-              console.log(`🤖 ${agent?.name} coordinating with ${mentionedAgentId}...`);
-              
-              // Extract context around the mention for the agent
-              const mentionIndex = responseText.indexOf(mention);
-              const contextStart = Math.max(0, mentionIndex - 100);
-              const contextEnd = Math.min(responseText.length, mentionIndex + 200);
-              const context = responseText.substring(contextStart, contextEnd);
-              
-              // Delay slightly to let the response render first
-              setTimeout(async () => {
-                try {
-                  const coordinationResponse = await fetch('/api/admin/agents/chat', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({
-                      agentId: mentionedAgentId,
-                      message: `${agent?.name} is coordinating with you. Context: "${context}". Please respond with your specific expertise and work on this task.`,
-                      adminToken: 'sandra-admin-2025',
-                      conversationHistory: []
-                    })
-                  });
-                  
-                  if (coordinationResponse.ok) {
-                    const coordData = await coordinationResponse.json();
-                    
-                    // Add coordination response from the mentioned agent
-                    const coordinationMessage: ChatMessage = {
-                      type: 'agent',
-                      content: `**${mentionedAgent.name} responds to ${agent?.name}'s coordination:**\n\n${coordData.message || coordData.response}`,
-                      timestamp: new Date(),
-                      agentName: mentionedAgentId,
-                      workflowStage: mentionedAgent.workflowStage
-                    };
-                    setChatMessages(prev => [...prev, coordinationMessage]);
-                    
-                    // Show progress update
-                    toast({
-                      title: `${mentionedAgent.name} is working`,
-                      description: `Responding to ${agent?.name}'s coordination request`,
-                    });
-                  }
-                } catch (error) {
-                  console.error(`Failed to coordinate with ${mentionedAgentId}:`, error);
-                }
-              }, 1000 * mentions.indexOf(mention)); // Stagger multiple agent calls
-            }
-          });
-        }
 
         // Show notification for file operations (code blocks automatically written)
+        const responseText = data.message || data.response;
         if (responseText.includes('Files Modified Successfully') || responseText.includes('✅') || responseText.includes('Files Created:') || responseText.includes('Created:**')) {
           toast({
             title: `${agent?.name} updated files`,
@@ -1065,7 +1055,7 @@ export function OptimizedVisualEditor({ className = '' }: OptimizedVisualEditorP
           }, 1000);
         }
 
-        // Check for continuous work patterns - if agent wants to continue working (ALL AGENTS)
+        // Check for continuous work patterns - if agent wants to continue working
         const shouldContinueWorking = (
           responseText.includes('CONTINUING WORK') ||
           responseText.includes('NEXT STEP') ||
@@ -1074,18 +1064,16 @@ export function OptimizedVisualEditor({ className = '' }: OptimizedVisualEditorP
           responseText.includes('Now I need to') ||
           responseText.includes('IMMEDIATE ACTION') ||
           responseText.includes('PROGRESS UPDATE') ||
-          // Agent-specific continuous work patterns for ALL AGENTS
-          (agentId === 'elena' && (responseText.includes('coordinating') || responseText.includes('@'))) || // Elena continues with coordination
-          (agentId === 'aria' && responseText.includes('design')) || // Aria continues with design iterations
+          // Agent-specific continuous work patterns
           (agentId === 'zara' && responseText.includes('```')) || // Zara continues after code changes
+          (agentId === 'aria' && responseText.includes('design')) || // Aria continues with design iterations
           (agentId === 'rachel' && responseText.includes('copy')) || // Rachel continues with copywriting
           (agentId === 'ava' && responseText.includes('workflow')) || // Ava continues with automation
           (agentId === 'quinn' && responseText.includes('testing')) || // Quinn continues with QA
           (agentId === 'sophia' && responseText.includes('social')) || // Sophia continues with social media
           (agentId === 'martha' && responseText.includes('marketing')) || // Martha continues with marketing
           (agentId === 'diana' && responseText.includes('strategy')) || // Diana continues with strategy
-          (agentId === 'wilma' && responseText.includes('optimization')) || // Wilma continues with workflows
-          (agentId === 'olga' && (responseText.includes('organizing') || responseText.includes('cleanup'))) // Olga continues with organization
+          (agentId === 'wilma' && responseText.includes('optimization')) // Wilma continues with workflows
         );
 
         // Auto-continue working if agent indicates more work needed
@@ -1095,7 +1083,7 @@ export function OptimizedVisualEditor({ className = '' }: OptimizedVisualEditorP
           }, 2000); // Brief pause to let user see progress
         }
 
-        // Auto-apply changes based on agent type - ALL AGENTS
+        // Auto-apply changes based on agent type
         if (agentId === 'aria') {
           // Look for CSS injection patterns
           const cssMatch = responseText.match(/```css\n([\s\S]*?)\n```/);
@@ -1116,88 +1104,6 @@ export function OptimizedVisualEditor({ className = '' }: OptimizedVisualEditorP
             toast({
               title: 'Aria is creating files!',
               description: 'New components are being added to the codebase',
-            });
-          }
-        } else if (agentId === 'zara') {
-          // Zara handles technical implementation and backend work
-          const codeMatch = responseText.match(/```(?:typescript|javascript|tsx|ts|js)\n([\s\S]*?)\n```/);
-          if (codeMatch) {
-            console.log('⚙️ Zara provided technical implementation:', codeMatch[1].substring(0, 100) + '...');
-            toast({
-              title: 'Zara is implementing features!',
-              description: 'Backend and technical changes being applied',
-            });
-          }
-        } else if (agentId === 'rachel') {
-          // Rachel handles copywriting and content strategy
-          if (responseText.includes('```text') || responseText.includes('copy:') || responseText.includes('headline:')) {
-            console.log('📝 Rachel provided copywriting changes');
-            toast({
-              title: 'Rachel updated copy!',
-              description: 'Brand voice and content strategy applied',
-            });
-          }
-        } else if (agentId === 'ava') {
-          // Ava handles automation and workflow design
-          if (responseText.includes('workflow') || responseText.includes('automation') || responseText.includes('```yaml')) {
-            console.log('🔄 Ava provided automation workflows');
-            toast({
-              title: 'Ava created workflows!',
-              description: 'Business automation and processes implemented',
-            });
-          }
-        } else if (agentId === 'quinn') {
-          // Quinn handles quality testing and validation
-          if (responseText.includes('test') || responseText.includes('validation') || responseText.includes('```spec')) {
-            console.log('🧪 Quinn provided quality testing');
-            toast({
-              title: 'Quinn tested features!',
-              description: 'Quality assurance and testing completed',
-            });
-          }
-        } else if (agentId === 'sophia') {
-          // Sophia handles social media and community building
-          if (responseText.includes('social') || responseText.includes('instagram') || responseText.includes('content calendar')) {
-            console.log('📱 Sophia provided social media strategy');
-            toast({
-              title: 'Sophia created social content!',
-              description: 'Social media strategy and content ready',
-            });
-          }
-        } else if (agentId === 'martha') {
-          // Martha handles marketing and performance optimization
-          if (responseText.includes('marketing') || responseText.includes('campaign') || responseText.includes('analytics')) {
-            console.log('📊 Martha provided marketing optimization');
-            toast({
-              title: 'Martha optimized marketing!',
-              description: 'Performance marketing and analytics implemented',
-            });
-          }
-        } else if (agentId === 'diana') {
-          // Diana handles strategic planning and business coaching
-          if (responseText.includes('strategy') || responseText.includes('planning') || responseText.includes('business model')) {
-            console.log('🎯 Diana provided strategic guidance');
-            toast({
-              title: 'Diana created strategy!',
-              description: 'Business strategy and coaching guidance ready',
-            });
-          }
-        } else if (agentId === 'wilma') {
-          // Wilma handles workflow optimization and process design
-          if (responseText.includes('process') || responseText.includes('efficiency') || responseText.includes('optimization')) {
-            console.log('⚡ Wilma provided workflow optimization');
-            toast({
-              title: 'Wilma optimized workflows!',
-              description: 'Process efficiency and optimization implemented',
-            });
-          }
-        } else if (agentId === 'olga') {
-          // Olga handles file organization and architecture cleanup
-          if (responseText.includes('organized') || responseText.includes('cleanup') || responseText.includes('architecture')) {
-            console.log('🗂️ Olga provided file organization');
-            toast({
-              title: 'Olga organized files!',
-              description: 'File architecture and organization completed',
             });
           }
         }
@@ -1221,8 +1127,8 @@ export function OptimizedVisualEditor({ className = '' }: OptimizedVisualEditorP
           });
         }
 
-        // Workflow execution handling for ALL coordination agents
-        if (agentId === 'elena' || agentId === 'diana' || agentId === 'wilma') {
+        // Elena workflow execution handling
+        if (agentId === 'elena') {
           const userMessage = chatMessages[chatMessages.length - 2]?.content?.toLowerCase();
           if (userMessage?.includes('execute workflow') || userMessage?.includes('run workflow')) {
             // Find the most recent workflow message
@@ -1233,57 +1139,13 @@ export function OptimizedVisualEditor({ className = '' }: OptimizedVisualEditorP
           }
         }
 
-        // Check for approval and handoff signals for ALL AGENTS
+        // Check for approval and handoff signals in USER messages (when Sandra says "approve")
         const userApproval = chatMessages[chatMessages.length - 2]?.content?.toLowerCase().includes('approve');
-        
-        // Agent-specific handoff logic for complete workflow chain
-        if (userApproval) {
-          if (agentId === 'aria') {
-            console.log('Sandra approved design - handing off to Zara for implementation');
-            setTimeout(() => {
-              handoffToNextAgent(agentId, 'Design approved by Sandra - implement technical features and optimize performance');
-            }, 1500);
-          } else if (agentId === 'zara') {
-            console.log('Sandra approved implementation - handing off to Rachel for copywriting');
-            setTimeout(() => {
-              handoffToNextAgent(agentId, 'Technical implementation approved - create compelling copy and content strategy');
-            }, 1500);
-          } else if (agentId === 'rachel') {
-            console.log('Sandra approved copy - handing off to Ava for automation');
-            setTimeout(() => {
-              handoffToNextAgent(agentId, 'Copy and content approved - implement automation and workflows');
-            }, 1500);
-          } else if (agentId === 'ava') {
-            console.log('Sandra approved automation - handing off to Quinn for QA');
-            setTimeout(() => {
-              handoffToNextAgent(agentId, 'Automation approved - perform quality testing and validation');
-            }, 1500);
-          } else if (agentId === 'quinn') {
-            console.log('Sandra approved QA - handing off to Sophia for social media');
-            setTimeout(() => {
-              handoffToNextAgent(agentId, 'Quality testing approved - create social media strategy and content');
-            }, 1500);
-          } else if (agentId === 'sophia') {
-            console.log('Sandra approved social strategy - handing off to Martha for marketing');
-            setTimeout(() => {
-              handoffToNextAgent(agentId, 'Social media strategy approved - optimize marketing and performance');
-            }, 1500);
-          } else if (agentId === 'martha') {
-            console.log('Sandra approved marketing - handing off to Diana for strategy');
-            setTimeout(() => {
-              handoffToNextAgent(agentId, 'Marketing optimization approved - provide strategic guidance and business coaching');
-            }, 1500);
-          } else if (agentId === 'diana') {
-            console.log('Sandra approved strategy - handing off to Wilma for workflow optimization');
-            setTimeout(() => {
-              handoffToNextAgent(agentId, 'Strategic guidance approved - optimize workflows and processes');
-            }, 1500);
-          } else if (agentId === 'wilma') {
-            console.log('Sandra approved workflow optimization - handing off to Olga for organization');
-            setTimeout(() => {
-              handoffToNextAgent(agentId, 'Workflow optimization approved - organize files and clean architecture');
-            }, 1500);
-          }
+        if (userApproval && agentId === 'aria') {
+          console.log('Sandra approved design - handing off to Zara for implementation');
+          setTimeout(() => {
+            handoffToNextAgent(agentId, 'Design approved by Sandra - implement technical features and optimize performance');
+          }, 1500);
         } else if (responseText.includes('HANDOFF:') || responseText.includes('Ready for next stage')) {
           const handoffContext = responseText.split('HANDOFF:')[1] || `${agent?.workflowStage} completed`;
           setTimeout(() => {
@@ -1291,7 +1153,7 @@ export function OptimizedVisualEditor({ className = '' }: OptimizedVisualEditorP
           }, 2000);
         }
       }
-    } catch (error: any) {
+    } catch (error) {
       if (error.name === 'AbortError') {
         console.log('Agent request aborted by user');
       } else {
@@ -1332,7 +1194,7 @@ export function OptimizedVisualEditor({ className = '' }: OptimizedVisualEditorP
       
       const progressMessage: ChatMessage = {
         type: 'agent',
-        content: 'Elena is coordinating the workflow.',
+        content: responseData.message || responseData.response || 'Elena is coordinating the workflow.',
         timestamp: new Date(),
         agentName: 'elena',
         workflowStage: 'Execution',
@@ -1530,17 +1392,9 @@ export function OptimizedVisualEditor({ className = '' }: OptimizedVisualEditorP
             </div>
             <div className="flex space-x-1">
               {agents.map((agent, index) => (
-                <button
+                <div
                   key={agent.id}
-                  onClick={() => {
-                    setCurrentAgent(agent);
-                    setActiveTab('chat');
-                    toast({
-                      title: `Switched to ${agent.name}`,
-                      description: `Now chatting with ${agent.role}`,
-                    });
-                  }}
-                  className={`flex-1 h-1 transition-all duration-200 hover:h-2 cursor-pointer ${
+                  className={`flex-1 h-1 ${
                     agent.id === activeWorkingAgent
                       ? 'bg-blue-500 animate-pulse' // Pulsating blue for working agent
                       : agent.id === currentAgent.id
@@ -1548,8 +1402,7 @@ export function OptimizedVisualEditor({ className = '' }: OptimizedVisualEditorP
                       : agents.findIndex(a => a.id === currentAgent.id) > index
                       ? 'bg-gray-400'
                       : 'bg-gray-200'
-                  } rounded`}
-                  title={`Switch to ${agent.name} - ${agent.role}`}
+                  }`}
                 />
               ))}
             </div>
@@ -1719,46 +1572,15 @@ export function OptimizedVisualEditor({ className = '' }: OptimizedVisualEditorP
 
           {/* Conversation Threading Tab */}
           <TabsContent value="threads" className="flex-1 flex flex-col mt-0 min-h-0">
-            <ConversationThreading
+            <ConversationThread 
               agentId={currentAgent.id}
-              conversations={conversationThreads}
-              currentConversation={chatMessages}
-              onCreateThread={(fromMessageId, threadName) => {
-                const messageIndex = parseInt(fromMessageId.split('-')[1]);
-                const threadMessages = chatMessages.slice(0, messageIndex + 1);
-                const newThread = {
-                  id: Date.now().toString(),
-                  name: threadName,
-                  messages: threadMessages,
-                  createdAt: new Date(),
-                  agentId: currentAgent.id
-                };
-                setConversationThreads(prev => [...prev, newThread]);
-                toast({ title: 'Thread created', description: `New thread "${threadName}" created` });
+              conversations={chatMessages}
+              onLoadConversation={(conversation) => {
+                setChatMessages(conversation.messages || []);
+                setActiveTab('chat');
               }}
-              onSwitchThread={(threadId) => {
-                const thread = conversationThreads.find(t => t.id === threadId);
-                if (thread) {
-                  setChatMessages(thread.messages);
-                  setActiveTab('chat');
-                  toast({ title: 'Thread switched', description: `Switched to "${thread.name}"` });
-                }
-              }}
-              onMergeThreads={(threadIds) => {
-                const threadsToMerge = conversationThreads.filter(t => threadIds.includes(t.id));
-                const mergedMessages = threadsToMerge.flatMap(t => t.messages);
-                const mergedThread = {
-                  id: Date.now().toString(),
-                  name: `Merged: ${threadsToMerge.map(t => t.name).join(', ')}`,
-                  messages: mergedMessages,
-                  createdAt: new Date(),
-                  agentId: currentAgent.id
-                };
-                setConversationThreads(prev => [
-                  ...prev.filter(t => !threadIds.includes(t.id)),
-                  mergedThread
-                ]);
-                toast({ title: 'Threads merged', description: 'Selected threads have been merged' });
+              onDeleteConversation={() => {
+                // Refresh conversation list
               }}
             />
           </TabsContent>
@@ -1776,20 +1598,7 @@ export function OptimizedVisualEditor({ className = '' }: OptimizedVisualEditorP
 
           <TabsContent value="chat" className="flex flex-col">
             {/* Minimal Chat Controls - Subtle Icon */}
-            <div className="flex justify-between items-center px-2 py-1 flex-shrink-0">
-              <Button
-                onClick={() => {
-                  setChatMessages([]);
-                  setMessageInput('');
-                  toast({ title: 'New Chat Started', description: 'Started fresh conversation with ' + currentAgent.name });
-                }}
-                variant="ghost"
-                size="sm"
-                className="text-xs text-gray-600 hover:text-gray-800 flex items-center gap-1"
-              >
-                <span className="text-sm">+</span>
-                New Chat
-              </Button>
+            <div className="flex justify-end px-2 py-1 flex-shrink-0">
               <AgentChatControls
                 isLoading={isLoading}
                 onStop={handleStopAgent}
@@ -1852,7 +1661,7 @@ export function OptimizedVisualEditor({ className = '' }: OptimizedVisualEditorP
                         agentName={agent?.name}
                         timestamp={message.timestamp instanceof Date ? message.timestamp : new Date(message.timestamp)}
                         onRegenerate={() => {
-                          // Regenerate agent response using MessageRegeneration component
+                          // Regenerate agent response
                           const lastUserMessage = chatMessages[index - 1];
                           if (lastUserMessage?.type === 'user') {
                             sendMessage(lastUserMessage.content);
@@ -1869,38 +1678,6 @@ export function OptimizedVisualEditor({ className = '' }: OptimizedVisualEditorP
                         content={message.content}
                         agentName={agent?.name}
                         timestamp={message.timestamp}
-                      />
-                      
-                      {/* Enhanced Message Actions for Replit AI Parity */}
-                      <EnhancedMessageActions
-                        messageId={`agent-${index}`}
-                        agentName={agent?.name || ''}
-                        onBookmark={(messageId) => {
-                          console.log('Bookmarked message:', messageId);
-                          setEnhancedMessageActions(prev => ({
-                            ...prev,
-                            [messageId]: { ...prev[messageId], bookmarked: true }
-                          }));
-                        }}
-                        onFeedback={(messageId, type) => {
-                          console.log('Feedback for message:', messageId, type);
-                          setEnhancedMessageActions(prev => ({
-                            ...prev,
-                            [messageId]: { ...prev[messageId], feedback: type }
-                          }));
-                        }}
-                        onShare={(messageId) => {
-                          console.log('Sharing message:', messageId);
-                          navigator.clipboard.writeText(message.content);
-                          toast({ title: 'Message copied to clipboard' });
-                        }}
-                        onFlag={(messageId, reason) => {
-                          console.log('Flagged message:', messageId, reason);
-                          setEnhancedMessageActions(prev => ({
-                            ...prev,
-                            [messageId]: { ...prev[messageId], flagged: reason }
-                          }));
-                        }}
                       />
                     </div>
                   )}
@@ -1969,53 +1746,8 @@ export function OptimizedVisualEditor({ className = '' }: OptimizedVisualEditorP
               )}
             </div>
 
-            {/* File Operations Display for Agent Actions */}
-            {fileOperations.length > 0 && (
-              <div className="px-2 py-2 border-t border-gray-200 bg-gray-50">
-                <FileOperationDisplay
-                  operations={fileOperations}
-                  onApprove={(operationId) => {
-                    setFileOperations(prev => prev.map(op => 
-                      op.id === operationId ? { ...op, status: 'approved' } : op
-                    ));
-                    toast({ title: 'File operation approved' });
-                  }}
-                  onReject={(operationId) => {
-                    setFileOperations(prev => prev.map(op => 
-                      op.id === operationId ? { ...op, status: 'rejected' } : op
-                    ));
-                    toast({ title: 'File operation rejected' });
-                  }}
-                  onViewDiff={(operationId) => {
-                    const operation = fileOperations.find(op => op.id === operationId);
-                    if (operation) {
-                      console.log('Viewing diff for operation:', operation);
-                      // Open diff view in editor tab
-                      setActiveTab('editor');
-                    }
-                  }}
-                />
-              </div>
-            )}
-            
-            {/* Enhanced Chat Input with Smart Suggestions */}
+            {/* Enhanced Chat Input - Category 2 Implementation */}
             <div className="px-1 py-1 border-t border-gray-200 flex-shrink-0 bg-white">
-              {showSuggestions && (
-                <SmartSuggestions
-                  agentId={currentAgent.id}
-                  context={{
-                    recentMessages: chatMessages.slice(-5),
-                    activeFile: currentFile || '',
-                    workflowStage
-                  }}
-                  onSuggestionClick={(suggestion) => {
-                    setMessageInput(suggestion);
-                    setShowSuggestions(false);
-                  }}
-                  onDismiss={() => setShowSuggestions(false)}
-                />
-              )}
-              
               <EnhancedInput
                 value={messageInput}
                 onChange={setMessageInput}
@@ -2027,19 +1759,6 @@ export function OptimizedVisualEditor({ className = '' }: OptimizedVisualEditorP
                 disabled={false}
               />
             </div>
-            
-            {/* File Sync Status Indicator */}
-            <FileSyncStatusIndicator 
-              selectedAgent={currentAgent.id}
-              onRefreshRequested={() => {
-                // Refresh chat/context when file sync triggers updates
-                refreshConversationHistory();
-                toast({
-                  title: 'File Sync Refresh',
-                  description: 'File tree and agent context updated',
-                });
-              }}
-            />
           </TabsContent>
 
           <TabsContent value="gallery" className="flex flex-col">

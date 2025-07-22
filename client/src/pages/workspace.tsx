@@ -50,14 +50,13 @@ export default function Workspace() {
 
   // Simplified User Journey - 3 clear steps
   const getJourneySteps = () => {
-    // Step 1: Upload Photos - ONLY real training status
+    // Step 1: Upload Photos - Enhanced training status detection
     const step1Complete = userModel?.trainingStatus === 'completed';
-    const step1InProgress = userModel?.replicateModelId && 
-                          (userModel?.trainingStatus === 'training' || 
-                           userModel?.trainingStatus === 'starting' ||
-                           userModel?.trainingStatus === 'processing') &&
-                          userModel?.trainingStatus !== 'completed' && 
-                          userModel?.trainingStatus !== 'failed';
+    const step1InProgress = userModel?.trainingStatus === 'training' || 
+                          userModel?.trainingStatus === 'starting' ||
+                          userModel?.trainingStatus === 'processing' ||
+                          userModel?.trainingStatus === 'pending' ||
+                          (userModel?.replicateModelId && userModel?.trainingStatus !== 'completed' && userModel?.trainingStatus !== 'failed');
     
     // Step 2: Take Photos  
     const step2Ready = step1Complete;
@@ -74,9 +73,9 @@ export default function Workspace() {
         timeEstimate: '2 minutes',
         status: step1Complete ? 'complete' : step1InProgress ? 'progress' : 'start',
         statusMessage: step1Complete ? 'Done! Ready for photos' : 
-                      step1InProgress ? 'Training in progress - Check status' : 
+                      step1InProgress ? 'AI training in progress... (Check back in a few minutes)' : 
                       'Start here first',
-        link: step1InProgress ? '/ai-training' : '/ai-training', // Always link to training page
+        link: step1InProgress ? '#' : '/ai-training', // Don't link to training page if already training
         image: "https://i.postimg.cc/bNF14sGc/out-1-4.png",
         nextStep: step1Complete ? null : 'Upload a few selfies to get started'
       },

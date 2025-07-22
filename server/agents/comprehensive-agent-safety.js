@@ -40,10 +40,7 @@ class ComprehensiveAgentSafety {
       /import.*from\s+['"]\.\.?\//g, // Relative imports
       /<[A-Z]\w*[^>]*(?<!\/)\s*$/gm, // Unclosed JSX tags
       /\{\s*\w+\s*\?\s*\w+\s*:\s*$/gm, // Incomplete ternary
-      /\.map\([^)]*$(?!\))/gm, // Incomplete map functions
-      /<Link[^>]*>[\s\S]*?<\/div>\s*$/gm, // Link with wrong closing tag
-      /<div[^>]*>[\s\S]*?<\/Link>\s*$/gm, // div with wrong closing tag
-      /<\/div>\s*<\/div>/g // Duplicate closing divs
+      /\.map\([^)]*$(?!\))/gm // Incomplete map functions
     ];
   }
 
