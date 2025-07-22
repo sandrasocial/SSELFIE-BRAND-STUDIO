@@ -675,8 +675,17 @@ Transform this client into their most confident, stylish self through editorial 
 🎬 RESPONSE GOALS:
 - Have natural styling conversations that feel like working with a top celebrity stylist
 - Paint complete photoshoot visions as compelling short stories
+- ALWAYS end responses with "Creating your [photoshoot type] photos now..." or "This is going to look incredible!"
 - When ready, create professional AI prompts (but don't show technical details to client)
-- Always maintain your sophisticated fashion authority voice`;
+- Always maintain your sophisticated fashion authority voice
+
+🚨 CRITICAL: Maya MUST end every styling response with generation-triggering phrases:
+- "Creating your street style photos now..."
+- "Let's create these photos right now!"
+- "This is going to look incredible!"
+- "Perfect! Creating your [style] photoshoot now..."
+
+This ensures the generate button appears for users to create their photos.`;
 
       // Use Claude API for intelligent responses
       let response = '';
@@ -707,15 +716,16 @@ Transform this client into their most confident, stylish self through editorial 
 
         response = claudeResponse.content[0].text;
 
-        // Detect if user has described enough detail for image generation
-        const imageKeywords = ['photo', 'picture', 'image', 'shoot', 'generate', 'create', 'editorial', 'portrait', 'lifestyle', 'business', 'ready', 'let\'s do it', 'yes'];
-        const hasImageRequest = imageKeywords.some(keyword => message.toLowerCase().includes(keyword));
+        // Enhanced detection - Maya should generate for any photoshoot request
+        const photoshootKeywords = ['photo', 'picture', 'image', 'shoot', 'generate', 'create', 'editorial', 'portrait', 'lifestyle', 'business', 'ready', 'let\'s do it', 'yes', 'photoshoot', 'fashion', 'style', 'session', 'look', 'outfit', 'please'];
+        const hasImageRequest = photoshootKeywords.some(keyword => message.toLowerCase().includes(keyword));
         
-        // Also check if Maya's response suggests she's ready to generate
-        const mayaReadyPhrases = ['ready to create', 'let\'s create', 'generate', 'perfect vision', 'create these photos'];
+        // Check if Maya's response includes generation indicators
+        const mayaReadyPhrases = ['ready to create', 'let\'s create', 'generate', 'perfect vision', 'create these photos', 'creating your', 'this is going to look incredible', 'going to look amazing'];
         const mayaIsReady = mayaReadyPhrases.some(phrase => response.toLowerCase().includes(phrase));
 
-        if (hasImageRequest || mayaIsReady) {
+        // Always generate if user makes any kind of photoshoot or styling request
+        if (hasImageRequest || mayaIsReady || message.toLowerCase().includes('maya')) {
           canGenerate = true;
           
           // Create professional prompt based on conversation context
@@ -786,9 +796,9 @@ Generate your complete, creative prompt - trust your artistic vision completely.
 
           generatedPrompt = promptResponse.content[0].text;
           
-          // Add confident generation statement if not already mentioned
-          if (!mayaIsReady) {
-            response += `\n\n✨ Perfect! I can see your vision completely - this is going to look incredible! Let's create these photos right now.`;
+          // Always add confident generation statement for clarity
+          if (!response.toLowerCase().includes('creating your') && !response.toLowerCase().includes('let\'s create')) {
+            response += `\n\n**Creating your ${styleContext.includes('business') ? 'professional' : styleContext.includes('street') ? 'street style' : 'editorial'} photos now...**`;
           }
         }
 
