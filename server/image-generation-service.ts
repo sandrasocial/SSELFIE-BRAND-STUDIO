@@ -132,26 +132,34 @@ export async function generateImages(request: GenerateImagesRequest): Promise<Ge
 
     let requestBody: any;
 
-    // 🔒 RESTORE WORKING CONFIGURATION: Use user's individual trained model
+    // 🔒 CRITICAL FIX: Use Black Forest Labs FLUX model with user's LoRA weights
     if (userModel.trainingStatus === 'completed' && userModel.replicateVersionId) {
-      console.log(`✅ Using user's individual trained FLUX model for AI Photoshoot: ${userId}`);
+      console.log(`✅ Using black-forest-labs/flux-dev-lora with user LoRA for AI Photoshoot: ${userId}`);
       
-      const userTrainedVersion = `${userModel.replicateModelId}:${userModel.replicateVersionId}`;
+      // Extract user's LoRA model name from replicateVersionId
+      let userLoraModel;
+      if (userModel.replicateVersionId.includes(':')) {
+        // Extract just the model name (before the colon)
+        userLoraModel = userModel.replicateVersionId.split(':')[0];
+      } else {
+        // Use replicateModelId if no version format
+        userLoraModel = userModel.replicateModelId;
+      }
       
       // 🔧 CORE_ARCHITECTURE_IMMUTABLE_V2 PARAMETERS - PROFESSIONAL UNIFIED QUALITY
       // Both Maya Chat and AI Photoshoot use identical parameters for consistent results
       requestBody = {
-        version: userTrainedVersion, // 🔒 CRITICAL: User's individual trained model version ONLY
+        version: "ae0d7d645446924cf1871e3ca8796e8318f72465d2b5af9323a835df93bf0917", // Latest Black Forest Labs FLUX dev LoRA
         input: {
           prompt: finalPrompt,
-          guidance_scale: 2.8,        // ✅ CORE_ARCHITECTURE_V2: Professional natural results
-          num_inference_steps: 40,    // ✅ CORE_ARCHITECTURE_V2: Enhanced quality steps
-          lora_scale: 0.95,          // ✅ CORE_ARCHITECTURE_V2: Optimal strength balance
-          num_outputs: 4,            // ✅ More options for better selection
+          guidance: 2.8,             // ✅ CORE_ARCHITECTURE_V2: Professional natural results (changed from guidance_scale)
+          num_inference_steps: 40,   // ✅ CORE_ARCHITECTURE_V2: Enhanced quality steps
+          lora_scale: 0.95,         // ✅ CORE_ARCHITECTURE_V2: Optimal strength balance
+          extra_lora: userLoraModel, // ✅ USER'S TRAINED LORA WEIGHTS
+          num_outputs: 4,           // ✅ More options for better selection
           aspect_ratio: "3:4", 
           output_format: "png",
-          output_quality: 95,        // ✅ CORE_ARCHITECTURE_V2: Maximum clarity
-          model: "dev",              // ✅ Use dev model explicitly
+          output_quality: 95,       // ✅ CORE_ARCHITECTURE_V2: Maximum clarity
           disable_safety_checker: false,
           seed: Math.floor(Math.random() * 1000000)
         }
