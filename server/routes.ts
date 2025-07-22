@@ -977,7 +977,8 @@ Generate your complete, creative prompt - trust your artistic vision completely.
       let userModel = await storage.getUserModelByUserId(userId);
 
       const actualImagePrompt = extractImagePromptFromRequest(customPrompt, userModel?.triggerWord || 'user42585527');
-      console.log(`🎯 MAYA CLEAN PROMPT: "${actualImagePrompt}" (removed personality text from: "${customPrompt.substring(0, 50)}...")`)
+      console.log(`🎯 MAYA FINAL PROMPT: "${actualImagePrompt}"`);
+      console.log(`🔍 TRIGGER WORD CHECK: ${actualImagePrompt.includes('user42585527') ? '✅ FOUND user42585527' : '❌ MISSING user42585527'}`);
       
       if (!userModel) {
         return res.status(400).json({ 
