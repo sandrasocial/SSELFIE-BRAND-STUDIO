@@ -2805,8 +2805,46 @@ VOICE RULES:
       console.log(`📸 Starting bulletproof FLUX training for user: ${dbUserId}`);
       
       try {
-        const { BulletproofUploadService } = await import('./bulletproof-upload-service');
-        const result = await BulletproofUploadService.completeBulletproofUpload(dbUserId, processedSelfieImages || selfieImages);
+        const { BulletproofTrainingService } = await import('./bulletproof-training-service');
+        // Use new bulletproof service that eliminates S3 dependencies
+        const zipResult = await BulletproofTrainingService.processTrainingImages(dbUserId, processedSelfieImages || selfieImages);
+        
+        if (!zipResult.success || !zipResult.zipUrl) {
+          return res.status(400).json({
+            success: false,
+            message: "Training validation failed. Please fix the issues below and try again.",
+            errors: zipResult.errors,
+            requiresRestart: true
+          });
+        }
+        
+        // Start Replicate training with bulletproof ZIP
+        const trainingResult = await BulletproofTrainingService.startReplicateTraining(dbUserId, zipResult.zipUrl, triggerWord);
+        
+        if (!trainingResult.success || !trainingResult.trainingId) {
+          return res.status(400).json({
+            success: false,
+            message: "Training start failed. Please try again.",
+            errors: trainingResult.errors,
+            requiresRestart: true
+          });
+        }
+        
+        // Update database with training information
+        await storage.updateUserModel(dbUserId, {
+          replicateModelId: trainingResult.trainingId,
+          triggerWord: triggerWord,
+          trainingStatus: 'training',
+          trainingProgress: 0,
+          startedAt: new Date()
+        });
+        
+        const result = { 
+          success: true, 
+          trainingId: trainingResult.trainingId,
+          errors: [],
+          requiresRestart: false
+        };
         
         // Send training started email
         try {
