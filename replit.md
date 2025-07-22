@@ -868,6 +868,8 @@ Sandra reported: "Elena creates workflows but agents don't start, and server ref
 - ✅ **REALISTIC DESCRIPTIONS**: Maya now uses natural language: "natural expression", "relaxed smile", "natural skin texture", "authentic expression"
 - ✅ **SINGLE SCENARIO FOCUS**: Updated Maya to create ONE complete detailed scenario instead of multiple options, ensuring FLUX model processes full creative vision
 - ✅ **PROMPT EXTRACTION FIX**: Enhanced extraction logic to properly handle Maya's complete scenario format and use her detailed **COMPLETE PROMPT:** sections
+- ✅ **MAYA SYSTEM PROMPT UNIFICATION**: Fixed inconsistency between Maya's chat responses and image generation prompts by unifying both system prompts to use identical decisive formatting
+- ✅ **FLUX INTERFERENCE ELIMINATED**: Resolved conflict between Maya chat system and separate FLUX admin agent that was causing inconsistent responses
 
 **Technical Foundation:**
 - Fixed `extractImagePromptFromRequest` function to preserve detailed prompts instead of simplifying to keywords
