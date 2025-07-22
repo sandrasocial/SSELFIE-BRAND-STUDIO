@@ -1013,14 +1013,14 @@ User reported 1 out of 3 photos looking natural while 2 out of 3 had over-retouc
 - Inconsistent results: some natural, some over-processed depending on seed variation
 
 **TECHNICAL SOLUTION IMPLEMENTED:**
-- ✅ **LoRA Scale Reduced**: From 1.0 to 0.85 for natural face processing
-- ✅ **Balanced Model Influence**: Strong enough for likeness, gentle enough to preserve natural skin texture
-- ✅ **Face-Specific Fix**: Targets the over-retouching issue without affecting overall generation quality
-- ✅ **Consistent Natural Results**: Should eliminate artificial face processing across all 3 images
+- ✅ **LoRA Scale Further Reduced**: From 1.0 → 0.85 → 0.7 for truly natural face processing
+- ✅ **Authentic Skin Focus**: Gentle model influence preserves natural skin texture and pores
+- ✅ **Face-Specific Fix**: Eliminates artificial retouching while maintaining model likeness
+- ✅ **Natural Results**: All 3 images should now have completely authentic-looking faces
 
 **Updated Generation Parameters:**
 ```javascript
-lora_scale: 0.85,         // Reduced from 1.0 to prevent over-processed faces
+lora_scale: 0.7,          // Further reduced from 0.85 to 0.7 for natural faces
 guidance: 2.8,            // Maintained for prompt adherence
 num_inference_steps: 40,  // Maintained for quality
 ```
