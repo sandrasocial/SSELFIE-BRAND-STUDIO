@@ -122,7 +122,7 @@ export class EnhancedGenerationService {
       version: userTrainedVersion, // 🔒 USER'S INDIVIDUAL MODEL (V2 COMPLIANCE)
       input: {
         prompt: enhancedPrompt,
-        guidance: 2.8, // 🔒 CORE_ARCHITECTURE_IMMUTABLE_V2.md: optimal natural results
+        guidance_scale: 2.82, // 🚀 FIXED: Sandra's working July 17 parameters
         num_inference_steps: 40, // 🔧 USER OPTIMIZED: More steps for higher quality
         num_outputs: 3,
         aspect_ratio: "3:4", // 🔒 CORE_ARCHITECTURE_IMMUTABLE_V2.md: portrait format

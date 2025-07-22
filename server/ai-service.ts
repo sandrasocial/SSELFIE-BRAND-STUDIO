@@ -310,17 +310,15 @@ export class AIService {
       // Working version: b9fab7abf5819f4c99e78d84d9f049b30b5ba7c63407221604030862ae0be927
       const userTrainedVersion = `${userModel.replicateModelId}:${userModel.replicateVersionId}`;
       
-      // 🚀 MAYA OPTIMIZATION INTEGRATION: Get user-adaptive parameters
-      const { MayaOptimizationService } = await import('./maya-optimization-service');
-      const optimizedParams = await MayaOptimizationService.getOptimizedParameters(userId);
+      // 🚀 FIXED: Use hardcoded working parameters (July 17 success) - NO OPTIMIZATION OVERRIDES
       
       requestBody = {
         version: userTrainedVersion,
         input: {
           prompt: prompt,
-          guidance_scale: 2.82, // 🚀 EXACT MATCH: Sandra's working Replicate settings
-          num_inference_steps: 40, // 🚀 EXACT MATCH: Sandra's working Replicate settings  
-          lora_scale: 1, // 🚀 EXACT MATCH: Sandra's working Replicate settings
+          guidance_scale: 2.82, // 🚀 EXACT MATCH: Sandra's working Replicate settings (WORKING JULY 17)
+          num_inference_steps: 40, // 🚀 EXACT MATCH: Sandra's working Replicate settings (WORKING JULY 17)  
+          lora_scale: 1, // 🚀 EXACT MATCH: Sandra's working Replicate settings (WORKING JULY 17)
           num_outputs: 3,
           aspect_ratio: "3:4", 
           output_format: "png",
