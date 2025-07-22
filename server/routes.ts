@@ -651,25 +651,29 @@ Your goal is to create complete cinematic concepts instantly and generate them i
         const hasImageRequest = imageKeywords.some(keyword => message.toLowerCase().includes(keyword));
         
         // Also check if Maya's response suggests she's ready to generate
-        const mayaReadyPhrases = ['ready to create', 'let\'s create', 'generate', 'perfect vision', 'create these photos'];
+        const mayaReadyPhrases = ['ready to create', 'let\'s create', 'generate', 'perfect vision', 'create these photos', 'iconic moment', 'creating this vision', 'right now', 'absolutely', 'perfect', 'stunning', 'editorial'];
         const mayaIsReady = mayaReadyPhrases.some(phrase => response.toLowerCase().includes(phrase));
+        
+        console.log(`🔍 MAYA GENERATION DETECTION:`, {
+          userMessage: message.substring(0, 50),
+          hasImageRequest,
+          mayaIsReady,
+          responsePreview: response.substring(0, 100)
+        });
 
-        if (hasImageRequest || mayaIsReady) {
+        // Maya should ALWAYS offer generation if user has a trained model - she's action-oriented
+        const userModel = await storage.getUserModelByUserId(userId);
+        const hasTrainedModel = userModel && userModel.trainingStatus === 'completed' && userModel.triggerWord;
+        
+        if ((hasImageRequest || mayaIsReady) && hasTrainedModel) {
           canGenerate = true;
+          console.log(`✅ MAYA GENERATION TRIGGERED: canGenerate = true`);
           
           // Create professional prompt based on conversation context
           const styleContext = message + ' ' + conversationHistory.slice(-3).map(msg => msg.content).join(' ');
           
-          const userModel = await storage.getUserModelByUserId(userId);
-          if (!userModel || userModel.trainingStatus !== 'completed' || !userModel.triggerWord) {
-            return res.status(400).json({ 
-              error: 'Your AI model is not ready for generation. Please complete training first.',
-              requiresTraining: true,
-              redirectTo: '/simple-training'
-            });
-          }
-          
           const triggerWord = userModel.triggerWord;
+          console.log(`🎯 USING TRAINED MODEL: ${userModel.replicateVersionId} with trigger: ${triggerWord}`);
           
           // Maya's expert prompt generation - Enhanced for WOW factor dynamic scenes
           const promptResponse = await client.messages.create({
@@ -748,6 +752,12 @@ Generate your complete, creative prompt - trust your artistic vision completely.
         });
       }
       
+      console.log(`🚀 MAYA RESPONSE:`, {
+        canGenerate,
+        hasGeneratedPrompt: !!generatedPrompt,
+        responseLength: response.length
+      });
+
       res.json({
         message: response,
         canGenerate,
