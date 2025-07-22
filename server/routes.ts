@@ -2275,6 +2275,33 @@ VOICE RULES:
     }
   });
 
+  // MANUAL TRACKER SYNC ENDPOINT - Fix stuck generations immediately
+  app.post('/api/sync-trackers', isAuthenticated, async (req: any, res) => {
+    try {
+      console.log('🔄 MANUAL TRACKER SYNC: Triggered by user');
+      
+      const { TrackerSyncService } = await import('./tracker-sync-service');
+      await TrackerSyncService.syncAllProcessingTrackers();
+      
+      // Get updated tracker status
+      const processingTrackers = await storage.getProcessingGenerationTrackers();
+      
+      res.json({
+        success: true,
+        message: 'Tracker sync completed successfully',
+        processingTrackersRemaining: processingTrackers.length,
+        syncedAt: new Date().toISOString()
+      });
+      
+    } catch (error) {
+      console.error('❌ MANUAL TRACKER SYNC ERROR:', error);
+      res.status(500).json({ 
+        error: 'Failed to sync trackers',
+        details: error.message 
+      });
+    }
+  });
+
   // TESTING: Check actual Replicate training status
   app.get('/api/test-replicate-training', async (req: any, res) => {
     try {

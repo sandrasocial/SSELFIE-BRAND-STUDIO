@@ -85,6 +85,7 @@ export interface IStorage {
   getGenerationTracker(id: number): Promise<GenerationTracker | undefined>;
   getUserGenerationTrackers(userId: string): Promise<GenerationTracker[]>;
   getCompletedGenerationTrackersForUser(userId: string, hoursBack: number): Promise<GenerationTracker[]>;
+  getProcessingGenerationTrackers(): Promise<GenerationTracker[]>;
   updateAIImage(id: number, data: Partial<AiImage>): Promise<AiImage>;
 
   // User Model operations
@@ -413,6 +414,14 @@ export class DatabaseStorage implements IStorage {
       .select()
       .from(generationTrackers)
       .where(eq(generationTrackers.userId, userId))
+      .orderBy(desc(generationTrackers.createdAt));
+  }
+
+  async getProcessingGenerationTrackers(): Promise<GenerationTracker[]> {
+    return await db
+      .select()
+      .from(generationTrackers)
+      .where(eq(generationTrackers.status, 'processing'))
       .orderBy(desc(generationTrackers.createdAt));
   }
 
