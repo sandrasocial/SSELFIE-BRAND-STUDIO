@@ -313,68 +313,33 @@ export default function Maya() {
         });
         
         if (response.status === 401) {
-          setMessages(prev => [...prev, {
-            role: 'maya',
-            content: "Hey love! I need you to log in first so I can create your personalized photos. Let me redirect you quickly!",
-            timestamp: new Date(),
-            canGenerate: false
-          }]);
+          toast({
+            title: "Authentication Required",
+            description: "Please log in to use Maya AI image generation.",
+            variant: "destructive",
+          });
           setTimeout(() => {
             window.location.href = '/login';
-          }, 2000);
+          }, 1500);
           return;
         }
         
         if (response.status === 403 && data.upgrade) {
-          setMessages(prev => [...prev, {
-            role: 'maya',
-            content: "You're going to love the premium quality! Let me show you how to unlock unlimited generations and premium styling features.",
-            timestamp: new Date(),
-            canGenerate: false
-          }]);
-          setTimeout(() => {
-            window.location.href = '/pricing';
-          }, 2000);
+          // Remove toast - Maya explains everything in chat
+          window.location.href = '/pricing';
           return;
         }
         
         // Check if it's a model validation error
         if (data.requiresTraining) {
-          setMessages(prev => [...prev, {
-            role: 'maya',
-            content: "I'm so excited to style you! But first I need to learn your unique features through our quick training process. Let me set that up for you!",
-            timestamp: new Date(),
-            canGenerate: false
-          }]);
+          toast({
+            title: "AI Model Required",
+            description: data.error || "Please complete your AI model training first.",
+            variant: "destructive",
+          });
           setTimeout(() => {
             setLocation(data.redirectTo || '/simple-training');
-          }, 2000);
-          return;
-        }
-        
-        // Handle retryable errors gracefully without red error styling
-        if (data.retryable && response.status === 503) {
-          // Add a gentle message to Maya chat instead of error toast
-          setMessages(prev => [...prev, {
-            role: 'maya',
-            content: "The AI servers are super busy right now - totally normal! Let me try again in just a moment. Your photos are worth the wait, babe!",
-            timestamp: new Date(),
-            canGenerate: false
-          }]);
-          
-          // Auto-retry after a short delay with visual feedback
-          setTimeout(() => {
-            setMessages(prev => [...prev, {
-              role: 'maya',
-              content: "Okay, let me try creating your photos again! The servers should be ready now.",
-              timestamp: new Date(),
-              canGenerate: false
-            }]);
-            
-            setTimeout(() => {
-              generateImages(prompt);
-            }, 1000);
-          }, 5000);
+          }, 1500);
           return;
         }
         
@@ -520,7 +485,7 @@ export default function Maya() {
             content: msg.content,
             timestamp: msg.createdAt,
             generatedPrompt: msg.generatedPrompt,
-            canGenerate: !!msg.generatedPrompt, // Always allow generation if there's a prompt
+            canGenerate: !!msg.generatedPrompt && !msg.imagePreview,
             imagePreview: msg.imagePreview ? (() => {
               try {
                 const parsed = JSON.parse(msg.imagePreview);
@@ -681,15 +646,15 @@ export default function Maya() {
                           {message.content}
                         </div>
                         
-                        {/* Generate Images Button - Always show if there's a generated prompt */}
-                        {message.role === 'maya' && message.canGenerate && message.generatedPrompt && (
+                        {/* Generate Images Button */}
+                        {message.role === 'maya' && message.canGenerate && message.generatedPrompt && !message.imagePreview && (
                           <div className="mt-4">
                             <Button
                               onClick={() => generateImages(message.generatedPrompt!)}
                               disabled={isGenerating}
                               className="bg-black text-white hover:bg-gray-800 text-sm"
                             >
-                              {isGenerating ? 'Creating Your Photos...' : message.imagePreview ? 'Generate More Photos' : 'Generate Photos'}
+                              {isGenerating ? 'Creating Your Photos...' : 'Create These Photos'}
                             </Button>
                             
                             {/* Progress Bar */}
