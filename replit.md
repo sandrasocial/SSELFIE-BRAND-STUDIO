@@ -929,27 +929,6 @@ user42585527, elegant woman in full body editorial shot wearing sophisticated bl
 - Clean, professional prompt construction without formatting artifacts
 - Persistent generate buttons for re-creating successful image styles
 
-## ✅ FLUX BUILD PROMPT INTERFERENCE DISCONNECTED (July 22, 2025)
-
-**CRITICAL CONTAMINATION SOURCE ELIMINATED:**
-- ✅ **Root Issue Fixed**: Maya's prompts were being contaminated by buildFluxPrompt() in ai-service.ts
-- ✅ **Maya Bypass Implemented**: Clean Maya prompts now bypass contamination system completely
-- ✅ **Detection Logic Added**: System detects Maya prompts by "elegant woman" + camera equipment markers
-- ✅ **Direct Prompt Usage**: Maya's carefully crafted prompts used without additional enhancement
-- ✅ **Debug Logging Added**: Console logging confirms when Maya bypass is activated
-
-**Technical Implementation:**
-- **Smart Detection**: `prompt.includes('elegant woman') && (prompt.includes('Canon EOS R5') || prompt.includes('Hasselblad'))`
-- **Direct Usage**: `fluxPrompt = prompt;` for Maya prompts instead of `buildFluxPrompt()`
-- **Non-Maya Preservation**: Other generation systems continue using buildFluxPrompt as before
-- **Zero Interference**: Maya's chat descriptions now generate exactly as intended
-
-**Business Impact:**
-- Maya's styling descriptions and generated images now match perfectly
-- No more contamination from build prompt enhancement systems
-- Clean, professional prompts exactly as Maya designs them
-- Full body shots generate correctly when Maya describes full body scenes
-
 ## ✅ BUILD ERROR FIXED - DEPLOYMENT READY (July 22, 2025)
 
 **CRITICAL BUILD ERROR RESOLVED:**
