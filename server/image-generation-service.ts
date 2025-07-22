@@ -132,34 +132,34 @@ export async function generateImages(request: GenerateImagesRequest): Promise<Ge
 
     let requestBody: any;
 
-    // 🔒 CRITICAL FIX: Use Black Forest Labs FLUX model with user's LoRA weights
+    // 🔒 CORE PRINCIPLES: Use user's individual trained model ONLY
     if (userModel.trainingStatus === 'completed' && userModel.replicateVersionId) {
-      console.log(`✅ Using black-forest-labs/flux-dev-lora with user LoRA for AI Photoshoot: ${userId}`);
+      console.log(`✅ Using user's individual trained FLUX model for AI Photoshoot: ${userId}`);
       
-      // Extract user's LoRA model name from replicateVersionId
-      let userLoraModel;
+      // 🔧 CRITICAL FIX: Handle version format properly
+      let userTrainedVersion;
       if (userModel.replicateVersionId.includes(':')) {
-        // Extract just the model name (before the colon)
-        userLoraModel = userModel.replicateVersionId.split(':')[0];
+        // Version already contains full model:version format
+        userTrainedVersion = userModel.replicateVersionId;
       } else {
-        // Use replicateModelId if no version format
-        userLoraModel = userModel.replicateModelId;
+        // Legacy format - construct the version string
+        userTrainedVersion = `${userModel.replicateModelId}:${userModel.replicateVersionId}`;
       }
       
       // 🔧 CORE_ARCHITECTURE_IMMUTABLE_V2 PARAMETERS - PROFESSIONAL UNIFIED QUALITY
       // Both Maya Chat and AI Photoshoot use identical parameters for consistent results
       requestBody = {
-        version: "ae0d7d645446924cf1871e3ca8796e8318f72465d2b5af9323a835df93bf0917", // Latest Black Forest Labs FLUX dev LoRA
+        version: userTrainedVersion, // 🔒 CRITICAL: User's individual trained model version ONLY
         input: {
           prompt: finalPrompt,
-          guidance: 2.8,             // ✅ CORE_ARCHITECTURE_V2: Professional natural results (changed from guidance_scale)
+          guidance: 2.8,             // ✅ CORE_ARCHITECTURE_V2: Professional natural results
           num_inference_steps: 40,   // ✅ CORE_ARCHITECTURE_V2: Enhanced quality steps
           lora_scale: 0.95,         // ✅ CORE_ARCHITECTURE_V2: Optimal strength balance
-          extra_lora: userLoraModel, // ✅ USER'S TRAINED LORA WEIGHTS
-          num_outputs: 4,           // ✅ More options for better selection
+          num_outputs: 3,           // ✅ As per CORE PRINCIPLES document
           aspect_ratio: "3:4", 
           output_format: "png",
           output_quality: 95,       // ✅ CORE_ARCHITECTURE_V2: Maximum clarity
+          go_fast: false,           // ✅ Quality over speed as per CORE PRINCIPLES
           disable_safety_checker: false,
           seed: Math.floor(Math.random() * 1000000)
         }
