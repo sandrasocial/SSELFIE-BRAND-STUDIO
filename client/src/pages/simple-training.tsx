@@ -97,7 +97,10 @@ export default function SimpleTraining() {
             });
             if (progressResponse.ok) {
               const progressData = await progressResponse.json();
-              setTrainingProgress(progressData.progress || 0);
+              // Only show real progress from Replicate, not fake calculations
+              if (progressData.isRealTraining) {
+                setTrainingProgress(progressData.progress || 0);
+              }
               console.log(`📊 Training progress: ${progressData.progress}%`);
             }
           } catch (error) {

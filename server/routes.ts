@@ -1946,25 +1946,18 @@ VOICE RULES:
                 failureReason: replicateData.error || 'Training failed'
               });
             } else if (status === 'processing') {
-              // Calculate progress based on time elapsed (10-15 minute training)
-              const startTime = new Date(userModel.createdAt).getTime();
-              const elapsed = Date.now() - startTime;
-              const totalTrainingTime = 15 * 60 * 1000; // 15 minutes
-              progress = Math.min(Math.max(Math.round((elapsed / totalTrainingTime) * 100), 5), 95);
+              progress = 50; // Only show static progress for processing
             } else if (status === 'starting') {
-              progress = 5;
+              progress = 10;
             }
             
           }
         } catch (error) {
         }
       } else {
-        // No real training ID yet - show initial progress based on database status
+        // No real training ID - only show basic status without fake progress
         if (status === 'training' || status === 'processing') {
-          const startTime = new Date(userModel.createdAt).getTime();
-          const elapsed = Date.now() - startTime;
-          const totalTrainingTime = 15 * 60 * 1000; // 15 minutes
-          progress = Math.min(Math.max(Math.round((elapsed / totalTrainingTime) * 100), 5), 85);
+          progress = 0; // No fake progress
         }
       }
 
