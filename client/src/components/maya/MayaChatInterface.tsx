@@ -66,17 +66,28 @@ What kind of vibe are we creating today? Or just say "surprise me" and I'll crea
     const maxAttempts = 40; // 2 minutes total (3 second intervals)
     let attempts = 0;
     
+    console.log('🎬 Maya: Starting pollForTrackerCompletion for tracker:', trackerId);
+    
     const poll = async () => {
       try {
         attempts++;
+        console.log(`🎬 Maya: Polling attempt ${attempts}/${maxAttempts} for tracker ${trackerId}`);
         setGenerationProgress(Math.min(90, (attempts / maxAttempts) * 90));
         
         const response = await fetch(`/api/generation-tracker/${trackerId}`, {
           credentials: 'include'
         });
-        if (!response.ok) throw new Error('Failed to fetch tracker status');
+        
+        console.log('🎬 Maya: Tracker response status:', response.status, response.ok);
+        
+        if (!response.ok) {
+          const errorText = await response.text();
+          console.error('🎬 Maya: Tracker fetch error:', errorText);
+          throw new Error(`Failed to fetch tracker status: ${response.status}`);
+        }
         
         const tracker = await response.json();
+        console.log('🎬 Maya: Tracker data:', tracker);
         
         if (tracker.status === 'completed' && tracker.imageUrls && tracker.imageUrls.length > 0) {
           // Image generation completed
@@ -111,10 +122,12 @@ What kind of vibe are we creating today? Or just say "surprise me" and I'll crea
             setCurrentTrackerId(null);
           }, 1500);
           
+          console.log('🎬 Maya: Polling completed successfully, stopping');
           return;
         }
         
         if (tracker.status === 'failed') {
+          console.log('🎬 Maya: Tracker failed:', tracker.errorMessage || 'Unknown error');
           setChatMessages(prev => prev.map(msg => {
             if (msg.isGenerating && msg.role === 'maya') {
               return { ...msg, isGenerating: false };
@@ -126,8 +139,10 @@ What kind of vibe are we creating today? Or just say "surprise me" and I'll crea
         
         // Continue polling
         if (attempts < maxAttempts) {
+          console.log(`🎬 Maya: Still generating, will poll again in 3 seconds (status: ${tracker.status})`);
           setTimeout(poll, 3000);
         } else {
+          console.log('🎬 Maya: Max polling attempts reached, stopping');
           setChatMessages(prev => prev.map(msg => {
             if (msg.isGenerating && msg.role === 'maya') {
               return { ...msg, isGenerating: false };
@@ -136,10 +151,12 @@ What kind of vibe are we creating today? Or just say "surprise me" and I'll crea
           }));
         }
       } catch (error) {
-        console.error('Polling error:', error);
+        console.error('🎬 Maya: Polling error:', error);
         if (attempts < maxAttempts) {
+          console.log('🎬 Maya: Error occurred, retrying in 3 seconds');
           setTimeout(poll, 3000);
         } else {
+          console.log('🎬 Maya: Max attempts reached after errors, stopping');
           setChatMessages(prev => prev.map(msg => {
             if (msg.isGenerating && msg.role === 'maya') {
               return { ...msg, isGenerating: false };
@@ -150,6 +167,7 @@ What kind of vibe are we creating today? Or just say "surprise me" and I'll crea
       }
     };
     
+    console.log('🎬 Maya: Starting initial poll');
     poll();
   };
 
