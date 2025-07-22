@@ -268,13 +268,9 @@ export class AIService {
   private static enhancePromptForHairQuality(prompt: string): string {
     console.log(`💇‍♀️ HAIR QUALITY ENHANCEMENT: Analyzing prompt for hair optimization`);
     
-    // Hair quality enhancement keywords
+    // Hair quality enhancement keywords - SIMPLIFIED to prevent over-processing
     const hairEnhancements = [
-      'natural hair movement',
-      'detailed hair strands', 
-      'realistic hair texture',
-      'individual hair strand definition',
-      'professional hair lighting'
+      'natural hair movement'
     ];
     
     // Check if prompt already contains hair-related terms
@@ -363,7 +359,7 @@ export class AIService {
           version: userTrainedVersion,
           input: {
             prompt: prompt,
-            guidance: 1.8,
+            guidance: 2.8,
             num_inference_steps: 40,
             lora_scale: 0.95,
             num_outputs: 1,                 // Single output per request
