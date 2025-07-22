@@ -138,21 +138,19 @@ export async function generateImages(request: GenerateImagesRequest): Promise<Ge
       
       const userTrainedVersion = `${userModel.replicateModelId}:${userModel.replicateVersionId}`;
       
-      // 🚀 MAYA OPTIMIZATION INTEGRATION: Get user-adaptive parameters for AI Photoshoot
-      const { MayaOptimizationService } = await import('./maya-optimization-service');
-      const optimizedParams = await MayaOptimizationService.getOptimizedParameters(userId);
-      
+      // 🔧 FIXED: Use Sandra's AI Quality Upgrade specifications ONLY
+      // AI Photoshoot must NEVER modify these proven parameters
       requestBody = {
         version: userTrainedVersion, // 🔒 CRITICAL: User's individual trained model version ONLY
         input: {
           prompt: finalPrompt,
-          guidance: optimizedParams.guidance || 2.8, // 🚀 UPGRADED: User-adaptive guidance
-          num_inference_steps: optimizedParams.inferenceSteps || 40, // 🚀 UPGRADED: Quality-based steps
-          lora_scale: optimizedParams.loraScale || 0.95, // 🚀 UPGRADED: Hair quality optimized LoRA scale
+          guidance: 2.8,              // ✅ AI Quality Upgrade: Fixed optimal guidance
+          num_inference_steps: 40,    // ✅ AI Quality Upgrade: Fixed inference steps
+          lora_scale: 0.95,          // ✅ AI Quality Upgrade: Fixed LoRA scale for strong personalization
           num_outputs: 3,
           aspect_ratio: "3:4", 
           output_format: "png",
-          output_quality: optimizedParams.outputQuality || 95, // 🚀 UPGRADED: Role-based quality setting
+          output_quality: 95,        // ✅ AI Quality Upgrade: Fixed output quality
           go_fast: false, 
           disable_safety_checker: false,
           seed: Math.floor(Math.random() * 1000000)
@@ -165,14 +163,15 @@ export async function generateImages(request: GenerateImagesRequest): Promise<Ge
     ArchitectureValidator.validateGenerationRequest(requestBody, userId, isPremium);
     ArchitectureValidator.logArchitectureCompliance(userId, 'AI Photoshoot Generation');
     
-    // 📊 LOG OPTIMIZATION PARAMETERS FOR AI PHOTOSHOOT MONITORING
-    console.log(`🚀 MAYA OPTIMIZATION ACTIVE for AI Photoshoot user ${userId}:`, {
+    // 📊 LOG AI QUALITY UPGRADE PARAMETERS FOR AI PHOTOSHOOT MONITORING
+    console.log(`✅ AI PHOTOSHOOT AI QUALITY UPGRADE ACTIVE for user ${userId}:`, {
       guidance: requestBody.input.guidance,
       steps: requestBody.input.num_inference_steps,
       loraScale: requestBody.input.lora_scale,
       quality: requestBody.input.output_quality,
-      isPremium,
-      userRole: user?.role,
+      camera: 'Professional equipment integrated',
+      settings: 'AI Quality Upgrade Complete'
+    });
       collection: 'AI Photoshoot'
     });
     
