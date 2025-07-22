@@ -80,8 +80,13 @@ export class EnhancedGenerationService {
       throw new Error('User model version not found - training may need completion');
     }
     
-    // 🔒 USER'S INDIVIDUAL TRAINED MODEL (IMMUTABLE V2)
-    const userTrainedVersion = `${userModel.replicateModelId}:${userModel.replicateVersionId}`;
+    // 🔒 USER'S LORA MODEL FOR BLACK FOREST LABS BASE MODEL
+    let userLoraModel;
+    if (userModel.replicateVersionId.includes(':')) {
+      userLoraModel = userModel.replicateVersionId.split(':')[0];
+    } else {
+      userLoraModel = userModel.replicateModelId;
+    }
     
     // 🔥 SELECT ENHANCEMENT BASED ON LEVEL
     const preset = this.ENHANCEMENT_PRESETS[enhancementLevel];
@@ -119,9 +124,10 @@ export class EnhancedGenerationService {
     
     // 🔥 ENHANCED GENERATION REQUEST WITH EXTRA LORA
     const enhancedRequestBody = {
-      version: userTrainedVersion, // 🔒 USER'S INDIVIDUAL MODEL (V2 COMPLIANCE)
+      version: "30k587n6shrme0ck4zzrr6bt6c", // 🔒 OFFICIAL: black-forest-labs/flux-dev-lora
       input: {
         prompt: enhancedPrompt,
+        lora: userLoraModel,      // ✅ USER'S TRAINED LORA WEIGHTS
         guidance: 2.8, // 🔒 CORE_ARCHITECTURE_IMMUTABLE_V2.md: optimal natural results
         num_inference_steps: 40, // 🔧 USER OPTIMIZED: More steps for higher quality
         num_outputs: 3,
