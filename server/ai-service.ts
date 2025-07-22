@@ -225,6 +225,23 @@ export class AIService {
         cleanPrompt = cleanPrompt.replace(new RegExp(term, 'gi'), '').trim();
       });
       
+      // 🚨 NEW: Remove unrealistic skin and expression terms
+      const unrealisticTerms = [
+        /perfect skin/gi,
+        /glowy skin/gi,
+        /flawless skin/gi,
+        /porcelain skin/gi,
+        /bright smile/gi,
+        /beaming smile/gi,
+        /radiant smile/gi,
+        /perfect smile/gi,
+        /glowing complexion/gi,
+        /luminous skin/gi
+      ];
+      unrealisticTerms.forEach(term => {
+        cleanPrompt = cleanPrompt.replace(term, '').trim();
+      });
+      
       // 🚨 NEW: Remove existing camera equipment to prevent duplication
       const cameraTerms = [
         /shot on [^,]+/gi,
