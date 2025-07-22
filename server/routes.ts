@@ -924,18 +924,26 @@ Generate your complete, creative prompt - trust your artistic vision completely.
         return res.status(400).json({ error: 'Custom prompt is required' });
       }
 
-      // 🎯 MAYA PROMPT EXTRACTION: Extract actual image description from user request
+      // 🎯 MAYA PROMPT EXTRACTION: Extract ONLY visual elements, remove all personality text
       function extractImagePromptFromRequest(userPrompt, triggerWord) {
-        // Clean user prompts (remove conversational elements)
-        let cleanPrompt = userPrompt.toLowerCase();
+        // Remove all Maya personality and conversational text
+        let cleanPrompt = userPrompt.toLowerCase()
+          .replace(/maya.*?stylist/gi, '')
+          .replace(/photoshoot.*?stylist/gi, '')
+          .replace(/as your personal/gi, '')
+          .replace(/celebrity.*?makeup artist/gi, '')
+          .replace(/a-list.*?brands/gi, '')
+          .replace(/magazine-worthy.*?content/gi, '')
+          .replace(/shot on.*?lens/gi, '')
+          .replace(/natural daylight.*?photography/gi, '');
         
-        // Extract style/mood keywords
+        // Extract style/mood keywords only
         const styles = [];
         if (cleanPrompt.includes('glamorous') || cleanPrompt.includes('glamour')) styles.push('glamorous portrait');
         if (cleanPrompt.includes('casual') || cleanPrompt.includes('relaxed')) styles.push('casual portrait');
         if (cleanPrompt.includes('powerful') || cleanPrompt.includes('strong')) styles.push('powerful portrait');
         if (cleanPrompt.includes('elegant') || cleanPrompt.includes('sophisticated')) styles.push('elegant portrait');
-        if (cleanPrompt.includes('editorial')) styles.push('editorial style');
+        if (cleanPrompt.includes('editorial')) styles.push('editorial portrait');
         if (cleanPrompt.includes('professional')) styles.push('professional portrait');
         
         // Extract lighting keywords
@@ -944,15 +952,15 @@ Generate your complete, creative prompt - trust your artistic vision completely.
         if (cleanPrompt.includes('natural light') || cleanPrompt.includes('window light')) lighting.push('natural lighting');
         if (cleanPrompt.includes('studio') || cleanPrompt.includes('professional light')) lighting.push('studio lighting');
         
-        // Build final prompt
-        const baseStyle = styles.length > 0 ? styles[0] : 'professional portrait, editorial style';
+        // Build final CLEAN prompt - NO personality text
+        const baseStyle = styles.length > 0 ? styles[0] : 'editorial portrait';
         const finalLighting = lighting.length > 0 ? lighting[0] : 'natural lighting';
         
-        return `${triggerWord}, ${baseStyle}, ${finalLighting}, confident expression`;
+        return `${baseStyle}, ${finalLighting}, professional styling, confident expression`;
       }
 
       const actualImagePrompt = extractImagePromptFromRequest(customPrompt, userModel.triggerWord);
-      console.log(`🎯 MAYA PROMPT CREATED: "${actualImagePrompt}" from user request: "${customPrompt.substring(0, 100)}..."`)
+      console.log(`🎯 MAYA CLEAN PROMPT: "${actualImagePrompt}" (removed personality text from: "${customPrompt.substring(0, 50)}...")`)
 
       const usageCheck = await UsageService.checkUsageLimit(userId);
       if (!usageCheck.canGenerate) {
@@ -3338,19 +3346,17 @@ I'm here to make your website perfect!`;
         return res.status(400).json({ error: 'Message is required' });
       }
 
-      // Maya AI Photography - Expert who creates prompts directly
-      const response = `Hey! I'm Maya, your AI Photography expert. I don't just give advice - I CREATE stunning images for you right now! 📸
+      // Maya celebrity stylist personality - separate from prompts
+      const response = `Maya, your personal celebrity stylist, photographer, and makeup artist. I work with A-list celebrities and high-end fashion brands to create magazine-worthy content.
 
-Let me craft you a gorgeous editorial portrait using your trained model. I'm thinking:
+I'm here to help you look absolutely stunning and bring out your best features. For this shot, I'm envisioning an editorial portrait with that confident, sophisticated energy that makes people stop scrolling.
 
-**CREATING:** Professional portrait with editorial style, natural lighting, and that confident energy that makes people stop scrolling.
+**Creating your images now with professional styling...**
 
-*Generating your images now...* 
+Want something different? Tell me the vibe - editorial sophistication? Natural lifestyle beauty? Red carpet glamour? I'll craft the perfect look!`;
 
-Want something different? Tell me the vibe (glamorous, casual, powerful, etc.) and I'll create that instead!`;
-
-      // Maya auto-generates images with each response
-      const defaultPrompt = "professional portrait, editorial style, natural lighting, confident expression";
+      // Maya creates CLEAN prompt - no personality text
+      const defaultPrompt = "editorial portrait, sophisticated styling, professional makeup and hair, confident expression";
       
       // Trigger image generation immediately
       try {

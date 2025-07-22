@@ -92,8 +92,21 @@ export async function generateImages(request: GenerateImagesRequest): Promise<Ge
     }
     
     // 🔧 RESTORED WORKING PROMPT STRUCTURE - Based on successful generation ID 352
-    // Clean the custom prompt first
+    // Clean the custom prompt first - CRITICAL: Remove Maya personality contamination
     let cleanPrompt = customPrompt;
+    
+    // 🚨 CRITICAL: Remove Maya personality text that corrupts prompts
+    const mayaPersonalityTerms = [
+      /Maya.*?stylist.*?photographer.*?makeup artist/gi,
+      /work with A-list celebrities.*?brands/gi,
+      /magazine-worthy.*?content/gi,
+      /photoshoot.*?as your personal celebrity stylist/gi,
+      /shot on.*?lens.*?natural daylight.*?professional photography/gi
+    ];
+    
+    mayaPersonalityTerms.forEach(pattern => {
+      cleanPrompt = cleanPrompt.replace(pattern, '').trim();
+    });
     
     // Remove existing trigger word instances first  
     cleanPrompt = cleanPrompt.replace(new RegExp(triggerWord, 'gi'), '').trim();
@@ -107,6 +120,8 @@ export async function generateImages(request: GenerateImagesRequest): Promise<Ge
     
     // Clean up extra commas and spaces
     cleanPrompt = cleanPrompt.replace(/,\s*,/g, ',').replace(/^\s*,\s*|\s*,\s*$/g, '').trim();
+    
+    console.log(`🧹 MAYA PERSONALITY CLEANED: "${cleanPrompt}" (from original: "${customPrompt.substring(0, 50)}...")`);
     
     // 🚀 MAYA HAIR OPTIMIZATION: Enhanced prompt with hair quality focus for AI Photoshoot
     const hairOptimizedPrompt = enhancePromptForHairQuality(cleanPrompt);
