@@ -925,31 +925,40 @@ Generate your complete, creative prompt - trust your artistic vision completely.
         return res.status(400).json({ error: 'Custom prompt is required' });
       }
 
-      // 🚀 MAYA PROMPT RESTORATION: Use full detailed prompts like successful July 17th generations
+      // 🚀 MAYA PROMPT RESTORATION: Preserve Maya's detailed cinematic descriptions
       function extractImagePromptFromRequest(userPrompt, triggerWord) {
-        // Check if prompt already contains proper AI generation format (starts with trigger word or has detailed scene)
-        if (userPrompt.includes(triggerWord) || userPrompt.includes('shot on') || userPrompt.includes('raw photo')) {
-          console.log(`✅ USING FULL DETAILED PROMPT: Detected proper AI generation format`);
-          return userPrompt; // Use the full detailed prompt as-is
+        console.log(`🎯 MAYA PROMPT INPUT: "${userPrompt.substring(0, 200)}..."`);
+        
+        // If prompt already contains professional camera/scene details, it's likely Maya's detailed output
+        if (userPrompt.includes('shot on') || 
+            userPrompt.includes('Canon EOS') || 
+            userPrompt.includes('Hasselblad') ||
+            userPrompt.includes('raw photo') ||
+            userPrompt.includes('editorial') ||
+            userPrompt.includes('cinematic') ||
+            userPrompt.length > 200) {
+          console.log(`✅ MAYA DETAILED PROMPT: Preserving full cinematic description`);
+          
+          // Ensure trigger word is at the beginning
+          if (!userPrompt.includes(triggerWord)) {
+            const enhancedPrompt = `${triggerWord}, ${userPrompt}`;
+            console.log(`🚀 ADDED TRIGGER WORD: Enhanced with ${triggerWord}`);
+            return enhancedPrompt;
+          }
+          
+          return userPrompt;
         }
         
-        // For Maya's conversational responses, extract the quoted prompt section
-        const quotedPromptMatch = userPrompt.match(/"([^"]+)"/);
-        if (quotedPromptMatch) {
-          const extractedPrompt = quotedPromptMatch[1];
-          console.log(`✅ EXTRACTED QUOTED PROMPT: Found detailed prompt in quotes`);
-          return extractedPrompt;
-        }
-        
-        // If it's a short request, enhance it with proper format like July 17th successes
+        // For simple/basic prompts, enhance with professional format  
         if (userPrompt.length < 100) {
-          const enhancedPrompt = `${triggerWord} ${userPrompt}, raw photo, visible skin pores, film grain, unretouched natural skin texture, natural beauty with light skin retouch, soft diffused lighting, hair with natural volume and movement, professional photography`;
-          console.log(`🚀 ENHANCED SHORT PROMPT: Added professional quality parameters`);
+          const enhancedPrompt = `${triggerWord}, ${userPrompt}, raw photo, visible skin pores, film grain, professional photography, natural lighting`;
+          console.log(`🚀 ENHANCED SHORT PROMPT: "${enhancedPrompt}"`);
           return enhancedPrompt;
         }
         
-        console.log(`📝 USING ORIGINAL PROMPT: No modification needed`);
-        return userPrompt;
+        // For medium-length prompts, add trigger word and preserve content
+        console.log(`📝 PRESERVING ORIGINAL PROMPT with trigger word`);
+        return `${triggerWord}, ${userPrompt}`;
       }
 
       const usageCheck = await UsageService.checkUsageLimit(userId);
@@ -5886,57 +5895,7 @@ AGENT_CONTEXT:
 
 
 
-  // Flux Collection Preview Generation (Admin Only)
-  app.post('/api/generate-collection-preview', isAuthenticated, async (req, res) => {
-    try {
-      const userId = req.user?.claims?.sub;
-      if (!userId || req.user?.claims?.email !== 'ssa@ssasocial.com') {
-        return res.status(403).json({ message: 'Admin access required' });
-      }
 
-      const { prompt, collectionId } = req.body;
-      if (!prompt) {
-        return res.status(400).json({ message: 'Prompt is required' });
-      }
-
-      // Get Sandra's user model (admin user)
-      const userModel = await storage.getUserModel(userId);
-      if (!userModel || userModel.trainingStatus !== 'completed') {
-        return res.status(400).json({ message: 'Sandra\'s AI model not ready for collection preview generation' });
-      }
-
-      // Generate preview image using Sandra's model with enhanced optimization
-      const enhancedPrompt = `[triggerword] ${prompt}, professional photography, magazine quality, editorial style, luxury aesthetic, film photograph, natural film grain`;
-      
-      const result = await ImageGenerationService.generateImagesWithUserModel(
-        userId,
-        enhancedPrompt,
-        1, // Single preview image
-        true // isPremium = true for admin
-      );
-
-      console.log('🎨 FLUX COLLECTION PREVIEW generated:', {
-        userId,
-        collectionId,
-        prompt: prompt.substring(0, 100) + '...',
-        predictionId: result.predictionId
-      });
-
-      res.json({
-        success: true,
-        predictionId: result.predictionId,
-        generatedImageId: result.generatedImageId,
-        message: 'Collection preview generation started with Sandra\'s model'
-      });
-
-    } catch (error) {
-      console.error('Collection preview generation error:', error);
-      res.status(500).json({ 
-        message: 'Failed to generate collection preview',
-        error: error.message 
-      });
-    }
-  });
 
   // Register backup management routes
   const { registerBackupManagementRoutes } = await import('./routes/backup-management-routes');
