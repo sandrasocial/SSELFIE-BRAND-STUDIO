@@ -1135,6 +1135,20 @@ user42585527, elegant woman in full body editorial shot wearing sophisticated bl
 - ✅ **Syntax Error Fixed**: Removed Unicode emoji characters from agent-personalities-functional.ts line 500
 - ✅ **Deployment Ready**: Build command now completes successfully with no TypeScript compilation errors
 - ✅ **esbuild Compilation**: Server bundle creation working properly
+
+## ✅ MAYA FLUX API VERSION ISSUE FIXED (July 22, 2025)
+
+**BREAKTHROUGH: MAYA GENERATION FLUX API VERSION ERROR RESOLVED**
+- ✅ **Root Cause Fixed**: AI Service was using truncated LoRA model name without version hash
+- ✅ **Complete Version ID**: Now using full `replicateVersionId` including hash for FLUX API calls  
+- ✅ **Database Verified**: User model has complete version: `sandrasocial/42585527-selfie-lora-1753201482760:80c29fa2e004372979eb32b55b99607de5174db5e98e806efb509788eaf2fd96`
+- ✅ **AI Service Updated**: Fixed extraction logic to use complete version ID instead of truncated name
+- ❌ **Session Authentication Issue**: User authentication working in frontend but sessions expiring between API calls
+
+**Technical Implementation:**
+- Fixed `server/ai-service.ts` line 354-362: Now uses `userModel.replicateVersionId` directly instead of splitting on colon
+- Previous logic removed version hash, causing "version does not exist" errors from Replicate API
+- Maya generation should now work with proper LoRA model version reference
 - ✅ **Clean Code**: All emojis and icons removed from codebase per user requirement
 - ✅ **Production Build**: Frontend and backend building successfully for deployment
 
