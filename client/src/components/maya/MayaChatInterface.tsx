@@ -77,7 +77,11 @@ What kind of vibe are we creating today? Or just say "surprise me" and I'll crea
         setGenerationProgress(Math.min(90, (attempts / maxAttempts) * 90));
         
         const response = await fetch(`/api/generation-tracker/${trackerId}`, {
-          credentials: 'include'
+          method: 'GET',
+          credentials: 'include',
+          headers: {
+            'Content-Type': 'application/json'
+          }
         });
         
         console.log('🎬 Maya: Tracker response status:', response.status, response.ok);
