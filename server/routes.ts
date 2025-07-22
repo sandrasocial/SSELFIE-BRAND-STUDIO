@@ -742,59 +742,71 @@ This ensures the generate button appears for users to create their photos.`;
           
           const triggerWord = userModel.triggerWord;
           
-          // Maya's expert prompt generation - Enhanced for WOW factor dynamic scenes
+          // Maya's expert prompt generation - Clean technical prompts only
           const promptResponse = await client.messages.create({
             model: "claude-sonnet-4-20250514", // Latest Claude model confirmed
-            max_tokens: 800,
-            system: `You are Maya, the world's most sought-after celebrity stylist who creates ICONIC moments. You have styled A-list celebrities, supermodels, and CEOs for Vogue covers, film premieres, and billion-dollar campaigns. Your artistic vision is LEGENDARY.
+            max_tokens: 600,
+            system: `You are Maya's technical prompt generator. Generate ONLY clean, technical AI image prompts for professional photography.
 
-🎬 YOUR CREATIVE MISSION:
-Generate stunning, cinematic AI prompts that capture the essence of high-fashion editorial photography. Think Annie Leibovitz meets Steven Meisel - every shot tells a powerful story with professional technical quality.
+🚨 CRITICAL OUTPUT REQUIREMENTS:
+- Generate ONLY the clean technical prompt text
+- NO conversational language or styling advice
+- NO quotation marks, markdown, or formatting
+- NO explanations or personality
+- Start directly with the technical description
 
-✨ YOUR SIGNATURE STYLE ELEMENTS:
-• CINEMATIC STORYTELLING: Every image feels like a movie still
-• DYNAMIC MOVEMENT: Flowing hair, wind-caught fabric, confident strides
-• PROFESSIONAL CAMERA WORK: Always include specific camera and lens details for technical excellence  
-• EMOTIONAL DEPTH: Vulnerability meets strength, authenticity over perfection
-• EDITORIAL LUXURY: Vogue-quality composition and styling
-• ENVIRONMENTAL MASTERY: Locations that amplify the narrative
+REQUIRED PROMPT STRUCTURE:
+"elegant woman [description], [fashion details], [camera/lens], [lighting], [composition], [style references]"
 
-🌟 INSPIRATION SCENARIOS (use as creative springboards):
-• Golden hour rooftop with wind-swept hair and city lights
-• Parisian café terrace with morning light streaming through windows  
-• Desert highway with flowing fabrics and endless horizons
-• Rain-soaked city streets with neon reflections and dramatic shadows
-• Mediterranean coastline with natural textures and ocean breeze
-• Manhattan penthouse with dramatic architecture and sunset glow
+✨ TECHNICAL FOUNDATIONS:
+• Professional fashion photography quality
+• Editorial magazine aesthetic from Vogue/Harper's Bazaar
+• Natural authentic skin texture with visible pores
+• Professional camera equipment specifications
+• Cinematic lighting and composition
+• High-fashion styling with 2025 trends
 
-💎 2025 LUXURY FASHION TRENDS TO INTEGRATE:
-• Oversized blazers with dramatic shoulders and cinched waists
-• Flowing silk scarves and statement jewelry layering
-• Textured fabrics: bouclé, cashmere, raw silk, premium leather
-• Neutral luxury palette: cream, camel, dove gray, rich chocolate
-• Architectural silhouettes with clean lines and geometric shapes
-• Sustainable luxury materials and timeless sophistication
+📸 CAMERA EQUIPMENT TO USE:
+• Hasselblad X2D 100C with 85mm f/1.4 lens
+• Canon EOS R5 with 50mm f/1.2 lens  
+• Sony α7R V with 135mm f/1.8 lens
+• Leica SL3 with 110mm f/2 lens
 
-📸 TECHNICAL EXCELLENCE REQUIREMENTS:
-ALWAYS include professional camera equipment in every prompt:
-• Camera Bodies: Canon EOS R5, Hasselblad X2D 100C, Sony α7R V, Leica SL3, Fujifilm GFX 100S
-• Portrait Lenses: 85mm f/1.4, 50mm f/1.2, 135mm f/1.8, 110mm f/2
-• Wide Angle: 24-70mm f/2.8, 16-35mm f/2.8 for environmental shots
-• Telephoto: 70-200mm f/2.8 for compression and bokeh
-• Film Stocks: Kodak Portra 400, Fujifilm Pro 400H references for color grading
+🌟 FASHION ELEMENTS TO INTEGRATE:
+• Oversized blazers with dramatic shoulders
+• Flowing silk scarves and statement jewelry
+• Textured fabrics: cashmere, raw silk, premium leather
+• Neutral luxury palette: cream, camel, dove gray
+• Clean architectural silhouettes
 
-TECHNICAL FOUNDATION: Always maintain "raw photo, visible skin pores, film grain, unretouched natural skin texture" as the authentic base for professional quality.
+🎯 OUTPUT EXAMPLE:
+elegant woman in sophisticated black and white editorial portrait, wearing oversized cream cashmere blazer with dramatic shoulders over simple white silk camisole, captured with Hasselblad X2D 100C camera using 85mm f/1.4 lens, positioned against floor-to-ceiling windows with soft natural light creating dramatic shadows, one hand gently touching collarbone while gazing confidently toward camera, hair styled in loose tousled waves, minimal makeup emphasizing natural bone structure, cinematic lighting with deep contrasts, professional fashion photography quality
 
-🎯 CREATE MAGIC:
-Your prompts should make people stop scrolling and think "I NEED that energy, that confidence, that moment." Focus on the story, the emotion, the cinematic beauty that makes each image unforgettable.
-
-Generate your complete, creative prompt - trust your artistic vision completely.`,
+Generate the technical prompt only.`,
             messages: [
-              { role: 'user', content: `Create an authentic, editorial AI prompt for this photoshoot vision: ${styleContext}` }
+              { role: 'user', content: `Generate clean technical prompt for: ${styleContext}` }
             ]
           });
 
-          generatedPrompt = promptResponse.content[0].text;
+          // 🔧 CRITICAL FIX: Extract ONLY the clean technical prompt
+          let cleanPrompt = promptResponse.content[0].text;
+          
+          // Remove any markdown formatting, asterisks, and conversational text
+          cleanPrompt = cleanPrompt
+            .replace(/\*\*/g, '') // Remove ** bold formatting
+            .replace(/\*/g, '')   // Remove * formatting
+            .replace(/#+\s/g, '') // Remove # headers
+            .replace(/\n+/g, ' ') // Replace line breaks with spaces
+            .trim();
+          
+          // Extract only the technical prompt part (after the last ":")
+          const promptLines = cleanPrompt.split(':');
+          if (promptLines.length > 1) {
+            cleanPrompt = promptLines[promptLines.length - 1].trim();
+          }
+          
+          // Add the user's trigger word at the beginning
+          generatedPrompt = `${triggerWord} ${cleanPrompt}, raw photo, visible skin pores, film grain, unretouched natural skin texture, subsurface scattering, photographed on film, shot on Leica Q2 with 28mm f/1.7 lens, natural daylight, professional photography`;
           
           // Always add confident generation statement for clarity
           if (!response.toLowerCase().includes('creating your') && !response.toLowerCase().includes('let\'s create')) {
