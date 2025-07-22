@@ -68,18 +68,22 @@ export class ConversationManager {
         const content = message.content.toLowerCase();
         const originalContent = message.content;
         
-        // ENHANCED TASK EXTRACTION - Capture all meaningful requests
+        // AGGRESSIVE TASK EXTRACTION - Capture ALL user messages that contain task patterns
         if (content.includes('elena') || content.includes('need') || content.includes('want') || 
             content.includes('should') || content.includes('can you') || content.includes('please') ||
             content.includes('maya') || content.includes('analyze') || content.includes('test') ||
             content.includes('quality') || content.includes('generation') || content.includes('photos') ||
             content.includes('check') || content.includes('verify') || content.includes('access') ||
             content.includes('file') || content.includes('system') || content.includes('chat') ||
-            content.includes('implement') || content.includes('parameters') || content.includes('flux')) {
+            content.includes('implement') || content.includes('parameters') || content.includes('flux') ||
+            content.includes('audit') || content.includes('coordinate') || content.includes('help') ||
+            content.includes('working') || content.includes('work on') || content.includes('focus on') ||
+            content.includes('yes') || content.includes('continue') || content.includes('doing')) {
           
           // Extract the actual task request with better context preservation
           let task = originalContent.substring(0, 400).replace(/\n/g, ' ').trim();
-          if (task && task.length > 10 && !keyTasks.some(existingTask => existingTask.includes(task.substring(0, 30)))) {
+          if (task && task.length > 2) {
+            // Always add tasks, even if similar exist - better to have context than lose it
             keyTasks.push(task);
             console.log(`📝 TASK EXTRACTED: ${task.substring(0, 100)}...`);
           }
@@ -134,17 +138,19 @@ export class ConversationManager {
     // Enhanced context detection from entire conversation for Replit-style memory
     const fullContent = history.map(m => m.content).join(' ').toLowerCase();
     
-    // FRESH SESSION CONTEXT - Only use recent tasks, ignore old conversation history
+    // ENHANCED CONTEXT PRESERVATION - Use all tasks to build comprehensive context
     if (keyTasks.length > 0) {
-      // Use the most recent task as context
-      const mostRecentTask = keyTasks[keyTasks.length - 1];
-      currentContext = `Current session task: ${mostRecentTask.substring(0, 150)}`;
+      // Use the most recent tasks as context with better summary
+      const recentTasks = keyTasks.slice(-3); // Last 3 tasks for better context
+      currentContext = `Active tasks: ${recentTasks.join(' | ').substring(0, 300)}`;
       workflowStage = 'active-task';
     } else {
-      // Clean slate - Elena ready for new task assignment
-      currentContext = 'Elena ready for new task assignment - fresh session';
+      // Default - but should rarely happen with improved extraction
+      currentContext = 'Elena ready for new task assignment';
       workflowStage = 'ready';
     }
+    
+    console.log(`🧠 MEMORY SUMMARY: ${keyTasks.length} tasks extracted, context: ${currentContext.substring(0, 100)}...`);
 
     return {
       agentId,
