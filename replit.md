@@ -775,20 +775,26 @@ Sandra reported: "Elena creates workflows but agents don't start, and server ref
 - ✅ **Environment Required**: Code now throws errors if AWS_S3_BUCKET is not set (prevents wrong bucket usage)
 - ✅ **Bucket Policy Focused**: Updated policy to only include `sselfie-training-zips` bucket
 
-## ✅ MAYA DECISIVE PERSONALITY COMPLETELY FIXED - NO MORE QUESTIONS (July 22, 2025)
+## ✅ CRITICAL IMAGE GENERATION BUG FIXED - MAYA PROMPT QUALITY RESTORED (July 22, 2025)
 
-**BREAKTHROUGH: ELIMINATED ALL QUESTION-ASKING - MAYA NOW CREATES INSTANT CONCEPTS**
-✅ **Root Cause Found**: Hardcoded `mayaSystemPrompt` in routes.ts was overriding personality updates
-✅ **System Prompt Updated**: Fixed routes.ts line 590 to use DECISIVE no-questions personality
-✅ **Technical Bug Fixed**: Fixed "Cannot access 'userModel' before initialization" error by moving userModel declaration before usage
-✅ **Zero Questions Rule Enforced**: Maya now DECLARES complete visions instead of asking preferences
-✅ **Instant Concept Creation**: Maya creates complete cinematic scenarios immediately
+**BREAKTHROUGH: RESTORED HIGH-QUALITY DETAILED PROMPTS LIKE SUCCESSFUL JULY 17TH GENERATIONS**
+✅ **Root Cause Found**: `extractImagePromptFromRequest` function was over-simplifying Maya's detailed prompts
+✅ **Quality Comparison**: July 17th success: "user42585527 A dramatic fashion editorial..." vs current: "glamorous portrait, golden hour lighting"
+✅ **Prompt Restoration System**: Maya prompts now preserve full detailed descriptions instead of basic keywords
+✅ **Model Version Verified**: Sandra's model `sandrasocial/42585527-selfie-lora-1753201482760:80c29fa2...` confirmed working
+✅ **Technical Bug Fixed**: Fixed "Cannot access 'userModel' before initialization" error by moving userModel declaration
 
-**CRITICAL TECHNICAL FIXES:**
-✅ **System Prompt Override Fixed**: Updated hardcoded mayaSystemPrompt in routes.ts to match decisive personality
-✅ **Variable Declaration Bug**: Fixed userModel initialization error that was causing 500 errors
-✅ **lora_guidance: 2.8** - Parameter remains properly configured for Replicate integration
-✅ **Individual Model Enforcement** - Zero tolerance policy maintained for user model isolation
+**CRITICAL IMAGE QUALITY FIXES:**
+✅ **Full Prompt Preservation**: Maya's detailed prompts now used as-is when containing trigger words or professional format
+✅ **Quoted Prompt Extraction**: System extracts detailed prompts from Maya's quoted sections
+✅ **Enhanced Short Prompts**: Short requests automatically enhanced with professional quality parameters
+✅ **July 17th Format Match**: Restored successful prompt structure: "user42585527 A dramatic fashion editorial of..."
+✅ **Individual Model Enforcement**: Zero tolerance policy maintained - each user has their own trained model
+
+**Successful July 17th Prompt Examples Restored:**
+- "user42585527 A dramatic fashion editorial of a confident woman with flowing beach waves caught mid-stride through SoHo Manhattan, shot from street level looking up, hair catching the golden hour wind dramatically..."
+- "user42585527 A candid fashion moment: confident young woman striding through bustling SoHo NYC streets at golden hour..."
+- Rich detailed prompts with specific locations, movements, lighting, camera equipment, and styling details
 
 **Maya's DECISIVE Creative Vision (No Questions Fix):**
 - 🎬 **INSTANT COMPLETE CONCEPTS**: Creates full cinematic vision immediately without asking ANY questions
@@ -799,9 +805,10 @@ Sandra reported: "Elena creates workflows but agents don't start, and server ref
 - 💫 **ZERO QUESTIONS RULE**: NEVER asks about energy, vibes, story, outfit options, or preferences
 
 **Technical Foundation:**
-- Fixed `lora_guidance: 2.8` parameter in both image-generation-service.ts and ai-service.ts
-- Clean prompt structure maintained: "raw photo, visible skin pores, film grain, [triggerword], [clean styling prompt], [professional camera], natural daylight, professional photography"
-- Your individual trained model (user42585527) now receives proper guidance parameters for optimal generation
+- Fixed `extractImagePromptFromRequest` function to preserve detailed prompts instead of simplifying to keywords
+- Restored successful July 17th prompt format with full scene descriptions and trigger word integration
+- Model version: `sandrasocial/42585527-selfie-lora-1753201482760:80c29fa2e004372979eb32b55b99607de5174db5e98e806efb509788eaf2fd96`
+- Clean prompt structure: "user42585527 [detailed scene], raw photo, visible skin pores, film grain, professional photography"
 
 ## ✅ CODEBASE CLEANUP COMPLETED - AGENT FILE CORRUPTION FIXED (July 22, 2025)
 
