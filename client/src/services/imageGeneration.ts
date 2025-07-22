@@ -16,13 +16,7 @@ export async function generateImage(params: GenerateImageParams) {
       headers: {
         'Content-Type': 'application/json',
       },
-      body: JSON.stringify({
-        ...params,
-        // Flux-specific optimizations
-        scheduler: "DPMSolverMultistepScheduler",
-        safety_tolerance: 2,
-        seed: Math.floor(Math.random() * 1000000),
-      }),
+      body: JSON.stringify(params), // Clean parameters only - no Flux corruption
     });
 
     if (!response.ok) {
