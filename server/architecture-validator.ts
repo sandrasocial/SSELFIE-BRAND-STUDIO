@@ -14,8 +14,8 @@ export class ArchitectureValidator {
    */
   static validateGenerationRequest(requestBody: any, userId: string, isPremium: boolean = false): void {
     // 1. VALIDATE BLACK FOREST LABS MODEL - Must use correct official version
-    if (requestBody.version !== "30k587n6shrme0ck4zzrr6bt6c") {
-      throw new Error('Architecture violation: Must use official black-forest-labs/flux-dev-lora:30k587n6shrme0ck4zzrr6bt6c');
+    if (requestBody.version !== "ae0d7d645446924cf1871e3ca8796e8318f72465d2b5af9323a835df93bf0917") {
+      throw new Error('Architecture violation: Must use official black-forest-labs/flux-dev-lora latest version');
     }
     
     // 2. VALIDATE LORA PARAMETER - Must use user's trained LoRA

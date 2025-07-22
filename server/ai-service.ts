@@ -361,7 +361,7 @@ export class AIService {
       // 🔧 CORE_ARCHITECTURE_IMMUTABLE_V2 PARAMETERS (Updated July 22, 2025)
       // Professional-grade unified parameters for identical Maya/AI photoshoot quality
       requestBody = {
-        version: "30k587n6shrme0ck4zzrr6bt6c", // 🔒 OFFICIAL: black-forest-labs/flux-dev-lora
+        version: "ae0d7d645446924cf1871e3ca8796e8318f72465d2b5af9323a835df93bf0917", // 🔒 CORRECTED: black-forest-labs/flux-dev-lora latest version
         input: {
           prompt: prompt,
           lora_weights: userLoraModel,  // ✅ CORRECTED: Using proper FLUX API parameter name
