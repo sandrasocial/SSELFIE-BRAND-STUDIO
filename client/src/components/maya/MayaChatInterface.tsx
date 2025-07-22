@@ -37,6 +37,8 @@ export function MayaChatInterface() {
   const [chatMessages, setChatMessages] = useState<MayaChatMessage[]>([]);
   const [generationProgress, setGenerationProgress] = useState(0);
   const [currentTrackerId, setCurrentTrackerId] = useState<number | null>(null);
+  const [savedImages, setSavedImages] = useState<Set<string>>(new Set());
+  const [savingImages, setSavingImages] = useState<Set<string>>(new Set());
   const queryClient = useQueryClient();
 
   // Maya's enthusiastic greeting
@@ -147,16 +149,25 @@ What kind of vibe are we creating today? Or just say "surprise me" and I'll crea
     }
   });
 
-  // Heart an image to save to gallery
+  // Heart an image to save to gallery  
   const heartImageMutation = useMutation({
     mutationFn: async (imageUrl: string) => {
+      setSavingImages(prev => new Set([...prev, imageUrl]));
       return await apiRequest('/api/heart-image-to-gallery', 'POST', {
         imageUrl,
         prompt: 'Maya AI Photography',
         style: 'Editorial'
       });
     },
-    onSuccess: () => {
+    onSuccess: (data, imageUrl) => {
+      // Mark image as saved
+      setSavedImages(prev => new Set([...prev, imageUrl]));
+      setSavingImages(prev => {
+        const newSet = new Set(prev);
+        newSet.delete(imageUrl);
+        return newSet;
+      });
+      
       // Show success feedback
       setChatMessages(prev => [
         ...prev,
@@ -168,6 +179,13 @@ What kind of vibe are we creating today? Or just say "surprise me" and I'll crea
         }
       ]);
       queryClient.invalidateQueries({ queryKey: ['/api/ai-images'] });
+    },
+    onError: (error, imageUrl) => {
+      setSavingImages(prev => {
+        const newSet = new Set(prev);
+        newSet.delete(imageUrl);
+        return newSet;
+      });
     }
   });
 
@@ -239,42 +257,63 @@ What kind of vibe are we creating today? Or just say "surprise me" and I'll crea
                 </div>
               )}
 
-              {/* Image Preview with Heart Button */}
+              {/* Enhanced Image Preview Grid with Heart-Save (matching backup format) */}
               {msg.imagePreview && msg.imagePreview.imageUrls && (
-                <div className="mt-3 space-y-3">
-                  <div className="text-sm font-medium text-rose-600 flex items-center gap-2">
-                    <Sparkles className="w-4 h-4" />
-                    Your Editorial Preview - Heart the ones you love!
+                <div className="mt-6">
+                  <div className="flex items-center justify-between mb-4">
+                    <h4 className="text-sm font-medium text-black">Your Maya Photos</h4>
+                    <p className="text-xs text-gray-500">Click to view full size • Heart to save permanently</p>
                   </div>
-                  
-                  <div className="grid grid-cols-1 gap-3">
+                  <div className="grid grid-cols-3 gap-3">
                     {JSON.parse(msg.imagePreview.imageUrls).map((imageUrl: string, index: number) => (
                       <div key={index} className="relative group">
-                        <img 
-                          src={imageUrl} 
-                          alt="Maya AI Preview"
-                          className="w-full rounded-lg shadow-lg"
-                        />
-                        
-                        {/* Heart Button Overlay */}
-                        <div className="absolute top-3 right-3">
-                          <Button
-                            onClick={() => handleHeartImage(imageUrl)}
-                            size="sm"
-                            className="bg-white/80 hover:bg-white text-rose-500 hover:text-rose-600 shadow-lg"
-                            disabled={heartImageMutation.isPending}
+                        <div className="relative overflow-hidden border border-gray-200 hover:border-gray-300 transition-colors">
+                          <img 
+                            src={imageUrl}
+                            alt={`Maya generated image ${index + 1}`}
+                            className="w-full h-32 object-cover cursor-pointer hover:scale-105 transition-transform duration-200"
+                            onClick={() => window.open(imageUrl, '_blank')}
+                          />
+                          
+                          {/* Minimalistic Heart Save Button */}
+                          <button
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              handleHeartImage(imageUrl);
+                            }}
+                            disabled={savingImages.has(imageUrl)}
+                            className="absolute top-2 right-2 w-8 h-8 flex items-center justify-center bg-white/90 hover:bg-white border border-gray-200 hover:border-gray-300 rounded-full transition-all shadow-sm"
+                            title={savedImages.has(imageUrl) ? 'Saved to gallery' : 'Save to gallery'}
                           >
-                            <Heart className="w-4 h-4" />
-                            {heartImageMutation.isPending ? 'Saving...' : 'Save to Gallery'}
-                          </Button>
+                            {savingImages.has(imageUrl) ? (
+                              <div className="w-3 h-3 border border-gray-400 border-t-transparent rounded-full animate-spin"></div>
+                            ) : savedImages.has(imageUrl) ? (
+                              <span className="text-red-500 text-sm">♥</span>
+                            ) : (
+                              <span className="text-gray-400 hover:text-red-500 text-sm transition-colors">♡</span>
+                            )}
+                          </button>
+                          
+                          {/* Subtle Saved Indicator */}
+                          {savedImages.has(imageUrl) && (
+                            <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/60 to-transparent p-2">
+                              <div className="text-white text-xs font-medium">
+                                ✓ Saved
+                              </div>
+                            </div>
+                          )}
+                          
+                          {/* Hover overlay */}
+                          <div className="absolute inset-0 bg-black/0 hover:bg-black/10 transition-colors pointer-events-none"></div>
                         </div>
                       </div>
                     ))}
                   </div>
                   
-                  <p className="text-xs text-gray-500 bg-rose-50 p-2 rounded">
-                    💡 <strong>Tip:</strong> Heart your favorite shots to save them to your permanent gallery!
-                  </p>
+                  {/* Preview Status Message */}
+                  <div className="mt-3 text-xs text-gray-500 bg-gray-50 p-3 rounded border">
+                    <strong>Preview Mode:</strong> These are temporary preview images. Click the heart (♡) to save your favorites permanently to your gallery.
+                  </div>
                 </div>
               )}
             </div>
