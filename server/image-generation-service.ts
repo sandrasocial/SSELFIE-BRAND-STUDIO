@@ -138,20 +138,20 @@ export async function generateImages(request: GenerateImagesRequest): Promise<Ge
       
       const userTrainedVersion = `${userModel.replicateModelId}:${userModel.replicateVersionId}`;
       
-      // 🔧 FIXED: Use Sandra's AI Quality Upgrade specifications ONLY
-      // AI Photoshoot must NEVER modify these proven parameters
+      // 🔧 CORE_ARCHITECTURE_IMMUTABLE_V2 PARAMETERS - PROFESSIONAL UNIFIED QUALITY
+      // Both Maya Chat and AI Photoshoot use identical parameters for consistent results
       requestBody = {
         version: userTrainedVersion, // 🔒 CRITICAL: User's individual trained model version ONLY
         input: {
           prompt: finalPrompt,
-          guidance: 2.8,              // ✅ AI Quality Upgrade: Fixed optimal guidance
-          num_inference_steps: 40,    // ✅ AI Quality Upgrade: Fixed inference steps
-          lora_scale: 0.95,          // ✅ AI Quality Upgrade: Fixed LoRA scale for strong personalization
-          num_outputs: 3,
+          guidance_scale: 2.8,        // ✅ CORE_ARCHITECTURE_V2: Professional natural results
+          num_inference_steps: 40,    // ✅ CORE_ARCHITECTURE_V2: Enhanced quality steps
+          lora_scale: 0.95,          // ✅ CORE_ARCHITECTURE_V2: Optimal strength balance
+          num_outputs: 4,            // ✅ More options for better selection
           aspect_ratio: "3:4", 
           output_format: "png",
-          output_quality: 95,        // ✅ AI Quality Upgrade: Fixed output quality
-          go_fast: false, 
+          output_quality: 95,        // ✅ CORE_ARCHITECTURE_V2: Maximum clarity
+          model: "dev",              // ✅ Use dev model explicitly
           disable_safety_checker: false,
           seed: Math.floor(Math.random() * 1000000)
         }
@@ -163,14 +163,15 @@ export async function generateImages(request: GenerateImagesRequest): Promise<Ge
     ArchitectureValidator.validateGenerationRequest(requestBody, userId, isPremium);
     ArchitectureValidator.logArchitectureCompliance(userId, 'AI Photoshoot Generation');
     
-    // 📊 LOG AI QUALITY UPGRADE PARAMETERS FOR AI PHOTOSHOOT MONITORING
-    console.log(`✅ AI PHOTOSHOOT AI QUALITY UPGRADE ACTIVE for user ${userId}:`, {
-      guidance: requestBody.input.guidance,
+    // 📊 LOG CORE_ARCHITECTURE_V2 PARAMETERS FOR AI PHOTOSHOOT MONITORING
+    console.log(`✅ AI PHOTOSHOOT CORE_ARCHITECTURE_V2 ACTIVE for user ${userId}:`, {
+      guidance_scale: requestBody.input.guidance_scale,
       steps: requestBody.input.num_inference_steps,
-      loraScale: requestBody.input.lora_scale,
+      lora_scale: requestBody.input.lora_scale,
       quality: requestBody.input.output_quality,
+      outputs: requestBody.input.num_outputs,
       camera: 'Professional equipment integrated',
-      settings: 'AI Quality Upgrade Complete'
+      settings: 'CORE_ARCHITECTURE_IMMUTABLE_V2 Complete'
     });
       collection: 'AI Photoshoot'
     });

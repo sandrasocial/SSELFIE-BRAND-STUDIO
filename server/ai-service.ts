@@ -234,7 +234,7 @@ export class AIService {
       // 🚀 HIGH-QUALITY ENHANCEMENT: Add professional camera equipment like reference image ID 405
       const cameraEquipment = this.getRandomCameraEquipment();
       
-      // 🚀 HIGH-QUALITY STRUCTURE: Based on reference image ID 405 (professional camera + film aesthetic)
+      // 🚀 CORE_ARCHITECTURE_V2 PROMPT STRUCTURE: Professional-grade unified format
       const finalPrompt = `raw photo, visible skin pores, film grain, unretouched natural skin texture, subsurface scattering, photographed on film, ${triggerWord}, ${hairOptimizedPrompt}, ${cameraEquipment}, natural daylight, professional photography`;
       
       console.log(`🚀 MAYA CLEANED PROMPT (no markdown): ${finalPrompt}`);
@@ -361,20 +361,20 @@ export class AIService {
         userTrainedVersion = `${userModel.replicateModelId}:${userModel.replicateVersionId}`;
       }
       
-      // 🔧 UPDATED: Fresh Start Optimized Parameters (July 22, 2025)
-      // Aligned with new training specifications for better face recognition
+      // 🔧 CORE_ARCHITECTURE_IMMUTABLE_V2 PARAMETERS (Updated July 22, 2025)
+      // Professional-grade unified parameters for identical Maya/AI photoshoot quality
       requestBody = {
         version: userTrainedVersion,
         input: {
           prompt: prompt,
-          guidance_scale: 2.5,        // ✅ FRESH START: Optimal for new LoRA rank 32 training
-          num_inference_steps: 35,    // ✅ FRESH START: 28+ steps for dev model per official docs
-          lora_scale: 1.0,           // ✅ FRESH START: Full strength for enhanced training params
-          num_outputs: 4,            // ✅ FRESH START: More options for better selection
+          guidance_scale: 2.8,        // ✅ CORE_ARCHITECTURE_V2: Professional natural results
+          num_inference_steps: 40,    // ✅ CORE_ARCHITECTURE_V2: Enhanced quality steps
+          lora_scale: 0.95,          // ✅ CORE_ARCHITECTURE_V2: Optimal strength balance
+          num_outputs: 4,            // ✅ More options for better selection
           aspect_ratio: "3:4", 
           output_format: "png",
-          output_quality: 95,        // ✅ FRESH START: High quality maintained
-          model: "dev",              // ✅ FRESH START: Use dev model explicitly
+          output_quality: 95,        // ✅ CORE_ARCHITECTURE_V2: Maximum clarity
+          model: "dev",              // ✅ Use dev model explicitly
           disable_safety_checker: false,
           seed: Math.floor(Math.random() * 1000000)
         }
@@ -388,15 +388,15 @@ export class AIService {
     ArchitectureValidator.validateGenerationRequest(requestBody, userId, isPremium);
     ArchitectureValidator.logArchitectureCompliance(userId, 'Maya AI Generation');
     
-    // 📊 LOG FRESH START PARAMETERS FOR MONITORING
-    console.log(`✅ FRESH START PARAMETERS ACTIVE for user ${userId}:`, {
+    // 📊 LOG CORE_ARCHITECTURE_V2 PARAMETERS FOR MAYA MONITORING
+    console.log(`✅ MAYA CORE_ARCHITECTURE_V2 ACTIVE for user ${userId}:`, {
       guidance_scale: requestBody.input.guidance_scale,
       steps: requestBody.input.num_inference_steps,
-      loraScale: requestBody.input.lora_scale,
+      lora_scale: requestBody.input.lora_scale,
       quality: requestBody.input.output_quality,
       model: requestBody.input.model,
       outputs: requestBody.input.num_outputs,
-      settings: 'Fresh Start Optimization Complete'
+      settings: 'CORE_ARCHITECTURE_IMMUTABLE_V2 Complete'
     });
     
     const response = await fetch('https://api.replicate.com/v1/predictions', {
