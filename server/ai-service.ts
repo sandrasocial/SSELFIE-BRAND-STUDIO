@@ -365,7 +365,7 @@ export class AIService {
             prompt: prompt,
             guidance: 1.8,
             num_inference_steps: 40,
-            lora_scale: 0.95,
+            lora_scale: 1.0,
             num_outputs: 1,                 // Single output per request
             aspect_ratio: "3:4", 
             output_format: "png",
@@ -465,7 +465,7 @@ export class AIService {
           prompt: prompt,
           guidance: 1.8,              // ✅ Natural appearance: Reduced for authentic skin texture
           num_inference_steps: 40,    // ✅ AI Quality Upgrade: Fixed optimal steps for trained model likeness
-          lora_scale: 0.95,          // ✅ AI Quality Upgrade: Fixed LoRA scale for strong personalization
+          lora_scale: 1.0,          // ✅ Maximum model likeness: Increased for stronger trained model features
           num_outputs: 1,             // 🎯 CRITICAL: Single output for controlled seed usage
           aspect_ratio: "3:4", 
           output_format: "png",
