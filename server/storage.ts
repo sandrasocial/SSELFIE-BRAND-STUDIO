@@ -157,6 +157,7 @@ export interface IStorage {
 
   // Email Capture operations
   captureEmail(data: InsertEmailCapture): Promise<EmailCapture>;
+  getAllEmailCaptures(): Promise<EmailCapture[]>;
 
   // Admin operations
   setUserAsAdmin(email: string): Promise<User | null>;
@@ -949,6 +950,13 @@ export class DatabaseStorage implements IStorage {
       .values(data)
       .returning();
     return capture;
+  }
+
+  async getAllEmailCaptures(): Promise<EmailCapture[]> {
+    return await db
+      .select()
+      .from(emailCaptures)
+      .orderBy(desc(emailCaptures.captured));
   }
 
   // Maya chat operations

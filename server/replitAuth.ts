@@ -116,20 +116,42 @@ async function upsertUser(
     console.log('👑 Setting admin privileges for ssa@ssasocial.com');
   }
   
-  await storage.upsertUser({
-    id: claims["sub"],
-    email: claims["email"],
-    firstName: claims["first_name"],
-    lastName: claims["last_name"],
-    profileImageUrl: claims["profile_image_url"],
-  });
-
-  // Ensure user model exists for both accounts
-  console.log('🔄 Ensuring user model exists for:', claims["email"]);
   try {
-    await storage.ensureUserModel(claims["sub"]);
+    // CRITICAL: Ensure user is always stored in database with comprehensive error handling
+    const user = await storage.upsertUser({
+      id: claims["sub"],
+      email: claims["email"],
+      firstName: claims["first_name"],
+      lastName: claims["last_name"],
+      profileImageUrl: claims["profile_image_url"],
+    });
+    
+    console.log('✅ User successfully stored in database:', user.id, user.email);
+    
+    // Ensure user model exists for both accounts
+    console.log('🔄 Ensuring user model exists for:', claims["email"]);
+    try {
+      await storage.ensureUserModel(claims["sub"]);
+      console.log('✅ User model ensured for:', claims["sub"]);
+    } catch (modelError) {
+      console.error('❌ Failed to ensure user model (non-critical):', modelError);
+      // Don't fail authentication for model creation issues
+    }
+    
+    // SECURITY ENHANCEMENT: Validate user was actually created in database
+    const createdUser = await storage.getUser(claims["sub"]);
+    if (!createdUser) {
+      console.error('🚨 CRITICAL: User creation failed - no record found in database after upsert');
+      throw new Error('User creation validation failed - database record not found');
+    }
+    
+    console.log('✅ User creation validated in database:', createdUser.email);
+    
   } catch (error) {
-    console.error('❌ Failed to ensure user model:', error);
+    console.error('🚨 CRITICAL: Failed to store user in database:', error);
+    console.error('🚨 User details:', { id: claims["sub"], email: claims["email"] });
+    // CRITICAL: This error must be caught to prevent authentication without database storage
+    throw new Error(`Failed to store user in database: ${error.message}`);
   }
 }
 
@@ -145,10 +167,21 @@ export async function setupAuth(app: Express) {
     tokens: client.TokenEndpointResponse & client.TokenEndpointResponseHelpers,
     verified: passport.AuthenticateCallback
   ) => {
-    const user = {};
-    updateUserSession(user, tokens);
-    await upsertUser(tokens.claims());
-    verified(null, user);
+    try {
+      const user = {};
+      updateUserSession(user, tokens);
+      
+      // CRITICAL: Ensure user database storage succeeds before authentication
+      await upsertUser(tokens.claims());
+      
+      console.log('✅ Authentication successful with database storage for:', tokens.claims()?.email);
+      verified(null, user);
+    } catch (error) {
+      console.error('🚨 CRITICAL: Authentication failed due to database storage error:', error);
+      console.error('🚨 User:', tokens.claims()?.email, tokens.claims()?.sub);
+      // Pass error to prevent authentication without proper database storage
+      verified(error, null);
+    }
   };
 
   // Register strategies for configured domains
@@ -376,7 +409,15 @@ export async function setupAuth(app: Express) {
       
       // Get claims from the token set
       const claims = tokenSet.claims();
-      await upsertUser(claims);
+      
+      // CRITICAL: Ensure database storage before manual login
+      try {
+        await upsertUser(claims);
+        console.log('✅ Manual OAuth: User successfully stored in database');
+      } catch (upsertError) {
+        console.error('🚨 Manual OAuth: Failed to store user in database:', upsertError);
+        return res.redirect('/?error=database_storage_failed&email=' + encodeURIComponent(claims?.email || 'unknown'));
+      }
       
       // Log in the user manually
       req.logIn(user, (loginErr: any) => {
