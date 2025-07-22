@@ -253,6 +253,15 @@ export class AutoFileWriter {
     }
     
     console.log(`🔗 WORKSPACE INTEGRATION: Agent ${agentId} integrated ${filePath} into main application`);
+    
+    // INTEGRATION STEP 4: Notify sync service of file changes
+    try {
+      const { agentSyncManager } = await import('../services/agent-sync-manager.js');
+      await agentSyncManager.triggerAgentFileSync(agentId, filePath, 'modify');
+      console.log(`🔄 File sync triggered: ${agentId} modified ${filePath}`);
+    } catch (syncError) {
+      console.log(`⚠️ Sync notification failed for ${filePath}:`, syncError.message);
+    }
   }
 
   /**
