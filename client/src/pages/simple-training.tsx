@@ -41,7 +41,7 @@ export default function SimpleTraining() {
     if (userModel && userModel.trainingStatus === 'training') {
       console.log('🔄 Found active training on page load:', userModel);
       setIsTrainingStarted(true);
-      setTrainingProgress(userModel.trainingProgress || 5);
+      setTrainingProgress(userModel.trainingProgress || 0);
       if (userModel.startedAt) {
         setStartTime(new Date(userModel.startedAt));
       }
@@ -90,9 +90,9 @@ export default function SimpleTraining() {
         }
         
         // Get progress data if we have user model and still training
-        if (userModel?.id) {
+        if (userModel?.userId) {
           try {
-            const progressResponse = await fetch(`/api/training-progress/${userModel.id}`, {
+            const progressResponse = await fetch(`/api/training-progress/${userModel.userId}`, {
               credentials: 'include'
             });
             if (progressResponse.ok) {
@@ -113,19 +113,15 @@ export default function SimpleTraining() {
     }
   }, [isTrainingStarted, userModel, refetchUserModel, isAuthenticated]);
 
-  // Calculate progress and time remaining
+  // Only show real progress - no fake time calculations
   useEffect(() => {
-    if (startTime && trainingProgress > 0) {
-      const elapsed = Date.now() - startTime.getTime();
-      const totalEstimatedTime = 15 * 60 * 1000; // 15 minutes in milliseconds
-      const remaining = Math.max(0, totalEstimatedTime - elapsed);
-      
-      const minutes = Math.floor(remaining / 60000);
-      const seconds = Math.floor((remaining % 60000) / 1000);
-      
-      setEstimatedTimeRemaining(`${minutes}:${seconds.toString().padStart(2, '0')}`);
+    if (trainingProgress > 0 && trainingProgress < 100) {
+      // Only show estimated time if we have real training progress
+      setEstimatedTimeRemaining('Training in progress...');
+    } else {
+      setEstimatedTimeRemaining('');
     }
-  }, [trainingProgress, startTime]);
+  }, [trainingProgress]);
 
   // Start bulletproof model training mutation
   const startTraining = useMutation({
@@ -139,7 +135,7 @@ export default function SimpleTraining() {
       if (data.success) {
         setIsTrainingStarted(true);
         setStartTime(new Date());
-        setTrainingProgress(5); // Initial progress
+        setTrainingProgress(0); // No fake progress until real Replicate data
         toast({
           title: "Bulletproof Training Started!",
           description: "Your AI model training has begun with full validation.",
@@ -386,7 +382,7 @@ export default function SimpleTraining() {
                 height: '8px'
               }}>
                 <div style={{
-                  width: `${Math.max(5, trainingProgress)}%`,
+                  width: `${trainingProgress}%`,
                   height: '100%',
                   background: '#ffffff',
                   transition: 'width 0.3s ease'
@@ -404,7 +400,7 @@ export default function SimpleTraining() {
                 flexWrap: 'wrap',
                 padding: '0 20px'
               }}>
-                <div>Progress: {Math.max(5, trainingProgress)}%</div>
+                <div>Progress: {trainingProgress}%</div>
                 {estimatedTimeRemaining && (
                   <div>Time Remaining: {estimatedTimeRemaining}</div>
                 )}
