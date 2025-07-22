@@ -153,8 +153,11 @@ export class UnifiedGenerationService {
     
     const prediction = await replicateResponse.json();
     
-    // Update database with prediction ID
-    await storage.updateAIImagePredictionId(savedImage.id, prediction.id);
+    // Update database with prediction ID using existing updateAIImage method
+    await storage.updateAIImage(savedImage.id, { 
+      predictionId: prediction.id,
+      status: 'processing'
+    });
     
     console.log(`✅ UNIFIED GENERATION: Started prediction ${prediction.id} for user ${userId}`);
     
@@ -187,11 +190,17 @@ export class UnifiedGenerationService {
       
       if (prediction.status === 'succeeded') {
         const imageUrls = prediction.output || [];
-        await storage.updateAIImageComplete(imageId, JSON.stringify(imageUrls));
+        await storage.updateAIImage(imageId, {
+          imageUrl: JSON.stringify(imageUrls),
+          status: 'completed'
+        });
         console.log(`✅ UNIFIED GENERATION: Completed image ${imageId} with ${imageUrls.length} results`);
         
       } else if (prediction.status === 'failed') {
-        await storage.updateAIImageError(imageId, prediction.error || 'Generation failed');
+        await storage.updateAIImage(imageId, {
+          status: 'failed',
+          errorMessage: prediction.error || 'Generation failed'
+        });
         console.error(`❌ UNIFIED GENERATION: Failed image ${imageId}: ${prediction.error}`);
       }
       
