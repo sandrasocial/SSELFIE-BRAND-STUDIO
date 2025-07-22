@@ -35,6 +35,7 @@ import session from 'express-session';
 import { registerCheckoutRoutes } from './routes/checkout';
 import { registerAutomationRoutes } from './routes/automation';
 import { registerEnterpriseRoutes } from './routes/enterprise-routes';
+import authAuditRoutes from './routes/auth-audit-routes';
 // Agent performance monitor will be imported dynamically
 import { ExternalAPIService } from './integrations/external-api-service';
 import { AgentAutomationTasks } from './integrations/agent-automation-tasks';
@@ -153,6 +154,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
   
   // Elena workflow routes for visual editor integration (admin access)
   app.use('/api/admin/elena', elenaWorkflowRoutes);
+  
+  // Authentication audit routes (admin access only)
+  app.use('/api', authAuditRoutes);
+  console.log('✅ Authentication audit routes registered');
   
   // Advanced agent features for Replit AI parity
   const advancedAgentFeatures = await import('./routes/advanced-agent-features');
