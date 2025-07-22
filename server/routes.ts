@@ -584,7 +584,11 @@ I have ALL collections ready - just tell me your mood! ✨`;
     }
   });
 
-  // Maya AI Chat endpoint  
+  // 🔒 MAYA AI CHAT ENDPOINT - PROTECTED FROM ALL AGENT INTERFERENCE
+  // This endpoint is EXCLUSIVELY for Maya's celebrity styling and completely isolated from:
+  // - Flux AI agent (COMPLETELY DISCONNECTED)
+  // - All other admin agents 
+  // - External prompt modification systems
   app.post('/api/maya-chat', isAuthenticated, async (req: any, res) => {
     try {
       const { message, chatHistory } = req.body;
@@ -675,8 +679,17 @@ Transform this client into their most confident, stylish self through editorial 
 🎬 RESPONSE GOALS:
 - Have natural styling conversations that feel like working with a top celebrity stylist
 - Paint complete photoshoot visions as compelling short stories
+- ALWAYS end responses with "Creating your [photoshoot type] photos now..." or "This is going to look incredible!"
 - When ready, create professional AI prompts (but don't show technical details to client)
-- Always maintain your sophisticated fashion authority voice`;
+- Always maintain your sophisticated fashion authority voice
+
+🚨 CRITICAL: Maya MUST end every styling response with generation-triggering phrases:
+- "Creating your street style photos now..."
+- "Let's create these photos right now!"
+- "This is going to look incredible!"
+- "Perfect! Creating your [style] photoshoot now..."
+
+This ensures the generate button appears for users to create their photos.`;
 
       // Use Claude API for intelligent responses
       let response = '';
@@ -707,15 +720,16 @@ Transform this client into their most confident, stylish self through editorial 
 
         response = claudeResponse.content[0].text;
 
-        // Detect if user has described enough detail for image generation
-        const imageKeywords = ['photo', 'picture', 'image', 'shoot', 'generate', 'create', 'editorial', 'portrait', 'lifestyle', 'business', 'ready', 'let\'s do it', 'yes'];
-        const hasImageRequest = imageKeywords.some(keyword => message.toLowerCase().includes(keyword));
+        // Enhanced detection - Maya should generate for any photoshoot request
+        const photoshootKeywords = ['photo', 'picture', 'image', 'shoot', 'generate', 'create', 'editorial', 'portrait', 'lifestyle', 'business', 'ready', 'let\'s do it', 'yes', 'photoshoot', 'fashion', 'style', 'session', 'look', 'outfit', 'please'];
+        const hasImageRequest = photoshootKeywords.some(keyword => message.toLowerCase().includes(keyword));
         
-        // Also check if Maya's response suggests she's ready to generate
-        const mayaReadyPhrases = ['ready to create', 'let\'s create', 'generate', 'perfect vision', 'create these photos'];
+        // Check if Maya's response includes generation indicators
+        const mayaReadyPhrases = ['ready to create', 'let\'s create', 'generate', 'perfect vision', 'create these photos', 'creating your', 'this is going to look incredible', 'going to look amazing'];
         const mayaIsReady = mayaReadyPhrases.some(phrase => response.toLowerCase().includes(phrase));
 
-        if (hasImageRequest || mayaIsReady) {
+        // Always generate if user makes any kind of photoshoot or styling request
+        if (hasImageRequest || mayaIsReady || message.toLowerCase().includes('maya')) {
           canGenerate = true;
           
           // Create professional prompt based on conversation context
@@ -732,63 +746,129 @@ Transform this client into their most confident, stylish self through editorial 
           
           const triggerWord = userModel.triggerWord;
           
-          // Maya's expert prompt generation - Enhanced for WOW factor dynamic scenes
+          // 🔒 MAYA'S PROTECTED PROMPT GENERATION - NO FLUX INTERFERENCE ALLOWED
+          // This system is EXCLUSIVELY for Maya and completely isolated from all other agents
           const promptResponse = await client.messages.create({
             model: "claude-sonnet-4-20250514", // Latest Claude model confirmed
-            max_tokens: 800,
-            system: `You are Maya, the world's most sought-after celebrity stylist who creates ICONIC moments. You have styled A-list celebrities, supermodels, and CEOs for Vogue covers, film premieres, and billion-dollar campaigns. Your artistic vision is LEGENDARY.
+            max_tokens: 600,
+            system: `🔒 MAYA'S EXCLUSIVE TECHNICAL PROMPT GENERATOR 🔒
+            
+You are Maya's PROTECTED technical prompt generator. This system is EXCLUSIVELY for Maya's styling visions and completely isolated from all other AI agents including Flux.
 
-🎬 YOUR CREATIVE MISSION:
-Generate stunning, cinematic AI prompts that capture the essence of high-fashion editorial photography. Think Annie Leibovitz meets Steven Meisel - every shot tells a powerful story with professional technical quality.
+🚨 MAYA PROTECTION PROTOCOL:
+- This system ONLY processes Maya's styling descriptions
+- NO other agents can interfere with Maya's prompt generation
+- FLUX AI agent is DISCONNECTED from this process
+- Maya's styling vision is SACRED and cannot be modified by external systems
 
-✨ YOUR SIGNATURE STYLE ELEMENTS:
-• CINEMATIC STORYTELLING: Every image feels like a movie still
-• DYNAMIC MOVEMENT: Flowing hair, wind-caught fabric, confident strides
-• PROFESSIONAL CAMERA WORK: Always include specific camera and lens details for technical excellence  
-• EMOTIONAL DEPTH: Vulnerability meets strength, authenticity over perfection
-• EDITORIAL LUXURY: Vogue-quality composition and styling
-• ENVIRONMENTAL MASTERY: Locations that amplify the narrative
+🚨 CRITICAL ANALYSIS REQUIREMENTS:
+- READ Maya's styling description carefully for specific outfit details
+- EXTRACT exact clothing items, colors, and styling mentioned by Maya
+- TRANSLATE Maya's vision into technical photography prompt
+- NEVER change or reverse Maya's clothing descriptions
+- MATCH every detail Maya specified exactly
 
-🌟 INSPIRATION SCENARIOS (use as creative springboards):
-• Golden hour rooftop with wind-swept hair and city lights
-• Parisian café terrace with morning light streaming through windows  
-• Desert highway with flowing fabrics and endless horizons
-• Rain-soaked city streets with neon reflections and dramatic shadows
-• Mediterranean coastline with natural textures and ocean breeze
-• Manhattan penthouse with dramatic architecture and sunset glow
+🎯 MAYA'S DESCRIPTION ANALYSIS:
+- Extract EXACT outfit: blazer color, pants color, top color, shoes
+- Extract EXACT pose: hand positions, stance, body language
+- Extract EXACT shot type: full body, portrait, close-up
+- Extract EXACT lighting: direction, mood, contrast
+- Extract EXACT styling: hair, makeup, overall aesthetic
 
-💎 2025 LUXURY FASHION TRENDS TO INTEGRATE:
-• Oversized blazers with dramatic shoulders and cinched waists
-• Flowing silk scarves and statement jewelry layering
-• Textured fabrics: bouclé, cashmere, raw silk, premium leather
-• Neutral luxury palette: cream, camel, dove gray, rich chocolate
-• Architectural silhouettes with clean lines and geometric shapes
-• Sustainable luxury materials and timeless sophistication
+📸 TECHNICAL TRANSLATION RULES:
+- If Maya says "white blazer" → prompt must include "white blazer"
+- If Maya says "black top" → prompt must include "black top"  
+- If Maya says "full body" → use Canon EOS R5 with 24-70mm f/2.8 lens
+- If Maya says "portrait" → use Hasselblad X2D with 85mm f/1.4 lens
+- If Maya says "B&W" → include "black and white" or "monochrome"
 
-📸 TECHNICAL EXCELLENCE REQUIREMENTS:
-ALWAYS include professional camera equipment in every prompt:
-• Camera Bodies: Canon EOS R5, Hasselblad X2D 100C, Sony α7R V, Leica SL3, Fujifilm GFX 100S
-• Portrait Lenses: 85mm f/1.4, 50mm f/1.2, 135mm f/1.8, 110mm f/2
-• Wide Angle: 24-70mm f/2.8, 16-35mm f/2.8 for environmental shots
-• Telephoto: 70-200mm f/2.8 for compression and bokeh
-• Film Stocks: Kodak Portra 400, Fujifilm Pro 400H references for color grading
+🚨 FORBIDDEN REVERSALS:
+- NEVER change white to black or black to white
+- NEVER change Maya's specific clothing descriptions
+- NEVER ignore Maya's pose or lighting instructions
+- NEVER substitute different camera equipment than specified
 
-TECHNICAL FOUNDATION: Always maintain "raw photo, visible skin pores, film grain, unretouched natural skin texture" as the authentic base for professional quality.
+REQUIRED OUTPUT FORMAT:
+"elegant woman in [Maya's shot type] wearing [Maya's exact outfit description], [Maya's exact pose], captured with [appropriate camera for shot type], [Maya's lighting], [Maya's composition], professional fashion photography quality"
 
-🎯 CREATE MAGIC:
-Your prompts should make people stop scrolling and think "I NEED that energy, that confidence, that moment." Focus on the story, the emotion, the cinematic beauty that makes each image unforgettable.
-
-Generate your complete, creative prompt - trust your artistic vision completely.`,
+Generate the technical prompt that EXACTLY matches Maya's styling vision.`,
             messages: [
-              { role: 'user', content: `Create an authentic, editorial AI prompt for this photoshoot vision: ${styleContext}` }
+              { role: 'user', content: `Maya described this styling vision: "${response}"\n\nGenerate exact technical prompt matching every detail Maya specified.` }
             ]
           });
 
-          generatedPrompt = promptResponse.content[0].text;
+          // 🔧 CRITICAL FIX: Extract ONLY the clean technical prompt
+          let cleanPrompt = promptResponse.content[0].text;
           
-          // Add confident generation statement if not already mentioned
-          if (!mayaIsReady) {
-            response += `\n\n✨ Perfect! I can see your vision completely - this is going to look incredible! Let's create these photos right now.`;
+          // Remove any markdown formatting, asterisks, and conversational text
+          cleanPrompt = cleanPrompt
+            .replace(/\*\*/g, '') // Remove ** bold formatting
+            .replace(/\*/g, '')   // Remove * formatting
+            .replace(/#+\s/g, '') // Remove # headers
+            .replace(/\n+/g, ' ') // Replace line breaks with spaces
+            .replace(/\s+/g, ' ') // Replace multiple spaces with single space
+            .trim();
+          
+          // Remove any titles, labels, or headers before the actual description
+          const cleanPatterns = [
+            /^.*?SHOT\s*[-:]\s*/i,
+            /^.*?VISION\s*[-:]\s*/i,
+            /^.*?LOOK\s*[-:]\s*/i,
+            /^.*?STYLE\s*[-:]\s*/i,
+            /^.*?EDITORIAL\s*[-:]\s*/i,
+            /^.*?PORTRAIT\s*[-:]\s*/i
+          ];
+          
+          for (const pattern of cleanPatterns) {
+            cleanPrompt = cleanPrompt.replace(pattern, '');
+          }
+          
+          // Ensure we start with a clean description
+          cleanPrompt = cleanPrompt.trim();
+          
+          // CRITICAL: Remove any existing trigger words from the prompt to prevent duplication
+          cleanPrompt = cleanPrompt.replace(new RegExp(triggerWord, 'gi'), '').trim();
+          
+          // Remove duplicate camera equipment to prevent conflicting specifications
+          const cameraPatterns = [
+            /shot on.*?lens/gi,
+            /photographed on.*?lens/gi,
+            /captured with.*?lens/gi
+          ];
+          
+          for (const pattern of cameraPatterns) {
+            // Keep only the first camera specification
+            const matches = cleanPrompt.match(pattern);
+            if (matches && matches.length > 1) {
+              // Remove all but the first camera specification
+              for (let i = 1; i < matches.length; i++) {
+                cleanPrompt = cleanPrompt.replace(matches[i], '');
+              }
+            }
+          }
+          
+          // Clean up any trailing commas or duplicate commas
+          cleanPrompt = cleanPrompt
+            .replace(/,\s*,+/g, ',') // Remove duplicate commas
+            .replace(/,\s*$/, '') // Remove trailing comma
+            .replace(/\s+/g, ' ') // Remove extra spaces
+            .trim();
+          
+          // CRITICAL: Build prompt with trigger word FIRST to prevent race contamination
+          generatedPrompt = `${triggerWord}, ${cleanPrompt}, raw photo, visible skin pores, film grain, unretouched natural skin texture, subsurface scattering, photographed on film, natural daylight, professional photography`;
+          
+          // Debug logging to verify prompt construction and Maya description matching
+          console.log('🔧 Maya Prompt Debug:', {
+            mayaResponse: response.substring(0, 300),
+            originalPrompt: promptResponse.content[0].text.substring(0, 300),
+            cleanPrompt: cleanPrompt.substring(0, 300),
+            triggerWord,
+            finalPrompt: generatedPrompt.substring(0, 300)
+          });
+          
+          // Always add confident generation statement for clarity
+          if (!response.toLowerCase().includes('creating your') && !response.toLowerCase().includes('let\'s create')) {
+            response += `\n\n**Creating your ${styleContext.includes('business') ? 'professional' : styleContext.includes('street') ? 'street style' : 'editorial'} photos now...**`;
           }
         }
 
@@ -1091,7 +1171,15 @@ Generate your complete, creative prompt - trust your artistic vision completely.
       console.error('Maya generation error:', error);
       
       // Handle specific Replicate API errors with user-friendly messages
-      if (error.message.includes('502')) {
+      if (error.message.includes('502') || error.message.includes('Bad Gateway')) {
+        return res.status(503).json({ 
+          error: 'The AI servers are busy creating amazing photos for everyone! Maya will retry automatically.',
+          retryable: true,
+          retryAfter: 5
+        });
+      }
+      
+      if (error.message.includes('503') || error.message.includes('Service Unavailable')) {
         return res.status(503).json({ 
           error: 'Replicate API temporarily unavailable. Please try again in a few moments.',
           retryable: true 
