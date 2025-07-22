@@ -45,9 +45,9 @@ export default function SimpleTraining() {
       if (userModel.startedAt) {
         setStartTime(new Date(userModel.startedAt));
       }
-    } else if (userModel && userModel.trainingStatus === 'completed') {
+    } else if (userModel && userModel.trainingStatus === 'completed' && userModel.replicateVersionId) {
       console.log('✅ Found completed training on page load - redirecting to workspace');
-      // Training is already completed, redirect to workspace
+      // Only redirect if training is truly completed with a working model
       toast({
         title: "Training Already Complete!",
         description: "Your AI model is ready. Redirecting to workspace...",
@@ -56,6 +56,12 @@ export default function SimpleTraining() {
       setTimeout(() => {
         window.location.href = '/workspace';
       }, 2000);
+    } else if (userModel) {
+      console.log('🔄 Training status:', userModel.trainingStatus, '- staying on training page');
+      // Reset any previous training state for fresh start
+      setIsTrainingStarted(false);
+      setTrainingProgress(0);
+      setStartTime(null);
     }
   }, [userModel, isAuthenticated]);
 
