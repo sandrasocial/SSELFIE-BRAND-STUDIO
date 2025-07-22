@@ -742,65 +742,87 @@ This ensures the generate button appears for users to create their photos.`;
           
           const triggerWord = userModel.triggerWord;
           
-          // Maya's expert prompt generation - DIRECT CHAT-TO-PROMPT CONVERSION
+          // Maya's expert prompt generation - Clean technical prompts only
           const promptResponse = await client.messages.create({
             model: "claude-sonnet-4-20250514", // Latest Claude model confirmed
-            max_tokens: 400,
-            system: `You are Maya's technical prompt converter. Convert Maya's styling description into clean technical AI prompts.
+            max_tokens: 600,
+            system: `You are Maya's technical prompt generator. Generate ONLY clean, technical AI image prompts for professional photography.
 
-🚨 CRITICAL RULES:
-- Convert Maya's chat description DIRECTLY into technical prompt
-- NO additional creative interpretation
-- NO titles, headers, or sections  
-- NO "SHOT:", "VISION:", "EDITORIAL:" labels
-- Start immediately with "elegant woman"
+🚨 CRITICAL OUTPUT REQUIREMENTS:
+- Generate ONLY the clean technical prompt text
+- NO conversational language or styling advice
+- NO quotation marks, markdown, or formatting
+- NO explanations or personality
+- Start directly with the technical description
 
-CONVERSION FORMULA:
-Maya says: "Full body black pantsuit, standing confidently, dramatic lighting"
-→ Technical: "elegant woman in full body shot wearing sleek black pantsuit with tailored blazer and straight-leg pants, standing confidently with one hand in pocket, captured with Canon EOS R5 using 24-70mm f/2.8 lens, dramatic black and white lighting creating shadows down full body, minimal background"
+REQUIRED PROMPT STRUCTURE:
+"elegant woman [shot type] [description], [fashion details], [camera/lens], [lighting], [composition], [style references]"
 
-Maya says: "Portrait with blazer, soft lighting, close up"  
-→ Technical: "elegant woman in portrait shot wearing oversized blazer, captured with Hasselblad X2D 100C using 85mm f/1.4 lens, soft natural lighting, portrait composition from shoulders up"
+🎯 SHOT TYPE DETECTION (CRITICAL):
+- If request mentions "full body", "whole body", "head to toe", "entire outfit": Generate full body shot
+- If request mentions "portrait", "headshot", "face", "close up": Generate portrait shot  
+- If unclear, ask for clarification in technical prompt
 
-📸 EQUIPMENT RULES:
-- Full body/head-to-toe: Canon EOS R5 with 24-70mm f/2.8 lens
-- Portrait/close-up: Hasselblad X2D 100C with 85mm f/1.4 lens
+✨ TECHNICAL FOUNDATIONS:
+• Professional fashion photography quality with proper framing
+• Editorial magazine aesthetic from Vogue/Harper's Bazaar
+• Natural authentic skin texture with visible pores
+• Professional camera equipment specifications
+• Cinematic lighting and composition matching shot type
+• High-fashion styling with 2025 trends
 
-Convert Maya's description into ONE clean technical sentence starting with "elegant woman".`,
+📸 CAMERA EQUIPMENT BY SHOT TYPE:
+• FULL BODY: Canon EOS R5 with 24-70mm f/2.8 lens (wider angle)
+• PORTRAIT: Hasselblad X2D 100C with 85mm f/1.4 lens (classic portrait)
+• ENVIRONMENTAL: Sony α7R V with 35mm f/1.4 lens (context shots)
+• CLOSE-UP: Leica SL3 with 110mm f/2 lens (intimate detail)
+
+🌟 FASHION ELEMENTS TO INTEGRATE:
+• Complete outfit coordination for full body shots
+• Focus on key pieces for portrait shots
+• Textured fabrics: cashmere, raw silk, premium leather
+• Neutral luxury palette: cream, camel, dove gray
+• Clean architectural silhouettes
+
+🎯 OUTPUT EXAMPLES:
+FULL BODY: "elegant woman in full body editorial shot wearing complete sophisticated outfit, oversized cream cashmere blazer with dramatic shoulders over tailored black trousers and pointed leather heels, captured with Canon EOS R5 camera using 24-70mm f/2.8 lens at 35mm, standing confidently against minimalist concrete wall, full figure visible from head to toe, natural daylight from large windows, professional fashion photography quality"
+
+PORTRAIT: "elegant woman in sophisticated editorial portrait, wearing oversized cream cashmere blazer with dramatic shoulders, captured with Hasselblad X2D 100C camera using 85mm f/1.4 lens, positioned against floor-to-ceiling windows with soft natural light, portrait composition from shoulders up, professional fashion photography quality"
+
+Generate the technical prompt only.`,
             messages: [
-              { role: 'user', content: `Convert Maya's styling description to technical prompt: "${response}"` }
+              { role: 'user', content: `Generate clean technical prompt for: ${styleContext}` }
             ]
           });
 
           // 🔧 CRITICAL FIX: Extract ONLY the clean technical prompt
           let cleanPrompt = promptResponse.content[0].text;
           
-          // AGGRESSIVE CLEANING: Remove all headers, titles, and formatting
+          // Remove any markdown formatting, asterisks, and conversational text
           cleanPrompt = cleanPrompt
             .replace(/\*\*/g, '') // Remove ** bold formatting
             .replace(/\*/g, '')   // Remove * formatting
             .replace(/#+\s/g, '') // Remove # headers
             .replace(/\n+/g, ' ') // Replace line breaks with spaces
             .replace(/\s+/g, ' ') // Replace multiple spaces with single space
-            .replace(/^.*?AUTHORITY\s*[-:]\s*/i, '') // Remove AUTHORITY headers
-            .replace(/^.*?EDITORIAL\s*[-:]\s*/i, '') // Remove EDITORIAL headers
-            .replace(/^.*?SHOT\s*[-:]\s*/i, '') // Remove SHOT headers
-            .replace(/^.*?VISION\s*[-:]\s*/i, '') // Remove VISION headers
-            .replace(/^.*?LOOK\s*[-:]\s*/i, '') // Remove LOOK headers
-            .replace(/^.*?STYLE\s*[-:]\s*/i, '') // Remove STYLE headers
-            .replace(/^.*?PORTRAIT\s*[-:]\s*/i, '') // Remove PORTRAIT headers
-            .replace(/^.*?POWER\s*[-:]\s*/i, '') // Remove POWER headers
-            .replace(/^.*?GAZE\s*[-:]\s*/i, '') // Remove GAZE headers
-            .replace(/^.*?MAIN\s*[-:]\s*/i, '') // Remove MAIN headers
-            .replace(/,\s*,/g, ',') // Remove double commas
             .trim();
           
-          // If the prompt doesn't start with "elegant woman", ensure it does
-          if (!cleanPrompt.toLowerCase().startsWith('elegant woman')) {
-            // Extract the core description and rebuild it properly
-            const coreDescription = cleanPrompt.replace(/^[^a-z]*[A-Z][^.]*[:.]\s*/i, '').trim();
-            cleanPrompt = `elegant woman ${coreDescription}`;
+          // Remove any titles, labels, or headers before the actual description
+          const cleanPatterns = [
+            /^.*?SHOT\s*[-:]\s*/i,
+            /^.*?VISION\s*[-:]\s*/i,
+            /^.*?LOOK\s*[-:]\s*/i,
+            /^.*?STYLE\s*[-:]\s*/i,
+            /^.*?EDITORIAL\s*[-:]\s*/i,
+            /^.*?PORTRAIT\s*[-:]\s*/i
+          ];
+          
+          for (const pattern of cleanPatterns) {
+            cleanPrompt = cleanPrompt.replace(pattern, '');
           }
+          
+          // Ensure we start with a clean description
+          cleanPrompt = cleanPrompt.trim();
           
           // CRITICAL: Remove any existing trigger words from the prompt to prevent duplication
           cleanPrompt = cleanPrompt.replace(new RegExp(triggerWord, 'gi'), '').trim();
