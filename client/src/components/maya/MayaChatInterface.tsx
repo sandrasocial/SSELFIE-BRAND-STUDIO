@@ -35,6 +35,8 @@ export function MayaChatInterface() {
   const { user } = useAuth();
   const [message, setMessage] = useState('');
   const [chatMessages, setChatMessages] = useState<MayaChatMessage[]>([]);
+  const [generationProgress, setGenerationProgress] = useState(0);
+  const [currentTrackerId, setCurrentTrackerId] = useState<number | null>(null);
   const queryClient = useQueryClient();
 
   // Maya's enthusiastic greeting
@@ -67,11 +69,21 @@ What kind of vibe are we creating today? Or just say "surprise me" and I'll crea
       setChatMessages(prev => 
         prev.map(msg => {
           if (msg.isGenerating && completedGenerations.find((gen: GenerationTracker) => 
-            gen.prompt === msg.content && gen.status === 'completed'
+            gen.status === 'completed' && gen.id === currentTrackerId
           )) {
             const generation = completedGenerations.find((gen: GenerationTracker) => 
-              gen.prompt === msg.content && gen.status === 'completed'
+              gen.status === 'completed' && gen.id === currentTrackerId
             );
+            
+            // Complete progress bar
+            setGenerationProgress(100);
+            
+            // Reset progress after a short delay
+            setTimeout(() => {
+              setCurrentTrackerId(null);
+              setGenerationProgress(0);
+            }, 1500);
+            
             return {
               ...msg,
               isGenerating: false,
@@ -82,22 +94,50 @@ What kind of vibe are we creating today? Or just say "surprise me" and I'll crea
         })
       );
     }
-  }, [completedGenerations]);
+  }, [completedGenerations, currentTrackerId]);
+
+  // Progress tracking effect for active generations
+  useEffect(() => {
+    let progressInterval: NodeJS.Timeout | null = null;
+    
+    if (currentTrackerId) {
+      setGenerationProgress(0);
+      progressInterval = setInterval(() => {
+        setGenerationProgress(prev => {
+          if (prev >= 90) {
+            return prev; // Stop at 90% until completion
+          }
+          return prev + Math.random() * 15;
+        });
+      }, 2000);
+    }
+
+    return () => {
+      if (progressInterval) {
+        clearInterval(progressInterval);
+      }
+    };
+  }, [currentTrackerId]);
 
   // Send message and trigger Maya's response with image generation
   const sendMessageMutation = useMutation({
     mutationFn: async (userMessage: string) => {
-      const response = await apiRequest('/api/build/maya-chat', 'POST', {
-        message: userMessage
+      const response = await apiRequest('/api/maya-generate-images', 'POST', {
+        prompt: userMessage
       });
       return response;
     },
     onSuccess: (data) => {
+      // Set tracking ID for progress monitoring
+      if (data.imageId) {
+        setCurrentTrackerId(data.imageId);
+      }
+
       // Add Maya's response with generating status
       const mayaMessage: MayaChatMessage = {
         id: Date.now(),
         role: 'maya',
-        content: data.message,
+        content: data.message || '✨ Creating your stunning editorial moment right now! This is going to be absolutely gorgeous...',
         timestamp: new Date().toISOString(),
         isGenerating: true
       };
@@ -178,12 +218,23 @@ What kind of vibe are we creating today? Or just say "surprise me" and I'll crea
             }`}>
               <div className="whitespace-pre-wrap">{msg.content}</div>
               
-              {/* Generation Status */}
+              {/* Generation Status with Progress Bar */}
               {msg.isGenerating && (
                 <div className="mt-3 p-3 bg-rose-50 rounded-lg border border-rose-200">
-                  <div className="flex items-center gap-2">
+                  <div className="flex items-center gap-2 mb-2">
                     <Camera className="w-4 h-4 text-rose-500 animate-pulse" />
                     <span className="text-sm text-rose-600">Creating your stunning images...</span>
+                  </div>
+                  
+                  {/* Progress Bar */}
+                  <div className="w-full bg-rose-200 rounded-full h-2">
+                    <div 
+                      className="bg-gradient-to-r from-rose-400 to-purple-500 h-2 rounded-full transition-all duration-500 ease-out"
+                      style={{ width: `${Math.min(generationProgress, 100)}%` }}
+                    ></div>
+                  </div>
+                  <div className="text-xs text-rose-500 mt-1 text-center">
+                    {Math.round(Math.min(generationProgress, 100))}% complete
                   </div>
                 </div>
               )}
