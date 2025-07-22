@@ -35,7 +35,7 @@ import { ExternalAPIService } from './integrations/external-api-service';
 import { AgentAutomationTasks } from './integrations/agent-automation-tasks';
 // Email service import moved inline to avoid conflicts
 import { EmailService } from "./email-service";
-import { AIService } from './ai-service';
+// Removed AIService - now using UnifiedGenerationService
 import { ArchitectureValidator } from './architecture-validator';
 import { z } from "zod";
 
@@ -1046,32 +1046,27 @@ Generate your complete, creative prompt - trust your artistic vision completely.
 
       // Use user's trained LoRA model only
 
-      // 🔑 NEW: Use AIService with tracker system (no auto-save to gallery)
-      const trackingResult = await AIService.generateSSELFIE({
+      // 🚀 UNIFIED SERVICE: Use clean, single generation service with Sandra's proven parameters
+      const { UnifiedGenerationService } = await import('./unified-generation-service');
+      const generationResult = await UnifiedGenerationService.generateImages({
         userId,
-        imageBase64: null, // Maya doesn't use uploaded images - removed placeholder
-        style: 'Maya AI',
-        prompt: actualImagePrompt // Use extracted prompt instead of full Maya response
+        prompt: actualImagePrompt,
+        category: 'Maya AI'
       });
 
 
-      // Start background polling for completion (updates tracker, NOT gallery)
-      AIService.pollGenerationStatus(trackingResult.trackerId, trackingResult.predictionId).catch(err => {
-      });
-
-      // 🔑 NEW: Check for pending Maya image updates when generation starts
+      // Start background status checking
       setTimeout(() => {
-        AIService.checkPendingMayaImageUpdates(userId).catch(err => {
-          console.error('Failed to check pending Maya image updates:', err);
+        UnifiedGenerationService.checkAndUpdateStatus(generationResult.id, generationResult.predictionId).catch(err => {
+          console.error('Failed to check generation status:', err);
         });
-      }, 1000); // Small delay to ensure the message was saved
+      }, 5000); // Check after 5 seconds initially
 
       res.json({
         success: true,
-        trackerId: trackingResult.trackerId,
-        predictionId: trackingResult.predictionId,
-        usageStatus: trackingResult.usageStatus,
-        message: 'Your images are generating! They\'ll appear here for preview - select favorites to save permanently.'
+        imageId: generationResult.id,
+        predictionId: generationResult.predictionId,
+        message: 'Your beautiful images are generating with Sandra\'s proven quality settings! ✨'
       });
 
     } catch (error) {
@@ -3382,23 +3377,20 @@ Want something different? Tell me the vibe - editorial sophistication? Natural l
         const userModel = await storage.getUserModelByUserId(userId);
         if (userModel && userModel.trainingStatus === 'completed') {
           // Generate images in background
-          const trackingResult = await AIService.generateSSELFIE({
+          // 🚀 UNIFIED SERVICE: Use clean generation service for AI-photoshoot  
+          const { UnifiedGenerationService } = await import('./unified-generation-service');
+          const generationResult = await UnifiedGenerationService.generateImages({
             userId,
-            imageBase64: null,
-            style: 'Maya AI',
-            prompt: defaultPrompt
+            prompt: defaultPrompt,
+            category: 'Maya AI'
           });
           
-          // Start background polling
-          AIService.pollGenerationStatus(trackingResult.trackerId, trackingResult.predictionId).catch(err => {
-            console.error('Maya polling error:', err);
-          });
-          
+          // Start background status checking
           setTimeout(() => {
-            AIService.checkPendingMayaImageUpdates(userId).catch(err => {
-              console.error('Failed to check pending Maya image updates:', err);
+            UnifiedGenerationService.checkAndUpdateStatus(generationResult.id, generationResult.predictionId).catch(err => {
+              console.error('Failed to check generation status:', err);
             });
-          }, 1000);
+          }, 5000);
         }
       } catch (error) {
         console.error('Maya auto-generation error:', error);
