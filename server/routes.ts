@@ -924,25 +924,35 @@ Generate your complete, creative prompt - trust your artistic vision completely.
         return res.status(400).json({ error: 'Custom prompt is required' });
       }
 
-      // 🎯 MAYA PROMPT EXTRACTION: Extract actual image description from Maya's conversational response
-      function extractImagePromptFromMayaResponse(mayaResponse) {
-        // If it's already a clean prompt (no conversational text), return it
-        if (!mayaResponse.includes('Maya here') && !mayaResponse.includes('MOOD & ENERGY') && mayaResponse.length < 200) {
-          return mayaResponse;
-        }
+      // 🎯 MAYA PROMPT EXTRACTION: Extract actual image description from user request
+      function extractImagePromptFromRequest(userPrompt, triggerWord) {
+        // Clean user prompts (remove conversational elements)
+        let cleanPrompt = userPrompt.toLowerCase();
         
-        // Extract any actual image description if present
-        const imageDescriptionMatch = mayaResponse.match(/(?:portrait|photo|image|shot|selfie).*?(?=\.|,|Tell me|What's calling)/i);
-        if (imageDescriptionMatch) {
-          return imageDescriptionMatch[0].trim();
-        }
+        // Extract style/mood keywords
+        const styles = [];
+        if (cleanPrompt.includes('glamorous') || cleanPrompt.includes('glamour')) styles.push('glamorous portrait');
+        if (cleanPrompt.includes('casual') || cleanPrompt.includes('relaxed')) styles.push('casual portrait');
+        if (cleanPrompt.includes('powerful') || cleanPrompt.includes('strong')) styles.push('powerful portrait');
+        if (cleanPrompt.includes('elegant') || cleanPrompt.includes('sophisticated')) styles.push('elegant portrait');
+        if (cleanPrompt.includes('editorial')) styles.push('editorial style');
+        if (cleanPrompt.includes('professional')) styles.push('professional portrait');
         
-        // Default to clean portrait description using trigger word
-        return `${userModel.triggerWord}, professional portrait, editorial style, natural lighting`;
+        // Extract lighting keywords
+        const lighting = [];
+        if (cleanPrompt.includes('golden hour') || cleanPrompt.includes('sunset')) lighting.push('golden hour lighting');
+        if (cleanPrompt.includes('natural light') || cleanPrompt.includes('window light')) lighting.push('natural lighting');
+        if (cleanPrompt.includes('studio') || cleanPrompt.includes('professional light')) lighting.push('studio lighting');
+        
+        // Build final prompt
+        const baseStyle = styles.length > 0 ? styles[0] : 'professional portrait, editorial style';
+        const finalLighting = lighting.length > 0 ? lighting[0] : 'natural lighting';
+        
+        return `${triggerWord}, ${baseStyle}, ${finalLighting}, confident expression`;
       }
 
-      const actualImagePrompt = extractImagePromptFromMayaResponse(customPrompt);
-      console.log(`🎯 MAYA PROMPT EXTRACTED: "${actualImagePrompt}" from original: "${customPrompt.substring(0, 100)}..."`)
+      const actualImagePrompt = extractImagePromptFromRequest(customPrompt, userModel.triggerWord);
+      console.log(`🎯 MAYA PROMPT CREATED: "${actualImagePrompt}" from user request: "${customPrompt.substring(0, 100)}..."`)
 
       const usageCheck = await UsageService.checkUsageLimit(userId);
       if (!usageCheck.canGenerate) {
@@ -3328,21 +3338,54 @@ I'm here to make your website perfect!`;
         return res.status(400).json({ error: 'Message is required' });
       }
 
-      // Maya AI Photography guidance - clean parameters without Flux corruption
-      const response = `Hi! I'm Maya, your AI Photography expert. I help you create amazing AI-generated photos using your trained model.
+      // Maya AI Photography - Expert who creates prompts directly
+      const response = `Hey! I'm Maya, your AI Photography expert. I don't just give advice - I CREATE stunning images for you right now! 📸
 
-For the best results, I recommend:
-✨ Clear, specific prompts describing the mood and style you want
-📸 Professional settings like "editorial portrait" or "lifestyle photo"
-🎨 Lighting descriptions: "golden hour", "natural light", or "studio lighting"
+Let me craft you a gorgeous editorial portrait using your trained model. I'm thinking:
 
-What kind of photo would you like to create? I'll help you craft the perfect prompt and settings!`;
+**CREATING:** Professional portrait with editorial style, natural lighting, and that confident energy that makes people stop scrolling.
+
+*Generating your images now...* 
+
+Want something different? Tell me the vibe (glamorous, casual, powerful, etc.) and I'll create that instead!`;
+
+      // Maya auto-generates images with each response
+      const defaultPrompt = "professional portrait, editorial style, natural lighting, confident expression";
+      
+      // Trigger image generation immediately
+      try {
+        const userModel = await storage.getUserModelByUserId(userId);
+        if (userModel && userModel.trainingStatus === 'completed') {
+          // Generate images in background
+          const trackingResult = await AIService.generateSSELFIE({
+            userId,
+            imageBase64: null,
+            style: 'Maya AI',
+            prompt: defaultPrompt
+          });
+          
+          // Start background polling
+          AIService.pollGenerationStatus(trackingResult.trackerId, trackingResult.predictionId).catch(err => {
+            console.error('Maya polling error:', err);
+          });
+          
+          setTimeout(() => {
+            AIService.checkPendingMayaImageUpdates(userId).catch(err => {
+              console.error('Failed to check pending Maya image updates:', err);
+            });
+          }, 1000);
+        }
+      } catch (error) {
+        console.error('Maya auto-generation error:', error);
+        // Continue with response even if generation fails
+      }
 
       res.json({
         success: true,
         message: response,
         agentName: 'Maya - AI Photographer',
-        timestamp: new Date().toISOString()
+        timestamp: new Date().toISOString(),
+        autoGenerated: true
       });
 
     } catch (error) {
