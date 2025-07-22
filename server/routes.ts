@@ -1215,10 +1215,10 @@ Example: "elegant woman in full body editorial wearing sleek black turtleneck an
       // Use user's trained LoRA model only
 
       // 🎯 MAYA SEQUENTIAL GENERATION: Use new method for consistent 3-photo quality
-      // CRITICAL FIX: Pass the CLEANED prompt instead of contaminated customPrompt
+      // The customPrompt here is already cleaned from Maya chat route
       const trackingResult = await AIService.generateMayaSequential({
         userId,
-        customPrompt: generatedPrompt // Use cleaned prompt from Maya's technical prompt generator
+        customPrompt: customPrompt // This prompt comes pre-cleaned from Maya chat
       });
 
 
