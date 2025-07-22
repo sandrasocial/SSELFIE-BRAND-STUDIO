@@ -360,20 +360,21 @@ export class AIService {
       
       // 🔧 CORE_ARCHITECTURE_IMMUTABLE_V2 PARAMETERS (Updated July 22, 2025)
       // Professional-grade unified parameters for identical Maya/AI photoshoot quality
+      // Extract version ID from the user's trained model path
+      const versionId = userLoraModel.split(':')[1];
+      if (!versionId) {
+        throw new Error(`Invalid user model format: ${userLoraModel}. Expected format: owner/model:version`);
+      }
+      
       requestBody = {
-        version: "ae0d7d645446924cf1871e3ca8796e8318f72465d2b5af9323a835df93bf0917", // 🔒 CORRECTED: black-forest-labs/flux-dev-lora latest version
+        version: versionId, // ✅ Using the user's individual trained model version
         input: {
           prompt: prompt,
-          lora_weights: `sandrasocial/42585527-selfie-lora-1753201482760`,  // ✅ CORRECTED: Using model name without version hash
-          lora_scale: 0.8,              // ✅ LoRA strength for natural results
-          guidance: 2.8,                // ✅ CORE_ARCHITECTURE_V2: Professional natural results
-          num_inference_steps: 40,      // ✅ CORE_ARCHITECTURE_V2: Enhanced quality steps
-          num_outputs: 3,              // ✅ As per CORE PRINCIPLES document
+          guidance: 3.5,                // ✅ Guidance for trained model
+          num_inference_steps: 28,      // ✅ Standard inference steps
+          num_outputs: 3,               // ✅ As per CORE PRINCIPLES document
           aspect_ratio: "3:4", 
-          output_format: "png",
-          output_quality: 95,          // ✅ CORE_ARCHITECTURE_V2: Maximum clarity
-          go_fast: false,              // ✅ Quality over speed as per CORE PRINCIPLES
-          disable_safety_checker: false,
+          go_fast: false,               // ✅ Quality over speed for trained model
           seed: Math.floor(Math.random() * 1000000)
         }
       };
