@@ -122,38 +122,18 @@ export async function generateImages(request: GenerateImagesRequest): Promise<Ge
     // Each user has their own trained FLUX model version for complete isolation
     // This ensures zero cross-contamination between users
     
+    // Get user's trained model version - NO FALLBACKS ALLOWED
+    if (!userModel || !userModel.replicateVersionId) {
+      throw new Error('User model not ready for generation. Training must be completed first.');
+    }
+
     const user = await storage.getUser(userId);
     const isPremium = user?.plan === 'sselfie-studio' || user?.role === 'admin';
-    const isAdmin = user?.role === 'admin';
 
     let requestBody: any;
 
-    // 🔒 ADMIN TESTING FALLBACK: Sandra can use FLUX dev model for testing
-    if (isAdmin && (!userModel || !userModel.replicateVersionId)) {
-      console.log(`👑 ADMIN TESTING: Using FLUX dev model for admin user ${userId}`);
-      
-      // 🚀 MAYA OPTIMIZATION INTEGRATION: Get user-adaptive parameters
-      const { MayaOptimizationService } = await import('./maya-optimization-service');
-      const optimizedParams = await MayaOptimizationService.getOptimizedParameters(userId);
-      
-      requestBody = {
-        version: "black-forest-labs/flux-dev", // FLUX dev model for admin testing
-        input: {
-          prompt: finalPrompt,
-          guidance: optimizedParams.guidance || 2.8,
-          num_inference_steps: optimizedParams.inferenceSteps || 40,
-          num_outputs: 3,
-          aspect_ratio: "3:4", 
-          output_format: "png",
-          output_quality: optimizedParams.outputQuality || 95,
-          go_fast: false, 
-          disable_safety_checker: false,
-          seed: Math.floor(Math.random() * 1000000)
-        }
-      };
-      
-    // 🔒 RESTORE WORKING CONFIGURATION: Use user's individual trained model
-    } else if (userModel && userModel.trainingStatus === 'completed' && userModel.replicateVersionId) {
+    // 🔒 ZERO TOLERANCE: Use ONLY user's individual trained model
+    if (userModel.trainingStatus === 'completed' && userModel.replicateVersionId) {
       console.log(`✅ Using user's individual trained FLUX model for AI Photoshoot: ${userId}`);
       
       const userTrainedVersion = `${userModel.replicateModelId}:${userModel.replicateVersionId}`;
@@ -180,7 +160,6 @@ export async function generateImages(request: GenerateImagesRequest): Promise<Ge
       };
       
     } else {
-      // 🔒 ZERO TOLERANCE: Regular users must have trained models
       throw new Error('User model not ready for generation. Training must be completed first.');
     }
     ArchitectureValidator.validateGenerationRequest(requestBody, userId, isPremium);

@@ -109,21 +109,9 @@ export class GenerationValidator {
   static async enforceGenerationRequirements(userId: string): Promise<{triggerWord: string, modelVersion: string}> {
     const validation = await this.validateUserForGeneration(userId);
     
-    // Admin users can use fallback for testing even if model not ready
-    const user = await storage.getUser(userId);
-    const isAdmin = user?.role === 'admin';
-    
-    if (!validation.canGenerate && !isAdmin) {
+    // 🔒 ZERO TOLERANCE: NO FALLBACKS EVER
+    if (!validation.canGenerate) {
       throw new Error(validation.errorMessage || 'Cannot generate images - requirements not met');
-    }
-    
-    // Admin fallback when model not ready
-    if (isAdmin && !validation.canGenerate) {
-      console.log(`👑 ADMIN FALLBACK: User ${userId} using FLUX dev for testing`);
-      return {
-        triggerWord: 'person', // Generic trigger for FLUX dev
-        modelVersion: 'black-forest-labs/flux-dev'
-      };
     }
     
     return {
