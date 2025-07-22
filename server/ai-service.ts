@@ -347,14 +347,11 @@ export class AIService {
       console.log(`✅ Using user's individual trained FLUX model for sequential generation: ${userId}`);
       
       const userTrainedVersion = `${userModel.replicateModelId}:${userModel.replicateVersionId}`;
-      const baseSeed = Math.floor(Math.random() * 100000);
-      const seeds = [baseSeed, baseSeed + 333, baseSeed + 666]; // Controlled variations
-      
-      console.log(`🎯 SEQUENTIAL GENERATION: Creating 3 images with seeds: ${seeds.join(', ')}`);
+      console.log(`🎯 SEQUENTIAL GENERATION: Using random seeds for natural variation`);
       
       const predictionIds: string[] = [];
       
-      // Generate 3 separate images sequentially with controlled seeds
+      // Generate 3 separate images sequentially with random seeds for natural variation
       for (let i = 0; i < 3; i++) {
         const requestBody = {
           version: userTrainedVersion,
@@ -368,12 +365,12 @@ export class AIService {
             output_format: "png",
             output_quality: 96,
             go_fast: false, 
-            disable_safety_checker: false,
-            seed: seeds[i]                  // Controlled seed for each image
+            disable_safety_checker: false
+            // No seed parameter = random generation for natural variation
           }
         };
         
-        console.log(`🎯 GENERATING IMAGE ${i + 1}/3 with seed ${seeds[i]}`);
+        console.log(`🎯 GENERATING IMAGE ${i + 1}/3 with random seed`);
         
         // 🔒 PERMANENT ARCHITECTURE VALIDATION - NEVER REMOVE
         ArchitectureValidator.validateGenerationRequest(requestBody, userId, isPremium);
@@ -452,10 +449,7 @@ export class AIService {
       // Problem: num_outputs: 3 uses same seed for all images causing 2nd/3rd image quality issues
       // Solution: Generate 3 separate requests with controlled seed variations
       
-      const baseSeed = Math.floor(Math.random() * 100000);
-      const seeds = [baseSeed, baseSeed + 333, baseSeed + 666]; // Larger gaps for better variation
-      
-      // Use only single output per request for predictable seed control
+      // Use random generation for natural variation instead of controlled seeds
       requestBody = {
         version: userTrainedVersion,
         input: {
@@ -463,17 +457,17 @@ export class AIService {
           guidance: 2.8,              // ✅ Optimal prompt adherence: Restored for strong generation quality
           num_inference_steps: 40,    // ✅ AI Quality Upgrade: Fixed optimal steps for trained model likeness
           lora_scale: 1.0,          // ✅ Maximum model likeness: Increased for stronger trained model features
-          num_outputs: 1,             // 🎯 CRITICAL: Single output for controlled seed usage
+          num_outputs: 1,             // 🎯 CRITICAL: Single output for random generation
           aspect_ratio: "3:4", 
           output_format: "png",
           output_quality: 96,        // ✅ ENHANCED: Slightly increased output quality
           go_fast: false, 
-          disable_safety_checker: false,
-          seed: baseSeed              // 🎯 Use base seed for first generation
+          disable_safety_checker: false
+          // No seed = random generation for natural variation
         }
       };
       
-      console.log(`🎯 SEQUENTIAL GENERATION STARTED: Base seed ${baseSeed}, will generate 3 separate images`);
+      console.log(`🎯 RANDOM GENERATION: Using random seeds for natural image variation`);
       
     } else {
       throw new Error('User model not ready for generation. Training must be completed first.');
