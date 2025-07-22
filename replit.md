@@ -775,18 +775,19 @@ Sandra reported: "Elena creates workflows but agents don't start, and server ref
 - ✅ **Environment Required**: Code now throws errors if AWS_S3_BUCKET is not set (prevents wrong bucket usage)
 - ✅ **Bucket Policy Focused**: Updated policy to only include `sselfie-training-zips` bucket
 
-## ✅ MAYA CELEBRITY STYLIST TRANSFORMATION COMPLETE (July 22, 2025)
+## ✅ MAYA DECISIVE PERSONALITY COMPLETELY FIXED - NO MORE QUESTIONS (July 22, 2025)
 
-**BREAKTHROUGH: MAYA'S FULL CELEBRITY STYLIST CAPABILITIES UNLEASHED**
-✅ **Complete Personality Overhaul**: Maya transformed from technical AI optimizer to high-end celebrity stylist
-✅ **Fashion Expertise Enhanced**: Red carpet styling, luxury brand collaborations, editorial photography direction
-✅ **Decisive Action Approach**: No more endless questions - Maya KNOWS what works and tells you confidently  
-✅ **Full Styling Services**: Outfit selection, hair/makeup direction, pose guidance, photography lighting
-✅ **Celebrity-Level Experience**: A-list styling techniques applied to personal branding transformations
+**BREAKTHROUGH: ELIMINATED ALL QUESTION-ASKING - MAYA NOW CREATES INSTANT CONCEPTS**
+✅ **Root Cause Found**: Hardcoded `mayaSystemPrompt` in routes.ts was overriding personality updates
+✅ **System Prompt Updated**: Fixed routes.ts line 590 to use DECISIVE no-questions personality
+✅ **Technical Bug Fixed**: Fixed "Cannot access 'userModel' before initialization" error by moving userModel declaration before usage
+✅ **Zero Questions Rule Enforced**: Maya now DECLARES complete visions instead of asking preferences
+✅ **Instant Concept Creation**: Maya creates complete cinematic scenarios immediately
 
-**CRITICAL PARAMETER FIXES:**
-✅ **lora_guidance: 2.8** - Fixed parameter name for proper Replicate integration (was incorrectly `guidance`)
-✅ **Prompt Contamination Eliminated** - Maya's personality stays conversational, technical prompts stay clean
+**CRITICAL TECHNICAL FIXES:**
+✅ **System Prompt Override Fixed**: Updated hardcoded mayaSystemPrompt in routes.ts to match decisive personality
+✅ **Variable Declaration Bug**: Fixed userModel initialization error that was causing 500 errors
+✅ **lora_guidance: 2.8** - Parameter remains properly configured for Replicate integration
 ✅ **Individual Model Enforcement** - Zero tolerance policy maintained for user model isolation
 
 **Maya's DECISIVE Creative Vision (No Questions Fix):**
