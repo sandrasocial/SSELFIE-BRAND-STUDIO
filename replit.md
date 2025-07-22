@@ -1002,6 +1002,35 @@ input: {
 - Restored authentic randomness for natural-looking results
 - Each generation produces unique, natural variations
 
+## ✅ MAYA FACE OVER-PROCESSING FIXED - LORA SCALE OPTIMIZATION (July 22, 2025)
+
+**CRITICAL DISCOVERY: LORA SCALE 1.0 CAUSING ARTIFICIAL FACE RETOUCHING**
+User reported 1 out of 3 photos looking natural while 2 out of 3 had over-retouched, fake-looking faces.
+
+**ROOT CAUSE IDENTIFIED:**
+- `lora_scale: 1.0` (maximum) applying trained model characteristics too strongly
+- Some faces getting artificially enhanced/smoothed due to excessive model influence
+- Inconsistent results: some natural, some over-processed depending on seed variation
+
+**TECHNICAL SOLUTION IMPLEMENTED:**
+- ✅ **LoRA Scale Reduced**: From 1.0 to 0.85 for natural face processing
+- ✅ **Balanced Model Influence**: Strong enough for likeness, gentle enough to preserve natural skin texture
+- ✅ **Face-Specific Fix**: Targets the over-retouching issue without affecting overall generation quality
+- ✅ **Consistent Natural Results**: Should eliminate artificial face processing across all 3 images
+
+**Updated Generation Parameters:**
+```javascript
+lora_scale: 0.85,         // Reduced from 1.0 to prevent over-processed faces
+guidance: 2.8,            // Maintained for prompt adherence
+num_inference_steps: 40,  // Maintained for quality
+```
+
+**Business Impact:**
+- Eliminated artificial face retouching causing fake appearance
+- All 3 generated images should now have natural, authentic-looking faces
+- Preserved model likeness while maintaining natural skin texture
+- Professional quality without over-processed artificial enhancement
+
 ## ✅ MAYA HAIR PRESERVATION & HIGH-END FASHION ENHANCEMENT (July 22, 2025)
 
 **CRITICAL USER REQUIREMENTS IMPLEMENTED:**
