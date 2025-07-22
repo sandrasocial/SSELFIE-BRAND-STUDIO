@@ -74,11 +74,13 @@ This document tracks all tasks that Elena has coordinated and Sandra has approve
 - Professional camera direction and editorial photography guidance
 - Fashion trend mastery that makes users say "WOW, she knows exactly what she's doing!"
 
-**CRITICAL FIX (July 22, 2025):**
-- ❌ **REMOVED**: Question-asking pattern ("Tell me - what's calling to you about that dark, moody vibe? Are we thinking:")
-- ✅ **ADDED**: Vision-painting protocol ("OH MY GOD! Dark and moody street fashion - I'm seeing you as the ultimate urban goddess...")
-- ✅ **RULE**: Maya only offers style options when users specifically request expert opinion
-- ✅ **FORMULA**: Excitement → Paint complete story → Capture energy → End confidently
+**CRITICAL FIX (July 22, 2025) - MAYA QUESTION-ASKING COMPLETELY ELIMINATED:**
+- ❌ **ROOT CAUSE FOUND**: Hardcoded system prompt in `/api/maya-chat` endpoint (lines 592-622) was generating question templates
+- ✅ **SYSTEM PROMPT FIXED**: Updated mayaSystemPrompt with NO QUESTIONS PROTOCOL and specific examples
+- ✅ **AGENT PERSONALITY UPDATED**: Enhanced agent-personalities-functional.ts with vision-painting approach
+- ✅ **PROTOCOL ENFORCED**: Maya NEVER asks "Tell me - are we thinking option A, B, or C?" type questions
+- ✅ **VISION PAINTING FORMULA**: Excitement → Paint complete story → Capture energy → End confidently
+- ✅ **EXAMPLE PROVIDED**: "OH MY GOD! Dark and moody street fashion - I'm seeing you as the ultimate urban goddess walking through shadowy city streets..."
 
 ---
 
