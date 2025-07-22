@@ -35,12 +35,13 @@ export const PROMPT_TEMPLATES = {
 export const GENERATION_SETTINGS = {
   aspect_ratio: "3:4",        // 🔧 FLUX LORA OPTIMAL: Most natural for portraits
   output_format: "png", 
-  output_quality: 90,
-  lora_scale: 0.9,            // 🔧 FLUX LORA OPTIMAL: Strong enough to capture trained features without over-fitting
-  guidance: 2.6,              // 🔧 FLUX LORA OPTIMAL: Sweet spot for prompt following with natural generation
-  num_inference_steps: 40,    // 🔧 FLUX LORA OPTIMAL: Enough detail without diminishing returns
-  go_fast: false,
-  megapixels: "1"
+  output_quality: 95,         // Higher quality for new training system
+  lora_scale: 1.0,            // 🔧 UPDATED: Full LoRA strength for better face recognition with new training params
+  guidance_scale: 2.5,        // 🔧 UPDATED: Optimal for FLUX as per research (2-3.5 range)
+  num_inference_steps: 35,    // 🔧 UPDATED: 28+ steps recommended for dev model per official docs
+  num_outputs: 4,             // Generate 4 images for better selection
+  model: "dev",               // Use dev model (needs ~28 steps vs schnell ~4 steps)
+  disable_safety_checker: false
 };
 
 // 🔒 IMMUTABLE CORE ARCHITECTURE - TRAINING SERVICE
