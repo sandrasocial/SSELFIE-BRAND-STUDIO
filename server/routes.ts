@@ -1101,7 +1101,15 @@ Generate your complete, creative prompt - trust your artistic vision completely.
       console.error('Maya generation error:', error);
       
       // Handle specific Replicate API errors with user-friendly messages
-      if (error.message.includes('502')) {
+      if (error.message.includes('502') || error.message.includes('Bad Gateway')) {
+        return res.status(503).json({ 
+          error: 'The AI servers are busy creating amazing photos for everyone! Maya will retry automatically.',
+          retryable: true,
+          retryAfter: 5
+        });
+      }
+      
+      if (error.message.includes('503') || error.message.includes('Service Unavailable')) {
         return res.status(503).json({ 
           error: 'Replicate API temporarily unavailable. Please try again in a few moments.',
           retryable: true 

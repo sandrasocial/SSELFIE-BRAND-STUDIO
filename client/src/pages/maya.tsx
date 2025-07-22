@@ -313,33 +313,68 @@ export default function Maya() {
         });
         
         if (response.status === 401) {
-          toast({
-            title: "Authentication Required",
-            description: "Please log in to use Maya AI image generation.",
-            variant: "destructive",
-          });
+          setMessages(prev => [...prev, {
+            role: 'maya',
+            content: "Hey love! I need you to log in first so I can create your personalized photos. Let me redirect you quickly!",
+            timestamp: new Date(),
+            canGenerate: false
+          }]);
           setTimeout(() => {
             window.location.href = '/login';
-          }, 1500);
+          }, 2000);
           return;
         }
         
         if (response.status === 403 && data.upgrade) {
-          // Remove toast - Maya explains everything in chat
-          window.location.href = '/pricing';
+          setMessages(prev => [...prev, {
+            role: 'maya',
+            content: "You're going to love the premium quality! Let me show you how to unlock unlimited generations and premium styling features.",
+            timestamp: new Date(),
+            canGenerate: false
+          }]);
+          setTimeout(() => {
+            window.location.href = '/pricing';
+          }, 2000);
           return;
         }
         
         // Check if it's a model validation error
         if (data.requiresTraining) {
-          toast({
-            title: "AI Model Required",
-            description: data.error || "Please complete your AI model training first.",
-            variant: "destructive",
-          });
+          setMessages(prev => [...prev, {
+            role: 'maya',
+            content: "I'm so excited to style you! But first I need to learn your unique features through our quick training process. Let me set that up for you!",
+            timestamp: new Date(),
+            canGenerate: false
+          }]);
           setTimeout(() => {
             setLocation(data.redirectTo || '/simple-training');
-          }, 1500);
+          }, 2000);
+          return;
+        }
+        
+        // Handle retryable errors gracefully without red error styling
+        if (data.retryable && response.status === 503) {
+          // Add a gentle message to Maya chat instead of error toast
+          setMessages(prev => [...prev, {
+            role: 'maya',
+            content: "The AI servers are super busy right now - totally normal! Let me try again in just a moment. Your photos are worth the wait, babe!",
+            timestamp: new Date(),
+            canGenerate: false
+          }]);
+          
+          // Auto-retry after a short delay with visual feedback
+          setTimeout(() => {
+            setMessages(prev => [...prev, {
+              role: 'maya',
+              content: "Okay, let me try creating your photos again! The servers should be ready now.",
+              timestamp: new Date(),
+              canGenerate: false
+            }]);
+            
+            setTimeout(() => {
+              generateImages(prompt);
+            }, 1000);
+          }, 5000);
           return;
         }
         
@@ -654,7 +689,7 @@ export default function Maya() {
                               disabled={isGenerating}
                               className="bg-black text-white hover:bg-gray-800 text-sm"
                             >
-                              {isGenerating ? 'Creating Your Photos...' : 'Create These Photos'}
+                              {isGenerating ? 'Creating Your Photos...' : 'Generate Photos'}
                             </Button>
                             
                             {/* Progress Bar */}
