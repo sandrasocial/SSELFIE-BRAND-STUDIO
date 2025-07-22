@@ -47,7 +47,7 @@ export default function SimpleTraining() {
       if (userModel.startedAt) {
         setStartTime(new Date(userModel.startedAt));
       }
-    } else if (userModel && userModel.trainingStatus === 'completed' && userModel.replicateVersionId) {
+    } else if (userModel && userModel.trainingStatus === 'completed' && userModel.replicateModelId) {
       console.log('✅ Found completed training on page load - redirecting to workspace');
       // Only redirect if training is truly completed with a working model
       toast({
