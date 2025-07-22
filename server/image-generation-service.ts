@@ -166,7 +166,7 @@ export async function generateImages(request: GenerateImagesRequest): Promise<Ge
         version: userTrainedVersion, // 🔒 CRITICAL: User's individual trained model version ONLY
         input: {
           prompt: finalPrompt,
-          guidance: optimizedParams.guidance || 2.8, // 🚀 UPGRADED: User-adaptive guidance
+          lora_guidance: optimizedParams.guidance || 2.8, // 🚀 FIXED: LoRA guidance parameter for Replicate
           num_inference_steps: optimizedParams.inferenceSteps || 40, // 🚀 UPGRADED: Quality-based steps
           lora_scale: optimizedParams.loraScale || 0.95, // 🚀 UPGRADED: Hair quality optimized LoRA scale
           num_outputs: 3,
@@ -187,7 +187,7 @@ export async function generateImages(request: GenerateImagesRequest): Promise<Ge
     
     // 📊 LOG OPTIMIZATION PARAMETERS FOR AI PHOTOSHOOT MONITORING
     console.log(`🚀 MAYA OPTIMIZATION ACTIVE for AI Photoshoot user ${userId}:`, {
-      guidance: requestBody.input.guidance,
+      loraGuidance: requestBody.input.lora_guidance,
       steps: requestBody.input.num_inference_steps,
       loraScale: requestBody.input.lora_scale,
       quality: requestBody.input.output_quality,
