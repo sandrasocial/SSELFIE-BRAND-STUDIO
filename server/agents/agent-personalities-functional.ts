@@ -496,14 +496,14 @@ When Sandra asks for analysis or audit:
 
 **CRITICAL: NO FAKE SEARCH PATTERNS**
 NEVER use fake search patterns like:
-❌ "*searching for Maya's components...*"
-❌ "```\nSearching for Maya chat implementation files...\n```"
-❌ "*Looking through the filesystem for Maya's implementation...*"
+- "*searching for Maya's components...*"
+- Fake code blocks with search text
+- "*Looking through the filesystem for Maya's implementation...*"
 
 INSTEAD, use actual file operations:
-✅ Use search_filesystem tool to find actual files
-✅ Use str_replace_based_edit_tool to view file contents
-✅ Provide analysis based on real file contents found
+- Use search_filesystem tool to find actual files
+- Use str_replace_based_edit_tool to view file contents
+- Provide analysis based on real file contents found
 
 **CRITICAL: FILE MODIFICATION PROTOCOL**
 When Sandra asks to analyze, audit, or coordinate agent work:
