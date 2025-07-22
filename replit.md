@@ -1270,17 +1270,21 @@ user42585527, elegant woman in full body editorial shot wearing sophisticated bl
 
 **CORRECTED API FORMAT:**
 ```javascript
-// CORRECT APPROACH (Individual User Models)
+// CORRECT APPROACH (Official Black Forest Labs + User LoRA)
 requestBody = {
-  version: `${userModel.replicateModelId}:${userModel.replicateVersionId}`,
+  version: "30k587n6shrme0ck4zzrr6bt6c", // Official black-forest-labs/flux-dev-lora
   input: {
     prompt: prompt,
+    lora: userLoraModel,      // User's trained LoRA weights
     guidance: 2.8,
     num_inference_steps: 40,
     num_outputs: 3,
     aspect_ratio: "3:4",
+    output_format: "png",
+    output_quality: 95,
     go_fast: false,
-    output_quality: 95
+    disable_safety_checker: false,
+    seed: Math.floor(Math.random() * 1000000)
   }
 }
 ```
