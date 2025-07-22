@@ -1027,13 +1027,14 @@ Return ONLY the technical prompt without any additional text or formatting.`,
         input: {
           prompt: enhancedPrompt,
           lora: userLoraModel,    // ✅ USER'S TRAINED LORA WEIGHTS
-          guidance: guidance_scale || 2.8, // Sandra can adjust
-          num_inference_steps: num_inference_steps || 35, // Sandra can adjust  
+          guidance: 2.8,                   // ✅ Unified high-quality parameter
+          num_inference_steps: 40,         // ✅ Unified high-quality parameter
+          lora_scale: 0.95,               // ✅ Unified high-quality parameter
           num_outputs: 1,
           aspect_ratio: aspect_ratio || "3:4",
           output_format: "png",
-          output_quality: 95, // Maximum clarity (Sandra can adjust)
-          go_fast: false, // Quality over speed
+          output_quality: 95,              // ✅ Unified high-quality parameter
+          go_fast: false,                  // Quality over speed
           disable_safety_checker: false,
           seed: Math.floor(Math.random() * 1000000)
         }

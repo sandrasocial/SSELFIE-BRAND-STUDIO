@@ -128,12 +128,13 @@ export class EnhancedGenerationService {
       input: {
         prompt: enhancedPrompt,
         lora: userLoraModel,      // ✅ USER'S TRAINED LORA WEIGHTS
-        guidance: 2.8, // 🔒 CORE_ARCHITECTURE_IMMUTABLE_V2.md: optimal natural results
-        num_inference_steps: 40, // 🔧 USER OPTIMIZED: More steps for higher quality
+        guidance: 2.8,               // ✅ Unified high-quality parameter
+        num_inference_steps: 40,     // ✅ Unified high-quality parameter
+        lora_scale: 0.95,           // ✅ Unified high-quality parameter
         num_outputs: 3,
         aspect_ratio: "3:4", // 🔒 CORE_ARCHITECTURE_IMMUTABLE_V2.md: portrait format
         output_format: "png",
-        output_quality: 95, // 🔒 CORE_ARCHITECTURE_IMMUTABLE_V2.md: maximum clarity
+        output_quality: 95,         // ✅ Unified high-quality parameter
         go_fast: false, // 🔒 CORE_ARCHITECTURE_IMMUTABLE_V2.md: quality over speed
         disable_safety_checker: false,
         // 🔥 ENHANCEMENT LAYER - NEW PARAMETERS

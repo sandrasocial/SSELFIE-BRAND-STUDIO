@@ -36,9 +36,9 @@ export const GENERATION_SETTINGS = {
   aspect_ratio: "3:4",        // 🔧 FLUX LORA OPTIMAL: Most natural for portraits
   output_format: "png", 
   output_quality: 95,         // Higher quality for new training system
-  lora_scale: 1.0,            // 🔧 UPDATED: Full LoRA strength for better face recognition with new training params
-  guidance_scale: 2.5,        // 🔧 UPDATED: Optimal for FLUX as per research (2-3.5 range)
-  num_inference_steps: 35,    // 🔧 UPDATED: 28+ steps recommended for dev model per official docs
+  lora_scale: 1.0,            // 🔧 TRAINING: Full LoRA strength for better face recognition
+  guidance_scale: 2.5,        // 🔧 TRAINING: Optimal for training quality
+  num_inference_steps: 35,    // 🔧 TRAINING: 28+ steps recommended for dev model per official docs
   num_outputs: 4,             // Generate 4 images for better selection
   model: "dev",               // Use dev model (needs ~28 steps vs schnell ~4 steps)
   disable_safety_checker: false
@@ -427,12 +427,13 @@ export class ModelTrainingService {
           prompt: finalPrompt,
           lora: userLoraModel,       // ✅ USER'S TRAINED LORA WEIGHTS
           negative_prompt: "portrait, headshot, passport photo, studio shot, centered face, isolated subject, corporate headshot, ID photo, school photo, posed, glossy skin, shiny skin, oily skin, plastic skin, overly polished, artificial lighting, fake appearance, heavily airbrushed, perfect skin, flawless complexion, heavy digital enhancement, strong beauty filter, unrealistic skin texture, synthetic appearance, smooth skin, airbrushed, retouched, magazine retouching, digital perfection, waxy skin, doll-like skin, porcelain skin, flawless makeup, heavy foundation, concealer, smooth face, perfect complexion, digital smoothing, beauty app filter, Instagram filter, snapchat filter, face tune, photoshop skin, shiny face, polished skin, reflective skin, wet skin, slick skin, lacquered skin, varnished skin, glossy finish, artificial shine, digital glow, skin blur, inconsistent hair color, wrong hair color, blonde hair, light hair, short hair, straight hair, flat hair, limp hair, greasy hair, stringy hair, unflattering hair, bad hair day, messy hair, unkempt hair, oily hair, lifeless hair, dull hair, damaged hair",
-          guidance: 2.8, // ✅ CORE_ARCHITECTURE_V2: Professional natural results
-          num_inference_steps: 40, // ✅ CORE_ARCHITECTURE_V2: Enhanced quality steps
+          guidance: 2.5,                 // 🔧 TRAINING: Optimal for training quality
+          num_inference_steps: 35,       // 🔧 TRAINING: 28+ steps recommended for training
+          lora_scale: 1.0,              // 🔧 TRAINING: Full LoRA strength
           num_outputs: count,
           aspect_ratio: "3:4", // 🔧 FLUX LORA OPTIMAL: Most natural for portraits
           output_format: "png",
-          output_quality: 90,
+          output_quality: 90,             // 🔧 TRAINING: Balanced quality for training images
           go_fast: false,
           seed: Math.floor(Math.random() * 1000000)
         }
