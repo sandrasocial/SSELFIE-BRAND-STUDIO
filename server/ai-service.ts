@@ -198,6 +198,14 @@ export class AIService {
       // Clean the prompt from any existing realism/trigger words to avoid duplication
       let cleanPrompt = customPrompt;
       
+      // 🚨 NEW: Remove ALL markdown formatting that could confuse the AI model
+      // Remove ** bold formatting
+      cleanPrompt = cleanPrompt.replace(/\*\*([^*]+)\*\*/g, '$1');
+      // Remove * italic formatting  
+      cleanPrompt = cleanPrompt.replace(/\*([^*]+)\*/g, '$1');
+      // Remove remaining isolated * and ** characters
+      cleanPrompt = cleanPrompt.replace(/\*+/g, '');
+      
       // Remove existing trigger word instances first
       cleanPrompt = cleanPrompt.replace(new RegExp(triggerWord, 'gi'), '').trim();
       
@@ -208,8 +216,8 @@ export class AIService {
         cleanPrompt = cleanPrompt.replace(new RegExp(term, 'gi'), '').trim();
       });
       
-      // Clean up extra commas and spaces
-      cleanPrompt = cleanPrompt.replace(/,\s*,/g, ',').replace(/^\s*,\s*|\s*,\s*$/g, '').trim();
+      // Clean up extra commas, spaces, and newlines
+      cleanPrompt = cleanPrompt.replace(/,\s*,/g, ',').replace(/^\s*,\s*|\s*,\s*$/g, '').replace(/\n+/g, ' ').trim();
       
       // 🚀 MAYA HAIR OPTIMIZATION: Enhanced prompt with hair quality focus
       const hairOptimizedPrompt = this.enhancePromptForHairQuality(cleanPrompt);
@@ -220,7 +228,8 @@ export class AIService {
       // 🚀 HIGH-QUALITY STRUCTURE: Based on reference image ID 405 (professional camera + film aesthetic)
       const finalPrompt = `raw photo, visible skin pores, film grain, unretouched natural skin texture, subsurface scattering, photographed on film, ${triggerWord}, ${hairOptimizedPrompt}, ${cameraEquipment}, natural daylight, professional photography`;
       
-      console.log(`🚀 MAYA HIGH-QUALITY PROMPT: ${finalPrompt}`);
+      console.log(`🚀 MAYA CLEANED PROMPT (no markdown): ${finalPrompt}`);
+      console.log(`📝 Original prompt had markdown: ${customPrompt.includes('**') || customPrompt.includes('*') ? 'YES' : 'NO'}`);
       return finalPrompt;
     }
     
