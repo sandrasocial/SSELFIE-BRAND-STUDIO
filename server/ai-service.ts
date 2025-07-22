@@ -360,7 +360,7 @@ export class AIService {
           version: userTrainedVersion,
           input: {
             prompt: prompt,
-            guidance: 1.8,
+            guidance: 2.8,
             num_inference_steps: 40,
             lora_scale: 1.0,
             num_outputs: 1,                 // Single output per request
@@ -460,7 +460,7 @@ export class AIService {
         version: userTrainedVersion,
         input: {
           prompt: prompt,
-          guidance: 1.8,              // ✅ Natural appearance: Reduced for authentic skin texture
+          guidance: 2.8,              // ✅ Optimal prompt adherence: Restored for strong generation quality
           num_inference_steps: 40,    // ✅ AI Quality Upgrade: Fixed optimal steps for trained model likeness
           lora_scale: 1.0,          // ✅ Maximum model likeness: Increased for stronger trained model features
           num_outputs: 1,             // 🎯 CRITICAL: Single output for controlled seed usage
