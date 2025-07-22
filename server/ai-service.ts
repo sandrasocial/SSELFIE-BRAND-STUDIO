@@ -218,24 +218,35 @@ export class AIService {
       // Remove existing trigger word instances first
       cleanPrompt = cleanPrompt.replace(new RegExp(triggerWord, 'gi'), '').trim();
       
-      // Remove existing realism base terms if already present
-      const existingTerms = ['raw photo', 'visible skin pores', 'film grain', 'unretouched natural skin texture', 
-                            'subsurface scattering', 'photographed on film'];
+      // Remove ALL existing realism and technical terms to prevent duplicates
+      const existingTerms = [
+        'raw photo', 'visible skin pores', 'film grain', 'unretouched natural skin texture', 
+        'subsurface scattering', 'photographed on film', 'natural daylight', 'professional photography',
+        'professional fashion photography quality', 'professional photography quality', 'natural street lighting',
+        'lifestyle editorial photography', 'editorial photography', 'fashion photography'
+      ];
       existingTerms.forEach(term => {
         cleanPrompt = cleanPrompt.replace(new RegExp(term, 'gi'), '').trim();
+      });
+      
+      // Remove camera equipment that Maya might have added to prevent duplicates
+      const cameraTerms = ['shot on', 'captured with', 'Canon EOS', 'Sony A7R', 'Leica Q2', 'lens', 'mm f/'];
+      cameraTerms.forEach(term => {
+        const regex = new RegExp(`[^,]*${term}[^,]*,?`, 'gi');
+        cleanPrompt = cleanPrompt.replace(regex, '').trim();
       });
       
       // Clean up extra commas, spaces, and newlines
       cleanPrompt = cleanPrompt.replace(/,\s*,/g, ',').replace(/^\s*,\s*|\s*,\s*$/g, '').replace(/\n+/g, ' ').trim();
       
-      // 🚀 MAYA HAIR OPTIMIZATION: Enhanced prompt with hair quality focus
+      // 🚀 MAYA HAIR OPTIMIZATION: Enhanced prompt with hair quality focus (simplified)
       const hairOptimizedPrompt = this.enhancePromptForHairQuality(cleanPrompt);
       
-      // 🚀 HIGH-QUALITY ENHANCEMENT: Add professional camera equipment like reference image ID 405
-      const cameraEquipment = this.getRandomCameraEquipment();
+      // 🚀 SIMPLIFIED CAMERA EQUIPMENT: Single clean camera specification
+      const cameraEquipment = this.getSimpleCameraEquipment();
       
-      // 🚀 HIGH-QUALITY STRUCTURE: Sacred prompt structure placed at END for natural appearance
-      const finalPrompt = `${triggerWord}, ${hairOptimizedPrompt}, ${cameraEquipment}, natural daylight, professional photography, raw photo, visible skin pores, film grain, unretouched natural skin texture, subsurface scattering, photographed on film`;
+      // 🚀 PERFECT STRUCTURE: Exact format requested by user
+      const finalPrompt = `${triggerWord}, raw photo, visible skin pores, film grain, unretouched natural skin texture, subsurface scattering, photographed on film, ${hairOptimizedPrompt}, ${cameraEquipment}, lifestyle editorial photography`;
       
       console.log(`🚀 MAYA CLEANED PROMPT (no markdown): ${finalPrompt}`);
       console.log(`📝 Original prompt had markdown: ${customPrompt.includes('**') || customPrompt.includes('*') ? 'YES' : 'NO'}`);
@@ -247,19 +258,17 @@ export class AIService {
   }
 
   /**
-   * HIGH-QUALITY CAMERA EQUIPMENT - Based on Reference Image Analysis
-   * Adds professional camera specifications that produced the best quality results in Maya chat
+   * SIMPLIFIED CAMERA EQUIPMENT - Clean, non-conflicting specifications
+   * Single camera format to prevent prompt overload
    */
-  private static getRandomCameraEquipment(): string {
-    const professionalCameras = [
-      'shot on Leica Q2 with 28mm f/1.7 lens',        // ✅ From reference image ID 405
-      'shot on Canon EOS R5 with 85mm f/1.4 lens',    // ✅ From reference image ID 367
-      'shot on Sony A7R V with 24-70mm f/2.8 lens',   // ✅ From reference image ID 373
-      'shot on Canon EOS R6 with 85mm f/1.2 lens',    // ✅ From reference image ID 368
-      'shot on Canon EOS R5 with 70-200mm f/2.8 lens' // ✅ From reference image ID 370
+  private static getSimpleCameraEquipment(): string {
+    const cameras = [
+      'shot on Sony A7R V with 85mm f/1.4 lens',
+      'shot on Canon EOS R5 with 85mm f/1.4 lens',
+      'shot on Leica Q2 with 28mm f/1.7 lens'
     ];
     
-    return professionalCameras[Math.floor(Math.random() * professionalCameras.length)];
+    return cameras[Math.floor(Math.random() * cameras.length)];
   }
   
   /**
@@ -268,7 +277,7 @@ export class AIService {
   private static enhancePromptForHairQuality(prompt: string): string {
     console.log(`💇‍♀️ HAIR QUALITY ENHANCEMENT: Analyzing prompt for hair optimization`);
     
-    // Hair quality enhancement keywords - SIMPLIFIED to prevent over-processing
+    // ULTRA-SIMPLIFIED: Only add hair enhancement if absolutely necessary
     const hairEnhancements = [
       'natural hair movement'
     ];
