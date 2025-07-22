@@ -463,7 +463,7 @@ export class AIService {
         version: userTrainedVersion,
         input: {
           prompt: prompt,
-          guidance: 2.8,              // ✅ AI Quality Upgrade: Fixed optimal guidance
+          guidance: 1.8,              // ✅ Natural appearance: Reduced for authentic skin texture
           num_inference_steps: 40,    // ✅ AI Quality Upgrade: Fixed optimal steps for trained model likeness
           lora_scale: 0.95,          // ✅ AI Quality Upgrade: Fixed LoRA scale for strong personalization
           num_outputs: 1,             // 🎯 CRITICAL: Single output for controlled seed usage
