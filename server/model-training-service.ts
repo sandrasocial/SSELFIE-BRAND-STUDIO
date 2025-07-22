@@ -383,14 +383,15 @@ export class ModelTrainingService {
         throw new Error('USER_MODEL_NOT_TRAINED: User must train their AI model before generating images. No fallback models allowed.');
       }
       
-      // Extract version hash from Replicate version ID
-      const versionHash = userModel.replicateVersionId.split(':').pop();
-      
-      if (!versionHash || versionHash.length < 10) {
-        throw new Error('INVALID_MODEL_VERSION: User model version is corrupted. Must retrain AI model.');
+      // Extract user's LoRA model name for use with Black Forest Labs base model
+      let userLoraModel;
+      if (userModel.replicateVersionId.includes(':')) {
+        // Extract just the model name (before the colon)
+        userLoraModel = userModel.replicateVersionId.split(':')[0];
+      } else {
+        // Use replicateModelId if no version format
+        userLoraModel = userModel.replicateModelId;
       }
-      
-      const modelToUse = versionHash;
       const triggerWord = userModel.triggerWord || `user${userId}`;
       
       
@@ -419,15 +420,15 @@ export class ModelTrainingService {
       let finalPrompt = `${basePrompt}, ${hairColorConsistency}, ${filmEnhancement}, ${fashionEnhancement}, ${environmentalEnhancement}, ${naturalLighting}`;
       
 
-      // Call REAL Replicate API for image generation with optimal realistic settings
+      // Call REAL Replicate API for image generation with official Black Forest Labs model
       const requestBody = {
-        version: modelToUse,
+        version: "30k587n6shrme0ck4zzrr6bt6c", // 🔒 OFFICIAL: black-forest-labs/flux-dev-lora
         input: {
           prompt: finalPrompt,
+          lora: userLoraModel,       // ✅ USER'S TRAINED LORA WEIGHTS
           negative_prompt: "portrait, headshot, passport photo, studio shot, centered face, isolated subject, corporate headshot, ID photo, school photo, posed, glossy skin, shiny skin, oily skin, plastic skin, overly polished, artificial lighting, fake appearance, heavily airbrushed, perfect skin, flawless complexion, heavy digital enhancement, strong beauty filter, unrealistic skin texture, synthetic appearance, smooth skin, airbrushed, retouched, magazine retouching, digital perfection, waxy skin, doll-like skin, porcelain skin, flawless makeup, heavy foundation, concealer, smooth face, perfect complexion, digital smoothing, beauty app filter, Instagram filter, snapchat filter, face tune, photoshop skin, shiny face, polished skin, reflective skin, wet skin, slick skin, lacquered skin, varnished skin, glossy finish, artificial shine, digital glow, skin blur, inconsistent hair color, wrong hair color, blonde hair, light hair, short hair, straight hair, flat hair, limp hair, greasy hair, stringy hair, unflattering hair, bad hair day, messy hair, unkempt hair, oily hair, lifeless hair, dull hair, damaged hair",
-          lora_scale: 0.9, // 🔧 FLUX LORA OPTIMAL: Strong enough to capture trained features without over-fitting
-          guidance: 2.6, // 🔧 FLUX LORA OPTIMAL: Sweet spot for prompt following with natural generation
-          num_inference_steps: 40, // 🔧 FLUX LORA OPTIMAL: Enough detail without diminishing returns
+          guidance: 2.8, // ✅ CORE_ARCHITECTURE_V2: Professional natural results
+          num_inference_steps: 40, // ✅ CORE_ARCHITECTURE_V2: Enhanced quality steps
           num_outputs: count,
           aspect_ratio: "3:4", // 🔧 FLUX LORA OPTIMAL: Most natural for portraits
           output_format: "png",
