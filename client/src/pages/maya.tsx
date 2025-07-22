@@ -520,7 +520,7 @@ export default function Maya() {
             content: msg.content,
             timestamp: msg.createdAt,
             generatedPrompt: msg.generatedPrompt,
-            canGenerate: !!msg.generatedPrompt && !msg.imagePreview,
+            canGenerate: !!msg.generatedPrompt, // Always allow generation if there's a prompt
             imagePreview: msg.imagePreview ? (() => {
               try {
                 const parsed = JSON.parse(msg.imagePreview);
@@ -681,15 +681,15 @@ export default function Maya() {
                           {message.content}
                         </div>
                         
-                        {/* Generate Images Button */}
-                        {message.role === 'maya' && message.canGenerate && message.generatedPrompt && !message.imagePreview && (
+                        {/* Generate Images Button - Always show if there's a generated prompt */}
+                        {message.role === 'maya' && message.canGenerate && message.generatedPrompt && (
                           <div className="mt-4">
                             <Button
                               onClick={() => generateImages(message.generatedPrompt!)}
                               disabled={isGenerating}
                               className="bg-black text-white hover:bg-gray-800 text-sm"
                             >
-                              {isGenerating ? 'Creating Your Photos...' : 'Generate Photos'}
+                              {isGenerating ? 'Creating Your Photos...' : message.imagePreview ? 'Generate More Photos' : 'Generate Photos'}
                             </Button>
                             
                             {/* Progress Bar */}
