@@ -821,8 +821,8 @@ Generate your complete, creative prompt - trust your artistic vision completely.
         version: modelVersion,
         input: {
           prompt: enhancedPrompt,
-          guidance: guidance_scale || 2.8, // Sandra can adjust
-          num_inference_steps: num_inference_steps || 35, // Sandra can adjust  
+          guidance_scale: guidance_scale || 2.82, // FIXED: Use working July 17 parameters
+          num_inference_steps: num_inference_steps || 40, // FIXED: Use working July 17 parameters  
           num_outputs: 1,
           aspect_ratio: aspect_ratio || "3:4",
           output_format: "png",

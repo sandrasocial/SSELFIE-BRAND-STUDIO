@@ -158,21 +158,18 @@ export async function generateImages(request: GenerateImagesRequest): Promise<Ge
       
       const userTrainedVersion = `${userModel.replicateModelId}:${userModel.replicateVersionId}`;
       
-      // 🚀 MAYA OPTIMIZATION INTEGRATION: Get user-adaptive parameters for AI Photoshoot
-      const { MayaOptimizationService } = await import('./maya-optimization-service');
-      const optimizedParams = await MayaOptimizationService.getOptimizedParameters(userId);
-      
+      // 🚀 CRITICAL FIX: Use exact working parameters from July 17 success
       requestBody = {
         version: userTrainedVersion, // 🔒 CRITICAL: User's individual trained model version ONLY
         input: {
           prompt: finalPrompt,
-          lora_guidance: optimizedParams.guidance || 2.8, // 🚀 FIXED: LoRA guidance parameter for Replicate
-          num_inference_steps: optimizedParams.inferenceSteps || 40, // 🚀 UPGRADED: Quality-based steps
-          lora_scale: optimizedParams.loraScale || 0.95, // 🚀 UPGRADED: Hair quality optimized LoRA scale
+          guidance_scale: 2.82, // 🚀 EXACT MATCH: Sandra's working July 17 parameters
+          num_inference_steps: 40, // 🚀 EXACT MATCH: Sandra's working July 17 parameters
+          lora_scale: 1, // 🚀 EXACT MATCH: Sandra's working July 17 parameters
           num_outputs: 3,
           aspect_ratio: "3:4", 
           output_format: "png",
-          output_quality: optimizedParams.outputQuality || 95, // 🚀 UPGRADED: Role-based quality setting
+          output_quality: 95, // 🚀 EXACT MATCH: Sandra's working July 17 parameters
           go_fast: false, 
           disable_safety_checker: false,
           seed: Math.floor(Math.random() * 1000000)
@@ -185,15 +182,14 @@ export async function generateImages(request: GenerateImagesRequest): Promise<Ge
     ArchitectureValidator.validateGenerationRequest(requestBody, userId, isPremium);
     ArchitectureValidator.logArchitectureCompliance(userId, 'AI Photoshoot Generation');
     
-    // 📊 LOG OPTIMIZATION PARAMETERS FOR AI PHOTOSHOOT MONITORING
-    console.log(`🚀 MAYA OPTIMIZATION ACTIVE for AI Photoshoot user ${userId}:`, {
-      loraGuidance: requestBody.input.lora_guidance,
+    // 📊 LOG WORKING PARAMETERS FOR MONITORING
+    console.log(`🚀 WORKING JULY 17 PARAMETERS for user ${userId}:`, {
+      guidance_scale: requestBody.input.guidance_scale,
       steps: requestBody.input.num_inference_steps,
-      loraScale: requestBody.input.lora_scale,
+      lora_scale: requestBody.input.lora_scale,
       quality: requestBody.input.output_quality,
       isPremium,
-      userRole: user?.role,
-      collection: 'AI Photoshoot'
+      userRole: user?.role
     });
     
 
