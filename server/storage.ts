@@ -431,11 +431,23 @@ export class DatabaseStorage implements IStorage {
       .select()
       .from(userModels)
       .where(eq(userModels.userId, userId));
+    
+    // CRITICAL PROTECTION: Never return fake training status
+    // Only return training/completed status if user has REAL Replicate model
+    if (model && (model.trainingStatus === 'training' || model.trainingStatus === 'completed')) {
+      if (!model.replicateModelId) {
+        console.log(`🚨 FAKE TRAINING DETECTED for user ${userId} - cleaning up`);
+        // Delete fake training record immediately
+        await this.deleteUserModel(userId);
+        return undefined; // Return no model - user must start fresh
+      }
+    }
+    
     return model;
   }
 
   async getUserModelByUserId(userId: string): Promise<UserModel | undefined> {
-    // Alias for getUserModel - same functionality
+    // Use the protected getUserModel method that validates against fake training
     return this.getUserModel(userId);
   }
 
@@ -446,6 +458,16 @@ export class DatabaseStorage implements IStorage {
   }
 
   async updateUserModel(userId: string, data: Partial<UserModel>): Promise<UserModel> {
+    // CRITICAL PROTECTION: Prevent fake training status updates
+    // Only allow training/completed status if replicateModelId is provided
+    if ((data.trainingStatus === 'training' || data.trainingStatus === 'completed') && !data.replicateModelId) {
+      const existingModel = await this.getUserModel(userId);
+      if (!existingModel?.replicateModelId) {
+        console.log(`🚨 STORAGE LEVEL: Preventing fake training status for user ${userId}`);
+        throw new Error('Cannot set training/completed status without replicateModelId');
+      }
+    }
+    
     const [updated] = await db
       .update(userModels)
       .set({ ...data, updatedAt: new Date() })
@@ -489,11 +511,25 @@ export class DatabaseStorage implements IStorage {
   }
 
   async getAllInProgressTrainings(): Promise<UserModel[]> {
-    return await db
+    // CRITICAL PROTECTION: Only return REAL training with Replicate model IDs
+    const trainings = await db
       .select()
       .from(userModels)
       .where(eq(userModels.trainingStatus, 'training'))
       .orderBy(desc(userModels.createdAt));
+    
+    // Filter out fake trainings and clean them up
+    const realTrainings = [];
+    for (const training of trainings) {
+      if (training.replicateModelId) {
+        realTrainings.push(training);
+      } else {
+        console.log(`🚨 FAKE TRAINING DETECTED for user ${training.userId} - cleaning up`);
+        await this.deleteUserModel(training.userId);
+      }
+    }
+    
+    return realTrainings;
   }
 
   async getMonthlyRetrainCount(userId: string, month: number, year: number): Promise<number> {

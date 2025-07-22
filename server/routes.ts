@@ -2629,10 +2629,20 @@ VOICE RULES:
       
       const dbUserId = user.id;
       
-      // Get real user model from database
+      // Get real user model from database with fake training protection
       const userModel = await storage.getUserModelByUserId(dbUserId);
       
       if (userModel) {
+        // CRITICAL PROTECTION: Additional validation at API level
+        // Ensure no fake training status reaches frontend
+        if ((userModel.trainingStatus === 'training' || userModel.trainingStatus === 'completed') && !userModel.replicateModelId) {
+          console.log(`🚨 API LEVEL: Fake training detected for user ${dbUserId} - cleaning up`);
+          await storage.deleteUserModel(dbUserId);
+          // Return no model - user must start fresh
+          res.json(null);
+          return;
+        }
+        
         res.json(userModel);
       } else {
         // Create new user model
