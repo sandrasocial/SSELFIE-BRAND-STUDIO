@@ -1023,10 +1023,9 @@ Return ONLY the technical prompt without any additional text or formatting.`,
       
       // 🔒 LOCKED API FORMAT: Core architecture parameters (Sandra can adjust quality settings)
       const requestBody = {
-        version: "30k587n6shrme0ck4zzrr6bt6c", // 🔒 OFFICIAL: black-forest-labs/flux-dev-lora
+        version: userLoraModel, // ✅ COMPLETE individual user model path
         input: {
           prompt: enhancedPrompt,
-          lora: userLoraModel,    // ✅ USER'S TRAINED LORA WEIGHTS
           guidance: 2.8,                   // ✅ Unified high-quality parameter
           num_inference_steps: 40,         // ✅ Unified high-quality parameter
           lora_scale: 0.95,               // ✅ Unified high-quality parameter

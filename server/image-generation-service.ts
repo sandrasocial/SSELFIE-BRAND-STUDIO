@@ -132,27 +132,19 @@ export async function generateImages(request: GenerateImagesRequest): Promise<Ge
 
     let requestBody: any;
 
-    // 🔒 CORRECTED: Use official black-forest-labs/flux-dev-lora model with user's LoRA
+    // 🔒 INDIVIDUAL USER MODEL ARCHITECTURE (Fixed July 22, 2025)
     if (userModel.trainingStatus === 'completed' && userModel.replicateVersionId) {
-      console.log(`✅ Using black-forest-labs/flux-dev-lora:30k587n6shrme0ck4zzrr6bt6c with user LoRA for AI Photoshoot: ${userId}`);
+      console.log(`✅ Using individual trained model for AI Photoshoot: ${userModel.replicateVersionId}`);
       
-      // Extract user's LoRA model name from their trained model
-      let userLoraModel;
-      if (userModel.replicateVersionId.includes(':')) {
-        // Extract just the model name (before the colon)
-        userLoraModel = userModel.replicateVersionId.split(':')[0];
-      } else {
-        // Use replicateModelId if no version format
-        userLoraModel = userModel.replicateModelId;
-      }
+      // Use the COMPLETE user model path as individual trained model
+      const userModelPath = userModel.replicateVersionId;
       
-      // 🔧 CORE_ARCHITECTURE_IMMUTABLE_V2 PARAMETERS - PROFESSIONAL UNIFIED QUALITY
-      // Both Maya Chat and AI Photoshoot use identical parameters for consistent results
+      // 🔧 INDIVIDUAL USER MODEL PARAMETERS - PROFESSIONAL UNIFIED QUALITY
+      // Each user gets their own complete trained model (not base FLUX + LoRA)
       requestBody = {
-        version: "30k587n6shrme0ck4zzrr6bt6c", // 🔒 OFFICIAL: black-forest-labs/flux-dev-lora
+        version: userModelPath, // ✅ COMPLETE individual user model path
         input: {
           prompt: finalPrompt,
-          lora: userLoraModel,       // ✅ USER'S TRAINED LORA WEIGHTS
           guidance: 2.8,                 // ✅ Unified high-quality parameter
           num_inference_steps: 40,       // ✅ Unified high-quality parameter
           lora_scale: 0.95,             // ✅ Unified high-quality parameter

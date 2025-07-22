@@ -420,12 +420,11 @@ export class ModelTrainingService {
       let finalPrompt = `${basePrompt}, ${hairColorConsistency}, ${filmEnhancement}, ${fashionEnhancement}, ${environmentalEnhancement}, ${naturalLighting}`;
       
 
-      // Call REAL Replicate API for image generation with official Black Forest Labs model
+      // Call REAL Replicate API for image generation with user's individual trained model
       const requestBody = {
-        version: "30k587n6shrme0ck4zzrr6bt6c", // 🔒 OFFICIAL: black-forest-labs/flux-dev-lora
+        version: userLoraModel, // ✅ COMPLETE individual user model path
         input: {
           prompt: finalPrompt,
-          lora: userLoraModel,       // ✅ USER'S TRAINED LORA WEIGHTS
           negative_prompt: "portrait, headshot, passport photo, studio shot, centered face, isolated subject, corporate headshot, ID photo, school photo, posed, glossy skin, shiny skin, oily skin, plastic skin, overly polished, artificial lighting, fake appearance, heavily airbrushed, perfect skin, flawless complexion, heavy digital enhancement, strong beauty filter, unrealistic skin texture, synthetic appearance, smooth skin, airbrushed, retouched, magazine retouching, digital perfection, waxy skin, doll-like skin, porcelain skin, flawless makeup, heavy foundation, concealer, smooth face, perfect complexion, digital smoothing, beauty app filter, Instagram filter, snapchat filter, face tune, photoshop skin, shiny face, polished skin, reflective skin, wet skin, slick skin, lacquered skin, varnished skin, glossy finish, artificial shine, digital glow, skin blur, inconsistent hair color, wrong hair color, blonde hair, light hair, short hair, straight hair, flat hair, limp hair, greasy hair, stringy hair, unflattering hair, bad hair day, messy hair, unkempt hair, oily hair, lifeless hair, dull hair, damaged hair",
           guidance: 2.5,                 // 🔧 TRAINING: Optimal for training quality
           num_inference_steps: 35,       // 🔧 TRAINING: 28+ steps recommended for training
