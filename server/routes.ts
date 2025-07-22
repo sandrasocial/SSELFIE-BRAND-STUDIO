@@ -945,15 +945,36 @@ Generate your complete, creative prompt - trust your artistic vision completely.
       function extractImagePromptFromRequest(userPrompt, triggerWord) {
         console.log(`🎯 MAYA PROMPT INPUT: "${userPrompt.substring(0, 200)}..."`);
         
-        // If prompt already contains professional camera/scene details, it's likely Maya's detailed output
+        // Check if this is Maya's conversational response (contains questions, emojis, multiple formatting)
+        if (userPrompt.includes('Hey gorgeous') || 
+            userPrompt.includes('**MOOD & ENERGY:**') ||
+            userPrompt.includes('**SETTING DREAMS:**') ||
+            userPrompt.includes('What\'s calling to your soul') ||
+            userPrompt.includes('Before I craft') ||
+            (userPrompt.includes('🖤') && userPrompt.includes('**'))) {
+          
+          console.log(`🎭 MAYA CONVERSATIONAL DETECTED: Converting to cinematic prompt`);
+          
+          // Maya mentioned black and white editorial - create proper prompt
+          if (userPrompt.toLowerCase().includes('black and white')) {
+            const cinematicPrompt = `${triggerWord}, A dramatic black and white editorial portrait of a confident woman, professional studio lighting with dramatic shadows, editorial magazine style, shot on Hasselblad X2D with 90mm lens, raw photo, visible skin pores, film grain, professional photography`;
+            console.log(`🎬 MAYA B&W CINEMATIC: "${cinematicPrompt}"`);
+            return cinematicPrompt;
+          }
+          
+          // Default editorial cinematic prompt for Maya's conversational responses
+          const cinematicPrompt = `${triggerWord}, A cinematic editorial portrait of a confident woman with natural beauty, dramatic lighting and shadows, fashion magazine style, shot on Canon EOS R5 with 85mm f/1.2L lens, raw photo, visible skin pores, film grain, professional photography`;
+          console.log(`🎬 MAYA EDITORIAL CINEMATIC: "${cinematicPrompt}"`);
+          return cinematicPrompt;
+        }
+        
+        // If prompt already contains professional camera/scene details, it's a proper image prompt
         if (userPrompt.includes('shot on') || 
             userPrompt.includes('Canon EOS') || 
             userPrompt.includes('Hasselblad') ||
-            userPrompt.includes('raw photo') ||
-            userPrompt.includes('editorial') ||
-            userPrompt.includes('cinematic') ||
-            userPrompt.length > 200) {
-          console.log(`✅ MAYA DETAILED PROMPT: Preserving full cinematic description`);
+            (userPrompt.includes('raw photo') && userPrompt.includes('film grain')) ||
+            (userPrompt.includes('editorial') && userPrompt.includes('portrait'))) {
+          console.log(`✅ PROPER IMAGE PROMPT: Preserving cinematic description`);
           
           // Ensure trigger word is at the beginning
           if (!userPrompt.includes(triggerWord)) {
@@ -967,14 +988,14 @@ Generate your complete, creative prompt - trust your artistic vision completely.
         
         // For simple/basic prompts, enhance with professional format  
         if (userPrompt.length < 100) {
-          const enhancedPrompt = `${triggerWord}, ${userPrompt}, raw photo, visible skin pores, film grain, professional photography, natural lighting`;
+          const enhancedPrompt = `${triggerWord}, ${userPrompt}, editorial portrait, dramatic lighting, shot on Canon EOS R5 with 85mm lens, raw photo, visible skin pores, film grain, professional photography`;
           console.log(`🚀 ENHANCED SHORT PROMPT: "${enhancedPrompt}"`);
           return enhancedPrompt;
         }
         
-        // For medium-length prompts, add trigger word and preserve content
-        console.log(`📝 PRESERVING ORIGINAL PROMPT with trigger word`);
-        return `${triggerWord}, ${userPrompt}`;
+        // For medium-length prompts, add trigger word and basic enhancement
+        console.log(`📝 MEDIUM PROMPT: Adding trigger word and basic enhancement`);
+        return `${triggerWord}, ${userPrompt}, raw photo, visible skin pores, film grain, professional photography`;
       }
 
       const usageCheck = await UsageService.checkUsageLimit(userId);
