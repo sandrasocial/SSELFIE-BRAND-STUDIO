@@ -32,42 +32,25 @@ export default function SimpleTraining() {
 
   // Initialize training state based on userModel data
   useEffect(() => {
-    console.log('📊 User Model Debug:', {
-      userModel,
-      isAuthenticated,
-      trainingStatus: userModel?.trainingStatus
-    });
-    
-    // CRITICAL FIX: Only show training UI if user has REAL Replicate model ID
-    // This prevents false "training in progress" when user hasn't actually started
+    // Only show training UI if user has REAL Replicate model ID
     if (userModel && userModel.trainingStatus === 'training' && userModel.replicateModelId) {
-      console.log('🔄 Found REAL active training on page load:', userModel);
       setIsTrainingStarted(true);
       setTrainingProgress(userModel.trainingProgress || 0);
       if (userModel.startedAt) {
         setStartTime(new Date(userModel.startedAt));
       }
     } else if (userModel && userModel.trainingStatus === 'completed' && userModel.replicateModelId) {
-      console.log('✅ Found completed training on page load - redirecting to workspace');
-      // Only redirect if training is truly completed with a working model
+      // Redirect to workspace when training is completed
       toast({
-        title: "Training Already Complete!",
+        title: "Training Complete!",
         description: "Your AI model is ready. Redirecting to workspace...",
       });
       
       setTimeout(() => {
         window.location.href = '/workspace';
       }, 2000);
-    } else if (userModel) {
-      console.log('📝 No real training found - showing upload interface');
-      console.log('🔄 Training status:', userModel.trainingStatus, '- staying on training page');
-      // Reset any previous training state for fresh start
-      setIsTrainingStarted(false);
-      setTrainingProgress(0);
-      setStartTime(null);
     } else {
-      // No user model at all - show upload interface
-      console.log('📝 No user model - showing upload interface');
+      // Show upload interface for new users or failed training
       setIsTrainingStarted(false);
       setTrainingProgress(0);
       setStartTime(null);
@@ -76,19 +59,15 @@ export default function SimpleTraining() {
 
   // Poll for training status updates with progress
   useEffect(() => {
-    // CRITICAL FIX: Only poll if REAL training with Replicate model ID
     const isCurrentlyTraining = isTrainingStarted || (userModel && userModel.trainingStatus === 'training' && userModel.replicateModelId);
     
     if (isCurrentlyTraining && isAuthenticated) {
-      console.log('🔄 Training detected, starting status polling...');
-      
       const interval = setInterval(async () => {
         // Update user model data
         const updatedData = await refetchUserModel();
         
         // Check if training completed
         if (updatedData?.data?.trainingStatus === 'completed') {
-          console.log('✅ Training completed! Redirecting to workspace...');
           setIsTrainingStarted(false);
           setTrainingProgress(100);
           
@@ -113,14 +92,12 @@ export default function SimpleTraining() {
             });
             if (progressResponse.ok) {
               const progressData = await progressResponse.json();
-              // Only show real progress from Replicate, not fake calculations
               if (progressData.isRealTraining) {
                 setTrainingProgress(progressData.progress || 0);
               }
-              console.log(`📊 Training progress: ${progressData.progress}%`);
             }
           } catch (error) {
-            console.error('Failed to fetch training progress:', error);
+            // Silent error handling for progress updates
           }
         }
       }, 5000); // Poll every 5 seconds
@@ -149,26 +126,32 @@ export default function SimpleTraining() {
     },
     onSuccess: (data: any) => {
       if (data.success) {
+        // Automatically show training UI when training starts successfully
         setIsTrainingStarted(true);
         setStartTime(new Date());
-        setTrainingProgress(0); // No fake progress until real Replicate data
+        setTrainingProgress(5); // Start with minimal progress
+        
         toast({
-          title: "Bulletproof Training Started!",
-          description: "Your AI model training has begun with full validation.",
+          title: "Training Started!",
+          description: "Your AI model training has begun successfully.",
         });
+        
+        // Clear upload data since training started
+        setSelfieImages([]);
+        
+        // Refresh user model data to get latest training status
+        refetchUserModel();
       } else {
-        // Handle validation errors from bulletproof service
+        // Handle validation errors
         setUploadErrors(data.errors || []);
         toast({
           title: "Training Validation Failed",
-          description: `Please fix these issues: ${data.errors?.join(', ')}`,
+          description: data.message || "Please fix the issues and try again.",
           variant: "destructive",
         });
       }
     },
     onError: (error: any) => {
-      console.error('Bulletproof training failed:', error);
-      
       if (error.requiresRestart) {
         setUploadErrors([error.message]);
         toast({
@@ -294,7 +277,6 @@ export default function SimpleTraining() {
         })
       );
 
-      console.log(`✅ Compressed ${compressedBase64Images.length} images successfully`);
       startTraining.mutate(compressedBase64Images);
     } catch (error) {
       toast({
@@ -302,7 +284,6 @@ export default function SimpleTraining() {
         description: "Failed to process images. Please try again with different photos.",
         variant: "destructive",
       });
-      console.error('Image processing failed:', error);
     }
   };
 
