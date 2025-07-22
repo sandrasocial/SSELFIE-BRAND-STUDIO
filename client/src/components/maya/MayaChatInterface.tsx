@@ -39,6 +39,8 @@ export function MayaChatInterface() {
   const [currentTrackerId, setCurrentTrackerId] = useState<number | null>(null);
   const [savedImages, setSavedImages] = useState<Set<string>>(new Set());
   const [savingImages, setSavingImages] = useState<Set<string>>(new Set());
+  const [isGenerating, setIsGenerating] = useState(false);
+  const [generatedImages, setGeneratedImages] = useState<string[]>([]);
   const queryClient = useQueryClient();
 
   // Maya's enthusiastic greeting
@@ -90,17 +92,20 @@ What kind of vibe are we creating today? Or just say "surprise me" and I'll crea
         console.log('🎬 Maya: Tracker data:', tracker);
         
         if (tracker.status === 'completed' && tracker.imageUrls && tracker.imageUrls.length > 0) {
-          // Image generation completed
+          // Image generation completed - using backup implementation pattern
           console.log('🎬 Maya: Tracker generation completed!', tracker);
           
           setGenerationProgress(100);
+          setIsGenerating(false);
+          setGeneratedImages(tracker.imageUrls);
           
-          // Update the generating message with completed images
-          setChatMessages(prev => prev.map(msg => {
-            if (msg.isGenerating && msg.role === 'maya') {
-              return {
-                ...msg,
-                isGenerating: false,
+          // Add image preview to the last Maya message (backup pattern)
+          setChatMessages(prev => {
+            const newMessages = [...prev];
+            const lastMayaIndex = newMessages.map(m => m.role).lastIndexOf('maya');
+            if (lastMayaIndex >= 0) {
+              newMessages[lastMayaIndex] = {
+                ...newMessages[lastMayaIndex],
                 imagePreview: {
                   id: trackerId,
                   userId: '',
@@ -113,8 +118,8 @@ What kind of vibe are we creating today? Or just say "surprise me" and I'll crea
                 }
               };
             }
-            return msg;
-          }));
+            return newMessages;
+          });
           
           // Reset progress after showing completion
           setTimeout(() => {
@@ -128,12 +133,7 @@ What kind of vibe are we creating today? Or just say "surprise me" and I'll crea
         
         if (tracker.status === 'failed') {
           console.log('🎬 Maya: Tracker failed:', tracker.errorMessage || 'Unknown error');
-          setChatMessages(prev => prev.map(msg => {
-            if (msg.isGenerating && msg.role === 'maya') {
-              return { ...msg, isGenerating: false };
-            }
-            return msg;
-          }));
+          setIsGenerating(false);
           return;
         }
         
@@ -143,12 +143,7 @@ What kind of vibe are we creating today? Or just say "surprise me" and I'll crea
           setTimeout(poll, 3000);
         } else {
           console.log('🎬 Maya: Max polling attempts reached, stopping');
-          setChatMessages(prev => prev.map(msg => {
-            if (msg.isGenerating && msg.role === 'maya') {
-              return { ...msg, isGenerating: false };
-            }
-            return msg;
-          }));
+          setIsGenerating(false);
         }
       } catch (error) {
         console.error('🎬 Maya: Polling error:', error);
@@ -157,12 +152,7 @@ What kind of vibe are we creating today? Or just say "surprise me" and I'll crea
           setTimeout(poll, 3000);
         } else {
           console.log('🎬 Maya: Max attempts reached after errors, stopping');
-          setChatMessages(prev => prev.map(msg => {
-            if (msg.isGenerating && msg.role === 'maya') {
-              return { ...msg, isGenerating: false };
-            }
-            return msg;
-          }));
+          setIsGenerating(false);
         }
       }
     };
@@ -182,26 +172,28 @@ What kind of vibe are we creating today? Or just say "surprise me" and I'll crea
     onSuccess: (data) => {
       console.log('🎬 Maya: Generation started with response:', data);
       
+      // Set generating state (backup pattern)
+      setIsGenerating(true);
+      setGenerationProgress(0);
+      
       // Set tracking ID for progress monitoring
       if (data.imageId) {
         console.log('🎬 Maya: Setting tracker ID:', data.imageId);
         setCurrentTrackerId(data.imageId);
-        setGenerationProgress(0); // Reset progress
         
         // Start polling tracker for completion
         pollForTrackerCompletion(data.imageId);
       }
 
-      // Add Maya's response with generating status
+      // Add Maya's response
       const mayaMessage: MayaChatMessage = {
         id: Date.now(),
         role: 'maya',
         content: data.message || '✨ Creating your stunning editorial moment right now! This is going to be absolutely gorgeous...',
-        timestamp: new Date().toISOString(),
-        isGenerating: true
+        timestamp: new Date().toISOString()
       };
 
-      console.log('🎬 Maya: Adding message with isGenerating:', mayaMessage.isGenerating);
+      console.log('🎬 Maya: Adding Maya response message');
       setChatMessages(prev => [...prev, mayaMessage]);
       queryClient.invalidateQueries({ queryKey: ['/api/generation-trackers/completed'] });
     }
