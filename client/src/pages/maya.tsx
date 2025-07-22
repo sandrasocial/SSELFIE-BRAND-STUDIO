@@ -440,15 +440,22 @@ export default function Maya() {
 
   // Save single image to gallery with heart click
   const saveToGallery = async (imageUrl: string) => {
-    if (savedImages.has(imageUrl) || savingImages.has(imageUrl)) return;
+    // Prevent duplicate saves or saves already in progress - strict checking
+    if (savedImages.has(imageUrl) || savingImages.has(imageUrl)) {
+      console.log('❌ Save blocked - already saved or in progress:', imageUrl.substring(0, 50) + '...');
+      return;
+    }
     
+    console.log('🔄 Starting save for image:', imageUrl.substring(0, 50) + '...');
     setSavingImages(prev => new Set([...prev, imageUrl]));
     
     try {
       // First try the tracker-based save if we have a tracker ID
       if (currentTrackerId) {
+        console.log('📝 Using tracker-based save with tracker:', currentTrackerId);
         await saveSelectedToGallery([imageUrl]);
       } else {
+        console.log('🔄 Using direct save-to-gallery API');
         // Fallback to direct save-to-gallery API for images without tracker
         const response = await fetch('/api/save-to-gallery', {
           method: 'POST',
@@ -480,8 +487,10 @@ export default function Maya() {
           description: "Image permanently added to your gallery",
         });
       }
+      
+      console.log('✅ Save completed successfully for:', imageUrl.substring(0, 50) + '...');
     } catch (error) {
-      console.error('Error saving to gallery:', error);
+      console.error('❌ Error saving to gallery:', error);
       toast({
         title: "Save Failed",
         description: error instanceof Error ? error.message : "Could not save image to gallery",
@@ -734,12 +743,15 @@ export default function Maya() {
                                     {/* Minimalistic Heart Save Button */}
                                     <button
                                       onClick={(e) => {
+                                        e.preventDefault();
                                         e.stopPropagation();
+                                        e.stopImmediatePropagation();
                                         saveToGallery(imageUrl);
                                       }}
-                                      disabled={savingImages.has(imageUrl)}
+                                      disabled={savingImages.has(imageUrl) || savedImages.has(imageUrl)}
                                       className="absolute top-2 right-2 w-8 h-8 flex items-center justify-center bg-white/90 hover:bg-white border border-gray-200 hover:border-gray-300 rounded-full transition-all shadow-sm"
                                       title={savedImages.has(imageUrl) ? 'Saved to gallery' : 'Save to gallery'}
+                                      type="button"
                                     >
                                       {savingImages.has(imageUrl) ? (
                                         <div className="w-3 h-3 border border-gray-400 border-t-transparent rounded-full animate-spin"></div>
