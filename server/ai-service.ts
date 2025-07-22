@@ -291,7 +291,33 @@ export class AIService {
     if (!userId) {
       throw new Error('User ID is required for image generation');
     }
+
+    // Retry logic for temporary Replicate API issues
+    const maxRetries = 3;
+    const retryDelay = 2000; // 2 seconds
     
+    for (let attempt = 1; attempt <= maxRetries; attempt++) {
+      try {
+        return await this.makeReplicateRequest(imageBase64, prompt, userId);
+      } catch (error) {
+        if (attempt === maxRetries) {
+          throw error; // Final attempt failed, re-throw error
+        }
+        
+        // Only retry on 502/503 errors
+        if (error.message.includes('502') || error.message.includes('503') || 
+            error.message.includes('Bad Gateway') || error.message.includes('Service Unavailable')) {
+          console.log(`Replicate API retry ${attempt}/${maxRetries} after ${retryDelay}ms...`);
+          await new Promise(resolve => setTimeout(resolve, retryDelay));
+          continue;
+        }
+        
+        throw error; // Non-retryable error
+      }
+    }
+  }
+
+  private static async makeReplicateRequest(imageBase64: string, prompt: string, userId: string): Promise<string> {
     const userModel = await storage.getUserModelByUserId(userId);
     if (!userModel) {
       throw new Error('User model not ready for generation. Training must be completed first.');
