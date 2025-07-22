@@ -73,7 +73,7 @@ export default function Workspace() {
         timeEstimate: '2 minutes',
         status: step1Complete ? 'complete' : step1InProgress ? 'progress' : 'start',
         statusMessage: step1Complete ? 'Done! Ready for photos' : 
-                      step1InProgress ? 'AI training in progress... (Check back in a few minutes)' : 
+                      step1InProgress ? 'Training in progress' : 
                       'Start here first',
         link: step1InProgress ? '#' : '/ai-training', // Don't link to training page if already training
         image: "https://i.postimg.cc/bNF14sGc/out-1-4.png",

@@ -114,7 +114,7 @@ export default function SimpleTraining() {
   useEffect(() => {
     if (startTime && trainingProgress > 0) {
       const elapsed = Date.now() - startTime.getTime();
-      const totalEstimatedTime = 20 * 60 * 1000; // 20 minutes in milliseconds
+      const totalEstimatedTime = 15 * 60 * 1000; // 15 minutes in milliseconds
       const remaining = Math.max(0, totalEstimatedTime - elapsed);
       
       const minutes = Math.floor(remaining / 60000);
