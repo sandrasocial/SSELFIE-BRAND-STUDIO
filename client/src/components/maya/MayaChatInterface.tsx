@@ -103,15 +103,18 @@ What kind of vibe are we creating today? Or just say "surprise me" and I'll crea
     let progressInterval: NodeJS.Timeout | null = null;
     
     if (currentTrackerId) {
-      setGenerationProgress(0);
+      console.log('🎬 Maya: Starting progress tracking for tracker:', currentTrackerId);
+      setGenerationProgress(5); // Start with 5%
       progressInterval = setInterval(() => {
         setGenerationProgress(prev => {
-          if (prev >= 90) {
-            return prev; // Stop at 90% until completion
-          }
-          return prev + Math.random() * 15;
+          const newProgress = prev >= 90 ? prev : prev + Math.random() * 15;
+          console.log('🎬 Maya: Progress update:', newProgress);
+          return newProgress;
         });
       }, 2000);
+    } else {
+      console.log('🎬 Maya: No tracker ID, resetting progress');
+      setGenerationProgress(0);
     }
 
     return () => {
@@ -130,9 +133,13 @@ What kind of vibe are we creating today? Or just say "surprise me" and I'll crea
       return response;
     },
     onSuccess: (data) => {
+      console.log('🎬 Maya: Generation started with response:', data);
+      
       // Set tracking ID for progress monitoring
       if (data.imageId) {
+        console.log('🎬 Maya: Setting tracker ID:', data.imageId);
         setCurrentTrackerId(data.imageId);
+        setGenerationProgress(0); // Reset progress
       }
 
       // Add Maya's response with generating status
@@ -144,6 +151,7 @@ What kind of vibe are we creating today? Or just say "surprise me" and I'll crea
         isGenerating: true
       };
 
+      console.log('🎬 Maya: Adding message with isGenerating:', mayaMessage.isGenerating);
       setChatMessages(prev => [...prev, mayaMessage]);
       queryClient.invalidateQueries({ queryKey: ['/api/generation-trackers/completed'] });
     }
@@ -242,6 +250,7 @@ What kind of vibe are we creating today? Or just say "surprise me" and I'll crea
                   <div className="flex items-center gap-2 mb-2">
                     <Camera className="w-4 h-4 text-rose-500 animate-pulse" />
                     <span className="text-sm text-rose-600">Creating your stunning images...</span>
+                    <span className="text-xs text-gray-500">(Tracker: {currentTrackerId})</span>
                   </div>
                   
                   {/* Progress Bar */}
