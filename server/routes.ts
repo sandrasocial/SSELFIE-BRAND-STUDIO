@@ -6415,6 +6415,109 @@ AGENT_CONTEXT:
     }
   });
 
+  // AI Generator - Generate images using user's trained model
+  app.post('/api/generate-user-images', isAuthenticated, async (req: any, res) => {
+    try {
+      const authUserId = ArchitectureValidator.validateAuthentication(req);
+      await ArchitectureValidator.validateUserModel(authUserId);
+      
+      const { category, subcategory } = req.body;
+      const claims = req.user.claims;
+      
+      // Get database user ID
+      let user = await storage.getUser(authUserId);
+      if (!user && claims.email) {
+        user = await storage.getUserByEmail(claims.email);
+      }
+      
+      if (!user) {
+        return res.status(404).json({ error: 'User not found' });
+      }
+      
+      const userId = user.id;
+      
+      // Validate user has trained model
+      const userModel = await storage.getUserModelByUserId(userId);
+      if (!userModel || userModel.trainingStatus !== 'completed') {
+        return res.status(400).json({ 
+          error: 'AI model not trained. Please complete training first.',
+          requiresTraining: true
+        });
+      }
+
+      // Generate photoshoot prompt based on category and subcategory
+      const customPrompt = `${userModel.triggerWord}, elegant ${category.toLowerCase()} ${subcategory.toLowerCase()} photoshoot, professional fashion photography, luxury editorial style, high-end composition`;
+      
+      // Use existing image generation service
+      const result = await AIService.generateSSELFIE({
+        userId,
+        imageBase64: null,
+        style: 'AI Generator',
+        prompt: customPrompt
+      });
+
+      // Start background polling for completion
+      AIService.pollGenerationStatus(result.trackerId, result.predictionId).catch(err => {
+        console.error('Polling error:', err);
+      });
+
+      res.json({
+        success: true,
+        predictionId: result.predictionId,
+        generatedImageId: result.trackerId, // Use trackerId as generatedImageId for frontend compatibility
+        trackerId: result.trackerId,
+        message: `Generating ${category} ${subcategory} images with your personal AI model...`
+      });
+      
+    } catch (error) {
+      console.error('AI Generator error:', error);
+      res.status(500).json({ 
+        error: error.message || 'Failed to generate images. Please try again.',
+        requiresTraining: error.message?.includes('model') || error.message?.includes('training')
+      });
+    }
+  });
+
+  // AI Generator - Get generated images for display
+  app.get('/api/generated-images', isAuthenticated, async (req: any, res) => {
+    try {
+      const authUserId = req.user.claims.sub;
+      const claims = req.user.claims;
+      
+      // Get database user ID
+      let user = await storage.getUser(authUserId);
+      if (!user && claims.email) {
+        user = await storage.getUserByEmail(claims.email);
+      }
+      
+      if (!user) {
+        return res.status(404).json({ error: 'User not found' });
+      }
+      
+      // Get AI images from storage
+      const aiImages = await storage.getAIImagesByUserId(user.id);
+      
+      // Transform to match frontend expectations
+      const formattedImages = aiImages.map(img => ({
+        id: img.id,
+        imageUrls: [img.imageUrl], // Frontend expects array
+        image_urls: JSON.stringify([img.imageUrl]), // Backend compatibility
+        generationStatus: 'completed', // All stored images are completed
+        style: img.style,
+        prompt: img.prompt,
+        createdAt: img.createdAt,
+        isSelected: img.isSelected,
+        isFavorite: img.isFavorite
+      }));
+      
+      res.json(formattedImages);
+      
+    } catch (error) {
+      console.error('Get generated images error:', error);
+      res.status(500).json({ error: 'Failed to fetch generated images' });
+    }
+  });
+
   // Register backup management routes
   const { registerBackupManagementRoutes } = await import('./routes/backup-management-routes');
   const { registerMayaAIRoutes } = await import('./routes/maya-ai-routes');
