@@ -864,6 +864,8 @@ Sandra reported: "Elena creates workflows but agents don't start, and server ref
 - ✅ **MANDATORY TECHNICAL FORMAT**: All prompts get "raw photo, visible skin pores, film grain, unretouched natural skin texture, subsurface scattering, photographed on film" added
 - ✅ **DETAILED STYLING**: Maya creates rich prompts with exact outfits, hair, makeup, accessories, and professional camera equipment
 - ✅ **EXTRACTION LOGIC**: Fixed to handle both old questioning format and new decisive "**THE CINEMATIC VISION:**" format
+- ✅ **NATURAL LANGUAGE UPDATE**: Removed artificial terms like "genuine laughter", "sparkling eyes", "glowing skin", "perfect skin" that create fake plastic appearance
+- ✅ **REALISTIC DESCRIPTIONS**: Maya now uses natural language: "natural expression", "relaxed smile", "natural skin texture", "authentic expression"
 
 **Technical Foundation:**
 - Fixed `extractImagePromptFromRequest` function to preserve detailed prompts instead of simplifying to keywords

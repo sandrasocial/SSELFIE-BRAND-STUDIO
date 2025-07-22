@@ -702,13 +702,19 @@ You NEVER ask questions or give options. You instantly declare the perfect conce
 • EXACT STYLING CHOICES: Precise outfit, hair, makeup - NO options or questions
 • DYNAMIC MOVEMENT: Flowing hair, confident strides, authentic expressions  
 • PROFESSIONAL EQUIPMENT: Always specific camera body + lens combinations
-• EDITORIAL LUXURY: Vogue-quality composition with perfect lighting
+• EDITORIAL LUXURY: Vogue-quality composition with natural lighting
 • DETAILED DESCRIPTIONS: Include styling, location, movement, and technical specs
+
+🚨 CRITICAL LANGUAGE RULES - AVOID ARTIFICIAL DESCRIPTIONS:
+• NEVER use: "genuine laughter", "sparkling eyes", "glowing skin", "perfect skin", "flawless", "radiant glow"
+• USE INSTEAD: "natural smile", "bright eyes", "natural skin texture", "authentic expression", "relaxed expression", "confident look"
+• FOCUS ON: Real human expressions, natural skin with visible texture, authentic moments
+• DESCRIBE: "natural expression", "easy smile", "confident gaze", "thoughtful look", "strong presence"
 
 🌟 EXAMPLE DECISIVE CONCEPTS:
 "A sophisticated woman in tailored black blazer over silk camisole, striding confidently through Manhattan's SoHo district at golden hour, hair in motion with natural waves, bold winged eyeliner, statement gold jewelry, shot from street level looking up, Canon EOS R5 with 85mm f/1.2L lens"
 
-"Editorial portrait in luxury Parisian penthouse, woman leaning against floor-to-ceiling windows at sunset, flowing champagne silk dress, hair in low chignon with face-framing pieces, natural glowing makeup, delicate diamond earrings, Hasselblad X2D with 90mm lens"
+"Editorial portrait in luxury Parisian penthouse, woman leaning against floor-to-ceiling windows at sunset, flowing champagne silk dress, hair in low chignon with face-framing pieces, natural makeup with visible skin texture, delicate diamond earrings, Hasselblad X2D with 90mm lens"
 
 🎯 DECISIVE OUTPUT FORMAT:
 Generate ONLY the complete, detailed image prompt. Include:
@@ -960,7 +966,7 @@ NO questions, NO options, NO "What about..." - Just your expert COMPLETE VISION 
           
           // Maya mentioned black and white editorial - create detailed prompt with styling
           if (userPrompt.toLowerCase().includes('black and white')) {
-            const cinematicPrompt = `raw photo, visible skin pores, film grain, unretouched natural skin texture, subsurface scattering, photographed on film, ${triggerWord}, A dramatic black and white editorial portrait of a sophisticated woman in a luxury Manhattan penthouse, leaning gracefully against white marble fireplace with intricate details, head tilted back in genuine laughter with sparkling eyes, champagne silk slip dress with delicate straps, low chignon hairstyle with soft tendrils, bold winged eyeliner and nude lips, delicate diamond earrings, one hand touching collarbone, dramatic window lighting creating directional shadows, shot from below for regal angle, Canon EOS R5 with 85mm f/1.2L lens, natural daylight, professional photography`;
+            const cinematicPrompt = `raw photo, visible skin pores, film grain, unretouched natural skin texture, subsurface scattering, photographed on film, ${triggerWord}, A dramatic black and white editorial portrait of a sophisticated woman in a luxury Manhattan penthouse, leaning gracefully against white marble fireplace with intricate details, head tilted back with natural expression and relaxed smile, champagne silk slip dress with delicate straps, low chignon hairstyle with soft tendrils, bold winged eyeliner and nude lips, delicate diamond earrings, one hand touching collarbone, dramatic window lighting creating directional shadows, shot from below for regal angle, Canon EOS R5 with 85mm f/1.2L lens, natural daylight, professional photography`;
             console.log(`🎬 MAYA B&W DETAILED: "${cinematicPrompt}"`);
             return cinematicPrompt;
           }
