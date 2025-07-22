@@ -177,7 +177,6 @@ export class AIService {
     
   }
 
-  // 🔒 MAYA'S PROTECTED PROMPT BUILDER - FLUX AI AGENT COMPLETELY DISCONNECTED
   private static async buildFluxPrompt(style: string, customPrompt?: string, userId?: string): Promise<string> {
     if (!userId) {
       throw new Error('User ID is required for image generation');
@@ -195,25 +194,9 @@ export class AIService {
     }
     
     if (customPrompt) {
-      // 🔒 MAYA'S EXCLUSIVE PROMPT PROCESSING - BULLETPROOF FLUX PROTECTION
-      // This prompt comes EXCLUSIVELY from Maya's protected styling system in server/routes.ts
-      // FLUX AI AGENT IS COMPLETELY DISCONNECTED FROM THIS SYSTEM
-      // NO other AI agents can modify, interfere, or contaminate Maya's vision
-      
-      // 🚨 BULLETPROOF PROTECTION: Verify this is Maya's authentic prompt
-      if (!customPrompt.includes('Maya described this styling vision:')) {
-        console.log('🔒 MAYA PROTECTION: Prompt verified as Maya-generated');
-      }
-      
+      // 🔧 RESTORED WORKING PROMPT STRUCTURE - Based on successful generation ID 352
+      // Clean the prompt from any existing realism/trigger words to avoid duplication
       let cleanPrompt = customPrompt;
-      
-      // 🚨 NEW: Remove ALL markdown formatting that could confuse the AI model
-      // Remove ** bold formatting
-      cleanPrompt = cleanPrompt.replace(/\*\*([^*]+)\*\*/g, '$1');
-      // Remove * italic formatting  
-      cleanPrompt = cleanPrompt.replace(/\*([^*]+)\*/g, '$1');
-      // Remove remaining isolated * and ** characters
-      cleanPrompt = cleanPrompt.replace(/\*+/g, '');
       
       // Remove existing trigger word instances first
       cleanPrompt = cleanPrompt.replace(new RegExp(triggerWord, 'gi'), '').trim();
@@ -225,17 +208,19 @@ export class AIService {
         cleanPrompt = cleanPrompt.replace(new RegExp(term, 'gi'), '').trim();
       });
       
-      // Clean up extra commas, spaces, and newlines
-      cleanPrompt = cleanPrompt.replace(/,\s*,/g, ',').replace(/^\s*,\s*|\s*,\s*$/g, '').replace(/\n+/g, ' ').trim();
+      // Clean up extra commas and spaces
+      cleanPrompt = cleanPrompt.replace(/,\s*,/g, ',').replace(/^\s*,\s*|\s*,\s*$/g, '').trim();
       
-      // 🚀 MAYA NATURAL APPROACH: Use original prompt without artificial enhancements
-      const hairOptimizedPrompt = cleanPrompt;
+      // 🚀 MAYA HAIR OPTIMIZATION: Enhanced prompt with hair quality focus
+      const hairOptimizedPrompt = this.enhancePromptForHairQuality(cleanPrompt);
       
-      // 🚀 NATURAL STRUCTURE: Pure minimal prompt matching reference image quality (NO enhancement terms)
-      const finalPrompt = `raw photo, visible skin pores, film grain, unretouched natural skin texture, subsurface scattering, photographed on film, ${triggerWord}, ${hairOptimizedPrompt}`;
+      // 🚀 HIGH-QUALITY ENHANCEMENT: Add professional camera equipment like reference image ID 405
+      const cameraEquipment = this.getRandomCameraEquipment();
       
-      console.log(`🚀 MAYA CLEANED PROMPT (no markdown): ${finalPrompt}`);
-      console.log(`📝 Original prompt had markdown: ${customPrompt.includes('**') || customPrompt.includes('*') ? 'YES' : 'NO'}`);
+      // 🚀 HIGH-QUALITY STRUCTURE: Based on reference image ID 405 (professional camera + film aesthetic)
+      const finalPrompt = `raw photo, visible skin pores, film grain, unretouched natural skin texture, subsurface scattering, photographed on film, ${triggerWord}, ${hairOptimizedPrompt}, ${cameraEquipment}, natural daylight, professional photography`;
+      
+      console.log(`🚀 MAYA HIGH-QUALITY PROMPT: ${finalPrompt}`);
       return finalPrompt;
     }
     
@@ -306,127 +291,7 @@ export class AIService {
     if (!userId) {
       throw new Error('User ID is required for image generation');
     }
-
-    // Retry logic for temporary Replicate API issues
-    const maxRetries = 3;
-    const retryDelay = 2000; // 2 seconds
     
-    for (let attempt = 1; attempt <= maxRetries; attempt++) {
-      try {
-        return await this.makeReplicateRequest(imageBase64, prompt, userId);
-      } catch (error) {
-        if (attempt === maxRetries) {
-          throw error; // Final attempt failed, re-throw error
-        }
-        
-        // Only retry on 502/503 errors
-        if (error.message.includes('502') || error.message.includes('503') || 
-            error.message.includes('Bad Gateway') || error.message.includes('Service Unavailable')) {
-          console.log(`Replicate API retry ${attempt}/${maxRetries} after ${retryDelay}ms...`);
-          await new Promise(resolve => setTimeout(resolve, retryDelay));
-          continue;
-        }
-        
-        throw error; // Non-retryable error
-      }
-    }
-  }
-
-  // 🎯 NEW: Sequential generation for consistent 3-photo quality
-  private static async makeSequentialReplicateRequest(imageBase64: string, prompt: string, userId: string): Promise<string[]> {
-    const userModel = await storage.getUserModelByUserId(userId);
-    if (!userModel) {
-      throw new Error('User model not ready for generation. Training must be completed first.');
-    }
-
-    const user = await storage.getUser(userId);
-    const isPremium = user?.plan === 'sselfie-studio' || user?.role === 'admin';
-
-    // 🔒 RESTORE WORKING CONFIGURATION: Use user's individual trained model
-    if (userModel.trainingStatus === 'completed' && userModel.replicateVersionId) {
-      console.log(`✅ Using user's individual trained FLUX model for sequential generation: ${userId}`);
-      
-      const userTrainedVersion = `${userModel.replicateModelId}:${userModel.replicateVersionId}`;
-      const baseSeed = Math.floor(Math.random() * 100000);
-      const seeds = [baseSeed, baseSeed + 333, baseSeed + 666];
-      
-      console.log(`🎯 SEQUENTIAL GENERATION: Restoring controlled seeds: ${seeds.join(', ')}`);
-      
-      const predictionIds: string[] = [];
-      
-      // Generate 3 separate images sequentially with controlled seeds (RESTORED)
-      for (let i = 0; i < 3; i++) {
-        const requestBody = {
-          version: userTrainedVersion,
-          input: {
-            prompt: prompt,
-            guidance: 2.8,
-            num_inference_steps: 40,
-            lora_scale: 0.7,          // 🔧 NATURAL FACE FIX: Further reduced for authentic skin
-            num_outputs: 1,                 // Single output per request
-            aspect_ratio: "3:4", 
-            output_format: "png",
-            output_quality: 96,
-            go_fast: false, 
-            disable_safety_checker: false,
-            seed: seeds[i]                  // RESTORED: Controlled seed for each image
-          }
-        };
-        
-        console.log(`🎯 GENERATING IMAGE ${i + 1}/3 with seed ${seeds[i]}`);
-        
-        // 🔒 PERMANENT ARCHITECTURE VALIDATION - NEVER REMOVE
-        ArchitectureValidator.validateGenerationRequest(requestBody, userId, isPremium);
-        
-        const response = await fetch('https://api.replicate.com/v1/predictions', {
-          method: 'POST',
-          headers: {
-            'Authorization': `Token ${process.env.REPLICATE_API_TOKEN}`,
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify(requestBody)
-        });
-
-        const responseText = await response.text();
-        
-        if (!response.ok) {
-          let errorMessage;
-          try {
-            const error = JSON.parse(responseText);
-            errorMessage = error.detail || error.message || response.statusText;
-          } catch (parseError) {
-            console.error('Replicate API HTML error response:', responseText.substring(0, 200));
-            errorMessage = `API error (${response.status}): ${response.statusText}`;
-          }
-          throw new Error(`FLUX API error on image ${i + 1}: ${errorMessage}`);
-        }
-
-        let prediction;
-        try {
-          prediction = JSON.parse(responseText);
-        } catch (parseError) {
-          console.error('Failed to parse Replicate response as JSON:', responseText.substring(0, 200));
-          throw new Error('Invalid JSON response from Replicate API');
-        }
-        
-        predictionIds.push(prediction.id);
-        console.log(`✅ IMAGE ${i + 1}/3 STARTED: Prediction ID ${prediction.id}`);
-        
-        // Small delay between requests to avoid rate limiting
-        if (i < 2) {
-          await new Promise(resolve => setTimeout(resolve, 1000));
-        }
-      }
-      
-      console.log(`🎯 SEQUENTIAL GENERATION COMPLETE: ${predictionIds.length} images started`);
-      return predictionIds;
-      
-    } else {
-      throw new Error('User model not ready for generation. Training must be completed first.');
-    }
-  }
-
-  private static async makeReplicateRequest(imageBase64: string, prompt: string, userId: string): Promise<string> {
     const userModel = await storage.getUserModelByUserId(userId);
     if (!userModel) {
       throw new Error('User model not ready for generation. Training must be completed first.');
@@ -447,32 +312,22 @@ export class AIService {
       
       // 🔧 FIXED: Use Sandra's AI Quality Upgrade specifications ONLY
       // Maya must NEVER modify these proven parameters that deliver professional results
-      
-      // 🎯 CRITICAL FIX: Sequential generation with controlled seeds for consistent quality
-      // Problem: num_outputs: 3 uses same seed for all images causing 2nd/3rd image quality issues
-      // Solution: Generate 3 separate requests with controlled seed variations
-      
-      const baseSeed = Math.floor(Math.random() * 100000);
-      
-      // RESTORED: Use controlled seed for consistent generation
       requestBody = {
         version: userTrainedVersion,
         input: {
           prompt: prompt,
-          guidance: 2.8,              // ✅ Optimal prompt adherence: Restored for strong generation quality
-          num_inference_steps: 40,    // ✅ AI Quality Upgrade: Fixed optimal steps for trained model likeness
-          lora_scale: 0.7,          // 🔧 NATURAL FACE FIX: Further reduced for authentic skin texture
-          num_outputs: 1,             // 🎯 CRITICAL: Single output for controlled seed usage
+          guidance: 2.8,              // ✅ AI Quality Upgrade: Fixed optimal guidance
+          num_inference_steps: 40,    // ✅ AI Quality Upgrade: Fixed inference steps  
+          lora_scale: 0.95,          // ✅ AI Quality Upgrade: Fixed LoRA scale for strong personalization
+          num_outputs: 3,
           aspect_ratio: "3:4", 
           output_format: "png",
-          output_quality: 96,        // ✅ ENHANCED: Slightly increased output quality
+          output_quality: 95,        // ✅ AI Quality Upgrade: Fixed output quality
           go_fast: false, 
           disable_safety_checker: false,
-          seed: baseSeed              // RESTORED: Base seed for generation
+          seed: Math.floor(Math.random() * 1000000)
         }
       };
-      
-      console.log(`🎯 CONTROLLED SEED GENERATION: Base seed ${baseSeed} for consistent quality`);
       
     } else {
       throw new Error('User model not ready for generation. Training must be completed first.');
@@ -501,103 +356,13 @@ export class AIService {
       body: JSON.stringify(requestBody)
     });
 
-    // Get response text first to handle both success and error cases
-    const responseText = await response.text();
-    
     if (!response.ok) {
-      let errorMessage;
-      try {
-        const error = JSON.parse(responseText);
-        errorMessage = error.detail || error.message || response.statusText;
-      } catch (parseError) {
-        // Handle HTML error responses
-        console.error('Replicate API HTML error response:', responseText.substring(0, 200));
-        errorMessage = `API error (${response.status}): ${response.statusText}`;
-      }
-      throw new Error(`FLUX API error: ${errorMessage}`);
+      const error = await response.json();
+      throw new Error(`FLUX API error: ${error.detail || response.statusText}`);
     }
 
-    let prediction;
-    try {
-      prediction = JSON.parse(responseText);
-    } catch (parseError) {
-      console.error('Failed to parse Replicate response as JSON:', responseText.substring(0, 200));
-      throw new Error('Invalid JSON response from Replicate API');
-    }
+    const prediction = await response.json();
     return prediction.id;
-  }
-
-  // 🎯 NEW: Maya sequential generation for consistent 3-photo quality
-  static async generateMayaSequential(params: { userId: string; customPrompt: string }): Promise<{ trackerId: number; predictionId: string; usageStatus: any }> {
-    const { userId, customPrompt } = params;
-    
-    // CRITICAL: Enforce strict validation - NO FALLBACKS ALLOWED
-    const userRequirements = await GenerationValidator.enforceGenerationRequirements(userId);
-    console.log(`🔒 VALIDATED: User ${userId} can generate with trigger word: ${userRequirements.triggerWord}`);
-    
-    // 1. Check usage limits AFTER model validation
-    const usageCheck = await UsageService.checkUsageLimit(userId);
-    if (!usageCheck.canGenerate) {
-      throw new Error(`Generation limit reached: ${usageCheck.reason}`);
-    }
-
-    // Create temporary generation tracking record for sequential generation
-    const generationTracker = await storage.createGenerationTracker({
-      userId: userId,
-      predictionId: '', // Will be updated with primary prediction ID
-      prompt: customPrompt,
-      style: 'Maya Sequential',
-      status: 'pending',
-      imageUrls: null // Will store all 3 URLs when complete
-    });
-
-    try {
-      // Call FLUX model API with sequential generation
-      const fluxPrompt = await this.buildFluxPrompt('', customPrompt, userId);
-      const predictionIds = await this.makeSequentialReplicateRequest('', fluxPrompt, userId);
-      
-      // Update tracker with primary prediction ID (first image)
-      await storage.updateGenerationTracker(generationTracker.id, { 
-        predictionId: predictionIds[0], // Use first prediction as primary
-        status: 'processing'
-      });
-
-      // Store all prediction IDs in custom field or additional tracking
-      console.log(`🎯 MAYA SEQUENTIAL: Tracking ${predictionIds.length} predictions for tracker ${generationTracker.id}`);
-
-      // 2. Record usage immediately when API call succeeds
-      await UsageService.recordUsage(userId, {
-        actionType: 'generation',
-        resourceUsed: 'replicate_ai',
-        cost: API_COSTS.replicate_ai * 3, // 3x cost for 3 images
-        details: {
-          style: 'Maya Sequential',
-          prompt: fluxPrompt,
-          predictionIds: predictionIds,
-          imageCount: 3
-        },
-        generationTrackerId: generationTracker.id
-      });
-
-      // Start polling for all 3 images
-      this.pollSequentialGeneration(generationTracker.id, predictionIds);
-
-      // Get updated usage status for frontend
-      const updatedUsage = await UsageService.checkUsageLimit(userId);
-      
-      return {
-        trackerId: generationTracker.id,
-        predictionId: predictionIds[0], // Return primary prediction ID
-        usageStatus: updatedUsage
-      };
-    } catch (error) {
-      // Update generation tracker with error status
-      await storage.updateGenerationTracker(generationTracker.id, {
-        status: 'failed',
-        imageUrls: JSON.stringify([`Error: ${error.message}`])
-      });
-      throw error;
-    }
   }
 
   static async generateMultipleStyles(userId: string, imageBase64: string): Promise<{ [style: string]: { aiImageId: number; predictionId: string } }> {
@@ -616,83 +381,6 @@ export class AIService {
 
     await Promise.all(promises);
     return results;
-  }
-
-  // 🎯 NEW: Sequential polling for multiple prediction IDs
-  static async pollSequentialGeneration(trackerId: number, predictionIds: string[]): Promise<void> {
-    console.log(`🎯 SEQUENTIAL POLLING: Starting for tracker ${trackerId} with ${predictionIds.length} predictions`);
-    
-    const maxAttempts = 60; // Longer timeout for 3 images
-    const imageResults: string[] = [];
-    const completedPredictions = new Set<string>();
-    
-    // Poll all predictions in parallel
-    const pollingPromises = predictionIds.map(async (predictionId, index) => {
-      let attempts = 0;
-      
-      while (attempts < maxAttempts && !completedPredictions.has(predictionId)) {
-        try {
-          const status = await this.checkGenerationStatus(predictionId);
-          
-          if (status.status === 'succeeded') {
-            if (status.output && status.output.length > 0) {
-              console.log(`✅ IMAGE ${index + 1}/3 COMPLETED: ${predictionId.substring(0, 8)}`);
-              imageResults[index] = status.output[0]; // Store in correct position
-              completedPredictions.add(predictionId);
-              return;
-            }
-          } else if (status.status === 'failed' || status.status === 'canceled') {
-            console.log(`❌ IMAGE ${index + 1}/3 FAILED: ${predictionId.substring(0, 8)} - ${status.status}`);
-            imageResults[index] = `error_${status.status}`;
-            completedPredictions.add(predictionId);
-            return;
-          }
-          
-          // Wait 3 seconds before next check
-          await new Promise(resolve => setTimeout(resolve, 3000));
-          attempts++;
-        } catch (error) {
-          console.error(`❌ POLLING ERROR for image ${index + 1}:`, error);
-          attempts++;
-          if (attempts >= maxAttempts) {
-            imageResults[index] = 'error_timeout';
-            completedPredictions.add(predictionId);
-            return;
-          }
-          await new Promise(resolve => setTimeout(resolve, 5000));
-        }
-      }
-      
-      // Timeout case
-      if (!completedPredictions.has(predictionId)) {
-        console.log(`⏰ IMAGE ${index + 1}/3 TIMEOUT: ${predictionId.substring(0, 8)}`);
-        imageResults[index] = 'error_timeout';
-        completedPredictions.add(predictionId);
-      }
-    });
-    
-    // Wait for all images to complete or timeout
-    await Promise.all(pollingPromises);
-    
-    // Update tracker with final results
-    const successfulImages = imageResults.filter(url => url && !url.startsWith('error_'));
-    const finalStatus = successfulImages.length > 0 ? 'completed' : 'failed';
-    
-    console.log(`🎯 SEQUENTIAL POLLING COMPLETE: ${successfulImages.length}/${predictionIds.length} images successful`);
-    
-    await storage.updateGenerationTracker(trackerId, {
-      status: finalStatus,
-      imageUrls: JSON.stringify(imageResults.filter(url => url && !url.startsWith('error_')))
-    });
-    
-    // Try to update Maya chat with completed images
-    if (successfulImages.length > 0) {
-      try {
-        await this.updateMayaChatWithImages(trackerId, successfulImages);
-      } catch (error) {
-        console.error(`❌ Failed to update Maya chat for tracker ${trackerId}:`, error);
-      }
-    }
   }
 
   static async pollGenerationStatus(trackerId: number, predictionId: string, maxAttempts: number = 30): Promise<void> {

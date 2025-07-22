@@ -148,17 +148,12 @@ export class ImageStorageService {
 
   /**
    * Ensure image is permanently stored - converts if needed
-   * Enhanced for Maya chat automatic migration
    */
   static async ensurePermanentStorage(url: string, userId: string, imageId: string): Promise<string> {
     if (this.isPermanentUrl(url)) {
-      console.log(`📎 PERMANENT STORAGE: URL already permanent - ${url.substring(0, 50)}...`);
       return url; // Already permanent
     }
     
-    console.log(`🔄 PERMANENT STORAGE: Converting temp URL to S3 - ${url.substring(0, 50)}...`);
-    const permanentUrl = await this.storeImagePermanently(url, userId, imageId);
-    console.log(`✅ PERMANENT STORAGE: Migration complete - ${permanentUrl.substring(0, 50)}...`);
-    return permanentUrl;
+    return await this.storeImagePermanently(url, userId, imageId);
   }
 }
