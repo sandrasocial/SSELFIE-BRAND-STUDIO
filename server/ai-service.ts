@@ -362,7 +362,7 @@ export class AIService {
             prompt: prompt,
             guidance: 2.8,
             num_inference_steps: 40,
-            lora_scale: 1.0,
+            lora_scale: 0.85,         // 🔧 FACE FIX: Reduced for natural face processing
             num_outputs: 1,                 // Single output per request
             aspect_ratio: "3:4", 
             output_format: "png",
@@ -461,7 +461,7 @@ export class AIService {
           prompt: prompt,
           guidance: 2.8,              // ✅ Optimal prompt adherence: Restored for strong generation quality
           num_inference_steps: 40,    // ✅ AI Quality Upgrade: Fixed optimal steps for trained model likeness
-          lora_scale: 1.0,          // ✅ Maximum model likeness: Increased for stronger trained model features
+          lora_scale: 0.85,         // 🔧 FACE FIX: Reduced from 1.0 to prevent over-processed faces
           num_outputs: 1,             // 🎯 CRITICAL: Single output for controlled seed usage
           aspect_ratio: "3:4", 
           output_format: "png",
