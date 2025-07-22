@@ -370,10 +370,12 @@ export class AIService {
         version: versionId, // ✅ Using the user's individual trained model version
         input: {
           prompt: prompt,
-          guidance: 3.5,                // ✅ Guidance for trained model
-          num_inference_steps: 28,      // ✅ Standard inference steps
+          guidance: 2.8,                // ✅ Unified high-quality parameter
+          num_inference_steps: 40,      // ✅ Unified high-quality parameter
+          lora_scale: 0.95,            // ✅ Unified high-quality parameter  
           num_outputs: 3,               // ✅ As per CORE PRINCIPLES document
           aspect_ratio: "3:4", 
+          output_quality: 95,           // ✅ Unified high-quality parameter
           go_fast: false,               // ✅ Quality over speed for trained model
           seed: Math.floor(Math.random() * 1000000)
         }

@@ -153,9 +153,16 @@ export async function generateImages(request: GenerateImagesRequest): Promise<Ge
         input: {
           prompt: finalPrompt,
           lora: userLoraModel,       // ✅ USER'S TRAINED LORA WEIGHTS
-          guidance: 2.8,             // ✅ CORE_ARCHITECTURE_V2: Professional natural results
-          num_inference_steps: 40,   // ✅ CORE_ARCHITECTURE_V2: Enhanced quality steps
-          num_outputs: 3,           // ✅ As per CORE PRINCIPLES document
+          guidance: 2.8,                 // ✅ Unified high-quality parameter
+          num_inference_steps: 40,       // ✅ Unified high-quality parameter
+          lora_scale: 0.95,             // ✅ Unified high-quality parameter
+          num_outputs: 3,               // ✅ As per CORE PRINCIPLES
+          aspect_ratio: "3:4",
+          output_quality: 95,           // ✅ Unified high-quality parameter
+          output_format: "png",
+          go_fast: false,               // ✅ Quality over speed
+          disable_safety_checker: false,
+          seed: Math.floor(Math.random() * 1000000)
           aspect_ratio: "3:4", 
           output_format: "png",
           output_quality: 95,       // ✅ CORE_ARCHITECTURE_V2: Maximum clarity
