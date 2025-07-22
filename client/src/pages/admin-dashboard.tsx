@@ -5,7 +5,7 @@ interface TestSyncComponentProps {
   className?: string
 }
 
-export function TestSyncComponent({ className }: TestSyncComponentProps) {
+function TestSyncComponent({ className }: TestSyncComponentProps) {
   return (
     <Card className={cn("p-8 bg-[#0a0a0a] text-white", className)}>
       <h2 className="font-serif text-2xl mb-4">Sync Verification</h2>
@@ -18,5 +18,16 @@ export function TestSyncComponent({ className }: TestSyncComponentProps) {
         </p>
       </div>
     </Card>
+  )
+}
+
+export default function AdminDashboard() {
+  return (
+    <div className="min-h-screen bg-white p-8">
+      <div className="max-w-4xl mx-auto">
+        <h1 className="font-serif text-3xl mb-8 text-[#0a0a0a]">Admin Dashboard</h1>
+        <TestSyncComponent />
+      </div>
+    </div>
   )
 }
