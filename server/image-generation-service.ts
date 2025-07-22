@@ -132,9 +132,14 @@ export async function generateImages(request: GenerateImagesRequest): Promise<Ge
 
     let requestBody: any;
 
-    // 🔒 ZERO TOLERANCE: Use ONLY user's individual trained model
+    // 🔒 INDIVIDUAL MODEL ISOLATION: Use ONLY this user's trained model
     if (userModel.trainingStatus === 'completed' && userModel.replicateVersionId) {
-      console.log(`✅ Using user's individual trained FLUX model for AI Photoshoot: ${userId}`);
+      console.log(`✅ Using individual trained model for user ${userId}: ${userModel.replicateModelId}`);
+      
+      // CRITICAL: Verify this user owns this model
+      if (!userModel.replicateModelId.includes(userId)) {
+        throw new Error('Model ownership violation - user can only use their own trained model');
+      }
       
       const userTrainedVersion = `${userModel.replicateModelId}:${userModel.replicateVersionId}`;
       
