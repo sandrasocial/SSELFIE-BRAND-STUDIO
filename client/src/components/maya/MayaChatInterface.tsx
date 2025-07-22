@@ -57,72 +57,101 @@ What kind of vibe are we creating today? Or just say "surprise me" and I'll crea
     ]);
   }, []);
 
-  // Poll for completed generation trackers
-  const { data: completedGenerations } = useQuery({
-    queryKey: ['/api/generation-trackers/completed', user?.id],
-    enabled: !!user,
-    refetchInterval: 3000, // Poll every 3 seconds
-    staleTime: 0
-  });
+  // Removed old query - now using direct polling approach like backup implementation
 
-  // Update chat messages when new generations complete
-  useEffect(() => {
-    if (completedGenerations) {
-      setChatMessages(prev => 
-        prev.map(msg => {
-          if (msg.isGenerating && completedGenerations.find((gen: GenerationTracker) => 
-            gen.status === 'completed' && gen.id === currentTrackerId
-          )) {
-            const generation = completedGenerations.find((gen: GenerationTracker) => 
-              gen.status === 'completed' && gen.id === currentTrackerId
-            );
-            
-            // Complete progress bar
-            setGenerationProgress(100);
-            
-            // Reset progress after a short delay
-            setTimeout(() => {
-              setCurrentTrackerId(null);
-              setGenerationProgress(0);
-            }, 1500);
-            
-            return {
-              ...msg,
-              isGenerating: false,
-              imagePreview: generation
-            };
-          }
-          return msg;
-        })
-      );
-    }
-  }, [completedGenerations, currentTrackerId]);
+  // Removed old useEffect - now using polling approach like backup implementation
 
-  // Progress tracking effect for active generations
-  useEffect(() => {
-    let progressInterval: NodeJS.Timeout | null = null;
+  // Poll tracker for image completion (matching backup implementation)
+  const pollForTrackerCompletion = async (trackerId: number) => {
+    const maxAttempts = 40; // 2 minutes total (3 second intervals)
+    let attempts = 0;
     
-    if (currentTrackerId) {
-      console.log('🎬 Maya: Starting progress tracking for tracker:', currentTrackerId);
-      setGenerationProgress(5); // Start with 5%
-      progressInterval = setInterval(() => {
-        setGenerationProgress(prev => {
-          const newProgress = prev >= 90 ? prev : prev + Math.random() * 15;
-          console.log('🎬 Maya: Progress update:', newProgress);
-          return newProgress;
+    const poll = async () => {
+      try {
+        attempts++;
+        setGenerationProgress(Math.min(90, (attempts / maxAttempts) * 90));
+        
+        const response = await fetch(`/api/generation-tracker/${trackerId}`, {
+          credentials: 'include'
         });
-      }, 2000);
-    } else {
-      console.log('🎬 Maya: No tracker ID, resetting progress');
-      setGenerationProgress(0);
-    }
-
-    return () => {
-      if (progressInterval) {
-        clearInterval(progressInterval);
+        if (!response.ok) throw new Error('Failed to fetch tracker status');
+        
+        const tracker = await response.json();
+        
+        if (tracker.status === 'completed' && tracker.imageUrls && tracker.imageUrls.length > 0) {
+          // Image generation completed
+          console.log('🎬 Maya: Tracker generation completed!', tracker);
+          
+          setGenerationProgress(100);
+          
+          // Update the generating message with completed images
+          setChatMessages(prev => prev.map(msg => {
+            if (msg.isGenerating && msg.role === 'maya') {
+              return {
+                ...msg,
+                isGenerating: false,
+                imagePreview: {
+                  id: trackerId,
+                  userId: '',
+                  predictionId: '',
+                  prompt: '',
+                  style: '',
+                  status: 'completed',
+                  imageUrls: JSON.stringify(tracker.imageUrls),
+                  createdAt: ''
+                }
+              };
+            }
+            return msg;
+          }));
+          
+          // Reset progress after showing completion
+          setTimeout(() => {
+            setGenerationProgress(0);
+            setCurrentTrackerId(null);
+          }, 1500);
+          
+          return;
+        }
+        
+        if (tracker.status === 'failed') {
+          setChatMessages(prev => prev.map(msg => {
+            if (msg.isGenerating && msg.role === 'maya') {
+              return { ...msg, isGenerating: false };
+            }
+            return msg;
+          }));
+          return;
+        }
+        
+        // Continue polling
+        if (attempts < maxAttempts) {
+          setTimeout(poll, 3000);
+        } else {
+          setChatMessages(prev => prev.map(msg => {
+            if (msg.isGenerating && msg.role === 'maya') {
+              return { ...msg, isGenerating: false };
+            }
+            return msg;
+          }));
+        }
+      } catch (error) {
+        console.error('Polling error:', error);
+        if (attempts < maxAttempts) {
+          setTimeout(poll, 3000);
+        } else {
+          setChatMessages(prev => prev.map(msg => {
+            if (msg.isGenerating && msg.role === 'maya') {
+              return { ...msg, isGenerating: false };
+            }
+            return msg;
+          }));
+        }
       }
     };
-  }, [currentTrackerId]);
+    
+    poll();
+  };
 
   // Send message and trigger Maya's response with image generation
   const sendMessageMutation = useMutation({
@@ -140,6 +169,9 @@ What kind of vibe are we creating today? Or just say "surprise me" and I'll crea
         console.log('🎬 Maya: Setting tracker ID:', data.imageId);
         setCurrentTrackerId(data.imageId);
         setGenerationProgress(0); // Reset progress
+        
+        // Start polling tracker for completion
+        pollForTrackerCompletion(data.imageId);
       }
 
       // Add Maya's response with generating status
