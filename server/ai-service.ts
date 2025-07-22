@@ -50,8 +50,16 @@ export class AIService {
     });
 
     try {
-      // Call FLUX model API
-      const fluxPrompt = await this.buildFluxPrompt(style, prompt, userId);
+      // MAYA BYPASS: Skip buildFluxPrompt contamination for Maya-generated prompts
+      let fluxPrompt;
+      if (prompt && prompt.includes('elegant woman') && (prompt.includes('Canon EOS R5') || prompt.includes('Hasselblad'))) {
+        // Maya's pre-built prompt - use directly without contamination
+        fluxPrompt = prompt;
+        console.log('🎯 MAYA BYPASS: Using clean Maya prompt directly');
+      } else {
+        // Non-Maya prompts use the build system
+        fluxPrompt = await this.buildFluxPrompt(style, prompt, userId);
+      }
       const predictionId = await this.callFluxAPI(imageBase64, fluxPrompt, userId);
       
       // Update tracker with prediction ID
