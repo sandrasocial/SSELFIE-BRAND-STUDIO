@@ -147,7 +147,7 @@ export async function generateImages(request: GenerateImagesRequest): Promise<Ge
           prompt: finalPrompt,
           guidance_scale: 2.8,           // ✅ Unified high-quality parameter (correct FLUX parameter)
           num_inference_steps: 40,       // ✅ Unified high-quality parameter
-          lora_scale: 0.95,             // ✅ Unified high-quality parameter
+
           num_outputs: 3,               // ✅ As per CORE PRINCIPLES
           aspect_ratio: "3:4",
           output_quality: 95,           // ✅ Unified high-quality parameter
@@ -169,11 +169,10 @@ export async function generateImages(request: GenerateImagesRequest): Promise<Ge
       model: userModelPath,
       guidance_scale: requestBody.input.guidance_scale,
       steps: requestBody.input.num_inference_steps,
-      lora_scale: requestBody.input.lora_scale,
       quality: requestBody.input.output_quality,
       outputs: requestBody.input.num_outputs,
       camera: 'Professional equipment integrated',
-      settings: 'Individual User Model Architecture'
+      settings: 'Individual User Model Architecture (No LoRA Scale)'
     });
     
 

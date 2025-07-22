@@ -124,7 +124,7 @@ export class EnhancedGenerationService {
         prompt: enhancedPrompt,
         guidance_scale: 2.8,         // ✅ Unified high-quality parameter (correct FLUX parameter)
         num_inference_steps: 40,     // ✅ Unified high-quality parameter
-        lora_scale: 0.95,           // ✅ Unified high-quality parameter
+
         num_outputs: 3,
         aspect_ratio: "3:4", // 🔒 CORE_ARCHITECTURE_IMMUTABLE_V2.md: portrait format
         output_format: "png",
