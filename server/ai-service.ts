@@ -318,13 +318,13 @@ export class AIService {
         version: userTrainedVersion,
         input: {
           prompt: prompt,
-          lora_guidance: optimizedParams.guidance || 2.8, // 🚀 FIXED: LoRA guidance parameter for Replicate
-          num_inference_steps: optimizedParams.inferenceSteps || 40, // 🔧 OPTIMIZED: Quality-based steps
-          lora_scale: optimizedParams.loraScale || 0.95, // 🚀 CRITICAL FIX: Missing LoRA scale added
+          guidance_scale: 2.82, // 🚀 EXACT MATCH: Sandra's working Replicate settings
+          num_inference_steps: 40, // 🚀 EXACT MATCH: Sandra's working Replicate settings  
+          lora_scale: 1, // 🚀 EXACT MATCH: Sandra's working Replicate settings
           num_outputs: 3,
           aspect_ratio: "3:4", 
           output_format: "png",
-          output_quality: optimizedParams.outputQuality || 95, // 🔧 OPTIMIZED: Quality setting
+          output_quality: 95, // High quality for realistic results
           go_fast: false, 
           disable_safety_checker: false,
           seed: Math.floor(Math.random() * 1000000)
@@ -339,14 +339,13 @@ export class AIService {
     ArchitectureValidator.validateGenerationRequest(requestBody, userId, isPremium);
     ArchitectureValidator.logArchitectureCompliance(userId, 'Maya AI Generation');
     
-    // 📊 LOG OPTIMIZATION PARAMETERS FOR MONITORING
-    console.log(`🚀 MAYA OPTIMIZATION ACTIVE for user ${userId}:`, {
-      loraGuidance: requestBody.input.lora_guidance,
+    // 📊 LOG EXACT REPLICATE PARAMETERS FOR MONITORING
+    console.log(`🚀 SANDRA'S EXACT REPLICATE SETTINGS for user ${userId}:`, {
+      guidance_scale: requestBody.input.guidance_scale,
       steps: requestBody.input.num_inference_steps,
-      loraScale: requestBody.input.lora_scale,
+      lora_scale: requestBody.input.lora_scale,
       quality: requestBody.input.output_quality,
-      isPremium,
-      userRole: user?.role
+      trigger_word: prompt.includes('user42585527') ? 'user42585527' : 'MISSING_TRIGGER_WORD'
     });
     
     const response = await fetch('https://api.replicate.com/v1/predictions', {

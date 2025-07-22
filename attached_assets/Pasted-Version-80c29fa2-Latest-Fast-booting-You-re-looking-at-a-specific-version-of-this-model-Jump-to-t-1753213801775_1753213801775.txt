@@ -1,0 +1,188 @@
+Version
+
+80c29fa2
+Latest
+
+Fast booting
+You're looking at a specific version of this model. Jump to the model overview.
+
+sandrasocial /42585527-selfie-lora-1753201482760:80c29fa2
+
+Delete
+Playground
+API
+Metrics
+Setup logs
+Predictions
+Input
+
+Edit visible inputs
+
+Form
+
+JSON
+
+Node.js
+
+Python
+
+HTTP
+
+Cog
+
+Docker
+The trigger word for this model is user42585527. Be sure to include it in your prompt.
+
+prompt
+*
+string
+Shift + Return to add a new line
+user42585527  raw photo, visible skin pores, film grain, unretouched natural skin texture, subsurface scattering, photographed on film, glamorous hostess in designer dress preparing elegant dinner party on villa terrace, string lights and Mediterranean landscape, luxury table setting with candles, shot on Sony A7R V with 85mm f/1.4 lens, lifestyle editorial photography, architectural digest dinner party aesthetic
+user42585527  raw photo, visible skin pores, film grain, unretouched natural skin texture, subsurface scattering, photographed on film, glamorous hostess in designer dress preparing elegant dinner party on villa terrace, string lights and Mediterranean landscape, luxury table setting with candles, shot on Sony A7R V with 85mm f/1.4 lens, lifestyle editorial photography, architectural digest dinner party aesthetic
+Prompt for generated image. If you include the `trigger_word` used in the training process you are more likely to activate the trained object, style, or concept in the resulting image.
+
+image
+file
+Enter a URL, paste a file, or drag a file over.
+
+Upload a file from your machine
+Input image for image to image or inpainting mode. If provided, aspect_ratio, width, and height inputs are ignored.
+
+mask
+file
+Enter a URL, paste a file, or drag a file over.
+
+Upload a file from your machine
+Image mask for image inpainting mode. If provided, aspect_ratio, width, and height inputs are ignored.
+
+aspect_ratio
+string
+
+3:4
+Aspect ratio for the generated image. If custom is selected, uses height and width below & will run in bf16 mode
+
+Default: "1:1"
+
+height
+integer
+(minimum: 256, maximum: 1440)
+height
+Height of generated image. Only works if `aspect_ratio` is set to custom. Will be rounded to nearest multiple of 16. Incompatible with fast generation
+
+width
+integer
+(minimum: 256, maximum: 1440)
+width
+Width of generated image. Only works if `aspect_ratio` is set to custom. Will be rounded to nearest multiple of 16. Incompatible with fast generation
+
+prompt_strength
+number
+(minimum: 0, maximum: 1)
+0,8
+prompt_strength
+Prompt strength when using img2img. 1.0 corresponds to full destruction of information in image
+
+Default: 0.8
+
+model
+string
+
+dev
+Which model to run inference with. The dev model performs best with around 28 inference steps but the schnell model only needs 4 steps.
+
+Default: "dev"
+
+num_outputs
+integer
+(minimum: 1, maximum: 4)
+3
+num_outputs
+Number of outputs to generate
+
+Default: 1
+
+num_inference_steps
+integer
+(minimum: 1, maximum: 50)
+40
+num_inference_steps
+Number of denoising steps. More steps can give more detailed images, but take longer.
+
+Default: 28
+
+guidance_scale
+number
+(minimum: 0, maximum: 10)
+2,82
+guidance_scale
+Guidance scale for the diffusion process. Lower values can give more realistic images. Good values to try are 2, 2.5, 3 and 3.5
+
+Default: 3
+
+seed
+integer
+Random seed. Set for reproducible generation
+
+output_format
+string
+
+png
+Format of the output images
+
+Default: "webp"
+
+output_quality
+integer
+(minimum: 0, maximum: 100)
+95
+output_quality
+Quality when saving the output images, from 0 to 100. 100 is best quality, 0 is lowest quality. Not relevant for .png outputs
+
+Default: 80
+
+
+disable_safety_checker
+boolean
+This model’s safety checker can’t be disabled when running on the website. Learn more about platform safety on Replicate.
+
+Disable safety checker for generated images.
+
+Default: false
+
+
+go_fast
+boolean
+Run faster predictions with model optimized for speed (currently fp8 quantized); disable to run in original bf16
+
+Default: false
+
+megapixels
+string
+
+1
+Approximate number of megapixels for generated image
+
+Default: "1"
+
+lora_scale
+number
+(minimum: -1, maximum: 3)
+1
+lora_scale
+Determines how strongly the main LoRA should be applied. Sane results between 0 and 1 for base inference. For go_fast we apply a 1.5x multiplier to this value; we've generally seen good performance when scaling the base value by that amount. You may still need to experiment to find the best value for your particular lora.
+
+Default: 1
+
+extra_lora
+string
+Shift + Return to add a new line
+Load LoRA weights. Supports Replicate models in the format <owner>/<username> or <owner>/<username>/<version>, HuggingFace URLs in the format huggingface.co/<owner>/<model-name>, CivitAI URLs in the format civitai.com/models/<id>[/<model-name>], or arbitrary .safetensors URLs from the Internet. For example, 'fofr/flux-pixar-cars'
+
+extra_lora_scale
+number
+(minimum: -1, maximum: 3)
+1
+extra_lora_scale
+Determines how strongly the extra LoRA should be applied. Sane results between 0 and 1 for base inference. For go_fast we apply a 1.5x multiplier to this value; we've generally seen good performance when scaling the base value by that amount. You may still need to experiment to find the best value for your particular lora.
+
+Default: 1
