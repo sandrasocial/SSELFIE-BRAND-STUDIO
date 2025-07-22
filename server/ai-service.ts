@@ -234,8 +234,8 @@ export class AIService {
       // 🚀 HIGH-QUALITY ENHANCEMENT: Add professional camera equipment like reference image ID 405
       const cameraEquipment = this.getRandomCameraEquipment();
       
-      // 🚀 NATURAL AUTHENTIC STRUCTURE: Clean prompt for natural, unretouched appearance
-      const finalPrompt = `${triggerWord}, ${hairOptimizedPrompt}, ${cameraEquipment}, natural lighting, candid photography, authentic skin texture, no retouching, natural appearance`;
+      // 🚀 HIGH-QUALITY STRUCTURE: Based on reference image ID 405 (professional camera + film aesthetic)
+      const finalPrompt = `raw photo, visible skin pores, film grain, unretouched natural skin texture, subsurface scattering, photographed on film, ${triggerWord}, ${hairOptimizedPrompt}, ${cameraEquipment}, natural daylight, professional photography`;
       
       console.log(`🚀 MAYA CLEANED PROMPT (no markdown): ${finalPrompt}`);
       console.log(`📝 Original prompt had markdown: ${customPrompt.includes('**') || customPrompt.includes('*') ? 'YES' : 'NO'}`);
@@ -363,7 +363,7 @@ export class AIService {
           version: userTrainedVersion,
           input: {
             prompt: prompt,
-            guidance: 2.8,
+            guidance: 1.8,
             num_inference_steps: 40,
             lora_scale: 0.95,
             num_outputs: 1,                 // Single output per request
