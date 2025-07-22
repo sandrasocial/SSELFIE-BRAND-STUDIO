@@ -924,6 +924,26 @@ Generate your complete, creative prompt - trust your artistic vision completely.
         return res.status(400).json({ error: 'Custom prompt is required' });
       }
 
+      // 🎯 MAYA PROMPT EXTRACTION: Extract actual image description from Maya's conversational response
+      function extractImagePromptFromMayaResponse(mayaResponse) {
+        // If it's already a clean prompt (no conversational text), return it
+        if (!mayaResponse.includes('Maya here') && !mayaResponse.includes('MOOD & ENERGY') && mayaResponse.length < 200) {
+          return mayaResponse;
+        }
+        
+        // Extract any actual image description if present
+        const imageDescriptionMatch = mayaResponse.match(/(?:portrait|photo|image|shot|selfie).*?(?=\.|,|Tell me|What's calling)/i);
+        if (imageDescriptionMatch) {
+          return imageDescriptionMatch[0].trim();
+        }
+        
+        // Default to clean portrait description using trigger word
+        return `${userModel.triggerWord}, professional portrait, editorial style, natural lighting`;
+      }
+
+      const actualImagePrompt = extractImagePromptFromMayaResponse(customPrompt);
+      console.log(`🎯 MAYA PROMPT EXTRACTED: "${actualImagePrompt}" from original: "${customPrompt.substring(0, 100)}..."`)
+
       const usageCheck = await UsageService.checkUsageLimit(userId);
       if (!usageCheck.canGenerate) {
         return res.status(403).json({ 
@@ -994,7 +1014,7 @@ Generate your complete, creative prompt - trust your artistic vision completely.
         userId,
         imageBase64: null, // Maya doesn't use uploaded images - removed placeholder
         style: 'Maya AI',
-        prompt: customPrompt
+        prompt: actualImagePrompt // Use extracted prompt instead of full Maya response
       });
 
 
