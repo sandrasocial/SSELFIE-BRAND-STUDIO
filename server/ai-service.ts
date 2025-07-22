@@ -225,6 +225,21 @@ export class AIService {
         cleanPrompt = cleanPrompt.replace(new RegExp(term, 'gi'), '').trim();
       });
       
+      // 🚨 NEW: Remove existing camera equipment to prevent duplication
+      const cameraTerms = [
+        /shot on [^,]+/gi,
+        /captured with [^,]+/gi, 
+        /photographed with [^,]+/gi,
+        /using [^,]+ camera/gi,
+        /using [^,]+ lens/gi,
+        /natural daylight/gi,
+        /professional photography/gi,
+        /realistic hair texture/gi
+      ];
+      cameraTerms.forEach(term => {
+        cleanPrompt = cleanPrompt.replace(term, '').trim();
+      });
+      
       // Clean up extra commas, spaces, and newlines
       cleanPrompt = cleanPrompt.replace(/,\s*,/g, ',').replace(/^\s*,\s*|\s*,\s*$/g, '').replace(/\n+/g, ' ').trim();
       
@@ -263,42 +278,55 @@ export class AIService {
   }
   
   /**
-   * Enhance prompt with hair quality optimization
+   * Enhance prompt with hair quality optimization (removes duplicates)
    */
   private static enhancePromptForHairQuality(prompt: string): string {
     console.log(`💇‍♀️ HAIR QUALITY ENHANCEMENT: Analyzing prompt for hair optimization`);
     
-    // Hair quality enhancement keywords
+    // Remove any existing hair enhancement terms to prevent duplication
+    const existingHairTerms = [
+      /natural hair movement/gi,
+      /detailed hair strands/gi, 
+      /realistic hair texture/gi,
+      /individual hair strand definition/gi,
+      /professional hair lighting/gi,
+      /natural hair detail and movement/gi
+    ];
+    
+    let cleanedPrompt = prompt;
+    existingHairTerms.forEach(term => {
+      cleanedPrompt = cleanedPrompt.replace(term, '').trim();
+    });
+    
+    // Clean up extra commas and spaces
+    cleanedPrompt = cleanedPrompt.replace(/,\s*,/g, ',').replace(/^\s*,\s*|\s*,\s*$/g, '').trim();
+    
+    // Hair quality enhancement keywords (only apply ONE)
     const hairEnhancements = [
       'natural hair movement',
       'detailed hair strands', 
-      'realistic hair texture',
-      'individual hair strand definition',
-      'professional hair lighting'
+      'realistic hair texture'
     ];
     
-    // Check if prompt already contains hair-related terms
-    const hasHairTerms = prompt.toLowerCase().includes('hair') || 
-                        prompt.toLowerCase().includes('strand') ||
-                        prompt.toLowerCase().includes('texture');
+    // Check if prompt mentions hair
+    const hasHairTerms = cleanedPrompt.toLowerCase().includes('hair') || 
+                        cleanedPrompt.toLowerCase().includes('strand');
     
     // If prompt mentions hair, enhance it with quality terms
     if (hasHairTerms) {
       const enhancement = hairEnhancements[Math.floor(Math.random() * hairEnhancements.length)];
-      const enhancedPrompt = `${prompt}, ${enhancement}`;
       console.log(`✨ HAIR ENHANCED: Added "${enhancement}"`);
-      return enhancedPrompt;
+      return `${cleanedPrompt}, ${enhancement}`;
     }
     
-    // For prompts without explicit hair terms, add subtle hair quality boost
-    if (prompt.toLowerCase().includes('portrait') || prompt.toLowerCase().includes('face')) {
-      const enhancedPrompt = `${prompt}, natural hair detail and movement`;
+    // For portraits without explicit hair terms, add subtle hair quality boost
+    if (cleanedPrompt.toLowerCase().includes('portrait') || cleanedPrompt.toLowerCase().includes('face')) {
       console.log(`✨ PORTRAIT HAIR BOOST: Added natural hair detail`);
-      return enhancedPrompt;
+      return `${cleanedPrompt}, natural hair detail`;
     }
     
     console.log(`📝 PROMPT UNCHANGED: No hair enhancement needed`);
-    return prompt;
+    return cleanedPrompt;
   }
 
   private static async callFluxAPI(imageBase64: string, prompt: string, userId?: string): Promise<string> {
