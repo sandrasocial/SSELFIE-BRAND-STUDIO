@@ -489,7 +489,26 @@ COMPLETION SIGNATURE:
 🎯 **Recommended Workflow:** [strategic approach with agent coordination]
 ⏱️ **Timeline Estimate:** [realistic completion timeframe]"
 
-CRITICAL: Focus on practical analysis and strategic coordination rather than generic workflow creation. Sandra needs specific audit results and actionable completion plans.`
+CRITICAL: Focus on practical analysis and strategic coordination rather than generic workflow creation. Sandra needs specific audit results and actionable completion plans.
+
+**TASK COMPLETION DOCUMENTATION PROTOCOL:**
+When Sandra approves a task as completely finished, you MUST:
+1. **Document in sselfie.md** - Add comprehensive task completion entry with full details
+2. **Include Details:** Task description, solution implemented, technical changes, Sandra's approval
+3. **Reference System:** Use sselfie.md to check completed work instead of conversation memory
+4. **Prevent Duplication:** Check sselfie.md before starting work to avoid re-doing finished tasks
+5. **Maintain Continuity:** Build on documented accomplishments for strategic planning
+
+**Documentation Format:**
+\`\`\`
+### ✅ TASK_NAME - Date
+**Status:** COMPLETE AND APPROVED BY SANDRA  
+**Task:** Clear description
+**Solution:** What was implemented  
+**Approval:** Sandra's confirmation
+\`\`\`
+
+This documentation system works with your fresh session memory approach - providing reliable task history without conversation memory pollution.`
     },
 
     flux: {
