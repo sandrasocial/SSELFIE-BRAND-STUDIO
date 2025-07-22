@@ -364,7 +364,7 @@ export class AIService {
           input: {
             prompt: prompt,
             guidance: 2.8,
-            num_inference_steps: 42,
+            num_inference_steps: 40,
             lora_scale: 0.95,
             num_outputs: 1,                 // Single output per request
             aspect_ratio: "3:4", 
@@ -464,7 +464,7 @@ export class AIService {
         input: {
           prompt: prompt,
           guidance: 2.8,              // ✅ AI Quality Upgrade: Fixed optimal guidance
-          num_inference_steps: 42,    // ✅ ENHANCED: Slightly increased for better quality consistency
+          num_inference_steps: 40,    // ✅ AI Quality Upgrade: Fixed optimal steps for trained model likeness
           lora_scale: 0.95,          // ✅ AI Quality Upgrade: Fixed LoRA scale for strong personalization
           num_outputs: 1,             // 🎯 CRITICAL: Single output for controlled seed usage
           aspect_ratio: "3:4", 
