@@ -2650,8 +2650,8 @@ VOICE RULES:
         
         res.json(userModel);
       } else {
-        // Create new user model
-        const triggerWord = `user${dbUserId.replace(/[^a-zA-Z0-9]/g, '_')}_${Date.now()}`;
+        // Create new user model (no timestamp for new users)
+        const triggerWord = `user${dbUserId.replace(/[^a-zA-Z0-9]/g, '')}`;
         const newModel = await storage.createUserModel({
           userId: dbUserId,
           triggerWord,
@@ -2731,8 +2731,8 @@ VOICE RULES:
 
       const dbUserId = user.id;
 
-      // Generate unique trigger word for this user
-      const triggerWord = `user${dbUserId.replace(/[^a-zA-Z0-9]/g, '_')}_${Date.now()}`;
+      // Generate clean trigger word for this user (no timestamp for new users)
+      const triggerWord = `user${dbUserId.replace(/[^a-zA-Z0-9]/g, '')}`;
       // Create unique model name with timestamp to avoid conflicts during retraining
       const timestamp = Date.now();
       const modelName = `${dbUserId}-selfie-lora-${timestamp}`;
