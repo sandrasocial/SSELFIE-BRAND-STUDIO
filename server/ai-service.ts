@@ -368,7 +368,6 @@ export class AIService {
           prompt: prompt,
           guidance_scale: 2.8,          // ✅ Unified high-quality parameter (using guidance_scale for FLUX)
           num_inference_steps: 40,      // ✅ Unified high-quality parameter
-          lora_scale: 0.95,            // ✅ Unified high-quality parameter  
           num_outputs: 3,               // ✅ As per CORE PRINCIPLES document
           aspect_ratio: "3:4", 
           output_quality: 95,           // ✅ Unified high-quality parameter
@@ -389,11 +388,10 @@ export class AIService {
     console.log(`✅ MAYA INDIVIDUAL MODEL ACTIVE for user ${userId}:`, {
       guidance_scale: requestBody.input.guidance_scale,  // ✅ Should show 2.8
       steps: requestBody.input.num_inference_steps,      // ✅ Should show 40
-      lora_scale: requestBody.input.lora_scale,          // ✅ Should show 0.95
       quality: requestBody.input.output_quality,         // ✅ Should show 95
       model_path: requestBody.version,                   // ✅ Individual model path
       outputs: requestBody.input.num_outputs,           // ✅ Should show 3
-      settings: 'Individual User Model Architecture Complete'
+      settings: 'Individual User Model Architecture Complete (No LoRA Scale)'
     });
     
     // 🔍 DEBUG LOG: Complete request body for debugging
