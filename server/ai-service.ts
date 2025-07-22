@@ -350,9 +350,16 @@ export class AIService {
     if (userModel.trainingStatus === 'completed' && userModel.replicateVersionId) {
       console.log(`✅ Using user's individual trained FLUX model: ${userId}`);
       
-      // 🔧 CRITICAL FIX: Use the specific model version that created successful images
-      // Working version: b9fab7abf5819f4c99e78d84d9f049b30b5ba7c63407221604030862ae0be927
-      const userTrainedVersion = `${userModel.replicateModelId}:${userModel.replicateVersionId}`;
+      // 🔧 CRITICAL FIX: Handle version format properly
+      // The replicateVersionId contains the full model:version string
+      let userTrainedVersion;
+      if (userModel.replicateVersionId.includes(':')) {
+        // Version already contains full model:version format
+        userTrainedVersion = userModel.replicateVersionId;
+      } else {
+        // Legacy format - construct the version string
+        userTrainedVersion = `${userModel.replicateModelId}:${userModel.replicateVersionId}`;
+      }
       
       // 🔧 FIXED: Use Sandra's AI Quality Upgrade specifications ONLY
       // Maya must NEVER modify these proven parameters that deliver professional results
