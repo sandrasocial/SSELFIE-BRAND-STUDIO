@@ -944,15 +944,19 @@ NO questions, NO options, NO "What about..." - Just your expert COMPLETE VISION 
       function extractImagePromptFromRequest(userPrompt, triggerWord) {
         console.log(`🎯 MAYA PROMPT INPUT: "${userPrompt.substring(0, 200)}..."`);
         
-        // Check if this is Maya's conversational response (contains questions, emojis, multiple formatting)
+        // Check if this is Maya's response (either old questioning format OR new decisive format)
         if (userPrompt.includes('Hey gorgeous') || 
             userPrompt.includes('**MOOD & ENERGY:**') ||
             userPrompt.includes('**SETTING DREAMS:**') ||
             userPrompt.includes('What\'s calling to your soul') ||
             userPrompt.includes('Before I craft') ||
+            userPrompt.includes('**THE CINEMATIC VISION:**') ||
+            userPrompt.includes('**THE EDITORIAL STYLING:**') ||
+            userPrompt.includes('**TECHNICAL MASTERY:**') ||
+            userPrompt.includes('**THE EDITORIAL NARRATIVE:**') ||
             (userPrompt.includes('🖤') && userPrompt.includes('**'))) {
           
-          console.log(`🎭 MAYA CONVERSATIONAL DETECTED: Converting to detailed cinematic prompt`);
+          console.log(`🎭 MAYA RESPONSE DETECTED: Converting to proper technical format with mandatory elements`);
           
           // Maya mentioned black and white editorial - create detailed prompt with styling
           if (userPrompt.toLowerCase().includes('black and white')) {
@@ -961,9 +965,23 @@ NO questions, NO options, NO "What about..." - Just your expert COMPLETE VISION 
             return cinematicPrompt;
           }
           
-          // Default detailed editorial prompt with Maya's styling specifics
-          const cinematicPrompt = `raw photo, visible skin pores, film grain, unretouched natural skin texture, subsurface scattering, photographed on film, ${triggerWord}, A cinematic editorial portrait of a confident woman with flowing beach waves, striding through SoHo Manhattan streets at golden hour, wearing tailored blazer over silk camisole, statement gold jewelry, natural glowing makeup with defined brows, captured mid-stride with wind in hair, dramatic street lighting with warm shadows, shot from street level looking up, Hasselblad X2D with 90mm lens, natural daylight, professional photography`;
-          console.log(`🎬 MAYA EDITORIAL DETAILED: "${cinematicPrompt}"`);
+          // Extract the core cinematic description from Maya's detailed response
+          let coreDescription = userPrompt;
+          
+          // If it's Maya's new decisive format, extract the main vision
+          if (userPrompt.includes('**THE CINEMATIC VISION:**')) {
+            // Split by ** sections and find the vision content
+            const sections = userPrompt.split('**');
+            const visionIndex = sections.findIndex(section => section.includes('THE CINEMATIC VISION:'));
+            if (visionIndex !== -1 && visionIndex + 1 < sections.length) {
+              coreDescription = sections[visionIndex + 1].replace('THE CINEMATIC VISION:', '').trim();
+              console.log(`🎬 EXTRACTED MAYA VISION: "${coreDescription.substring(0, 100)}..."`);
+            }
+          }
+          
+          // Create final prompt with mandatory format + Maya's cinematic vision
+          const cinematicPrompt = `raw photo, visible skin pores, film grain, unretouched natural skin texture, subsurface scattering, photographed on film, ${triggerWord}, ${coreDescription}, natural daylight, professional photography`;
+          console.log(`🎬 MAYA FINAL TECHNICAL PROMPT: "${cinematicPrompt.substring(0, 200)}..."`);
           return cinematicPrompt;
         }
         
