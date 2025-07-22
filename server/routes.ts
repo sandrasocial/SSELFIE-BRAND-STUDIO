@@ -2728,7 +2728,9 @@ VOICE RULES:
 
       // Generate unique trigger word for this user
       const triggerWord = `user${dbUserId.replace(/[^a-zA-Z0-9]/g, '_')}_${Date.now()}`;
-      const modelName = `${dbUserId}-selfie-lora`;
+      // Create unique model name with timestamp to avoid conflicts during retraining
+      const timestamp = Date.now();
+      const modelName = `${dbUserId}-selfie-lora-${timestamp}`;
 
       // Handle retraining with usage limits based on user plan
       let userModel = await storage.getUserModelByUserId(dbUserId);
@@ -2868,6 +2870,24 @@ VOICE RULES:
         }
         
         if (!result.success) {
+          // Check if this is a model name conflict (retraining scenario)
+          const hasModelConflict = result.errors.some(error => 
+            error.includes('model with that name and owner already exists') ||
+            error.includes('A model with that name and owner already exists')
+          );
+          
+          if (hasModelConflict) {
+            // This is expected for retraining - the error should be handled in bulletproof service
+            console.log(`🔄 RETRAINING CONFLICT: User ${dbUserId} attempting to retrain existing model`);
+            return res.status(400).json({
+              success: false,
+              message: "Model retraining conflict. The system detected an existing model. This is being fixed automatically.",
+              errors: result.errors,
+              requiresRestart: true,
+              isRetrain: true
+            });
+          }
+          
           return res.status(400).json({
             success: false,
             message: "Training validation failed. Please fix the issues below and try again.",

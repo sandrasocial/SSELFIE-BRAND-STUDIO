@@ -207,10 +207,12 @@ export class BulletproofTrainingService {
     console.log(`🚀 REPLICATE TRAINING: Starting for user ${userId}`);
     
     const errors: string[] = [];
-    const modelName = `${userId}-selfie-lora`;
+    // Create unique model name with timestamp to avoid conflicts during retraining
+    const timestamp = Date.now();
+    const modelName = `${userId}-selfie-lora-${timestamp}`;
     
     try {
-      // Create user-specific model first
+      // Create user-specific model first (model might already exist for retraining)
       const createModelResponse = await fetch('https://api.replicate.com/v1/models', {
         method: 'POST',
         headers: {
@@ -226,9 +228,15 @@ export class BulletproofTrainingService {
         })
       });
       
-      // Model might already exist (422 error is OK)
-      if (!createModelResponse.ok && createModelResponse.status !== 422) {
+      // Handle model creation response
+      if (createModelResponse.ok) {
+        console.log(`✅ REPLICATE MODEL: Created new model ${modelName}`);
+      } else if (createModelResponse.status === 422) {
+        // Model already exists - this is fine for retraining
+        console.log(`✅ REPLICATE MODEL: Using existing model ${modelName} (retraining)`);
+      } else {
         const errorData = await createModelResponse.json();
+        console.error(`❌ REPLICATE MODEL: Failed to create/access model:`, errorData);
         errors.push(`Failed to create model: ${JSON.stringify(errorData)}`);
         return { success: false, errors, trainingId: null };
       }
