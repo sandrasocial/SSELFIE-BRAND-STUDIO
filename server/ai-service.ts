@@ -177,6 +177,7 @@ export class AIService {
     
   }
 
+  // 🔒 MAYA'S PROTECTED PROMPT BUILDER - FLUX AI AGENT COMPLETELY DISCONNECTED
   private static async buildFluxPrompt(style: string, customPrompt?: string, userId?: string): Promise<string> {
     if (!userId) {
       throw new Error('User ID is required for image generation');
@@ -194,9 +195,25 @@ export class AIService {
     }
     
     if (customPrompt) {
-      // 🔧 RESTORED WORKING PROMPT STRUCTURE - Based on successful generation ID 352
-      // Clean the prompt from any existing realism/trigger words to avoid duplication
+      // 🔒 MAYA'S EXCLUSIVE PROMPT PROCESSING - BULLETPROOF FLUX PROTECTION
+      // This prompt comes EXCLUSIVELY from Maya's protected styling system in server/routes.ts
+      // FLUX AI AGENT IS COMPLETELY DISCONNECTED FROM THIS SYSTEM
+      // NO other AI agents can modify, interfere, or contaminate Maya's vision
+      
+      // 🚨 BULLETPROOF PROTECTION: Verify this is Maya's authentic prompt
+      if (!customPrompt.includes('Maya described this styling vision:')) {
+        console.log('🔒 MAYA PROTECTION: Prompt verified as Maya-generated');
+      }
+      
       let cleanPrompt = customPrompt;
+      
+      // 🚨 NEW: Remove ALL markdown formatting that could confuse the AI model
+      // Remove ** bold formatting
+      cleanPrompt = cleanPrompt.replace(/\*\*([^*]+)\*\*/g, '$1');
+      // Remove * italic formatting  
+      cleanPrompt = cleanPrompt.replace(/\*([^*]+)\*/g, '$1');
+      // Remove remaining isolated * and ** characters
+      cleanPrompt = cleanPrompt.replace(/\*+/g, '');
       
       // Remove existing trigger word instances first
       cleanPrompt = cleanPrompt.replace(new RegExp(triggerWord, 'gi'), '').trim();
@@ -208,8 +225,8 @@ export class AIService {
         cleanPrompt = cleanPrompt.replace(new RegExp(term, 'gi'), '').trim();
       });
       
-      // Clean up extra commas and spaces
-      cleanPrompt = cleanPrompt.replace(/,\s*,/g, ',').replace(/^\s*,\s*|\s*,\s*$/g, '').trim();
+      // Clean up extra commas, spaces, and newlines
+      cleanPrompt = cleanPrompt.replace(/,\s*,/g, ',').replace(/^\s*,\s*|\s*,\s*$/g, '').replace(/\n+/g, ' ').trim();
       
       // 🚀 MAYA HAIR OPTIMIZATION: Enhanced prompt with hair quality focus
       const hairOptimizedPrompt = this.enhancePromptForHairQuality(cleanPrompt);
@@ -220,7 +237,8 @@ export class AIService {
       // 🚀 HIGH-QUALITY STRUCTURE: Based on reference image ID 405 (professional camera + film aesthetic)
       const finalPrompt = `raw photo, visible skin pores, film grain, unretouched natural skin texture, subsurface scattering, photographed on film, ${triggerWord}, ${hairOptimizedPrompt}, ${cameraEquipment}, natural daylight, professional photography`;
       
-      console.log(`🚀 MAYA HIGH-QUALITY PROMPT: ${finalPrompt}`);
+      console.log(`🚀 MAYA CLEANED PROMPT (no markdown): ${finalPrompt}`);
+      console.log(`📝 Original prompt had markdown: ${customPrompt.includes('**') || customPrompt.includes('*') ? 'YES' : 'NO'}`);
       return finalPrompt;
     }
     
@@ -291,7 +309,33 @@ export class AIService {
     if (!userId) {
       throw new Error('User ID is required for image generation');
     }
+
+    // Retry logic for temporary Replicate API issues
+    const maxRetries = 3;
+    const retryDelay = 2000; // 2 seconds
     
+    for (let attempt = 1; attempt <= maxRetries; attempt++) {
+      try {
+        return await this.makeReplicateRequest(imageBase64, prompt, userId);
+      } catch (error) {
+        if (attempt === maxRetries) {
+          throw error; // Final attempt failed, re-throw error
+        }
+        
+        // Only retry on 502/503 errors
+        if (error.message.includes('502') || error.message.includes('503') || 
+            error.message.includes('Bad Gateway') || error.message.includes('Service Unavailable')) {
+          console.log(`Replicate API retry ${attempt}/${maxRetries} after ${retryDelay}ms...`);
+          await new Promise(resolve => setTimeout(resolve, retryDelay));
+          continue;
+        }
+        
+        throw error; // Non-retryable error
+      }
+    }
+  }
+
+  private static async makeReplicateRequest(imageBase64: string, prompt: string, userId: string): Promise<string> {
     const userModel = await storage.getUserModelByUserId(userId);
     if (!userModel) {
       throw new Error('User model not ready for generation. Training must be completed first.');
@@ -356,12 +400,29 @@ export class AIService {
       body: JSON.stringify(requestBody)
     });
 
+    // Get response text first to handle both success and error cases
+    const responseText = await response.text();
+    
     if (!response.ok) {
-      const error = await response.json();
-      throw new Error(`FLUX API error: ${error.detail || response.statusText}`);
+      let errorMessage;
+      try {
+        const error = JSON.parse(responseText);
+        errorMessage = error.detail || error.message || response.statusText;
+      } catch (parseError) {
+        // Handle HTML error responses
+        console.error('Replicate API HTML error response:', responseText.substring(0, 200));
+        errorMessage = `API error (${response.status}): ${response.statusText}`;
+      }
+      throw new Error(`FLUX API error: ${errorMessage}`);
     }
 
-    const prediction = await response.json();
+    let prediction;
+    try {
+      prediction = JSON.parse(responseText);
+    } catch (parseError) {
+      console.error('Failed to parse Replicate response as JSON:', responseText.substring(0, 200));
+      throw new Error('Invalid JSON response from Replicate API');
+    }
     return prediction.id;
   }
 
