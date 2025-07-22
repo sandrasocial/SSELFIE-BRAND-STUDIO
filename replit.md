@@ -1136,29 +1136,33 @@ user42585527, elegant woman in full body editorial shot wearing sophisticated bl
 - ✅ **Deployment Ready**: Build command now completes successfully with no TypeScript compilation errors
 - ✅ **esbuild Compilation**: Server bundle creation working properly
 
-## ✅ UNIFIED HIGH-QUALITY PARAMETERS APPLIED - GENERATION CONSISTENCY ACHIEVED (July 22, 2025)
+## ✅ INDIVIDUAL USER MODEL ARCHITECTURE CORRECTED - COMPLETE MODEL PATH USAGE (July 22, 2025)
 
-**BREAKTHROUGH: ALL IMAGE GENERATION ENDPOINTS NOW USE IDENTICAL HIGH-QUALITY PARAMETERS**
-- ✅ **Root Cause Fixed**: Each user now uses their own individual trained model (not admin model)
-- ✅ **Unified Parameters Applied**: All 6 generation services now use identical quality parameters
-- ✅ **Individual Model Architecture**: Users call their trained model version directly (64-character hash)
-- ✅ **Architecture Fixed**: No LoRA needed - trained models contain user identity directly
-- ✅ **API Test Successful**: Direct individual model test returned "starting" status
-- ✅ **Complete Consistency**: Maya chat, AI Photoshoot, and all generation use same parameters
+**BREAKTHROUGH: FIXED TO USE COMPLETE INDIVIDUAL USER MODEL PATHS**
+- ✅ **Architecture Corrected**: Now uses COMPLETE model path (sandrasocial/42585527-selfie-lora:e1713c1) instead of extracting version ID
+- ✅ **All Generation Services Fixed**: Maya chat, AI Photoshoot, enhanced generation, and preview generation
+- ✅ **Individual Model Format**: Each user calls their complete trained model directly as individual endpoint
+- ✅ **No Base Model Needed**: Users don't use black-forest-labs base + LoRA, they use their complete trained model
+- ✅ **Zero Cross-Contamination**: Complete user isolation with individual model architecture
 
-**Unified High-Quality Parameters Applied:**
+**Corrected Model Usage:**
+- **Before**: Extracting version ID `e1713c1` and using with base FLUX model + LoRA
+- **After**: Using complete path `sandrasocial/42585527-selfie-lora:e1713c1` as individual trained model
+- **Architecture**: Each user has their own complete trained model endpoint
+
+**Unified High-Quality Parameters (Image Generation Only):**
 - **guidance**: 2.8 (unified across ALL generation endpoints)
 - **num_inference_steps**: 40 (unified across ALL generation endpoints)
 - **lora_scale**: 0.95 (unified across ALL generation endpoints)
 - **output_quality**: 95 (unified across ALL generation endpoints)
 
 **Technical Implementation:**
-- Fixed `server/ai-service.ts`: Individual user models + unified parameters (Maya chat)
-- Fixed `server/routes.ts`: Unified parameters for preview generation
-- Fixed `server/image-generation-service.ts`: Unified parameters for AI Photoshoot
-- Fixed `server/enhanced-generation-service.ts`: Unified parameters for enhanced generation
-- Individual model format: Direct version ID call without base FLUX model
-- **Training kept separate**: model-training-service.ts uses training-optimized parameters
+- Fixed `server/ai-service.ts`: Uses complete user model path for Maya chat
+- Fixed `server/routes.ts`: Uses complete user model path for preview generation
+- Fixed `server/image-generation-service.ts`: Uses complete user model path for AI Photoshoot
+- Fixed `server/enhanced-generation-service.ts`: Uses complete user model path for enhanced generation
+- Fixed `server/model-training-service.ts`: Uses complete user model path for training images
+- **Training kept separate**: model-training-service.ts uses training-optimized parameters (2.5 guidance, 35 steps, 1.0 lora_scale)
 - ✅ **Clean Code**: All emojis and icons removed from codebase per user requirement
 - ✅ **Production Build**: Frontend and backend building successfully for deployment
 

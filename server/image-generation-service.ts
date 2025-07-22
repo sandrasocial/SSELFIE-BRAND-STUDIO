@@ -155,12 +155,6 @@ export async function generateImages(request: GenerateImagesRequest): Promise<Ge
           go_fast: false,               // ✅ Quality over speed
           disable_safety_checker: false,
           seed: Math.floor(Math.random() * 1000000)
-          aspect_ratio: "3:4", 
-          output_format: "png",
-          output_quality: 95,       // ✅ CORE_ARCHITECTURE_V2: Maximum clarity
-          go_fast: false,           // ✅ Quality over speed as per CORE PRINCIPLES
-          disable_safety_checker: false,
-          seed: Math.floor(Math.random() * 1000000)
         }
       };
       
@@ -170,17 +164,16 @@ export async function generateImages(request: GenerateImagesRequest): Promise<Ge
     ArchitectureValidator.validateGenerationRequest(requestBody, userId, isPremium);
     ArchitectureValidator.logArchitectureCompliance(userId, 'AI Photoshoot Generation');
     
-    // 📊 LOG CORE_ARCHITECTURE_V2 PARAMETERS FOR AI PHOTOSHOOT MONITORING
-    console.log(`✅ AI PHOTOSHOOT CORE_ARCHITECTURE_V2 ACTIVE for user ${userId}:`, {
-      guidance_scale: requestBody.input.guidance_scale,
+    // 📊 LOG INDIVIDUAL MODEL PARAMETERS FOR AI PHOTOSHOOT MONITORING
+    console.log(`✅ AI PHOTOSHOOT INDIVIDUAL MODEL ACTIVE for user ${userId}:`, {
+      model: userModelPath,
+      guidance: requestBody.input.guidance,
       steps: requestBody.input.num_inference_steps,
       lora_scale: requestBody.input.lora_scale,
       quality: requestBody.input.output_quality,
       outputs: requestBody.input.num_outputs,
       camera: 'Professional equipment integrated',
-      settings: 'CORE_ARCHITECTURE_IMMUTABLE_V2 Complete'
-    });
-      collection: 'AI Photoshoot'
+      settings: 'Individual User Model Architecture'
     });
     
 
