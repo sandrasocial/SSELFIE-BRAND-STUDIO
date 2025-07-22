@@ -63,20 +63,24 @@ What kind of vibe are we creating today? Or just say "surprise me" and I'll crea
 
   // Removed old useEffect - now using polling approach like backup implementation
 
-  // Poll tracker for image completion (matching backup implementation)
+  // Poll for completed generation trackers using the existing working endpoint
   const pollForTrackerCompletion = async (trackerId: number) => {
-    const maxAttempts = 40; // 2 minutes total (3 second intervals)
+    const maxAttempts = 60; // 3 minutes total (3 second intervals)
     let attempts = 0;
     
-    console.log('🎬 Maya: Starting pollForTrackerCompletion for tracker:', trackerId);
+    console.log('🎬 Maya: Starting progress tracking for tracker:', trackerId);
     
     const poll = async () => {
       try {
         attempts++;
-        console.log(`🎬 Maya: Polling attempt ${attempts}/${maxAttempts} for tracker ${trackerId}`);
-        setGenerationProgress(Math.min(90, (attempts / maxAttempts) * 90));
+        // Progressive progress: 0-90% during polling, 100% on completion
+        const progressPercent = Math.min(90, (attempts / maxAttempts) * 90);
+        setGenerationProgress(progressPercent);
         
-        const response = await fetch(`/api/generation-tracker/${trackerId}`, {
+        console.log(`🎬 Maya: Progress check ${attempts}/${maxAttempts} (${Math.round(progressPercent)}%)`);
+        
+        // Check for completed generation trackers (using working endpoint)
+        const response = await fetch('/api/generation-trackers/completed', {
           method: 'GET',
           credentials: 'include',
           headers: {
@@ -84,84 +88,89 @@ What kind of vibe are we creating today? Or just say "surprise me" and I'll crea
           }
         });
         
-        console.log('🎬 Maya: Tracker response status:', response.status, response.ok);
-        
         if (!response.ok) {
-          const errorText = await response.text();
-          console.error('🎬 Maya: Tracker fetch error:', errorText);
-          throw new Error(`Failed to fetch tracker status: ${response.status}`);
+          throw new Error(`Failed to check trackers: ${response.status}`);
         }
         
-        const tracker = await response.json();
-        console.log('🎬 Maya: Tracker data:', tracker);
+        const trackers = await response.json();
+        console.log(`🎬 Maya: Found ${trackers.length} completed trackers`);
         
-        if (tracker.status === 'completed' && tracker.imageUrls && tracker.imageUrls.length > 0) {
-          // Image generation completed - using backup implementation pattern
-          console.log('🎬 Maya: Tracker generation completed!', tracker);
+        // Find our specific tracker
+        const ourTracker = trackers.find((t: any) => t.id === trackerId);
+        
+        if (ourTracker && ourTracker.status === 'completed' && ourTracker.imageUrls) {
+          console.log('🎬 Maya: Our tracker completed!', ourTracker);
           
+          // Complete progress and show results
           setGenerationProgress(100);
           setIsGenerating(false);
-          setGeneratedImages(tracker.imageUrls);
           
-          // Add image preview to the last Maya message (backup pattern)
+          // Parse image URLs
+          let imageUrls = [];
+          try {
+            imageUrls = typeof ourTracker.imageUrls === 'string' 
+              ? JSON.parse(ourTracker.imageUrls) 
+              : ourTracker.imageUrls;
+          } catch (e) {
+            imageUrls = [ourTracker.imageUrls];
+          }
+          
+          setGeneratedImages(imageUrls);
+          
+          // Update Maya's last message to remove generating state and add preview
           setChatMessages(prev => {
             const newMessages = [...prev];
             const lastMayaIndex = newMessages.map(m => m.role).lastIndexOf('maya');
             if (lastMayaIndex >= 0) {
               newMessages[lastMayaIndex] = {
                 ...newMessages[lastMayaIndex],
+                isGenerating: false, // Remove generating state
                 imagePreview: {
                   id: trackerId,
-                  userId: '',
-                  predictionId: '',
-                  prompt: '',
-                  style: '',
+                  userId: ourTracker.userId,
+                  predictionId: ourTracker.predictionId,
+                  prompt: ourTracker.prompt,
+                  style: ourTracker.style,
                   status: 'completed',
-                  imageUrls: JSON.stringify(tracker.imageUrls),
-                  createdAt: ''
+                  imageUrls: JSON.stringify(imageUrls),
+                  createdAt: ourTracker.createdAt
                 }
               };
             }
             return newMessages;
           });
           
-          // Reset progress after showing completion
+          // Reset progress after brief completion display
           setTimeout(() => {
             setGenerationProgress(0);
             setCurrentTrackerId(null);
-          }, 1500);
+          }, 2000);
           
-          console.log('🎬 Maya: Polling completed successfully, stopping');
+          console.log('🎬 Maya: Generation completed successfully!');
           return;
         }
         
-        if (tracker.status === 'failed') {
-          console.log('🎬 Maya: Tracker failed:', tracker.errorMessage || 'Unknown error');
-          setIsGenerating(false);
-          return;
-        }
-        
-        // Continue polling
+        // Continue polling if not found or not completed
         if (attempts < maxAttempts) {
-          console.log(`🎬 Maya: Still generating, will poll again in 3 seconds (status: ${tracker.status})`);
           setTimeout(poll, 3000);
         } else {
-          console.log('🎬 Maya: Max polling attempts reached, stopping');
+          console.log('🎬 Maya: Max attempts reached, stopping polling');
           setIsGenerating(false);
+          setGenerationProgress(0);
         }
       } catch (error) {
         console.error('🎬 Maya: Polling error:', error);
         if (attempts < maxAttempts) {
-          console.log('🎬 Maya: Error occurred, retrying in 3 seconds');
           setTimeout(poll, 3000);
         } else {
           console.log('🎬 Maya: Max attempts reached after errors, stopping');
           setIsGenerating(false);
+          setGenerationProgress(0);
         }
       }
     };
     
-    console.log('🎬 Maya: Starting initial poll');
+    // Start polling immediately
     poll();
   };
 
@@ -189,15 +198,16 @@ What kind of vibe are we creating today? Or just say "surprise me" and I'll crea
         pollForTrackerCompletion(data.imageId);
       }
 
-      // Add Maya's response
+      // Add Maya's response with generating state
       const mayaMessage: MayaChatMessage = {
         id: Date.now(),
         role: 'maya',
         content: data.message || '✨ Creating your stunning editorial moment right now! This is going to be absolutely gorgeous...',
-        timestamp: new Date().toISOString()
+        timestamp: new Date().toISOString(),
+        isGenerating: true
       };
 
-      console.log('🎬 Maya: Adding Maya response message');
+      console.log('🎬 Maya: Adding Maya response message with generating state');
       setChatMessages(prev => [...prev, mayaMessage]);
       queryClient.invalidateQueries({ queryKey: ['/api/generation-trackers/completed'] });
     }
@@ -291,12 +301,14 @@ What kind of vibe are we creating today? Or just say "surprise me" and I'll crea
               <div className="whitespace-pre-wrap">{msg.content}</div>
               
               {/* Generation Status with Progress Bar */}
-              {msg.isGenerating && (
+              {(msg.isGenerating || (isGenerating && msg.role === 'maya' && chatMessages.indexOf(msg) === chatMessages.length - 1)) && (
                 <div className="mt-3 p-3 bg-rose-50 rounded-lg border border-rose-200">
                   <div className="flex items-center gap-2 mb-2">
                     <Camera className="w-4 h-4 text-rose-500 animate-pulse" />
                     <span className="text-sm text-rose-600">Creating your stunning images...</span>
-                    <span className="text-xs text-gray-500">(Tracker: {currentTrackerId})</span>
+                    {currentTrackerId && (
+                      <span className="text-xs text-gray-500">(#{currentTrackerId})</span>
+                    )}
                   </div>
                   
                   {/* Progress Bar */}
@@ -308,6 +320,7 @@ What kind of vibe are we creating today? Or just say "surprise me" and I'll crea
                   </div>
                   <div className="text-xs text-rose-500 mt-1 text-center">
                     {Math.round(Math.min(generationProgress, 100))}% complete
+                    {generationProgress < 90 && <span className="ml-1">• Estimated 30-45 seconds</span>}
                   </div>
                 </div>
               )}
