@@ -364,14 +364,15 @@ export class AIService {
         version: "30k587n6shrme0ck4zzrr6bt6c", // 🔒 OFFICIAL: black-forest-labs/flux-dev-lora
         input: {
           prompt: prompt,
-          lora: userLoraModel,       // ✅ USER'S TRAINED LORA WEIGHTS
-          guidance: 2.8,             // ✅ CORE_ARCHITECTURE_V2: Professional natural results
-          num_inference_steps: 40,   // ✅ CORE_ARCHITECTURE_V2: Enhanced quality steps
-          num_outputs: 3,           // ✅ As per CORE PRINCIPLES document
+          lora_weights: userLoraModel,  // ✅ CORRECTED: Using proper FLUX API parameter name
+          lora_scale: 0.8,              // ✅ LoRA strength for natural results
+          guidance: 2.8,                // ✅ CORE_ARCHITECTURE_V2: Professional natural results
+          num_inference_steps: 40,      // ✅ CORE_ARCHITECTURE_V2: Enhanced quality steps
+          num_outputs: 3,              // ✅ As per CORE PRINCIPLES document
           aspect_ratio: "3:4", 
           output_format: "png",
-          output_quality: 95,       // ✅ CORE_ARCHITECTURE_V2: Maximum clarity
-          go_fast: false,           // ✅ Quality over speed as per CORE PRINCIPLES
+          output_quality: 95,          // ✅ CORE_ARCHITECTURE_V2: Maximum clarity
+          go_fast: false,              // ✅ Quality over speed as per CORE PRINCIPLES
           disable_safety_checker: false,
           seed: Math.floor(Math.random() * 1000000)
         }
@@ -394,6 +395,17 @@ export class AIService {
       model: requestBody.input.model,
       outputs: requestBody.input.num_outputs,
       settings: 'CORE_ARCHITECTURE_IMMUTABLE_V2 Complete'
+    });
+    
+    // 🔍 DEBUG LOG: Complete request body for debugging
+    console.log('🧪 FLUX API REQUEST DEBUG:', {
+      version: requestBody.version,
+      lora_weights: requestBody.input.lora_weights,
+      lora_scale: requestBody.input.lora_scale,
+      prompt_preview: requestBody.input.prompt.substring(0, 100) + '...',
+      guidance: requestBody.input.guidance,
+      steps: requestBody.input.num_inference_steps,
+      outputs: requestBody.input.num_outputs
     });
     
     const response = await fetch('https://api.replicate.com/v1/predictions', {

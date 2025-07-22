@@ -19,12 +19,12 @@ export class ArchitectureValidator {
     }
     
     // 2. VALIDATE LORA PARAMETER - Must use user's trained LoRA
-    if (!requestBody.input?.lora) {
-      throw new Error('Architecture violation: Missing user LoRA parameter - each user must use their trained LoRA weights');
+    if (!requestBody.input?.lora_weights) {
+      throw new Error('Architecture violation: Missing user lora_weights parameter - each user must use their trained LoRA weights');
     }
     
     // 3. VALIDATE USER ISOLATION - LoRA should be user-specific
-    const userLora = requestBody.input.lora;
+    const userLora = requestBody.input.lora_weights;
     if (!userLora.includes(userId)) {
       console.log(`⚠️  WARNING: LoRA model ${userLora} may not match user ID ${userId}`);
     }
