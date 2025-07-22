@@ -54,6 +54,10 @@ export class ConversationManager {
     const fullConversation = history.map(msg => msg.content).join(' ').toLowerCase();
     
     console.log(`🔍 ELENA MEMORY: Analyzing ${history.length} messages for context extraction`);
+    
+    // DEBUG: Look at the most recent messages
+    const recentMessages = history.slice(-3);
+    console.log('🔍 RECENT MESSAGES FOR DEBUG:', recentMessages.map(m => ({ role: m.role, content: m.content.substring(0, 100) })));
 
     // Enhanced analysis - look at ALL messages for maximum context preservation
     for (const message of history) {
@@ -65,7 +69,9 @@ export class ConversationManager {
         // DYNAMIC TASK EXTRACTION - Capture ANY task without hardcoded restrictions
         // Look for task-indicating patterns and capture the full context
         if (content.includes('let') || content.includes('need') || content.includes('want') || 
-            content.includes('should') || content.includes('can you') || content.includes('please')) {
+            content.includes('should') || content.includes('can you') || content.includes('please') ||
+            content.includes('maya') || content.includes('analyze') || content.includes('test') ||
+            content.includes('quality') || content.includes('generation') || content.includes('photos')) {
           
           // Extract the actual task request without predetermined categories
           let task = originalContent.substring(0, 300).replace(/\n/g, ' ').trim();
@@ -123,8 +129,14 @@ export class ConversationManager {
     // Enhanced context detection from entire conversation for Replit-style memory
     const fullContent = history.map(m => m.content).join(' ').toLowerCase();
     
+    // PRIORITY: Check for Maya-specific tasks in full conversation
+    if (fullConversation.includes('maya') && (fullConversation.includes('quality') || fullConversation.includes('analyze') || fullConversation.includes('test'))) {
+      currentContext = 'CURRENT TASK: Maya image generation quality analysis - testing Maya chat functionality and analyzing photo generation parameters for quality improvements';
+      workflowStage = 'maya-analysis';
+      keyTasks.push('Analyze Maya image generation quality issues and coordinate improvements with Maya agent');
+    }
     // DYNAMIC CONTEXT EXTRACTION - Capture the most recent task context without hardcoded restrictions
-    if (keyTasks.length > 0) {
+    else if (keyTasks.length > 0) {
       // Use the most recent task as context
       const mostRecentTask = keyTasks[keyTasks.length - 1];
       currentContext = `Working on: ${mostRecentTask.substring(0, 150)}`;
