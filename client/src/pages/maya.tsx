@@ -410,7 +410,48 @@ export default function Maya() {
     setSavingImages(prev => new Set([...prev, imageUrl]));
     
     try {
-      await saveSelectedToGallery([imageUrl]);
+      // First try the tracker-based save if we have a tracker ID
+      if (currentTrackerId) {
+        await saveSelectedToGallery([imageUrl]);
+      } else {
+        // Fallback to direct save-to-gallery API for images without tracker
+        const response = await fetch('/api/save-to-gallery', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          credentials: 'include',
+          body: JSON.stringify({
+            imageUrl: imageUrl,
+            prompt: 'Maya AI Generated Image',
+            style: 'maya-ai'
+          }),
+        });
+
+        const data = await response.json();
+
+        if (!response.ok) {
+          throw new Error(data.error || 'Failed to save image');
+        }
+        
+        // Mark image as saved
+        setSavedImages(prev => new Set([...prev, imageUrl]));
+        
+        // Refresh gallery to show newly saved images
+        queryClient.invalidateQueries({ queryKey: ['/api/gallery-images'] });
+        
+        toast({
+          title: "Image Saved",
+          description: "Image permanently added to your gallery",
+        });
+      }
+    } catch (error) {
+      console.error('Error saving to gallery:', error);
+      toast({
+        title: "Save Failed",
+        description: error instanceof Error ? error.message : "Could not save image to gallery",
+        variant: "destructive",
+      });
     } finally {
       setSavingImages(prev => {
         const newSet = new Set(prev);
@@ -444,7 +485,7 @@ export default function Maya() {
             content: msg.content,
             timestamp: msg.createdAt,
             generatedPrompt: msg.generatedPrompt,
-            canGenerate: !!msg.generatedPrompt,
+            canGenerate: !!msg.generatedPrompt && !msg.imagePreview,
             imagePreview: msg.imagePreview ? (() => {
               try {
                 const parsed = JSON.parse(msg.imagePreview);
