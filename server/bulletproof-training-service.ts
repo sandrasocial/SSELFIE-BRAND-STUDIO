@@ -170,15 +170,15 @@ export class BulletproofTrainingService {
       
       // Verify ZIP has enough content
       const zipStats = fs.statSync(zipPath);
-      const minZipSize = 60 * 1024; // At least 60KB for 12+ images
+      const minZipSize = 100 * 1024; // At least 100KB for 15+ images (updated requirement)
       
       if (zipStats.size < minZipSize) {
-        errors.push(`ZIP file too small (${zipStats.size} bytes). Expected at least ${minZipSize} bytes for 12+ images.`);
+        errors.push(`ZIP file too small (${zipStats.size} bytes). Expected at least ${minZipSize} bytes for 15+ images.`);
         return { success: false, errors, zipUrl: null };
       }
       
-      if (addedImages < 12) {
-        errors.push(`Only ${addedImages} files successfully added to ZIP. Need minimum 12.`);
+      if (addedImages < 15) {
+        errors.push(`Only ${addedImages} files successfully added to ZIP. Need minimum 15.`);
         return { success: false, errors, zipUrl: null };
       }
       
