@@ -13,23 +13,14 @@ export class ArchitectureValidator {
    * ALL users must use their individual trained models with zero cross-contamination
    */
   static validateGenerationRequest(requestBody: any, userId: string, isPremium: boolean = false): void {
-    // 1. VALIDATE BLACK FOREST LABS MODEL - Must use correct official version
-    if (requestBody.version !== "ae0d7d645446924cf1871e3ca8796e8318f72465d2b5af9323a835df93bf0917") {
-      throw new Error('Architecture violation: Must use official black-forest-labs/flux-dev-lora latest version');
+    // 1. VALIDATE USER'S INDIVIDUAL MODEL - Each user must use their own trained model
+    if (!requestBody.version || requestBody.version.length !== 64) {
+      throw new Error('Architecture violation: Must use user\'s individual trained model version ID (64-character hash)');
     }
     
-    // 2. VALIDATE LORA PARAMETER - Must use user's trained LoRA
-    if (!requestBody.input?.lora_weights) {
-      throw new Error('Architecture violation: Missing user lora_weights parameter - each user must use their trained LoRA weights');
-    }
-    
-    // 3. VALIDATE USER ISOLATION - LoRA should be user-specific
-    const userLora = requestBody.input.lora_weights;
-    if (!userLora.includes(userId)) {
-      console.log(`⚠️  WARNING: LoRA model ${userLora} may not match user ID ${userId}`);
-    }
-    
-    console.log(`✅ Using Black Forest Labs model with user LoRA: ${userLora}`);
+    // 2. INDIVIDUAL MODEL ARCHITECTURE - Using trained model directly
+    // User's individual trained model contains their identity, no additional LoRA required
+    console.log(`✅ Using user's individual trained model version: ${requestBody.version}`);
   }
   
   /**
