@@ -132,29 +132,29 @@ export async function generateImages(request: GenerateImagesRequest): Promise<Ge
 
     let requestBody: any;
 
-    // 🔒 CORE PRINCIPLES: Use user's individual trained model ONLY
+    // 🔒 CORRECTED: Use official black-forest-labs/flux-dev-lora model with user's LoRA
     if (userModel.trainingStatus === 'completed' && userModel.replicateVersionId) {
-      console.log(`✅ Using user's individual trained FLUX model for AI Photoshoot: ${userId}`);
+      console.log(`✅ Using black-forest-labs/flux-dev-lora:30k587n6shrme0ck4zzrr6bt6c with user LoRA for AI Photoshoot: ${userId}`);
       
-      // 🔧 CRITICAL FIX: Handle version format properly
-      let userTrainedVersion;
+      // Extract user's LoRA model name from their trained model
+      let userLoraModel;
       if (userModel.replicateVersionId.includes(':')) {
-        // Version already contains full model:version format
-        userTrainedVersion = userModel.replicateVersionId;
+        // Extract just the model name (before the colon)
+        userLoraModel = userModel.replicateVersionId.split(':')[0];
       } else {
-        // Legacy format - construct the version string
-        userTrainedVersion = `${userModel.replicateModelId}:${userModel.replicateVersionId}`;
+        // Use replicateModelId if no version format
+        userLoraModel = userModel.replicateModelId;
       }
       
       // 🔧 CORE_ARCHITECTURE_IMMUTABLE_V2 PARAMETERS - PROFESSIONAL UNIFIED QUALITY
       // Both Maya Chat and AI Photoshoot use identical parameters for consistent results
       requestBody = {
-        version: userTrainedVersion, // 🔒 CRITICAL: User's individual trained model version ONLY
+        version: "30k587n6shrme0ck4zzrr6bt6c", // 🔒 OFFICIAL: black-forest-labs/flux-dev-lora
         input: {
           prompt: finalPrompt,
+          lora: userLoraModel,       // ✅ USER'S TRAINED LORA WEIGHTS
           guidance: 2.8,             // ✅ CORE_ARCHITECTURE_V2: Professional natural results
           num_inference_steps: 40,   // ✅ CORE_ARCHITECTURE_V2: Enhanced quality steps
-          lora_scale: 0.95,         // ✅ CORE_ARCHITECTURE_V2: Optimal strength balance
           num_outputs: 3,           // ✅ As per CORE PRINCIPLES document
           aspect_ratio: "3:4", 
           output_format: "png",
