@@ -50,13 +50,14 @@ export default function Workspace() {
 
   // Simplified User Journey - 3 clear steps
   const getJourneySteps = () => {
-    // Step 1: Upload Photos - Enhanced training status detection
+    // Step 1: Upload Photos - ONLY real training status
     const step1Complete = userModel?.trainingStatus === 'completed';
-    const step1InProgress = userModel?.trainingStatus === 'training' || 
-                          userModel?.trainingStatus === 'starting' ||
-                          userModel?.trainingStatus === 'processing' ||
-                          userModel?.trainingStatus === 'pending' ||
-                          (userModel?.replicateModelId && userModel?.trainingStatus !== 'completed' && userModel?.trainingStatus !== 'failed');
+    const step1InProgress = userModel?.replicateModelId && 
+                          (userModel?.trainingStatus === 'training' || 
+                           userModel?.trainingStatus === 'starting' ||
+                           userModel?.trainingStatus === 'processing') &&
+                          userModel?.trainingStatus !== 'completed' && 
+                          userModel?.trainingStatus !== 'failed';
     
     // Step 2: Take Photos  
     const step2Ready = step1Complete;
