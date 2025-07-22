@@ -350,13 +350,11 @@ export class AIService {
     if (userModel.trainingStatus === 'completed' && userModel.replicateVersionId) {
       console.log(`✅ Using black-forest-labs/flux-dev-lora:30k587n6shrme0ck4zzrr6bt6c with user LoRA: ${userId}`);
       
-      // Extract user's LoRA model name from their trained model
-      let userLoraModel;
-      if (userModel.replicateVersionId.includes(':')) {
-        // Extract just the model name (before the colon)
-        userLoraModel = userModel.replicateVersionId.split(':')[0];
-      } else {
-        // Use replicateModelId if no version format
+      // Use the COMPLETE LoRA model version (including hash) for FLUX API
+      let userLoraModel = userModel.replicateVersionId;
+      
+      // If no complete version ID, fall back to model ID
+      if (!userLoraModel) {
         userLoraModel = userModel.replicateModelId;
       }
       
