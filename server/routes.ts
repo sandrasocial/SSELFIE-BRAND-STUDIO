@@ -2834,6 +2834,7 @@ VOICE RULES:
         const trainingResult = await BulletproofTrainingService.startReplicateTraining(dbUserId, zipResult.zipUrl, triggerWord);
         
         if (!trainingResult.success || !trainingResult.trainingId) {
+          console.error(`❌ TRAINING ROUTE ERROR: Failed for user ${dbUserId}:`, trainingResult.errors);
           return res.status(400).json({
             success: false,
             message: "Training start failed. Please try again.",
