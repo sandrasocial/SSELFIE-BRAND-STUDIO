@@ -788,17 +788,43 @@ You are Maya's PROTECTED technical prompt generator. This system is EXCLUSIVELY 
 - NEVER ignore Maya's pose or lighting instructions
 - NEVER substitute different camera equipment than specified
 
+🚨 CRITICAL OUTPUT REQUIREMENTS:
+- Return ONLY the clean technical prompt text
+- NO protection headers, system messages, or formatting
+- NO "MAYA'S PROTECTED" or similar system text
+- NO bullet points, headers, or explanatory text
+- JUST the pure styling description
+
 REQUIRED OUTPUT FORMAT:
 "elegant woman in [Maya's shot type] wearing [Maya's exact outfit description], [Maya's exact pose], captured with [appropriate camera for shot type], [Maya's lighting], [Maya's composition], professional fashion photography quality"
 
-Generate the technical prompt that EXACTLY matches Maya's styling vision.`,
+Return ONLY the technical prompt without any additional text or formatting.`,
             messages: [
               { role: 'user', content: `Maya described this styling vision: "${response}"\n\nGenerate exact technical prompt matching every detail Maya specified.` }
             ]
           });
 
-          // 🔧 CRITICAL FIX: Extract ONLY the clean technical prompt
+          // 🔧 COMPREHENSIVE PROMPT CLEANING - REMOVE ALL MAYA SYSTEM TEXT
           let cleanPrompt = promptResponse.content[0].text;
+          
+          // 🚨 CRITICAL: Remove ALL Maya protection headers and system messages
+          const systemTextPatterns = [
+            /🔒.*?🔒/g,                    // Remove protection headers
+            /🚨.*?🚨/g,                    // Remove warning headers
+            /✅.*?✅/g,                    // Remove confirmation headers
+            /MAYA'S.*?PROTECTED.*?:/gi,    // Remove Maya protection text
+            /MAYA'S.*?VISION.*?:/gi,       // Remove Maya vision headers
+            /PROTECTION.*?CONFIRMED.*?:/gi, // Remove protection confirmations
+            /NO.*?INTERFERENCE.*?DETECTED/gi, // Remove interference checks
+            /EXTERNAL.*?INTERFERENCE/gi,   // Remove interference text
+            /ALTERNATE.*?POSE.*?VARIATION.*?:/gi, // Remove alternate pose headers
+            /EXACT.*?STYLING.*?VISION.*?TRANSLATED.*?:/gi, // Remove translation headers
+          ];
+          
+          // Remove all system text patterns
+          for (const pattern of systemTextPatterns) {
+            cleanPrompt = cleanPrompt.replace(pattern, '');
+          }
           
           // Remove any markdown formatting, asterisks, and conversational text
           cleanPrompt = cleanPrompt
@@ -807,20 +833,29 @@ Generate the technical prompt that EXACTLY matches Maya's styling vision.`,
             .replace(/#+\s/g, '') // Remove # headers
             .replace(/\n+/g, ' ') // Replace line breaks with spaces
             .replace(/\s+/g, ' ') // Replace multiple spaces with single space
+            .replace(/^["']|["']$/g, '') // Remove quotes at start/end
             .trim();
           
-          // Remove any titles, labels, or headers before the actual description
+          // Remove any remaining titles, labels, or headers
           const cleanPatterns = [
             /^.*?SHOT\s*[-:]\s*/i,
             /^.*?VISION\s*[-:]\s*/i,
             /^.*?LOOK\s*[-:]\s*/i,
             /^.*?STYLE\s*[-:]\s*/i,
             /^.*?EDITORIAL\s*[-:]\s*/i,
-            /^.*?PORTRAIT\s*[-:]\s*/i
+            /^.*?PORTRAIT\s*[-:]\s*/i,
+            /^.*?TRANSLATED\s*[-:]\s*/i,
+            /^.*?PROTECTED\s*[-:]\s*/i
           ];
           
           for (const pattern of cleanPatterns) {
             cleanPrompt = cleanPrompt.replace(pattern, '');
+          }
+          
+          // Extract only the core styling description between quotes if present
+          const quoteMatch = cleanPrompt.match(/"([^"]+)"/);
+          if (quoteMatch) {
+            cleanPrompt = quoteMatch[1];
           }
           
           // Ensure we start with a clean description
@@ -854,16 +889,43 @@ Generate the technical prompt that EXACTLY matches Maya's styling vision.`,
             .replace(/\s+/g, ' ') // Remove extra spaces
             .trim();
           
+          // 🚨 FINAL SAFETY CHECK: Remove any remaining system text that may have slipped through
+          const finalCleaningPatterns = [
+            /MAYA'S\s+.*?:/gi,
+            /PROTECTED\s+.*?:/gi,
+            /VISION\s+.*?:/gi,
+            /INTERFERENCE\s+.*?:/gi,
+            /CONFIRMED\s+.*?:/gi,
+            /DETECTED\s+.*?:/gi,
+            /TRANSLATION\s+.*?:/gi,
+            /EXACT\s+.*?:/gi,
+            /user\d+/gi, // Remove any user ID patterns that might have leaked
+            /🔒/g, // Remove any remaining lock symbols
+            /🚨/g, // Remove any remaining warning symbols
+            /✅/g  // Remove any remaining check symbols
+          ];
+          
+          for (const pattern of finalCleaningPatterns) {
+            cleanPrompt = cleanPrompt.replace(pattern, '');
+          }
+          
+          // Final cleanup
+          cleanPrompt = cleanPrompt
+            .replace(/\s+/g, ' ') // Multiple spaces to single
+            .replace(/^[,\s]+|[,\s]+$/g, '') // Remove leading/trailing commas and spaces
+            .trim();
+          
           // CRITICAL: Build prompt with trigger word FIRST to prevent race contamination
           generatedPrompt = `${triggerWord}, ${cleanPrompt}, raw photo, visible skin pores, film grain, unretouched natural skin texture, subsurface scattering, photographed on film, natural daylight, professional photography`;
           
           // Debug logging to verify prompt construction and Maya description matching
-          console.log('🔧 Maya Prompt Debug:', {
-            mayaResponse: response.substring(0, 300),
-            originalPrompt: promptResponse.content[0].text.substring(0, 300),
-            cleanPrompt: cleanPrompt.substring(0, 300),
+          console.log('🔧 Maya Prompt Debug (System Text Cleaned):', {
+            mayaResponse: response.substring(0, 200),
+            rawPromptGenerated: promptResponse.content[0].text.substring(0, 200),
+            cleanedPrompt: cleanPrompt.substring(0, 200),
             triggerWord,
-            finalPrompt: generatedPrompt.substring(0, 300)
+            finalPromptForGeneration: generatedPrompt.substring(0, 200),
+            systemTextRemoved: !cleanPrompt.includes('MAYA\'S') && !cleanPrompt.includes('PROTECTED') && !cleanPrompt.includes('🔒')
           });
           
           // Always add confident generation statement for clarity
