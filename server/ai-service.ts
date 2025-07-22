@@ -318,7 +318,7 @@ export class AIService {
         version: userTrainedVersion,
         input: {
           prompt: prompt,
-          guidance: optimizedParams.guidance || 2.8, // 🔧 OPTIMIZED: User-adaptive guidance
+          lora_guidance: optimizedParams.guidance || 2.8, // 🚀 FIXED: LoRA guidance parameter for Replicate
           num_inference_steps: optimizedParams.inferenceSteps || 40, // 🔧 OPTIMIZED: Quality-based steps
           lora_scale: optimizedParams.loraScale || 0.95, // 🚀 CRITICAL FIX: Missing LoRA scale added
           num_outputs: 3,
@@ -341,7 +341,7 @@ export class AIService {
     
     // 📊 LOG OPTIMIZATION PARAMETERS FOR MONITORING
     console.log(`🚀 MAYA OPTIMIZATION ACTIVE for user ${userId}:`, {
-      guidance: requestBody.input.guidance,
+      loraGuidance: requestBody.input.lora_guidance,
       steps: requestBody.input.num_inference_steps,
       loraScale: requestBody.input.lora_scale,
       quality: requestBody.input.output_quality,
