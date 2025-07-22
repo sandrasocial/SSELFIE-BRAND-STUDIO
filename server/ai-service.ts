@@ -366,7 +366,7 @@ export class AIService {
         version: userLoraModel, // ✅ Using the COMPLETE user model path as individual model
         input: {
           prompt: prompt,
-          guidance: 2.8,                // ✅ Unified high-quality parameter
+          guidance_scale: 2.8,          // ✅ Unified high-quality parameter (using guidance_scale for FLUX)
           num_inference_steps: 40,      // ✅ Unified high-quality parameter
           lora_scale: 0.95,            // ✅ Unified high-quality parameter  
           num_outputs: 3,               // ✅ As per CORE PRINCIPLES document
@@ -387,7 +387,7 @@ export class AIService {
     
     // 📊 LOG INDIVIDUAL MODEL PARAMETERS FOR MAYA MONITORING
     console.log(`✅ MAYA INDIVIDUAL MODEL ACTIVE for user ${userId}:`, {
-      guidance: requestBody.input.guidance,              // ✅ Should show 2.8
+      guidance_scale: requestBody.input.guidance_scale,  // ✅ Should show 2.8
       steps: requestBody.input.num_inference_steps,      // ✅ Should show 40
       lora_scale: requestBody.input.lora_scale,          // ✅ Should show 0.95
       quality: requestBody.input.output_quality,         // ✅ Should show 95
@@ -397,14 +397,11 @@ export class AIService {
     });
     
     // 🔍 DEBUG LOG: Complete request body for debugging
-    console.log('🧪 FLUX API REQUEST DEBUG:', {
-      version: requestBody.version,
-      lora_weights: requestBody.input.lora_weights,
-      lora_scale: requestBody.input.lora_scale,
-      prompt_preview: requestBody.input.prompt.substring(0, 100) + '...',
-      guidance: requestBody.input.guidance,
-      steps: requestBody.input.num_inference_steps,
-      outputs: requestBody.input.num_outputs
+    console.log('🧪 FLUX API REQUEST DEBUG - COMPLETE BODY:', JSON.stringify(requestBody, null, 2));
+    console.log('🔍 GUIDANCE PARAMETER CHECK:', {
+      guidance_scale_in_input: requestBody.input.guidance_scale,
+      guidance_scale_type: typeof requestBody.input.guidance_scale,
+      all_input_params: Object.keys(requestBody.input)
     });
     
     const response = await fetch('https://api.replicate.com/v1/predictions', {

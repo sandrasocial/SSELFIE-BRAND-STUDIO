@@ -145,7 +145,7 @@ export async function generateImages(request: GenerateImagesRequest): Promise<Ge
         version: userModelPath, // ✅ COMPLETE individual user model path
         input: {
           prompt: finalPrompt,
-          guidance: 2.8,                 // ✅ Unified high-quality parameter
+          guidance_scale: 2.8,           // ✅ Unified high-quality parameter (correct FLUX parameter)
           num_inference_steps: 40,       // ✅ Unified high-quality parameter
           lora_scale: 0.95,             // ✅ Unified high-quality parameter
           num_outputs: 3,               // ✅ As per CORE PRINCIPLES
@@ -167,7 +167,7 @@ export async function generateImages(request: GenerateImagesRequest): Promise<Ge
     // 📊 LOG INDIVIDUAL MODEL PARAMETERS FOR AI PHOTOSHOOT MONITORING
     console.log(`✅ AI PHOTOSHOOT INDIVIDUAL MODEL ACTIVE for user ${userId}:`, {
       model: userModelPath,
-      guidance: requestBody.input.guidance,
+      guidance_scale: requestBody.input.guidance_scale,
       steps: requestBody.input.num_inference_steps,
       lora_scale: requestBody.input.lora_scale,
       quality: requestBody.input.output_quality,
