@@ -228,14 +228,11 @@ export class AIService {
       // Clean up extra commas, spaces, and newlines
       cleanPrompt = cleanPrompt.replace(/,\s*,/g, ',').replace(/^\s*,\s*|\s*,\s*$/g, '').replace(/\n+/g, ' ').trim();
       
-      // 🚀 MAYA HAIR OPTIMIZATION: Enhanced prompt with hair quality focus
-      const hairOptimizedPrompt = this.enhancePromptForHairQuality(cleanPrompt);
+      // 🚀 MAYA NATURAL APPROACH: Use original prompt without artificial enhancements
+      const hairOptimizedPrompt = cleanPrompt;
       
-      // 🚀 HIGH-QUALITY ENHANCEMENT: Add professional camera equipment like reference image ID 405
-      const cameraEquipment = this.getRandomCameraEquipment();
-      
-      // 🚀 HIGH-QUALITY STRUCTURE: Based on reference image ID 405 (professional camera + film aesthetic)
-      const finalPrompt = `raw photo, visible skin pores, film grain, unretouched natural skin texture, subsurface scattering, photographed on film, ${triggerWord}, ${hairOptimizedPrompt}, ${cameraEquipment}, natural daylight, professional photography`;
+      // 🚀 NATURAL STRUCTURE: Pure minimal prompt matching reference image quality (NO enhancement terms)
+      const finalPrompt = `raw photo, visible skin pores, film grain, unretouched natural skin texture, subsurface scattering, photographed on film, ${triggerWord}, ${hairOptimizedPrompt}`;
       
       console.log(`🚀 MAYA CLEANED PROMPT (no markdown): ${finalPrompt}`);
       console.log(`📝 Original prompt had markdown: ${customPrompt.includes('**') || customPrompt.includes('*') ? 'YES' : 'NO'}`);
