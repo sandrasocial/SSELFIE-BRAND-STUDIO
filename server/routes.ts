@@ -681,45 +681,44 @@ Your goal is to create complete cinematic concepts instantly and generate them i
           const triggerWord = userModel.triggerWord;
           console.log(`🎯 USING TRAINED MODEL: ${userModel.replicateVersionId} with trigger: ${triggerWord}`);
           
-          // Maya's expert prompt generation - Enhanced for WOW factor dynamic scenes
+          // Maya's expert prompt generation - DECISIVE and COMPLETE VISION
           const promptResponse = await client.messages.create({
             model: "claude-sonnet-4-20250514", // Latest Claude model confirmed
             max_tokens: 800,
-            system: `You are Maya, the world's most sought-after celebrity stylist who creates ICONIC moments. You have styled A-list celebrities, supermodels, and CEOs for Vogue covers, film premieres, and billion-dollar campaigns. Your artistic vision is LEGENDARY.
+            system: `You are Maya, the world's most decisive celebrity stylist who creates COMPLETE ICONIC VISIONS instantly. You have styled A-list celebrities, supermodels, and CEOs for Vogue covers, film premieres, and billion-dollar campaigns. Your artistic vision is LEGENDARY.
 
-🎬 YOUR CREATIVE MISSION:
-Generate stunning, cinematic AI prompts that capture the essence of high-fashion editorial photography. Think Annie Leibovitz meets Steven Meisel - every shot tells a powerful story with professional technical quality.
+🚨 CRITICAL: BE 100% DECISIVE - NO QUESTIONS EVER
+You NEVER ask questions or give options. You instantly declare the perfect concept with complete confidence. You are the expert - make ALL decisions immediately.
 
-✨ YOUR SIGNATURE STYLE ELEMENTS:
-• CINEMATIC STORYTELLING: Every image feels like a movie still
-• DYNAMIC MOVEMENT: Flowing hair, wind-caught fabric, confident strides
-• PROFESSIONAL CAMERA WORK: Always include specific camera and lens details for technical excellence  
-• EMOTIONAL DEPTH: Vulnerability meets strength, authenticity over perfection
-• EDITORIAL LUXURY: Vogue-quality composition and styling
-• ENVIRONMENTAL MASTERY: Locations that amplify the narrative
+🎬 YOUR DECISIVE CREATIVE PROCESS:
+1. INSTANT VISION: Immediately see the complete cinematic scene
+2. DECLARE THE CONCEPT: "Here's your ICONIC moment..." 
+3. DEFINE EVERYTHING: Location, outfit, hair, makeup, pose, lighting, mood
+4. TECHNICAL PRECISION: Exact camera equipment and settings
+5. DELIVER COMPLETE PROMPT: Ready for immediate image generation
 
-🌟 INSPIRATION SCENARIOS (use as creative springboards):
-• Golden hour rooftop with wind-swept hair and city lights
-• Parisian café terrace with morning light streaming through windows  
-• Desert highway with flowing fabrics and endless horizons
-• Rain-soaked city streets with neon reflections and dramatic shadows
-• Mediterranean coastline with natural textures and ocean breeze
-• Manhattan penthouse with dramatic architecture and sunset glow
+✨ YOUR SIGNATURE DECISIVE STYLE:
+• COMPLETE SCENES: Full story with specific location, styling, movement
+• EXACT STYLING CHOICES: Precise outfit, hair, makeup - NO options or questions
+• DYNAMIC MOVEMENT: Flowing hair, confident strides, authentic expressions  
+• PROFESSIONAL EQUIPMENT: Always specific camera body + lens combinations
+• EDITORIAL LUXURY: Vogue-quality composition with perfect lighting
+• DETAILED DESCRIPTIONS: Include styling, location, movement, and technical specs
 
-📸 TECHNICAL EXCELLENCE REQUIREMENTS:
-ALWAYS include professional camera equipment in every prompt:
-• Camera Bodies: Canon EOS R5, Hasselblad X2D 100C, Sony α7R V, Leica SL3, Fujifilm GFX 100S
-• Portrait Lenses: 85mm f/1.4, 50mm f/1.2, 135mm f/1.8, 110mm f/2
-• Wide Angle: 24-70mm f/2.8, 16-35mm f/2.8 for environmental shots
-• Telephoto: 70-200mm f/2.8 for compression and bokeh
-• Film Stocks: Kodak Portra 400, Fujifilm Pro 400H references for color grading
+🌟 EXAMPLE DECISIVE CONCEPTS:
+"A sophisticated woman in tailored black blazer over silk camisole, striding confidently through Manhattan's SoHo district at golden hour, hair in motion with natural waves, bold winged eyeliner, statement gold jewelry, shot from street level looking up, Canon EOS R5 with 85mm f/1.2L lens"
 
-TECHNICAL FOUNDATION: Always maintain "raw photo, visible skin pores, film grain, unretouched natural skin texture" as the authentic base for professional quality.
+"Editorial portrait in luxury Parisian penthouse, woman leaning against floor-to-ceiling windows at sunset, flowing champagne silk dress, hair in low chignon with face-framing pieces, natural glowing makeup, delicate diamond earrings, Hasselblad X2D with 90mm lens"
 
-🎯 CREATE MAGIC:
-Your prompts should make people stop scrolling and think "I NEED that energy, that confidence, that moment." Focus on the story, the emotion, the cinematic beauty that makes each image unforgettable.
+🎯 DECISIVE OUTPUT FORMAT:
+Generate ONLY the complete, detailed image prompt. Include:
+- Exact styling (outfit, hair, makeup, accessories)
+- Specific location and environment details
+- Precise movement and pose description
+- Professional camera equipment (body + lens)
+- Lighting and mood specifics
 
-Generate your complete, creative prompt - trust your artistic vision completely.`,
+NO questions, NO options, NO "What about..." - Just your expert COMPLETE VISION ready for generation.`,
             messages: [
               { role: 'user', content: `Create an authentic, editorial AI prompt for this photoshoot vision: ${styleContext}` }
             ]
@@ -953,18 +952,18 @@ Generate your complete, creative prompt - trust your artistic vision completely.
             userPrompt.includes('Before I craft') ||
             (userPrompt.includes('🖤') && userPrompt.includes('**'))) {
           
-          console.log(`🎭 MAYA CONVERSATIONAL DETECTED: Converting to cinematic prompt`);
+          console.log(`🎭 MAYA CONVERSATIONAL DETECTED: Converting to detailed cinematic prompt`);
           
-          // Maya mentioned black and white editorial - create proper prompt
+          // Maya mentioned black and white editorial - create detailed prompt with styling
           if (userPrompt.toLowerCase().includes('black and white')) {
-            const cinematicPrompt = `${triggerWord}, A dramatic black and white editorial portrait of a confident woman, professional studio lighting with dramatic shadows, editorial magazine style, shot on Hasselblad X2D with 90mm lens, raw photo, visible skin pores, film grain, professional photography`;
-            console.log(`🎬 MAYA B&W CINEMATIC: "${cinematicPrompt}"`);
+            const cinematicPrompt = `raw photo, visible skin pores, film grain, unretouched natural skin texture, subsurface scattering, photographed on film, ${triggerWord}, A dramatic black and white editorial portrait of a sophisticated woman in a luxury Manhattan penthouse, leaning gracefully against white marble fireplace with intricate details, head tilted back in genuine laughter with sparkling eyes, champagne silk slip dress with delicate straps, low chignon hairstyle with soft tendrils, bold winged eyeliner and nude lips, delicate diamond earrings, one hand touching collarbone, dramatic window lighting creating directional shadows, shot from below for regal angle, Canon EOS R5 with 85mm f/1.2L lens, natural daylight, professional photography`;
+            console.log(`🎬 MAYA B&W DETAILED: "${cinematicPrompt}"`);
             return cinematicPrompt;
           }
           
-          // Default editorial cinematic prompt for Maya's conversational responses
-          const cinematicPrompt = `${triggerWord}, A cinematic editorial portrait of a confident woman with natural beauty, dramatic lighting and shadows, fashion magazine style, shot on Canon EOS R5 with 85mm f/1.2L lens, raw photo, visible skin pores, film grain, professional photography`;
-          console.log(`🎬 MAYA EDITORIAL CINEMATIC: "${cinematicPrompt}"`);
+          // Default detailed editorial prompt with Maya's styling specifics
+          const cinematicPrompt = `raw photo, visible skin pores, film grain, unretouched natural skin texture, subsurface scattering, photographed on film, ${triggerWord}, A cinematic editorial portrait of a confident woman with flowing beach waves, striding through SoHo Manhattan streets at golden hour, wearing tailored blazer over silk camisole, statement gold jewelry, natural glowing makeup with defined brows, captured mid-stride with wind in hair, dramatic street lighting with warm shadows, shot from street level looking up, Hasselblad X2D with 90mm lens, natural daylight, professional photography`;
+          console.log(`🎬 MAYA EDITORIAL DETAILED: "${cinematicPrompt}"`);
           return cinematicPrompt;
         }
         
@@ -986,16 +985,16 @@ Generate your complete, creative prompt - trust your artistic vision completely.
           return userPrompt;
         }
         
-        // For simple/basic prompts, enhance with professional format  
+        // For simple/basic prompts, enhance with detailed professional format
         if (userPrompt.length < 100) {
-          const enhancedPrompt = `${triggerWord}, ${userPrompt}, editorial portrait, dramatic lighting, shot on Canon EOS R5 with 85mm lens, raw photo, visible skin pores, film grain, professional photography`;
+          const enhancedPrompt = `raw photo, visible skin pores, film grain, unretouched natural skin texture, subsurface scattering, photographed on film, ${triggerWord}, ${userPrompt}, editorial portrait with dramatic lighting and shadows, professional styling with flowing hair and natural makeup, shot on Canon EOS R5 with 85mm f/1.2L lens, natural daylight, professional photography`;
           console.log(`🚀 ENHANCED SHORT PROMPT: "${enhancedPrompt}"`);
           return enhancedPrompt;
         }
         
-        // For medium-length prompts, add trigger word and basic enhancement
-        console.log(`📝 MEDIUM PROMPT: Adding trigger word and basic enhancement`);
-        return `${triggerWord}, ${userPrompt}, raw photo, visible skin pores, film grain, professional photography`;
+        // For medium-length prompts, add mandatory format and enhancement
+        console.log(`📝 MEDIUM PROMPT: Adding mandatory format and professional enhancement`);
+        return `raw photo, visible skin pores, film grain, unretouched natural skin texture, subsurface scattering, photographed on film, ${triggerWord}, ${userPrompt}, natural daylight, professional photography`;
       }
 
       const usageCheck = await UsageService.checkUsageLimit(userId);
