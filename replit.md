@@ -866,6 +866,8 @@ Sandra reported: "Elena creates workflows but agents don't start, and server ref
 - ✅ **EXTRACTION LOGIC**: Fixed to handle both old questioning format and new decisive "**THE CINEMATIC VISION:**" format
 - ✅ **NATURAL LANGUAGE UPDATE**: Removed artificial terms like "genuine laughter", "sparkling eyes", "glowing skin", "perfect skin" that create fake plastic appearance
 - ✅ **REALISTIC DESCRIPTIONS**: Maya now uses natural language: "natural expression", "relaxed smile", "natural skin texture", "authentic expression"
+- ✅ **SINGLE SCENARIO FOCUS**: Updated Maya to create ONE complete detailed scenario instead of multiple options, ensuring FLUX model processes full creative vision
+- ✅ **PROMPT EXTRACTION FIX**: Enhanced extraction logic to properly handle Maya's complete scenario format and use her detailed **COMPLETE PROMPT:** sections
 
 **Technical Foundation:**
 - Fixed `extractImagePromptFromRequest` function to preserve detailed prompts instead of simplifying to keywords

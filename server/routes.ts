@@ -601,10 +601,16 @@ PERSONALITY: ENTHUSIASTIC Creative Visionary - Instant Concept Creator
 - Immediately suggests complete scenarios with specific outfit, lighting, and movement
 - ZERO questions about energy/vibes - Maya TELLS you the powerful concept she's creating
 
-DECISIVE RESPONSE PATTERN - NO QUESTIONS:
+DECISIVE RESPONSE PATTERN - ONE COMPLETE VISION ONLY:
 🎬 YOUR ICONIC MOMENT: [specific complete scenario - exact location, movement, energy]
 👗 THE LOOK: [exact outfit with luxury brands, hair, makeup - no options, one perfect choice]  
 📸 THE SHOT: [precise lighting, pose, facial expression, environmental details]
+**COMPLETE PROMPT:** "[detailed technical prompt ready for image generation]"
+
+🚨 CRITICAL: CREATE ONLY ONE COMPLETE SCENARIO PER RESPONSE
+- Focus ALL creative energy on perfecting ONE amazing concept
+- Include every detail needed for that single vision 
+- Never offer multiple scenarios or alternative options
 🎯 CREATING NOW: I'm generating this exact vision for you using your trained model!
 💫 THE STORY: [confident declaration of what this image communicates about you]
 
@@ -716,15 +722,20 @@ You NEVER ask questions or give options. You instantly declare the perfect conce
 
 "Editorial portrait in luxury Parisian penthouse, woman leaning against floor-to-ceiling windows at sunset, flowing champagne silk dress, hair in low chignon with face-framing pieces, natural makeup with visible skin texture, delicate diamond earrings, Hasselblad X2D with 90mm lens"
 
-🎯 DECISIVE OUTPUT FORMAT:
-Generate ONLY the complete, detailed image prompt. Include:
+🎯 DECISIVE OUTPUT FORMAT - ONE COMPLETE SCENARIO ONLY:
+Generate ONLY ONE complete, detailed image prompt. Include:
 - Exact styling (outfit, hair, makeup, accessories)
 - Specific location and environment details
 - Precise movement and pose description
 - Professional camera equipment (body + lens)
 - Lighting and mood specifics
 
-NO questions, NO options, NO "What about..." - Just your expert COMPLETE VISION ready for generation.`,
+🚨 CRITICAL REQUIREMENT: CREATE ONLY ONE SCENARIO PER RESPONSE
+- Never provide multiple concepts or alternatives
+- Focus ALL creative energy on perfecting ONE amazing vision
+- Give the FLUX model one complete, detailed concept to work with
+
+NO questions, NO options, NO multiple scenarios - Just your expert SINGLE COMPLETE VISION ready for generation.`,
             messages: [
               { role: 'user', content: `Create an authentic, editorial AI prompt for this photoshoot vision: ${styleContext}` }
             ]
@@ -974,9 +985,34 @@ NO questions, NO options, NO "What about..." - Just your expert COMPLETE VISION 
           // Extract the core cinematic description from Maya's detailed response
           let coreDescription = userPrompt;
           
-          // If it's Maya's new decisive format, extract the main vision
-          if (userPrompt.includes('**THE CINEMATIC VISION:**')) {
-            // Split by ** sections and find the vision content
+          // Handle Maya's multi-scenario format - extract FIRST complete scenario only
+          if (userPrompt.includes('🎬 YOUR ICONIC MOMENT:') || userPrompt.includes('🎬 YOUR NEXT ICONIC MOMENT:')) {
+            // Extract first complete scenario with look and shot description
+            const firstScenarioMatch = userPrompt.match(/🎬 YOUR (?:NEXT )?ICONIC MOMENT: (.+?)(?:---|\n\n🎬|$)/s);
+            if (firstScenarioMatch) {
+              const firstScenario = firstScenarioMatch[1].trim();
+              
+              // Extract the key elements from first scenario
+              const lookMatch = firstScenario.match(/👗 THE LOOK: (.+?)(?=\n\n📸|📸)/s);
+              const shotMatch = firstScenario.match(/📸 THE SHOT: (.+?)(?=\n\n\*\*|$)/s);
+              const completePromptMatch = firstScenario.match(/\*\*COMPLETE PROMPT:\*\* "(.+?)"/s);
+              
+              if (completePromptMatch) {
+                // Use Maya's complete prompt if available
+                coreDescription = completePromptMatch[1].trim();
+                console.log(`🎬 EXTRACTED MAYA COMPLETE PROMPT: "${coreDescription.substring(0, 150)}..."`);
+              } else if (lookMatch && shotMatch) {
+                // Combine look and shot into coherent description
+                const look = lookMatch[1].trim();
+                const shot = shotMatch[1].trim();
+                const sceneDescription = firstScenario.split('👗 THE LOOK:')[0].trim();
+                coreDescription = `${sceneDescription}, ${look}, ${shot}`;
+                console.log(`🎬 EXTRACTED MAYA FIRST SCENARIO: "${coreDescription.substring(0, 150)}..."`);
+              }
+            }
+          }
+          // Legacy format handling
+          else if (userPrompt.includes('**THE CINEMATIC VISION:**')) {
             const sections = userPrompt.split('**');
             const visionIndex = sections.findIndex(section => section.includes('THE CINEMATIC VISION:'));
             if (visionIndex !== -1 && visionIndex + 1 < sections.length) {
