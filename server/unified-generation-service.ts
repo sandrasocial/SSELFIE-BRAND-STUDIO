@@ -52,9 +52,15 @@ export class UnifiedGenerationService {
     
     console.log(`🚀 UNIFIED GENERATION: Starting for user ${userId}`);
     
-    // CRITICAL: Enforce strict validation - NO FALLBACKS ALLOWED
-    const userRequirements = await GenerationValidator.enforceGenerationRequirements(userId);
-    console.log(`🔒 VALIDATED: User ${userId} can generate with model: ${userRequirements.modelVersion}`);
+    // CRITICAL: Get user model information for validation
+    const userModel = await storage.getUserModelByUserId(userId);
+    if (!userModel || userModel.trainingStatus !== 'completed') {
+      throw new Error('User model not available or training not completed');
+    }
+    
+    const fullModelVersion = `${userModel.replicateModelId}:${userModel.replicateVersionId}`;
+    const triggerWord = `user${userId}`;
+    console.log(`🔒 VALIDATED: User ${userId} can generate with model: ${fullModelVersion}`);
     
     // Create tracking record
     const aiImageData: InsertAIImage = {
@@ -69,7 +75,6 @@ export class UnifiedGenerationService {
     const savedImage = await storage.saveAIImage(aiImageData);
     
     // Prepare final prompt with trigger word
-    const triggerWord = userRequirements.triggerWord;
     let finalPrompt = prompt;
     
     // Ensure trigger word is at the beginning
@@ -86,7 +91,7 @@ export class UnifiedGenerationService {
     
     // Build request with Sandra's proven working parameters
     const requestBody = {
-      version: userRequirements.modelVersion,
+      version: fullModelVersion,
       input: {
         prompt: finalPrompt,
         ...WORKING_PARAMETERS,
@@ -103,7 +108,7 @@ export class UnifiedGenerationService {
       guidance_scale: requestBody.input.guidance_scale,
       steps: requestBody.input.num_inference_steps,
       lora_scale: requestBody.input.lora_scale,
-      model: userRequirements.modelVersion,
+      model: fullModelVersion,
       trigger: triggerWord
     });
     
