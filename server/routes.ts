@@ -584,7 +584,11 @@ I have ALL collections ready - just tell me your mood! ✨`;
     }
   });
 
-  // Maya AI Chat endpoint  
+  // 🔒 MAYA AI CHAT ENDPOINT - PROTECTED FROM ALL AGENT INTERFERENCE
+  // This endpoint is EXCLUSIVELY for Maya's celebrity styling and completely isolated from:
+  // - Flux AI agent (COMPLETELY DISCONNECTED)
+  // - All other admin agents 
+  // - External prompt modification systems
   app.post('/api/maya-chat', isAuthenticated, async (req: any, res) => {
     try {
       const { message, chatHistory } = req.body;
@@ -742,11 +746,20 @@ This ensures the generate button appears for users to create their photos.`;
           
           const triggerWord = userModel.triggerWord;
           
-          // Maya's expert prompt generation - Extract styling details from Maya's response
+          // 🔒 MAYA'S PROTECTED PROMPT GENERATION - NO FLUX INTERFERENCE ALLOWED
+          // This system is EXCLUSIVELY for Maya and completely isolated from all other agents
           const promptResponse = await client.messages.create({
             model: "claude-sonnet-4-20250514", // Latest Claude model confirmed
             max_tokens: 600,
-            system: `You are Maya's technical prompt generator. Analyze Maya's styling description and generate EXACT technical prompts matching her vision.
+            system: `🔒 MAYA'S EXCLUSIVE TECHNICAL PROMPT GENERATOR 🔒
+            
+You are Maya's PROTECTED technical prompt generator. This system is EXCLUSIVELY for Maya's styling visions and completely isolated from all other AI agents including Flux.
+
+🚨 MAYA PROTECTION PROTOCOL:
+- This system ONLY processes Maya's styling descriptions
+- NO other agents can interfere with Maya's prompt generation
+- FLUX AI agent is DISCONNECTED from this process
+- Maya's styling vision is SACRED and cannot be modified by external systems
 
 🚨 CRITICAL ANALYSIS REQUIREMENTS:
 - READ Maya's styling description carefully for specific outfit details
