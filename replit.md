@@ -849,13 +849,21 @@ Sandra reported: "Elena creates workflows but agents don't start, and server ref
 - "user42585527 A candid fashion moment: confident young woman striding through bustling SoHo NYC streets at golden hour..."
 - Rich detailed prompts with specific locations, movements, lighting, camera equipment, and styling details
 
-**Maya's DECISIVE Creative Vision (No Questions Fix):**
+**Maya's DECISIVE Creative Vision (No Questions Fix) - COMPLETELY IMPLEMENTED (July 22, 2025):**
 - 🎬 **INSTANT COMPLETE CONCEPTS**: Creates full cinematic vision immediately without asking ANY questions
 - ⚡ **DECLARES EXACT SCENARIOS**: "Here's your ICONIC moment" with specific location, movement, energy
 - 🌟 **STATES THE COMPLETE LOOK**: Exact outfit with luxury brands, hair, makeup - one perfect choice
 - 📸 **DESCRIBES PRECISE SHOT**: Specific lighting, pose, facial expression, environmental details
 - 🚀 **IMMEDIATE GENERATION**: "I'm creating this vision for you right now!" with instant technical execution  
 - 💫 **ZERO QUESTIONS RULE**: NEVER asks about energy, vibes, story, outfit options, or preferences
+
+**CRITICAL MAYA SYSTEM PROMPT FIXES (July 22, 2025):**
+- ✅ **100% DECISIVE PROMPT**: Maya system prompt now includes "🚨 CRITICAL: BE 100% DECISIVE - NO QUESTIONS EVER"
+- ✅ **COMPLETE VISION FORMAT**: Maya uses "**THE CINEMATIC VISION:**" format for decisive, detailed concepts
+- ✅ **ENHANCED EXTRACTION**: Prompt extraction now properly detects Maya's decisive format and extracts core vision
+- ✅ **MANDATORY TECHNICAL FORMAT**: All prompts get "raw photo, visible skin pores, film grain, unretouched natural skin texture, subsurface scattering, photographed on film" added
+- ✅ **DETAILED STYLING**: Maya creates rich prompts with exact outfits, hair, makeup, accessories, and professional camera equipment
+- ✅ **EXTRACTION LOGIC**: Fixed to handle both old questioning format and new decisive "**THE CINEMATIC VISION:**" format
 
 **Technical Foundation:**
 - Fixed `extractImagePromptFromRequest` function to preserve detailed prompts instead of simplifying to keywords
