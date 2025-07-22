@@ -13,31 +13,23 @@ export class ArchitectureValidator {
    * ALL users must use their individual trained models with zero cross-contamination
    */
   static validateGenerationRequest(requestBody: any, userId: string, isPremium: boolean = false): void {
-    // 🔒 V2 ARCHITECTURE: ALL users use individual trained models (no FLUX Pro distinction)
-    // This matches CORE_ARCHITECTURE_IMMUTABLE_V2.md - complete user isolation with individual models
-    
-    if (!requestBody.version || !requestBody.version.includes(':')) {
-      console.error('🚨 ARCHITECTURE VIOLATION: Missing individual user model version');
-      console.error('Request body:', JSON.stringify(requestBody, null, 2));
-      throw new Error('Architecture violation: Must use individual user model only');
+    // 1. VALIDATE BLACK FOREST LABS MODEL - Must use correct official version
+    if (requestBody.version !== "30k587n6shrme0ck4zzrr6bt6c") {
+      throw new Error('Architecture violation: Must use official black-forest-labs/flux-dev-lora:30k587n6shrme0ck4zzrr6bt6c');
     }
     
-    // Ensure proper individual model format (username/modelid:versionid)
-    const versionParts = requestBody.version.split(':');
-    if (versionParts.length !== 2) {
-      console.error('🚨 ARCHITECTURE VIOLATION: Invalid model version format');
-      throw new Error('Architecture violation: Invalid model version format - must be username/model:version');
+    // 2. VALIDATE LORA PARAMETER - Must use user's trained LoRA
+    if (!requestBody.input?.lora) {
+      throw new Error('Architecture violation: Missing user LoRA parameter - each user must use their trained LoRA weights');
     }
     
-    // Ensure no premium-only parameters (finetune_id not used in V2 architecture)
-    if (requestBody.input?.finetune_id) {
-      console.error('🚨 ARCHITECTURE VIOLATION: finetune_id not permitted in V2 individual model architecture');
-      throw new Error('Architecture violation: V2 uses individual models, not finetune_id');
+    // 3. VALIDATE USER ISOLATION - LoRA should be user-specific
+    const userLora = requestBody.input.lora;
+    if (!userLora.includes(userId)) {
+      console.log(`⚠️  WARNING: LoRA model ${userLora} may not match user ID ${userId}`);
     }
     
-    const userType = isPremium ? 'Premium' : 'Free';
-    console.log(`✅ ${userType} user validation passed for user: ${userId}`);
-    console.log(`✅ Using individual model version: ${requestBody.version}`);
+    console.log(`✅ Using Black Forest Labs model with user LoRA: ${userLora}`);
   }
   
   /**

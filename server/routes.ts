@@ -1009,8 +1009,13 @@ Return ONLY the technical prompt without any additional text or formatting.`,
         });
       }
       
-      // 🔒 LOCKED FORMAT: sandrasocial/{userId}-selfie-lora:{versionId}
-      const modelVersion = `${userModel.replicateModelId}:${userModel.replicateVersionId}`;
+      // 🔒 USER'S LORA MODEL FOR BLACK FOREST LABS BASE MODEL
+      let userLoraModel;
+      if (userModel.replicateVersionId.includes(':')) {
+        userLoraModel = userModel.replicateVersionId.split(':')[0];
+      } else {
+        userLoraModel = userModel.replicateModelId;
+      }
       const triggerWord = userModel.triggerWord || `user${userId}`;
       
       // Enhanced prompt with Sandra's expert settings (user can adjust)
@@ -1018,9 +1023,10 @@ Return ONLY the technical prompt without any additional text or formatting.`,
       
       // 🔒 LOCKED API FORMAT: Core architecture parameters (Sandra can adjust quality settings)
       const requestBody = {
-        version: modelVersion,
+        version: "30k587n6shrme0ck4zzrr6bt6c", // 🔒 OFFICIAL: black-forest-labs/flux-dev-lora
         input: {
           prompt: enhancedPrompt,
+          lora: userLoraModel,    // ✅ USER'S TRAINED LORA WEIGHTS
           guidance: guidance_scale || 2.8, // Sandra can adjust
           num_inference_steps: num_inference_steps || 35, // Sandra can adjust  
           num_outputs: 1,
