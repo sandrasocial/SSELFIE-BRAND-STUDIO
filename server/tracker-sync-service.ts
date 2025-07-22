@@ -159,7 +159,8 @@ export class TrackerSyncService {
   }
   
   /**
-   * Update Maya chat message with generated images
+   * Update Maya chat message with generated images - AUTO PERMANENT STORAGE
+   * Automatically migrates ALL images to permanent S3 storage for Maya chat preview
    */
   static async updateMayaChatWithImages(trackerId: number, imageUrls: string[]): Promise<void> {
     try {
@@ -170,6 +171,37 @@ export class TrackerSyncService {
       if (!tracker) {
         console.log(`❌ No tracker found for ID ${trackerId}`);
         return;
+      }
+      
+      // 🚀 AUTOMATIC PERMANENT STORAGE: Convert ALL Maya chat images to permanent S3 URLs
+      console.log(`💾 MAYA CHAT: Migrating ${imageUrls.length} images to permanent storage for user ${tracker.userId}`);
+      const permanentImageUrls: string[] = [];
+      
+      for (let i = 0; i < imageUrls.length; i++) {
+        const replicateUrl = imageUrls[i];
+        try {
+          const { ImageStorageService } = await import('./image-storage-service');
+          const permanentUrl = await ImageStorageService.ensurePermanentStorage(
+            replicateUrl, 
+            tracker.userId, 
+            `maya_chat_${trackerId}_${i}`
+          );
+          permanentImageUrls.push(permanentUrl);
+          console.log(`✅ MAYA PREVIEW: Image ${i + 1}/${imageUrls.length} migrated to permanent storage`);
+        } catch (error) {
+          console.error(`❌ MAYA PREVIEW: Failed to migrate image ${i + 1}, using original URL:`, error);
+          permanentImageUrls.push(replicateUrl); // Fallback to original URL
+        }
+      }
+      
+      // Update generation tracker with permanent URLs
+      try {
+        await storage.updateGenerationTracker(trackerId, {
+          imageUrls: JSON.stringify(permanentImageUrls)
+        });
+        console.log(`✅ TRACKER: Updated tracker ${trackerId} with ${permanentImageUrls.length} permanent URLs`);
+      } catch (error) {
+        console.error(`❌ TRACKER: Failed to update tracker with permanent URLs:`, error);
       }
       
       // Find the most recent Maya chat message that needs images
@@ -189,9 +221,9 @@ export class TrackerSyncService {
       
       if (mayaMessageWithoutImages) {
         await storage.updateMayaChatMessage(mayaMessageWithoutImages.id, {
-          imagePreview: JSON.stringify(imageUrls)
+          imagePreview: JSON.stringify(permanentImageUrls) // Use permanent URLs for chat preview
         });
-        console.log(`✅ Updated Maya message ${mayaMessageWithoutImages.id} with images`);
+        console.log(`✅ MAYA CHAT: Updated message ${mayaMessageWithoutImages.id} with ${permanentImageUrls.length} permanent preview images`);
       } else {
         console.log(`ℹ️ No Maya message found that needs images for tracker ${trackerId}`);
       }
