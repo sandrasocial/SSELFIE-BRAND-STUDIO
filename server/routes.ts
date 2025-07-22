@@ -782,56 +782,63 @@ This ensures the generate button appears for users to create their photos.`;
           const promptResponse = await client.messages.create({
             model: "claude-sonnet-4-20250514", // Latest Claude model confirmed
             max_tokens: 600,
-            system: `🔒 MAYA'S EXCLUSIVE TECHNICAL PROMPT GENERATOR 🔒
-            
-You are Maya's PROTECTED technical prompt generator. This system is EXCLUSIVELY for Maya's styling visions and completely isolated from all other AI agents including Flux.
+            system: `You are Maya's technical prompt generator. Convert Maya's styling descriptions into clean photography prompts.
 
-🚨 MAYA PROTECTION PROTOCOL:
-- This system ONLY processes Maya's styling descriptions
-- NO other agents can interfere with Maya's prompt generation
-- FLUX AI agent is DISCONNECTED from this process
-- Maya's styling vision is SACRED and cannot be modified by external systems
+CRITICAL REQUIREMENTS:
+- Extract exact clothing items, colors, and styling from Maya's description
+- Preserve Maya's specific outfit details (never change white to black or vice versa)
+- Match the shot type Maya specified (full body, portrait, close-up)
+- Include appropriate camera equipment based on shot type
+- Maintain Maya's lighting and pose instructions
 
-🚨 CRITICAL ANALYSIS REQUIREMENTS:
-- READ Maya's styling description carefully for specific outfit details
-- EXTRACT exact clothing items, colors, and styling mentioned by Maya
-- TRANSLATE Maya's vision into technical photography prompt
-- NEVER change or reverse Maya's clothing descriptions
-- MATCH every detail Maya specified exactly
+CAMERA SELECTION:
+- Full body shots: Canon EOS R5 with 24-70mm f/2.8 lens
+- Portrait shots: Hasselblad X2D with 85mm f/1.4 lens
+- Close-up shots: Sony FX6 with 85mm f/1.2 lens
 
-🎯 MAYA'S DESCRIPTION ANALYSIS:
-- Extract EXACT outfit: blazer color, pants color, top color, shoes
-- Extract EXACT pose: hand positions, stance, body language
-- Extract EXACT shot type: full body, portrait, close-up
-- Extract EXACT lighting: direction, mood, contrast
-- Extract EXACT styling: hair, makeup, overall aesthetic
+OUTPUT FORMAT:
+Only output the clean technical prompt starting with "elegant woman in..." with no additional text, analysis, or commentary.
 
-📸 TECHNICAL TRANSLATION RULES:
-- If Maya says "white blazer" → prompt must include "white blazer"
-- If Maya says "black top" → prompt must include "black top"  
-- If Maya says "full body" → use Canon EOS R5 with 24-70mm f/2.8 lens
-- If Maya says "portrait" → use Hasselblad X2D with 85mm f/1.4 lens
-- If Maya says "B&W" → include "black and white" or "monochrome"
-
-🚨 FORBIDDEN REVERSALS:
-- NEVER change white to black or black to white
-- NEVER change Maya's specific clothing descriptions
-- NEVER ignore Maya's pose or lighting instructions
-- NEVER substitute different camera equipment than specified
-
-REQUIRED OUTPUT FORMAT:
-"elegant woman in [Maya's shot type] wearing [Maya's exact outfit description], [Maya's exact pose], captured with [appropriate camera for shot type], [Maya's lighting], [Maya's composition], professional fashion photography quality"
-
-Generate the technical prompt that EXACTLY matches Maya's styling vision.`,
+Example: "elegant woman in full body editorial wearing sleek black turtleneck and high-waisted trousers, standing confidently against plain wall, captured with Canon EOS R5 24-70mm f/2.8 lens, soft lighting, minimalist composition, professional fashion photography quality"`,
             messages: [
               { role: 'user', content: `Maya described this styling vision: "${response}"\n\nGenerate exact technical prompt matching every detail Maya specified.` }
             ]
           });
 
-          // 🔧 CRITICAL FIX: Extract ONLY the clean technical prompt
-          let cleanPrompt = promptResponse.content[0].text;
+          // 🔧 CRITICAL FIX: Extract ONLY the clean technical prompt and remove ALL contamination
+          let rawResponse = promptResponse.content[0].text;
+          let cleanPrompt = rawResponse;
           
-          // Remove any markdown formatting, asterisks, and conversational text
+          // STEP 1: Extract clean prompt between quotes if present  
+          const quotedPromptMatch = rawResponse.match(/"([^"]+)"/);
+          if (quotedPromptMatch) {
+            cleanPrompt = quotedPromptMatch[1];
+          }
+          
+          // STEP 2: Remove ALL Maya protection and analysis text
+          const contaminationPatterns = [
+            /🔒.*?🔒/gs,  // Remove protection symbols and content between them
+            /📊.*?📸/gs,  // Remove analysis sections
+            /🚨.*?🎯/gs,  // Remove protection protocol sections
+            /MAYA'S.*?ACTIVATED/gi,
+            /MAYA.*?PROTECTION.*?CONFIRMED/gi,
+            /MAYA'S.*?DESCRIPTION.*?ANALYSIS/gi,
+            /EXACT.*?:/gi,
+            /TECHNICAL.*?TRANSLATION/gi,
+            /PROMPT:/gi,
+            /MAYA.*?STYLING.*?VISION.*?PERFECTLY.*?TRANSLATED/gi,
+            /✓.*?\n/g,    // Remove checkmark lines
+            /📸.*?\n/g,   // Remove camera emoji lines
+            /🚨.*?\n/g,   // Remove warning emoji lines
+            /📊.*?\n/g,   // Remove chart emoji lines
+            /🎯.*?\n/g,   // Remove target emoji lines
+          ];
+          
+          for (const pattern of contaminationPatterns) {
+            cleanPrompt = cleanPrompt.replace(pattern, '');
+          }
+          
+          // STEP 3: Remove markdown formatting and conversational text
           cleanPrompt = cleanPrompt
             .replace(/\*\*/g, '') // Remove ** bold formatting
             .replace(/\*/g, '')   // Remove * formatting
@@ -840,18 +847,26 @@ Generate the technical prompt that EXACTLY matches Maya's styling vision.`,
             .replace(/\s+/g, ' ') // Replace multiple spaces with single space
             .trim();
           
-          // Remove any titles, labels, or headers before the actual description
+          // STEP 4: Remove titles, labels, or headers before the actual description
           const cleanPatterns = [
             /^.*?SHOT\s*[-:]\s*/i,
             /^.*?VISION\s*[-:]\s*/i,
             /^.*?LOOK\s*[-:]\s*/i,
             /^.*?STYLE\s*[-:]\s*/i,
             /^.*?EDITORIAL\s*[-:]\s*/i,
-            /^.*?PORTRAIT\s*[-:]\s*/i
+            /^.*?PORTRAIT\s*[-:]\s*/i,
+            /^.*?PROMPT\s*[-:]\s*/i
           ];
           
           for (const pattern of cleanPatterns) {
             cleanPrompt = cleanPrompt.replace(pattern, '');
+          }
+          
+          // STEP 5: Extract only the actual photography description
+          // Look for the pattern "elegant woman in..." which is the clean prompt
+          const cleanPromptMatch = cleanPrompt.match(/elegant woman in[^,]+(?:,[^,]+)*,?/i);
+          if (cleanPromptMatch) {
+            cleanPrompt = cleanPromptMatch[0];
           }
           
           // Ensure we start with a clean description
@@ -888,13 +903,15 @@ Generate the technical prompt that EXACTLY matches Maya's styling vision.`,
           // CRITICAL: Build prompt with trigger word FIRST to prevent race contamination
           generatedPrompt = `${triggerWord}, ${cleanPrompt}, raw photo, visible skin pores, film grain, unretouched natural skin texture, subsurface scattering, photographed on film, natural daylight, professional photography`;
           
-          // Debug logging to verify prompt construction and Maya description matching
-          console.log('🔧 Maya Prompt Debug:', {
-            mayaResponse: response.substring(0, 300),
-            originalPrompt: promptResponse.content[0].text.substring(0, 300),
-            cleanPrompt: cleanPrompt.substring(0, 300),
+          // Enhanced debug logging to verify contamination removal
+          console.log('🔧 Maya Prompt Contamination Fix Debug:', {
+            mayaResponse: response.substring(0, 200),
+            rawPromptResponse: rawResponse.substring(0, 400),
+            cleanedPrompt: cleanPrompt.substring(0, 300),
             triggerWord,
-            finalPrompt: generatedPrompt.substring(0, 300)
+            finalPrompt: generatedPrompt.substring(0, 400),
+            hasContamination: rawResponse.includes('MAYA\'S EXCLUSIVE') || rawResponse.includes('PROTECTION CONFIRMED'),
+            contaminationRemoved: !cleanPrompt.includes('MAYA\'S EXCLUSIVE') && !cleanPrompt.includes('PROTECTION CONFIRMED')
           });
           
           // Always add confident generation statement for clarity
