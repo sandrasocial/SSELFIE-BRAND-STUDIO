@@ -11,8 +11,13 @@ import { registerAgentCommandRoutes } from "./routes/agent-command-center";
 import agentFileAccessRoutes from "./routes/agent-file-access";
 import agentLearningRoutes from "./routes/agent-learning";
 import elenaWorkflowRoutes from "./routes/elena-workflow-routes";
+import agentSyncRoutes from "./routes/agent-sync-routes";
 // import { registerAgentRoutes } from "./routes/agent-conversation-routes"; // DISABLED - syntax error
 import { rachelAgent } from "./agents/rachel-agent";
+
+// Import sync services for automatic startup
+import { fileSyncService } from "./services/file-sync-service.js";
+import { agentSyncManager } from "./services/agent-sync-manager.js";
 import path from "path";
 import fs from "fs";
 // Removed photoshoot routes - using existing checkout system
@@ -131,6 +136,17 @@ export async function registerRoutes(app: Express): Promise<Server> {
   
   // Agent file access routes (secure admin access only)
   app.use('/api/admin/agent', agentFileAccessRoutes);
+  
+  // Agent synchronization routes (bidirectional file sync)
+  app.use('/api/admin/agent-sync', agentSyncRoutes);
+  
+  // Initialize file sync service for bidirectional file synchronization
+  try {
+    // File sync service is already started automatically via import
+    console.log('✅ File Sync Service integrated - monitoring project files');
+  } catch (syncError) {
+    console.error('⚠️ File Sync Service integration error:', syncError);
+  }
   
   // Agent learning & training routes  
   app.use('/api/agent-learning', agentLearningRoutes);
@@ -4543,6 +4559,14 @@ Consider this workflow optimized and ready for implementation! ⚙️`
       // Get user ID for conversation management
       const userId = authMethod === 'session' && req.user ? 
         (req.user as any).claims.sub : '42585527'; // Sandra's actual user ID
+      
+      // AUTO-REGISTER AGENT FOR FILE SYNCHRONIZATION
+      try {
+        agentSyncManager.registerAgent(agentId);
+        console.log(`🔗 Agent ${agentId} auto-registered for file sync`);
+      } catch (syncError) {
+        console.log(`⚠️ Agent sync registration failed for ${agentId}:`, syncError.message);
+      }
       
       // ENHANCED CONVERSATION MANAGEMENT FOR FLUX: Full conversation continuity
       

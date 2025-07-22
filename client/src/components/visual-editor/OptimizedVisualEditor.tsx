@@ -51,6 +51,7 @@ import { ElenaCoordinationPanel } from './ElenaCoordinationPanel';
 import { ConversationThread } from './ConversationThread';
 import { EnhancedInput } from './EnhancedInput';
 import { MessageInteraction } from './MessageInteraction';
+import { FileSyncStatusIndicator } from './FileSyncStatusIndicator';
 import { CodeIntelligence } from './CodeIntelligence';
 import { EnhancedSyntaxHighlighter } from './SyntaxHighlighter';
 import { CodeFormatter } from './CodeFormatter';
@@ -2026,6 +2027,19 @@ export function OptimizedVisualEditor({ className = '' }: OptimizedVisualEditorP
                 disabled={false}
               />
             </div>
+            
+            {/* File Sync Status Indicator */}
+            <FileSyncStatusIndicator 
+              selectedAgent={currentAgent.id}
+              onRefreshRequested={() => {
+                // Refresh chat/context when file sync triggers updates
+                refreshConversationHistory();
+                toast({
+                  title: 'File Sync Refresh',
+                  description: 'File tree and agent context updated',
+                });
+              }}
+            />
           </TabsContent>
 
           <TabsContent value="gallery" className="flex flex-col">
