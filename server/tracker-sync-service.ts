@@ -181,7 +181,7 @@ export class TrackerSyncService {
         const replicateUrl = imageUrls[i];
         try {
           const { ImageStorageService } = await import('./image-storage-service');
-          const permanentUrl = await ImageStorageService.ensurePermanentStorage(
+          const permanentUrl = await ImageStorageService.storeImagePermanently(
             replicateUrl, 
             tracker.userId, 
             `maya_chat_${trackerId}_${i}`
