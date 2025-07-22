@@ -3295,6 +3295,78 @@ I'm here to make your website perfect!`;
     }
   });
 
+  // BUILD WORKSPACE AGENT ENDPOINTS - MAYA AND VICTORIA CHAT
+  app.post('/api/build/maya-chat', isAuthenticated, async (req, res) => {
+    try {
+      const userId = req.user?.claims?.sub;
+      if (!userId) {
+        return res.status(401).json({ error: 'Authentication required' });
+      }
+
+      const { message } = req.body;
+      if (!message) {
+        return res.status(400).json({ error: 'Message is required' });
+      }
+
+      // Maya AI Photography guidance - clean parameters without Flux corruption
+      const response = `Hi! I'm Maya, your AI Photography expert. I help you create amazing AI-generated photos using your trained model.
+
+For the best results, I recommend:
+✨ Clear, specific prompts describing the mood and style you want
+📸 Professional settings like "editorial portrait" or "lifestyle photo"
+🎨 Lighting descriptions: "golden hour", "natural light", or "studio lighting"
+
+What kind of photo would you like to create? I'll help you craft the perfect prompt and settings!`;
+
+      res.json({
+        success: true,
+        message: response,
+        agentName: 'Maya - AI Photographer',
+        timestamp: new Date().toISOString()
+      });
+
+    } catch (error) {
+      console.error('Maya chat error:', error);
+      res.status(500).json({ error: 'Failed to process Maya chat' });
+    }
+  });
+
+  app.post('/api/build/victoria-chat', isAuthenticated, async (req, res) => {
+    try {
+      const userId = req.user?.claims?.sub;
+      if (!userId) {
+        return res.status(401).json({ error: 'Authentication required' });
+      }
+
+      const { message } = req.body;
+      if (!message) {
+        return res.status(400).json({ error: 'Message is required' });
+      }
+
+      // Victoria Website Builder guidance
+      const response = `Hello! I'm Victoria, your Website Builder. I help you create beautiful, professional websites that showcase your personal brand.
+
+I can help you with:
+🏗️ Complete website creation from your brand story
+🎨 Luxury editorial design that converts visitors to clients  
+📱 Mobile-responsive layouts that work on all devices
+✨ Professional copy that speaks to your ideal clients
+
+What kind of website would you like to build? Tell me about your business and I'll create something amazing for you!`;
+
+      res.json({
+        success: true,
+        message: response,
+        agentName: 'Victoria - Website Builder',
+        timestamp: new Date().toISOString()
+      });
+
+    } catch (error) {
+      console.error('Victoria chat error:', error);
+      res.status(500).json({ error: 'Failed to process Victoria chat' });
+    }
+  });
+
   // ===============================================
   // CONVERSATION THREADING API ENDPOINTS
   // ===============================================
