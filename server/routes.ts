@@ -1055,12 +1055,28 @@ Generate your complete, creative prompt - trust your artistic vision completely.
       });
 
 
-      // Start background status checking
-      setTimeout(() => {
-        UnifiedGenerationService.checkAndUpdateStatus(generationResult.id, generationResult.predictionId).catch(err => {
+      // Start background status checking with multiple intervals
+      const checkStatus = async () => {
+        try {
+          await UnifiedGenerationService.checkAndUpdateStatus(generationResult.id, generationResult.predictionId);
+        } catch (err) {
           console.error('Failed to check generation status:', err);
-        });
-      }, 5000); // Check after 5 seconds initially
+        }
+      };
+      
+      // Check after 10 seconds, then every 15 seconds for 3 minutes
+      setTimeout(checkStatus, 10000);
+      setTimeout(checkStatus, 25000);
+      setTimeout(checkStatus, 40000);
+      setTimeout(checkStatus, 55000);
+      setTimeout(checkStatus, 70000);
+      setTimeout(checkStatus, 85000);
+      setTimeout(checkStatus, 100000);
+      setTimeout(checkStatus, 115000);
+      setTimeout(checkStatus, 130000);
+      setTimeout(checkStatus, 145000);
+      setTimeout(checkStatus, 160000);
+      setTimeout(checkStatus, 175000);
 
       res.json({
         success: true,
@@ -3385,12 +3401,28 @@ Want something different? Tell me the vibe - editorial sophistication? Natural l
             category: 'Maya AI'
           });
           
-          // Start background status checking
-          setTimeout(() => {
-            UnifiedGenerationService.checkAndUpdateStatus(generationResult.id, generationResult.predictionId).catch(err => {
+          // Start background status checking with multiple intervals
+          const checkStatus = async () => {
+            try {
+              await UnifiedGenerationService.checkAndUpdateStatus(generationResult.id, generationResult.predictionId);
+            } catch (err) {
               console.error('Failed to check generation status:', err);
-            });
-          }, 5000);
+            }
+          };
+          
+          // Check after 10 seconds, then every 15 seconds for 3 minutes
+          setTimeout(checkStatus, 10000);
+          setTimeout(checkStatus, 25000);
+          setTimeout(checkStatus, 40000);
+          setTimeout(checkStatus, 55000);
+          setTimeout(checkStatus, 70000);
+          setTimeout(checkStatus, 85000);
+          setTimeout(checkStatus, 100000);
+          setTimeout(checkStatus, 115000);
+          setTimeout(checkStatus, 130000);
+          setTimeout(checkStatus, 145000);
+          setTimeout(checkStatus, 160000);
+          setTimeout(checkStatus, 175000);
         }
       } catch (error) {
         console.error('Maya auto-generation error:', error);
