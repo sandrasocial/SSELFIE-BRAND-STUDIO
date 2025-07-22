@@ -358,16 +358,12 @@ export class AIService {
         userLoraModel = userModel.replicateModelId;
       }
       
-      // 🔧 CORE_ARCHITECTURE_IMMUTABLE_V2 PARAMETERS (Updated July 22, 2025)
-      // Professional-grade unified parameters for identical Maya/AI photoshoot quality
-      // Extract version ID from the user's trained model path
-      const versionId = userLoraModel.split(':')[1];
-      if (!versionId) {
-        throw new Error(`Invalid user model format: ${userLoraModel}. Expected format: owner/model:version`);
-      }
+      // 🔧 INDIVIDUAL USER MODEL ARCHITECTURE (Fixed July 22, 2025)
+      // Use the COMPLETE user model path as individual trained model
+      // Format: sandrasocial/42585527-selfie-lora:e1713c1 (not just version ID)
       
       requestBody = {
-        version: versionId, // ✅ Using the user's individual trained model version
+        version: userLoraModel, // ✅ Using the COMPLETE user model path as individual model
         input: {
           prompt: prompt,
           guidance: 2.8,                // ✅ Unified high-quality parameter

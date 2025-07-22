@@ -80,22 +80,17 @@ export class EnhancedGenerationService {
       throw new Error('User model version not found - training may need completion');
     }
     
-    // 🔒 USER'S LORA MODEL FOR BLACK FOREST LABS BASE MODEL
-    let userLoraModel;
-    if (userModel.replicateVersionId.includes(':')) {
-      userLoraModel = userModel.replicateVersionId.split(':')[0];
-    } else {
-      userLoraModel = userModel.replicateModelId;
-    }
+    // 🔒 INDIVIDUAL USER MODEL ARCHITECTURE (Fixed July 22, 2025)  
+    const userModelPath = userModel.replicateVersionId;
     
     // 🔥 SELECT ENHANCEMENT BASED ON LEVEL
     const preset = this.ENHANCEMENT_PRESETS[enhancementLevel];
     const enhancement = this.ENHANCEMENT_LORAS[preset.lora];
     
-    console.log(`🔥 ENHANCED GENERATION: Using ${enhancementLevel} enhancement`);
+    console.log(`🔥 ENHANCED GENERATION: Using ${enhancementLevel} enhancement with individual model: ${userModelPath}`);
     console.log(`🎨 Enhancement LoRA: ${enhancement.description}`);
     
-    // 🎯 OPTIMIZE PROMPT FOR ENHANCEMENT (USING WORKING STRUCTURE FROM ID 352)
+    // 🎯 OPTIMIZE PROMPT FOR ENHANCEMENT
     let enhancedPrompt = customPrompt;
     
     // Clean the custom prompt first to avoid duplication
@@ -112,7 +107,7 @@ export class EnhancedGenerationService {
     // Clean up extra commas and spaces
     enhancedPrompt = enhancedPrompt.replace(/,\s*,/g, ',').replace(/^\s*,\s*|\s*,\s*$/g, '').trim();
     
-    // 🔧 WORKING STRUCTURE: Realism base + trigger word + clean description (matches successful ID 352)
+    // 🔧 WORKING STRUCTURE: Realism base + trigger word + clean description
     enhancedPrompt = `raw photo, visible skin pores, film grain, unretouched natural skin texture, subsurface scattering, photographed on film, ${triggerWord}, ${enhancedPrompt}`;
     
     // Add enhancement trigger words if specified
@@ -122,12 +117,11 @@ export class EnhancedGenerationService {
     
     console.log(`🔧 ENHANCED GENERATION WORKING PROMPT: ${enhancedPrompt}`);
     
-    // 🔥 ENHANCED GENERATION REQUEST WITH EXTRA LORA
+    // 🔥 INDIVIDUAL USER MODEL REQUEST WITH ENHANCEMENT
     const enhancedRequestBody = {
-      version: "30k587n6shrme0ck4zzrr6bt6c", // 🔒 OFFICIAL: black-forest-labs/flux-dev-lora
+      version: userModelPath, // ✅ COMPLETE individual user model path
       input: {
         prompt: enhancedPrompt,
-        lora: userLoraModel,      // ✅ USER'S TRAINED LORA WEIGHTS
         guidance: 2.8,               // ✅ Unified high-quality parameter
         num_inference_steps: 40,     // ✅ Unified high-quality parameter
         lora_scale: 0.95,           // ✅ Unified high-quality parameter
