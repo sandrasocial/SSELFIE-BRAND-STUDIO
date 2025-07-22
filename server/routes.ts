@@ -756,31 +756,38 @@ This ensures the generate button appears for users to create their photos.`;
 - Start directly with the technical description
 
 REQUIRED PROMPT STRUCTURE:
-"elegant woman [description], [fashion details], [camera/lens], [lighting], [composition], [style references]"
+"elegant woman [shot type] [description], [fashion details], [camera/lens], [lighting], [composition], [style references]"
+
+🎯 SHOT TYPE DETECTION (CRITICAL):
+- If request mentions "full body", "whole body", "head to toe", "entire outfit": Generate full body shot
+- If request mentions "portrait", "headshot", "face", "close up": Generate portrait shot  
+- If unclear, ask for clarification in technical prompt
 
 ✨ TECHNICAL FOUNDATIONS:
-• Professional fashion photography quality
+• Professional fashion photography quality with proper framing
 • Editorial magazine aesthetic from Vogue/Harper's Bazaar
 • Natural authentic skin texture with visible pores
 • Professional camera equipment specifications
-• Cinematic lighting and composition
+• Cinematic lighting and composition matching shot type
 • High-fashion styling with 2025 trends
 
-📸 CAMERA EQUIPMENT TO USE:
-• Hasselblad X2D 100C with 85mm f/1.4 lens
-• Canon EOS R5 with 50mm f/1.2 lens  
-• Sony α7R V with 135mm f/1.8 lens
-• Leica SL3 with 110mm f/2 lens
+📸 CAMERA EQUIPMENT BY SHOT TYPE:
+• FULL BODY: Canon EOS R5 with 24-70mm f/2.8 lens (wider angle)
+• PORTRAIT: Hasselblad X2D 100C with 85mm f/1.4 lens (classic portrait)
+• ENVIRONMENTAL: Sony α7R V with 35mm f/1.4 lens (context shots)
+• CLOSE-UP: Leica SL3 with 110mm f/2 lens (intimate detail)
 
 🌟 FASHION ELEMENTS TO INTEGRATE:
-• Oversized blazers with dramatic shoulders
-• Flowing silk scarves and statement jewelry
+• Complete outfit coordination for full body shots
+• Focus on key pieces for portrait shots
 • Textured fabrics: cashmere, raw silk, premium leather
 • Neutral luxury palette: cream, camel, dove gray
 • Clean architectural silhouettes
 
-🎯 OUTPUT EXAMPLE:
-elegant woman in sophisticated black and white editorial portrait, wearing oversized cream cashmere blazer with dramatic shoulders over simple white silk camisole, captured with Hasselblad X2D 100C camera using 85mm f/1.4 lens, positioned against floor-to-ceiling windows with soft natural light creating dramatic shadows, one hand gently touching collarbone while gazing confidently toward camera, hair styled in loose tousled waves, minimal makeup emphasizing natural bone structure, cinematic lighting with deep contrasts, professional fashion photography quality
+🎯 OUTPUT EXAMPLES:
+FULL BODY: "elegant woman in full body editorial shot wearing complete sophisticated outfit, oversized cream cashmere blazer with dramatic shoulders over tailored black trousers and pointed leather heels, captured with Canon EOS R5 camera using 24-70mm f/2.8 lens at 35mm, standing confidently against minimalist concrete wall, full figure visible from head to toe, natural daylight from large windows, professional fashion photography quality"
+
+PORTRAIT: "elegant woman in sophisticated editorial portrait, wearing oversized cream cashmere blazer with dramatic shoulders, captured with Hasselblad X2D 100C camera using 85mm f/1.4 lens, positioned against floor-to-ceiling windows with soft natural light, portrait composition from shoulders up, professional fashion photography quality"
 
 Generate the technical prompt only.`,
             messages: [
@@ -797,16 +804,39 @@ Generate the technical prompt only.`,
             .replace(/\*/g, '')   // Remove * formatting
             .replace(/#+\s/g, '') // Remove # headers
             .replace(/\n+/g, ' ') // Replace line breaks with spaces
+            .replace(/\s+/g, ' ') // Replace multiple spaces with single space
             .trim();
           
-          // Extract only the technical prompt part (after the last ":")
-          const promptLines = cleanPrompt.split(':');
-          if (promptLines.length > 1) {
-            cleanPrompt = promptLines[promptLines.length - 1].trim();
+          // Remove any titles, labels, or headers before the actual description
+          const cleanPatterns = [
+            /^.*?SHOT\s*[-:]\s*/i,
+            /^.*?VISION\s*[-:]\s*/i,
+            /^.*?LOOK\s*[-:]\s*/i,
+            /^.*?STYLE\s*[-:]\s*/i,
+            /^.*?EDITORIAL\s*[-:]\s*/i,
+            /^.*?PORTRAIT\s*[-:]\s*/i
+          ];
+          
+          for (const pattern of cleanPatterns) {
+            cleanPrompt = cleanPrompt.replace(pattern, '');
           }
           
-          // Add the user's trigger word at the beginning
-          generatedPrompt = `${triggerWord} ${cleanPrompt}, raw photo, visible skin pores, film grain, unretouched natural skin texture, subsurface scattering, photographed on film, shot on Leica Q2 with 28mm f/1.7 lens, natural daylight, professional photography`;
+          // Ensure we start with a clean description
+          cleanPrompt = cleanPrompt.trim();
+          
+          // CRITICAL: Remove any existing trigger words from the prompt to prevent duplication
+          cleanPrompt = cleanPrompt.replace(new RegExp(triggerWord, 'gi'), '').trim();
+          
+          // CRITICAL: Build prompt with trigger word FIRST to prevent race contamination
+          generatedPrompt = `${triggerWord}, ${cleanPrompt}, raw photo, visible skin pores, film grain, unretouched natural skin texture, subsurface scattering, photographed on film, shot on Leica Q2 with 28mm f/1.7 lens, natural daylight, professional photography`;
+          
+          // Debug logging to verify prompt construction
+          console.log('🔧 Maya Prompt Debug:', {
+            originalPrompt: promptResponse.content[0].text.substring(0, 200),
+            cleanPrompt: cleanPrompt.substring(0, 200),
+            triggerWord,
+            finalPrompt: generatedPrompt.substring(0, 200)
+          });
           
           // Always add confident generation statement for clarity
           if (!response.toLowerCase().includes('creating your') && !response.toLowerCase().includes('let\'s create')) {

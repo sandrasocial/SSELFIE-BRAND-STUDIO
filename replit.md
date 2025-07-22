@@ -897,6 +897,38 @@ sandra@dibssocial.com: Session expires July 25, 2025 (168+ hours remaining)
 - Enterprise-grade image storage system with automatic migration
 - Permanent Maya chat functionality supporting 120K+ user base growth
 
+## ✅ MAYA PROMPT CONTAMINATION COMPLETELY FIXED (July 22, 2025)
+
+**CRITICAL MAYA IMAGE GENERATION ISSUES RESOLVED:**
+- ✅ **Race/Ethnicity Contamination Fixed**: Trigger word now properly placed at beginning of prompt instead of middle
+- ✅ **Full Body vs Portrait Detection**: Enhanced Maya to detect shot type from user requests and generate appropriate compositions
+- ✅ **Clean Prompt Construction**: Robust cleaning system removes headers, titles, and formatting that was contaminating prompts
+- ✅ **Generate Button Persistence**: Fixed button to remain available in chat history for re-generation
+- ✅ **Debug Logging Added**: Real-time prompt construction monitoring for quality assurance
+
+**Technical Implementation:**
+- **Trigger Word Placement**: `${triggerWord}, ${cleanPrompt}` ensures proper user identity at prompt start
+- **Advanced Cleaning**: Removes SHOT:, VISION:, EDITORIAL: headers and formatting that was breaking prompts
+- **Shot Type Intelligence**: Detects "full body", "portrait", "headshot" keywords for proper framing
+- **Camera Equipment Mapping**: Full body uses 24-70mm lens, portraits use 85mm lens for optimal results
+- **Duplicate Prevention**: Removes existing trigger words from prompt to prevent duplication
+
+**Before Fix (Contaminated):**
+```
+raw photo, visible skin pores, user42585527, MONOCHROME AUTHORITY: Executive Power Editorial, bold defined eyebrows...
+```
+
+**After Fix (Clean):**
+```
+user42585527, elegant woman in full body editorial shot wearing sophisticated black blazer, captured with Canon EOS R5 camera using 24-70mm f/2.8 lens, raw photo, visible skin pores...
+```
+
+**User Issues Resolved:**
+- No more race/ethnicity contamination in generated images
+- Proper full body shots when requested instead of portraits only  
+- Clean, professional prompt construction without formatting artifacts
+- Persistent generate buttons for re-creating successful image styles
+
 ## ✅ BUILD ERROR FIXED - DEPLOYMENT READY (July 22, 2025)
 
 **CRITICAL BUILD ERROR RESOLVED:**
