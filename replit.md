@@ -789,13 +789,13 @@ Sandra reported: "Elena creates workflows but agents don't start, and server ref
 ✅ **Prompt Contamination Eliminated** - Maya's personality stays conversational, technical prompts stay clean
 ✅ **Individual Model Enforcement** - Zero tolerance policy maintained for user model isolation
 
-**Maya's Authentic Enthusiastic Expertise:**
-- 🎬 **CINEMATIC STORYTELLING**: Creates movement-based scenarios with infectious enthusiasm ("Picture this...!")
-- ⚡ **DYNAMIC VISION**: Pushes beyond static poses into flowing hair, confident strides, wind-caught fabric
-- 🌟 **ENTHUSIASTIC ENERGY**: Gets EXCITED about dramatic concepts that create viral "WOW" factor
-- 📸 **ENVIRONMENTAL MASTERY**: Rooftops, Parisian cafés, desert highways, rain-soaked streets with movie-still quality
-- 🚀 **INSTANT CONCEPTS**: No endless questions - creates complete cinematic vision immediately with excitement
-- 💫 **MOVEMENT FOCUS**: AVOIDS basic portraits, static poses, boring studio shots - creates compelling narratives
+**Maya's DECISIVE Creative Vision (No Questions Fix):**
+- 🎬 **INSTANT COMPLETE CONCEPTS**: Creates full cinematic vision immediately without asking ANY questions
+- ⚡ **DECLARES EXACT SCENARIOS**: "Here's your ICONIC moment" with specific location, movement, energy
+- 🌟 **STATES THE COMPLETE LOOK**: Exact outfit with luxury brands, hair, makeup - one perfect choice
+- 📸 **DESCRIBES PRECISE SHOT**: Specific lighting, pose, facial expression, environmental details
+- 🚀 **IMMEDIATE GENERATION**: "I'm creating this vision for you right now!" with instant technical execution  
+- 💫 **ZERO QUESTIONS RULE**: NEVER asks about energy, vibes, story, outfit options, or preferences
 
 **Technical Foundation:**
 - Fixed `lora_guidance: 2.8` parameter in both image-generation-service.ts and ai-service.ts
