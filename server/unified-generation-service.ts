@@ -5,10 +5,13 @@
  */
 
 import { storage } from './storage';
-import type { InsertAIImage } from '@shared/schema-simplified';
 import { ArchitectureValidator } from './architecture-validator';
 import { GenerationValidator } from './generation-validator';
 import { extractImagePromptFromRequest } from './sandra-ai-service';
+import { 
+  InsertGenerationTracker,
+  type User 
+} from '@shared/schema';
 
 export interface UnifiedGenerationRequest {
   userId: string;
@@ -62,17 +65,16 @@ export class UnifiedGenerationService {
     const triggerWord = `user${userId}`;
     console.log(`🔒 VALIDATED: User ${userId} can generate with model: ${fullModelVersion}`);
     
-    // Create tracking record
-    const aiImageData: InsertAIImage = {
+    // Create generation tracker for Maya chat preview (NOT gallery)
+    const trackerData: InsertGenerationTracker = {
       userId,
-      imageUrl: 'processing',
+      predictionId: '', // Will be updated after API call
       prompt,
       style: category,
-      generationStatus: 'processing',
-      predictionId: ''
+      status: 'processing'
     };
     
-    const savedImage = await storage.saveAIImage(aiImageData);
+    const savedTracker = await storage.saveGenerationTracker(trackerData);
     
     // Prepare final prompt with trigger word
     let finalPrompt = prompt;
@@ -153,8 +155,8 @@ export class UnifiedGenerationService {
     
     const prediction = await replicateResponse.json();
     
-    // Update database with prediction ID using existing updateAIImage method
-    await storage.updateAIImage(savedImage.id, { 
+    // Update tracker with prediction ID 
+    await storage.updateGenerationTracker(savedTracker.id, { 
       predictionId: prediction.id,
       status: 'processing'
     });
@@ -162,7 +164,7 @@ export class UnifiedGenerationService {
     console.log(`✅ UNIFIED GENERATION: Started prediction ${prediction.id} for user ${userId}`);
     
     return {
-      id: savedImage.id,
+      id: savedTracker.id,
       predictionId: prediction.id,
       imageUrls: [], // Will be populated when prediction completes
       success: true
@@ -170,10 +172,10 @@ export class UnifiedGenerationService {
   }
   
   /**
-   * Poll for completion and update database
+   * Poll for completion and update Maya chat with preview images
    * Called by background processes to update generation status
    */
-  static async checkAndUpdateStatus(imageId: number, predictionId: string): Promise<void> {
+  static async checkAndUpdateStatus(trackerId: number, predictionId: string): Promise<void> {
     try {
       const response = await fetch(`https://api.replicate.com/v1/predictions/${predictionId}`, {
         headers: {
@@ -190,22 +192,27 @@ export class UnifiedGenerationService {
       
       if (prediction.status === 'succeeded') {
         const imageUrls = prediction.output || [];
-        await storage.updateAIImage(imageId, {
-          imageUrl: JSON.stringify(imageUrls),
+        
+        // Update tracker with completed images for Maya chat preview
+        await storage.updateGenerationTracker(trackerId, {
+          imageUrls: JSON.stringify(imageUrls),
           status: 'completed'
         });
-        console.log(`✅ UNIFIED GENERATION: Completed image ${imageId} with ${imageUrls.length} results`);
+        
+        console.log(`✅ MAYA CHAT PREVIEW: Completed tracker ${trackerId} with ${imageUrls.length} preview images`);
+        
+        // TODO: Send images to Maya chat interface for user preview with heart buttons
+        // Images will be shown in Maya's chat, not added to gallery until user hearts them
         
       } else if (prediction.status === 'failed') {
-        await storage.updateAIImage(imageId, {
-          status: 'failed',
-          errorMessage: prediction.error || 'Generation failed'
+        await storage.updateGenerationTracker(trackerId, {
+          status: 'failed'
         });
-        console.error(`❌ UNIFIED GENERATION: Failed image ${imageId}: ${prediction.error}`);
+        console.error(`❌ MAYA CHAT PREVIEW: Failed tracker ${trackerId}: ${prediction.error}`);
       }
       
     } catch (error) {
-      console.error(`Error checking prediction status for image ${imageId}:`, error);
+      console.error(`Error checking prediction status for tracker ${trackerId}:`, error);
     }
   }
 }

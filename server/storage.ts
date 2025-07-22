@@ -79,8 +79,9 @@ export interface IStorage {
   getAIImages(userId: string): Promise<AiImage[]>;
   saveAIImage(data: InsertAiImage): Promise<AiImage>;
 
-  // Generation Tracker operations (TEMP PREVIEW ONLY)
+  // Generation Tracker operations (TEMP PREVIEW ONLY - for Maya chat)
   createGenerationTracker(data: InsertGenerationTracker): Promise<GenerationTracker>;
+  saveGenerationTracker(data: InsertGenerationTracker): Promise<GenerationTracker>;
   updateGenerationTracker(id: number, updates: Partial<GenerationTracker>): Promise<GenerationTracker>;
   getGenerationTracker(id: number): Promise<GenerationTracker | undefined>;
   getUserGenerationTrackers(userId: string): Promise<GenerationTracker[]>;
@@ -363,6 +364,14 @@ export class DatabaseStorage implements IStorage {
 
   // 🔑 Generation Tracker Methods - for temp preview workflow ONLY
   async createGenerationTracker(data: InsertGenerationTracker): Promise<GenerationTracker> {
+    const [tracker] = await db
+      .insert(generationTrackers)
+      .values(data)
+      .returning();
+    return tracker;
+  }
+
+  async saveGenerationTracker(data: InsertGenerationTracker): Promise<GenerationTracker> {
     const [tracker] = await db
       .insert(generationTrackers)
       .values(data)

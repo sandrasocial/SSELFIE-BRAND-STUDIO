@@ -3363,7 +3363,52 @@ I'm here to make your website perfect!`;
     }
   });
 
-  // BUILD WORKSPACE AGENT ENDPOINTS - MAYA AND VICTORIA CHAT
+  // Maya Chat Preview - Get completed generation trackers for chat display
+  app.get('/api/generation-trackers/completed', isAuthenticated, async (req: any, res) => {
+    try {
+      const userId = req.user?.claims?.sub;
+      if (!userId) {
+        return res.status(401).json({ error: 'Authentication required' });
+      }
+
+      // Get completed trackers from last 2 hours for Maya chat preview
+      const trackers = await storage.getCompletedGenerationTrackersForUser(userId, 2);
+      res.json(trackers);
+      
+    } catch (error) {
+      console.error('Failed to fetch generation trackers:', error);
+      res.status(500).json({ error: 'Failed to fetch previews' });
+    }
+  });
+
+  // Heart Image to Gallery - Save favorite previews to permanent gallery
+  app.post('/api/heart-image-to-gallery', isAuthenticated, async (req: any, res) => {
+    try {
+      const userId = req.user?.claims?.sub;
+      if (!userId) {
+        return res.status(401).json({ error: 'Authentication required' });
+      }
+
+      const { imageUrl, prompt, style } = req.body;
+      
+      // Save hearted image to permanent gallery
+      const savedImage = await storage.saveAIImage({
+        userId,
+        imageUrl,
+        prompt,
+        style: style || 'Maya Editorial',
+        generationStatus: 'completed'
+      });
+      
+      res.json({ success: true, image: savedImage });
+      
+    } catch (error) {
+      console.error('Failed to save hearted image:', error);
+      res.status(500).json({ error: 'Failed to save image' });
+    }
+  });
+
+  // BUILD WORKSPACE AGENT ENDPOINTS - MAYA AND VICTORIA CHAT  
   app.post('/api/build/maya-chat', isAuthenticated, async (req, res) => {
     try {
       const userId = req.user?.claims?.sub;
@@ -3410,19 +3455,19 @@ Want something different? Tell me the vibe - editorial sophistication? Natural l
             }
           };
           
-          // Check after 10 seconds, then every 15 seconds for 3 minutes
-          setTimeout(checkStatus, 10000);
-          setTimeout(checkStatus, 25000);
-          setTimeout(checkStatus, 40000);
+          // Check after 15 seconds, then every 20 seconds for 4 minutes
+          setTimeout(checkStatus, 15000);
+          setTimeout(checkStatus, 35000);
           setTimeout(checkStatus, 55000);
-          setTimeout(checkStatus, 70000);
-          setTimeout(checkStatus, 85000);
-          setTimeout(checkStatus, 100000);
+          setTimeout(checkStatus, 75000);
+          setTimeout(checkStatus, 95000);
           setTimeout(checkStatus, 115000);
-          setTimeout(checkStatus, 130000);
-          setTimeout(checkStatus, 145000);
-          setTimeout(checkStatus, 160000);
+          setTimeout(checkStatus, 135000);
+          setTimeout(checkStatus, 155000);
           setTimeout(checkStatus, 175000);
+          setTimeout(checkStatus, 195000);
+          setTimeout(checkStatus, 215000);
+          setTimeout(checkStatus, 235000);
         }
       } catch (error) {
         console.error('Maya auto-generation error:', error);
