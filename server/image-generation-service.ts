@@ -132,27 +132,28 @@ export async function generateImages(request: GenerateImagesRequest): Promise<Ge
 
     let requestBody: any;
 
-    // 🔒 INDIVIDUAL USER MODEL ARCHITECTURE (Fixed July 22, 2025)
+    // 🔒 RESTORE WORKING CONFIGURATION: Use user's individual trained model
     if (userModel.trainingStatus === 'completed' && userModel.replicateVersionId) {
-      console.log(`✅ Using individual trained model for AI Photoshoot: ${userModel.replicateVersionId}`);
+      console.log(`✅ Using user's individual trained FLUX model for AI Photoshoot: ${userId}`);
       
-      // Use the COMPLETE user model path as individual trained model
-      const userModelPath = userModel.replicateVersionId;
+      const userTrainedVersion = `${userModel.replicateModelId}:${userModel.replicateVersionId}`;
       
-      // 🔧 INDIVIDUAL USER MODEL PARAMETERS - PROFESSIONAL UNIFIED QUALITY
-      // Each user gets their own complete trained model (not base FLUX + LoRA)
+      // 🚀 MAYA OPTIMIZATION INTEGRATION: Get user-adaptive parameters for AI Photoshoot
+      const { MayaOptimizationService } = await import('./maya-optimization-service');
+      const optimizedParams = await MayaOptimizationService.getOptimizedParameters(userId);
+      
       requestBody = {
-        version: userModelPath, // ✅ COMPLETE individual user model path
+        version: userTrainedVersion, // 🔒 CRITICAL: User's individual trained model version ONLY
         input: {
           prompt: finalPrompt,
-          guidance_scale: 2.8,           // ✅ Unified high-quality parameter (correct FLUX parameter)
-          num_inference_steps: 40,       // ✅ Unified high-quality parameter
-
-          num_outputs: 3,               // ✅ As per CORE PRINCIPLES
-          aspect_ratio: "3:4",
-          output_quality: 95,           // ✅ Unified high-quality parameter
+          guidance: optimizedParams.guidance || 2.8, // 🚀 UPGRADED: User-adaptive guidance
+          num_inference_steps: optimizedParams.inferenceSteps || 40, // 🚀 UPGRADED: Quality-based steps
+          lora_scale: optimizedParams.loraScale || 0.95, // 🚀 UPGRADED: Hair quality optimized LoRA scale
+          num_outputs: 3,
+          aspect_ratio: "3:4", 
           output_format: "png",
-          go_fast: false,               // ✅ Quality over speed
+          output_quality: optimizedParams.outputQuality || 95, // 🚀 UPGRADED: Role-based quality setting
+          go_fast: false, 
           disable_safety_checker: false,
           seed: Math.floor(Math.random() * 1000000)
         }
@@ -164,15 +165,15 @@ export async function generateImages(request: GenerateImagesRequest): Promise<Ge
     ArchitectureValidator.validateGenerationRequest(requestBody, userId, isPremium);
     ArchitectureValidator.logArchitectureCompliance(userId, 'AI Photoshoot Generation');
     
-    // 📊 LOG INDIVIDUAL MODEL PARAMETERS FOR AI PHOTOSHOOT MONITORING
-    console.log(`✅ AI PHOTOSHOOT INDIVIDUAL MODEL ACTIVE for user ${userId}:`, {
-      model: userModelPath,
-      guidance_scale: requestBody.input.guidance_scale,
+    // 📊 LOG OPTIMIZATION PARAMETERS FOR AI PHOTOSHOOT MONITORING
+    console.log(`🚀 MAYA OPTIMIZATION ACTIVE for AI Photoshoot user ${userId}:`, {
+      guidance: requestBody.input.guidance,
       steps: requestBody.input.num_inference_steps,
+      loraScale: requestBody.input.lora_scale,
       quality: requestBody.input.output_quality,
-      outputs: requestBody.input.num_outputs,
-      camera: 'Professional equipment integrated',
-      settings: 'Individual User Model Architecture (No LoRA Scale)'
+      isPremium,
+      userRole: user?.role,
+      collection: 'AI Photoshoot'
     });
     
 

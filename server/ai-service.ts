@@ -177,7 +177,6 @@ export class AIService {
     
   }
 
-  // 🔒 MAYA'S PROTECTED PROMPT BUILDER - FLUX AI AGENT COMPLETELY DISCONNECTED
   private static async buildFluxPrompt(style: string, customPrompt?: string, userId?: string): Promise<string> {
     if (!userId) {
       throw new Error('User ID is required for image generation');
@@ -195,25 +194,9 @@ export class AIService {
     }
     
     if (customPrompt) {
-      // 🔒 MAYA'S EXCLUSIVE PROMPT PROCESSING - BULLETPROOF FLUX PROTECTION
-      // This prompt comes EXCLUSIVELY from Maya's protected styling system in server/routes.ts
-      // FLUX AI AGENT IS COMPLETELY DISCONNECTED FROM THIS SYSTEM
-      // NO other AI agents can modify, interfere, or contaminate Maya's vision
-      
-      // 🚨 BULLETPROOF PROTECTION: Verify this is Maya's authentic prompt
-      if (!customPrompt.includes('Maya described this styling vision:')) {
-        console.log('🔒 MAYA PROTECTION: Prompt verified as Maya-generated');
-      }
-      
+      // 🔧 RESTORED WORKING PROMPT STRUCTURE - Based on successful generation ID 352
+      // Clean the prompt from any existing realism/trigger words to avoid duplication
       let cleanPrompt = customPrompt;
-      
-      // 🚨 NEW: Remove ALL markdown formatting that could confuse the AI model
-      // Remove ** bold formatting
-      cleanPrompt = cleanPrompt.replace(/\*\*([^*]+)\*\*/g, '$1');
-      // Remove * italic formatting  
-      cleanPrompt = cleanPrompt.replace(/\*([^*]+)\*/g, '$1');
-      // Remove remaining isolated * and ** characters
-      cleanPrompt = cleanPrompt.replace(/\*+/g, '');
       
       // Remove existing trigger word instances first
       cleanPrompt = cleanPrompt.replace(new RegExp(triggerWord, 'gi'), '').trim();
@@ -225,23 +208,8 @@ export class AIService {
         cleanPrompt = cleanPrompt.replace(new RegExp(term, 'gi'), '').trim();
       });
       
-      // 🚨 NEW: Remove existing camera equipment to prevent duplication
-      const cameraTerms = [
-        /shot on [^,]+/gi,
-        /captured with [^,]+/gi, 
-        /photographed with [^,]+/gi,
-        /using [^,]+ camera/gi,
-        /using [^,]+ lens/gi,
-        /natural daylight/gi,
-        /professional photography/gi,
-        /realistic hair texture/gi
-      ];
-      cameraTerms.forEach(term => {
-        cleanPrompt = cleanPrompt.replace(term, '').trim();
-      });
-      
-      // Clean up extra commas, spaces, and newlines
-      cleanPrompt = cleanPrompt.replace(/,\s*,/g, ',').replace(/^\s*,\s*|\s*,\s*$/g, '').replace(/\n+/g, ' ').trim();
+      // Clean up extra commas and spaces
+      cleanPrompt = cleanPrompt.replace(/,\s*,/g, ',').replace(/^\s*,\s*|\s*,\s*$/g, '').trim();
       
       // 🚀 MAYA HAIR OPTIMIZATION: Enhanced prompt with hair quality focus
       const hairOptimizedPrompt = this.enhancePromptForHairQuality(cleanPrompt);
@@ -249,11 +217,10 @@ export class AIService {
       // 🚀 HIGH-QUALITY ENHANCEMENT: Add professional camera equipment like reference image ID 405
       const cameraEquipment = this.getRandomCameraEquipment();
       
-      // 🚀 CORE_ARCHITECTURE_V2 PROMPT STRUCTURE: Professional-grade unified format
+      // 🚀 HIGH-QUALITY STRUCTURE: Based on reference image ID 405 (professional camera + film aesthetic)
       const finalPrompt = `raw photo, visible skin pores, film grain, unretouched natural skin texture, subsurface scattering, photographed on film, ${triggerWord}, ${hairOptimizedPrompt}, ${cameraEquipment}, natural daylight, professional photography`;
       
-      console.log(`🚀 MAYA CLEANED PROMPT (no markdown): ${finalPrompt}`);
-      console.log(`📝 Original prompt had markdown: ${customPrompt.includes('**') || customPrompt.includes('*') ? 'YES' : 'NO'}`);
+      console.log(`🚀 MAYA HIGH-QUALITY PROMPT: ${finalPrompt}`);
       return finalPrompt;
     }
     
@@ -278,55 +245,42 @@ export class AIService {
   }
   
   /**
-   * Enhance prompt with hair quality optimization (removes duplicates)
+   * Enhance prompt with hair quality optimization
    */
   private static enhancePromptForHairQuality(prompt: string): string {
     console.log(`💇‍♀️ HAIR QUALITY ENHANCEMENT: Analyzing prompt for hair optimization`);
     
-    // Remove any existing hair enhancement terms to prevent duplication
-    const existingHairTerms = [
-      /natural hair movement/gi,
-      /detailed hair strands/gi, 
-      /realistic hair texture/gi,
-      /individual hair strand definition/gi,
-      /professional hair lighting/gi,
-      /natural hair detail and movement/gi
-    ];
-    
-    let cleanedPrompt = prompt;
-    existingHairTerms.forEach(term => {
-      cleanedPrompt = cleanedPrompt.replace(term, '').trim();
-    });
-    
-    // Clean up extra commas and spaces
-    cleanedPrompt = cleanedPrompt.replace(/,\s*,/g, ',').replace(/^\s*,\s*|\s*,\s*$/g, '').trim();
-    
-    // Hair quality enhancement keywords (only apply ONE)
+    // Hair quality enhancement keywords
     const hairEnhancements = [
       'natural hair movement',
       'detailed hair strands', 
-      'realistic hair texture'
+      'realistic hair texture',
+      'individual hair strand definition',
+      'professional hair lighting'
     ];
     
-    // Check if prompt mentions hair
-    const hasHairTerms = cleanedPrompt.toLowerCase().includes('hair') || 
-                        cleanedPrompt.toLowerCase().includes('strand');
+    // Check if prompt already contains hair-related terms
+    const hasHairTerms = prompt.toLowerCase().includes('hair') || 
+                        prompt.toLowerCase().includes('strand') ||
+                        prompt.toLowerCase().includes('texture');
     
     // If prompt mentions hair, enhance it with quality terms
     if (hasHairTerms) {
       const enhancement = hairEnhancements[Math.floor(Math.random() * hairEnhancements.length)];
+      const enhancedPrompt = `${prompt}, ${enhancement}`;
       console.log(`✨ HAIR ENHANCED: Added "${enhancement}"`);
-      return `${cleanedPrompt}, ${enhancement}`;
+      return enhancedPrompt;
     }
     
-    // For portraits without explicit hair terms, add subtle hair quality boost
-    if (cleanedPrompt.toLowerCase().includes('portrait') || cleanedPrompt.toLowerCase().includes('face')) {
+    // For prompts without explicit hair terms, add subtle hair quality boost
+    if (prompt.toLowerCase().includes('portrait') || prompt.toLowerCase().includes('face')) {
+      const enhancedPrompt = `${prompt}, natural hair detail and movement`;
       console.log(`✨ PORTRAIT HAIR BOOST: Added natural hair detail`);
-      return `${cleanedPrompt}, natural hair detail`;
+      return enhancedPrompt;
     }
     
     console.log(`📝 PROMPT UNCHANGED: No hair enhancement needed`);
-    return cleanedPrompt;
+    return prompt;
   }
 
   private static async callFluxAPI(imageBase64: string, prompt: string, userId?: string): Promise<string> {
@@ -337,33 +291,7 @@ export class AIService {
     if (!userId) {
       throw new Error('User ID is required for image generation');
     }
-
-    // Retry logic for temporary Replicate API issues
-    const maxRetries = 3;
-    const retryDelay = 2000; // 2 seconds
     
-    for (let attempt = 1; attempt <= maxRetries; attempt++) {
-      try {
-        return await this.makeReplicateRequest(imageBase64, prompt, userId);
-      } catch (error) {
-        if (attempt === maxRetries) {
-          throw error; // Final attempt failed, re-throw error
-        }
-        
-        // Only retry on 502/503 errors
-        if (error.message.includes('502') || error.message.includes('503') || 
-            error.message.includes('Bad Gateway') || error.message.includes('Service Unavailable')) {
-          console.log(`Replicate API retry ${attempt}/${maxRetries} after ${retryDelay}ms...`);
-          await new Promise(resolve => setTimeout(resolve, retryDelay));
-          continue;
-        }
-        
-        throw error; // Non-retryable error
-      }
-    }
-  }
-
-  private static async makeReplicateRequest(imageBase64: string, prompt: string, userId: string): Promise<string> {
     const userModel = await storage.getUserModelByUserId(userId);
     if (!userModel) {
       throw new Error('User model not ready for generation. Training must be completed first.');
@@ -374,32 +302,31 @@ export class AIService {
 
     let requestBody: any;
 
-    // 🔒 CORRECTED: Use official black-forest-labs/flux-dev-lora model with user's LoRA
+    // 🔒 RESTORE WORKING CONFIGURATION: Use user's individual trained model
     if (userModel.trainingStatus === 'completed' && userModel.replicateVersionId) {
-      console.log(`✅ Using black-forest-labs/flux-dev-lora:30k587n6shrme0ck4zzrr6bt6c with user LoRA: ${userId}`);
+      console.log(`✅ Using user's individual trained FLUX model: ${userId}`);
       
-      // Use the COMPLETE LoRA model version (including hash) for FLUX API
-      let userLoraModel = userModel.replicateVersionId;
+      // 🔧 CRITICAL FIX: Use the specific model version that created successful images
+      // Working version: b9fab7abf5819f4c99e78d84d9f049b30b5ba7c63407221604030862ae0be927
+      const userTrainedVersion = `${userModel.replicateModelId}:${userModel.replicateVersionId}`;
       
-      // If no complete version ID, fall back to model ID
-      if (!userLoraModel) {
-        userLoraModel = userModel.replicateModelId;
-      }
-      
-      // 🔧 INDIVIDUAL USER MODEL ARCHITECTURE (Fixed July 22, 2025)
-      // Use the COMPLETE user model path as individual trained model
-      // Format: sandrasocial/42585527-selfie-lora:e1713c1 (not just version ID)
+      // 🚀 MAYA OPTIMIZATION INTEGRATION: Get user-adaptive parameters
+      const { MayaOptimizationService } = await import('./maya-optimization-service');
+      const optimizedParams = await MayaOptimizationService.getOptimizedParameters(userId);
       
       requestBody = {
-        version: userLoraModel, // ✅ Using the COMPLETE user model path as individual model
+        version: userTrainedVersion,
         input: {
           prompt: prompt,
-          guidance_scale: 2.8,          // ✅ Unified high-quality parameter (using guidance_scale for FLUX)
-          num_inference_steps: 40,      // ✅ Unified high-quality parameter
-          num_outputs: 3,               // ✅ As per CORE PRINCIPLES document
+          guidance: optimizedParams.guidance || 2.8, // 🔧 OPTIMIZED: User-adaptive guidance
+          num_inference_steps: optimizedParams.inferenceSteps || 40, // 🔧 OPTIMIZED: Quality-based steps
+          lora_scale: optimizedParams.loraScale || 0.95, // 🚀 CRITICAL FIX: Missing LoRA scale added
+          num_outputs: 3,
           aspect_ratio: "3:4", 
-          output_quality: 95,           // ✅ Unified high-quality parameter
-          go_fast: false,               // ✅ Quality over speed for trained model
+          output_format: "png",
+          output_quality: optimizedParams.outputQuality || 95, // 🔧 OPTIMIZED: Quality setting
+          go_fast: false, 
+          disable_safety_checker: false,
           seed: Math.floor(Math.random() * 1000000)
         }
       };
@@ -412,22 +339,14 @@ export class AIService {
     ArchitectureValidator.validateGenerationRequest(requestBody, userId, isPremium);
     ArchitectureValidator.logArchitectureCompliance(userId, 'Maya AI Generation');
     
-    // 📊 LOG INDIVIDUAL MODEL PARAMETERS FOR MAYA MONITORING
-    console.log(`✅ MAYA INDIVIDUAL MODEL ACTIVE for user ${userId}:`, {
-      guidance_scale: requestBody.input.guidance_scale,  // ✅ Should show 2.8
-      steps: requestBody.input.num_inference_steps,      // ✅ Should show 40
-      quality: requestBody.input.output_quality,         // ✅ Should show 95
-      model_path: requestBody.version,                   // ✅ Individual model path
-      outputs: requestBody.input.num_outputs,           // ✅ Should show 3
-      settings: 'Individual User Model Architecture Complete (No LoRA Scale)'
-    });
-    
-    // 🔍 DEBUG LOG: Complete request body for debugging
-    console.log('🧪 FLUX API REQUEST DEBUG - COMPLETE BODY:', JSON.stringify(requestBody, null, 2));
-    console.log('🔍 GUIDANCE PARAMETER CHECK:', {
-      guidance_scale_in_input: requestBody.input.guidance_scale,
-      guidance_scale_type: typeof requestBody.input.guidance_scale,
-      all_input_params: Object.keys(requestBody.input)
+    // 📊 LOG OPTIMIZATION PARAMETERS FOR MONITORING
+    console.log(`🚀 MAYA OPTIMIZATION ACTIVE for user ${userId}:`, {
+      guidance: requestBody.input.guidance,
+      steps: requestBody.input.num_inference_steps,
+      loraScale: requestBody.input.lora_scale,
+      quality: requestBody.input.output_quality,
+      isPremium,
+      userRole: user?.role
     });
     
     const response = await fetch('https://api.replicate.com/v1/predictions', {
@@ -439,29 +358,12 @@ export class AIService {
       body: JSON.stringify(requestBody)
     });
 
-    // Get response text first to handle both success and error cases
-    const responseText = await response.text();
-    
     if (!response.ok) {
-      let errorMessage;
-      try {
-        const error = JSON.parse(responseText);
-        errorMessage = error.detail || error.message || response.statusText;
-      } catch (parseError) {
-        // Handle HTML error responses
-        console.error('Replicate API HTML error response:', responseText.substring(0, 200));
-        errorMessage = `API error (${response.status}): ${response.statusText}`;
-      }
-      throw new Error(`FLUX API error: ${errorMessage}`);
+      const error = await response.json();
+      throw new Error(`FLUX API error: ${error.detail || response.statusText}`);
     }
 
-    let prediction;
-    try {
-      prediction = JSON.parse(responseText);
-    } catch (parseError) {
-      console.error('Failed to parse Replicate response as JSON:', responseText.substring(0, 200));
-      throw new Error('Invalid JSON response from Replicate API');
-    }
+    const prediction = await response.json();
     return prediction.id;
   }
 

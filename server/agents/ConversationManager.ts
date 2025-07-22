@@ -11,12 +11,11 @@ export interface ConversationSummary {
 }
 
 export class ConversationManager {
-  private static readonly MAX_MESSAGES = 10000; // MASSIVE limit - no auto-clearing
-  private static readonly SUMMARY_THRESHOLD = 9500; // Only warn when extremely high
+  private static readonly MAX_MESSAGES = 30; // Limit before auto-clear
+  private static readonly SUMMARY_THRESHOLD = 25; // Start summarizing at this point
 
   /**
-   * Check if conversation needs clearing - DISABLED AUTO-CLEAR FUNCTIONALITY
-   * Elena's memory must persist across long sessions without interruption
+   * Check if conversation needs clearing and auto-clear with memory preservation
    */
   static async manageConversationLength(
     agentId: string, 
@@ -24,15 +23,39 @@ export class ConversationManager {
     currentHistory: any[]
   ): Promise<{ shouldClear: boolean; summary?: ConversationSummary; newHistory: any[] }> {
     
-    console.log(`🧠 Conversation length check: ${currentHistory.length} messages for ${agentId} (AUTO-CLEAR DISABLED)`);
+    console.log(`🧠 Conversation length check: ${currentHistory.length} messages for ${agentId}`);
     
-    // NEVER auto-clear - only return warning if extremely high
-    if (currentHistory.length >= this.SUMMARY_THRESHOLD) {
-      console.log(`⚠️  Long conversation detected (${currentHistory.length} messages) but auto-clear disabled for Elena's memory preservation`);
+    if (currentHistory.length < this.MAX_MESSAGES) {
+      return { shouldClear: false, newHistory: currentHistory };
     }
+
+    console.log(`🔄 Auto-clearing conversation for ${agentId} - preserving memory...`);
+
+    // Create intelligent summary of the conversation
+    const summary = await this.createConversationSummary(agentId, userId, currentHistory);
     
-    // ALWAYS return shouldClear: false - no automatic conversation clearing
-    return { shouldClear: false, newHistory: currentHistory };
+    // Save summary to database
+    await this.saveAgentMemory(summary);
+    
+    // Keep only the last 5 messages for context
+    const recentMessages = currentHistory.slice(-5);
+    
+    // Add summary as system context at the beginning
+    const summaryMessage = {
+      role: 'system',
+      content: `**CONVERSATION MEMORY RESTORED**\n\n**Previous Context:**\n${summary.currentContext}\n\n**Key Tasks Completed:**\n${summary.keyTasks.map(task => `• ${task}`).join('\n')}\n\n**Recent Decisions:**\n${summary.recentDecisions.map(decision => `• ${decision}`).join('\n')}\n\n**Current Workflow Stage:** ${summary.workflowStage}\n\n---\n\n**Continuing from where we left off...**`
+    };
+
+    const newHistory = [summaryMessage, ...recentMessages];
+    
+    console.log(`✅ Conversation cleared: ${currentHistory.length} → ${newHistory.length} messages`);
+    console.log(`💾 Memory preserved in database for ${agentId}`);
+    
+    return { 
+      shouldClear: true, 
+      summary, 
+      newHistory 
+    };
   }
 
   /**
@@ -54,62 +77,27 @@ export class ConversationManager {
     const fullConversation = history.map(msg => msg.content).join(' ').toLowerCase();
     
     console.log(`🔍 ELENA MEMORY: Analyzing ${history.length} messages for context extraction`);
-    
-    // DEBUG: Look at the most recent messages
-    const recentMessages = history.slice(-5);
-    console.log('🔍 RECENT MESSAGES FOR DEBUG:', recentMessages.map(m => ({ role: m.role, content: m.content.substring(0, 150) })));
 
-    // ENHANCED SESSION APPROACH - Look at ALL recent messages for better context capture
-    const recentHistory = history.slice(-15); // Increased from -10 to capture more context
-    
-    // CRITICAL FIX: Extract Sandra's specific requests about platform audit
-    for (const message of recentHistory) {
-      if (message.role === 'user' || message.role === 'human') {
+    // Enhanced analysis - look at ALL messages for maximum context preservation
+    for (const message of history) {
+      if (message.role === 'user') {
+        // Extract specific task requests with enhanced patterns for Elena
         const content = message.content.toLowerCase();
         const originalContent = message.content;
         
-        // PLATFORM AUDIT DETECTION - Sandra's specific requests
-        if (content.includes('chaos') || content.includes('caos') || content.includes('codebase') || 
-            content.includes('launch') || content.includes('not generating') || content.includes('money') ||
-            content.includes('clean') || content.includes('working correctly') || content.includes('mess')) {
-          keyTasks.push('Complete platform audit: Training → Style → Photoshoot → Build');
-          keyTasks.push('Fix revenue generation and launch readiness issues');
-          currentContext = `Sandra needs comprehensive platform audit - feeling overwhelmed by codebase chaos, behind on launch, not generating money`;
-          workflowStage = 'platform-audit-requested';
-          console.log('🎯 DETECTED: Sandra requesting comprehensive platform audit and launch help');
+        // BUILD-specific task detection
+        if (content.includes('build') && (content.includes('website') || content.includes('builder') || content.includes('step 4'))) {
+          keyTasks.push('BUILD feature development: Website builder implementation for Step 4');
         }
         
-        // SYSTEM STEP DETECTION
-        if (content.includes('step one') || content.includes('training') || content.includes('maya') || 
-            content.includes('photoshoot') || content.includes('build') || content.includes('landing page') ||
-            content.includes('pricing') || content.includes('user journey')) {
-          keyTasks.push('Analyze complete 4-step system: Training → Style (Maya) → Photoshoot → Build');
-          keyTasks.push('Optimize landing page and pricing page');
-          keyTasks.push('Fix user journey flow between all steps');
-          currentContext = `Sandra needs complete system analysis of all 4 steps and user journey optimization`;
-          workflowStage = 'system-analysis-requested';
-          console.log('🎯 DETECTED: Sandra requesting complete system analysis and user journey fix');
+        // Workflow and audit requests
+        if (content.includes('workflow') && (content.includes('audit') || content.includes('complete'))) {
+          keyTasks.push('Conduct comprehensive workflow audit and completion strategy');
         }
         
-        // AGGRESSIVE TASK EXTRACTION - Capture ALL user messages that contain task patterns
-        if (content.includes('elena') || content.includes('need') || content.includes('want') || 
-            content.includes('should') || content.includes('can you') || content.includes('please') ||
-            content.includes('maya') || content.includes('analyze') || content.includes('test') ||
-            content.includes('quality') || content.includes('generation') || content.includes('photos') ||
-            content.includes('check') || content.includes('verify') || content.includes('access') ||
-            content.includes('file') || content.includes('system') || content.includes('chat') ||
-            content.includes('implement') || content.includes('parameters') || content.includes('flux') ||
-            content.includes('audit') || content.includes('coordinate') || content.includes('help') ||
-            content.includes('working') || content.includes('work on') || content.includes('focus on') ||
-            content.includes('yes') || content.includes('continue') || content.includes('doing')) {
-          
-          // Extract the actual task request with better context preservation
-          let task = originalContent.substring(0, 400).replace(/\n/g, ' ').trim();
-          if (task && task.length > 2) {
-            // Always add tasks, even if similar exist - better to have context than lose it
-            keyTasks.push(task);
-            console.log(`📝 TASK EXTRACTED: ${task.substring(0, 100)}...`);
-          }
+        // Component analysis requests
+        if (content.includes('audit') && content.includes('component')) {
+          keyTasks.push('Comprehensive component analysis and gap identification');
         }
         
         // General task patterns
@@ -161,56 +149,72 @@ export class ConversationManager {
     // Enhanced context detection from entire conversation for Replit-style memory
     const fullContent = history.map(m => m.content).join(' ').toLowerCase();
     
-    // ENHANCED CONTEXT PRESERVATION - Use all tasks to build comprehensive context
-    if (keyTasks.length > 0) {
-      // Use the most recent tasks as context with better summary
-      const recentTasks = keyTasks.slice(-3); // Last 3 tasks for better context
-      currentContext = `Active tasks: ${recentTasks.join(' | ').substring(0, 300)}`;
-      workflowStage = 'active-task';
+    // More sophisticated context detection with current task patterns
+    if (fullContent.includes('hero') && (fullContent.includes('admin') || fullContent.includes('dashboard'))) {
+      currentContext = 'Creating luxury full-bleed hero image for Sandra\'s admin dashboard with editorial design and Times New Roman typography';
+      workflowStage = 'admin-hero-design';
+      // Add the current task to keyTasks for proper memory
+      keyTasks.push('Create full-bleed hero image for admin dashboard with luxury editorial design');
+    } else if (fullContent.includes('chat') && fullContent.includes('management')) {
+      currentContext = 'Implementing Replit-style chat management system with save/load functionality and enhanced memory';
+      workflowStage = 'chat-management';
+    } else if (fullContent.includes('admin') && fullContent.includes('dashboard')) {
+      currentContext = 'Working on Sandra\'s admin dashboard with agent chat interfaces and luxury design systems';
+      workflowStage = 'admin-dashboard';
+    } else if (fullContent.includes('build') && (fullContent.includes('analysis') || fullContent.includes('audit') || fullContent.includes('workflow'))) {
+      currentContext = 'Elena conducting comprehensive BUILD feature analysis including component status, gaps identification, and strategic planning for Step 4 implementation';
+      workflowStage = 'build-analysis';
+      keyTasks.push('Analyze BUILD feature status and identify missing components');
+      keyTasks.push('Create comprehensive component gap analysis');  
+      keyTasks.push('Provide strategic implementation roadmap');
+      keyTasks.push('Continue BUILD feature development workflow');
+    } else if (fullContent.includes('memory') && (fullContent.includes('agent') || fullContent.includes('test'))) {
+      currentContext = 'Implementing and debugging agent memory systems for conversation continuity and context preservation';
+      workflowStage = 'memory-system';
+    } else if (fullContent.includes('auto-clear') || (fullContent.includes('conversation') && fullContent.includes('management'))) {
+      currentContext = 'Debugging conversation management and auto-clear interference with agent behavior patterns';
+      workflowStage = 'conversation-debugging';
+    } else if (fullContent.includes('visual') && fullContent.includes('editor')) {
+      currentContext = 'Enhancing visual editor interface with multi-tab editing and agent integration';
+      workflowStage = 'visual-editor';
+    } else if (fullContent.includes('file') && fullContent.includes('creation')) {
+      currentContext = 'Implementing agent file creation system with real filesystem integration';
+      workflowStage = 'file-system';
+    } else if (fullContent.includes('test') && fullContent.includes('component')) {
+      currentContext = 'Creating and testing React components with proper TypeScript and styling integration';
+      workflowStage = 'component-testing';
     } else {
-      // Default - but should rarely happen with improved extraction
-      currentContext = 'Elena ready for new task assignment';
-      workflowStage = 'ready';
+      currentContext = 'General SSELFIE Studio development with luxury editorial design standards';
+      workflowStage = 'development';
     }
-    
-    console.log(`🧠 MEMORY SUMMARY: ${keyTasks.length} tasks extracted, context: ${currentContext.substring(0, 100)}...`);
 
     return {
       agentId,
       userId,
-      keyTasks: Array.from(new Set(keyTasks)).slice(0, 15), // Remove duplicates and keep top 15 tasks
+      keyTasks: [...new Set(keyTasks)].slice(0, 15), // Remove duplicates and keep top 15 tasks
       currentContext,
-      recentDecisions: Array.from(new Set(recentDecisions)).slice(0, 8), // Remove duplicates and keep top 8 decisions
+      recentDecisions: [...new Set(recentDecisions)].slice(0, 8), // Remove duplicates and keep top 8 decisions
       workflowStage,
       timestamp: new Date()
     };
   }
 
   /**
-   * Save agent memory to database (RE-ENABLED with corruption fix)
+   * Save agent memory to database
    */
   static async saveAgentMemory(summary: ConversationSummary): Promise<void> {
     try {
-      // Save memory as special conversation entry that can be filtered out in UI
+      // Save to agent_conversations table as a special memory entry
+      // Fix parameter order: agentId, userId, userMessage, agentResponse, devPreview
       await storage.saveAgentConversation(
         summary.agentId,
         summary.userId,
-        '**CONVERSATION_MEMORY**', // Special marker for memory entries
-        JSON.stringify({
-          agentId: summary.agentId,
-          userId: summary.userId,
-          keyTasks: summary.keyTasks,
-          currentContext: summary.currentContext,
-          recentDecisions: summary.recentDecisions,
-          workflowStage: summary.workflowStage,
-          timestamp: summary.timestamp
-        }),
-        []
+        '**CONVERSATION_MEMORY**',
+        JSON.stringify(summary),
+        { workflowStage: summary.workflowStage }
       );
-      console.log(`💾 Memory summary saved for ${summary.agentId}: ${summary.keyTasks.length} tasks, ${summary.recentDecisions.length} decisions`);
       
-      // Cleanup old memory entries to prevent bloat
-      await this.cleanupOldMemories(summary.agentId, summary.userId);
+      console.log(`💾 Agent memory saved for ${summary.agentId}`);
     } catch (error) {
       console.error('Failed to save agent memory:', error);
     }
@@ -226,7 +230,7 @@ export class ConversationManager {
       // Find the most recent memory entry
       const memoryEntry = conversations
         .filter(conv => conv.userMessage === '**CONVERSATION_MEMORY**')
-        .sort((a, b) => new Date(b.timestamp || '').getTime() - new Date(a.timestamp || '').getTime())[0];
+        .sort((a, b) => new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime())[0];
       
       if (memoryEntry) {
         return JSON.parse(memoryEntry.agentResponse);
@@ -244,15 +248,18 @@ export class ConversationManager {
    */
   static async cleanupOldMemories(agentId: string, userId: string): Promise<void> {
     try {
-      const conversations = await storage.getAgentConversations(agentId, userId);
+      const conversations = await storage.getAgentConversations(userId, agentId);
       const memoryEntries = conversations
         .filter(conv => conv.userMessage === '**CONVERSATION_MEMORY**')
-        .sort((a, b) => new Date(b.timestamp || '').getTime() - new Date(a.timestamp || '').getTime());
+        .sort((a, b) => new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime());
       
-      // Keep only the 3 most recent memory entries (for now just log - deletion can be added later)
+      // Keep only the 3 most recent memory entries
       if (memoryEntries.length > 3) {
         const toDelete = memoryEntries.slice(3);
-        console.log(`🧹 Memory cleanup: Found ${memoryEntries.length} entries, would clean ${toDelete.length} old entries`);
+        for (const entry of toDelete) {
+          // Note: We'd need a delete method in storage for this
+          console.log(`🧹 Would delete old memory entry: ${entry.id}`);
+        }
       }
     } catch (error) {
       console.error('Failed to cleanup old memories:', error);

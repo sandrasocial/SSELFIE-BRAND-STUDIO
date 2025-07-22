@@ -109,32 +109,15 @@ export function ElenaCoordinationPanel({ onAgentSelect, currentWorkflow }: Elena
             <h3 className="text-lg font-bold text-black">Elena's Agent Command Center</h3>
             <p className="text-sm text-gray-600">Live monitoring and coordination of all AI agents</p>
           </div>
-          <div className="flex items-center space-x-2">
-            <Button
-              onClick={() => {
-                // Signal to parent component to clear Elena chat
-                if (onAgentSelect) {
-                  // This will trigger a fresh chat with Elena
-                  onAgentSelect('elena');
-                }
-              }}
-              variant="ghost"
-              size="sm"
-              className="text-xs flex items-center gap-1"
-            >
-              <span className="text-sm">+</span>
-              New Elena Chat
-            </Button>
-            <Button
-              onClick={() => setIsMonitoring(!isMonitoring)}
-              variant={isMonitoring ? 'default' : 'outline'}
-              size="sm"
-              className="flex items-center space-x-2"
-            >
-              <Eye className="h-4 w-4" />
-              <span>{isMonitoring ? 'Monitoring Active' : 'Start Monitoring'}</span>
-            </Button>
-          </div>
+          <Button
+            onClick={() => setIsMonitoring(!isMonitoring)}
+            variant={isMonitoring ? 'default' : 'outline'}
+            size="sm"
+            className="flex items-center space-x-2"
+          >
+            <Eye className="h-4 w-4" />
+            <span>{isMonitoring ? 'Monitoring Active' : 'Start Monitoring'}</span>
+          </Button>
         </div>
         
         {/* Status Overview */}

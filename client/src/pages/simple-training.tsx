@@ -32,42 +32,47 @@ export default function SimpleTraining() {
 
   // Initialize training state based on userModel data
   useEffect(() => {
-    // Only show training UI if user has REAL Replicate model ID
-    if (userModel && userModel.trainingStatus === 'training' && userModel.replicateModelId) {
+    console.log('📊 User Model Debug:', {
+      userModel,
+      isAuthenticated,
+      trainingStatus: userModel?.trainingStatus
+    });
+    
+    if (userModel && userModel.trainingStatus === 'training') {
+      console.log('🔄 Found active training on page load:', userModel);
       setIsTrainingStarted(true);
-      setTrainingProgress(userModel.trainingProgress || 0);
+      setTrainingProgress(userModel.trainingProgress || 5);
       if (userModel.startedAt) {
         setStartTime(new Date(userModel.startedAt));
       }
-    } else if (userModel && userModel.trainingStatus === 'completed' && userModel.replicateModelId) {
-      // Redirect to workspace when training is completed
+    } else if (userModel && userModel.trainingStatus === 'completed') {
+      console.log('✅ Found completed training on page load - redirecting to workspace');
+      // Training is already completed, redirect to workspace
       toast({
-        title: "Training Complete!",
+        title: "Training Already Complete!",
         description: "Your AI model is ready. Redirecting to workspace...",
       });
       
       setTimeout(() => {
         window.location.href = '/workspace';
       }, 2000);
-    } else {
-      // Show upload interface for new users or failed training
-      setIsTrainingStarted(false);
-      setTrainingProgress(0);
-      setStartTime(null);
     }
   }, [userModel, isAuthenticated]);
 
   // Poll for training status updates with progress
   useEffect(() => {
-    const isCurrentlyTraining = isTrainingStarted || (userModel && userModel.trainingStatus === 'training' && userModel.replicateModelId);
+    const isCurrentlyTraining = isTrainingStarted || (userModel && userModel.trainingStatus === 'training');
     
     if (isCurrentlyTraining && isAuthenticated) {
+      console.log('🔄 Training detected, starting status polling...');
+      
       const interval = setInterval(async () => {
         // Update user model data
         const updatedData = await refetchUserModel();
         
         // Check if training completed
         if (updatedData?.data?.trainingStatus === 'completed') {
+          console.log('✅ Training completed! Redirecting to workspace...');
           setIsTrainingStarted(false);
           setTrainingProgress(100);
           
@@ -85,19 +90,18 @@ export default function SimpleTraining() {
         }
         
         // Get progress data if we have user model and still training
-        if (userModel?.userId) {
+        if (userModel?.id) {
           try {
-            const progressResponse = await fetch(`/api/training-progress/${userModel.userId}`, {
+            const progressResponse = await fetch(`/api/training-progress/${userModel.id}`, {
               credentials: 'include'
             });
             if (progressResponse.ok) {
               const progressData = await progressResponse.json();
-              if (progressData.isRealTraining) {
-                setTrainingProgress(progressData.progress || 0);
-              }
+              setTrainingProgress(progressData.progress || 0);
+              console.log(`📊 Training progress: ${progressData.progress}%`);
             }
           } catch (error) {
-            // Silent error handling for progress updates
+            console.error('Failed to fetch training progress:', error);
           }
         }
       }, 5000); // Poll every 5 seconds
@@ -106,15 +110,19 @@ export default function SimpleTraining() {
     }
   }, [isTrainingStarted, userModel, refetchUserModel, isAuthenticated]);
 
-  // Only show real progress - no fake time calculations
+  // Calculate progress and time remaining
   useEffect(() => {
-    if (trainingProgress > 0 && trainingProgress < 100) {
-      // Only show estimated time if we have real training progress
-      setEstimatedTimeRemaining('Training in progress...');
-    } else {
-      setEstimatedTimeRemaining('');
+    if (startTime && trainingProgress > 0) {
+      const elapsed = Date.now() - startTime.getTime();
+      const totalEstimatedTime = 20 * 60 * 1000; // 20 minutes in milliseconds
+      const remaining = Math.max(0, totalEstimatedTime - elapsed);
+      
+      const minutes = Math.floor(remaining / 60000);
+      const seconds = Math.floor((remaining % 60000) / 1000);
+      
+      setEstimatedTimeRemaining(`${minutes}:${seconds.toString().padStart(2, '0')}`);
     }
-  }, [trainingProgress]);
+  }, [trainingProgress, startTime]);
 
   // Start bulletproof model training mutation
   const startTraining = useMutation({
@@ -126,32 +134,26 @@ export default function SimpleTraining() {
     },
     onSuccess: (data: any) => {
       if (data.success) {
-        // Automatically show training UI when training starts successfully
         setIsTrainingStarted(true);
         setStartTime(new Date());
-        setTrainingProgress(5); // Start with minimal progress
-        
+        setTrainingProgress(5); // Initial progress
         toast({
-          title: "Training Started!",
-          description: "Your AI model training has begun successfully.",
+          title: "Bulletproof Training Started!",
+          description: "Your AI model training has begun with full validation.",
         });
-        
-        // Clear upload data since training started
-        setSelfieImages([]);
-        
-        // Refresh user model data to get latest training status
-        refetchUserModel();
       } else {
-        // Handle validation errors
+        // Handle validation errors from bulletproof service
         setUploadErrors(data.errors || []);
         toast({
           title: "Training Validation Failed",
-          description: data.message || "Please fix the issues and try again.",
+          description: `Please fix these issues: ${data.errors?.join(', ')}`,
           variant: "destructive",
         });
       }
     },
     onError: (error: any) => {
+      console.error('Bulletproof training failed:', error);
+      
       if (error.requiresRestart) {
         setUploadErrors([error.message]);
         toast({
@@ -236,10 +238,10 @@ export default function SimpleTraining() {
 
   const handleStartTraining = async () => {
     // 🛡️ CRITICAL FRONTEND VALIDATION: NEVER ALLOW LESS THAN 10 IMAGES
-    if (selfieImages.length < 12) {
+    if (selfieImages.length < 10) {
       toast({
-        title: "Need More Photos",
-        description: `Only ${selfieImages.length} photos uploaded. Minimum 12 selfies required for quality training.`,
+        title: "❌ CRITICAL: Need More Photos",
+        description: `Only ${selfieImages.length} photos uploaded. MINIMUM 10 selfies required - no exceptions.`,
         variant: "destructive",
       });
       return;
@@ -247,8 +249,8 @@ export default function SimpleTraining() {
     
     if (selfieImages.length < 15) {
       toast({
-        title: "Recommendation",
-        description: `${selfieImages.length} photos uploaded. 15-18 recommended for optimal results.`,
+        title: "⚠️ Recommendation",
+        description: `${selfieImages.length} photos uploaded. 15-20 recommended for best results.`,
       });
     }
 
@@ -277,6 +279,7 @@ export default function SimpleTraining() {
         })
       );
 
+      console.log(`✅ Compressed ${compressedBase64Images.length} images successfully`);
       startTraining.mutate(compressedBase64Images);
     } catch (error) {
       toast({
@@ -284,6 +287,7 @@ export default function SimpleTraining() {
         description: "Failed to process images. Please try again with different photos.",
         variant: "destructive",
       });
+      console.error('Image processing failed:', error);
     }
   };
 
@@ -379,7 +383,7 @@ export default function SimpleTraining() {
                 height: '8px'
               }}>
                 <div style={{
-                  width: `${trainingProgress}%`,
+                  width: `${Math.max(5, trainingProgress)}%`,
                   height: '100%',
                   background: '#ffffff',
                   transition: 'width 0.3s ease'
@@ -397,7 +401,7 @@ export default function SimpleTraining() {
                 flexWrap: 'wrap',
                 padding: '0 20px'
               }}>
-                <div>Progress: {trainingProgress}%</div>
+                <div>Progress: {Math.max(5, trainingProgress)}%</div>
                 {estimatedTimeRemaining && (
                   <div>Time Remaining: {estimatedTimeRemaining}</div>
                 )}
