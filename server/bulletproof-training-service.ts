@@ -242,6 +242,9 @@ export class BulletproofTrainingService {
       }
       
       // Start training with optimized parameters
+      console.log(`🔍 REPLICATE TRAINING: About to start training with ZIP: ${zipUrl}`);
+      console.log(`🔍 REPLICATE TRAINING: Model name: ${modelName}, Trigger word: ${triggerWord}`);
+      
       const trainingResponse = await fetch('https://api.replicate.com/v1/models/ostris/flux-dev-lora-trainer/versions/26dce37af90b9d997eeb970d92e47de3064d46c300504ae376c75bef6a9022d2/trainings', {
         method: 'POST',
         headers: {
@@ -268,7 +271,8 @@ export class BulletproofTrainingService {
       
       if (!trainingResponse.ok) {
         const errorData = await trainingResponse.json();
-        errors.push(`Replicate training failed: ${JSON.stringify(errorData)}`);
+        console.error(`❌ REPLICATE TRAINING ERROR: Status ${trainingResponse.status}:`, errorData);
+        errors.push(`Replicate training failed (${trainingResponse.status}): ${JSON.stringify(errorData)}`);
         return { success: false, errors, trainingId: null };
       }
       
