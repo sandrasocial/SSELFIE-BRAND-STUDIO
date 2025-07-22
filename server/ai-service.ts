@@ -385,15 +385,15 @@ export class AIService {
     ArchitectureValidator.validateGenerationRequest(requestBody, userId, isPremium);
     ArchitectureValidator.logArchitectureCompliance(userId, 'Maya AI Generation');
     
-    // 📊 LOG CORE_ARCHITECTURE_V2 PARAMETERS FOR MAYA MONITORING
-    console.log(`✅ MAYA CORE_ARCHITECTURE_V2 ACTIVE for user ${userId}:`, {
-      guidance_scale: requestBody.input.guidance_scale,
-      steps: requestBody.input.num_inference_steps,
-      lora_scale: requestBody.input.lora_scale,
-      quality: requestBody.input.output_quality,
-      model: requestBody.input.model,
-      outputs: requestBody.input.num_outputs,
-      settings: 'CORE_ARCHITECTURE_IMMUTABLE_V2 Complete'
+    // 📊 LOG INDIVIDUAL MODEL PARAMETERS FOR MAYA MONITORING
+    console.log(`✅ MAYA INDIVIDUAL MODEL ACTIVE for user ${userId}:`, {
+      guidance: requestBody.input.guidance,              // ✅ Should show 2.8
+      steps: requestBody.input.num_inference_steps,      // ✅ Should show 40
+      lora_scale: requestBody.input.lora_scale,          // ✅ Should show 0.95
+      quality: requestBody.input.output_quality,         // ✅ Should show 95
+      model_path: requestBody.version,                   // ✅ Individual model path
+      outputs: requestBody.input.num_outputs,           // ✅ Should show 3
+      settings: 'Individual User Model Architecture Complete'
     });
     
     // 🔍 DEBUG LOG: Complete request body for debugging
