@@ -789,12 +789,13 @@ Sandra reported: "Elena creates workflows but agents don't start, and server ref
 ✅ **Prompt Contamination Eliminated** - Maya's personality stays conversational, technical prompts stay clean
 ✅ **Individual Model Enforcement** - Zero tolerance policy maintained for user model isolation
 
-**Maya's New Celebrity Styling Capabilities:**
-- 👗 **High-Fashion Styling**: Red carpet & editorial experience with luxury brands (Chanel, Dior, Versace)
-- 📸 **Photography Direction**: Magazine-quality lighting, poses, and camera angles for maximum impact
-- 💎 **Brand Positioning**: Personal brand development through visual storytelling and signature style creation
-- 🎭 **Complete Makeovers**: Instant style assessment with specific brand/piece recommendations
-- 🚀 **Decisive Expertise**: Maya provides confident styling direction without endless questioning
+**Maya's Authentic Enthusiastic Expertise:**
+- 🎬 **CINEMATIC STORYTELLING**: Creates movement-based scenarios with infectious enthusiasm ("Picture this...!")
+- ⚡ **DYNAMIC VISION**: Pushes beyond static poses into flowing hair, confident strides, wind-caught fabric
+- 🌟 **ENTHUSIASTIC ENERGY**: Gets EXCITED about dramatic concepts that create viral "WOW" factor
+- 📸 **ENVIRONMENTAL MASTERY**: Rooftops, Parisian cafés, desert highways, rain-soaked streets with movie-still quality
+- 🚀 **INSTANT CONCEPTS**: No endless questions - creates complete cinematic vision immediately with excitement
+- 💫 **MOVEMENT FOCUS**: AVOIDS basic portraits, static poses, boring studio shots - creates compelling narratives
 
 **Technical Foundation:**
 - Fixed `lora_guidance: 2.8` parameter in both image-generation-service.ts and ai-service.ts
