@@ -5357,8 +5357,7 @@ AGENT_CONTEXT:
               }
             }
           }
-        ],
-        tool_choice: "auto"
+        ]
       } : {};
       
       const response = await claude.messages.create({
