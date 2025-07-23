@@ -5312,9 +5312,8 @@ I'll keep you updated as each agent completes their work. You can also check wor
       const personalityData = agentPersonality.getAgentPersonality(agentId);
       const personality = personalityData.instructions;
       
-      // Apply mandatory crash prevention protocols to all agents
-      const AgentCrashPrevention = await import('./agents/agent-crash-prevention');
-      await AgentCrashPrevention.default.updateAllAgentSafety();
+      // Skip crash prevention - using single consolidated personality file
+      console.log('✅ Using consolidated agent personalities from single source of truth');
       
       // Give Elena access to search filesystem for strategic codebase analysis
       const searchToolsContext = agentId === 'elena' ? `

@@ -144,6 +144,11 @@ export interface IStorage {
   getAgentConversations(agentId: string, userId: string): Promise<AgentConversation[]>;
   getAgentConversationHistory(agentId: string, userId: string, conversationId?: string): Promise<any[]>;
   getAllAgentConversations(userId: string): Promise<AgentConversation[]>;
+  
+  // Agent memory operations
+  saveAgentMemory(agentId: string, userId: string, memoryData: any): Promise<void>;
+  getAgentMemory(agentId: string, userId: string): Promise<any | null>;
+  clearAgentMemory(agentId: string, userId: string): Promise<void>;
 
   // Landing page operations
   createLandingPage(data: InsertLandingPage): Promise<LandingPage>;
@@ -162,6 +167,11 @@ export interface IStorage {
   setUserAsAdmin(email: string): Promise<User | null>;
   isUserAdmin(userId: string): Promise<boolean>;
   hasUnlimitedGenerations(userId: string): Promise<boolean>;
+  
+  // Agent memory storage operations
+  saveAgentMemory(agentId: string, userId: string, memoryData: any): Promise<void>;
+  getAgentMemory(agentId: string, userId: string): Promise<any | null>;
+  clearAgentMemory(agentId: string, userId: string): Promise<void>;
 
 }
 
@@ -904,6 +914,60 @@ export class DatabaseStorage implements IStorage {
   async saveSandraConversation(data: any): Promise<any> {
     // For now, just return the data - could implement full conversation storage later
     return data;
+  }
+
+  // Agent memory operations - Complete implementation
+  async saveAgentMemory(agentId: string, userId: string, memoryData: any): Promise<void> {
+    try {
+      // Save memory as special conversation entry
+      await this.saveAgentConversation(
+        agentId,
+        userId,
+        '**CONVERSATION_MEMORY**',
+        JSON.stringify(memoryData),
+        []
+      );
+      console.log(`💾 Agent memory saved for ${agentId}`);
+    } catch (error) {
+      console.error('Failed to save agent memory:', error);
+      throw error;
+    }
+  }
+
+  async getAgentMemory(agentId: string, userId: string): Promise<any | null> {
+    try {
+      const conversations = await this.getAgentConversations(agentId, userId);
+      
+      // Find the most recent memory entry
+      const memoryEntry = conversations
+        .filter(conv => conv.userMessage === '**CONVERSATION_MEMORY**')
+        .sort((a, b) => new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime())[0];
+      
+      if (memoryEntry && memoryEntry.agentResponse) {
+        return JSON.parse(memoryEntry.agentResponse);
+      }
+      
+      return null;
+    } catch (error) {
+      console.error('Failed to retrieve agent memory:', error);
+      return null;
+    }
+  }
+
+  async clearAgentMemory(agentId: string, userId: string): Promise<void> {
+    try {
+      // Delete all memory entries for this agent
+      await db.delete(agentConversations)
+        .where(and(
+          eq(agentConversations.agentId, agentId),
+          eq(agentConversations.userId, userId),
+          eq(agentConversations.userMessage, '**CONVERSATION_MEMORY**')
+        ));
+      console.log(`🧹 Agent memory cleared for ${agentId}`);
+    } catch (error) {
+      console.error('Failed to clear agent memory:', error);
+      throw error;
+    }
   }
 
   // Email Capture operations
