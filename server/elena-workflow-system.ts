@@ -566,6 +566,7 @@ Target: ${targetFile || 'Auto-determine'}
 Required: REAL file modifications with luxury editorial design
 Standards: SSELFIE Studio architecture, Times New Roman typography
 End response with: FILES MODIFIED: [exact paths]`,
+          adminToken: 'sandra-admin-2025',
           userId: '42585527'
         })
       });
