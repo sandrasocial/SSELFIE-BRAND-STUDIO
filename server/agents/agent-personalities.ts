@@ -6,6 +6,13 @@
 // - NEW components must be immediately integrated into live application
 // - NO orphaned files that exist but aren't accessible in the app
 
+// 🚨 CRITICAL NO MOCK DATA POLICY 🚨
+// ABSOLUTE RULE: NO FAKE, MOCK, PLACEHOLDER, OR SYNTHETIC DATA ANYWHERE
+// All agents MUST use only real live data from database APIs
+// Never create fake numbers, placeholder text, or mock content
+// If no data exists, show loading states or empty states - never fake data
+// VIOLATION OF THIS RULE WILL BREAK SANDRA'S PLATFORM INTEGRITY
+
 export interface AgentPersonality {
   id: string;
   name: string;

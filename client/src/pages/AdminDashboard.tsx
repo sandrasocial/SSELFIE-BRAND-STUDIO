@@ -1,7 +1,22 @@
 import React from 'react';
+import { useQuery } from '@tanstack/react-query';
 import { AdminNavigation } from '../components/AdminNavigation';
 
 export function AdminDashboard() {
+  // Fetch real dashboard stats from database
+  const { data: stats, isLoading } = useQuery({
+    queryKey: ["/api/admin/dashboard-stats"],
+    refetchInterval: 30000 // Refresh every 30 seconds
+  });
+
+  if (isLoading) {
+    return (
+      <div className="min-h-screen bg-black flex items-center justify-center">
+        <div className="text-white font-serif text-xl">Loading dashboard...</div>
+      </div>
+    );
+  }
+
   return (
     <div className="min-h-screen bg-white">
       {/* Navigation */}
@@ -12,7 +27,7 @@ export function AdminDashboard() {
         <div 
           className="absolute inset-0 bg-cover bg-center bg-no-repeat"
           style={{
-            backgroundImage: `linear-gradient(rgba(0, 0, 0, 0.4), rgba(0, 0, 0, 0.4)), url('/gallery/sandra-transformation-empire.jpg')`
+            backgroundImage: `linear-gradient(rgba(0, 0, 0, 0.4), rgba(0, 0, 0, 0.4)), url('/flatlays/luxury-minimal/flatlay-luxury-minimal-workspace.jpg')`
           }}
         />
         <div className="relative z-10 flex items-center justify-center h-full">
@@ -35,19 +50,21 @@ export function AdminDashboard() {
             <div 
               className="h-48 bg-cover bg-center relative"
               style={{
-                backgroundImage: `linear-gradient(rgba(0, 0, 0, 0.3), rgba(0, 0, 0, 0.3)), url('/gallery/luxury-workspace-flatlay.jpg')`
+                backgroundImage: `linear-gradient(rgba(0, 0, 0, 0.3), rgba(0, 0, 0, 0.3)), url('/flatlays/business-professional/flatlay-business-professional-workspace.jpg')`
               }}
             >
               <div className="absolute inset-0 flex items-center justify-center">
                 <div className="text-center text-white">
-                  <div className="font-serif text-4xl font-light mb-2">$24,750</div>
+                  <div className="font-serif text-4xl font-light mb-2">
+                    €{(stats?.totalRevenue || 0).toLocaleString()}
+                  </div>
                   <div className="text-sm uppercase tracking-widest">Total Revenue</div>
                 </div>
               </div>
             </div>
             <div className="p-6">
               <p className="text-gray-600 text-sm leading-relaxed">
-                Your journey from survival to success, measured in dreams realized.
+                Live revenue from your SSELFIE Studio platform.
               </p>
             </div>
           </div>
@@ -57,19 +74,21 @@ export function AdminDashboard() {
             <div 
               className="h-48 bg-cover bg-center relative"
               style={{
-                backgroundImage: `linear-gradient(rgba(0, 0, 0, 0.3), rgba(0, 0, 0, 0.3)), url('/gallery/sandra-coaching-moment.jpg')`
+                backgroundImage: `linear-gradient(rgba(0, 0, 0, 0.3), rgba(0, 0, 0, 0.3)), url('/flatlays/european-luxury/flatlay-european-luxury-businesswoman.jpg')`
               }}
             >
               <div className="absolute inset-0 flex items-center justify-center">
                 <div className="text-center text-white">
-                  <div className="font-serif text-4xl font-light mb-2">47</div>
-                  <div className="text-sm uppercase tracking-widest">Active Clients</div>
+                  <div className="font-serif text-4xl font-light mb-2">
+                    {stats?.totalUsers || 0}
+                  </div>
+                  <div className="text-sm uppercase tracking-widest">Total Users</div>
                 </div>
               </div>
             </div>
             <div className="p-6">
               <p className="text-gray-600 text-sm leading-relaxed">
-                Lives transformed through your authentic guidance and vulnerability.
+                Total registered users on your platform.
               </p>
             </div>
           </div>
@@ -79,13 +98,15 @@ export function AdminDashboard() {
             <div 
               className="h-48 bg-cover bg-center relative"
               style={{
-                backgroundImage: `linear-gradient(rgba(0, 0, 0, 0.3), rgba(0, 0, 0, 0.3)), url('/gallery/growth-charts-flatlay.jpg')`
+                backgroundImage: `linear-gradient(rgba(0, 0, 0, 0.3), rgba(0, 0, 0, 0.3)), url('/flatlays/business-professional/flatlay-business-professional-analytics.jpg')`
               }}
             >
               <div className="absolute inset-0 flex items-center justify-center">
                 <div className="text-center text-white">
-                  <div className="font-serif text-4xl font-light mb-2">+127%</div>
-                  <div className="text-sm uppercase tracking-widest">Monthly Growth</div>
+                  <div className="font-serif text-4xl font-light mb-2">
+                    {stats?.totalPosts || 0}
+                  </div>
+                  <div className="text-sm uppercase tracking-widest">AI Images Created</div>
                 </div>
               </div>
             </div>
@@ -101,13 +122,15 @@ export function AdminDashboard() {
             <div 
               className="h-48 bg-cover bg-center relative"
               style={{
-                backgroundImage: `linear-gradient(rgba(0, 0, 0, 0.3), rgba(0, 0, 0, 0.3)), url('/gallery/celebration-success-moment.jpg')`
+                backgroundImage: `linear-gradient(rgba(0, 0, 0, 0.3), rgba(0, 0, 0, 0.3)), url('/flatlays/luxury-minimal/flatlay-luxury-minimal-success.jpg')`
               }}
             >
               <div className="absolute inset-0 flex items-center justify-center">
                 <div className="text-center text-white">
-                  <div className="font-serif text-4xl font-light mb-2">94%</div>
-                  <div className="text-sm uppercase tracking-widest">Success Rate</div>
+                  <div className="font-serif text-4xl font-light mb-2">
+                    {stats?.totalLikes || 0}
+                  </div>
+                  <div className="text-sm uppercase tracking-widest">Agent Conversations</div>
                 </div>
               </div>
             </div>
