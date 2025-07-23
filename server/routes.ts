@@ -968,7 +968,7 @@ NO questions, NO options, NO multiple scenarios - Just your expert SINGLE COMPLE
       function extractImagePromptFromRequest(userPrompt, triggerWord) {
         console.log(`🎯 MAYA PROMPT INPUT: "${userPrompt.substring(0, 200)}..."`);
         
-        // Check if this is Maya's response (either old questioning format OR new decisive format)
+        // Check if this is Maya's response (old questioning OR new decisive format)
         if (userPrompt.includes('Hey gorgeous') || 
             userPrompt.includes('**MOOD & ENERGY:**') ||
             userPrompt.includes('**SETTING DREAMS:**') ||
@@ -978,6 +978,12 @@ NO questions, NO options, NO multiple scenarios - Just your expert SINGLE COMPLE
             userPrompt.includes('**THE EDITORIAL STYLING:**') ||
             userPrompt.includes('**TECHNICAL MASTERY:**') ||
             userPrompt.includes('**THE EDITORIAL NARRATIVE:**') ||
+            userPrompt.includes('Here\'s your ICONIC') ||
+            userPrompt.includes('**Your Editorial') ||
+            userPrompt.includes('You\'re lounging') ||
+            userPrompt.includes('You\'re striding') ||
+            userPrompt.includes('Shot with Canon') ||
+            userPrompt.includes('*Ready for your') ||
             (userPrompt.includes('🖤') && userPrompt.includes('**'))) {
           
           console.log(`🎭 MAYA RESPONSE DETECTED: Converting to proper technical format with mandatory elements`);
