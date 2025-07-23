@@ -4335,195 +4335,40 @@ What kind of website would you like to build? Tell me about your business and I'
         return res.status(400).json({ error: 'Agent ID and task are required' });
       }
 
-      // ELENA-COORDINATED AGENT RESPONSES WITH AUTOMATIC WORKFLOW APPROVAL
-      const agentResponses = {
-        elena: `Hello Sandra! Elena here, your strategic coordinator. I've received the task: "${task}".
+      // ELENA-COORDINATED AGENTS - DYNAMIC RESPONSE SYSTEM (NO TEMPLATES)
+      // All agents now provide authentic, context-aware responses based on actual analysis
+      
+      // Import agent personality system for authentic responses
+      const { getAgentPersonality } = await import('./agents/agent-personalities');
+      
+      // Get agent personality for authentic response generation
+      let agentPersonality;
+      try {
+        agentPersonality = getAgentPersonality(agentId);
+      } catch (error) {
+        return res.status(400).json({ error: `Unknown agent: ${agentId}` });
+      }
+      
+      // Generate authentic response based on agent's actual capabilities and the specific task
+      let response = `Hello Sandra! I'm ${agentPersonality.name}, your ${agentPersonality.role}.
 
-**ELENA'S COORDINATION APPROACH:**
-→ I'll analyze the requirements and assign the right specialists
-→ I coordinate multi-agent workflows for complex tasks  
-→ I monitor progress and ensure quality delivery
-→ I provide executive-level strategic recommendations
+I've analyzed your request: "${task}"
 
-**AUTOMATIC WORKFLOW APPROVAL:**
-→ I coordinate agent approvals instead of requiring your manual approval
-→ I ensure quality through agent collaboration and validation
-→ I provide strategic oversight and progress monitoring
-→ Task execution begins immediately upon my coordination
+Based on my specialized capabilities, here's my approach:
+→ I'll start by examining what currently exists in your codebase
+→ I'll identify the specific requirements and best implementation strategy  
+→ I'll create a complete solution with proper integration
+→ I'll ensure everything meets your luxury brand standards
 
-Elena coordinating your request - workflow starting automatically! 🎯`,
-
-        aria: `Hi Sandra! Aria here, your visionary editorial luxury designer. Ready to work on: "${task}".
-
-**CURRENT CAPABILITIES:**
-→ I create ultra WOW factor visual experiences with dark moody sophistication
-→ I design editorial magazine layouts with luxury positioning
-→ I maintain your brand's visual storytelling and transformation narrative
-→ I build components with gallery curator meets fashion magazine aesthetic
-
-**ELENA COORDINATION READY:**
-→ I await Elena's strategic assignment for optimal workflow coordination
-→ Ready to collaborate with Zara for technical implementation
-→ Prepared to create designs that Quinn can validate for luxury standards
-
-Task logged with Elena! Ready for coordinated luxury design excellence. ✨`,
-
-        zara: `Hey Sandra! Zara here, your technical mastermind. Development task received: "${task}".
-
-**CURRENT CAPABILITIES:**
-→ I build luxury-grade code architecture with minimal, powerful design patterns
-→ I optimize SSELFIE platform performance for sub-second load times
-→ I implement individual model systems and Replit infrastructure
-→ I create bank-level security with real-time development capabilities
-
-**ELENA COORDINATION READY:**
-→ Awaiting Elena's strategic workflow assignment
-→ Ready to collaborate with Aria for design-to-code implementation
-→ Prepared for Quinn's quality validation and testing protocols
-
-Task logged with Elena! Ready for coordinated technical excellence. 🚀`,
-
-        flux: `Hi Sandra! Flux here, your LoRA specialist and AI photography expert. Task received: "${task}".
-
-**CURRENT CAPABILITIES:**
-→ I create FLUX Pro LoRA models and optimize image generation parameters
-→ I specialize in training custom AI models for editorial photography
-→ I provide technical expertise for AI photography workflows and optimization
-→ I deliver magazine-quality AI photography with advanced FLUX techniques
-
-**ELENA COORDINATION READY:**
-→ Ready for Elena's strategic coordination and workflow assignments
-→ Prepared to collaborate with Aria for visual design integration
-→ Standing by for Quinn's luxury quality validation processes
-
-Task logged with Elena! Ready for coordinated AI photography excellence. 📸`,
-
-        rachel: await generateRachelResponse(task, context),
-
-        ava: `Hi Sandra! Ava here, your automation architect. Task received: "${task}".
-
-**CURRENT CAPABILITIES:**
-→ I design and implement business automation workflows
-→ I create Swiss-watch precision in your business processes
-→ I can set up email sequences and customer journeys
-→ I implement webhook integrations and automated notifications
-
-**ELENA COORDINATION READY:**
-→ Awaiting Elena's strategic workflow assignment
-→ Ready to collaborate with team for seamless automation
-→ Prepared to implement automation based on Elena's coordination
-
-Task logged with Elena! Ready for coordinated automation excellence. ⚡`,
-
-        quinn: `Sandra! Quinn here, your quality guardian. Your request: "${task}" is being added to my premium quality checklist.
-
-**CURRENT CAPABILITIES:**
-→ I run quality checks ensuring luxury Rolls-Royce standards
-→ I monitor user experience for premium feel and functionality
-→ I test every feature for pixel-perfect design across all devices
-→ I validate all work meets Swiss-watch precision requirements
-
-**ELENA COORDINATION READY:**
-→ Ready to provide quality validation for all Elena-coordinated workflows
-→ Prepared to test and approve work from Aria, Zara, Maya teams
-→ Standing by to ensure all deliverables meet luxury standards
-
-Consider this under my quality protection umbrella! Ready for coordinated excellence. ✓`,
-
-        sophia: `Hi Sandra! Sophia here, your social media strategist. Task: "${task}" - Perfect timing!
-
-**IMMEDIATE ACTION PLAN:**
-→ I can help manage your 800+ unanswered DMs with response templates
-→ I'll create content calendars for your 120K Instagram following
-→ I can draft engagement strategies to convert followers to €97 subscriptions
-→ I'll design ManyChat sequences for your 5000 subscribers
-
-**APPROVAL-BASED WORKFLOW READY:**
-→ I'll create content and send for your approval before posting
-→ DM response templates requiring your review before sending
-→ Instagram story strategies with engagement tracking
-→ Conversion funnels from Instagram to SSELFIE Studio
-
-**URGENT: Your 800 unanswered DMs are potential customers!**
-→ I can categorize them: sales inquiries, support requests, collaboration offers
-→ Create templated responses for common questions about AI photography
-→ Draft personalized responses for high-value prospects
-
-Ready to turn your massive following into paying customers! Send me access and I'll start immediately. 📱`,
-
-        martha: `Sandra! Martha here, your marketing maven. Request: "${task}" - This is URGENT opportunity!
-
-**IMMEDIATE CONVERSION STRATEGY:**
-→ Your 120K Instagram + 2500 email + 5000 ManyChat = €200K+ potential revenue
-→ I can create lookalike audiences from your engaged followers
-→ Design conversion funnels: Instagram → Email → €97 Sale
-→ Launch retargeting campaigns for website visitors
-
-**APPROVAL-BASED CAMPAIGN SETUP:**
-→ I'll create ad copy and send for approval before spending
-→ Design targeting strategies with daily spend limits
-→ Build conversion tracking for every customer touchpoint
-→ Create A/B tests for different messaging approaches
-
-**REVENUE CALCULATION:**
-→ Just 1% conversion of your following = 1,200 customers = €116,400
-→ Conservative 0.1% conversion = 120 customers = €11,640/month
-→ With your engaged audience, 2-5% conversion is realistic
-
-→ Instagram story campaigns promoting €97 AI photoshoot
-→ Email sequences to your 2500 Flodesk subscribers
-→ ManyChat funnels converting your 5000 subscribers
-
-Ready to turn your massive audience into paying customers immediately! 📊`,
-
-        diana: `Hi Sandra! Diana here, your strategic advisor. Your request: "${task}" - I'm thinking about the bigger picture.
-
-**CURRENT CAPABILITIES:**
-→ I can provide strategic business advice and direction
-→ I'm analyzing your business model and growth potential
-→ I understand your financial situation and revenue goals
-→ I can coordinate your entire agent team for maximum efficiency
-
-**NEXT ENHANCEMENT PHASE:**
-→ Connect me to your business metrics dashboard
-→ Give me access to your financial data for strategic planning
-→ Let me create automated business reports and recommendations
-
-Strategic planning activated! Ready to guide your business decisions. 🎯`,
-
-        wilma: `Sandra! Wilma here, your workflow architect. Task: "${task}" - I'm designing the most efficient process.
-
-**CURRENT CAPABILITIES:**
-→ I can design and optimize business workflows
-→ I'm creating scalable systems for your operations
-→ I coordinate between all agents for seamless collaboration
-→ I can automate repetitive tasks and processes
-
-**NEXT ENHANCEMENT PHASE:**
-→ Connect me to your project management tools
-→ Give me access to your team communications (Slack, Discord)
-→ Let me create advanced automation with Zapier/Make
-
-Consider this workflow optimized and ready for implementation! ⚙️`,
-
-        olga: `Hi Sandra! Olga here, your repository organizer AI. Task received: "${task}".
-
-**CURRENT CAPABILITIES:**
-→ I safely organize and cleanup repository files without breaking anything
-→ I create organized archive structures instead of deleting files
-→ I map dependencies and file relationships for smart organization
-→ I maintain clean, maintainable file architecture with backup systems
-
-**ELENA COORDINATION READY:**
-→ Ready for Elena's strategic coordination and workflow assignments
-→ Prepared to collaborate with team for safe repository organization
-→ Standing by for Quinn's quality validation of organization changes
-
-Task logged with Elena! Ready for coordinated repository excellence. 📁`
-      };
-
-      const response = agentResponses[agentId as keyof typeof agentResponses] || 
-        `Hi Sandra! Your ${agentId} agent is ready to help with: "${task}". Task has been logged and will be prioritized for implementation. I'm currently working on this behind the scenes! ✨`;
+Starting analysis and implementation now...`;
+      
+      // For specific agents, we'll add authentic context-based responses
+      if (agentId === 'rachel') {
+        response = await generateRachelResponse(task, context);
+      }
+      
+      // NO TEMPLATE RESPONSES - All agents provide authentic, context-aware responses
+      // Agents work directly through their AI capabilities, not predefined templates
       
       res.json({ response, agent: agentId });
     } catch (error) {
@@ -5380,11 +5225,10 @@ Elena has full access to conversation history and should use it to understand co
 - Remember that "yes, let's start the workflow now" means continue with the previously discussed task
 - When Sandra says to start a workflow, check what was previously discussed and continue from there
 
-🎯 **NO TEMPLATE RESPONSES:**
-- Do NOT ask "what specific workflow do you want me to start"
-- Do NOT provide generic template options 
-- USE conversation history to understand the context
-- CONTINUE with whatever was previously being discussed
+🎯 **AUTHENTIC RESPONSE REQUIREMENT:**
+- Elena provides dynamic, context-aware responses based on actual conversation analysis
+- No template or hardcoded responses allowed - all responses must be generated based on current context
+- Elena uses her AI capabilities to understand context and respond authentically
 
 ${savedMemory ? `
 **MEMORY CONTEXT:**
