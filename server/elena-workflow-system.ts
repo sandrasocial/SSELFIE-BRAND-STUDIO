@@ -705,54 +705,90 @@ export class ElenaWorkflowSystem {
   }
   
   /**
-   * Execute real agent step with direct file modification
+   * Execute real agent step with direct file modification (with timeout and retry protection)
    */
   private static async executeRealAgentStep(agentName: string, task: string, targetFile?: string): Promise<boolean> {
-    try {
-      // Use the correct admin agents chat endpoint that returns JSON
-      const response = await fetch('http://localhost:5000/api/admin/agents/chat', {
-        method: 'POST',
-        headers: { 
-          'Content-Type': 'application/json',
-          'X-Elena-Workflow': 'true'
-        },
-        body: JSON.stringify({
-          agentId: agentName.toLowerCase(),
-          message: `ELENA WORKFLOW: ${task}
+    const MAX_RETRIES = 2;
+    const AGENT_TIMEOUT_MS = 3 * 60 * 1000; // 3 minutes timeout per agent call
+    
+    for (let attempt = 1; attempt <= MAX_RETRIES; attempt++) {
+      try {
+        console.log(`🤖 ELENA: Agent ${agentName} attempt ${attempt}/${MAX_RETRIES} - ${task.substring(0, 50)}...`);
+        
+        // Create a promise race between fetch and timeout
+        const fetchPromise = fetch('http://localhost:5000/api/admin/agents/chat', {
+          method: 'POST',
+          headers: { 
+            'Content-Type': 'application/json',
+            'X-Elena-Workflow': 'true'
+          },
+          body: JSON.stringify({
+            agentId: agentName.toLowerCase(),
+            message: `ELENA WORKFLOW: ${task}
 
 Create/modify files for: ${task}
 Target: ${targetFile || 'Auto-determine'}
 Required: REAL file modifications with luxury editorial design
 Standards: SSELFIE Studio architecture, Times New Roman typography
 End response with: FILES MODIFIED: [exact paths]`,
-          adminToken: 'sandra-admin-2025',
-          userId: '42585527'
-        })
-      });
-      
-      if (response.ok) {
-        const result = await response.json();
+            adminToken: 'sandra-admin-2025',
+            userId: '42585527'
+          })
+        });
+
+        // Add timeout protection to prevent infinite hangs
+        const timeoutPromise = new Promise<never>((_, reject) => {
+          setTimeout(() => reject(new Error(`Agent ${agentName} timeout after ${AGENT_TIMEOUT_MS / 60000} minutes`)), AGENT_TIMEOUT_MS);
+        });
+
+        const response = await Promise.race([fetchPromise, timeoutPromise]);
         
-        // CRITICAL FIX: Verify actual file modifications
-        const filesModified = result.filesCreated?.length > 0 || result.fileOperations?.length > 0;
-        const hasActualWork = result.response?.includes('file') || result.response?.includes('created') || result.response?.includes('modified');
-        
-        if (filesModified || hasActualWork) {
-          console.log(`✅ REAL AGENT EXECUTION: ${agentName} worked on actual files - ${result.filesCreated?.length || 0} files created, ${result.fileOperations?.length || 0} operations`);
-          return true;
+        if (response.ok) {
+          const result = await response.json();
+          
+          // CRITICAL FIX: Verify actual file modifications
+          const filesModified = result.filesCreated?.length > 0 || result.fileOperations?.length > 0;
+          const hasActualWork = result.response?.includes('file') || result.response?.includes('created') || result.response?.includes('modified');
+          
+          if (filesModified || hasActualWork) {
+            console.log(`✅ REAL AGENT EXECUTION: ${agentName} worked on actual files - ${result.filesCreated?.length || 0} files created, ${result.fileOperations?.length || 0} operations`);
+            return true;
+          } else {
+            console.log(`❌ FAKE AGENT EXECUTION: ${agentName} responded but did NOT modify any files (attempt ${attempt})`);
+            console.log(`📝 Agent response: ${result.response?.substring(0, 200)}...`);
+            
+            // If this is the last attempt, return false. Otherwise retry.
+            if (attempt === MAX_RETRIES) {
+              return false;
+            }
+            continue;
+          }
         } else {
-          console.log(`❌ FAKE AGENT EXECUTION: ${agentName} responded but did NOT modify any files`);
-          console.log(`📝 Agent response: ${result.response?.substring(0, 200)}...`);
+          console.error(`❌ AGENT EXECUTION FAILED: ${agentName} - Status: ${response.status} (attempt ${attempt})`);
+          
+          // If this is the last attempt, return false. Otherwise retry.
+          if (attempt === MAX_RETRIES) {
+            return false;
+          }
+          continue;
+        }
+      } catch (error) {
+        const isTimeout = error instanceof Error && error.message.includes('timeout');
+        console.error(`❌ WORKFLOW EXECUTION ERROR for ${agentName} (attempt ${attempt}):`, isTimeout ? `TIMEOUT after ${AGENT_TIMEOUT_MS / 60000} minutes` : error);
+        
+        // If this is the last attempt, return false. Otherwise retry after a short delay.
+        if (attempt === MAX_RETRIES) {
           return false;
         }
-      } else {
-        console.error(`❌ AGENT EXECUTION FAILED: ${agentName} - Status: ${response.status}`);
-        return false;
+        
+        // Wait 10 seconds before retry (agents can be temporarily overloaded)
+        console.log(`⏳ ELENA: Waiting 10 seconds before retrying ${agentName}...`);
+        await new Promise(resolve => setTimeout(resolve, 10000));
+        continue;
       }
-    } catch (error) {
-      console.error(`❌ WORKFLOW EXECUTION ERROR for ${agentName}:`, error);
-      return false;
     }
+    
+    return false;
   }
   
   /**
@@ -787,11 +823,20 @@ End response with: FILES MODIFIED: [exact paths]`,
   private static workflows = new Map<string, CustomWorkflow>();
   private static workflowProgress = new Map<string, any>();
   
-  // Load workflows from persistent storage on startup
+  // Autonomous monitoring system
+  private static autonomousMonitor: NodeJS.Timeout | null = null;
+  private static isMonitoring = false;
+  private static readonly STALL_DETECTION_INTERVAL = 2 * 60 * 1000; // Check every 2 minutes
+  private static readonly STALL_THRESHOLD = 3 * 60 * 1000; // 3 minutes with no progress = stalled
+  private static readonly AGENT_TIMEOUT = 5 * 60 * 1000; // 5 minutes max per agent
+  
+  // Load workflows from persistent storage on startup and start autonomous monitoring
   static {
     this.loadPersistedWorkflows().catch(() => {
       console.log('💾 ELENA: Failed to load persisted workflows, starting fresh');
     });
+    // Start autonomous monitoring immediately on system startup
+    this.startAutonomousMonitoring();
   }
   
   private static async loadPersistedWorkflows() {
@@ -843,6 +888,208 @@ End response with: FILES MODIFIED: [exact paths]`,
     } catch (error) {
       console.error('💾 ELENA: Failed to save workflows to disk:', error);
     }
+  }
+
+  /**
+   * AUTONOMOUS MONITORING SYSTEM - Elena continuously monitors all workflows
+   * This prevents workflow stalls without manual intervention
+   */
+  static startAutonomousMonitoring(): void {
+    if (this.isMonitoring) {
+      console.log('🤖 ELENA: Autonomous monitoring already running');
+      return;
+    }
+
+    this.isMonitoring = true;
+    console.log('🚀 ELENA: Starting autonomous workflow monitoring system');
+
+    this.autonomousMonitor = setInterval(async () => {
+      await this.autonomousStallDetection();
+    }, this.STALL_DETECTION_INTERVAL);
+
+    console.log(`🔄 ELENA: Autonomous monitoring active - checking every ${this.STALL_DETECTION_INTERVAL / 60000} minutes`);
+  }
+
+  /**
+   * Stop autonomous monitoring (for shutdown)
+   */
+  static stopAutonomousMonitoring(): void {
+    if (this.autonomousMonitor) {
+      clearInterval(this.autonomousMonitor);
+      this.autonomousMonitor = null;
+      this.isMonitoring = false;
+      console.log('🛑 ELENA: Autonomous monitoring stopped');
+    }
+  }
+
+  /**
+   * Core autonomous stall detection and recovery system
+   */
+  private static async autonomousStallDetection(): Promise<void> {
+    try {
+      const activeWorkflows = Array.from(this.workflowProgress.entries())
+        .filter(([_, progress]) => progress.status === 'executing');
+
+      if (activeWorkflows.length === 0) {
+        return; // No active workflows to monitor
+      }
+
+      console.log(`🔍 ELENA: Autonomous check - monitoring ${activeWorkflows.length} active workflows`);
+
+      for (const [workflowId, progress] of activeWorkflows) {
+        const workflow = this.workflows.get(workflowId);
+        if (!workflow) continue;
+
+        // Check for workflow stalls
+        const lastUpdate = progress.elenaUpdates?.[progress.elenaUpdates.length - 1];
+        const lastUpdateTime = lastUpdate ? new Date(lastUpdate.timestamp).getTime() : Date.now();
+        const timeSinceLastUpdate = Date.now() - lastUpdateTime;
+
+        // Autonomous recovery for stalled workflows
+        if (timeSinceLastUpdate > this.STALL_THRESHOLD) {
+          console.log(`🚨 ELENA: AUTONOMOUS RECOVERY - Workflow ${workflowId} stalled for ${Math.round(timeSinceLastUpdate / 60000)} minutes`);
+          
+          await this.sendElenaUpdateToUser(workflowId, `🔄 ELENA: Autonomous monitoring detected workflow stall (${Math.round(timeSinceLastUpdate / 60000)} minutes). Auto-recovering...`);
+          
+          // Automatically recover without manual intervention
+          await this.autonomousWorkflowRecovery(workflowId, workflow, progress);
+        }
+
+        // Check for agent timeouts (individual agent taking too long)
+        if (progress.currentAgent && progress.status === 'executing') {
+          const stepStartTime = this.getStepStartTime(progress);
+          if (stepStartTime && (Date.now() - stepStartTime) > this.AGENT_TIMEOUT) {
+            console.log(`⏰ ELENA: AUTONOMOUS AGENT TIMEOUT - ${progress.currentAgent} exceeded ${this.AGENT_TIMEOUT / 60000} minute limit`);
+            
+            await this.sendElenaUpdateToUser(workflowId, `⏰ ELENA: ${progress.currentAgent} timeout detected. Auto-retrying with alternative approach...`);
+            
+            // Retry the current step with timeout recovery
+            await this.autonomousAgentRetry(workflowId, workflow, progress);
+          }
+        }
+      }
+    } catch (error) {
+      console.error('🚨 ELENA: Autonomous monitoring error:', error);
+      // Continue monitoring even if one cycle fails
+    }
+  }
+
+  /**
+   * Autonomous workflow recovery - Elena fixes stuck workflows automatically
+   */
+  private static async autonomousWorkflowRecovery(workflowId: string, workflow: CustomWorkflow, progress: any): Promise<void> {
+    try {
+      console.log(`🔧 ELENA: AUTONOMOUS RECOVERY starting for workflow ${workflowId}`);
+
+      // Update progress to show recovery action
+      progress.elenaUpdates = progress.elenaUpdates || [];
+      progress.elenaUpdates.push({
+        timestamp: new Date().toISOString(),
+        message: `🤖 ELENA: Autonomous recovery initiated - no manual intervention needed`
+      });
+
+      // Resume execution from current step
+      const executionId = `autonomous_recovery_${Date.now()}`;
+      const currentStep = progress.currentStep || 1;
+      
+      console.log(`🚀 ELENA: Autonomous execution resuming from step ${currentStep}`);
+      
+      // Use the specialized recovery execution method
+      this.executeWorkflowStepsFromStep(workflow, executionId, currentStep);
+      
+      console.log(`✅ ELENA: Autonomous recovery applied - workflow execution resumed`);
+      
+    } catch (error) {
+      console.error(`❌ ELENA: Autonomous recovery failed for ${workflowId}:`, error);
+      
+      // Fallback: Mark workflow as failed and notify user
+      progress.status = 'failed';
+      progress.elenaUpdates.push({
+        timestamp: new Date().toISOString(),
+        message: `❌ ELENA: Autonomous recovery failed. Manual intervention may be required.`
+      });
+      
+      this.saveWorkflowsToDisk();
+    }
+  }
+
+  /**
+   * Autonomous agent retry - Elena fixes stuck individual agents
+   */
+  private static async autonomousAgentRetry(workflowId: string, workflow: CustomWorkflow, progress: any): Promise<void> {
+    try {
+      const currentStepIndex = (progress.currentStep || 1) - 1;
+      const currentStep = workflow.steps[currentStepIndex];
+      
+      if (!currentStep) return;
+
+      console.log(`🔄 ELENA: AUTONOMOUS AGENT RETRY - Retrying ${currentStep.agentName} for: ${currentStep.taskDescription}`);
+
+      // Mark this as a retry attempt
+      progress.elenaUpdates = progress.elenaUpdates || [];
+      progress.elenaUpdates.push({
+        timestamp: new Date().toISOString(),
+        message: `🔄 ELENA: ${currentStep.agentName} timeout - autonomous retry in progress`
+      });
+
+      // Retry the agent execution with enhanced instructions
+      const targetFile = this.determineTargetFile(currentStep.taskDescription);
+      const success = await this.executeRealAgentStep(currentStep.agentName, 
+        `URGENT RETRY: ${currentStep.taskDescription} - Previous attempt timed out. Create/modify files immediately.`, 
+        targetFile
+      );
+
+      if (success) {
+        console.log(`✅ ELENA: Autonomous agent retry successful for ${currentStep.agentName}`);
+        progress.elenaUpdates.push({
+          timestamp: new Date().toISOString(),
+          message: `✅ ELENA: ${currentStep.agentName} retry successful - continuing workflow`
+        });
+      } else {
+        console.log(`❌ ELENA: Autonomous agent retry failed for ${currentStep.agentName}`);
+        progress.elenaUpdates.push({
+          timestamp: new Date().toISOString(),
+          message: `❌ ELENA: ${currentStep.agentName} retry failed - skipping to next step`
+        });
+        
+        // Skip to next step if retry fails
+        progress.currentStep = (progress.currentStep || 1) + 1;
+      }
+
+      this.saveWorkflowsToDisk();
+      
+    } catch (error) {
+      console.error(`❌ ELENA: Autonomous agent retry error:`, error);
+    }
+  }
+
+  /**
+   * Get step start time for timeout detection
+   */
+  private static getStepStartTime(progress: any): number | null {
+    const stepUpdates = progress.elenaUpdates?.filter((update: any) => 
+      update.message.includes('is now working on:')
+    );
+    
+    if (stepUpdates && stepUpdates.length > 0) {
+      const lastStepStart = stepUpdates[stepUpdates.length - 1];
+      return new Date(lastStepStart.timestamp).getTime();
+    }
+    
+    return null;
+  }
+
+  /**
+   * Enhanced workflow execution with autonomous monitoring integration
+   */
+  static async executeWorkflowWithMonitoring(workflowId: string): Promise<{ executionId: string }> {
+    // Ensure autonomous monitoring is active
+    if (!this.isMonitoring) {
+      this.startAutonomousMonitoring();
+    }
+
+    // Execute workflow normally - autonomous system will handle any stalls
+    return this.executeWorkflow(workflowId);
   }
 
   /**
