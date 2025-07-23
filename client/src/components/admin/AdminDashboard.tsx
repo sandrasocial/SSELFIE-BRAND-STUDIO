@@ -391,7 +391,7 @@ export default function AdminDashboard() {
             {[0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11].map((index) => (
               <div key={index} className="aspect-square overflow-hidden bg-gray-100">
                 <img 
-                  src={SandraImages.flatlay[index % SandraImages.flatlay.length]}
+                  src={SandraImages.aiGallery[index % SandraImages.aiGallery.length]}
                   alt={`Mood ${index + 1}`}
                   className="w-full h-full object-cover hover:scale-110 transition-transform duration-500"
                 />
