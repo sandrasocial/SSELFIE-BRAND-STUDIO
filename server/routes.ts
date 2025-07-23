@@ -4999,7 +4999,7 @@ ${savedMemory.recentDecisions.map(decision => `• ${decision}`).join('\n')}
       console.log(`🔍 ELENA DEBUG: Agent=${agentId}, Message="${messageText.substring(0, 100)}..."`);
       console.log(`🔍 ELENA DEBUG: Is Elena=${isElena}`);
       
-      // ELENA EXECUTION DETECTION - Check first for specific execution commands
+      // ELENA EXECUTION DETECTION - Enhanced pattern matching with typo tolerance
       const isExecutionRequest = isElena && (
         messageText.includes('execute workflow') ||
         messageText.includes('start workflow') ||
@@ -5009,10 +5009,14 @@ ${savedMemory.recentDecisions.map(decision => `• ${decision}`).join('\n')}
         messageText.includes('yes proceed') ||
         messageText.includes('run workflow') ||
         messageText.includes('please execute') ||
+        messageText.includes('please exicute') || // Handle common typo
         messageText.includes('go ahead') ||
         messageText.includes('do it') ||
-        (messageText.includes('execute') && messageText.includes('workflow')) ||
-        (messageText.includes('run') && messageText.includes('workflow'))
+        messageText.includes('yes please') ||
+        messageText.includes('yes, please') ||
+        (messageText.includes('execute') || messageText.includes('exicute')) ||
+        (messageText.includes('run') && messageText.includes('workflow')) ||
+        (messageText.includes('yes') && (messageText.includes('execute') || messageText.includes('exicute')))
       );
       
       // ELENA WORKFLOW DETECTION - Only create if NOT execution and mentions creation keywords
