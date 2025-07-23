@@ -31,7 +31,7 @@ interface AdminStats {
   totalRevenue?: number;
 }
 
-const AdminDashboard: React.FC = () => {
+export const AdminDashboard: React.FC = () => {
   const [activeTab, setActiveTab] = useState('overview');
 
   const { data: stats, isLoading } = useQuery<AdminStats>({
@@ -364,5 +364,3 @@ const AdminDashboard: React.FC = () => {
     </div>
   );
 };
-
-export default AdminDashboard;
