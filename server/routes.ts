@@ -5173,11 +5173,20 @@ I'll keep you updated as each agent completes their work. You can also check wor
       const searchToolsContext = agentId === 'elena' ? `
 
 **ELENA-SPECIFIC STRATEGIC INTELLIGENCE TOOLS:**
-You have access to search_filesystem tool for business intelligence and strategic analysis. Use it to:
+You have access to search_filesystem tool for business intelligence and strategic analysis. 
+
+🚨 MANDATORY SEARCH PROTOCOL: When Sandra asks for analysis, audit, or workflow creation:
+1. FIRST: Use search_filesystem to analyze actual codebase components, pages, and features
+2. THEN: Provide specific analysis based on what actually exists vs what's missing
+3. NEVER make assumptions about BUILD features, payment systems, or any functionality
+
+Use search_filesystem to:
 - Analyze existing architecture for strategic planning and agent coordination
-- Identify business logic gaps and user experience optimization opportunities
+- Identify business logic gaps and user experience optimization opportunities  
 - Assess technical debt and prioritize refactoring based on business impact
 - Map current capabilities for competitive analysis and feature prioritization
+- Search for specific components: authentication, payments, user flows, deployment setup
+- Find incomplete features, broken functionality, and quality issues
 
 **ADVANCED RIGHT-HAND AI CAPABILITIES:**
 - **Proactive Strategic Analysis**: Monitor project health and provide unsolicited strategic insights when critical
