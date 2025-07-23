@@ -6637,6 +6637,49 @@ AGENT_CONTEXT:
     }
   });
 
+  // Elena Autonomous Monitoring Status Endpoint
+  app.get('/api/elena/monitoring-status', async (req, res) => {
+    try {
+      const { ElenaWorkflowSystem } = await import('./elena-workflow-system');
+      
+      res.json({
+        success: true,
+        monitoring: {
+          isActive: (ElenaWorkflowSystem as any).isMonitoring || false,
+          checkInterval: '2 minutes',
+          stallThreshold: '3 minutes',
+          agentTimeout: '5 minutes'
+        }
+      });
+    } catch (error) {
+      console.error('Elena monitoring status error:', error);
+      res.status(500).json({
+        success: false,
+        error: 'Failed to get monitoring status'
+      });
+    }
+  });
+
+  // Elena Start Autonomous Monitoring Endpoint
+  app.post('/api/elena/start-monitoring', async (req, res) => {
+    try {
+      const { ElenaWorkflowSystem } = await import('./elena-workflow-system');
+      
+      ElenaWorkflowSystem.startAutonomousMonitoring();
+      
+      res.json({
+        success: true,
+        message: 'Elena autonomous monitoring started'
+      });
+    } catch (error) {
+      console.error('Elena start monitoring error:', error);
+      res.status(500).json({
+        success: false,
+        error: 'Failed to start monitoring'
+      });
+    }
+  });
+
   // Get active workflows for Elena coordination panel
   app.get('/api/elena/active-workflows', async (req, res) => {
     try {
