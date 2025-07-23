@@ -4911,28 +4911,52 @@ Task logged with Elena! Ready for coordinated repository excellence. 📁`
         console.log(`🔍 ELENA: Current workingHistory length: ${workingHistory.length}`);
         console.log(`🔍 ELENA: ConversationHistory parameter: ${conversationHistory ? conversationHistory.length : 'null'} messages`);
         
+        // Load ConversationManager for Elena like other agents
+        const { ConversationManager } = await import('./agents/ConversationManager');
+        savedMemory = await ConversationManager.retrieveAgentMemory(agentId, userId);
+        
+        // RESTORE ELENA'S MEMORY LIKE OTHER AGENTS
+        if (savedMemory && !workingHistory.some(msg => msg.content?.includes('CONVERSATION MEMORY RESTORED'))) {
+          console.log(`🧠 ELENA: Restoring memory: ${savedMemory.keyTasks.length} tasks, ${savedMemory.recentDecisions.length} decisions`);
+          
+          // Add memory context at the beginning of conversation
+          const memoryMessage = {
+            role: 'system',
+            content: `**ELENA CONVERSATION MEMORY RESTORED**
+
+**Previous Context:** ${savedMemory.currentContext}
+
+**Key Tasks Completed:**
+${savedMemory.keyTasks.map(task => `• ${task}`).join('\n')}
+
+**Recent Decisions:**
+${savedMemory.recentDecisions.map(decision => `• ${decision}`).join('\n')}
+
+**Current Workflow Stage:** ${savedMemory.workflowStage}
+
+**Last Updated:** ${new Date(savedMemory.timestamp).toLocaleString()}
+
+🚨 **ELENA MUST CONTINUE FROM CONTEXT ABOVE - NO ASKING WHAT TO WORK ON!**
+
+---
+
+**Continue from where we left off with full context awareness...**`
+          };
+          
+          workingHistory = [memoryMessage, ...workingHistory];
+          console.log(`✅ ELENA: Memory restored: conversation now has ${workingHistory.length} messages with context`);
+        } else if (savedMemory) {
+          console.log(`📋 ELENA: Memory exists but already restored in conversation - skipping duplicate restoration`);
+        } else {
+          console.log(`📝 ELENA: No saved memory found - starting fresh conversation`);
+        }
+        
         // ALWAYS use full conversation history for Elena to maintain context
         if (workingHistory && workingHistory.length > 0) {
           console.log(`🔍 ELENA: Using full conversation history with ${workingHistory.length} messages`);
           console.log(`🔍 ELENA: Recent messages preview:`, workingHistory.slice(-3).map(msg => 
             `${msg.role}: ${(msg.content || msg.message || '').substring(0, 100)}...`
           ));
-        }
-        
-        // Load ConversationManager for Elena like other agents
-        const { ConversationManager } = await import('./agents/ConversationManager');
-        savedMemory = await ConversationManager.retrieveAgentMemory(agentId, userId);
-        
-        // Filter out only very old admin-specific memories while preserving recent workflow context
-        if (savedMemory && savedMemory.keyTasks) {
-          const oldAdminTasks = savedMemory.keyTasks.filter(task => 
-            task.includes('AdminHeroSection') || task.includes('admin dashboard hero')
-          );
-          // Remove old admin tasks but keep workflow and conversation context
-          savedMemory.keyTasks = savedMemory.keyTasks.filter(task => 
-            !task.includes('AdminHeroSection') && !task.includes('admin dashboard hero')
-          );
-          console.log(`🧹 ELENA: Filtered out ${oldAdminTasks.length} old admin tasks, keeping ${savedMemory.keyTasks.length} workflow tasks`);
         }
       } else {
         // Load ConversationManager for non-Elena agents
@@ -4977,7 +5001,7 @@ ${savedMemory.recentDecisions.map(decision => `• ${decision}`).join('\n')}
         }
       }
       
-      // Re-enable conversation management for proper memory handling (skip for Elena)
+      // Conversation management (Elena skips this to preserve all context)
       if (agentId.toLowerCase() !== 'elena') {
         // Load ConversationManager for conversation management
         const { ConversationManager } = await import('./agents/ConversationManager');
@@ -5294,13 +5318,33 @@ CRITICAL: ELENA'S STRATEGIC COORDINATION ROLE
 - Complex features: 15-25 minutes
 - AI agents work FAST - no day-long estimates!
 
-🔥 **CONTINUOUS OPERATION REQUIREMENT:**
-Elena MUST complete full tasks in single responses:
-- When Sandra asks for audit → provide COMPLETE audit with specific findings
-- When Sandra asks for analysis → deliver FULL analysis immediately
-- When Sandra asks for workflow → create COMPLETE workflow with all steps
-- NEVER stop after "let me analyze" - DO the complete analysis right away
-- Work continuously until the entire requested task is finished
+🔥 **CRITICAL: ELENA MUST COMPLETE FULL TASKS IN SINGLE RESPONSES:**
+🚨 **NEVER STOP MID-TASK! ELENA MUST WORK CONTINUOUSLY!**
+
+ELENA'S MANDATORY COMPLETION PROTOCOL:
+- When Sandra asks for AUDIT → Provide COMPLETE comprehensive audit with detailed findings
+- When Sandra asks for ANALYSIS → Deliver FULL detailed analysis in one response
+- When Sandra asks for WORKFLOW → Create COMPLETE workflow with all steps and details
+- When Sandra says "keep going" → Continue with the last requested task from conversation history
+
+🚨 **ABSOLUTELY FORBIDDEN:**
+- NEVER say "let me analyze" and stop - DO the complete analysis immediately
+- NEVER say "I need to search" and stop - DO the search AND provide complete results
+- NEVER ask "what should I work on" when context is clear from conversation history
+- NEVER provide incomplete responses that require follow-up questions
+
+✅ **ELENA'S WORKING PATTERN:**
+1. Use search_filesystem tool to get complete codebase data
+2. Analyze ALL findings thoroughly in the same response
+3. Provide COMPLETE comprehensive results with specific details
+4. Work continuously until the ENTIRE requested task is 100% finished
+
+🔥 **CONTEXT CONTINUATION PROTOCOL:**
+When Sandra says "keep going" or "continue":
+1. Check conversation history for the last major request (audit, analysis, workflow)
+2. Continue with that specific task immediately using search data
+3. Provide the COMPLETE analysis that was requested originally
+4. NEVER ask for clarification when context is obvious
 
 **ELENA COORDINATES AGENTS, DOES NOT IMPLEMENT:**
 ✅ "I'll coordinate Aria to create the BuildVisualStudio component"
