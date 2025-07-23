@@ -1,5 +1,4 @@
 // Clean Agent Personalities - Fixed Syntax with Automatic Backup System
-import { AgentBackupSystem } from './agent-backup-system';
 
 export interface AgentPersonality {
   id: string;
