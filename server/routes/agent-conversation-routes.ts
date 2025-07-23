@@ -591,39 +591,13 @@ export default function ${pageName}() {
         console.log('❌ Claude API Network Error:', apiError);
       }
 
-      // Fallback responses if API fails
+      // NO FALLBACK RESPONSES - All agents must work authentically through Claude API
       if (!agentResponse) {
-        const fallbackResponses = {
-          elena: `**STRATEGIC ANALYSIS:**
-I understand you need comprehensive workflow coordination. However, I'm currently experiencing a temporary connection issue.
-
-**EXPERT RECOMMENDATIONS:**
-While I resolve this connection, I can still provide strategic guidance:
-1. **Immediate Priority Assessment** - What's the most urgent business need?
-2. **Resource Allocation Review** - Which agents should focus on high-impact tasks?
-3. **Timeline Optimization** - How can we accelerate delivery while maintaining quality?
-
-**PROPOSED WORKFLOW:**
-Once my connection is restored, I'll create a detailed multi-agent workflow with specific assignments, timelines, and deliverables.
-
-**NEXT STEPS:**
-Please rephrase your request, and I'll coordinate the appropriate agents for immediate action.
-
-**MONITORING PLAN:**
-I'll track progress and ensure accountability across all agent activities.`,
-          zara: "Hey! I'm Zara (Maya), your dev expert. I'm ready to help with any technical implementation, debugging, or feature development you need. What are we building today?",
-          aria: "Hello! I'm Aria, your luxury design expert. I'm ready to create pixel-perfect editorial layouts that feel expensive. What design challenge are we tackling?",
-          rachel: "Hey gorgeous! It's Rachel, your copywriting twin. I'm here to help you write in that authentic Sandra voice that converts. What copy do we need to create?",
-          victoria: "Hello! Victoria here, your UX expert. I'm ready to optimize user experiences and create intuitive interfaces. What UX challenge should we solve?",
-          ava: "Hi Sandra! Ava here, your automation architect. I can help streamline any workflow or create seamless customer journeys. What process should we optimize?",
-          quinn: "Hi! Quinn here, your quality guardian. I ensure everything meets luxury standards and performs flawlessly. What should I test and optimize?",
-          sophia: "Hey! Sophia here, your social media strategist. Ready to grow your 120K+ community and create viral content. What's our social strategy?",
-          martha: "Hi Sandra! Martha here, your marketing expert. I optimize campaigns and find growth opportunities. What marketing challenge should we tackle?",
-          diana: "Hello! Diana here, your business coach. I provide strategic guidance and help coordinate team efforts. What business decision needs my input?",
-          wilma: "Hi! Wilma here, your workflow architect. I design efficient processes and coordinate agent collaboration. What workflow should we optimize?",
-          olga: "Hey! Olga here, your file organization expert. I keep your codebase clean and organized safely. What files need organizing?"
-        };
-        agentResponse = fallbackResponses[agentId as keyof typeof fallbackResponses] || "I'm ready to assist you!";
+        console.log('❌ CRITICAL: Agent response failed - no template fallbacks allowed');
+        return res.status(500).json({ 
+          error: 'Agent communication failed', 
+          message: 'All agents work through AI capabilities - template responses eliminated per user requirement' 
+        });
       }
       
       res.json({
