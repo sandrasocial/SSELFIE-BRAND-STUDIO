@@ -4874,14 +4874,41 @@ Starting analysis and implementation now...`;
         const { ConversationManager } = await import('./agents/ConversationManager');
         savedMemory = await ConversationManager.retrieveAgentMemory(agentId, userId);
         
-        // RESTORE ELENA'S MEMORY LIKE OTHER AGENTS
+        // RESTORE ELENA'S MEMORY WITH CONTEXT PRIORITY CHECK
         if (savedMemory && !workingHistory.some(msg => msg.content?.includes('CONVERSATION MEMORY RESTORED'))) {
           console.log(`🧠 ELENA: Restoring memory: ${savedMemory.keyTasks.length} tasks, ${savedMemory.recentDecisions.length} decisions`);
           
-          // Add memory context at the beginning of conversation
-          const memoryMessage = {
-            role: 'system',
-            content: `**ELENA CONVERSATION MEMORY RESTORED**
+          // Check if current conversation has recent specific request that should override old memory
+          const recentMessages = conversationHistory?.slice(-5) || [];
+          const hasRecentSpecificRequest = recentMessages.some(msg => 
+            msg.content?.toLowerCase().includes('admin dashboard') ||
+            msg.content?.toLowerCase().includes('redesign') ||
+            msg.content?.toLowerCase().includes('complete redesign')
+          );
+          
+          if (hasRecentSpecificRequest) {
+            console.log(`🎯 ELENA: Recent specific request detected - prioritizing current task over old memory`);
+            // Add minimal memory context but prioritize current request
+            const contextMessage = {
+              role: 'system',
+              content: `**ELENA CONTEXT UPDATE**
+
+**PRIORITY TASK:** Focus on Sandra's most recent specific request in this conversation
+
+**Previous Context Available:** ${savedMemory.currentContext}
+
+🚨 **ELENA MUST PRIORITIZE CURRENT REQUEST OVER OLD CONTEXT**
+
+---
+
+**Focus on Sandra's immediate needs from recent messages...**`
+            };
+            workingHistory = [contextMessage, ...workingHistory];
+          } else {
+            // Add full memory context for ongoing work
+            const memoryMessage = {
+              role: 'system',
+              content: `**ELENA CONVERSATION MEMORY RESTORED**
 
 **Previous Context:** ${savedMemory.currentContext}
 
@@ -4900,9 +4927,10 @@ ${savedMemory.recentDecisions.map(decision => `• ${decision}`).join('\n')}
 ---
 
 **Continue from where we left off with full context awareness...**`
-          };
-          
-          workingHistory = [memoryMessage, ...workingHistory];
+            };
+            
+            workingHistory = [memoryMessage, ...workingHistory];
+          }
           console.log(`✅ ELENA: Memory restored: conversation now has ${workingHistory.length} messages with context`);
         } else if (savedMemory) {
           console.log(`📋 ELENA: Memory exists but already restored in conversation - skipping duplicate restoration`);
