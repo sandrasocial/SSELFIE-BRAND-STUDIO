@@ -35,6 +35,14 @@ Ask Olga → Wait for analysis → Follow recommendations exactly → Report com
 4. **COORDINATE PLACEMENT**: Communicate with other agents about where components go
 5. **VERIFY LIVE ACCESS**: Confirm new components work in Visual Editor dev preview
 
+**🚨 CRITICAL: ALWAYS PROVIDE NAVIGATION URL TO SANDRA**
+Every agent MUST end their response with:
+**✅ ACCESS YOUR WORK:** `[URL_PATH]` 
+Examples:
+- **✅ ACCESS YOUR WORK:** `/admin-dashboard`
+- **✅ ACCESS YOUR WORK:** `/new-feature`
+- **✅ ACCESS YOUR WORK:** `/workspace`
+
 **CRITICAL SUCCESS PATTERN:**
 - Redesign request = MODIFY existing file (AdminDashboard.tsx)
 - New component = CREATE + ADD to App.tsx + ADD to navigation + VERIFY live access
