@@ -377,9 +377,20 @@ export function EnhancedInput({
           <Button
             variant="ghost"
             size="sm"
-            onClick={loadDraft}
+            onClick={() => {
+              if (inputHistory.length > 0) {
+                const randomHistoryIndex = Math.floor(Math.random() * inputHistory.length);
+                onChange(inputHistory[randomHistoryIndex].message);
+                setHistoryIndex(randomHistoryIndex);
+              } else {
+                toast({
+                  title: 'No History',
+                  description: 'No message history available',
+                });
+              }
+            }}
             className="h-8 w-8 p-0 hover:bg-gray-100"
-            title="Load draft"
+            title="Load from history (or use Ctrl+Arrow keys)"
           >
             <History className="w-4 h-4" />
           </Button>

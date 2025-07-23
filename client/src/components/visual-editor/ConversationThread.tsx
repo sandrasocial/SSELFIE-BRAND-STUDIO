@@ -200,7 +200,7 @@ export function ConversationThread({
     navigator.clipboard.writeText(shareUrl);
   };
 
-  const filteredThreads = threads.filter(thread =>
+  const filteredThreads = (threads || []).filter(thread =>
     thread.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
     thread.agentId.toLowerCase().includes(searchQuery.toLowerCase())
   );

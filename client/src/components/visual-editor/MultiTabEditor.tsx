@@ -155,13 +155,45 @@ export function MultiTabEditor({ selectedAgent, onFileChange }: MultiTabEditorPr
     return langMap[ext.toLowerCase()] || 'text';
   };
 
-  // Expose openFileInTab to parent
+  // Listen for file open events from file tree
   useEffect(() => {
+    const handleFileOpen = (event: any) => {
+      const { filePath, content } = event.detail;
+      
+      // Check if file is already open
+      const existingTab = openTabs.find(tab => tab.filePath === filePath);
+      if (existingTab) {
+        setActiveTabId(existingTab.id);
+        return;
+      }
+
+      // Create new tab with provided content
+      const fileName = filePath.split('/').pop() || filePath;
+      const extension = fileName.split('.').pop() || '';
+      
+      const newTab: OpenTab = {
+        id: `tab-${Date.now()}`,
+        filePath,
+        fileName,
+        content: content || '',
+        isDirty: false,
+        language: getLanguageFromExtension(extension)
+      };
+
+      setOpenTabs(prev => [...prev, newTab]);
+      setActiveTabId(newTab.id);
+    };
+
+    window.addEventListener('openFileInEditor', handleFileOpen);
+    
+    // Also expose direct function for backwards compatibility
     (window as any).openFileInMultiTabEditor = openFileInTab;
+    
     return () => {
+      window.removeEventListener('openFileInEditor', handleFileOpen);
       delete (window as any).openFileInMultiTabEditor;
     };
-  }, [selectedAgent]);
+  }, [selectedAgent, openTabs]);
 
   if (openTabs.length === 0) {
     return (
