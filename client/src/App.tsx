@@ -36,7 +36,7 @@ import AIGenerator from "@/pages/ai-generator";
 import AIPhotoshoot from "@/pages/ai-photoshoot";
 import SimpleTraining from "@/pages/simple-training";
 import TestLogin from "@/pages/test-login";
-// AdminDashboard archived - using AdminVisualEditor as only admin interface
+import AdminDashboard from "@/pages/admin-dashboard";
 import AdminVisualEditor from "@/pages/admin-visual-editor";
 import AgentApproval from "@/pages/agent-approval";
 import AgentCommandCenter from "@/pages/agent-command-center";
@@ -235,6 +235,7 @@ function Router() {
 
       
       {/* SANDRA'S ADMIN DASHBOARD - VISUAL EDITOR ONLY */}
+      <Route path="/admin-dashboard" component={(props) => <ProtectedRoute component={AdminDashboard} {...props} />} />
       <Route path="/admin" component={(props) => <ProtectedRoute component={AdminVisualEditor} {...props} />} />
 
       <Route path="/admin/visual-editor" component={(props) => <ProtectedRoute component={AdminVisualEditor} {...props} />} />
