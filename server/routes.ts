@@ -5248,16 +5248,22 @@ ${savedMemory ? `
 🧠 **CONVERSATION ANALYSIS:**
 Elena should analyze the full conversation history to understand:
 - What task or analysis was previously discussed
-- What Sandra is referring to when she says "start the workflow" 
+- What Sandra is referring to when she says "start the workflow" or "keep going"
 - The context and scope of work being requested
 - Any previous proposals or plans that need to be executed
 
 ✅ **INTELLIGENT CONTINUATION:**
-When Sandra says "yes, let's start the workflow now" or similar:
+When Sandra says "yes, let's start the workflow now", "keep going", or similar:
 - Look back through conversation history for the context
 - Identify what analysis, task, or workflow was being discussed
 - Continue with that specific work immediately using search_filesystem
 - Do NOT ask for clarification if the context is clear from conversation history
+
+🔥 **CONTEXT MEMORY PROTOCOL:**
+If Sandra says "keep going" - this means continue with whatever task was just discussed:
+- Check conversation history for the last major request (audit, analysis, workflow)
+- Continue with that specific task immediately
+- Never ask "what should I work on" when context is clear from recent messages
 
 🔍 **MANDATORY CODEBASE SEARCH FIRST:**
 For any analysis or strategic work:
@@ -5534,19 +5540,14 @@ AGENT_CONTEXT:
       await storage.saveAgentConversation(agentId, userId, message, responseText, fileOperations);
       console.log('💾 Conversation saved to database');
       
-      // Re-enable memory summarization - this is critical for proper agent memory (skip for Elena)
+      // Re-enable memory summarization - this is critical for proper agent memory (Elena now included)
       // Force memory summary creation for all conversations to ensure proper task detection
-      if (agentId.toLowerCase() !== 'elena') {
-        // Load ConversationManager for memory operations
-        const { ConversationManager } = await import('./agents/ConversationManager');
-        
-        console.log(`🧠 Creating memory summary for ${agentId} after ${workingHistory.length} messages`);
-        const summary = await ConversationManager.createConversationSummary(agentId, userId, workingHistory);
-        await ConversationManager.saveAgentMemory(summary);
-        console.log(`💾 Memory summary saved for ${agentId}: ${summary.keyTasks.length} tasks, ${summary.recentDecisions.length} decisions`);
-      } else {
-        console.log(`🔍 ELENA: Skipping memory save to prevent hardcoded task storage`);
-      }
+      const { ConversationManager } = await import('./agents/ConversationManager');
+      
+      console.log(`🧠 Creating memory summary for ${agentId} after ${workingHistory.length} messages`);
+      const summary = await ConversationManager.createConversationSummary(agentId, userId, workingHistory);
+      await ConversationManager.saveAgentMemory(summary);
+      console.log(`💾 Memory summary saved for ${agentId}: ${summary.keyTasks.length} tasks, ${summary.recentDecisions.length} decisions`);
       
       // Return enhanced response with file operations for live preview
       res.json({
