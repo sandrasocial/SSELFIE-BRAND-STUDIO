@@ -329,6 +329,8 @@ export function OptimizedVisualEditor({ className = '' }: OptimizedVisualEditorP
   const [workflowActive, setWorkflowActive] = useState(false);
   const [workflowStage, setWorkflowStage] = useState('Design');
   const [activeWorkingAgent, setActiveWorkingAgent] = useState<string | null>(null);
+  const [deviceMode, setDeviceMode] = useState<'desktop' | 'tablet' | 'mobile'>('desktop');
+  const [zoomLevel, setZoomLevel] = useState(100);
   const iframeRef = useRef<HTMLIFrameElement>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const chatPanelRef = useRef<HTMLDivElement>(null);
@@ -1421,7 +1423,7 @@ export function OptimizedVisualEditor({ className = '' }: OptimizedVisualEditorP
               {agents.map((agent, index) => (
                 <div
                   key={agent.id}
-                  className={`flex-1 h-1 ${
+                  className={`flex-1 h-1 cursor-pointer transition-all hover:h-2 ${
                     agent.id === activeWorkingAgent
                       ? 'bg-blue-500 animate-pulse' // Pulsating blue for working agent
                       : agent.id === currentAgent.id
@@ -1430,6 +1432,11 @@ export function OptimizedVisualEditor({ className = '' }: OptimizedVisualEditorP
                       ? 'bg-gray-400'
                       : 'bg-gray-200'
                   }`}
+                  onClick={() => {
+                    setCurrentAgent(agent);
+                    setActiveTab('chat');
+                  }}
+                  title={`Switch to ${agent.name} (${agent.role})`}
                 />
               ))}
             </div>
@@ -1973,20 +1980,18 @@ export function OptimizedVisualEditor({ className = '' }: OptimizedVisualEditorP
               <FileTreeExplorer 
                 selectedAgent={currentAgent.id}
                 onFileSelect={(filePath, content) => {
-                  // Add file content to chat context for agent
-                  const fileMessage: ChatMessage = {
-                    type: 'user',
-                    content: `I'm looking at file: ${filePath}\n\nFile content:\n\`\`\`\n${content.substring(0, 1000)}${content.length > 1000 ? '...\n[Content truncated - file is ' + content.length + ' characters]' : ''}\n\`\`\`\n\nPlease analyze this file and help me understand or improve it.`,
-                    timestamp: new Date()
-                  };
-                  setChatMessages(prev => [...prev, fileMessage]);
+                  // Open file in multi-tab editor instead of sending to chat
+                  setActiveTab('editor');
                   
-                  // Switch to chat tab to see the context
-                  setActiveTab('chat');
+                  // Add to multi-tab editor's file tabs
+                  const editorEvent = new CustomEvent('openFileInEditor', {
+                    detail: { filePath, content }
+                  });
+                  window.dispatchEvent(editorEvent);
                   
                   toast({
-                    title: 'File Loaded',
-                    description: `${filePath} content added to chat context`,
+                    title: 'File Opened',
+                    description: `${filePath} opened in editor`,
                   });
                 }}
               />
@@ -3057,7 +3062,17 @@ const styles = {
               
               {/* URL Address Bar */}
               <div className="flex-1 max-w-md mx-4">
-                <div className="bg-white border border-gray-200 rounded px-3 py-1 text-xs text-gray-600 flex items-center">
+                <div 
+                  className="bg-white border border-gray-200 rounded px-3 py-1 text-xs text-gray-600 flex items-center cursor-pointer hover:bg-gray-50"
+                  onClick={() => {
+                    navigator.clipboard.writeText(window.location.origin);
+                    toast({ 
+                      title: 'URL Copied', 
+                      description: 'Live preview URL copied to clipboard' 
+                    });
+                  }}
+                  title="Click to copy URL"
+                >
                   <div className="w-3 h-3 rounded-full bg-green-500 mr-2"></div>
                   {window.location.origin}
                 </div>
@@ -3104,15 +3119,30 @@ const styles = {
             <div className="flex items-center space-x-4">
               {/* Device Preview Toggles */}
               <div className="flex items-center space-x-1 bg-white border border-gray-200 rounded p-1">
-                <Button variant="ghost" size="sm" className="h-6 px-2 text-xs">
+                <Button 
+                  variant="ghost" 
+                  size="sm" 
+                  className={`h-6 px-2 text-xs ${deviceMode === 'desktop' ? 'bg-gray-200' : ''}`}
+                  onClick={() => setDeviceMode('desktop')}
+                >
                   <Monitor className="w-3 h-3 mr-1" />
                   Desktop
                 </Button>
-                <Button variant="ghost" size="sm" className="h-6 px-2 text-xs">
+                <Button 
+                  variant="ghost" 
+                  size="sm" 
+                  className={`h-6 px-2 text-xs ${deviceMode === 'tablet' ? 'bg-gray-200' : ''}`}
+                  onClick={() => setDeviceMode('tablet')}
+                >
                   <Tablet className="w-3 h-3 mr-1" />
                   Tablet
                 </Button>
-                <Button variant="ghost" size="sm" className="h-6 px-2 text-xs">
+                <Button 
+                  variant="ghost" 
+                  size="sm" 
+                  className={`h-6 px-2 text-xs ${deviceMode === 'mobile' ? 'bg-gray-200' : ''}`}
+                  onClick={() => setDeviceMode('mobile')}
+                >
                   <Smartphone className="w-3 h-3 mr-1" />
                   Mobile
                 </Button>
@@ -3120,11 +3150,23 @@ const styles = {
               
               {/* Zoom Controls */}
               <div className="flex items-center space-x-1 bg-white border border-gray-200 rounded p-1">
-                <Button variant="ghost" size="sm" className="h-6 px-2 text-xs">
+                <Button 
+                  variant="ghost" 
+                  size="sm" 
+                  className="h-6 px-2 text-xs"
+                  onClick={() => setZoomLevel(Math.max(25, zoomLevel - 25))}
+                  disabled={zoomLevel <= 25}
+                >
                   <ZoomOut className="w-3 h-3" />
                 </Button>
-                <span className="text-xs px-2">100%</span>
-                <Button variant="ghost" size="sm" className="h-6 px-2 text-xs">
+                <span className="text-xs px-2 min-w-[40px] text-center">{zoomLevel}%</span>
+                <Button 
+                  variant="ghost" 
+                  size="sm" 
+                  className="h-6 px-2 text-xs"
+                  onClick={() => setZoomLevel(Math.min(200, zoomLevel + 25))}
+                  disabled={zoomLevel >= 200}
+                >
                   <ZoomIn className="w-3 h-3" />
                 </Button>
               </div>
