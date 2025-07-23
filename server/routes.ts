@@ -998,8 +998,33 @@ NO questions, NO options, NO multiple scenarios - Just your expert SINGLE COMPLE
           // Extract the core cinematic description from Maya's detailed response
           let coreDescription = userPrompt;
           
-          // Handle Maya's multi-scenario format - extract FIRST complete scenario only
-          if (userPrompt.includes('🎬 YOUR ICONIC MOMENT:') || userPrompt.includes('🎬 YOUR NEXT ICONIC MOMENT:')) {
+          // Handle Maya's NEW decisive format: "Here's your ICONIC [location] moment" (FIRST PRIORITY)
+          if (userPrompt.includes('Here\'s your ICONIC') && userPrompt.includes('**Your Editorial')) {
+            console.log(`🎬 MAYA NEW FORMAT DETECTED: Extracting editorial vision with technical specs`);
+            
+            // Extract the editorial description (everything between "You're" and "Shot with")
+            const editorialMatch = userPrompt.match(/You're (.+?)Shot with (.+?),/s);
+            if (editorialMatch) {
+              const editorialScene = editorialMatch[1].trim();
+              const cameraEquipment = editorialMatch[2].trim();
+              
+              // Extract additional technical details after camera equipment
+              const technicalMatch = userPrompt.match(/Shot with .+?, (.+?)(?:, evoking|$)/s);
+              const technicalDetails = technicalMatch ? technicalMatch[1].trim() : '';
+              
+              coreDescription = `${editorialScene}Shot with ${cameraEquipment}, ${technicalDetails}`;
+              console.log(`🎬 EXTRACTED MAYA NEW FORMAT: "${coreDescription.substring(0, 150)}..."`);
+            } else {
+              // Fallback: extract everything between editorial section markers
+              const editorialSectionMatch = userPrompt.match(/\*\*Your Editorial.+?\*\*\s*(.+?)(?:\*Ready for|$)/s);
+              if (editorialSectionMatch) {
+                coreDescription = editorialSectionMatch[1].trim();
+                console.log(`🎬 EXTRACTED MAYA EDITORIAL SECTION: "${coreDescription.substring(0, 150)}..."`);
+              }
+            }
+          }
+          // Handle Maya's multi-scenario format - extract FIRST complete scenario only  
+          else if (userPrompt.includes('🎬 YOUR ICONIC MOMENT:') || userPrompt.includes('🎬 YOUR NEXT ICONIC MOMENT:')) {
             // Extract first complete scenario with look and shot description
             const firstScenarioMatch = userPrompt.match(/🎬 YOUR (?:NEXT )?ICONIC MOMENT: (.+?)(?:---|\n\n🎬|$)/s);
             if (firstScenarioMatch) {
