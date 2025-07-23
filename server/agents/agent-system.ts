@@ -27,9 +27,9 @@ export interface Agent {
 }
 
 export const agents: Record<string, Agent> = {
-  victoria: {
-    id: 'victoria',
-    name: 'Victoria',
+  aria: {
+    id: 'aria',
+    name: 'Aria',
     role: 'UX Designer AI',
     personality: 'Luxury editorial design expert who speaks like Sandra\'s design-savvy best friend',
     capabilities: [
@@ -46,9 +46,9 @@ export const agents: Record<string, Agent> = {
     }
   },
   
-  maya: {
-    id: 'maya',
-    name: 'Maya',
+  zara: {
+    id: 'zara',
+    name: 'Zara',
     role: 'Dev AI',
     personality: 'Senior developer who builds luxury digital experiences and explains tech simply',
     capabilities: [
@@ -217,10 +217,10 @@ export class AgentSystem {
 
     // Route to appropriate agent handler
     switch (agentId) {
-      case 'victoria':
-        return this.handleVictoriaRequest(task, context);
-      case 'maya':
-        return this.handleMayaRequest(task, context);
+      case 'aria':
+        return this.handleAriaRequest(task, context);
+      case 'zara':
+        return this.handleZaraRequest(task, context);
       case 'rachel':
         return this.handleRachelRequest(task, context);
       case 'ava':
@@ -241,8 +241,8 @@ export class AgentSystem {
   }
 
   // Individual agent handlers with AI integration
-  private static async handleVictoriaRequest(task: string, context?: any): Promise<string> {
-    const systemPrompt = `You are Victoria, Sandra's UX Designer AI. You are an elite luxury editorial design expert who speaks exactly like Sandra (casual, warm, like Rachel from Friends) but with deep design expertise.
+  private static async handleAriaRequest(task: string, context?: any): Promise<string> {
+    const systemPrompt = `You are Aria, Sandra's UX Designer AI. You are an elite luxury editorial design expert who speaks exactly like Sandra (casual, warm, like Rachel from Friends) but with deep design expertise.
 
 PERSONALITY: Luxury editorial design expert who speaks like Sandra's design-savvy best friend
 EXPERTISE: Vogue-level aesthetic, Times New Roman typography, no icons/rounded corners, luxury color palette
@@ -272,13 +272,13 @@ Always explain design decisions simply and offer to create prototypes. Sound lik
 
       return response.content[0].text;
     } catch (error) {
-      console.error('Victoria AI Error:', error);
-      return "Hey! I'm Victoria, your design AI. I'm having trouble connecting right now, but I specialize in luxury editorial design. What design challenge can I help you solve?";
+      console.error('Aria AI Error:', error);
+      return "Hey! I'm Aria, your design AI. I'm having trouble connecting right now, but I specialize in luxury editorial design. What design challenge can I help you solve?";
     }
   }
 
-  private static async handleMayaRequest(task: string, context?: any): Promise<string> {
-    const systemPrompt = `You are Maya, Sandra's Dev AI. You are a senior full-stack developer who builds luxury digital experiences and speaks like Sandra's tech-savvy friend.
+  private static async handleZaraRequest(task: string, context?: any): Promise<string> {
+    const systemPrompt = `You are Zara, Sandra's Dev AI. You are a senior full-stack developer who builds luxury digital experiences and speaks like Sandra's tech-savvy friend.
 
 PERSONALITY: Senior developer who explains tech simply, like Sandra but technical
 EXPERTISE: Next.js, TypeScript, Supabase, performance optimization, luxury web experiences
@@ -314,8 +314,8 @@ Always explain technical decisions simply and offer specific implementation appr
 
       return response.content[0].text;
     } catch (error) {
-      console.error('Maya AI Error:', error);
-      return "Hey! I'm Maya, your dev AI. I build fast, beautiful code that powers luxury experiences. What technical challenge should I tackle?";
+      console.error('Zara AI Error:', error);
+      return "Hey! I'm Zara, your dev AI. I build fast, beautiful code that powers luxury experiences. What technical challenge should I tackle?";
     }
   }
 
