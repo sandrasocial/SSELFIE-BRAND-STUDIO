@@ -36,7 +36,7 @@ import AIGenerator from "@/pages/ai-generator";
 import AIPhotoshoot from "@/pages/ai-photoshoot";
 import SimpleTraining from "@/pages/simple-training";
 import TestLogin from "@/pages/test-login";
-import AdminDashboard from "@/components/admin/AdminDashboard";
+import AdminDashboard from "@/pages/admin-dashboard";
 import AdminVisualEditor from "@/pages/admin-visual-editor";
 import AgentApproval from "@/pages/agent-approval";
 import AgentCommandCenter from "@/pages/agent-command-center";
