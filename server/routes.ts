@@ -12,7 +12,7 @@ import agentFileAccessRoutes from "./routes/agent-file-access";
 import agentLearningRoutes from "./routes/agent-learning";
 import elenaWorkflowRoutes from "./routes/elena-workflow-routes";
 // import { registerAgentRoutes } from "./routes/agent-conversation-routes"; // DISABLED - syntax error
-import { rachelAgent } from "./agents/rachel-agent";
+// import { rachelAgent } from "./agents/rachel-agent";
 import path from "path";
 import fs from "fs";
 // Removed photoshoot routes - using existing checkout system
@@ -5028,14 +5028,17 @@ ${savedMemory.recentDecisions.map(decision => `• ${decision}`).join('\n')}
         console.log(`🧹 ELENA: Clearing workflow confusion - user reported context loss`);
         // Clear Elena's problematic workflow state
         const { ElenaWorkflowSystem } = await import('./elena-workflow-system');
-        ElenaWorkflowSystem.clearAll();
+        if (ElenaWorkflowSystem.clearAll) {
+          ElenaWorkflowSystem.clearAll();
+        }
         console.log(`✅ ELENA: Workflow state cleared - will respond to current task only`);
       }
       
-      // ELENA EXECUTION DETECTION - Enhanced pattern matching with typo tolerance
+      // ELENA EXECUTION DETECTION - Enhanced for "start the workflow" scenario
       const isExecutionRequest = isElena && (
         messageText.includes('execute workflow') ||
         messageText.includes('start workflow') ||
+        messageText.includes('start the workflow') ||
         messageText.includes('execute the workflow') ||
         messageText.includes('proceed with workflow') ||
         messageText.includes('begin workflow') ||
@@ -5047,7 +5050,11 @@ ${savedMemory.recentDecisions.map(decision => `• ${decision}`).join('\n')}
         messageText.includes('do it') ||
         messageText.includes('yes please') ||
         messageText.includes('yes, please') ||
+        messageText.includes('start the worflow') || // Handle typo
+        (messageText.includes('want her to start') || messageText.includes('want elena to start')) ||
+        messageText.includes('now i want her to start') ||
         (messageText.includes('execute') || messageText.includes('exicute')) ||
+        (messageText.includes('start') && messageText.includes('workflow')) ||
         (messageText.includes('run') && messageText.includes('workflow')) ||
         (messageText.includes('yes') && (messageText.includes('execute') || messageText.includes('exicute')))
       );

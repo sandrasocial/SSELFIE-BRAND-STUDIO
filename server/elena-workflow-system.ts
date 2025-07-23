@@ -717,4 +717,15 @@ End response with: FILES MODIFIED: [exact paths]`,
       console.error('💾 ELENA: Failed to save workflows to disk:', error);
     }
   }
+
+  /**
+   * Clear all workflows and progress (for context confusion fix)
+   */
+  static clearAll(): void {
+    console.log(`🧹 ELENA: Clearing ${this.workflows.size} workflows and ${this.workflowProgress.size} progress entries`);
+    this.workflows.clear();
+    this.workflowProgress.clear();
+    this.saveWorkflowsToDisk();
+    console.log(`✅ ELENA: All workflow state cleared`);
+  }
 }
