@@ -373,6 +373,24 @@ export function OptimizedVisualEditor({ className = '' }: OptimizedVisualEditorP
             console.log(`✅ Formatted ${formattedMessages.length} messages for display`);
             setChatMessages(formattedMessages);
             
+            // ELENA CONTEXT RESET: Don't load old history for new tasks
+            // Only load history if continuing an existing workflow or explicitly requested
+            const lastMessage = formattedMessages[formattedMessages.length - 1];
+            const isOldAdminWork = lastMessage?.content?.includes('admin dashboard') || 
+                                 lastMessage?.content?.includes('admin hero') ||
+                                 lastMessage?.content?.includes('AdminHeroSection');
+            
+            // For Elena: Reset context when starting new tasks to prevent confusion
+            if (currentAgent.id === 'elena' && isOldAdminWork) {
+              console.log('🔄 ELENA CONTEXT RESET: Clearing old admin work context for new task');
+              setChatMessages([]);
+              toast({
+                title: 'Elena Ready',
+                description: 'Fresh context for new analysis task',
+              });
+              return; // Don't load old history
+            }
+            
             // Show success notification for loaded history
             if (formattedMessages.length > 0) {
               toast({
@@ -1055,29 +1073,20 @@ export function OptimizedVisualEditor({ className = '' }: OptimizedVisualEditorP
           }, 1000);
         }
 
-        // Check for continuous work patterns - if agent wants to continue working
-        const shouldContinueWorking = (
-          responseText.includes('CONTINUING WORK') ||
-          responseText.includes('NEXT STEP') ||
-          responseText.includes('Let me also') ||
-          responseText.includes('I\'ll continue') ||
-          responseText.includes('Now I need to') ||
-          responseText.includes('IMMEDIATE ACTION') ||
-          responseText.includes('PROGRESS UPDATE') ||
-          // Agent-specific continuous work patterns
-          (agentId === 'zara' && responseText.includes('```')) || // Zara continues after code changes
-          (agentId === 'aria' && responseText.includes('design')) || // Aria continues with design iterations
-          (agentId === 'rachel' && responseText.includes('copy')) || // Rachel continues with copywriting
-          (agentId === 'ava' && responseText.includes('workflow')) || // Ava continues with automation
-          (agentId === 'quinn' && responseText.includes('testing')) || // Quinn continues with QA
-          (agentId === 'sophia' && responseText.includes('social')) || // Sophia continues with social media
-          (agentId === 'martha' && responseText.includes('marketing')) || // Martha continues with marketing
-          (agentId === 'diana' && responseText.includes('strategy')) || // Diana continues with strategy
-          (agentId === 'wilma' && responseText.includes('optimization')) // Wilma continues with workflows
+        // DISABLED AUTO-CONTINUATION: Elena should only continue when explicitly requested
+        // Sandra reported Elena auto-continuing inappropriately on single questions
+        const shouldContinueWorking = false; // Disabled to prevent confusion
+        
+        // Only auto-continue if user explicitly asks for multi-step work
+        const userRequestedContinuation = chatMessages.some(msg => 
+          msg.type === 'user' && 
+          (msg.content.includes('continue until complete') || 
+           msg.content.includes('work continuously') ||
+           msg.content.includes('complete the entire task'))
         );
 
-        // Auto-continue working if agent indicates more work needed
-        if (shouldContinueWorking && !responseText.includes('COMPLETION REPORT')) {
+        // Auto-continue working ONLY if explicitly requested by user
+        if (shouldContinueWorking && userRequestedContinuation && !responseText.includes('COMPLETION REPORT')) {
           setTimeout(() => {
             sendMessageToAgent(agentId, `Continue with your next step. Work continuously like Replit agents until the task is complete.`);
           }, 2000); // Brief pause to let user see progress
@@ -1366,14 +1375,32 @@ export function OptimizedVisualEditor({ className = '' }: OptimizedVisualEditorP
                 <div className="text-xs text-gray-500">{currentAgent.role}</div>
               </div>
             </div>
-            <Button
-              variant={showPropertiesPanel ? "default" : "outline"}
-              size="sm"
-              className="border-black text-black hover:bg-black hover:text-white text-xs px-2 py-1"
-              onClick={() => setShowPropertiesPanel(!showPropertiesPanel)}
-            >
-              Settings
-            </Button>
+            <div className="flex space-x-1">
+              {/* Clear Conversation Button - Especially useful for Elena context reset */}
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => {
+                  setChatMessages([]);
+                  console.log(`🔄 MANUAL CONTEXT RESET: Cleared ${currentAgent.name} conversation context`);
+                  toast({
+                    title: 'Conversation Cleared',
+                    description: `Fresh context for ${currentAgent.name}`,
+                  });
+                }}
+                className="h-6 px-2 text-xs border-gray-300 hover:bg-gray-50"
+              >
+                Clear
+              </Button>
+              <Button
+                variant={showPropertiesPanel ? "default" : "outline"}
+                size="sm"
+                className="border-black text-black hover:bg-black hover:text-white text-xs px-2 py-1"
+                onClick={() => setShowPropertiesPanel(!showPropertiesPanel)}
+              >
+                Settings
+              </Button>
+            </div>
           </div>
 
           {/* Workflow Progress - Compact */}
