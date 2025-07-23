@@ -4874,38 +4874,36 @@ Starting analysis and implementation now...`;
         const { ConversationManager } = await import('./agents/ConversationManager');
         savedMemory = await ConversationManager.retrieveAgentMemory(agentId, userId);
         
-        // RESTORE ELENA'S MEMORY WITH CONTEXT PRIORITY CHECK
+        // RESTORE ELENA'S MEMORY FLEXIBLY
         if (savedMemory && !workingHistory.some(msg => msg.content?.includes('CONVERSATION MEMORY RESTORED'))) {
           console.log(`🧠 ELENA: Restoring memory: ${savedMemory.keyTasks.length} tasks, ${savedMemory.recentDecisions.length} decisions`);
           
-          // Check if current conversation has recent specific request that should override old memory
-          const recentMessages = conversationHistory?.slice(-5) || [];
-          const hasRecentSpecificRequest = recentMessages.some(msg => 
-            msg.content?.toLowerCase().includes('admin dashboard') ||
-            msg.content?.toLowerCase().includes('redesign') ||
-            msg.content?.toLowerCase().includes('complete redesign')
+          // Check if there are recent messages that might indicate a new task direction
+          const recentMessages = conversationHistory?.slice(-3) || [];
+          const hasRecentDirections = recentMessages.some(msg => 
+            msg.role === 'user' && msg.content && msg.content.length > 20
           );
           
-          if (hasRecentSpecificRequest) {
-            console.log(`🎯 ELENA: Recent specific request detected - prioritizing current task over old memory`);
-            // Add minimal memory context but prioritize current request
+          if (hasRecentDirections) {
+            console.log(`🎯 ELENA: Recent user directions detected - providing balanced context`);
+            // Provide memory but emphasize current conversation priority
             const contextMessage = {
               role: 'system',
-              content: `**ELENA CONTEXT UPDATE**
+              content: `**ELENA CONTEXT AWARENESS**
 
-**PRIORITY TASK:** Focus on Sandra's most recent specific request in this conversation
+**Previous Context:** ${savedMemory.currentContext}
 
-**Previous Context Available:** ${savedMemory.currentContext}
+**Memory Available:** ${savedMemory.keyTasks.length} completed tasks, ${savedMemory.recentDecisions.length} decisions
 
-🚨 **ELENA MUST PRIORITIZE CURRENT REQUEST OVER OLD CONTEXT**
+🎯 **ELENA PRIORITY:** Always focus on Sandra's most recent instructions in this conversation first, then reference memory as needed
 
 ---
 
-**Focus on Sandra's immediate needs from recent messages...**`
+**Listen to Sandra's current direction and respond accordingly...**`
             };
             workingHistory = [contextMessage, ...workingHistory];
           } else {
-            // Add full memory context for ongoing work
+            // Standard memory restoration for ongoing work
             const memoryMessage = {
               role: 'system',
               content: `**ELENA CONVERSATION MEMORY RESTORED**
@@ -4922,11 +4920,9 @@ ${savedMemory.recentDecisions.map(decision => `• ${decision}`).join('\n')}
 
 **Last Updated:** ${new Date(savedMemory.timestamp).toLocaleString()}
 
-🚨 **ELENA MUST CONTINUE FROM CONTEXT ABOVE - NO ASKING WHAT TO WORK ON!**
-
 ---
 
-**Continue from where we left off with full context awareness...**`
+**Continue working with Sandra based on conversation flow...**`
             };
             
             workingHistory = [memoryMessage, ...workingHistory];
