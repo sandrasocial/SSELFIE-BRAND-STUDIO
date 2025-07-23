@@ -314,6 +314,7 @@ export function OptimizedVisualEditor({ className = '' }: OptimizedVisualEditorP
   const [agentController, setAgentController] = useState<AbortController | null>(null);
   const [isPaused, setIsPaused] = useState(false);
   const [workflowPollingInterval, setWorkflowPollingInterval] = useState<NodeJS.Timeout | null>(null);
+  const [lastCompletedTasksCount, setLastCompletedTasksCount] = useState<number>(0);
   const [uploadedFiles, setUploadedFiles] = useState<File[]>([]);
   // Removed iframeLoading state - no longer using iframes
   const [currentAgent, setCurrentAgent] = useState<Agent>(() => {
@@ -717,6 +718,7 @@ export function OptimizedVisualEditor({ className = '' }: OptimizedVisualEditorP
         const response = await fetch(`/api/elena/workflow-status/${workflowId}`);
         if (response.ok) {
           const data = await response.json();
+          console.log(`🔍 WORKFLOW POLL: ${workflowId} - Step ${data.progress?.currentStep}/${data.progress?.totalSteps}, ${data.progress?.completedTasks?.length} tasks completed, lastCount: ${lastCompletedTasksCount}`);
           if (data.progress) {
             // Update the last workflow message with progress
             setChatMessages(prev => {
@@ -732,15 +734,17 @@ export function OptimizedVisualEditor({ className = '' }: OptimizedVisualEditorP
               return updated;
             });
 
-            // 🔄 CRITICAL: Auto-refresh file tree and live preview when workflow steps complete
-            if (data.progress.completedTasks.length > 0) {
-              console.log(`🔄 WORKFLOW AUTO-REFRESH: Step ${data.progress.currentStep} completed, refreshing...`);
+            // 🔄 CRITICAL: Auto-refresh ONLY when NEW tasks complete (not every poll)
+            const currentCompletedCount = data.progress.completedTasks.length;
+            if (currentCompletedCount > lastCompletedTasksCount) {
+              console.log(`🔄 NEW WORKFLOW COMPLETION: ${currentCompletedCount} vs ${lastCompletedTasksCount} tasks, triggering refresh...`);
+              setLastCompletedTasksCount(currentCompletedCount);
               
               // Refresh file tree to show new/modified files
               setTimeout(() => {
                 if ((window as any).refreshFileTree) {
                   (window as any).refreshFileTree();
-                  console.log('🗂️ File tree refreshed');
+                  console.log('🗂️ File tree refreshed for new completion');
                 }
               }, 1000);
               
@@ -748,7 +752,7 @@ export function OptimizedVisualEditor({ className = '' }: OptimizedVisualEditorP
               setTimeout(() => {
                 if ((window as any).refreshLivePreview) {
                   (window as any).refreshLivePreview();
-                  console.log('👀 Live preview refreshed');
+                  console.log('👀 Live preview refreshed for new completion');
                 }
                 
                 // Force iframe reload for immediate visual updates
@@ -763,11 +767,13 @@ export function OptimizedVisualEditor({ className = '' }: OptimizedVisualEditorP
                 }
               }, 2000);
               
-              // Show toast notification for workflow progress
+              // Show toast notification for NEW workflow progress
               toast({
-                title: `Step ${data.progress.currentStep} Complete`,
+                title: `New Step Complete!`,
                 description: `${data.progress.currentAgent} finished work. Auto-refreshing preview...`,
               });
+            } else {
+              console.log(`🔄 NO NEW COMPLETIONS: ${currentCompletedCount} tasks (same as last check)`);
             }
             
             // Stop polling if workflow is completed or failed
@@ -830,8 +836,27 @@ export function OptimizedVisualEditor({ className = '' }: OptimizedVisualEditorP
     const interval = setInterval(pollProgress, 3000);
     setWorkflowPollingInterval(interval);
     
-    // Initial poll
-    pollProgress();
+    // Initial poll with state initialization
+    const initializePoll = async () => {
+      try {
+        const response = await fetch(`/api/elena/workflow-status/${workflowId}`);
+        if (response.ok) {
+          const data = await response.json();
+          if (data.progress) {
+            // Initialize the completed tasks count to current state to avoid false refreshes
+            const currentCount = data.progress.completedTasks.length;
+            console.log(`🔧 WORKFLOW INIT: Setting initial completed tasks count to ${currentCount}`);
+            setLastCompletedTasksCount(currentCount);
+          }
+        }
+      } catch (error) {
+        console.error('Initial workflow poll failed:', error);
+      }
+      // Now start normal polling
+      pollProgress();
+    };
+    
+    initializePoll();
   };
 
   // Clean up polling on unmount
@@ -1138,6 +1163,8 @@ export function OptimizedVisualEditor({ className = '' }: OptimizedVisualEditorP
         // 🚀 CRITICAL: Auto-start workflow monitoring for Elena executions
         if (agentId === 'elena' && data.workflowId) {
           console.log(`🚀 AUTO-POLLING: Elena executed workflow ${data.workflowId}, starting live monitoring...`);
+          // Reset the completed tasks counter for new workflow
+          setLastCompletedTasksCount(0);
           startWorkflowProgressPolling(data.workflowId);
           toast({
             title: 'Elena Workflow Active',
