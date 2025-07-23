@@ -44,6 +44,9 @@ export class AutoFileWriter {
     console.log(`🔍 AUTO-FILE-WRITER DEBUG: Response contains <write_to_file>: ${aiResponse.includes('<write_to_file>')}`);
     console.log(`🔍 AUTO-FILE-WRITER DEBUG: Response contains triple backticks: ${aiResponse.includes('```')}`);
     
+    // Import Replit-style validator
+    const { ReplitStyleAgentValidator } = await import('./replit-style-agent-validator.js');
+    
     const filesWritten = [];
     let modifiedResponse = aiResponse;
     
@@ -211,14 +214,16 @@ export class AutoFileWriter {
     let fixed = content;
     let issues = [];
 
-    // Apply all import fixes
-    VALID_IMPORT_FIXES.forEach(fix => {
-      if (fix.pattern.test && fix.pattern.test(fixed)) {
-        fixed = fixed.replace(fix.pattern, fix.replacement);
-        issues.push('Fixed import pattern');
+    // Apply all import fixes using CRITICAL_VALIDATION_PATTERNS
+    CRITICAL_VALIDATION_PATTERNS.forEach(fix => {
+      if (fix.pattern instanceof RegExp) {
+        if (fix.pattern.test(fixed)) {
+          fixed = fixed.replace(fix.pattern, fix.replacement);
+          issues.push(`Fixed ${fix.type}: ${fix.pattern}`);
+        }
       } else if (typeof fix.pattern === 'string' && fixed.includes(fix.pattern)) {
         fixed = fixed.replace(new RegExp(fix.pattern, 'g'), fix.replacement);
-        issues.push('Fixed import pattern');
+        issues.push(`Fixed ${fix.type}: ${fix.pattern}`);
       }
     });
 
