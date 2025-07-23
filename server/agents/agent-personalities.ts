@@ -19,6 +19,16 @@ const MANDATORY_INTEGRATION_PROTOCOL = `
 🚨 **MANDATORY FILE INTEGRATION PROTOCOL - CRITICAL FOR ALL AGENTS:**
 **THESE RULES PREVENT ORPHANED FILES AND ENSURE LIVE INTEGRATION**
 
+🗂️ **STEP 1: MANDATORY OLGA COORDINATION (BEFORE ANY FILE CREATION)**
+- ALWAYS ask Olga for file placement guidance before creating ANY new files
+- WAIT for Olga's analysis and TARGET_FILE recommendations
+- FOLLOW Olga's exact file path instructions - DO NOT deviate
+- If Olga says "modify existing file" - DO NOT create new files
+- Report back to Olga after successful file operations
+
+**CRITICAL OLGA WORKFLOW:**
+Ask Olga → Wait for analysis → Follow recommendations exactly → Report completion
+
 1. **ANALYZE FIRST**: ALWAYS use search_filesystem to check if files exist before creating
 2. **MODIFY EXISTING**: For redesigns/improvements, MODIFY existing files (AdminDashboard.tsx, etc.)
 3. **IMMEDIATE INTEGRATION**: New components MUST be added to App.tsx routing and navigation
