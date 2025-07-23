@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { useAuth } from "@/hooks/use-auth";
+import { useAuth } from "../hooks/useAuth";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 
 interface DashboardStats {
@@ -170,85 +170,55 @@ export default function AdminDashboard() {
                 )}
               </div>
             </section>
-
-            {/* Editorial Page Break - Full Bleed Image */}
-            <div className="mx-auto -mx-8 lg:-mx-0 lg:mx-auto">
-              <div 
-                className="h-96 bg-cover bg-center relative"
-                style={{
-                  backgroundImage: `url('/flatlay-luxury-planning.jpg')`,
-                }}
-              >
-                <div className="absolute inset-0 bg-black/40 flex items-center justify-center">
-                  <div className="text-center text-white">
-                    <blockquote className="text-2xl lg:text-3xl font-serif italic max-w-2xl">
-                      "Your mess becomes your message when you own your transformation story."
-                    </blockquote>
-                    <cite className="block text-gray-300 text-sm uppercase tracking-widest mt-4">
-                      — Sandra Sigurjonsdottir
-                    </cite>
-                  </div>
-                </div>
-              </div>
-            </div>
-
-            {/* Action Items Section */}
-            <section>
-              <h2 className="text-3xl font-serif text-white mb-8">Command Center</h2>
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-                {[
-                  {
-                    title: 'User Management',
-                    description: 'Manage empire members and access levels',
-                    action: 'View Users',
-                    bgClass: 'bg-gradient-to-br from-blue-500/20 to-blue-700/20'
-                  },
-                  {
-                    title: 'Content Moderation',
-                    description: 'Review and curate community content',
-                    action: 'Review Content',
-                    bgClass: 'bg-gradient-to-br from-purple-500/20 to-purple-700/20'
-                  },
-                  {
-                    title: 'Analytics Dashboard',
-                    description: 'Deep dive into empire performance metrics',
-                    action: 'View Analytics',
-                    bgClass: 'bg-gradient-to-br from-green-500/20 to-green-700/20'
-                  }
-                ].map((item, index) => (
-                  <div key={index} className={`${item.bgClass} border border-white/10 rounded-lg p-8 hover:scale-105 transition-all duration-300 cursor-pointer`}>
-                    <h3 className="text-xl font-serif text-white mb-4">{item.title}</h3>
-                    <p className="text-gray-300 mb-6">{item.description}</p>
-                    <button className="bg-white/10 hover:bg-white/20 text-white px-6 py-2 rounded-lg transition-all duration-300 text-sm uppercase tracking-wide">
-                      {item.action}
-                    </button>
-                  </div>
-                ))}
-              </div>
-            </section>
           </div>
         )}
 
         {activeSection === 'users' && (
-          <div className="text-center py-20">
-            <h2 className="text-3xl font-serif text-white mb-4">Community Management</h2>
-            <p className="text-gray-400">Empire member management tools coming soon...</p>
+          <div>
+            <h2 className="text-3xl font-serif text-white mb-8">Community Management</h2>
+            <div className="bg-white/5 backdrop-blur-sm border border-white/10 rounded-lg p-8">
+              <p className="text-gray-400 text-center py-12">
+                User management interface coming soon...
+              </p>
+            </div>
           </div>
         )}
 
         {activeSection === 'content' && (
-          <div className="text-center py-20">
-            <h2 className="text-3xl font-serif text-white mb-4">Content Studio</h2>
-            <p className="text-gray-400">Content creation and curation tools in development...</p>
+          <div>
+            <h2 className="text-3xl font-serif text-white mb-8">Content Studio</h2>
+            <div className="bg-white/5 backdrop-blur-sm border border-white/10 rounded-lg p-8">
+              <p className="text-gray-400 text-center py-12">
+                Content management tools coming soon...
+              </p>
+            </div>
           </div>
         )}
 
         {activeSection === 'analytics' && (
-          <div className="text-center py-20">
-            <h2 className="text-3xl font-serif text-white mb-4">Empire Intelligence</h2>
-            <p className="text-gray-400">Advanced analytics and insights coming soon...</p>
+          <div>
+            <h2 className="text-3xl font-serif text-white mb-8">Empire Intelligence</h2>
+            <div className="bg-white/5 backdrop-blur-sm border border-white/10 rounded-lg p-8">
+              <p className="text-gray-400 text-center py-12">
+                Advanced analytics dashboard coming soon...
+              </p>
+            </div>
           </div>
         )}
+      </div>
+
+      {/* Full-Bleed Page Break Image */}
+      <div 
+        className="h-64 bg-cover bg-center bg-no-repeat relative"
+        style={{
+          backgroundImage: `url('/flatlay-luxury-planning.jpg')`,
+        }}
+      >
+        <div className="absolute inset-0 bg-black/50 flex items-center justify-center">
+          <p className="text-white text-xl font-serif text-center px-8">
+            "Every empire starts with a single decision to rise."
+          </p>
+        </div>
       </div>
     </div>
   );
