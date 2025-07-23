@@ -5184,8 +5184,20 @@ ${savedMemory.recentDecisions.map(decision => `• ${decision}`).join('\n')}
           const { ElenaWorkflowSystem } = await import('./elena-workflow-system');
           const workflow = await ElenaWorkflowSystem.createWorkflowFromRequest(userId, message);
           
-          // Elena responds naturally about workflow creation instead of template
-          const responseText = `Perfect! I've got this organized for you. I've created a workflow to coordinate the team - they know exactly what to do. Just say "execute workflow" when you're ready and I'll get everyone working on it together!`;
+          // Elena responds naturally about the SPECIFIC workflow she created
+          console.log(`🔍 ELENA WORKFLOW OBJECT:`, JSON.stringify(workflow, null, 2));
+          
+          const workflowName = workflow.name || workflow.workflowName || "Custom Workflow";
+          const totalTime = workflow.estimatedDuration || workflow.estimatedTotalTime || "15-20 minutes";
+          
+          const responseText = `Perfect! I've analyzed your request and created a custom ${workflow.steps.length}-step workflow: "${workflowName}"
+
+Here's what I've set up:
+${workflow.steps.map((step, index) => `${index + 1}. ${step.agentName}: ${step.taskDescription} (${step.estimatedTime})`).join('\n')}
+
+Total estimated time: ${totalTime}
+
+Just say "execute workflow" when you're ready and I'll coordinate the entire team to get this done for you!`;
 
           // Save conversation
           await storage.saveAgentConversation(agentId, userId, message, responseText, []);

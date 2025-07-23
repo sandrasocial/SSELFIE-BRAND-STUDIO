@@ -43,18 +43,22 @@ export class ElenaWorkflowSystem {
     const requiredAgents = this.identifyRequiredAgents(workflowAnalysis);
     const workflowSteps = this.designWorkflowSteps(workflowAnalysis, requiredAgents);
     
+    const estimatedDuration = this.calculateEstimatedDuration(workflowSteps);
+    
     const workflow: CustomWorkflow = {
       id: `workflow_${Date.now()}`,
       name: workflowAnalysis.workflowName,
       description: workflowAnalysis.description,
       requestedBy: userId,
       createdAt: new Date(),
-      estimatedDuration: this.calculateEstimatedDuration(workflowSteps),
+      estimatedDuration: estimatedDuration,
       steps: workflowSteps,
       status: 'ready',
       businessImpact: workflowAnalysis.businessImpact,
       riskLevel: workflowAnalysis.riskLevel
     };
+    
+    console.log(`🔍 ELENA DEBUG: Workflow name="${workflowAnalysis.workflowName}", duration="${estimatedDuration}"`);
     
     // Store workflow for execution with persistence
     this.workflows.set(workflow.id, workflow);
@@ -289,7 +293,19 @@ export class ElenaWorkflowSystem {
    * Helper methods
    */
   private static generateWorkflowName(request: string): string {
-    const words = request.split(' ').slice(0, 4);
+    // Extract meaningful parts from the request, skip "Elena" and filler words
+    const words = request.toLowerCase()
+      .replace(/elena[,\s]*/i, '') // Remove "Elena" at start
+      .replace(/create\s+a?\s+workflow\s+(for\s+)?/i, '') // Remove "create workflow for"
+      .replace(/can\s+you\s+please\s+/i, '') // Remove politeness
+      .split(/\s+/)
+      .filter(word => word.length > 2 && !['the', 'and', 'with', 'for'].includes(word))
+      .slice(0, 4);
+      
+    if (words.length === 0) {
+      return 'Custom Workflow';
+    }
+    
     return words.map(w => w.charAt(0).toUpperCase() + w.slice(1)).join(' ') + ' Workflow';
   }
   
