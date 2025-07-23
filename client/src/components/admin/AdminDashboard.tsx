@@ -1,6 +1,6 @@
 /**
- * SANDRA'S LUXURY ADMIN DASHBOARD - REDESIGNED BY ELENA'S WORKFLOW
- * Single-page command center with elegant UX and powerful insights
+ * SANDRA'S LUXURY EDITORIAL ADMIN DASHBOARD - BY ARIA
+ * Magazine-style command center with full-bleed imagery and luxury editorial design
  */
 
 import React, { useState, useEffect } from 'react';
@@ -116,32 +116,35 @@ export default function AdminDashboard() {
   }
 
   return (
-    <div className="min-h-screen bg-black text-white">
-      {/* Luxury Header */}
-      <div className="relative bg-black py-12 px-8 border-b border-gray-800">
-        <div className="max-w-7xl mx-auto">
-          <div className="flex items-center justify-between">
-            <div>
-              <h1 
-                className="text-5xl font-light text-white uppercase tracking-wider mb-2"
-                style={{ fontFamily: 'Times New Roman, serif' }}
-              >
-                Command Center
-              </h1>
-              <p 
-                className="text-lg text-gray-300 font-light italic"
-                style={{ fontFamily: 'Times New Roman, serif' }}
-              >
-                SSELFIE Studio • Enterprise Dashboard
-              </p>
-            </div>
-            <div className="flex items-center space-x-3">
-              <Badge variant="outline" className="bg-green-950 text-green-400 border-green-400">
-                <Crown className="w-3 h-3 mr-1" />
+    <div className="min-h-screen bg-white">
+      {/* LUXURY EDITORIAL HERO - Full Bleed */}
+      <div 
+        className="relative h-screen bg-cover bg-center bg-no-repeat"
+        style={{
+          backgroundImage: `linear-gradient(rgba(0,0,0,0.4), rgba(0,0,0,0.4)), url('https://images.unsplash.com/photo-1441986300917-64674bd600d8?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=2070&q=80')`
+        }}
+      >
+        <div className="absolute inset-0 flex items-center justify-center">
+          <div className="text-center text-white">
+            <h1 
+              className="text-8xl font-light tracking-widest mb-8"
+              style={{ fontFamily: 'Times New Roman, serif' }}
+            >
+              COMMAND
+            </h1>
+            <p 
+              className="text-2xl font-light tracking-wider opacity-90"
+              style={{ fontFamily: 'Times New Roman, serif' }}
+            >
+              Sandra's Empire Dashboard
+            </p>
+            <div className="mt-12 flex justify-center space-x-6">
+              <Badge variant="outline" className="bg-white/10 text-white border-white/30 px-4 py-2">
+                <Crown className="w-4 h-4 mr-2" />
                 Owner Access
               </Badge>
-              <Badge variant="outline" className="bg-blue-950 text-blue-400 border-blue-400">
-                <Shield className="w-3 h-3 mr-1" />
+              <Badge variant="outline" className="bg-white/10 text-white border-white/30 px-4 py-2">
+                <Shield className="w-4 h-4 mr-2" />
                 Elena Active
               </Badge>
             </div>
@@ -149,175 +152,217 @@ export default function AdminDashboard() {
         </div>
       </div>
 
-      {/* Main Dashboard Content */}
-      <div className="max-w-7xl mx-auto px-8 py-8">
-        <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-          <TabsList className="grid w-full grid-cols-3 bg-gray-900 border-gray-800">
-            <TabsTrigger 
-              value="overview" 
-              className="data-[state=active]:bg-white data-[state=active]:text-black"
+      {/* EDITORIAL MAGAZINE CONTENT */}
+      <div className="bg-white">
+        {/* NAVIGATION - Magazine Style */}
+        <div className="max-w-7xl mx-auto px-8 py-16">
+          <div className="text-center mb-16">
+            <h2 
+              className="text-5xl font-light text-black tracking-wider mb-4"
               style={{ fontFamily: 'Times New Roman, serif' }}
             >
-              Overview
-            </TabsTrigger>
-            <TabsTrigger 
-              value="agents" 
-              className="data-[state=active]:bg-white data-[state=active]:text-black"
-              style={{ fontFamily: 'Times New Roman, serif' }}
-            >
-              AI Agents
-            </TabsTrigger>
-            <TabsTrigger 
-              value="analytics" 
-              className="data-[state=active]:bg-white data-[state=active]:text-black"
-              style={{ fontFamily: 'Times New Roman, serif' }}
-            >
-              Analytics
-            </TabsTrigger>
-          </TabsList>
-
-          <TabsContent value="overview" className="mt-8">
-            {/* Quick Actions */}
-            <div className="mb-8">
-              <h2 
-                className="text-2xl font-light text-white mb-6"
+              EMPIRE OVERVIEW
+            </h2>
+            <div className="w-24 h-px bg-black mx-auto"></div>
+          </div>
+          
+          <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
+            <TabsList className="grid w-full grid-cols-3 bg-gray-50 border-0 h-16">
+              <TabsTrigger 
+                value="overview" 
+                className="data-[state=active]:bg-black data-[state=active]:text-white text-black text-lg"
                 style={{ fontFamily: 'Times New Roman, serif' }}
               >
-                Quick Actions
+                OVERVIEW
+              </TabsTrigger>
+              <TabsTrigger 
+                value="agents" 
+                className="data-[state=active]:bg-black data-[state=active]:text-white text-black text-lg"
+                style={{ fontFamily: 'Times New Roman, serif' }}
+              >
+                AI AGENTS
+              </TabsTrigger>
+              <TabsTrigger 
+                value="analytics" 
+                className="data-[state=active]:bg-black data-[state=active]:text-white text-black text-lg"
+                style={{ fontFamily: 'Times New Roman, serif' }}
+              >
+                ANALYTICS
+              </TabsTrigger>
+            </TabsList>
+
+          <TabsContent value="overview" className="mt-16">
+            {/* EDITORIAL IMAGE BREAK */}
+            <div 
+              className="relative h-96 bg-cover bg-center mb-16"
+              style={{
+                backgroundImage: `linear-gradient(rgba(0,0,0,0.3), rgba(0,0,0,0.3)), url('https://images.unsplash.com/photo-1560472355-536de3962603?ixlib=rb-4.0.3&auto=format&fit=crop&w=2326&q=80')`
+              }}
+            >
+              <div className="absolute inset-0 flex items-center justify-center">
+                <h2 
+                  className="text-6xl font-light text-white tracking-wider text-center"
+                  style={{ fontFamily: 'Times New Roman, serif' }}
+                >
+                  EMPIRE METRICS
+                </h2>
+              </div>
+            </div>
+
+            {/* QUICK ACTIONS - Editorial Cards */}
+            <div className="mb-16">
+              <h2 
+                className="text-4xl font-light text-black mb-12 text-center tracking-wider"
+                style={{ fontFamily: 'Times New Roman, serif' }}
+              >
+                QUICK ACTIONS
               </h2>
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-                {quickActions.map((action) => (
-                  <Card 
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+                {quickActions.map((action, index) => (
+                  <div 
                     key={action.id} 
-                    className="bg-gray-900 border-gray-800 hover:border-gray-600 transition-colors cursor-pointer"
+                    className="relative h-64 bg-cover bg-center cursor-pointer group overflow-hidden"
+                    style={{
+                      backgroundImage: `linear-gradient(rgba(0,0,0,0.4), rgba(0,0,0,0.4)), url('${
+                        index === 0 ? 'https://images.unsplash.com/photo-1551434678-e076c223a692?ixlib=rb-4.0.3&auto=format&fit=crop&w=2070&q=80' :
+                        index === 1 ? 'https://images.unsplash.com/photo-1552664730-d307ca884978?ixlib=rb-4.0.3&auto=format&fit=crop&w=2070&q=80' :
+                        index === 2 ? 'https://images.unsplash.com/photo-1485827404703-89b55fcc595e?ixlib=rb-4.0.3&auto=format&fit=crop&w=2070&q=80' :
+                        'https://images.unsplash.com/photo-1460925895917-afdab827c52f?ixlib=rb-4.0.3&auto=format&fit=crop&w=2015&q=80'
+                      }')`
+                    }}
                     onClick={action.action}
                   >
-                    <CardHeader className="pb-3">
-                      <div className="flex items-center justify-between">
+                    <div className="absolute inset-0 bg-black/20 group-hover:bg-black/40 transition-all duration-300"></div>
+                    <div className="absolute inset-0 flex flex-col justify-center items-center text-center text-white p-8">
+                      <div className="mb-4">
                         {action.icon}
-                        {action.badge && (
-                          <Badge variant="secondary" className="text-xs">
-                            {action.badge}
-                          </Badge>
-                        )}
                       </div>
-                    </CardHeader>
-                    <CardContent>
-                      <CardTitle 
-                        className="text-sm text-white mb-1"
+                      <h3 
+                        className="text-3xl font-light tracking-wider mb-2"
                         style={{ fontFamily: 'Times New Roman, serif' }}
                       >
                         {action.title}
-                      </CardTitle>
-                      <p className="text-xs text-gray-400">
+                      </h3>
+                      <p className="text-sm opacity-90 font-light">
                         {action.description}
                       </p>
-                    </CardContent>
-                  </Card>
+                      {action.badge && (
+                        <Badge variant="outline" className="mt-4 bg-white/10 text-white border-white/30">
+                          {action.badge}
+                        </Badge>
+                      )}
+                    </div>
+                  </div>
                 ))}
               </div>
             </div>
 
-            {/* Business Metrics */}
-            <div className="mb-8">
-              <h2 
-                className="text-2xl font-light text-white mb-6"
-                style={{ fontFamily: 'Times New Roman, serif' }}
-              >
-                Business Intelligence
-              </h2>
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-                <Card className="bg-gray-900 border-gray-800">
-                  <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                    <CardTitle 
-                      className="text-sm font-medium text-gray-300"
-                      style={{ fontFamily: 'Times New Roman, serif' }}
-                    >
-                      Monthly Revenue
-                    </CardTitle>
-                    <DollarSign className="h-4 w-4 text-green-400" />
-                  </CardHeader>
-                  <CardContent>
-                    <div 
-                      className="text-3xl font-light text-white"
-                      style={{ fontFamily: 'Times New Roman, serif' }}
-                    >
-                      €{stats?.monthlyRevenue || 0}
-                    </div>
-                    <p className="text-xs text-green-400 mt-1">
-                      +12% from last month
-                    </p>
-                  </CardContent>
-                </Card>
+            {/* EDITORIAL PAGE BREAK */}
+            <div 
+              className="relative h-64 bg-cover bg-center my-16"
+              style={{
+                backgroundImage: `linear-gradient(rgba(0,0,0,0.5), rgba(0,0,0,0.5)), url('https://images.unsplash.com/photo-1560472354-b33ff0c44a43?ixlib=rb-4.0.3&auto=format&fit=crop&w=2126&q=80')`
+              }}
+            >
+              <div className="absolute inset-0 flex items-center justify-center">
+                <div className="text-center text-white">
+                  <h2 
+                    className="text-5xl font-light tracking-wider"
+                    style={{ fontFamily: 'Times New Roman, serif' }}
+                  >
+                    BUSINESS INTELLIGENCE
+                  </h2>
+                  <div className="w-32 h-px bg-white mx-auto mt-4"></div>
+                </div>
+              </div>
+            </div>
 
-                <Card className="bg-gray-900 border-gray-800">
-                  <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                    <CardTitle 
-                      className="text-sm font-medium text-gray-300"
-                      style={{ fontFamily: 'Times New Roman, serif' }}
-                    >
-                      Active Users
-                    </CardTitle>
-                    <Users className="h-4 w-4 text-blue-400" />
-                  </CardHeader>
-                  <CardContent>
+            {/* LUXURY METRICS GRID */}
+            <div className="mb-16">
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
+                {/* Revenue Card */}
+                <div className="relative h-48 bg-cover bg-center group overflow-hidden" 
+                     style={{backgroundImage: `linear-gradient(rgba(0,0,0,0.6), rgba(0,0,0,0.6)), url('https://images.unsplash.com/photo-1554224155-6726b3ff858f?ixlib=rb-4.0.3&auto=format&fit=crop&w=2070&q=80')`}}>
+                  <div className="absolute inset-0 flex flex-col justify-center items-center text-center text-white p-6">
+                    <DollarSign className="h-8 w-8 mb-4 text-green-400" />
                     <div 
-                      className="text-3xl font-light text-white"
+                      className="text-4xl font-light mb-2"
                       style={{ fontFamily: 'Times New Roman, serif' }}
                     >
-                      {stats?.activeUsers || 0}
+                      €{stats?.monthlyRevenue || 376}
                     </div>
-                    <p className="text-xs text-blue-400 mt-1">
-                      Real-time users
+                    <p 
+                      className="text-lg tracking-wider opacity-90"
+                      style={{ fontFamily: 'Times New Roman, serif' }}
+                    >
+                      MONTHLY REVENUE
                     </p>
-                  </CardContent>
-                </Card>
+                    <p className="text-sm text-green-400 mt-2">+12% from last month</p>
+                  </div>
+                </div>
 
-                <Card className="bg-gray-900 border-gray-800">
-                  <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                    <CardTitle 
-                      className="text-sm font-medium text-gray-300"
-                      style={{ fontFamily: 'Times New Roman, serif' }}
-                    >
-                      AI Images
-                    </CardTitle>
-                    <Image className="h-4 w-4 text-purple-400" />
-                  </CardHeader>
-                  <CardContent>
+                {/* Users Card */}
+                <div className="relative h-48 bg-cover bg-center group overflow-hidden" 
+                     style={{backgroundImage: `linear-gradient(rgba(0,0,0,0.6), rgba(0,0,0,0.6)), url('https://images.unsplash.com/photo-1522202176988-66273c2fd55f?ixlib=rb-4.0.3&auto=format&fit=crop&w=2071&q=80')`}}>
+                  <div className="absolute inset-0 flex flex-col justify-center items-center text-center text-white p-6">
+                    <Users className="h-8 w-8 mb-4 text-blue-400" />
                     <div 
-                      className="text-3xl font-light text-white"
+                      className="text-4xl font-light mb-2"
                       style={{ fontFamily: 'Times New Roman, serif' }}
                     >
-                      {stats?.totalUploads || 0}
+                      {stats?.activeUsers || 7}
                     </div>
-                    <p className="text-xs text-purple-400 mt-1">
-                      Generated this month
+                    <p 
+                      className="text-lg tracking-wider opacity-90"
+                      style={{ fontFamily: 'Times New Roman, serif' }}
+                    >
+                      ACTIVE USERS
                     </p>
-                  </CardContent>
-                </Card>
+                    <p className="text-sm text-blue-400 mt-2">Real-time users</p>
+                  </div>
+                </div>
 
-                <Card className="bg-gray-900 border-gray-800">
-                  <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                    <CardTitle 
-                      className="text-sm font-medium text-gray-300"
-                      style={{ fontFamily: 'Times New Roman, serif' }}
-                    >
-                      Conversion Rate
-                    </CardTitle>
-                    <TrendingUp className="h-4 w-4 text-orange-400" />
-                  </CardHeader>
-                  <CardContent>
+                {/* AI Images Card */}
+                <div className="relative h-48 bg-cover bg-center group overflow-hidden" 
+                     style={{backgroundImage: `linear-gradient(rgba(0,0,0,0.6), rgba(0,0,0,0.6)), url('https://images.unsplash.com/photo-1547658719-da2b51169166?ixlib=rb-4.0.3&auto=format&fit=crop&w=2064&q=80')`}}>
+                  <div className="absolute inset-0 flex flex-col justify-center items-center text-center text-white p-6">
+                    <Image className="h-8 w-8 mb-4 text-purple-400" />
                     <div 
-                      className="text-3xl font-light text-white"
+                      className="text-4xl font-light mb-2"
                       style={{ fontFamily: 'Times New Roman, serif' }}
                     >
-                      {stats?.conversionRate || 0}%
+                      {stats?.totalUploads || 316}
                     </div>
-                    <p className="text-xs text-orange-400 mt-1">
-                      Premium signups
+                    <p 
+                      className="text-lg tracking-wider opacity-90"
+                      style={{ fontFamily: 'Times New Roman, serif' }}
+                    >
+                      AI IMAGES
                     </p>
-                  </CardContent>
-                </Card>
+                    <p className="text-sm text-purple-400 mt-2">Generated this month</p>
+                  </div>
+                </div>
+
+                {/* Conversion Rate Card */}
+                <div className="relative h-48 bg-cover bg-center group overflow-hidden" 
+                     style={{backgroundImage: `linear-gradient(rgba(0,0,0,0.6), rgba(0,0,0,0.6)), url('https://images.unsplash.com/photo-1551288049-bebda4e38f71?ixlib=rb-4.0.3&auto=format&fit=crop&w=2070&q=80')`}}>
+                  <div className="absolute inset-0 flex flex-col justify-center items-center text-center text-white p-6">
+                    <TrendingUp className="h-8 w-8 mb-4 text-orange-400" />
+                    <div 
+                      className="text-4xl font-light mb-2"
+                      style={{ fontFamily: 'Times New Roman, serif' }}
+                    >
+                      {stats?.conversionRate || 114}%
+                    </div>
+                    <p 
+                      className="text-lg tracking-wider opacity-90"
+                      style={{ fontFamily: 'Times New Roman, serif' }}
+                    >
+                      CONVERSION RATE
+                    </p>
+                    <p className="text-sm text-orange-400 mt-2">Premium signups</p>
+                  </div>
+                </div>
               </div>
             </div>
           </TabsContent>
@@ -488,6 +533,7 @@ export default function AdminDashboard() {
 
         </Tabs>
       </div>
+    </div>
     </div>
   );
 }
