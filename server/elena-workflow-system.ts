@@ -162,7 +162,7 @@ export class ElenaWorkflowSystem {
     // Elena coordinates at the workflow level, not as an executing agent
     // Remove Elena from executing agent list to prevent infinite loops
     
-    return [...new Set(agents)]; // Remove duplicates
+    return Array.from(new Set(agents)); // Remove duplicates
   }
   
   /**
@@ -418,7 +418,7 @@ export class ElenaWorkflowSystem {
   static async getActiveWorkflows(): Promise<any[]> {
     const activeWorkflows = [];
     
-    for (const [workflowId, workflow] of this.workflows.entries()) {
+    for (const [workflowId, workflow] of Array.from(this.workflows.entries())) {
       const progress = this.workflowProgress.get(workflowId);
       
       if (progress && (progress.status === 'executing' || progress.status === 'ready')) {
@@ -560,11 +560,11 @@ export class ElenaWorkflowSystem {
         
         // Save Elena's live update as a chat message for real-time visibility
         await storage.saveAgentConversation(
-          'admin-sandra', // Admin user ID
           'elena', // Elena agent
-          'agent', // Message type
+          '42585527', // Sandra's user ID
+          'workflow_update', // User message
           message, // Elena's live update message
-          new Date().toISOString()
+          [] // File operations
         );
         
         console.log(`✅ ELENA: Live update sent to chat interface: ${message.substring(0, 50)}...`);
