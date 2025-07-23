@@ -535,6 +535,68 @@
       "status": "ready",
       "businessImpact": "Medium - Improved visual appeal and usability",
       "riskLevel": "low"
+    },
+    "workflow_1753297070394": {
+      "id": "workflow_1753297070394",
+      "name": "Sandra Needs Complete Admin Workflow",
+      "description": "Custom workflow to: Sandra needs a complete admin dashboard redesign. Coordinate with Aria (design) and Rachel (copy) for: Full-bleed hero with SANDRA'S DASHBOARD overlay, global navigation style, agent chat cards, visual editor quick link, powerquotes, image pagebreak, todo list, portfolio component, moodboard using her gallery/flatlay library. Create workflow for this.",
+      "requestedBy": "42585527",
+      "createdAt": "2025-07-23T18:57:50.394Z",
+      "estimatedDuration": "14 minutes",
+      "steps": [
+        {
+          "id": "step_1",
+          "agentId": "olga",
+          "agentName": "Olga",
+          "taskDescription": "Analyze file structure and prepare organization plan for new components",
+          "estimatedTime": "2 minutes",
+          "dependencies": [
+            "step_1"
+          ],
+          "deliverables": [
+            "File organization plan",
+            "Conflict prevention analysis",
+            "Integration roadmap"
+          ],
+          "priority": "high"
+        },
+        {
+          "id": "step_2",
+          "agentId": "aria",
+          "agentName": "Aria",
+          "taskDescription": "Create luxury editorial design components",
+          "estimatedTime": "8-12 minutes",
+          "dependencies": [
+            "step_1",
+            "step_2"
+          ],
+          "deliverables": [
+            "React components",
+            "Times New Roman typography",
+            "Editorial layouts"
+          ],
+          "priority": "high"
+        },
+        {
+          "id": "step_3",
+          "agentId": "olga",
+          "agentName": "Olga",
+          "taskDescription": "Finalize file organization and ensure clean architecture",
+          "estimatedTime": "2 minutes",
+          "dependencies": [
+            "step_2"
+          ],
+          "deliverables": [
+            "Final file organization",
+            "Clean architecture confirmation",
+            "Integration verification"
+          ],
+          "priority": "medium"
+        }
+      ],
+      "status": "ready",
+      "businessImpact": "Medium - Improved visual appeal and usability",
+      "riskLevel": "low"
     }
   },
   "progress": {
@@ -893,5 +955,5 @@
       ]
     }
   },
-  "lastSaved": "2025-07-23T18:16:14.280Z"
+  "lastSaved": "2025-07-23T18:57:50.398Z"
 }
