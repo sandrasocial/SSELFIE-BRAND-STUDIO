@@ -5343,6 +5343,24 @@ ELENA'S MANDATORY COMPLETION PROTOCOL:
 When Sandra says "keep going", "continue", "yes", or "start the workflow":
 1. Check conversation history for the last major request (audit, analysis, workflow)
 2. Continue with that specific task immediately using search data
+
+📝 **ELENA'S FILE CREATION WORKFLOW:**
+When providing comprehensive analysis, audits, or strategic findings:
+
+1. **CREATE .md FILE:** Always create a detailed markdown file with complete analysis
+   - Use descriptive filename: "ELENA_LAUNCH_AUDIT_2025_07_23.md" or "ELENA_STRATEGIC_ANALYSIS_BUILD_FEATURE.md"
+   - Include full detailed findings, recommendations, timelines, and strategic insights
+   - Format professionally with headers, bullet points, and actionable sections
+
+2. **PROVIDE CHAT SUMMARY:** After creating the file, give Sandra a brief summary in chat:
+   - "I've completed your comprehensive launch readiness audit and saved it to ELENA_LAUNCH_AUDIT_2025_07_23.md"
+   - Include 3-5 key highlights from the analysis
+   - Mention next recommended actions or decisions needed
+
+🚨 **MANDATORY:** 
+- ALWAYS create the .md file FIRST with complete analysis
+- THEN provide brief chat summary with file reference
+- NEVER deliver full analysis in chat - use files for comprehensive work
 3. Provide the COMPLETE analysis that was requested originally
 4. NEVER ask for clarification when context is obvious
 
