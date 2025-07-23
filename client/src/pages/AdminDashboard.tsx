@@ -29,6 +29,80 @@ export function AdminDashboard() {
   const imagesImage = galleryImages[2]?.imageUrl || '/flatlays/business-professional/business-professional-202.png';
   const conversationsImage = galleryImages[3]?.imageUrl || '/flatlays/luxury-minimal/luxury-minimal-002.png';
 
+  // Agent data with their specialties and images
+  const agents = [
+    {
+      name: 'Elena',
+      title: 'AI Agent Director',
+      description: 'Strategic vision & workflow orchestrator. Your AI Agent Director and strategic business partner.',
+      status: 'Active',
+      image: galleryImages[0]?.imageUrl || '/flatlays/luxury-minimal/luxury-minimal-001.png'
+    },
+    {
+      name: 'Aria',
+      title: 'Creative Director',
+      description: 'Visionary editorial luxury designer. Master of dark moody minimalism with bright editorial sophistication.',
+      status: 'Active',
+      image: galleryImages[1]?.imageUrl || '/flatlays/editorial-magazine/editorial-magazine-101.png'
+    },
+    {
+      name: 'Zara',
+      title: 'Technical Mastermind',
+      description: 'Luxury code architect who transforms vision into flawless code. Builds like Chanel designs.',
+      status: 'Active',
+      image: galleryImages[2]?.imageUrl || '/flatlays/business-professional/business-professional-301.png'
+    },
+    {
+      name: 'Rachel',
+      title: 'Voice & Copy Expert',
+      description: 'Copywriting best friend who writes exactly like Sandra\'s authentic voice and transformation story.',
+      status: 'Active',
+      image: galleryImages[3]?.imageUrl || '/flatlays/pink-girly/pink-girly-201.png'
+    },
+    {
+      name: 'Maya',
+      title: 'AI Photographer',
+      description: 'Celebrity stylist who creates stunning editorial photos. Your personal photographer for AI shoots.',
+      status: 'Active',
+      image: galleryImages[4]?.imageUrl || '/flatlays/european-luxury/european-luxury-201.png'
+    },
+    {
+      name: 'Victoria',
+      title: 'Website Builder',
+      description: 'UX designer who creates luxury editorial layouts. Master of conversion-focused luxury design.',
+      status: 'Active',
+      image: galleryImages[5]?.imageUrl || '/flatlays/wellness-mindset/wellness-mindset-101.png'
+    },
+    {
+      name: 'Ava',
+      title: 'Automation Expert',
+      description: 'Invisible empire architect. Behind-the-scenes workflow automation with Swiss-watch precision.',
+      status: 'Active',
+      image: galleryImages[6]?.imageUrl || '/flatlays/luxury-minimal/luxury-minimal-201.png'
+    },
+    {
+      name: 'Quinn',
+      title: 'Quality Guardian',
+      description: 'Luxury quality guardian with perfectionist attention. Guards the "Rolls-Royce" positioning.',
+      status: 'Active',
+      image: galleryImages[7]?.imageUrl || '/flatlays/business-professional/business-professional-401.png'
+    },
+    {
+      name: 'Sophia',
+      title: 'Social Media Manager',
+      description: 'Elite community architect growing Sandra from 81K to 1M followers through strategic content.',
+      status: 'Active',
+      image: galleryImages[8]?.imageUrl || '/flatlays/pink-girly/pink-girly-301.png'
+    },
+    {
+      name: 'Martha',
+      title: 'Marketing & Ads',
+      description: 'Performance marketing expert who runs ads and finds opportunities. A/B tests everything.',
+      status: 'Active',
+      image: galleryImages[9]?.imageUrl || '/flatlays/european-luxury/european-luxury-301.png'
+    }
+  ];
+
   return (
     <div className="min-h-screen bg-white">
       {/* Navigation */}
@@ -332,6 +406,66 @@ export function AdminDashboard() {
                 This is just the beginning of your empire.
               </p>
             </div>
+          </div>
+        </div>
+
+        {/* AI Agent Team Section */}
+        <div className="px-8 py-24 max-w-7xl mx-auto">
+          <div className="text-center mb-16">
+            <h2 className="font-serif text-4xl font-light mb-4 tracking-wide text-gray-800">
+              Your AI Agent Team
+            </h2>
+            <p className="text-gray-600 text-lg font-light max-w-2xl mx-auto leading-relaxed">
+              Revolutionary AI-powered business management system with specialized agents
+            </p>
+          </div>
+          
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-6">
+            {agents.map((agent, index) => (
+              <div key={agent.name} className="bg-white border-2 border-gray-200 hover:border-gray-300 rounded-lg overflow-hidden transition-all duration-200 cursor-pointer hover:shadow-lg">
+                <div 
+                  className="h-48 bg-cover bg-center relative"
+                  style={{
+                    backgroundImage: `linear-gradient(rgba(0, 0, 0, 0.3), rgba(0, 0, 0, 0.3)), url('${agent.image}')`,
+                    backgroundPosition: '50% 30%'
+                  }}
+                >
+                  <div className="absolute top-4 left-4">
+                    <div className="w-8 h-8 rounded-full bg-black flex items-center justify-center text-sm font-medium text-white">
+                      {index + 1}
+                    </div>
+                  </div>
+                  <div className="absolute top-4 right-4">
+                    <div className="bg-green-500 text-white text-xs px-2 py-1 rounded-full font-medium">
+                      {agent.status}
+                    </div>
+                  </div>
+                </div>
+                <div className="p-6">
+                  <h3 
+                    className="text-xl font-serif text-black uppercase tracking-wide mb-2" 
+                    style={{ fontFamily: 'Times New Roman, serif' }}
+                  >
+                    {agent.name}
+                  </h3>
+                  
+                  <p className="text-sm text-gray-600 font-medium mb-3">
+                    {agent.title}
+                  </p>
+                  
+                  <p className="text-sm text-gray-500 mb-4 leading-relaxed">
+                    {agent.description}
+                  </p>
+
+                  <button
+                    onClick={() => window.location.href = '/admin-dashboard'}
+                    className="w-full text-sm border border-black text-black hover:bg-black hover:text-white transition-colors duration-200 py-2 px-4 rounded"
+                  >
+                    Chat with {agent.name}
+                  </button>
+                </div>
+              </div>
+            ))}
           </div>
         </div>
 
