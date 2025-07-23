@@ -537,8 +537,24 @@ export class ElenaWorkflowSystem {
         this.saveWorkflowsToDisk();
       }
       
-      // In a real implementation, you'd also send this via WebSocket or Server-Sent Events
-      // For now, it's stored in progress and visible via the progress API
+      // CRITICAL FIX: Send live update to Elena's active chat conversation
+      try {
+        // Import storage to save Elena's live update as chat message
+        const { storage } = await import('./storage');
+        
+        // Save Elena's live update as a chat message for real-time visibility
+        await storage.saveAgentConversation(
+          'admin-sandra', // Admin user ID
+          'elena', // Elena agent
+          'agent', // Message type
+          message, // Elena's live update message
+          new Date().toISOString()
+        );
+        
+        console.log(`✅ ELENA: Live update sent to chat interface: ${message.substring(0, 50)}...`);
+      } catch (chatError) {
+        console.error(`❌ ELENA: Failed to send live chat update:`, chatError);
+      }
       
     } catch (error) {
       console.error(`❌ ELENA: Failed to send update to user:`, error);
