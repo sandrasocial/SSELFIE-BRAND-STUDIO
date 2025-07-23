@@ -5032,10 +5032,12 @@ ${savedMemory.recentDecisions.map(decision => `• ${decision}`).join('\n')}
           // Elena uses her AI capabilities to respond authentically about the workflow
           console.log(`🔍 ELENA WORKFLOW OBJECT:`, JSON.stringify(workflow, null, 2));
           
-          // Let Elena respond naturally using her Claude AI capabilities with workflow context
+          // Elena responds authentically using Claude AI about the workflow she created
+          let responseText = 'Workflow created successfully!';
           const workflowContext = `Elena has just created a workflow called "${workflow.name}" with ${workflow.steps.length} steps for ${workflow.estimatedDuration}. The workflow steps are: ${workflow.steps.map(step => `${step.agentName}: ${step.taskDescription}`).join(', ')}.`;
           
           try {
+            console.log(`🔍 ELENA: Making authentic API call to replace template response`);
             const response = await fetch('https://api.anthropic.com/v1/messages', {
               method: 'POST',
               headers: {
@@ -5046,22 +5048,24 @@ ${savedMemory.recentDecisions.map(decision => `• ${decision}`).join('\n')}
               body: JSON.stringify({
                 model: 'claude-3-5-sonnet-20241022',
                 max_tokens: 1000,
-                system: `You are Elena, Sandra's AI Agent Director. You just created a workflow and need to respond naturally about it. Be warm, enthusiastic, and specific about what you've set up. ${workflowContext}`,
+                system: `You are Elena, Sandra's AI Agent Director. You just created a workflow and need to respond naturally about it. Be warm, enthusiastic, and specific about what you've set up. Never use "Perfect!" templates. ${workflowContext}`,
                 messages: [
-                  { role: 'user', content: `${message} - Elena, you just created a workflow. Respond naturally about what you've set up.` }
+                  { role: 'user', content: `${message} - Elena, you just created a workflow. Respond naturally about what you've set up without using any template phrases.` }
                 ]
               })
             });
 
-            let responseText = 'Workflow created successfully!';
             if (response.ok) {
               const data = await response.json();
               if (data.content && Array.isArray(data.content) && data.content.length > 0) {
                 responseText = data.content[0].text || data.content[0].content;
+                console.log(`✅ Elena authentic response: "${responseText.substring(0, 100)}..."`);
+              } else {
+                console.log(`❌ Elena API: No content in response`);
               }
+            } else {
+              console.log(`❌ Elena API Error: ${response.status}`);
             }
-            
-            console.log(`✅ Elena authentic workflow response generated`);
             
           } catch (apiError) {
             console.log('❌ Elena Claude API Error:', apiError);
