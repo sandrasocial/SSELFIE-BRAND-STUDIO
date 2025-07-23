@@ -236,10 +236,7 @@ function Router() {
       
       {/* SANDRA'S ADMIN DASHBOARD - LUXURY EDITORIAL DESIGN */}
       <Route path="/admin-dashboard" component={(props) => <ProtectedRoute component={AdminDashboard} {...props} />} />
-      <Route path="/admin" component={() => {
-        window.location.href = '/api/login';
-        return <div>Redirecting to login...</div>;
-      }} />
+      <Route path="/admin" component={(props) => <ProtectedRoute component={AdminDashboard} {...props} />} />
 
       <Route path="/admin/visual-editor" component={(props) => <ProtectedRoute component={AdminVisualEditor} {...props} />} />
       <Route path="/visual-editor" component={(props) => <ProtectedRoute component={AdminVisualEditor} {...props} />} />
