@@ -40,11 +40,16 @@ export class AutoFileWriter {
    */
   static async processCodeBlocks(agentId, aiResponse, AgentCodebaseIntegration) {
     
+    console.log(`🔍 AUTO-FILE-WRITER ENTRY: Processing response for ${agentId}`);
+    console.log(`🔍 AUTO-FILE-WRITER DEBUG: Response contains <write_to_file>: ${aiResponse.includes('<write_to_file>')}`);
+    console.log(`🔍 AUTO-FILE-WRITER DEBUG: Response contains triple backticks: ${aiResponse.includes('```')}`);
+    
     const filesWritten = [];
     let modifiedResponse = aiResponse;
     
-    // Extract all code blocks with enhanced detection for collapsible sections
+    // Extract all code blocks with enhanced detection for collapsible sections AND file creation tags
     const codeBlockRegex = /```(?:typescript|tsx|javascript|js|css|html|json|react)?\s*\n?([\s\S]*?)```/gi;
+    const writeToFileRegex = /<write_to_file>\s*<path>(.*?)<\/path>\s*<content>([\s\S]*?)<\/content>\s*<\/write_to_file>/gi;
     const codeBlocks = [];
     let match;
     
@@ -65,13 +70,28 @@ export class AutoFileWriter {
       }
     }
     
+    // Check for write_to_file tags first (higher priority)
+    while ((match = writeToFileRegex.exec(aiResponse)) !== null) {
+      const filePath = match[1].trim();
+      const content = match[2].trim();
+      if (content.length > 0 && filePath.length > 0) {
+        codeBlocks.push({
+          content,
+          filePath,
+          language: filePath.endsWith('.tsx') ? 'tsx' : filePath.endsWith('.ts') ? 'typescript' : filePath.endsWith('.css') ? 'css' : filePath.endsWith('.md') ? 'markdown' : 'text',
+          isDirectFile: true
+        });
+      }
+    }
+    
     // Then check for regular code blocks
     while ((match = codeBlockRegex.exec(aiResponse)) !== null) {
       const content = match[1].trim();
       if (content.length > 10) {
         codeBlocks.push({
           content,
-          language: match[0].match(/```(\w+)/)?.[1] || 'typescript'
+          language: match[0].match(/```(\w+)/)?.[1] || 'typescript',
+          isDirectFile: false
         });
       }
     }
@@ -95,6 +115,9 @@ export class AutoFileWriter {
     }
     
     console.log(`🔍 Found ${codeBlocks.length} code blocks for auto-writing`);
+    console.log(`🔍 DEBUG: Response contains <write_to_file>: ${aiResponse.includes('<write_to_file>')}`);
+    console.log(`🔍 DEBUG: Response contains triple backticks: ${aiResponse.includes('```')}`);
+    console.log(`🔍 DEBUG: Response preview: "${aiResponse.substring(0, 200)}..."`);
     
     // If no code blocks found, log details for debugging
     if (codeBlocks.length === 0) {
@@ -111,7 +134,9 @@ export class AutoFileWriter {
     // Process each code block
     for (let i = 0; i < codeBlocks.length; i++) {
       const block = codeBlocks[i];
-      const filePath = this.determineFilePath(block, agentId, aiResponse);
+      
+      // Use filePath from direct file creation or determine it from content
+      const filePath = block.isDirectFile ? block.filePath : this.determineFilePath(block, agentId, aiResponse);
       
       if (filePath) {
         try {

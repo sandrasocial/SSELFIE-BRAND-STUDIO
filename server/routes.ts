@@ -5339,14 +5339,47 @@ AGENT_CONTEXT:
           console.log(`🔧 INTEGRATION FIX: Redirected to modify existing files instead`);
         }
         
-        const { AutoFileWriter } = await import('./agents/auto-file-writer.js');
+        // Force fresh import with timestamp to bypass ES module cache
+        const timestamp = Date.now();
+        const { AutoFileWriter } = await import(`./agents/auto-file-writer.js?v=${timestamp}`);
         const { AgentCodebaseIntegration } = await import('./agents/AgentCodebaseIntegration.js');
         
-        const result = await AutoFileWriter.processCodeBlocks(
-          agentId,
-          validatedResponse,
-          AgentCodebaseIntegration
-        );
+        console.log(`🔍 ROUTES DEBUG: About to process response for auto-file-writer`);
+        console.log(`🔍 ROUTES DEBUG: Response contains <write_to_file>: ${validatedResponse.includes('<write_to_file>')}`);
+        console.log(`🔍 ROUTES DEBUG: Response length: ${validatedResponse.length}`);
+        
+        // DIRECT XML PARSING TEST - bypass auto-file-writer caching issue
+        if (validatedResponse.includes('<write_to_file>')) {
+          console.log(`🔍 DIRECT XML TEST: Attempting direct file creation bypass`);
+          const writeToFileRegex = /<write_to_file>\s*<path>(.*?)<\/path>\s*<content>([\s\S]*?)<\/content>\s*<\/write_to_file>/gi;
+          let xmlMatch;
+          while ((xmlMatch = writeToFileRegex.exec(validatedResponse)) !== null) {
+            const filePath = xmlMatch[1].trim();
+            const content = xmlMatch[2].trim();
+            console.log(`🔍 DIRECT XML: Found ${filePath} with ${content.length} chars`);
+            
+            try {
+              await AgentCodebaseIntegration.writeFile(filePath, content);
+              console.log(`✅ DIRECT XML SUCCESS: Created ${filePath}`);
+              fileOperations.push({ filePath, success: true, method: 'direct_xml' });
+            } catch (error) {
+              console.log(`❌ DIRECT XML FAILED: ${filePath} - ${error.message}`);
+            }
+          }
+        }
+        
+        let result = { filesWritten: [] };
+        try {
+          result = await AutoFileWriter.processCodeBlocks(
+            agentId,
+            validatedResponse,
+            AgentCodebaseIntegration
+          );
+          console.log(`🔍 ROUTES DEBUG: Auto-file-writer completed successfully`);
+        } catch (error) {
+          console.log(`❌ ROUTES DEBUG: Auto-file-writer error: ${error.message}`);
+          console.log(`❌ ROUTES DEBUG: Error stack: ${error.stack}`);
+        }
         
         fileOperations = result.filesWritten || [];
         
