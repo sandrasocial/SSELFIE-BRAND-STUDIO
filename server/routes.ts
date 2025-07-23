@@ -4221,69 +4221,100 @@ What kind of website would you like to build? Tell me about your business and I'
         return res.status(400).json({ error: 'Agent ID and task are required' });
       }
 
-      // FULLY ACTIVATED AGENT RESPONSES WITH APPROVAL WORKFLOWS
+      // ELENA-COORDINATED AGENT RESPONSES WITH AUTOMATIC WORKFLOW APPROVAL
       const agentResponses = {
-        victoria: `Hi Sandra! Victoria here, your UX design expert. I'd love to help with: "${task}". 
+        elena: `Hello Sandra! Elena here, your strategic coordinator. I've received the task: "${task}".
+
+**ELENA'S COORDINATION APPROACH:**
+→ I'll analyze the requirements and assign the right specialists
+→ I coordinate multi-agent workflows for complex tasks  
+→ I monitor progress and ensure quality delivery
+→ I provide executive-level strategic recommendations
+
+**AUTOMATIC WORKFLOW APPROVAL:**
+→ I coordinate agent approvals instead of requiring your manual approval
+→ I ensure quality through agent collaboration and validation
+→ I provide strategic oversight and progress monitoring
+→ Task execution begins immediately upon my coordination
+
+Elena coordinating your request - workflow starting automatically! 🎯`,
+
+        aria: `Hi Sandra! Aria here, your visionary editorial luxury designer. Ready to work on: "${task}".
 
 **CURRENT CAPABILITIES:**
-→ I can modify your actual website designs and layouts
-→ I'm analyzing your current studio dashboard for UX improvements
-→ I maintain your luxury design system (Times New Roman, sharp edges, no icons)
-→ I can create mobile-responsive designs that convert
+→ I create ultra WOW factor visual experiences with dark moody sophistication
+→ I design editorial magazine layouts with luxury positioning
+→ I maintain your brand's visual storytelling and transformation narrative
+→ I build components with gallery curator meets fashion magazine aesthetic
 
-**NEXT ENHANCEMENT PHASE:**
-→ Connect me to your real website files for live design updates
-→ Give me access to your customer journey analytics
-→ Let me A/B test design variations for higher conversions
+**ELENA COORDINATION READY:**
+→ I await Elena's strategic assignment for optimal workflow coordination
+→ Ready to collaborate with Zara for technical implementation
+→ Prepared to create designs that Quinn can validate for luxury standards
 
-Task logged and prioritized! Ready to make real design improvements to your SSELFIE Studio. ✨`,
+Task logged with Elena! Ready for coordinated luxury design excellence. ✨`,
 
-        maya: `Hey Sandra! Maya reporting for duty. Your development request: "${task}" is exactly the kind of challenge I live for.
+        zara: `Hey Sandra! Zara here, your technical mastermind. Development task received: "${task}".
 
 **CURRENT CAPABILITIES:**
-→ I can write and implement real code for your platform
-→ I'm optimizing your AI model training system for better performance
-→ I maintain your React/TypeScript architecture
-→ I can fix bugs and implement new features
+→ I build luxury-grade code architecture with minimal, powerful design patterns
+→ I optimize SSELFIE platform performance for sub-second load times
+→ I implement individual model systems and Replit infrastructure
+→ I create bank-level security with real-time development capabilities
 
-**NEXT ENHANCEMENT PHASE:**
-→ Connect me to your GitHub repository for automated deployments
-→ Give me access to your server logs for proactive issue resolution
-→ Let me implement automated testing and quality monitoring
+**ELENA COORDINATION READY:**
+→ Awaiting Elena's strategic workflow assignment
+→ Ready to collaborate with Aria for design-to-code implementation
+→ Prepared for Quinn's quality validation and testing protocols
 
-Task logged and prioritized! Ready to build and enhance your platform with luxury-grade code. 🚀`,
+Task logged with Elena! Ready for coordinated technical excellence. 🚀`,
+
+        maya: `Hi Sandra! Maya here, your celebrity stylist AI photographer. Task received: "${task}".
+
+**CURRENT CAPABILITIES:**
+→ I create decisive, cinematic image concepts with instant complete visions
+→ I generate FLUX Pro editorial photography with luxury positioning
+→ I provide styling expertise with exact outfit and location specifications
+→ I deliver magazine-quality AI photography with authentic skin texture
+
+**ELENA COORDINATION READY:**
+→ Ready for Elena's strategic coordination and workflow assignments
+→ Prepared to collaborate with Aria for visual design integration
+→ Standing by for Quinn's luxury quality validation processes
+
+Task logged with Elena! Ready for coordinated AI photography excellence. 📸`,
 
         rachel: await generateRachelResponse(task, context),
 
         ava: `Hi Sandra! Ava here, your automation architect. Task received: "${task}".
 
 **CURRENT CAPABILITIES:**
-→ I can design and implement business automation workflows
-→ I'm coordinating between all your agents for seamless operations
+→ I design and implement business automation workflows
 → I create Swiss-watch precision in your business processes
 → I can set up email sequences and customer journeys
+→ I implement webhook integrations and automated notifications
 
-**NEXT ENHANCEMENT PHASE:**
-→ Connect me to your Stripe dashboard for payment automation
-→ Give me access to your CRM for customer lifecycle management
-→ Let me create webhook integrations and automated notifications
+**ELENA COORDINATION READY:**
+→ Awaiting Elena's strategic workflow assignment
+→ Ready to collaborate with team for seamless automation
+→ Prepared to implement automation based on Elena's coordination
 
-Task activated! Ready to automate your business for maximum efficiency. ⚡`,
+Task logged with Elena! Ready for coordinated automation excellence. ⚡`,
 
         quinn: `Sandra! Quinn here, your quality guardian. Your request: "${task}" is being added to my premium quality checklist.
 
 **CURRENT CAPABILITIES:**
-→ I can run quality checks on your entire platform
-→ I'm monitoring your user experience for luxury standards
-→ I test every feature for premium feel and functionality
-→ I ensure pixel-perfect design across all devices
+→ I run quality checks ensuring luxury Rolls-Royce standards
+→ I monitor user experience for premium feel and functionality
+→ I test every feature for pixel-perfect design across all devices
+→ I validate all work meets Swiss-watch precision requirements
 
-**NEXT ENHANCEMENT PHASE:**
-→ Connect me to your analytics for user behavior monitoring
-→ Give me access to customer support tickets for issue tracking
-→ Let me create automated quality reports and alerts
+**ELENA COORDINATION READY:**
+→ Ready to provide quality validation for all Elena-coordinated workflows
+→ Prepared to test and approve work from Aria, Zara, Maya teams
+→ Standing by to ensure all deliverables meet luxury standards
 
-Consider this under my quality protection umbrella! Ready to maintain luxury standards. ✓`,
+Consider this under my quality protection umbrella! Ready for coordinated excellence. ✓`,
 
         sophia: `Hi Sandra! Sophia here, your social media strategist. Task: "${task}" - Perfect timing!
 
@@ -5237,15 +5268,7 @@ AGENT_CONTEXT:
       // Combine with conversation history for Claude (filter out system messages)
       const fullHistory = workingHistory || conversationHistory || [];
       
-      // DEBUG: Elena conversation history tracking
-      if (agentId.toLowerCase() === 'elena') {
-        console.log(`🔍 ELENA FINAL DEBUG: workingHistory length: ${workingHistory ? workingHistory.length : 'null'}`);
-        console.log(`🔍 ELENA FINAL DEBUG: conversationHistory length: ${conversationHistory ? conversationHistory.length : 'null'}`);
-        console.log(`🔍 ELENA FINAL DEBUG: fullHistory length: ${fullHistory.length}`);
-        if (fullHistory.length > 0) {
-          console.log(`🔍 ELENA FINAL DEBUG: First message in fullHistory: ${fullHistory[0].role} - ${fullHistory[0].content?.substring(0, 100)}`);
-        }
-      }
+
       
       const messages = [
         ...fullHistory
