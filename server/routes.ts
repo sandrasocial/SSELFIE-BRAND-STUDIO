@@ -6073,6 +6073,24 @@ AGENT_CONTEXT:
     }
   });
 
+  // Get active workflows for Elena coordination panel
+  app.get('/api/elena/active-workflows', async (req, res) => {
+    try {
+      console.log(`🔍 Elena active workflows check`);
+      
+      // Import Elena workflow system
+      const { ElenaWorkflowSystem } = await import('./elena-workflow-system');
+      
+      // Get active workflows
+      const workflows = await ElenaWorkflowSystem.getActiveWorkflows();
+      
+      res.json({ success: true, workflows });
+    } catch (error) {
+      console.error('❌ Elena active workflows error:', error);
+      res.status(500).json({ success: false, error: error.message, workflows: [] });
+    }
+  });
+
   // ADMIN AGENT ENHANCEMENT ENDPOINTS
   app.get('/api/agent-enhancements', isAuthenticated, async (req: any, res) => {
     const isAdmin = req.user?.claims?.email === 'ssa@ssasocial.com';
