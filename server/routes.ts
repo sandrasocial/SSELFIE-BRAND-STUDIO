@@ -5326,14 +5326,108 @@ AGENT_CONTEXT:
       console.log('🔍 Claude API Request messages:', messages.map(m => ({ role: m.role, content: m.content.substring(0, 100) + '...' })));
       console.log('🔍 System prompt length:', systemPrompt.length);
       
+      // Configure tools for Elena - enable search_filesystem for codebase analysis
+      const toolConfig = agentId === 'elena' ? {
+        tools: [
+          {
+            name: "search_filesystem",
+            description: "Search the filesystem for files, classes, functions, or code snippets to analyze the codebase",
+            input_schema: {
+              type: "object",
+              properties: {
+                query_description: {
+                  type: "string",
+                  description: "Natural language query describing what to search for"
+                },
+                class_names: {
+                  type: "array",
+                  items: { type: "string" },
+                  description: "List of specific class names to search for"
+                },
+                function_names: {
+                  type: "array", 
+                  items: { type: "string" },
+                  description: "List of specific function names to search for"
+                },
+                code: {
+                  type: "array",
+                  items: { type: "string" },
+                  description: "List of code snippets to search for"
+                }
+              }
+            }
+          }
+        ],
+        tool_choice: "auto"
+      } : {};
+      
       const response = await claude.messages.create({
         model: 'claude-sonnet-4-20250514',
         max_tokens: 4000,
         system: systemPrompt,
-        messages: messages as any
+        messages: messages as any,
+        ...toolConfig
       });
       
-      const responseText = response.content[0].text;
+      let responseText = '';
+      let toolResults = [];
+      
+      // Handle tool use for Elena's search_filesystem
+      if (agentId === 'elena' && response.content) {
+        for (const contentBlock of response.content) {
+          if (contentBlock.type === 'text') {
+            responseText += contentBlock.text;
+          } else if (contentBlock.type === 'tool_use' && contentBlock.name === 'search_filesystem') {
+            console.log('🔍 ELENA TOOL EXECUTION: search_filesystem called with:', contentBlock.input);
+            
+            try {
+              // Import and execute search_filesystem tool
+              const { search_filesystem } = await import('./tools/search_filesystem');
+              const searchResult = await search_filesystem(contentBlock.input);
+              
+              toolResults.push({
+                tool_use_id: contentBlock.id,
+                type: 'tool_result',
+                content: JSON.stringify(searchResult, null, 2)
+              });
+              
+              console.log('✅ ELENA SEARCH RESULT: Found files and content for analysis');
+              
+              // Call Claude again with tool results to get Elena's analysis
+              const followUpResponse = await claude.messages.create({
+                model: 'claude-sonnet-4-20250514',
+                max_tokens: 4000,
+                system: systemPrompt,
+                messages: [
+                  ...messages as any,
+                  { 
+                    role: 'assistant', 
+                    content: response.content 
+                  },
+                  {
+                    role: 'user',
+                    content: toolResults
+                  }
+                ]
+              });
+              
+              if (followUpResponse.content[0]?.text) {
+                responseText += followUpResponse.content[0].text;
+              }
+              
+            } catch (error) {
+              console.error('❌ ELENA SEARCH ERROR:', error);
+              toolResults.push({
+                tool_use_id: contentBlock.id,
+                type: 'tool_result',
+                content: `Error executing search: ${error.message}`
+              });
+            }
+          }
+        }
+      } else {
+        responseText = response.content[0]?.text || '';
+      }
       
       // Process any file operations with bulletproof crash prevention
       let fileOperations: any[] = [];

@@ -331,6 +331,7 @@ export function OptimizedVisualEditor({ className = '' }: OptimizedVisualEditorP
   const [activeWorkingAgent, setActiveWorkingAgent] = useState<string | null>(null);
   const [deviceMode, setDeviceMode] = useState<'desktop' | 'tablet' | 'mobile'>('desktop');
   const [zoomLevel, setZoomLevel] = useState(100);
+  const [refreshTrigger, setRefreshTrigger] = useState(Date.now());
   const iframeRef = useRef<HTMLIFrameElement>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const chatPanelRef = useRef<HTMLDivElement>(null);
