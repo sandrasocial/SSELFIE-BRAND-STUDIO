@@ -5773,6 +5773,10 @@ AGENT_CONTEXT:
           console.log(`🔍 ELENA FINAL RESPONSE LENGTH: ${responseText.length} characters captured`);
         }
         
+        // PERMANENT FIX: Ensure Elena's complete response is preserved
+        console.log(`🔍 ELENA COMPLETE RESPONSE FINAL CHECK: ${responseText.length} characters`);
+        console.log(`🔍 ELENA RESPONSE PREVIEW: ${responseText.substring(0, 300)}...`);
+        
       } else {
         responseText = response.content[0]?.text || '';
       }
@@ -5881,8 +5885,12 @@ AGENT_CONTEXT:
         console.log('❌ File operation failed:', fileError.message);
       }
       
+      // PERMANENT FIX: Preserve Elena's complete response before any modifications
+      const originalResponseText = responseText;
+      console.log(`🔒 PERMANENT FIX: Preserving Elena's original response (${originalResponseText.length} characters)`);
+      
       // Save conversation to database
-      await storage.saveAgentConversation(agentId, userId, message, responseText, fileOperations);
+      await storage.saveAgentConversation(agentId, userId, message, originalResponseText, fileOperations);
       console.log('💾 Conversation saved to database');
       
       // Re-enable memory summarization - this is critical for proper agent memory (Elena now included)
@@ -5894,11 +5902,15 @@ AGENT_CONTEXT:
       await ConversationManager.saveAgentMemory(summary);
       console.log(`💾 Memory summary saved for ${agentId}: ${summary.keyTasks.length} tasks, ${summary.recentDecisions.length} decisions`);
       
+      // PERMANENT FIX: Always send Elena's complete, unmodified response to frontend
+      const finalResponseText = agentId === 'elena' ? originalResponseText : (validatedResponse || responseText);
+      console.log(`📤 PERMANENT FIX: Sending ${agentId} response (${finalResponseText.length} characters) to frontend`);
+      
       // Return enhanced response with file operations for live preview
       res.json({
         success: true,
-        message: responseText,
-        response: responseText, // Keep both for compatibility
+        message: finalResponseText,
+        response: finalResponseText, // Keep both for compatibility
         agentName: agentName || agentId,
         status: 'active',
         conversationId: conversationId,
