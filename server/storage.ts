@@ -55,7 +55,7 @@ import {
   type InsertAgentConversation,
 } from "@shared/schema";
 import { db } from "./db";
-import { eq, and, desc, gte, lte } from "drizzle-orm";
+import { eq, and, desc, gte, lte, sql } from "drizzle-orm";
 
 // Interface for storage operations
 export interface IStorage {
@@ -173,6 +173,10 @@ export interface IStorage {
   getAgentMemory(agentId: string, userId: string): Promise<any | null>;
   clearAgentMemory(agentId: string, userId: string): Promise<void>;
 
+  // Admin dashboard count operations
+  getUserCount(): Promise<number>;
+  getAIImageCount(): Promise<number>;
+  getAgentConversationCount(): Promise<number>;
 }
 
 export class DatabaseStorage implements IStorage {
@@ -1147,6 +1151,22 @@ export class DatabaseStorage implements IStorage {
 
     console.log(`✅ User ${userId} successfully upgraded to ${plan} with usage initialized`);
     return updatedUser;
+  }
+
+  // Admin dashboard count operations
+  async getUserCount(): Promise<number> {
+    const result = await db.select({ count: sql`count(*)` }).from(users);
+    return Number(result[0]?.count || 0);
+  }
+
+  async getAIImageCount(): Promise<number> {
+    const result = await db.select({ count: sql`count(*)` }).from(aiImages);
+    return Number(result[0]?.count || 0);
+  }
+
+  async getAgentConversationCount(): Promise<number> {
+    const result = await db.select({ count: sql`count(*)` }).from(agentConversations);
+    return Number(result[0]?.count || 0);
   }
 }
 
