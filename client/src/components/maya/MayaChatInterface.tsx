@@ -79,20 +79,8 @@ What kind of vibe are we creating today? Or just say "surprise me" and I'll crea
         
         console.log(`🎬 Maya: Progress check ${attempts}/${maxAttempts} (${Math.round(progressPercent)}%)`);
         
-        // Check for completed generation trackers (using working endpoint)
-        const response = await fetch('/api/generation-trackers/completed', {
-          method: 'GET',
-          credentials: 'include',
-          headers: {
-            'Content-Type': 'application/json'
-          }
-        });
-        
-        if (!response.ok) {
-          throw new Error(`Failed to check trackers: ${response.status}`);
-        }
-        
-        const trackers = await response.json();
+        // Check for completed generation trackers using authenticated apiRequest
+        const trackers = await apiRequest('/api/generation-trackers/completed', 'GET');
         console.log(`🎬 Maya: Found ${trackers.length} completed trackers`);
         
         // Find our specific tracker
@@ -182,15 +170,15 @@ What kind of vibe are we creating today? Or just say "surprise me" and I'll crea
       });
       return response;
     },
-    onSuccess: (data) => {
+    onSuccess: (data: any) => {
       console.log('🎬 Maya: Generation started with response:', data);
       
-      // Set generating state (backup pattern)
+      // Set generating state
       setIsGenerating(true);
       setGenerationProgress(0);
       
       // Set tracking ID for progress monitoring
-      if (data.imageId) {
+      if (data?.imageId) {
         console.log('🎬 Maya: Setting tracker ID:', data.imageId);
         setCurrentTrackerId(data.imageId);
         
@@ -202,7 +190,7 @@ What kind of vibe are we creating today? Or just say "surprise me" and I'll crea
       const mayaMessage: MayaChatMessage = {
         id: Date.now(),
         role: 'maya',
-        content: data.message || '✨ Creating your stunning editorial moment right now! This is going to be absolutely gorgeous...',
+        content: data?.message || '✨ Creating your stunning editorial moment right now! This is going to be absolutely gorgeous...',
         timestamp: new Date().toISOString(),
         isGenerating: true
       };
@@ -216,7 +204,7 @@ What kind of vibe are we creating today? Or just say "surprise me" and I'll crea
   // Heart an image to save to gallery  
   const heartImageMutation = useMutation({
     mutationFn: async (imageUrl: string) => {
-      setSavingImages(prev => new Set([...prev, imageUrl]));
+      setSavingImages(prev => new Set(Array.from(prev).concat([imageUrl])));
       return await apiRequest('/api/heart-image-to-gallery', 'POST', {
         imageUrl,
         prompt: 'Maya AI Photography',
@@ -225,9 +213,9 @@ What kind of vibe are we creating today? Or just say "surprise me" and I'll crea
     },
     onSuccess: (data, imageUrl) => {
       // Mark image as saved
-      setSavedImages(prev => new Set([...prev, imageUrl]));
+      setSavedImages(prev => new Set(Array.from(prev).concat([imageUrl])));
       setSavingImages(prev => {
-        const newSet = new Set(prev);
+        const newSet = new Set(Array.from(prev));
         newSet.delete(imageUrl);
         return newSet;
       });
