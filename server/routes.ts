@@ -5731,11 +5731,15 @@ AGENT_CONTEXT:
           toolCallCount++;
           console.log(`🔍 ELENA FOLLOW-UP CALL ${toolCallCount}: Processing ${currentToolResults.length} search results`);
           
-          // Call Claude again with all tool results
+          // Call Claude again with all tool results - force analysis after searches
+          const analysisPrompt = toolCallCount >= 2 ? 
+            systemPrompt + '\n\n🚨 CRITICAL OVERRIDE: You have completed your searches. STOP SEARCHING. Provide your complete strategic analysis and implementation plan NOW. Do not call any more tools.' :
+            systemPrompt + '\n\nCRITICAL: After searching the codebase, provide your COMPLETE ANALYSIS and STRATEGIC PLAN. Do not make additional search calls - analyze the results you have.';
+            
           const followUpResponse = await claude.messages.create({
             model: 'claude-sonnet-4-20250514',
             max_tokens: 8000,
-            system: systemPrompt + '\n\nCRITICAL: After searching the codebase, provide your COMPLETE ANALYSIS and STRATEGIC PLAN. Do not make additional search calls - analyze the results you have.',
+            system: analysisPrompt,
             messages: [
               ...messages as any,
               { 
