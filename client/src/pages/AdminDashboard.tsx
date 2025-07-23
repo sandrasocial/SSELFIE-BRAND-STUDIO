@@ -37,9 +37,10 @@ export function AdminDashboard() {
       {/* Full Bleed Hero Section */}
       <div className="relative h-screen overflow-hidden">
         <div 
-          className="absolute inset-0 bg-cover bg-center bg-no-repeat"
+          className="absolute inset-0 bg-cover bg-top bg-no-repeat"
           style={{
-            backgroundImage: `linear-gradient(rgba(0, 0, 0, 0.4), rgba(0, 0, 0, 0.4)), url('${heroImage}')`
+            backgroundImage: `linear-gradient(rgba(0, 0, 0, 0.4), rgba(0, 0, 0, 0.4)), url('${heroImage}')`,
+            backgroundPosition: '50% 20%'
           }}
         />
         <div className="relative z-10 flex items-center justify-center h-full">
@@ -62,7 +63,8 @@ export function AdminDashboard() {
             <div 
               className="h-48 bg-cover bg-center relative"
               style={{
-                backgroundImage: `linear-gradient(rgba(0, 0, 0, 0.3), rgba(0, 0, 0, 0.3)), url('${revenueImage}')`
+                backgroundImage: `linear-gradient(rgba(0, 0, 0, 0.3), rgba(0, 0, 0, 0.3)), url('${revenueImage}')`,
+                backgroundPosition: '50% 30%'
               }}
             >
               <div className="absolute inset-0 flex items-center justify-center">
@@ -86,7 +88,8 @@ export function AdminDashboard() {
             <div 
               className="h-48 bg-cover bg-center relative"
               style={{
-                backgroundImage: `linear-gradient(rgba(0, 0, 0, 0.3), rgba(0, 0, 0, 0.3)), url('${usersImage}')`
+                backgroundImage: `linear-gradient(rgba(0, 0, 0, 0.3), rgba(0, 0, 0, 0.3)), url('${usersImage}')`,
+                backgroundPosition: '50% 30%'
               }}
             >
               <div className="absolute inset-0 flex items-center justify-center">
@@ -110,7 +113,8 @@ export function AdminDashboard() {
             <div 
               className="h-48 bg-cover bg-center relative"
               style={{
-                backgroundImage: `linear-gradient(rgba(0, 0, 0, 0.3), rgba(0, 0, 0, 0.3)), url('${imagesImage}')`
+                backgroundImage: `linear-gradient(rgba(0, 0, 0, 0.3), rgba(0, 0, 0, 0.3)), url('${imagesImage}')`,
+                backgroundPosition: '50% 30%'
               }}
             >
               <div className="absolute inset-0 flex items-center justify-center">
@@ -134,7 +138,8 @@ export function AdminDashboard() {
             <div 
               className="h-48 bg-cover bg-center relative"
               style={{
-                backgroundImage: `linear-gradient(rgba(0, 0, 0, 0.3), rgba(0, 0, 0, 0.3)), url('${conversationsImage}')`
+                backgroundImage: `linear-gradient(rgba(0, 0, 0, 0.3), rgba(0, 0, 0, 0.3)), url('${conversationsImage}')`,
+                backgroundPosition: '50% 30%'
               }}
             >
               <div className="absolute inset-0 flex items-center justify-center">
@@ -325,6 +330,79 @@ export function AdminDashboard() {
               <p className="text-lg md:text-xl font-light tracking-wider opacity-90 leading-relaxed">
                 Every day, your vulnerability creates ripples of transformation across the world. 
                 This is just the beginning of your empire.
+              </p>
+            </div>
+          </div>
+        </div>
+
+        {/* Full Bleed Editorial Break */}
+        <div className="h-96 relative overflow-hidden">
+          <div 
+            className="absolute inset-0 bg-cover bg-center bg-no-repeat"
+            style={{
+              backgroundImage: `linear-gradient(rgba(0, 0, 0, 0.3), rgba(0, 0, 0, 0.3)), url('${galleryImages[4]?.imageUrl || heroImage}')`,
+              backgroundPosition: '50% 30%'
+            }}
+          />
+          <div className="relative z-10 flex items-center justify-center h-full">
+            <div className="text-center text-white max-w-2xl px-8">
+              <h2 className="font-serif text-4xl md:text-5xl font-light mb-4 tracking-wide">
+                Your Vision
+              </h2>
+              <p className="text-lg font-light tracking-wider opacity-90 leading-relaxed">
+                Every image tells the story of transformation. Your empire built one photo at a time.
+              </p>
+            </div>
+          </div>
+        </div>
+
+        {/* Gallery Showcase */}
+        <div className="px-8 py-24 max-w-7xl mx-auto">
+          <div className="text-center mb-16">
+            <h2 className="font-serif text-4xl font-light mb-4 tracking-wide text-gray-800">
+              Your Transformation Gallery
+            </h2>
+            <p className="text-gray-600 text-lg font-light max-w-2xl mx-auto leading-relaxed">
+              The visual story of your journey from vision to empire
+            </p>
+          </div>
+          
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+            {galleryImages.slice(0, 6).map((image, index) => (
+              <div key={image.id} className="bg-white border border-gray-100 rounded-lg overflow-hidden shadow-sm hover:shadow-lg transition-all duration-300">
+                <div 
+                  className="h-80 bg-cover bg-center relative"
+                  style={{
+                    backgroundImage: `url('${image.imageUrl}')`,
+                    backgroundPosition: '50% 30%'
+                  }}
+                />
+                <div className="p-6">
+                  <p className="text-gray-600 text-sm font-light">
+                    Gallery Image {index + 1}
+                  </p>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+
+        {/* Final Editorial Break */}
+        <div className="h-screen relative overflow-hidden">
+          <div 
+            className="absolute inset-0 bg-cover bg-center bg-no-repeat"
+            style={{
+              backgroundImage: `linear-gradient(rgba(0, 0, 0, 0.5), rgba(0, 0, 0, 0.5)), url('${galleryImages[galleryImages.length - 1]?.imageUrl || heroImage}')`,
+              backgroundPosition: '50% 30%'
+            }}
+          />
+          <div className="relative z-10 flex items-center justify-center h-full">
+            <div className="text-center text-white max-w-4xl px-8">
+              <h2 className="font-serif text-5xl md:text-7xl font-light mb-6 tracking-wide">
+                This Is Just The Beginning
+              </h2>
+              <p className="text-xl md:text-2xl font-light tracking-wider opacity-90 max-w-3xl mx-auto leading-relaxed">
+                Your empire awaits. Every metric, every image, every conversation building toward your launch.
               </p>
             </div>
           </div>
