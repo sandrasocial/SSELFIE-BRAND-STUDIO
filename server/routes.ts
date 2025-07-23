@@ -5023,6 +5023,15 @@ ${savedMemory.recentDecisions.map(decision => `• ${decision}`).join('\n')}
       console.log(`🔍 ELENA DEBUG: Agent=${agentId}, Message="${messageText.substring(0, 100)}..."`);
       console.log(`🔍 ELENA DEBUG: Is Elena=${isElena}`);
       
+      // CRITICAL: Clear Elena's old workflow context confusion
+      if (isElena && (messageText.includes('loses context') || messageText.includes('referring to old workflows'))) {
+        console.log(`🧹 ELENA: Clearing workflow confusion - user reported context loss`);
+        // Clear Elena's problematic workflow state
+        const { ElenaWorkflowSystem } = await import('./elena-workflow-system');
+        ElenaWorkflowSystem.clearAll();
+        console.log(`✅ ELENA: Workflow state cleared - will respond to current task only`);
+      }
+      
       // ELENA EXECUTION DETECTION - Enhanced pattern matching with typo tolerance
       const isExecutionRequest = isElena && (
         messageText.includes('execute workflow') ||
@@ -5903,7 +5912,7 @@ AGENT_CONTEXT:
       console.log(`💾 Memory summary saved for ${agentId}: ${summary.keyTasks.length} tasks, ${summary.recentDecisions.length} decisions`);
       
       // PERMANENT FIX: Always send Elena's complete, unmodified response to frontend
-      const finalResponseText = agentId === 'elena' ? originalResponseText : (validatedResponse || responseText);
+      const finalResponseText = agentId === 'elena' ? originalResponseText : responseText;
       console.log(`📤 PERMANENT FIX: Sending ${agentId} response (${finalResponseText.length} characters) to frontend`);
       
       // Return enhanced response with file operations for live preview
