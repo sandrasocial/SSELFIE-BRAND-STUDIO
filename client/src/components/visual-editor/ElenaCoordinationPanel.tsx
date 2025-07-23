@@ -91,9 +91,14 @@ export function ElenaCoordinationPanel({ onAgentSelect, currentWorkflow }: Elena
         
         if (response.ok) {
           const data = await response.json();
+          console.log('🔍 Elena coordination panel - received data:', data);
+          
           if (data.progress) {
             setWorkflowProgress(data.progress);
-            if (data.progress.elenaUpdates) {
+            
+            // Update Elena updates with proper data structure
+            if (data.progress.elenaUpdates && Array.isArray(data.progress.elenaUpdates)) {
+              console.log('📊 Elena updates received:', data.progress.elenaUpdates.length);
               setElenaUpdates(data.progress.elenaUpdates);
             }
             
@@ -101,13 +106,16 @@ export function ElenaCoordinationPanel({ onAgentSelect, currentWorkflow }: Elena
             if (data.progress.status === 'completed' || data.progress.status === 'failed') {
               clearInterval(monitorInterval);
               setIsMonitoring(false);
+              console.log('✅ Elena workflow monitoring stopped - workflow completed');
             }
           }
+        } else {
+          console.error('Elena workflow status request failed:', response.status);
         }
       } catch (error) {
         console.error('Elena workflow monitoring error:', error);
       }
-    }, 3000); // Check every 3 seconds
+    }, 2000); // Check every 2 seconds for more responsive updates
 
     return () => clearInterval(monitorInterval);
   };
