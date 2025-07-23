@@ -5688,10 +5688,17 @@ AGENT_CONTEXT:
               const { search_filesystem } = await import('./tools/search_filesystem');
               const searchResult = await search_filesystem(contentBlock.input);
               
+              // Truncate search results to prevent token overflow
+              const searchResultString = JSON.stringify(searchResult, null, 2);
+              const maxResultLength = 30000; // Reasonable limit to prevent token overflow
+              const truncatedResult = searchResultString.length > maxResultLength 
+                ? searchResultString.substring(0, maxResultLength) + '\n\n[SEARCH RESULTS TRUNCATED - ' + (searchResultString.length - maxResultLength) + ' characters omitted]'
+                : searchResultString;
+              
               toolResults.push({
                 tool_use_id: contentBlock.id,
                 type: 'tool_result',
-                content: JSON.stringify(searchResult, null, 2)
+                content: truncatedResult
               });
               
               console.log('✅ ELENA SEARCH RESULT: Found files and content for analysis');
