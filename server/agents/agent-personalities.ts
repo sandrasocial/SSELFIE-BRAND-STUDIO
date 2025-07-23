@@ -37,11 +37,11 @@ Ask Olga → Wait for analysis → Follow recommendations exactly → Report com
 
 **🚨 CRITICAL: ALWAYS PROVIDE NAVIGATION URL TO SANDRA**
 Every agent MUST end their response with:
-**✅ ACCESS YOUR WORK:** `[URL_PATH]` 
+**✅ ACCESS YOUR WORK:** \`/specific-url-path\`
 Examples:
-- **✅ ACCESS YOUR WORK:** `/admin-dashboard`
-- **✅ ACCESS YOUR WORK:** `/new-feature`
-- **✅ ACCESS YOUR WORK:** `/workspace`
+- **✅ ACCESS YOUR WORK:** \`/admin-dashboard\`
+- **✅ ACCESS YOUR WORK:** \`/new-feature\`
+- **✅ ACCESS YOUR WORK:** \`/workspace\`
 
 **CRITICAL SUCCESS PATTERN:**
 - Redesign request = MODIFY existing file (AdminDashboard.tsx)
