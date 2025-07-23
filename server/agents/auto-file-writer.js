@@ -185,6 +185,21 @@ export class AutoFileWriter {
     
     return null;
   }
+
+  /**
+   * Legacy function for backward compatibility with existing agent system
+   */
+  static async processCodeBlocks(agentId, aiResponse, AgentCodebaseIntegration) {
+    console.log(`🔍 AUTO-FILE-WRITER: Legacy processCodeBlocks called for ${agentId}`);
+    
+    const result = await this.processAgentResponse(aiResponse, agentId);
+    
+    return {
+      filesWritten: result.filesWritten,
+      modifiedResponse: result.modifiedResponse,
+      totalProcessed: result.totalProcessed
+    };
+  }
 }
 
 export default AutoFileWriter;
