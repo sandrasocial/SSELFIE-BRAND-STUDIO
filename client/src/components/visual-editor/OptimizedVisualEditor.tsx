@@ -1154,7 +1154,7 @@ export function OptimizedVisualEditor({ className = '' }: OptimizedVisualEditorP
         }
       }
     } catch (error) {
-      if (error.name === 'AbortError') {
+      if (error instanceof Error && error.name === 'AbortError') {
         console.log('Agent request aborted by user');
       } else {
         toast({
@@ -1194,7 +1194,7 @@ export function OptimizedVisualEditor({ className = '' }: OptimizedVisualEditorP
       
       const progressMessage: ChatMessage = {
         type: 'agent',
-        content: responseData.message || responseData.response || 'Elena is coordinating the workflow.',
+        content: 'Elena is coordinating the workflow.',
         timestamp: new Date(),
         agentName: 'elena',
         workflowStage: 'Execution',
@@ -3210,6 +3210,12 @@ const styles = {
                   onLoad={() => {
                     console.log('Live preview loaded successfully');
                     // Expose refresh function globally for auto-refresh
+                    // Global refresh functions for agent synchronization
+                    (window as any).refreshFileTree = () => {
+                      setRefreshTrigger(Date.now());
+                      console.log('🔄 File tree refresh triggered by agent');
+                    };
+                    
                     (window as any).refreshLivePreview = () => {
                       if (iframeRef.current) {
                         const currentSrc = iframeRef.current.src.split('?')[0];
