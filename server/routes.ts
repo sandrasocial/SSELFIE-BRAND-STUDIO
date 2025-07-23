@@ -5307,8 +5307,8 @@ I'll keep you updated as each agent completes their work. You can also check wor
         }
       }
       
-      // Get functional agent personality with crash prevention
-      const agentPersonality = await import('./agents/agent-personalities-working');
+      // Get agent personality from single source of truth
+      const agentPersonality = await import('./agents/agent-personalities');
       const personalityData = agentPersonality.getAgentPersonality(agentId);
       const personality = personalityData.instructions;
       
