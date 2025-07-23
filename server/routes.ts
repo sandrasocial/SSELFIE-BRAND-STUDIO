@@ -5702,6 +5702,7 @@ AGENT_CONTEXT:
               });
               
               console.log('✅ ELENA SEARCH RESULT: Found files and content for analysis');
+              console.log('🔍 ELENA TOOL RESULTS: Structure check:', toolResults.length, 'results');
               
               // Call Claude again with tool results to get Elena's analysis
               const followUpResponse = await claude.messages.create({
@@ -5718,11 +5719,18 @@ AGENT_CONTEXT:
                     role: 'user',
                     content: toolResults
                   }
-                ]
+                ],
+                tools: toolConfig.tools || []
               });
               
-              if (followUpResponse.content[0]?.text) {
+              console.log('🔍 ELENA FOLLOW-UP RESPONSE: Processing search results for autonomous analysis');
+              
+              if (followUpResponse.content && followUpResponse.content[0]?.text) {
                 responseText += followUpResponse.content[0].text;
+                console.log('✅ ELENA AUTONOMOUS ANALYSIS: Follow-up response captured successfully');
+              } else {
+                console.log('❌ ELENA FOLLOW-UP ERROR: No text content in follow-up response');
+                console.log('🔍 Follow-up response structure:', JSON.stringify(followUpResponse.content, null, 2));
               }
               
             } catch (error) {
