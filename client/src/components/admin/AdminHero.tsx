@@ -1,73 +1,55 @@
 import React from 'react';
 
-const AdminHero: React.FC = () => {
+export default function AdminHero() {
   return (
-    <div className="relative w-full h-screen overflow-hidden">
-      {/* Background Image */}
+    <div className="relative h-screen w-full overflow-hidden">
+      {/* Full Bleed Background Image */}
       <div 
         className="absolute inset-0 bg-cover bg-center bg-no-repeat"
         style={{
-          backgroundImage: `url('/api/gallery/featured-image.jpg')`
+          backgroundImage: `linear-gradient(rgba(0,0,0,0.4), rgba(0,0,0,0.6)), url('/gallery/sandra-portrait-editorial.jpg')`
         }}
       />
       
-      {/* Overlay */}
-      <div className="absolute inset-0 bg-black bg-opacity-40" />
-      
-      {/* Content */}
+      {/* Hero Content */}
       <div className="relative z-10 flex items-center justify-center h-full">
-        <div className="text-center text-white space-y-8 max-w-4xl mx-auto px-8">
-          <h1 className="text-6xl md:text-8xl font-light leading-tight" style={{ fontFamily: 'Times New Roman, serif' }}>
-            Command
-            <br />
-            <span className="italic">Your Empire</span>
+        <div className="text-center text-white max-w-4xl mx-auto px-6">
+          <h1 
+            className="text-6xl md:text-8xl font-light uppercase tracking-wide mb-6"
+            style={{ 
+              fontFamily: 'Times New Roman',
+              fontWeight: 200,
+              letterSpacing: '-0.01em'
+            }}
+          >
+            SANDRA'S DASHBOARD
           </h1>
           
-          <p className="text-xl md:text-2xl font-light max-w-2xl mx-auto leading-relaxed">
-            SSELFIE Studio Administrative Dashboard
+          <p 
+            className="text-xl md:text-2xl font-light max-w-2xl mx-auto leading-relaxed"
+            style={{ 
+              fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif',
+              fontWeight: 300
+            }}
+          >
+            From rock bottom to empire builder—command center for your transformation journey
           </p>
           
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-12 pt-16">
-            <div className="space-y-2">
-              <div className="text-4xl font-light" style={{ fontFamily: 'Times New Roman, serif' }}>
-                1,247
-              </div>
-              <div className="text-sm uppercase tracking-wider opacity-90">
-                Total Users
-              </div>
-            </div>
-            
-            <div className="space-y-2">
-              <div className="text-4xl font-light" style={{ fontFamily: 'Times New Roman, serif' }}>
-                €15,132
-              </div>
-              <div className="text-sm uppercase tracking-wider opacity-90">
-                Monthly Revenue
-              </div>
-            </div>
-            
-            <div className="space-y-2">
-              <div className="text-4xl font-light" style={{ fontFamily: 'Times New Roman, serif' }}>
-                324
-              </div>
-              <div className="text-sm uppercase tracking-wider opacity-90">
-                Premium Users
-              </div>
-            </div>
-          </div>
+          {/* Editorial Quote */}
+          <blockquote 
+            className="mt-12 text-2xl md:text-4xl italic text-white/90"
+            style={{ 
+              fontFamily: 'Times New Roman',
+              letterSpacing: '-0.02em'
+            }}
+          >
+            "Every empire started with a single brave step forward."
+          </blockquote>
         </div>
       </div>
       
-      {/* Scroll Indicator */}
-      <div className="absolute bottom-8 left-1/2 transform -translate-x-1/2 text-white">
-        <div className="animate-bounce">
-          <div className="w-6 h-10 border-2 border-white rounded-full flex justify-center">
-            <div className="w-1 h-3 bg-white rounded-full mt-2"></div>
-          </div>
-        </div>
-      </div>
+      {/* Bottom Gradient Overlay */}
+      <div className="absolute bottom-0 left-0 right-0 h-32 bg-gradient-to-t from-black/60 to-transparent" />
     </div>
   );
-};
-
-export default AdminHero;
+}
