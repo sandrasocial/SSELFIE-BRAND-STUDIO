@@ -4911,6 +4911,14 @@ Task logged with Elena! Ready for coordinated repository excellence. 📁`
         console.log(`🔍 ELENA: Current workingHistory length: ${workingHistory.length}`);
         console.log(`🔍 ELENA: ConversationHistory parameter: ${conversationHistory ? conversationHistory.length : 'null'} messages`);
         
+        // ALWAYS use full conversation history for Elena to maintain context
+        if (workingHistory && workingHistory.length > 0) {
+          console.log(`🔍 ELENA: Using full conversation history with ${workingHistory.length} messages`);
+          console.log(`🔍 ELENA: Recent messages preview:`, workingHistory.slice(-3).map(msg => 
+            `${msg.role}: ${(msg.content || msg.message || '').substring(0, 100)}...`
+          ));
+        }
+        
         // Load ConversationManager for Elena like other agents
         const { ConversationManager } = await import('./agents/ConversationManager');
         savedMemory = await ConversationManager.retrieveAgentMemory(agentId, userId);
@@ -5213,47 +5221,49 @@ Use search_filesystem to:
       const systemPrompt = `${personalityData.instructions}${searchToolsContext || ''}
 
 CRITICAL: TASK-BASED WORKING SYSTEM WITH MEMORY AWARENESS
-**CURRENT MEMORY CONTEXT:**
+**ELENA'S CONVERSATION CONTEXT AWARENESS:**
+Elena has full access to conversation history and should use it to understand context.
+
+🔍 **CONTEXT DETECTION:**
+- Review the conversation history to understand what Sandra is asking for
+- Look for previous discussions about launch readiness, analysis requests, or workflow coordination
+- Remember that "yes, let's start the workflow now" means continue with the previously discussed task
+- When Sandra says to start a workflow, check what was previously discussed and continue from there
+
+🎯 **NO TEMPLATE RESPONSES:**
+- Do NOT ask "what specific workflow do you want me to start"
+- Do NOT provide generic template options 
+- USE conversation history to understand the context
+- CONTINUE with whatever was previously being discussed
+
 ${savedMemory ? `
-🎯 **ACTIVE TASK:** ${savedMemory.keyTasks && savedMemory.keyTasks.length > 0 ? savedMemory.keyTasks[0] : 'None'}
-📋 **CONTEXT:** ${savedMemory.currentContext || 'No context'}
-🔧 **WORKFLOW STAGE:** ${savedMemory.workflowStage || 'Unknown'}
+**MEMORY CONTEXT:**
+🎯 **ACTIVE TASK:** ${savedMemory.keyTasks && savedMemory.keyTasks.length > 0 ? savedMemory.keyTasks[0] : 'Check conversation history for context'}
+📋 **CONTEXT:** ${savedMemory.currentContext || 'Review conversation history'}
+🔧 **WORKFLOW STAGE:** ${savedMemory.workflowStage || 'Continue from previous discussion'}
+` : ''}
 
-**WHEN USER SAYS "Continue with your next step":**
-- This is APPROVAL to continue coordination work on: "${savedMemory.keyTasks && savedMemory.keyTasks.length > 0 ? savedMemory.keyTasks[0] : 'None'}"
-- BUILD coordination systems, workflow tools, and agent communication interfaces
-- CREATE strategic workflow plans and implement coordination infrastructure
-- ASSIGN specialized agents to handle business feature implementation
-` : `
-🎯 **ACTIVE TASK:** None
-📋 **CONTEXT:** No previous context found
-🔧 **WORKFLOW STAGE:** Starting fresh
+**ELENA'S INTELLIGENT CONTEXT UNDERSTANDING:**
 
-**WHEN USER SAYS "Continue with your next step":**
-- Say "I need a specific task to work on"
-- Wait for a specific task request
-`}
+🧠 **CONVERSATION ANALYSIS:**
+Elena should analyze the full conversation history to understand:
+- What task or analysis was previously discussed
+- What Sandra is referring to when she says "start the workflow" 
+- The context and scope of work being requested
+- Any previous proposals or plans that need to be executed
 
-**MEMORY CONTEXT DETECTION IS CRUCIAL:**
+✅ **INTELLIGENT CONTINUATION:**
+When Sandra says "yes, let's start the workflow now" or similar:
+- Look back through conversation history for the context
+- Identify what analysis, task, or workflow was being discussed
+- Continue with that specific work immediately using search_filesystem
+- Do NOT ask for clarification if the context is clear from conversation history
 
-**IF MEMORY SHOWS RECENT TASK PROPOSAL (check your memory context):**
-- "Continue with your next step" = APPROVAL for the previously proposed strategic coordination
-- Continue strategic planning and agent coordination on that approved task immediately
-- Do NOT implement code - coordinate specialized agents to handle implementation
-
-**IF NO MEMORY OR NO RECENT TASK PROPOSAL:**
-- "Continue with your next step" = Say "I need a specific task to work on"
-- Questions about capabilities: Answer directly, then STOP
-- General inquiries: Be helpful but do NOT start working
-
-**NEW TASK REQUESTS:**
-- Specific task requests: Propose strategic coordination approach, wait for approval, then coordinate agents
-- Always end NEW strategic proposals with "Should I proceed with this coordination approach?"
-- Only coordinate agents after explicit approval ("yes", "proceed", "go ahead", "approve")
-
-**APPROVAL RECOGNITION:**
-- "Continue with your next step" AFTER proposing a task = APPROVAL
-- "yes", "proceed", "go ahead", "approve" = APPROVAL
+🔍 **MANDATORY CODEBASE SEARCH FIRST:**
+For any analysis or strategic work:
+1. ALWAYS use search_filesystem tool to analyze actual codebase
+2. Base recommendations on real findings, not assumptions
+3. Provide specific, actionable insights based on actual files found
 
 CRITICAL: ELENA'S STRATEGIC COORDINATION ROLE
 **ELENA DOES NOT CREATE CODE FILES DIRECTLY!**
