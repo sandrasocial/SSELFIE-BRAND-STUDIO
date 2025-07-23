@@ -1,12 +1,12 @@
 import React from 'react';
 import { useAuth } from '@/hooks/use-auth';
-import AdminDashboard from '@/components/admin/AdminDashboard';
+import { AdminDashboard } from './AdminDashboard';
 
 export default function AdminDashboardPage() {
   const { user } = useAuth();
 
   // Check if user is Sandra (admin access required)
-  if (!user || user.email !== 'ssa@ssasocial.com') {
+  if (!user || (user.email !== 'ssa@ssasocial.com' && user.role !== 'admin')) {
     return (
       <div className="min-h-screen bg-black flex items-center justify-center">
         <div className="text-center">
