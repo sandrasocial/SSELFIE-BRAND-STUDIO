@@ -726,11 +726,49 @@ export function OptimizedVisualEditor({ className = '' }: OptimizedVisualEditorP
                 updated[lastWorkflowIndex] = {
                   ...updated[lastWorkflowIndex],
                   workflowProgress: data.progress,
-                  content: `**Workflow Progress Update**\n\n**Step:** ${data.progress.currentStep}/${data.progress.totalSteps}\n**Current Agent:** ${data.progress.currentAgent || 'Coordinating'}\n**Status:** ${data.progress.status}\n\n**Completed Tasks:**\n${data.progress.completedTasks.join('\n')}\n\n**Next Actions:**\n${data.progress.nextActions.join('\n')}`
+                  content: `**🚀 Elena's Workflow: Live Progress**\n\n**Step:** ${data.progress.currentStep}/${data.progress.totalSteps}\n**Current Agent:** ${data.progress.currentAgent || 'Coordinating'}\n**Status:** ${data.progress.status}\n\n**✅ Completed Tasks:**\n${data.progress.completedTasks.map(task => `• ${task}`).join('\n')}\n\n**⏭️ Next Actions:**\n${data.progress.nextActions.map(action => `• ${action}`).join('\n')}\n\n*Live updates every 3 seconds...*`
                 };
               }
               return updated;
             });
+
+            // 🔄 CRITICAL: Auto-refresh file tree and live preview when workflow steps complete
+            if (data.progress.completedTasks.length > 0) {
+              console.log(`🔄 WORKFLOW AUTO-REFRESH: Step ${data.progress.currentStep} completed, refreshing...`);
+              
+              // Refresh file tree to show new/modified files
+              setTimeout(() => {
+                if ((window as any).refreshFileTree) {
+                  (window as any).refreshFileTree();
+                  console.log('🗂️ File tree refreshed');
+                }
+              }, 1000);
+              
+              // Refresh live preview to show changes
+              setTimeout(() => {
+                if ((window as any).refreshLivePreview) {
+                  (window as any).refreshLivePreview();
+                  console.log('👀 Live preview refreshed');
+                }
+                
+                // Force iframe reload for immediate visual updates
+                const iframe = document.querySelector('iframe');
+                if (iframe && iframe.src) {
+                  const currentSrc = iframe.src;
+                  iframe.src = '';
+                  setTimeout(() => {
+                    iframe.src = currentSrc;
+                    console.log('🖼️ Iframe reloaded for workflow changes');
+                  }, 500);
+                }
+              }, 2000);
+              
+              // Show toast notification for workflow progress
+              toast({
+                title: `Step ${data.progress.currentStep} Complete`,
+                description: `${data.progress.currentAgent} finished work. Auto-refreshing preview...`,
+              });
+            }
             
             // Stop polling if workflow is completed or failed
             if (data.progress.status === 'completed' || data.progress.status === 'failed') {
@@ -739,17 +777,47 @@ export function OptimizedVisualEditor({ className = '' }: OptimizedVisualEditorP
                 setWorkflowPollingInterval(null);
               }
               
-              // Add completion message
+              // Add completion message with final refresh
               const completionMessage: ChatMessage = {
                 type: 'agent',
                 content: data.progress.status === 'completed' 
-                  ? `**🎉 Workflow Completed Successfully!**\n\nAll agents have completed their assigned tasks. The workflow has been executed and your files have been updated.`
+                  ? `**🎉 Elena's Workflow Completed Successfully!**\n\n✅ All ${data.progress.totalSteps} agents completed their tasks\n🗂️ Files have been updated and organized\n👀 Preview refreshed with latest changes\n\n**Final Results:**\n${data.progress.completedTasks.map(task => `• ${task}`).join('\n')}\n\n*Elena's coordination complete!*`
                   : `**❌ Workflow Failed**\n\nThe workflow encountered an error and could not be completed. Please check the logs for details.`,
                 timestamp: new Date(),
                 agentName: 'elena',
                 workflowStage: 'Complete'
               };
               setChatMessages(prev => [...prev, completionMessage]);
+              
+              // Final auto-refresh when workflow completes
+              if (data.progress.status === 'completed') {
+                console.log('🏁 WORKFLOW COMPLETE: Final auto-refresh triggered');
+                
+                setTimeout(() => {
+                  // Final file tree refresh
+                  if ((window as any).refreshFileTree) {
+                    (window as any).refreshFileTree();
+                  }
+                  
+                  // Final live preview refresh  
+                  if ((window as any).refreshLivePreview) {
+                    (window as any).refreshLivePreview();
+                  }
+                  
+                  // Force complete page refresh for final result
+                  setTimeout(() => {
+                    const iframe = document.querySelector('iframe');
+                    if (iframe && iframe.src) {
+                      iframe.src = iframe.src.split('?')[0] + '?t=' + Date.now();
+                    }
+                  }, 1000);
+                }, 2000);
+                
+                toast({
+                  title: 'Elena Workflow Complete!',
+                  description: 'All changes applied. Preview refreshed with final results.',
+                });
+              }
             }
           }
         }
