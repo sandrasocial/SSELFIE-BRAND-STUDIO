@@ -395,6 +395,32 @@ export class ElenaWorkflowSystem {
     }
     return progress;
   }
+
+  /**
+   * Get all active workflows for Elena coordination panel
+   */
+  static async getActiveWorkflows(): Promise<any[]> {
+    const activeWorkflows = [];
+    
+    for (const [workflowId, workflow] of this.workflows.entries()) {
+      const progress = this.workflowProgress.get(workflowId);
+      
+      if (progress && (progress.status === 'executing' || progress.status === 'ready')) {
+        activeWorkflows.push({
+          id: workflowId,
+          name: workflow.name,
+          status: progress.status,
+          currentStep: progress.currentStep || 0,
+          totalSteps: progress.totalSteps || workflow.steps.length,
+          currentAgent: progress.currentAgent,
+          estimatedTimeRemaining: progress.estimatedTimeRemaining
+        });
+      }
+    }
+    
+    console.log(`🔍 ELENA: Found ${activeWorkflows.length} active workflows`);
+    return activeWorkflows;
+  }
   
   /**
    * Execute workflow steps with REAL agent calls and continuous monitoring
