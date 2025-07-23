@@ -95,6 +95,21 @@ export class ConversationManager {
           keyTasks.push('Conduct comprehensive workflow audit and completion strategy');
         }
         
+        // Launch readiness audit requests
+        if (content.includes('launch') && (content.includes('audit') || content.includes('readiness') || content.includes('ready'))) {
+          keyTasks.push('SSELFIE Studio platform launch readiness audit');
+        }
+        
+        // Platform audit requests  
+        if (content.includes('platform') && content.includes('audit')) {
+          keyTasks.push('Complete SSELFIE Studio platform audit and analysis');
+        }
+        
+        // Comprehensive audit requests
+        if (content.includes('audit') && (content.includes('complete') || content.includes('comprehensive') || content.includes('studio'))) {
+          keyTasks.push('Complete comprehensive SSELFIE Studio audit');
+        }
+        
         // Component analysis requests
         if (content.includes('audit') && content.includes('component')) {
           keyTasks.push('Comprehensive component analysis and gap identification');
