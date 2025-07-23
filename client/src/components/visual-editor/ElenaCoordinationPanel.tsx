@@ -3,7 +3,7 @@ import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import { Progress } from '@/components/ui/progress';
-import { Eye, Clock, Users, Activity, CheckCircle, AlertCircle } from 'lucide-react';
+import { Eye, Clock, Users, Activity, CheckCircle, AlertCircle, Shield } from 'lucide-react';
 
 interface AgentStatus {
   id: string;
@@ -52,6 +52,39 @@ export function ElenaCoordinationPanel({ onAgentSelect, currentWorkflow }: Elena
   const [workflowProgress, setWorkflowProgress] = useState<WorkflowProgress | null>(null);
   const [elenaUpdates, setElenaUpdates] = useState<ElenaUpdate[]>([]);
   const [isMonitoring, setIsMonitoring] = useState(false);
+  const [autonomousMonitoring, setAutonomousMonitoring] = useState<{
+    isActive: boolean;
+    checkInterval: string;
+    stallThreshold: string;
+    agentTimeout: string;
+  }>({
+    isActive: false,
+    checkInterval: '2 minutes',
+    stallThreshold: '3 minutes', 
+    agentTimeout: '5 minutes'
+  });
+
+  // Check Elena's autonomous monitoring status
+  useEffect(() => {
+    const checkAutonomousMonitoring = async () => {
+      try {
+        const response = await fetch('/api/elena/monitoring-status');
+        if (response.ok) {
+          const data = await response.json();
+          if (data.success && data.monitoring) {
+            setAutonomousMonitoring(data.monitoring);
+          }
+        }
+      } catch (error) {
+        console.error('Failed to check autonomous monitoring status:', error);
+      }
+    };
+    
+    checkAutonomousMonitoring();
+    const monitoringInterval = setInterval(checkAutonomousMonitoring, 30000); // Check every 30 seconds
+    
+    return () => clearInterval(monitoringInterval);
+  }, []);
 
   // Monitor Elena's live workflow progress
   useEffect(() => {
@@ -133,8 +166,35 @@ export function ElenaCoordinationPanel({ onAgentSelect, currentWorkflow }: Elena
             <Badge variant={isMonitoring ? "default" : "secondary"}>
               {isMonitoring ? 'Live' : 'Standby'}
             </Badge>
+            {autonomousMonitoring.isActive && (
+              <Badge variant="outline" className="bg-green-50 text-green-700 border-green-200">
+                <Shield className="w-3 h-3 mr-1" />
+                Autonomous
+              </Badge>
+            )}
           </div>
         </div>
+        
+        {/* Autonomous Monitoring Status */}
+        {autonomousMonitoring.isActive && (
+          <div className="mt-3 p-3 bg-green-50 rounded-lg border border-green-200">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center">
+                <Activity className="w-4 h-4 text-green-600 mr-2" />
+                <span className="text-sm font-medium text-green-900">Autonomous Monitoring Active</span>
+              </div>
+              <div className="flex items-center">
+                <div className="w-2 h-2 bg-green-500 rounded-full mr-2 animate-pulse"></div>
+                <span className="text-xs text-green-700">Self-healing workflows</span>
+              </div>
+            </div>
+            <div className="mt-2 text-xs text-green-700 space-y-1">
+              <div>• Checks every {autonomousMonitoring.checkInterval}</div>
+              <div>• Auto-recovery after {autonomousMonitoring.stallThreshold} stall</div>
+              <div>• Agent timeout: {autonomousMonitoring.agentTimeout}</div>
+            </div>
+          </div>
+        )}
       </div>
 
       {/* Live Workflow Progress */}
