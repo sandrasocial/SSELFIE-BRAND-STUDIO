@@ -5536,8 +5536,10 @@ AGENT_CONTEXT:
         const validation = AgentCrashPrevention.default.validateAgentResponse(agentId, responseText);
         
         // Apply mandatory file integration protocol to prevent duplicate files
-        const AgentFileIntegration = await import('./agents/agent-file-integration-protocol');
-        const integrationCheck = await AgentFileIntegration.default.enforceIntegrationProtocol(agentId, responseText);
+        // ARCHIVED - agent file integration protocol moved to auto-file-writer
+        // const AgentFileIntegration = await import('./agents/agent-file-integration-protocol');
+        // const integrationCheck = await AgentFileIntegration.default.enforceIntegrationProtocol(agentId, responseText);
+        const integrationCheck = { violations: [], fixedResponse: null, response: responseText }; // Simplified for archived integration
         
         let validatedResponse = integrationCheck.fixedResponse || integrationCheck.response || responseText;
         
