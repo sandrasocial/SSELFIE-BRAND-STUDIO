@@ -47,6 +47,7 @@ import { useQuery } from '@tanstack/react-query';
 import { FileTreeExplorer } from './FileTreeExplorer';
 import { MultiTabEditor } from './MultiTabEditor';
 import { FormattedAgentMessage } from './FormattedAgentMessage';
+import MultiAgentWorkflowInterface from '@/components/admin/MultiAgentWorkflowInterface';
 import { ElenaCoordinationPanel } from './ElenaCoordinationPanel';
 import { ConversationThread } from './ConversationThread';
 import { EnhancedInput } from './EnhancedInput';
@@ -1581,6 +1582,13 @@ export function OptimizedVisualEditor({ className = '' }: OptimizedVisualEditorP
                       Advanced Analytics
                     </button>
                     <button
+                      onClick={() => { setActiveTab('multi-agent'); setShowMoreDropdown(false); }}
+                      className="w-full text-left px-3 py-2 text-xs hover:bg-gray-50 flex items-center"
+                    >
+                      <Zap className="w-4 h-4 mr-2" />
+                      Multi-Agent Coordination
+                    </button>
+                    <button
                       onClick={() => { setActiveTab('ai-assistant'); setShowMoreDropdown(false); }}
                       className="w-full text-left px-3 py-2 text-xs hover:bg-gray-50 flex items-center"
                     >
@@ -2783,6 +2791,28 @@ const styles = {
                   });
                 }}
               />
+            </div>
+          </TabsContent>
+
+          {/* Multi-Agent Coordination Tab */}
+          <TabsContent value="multi-agent" className="flex-1 flex flex-col mt-0 min-h-0">
+            <div className="p-4 border-b border-gray-200">
+              <div className="flex items-center justify-between">
+                <div>
+                  <h4 className="font-medium text-sm flex items-center">
+                    <Zap className="w-4 h-4 mr-2" />
+                    Enterprise Multi-Agent Coordination
+                  </h4>
+                  <p className="text-xs text-gray-600 mt-1">All agents can now talk to each other in real-time for complex workflows</p>
+                </div>
+                <Badge variant="secondary" className="text-xs bg-blue-100 text-blue-800">
+                  Enterprise Ready
+                </Badge>
+              </div>
+            </div>
+            
+            <div className="flex-1 overflow-hidden">
+              <MultiAgentWorkflowInterface />
             </div>
           </TabsContent>
 

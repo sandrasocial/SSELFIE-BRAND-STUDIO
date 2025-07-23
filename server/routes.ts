@@ -135,6 +135,120 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Agent learning & training routes  
   app.use('/api/agent-learning', agentLearningRoutes);
   
+  // Enhanced Elena workflow routes with multi-agent communication
+  app.post('/api/enhanced-elena/create-workflow', async (req, res) => {
+    try {
+      const { name, description, steps } = req.body;
+      const { EnhancedElenaWorkflowSystem } = await import('./enhanced-elena-workflow-system.js');
+      const workflowSystem = EnhancedElenaWorkflowSystem.getInstance();
+      
+      const workflowId = workflowSystem.createEnhancedWorkflow(name, description, steps);
+      
+      res.json({
+        success: true,
+        workflowId,
+        message: `Enhanced workflow created: ${workflowId}`
+      });
+    } catch (error) {
+      console.error('Enhanced workflow creation error:', error);
+      res.status(500).json({
+        success: false,
+        error: error.message
+      });
+    }
+  });
+
+  app.post('/api/enhanced-elena/execute-workflow', async (req, res) => {
+    try {
+      const { workflowId } = req.body;
+      const { EnhancedElenaWorkflowSystem } = await import('./enhanced-elena-workflow-system.js');
+      const workflowSystem = EnhancedElenaWorkflowSystem.getInstance();
+      
+      // Execute workflow asynchronously
+      workflowSystem.executeEnhancedWorkflow(workflowId).catch(error => {
+        console.error(`Enhanced workflow ${workflowId} execution error:`, error);
+      });
+      
+      res.json({
+        success: true,
+        message: `Enhanced workflow ${workflowId} execution started`
+      });
+    } catch (error) {
+      console.error('Enhanced workflow execution error:', error);
+      res.status(500).json({
+        success: false,
+        error: error.message
+      });
+    }
+  });
+
+  app.get('/api/enhanced-elena/workflow-status/:workflowId', async (req, res) => {
+    try {
+      const { workflowId } = req.params;
+      const { EnhancedElenaWorkflowSystem } = await import('./enhanced-elena-workflow-system.js');
+      const workflowSystem = EnhancedElenaWorkflowSystem.getInstance();
+      
+      const status = workflowSystem.getEnhancedWorkflowStatus(workflowId);
+      
+      res.json({
+        success: true,
+        status
+      });
+    } catch (error) {
+      console.error('Enhanced workflow status error:', error);
+      res.status(500).json({
+        success: false,
+        error: error.message
+      });
+    }
+  });
+
+  app.post('/api/multi-agent/coordinate', async (req, res) => {
+    try {
+      const { fromAgent, toAgent, message, workflowId } = req.body;
+      const { MultiAgentCommunicationSystem } = await import('./agents/multi-agent-communication-system.js');
+      const communicationSystem = MultiAgentCommunicationSystem.getInstance();
+      
+      const response = await communicationSystem.sendAgentMessage(
+        fromAgent,
+        toAgent,
+        message,
+        { workflowId, priority: 'medium' }
+      );
+      
+      res.json({
+        success: true,
+        response
+      });
+    } catch (error) {
+      console.error('Multi-agent coordination error:', error);
+      res.status(500).json({
+        success: false,
+        error: error.message
+      });
+    }
+  });
+
+  app.get('/api/multi-agent/statuses', async (req, res) => {
+    try {
+      const { MultiAgentCommunicationSystem } = await import('./agents/multi-agent-communication-system.js');
+      const communicationSystem = MultiAgentCommunicationSystem.getInstance();
+      
+      const statuses = communicationSystem.getAgentStatuses();
+      
+      res.json({
+        success: true,
+        statuses
+      });
+    } catch (error) {
+      console.error('Agent status error:', error);
+      res.status(500).json({
+        success: false,
+        error: error.message
+      });
+    }
+  });
+
   // Elena workflow routes for visual editor integration (admin access)
   app.use('/api/admin/elena', elenaWorkflowRoutes);
   
