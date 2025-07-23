@@ -27,7 +27,7 @@ export function AdminDashboard() {
         <div 
           className="absolute inset-0 bg-cover bg-center bg-no-repeat"
           style={{
-            backgroundImage: `linear-gradient(rgba(0, 0, 0, 0.4), rgba(0, 0, 0, 0.4)), url('/flatlays/luxury-minimal/flatlay-luxury-minimal-workspace.jpg')`
+            backgroundImage: `linear-gradient(rgba(0, 0, 0, 0.4), rgba(0, 0, 0, 0.4)), url('/flatlays/luxury-minimal/luxury-minimal-001.png')`
           }}
         />
         <div className="relative z-10 flex items-center justify-center h-full">
@@ -50,7 +50,7 @@ export function AdminDashboard() {
             <div 
               className="h-48 bg-cover bg-center relative"
               style={{
-                backgroundImage: `linear-gradient(rgba(0, 0, 0, 0.3), rgba(0, 0, 0, 0.3)), url('/flatlays/business-professional/flatlay-business-professional-workspace.jpg')`
+                backgroundImage: `linear-gradient(rgba(0, 0, 0, 0.3), rgba(0, 0, 0, 0.3)), url('/flatlays/business-professional/business-professional-201.png')`
               }}
             >
               <div className="absolute inset-0 flex items-center justify-center">
@@ -74,7 +74,7 @@ export function AdminDashboard() {
             <div 
               className="h-48 bg-cover bg-center relative"
               style={{
-                backgroundImage: `linear-gradient(rgba(0, 0, 0, 0.3), rgba(0, 0, 0, 0.3)), url('/flatlays/european-luxury/flatlay-european-luxury-businesswoman.jpg')`
+                backgroundImage: `linear-gradient(rgba(0, 0, 0, 0.3), rgba(0, 0, 0, 0.3)), url('/flatlays/european-luxury/european-luxury-101.png')`
               }}
             >
               <div className="absolute inset-0 flex items-center justify-center">
@@ -98,7 +98,7 @@ export function AdminDashboard() {
             <div 
               className="h-48 bg-cover bg-center relative"
               style={{
-                backgroundImage: `linear-gradient(rgba(0, 0, 0, 0.3), rgba(0, 0, 0, 0.3)), url('/flatlays/business-professional/flatlay-business-professional-analytics.jpg')`
+                backgroundImage: `linear-gradient(rgba(0, 0, 0, 0.3), rgba(0, 0, 0, 0.3)), url('/flatlays/business-professional/business-professional-202.png')`
               }}
             >
               <div className="absolute inset-0 flex items-center justify-center">
@@ -122,7 +122,7 @@ export function AdminDashboard() {
             <div 
               className="h-48 bg-cover bg-center relative"
               style={{
-                backgroundImage: `linear-gradient(rgba(0, 0, 0, 0.3), rgba(0, 0, 0, 0.3)), url('/flatlays/luxury-minimal/flatlay-luxury-minimal-success.jpg')`
+                backgroundImage: `linear-gradient(rgba(0, 0, 0, 0.3), rgba(0, 0, 0, 0.3)), url('/flatlays/luxury-minimal/luxury-minimal-002.png')`
               }}
             >
               <div className="absolute inset-0 flex items-center justify-center">
