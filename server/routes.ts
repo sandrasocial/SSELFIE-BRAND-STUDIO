@@ -5744,7 +5744,7 @@ AGENT_CONTEXT:
       // Handle tool use for Elena's search_filesystem with recursive tool call handling
       if (agentId === 'elena' && response.content) {
         let currentResponse = response;
-        let maxToolCalls = 3; // Prevent infinite loops
+        let maxToolCalls = 1; // Elena should search ONCE then analyze
         let toolCallCount = 0;
         
         while (toolCallCount < maxToolCalls) {
@@ -5798,8 +5798,8 @@ AGENT_CONTEXT:
           console.log(`🔍 ELENA FOLLOW-UP CALL ${toolCallCount}: Processing ${currentToolResults.length} search results`);
           
           // Call Claude again with all tool results - force analysis after searches
-          const analysisPrompt = toolCallCount >= 2 ? 
-            systemPrompt + '\n\n🚨 CRITICAL OVERRIDE: You have completed your searches. STOP SEARCHING. Provide your complete strategic analysis and implementation plan NOW. Do not call any more tools.' :
+          const analysisPrompt = toolCallCount >= 1 ? 
+            systemPrompt + '\n\n🚨 CRITICAL OVERRIDE: You have completed your search. STOP SEARCHING. Based on the search results provided, give your complete strategic analysis and specific recommendations NOW. Do not call any more tools.' :
             systemPrompt + '\n\nCRITICAL: After searching the codebase, provide your COMPLETE ANALYSIS and STRATEGIC PLAN. Do not make additional search calls - analyze the results you have.';
             
           const followUpResponse = await claude.messages.create({
