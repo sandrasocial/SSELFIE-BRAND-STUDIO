@@ -5675,74 +5675,90 @@ AGENT_CONTEXT:
       let responseText = '';
       let toolResults = [];
       
-      // Handle tool use for Elena's search_filesystem
+      // Handle tool use for Elena's search_filesystem with recursive tool call handling
       if (agentId === 'elena' && response.content) {
-        for (const contentBlock of response.content) {
-          if (contentBlock.type === 'text') {
-            responseText += contentBlock.text;
-          } else if (contentBlock.type === 'tool_use' && contentBlock.name === 'search_filesystem') {
-            console.log('🔍 ELENA TOOL EXECUTION: search_filesystem called with:', contentBlock.input);
-            
-            try {
-              // Import and execute search_filesystem tool
-              const { search_filesystem } = await import('./tools/search_filesystem');
-              const searchResult = await search_filesystem(contentBlock.input);
+        let currentResponse = response;
+        let maxToolCalls = 3; // Prevent infinite loops
+        let toolCallCount = 0;
+        
+        while (toolCallCount < maxToolCalls) {
+          let hasToolCalls = false;
+          let currentToolResults = [];
+          
+          for (const contentBlock of currentResponse.content) {
+            if (contentBlock.type === 'text') {
+              responseText += contentBlock.text;
+            } else if (contentBlock.type === 'tool_use' && contentBlock.name === 'search_filesystem') {
+              hasToolCalls = true;
+              console.log(`🔍 ELENA TOOL EXECUTION ${toolCallCount + 1}: search_filesystem called with:`, contentBlock.input);
               
-              // Truncate search results to prevent token overflow
-              const searchResultString = JSON.stringify(searchResult, null, 2);
-              const maxResultLength = 30000; // Reasonable limit to prevent token overflow
-              const truncatedResult = searchResultString.length > maxResultLength 
-                ? searchResultString.substring(0, maxResultLength) + '\n\n[SEARCH RESULTS TRUNCATED - ' + (searchResultString.length - maxResultLength) + ' characters omitted]'
-                : searchResultString;
-              
-              toolResults.push({
-                tool_use_id: contentBlock.id,
-                type: 'tool_result',
-                content: truncatedResult
-              });
-              
-              console.log('✅ ELENA SEARCH RESULT: Found files and content for analysis');
-              console.log('🔍 ELENA TOOL RESULTS: Structure check:', toolResults.length, 'results');
-              
-              // Call Claude again with tool results to get Elena's analysis
-              const followUpResponse = await claude.messages.create({
-                model: 'claude-sonnet-4-20250514',
-                max_tokens: 8000,
-                system: systemPrompt,
-                messages: [
-                  ...messages as any,
-                  { 
-                    role: 'assistant', 
-                    content: response.content 
-                  },
-                  {
-                    role: 'user',
-                    content: toolResults
-                  }
-                ],
-                tools: toolConfig.tools || []
-              });
-              
-              console.log('🔍 ELENA FOLLOW-UP RESPONSE: Processing search results for autonomous analysis');
-              
-              if (followUpResponse.content && followUpResponse.content[0]?.text) {
-                responseText += followUpResponse.content[0].text;
-                console.log('✅ ELENA AUTONOMOUS ANALYSIS: Follow-up response captured successfully');
-              } else {
-                console.log('❌ ELENA FOLLOW-UP ERROR: No text content in follow-up response');
-                console.log('🔍 Follow-up response structure:', JSON.stringify(followUpResponse.content, null, 2));
+              try {
+                // Import and execute search_filesystem tool
+                const { search_filesystem } = await import('./tools/search_filesystem');
+                const searchResult = await search_filesystem(contentBlock.input);
+                
+                // Truncate search results to prevent token overflow
+                const searchResultString = JSON.stringify(searchResult, null, 2);
+                const maxResultLength = 20000; // Reduced to leave room for multiple searches
+                const truncatedResult = searchResultString.length > maxResultLength 
+                  ? searchResultString.substring(0, maxResultLength) + '\n\n[SEARCH RESULTS TRUNCATED - ' + (searchResultString.length - maxResultLength) + ' characters omitted]'
+                  : searchResultString;
+                
+                currentToolResults.push({
+                  tool_use_id: contentBlock.id,
+                  type: 'tool_result',
+                  content: truncatedResult
+                });
+                
+                console.log(`✅ ELENA SEARCH RESULT ${toolCallCount + 1}: Found files and content for analysis`);
+                
+              } catch (error) {
+                console.error('❌ ELENA SEARCH ERROR:', error);
+                currentToolResults.push({
+                  tool_use_id: contentBlock.id,
+                  type: 'tool_result',
+                  content: `Error executing search: ${error.message}`
+                });
               }
-              
-            } catch (error) {
-              console.error('❌ ELENA SEARCH ERROR:', error);
-              toolResults.push({
-                tool_use_id: contentBlock.id,
-                type: 'tool_result',
-                content: `Error executing search: ${error.message}`
-              });
             }
           }
+          
+          if (!hasToolCalls) {
+            console.log('✅ ELENA TOOL SEQUENCE COMPLETE: No more tool calls, analysis complete');
+            break;
+          }
+          
+          toolCallCount++;
+          console.log(`🔍 ELENA FOLLOW-UP CALL ${toolCallCount}: Processing ${currentToolResults.length} search results`);
+          
+          // Call Claude again with all tool results
+          const followUpResponse = await claude.messages.create({
+            model: 'claude-sonnet-4-20250514',
+            max_tokens: 8000,
+            system: systemPrompt + '\n\nCRITICAL: After searching the codebase, provide your COMPLETE ANALYSIS and STRATEGIC PLAN. Do not make additional search calls - analyze the results you have.',
+            messages: [
+              ...messages as any,
+              { 
+                role: 'assistant', 
+                content: currentResponse.content 
+              },
+              {
+                role: 'user',
+                content: currentToolResults
+              }
+            ],
+            tools: toolConfig.tools || []
+          });
+          
+          currentResponse = followUpResponse;
+          console.log(`🔍 ELENA FOLLOW-UP RESPONSE ${toolCallCount}: Got response with ${followUpResponse.content?.length || 0} content blocks`);
         }
+        
+        if (toolCallCount >= maxToolCalls) {
+          console.log('⚠️ ELENA: Maximum tool calls reached, forcing analysis completion');
+          responseText += '\n\n[Analysis continued after maximum search operations - providing strategic recommendations based on available data]';
+        }
+        
       } else {
         responseText = response.content[0]?.text || '';
       }
