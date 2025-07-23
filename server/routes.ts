@@ -6620,6 +6620,23 @@ AGENT_CONTEXT:
     }
   });
 
+  // Elena Force Continue Workflow Endpoint (for stuck executions)
+  app.post('/api/elena/force-continue-workflow', async (req, res) => {
+    try {
+      const { workflowId } = req.body;
+      console.log(`🔄 FORCE CONTINUE: Restarting execution for workflow ${workflowId}`);
+      
+      // Import Elena workflow system
+      const { ElenaWorkflowSystem } = await import('./elena-workflow-system');
+      
+      const result = await ElenaWorkflowSystem.forceContinueWorkflow(workflowId);
+      res.json({ success: true, result });
+    } catch (error) {
+      console.error('Elena force continue error:', error);
+      res.status(500).json({ error: error.message });
+    }
+  });
+
   // Get active workflows for Elena coordination panel
   app.get('/api/elena/active-workflows', async (req, res) => {
     try {
