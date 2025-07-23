@@ -4269,13 +4269,13 @@ Task logged with Elena! Ready for coordinated luxury design excellence. ✨`,
 
 Task logged with Elena! Ready for coordinated technical excellence. 🚀`,
 
-        maya: `Hi Sandra! Maya here, your celebrity stylist AI photographer. Task received: "${task}".
+        flux: `Hi Sandra! Flux here, your LoRA specialist and AI photography expert. Task received: "${task}".
 
 **CURRENT CAPABILITIES:**
-→ I create decisive, cinematic image concepts with instant complete visions
-→ I generate FLUX Pro editorial photography with luxury positioning
-→ I provide styling expertise with exact outfit and location specifications
-→ I deliver magazine-quality AI photography with authentic skin texture
+→ I create FLUX Pro LoRA models and optimize image generation parameters
+→ I specialize in training custom AI models for editorial photography
+→ I provide technical expertise for AI photography workflows and optimization
+→ I deliver magazine-quality AI photography with advanced FLUX techniques
 
 **ELENA COORDINATION READY:**
 → Ready for Elena's strategic coordination and workflow assignments
@@ -4390,7 +4390,22 @@ Strategic planning activated! Ready to guide your business decisions. 🎯`,
 → Give me access to your team communications (Slack, Discord)
 → Let me create advanced automation with Zapier/Make
 
-Consider this workflow optimized and ready for implementation! ⚙️`
+Consider this workflow optimized and ready for implementation! ⚙️`,
+
+        olga: `Hi Sandra! Olga here, your repository organizer AI. Task received: "${task}".
+
+**CURRENT CAPABILITIES:**
+→ I safely organize and cleanup repository files without breaking anything
+→ I create organized archive structures instead of deleting files
+→ I map dependencies and file relationships for smart organization
+→ I maintain clean, maintainable file architecture with backup systems
+
+**ELENA COORDINATION READY:**
+→ Ready for Elena's strategic coordination and workflow assignments
+→ Prepared to collaborate with team for safe repository organization
+→ Standing by for Quinn's quality validation of organization changes
+
+Task logged with Elena! Ready for coordinated repository excellence. 📁`
       };
 
       const response = agentResponses[agentId as keyof typeof agentResponses] || 
