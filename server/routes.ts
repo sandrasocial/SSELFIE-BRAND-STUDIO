@@ -5310,6 +5310,7 @@ I'll keep you updated as each agent completes their work. You can also check wor
       // Get functional agent personality with crash prevention
       const agentPersonality = await import('./agents/agent-personalities-clean');
       const personalityData = agentPersonality.getAgentPersonality(agentId);
+      const personality = personalityData.instructions;
       
       // Apply mandatory crash prevention protocols to all agents
       const AgentCrashPrevention = await import('./agents/agent-crash-prevention');
@@ -5356,7 +5357,7 @@ Use search_filesystem to:
 - ASSIGN business logic and user-facing components to appropriate specialized agents` : '';
       
       // Build system prompt with agent context
-      const systemPrompt = `${personalityData.instructions}${searchToolsContext || ''}
+      const systemPrompt = `${personality}${searchToolsContext || ''}
 
 CRITICAL: TASK-BASED WORKING SYSTEM WITH MEMORY AWARENESS
 **ELENA'S CONVERSATION CONTEXT AWARENESS:**
