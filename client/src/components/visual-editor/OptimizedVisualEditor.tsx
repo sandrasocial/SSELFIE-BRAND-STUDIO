@@ -375,22 +375,24 @@ export function OptimizedVisualEditor({ className = '' }: OptimizedVisualEditorP
             console.log(`✅ Formatted ${formattedMessages.length} messages for display`);
             setChatMessages(formattedMessages);
             
-            // ELENA CONTEXT RESET: Don't load old history for new tasks
-            // Only load history if continuing an existing workflow or explicitly requested
-            const lastMessage = formattedMessages[formattedMessages.length - 1];
-            const isOldAdminWork = lastMessage?.content?.includes('admin dashboard') || 
-                                 lastMessage?.content?.includes('admin hero') ||
-                                 lastMessage?.content?.includes('AdminHeroSection');
-            
-            // For Elena: Always reset context to prevent hardcoded admin task interference
+            // ELENA CONTEXT PRESERVATION: Keep recent conversation context for workflow continuity
+            // Only clear very old admin-specific tasks, preserve recent workflow conversations
             if (currentAgent.id === 'elena' && formattedMessages.length > 0) {
-              console.log('🔄 ELENA CONTEXT RESET: Clearing old workflow context for real-time tasks');
-              setChatMessages([]);
-              toast({
-                title: 'Elena Ready',
-                description: 'Fresh context for real-time requests',
-              });
-              return; // Don't load old history - always start fresh
+              const lastMessage = formattedMessages[formattedMessages.length - 1];
+              const isVeryOldAdminWork = lastMessage?.content?.includes('AdminHeroSection') && 
+                                       (Date.now() - lastMessage.timestamp.getTime()) > 24 * 60 * 60 * 1000; // 24 hours
+              
+              if (isVeryOldAdminWork) {
+                console.log('🔄 ELENA: Clearing very old admin-specific context only');
+                setChatMessages([]);
+                toast({
+                  title: 'Elena Ready',
+                  description: 'Fresh context for new requests',
+                });
+                return;
+              } else {
+                console.log('✅ ELENA: Preserving recent conversation context for workflow continuity');
+              }
             }
             
             // Show success notification for loaded history
