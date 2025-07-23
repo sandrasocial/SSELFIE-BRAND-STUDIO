@@ -4905,15 +4905,27 @@ Task logged with Elena! Ready for coordinated repository excellence. 📁`
         }
       }
       
-      // ELENA MEMORY BLOCK: Prevent loading hardcoded admin task memory but preserve current conversation
+      // ELENA MEMORY PRESERVATION: Allow Elena to remember workflow context and conversations
       if (agentId.toLowerCase() === 'elena') {
-        console.log(`🚫 ELENA MEMORY BLOCK: Skipping database memory restoration to prevent hardcoded admin task interference`);
-        console.log(`📝 Elena preserving current conversation context but starting fresh from database perspective`);
+        console.log(`✅ ELENA MEMORY: Loading conversation context for workflow continuity`);
         console.log(`🔍 ELENA: Current workingHistory length: ${workingHistory.length}`);
         console.log(`🔍 ELENA: ConversationHistory parameter: ${conversationHistory ? conversationHistory.length : 'null'} messages`);
-        // Keep current conversation history but don't load database memory
-        // workingHistory already contains current conversation from conversationHistory parameter
-        savedMemory = null; // Explicitly set to null for Elena to prevent database memory loading
+        
+        // Load ConversationManager for Elena like other agents
+        const { ConversationManager } = await import('./agents/ConversationManager');
+        savedMemory = await ConversationManager.retrieveAgentMemory(agentId, userId);
+        
+        // Filter out only very old admin-specific memories while preserving recent workflow context
+        if (savedMemory && savedMemory.keyTasks) {
+          const oldAdminTasks = savedMemory.keyTasks.filter(task => 
+            task.includes('AdminHeroSection') || task.includes('admin dashboard hero')
+          );
+          // Remove old admin tasks but keep workflow and conversation context
+          savedMemory.keyTasks = savedMemory.keyTasks.filter(task => 
+            !task.includes('AdminHeroSection') && !task.includes('admin dashboard hero')
+          );
+          console.log(`🧹 ELENA: Filtered out ${oldAdminTasks.length} old admin tasks, keeping ${savedMemory.keyTasks.length} workflow tasks`);
+        }
       } else {
         // Load ConversationManager for non-Elena agents
         const { ConversationManager } = await import('./agents/ConversationManager');
