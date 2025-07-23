@@ -5157,12 +5157,83 @@ ${savedMemory.recentDecisions.map(decision => `• ${decision}`).join('\n')}
               responseText = `I'm coordinating the team to execute "${latestWorkflow.name}" right now!`;
             }
             
+            // IMMEDIATE FRONTEND WORKFLOW STATUS UPDATE
+            const workflowStatusMessage = `🚀 **WORKFLOW STARTED: ${latestWorkflow.name}**\n\n` +
+              `**Status:** Executing\n` +
+              `**Steps:** ${latestWorkflow.steps.length} total\n` +
+              `**Agents:** ${latestWorkflow.steps.map(s => s.agentName).join(', ')}\n` +
+              `**Estimated Time:** ${latestWorkflow.estimatedDuration}\n\n` +
+              `✅ Elena is now coordinating the team...`;
+
+            // Save workflow start status to chat
+            await storage.saveAgentConversation(
+              'elena', 
+              userId, 
+              message, 
+              workflowStatusMessage, 
+              []
+            );
+
             // Start monitoring workflow progress to provide updates  
             setTimeout(async () => {
               try {
                 const { ElenaWorkflowSystem } = await import('./elena-workflow-system');
                 let checkCount = 0;
-                const maxChecks = 10; // Max 5 minutes monitoring
+                const maxChecks = 20; // Max 10 minutes monitoring
+                
+                const monitorProgress = async () => {
+                  const progress = await ElenaWorkflowSystem.getWorkflowProgress(latestWorkflow.id);
+                  
+                  if (progress) {
+                    console.log(`📊 ELENA MONITOR: Step ${progress.currentStep}/${progress.totalSteps} - ${progress.status}`);
+                    
+                    // Send step completion updates
+                    if (progress.completedTasks.length > 0) {
+                      const stepUpdateMessage = `📈 **WORKFLOW UPDATE: ${latestWorkflow.name}**\n\n` +
+                        `**Progress:** Step ${progress.currentStep}/${progress.totalSteps}\n` +
+                        `**Status:** ${progress.status}\n` +
+                        `**Current Agent:** ${progress.currentAgent || 'Coordinating'}\n\n` +
+                        `**Completed:**\n${progress.completedTasks.map(task => `✅ ${task}`).join('\n')}\n\n` +
+                        `**Next:** ${progress.nextActions.join(', ')}`;
+                      
+                      await storage.saveAgentConversation(
+                        'elena', 
+                        userId, 
+                        'workflow_update', 
+                        stepUpdateMessage, 
+                        []
+                      );
+                    }
+                    
+                    // Check if workflow is completed
+                    if (progress.status === 'completed') {
+                      const completionMessage = `🎉 **WORKFLOW COMPLETED: ${latestWorkflow.name}**\n\n` +
+                        `✅ All ${progress.totalSteps} steps finished successfully!\n` +
+                        `⏱️ Total time: ${latestWorkflow.estimatedDuration}\n\n` +
+                        `**Results:**\n${progress.completedTasks.map(task => `✅ ${task}`).join('\n')}\n\n` +
+                        `🎯 Elena's team coordination complete!`;
+                      
+                      await storage.saveAgentConversation(
+                        'elena', 
+                        userId, 
+                        'workflow_complete', 
+                        completionMessage, 
+                        []
+                      );
+                      
+                      console.log(`🏁 ELENA: Workflow ${latestWorkflow.id} completion status saved to chat`);
+                      return; // Stop monitoring
+                    }
+                  }
+                  
+                  checkCount++;
+                  if (checkCount < maxChecks) {
+                    setTimeout(monitorProgress, 30000); // Check every 30 seconds
+                  }
+                };
+                
+                // Start monitoring after 10 seconds
+                setTimeout(monitorProgress, 10000);
                 
                 const checkProgress = async () => {
                   try {
