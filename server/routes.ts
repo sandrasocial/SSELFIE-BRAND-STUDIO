@@ -5649,9 +5649,9 @@ AGENT_CONTEXT:
   // Import and register enterprise routes
   const { registerEnterpriseRoutes } = await import('./routes/enterprise-routes');
   
-  // Enhanced Agent Capabilities routes for Replit parity
-  const { agentEnhancementRoutes } = await import('./routes/agent-enhancement-routes.js');
-  app.use('/api/agent-enhancements', agentEnhancementRoutes);
+  // Enhanced Agent Capabilities routes for Replit parity - ARCHIVED
+  // const { agentEnhancementRoutes } = await import('./routes/agent-enhancement-routes.js');
+  // app.use('/api/agent-enhancements', agentEnhancementRoutes); // ARCHIVED - conflicts with inline enhancement routes
   
   // Agent status report routes
   const agentStatusRoutes = await import('./routes/agent-status-routes');
