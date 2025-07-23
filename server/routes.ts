@@ -5558,7 +5558,7 @@ AGENT_CONTEXT:
         // Create fresh auto-file-writer instance bypassing all caching
         const autoFileWriterPath = new URL('./agents/auto-file-writer.js', import.meta.url).href;
         const { AutoFileWriter } = await import(`${autoFileWriterPath}?t=${Date.now()}`);
-        const { AgentCodebaseIntegration } = await import('./agents/AgentCodebaseIntegration.js');
+        const { AgentCodebaseIntegration } = await import('./agents/agent-codebase-integration.js');
         
         console.log(`🔍 ROUTES DEBUG: About to process response for auto-file-writer`);
         console.log(`🔍 ROUTES DEBUG: Response contains <write_to_file>: ${validatedResponse.includes('<write_to_file>')}`);
