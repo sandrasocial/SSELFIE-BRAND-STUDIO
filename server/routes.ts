@@ -4960,6 +4960,12 @@ ${savedMemory.recentDecisions.map(decision => `• ${decision}`).join('\n')}
         }
       }
       
+      // CRITICAL DEBUG: Track Elena's code flow to identify where workflow detection fails
+      if (agentId.toLowerCase() === 'elena') {
+        console.log(`🔍 ELENA FLOW DEBUG: About to enter conversation management section`);
+        console.log(`🔍 ELENA FLOW DEBUG: AgentId=${agentId}, Message="${message}"`);
+      }
+      
       // Conversation management (Elena skips this to preserve all context)
       if (agentId.toLowerCase() !== 'elena') {
         // Load ConversationManager for conversation management
@@ -5360,6 +5366,9 @@ ${savedMemory.recentDecisions.map(decision => `• ${decision}`).join('\n')}
           });
         }
       }
+      
+      // CRITICAL ELENA FALLBACK: If Elena doesn't match workflow conditions, continue with normal processing
+      // This ensures Elena can still have normal conversations while maintaining workflow capabilities
       
       // Get agent personality from single source of truth
       const agentPersonality = await import('./agents/agent-personalities');
