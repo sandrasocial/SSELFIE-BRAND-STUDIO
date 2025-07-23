@@ -4733,7 +4733,7 @@ Starting analysis and implementation now...`;
         totalUsers: Number(totalUsers) || 0,
         totalPosts: Number(totalPosts) || 0,
         totalLikes: Number(totalLikes) || 0,
-        totalRevenue: 15132, // Real revenue from platform
+        totalRevenue: 0, // Pre-launch - no revenue yet
         recentActivity
       });
     } catch (error) {

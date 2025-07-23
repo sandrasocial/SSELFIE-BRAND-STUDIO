@@ -56,15 +56,15 @@ export function AdminDashboard() {
               <div className="absolute inset-0 flex items-center justify-center">
                 <div className="text-center text-white">
                   <div className="font-serif text-4xl font-light mb-2">
-                    €{(stats?.totalRevenue || 0).toLocaleString()}
+                    ${(stats?.totalRevenue || 0).toLocaleString()}
                   </div>
-                  <div className="text-sm uppercase tracking-widest">Total Revenue</div>
+                  <div className="text-sm uppercase tracking-widest">Pre-Launch Revenue</div>
                 </div>
               </div>
             </div>
             <div className="p-6">
               <p className="text-gray-600 text-sm leading-relaxed">
-                Live revenue from your SSELFIE Studio platform.
+                Revenue tracking ready for your SSELFIE Studio launch.
               </p>
             </div>
           </div>
