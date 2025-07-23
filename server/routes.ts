@@ -5444,7 +5444,7 @@ AGENT_CONTEXT:
       
       const response = await claude.messages.create({
         model: 'claude-sonnet-4-20250514',
-        max_tokens: 4000,
+        max_tokens: 8000,
         system: systemPrompt,
         messages: messages as any,
         ...toolConfig
@@ -5477,7 +5477,7 @@ AGENT_CONTEXT:
               // Call Claude again with tool results to get Elena's analysis
               const followUpResponse = await claude.messages.create({
                 model: 'claude-sonnet-4-20250514',
-                max_tokens: 4000,
+                max_tokens: 8000,
                 system: systemPrompt,
                 messages: [
                   ...messages as any,
