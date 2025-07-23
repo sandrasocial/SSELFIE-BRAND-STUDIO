@@ -722,6 +722,24 @@ export class ElenaWorkflowSystem {
           olgaInstructions = await this.getMandatoryOlgaCoordination(agentName, task);
         }
 
+        // Create enhanced agent instruction with file modification requirement
+        const enhancedTask = `ELENA WORKFLOW: ${task}
+
+${olgaInstructions ? `🗂️ OLGA'S MANDATORY INSTRUCTIONS:
+${olgaInstructions}
+
+🚨 CRITICAL: Follow Olga's file placement EXACTLY. Do not create new files.` : ''}
+
+🎯 WORKFLOW TASK: ${task}
+Target: ${targetFile || 'Follow Olga instructions above'}
+Required: MODIFY EXISTING FILES (do not create new pages)
+Standards: SSELFIE Studio architecture, Times New Roman typography
+
+End response with: FILES MODIFIED: [exact paths]`;
+
+        // Call the agent through the admin endpoint that supports file operations
+        const fetch = (await import('node-fetch')).default;
+        
         // Create a promise race between fetch and timeout
         const fetchPromise = fetch('http://localhost:5000/api/admin/agents/chat', {
           method: 'POST',
@@ -731,26 +749,7 @@ export class ElenaWorkflowSystem {
           },
           body: JSON.stringify({
             agentId: agentName.toLowerCase(),
-            message: `ELENA WORKFLOW: ${task}
-
-${olgaInstructions ? `🗂️ OLGA'S MANDATORY INSTRUCTIONS:
-${olgaInstructions}
-
-🚨 CRITICAL: Follow Olga's file placement EXACTLY. Do not create new files.` : ''}
-
-${agentName.toLowerCase() === 'olga' ? 
-  `OLGA FILE COORDINATION TASK:
-- Analyze existing file structure
-- Specify EXACT file paths for modifications
-- Prevent file conflicts and duplication
-- Format: TARGET_FILE: [path] and INSTRUCTIONS: [guidance]` :
-  `🎯 WORKFLOW TASK: ${task}
-Target: ${targetFile || 'Follow Olga instructions above'}
-Required: MODIFY EXISTING FILES (do not create new pages)
-Standards: SSELFIE Studio architecture, Times New Roman typography`
-}
-
-End response with: FILES MODIFIED: [exact paths]`,
+            message: enhancedTask,
             adminToken: 'sandra-admin-2025',
             userId: '42585527'
           })
