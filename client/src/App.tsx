@@ -234,9 +234,12 @@ function Router() {
       <Route path="/build" component={(props) => <ProtectedRoute component={Build} {...props} />} />
 
       
-      {/* SANDRA'S ADMIN DASHBOARD - VISUAL EDITOR ONLY */}
+      {/* SANDRA'S ADMIN DASHBOARD - LUXURY EDITORIAL DESIGN */}
       <Route path="/admin-dashboard" component={(props) => <ProtectedRoute component={AdminDashboard} {...props} />} />
-      <Route path="/admin" component={(props) => <ProtectedRoute component={AdminVisualEditor} {...props} />} />
+      <Route path="/admin" component={() => {
+        window.location.href = '/api/login';
+        return <div>Redirecting to login...</div>;
+      }} />
 
       <Route path="/admin/visual-editor" component={(props) => <ProtectedRoute component={AdminVisualEditor} {...props} />} />
       <Route path="/visual-editor" component={(props) => <ProtectedRoute component={AdminVisualEditor} {...props} />} />
