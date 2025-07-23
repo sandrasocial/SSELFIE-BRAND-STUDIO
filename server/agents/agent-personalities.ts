@@ -413,66 +413,30 @@ When creating files, use this XML format for auto-file-writer:
 🎯 **MANDATORY AGENT CARD STYLING - EXACT SPECIFICATIONS:**
 **USE THESE EXACT STYLES FOR ALL CARDS AND TEXT OVERLAYS:**
 
-**AGENT CARD LAYOUT (from AdminDashboard.tsx):**
-```css
-className="relative bg-white rounded-lg overflow-hidden cursor-pointer hover:opacity-90 transition-all duration-200"
-```
+**AGENT CARD LAYOUT:** 
+Container: className="relative bg-white rounded-lg overflow-hidden cursor-pointer hover:opacity-90 transition-all duration-200"
 
 **BACKGROUND IMAGES:**
-```css
-className="h-96 bg-cover bg-center relative"
-style={{
-  backgroundImage: `linear-gradient(rgba(0, 0, 0, 0.3), rgba(0, 0, 0, 0.3)), url('${imageUrl}')`,
-  backgroundPosition: '50% 30%'
-}}
-```
+Image container: className="h-96 bg-cover bg-center relative"
+Background style: backgroundImage with linear-gradient rgba(0, 0, 0, 0.3) overlay
+Background position: 50% 30% (shows face properly)
 
-**TEXT OVERLAY - EXACT SPACING AND TYPOGRAPHY:**
-```css
-className="absolute inset-0 flex items-center justify-center"
-```
+**TEXT OVERLAY:**
+Overlay container: className="absolute inset-0 flex items-center justify-center"
 
-**TITLE TEXT STYLING - EXACT LETTER SPACING:**
-```css
-className="text-white text-center text-2xl font-light tracking-[0.3em] uppercase opacity-90"
-style={{ fontFamily: 'Times New Roman, serif' }}
-```
+**TITLE TEXT STYLING:**
+Text styling: className="text-white text-center text-2xl font-light tracking-[0.3em] uppercase opacity-90"
+Font family: Times New Roman, serif
+Letter spacing pattern: title.split('').join(' ') creates spaced letters like "E L E N A"
 
-**LETTER SPACING PATTERN:**
-```javascript
-{agent.name.split('').join(' ')}  // Creates: E L E N A
-```
-
-**🚨 CRITICAL: USE EXACTLY THESE STYLES FOR ALL CARDS:**
-- Height: `h-96` for tall editorial cards
-- Overlay gradient: `rgba(0, 0, 0, 0.3)` 
-- Background position: `50% 30%` (shows face properly)
-- Letter spacing: `tracking-[0.3em]` 
+**🚨 CRITICAL STYLING REQUIREMENTS:**
+- Height: h-96 for tall editorial cards
+- Overlay gradient: rgba(0, 0, 0, 0.3) for readability
+- Background position: 50% 30% shows face properly  
+- Letter spacing: tracking-[0.3em] for luxury feel
 - Font: Times New Roman, uppercase, font-light
-- Opacity: `opacity-90` for text readability
-- Spacing: Split letters with spaces for luxury feel
-
-**DESIGN PATTERN EXAMPLES:**
-```jsx
-<div className="relative bg-white rounded-lg overflow-hidden cursor-pointer hover:opacity-90 transition-all duration-200">
-  <div 
-    className="h-96 bg-cover bg-center relative"
-    style={{
-      backgroundImage: `linear-gradient(rgba(0, 0, 0, 0.3), rgba(0, 0, 0, 0.3)), url('${imageUrl}')`,
-      backgroundPosition: '50% 30%'
-    }}
-  >
-    <div className="absolute inset-0 flex items-center justify-center">
-      <h3 
-        className="text-white text-center text-2xl font-light tracking-[0.3em] uppercase opacity-90"
-        style={{ fontFamily: 'Times New Roman, serif' }}
-      >
-        {title.split('').join(' ')}
-      </h3>
-    </div>
-  </div>
-</div>
-```
+- Text opacity: opacity-90 for perfect readability
+- Spacing: Split letters with spaces using .split('').join(' ') method
 
 UNIVERSAL DESIGN PATTERNS (Apply to ALL projects):
 - Navigation, hero images, cards, page breaks, portfolio-style components
