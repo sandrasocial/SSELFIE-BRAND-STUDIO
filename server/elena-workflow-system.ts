@@ -715,6 +715,13 @@ export class ElenaWorkflowSystem {
       try {
         console.log(`🤖 ELENA: Agent ${agentName} attempt ${attempt}/${MAX_RETRIES} - ${task.substring(0, 50)}...`);
         
+        // MANDATORY: Get Olga's file coordination before ANY agent executes (except Olga herself)
+        let olgaInstructions = '';
+        if (agentName.toLowerCase() !== 'olga' && (task.includes('create') || task.includes('design') || task.includes('implement'))) {
+          console.log(`🗂️ ELENA: Getting MANDATORY Olga coordination for ${agentName}`);
+          olgaInstructions = await this.getMandatoryOlgaCoordination(agentName, task);
+        }
+
         // Create a promise race between fetch and timeout
         const fetchPromise = fetch('http://localhost:5000/api/admin/agents/chat', {
           method: 'POST',
@@ -726,10 +733,23 @@ export class ElenaWorkflowSystem {
             agentId: agentName.toLowerCase(),
             message: `ELENA WORKFLOW: ${task}
 
-Create/modify files for: ${task}
-Target: ${targetFile || 'Auto-determine'}
-Required: REAL file modifications with luxury editorial design
-Standards: SSELFIE Studio architecture, Times New Roman typography
+${olgaInstructions ? `🗂️ OLGA'S MANDATORY INSTRUCTIONS:
+${olgaInstructions}
+
+🚨 CRITICAL: Follow Olga's file placement EXACTLY. Do not create new files.` : ''}
+
+${agentName.toLowerCase() === 'olga' ? 
+  `OLGA FILE COORDINATION TASK:
+- Analyze existing file structure
+- Specify EXACT file paths for modifications
+- Prevent file conflicts and duplication
+- Format: TARGET_FILE: [path] and INSTRUCTIONS: [guidance]` :
+  `🎯 WORKFLOW TASK: ${task}
+Target: ${targetFile || 'Follow Olga instructions above'}
+Required: MODIFY EXISTING FILES (do not create new pages)
+Standards: SSELFIE Studio architecture, Times New Roman typography`
+}
+
 End response with: FILES MODIFIED: [exact paths]`,
             adminToken: 'sandra-admin-2025',
             userId: '42585527'
@@ -789,6 +809,60 @@ End response with: FILES MODIFIED: [exact paths]`,
     }
     
     return false;
+  }
+
+  /**
+   * Get mandatory Olga coordination before any agent executes
+   */
+  private static async getMandatoryOlgaCoordination(agentName: string, task: string): Promise<string> {
+    try {
+      console.log(`🗂️ ELENA: Requesting MANDATORY Olga coordination for ${agentName}`);
+      
+      const olgaCoordinationPromise = fetch('http://localhost:5000/api/admin/agents/chat', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          agentId: 'olga',
+          message: `ELENA WORKFLOW COORDINATION:
+
+Agent ${agentName} needs to: ${task}
+
+🚨 MANDATORY OLGA ANALYSIS REQUIRED:
+1. Analyze existing file structure for this task
+2. Specify EXACT file path where ${agentName} should work
+3. Prevent file conflicts and duplication
+4. Provide specific location guidance
+
+Response format:
+TARGET_FILE: [exact file path to modify]
+INSTRUCTIONS: [specific guidance for ${agentName}]
+
+Coordinate immediately - workflow waiting.`,
+          adminToken: 'sandra-admin-2025',
+          userId: '42585527'
+        })
+      });
+
+      // 30 second timeout for Olga coordination
+      const timeoutPromise = new Promise<never>((_, reject) => {
+        setTimeout(() => reject(new Error('Olga coordination timeout')), 30000);
+      });
+
+      const response = await Promise.race([olgaCoordinationPromise, timeoutPromise]);
+      
+      if (response.ok) {
+        const result = await response.json();
+        const olgaResponse = result.response || result.message || '';
+        console.log(`✅ OLGA COORDINATION RECEIVED for ${agentName}: ${olgaResponse.substring(0, 200)}...`);
+        return olgaResponse;
+      } else {
+        console.log(`❌ ELENA: Olga coordination failed for ${agentName}`);
+        return '';
+      }
+    } catch (error) {
+      console.log(`❌ ELENA: Olga coordination error for ${agentName}:`, error);
+      return '';
+    }
   }
   
   /**
