@@ -832,10 +832,14 @@ export function OptimizedVisualEditor({ className = '' }: OptimizedVisualEditorP
       }
     };
     
-    // DISABLED: Start polling every 3 seconds (causing refresh loop)
-    console.log('🚫 WORKFLOW POLLING DISABLED: Preventing auto-refresh loop');
-    // const interval = setInterval(pollProgress, 3000);
-    // setWorkflowPollingInterval(interval);
+    // SELECTIVE POLLING: Only poll for REAL file changes, not every 3 seconds
+    console.log('🔄 SMART WORKFLOW POLLING: Monitoring for actual file creation');
+    
+    // Poll less frequently and only check for file modifications
+    const interval = setInterval(() => {
+      pollProgress();
+    }, 10000); // Check every 10 seconds instead of 3
+    setWorkflowPollingInterval(interval);
     
     // Initial poll with state initialization
     const initializePoll = async () => {
@@ -1368,9 +1372,57 @@ export function OptimizedVisualEditor({ className = '' }: OptimizedVisualEditorP
     }
   };
 
-  // DISABLED: Monitor workflow progress in real-time (causing refresh loop)
+  // SMART: Monitor workflow progress for file creation only
   const startWorkflowProgressMonitoring = (workflowId: string) => {
-    console.log('🚫 WORKFLOW PROGRESS MONITORING DISABLED: Preventing auto-refresh loop');
+    console.log('🔄 SMART WORKFLOW MONITORING: Tracking file creation progress');
+    
+    let lastFileCount = 0;
+    
+    const interval = setInterval(async () => {
+      try {
+        const response = await fetch(`/api/admin/elena/workflow-progress/${workflowId}`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ adminToken: 'sandra-admin-2025' })
+        });
+        const data = await response.json();
+        
+        if (data.success && data.progress) {
+          // Only update if there are actual file changes
+          const currentFileCount = data.progress.filesCreated || 0;
+          
+          if (currentFileCount > lastFileCount) {
+            lastFileCount = currentFileCount;
+            
+            const progressUpdate: ChatMessage = {
+              type: 'agent',
+              content: `**File Creation Progress: ${currentFileCount} files created**\n\n**Step ${data.progress.currentStep}/${data.progress.totalSteps}**\n\n${data.progress.currentAgent ? `Current: ${data.progress.currentAgent}` : ''}\n\n**Recent:**\n${data.progress.completedTasks.slice(-3).map((task: string) => `• ${task}`).join('\n')}`,
+              timestamp: new Date(),
+              agentName: 'elena',
+              workflowStage: 'File Creation',
+              workflowProgress: data.progress,
+              isWorkflowMessage: true
+            };
+            
+            setChatMessages(prev => [...prev, progressUpdate]);
+            
+            // Refresh preview when files are created
+            if ((window as any).refreshLivePreview) {
+              (window as any).refreshLivePreview();
+            }
+          }
+          
+          // Stop monitoring when workflow is complete
+          if (data.progress.status === 'completed' || data.progress.status === 'failed') {
+            clearInterval(interval);
+            setWorkflowActive(false);
+          }
+        }
+      } catch (error) {
+        console.error('Smart monitoring error:', error);
+        clearInterval(interval);
+      }
+    }, 15000); // Check every 15 seconds for file changes only
     
     /* DISABLED TO PREVENT REFRESH LOOP
     const interval = setInterval(async () => {
