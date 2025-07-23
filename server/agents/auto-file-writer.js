@@ -34,6 +34,53 @@ const CRITICAL_VALIDATION_PATTERNS = [
 ];
 
 export class AutoFileWriter {
+
+  /**
+   * Determine file language from path
+   */
+  static getLanguageFromPath(filePath) {
+    const ext = path.extname(filePath).toLowerCase();
+    const extMap = {
+      '.tsx': 'tsx',
+      '.ts': 'typescript', 
+      '.jsx': 'jsx',
+      '.js': 'javascript',
+      '.css': 'css',
+      '.html': 'html',
+      '.json': 'json'
+    };
+    return extMap[ext] || 'typescript';
+  }
+
+  /**
+   * Smart file path determination based on content and agent context
+   */
+  static smartDetermineFilePath(content, agentId, language) {
+    console.log(`🎯 AUTO-FILE-WRITER: Smart path determination for ${agentId}, language: ${language}`);
+    
+    // Check for component exports
+    if (content.includes('export default function') || content.includes('export default class')) {
+      const componentMatch = content.match(/export default (?:function|class)\s+(\w+)/);
+      if (componentMatch) {
+        const componentName = componentMatch[1];
+        
+        // Agent-specific path logic
+        if (agentId === 'aria' || componentName.includes('Admin') || componentName.includes('Dashboard')) {
+          return `client/src/components/admin/${componentName}.tsx`;
+        } else if (agentId === 'victoria' || componentName.includes('Build') || componentName.includes('Website')) {
+          return `client/src/components/build/${componentName}.tsx`;
+        } else if (componentName.includes('Page') || componentName.includes('Layout')) {
+          return `client/src/pages/${componentName.toLowerCase().replace('page', '')}.tsx`;
+        } else {
+          return `client/src/components/${componentName}.tsx`;
+        }
+      }
+    }
+    
+    // Default fallback
+    const timestamp = Date.now();
+    return `client/src/components/agent-generated-${agentId}-${timestamp}.tsx`;
+  }
   
   /**
    * Automatically detects and writes code blocks to appropriate files
@@ -50,13 +97,50 @@ export class AutoFileWriter {
     const filesWritten = [];
     let modifiedResponse = aiResponse;
     
-    // Extract all code blocks with enhanced detection for collapsible sections AND file creation tags
+    // ENHANCED: Extract ALL possible file creation patterns with improved detection
     const codeBlockRegex = /```(?:typescript|tsx|javascript|js|css|html|json|react)?\s*\n?([\s\S]*?)```/gi;
     const writeToFileRegex = /<write_to_file>\s*<path>(.*?)<\/path>\s*<content>([\s\S]*?)<\/content>\s*<\/write_to_file>/gi;
+    const fileOperationRegex = /<file_operation>\s*<(?:create_file|modify_file)>\s*<path>(.*?)<\/path>\s*<content>([\s\S]*?)<\/content>\s*<\/(?:create_file|modify_file)>\s*<\/file_operation>/gi;
     const codeBlocks = [];
     let match;
     
-    // First check for code blocks inside details/summary tags
+    // PRIORITY 1: Check for XML-style file operations first (highest priority)
+    let xmlMatch;
+    while ((xmlMatch = writeToFileRegex.exec(aiResponse)) !== null) {
+      const filePath = xmlMatch[1].trim();
+      const content = xmlMatch[2].trim();
+      console.log(`🎯 AUTO-FILE-WRITER: Found XML write_to_file for ${filePath}`);
+      
+      if (content.length > 10) {
+        codeBlocks.push({
+          content,
+          filePath,
+          language: this.getLanguageFromPath(filePath),
+          source: 'xml_write_to_file',
+          priority: 1
+        });
+      }
+    }
+
+    // PRIORITY 2: Check for file_operation tags  
+    let fileOpMatch;
+    while ((fileOpMatch = fileOperationRegex.exec(aiResponse)) !== null) {
+      const filePath = fileOpMatch[1].trim();
+      const content = fileOpMatch[2].trim();
+      console.log(`🎯 AUTO-FILE-WRITER: Found file_operation for ${filePath}`);
+      
+      if (content.length > 10) {
+        codeBlocks.push({
+          content,
+          filePath,
+          language: this.getLanguageFromPath(filePath),
+          source: 'file_operation',
+          priority: 2
+        });
+      }
+    }
+
+    // PRIORITY 3: Check for code blocks inside details/summary tags
     const detailsRegex = /<details>[\s\S]*?<summary>[\s\S]*?<\/summary>\s*([\s\S]*?)<\/details>/gi;
     let detailsMatch;
     while ((detailsMatch = detailsRegex.exec(aiResponse)) !== null) {
@@ -67,37 +151,34 @@ export class AutoFileWriter {
         if (content.length > 10) {
           codeBlocks.push({
             content,
-            language: innerMatch[0].match(/```(\w+)/)?.[1] || 'typescript'
+            language: innerMatch[0].match(/```(\w+)/)?.[1] || 'typescript',
+            source: 'details_code_block',
+            priority: 3
           });
         }
       }
     }
     
-    // Check for write_to_file tags first (higher priority)
-    while ((match = writeToFileRegex.exec(aiResponse)) !== null) {
-      const filePath = match[1].trim();
-      const content = match[2].trim();
-      if (content.length > 0 && filePath.length > 0) {
-        codeBlocks.push({
-          content,
-          filePath,
-          language: filePath.endsWith('.tsx') ? 'tsx' : filePath.endsWith('.ts') ? 'typescript' : filePath.endsWith('.css') ? 'css' : filePath.endsWith('.md') ? 'markdown' : 'text',
-          isDirectFile: true
-        });
-      }
-    }
-    
-    // Then check for regular code blocks
+    // PRIORITY 4: Extract regular code blocks  
     while ((match = codeBlockRegex.exec(aiResponse)) !== null) {
       const content = match[1].trim();
       if (content.length > 10) {
         codeBlocks.push({
           content,
           language: match[0].match(/```(\w+)/)?.[1] || 'typescript',
-          isDirectFile: false
+          source: 'regular_code_block',
+          priority: 4
         });
       }
     }
+
+    // Sort by priority (XML file operations first, then file operations, then details, then regular)
+    codeBlocks.sort((a, b) => (a.priority || 999) - (b.priority || 999));
+    
+    console.log(`🎯 AUTO-FILE-WRITER: Found ${codeBlocks.length} total code blocks to process`);
+    codeBlocks.forEach((block, i) => {
+      console.log(`   ${i+1}. ${block.source} (${block.language}) ${block.filePath ? '-> ' + block.filePath : ''}`);
+    });
     
     // SPECIAL DETECTION FOR VICTORIA'S FAKE RESPONSES
     // Look for file paths followed by descriptions but no actual code
@@ -134,23 +215,82 @@ export class AutoFileWriter {
       console.log(`🔍 Looking for triple backticks in response: ${aiResponse.includes('```')}`);
     }
     
-    // Process each code block
+    // Process each code block in priority order
     for (let i = 0; i < codeBlocks.length; i++) {
       const block = codeBlocks[i];
       
-      // Use filePath from direct file creation or determine it from content
-      const filePath = block.isDirectFile ? block.filePath : this.determineFilePath(block, agentId, aiResponse);
+      console.log(`🔧 Processing code block ${i+1}/${codeBlocks.length}: ${block.source}`);
       
-      if (filePath) {
-        try {
-          // BULLETPROOF: Comprehensive validation before writing to prevent crashes
-          const validation = await this.validateAndFixImports(block.content, filePath);
-          const validatedContent = validation.content;
-          
-          // Use comprehensive safety system for writing
-          await ComprehensiveAgentSafety.safeWriteFile(filePath, validatedContent);
-          
-          filesWritten.push({
+      // Determine file path
+      let targetFilePath = block.filePath || this.smartDetermineFilePath(block.content, agentId, block.language);
+      
+      console.log(`📁 Target file path: ${targetFilePath}`);
+      
+      // Validate and clean the content before writing
+      let cleanContent = block.content;
+      
+      // Apply critical validation patterns
+      for (const validation of CRITICAL_VALIDATION_PATTERNS) {
+        if (validation.pattern.test(cleanContent)) {
+          console.log(`🔧 AUTO-FILE-WRITER: Applying ${validation.type} fix`);
+          cleanContent = cleanContent.replace(validation.pattern, validation.replacement);
+        }
+      }
+      
+      // Use Replit-style validator for comprehensive safety
+      const validation = ReplitStyleAgentValidator.validateCode(cleanContent, block.language);
+      if (!validation.isValid) {
+        console.log(`🚨 AUTO-FILE-WRITER: Code validation failed with ${validation.errors.length} errors`);
+        validation.errors.forEach(error => console.log(`   ❌ ${error}`));
+        
+        // Apply auto-fixes if available
+        if (validation.autoFixedCode) {
+          console.log(`🔧 AUTO-FILE-WRITER: Applied auto-fixes`);
+          cleanContent = validation.autoFixedCode;
+        } else {
+          console.log(`⏭️ AUTO-FILE-WRITER: Skipping invalid code block`);
+          continue;
+        }
+      }
+      
+      try {
+        // Write the file
+        await AgentCodebaseIntegration.writeFile(targetFilePath, cleanContent);
+        
+        console.log(`✅ AUTO-FILE-WRITER: Successfully created ${targetFilePath}`);
+        filesWritten.push({
+          filePath: targetFilePath,
+          language: block.language,
+          source: block.source,
+          contentLength: cleanContent.length,
+          success: true
+        });
+        
+        // Update the response to show file was created
+        const fileCreationMessage = `\n\n✅ **File Created**: \`${targetFilePath}\` (${cleanContent.length} characters)\n`;
+        modifiedResponse += fileCreationMessage;
+        
+      } catch (error) {
+        console.error(`❌ AUTO-FILE-WRITER: Failed to write ${targetFilePath}:`, error);
+        filesWritten.push({
+          filePath: targetFilePath,
+          language: block.language,
+          source: block.source,
+          error: error.message,
+          success: false
+        });
+      }
+    }
+    
+    // Return results
+    console.log(`🎯 AUTO-FILE-WRITER COMPLETE: Processed ${filesWritten.length} files`);
+    return {
+      filesWritten,
+      modifiedResponse,
+      totalProcessed: codeBlocks.length
+    };
+  }
+}
             filePath,
             success: true,
             size: block.content.length

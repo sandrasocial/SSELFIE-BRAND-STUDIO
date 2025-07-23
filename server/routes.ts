@@ -5669,31 +5669,56 @@ AGENT_CONTEXT:
           console.log(`🔧 INTEGRATION FIX: Redirected to modify existing files instead`);
         }
         
-        // Create fresh auto-file-writer instance bypassing all caching
+        // PERMANENT CACHE-BUSTING AUTO-FILE-WRITER WITH ENHANCED PROCESSING
         const autoFileWriterPath = new URL('./agents/auto-file-writer.js', import.meta.url).href;
         const { AutoFileWriter } = await import(`${autoFileWriterPath}?t=${Date.now()}`);
         const { AgentCodebaseIntegration } = await import('./agents/agent-codebase-integration.js');
         
-        console.log(`🔍 ROUTES DEBUG: About to process response for auto-file-writer`);
-        console.log(`🔍 ROUTES DEBUG: Response contains <write_to_file>: ${validatedResponse.includes('<write_to_file>')}`);
-        console.log(`🔍 ROUTES DEBUG: Response length: ${validatedResponse.length}`);
+        console.log(`🎯 PERMANENT AUTO-FILE-WRITER: Processing ${agentId} response`);
+        console.log(`🎯 Response analysis: <write_to_file>=${validatedResponse.includes('<write_to_file>')}, code blocks=${validatedResponse.includes('```')}`);
         
-        // DIRECT XML PARSING TEST - bypass auto-file-writer caching issue
-        if (validatedResponse.includes('<write_to_file>')) {
-          console.log(`🔍 DIRECT XML TEST: Attempting direct file creation bypass`);
+        // Use the enhanced auto-file-writer system
+        const autoWriteResult = await AutoFileWriter.processCodeBlocks(agentId, validatedResponse, AgentCodebaseIntegration);
+        
+        if (autoWriteResult && autoWriteResult.filesWritten && autoWriteResult.filesWritten.length > 0) {
+          console.log(`✅ AUTO-FILE-WRITER SUCCESS: Created ${autoWriteResult.filesWritten.length} files`);
+          autoWriteResult.filesWritten.forEach(file => {
+            if (file.success) {
+              fileOperations.push({ 
+                filePath: file.filePath, 
+                success: true, 
+                method: 'auto_file_writer',
+                source: file.source,
+                language: file.language
+              });
+              console.log(`   ✅ ${file.filePath} (${file.source})`);
+            } else {
+              console.log(`   ❌ ${file.filePath}: ${file.error}`);
+            }
+          });
+          
+          // Update response with file creation results
+          validatedResponse = autoWriteResult.modifiedResponse || validatedResponse;
+        } else {
+          console.log(`ℹ️ AUTO-FILE-WRITER: No files detected for creation in ${agentId} response`);
+        }
+        
+        // FALLBACK: Direct XML parsing for additional safety
+        if (validatedResponse.includes('<write_to_file>') && (!autoWriteResult || !autoWriteResult.filesWritten || autoWriteResult.filesWritten.length === 0)) {
+          console.log(`🔄 FALLBACK XML: Processing XML tags directly`);
           const writeToFileRegex = /<write_to_file>\s*<path>(.*?)<\/path>\s*<content>([\s\S]*?)<\/content>\s*<\/write_to_file>/gi;
           let xmlMatch;
           while ((xmlMatch = writeToFileRegex.exec(validatedResponse)) !== null) {
             const filePath = xmlMatch[1].trim();
             const content = xmlMatch[2].trim();
-            console.log(`🔍 DIRECT XML: Found ${filePath} with ${content.length} chars`);
+            console.log(`🔄 FALLBACK XML: Processing ${filePath} (${content.length} chars)`);
             
             try {
               await AgentCodebaseIntegration.writeFile(filePath, content);
-              console.log(`✅ DIRECT XML SUCCESS: Created ${filePath}`);
-              fileOperations.push({ filePath, success: true, method: 'direct_xml' });
+              console.log(`✅ FALLBACK XML SUCCESS: Created ${filePath}`);
+              fileOperations.push({ filePath, success: true, method: 'fallback_xml' });
             } catch (error) {
-              console.log(`❌ DIRECT XML FAILED: ${filePath} - ${error.message}`);
+              console.log(`❌ FALLBACK XML FAILED: ${filePath} - ${error.message}`);
             }
           }
         }
