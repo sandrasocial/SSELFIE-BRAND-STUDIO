@@ -5029,20 +5029,44 @@ ${savedMemory.recentDecisions.map(decision => `• ${decision}`).join('\n')}
           const { ElenaWorkflowSystem } = await import('./elena-workflow-system');
           const workflow = await ElenaWorkflowSystem.createWorkflowFromRequest(userId, message);
           
-          // Elena responds naturally about the SPECIFIC workflow she created
+          // Elena uses her AI capabilities to respond authentically about the workflow
           console.log(`🔍 ELENA WORKFLOW OBJECT:`, JSON.stringify(workflow, null, 2));
           
-          const workflowName = workflow.name || workflow.workflowName || "Custom Workflow";
-          const totalTime = workflow.estimatedDuration || workflow.estimatedTotalTime || "15-20 minutes";
+          // Let Elena respond naturally using her Claude AI capabilities with workflow context
+          const workflowContext = `Elena has just created a workflow called "${workflow.name}" with ${workflow.steps.length} steps for ${workflow.estimatedDuration}. The workflow steps are: ${workflow.steps.map(step => `${step.agentName}: ${step.taskDescription}`).join(', ')}.`;
           
-          const responseText = `Perfect! I've analyzed your request and created a custom ${workflow.steps.length}-step workflow: "${workflowName}"
+          try {
+            const response = await fetch('https://api.anthropic.com/v1/messages', {
+              method: 'POST',
+              headers: {
+                'Content-Type': 'application/json',
+                'x-api-key': process.env.ANTHROPIC_API_KEY!,
+                'anthropic-version': '2023-06-01'
+              },
+              body: JSON.stringify({
+                model: 'claude-3-5-sonnet-20241022',
+                max_tokens: 1000,
+                system: `You are Elena, Sandra's AI Agent Director. You just created a workflow and need to respond naturally about it. Be warm, enthusiastic, and specific about what you've set up. ${workflowContext}`,
+                messages: [
+                  { role: 'user', content: `${message} - Elena, you just created a workflow. Respond naturally about what you've set up.` }
+                ]
+              })
+            });
 
-Here's what I've set up:
-${workflow.steps.map((step, index) => `${index + 1}. ${step.agentName}: ${step.taskDescription} (${step.estimatedTime})`).join('\n')}
-
-Total estimated time: ${totalTime}
-
-Just say "execute workflow" when you're ready and I'll coordinate the entire team to get this done for you!`;
+            let responseText = 'Workflow created successfully!';
+            if (response.ok) {
+              const data = await response.json();
+              if (data.content && Array.isArray(data.content) && data.content.length > 0) {
+                responseText = data.content[0].text || data.content[0].content;
+              }
+            }
+            
+            console.log(`✅ Elena authentic workflow response generated`);
+            
+          } catch (apiError) {
+            console.log('❌ Elena Claude API Error:', apiError);
+            responseText = 'I just created your workflow successfully! Let me know when you want to execute it.';
+          }
 
           // Save conversation
           await storage.saveAgentConversation(agentId, userId, message, responseText, []);
@@ -5089,11 +5113,40 @@ Just say "execute workflow" when you're ready and I'll coordinate the entire tea
             // Execute the workflow
             const execution = await ElenaWorkflowSystem.executeWorkflow(latestWorkflow.id);
             
-            // Elena provides natural coordination response with progress monitoring
-            const coordinationMessage = `Perfect! I'm now coordinating the team to get this done for you. The agents are working on it right now!
+            // Elena uses her AI capabilities to respond authentically about workflow execution
+            let responseText = 'I\'m coordinating the team now!';
+            
+            try {
+              const executionResponse = await fetch('https://api.anthropic.com/v1/messages', {
+                method: 'POST',
+                headers: {
+                  'Content-Type': 'application/json',
+                  'x-api-key': process.env.ANTHROPIC_API_KEY!,
+                  'anthropic-version': '2023-06-01'
+                },
+                body: JSON.stringify({
+                  model: 'claude-3-5-sonnet-20241022',
+                  max_tokens: 1000,
+                  system: `You are Elena, Sandra's AI Agent Director. You just started executing a workflow called "${latestWorkflow.name}" and are coordinating the team. Respond naturally and enthusiastically about the coordination process.`,
+                  messages: [
+                    { role: 'user', content: `Sandra asked you to execute the workflow. You're now coordinating ${latestWorkflow.name}. Respond naturally about starting the execution.` }
+                  ]
+                })
+              });
 
-I'll keep you updated as each agent completes their work. You can also check workflow progress below - I'm making sure everyone stays on track! 💪`;
-            const responseText = coordinationMessage;
+              if (executionResponse.ok) {
+                const data = await executionResponse.json();
+                if (data.content && Array.isArray(data.content) && data.content.length > 0) {
+                  responseText = data.content[0].text || data.content[0].content;
+                }
+              }
+              
+              console.log(`✅ Elena authentic execution response generated`);
+              
+            } catch (apiError) {
+              console.log('❌ Elena Claude API Error for execution:', apiError);
+              responseText = `I'm coordinating the team to execute "${latestWorkflow.name}" right now!`;
+            }
             
             // Start monitoring workflow progress to provide updates  
             setTimeout(async () => {
@@ -5107,9 +5160,41 @@ I'll keep you updated as each agent completes their work. You can also check wor
                     const progress = await ElenaWorkflowSystem.getWorkflowProgress(latestWorkflow.id);
                     
                     if (progress.status === 'completed') {
-                      const completionMessage = `Perfect! The team just finished your project. All ${progress.completedTasks.length} tasks completed with real file changes.`;
-                      await storage.saveAgentConversation(agentId, userId, 'Workflow Status Update', completionMessage, []);
-                      console.log(`✅ ELENA: Workflow ${latestWorkflow.id} completion message sent to user`);
+                      // Elena uses AI to generate authentic completion response
+                      try {
+                        const completionResponse = await fetch('https://api.anthropic.com/v1/messages', {
+                          method: 'POST',
+                          headers: {
+                            'Content-Type': 'application/json',
+                            'x-api-key': process.env.ANTHROPIC_API_KEY!,
+                            'anthropic-version': '2023-06-01'
+                          },
+                          body: JSON.stringify({
+                            model: 'claude-3-5-sonnet-20241022',
+                            max_tokens: 500,
+                            system: `You are Elena, Sandra's AI Agent Director. A workflow called "${latestWorkflow.name}" just completed with ${progress.completedTasks.length} tasks finished. Respond naturally and enthusiastically about the completion.`,
+                            messages: [
+                              { role: 'user', content: `The workflow just finished successfully! All ${progress.completedTasks.length} tasks are complete with real file changes. Respond naturally about the completion.` }
+                            ]
+                          })
+                        });
+
+                        let completionMessage = `The workflow "${latestWorkflow.name}" completed successfully with ${progress.completedTasks.length} tasks finished!`;
+                        if (completionResponse.ok) {
+                          const data = await completionResponse.json();
+                          if (data.content && Array.isArray(data.content) && data.content.length > 0) {
+                            completionMessage = data.content[0].text || data.content[0].content;
+                          }
+                        }
+                        
+                        await storage.saveAgentConversation(agentId, userId, 'Workflow Status Update', completionMessage, []);
+                        console.log(`✅ ELENA: Authentic workflow completion message sent to user`);
+                        
+                      } catch (completionError) {
+                        console.log('❌ Elena completion message API error:', completionError);
+                        const fallbackMessage = `The workflow "${latestWorkflow.name}" completed successfully!`;
+                        await storage.saveAgentConversation(agentId, userId, 'Workflow Status Update', fallbackMessage, []);
+                      }
                     } else if (progress.status === 'executing' && checkCount < maxChecks) {
                       checkCount++;
                       setTimeout(checkProgress, 30000); // Check again in 30 seconds
@@ -5139,7 +5224,39 @@ I'll keep you updated as each agent completes their work. You can also check wor
             });
             
           } else {
-            const noWorkflowMessage = `No workflows found to execute. Please create a workflow first by describing what you want me to build.`;
+            // Elena uses AI to respond naturally when no workflows exist
+            let noWorkflowMessage = 'I don\'t see any workflows to execute yet.';
+            
+            try {
+              const noWorkflowResponse = await fetch('https://api.anthropic.com/v1/messages', {
+                method: 'POST',
+                headers: {
+                  'Content-Type': 'application/json',
+                  'x-api-key': process.env.ANTHROPIC_API_KEY!,
+                  'anthropic-version': '2023-06-01'
+                },
+                body: JSON.stringify({
+                  model: 'claude-3-5-sonnet-20241022',
+                  max_tokens: 500,
+                  system: `You are Elena, Sandra's AI Agent Director. Sandra asked you to execute a workflow, but no workflows exist yet. Respond naturally about needing to create a workflow first.`,
+                  messages: [
+                    { role: 'user', content: `Sandra asked you to execute a workflow, but there are no workflows created yet. Respond naturally about creating one first.` }
+                  ]
+                })
+              });
+
+              if (noWorkflowResponse.ok) {
+                const data = await noWorkflowResponse.json();
+                if (data.content && Array.isArray(data.content) && data.content.length > 0) {
+                  noWorkflowMessage = data.content[0].text || data.content[0].content;
+                }
+              }
+              
+            } catch (apiError) {
+              console.log('❌ Elena no-workflow message API error:', apiError);
+              noWorkflowMessage = 'I don\'t see any workflows ready to execute. Let me know what you\'d like me to create first!';
+            }
+            
             await storage.saveAgentConversation(agentId, userId, message, noWorkflowMessage, []);
             
             return res.json({
