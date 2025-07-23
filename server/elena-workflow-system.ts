@@ -140,7 +140,7 @@ export class ElenaWorkflowSystem {
         break;
         
       case 'optimization':
-        agents.push('maya'); // AI optimization
+        agents.push('flux'); // AI optimization and LoRA specialist
         agents.push('zara'); // Technical implementation
         break;
         
@@ -242,12 +242,12 @@ export class ElenaWorkflowSystem {
     if (analysis.category === 'optimization') {
       steps.push({
         id: `step_${stepCounter++}`,
-        agentId: 'maya',
-        agentName: 'Maya',
-        taskDescription: 'Apply advanced AI optimization and parameter tuning',
+        agentId: 'flux',
+        agentName: 'Flux',
+        taskDescription: 'Apply advanced AI optimization and LoRA parameter tuning',
         estimatedTime: '8-12 minutes',
         dependencies: ['step_1'],
-        deliverables: ['Optimized parameters', 'Quality improvements', 'Performance metrics'],
+        deliverables: ['Optimized parameters', 'LoRA improvements', 'AI model performance metrics'],
         priority: 'high'
       });
     }
