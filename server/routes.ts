@@ -5752,11 +5752,21 @@ AGENT_CONTEXT:
           
           currentResponse = followUpResponse;
           console.log(`🔍 ELENA FOLLOW-UP RESPONSE ${toolCallCount}: Got response with ${followUpResponse.content?.length || 0} content blocks`);
+          
+          // Extract any text content from the latest response
+          if (followUpResponse.content) {
+            for (const block of followUpResponse.content) {
+              if (block.type === 'text') {
+                responseText += block.text;
+                console.log(`✅ ELENA TEXT CAPTURED: Added ${block.text.length} characters to response`);
+              }
+            }
+          }
         }
         
         if (toolCallCount >= maxToolCalls) {
           console.log('⚠️ ELENA: Maximum tool calls reached, forcing analysis completion');
-          responseText += '\n\n[Analysis continued after maximum search operations - providing strategic recommendations based on available data]';
+          console.log(`🔍 ELENA FINAL RESPONSE LENGTH: ${responseText.length} characters captured`);
         }
         
       } else {
