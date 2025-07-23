@@ -170,9 +170,9 @@ export class ConversationManager {
       workflowStage = 'admin-hero-design';
       // Add the current task to keyTasks for proper memory
       keyTasks.push('Create full-bleed hero image for admin dashboard with luxury editorial design');
-    } else if (fullContent.includes('chat') && fullContent.includes('management')) {
-      currentContext = 'Implementing Replit-style chat management system with save/load functionality and enhanced memory';
-      workflowStage = 'chat-management';
+    } else if (fullContent.includes('launch') && fullContent.includes('audit')) {
+      currentContext = 'SSELFIE Studio platform launch readiness audit and comprehensive analysis';
+      workflowStage = 'launch-audit';
     } else if (fullContent.includes('admin') && fullContent.includes('dashboard')) {
       currentContext = 'Working on Sandra\'s admin dashboard with agent chat interfaces and luxury design systems';
       workflowStage = 'admin-dashboard';
