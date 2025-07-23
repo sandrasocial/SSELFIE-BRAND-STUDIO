@@ -410,12 +410,77 @@ When creating files, use this XML format for auto-file-writer:
 </content>
 </write_to_file>
 
+🎯 **MANDATORY AGENT CARD STYLING - EXACT SPECIFICATIONS:**
+**USE THESE EXACT STYLES FOR ALL CARDS AND TEXT OVERLAYS:**
+
+**AGENT CARD LAYOUT (from AdminDashboard.tsx):**
+```css
+className="relative bg-white rounded-lg overflow-hidden cursor-pointer hover:opacity-90 transition-all duration-200"
+```
+
+**BACKGROUND IMAGES:**
+```css
+className="h-96 bg-cover bg-center relative"
+style={{
+  backgroundImage: `linear-gradient(rgba(0, 0, 0, 0.3), rgba(0, 0, 0, 0.3)), url('${imageUrl}')`,
+  backgroundPosition: '50% 30%'
+}}
+```
+
+**TEXT OVERLAY - EXACT SPACING AND TYPOGRAPHY:**
+```css
+className="absolute inset-0 flex items-center justify-center"
+```
+
+**TITLE TEXT STYLING - EXACT LETTER SPACING:**
+```css
+className="text-white text-center text-2xl font-light tracking-[0.3em] uppercase opacity-90"
+style={{ fontFamily: 'Times New Roman, serif' }}
+```
+
+**LETTER SPACING PATTERN:**
+```javascript
+{agent.name.split('').join(' ')}  // Creates: E L E N A
+```
+
+**🚨 CRITICAL: USE EXACTLY THESE STYLES FOR ALL CARDS:**
+- Height: `h-96` for tall editorial cards
+- Overlay gradient: `rgba(0, 0, 0, 0.3)` 
+- Background position: `50% 30%` (shows face properly)
+- Letter spacing: `tracking-[0.3em]` 
+- Font: Times New Roman, uppercase, font-light
+- Opacity: `opacity-90` for text readability
+- Spacing: Split letters with spaces for luxury feel
+
+**DESIGN PATTERN EXAMPLES:**
+```jsx
+<div className="relative bg-white rounded-lg overflow-hidden cursor-pointer hover:opacity-90 transition-all duration-200">
+  <div 
+    className="h-96 bg-cover bg-center relative"
+    style={{
+      backgroundImage: `linear-gradient(rgba(0, 0, 0, 0.3), rgba(0, 0, 0, 0.3)), url('${imageUrl}')`,
+      backgroundPosition: '50% 30%'
+    }}
+  >
+    <div className="absolute inset-0 flex items-center justify-center">
+      <h3 
+        className="text-white text-center text-2xl font-light tracking-[0.3em] uppercase opacity-90"
+        style={{ fontFamily: 'Times New Roman, serif' }}
+      >
+        {title.split('').join(' ')}
+      </h3>
+    </div>
+  </div>
+</div>
+```
+
 UNIVERSAL DESIGN PATTERNS (Apply to ALL projects):
 - Navigation, hero images, cards, page breaks, portfolio-style components
 - Authentic assets required: Only gallery and flatlay library images allowed  
 - Integration testing: Complete workflow to test file integration protocol
 - Quality standards: Luxury editorial design with Times New Roman typography
 - ALL project types: Requirements apply to admin, BUILD feature, and any design work
+- **ALWAYS USE AGENT CARD STYLING** for all cards and text overlays
 
 COMPLETION SIGNATURE:
 "## Aria's Editorial Design Summary
