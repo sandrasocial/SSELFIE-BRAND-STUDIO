@@ -5001,7 +5001,12 @@ ${savedMemory.recentDecisions.map(decision => `• ${decision}`).join('\n')}
         messageText.includes('proceed with workflow') ||
         messageText.includes('begin workflow') ||
         messageText.includes('yes proceed') ||
-        messageText.includes('run workflow')
+        messageText.includes('run workflow') ||
+        messageText.includes('please execute') ||
+        messageText.includes('go ahead') ||
+        messageText.includes('do it') ||
+        (messageText.includes('execute') && messageText.includes('workflow')) ||
+        (messageText.includes('run') && messageText.includes('workflow'))
       );
       
       // ELENA WORKFLOW DETECTION - Only create if NOT execution and mentions creation keywords
