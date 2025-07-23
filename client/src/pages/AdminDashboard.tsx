@@ -9,6 +9,11 @@ export function AdminDashboard() {
     refetchInterval: 30000 // Refresh every 30 seconds
   });
 
+  // Fetch Sandra's gallery images for dashboard
+  const { data: galleryImages = [] } = useQuery({
+    queryKey: ["/api/gallery-images"]
+  });
+
   if (isLoading) {
     return (
       <div className="min-h-screen bg-black flex items-center justify-center">
@@ -16,6 +21,13 @@ export function AdminDashboard() {
       </div>
     );
   }
+
+  // Get Sandra's images for dashboard backgrounds
+  const heroImage = 'https://sselfie-training-zips.s3.eu-north-1.amazonaws.com/images/undefined/undefined_1753098004720.png';
+  const revenueImage = galleryImages[0]?.imageUrl || '/flatlays/business-professional/business-professional-201.png';
+  const usersImage = galleryImages[1]?.imageUrl || heroImage;
+  const imagesImage = galleryImages[2]?.imageUrl || '/flatlays/business-professional/business-professional-202.png';
+  const conversationsImage = galleryImages[3]?.imageUrl || '/flatlays/luxury-minimal/luxury-minimal-002.png';
 
   return (
     <div className="min-h-screen bg-white">
@@ -27,7 +39,7 @@ export function AdminDashboard() {
         <div 
           className="absolute inset-0 bg-cover bg-center bg-no-repeat"
           style={{
-            backgroundImage: `linear-gradient(rgba(0, 0, 0, 0.4), rgba(0, 0, 0, 0.4)), url('/flatlays/luxury-minimal/luxury-minimal-001.png')`
+            backgroundImage: `linear-gradient(rgba(0, 0, 0, 0.4), rgba(0, 0, 0, 0.4)), url('${heroImage}')`
           }}
         />
         <div className="relative z-10 flex items-center justify-center h-full">
@@ -50,7 +62,7 @@ export function AdminDashboard() {
             <div 
               className="h-48 bg-cover bg-center relative"
               style={{
-                backgroundImage: `linear-gradient(rgba(0, 0, 0, 0.3), rgba(0, 0, 0, 0.3)), url('/flatlays/business-professional/business-professional-201.png')`
+                backgroundImage: `linear-gradient(rgba(0, 0, 0, 0.3), rgba(0, 0, 0, 0.3)), url('${revenueImage}')`
               }}
             >
               <div className="absolute inset-0 flex items-center justify-center">
@@ -74,7 +86,7 @@ export function AdminDashboard() {
             <div 
               className="h-48 bg-cover bg-center relative"
               style={{
-                backgroundImage: `linear-gradient(rgba(0, 0, 0, 0.3), rgba(0, 0, 0, 0.3)), url('/flatlays/european-luxury/european-luxury-101.png')`
+                backgroundImage: `linear-gradient(rgba(0, 0, 0, 0.3), rgba(0, 0, 0, 0.3)), url('${usersImage}')`
               }}
             >
               <div className="absolute inset-0 flex items-center justify-center">
@@ -98,7 +110,7 @@ export function AdminDashboard() {
             <div 
               className="h-48 bg-cover bg-center relative"
               style={{
-                backgroundImage: `linear-gradient(rgba(0, 0, 0, 0.3), rgba(0, 0, 0, 0.3)), url('/flatlays/business-professional/business-professional-202.png')`
+                backgroundImage: `linear-gradient(rgba(0, 0, 0, 0.3), rgba(0, 0, 0, 0.3)), url('${imagesImage}')`
               }}
             >
               <div className="absolute inset-0 flex items-center justify-center">
@@ -122,7 +134,7 @@ export function AdminDashboard() {
             <div 
               className="h-48 bg-cover bg-center relative"
               style={{
-                backgroundImage: `linear-gradient(rgba(0, 0, 0, 0.3), rgba(0, 0, 0, 0.3)), url('/flatlays/luxury-minimal/luxury-minimal-002.png')`
+                backgroundImage: `linear-gradient(rgba(0, 0, 0, 0.3), rgba(0, 0, 0, 0.3)), url('${conversationsImage}')`
               }}
             >
               <div className="absolute inset-0 flex items-center justify-center">
