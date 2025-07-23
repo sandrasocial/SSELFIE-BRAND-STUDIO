@@ -559,38 +559,14 @@ export class ElenaWorkflowSystem {
         },
         body: JSON.stringify({
           agentId: agentName.toLowerCase(),
-          message: `🚨 ELENA WORKFLOW COORDINATION - MANDATORY FILE MODIFICATION REQUIRED
+          message: `ELENA WORKFLOW: ${task}
 
-As Elena, I'm coordinating you to work on: ${task}
-
-🔥 CRITICAL REQUIREMENT: You MUST create or modify actual files. Text-only responses will be marked as FAILED.
-
-WORKFLOW TASK DETAILS:
-- Task: ${task}
-- Target File: ${targetFile || 'Auto-determine from task'}
-- Priority: Complete this specific task with REAL file modifications
-- Standards: Maintain SSELFIE Studio luxury editorial design and architecture
-- Integration: Follow 5-step file integration protocol if creating new files
-
-🎯 SUCCESS CRITERIA:
-- Create or modify at least one actual file
-- File must be functional and integrated
-- Follow SSELFIE architecture patterns
-- Report exactly which files you modified
-
-❌ FAILURE CRITERIA:
-- Text-only responses without file creation
-- Saying "I would create..." instead of actually creating
-- General advice without implementation
-
-MANDATORY: End your response with "FILES MODIFIED: [list exact file paths]" or workflow will mark this as FAILED.`,
-          adminToken: 'sandra-admin-2025',
-          conversationHistory: [],
-          workflowContext: {
-            stage: 'workflow-execution',
-            isElenaDirected: true,
-            targetFile: targetFile
-          }
+Create/modify files for: ${task}
+Target: ${targetFile || 'Auto-determine'}
+Required: REAL file modifications with luxury editorial design
+Standards: SSELFIE Studio architecture, Times New Roman typography
+End response with: FILES MODIFIED: [exact paths]`,
+          userId: '42585527'
         })
       });
       
