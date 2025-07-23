@@ -1045,6 +1045,14 @@ export function OptimizedVisualEditor({ className = '' }: OptimizedVisualEditorP
       const data = await response.json();
       console.log('📥 Agent response data:', data);
       
+      // ELENA RESPONSE DEBUG: Show exactly what Elena is sending
+      if (agentId === 'elena') {
+        console.log('🔍 ELENA FRONTEND DEBUG: Response received');
+        console.log(`🔍 ELENA MESSAGE LENGTH: ${data.message?.length || 0} characters`);
+        console.log(`🔍 ELENA MESSAGE PREVIEW: ${data.message?.substring(0, 200)}...`);
+        console.log(`🔍 ELENA FULL MESSAGE: ${data.message}`);
+      }
+      
       if (data.message || data.response || data.workflow) {
         const agent = agents.find(a => a.id === agentId);
         
