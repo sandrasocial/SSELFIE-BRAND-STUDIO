@@ -380,15 +380,15 @@ export function OptimizedVisualEditor({ className = '' }: OptimizedVisualEditorP
                                  lastMessage?.content?.includes('admin hero') ||
                                  lastMessage?.content?.includes('AdminHeroSection');
             
-            // For Elena: Reset context when starting new tasks to prevent confusion
-            if (currentAgent.id === 'elena' && isOldAdminWork) {
-              console.log('🔄 ELENA CONTEXT RESET: Clearing old admin work context for new task');
+            // For Elena: Always reset context to prevent hardcoded admin task interference
+            if (currentAgent.id === 'elena' && formattedMessages.length > 0) {
+              console.log('🔄 ELENA CONTEXT RESET: Clearing old workflow context for real-time tasks');
               setChatMessages([]);
               toast({
                 title: 'Elena Ready',
-                description: 'Fresh context for new analysis task',
+                description: 'Fresh context for real-time requests',
               });
-              return; // Don't load old history
+              return; // Don't load old history - always start fresh
             }
             
             // Show success notification for loaded history
