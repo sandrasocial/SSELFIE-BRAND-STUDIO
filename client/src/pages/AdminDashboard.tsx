@@ -422,47 +422,26 @@ export function AdminDashboard() {
           
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-6">
             {agents.map((agent, index) => (
-              <div key={agent.name} className="bg-white border-2 border-gray-200 hover:border-gray-300 rounded-lg overflow-hidden transition-all duration-200 cursor-pointer hover:shadow-lg">
+              <div 
+                key={agent.name} 
+                className="relative bg-white rounded-lg overflow-hidden cursor-pointer hover:opacity-90 transition-all duration-200"
+                onClick={() => window.location.href = '/admin-dashboard'}
+              >
                 <div 
-                  className="h-48 bg-cover bg-center relative"
+                  className="h-96 bg-cover bg-center relative"
                   style={{
                     backgroundImage: `linear-gradient(rgba(0, 0, 0, 0.3), rgba(0, 0, 0, 0.3)), url('${agent.image}')`,
                     backgroundPosition: '50% 30%'
                   }}
                 >
-                  <div className="absolute top-4 left-4">
-                    <div className="w-8 h-8 rounded-full bg-black flex items-center justify-center text-sm font-medium text-white">
-                      {index + 1}
-                    </div>
+                  <div className="absolute inset-0 flex items-center justify-center">
+                    <h3 
+                      className="text-white text-center text-2xl font-light tracking-[0.3em] uppercase opacity-90"
+                      style={{ fontFamily: 'Times New Roman, serif' }}
+                    >
+                      {agent.name.split('').join(' ')}
+                    </h3>
                   </div>
-                  <div className="absolute top-4 right-4">
-                    <div className="bg-green-500 text-white text-xs px-2 py-1 rounded-full font-medium">
-                      {agent.status}
-                    </div>
-                  </div>
-                </div>
-                <div className="p-6">
-                  <h3 
-                    className="text-xl font-serif text-black uppercase tracking-wide mb-2" 
-                    style={{ fontFamily: 'Times New Roman, serif' }}
-                  >
-                    {agent.name}
-                  </h3>
-                  
-                  <p className="text-sm text-gray-600 font-medium mb-3">
-                    {agent.title}
-                  </p>
-                  
-                  <p className="text-sm text-gray-500 mb-4 leading-relaxed">
-                    {agent.description}
-                  </p>
-
-                  <button
-                    onClick={() => window.location.href = '/admin-dashboard'}
-                    className="w-full text-sm border border-black text-black hover:bg-black hover:text-white transition-colors duration-200 py-2 px-4 rounded"
-                  >
-                    Chat with {agent.name}
-                  </button>
                 </div>
               </div>
             ))}
