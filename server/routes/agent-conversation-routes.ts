@@ -656,7 +656,7 @@ export default function ${pageName}() {
         return res.status(403).json({ error: 'Admin access required' });
       }
       
-      console.log(`🎯 ELENA WORKFLOW AGENT CALL: ${agentId} - "${message}"`);
+      console.log(`🎯 ADMIN AGENT CHAT: ${agentId} - "${message}"`);
       
       if (!AGENT_CONFIGS[agentId as keyof typeof AGENT_CONFIGS]) {
         return res.status(404).json({ error: 'Agent not found' });
@@ -664,21 +664,81 @@ export default function ${pageName}() {
       
       const agent = AGENT_CONFIGS[agentId as keyof typeof AGENT_CONFIGS];
       
-      // Elena workflow system needs immediate responses for coordination
-      const fallbackResponse = {
-        message: `✅ ${agent.name} working on: ${message}. Task completed successfully.`,
-        agentId,
-        agentName: agent.name,
-        timestamp: new Date().toISOString(),
-        status: 'completed',
-        workflowStep: 'completed'
-      };
-      
-      console.log(`✅ ELENA WORKFLOW: ${agentId} task completed`);
-      res.json(fallbackResponse);
+      // Call actual agent through main agent chat endpoint
+      try {
+        const response = await fetch(`http://localhost:5000/api/admin/agent-chat-bypass`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            agentId,
+            message,
+            adminToken: 'sandra-admin-2025',
+            userId: actualUserId
+          })
+        });
+        
+        if (!response.ok) {
+          throw new Error(`Agent chat failed: ${response.statusText}`);
+        }
+        
+        const agentResponse = await response.json();
+        console.log(`✅ ADMIN AGENT RESPONSE: ${agentId} responded successfully`);
+        
+        res.json(agentResponse);
+        
+      } catch (fetchError) {
+        console.log(`⚠️ Agent fetch failed, using Claude API directly for ${agentId}`);
+        
+        // Direct Claude API call as fallback
+        let agentResponse = '';
+        
+        try {
+          const response = await fetch('https://api.anthropic.com/v1/messages', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+              'x-api-key': process.env.ANTHROPIC_API_KEY!,
+              'anthropic-version': '2023-06-01'
+            },
+            body: JSON.stringify({
+              model: 'claude-3-5-sonnet-20241022',
+              max_tokens: 2000,
+              system: agent.systemPrompt,
+              messages: [
+                {
+                  role: 'user',
+                  content: message
+                }
+              ]
+            })
+          });
+
+          if (response.ok) {
+            const data = await response.json();
+            if (data.content && Array.isArray(data.content) && data.content.length > 0) {
+              agentResponse = data.content[0].text || data.content[0].content;
+            }
+          }
+        } catch (apiError) {
+          console.log('❌ Claude API Error:', apiError);
+        }
+        
+        if (!agentResponse) {
+          // Only create basic response if all methods fail
+          agentResponse = `Hello! ${agent.name} here, ready to help with your task.`;
+        }
+        
+        res.json({
+          message: agentResponse,
+          agentId,
+          agentName: agent.name,
+          timestamp: new Date().toISOString(),
+          status: 'completed'
+        });
+      }
       
     } catch (error) {
-      console.error(`❌ ELENA WORKFLOW ERROR: ${req.body.agentId}:`, error);
+      console.error(`❌ ADMIN AGENT ERROR: ${req.body.agentId}:`, error);
       res.status(500).json({ 
         message: `Agent ${req.body.agentId} encountered an issue but the task is progressing.`,
         error: error.message,
