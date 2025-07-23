@@ -5339,9 +5339,9 @@ AGENT_CONTEXT:
           console.log(`🔧 INTEGRATION FIX: Redirected to modify existing files instead`);
         }
         
-        // Force fresh import with timestamp to bypass ES module cache
-        const timestamp = Date.now();
-        const { AutoFileWriter } = await import(`./agents/auto-file-writer.js?v=${timestamp}`);
+        // Create fresh auto-file-writer instance bypassing all caching
+        const autoFileWriterPath = new URL('./agents/auto-file-writer.js', import.meta.url).href;
+        const { AutoFileWriter } = await import(`${autoFileWriterPath}?t=${Date.now()}`);
         const { AgentCodebaseIntegration } = await import('./agents/AgentCodebaseIntegration.js');
         
         console.log(`🔍 ROUTES DEBUG: About to process response for auto-file-writer`);
@@ -5376,6 +5376,7 @@ AGENT_CONTEXT:
             AgentCodebaseIntegration
           );
           console.log(`🔍 ROUTES DEBUG: Auto-file-writer completed successfully`);
+          console.log(`🔍 ROUTES DEBUG: Files written by auto-file-writer: ${result.filesWritten?.length || 0}`);
         } catch (error) {
           console.log(`❌ ROUTES DEBUG: Auto-file-writer error: ${error.message}`);
           console.log(`❌ ROUTES DEBUG: Error stack: ${error.stack}`);

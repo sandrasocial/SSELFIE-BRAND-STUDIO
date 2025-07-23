@@ -83,6 +83,10 @@ class ComprehensiveAgentSafety {
    */
   validateImports(content) {
     const errors = [];
+    if (!content || typeof content !== 'string') {
+      console.log(`⚠️ SAFETY: Invalid content for import validation: ${typeof content}`);
+      return errors;
+    }
     const lines = content.split('\n');
     
     lines.forEach((line, index) => {
