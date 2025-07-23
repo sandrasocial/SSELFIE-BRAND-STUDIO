@@ -21,10 +21,11 @@ export default function AdminDashboard() {
   // Fetch dashboard stats
   const { data: stats, isLoading } = useQuery<DashboardStats>({
     queryKey: ["/api/admin/dashboard-stats"],
-    enabled: !!user?.isAdmin,
+    enabled: !!(user && (user.email === 'ssa@ssasocial.com' || user.role === 'admin')),
   });
 
-  if (!user?.isAdmin) {
+  // Check if user is Sandra (admin access required)  
+  if (!user || (user.email !== 'ssa@ssasocial.com' && user.role !== 'admin')) {
     return (
       <div className="min-h-screen bg-black flex items-center justify-center">
         <div className="text-center">
