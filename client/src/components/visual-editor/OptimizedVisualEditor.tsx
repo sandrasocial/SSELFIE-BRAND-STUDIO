@@ -832,14 +832,9 @@ export function OptimizedVisualEditor({ className = '' }: OptimizedVisualEditorP
       }
     };
     
-    // SELECTIVE POLLING: Only poll for REAL file changes, not every 3 seconds
-    console.log('🔄 SMART WORKFLOW POLLING: Monitoring for actual file creation');
-    
-    // Poll less frequently and only check for file modifications
-    const interval = setInterval(() => {
-      pollProgress();
-    }, 10000); // Check every 10 seconds instead of 3
-    setWorkflowPollingInterval(interval);
+    // DISABLED: Polling completely to stop Elena loop
+    console.log('🚫 WORKFLOW POLLING COMPLETELY DISABLED: Stopping Elena loop');
+    // setWorkflowPollingInterval(null);
     
     // Initial poll with state initialization
     const initializePoll = async () => {

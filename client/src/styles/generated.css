@@ -1,0 +1,13 @@
+// 1. React and external libraries
+import React from 'react';
+import { useQuery } from '@tanstack/react-query';
+
+// 2. Internal components and hooks
+import { Button } from '@/components/ui';
+import { useAuth } from '@/hooks';
+
+// 3. Types and interfaces
+import type { UserProfile } from '@/types';
+
+// 4. Relative imports
+import './ComponentName.styles.css';
