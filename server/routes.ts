@@ -4856,20 +4856,26 @@ Consider this workflow optimized and ready for implementation! ⚙️`
         }
       }
       
-      // Always check for saved memory when starting a new conversation or after clearing
-      console.log(`💭 Checking for saved memory for ${agentId}...`);
-      // Re-enable memory system
-      const { ConversationManager } = await import('./agents/ConversationManager');
-      const savedMemory = await ConversationManager.retrieveAgentMemory(agentId, userId);
-      
-      // If we have saved memory AND conversation doesn't already contain memory restoration
-      if (savedMemory && !workingHistory.some(msg => msg.content?.includes('CONVERSATION MEMORY RESTORED'))) {
-        console.log(`🧠 Restoring memory for ${agentId}: ${savedMemory.keyTasks.length} tasks, ${savedMemory.recentDecisions.length} decisions`);
+      // ELENA MEMORY BLOCK: Prevent loading hardcoded admin task memory
+      if (agentId.toLowerCase() === 'elena') {
+        console.log(`🚫 ELENA MEMORY BLOCK: Skipping memory restoration to prevent hardcoded admin task interference`);
+        console.log(`📝 Elena starting fresh conversation for real-time tasks`);
+        workingHistory = []; // Force fresh start for Elena
+      } else {
+        // Always check for saved memory when starting a new conversation or after clearing
+        console.log(`💭 Checking for saved memory for ${agentId}...`);
+        // Re-enable memory system
+        const { ConversationManager } = await import('./agents/ConversationManager');
+        const savedMemory = await ConversationManager.retrieveAgentMemory(agentId, userId);
         
-        // Add memory context at the beginning of conversation
-        const memoryMessage = {
-          role: 'system',
-          content: `**CONVERSATION MEMORY RESTORED**
+        // If we have saved memory AND conversation doesn't already contain memory restoration
+        if (savedMemory && !workingHistory.some(msg => msg.content?.includes('CONVERSATION MEMORY RESTORED'))) {
+          console.log(`🧠 Restoring memory for ${agentId}: ${savedMemory.keyTasks.length} tasks, ${savedMemory.recentDecisions.length} decisions`);
+          
+          // Add memory context at the beginning of conversation
+          const memoryMessage = {
+            role: 'system',
+            content: `**CONVERSATION MEMORY RESTORED**
 
 **Previous Context:** ${savedMemory.currentContext}
 
@@ -4886,14 +4892,15 @@ ${savedMemory.recentDecisions.map(decision => `• ${decision}`).join('\n')}
 ---
 
 **Continue from where we left off with full context awareness...**`
-        };
-        
-        workingHistory = [memoryMessage, ...workingHistory];
-        console.log(`✅ Memory restored: conversation now has ${workingHistory.length} messages with context`);
-      } else if (savedMemory) {
-        console.log(`📋 Memory exists but already restored in conversation - skipping duplicate restoration`);
-      } else {
-        console.log(`📝 No saved memory found for ${agentId} - starting fresh conversation`);
+          };
+          
+          workingHistory = [memoryMessage, ...workingHistory];
+          console.log(`✅ Memory restored: conversation now has ${workingHistory.length} messages with context`);
+        } else if (savedMemory) {
+          console.log(`📋 Memory exists but already restored in conversation - skipping duplicate restoration`);
+        } else {
+          console.log(`📝 No saved memory found for ${agentId} - starting fresh conversation`);
+        }
       }
       
       // Re-enable conversation management for proper memory handling
@@ -5019,7 +5026,7 @@ I'll keep you updated as each agent completes their work. You can also check wor
                     const progress = await ElenaWorkflowSystem.getWorkflowProgress(latestWorkflow.id);
                     
                     if (progress.status === 'completed') {
-                      const completionMessage = `Perfect! The team just finished your project. All ${progress.completedTasks.length} tasks completed with real file changes. Check out the updated admin dashboard!`;
+                      const completionMessage = `Perfect! The team just finished your project. All ${progress.completedTasks.length} tasks completed with real file changes.`;
                       await storage.saveAgentConversation(agentId, userId, 'Workflow Status Update', completionMessage, []);
                       console.log(`✅ ELENA: Workflow ${latestWorkflow.id} completion message sent to user`);
                     } else if (progress.status === 'executing' && checkCount < maxChecks) {
