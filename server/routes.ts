@@ -4859,12 +4859,15 @@ Consider this workflow optimized and ready for implementation! ⚙️`
         }
       }
       
-      // ELENA MEMORY BLOCK: Prevent loading hardcoded admin task memory
+      // ELENA MEMORY BLOCK: Prevent loading hardcoded admin task memory but preserve current conversation
       if (agentId.toLowerCase() === 'elena') {
-        console.log(`🚫 ELENA MEMORY BLOCK: Skipping memory restoration to prevent hardcoded admin task interference`);
-        console.log(`📝 Elena starting fresh conversation for real-time tasks`);
-        workingHistory = []; // Force fresh start for Elena
-        savedMemory = null; // Explicitly set to null for Elena
+        console.log(`🚫 ELENA MEMORY BLOCK: Skipping database memory restoration to prevent hardcoded admin task interference`);
+        console.log(`📝 Elena preserving current conversation context but starting fresh from database perspective`);
+        console.log(`🔍 ELENA: Current workingHistory length: ${workingHistory.length}`);
+        console.log(`🔍 ELENA: ConversationHistory parameter: ${conversationHistory ? conversationHistory.length : 'null'} messages`);
+        // Keep current conversation history but don't load database memory
+        // workingHistory already contains current conversation from conversationHistory parameter
+        savedMemory = null; // Explicitly set to null for Elena to prevent database memory loading
       } else {
         // Load ConversationManager for non-Elena agents
         const { ConversationManager } = await import('./agents/ConversationManager');
@@ -4927,6 +4930,11 @@ ${savedMemory.recentDecisions.map(decision => `• ${decision}`).join('\n')}
         }
       } else {
         console.log(`🔍 ELENA: Skipping conversation management - using fresh context`);
+        console.log(`🔍 ELENA: Current workingHistory length: ${workingHistory.length}`);
+        console.log(`🔍 ELENA: ConversationHistory parameter: ${conversationHistory ? conversationHistory.length : 'null'} messages`);
+        if (workingHistory.length > 0) {
+          console.log(`🔍 ELENA: First message in workingHistory: ${workingHistory[0].role} - ${workingHistory[0].content?.substring(0, 100)}`);
+        }
       }
       
       // ELENA WORKFLOW SYSTEM INTEGRATION - MUST BE BEFORE AGENT PERSONALITY
@@ -5228,6 +5236,17 @@ AGENT_CONTEXT:
       
       // Combine with conversation history for Claude (filter out system messages)
       const fullHistory = workingHistory || conversationHistory || [];
+      
+      // DEBUG: Elena conversation history tracking
+      if (agentId.toLowerCase() === 'elena') {
+        console.log(`🔍 ELENA FINAL DEBUG: workingHistory length: ${workingHistory ? workingHistory.length : 'null'}`);
+        console.log(`🔍 ELENA FINAL DEBUG: conversationHistory length: ${conversationHistory ? conversationHistory.length : 'null'}`);
+        console.log(`🔍 ELENA FINAL DEBUG: fullHistory length: ${fullHistory.length}`);
+        if (fullHistory.length > 0) {
+          console.log(`🔍 ELENA FINAL DEBUG: First message in fullHistory: ${fullHistory[0].role} - ${fullHistory[0].content?.substring(0, 100)}`);
+        }
+      }
+      
       const messages = [
         ...fullHistory
           .filter(msg => msg.role !== 'system' && msg.role) // Filter out system messages and messages without role
