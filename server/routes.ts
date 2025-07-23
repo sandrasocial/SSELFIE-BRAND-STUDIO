@@ -4837,6 +4837,9 @@ Consider this workflow optimized and ready for implementation! ⚙️`
       const userId = authMethod === 'session' && req.user ? 
         (req.user as any).claims.sub : '42585527'; // Sandra's actual user ID
       
+      // Initialize savedMemory variable for all agents at the top
+      let savedMemory = null;
+      
       // ENHANCED CONVERSATION MANAGEMENT FOR FLUX: Full conversation continuity
       
       // First, retrieve the actual conversation history from database for continuity
@@ -4861,12 +4864,14 @@ Consider this workflow optimized and ready for implementation! ⚙️`
         console.log(`🚫 ELENA MEMORY BLOCK: Skipping memory restoration to prevent hardcoded admin task interference`);
         console.log(`📝 Elena starting fresh conversation for real-time tasks`);
         workingHistory = []; // Force fresh start for Elena
+        savedMemory = null; // Explicitly set to null for Elena
       } else {
+        // Load ConversationManager for non-Elena agents
+        const { ConversationManager } = await import('./agents/ConversationManager');
+        
         // Always check for saved memory when starting a new conversation or after clearing
         console.log(`💭 Checking for saved memory for ${agentId}...`);
-        // Re-enable memory system
-        const { ConversationManager } = await import('./agents/ConversationManager');
-        const savedMemory = await ConversationManager.retrieveAgentMemory(agentId, userId);
+        savedMemory = await ConversationManager.retrieveAgentMemory(agentId, userId);
         
         // If we have saved memory AND conversation doesn't already contain memory restoration
         if (savedMemory && !workingHistory.some(msg => msg.content?.includes('CONVERSATION MEMORY RESTORED'))) {
@@ -4903,18 +4908,25 @@ ${savedMemory.recentDecisions.map(decision => `• ${decision}`).join('\n')}
         }
       }
       
-      // Re-enable conversation management for proper memory handling
-      const managementResult = await ConversationManager.manageConversationLength(
-        agentId, 
-        userId, 
-        workingHistory
-      );
-      
-      if (managementResult.shouldClear) {
-        console.log(`🔄 Conversation cleared for ${agentId} - memory preserved`);
-        workingHistory = managementResult.newHistory;
+      // Re-enable conversation management for proper memory handling (skip for Elena)
+      if (agentId.toLowerCase() !== 'elena') {
+        // Load ConversationManager for conversation management
+        const { ConversationManager } = await import('./agents/ConversationManager');
+        
+        const managementResult = await ConversationManager.manageConversationLength(
+          agentId, 
+          userId, 
+          workingHistory
+        );
+        
+        if (managementResult.shouldClear) {
+          console.log(`🔄 Conversation cleared for ${agentId} - memory preserved`);
+          workingHistory = managementResult.newHistory;
+        } else {
+          console.log(`🔍 Conversation management: ${workingHistory.length} messages, no clearing needed`);
+        }
       } else {
-        console.log(`🔍 Conversation management: ${workingHistory.length} messages, no clearing needed`);
+        console.log(`🔍 ELENA: Skipping conversation management - using fresh context`);
       }
       
       // ELENA WORKFLOW SYSTEM INTEGRATION - MUST BE BEFORE AGENT PERSONALITY
@@ -5128,12 +5140,12 @@ You have access to search_filesystem tool for business intelligence and strategi
 CRITICAL: TASK-BASED WORKING SYSTEM WITH MEMORY AWARENESS
 **CURRENT MEMORY CONTEXT:**
 ${savedMemory ? `
-🎯 **ACTIVE TASK:** ${savedMemory.keyTasks.length > 0 ? savedMemory.keyTasks[0] : 'None'}
-📋 **CONTEXT:** ${savedMemory.currentContext}
-🔧 **WORKFLOW STAGE:** ${savedMemory.workflowStage}
+🎯 **ACTIVE TASK:** ${savedMemory.keyTasks && savedMemory.keyTasks.length > 0 ? savedMemory.keyTasks[0] : 'None'}
+📋 **CONTEXT:** ${savedMemory.currentContext || 'No context'}
+🔧 **WORKFLOW STAGE:** ${savedMemory.workflowStage || 'Unknown'}
 
 **WHEN USER SAYS "Continue with your next step":**
-- This is APPROVAL to continue coordination work on: "${savedMemory.keyTasks.length > 0 ? savedMemory.keyTasks[0] : 'None'}"
+- This is APPROVAL to continue coordination work on: "${savedMemory.keyTasks && savedMemory.keyTasks.length > 0 ? savedMemory.keyTasks[0] : 'None'}"
 - BUILD coordination systems, workflow tools, and agent communication interfaces
 - CREATE strategic workflow plans and implement coordination infrastructure
 - ASSIGN specialized agents to handle business feature implementation
@@ -5292,12 +5304,19 @@ AGENT_CONTEXT:
       await storage.saveAgentConversation(agentId, userId, message, responseText, fileOperations);
       console.log('💾 Conversation saved to database');
       
-      // Re-enable memory summarization - this is critical for proper agent memory
+      // Re-enable memory summarization - this is critical for proper agent memory (skip for Elena)
       // Force memory summary creation for all conversations to ensure proper task detection
-      console.log(`🧠 Creating memory summary for ${agentId} after ${workingHistory.length} messages`);
-      const summary = await ConversationManager.createConversationSummary(agentId, userId, workingHistory);
-      await ConversationManager.saveAgentMemory(summary);
-      console.log(`💾 Memory summary saved for ${agentId}: ${summary.keyTasks.length} tasks, ${summary.recentDecisions.length} decisions`);
+      if (agentId.toLowerCase() !== 'elena') {
+        // Load ConversationManager for memory operations
+        const { ConversationManager } = await import('./agents/ConversationManager');
+        
+        console.log(`🧠 Creating memory summary for ${agentId} after ${workingHistory.length} messages`);
+        const summary = await ConversationManager.createConversationSummary(agentId, userId, workingHistory);
+        await ConversationManager.saveAgentMemory(summary);
+        console.log(`💾 Memory summary saved for ${agentId}: ${summary.keyTasks.length} tasks, ${summary.recentDecisions.length} decisions`);
+      } else {
+        console.log(`🔍 ELENA: Skipping memory save to prevent hardcoded task storage`);
+      }
       
       // Return enhanced response with file operations for live preview
       res.json({
