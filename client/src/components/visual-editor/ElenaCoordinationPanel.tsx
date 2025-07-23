@@ -86,8 +86,11 @@ export function ElenaCoordinationPanel({ onAgentSelect, currentWorkflow }: Elena
     return () => clearInterval(monitoringInterval);
   }, []);
 
-  // Monitor Elena's live workflow progress
+  // DISABLED: Monitor Elena's live workflow progress (causing refresh loop)
   useEffect(() => {
+    console.log('🚫 ELENA AUTO-MONITORING DISABLED: Preventing refresh loop');
+    
+    /* DISABLED TO PREVENT REFRESH LOOP
     const checkForActiveWorkflows = async () => {
       try {
         // Check for active workflows
@@ -112,9 +115,16 @@ export function ElenaCoordinationPanel({ onAgentSelect, currentWorkflow }: Elena
     };
 
     checkForActiveWorkflows();
+    */
   }, []);
 
   const startWorkflowMonitoring = (workflowId: string) => {
+    // TEMPORARY FIX: Disable aggressive polling to stop refresh loop
+    console.log('🚫 ELENA MONITORING DISABLED: Preventing auto-refresh loop');
+    setIsMonitoring(false);
+    return;
+    
+    /* DISABLED TO PREVENT REFRESH LOOP
     const monitorInterval = setInterval(async () => {
       try {
         const response = await fetch(`/api/elena/workflow-status/${workflowId}`, {
@@ -148,7 +158,8 @@ export function ElenaCoordinationPanel({ onAgentSelect, currentWorkflow }: Elena
       } catch (error) {
         console.error('Elena workflow monitoring error:', error);
       }
-    }, 2000); // Check every 2 seconds for more responsive updates
+    }, 2000); // Check every 2 seconds for more responsive
+    */ updates
 
     return () => clearInterval(monitorInterval);
   };

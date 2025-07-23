@@ -832,9 +832,10 @@ export function OptimizedVisualEditor({ className = '' }: OptimizedVisualEditorP
       }
     };
     
-    // Start polling every 3 seconds
-    const interval = setInterval(pollProgress, 3000);
-    setWorkflowPollingInterval(interval);
+    // DISABLED: Start polling every 3 seconds (causing refresh loop)
+    console.log('🚫 WORKFLOW POLLING DISABLED: Preventing auto-refresh loop');
+    // const interval = setInterval(pollProgress, 3000);
+    // setWorkflowPollingInterval(interval);
     
     // Initial poll with state initialization
     const initializePoll = async () => {
@@ -1367,8 +1368,11 @@ export function OptimizedVisualEditor({ className = '' }: OptimizedVisualEditorP
     }
   };
 
-  // Monitor workflow progress in real-time
+  // DISABLED: Monitor workflow progress in real-time (causing refresh loop)
   const startWorkflowProgressMonitoring = (workflowId: string) => {
+    console.log('🚫 WORKFLOW PROGRESS MONITORING DISABLED: Preventing auto-refresh loop');
+    
+    /* DISABLED TO PREVENT REFRESH LOOP
     const interval = setInterval(async () => {
       try {
         const response = await fetch(`/api/admin/elena/workflow-progress/${workflowId}`, {
@@ -1402,6 +1406,7 @@ export function OptimizedVisualEditor({ className = '' }: OptimizedVisualEditorP
         clearInterval(interval);
       }
     }, 5000); // Check every 5 seconds
+    */
   };
 
   // Start workflow from beginning
