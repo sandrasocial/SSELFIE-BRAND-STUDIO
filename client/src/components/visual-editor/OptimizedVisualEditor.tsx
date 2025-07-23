@@ -1062,9 +1062,23 @@ export function OptimizedVisualEditor({ className = '' }: OptimizedVisualEditorP
           content: data.message || data.response,
           timestamp: new Date(),
           agentName: agentId,
-          workflowStage: agent?.workflowStage
+          workflowStage: agent?.workflowStage,
+          workflowId: data.workflowId // Include workflow ID if Elena created/executed one
         };
         setChatMessages(prev => [...prev, agentMessage]);
+
+        // 🚀 CRITICAL: Auto-start workflow monitoring for Elena executions
+        if (agentId === 'elena' && data.workflowId) {
+          console.log(`🚀 AUTO-POLLING: Elena executed workflow ${data.workflowId}, starting live monitoring...`);
+          startWorkflowProgressPolling(data.workflowId);
+          toast({
+            title: 'Elena Workflow Active',
+            description: `Live monitoring started for workflow ${data.workflowId}`,
+          });
+        } else if (agentId === 'elena') {
+          console.log(`🔍 ELENA DEBUG: Response data:`, data);
+          console.log(`🔍 ELENA DEBUG: WorkflowId present: ${!!data.workflowId}`);
+        }
 
         // Show notification for file operations (code blocks automatically written)
         const responseText = data.message || data.response;
