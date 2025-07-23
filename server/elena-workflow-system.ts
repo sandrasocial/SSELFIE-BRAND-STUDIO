@@ -680,6 +680,10 @@ export class ElenaWorkflowSystem {
         this.saveWorkflowsToDisk();
       }
       
+      // DISABLED: Live chat updates causing 1-second spam loop
+      console.log(`🚫 ELENA: Live chat updates disabled to prevent 1-second loop spam`);
+      
+      /* DISABLED TO STOP 1-SECOND LOOP SPAM
       // CRITICAL FIX: Send live update to Elena's active chat conversation
       try {
         // Import storage to save Elena's live update as chat message
@@ -698,6 +702,7 @@ export class ElenaWorkflowSystem {
       } catch (chatError) {
         console.error(`❌ ELENA: Failed to send live chat update:`, chatError);
       }
+      */
       
     } catch (error) {
       console.error(`❌ ELENA: Failed to send update to user:`, error);
