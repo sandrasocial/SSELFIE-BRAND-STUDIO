@@ -6,7 +6,7 @@ import { storage } from "./storage";
 import { setupAuth, isAuthenticated } from "./replitAuth";
 import { ElenaWorkflowSystem } from "./elena-workflow-system";
 import agentCodebaseRoutes from "./routes/agent-codebase-routes";
-import { registerAgentApprovalRoutes } from "./routes/agent-approval";
+// import { registerAgentApprovalRoutes } from "./routes/agent-approval"; // ARCHIVED - old approval system
 import { registerAgentCommandRoutes } from "./routes/agent-command-center";
 import agentFileAccessRoutes from "./routes/agent-file-access";
 import agentLearningRoutes from "./routes/agent-learning";
@@ -120,8 +120,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Rollback system routes
   setupRollbackRoutes(app);
   
-  // Agent approval system routes
-  registerAgentApprovalRoutes(app);
+  // Agent approval system routes - ARCHIVED
+  // registerAgentApprovalRoutes(app); // Old approval system archived
   
   // Agent command center routes
   registerAgentCommandRoutes(app);
