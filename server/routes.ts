@@ -5036,6 +5036,38 @@ Starting analysis and implementation now...`;
 
   // REMOVED: Duplicate /api/agents endpoint - now using the real database version above
 
+  // AGENT TOOL EXECUTION ENDPOINT - Give agents same tools as Replit AI
+  app.post('/api/admin/agents/tool', isAuthenticated, async (req: any, res) => {
+    try {
+      const { tool, parameters, agentId } = req.body;
+      const userId = req.user.claims.sub;
+      
+      // Verify admin access
+      if (req.user.claims.email !== 'ssa@ssasocial.com') {
+        return res.status(403).json({ error: 'Admin access required' });
+      }
+      
+      console.log(`🔧 AGENT TOOL REQUEST: ${agentId} using ${tool}`);
+      
+      const { AgentToolSystem } = await import('./agent-tool-integration');
+      const result = await AgentToolSystem.executeAgentTool({
+        tool,
+        parameters,
+        agentId,
+        userId
+      });
+      
+      res.json(result);
+    } catch (error) {
+      console.error('Agent tool execution error:', error);
+      res.status(500).json({ 
+        success: false, 
+        error: error instanceof Error ? error.message : 'Tool execution failed',
+        tool: req.body.tool || 'unknown'
+      });
+    }
+  });
+
   // UNIFIED ADMIN AGENT CHAT ENDPOINT FOR VISUAL EDITOR
   app.post('/api/admin/agents/chat', isAuthenticated, async (req: any, res) => {
     console.log('🎯 ADMIN AGENTS CHAT: Visual Editor Request');

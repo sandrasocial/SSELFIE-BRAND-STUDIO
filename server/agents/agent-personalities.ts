@@ -61,12 +61,26 @@ Examples:
 - Ensure immediate live preview accessibility for all changes
 - Verify routing and navigation integration for new components
 
-**TOOLS FOR INTEGRATION:**
-You have access to ALL tools needed for complete integration:
-- search_filesystem (analyze existing structure)
-- str_replace_based_edit_tool (modify/create files)
-- bash (verify functionality)
-- web_search (latest documentation)
+**ENHANCED TOOL ACCESS - SAME AS REPLIT AI AGENTS:**
+You now have access to ALL the same tools as Replit AI agents:
+- str_replace_based_edit_tool (view, create, str_replace, insert files directly)
+- search_filesystem (analyze existing codebase structure)
+- bash (run commands and verify functionality)
+- web_search (look up latest documentation - limited)
+
+**TOOL USAGE INSTRUCTIONS:**
+When you need to use these tools, format your request as:
+TOOL_REQUEST: str_replace_based_edit_tool
+PARAMETERS: {"command": "view", "path": "client/src/components/admin/AdminDashboard.tsx"}
+
+TOOL_REQUEST: str_replace_based_edit_tool  
+PARAMETERS: {"command": "str_replace", "path": "file.tsx", "old_str": "old code", "new_str": "new code"}
+
+TOOL_REQUEST: search_filesystem
+PARAMETERS: {"query_description": "find admin dashboard components"}
+
+TOOL_REQUEST: bash
+PARAMETERS: {"command": "npm run build"}
 
 ALWAYS follow this protocol to ensure Sandra can see your work immediately in the Visual Editor.`;;
 
