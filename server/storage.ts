@@ -127,6 +127,7 @@ export interface IStorage {
   getMayaChats(userId: string): Promise<MayaChat[]>;
   createMayaChat(data: InsertMayaChat): Promise<MayaChat>;
   getMayaChatMessages(chatId: number): Promise<MayaChatMessage[]>;
+  getAllMayaChatMessages(userId: string): Promise<MayaChatMessage[]>;
   createMayaChatMessage(data: InsertMayaChatMessage): Promise<MayaChatMessage>;
   updateMayaChatMessage(messageId: number, updates: Partial<{ imagePreview: string; generatedPrompt: string }>): Promise<void>;
 
@@ -1005,6 +1006,23 @@ export class DatabaseStorage implements IStorage {
       .select()
       .from(mayaChatMessages)
       .where(eq(mayaChatMessages.chatId, chatId))
+      .orderBy(mayaChatMessages.createdAt);
+  }
+
+  async getAllMayaChatMessages(userId: string): Promise<MayaChatMessage[]> {
+    return await db
+      .select({
+        id: mayaChatMessages.id,
+        chatId: mayaChatMessages.chatId,
+        role: mayaChatMessages.role,
+        content: mayaChatMessages.content,
+        imagePreview: mayaChatMessages.imagePreview,
+        generatedPrompt: mayaChatMessages.generatedPrompt,
+        createdAt: mayaChatMessages.createdAt
+      })
+      .from(mayaChatMessages)
+      .innerJoin(mayaChats, eq(mayaChatMessages.chatId, mayaChats.id))
+      .where(eq(mayaChats.userId, userId))
       .orderBy(mayaChatMessages.createdAt);
   }
 
