@@ -82,7 +82,7 @@ What kind of vibe are we creating today? Or just say "surprise me" and I'll crea
         // Check for completed generation trackers using authenticated apiRequest
         const response = await apiRequest('/api/generation-trackers/completed', 'GET');
         const trackers = Array.isArray(response) ? response : [];
-        console.log(`🎬 Maya: Found ${trackers.length} completed trackers`);
+        console.log(`🎬 Maya: Found ${trackers.length} completed trackers`, trackers.map(t => `ID:${t.id} Status:${t.status}`));
         
         // Find our specific tracker
         const ourTracker = trackers.find((t: any) => t.id === trackerId);
