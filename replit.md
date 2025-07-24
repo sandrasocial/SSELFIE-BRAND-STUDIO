@@ -562,6 +562,12 @@ The platform has become overly complex with multiple pricing tiers, broken onboa
 - ✅ **Confident Decision Making**: Makes styling, location, and mood choices based on user's general idea
 - ✅ **Brief Expert Responses**: 2-3 sentences showing her professional styling expertise without interviewing the user
 
+**MAYA HARDCODED PROMPT ISSUE FIXED (July 24, 2025):**
+- ✅ **Hardcoded B&W Logic Removed**: Eliminated hardcoded Manhattan penthouse black and white prompt that was overriding Maya's vision
+- ✅ **FLUX-Ready Prompt Priority**: System now prioritizes Maya's new 4-paragraph FLUX-optimized prompts without interference
+- ✅ **Clean Prompt Processing**: Removed forced "unretouched natural skin texture, subsurface scattering, photographed on film" additions
+- ✅ **Vision Synchronization Restored**: Maya's chat decisions now properly match the technical prompt generation without hardcoded overrides
+
 ## ✅ MAYA POLLING SYSTEM CRITICAL ISSUE IDENTIFIED - AUTHENTICATION TIMING (July 24, 2025)
 
 **CORE ISSUE DISCOVERED: MAYA POLLING VS AUTHENTICATION TIMING**

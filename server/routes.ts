@@ -1061,7 +1061,15 @@ CRITICAL: Keep Maya's exact location, outfit, pose, and mood. Only add technical
       function extractImagePromptFromRequest(userPrompt, triggerWord) {
         console.log(`🎯 MAYA PROMPT INPUT: "${userPrompt.substring(0, 200)}..."`);
         
-        // Check if this is Maya's response (old questioning OR new decisive format)
+        // Check if this is a direct FLUX-ready prompt from Maya's new system
+        if (userPrompt.includes('raw photo, visible skin pores, film grain') && 
+            userPrompt.includes(triggerWord) && 
+            userPrompt.includes('professional photography')) {
+          console.log(`✅ MAYA FLUX-READY PROMPT: Using exact prompt as generated`);
+          return userPrompt;
+        }
+        
+        // Check if this is Maya's old format that needs conversion (legacy support)
         if (userPrompt.includes('Hey gorgeous') || 
             userPrompt.includes('**MOOD & ENERGY:**') ||
             userPrompt.includes('**SETTING DREAMS:**') ||
@@ -1081,12 +1089,7 @@ CRITICAL: Keep Maya's exact location, outfit, pose, and mood. Only add technical
           
           console.log(`🎭 MAYA RESPONSE DETECTED: Converting to proper technical format with mandatory elements`);
           
-          // Maya mentioned black and white editorial - create detailed prompt with styling
-          if (userPrompt.toLowerCase().includes('black and white')) {
-            const cinematicPrompt = `raw photo, visible skin pores, film grain, unretouched natural skin texture, subsurface scattering, photographed on film, ${triggerWord}, A dramatic black and white editorial portrait of a sophisticated woman in a luxury Manhattan penthouse, leaning gracefully against white marble fireplace with intricate details, head tilted back with natural expression and relaxed smile, champagne silk slip dress with delicate straps, low chignon hairstyle with soft tendrils, bold winged eyeliner and nude lips, delicate diamond earrings, one hand touching collarbone, dramatic window lighting creating directional shadows, shot from below for regal angle, Canon EOS R5 with 85mm f/1.2L lens, natural daylight, professional photography`;
-            console.log(`🎬 MAYA B&W DETAILED: "${cinematicPrompt}"`);
-            return cinematicPrompt;
-          }
+          // REMOVED: Old hardcoded B&W logic - Maya now uses new prompt system
           
           // Extract the core cinematic description from Maya's detailed response
           let coreDescription = userPrompt;
@@ -1152,10 +1155,26 @@ CRITICAL: Keep Maya's exact location, outfit, pose, and mood. Only add technical
             }
           }
           
-          // Create final prompt with mandatory format + Maya's cinematic vision
-          const cinematicPrompt = `raw photo, visible skin pores, film grain, unretouched natural skin texture, subsurface scattering, photographed on film, ${triggerWord}, ${coreDescription}, natural daylight, professional photography`;
-          console.log(`🎬 MAYA FINAL TECHNICAL PROMPT: "${cinematicPrompt.substring(0, 200)}..."`);
-          return cinematicPrompt;
+          // Create final prompt using Maya's exact vision - NO hardcoded additions
+          let finalPrompt = coreDescription;
+          
+          // Only add trigger word if not present
+          if (!finalPrompt.includes(triggerWord)) {
+            finalPrompt = `${triggerWord}, ${finalPrompt}`;
+          }
+          
+          // Only add basic raw photo prefix if not already present
+          if (!finalPrompt.includes('raw photo')) {
+            finalPrompt = `raw photo, visible skin pores, film grain, ${finalPrompt}`;
+          }
+          
+          // Only add professional photography ending if not present
+          if (!finalPrompt.includes('professional photography')) {
+            finalPrompt = `${finalPrompt}, professional photography`;
+          }
+          
+          console.log(`🎬 MAYA FINAL TECHNICAL PROMPT: "${finalPrompt.substring(0, 200)}..."`);
+          return finalPrompt;
         }
         
         // If prompt already contains professional camera/scene details, it's a proper image prompt
@@ -1176,16 +1195,16 @@ CRITICAL: Keep Maya's exact location, outfit, pose, and mood. Only add technical
           return userPrompt;
         }
         
-        // For simple/basic prompts, enhance with detailed professional format
+        // For simple/basic prompts, enhance with basic professional format only
         if (userPrompt.length < 100) {
-          const enhancedPrompt = `raw photo, visible skin pores, film grain, unretouched natural skin texture, subsurface scattering, photographed on film, ${triggerWord}, ${userPrompt}, editorial portrait with dramatic lighting and shadows, professional styling with flowing hair and natural makeup, shot on Canon EOS R5 with 85mm f/1.2L lens, natural daylight, professional photography`;
+          const enhancedPrompt = `raw photo, visible skin pores, film grain, ${triggerWord}, ${userPrompt}, professional photography`;
           console.log(`🚀 ENHANCED SHORT PROMPT: "${enhancedPrompt}"`);
           return enhancedPrompt;
         }
         
-        // For medium-length prompts, add mandatory format and enhancement
-        console.log(`📝 MEDIUM PROMPT: Adding mandatory format and professional enhancement`);
-        return `raw photo, visible skin pores, film grain, unretouched natural skin texture, subsurface scattering, photographed on film, ${triggerWord}, ${userPrompt}, natural daylight, professional photography`;
+        // For medium-length prompts, add basic format only
+        console.log(`📝 MEDIUM PROMPT: Adding basic format`);
+        return `raw photo, visible skin pores, film grain, ${triggerWord}, ${userPrompt}, professional photography`;
       }
 
       const usageCheck = await UsageService.checkUsageLimit(userId);
