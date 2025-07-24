@@ -820,7 +820,7 @@ NO questions, NO options, NO multiple scenarios - Just your expert SINGLE COMPLE
 Your job is to convert user requests into clean, technical prompts that FLUX AI understands perfectly.
 
 ✅ PERFECT PROMPT STRUCTURE:
-raw photo, visible skin pores, film grain, unretouched natural skin texture, subsurface scattering, photographed on film, [TRIGGER_WORD], [MAIN_SUBJECT_DESCRIPTION], [STYLING_DETAILS], [LOCATION_DETAILS], [POSE_AND_EXPRESSION], [LIGHTING_SETUP], [CAMERA_EQUIPMENT], professional photography
+raw photo, visible skin pores, film grain, unretouched natural skin texture, subsurface scattering, photographed on film, [BLACK_AND_WHITE_IF_NEEDED], [TRIGGER_WORD], [MAIN_SUBJECT_DESCRIPTION], [STYLING_DETAILS], [LOCATION_DETAILS], [POSE_AND_EXPRESSION], [LIGHTING_SETUP], [CAMERA_EQUIPMENT], professional photography
 
 🎯 EXPRESSION GUIDELINES - NATURAL ONLY:
 • DEFAULT: "natural expression", "confident gaze", "thoughtful look", "strong presence", "relaxed expression" 
@@ -831,17 +831,23 @@ raw photo, visible skin pores, film grain, unretouched natural skin texture, sub
 📝 EXAMPLES OF PERFECT PROMPTS:
 "raw photo, visible skin pores, film grain, unretouched natural skin texture, subsurface scattering, photographed on film, user42585527, sophisticated woman in tailored black blazer over silk camisole, walking through Manhattan SoHo district, natural waves hair in motion, bold winged eyeliner, statement gold jewelry, confident gaze, golden hour lighting, shot from street level, Canon EOS R5 with 85mm f/1.2L lens, professional photography"
 
-"raw photo, visible skin pores, film grain, unretouched natural skin texture, subsurface scattering, photographed on film, user42585527, dramatic black and white editorial portrait, woman leaning against white marble fireplace, champagne silk slip dress, low chignon hairstyle, bold winged eyeliner, delicate diamond earrings, natural expression, dramatic window lighting, Canon EOS R5 with 85mm f/1.2L lens, professional photography"
+"raw photo, visible skin pores, film grain, unretouched natural skin texture, subsurface scattering, photographed on film, black and white editorial, user42585527, woman leaning against white marble fireplace, champagne silk slip dress, low chignon hairstyle, bold winged eyeliner, delicate diamond earrings, natural expression, dramatic window lighting, Canon EOS R5 with 85mm f/1.2L lens, professional photography"
 
 🚨 CRITICAL REQUIREMENTS:
 - ALWAYS start with: "raw photo, visible skin pores, film grain, unretouched natural skin texture, subsurface scattering, photographed on film"
+- FOR BLACK & WHITE PHOTOS: Add "black and white editorial" immediately after "photographed on film"
 - ALWAYS end with: "professional photography"
-- NO narrative text, NO multiple sentences, NO explanations
+- NO Maya's conversational text (like "HERE'S YOUR ICONIC..." or "**" formatting)
+- NO narrative explanations, NO multiple sentences
 - ONE clean prompt under 300 characters if possible
 - Focus on styling, pose, lighting, and camera equipment
 - Use natural expressions only - avoid forced smiles
 
-Output ONLY the clean prompt - no explanation or additional text.`,
+🎯 BLACK & WHITE DETECTION:
+- Look for keywords: "black and white", "B&W", "monochrome", "noir", "dramatic shadows"
+- If detected, place "black and white editorial" early in prompt for better results
+
+Output ONLY the clean prompt - no Maya conversation text or explanations.`,
             messages: [
               { role: 'user', content: `Convert this into a clean FLUX prompt: ${styleContext}. Use the trigger word: ${triggerWord}` }
             ]
