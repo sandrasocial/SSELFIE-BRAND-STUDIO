@@ -5071,7 +5071,14 @@ Starting analysis and implementation now...`;
         messageText.includes('coordinate') ||
         messageText.includes('workflow') ||
         messageText.includes('redesign') ||
-        messageText.includes('dashboard')
+        messageText.includes('dashboard') ||
+        messageText.includes('initiate') ||
+        messageText.includes('yes please') ||
+        messageText.includes('yes, please') ||
+        messageText.includes('go ahead') ||
+        messageText.includes('do it') ||
+        messageText.includes('continue') ||
+        (messageText.includes('updates') && messageText.length < 50) // Short update requests should trigger execution
       );
       
       console.log(`🔍 ELENA: Execution request detected = ${isExecutionRequest}`);
