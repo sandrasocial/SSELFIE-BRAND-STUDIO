@@ -80,7 +80,8 @@ What kind of vibe are we creating today? Or just say "surprise me" and I'll crea
         console.log(`🎬 Maya: Progress check ${attempts}/${maxAttempts} (${Math.round(progressPercent)}%)`);
         
         // Check for completed generation trackers using authenticated apiRequest
-        const trackers: any[] = await apiRequest('/api/generation-trackers/completed', 'GET');
+        const response = await apiRequest('/api/generation-trackers/completed', 'GET');
+        const trackers = Array.isArray(response) ? response : [];
         console.log(`🎬 Maya: Found ${trackers.length} completed trackers`);
         
         // Find our specific tracker
