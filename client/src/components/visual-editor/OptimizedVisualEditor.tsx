@@ -301,7 +301,7 @@ function CollapsibleCodeBlock({ content }: CollapsibleCodeBlockProps) {
             onClick={() => setShowCodeViewer(true)}
             className="text-xs text-blue-600 hover:text-blue-800 border border-blue-200 px-2 py-1 rounded hover:bg-blue-50 transition-colors flex items-center gap-1"
           >
-            <Code className="w-3 h-3" />
+            <span className="text-blue-600 text-xs font-mono">{'<>'}</span>
             View Code
             <span className="text-gray-400">({codeLines} lines)</span>
           </button>
@@ -314,7 +314,7 @@ function CollapsibleCodeBlock({ content }: CollapsibleCodeBlockProps) {
           <div className="bg-white rounded-lg max-w-6xl max-h-[90vh] w-full flex flex-col">
             <div className="flex items-center justify-between p-4 border-b">
               <div className="flex items-center gap-2">
-                <Code className="w-4 h-4" />
+                <span className="text-gray-600 text-sm font-mono">{'<>'}</span>
                 <h3 className="font-medium">Generated Code</h3>
                 <Badge variant="secondary">{codeLines} lines • {(codeSize / 1024).toFixed(1)}KB</Badge>
               </div>
