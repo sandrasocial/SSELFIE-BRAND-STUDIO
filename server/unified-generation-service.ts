@@ -41,9 +41,6 @@ const WORKING_PARAMETERS = {
   aspect_ratio: "3:4",
   output_format: "png",
   output_quality: 95,
-  prompt_strength: 0.8,
-  extra_lora_scale: 1,
-  megapixels: 1,
   go_fast: false,
   disable_safety_checker: false
 } as const;
