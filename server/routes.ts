@@ -5087,11 +5087,29 @@ Starting analysis and implementation now...`;
         
         // Load ConversationManager for Elena like other agents
         const { ConversationManager } = await import('./agents/ConversationManager');
-        savedMemory = await ConversationManager.retrieveAgentMemory(agentId, userId);
         
-        // RESTORE ELENA'S MEMORY FLEXIBLY
-        if (savedMemory && !workingHistory.some(msg => msg.content?.includes('CONVERSATION MEMORY RESTORED'))) {
-          console.log(`🧠 ELENA: Restoring memory: ${savedMemory.keyTasks.length} tasks, ${savedMemory.recentDecisions.length} decisions`);
+        // CRITICAL FIX: Always try to retrieve memory for Elena
+        try {
+          savedMemory = await ConversationManager.retrieveAgentMemory(agentId, userId);
+          console.log(`🔍 ELENA MEMORY DEBUG: Retrieved memory result:`, savedMemory ? 'Found' : 'Not found');
+          
+          if (savedMemory) {
+            console.log(`🔍 ELENA MEMORY DEBUG: Memory contains ${savedMemory.keyTasks?.length || 0} tasks, ${savedMemory.recentDecisions?.length || 0} decisions`);
+            console.log(`🔍 ELENA MEMORY DEBUG: Current context: ${savedMemory.currentContext?.substring(0, 100)}...`);
+          }
+        } catch (memoryError) {
+          console.error(`❌ ELENA MEMORY ERROR: Failed to retrieve memory:`, memoryError);
+          savedMemory = null;
+        }
+        
+        // RESTORE ELENA'S MEMORY FLEXIBLY - Fix duplicate check logic
+        const hasMemoryRestored = workingHistory.some(msg => 
+          msg.content?.includes('ELENA CONVERSATION MEMORY RESTORED') || 
+          msg.content?.includes('ELENA CONTEXT AWARENESS')
+        );
+        
+        if (savedMemory && !hasMemoryRestored) {
+          console.log(`🧠 ELENA: Restoring memory: ${savedMemory.keyTasks?.length || 0} tasks, ${savedMemory.recentDecisions?.length || 0} decisions`);
           
           // Check if there are recent messages that might indicate a new task direction
           const recentMessages = conversationHistory?.slice(-3) || [];
@@ -5106,9 +5124,9 @@ Starting analysis and implementation now...`;
               role: 'system',
               content: `**ELENA CONTEXT AWARENESS**
 
-**Previous Context:** ${savedMemory.currentContext}
+**Previous Context:** ${savedMemory.currentContext || 'No previous context'}
 
-**Memory Available:** ${savedMemory.keyTasks.length} completed tasks, ${savedMemory.recentDecisions.length} decisions
+**Memory Available:** ${savedMemory.keyTasks?.length || 0} completed tasks, ${savedMemory.recentDecisions?.length || 0} decisions
 
 🎯 **ELENA PRIORITY:** Always focus on Sandra's most recent instructions in this conversation first, then reference memory as needed
 
@@ -5123,17 +5141,17 @@ Starting analysis and implementation now...`;
               role: 'system',
               content: `**ELENA CONVERSATION MEMORY RESTORED**
 
-**Previous Context:** ${savedMemory.currentContext}
+**Previous Context:** ${savedMemory.currentContext || 'No previous context'}
 
 **Key Tasks Completed:**
-${savedMemory.keyTasks.map(task => `• ${task}`).join('\n')}
+${savedMemory.keyTasks?.map(task => `• ${task}`).join('\n') || '• No completed tasks'}
 
 **Recent Decisions:**
-${savedMemory.recentDecisions.map(decision => `• ${decision}`).join('\n')}
+${savedMemory.recentDecisions?.map(decision => `• ${decision}`).join('\n') || '• No recent decisions'}
 
-**Current Workflow Stage:** ${savedMemory.workflowStage}
+**Current Workflow Stage:** ${savedMemory.workflowStage || 'ongoing'}
 
-**Last Updated:** ${new Date(savedMemory.timestamp).toLocaleString()}
+**Last Updated:** ${savedMemory.timestamp ? new Date(savedMemory.timestamp).toLocaleString() : 'Unknown'}
 
 ---
 
@@ -5143,7 +5161,7 @@ ${savedMemory.recentDecisions.map(decision => `• ${decision}`).join('\n')}
             workingHistory = [memoryMessage, ...workingHistory];
           }
           console.log(`✅ ELENA: Memory restored: conversation now has ${workingHistory.length} messages with context`);
-        } else if (savedMemory) {
+        } else if (savedMemory && hasMemoryRestored) {
           console.log(`📋 ELENA: Memory exists but already restored in conversation - skipping duplicate restoration`);
         } else {
           console.log(`📝 ELENA: No saved memory found - starting fresh conversation`);
@@ -5162,28 +5180,40 @@ ${savedMemory.recentDecisions.map(decision => `• ${decision}`).join('\n')}
         
         // Always check for saved memory when starting a new conversation or after clearing
         console.log(`💭 Checking for saved memory for ${agentId}...`);
-        savedMemory = await ConversationManager.retrieveAgentMemory(agentId, userId);
+        
+        // CRITICAL FIX: Add proper error handling for memory retrieval
+        try {
+          savedMemory = await ConversationManager.retrieveAgentMemory(agentId, userId);
+          console.log(`🔍 ${agentId.toUpperCase()} MEMORY DEBUG: Retrieved memory result:`, savedMemory ? 'Found' : 'Not found');
+          
+          if (savedMemory) {
+            console.log(`🔍 ${agentId.toUpperCase()} MEMORY DEBUG: Memory contains ${savedMemory.keyTasks?.length || 0} tasks, ${savedMemory.recentDecisions?.length || 0} decisions`);
+          }
+        } catch (memoryError) {
+          console.error(`❌ ${agentId.toUpperCase()} MEMORY ERROR: Failed to retrieve memory:`, memoryError);
+          savedMemory = null;
+        }
         
         // If we have saved memory AND conversation doesn't already contain memory restoration
         if (savedMemory && !workingHistory.some(msg => msg.content?.includes('CONVERSATION MEMORY RESTORED'))) {
-          console.log(`🧠 Restoring memory for ${agentId}: ${savedMemory.keyTasks.length} tasks, ${savedMemory.recentDecisions.length} decisions`);
+          console.log(`🧠 Restoring memory for ${agentId}: ${savedMemory.keyTasks?.length || 0} tasks, ${savedMemory.recentDecisions?.length || 0} decisions`);
           
           // Add memory context at the beginning of conversation
           const memoryMessage = {
             role: 'system',
             content: `**CONVERSATION MEMORY RESTORED**
 
-**Previous Context:** ${savedMemory.currentContext}
+**Previous Context:** ${savedMemory.currentContext || 'No previous context'}
 
 **Key Tasks Completed:**
-${savedMemory.keyTasks.map(task => `• ${task}`).join('\n')}
+${savedMemory.keyTasks?.map(task => `• ${task}`).join('\n') || '• No completed tasks'}
 
 **Recent Decisions:**
-${savedMemory.recentDecisions.map(decision => `• ${decision}`).join('\n')}
+${savedMemory.recentDecisions?.map(decision => `• ${decision}`).join('\n') || '• No recent decisions'}
 
-**Current Workflow Stage:** ${savedMemory.workflowStage}
+**Current Workflow Stage:** ${savedMemory.workflowStage || 'ongoing'}
 
-**Last Updated:** ${new Date(savedMemory.timestamp).toLocaleString()}
+**Last Updated:** ${savedMemory.timestamp ? new Date(savedMemory.timestamp).toLocaleString() : 'Unknown'}
 
 ---
 
