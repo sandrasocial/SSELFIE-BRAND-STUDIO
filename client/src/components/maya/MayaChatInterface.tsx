@@ -63,9 +63,9 @@ What kind of vibe are we creating today? Or just say "surprise me" and I'll crea
 
   // Removed old useEffect - now using polling approach like backup implementation
 
-  // Poll for completed generation trackers using the existing working endpoint
+  // Poll for completed generation trackers using the WORKING ARCHIVE SOLUTION
   const pollForTrackerCompletion = async (trackerId: number) => {
-    const maxAttempts = 60; // 3 minutes total (3 second intervals)
+    const maxAttempts = 40; // 2 minutes total (3 second intervals) - from working archive
     let attempts = 0;
     
     console.log('🎬 Maya: Starting progress tracking for tracker:', trackerId);
@@ -74,97 +74,83 @@ What kind of vibe are we creating today? Or just say "surprise me" and I'll crea
       try {
         attempts++;
         // Progressive progress: 0-90% during polling, 100% on completion
-        const progressPercent = Math.min(90, (attempts / maxAttempts) * 90);
-        setGenerationProgress(progressPercent);
+        setGenerationProgress(Math.min(90, (attempts / maxAttempts) * 90));
         
-        console.log(`🎬 Maya: Progress check ${attempts}/${maxAttempts} (${Math.round(progressPercent)}%)`);
+        console.log(`🎬 Maya: Progress check ${attempts}/${maxAttempts}`);
         
-        // Use queryClient to make authenticated requests with proper session handling
-        try {
-          const trackers = await queryClient.fetchQuery({
-            queryKey: ['/api/generation-trackers/completed'],
-            staleTime: 0,
-            gcTime: 0,
+        // Use the WORKING SOLUTION from archive - direct tracker polling
+        const response = await fetch(`/api/generation-tracker/${trackerId}`, {
+          credentials: 'include'
+        });
+        
+        if (!response.ok) throw new Error('Failed to fetch tracker status');
+        
+        const tracker = await response.json();
+        console.log('🎬 Maya: Tracker response:', tracker.status, tracker.imageUrls?.length);
+        
+        if (tracker.status === 'completed' && tracker.imageUrls && tracker.imageUrls.length > 0) {
+          // Image generation completed - ARCHIVE WORKING SOLUTION
+          console.log('🎬 Maya: Tracker generation completed!', tracker);
+          
+          setGenerationProgress(100);
+          setIsGenerating(false);
+          setGeneratedImages(tracker.imageUrls);
+          
+          // Add image preview to the last Maya message - ARCHIVE FORMAT
+          setChatMessages(prev => {
+            const newMessages = [...prev];
+            const lastMayaIndex = newMessages.map(m => m.role).lastIndexOf('maya');
+            if (lastMayaIndex >= 0) {
+              newMessages[lastMayaIndex] = {
+                ...newMessages[lastMayaIndex],
+                isGenerating: false,
+                imagePreview: {
+                  imageUrls: JSON.stringify(tracker.imageUrls),
+                  prompt: tracker.prompt,
+                  style: 'Editorial',
+                  createdAt: tracker.createdAt
+                }
+              };
+            }
+            return newMessages;
           });
           
-          console.log(`🎬 Maya: Found ${trackers.length} completed trackers`, trackers.map((t: any) => `ID:${t.id} Status:${t.status}`));
-        
-          // Find our specific tracker
-          const ourTracker = trackers.find((t: any) => t.id === trackerId);
+          // Reset progress after brief completion display
+          setTimeout(() => {
+            setGenerationProgress(0);
+            setCurrentTrackerId(null);
+          }, 2000);
           
-          if (ourTracker && ourTracker.status === 'completed' && ourTracker.imageUrls) {
-            console.log('🎬 Maya: Our tracker completed!', ourTracker);
-            
-            // Complete progress and show results
-            setGenerationProgress(100);
-            setIsGenerating(false);
-            
-            // Parse image URLs
-            let imageUrls = [];
-            try {
-              imageUrls = typeof ourTracker.imageUrls === 'string' 
-                ? JSON.parse(ourTracker.imageUrls) 
-                : ourTracker.imageUrls;
-            } catch (e) {
-              imageUrls = [ourTracker.imageUrls];
-            }
-            
-            setGeneratedImages(imageUrls);
-            
-            // Update Maya's last message to remove generating state and add preview
-            setChatMessages(prev => {
-              const newMessages = [...prev];
-              const lastMayaIndex = newMessages.map(m => m.role).lastIndexOf('maya');
-              if (lastMayaIndex >= 0) {
-                newMessages[lastMayaIndex] = {
-                  ...newMessages[lastMayaIndex],
-                  isGenerating: false, // Remove generating state
-                  imagePreview: {
-                    id: trackerId,
-                    userId: ourTracker.userId,
-                    predictionId: ourTracker.predictionId,
-                    prompt: ourTracker.prompt,
-                    style: ourTracker.style,
-                    status: 'completed',
-                    imageUrls: JSON.stringify(imageUrls),
-                    createdAt: ourTracker.createdAt
-                  }
-                };
-              }
-              return newMessages;
-            });
-            
-            // Reset progress after brief completion display
-            setTimeout(() => {
-              setGenerationProgress(0);
-              setCurrentTrackerId(null);
-            }, 2000);
-            
-            console.log('🎬 Maya: Generation completed successfully!');
-            return;
-          }
-        } catch (authError) {
-          console.log('🎬 Maya: Auth error during polling, will retry...', authError);
+          console.log('🎬 Maya: Generation completed successfully!');
+          return;
         }
         
-        // Continue polling if not found or not completed
-        if (attempts < maxAttempts) {
-          setTimeout(poll, 3000);
-        } else {
-          console.log('🎬 Maya: Max attempts reached, stopping polling');
+        if (tracker.status === 'failed') {
           setIsGenerating(false);
           setGenerationProgress(0);
           setCurrentTrackerId(null);
+          console.log('🎬 Maya: Generation failed');
+          return;
+        }
+        
+        // Continue polling - ARCHIVE WORKING SOLUTION
+        if (attempts < maxAttempts) {
+          setTimeout(poll, 3000);
+        } else {
+          setIsGenerating(false);
+          setGenerationProgress(0);
+          setCurrentTrackerId(null);
+          console.log('🎬 Maya: Max attempts reached, stopping polling');
         }
       } catch (error) {
         console.error('🎬 Maya: Polling error:', error);
         if (attempts < maxAttempts) {
           setTimeout(poll, 3000);
         } else {
-          console.log('🎬 Maya: Max attempts reached after errors, stopping');
           setIsGenerating(false);
           setGenerationProgress(0);
           setCurrentTrackerId(null);
+          console.log('🎬 Maya: Max attempts reached after errors, stopping');
         }
       }
     };
