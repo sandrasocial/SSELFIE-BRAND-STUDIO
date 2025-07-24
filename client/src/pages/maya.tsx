@@ -96,94 +96,22 @@ export default function Maya() {
     }
   }, [user, isLoading, setLocation, toast]);
 
-  // Load ALL chat messages or initialize with welcome message
+  // Load specific chat or initialize with welcome message (SESSION-BASED)
   useEffect(() => {
     if (user && messages.length === 0) {
       if (chatIdFromUrl) {
         // Load specific chat from URL parameter
         loadChatHistory(parseInt(chatIdFromUrl));
       } else {
-        // Load ALL Maya messages from new comprehensive endpoint
-        loadAllMayaMessages();
-      }
-    }
-  }, [user, messages.length, chatIdFromUrl]);
-
-  // Load ALL Maya messages regardless of chat
-  const loadAllMayaMessages = async () => {
-    try {
-      console.log('🎬 Maya: Loading ALL chat messages from comprehensive endpoint...');
-      
-      const messagesResponse = await fetch('/api/maya-chat-messages', {
-        credentials: 'include'
-      });
-      
-      if (messagesResponse.ok) {
-        const dbMessages = await messagesResponse.json();
-        console.log('🎬 Maya: ALL MESSAGES LOADED:', dbMessages.length, 'total messages');
-        
-        if (dbMessages && dbMessages.length > 0) {
-          const formattedMessages: ChatMessage[] = dbMessages.map((msg: any) => {
-            console.log(`🎬 Maya: Processing message ${msg.id} with imagePreview:`, msg.imagePreview ? 'HAS IMAGES' : 'NO IMAGES');
-            
-            let imagePreview = undefined;
-            if (msg.imagePreview) {
-              try {
-                const parsed = JSON.parse(msg.imagePreview);
-                if (Array.isArray(parsed) && parsed.length > 0) {
-                  imagePreview = parsed.filter(url => 
-                    typeof url === 'string' && url.includes('amazonaws.com')
-                  );
-                  console.log(`✅ Maya: Message ${msg.id} has ${imagePreview.length} permanent S3 images`);
-                }
-              } catch (error) {
-                console.error(`❌ Maya: Failed to parse imagePreview for message ${msg.id}:`, error);
-              }
-            }
-            
-            return {
-              role: msg.role,
-              content: msg.content,
-              timestamp: msg.createdAt,
-              generatedPrompt: msg.generatedPrompt,
-              canGenerate: !!msg.generatedPrompt,
-              imagePreview: imagePreview
-            };
-          });
-          
-          console.log(`🎬 Maya: Setting ${formattedMessages.length} formatted messages`);
-          setMessages(formattedMessages);
-          
-          // Count messages with images for verification
-          const messagesWithImages = formattedMessages.filter(m => m.imagePreview && m.imagePreview.length > 0);
-          console.log(`✅ Maya: LOADED ${messagesWithImages.length} messages with permanent S3 images!`);
-        } else {
-          // Initialize with Maya's welcome message if no history
-          setMessages([{
-            role: 'maya',
-            content: `Hey ${user?.firstName || 'gorgeous'}! I'm Maya, your personal celebrity stylist, photographer, and makeup artist. I work with A-list celebrities and high-end fashion brands to create magazine-worthy content.\n\nI'm here to help you look absolutely stunning and bring out your best features. Let's talk about your vision - what kind of energy are you going for? Editorial sophistication? Natural lifestyle beauty? Red carpet glamour?\n\nDescribe the mood, the story you want to tell, or even just how you want to feel in the photos. I'll ask the right questions to understand your vision perfectly, then create those exact photos for you.`,
-            timestamp: new Date().toISOString()
-          }]);
-        }
-      } else {
-        console.log('🎬 Maya: Failed to load messages, showing welcome...');
-        // Initialize with Maya's welcome message
+        // Initialize with Maya's welcome message for new session
         setMessages([{
           role: 'maya',
-          content: `Hey ${user?.firstName || 'gorgeous'}! I'm Maya, your personal celebrity stylist, photographer, and makeup artist. Ready to create something amazing!`,
+          content: `Hey ${user.firstName || 'gorgeous'}! I'm Maya, your personal celebrity stylist, photographer, and makeup artist. I work with A-list celebrities and high-end fashion brands to create magazine-worthy content.\n\nI'm here to help you look absolutely stunning and bring out your best features. Let's talk about your vision - what kind of energy are you going for? Editorial sophistication? Natural lifestyle beauty? Red carpet glamour?\n\nDescribe the mood, the story you want to tell, or even just how you want to feel in the photos. I'll ask the right questions to understand your vision perfectly, then create those exact photos for you.`,
           timestamp: new Date().toISOString()
         }]);
       }
-    } catch (error) {
-      console.error('❌ Maya: Error loading all messages:', error);
-      // Initialize with Maya's welcome message as fallback
-      setMessages([{
-        role: 'maya',
-        content: `Hey ${user?.firstName || 'gorgeous'}! I'm Maya, your personal celebrity stylist, photographer, and makeup artist. Ready to create something amazing!`,
-        timestamp: new Date().toISOString()
-      }]);
     }
-  };
+  }, [user, messages.length, chatIdFromUrl]);
 
   const sendMessage = async () => {
     if (!input.trim()) return;
@@ -494,16 +422,16 @@ export default function Maya() {
 
   const loadChatHistory = async (chatId: number) => {
     try {
-      console.log('🎬 Maya: Loading ALL chat messages from new comprehensive endpoint...');
+      console.log('Loading chat history for chatId:', chatId);
       
-      // Load ALL user's Maya messages, not just from specific chat
-      const messagesResponse = await fetch('/api/maya-chat-messages', {
+      // Load SPECIFIC chat messages (SESSION-BASED)
+      const messagesResponse = await fetch(`/api/maya-chats/${chatId}/messages`, {
         credentials: 'include'
       });
       
       if (messagesResponse.ok) {
         const dbMessages = await messagesResponse.json();
-        console.log('🎬 Maya: ALL MESSAGES LOADED:', dbMessages.length, 'total messages');
+        console.log('Loaded messages from database:', dbMessages);
         
         // If no messages found, start with Maya's welcome
         if (!dbMessages || dbMessages.length === 0) {
@@ -513,33 +441,29 @@ export default function Maya() {
             timestamp: new Date().toISOString()
           }]);
         } else {
-          const formattedMessages: ChatMessage[] = dbMessages.map((msg: any) => {
-            console.log(`🎬 Maya: Processing message ${msg.id} with imagePreview:`, msg.imagePreview ? 'HAS IMAGES' : 'NO IMAGES');
-            
-            let imagePreview = undefined;
-            if (msg.imagePreview) {
+          const formattedMessages: ChatMessage[] = dbMessages.map((msg: any) => ({
+            role: msg.role,
+            content: msg.content,
+            timestamp: msg.createdAt,
+            generatedPrompt: msg.generatedPrompt,
+            canGenerate: !!msg.generatedPrompt,
+            imagePreview: msg.imagePreview ? (() => {
               try {
                 const parsed = JSON.parse(msg.imagePreview);
-                if (Array.isArray(parsed) && parsed.length > 0) {
-                  imagePreview = parsed.filter(url => 
-                    typeof url === 'string' && url.includes('amazonaws.com')
+                // Filter for valid S3 URLs
+                if (Array.isArray(parsed)) {
+                  return parsed.filter(url => 
+                    typeof url === 'string' && 
+                    (url.startsWith('http') || url.startsWith('https'))
                   );
-                  console.log(`✅ Maya: Message ${msg.id} has ${imagePreview.length} permanent S3 images`);
                 }
-              } catch (error) {
-                console.error(`❌ Maya: Failed to parse imagePreview for message ${msg.id}:`, error);
+                return undefined;
+              } catch (e) {
+                console.warn('Failed to parse image preview:', e);
+                return undefined;
               }
-            }
-            
-            return {
-              role: msg.role,
-              content: msg.content,
-              timestamp: msg.createdAt,
-              generatedPrompt: msg.generatedPrompt,
-              canGenerate: !!msg.generatedPrompt,
-              imagePreview: imagePreview
-            };
-          });
+            })() : undefined
+          }));
           setMessages(formattedMessages);
         }
         setCurrentChatId(chatId);

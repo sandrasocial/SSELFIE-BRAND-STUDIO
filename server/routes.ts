@@ -1498,17 +1498,8 @@ NO questions, NO options, NO multiple scenarios - Just your expert SINGLE COMPLE
     }
   });
 
-  // GET /api/maya-chat-messages - Get ALL maya chat messages for the user
-  app.get('/api/maya-chat-messages', isAuthenticated, async (req: any, res) => {
-    try {
-      const userId = req.user.claims.sub;
-      const messages = await storage.getAllMayaChatMessages(userId);
-      res.json(messages);
-    } catch (error) {
-      console.error('Get all maya chat messages error:', error);
-      res.status(500).json({ error: 'Failed to get messages' });
-    }
-  });
+  // REMOVED: /api/maya-chat-messages endpoint to prevent session mixing
+  // Sessions should load individually via /api/maya-chats/:chatId/messages
 
   app.post('/api/maya-chats', isAuthenticated, async (req: any, res) => {
     try {
