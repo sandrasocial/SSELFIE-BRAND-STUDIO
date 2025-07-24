@@ -5412,13 +5412,53 @@ Workflow Stage: ${savedMemory.workflowStage || 'None'}
       
       console.log(`🔍 ${agentId.toUpperCase()} FILE REQUEST DETECTED: ${isFileRequest}`);
       
-      const response = await claude.messages.create({
-        model: 'claude-3-5-sonnet-20241022',
-        max_tokens: 8000,
-        system: finalSystemPrompt,
-        messages: messages as any,
-        tools: toolConfig.tools
-      });
+      // Retry mechanism for API overload (529 errors)
+      let response;
+      let attempts = 0;
+      const maxAttempts = 5;
+      const baseDelay = 1000; // 1 second
+      
+      while (attempts < maxAttempts) {
+        try {
+          attempts++;
+          console.log(`🔄 ${agentId.toUpperCase()} API ATTEMPT ${attempts}/${maxAttempts}`);
+          
+          response = await claude.messages.create({
+            model: 'claude-3-5-sonnet-20241022',
+            max_tokens: 8000,
+            system: finalSystemPrompt,
+            messages: messages as any,
+            tools: toolConfig.tools
+          });
+          
+          console.log(`✅ ${agentId.toUpperCase()} API SUCCESS on attempt ${attempts}`);
+          break; // Success - exit retry loop
+          
+        } catch (error: any) {
+          console.log(`❌ ${agentId.toUpperCase()} API ERROR (attempt ${attempts}):`, {
+            status: error.status,
+            type: error.error?.type,
+            message: error.error?.message
+          });
+          
+          // Check if this is a retryable error (529 overloaded or rate limit)
+          const isRetryable = error.status === 529 || 
+                             error.status === 429 || 
+                             error.error?.type === 'overloaded_error' ||
+                             error.error?.type === 'rate_limit_error';
+          
+          if (!isRetryable || attempts >= maxAttempts) {
+            console.log(`🚫 ${agentId.toUpperCase()} FINAL FAILURE: Not retryable or max attempts reached`);
+            throw error;
+          }
+          
+          // Exponential backoff: 1s, 2s, 4s, 8s, 16s
+          const delay = baseDelay * Math.pow(2, attempts - 1);
+          console.log(`⏳ ${agentId.toUpperCase()} RETRYING in ${delay}ms (attempt ${attempts + 1}/${maxAttempts})`);
+          
+          await new Promise(resolve => setTimeout(resolve, delay));
+        }
+      }
       
       let agentResponse = '';
       let toolResults = [];
@@ -6584,13 +6624,53 @@ AGENT_CONTEXT:
       
       console.log(`🔍 ${agentId.toUpperCase()} FILE REQUEST DETECTED: ${isFileRequest}`);
       
-      const response = await claude.messages.create({
-        model: 'claude-3-5-sonnet-20241022',
-        max_tokens: 8000,
-        system: finalSystemPrompt,
-        messages: messages as any,
-        tools: toolConfig.tools
-      });
+      // Retry mechanism for API overload (529 errors) - Second endpoint
+      let response;
+      let attempts = 0;
+      const maxAttempts = 5;
+      const baseDelay = 1000; // 1 second
+      
+      while (attempts < maxAttempts) {
+        try {
+          attempts++;
+          console.log(`🔄 ${agentId.toUpperCase()} API ATTEMPT ${attempts}/${maxAttempts} (Enhanced)`);
+          
+          response = await claude.messages.create({
+            model: 'claude-3-5-sonnet-20241022',
+            max_tokens: 8000,
+            system: finalSystemPrompt,
+            messages: messages as any,
+            tools: toolConfig.tools
+          });
+          
+          console.log(`✅ ${agentId.toUpperCase()} API SUCCESS on attempt ${attempts} (Enhanced)`);
+          break; // Success - exit retry loop
+          
+        } catch (error: any) {
+          console.log(`❌ ${agentId.toUpperCase()} API ERROR (attempt ${attempts}, Enhanced):`, {
+            status: error.status,
+            type: error.error?.type,
+            message: error.error?.message
+          });
+          
+          // Check if this is a retryable error (529 overloaded or rate limit)
+          const isRetryable = error.status === 529 || 
+                             error.status === 429 || 
+                             error.error?.type === 'overloaded_error' ||
+                             error.error?.type === 'rate_limit_error';
+          
+          if (!isRetryable || attempts >= maxAttempts) {
+            console.log(`🚫 ${agentId.toUpperCase()} FINAL FAILURE (Enhanced): Not retryable or max attempts reached`);
+            throw error;
+          }
+          
+          // Exponential backoff: 1s, 2s, 4s, 8s, 16s
+          const delay = baseDelay * Math.pow(2, attempts - 1);
+          console.log(`⏳ ${agentId.toUpperCase()} RETRYING in ${delay}ms (attempt ${attempts + 1}/${maxAttempts}, Enhanced)`);
+          
+          await new Promise(resolve => setTimeout(resolve, delay));
+        }
+      }
       
       let responseText = '';
       let toolResults = [];
@@ -6709,24 +6789,63 @@ AGENT_CONTEXT:
           toolCallCount++;
           console.log(`🔍 ${agentId.toUpperCase()} FOLLOW-UP CALL ${toolCallCount}: Processing ${currentToolResults.length} tool results`);
           
-          // Continue conversation with tool results
-          const followUpResponse = await claude.messages.create({
-            model: 'claude-3-5-sonnet-20241022',
-            max_tokens: 8000,
-            system: finalSystemPrompt,
-            messages: [
-              ...messages as any,
-              { 
-                role: 'assistant', 
-                content: currentResponse.content 
-              },
-              {
-                role: 'user',
-                content: currentToolResults
+          // Continue conversation with tool results - WITH RETRY MECHANISM
+          let followUpResponse;
+          let followUpAttempts = 0;
+          const followUpMaxAttempts = 5;
+          const followUpBaseDelay = 1000;
+          
+          while (followUpAttempts < followUpMaxAttempts) {
+            try {
+              followUpAttempts++;
+              console.log(`🔄 ${agentId.toUpperCase()} FOLLOW-UP ATTEMPT ${followUpAttempts}/${followUpMaxAttempts}`);
+              
+              followUpResponse = await claude.messages.create({
+                model: 'claude-3-5-sonnet-20241022',
+                max_tokens: 8000,
+                system: finalSystemPrompt,
+                messages: [
+                  ...messages as any,
+                  { 
+                    role: 'assistant', 
+                    content: currentResponse.content 
+                  },
+                  {
+                    role: 'user',
+                    content: currentToolResults
+                  }
+                ],
+                tools: toolConfig.tools
+              });
+              
+              console.log(`✅ ${agentId.toUpperCase()} FOLLOW-UP SUCCESS on attempt ${followUpAttempts}`);
+              break; // Success - exit retry loop
+              
+            } catch (error: any) {
+              console.log(`❌ ${agentId.toUpperCase()} FOLLOW-UP ERROR (attempt ${followUpAttempts}):`, {
+                status: error.status,
+                type: error.error?.type,
+                message: error.error?.message
+              });
+              
+              // Check if this is a retryable error (529 overloaded or rate limit)
+              const isRetryable = error.status === 529 || 
+                                 error.status === 429 || 
+                                 error.error?.type === 'overloaded_error' ||
+                                 error.error?.type === 'rate_limit_error';
+              
+              if (!isRetryable || followUpAttempts >= followUpMaxAttempts) {
+                console.log(`🚫 ${agentId.toUpperCase()} FOLLOW-UP FINAL FAILURE: Not retryable or max attempts reached`);
+                throw error;
               }
-            ],
-            tools: toolConfig.tools
-          });
+              
+              // Exponential backoff: 1s, 2s, 4s, 8s, 16s
+              const delay = followUpBaseDelay * Math.pow(2, followUpAttempts - 1);
+              console.log(`⏳ ${agentId.toUpperCase()} FOLLOW-UP RETRYING in ${delay}ms (attempt ${followUpAttempts + 1}/${followUpMaxAttempts})`);
+              
+              await new Promise(resolve => setTimeout(resolve, delay));
+            }
+          }
           
           currentResponse = followUpResponse;
           console.log(`🔍 ${agentId.toUpperCase()} FOLLOW-UP RESPONSE ${toolCallCount}: Got response with ${followUpResponse.content?.length || 0} content blocks`);
