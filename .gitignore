@@ -83,3 +83,16 @@ jspm_packages/
 # Replit specific
 .replit
 .upm
+
+# Development and workflow files
+workflow-storage.json
+enhanced-workflow-storage.json
+agent-audit-report.json
+debug_*.txt
+memory-restoration-debug-test.js
+test-navigation.json
+
+# Documentation files (keep README.md)
+*.md
+!README.md
+!replit.md
