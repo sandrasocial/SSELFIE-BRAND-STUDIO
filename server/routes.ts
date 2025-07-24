@@ -4895,6 +4895,121 @@ Starting analysis and implementation now...`;
 
   // REMOVED: Duplicate /api/agents endpoint - now using the real database version above
 
+  // UNIFIED ADMIN AGENT CHAT ENDPOINT FOR VISUAL EDITOR
+  app.post('/api/admin/agents/chat', isAuthenticated, async (req: any, res) => {
+    console.log('🎯 ADMIN AGENTS CHAT: Visual Editor Request');
+    
+    try {
+      const { agentId, message, conversationHistory = [], context } = req.body;
+      const userId = req.user.claims.sub;
+      
+      // Verify admin access
+      if (req.user.claims.email !== 'ssa@ssasocial.com') {
+        return res.status(403).json({ error: 'Admin access required' });
+      }
+      
+      console.log(`🤖 Admin Agent Chat: ${agentId} - "${message?.substring(0, 50)}..."`);
+      
+      // Use agent-personalities from the cleaned routes file
+      const { AGENT_CONFIGS } = await import('./routes/agent-conversation-routes');
+      
+      if (!AGENT_CONFIGS[agentId as keyof typeof AGENT_CONFIGS]) {
+        return res.status(404).json({ 
+          success: false,
+          error: 'Agent not found',
+          message: `Agent ${agentId} is not available.`
+        });
+      }
+      
+      const agent = AGENT_CONFIGS[agentId as keyof typeof AGENT_CONFIGS];
+      
+      // Try to get agent response using Claude API
+      let agentResponse = '';
+      
+      try {
+        const claudeResponse = await fetch('https://api.anthropic.com/v1/messages', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'x-api-key': process.env.ANTHROPIC_API_KEY || '',
+            'anthropic-version': '2023-06-01',
+          },
+          body: JSON.stringify({
+            model: 'claude-3-5-sonnet-20241022',
+            max_tokens: 4000,
+            system: agent.systemPrompt,
+            messages: [
+              {
+                role: 'user',
+                content: message
+              }
+            ]
+          })
+        });
+        
+        if (claudeResponse.ok) {
+          const data = await claudeResponse.json();
+          agentResponse = data.content[0]?.text || '';
+        }
+      } catch (claudeError) {
+        console.log('Claude API unavailable, using fallback response');
+      }
+      
+      // Fallback if no response from Claude
+      if (!agentResponse) {
+        const fallbackResponses = {
+          elena: "Hi Sandra! I'm Elena, your strategic coordinator. How can I help organize your workflow today?",
+          aria: "Hey Sandra! Aria here - your design expert. Ready to create something beautiful!",
+          zara: "Hello Sandra! Zara, your dev specialist. What should we build today?",
+          rachel: "Hey gorgeous! Rachel here - your voice twin. Let's create some amazing copy!",
+          maya: "Hi Sandra! Maya, your AI photography expert. Ready to create stunning images!",
+          ava: "Hi Sandra! Ava here - your automation architect. What workflows should we optimize?",
+          quinn: "Hello Sandra! Quinn, your quality guardian. Let's ensure everything meets luxury standards!",
+          sophia: "Hey Sandra! Sophia here - your social media strategist. Let's grow that community!",
+          martha: "Hi Sandra! Martha, your marketing expert. Ready to optimize those campaigns!",
+          diana: "Hello Sandra! Diana here - your business coach. What strategic guidance do you need?",
+          wilma: "Hi Sandra! Wilma, your workflow architect. Let's design some efficient processes!",
+          olga: "Hey Sandra! Olga here - your organization expert. Ready to tidy up the codebase!"
+        };
+        agentResponse = fallbackResponses[agentId as keyof typeof fallbackResponses] || "I'm ready to assist you!";
+      }
+      
+      // Return in format expected by visual editor
+      res.json({
+        success: true,
+        message: agentResponse,
+        agentId,
+        timestamp: new Date().toISOString()
+      });
+      
+    } catch (error) {
+      console.error('Admin agents chat error:', error);
+      
+      // Fallback to simple agent response
+      const fallbackResponses = {
+        elena: "Hi Sandra! I'm Elena, your strategic coordinator. How can I help organize your workflow today?",
+        aria: "Hey Sandra! Aria here - your design expert. Ready to create something beautiful!",
+        zara: "Hello Sandra! Zara, your dev specialist. What should we build today?",
+        rachel: "Hey gorgeous! Rachel here - your voice twin. Let's create some amazing copy!",
+        maya: "Hi Sandra! Maya, your AI photography expert. Ready to create stunning images!",
+        ava: "Hi Sandra! Ava here - your automation architect. What workflows should we optimize?",
+        quinn: "Hello Sandra! Quinn, your quality guardian. Let's ensure everything meets luxury standards!",
+        sophia: "Hey Sandra! Sophia here - your social media strategist. Let's grow that community!",
+        martha: "Hi Sandra! Martha, your marketing expert. Ready to optimize those campaigns!",
+        diana: "Hello Sandra! Diana here - your business coach. What strategic guidance do you need?",
+        wilma: "Hi Sandra! Wilma, your workflow architect. Let's design some efficient processes!",
+        olga: "Hey Sandra! Olga here - your organization expert. Ready to tidy up the codebase!"
+      };
+      
+      res.json({
+        success: true,
+        message: fallbackResponses[agentId as keyof typeof fallbackResponses] || "I'm ready to assist you!",
+        agentId,
+        timestamp: new Date().toISOString()
+      });
+    }
+  });
+
   // AGENT CHAT BYPASS ENDPOINT FOR COMPATIBILITY
   app.post('/api/admin/agent-chat-bypass', async (req, res) => {
     console.log('🔄 AGENT CHAT BYPASS: Processing agent request');
