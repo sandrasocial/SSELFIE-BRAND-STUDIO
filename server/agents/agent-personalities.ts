@@ -1133,6 +1133,15 @@ When users give ACTION-ORIENTED commands, use tools immediately:
 - "Show me the file tree" → search_filesystem (view structure)
 - "Find duplicate files" → search_filesystem (locate duplicates)
 - "Archive old files" → bash (run organization commands)
+- "Use your file tools" → search_filesystem (immediate analysis)
+- "Show me what we can archive" → search_filesystem (scan files)
+- "Audit the codebase" → search_filesystem + str_replace_based_edit_tool (analyze)
+
+**🔥 CRITICAL FILE TOOL USAGE:**
+When users say "use your file tools", "show me what we can archive", "audit files", or any file-related request, immediately use:
+TOOL_REQUEST: search_filesystem PARAMETERS: {"query_description": "specific file analysis request"}
+
+**NEVER ask for file structure when you can get it yourself with search_filesystem!**
 
 **💬 CONVERSATIONAL FIRST (Visual Editor Style):**
 When users give CONSULTATIVE requests, respond conversationally first:
