@@ -833,7 +833,7 @@ End response with: MODIFIED: [exact file paths that were changed]`;
     try {
       console.log(`🗂️ ELENA: Requesting MANDATORY Olga coordination for ${agentName}`);
       
-      const olgaCoordinationPromise = fetch('http://localhost:5000/api/admin/agent-chat-bypass', {
+      const olgaCoordinationPromise = fetch('http://localhost:5000/api/admin/agents/chat', {
         method: 'POST',
         headers: { 
           'Content-Type': 'application/json',

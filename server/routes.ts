@@ -6411,92 +6411,14 @@ AGENT_CONTEXT:
           console.log(`🔧 INTEGRATION FIX: Redirected to modify existing files instead`);
         }
         
-        // PERMANENT CACHE-BUSTING AUTO-FILE-WRITER WITH ENHANCED PROCESSING
-        const autoFileWriterPath = new URL('./agents/auto-file-writer.js', import.meta.url).href;
-        const { AutoFileWriter } = await import(`${autoFileWriterPath}?t=${Date.now()}`);
-        const { AgentCodebaseIntegration } = await import('./agents/agent-codebase-integration.js');
+        // NEW SYSTEM: Agents use str_replace_based_edit_tool directly through tool system
+        console.log(`🔧 NEW TOOL SYSTEM: Agent ${agentId} uses str_replace_based_edit_tool instead of auto-file-writer`);
         
-        console.log(`🎯 PERMANENT AUTO-FILE-WRITER: Processing ${agentId} response`);
+        // No auto-file-writer processing - agents handle file operations through tool requests
+        fileOperations = [];
         
-        // ENHANCED: Error detection and recovery system (like Replit agents)
-        const { AgentErrorRecovery } = await import('./agents/error-detection-system.js');
-        const errorCheck = await AgentErrorRecovery.monitorAgentResponse(agentId, validatedResponse);
-        
-        if (errorCheck.hasErrors) {
-          console.log(`🚨 EMERGENCY INTERVENTION: Agent ${agentId} created ${errorCheck.patterns.length} dangerous patterns`);
-          for (const pattern of errorCheck.patterns) {
-            console.log(`  🔧 FIXED: Agent used ${pattern.name} (${pattern.matchCount} instances)`);
-          }
-          validatedResponse = errorCheck.safeResponse; // Use sanitized response
-        }
-        
-        console.log(`🎯 Response analysis: <write_to_file>=${validatedResponse.includes('<write_to_file>')}, code blocks=${validatedResponse.includes('```')}`);
-        
-        // Use the enhanced auto-file-writer system
-        const autoWriteResult = await AutoFileWriter.processCodeBlocks(agentId, validatedResponse, AgentCodebaseIntegration);
-        
-        if (autoWriteResult && autoWriteResult.filesWritten && autoWriteResult.filesWritten.length > 0) {
-          console.log(`✅ AUTO-FILE-WRITER SUCCESS: Created ${autoWriteResult.filesWritten.length} files`);
-          autoWriteResult.filesWritten.forEach(file => {
-            if (file.success) {
-              fileOperations.push({ 
-                filePath: file.filePath, 
-                success: true, 
-                method: 'auto_file_writer',
-                source: file.source,
-                language: file.language
-              });
-              console.log(`   ✅ ${file.filePath} (${file.source})`);
-            } else {
-              console.log(`   ❌ ${file.filePath}: ${file.error}`);
-            }
-          });
-          
-          // Update response with file creation results
-          validatedResponse = autoWriteResult.modifiedResponse || validatedResponse;
-        } else {
-          console.log(`ℹ️ AUTO-FILE-WRITER: No files detected for creation in ${agentId} response`);
-        }
-        
-        // FALLBACK: Direct XML parsing for additional safety
-        if (validatedResponse.includes('<write_to_file>') && (!autoWriteResult || !autoWriteResult.filesWritten || autoWriteResult.filesWritten.length === 0)) {
-          console.log(`🔄 FALLBACK XML: Processing XML tags directly`);
-          const writeToFileRegex = /<write_to_file>\s*<path>(.*?)<\/path>\s*<content>([\s\S]*?)<\/content>\s*<\/write_to_file>/gi;
-          let xmlMatch;
-          while ((xmlMatch = writeToFileRegex.exec(validatedResponse)) !== null) {
-            const filePath = xmlMatch[1].trim();
-            const content = xmlMatch[2].trim();
-            console.log(`🔄 FALLBACK XML: Processing ${filePath} (${content.length} chars)`);
-            
-            try {
-              await AgentCodebaseIntegration.writeFile(filePath, content);
-              console.log(`✅ FALLBACK XML SUCCESS: Created ${filePath}`);
-              fileOperations.push({ filePath, success: true, method: 'fallback_xml' });
-            } catch (error) {
-              console.log(`❌ FALLBACK XML FAILED: ${filePath} - ${error.message}`);
-            }
-          }
-        }
-        
-        let result = { filesWritten: [] };
-        try {
-          result = await AutoFileWriter.processCodeBlocks(
-            agentId,
-            validatedResponse,
-            AgentCodebaseIntegration
-          );
-          console.log(`🔍 ROUTES DEBUG: Auto-file-writer completed successfully`);
-          console.log(`🔍 ROUTES DEBUG: Files written by auto-file-writer: ${result.filesWritten?.length || 0}`);
-        } catch (error) {
-          console.log(`❌ ROUTES DEBUG: Auto-file-writer error: ${error.message}`);
-          console.log(`❌ ROUTES DEBUG: Error stack: ${error.stack}`);
-        }
-        
-        fileOperations = result.filesWritten || [];
-        
-        if (fileOperations.length > 0) {
-          console.log(`✅ Auto-wrote ${fileOperations.length} files: ${fileOperations.map(f => f.filePath).join(', ')}`);
-        }
+        // File operations now handled through tool system, not auto-file-writer
+        console.log(`ℹ️ TOOL SYSTEM: Agent file operations handled via str_replace_based_edit_tool`);
       } catch (fileError) {
         console.log('❌ File operation failed:', fileError.message);
       }
