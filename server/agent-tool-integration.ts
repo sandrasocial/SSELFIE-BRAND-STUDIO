@@ -5,6 +5,7 @@ import { readFileSync, writeFileSync, existsSync, readdirSync, statSync } from '
 import { join, dirname } from 'path';
 import { exec } from 'child_process';
 import { promisify } from 'util';
+import { ErrorDetectionIntelligence } from './agents/error-detection-intelligence';
 
 const execAsync = promisify(exec);
 
@@ -68,11 +69,11 @@ export class AgentToolSystem {
         case 'view':
           return this.viewFile(path, view_range);
         case 'create':
-          return this.createFile(path, file_text);
+          return await this.createFile(path, file_text);
         case 'str_replace':
-          return this.replaceInFile(path, old_str, new_str);
+          return await this.replaceInFile(path, old_str, new_str);
         case 'insert':
-          return this.insertInFile(path, insert_line, insert_text);
+          return await this.insertInFile(path, insert_line, insert_text);
         default:
           return {
             success: false,
@@ -132,8 +133,36 @@ export class AgentToolSystem {
     }
   }
 
-  private static createFile(filePath: string, content: string): AgentToolResponse {
+  private static async createFile(filePath: string, content: string): Promise<AgentToolResponse> {
     try {
+      // ERROR DETECTION: Analyze content before creating file
+      console.log(`🔍 ERROR DETECTION: Analyzing file creation: ${filePath}`);
+      const errorResult = await ErrorDetectionIntelligence.detectErrors(filePath, content, 'create');
+      
+      // Check if critical errors can be auto-corrected
+      const hasUncorrectableErrors = errorResult.errors.some(e => 
+        e.severity === 'error' && 
+        !e.fixable && 
+        (e.type === 'security' || e.type === 'structure')
+      );
+      
+      if (errorResult.severity === 'critical' && hasUncorrectableErrors && !errorResult.correctedContent) {
+        console.log(`🚫 CRITICAL ERRORS DETECTED: Blocking file creation`);
+        console.log(`   Errors: ${errorResult.errors.map(e => e.message).join(', ')}`);
+        
+        return {
+          success: false,
+          error: `❌ Critical errors detected - file creation blocked:\n${errorResult.errors.map(e => `- ${e.message}`).join('\n')}\n\nSuggestions:\n${errorResult.suggestions.map(s => `- ${s.description}`).join('\n')}`,
+          tool: 'str_replace_based_edit_tool'
+        };
+      }
+      
+      // Use corrected content if auto-correction is available
+      const finalContent = errorResult.correctedContent || content;
+      if (errorResult.correctedContent) {
+        console.log(`✅ AUTO-CORRECTION: Applied fixes to ${filePath}`);
+      }
+      
       // Create directory if it doesn't exist
       const dir = dirname(filePath);
       if (!existsSync(dir)) {
@@ -141,7 +170,7 @@ export class AgentToolSystem {
         mkdirSync(dir, { recursive: true });
       }
       
-      writeFileSync(filePath, content, 'utf8');
+      writeFileSync(filePath, finalContent, 'utf8');
       
       return {
         success: true,
