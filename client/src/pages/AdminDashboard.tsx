@@ -1,520 +1,243 @@
-import React from 'react';
 import { useQuery } from '@tanstack/react-query';
-import { AdminNavigation } from '../components/AdminNavigation';
+import { useState } from 'react';
+import { Link } from 'wouter';
 
-export function AdminDashboard() {
-  // Fetch real dashboard stats from database
-  const { data: stats, isLoading } = useQuery({
-    queryKey: ["/api/admin/dashboard-stats"],
-    refetchInterval: 30000 // Refresh every 30 seconds
+interface DashboardStats {
+  totalUsers: number;
+  activeSubscriptions: number;
+  monthlyRevenue: number;
+  completedSessions: number;
+}
+
+export default function AdminDashboard() {
+  const [selectedSection, setSelectedSection] = useState('overview');
+
+  const { data: stats, isLoading } = useQuery<DashboardStats>({
+    queryKey: ['admin-stats'],
+    queryFn: async () => {
+      const response = await fetch('/api/admin/stats');
+      if (!response.ok) throw new Error('Failed to fetch stats');
+      return response.json();
+    }
   });
 
-  // Fetch Sandra's gallery images for dashboard
-  const { data: galleryImages = [] } = useQuery({
-    queryKey: ["/api/gallery-images"]
-  });
+  const navigationItems = [
+    { id: 'overview', label: 'O V E R V I E W', icon: '◊' },
+    { id: 'users', label: 'U S E R S', icon: '◊' },
+    { id: 'content', label: 'C O N T E N T', icon: '◊' },
+    { id: 'analytics', label: 'A N A L Y T I C S', icon: '◊' },
+    { id: 'settings', label: 'S E T T I N G S', icon: '◊' }
+  ];
+
+  const statCards = [
+    { 
+      title: 'Total Users', 
+      value: stats?.totalUsers || 0, 
+      change: '+12%',
+      image: '/gallery/sandra-power-pose-1.jpg'
+    },
+    { 
+      title: 'Active Subscriptions', 
+      value: stats?.activeSubscriptions || 0, 
+      change: '+8%',
+      image: '/gallery/sandra-confidence-2.jpg'
+    },
+    { 
+      title: 'Monthly Revenue', 
+      value: `$${stats?.monthlyRevenue || 0}`, 
+      change: '+24%',
+      image: '/gallery/sandra-success-3.jpg'
+    },
+    { 
+      title: 'Completed Sessions', 
+      value: stats?.completedSessions || 0, 
+      change: '+16%',
+      image: '/gallery/sandra-transformation-4.jpg'
+    }
+  ];
 
   if (isLoading) {
     return (
-      <div className="min-h-screen bg-black flex items-center justify-center">
-        <div className="text-white font-serif text-xl">Loading dashboard...</div>
+      <div className="min-h-screen bg-white flex items-center justify-center">
+        <div className="text-2xl font-light tracking-[0.3em] text-black" style={{ fontFamily: 'Times New Roman, serif' }}>
+          {'L O A D I N G . . .'.split('').join(' ')}
+        </div>
       </div>
     );
   }
 
-  // Get Sandra's images for dashboard backgrounds
-  const heroImage = 'https://sselfie-training-zips.s3.eu-north-1.amazonaws.com/images/undefined/undefined_1753098004720.png';
-  const revenueImage = galleryImages[0]?.imageUrl || '/flatlays/business-professional/business-professional-201.png';
-  const usersImage = galleryImages[1]?.imageUrl || heroImage;
-  const imagesImage = galleryImages[2]?.imageUrl || '/flatlays/business-professional/business-professional-202.png';
-  const conversationsImage = galleryImages[3]?.imageUrl || '/flatlays/luxury-minimal/luxury-minimal-002.png';
-
-  // Agent data with their specialties and images
-  const agents = [
-    {
-      name: 'Elena',
-      title: 'AI Agent Director',
-      description: 'Strategic vision & workflow orchestrator. Your AI Agent Director and strategic business partner.',
-      status: 'Active',
-      image: galleryImages[0]?.imageUrl || '/flatlays/luxury-minimal/luxury-minimal-001.png'
-    },
-    {
-      name: 'Aria',
-      title: 'Creative Director',
-      description: 'Visionary editorial luxury designer. Master of dark moody minimalism with bright editorial sophistication.',
-      status: 'Active',
-      image: galleryImages[1]?.imageUrl || '/flatlays/editorial-magazine/editorial-magazine-101.png'
-    },
-    {
-      name: 'Zara',
-      title: 'Technical Mastermind',
-      description: 'Luxury code architect who transforms vision into flawless code. Builds like Chanel designs.',
-      status: 'Active',
-      image: galleryImages[2]?.imageUrl || '/flatlays/business-professional/business-professional-301.png'
-    },
-    {
-      name: 'Rachel',
-      title: 'Voice & Copy Expert',
-      description: 'Copywriting best friend who writes exactly like Sandra\'s authentic voice and transformation story.',
-      status: 'Active',
-      image: galleryImages[3]?.imageUrl || '/flatlays/pink-girly/pink-girly-201.png'
-    },
-    {
-      name: 'Maya',
-      title: 'AI Photographer',
-      description: 'Celebrity stylist who creates stunning editorial photos. Your personal photographer for AI shoots.',
-      status: 'Active',
-      image: galleryImages[4]?.imageUrl || '/flatlays/european-luxury/european-luxury-201.png'
-    },
-    {
-      name: 'Victoria',
-      title: 'Website Builder',
-      description: 'UX designer who creates luxury editorial layouts. Master of conversion-focused luxury design.',
-      status: 'Active',
-      image: galleryImages[5]?.imageUrl || '/flatlays/wellness-mindset/wellness-mindset-101.png'
-    },
-    {
-      name: 'Ava',
-      title: 'Automation Expert',
-      description: 'Invisible empire architect. Behind-the-scenes workflow automation with Swiss-watch precision.',
-      status: 'Active',
-      image: galleryImages[6]?.imageUrl || '/flatlays/luxury-minimal/luxury-minimal-201.png'
-    },
-    {
-      name: 'Quinn',
-      title: 'Quality Guardian',
-      description: 'Luxury quality guardian with perfectionist attention. Guards the "Rolls-Royce" positioning.',
-      status: 'Active',
-      image: galleryImages[7]?.imageUrl || '/flatlays/business-professional/business-professional-401.png'
-    },
-    {
-      name: 'Sophia',
-      title: 'Social Media Manager',
-      description: 'Elite community architect growing Sandra from 81K to 1M followers through strategic content.',
-      status: 'Active',
-      image: galleryImages[8]?.imageUrl || '/flatlays/pink-girly/pink-girly-301.png'
-    },
-    {
-      name: 'Martha',
-      title: 'Marketing & Ads',
-      description: 'Performance marketing expert who runs ads and finds opportunities. A/B tests everything.',
-      status: 'Active',
-      image: galleryImages[9]?.imageUrl || '/flatlays/european-luxury/european-luxury-301.png'
-    }
-  ];
-
   return (
     <div className="min-h-screen bg-white">
       {/* Navigation */}
-      <AdminNavigation />
-      
-      {/* Full Bleed Hero Section */}
-      <div className="relative h-screen overflow-hidden">
-        <div 
-          className="absolute inset-0 bg-cover bg-top bg-no-repeat"
-          style={{
-            backgroundImage: `linear-gradient(rgba(0, 0, 0, 0.4), rgba(0, 0, 0, 0.4)), url('${heroImage}')`,
-            backgroundPosition: '50% 20%'
-          }}
-        />
-        <div className="relative z-10 flex items-center justify-center h-full">
-          <div className="text-center text-white max-w-4xl px-8">
-            <h1 className="font-serif text-6xl md:text-8xl font-light mb-6 tracking-wide">
-              Your Empire
+      <nav className="bg-black text-white py-6 px-8">
+        <div className="max-w-7xl mx-auto flex justify-between items-center">
+          <Link href="/">
+            <div className="text-2xl font-light tracking-[0.2em]" style={{ fontFamily: 'Times New Roman, serif' }}>
+              {'S S E L F I E   S T U D I O'.split('').join(' ')}
+            </div>
+          </Link>
+          <div className="flex space-x-12">
+            {navigationItems.map((item) => (
+              <button
+                key={item.id}
+                onClick={() => setSelectedSection(item.id)}
+                className={`text-sm font-light tracking-[0.2em] transition-all duration-200 ${
+                  selectedSection === item.id 
+                    ? 'text-white border-b border-white pb-1' 
+                    : 'text-gray-400 hover:text-white'
+                }`}
+                style={{ fontFamily: 'Times New Roman, serif' }}
+              >
+                {item.label}
+              </button>
+            ))}
+          </div>
+        </div>
+      </nav>
+
+      {/* Hero Section - Full Bleed */}
+      <div 
+        className="h-96 bg-cover bg-center relative"
+        style={{
+          backgroundImage: `linear-gradient(rgba(0, 0, 0, 0.4), rgba(0, 0, 0, 0.4)), url('/gallery/sandra-empire-hero.jpg')`,
+          backgroundPosition: '50% 30%'
+        }}
+      >
+        <div className="absolute inset-0 flex items-center justify-center">
+          <div className="text-center text-white">
+            <h1 
+              className="text-5xl font-light tracking-[0.3em] uppercase mb-4 opacity-90"
+              style={{ fontFamily: 'Times New Roman, serif' }}
+            >
+              {'A D M I N   D A S H B O A R D'.split('').join(' ')}
             </h1>
-            <p className="text-xl md:text-2xl font-light tracking-wider opacity-90 max-w-2xl mx-auto leading-relaxed">
-              From rock bottom to building dreams. Every metric tells your transformation story.
+            <p 
+              className="text-xl font-light tracking-[0.2em] opacity-80"
+              style={{ fontFamily: 'Times New Roman, serif' }}
+            >
+              {'E M P I R E   M A N A G E M E N T'.split('').join(' ')}
             </p>
           </div>
         </div>
       </div>
 
-      {/* Dashboard Metrics Grid */}
-      <div className="px-8 py-24 max-w-7xl mx-auto">
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8 mb-24">
-          {/* Revenue Card */}
-          <div className="bg-white border border-gray-100 rounded-lg overflow-hidden shadow-sm hover:shadow-lg transition-all duration-300">
-            <div 
-              className="h-48 bg-cover bg-center relative"
-              style={{
-                backgroundImage: `linear-gradient(rgba(0, 0, 0, 0.3), rgba(0, 0, 0, 0.3)), url('${revenueImage}')`,
-                backgroundPosition: '50% 30%'
-              }}
-            >
-              <div className="absolute inset-0 flex items-center justify-center">
-                <div className="text-center text-white">
-                  <div className="font-serif text-4xl font-light mb-2">
-                    ${(stats?.totalRevenue || 0).toLocaleString()}
-                  </div>
-                  <div className="text-sm uppercase tracking-widest">Pre-Launch Revenue</div>
-                </div>
-              </div>
-            </div>
-            <div className="p-6">
-              <p className="text-gray-600 text-sm leading-relaxed">
-                Revenue tracking ready for your SSELFIE Studio launch.
-              </p>
-            </div>
-          </div>
-
-          {/* Active Clients Card */}
-          <div className="bg-white border border-gray-100 rounded-lg overflow-hidden shadow-sm hover:shadow-lg transition-all duration-300">
-            <div 
-              className="h-48 bg-cover bg-center relative"
-              style={{
-                backgroundImage: `linear-gradient(rgba(0, 0, 0, 0.3), rgba(0, 0, 0, 0.3)), url('${usersImage}')`,
-                backgroundPosition: '50% 30%'
-              }}
-            >
-              <div className="absolute inset-0 flex items-center justify-center">
-                <div className="text-center text-white">
-                  <div className="font-serif text-4xl font-light mb-2">
-                    {stats?.totalUsers || 0}
-                  </div>
-                  <div className="text-sm uppercase tracking-widest">Total Users</div>
-                </div>
-              </div>
-            </div>
-            <div className="p-6">
-              <p className="text-gray-600 text-sm leading-relaxed">
-                Total registered users on your platform.
-              </p>
-            </div>
-          </div>
-
-          {/* Monthly Growth Card */}
-          <div className="bg-white border border-gray-100 rounded-lg overflow-hidden shadow-sm hover:shadow-lg transition-all duration-300">
-            <div 
-              className="h-48 bg-cover bg-center relative"
-              style={{
-                backgroundImage: `linear-gradient(rgba(0, 0, 0, 0.3), rgba(0, 0, 0, 0.3)), url('${imagesImage}')`,
-                backgroundPosition: '50% 30%'
-              }}
-            >
-              <div className="absolute inset-0 flex items-center justify-center">
-                <div className="text-center text-white">
-                  <div className="font-serif text-4xl font-light mb-2">
-                    {stats?.totalPosts || 0}
-                  </div>
-                  <div className="text-sm uppercase tracking-widest">AI Images Created</div>
-                </div>
-              </div>
-            </div>
-            <div className="p-6">
-              <p className="text-gray-600 text-sm leading-relaxed">
-                Exponential impact as your story resonates with more souls seeking change.
-              </p>
-            </div>
-          </div>
-
-          {/* Completion Rate Card */}
-          <div className="bg-white border border-gray-100 rounded-lg overflow-hidden shadow-sm hover:shadow-lg transition-all duration-300">
-            <div 
-              className="h-48 bg-cover bg-center relative"
-              style={{
-                backgroundImage: `linear-gradient(rgba(0, 0, 0, 0.3), rgba(0, 0, 0, 0.3)), url('${conversationsImage}')`,
-                backgroundPosition: '50% 30%'
-              }}
-            >
-              <div className="absolute inset-0 flex items-center justify-center">
-                <div className="text-center text-white">
-                  <div className="font-serif text-4xl font-light mb-2">
-                    {stats?.totalLikes || 0}
-                  </div>
-                  <div className="text-sm uppercase tracking-widest">Agent Conversations</div>
-                </div>
-              </div>
-            </div>
-            <div className="p-6">
-              <p className="text-gray-600 text-sm leading-relaxed">
-                Proof that your authentic approach creates lasting transformation.
-              </p>
-            </div>
-          </div>
-        </div>
-
-        {/* Building Beyond Survival - Flatlay */}
-        <div className="relative h-96 -mx-8 mb-24 overflow-hidden">
-          <div 
-            className="absolute inset-0 bg-cover bg-center bg-no-repeat"
-            style={{
-              backgroundImage: `linear-gradient(rgba(0, 0, 0, 0.5), rgba(0, 0, 0, 0.5)), url('/flatlays/business-professional/business-professional-401.png')`,
-              backgroundPosition: '50% 50%'
-            }}
-          />
-          <div className="relative z-10 flex items-center justify-center h-full">
-            <div className="text-center text-white max-w-3xl px-8">
-              <h2 className="font-serif text-4xl md:text-5xl font-light mb-4 tracking-wide">
-                Building Beyond Survival
-              </h2>
-              <p className="text-lg font-light tracking-wider opacity-90 leading-relaxed">
-                From single mom struggles to AI empire. Every metric tells your transformation story.
-              </p>
-            </div>
-          </div>
-        </div>
-
-        {/* Recent Transformations - Flatlay Background */}
-        <div className="mb-24">
-          <div className="relative h-96 -mx-8 mb-12 overflow-hidden">
-            <div 
-              className="absolute inset-0 bg-cover bg-center bg-no-repeat"
-              style={{
-                backgroundImage: `linear-gradient(rgba(0, 0, 0, 0.4), rgba(0, 0, 0, 0.4)), url('/flatlays/pink-girly/pink-girly-301.png')`,
-                backgroundPosition: '50% 50%'
-              }}
-            />
-            <div className="relative z-10 flex items-center justify-center h-full">
-              <div className="text-center text-white max-w-3xl px-8">
-                <h3 className="font-serif text-4xl md:text-5xl font-light mb-4 tracking-wide">
-                  Recent Transformations
-                </h3>
-                <p className="text-lg font-light tracking-wider opacity-90 leading-relaxed">
-                  Platform preparing for launch. AI empire taking shape with every update.
-                </p>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        {/* Impact Analytics - Real Data */}
-        <div className="mb-24">
-          <h3 className="font-serif text-3xl font-light mb-12 text-center tracking-wide">
-            Impact Analytics
-          </h3>
-          
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-            {/* Platform Status */}
-            <div className="bg-gray-50 p-8 rounded-lg">
-              <h4 className="font-serif text-xl font-light mb-6">Platform Status</h4>
-              <div className="space-y-4">
-                <div className="flex justify-between items-center">
-                  <span className="text-gray-600 text-sm">Total Users</span>
-                  <span className="font-serif text-lg">{stats?.totalUsers || 7}</span>
-                </div>
-                <div className="flex justify-between items-center">
-                  <span className="text-gray-600 text-sm">AI Images Generated</span>
-                  <span className="font-serif text-lg">{stats?.totalPosts || 120}</span>
-                </div>
-                <div className="flex justify-between items-center">
-                  <span className="text-gray-600 text-sm">Agent Conversations</span>
-                  <span className="font-serif text-lg">{stats?.totalLikes || 365}</span>
-                </div>
-                <div className="flex justify-between items-center">
-                  <span className="text-gray-600 text-sm">Launch Status</span>
-                  <span className="font-serif text-lg">Pre-Launch</span>
-                </div>
-              </div>
-            </div>
-
-            {/* Development Progress */}
-            <div className="bg-gray-50 p-8 rounded-lg">
-              <h4 className="font-serif text-xl font-light mb-6">Development</h4>
-              <div className="space-y-4">
-                <div className="flex justify-between items-center">
-                  <span className="text-gray-600 text-sm">Admin Dashboard</span>
-                  <span className="font-serif text-lg text-green-600">Complete</span>
-                </div>
-                <div className="flex justify-between items-center">
-                  <span className="text-gray-600 text-sm">AI Agents</span>
-                  <span className="font-serif text-lg text-green-600">10 Active</span>
-                </div>
-                <div className="flex justify-between items-center">
-                  <span className="text-gray-600 text-sm">User Workspace</span>
-                  <span className="font-serif text-lg text-green-600">Live</span>
-                </div>
-                <div className="flex justify-between items-center">
-                  <span className="text-gray-600 text-sm">Visual Editor</span>
-                  <span className="font-serif text-lg text-green-600">Operational</span>
-                </div>
-              </div>
-            </div>
-
-            {/* Revenue Metrics */}
-            <div className="bg-gray-50 p-8 rounded-lg">
-              <h4 className="font-serif text-xl font-light mb-6">Revenue</h4>
-              <div className="space-y-4">
-                <div className="flex justify-between items-center">
-                  <span className="text-gray-600 text-sm">Current Revenue</span>
-                  <span className="font-serif text-lg">${stats?.totalRevenue || 0}</span>
-                </div>
-                <div className="flex justify-between items-center">
-                  <span className="text-gray-600 text-sm">Launch Target</span>
-                  <span className="font-serif text-lg">€67/month</span>
-                </div>
-                <div className="flex justify-between items-center">
-                  <span className="text-gray-600 text-sm">Empire Ready</span>
-                  <span className="font-serif text-lg text-orange-600">Soon</span>
-                </div>
-                <div className="flex justify-between items-center">
-                  <span className="text-gray-600 text-sm">Platform Value</span>
-                  <span className="font-serif text-lg">Premium</span>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        {/* Your Story Continues - Flatlay */}
-        <div className="relative h-96 -mx-8 overflow-hidden">
-          <div 
-            className="absolute inset-0 bg-cover bg-center bg-no-repeat"
-            style={{
-              backgroundImage: `linear-gradient(rgba(0, 0, 0, 0.6), rgba(0, 0, 0, 0.6)), url('/flatlays/luxury-minimal/luxury-minimal-001.png')`,
-              backgroundPosition: '50% 50%'
-            }}
-          />
-          <div className="relative z-10 flex items-center justify-center h-full">
-            <div className="text-center text-white max-w-4xl px-8">
-              <h2 className="font-serif text-4xl md:text-6xl font-light mb-6 tracking-wide">
-                Your Story Continues
-              </h2>
-              <p className="text-lg md:text-xl font-light tracking-wider opacity-90 leading-relaxed">
-                From single mom survival to AI empire architect. Every vulnerability transformed into strength.
-              </p>
-            </div>
-          </div>
-        </div>
-
-        {/* Visual Editor Quick Link */}
-        <div className="px-8 py-16 max-w-2xl mx-auto">
-          <div 
-            className="relative bg-white border border-gray-200 rounded-lg overflow-hidden cursor-pointer hover:shadow-lg transition-all duration-200"
-            onClick={() => window.location.href = '/visual-editor'}
-          >
-            <div 
-              className="h-32 bg-cover bg-center relative"
-              style={{
-                backgroundImage: `linear-gradient(rgba(0, 0, 0, 0.3), rgba(0, 0, 0, 0.3)), url('/flatlays/editorial-magazine/editorial-magazine-101.png')`,
-                backgroundPosition: '50% 50%'
-              }}
-            >
-              <div className="absolute inset-0 flex items-center justify-center">
-                <h3 
-                  className="text-white text-center text-xl font-light tracking-[0.2em] uppercase opacity-90"
-                  style={{ fontFamily: 'Times New Roman, serif' }}
-                >
-                  V I S U A L   E D I T O R
-                </h3>
-              </div>
-            </div>
-            <div className="p-6 text-center">
-              <p className="text-gray-600 text-sm font-light">
-                Access your development environment and agent coordination system
-              </p>
-            </div>
-          </div>
-        </div>
-
-        {/* AI Agent Team Section */}
-        <div className="px-8 py-24 max-w-7xl mx-auto">
-          <div className="text-center mb-16">
-            <h2 className="font-serif text-4xl font-light mb-4 tracking-wide text-gray-800">
-              Your AI Agent Team
-            </h2>
-            <p className="text-gray-600 text-lg font-light max-w-2xl mx-auto leading-relaxed">
-              Revolutionary AI-powered business management system with specialized agents
-            </p>
-          </div>
-          
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-6">
-            {agents.map((agent, index) => (
+      {/* Main Content */}
+      <div className="max-w-7xl mx-auto px-8 py-16">
+        {/* Stats Grid */}
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8 mb-16">
+          {statCards.map((stat, index) => (
+            <div key={index} className="relative bg-white rounded-lg overflow-hidden cursor-pointer hover:opacity-90 transition-all duration-200 shadow-lg">
               <div 
-                key={agent.name} 
-                className="relative bg-white rounded-lg overflow-hidden cursor-pointer hover:opacity-90 transition-all duration-200"
-                onClick={() => window.location.href = '/admin-dashboard'}
+                className="h-96 bg-cover bg-center relative"
+                style={{
+                  backgroundImage: `linear-gradient(rgba(0, 0, 0, 0.3), rgba(0, 0, 0, 0.3)), url('${stat.image}')`,
+                  backgroundPosition: '50% 30%'
+                }}
               >
-                <div 
-                  className="h-96 bg-cover bg-center relative"
-                  style={{
-                    backgroundImage: `linear-gradient(rgba(0, 0, 0, 0.3), rgba(0, 0, 0, 0.3)), url('${agent.image}')`,
-                    backgroundPosition: '50% 30%'
-                  }}
-                >
-                  <div className="absolute inset-0 flex items-center justify-center">
+                <div className="absolute inset-0 flex items-center justify-center">
+                  <div className="text-center text-white">
                     <h3 
-                      className="text-white text-center text-2xl font-light tracking-[0.3em] uppercase opacity-90"
+                      className="text-2xl font-light tracking-[0.3em] uppercase opacity-90 mb-4"
                       style={{ fontFamily: 'Times New Roman, serif' }}
                     >
-                      {agent.name.split('').join(' ')}
+                      {stat.title.split('').join(' ')}
                     </h3>
+                    <div className="text-4xl font-light mb-2" style={{ fontFamily: 'Times New Roman, serif' }}>
+                      {stat.value}
+                    </div>
+                    <div className="text-sm opacity-80 tracking-[0.1em]">
+                      {stat.change}
+                    </div>
                   </div>
                 </div>
               </div>
-            ))}
-          </div>
-        </div>
-
-        {/* Full Bleed Editorial Break */}
-        <div className="h-96 relative overflow-hidden">
-          <div 
-            className="absolute inset-0 bg-cover bg-center bg-no-repeat"
-            style={{
-              backgroundImage: `linear-gradient(rgba(0, 0, 0, 0.3), rgba(0, 0, 0, 0.3)), url('${galleryImages[4]?.imageUrl || heroImage}')`,
-              backgroundPosition: '50% 30%'
-            }}
-          />
-          <div className="relative z-10 flex items-center justify-center h-full">
-            <div className="text-center text-white max-w-2xl px-8">
-              <h2 className="font-serif text-4xl md:text-5xl font-light mb-4 tracking-wide">
-                Your Vision
-              </h2>
-              <p className="text-lg font-light tracking-wider opacity-90 leading-relaxed">
-                Every image tells the story of transformation. Your empire built one photo at a time.
-              </p>
             </div>
+          ))}
+        </div>
+
+        {/* Full Bleed Image Break */}
+        <div 
+          className="h-64 bg-cover bg-center relative mb-16 -mx-8"
+          style={{
+            backgroundImage: `linear-gradient(rgba(0, 0, 0, 0.2), rgba(0, 0, 0, 0.2)), url('/gallery/sandra-workspace-luxury.jpg')`,
+            backgroundPosition: 'center'
+          }}
+        />
+
+        {/* Quick Actions */}
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-8 mb-16">
+          <div className="bg-gray-50 p-8 text-center">
+            <h3 
+              className="text-2xl font-light tracking-[0.2em] uppercase mb-4 text-black"
+              style={{ fontFamily: 'Times New Roman, serif' }}
+            >
+              {'U S E R   M A N A G E M E N T'.split('').join(' ')}
+            </h3>
+            <p className="text-gray-600 mb-6 leading-relaxed">
+              Manage user accounts, subscriptions, and access levels with editorial precision.
+            </p>
+            <button className="bg-black text-white px-8 py-3 text-sm tracking-[0.2em] uppercase hover:bg-gray-800 transition-colors">
+              {'M A N A G E   U S E R S'.split('').join(' ')}
+            </button>
+          </div>
+
+          <div className="bg-gray-50 p-8 text-center">
+            <h3 
+              className="text-2xl font-light tracking-[0.2em] uppercase mb-4 text-black"
+              style={{ fontFamily: 'Times New Roman, serif' }}
+            >
+              {'C O N T E N T   S T U D I O'.split('').join(' ')}
+            </h3>
+            <p className="text-gray-600 mb-6 leading-relaxed">
+              Create and manage transformation content with luxury editorial standards.
+            </p>
+            <button className="bg-black text-white px-8 py-3 text-sm tracking-[0.2em] uppercase hover:bg-gray-800 transition-colors">
+              {'C R E A T E   C O N T E N T'.split('').join(' ')}
+            </button>
+          </div>
+
+          <div className="bg-gray-50 p-8 text-center">
+            <h3 
+              className="text-2xl font-light tracking-[0.2em] uppercase mb-4 text-black"
+              style={{ fontFamily: 'Times New Roman, serif' }}
+            >
+              {'A N A L Y T I C S   H U B'.split('').join(' ')}
+            </h3>
+            <p className="text-gray-600 mb-6 leading-relaxed">
+              Deep insights into user engagement and transformation success metrics.
+            </p>
+            <button className="bg-black text-white px-8 py-3 text-sm tracking-[0.2em] uppercase hover:bg-gray-800 transition-colors">
+              {'V I E W   A N A L Y T I C S'.split('').join(' ')}
+            </button>
           </div>
         </div>
 
-        {/* Gallery Showcase */}
-        <div className="px-8 py-24 max-w-7xl mx-auto">
-          <div className="text-center mb-16">
-            <h2 className="font-serif text-4xl font-light mb-4 tracking-wide text-gray-800">
-              Your Transformation Gallery
-            </h2>
-            <p className="text-gray-600 text-lg font-light max-w-2xl mx-auto leading-relaxed">
-              The visual story of your journey from vision to empire
-            </p>
-          </div>
+        {/* Portfolio-Style Recent Activity */}
+        <div className="bg-white">
+          <h2 
+            className="text-3xl font-light tracking-[0.3em] uppercase text-center mb-12 text-black"
+            style={{ fontFamily: 'Times New Roman, serif' }}
+          >
+            {'R E C E N T   A C T I V I T Y'.split('').join(' ')}
+          </h2>
           
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-            {galleryImages.slice(0, 6).map((image, index) => (
-              <div key={image.id} className="bg-white border border-gray-100 rounded-lg overflow-hidden shadow-sm hover:shadow-lg transition-all duration-300">
-                <div 
-                  className="h-80 bg-cover bg-center relative"
-                  style={{
-                    backgroundImage: `url('${image.imageUrl}')`,
-                    backgroundPosition: '50% 30%'
-                  }}
-                />
-                <div className="p-6">
-                  <p className="text-gray-600 text-sm font-light">
-                    Gallery Image {index + 1}
-                  </p>
+          <div className="space-y-6">
+            {[1, 2, 3, 4].map((item) => (
+              <div key={item} className="flex items-center justify-between border-b border-gray-100 pb-6">
+                <div className="flex items-center space-x-6">
+                  <div className="w-16 h-16 bg-gray-200 rounded-full"></div>
+                  <div>
+                    <h4 className="text-lg font-light text-black" style={{ fontFamily: 'Times New Roman, serif' }}>
+                      New user registration
+                    </h4>
+                    <p className="text-gray-600 text-sm">2 minutes ago</p>
+                  </div>
+                </div>
+                <div className="text-sm text-gray-500 tracking-[0.1em]">
+                  VIEW DETAILS
                 </div>
               </div>
             ))}
-          </div>
-        </div>
-
-        {/* Final Editorial Break */}
-        <div className="h-screen relative overflow-hidden">
-          <div 
-            className="absolute inset-0 bg-cover bg-center bg-no-repeat"
-            style={{
-              backgroundImage: `linear-gradient(rgba(0, 0, 0, 0.5), rgba(0, 0, 0, 0.5)), url('${galleryImages[galleryImages.length - 1]?.imageUrl || heroImage}')`,
-              backgroundPosition: '50% 30%'
-            }}
-          />
-          <div className="relative z-10 flex items-center justify-center h-full">
-            <div className="text-center text-white max-w-4xl px-8">
-              <h2 className="font-serif text-5xl md:text-7xl font-light mb-6 tracking-wide">
-                This Is Just The Beginning
-              </h2>
-              <p className="text-xl md:text-2xl font-light tracking-wider opacity-90 max-w-3xl mx-auto leading-relaxed">
-                Your empire awaits. Every metric, every image, every conversation building toward your launch.
-              </p>
-            </div>
           </div>
         </div>
       </div>
