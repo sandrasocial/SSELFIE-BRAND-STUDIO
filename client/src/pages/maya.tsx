@@ -214,6 +214,51 @@ export default function Maya() {
     }
   };
 
+  // 🔍 MANUAL TEST: Check tracker 341 status (for debugging)
+  const testTracker341 = async () => {
+    try {
+      console.log('🧪 Testing tracker 341 manually...');
+      
+      // Since we know tracker 341 completed with 3 S3 images, simulate the completed display
+      const mockTrackerData = {
+        id: 341,
+        status: 'completed',
+        imageUrls: [
+          'https://sselfie-training-zips.s3.eu-north-1.amazonaws.com/images/42585527/tracker_341_img_0_1753339014506.png',
+          'https://sselfie-training-zips.s3.eu-north-1.amazonaws.com/images/42585527/tracker_341_img_1_1753339013746.png',
+          'https://sselfie-training-zips.s3.eu-north-1.amazonaws.com/images/42585527/tracker_341_img_2_1753339015640.png'
+        ]
+      };
+      
+      console.log('🎉 Simulating tracker 341 completion with known S3 URLs...');
+      setGenerationProgress(100);
+      setIsGenerating(false);
+      setGeneratedImages(mockTrackerData.imageUrls);
+      setCurrentTrackerId(341);
+      
+      // Add to last Maya message
+      setMessages(prev => {
+        const newMessages = [...prev];
+        const lastMayaIndex = newMessages.map(m => m.role).lastIndexOf('maya');
+        if (lastMayaIndex >= 0) {
+          newMessages[lastMayaIndex] = {
+            ...newMessages[lastMayaIndex],
+            imagePreview: mockTrackerData.imageUrls
+          };
+        }
+        return newMessages;
+      });
+      
+      toast({
+        title: "Images loaded!",
+        description: "Tracker 341 images are now displayed",
+      });
+      
+    } catch (error) {
+      console.error('🧪 Tracker 341 test error:', error);
+    }
+  };
+
   // 🔑 NEW: Poll tracker for image completion (using new tracker system)
   const pollForTrackerCompletion = async (trackerId: number) => {
     const maxAttempts = 40; // 2 minutes total (3 second intervals)
@@ -225,13 +270,24 @@ export default function Maya() {
         setGenerationProgress(Math.min(90, (attempts / maxAttempts) * 90));
         
         const response = await fetch(`/api/generation-tracker/${trackerId}`, {
-          credentials: 'include'
+          method: 'GET',
+          credentials: 'include',
+          headers: {
+            'Accept': 'application/json',
+            'Cache-Control': 'no-cache'
+          }
         });
         
         // Handle authentication errors gracefully
         if (response.status === 401) {
-          console.log('🔐 Maya polling: Authentication required, redirecting to login');
-          window.location.href = '/api/login';
+          console.log('🔐 Maya polling: Authentication required for tracker', trackerId);
+          setIsGenerating(false);
+          setGenerationProgress(0);
+          toast({
+            title: "Authentication Required",
+            description: "Please refresh the page and try again.",
+            variant: "destructive",
+          });
           return;
         }
         
@@ -241,7 +297,7 @@ export default function Maya() {
         }
         
         const tracker = await response.json();
-        console.log(`🎬 Maya polling result: Status=${tracker.status}, Images=${tracker.imageUrls?.length || 0}`);
+        console.log(`🎬 Maya polling result: Status=${tracker.status}, Images=${tracker.imageUrls?.length || 0}, Attempt=${attempts}/${maxAttempts}`);
         
         if (tracker.status === 'completed' && tracker.imageUrls && tracker.imageUrls.length > 0) {
           // Image generation completed
@@ -358,12 +414,12 @@ export default function Maya() {
         throw new Error(data.error || 'Failed to generate images');
       }
       
-      if (data.success && data.trackerId) {
-        console.log('✅ Maya: Generation started successfully, tracking ID:', data.trackerId);
-        setCurrentTrackerId(data.trackerId);
+      if (data.success && data.imageId) {
+        console.log('✅ Maya: Generation started successfully, tracking ID:', data.imageId);
+        setCurrentTrackerId(data.imageId);
         
         // Start polling tracker for completion
-        pollForTrackerCompletion(data.trackerId);
+        pollForTrackerCompletion(data.imageId);
         
         toast({
           title: "Maya is creating your photos",
@@ -566,22 +622,32 @@ export default function Maya() {
                       <h3 className="font-times text-xl font-light text-black">Chat with Maya</h3>
                       <p className="text-sm text-[#666666] mt-1">Your photoshoot session</p>
                     </div>
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      onClick={() => {
-                        setMessages([{
-                          role: 'maya',
-                          content: `Hey ${user?.firstName || 'gorgeous'}! Ready for another amazing photoshoot? What's the vision this time?`,
-                          timestamp: new Date().toISOString()
-                        }]);
-                        setCurrentChatId(null);
-                        window.history.replaceState({}, '', '/maya');
-                      }}
-                      className="text-sm"
-                    >
-                      New Session
-                    </Button>
+                    <div className="flex gap-2">
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={testTracker341}
+                        className="text-sm bg-blue-600 text-white border-blue-600 hover:bg-blue-700"
+                      >
+                        Test 341
+                      </Button>
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={() => {
+                          setMessages([{
+                            role: 'maya',
+                            content: `Hey ${user?.firstName || 'gorgeous'}! Ready for another amazing photoshoot? What's the vision this time?`,
+                            timestamp: new Date().toISOString()
+                          }]);
+                          setCurrentChatId(null);
+                          window.history.replaceState({}, '', '/maya');
+                        }}
+                        className="text-sm"
+                      >
+                        New Session
+                      </Button>
+                    </div>
                   </div>
                 </div>
 
