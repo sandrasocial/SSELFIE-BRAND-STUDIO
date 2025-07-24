@@ -1,13 +1,27 @@
-// 1. React and external libraries
-import React from 'react';
-import { useQuery } from '@tanstack/react-query';
-
-// 2. Internal components and hooks
-import { Button } from '@/components/ui';
-import { useAuth } from '@/hooks';
-
-// 3. Types and interfaces
-import type { UserProfile } from '@/types';
-
-// 4. Relative imports
-import './ComponentName.styles.css';
+client/src/
+├── components/
+│   ├── ui/ (shadcn components)
+│   │   ├── button.tsx
+│   │   ├── card.tsx
+│   │   ├── input.tsx
+│   │   └── label.tsx
+│   ├── Header.tsx
+│   ├── Layout.tsx
+│   ├── Navigation.tsx
+│   ├── ProfileCard.tsx
+│   ├── ProtectedRoute.tsx
+│   └── StudioCard.tsx
+├── pages/
+│   ├── Build.tsx
+│   ├── Dashboard.tsx
+│   ├── Home.tsx
+│   ├── Login.tsx
+│   ├── NotFound.tsx
+│   ├── Profile.tsx
+│   ├── Settings.tsx
+│   └── Studio.tsx
+├── lib/
+├── types/
+├── App.tsx
+├── main.tsx
+└── index.css

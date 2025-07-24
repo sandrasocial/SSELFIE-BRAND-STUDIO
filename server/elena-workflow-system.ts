@@ -771,12 +771,13 @@ End response with: FILES MODIFIED: [exact paths]`;
         if (response.ok) {
           const result = await response.json();
           
-          // CRITICAL FIX: Verify actual file modifications
-          const filesModified = result.filesCreated?.length > 0 || result.fileOperations?.length > 0;
-          const hasActualWork = result.response?.includes('file') || result.response?.includes('created') || result.response?.includes('modified');
+          // CRITICAL FIX: Verify actual file modifications from auto-file-writer
+          const autoFileWriterSuccess = result.autoFileWriterFiles?.length > 0;
+          const filesModified = result.filesCreated?.length > 0 || result.fileOperations?.length > 0 || autoFileWriterSuccess;
+          const hasActualWork = result.response?.includes('file') || result.response?.includes('created') || result.response?.includes('modified') || autoFileWriterSuccess;
           
           if (filesModified || hasActualWork) {
-            console.log(`✅ REAL AGENT EXECUTION: ${agentName} worked on actual files - ${result.filesCreated?.length || 0} files created, ${result.fileOperations?.length || 0} operations`);
+            console.log(`✅ REAL AGENT EXECUTION: ${agentName} worked on actual files - ${result.filesCreated?.length || 0} files created, ${result.fileOperations?.length || 0} operations, ${result.autoFileWriterFiles?.length || 0} auto-writer files`);
             return true;
           } else {
             console.log(`❌ FAKE AGENT EXECUTION: ${agentName} responded but did NOT modify any files (attempt ${attempt})`);
