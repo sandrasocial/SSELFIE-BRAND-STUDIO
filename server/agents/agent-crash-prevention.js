@@ -101,7 +101,7 @@ This is MANDATORY for ALL agents. No exceptions.`;
     
     try {
       // Read current agent personalities
-      const agentPersonalitiesPath = path.join(__dirname, 'agent-personalities-clean.ts');
+      const agentPersonalitiesPath = path.join(__dirname, 'agent-personalities.ts');
       const content = await fsPromises.readFile(agentPersonalitiesPath, 'utf8');
       
       // Add safety protocols to each agent
