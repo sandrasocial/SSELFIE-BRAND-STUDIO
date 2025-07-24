@@ -5073,6 +5073,8 @@ Starting analysis and implementation now...`;
       // CRITICAL FIX: ADD MEMORY RESTORATION TO MAIN ENDPOINT
       let savedMemory = null;
       try {
+        // Import ConversationManager dynamically 
+        const { ConversationManager } = await import('./agents/ConversationManager');
         savedMemory = await ConversationManager.retrieveAgentMemory(agentId, userId);
         console.log(`🧠 MEMORY: Retrieved memory for ${agentId}, tasks: ${savedMemory?.keyTasks?.length || 0}`);
       } catch (error) {
@@ -5136,7 +5138,8 @@ Last Interaction: ${savedMemory.lastInteraction || 'None'}
       
       // CRITICAL FIX: ADD CONVERSATION SAVING TO MAIN ENDPOINT
       try {
-        await ConversationManager.saveConversation(userId, agentId, message, agentResponse);
+        // Save conversation to database for future memory retrieval using proper format
+        await storage.saveAgentConversation(agentId, userId, message, agentResponse, []);
         console.log(`💾 MEMORY: Conversation saved for ${agentId}`);
       } catch (error) {
         console.error(`❌ MEMORY: Failed to save conversation for ${agentId}:`, error);
