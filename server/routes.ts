@@ -5049,6 +5049,9 @@ Starting analysis and implementation now...`;
       
       console.log(`🔧 AGENT TOOL REQUEST: ${agentId} using ${tool}`);
       
+      // Import tool intelligence system
+      const { getToolUsageRecommendation } = await import('./agents/agent-tool-usage-intelligence');
+      
       const { AgentToolSystem } = await import('./agent-tool-integration');
       const result = await AgentToolSystem.executeAgentTool({
         tool,
