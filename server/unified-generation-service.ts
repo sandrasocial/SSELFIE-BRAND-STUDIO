@@ -33,6 +33,7 @@ export interface UnifiedGenerationResponse {
  * DO NOT CHANGE WITHOUT EXPLICIT APPROVAL
  */
 const WORKING_PARAMETERS = {
+  model: "dev",
   guidance_scale: 2.8,
   num_inference_steps: 45,
   lora_scale: 1.1,
@@ -43,6 +44,7 @@ const WORKING_PARAMETERS = {
   prompt_strength: 0.8,
   extra_lora_scale: 1,
   megapixels: 1,
+  go_fast: false,
   disable_safety_checker: false
 } as const;
 
