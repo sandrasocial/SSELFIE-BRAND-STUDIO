@@ -1,4 +1,4 @@
-/* AUTO-REFRESH MONITORING TEST - timestamp: 17:14:03 */
+/* LUXURY EDITORIAL ADMIN DASHBOARD BY ARIA - REDESIGNED */
 import React, { useState, useEffect } from 'react';
 import { Card, CardHeader, CardContent, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
@@ -75,30 +75,32 @@ export default function AdminDashboard({ className = '' }: AdminDashboardProps) 
     description?: string;
     trend?: string;
   }) => (
-    <Card className="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700">
-      <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-        <CardTitle 
-          className="text-sm font-medium text-gray-600 dark:text-gray-300"
-          style={{ fontFamily: 'Times New Roman, serif' }}
-        >
-          {title}
-        </CardTitle>
-        <Icon className="h-4 w-4 text-gray-500 dark:text-gray-400" />
+    <Card className="bg-black border border-zinc-800 hover:border-zinc-700 transition-all duration-500 group">
+      <CardHeader className="pb-4">
+        <div className="flex items-center justify-between">
+          <CardTitle 
+            className="text-xs font-light text-zinc-400 tracking-[0.2em] uppercase"
+            style={{ fontFamily: 'Times New Roman, serif' }}
+          >
+            {title}
+          </CardTitle>
+          <Icon className="h-5 w-5 text-zinc-600 group-hover:text-zinc-400 transition-colors duration-300" />
+        </div>
       </CardHeader>
-      <CardContent>
+      <CardContent className="pt-0">
         <div 
-          className="text-2xl font-bold text-black dark:text-white mb-1"
+          className="text-4xl font-light text-white mb-3 tracking-wider"
           style={{ fontFamily: 'Times New Roman, serif' }}
         >
-          {isLoading ? '...' : value.toLocaleString()}
+          {isLoading ? '—' : value.toLocaleString()}
         </div>
         {description && (
-          <p className="text-xs text-gray-500 dark:text-gray-400">
+          <p className="text-xs text-zinc-500 tracking-wide uppercase">
             {description}
           </p>
         )}
         {trend && (
-          <Badge variant="secondary" className="mt-2 text-xs">
+          <Badge variant="outline" className="mt-3 bg-transparent border-zinc-700 text-zinc-400 text-xs">
             {trend}
           </Badge>
         )}
@@ -107,52 +109,71 @@ export default function AdminDashboard({ className = '' }: AdminDashboardProps) 
   );
 
   return (
-    <div className={`min-h-screen bg-[#111111] ${className}`}>
-      {/* Luxury Editorial Header */}
-      <div className="bg-black border-b border-zinc-800 px-8 py-12">
-        <div className="flex items-center justify-between max-w-7xl mx-auto">
+    <div className={`min-h-screen bg-black ${className}`}>
+      {/* ARIA'S LUXURY EDITORIAL HEADER */}
+      <div className="bg-black border-b border-zinc-700 px-12 py-16">
+        <div className="flex items-center justify-between max-w-6xl mx-auto">
           <div>
             <h1 
-              className="text-4xl text-white tracking-wider uppercase"
-              style={{ fontFamily: 'Times New Roman, serif', letterSpacing: '0.2em' }}
+              className="text-5xl text-white font-light tracking-[0.3em] uppercase mb-4"
+              style={{ fontFamily: 'Times New Roman, serif' }}
             >
-              Admin Dashboard
+              ADMIN DASHBOARD
             </h1>
-            <p className="text-zinc-400 mt-3 tracking-widest uppercase text-sm">
-              SSELFIE Studio Platform Overview
+            <p className="text-zinc-400 tracking-[0.2em] uppercase text-xs font-light">
+              SSELFIE STUDIO • LUXURY EDITORIAL PLATFORM
             </p>
           </div>
-          <Button 
-            onClick={fetchDashboardMetrics}
-            variant="outline"
-            size="sm"
-            className="flex items-center gap-2"
-          >
-            <RefreshCw className="h-4 w-4" />
-            Refresh
-          </Button>
+          <div className="flex items-center gap-4">
+            <Crown className="h-6 w-6 text-zinc-400" />
+            <Button 
+              onClick={fetchDashboardMetrics}
+              variant="outline"
+              size="lg"
+              className="bg-transparent border-zinc-700 text-white hover:bg-zinc-900 hover:border-zinc-600 transition-all duration-300"
+            >
+              <RefreshCw className="h-4 w-4 mr-2" />
+              REFRESH DATA
+            </Button>
+          </div>
         </div>
       </div>
 
-      {/* Main Content */}
-      <div className="p-6">
-        <Tabs defaultValue="overview" className="space-y-6">
-          <TabsList className="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700">
-            <TabsTrigger value="overview" className="flex items-center gap-2">
+      {/* ARIA'S LUXURY CONTENT AREA */}
+      <div className="px-12 py-16 bg-zinc-950">
+        <Tabs defaultValue="overview" className="space-y-12">
+          <TabsList className="bg-black border border-zinc-700 p-2 rounded-lg">
+            <TabsTrigger 
+              value="overview" 
+              className="flex items-center gap-3 px-6 py-3 text-zinc-400 data-[state=active]:bg-zinc-800 data-[state=active]:text-white transition-all duration-300"
+              style={{ fontFamily: 'Times New Roman, serif' }}
+            >
               <BarChart3 className="h-4 w-4" />
-              Overview
+              OVERVIEW
             </TabsTrigger>
-            <TabsTrigger value="analytics" className="flex items-center gap-2">
+            <TabsTrigger 
+              value="analytics" 
+              className="flex items-center gap-3 px-6 py-3 text-zinc-400 data-[state=active]:bg-zinc-800 data-[state=active]:text-white transition-all duration-300"
+              style={{ fontFamily: 'Times New Roman, serif' }}
+            >
               <TrendingUp className="h-4 w-4" />
-              Analytics
+              ANALYTICS
             </TabsTrigger>
-            <TabsTrigger value="activity" className="flex items-center gap-2">
+            <TabsTrigger 
+              value="activity" 
+              className="flex items-center gap-3 px-6 py-3 text-zinc-400 data-[state=active]:bg-zinc-800 data-[state=active]:text-white transition-all duration-300"
+              style={{ fontFamily: 'Times New Roman, serif' }}
+            >
               <Activity className="h-4 w-4" />
-              Activity
+              ACTIVITY
             </TabsTrigger>
-            <TabsTrigger value="settings" className="flex items-center gap-2">
+            <TabsTrigger 
+              value="settings" 
+              className="flex items-center gap-3 px-6 py-3 text-zinc-400 data-[state=active]:bg-zinc-800 data-[state=active]:text-white transition-all duration-300"
+              style={{ fontFamily: 'Times New Roman, serif' }}
+            >
               <Settings className="h-4 w-4" />
-              Settings
+              SETTINGS
             </TabsTrigger>
           </TabsList>
 
