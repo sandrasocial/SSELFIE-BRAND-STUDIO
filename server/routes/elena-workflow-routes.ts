@@ -59,7 +59,7 @@ router.post('/create-workflow', isAdminOrToken, async (req, res) => {
     res.json({
       success: true,
       workflow: workflow,
-      message: `Workflow "${workflow.name}" created successfully with ${workflow.steps.length} coordinated steps.`
+      message: `ERROR: Template responses disabled. Elena must use authentic Claude API responses only.`
     });
 
   } catch (error) {
