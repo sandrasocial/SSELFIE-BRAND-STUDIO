@@ -1056,67 +1056,18 @@ export function OptimizedVisualEditor({ className = '' }: OptimizedVisualEditorP
         workflowStage
       });
 
-      // Elena workflow handling - creation and execution
-      const isWorkflowCreationRequest = message.toLowerCase().includes('create workflow') || 
-                                      message.toLowerCase().includes('design workflow') ||
-                                      message.toLowerCase().includes('new workflow');
-      
-      const isWorkflowExecutionRequest = message.toLowerCase().includes('execute workflow') || 
-                                       message.toLowerCase().includes('start workflow') ||
-                                       message.toLowerCase().includes('run workflow');
-      
-      let endpoint = '/api/admin/agents/chat';
-      if (agentId === 'elena' && isWorkflowCreationRequest) {
-        endpoint = '/api/admin/elena/create-workflow';
-      } else if (agentId === 'elena' && isWorkflowExecutionRequest) {
-        // Check for workflow ID in conversation history
-        const lastWorkflowMessage = chatMessages.slice().reverse().find(msg => msg.workflowId);
-        if (lastWorkflowMessage?.workflowId) {
-          endpoint = '/api/admin/elena/execute-workflow';
+      // ALL AGENTS USE MAIN CHAT ENDPOINT - NO SPECIAL ELENA HANDLING
+      const endpoint = '/api/admin/agents/chat';
+      const requestBody = {
+        agentId: agentId,
+        message: message,
+        adminToken: 'sandra-admin-2025',
+        conversationHistory: conversationHistory,
+        workflowContext: {
+          stage: workflowStage,
+          previousWork: chatMessages.filter(msg => msg.agentName && msg.agentName !== agentId).slice(-3)
         }
-      }
-      
-      let requestBody;
-      if (agentId === 'elena' && isWorkflowCreationRequest) {
-        requestBody = {
-          request: message,
-          userId: 'admin-sandra',
-          adminToken: 'sandra-admin-2025'
-        };
-      } else if (agentId === 'elena' && isWorkflowExecutionRequest) {
-        const lastWorkflowMessage = chatMessages.slice().reverse().find(msg => msg.workflowId);
-        if (lastWorkflowMessage?.workflowId) {
-          requestBody = {
-            workflowId: lastWorkflowMessage.workflowId,
-            userId: 'admin-sandra',
-            adminToken: 'sandra-admin-2025'
-          };
-        } else {
-          // If no workflow ID found, treat as regular Elena chat
-          endpoint = '/api/admin/agents/chat';
-          requestBody = {
-            agentId: agentId,
-            message: message,
-            adminToken: 'sandra-admin-2025',
-            conversationHistory: conversationHistory,
-            workflowContext: {
-              stage: workflowStage,
-              previousWork: chatMessages.filter(msg => msg.agentName && msg.agentName !== agentId).slice(-3)
-            }
-          };
-        }
-      } else {
-        requestBody = {
-          agentId: agentId,
-          message: message,
-          adminToken: 'sandra-admin-2025',
-          conversationHistory: conversationHistory,
-          workflowContext: {
-            stage: workflowStage,
-            previousWork: chatMessages.filter(msg => msg.agentName && msg.agentName !== agentId).slice(-3)
-          }
-        };
-      }
+      };
 
       const response = await fetch(endpoint, {
         method: 'POST',
