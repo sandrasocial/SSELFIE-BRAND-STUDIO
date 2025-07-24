@@ -105,6 +105,18 @@ export class AgentToolBypass {
     
     const toolCalls = [];
     
+    // SPECIAL CASE: Admin Dashboard Redesign Detection
+    if (lowerMessage.includes('admin dashboard') && (lowerMessage.includes('redesign') || lowerMessage.includes('modify') || lowerMessage.includes('update'))) {
+      toolCalls.push({
+        name: 'str_replace_based_edit_tool',
+        input: {
+          command: 'view',
+          path: 'client/src/components/admin/AdminDashboard.tsx'
+        }
+      });
+      return { shouldUseTools: true, toolCalls };
+    }
+    
     // Extract file creation patterns
     const createMatch = message.match(/create (?:file )?([^\s]+\.(?:tsx|ts|js|json|md))/i);
     if (createMatch) {
