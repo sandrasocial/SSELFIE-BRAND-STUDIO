@@ -48,48 +48,51 @@ export function MayaChatInterface() {
   useEffect(() => {
     const loadChatHistory = async () => {
       try {
-        // Get the most recent chat for this user
-        const chatsResponse = await fetch('/api/maya-chats', {
+        // Get ALL maya chat messages for this user regardless of chat
+        const messagesResponse = await fetch('/api/maya-chat-messages', {
           credentials: 'include'
         });
         
-        if (chatsResponse.ok) {
-          const chats = await chatsResponse.json();
-          if (chats && chats.length > 0) {
-            const latestChat = chats[0];
-            setChatId(latestChat.id);
-            
-            // Load messages for this chat
-            const messagesResponse = await fetch(`/api/maya-chats/${latestChat.id}/messages`, {
-              credentials: 'include'
+        if (messagesResponse.ok) {
+          const dbMessages = await messagesResponse.json();
+          console.log('🎬 Maya: Loaded messages from database:', dbMessages.length, 'messages');
+          
+          if (dbMessages && dbMessages.length > 0) {
+            const formattedMessages = dbMessages.map((msg: any) => {
+              console.log('🎬 Maya: Processing message:', msg.id, 'with imagePreview:', msg.imagePreview);
+              
+              let imagePreview = undefined;
+              if (msg.imagePreview) {
+                try {
+                  const parsed = JSON.parse(msg.imagePreview);
+                  if (Array.isArray(parsed) && parsed.length > 0) {
+                    imagePreview = parsed.filter(url => 
+                      typeof url === 'string' && url.startsWith('http')
+                    );
+                    console.log('🎬 Maya: Parsed imagePreview:', imagePreview.length, 'images');
+                  }
+                } catch (error) {
+                  console.error('🎬 Maya: Failed to parse imagePreview:', error);
+                }
+              }
+              
+              return {
+                id: msg.id,
+                role: msg.role,
+                content: msg.content,
+                timestamp: msg.createdAt,
+                imagePreview: imagePreview
+              };
             });
             
-            if (messagesResponse.ok) {
-              const dbMessages = await messagesResponse.json();
-              console.log('🎬 Maya: Loaded messages from database:', dbMessages);
-              
-              if (dbMessages && dbMessages.length > 0) {
-                const formattedMessages = dbMessages.map((msg: any) => ({
-                  id: msg.id,
-                  role: msg.role,
-                  content: msg.content,
-                  timestamp: msg.createdAt,
-                  imagePreview: msg.imagePreview ? (() => {
-                    try {
-                      const parsed = JSON.parse(msg.imagePreview);
-                      return Array.isArray(parsed) ? parsed.filter(url => 
-                        typeof url === 'string' && url.startsWith('http')
-                      ) : undefined;
-                    } catch {
-                      return undefined;
-                    }
-                  })() : undefined
-                }));
-                
-                setChatMessages(formattedMessages);
-                return;
-              }
-            }
+            console.log('🎬 Maya: Setting formatted messages:', formattedMessages.length);
+            setChatMessages(formattedMessages);
+            
+            // Log which messages have images for debugging
+            const messagesWithImages = formattedMessages.filter(m => m.imagePreview && m.imagePreview.length > 0);
+            console.log('🎬 Maya: Messages with images:', messagesWithImages.length);
+            
+            return;
           }
         }
         
