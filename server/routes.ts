@@ -777,7 +777,7 @@ Talk like you're texting your best friend about an amazing photoshoot idea! Conv
           ]
         });
 
-        response = claudeResponse.content[0].text;
+        response = (claudeResponse.content[0] as any).text;
 
         // Detect if user has described enough detail for image generation
         const imageKeywords = ['photo', 'picture', 'image', 'shoot', 'generate', 'create', 'editorial', 'portrait', 'lifestyle', 'business', 'ready', 'let\'s do it', 'yes'];
@@ -802,75 +802,78 @@ Talk like you're texting your best friend about an amazing photoshoot idea! Conv
           canGenerate = true;
           console.log(`✅ MAYA GENERATION TRIGGERED: canGenerate = true`);
           
-          // Create professional prompt based on conversation context
-          const styleContext = message + ' ' + conversationHistory.slice(-3).map(msg => msg.content).join(' ');
-          
+          // Extract the EXACT vision from Maya's response for prompt generation
+          const mayaVision = response;
           const triggerWord = userModel.triggerWord;
           console.log(`🎯 USING TRAINED MODEL: ${userModel.replicateVersionId} with trigger: ${triggerWord}`);
+          console.log(`🎬 MAYA'S VISION TO CONVERT:`, mayaVision.substring(0, 200));
           
-          // Maya's expert prompt generation - DETAILED EDITORIAL QUALITY
+          // Maya's expert prompt generation - CONVERT HER EXACT VISION
           const promptResponse = await client.messages.create({
             model: "claude-sonnet-4-20250514", // Latest Claude model confirmed
             max_tokens: 1200,
-            system: `You are a master FLUX AI prompt expert who creates richly detailed, poetic editorial prompts that produce stunning magazine-quality images. You must create elaborate, descriptive prompts with cinematic depth.
+            system: `You are a master FLUX AI prompt expert who converts Maya's exact chat descriptions into detailed, technical prompts for AI image generation.
 
-🚨 CRITICAL: CREATE ELABORATE, POETIC EDITORIAL PROMPTS
-Your job is to convert user requests into rich, detailed, poetic prompts that create breathtaking editorial images with cinematic sophistication.
+🚨 CRITICAL: CONVERT MAYA'S EXACT VISION - DO NOT CREATE NEW SCENARIOS
+Your job is to take Maya's EXACT chat description and convert it into a technical FLUX prompt while preserving ALL her specific details.
+
+✅ MAYA'S VISION CONVERSION PROCESS:
+1. EXTRACT Maya's exact outfit description, location, pose, mood from her chat
+2. CONVERT to technical prompt format while keeping ALL her specific details
+3. ADD technical camera and lighting details to complete the prompt
+4. PRESERVE every fabric texture, color, location detail Maya mentioned
 
 ✅ PERFECT DETAILED PROMPT STRUCTURE:
 raw photo, visible skin pores, film grain, [TRIGGER_WORD], 
 
-[ELABORATE OPENING]: A sophisticated woman captured [detailed framing] [specific architectural/environmental setting], positioned at [detailed angle/positioning] with [specific body language and confidence details].
+[EXACT MAYA LOCATION]: Use Maya's exact location description (café, penthouse, etc.)
+[EXACT MAYA OUTFIT]: Use Maya's exact clothing description with all fabric details
+[EXACT MAYA POSE]: Use Maya's exact pose and hand positioning description
+[EXACT MAYA MOOD]: Use Maya's exact mood and expression description
+[ADD TECHNICAL LIGHTING]: Add detailed lighting setup for Maya's location
+[ADD CAMERA DETAILS]: Add specific camera equipment and settings
+[ARTISTIC COMPOSITION]: Conclude with composition and professional photography
 
-[DETAILED STYLING PARAGRAPH]: She wears [complete outfit description with fabric details, fit, silhouette] hair styled in [specific hair description with movement and texture details]. [Complete makeup description with specific colors and techniques], [detailed jewelry and accessories].
+🎯 EXPRESSION GUIDELINES - USE MAYA'S EXACT DESCRIPTION:
+• If Maya says "natural expression" → use "natural expression"
+• If Maya describes specific mood → use that exact mood
+• If Maya mentions "striking eyes" → use "striking eyes"
+• PRESERVE Maya's exact emotional description
 
-[POSE AND INTERACTION PARAGRAPH]: Her [specific hand positioning and props], [detailed body positioning and weight distribution]. She gazes [detailed eye direction and expression] with [specific emotional expression] - natural skin texture visible with [authentic presence description].
-
-[LIGHTING AND ENVIRONMENT PARAGRAPH]: [Detailed lighting setup with specific light sources and effects] creates [specific shadow and highlight patterns] across [environmental elements and subject]. [Additional lighting details with specific effects on skin, hair, fabric].
-
-[CINEMATIC TREATMENT]: [Color treatment if B&W, add "Black and white editorial treatment emphasizes [specific elements]"]. [Detailed description of light quality and atmospheric effects] while maintaining [specific contrast or mood details].
-
-[TECHNICAL CAMERA DETAILS]: Shot with [specific camera body] with [specific lens and settings], creating [depth of field effects] that keeps focus [detailed focus description] while [background treatment details].
-
-[ARTISTIC COMPOSITION]: The composition balances [specific artistic elements] capturing both [personal qualities] and [environmental drama] in pure editorial sophistication., professional photography
-
-🎯 EXPRESSION GUIDELINES - NATURAL ONLY:
-• DEFAULT: "mysterious, contemplative expression", "confident gaze", "thoughtful look", "strong presence", "enigmatic expression"
-• FOR SUBTLE HAPPINESS: "subtle smile", "gentle smile", "easy smile" 
-• FOR SERIOUS: "serious expression", "contemplative look", "focused gaze", "mysterious gaze"
-• AVOID: "genuine laughter", "sparkling eyes", "radiant smile", "beaming", "bright smile"
-
-📝 YOUR TARGET EXAMPLE (MATCH THIS DETAIL LEVEL):
-"raw photo, visible skin pores, film grain, user42585527, 
-
-A sophisticated woman captured from chest up on grand marble Art Deco hotel staircase, positioned at elegant three-quarter angle with confident tilt of chin upward. She wears flowing black midi dress with three-quarter sleeves in subtle wrap silhouette, hair styled in loose tousled waves cascading over left shoulder with natural movement and texture. Bold smoky eyes with defined dark lashes, matte berry lips, statement geometric silver earrings catching dramatic staircase lighting.
-
-Her right hand rests gracefully on polished marble banister while left hand holds sleek black leather clutch against her torso. She gazes directly into camera with mysterious, contemplative expression - natural skin texture visible with authentic confident presence. Dramatic overhead architectural lighting creates intricate shadow patterns through ornate railings across marble steps and her elegant silhouette.
-
-Black and white editorial treatment emphasizes architectural lines, fabric drape, and facial contours. Soft diffused light through nearby tall windows adds ethereal glow to features while maintaining dramatic contrast. Shot with Hasselblad X2D 100C with 80mm f/1.9 lens at f/2.8, creating shallow depth of field that keeps focus sharp on her face and upper body while softly blurring background staircase details.
-
-The composition balances intimate portraiture with grand architectural drama, capturing both her personal magnetism and the cinematic luxury of the setting in pure editorial sophistication., professional photography"
+📝 EXAMPLE CONVERSION:
+If Maya says: "cozy Reykjavik café, chunky cream cable-knit sweater, steaming coffee cup, moody Nordic light"
+Convert to: "raw photo, visible skin pores, film grain, [TRIGGER], sophisticated woman at cozy Reykjavik café, wearing chunky cream cable-knit sweater with beautiful wool texture, hands wrapped around steaming coffee cup, moody Nordic lighting..."
 
 🚨 ABSOLUTE REQUIREMENTS:
 - ALWAYS start with: "raw photo, visible skin pores, film grain, [TRIGGER_WORD],"
-- FOR BLACK & WHITE: Add "Black and white editorial treatment emphasizes..." in lighting paragraph
+- USE MAYA'S EXACT LOCATION (café, penthouse, etc.) - never change the setting
+- USE MAYA'S EXACT OUTFIT DESCRIPTION - preserve all fabric and color details
+- USE MAYA'S EXACT POSE AND MOOD - don't change her vision
+- ADD technical lighting and camera details to complete the prompt
 - ALWAYS end with: "professional photography"
-- CREATE 5-6 DETAILED PARAGRAPHS like the example
-- Include specific fabric textures, lighting effects, camera equipment with settings
-- Use poetic, cinematic language with rich visual details
-- AIM FOR 400-600 words minimum - be elaborate and descriptive
+- CREATE 4-5 detailed paragraphs using Maya's exact vision
+- AIM FOR 400-600 words preserving Maya's specific details
 
-🎯 BLACK & WHITE DETECTION:
-- Look for keywords: "black and white", "B&W", "monochrome", "noir", "dramatic shadows"
-- If detected, include "Black and white editorial treatment emphasizes [specific elements]" in lighting paragraph
+🎯 CRITICAL: PRESERVE MAYA'S VISION
+- If Maya describes Reykjavik café → prompt must be Reykjavik café
+- If Maya describes wool sweater → prompt must include wool sweater
+- If Maya describes coffee cup → prompt must include coffee cup
+- NEVER change Maya's setting, outfit, or mood - only add technical details
 
-Output ONLY the elaborate, detailed prompt - no conversation text.`,
+Output ONLY the technical prompt that matches Maya's exact vision.`,
             messages: [
-              { role: 'user', content: `Convert this into an elaborate, detailed FLUX prompt with rich editorial description like the example: ${styleContext}. Use the trigger word: ${triggerWord}. Create 5-6 detailed paragraphs with poetic, cinematic language.` }
+              { role: 'user', content: `Convert Maya's EXACT vision into a detailed technical FLUX prompt. USE HER EXACT DETAILS - don't change the location, outfit, or mood. Add technical camera and lighting details to complete it.
+
+MAYA'S EXACT VISION:
+${mayaVision}
+
+Use trigger word: ${triggerWord}
+
+CRITICAL: Keep Maya's exact location, outfit, pose, and mood. Only add technical details.` }
             ]
           });
 
-          generatedPrompt = promptResponse.content[0].text;
+          generatedPrompt = (promptResponse.content[0] as any).text;
           
           // Add generation offer to Maya's response if not already mentioned
           if (!mayaIsReady) {
