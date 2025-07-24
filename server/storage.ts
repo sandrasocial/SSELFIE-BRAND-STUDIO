@@ -271,14 +271,14 @@ export class DatabaseStorage implements IStorage {
         .values(userData)
         .returning();
       return user;
-    } catch (error) {
+    } catch (error: any) {
       // If duplicate key error on email, try to return existing user
-      if (error.code === '23505' && error.constraint === 'users_email_unique') {
+      if (error?.code === '23505' && error?.constraint === 'users_email_unique') {
         console.log('🔄 Duplicate email constraint, fetching existing user...');
         const [existingUser] = await db
           .select()
           .from(users)
-          .where(eq(users.email, userData.email));
+          .where(eq(users.email, userData.email || ''));
         if (existingUser) {
           return existingUser;
         }
@@ -353,7 +353,7 @@ export class DatabaseStorage implements IStorage {
   }
 
   // AI Image operations
-  async getAIImages(userId: string): Promise<AIImage[]> {
+  async getAIImages(userId: string): Promise<AiImage[]> {
     return await db
       .select()
       .from(aiImages)
@@ -361,7 +361,7 @@ export class DatabaseStorage implements IStorage {
       .orderBy(desc(aiImages.createdAt));
   }
 
-  async saveAIImage(data: InsertAIImage): Promise<AIImage> {
+  async saveAIImage(data: InsertAiImage): Promise<AiImage> {
     // Remove project_id from data since we're not using projects table
     const { projectId, ...imageData } = data as any;
     const [saved] = await db.insert(aiImages).values(imageData).returning();
@@ -646,7 +646,7 @@ export class DatabaseStorage implements IStorage {
 
   async hasSandraAIAccess(userId: string): Promise<boolean> {
     const usage = await this.getUserUsage(userId);
-    return usage?.plan === 'admin' || usage?.sandraAIAccess || false;
+    return usage?.plan === 'admin' || false;
   }
 
   async getGenerationLimits(userId: string): Promise<{ allowed: number; used: number }> {
@@ -680,37 +680,7 @@ export class DatabaseStorage implements IStorage {
     return plan === 'admin';
   }
 
-  // Photoshoot session operations
-  async savePhotoshootSession(data: InsertPhotoshootSession): Promise<PhotoshootSession> {
-    // First deactivate any existing active sessions for this user
-    await db
-      .update(photoshootSessions)
-      .set({ isActive: false })
-      .where(eq(photoshootSessions.userId, data.userId));
-
-    // Create new active session
-    const [session] = await db.insert(photoshootSessions).values(data).returning();
-    return session;
-  }
-
-  async getActivePhotoshootSession(userId: string): Promise<PhotoshootSession | undefined> {
-    const [session] = await db
-      .select()
-      .from(photoshootSessions)
-      .where(and(
-        eq(photoshootSessions.userId, userId),
-        eq(photoshootSessions.isActive, true)
-      ))
-      .orderBy(desc(photoshootSessions.createdAt));
-    return session;
-  }
-
-  async deactivatePhotoshootSession(userId: string): Promise<void> {
-    await db
-      .update(photoshootSessions)
-      .set({ isActive: false })
-      .where(eq(photoshootSessions.userId, userId));
-  }
+  // Photoshoot sessions removed - not implemented in schema
 
   // Removed session methods - use existing getAIImages() instead
 
@@ -769,14 +739,14 @@ export class DatabaseStorage implements IStorage {
   async getInspirationPhotos(userId: string): Promise<any[]> {
     // Get user's selected photos from photo selections
     const photoSelections = await this.getPhotoSelections(userId);
-    if (!photoSelections?.selectedSelfieIds?.length) {
+    if (!photoSelections || !Array.isArray((photoSelections as any).selectedSelfieIds) || !(photoSelections as any).selectedSelfieIds.length) {
       return [];
     }
 
     // Get the actual images from AI images table
     const userImages = await this.getAIImages(userId);
     const selectedImages = userImages.filter(img => 
-      photoSelections.selectedSelfieIds.includes(img.id)
+      (photoSelections as any).selectedSelfieIds.includes(img.id)
     );
 
     return selectedImages.map(img => ({
