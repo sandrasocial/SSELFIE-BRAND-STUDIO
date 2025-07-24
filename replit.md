@@ -519,6 +519,12 @@ The platform has become overly complex with multiple pricing tiers, broken onboa
 - ✅ **Natural Emojis**: Added appropriate emoji usage - not too many, not too few, like texting a friend
 - ✅ **Easy Reading**: Uses line breaks and short paragraphs for scannable, friendly responses
 
+**MAYA PROMPT DETAIL ENHANCEMENT (July 24, 2025):**
+- ✅ **Detailed Editorial Prompts**: Increased max_tokens from 400 to 800 for rich, detailed descriptions
+- ✅ **Magazine-Quality Descriptions**: Creates 400-600 word detailed prompts matching editorial standards
+- ✅ **Comprehensive Details**: Includes specific styling, pose descriptions, lighting setups, and camera equipment
+- ✅ **Maintained Structure**: Keeps clean prompt format while adding editorial depth and sophistication
+
 ## ✅ MAYA POLLING SYSTEM CRITICAL ISSUE IDENTIFIED - AUTHENTICATION TIMING (July 24, 2025)
 
 **CORE ISSUE DISCOVERED: MAYA POLLING VS AUTHENTICATION TIMING**

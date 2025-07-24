@@ -793,46 +793,44 @@ Talk to them like your best friend who you're helping create something amazing! 
           const triggerWord = userModel.triggerWord;
           console.log(`🎯 USING TRAINED MODEL: ${userModel.replicateVersionId} with trigger: ${triggerWord}`);
           
-          // Maya's expert prompt generation - CLEAN AND OPTIMIZED FOR FLUX
+          // Maya's expert prompt generation - DETAILED AND OPTIMIZED FOR FLUX
           const promptResponse = await client.messages.create({
             model: "claude-sonnet-4-20250514", // Latest Claude model confirmed
-            max_tokens: 400,
-            system: `You are a FLUX AI prompt expert who creates clean, concise prompts optimized for beautiful image generation. 
+            max_tokens: 800,
+            system: `You are a FLUX AI prompt expert who creates detailed, descriptive prompts optimized for stunning editorial image generation. 
 
-🚨 CRITICAL: CREATE CLEAN, OPTIMIZED PROMPTS ONLY
-Your job is to convert user requests into clean, technical prompts that FLUX AI understands perfectly.
+🚨 CRITICAL: CREATE DETAILED, EDITORIAL-QUALITY PROMPTS
+Your job is to convert user requests into rich, detailed prompts that create magazine-quality editorial images.
 
 ✅ PERFECT PROMPT STRUCTURE:
-raw photo, visible skin pores, film grain, unretouched natural skin texture, subsurface scattering, photographed on film, [BLACK_AND_WHITE_IF_NEEDED], [TRIGGER_WORD], [MAIN_SUBJECT_DESCRIPTION], [STYLING_DETAILS], [LOCATION_DETAILS], [POSE_AND_EXPRESSION], [LIGHTING_SETUP], [CAMERA_EQUIPMENT], professional photography
+raw photo, visible skin pores, film grain, unretouched natural skin texture, subsurface scattering, photographed on film, [BLACK_AND_WHITE_IF_NEEDED], [TRIGGER_WORD], [DETAILED_SUBJECT_AND_POSE_DESCRIPTION], [COMPLETE_STYLING_DETAILS], [RICH_LOCATION_DESCRIPTION], [DETAILED_POSE_AND_EXPRESSION], [COMPREHENSIVE_LIGHTING_SETUP], [CAMERA_EQUIPMENT_WITH_SETTINGS], professional photography
 
 🎯 EXPRESSION GUIDELINES - NATURAL ONLY:
-• DEFAULT: "natural expression", "confident gaze", "thoughtful look", "strong presence", "relaxed expression" 
+• DEFAULT: "natural expression", "confident gaze", "thoughtful look", "strong presence", "contemplative expression", "mysterious expression"
 • FOR SUBTLE HAPPINESS: "subtle smile", "gentle smile", "easy smile" (NEVER "big smile" or "genuine laughter")
-• FOR SERIOUS: "serious expression", "contemplative look", "focused gaze"
+• FOR SERIOUS: "serious expression", "contemplative look", "focused gaze", "mysterious gaze"
 • AVOID: "genuine laughter", "sparkling eyes", "radiant smile", "beaming", "bright smile"
 
-📝 EXAMPLES OF PERFECT PROMPTS:
-"raw photo, visible skin pores, film grain, unretouched natural skin texture, subsurface scattering, photographed on film, user42585527, sophisticated woman in tailored black blazer over silk camisole, walking through Manhattan SoHo district, natural waves hair in motion, bold winged eyeliner, statement gold jewelry, confident gaze, golden hour lighting, shot from street level, Canon EOS R5 with 85mm f/1.2L lens, professional photography"
-
-"raw photo, visible skin pores, film grain, unretouched natural skin texture, subsurface scattering, photographed on film, black and white editorial, user42585527, woman leaning against white marble fireplace, champagne silk slip dress, low chignon hairstyle, bold winged eyeliner, delicate diamond earrings, natural expression, dramatic window lighting, Canon EOS R5 with 85mm f/1.2L lens, professional photography"
+📝 EXAMPLE OF DETAILED EDITORIAL PROMPT:
+"raw photo, visible skin pores, film grain, unretouched natural skin texture, subsurface scattering, photographed on film, black and white editorial, user42585527, sophisticated woman captured from chest up on grand marble Art Deco hotel staircase, positioned at elegant three-quarter angle with confident tilt of chin upward. She wears flowing black midi dress with three-quarter sleeves in subtle wrap silhouette, hair styled in loose tousled waves cascading over left shoulder with natural movement and texture. Bold smoky eyes with defined dark lashes, matte berry lips, statement geometric silver earrings catching dramatic staircase lighting. Her right hand rests gracefully on polished marble banister while left hand holds sleek black leather clutch against her torso. She gazes directly into camera with mysterious, contemplative expression - natural skin texture visible with authentic confident presence. Dramatic overhead architectural lighting creates intricate shadow patterns through ornate railings across marble steps and her elegant silhouette. Soft diffused light through nearby tall windows adds ethereal glow to features while maintaining dramatic contrast. Shot with Hasselblad X2D 100C with 80mm f/1.9 lens at f/2.8, creating shallow depth of field that keeps focus sharp on her face and upper body while softly blurring background staircase details. The composition balances intimate portraiture with grand architectural drama, capturing both her personal magnetism and the cinematic luxury of the setting in pure editorial sophistication, professional photography"
 
 🚨 CRITICAL REQUIREMENTS:
 - ALWAYS start with: "raw photo, visible skin pores, film grain, unretouched natural skin texture, subsurface scattering, photographed on film"
 - FOR BLACK & WHITE PHOTOS: Add "black and white editorial" immediately after "photographed on film"
 - ALWAYS end with: "professional photography"
 - NO Maya's conversational text (like "HERE'S YOUR ICONIC..." or "**" formatting)
-- NO narrative explanations, NO multiple sentences
-- ONE clean prompt under 300 characters if possible
-- Focus on styling, pose, lighting, and camera equipment
+- CREATE DETAILED, RICH DESCRIPTIONS like the example above
+- Include specific styling details, pose descriptions, lighting setups, and camera equipment
 - Use natural expressions only - avoid forced smiles
+- AIM FOR 400-600 words of detailed description
 
 🎯 BLACK & WHITE DETECTION:
 - Look for keywords: "black and white", "B&W", "monochrome", "noir", "dramatic shadows"
 - If detected, place "black and white editorial" early in prompt for better results
 
-Output ONLY the clean prompt - no Maya conversation text or explanations.`,
+Output ONLY the detailed prompt - no Maya conversation text or explanations.`,
             messages: [
-              { role: 'user', content: `Convert this into a clean FLUX prompt: ${styleContext}. Use the trigger word: ${triggerWord}` }
+              { role: 'user', content: `Convert this into a detailed FLUX prompt with rich editorial description: ${styleContext}. Use the trigger word: ${triggerWord}` }
             ]
           });
 
