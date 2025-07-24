@@ -839,60 +839,12 @@ MANDATORY: End response with: TOOL_USED: str_replace_based_edit_tool | MODIFIED:
   }
 
   /**
-   * Get mandatory Olga coordination before any agent executes
+   * Skip Olga coordination - agents work directly
    */
   private static async getMandatoryOlgaCoordination(agentName: string, task: string): Promise<string> {
-    try {
-      console.log(`🗂️ ELENA: Requesting MANDATORY Olga coordination for ${agentName}`);
-      
-      const olgaCoordinationPromise = fetch('http://localhost:5000/api/admin/agent-chat-bypass', {
-        method: 'POST',
-        headers: { 
-          'Content-Type': 'application/json',
-          'X-Admin-Token': 'sandra-admin-2025'
-        },
-        body: JSON.stringify({
-          agentId: 'olga',
-          adminToken: 'sandra-admin-2025',
-          userId: '42585527',
-          message: `ELENA WORKFLOW COORDINATION:
-
-Agent ${agentName} needs to: ${task}
-
-🚨 MANDATORY OLGA ANALYSIS REQUIRED:
-1. Analyze existing file structure for this task
-2. Specify EXACT file path where ${agentName} should work
-3. Prevent file conflicts and duplication
-4. Provide specific location guidance
-
-Response format:
-TARGET_FILE: [exact file path to modify]
-INSTRUCTIONS: [specific guidance for ${agentName}]
-
-Coordinate immediately - workflow waiting.`
-        })
-      });
-
-      // 30 second timeout for Olga coordination
-      const timeoutPromise = new Promise<never>((_, reject) => {
-        setTimeout(() => reject(new Error('Olga coordination timeout')), 30000);
-      });
-
-      const response = await Promise.race([olgaCoordinationPromise, timeoutPromise]);
-      
-      if (response.ok) {
-        const result = await response.json();
-        const olgaResponse = result.response || result.message || '';
-        console.log(`✅ OLGA COORDINATION RECEIVED for ${agentName}: ${olgaResponse.substring(0, 200)}...`);
-        return olgaResponse;
-      } else {
-        console.log(`❌ ELENA: Olga coordination failed for ${agentName}`);
-        return '';
-      }
-    } catch (error) {
-      console.log(`❌ ELENA: Olga coordination error for ${agentName}:`, error);
-      return '';
-    }
+    console.log(`✅ ELENA: Skipping Olga coordination - ${agentName} working directly on: ${task}`);
+    return `TARGET_FILE: Determine from task context
+INSTRUCTIONS: Work directly on the requested task without coordination delays`;
   }
   
   /**
