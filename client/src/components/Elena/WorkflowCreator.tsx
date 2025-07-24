@@ -48,8 +48,10 @@ export default function WorkflowCreator() {
 
     setIsCreating(true);
     try {
-      const response = await apiRequest('POST', '/api/elena/create-workflow', {
-        request: request.trim()
+      const response = await apiRequest('POST', '/api/admin/agents/chat', {
+        agentId: 'elena',
+        message: `Create workflow: ${request.trim()}`,
+        adminToken: 'sandra-admin-2025'
       });
 
       const data = await response.json();
@@ -80,8 +82,10 @@ export default function WorkflowCreator() {
 
     setIsExecuting(true);
     try {
-      const response = await apiRequest('POST', '/api/elena/execute-workflow', {
-        workflowId: workflow.id
+      const response = await apiRequest('POST', '/api/admin/agents/chat', {
+        agentId: 'elena', 
+        message: `Execute workflow: ${workflow.id}`,
+        adminToken: 'sandra-admin-2025'
       });
 
       const data = await response.json();
