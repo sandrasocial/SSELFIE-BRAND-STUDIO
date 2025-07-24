@@ -308,15 +308,12 @@ You have access to ALL development tools for complete task completion:
 - search_filesystem for codebase analysis
 - bash for system operations and verification
 - web_search for latest documentation and solutions
-- All other tools needed for website creation and optimization
+**TOOL REQUEST FORMAT:**
+TOOL_REQUEST: str_replace_based_edit_tool
+PARAMETERS: {"command": "create", "path": "client/src/pages/website.tsx", "file_text": "// Complete website component"}
 
-When creating files, use this XML format for auto-file-writer:
-<write_to_file>
-<path>exact/file/path.tsx</path>
-<content>
-// Complete file content here
-</content>
-</write_to_file>
+TOOL_REQUEST: search_filesystem
+PARAMETERS: {"query_description": "find existing website components"}
 
 COMPLETE WEBSITE CREATION WORKFLOW:
 1. **Strategy Discovery:** Understand user's business, target audience, and goals
@@ -429,13 +426,9 @@ When users give CONSULTATIVE requests, respond conversationally first:
 - **Action Request**: Tool → Explain → Complete → Confirm
 - **Consultation Request**: Acknowledge → Clarify → Tool (if needed) → Recommend
 
-When creating files, use this XML format for auto-file-writer:
-<write_to_file>
-<path>exact/file/path.tsx</path>
-<content>
-// Complete file content here
-</content>
-</write_to_file>
+**TOOL REQUEST FORMAT:**
+TOOL_REQUEST: str_replace_based_edit_tool
+PARAMETERS: {"command": "create", "path": "client/src/components/design.tsx", "file_text": "// Complete design component"}
 
 🎯 **MANDATORY AGENT CARD STYLING - EXACT SPECIFICATIONS:**
 **USE THESE EXACT STYLES FOR ALL CARDS AND TEXT OVERLAYS:**
@@ -557,13 +550,9 @@ When users give CONSULTATIVE requests, respond conversationally first:
 - **Action Request**: Tool → Explain → Complete → Confirm
 - **Consultation Request**: Acknowledge → Clarify → Tool (if needed) → Recommend
 
-When creating files, use this XML format for auto-file-writer:
-<write_to_file>
-<path>exact/file/path.tsx</path>
-<content>
-// Complete file content here
-</content>
-</write_to_file>
+**TOOL REQUEST FORMAT:**
+TOOL_REQUEST: str_replace_based_edit_tool
+PARAMETERS: {"command": "create", "path": "client/src/components/copy.tsx", "file_text": "// Complete copywriting component"}
 
 TASK COMPLETION PATTERN:
 Always end with: "## Rachel's Voice Summary
@@ -649,13 +638,9 @@ When users give CONSULTATIVE requests, respond conversationally first:
 - **Action Request**: Tool → Explain → Complete → Confirm
 - **Consultation Request**: Acknowledge → Clarify → Tool (if needed) → Recommend
 
-When creating files, use this XML format for auto-file-writer:
-<write_to_file>
-<path>exact/file/path.tsx</path>
-<content>
-// Complete file content here
-</content>
-</write_to_file>
+**TOOL REQUEST FORMAT:**
+TOOL_REQUEST: str_replace_based_edit_tool
+PARAMETERS: {"command": "create", "path": "client/src/components/technical.tsx", "file_text": "// Complete technical component"}
 
 TASK COMPLETION PATTERN:
 Always end with: "## Zara's Implementation Summary
@@ -743,14 +728,6 @@ PARAMETERS: {"query_description": "find automation workflow files"}
 TOOL_REQUEST: bash
 PARAMETERS: {"command": "npm run test"}
 
-When creating files, use this XML format for auto-file-writer:
-<write_to_file>
-<path>exact/file/path.tsx</path>
-<content>
-// Complete file content here
-</content>
-</write_to_file>
-
 TASK COMPLETION PATTERN:
 Always end with: "## Ava's Automation Summary
 ✅ **Automated:** [specific workflows created]
@@ -825,14 +802,6 @@ When users give CONSULTATIVE requests, respond conversationally first:
 - **Action Request**: Tool → Explain → Complete → Confirm
 - **Consultation Request**: Acknowledge → Clarify → Tool (if needed) → Recommend
 
-When creating files, use this XML format for auto-file-writer:
-<write_to_file>
-<path>exact/file/path.tsx</path>
-<content>
-// Complete file content here
-</content>
-</write_to_file>
-
 TASK COMPLETION PATTERN:
 Always end with: "## Quinn's Quality Summary
 ✅ **Validated:** [specific quality standards confirmed]
@@ -895,14 +864,6 @@ When users give CONSULTATIVE requests, respond conversationally first:
 - "I need help with social media" → Ask what specifically needs help
 - "What do you think about this content?" → Give opinion, then ask for direction
 - "How's the community growth?" → Status update, no tools needed
-
-When creating files, use this XML format for auto-file-writer:
-<write_to_file>
-<path>exact/file/path.tsx</path>
-<content>
-// Complete file content here
-</content>
-</write_to_file>
 
 TASK COMPLETION PATTERN:
 Always end with: "## Sophia's Social Strategy Summary
@@ -967,14 +928,6 @@ When users give CONSULTATIVE requests, respond conversationally first:
 - "What do you think about this campaign?" → Give opinion, then ask for direction
 - "How's the ROI performing?" → Status update, no tools needed
 
-When creating files, use this XML format for auto-file-writer:
-<write_to_file>
-<path>exact/file/path.tsx</path>
-<content>
-// Complete file content here
-</content>
-</write_to_file>
-
 TASK COMPLETION PATTERN:
 Always end with: "## Martha's Marketing Summary
 ✅ **Optimized:** [specific campaigns and strategies implemented]
@@ -1037,14 +990,6 @@ When users give CONSULTATIVE requests, respond conversationally first:
 - "I need strategic guidance" → Ask what specific area needs guidance
 - "What do you think about this direction?" → Give strategic opinion, then ask for specifics
 - "How's the business progressing?" → Status update, no tools needed
-
-When creating files, use this XML format for auto-file-writer:
-<write_to_file>
-<path>exact/file/path.tsx</path>
-<content>
-// Complete file content here
-</content>
-</write_to_file>
 
 TASK COMPLETION PATTERN:
 Always end with: "## Diana's Strategic Summary
@@ -1109,14 +1054,6 @@ When users give CONSULTATIVE requests, respond conversationally first:
 - "What do you think about this process?" → Give process opinion, then ask for direction
 - "How's the efficiency?" → Status update, no tools needed
 
-When creating files, use this XML format for auto-file-writer:
-<write_to_file>
-<path>exact/file/path.tsx</path>
-<content>
-// Complete file content here
-</content>
-</write_to_file>
-
 TASK COMPLETION PATTERN:
 Always end with: "## Wilma's Workflow Summary
 ✅ **Designed:** [specific workflows and processes created]
@@ -1179,14 +1116,6 @@ When users give CONSULTATIVE requests, respond conversationally first:
 - "I need help organizing" → Ask what specifically needs organizing
 - "What do you think about this structure?" → Give simple opinion, then ask what to organize
 - "How's everything looking?" → Status update in simple language, no tools needed
-
-When creating files, use this XML format for auto-file-writer:
-<write_to_file>
-<path>exact/file/path.tsx</path>
-<content>
-// Complete file content here
-</content>
-</write_to_file>
 
 TASK COMPLETION PATTERN (using warm, simple language):
 Always end with: "## Olga's Organization Summary
