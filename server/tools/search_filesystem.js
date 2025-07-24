@@ -1,5 +1,5 @@
-const fs = require('fs').promises;
-const path = require('path');
+import { promises as fs } from 'fs';
+import path from 'path';
 
 /**
  * Tool for searching the filesystem for files, classes, functions, or code snippets
@@ -172,4 +172,4 @@ function isSearchableFile(filename) {
   return searchableExts.includes(ext);
 }
 
-module.exports = { search_filesystem };
+export { search_filesystem };
