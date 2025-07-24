@@ -191,18 +191,50 @@ export class UnifiedGenerationService {
       const prediction = await response.json();
       
       if (prediction.status === 'succeeded') {
-        const imageUrls = prediction.output || [];
+        const tempImageUrls = prediction.output || [];
         
-        // Update tracker with completed images for Maya chat preview
-        await storage.updateGenerationTracker(trackerId, {
-          imageUrls: JSON.stringify(imageUrls),
-          status: 'completed'
-        });
-        
-        console.log(`✅ MAYA CHAT PREVIEW: Completed tracker ${trackerId} with ${imageUrls.length} preview images`);
-        
-        // TODO: Send images to Maya chat interface for user preview with heart buttons
-        // Images will be shown in Maya's chat, not added to gallery until user hearts them
+        if (tempImageUrls.length > 0) {
+          // Get tracker to access userId
+          const tracker = await storage.getGenerationTracker(trackerId);
+          if (!tracker) {
+            console.error(`❌ Tracker ${trackerId} not found for S3 migration`);
+            return;
+          }
+          
+          // CRITICAL: Migrate temp URLs to permanent S3 storage immediately
+          const { ImageStorageService } = await import('./image-storage-service');
+          const permanentUrls = [];
+          
+          console.log(`🔄 S3 MIGRATION: Converting ${tempImageUrls.length} temp URLs to permanent storage for user ${tracker.userId}`);
+          
+          for (let i = 0; i < tempImageUrls.length; i++) {
+            const tempUrl = tempImageUrls[i];
+            try {
+              const imageId = `tracker_${trackerId}_img_${i}`;
+              const permanentUrl = await ImageStorageService.ensurePermanentStorage(tempUrl, tracker.userId, imageId);
+              permanentUrls.push(permanentUrl);
+              console.log(`✅ S3 MIGRATION SUCCESS: ${tempUrl.substring(0, 50)}... → ${permanentUrl.substring(0, 50)}...`);
+            } catch (error) {
+              console.error(`❌ S3 MIGRATION FAILED for ${tempUrl}:`, error);
+              // Keep temp URL as fallback 
+              permanentUrls.push(tempUrl);
+            }
+          }
+          
+          // Update tracker with PERMANENT URLs for Maya chat preview
+          await storage.updateGenerationTracker(trackerId, {
+            imageUrls: JSON.stringify(permanentUrls),
+            status: 'completed'
+          });
+          
+          console.log(`✅ MAYA CHAT PREVIEW: Completed tracker ${trackerId} with ${permanentUrls.length} PERMANENT preview images`);
+        } else {
+          // No images generated
+          await storage.updateGenerationTracker(trackerId, {
+            imageUrls: JSON.stringify([]),
+            status: 'completed'
+          });
+        }
         
       } else if (prediction.status === 'failed') {
         await storage.updateGenerationTracker(trackerId, {

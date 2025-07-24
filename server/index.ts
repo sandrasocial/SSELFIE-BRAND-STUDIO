@@ -89,6 +89,45 @@ app.use(express.static('public'));
   monitor.startMonitoring();
   console.log('🚀 Training Completion Monitor started - will check for stuck trainings every 2 minutes');
 
+  // 🎬 MAYA GENERATION TRACKER POLLING SYSTEM
+  // Automatically checks processing generation trackers and migrates to S3
+  const generationPollingInterval = setInterval(async () => {
+    try {
+      console.log('🎬 MAYA GENERATION MONITOR: Checking processing generation trackers...');
+      
+      // Import storage to access generation trackers
+      const { storage } = await import('./storage');
+      
+      // Get all users' processing generation trackers  
+      const { db } = await import('./db');
+      const { generationTrackers } = await import('../shared/schema');
+      const { eq } = await import('drizzle-orm');
+      
+      const activeTrackers = await db
+        .select()
+        .from(generationTrackers)
+        .where(eq(generationTrackers.status, 'processing'));
+      
+      if (activeTrackers.length > 0) {
+        console.log(`🎬 Found ${activeTrackers.length} processing generation trackers to check`);
+        
+        for (const tracker of activeTrackers) {
+          const minutesWaiting = Math.round((Date.now() - new Date(tracker.createdAt).getTime()) / (1000 * 60));
+          console.log(`🎬 Tracker ${tracker.id} (user ${tracker.userId}): ${minutesWaiting} minutes processing`);
+          
+          if (tracker.predictionId) {
+            const { UnifiedGenerationService } = await import('./unified-generation-service');
+            await UnifiedGenerationService.checkAndUpdateStatus(tracker.id, tracker.predictionId);
+          }
+        }
+      }
+    } catch (error) {
+      console.error('Error in generation tracker monitor:', error);
+    }
+  }, 30 * 1000); // Check every 30 seconds for faster image previews
+  
+  console.log('🎬 Maya Generation Tracker Monitor started - checking every 30 seconds');
+
   // importantly only setup vite in development and after
   // setting up all the other routes so the catch-all route
   // doesn't interfere with the other routes
