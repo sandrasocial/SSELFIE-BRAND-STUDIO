@@ -736,11 +736,15 @@ ${olgaInstructions}
 🚨 CRITICAL: Follow Olga's file placement EXACTLY. Do not create new files.` : ''}
 
 🎯 WORKFLOW TASK: ${task}
-Target: ${targetFile || 'Follow Olga instructions above'}
-Required: MODIFY EXISTING FILES (do not create new pages)
+Target: client/src/components/admin/AdminDashboard.tsx (ACTUAL LIVE ADMIN DASHBOARD)
+🚨 CRITICAL: MODIFY THE EXISTING LIVE ADMIN DASHBOARD - DO NOT CREATE NEW FILES
+Required: Use str_replace_based_edit_tool to MODIFY client/src/components/admin/AdminDashboard.tsx
+This is the ACTUAL admin dashboard component imported by the live app
+DO NOT create ComponentName.tsx, LuxuryEditorial.tsx or any new standalone files
+USE ONLY str_replace_based_edit_tool on client/src/components/admin/AdminDashboard.tsx
 Standards: SSELFIE Studio architecture, Times New Roman typography
 
-End response with: FILES MODIFIED: [exact paths]`;
+End response with: MODIFIED: client/src/components/admin/AdminDashboard.tsx`;
 
         // Call the agent through the admin endpoint that supports file operations
         const fetch = (await import('node-fetch')).default;
@@ -885,8 +889,8 @@ Coordinate immediately - workflow waiting.`
   private static determineTargetFile(taskDescription: string): string | undefined {
     const task = taskDescription.toLowerCase();
     
-    if (task.includes('dashboard')) {
-      return 'client/src/pages/admin-dashboard.tsx';
+    if (task.includes('dashboard') || task.includes('admin')) {
+      return 'client/src/components/admin/AdminDashboard.tsx'; // ACTUAL LIVE ADMIN DASHBOARD COMPONENT
     }
     if (task.includes('landing') || task.includes('home')) {
       return 'client/src/pages/landing-page.tsx';
@@ -901,7 +905,7 @@ Coordinate immediately - workflow waiting.`
       return 'client/src/pages/onboarding.tsx';
     }
     
-    return undefined;
+    return 'client/src/components/admin/AdminDashboard.tsx'; // DEFAULT TO ADMIN DASHBOARD
   }
   
   /**
