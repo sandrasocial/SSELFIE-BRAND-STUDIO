@@ -107,18 +107,18 @@ export default function AdminDashboard({ className = '' }: AdminDashboardProps) 
   );
 
   return (
-    <div className={`min-h-screen bg-gray-50 dark:bg-gray-900 ${className}`}>
-      {/* Header */}
-      <div className="bg-white dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700 px-6 py-4">
-        <div className="flex items-center justify-between">
+    <div className={`min-h-screen bg-[#111111] ${className}`}>
+      {/* Luxury Editorial Header */}
+      <div className="bg-black border-b border-zinc-800 px-8 py-12">
+        <div className="flex items-center justify-between max-w-7xl mx-auto">
           <div>
             <h1 
-              className="text-3xl font-bold text-black dark:text-white"
-              style={{ fontFamily: 'Times New Roman, serif' }}
+              className="text-4xl text-white tracking-wider uppercase"
+              style={{ fontFamily: 'Times New Roman, serif', letterSpacing: '0.2em' }}
             >
               Admin Dashboard
             </h1>
-            <p className="text-gray-600 dark:text-gray-300 mt-1">
+            <p className="text-zinc-400 mt-3 tracking-widest uppercase text-sm">
               SSELFIE Studio Platform Overview
             </p>
           </div>
