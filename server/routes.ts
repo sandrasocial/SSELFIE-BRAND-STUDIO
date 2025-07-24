@@ -45,6 +45,35 @@ import { z } from "zod";
 const DEFAULT_MODEL_STR = "claude-sonnet-4-20250514";
 
 export async function registerRoutes(app: Express): Promise<Server> {
+  // CRITICAL: Enable CORS for cross-domain access (agents and Visual Editor)
+  app.use((req, res, next) => {
+    const origin = req.headers.origin;
+    const allowedOrigins = [
+      'https://sselfie.ai',
+      'https://e33979fc-c9be-4f0d-9a7b-6a3e83046828-00-3ij9k7qy14rai.picard.replit.dev',
+      'https://e33979fc-c9be-4f0d-9a7b-6a3e83046828-00-workspace.ssa27.replit.dev',
+      'https://127.0.0.1:5000',
+      'http://127.0.0.1:5000',
+      'https://localhost:5000',
+      'http://localhost:5000'
+    ];
+    
+    if (!origin || allowedOrigins.includes(origin)) {
+      res.header('Access-Control-Allow-Origin', origin || '*');
+    }
+    
+    res.header('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS, PATCH');
+    res.header('Access-Control-Allow-Headers', 'Origin, X-Requested-With, Content-Type, Accept, Authorization, X-Session-Auth');
+    res.header('Access-Control-Allow-Credentials', 'true');
+    res.header('Access-Control-Max-Age', '86400');
+    
+    if (req.method === 'OPTIONS') {
+      return res.sendStatus(200);
+    }
+    
+    next();
+  });
+
   // Enhanced domain and HTTPS handling for cross-browser compatibility
   // Handle www redirect FIRST (before SSL certificate verification)
   app.use((req, res, next) => {
