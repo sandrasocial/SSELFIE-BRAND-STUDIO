@@ -680,29 +680,28 @@ export class ElenaWorkflowSystem {
         this.saveWorkflowsToDisk();
       }
       
-      // DISABLED: Live chat updates causing 1-second spam loop
-      console.log(`🚫 ELENA: Live chat updates disabled to prevent 1-second loop spam`);
+      // Updates are stored in progress for polling, no live chat spam
+      console.log(`💾 ELENA: Update stored in workflow progress for Visual Editor polling`);
       
-      /* DISABLED TO STOP 1-SECOND LOOP SPAM
-      // CRITICAL FIX: Send live update to Elena's active chat conversation
-      try {
-        // Import storage to save Elena's live update as chat message
-        const { storage } = await import('./storage');
-        
-        // Save Elena's live update as a chat message for real-time visibility
-        await storage.saveAgentConversation(
-          'elena', // Elena agent
-          '42585527', // Sandra's user ID
-          'workflow_update', // User message
-          message, // Elena's live update message
-          [] // File operations
-        );
-        
-        console.log(`✅ ELENA: Live update sent to chat interface: ${message.substring(0, 50)}...`);
-      } catch (chatError) {
-        console.error(`❌ ELENA: Failed to send live chat update:`, chatError);
+      // Optional: Store critical updates in database for Visual Editor polling
+      if (message.includes('🎉') || message.includes('✅') || message.includes('🚀') || message.includes('❌')) {
+        try {
+          const { storage } = await import('./storage');
+          
+          // Save only critical updates as Elena messages for Visual Editor polling
+          await storage.saveAgentConversation(
+            'elena',
+            '42585527', // Sandra's user ID
+            'WORKFLOW_UPDATE',
+            message,
+            []
+          );
+          
+          console.log(`✅ ELENA: Critical update saved for Visual Editor polling: ${message.substring(0, 50)}...`);
+        } catch (error) {
+          console.error(`❌ ELENA: Failed to save critical update:`, error);
+        }
       }
-      */
       
     } catch (error) {
       console.error(`❌ ELENA: Failed to send update to user:`, error);

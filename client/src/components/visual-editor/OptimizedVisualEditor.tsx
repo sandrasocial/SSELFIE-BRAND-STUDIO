@@ -832,9 +832,11 @@ export function OptimizedVisualEditor({ className = '' }: OptimizedVisualEditorP
       }
     };
     
-    // DISABLED: Polling completely to stop Elena loop
-    console.log('🚫 WORKFLOW POLLING COMPLETELY DISABLED: Stopping Elena loop');
-    // setWorkflowPollingInterval(null);
+    // FIXED: Re-enabled polling with proper rate limiting (every 5 seconds instead of 3)
+    console.log('🔄 WORKFLOW POLLING RE-ENABLED: Monitoring Elena workflows with rate limiting');
+    
+    const intervalId = setInterval(pollProgress, 5000); // Poll every 5 seconds instead of 3
+    setWorkflowPollingInterval(intervalId);
     
     // Initial poll with state initialization
     const initializePoll = async () => {
@@ -858,6 +860,46 @@ export function OptimizedVisualEditor({ className = '' }: OptimizedVisualEditorP
     
     initializePoll();
   };
+
+  // Auto-detect Elena workflows when Elena is selected
+  useEffect(() => {
+    const checkForElenaWorkflows = async () => {
+      if (currentAgent.id === 'elena') {
+        try {
+          console.log('🔍 ELENA SELECTED: Checking for active workflows...');
+          const response = await fetch('/api/elena/active-workflows');
+          if (response.ok) {
+            const data = await response.json();
+            if (data.workflows && data.workflows.length > 0) {
+              const activeWorkflow = data.workflows.find(w => w.status === 'executing');
+              if (activeWorkflow) {
+                console.log(`🚀 AUTO-DETECTED: Elena workflow ${activeWorkflow.id} is executing!`);
+                // Start polling for this workflow
+                startWorkflowProgressPolling(activeWorkflow.id);
+                
+                // Add workflow status to chat
+                const workflowMessage: ChatMessage = {
+                  type: 'agent',
+                  content: `**🚀 Active Workflow Detected**\n\n**${activeWorkflow.name}**\n\nStep: ${activeWorkflow.currentStep}/${activeWorkflow.totalSteps}\nCurrent Agent: ${activeWorkflow.currentAgent}\nEstimated Time Remaining: ${activeWorkflow.estimatedTimeRemaining}\n\n*Live updates will appear below...*`,
+                  timestamp: new Date(),
+                  agentName: 'elena',
+                  workflowStage: 'Coordination',
+                  workflowId: activeWorkflow.id,
+                  isWorkflowMessage: true
+                };
+                
+                setChatMessages(prev => [...prev, workflowMessage]);
+              }
+            }
+          }
+        } catch (error) {
+          console.error('Failed to check Elena workflows:', error);
+        }
+      }
+    };
+    
+    checkForElenaWorkflows();
+  }, [currentAgent.id]);
 
   // Clean up polling on unmount
   useEffect(() => {
