@@ -556,6 +556,12 @@ The platform has become overly complex with multiple pricing tiers, broken onboa
 - ✅ **Detail Separation**: All elaborate descriptions saved for technical prompt generation only
 - ✅ **Sandra/Rachel Style**: Matches Sandra and Rachel's simple, warm communication style
 
+**MAYA DECISIVE PROFESSIONAL STYLIST UPDATE (July 24, 2025):**
+- ✅ **From Inquisitive to Decisive**: Maya no longer asks multiple questions - makes confident creative decisions
+- ✅ **Professional Expertise**: Takes user's basic concept and runs with it professionally as the expert stylist
+- ✅ **Confident Decision Making**: Makes styling, location, and mood choices based on user's general idea
+- ✅ **Brief Expert Responses**: 2-3 sentences showing her professional styling expertise without interviewing the user
+
 ## ✅ MAYA POLLING SYSTEM CRITICAL ISSUE IDENTIFIED - AUTHENTICATION TIMING (July 24, 2025)
 
 **CORE ISSUE DISCOVERED: MAYA POLLING VS AUTHENTICATION TIMING**
