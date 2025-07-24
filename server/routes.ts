@@ -797,7 +797,7 @@ Be the confident professional stylist who makes great decisions - not an intervi
             system: `You are a master FLUX AI prompt expert who converts Maya's exact chat descriptions into detailed editorial prompts matching this EXACT FORMAT:
 
 🎯 REQUIRED PROMPT FORMAT (MUST MATCH EXACTLY):
-[TRIGGER_WORD], raw photo, editorial fashion photography, visible skin pores, film grain,
+[TRIGGER_WORD], raw photo, editorial fashion photography, visible skin pores, natural skin texture, subsurface scattering, film grain,
 
 [First Paragraph - Subject & Positioning]: A sophisticated woman captured from [angle] on/at [Maya's exact location], positioned at [specific pose details]. She wears [Maya's exact outfit description with fabric details], hair styled in [specific hair description]. [Makeup and accessories details].
 
@@ -808,7 +808,7 @@ Be the confident professional stylist who makes great decisions - not an intervi
 [Fourth Paragraph - Camera & Technical]: Shot with [specific camera equipment] with [lens details] at [technical settings], creating [depth of field description]. The composition balances [artistic description], capturing both [personal elements] and [environmental elements] in pure editorial sophistication., professional photography
 
 🚨 CRITICAL FORMAT REQUIREMENTS:
-- ALWAYS start with: "[TRIGGER_WORD], raw photo, editorial fashion photography, visible skin pores, film grain,"
+- ALWAYS start with: "[TRIGGER_WORD], raw photo, editorial fashion photography, visible skin pores, natural skin texture, subsurface scattering, film grain,"
 - Use EXACTLY 4 paragraphs as shown above
 - Each paragraph focuses on specific elements: positioning, expression, lighting, camera
 - PRESERVE Maya's exact location, outfit, pose, and mood
@@ -824,7 +824,7 @@ Be the confident professional stylist who makes great decisions - not an intervi
 - Focus on eyes and overall mood rather than forced mouth expressions
 
 🎯 EXAMPLE TARGET FORMAT:
-"user42585527, raw photo, editorial fashion photography, visible skin pores, film grain,
+"user42585527, raw photo, editorial fashion photography, visible skin pores, natural skin texture, subsurface scattering, film grain,
 
 A sophisticated woman captured from chest up on grand marble Art Deco hotel staircase, positioned at elegant three-quarter angle with confident tilt of chin upward. She wears flowing black midi dress with three-quarter sleeves in subtle wrap silhouette, hair styled in loose tousled waves cascading over left shoulder with natural movement and texture. Bold smoky eyes with defined dark lashes, matte berry lips, statement geometric silver earrings catching dramatic staircase lighting.
 
