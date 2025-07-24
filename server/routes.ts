@@ -6451,6 +6451,24 @@ AGENT_CONTEXT:
                   const { str_replace_based_edit_tool } = await import('./tools/str_replace_based_edit_tool');
                   toolResult = await str_replace_based_edit_tool(contentBlock.input);
                   
+                  // TRIGGER AUTO-REFRESH FOR VISUAL EDITOR
+                  if (toolResult && !toolResult.includes('Error') && contentBlock.input.path) {
+                    try {
+                      // Store refresh signal for Visual Editor polling
+                      global.lastFileChange = {
+                        timestamp: Date.now(),
+                        operation: contentBlock.input.command,
+                        filePath: contentBlock.input.path,
+                        needsRefresh: true
+                      };
+                      
+                      console.log(`🔄 VISUAL EDITOR AUTO-REFRESH: ${contentBlock.input.command} operation on ${contentBlock.input.path}`);
+                      
+                    } catch (error) {
+                      console.warn('⚠️ Visual Editor refresh trigger failed:', error);
+                    }
+                  }
+                  
                   console.log(`✅ ${agentId.toUpperCase()} TOOL SUCCESS: ${contentBlock.input.command} completed on ${contentBlock.input.path}`);
                 }
                 
