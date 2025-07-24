@@ -549,6 +549,13 @@ The platform has become overly complex with multiple pricing tiers, broken onboa
 - ✅ **Technical Enhancement Only**: Prompt generator adds camera and lighting details while keeping Maya's exact vision
 - ✅ **Perfect Synchronization**: Chat output and generated prompts now match exactly - no more disconnect between vision and execution
 
+**MAYA COMMUNICATION SIMPLIFIED (July 24, 2025):**
+- ✅ **Brief Responses Only**: Maya now gives quick 2-3 sentence responses like Rachel or Sandra
+- ✅ **Eliminated Elaborate Chat**: Removed long detailed descriptions from chat responses
+- ✅ **Simple Everyday Language**: Uses warm, encouraging language without excessive detail
+- ✅ **Detail Separation**: All elaborate descriptions saved for technical prompt generation only
+- ✅ **Sandra/Rachel Style**: Matches Sandra and Rachel's simple, warm communication style
+
 ## ✅ MAYA POLLING SYSTEM CRITICAL ISSUE IDENTIFIED - AUTHENTICATION TIMING (July 24, 2025)
 
 **CORE ISSUE DISCOVERED: MAYA POLLING VS AUTHENTICATION TIMING**
