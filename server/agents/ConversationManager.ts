@@ -164,43 +164,29 @@ export class ConversationManager {
     // Enhanced context detection from entire conversation for Replit-style memory
     const fullContent = history.map(m => m.content).join(' ').toLowerCase();
     
-    // More sophisticated context detection with current task patterns
-    if (fullContent.includes('hero') && (fullContent.includes('admin') || fullContent.includes('dashboard'))) {
-      currentContext = 'Creating luxury full-bleed hero image for Sandra\'s admin dashboard with editorial design and Times New Roman typography';
-      workflowStage = 'admin-hero-design';
-      // Add the current task to keyTasks for proper memory
-      keyTasks.push('Create full-bleed hero image for admin dashboard with luxury editorial design');
-    } else if (fullContent.includes('launch') && fullContent.includes('audit')) {
-      currentContext = 'SSELFIE Studio platform launch readiness audit and comprehensive analysis';
-      workflowStage = 'launch-audit';
-    } else if (fullContent.includes('admin') && fullContent.includes('dashboard')) {
-      currentContext = 'Working on Sandra\'s admin dashboard with agent chat interfaces and luxury design systems';
-      workflowStage = 'admin-dashboard';
-    } else if (fullContent.includes('build') && (fullContent.includes('analysis') || fullContent.includes('audit') || fullContent.includes('workflow'))) {
-      currentContext = 'Elena conducting comprehensive BUILD feature analysis including component status, gaps identification, and strategic planning for Step 4 implementation';
-      workflowStage = 'build-analysis';
-      keyTasks.push('Analyze BUILD feature status and identify missing components');
-      keyTasks.push('Create comprehensive component gap analysis');  
-      keyTasks.push('Provide strategic implementation roadmap');
-      keyTasks.push('Continue BUILD feature development workflow');
-    } else if (fullContent.includes('memory') && (fullContent.includes('agent') || fullContent.includes('test'))) {
-      currentContext = 'Implementing and debugging agent memory systems for conversation continuity and context preservation';
-      workflowStage = 'memory-system';
-    } else if (fullContent.includes('auto-clear') || (fullContent.includes('conversation') && fullContent.includes('management'))) {
-      currentContext = 'Debugging conversation management and auto-clear interference with agent behavior patterns';
-      workflowStage = 'conversation-debugging';
-    } else if (fullContent.includes('visual') && fullContent.includes('editor')) {
-      currentContext = 'Enhancing visual editor interface with multi-tab editing and agent integration';
-      workflowStage = 'visual-editor';
-    } else if (fullContent.includes('file') && fullContent.includes('creation')) {
-      currentContext = 'Implementing agent file creation system with real filesystem integration';
-      workflowStage = 'file-system';
-    } else if (fullContent.includes('test') && fullContent.includes('component')) {
-      currentContext = 'Creating and testing React components with proper TypeScript and styling integration';
-      workflowStage = 'component-testing';
+    // Dynamic context detection based on current conversation content
+    const contextKeywords = [];
+    if (fullContent.includes('dashboard')) contextKeywords.push('dashboard');
+    if (fullContent.includes('redesign')) contextKeywords.push('redesign');
+    if (fullContent.includes('workflow')) contextKeywords.push('workflow');
+    if (fullContent.includes('audit')) contextKeywords.push('audit');
+    if (fullContent.includes('launch')) contextKeywords.push('launch');
+    if (fullContent.includes('admin')) contextKeywords.push('admin');
+    
+    if (contextKeywords.length > 0) {
+      currentContext = `Working on: ${contextKeywords.join(', ')} related tasks`;
+      workflowStage = contextKeywords.join('-').toLowerCase();
     } else {
-      currentContext = 'General SSELFIE Studio development with luxury editorial design standards';
-      workflowStage = 'development';
+      // Extract the most recent user request as context
+      const recentUserMessages = history.filter(m => m.role === 'user').slice(-3);
+      if (recentUserMessages.length > 0) {
+        const latestRequest = recentUserMessages[recentUserMessages.length - 1].content;
+        currentContext = `Current focus: ${latestRequest.substring(0, 100).replace(/\n/g, ' ').trim()}`;
+        workflowStage = 'current-task';
+      } else {
+        currentContext = 'Available for new tasks';
+        workflowStage = 'ready';
+      }
     }
 
     return {
