@@ -1,9 +1,0 @@
-{
-  "pageName": "sandra-nav-fix-test",
-  "pages": {
-    "home": "<html><head><title>Navigation Fix Test</title><style>html{scroll-behavior:smooth}body{margin:0;font-family:Times New Roman,serif}.nav{position:fixed;top:0;width:100%;background:white;padding:20px;border-bottom:1px solid #ccc;z-index:1000}.nav a{margin-right:20px;text-decoration:none;color:#000;text-transform:uppercase;letter-spacing:2px}section{height:100vh;padding:100px 20px;display:flex;align-items:center;justify-content:center;text-align:center}#home{background:#f0f0f0}#about{background:#e0e0e0}#services{background:#d0d0d0}#contact{background:#c0c0c0}h1{font-size:3rem;margin:0}</style></head><body><nav class=\"nav\"><a href=\"#home\">HOME</a><a href=\"#about\">ABOUT</a><a href=\"#services\">SERVICES</a><a href=\"#contact\">CONTACT</a></nav><section id=\"home\"><div><h1>HOME</h1><p>Smooth scrolling navigation test</p></div></section><section id=\"about\"><div><h1>ABOUT</h1><p>Click navigation links to test smooth scrolling</p></div></section><section id=\"services\"><div><h1>SERVICES</h1><p>All sections are on the same page with anchor navigation</p></div></section><section id=\"contact\"><div><h1>CONTACT</h1><p>No routing issues - everything works smoothly</p></div></section></body></html>",
-    "about": "",
-    "services": "",
-    "contact": ""
-  }
-}
