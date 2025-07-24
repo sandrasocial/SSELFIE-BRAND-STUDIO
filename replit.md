@@ -855,10 +855,19 @@ The platform has become overly complex with multiple pricing tiers, broken onboa
 - Integrated with Visual Editor communication system
 
 **Complete Agent Team Now Available:**
+
+**ADMIN AGENTS (Sandra's Workflow Team):**
+- **Elena**: Strategic Workflow Coordination (Master Coordinator)
 - **Aria**: Luxury Design & Editorial expertise with file modification capabilities
 - **Zara**: Technical Architecture & Code Implementation with full development access
 - **Diana**: Business Coaching & Strategic Mentoring with team coordination authority
-- **Elena, Maya, Rachel, Victoria, Ava, Olga**: All previously configured agents operational
+- **Rachel**: Voice & Copywriting Twin (Sandra's authentic voice)
+- **Ava**: Process Automation & Workflow Design
+- **Olga**: Repository Organization & Architecture
+
+**MEMBER AGENTS (For Regular Users):**
+- **Maya**: Celebrity Stylist & AI Photographer (High-End Fashion Expert)
+- **Victoria**: Website Building AI & User Experience Specialist
 
 **Enhanced Capabilities:**
 - Conversational responses about design decisions and luxury standards
