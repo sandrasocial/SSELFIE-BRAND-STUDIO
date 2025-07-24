@@ -26,6 +26,26 @@ export interface AgentToolResponse {
 export class AgentToolSystem {
   
   /**
+   * Trigger Visual Editor refresh for real-time preview updates
+   */
+  private static triggerVisualEditorRefresh(operation: string, filePath: string) {
+    try {
+      // Store refresh signal for Visual Editor polling
+      global.lastFileChange = {
+        timestamp: Date.now(),
+        operation,
+        filePath,
+        needsRefresh: true
+      };
+      
+      console.log(`🔄 VISUAL EDITOR AUTO-REFRESH: ${operation} operation on ${filePath}`);
+      
+    } catch (error) {
+      console.warn('⚠️ Visual Editor refresh trigger failed:', error);
+    }
+  }
+  
+  /**
    * Execute tool requests from admin agents
    */
   static async executeAgentTool(request: AgentToolRequest): Promise<AgentToolResponse> {
@@ -172,6 +192,9 @@ export class AgentToolSystem {
       
       writeFileSync(filePath, finalContent, 'utf8');
       
+      // TRIGGER AUTO-REFRESH FOR VISUAL EDITOR
+      this.triggerVisualEditorRefresh('create', filePath);
+      
       return {
         success: true,
         result: `The file ${filePath} has been edited. Here's the result of running \`cat -n\` on ${filePath}:\n${content.split('\n').map((line, i) => `${String(i + 1).padStart(5, ' ')}\t${line}`).join('\n')}`,
@@ -208,6 +231,9 @@ export class AgentToolSystem {
       
       const newContent = content.replace(oldStr, newStr);
       writeFileSync(filePath, newContent, 'utf8');
+      
+      // TRIGGER AUTO-REFRESH FOR VISUAL EDITOR
+      this.triggerVisualEditorRefresh('str_replace', filePath);
       
       // Show the edited section
       const lines = newContent.split('\n');
@@ -246,6 +272,9 @@ export class AgentToolSystem {
       const newContent = lines.join('\n');
       
       writeFileSync(filePath, newContent, 'utf8');
+      
+      // TRIGGER AUTO-REFRESH FOR VISUAL EDITOR
+      this.triggerVisualEditorRefresh('insert', filePath);
       
       return {
         success: true,

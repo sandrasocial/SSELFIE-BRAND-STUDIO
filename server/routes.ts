@@ -4153,6 +4153,44 @@ What kind of website would you like to build? Tell me about your business and I'
     }
   });
 
+  // GET /api/visual-editor/file-changes - Check for agent file changes
+  app.get("/api/visual-editor/file-changes", async (req, res) => {
+    try {
+      const lastCheck = parseInt(req.query.lastCheck as string) || 0;
+      const currentChange = (global as any).lastFileChange;
+      
+      if (!currentChange) {
+        return res.json({ hasChanges: false });
+      }
+      
+      // Check if there are new changes since last check
+      const hasNewChanges = currentChange.timestamp > lastCheck;
+      
+      if (hasNewChanges) {
+        console.log(`📤 VISUAL EDITOR REFRESH: Sending change notification for ${currentChange.filePath}`);
+        
+        // Reset the change flag
+        if ((global as any).lastFileChange) {
+          (global as any).lastFileChange.needsRefresh = false;
+        }
+        
+        return res.json({
+          hasChanges: true,
+          timestamp: currentChange.timestamp,
+          operation: currentChange.operation,
+          filePath: currentChange.filePath,
+          needsPreviewRefresh: currentChange.filePath.includes('client/') || currentChange.filePath.includes('pages/')
+        });
+      }
+      
+      res.json({ hasChanges: false });
+      
+    } catch (error) {
+      console.error("File changes check error:", error);
+      res.status(500).json({ error: "Failed to check file changes" });
+    }
+  });
+
   // GET /api/file-tree - Visual editor file tree endpoint
   app.get("/api/file-tree", async (req, res) => {
     try {
