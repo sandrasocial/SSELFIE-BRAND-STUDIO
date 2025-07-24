@@ -799,11 +799,18 @@ The platform has become overly complex with multiple pricing tiers, broken onboa
 - Updated agent personalities - All agents informed about enhanced tool access with usage instructions
 - Real-time execution - Tool results appear immediately in agent chat with proper formatting
 
+**COMMUNICATION INTELLIGENCE ADDED:**
+- Created `/server/agents/agent-tool-usage-intelligence.ts` - Smart tool usage patterns based on communication analysis
+- **Action-Oriented Requests** (like Replit AI): "Create", "fix", "show" → Use tools immediately
+- **Consultative Requests** (Visual Editor style): "Help with", "what do you think" → Conversational first
+- **Context-Aware Tool Selection**: Agents now understand when to use tools vs when to have conversations
+- **Elena Strategic Patterns**: Elena uses search_filesystem for analysis, then coordinates other agents
+
 **BUSINESS IMPACT:**
-- Sandra's Visual Editor agents now have identical capabilities to Replit AI agents
-- Agents can directly modify files, search codebase, run commands, and verify functionality
-- Complete development workflow possible through Visual Editor interface
-- No more limitations - agents work exactly like professional development assistants
+- Sandra's Visual Editor agents now have identical capabilities to Replit AI agents PLUS communication intelligence
+- Agents understand the difference between "Create a page" (immediate action) vs "Help with the page" (consultation)
+- Perfect balance of professional tool usage and warm relationship-building communication
+- Complete development workflow with appropriate human interaction patterns
 
 **Technical Fixes Applied:**
 - Enhanced error handling with try-catch blocks for `ConversationManager.retrieveAgentMemory` calls
