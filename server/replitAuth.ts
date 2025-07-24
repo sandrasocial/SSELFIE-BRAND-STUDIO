@@ -68,6 +68,11 @@ export function getSession() {
     ttl: sessionTtl,
     tableName: "sessions",
   });
+
+  // Handle session store errors gracefully
+  sessionStore.on('error', (error) => {
+    console.error('🔒 Session store error:', error);
+  });
   
   // PRODUCTION STABILITY: Always use secure cookies for sselfie.ai domain
   const isSSELFIEDomain = process.env.REPLIT_DOMAINS?.includes('sselfie.ai');
@@ -84,14 +89,16 @@ export function getSession() {
     secret: process.env.SESSION_SECRET!,
     store: sessionStore,
     resave: false,
-    saveUninitialized: true, // CRITICAL: Required for OAuth state
+    saveUninitialized: false, // Only save authenticated sessions
     rolling: true, // Extend session on each request
+    name: 'connect.sid', // Explicit session name
     cookie: {
       httpOnly: true,
       secure: useSecureCookies,
       maxAge: sessionTtl,
-      sameSite: 'lax'
-      // Remove domain restrictions completely
+      sameSite: 'lax',
+      path: '/',
+      // Remove domain restrictions for cross-subdomain compatibility
     },
   });
 }
