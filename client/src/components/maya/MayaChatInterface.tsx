@@ -44,22 +44,23 @@ export function MayaChatInterface() {
   const [chatId, setChatId] = useState<number | null>(null);
   const queryClient = useQueryClient();
 
-  // Load chat messages from database
+  // Load ALL chat messages from database on mount
   useEffect(() => {
-    const loadChatHistory = async () => {
+    const loadAllChatHistory = async () => {
       try {
-        // Get ALL maya chat messages for this user regardless of chat
+        console.log('🎬 Maya: Loading ALL chat messages from new endpoint...');
+        
         const messagesResponse = await fetch('/api/maya-chat-messages', {
           credentials: 'include'
         });
         
         if (messagesResponse.ok) {
           const dbMessages = await messagesResponse.json();
-          console.log('🎬 Maya: Loaded messages from database:', dbMessages.length, 'messages');
+          console.log('🎬 Maya: ALL MESSAGES LOADED:', dbMessages.length, 'total messages');
           
           if (dbMessages && dbMessages.length > 0) {
             const formattedMessages = dbMessages.map((msg: any) => {
-              console.log('🎬 Maya: Processing message:', msg.id, 'with imagePreview:', msg.imagePreview);
+              console.log(`🎬 Maya: Processing message ${msg.id} with imagePreview:`, msg.imagePreview ? 'HAS IMAGES' : 'NO IMAGES');
               
               let imagePreview = undefined;
               if (msg.imagePreview) {
@@ -67,12 +68,12 @@ export function MayaChatInterface() {
                   const parsed = JSON.parse(msg.imagePreview);
                   if (Array.isArray(parsed) && parsed.length > 0) {
                     imagePreview = parsed.filter(url => 
-                      typeof url === 'string' && url.startsWith('http')
+                      typeof url === 'string' && url.includes('amazonaws.com')
                     );
-                    console.log('🎬 Maya: Parsed imagePreview:', imagePreview.length, 'images');
+                    console.log(`✅ Maya: Message ${msg.id} has ${imagePreview.length} permanent S3 images`);
                   }
                 } catch (error) {
-                  console.error('🎬 Maya: Failed to parse imagePreview:', error);
+                  console.error(`❌ Maya: Failed to parse imagePreview for message ${msg.id}:`, error);
                 }
               }
               
@@ -85,16 +86,18 @@ export function MayaChatInterface() {
               };
             });
             
-            console.log('🎬 Maya: Setting formatted messages:', formattedMessages.length);
+            console.log(`🎬 Maya: Setting ${formattedMessages.length} formatted messages`);
             setChatMessages(formattedMessages);
             
-            // Log which messages have images for debugging
+            // Count messages with images for verification
             const messagesWithImages = formattedMessages.filter(m => m.imagePreview && m.imagePreview.length > 0);
-            console.log('🎬 Maya: Messages with images:', messagesWithImages.length);
+            console.log(`✅ Maya: LOADED ${messagesWithImages.length} messages with permanent S3 images!`);
             
             return;
           }
         }
+        
+        console.log('🎬 Maya: No messages found via new endpoint, showing welcome...');
         
         // No chat history found - show Maya's welcome
         setChatMessages([
@@ -111,7 +114,7 @@ What kind of vibe are we creating today? Or just say "surprise me" and I'll crea
         ]);
         
       } catch (error) {
-        console.error('🎬 Maya: Failed to load chat history:', error);
+        console.error('❌ Maya: Error loading chat history:', error);
         // Show welcome message as fallback
         setChatMessages([
           {
@@ -123,9 +126,11 @@ What kind of vibe are we creating today? Or just say "surprise me" and I'll crea
         ]);
       }
     };
-    
-    loadChatHistory();
-  }, []);
+
+    if (user) {
+      loadAllChatHistory();
+    }
+  }, [user]);
 
   // Removed old query - now using direct polling approach like backup implementation
 
