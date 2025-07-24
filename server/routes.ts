@@ -5399,6 +5399,12 @@ Workflow Stage: ${savedMemory.workflowStage || 'None'}
       const userId = authMethod === 'session' && req.user ? 
         (req.user as any).claims.sub : '42585527'; // Sandra's actual user ID
       
+      // 🧠 CONTEXT INTELLIGENCE: Transform message with full project context like Replit AI
+      const ContextIntelligenceSystem = (await import('./agents/context-intelligence-system')).default;
+      const contextualizedData = await ContextIntelligenceSystem.contextualizeMessage(userId, agentId, message);
+      
+      console.log(`🧠 CONTEXT INTELLIGENCE: Enhanced message with ${contextualizedData.conversationHistory.length} history messages and full project context`);
+      
       // Initialize savedMemory variable for all agents at the top
       let savedMemory = null;
       
@@ -5605,7 +5611,16 @@ ${savedMemory.recentDecisions?.map(decision => `• ${decision}`).join('\n') || 
       
       // ELENA WORKFLOW SYSTEM INTEGRATION - MUST BE BEFORE AGENT PERSONALITY
       const isElena = agentId.toLowerCase() === 'elena';
-      const messageText = message.toLowerCase();
+      
+      // 🧠 CONTEXT INTELLIGENCE: Use enhanced message for workflow detection
+      let finalMessage = message;
+      if (contextualizedData.conversationHistory.length > 0 || 
+          Object.values(contextualizedData.projectContext).some(v => v && (Array.isArray(v) ? v.length > 0 : true))) {
+        finalMessage = contextualizedData.contextualizedMessage;
+        console.log(`🧠 CONTEXT BOOST: Using enhanced contextual message (${finalMessage.length} chars) instead of raw message (${message.length} chars)`);
+      }
+      
+      const messageText = finalMessage.toLowerCase();
       
       console.log(`🔍 ELENA DEBUG: Agent=${agentId}, Message="${messageText.substring(0, 100)}..."`);
       console.log(`🔍 ELENA DEBUG: Is Elena=${isElena}`);
