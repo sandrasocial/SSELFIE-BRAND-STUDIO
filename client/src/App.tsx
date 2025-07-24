@@ -101,7 +101,7 @@ function SmartHome() {
 }
 
 // Protected wrapper component that handles authentication
-function ProtectedRoute({ component: Component, ...props }) {
+function ProtectedRoute({ component: Component, ...props }: { component: React.ComponentType<any>, [key: string]: any }) {
   const { isAuthenticated, isLoading, user } = useAuth();
   const [, setLocation] = useLocation();
   

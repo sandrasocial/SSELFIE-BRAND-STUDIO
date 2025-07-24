@@ -5,7 +5,7 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { cn } from '@/lib/utils';
-import { AIImage } from '@shared/schema';
+import { AiImage } from '@shared/schema';
 
 export default function Workspace() {
   const { user, isAuthenticated } = useAuth();
@@ -21,10 +21,10 @@ export default function Workspace() {
     enabled: isAuthenticated,
   });
 
-  const isPremium = subscriptionData?.subscription?.status === 'active';
+  const isPremium = (subscriptionData as any)?.subscription?.status === 'active';
 
   const getJourneySteps = () => {
-    const hasImages = aiImages.length > 0;
+    const hasImages = (aiImages as any).length > 0;
     
     return [
       {
@@ -229,7 +229,7 @@ export default function Workspace() {
         <div className="grid md:grid-cols-3 gap-8">
           <div className="text-center">
             <div className="text-3xl font-serif text-black mb-2" style={{ fontFamily: 'Times New Roman, serif' }}>
-              {aiImages.length}
+              {(aiImages as AiImage[]).length}
             </div>
             <p className="text-gray-600">AI Photos Generated</p>
           </div>
