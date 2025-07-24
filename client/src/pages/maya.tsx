@@ -214,6 +214,25 @@ export default function Maya() {
     }
   };
 
+  // 🔍 TEST CURRENT POLLING: Create a new image to test live polling
+  const testCurrentPolling = async () => {
+    try {
+      console.log('🧪 Testing current polling system...');
+      
+      // Simulate sending a message that triggers generation
+      const testMessage = "Create a professional editorial portrait";
+      setInput(testMessage);
+      
+      // Trigger the sendMessage function
+      await sendMessage();
+      
+      console.log('✅ Generation request sent - polling should start automatically');
+      
+    } catch (error) {
+      console.error('🧪 Current polling test error:', error);
+    }
+  };
+
   // 🔍 MANUAL TEST: Check tracker 341 status (for debugging)
   const testTracker341 = async () => {
     try {
@@ -265,28 +284,44 @@ export default function Maya() {
     }
   };
 
-  // 🔑 NEW: Poll tracker for image completion (using new tracker system)
+  // 🔑 FIXED: Poll tracker for image completion with robust authentication
   const pollForTrackerCompletion = async (trackerId: number) => {
     const maxAttempts = 40; // 2 minutes total (3 second intervals)
     let attempts = 0;
+    let authRetries = 0;
+    const maxAuthRetries = 3;
+    
+    // Wait for authentication to stabilize before starting polling
+    await new Promise(resolve => setTimeout(resolve, 1000));
     
     const poll = async () => {
       try {
         attempts++;
         setGenerationProgress(Math.min(90, (attempts / maxAttempts) * 90));
         
+        // Enhanced fetch with proper session handling
         const response = await fetch(`/api/generation-tracker/${trackerId}`, {
           method: 'GET',
           credentials: 'include',
           headers: {
             'Accept': 'application/json',
-            'Cache-Control': 'no-cache'
+            'Cache-Control': 'no-cache',
+            'Content-Type': 'application/json'
           }
         });
         
-        // Handle authentication errors gracefully
+        // Handle authentication errors with retries
+        if (response.status === 401 && authRetries < maxAuthRetries) {
+          authRetries++;
+          console.log(`🔐 Maya polling: Authentication retry ${authRetries}/${maxAuthRetries} for tracker ${trackerId}`);
+          
+          // Wait longer for session to stabilize, then retry
+          await new Promise(resolve => setTimeout(resolve, 2000));
+          return poll();
+        }
+        
         if (response.status === 401) {
-          console.log('🔐 Maya polling: Authentication required for tracker', trackerId);
+          console.log('🔐 Maya polling: Authentication failed after retries for tracker', trackerId);
           setIsGenerating(false);
           setGenerationProgress(0);
           toast({
@@ -633,9 +668,17 @@ export default function Maya() {
                         variant="outline"
                         size="sm"
                         onClick={testTracker341}
-                        className="text-sm bg-blue-600 text-white border-blue-600 hover:bg-blue-700"
+                        className="text-sm bg-blue-600 text-white border-blue-600 hover:bg-blue-700 mr-2"
                       >
                         Test 341
+                      </Button>
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={testCurrentPolling}
+                        className="text-sm bg-green-600 text-white border-green-600 hover:bg-green-700"
+                      >
+                        Test Live
                       </Button>
                       <Button
                         variant="outline"
