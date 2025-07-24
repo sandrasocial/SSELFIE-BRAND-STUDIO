@@ -33,7 +33,7 @@ export interface UnifiedGenerationResponse {
  * DO NOT CHANGE WITHOUT EXPLICIT APPROVAL
  */
 const WORKING_PARAMETERS = {
-  guidance_scale: 2.8,
+  guidance_scale: 2.82,
   num_inference_steps: 45,
   lora_scale: 1.1,
   num_outputs: 2,
@@ -76,10 +76,18 @@ export class UnifiedGenerationService {
     
     const savedTracker = await storage.saveGenerationTracker(trackerData);
     
-    // TEMPORARY: Use simple prompt for debugging
-    let finalPrompt = `${triggerWord}, a woman in a beautiful dress`;
+    // Prepare final prompt with trigger word
+    let finalPrompt = prompt;
     
-    console.log(`🧪 DEBUG: Using simplified prompt for testing`);
+    // Ensure trigger word is at the beginning
+    if (!finalPrompt.includes(triggerWord)) {
+      finalPrompt = `${triggerWord} ${finalPrompt}`;
+    }
+    
+    // Add quality foundation for realistic results (Sandra's proven July 17 structure)
+    if (!finalPrompt.includes('raw photo')) {
+      finalPrompt = `raw photo, visible skin pores, film grain, ${finalPrompt}, professional photography`;
+    }
     
     console.log(`🎯 UNIFIED FINAL PROMPT: "${finalPrompt}"`);
     
@@ -106,8 +114,6 @@ export class UnifiedGenerationService {
       trigger: triggerWord
     });
     
-    console.log(`🔍 FULL REQUEST BODY:`, JSON.stringify(requestBody, null, 2));
-    
     // Call Replicate API with retry logic
     let replicateResponse;
     let retries = 0;
@@ -127,10 +133,6 @@ export class UnifiedGenerationService {
         if (replicateResponse.ok) {
           break; // Success
         }
-        
-        // Get error details first for all errors
-        const errorBody = await replicateResponse.text();
-        console.log(`🚨 REPLICATE API ERROR DETAILS: ${replicateResponse.status} - ${errorBody}`);
         
         // Retry on server errors
         if ((replicateResponse.status === 502 || replicateResponse.status >= 500) && retries < maxRetries) {
