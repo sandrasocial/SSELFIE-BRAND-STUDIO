@@ -79,64 +79,72 @@ What kind of vibe are we creating today? Or just say "surprise me" and I'll crea
         
         console.log(`🎬 Maya: Progress check ${attempts}/${maxAttempts} (${Math.round(progressPercent)}%)`);
         
-        // Check for completed generation trackers using authenticated apiRequest
-        const response = await apiRequest('/api/generation-trackers/completed', 'GET');
-        const trackers = Array.isArray(response) ? response : [];
-        console.log(`🎬 Maya: Found ${trackers.length} completed trackers`, trackers.map(t => `ID:${t.id} Status:${t.status}`));
-        
-        // Find our specific tracker
-        const ourTracker = trackers.find((t: any) => t.id === trackerId);
-        
-        if (ourTracker && ourTracker.status === 'completed' && ourTracker.imageUrls) {
-          console.log('🎬 Maya: Our tracker completed!', ourTracker);
-          
-          // Complete progress and show results
-          setGenerationProgress(100);
-          setIsGenerating(false);
-          
-          // Parse image URLs
-          let imageUrls = [];
-          try {
-            imageUrls = typeof ourTracker.imageUrls === 'string' 
-              ? JSON.parse(ourTracker.imageUrls) 
-              : ourTracker.imageUrls;
-          } catch (e) {
-            imageUrls = [ourTracker.imageUrls];
-          }
-          
-          setGeneratedImages(imageUrls);
-          
-          // Update Maya's last message to remove generating state and add preview
-          setChatMessages(prev => {
-            const newMessages = [...prev];
-            const lastMayaIndex = newMessages.map(m => m.role).lastIndexOf('maya');
-            if (lastMayaIndex >= 0) {
-              newMessages[lastMayaIndex] = {
-                ...newMessages[lastMayaIndex],
-                isGenerating: false, // Remove generating state
-                imagePreview: {
-                  id: trackerId,
-                  userId: ourTracker.userId,
-                  predictionId: ourTracker.predictionId,
-                  prompt: ourTracker.prompt,
-                  style: ourTracker.style,
-                  status: 'completed',
-                  imageUrls: JSON.stringify(imageUrls),
-                  createdAt: ourTracker.createdAt
-                }
-              };
-            }
-            return newMessages;
+        // Use queryClient to make authenticated requests with proper session handling
+        try {
+          const trackers = await queryClient.fetchQuery({
+            queryKey: ['/api/generation-trackers/completed'],
+            staleTime: 0,
+            gcTime: 0,
           });
           
-          // Reset progress after brief completion display
-          setTimeout(() => {
-            setGenerationProgress(0);
-            setCurrentTrackerId(null);
-          }, 2000);
+          console.log(`🎬 Maya: Found ${trackers.length} completed trackers`, trackers.map((t: any) => `ID:${t.id} Status:${t.status}`));
+        
+          // Find our specific tracker
+          const ourTracker = trackers.find((t: any) => t.id === trackerId);
           
-          console.log('🎬 Maya: Generation completed successfully!');
-          return;
+          if (ourTracker && ourTracker.status === 'completed' && ourTracker.imageUrls) {
+            console.log('🎬 Maya: Our tracker completed!', ourTracker);
+            
+            // Complete progress and show results
+            setGenerationProgress(100);
+            setIsGenerating(false);
+            
+            // Parse image URLs
+            let imageUrls = [];
+            try {
+              imageUrls = typeof ourTracker.imageUrls === 'string' 
+                ? JSON.parse(ourTracker.imageUrls) 
+                : ourTracker.imageUrls;
+            } catch (e) {
+              imageUrls = [ourTracker.imageUrls];
+            }
+            
+            setGeneratedImages(imageUrls);
+            
+            // Update Maya's last message to remove generating state and add preview
+            setChatMessages(prev => {
+              const newMessages = [...prev];
+              const lastMayaIndex = newMessages.map(m => m.role).lastIndexOf('maya');
+              if (lastMayaIndex >= 0) {
+                newMessages[lastMayaIndex] = {
+                  ...newMessages[lastMayaIndex],
+                  isGenerating: false, // Remove generating state
+                  imagePreview: {
+                    id: trackerId,
+                    userId: ourTracker.userId,
+                    predictionId: ourTracker.predictionId,
+                    prompt: ourTracker.prompt,
+                    style: ourTracker.style,
+                    status: 'completed',
+                    imageUrls: JSON.stringify(imageUrls),
+                    createdAt: ourTracker.createdAt
+                  }
+                };
+              }
+              return newMessages;
+            });
+            
+            // Reset progress after brief completion display
+            setTimeout(() => {
+              setGenerationProgress(0);
+              setCurrentTrackerId(null);
+            }, 2000);
+            
+            console.log('🎬 Maya: Generation completed successfully!');
+            return;
+          }
+        } catch (authError) {
+          console.log('🎬 Maya: Auth error during polling, will retry...', authError);
         }
         
         // Continue polling if not found or not completed
@@ -146,6 +154,7 @@ What kind of vibe are we creating today? Or just say "surprise me" and I'll crea
           console.log('🎬 Maya: Max attempts reached, stopping polling');
           setIsGenerating(false);
           setGenerationProgress(0);
+          setCurrentTrackerId(null);
         }
       } catch (error) {
         console.error('🎬 Maya: Polling error:', error);
@@ -155,6 +164,7 @@ What kind of vibe are we creating today? Or just say "surprise me" and I'll crea
           console.log('🎬 Maya: Max attempts reached after errors, stopping');
           setIsGenerating(false);
           setGenerationProgress(0);
+          setCurrentTrackerId(null);
         }
       }
     };
