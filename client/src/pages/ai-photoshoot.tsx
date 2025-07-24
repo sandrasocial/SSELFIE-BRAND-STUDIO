@@ -774,42 +774,49 @@ export default function AIPhotoshootPage() {
 
 
 
-  // Generate from built-in prompt using Maya's polling pattern
+  // Generate from built-in prompt using Maya's robust polling pattern
   const generateFromPrompt = useCallback(async (prompt: any) => {
+    console.log('AI-PHOTOSHOOT: Generation started for prompt:', prompt.name);
+    
     setSelectedPrompt(prompt);
     setGeneratingImages(true);
     setGenerationProgress(0);
     setGeneratedImages([]);
-    setShowPreviewModal(false);
+    setShowPreviewModal(true); // Show modal immediately with progress
     
     try {
-      // Use Maya's generation tracker system instead of direct AI images
+      // Use Maya's generation tracker system with robust error handling
       const response = await fetch('/api/maya-generate-images', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
+        credentials: 'include',
         body: JSON.stringify({
           customPrompt: prompt.prompt.replace('[triggerword]', userModel?.triggerWord || 'useradmin_sandra_2025')
         }),
       });
 
       const data = await response.json();
+      console.log('AI-PHOTOSHOOT: Generation API response:', { status: response.status, data });
       
       // Handle usage limit errors with upgrade prompts (same as Maya)
       if (!response.ok) {
         if (response.status === 403 && data.upgrade) {
+          setGeneratingImages(false);
+          setShowPreviewModal(false);
           toast({
             title: "Usage Limit Reached",
             description: "Upgrade to generate more images",
             variant: "destructive",
           });
-          // Could redirect to pricing: window.location.href = '/pricing';
           return;
         }
         
         // Check if it's a model validation error
         if (data.requiresTraining) {
+          setGeneratingImages(false);
+          setShowPreviewModal(false);
           toast({
             title: "AI Model Required",
             description: data.error || "Please complete your AI model training first.",
@@ -825,25 +832,30 @@ export default function AIPhotoshootPage() {
       }
       
       if (data.success && data.trackerId) {
+        console.log('AI-PHOTOSHOOT: ✅ Generation successful, tracker ID:', data.trackerId);
+        
         // Store tracker ID for saving images later
         setCurrentTrackerId(data.trackerId);
         
-        // Start polling for completion using Maya's tracker pattern
+        // Start polling for completion using enhanced Maya's tracker pattern
         pollForTrackerImages(data.trackerId);
         
         toast({
           title: "Generation Started",
-          description: "Creating your photos... This takes about 30 seconds.",
+          description: "Creating your photos... This takes 30-45 seconds.",
         });
+      } else {
+        throw new Error('Invalid response from generation API');
       }
     } catch (error) {
-      console.error('Error generating images:', error);
+      console.error('AI-PHOTOSHOOT: Generation error:', error);
+      setGeneratingImages(false);
+      setShowPreviewModal(false);
       toast({
         title: "Generation Failed",
-        description: "Something went wrong with image generation",
+        description: error.message || "Something went wrong with image generation",
         variant: "destructive",
       });
-      setGeneratingImages(false);
     }
   }, [userModel, queryClient, toast]);
 
@@ -991,9 +1003,23 @@ export default function AIPhotoshootPage() {
           const finalCheck = await checkImmediateCompletion();
           if (!finalCheck) {
             setGeneratingImages(false);
+            setShowPreviewModal(false);
+            
+            // Mark stuck tracker as failed to prevent future issues
+            try {
+              await fetch(`/api/generation-tracker/${trackerId}/mark-failed`, {
+                method: 'POST',
+                credentials: 'include',
+                headers: { 'Content-Type': 'application/json' }
+              });
+              console.log('AI-PHOTOSHOOT: Marked stuck tracker as failed');
+            } catch (error) {
+              console.warn('AI-PHOTOSHOOT: Could not mark tracker as failed:', error);
+            }
+            
             toast({
               title: "Generation Timeout", 
-              description: "Photos are taking longer than expected. Check your gallery later!",
+              description: "Photos are taking longer than expected. Please try again.",
               variant: "destructive",
             });
           }
@@ -1004,6 +1030,7 @@ export default function AIPhotoshootPage() {
           setTimeout(poll, 3000);
         } else {
           setGeneratingImages(false);
+          setShowPreviewModal(false);
           toast({
             title: "Connection Error",
             description: "Lost connection while generating. Please try again.",
@@ -1193,79 +1220,7 @@ export default function AIPhotoshootPage() {
                 {PROMPT_COLLECTIONS[selectedCollection]?.description}
               </p>
               
-              {/* Admin Debug Test Button */}
-              {user?.role === 'admin' && (
-                <div className="mt-8 p-4 bg-gray-50 border border-gray-200 rounded max-w-2xl mx-auto">
-                  <p className="text-sm text-gray-600 mb-3">Admin Debug Tools:</p>
-                  <button
-                    onClick={async () => {
-                      try {
-                        console.log('AI-PHOTOSHOOT: Admin test button clicked');
-                        
-                        // Test loading most recent completed tracker (similar to Maya's test system)
-                        const response = await fetch('/api/generation-trackers/completed', {
-                          credentials: 'include'
-                        });
-                        
-                        console.log('AI-PHOTOSHOOT: Test API response status:', response.status);
-                        
-                        if (response.ok) {
-                          const trackers = await response.json();
-                          console.log('AI-PHOTOSHOOT: Test - Completed trackers:', trackers);
-                          
-                          if (trackers.length > 0) {
-                            const testTracker = trackers[0]; // Use most recent completed tracker
-                            console.log('AI-PHOTOSHOOT: Test - Using tracker:', testTracker);
-                            
-                            // Ensure imageUrls is properly parsed
-                            let imageUrls = testTracker.imageUrls;
-                            if (typeof imageUrls === 'string') {
-                              imageUrls = JSON.parse(imageUrls);
-                            }
-                            
-                            setCurrentTrackerId(testTracker.id);
-                            setGeneratedImages(imageUrls || []);
-                            setShowPreviewModal(true);
-                            setGeneratingImages(false);
-                            
-                            console.log('AI-PHOTOSHOOT: Test - Modal should show with', imageUrls?.length, 'images');
-                            
-                            toast({
-                              title: "Test Tracker Loaded",
-                              description: `Testing with tracker ${testTracker.id} - ${imageUrls?.length || 0} images`,
-                            });
-                          } else {
-                            toast({
-                              title: "No Completed Trackers",
-                              description: "No completed trackers found for testing",
-                              variant: "destructive",
-                            });
-                          }
-                        } else {
-                          const errorText = await response.text();
-                          console.error('AI-PHOTOSHOOT: Test API failed:', response.status, errorText);
-                          toast({
-                            title: "API Test Failed",
-                            description: `Status ${response.status}: ${errorText}`,
-                            variant: "destructive",
-                          });
-                        }
-                      } catch (error) {
-                        console.error('AI-PHOTOSHOOT: Test tracker error:', error);
-                        toast({
-                          title: "Test Failed",
-                          description: error.message || "Could not load test tracker",
-                          variant: "destructive",
-                        });
-                      }
-                    }}
-                    className="bg-blue-500 text-white px-4 py-2 rounded text-sm hover:bg-blue-600 mr-3"
-                  >
-                    Test Modal with Completed Tracker
-                  </button>
-                  <span className="text-xs text-gray-500">Tests modal display with most recent completed generation</span>
-                </div>
-              )}
+
             </div>
 
             {/* Prompts Grid - Minimalist Cards */}
