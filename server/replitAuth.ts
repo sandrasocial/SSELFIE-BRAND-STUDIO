@@ -171,6 +171,13 @@ export async function setupAuth(app: Express) {
     console.log(`🔧 Added development domain: ${replitHost}`);
   }
   
+  // CRITICAL: Add workspace domain for Visual Editor access
+  const workspaceDomain = `${process.env.REPL_ID}-00-workspace.ssa27.replit.dev`;
+  if (!domains.includes(workspaceDomain)) {
+    domains.push(workspaceDomain);
+    console.log(`🔧 Added workspace domain: ${workspaceDomain}`);
+  }
+  
   // Make domains available in the route handlers
   app.locals.authDomains = domains;
   
