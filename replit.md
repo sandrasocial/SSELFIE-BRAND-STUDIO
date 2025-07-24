@@ -482,6 +482,7 @@ The platform has become overly complex with multiple pricing tiers, broken onboa
 - ✅ **LoRA Weights Parameter**: Added explicit `lora_weights` specification for Black Forest Labs model compatibility
 - ✅ **Megapixels Control**: Added `megapixels: "1"` for high-resolution output control
 - ✅ **Go Fast Optimization**: Enabled `go_fast: true` for fp8 quantization and optimized attention kernel
+- ✅ **Parameter Name Fix**: Corrected `guidance_scale` to `guidance` for official model compatibility
 - ✅ **Web Interface Parity**: Parameters now match Replicate web interface for consistent quality
 
 **Technical Implementation:**
