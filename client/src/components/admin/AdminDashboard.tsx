@@ -30,6 +30,7 @@ interface AdminDashboardProps {
   className?: string;
 }
 
+// Luxury Editorial Admin Dashboard by Aria
 export default function AdminDashboard({ className = '' }: AdminDashboardProps) {
   const [metrics, setMetrics] = useState<DashboardMetrics>({
     totalUsers: 0,
