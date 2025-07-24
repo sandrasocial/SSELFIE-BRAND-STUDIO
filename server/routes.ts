@@ -4915,69 +4915,62 @@ Starting analysis and implementation now...`;
       }
       
       console.log(`🤖 Admin Agent Chat: ${agentId} - "${message?.substring(0, 50)}..."`);
+      console.log('🔥 SANDRA REQUIREMENT: NO FALLBACKS - CLAUDE API ONLY');
       
-      // Define fallback responses at the top level
-      const fallbackResponses = {
-        elena: "Hi Sandra! I'm Elena, your strategic coordinator. How can I help organize your workflow today?",
-        aria: "Hey Sandra! Aria here - your design expert. Ready to create something beautiful!",
-        zara: "Hello Sandra! Zara, your dev specialist. What should we build today?",
-        rachel: "Hey gorgeous! Rachel here - your voice twin. Let's create some amazing copy!",
-        maya: "Hi Sandra! Maya, your AI photography expert. Ready to create stunning images!",
-        ava: "Hi Sandra! Ava here - your automation architect. What workflows should we optimize?",
-        quinn: "Hello Sandra! Quinn, your quality guardian. Let's ensure everything meets luxury standards!",
-        sophia: "Hey Sandra! Sophia here - your social media strategist. Let's grow that community!",
-        martha: "Hi Sandra! Martha, your marketing expert. Ready to optimize those campaigns!",
-        diana: "Hello Sandra! Diana here - your business coach. What strategic guidance do you need?",
-        wilma: "Hi Sandra! Wilma, your workflow architect. Let's design some efficient processes!",
-        olga: "Hey Sandra! Olga here - your organization expert. Ready to tidy up the codebase!"
-      };
+      // Import agent configurations
+      const { AGENT_CONFIGS } = await import('./routes/agent-conversation-routes');
       
-      // Try to use agent-personalities from the cleaned routes file
-      let agentResponse = '';
-      
-      try {
-        const { AGENT_CONFIGS } = await import('./routes/agent-conversation-routes');
-        
-        if (AGENT_CONFIGS && AGENT_CONFIGS[agentId as keyof typeof AGENT_CONFIGS]) {
-          const agent = AGENT_CONFIGS[agentId as keyof typeof AGENT_CONFIGS];
-          
-          // Try to get agent response using Claude API
-          try {
-            const claudeResponse = await fetch('https://api.anthropic.com/v1/messages', {
-              method: 'POST',
-              headers: {
-                'Content-Type': 'application/json',
-                'x-api-key': process.env.ANTHROPIC_API_KEY || '',
-                'anthropic-version': '2023-06-01',
-              },
-              body: JSON.stringify({
-                model: 'claude-3-5-sonnet-20241022',
-                max_tokens: 4000,
-                system: agent.systemPrompt,
-                messages: [
-                  {
-                    role: 'user',
-                    content: message
-                  }
-                ]
-              })
-            });
-            
-            if (claudeResponse.ok) {
-              const data = await claudeResponse.json();
-              agentResponse = data.content[0]?.text || '';
-            }
-          } catch (claudeError) {
-            console.log('Claude API unavailable, using fallback response');
-          }
-        }
-      } catch (importError) {
-        console.log('Agent config import failed, using fallback response');
+      // Verify agent exists
+      if (!AGENT_CONFIGS || !AGENT_CONFIGS[agentId as keyof typeof AGENT_CONFIGS]) {
+        return res.status(404).json({ 
+          success: false,
+          error: 'Agent not found',
+          message: `Agent ${agentId} is not available.`
+        });
       }
       
-      // Use fallback if no response from Claude or import failed
+      const agent = AGENT_CONFIGS[agentId as keyof typeof AGENT_CONFIGS];
+      console.log(`🔥 Agent ${agentId} found, system prompt length: ${agent.systemPrompt.length} chars`);
+      console.log('🔥 Starting Claude API call...');
+      
+      // Get authentic agent response using Claude API ONLY
+      const claudeResponse = await fetch('https://api.anthropic.com/v1/messages', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'x-api-key': process.env.ANTHROPIC_API_KEY || '',
+          'anthropic-version': '2023-06-01',
+        },
+        body: JSON.stringify({
+          model: 'claude-3-5-sonnet-20241022',
+          max_tokens: 4000,
+          system: agent.systemPrompt,
+          messages: [
+            {
+              role: 'user',
+              content: message
+            }
+          ]
+        })
+      });
+      
+      if (!claudeResponse.ok) {
+        const errorData = await claudeResponse.text();
+        throw new Error(`Claude API failed: ${claudeResponse.status} - ${errorData}`);
+      }
+      
+      const data = await claudeResponse.json();
+      const agentResponse = data.content[0]?.text || '';
+      
+      console.log('🔥 Claude API Response:', {
+        status: claudeResponse.status,
+        hasContent: !!data.content,
+        contentLength: agentResponse.length,
+        preview: agentResponse.substring(0, 100)
+      });
+      
       if (!agentResponse) {
-        agentResponse = fallbackResponses[agentId as keyof typeof fallbackResponses] || "I'm ready to assist you!";
+        throw new Error('No response received from Claude API');
       }
       
       // Return in format expected by visual editor
@@ -4991,25 +4984,11 @@ Starting analysis and implementation now...`;
     } catch (error) {
       console.error('Admin agents chat error:', error);
       
-      // Define fallback responses again for catch block
-      const fallbackResponses = {
-        elena: "Hi Sandra! I'm Elena, your strategic coordinator. How can I help organize your workflow today?",
-        aria: "Hey Sandra! Aria here - your design expert. Ready to create something beautiful!",
-        zara: "Hello Sandra! Zara, your dev specialist. What should we build today?",
-        rachel: "Hey gorgeous! Rachel here - your voice twin. Let's create some amazing copy!",
-        maya: "Hi Sandra! Maya, your AI photography expert. Ready to create stunning images!",
-        ava: "Hi Sandra! Ava here - your automation architect. What workflows should we optimize?",
-        quinn: "Hello Sandra! Quinn, your quality guardian. Let's ensure everything meets luxury standards!",
-        sophia: "Hey Sandra! Sophia here - your social media strategist. Let's grow that community!",
-        martha: "Hi Sandra! Martha, your marketing expert. Ready to optimize those campaigns!",
-        diana: "Hello Sandra! Diana here - your business coach. What strategic guidance do you need?",
-        wilma: "Hi Sandra! Wilma, your workflow architect. Let's design some efficient processes!",
-        olga: "Hey Sandra! Olga here - your organization expert. Ready to tidy up the codebase!"
-      };
-      
-      res.json({
-        success: true,
-        message: fallbackResponses[agentId as keyof typeof fallbackResponses] || "I'm ready to assist you! There was a technical issue, but I'm here to help.",
+      // Return proper error - no fallback responses
+      res.status(500).json({
+        success: false,
+        error: 'Agent communication failed',
+        message: `Unable to get response from ${agentId}. Error: ${error.message}`,
         agentId: agentId || 'unknown',
         timestamp: new Date().toISOString()
       });
