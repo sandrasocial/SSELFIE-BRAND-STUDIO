@@ -1089,12 +1089,54 @@ export function OptimizedVisualEditor({ className = '' }: OptimizedVisualEditorP
       const data = await response.json();
       console.log('📥 Agent response data:', data);
       
+      // AGENT TOOL PROCESSING: Handle tool requests in agent responses
+      let processedMessage = data.message || data.response;
+      
+      // Check for tool requests in agent response
+      const toolRequestRegex = /TOOL_REQUEST:\s*(\w+)\s*PARAMETERS:\s*(\{[^}]+})/g;
+      let match;
+      
+      while ((match = toolRequestRegex.exec(processedMessage)) !== null) {
+        const [fullMatch, tool, parametersStr] = match;
+        
+        try {
+          const parameters = JSON.parse(parametersStr);
+          console.log(`🔧 AGENT TOOL REQUEST: ${agentId} using ${tool}`, parameters);
+          
+          // Execute the tool
+          const toolResponse = await fetch('/api/admin/agents/tool', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+            },
+            credentials: 'include',
+            body: JSON.stringify({
+              tool,
+              parameters,
+              agentId
+            })
+          });
+          
+          const toolResult = await toolResponse.json();
+          console.log(`🔧 Tool result:`, toolResult);
+          
+          // Replace the tool request with the result in the message
+          const resultText = toolResult.success 
+            ? `✅ ${tool} executed successfully:\n\`\`\`\n${toolResult.result}\n\`\`\``
+            : `❌ ${tool} failed: ${toolResult.error}`;
+            
+          processedMessage = processedMessage.replace(fullMatch, resultText);
+        } catch (error) {
+          console.error(`❌ Failed to process tool request:`, error);
+          processedMessage = processedMessage.replace(fullMatch, `❌ Tool request failed`);
+        }
+      }
+      
       // ELENA RESPONSE DEBUG: Show exactly what Elena is sending
       if (agentId === 'elena') {
         console.log('🔍 ELENA FRONTEND DEBUG: Response received');
-        console.log(`🔍 ELENA MESSAGE LENGTH: ${data.message?.length || 0} characters`);
-        console.log(`🔍 ELENA MESSAGE PREVIEW: ${data.message?.substring(0, 200)}...`);
-        console.log(`🔍 ELENA FULL MESSAGE: ${data.message}`);
+        console.log(`🔍 ELENA MESSAGE LENGTH: ${processedMessage?.length || 0} characters`);
+        console.log(`🔍 ELENA MESSAGE PREVIEW: ${processedMessage?.substring(0, 200)}...`);
       }
       
       if (data.message || data.response || data.workflow) {
@@ -1103,7 +1145,7 @@ export function OptimizedVisualEditor({ className = '' }: OptimizedVisualEditorP
         // Elena now responds naturally through her Claude personality without any forced formatting
         const agentMessage: ChatMessage = {
           type: 'agent',
-          content: data.message || data.response,
+          content: processedMessage,
           timestamp: new Date(),
           agentName: agentId,
           workflowStage: agent?.workflowStage,
