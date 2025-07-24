@@ -11,7 +11,7 @@ import { registerAgentCommandRoutes } from "./routes/agent-command-center";
 import agentFileAccessRoutes from "./routes/agent-file-access";
 import agentLearningRoutes from "./routes/agent-learning";
 import elenaWorkflowRoutes from "./routes/elena-workflow-routes";
-// import { registerAgentRoutes } from "./routes/agent-conversation-routes"; // DISABLED - syntax error
+import { registerAgentRoutes } from "./routes/agent-conversation-routes";
 // import { rachelAgent } from "./agents/rachel-agent";
 import path from "path";
 import fs from "fs";
@@ -125,6 +125,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
   
   // Agent command center routes
   registerAgentCommandRoutes(app);
+  
+  // Agent conversation routes (MAIN ADMIN AGENT SYSTEM)
+  registerAgentRoutes(app);
   
   // Agent codebase integration routes (secure admin access only)
   app.use('/api', agentCodebaseRoutes);
@@ -4892,13 +4895,10 @@ Starting analysis and implementation now...`;
 
   // REMOVED: Duplicate /api/agents endpoint - now using the real database version above
 
-  // ENHANCED ADMIN AGENT CHAT ENDPOINT WITH DUAL AUTH (MAIN ENDPOINT)
-  app.post('/api/admin/agents/chat', async (req, res) => {
-    console.log('🔧 ADMIN AGENT CHAT BYPASS ENDPOINT HIT!');
+  // AGENT CHAT BYPASS ENDPOINT FOR COMPATIBILITY
+  app.post('/api/admin/agent-chat-bypass', async (req, res) => {
+    console.log('🔄 AGENT CHAT BYPASS: Processing agent request');
     console.log('📍 Request body keys:', Object.keys(req.body));
-    console.log('📍 agentName from request:', req.body.agentName);
-    console.log('📍 agentId from request:', req.body.agentId);
-    console.log('📍 Message preview:', req.body.message?.substring(0, 100));
     
     try {
       let { agentId, agentName, message, adminToken, conversationHistory = [], conversationId } = req.body;
@@ -6283,37 +6283,7 @@ AGENT_CONTEXT:
     }
   });
 
-  // UNIFIED AGENT CHAT BYPASS ENDPOINT - COMPATIBILITY WITH EXISTING FRONTEND
-  // This endpoint ensures compatibility with existing frontend components that reference /api/admin/agent-chat-bypass
-  app.post('/api/admin/agent-chat-bypass', async (req, res) => {
-    console.log('🔄 AGENT CHAT BYPASS: Redirecting to unified endpoint');
-    console.log('📍 Request body keys:', Object.keys(req.body));
-    
-    // Simply forward to the main unified endpoint
-    try {
-      const forwardRequest = {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify(req.body)
-      };
-      
-      // Forward internally to the unified endpoint
-      const unifiedResponse = await fetch(`http://localhost:5000/api/admin/agents/chat`, forwardRequest);
-      const data = await unifiedResponse.json();
-      
-      // Return the response as-is
-      res.status(unifiedResponse.status).json(data);
-      
-    } catch (error) {
-      console.error('Agent chat bypass forward error:', error);
-      res.status(500).json({ 
-        error: 'Failed to process agent chat',
-        details: error.message 
-      });
-    }
-  });
+  // REMOVED: Duplicate agent-chat-bypass endpoint to prevent routing conflicts
 
   // Import and register agent learning routes
   const agentLearningRouter = await import('./routes/agent-learning');
