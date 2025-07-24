@@ -831,14 +831,15 @@ export default function AIPhotoshootPage() {
         throw new Error(data.error || 'Failed to generate images');
       }
       
-      if (data.success && data.trackerId) {
-        console.log('AI-PHOTOSHOOT: ✅ Generation successful, tracker ID:', data.trackerId);
+      if (data.success && (data.trackerId || data.imageId)) {
+        const trackerId = data.trackerId || data.imageId;
+        console.log('AI-PHOTOSHOOT: ✅ Generation successful, tracker ID:', trackerId);
         
         // Store tracker ID for saving images later
-        setCurrentTrackerId(data.trackerId);
+        setCurrentTrackerId(trackerId);
         
         // Start polling for completion using enhanced Maya's tracker pattern
-        pollForTrackerImages(data.trackerId);
+        pollForTrackerImages(trackerId);
         
         toast({
           title: "Generation Started",
