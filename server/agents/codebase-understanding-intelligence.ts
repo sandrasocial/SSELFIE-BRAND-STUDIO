@@ -54,7 +54,7 @@ export interface CodebaseInsight {
 }
 
 export class CodebaseUnderstandingIntelligence {
-  private static cacheExpiry = 10 * 60 * 1000; // 10 minutes
+  private static cacheExpiry = 30 * 60 * 1000; // 30 minutes - Optimized for performance
   private static cache: { data: CodebaseInsight | null; timestamp: number } = { data: null, timestamp: 0 };
   
   /**
