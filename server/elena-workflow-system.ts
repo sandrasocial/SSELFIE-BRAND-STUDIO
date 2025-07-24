@@ -736,15 +736,15 @@ ${olgaInstructions}
 🚨 CRITICAL: Follow Olga's file placement EXACTLY. Do not create new files.` : ''}
 
 🎯 WORKFLOW TASK: ${task}
-Target: client/src/components/admin/AdminDashboard.tsx (ACTUAL LIVE ADMIN DASHBOARD)
-🚨 CRITICAL: MODIFY THE EXISTING LIVE ADMIN DASHBOARD - DO NOT CREATE NEW FILES
-Required: Use str_replace_based_edit_tool to MODIFY client/src/components/admin/AdminDashboard.tsx
-This is the ACTUAL admin dashboard component imported by the live app
-DO NOT create ComponentName.tsx, LuxuryEditorial.tsx or any new standalone files
-USE ONLY str_replace_based_edit_tool on client/src/components/admin/AdminDashboard.tsx
-Standards: SSELFIE Studio architecture, Times New Roman typography
+${targetFile ? `Target File: ${targetFile}` : 'Target: Determine appropriate file from task context'}
+🚨 CRITICAL: MODIFY EXISTING FILES - DO NOT CREATE NEW STANDALONE FILES
+Required: Use str_replace_based_edit_tool to modify the appropriate existing files
+Identify the correct files based on the task description and modify them directly
+DO NOT create new standalone files that aren't imported or used
+USE ONLY str_replace_based_edit_tool on existing integrated files
+Standards: SSELFIE Studio architecture, maintain existing functionality
 
-End response with: MODIFIED: client/src/components/admin/AdminDashboard.tsx`;
+End response with: MODIFIED: [exact file paths that were changed]`;
 
         // Call the agent through the admin endpoint that supports file operations
         const fetch = (await import('node-fetch')).default;
@@ -887,25 +887,14 @@ Coordinate immediately - workflow waiting.`
    * Determine target file from task description
    */
   private static determineTargetFile(taskDescription: string): string | undefined {
-    const task = taskDescription.toLowerCase();
-    
-    if (task.includes('dashboard') || task.includes('admin')) {
-      return 'client/src/components/admin/AdminDashboard.tsx'; // ACTUAL LIVE ADMIN DASHBOARD COMPONENT
-    }
-    if (task.includes('landing') || task.includes('home')) {
-      return 'client/src/pages/landing-page.tsx';
-    }
-    if (task.includes('pricing')) {
-      return 'client/src/pages/pricing.tsx';
-    }
-    if (task.includes('workspace')) {
-      return 'client/src/pages/workspace.tsx';
-    }
-    if (task.includes('onboarding')) {
-      return 'client/src/pages/onboarding.tsx';
+    // Extract file paths from task description if specified
+    const filePathMatch = taskDescription.match(/(?:client\/src\/[^\s]+\.tsx?)|(?:server\/[^\s]+\.ts)|(?:[^\s]+\.tsx?)/);
+    if (filePathMatch) {
+      return filePathMatch[0];
     }
     
-    return 'client/src/components/admin/AdminDashboard.tsx'; // DEFAULT TO ADMIN DASHBOARD
+    // If no specific file mentioned, return undefined to let agent decide
+    return undefined;
   }
   
   /**
