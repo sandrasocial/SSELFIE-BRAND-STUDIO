@@ -1,27 +1,50 @@
-client/src/
-├── components/
-│   ├── ui/ (shadcn components)
-│   │   ├── button.tsx
-│   │   ├── card.tsx
-│   │   ├── input.tsx
-│   │   └── label.tsx
-│   ├── Header.tsx
-│   ├── Layout.tsx
-│   ├── Navigation.tsx
-│   ├── ProfileCard.tsx
-│   ├── ProtectedRoute.tsx
-│   └── StudioCard.tsx
-├── pages/
-│   ├── Build.tsx
-│   ├── Dashboard.tsx
-│   ├── Home.tsx
-│   ├── Login.tsx
-│   ├── NotFound.tsx
-│   ├── Profile.tsx
-│   ├── Settings.tsx
-│   └── Studio.tsx
-├── lib/
-├── types/
-├── App.tsx
-├── main.tsx
-└── index.css
+.
+├── README.md
+├── client
+│   ├── package.json
+│   ├── public
+│   │   ├── favicon.ico
+│   │   └── index.html
+│   ├── src
+│   │   ├── App.tsx
+│   │   ├── components
+│   │   │   ├── Build
+│   │   │   │   ├── BuildForm.tsx
+│   │   │   │   ├── BuildItem.tsx
+│   │   │   │   ├── BuildList.tsx
+│   │   │   │   └── BuildVisualStudio.tsx
+│   │   │   ├── Profile
+│   │   │   │   ├── ProfileDisplay.tsx
+│   │   │   │   └── ProfileForm.tsx
+│   │   │   ├── Navbar.tsx
+│   │   │   └── ui
+│   │   │       ├── Button.tsx
+│   │   │       ├── Card.tsx
+│   │   │       ├── Input.tsx
+│   │   │       └── LoadingSpinner.tsx
+│   │   ├── hooks
+│   │   │   ├── useBuild.tsx
+│   │   │   └── useProfile.tsx
+│   │   ├── index.css
+│   │   ├── lib
+│   │   │   ├── api.ts
+│   │   │   └── utils.ts
+│   │   ├── main.tsx
+│   │   └── types.ts
+│   ├── tailwind.config.js
+│   ├── tsconfig.json
+│   └── vite.config.ts
+├── db
+│   └── schema.sql
+├── package.json
+├── server
+│   ├── app.js
+│   ├── database.js
+│   ├── package.json
+│   └── routes
+│       ├── build.js
+│       └── profile.js
+└── shared
+    ├── package.json
+    ├── schema.ts
+    └── types.ts
