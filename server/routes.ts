@@ -793,55 +793,41 @@ Talk briefly like Sandra or Rachel - warm, encouraging, but keep it simple!`;
           const promptResponse = await client.messages.create({
             model: "claude-sonnet-4-20250514", // Latest Claude model confirmed
             max_tokens: 1200,
-            system: `You are a master FLUX AI prompt expert who converts Maya's exact chat descriptions into detailed, technical prompts for AI image generation.
+            system: `You are a master FLUX AI prompt expert who converts Maya's exact chat descriptions into detailed editorial prompts matching this EXACT FORMAT:
 
-🚨 CRITICAL: CONVERT MAYA'S EXACT VISION - DO NOT CREATE NEW SCENARIOS
-Your job is to take Maya's EXACT chat description and convert it into a technical FLUX prompt while preserving ALL her specific details.
+🎯 REQUIRED PROMPT FORMAT (MUST MATCH EXACTLY):
+raw photo, visible skin pores, film grain, [TRIGGER_WORD],
 
-✅ MAYA'S VISION CONVERSION PROCESS:
-1. EXTRACT Maya's exact outfit description, location, pose, mood from her chat
-2. CONVERT to technical prompt format while keeping ALL her specific details
-3. ADD technical camera and lighting details to complete the prompt
-4. PRESERVE every fabric texture, color, location detail Maya mentioned
+[First Paragraph - Subject & Positioning]: A sophisticated woman captured from [angle] on/at [Maya's exact location], positioned at [specific pose details]. She wears [Maya's exact outfit description with fabric details], hair styled in [specific hair description]. [Makeup and accessories details].
 
-✅ PERFECT DETAILED PROMPT STRUCTURE:
-raw photo, visible skin pores, film grain, [TRIGGER_WORD], 
+[Second Paragraph - Hand Position & Expression]: Her [hand positioning details from Maya's description]. She gazes [exact gaze direction] with [Maya's exact mood/expression] - natural skin texture visible with authentic confident presence. [Additional expression details].
 
-[EXACT MAYA LOCATION]: Use Maya's exact location description (café, penthouse, etc.)
-[EXACT MAYA OUTFIT]: Use Maya's exact clothing description with all fabric details
-[EXACT MAYA POSE]: Use Maya's exact pose and hand positioning description
-[EXACT MAYA MOOD]: Use Maya's exact mood and expression description
-[ADD TECHNICAL LIGHTING]: Add detailed lighting setup for Maya's location
-[ADD CAMERA DETAILS]: Add specific camera equipment and settings
-[ARTISTIC COMPOSITION]: Conclude with composition and professional photography
+[Third Paragraph - Lighting & Atmosphere]: [Detailed lighting setup matching Maya's location]. [Shadow and light patterns]. [Color treatment if specified].
 
-🎯 EXPRESSION GUIDELINES - USE MAYA'S EXACT DESCRIPTION:
-• If Maya says "natural expression" → use "natural expression"
-• If Maya describes specific mood → use that exact mood
-• If Maya mentions "striking eyes" → use "striking eyes"
-• PRESERVE Maya's exact emotional description
+[Fourth Paragraph - Camera & Technical]: Shot with [specific camera equipment] with [lens details] at [technical settings], creating [depth of field description]. The composition balances [artistic description], capturing both [personal elements] and [environmental elements] in pure editorial sophistication., professional photography
 
-📝 EXAMPLE CONVERSION:
-If Maya says: "cozy Reykjavik café, chunky cream cable-knit sweater, steaming coffee cup, moody Nordic light"
-Convert to: "raw photo, visible skin pores, film grain, [TRIGGER], sophisticated woman at cozy Reykjavik café, wearing chunky cream cable-knit sweater with beautiful wool texture, hands wrapped around steaming coffee cup, moody Nordic lighting..."
-
-🚨 ABSOLUTE REQUIREMENTS:
+🚨 CRITICAL FORMAT REQUIREMENTS:
 - ALWAYS start with: "raw photo, visible skin pores, film grain, [TRIGGER_WORD],"
-- USE MAYA'S EXACT LOCATION (café, penthouse, etc.) - never change the setting
-- USE MAYA'S EXACT OUTFIT DESCRIPTION - preserve all fabric and color details
-- USE MAYA'S EXACT POSE AND MOOD - don't change her vision
-- ADD technical lighting and camera details to complete the prompt
+- Use EXACTLY 4 paragraphs as shown above
+- Each paragraph focuses on specific elements: positioning, expression, lighting, camera
+- PRESERVE Maya's exact location, outfit, pose, and mood
+- Add technical camera details: "Shot with Hasselblad X2D 100C with 80mm f/1.9 lens at f/2.8"
 - ALWAYS end with: "professional photography"
-- CREATE 4-5 detailed paragraphs using Maya's exact vision
-- AIM FOR 400-600 words preserving Maya's specific details
+- Each paragraph should be 50-80 words
+- Total prompt: 300-400 words
 
-🎯 CRITICAL: PRESERVE MAYA'S VISION
-- If Maya describes Reykjavik café → prompt must be Reykjavik café
-- If Maya describes wool sweater → prompt must include wool sweater
-- If Maya describes coffee cup → prompt must include coffee cup
-- NEVER change Maya's setting, outfit, or mood - only add technical details
+🎯 EXAMPLE TARGET FORMAT:
+"raw photo, visible skin pores, film grain, user42585527,
 
-Output ONLY the technical prompt that matches Maya's exact vision.`,
+A sophisticated woman captured from chest up on grand marble Art Deco hotel staircase, positioned at elegant three-quarter angle with confident tilt of chin upward. She wears flowing black midi dress with three-quarter sleeves in subtle wrap silhouette, hair styled in loose tousled waves cascading over left shoulder with natural movement and texture. Bold smoky eyes with defined dark lashes, matte berry lips, statement geometric silver earrings catching dramatic staircase lighting.
+
+Her right hand rests gracefully on polished marble banister while left hand holds sleek black leather clutch against her torso. She gazes directly into camera with mysterious, contemplative expression - natural skin texture visible with authentic confident presence. Dramatic overhead architectural lighting creates intricate shadow patterns through ornate railings across marble steps and her elegant silhouette.
+
+Black and white editorial treatment emphasizes architectural lines, fabric drape, and facial contours. Soft diffused light through nearby tall windows adds ethereal glow to features while maintaining dramatic contrast. Shot with Hasselblad X2D 100C with 80mm f/1.9 lens at f/2.8, creating shallow depth of field that keeps focus sharp on her face and upper body while softly blurring background staircase details.
+
+The composition balances intimate portraiture with grand architectural drama, capturing both her personal magnetism and the cinematic luxury of the setting in pure editorial sophistication., professional photography"
+
+Output ONLY the technical prompt matching this EXACT 4-paragraph format using Maya's specific details.`,
             messages: [
               { role: 'user', content: `Convert Maya's EXACT vision into a detailed technical FLUX prompt. USE HER EXACT DETAILS - don't change the location, outfit, or mood. Add technical camera and lighting details to complete it.
 
