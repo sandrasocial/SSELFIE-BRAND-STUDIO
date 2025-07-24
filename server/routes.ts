@@ -6427,6 +6427,16 @@ AGENT_CONTEXT:
         ]
       };
       
+      // Call Claude API with enhanced agent context
+      const { Anthropic } = await import('@anthropic-ai/sdk');
+      const claude = new Anthropic({
+        apiKey: process.env.ANTHROPIC_API_KEY,
+      });
+      
+      // Debug: Log the request structure
+      console.log('🔍 Claude API Request messages:', messages.map(m => ({ role: m.role, content: m.content.substring(0, 100) + '...' })));
+      console.log('🔍 System prompt length:', enhancedSystemPrompt.length);
+      
       // ULTIMATE FIX: Force tool usage by modifying system prompt for file requests
       const isFileRequest = message.toLowerCase().includes('file') || 
                            message.toLowerCase().includes('create') || 
@@ -6445,7 +6455,7 @@ AGENT_CONTEXT:
       console.log(`🔍 ${agentId.toUpperCase()} FILE REQUEST DETECTED: ${isFileRequest}`);
       
       const response = await claude.messages.create({
-        model: 'claude-sonnet-4-20250514',
+        model: 'claude-3-5-sonnet-20241022',
         max_tokens: 8000,
         system: finalSystemPrompt,
         messages: messages as any,
@@ -6547,9 +6557,9 @@ AGENT_CONTEXT:
           
           // Continue conversation with tool results
           const followUpResponse = await claude.messages.create({
-            model: 'claude-sonnet-4-20250514',
+            model: 'claude-3-5-sonnet-20241022',
             max_tokens: 8000,
-            system: systemPrompt,
+            system: finalSystemPrompt,
             messages: [
               ...messages as any,
               { 
@@ -6561,7 +6571,7 @@ AGENT_CONTEXT:
                 content: currentToolResults
               }
             ],
-            ...toolConfig
+            tools: toolConfig.tools
           });
           
           currentResponse = followUpResponse;
