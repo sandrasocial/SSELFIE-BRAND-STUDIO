@@ -521,6 +521,12 @@ The platform has become overly complex with multiple pricing tiers, broken onboa
 - ✅ **Natural Balance**: 1.0 provides user likeness without over-processing or artificial appearance
 - ✅ **Quality Priority**: Focused on natural, realistic results rather than forcing stronger model influence
 
+**NATURAL EXPRESSION GUIDELINES (July 24, 2025):**
+- ✅ **No Artificial Smiles**: Maya's prompt generation updated to avoid "big smile", "bright smile", "beaming", "grinning"
+- ✅ **Natural Expressions Only**: Focus on "natural expression", "confident gaze", "thoughtful look", "serene expression"
+- ✅ **Authentic Presence**: Prefer "slight smile", "subtle smile", "gentle expression", "natural confidence"
+- ✅ **Eye Focus**: Emphasize eyes and overall mood rather than forced mouth expressions for realistic results
+
 ## ✅ MAYA PROMPT OPTIMIZATION COMPLETED (July 24, 2025)
 
 **BREAKTHROUGH: CLEAN FLUX-OPTIMIZED PROMPT GENERATION SYSTEM**

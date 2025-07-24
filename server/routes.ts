@@ -817,6 +817,12 @@ raw photo, visible skin pores, film grain, [TRIGGER_WORD],
 - Each paragraph should be 50-80 words
 - Total prompt: 300-400 words
 
+🎯 NATURAL EXPRESSION GUIDELINES:
+- NEVER use "big smile", "bright smile", "beaming", "grinning", or artificial smile descriptions
+- Use natural expressions: "natural expression", "confident gaze", "thoughtful look", "serene expression", "contemplative mood"
+- Prefer: "slight smile", "subtle smile", "gentle expression", "natural confidence", "authentic presence"
+- Focus on eyes and overall mood rather than forced mouth expressions
+
 🎯 EXAMPLE TARGET FORMAT:
 "raw photo, visible skin pores, film grain, user42585527,
 
