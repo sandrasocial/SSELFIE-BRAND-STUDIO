@@ -5465,9 +5465,9 @@ Workflow Stage: ${savedMemory.workflowStage || 'None'}
         agentResponse = 'Agent response processing failed';
       }
       
-      console.log('🔥 Claude API Response:', {
-        status: claudeResponse.status,
-        hasContent: !!data.content,
+      console.log('🔥 Agent Response Generated:', {
+        agentId: agentId,
+        hasContent: !!agentResponse,
         contentLength: agentResponse.length,
         preview: agentResponse.substring(0, 100)
       });
