@@ -35,6 +35,9 @@ export class AutoFileWriter {
         
         console.log(`✅ XML FILE CREATED: ${filePath} (${content.length} chars)`);
         
+        // Trigger file tree refresh for visual editor synchronization
+        this.triggerFileTreeRefresh();
+        
         // Replace XML block with confirmation
         modifiedResponse = modifiedResponse.replace(match[0], `✅ **Created**: \`${filePath}\` (${content.length} characters)`);
         
@@ -83,6 +86,9 @@ export class AutoFileWriter {
           
           console.log(`✅ CODE BLOCK FILE CREATED: ${filePath} (${block.content.length} chars)`);
           
+          // Trigger file tree refresh for visual editor synchronization
+          this.triggerFileTreeRefresh();
+          
           // Replace code block with confirmation
           modifiedResponse = modifiedResponse.replace(
             block.fullMatch,
@@ -121,6 +127,23 @@ export class AutoFileWriter {
     
     // Write file
     await fsPromises.writeFile(fullPath, content, 'utf8');
+  }
+  
+  /**
+   * Trigger file tree refresh for visual editor synchronization
+   */
+  static triggerFileTreeRefresh() {
+    try {
+      // Signal to visual editor that file tree needs refresh
+      // This can be used by frontend to refresh file tree displays
+      console.log('🔄 AUTO-FILE-WRITER: Triggering file tree refresh');
+      
+      // Store timestamp for frontend polling
+      global.lastFileTreeUpdate = Date.now();
+      
+    } catch (error) {
+      console.log('⚠️ File tree refresh trigger failed:', error.message);  
+    }
   }
   
   /**
