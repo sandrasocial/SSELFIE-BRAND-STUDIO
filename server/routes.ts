@@ -5069,6 +5069,29 @@ Starting analysis and implementation now...`;
       
       const agent = AGENT_CONFIGS[agentId as keyof typeof AGENT_CONFIGS];
       console.log(`🔥 Agent ${agentId} found, system prompt length: ${agent.systemPrompt.length} chars`);
+      
+      // CRITICAL FIX: ADD MEMORY RESTORATION TO MAIN ENDPOINT
+      let savedMemory = null;
+      try {
+        savedMemory = await ConversationManager.retrieveAgentMemory(agentId, userId);
+        console.log(`🧠 MEMORY: Retrieved memory for ${agentId}, tasks: ${savedMemory?.keyTasks?.length || 0}`);
+      } catch (error) {
+        console.error(`❌ MEMORY: Failed to retrieve memory for ${agentId}:`, error);
+      }
+
+      // Build conversation context with memory
+      let conversationContext = '';
+      if (savedMemory && savedMemory.keyTasks && savedMemory.keyTasks.length > 0) {
+        conversationContext = `**CONVERSATION_MEMORY**
+Key Tasks: ${savedMemory.keyTasks.join('; ')}
+Recent Decisions: ${savedMemory.recentDecisions?.join('; ') || 'None'}
+Current Focus: ${savedMemory.currentFocus || 'None'}
+Last Interaction: ${savedMemory.lastInteraction || 'None'}
+
+`;
+        console.log(`✅ MEMORY: Added ${savedMemory.keyTasks.length} tasks to context for ${agentId}`);
+      }
+
       console.log('🔥 Starting Claude API call...');
       
       // Get authentic agent response using Claude API ONLY
@@ -5086,7 +5109,7 @@ Starting analysis and implementation now...`;
           messages: [
             {
               role: 'user',
-              content: message
+              content: conversationContext + message
             }
           ]
         })
@@ -5111,6 +5134,14 @@ Starting analysis and implementation now...`;
         throw new Error('No response received from Claude API');
       }
       
+      // CRITICAL FIX: ADD CONVERSATION SAVING TO MAIN ENDPOINT
+      try {
+        await ConversationManager.saveConversation(userId, agentId, message, agentResponse);
+        console.log(`💾 MEMORY: Conversation saved for ${agentId}`);
+      } catch (error) {
+        console.error(`❌ MEMORY: Failed to save conversation for ${agentId}:`, error);
+      }
+
       // Return in format expected by visual editor
       res.json({
         success: true,
