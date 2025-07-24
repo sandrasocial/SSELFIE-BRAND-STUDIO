@@ -533,6 +533,12 @@ The platform has become overly complex with multiple pricing tiers, broken onboa
 - ✅ **Research-Based Settings**: Based on FLUX LoRA best practices - face LoRAs perform optimally at 1.0-1.3 scale
 - ✅ **Balanced Approach**: Maintains natural expressions while enhancing user likeness accuracy
 
+**PROMPT FORMAT OPTIMIZATION (July 24, 2025):**
+- ✅ **Trigger Word First**: Moved trigger word to position 1 for maximum LoRA activation following FLUX best practices
+- ✅ **Editorial Fashion Photography**: Added specification to combat FLUX's default photographic bias
+- ✅ **Enhanced Skin Texture**: Added "natural skin texture, subsurface scattering" for improved realism and depth
+- ✅ **Research-Based Format**: `[TRIGGER], raw photo, editorial fashion photography, visible skin pores, natural skin texture, subsurface scattering, film grain,`
+
 ## ✅ MAYA PROMPT OPTIMIZATION COMPLETED (July 24, 2025)
 
 **BREAKTHROUGH: CLEAN FLUX-OPTIMIZED PROMPT GENERATION SYSTEM**
