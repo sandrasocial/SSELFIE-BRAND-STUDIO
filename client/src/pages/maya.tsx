@@ -30,7 +30,7 @@ interface MayaChat {
 
 // Chat History Links Component - integrated into Maya Dashboard
 function ChatHistoryLinks({ onChatSelect }: { onChatSelect: (chatId: number) => void }) {
-  const { data: chats } = useQuery({
+  const { data: chats = [] } = useQuery<MayaChat[]>({
     queryKey: ['/api/maya-chats'],
     retry: false,
   });
@@ -230,24 +230,30 @@ export default function Maya() {
         ]
       };
       
-      console.log('🎉 Simulating tracker 341 completion with known S3 URLs...');
+      console.log('🎉 Simulating tracker 341 completion with known S3 URLs:', mockTrackerData.imageUrls);
+      
+      // Update all the UI states
       setGenerationProgress(100);
       setIsGenerating(false);
       setGeneratedImages(mockTrackerData.imageUrls);
       setCurrentTrackerId(341);
       
-      // Add to last Maya message
-      setMessages(prev => {
-        const newMessages = [...prev];
-        const lastMayaIndex = newMessages.map(m => m.role).lastIndexOf('maya');
-        if (lastMayaIndex >= 0) {
-          newMessages[lastMayaIndex] = {
-            ...newMessages[lastMayaIndex],
-            imagePreview: mockTrackerData.imageUrls
-          };
-        }
-        return newMessages;
+      console.log('✅ UI state updated:', {
+        progress: 100,
+        generating: false,
+        images: mockTrackerData.imageUrls,
+        trackerId: 341
       });
+      
+      // Add new Maya message with images
+      const newMayaMessage = {
+        role: 'maya' as const,
+        content: "✨ Perfect! Here are your tracker 341 images that completed successfully. These are your editorial black & white photos from the earlier generation!",
+        timestamp: new Date().toISOString(),
+        imagePreview: mockTrackerData.imageUrls
+      };
+      
+      setMessages(prev => [...prev, newMayaMessage]);
       
       toast({
         title: "Images loaded!",
@@ -458,7 +464,7 @@ export default function Maya() {
       
       // Mark images as saved
       selectedUrls.forEach(url => {
-        setSavedImages(prev => new Set([...prev, url]));
+        setSavedImages(prev => new Set([...Array.from(prev), url]));
       });
       
       // Refresh gallery to show newly saved images
@@ -475,13 +481,13 @@ export default function Maya() {
   const saveToGallery = async (imageUrl: string) => {
     if (savedImages.has(imageUrl) || savingImages.has(imageUrl)) return;
     
-    setSavingImages(prev => new Set([...prev, imageUrl]));
+    setSavingImages(prev => new Set([...Array.from(prev), imageUrl]));
     
     try {
       await saveSelectedToGallery([imageUrl]);
     } finally {
       setSavingImages(prev => {
-        const newSet = new Set(prev);
+        const newSet = new Set(Array.from(prev));
         newSet.delete(imageUrl);
         return newSet;
       });
