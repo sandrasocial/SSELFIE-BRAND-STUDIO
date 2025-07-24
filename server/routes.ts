@@ -5058,6 +5058,69 @@ Starting analysis and implementation now...`;
       console.log(`🤖 Admin Agent Chat: ${agentId} - "${message?.substring(0, 50)}..."`);
       console.log('🔥 SANDRA REQUIREMENT: NO FALLBACKS - CLAUDE API ONLY');
       
+      // ELENA WORKFLOW EXECUTION DETECTION FOR VISUAL EDITOR
+      const isElena = agentId === 'elena';
+      const messageText = message.toLowerCase();
+      
+      const isExecutionRequest = isElena && (
+        messageText.includes('execute workflow') ||
+        messageText.includes('start workflow') ||
+        messageText.includes('start the workflow') ||
+        messageText.includes('execute the workflow') ||
+        messageText.includes('proceed with workflow') ||
+        messageText.includes('begin workflow') ||
+        messageText.includes('yes proceed') ||
+        messageText.includes('run workflow') ||
+        messageText.includes('please execute') ||
+        messageText.includes('please start') ||
+        messageText.includes('start the admin') ||
+        messageText.includes('redesign please') ||
+        (messageText.includes('yes') && messageText.includes('please'))
+      );
+      
+      console.log(`🔍 ELENA VISUAL EDITOR: Execution request detected = ${isExecutionRequest}`);
+      
+      if (isElena && isExecutionRequest) {
+        console.log('🎯 ELENA: Workflow execution request detected in Visual Editor');
+        
+        try {
+          // Get the most recent workflow for this user
+          const { ElenaWorkflowSystem } = await import('./elena-workflow-system');
+          const workflows = await ElenaWorkflowSystem.getUserWorkflows(userId);
+          
+          console.log(`📋 ELENA: Found ${workflows.length} workflows for user ${userId}`);
+          
+          if (workflows.length > 0) {
+            // Get the most recent ready workflow
+            const latestWorkflow = workflows.find(w => w.status === 'ready') || workflows[0];
+            console.log(`🚀 ELENA: Executing workflow ${latestWorkflow.id} - ${latestWorkflow.name}`);
+            
+            // Execute the workflow
+            const execution = await ElenaWorkflowSystem.executeWorkflow(latestWorkflow.id);
+            
+            // Return successful execution response
+            return res.json({
+              success: true,
+              message: `🚀 **WORKFLOW EXECUTING: ${latestWorkflow.name}**\n\nI'm coordinating the team right now:\n\n${latestWorkflow.steps.map(step => `• ${step.agentName}: ${step.taskDescription}`).join('\n')}\n\nYou should see file changes appearing in the Visual Editor as the agents work!`,
+              agentId,
+              timestamp: new Date().toISOString(),
+              workflowExecution: true
+            });
+          } else {
+            return res.json({
+              success: true,
+              message: "I don't have any workflows ready to execute. Please first ask me to create a workflow for your admin dashboard redesign, then I can execute it.",
+              agentId,
+              timestamp: new Date().toISOString()
+            });
+          }
+          
+        } catch (error) {
+          console.error('Elena workflow execution error in Visual Editor:', error);
+          // Continue with normal response if workflow execution fails
+        }
+      }
+      
       // Import agent configurations
       const { AGENT_CONFIGS } = await import('./routes/agent-conversation-routes');
       
