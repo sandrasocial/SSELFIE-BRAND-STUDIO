@@ -470,6 +470,20 @@ The platform has become overly complex with multiple pricing tiers, broken onboa
 - Professional user experience with clean polling system and real-time progress tracking
 - Database storage ensures users never lose their generated images from Maya sessions
 
+## ✅ IMAGE GENERATION PARAMETERS UPDATED (July 24, 2025)
+
+**PARAMETER OPTIMIZATION COMPLETED:**
+- ✅ **LoRA Scale Increased**: Updated from 1.0 to 1.1 for enhanced model influence
+- ✅ **Inference Steps Enhanced**: Increased from 40 to 45 steps for improved quality
+- ✅ **Output Count Optimized**: Reduced from 3 to 2 images per generation for faster processing
+- ✅ **Other Settings Preserved**: Maintained guidance_scale: 2.82, aspect_ratio: "3:4", and quality settings
+
+**Technical Implementation:**
+- Updated WORKING_PARAMETERS in server/unified-generation-service.ts
+- All image generations (Maya and AI-photoshoot) now use optimized parameters
+- Preserved proven working configuration while incorporating requested adjustments
+- Single source of truth ensures consistent generation quality across platform
+
 ## ✅ MAYA POLLING SYSTEM CRITICAL ISSUE IDENTIFIED - AUTHENTICATION TIMING (July 24, 2025)
 
 **CORE ISSUE DISCOVERED: MAYA POLLING VS AUTHENTICATION TIMING**

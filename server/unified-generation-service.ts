@@ -34,9 +34,9 @@ export interface UnifiedGenerationResponse {
  */
 const WORKING_PARAMETERS = {
   guidance_scale: 2.82,
-  num_inference_steps: 40,
-  lora_scale: 1,
-  num_outputs: 3,
+  num_inference_steps: 45,
+  lora_scale: 1.1,
+  num_outputs: 2,
   aspect_ratio: "3:4",
   output_format: "png",
   output_quality: 95,
