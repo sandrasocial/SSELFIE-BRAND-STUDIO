@@ -28,9 +28,9 @@ export interface UnifiedGenerationResponse {
 }
 
 /**
- * SANDRA'S PROVEN WORKING PARAMETERS (July 17, 2025)
- * These exact settings produced beautiful, realistic images
- * DO NOT CHANGE WITHOUT EXPLICIT APPROVAL
+ * SANDRA'S ENHANCED PARAMETERS (July 24, 2025)
+ * Updated with missing Replicate web interface parameters for optimal quality
+ * These match the web interface for consistent high-quality results
  */
 const WORKING_PARAMETERS = {
   guidance_scale: 2.82,
@@ -40,8 +40,9 @@ const WORKING_PARAMETERS = {
   aspect_ratio: "3:4",
   output_format: "png",
   output_quality: 95,
-  go_fast: false,
-  disable_safety_checker: false
+  go_fast: true, // Enable fp8 quantization optimization for better quality
+  disable_safety_checker: false,
+  megapixels: "1" // Controls output resolution (0.25, 0.5, 1, 2) - "1" for high quality
 } as const;
 
 export class UnifiedGenerationService {
@@ -91,11 +92,12 @@ export class UnifiedGenerationService {
     
     console.log(`🎯 UNIFIED FINAL PROMPT: "${finalPrompt}"`);
     
-    // Build request with Sandra's proven working parameters
+    // Build request with Sandra's enhanced parameters including LoRA weights
     const requestBody = {
       version: fullModelVersion,
       input: {
         prompt: finalPrompt,
+        lora_weights: fullModelVersion, // Specify LoRA weights explicitly for Black Forest Labs model
         ...WORKING_PARAMETERS,
         seed: Math.floor(Math.random() * 1000000)
       }
@@ -106,10 +108,13 @@ export class UnifiedGenerationService {
     const isPremium = user?.plan === 'sselfie-studio' || user?.role === 'admin';
     ArchitectureValidator.validateGenerationRequest(requestBody, userId, isPremium);
     
-    console.log(`🚀 SANDRA'S PROVEN PARAMETERS:`, {
+    console.log(`🚀 SANDRA'S ENHANCED PARAMETERS:`, {
       guidance_scale: requestBody.input.guidance_scale,
       steps: requestBody.input.num_inference_steps,
       lora_scale: requestBody.input.lora_scale,
+      lora_weights: requestBody.input.lora_weights,
+      megapixels: requestBody.input.megapixels,
+      go_fast: requestBody.input.go_fast,
       model: fullModelVersion,
       trigger: triggerWord
     });

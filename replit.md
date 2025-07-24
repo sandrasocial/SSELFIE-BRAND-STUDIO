@@ -478,6 +478,12 @@ The platform has become overly complex with multiple pricing tiers, broken onboa
 - ✅ **Output Count Optimized**: Reduced from 3 to 2 images per generation for faster processing
 - ✅ **Other Settings Preserved**: Maintained guidance_scale: 2.82, aspect_ratio: "3:4", and quality settings
 
+**MISSING REPLICATE PARAMETERS ADDED (July 24, 2025):**
+- ✅ **LoRA Weights Parameter**: Added explicit `lora_weights` specification for Black Forest Labs model compatibility
+- ✅ **Megapixels Control**: Added `megapixels: "1"` for high-resolution output control
+- ✅ **Go Fast Optimization**: Enabled `go_fast: true` for fp8 quantization and optimized attention kernel
+- ✅ **Web Interface Parity**: Parameters now match Replicate web interface for consistent quality
+
 **Technical Implementation:**
 - Updated WORKING_PARAMETERS in server/unified-generation-service.ts
 - All image generations (Maya and AI-photoshoot) now use optimized parameters
