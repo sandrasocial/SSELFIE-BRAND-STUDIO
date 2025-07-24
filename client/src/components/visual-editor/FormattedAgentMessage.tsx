@@ -116,8 +116,9 @@ export function FormattedAgentMessage({ content, agentName, timestamp }: Formatt
                   variant="outline"
                   size="sm"
                   onClick={() => toggleCodeBlock(codeBlockIndex)}
-                  className="text-xs h-7 px-3 border-black text-black hover:bg-black hover:text-white"
+                  className="text-xs h-7 px-3 border-blue-500 text-blue-600 hover:bg-blue-500 hover:text-white bg-blue-50"
                 >
+                  <span className="text-blue-600 text-xs font-mono mr-1">{'<>'}</span>
                   {isExpanded ? 'Collapse' : 'View Code'}
                 </Button>
               </div>

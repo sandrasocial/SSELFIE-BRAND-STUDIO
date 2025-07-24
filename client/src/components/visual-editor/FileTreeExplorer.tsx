@@ -48,17 +48,19 @@ export function FileTreeExplorer({ onFileSelect, selectedAgent }: FileTreeExplor
     // Expose refresh function globally for agent file operations
     (window as any).refreshFileTree = refreshFileTree;
     
-    // Set up file watching interval to detect external changes
-    const watchInterval = setInterval(() => {
+    // DISABLED: Excessive polling was preventing file tree navigation
+    // Users reported inability to expand folders due to constant refreshing
+    // File tree will only refresh when explicitly triggered by agent operations
+    const watchInterval = null; // setInterval(() => {
       // Only refresh if the file tree tab is active to avoid unnecessary API calls
-      const activeTab = (window as any).activeFileTab;
-      if (activeTab === 'files') {
-        setIsWatching(true);
-        refreshFileTree();
-        // Hide watching indicator after 500ms
-        setTimeout(() => setIsWatching(false), 500);
-      }
-    }, 5000); // Check every 5 seconds when files tab is active
+      // const activeTab = (window as any).activeFileTab;
+      // if (activeTab === 'files') {
+      //   setIsWatching(true);
+      //   refreshFileTree();
+      //   // Hide watching indicator after 500ms
+      //   setTimeout(() => setIsWatching(false), 500);
+      // }
+    // }, 5000); // Check every 5 seconds when files tab is active
     
     // Set up visibility change listener to refresh when tab becomes visible
     const handleVisibilityChange = () => {
@@ -72,7 +74,7 @@ export function FileTreeExplorer({ onFileSelect, selectedAgent }: FileTreeExplor
     
     return () => {
       delete (window as any).refreshFileTree;
-      clearInterval(watchInterval);
+      if (watchInterval) clearInterval(watchInterval);
       document.removeEventListener('visibilitychange', handleVisibilityChange);
     };
   }, [expandedDirs]);
