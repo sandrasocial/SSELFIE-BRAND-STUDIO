@@ -12,8 +12,11 @@ import {
   Activity,
   BarChart3,
   Eye,
-  RefreshCw
+  RefreshCw,
+  Crown,
+  Sparkles
 } from 'lucide-react';
+import '@/styles/generated.css';
 
 interface DashboardMetrics {
   totalUsers: number;

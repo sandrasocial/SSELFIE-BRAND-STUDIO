@@ -1,50 +1,39 @@
-.
-├── README.md
-├── client
-│   ├── package.json
-│   ├── public
-│   │   ├── favicon.ico
-│   │   └── index.html
-│   ├── src
-│   │   ├── App.tsx
-│   │   ├── components
-│   │   │   ├── Build
-│   │   │   │   ├── BuildForm.tsx
-│   │   │   │   ├── BuildItem.tsx
-│   │   │   │   ├── BuildList.tsx
-│   │   │   │   └── BuildVisualStudio.tsx
-│   │   │   ├── Profile
-│   │   │   │   ├── ProfileDisplay.tsx
-│   │   │   │   └── ProfileForm.tsx
-│   │   │   ├── Navbar.tsx
-│   │   │   └── ui
-│   │   │       ├── Button.tsx
-│   │   │       ├── Card.tsx
-│   │   │       ├── Input.tsx
-│   │   │       └── LoadingSpinner.tsx
-│   │   ├── hooks
-│   │   │   ├── useBuild.tsx
-│   │   │   └── useProfile.tsx
-│   │   ├── index.css
-│   │   ├── lib
-│   │   │   ├── api.ts
-│   │   │   └── utils.ts
-│   │   ├── main.tsx
-│   │   └── types.ts
-│   ├── tailwind.config.js
-│   ├── tsconfig.json
-│   └── vite.config.ts
-├── db
-│   └── schema.sql
-├── package.json
-├── server
-│   ├── app.js
-│   ├── database.js
-│   ├── package.json
-│   └── routes
-│       ├── build.js
-│       └── profile.js
-└── shared
-    ├── package.json
-    ├── schema.ts
-    └── types.ts
+/* Admin Dashboard Luxury Enhancements */
+.admin-dashboard-luxury {
+  background: linear-gradient(135deg, #f8f9fa 0%, #ffffff 100%);
+  min-height: 100vh;
+}
+
+.admin-metrics-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 1.5rem;
+  margin-bottom: 2rem;
+}
+
+.admin-metric-card {
+  background: white;
+  border-radius: 12px;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+  padding: 1.5rem;
+  transition: all 0.3s ease;
+}
+
+.admin-metric-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 15px -3px rgba(0, 0, 0, 0.1);
+}
+
+.admin-metric-value {
+  font-family: "Times New Roman", serif;
+  font-size: 2.5rem;
+  font-weight: bold;
+  color: #1a1a1a;
+}
+
+.admin-luxury-tabs {
+  background: white;
+  border-radius: 12px;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+  overflow: hidden;
+}
