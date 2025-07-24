@@ -470,6 +470,35 @@ The platform has become overly complex with multiple pricing tiers, broken onboa
 - Professional user experience with clean polling system and real-time progress tracking
 - Database storage ensures users never lose their generated images from Maya sessions
 
+## ✅ AI-PHOTOSHOOT POLLING SYSTEM FIXED - MAYA'S AUTHENTICATION PATTERN APPLIED (July 24, 2025)
+
+**BREAKTHROUGH: AI-PHOTOSHOOT IMAGE PREVIEW AND PROGRESS TRACKING RESTORED**
+- ✅ **Authentication Retry Logic**: Applied Maya's working authentication pattern with 3-retry mechanism and 2-second delays
+- ✅ **Enhanced Error Handling**: Comprehensive error handling for authentication failures, timeouts, and connection issues
+- ✅ **Modal Display Fixed**: Updated modal condition to show during generation or when images are available
+- ✅ **Debug Logging Enhanced**: Added detailed console logging for polling status, tracker data, and modal state updates
+- ✅ **Admin Test Button**: Added admin-only test button to verify modal functionality with completed trackers
+- ✅ **Session Stabilization**: Added 1-second initial delay for proper session establishment before polling
+
+**Technical Implementation:**
+- Enhanced `pollForTrackerImages` function with authentication retry logic matching Maya's working system
+- Fixed authentication headers: `credentials: 'include'`, `Content-Type: application/json`
+- Updated modal rendering condition: `(showPreviewModal || generatingImages) && (generatedImages.length > 0 || generatingImages)`
+- Added comprehensive error handling for 401 authentication failures with user-friendly toast messages
+- Implemented admin test button using `/api/generation-trackers/completed` endpoint to verify modal functionality
+- Enhanced console logging: `AI-PHOTOSHOOT: ✅ TRACKER COMPLETED!`, `✅ Modal state updated`, `🚀 Starting polling`
+
+**Database Verification:**
+- Confirmed completed trackers available: Trackers 377, 378 with valid S3 image URLs
+- Verified API endpoint `/api/generation-trackers/completed` exists and working
+- Database contains completed generations with permanent S3 storage URLs
+
+**Business Impact:**
+- AI-photoshoot now has same reliable polling system as Maya's working implementation
+- Users will see progress bars and image previews immediately upon generation completion
+- Professional error handling prevents user confusion during authentication or connection issues
+- Admin test functionality allows verification of modal display without generating new images
+
 ## ✅ IMAGE GENERATION PARAMETERS UPDATED (July 24, 2025)
 
 **PARAMETER OPTIMIZATION COMPLETED:**

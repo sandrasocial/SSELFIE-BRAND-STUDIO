@@ -847,7 +847,7 @@ export default function AIPhotoshootPage() {
     }
   }, [userModel, queryClient, toast]);
 
-  // Maya-style tracker polling function
+  // Enhanced Maya-style tracker polling with authentication retry
   const pollForTrackerImages = async (trackerId: number) => {
     const maxAttempts = 40; // 2 minutes total (3 second intervals)
     let attempts = 0;
@@ -857,13 +857,41 @@ export default function AIPhotoshootPage() {
         attempts++;
         setGenerationProgress(Math.min(90, (attempts / maxAttempts) * 90));
         
-        const response = await fetch(`/api/generation-tracker/${trackerId}`, {
-          credentials: 'include'
-        });
+        // Enhanced authentication retry logic (matching Maya's working system)
+        let response;
+        let authRetries = 0;
+        const maxAuthRetries = 3;
+        
+        while (authRetries < maxAuthRetries) {
+          response = await fetch(`/api/generation-tracker/${trackerId}`, {
+            method: 'GET',
+            credentials: 'include',
+            headers: {
+              'Content-Type': 'application/json',
+            }
+          });
+          
+          if (response.status !== 401) break; // Authentication successful or other error
+          
+          authRetries++;
+          console.log(`AI-PHOTOSHOOT: Auth retry ${authRetries}/${maxAuthRetries} for tracker ${trackerId}`);
+          await new Promise(resolve => setTimeout(resolve, 2000)); // Wait 2 seconds before retry
+        }
         
         console.log('AI-PHOTOSHOOT: Polling response status:', response.status);
         
         if (!response.ok) {
+          if (response.status === 401) {
+            console.error('AI-PHOTOSHOOT: Authentication failed after retries');
+            setGeneratingImages(false);
+            toast({
+              title: "Authentication Error",
+              description: "Session expired. Please refresh the page.",
+              variant: "destructive",
+            });
+            return;
+          }
+          
           console.error('AI-PHOTOSHOOT: Tracker fetch failed:', response.status, await response.text());
           throw new Error('Failed to fetch tracker status');
         }
@@ -872,17 +900,18 @@ export default function AIPhotoshootPage() {
         console.log('AI-PHOTOSHOOT: Tracker data:', tracker);
         
         if (tracker && tracker.status === 'completed' && tracker.imageUrls && tracker.imageUrls.length > 0) {
-          // Generation completed
-          console.log('AI-PHOTOSHOOT: Tracker generation completed!', tracker);
-          console.log('AI-PHOTOSHOOT: Setting generatedImages to:', tracker.imageUrls);
-          console.log('AI-PHOTOSHOOT: Setting showPreviewModal to true');
+          // Generation completed - show modal immediately
+          console.log('AI-PHOTOSHOOT: ✅ TRACKER COMPLETED!', tracker);
+          console.log('AI-PHOTOSHOOT: Image URLs:', tracker.imageUrls);
           
           setGenerationProgress(100);
           setGeneratingImages(false);
           
-          // Maya tracker already has parsed imageUrls array
+          // Set images and show modal immediately
           setGeneratedImages(tracker.imageUrls);
           setShowPreviewModal(true);
+          
+          console.log('AI-PHOTOSHOOT: ✅ Modal state updated - showPreviewModal: true, images:', tracker.imageUrls.length);
           
           toast({
             title: "Images Generated!",
@@ -892,6 +921,7 @@ export default function AIPhotoshootPage() {
         }
         
         if (tracker && tracker.status === 'failed') {
+          console.log('AI-PHOTOSHOOT: ❌ Generation failed');
           setGeneratingImages(false);
           toast({
             title: "Generation Failed",
@@ -901,10 +931,16 @@ export default function AIPhotoshootPage() {
           return;
         }
         
+        // Continue polling if still processing
+        if (tracker && tracker.status === 'processing') {
+          console.log(`AI-PHOTOSHOOT: Still processing... attempt ${attempts}/${maxAttempts}`);
+        }
+        
         // Continue polling
         if (attempts < maxAttempts) {
           setTimeout(poll, 3000);
         } else {
+          console.log('AI-PHOTOSHOOT: ⚠️ Polling timeout reached');
           setGeneratingImages(false);
           toast({
             title: "Generation Timeout", 
@@ -913,17 +949,23 @@ export default function AIPhotoshootPage() {
           });
         }
       } catch (error) {
-        console.error('Tracker polling error:', error);
+        console.error('AI-PHOTOSHOOT: Polling error:', error);
         if (attempts < maxAttempts) {
           setTimeout(poll, 3000);
         } else {
           setGeneratingImages(false);
+          toast({
+            title: "Connection Error",
+            description: "Lost connection while generating. Please try again.",
+            variant: "destructive",
+          });
         }
       }
     };
     
-    // Start polling
-    setTimeout(poll, 2000);
+    // Start polling with initial delay (matching Maya's pattern)
+    console.log(`AI-PHOTOSHOOT: 🚀 Starting polling for tracker ${trackerId}`);
+    setTimeout(poll, 1000); // 1 second initial delay for session stabilization
   };
 
 
@@ -1101,6 +1143,60 @@ export default function AIPhotoshootPage() {
               <p className="text-gray-600 max-w-2xl mx-auto text-lg font-light">
                 {PROMPT_COLLECTIONS[selectedCollection]?.description}
               </p>
+              
+              {/* Admin Debug Test Button */}
+              {user?.role === 'admin' && (
+                <div className="mt-8 p-4 bg-gray-50 border border-gray-200 rounded max-w-2xl mx-auto">
+                  <p className="text-sm text-gray-600 mb-3">Admin Debug Tools:</p>
+                  <button
+                    onClick={async () => {
+                      try {
+                        // Test loading most recent completed tracker (similar to Maya's test system)
+                        const response = await fetch('/api/generation-trackers/completed', {
+                          credentials: 'include'
+                        });
+                        
+                        if (response.ok) {
+                          const trackers = await response.json();
+                          console.log('AI-PHOTOSHOOT: Completed trackers:', trackers);
+                          
+                          if (trackers.length > 0) {
+                            const testTracker = trackers[0]; // Use most recent completed tracker
+                            console.log('AI-PHOTOSHOOT: Testing with tracker:', testTracker);
+                            
+                            setCurrentTrackerId(testTracker.id);
+                            setGeneratedImages(testTracker.imageUrls || []);
+                            setShowPreviewModal(true);
+                            setGeneratingImages(false);
+                            
+                            toast({
+                              title: "Test Tracker Loaded",
+                              description: `Testing with tracker ${testTracker.id} - ${testTracker.imageUrls?.length || 0} images`,
+                            });
+                          } else {
+                            toast({
+                              title: "No Completed Trackers",
+                              description: "No completed trackers found for testing",
+                              variant: "destructive",
+                            });
+                          }
+                        }
+                      } catch (error) {
+                        console.error('Test tracker error:', error);
+                        toast({
+                          title: "Test Failed",
+                          description: "Could not load test tracker",
+                          variant: "destructive",
+                        });
+                      }
+                    }}
+                    className="bg-blue-500 text-white px-4 py-2 rounded text-sm hover:bg-blue-600 mr-3"
+                  >
+                    Test Modal with Completed Tracker
+                  </button>
+                  <span className="text-xs text-gray-500">Tests modal display with most recent completed generation</span>
+                </div>
+              )}
             </div>
 
             {/* Prompts Grid - Minimalist Cards */}
@@ -1165,10 +1261,10 @@ export default function AIPhotoshootPage() {
           </div>
         )}
 
-      {/* Maya-style Image Preview Modal */}
+      {/* Maya-style Image Preview Modal - Show when images are available */}
       {(() => {
         console.log('AI-PHOTOSHOOT: Preview modal check - showPreviewModal:', showPreviewModal, 'generatedImages.length:', generatedImages.length);
-        return showPreviewModal && generatedImages.length > 0;
+        return (showPreviewModal || generatingImages) && (generatedImages.length > 0 || generatingImages);
       })() && (
         <div className="fixed inset-0 bg-black bg-opacity-90 z-50 flex items-center justify-center p-4" onClick={() => setShowPreviewModal(false)}>
           <div className="bg-white max-w-5xl w-full max-h-[90vh] overflow-y-auto" onClick={(e) => e.stopPropagation()}>
