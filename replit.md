@@ -516,6 +516,11 @@ The platform has become overly complex with multiple pricing tiers, broken onboa
 - ✅ **Quality Focus**: Maintaining the enhanced realism settings (LoRA 1.3, skin texture) with dual outputs
 - ✅ **Second Image Solution**: Will explore other methods to improve second image quality while keeping dual outputs
 
+**LORA SCALE CORRECTION (July 24, 2025):**
+- ✅ **Scale Reduced**: From 1.3 to 1.0 after user feedback that higher scale was destroying image quality
+- ✅ **Natural Balance**: 1.0 provides user likeness without over-processing or artificial appearance
+- ✅ **Quality Priority**: Focused on natural, realistic results rather than forcing stronger model influence
+
 ## ✅ MAYA PROMPT OPTIMIZATION COMPLETED (July 24, 2025)
 
 **BREAKTHROUGH: CLEAN FLUX-OPTIMIZED PROMPT GENERATION SYSTEM**
