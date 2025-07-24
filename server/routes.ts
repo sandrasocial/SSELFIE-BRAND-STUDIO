@@ -3605,11 +3605,34 @@ I'm here to make your website perfect!`;
 
       // Get completed trackers from last 2 hours for Maya chat preview
       const trackers = await storage.getCompletedGenerationTrackersForUser(userId, 2);
+      console.log(`🎬 MAYA DEBUG: Found ${trackers.length} completed trackers for user ${userId}`);
       res.json(trackers);
       
     } catch (error) {
       console.error('Failed to fetch generation trackers:', error);
       res.status(500).json({ error: 'Failed to fetch previews' });
+    }
+  });
+
+  // TEMPORARY DEBUG: Get Sandra's completed images without auth for testing
+  app.get('/api/debug/maya-images-sandra', async (req, res) => {
+    try {
+      // Sandra's user ID from logs
+      const trackers = await storage.getCompletedGenerationTrackersForUser('42585527', 2);
+      console.log(`🎬 MAYA DEBUG: Found ${trackers.length} completed trackers for Sandra (42585527)`);
+      res.json({
+        message: `Found ${trackers.length} completed trackers for Sandra`,
+        trackers: trackers.map(t => ({
+          id: t.id,
+          status: t.status,
+          imageCount: t.imageUrls ? (typeof t.imageUrls === 'string' ? JSON.parse(t.imageUrls).length : t.imageUrls.length) : 0,
+          createdAt: t.createdAt
+        })),
+        fullTrackers: trackers
+      });
+    } catch (error) {
+      console.error('Debug endpoint error:', error);
+      res.status(500).json({ error: error.message });
     }
   });
 
