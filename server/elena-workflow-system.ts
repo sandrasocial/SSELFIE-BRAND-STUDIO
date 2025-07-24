@@ -726,8 +726,8 @@ export class ElenaWorkflowSystem {
           olgaInstructions = await this.getMandatoryOlgaCoordination(agentName, task);
         }
 
-        // Create enhanced agent instruction with file modification requirement
-        const enhancedTask = `ELENA WORKFLOW: ${task}
+        // Create MANDATORY tool usage instruction - agents MUST use str_replace_based_edit_tool
+        const enhancedTask = `🚨 ELENA WORKFLOW EXECUTION - MANDATORY TOOL USAGE REQUIRED 🚨
 
 ${olgaInstructions ? `🗂️ OLGA'S MANDATORY INSTRUCTIONS:
 ${olgaInstructions}
@@ -736,14 +736,19 @@ ${olgaInstructions}
 
 🎯 WORKFLOW TASK: ${task}
 ${targetFile ? `Target File: ${targetFile}` : 'Target: Determine appropriate file from task context'}
-🚨 CRITICAL: MODIFY EXISTING FILES - DO NOT CREATE NEW STANDALONE FILES
-Required: Use str_replace_based_edit_tool to modify the appropriate existing files
-Identify the correct files based on the task description and modify them directly
-DO NOT create new standalone files that aren't imported or used
-USE ONLY str_replace_based_edit_tool on existing integrated files
+
+🚨 MANDATORY TOOL REQUIREMENT:
+- You MUST use str_replace_based_edit_tool to modify files
+- DO NOT respond with text explanations only
+- DO NOT create new standalone files  
+- MODIFY existing integrated files directly
+- Use str_replace_based_edit_tool for ALL file changes
+
+WORKFLOW REQUIREMENT: If you do not use str_replace_based_edit_tool, this task will be marked as FAILED and you will be called again until tools are used.
+
 Standards: SSELFIE Studio architecture, maintain existing functionality
 
-End response with: MODIFIED: [exact file paths that were changed]`;
+MANDATORY: End response with: TOOL_USED: str_replace_based_edit_tool | MODIFIED: [exact file paths that were changed]`;
 
         // Call the agent through the NEW tool integration endpoint that supports str_replace_based_edit_tool
         const fetch = (await import('node-fetch')).default;
@@ -773,22 +778,29 @@ End response with: MODIFIED: [exact file paths that were changed]`;
         if (response.ok) {
           const result = await response.json();
           
-          // UPDATED: Verify actual file modifications from agent-chat-bypass response
+          // STRICT: Verify MANDATORY tool usage from agent-chat-bypass response
           const toolCallsSuccess = result.toolCalls?.length > 0;
           const filesModified = result.filesCreated?.length > 0 || result.fileOperations?.length > 0 || toolCallsSuccess;
-          const hasModificationKeywords = result.response?.includes('str_replace_based_edit_tool') || result.response?.includes('MODIFIED:') || result.response?.includes('created') || result.response?.includes('updated');
-          const hasActualWork = filesModified || hasModificationKeywords || result.success;
+          const hasToolUsageConfirmation = result.response?.includes('TOOL_USED: str_replace_based_edit_tool');
+          const hasModificationKeywords = result.response?.includes('MODIFIED:') || result.response?.includes('str_replace_based_edit_tool');
           
-          if (hasActualWork) {
-            console.log(`✅ REAL AGENT EXECUTION: ${agentName} worked on actual files - ${result.toolCalls?.length || 0} tool calls, ${result.filesCreated?.length || 0} files created, ${result.fileOperations?.length || 0} operations`);
+          // STRICT VALIDATION: Agent MUST use tools AND confirm usage
+          const actualToolUsage = toolCallsSuccess && (hasToolUsageConfirmation || hasModificationKeywords);
+          
+          console.log(`✅ REAL AGENT EXECUTION: ${agentName} worked on actual files - ${result.toolCalls?.length || 0} tool calls, ${result.filesCreated?.length || 0} files created, ${result.fileOperations?.length || 0} operations`);
+          console.log(`🔍 TOOL VALIDATION: toolCallsSuccess=${toolCallsSuccess}, hasToolUsageConfirmation=${hasToolUsageConfirmation}, actualToolUsage=${actualToolUsage}`);
+          
+          // STRICT SUCCESS: Agent MUST have used tools AND confirmed usage
+          if (actualToolUsage) {
+            console.log(`✅ ELENA: ${agentName} successfully used str_replace_based_edit_tool and modified files`);
             return true;
           } else {
-            console.log(`❌ FAKE AGENT EXECUTION: ${agentName} responded but did NOT modify any files (attempt ${attempt})`);
+            console.log(`❌ ELENA: ${agentName} did NOT use str_replace_based_edit_tool (attempt ${attempt}) - forcing retry`);
             console.log(`📝 Agent response: ${result.response?.substring(0, 200)}...`);
             console.log(`🔍 Debug info: toolCalls=${result.toolCalls?.length}, filesCreated=${result.filesCreated?.length}, fileOperations=${result.fileOperations?.length}`);
             
-            // If this is the last attempt, return false. Otherwise retry.
             if (attempt === MAX_RETRIES) {
+              console.log(`🚨 ELENA: ${agentName} FAILED - no tool usage after ${MAX_RETRIES} attempts`);
               return false;
             }
             continue;
