@@ -481,10 +481,9 @@ The platform has become overly complex with multiple pricing tiers, broken onboa
 **PARAMETER EXACT MATCH COMPLETED (July 24, 2025):**
 - ✅ **Model Added**: Added model: "dev" to match reference exactly
 - ✅ **Guidance Scale Fixed**: Updated from 2.82 to 2.8 to match reference
-- ✅ **Prompt Strength Added**: Added prompt_strength: 0.8 for better prompt adherence
-- ✅ **Extra LoRA Scale Added**: Added extra_lora_scale: 1 for enhanced model influence
-- ✅ **Megapixels Added**: Added megapixels: 1 for proper resolution control
 - ✅ **Go Fast Set**: Set go_fast: false to match reference settings exactly
+- ✅ **Invalid Parameters Removed**: Removed prompt_strength, extra_lora_scale, megapixels (not supported by FLUX dev model)
+- ✅ **Core Parameters Matched**: All valid parameters now match reference for consistent generation quality
 
 **Technical Implementation:**
 - Updated WORKING_PARAMETERS in server/unified-generation-service.ts
