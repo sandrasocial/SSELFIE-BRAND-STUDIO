@@ -11,6 +11,7 @@ import { EditorialImageBreak } from '@/components/EditorialImageBreak';
 import { MemberNavigation } from '@/components/member-navigation';
 
 interface ChatMessage {
+  id?: number;
   role: 'user' | 'maya';
   content: string;
   timestamp: string;
@@ -188,7 +189,7 @@ export default function Maya() {
             })
           });
 
-          await fetch(`/api/maya-chats/${chatIdForSaving}/messages`, {
+          const mayaMessageResponse = await fetch(`/api/maya-chats/${chatIdForSaving}/messages`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             credentials: 'include',
@@ -198,6 +199,23 @@ export default function Maya() {
               generatedPrompt: mayaMessage.generatedPrompt
             })
           });
+          
+          // Get the saved message ID for future updates
+          if (mayaMessageResponse.ok) {
+            const savedMayaMessage = await mayaMessageResponse.json();
+            // Update the message in state with the database ID
+            setMessages(prev => {
+              const newMessages = [...prev];
+              const lastMayaIndex = newMessages.map(m => m.role).lastIndexOf('maya');
+              if (lastMayaIndex >= 0) {
+                newMessages[lastMayaIndex] = {
+                  ...newMessages[lastMayaIndex],
+                  id: savedMayaMessage.id
+                };
+              }
+              return newMessages;
+            });
+          }
 
           // Invalidate chat history to refresh sidebar
           queryClient.invalidateQueries({ queryKey: ['/api/maya-chats'] });
@@ -214,75 +232,7 @@ export default function Maya() {
     }
   };
 
-  // 🔍 TEST CURRENT POLLING: Create a new image to test live polling
-  const testCurrentPolling = async () => {
-    try {
-      console.log('🧪 Testing current polling system...');
-      
-      // Simulate sending a message that triggers generation
-      const testMessage = "Create a professional editorial portrait";
-      setInput(testMessage);
-      
-      // Trigger the sendMessage function
-      await sendMessage();
-      
-      console.log('✅ Generation request sent - polling should start automatically');
-      
-    } catch (error) {
-      console.error('🧪 Current polling test error:', error);
-    }
-  };
 
-  // 🔍 MANUAL TEST: Check tracker 341 status (for debugging)
-  const testTracker341 = async () => {
-    try {
-      console.log('🧪 Testing tracker 341 manually...');
-      
-      // Since we know tracker 341 completed with 3 S3 images, simulate the completed display
-      const mockTrackerData = {
-        id: 341,
-        status: 'completed',
-        imageUrls: [
-          'https://sselfie-training-zips.s3.eu-north-1.amazonaws.com/images/42585527/tracker_341_img_0_1753339014506.png',
-          'https://sselfie-training-zips.s3.eu-north-1.amazonaws.com/images/42585527/tracker_341_img_1_1753339013746.png',
-          'https://sselfie-training-zips.s3.eu-north-1.amazonaws.com/images/42585527/tracker_341_img_2_1753339015640.png'
-        ]
-      };
-      
-      console.log('🎉 Simulating tracker 341 completion with known S3 URLs:', mockTrackerData.imageUrls);
-      
-      // Update all the UI states
-      setGenerationProgress(100);
-      setIsGenerating(false);
-      setGeneratedImages(mockTrackerData.imageUrls);
-      setCurrentTrackerId(341);
-      
-      console.log('✅ UI state updated:', {
-        progress: 100,
-        generating: false,
-        images: mockTrackerData.imageUrls,
-        trackerId: 341
-      });
-      
-      // Add new Maya message with images
-      const newMayaMessage = {
-        role: 'maya' as const,
-        content: "✨ Perfect! Here are your tracker 341 images that completed successfully. These are your editorial black & white photos from the earlier generation!",
-        timestamp: new Date().toISOString(),
-        imagePreview: mockTrackerData.imageUrls
-      };
-      
-      setMessages(prev => [...prev, newMayaMessage]);
-      
-      toast({
-        title: "Images loaded!",
-        description: "Tracker 341 images are now displayed",
-      });
-      
-    } catch (error) {
-      console.error('🧪 Tracker 341 test error:', error);
-    }
-  };
 
   // 🔑 FIXED: Poll tracker for image completion with robust authentication
   const pollForTrackerCompletion = async (trackerId: number) => {
@@ -299,23 +249,19 @@ export default function Maya() {
         attempts++;
         setGenerationProgress(Math.min(90, (attempts / maxAttempts) * 90));
         
-        // Enhanced fetch with proper session handling
+        // Poll tracker status
         const response = await fetch(`/api/generation-tracker/${trackerId}`, {
           method: 'GET',
           credentials: 'include',
           headers: {
             'Accept': 'application/json',
-            'Cache-Control': 'no-cache',
-            'Content-Type': 'application/json'
+            'Cache-Control': 'no-cache'
           }
         });
         
         // Handle authentication errors with retries
         if (response.status === 401 && authRetries < maxAuthRetries) {
           authRetries++;
-          console.log(`🔐 Maya polling: Authentication retry ${authRetries}/${maxAuthRetries} for tracker ${trackerId}`);
-          
-          // Wait longer for session to stabilize, then retry
           await new Promise(resolve => setTimeout(resolve, 2000));
           return poll();
         }
@@ -338,17 +284,15 @@ export default function Maya() {
         }
         
         const tracker = await response.json();
-        console.log(`🎬 Maya polling result: Status=${tracker.status}, Images=${tracker.imageUrls?.length || 0}, Attempt=${attempts}/${maxAttempts}`);
+        // Maya polling successfully
         
         if (tracker.status === 'completed' && tracker.imageUrls && tracker.imageUrls.length > 0) {
           // Image generation completed
-          console.log('Maya: Tracker generation completed!', tracker);
-          
           setGenerationProgress(100);
           setIsGenerating(false);
           setGeneratedImages(tracker.imageUrls);
           
-          // Add image preview to the last Maya message
+          // Add image preview to the last Maya message and save permanently
           setMessages(prev => {
             const newMessages = [...prev];
             const lastMayaIndex = newMessages.map(m => m.role).lastIndexOf('maya');
@@ -357,11 +301,22 @@ export default function Maya() {
                 ...newMessages[lastMayaIndex],
                 imagePreview: tracker.imageUrls
               };
+              
+              // Save the updated message with images to database using existing update route
+              if (currentChatId && newMessages[lastMayaIndex].id) {
+                fetch(`/api/maya-chats/${currentChatId}/messages/${newMessages[lastMayaIndex].id}/update-preview`, {
+                  method: 'PATCH',
+                  credentials: 'include',
+                  headers: { 'Content-Type': 'application/json' },
+                  body: JSON.stringify({
+                    imagePreview: JSON.stringify(tracker.imageUrls)
+                  })
+                }).catch(error => console.error('Error saving images to database:', error));
+              }
             }
             return newMessages;
           });
           
-          // Remove toast - Maya explains everything in chat
           return;
         }
         
@@ -551,6 +506,7 @@ export default function Maya() {
           }]);
         } else {
           const formattedMessages: ChatMessage[] = dbMessages.map((msg: any) => ({
+            id: msg.id,
             role: msg.role,
             content: msg.content,
             timestamp: msg.createdAt,
@@ -664,22 +620,6 @@ export default function Maya() {
                       <p className="text-sm text-[#666666] mt-1">Your photoshoot session</p>
                     </div>
                     <div className="flex gap-2">
-                      <Button
-                        variant="outline"
-                        size="sm"
-                        onClick={testTracker341}
-                        className="text-sm bg-blue-600 text-white border-blue-600 hover:bg-blue-700 mr-2"
-                      >
-                        Test 341
-                      </Button>
-                      <Button
-                        variant="outline"
-                        size="sm"
-                        onClick={testCurrentPolling}
-                        className="text-sm bg-green-600 text-white border-green-600 hover:bg-green-700"
-                      >
-                        Test Live
-                      </Button>
                       <Button
                         variant="outline"
                         size="sm"
