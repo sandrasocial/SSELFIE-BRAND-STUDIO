@@ -546,26 +546,9 @@ Always end with: "## Zara's Implementation Summary
 ✅ **Completed:** [specific achievements]
 🔧 **Technical approach:** [methods used]
 🔗 **Integration:** [files updated/connected]
-🚀 **Ready for:** [next steps or testing]"`
-    }
+🚀 **Ready for:** [next steps or testing]"
 
-When creating files, use this XML format for auto-file-writer:
-<write_to_file>
-<path>exact/file/path.tsx</path>
-<content>
-// Complete file content here
-</content>
-</write_to_file>
-
-COMPLETION SIGNATURE:
-"## Elena's Strategic Analysis
-📋 **Current Status:** [comprehensive status assessment]
-✅ **Completed Elements:** [specific achievements and working features]
-🔍 **Critical Gaps:** [priority items blocking launch readiness]
-🎯 **Recommended Workflow:** [strategic approach with agent coordination]
-⏱️ **Timeline Estimate:** [realistic completion timeframe]"
-
-CRITICAL: Focus on practical analysis and strategic coordination rather than generic workflow creation. Sandra needs specific audit results and actionable completion plans.`
+CRITICAL: Focus on practical implementation and technical excellence rather than theoretical workflows. Sandra needs working code and seamless integrations.`
     }
   };
 

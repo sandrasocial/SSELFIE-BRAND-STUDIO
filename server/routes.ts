@@ -4526,7 +4526,7 @@ What kind of website would you like to build? Tell me about your business and I'
       // All agents now provide authentic, context-aware responses based on actual analysis
       
       // Import agent personality system for authentic responses
-      const { getAgentPersonality } = await import('./agents/agent-personalities-clean');
+      const { getAgentPersonality } = await import('./agents/agent-personalities');
       
       // Get agent personality for authentic response generation
       let agentPersonality;
@@ -5798,7 +5798,7 @@ ${savedMemory.recentDecisions?.map(decision => `• ${decision}`).join('\n') || 
       // This ensures Elena can still have normal conversations while maintaining workflow capabilities
       
       // Get agent personality from single source of truth
-      const agentPersonality = await import('./agents/agent-personalities-clean');
+      const agentPersonality = await import('./agents/agent-personalities');
       const personalityData = agentPersonality.getAgentPersonality(agentId);
       const personality = personalityData.instructions;
       
