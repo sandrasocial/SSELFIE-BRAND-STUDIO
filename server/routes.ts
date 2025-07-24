@@ -44,6 +44,9 @@ import { z } from "zod";
 // The newest Anthropic model is "claude-sonnet-4-20250514", not "claude-3-7-sonnet-20250219", "claude-3-5-sonnet-20241022" nor "claude-3-sonnet-20240229". 
 const DEFAULT_MODEL_STR = "claude-sonnet-4-20250514";
 
+// Conversation Manager for memory (CRITICAL FIX)
+import { ConversationManager } from './agents/ConversationManager';
+
 export async function registerRoutes(app: Express): Promise<Server> {
   // CRITICAL: Enable CORS for cross-domain access (agents and Visual Editor)
   app.use((req, res, next) => {
