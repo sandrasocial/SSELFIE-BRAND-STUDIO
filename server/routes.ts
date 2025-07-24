@@ -1534,6 +1534,27 @@ NO questions, NO options, NO multiple scenarios - Just your expert SINGLE COMPLE
     }
   });
 
+  // Update Maya message with image preview - CRITICAL FOR PERSISTENT IMAGES
+  app.patch('/api/maya-chats/:chatId/messages/:messageId/update-preview', isAuthenticated, async (req: any, res) => {
+    try {
+      const { chatId, messageId } = req.params;
+      const { imagePreview, generatedPrompt } = req.body;
+      const userId = req.user.claims.sub;
+      
+      // Update the Maya message with image preview data
+      await storage.updateMayaChatMessage(parseInt(messageId), {
+        imagePreview,
+        generatedPrompt
+      });
+      
+      console.log(`🎬 Maya: Updated message ${messageId} with image preview for user ${userId}`);
+      res.json({ success: true });
+    } catch (error) {
+      console.error('Error updating Maya message preview:', error);
+      res.status(500).json({ message: 'Failed to update message preview' });
+    }
+  });
+
   // Get user's photo gallery for Victoria landing page templates - AUTHENTICATION REQUIRED
   app.get('/api/user-gallery', isAuthenticated, async (req: any, res) => {
     try {

@@ -27,7 +27,7 @@ interface MayaChatMessage {
   role: 'user' | 'maya';
   content: string;
   timestamp: string;
-  imagePreview?: GenerationTracker;
+  imagePreview?: string[] | GenerationTracker;
   isGenerating?: boolean;
 }
 
@@ -42,21 +42,86 @@ export function MayaChatInterface() {
   const [isGenerating, setIsGenerating] = useState(false);
   const [generatedImages, setGeneratedImages] = useState<string[]>([]);
   const queryClient = useQueryClient();
+  let chatId: number | null = null;
 
-  // Maya's enthusiastic greeting
+  // Load chat messages from database
   useEffect(() => {
-    setChatMessages([
-      {
-        id: 0,
-        role: 'maya',
-        content: `🌟 **Maya here - your personal celebrity stylist!** I've dressed A-list stars for red carpets and magazine covers. 
+    const loadChatHistory = async () => {
+      try {
+        // Get the most recent chat for this user
+        const chatsResponse = await fetch('/api/maya-chats', {
+          credentials: 'include'
+        });
+        
+        if (chatsResponse.ok) {
+          const chats = await chatsResponse.json();
+          if (chats && chats.length > 0) {
+            const latestChat = chats[0];
+            chatId = latestChat.id;
+            
+            // Load messages for this chat
+            const messagesResponse = await fetch(`/api/maya-chats/${chatId}/messages`, {
+              credentials: 'include'
+            });
+            
+            if (messagesResponse.ok) {
+              const dbMessages = await messagesResponse.json();
+              console.log('🎬 Maya: Loaded messages from database:', dbMessages);
+              
+              if (dbMessages && dbMessages.length > 0) {
+                const formattedMessages = dbMessages.map((msg: any) => ({
+                  id: msg.id,
+                  role: msg.role,
+                  content: msg.content,
+                  timestamp: msg.createdAt,
+                  imagePreview: msg.imagePreview ? (() => {
+                    try {
+                      const parsed = JSON.parse(msg.imagePreview);
+                      return Array.isArray(parsed) ? parsed.filter(url => 
+                        typeof url === 'string' && url.startsWith('http')
+                      ) : undefined;
+                    } catch {
+                      return undefined;
+                    }
+                  })() : undefined
+                }));
+                
+                setChatMessages(formattedMessages);
+                return;
+              }
+            }
+          }
+        }
+        
+        // No chat history found - show Maya's welcome
+        setChatMessages([
+          {
+            id: 0,
+            role: 'maya',
+            content: `🌟 **Maya here - your personal celebrity stylist!** I've dressed A-list stars for red carpets and magazine covers. 
 
 Ready to create your ICONIC moment? I'm envisioning something absolutely stunning for you - let's create cinematic editorial magic that stops people scrolling!
 
 What kind of vibe are we creating today? Or just say "surprise me" and I'll create something spectacular! ✨`,
-        timestamp: new Date().toISOString()
+            timestamp: new Date().toISOString()
+          }
+        ]);
+        
+      } catch (error) {
+        console.error('🎬 Maya: Failed to load chat history:', error);
+        // Show welcome message as fallback
+        setChatMessages([
+          {
+            id: 0,
+            role: 'maya',
+            content: `🌟 **Maya here - your personal celebrity stylist!** Ready to create your ICONIC moment? ✨`,
+            timestamp: new Date().toISOString()
+          }
+        ]);
       }
-    ]);
+    };
+    
+    loadChatHistory();
   }, []);
 
   // Removed old query - now using direct polling approach like backup implementation
@@ -96,6 +161,36 @@ What kind of vibe are we creating today? Or just say "surprise me" and I'll crea
           setIsGenerating(false);
           setGeneratedImages(tracker.imageUrls);
           
+          // Get the last Maya message ID for database update
+          const lastMayaMessage = chatMessages.slice().reverse().find(m => m.role === 'maya');
+          
+          // Save image preview to database and update local state
+          if (lastMayaMessage?.id) {
+            try {
+              const response = await fetch(`/api/maya-chats/${chatId}/messages/${lastMayaMessage.id}/update-preview`, {
+                method: 'PATCH',
+                headers: {
+                  'Content-Type': 'application/json',
+                },
+                credentials: 'include',
+                body: JSON.stringify({
+                  imagePreview: JSON.stringify(tracker.imageUrls),
+                  generatedPrompt: tracker.prompt
+                })
+              });
+              
+              if (response.ok) {
+                console.log('🎬 Maya: Image preview saved to database for message', lastMayaMessage.id);
+              } else {
+                console.error('🎬 Maya: Failed to save preview - response not ok');
+              }
+            } catch (error) {
+              console.error('🎬 Maya: Failed to save preview to database:', error);
+            }
+          } else {
+            console.warn('🎬 Maya: No Maya message ID found for preview save');
+          }
+          
           // Add image preview to the last Maya message - ARCHIVE FORMAT
           setChatMessages(prev => {
             const newMessages = [...prev];
@@ -104,12 +199,7 @@ What kind of vibe are we creating today? Or just say "surprise me" and I'll crea
               newMessages[lastMayaIndex] = {
                 ...newMessages[lastMayaIndex],
                 isGenerating: false,
-                imagePreview: {
-                  imageUrls: JSON.stringify(tracker.imageUrls),
-                  prompt: tracker.prompt,
-                  style: 'Editorial',
-                  createdAt: tracker.createdAt
-                }
+                imagePreview: tracker.imageUrls // Direct array instead of JSON string for display
               };
             }
             return newMessages;
@@ -311,14 +401,19 @@ What kind of vibe are we creating today? Or just say "surprise me" and I'll crea
               )}
 
               {/* Enhanced Image Preview Grid with Heart-Save (matching backup format) */}
-              {msg.imagePreview && msg.imagePreview.imageUrls && (
+              {msg.imagePreview && (
                 <div className="mt-6">
                   <div className="flex items-center justify-between mb-4">
                     <h4 className="text-sm font-medium text-black">Your Maya Photos</h4>
                     <p className="text-xs text-gray-500">Click to view full size • Heart to save permanently</p>
                   </div>
                   <div className="grid grid-cols-3 gap-3">
-                    {JSON.parse(msg.imagePreview.imageUrls).map((imageUrl: string, index: number) => (
+                    {(Array.isArray(msg.imagePreview) 
+                      ? msg.imagePreview 
+                      : (msg.imagePreview as GenerationTracker)?.imageUrls 
+                        ? JSON.parse((msg.imagePreview as GenerationTracker).imageUrls) 
+                        : []
+                    ).map((imageUrl: string, index: number) => (
                       <div key={index} className="relative group">
                         <div className="relative overflow-hidden border border-gray-200 hover:border-gray-300 transition-colors">
                           <img 
