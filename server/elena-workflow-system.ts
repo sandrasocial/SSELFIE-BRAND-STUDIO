@@ -852,9 +852,7 @@ Response format:
 TARGET_FILE: [exact file path to modify]
 INSTRUCTIONS: [specific guidance for ${agentName}]
 
-Coordinate immediately - workflow waiting.`,
-          adminToken: 'sandra-admin-2025',
-          userId: '42585527'
+Coordinate immediately - workflow waiting.`
         })
       });
 

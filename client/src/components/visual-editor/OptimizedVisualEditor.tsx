@@ -79,7 +79,7 @@ import { ExtensionHub } from './ExtensionHub';
 import { AgentChatControls } from './AgentChatControls';
 import { QuickActionsPopup } from './QuickActionsPopup';
 import { FileCreationConfirmation } from './FileCreationConfirmation';
-import AgentEnhancementDashboard from '../admin/AgentEnhancementDashboard';
+// import AgentEnhancementDashboard from '../admin/AgentEnhancementDashboard'; // Archived component
 import { workspaceFlatlayCollections } from '@/data/workspace-flatlay-collections';
 
 interface ChatMessage {
@@ -2271,7 +2271,7 @@ function create${currentAgent.name}Agent(config: AgentConfig): AgentConfig {
             
             {/* Enhancement Dashboard */}
             <div className="flex-1 overflow-y-auto">
-              <AgentEnhancementDashboard />
+              <div className="p-8 text-center">Agent Enhancement Dashboard archived for production build</div>
             </div>
           </TabsContent>
 

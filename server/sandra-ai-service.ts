@@ -396,10 +396,10 @@ Only include elements specifically mentioned or strongly implied. Return empty a
     const lighting = styleInsights.lighting?.length > 0 ? styleInsights.lighting.join(', ') : 'professional lighting';
     
     // Pose
-    const pose = styleInsights.pose?.length > 0 ? styleInsights.pose.join(', ') : 'natural, confident pose';
+    const pose = styleInsights.pose && styleInsights.pose.length > 0 ? styleInsights.pose.join(', ') : 'natural, confident pose';
 
     // Aesthetic style
-    const aesthetic = styleInsights.aesthetic?.length > 0 ? styleInsights.aesthetic.join(', ') : 'editorial sophistication';
+    const aesthetic = styleInsights.aesthetic && styleInsights.aesthetic.length > 0 ? styleInsights.aesthetic.join(', ') : 'editorial sophistication';
 
     // Compose final prompt with natural texture emphasis
     const finalPrompt = `${subject}, ${outfitDetails}, ${setting}, ${mood}, ${pose}, ${lighting}, ${aesthetic}, ${camera}, ${texture}, raw photo, natural skin glow, visible texture, film grain, unretouched confidence, editorial cover portrait`;
@@ -441,7 +441,7 @@ Only include elements specifically mentioned or strongly implied. Return empty a
       .join(' ')
       .match(/(shot on [^,]+)/g) || [];
     
-    return [...new Set(cameraMatches)].slice(0, 5);
+    return Array.from(new Set(cameraMatches)).slice(0, 5);
   }
 
   private static extractCommonThemes(conversations: any[]): string[] {
@@ -452,13 +452,13 @@ Only include elements specifically mentioned or strongly implied. Return empty a
       .toLowerCase()
       .match(/\b(elegant|sophisticated|luxury|editorial|fashion|street|lifestyle|natural|professional|confident|stunning|beautiful|chic|stylish)\b/g) || [];
     
-    const keywordCounts = keywords.reduce((acc, keyword) => {
+    const keywordCounts = keywords.reduce((acc: Record<string, number>, keyword) => {
       acc[keyword] = (acc[keyword] || 0) + 1;
       return acc;
     }, {});
 
     return Object.entries(keywordCounts)
-      .sort(([,a], [,b]) => b - a)
+      .sort(([,a], [,b]) => (b as number) - (a as number))
       .slice(0, 8)
       .map(([keyword]) => keyword);
   }
@@ -644,7 +644,7 @@ Only include elements specifically mentioned or strongly implied. Return empty a
   
   // Helper method to get random cameras for different styles
   private static getRandomCameras(style: string, count: number): string[] {
-    const cameraSpecs = CAMERA_SPECS[style] || CAMERA_SPECS.portrait;
+    const cameraSpecs = (CAMERA_SPECS as any)[style] || CAMERA_SPECS.portrait;
     const shuffled = [...cameraSpecs].sort(() => 0.5 - Math.random());
     return shuffled.slice(0, count);
   }
