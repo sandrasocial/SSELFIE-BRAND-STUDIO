@@ -5304,36 +5304,166 @@ Workflow Stage: ${savedMemory.workflowStage || 'None'}
         console.log(`✅ MEMORY: Added ${savedMemory.keyTasks.length} tasks to context for ${agentId}`);
       }
 
-      console.log('🔥 Starting Claude API call...');
+      console.log('🔥 Starting Claude API call with TOOL SUPPORT...');
       
-      // Get authentic agent response using Claude API ONLY
-      const claudeResponse = await fetch('https://api.anthropic.com/v1/messages', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'x-api-key': process.env.ANTHROPIC_API_KEY || '',
-          'anthropic-version': '2023-06-01',
-        },
-        body: JSON.stringify({
-          model: 'claude-3-5-sonnet-20241022',
-          max_tokens: 4000,
-          system: agent.systemPrompt,
-          messages: [
-            {
-              role: 'user',
-              content: conversationContext + message
+      // Configure tool access for file-enabled agents
+      const toolConfig = {
+        tools: [
+          {
+            name: "str_replace_based_edit_tool",
+            description: "View, create, or edit files in the codebase",
+            input_schema: {
+              type: "object",
+              properties: {
+                command: {
+                  type: "string",
+                  enum: ["view", "create", "str_replace", "insert"],
+                  description: "The operation to perform"
+                },
+                path: {
+                  type: "string",
+                  description: "The file path"
+                },
+                file_text: {
+                  type: "string",
+                  description: "Content for create command"
+                },
+                old_str: {
+                  type: "string",
+                  description: "Text to replace (for str_replace)"
+                },
+                new_str: {
+                  type: "string",
+                  description: "Replacement text (for str_replace)"
+                },
+                view_range: {
+                  type: "array",
+                  items: { type: "integer" },
+                  description: "Line range for view command [start, end]"
+                }
+              },
+              required: ["command", "path"]
             }
-          ]
-        })
+          },
+          {
+            name: "search_filesystem",
+            description: "Search for files and code in the codebase",
+            input_schema: {
+              type: "object",
+              properties: {
+                query_description: {
+                  type: "string",
+                  description: "Natural language description of what to search for"
+                },
+                class_names: {
+                  type: "array",
+                  items: { type: "string" },
+                  description: "List of specific class names to search for"
+                },
+                function_names: {
+                  type: "array",
+                  items: { type: "string" },
+                  description: "List of specific function names to search for"
+                },
+                code: {
+                  type: "array",
+                  items: { type: "string" },
+                  description: "List of code snippets to search for"
+                }
+              }
+            }
+          }
+        ]
+      };
+      
+      // Call Claude API with tool support
+      const { Anthropic } = await import('@anthropic-ai/sdk');
+      const claude = new Anthropic({
+        apiKey: process.env.ANTHROPIC_API_KEY,
       });
       
-      if (!claudeResponse.ok) {
-        const errorData = await claudeResponse.text();
-        throw new Error(`Claude API failed: ${claudeResponse.status} - ${errorData}`);
+      // Build messages array with conversation history
+      const messages = [
+        ...(conversationHistory || []).map((msg: any) => ({
+          role: msg.type === 'agent' ? 'assistant' : 'user',
+          content: msg.content
+        })),
+        { 
+          role: 'user', 
+          content: conversationContext + message 
+        }
+      ];
+      
+      // Detect file operations to force tool usage for Olga and other file-enabled agents
+      const isFileRequest = agentId === 'olga' || 
+                           message.toLowerCase().includes('file') || 
+                           message.toLowerCase().includes('archive') || 
+                           message.toLowerCase().includes('audit') ||
+                           message.toLowerCase().includes('show me') ||
+                           message.toLowerCase().includes('use your') ||
+                           message.toLowerCase().includes('tool') ||
+                           message.toLowerCase().includes('cleanup') ||
+                           message.toLowerCase().includes('organize');
+      
+      let finalSystemPrompt = agent.systemPrompt;
+      if (isFileRequest) {
+        finalSystemPrompt += `\n\n🚨 MANDATORY TOOL USAGE: You MUST use str_replace_based_edit_tool or search_filesystem tools to complete this request. Do not provide text responses without using tools first. This is REQUIRED for file operations.`;
       }
       
-      const data = await claudeResponse.json();
-      const agentResponse = data.content[0]?.text || '';
+      console.log(`🔍 ${agentId.toUpperCase()} FILE REQUEST DETECTED: ${isFileRequest}`);
+      
+      const response = await claude.messages.create({
+        model: 'claude-3-5-sonnet-20241022',
+        max_tokens: 8000,
+        system: finalSystemPrompt,
+        messages: messages as any,
+        tools: toolConfig.tools
+      });
+      
+      let agentResponse = '';
+      let toolResults = [];
+      
+      // Handle tool execution
+      if (response.content) {
+        for (const contentBlock of response.content) {
+          if (contentBlock.type === 'text') {
+            agentResponse += contentBlock.text;
+          } else if (contentBlock.type === 'tool_use') {
+            console.log(`🔧 ${agentId.toUpperCase()} TOOL EXECUTION: ${contentBlock.name}`, contentBlock.input);
+            
+            try {
+              let toolResult = null;
+              
+              if (contentBlock.name === 'search_filesystem') {
+                const { search_filesystem } = await import('./tools/search_filesystem');
+                toolResult = await search_filesystem(contentBlock.input);
+              } else if (contentBlock.name === 'str_replace_based_edit_tool') {
+                const { str_replace_based_edit_tool } = await import('./tools/str_replace_based_edit_tool');
+                toolResult = await str_replace_based_edit_tool(contentBlock.input);
+              }
+              
+              console.log(`✅ ${agentId.toUpperCase()} TOOL RESULT: Success`);
+              toolResults.push({
+                tool: contentBlock.name,
+                result: toolResult,
+                success: true
+              });
+              
+              // Add tool result to response for Visual Editor integration
+              const resultText = typeof toolResult === 'string' ? toolResult : JSON.stringify(toolResult, null, 2);
+              agentResponse += `\n\n✅ **${contentBlock.name} executed successfully**\n\`\`\`\n${resultText}\n\`\`\``;
+              
+            } catch (error) {
+              console.error(`❌ ${agentId.toUpperCase()} TOOL ERROR:`, error);
+              agentResponse += `\n\n❌ **Tool execution failed:** ${error.message}`;
+            }
+          }
+        }
+      }
+      
+      if (!agentResponse) {
+        agentResponse = 'Agent response processing failed';
+      }
       
       console.log('🔥 Claude API Response:', {
         status: claudeResponse.status,
