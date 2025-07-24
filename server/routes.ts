@@ -4121,6 +4121,96 @@ What kind of website would you like to build? Tell me about your business and I'
     }
   });
 
+  // GET /api/file-tree - Visual editor file tree endpoint
+  app.get("/api/file-tree", async (req, res) => {
+    try {
+      const fs = await import('fs/promises');
+      const path = await import('path');
+      
+      // Get directory structure for visual editor
+      const getAllFiles = async (dirPath: string, basePath: string = ''): Promise<any[]> => {
+        const entries = await fs.readdir(dirPath, { withFileTypes: true });
+        const result = [];
+        
+        for (const entry of entries) {
+          const fullPath = path.join(dirPath, entry.name);
+          const relativePath = path.join(basePath, entry.name);
+          
+          // Skip hidden and build directories
+          if (entry.name.startsWith('.') || 
+              entry.name === 'node_modules' || 
+              entry.name === 'dist' ||
+              entry.name === 'build') {
+            continue;
+          }
+          
+          if (entry.isDirectory()) {
+            const children = await getAllFiles(fullPath, relativePath);
+            result.push({
+              name: entry.name,
+              type: 'directory',
+              path: relativePath,
+              children
+            });
+          } else {
+            const stats = await fs.stat(fullPath);
+            result.push({
+              name: entry.name,
+              type: 'file', 
+              path: relativePath,
+              size: stats.size,
+              extension: path.extname(entry.name),
+              lastModified: stats.mtime
+            });
+          }
+        }
+        
+        return result.sort((a, b) => {
+          if (a.type !== b.type) {
+            return a.type === 'directory' ? -1 : 1;
+          }
+          return a.name.localeCompare(b.name);
+        });
+      };
+      
+      const fileTree = await getAllFiles(process.cwd());
+      
+      res.json({
+        success: true,
+        fileTree,
+        timestamp: new Date().toISOString()
+      });
+      
+    } catch (error) {
+      console.error('File tree error:', error);
+      res.status(500).json({ 
+        error: 'Failed to load file tree',
+        details: error.message 
+      });
+    }
+  });
+
+  // POST /api/admin/test-file-exists - Test endpoint for integration testing
+  app.post("/api/admin/test-file-exists", async (req, res) => {
+    try {
+      const { filePath } = req.body;
+      const fs = await import('fs/promises');
+      const path = await import('path');
+      
+      const fullPath = path.resolve(filePath);
+      
+      try {
+        await fs.access(fullPath);
+        res.json({ exists: true, filePath });
+      } catch {
+        res.json({ exists: false, filePath });
+      }
+      
+    } catch (error) {
+      res.status(500).json({ error: 'Failed to check file existence' });
+    }
+  });
+
   // HTML Generation function for Victoria
   function generateWebsiteHtml(onboardingData: any, userMessage: string) {
     const brandName = onboardingData.personalBrandName || 'Your Brand';
