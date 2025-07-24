@@ -1,7 +1,7 @@
 // Context Intelligence System - Makes Visual Editor agents understand like Replit AI
 // This bridges the gap between single-message context and full conversation understanding
 
-import { ConversationManager } from '../conversation-manager';
+import { ConversationManager } from './ConversationManager';
 
 export interface ProjectContext {
   currentTask?: string;
@@ -32,7 +32,9 @@ export class ContextIntelligenceSystem {
   ): Promise<ContextualizedMessage> {
     
     // Get conversation history (like Replit AI has)
-    const conversationHistory = await ConversationManager.getRecentHistory(userId, agentId, 10);
+    // For now, return empty array since ConversationManager doesn't have getRecentHistory
+    // This will be enhanced with actual conversation retrieval later
+    const conversationHistory = [];
     
     // Extract project context from recent work
     const projectContext = await this.extractProjectContext(userId, agentId, conversationHistory);
