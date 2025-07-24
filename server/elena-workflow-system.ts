@@ -845,7 +845,7 @@ MANDATORY: End response with: TOOL_USED: str_replace_based_edit_tool | MODIFIED:
     try {
       console.log(`🗂️ ELENA: Requesting MANDATORY Olga coordination for ${agentName}`);
       
-      const olgaCoordinationPromise = fetch('http://localhost:5000/api/admin/agents/chat', {
+      const olgaCoordinationPromise = fetch('http://localhost:5000/api/admin/agent-chat-bypass', {
         method: 'POST',
         headers: { 
           'Content-Type': 'application/json',
@@ -854,7 +854,7 @@ MANDATORY: End response with: TOOL_USED: str_replace_based_edit_tool | MODIFIED:
         body: JSON.stringify({
           agentId: 'olga',
           adminToken: 'sandra-admin-2025',
-          userId: 'elena-olga-coordination',
+          userId: '42585527',
           message: `ELENA WORKFLOW COORDINATION:
 
 Agent ${agentName} needs to: ${task}
