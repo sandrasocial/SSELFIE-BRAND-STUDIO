@@ -5078,6 +5078,9 @@ Starting analysis and implementation now...`;
         messageText.includes('go ahead') ||
         messageText.includes('do it') ||
         messageText.includes('continue') ||
+        messageText.includes('fix') ||
+        messageText.includes('modify') ||
+        messageText.includes('redesign') ||
         (messageText.includes('updates') && messageText.length < 50) // Short update requests should trigger execution
       );
       
