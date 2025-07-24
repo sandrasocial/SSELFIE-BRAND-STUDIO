@@ -33,14 +33,16 @@ export interface UnifiedGenerationResponse {
  * DO NOT CHANGE WITHOUT EXPLICIT APPROVAL
  */
 const WORKING_PARAMETERS = {
-  guidance_scale: 2.82,
+  guidance_scale: 2.8,
   num_inference_steps: 45,
   lora_scale: 1.1,
   num_outputs: 2,
   aspect_ratio: "3:4",
   output_format: "png",
   output_quality: 95,
-  go_fast: false,
+  prompt_strength: 0.8,
+  extra_lora_scale: 1,
+  megapixels: 1,
   disable_safety_checker: false
 } as const;
 

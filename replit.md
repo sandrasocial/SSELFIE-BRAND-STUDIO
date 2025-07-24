@@ -478,6 +478,13 @@ The platform has become overly complex with multiple pricing tiers, broken onboa
 - ✅ **Output Count Optimized**: Reduced from 3 to 2 images per generation for faster processing
 - ✅ **Other Settings Preserved**: Maintained guidance_scale: 2.82, aspect_ratio: "3:4", and quality settings
 
+**PARAMETER EXACT MATCH COMPLETED (July 24, 2025):**
+- ✅ **Guidance Scale Fixed**: Updated from 2.82 to 2.8 to match reference
+- ✅ **Prompt Strength Added**: Added prompt_strength: 0.8 for better prompt adherence
+- ✅ **Extra LoRA Scale Added**: Added extra_lora_scale: 1 for enhanced model influence
+- ✅ **Megapixels Added**: Added megapixels: 1 for proper resolution control
+- ✅ **Go Fast Removed**: Removed go_fast parameter to match reference settings exactly
+
 **Technical Implementation:**
 - Updated WORKING_PARAMETERS in server/unified-generation-service.ts
 - All image generations (Maya and AI-photoshoot) now use optimized parameters
