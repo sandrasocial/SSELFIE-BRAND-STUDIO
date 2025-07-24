@@ -36,7 +36,7 @@ const WORKING_PARAMETERS = {
   guidance: 2.82, // FIXED: Official model uses "guidance" not "guidance_scale"
   num_inference_steps: 40, // REDUCED: From 45 to 40 for better consistency between images
   lora_scale: 1.3, // INCREASED: From 1.1 to 1.3 for stronger user likeness and realism
-  num_outputs: 1, // REDUCED: Single output for maximum quality instead of dual outputs
+  num_outputs: 2,
   aspect_ratio: "3:4",
   output_format: "png",
   output_quality: 95,
