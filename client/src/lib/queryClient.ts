@@ -13,20 +13,30 @@ function getApiUrl(url: string): string {
 }
 
 export async function apiRequest(
-  method: string,
   url: string,
+  method: string = 'GET',
   data?: unknown | undefined,
-): Promise<Response> {
+): Promise<any> {
   const finalUrl = getApiUrl(url);
   
   const res = await fetch(finalUrl, {
     method,
-    headers: data ? { "Content-Type": "application/json" } : {},
+    headers: {
+      ...(data ? { "Content-Type": "application/json" } : {}),
+      'Cache-Control': 'no-cache',
+    },
     body: data ? JSON.stringify(data) : undefined,
     credentials: "include",
   });
 
   await throwIfResNotOk(res);
+  
+  // Handle JSON responses properly
+  const contentType = res.headers.get('content-type');
+  if (contentType && contentType.includes('application/json')) {
+    return await res.json();
+  }
+  
   return res;
 }
 
