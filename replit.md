@@ -478,12 +478,12 @@ The platform has become overly complex with multiple pricing tiers, broken onboa
 - ✅ **Output Count Optimized**: Reduced from 3 to 2 images per generation for faster processing
 - ✅ **Other Settings Preserved**: Maintained guidance_scale: 2.82, aspect_ratio: "3:4", and quality settings
 
-**PARAMETER EXACT MATCH COMPLETED (July 24, 2025):**
-- ✅ **Model Added**: Added model: "dev" to match reference exactly
+**422 API ERROR RESOLUTION (July 24, 2025):**
+- ✅ **Model Parameter Issue**: Removed model: "dev" from input parameters (conflicts with custom LoRA version)
 - ✅ **Guidance Scale Fixed**: Updated from 2.82 to 2.8 to match reference
 - ✅ **Go Fast Set**: Set go_fast: false to match reference settings exactly
-- ✅ **Invalid Parameters Removed**: Removed prompt_strength, extra_lora_scale, megapixels (not supported by FLUX dev model)
-- ✅ **Core Parameters Matched**: All valid parameters now match reference for consistent generation quality
+- ✅ **Enhanced Error Logging**: Added detailed API error response logging for troubleshooting
+- ✅ **Parameter Validation**: Verified API schema supports all other parameters for custom model
 
 **Technical Implementation:**
 - Updated WORKING_PARAMETERS in server/unified-generation-service.ts
