@@ -159,8 +159,18 @@ export class AgentExecutionBypass {
   }
   
   // Queue agent file operations for direct execution
+  // CRITICAL: This system ONLY executes the EXACT code that agents generate
+  // It does NOT create designs - it only applies Aria's designs when tools fail
   async queueOperation(agentId, operation, filePath, content) {
     console.log(`📋 PLAN B QUEUE: ${agentId} operation ${operation} on ${filePath}`);
+    
+    // BRAND PROTECTION: Only allow specific agents to modify design files
+    if (filePath.includes('components/') || filePath.includes('pages/')) {
+      if (agentId !== 'aria' && agentId !== 'zara') {
+        console.error(`🚨 BRAND PROTECTION: ${agentId} blocked from modifying ${filePath} - only Aria can design!`);
+        throw new Error(`Brand protection: Only Aria can modify design components, not ${agentId}`);
+      }
+    }
     
     this.executionQueue.push({
       agentId,
@@ -168,7 +178,8 @@ export class AgentExecutionBypass {
       filePath,
       content,
       timestamp: Date.now(),
-      status: 'queued'
+      status: 'queued',
+      designerApproved: agentId === 'aria' || agentId === 'zara'
     });
     
     if (!this.isProcessing) {
@@ -188,14 +199,21 @@ export class AgentExecutionBypass {
       try {
         let result;
         
+        // CRITICAL: Verify designer authorization for design files
+        if (!operation.designerApproved && (operation.filePath.includes('components/') || operation.filePath.includes('pages/'))) {
+          throw new Error(`BRAND PROTECTION: ${operation.agentId} cannot modify design files - only Aria approved!`);
+        }
+        
         switch (operation.operation) {
           case 'create':
+            // IMPORTANT: This creates the EXACT file content that Aria designed
             await fs.mkdir(path.dirname(operation.filePath), { recursive: true });
             await fs.writeFile(operation.filePath, operation.content, 'utf8');
-            result = `File created: ${operation.filePath}`;
+            result = `File created with ${operation.agentId}'s exact content: ${operation.filePath}`;
             break;
             
           case 'str_replace':
+            // IMPORTANT: This applies the EXACT changes that Aria specified
             result = await enhancedFileReplace(
               operation.filePath, 
               operation.content.oldStr, 
