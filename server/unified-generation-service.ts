@@ -40,7 +40,7 @@ const WORKING_PARAMETERS = {
   aspect_ratio: "3:4",
   output_format: "png",
   output_quality: 95,
-  go_fast: true, // Enable fp8 quantization optimization for better quality
+  go_fast: false, // DISABLED: Testing for better image quality without fp8 quantization
   disable_safety_checker: false,
   megapixels: "1" // Controls output resolution (0.25, 0.5, 1, 2) - "1" for high quality
 } as const;
