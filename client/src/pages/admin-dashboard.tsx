@@ -1,6 +1,6 @@
 import React from 'react';
 import { useAuth } from '@/hooks/use-auth';
-import { AdminDashboard } from './AdminDashboard';
+import AdminDashboard from '@/components/admin/AdminDashboard';
 
 export default function AdminDashboardPage() {
   const { user } = useAuth();
