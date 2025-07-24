@@ -1016,12 +1016,7 @@ export class DatabaseStorage implements IStorage {
     return message;
   }
 
-  async updateMayaChatMessage(messageId: number, updates: Partial<{ imagePreview: string; generatedPrompt: string }>): Promise<void> {
-    await db
-      .update(mayaChatMessages)
-      .set(updates)
-      .where(eq(mayaChatMessages.id, messageId));
-  }
+
 
   async updateMayaChatMessage(messageId: number, data: Partial<MayaChatMessage>): Promise<MayaChatMessage> {
     const [message] = await db

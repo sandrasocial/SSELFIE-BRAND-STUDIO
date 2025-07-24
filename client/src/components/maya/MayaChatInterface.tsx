@@ -41,8 +41,8 @@ export function MayaChatInterface() {
   const [savingImages, setSavingImages] = useState<Set<string>>(new Set());
   const [isGenerating, setIsGenerating] = useState(false);
   const [generatedImages, setGeneratedImages] = useState<string[]>([]);
+  const [chatId, setChatId] = useState<number | null>(null);
   const queryClient = useQueryClient();
-  let chatId: number | null = null;
 
   // Load chat messages from database
   useEffect(() => {
@@ -57,10 +57,10 @@ export function MayaChatInterface() {
           const chats = await chatsResponse.json();
           if (chats && chats.length > 0) {
             const latestChat = chats[0];
-            chatId = latestChat.id;
+            setChatId(latestChat.id);
             
             // Load messages for this chat
-            const messagesResponse = await fetch(`/api/maya-chats/${chatId}/messages`, {
+            const messagesResponse = await fetch(`/api/maya-chats/${latestChat.id}/messages`, {
               credentials: 'include'
             });
             
@@ -161,35 +161,7 @@ What kind of vibe are we creating today? Or just say "surprise me" and I'll crea
           setIsGenerating(false);
           setGeneratedImages(tracker.imageUrls);
           
-          // Get the last Maya message ID for database update
-          const lastMayaMessage = chatMessages.slice().reverse().find(m => m.role === 'maya');
-          
-          // Save image preview to database and update local state
-          if (lastMayaMessage?.id) {
-            try {
-              const response = await fetch(`/api/maya-chats/${chatId}/messages/${lastMayaMessage.id}/update-preview`, {
-                method: 'PATCH',
-                headers: {
-                  'Content-Type': 'application/json',
-                },
-                credentials: 'include',
-                body: JSON.stringify({
-                  imagePreview: JSON.stringify(tracker.imageUrls),
-                  generatedPrompt: tracker.prompt
-                })
-              });
-              
-              if (response.ok) {
-                console.log('🎬 Maya: Image preview saved to database for message', lastMayaMessage.id);
-              } else {
-                console.error('🎬 Maya: Failed to save preview - response not ok');
-              }
-            } catch (error) {
-              console.error('🎬 Maya: Failed to save preview to database:', error);
-            }
-          } else {
-            console.warn('🎬 Maya: No Maya message ID found for preview save');
-          }
+          // Images are automatically saved to database by backend monitor - no manual database saving needed
           
           // Add image preview to the last Maya message - ARCHIVE FORMAT
           setChatMessages(prev => {
