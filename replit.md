@@ -484,6 +484,28 @@ The platform has become overly complex with multiple pricing tiers, broken onboa
 - Preserved proven working configuration while incorporating requested adjustments
 - Single source of truth ensures consistent generation quality across platform
 
+## ✅ MAYA PROMPT OPTIMIZATION COMPLETED (July 24, 2025)
+
+**BREAKTHROUGH: CLEAN FLUX-OPTIMIZED PROMPT GENERATION SYSTEM**
+- ✅ **Separated Chat vs Generation**: Maya's personality remains in chat, clean technical prompts sent to FLUX
+- ✅ **FLUX-Optimized Structure**: Always starts with "raw photo, visible skin pores, film grain" and ends with "professional photography"
+- ✅ **Natural Expressions Only**: Eliminated artificial smiles, focus on "natural expression", "confident gaze", "thoughtful look"
+- ✅ **Concise Technical Prompts**: Under 300 characters when possible, no narrative text or explanations
+- ✅ **Professional Format**: Clean structure following proven working examples for optimal FLUX generation
+
+**Technical Implementation:**
+- Updated Maya's prompt generation system in server/routes.ts with dedicated FLUX AI prompt expert
+- Separated user-facing Maya personality from backend technical prompt generation
+- Added natural expression guidelines preventing artificial "genuine laughter" and forced smiles
+- Implemented clean prompt structure: raw photo → trigger word → subject → styling → location → pose → lighting → camera → professional photography
+- Reduced max_tokens from 800 to 400 for concise, focused prompts
+
+**Business Impact:**
+- Maya generates professional-quality images with clean, optimized prompts
+- Users experience Maya's decisive celebrity stylist personality in chat while FLUX receives technical specifications
+- Eliminates prompt interference issues that caused suboptimal image generation
+- Professional editorial results matching industry standards for AI photography
+
 ## ✅ MAYA POLLING SYSTEM CRITICAL ISSUE IDENTIFIED - AUTHENTICATION TIMING (July 24, 2025)
 
 **CORE ISSUE DISCOVERED: MAYA POLLING VS AUTHENTICATION TIMING**
