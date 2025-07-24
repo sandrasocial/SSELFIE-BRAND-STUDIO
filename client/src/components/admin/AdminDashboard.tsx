@@ -1,3 +1,4 @@
+/* AUTO-REFRESH MONITORING TEST - timestamp: 17:14:03 */
 import React, { useState, useEffect } from 'react';
 import { Card, CardHeader, CardContent, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
