@@ -527,6 +527,12 @@ The platform has become overly complex with multiple pricing tiers, broken onboa
 - ✅ **Authentic Presence**: Prefer "slight smile", "subtle smile", "gentle expression", "natural confidence"
 - ✅ **Eye Focus**: Emphasize eyes and overall mood rather than forced mouth expressions for realistic results
 
+**USER LIKENESS OPTIMIZATION (July 24, 2025):**
+- ✅ **LoRA Scale Enhanced**: Increased from 1.0 to 1.15 for better facial feature recognition and user resemblance
+- ✅ **Inference Steps Optimized**: Increased from 40 to 48 steps for improved facial detail convergence
+- ✅ **Research-Based Settings**: Based on FLUX LoRA best practices - face LoRAs perform optimally at 1.0-1.3 scale
+- ✅ **Balanced Approach**: Maintains natural expressions while enhancing user likeness accuracy
+
 ## ✅ MAYA PROMPT OPTIMIZATION COMPLETED (July 24, 2025)
 
 **BREAKTHROUGH: CLEAN FLUX-OPTIMIZED PROMPT GENERATION SYSTEM**

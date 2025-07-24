@@ -28,14 +28,14 @@ export interface UnifiedGenerationResponse {
 }
 
 /**
- * SANDRA'S ENHANCED PARAMETERS (July 24, 2025)
- * Updated with missing Replicate web interface parameters for optimal quality
- * These match the web interface for consistent high-quality results
+ * SANDRA'S OPTIMIZED PARAMETERS FOR USER LIKENESS (July 24, 2025)
+ * Research-based optimization: LoRA 1.15 + 48 steps for enhanced facial similarity
+ * Balance between user resemblance and natural expressions without artifacts
  */
 const WORKING_PARAMETERS = {
   guidance: 2.82, // FIXED: Official model uses "guidance" not "guidance_scale"
-  num_inference_steps: 40, // REDUCED: From 45 to 40 for better consistency between images
-  lora_scale: 1.0, // REDUCED: From 1.3 to 1.0 for more natural results - too strong was destroying image quality
+  num_inference_steps: 48, // OPTIMIZED: Increased from 40 to 48 for better facial feature convergence
+  lora_scale: 1.15, // OPTIMIZED: Increased from 1.0 to 1.15 for enhanced user likeness without artifacts
   num_outputs: 2,
   aspect_ratio: "3:4",
   output_format: "png",
