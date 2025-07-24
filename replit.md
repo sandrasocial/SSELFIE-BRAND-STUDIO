@@ -497,6 +497,12 @@ The platform has become overly complex with multiple pricing tiers, broken onboa
 - ✅ **Performance Trade-off**: Accepting longer generation times for potential quality improvements
 - ✅ **A/B Testing**: Comparing fast fp8 vs standard bf16 inference for optimal results
 
+**INFERENCE STEPS OPTIMIZATION (July 24, 2025):**
+- ✅ **Steps Reduced**: Changed from 45 to 40 steps for better consistency between generated images
+- ✅ **Consistency Focus**: Addressing variation in quality between first and second images
+- ✅ **Sweet Spot Testing**: Finding optimal balance between quality and consistency
+- ✅ **User Feedback**: Based on observation that first image good, second needs improvement
+
 ## ✅ MAYA PROMPT OPTIMIZATION COMPLETED (July 24, 2025)
 
 **BREAKTHROUGH: CLEAN FLUX-OPTIMIZED PROMPT GENERATION SYSTEM**
