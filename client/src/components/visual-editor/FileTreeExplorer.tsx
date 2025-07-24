@@ -80,24 +80,30 @@ export function FileTreeExplorer({ onFileSelect, selectedAgent }: FileTreeExplor
   const loadDirectory = async (dirPath: string) => {
     setIsLoading(true);
     try {
-      const response = await apiRequest('POST', '/api/admin/agent/browse-directory', {
-        agentId: selectedAgent,
-        dirPath: dirPath === '.' ? '.' : dirPath,
-        adminToken: 'sandra-admin-2025'
+      // Use the working /api/file-tree endpoint instead of broken browse-directory
+      const response = await fetch('/api/file-tree', {
+        method: 'GET',
+        credentials: 'include'
       });
 
       if (response.ok) {
         const data = await response.json();
-        if (dirPath === '.') {
-          // Root directory - set initial tree
-          setFileTree(data.entries || []);
+        console.log('📁 FILE TREE API RESPONSE:', data);
+        
+        if (data.success && data.fileTree) {
+          // Set the complete file tree structure
+          setFileTree(data.fileTree);
         } else {
-          // Nested directory - update tree
-          updateTreeWithChildren(dirPath, data.entries || []);
+          console.error('File tree API returned unsuccessful response:', data);
+          setFileTree([]);
         }
+      } else {
+        console.error('File tree API failed:', response.status, response.statusText);
+        setFileTree([]);
       }
     } catch (error) {
       console.error('Failed to load directory:', error);
+      setFileTree([]);
     } finally {
       setIsLoading(false);
     }
