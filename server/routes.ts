@@ -6357,17 +6357,6 @@ AGENT_CONTEXT:
         enhancedSystemPrompt += `\n\n🌊 WORKFLOW SUGGESTION: ${workflowSuggestion}`;
       }
 
-      // Call Claude API with enhanced agent context
-      const { Anthropic } = await import('@anthropic-ai/sdk');
-      const claude = new Anthropic({
-        apiKey: process.env.ANTHROPIC_API_KEY,
-      });
-      
-      // Debug: Log the request structure
-      console.log('🔍 Claude API Request messages:', messages.map(m => ({ role: m.role, content: m.content.substring(0, 100) + '...' })));
-      console.log('🔍 System prompt length:', systemPrompt.length);
-      console.log('🔍 Tool configuration:', JSON.stringify(toolConfig, null, 2));
-      
       // Configure tools for ALL agents - enable file editing and search capabilities
       const toolConfig = {
         tools: [
