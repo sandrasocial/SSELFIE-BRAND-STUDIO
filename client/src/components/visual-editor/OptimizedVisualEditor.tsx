@@ -334,6 +334,7 @@ export function OptimizedVisualEditor({ className = '' }: OptimizedVisualEditorP
   const [deviceMode, setDeviceMode] = useState<'desktop' | 'tablet' | 'mobile'>('desktop');
   const [zoomLevel, setZoomLevel] = useState(100);
   const [refreshTrigger, setRefreshTrigger] = useState(Date.now());
+  const [lastFileChangeCheck, setLastFileChangeCheck] = useState(Date.now());
   const iframeRef = useRef<HTMLIFrameElement>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const chatPanelRef = useRef<HTMLDivElement>(null);
@@ -454,6 +455,61 @@ export function OptimizedVisualEditor({ className = '' }: OptimizedVisualEditorP
 
     loadConversationHistory();
   }, [currentAgent.id]);
+
+  // AUTO-REFRESH SYSTEM: Poll for agent file changes and trigger preview refresh
+  useEffect(() => {
+    let pollInterval: NodeJS.Timeout;
+    
+    const pollForFileChanges = async () => {
+      try {
+        const response = await fetch(`/api/visual-editor/file-changes?lastCheck=${lastFileChangeCheck}`, {
+          method: 'GET',
+          headers: { 'Content-Type': 'application/json' },
+          credentials: 'include'
+        });
+        
+        if (response.ok) {
+          const data = await response.json();
+          
+          if (data.hasChanges) {
+            console.log(`🔄 AUTO-REFRESH DETECTED: ${data.operation} on ${data.filePath}`);
+            
+            // Update file tree if needed
+            setRefreshTrigger(Date.now());
+            
+            // Refresh live preview if it's a frontend file
+            if (data.needsPreviewRefresh && iframeRef.current) {
+              const currentSrc = iframeRef.current.src.split('?')[0];
+              iframeRef.current.src = currentSrc + '?refresh=' + Date.now();
+              console.log('🔄 Live preview auto-refreshed due to agent file changes');
+              
+              // Show toast notification
+              toast({
+                title: 'Preview Updated',
+                description: `Agent ${data.operation} detected - preview refreshed`,
+              });
+            }
+            
+            // Update last check timestamp
+            setLastFileChangeCheck(data.timestamp);
+          }
+        }
+      } catch (error) {
+        // Silently handle polling errors to avoid spam
+        console.debug('File change polling error:', error);
+      }
+    };
+    
+    // Start polling every 2 seconds when Visual Editor is active
+    pollInterval = setInterval(pollForFileChanges, 2000);
+    
+    // Cleanup interval on unmount
+    return () => {
+      if (pollInterval) {
+        clearInterval(pollInterval);
+      }
+    };
+  }, [lastFileChangeCheck, toast]);
 
   // Handle clicking outside dropdown to close it
   useEffect(() => {
