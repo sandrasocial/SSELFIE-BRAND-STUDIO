@@ -746,22 +746,20 @@ Standards: SSELFIE Studio architecture, maintain existing functionality
 
 End response with: MODIFIED: [exact file paths that were changed]`;
 
-        // Call the agent through the admin endpoint that supports file operations
+        // Call the agent through the NEW tool integration endpoint that supports str_replace_based_edit_tool
         const fetch = (await import('node-fetch')).default;
         
-        // AUTHENTICATION FIX: Use bypass system that works correctly
-        const fetchPromise = fetch('http://localhost:5000/api/admin/agent-chat-bypass', {
-          method: 'POST',
+        // FIXED: Use tool endpoint that supports str_replace_based_edit_tool
+        const fetchPromise = fetch('http://localhost:5000/api/admin/agents/chat', {
+          method: 'POST', 
           headers: { 
             'Content-Type': 'application/json',
-            'X-Admin-Token': 'sandra-admin-2025',
-            'X-Elena-Workflow': 'true'
+            'Cookie': 'connect.sid=sandra-admin-session' // Use session auth for tool endpoint
           },
           body: JSON.stringify({
             agentId: agentName.toLowerCase(),
             message: enhancedTask,
-            adminToken: 'sandra-admin-2025',
-            userId: 'elena-workflow-coordination'
+            userId: '42585527' // Sandra's actual user ID
           })
         });
 
@@ -775,17 +773,19 @@ End response with: MODIFIED: [exact file paths that were changed]`;
         if (response.ok) {
           const result = await response.json();
           
-          // CRITICAL FIX: Verify actual file modifications from auto-file-writer
-          const autoFileWriterSuccess = result.autoFileWriterFiles?.length > 0;
-          const filesModified = result.filesCreated?.length > 0 || result.fileOperations?.length > 0 || autoFileWriterSuccess;
-          const hasActualWork = result.response?.includes('file') || result.response?.includes('created') || result.response?.includes('modified') || autoFileWriterSuccess;
+          // UPDATED: Verify actual file modifications from str_replace_based_edit_tool
+          const toolCallsSuccess = result.toolCalls?.length > 0;
+          const filesModified = result.filesCreated?.length > 0 || result.fileOperations?.length > 0 || toolCallsSuccess;
+          const hasModificationKeywords = result.response?.includes('str_replace_based_edit_tool') || result.response?.includes('MODIFIED:') || result.response?.includes('created') || result.response?.includes('updated');
+          const hasActualWork = filesModified || hasModificationKeywords;
           
-          if (filesModified || hasActualWork) {
-            console.log(`✅ REAL AGENT EXECUTION: ${agentName} worked on actual files - ${result.filesCreated?.length || 0} files created, ${result.fileOperations?.length || 0} operations, ${result.autoFileWriterFiles?.length || 0} auto-writer files`);
+          if (hasActualWork) {
+            console.log(`✅ REAL AGENT EXECUTION: ${agentName} worked on actual files - ${result.toolCalls?.length || 0} tool calls, ${result.filesCreated?.length || 0} files created, ${result.fileOperations?.length || 0} operations`);
             return true;
           } else {
             console.log(`❌ FAKE AGENT EXECUTION: ${agentName} responded but did NOT modify any files (attempt ${attempt})`);
             console.log(`📝 Agent response: ${result.response?.substring(0, 200)}...`);
+            console.log(`🔍 Debug info: toolCalls=${result.toolCalls?.length}, filesCreated=${result.filesCreated?.length}, fileOperations=${result.fileOperations?.length}`);
             
             // If this is the last attempt, return false. Otherwise retry.
             if (attempt === MAX_RETRIES) {
