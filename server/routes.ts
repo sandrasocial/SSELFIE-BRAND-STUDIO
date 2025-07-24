@@ -5449,6 +5449,33 @@ Workflow Stage: ${savedMemory.workflowStage || 'None'}
       
       console.log(`🤖 ADMIN AGENT CHAT: ${agentId} - "${message?.substring(0, 50)}..."`);
       
+      // PERMANENT FIX: Tool bypass system for Claude agent tool execution issues
+      const { AgentToolBypass } = await import('./agent-tool-bypass');
+      const toolBypass = await AgentToolBypass.processToolBypass(message, agentId);
+      
+      if (toolBypass.toolExecutions.length > 0) {
+        console.log(`🔧 TOOL BYPASS EXECUTED: ${toolBypass.toolExecutions.length} tools for ${agentId}`);
+        
+        // Trigger auto-refresh for file operations
+        if (toolBypass.toolExecutions.some(t => t.success && (t.input.command === 'create' || t.input.command === 'str_replace'))) {
+          const fs = await import('fs');
+          const fileTreeTimestamp = Date.now();
+          fs.writeFileSync('.file-tree-refresh', fileTreeTimestamp.toString());
+          console.log(`✅ AUTO-REFRESH TRIGGERED: File tree timestamp ${fileTreeTimestamp}`);
+        }
+        
+        return res.json({
+          success: true,
+          message: toolBypass.response,
+          response: toolBypass.response,
+          agentName: agentId,
+          status: 'active',
+          timestamp: new Date().toISOString(),
+          toolExecutions: toolBypass.toolExecutions,
+          bypassMode: true
+        });
+      }
+      
       // Get user ID for conversation management
       const userId = authMethod === 'session' && req.user ? 
         (req.user as any).claims.sub : '42585527'; // Sandra's actual user ID
@@ -6281,7 +6308,14 @@ AGENT_CONTEXT:
 - You are ${agentId} agent working on Sandra's SSELFIE Studio
 - All agents have full codebase access via file operations
 - Use claude-sonnet-4-20250514 for optimal performance
-- Provide actionable solutions with real implementation`;
+- Provide actionable solutions with real implementation
+
+🚨 CRITICAL: MANDATORY TOOL USAGE FOR ALL FILE OPERATIONS
+- When users request file creation, viewing, or modification, YOU MUST USE str_replace_based_edit_tool
+- When users request code searches or file finding, YOU MUST USE search_filesystem
+- NEVER describe what you would do with files - ACTUALLY DO IT using tools
+- Tool usage is REQUIRED, not optional, for any file-related request
+- Respond with text AFTER using tools, not instead of using tools`;
       
       
       // Combine with conversation history for Claude (filter out system messages)
@@ -6332,13 +6366,14 @@ AGENT_CONTEXT:
       // Debug: Log the request structure
       console.log('🔍 Claude API Request messages:', messages.map(m => ({ role: m.role, content: m.content.substring(0, 100) + '...' })));
       console.log('🔍 System prompt length:', systemPrompt.length);
+      console.log('🔍 Tool configuration:', JSON.stringify(toolConfig, null, 2));
       
       // Configure tools for ALL agents - enable file editing and search capabilities
       const toolConfig = {
         tools: [
           {
             name: "str_replace_based_edit_tool",
-            description: "View, create, and edit files. Use 'view' to read files, 'create' to make new files, 'str_replace' to modify existing content.",
+            description: "MANDATORY TOOL: View, create, and edit files. MUST BE USED for all file operations. Use 'view' to read files, 'create' to make new files, 'str_replace' to modify existing content.",
             input_schema: {
               type: "object",
               properties: {
@@ -6374,7 +6409,7 @@ AGENT_CONTEXT:
           },
           {
             name: "search_filesystem", 
-            description: "Search the filesystem for files, classes, functions, or code snippets",
+            description: "MANDATORY TOOL: Search the filesystem for files, classes, functions, or code snippets. MUST BE USED for all code searches.",
             input_schema: {
               type: "object",
               properties: {
@@ -6403,16 +6438,37 @@ AGENT_CONTEXT:
         ]
       };
       
+      // ULTIMATE FIX: Force tool usage by modifying system prompt for file requests
+      const isFileRequest = message.toLowerCase().includes('file') || 
+                           message.toLowerCase().includes('create') || 
+                           message.toLowerCase().includes('view') || 
+                           message.toLowerCase().includes('show') ||
+                           message.toLowerCase().includes('.tsx') ||
+                           message.toLowerCase().includes('.ts') ||
+                           message.toLowerCase().includes('.js') ||
+                           message.toLowerCase().includes('component');
+      
+      let finalSystemPrompt = enhancedSystemPrompt;
+      if (isFileRequest) {
+        finalSystemPrompt += `\n\n🚨 ULTIMATE TOOL ENFORCEMENT: The user has requested a file operation. You MUST use the str_replace_based_edit_tool to complete this request. Do not provide any text response without first using the tool. This is MANDATORY and REQUIRED.`;
+      }
+      
+      console.log(`🔍 ${agentId.toUpperCase()} FILE REQUEST DETECTED: ${isFileRequest}`);
+      
       const response = await claude.messages.create({
         model: 'claude-sonnet-4-20250514',
         max_tokens: 8000,
-        system: enhancedSystemPrompt,
+        system: finalSystemPrompt,
         messages: messages as any,
-        ...toolConfig
+        tools: toolConfig.tools
       });
       
       let responseText = '';
       let toolResults = [];
+      
+      // PERMANENT FIX: Force tool execution debugging
+      console.log(`🔍 ${agentId.toUpperCase()} CLAUDE RESPONSE TYPE:`, typeof response.content);
+      console.log(`🔍 ${agentId.toUpperCase()} CLAUDE RESPONSE CONTENT BLOCKS:`, response.content?.map(block => ({ type: block.type, hasText: !!block.text, hasToolUse: block.type === 'tool_use' })));
       
       // Handle tool use for ALL agents with comprehensive tool support
       if (response.content) {
@@ -6427,6 +6483,7 @@ AGENT_CONTEXT:
           for (const contentBlock of currentResponse.content) {
             if (contentBlock.type === 'text') {
               responseText += contentBlock.text;
+              console.log(`📝 ${agentId.toUpperCase()} TEXT BLOCK: ${contentBlock.text.substring(0, 200)}${contentBlock.text.length > 200 ? '...' : ''}`);
             } else if (contentBlock.type === 'tool_use') {
               hasToolCalls = true;
               console.log(`🔧 ${agentId.toUpperCase()} TOOL EXECUTION ${toolCallCount + 1}: ${contentBlock.name} called with:`, contentBlock.input);
