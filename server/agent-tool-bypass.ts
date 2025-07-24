@@ -72,7 +72,7 @@ export class AgentToolBypass {
   static detectFileOperation(message: string): { shouldUseTools: boolean; toolCalls: any[] } {
     const lowerMessage = message.toLowerCase();
     
-    // Detect file operations
+    // ENHANCED DETECTION: Support Aria's sophisticated design requests
     const isFileOp = lowerMessage.includes('create') || 
                      lowerMessage.includes('view') || 
                      lowerMessage.includes('show') ||
@@ -80,7 +80,24 @@ export class AgentToolBypass {
                      lowerMessage.includes('.tsx') ||
                      lowerMessage.includes('.ts') ||
                      lowerMessage.includes('.js') ||
-                     lowerMessage.includes('component');
+                     lowerMessage.includes('component') ||
+                     // ARIA DESIGN PATTERNS: Detect when Aria wants to modify existing files
+                     lowerMessage.includes('redesign') ||
+                     lowerMessage.includes('modify') ||
+                     lowerMessage.includes('update') ||
+                     lowerMessage.includes('enhance') ||
+                     lowerMessage.includes('improve') ||
+                     lowerMessage.includes('admin dashboard') ||
+                     lowerMessage.includes('dashboard') ||
+                     // SPECIFIC FILE REFERENCES: Direct file path mentions
+                     message.includes('client/src/') ||
+                     message.includes('server/') ||
+                     // LUXURY DESIGN TERMS: Aria's design vocabulary
+                     (lowerMessage.includes('luxury') && (lowerMessage.includes('design') || lowerMessage.includes('editorial'))) ||
+                     // MODIFICATION REQUESTS: General file modification patterns
+                     lowerMessage.includes('replace the') ||
+                     lowerMessage.includes('change the') ||
+                     lowerMessage.includes('update the');
     
     if (!isFileOp) {
       return { shouldUseTools: false, toolCalls: [] };
@@ -124,6 +141,43 @@ export class AgentToolBypass {
         input: {
           command: 'view',
           path: viewMatch[1]
+        }
+      });
+    }
+    
+    // ARIA FILE MODIFICATION PATTERNS: Handle requests to modify specific files
+    const modifyPatterns = [
+      /(?:redesign|modify|update|enhance|improve)\s+(?:the\s+)?(?:file\s+)?([^\s]+\.(?:tsx|ts|js))/i,
+      /work\s+on\s+(?:the\s+)?(?:file\s+)?([^\s]+\.(?:tsx|ts|js))/i,
+      /(client\/src\/[^\s]+\.(?:tsx|ts|js))/i,
+      /(server\/[^\s]+\.(?:tsx|ts|js))/i
+    ];
+    
+    for (const pattern of modifyPatterns) {
+      const match = message.match(pattern);
+      if (match && !createMatch && !viewMatch) {
+        const filePath = match[1];
+        
+        // First, view the file to understand its current state
+        toolCalls.push({
+          name: 'str_replace_based_edit_tool',
+          input: {
+            command: 'view',
+            path: filePath
+          }
+        });
+        break; // Only process first match to avoid duplicates
+      }
+    }
+    
+    // ADMIN DASHBOARD SPECIFIC: Handle requests to work on admin dashboard
+    if (lowerMessage.includes('admin dashboard') && !createMatch) {
+      const adminDashboardPath = 'client/src/components/admin/AdminDashboard.tsx';
+      toolCalls.push({
+        name: 'str_replace_based_edit_tool',
+        input: {
+          command: 'view',
+          path: adminDashboardPath
         }
       });
     }
