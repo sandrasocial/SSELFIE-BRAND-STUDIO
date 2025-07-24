@@ -96,7 +96,7 @@ export function getSession() {
       httpOnly: true,
       secure: useSecureCookies,
       maxAge: sessionTtl,
-      sameSite: 'lax',
+      sameSite: 'none', // CRITICAL: Allow cross-domain cookies for Replit environment
       path: '/',
       // Remove domain restrictions for cross-subdomain compatibility
     },
@@ -248,11 +248,16 @@ export async function setupAuth(app: Express) {
       console.log(`🔍 Login requested for hostname: ${hostname}`);
       console.log(`🔍 Available strategies: ${req.app.locals.authDomains.join(', ')}`);
       
-      // Handle localhost development - redirect to configured development domain
+      // Handle localhost development - use available replit.dev domain strategy
       if (hostname === 'localhost' || hostname === '127.0.0.1') {
-        const devDomain = domains.find(d => d.includes('replit.dev')) || 'sselfie.ai';
-        console.log(`🔄 Localhost detected - redirecting to ${devDomain} for authentication`);
-        return res.redirect(`https://${devDomain}/api/login`);
+        const devDomain = domains.find(d => d.includes('replit.dev'));
+        if (devDomain) {
+          console.log(`🔄 Localhost detected - using ${devDomain} strategy without redirect`);
+          hostname = devDomain; // Use the domain for strategy selection but don't redirect
+        } else {
+          console.log(`🔄 Localhost detected - using sselfie.ai strategy`);
+          hostname = 'sselfie.ai';
+        }
       }
       
       const hasStrategy = req.app.locals.authDomains.includes(hostname);
