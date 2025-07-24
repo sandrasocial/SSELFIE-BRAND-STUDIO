@@ -351,3 +351,6 @@ function getAgentCapabilities(agentId: string): string[] {
   
   return capabilities[agentId as keyof typeof capabilities] || ['General AI Assistant'];
 }
+
+// Export AGENT_CONFIGS for use in other files
+export { AGENT_CONFIGS };
