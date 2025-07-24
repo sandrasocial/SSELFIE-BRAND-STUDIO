@@ -6417,6 +6417,19 @@ AGENT_CONTEXT:
         const { AgentCodebaseIntegration } = await import('./agents/agent-codebase-integration.js');
         
         console.log(`🎯 PERMANENT AUTO-FILE-WRITER: Processing ${agentId} response`);
+        
+        // ENHANCED: Error detection and recovery system (like Replit agents)
+        const { AgentErrorRecovery } = await import('./agents/error-detection-system.js');
+        const errorCheck = await AgentErrorRecovery.monitorAgentResponse(agentId, validatedResponse);
+        
+        if (errorCheck.hasErrors) {
+          console.log(`🚨 EMERGENCY INTERVENTION: Agent ${agentId} created ${errorCheck.patterns.length} dangerous patterns`);
+          for (const pattern of errorCheck.patterns) {
+            console.log(`  🔧 FIXED: Agent used ${pattern.name} (${pattern.matchCount} instances)`);
+          }
+          validatedResponse = errorCheck.safeResponse; // Use sanitized response
+        }
+        
         console.log(`🎯 Response analysis: <write_to_file>=${validatedResponse.includes('<write_to_file>')}, code blocks=${validatedResponse.includes('```')}`);
         
         // Use the enhanced auto-file-writer system
