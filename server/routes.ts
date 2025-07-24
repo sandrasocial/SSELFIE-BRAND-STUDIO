@@ -5081,14 +5081,38 @@ Starting analysis and implementation now...`;
         console.error(`❌ MEMORY: Failed to retrieve memory for ${agentId}:`, error);
       }
 
-      // Build conversation context with memory
+      // Build conversation context with memory AND create memory from recent conversations
       let conversationContext = '';
+      
+      // If no saved memory exists, try to build it from recent conversations
+      if (!savedMemory) {
+        try {
+          const recentConversations = await storage.getAgentConversations(agentId, userId);
+          if (recentConversations.length >= 3) {
+            // Convert conversations to history format for memory creation
+            const historyForMemory = recentConversations.map(conv => [
+              { role: 'user', content: conv.userMessage },
+              { role: 'assistant', content: conv.agentResponse }
+            ]).flat();
+            
+            // Create memory summary from recent conversations
+            savedMemory = await ConversationManager.createConversationSummary(agentId, userId, historyForMemory);
+            
+            // Save the memory for future use
+            await ConversationManager.saveAgentMemory(savedMemory);
+            console.log(`💾 MEMORY: Created and saved new memory for ${agentId} from ${recentConversations.length} conversations`);
+          }
+        } catch (error) {
+          console.error(`❌ MEMORY: Failed to create memory from conversations for ${agentId}:`, error);
+        }
+      }
+      
       if (savedMemory && savedMemory.keyTasks && savedMemory.keyTasks.length > 0) {
         conversationContext = `**CONVERSATION_MEMORY**
 Key Tasks: ${savedMemory.keyTasks.join('; ')}
 Recent Decisions: ${savedMemory.recentDecisions?.join('; ') || 'None'}
-Current Focus: ${savedMemory.currentFocus || 'None'}
-Last Interaction: ${savedMemory.lastInteraction || 'None'}
+Current Focus: ${savedMemory.currentContext || 'None'}
+Workflow Stage: ${savedMemory.workflowStage || 'None'}
 
 `;
         console.log(`✅ MEMORY: Added ${savedMemory.keyTasks.length} tasks to context for ${agentId}`);
@@ -5136,11 +5160,25 @@ Last Interaction: ${savedMemory.lastInteraction || 'None'}
         throw new Error('No response received from Claude API');
       }
       
-      // CRITICAL FIX: ADD CONVERSATION SAVING TO MAIN ENDPOINT
+      // CRITICAL FIX: ADD CONVERSATION SAVING AND MEMORY MANAGEMENT TO MAIN ENDPOINT
       try {
         // Save conversation to database for future memory retrieval using proper format
         await storage.saveAgentConversation(agentId, userId, message, agentResponse, []);
         console.log(`💾 MEMORY: Conversation saved for ${agentId}`);
+        
+        // Check if we need to create/update memory after saving conversation
+        const allConversations = await storage.getAgentConversations(agentId, userId);
+        if (allConversations.length > 0 && allConversations.length % 5 === 0) {
+          // Every 5 conversations, update the memory summary
+          const historyForMemory = allConversations.slice(-10).map(conv => [
+            { role: 'user', content: conv.userMessage },
+            { role: 'assistant', content: conv.agentResponse }
+          ]).flat();
+          
+          const updatedMemory = await ConversationManager.createConversationSummary(agentId, userId, historyForMemory);
+          await ConversationManager.saveAgentMemory(updatedMemory);
+          console.log(`🧠 MEMORY: Updated memory summary for ${agentId} after ${allConversations.length} conversations`);
+        }
       } catch (error) {
         console.error(`❌ MEMORY: Failed to save conversation for ${agentId}:`, error);
       }
