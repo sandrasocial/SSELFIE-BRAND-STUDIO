@@ -33,7 +33,6 @@ export interface UnifiedGenerationResponse {
  * DO NOT CHANGE WITHOUT EXPLICIT APPROVAL
  */
 const WORKING_PARAMETERS = {
-  model: "dev",
   guidance_scale: 2.8,
   num_inference_steps: 45,
   lora_scale: 1.1,
@@ -115,6 +114,8 @@ export class UnifiedGenerationService {
       trigger: triggerWord
     });
     
+    console.log(`🔍 FULL REQUEST BODY:`, JSON.stringify(requestBody, null, 2));
+    
     // Call Replicate API with retry logic
     let replicateResponse;
     let retries = 0;
@@ -144,6 +145,8 @@ export class UnifiedGenerationService {
           continue;
         }
         
+        const errorBody = await replicateResponse.text();
+        console.log(`🚨 REPLICATE API ERROR DETAILS: ${replicateResponse.status} - ${errorBody}`);
         throw new Error(`Replicate API error: ${replicateResponse.status}`);
         
       } catch (error) {
