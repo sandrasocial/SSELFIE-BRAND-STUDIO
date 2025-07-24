@@ -16,7 +16,30 @@ import {
   BarChart3,
   Sparkles,
   Send,
-  X
+  X,
+  Terminal,
+  Database,
+  Zap,
+  Rocket,
+  Target,
+  Coffee,
+  Heart,
+  Star,
+  CheckCircle,
+  AlertCircle,
+  Clock,
+  Wand2,
+  Palette,
+  PenTool,
+  Mic,
+  Briefcase,
+  Globe,
+  Layout,
+  Camera,
+  Code,
+  Play,
+  RefreshCw,
+  ArrowRight
 } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -24,6 +47,8 @@ import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Input } from "@/components/ui/input";
 import { ScrollArea } from "@/components/ui/scroll-area";
+import { useToast } from "@/hooks/use-toast";
+import { apiRequest } from "@/lib/queryClient";
 
 interface DashboardStats {
   totalUsers: number;
