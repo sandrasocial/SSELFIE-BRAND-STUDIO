@@ -5071,7 +5071,6 @@ Starting analysis and implementation now...`;
         messageText.includes('coordinate') ||
         messageText.includes('workflow') ||
         messageText.includes('redesign') ||
-        messageText.includes('dashboard') ||
         messageText.includes('initiate') ||
         messageText.includes('yes please') ||
         messageText.includes('yes, please') ||
