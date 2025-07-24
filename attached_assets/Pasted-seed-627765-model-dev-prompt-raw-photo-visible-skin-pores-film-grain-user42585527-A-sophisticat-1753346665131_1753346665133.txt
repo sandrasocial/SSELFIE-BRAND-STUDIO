@@ -1,0 +1,36 @@
+seed
+627765
+model
+dev
+prompt
+raw photo, visible skin pores, film grain, user42585527,
+
+A sophisticated woman captured from waist up at chic Ibiza beach club terrace, positioned in relaxed three-quarter pose with natural confident stance overlooking turquoise Mediterranean waters. She wears flowing cream linen shirt with rolled sleeves and relaxed drape, layered gold jewelry including delicate chains and statement earrings catching the brilliant Spanish sunlight. Hair styled in effortless beachy waves with sun-kissed highlights, natural bronzed makeup with golden undertones enhancing her radiant summer glow.
+
+Her left hand rests casually on white wooden beach club railing while right hand adjusts delicate gold bracelet with fluid graceful movement. She gazes toward the horizon with serene, contemplative expression radiating pure summer sophistication - natural skin texture visible with authentic confident Mediterranean presence. Gentle ocean breeze creates subtle movement in her linen fabric and loose hair strands.
+
+Golden hour Mediterranean lighting bathes the scene in warm honey tones, creating soft shadows that accentuate her features and the flowing fabric textures. Brilliant turquoise water and white sandy beaches provide stunning contrast backdrop. Natural diffused sunlight through beach club's white canvas umbrellas adds ethereal glow while maintaining vibrant summer color saturation.
+
+Shot with Hasselblad X2D 100C with 80mm f/1.9 lens at f/2.8, creating shallow depth of field that keeps sharp focus on her face and upper body while softly blurring the beach club's white architecture and azure coastline. The composition balances intimate summer portraiture with breathtaking Mediterranean luxury, capturing both her personal radiance and the chic Ibiza setting in pure editorial sophistication., professional photography
+go_fast
+
+lora_scale
+1.1
+megapixels
+1
+num_outputs
+2
+aspect_ratio
+3:4
+output_format
+png
+guidance_scale
+2.8
+output_quality
+95
+prompt_strength
+0.8
+extra_lora_scale
+1
+num_inference_steps
+45
