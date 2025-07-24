@@ -512,6 +512,13 @@ The platform has become overly complex with multiple pricing tiers, broken onboa
 - ✅ **Improved Color Separation**: Early placement of "black and white editorial" prevents mixed color/B&W results
 - ✅ **Perfect Prompt Structure**: raw photo → film grain → black and white (if needed) → trigger word → description → professional photography
 
+**MAYA COMMUNICATION STYLE UPDATE (July 24, 2025):**
+- ✅ **Best Friend Approach**: Updated Maya to communicate like user's warm, supportive best friend who's a professional stylist
+- ✅ **Simple Language**: Uses everyday language with warmth and excitement, like having coffee together
+- ✅ **Clean Formatting**: Removed bold/italic formatting that shows as symbols (**text**) and doesn't work in chat
+- ✅ **Natural Emojis**: Added appropriate emoji usage - not too many, not too few, like texting a friend
+- ✅ **Easy Reading**: Uses line breaks and short paragraphs for scannable, friendly responses
+
 ## ✅ MAYA POLLING SYSTEM CRITICAL ISSUE IDENTIFIED - AUTHENTICATION TIMING (July 24, 2025)
 
 **CORE ISSUE DISCOVERED: MAYA POLLING VS AUTHENTICATION TIMING**
