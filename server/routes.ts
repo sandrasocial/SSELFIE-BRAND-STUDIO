@@ -1375,8 +1375,9 @@ NO questions, NO options, NO multiple scenarios - Just your expert SINGLE COMPLE
         return res.status(403).json({ error: 'Unauthorized access to tracker' });
       }
       
-      // Parse temp URLs for preview or error messages
+      // Parse URLs for preview - include both temp Replicate URLs AND permanent S3 URLs
       let imageUrls = [];
+      let permanentImageUrls = [];
       let errorMessage = null;
       
       try {
@@ -1394,10 +1395,14 @@ NO questions, NO options, NO multiple scenarios - Just your expert SINGLE COMPLE
         imageUrls = [];
       }
       
+      // For completed trackers, the imageUrls field contains the permanent S3 URLs
+      // The background system migrates temp Replicate URLs to permanent S3 and updates imageUrls
+      console.log(`🎬 TRACKER ${trackerId}: Status=${tracker.status}, URLs=${imageUrls.length}, User=${dbUserId}`);
+      
       res.json({
         id: tracker.id,
         status: tracker.status,
-        imageUrls, // Temp URLs for preview only
+        imageUrls, // Contains permanent S3 URLs for completed trackers
         errorMessage, // Error message for failed generations
         prompt: tracker.prompt,
         style: tracker.style,

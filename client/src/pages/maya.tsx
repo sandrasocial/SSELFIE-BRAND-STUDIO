@@ -227,9 +227,21 @@ export default function Maya() {
         const response = await fetch(`/api/generation-tracker/${trackerId}`, {
           credentials: 'include'
         });
-        if (!response.ok) throw new Error('Failed to fetch tracker status');
+        
+        // Handle authentication errors gracefully
+        if (response.status === 401) {
+          console.log('🔐 Maya polling: Authentication required, redirecting to login');
+          window.location.href = '/api/login';
+          return;
+        }
+        
+        if (!response.ok) {
+          console.error(`🔐 Maya polling error: ${response.status} ${response.statusText}`);
+          throw new Error(`Failed to fetch tracker status: ${response.status}`);
+        }
         
         const tracker = await response.json();
+        console.log(`🎬 Maya polling result: Status=${tracker.status}, Images=${tracker.imageUrls?.length || 0}`);
         
         if (tracker.status === 'completed' && tracker.imageUrls && tracker.imageUrls.length > 0) {
           // Image generation completed
