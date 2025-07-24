@@ -76,18 +76,10 @@ export class UnifiedGenerationService {
     
     const savedTracker = await storage.saveGenerationTracker(trackerData);
     
-    // Prepare final prompt with trigger word
-    let finalPrompt = prompt;
+    // TEMPORARY: Use simple prompt for debugging
+    let finalPrompt = `${triggerWord}, a woman in a beautiful dress`;
     
-    // Ensure trigger word is at the beginning
-    if (!finalPrompt.includes(triggerWord)) {
-      finalPrompt = `${triggerWord} ${finalPrompt}`;
-    }
-    
-    // Add quality foundation for realistic results (Sandra's proven July 17 structure)
-    if (!finalPrompt.includes('raw photo')) {
-      finalPrompt = `raw photo, visible skin pores, film grain, ${finalPrompt}, professional photography`;
-    }
+    console.log(`🧪 DEBUG: Using simplified prompt for testing`);
     
     console.log(`🎯 UNIFIED FINAL PROMPT: "${finalPrompt}"`);
     
@@ -136,6 +128,10 @@ export class UnifiedGenerationService {
           break; // Success
         }
         
+        // Get error details first for all errors
+        const errorBody = await replicateResponse.text();
+        console.log(`🚨 REPLICATE API ERROR DETAILS: ${replicateResponse.status} - ${errorBody}`);
+        
         // Retry on server errors
         if ((replicateResponse.status === 502 || replicateResponse.status >= 500) && retries < maxRetries) {
           const delaySeconds = (retries + 1) * 3;
@@ -145,8 +141,6 @@ export class UnifiedGenerationService {
           continue;
         }
         
-        const errorBody = await replicateResponse.text();
-        console.log(`🚨 REPLICATE API ERROR DETAILS: ${replicateResponse.status} - ${errorBody}`);
         throw new Error(`Replicate API error: ${replicateResponse.status}`);
         
       } catch (error) {
