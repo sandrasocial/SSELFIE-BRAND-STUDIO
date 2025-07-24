@@ -577,7 +577,8 @@ export function OptimizedVisualEditor({ className = '' }: OptimizedVisualEditorP
     };
     
     // Start polling every 2 seconds when Visual Editor is active
-    pollInterval = setInterval(pollForFileChanges, 2000);
+    // DISABLED: Excessive polling was preventing file tree navigation
+    // pollInterval = setInterval(pollForFileChanges, 2000);
     
     // Cleanup interval on unmount
     return () => {
