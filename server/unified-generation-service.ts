@@ -33,7 +33,7 @@ export interface UnifiedGenerationResponse {
  * These match the web interface for consistent high-quality results
  */
 const WORKING_PARAMETERS = {
-  guidance_scale: 2.82,
+  guidance: 2.82, // FIXED: Official model uses "guidance" not "guidance_scale"
   num_inference_steps: 45,
   lora_scale: 1.1,
   num_outputs: 2,
@@ -109,7 +109,7 @@ export class UnifiedGenerationService {
     ArchitectureValidator.validateGenerationRequest(requestBody, userId, isPremium);
     
     console.log(`🚀 SANDRA'S ENHANCED PARAMETERS:`, {
-      guidance_scale: requestBody.input.guidance_scale,
+      guidance: requestBody.input.guidance, // FIXED: Correct parameter name
       steps: requestBody.input.num_inference_steps,
       lora_scale: requestBody.input.lora_scale,
       lora_weights: requestBody.input.lora_weights,
