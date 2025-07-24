@@ -35,7 +35,7 @@ export interface UnifiedGenerationResponse {
 const WORKING_PARAMETERS = {
   guidance: 2.82, // FIXED: Official model uses "guidance" not "guidance_scale"
   num_inference_steps: 40, // REDUCED: From 45 to 40 for better consistency between images
-  lora_scale: 1.1,
+  lora_scale: 1.3, // INCREASED: From 1.1 to 1.3 for stronger user likeness and realism
   num_outputs: 2,
   aspect_ratio: "3:4",
   output_format: "png",
@@ -85,9 +85,9 @@ export class UnifiedGenerationService {
       finalPrompt = `${triggerWord} ${finalPrompt}`;
     }
     
-    // Add quality foundation for realistic results (Sandra's proven July 17 structure)
+    // Add enhanced realism foundation for user likeness and skin texture
     if (!finalPrompt.includes('raw photo')) {
-      finalPrompt = `raw photo, visible skin pores, film grain, ${finalPrompt}, professional photography`;
+      finalPrompt = `raw photo, visible skin pores, natural skin texture, subsurface scattering, film grain, ${finalPrompt}, unretouched skin, authentic facial features, professional photography`;
     }
     
     console.log(`🎯 UNIFIED FINAL PROMPT: "${finalPrompt}"`);
