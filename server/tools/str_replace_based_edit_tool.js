@@ -87,7 +87,58 @@ async function replaceInFile(filePath, oldStr, newStr) {
     const content = await fs.readFile(filePath, 'utf8');
     
     if (!content.includes(oldStr)) {
-      throw new Error(`String not found in file: ${oldStr}`);
+      // Enhanced string matching with whitespace normalization
+      const normalizedContent = content.replace(/\s+/g, ' ').trim();
+      const normalizedSearch = oldStr.replace(/\s+/g, ' ').trim();
+      
+      if (normalizedContent.includes(normalizedSearch)) {
+        console.log(`⚠️ WHITESPACE MISMATCH: Found content with normalized matching`);
+        // Try to find with flexible whitespace
+        const flexiblePattern = oldStr.replace(/\s+/g, '\\s+').replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+        const regex = new RegExp(flexiblePattern);
+        if (regex.test(content)) {
+          console.log(`✅ FLEXIBLE MATCH: Using regex pattern matching`);
+          const newContent = content.replace(regex, newStr);
+          await fs.writeFile(filePath, newContent, 'utf8');
+          return `File updated successfully with flexible matching: ${filePath}`;
+        }
+      }
+      
+      // Fallback: Try partial matching for large strings
+      if (oldStr.length > 100) {
+        const firstLine = oldStr.split('\n')[0].trim();
+        if (content.includes(firstLine)) {
+          console.log(`⚠️ PARTIAL MATCH: Using first line match for large string replacement`);
+          const lines = content.split('\n');
+          const searchLines = oldStr.split('\n');
+          
+          for (let i = 0; i <= lines.length - searchLines.length; i++) {
+            if (lines[i].trim() === firstLine) {
+              // Check if subsequent lines match
+              let matchFound = true;
+              for (let j = 1; j < searchLines.length && matchFound; j++) {
+                if (lines[i + j]?.trim() !== searchLines[j].trim()) {
+                  matchFound = false;
+                }
+              }
+              
+              if (matchFound) {
+                // Replace the matched section
+                lines.splice(i, searchLines.length, ...newStr.split('\n'));
+                const newContent = lines.join('\n');
+                await fs.writeFile(filePath, newContent, 'utf8');
+                return `File updated successfully with partial matching: ${filePath}`;
+              }
+            }
+          }
+        }
+      }
+      
+      console.error(`❌ STRING MATCH FAILED:`);
+      console.error(`🔍 Searching for: "${oldStr.substring(0, 200)}${oldStr.length > 200 ? '...' : ''}"`);
+      console.error(`📁 In file with ${content.length} characters`);
+      console.error(`🎯 First 200 chars of file: "${content.substring(0, 200)}"`);
+      throw new Error(`String not found in file after enhanced matching: ${oldStr.substring(0, 100)}${oldStr.length > 100 ? '...' : ''}`);
     }
     
     const occurrences = (content.match(new RegExp(oldStr.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'), 'g')) || []).length;

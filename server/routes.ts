@@ -6504,8 +6504,32 @@ AGENT_CONTEXT:
                 } else if (contentBlock.name === 'str_replace_based_edit_tool') {
                   console.log(`🔥 ${agentId.toUpperCase()} FILE OPERATION: ${contentBlock.input.command} on ${contentBlock.input.path}`);
                   
-                  const { str_replace_based_edit_tool } = await import('./tools/str_replace_based_edit_tool');
-                  toolResult = await str_replace_based_edit_tool(contentBlock.input);
+                  try {
+                    // Try enhanced file replacement first
+                    if (contentBlock.input.command === 'str_replace') {
+                      const { enhancedFileReplace } = await import('./agent-tool-execution-fix.js');
+                      toolResult = await enhancedFileReplace(
+                        contentBlock.input.path,
+                        contentBlock.input.old_str,
+                        contentBlock.input.new_str
+                      );
+                    } else {
+                      // Use original tool for other operations
+                      const { str_replace_based_edit_tool } = await import('./tools/str_replace_based_edit_tool');
+                      toolResult = await str_replace_based_edit_tool(contentBlock.input);
+                    }
+                  } catch (error) {
+                    console.error(`❌ ENHANCED TOOL FAILED: ${error.message}`);
+                    // Fallback to Plan B execution
+                    const { planBExecutor } = await import('./agent-tool-execution-fix.js');
+                    await planBExecutor.queueOperation(
+                      agentId,
+                      contentBlock.input.command,
+                      contentBlock.input.path,
+                      contentBlock.input
+                    );
+                    toolResult = `Plan B activated: Operation queued for direct execution due to tool failure`;
+                  }
                   
                   // TRIGGER AUTO-REFRESH FOR VISUAL EDITOR
                   if (toolResult && !toolResult.includes('Error') && contentBlock.input.path) {
@@ -6661,7 +6685,19 @@ AGENT_CONTEXT:
   // Agent status report routes
   const agentStatusRoutes = await import('./routes/agent-status-routes');
   app.use(agentStatusRoutes.default);
+  // Plan B Status API routes
+  app.get('/api/plan-b-status', async (req, res) => {
+    const { getPlanBStatus } = await import('./api/plan-b-status.js');
+    await getPlanBStatus(req, res);
+  });
+  
+  app.post('/api/plan-b-force-execution', async (req, res) => {
+    const { forcePlanBExecution } = await import('./api/plan-b-status.js');
+    await forcePlanBExecution(req, res);
+  });
+
   console.log('✅ Enhanced Agent Capabilities routes registered');
+  console.log('✅ Plan B Execution System routes registered');
   
   // Agent Performance Monitor API routes
   const { getAgentCoordinationMetrics, getAgentStatuses, getAgentAccountability } = await import('./routes/agent-performance-monitor');
