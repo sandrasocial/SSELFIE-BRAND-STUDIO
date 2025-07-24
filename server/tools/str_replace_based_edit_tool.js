@@ -1,5 +1,5 @@
-const fs = require('fs').promises;
-const path = require('path');
+import { promises as fs } from 'fs';
+import path from 'path';
 
 /**
  * Tool for viewing, creating and editing files
@@ -128,4 +128,4 @@ async function insertInFile(filePath, insertLine, insertText) {
   }
 }
 
-module.exports = { str_replace_based_edit_tool };
+export { str_replace_based_edit_tool };
