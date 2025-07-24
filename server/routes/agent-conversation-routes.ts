@@ -378,10 +378,62 @@ export function registerAgentRoutes(app: Express) {
       
       const agent = AGENT_CONFIGS[agentId as keyof typeof AGENT_CONFIGS];
       
-      // For all agents, process the message
+      // Check for tool usage patterns (for agents with file access)
+      let toolResponse = null;
+      if (agent.canModifyFiles) {
+        const { AgentToolBypass } = await import('../agent-tool-bypass');
+        const toolDetection = AgentToolBypass.detectFileOperation(message);
+        
+        if (toolDetection.shouldUseTools && toolDetection.toolCalls.length > 0) {
+          console.log(`🔧 TOOL DETECTED for ${agentId}: ${toolDetection.toolCalls.length} operations`);
+          
+          // Execute tools and capture results
+          const toolResults = [];
+          for (const toolCall of toolDetection.toolCalls) {
+            try {
+              const result = await AgentToolBypass.executeStrReplaceBasedEditTool(toolCall.input);
+              toolResults.push(result);
+              console.log(`✅ TOOL EXECUTED: ${JSON.stringify(result)}`);
+            } catch (error) {
+              console.error(`❌ TOOL ERROR:`, error);
+              toolResults.push({ error: error.message });
+            }
+          }
+          
+          toolResponse = {
+            toolsUsed: true,
+            results: toolResults,
+            message: `I've executed ${toolResults.length} file operations. Here are the results:`
+          };
+        }
+      }
+
+      // For all agents, process the message through Claude API
       let agentResponse = '';
       
       try {
+        // Enhance system prompt with tool capabilities for file-enabled agents
+        let enhancedSystemPrompt = agent.systemPrompt;
+        if (agent.canModifyFiles) {
+          enhancedSystemPrompt += `\n\n**ENHANCED TOOL ACCESS:**
+You have access to file system tools. When users ask you to:
+- View, create, or modify files
+- Audit the codebase 
+- Organize or cleanup files
+- Analyze file structures
+
+Use this format in your response:
+TOOL_REQUEST: str_replace_based_edit_tool
+PARAMETERS: {"command": "view", "path": "client/src/pages"}
+
+Available commands:
+- view: Show file contents (add view_range: [start, end] for specific lines)
+- create: Create new files 
+- str_replace: Modify existing files
+
+You can also reference tool results that may have been executed alongside your response.`;
+        }
+        
         // Try Claude API first
         const claudeResponse = await fetch('https://api.anthropic.com/v1/messages', {
           method: 'POST',
@@ -393,11 +445,13 @@ export function registerAgentRoutes(app: Express) {
           body: JSON.stringify({
             model: 'claude-3-5-sonnet-20241022',
             max_tokens: 4000,
-            system: agent.systemPrompt,
+            system: enhancedSystemPrompt,
             messages: [
               {
                 role: 'user',
-                content: message
+                content: toolResponse ? 
+                  `${message}\n\n**TOOL EXECUTION RESULTS:**\n${JSON.stringify(toolResponse.results, null, 2)}` : 
+                  message
               }
             ]
           }),
@@ -415,7 +469,11 @@ export function registerAgentRoutes(app: Express) {
       
       if (!agentResponse) {
         // Fallback response
-        agentResponse = `Hello! ${agent.name} here, ready to help with your task.`;
+        if (toolResponse) {
+          agentResponse = `${agent.name} here! I've executed the file operations you requested. ${toolResponse.message}`;
+        } else {
+          agentResponse = `Hello! ${agent.name} here, ready to help with your task.`;
+        }
       }
       
       res.json({
