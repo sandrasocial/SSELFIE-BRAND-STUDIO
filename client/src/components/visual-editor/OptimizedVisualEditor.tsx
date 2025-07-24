@@ -1220,13 +1220,47 @@ export function OptimizedVisualEditor({ className = '' }: OptimizedVisualEditorP
           
           // Replace the tool request with the result in the message
           const resultText = toolResult.success 
-            ? `✅ ${tool} executed successfully:\n\`\`\`\n${toolResult.result}\n\`\`\``
-            : `❌ ${tool} failed: ${toolResult.error}`;
+            ? `✅ **${tool} executed successfully:**\n\`\`\`\n${toolResult.result}\n\`\`\``
+            : `❌ **${tool} failed:** ${toolResult.error}`;
             
           processedMessage = processedMessage.replace(fullMatch, resultText);
+          
+          // Trigger file tree refresh if file operations were performed
+          if (tool === 'str_replace_based_edit_tool' && toolResult.success) {
+            setTimeout(() => {
+              if ((window as any).refreshFileTree) {
+                (window as any).refreshFileTree();
+                console.log('🗂️ File tree refreshed after agent tool execution');
+              }
+            }, 1000);
+          }
         } catch (error) {
           console.error(`❌ Failed to process tool request:`, error);
-          processedMessage = processedMessage.replace(fullMatch, `❌ Tool request failed`);
+          processedMessage = processedMessage.replace(fullMatch, `❌ **Tool request failed:** ${error.message}`);
+        }
+      }
+      
+      // Check if agent response contains tool results already (from backend)
+      if (data.toolsUsed) {
+        console.log('🔧 Backend tool execution detected:', data.results?.length || 0, 'operations');
+        
+        // Add tool results to message if not already present
+        if (data.results && data.results.length > 0) {
+          const toolResultsText = data.results.map((result, index) => {
+            return result.success 
+              ? `✅ **Tool ${index + 1} completed successfully:**\n\`\`\`\n${result.result || 'Operation completed'}\n\`\`\``
+              : `❌ **Tool ${index + 1} failed:** ${result.error || 'Unknown error'}`;
+          }).join('\n\n');
+          
+          processedMessage = `${data.message || processedMessage}\n\n**Tool Execution Results:**\n${toolResultsText}`;
+          
+          // Trigger file tree refresh for any file operations
+          setTimeout(() => {
+            if ((window as any).refreshFileTree) {
+              (window as any).refreshFileTree();
+              console.log('🗂️ File tree refreshed after backend tool execution');
+            }
+          }, 1000);
         }
       }
       
@@ -1247,7 +1281,8 @@ export function OptimizedVisualEditor({ className = '' }: OptimizedVisualEditorP
           timestamp: new Date(),
           agentName: agentId,
           workflowStage: agent?.workflowStage,
-          workflowId: data.workflowId // Include workflow ID if Elena created/executed one
+          workflowId: data.workflowId, // Include workflow ID if Elena created/executed one
+          toolsUsed: data.toolsUsed || false
         };
         setChatMessages(prev => [...prev, agentMessage]);
 
