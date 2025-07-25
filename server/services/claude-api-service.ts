@@ -372,7 +372,7 @@ export class ClaudeApiService {
     }
   }
 
-  // Retry mechanism for Claude API overload errors
+  // Enhanced retry mechanism with outage detection
   private async sendToClaudeWithRetry(params: any, maxRetries: number = 5): Promise<any> {
     let lastError: any;
     
@@ -397,14 +397,29 @@ export class ClaudeApiService {
                            error.error?.type === 'rate_limit_error' ||
                            error.error?.type === 'api_error';
         
+        // Enhanced logging for 529 errors indicating potential outage
+        if (error.status === 529) {
+          console.log(`🚨 ANTHROPIC OUTAGE DETECTED: 529 overload error - possible system outage`);
+          console.log(`🔍 Check status: https://status.anthropic.com`);
+        }
+        
         if (!isRetryable || attempt === maxRetries) {
           console.error(`❌ Claude API failed on attempt ${attempt} (non-retryable or max retries reached):`, error.status, error.error?.type);
+          
+          // Provide user-friendly error message for 529 outages
+          if (error.status === 529 && attempt === maxRetries) {
+            throw new Error(`Anthropic API is currently experiencing high load or system outage. Please try again in a few minutes. Status: https://status.anthropic.com`);
+          }
+          
           throw error;
         }
         
-        // Exponential backoff: 1s, 2s, 4s, 8s, 16s
-        const delay = Math.pow(2, attempt - 1) * 1000;
-        console.log(`⏳ Claude API overloaded (${error.status}), retrying in ${delay}ms... (attempt ${attempt}/${maxRetries})`);
+        // Progressive exponential backoff with jitter for outages: 2s, 5s, 10s, 20s, 40s
+        const baseDelay = attempt <= 2 ? Math.pow(2, attempt) * 1000 : Math.pow(2, attempt) * 2500;
+        const jitter = Math.random() * 1000; // Add randomness to prevent thundering herd
+        const delay = baseDelay + jitter;
+        
+        console.log(`⏳ Claude API overloaded (${error.status}), retrying in ${Math.round(delay)}ms... (attempt ${attempt}/${maxRetries})`);
         
         await new Promise(resolve => setTimeout(resolve, delay));
       }
