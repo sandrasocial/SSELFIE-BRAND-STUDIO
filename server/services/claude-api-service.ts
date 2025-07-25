@@ -322,9 +322,9 @@ export class ClaudeApiService {
         assistantMessage = response.content[0].text;
       }
 
-      // Process tool calls if any
+      // Process tool calls if any and continue conversation
       if (response.content.some(content => content.type === 'tool_use')) {
-        assistantMessage = await this.handleToolCalls(response.content, assistantMessage);
+        assistantMessage = await this.handleToolCallsWithContinuation(response, messages, enhancedSystemPrompt, enhancedTools);
       }
 
       // Save both messages to conversation
@@ -831,6 +831,141 @@ COMMUNICATION STYLE:
 
     const expertiseKey = agentName.toLowerCase() as keyof typeof expertise;
     return expertise[expertiseKey] || `You are ${agentName}, an AI assistant specialized in helping with tasks.`;
+  }
+
+  private async handleToolCallsWithContinuation(response: any, messages: any[], systemPrompt: string, tools: any[]): Promise<string> {
+    let currentMessages = [...messages];
+    let finalResponse = '';
+    
+    // Add the assistant's message with tool calls to conversation
+    currentMessages.push({
+      role: 'assistant',
+      content: response.content
+    });
+    
+    // Process each tool call and build tool results
+    const toolResults: any[] = [];
+    
+    for (const block of response.content) {
+      if (block.type === 'tool_use') {
+        try {
+          let toolResult = '';
+          
+          console.log(`🔧 UNIVERSAL TOOL: ${block.name} called with params:`, block.input);
+          
+          switch (block.name) {
+            case 'search_filesystem':
+              const searchResult = await UniversalAgentTools.searchFilesystem(block.input);
+              if (searchResult.success) {
+                console.log(`✅ SEARCH SUCCESS: Found ${searchResult.result?.totalFiles || 0} files`);
+                toolResult = JSON.stringify(searchResult.result, null, 2);
+              } else {
+                toolResult = `Search Error: ${searchResult.error}`;
+              }
+              break;
+              
+            case 'str_replace_based_edit_tool':
+              const fileResult = await UniversalAgentTools.fileOperations({
+                command: block.input.command as any,
+                path: block.input.path,
+                content: block.input.file_text,
+                old_str: block.input.old_str,
+                new_str: block.input.new_str,
+                insert_line: block.input.insert_line,
+                insert_text: block.input.insert_text,
+                view_range: block.input.view_range,
+                backup: true
+              });
+              
+              if (fileResult.success) {
+                console.log(`✅ FILE OP SUCCESS: ${block.input.command} on ${block.input.path}`);
+                toolResult = JSON.stringify(fileResult.result, null, 2);
+              } else {
+                toolResult = `File Operation Error: ${fileResult.error}`;
+              }
+              break;
+              
+            case 'bash':
+              const commandResult = await UniversalAgentTools.executeCommand({
+                command: block.input.command,
+                timeout: 30000
+              });
+              
+              if (commandResult.success) {
+                console.log(`✅ COMMAND SUCCESS: ${block.input.command}`);
+                toolResult = JSON.stringify(commandResult.result, null, 2);
+              } else {
+                toolResult = `Command Error: ${commandResult.error}`;
+              }
+              break;
+              
+            case 'web_search':
+              const webResult = await UniversalAgentTools.webSearch({
+                query: block.input.query,
+                max_results: 5
+              });
+              
+              if (webResult.success) {
+                console.log(`✅ WEB SEARCH SUCCESS: ${block.input.query}`);
+                toolResult = JSON.stringify(webResult.result, null, 2);
+              } else {
+                toolResult = `Web Search Error: ${webResult.error}`;
+              }
+              break;
+              
+            default:
+              console.log(`⚠️ UNKNOWN TOOL: ${block.name}`);
+              toolResult = `Unknown tool: ${block.name}`;
+          }
+          
+          // Add tool result to the conversation
+          toolResults.push({
+            type: 'tool_result',
+            tool_use_id: block.id,
+            content: toolResult
+          });
+          
+        } catch (error) {
+          console.error(`❌ TOOL ERROR: ${block.name}:`, error);
+          const errorMessage = error instanceof Error ? error.message : 'Unknown error';
+          toolResults.push({
+            type: 'tool_result',
+            tool_use_id: block.id,
+            content: `Tool execution failed: ${errorMessage}`
+          });
+        }
+      } else if (block.type === 'text') {
+        finalResponse += block.text;
+      }
+    }
+    
+    // Add tool results to conversation and continue
+    if (toolResults.length > 0) {
+      currentMessages.push({
+        role: 'user',
+        content: toolResults
+      });
+      
+      console.log(`🔄 CONTINUING CONVERSATION: Processing ${toolResults.length} tool results`);
+      
+      // Continue conversation with tool results
+      const continuationResponse = await anthropic.messages.create({
+        model: DEFAULT_MODEL_STR,
+        max_tokens: 4000,
+        system: systemPrompt,
+        messages: currentMessages,
+        tools: tools,
+      });
+      
+      // Extract the final response
+      if (continuationResponse.content[0] && 'text' in continuationResponse.content[0]) {
+        finalResponse += (finalResponse ? '\n\n' : '') + continuationResponse.content[0].text;
+      }
+      
+      console.log(`✅ CONVERSATION CONTINUED: Agent provided analysis after tool usage`);
+    }
+    
+    return finalResponse;
   }
 
   private async handleToolCalls(content: any[], assistantMessage: string): Promise<string> {
