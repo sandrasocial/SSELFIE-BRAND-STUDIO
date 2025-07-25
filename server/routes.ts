@@ -4571,12 +4571,15 @@ What kind of website would you like to build? Tell me about your business and I'
       // All agents now provide authentic, context-aware responses based on actual analysis
       
       // Import agent personality system for authentic responses
-      const { getAgentPersonality } = await import('./agents/agent-personalities-clean');
+      const { CONSULTING_AGENT_PERSONALITIES } = await import('./agent-personalities-consulting');
       
       // Get agent personality for authentic response generation
       let agentPersonality;
       try {
-        agentPersonality = getAgentPersonality(agentId);
+        agentPersonality = CONSULTING_AGENT_PERSONALITIES[agentId as keyof typeof CONSULTING_AGENT_PERSONALITIES];
+        if (!agentPersonality) {
+          return res.status(400).json({ error: `Unknown agent: ${agentId}` });
+        }
       } catch (error) {
         return res.status(400).json({ error: `Unknown agent: ${agentId}` });
       }
@@ -6279,9 +6282,12 @@ ${savedMemory.recentDecisions?.map(decision => `• ${decision}`).join('\n') || 
       // This ensures Elena can still have normal conversations while maintaining workflow capabilities
       
       // Get agent personality from single source of truth
-      const agentPersonality = await import('./agents/agent-personalities-clean');
-      const personalityData = agentPersonality.getAgentPersonality(agentId);
-      const personality = personalityData.instructions;
+      const agentPersonalities = await import('./agent-personalities-consulting');
+      const personalityData = agentPersonalities.CONSULTING_AGENT_PERSONALITIES[agentId as keyof typeof agentPersonalities.CONSULTING_AGENT_PERSONALITIES];
+      if (!personalityData) {
+        return res.status(400).json({ error: `Unknown agent: ${agentId}` });
+      }
+      const personality = personalityData.systemPrompt;
       
       // Skip crash prevention - using single consolidated personality file
       console.log('✅ Using consolidated agent personalities from single source of truth');
