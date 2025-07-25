@@ -20,6 +20,9 @@ import AgentDiana from '@assets/out-2 (18)_1753426218045.png';
 import AgentWilma from '@assets/out-0 (22)_1753426218045.png';
 import AgentOlga from '@assets/out-0 (32)_1753426290403.png';
 
+// Hero and quick access images
+import HeroImage from '@assets/image_1753426780577.png';
+
 export default function AdminDashboard() {
   const { user } = useAuth();
 
@@ -173,7 +176,7 @@ export default function AdminDashboard() {
       title: 'Consulting Agents',
       subtitle: 'Strategic Analysis',
       description: 'Read-only codebase advisors',
-      image: SandraImages.flatlays.luxury,
+      image: 'https://e33979fc-c9be-4f0d-9a7b-6a3e83046828-00-3ij9k7qy14rai.picard.replit.dev/flatlays/luxury-minimal/luxury-minimal-009.png',
       link: '/admin/consulting-agents'
     },
     {
@@ -181,7 +184,7 @@ export default function AdminDashboard() {
       title: 'Platform Status',
       subtitle: 'System Health',
       description: 'SSELFIE Studio overview',
-      image: SandraImages.flatlays.luxury,
+      image: 'https://e33979fc-c9be-4f0d-9a7b-6a3e83046828-00-3ij9k7qy14rai.picard.replit.dev/flatlays/editorial-magazine/editorial-magazine-033.png',
       link: '/workspace'
     }
   ];
@@ -194,7 +197,7 @@ export default function AdminDashboard() {
       <section className="relative min-h-screen flex items-center justify-center bg-black text-white overflow-hidden">
         <div className="absolute inset-0 opacity-40">
           <img 
-            src={SandraImages.hero.homepage}
+            src={HeroImage}
             alt="Admin Command Center"
             className="w-full h-full object-cover object-center-top"
           />
