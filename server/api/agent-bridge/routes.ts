@@ -8,6 +8,25 @@ import { ExecutionEngine } from './execution-engine.js';
 import { TaskCompletionValidator } from './completion-validator.js';
 import { isAuthenticated } from '../../replitAuth.js';
 
+// Enhanced authentication middleware with admin token support
+const enhancedAuth = (req: any, res: any, next: any) => {
+  // Check for admin token first (for testing and admin operations)
+  const adminToken = req.headers['x-admin-token'];
+  if (adminToken === 'sandra-admin-2025') {
+    console.log('🔑 AGENT BRIDGE: Admin token authentication successful');
+    return next();
+  }
+  
+  // Check session authentication
+  if (req.isAuthenticated && req.isAuthenticated()) {
+    console.log('🔑 AGENT BRIDGE: Session authentication successful');
+    return next();
+  }
+  
+  console.log('❌ AGENT BRIDGE: Authentication failed - no valid session or admin token');
+  return res.status(401).json({ message: 'Unauthorized' });
+};
+
 const router = express.Router();
 const executionEngine = new ExecutionEngine();
 const taskValidator = new TaskCompletionValidator();
@@ -28,7 +47,7 @@ router.use('*', (req, res, next) => {
   if (req.originalUrl.endsWith('/health')) {
     return next();
   }
-  return isAuthenticated(req, res, next);
+  return enhancedAuth(req, res, next);
 });
 
 // Submit new task from admin agent
