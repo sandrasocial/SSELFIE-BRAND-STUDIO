@@ -4656,8 +4656,8 @@ Starting analysis and implementation now...`;
         {
           id: 'elena',
           name: 'Elena',
-          role: 'AI Agent Director & CEO',
-          personality: 'Sandra\'s AI Agent Director and strategic business partner. Master of transforming Sandra\'s vision into coordinated agent workflows.',
+          role: 'Strategic Coordinator with Autonomous Monitoring',
+          personality: 'Sandra\'s Strategic Coordinator and strategic business partner. Master of transforming Sandra\'s vision into coordinated agent workflows.',
           capabilities: [
             'Strategic business planning and vision translation',
             'Multi-agent workflow design and orchestration',
@@ -5213,7 +5213,7 @@ Starting analysis and implementation now...`;
             body: JSON.stringify({
               model: 'claude-3-5-sonnet-20241022',
               max_tokens: 1000,
-              system: `You are Elena, Sandra's AI Agent Director. You just started executing a workflow called "${latestWorkflow.name}" and are coordinating the team to make actual file changes. Respond naturally and enthusiastically about the real coordination happening right now.`,
+              system: `You are Elena, Sandra's Strategic Coordinator. You just started executing a workflow called "${latestWorkflow.name}" and are coordinating the team to make actual file changes. Respond naturally and enthusiastically about the real coordination happening right now.`,
               messages: [
                 {
                   role: 'user',
@@ -5970,7 +5970,7 @@ ${savedMemory.recentDecisions?.map(decision => `• ${decision}`).join('\n') || 
               body: JSON.stringify({
                 model: 'claude-3-5-sonnet-20241022',
                 max_tokens: 1000,
-                system: `You are Elena, Sandra's AI Agent Director. You just created a workflow and need to respond naturally about it. Be warm, enthusiastic, and specific about what you've set up. Never use "Perfect!" templates. ${workflowContext}`,
+                system: `You are Elena, Sandra's Strategic Coordinator. You just created a workflow and need to respond naturally about it. Be warm, enthusiastic, and specific about what you've set up. Never use "Perfect!" templates. ${workflowContext}`,
                 messages: [
                   { role: 'user', content: `${message} - Elena, you just created a workflow. Respond naturally about what you've set up without using any template phrases.` }
                 ]
@@ -6053,7 +6053,7 @@ ${savedMemory.recentDecisions?.map(decision => `• ${decision}`).join('\n') || 
                 body: JSON.stringify({
                   model: 'claude-3-5-sonnet-20241022',
                   max_tokens: 1000,
-                  system: `You are Elena, Sandra's AI Agent Director. You just started executing a workflow called "${latestWorkflow.name}" and are coordinating the team. Respond naturally and enthusiastically about the coordination process.`,
+                  system: `You are Elena, Sandra's Strategic Coordinator. You just started executing a workflow called "${latestWorkflow.name}" and are coordinating the team. Respond naturally and enthusiastically about the coordination process.`,
                   messages: [
                     { role: 'user', content: `Sandra asked you to execute the workflow. You're now coordinating ${latestWorkflow.name}. Respond naturally about starting the execution.` }
                   ]
@@ -6169,7 +6169,7 @@ ${savedMemory.recentDecisions?.map(decision => `• ${decision}`).join('\n') || 
                           body: JSON.stringify({
                             model: 'claude-3-5-sonnet-20241022',
                             max_tokens: 500,
-                            system: `You are Elena, Sandra's AI Agent Director. A workflow called "${latestWorkflow.name}" just completed with ${progress.completedTasks.length} tasks finished. Respond naturally and enthusiastically about the completion.`,
+                            system: `You are Elena, Sandra's Strategic Coordinator. A workflow called "${latestWorkflow.name}" just completed with ${progress.completedTasks.length} tasks finished. Respond naturally and enthusiastically about the completion.`,
                             messages: [
                               { role: 'user', content: `The workflow just finished successfully! All ${progress.completedTasks.length} tasks are complete with real file changes. Respond naturally about the completion.` }
                             ]
@@ -6235,7 +6235,7 @@ ${savedMemory.recentDecisions?.map(decision => `• ${decision}`).join('\n') || 
                 body: JSON.stringify({
                   model: 'claude-3-5-sonnet-20241022',
                   max_tokens: 500,
-                  system: `You are Elena, Sandra's AI Agent Director. Sandra asked you to execute a workflow, but no workflows exist yet. Respond naturally about needing to create a workflow first.`,
+                  system: `You are Elena, Sandra's Strategic Coordinator. Sandra asked you to execute a workflow, but no workflows exist yet. Respond naturally about needing to create a workflow first.`,
                   messages: [
                     { role: 'user', content: `Sandra asked you to execute a workflow, but there are no workflows created yet. Respond naturally about creating one first.` }
                   ]
@@ -7831,7 +7831,7 @@ AGENT_CONTEXT:
       }
 
       // Import consulting agent personalities (separate from development agents)
-      const { getConsultingAgentPersonality } = await import('./agents/agent-personalities-consulting');
+      const { getConsultingAgentPersonality } = await import('./agent-personalities-consulting');
       const consultingAgent = getConsultingAgentPersonality(agentId);
       
       if (!consultingAgent) {
