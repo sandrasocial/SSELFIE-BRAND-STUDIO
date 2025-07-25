@@ -23,12 +23,30 @@ router.post('/send-message', async (req, res) => {
   try {
     const { agentName, message, conversationId, tools } = sendMessageSchema.parse(req.body);
     
-    // Verify user is authenticated
-    if (!req.isAuthenticated?.() || !req.user) {
+    // Check authentication and get user ID
+    const isAuthenticated = req.isAuthenticated && req.isAuthenticated();
+    const user = req.user;
+    
+    console.log('🔒 Claude API Auth Check:', {
+      isAuthenticated,
+      hasUser: !!user,
+      userKeys: user ? Object.keys(user) : [],
+      userId: user ? (user as any).id : null,
+      userClaims: user ? (user as any).claims : null
+    });
+    
+    if (!isAuthenticated || !user) {
       return res.status(401).json({ error: 'Authentication required' });
     }
 
-    const userId = (req.user as any).id;
+    // Extract user ID from claims (Replit Auth format)
+    const userId = (user as any).claims?.sub;
+    
+    if (!userId) {
+      console.error('❌ No user ID found in authentication data:', user);
+      return res.status(401).json({ error: 'User ID not found in authentication' });
+    }
+
     const finalConversationId = conversationId || `${agentName}-${userId}-${Date.now()}`;
 
     // For now, use a default system prompt - can be enhanced later
@@ -95,7 +113,7 @@ router.get('/agent/:agentName/memory', async (req, res) => {
       return res.status(401).json({ error: 'Authentication required' });
     }
 
-    const userId = (req.user as any).id;
+    const userId = (req.user as any).claims?.sub;
     const memory = await claudeApiService.getAgentMemory(agentName, userId);
 
     res.json({
@@ -152,7 +170,7 @@ router.post('/conversation/clear', async (req, res) => {
       return res.status(400).json({ error: 'Agent name is required' });
     }
 
-    const userId = (req.user as any).id;
+    const userId = (req.user as any).claims?.sub;
     await claudeApiService.clearConversation(userId, agentName);
 
     res.json({
@@ -200,7 +218,7 @@ router.post('/conversation/new', async (req, res) => {
       return res.status(401).json({ error: 'Authentication required' });
     }
 
-    const userId = (req.user as any).id;
+    const userId = (req.user as any).claims?.sub;
     const conversationId = `${agentName}-${userId}-${Date.now()}`;
 
     res.json({
