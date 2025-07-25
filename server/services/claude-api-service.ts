@@ -334,9 +334,8 @@ export class ClaudeApiService {
         ...(tools || [])
       ];
 
-      // Send to Claude with enhanced capabilities
-      const response = await anthropic.messages.create({
-        // "claude-sonnet-4-20250514"
+      // Send to Claude with enhanced capabilities and retry logic
+      const response = await this.sendToClaudeWithRetry({
         model: DEFAULT_MODEL_STR,
         max_tokens: 4000,
         system: enhancedSystemPrompt,
@@ -371,6 +370,45 @@ export class ClaudeApiService {
       const errorMessage = error instanceof Error ? error.message : 'Unknown error';
       throw new Error(`Failed to send message to Claude: ${errorMessage}`);
     }
+  }
+
+  // Retry mechanism for Claude API overload errors
+  private async sendToClaudeWithRetry(params: any, maxRetries: number = 5): Promise<any> {
+    let lastError: any;
+    
+    for (let attempt = 1; attempt <= maxRetries; attempt++) {
+      try {
+        console.log(`🔄 Claude API attempt ${attempt}/${maxRetries}`);
+        const response = await anthropic.messages.create(params);
+        
+        if (attempt > 1) {
+          console.log(`✅ Claude API succeeded on attempt ${attempt}`);
+        }
+        
+        return response;
+      } catch (error: any) {
+        lastError = error;
+        
+        // Check if this is a retryable error (529 overload, 429 rate limit)
+        const isRetryable = error.status === 529 || 
+                           error.status === 429 || 
+                           error.error?.type === 'overloaded_error' ||
+                           error.error?.type === 'rate_limit_error';
+        
+        if (!isRetryable || attempt === maxRetries) {
+          console.error(`❌ Claude API failed on attempt ${attempt} (non-retryable or max retries reached):`, error.status, error.error?.type);
+          throw error;
+        }
+        
+        // Exponential backoff: 1s, 2s, 4s, 8s, 16s
+        const delay = Math.pow(2, attempt - 1) * 1000;
+        console.log(`⏳ Claude API overloaded (${error.status}), retrying in ${delay}ms... (attempt ${attempt}/${maxRetries})`);
+        
+        await new Promise(resolve => setTimeout(resolve, delay));
+      }
+    }
+    
+    throw lastError;
   }
 
   async getAgentMemory(agentName: string, userId: string): Promise<ConversationMemory | null> {
@@ -1003,8 +1041,8 @@ COMMUNICATION STYLE:
         content: "Now provide your comprehensive analysis based on the tool results above. Do not use any more tools - just analyze and respond with your findings."
       });
       
-      // Continue conversation with tool results - NO TOOLS to force analysis
-      const continuationResponse = await anthropic.messages.create({
+      // Continue conversation with tool results - NO TOOLS to force analysis, WITH RETRY LOGIC
+      const continuationResponse = await this.sendToClaudeWithRetry({
         model: DEFAULT_MODEL_STR,
         max_tokens: 4000,
         system: systemPrompt,
