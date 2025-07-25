@@ -37,7 +37,7 @@ import AIPhotoshoot from "@/pages/ai-photoshoot";
 import SimpleTraining from "@/pages/simple-training";
 import TestLogin from "@/pages/test-login";
 import AdminDashboard from "@/pages/admin-dashboard";
-import AdminVisualEditor from "@/pages/admin-visual-editor";
+
 import AgentApproval from "@/pages/agent-approval";
 import AgentCommandCenter from "@/pages/agent-command-center";
 
@@ -238,18 +238,14 @@ function Router() {
       <Route path="/admin-dashboard" component={(props) => <ProtectedRoute component={AdminDashboard} {...props} />} />
       <Route path="/admin" component={(props) => <ProtectedRoute component={AdminDashboard} {...props} />} />
 
-      <Route path="/admin/visual-editor" component={(props) => <ProtectedRoute component={AdminVisualEditor} {...props} />} />
-      <Route path="/visual-editor" component={(props) => <ProtectedRoute component={AdminVisualEditor} {...props} />} />
       <Route path="/admin-access-only" component={AdminAccessOnly} />
-      <Route path="/sandra-admin" component={(props) => <ProtectedRoute component={AdminVisualEditor} {...props} />} />
-      <Route path="/sandra-command" component={(props) => <ProtectedRoute component={AdminVisualEditor} {...props} />} />
       {/* Old admin routes archived - all functionality moved to main admin dashboard */}
       <Route path="/agent-approval" component={(props) => <ProtectedRoute component={AgentApproval} {...props} />} />
       <Route path="/admin/agent-approval" component={(props) => <ProtectedRoute component={AgentApproval} {...props} />} />
       <Route path="/agent-command" component={(props) => <ProtectedRoute component={AgentCommandCenter} {...props} />} />
       <Route path="/admin/agent-command" component={(props) => <ProtectedRoute component={AgentCommandCenter} {...props} />} />
-      <Route path="/agent-dashboard" component={(props) => <ProtectedRoute component={AdminVisualEditor} {...props} />} />
-      <Route path="/admin/agents" component={(props) => <ProtectedRoute component={AdminVisualEditor} {...props} />} />
+      <Route path="/agent-dashboard" component={(props) => <ProtectedRoute component={AdminDashboard} {...props} />} />
+      <Route path="/admin/agents" component={(props) => <ProtectedRoute component={AdminDashboard} {...props} />} />
       <Route path="/admin/progress" component={() => <div className="p-8">Admin Progress - Coming Soon</div>} />
       <Route path="/admin/roadmap" component={() => <div className="p-8">Admin Roadmap - Coming Soon</div>} />
       <Route path="/admin/ai-models" component={() => <div className="p-8">AI Models Management - Coming Soon</div>} />
