@@ -369,6 +369,32 @@ export class ClaudeApiService {
         eq(agentCapabilities.name, capabilityName)
       ));
   }
+
+  async clearConversation(userId: string, agentName: string): Promise<void> {
+    try {
+      // Find the conversation for this user and agent
+      const conversation = await db
+        .select()
+        .from(claudeConversations)
+        .where(and(
+          eq(claudeConversations.userId, userId),
+          eq(claudeConversations.agentName, agentName)
+        ));
+
+      if (conversation.length > 0) {
+        // Delete all messages in this conversation
+        await db
+          .delete(claudeMessages)
+          .where(eq(claudeMessages.conversationId, conversation[0].id));
+        
+        // Note: We keep the conversation record and agent learning data
+        // This preserves agent memory while clearing chat history
+      }
+    } catch (error) {
+      console.error('Error clearing conversation:', error);
+      throw new Error('Failed to clear conversation');
+    }
+  }
 }
 
 export const claudeApiService = new ClaudeApiService();
