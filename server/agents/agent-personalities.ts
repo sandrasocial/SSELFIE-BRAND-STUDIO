@@ -15,7 +15,7 @@
 
 // 🎯 SSELFIE STUDIO BUSINESS MODEL - CRITICAL ACCURACY (Updated January 25, 2025)
 // **CORRECTED BUSINESS MODEL:**
-// - **Pricing**: €67/month SSELFIE STUDIO subscription (NOT €97)
+// - **Pricing**: €67/month SSELFIE STUDIO subscription (NOT €67)
 // - **Product**: Individual AI model training with unique trigger words
 // - **Limits**: 100 monthly generation limit for cost protection
 // - **Maya Access**: DUAL ACCESS - Step 2 "Maya Chat" + Step 5 "BUILD workspace"

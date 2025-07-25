@@ -32,7 +32,7 @@ export default function RachelActivation() {
       id: 'email_launch',
       title: 'Launch Email Series',
       description: 'Create 3-email series announcing SSELFIE to 2500 Flodesk subscribers',
-      context: 'Urgent revenue generation, €97 AI photoshoot service, financial pressure',
+      context: 'Urgent revenue generation, €67 AI photoshoot service, financial pressure',
       priority: 'critical',
       revenue: '€11,640+ potential'
     },
@@ -55,7 +55,7 @@ export default function RachelActivation() {
     {
       id: 'conversion_funnel',
       title: 'Email Conversion Funnel',
-      description: 'Design automated sequence from signup to €97 purchase',
+      description: 'Design automated sequence from signup to €67 purchase',
       context: 'Nurture sequence, authentic voice, conversion optimization',
       priority: 'medium',
       revenue: '€8,000+ potential'
@@ -170,11 +170,11 @@ export default function RachelActivation() {
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4 text-sm">
             <div>
               <div className="font-medium">0.1% Email Conversion</div>
-              <div className="text-green-600">2500 subscribers × 0.1% × €97 = €2,425/month</div>
+              <div className="text-green-600">2500 subscribers × 0.1% × €67 = €2,425/month</div>
             </div>
             <div>
               <div className="font-medium">0.01% Instagram Conversion</div>
-              <div className="text-green-600">120K followers × 0.01% × €97 = €1,164/month</div>
+              <div className="text-green-600">120K followers × 0.01% × €67 = €1,164/month</div>
             </div>
             <div>
               <div className="font-medium">Combined Conservative Target</div>

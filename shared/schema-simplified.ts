@@ -36,7 +36,7 @@ export const users = pgTable("users", {
   updatedAt: timestamp("updated_at").defaultNow(),
 });
 
-// Onboarding data table - simplified for €97 SSELFIE Studio
+// Onboarding data table - simplified for €67 SSELFIE Studio
 export const onboardingData = pgTable("onboarding_data", {
   id: serial("id").primaryKey(),
   userId: varchar("user_id").references(() => users.id).notNull(),
