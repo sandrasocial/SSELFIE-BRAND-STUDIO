@@ -39,9 +39,13 @@ export function useAgentBridge() {
 
   const submitTask = useCallback(async (
     agentName: string,
-    description: string,
+    instruction: string,
     priority: 'low' | 'medium' | 'high' = 'medium',
-    context?: Record<string, any>
+    context?: {
+      conversationContext?: string[];
+      completionCriteria?: string[];
+      qualityGates?: string[];
+    }
   ): Promise<BridgeSubmissionResult> => {
     setIsSubmitting(true);
     
@@ -54,9 +58,19 @@ export function useAgentBridge() {
         credentials: 'include',
         body: JSON.stringify({
           agentName,
-          description,
+          instruction,
+          conversationContext: context?.conversationContext || [],
           priority,
-          context: context || {}
+          completionCriteria: context?.completionCriteria || [
+            'Task completed successfully',
+            'Implementation meets luxury standards',
+            'TypeScript compilation passes'
+          ],
+          qualityGates: context?.qualityGates || [
+            'luxury_standards',
+            'performance_optimized',
+            'mobile_responsive'
+          ]
         })
       });
 
