@@ -86,8 +86,10 @@ router.post('/submit-task', async (req, res) => {
     // Store in database
     await storeTask(task);
     
-    // Begin execution pipeline
+    // Begin execution pipeline immediately
     const execution = await executionEngine.initiateExecution(task);
+    
+    console.log('✅ AGENT BRIDGE: Task stored and execution started for:', task.taskId);
     
     const response: TaskStatusResponse = {
       success: true,
@@ -215,6 +217,43 @@ router.get('/task-details/:taskId', async (req, res) => {
     res.status(500).json({ 
       success: false, 
       error: error instanceof Error ? error.message : 'Failed to retrieve task details'
+    });
+  }
+});
+
+// Manual execution trigger (for debugging Bridge system)
+router.post('/execute-task/:taskId', async (req, res) => {
+  try {
+    const { taskId } = req.params;
+    console.log('🚀 AGENT BRIDGE: Manual execution trigger for task:', taskId);
+    
+    const execution = await getTaskExecution(taskId);
+    
+    if (!execution) {
+      return res.status(404).json({
+        success: false,
+        error: 'Task not found'
+      });
+    }
+    
+    // Force continue the execution pipeline if stalled
+    if (execution.status === 'pending' || execution.status === 'executing') {
+      console.log('🔄 AGENT BRIDGE: Resuming execution pipeline');
+      await executionEngine.resumeExecution(execution);
+    }
+    
+    res.json({
+      success: true,
+      taskId,
+      message: 'Execution resumed',
+      currentStatus: execution.status
+    });
+    
+  } catch (error) {
+    console.error('❌ AGENT BRIDGE: Manual execution failed:', error);
+    res.status(500).json({ 
+      success: false, 
+      error: error instanceof Error ? error.message : 'Manual execution failed'
     });
   }
 });
