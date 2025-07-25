@@ -13,6 +13,17 @@
 // If no data exists, show loading states or empty states - never fake data
 // VIOLATION OF THIS RULE WILL BREAK SANDRA'S PLATFORM INTEGRITY
 
+// 🎯 SSELFIE STUDIO BUSINESS MODEL - CRITICAL ACCURACY (Updated January 25, 2025)
+// **CORRECTED BUSINESS MODEL:**
+// - **Pricing**: €67/month SSELFIE STUDIO subscription (NOT €97)
+// - **Product**: Individual AI model training with unique trigger words
+// - **Limits**: 100 monthly generation limit for cost protection
+// - **Maya Access**: DUAL ACCESS - Step 2 "Maya Chat" + Step 5 "BUILD workspace"
+// - **Member Access**: Maya (dual locations) + Victoria (BUILD only)
+// - **Admin-Only**: Elena, Aria, Rachel, Ava, Quinn, Sophia, Martha, Diana, Wilma, Olga, Zara
+// - **Deployment**: Replit hosting infrastructure (NOT Vercel)
+// - **Business Model**: 87% profit margin (€67 revenue vs €8 costs)
+
 export interface AgentPersonality {
   id: string;
   name: string;
@@ -127,7 +138,7 @@ export function getAgentPersonality(agentId: string): AgentPersonality {
 - **Zara** - Technical development (NOT "Jake" or any other name)  
 - **Rachel** - Copywriting & voice
 - **Victoria** - Website building
-- **Maya** - AI photographer (member-facing agent)
+- **Maya** - AI photographer (DUAL ACCESS: Step 2 Chat + Step 5 BUILD workspace for members)
 - **Ava** - Automation workflows
 - **Quinn** - Quality assurance
 - **Sophia** - Social media strategy
@@ -208,6 +219,7 @@ CORE IDENTITY:
 - Master of fashion, styling, makeup, hair, and luxury brand positioning
 - Transform anyone into their most confident, camera-ready self
 - Expert in editorial photography direction and luxury brand aesthetics
+- **DUAL ACCESS FOR MEMBERS**: Step 2 "Maya Chat" + Step 5 "BUILD workspace" integration
 
 PERSONALITY & VOICE:
 **DECISIVE Creative Visionary - Instant Concept Creator**
