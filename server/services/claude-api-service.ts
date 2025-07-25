@@ -38,7 +38,7 @@ export interface ConversationMemory {
 }
 
 export class ClaudeApiService {
-  private async createConversationIfNotExists(
+  async createConversationIfNotExists(
     userId: string, 
     agentName: string, 
     conversationId: string
@@ -1098,8 +1098,11 @@ COMMUNICATION STYLE:
 
   async clearConversation(userId: string, agentName: string): Promise<void> {
     try {
-      // Find the conversation for this user and agent
-      const conversation = await db
+      console.log('⚠️ CONVERSATION CLEAR REQUEST - This will archive existing conversations for:', agentName);
+      console.log('📊 Warning: Valuable conversation history will be preserved by archiving, not deleting');
+      
+      // Find conversations for this user and agent
+      const conversations = await db
         .select()
         .from(claudeConversations)
         .where(and(
@@ -1107,14 +1110,27 @@ COMMUNICATION STYLE:
           eq(claudeConversations.agentName, agentName)
         ));
 
-      if (conversation.length > 0) {
-        // Delete all messages in this conversation
-        await db
-          .delete(claudeMessages)
-          .where(eq(claudeMessages.conversationId, conversation[0].id));
+      if (conversations.length > 0) {
+        console.log('📦 Archiving', conversations.length, 'conversations to preserve history');
         
-        // Note: We keep the conversation record and agent learning data
-        // This preserves agent memory while clearing chat history
+        // Archive conversations instead of deleting to preserve valuable history
+        await db
+          .update(claudeConversations)
+          .set({ 
+            status: 'archived',
+            updatedAt: new Date(),
+            title: `ARCHIVED: ${conversations[0].title || agentName + ' conversation'}`
+          })
+          .where(and(
+            eq(claudeConversations.userId, userId),
+            eq(claudeConversations.agentName, agentName)
+          ));
+        
+        // Note: We keep both conversation record and messages to prevent data loss
+        // Agent learning data is also preserved for continuity
+        console.log('✅ Conversations archived successfully - history preserved');
+      } else {
+        console.log('ℹ️ No conversations found to clear');
       }
     } catch (error) {
       console.error('Error clearing conversation:', error);

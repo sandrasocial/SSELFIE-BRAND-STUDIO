@@ -1,6 +1,9 @@
 import { Router } from 'express';
 import { z } from 'zod';
 import { claudeApiService } from '../services/claude-api-service';
+import { db } from '../db';
+import { claudeConversations } from '../../shared/schema';
+import { eq, and, desc } from 'drizzle-orm';
 // Agent personalities will be referenced dynamically
 
 const router = Router();
@@ -221,7 +224,32 @@ router.post('/conversation/new', async (req, res) => {
     }
 
     const userId = (req.user as any).claims?.sub;
-    const conversationId = `${agentName}-${userId}-${Date.now()}`;
+    
+    console.log('🔍 Looking for existing conversations for agent:', agentName, 'user:', userId);
+    
+    // First try to find the most recent existing conversation for this agent and user
+    const existingConversations = await db
+      .select()
+      .from(claudeConversations)
+      .where(and(
+        eq(claudeConversations.agentName, agentName),
+        eq(claudeConversations.userId, userId)
+      ))
+      .orderBy(desc(claudeConversations.lastMessageAt))
+      .limit(1);
+
+    let conversationId;
+    
+    if (existingConversations.length > 0) {
+      // Use the most recent existing conversation
+      conversationId = existingConversations[0].conversationId;
+      console.log('✅ Found existing conversation:', conversationId, 'with', existingConversations[0].messageCount, 'messages');
+    } else {
+      // Create new conversation only if none exists
+      conversationId = `${agentName}-${userId}-${Date.now()}`;
+      await claudeApiService.createConversationIfNotExists(userId, agentName, conversationId);
+      console.log('🆕 Created new conversation:', conversationId);
+    }
 
     res.json({
       success: true,
