@@ -40,7 +40,7 @@ let proposals: AgentProposal[] = [
     agentName: 'Rachel',
     type: 'email-campaign',
     title: 'SSELFIE AI Launch Email Sequence',
-    description: 'Complete 5-email launch sequence to convert existing subscribers to €47/month SSELFIE Studio',
+    description: 'Complete 5-email launch sequence to convert existing subscribers to €67/month SSELFIE Studio',
     status: 'pending',
     priority: 'urgent',
     createdAt: new Date(),
@@ -61,13 +61,13 @@ let proposals: AgentProposal[] = [
           </div>
           
           <div class="border-l-4 border-gray-300 pl-4">
-            <h3 class="font-serif text-xl mb-2">Email 2: "The €47 vs €5000 photoshoot revelation"</h3>
+            <h3 class="font-serif text-xl mb-2">Email 2: "The €67 vs €5000 photoshoot revelation"</h3>
             <div class="bg-gray-50 p-4 rounded">
               <p class="mb-3">Real talk...</p>
               <p class="mb-3">Last month I paid €5000 for a brand photoshoot. The photos were gorgeous, don't get me wrong.</p>
               <p class="mb-3">But then I tested SSELFIE AI with the EXACT same concept...</p>
               <p class="mb-3">The AI photos? Honestly? They were better. More authentic. More ME.</p>
-              <p class="mb-3">And instead of €5000, it cost me €47 for a month of unlimited photos.</p>
+              <p class="mb-3">And instead of €5000, it cost me €67 for a month of unlimited photos.</p>
               <p class="mb-3">I'm not saying traditional photography is dead, but for personal branding? This is the future.</p>
             </div>
           </div>
@@ -93,7 +93,7 @@ let proposals: AgentProposal[] = [
       data: {
         emailCount: 5,
         targetAudience: "120K Instagram followers + email subscribers",
-        conversionGoal: "€47/month SSELFIE Studio subscriptions",
+        conversionGoal: "€67/month SSELFIE Studio subscriptions",
         estimatedOpenRate: "45%",
         estimatedClickRate: "12%",
         estimatedConversion: "3-5%"
@@ -112,7 +112,7 @@ let proposals: AgentProposal[] = [
     agentName: 'Victoria',
     type: 'landing-page',
     title: 'SSELFIE Studio Premium Landing Page',
-    description: 'Luxury editorial landing page optimized for €47/month conversions with Vogue-level aesthetics',
+    description: 'Luxury editorial landing page optimized for €67/month conversions with Vogue-level aesthetics',
     status: 'pending',
     priority: 'high',
     createdAt: new Date(),
@@ -124,7 +124,7 @@ let proposals: AgentProposal[] = [
             <h1 class="font-serif text-4xl md:text-6xl font-light mb-4">SSELFIE Studio</h1>
             <p class="text-xl text-gray-600 max-w-2xl mx-auto">Professional AI photos that build your personal brand</p>
             <div class="mt-8">
-              <button class="bg-black text-white px-8 py-3 font-light">Start Your Studio €47/month</button>
+              <button class="bg-black text-white px-8 py-3 font-light">Start Your Studio €67/month</button>
             </div>
           </div>
           
@@ -141,7 +141,7 @@ let proposals: AgentProposal[] = [
               <h2 class="font-serif text-3xl font-light">From Selfie to Business Launch</h2>
               <p class="text-gray-700 leading-relaxed">Upload a few selfies. Get professional photos that build your entire personal brand. No photographer, no studio, no €5000 budget required.</p>
               <div class="border-l-4 border-black pl-4">
-                <p class="font-medium">€47/month</p>
+                <p class="font-medium">€67/month</p>
                 <p class="text-sm text-gray-600">Unlimited photos, Maya AI stylist, business templates</p>
               </div>
             </div>
@@ -162,7 +162,7 @@ const SSELFIEStudioLanding = () => {
           Professional AI photos that build your personal brand
         </p>
         <button className="bg-black text-white px-12 py-4 text-lg font-light hover:bg-gray-900 transition-colors">
-          Start Your Studio €47/month
+          Start Your Studio €67/month
         </button>
       </section>
       

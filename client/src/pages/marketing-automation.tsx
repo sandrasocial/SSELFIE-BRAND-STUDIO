@@ -112,7 +112,7 @@ export default function MarketingAutomation() {
     {
       id: 'ads',
       title: 'Performance Ads',
-      description: 'Facebook/Instagram ads optimized for €97 conversions',
+      description: 'Facebook/Instagram ads optimized for €67 conversions',
       agent: 'Martha',
       icon: '📊',
       metrics: { spend: '€450', conversions: 12 }
@@ -167,7 +167,7 @@ export default function MarketingAutomation() {
             </CardHeader>
             <CardContent>
               <div className="text-2xl font-light">{metrics.conversions || 0}</div>
-              <p className="text-xs text-[#666]">€97 subscriptions</p>
+              <p className="text-xs text-[#666]">€67 subscriptions</p>
             </CardContent>
           </Card>
           <Card>
@@ -207,7 +207,7 @@ export default function MarketingAutomation() {
                 <ul className="list-disc list-inside mt-2 space-y-1">
                   <li>Rachel creates authentic copy for emails, ads, and website</li>
                   <li>Sophia automates Instagram content leveraging your 120K followers</li>
-                  <li>Martha optimizes ads for immediate €97 conversions</li>
+                  <li>Martha optimizes ads for immediate €67 conversions</li>
                   <li>Ava integrates your Flodesk/ManyChat subscribers</li>
                   <li>All agents work together to scale without losing authenticity</li>
                 </ul>

@@ -42,7 +42,7 @@ export default function Landing() {
             onClick={handleGetStarted}
             className="bg-transparent border border-white text-white px-8 py-4 text-[11px] tracking-[0.3em] uppercase hover:bg-white hover:text-[#0a0a0a] transition-all duration-300"
           >
-            Transform My Selfies - €97
+            Transform My Selfies - €67
           </button>
         </div>
       </section>
@@ -310,7 +310,7 @@ export default function Landing() {
             onClick={handleGetStarted}
             className="bg-white text-[#0a0a0a] px-12 py-4 text-[11px] tracking-[0.3em] uppercase hover:bg-[#f5f5f5] transition-all duration-300"
           >
-            Start My AI Photoshoot - €47
+            Start My AI Photoshoot - €67
           </button>
           <p className="text-sm text-white/60 mt-6">
             Join 1,200+ women who stopped making excuses and started looking like CEOs

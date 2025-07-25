@@ -39,7 +39,7 @@ export default function AgentCommandCenter() {
   const [landingContext, setLandingContext] = useState({
     pageName: 'SSELFIE Studio Premium',
     tagline: 'Professional AI photos that build your personal brand',
-    ctaText: 'Start Your Studio €97/month',
+    ctaText: 'Start Your Studio €67/month',
     targetTraffic: 50000,
     projectedRevenue: 8500,
     priority: 'high'

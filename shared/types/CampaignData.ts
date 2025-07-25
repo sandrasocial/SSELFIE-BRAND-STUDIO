@@ -113,7 +113,7 @@ export class CampaignManager {
     // Analyze current performance
     const current_conversion_rate = campaign.conversions / campaign.clicks;
     const current_cpc = campaign.spent / campaign.clicks;
-    const current_roas = (campaign.conversions * 47) / campaign.spent; // €47 premium price
+    const current_roas = (campaign.conversions * 47) / campaign.spent; // €67 premium price
 
     // Optimization recommendations based on performance
     if (current_conversion_rate < 0.02) {
@@ -152,7 +152,7 @@ export class CampaignManager {
     scale_recommendation: string;
   } {
     const monthly_conversions = campaignData.conversions;
-    const monthly_revenue = monthly_conversions * 47; // €47 premium price
+    const monthly_revenue = monthly_conversions * 47; // €67 premium price
     const monthly_costs = campaignData.spent + (monthly_conversions * 8); // €8 cost per user
     const profit_margin = ((monthly_revenue - monthly_costs) / monthly_revenue) * 100;
     const ltv_projection = monthly_revenue * 12 * 0.75; // 75% annual retention

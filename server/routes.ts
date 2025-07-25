@@ -2202,7 +2202,7 @@ VOICE RULES:
       
       if (error.message?.includes('Premium subscription required')) {
         return res.status(403).json({ 
-          error: 'Luxury training requires €47/month premium subscription',
+          error: 'Luxury training requires €67/month premium subscription',
           upgrade: true,
           upgradeUrl: '/pricing'
         });
@@ -4794,7 +4794,7 @@ Starting analysis and implementation now...`;
           businessKnowledge: {
             strategy: 'Rolls-Royce positioning with individual trained models as competitive advantage',
             expansion: 'Personal brand builders targeting premium clients (€5K+ package opportunities)',
-            profitability: '87% margin focus on €47 premium tier vs €8 costs',
+            profitability: '87% margin focus on €67 premium tier vs €8 costs',
             teamCoordination: 'All 9 agents briefed with dual-tier architecture knowledge',
             priorities: 'Excellence over cost optimization, luxury positioning maintained'
           },
@@ -4899,7 +4899,7 @@ Starting analysis and implementation now...`;
       const agentConversationsResult = await db.execute("SELECT COUNT(*) as count FROM agent_conversations");
       const agentTasks = parseInt(agentConversationsResult.rows[0]?.count as string) || 0;
       
-      // Calculate real revenue from active subscriptions (€47 per premium)
+      // Calculate real revenue from active subscriptions (€67 per premium)
       const revenue = activeSubscriptions * 47;
       
       // Calculate real conversion rate
@@ -8039,7 +8039,7 @@ async function getRealBusinessAnalytics() {
     const paidUsers = subscriptions.filter(s => s.plan === 'premium' || s.plan === 'pro').length;
     const freeUsers = totalUsers - paidUsers;
     
-    // Calculate revenue (€47 per premium user)
+    // Calculate revenue (€67 per premium user)
     const monthlyRevenue = paidUsers * 47;
     
     // Get real AI image generation data

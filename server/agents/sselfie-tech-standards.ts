@@ -88,7 +88,7 @@ export default function ComponentName() {
 - User access via const { user } = useAuth() in components
 
 🎯 BUSINESS CONTEXT:
-- Individual AI model training for each user (€47/month)
+- Individual AI model training for each user (€67/month)
 - Luxury personal branding platform for female entrepreneurs
 - Sandra's admin email: ssa@ssasocial.com (admin access)
 - Times New Roman typography = editorial luxury brand identity

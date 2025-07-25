@@ -20,7 +20,7 @@ export class AgentProposalGenerator {
       agentName: 'Rachel',
       type: 'email-campaign',
       title: `${context.campaignName || 'SSELFIE AI Launch'} Email Sequence`,
-      description: `Complete ${context.emailCount || 5}-email sequence to convert existing subscribers to €47/month SSELFIE Studio`,
+      description: `Complete ${context.emailCount || 5}-email sequence to convert existing subscribers to €67/month SSELFIE Studio`,
       status: 'pending',
       priority: context.priority || 'high',
       createdAt: new Date(),
@@ -31,7 +31,7 @@ export class AgentProposalGenerator {
         data: {
           emailCount: context.emailCount || 5,
           targetAudience: "120K Instagram followers + email subscribers",
-          conversionGoal: "€47/month SSELFIE Studio subscriptions",
+          conversionGoal: "€67/month SSELFIE Studio subscriptions",
           estimatedOpenRate: "45%",
           estimatedClickRate: "12%",
           estimatedConversion: "3-5%"
@@ -59,7 +59,7 @@ export class AgentProposalGenerator {
       agentName: 'Victoria',
       type: 'landing-page',
       title: `${context.pageName || 'SSELFIE Studio Premium'} Landing Page`,
-      description: `Luxury editorial landing page optimized for €47/month conversions with Vogue-level aesthetics`,
+      description: `Luxury editorial landing page optimized for €67/month conversions with Vogue-level aesthetics`,
       status: 'pending',
       priority: context.priority || 'high',
       createdAt: new Date(),
@@ -135,7 +135,7 @@ export class AgentProposalGenerator {
       agentName: 'Martha',
       type: 'ad-campaign',
       title: `${context.campaignName || 'SSELFIE Studio'} Performance Ads`,
-      description: `Facebook/Instagram ads optimized for €47 conversions with €${context.dailyBudget || 50}/day budget`,
+      description: `Facebook/Instagram ads optimized for €67 conversions with €${context.dailyBudget || 50}/day budget`,
       status: 'pending',
       priority: context.priority || 'high',
       createdAt: new Date(),
@@ -204,7 +204,7 @@ export class AgentProposalGenerator {
           <h1 class="font-serif text-4xl md:text-6xl font-light mb-4">${context.pageName || 'SSELFIE Studio'}</h1>
           <p class="text-xl text-gray-600 max-w-2xl mx-auto">${context.tagline || 'Professional AI photos that build your personal brand'}</p>
           <div class="mt-8">
-            <button class="bg-black text-white px-8 py-3 font-light">${context.ctaText || 'Start Your Studio €47/month'}</button>
+            <button class="bg-black text-white px-8 py-3 font-light">${context.ctaText || 'Start Your Studio €67/month'}</button>
           </div>
         </div>
         <div class="grid md:grid-cols-2 gap-8 py-12 px-6">
@@ -236,7 +236,7 @@ const ${context.componentName || 'SSELFIEStudioLanding'} = () => {
           ${context.tagline || 'Professional AI photos that build your personal brand'}
         </p>
         <button className="bg-black text-white px-12 py-4 text-lg font-light hover:bg-gray-900 transition-colors">
-          ${context.ctaText || 'Start Your Studio €47/month'}
+          ${context.ctaText || 'Start Your Studio €67/month'}
         </button>
       </section>
       
@@ -301,7 +301,7 @@ const ${context.componentName || 'SSELFIEStudioLanding'} = () => {
           <h4 class="font-medium text-blue-900 mb-2">Primary Ad Creative</h4>
           <p class="text-blue-800 mb-2"><strong>Headline:</strong> "From Selfie to €10K Months: The AI Secret Every Female Entrepreneur Needs"</p>
           <p class="text-blue-800 mb-2"><strong>Description:</strong> Upload 5 selfies. Get unlimited professional photos that build your personal brand. No photographer, no studio, no €5000 budget required.</p>
-          <p class="text-blue-800"><strong>CTA:</strong> Start Your Studio for €47/month</p>
+          <p class="text-blue-800"><strong>CTA:</strong> Start Your Studio for €67/month</p>
         </div>
         <div class="grid md:grid-cols-2 gap-4">
           <div class="bg-gray-50 p-4 rounded">
@@ -336,7 +336,7 @@ const ${context.componentName || 'SSELFIEStudioLanding'} = () => {
           </div>
           <p class="text-sm font-medium mb-1">From Selfie to €10K Months: The AI Secret Every Female Entrepreneur Needs</p>
           <p class="text-xs text-gray-600 mb-3">Upload 5 selfies. Get unlimited professional photos that build your personal brand.</p>
-          <button class="w-full bg-black text-white py-2 rounded text-sm">Start Your Studio €47/month</button>
+          <button class="w-full bg-black text-white py-2 rounded text-sm">Start Your Studio €67/month</button>
         </div>
       </div>
     `;

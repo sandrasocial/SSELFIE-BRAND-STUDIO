@@ -74,7 +74,7 @@ export default function AdminSettings() {
                 <h4 className="font-medium mb-2">Pricing Plans</h4>
                 <div className="text-sm space-y-1">
                   <div>FREE: 5 AI images/month</div>
-                  <div>SSELFIE Studio: €47/month - 100 images</div>
+                  <div>SSELFIE Studio: €67/month - 100 images</div>
                 </div>
               </div>
               

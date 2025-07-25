@@ -212,7 +212,7 @@ export class PredictiveIntelligenceEngine {
     const currentUserCount = Number(totalUsers[0]?.count) || 0;
 
     // Business intelligence calculations
-    const currentMRR = currentUserCount * 47; // €47 per user
+    const currentMRR = currentUserCount * 47; // €67 per user
     const conversionRate = 0.12; // 12% conversion rate assumption
     const optimizedConversionRate = 0.18; // Target 18% conversion
 

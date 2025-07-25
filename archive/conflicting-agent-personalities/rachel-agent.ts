@@ -58,11 +58,11 @@ VOICE PROFILE: ${JSON.stringify(voiceProfile)}
 
 CAMPAIGN TYPE: ${campaignType}
 AUDIENCE: ${audience} (2500 Flodesk subscribers)
-PRODUCT: €47 SSELFIE AI Brand Photoshoot
+PRODUCT: €67 SSELFIE AI Brand Photoshoot
 
 REQUIREMENTS:
 - Use Sandra's exact speaking style and catchphrases
-- Focus on immediate €47 conversions
+- Focus on immediate €67 conversions
 - Personal stories and authentic experiences
 - Call-to-action that drives sales
 - Subject line that gets opened
@@ -96,7 +96,7 @@ Write the complete email with subject line.
         subject,
         content: emailContent,
         audience,
-        callToAction: "Book Your €47 AI Brand Photoshoot",
+        callToAction: "Book Your €67 AI Brand Photoshoot",
         personalizedElements: ["User's name", "Previous engagement", "Instagram following"]
       };
 
@@ -120,7 +120,7 @@ SANDRA'S VOICE PROFILE: ${JSON.stringify(voiceProfile)}
 Rate 1-100:
 - Tone Consistency: How well does it match Sandra's Rachel-from-Friends + Icelandic style?
 - Brand Alignment: Does it reflect her business values and messaging?
-- Conversion Optimization: Will this drive €47 sales?
+- Conversion Optimization: Will this drive €67 sales?
 - Authenticity Score: Does it sound genuinely like Sandra?
 
 Return JSON format: {"toneConsistency": X, "brandAlignment": X, "conversionOptimization": X, "authenticityScore": X}
@@ -211,13 +211,13 @@ You know how I'm always talking about your mess being your message? Well, I took
 
 I'm calling it SSELFIE AI Brand Photoshoot, and it's exactly what it sounds like. Upload your selfies, and my AI creates stunning professional brand photos that look like you hired a €5000 photographer.
 
-The best part? It's only €47. 
+The best part? It's only €67. 
 
 I know what you're thinking - "Sandra, this sounds too good to be true." But I've been testing it myself, and the results are incredible. We're talking magazine-quality brand photos from your phone selfies.
 
 Ready to see what your brand could look like?
 
-[Book Your €47 AI Brand Photoshoot]
+[Book Your €67 AI Brand Photoshoot]
 
 Your mess is your message,
 Sandra
@@ -225,7 +225,7 @@ Sandra
 P.S. I only have limited spots available because each person gets their own custom AI model. Don't wait on this one.
       `,
       audience,
-      callToAction: "Book Your €47 AI Brand Photoshoot",
+      callToAction: "Book Your €67 AI Brand Photoshoot",
       personalizedElements: ["Personal greeting", "Sandra's authentic voice", "Scarcity element"]
     };
   }
@@ -238,7 +238,7 @@ P.S. I only have limited spots available because each person gets their own cust
 Create Instagram ${contentType} content as Sandra:
 
 VOICE: ${JSON.stringify(voiceProfile)}
-GOAL: Drive followers to email list and €47 AI photoshoot sales
+GOAL: Drive followers to email list and €67 AI photoshoot sales
 AUDIENCE: 120K Instagram followers interested in personal branding
 
 Create authentic Sandra voice content with:
@@ -268,7 +268,7 @@ Create authentic Sandra voice content with:
       return {
         caption: content,
         hashtags: ["#SSELFIEStudio", "#AIPhotography", "#PersonalBranding", "#WomenInBusiness", "#BrandPhotos"],
-        callToAction: "Link in bio to book your €47 AI Brand Photoshoot"
+        callToAction: "Link in bio to book your €67 AI Brand Photoshoot"
       };
 
     } catch (error) {
@@ -276,7 +276,7 @@ Create authentic Sandra voice content with:
       return {
         caption: "Your selfies are about to become your superpower. New AI brand photoshoot service live now - link in bio!",
         hashtags: ["#SSELFIEStudio", "#AIPhotography", "#PersonalBranding"],
-        callToAction: "Book your €47 AI Brand Photoshoot - link in bio"
+        callToAction: "Book your €67 AI Brand Photoshoot - link in bio"
       };
     }
   }

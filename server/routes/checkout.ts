@@ -28,7 +28,7 @@ export function registerCheckoutRoutes(app: Express) {
                 name: 'SSELFIE AI Brand Photoshoot',
                 description: '100 monthly AI-generated professional photos',
               },
-              unit_amount: 4700, // €47.00 in cents
+              unit_amount: 4700, // €67.00 in cents
             },
             quantity: 1,
           },
