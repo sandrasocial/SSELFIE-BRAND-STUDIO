@@ -7775,6 +7775,247 @@ AGENT_CONTEXT:
   registerElenaMonitoringRoutes(app);
   registerAdminConversationRoutes(app);
 
+  // =========================================================================
+  // 🎯 CONSULTING AGENTS ENDPOINT - READ-ONLY STRATEGIC ADVISORS
+  // =========================================================================
+  app.post('/api/admin/consulting-agents/chat', async (req, res) => {
+    console.log('🎯 CONSULTING AGENT: Processing strategic advice request');
+    
+    try {
+      const { agentId, message } = req.body;
+      
+      // Admin authentication check - only Sandra can access consulting agents
+      const adminToken = req.headers.authorization?.replace('Bearer ', '');
+      const isAuthenticated = req.isAuthenticated && req.isAuthenticated();
+      const isAdmin = (isAuthenticated && req.user?.claims?.email === 'ssa@ssasocial.com') || adminToken === 'sandra-admin-2025';
+      
+      if (!isAdmin) {
+        return res.status(403).json({ 
+          error: 'Unauthorized',
+          message: 'Consulting agents are available only for Sandra (ssa@ssasocial.com)'
+        });
+      }
+
+      if (!agentId || !message) {
+        return res.status(400).json({ 
+          error: 'Missing required fields',
+          message: 'Both agentId and message are required'
+        });
+      }
+
+      // Import consulting agent personalities (separate from development agents)
+      const { getConsultingAgentPersonality } = await import('./agents/agent-personalities-consulting');
+      const consultingAgent = getConsultingAgentPersonality(agentId);
+      
+      if (!consultingAgent) {
+        return res.status(404).json({ 
+          error: 'Consulting agent not found',
+          message: `Consulting agent '${agentId}' is not available`
+        });
+      }
+
+      console.log(`🎯 CONSULTING AGENT: ${consultingAgent.name} (${consultingAgent.role}) analyzing codebase`);
+
+      // Initialize Anthropic for consulting response
+      const Anthropic = await import('@anthropic-ai/sdk');
+      const anthropic = new Anthropic.default({
+        apiKey: process.env.ANTHROPIC_API_KEY,
+      });
+
+      // Format consultation request with read-only tools
+      const consultationPrompt = `${consultingAgent.instructions}
+
+USER REQUEST: ${message}
+
+Analyze the SSELFIE Studio codebase to provide strategic advice. Use only read-only tools:
+- search_filesystem to analyze code structure
+- str_replace_based_edit_tool with "view" command only to read files
+
+Provide your analysis in the required format:
+## ${consultingAgent.name}'s Analysis
+📋 **Current State**: [brief analysis]
+🎯 **Recommendation**: [strategic advice]
+📝 **Tell Replit AI**: "[exact instructions for Sandra to give Replit AI]"
+
+Remember: NO FILE MODIFICATIONS - you are a strategic advisor only.`;
+
+      // Define read-only tools for consulting agents
+      const consultingTools = [
+        {
+          name: "search_filesystem",
+          description: "Search and analyze the codebase structure",
+          input_schema: {
+            type: "object",
+            properties: {
+              query_description: { type: "string" },
+              class_names: { type: "array", items: { type: "string" } },
+              function_names: { type: "array", items: { type: "string" } },
+              code: { type: "array", items: { type: "string" } }
+            }
+          }
+        },
+        {
+          name: "str_replace_based_edit_tool",
+          description: "View files in the codebase (READ-ONLY - view command only)",
+          input_schema: {
+            type: "object",
+            properties: {
+              command: { type: "string", enum: ["view"] },
+              path: { type: "string" },
+              view_range: { type: "array", items: { type: "integer" } }
+            },
+            required: ["command", "path"]
+          }
+        }
+      ];
+
+      // Call Anthropic with read-only tools
+      const response = await anthropic.messages.create({
+        model: DEFAULT_MODEL_STR,
+        max_tokens: 4000,
+        messages: [
+          {
+            role: "user",
+            content: consultationPrompt
+          }
+        ],
+        tools: consultingTools
+      });
+
+      // Process tool calls if any (read-only operations only)
+      let toolResults = [];
+      if (response.content.some(block => block.type === 'tool_use')) {
+        for (const block of response.content) {
+          if (block.type === 'tool_use') {
+            const toolName = block.name;
+            const toolInput = block.input as any;
+            
+            console.log(`🔍 CONSULTING TOOL: ${consultingAgent.name} using ${toolName}`);
+            
+            if (toolName === 'search_filesystem') {
+              try {
+                const { search_filesystem } = await import('./tools/search_filesystem');
+                const result = await search_filesystem(toolInput);
+                toolResults.push({
+                  tool: toolName,
+                  result: result
+                });
+              } catch (error) {
+                console.error(`Search filesystem error for ${consultingAgent.name}:`, error);
+                toolResults.push({
+                  tool: toolName,
+                  error: error.message
+                });
+              }
+            } else if (toolName === 'str_replace_based_edit_tool' && toolInput.command === 'view') {
+              try {
+                const { str_replace_based_edit_tool } = await import('./tools/str_replace_based_edit_tool');
+                const result = await str_replace_based_edit_tool(toolInput);
+                toolResults.push({
+                  tool: toolName,
+                  result: result
+                });
+              } catch (error) {
+                console.error(`View file error for ${consultingAgent.name}:`, error);
+                toolResults.push({
+                  tool: toolName,
+                  error: error.message
+                });
+              }
+            } else if (toolName === 'str_replace_based_edit_tool' && toolInput.command !== 'view') {
+              // Block any non-view commands for consulting agents
+              toolResults.push({
+                tool: toolName,
+                error: `BLOCKED: Consulting agents can only use 'view' command. Attempted: '${toolInput.command}'`
+              });
+            }
+          }
+        }
+      }
+
+      // Extract final response text
+      const finalResponse = response.content
+        .filter(block => block.type === 'text')
+        .map(block => block.text)
+        .join('\n');
+
+      console.log(`✅ CONSULTING AGENT: ${consultingAgent.name} provided strategic advice (${finalResponse.length} chars)`);
+
+      res.json({
+        success: true,
+        message: finalResponse,
+        agentId: consultingAgent.id,
+        agentName: consultingAgent.name,
+        agentRole: consultingAgent.role,
+        toolResults: toolResults,
+        consulting: true, // Flag to indicate this is from consulting endpoint
+        timestamp: new Date().toISOString()
+      });
+
+    } catch (error) {
+      console.error('Consulting agent error:', error);
+      res.status(500).json({
+        success: false,
+        error: 'Consulting agent failed',
+        message: `Unable to get strategic advice. Error: ${error.message}`,
+        consulting: true,
+        timestamp: new Date().toISOString()
+      });
+    }
+  });
+
+  // =========================================================================
+  // 📋 CONSULTING AGENTS LIST ENDPOINT
+  // =========================================================================
+  app.get('/api/admin/consulting-agents', async (req, res) => {
+    try {
+      // Admin authentication check
+      const adminToken = req.headers.authorization?.replace('Bearer ', '');
+      const isAuthenticated = req.isAuthenticated && req.isAuthenticated();
+      const isAdmin = (isAuthenticated && req.user?.claims?.email === 'ssa@ssasocial.com') || adminToken === 'sandra-admin-2025';
+      
+      if (!isAdmin) {
+        return res.status(403).json({ 
+          error: 'Unauthorized',
+          message: 'Consulting agents list is available only for Sandra'
+        });
+      }
+
+      // Available consulting agents with their specialties
+      const consultingAgents = [
+        { id: 'elena', name: 'Elena', role: 'Strategic Business Advisor & Coordinator', specialty: 'Business strategy and team coordination' },
+        { id: 'maya', name: 'Maya', role: 'AI Photography & User Experience Consultant', specialty: 'AI generation systems and UX optimization' },
+        { id: 'victoria', name: 'Victoria', role: 'Website Building & UX Strategy Consultant', specialty: 'User experience and conversion optimization' },
+        { id: 'aria', name: 'Aria', role: 'Visual Design & Brand Strategy Consultant', specialty: 'Luxury design and brand consistency' },
+        { id: 'zara', name: 'Zara', role: 'Technical Architecture & Performance Consultant', specialty: 'Code quality and performance optimization' },
+        { id: 'rachel', name: 'Rachel', role: 'Voice & Copywriting Twin Consultant', specialty: 'Brand voice and authentic messaging' },
+        { id: 'ava', name: 'Ava', role: 'Automation & Workflow Strategy Consultant', specialty: 'Process automation and efficiency' },
+        { id: 'quinn', name: 'Quinn', role: 'Quality Assurance & Luxury Standards Consultant', specialty: 'Quality standards and premium positioning' },
+        { id: 'sophia', name: 'Sophia', role: 'Social Media Strategy & Community Growth Consultant', specialty: 'Social growth and community conversion' },
+        { id: 'martha', name: 'Martha', role: 'Marketing & Performance Ads Consultant', specialty: 'Marketing optimization and revenue growth' },
+        { id: 'diana', name: 'Diana', role: 'Business Coaching & Strategic Mentoring Consultant', specialty: 'Business decisions and strategic focus' },
+        { id: 'wilma', name: 'Wilma', role: 'Workflow Architecture & Process Optimization Consultant', specialty: 'Workflow efficiency and scalable processes' },
+        { id: 'olga', name: 'Olga', role: 'Repository Organization & Architecture Analysis Consultant', specialty: 'Code organization and architecture analysis' }
+      ];
+
+      res.json({
+        success: true,
+        consultingAgents,
+        totalAgents: consultingAgents.length,
+        description: 'Read-only strategic advisors that analyze codebase and provide "Tell Replit AI" instructions',
+        capabilities: ['Codebase analysis', 'Strategic recommendations', 'Replit AI instructions'],
+        timestamp: new Date().toISOString()
+      });
+
+    } catch (error) {
+      console.error('Get consulting agents error:', error);
+      res.status(500).json({
+        success: false,
+        error: 'Failed to get consulting agents list'
+      });
+    }
+  });
+
   const httpServer = createServer(app);
   return httpServer;
 }
