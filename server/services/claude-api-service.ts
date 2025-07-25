@@ -2,7 +2,7 @@ import Anthropic from '@anthropic-ai/sdk';
 import { z } from 'zod';
 import { db } from '../db';
 import { claudeConversations, claudeMessages, agentLearning, agentCapabilities } from '@shared/schema';
-import { searchFilesystem, viewFileContent } from '../tools/tool-exports';
+import { UniversalAgentTools } from '../tools/universal-agent-tools';
 import { eq, and, desc } from 'drizzle-orm';
 import fetch from 'node-fetch';
 
@@ -179,70 +179,125 @@ export class ClaudeApiService {
         content: userMessage
       });
 
-      // Enhanced tools with codebase access and web search capability
+      // Universal dynamic tools - flexible for any task, not hardcoded
       const enhancedTools = [
         {
           name: "search_filesystem",
-          description: "Search through the entire codebase to find files, functions, classes, and code patterns. Essential for understanding platform architecture.",
+          description: "Dynamically search through the codebase with flexible criteria - supports any search needs",
           input_schema: {
             type: "object",
             properties: {
-              query_description: {
+              query_description: { 
                 type: "string",
-                description: "Natural language description of what you're looking for in the codebase"
+                description: "Natural language description of what you're looking for"
               },
-              class_names: {
-                type: "array",
-                items: { type: "string" },
-                description: "Specific class names to search for"
-              },
-              function_names: {
+              class_names: { 
                 type: "array", 
                 items: { type: "string" },
-                description: "Specific function or method names to search for"
+                description: "Specific class names to find"
               },
-              code: {
+              function_names: { 
+                type: "array", 
+                items: { type: "string" },
+                description: "Specific function or method names to find"
+              },
+              code: { 
+                type: "array", 
+                items: { type: "string" },
+                description: "Specific code snippets to search for"
+              },
+              file_extensions: {
                 type: "array",
                 items: { type: "string" },
-                description: "Exact code snippets to search for"
+                description: "File extensions to include (e.g., ['.ts', '.tsx', '.js'])"
+              },
+              directories: {
+                type: "array", 
+                items: { type: "string" },
+                description: "Specific directories to search in"
+              },
+              max_results: {
+                type: "integer",
+                description: "Maximum number of files to return (default: 30)"
               }
-            },
-            required: ["query_description"]
+            }
           }
         },
         {
           name: "str_replace_based_edit_tool",
-          description: "View files in the codebase to understand implementation details and platform knowledge",
+          description: "Universal file operations - view, create, edit any file with full flexibility",
           input_schema: {
             type: "object",
             properties: {
-              command: {
-                type: "string",
-                enum: ["view"],
-                description: "Only 'view' command allowed for consulting agents"
+              command: { 
+                type: "string", 
+                enum: ["view", "create", "str_replace", "insert"],
+                description: "Operation to perform: view (read file), create (new file), str_replace (find/replace), insert (add text at line)"
               },
-              path: {
+              path: { 
                 type: "string",
-                description: "File path to view"
+                description: "File path relative to project root"
               },
-              view_range: {
-                type: "array",
+              file_text: { 
+                type: "string",
+                description: "Complete file content (for create command)"
+              },
+              old_str: { 
+                type: "string",
+                description: "Text to find and replace (for str_replace command)"
+              },
+              new_str: { 
+                type: "string",
+                description: "Replacement text (for str_replace command)"
+              },
+              insert_line: { 
+                type: "integer",
+                description: "Line number to insert at (for insert command)"
+              },
+              insert_text: { 
+                type: "string",
+                description: "Text to insert (for insert command)"
+              },
+              view_range: { 
+                type: "array", 
                 items: { type: "integer" },
-                description: "Line range [start, end] to view specific sections"
+                description: "Line range to view [start, end] (for view command)"
               }
             },
             required: ["command", "path"]
           }
         },
         {
-          name: "web_search",
-          description: "Search the internet for current information, Replit AI best practices, and latest development trends",
+          name: "bash",
+          description: "Execute shell commands for any development task - fully dynamic",
           input_schema: {
             type: "object",
             properties: {
-              query: {
+              command: { 
                 type: "string",
-                description: "Search query for finding current information"
+                description: "Shell command to execute"
+              },
+              timeout: {
+                type: "integer",
+                description: "Command timeout in milliseconds (default: 30000)"
+              }
+            },
+            required: ["command"]
+          }
+        },
+        {
+          name: "web_search", 
+          description: "Search the web for current information, trends, and best practices - any topic",
+          input_schema: {
+            type: "object",
+            properties: {
+              query: { 
+                type: "string",
+                description: "Search query for current information"
+              },
+              max_results: {
+                type: "integer",
+                description: "Maximum number of results (default: 5)"
               }
             },
             required: ["query"]
@@ -785,30 +840,76 @@ COMMUNICATION STYLE:
         try {
           let toolResult = '';
           
+          console.log(`🔧 UNIVERSAL TOOL: ${block.name} called with params:`, block.input);
+          
           switch (block.name) {
             case 'search_filesystem':
-              console.log('🔍 CONSULTING SEARCH: Elena requesting codebase search with params:', block.input);
-              const searchResults = await searchFilesystem(block.input);
-              console.log('✅ CONSULTING SEARCH: Elena received results:', searchResults?.totalFiles || 0, 'files found');
-              toolResult = `\n\n[Codebase Search Results for: "${block.input.query_description}"]\n${JSON.stringify(searchResults, null, 2)}`;
+              const searchResult = await UniversalAgentTools.searchFilesystem(block.input);
+              if (searchResult.success) {
+                console.log(`✅ SEARCH SUCCESS: Found ${searchResult.result?.totalFiles || 0} files`);
+                toolResult = `\n\n[Codebase Search Results]\n${JSON.stringify(searchResult.result, null, 2)}`;
+              } else {
+                toolResult = `\n\n[Search Error: ${searchResult.error}]`;
+              }
               break;
               
             case 'str_replace_based_edit_tool':
-              if (block.input.command === 'view') {
-                const fileContent = await viewFileContent(block.input);
-                toolResult = `\n\n[File Content: ${block.input.path}]\n${fileContent}`;
+              const fileResult = await UniversalAgentTools.fileOperations({
+                command: block.input.command as any,
+                path: block.input.path,
+                content: block.input.file_text,
+                old_str: block.input.old_str,
+                new_str: block.input.new_str,
+                insert_line: block.input.insert_line,
+                insert_text: block.input.insert_text,
+                view_range: block.input.view_range,
+                backup: true // Always backup for safety
+              });
+              
+              if (fileResult.success) {
+                console.log(`✅ FILE OP SUCCESS: ${block.input.command} on ${block.input.path}`);
+                toolResult = `\n\n[File Operation: ${block.input.command}]\n${JSON.stringify(fileResult.result, null, 2)}`;
+              } else {
+                toolResult = `\n\n[File Operation Error: ${fileResult.error}]`;
+              }
+              break;
+              
+            case 'bash':
+              const commandResult = await UniversalAgentTools.executeCommand({
+                command: block.input.command,
+                timeout: 30000
+              });
+              
+              if (commandResult.success) {
+                console.log(`✅ COMMAND SUCCESS: ${block.input.command}`);
+                toolResult = `\n\n[Command Execution]\n${JSON.stringify(commandResult.result, null, 2)}`;
+              } else {
+                toolResult = `\n\n[Command Error: ${commandResult.error}]`;
               }
               break;
               
             case 'web_search':
-              const webResults = await this.performWebSearch(block.input.query);
-              toolResult = `\n\n[Enhanced with current information from web search: "${block.input.query}"]\n${webResults}`;
+              const webResult = await UniversalAgentTools.webSearch({
+                query: block.input.query,
+                max_results: 5
+              });
+              
+              if (webResult.success) {
+                console.log(`✅ WEB SEARCH SUCCESS: ${block.input.query}`);
+                toolResult = `\n\n[Web Search Results]\n${JSON.stringify(webResult.result, null, 2)}`;
+              } else {
+                toolResult = `\n\n[Web Search Error: ${webResult.error}]`;
+              }
               break;
+              
+            default:
+              console.log(`⚠️ UNKNOWN TOOL: ${block.name}`);
+              toolResult = `\n\n[Unknown tool: ${block.name}]`;
           }
           
           enhancedMessage += toolResult;
         } catch (error) {
-          console.error(`Tool ${block.name} error:`, error);
+          console.error(`❌ TOOL ERROR: ${block.name}:`, error);
           const errorMessage = error instanceof Error ? error.message : 'Unknown error';
           enhancedMessage += `\n\n[Tool ${block.name} encountered an error: ${errorMessage}]`;
         }
