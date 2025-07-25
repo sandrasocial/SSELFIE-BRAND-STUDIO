@@ -31,6 +31,7 @@ import { registerCheckoutRoutes } from './routes/checkout';
 import { registerAutomationRoutes } from './routes/automation';
 import { registerEnterpriseRoutes } from './routes/enterprise-routes';
 import claudeApiRoutes from './routes/claude-api-routes';
+import autonomousOrchestratorRoutes from './api/autonomous-orchestrator/deploy-all-agents';
 // Agent performance monitor will be imported dynamically
 import { ExternalAPIService } from './integrations/external-api-service';
 import { AgentAutomationTasks } from './integrations/agent-automation-tasks';
@@ -173,6 +174,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   // Claude API routes for enhanced agent capabilities
   app.use('/api/claude', claudeApiRoutes);
+app.use('/api/autonomous-orchestrator', autonomousOrchestratorRoutes);
   
   // Enhanced Elena workflow routes with multi-agent communication
   app.post('/api/enhanced-elena/create-workflow', async (req, res) => {
@@ -6973,6 +6975,7 @@ AGENT_CONTEXT:
   }
   
   console.log('✅ Agent Bridge System routes registered');
+  console.log('✅ Autonomous Orchestrator routes registered');
   
   // Agent Performance Monitor API routes
   const { getAgentCoordinationMetrics, getAgentStatuses, getAgentAccountability } = await import('./routes/agent-performance-monitor');
