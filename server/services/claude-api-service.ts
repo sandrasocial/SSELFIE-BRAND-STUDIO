@@ -296,6 +296,82 @@ export class ClaudeApiService {
           }
         },
         {
+          name: "enhanced_file_editor",
+          description: fileEditMode ? "Enhanced flexible file editing - line-by-line, section replacement, and multi-replace capabilities for complex modifications" : "Enhanced file viewing - advanced analysis capabilities (read-only mode)",
+          input_schema: {
+            type: "object" as const,
+            properties: {
+              command: { 
+                type: "string", 
+                enum: fileEditMode ? ["view", "create", "str_replace", "insert", "line_replace", "section_replace", "multi_replace"] : ["view"],
+                description: fileEditMode ? "Enhanced operations: line_replace (replace specific line), section_replace (replace line range), multi_replace (multiple replacements)" : "Only 'view' command available in read-only mode"
+              },
+              path: { 
+                type: "string",
+                description: "File path relative to project root"
+              },
+              file_text: { 
+                type: "string",
+                description: "Complete file content (for create command)"
+              },
+              old_str: { 
+                type: "string",
+                description: "Text to find and replace (for str_replace command)"
+              },
+              new_str: { 
+                type: "string",
+                description: "Replacement text (for str_replace command)"
+              },
+              insert_line: { 
+                type: "integer",
+                description: "Line number to insert at (for insert command)"
+              },
+              insert_text: { 
+                type: "string",
+                description: "Text to insert (for insert command)"
+              },
+              line_number: {
+                type: "integer", 
+                description: "Specific line number to replace (for line_replace command)"
+              },
+              line_content: {
+                type: "string",
+                description: "New content for the line (for line_replace command)"
+              },
+              start_line: {
+                type: "integer",
+                description: "Starting line number for section replacement (for section_replace command)"
+              },
+              end_line: {
+                type: "integer", 
+                description: "Ending line number for section replacement (for section_replace command)"
+              },
+              section_content: {
+                type: "string",
+                description: "New content for the section (for section_replace command)"
+              },
+              replacements: {
+                type: "array",
+                items: {
+                  type: "object",
+                  properties: {
+                    old: { type: "string", description: "Text to find" },
+                    new: { type: "string", description: "Replacement text" }
+                  },
+                  required: ["old", "new"]
+                },
+                description: "Array of replacements for multi_replace command"
+              },
+              view_range: {
+                type: "array",
+                items: { type: "integer" },
+                description: "Line range for view command [start, end]"
+              }
+            },
+            required: ["command", "path"]
+          }
+        },
+        {
           name: "bash",
           description: "Execute shell commands for any development task - fully dynamic",
           input_schema: {
@@ -985,6 +1061,19 @@ COMMUNICATION STYLE:
                 } else {
                   toolResult = `File Operation Error: ${fileResult.error}`;
                 }
+              }
+              break;
+              
+            case 'enhanced_file_editor':
+              // Enforce read-only mode if not in file edit mode
+              if (!fileEditMode && block.input.command !== 'view') {
+                console.log(`🚫 READ-ONLY MODE: Blocking enhanced ${block.input.command} operation on ${block.input.path}`);
+                toolResult = `Error: Read-only mode active. Only 'view' command is allowed. Please switch to file edit mode to make changes.`;
+              } else {
+                const { enhanced_file_editor } = await import('../tools/enhanced_file_editor');
+                const result = await enhanced_file_editor(block.input);
+                console.log(`✅ ENHANCED FILE OP SUCCESS: ${block.input.command} on ${block.input.path}`);
+                toolResult = result;
               }
               break;
               

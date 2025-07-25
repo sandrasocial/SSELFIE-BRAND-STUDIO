@@ -5487,6 +5487,9 @@ Workflow Stage: ${savedMemory.workflowStage || 'None'}
               } else if (contentBlock.name === 'str_replace_based_edit_tool') {
                 const { str_replace_based_edit_tool } = await import('./tools/str_replace_based_edit_tool');
                 toolResult = await str_replace_based_edit_tool(contentBlock.input);
+              } else if (contentBlock.name === 'enhanced_file_editor') {
+                const { enhanced_file_editor } = await import('./tools/enhanced_file_editor');
+                toolResult = await enhanced_file_editor(contentBlock.input);
               }
               
               console.log(`✅ ${agentId.toUpperCase()} TOOL RESULT: Success`);
