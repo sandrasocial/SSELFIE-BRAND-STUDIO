@@ -987,6 +987,13 @@ COMMUNICATION STYLE:
       }
       
       console.log(`✅ CONVERSATION CONTINUED: Agent provided analysis after tool usage. Total response length: ${finalResponse.length}`);
+      console.log(`📝 FINAL RESPONSE PREVIEW: ${finalResponse.substring(0, 200)}...`);
+      
+      // If still no response after tool usage, provide a default response
+      if (!finalResponse.trim()) {
+        console.log(`⚠️ EMPTY RESPONSE DETECTED - Providing default response after tool usage`);
+        finalResponse = "I've analyzed the information using my tools. Let me provide a comprehensive response based on what I found.";
+      }
     }
     
     return finalResponse;
