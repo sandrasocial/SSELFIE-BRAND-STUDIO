@@ -1,13 +1,15 @@
 import React, { useState, useEffect } from 'react';
 import { Link } from 'wouter';
 import { Button } from '@/components/ui/button';
-import { RefreshCw, ArrowLeft, PlayCircle } from 'lucide-react';
-import { EditorialImageBreak } from '@/components/editorial-image-break';
+import { ArrowLeft, RefreshCw, PlayCircle } from 'lucide-react';
+// import { EditorialImageBreak } from '@/components/ui/editorial';
 
+// SSELFIE STUDIO Luxury Bridge Coordination Interface
+// Swiss-precision monitoring with Chanel-level minimalism
 interface Agent {
   name: string;
   role: string;
-  status: 'Active' | 'Processing' | 'Standby';
+  status: 'active' | 'idle' | 'working';
   lastActivity: string;
 }
 
@@ -25,6 +27,45 @@ export default function BridgeMonitor() {
   const [tasks, setTasks] = useState<BridgeTask[]>([]);
   const [refreshing, setRefreshing] = useState(false);
   const [lastRefresh, setLastRefresh] = useState<Date>(new Date());
+  const [systemHealth, setSystemHealth] = useState({ status: 'operational', responseTime: 0 });
+
+  const fetchBridgeData = async () => {
+    try {
+      setRefreshing(true);
+      const [agentsRes, tasksRes, healthRes] = await Promise.all([
+        fetch('/api/agent-bridge/agents', { credentials: 'include' }),
+        fetch('/api/agent-bridge/active-tasks', { credentials: 'include' }),
+        fetch('/api/agent-bridge/health', { credentials: 'include' })
+      ]);
+      
+      if (agentsRes.ok) {
+        const agentsData = await agentsRes.json();
+        setAgents(agentsData.agents || []);
+      }
+      
+      if (tasksRes.ok) {
+        const tasksData = await tasksRes.json();
+        setTasks(tasksData.tasks || []);
+      }
+      
+      if (healthRes.ok) {
+        const healthData = await healthRes.json();
+        setSystemHealth(healthData);
+      }
+      
+      setLastRefresh(new Date());
+    } catch (error) {
+      console.error('Failed to fetch bridge data:', error);
+    } finally {
+      setRefreshing(false);
+    }
+  };
+
+  useEffect(() => {
+    fetchBridgeData();
+    const interval = setInterval(fetchBridgeData, 5000);
+    return () => clearInterval(interval);
+  }, []);
 
   const submitTestTask = async () => {
     try {
@@ -56,44 +97,6 @@ export default function BridgeMonitor() {
       }
     } catch (error) {
       console.error('❌ Test task error:', error);
-    }
-  };
-
-  const fetchBridgeData = async () => {
-    setRefreshing(true);
-    try {
-      // Fetch active tasks
-      const tasksResponse = await fetch('/api/agent-bridge/active-tasks', {
-        credentials: 'include'
-      });
-      
-      if (tasksResponse.ok) {
-        const tasksData = await tasksResponse.json();
-        setTasks(tasksData.tasks || []);
-      }
-
-      // Set agent directory
-      setAgents([
-        { name: 'Elena', role: 'Strategic Coordinator', status: 'Active', lastActivity: '2 minutes ago' },
-        { name: 'Aria', role: 'Luxury Design Specialist', status: 'Standby', lastActivity: '5 minutes ago' },
-        { name: 'Zara', role: 'Technical Architect', status: 'Active', lastActivity: '1 minute ago' },
-        { name: 'Maya', role: 'AI Photography Expert', status: 'Processing', lastActivity: 'Now' },
-        { name: 'Victoria', role: 'UX Specialist', status: 'Standby', lastActivity: '3 minutes ago' },
-        { name: 'Rachel', role: 'Voice Specialist', status: 'Active', lastActivity: '1 minute ago' },
-        { name: 'Ava', role: 'Automation Specialist', status: 'Standby', lastActivity: '7 minutes ago' },
-        { name: 'Quinn', role: 'Quality Assurance', status: 'Standby', lastActivity: '4 minutes ago' },
-        { name: 'Sophia', role: 'Social Media Manager', status: 'Standby', lastActivity: '6 minutes ago' },
-        { name: 'Martha', role: 'Marketing Specialist', status: 'Standby', lastActivity: '8 minutes ago' },
-        { name: 'Diana', role: 'Business Coach', status: 'Standby', lastActivity: '5 minutes ago' },
-        { name: 'Wilma', role: 'Workflow Designer', status: 'Standby', lastActivity: '9 minutes ago' },
-        { name: 'Olga', role: 'Repository Expert', status: 'Standby', lastActivity: '10 minutes ago' }
-      ]);
-      
-    } catch (error) {
-      console.error('Failed to fetch bridge data:', error);
-    } finally {
-      setRefreshing(false);
-      setLastRefresh(new Date());
     }
   };
 
