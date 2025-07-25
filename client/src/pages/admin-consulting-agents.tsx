@@ -79,20 +79,38 @@ const createClaudeConversation = async (agentName: string) => {
 };
 
 const loadConversationHistory = async (conversationId: string) => {
-  const response = await fetch(`/api/claude/conversation/${conversationId}/history`, {
-    method: 'GET',
-    headers: {
-      'Content-Type': 'application/json',
-    },
-    credentials: 'include',
-  });
+  try {
+    console.log('📜 Frontend: Loading history for conversation:', conversationId);
+    const response = await fetch(`/api/claude/conversation/${conversationId}/history`, {
+      method: 'GET',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      credentials: 'include',
+    });
 
-  if (!response.ok) {
-    const error = await response.json();
-    throw new Error(error.details || 'Failed to load conversation history');
+    if (!response.ok) {
+      console.error('📜 Frontend: History API failed:', response.status);
+      const error = await response.json();
+      throw new Error(error.details || 'Failed to load conversation history');
+    }
+
+    const data = await response.json();
+    console.log('📜 Frontend: History API returned:', {
+      success: data.success,
+      messageCount: data.messages?.length || 0,
+      hasMessages: !!data.messages && data.messages.length > 0
+    });
+    
+    return data;
+  } catch (error) {
+    console.error('📜 Frontend: Load history error:', error);
+    return {
+      success: false,
+      messages: [],
+      conversationId
+    };
   }
-
-  return response.json();
 };
 
 const clearConversation = async (agentName: string) => {
@@ -270,6 +288,15 @@ export default function AdminConsultingAgents() {
       loadAgentConversationHistory();
     }
   }, [selectedAgent]);
+
+  // Clear messages when switching agents to prevent cross-contamination
+  useEffect(() => {
+    if (selectedAgent) {
+      console.log('🔄 Clearing messages for agent switch:', selectedAgent.id);
+      setMessages([]);
+      setConversationId(null);
+    }
+  }, [selectedAgent?.id]);
 
   const loadAgentConversationHistory = async () => {
     if (!selectedAgent) return;
