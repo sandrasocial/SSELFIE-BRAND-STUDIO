@@ -16,10 +16,10 @@ interface SearchResult {
 
 export async function search_filesystem(params: SearchParams) {
   try {
-    console.log('🔍 CONSULTING SEARCH: Starting codebase analysis with params:', params);
+    console.log('🔍 ADMIN SEARCH: Starting full repository analysis with params:', params);
     
     const results: SearchResult[] = [];
-    const maxFiles = 20; // Limit for consulting agents
+    const maxFiles = 100; // Full access for Sandra's admin agents
     
     // Search through project files
     const searchInDirectory = async (dirPath: string, basePath = '') => {
@@ -32,12 +32,10 @@ export async function search_filesystem(params: SearchParams) {
           const fullPath = path.join(dirPath, entry.name);
           const relativePath = path.join(basePath, entry.name);
           
-          // Skip excluded directories
-          if (entry.name.startsWith('.') || 
-              entry.name === 'node_modules' || 
+          // Skip only essential excluded directories - give agents full access
+          if (entry.name === 'node_modules' || 
               entry.name === 'dist' ||
-              entry.name === 'build' ||
-              entry.name === 'archive') {
+              entry.name === 'build') {
             continue;
           }
           
@@ -67,7 +65,7 @@ export async function search_filesystem(params: SearchParams) {
     
     await searchInDirectory(process.cwd());
     
-    console.log(`✅ CONSULTING SEARCH: Found ${results.length} relevant files for analysis`);
+    console.log(`✅ ADMIN SEARCH: Found ${results.length} relevant files for comprehensive analysis`);
     
     return { 
       summary: `Found ${results.length} files relevant to your analysis`,
@@ -76,9 +74,9 @@ export async function search_filesystem(params: SearchParams) {
     };
     
   } catch (error) {
-    console.error('❌ CONSULTING SEARCH ERROR:', error);
+    console.error('❌ ADMIN SEARCH ERROR:', error);
     const errorMessage = error instanceof Error ? error.message : 'Unknown error';
-    throw new Error(`Codebase search failed: ${errorMessage}`);
+    throw new Error(`Repository search failed: ${errorMessage}`);
   }
 }
 
