@@ -787,7 +787,9 @@ COMMUNICATION STYLE:
           
           switch (block.name) {
             case 'search_filesystem':
+              console.log('🔍 CONSULTING SEARCH: Elena requesting codebase search with params:', block.input);
               const searchResults = await searchFilesystem(block.input);
+              console.log('✅ CONSULTING SEARCH: Elena received results:', searchResults?.totalFiles || 0, 'files found');
               toolResult = `\n\n[Codebase Search Results for: "${block.input.query_description}"]\n${JSON.stringify(searchResults, null, 2)}`;
               break;
               
@@ -807,7 +809,8 @@ COMMUNICATION STYLE:
           enhancedMessage += toolResult;
         } catch (error) {
           console.error(`Tool ${block.name} error:`, error);
-          enhancedMessage += `\n\n[Tool ${block.name} encountered an error: ${error.message}]`;
+          const errorMessage = error instanceof Error ? error.message : 'Unknown error';
+          enhancedMessage += `\n\n[Tool ${block.name} encountered an error: ${errorMessage}]`;
         }
       }
     }
