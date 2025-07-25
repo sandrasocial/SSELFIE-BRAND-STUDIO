@@ -334,8 +334,12 @@ export class ClaudeApiService {
         assistantMessage = await this.handleToolCallsWithContinuation(response, messages, enhancedSystemPrompt, enhancedTools);
       }
 
-      // Save both messages to conversation
+      // Save both messages to conversation with logging
+      console.log('💾 Saving user message to database:', userMessage.length, 'characters');
       await this.saveMessage(conversationId, 'user', userMessage);
+      
+      console.log('💾 Saving assistant message to database:', assistantMessage.length, 'characters');
+      console.log('💾 Assistant message preview:', assistantMessage.substring(0, 200) + '...');
       await this.saveMessage(conversationId, 'assistant', assistantMessage);
 
       // Update agent learning with new patterns
