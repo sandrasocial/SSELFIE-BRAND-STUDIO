@@ -916,7 +916,11 @@ export class DatabaseStorage implements IStorage {
       // Find the most recent memory entry
       const memoryEntry = conversations
         .filter(conv => conv.userMessage === '**CONVERSATION_MEMORY**')
-        .sort((a, b) => new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime())[0];
+        .sort((a, b) => {
+          const dateA = a.timestamp ? new Date(a.timestamp).getTime() : 0;
+          const dateB = b.timestamp ? new Date(b.timestamp).getTime() : 0;
+          return dateB - dateA;
+        })[0];
       
       if (memoryEntry && memoryEntry.agentResponse) {
         return JSON.parse(memoryEntry.agentResponse);
@@ -992,13 +996,11 @@ export class DatabaseStorage implements IStorage {
 
 
 
-  async updateMayaChatMessage(messageId: number, data: Partial<MayaChatMessage>): Promise<MayaChatMessage> {
-    const [message] = await db
+  async updateMayaChatMessage(messageId: number, data: Partial<{ imagePreview: string; generatedPrompt: string }>): Promise<void> {
+    await db
       .update(mayaChatMessages)
       .set(data)
-      .where(eq(mayaChatMessages.id, messageId))
-      .returning();
-    return message;
+      .where(eq(mayaChatMessages.id, messageId));
   }
 
   // Admin operations
@@ -1115,7 +1117,6 @@ export class DatabaseStorage implements IStorage {
         plan: plan,
         monthlyGenerationsAllowed: 100,
         monthlyGenerationsUsed: 0,
-        totalGenerationsAllowed: 999999, // Unlimited total for monthly plans
         totalGenerationsUsed: 0,
         totalCostIncurred: "0.0000",
         currentPeriodStart: new Date(),

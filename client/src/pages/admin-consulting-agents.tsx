@@ -35,6 +35,47 @@ interface ChatMessage {
   agentName?: string;
 }
 
+// Claude API functions
+const sendClaudeMessage = async (agentName: string, message: string, conversationId?: string) => {
+  const response = await fetch('/api/claude/send-message', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    credentials: 'include',
+    body: JSON.stringify({
+      agentName,
+      message,
+      conversationId,
+    }),
+  });
+
+  if (!response.ok) {
+    const error = await response.json();
+    throw new Error(error.details || 'Failed to send message');
+  }
+
+  return response.json();
+};
+
+const createClaudeConversation = async (agentName: string) => {
+  const response = await fetch('/api/claude/conversation/new', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    credentials: 'include',
+    body: JSON.stringify({ agentName }),
+  });
+
+  if (!response.ok) {
+    const error = await response.json();
+    throw new Error(error.details || 'Failed to create conversation');
+  }
+
+  return response.json();
+};
+
 export default function AdminConsultingAgents() {
   const { user } = useAuth();
   const [location] = useLocation();
@@ -42,6 +83,7 @@ export default function AdminConsultingAgents() {
   const [message, setMessage] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [messages, setMessages] = useState<ChatMessage[]>([]);
+  const [conversationId, setConversationId] = useState<string | null>(null);
 
   // Define agents with matching admin dashboard data
   const consultingAgents: ConsultingAgent[] = [
@@ -187,33 +229,37 @@ export default function AdminConsultingAgents() {
     setIsLoading(true);
 
     try {
-      const response = await fetch('/api/admin/consulting-chat', {
-        method: 'POST',
-        credentials: 'include',
-        headers: {
-          'Authorization': `Bearer sandra-admin-2025`,
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify({
-          agentId: selectedAgent.id,
-          message: userMessage.content
-        })
-      });
-
-      const data = await response.json();
-
-      if (response.ok && data.success) {
-        const agentMessage: ChatMessage = {
-          id: (Date.now() + 1).toString(),
-          type: 'agent',
-          content: data.message,
-          timestamp: new Date().toISOString(),
-          agentName: selectedAgent.name
-        };
-        setMessages(prev => [...prev, agentMessage]);
+      // Create conversation if needed
+      if (!conversationId) {
+        const conversation = await createClaudeConversation(selectedAgent.id);
+        setConversationId(conversation.conversationId);
       }
+
+      // Send message to Claude API
+      const response = await sendClaudeMessage(selectedAgent.id, userMessage.content, conversationId);
+
+      const agentMessage: ChatMessage = {
+        id: (Date.now() + 1).toString(),
+        type: 'agent',
+        content: response.response,
+        timestamp: new Date().toISOString(),
+        agentName: selectedAgent.name
+      };
+
+      setMessages(prev => [...prev, agentMessage]);
     } catch (error) {
-      console.error('Chat error:', error);
+      console.error('Claude API error:', error);
+      
+      // Fallback response if Claude API fails
+      const errorMessage: ChatMessage = {
+        id: (Date.now() + 1).toString(),
+        type: 'agent',
+        content: `Hello! I'm ${selectedAgent.name}, ${selectedAgent.role}. I'm currently experiencing a connection issue with the Claude API. Please ensure the ANTHROPIC_API_KEY is properly configured. Error: ${error instanceof Error ? error.message : 'Connection failed'}`,
+        timestamp: new Date().toISOString(),
+        agentName: selectedAgent.name
+      };
+
+      setMessages(prev => [...prev, errorMessage]);
     } finally {
       setIsLoading(false);
     }
