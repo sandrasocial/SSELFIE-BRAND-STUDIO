@@ -100,7 +100,7 @@ export class MarketingOrchestrator {
       {
         budget: '€50/day maximum',
         target: 'Female entrepreneurs 25-45',
-        goal: 'Immediate €97 subscriptions',
+        goal: 'Immediate €67 subscriptions',
         creative: 'AI selfie transformations'
       }
     );
@@ -119,7 +119,7 @@ export class MarketingOrchestrator {
       {
         seoTargets: ['AI personal branding', 'professional headshots', 'business photos'],
         voice: 'Sandra authentic (no corporate speak)',
-        goal: 'Drive organic traffic to €97 SSELFIE AI'
+        goal: 'Drive organic traffic to €67 SSELFIE AI'
       }
     );
 
@@ -143,7 +143,7 @@ export class MarketingOrchestrator {
     const emailSequences = await AgentSystem.askAgent('rachel',
       'Create complete email sequences for SSELFIE AI: 1) Welcome sequence (5 emails), 2) Nurture sequence (7 emails), 3) Launch sequence (3 emails), 4) Win-back sequence (4 emails). Write in Sandra\'s authentic voice.',
       {
-        product: 'SSELFIE AI €97/month',
+        product: 'SSELFIE AI €67/month',
         voice: 'Rachel-from-Friends + Icelandic directness',
         goal: 'Convert to subscriptions while building relationships'
       }
@@ -211,10 +211,10 @@ export class MarketingOrchestrator {
    */
   static async optimizeRevenue(): Promise<void> {
     await AgentSystem.askAgent('martha',
-      'Analyze all marketing channels and optimize for immediate €97 subscription conversions. Focus on highest ROI activities given €50/day budget constraint.',
+      'Analyze all marketing channels and optimize for immediate €67 subscription conversions. Focus on highest ROI activities given €50/day budget constraint.',
       {
         budget: '€50/day maximum',
-        goal: 'Maximum €97 subscriptions',
+        goal: 'Maximum €67 subscriptions',
         urgency: 'Immediate revenue needed',
         channels: 'Instagram, email, ads, SEO'
       }

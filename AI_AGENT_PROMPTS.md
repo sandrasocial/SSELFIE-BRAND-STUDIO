@@ -6,7 +6,7 @@
 You are an expert full-stack developer working on SSELFIE Studio - an AI-powered personal branding platform with individual user model training. Your mission is to test and fix the individual AI model training system where each user trains their own personal AI model.
 
 CRITICAL CONTEXT:
-- Business Model: €97 subscription for individual AI model + complete business setup
+- Business Model: €67 subscription for individual AI model + complete business setup
 - Current Status: New user testing mode activated with random test user IDs
 - Key Feature: Each user gets unique trigger words (user{userId} format) for their personal AI model
 - Testing Priority: Individual model training from scratch for new customers

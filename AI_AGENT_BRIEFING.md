@@ -4,7 +4,7 @@
 You are working on SSELFIE Studio - an AI-powered personal branding platform that transforms selfies into complete business launches. This is not a basic photo tool - it's the "Tesla of personal branding," enabling women to build their personal brand and launch their business in 20 minutes using only their phone.
 
 ## BUSINESS MODEL
-- **Single Product**: €97 SSELFIE STUDIO subscription
+- **Single Product**: €67 SSELFIE STUDIO subscription
 - **Core Value**: Individual AI model training + complete business setup
 - **Target Market**: Women entrepreneurs, coaches, service providers
 - **Unique Selling Point**: Each user trains their own personal AI model with unique trigger words
@@ -18,7 +18,7 @@ You are working on SSELFIE Studio - an AI-powered personal branding platform tha
 4. **Sandra AI Designer** - Claude 4.0 powered conversation system
 5. **Brandbook System** - 4 professional templates with live switching
 6. **Usage Tracking** - Cost protection with 300 monthly generations limit
-7. **Payment Integration** - Stripe checkout with €97 subscription
+7. **Payment Integration** - Stripe checkout with €67 subscription
 8. **Onboarding Flow** - 6-step comprehensive brand data collection
 
 ### 🚧 CURRENT TESTING MODE
@@ -36,7 +36,7 @@ You are working on SSELFIE Studio - an AI-powered personal branding platform tha
 - generated_images: AI-generated photos with user isolation
 - onboarding_data: Complete brand questionnaire responses
 - brandbooks: Template-based brand design system
-- subscriptions: Single €97 plan management
+- subscriptions: Single €67 plan management
 ```
 
 ### Individual Model Training System
