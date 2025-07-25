@@ -22,13 +22,13 @@ export default function AdminDashboard() {
     );
   }
 
-  // Agent specialties for the step cards
+  // All 13 agent specialties for the consulting cards
   const agentSteps = [
     {
       id: 'elena',
       title: 'Strategic Business Advisor',
       description: 'AI Agent Director & CEO who orchestrates all agents and provides strategic business coordination.',
-      image: SandraImages.hero.homepage,
+      image: 'https://sselfie-studio-images.s3.amazonaws.com/generated-images/20250722_202258_561_image_0.jpg',
       link: '/admin/consulting-agents',
       specialty: 'Business strategy and team coordination',
       status: 'ready'
@@ -37,7 +37,7 @@ export default function AdminDashboard() {
       id: 'aria',
       title: 'Visual Design Expert',
       description: 'Luxury editorial designer who maintains brand consistency and creates ultra WOW factor moments.',
-      image: SandraImages.editorial.aiSuccess,
+      image: 'https://sselfie-studio-images.s3.amazonaws.com/generated-images/20250722_205155_570_image_0.jpg',
       link: '/admin/consulting-agents',
       specialty: 'Luxury design and brand consistency',
       status: 'ready'
@@ -46,7 +46,7 @@ export default function AdminDashboard() {
       id: 'zara',
       title: 'Technical Architecture',
       description: 'Technical mastermind who transforms vision into flawless code with luxury performance standards.',
-      image: SandraImages.journey.success,
+      image: 'https://sselfie-studio-images.s3.amazonaws.com/generated-images/20250722_205637_572_image_1.jpg',
       link: '/admin/consulting-agents',
       specialty: 'Code quality and performance optimization',
       status: 'ready'
@@ -55,7 +55,7 @@ export default function AdminDashboard() {
       id: 'maya',
       title: 'AI Photography Expert',
       description: 'Celebrity stylist and AI photographer who creates magazine-quality editorial concepts.',
-      image: SandraImages.editorial.aiSuccess,
+      image: 'https://sselfie-studio-images.s3.amazonaws.com/generated-images/20250722_210133_574_image_0.jpg',
       link: '/admin/consulting-agents',
       specialty: 'AI generation systems and UX optimization',
       status: 'ready'
@@ -64,7 +64,7 @@ export default function AdminDashboard() {
       id: 'victoria',
       title: 'UX Strategy Consultant',
       description: 'Website building expert who optimizes user experience and conversion rates.',
-      image: SandraImages.hero.pricing,
+      image: 'https://sselfie-studio-images.s3.amazonaws.com/generated-images/20250722_210540_576_image_1.jpg',
       link: '/admin/consulting-agents',
       specialty: 'User experience and conversion optimization',
       status: 'ready'
@@ -73,9 +73,72 @@ export default function AdminDashboard() {
       id: 'rachel',
       title: 'Voice & Copywriting',
       description: 'Sandra\'s copywriting best friend who writes exactly like her authentic voice.',
-      image: SandraImages.editorial.vulnerability,
+      image: 'https://sselfie-studio-images.s3.amazonaws.com/generated-images/20250722_211027_578_image_0.jpg',
       link: '/admin/consulting-agents',
       specialty: 'Brand voice and authentic messaging',
+      status: 'ready'
+    },
+    {
+      id: 'ava',
+      title: 'Automation & Workflow Strategy',
+      description: 'Invisible empire architect who makes everything run smoothly with Swiss-watch precision.',
+      image: 'https://sselfie-studio-images.s3.amazonaws.com/generated-images/20250722_211515_580_image_1.jpg',
+      link: '/admin/consulting-agents',
+      specialty: 'Process automation and efficiency',
+      status: 'ready'
+    },
+    {
+      id: 'quinn',
+      title: 'Quality Assurance & Luxury Standards',
+      description: 'Luxury quality guardian with perfectionist attention to detail for $50,000 luxury suite standards.',
+      image: 'https://sselfie-studio-images.s3.amazonaws.com/generated-images/20250722_212002_582_image_0.jpg',
+      link: '/admin/consulting-agents',
+      specialty: 'Quality standards and premium positioning',
+      status: 'ready'
+    },
+    {
+      id: 'sophia',
+      title: 'Social Media Strategy & Community Growth',
+      description: 'Elite Social Media Manager AI helping Sandra grow from 81K to 1M followers by 2026.',
+      image: 'https://sselfie-studio-images.s3.amazonaws.com/generated-images/20250722_212448_584_image_1.jpg',
+      link: '/admin/consulting-agents',
+      specialty: 'Social growth and community conversion',
+      status: 'ready'
+    },
+    {
+      id: 'martha',
+      title: 'Marketing & Performance Ads',
+      description: 'Performance marketing expert who runs ads and finds opportunities while maintaining brand authenticity.',
+      image: 'https://sselfie-studio-images.s3.amazonaws.com/generated-images/20250722_212935_586_image_0.jpg',
+      link: '/admin/consulting-agents',
+      specialty: 'Marketing optimization and revenue growth',
+      status: 'ready'
+    },
+    {
+      id: 'diana',
+      title: 'Business Coaching & Strategic Mentoring',
+      description: 'Sandra\'s strategic advisor and team director who provides business coaching and decision-making guidance.',
+      image: 'https://sselfie-studio-images.s3.amazonaws.com/generated-images/20250722_213422_588_image_1.jpg',
+      link: '/admin/consulting-agents',
+      specialty: 'Business decisions and strategic guidance',
+      status: 'ready'
+    },
+    {
+      id: 'wilma',
+      title: 'Workflow Architecture & Process Optimization',
+      description: 'Workflow architect who designs efficient business processes and creates automation blueprints.',
+      image: 'https://sselfie-studio-images.s3.amazonaws.com/generated-images/20250722_213909_590_image_0.jpg',
+      link: '/admin/consulting-agents',
+      specialty: 'Workflow design and process automation',
+      status: 'ready'
+    },
+    {
+      id: 'olga',
+      title: 'Repository Organization & Architecture Analysis',
+      description: 'Safe repository organization and cleanup specialist who never breaks anything.',
+      image: 'https://sselfie-studio-images.s3.amazonaws.com/generated-images/20250722_214355_592_image_1.jpg',
+      link: '/admin/consulting-agents',
+      specialty: 'File architecture and dependency mapping',
       status: 'ready'
     }
   ];
@@ -148,21 +211,21 @@ export default function AdminDashboard() {
               Your AI Agent Team
             </div>
             <h2 className="font-serif text-[clamp(2rem,5vw,4rem)] font-light uppercase tracking-wide leading-tight mb-8">
-              Strategic Consultants
+              13 Strategic Consultants
             </h2>
             <p className="text-lg text-gray-600 max-w-2xl mx-auto font-light leading-relaxed">
-              Each agent specializes in analyzing SSELFIE Studio and providing exact instructions 
-              for Replit AI implementation. Pure strategic advice, no file modifications.
+              Your complete AI agent consulting team. Each specialist analyzes SSELFIE Studio codebase 
+              and provides exact strategic instructions for Replit AI implementation. Pure advisory, no modifications.
             </p>
           </div>
 
-          {/* Agent Cards Grid - Same Style as Workspace Steps */}
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 mb-20">
+          {/* Agent Cards Grid - Smaller Cards for 13 Agents */}
+          <div className="grid grid-cols-2 lg:grid-cols-4 xl:grid-cols-5 gap-6 mb-20">
             {agentSteps.map((agent, index) => (
               <div key={agent.id} className="group">
                 <Link href={agent.link} className="block">
-                  {/* Large Editorial Image */}
-                  <div className="relative mb-8 overflow-hidden bg-gray-50" style={{ aspectRatio: '4/5' }}>
+                  {/* Smaller Agent Image */}
+                  <div className="relative mb-4 overflow-hidden bg-gray-50" style={{ aspectRatio: '1/1' }}>
                     <img 
                       src={agent.image}
                       alt={agent.title}
@@ -179,41 +242,25 @@ export default function AdminDashboard() {
                       </div>
                     </div>
                     
-                    {/* Elegant Title Overlay - Same style as workspace STEP overlays */}
+                    {/* Agent Name Overlay */}
                     <div className="absolute inset-0 flex items-center justify-center">
                       <div className="text-white text-center">
-                        <div className="font-serif text-3xl md:text-4xl font-light tracking-[0.4em] uppercase">
-                          {index === 0 ? 'S T R A T E G Y' : 
-                           index === 1 ? 'D E S I G N' : 
-                           index === 2 ? 'T E C H' :
-                           index === 3 ? 'A I  P H O T O' :
-                           index === 4 ? 'U X  F L O W' : 'V O I C E'}
-                        </div>
-                        <div className="text-xs tracking-[0.2em] uppercase opacity-80 mt-2">
+                        <div className="font-serif text-lg md:text-xl font-light tracking-[0.3em] uppercase">
                           {agent.id.charAt(0).toUpperCase() + agent.id.slice(1)}
                         </div>
                       </div>
                     </div>
                   </div>
                   
-                  {/* Agent Content */}
-                  <div className="space-y-4">
-                    <h3 className="font-serif text-xl font-light leading-tight text-black">
+                  {/* Agent Content - Compact */}
+                  <div className="space-y-2">
+                    <h3 className="font-serif text-sm font-light leading-tight text-black">
                       {agent.title}
                     </h3>
                     
-                    <p className="text-gray-600 leading-relaxed font-light">
-                      {agent.description}
+                    <p className="text-xs text-gray-600 leading-relaxed font-light">
+                      {agent.specialty}
                     </p>
-                    
-                    <div className="pt-4 border-t border-gray-200">
-                      <div className="text-xs tracking-[0.2em] uppercase text-gray-500 mb-2">
-                        Specialty
-                      </div>
-                      <p className="text-sm text-black font-light">
-                        {agent.specialty}
-                      </p>
-                    </div>
                   </div>
                 </Link>
               </div>
