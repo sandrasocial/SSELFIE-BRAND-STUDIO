@@ -1,4 +1,4 @@
-// Elena's Workflow Creation System - AI Agent Director & CEO
+// Elena's Workflow Creation System - Strategic Coordinator with Autonomous Monitoring
 // Creates custom workflows based on Sandra's instructions
 
 import { storage } from './storage';
