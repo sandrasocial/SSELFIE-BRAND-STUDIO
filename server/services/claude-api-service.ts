@@ -983,10 +983,14 @@ COMMUNICATION STYLE:
     
     // Add tool results to conversation and continue
     if (toolResults.length > 0) {
-      currentMessages.push({
-        role: 'user',
-        content: toolResults
-      });
+      // Add tool results as proper tool_result content to assistant's message
+      const assistantMessageWithTools = {
+        role: 'assistant',
+        content: response.content.concat(toolResults)
+      };
+      
+      // Replace the last assistant message with the one that includes tool results
+      currentMessages[currentMessages.length - 1] = assistantMessageWithTools;
       
       console.log(`🔄 CONTINUING CONVERSATION: Processing ${toolResults.length} tool results. Current response length: ${finalResponse.length}`);
       
@@ -1007,6 +1011,10 @@ COMMUNICATION STYLE:
       }
       
       console.log(`✅ CONVERSATION CONTINUED: Agent provided analysis after tool usage. Total response length: ${finalResponse.length}`);
+      console.log(`📝 CONTINUATION RESPONSE CONTENT BLOCKS: ${continuationResponse.content.length}`);
+      continuationResponse.content.forEach((block, i) => {
+        console.log(`   Block ${i}: type=${block.type}, length=${block.type === 'text' ? block.text?.length : 'N/A'}`);
+      });
       console.log(`📝 FINAL RESPONSE PREVIEW: ${finalResponse.substring(0, 200)}...`);
       
       // If still no response after tool usage, provide a default response
