@@ -6952,6 +6952,19 @@ AGENT_CONTEXT:
   console.log('✅ Enhanced Agent Capabilities routes registered');
   console.log('✅ Plan B Execution System routes registered');
   
+  // Agent Bridge System routes for luxury agent-to-agent communication
+  const agentBridgeRoutes = await import('./api/agent-bridge/routes.js');
+  app.use('/api/agent-bridge', agentBridgeRoutes.default);
+  
+  // Agent Bridge Test routes (development only)
+  if (process.env.NODE_ENV === 'development') {
+    const agentBridgeTestRoutes = await import('./api/agent-bridge/test-routes.js');
+    app.use('/api/agent-bridge-test', agentBridgeTestRoutes.default);
+    console.log('✅ Agent Bridge Test routes registered');
+  }
+  
+  console.log('✅ Agent Bridge System routes registered');
+  
   // Agent Performance Monitor API routes
   const { getAgentCoordinationMetrics, getAgentStatuses, getAgentAccountability } = await import('./routes/agent-performance-monitor');
   app.get('/api/agent-coordination-metrics', isAuthenticated, getAgentCoordinationMetrics);
