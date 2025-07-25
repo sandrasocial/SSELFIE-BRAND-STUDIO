@@ -8,7 +8,7 @@ const offers = [
   {
     number: "01",
     title: "SSELFIE AI Images",
-    price: "€47 one-time",
+    price: "€67 one-time",
     description: "Upload 10-15 selfies, get 30 luxury AI images back. No studio needed - just your FLUX-trained AI doing the magic.",
     imageSrc: SandraImages.editorial.phone1,
     imageAlt: "Sandra with camera - AI Images",
@@ -19,7 +19,7 @@ const offers = [
   {
     number: "02",
     title: "SSELFIE Studio",
-    price: "€47/month",
+    price: "€67/month",
     description: "Everything you need to build your personal brand in 20 minutes. AI images, luxury templates, instant setup.",
     imageSrc: SandraImages.editorial.laptop1,
     imageAlt: "Sandra in studio",
@@ -30,7 +30,7 @@ const offers = [
   {
     number: "03",
     title: "SSELFIE Studio",
-    price: "€47/month",
+    price: "€67/month",
     description: "Full platform access. For when you're ready to show up, get seen, and finally get paid for being you.",
     imageSrc: SandraImages.editorial.mirror,
     imageAlt: "Sandra portrait",

@@ -546,7 +546,7 @@ THE REVOLUTIONARY SYSTEM:
 
 TWO-TIER ECOSYSTEM:
 - FREE: 6 AI generations/month + basic MAYA & VICTORIA chat + luxury flatlays (forever free)
-- SSELFIE Studio (€47/month): Unlimited generations + full ecosystem + luxury templates + custom domains + priority support
+- SSELFIE Studio (€67/month): Unlimited generations + full ecosystem + luxury templates + custom domains + priority support
 
 CORE PHILOSOPHY:
 - "Your phone + My strategy = Your empire"
@@ -2114,13 +2114,13 @@ PERSONALITY & VOICE:
 SSELFIE STUDIO BUSINESS MASTERY:
 
 REVENUE ARCHITECTURE EXPERTISE:
-- **87% Profit Margin Optimization**: €47 revenue vs €8 costs on premium tier
+- **87% Profit Margin Optimization**: €67 revenue vs €8 costs on premium tier
 - **Current Platform Stats**: Pre-launch phase, 1000+ users, positioned as "Rolls-Royce of AI personal branding"
 - **Growth Target**: Scale to empire-level revenue while maintaining luxury positioning
 - **Premium Positioning**: Individual trained AI models for ALL users (not FLUX Pro - V2 architecture)
 
 BUSINESS MODEL UNDERSTANDING:
-- **Two-Tier System**: FREE (6 generations/month) → Premium €47/month (unlimited generations)
+- **Two-Tier System**: FREE (6 generations/month) → Premium €67/month (unlimited generations)
 - **Target Market**: Female entrepreneurs, coaches, consultants building personal brands
 - **Unique Value**: Phone selfies → complete business launch in 20 minutes
 - **Competitive Edge**: Celebrity-level AI styling that doesn't look AI
@@ -2153,7 +2153,7 @@ REVENUE OPTIMIZATION STRATEGIES:
 - Test free tier experience that builds desire for premium upgrade
 - Optimize onboarding flow for immediate value demonstration
 - Create upgrade triggers based on usage patterns and engagement
-- Test pricing psychology while maintaining €47 premium positioning
+- Test pricing psychology while maintaining €67 premium positioning
 - Implement social proof throughout user journey
 
 3. **LIFETIME VALUE EXPANSION**:
@@ -2410,7 +2410,7 @@ THE TRANSFORMATION EMPIRE BLUEPRINT:
 
 CURRENT EMPIRE STATUS ANALYSIS:
 - **Platform Power**: 1000+ users, positioned as "Rolls-Royce of AI personal branding"
-- **Revenue Engine**: Pre-launch with projected 87% profit margins (€47 revenue vs €8 costs)
+- **Revenue Engine**: Pre-launch with projected 87% profit margins (€67 revenue vs €8 costs)
 - **Market Position**: Revolutionary luxury positioning in crowded personal branding space
 - **Growth Trajectory**: Scaling from startup to empire-level dominance
 
@@ -2724,7 +2724,7 @@ SSELFIE STUDIO OPERATIONAL MASTERY:
 
 PLATFORM ARCHITECTURE UNDERSTANDING:
 - **Individual Model System**: V2 architecture with trained AI models for ALL users (not FLUX Pro)
-- **Two-Tier Structure**: FREE (6 generations/month) → Premium €47/month (unlimited generations)
+- **Two-Tier Structure**: FREE (6 generations/month) → Premium €67/month (unlimited generations)
 - **Luxury Positioning**: "Rolls-Royce of AI personal branding" operational standards
 - **Target Scale**: Pre-launch to empire-level operations with 87% profit margin protection
 

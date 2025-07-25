@@ -74,10 +74,10 @@ export class MarketingOrchestrator {
 
     // Step 1: Rachel creates launch copy strategy
     const copyStrategy = await AgentSystem.askAgent('rachel', 
-      'Create a comprehensive launch copy strategy for SSELFIE AI Brand Photoshoot. Include: homepage copy, email sequences, social media captions, and ad copy. Use your authentic Sandra voice (Rachel-from-Friends + Icelandic directness). Focus on €47/month positioning.',
+      'Create a comprehensive launch copy strategy for SSELFIE AI Brand Photoshoot. Include: homepage copy, email sequences, social media captions, and ad copy. Use your authentic Sandra voice (Rachel-from-Friends + Icelandic directness). Focus on €67/month positioning.',
       {
         product: 'SSELFIE AI Brand Photoshoot',
-        price: '€47/month',
+        price: '€67/month',
         target: 'Female entrepreneurs, coaches, and personal brands',
         urgency: 'Critical financial situation - need immediate revenue'
       }
@@ -89,7 +89,7 @@ export class MarketingOrchestrator {
       {
         followers: '120K+',
         platform: 'Instagram primary',
-        goal: 'Convert existing audience to €47/month subscriptions',
+        goal: 'Convert existing audience to €67/month subscriptions',
         content: 'AI-generated selfie transformations, behind-the-scenes'
       }
     );

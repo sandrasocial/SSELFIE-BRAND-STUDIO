@@ -213,7 +213,7 @@ export function AgentChatEditor() {
     },
     {
       label: 'Create Pricing Cards',
-      prompt: 'Design elegant pricing cards for FREE and €47/month plans with luxury styling',
+      prompt: 'Design elegant pricing cards for FREE and €67/month plans with luxury styling',
       icon: <Wand2 className="w-4 h-4" />
     },
     {
