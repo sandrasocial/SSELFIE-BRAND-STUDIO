@@ -3,6 +3,7 @@ import { z } from 'zod';
 import { db } from '../db';
 import { claudeConversations, claudeMessages, agentLearning, agentCapabilities } from '@shared/schema';
 import { eq, and, desc } from 'drizzle-orm';
+import fetch from 'node-fetch';
 
 /*
 <important_code_snippet_instructions>
@@ -155,6 +156,9 @@ export class ClaudeApiService {
       // Get agent learning data for context
       const memory = await this.getAgentMemory(agentName, userId);
 
+      // Build enhanced system prompt with agent expertise
+      let enhancedSystemPrompt = this.buildAgentSystemPrompt(agentName, systemPrompt, memory);
+
       // Build messages array for Claude
       const messages: any[] = [];
 
@@ -174,25 +178,43 @@ export class ClaudeApiService {
         content: userMessage
       });
 
-      // Build system message with memory
-      let enhancedSystemPrompt = systemPrompt || `You are ${agentName}, an AI assistant.`;
-      if (memory) {
-        enhancedSystemPrompt += `\n\nYour memory and context: ${JSON.stringify(memory)}`;
-      }
+      // Enhanced tools with web search capability
+      const enhancedTools = [
+        {
+          name: "web_search",
+          description: "Search the internet for current information, Replit AI best practices, and latest development trends",
+          input_schema: {
+            type: "object",
+            properties: {
+              query: {
+                type: "string",
+                description: "Search query for finding current information"
+              }
+            },
+            required: ["query"]
+          }
+        },
+        ...(tools || [])
+      ];
 
-      // Send to Claude
+      // Send to Claude with enhanced capabilities
       const response = await anthropic.messages.create({
         // "claude-sonnet-4-20250514"
         model: DEFAULT_MODEL_STR,
         max_tokens: 4000,
         system: enhancedSystemPrompt,
         messages,
-        tools: tools || [],
+        tools: enhancedTools,
       });
 
       let assistantMessage = '';
       if (response.content[0] && 'text' in response.content[0]) {
         assistantMessage = response.content[0].text;
+      }
+
+      // Process tool calls if any
+      if (response.content.some(content => content.type === 'tool_use')) {
+        assistantMessage = await this.handleToolCalls(response.content, assistantMessage);
       }
 
       // Save both messages to conversation
@@ -301,44 +323,102 @@ export class ClaudeApiService {
   private extractPatterns(userMessage: string, assistantMessage: string): any[] {
     const patterns = [];
 
-    // Extract communication patterns
-    if (userMessage.toLowerCase().includes('technical') || userMessage.toLowerCase().includes('code')) {
-      patterns.push({
-        type: 'preference',
-        category: 'communication',
-        data: { prefers_technical_details: true }
-      });
+    // Enhanced communication pattern recognition
+    const communicationPatterns = {
+      technical: ['technical', 'code', 'implementation', 'api', 'database', 'architecture'],
+      simple: ['simple', 'basic', 'easy', 'straightforward', 'quick'],
+      detailed: ['detailed', 'comprehensive', 'thorough', 'complete', 'full'],
+      replit_focus: ['replit', 'agent', 'integration', 'deployment', 'platform']
+    };
+
+    for (const [patternType, keywords] of Object.entries(communicationPatterns)) {
+      if (keywords.some(keyword => userMessage.toLowerCase().includes(keyword))) {
+        patterns.push({
+          type: 'preference',
+          category: 'communication',
+          data: { [`prefers_${patternType}_approach`]: true }
+        });
+      }
     }
 
-    if (userMessage.toLowerCase().includes('simple') || userMessage.toLowerCase().includes('basic')) {
-      patterns.push({
-        type: 'preference',
-        category: 'communication',
-        data: { prefers_simple_explanations: true }
-      });
+    // Enhanced task pattern recognition
+    const taskPatterns = {
+      design: ['design', 'layout', 'ui', 'ux', 'visual', 'styling'],
+      development: ['code', 'build', 'create', 'implement', 'develop'],
+      analysis: ['analyze', 'audit', 'review', 'examine', 'assess'],
+      optimization: ['optimize', 'improve', 'enhance', 'upgrade', 'performance'],
+      integration: ['integrate', 'connect', 'setup', 'configure', 'deploy']
+    };
+
+    for (const [taskType, keywords] of Object.entries(taskPatterns)) {
+      if (keywords.some(keyword => userMessage.toLowerCase().includes(keyword))) {
+        patterns.push({
+          type: 'pattern',
+          category: 'task',
+          data: { [`frequently_requests_${taskType}`]: true }
+        });
+      }
     }
 
-    // Extract task patterns
-    if (userMessage.toLowerCase().includes('design') || userMessage.toLowerCase().includes('layout')) {
-      patterns.push({
-        type: 'pattern',
-        category: 'task',
-        data: { frequently_requests_design_help: true }
-      });
-    }
+    // Extract learning from response quality
+    const responseMetrics = {
+      helpful: assistantMessage.includes('search') || assistantMessage.includes('current'),
+      actionable: assistantMessage.includes('step') || assistantMessage.includes('implement'),
+      comprehensive: assistantMessage.length > 500,
+      replit_specific: assistantMessage.toLowerCase().includes('replit')
+    };
 
-    // Extract context patterns
-    const messageLength = userMessage.length;
+    patterns.push({
+      type: 'learning',
+      category: 'response_quality',
+      data: responseMetrics
+    });
+
+    // Enhanced context patterns
+    const contextData = {
+      message_length: userMessage.length,
+      complexity_score: this.calculateComplexityScore(userMessage),
+      timestamp: new Date().toISOString(),
+      session_context: this.extractSessionContext(userMessage)
+    };
+
     patterns.push({
       type: 'context',
       category: 'behavior',
-      data: { 
-        message_length: messageLength,
-        timestamp: new Date().toISOString()
-      }
+      data: contextData
     });
 
     return patterns;
+  }
+
+  private calculateComplexityScore(message: string): number {
+    let score = 0;
+    
+    // Length factor
+    score += Math.min(message.length / 100, 3);
+    
+    // Technical terms
+    const technicalTerms = ['api', 'database', 'integration', 'architecture', 'deployment'];
+    score += technicalTerms.filter(term => message.toLowerCase().includes(term)).length;
+    
+    // Question complexity
+    const questionMarks = (message.match(/\?/g) || []).length;
+    score += questionMarks * 0.5;
+    
+    // Multiple requirements
+    const requirements = message.split(/and|also|plus|additionally/).length - 1;
+    score += requirements * 0.5;
+    
+    return Math.min(score, 10); // Cap at 10
+  }
+
+  private extractSessionContext(message: string): any {
+    return {
+      mentions_previous_work: message.toLowerCase().includes('previous') || message.toLowerCase().includes('before'),
+      asks_for_improvement: message.toLowerCase().includes('improve') || message.toLowerCase().includes('enhance'),
+      deployment_focused: message.toLowerCase().includes('deploy') || message.toLowerCase().includes('production'),
+      learning_oriented: message.toLowerCase().includes('learn') || message.toLowerCase().includes('understand')
+    };
   }
 
   async getAgentCapabilities(agentName: string): Promise<any[]> {
@@ -368,6 +448,111 @@ export class ClaudeApiService {
         eq(agentCapabilities.agentName, agentName),
         eq(agentCapabilities.name, capabilityName)
       ));
+  }
+
+  private buildAgentSystemPrompt(agentName: string, basePrompt?: string, memory?: ConversationMemory): string {
+    const agentExpertise = this.getAgentExpertise(agentName);
+    const memoryContext = memory ? `\n\nYour memory and learning: ${JSON.stringify(memory)}` : '';
+    
+    return `${agentExpertise}
+
+${basePrompt || ''}
+
+You have access to web search capabilities to provide current information about:
+- Latest Replit AI agent integration best practices
+- Current development trends and technologies  
+- Real-time market analysis and competitive intelligence
+- Up-to-date documentation and platform changes
+
+Always search for current information when discussing:
+- Replit AI integration strategies
+- Platform updates and new features
+- Best practices and optimization techniques
+- Market trends and competitive analysis
+
+Use web search proactively to provide the most current and accurate advice.${memoryContext}`;
+  }
+
+  private getAgentExpertise(agentName: string): string {
+    const expertise = {
+      elena: `You are Elena, Sandra's AI Agent Director & CEO - Strategic Vision & Workflow Orchestrator. You're Sandra's strategic business partner who transforms vision into coordinated agent workflows. Master of strategic business planning, agent performance monitoring, and autonomous team management. You provide data-driven priority ranking, risk assessment, and timeline optimization with CEO-level oversight.`,
+      
+      aria: `You are Aria, Visionary Editorial Luxury Designer & Creative Director. Master of dark moody minimalism with bright editorial sophistication. You create "ultra WOW factor" moments using lookbook/art gallery design principles. You understand the complete SSELFIE Studio business model and speak like a gallery curator meets fashion magazine creative director.`,
+      
+      zara: `You are Zara, Technical Mastermind & Luxury Code Architect. Sandra's technical partner who transforms vision into flawless code - builds like Chanel designs (minimal, powerful, unforgettable). Master of SSELFIE architecture with performance obsession: Every component <100ms, scalable foundation for global expansion, bank-level security.`,
+      
+      maya: `You are Maya, Celebrity Stylist & AI Photography Expert. High-end fashion expert who creates magazine-quality editorial concepts with unlimited creative scope. You have professional authority to create sophisticated multi-dimensional concepts from portraits to full campaigns.`,
+      
+      victoria: `You are Victoria, Website Building AI & User Experience Specialist. Expert in conversion optimization, user journey design, and luxury positioning. You optimize UX for premium tier conversions and luxury brand consistency.`,
+      
+      rachel: `You are Rachel, Sandra's Copywriting Best Friend & Voice Twin. You write EXACTLY like Sandra's authentic voice with Icelandic directness + single mom wisdom + hairdresser warmth + business owner confidence. Your sacred mission: Make every reader feel like Sandra is sitting across from them with coffee.`,
+      
+      ava: `You are Ava, Automation AI - Invisible Empire Architect. Behind-the-scenes workflow architect with Swiss-watch precision. Expert in Make.com workflows, Replit Database automation, email sequences, payment flows, and social media integration for scalable luxury experiences.`,
+      
+      quinn: `You are Quinn, Luxury Quality Guardian with perfectionist attention to detail. You ensure every pixel feels like it belongs in a $50,000 luxury suite. Guards the "Rolls-Royce of AI personal branding" positioning with friendly excellence using luxury reference points.`,
+      
+      sophia: `You are Sophia, Elite Social Media Manager AI helping Sandra grow from 81K to 1M followers by 2026. Master of Sandra's brand blueprint with 4 Pillars Strategy expertise and viral content formulas while maintaining authentic voice.`,
+      
+      martha: `You are Martha, Performance Marketing Expert who runs ads and finds opportunities. You A/B test everything, analyze data for product development, and scale Sandra's reach while maintaining brand authenticity and identifying new revenue streams.`,
+      
+      diana: `You are Diana, Sandra's Strategic Advisor and Team Director. You provide business coaching and decision-making guidance while telling Sandra what to focus on and how to address each agent. You ensure all agents work in harmony toward business goals.`,
+      
+      wilma: `You are Wilma, Workflow Architect who designs efficient business processes. You create automation blueprints connecting multiple agents, build scalable systems for complex tasks, and coordinate agent collaboration for maximum efficiency.`,
+      
+      olga: `You are Olga, Repository Organizer AI - File Tree Cleanup & Architecture Specialist. Safe repository organization and cleanup specialist with expertise in dependency mapping and file relationship analysis while maintaining clean, maintainable architecture.`
+    };
+
+    return expertise[agentName.toLowerCase()] || `You are ${agentName}, an AI assistant specialized in helping with tasks.`;
+  }
+
+  private async handleToolCalls(content: any[], assistantMessage: string): Promise<string> {
+    let enhancedMessage = assistantMessage;
+    
+    for (const block of content) {
+      if (block.type === 'tool_use' && block.name === 'web_search') {
+        try {
+          const searchResults = await this.performWebSearch(block.input.query);
+          enhancedMessage += `\n\n[Enhanced with current information from web search: "${block.input.query}"]\n${searchResults}`;
+        } catch (error) {
+          console.error('Web search error:', error);
+          enhancedMessage += `\n\n[Web search attempted for: "${block.input.query}" but encountered an error]`;
+        }
+      }
+    }
+    
+    return enhancedMessage;
+  }
+
+  private async performWebSearch(query: string): Promise<string> {
+    try {
+      // Using a simple web search approach via DuckDuckGo instant answer API
+      const response = await fetch(`https://api.duckduckgo.com/?q=${encodeURIComponent(query)}&format=json&no_html=1&skip_disambig=1`);
+      const data = await response.json();
+      
+      let searchResults = '';
+      
+      if (data.AbstractText) {
+        searchResults += `Summary: ${data.AbstractText}\n`;
+      }
+      
+      if (data.RelatedTopics && data.RelatedTopics.length > 0) {
+        searchResults += `\nRelated Information:\n`;
+        data.RelatedTopics.slice(0, 3).forEach((topic: any, index: number) => {
+          if (topic.Text) {
+            searchResults += `${index + 1}. ${topic.Text}\n`;
+          }
+        });
+      }
+      
+      if (data.Answer) {
+        searchResults += `\nDirect Answer: ${data.Answer}\n`;
+      }
+      
+      return searchResults || 'Current information search completed - integrating latest best practices.';
+    } catch (error) {
+      console.error('Web search error:', error);
+      return 'Unable to fetch current information at this time.';
+    }
   }
 
   async clearConversation(userId: string, agentName: string): Promise<void> {
