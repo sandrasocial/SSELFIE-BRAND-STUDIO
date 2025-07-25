@@ -949,7 +949,7 @@ COMMUNICATION STYLE:
         content: toolResults
       });
       
-      console.log(`🔄 CONTINUING CONVERSATION: Processing ${toolResults.length} tool results`);
+      console.log(`🔄 CONTINUING CONVERSATION: Processing ${toolResults.length} tool results. Current response length: ${finalResponse.length}`);
       
       // Continue conversation with tool results
       const continuationResponse = await anthropic.messages.create({
@@ -960,12 +960,14 @@ COMMUNICATION STYLE:
         tools: tools,
       });
       
-      // Extract the final response
-      if (continuationResponse.content[0] && 'text' in continuationResponse.content[0]) {
-        finalResponse += (finalResponse ? '\n\n' : '') + continuationResponse.content[0].text;
+      // Extract ALL text content from continuation response
+      for (const content of continuationResponse.content) {
+        if (content.type === 'text') {
+          finalResponse += (finalResponse ? '\n\n' : '') + content.text;
+        }
       }
       
-      console.log(`✅ CONVERSATION CONTINUED: Agent provided analysis after tool usage`);
+      console.log(`✅ CONVERSATION CONTINUED: Agent provided analysis after tool usage. Total response length: ${finalResponse.length}`);
     }
     
     return finalResponse;
