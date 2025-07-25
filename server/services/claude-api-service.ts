@@ -275,8 +275,8 @@ export class ClaudeApiService {
       await this.saveMessage(conversationId, 'user', userMessage);
       await this.saveMessage(conversationId, 'assistant', assistantMessage);
 
-      // Update agent learning with new patterns
-      await this.updateAgentLearning(agentName, userId, userMessage, assistantMessage);
+      // Update agent learning with new patterns (temporarily disabled until schema is created)
+      // await this.updateAgentLearning(agentName, userId, userMessage, assistantMessage);
 
       return assistantMessage;
     } catch (error) {
@@ -287,39 +287,44 @@ export class ClaudeApiService {
   }
 
   async getAgentMemory(agentName: string, userId: string): Promise<ConversationMemory | null> {
-    const learningData = await db
-      .select()
-      .from(agentLearning)
-      .where(and(
-        eq(agentLearning.agentName, agentName),
-        eq(agentLearning.userId, userId)
-      ))
-      .orderBy(desc(agentLearning.lastSeen));
+    try {
+      const learningData = await db
+        .select()
+        .from(agentLearning)
+        .where(and(
+          eq(agentLearning.agentName, agentName),
+          eq(agentLearning.userId, userId)
+        ))
+        .orderBy(desc(agentLearning.lastSeen));
 
-    if (learningData.length === 0) {
+      if (learningData.length === 0) {
+        return null;
+      }
+
+      // Organize learning data by type
+      const memory: ConversationMemory = {
+        preferences: {},
+        patterns: {},
+        context: {},
+        learning: []
+      };
+
+      for (const item of learningData) {
+        if (item.learningType === 'preference' && item.data) {
+          memory.preferences = { ...memory.preferences, ...item.data };
+        } else if (item.learningType === 'pattern' && item.data) {
+          memory.patterns = { ...memory.patterns, ...item.data };
+        } else if (item.learningType === 'context' && item.data) {
+          memory.context = { ...memory.context, ...item.data };
+        }
+        memory.learning.push(item);
+      }
+
+      return memory;
+    } catch (error) {
+      console.log('Agent memory temporarily unavailable (schema update needed)');
       return null;
     }
-
-    // Organize learning data by type
-    const memory: ConversationMemory = {
-      preferences: {},
-      patterns: {},
-      context: {},
-      learning: []
-    };
-
-    for (const item of learningData) {
-      if (item.learningType === 'preference' && item.data) {
-        memory.preferences = { ...memory.preferences, ...item.data };
-      } else if (item.learningType === 'pattern' && item.data) {
-        memory.patterns = { ...memory.patterns, ...item.data };
-      } else if (item.learningType === 'context' && item.data) {
-        memory.context = { ...memory.context, ...item.data };
-      }
-      memory.learning.push(item);
-    }
-
-    return memory;
   }
 
   async updateAgentLearning(
