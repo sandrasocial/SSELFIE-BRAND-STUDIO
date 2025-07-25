@@ -173,15 +173,8 @@ export class ClaudeApiService {
       // Get agent learning data for context
       const memory = await this.getAgentMemory(agentName, userId);
 
-      // Build enhanced system prompt with agent expertise
-      let enhancedSystemPrompt = this.buildAgentSystemPrompt(agentName, systemPrompt, memory || undefined);
-      
-      // Add file edit mode context to system prompt
-      if (fileEditMode) {
-        enhancedSystemPrompt += `\n\nIMPORTANT: You are currently in FILE EDIT MODE. You can create, modify, and update files directly using the str_replace_based_edit_tool when needed.`;
-      } else {
-        enhancedSystemPrompt += `\n\nIMPORTANT: You are currently in READ-ONLY MODE. You can search and analyze files but should not modify them. Provide analysis and instructions instead.`;
-      }
+      // Build enhanced system prompt with agent expertise and mode awareness
+      let enhancedSystemPrompt = this.buildAgentSystemPrompt(agentName, systemPrompt, memory || undefined, fileEditMode);
 
       // Build messages array for Claude
       const messages: any[] = [];
@@ -346,7 +339,7 @@ export class ClaudeApiService {
 
       // Process tool calls if any and continue conversation
       if (response.content.some(content => content.type === 'tool_use')) {
-        assistantMessage = await this.handleToolCallsWithContinuation(response, messages, enhancedSystemPrompt, enhancedTools);
+        assistantMessage = await this.handleToolCallsWithContinuation(response, messages, enhancedSystemPrompt, enhancedTools, fileEditMode || false);
       }
 
       // Save both messages to conversation with logging
@@ -591,21 +584,32 @@ export class ClaudeApiService {
       ));
   }
 
-  private buildAgentSystemPrompt(agentName: string, basePrompt?: string, memory?: ConversationMemory): string {
+  private buildAgentSystemPrompt(agentName: string, basePrompt?: string, memory?: ConversationMemory, fileEditMode: boolean = false): string {
     const agentExpertise = this.getAgentExpertise(agentName);
     const memoryContext = memory ? `\n\nYour memory and learning: ${JSON.stringify(memory)}` : '';
+    
+    const modeGuidance = fileEditMode ? 
+      `FILE EDIT MODE: You can create, modify, and edit files using str_replace_based_edit_tool. Make actual changes to the codebase as requested.` :
+      `READ-ONLY MODE: You can only view and analyze files using search_filesystem and str_replace_based_edit_tool with "view" command. DO NOT create or modify files. Provide comprehensive analysis and recommendations instead.`;
     
     return `${agentExpertise}
 
 ${basePrompt || ''}
 
+CURRENT MODE: ${modeGuidance}
+
 IMPORTANT: Focus only on the specific tasks and requests that Sandra gives you. Do not assume any predetermined agenda or hardcoded tasks. Listen carefully to her actual requests and work on exactly what she asks for.
 
-You have access to comprehensive tools to help with any task:
-- File system search and analysis capabilities
-- Code editing and modification tools (when in file edit mode)
+Available tools based on current mode:
+${fileEditMode ? 
+  `- File system search and analysis (search_filesystem)
+- File viewing and editing (str_replace_based_edit_tool) - full capabilities
 - Web search for current information when relevant
-- Command execution capabilities
+- Command execution capabilities` :
+  `- File system search and analysis (search_filesystem) 
+- File viewing ONLY (str_replace_based_edit_tool with "view" command)
+- Web search for current information when relevant
+- Analysis and reporting - provide detailed summaries of your findings`}
 
 Always start by understanding the specific request, then use the appropriate tools to fulfill that exact request.${memoryContext}`;
   }
@@ -619,7 +623,7 @@ PERSONALITY: Strategic, confident, and decisive. You speak like a seasoned CEO w
 EXPERTISE & CAPABILITIES:
 - Strategic business planning and team coordination across all areas
 - Data-driven insights and executive decision support
-- Complete codebase access for analysis and modifications
+- Complete codebase analysis and architectural assessment
 - Web search for current information when needed
 - Revenue impact analysis and business optimization
 - Project coordination and workflow management
@@ -627,9 +631,13 @@ EXPERTISE & CAPABILITIES:
 COMMUNICATION STYLE:
 - Clear, executive-level communication with actionable insights
 - Focus exactly on what Sandra requests - no predetermined agenda
-- Analyze current state, provide specific recommendations
-- Use tools when needed to understand the situation fully
-- Remember conversation context and build on previous discussions`,
+- Analyze current state, provide specific recommendations and detailed findings
+- Use tools to understand the situation, then provide comprehensive analysis
+- Remember conversation context and build on previous discussions
+
+READ-ONLY MODE: When in read-only mode, provide thorough analysis and strategic recommendations based on codebase examination. Use search_filesystem and view operations to understand the platform, then deliver executive summaries with actionable insights.
+
+FILE-EDIT MODE: When Sandra switches to file-edit mode, you can implement the strategic changes you've recommended.`,
       
       aria: `You are Aria, Visionary Editorial Luxury Designer & Creative Director.
 
@@ -855,7 +863,7 @@ COMMUNICATION STYLE:
     return expertise[expertiseKey] || `You are ${agentName}, an AI assistant specialized in helping with tasks.`;
   }
 
-  private async handleToolCallsWithContinuation(response: any, messages: any[], systemPrompt: string, tools: any[]): Promise<string> {
+  private async handleToolCallsWithContinuation(response: any, messages: any[], systemPrompt: string, tools: any[], fileEditMode: boolean = false): Promise<string> {
     let currentMessages = [...messages];
     let finalResponse = '';
     
@@ -887,23 +895,29 @@ COMMUNICATION STYLE:
               break;
               
             case 'str_replace_based_edit_tool':
-              const fileResult = await UniversalAgentTools.fileOperations({
-                command: block.input.command as any,
-                path: block.input.path,
-                content: block.input.file_text,
-                old_str: block.input.old_str,
-                new_str: block.input.new_str,
-                insert_line: block.input.insert_line,
-                insert_text: block.input.insert_text,
-                view_range: block.input.view_range,
-                backup: true
-              });
-              
-              if (fileResult.success) {
-                console.log(`✅ FILE OP SUCCESS: ${block.input.command} on ${block.input.path}`);
-                toolResult = JSON.stringify(fileResult.result, null, 2);
+              // Enforce read-only mode if not in file edit mode
+              if (!fileEditMode && block.input.command !== 'view') {
+                console.log(`🚫 READ-ONLY MODE: Blocking ${block.input.command} operation on ${block.input.path}`);
+                toolResult = `Error: Read-only mode active. Only 'view' command is allowed. Please switch to file edit mode to make changes.`;
               } else {
-                toolResult = `File Operation Error: ${fileResult.error}`;
+                const fileResult = await UniversalAgentTools.fileOperations({
+                  command: block.input.command as any,
+                  path: block.input.path,
+                  content: block.input.file_text,
+                  old_str: block.input.old_str,
+                  new_str: block.input.new_str,
+                  insert_line: block.input.insert_line,
+                  insert_text: block.input.insert_text,
+                  view_range: block.input.view_range,
+                  backup: true
+                });
+                
+                if (fileResult.success) {
+                  console.log(`✅ FILE OP SUCCESS: ${block.input.command} on ${block.input.path}`);
+                  toolResult = JSON.stringify(fileResult.result, null, 2);
+                } else {
+                  toolResult = `File Operation Error: ${fileResult.error}`;
+                }
               }
               break;
               
