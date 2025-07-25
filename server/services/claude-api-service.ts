@@ -116,42 +116,48 @@ export class ClaudeApiService {
   async getConversationHistory(conversationId: string): Promise<AgentMessage[]> {
     console.log('📜 getConversationHistory called for:', conversationId);
     
-    const conversation = await db
-      .select()
-      .from(claudeConversations)
-      .where(eq(claudeConversations.conversationId, conversationId))
-      .limit(1);
+    try {
+      const conversation = await db
+        .select()
+        .from(claudeConversations)
+        .where(eq(claudeConversations.conversationId, conversationId))
+        .limit(1);
 
-    if (conversation.length === 0) {
-      console.log('📜 No conversation found for ID:', conversationId);
+      if (conversation.length === 0) {
+        console.log('📜 No conversation found for ID:', conversationId);
+        return [];
+      }
+
+      console.log('📜 Found conversation:', conversation[0].id, 'messageCount:', conversation[0].messageCount);
+
+      const messages = await db
+        .select()
+        .from(claudeMessages)
+        .where(eq(claudeMessages.conversationId, conversation[0].id))
+        .orderBy(claudeMessages.timestamp);
+
+      console.log('📜 Database query returned', messages.length, 'messages for conversation');
+      
+      if (messages.length > 0) {
+        console.log('📜 First message:', { role: messages[0].role, contentLength: messages[0].content?.length });
+        console.log('📜 Last message:', { role: messages[messages.length - 1].role, contentLength: messages[messages.length - 1].content?.length });
+      }
+
+      const mappedMessages = messages.map(msg => ({
+        role: msg.role as 'user' | 'assistant' | 'system',
+        content: msg.content,
+        metadata: msg.metadata,
+        toolCalls: msg.toolCalls,
+        toolResults: msg.toolResults,
+        timestamp: msg.timestamp?.toISOString() || new Date().toISOString()
+      }));
+
+      console.log('📜 Successfully returning', mappedMessages.length, 'mapped messages');
+      return mappedMessages;
+    } catch (error) {
+      console.error('📜 Error in getConversationHistory:', error);
       return [];
     }
-
-    console.log('📜 Found conversation:', conversation[0].id, 'messageCount:', conversation[0].messageCount);
-
-    const messages = await db
-      .select()
-      .from(claudeMessages)
-      .where(eq(claudeMessages.conversationId, conversation[0].id))
-      .orderBy(claudeMessages.timestamp);
-
-    console.log('📜 Found', messages.length, 'messages in database');
-    if (messages.length > 0) {
-      console.log('📜 First message:', { role: messages[0].role, contentLength: messages[0].content?.length });
-      console.log('📜 Last message:', { role: messages[messages.length - 1].role, contentLength: messages[messages.length - 1].content?.length });
-    }
-
-    const mappedMessages = messages.map(msg => ({
-      role: msg.role as 'user' | 'assistant' | 'system',
-      content: msg.content,
-      metadata: msg.metadata,
-      toolCalls: msg.toolCalls,
-      toolResults: msg.toolResults,
-      timestamp: msg.timestamp
-    }));
-
-    console.log('📜 Returning', mappedMessages.length, 'mapped messages');
-    return mappedMessages;
   }
 
   async sendMessage(
