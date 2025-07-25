@@ -266,6 +266,7 @@ export default function AdminConsultingAgents() {
   // Load conversation history when agent is selected
   useEffect(() => {
     if (selectedAgent && !conversationId) {
+      console.log('🔄 Loading conversation history for agent:', selectedAgent.id);
       loadAgentConversationHistory();
     }
   }, [selectedAgent]);
@@ -275,15 +276,22 @@ export default function AdminConsultingAgents() {
 
     setIsLoadingHistory(true);
     try {
+      console.log('🔄 Creating/getting conversation for agent:', selectedAgent.id);
       // Create or get conversation for this agent
       const conversation = await createClaudeConversation(selectedAgent.id);
+      console.log('📞 Got conversation:', conversation.conversationId);
       setConversationId(conversation.conversationId);
 
       // Load existing messages if any
       try {
+        console.log('📜 Attempting to load history for:', conversation.conversationId);
         const history = await loadConversationHistory(conversation.conversationId);
+        console.log('📜 Raw history response:', history);
+        
         if (history.messages && history.messages.length > 0) {
           console.log('📜 Loading conversation history:', history.messages.length, 'messages');
+          console.log('📜 Sample message:', history.messages[0]);
+          
           const chatMessages: ChatMessage[] = history.messages.map((msg: any, index: number) => ({
             id: `${msg.timestamp || Date.now()}-${index}`,
             type: msg.role === 'user' ? 'user' : 'agent',
@@ -292,10 +300,15 @@ export default function AdminConsultingAgents() {
             agentName: msg.role === 'assistant' ? selectedAgent.name : undefined,
           }));
           console.log('📜 Chat messages mapped:', chatMessages.length);
+          console.log('📜 First mapped message:', chatMessages[0]);
           setMessages(chatMessages);
+        } else {
+          console.log('📜 No messages found in history');
+          setMessages([]);
         }
       } catch (historyError) {
-        console.log('No existing conversation history found');
+        console.log('📜 Error loading conversation history:', historyError);
+        setMessages([]);
       }
     } catch (error) {
       console.error('Failed to load conversation:', error);
