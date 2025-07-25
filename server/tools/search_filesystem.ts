@@ -92,14 +92,29 @@ function analyzeFileRelevance(content: string, params: SearchParams, fileName: s
   let relevantContent = '';
   let relevant = false;
   
-  // Query-based relevance
+  // Query-based relevance - Enhanced keyword matching
   if (params.query_description) {
     const query = params.query_description.toLowerCase();
     const fileContent = content.toLowerCase();
     const fileNameLower = fileName.toLowerCase();
     
-    if (fileContent.includes(query) || fileNameLower.includes(query)) {
-      reasons.push(`Contains query: "${params.query_description}"`);
+    // Extract keywords from query for better matching
+    const keywords = query.split(/[,\s]+/).filter(word => word.length > 2);
+    
+    // Check for keyword matches
+    let keywordMatches = 0;
+    for (const keyword of keywords) {
+      if (fileContent.includes(keyword) || fileNameLower.includes(keyword)) {
+        keywordMatches++;
+      }
+    }
+    
+    // File path matches for specific components
+    const pathKeywords = ['login', 'auth', 'onboard', 'workspace', 'dashboard', 'nav', 'route', 'page'];
+    const pathMatches = pathKeywords.some(key => fileNameLower.includes(key));
+    
+    if (keywordMatches > 0 || pathMatches) {
+      reasons.push(`Matches ${keywordMatches} keywords from query`);
       relevantContent = extractRelevantContent(content, query);
       relevant = true;
     }
@@ -138,11 +153,19 @@ function analyzeFileRelevance(content: string, params: SearchParams, fileName: s
     }
   }
   
-  // Key architecture files (always relevant for consulting)
-  const keyFiles = ['schema.ts', 'routes.ts', 'App.tsx', 'package.json', 'replit.md'];
-  if (keyFiles.some(key => fileName.includes(key))) {
-    reasons.push(`Key architecture file: ${fileName}`);
-    relevantContent = content.substring(0, 2000); // First 2000 chars for key files
+  // Key architecture files and user experience files
+  const keyFiles = [
+    'schema.ts', 'routes.ts', 'App.tsx', 'package.json', 'replit.md',
+    'login', 'auth', 'onboard', 'workspace', 'dashboard', 'navigation',
+    'home', 'landing', 'payment', 'signup'
+  ];
+  
+  const isKeyFile = keyFiles.some(key => fileName.toLowerCase().includes(key.toLowerCase()));
+  const isUserFlow = fileName.includes('pages/') || fileName.includes('components/') || fileName.includes('hooks/');
+  
+  if (isKeyFile || isUserFlow) {
+    reasons.push(`Key user experience file: ${fileName}`);
+    relevantContent = content.substring(0, 3000); // More content for analysis
     relevant = true;
   }
   
