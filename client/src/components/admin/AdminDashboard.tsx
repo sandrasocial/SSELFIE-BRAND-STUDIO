@@ -36,7 +36,7 @@ export default function AdminDashboard() {
         </div>
 
         {/* Essential Admin Tools */}
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
           {/* Visual Editor */}
           <Card className="bg-white border-2 border-black hover:shadow-lg transition-shadow cursor-pointer"
                 onClick={() => window.open('/admin/visual-editor', '_blank')}>
@@ -80,6 +80,35 @@ export default function AdminDashboard() {
                 <div>✅ Rachel - Voice & Copy</div>
                 <div>✅ All Agents Active</div>
               </div>
+            </CardContent>
+          </Card>
+
+          {/* Consulting Agents */}
+          <Card className="bg-white border-2 border-black hover:shadow-lg transition-shadow cursor-pointer"
+                onClick={() => window.open('/admin/consulting-agents', '_blank')}>
+            <CardHeader className="text-center pb-4">
+              <Settings className="w-12 h-12 mx-auto text-black mb-4" />
+              <CardTitle 
+                className="text-xl font-light tracking-wider text-black"
+                style={{ fontFamily: 'Times New Roman, serif' }}
+              >
+                CONSULTING AGENTS
+              </CardTitle>
+            </CardHeader>
+            <CardContent className="text-center">
+              <p className="text-gray-600 mb-4">Strategic advisors that analyze codebase</p>
+              <div className="space-y-1 text-xs text-gray-700 mb-4">
+                <div>🎯 Elena - Strategic Business</div>
+                <div>🎨 Aria - Design Strategy</div>
+                <div>⚡ Zara - Technical Analysis</div>
+                <div>📝 Give Replit AI exact instructions</div>
+              </div>
+              <Button 
+                variant="outline" 
+                className="border-black text-black hover:bg-black hover:text-white"
+              >
+                Access Consulting
+              </Button>
             </CardContent>
           </Card>
         </div>
