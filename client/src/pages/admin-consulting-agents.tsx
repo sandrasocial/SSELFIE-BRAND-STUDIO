@@ -36,7 +36,7 @@ interface ChatMessage {
 }
 
 // Claude API functions
-const sendClaudeMessage = async (agentName: string, message: string, conversationId?: string) => {
+const sendClaudeMessage = async (agentName: string, message: string, conversationId: string) => {
   const response = await fetch('/api/claude/send-message', {
     method: 'POST',
     headers: {
@@ -230,13 +230,18 @@ export default function AdminConsultingAgents() {
 
     try {
       // Create conversation if needed
-      if (!conversationId) {
+      let currentConversationId = conversationId;
+      if (!currentConversationId) {
         const conversation = await createClaudeConversation(selectedAgent.id);
-        setConversationId(conversation.conversationId);
+        currentConversationId = conversation.conversationId;
+        setConversationId(currentConversationId);
       }
 
-      // Send message to Claude API
-      const response = await sendClaudeMessage(selectedAgent.id, userMessage.content, conversationId);
+      // Send message to Claude API (ensuring conversationId is not null)
+      if (!currentConversationId) {
+        throw new Error('Failed to create conversation');
+      }
+      const response = await sendClaudeMessage(selectedAgent.id, userMessage.content, currentConversationId);
 
       const agentMessage: ChatMessage = {
         id: (Date.now() + 1).toString(),
