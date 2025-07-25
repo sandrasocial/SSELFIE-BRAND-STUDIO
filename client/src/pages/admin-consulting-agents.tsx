@@ -4,6 +4,9 @@ import { useAuth } from '@/hooks/use-auth';
 import { Switch } from '@/components/ui/switch';
 import { MemberNavigation } from '@/components/member-navigation';
 import { GlobalFooter } from '@/components/global-footer';
+import { AgentBridgeToggle } from '@/components/admin/AgentBridgeToggle';
+import { LuxuryProgressDisplay } from '@/components/admin/LuxuryProgressDisplay';
+import { useAgentBridge } from '@/hooks/use-agent-bridge';
 
 // Agent images - same as admin dashboard
 import AgentElena from '@assets/out-0 (33)_1753426218039.png';
@@ -172,6 +175,9 @@ export default function AdminConsultingAgents() {
   const [conversationId, setConversationId] = useState<string | null>(null);
   const [isLoadingHistory, setIsLoadingHistory] = useState(false);
   const [fileEditMode, setFileEditMode] = useState(false);
+  
+  // Agent Bridge functionality
+  const { bridgeStates, currentTask, toggleBridge, submitToBridge, dismissCurrentTask } = useAgentBridge();
 
   // Define agents with matching admin dashboard data
   const consultingAgents: ConsultingAgent[] = [
@@ -380,7 +386,49 @@ export default function AdminConsultingAgents() {
     setIsLoading(true);
 
     try {
-      // Create conversation if needed
+      // Check if Agent Bridge is enabled for this agent
+      const bridgeEnabled = bridgeStates[selectedAgent.id]?.enabled;
+      
+      if (bridgeEnabled) {
+        // Use Agent Bridge for implementation
+        console.log('🌉 Using Agent Bridge for:', selectedAgent.id);
+        
+        const bridgeResult = await submitToBridge({
+          agentName: selectedAgent.id,
+          instruction: userMessage.content,
+          conversationContext: messages.map(m => m.content),
+          priority: 'high',
+          completionCriteria: [
+            'Implementation complete',
+            'TypeScript compilation passes', 
+            'Luxury design standards met'
+          ],
+          qualityGates: [
+            'luxury_standards',
+            'performance_optimized',
+            'mobile_responsive'
+          ]
+        });
+
+        if (bridgeResult.success) {
+          const bridgeMessage: ChatMessage = {
+            id: (Date.now() + 1).toString(),
+            type: 'agent',
+            content: `✨ **Bridge Implementation Started**\n\nI've submitted your request to the Agent Bridge System for immediate implementation. You can monitor the progress in the luxury progress display.\n\n**Task ID**: ${bridgeResult.taskId}\n**Status**: Processing with luxury validation standards\n\nI'll continue our conversation while the implementation runs in the background.`,
+            timestamp: new Date().toISOString(),
+            agentName: selectedAgent.name
+          };
+          
+          setMessages(prev => [...prev, bridgeMessage]);
+          setIsLoading(false);
+          return;
+        } else {
+          // Fall back to regular chat if bridge fails
+          console.error('🌉 Bridge submission failed:', bridgeResult.error);
+        }
+      }
+
+      // Regular consulting chat flow
       let currentConversationId = conversationId;
       if (!currentConversationId) {
         const conversation = await createClaudeConversation(selectedAgent.id);
@@ -388,11 +436,10 @@ export default function AdminConsultingAgents() {
         setConversationId(currentConversationId);
       }
 
-      // Send message to Claude API (ensuring conversationId is not null)
       if (!currentConversationId) {
         throw new Error('Failed to create conversation');
       }
-      // Send message to agent with mode information
+      
       const response = await fetch('/api/claude/send-message', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -401,7 +448,7 @@ export default function AdminConsultingAgents() {
           agentName: selectedAgent.id,
           message: userMessage.content,
           conversationId: currentConversationId,
-          fileEditMode, // Include the mode
+          fileEditMode,
         }),
       });
 
@@ -576,6 +623,14 @@ export default function AdminConsultingAgents() {
                     className="w-full h-full object-cover"
                   />
                   
+                  {/* Agent Bridge Toggle */}
+                  <AgentBridgeToggle
+                    agentName={agent.id}
+                    enabled={bridgeStates[agent.id]?.enabled || false}
+                    status={bridgeStates[agent.id]?.status || 'idle'}
+                    onToggle={toggleBridge}
+                  />
+                  
                   <div className={`absolute inset-0 bg-black transition-opacity duration-300 ${
                     selectedAgent?.id === agent.id ? 'bg-opacity-30' : 'bg-opacity-50 group-hover:bg-opacity-30'
                   }`}>
@@ -586,6 +641,13 @@ export default function AdminConsultingAgents() {
                       <div className="font-serif text-lg font-light uppercase tracking-wide">
                         {agent.name}
                       </div>
+                      
+                      {/* Bridge Status Indicator */}
+                      {bridgeStates[agent.id]?.enabled && (
+                        <div className="text-xs text-white/80 mt-2 tracking-wide">
+                          {bridgeStates[agent.id]?.status === 'processing' ? 'IMPLEMENTING...' : 'BRIDGE READY'}
+                        </div>
+                      )}
                     </div>
                   </div>
                   
@@ -714,7 +776,7 @@ export default function AdminConsultingAgents() {
                       disabled={isLoading || !message.trim()}
                       className="px-8 py-4 bg-black text-white font-light uppercase tracking-wide hover:bg-gray-800 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
                     >
-                      Send
+                      {bridgeStates[selectedAgent.id]?.enabled ? 'Implement' : 'Send'}
                     </button>
                   </div>
                 </div>
@@ -734,6 +796,12 @@ export default function AdminConsultingAgents() {
           </div>
         </div>
       </div>
+
+      {/* Luxury Progress Display */}
+      <LuxuryProgressDisplay 
+        taskStatus={currentTask}
+        onDismiss={dismissCurrentTask}
+      />
 
       <GlobalFooter />
     </div>
