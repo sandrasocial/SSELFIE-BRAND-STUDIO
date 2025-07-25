@@ -164,12 +164,12 @@ export default function AdminDashboard() {
   // Quick access tools similar to workspace creative tools
   const quickAccessTools = [
     {
-      id: 'visual-editor',
-      title: 'Visual Editor',
-      subtitle: 'Agent Coordination',
-      description: 'Full agent development workspace',
-      image: SandraImages.flatlays.luxury,
-      link: '/admin/visual-editor'
+      id: 'bridge-monitor',
+      title: 'Bridge Monitor',
+      subtitle: 'System Coordination',
+      description: 'Real-time agent coordination dashboard',
+      image: HeroImage,
+      link: '/admin/bridge-monitor'
     },
     {
       id: 'consulting-agents',

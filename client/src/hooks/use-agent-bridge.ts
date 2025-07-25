@@ -3,9 +3,10 @@ import { useToast } from '@/hooks/use-toast';
 
 interface BridgeTask {
   id: string;
-  status: 'pending' | 'planning' | 'executing' | 'validating' | 'completed' | 'failed';
   agentName: string;
-  description: string;
+  instruction: string;
+  status: 'pending' | 'planning' | 'executing' | 'validating' | 'completed' | 'failed';
+  priority: 'low' | 'medium' | 'high';
   createdAt: string;
   updatedAt: string;
   progress: number;
@@ -13,11 +14,9 @@ interface BridgeTask {
     id: string;
     title: string;
     status: 'pending' | 'in_progress' | 'completed' | 'failed';
-    description?: string;
     progress?: number;
+    description?: string;
   }>;
-  result?: any;
-  error?: string;
 }
 
 interface BridgeSubmissionResult {
@@ -74,28 +73,24 @@ export function useAgentBridge() {
         })
       });
 
+      const data = await response.json();
+
       if (!response.ok) {
-        const errorData = await response.json().catch(() => ({ error: 'Network error' }));
-        throw new Error(errorData.error || `HTTP ${response.status}`);
+        throw new Error(data.error || 'Failed to submit task');
       }
 
-      const result = await response.json();
-      
-      if (result.success && result.taskId) {
-        // Start monitoring the task
-        monitorTask(result.taskId);
-        
+      if (data.success && data.taskId) {
         toast({
           title: "Task Submitted",
-          description: `${agentName} will begin working on your request.`,
+          description: `${agentName} will begin working on your request`,
         });
         
-        return { success: true, taskId: result.taskId };
+        return { success: true, taskId: data.taskId };
       } else {
-        throw new Error(result.error || 'Failed to submit task');
+        throw new Error(data.error || 'Task submission failed');
       }
     } catch (error) {
-      const errorMessage = error instanceof Error ? error.message : 'Unknown error';
+      const errorMessage = error instanceof Error ? error.message : 'Unknown error occurred';
       
       toast({
         title: "Submission Failed",
@@ -112,118 +107,109 @@ export function useAgentBridge() {
   const getTaskStatus = useCallback(async (taskId: string): Promise<TaskStatusResult> => {
     try {
       const response = await fetch(`/api/agent-bridge/task-status/${taskId}`, {
-        method: 'GET',
-        credentials: 'include',
+        credentials: 'include'
       });
 
+      const data = await response.json();
+
       if (!response.ok) {
-        const errorData = await response.json().catch(() => ({ error: 'Network error' }));
-        throw new Error(errorData.error || `HTTP ${response.status}`);
+        throw new Error(data.error || 'Failed to get task status');
       }
 
-      const result = await response.json();
-      
-      if (result.success && result.task) {
-        // Update local task state
-        setActiveTasks(prev => new Map(prev.set(taskId, result.task)));
-        return { success: true, task: result.task };
+      if (data.success && data.task) {
+        // Update local task cache
+        setActiveTasks(prev => new Map(prev.set(taskId, data.task)));
+        return { success: true, task: data.task };
       } else {
-        throw new Error(result.error || 'Failed to get task status');
+        throw new Error(data.error || 'Task status not available');
       }
     } catch (error) {
-      const errorMessage = error instanceof Error ? error.message : 'Unknown error';
+      const errorMessage = error instanceof Error ? error.message : 'Unknown error occurred';
       return { success: false, error: errorMessage };
     }
   }, []);
 
-  const monitorTask = useCallback((taskId: string) => {
-    const pollInterval = setInterval(async () => {
-      const status = await getTaskStatus(taskId);
-      
-      if (status.success && status.task) {
-        const task = status.task;
-        
-        // Stop polling if task is completed or failed
-        if (task.status === 'completed' || task.status === 'failed') {
-          clearInterval(pollInterval);
-          
-          if (task.status === 'completed') {
-            toast({
-              title: "Task Completed",
-              description: `${task.agentName} has finished the task successfully.`,
-            });
-          } else {
-            toast({
-              title: "Task Failed",
-              description: task.error || "The task encountered an error.",
-              variant: "destructive",
-            });
-          }
-        }
-      } else {
-        // If we can't get status, stop polling
-        clearInterval(pollInterval);
-      }
-    }, 3000); // Poll every 3 seconds
-
-    // Stop polling after 10 minutes to prevent infinite polling
-    setTimeout(() => {
-      clearInterval(pollInterval);
-    }, 600000);
-  }, [getTaskStatus, toast]);
-
-  const validateTask = useCallback(async (taskId: string): Promise<{ success: boolean; error?: string }> => {
+  const validateTask = useCallback(async (taskId: string): Promise<BridgeSubmissionResult> => {
     try {
       const response = await fetch(`/api/agent-bridge/validate-task/${taskId}`, {
         method: 'POST',
-        credentials: 'include',
+        credentials: 'include'
       });
 
+      const data = await response.json();
+
       if (!response.ok) {
-        const errorData = await response.json().catch(() => ({ error: 'Network error' }));
-        throw new Error(errorData.error || `HTTP ${response.status}`);
+        throw new Error(data.error || 'Failed to validate task');
       }
 
-      const result = await response.json();
-      return result;
+      if (data.success) {
+        toast({
+          title: "Task Validated",
+          description: "Task validation completed successfully",
+        });
+        
+        return { success: true, taskId };
+      } else {
+        throw new Error(data.error || 'Task validation failed');
+      }
     } catch (error) {
-      const errorMessage = error instanceof Error ? error.message : 'Unknown error';
+      const errorMessage = error instanceof Error ? error.message : 'Unknown error occurred';
+      
+      toast({
+        title: "Validation Failed",
+        description: errorMessage,
+        variant: "destructive",
+      });
+      
       return { success: false, error: errorMessage };
+    }
+  }, [toast]);
+
+  const getActiveTasks = useCallback(async () => {
+    try {
+      const response = await fetch('/api/agent-bridge/active-tasks', {
+        credentials: 'include'
+      });
+
+      const data = await response.json();
+
+      if (response.ok && data.success) {
+        const tasksMap = new Map<string, BridgeTask>();
+        (data.tasks || []).forEach((task: BridgeTask) => {
+          tasksMap.set(task.id, task);
+        });
+        setActiveTasks(tasksMap);
+        return data.tasks || [];
+      } else {
+        throw new Error(data.error || 'Failed to fetch active tasks');
+      }
+    } catch (error) {
+      console.error('Error fetching active tasks:', error);
+      return [];
     }
   }, []);
 
-  const getHealth = useCallback(async (): Promise<{ success: boolean; status?: string; error?: string }> => {
+  const getHealthStatus = useCallback(async () => {
     try {
       const response = await fetch('/api/agent-bridge/health', {
-        method: 'GET',
-        credentials: 'include',
+        credentials: 'include'
       });
 
-      if (!response.ok) {
-        const errorData = await response.json().catch(() => ({ error: 'Network error' }));
-        throw new Error(errorData.error || `HTTP ${response.status}`);
-      }
-
-      const result = await response.json();
-      return result;
+      const data = await response.json();
+      return response.ok ? data : null;
     } catch (error) {
-      const errorMessage = error instanceof Error ? error.message : 'Unknown error';
-      return { success: false, error: errorMessage };
+      console.error('Error fetching health status:', error);
+      return null;
     }
   }, []);
 
   return {
-    // State
-    isSubmitting,
-    activeTasks: Array.from(activeTasks.values()),
-    
-    // Actions
     submitTask,
     getTaskStatus,
     validateTask,
-    getHealth,
-    
-    // Utilities
-    getTask: (taskId: string) => activeTasks.get(taskId),
+    getActiveTasks,
+    getHealthStatus,
+    activeTasks: Array.from(activeTasks.values()),
+    isSubmitting
   };
 }
