@@ -5,6 +5,21 @@ import { MemberNavigation } from '@/components/member-navigation';
 import { GlobalFooter } from '@/components/global-footer';
 import { SandraImages } from '@/lib/sandra-images';
 
+// New agent images uploaded by user
+import AgentElena from '@assets/out-0 (33)_1753426218039.png';
+import AgentMaya from '@assets/out-0 (34)_1753426218040.png';
+import AgentVictoria from '@assets/out-0 (37)_1753426218041.png';
+import AgentAria from '@assets/out-0 (20)_1753426218042.png';
+import AgentZara from '@assets/out-0 (28)_1753426218042.png';
+import AgentRachel from '@assets/out-0 (42)_1753426218042.png';
+import AgentAva from '@assets/out-1 (27)_1753426218043.png';
+import AgentQuinn from '@assets/out-0 (26)_1753426218043.png';
+import AgentSophia from '@assets/out-1 (18)_1753426218043.png';
+import AgentMartha from '@assets/out-0 (29)_1753426218044.png';
+import AgentDiana from '@assets/out-2 (18)_1753426218045.png';
+import AgentWilma from '@assets/out-0 (22)_1753426218045.png';
+import AgentOlga from '@assets/out-0 (32)_1753426290403.png';
+
 export default function AdminDashboard() {
   const { user } = useAuth();
 
@@ -28,7 +43,7 @@ export default function AdminDashboard() {
       id: 'elena',
       title: 'Strategic Business Advisor',
       description: 'AI Agent Director & CEO who orchestrates all agents and provides strategic business coordination.',
-      image: 'https://sselfie-studio-images.s3.amazonaws.com/generated-images/20250722_202258_561_image_0.jpg',
+      image: AgentElena,
       link: '/admin/consulting-agents',
       specialty: 'Business strategy and team coordination',
       status: 'ready'
@@ -37,7 +52,7 @@ export default function AdminDashboard() {
       id: 'aria',
       title: 'Visual Design Expert',
       description: 'Luxury editorial designer who maintains brand consistency and creates ultra WOW factor moments.',
-      image: 'https://sselfie-studio-images.s3.amazonaws.com/generated-images/20250722_205155_570_image_0.jpg',
+      image: AgentAria,
       link: '/admin/consulting-agents',
       specialty: 'Luxury design and brand consistency',
       status: 'ready'
@@ -46,7 +61,7 @@ export default function AdminDashboard() {
       id: 'zara',
       title: 'Technical Architecture',
       description: 'Technical mastermind who transforms vision into flawless code with luxury performance standards.',
-      image: 'https://sselfie-studio-images.s3.amazonaws.com/generated-images/20250722_205637_572_image_1.jpg',
+      image: AgentZara,
       link: '/admin/consulting-agents',
       specialty: 'Code quality and performance optimization',
       status: 'ready'
@@ -55,7 +70,7 @@ export default function AdminDashboard() {
       id: 'maya',
       title: 'AI Photography Expert',
       description: 'Celebrity stylist and AI photographer who creates magazine-quality editorial concepts.',
-      image: 'https://sselfie-studio-images.s3.amazonaws.com/generated-images/20250722_210133_574_image_0.jpg',
+      image: AgentMaya,
       link: '/admin/consulting-agents',
       specialty: 'AI generation systems and UX optimization',
       status: 'ready'
@@ -64,7 +79,7 @@ export default function AdminDashboard() {
       id: 'victoria',
       title: 'UX Strategy Consultant',
       description: 'Website building expert who optimizes user experience and conversion rates.',
-      image: 'https://sselfie-studio-images.s3.amazonaws.com/generated-images/20250722_210540_576_image_1.jpg',
+      image: AgentVictoria,
       link: '/admin/consulting-agents',
       specialty: 'User experience and conversion optimization',
       status: 'ready'
@@ -73,7 +88,7 @@ export default function AdminDashboard() {
       id: 'rachel',
       title: 'Voice & Copywriting',
       description: 'Sandra\'s copywriting best friend who writes exactly like her authentic voice.',
-      image: 'https://sselfie-studio-images.s3.amazonaws.com/generated-images/20250722_211027_578_image_0.jpg',
+      image: AgentRachel,
       link: '/admin/consulting-agents',
       specialty: 'Brand voice and authentic messaging',
       status: 'ready'
@@ -82,7 +97,7 @@ export default function AdminDashboard() {
       id: 'ava',
       title: 'Automation & Workflow Strategy',
       description: 'Invisible empire architect who makes everything run smoothly with Swiss-watch precision.',
-      image: 'https://sselfie-studio-images.s3.amazonaws.com/generated-images/20250722_211515_580_image_1.jpg',
+      image: AgentAva,
       link: '/admin/consulting-agents',
       specialty: 'Process automation and efficiency',
       status: 'ready'
@@ -91,7 +106,7 @@ export default function AdminDashboard() {
       id: 'quinn',
       title: 'Quality Assurance & Luxury Standards',
       description: 'Luxury quality guardian with perfectionist attention to detail for $50,000 luxury suite standards.',
-      image: 'https://sselfie-studio-images.s3.amazonaws.com/generated-images/20250722_212002_582_image_0.jpg',
+      image: AgentQuinn,
       link: '/admin/consulting-agents',
       specialty: 'Quality standards and premium positioning',
       status: 'ready'
@@ -100,7 +115,7 @@ export default function AdminDashboard() {
       id: 'sophia',
       title: 'Social Media Strategy & Community Growth',
       description: 'Elite Social Media Manager AI helping Sandra grow from 81K to 1M followers by 2026.',
-      image: 'https://sselfie-studio-images.s3.amazonaws.com/generated-images/20250722_212448_584_image_1.jpg',
+      image: AgentSophia,
       link: '/admin/consulting-agents',
       specialty: 'Social growth and community conversion',
       status: 'ready'
@@ -109,7 +124,7 @@ export default function AdminDashboard() {
       id: 'martha',
       title: 'Marketing & Performance Ads',
       description: 'Performance marketing expert who runs ads and finds opportunities while maintaining brand authenticity.',
-      image: 'https://sselfie-studio-images.s3.amazonaws.com/generated-images/20250722_212935_586_image_0.jpg',
+      image: AgentMartha,
       link: '/admin/consulting-agents',
       specialty: 'Marketing optimization and revenue growth',
       status: 'ready'
@@ -118,7 +133,7 @@ export default function AdminDashboard() {
       id: 'diana',
       title: 'Business Coaching & Strategic Mentoring',
       description: 'Sandra\'s strategic advisor and team director who provides business coaching and decision-making guidance.',
-      image: 'https://sselfie-studio-images.s3.amazonaws.com/generated-images/20250722_213422_588_image_1.jpg',
+      image: AgentDiana,
       link: '/admin/consulting-agents',
       specialty: 'Business decisions and strategic guidance',
       status: 'ready'
@@ -127,7 +142,7 @@ export default function AdminDashboard() {
       id: 'wilma',
       title: 'Workflow Architecture & Process Optimization',
       description: 'Workflow architect who designs efficient business processes and creates automation blueprints.',
-      image: 'https://sselfie-studio-images.s3.amazonaws.com/generated-images/20250722_213909_590_image_0.jpg',
+      image: AgentWilma,
       link: '/admin/consulting-agents',
       specialty: 'Workflow design and process automation',
       status: 'ready'
@@ -136,7 +151,7 @@ export default function AdminDashboard() {
       id: 'olga',
       title: 'Repository Organization & Architecture Analysis',
       description: 'Safe repository organization and cleanup specialist who never breaks anything.',
-      image: 'https://sselfie-studio-images.s3.amazonaws.com/generated-images/20250722_214355_592_image_1.jpg',
+      image: AgentOlga,
       link: '/admin/consulting-agents',
       specialty: 'File architecture and dependency mapping',
       status: 'ready'
@@ -158,7 +173,7 @@ export default function AdminDashboard() {
       title: 'Consulting Agents',
       subtitle: 'Strategic Analysis',
       description: 'Read-only codebase advisors',
-      image: SandraImages.flatlays.minimal,
+      image: SandraImages.flatlays.luxury,
       link: '/admin/consulting-agents'
     },
     {
@@ -166,7 +181,7 @@ export default function AdminDashboard() {
       title: 'Platform Status',
       subtitle: 'System Health',
       description: 'SSELFIE Studio overview',
-      image: SandraImages.flatlays.editorial,
+      image: SandraImages.flatlays.luxury,
       link: '/workspace'
     }
   ];
