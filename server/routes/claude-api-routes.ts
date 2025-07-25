@@ -43,8 +43,8 @@ router.post('/send-message', async (req, res) => {
       return res.status(401).json({ error: 'Authentication required' });
     }
 
-    // Extract user ID from claims (Replit Auth format)
-    const userId = (user as any).claims?.sub;
+    // Extract user ID - try multiple formats to ensure compatibility
+    const userId = (user as any).id || (user as any).claims?.sub || (user as any).claims?.id;
     
     if (!userId) {
       console.error('❌ No user ID found in authentication data:', user);
@@ -53,8 +53,8 @@ router.post('/send-message', async (req, res) => {
 
     const finalConversationId = conversationId || `${agentName}-${userId}-${Date.now()}`;
 
-    // For now, use a default system prompt - can be enhanced later
-    const systemPrompt = `You are ${agentName}, an AI assistant specialized in helping with tasks.`;
+    // Use proper agent expertise from Claude API service
+    const systemPrompt = `You are ${agentName}, Sandra's specialized AI agent.`;
 
     // Send message to Claude with memory and learning
     const response = await claudeApiService.sendMessage(
