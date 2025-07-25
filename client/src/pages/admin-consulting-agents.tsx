@@ -4,8 +4,8 @@ import { useAuth } from '@/hooks/use-auth';
 import { Switch } from '@/components/ui/switch';
 import { MemberNavigation } from '@/components/member-navigation';
 import { GlobalFooter } from '@/components/global-footer';
-import { AgentBridgeToggle } from '@/components/admin/AgentBridgeToggle';
-import { LuxuryProgressDisplay } from '@/components/admin/LuxuryProgressDisplay';
+import AgentBridgeToggle from '@/components/admin/AgentBridgeToggle';
+import LuxuryProgressDisplay from '@/components/admin/LuxuryProgressDisplay';
 import { useAgentBridge } from '@/hooks/use-agent-bridge';
 
 // Agent images - same as admin dashboard
@@ -176,8 +176,9 @@ export default function AdminConsultingAgents() {
   const [isLoadingHistory, setIsLoadingHistory] = useState(false);
   const [fileEditMode, setFileEditMode] = useState(false);
   
-  // Agent Bridge functionality
-  const { bridgeStates, currentTask, toggleBridge, submitToBridge, dismissCurrentTask } = useAgentBridge();
+  // Bridge System State
+  const [bridgeEnabled, setBridgeEnabled] = useState(false);
+  const { submitTask, isSubmitting, activeTasks, getHealth } = useAgentBridge();
 
   // Define agents with matching admin dashboard data
   const consultingAgents: ConsultingAgent[] = [
@@ -387,28 +388,28 @@ export default function AdminConsultingAgents() {
 
     try {
       // Check if Agent Bridge is enabled for this agent
-      const bridgeEnabled = bridgeStates[selectedAgent.id]?.enabled;
-      
       if (bridgeEnabled) {
         // Use Agent Bridge for implementation
         console.log('🌉 Using Agent Bridge for:', selectedAgent.id);
         
-        const bridgeResult = await submitToBridge({
-          agentName: selectedAgent.id,
-          instruction: userMessage.content,
-          conversationContext: messages.map(m => m.content),
-          priority: 'high',
-          completionCriteria: [
-            'Implementation complete',
-            'TypeScript compilation passes', 
-            'Luxury design standards met'
-          ],
-          qualityGates: [
-            'luxury_standards',
-            'performance_optimized',
-            'mobile_responsive'
-          ]
-        });
+        const bridgeResult = await submitTask(
+          selectedAgent.id,
+          userMessage.content,
+          'high',
+          {
+            conversationContext: messages.map(m => m.content),
+            completionCriteria: [
+              'Implementation complete',
+              'TypeScript compilation passes', 
+              'Luxury design standards met'
+            ],
+            qualityGates: [
+              'luxury_standards',
+              'performance_optimized',
+              'mobile_responsive'
+            ]
+          }
+        );
 
         if (bridgeResult.success) {
           const bridgeMessage: ChatMessage = {
@@ -640,13 +641,7 @@ export default function AdminConsultingAgents() {
                     className="w-full h-full object-cover"
                   />
                   
-                  {/* Agent Bridge Toggle */}
-                  <AgentBridgeToggle
-                    agentName={agent.id}
-                    enabled={bridgeStates[agent.id]?.enabled || false}
-                    status={bridgeStates[agent.id]?.status || 'idle'}
-                    onToggle={toggleBridge}
-                  />
+
                   
                   <div className={`absolute inset-0 bg-black transition-opacity duration-300 ${
                     selectedAgent?.id === agent.id ? 'bg-opacity-30' : 'bg-opacity-50 group-hover:bg-opacity-30'
@@ -659,12 +654,7 @@ export default function AdminConsultingAgents() {
                         {agent.name}
                       </div>
                       
-                      {/* Bridge Status Indicator */}
-                      {bridgeStates[agent.id]?.enabled && (
-                        <div className="text-xs text-white/80 mt-2 tracking-wide">
-                          {bridgeStates[agent.id]?.status === 'processing' ? 'IMPLEMENTING...' : 'BRIDGE READY'}
-                        </div>
-                      )}
+
                     </div>
                   </div>
                   
@@ -697,6 +687,15 @@ export default function AdminConsultingAgents() {
                           {selectedAgent.role}
                         </p>
                       </div>
+                    </div>
+                    
+                    {/* Agent Bridge Toggle */}
+                    <div className="mb-4">
+                      <AgentBridgeToggle
+                        enabled={bridgeEnabled}
+                        onToggle={setBridgeEnabled}
+                        agentName={selectedAgent.name}
+                      />
                     </div>
 
                     {/* Chat Management Controls */}
@@ -793,7 +792,7 @@ export default function AdminConsultingAgents() {
                       disabled={isLoading || !message.trim()}
                       className="px-8 py-4 bg-black text-white font-light uppercase tracking-wide hover:bg-gray-800 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
                     >
-                      {bridgeStates[selectedAgent.id]?.enabled ? 'Chat & Implement' : 'Chat & Advise'}
+                      {bridgeEnabled ? 'Chat & Implement' : 'Send'}
                     </button>
                   </div>
                 </div>
@@ -814,11 +813,21 @@ export default function AdminConsultingAgents() {
         </div>
       </div>
 
-      {/* Luxury Progress Display */}
-      <LuxuryProgressDisplay 
-        taskStatus={currentTask}
-        onDismiss={dismissCurrentTask}
-      />
+      {/* Active Bridge Tasks Progress Display */}
+      {activeTasks.length > 0 && (
+        <div className="max-w-7xl mx-auto px-8 py-8 space-y-4">
+          {activeTasks.map((task) => (
+            <LuxuryProgressDisplay
+              key={task.id}
+              taskId={task.id}
+              agentName={task.agentName}
+              steps={task.steps}
+              overallProgress={task.progress}
+              status={task.status}
+            />
+          ))}
+        </div>
+      )}
 
       <GlobalFooter />
     </div>

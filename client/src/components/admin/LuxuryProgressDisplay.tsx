@@ -1,147 +1,147 @@
-// SSELFIE Studio - Luxury Progress Display
-// Swiss-watch precision progress monitoring
-
 import React from 'react';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Progress } from '@/components/ui/progress';
+import { Badge } from '@/components/ui/badge';
+import { CheckCircle, Clock, AlertCircle, PlayCircle } from 'lucide-react';
 
-interface TaskStatus {
-  taskId: string;
-  agentName: string;
-  status: 'planning' | 'executing' | 'validating' | 'complete' | 'failed';
-  progress: number;
-  currentStep?: string;
-  estimatedCompletion?: string;
-  validationResults?: Array<{
-    gate: string;
-    passed: boolean;
-    details: string;
-  }>;
+interface TaskStep {
+  id: string;
+  title: string;
+  status: 'pending' | 'in_progress' | 'completed' | 'failed';
+  description?: string;
+  progress?: number;
 }
 
 interface LuxuryProgressDisplayProps {
-  taskStatus: TaskStatus | null;
-  onDismiss?: () => void;
+  taskId: string;
+  agentName: string;
+  steps: TaskStep[];
+  overallProgress: number;
+  status: 'planning' | 'executing' | 'validating' | 'completed' | 'failed';
 }
 
-export const LuxuryProgressDisplay: React.FC<LuxuryProgressDisplayProps> = ({
-  taskStatus,
-  onDismiss
-}) => {
-  if (!taskStatus) return null;
-
-  const getStatusText = () => {
-    switch (taskStatus.status) {
-      case 'planning': return 'Analyzing request...';
-      case 'executing': return 'Implementing changes...';
-      case 'validating': return 'Validating quality...';
-      case 'complete': return 'Implementation complete';
-      case 'failed': return 'Needs attention';
-      default: return 'Processing...';
+export default function LuxuryProgressDisplay({ 
+  taskId, 
+  agentName, 
+  steps, 
+  overallProgress, 
+  status 
+}: LuxuryProgressDisplayProps) {
+  const getStatusIcon = (stepStatus: TaskStep['status']) => {
+    switch (stepStatus) {
+      case 'completed':
+        return <CheckCircle className="h-4 w-4 text-emerald-500" />;
+      case 'in_progress':
+        return <PlayCircle className="h-4 w-4 text-blue-500 animate-pulse" />;
+      case 'failed':
+        return <AlertCircle className="h-4 w-4 text-red-500" />;
+      default:
+        return <Clock className="h-4 w-4 text-zinc-400" />;
     }
   };
 
-  const isComplete = taskStatus.status === 'complete';
-  const hasError = taskStatus.status === 'failed';
+  const getStatusColor = (stepStatus: TaskStep['status']) => {
+    switch (stepStatus) {
+      case 'completed':
+        return 'bg-emerald-500';
+      case 'in_progress':
+        return 'bg-blue-500';
+      case 'failed':
+        return 'bg-red-500';
+      default:
+        return 'bg-zinc-300';
+    }
+  };
+
+  const getOverallStatusBadge = () => {
+    switch (status) {
+      case 'planning':
+        return <Badge variant="secondary">Planning</Badge>;
+      case 'executing':
+        return <Badge variant="default" className="bg-blue-500">Executing</Badge>;
+      case 'validating':
+        return <Badge variant="default" className="bg-amber-500">Validating</Badge>;
+      case 'completed':
+        return <Badge variant="default" className="bg-emerald-500">Completed</Badge>;
+      case 'failed':
+        return <Badge variant="destructive">Failed</Badge>;
+      default:
+        return <Badge variant="outline">Unknown</Badge>;
+    }
+  };
 
   return (
-    <div className="fixed bottom-6 right-6 max-w-sm z-50">
-      <div className="bg-white shadow-2xl rounded-3xl border border-gray-100 overflow-hidden">
-        {/* Header */}
-        <div className="px-6 pt-6 pb-4">
-          <div className="flex items-center justify-between mb-3">
-            <div>
-              <h3 className="font-serif text-lg font-light tracking-wide text-black uppercase">
-                {taskStatus.agentName}
-              </h3>
-              <div className="text-xs text-gray-500 tracking-[0.1em] uppercase mt-1">
-                Agent Bridge
-              </div>
-            </div>
-            
-            {onDismiss && (
-              <button
-                onClick={onDismiss}
-                className="text-gray-400 hover:text-gray-600 transition-colors"
-              >
-                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M6 18L18 6M6 6l12 12" />
-                </svg>
-              </button>
-            )}
+    <Card className="border-zinc-200 dark:border-zinc-800">
+      <CardHeader className="pb-4">
+        <div className="flex items-center justify-between">
+          <div>
+            <CardTitle className="text-lg font-serif">Task Execution</CardTitle>
+            <CardDescription className="mt-1">
+              {agentName} • Task {taskId.slice(-8)}
+            </CardDescription>
           </div>
-
-          {/* Progress Bar */}
-          <div className="w-full bg-gray-100 rounded-full h-1 mb-3">
-            <div 
-              className={`h-1 rounded-full transition-all duration-500 ${
-                hasError ? 'bg-red-500' : isComplete ? 'bg-green-500' : 'bg-black'
-              }`}
-              style={{ width: `${taskStatus.progress}%` }}
-            />
-          </div>
-
-          {/* Status Text */}
-          <p className="text-sm text-gray-600 font-light">
-            {taskStatus.currentStep || getStatusText()}
-          </p>
-
-          {/* Progress Percentage */}
-          <div className="text-right">
-            <span className="text-xs text-gray-400">
-              {taskStatus.progress}%
+          {getOverallStatusBadge()}
+        </div>
+        
+        <div className="mt-4">
+          <div className="flex items-center justify-between mb-2">
+            <span className="text-sm font-medium text-zinc-700 dark:text-zinc-300">
+              Overall Progress
+            </span>
+            <span className="text-sm text-zinc-500">
+              {Math.round(overallProgress)}%
             </span>
           </div>
+          <Progress 
+            value={overallProgress} 
+            className="h-2"
+          />
         </div>
-
-        {/* Completion Status */}
-        {isComplete && (
-          <div className="px-6 pb-6">
-            <div className="bg-green-50 rounded-2xl p-4">
-              <div className="flex items-center space-x-2">
-                <div className="w-2 h-2 bg-green-500 rounded-full" />
-                <span className="text-sm text-green-700 font-medium">
-                  Implementation complete
-                </span>
-              </div>
-              <p className="text-xs text-green-600 mt-2">
-                Your request has been successfully implemented and validated.
-              </p>
+      </CardHeader>
+      
+      <CardContent className="space-y-4">
+        {steps.map((step, index) => (
+          <div key={step.id} className="flex items-start space-x-3">
+            <div className="flex-shrink-0 mt-0.5">
+              {getStatusIcon(step.status)}
             </div>
-          </div>
-        )}
-
-        {/* Error Status */}
-        {hasError && taskStatus.validationResults && (
-          <div className="px-6 pb-6">
-            <div className="bg-red-50 rounded-2xl p-4">
-              <div className="flex items-center space-x-2 mb-2">
-                <div className="w-2 h-2 bg-red-500 rounded-full" />
-                <span className="text-sm text-red-700 font-medium">
-                  Needs attention
-                </span>
+            
+            <div className="flex-1 min-w-0">
+              <div className="flex items-center space-x-2">
+                <h4 className="text-sm font-medium text-zinc-900 dark:text-zinc-100">
+                  {step.title}
+                </h4>
+                {step.status === 'in_progress' && step.progress !== undefined && (
+                  <span className="text-xs text-zinc-500">
+                    {step.progress}%
+                  </span>
+                )}
               </div>
               
-              {/* Show failed validation gates */}
-              {taskStatus.validationResults
-                .filter(result => !result.passed)
-                .slice(0, 2)
-                .map((result, index) => (
-                  <p key={index} className="text-xs text-red-600 mb-1">
-                    • {result.gate.replace('_', ' ')}: {result.details}
-                  </p>
-                ))}
+              {step.description && (
+                <p className="text-xs text-zinc-600 dark:text-zinc-400 mt-1">
+                  {step.description}
+                </p>
+              )}
+              
+              {step.status === 'in_progress' && step.progress !== undefined && (
+                <div className="mt-2">
+                  <Progress 
+                    value={step.progress} 
+                    className="h-1"
+                  />
+                </div>
+              )}
+            </div>
+            
+            <div className="flex-shrink-0">
+              <div 
+                className={`w-2 h-2 rounded-full ${getStatusColor(step.status)}`}
+              />
             </div>
           </div>
-        )}
-
-        {/* Estimated Completion */}
-        {taskStatus.estimatedCompletion && !isComplete && !hasError && (
-          <div className="px-6 pb-6">
-            <div className="text-xs text-gray-400">
-              Estimated completion: {new Date(taskStatus.estimatedCompletion).toLocaleTimeString()}
-            </div>
-          </div>
-        )}
-      </div>
-    </div>
+        ))}
+      </CardContent>
+    </Card>
   );
-};
+}

@@ -1,257 +1,215 @@
-// SSELFIE Studio - Agent Bridge Hook
-// Manages Bridge state and API communication
+import { useState, useCallback } from 'react';
+import { useToast } from '@/hooks/use-toast';
 
-import { useState, useCallback, useEffect } from 'react';
-
-interface AgentBridgeState {
-  [agentName: string]: {
-    enabled: boolean;
-    status: 'idle' | 'processing' | 'complete' | 'error';
-    currentTaskId?: string;
-  };
-}
-
-interface TaskStatus {
-  taskId: string;
+interface BridgeTask {
+  id: string;
+  status: 'pending' | 'planning' | 'executing' | 'validating' | 'completed' | 'failed';
   agentName: string;
-  status: 'planning' | 'executing' | 'validating' | 'complete' | 'failed';
+  description: string;
+  createdAt: string;
+  updatedAt: string;
   progress: number;
-  currentStep?: string;
-  estimatedCompletion?: string;
-  validationResults?: Array<{
-    gate: string;
-    passed: boolean;
-    details: string;
+  steps: Array<{
+    id: string;
+    title: string;
+    status: 'pending' | 'in_progress' | 'completed' | 'failed';
+    description?: string;
+    progress?: number;
   }>;
+  result?: any;
+  error?: string;
 }
 
-interface AgentBridgeHook {
-  bridgeStates: AgentBridgeState;
-  currentTask: TaskStatus | null;
-  toggleBridge: (agentName: string) => void;
-  submitToBridge: (params: {
-    agentName: string;
-    instruction: string;
-    conversationContext: string[];
-    priority?: 'low' | 'medium' | 'high';
-    completionCriteria?: string[];
-    qualityGates?: string[];
-  }) => Promise<{ success: boolean; taskId?: string; error?: string }>;
-  monitorProgress: (taskId: string) => void;
-  dismissCurrentTask: () => void;
+interface BridgeSubmissionResult {
+  success: boolean;
+  taskId?: string;
+  error?: string;
 }
 
-export const useAgentBridge = (): AgentBridgeHook => {
-  const [bridgeStates, setBridgeStates] = useState<AgentBridgeState>({});
-  const [currentTask, setCurrentTask] = useState<TaskStatus | null>(null);
-  const [monitoringInterval, setMonitoringInterval] = useState<NodeJS.Timeout | null>(null);
+interface TaskStatusResult {
+  success: boolean;
+  task?: BridgeTask;
+  error?: string;
+}
 
-  // Load bridge states from localStorage on mount
-  useEffect(() => {
-    const saved = localStorage.getItem('agent-bridge-states');
-    if (saved) {
-      try {
-        setBridgeStates(JSON.parse(saved));
-      } catch (error) {
-        console.error('Failed to load bridge states:', error);
-      }
-    }
-  }, []);
+export function useAgentBridge() {
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [activeTasks, setActiveTasks] = useState<Map<string, BridgeTask>>(new Map());
+  const { toast } = useToast();
 
-  // Save bridge states to localStorage when they change
-  useEffect(() => {
-    localStorage.setItem('agent-bridge-states', JSON.stringify(bridgeStates));
-  }, [bridgeStates]);
-
-  const toggleBridge = useCallback((agentName: string) => {
-    setBridgeStates(prev => ({
-      ...prev,
-      [agentName]: {
-        enabled: !prev[agentName]?.enabled,
-        status: 'idle',
-        currentTaskId: undefined
-      }
-    }));
-  }, []);
-
-  const submitToBridge = useCallback(async (params: {
-    agentName: string;
-    instruction: string;
-    conversationContext: string[];
-    priority?: 'low' | 'medium' | 'high';
-    completionCriteria?: string[];
-    qualityGates?: string[];
-  }) => {
+  const submitTask = useCallback(async (
+    agentName: string,
+    description: string,
+    priority: 'low' | 'medium' | 'high' = 'medium',
+    context?: Record<string, any>
+  ): Promise<BridgeSubmissionResult> => {
+    setIsSubmitting(true);
+    
     try {
-      // Update agent status to processing
-      setBridgeStates(prev => ({
-        ...prev,
-        [params.agentName]: {
-          ...prev[params.agentName],
-          status: 'processing'
-        }
-      }));
-
       const response = await fetch('/api/agent-bridge/submit-task', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          'X-Admin-Token': 'sandra-admin-2025'
         },
+        credentials: 'include',
         body: JSON.stringify({
-          agentName: params.agentName,
-          instruction: params.instruction,
-          conversationContext: params.conversationContext,
-          priority: params.priority || 'high',
-          completionCriteria: params.completionCriteria || [
-            'Implementation complete',
-            'TypeScript compilation passes',
-            'Luxury design standards met'
-          ],
-          qualityGates: params.qualityGates || [
-            'luxury_standards',
-            'performance_optimized',
-            'mobile_responsive'
-          ],
-          estimatedDuration: 15
+          agentName,
+          description,
+          priority,
+          context: context || {}
         })
       });
 
+      if (!response.ok) {
+        const errorData = await response.json().catch(() => ({ error: 'Network error' }));
+        throw new Error(errorData.error || `HTTP ${response.status}`);
+      }
+
       const result = await response.json();
-
+      
       if (result.success && result.taskId) {
-        // Update bridge state with task ID
-        setBridgeStates(prev => ({
-          ...prev,
-          [params.agentName]: {
-            ...prev[params.agentName],
-            currentTaskId: result.taskId
-          }
-        }));
-
-        // Start monitoring progress
-        monitorProgress(result.taskId);
-
+        // Start monitoring the task
+        monitorTask(result.taskId);
+        
+        toast({
+          title: "Task Submitted",
+          description: `${agentName} will begin working on your request.`,
+        });
+        
         return { success: true, taskId: result.taskId };
       } else {
-        // Update status to error
-        setBridgeStates(prev => ({
-          ...prev,
-          [params.agentName]: {
-            ...prev[params.agentName],
-            status: 'error'
-          }
-        }));
-
-        return { success: false, error: result.error || 'Failed to submit task' };
+        throw new Error(result.error || 'Failed to submit task');
       }
     } catch (error) {
-      // Update status to error
-      setBridgeStates(prev => ({
-        ...prev,
-        [params.agentName]: {
-          ...prev[params.agentName],
-          status: 'error'
-        }
-      }));
+      const errorMessage = error instanceof Error ? error.message : 'Unknown error';
+      
+      toast({
+        title: "Submission Failed",
+        description: errorMessage,
+        variant: "destructive",
+      });
+      
+      return { success: false, error: errorMessage };
+    } finally {
+      setIsSubmitting(false);
+    }
+  }, [toast]);
 
-      return { 
-        success: false, 
-        error: error instanceof Error ? error.message : 'Network error' 
-      };
+  const getTaskStatus = useCallback(async (taskId: string): Promise<TaskStatusResult> => {
+    try {
+      const response = await fetch(`/api/agent-bridge/task-status/${taskId}`, {
+        method: 'GET',
+        credentials: 'include',
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json().catch(() => ({ error: 'Network error' }));
+        throw new Error(errorData.error || `HTTP ${response.status}`);
+      }
+
+      const result = await response.json();
+      
+      if (result.success && result.task) {
+        // Update local task state
+        setActiveTasks(prev => new Map(prev.set(taskId, result.task)));
+        return { success: true, task: result.task };
+      } else {
+        throw new Error(result.error || 'Failed to get task status');
+      }
+    } catch (error) {
+      const errorMessage = error instanceof Error ? error.message : 'Unknown error';
+      return { success: false, error: errorMessage };
     }
   }, []);
 
-  const monitorProgress = useCallback((taskId: string) => {
-    // Clear existing interval
-    if (monitoringInterval) {
-      clearInterval(monitoringInterval);
-    }
-
-    const checkProgress = async () => {
-      try {
-        const response = await fetch(`/api/agent-bridge/task-status/${taskId}`, {
-          headers: {
-            'X-Admin-Token': 'sandra-admin-2025'
-          }
-        });
-
-        const taskStatus = await response.json();
-
-        if (taskStatus.success) {
-          setCurrentTask({
-            taskId,
-            agentName: taskStatus.agentName || 'Unknown',
-            status: taskStatus.status,
-            progress: taskStatus.progress || 0,
-            currentStep: taskStatus.currentStep,
-            estimatedCompletion: taskStatus.estimatedCompletion,
-            validationResults: taskStatus.validationResults
-          });
-
-          // Update bridge state
-          setBridgeStates(prev => {
-            const agentName = taskStatus.agentName || Object.keys(prev).find(name => 
-              prev[name].currentTaskId === taskId
-            );
-            
-            if (agentName) {
-              return {
-                ...prev,
-                [agentName]: {
-                  ...prev[agentName],
-                  status: taskStatus.status === 'complete' ? 'complete' : 
-                           taskStatus.status === 'failed' ? 'error' : 'processing'
-                }
-              };
-            }
-            return prev;
-          });
-
-          // Stop monitoring if task is complete or failed
-          if (taskStatus.status === 'complete' || taskStatus.status === 'failed') {
-            if (monitoringInterval) {
-              clearInterval(monitoringInterval);
-              setMonitoringInterval(null);
-            }
+  const monitorTask = useCallback((taskId: string) => {
+    const pollInterval = setInterval(async () => {
+      const status = await getTaskStatus(taskId);
+      
+      if (status.success && status.task) {
+        const task = status.task;
+        
+        // Stop polling if task is completed or failed
+        if (task.status === 'completed' || task.status === 'failed') {
+          clearInterval(pollInterval);
+          
+          if (task.status === 'completed') {
+            toast({
+              title: "Task Completed",
+              description: `${task.agentName} has finished the task successfully.`,
+            });
+          } else {
+            toast({
+              title: "Task Failed",
+              description: task.error || "The task encountered an error.",
+              variant: "destructive",
+            });
           }
         }
-      } catch (error) {
-        console.error('Failed to check task progress:', error);
+      } else {
+        // If we can't get status, stop polling
+        clearInterval(pollInterval);
       }
-    };
+    }, 3000); // Poll every 3 seconds
 
-    // Initial check
-    checkProgress();
+    // Stop polling after 10 minutes to prevent infinite polling
+    setTimeout(() => {
+      clearInterval(pollInterval);
+    }, 600000);
+  }, [getTaskStatus, toast]);
 
-    // Set up interval for continued monitoring
-    const interval = setInterval(checkProgress, 3000); // Check every 3 seconds
-    setMonitoringInterval(interval);
-  }, [monitoringInterval]);
+  const validateTask = useCallback(async (taskId: string): Promise<{ success: boolean; error?: string }> => {
+    try {
+      const response = await fetch(`/api/agent-bridge/validate-task/${taskId}`, {
+        method: 'POST',
+        credentials: 'include',
+      });
 
-  const dismissCurrentTask = useCallback(() => {
-    setCurrentTask(null);
-    if (monitoringInterval) {
-      clearInterval(monitoringInterval);
-      setMonitoringInterval(null);
+      if (!response.ok) {
+        const errorData = await response.json().catch(() => ({ error: 'Network error' }));
+        throw new Error(errorData.error || `HTTP ${response.status}`);
+      }
+
+      const result = await response.json();
+      return result;
+    } catch (error) {
+      const errorMessage = error instanceof Error ? error.message : 'Unknown error';
+      return { success: false, error: errorMessage };
     }
-  }, [monitoringInterval]);
+  }, []);
 
-  // Cleanup on unmount
-  useEffect(() => {
-    return () => {
-      if (monitoringInterval) {
-        clearInterval(monitoringInterval);
+  const getHealth = useCallback(async (): Promise<{ success: boolean; status?: string; error?: string }> => {
+    try {
+      const response = await fetch('/api/agent-bridge/health', {
+        method: 'GET',
+        credentials: 'include',
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json().catch(() => ({ error: 'Network error' }));
+        throw new Error(errorData.error || `HTTP ${response.status}`);
       }
-    };
-  }, [monitoringInterval]);
+
+      const result = await response.json();
+      return result;
+    } catch (error) {
+      const errorMessage = error instanceof Error ? error.message : 'Unknown error';
+      return { success: false, error: errorMessage };
+    }
+  }, []);
 
   return {
-    bridgeStates,
-    currentTask,
-    toggleBridge,
-    submitToBridge,
-    monitorProgress,
-    dismissCurrentTask
+    // State
+    isSubmitting,
+    activeTasks: Array.from(activeTasks.values()),
+    
+    // Actions
+    submitTask,
+    getTaskStatus,
+    validateTask,
+    getHealth,
+    
+    // Utilities
+    getTask: (taskId: string) => activeTasks.get(taskId),
   };
-};
+}
