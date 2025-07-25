@@ -389,11 +389,13 @@ export class ClaudeApiService {
       } catch (error: any) {
         lastError = error;
         
-        // Check if this is a retryable error (529 overload, 429 rate limit)
+        // Check if this is a retryable error (529 overload, 429 rate limit, 500 internal server error)
         const isRetryable = error.status === 529 || 
                            error.status === 429 || 
+                           error.status === 500 ||
                            error.error?.type === 'overloaded_error' ||
-                           error.error?.type === 'rate_limit_error';
+                           error.error?.type === 'rate_limit_error' ||
+                           error.error?.type === 'api_error';
         
         if (!isRetryable || attempt === maxRetries) {
           console.error(`❌ Claude API failed on attempt ${attempt} (non-retryable or max retries reached):`, error.status, error.error?.type);
