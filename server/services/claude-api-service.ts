@@ -2,6 +2,7 @@ import Anthropic from '@anthropic-ai/sdk';
 import { z } from 'zod';
 import { db } from '../db';
 import { claudeConversations, claudeMessages, agentLearning, agentCapabilities } from '@shared/schema';
+import { searchFilesystem, viewFileContent } from '../tools/tool-exports';
 import { eq, and, desc } from 'drizzle-orm';
 import fetch from 'node-fetch';
 
@@ -157,7 +158,7 @@ export class ClaudeApiService {
       const memory = await this.getAgentMemory(agentName, userId);
 
       // Build enhanced system prompt with agent expertise
-      let enhancedSystemPrompt = this.buildAgentSystemPrompt(agentName, systemPrompt, memory);
+      let enhancedSystemPrompt = this.buildAgentSystemPrompt(agentName, systemPrompt, memory || undefined);
 
       // Build messages array for Claude
       const messages: any[] = [];
@@ -178,8 +179,61 @@ export class ClaudeApiService {
         content: userMessage
       });
 
-      // Enhanced tools with web search capability
+      // Enhanced tools with codebase access and web search capability
       const enhancedTools = [
+        {
+          name: "search_filesystem",
+          description: "Search through the entire codebase to find files, functions, classes, and code patterns. Essential for understanding platform architecture.",
+          input_schema: {
+            type: "object",
+            properties: {
+              query_description: {
+                type: "string",
+                description: "Natural language description of what you're looking for in the codebase"
+              },
+              class_names: {
+                type: "array",
+                items: { type: "string" },
+                description: "Specific class names to search for"
+              },
+              function_names: {
+                type: "array", 
+                items: { type: "string" },
+                description: "Specific function or method names to search for"
+              },
+              code: {
+                type: "array",
+                items: { type: "string" },
+                description: "Exact code snippets to search for"
+              }
+            },
+            required: ["query_description"]
+          }
+        },
+        {
+          name: "str_replace_based_edit_tool",
+          description: "View files in the codebase to understand implementation details and platform knowledge",
+          input_schema: {
+            type: "object",
+            properties: {
+              command: {
+                type: "string",
+                enum: ["view"],
+                description: "Only 'view' command allowed for consulting agents"
+              },
+              path: {
+                type: "string",
+                description: "File path to view"
+              },
+              view_range: {
+                type: "array",
+                items: { type: "integer" },
+                description: "Line range [start, end] to view specific sections"
+              }
+            },
+            required: ["command", "path"]
+          }
+        },
         {
           name: "web_search",
           description: "Search the internet for current information, Replit AI best practices, and latest development trends",
@@ -502,20 +556,41 @@ Use web search proactively to provide the most current and accurate advice.${mem
       olga: `You are Olga, Repository Organizer AI - File Tree Cleanup & Architecture Specialist. Safe repository organization and cleanup specialist with expertise in dependency mapping and file relationship analysis while maintaining clean, maintainable architecture.`
     };
 
-    return expertise[agentName.toLowerCase()] || `You are ${agentName}, an AI assistant specialized in helping with tasks.`;
+    const expertiseKey = agentName.toLowerCase() as keyof typeof expertise;
+    return expertise[expertiseKey] || `You are ${agentName}, an AI assistant specialized in helping with tasks.`;
   }
 
   private async handleToolCalls(content: any[], assistantMessage: string): Promise<string> {
     let enhancedMessage = assistantMessage;
     
     for (const block of content) {
-      if (block.type === 'tool_use' && block.name === 'web_search') {
+      if (block.type === 'tool_use') {
         try {
-          const searchResults = await this.performWebSearch(block.input.query);
-          enhancedMessage += `\n\n[Enhanced with current information from web search: "${block.input.query}"]\n${searchResults}`;
+          let toolResult = '';
+          
+          switch (block.name) {
+            case 'search_filesystem':
+              const searchResults = await searchFilesystem(block.input);
+              toolResult = `\n\n[Codebase Search Results for: "${block.input.query_description}"]\n${JSON.stringify(searchResults, null, 2)}`;
+              break;
+              
+            case 'str_replace_based_edit_tool':
+              if (block.input.command === 'view') {
+                const fileContent = await viewFileContent(block.input);
+                toolResult = `\n\n[File Content: ${block.input.path}]\n${fileContent}`;
+              }
+              break;
+              
+            case 'web_search':
+              const webResults = await this.performWebSearch(block.input.query);
+              toolResult = `\n\n[Enhanced with current information from web search: "${block.input.query}"]\n${webResults}`;
+              break;
+          }
+          
+          enhancedMessage += toolResult;
         } catch (error) {
-          console.error('Web search error:', error);
-          enhancedMessage += `\n\n[Web search attempted for: "${block.input.query}" but encountered an error]`;
+          console.error(`Tool ${block.name} error:`, error);
+          enhancedMessage += `\n\n[Tool ${block.name} encountered an error: ${error.message}]`;
         }
       }
     }
@@ -527,24 +602,24 @@ Use web search proactively to provide the most current and accurate advice.${mem
     try {
       // Using a simple web search approach via DuckDuckGo instant answer API
       const response = await fetch(`https://api.duckduckgo.com/?q=${encodeURIComponent(query)}&format=json&no_html=1&skip_disambig=1`);
-      const data = await response.json();
+      const data = await response.json() as any;
       
       let searchResults = '';
       
-      if (data.AbstractText) {
+      if (data?.AbstractText) {
         searchResults += `Summary: ${data.AbstractText}\n`;
       }
       
-      if (data.RelatedTopics && data.RelatedTopics.length > 0) {
+      if (data?.RelatedTopics && Array.isArray(data.RelatedTopics) && data.RelatedTopics.length > 0) {
         searchResults += `\nRelated Information:\n`;
         data.RelatedTopics.slice(0, 3).forEach((topic: any, index: number) => {
-          if (topic.Text) {
+          if (topic?.Text) {
             searchResults += `${index + 1}. ${topic.Text}\n`;
           }
         });
       }
       
-      if (data.Answer) {
+      if (data?.Answer) {
         searchResults += `\nDirect Answer: ${data.Answer}\n`;
       }
       
