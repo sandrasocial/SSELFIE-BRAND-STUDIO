@@ -47,7 +47,7 @@ export default function AdminDashboard() {
       title: 'Strategic Business Advisor',
       description: 'AI Agent Director & CEO who orchestrates all agents and provides strategic business coordination.',
       image: AgentElena,
-      link: '/admin/consulting-agents',
+      link: '/admin/consulting-agents?agent=elena',
       specialty: 'Business strategy and team coordination',
       status: 'ready'
     },
@@ -56,7 +56,7 @@ export default function AdminDashboard() {
       title: 'Visual Design Expert',
       description: 'Luxury editorial designer who maintains brand consistency and creates ultra WOW factor moments.',
       image: AgentAria,
-      link: '/admin/consulting-agents',
+      link: '/admin/consulting-agents?agent=aria',
       specialty: 'Luxury design and brand consistency',
       status: 'ready'
     },
@@ -65,7 +65,7 @@ export default function AdminDashboard() {
       title: 'Technical Architecture',
       description: 'Technical mastermind who transforms vision into flawless code with luxury performance standards.',
       image: AgentZara,
-      link: '/admin/consulting-agents',
+      link: '/admin/consulting-agents?agent=zara',
       specialty: 'Code quality and performance optimization',
       status: 'ready'
     },
@@ -74,7 +74,7 @@ export default function AdminDashboard() {
       title: 'AI Photography Expert',
       description: 'Celebrity stylist and AI photographer who creates magazine-quality editorial concepts.',
       image: AgentMaya,
-      link: '/admin/consulting-agents',
+      link: '/admin/consulting-agents?agent=maya',
       specialty: 'AI generation systems and UX optimization',
       status: 'ready'
     },
@@ -83,7 +83,7 @@ export default function AdminDashboard() {
       title: 'UX Strategy Consultant',
       description: 'Website building expert who optimizes user experience and conversion rates.',
       image: AgentVictoria,
-      link: '/admin/consulting-agents',
+      link: '/admin/consulting-agents?agent=victoria',
       specialty: 'User experience and conversion optimization',
       status: 'ready'
     },
@@ -92,7 +92,7 @@ export default function AdminDashboard() {
       title: 'Voice & Copywriting',
       description: 'Sandra\'s copywriting best friend who writes exactly like her authentic voice.',
       image: AgentRachel,
-      link: '/admin/consulting-agents',
+      link: '/admin/consulting-agents?agent=rachel',
       specialty: 'Brand voice and authentic messaging',
       status: 'ready'
     },
@@ -101,7 +101,7 @@ export default function AdminDashboard() {
       title: 'Automation & Workflow Strategy',
       description: 'Invisible empire architect who makes everything run smoothly with Swiss-watch precision.',
       image: AgentAva,
-      link: '/admin/consulting-agents',
+      link: '/admin/consulting-agents?agent=ava',
       specialty: 'Process automation and efficiency',
       status: 'ready'
     },
@@ -110,7 +110,7 @@ export default function AdminDashboard() {
       title: 'Quality Assurance & Luxury Standards',
       description: 'Luxury quality guardian with perfectionist attention to detail for $50,000 luxury suite standards.',
       image: AgentQuinn,
-      link: '/admin/consulting-agents',
+      link: '/admin/consulting-agents?agent=quinn',
       specialty: 'Quality standards and premium positioning',
       status: 'ready'
     },
@@ -119,7 +119,7 @@ export default function AdminDashboard() {
       title: 'Social Media Strategy & Community Growth',
       description: 'Elite Social Media Manager AI helping Sandra grow from 81K to 1M followers by 2026.',
       image: AgentSophia,
-      link: '/admin/consulting-agents',
+      link: '/admin/consulting-agents?agent=sophia',
       specialty: 'Social growth and community conversion',
       status: 'ready'
     },
@@ -128,7 +128,7 @@ export default function AdminDashboard() {
       title: 'Marketing & Performance Ads',
       description: 'Performance marketing expert who runs ads and finds opportunities while maintaining brand authenticity.',
       image: AgentMartha,
-      link: '/admin/consulting-agents',
+      link: '/admin/consulting-agents?agent=martha',
       specialty: 'Marketing optimization and revenue growth',
       status: 'ready'
     },
@@ -137,7 +137,7 @@ export default function AdminDashboard() {
       title: 'Business Coaching & Strategic Mentoring',
       description: 'Sandra\'s strategic advisor and team director who provides business coaching and decision-making guidance.',
       image: AgentDiana,
-      link: '/admin/consulting-agents',
+      link: '/admin/consulting-agents?agent=diana',
       specialty: 'Business decisions and strategic guidance',
       status: 'ready'
     },
@@ -146,7 +146,7 @@ export default function AdminDashboard() {
       title: 'Workflow Architecture & Process Optimization',
       description: 'Workflow architect who designs efficient business processes and creates automation blueprints.',
       image: AgentWilma,
-      link: '/admin/consulting-agents',
+      link: '/admin/consulting-agents?agent=wilma',
       specialty: 'Workflow design and process automation',
       status: 'ready'
     },
@@ -155,7 +155,7 @@ export default function AdminDashboard() {
       title: 'Repository Organization & Architecture Analysis',
       description: 'Safe repository organization and cleanup specialist who never breaks anything.',
       image: AgentOlga,
-      link: '/admin/consulting-agents',
+      link: '/admin/consulting-agents?agent=olga',
       specialty: 'File architecture and dependency mapping',
       status: 'ready'
     }

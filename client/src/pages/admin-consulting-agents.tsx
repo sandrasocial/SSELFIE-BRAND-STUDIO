@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { useLocation } from 'wouter';
 import { useAuth } from '@/hooks/use-auth';
 import { MemberNavigation } from '@/components/member-navigation';
 import { GlobalFooter } from '@/components/global-footer';
@@ -36,6 +37,7 @@ interface ChatMessage {
 
 export default function AdminConsultingAgents() {
   const { user } = useAuth();
+  const [location] = useLocation();
   const [selectedAgent, setSelectedAgent] = useState<ConsultingAgent | null>(null);
   const [message, setMessage] = useState('');
   const [isLoading, setIsLoading] = useState(false);
@@ -135,6 +137,19 @@ export default function AdminConsultingAgents() {
       image: AgentOlga
     }
   ];
+
+  // Auto-select agent from URL parameter
+  useEffect(() => {
+    const urlParams = new URLSearchParams(location.split('?')[1] || '');
+    const agentParam = urlParams.get('agent');
+    
+    if (agentParam && !selectedAgent) {
+      const targetAgent = consultingAgents.find(agent => agent.id === agentParam);
+      if (targetAgent) {
+        setSelectedAgent(targetAgent);
+      }
+    }
+  }, [location, selectedAgent, consultingAgents]);
 
   // Check if user is Sandra (admin access required)
   if (!user || (user.email !== 'ssa@ssasocial.com' && user.role !== 'admin')) {
