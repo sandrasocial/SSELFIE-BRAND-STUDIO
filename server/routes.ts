@@ -7160,6 +7160,10 @@ AGENT_CONTEXT:
   const agentLearningRouter = await import('./routes/agent-learning');
   app.use('/api/agent-learning', agentLearningRouter.default);
 
+  // Import and register consulting agents routes (read-only analysis)
+  const consultingAgentsRouter = await import('./routes/consulting-agents-routes');
+  app.use('/api', consultingAgentsRouter.default);
+
   // CONVERSATION THREADING & MANAGEMENT API ENDPOINTS
   
   // Get all conversation threads for an agent
