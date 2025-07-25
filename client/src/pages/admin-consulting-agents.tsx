@@ -2,9 +2,6 @@ import React, { useState, useEffect } from 'react';
 import { useLocation } from 'wouter';
 import { useAuth } from '@/hooks/use-auth';
 import { Switch } from '@/components/ui/switch';
-import { Label } from '@/components/ui/label';
-import { Shield, Zap, Search, FileText, Terminal, Globe } from 'lucide-react';
-import { Alert, AlertDescription } from '@/components/ui/alert';
 import { MemberNavigation } from '@/components/member-navigation';
 import { GlobalFooter } from '@/components/global-footer';
 
@@ -456,35 +453,34 @@ export default function AdminConsultingAgents() {
           </p>
           
           {/* Mode Toggle */}
-          <div className="flex items-center justify-center space-x-4 mt-8">
-            <div className="flex items-center space-x-2 bg-white/10 backdrop-blur-sm rounded-lg px-4 py-2">
-              <Shield className="w-4 h-4 text-white/70" />
-              <Label htmlFor="edit-mode" className="text-sm text-white/90">Read-Only</Label>
+          <div className="flex items-center justify-center mt-8">
+            <div className="flex items-center space-x-4 bg-white/20 backdrop-blur-sm border border-white/30 px-6 py-3">
+              <span className="text-sm text-white/90 font-light tracking-wide" style={{ fontFamily: 'Times New Roman, serif' }}>
+                READ ONLY
+              </span>
               <Switch
                 id="edit-mode"
                 checked={fileEditMode}
                 onCheckedChange={setFileEditMode}
+                className="data-[state=checked]:bg-white data-[state=unchecked]:bg-white/30"
               />
-              <Label htmlFor="edit-mode" className="text-sm text-white/90">File Edit</Label>
-              <Zap className="w-4 h-4 text-orange-400" />
+              <span className="text-sm text-white/90 font-light tracking-wide" style={{ fontFamily: 'Times New Roman, serif' }}>
+                FILE EDIT
+              </span>
             </div>
           </div>
           
-          {/* Mode Status Alert */}
-          <div className="mt-4 max-w-2xl mx-auto">
-            <Alert className={`${fileEditMode ? 'border-orange-200 bg-orange-50/90' : 'border-blue-200 bg-blue-50/90'} backdrop-blur-sm`}>
-              <AlertDescription className="text-sm text-center">
+          {/* Mode Status Banner */}
+          <div className="mt-6 max-w-3xl mx-auto">
+            <div className={`border ${fileEditMode ? 'border-white/40 bg-white/10' : 'border-white/30 bg-white/5'} backdrop-blur-sm py-3 px-6`}>
+              <p className="text-sm text-white/90 text-center font-light tracking-wide" style={{ fontFamily: 'Times New Roman, serif' }}>
                 {fileEditMode ? (
-                  <span className="text-orange-700">
-                    <strong>File Edit Mode:</strong> Agents can create, modify, and update files directly.
-                  </span>
+                  <>MODE: FILE EDIT - AGENTS CAN CREATE, MODIFY, AND UPDATE FILES DIRECTLY</>
                 ) : (
-                  <span className="text-blue-700">
-                    <strong>Read-Only Mode:</strong> Agents provide analysis and instructions but don't modify files.
-                  </span>
+                  <>MODE: READ ONLY - AGENTS PROVIDE ANALYSIS AND INSTRUCTIONS WITHOUT FILE MODIFICATION</>
                 )}
-              </AlertDescription>
-            </Alert>
+              </p>
+            </div>
           </div>
         </div>
       </section>
