@@ -776,7 +776,7 @@ export default function AdminConsultingAgents() {
                       disabled={isLoading || !message.trim()}
                       className="px-8 py-4 bg-black text-white font-light uppercase tracking-wide hover:bg-gray-800 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
                     >
-                      {bridgeStates[selectedAgent.id]?.enabled ? 'Implement' : 'Send'}
+                      {bridgeStates[selectedAgent.id]?.enabled ? 'Chat & Implement' : 'Chat & Advise'}
                     </button>
                   </div>
                 </div>
