@@ -197,9 +197,9 @@ export default function AdminDashboard() {
       <section className="relative min-h-screen flex items-center justify-center bg-black text-white overflow-hidden">
         <div className="absolute inset-0 opacity-40">
           <img 
-            src={HeroImage}
+            src="https://sselfie-training-zips.s3.eu-north-1.amazonaws.com/images/42585527/tracker_376_img_1_1753351123712.png"
             alt="Admin Command Center"
-            className="w-full h-full object-cover object-center-top"
+            className="w-full h-full object-cover object-center"
           />
         </div>
         
