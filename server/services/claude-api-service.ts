@@ -983,14 +983,11 @@ COMMUNICATION STYLE:
     
     // Add tool results to conversation and continue
     if (toolResults.length > 0) {
-      // Add tool results as proper tool_result content to assistant's message
-      const assistantMessageWithTools = {
-        role: 'assistant',
-        content: response.content.concat(toolResults)
-      };
-      
-      // Replace the last assistant message with the one that includes tool results
-      currentMessages[currentMessages.length - 1] = assistantMessageWithTools;
+      // Add a user message with tool results (this is the correct format for Claude API)
+      currentMessages.push({
+        role: 'user',
+        content: toolResults
+      });
       
       console.log(`🔄 CONTINUING CONVERSATION: Processing ${toolResults.length} tool results. Current response length: ${finalResponse.length}`);
       
