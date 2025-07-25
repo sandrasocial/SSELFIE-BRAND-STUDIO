@@ -114,6 +114,8 @@ export class ClaudeApiService {
   }
 
   async getConversationHistory(conversationId: string): Promise<AgentMessage[]> {
+    console.log('📜 getConversationHistory called for:', conversationId);
+    
     const conversation = await db
       .select()
       .from(claudeConversations)
@@ -121,8 +123,11 @@ export class ClaudeApiService {
       .limit(1);
 
     if (conversation.length === 0) {
+      console.log('📜 No conversation found for ID:', conversationId);
       return [];
     }
+
+    console.log('📜 Found conversation:', conversation[0].id, 'messageCount:', conversation[0].messageCount);
 
     const messages = await db
       .select()
@@ -130,13 +135,23 @@ export class ClaudeApiService {
       .where(eq(claudeMessages.conversationId, conversation[0].id))
       .orderBy(claudeMessages.timestamp);
 
-    return messages.map(msg => ({
+    console.log('📜 Found', messages.length, 'messages in database');
+    if (messages.length > 0) {
+      console.log('📜 First message:', { role: messages[0].role, contentLength: messages[0].content?.length });
+      console.log('📜 Last message:', { role: messages[messages.length - 1].role, contentLength: messages[messages.length - 1].content?.length });
+    }
+
+    const mappedMessages = messages.map(msg => ({
       role: msg.role as 'user' | 'assistant' | 'system',
       content: msg.content,
       metadata: msg.metadata,
       toolCalls: msg.toolCalls,
       toolResults: msg.toolResults,
+      timestamp: msg.timestamp
     }));
+
+    console.log('📜 Returning', mappedMessages.length, 'mapped messages');
+    return mappedMessages;
   }
 
   async sendMessage(

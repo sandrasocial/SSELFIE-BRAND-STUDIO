@@ -238,6 +238,17 @@ router.post('/conversation/new', async (req, res) => {
       .orderBy(desc(claudeConversations.lastMessageAt))
       .limit(1);
 
+    console.log('🔍 Database search result:', existingConversations.length, 'conversations found');
+    if (existingConversations.length > 0) {
+      console.log('🔍 Found conversation details:', {
+        id: existingConversations[0].id,
+        conversationId: existingConversations[0].conversationId,
+        messageCount: existingConversations[0].messageCount,
+        agentName: existingConversations[0].agentName,
+        status: existingConversations[0].status
+      });
+    }
+
     let conversationId;
     
     if (existingConversations.length > 0) {
