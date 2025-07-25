@@ -114,6 +114,63 @@ export const templates = pgTable("templates", {
   createdAt: timestamp("created_at").defaultNow(),
 });
 
+// Claude API agent memory and learning tables
+export const claudeConversations = pgTable("claude_conversations", {
+  id: serial("id").primaryKey(),
+  userId: varchar("user_id").references(() => users.id, { onDelete: "cascade" }).notNull(),
+  agentName: varchar("agent_name").notNull(), // elena, aria, maya, etc
+  conversationId: varchar("conversation_id").notNull().unique(), // unique session identifier
+  title: varchar("title"),
+  status: varchar("status").default("active"), // active, archived
+  lastMessageAt: timestamp("last_message_at").defaultNow(),
+  messageCount: integer("message_count").default(0),
+  context: jsonb("context"), // conversation context and preferences
+  createdAt: timestamp("created_at").defaultNow(),
+  updatedAt: timestamp("updated_at").defaultNow(),
+});
+
+// Claude API messages table for detailed conversation history
+export const claudeMessages = pgTable("claude_messages", {
+  id: serial("id").primaryKey(),
+  conversationId: integer("conversation_id").references(() => claudeConversations.id, { onDelete: "cascade" }).notNull(),
+  role: varchar("role").notNull(), // user, assistant, system
+  content: text("content").notNull(),
+  metadata: jsonb("metadata"), // tool calls, attachments, etc
+  toolCalls: jsonb("tool_calls"), // Claude tool execution data
+  toolResults: jsonb("tool_results"), // Tool execution results
+  timestamp: timestamp("timestamp").defaultNow(),
+  createdAt: timestamp("created_at").defaultNow(),
+});
+
+// Agent learning data table for continuous improvement
+export const agentLearning = pgTable("agent_learning", {
+  id: serial("id").primaryKey(),
+  agentName: varchar("agent_name").notNull(),
+  userId: varchar("user_id").references(() => users.id, { onDelete: "cascade" }),
+  learningType: varchar("learning_type").notNull(), // preference, pattern, skill, context
+  category: varchar("category"), // design, technical, communication, etc
+  data: jsonb("data").notNull(), // learning content
+  confidence: decimal("confidence", { precision: 3, scale: 2 }).default("0.5"), // 0.0 to 1.0
+  frequency: integer("frequency").default(1), // how often this pattern occurs
+  lastSeen: timestamp("last_seen").defaultNow(),
+  createdAt: timestamp("created_at").defaultNow(),
+  updatedAt: timestamp("updated_at").defaultNow(),
+});
+
+// Agent capabilities and tools table
+export const agentCapabilities = pgTable("agent_capabilities", {
+  id: serial("id").primaryKey(),
+  agentName: varchar("agent_name").notNull(),
+  capabilityType: varchar("capability_type").notNull(), // tool, knowledge, skill
+  name: varchar("name").notNull(),
+  description: text("description"),
+  enabled: boolean("enabled").default(true),
+  config: jsonb("config"), // capability configuration
+  version: varchar("version").default("1.0"),
+  createdAt: timestamp("created_at").defaultNow(),
+  updatedAt: timestamp("updated_at").defaultNow(),
+});
+
 
 
 // Agent conversations table for chat persistence with threading support
@@ -398,6 +455,12 @@ export const insertMayaChatSchema = createInsertSchema(mayaChats).omit({ id: tru
 export const insertMayaChatMessageSchema = createInsertSchema(mayaChatMessages).omit({ id: true, createdAt: true });
 export const insertAgentConversationSchema = createInsertSchema(agentConversations).omit({ id: true, timestamp: true });
 
+// Claude API schemas
+export const insertClaudeConversationSchema = createInsertSchema(claudeConversations).omit({ id: true, createdAt: true, updatedAt: true });
+export const insertClaudeMessageSchema = createInsertSchema(claudeMessages).omit({ id: true, createdAt: true, timestamp: true });
+export const insertAgentLearningSchema = createInsertSchema(agentLearning).omit({ id: true, createdAt: true, updatedAt: true });
+export const insertAgentCapabilitySchema = createInsertSchema(agentCapabilities).omit({ id: true, createdAt: true, updatedAt: true });
+
 
 
 
@@ -416,6 +479,16 @@ export type InsertBrandOnboarding = z.infer<typeof insertBrandOnboardingSchema>;
 export type BrandOnboarding = typeof brandOnboarding.$inferSelect;
 export type InsertUserProfile = z.infer<typeof insertUserProfileSchema>;
 export type InsertProject = z.infer<typeof insertProjectSchema>;
+
+// Claude API types
+export type ClaudeConversation = typeof claudeConversations.$inferSelect;
+export type InsertClaudeConversation = z.infer<typeof insertClaudeConversationSchema>;
+export type ClaudeMessage = typeof claudeMessages.$inferSelect;
+export type InsertClaudeMessage = z.infer<typeof insertClaudeMessageSchema>;
+export type AgentLearning = typeof agentLearning.$inferSelect;
+export type InsertAgentLearning = z.infer<typeof insertAgentLearningSchema>;
+export type AgentCapability = typeof agentCapabilities.$inferSelect;
+export type InsertAgentCapability = z.infer<typeof insertAgentCapabilitySchema>;
 export type Project = typeof projects.$inferSelect;
 export type InsertAiImage = z.infer<typeof insertAiImageSchema>;
 export type AiImage = typeof aiImages.$inferSelect;
@@ -561,18 +634,7 @@ export type InsertUserGeneratedWebsite = z.infer<typeof insertUserGeneratedWebsi
 export type WebsiteBuilderConversation = typeof websiteBuilderConversations.$inferSelect;
 export type InsertWebsiteBuilderConversation = z.infer<typeof insertWebsiteBuilderConversationsSchema>;
 
-// Agent Learning & Training System Tables
-export const agentLearning = pgTable("agent_learning", {
-  id: serial("id").primaryKey(),
-  agentId: varchar("agent_id").notNull(),
-  taskType: varchar("task_type").notNull(),
-  context: text("context").notNull(),
-  outcome: varchar("outcome").notNull(), // 'success', 'failure', 'partial'
-  learningNotes: text("learning_notes").notNull(),
-  metadata: jsonb("metadata").default({}),
-  timestamp: timestamp("timestamp").defaultNow().notNull(),
-  userId: varchar("user_id"), // Optional: track which user's task this was
-});
+
 
 export const agentKnowledgeBase = pgTable("agent_knowledge_base", {
   id: serial("id").primaryKey(),
@@ -608,10 +670,10 @@ export const agentTrainingSessions = pgTable("agent_training_sessions", {
   trainedBy: varchar("trained_by"), // User ID who initiated training
 });
 
-// Agent Learning Schemas
-export const insertAgentLearningSchema = createInsertSchema(agentLearning);
-export type InsertAgentLearning = z.infer<typeof insertAgentLearningSchema>;
-export type AgentLearning = typeof agentLearning.$inferSelect;
+// Additional Agent Learning Schemas
+export const insertAgentKnowledgeBaseSchemaOnly = createInsertSchema(agentKnowledgeBase);
+export type InsertAgentKnowledgeBaseOnly = z.infer<typeof insertAgentKnowledgeBaseSchemaOnly>;
+export type AgentKnowledgeBaseType = typeof agentKnowledgeBase.$inferSelect;
 
 export const insertAgentKnowledgeBaseSchema = createInsertSchema(agentKnowledgeBase);
 export type InsertAgentKnowledgeBase = z.infer<typeof insertAgentKnowledgeBaseSchema>;

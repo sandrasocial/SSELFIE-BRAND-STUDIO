@@ -30,6 +30,7 @@ import session from 'express-session';
 import { registerCheckoutRoutes } from './routes/checkout';
 import { registerAutomationRoutes } from './routes/automation';
 import { registerEnterpriseRoutes } from './routes/enterprise-routes';
+import claudeApiRoutes from './routes/claude-api-routes';
 // Agent performance monitor will be imported dynamically
 import { ExternalAPIService } from './integrations/external-api-service';
 import { AgentAutomationTasks } from './integrations/agent-automation-tasks';
@@ -169,6 +170,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
   
   // Agent learning & training routes  
   app.use('/api/agent-learning', agentLearningRoutes);
+
+  // Claude API routes for enhanced agent capabilities
+  app.use('/api/claude', claudeApiRoutes);
   
   // Enhanced Elena workflow routes with multi-agent communication
   app.post('/api/enhanced-elena/create-workflow', async (req, res) => {
