@@ -179,9 +179,9 @@ export class ClaudeApiService {
       // Build messages array for Claude
       const messages: any[] = [];
 
-      // Add conversation history
+      // Add conversation history (filter out empty messages to avoid Claude API errors)
       for (const msg of history) {
-        if (msg.role !== 'system') {
+        if (msg.role !== 'system' && msg.content && msg.content.trim().length > 0) {
           messages.push({
             role: msg.role,
             content: msg.content
@@ -193,6 +193,12 @@ export class ClaudeApiService {
       messages.push({
         role: 'user',
         content: userMessage
+      });
+
+      // Debug: Log message array before sending to Claude
+      console.log('🔍 Message array being sent to Claude:');
+      messages.forEach((msg, index) => {
+        console.log(`  [${index}] ${msg.role}: "${msg.content?.substring(0, 100)}..." (length: ${msg.content?.length || 0})`);
       });
 
       // Universal dynamic tools - flexible for any task, not hardcoded
