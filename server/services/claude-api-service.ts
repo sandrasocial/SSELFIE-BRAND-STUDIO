@@ -3,6 +3,7 @@ import { z } from 'zod';
 import { db } from '../db';
 import { claudeConversations, claudeMessages, agentLearning, agentCapabilities } from '@shared/schema';
 import { UniversalAgentTools } from '../tools/universal-agent-tools';
+import { comprehensive_agent_toolkit } from '../tools/comprehensive_agent_toolkit';
 import { eq, and, desc } from 'drizzle-orm';
 import fetch from 'node-fetch';
 
