@@ -94,10 +94,10 @@ export default function AdminDashboard() {
           </h2>
           <div className="flex justify-center gap-4">
             <Button 
-              onClick={() => window.open('/admin/visual-editor', '_blank')}
+              onClick={() => window.location.href = '/workspace'}
               className="bg-black text-white hover:bg-gray-800"
             >
-              Open Visual Editor
+              Go to Workspace
             </Button>
             <Button 
               onClick={() => window.location.href = '/'}
