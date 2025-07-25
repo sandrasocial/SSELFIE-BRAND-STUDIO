@@ -991,13 +991,19 @@ COMMUNICATION STYLE:
       
       console.log(`🔄 CONTINUING CONVERSATION: Processing ${toolResults.length} tool results. Current response length: ${finalResponse.length}`);
       
-      // Continue conversation with tool results
+      // Add explicit analysis instruction to prevent more tool usage
+      currentMessages.push({
+        role: 'user',
+        content: "Now provide your comprehensive analysis based on the tool results above. Do not use any more tools - just analyze and respond with your findings."
+      });
+      
+      // Continue conversation with tool results - NO TOOLS to force analysis
       const continuationResponse = await anthropic.messages.create({
         model: DEFAULT_MODEL_STR,
         max_tokens: 4000,
         system: systemPrompt,
         messages: currentMessages,
-        tools: tools,
+        // NO TOOLS - force Claude to analyze instead of making more tool calls
       });
       
       // Extract ALL text content from continuation response
