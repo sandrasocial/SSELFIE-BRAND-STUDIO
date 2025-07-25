@@ -113,6 +113,62 @@ router.get('/agent/:agentName/memory', async (req, res) => {
   }
 });
 
+// Get conversation history by conversation ID
+router.get('/conversation/:conversationId/history', async (req, res) => {
+  try {
+    const { conversationId } = req.params;
+    
+    if (!req.isAuthenticated?.() || !req.user) {
+      return res.status(401).json({ error: 'Authentication required' });
+    }
+
+    const history = await claudeApiService.getConversationHistory(conversationId);
+
+    res.json({
+      success: true,
+      messages: history,
+      conversationId,
+    });
+  } catch (error) {
+    console.error('Get conversation history error:', error);
+    const errorMessage = error instanceof Error ? error.message : 'Unknown error';
+    res.status(500).json({ 
+      error: 'Failed to get conversation history',
+      details: errorMessage 
+    });
+  }
+});
+
+// Clear conversation (preserves agent memory)
+router.post('/conversation/clear', async (req, res) => {
+  try {
+    const { agentName } = req.body;
+    
+    if (!req.isAuthenticated?.() || !req.user) {
+      return res.status(401).json({ error: 'Authentication required' });
+    }
+
+    if (!agentName) {
+      return res.status(400).json({ error: 'Agent name is required' });
+    }
+
+    const userId = (req.user as any).id;
+    await claudeApiService.clearConversation(userId, agentName);
+
+    res.json({
+      success: true,
+      message: 'Conversation cleared successfully',
+    });
+  } catch (error) {
+    console.error('Clear conversation error:', error);
+    const errorMessage = error instanceof Error ? error.message : 'Unknown error';
+    res.status(500).json({ 
+      error: 'Failed to clear conversation',
+      details: errorMessage 
+    });
+  }
+});
+
 // Get agent capabilities
 router.get('/agent/:agentName/capabilities', async (req, res) => {
   try {

@@ -76,6 +76,41 @@ const createClaudeConversation = async (agentName: string) => {
   return response.json();
 };
 
+const loadConversationHistory = async (conversationId: string) => {
+  const response = await fetch(`/api/claude/conversation/${conversationId}/history`, {
+    method: 'GET',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    credentials: 'include',
+  });
+
+  if (!response.ok) {
+    const error = await response.json();
+    throw new Error(error.details || 'Failed to load conversation history');
+  }
+
+  return response.json();
+};
+
+const clearConversation = async (agentName: string) => {
+  const response = await fetch('/api/claude/conversation/clear', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    credentials: 'include',
+    body: JSON.stringify({ agentName }),
+  });
+
+  if (!response.ok) {
+    const error = await response.json();
+    throw new Error(error.details || 'Failed to clear conversation');
+  }
+
+  return response.json();
+};
+
 export default function AdminConsultingAgents() {
   const { user } = useAuth();
   const [location] = useLocation();
@@ -84,6 +119,7 @@ export default function AdminConsultingAgents() {
   const [isLoading, setIsLoading] = useState(false);
   const [messages, setMessages] = useState<ChatMessage[]>([]);
   const [conversationId, setConversationId] = useState<string | null>(null);
+  const [isLoadingHistory, setIsLoadingHistory] = useState(false);
 
   // Define agents with matching admin dashboard data
   const consultingAgents: ConsultingAgent[] = [
@@ -180,7 +216,7 @@ export default function AdminConsultingAgents() {
     }
   ];
 
-  // Auto-select agent from URL parameter
+  // Auto-select agent from URL parameter and load conversation history
   useEffect(() => {
     const urlParams = new URLSearchParams(location.split('?')[1] || '');
     const agentParam = urlParams.get('agent');
@@ -192,6 +228,45 @@ export default function AdminConsultingAgents() {
       }
     }
   }, [location, selectedAgent, consultingAgents]);
+
+  // Load conversation history when agent is selected
+  useEffect(() => {
+    if (selectedAgent && !conversationId) {
+      loadAgentConversationHistory();
+    }
+  }, [selectedAgent]);
+
+  const loadAgentConversationHistory = async () => {
+    if (!selectedAgent) return;
+
+    setIsLoadingHistory(true);
+    try {
+      // Create or get conversation for this agent
+      const conversation = await createClaudeConversation(selectedAgent.id);
+      setConversationId(conversation.conversationId);
+
+      // Load existing messages if any
+      try {
+        const history = await loadConversationHistory(conversation.conversationId);
+        if (history.messages && history.messages.length > 0) {
+          const chatMessages: ChatMessage[] = history.messages.map((msg: any, index: number) => ({
+            id: `${msg.timestamp || Date.now()}-${index}`,
+            type: msg.role === 'user' ? 'user' : 'agent',
+            content: msg.content,
+            timestamp: msg.timestamp || new Date().toISOString(),
+            agentName: msg.role === 'assistant' ? selectedAgent.name : undefined,
+          }));
+          setMessages(chatMessages);
+        }
+      } catch (historyError) {
+        console.log('No existing conversation history found');
+      }
+    } catch (error) {
+      console.error('Failed to load conversation:', error);
+    } finally {
+      setIsLoadingHistory(false);
+    }
+  };
 
   const handleKeyPress = (e: React.KeyboardEvent) => {
     if (e.key === 'Enter' && !e.shiftKey) {
@@ -267,6 +342,36 @@ export default function AdminConsultingAgents() {
       setMessages(prev => [...prev, errorMessage]);
     } finally {
       setIsLoading(false);
+    }
+  };
+
+  const handleClearChat = async () => {
+    if (!selectedAgent) return;
+
+    try {
+      await clearConversation(selectedAgent.id);
+      setMessages([]);
+      setConversationId(null);
+      // Reload conversation to get fresh ID
+      await loadAgentConversationHistory();
+    } catch (error) {
+      console.error('Failed to clear conversation:', error);
+    }
+  };
+
+  const handleNewChat = async () => {
+    if (!selectedAgent) return;
+
+    // Reset frontend state
+    setMessages([]);
+    setConversationId(null);
+    
+    // Create a completely new conversation
+    try {
+      const conversation = await createClaudeConversation(selectedAgent.id);
+      setConversationId(conversation.conversationId);
+    } catch (error) {
+      console.error('Failed to create new conversation:', error);
     }
   };
 
@@ -358,21 +463,51 @@ export default function AdminConsultingAgents() {
           <div className="flex flex-col h-[600px]">
             {selectedAgent ? (
               <>
-                {/* Chat Header */}
+                {/* Chat Header with Management Controls */}
                 <div className="border-b border-gray-200 pb-6 mb-6">
-                  <div className="flex items-center gap-4">
-                    <img
-                      src={selectedAgent.image}
-                      alt={selectedAgent.name}
-                      className="w-16 h-16 object-cover rounded-sm"
-                    />
-                    <div>
-                      <h3 className="font-serif text-2xl font-light uppercase tracking-wide text-black">
-                        {selectedAgent.name}
-                      </h3>
-                      <p className="text-sm text-gray-600 uppercase tracking-wide">
-                        {selectedAgent.role}
-                      </p>
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-4">
+                      <img
+                        src={selectedAgent.image}
+                        alt={selectedAgent.name}
+                        className="w-16 h-16 object-cover rounded-sm"
+                      />
+                      <div>
+                        <h3 className="font-serif text-2xl font-light uppercase tracking-wide text-black">
+                          {selectedAgent.name}
+                        </h3>
+                        <p className="text-sm text-gray-600 uppercase tracking-wide">
+                          {selectedAgent.role}
+                        </p>
+                      </div>
+                    </div>
+
+                    {/* Chat Management Controls */}
+                    <div className="flex items-center gap-3">
+                      {isLoadingHistory && (
+                        <div className="flex items-center gap-2 text-xs text-gray-500 uppercase tracking-wide">
+                          <div className="w-3 h-3 border border-gray-400 border-t-black rounded-full animate-spin"></div>
+                          Loading Memory
+                        </div>
+                      )}
+                      {messages.length > 0 && !isLoading && (
+                        <>
+                          <button
+                            onClick={handleClearChat}
+                            className="px-3 py-1 text-xs font-light text-gray-600 hover:text-black border border-gray-300 hover:border-black transition-colors uppercase tracking-wider"
+                            title="Clear conversation (agent memory preserved)"
+                          >
+                            Clear
+                          </button>
+                          <button
+                            onClick={handleNewChat}
+                            className="px-3 py-1 text-xs font-light text-white bg-black hover:bg-gray-800 transition-colors uppercase tracking-wider"
+                            title="Start fresh conversation"
+                          >
+                            New Chat
+                          </button>
+                        </>
+                      )}
                     </div>
                   </div>
                 </div>
