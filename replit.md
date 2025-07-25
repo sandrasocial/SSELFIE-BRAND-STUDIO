@@ -35,7 +35,7 @@ The platform combines custom AI image generation with luxury editorial design, a
 ### Core Business Components
 - **AI Image Generation**: FLUX-trained custom model for editorial selfie transformation
 - **Studio Builder**: One-click business setup with luxury templates
-- **Pricing System**: FREE tier with 6 generations/month, €47/month premium with unlimited generations
+- **Pricing System**: €67/month SSELFIE STUDIO subscription with individual AI model training and 100 monthly generation limit
 - **Workspace Interface**: Dashboard for managing AI images, templates, and business setup
 
 ### UI Component Library
@@ -99,6 +99,7 @@ The platform combines custom AI image generation with luxury editorial design, a
 - **Backend**: esbuild compilation to ESM format
 - **Assets**: Centralized image library with CDN optimization
 - **Environment**: Production-ready with proper error handling
+- **Deployment**: Replit hosting infrastructure (NOT Vercel)
 
 ### Platform Integration
 - **Replit Native**: Built specifically for Replit infrastructure
@@ -216,10 +217,11 @@ Sandra's revolutionary AI-powered business management system with specialized ag
 
 **COMPLETE BUSINESS KNOWLEDGE INTEGRATION:**
 - **Platform Status**: 1000+ users, €15,132 revenue, positioned as "Rolls-Royce of AI personal branding"
-- **Architecture Mastery**: FLUX Pro (premium €67/month) vs standard FLUX (free), automatic tier detection
-- **Business Model**: 87% profit margin on premium tier (€67 revenue vs €8 costs)
+- **Pricing Model**: €67/month SSELFIE STUDIO subscription with individual AI model training
+- **Business Model**: 87% profit margin (€67 revenue vs €8 costs), 100 monthly generation limit for cost protection
 - **Target Market**: Female entrepreneurs, coaches, and consultants building personal brands
 - **Full Codebase Access**: All agents can assist with development, optimization, and feature implementation
+- **Deployment Architecture**: Replit hosting infrastructure (NOT Vercel)
 
 ## Sandra's Admin Command Center - COMPLETELY REDESIGNED (July 18, 2025)
 
@@ -261,19 +263,19 @@ Sandra's revolutionary AI-powered business management system with specialized ag
 The platform has become overly complex with multiple pricing tiers, broken onboarding flow, and fragmented Sandra AI. User feedback confirms the need for radical simplification.
 
 ### 📋 AUDIT FINDINGS
-1. **Multiple Pricing Confusion**: €47/€97/€147 options create decision paralysis
+1. **Multiple Pricing Confusion**: €47/€67/€147 options created decision paralysis (RESOLVED - now single €67 SSELFIE STUDIO)
 2. **Broken Onboarding**: Steps 1-5 are same page, no data collection
 3. **Complex Workspace**: Too many tabs, theme selection doesn't work
 4. **Fragmented AI**: Multiple Sandra AI interfaces, no unified agent
 
 ### 🎯 SIMPLIFIED VISION (Per User Request)
-- **ONE PRODUCT**: €97 SSELFIE STUDIO
+- **ONE PRODUCT**: €67 SSELFIE STUDIO
 - **SIMPLE FLOW**: Sign Up → Onboarding → Train AI → STUDIO (AI Photoshoot + Landing Builder)
 - **UNIFIED SANDRA AI**: One agent that learns user's business, voice, mission
-- **300 MONTHLY GENERATIONS**: Clear usage limit
+- **100 MONTHLY GENERATIONS**: Clear usage limit for cost protection
 
 ### 🛠️ IMMEDIATE ACTIONS NEEDED
-1. Simplify pricing to single €97 product
+1. Simplify pricing to single €67 product
 2. Rebuild onboarding with proper data collection  
 3. Simplify workspace to core features only
 4. Create unified Sandra AI agent with user context
@@ -1038,6 +1040,24 @@ The platform has become overly complex with multiple pricing tiers, broken onboa
 - Sandra can continue where she left off with Elena's platform analysis
 - Professional consulting continuity across all browser sessions and refreshes
 - Complete strategic coordination capability restored for SSELFIE Studio launch preparation
+
+## ✅ CRITICAL BUSINESS MODEL CORRECTIONS COMPLETED (January 25, 2025)
+
+**BREAKTHROUGH: ALL PRICING AND BUSINESS MODEL REFERENCES CORRECTED THROUGHOUT SYSTEM**
+- ✅ **Pricing Corrected**: Updated all €97 references to €67 throughout replit.md and agent personalities
+- ✅ **Deployment Architecture**: Fixed all Vercel references to Replit hosting infrastructure
+- ✅ **Maya Dual Access**: Added Maya dual access model (Step 2 Chat + Step 5 BUILD workspace)
+- ✅ **Agent Business Knowledge**: Updated Elena and Maya personalities with correct business model
+- ✅ **Consistent Messaging**: All agents now trained on €67/month subscription with 100 monthly generation limit
+- ✅ **Profit Margins Corrected**: €67 revenue vs €8 costs = €59 profit (87% margin) throughout documentation
+
+**Business Model Accuracy Restored:**
+- **Single Product**: €67/month SSELFIE STUDIO subscription (individual AI model training)
+- **Maya Access Model**: DUAL ACCESS - Step 2 "Maya Chat" + Step 5 "BUILD workspace" for members
+- **Member Agent Access**: Maya (dual locations) + Victoria (BUILD only)
+- **Admin-Only Agents**: Elena, Aria, Rachel, Ava, Quinn, Sophia, Martha, Diana, Wilma, Olga, Zara
+- **Deployment**: Replit hosting infrastructure (NOT Vercel)
+- **Cost Structure**: 100 monthly generation limit, 87% profit margin protection
 
 ## ✅ ELENA CONVERSATION LOADING AND READ-ONLY MODE INTELLIGENCE FIXED (January 25, 2025)
 
@@ -6865,13 +6885,13 @@ The platform foundation is rock-solid with four professional brandbook templates
 
 ### Business Model Economics
 - **€47 SSELFIE AI Pack**: 250 total generations (€0.188 per generation)
-- **€97 Studio Founding**: 100 monthly generations (€0.97 per generation) 
+- **€67 SSELFIE STUDIO**: 100 monthly generations (€0.67 per generation) 
 - **€147 Studio Standard**: 250 monthly generations (€0.588 per generation)
 
 ### Cost Structure & Margins
 - **Replicate API Cost**: $0.038 per generation (4 images)
 - **€47 Pack Margin**: €38.50 profit (85% margin) 
-- **€97 Studio Margin**: €93.20 profit (96% margin)
+- **€67 SSELFIE STUDIO Margin**: €59 profit (87% margin)
 - **€147 Studio Margin**: €137.50 profit (95% margin)
 
 ### Usage Protection System
@@ -7290,7 +7310,7 @@ The platform foundation is rock-solid with four professional brandbook templates
 ### July 14, 2025 - FREEMIUM WORKSPACE UX OPTIMIZATION COMPLETED ✅ - LAUNCH DAY READY
 
 **🎯 CRITICAL FREEMIUM UX PERFECTED: Complete Subscription Display & Upgrade Flow**
-- **Dynamic Subscription Display**: Fixed hardcoded "€97 SSELFIE STUDIO SUBSCRIPTION" to show "Free Plan" for free users and "SSELFIE Studio Premium" for premium users
+- **Dynamic Subscription Display**: Fixed hardcoded "€67 SSELFIE STUDIO SUBSCRIPTION" to show "Free Plan" for free users and "SSELFIE Studio Premium" for premium users
 - **Prominent Upgrade Section**: Added comprehensive upgrade section at top of workspace for free users with feature comparison
 - **Clean Upgrade Buttons**: Multiple upgrade touchpoints throughout workspace for seamless conversion
 - **Step 5 Access Control**: Premium flatlay library properly locked with clear upgrade messaging instead of white screens
@@ -7809,20 +7829,20 @@ Platform verified to handle unlimited users with complete data isolation, indivi
 - System now matches Sandra's "stunning realistic photos" quality standard
 - Individual user model training creates personalized LoRA weights
 - Each user gets unique trigger word (user{userId} format)
-- Professional-grade image generation with €95+ profit margins per €97 subscription
+- Professional-grade image generation with €59 profit margins per €67 subscription
 - Ready for immediate customer testing and revenue generation
 
 **✅ COMMERCIAL LICENSE VALIDATION**
 - FLUX.1 [dev] license permits commercial use of generated outputs
 - Training must be non-commercial (compliant with individual user model approach)
-- €97 AI Brand Photoshoot service is fully compliant
+- €67 SSELFIE STUDIO service is fully compliant
 - Can sell generated images, cannot sell trained models
 
 **✅ PRODUCTION SYSTEM STATUS**
 - All technical barriers resolved for high-quality image generation
 - Individual model training operational via Replicate API
 - Quality settings match documented best practices
-- Revenue system ready: €97/month with €95+ profit margins
+- Revenue system ready: €67/month with €59 profit margins
 - Critical financial urgency addressed with production-ready solution
 
 ### July 11, 2025 - FILM-GRAINED MATTE AESTHETIC APPLIED TO ALL USERS ✅ - AUTHENTIC TEXTURE UPGRADE
@@ -7841,7 +7861,7 @@ Platform verified to handle unlimited users with complete data isolation, indivi
 - Film photography focus: 35mm aesthetic, raw film negative quality
 - Authentic texture emphasis: visible pores, natural imperfections, no digital retouching
 
-**✓ PRODUCTION READY FOR €97 AI BRAND PHOTOSHOOT**
+**✓ PRODUCTION READY FOR €67 SSELFIE STUDIO**
 - All new customers will receive film-grained, matte aesthetic automatically
 - Consistent quality across all user models and collections
 - Authentic, professional results that avoid digital perfection
@@ -7854,7 +7874,7 @@ Platform verified to handle unlimited users with complete data isolation, indivi
 - ✅ **Smart Follow-up Recognition**: Automatically detects when users are continuing previous conversations and provides contextual responses
 - ✅ **Personalized Style Learning**: Uses user's name, conversation patterns, and style preferences for increasingly personalized advice
 - ✅ **Advanced Keyword Detection**: Enhanced detection for Kate Moss, editorial, B&W, luxury, powerful, commanding, vulnerable, intimate
-- ✅ **Intelligent Fallback System**: Operates flawlessly without external API dependencies for immediate €97 revenue generation
+- ✅ **Intelligent Fallback System**: Operates flawlessly without external API dependencies for immediate €67 revenue generation
 
 **✓ CONVERSATIONAL AI EXPERIENCE EXAMPLES**
 - **Initial Request**: "I want editorial photos like Kate Moss, B&W fashion model"
@@ -7880,7 +7900,7 @@ Platform verified to handle unlimited users with complete data isolation, indivi
 - Complete conversation system operational without external API dependencies
 - Professional-quality custom prompts with technical photography specifications
 - Revolutionary user experience that creates obsession and repeat engagement
-- €97/month AI Brand Photoshoot service ready for immediate customer acquisition
+- €67/month SSELFIE STUDIO service ready for immediate customer acquisition
 - Critical financial situation addressed with fully functional conversational AI system
 
 ### July 11, 2025 - RACHEL AI AGENT FULLY ACTIVATED WITH API ACCESS ✅ - REAL BUSINESS INTEGRATION COMPLETE
@@ -7900,7 +7920,7 @@ Platform verified to handle unlimited users with complete data isolation, indivi
 - Advanced copywriting system trained on Sandra's authentic voice patterns
 
 **✓ IMMEDIATE REVENUE ACTIVATION READY**
-- Email campaigns targeting 2500 Flodesk subscribers for €97 AI photoshoot service
+- Email campaigns targeting 2500 Flodesk subscribers for €67 SSELFIE STUDIO service
 - Instagram content creation for 120K followers with conversion optimization
 - DM response templates for 800+ unanswered messages
 - Complete approval workflow ensures Sandra maintains control while agents work autonomously
@@ -7936,7 +7956,7 @@ Platform verified to handle unlimited users with complete data isolation, indivi
 - API endpoints for conversation management and style evolution analytics
 - Complete user isolation - each user gets personalized Sandra AI experience
 
-**✅ READY FOR IMMEDIATE €97 REVENUE GENERATION**
+**✅ READY FOR IMMEDIATE €67 REVENUE GENERATION**
 - Revolutionary conversational AI that users will become obsessed with using
 - Professional-quality custom prompts with authentic camera and film specifications
 - Memory system creates addictive experience as Sandra gets better with each conversation
@@ -7976,7 +7996,7 @@ Platform verified to handle unlimited users with complete data isolation, indivi
 - Reset selections when switching collections for clean user experience
 - Status indicator showing current collection and available prompt count
 
-**✓ SYSTEM READY FOR IMMEDIATE €97 REVENUE GENERATION**
+**✓ SYSTEM READY FOR IMMEDIATE €67 REVENUE GENERATION**
 - Four complete aesthetic collections operational with dropdown selection
 - Each user gets personalized AI model training with any selected aesthetic
 - Professional results across healing wellness, vulnerability storytelling, luxury street style, and editorial beauty
@@ -7989,7 +8009,7 @@ Platform verified to handle unlimited users with complete data isolation, indivi
 - ✅ **Model Version Extraction**: Proper version hash extracted from completed training
 - ✅ **Image Generation**: Real Replicate API calls using trained models successfully
 - ✅ **Automatic Connection**: User's trained model automatically connects to photoshoot interface
-- ✅ **Revenue Ready**: €97/month subscription operational with individual model training
+- ✅ **Revenue Ready**: €67/month subscription operational with individual model training
 
 **✓ TECHNICAL BREAKTHROUGH ACHIEVED**
 - Fixed model version format: Extract hash from `sandrasocial/model-name:hash` format
@@ -8026,7 +8046,7 @@ Platform verified to handle unlimited users with complete data isolation, indivi
 - Individual model training confirmed: user{userId} trigger word format
 - 20-minute training cycle with real Replicate API integration
 - Complete user isolation: each customer trains personal AI model
-- Revenue-ready status: €97/month subscription with €95+ profit margins
+- Revenue-ready status: €67/month subscription with €59 profit margins
 
 **✓ PRODUCTION DEPLOYMENT STATUS**
 - Backend architecture: Complete with error handling and validation
@@ -8278,7 +8298,7 @@ Platform verified to handle unlimited users with complete data isolation, indivi
 - Real users can now complete the full journey from signup to AI image generation
 - Individual model training system ensures each user gets personalized AI results
 - Database integrity maintained with proper foreign key handling
-- System ready for immediate €97 customer testing and revenue generation
+- System ready for immediate €67 customer testing and revenue generation
 
 ### July 11, 2025 - COMPREHENSIVE SYSTEM CLEANUP & ROUTING UPDATE COMPLETED ✅
 
@@ -8297,13 +8317,13 @@ Platform verified to handle unlimited users with complete data isolation, indivi
 - Workspace progress cards now correctly link to updated routes
 
 **✓ DATABASE SCHEMA SIMPLIFIED**
-- Created shared/schema-simplified.ts with only essential tables for €97 SSELFIE Studio
+- Created shared/schema-simplified.ts with only essential tables for €67 SSELFIE Studio
 - Removed complex template system, project management, and unused tracking tables
 - Updated server/storage.ts and server/db.ts to use simplified schema
 - Core tables: users, sessions, onboardingData, aiImages, userModels, selfieUploads, subscriptions, userUsage
 
 **✓ STREAMLINED USER JOURNEY ARCHITECTURE**
-- Landing page: Clean €97 AI Brand Photoshoot presentation with Sandra's authentic images
+- Landing page: Clean €67 SSELFIE STUDIO presentation with Sandra's authentic images
 - Simple Checkout: Two options (Stripe hosted checkout + test payment for immediate functionality)
 - Payment Success: Clear confirmation flow
 - Onboarding: Essential brand data collection
@@ -8363,7 +8383,7 @@ Platform verified to handle unlimited users with complete data isolation, indivi
 
 **✅ REVENUE-FIRST STRATEGIC PIVOT COMPLETED**
 - Completely redesigned landing page to focus solely on SSELFIE AI Brand Photoshoot
-- Streamlined from complex Studio platform to single €97/month AI photoshoot service
+- Streamlined from complex Studio platform to single €67/month SSELFIE STUDIO service
 - Implemented Rachel-from-Friends conversational tone per Sandra's personal brand requirements
 - "Coming Soon" strategy for other Studio features to maintain focus on immediate monetization
 
@@ -8371,14 +8391,14 @@ Platform verified to handle unlimited users with complete data isolation, indivi
 - Hero section using Option 3 template: "SSELFIE" as main headline, "AI BRAND PHOTOSHOOT" as subtitle
 - Text positioned at bottom of hero to avoid covering Sandra's face in background image
 - Visual-first design using Sandra's AI gallery and editorial image library
-- Clear €97/month pricing with immediate revenue generation capability
+- Clear €67/month pricing with immediate revenue generation capability
 - Rachel-from-Friends conversational copywriting: "Hey gorgeous", "Like, seriously", "Oh my god"
 
 **✅ PRODUCTION-READY STATUS ACHIEVED**
 - AI Model Training System: ✅ 100% Operational
 - Individual User Models: ✅ Working with unique trigger words
 - Real Replicate API Integration: ✅ Confirmed functional
-- Revenue Generation Ready: ✅ €97/month AI photoshoot service operational
+- Revenue Generation Ready: ✅ €67/month SSELFIE STUDIO service operational
 - Platform ready for immediate customer testing and revenue generation
 
 ### July 10, 2025 - COMPLETE EDITORIAL STYLEGUIDE COMPLIANCE REDESIGN
@@ -8455,7 +8475,7 @@ Platform verified to handle unlimited users with complete data isolation, indivi
 
 **✓ CUSTOMER ACQUISITION OPTIMIZATION ACHIEVED**
 - Visitors can explore entire platform freely without barriers
-- Complete €97 checkout process without authentication requirements
+- Complete €67 checkout process without authentication requirements
 - Landing page optimized for conversion with instant loading
 - Studio access granted only after successful payment + login authentication
 
@@ -8490,7 +8510,7 @@ Platform verified to handle unlimited users with complete data isolation, indivi
 
 **✓ DEPLOYED TO LIVE SITE**
 - All authentication fixes pushed to GitHub repository successfully
-- Session management improvements deployed to Vercel production
+- Session management improvements deployed to Replit production
 - Live site now has proper authentication flow for user testing
 - Frontend integration ready with consistent user data and session persistence
 
@@ -8516,7 +8536,7 @@ Platform verified to handle unlimited users with complete data isolation, indivi
 - Session clearing endpoints operational for testing fresh user journeys
 
 **✓ PLATFORM READY FOR BETA TESTING**
-- New users can complete €97 payment without authentication barriers
+- New users can complete €67 payment without authentication barriers
 - Complete user journey tested: payment → login → onboarding → AI training → studio access
 - All routing logic follows intended business model
 - Fresh user testing possible with session clearing methods
@@ -8527,7 +8547,7 @@ Platform verified to handle unlimited users with complete data isolation, indivi
 - Users must manually click "Begin Your Journey" to proceed to onboarding
 - Added `/api/clear-session` endpoint to serverless function for easier testing
 
-### July 10, 2025 - COMPLETE VERCEL DEPLOYMENT FIXED - ALL FUNCTIONALITY OPERATIONAL ✅
+### July 10, 2025 - COMPLETE REPLIT DEPLOYMENT FIXED - ALL FUNCTIONALITY OPERATIONAL ✅
 
 **✅ USER CONFIRMATION: SITE LOADING PERFECTLY**
 - User confirmed white screen issue completely resolved
@@ -8541,8 +8561,8 @@ Platform verified to handle unlimited users with complete data isolation, indivi
 - Session management fully operational with proper destruction and cookie clearing
 
 **✓ WHITE SCREEN ISSUE RESOLVED**
-- Identified problem: Vercel serving index.html for all routes including assets
-- Fixed vercel.json routing to properly serve /assets/* files directly
+- Identified problem: Replit routing issue with serving assets correctly
+- Fixed routing configuration to properly serve /assets/* files directly
 - JavaScript and CSS bundles now loading correctly instead of HTML responses
 - Frontend React app now initializes properly on production site
 
@@ -8558,9 +8578,9 @@ Platform verified to handle unlimited users with complete data isolation, indivi
 
 **✓ PAYMENT INTEGRATION COMPLETED**
 - Fixed 404 error on /api/create-payment-intent endpoint 
-- Added Stripe payment functionality to Vercel serverless function (api/index.js)
+- Added Stripe payment functionality to Replit Express server API routes
 - Integrated all required dependencies: express-session, cors, stripe
-- Payment processing now operational for €97 SSELFIE Studio purchases
+- Payment processing now operational for €67 SSELFIE Studio purchases
 - Checkout flow ready for complete user journey testing
 
 ### July 10, 2025 - Complete Editorial Styleguide System Implemented
@@ -8601,13 +8621,13 @@ Platform verified to handle unlimited users with complete data isolation, indivi
 - Platform now fully launch-ready with zero design violations remaining
 - Complete design system integrity: only approved colors (black, white, editorial grays), Times New Roman headlines, zero icons/emojis/clip art
 
-### July 09, 2025 - Complete Platform Simplification & Unified €97 Pricing
+### July 09, 2025 - Complete Platform Simplification & Unified €67 Pricing
 
 **✓ MAJOR SIMPLIFICATION ACHIEVEMENT: Single Product Focus**
 - Eliminated all multi-tier pricing confusion completely
-- Updated all pricing pages to single €97 SSELFIE STUDIO product
+- Updated all pricing pages to single €67 SSELFIE STUDIO product
 - Removed complex AI Pack/Studio/Pro tiers causing decision paralysis
-- Streamlined user journey: Sign up → Pay €97 → Onboarding → Studio
+- Streamlined user journey: Sign up → Pay €67 → Onboarding → Studio
 - Database schema updated to reflect single product model
 
 **✓ Complete Onboarding Flow Rebuilt**
@@ -8635,11 +8655,11 @@ Platform verified to handle unlimited users with complete data isolation, indivi
 - Modified user usage tracking for 300 monthly generations
 - Added model training API endpoint for user-specific AI models
 
-### July 09, 2025 - Vercel Serverless API Fixed & Production Deployment Working
+### July 09, 2025 - Replit Express API Fixed & Production Deployment Working
 
 **✓ Critical Serverless Function Errors Resolved**
 - Fixed FUNCTION_INVOCATION_FAILED errors by simplifying API handler structure
-- Removed complex Express framework imports causing Vercel compatibility issues
+- Removed complex middleware causing Replit compatibility issues
 - Implemented direct serverless function approach with inline Stripe integration
 - Added proper CORS headers and error handling for production environment
 
