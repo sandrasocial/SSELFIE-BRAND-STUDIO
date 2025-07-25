@@ -125,6 +125,10 @@ const formatToolResults = (content: string): string[] => {
 
 // Clean message content - remove raw tool outputs for professional display
 const cleanMessageContent = (content: string): string => {
+  // First, preserve the original content for debugging
+  console.log('🔍 Original agent response length:', content.length);
+  console.log('🔍 Original response preview:', content.substring(0, 200));
+  
   let cleaned = content
     .replace(/\n\n\[Codebase Search Results\][^]*?(?=\n\n|\n$|$)/g, '')
     .replace(/\n\n\[File Operation:[^]*?(?=\n\n|\n$|$)/g, '')
@@ -133,10 +137,11 @@ const cleanMessageContent = (content: string): string => {
     .replace(/\n\n\[.*?\][^]*?(?=\n\n|\n$|$)/g, '')
     .trim();
   
-  if (cleaned.length < 50) {
-    return "Analysis completed. Review the insights and recommendations above.";
-  }
-  return cleaned;
+  console.log('🔍 Cleaned response length:', cleaned.length);
+  console.log('🔍 Cleaned response preview:', cleaned.substring(0, 200));
+  
+  // Return the cleaned content regardless of length - don't replace with generic message
+  return cleaned || content; // Fallback to original if cleaning went wrong
 };
 
 export default function AdminConsultingAgents() {
