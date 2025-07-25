@@ -1,5 +1,6 @@
 import fs from 'fs/promises';
 import path from 'path';
+import { performSafetyCheck, safeFileModification } from './file_safety_guard';
 
 interface EnhancedEditParams {
   command: 'view' | 'create' | 'str_replace' | 'insert' | 'line_replace' | 'section_replace' | 'multi_replace';
@@ -131,8 +132,15 @@ async function createFile(filePath: string, content: string) {
     const dir = path.dirname(filePath);
     await fs.mkdir(dir, { recursive: true });
     
-    // Write file
-    await fs.writeFile(filePath, content, 'utf-8');
+    // Use safe file modification with safety checks
+    const createResult = await safeFileModification(filePath, content, {
+      enableSyntaxCheck: true,
+      enableBackup: false // No backup needed for new files
+    });
+    
+    if (!createResult.success) {
+      throw new Error(`Safe file creation failed: ${createResult.message}`);
+    }
     
     return `File created successfully: ${filePath}`;
   } catch (error) {
