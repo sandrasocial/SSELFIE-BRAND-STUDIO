@@ -145,7 +145,8 @@ export class ClaudeApiService {
     conversationId: string,
     userMessage: string,
     systemPrompt?: string,
-    tools?: any[]
+    tools?: any[],
+    fileEditMode?: boolean
   ): Promise<string> {
     try {
       // Ensure conversation exists
@@ -225,14 +226,14 @@ export class ClaudeApiService {
         },
         {
           name: "str_replace_based_edit_tool",
-          description: "Universal file operations - view, create, edit any file with full flexibility",
+          description: fileEditMode ? "Universal file operations - view, create, edit any file with full flexibility" : "File viewing operations - analyze and understand code structure (read-only mode)",
           input_schema: {
             type: "object",
             properties: {
               command: { 
                 type: "string", 
-                enum: ["view", "create", "str_replace", "insert"],
-                description: "Operation to perform: view (read file), create (new file), str_replace (find/replace), insert (add text at line)"
+                enum: fileEditMode ? ["view", "create", "str_replace", "insert"] : ["view"],
+                description: fileEditMode ? "Operation to perform: view (read file), create (new file), str_replace (find/replace), insert (add text at line)" : "Only 'view' command available in read-only mode"
               },
               path: { 
                 type: "string",

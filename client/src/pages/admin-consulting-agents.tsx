@@ -1,6 +1,10 @@
 import React, { useState, useEffect } from 'react';
 import { useLocation } from 'wouter';
 import { useAuth } from '@/hooks/use-auth';
+import { Switch } from '@/components/ui/switch';
+import { Label } from '@/components/ui/label';
+import { Shield, Zap, Search, FileText, Terminal, Globe } from 'lucide-react';
+import { Alert, AlertDescription } from '@/components/ui/alert';
 import { MemberNavigation } from '@/components/member-navigation';
 import { GlobalFooter } from '@/components/global-footer';
 
@@ -111,6 +115,32 @@ const clearConversation = async (agentName: string) => {
   return response.json();
 };
 
+// Tool result formatting functions
+const formatToolResults = (content: string): string[] => {
+  const tools: string[] = [];
+  if (content.includes('[Codebase Search Results]')) tools.push('search_filesystem');
+  if (content.includes('[File Operation:')) tools.push('str_replace_based_edit_tool');
+  if (content.includes('[Command Execution]')) tools.push('bash');
+  if (content.includes('[Web Search Results]')) tools.push('web_search');
+  return tools;
+};
+
+// Clean message content - remove raw tool outputs for professional display
+const cleanMessageContent = (content: string): string => {
+  let cleaned = content
+    .replace(/\n\n\[Codebase Search Results\][^]*?(?=\n\n|\n$|$)/g, '')
+    .replace(/\n\n\[File Operation:[^]*?(?=\n\n|\n$|$)/g, '')
+    .replace(/\n\n\[Command Execution\][^]*?(?=\n\n|\n$|$)/g, '')
+    .replace(/\n\n\[Web Search Results\][^]*?(?=\n\n|\n$|$)/g, '')
+    .replace(/\n\n\[.*?\][^]*?(?=\n\n|\n$|$)/g, '')
+    .trim();
+  
+  if (cleaned.length < 50) {
+    return "Analysis completed. Review the insights and recommendations above.";
+  }
+  return cleaned;
+};
+
 export default function AdminConsultingAgents() {
   const { user } = useAuth();
   const [location] = useLocation();
@@ -120,6 +150,7 @@ export default function AdminConsultingAgents() {
   const [messages, setMessages] = useState<ChatMessage[]>([]);
   const [conversationId, setConversationId] = useState<string | null>(null);
   const [isLoadingHistory, setIsLoadingHistory] = useState(false);
+  const [fileEditMode, setFileEditMode] = useState(false);
 
   // Define agents with matching admin dashboard data
   const consultingAgents: ConsultingAgent[] = [
@@ -252,7 +283,7 @@ export default function AdminConsultingAgents() {
           const chatMessages: ChatMessage[] = history.messages.map((msg: any, index: number) => ({
             id: `${msg.timestamp || Date.now()}-${index}`,
             type: msg.role === 'user' ? 'user' : 'agent',
-            content: msg.content,
+            content: msg.role === 'assistant' ? cleanMessageContent(msg.content) : msg.content,
             timestamp: msg.timestamp || new Date().toISOString(),
             agentName: msg.role === 'assistant' ? selectedAgent.name : undefined,
           }));
@@ -316,12 +347,33 @@ export default function AdminConsultingAgents() {
       if (!currentConversationId) {
         throw new Error('Failed to create conversation');
       }
-      const response = await sendClaudeMessage(selectedAgent.id, userMessage.content, currentConversationId);
+      // Send message to agent with mode information
+      const response = await fetch('/api/claude/send-message', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        credentials: 'include',
+        body: JSON.stringify({
+          agentName: selectedAgent.id,
+          message: userMessage.content,
+          conversationId: currentConversationId,
+          fileEditMode, // Include the mode
+        }),
+      });
+
+      if (!response.ok) {
+        throw new Error('Failed to send message');
+      }
+
+      const { response: agentResponse } = await response.json();
+      
+      // Extract tool results and clean content for professional display
+      const toolsUsed = formatToolResults(agentResponse);
+      const cleanedContent = cleanMessageContent(agentResponse);
 
       const agentMessage: ChatMessage = {
         id: (Date.now() + 1).toString(),
         type: 'agent',
-        content: response.response,
+        content: cleanedContent,
         timestamp: new Date().toISOString(),
         agentName: selectedAgent.name
       };
@@ -402,6 +454,38 @@ export default function AdminConsultingAgents() {
             Your specialized advisory council. Each agent analyzes your codebase and provides strategic insights 
             with precise instructions for Replit AI implementation.
           </p>
+          
+          {/* Mode Toggle */}
+          <div className="flex items-center justify-center space-x-4 mt-8">
+            <div className="flex items-center space-x-2 bg-white/10 backdrop-blur-sm rounded-lg px-4 py-2">
+              <Shield className="w-4 h-4 text-white/70" />
+              <Label htmlFor="edit-mode" className="text-sm text-white/90">Read-Only</Label>
+              <Switch
+                id="edit-mode"
+                checked={fileEditMode}
+                onCheckedChange={setFileEditMode}
+              />
+              <Label htmlFor="edit-mode" className="text-sm text-white/90">File Edit</Label>
+              <Zap className="w-4 h-4 text-orange-400" />
+            </div>
+          </div>
+          
+          {/* Mode Status Alert */}
+          <div className="mt-4 max-w-2xl mx-auto">
+            <Alert className={`${fileEditMode ? 'border-orange-200 bg-orange-50/90' : 'border-blue-200 bg-blue-50/90'} backdrop-blur-sm`}>
+              <AlertDescription className="text-sm text-center">
+                {fileEditMode ? (
+                  <span className="text-orange-700">
+                    <strong>File Edit Mode:</strong> Agents can create, modify, and update files directly.
+                  </span>
+                ) : (
+                  <span className="text-blue-700">
+                    <strong>Read-Only Mode:</strong> Agents provide analysis and instructions but don't modify files.
+                  </span>
+                )}
+              </AlertDescription>
+            </Alert>
+          </div>
         </div>
       </section>
 

@@ -11,6 +11,7 @@ const sendMessageSchema = z.object({
   message: z.string(),
   conversationId: z.string().optional(),
   tools: z.array(z.any()).optional(),
+  fileEditMode: z.boolean().optional(),
 });
 
 // Schema for getting conversation history
@@ -21,7 +22,7 @@ const getHistorySchema = z.object({
 // Send message to Claude agent with memory and learning
 router.post('/send-message', async (req, res) => {
   try {
-    const { agentName, message, conversationId, tools } = sendMessageSchema.parse(req.body);
+    const { agentName, message, conversationId, tools, fileEditMode } = sendMessageSchema.parse(req.body);
     
     // Check authentication and get user ID
     const isAuthenticated = req.isAuthenticated && req.isAuthenticated();
@@ -59,7 +60,8 @@ router.post('/send-message', async (req, res) => {
       finalConversationId,
       message,
       systemPrompt,
-      tools
+      tools,
+      fileEditMode || false
     );
 
     res.json({
