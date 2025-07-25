@@ -231,7 +231,7 @@ export default function Landing() {
               className="text-3xl font-light mb-6 tracking-[-0.01em]"
               style={{ fontFamily: 'Times New Roman, serif' }}
             >
-              €47/month
+              €67/month
             </h3>
             <div className="space-y-4 text-left mb-8">
               <div className="flex items-center">

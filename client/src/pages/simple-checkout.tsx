@@ -82,14 +82,14 @@ export default function SimpleCheckout() {
                 <div className="text-sm text-gray-600">100 monthly AI-generated professional photos</div>
               </div>
               <div className="text-xl font-light" style={{ fontFamily: 'Times New Roman, serif' }}>
-                €97/month
+                €67/month
               </div>
             </div>
             <div className="border-t border-gray-200 pt-4">
               <div className="flex justify-between items-center">
                 <div className="font-medium">Total</div>
                 <div className="text-xl font-light" style={{ fontFamily: 'Times New Roman, serif' }}>
-                  €97/month
+                  €67/month
                 </div>
               </div>
             </div>

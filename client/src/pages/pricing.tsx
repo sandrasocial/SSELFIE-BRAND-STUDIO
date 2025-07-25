@@ -18,23 +18,23 @@ export default function Pricing() {
   // SEO Meta tags setup
   useEffect(() => {
     // Update page title
-    document.title = "Pricing - SSELFIE Studio | Start FREE or €47/month";
+    document.title = "Pricing - SSELFIE Studio | Start FREE or €67/month";
     
     // Update meta description
     const metaDescription = document.querySelector('meta[name="description"]');
     if (metaDescription) {
-      metaDescription.setAttribute('content', 'Start FREE with 6 AI images/month or upgrade to SSELFIE Studio (€47/month) for unlimited AI images and Maya AI chat.');
+      metaDescription.setAttribute('content', 'Start FREE with 6 AI images/month or upgrade to SSELFIE Studio (€67/month) for 100 AI images and Maya AI chat.');
     }
 
     // Update Open Graph tags
     const ogTitle = document.querySelector('meta[property="og:title"]');
     if (ogTitle) {
-      ogTitle.setAttribute('content', 'Pricing - Start FREE or €47/month | SSELFIE Studio');
+      ogTitle.setAttribute('content', 'Pricing - Start FREE or €67/month | SSELFIE Studio');
     }
 
     const ogDescription = document.querySelector('meta[property="og:description"]');
     if (ogDescription) {
-      ogDescription.setAttribute('content', 'Choose your plan: FREE (6 AI images/month) or SSELFIE Studio (€47/month) for unlimited AI images and full platform access.');
+      ogDescription.setAttribute('content', 'Choose your plan: FREE (6 AI images/month) or SSELFIE Studio (€67/month) for 100 AI images and full platform access.');
     }
 
     const ogUrl = document.querySelector('meta[property="og:url"]');
@@ -45,12 +45,12 @@ export default function Pricing() {
     // Update Twitter Card tags
     const twitterTitle = document.querySelector('meta[property="twitter:title"]');
     if (twitterTitle) {
-      twitterTitle.setAttribute('content', 'SSELFIE Studio Pricing - Start FREE or €47/month');
+      twitterTitle.setAttribute('content', 'SSELFIE Studio Pricing - Start FREE or €67/month');
     }
 
     const twitterDescription = document.querySelector('meta[property="twitter:description"]');
     if (twitterDescription) {
-      twitterDescription.setAttribute('content', 'AI personal branding platform. Start FREE with 6 images/month or upgrade to €47/month for unlimited access.');
+      twitterDescription.setAttribute('content', 'AI personal branding platform. Start FREE with 6 images/month or upgrade to €67/month for 100 images and BUILD features.');
     }
 
     // Add structured data for pricing
@@ -78,8 +78,8 @@ export default function Pricing() {
         {
           "@type": "Offer", 
           "name": "SSELFIE Studio",
-          "description": "Unlimited AI images, Maya AI chat, and full platform access",
-          "price": "47",
+          "description": "100 AI images, Maya AI chat, and BUILD workspace access",
+          "price": "67",
           "priceCurrency": "EUR",
           "availability": "https://schema.org/InStock",
           "url": "https://sselfie.ai/checkout",

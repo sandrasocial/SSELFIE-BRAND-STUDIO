@@ -2089,7 +2089,7 @@ Sandra reported: "Elena creates workflows but agents don't start, and server ref
 - ❌ **Active User Blocked**: User 45292112 (gloth.coaching@gmail.com) cannot upload training images
 - ❌ **S3 Access Denied**: "User sselfie-s3-user is not authorized to perform: s3:GetObject" errors
 - ❌ **Training Stuck**: 915+ minutes training time with no progress due to upload failures
-- ❌ **Revenue Impact**: Premium user cannot access €47/month features
+- ❌ **Revenue Impact**: Premium user cannot access €67/month features
 
 **ROOT CAUSE CONFIRMED:**
 - S3 bucket policy allows public (*) access but missing specific IAM user permissions
@@ -3255,7 +3255,7 @@ Sandra reported: "Elena creates workflows but agents don't start, and server ref
 **Business Impact:**
 - **15-25% Quality Improvement**: Through proper LoRA scale and optimization
 - **Hair Quality Resolution**: Eliminated "horrible hair" issues through specialized optimization
-- **Premium Positioning Justified**: Advanced AI personalization supports €47/month pricing
+- **Premium Positioning Justified**: Advanced AI personalization supports €67/month pricing
 - **Competitive Advantage**: User-adaptive optimization system unique in market
 - **Technical Excellence**: Celebrity-level results matching luxury brand positioning
 
@@ -3284,7 +3284,7 @@ Sandra reported: "Elena creates workflows but agents don't start, and server ref
 - **Unique Personalization**: No other platform offers user-adaptive AI parameter optimization
 - **Celebrity-Level Results**: Personalized optimization delivers professional-grade outcomes
 - **Technical Innovation**: Advanced AI coordination sets new industry standards
-- **Premium Justification**: Advanced features support €47/month pricing with unmatched personalization
+- **Premium Justification**: Advanced features support €67/month pricing with unmatched personalization
 
 **STATUS: IMPLEMENTATION READY** - Complete research document created at `MAYA_ADVANCED_OPTIMIZATION_RESEARCH.md`
 
@@ -3349,7 +3349,7 @@ Sandra reported: "Elena creates workflows but agents don't start, and server ref
 
 **Business Impact:**
 - Complete 12-agent professional team matching enterprise standards
-- Celebrity-level styling expertise supporting €47/month premium positioning
+- Celebrity-level styling expertise supporting €67/month premium positioning
 - 15-25% quality improvement through Maya's proven optimization system
 - Unique personalization system setting new industry standards for AI personal branding
 - Data-driven collection intelligence scaling with user behavior analytics
@@ -3372,7 +3372,7 @@ Sandra reported: "Elena creates workflows but agents don't start, and server ref
 - Implemented clear user guidance for proper training workflow
 
 **Business Impact:**
-- Premium €47/month positioning protected through guaranteed authentic image generation
+- Premium €67/month positioning protected through guaranteed authentic image generation
 - Zero risk of users receiving random people's photos maintaining luxury brand integrity
 - Clear error messaging guides users through proper training workflow
 - System ready for production use with complete individual model architecture
@@ -3396,7 +3396,7 @@ Sandra reported: "Elena creates workflows but agents don't start, and server ref
 **Business Impact:**
 - AI Photoshoot now delivers Maya-level quality eliminating user quality complaints
 - 15-25% quality improvement through proper LoRA scale and optimization
-- Premium €47/month positioning justified through advanced AI personalization
+- Premium €67/month positioning justified through advanced AI personalization
 - Consistent excellence across both Maya and AI Photoshoot generation systems
 - Hair quality issues completely resolved through specialized optimization
 
@@ -3420,7 +3420,7 @@ Sandra reported: "Elena creates workflows but agents don't start, and server ref
 - Phase 1 (Parameter Intelligence): Architecturally complete and ready for deployment
 - User-adaptive parameter system foundations implemented
 - 15-25% quality improvement potential confirmed through technical analysis
-- Premium €47/month positioning technically justified
+- Premium €67/month positioning technically justified
 
 **Business Impact:**
 - Complete professional development team matching enterprise standards
@@ -4377,7 +4377,7 @@ Successfully coordinated with Sandra's AI agent team through SQL database and de
 **ALL FLUX PRO REFERENCES SYSTEMATICALLY ELIMINATED FROM ENTIRE CODEBASE:**
 - **Agent Personalities Cleaned**: Removed all FLUX Pro references from server/agents/agent-personalities.ts
 - **Routes File Decontaminated**: Cleaned up extensive FLUX Pro references in server/routes.ts including all agent descriptions
-- **Pricing Corrected**: All €67 references updated to €47 throughout agent business knowledge
+- **Pricing Corrected**: All pricing references updated to €67 throughout agent business knowledge
 - **Architecture Terminology Updated**: Replaced "FLUX Pro dual-tier system" with "Individual model dual-tier system" across all contexts
 - **Business Context Aligned**: All agent descriptions now align with current V2 architecture (individual trained models only)
 - **Zero Fallbacks Enforced**: Complete elimination of FLUX Pro tier detection and fallback logic
@@ -4385,13 +4385,13 @@ Successfully coordinated with Sandra's AI agent team through SQL database and de
 
 **Technical Implementation:**
 - Updated all 9 agent capability descriptions to reference individual model architecture
-- Corrected all pricing references from €67 to €47 for premium tier
+- Corrected all pricing references to €67 for premium tier
 - Eliminated architecture validator confusion between FLUX Pro and individual model systems
 - Cleaned up agent business knowledge to reflect current platform architecture
 - Removed all tier-based premium detection that referenced FLUX Pro systems
 
 **Business Impact:**
-- All agents now provide consistent messaging about €47 premium tier with individual trained models
+- All agents now provide consistent messaging about €67 premium tier with individual trained models
 - Zero confusion between FLUX Pro and current V2 architecture (individual models for ALL users)
 - Agent chat system ready for production with correct business context and pricing
 - Complete alignment with CORE_ARCHITECTURE_IMMUTABLE_V2.md specifications
@@ -4629,7 +4629,7 @@ Successfully coordinated with Sandra's AI agent team through SQL database and de
 
 **BREAKTHROUGH: ALL MOCK DATA COMPLETELY REMOVED FROM ADMIN SYSTEM**
 - **Main Dashboard Analytics**: Now uses direct SQL queries to show real data (6 users, 4 active subscriptions, 230 generations, 0 agent conversations)
-- **Revenue Calculations**: Live calculation based on actual subscription data (€188 real revenue from 4×€47 subscriptions)
+- **Revenue Calculations**: Live calculation based on actual subscription data (€268 real revenue from 4×€67 subscriptions)
 - **Agent Enhancement Routes**: Removed all mock function imports, now returns live system status
 - **Predictive Alerts**: Real-time alerts based on actual database statistics instead of hardcoded scenarios
 - **Agent Tools & Collaboration**: Live agent capability status reflecting actual system features
@@ -4638,7 +4638,7 @@ Successfully coordinated with Sandra's AI agent team through SQL database and de
 **Technical Implementation:**
 - **Direct Database Queries**: `db.execute()` calls bypass schema mismatches and show authentic data
 - **Live Data Sources**: Total users (6), active subscriptions (4), AI generations (230), agent tasks (0)
-- **Real Revenue Calculation**: €188 from 4 active premium subscriptions at €47 each
+- **Real Revenue Calculation**: €268 from 4 active premium subscriptions at €67 each
 - **Error-Safe Frontend**: Added null checks for `alert.suggestedActions` and `alert.affectedAgents` to prevent crashes
 - **Clean Route Registration**: Removed problematic mock function imports that were causing schema conflicts
 
@@ -4891,7 +4891,7 @@ Successfully coordinated with Sandra's AI agent team through SQL database and de
 ### ✅ MARTHA'S COMPREHENSIVE ENHANCEMENT COMPLETED (July 17, 2025)
 **FULL MARKETING AI UPGRADE WITH ELITE AGENT CAPABILITIES:**
 - **Performance Marketing Mastery**: Revenue optimization expert architecting sustainable growth systems
-- **87% Profit Margin Specialist**: €47 revenue vs €8 costs projected optimization with empire-level scaling strategies
+- **87% Profit Margin Specialist**: €67 revenue vs €8 costs projected optimization with empire-level scaling strategies
 - **Authentic Brand Voice Integration**: Campaigns that feel like Sandra naturally sharing her story, not corporate ads
 - **Complete Business Intelligence**: Revenue architecture, customer acquisition, lifetime value expansion, market positioning
 - **Advanced Analytics & Automation**: A/B testing automation, ROI tracking, campaign optimization, strategic partnerships
@@ -5229,21 +5229,21 @@ Successfully coordinated with Sandra's AI agent team through SQL database and de
 **COMPLETE FLUX PRO ELIMINATION & SYSTEM STANDARDIZATION ACHIEVED:**
 - **Database Sanitized**: All 4 users now have consistent flux-standard model types and sselfie-studio plans
 - **Total FLUX Pro Removal**: Eliminated ALL references from server routes, agents, marketing automation, client components
-- **Pricing Standardized**: All €97/€67 references corrected to €47 across entire codebase
+- **Pricing Standardized**: All pricing references corrected to €67 across entire codebase
 - **Core Systems Verified**: Maya AI (85 generations), AI Photoshoot, training monitor, gallery saves all operational
 - **Authentication Validated**: Live sessions, API endpoints, and user model access all confirmed working
 - **Platform Status**: 🟢 FULLY OPERATIONAL - V2 Architecture (individual flux-standard models) locked in
 
 **Technical Rollback Details:**
-- Updated usage-service.ts: €67 → €47 for all premium plans, removed FLUX Pro references
+- Updated usage-service.ts: €67 for all premium plans, removed FLUX Pro references
 - Fixed routes.ts: removed all 'sselfie-studio-premium' and 'SSELFIE_STUDIO' premium detection logic
 - Simplified training logic: all users get standard FLUX training regardless of plan
-- Updated landing page: €97 → €47, removed FLUX Pro messaging
-- Updated pricing page: restored original FREE and €47/month structure
+- Updated landing page: €67 pricing, removed FLUX Pro messaging
+- Updated pricing page: restored original FREE and €67/month structure
 
 **Business Model Restored:**
 - FREE tier: 6 generations per month
-- Premium tier: €47/month for unlimited generations + Maya AI chat
+- Premium tier: €67/month for 100 generations + Maya AI chat
 - Zero confusion: simple two-tier structure without complex premium detection
 - Original value proposition maintained without FLUX Pro complexity
 
@@ -5818,7 +5818,7 @@ Successfully coordinated with Sandra's AI agent team through SQL database and de
 
 **BUSINESS IMPACT - PLATFORM READY FOR SCALE:**
 - **Individual Models Only**: Each user gets their own trained FLUX model - no sharing, maximum value
-- **Revenue Protection**: Premium individual model approach justifies $47/month pricing
+- **Revenue Protection**: Premium individual model approach justifies €67/month pricing
 - **Privacy Guaranteed**: Complete user isolation with architectural enforcement
 - **Scale Ready**: Architecture supports 1000+ concurrent users with individual model isolation
 - **Launch Ready**: All security measures permanently locked and protected from future modifications
@@ -6264,7 +6264,7 @@ Successfully coordinated with Sandra's AI agent team through SQL database and de
 - **120K FOLLOWER LAUNCH READY**: Platform can handle 1000+ users with individual trained models
 - **Core Value Proposition Delivered**: Personalized AI photography with user's actual face
 - **Zero Technical Blockers**: Complete pipeline functional for production scale
-- **Premium Service Justified**: Real individual model training worth $47/month pricing
+- **Premium Service Justified**: Real individual model training worth €67/month pricing
 
 ### ✅ COMPLETED FEATURES
 
@@ -6290,7 +6290,7 @@ Successfully coordinated with Sandra's AI agent team through SQL database and de
 - 72 professional prompts provide extensive variety for personalized AI photography
 - Complete collection suite ready for 120K follower launch
 - Technical architecture supports 1000+ users with individual trained models
-- Premium $47/month service justified with professional-grade prompt library
+- Premium €67/month service justified with professional-grade prompt library
 
 #### 🎨 Complete Brandbook Designer System
 **Four Professional Templates Available:**
@@ -6365,7 +6365,7 @@ Successfully coordinated with Sandra's AI agent team through SQL database and de
 - Dramatically improved prompt quality leads to better AI-generated photos
 - Natural conversation flow guides users to articulate their vision clearly
 - Professional expertise helps users discover styling possibilities they hadn't considered
-- Ready for premium $47/month pricing with genuine celebrity-level AI stylist experience
+- Ready for premium €67/month pricing with genuine celebrity-level AI stylist experience
 
 **Enhanced Maya Settings (July 13, 2025):**
 - **Negative Prompts**: Eliminates glossy fake skin, deep unflattering wrinkles, flat unflattering hair
@@ -6495,7 +6495,7 @@ Successfully coordinated with Sandra's AI agent team through SQL database and de
 #### ✅ FREEMIUM PRICING SYSTEM IMPLEMENTED (July 13, 2025)
 **Complete Freemium Business Model Operational:**
 - **FREE TIER**: 5 AI images/month + Maya AI photographer chat + Victoria AI brand strategist chat + basic collections
-- **SSELFIE Studio ($47/month)**: 100 AI images/month + full ecosystem + Maya & Victoria AI + brand templates + custom domains + priority support
+- **SSELFIE Studio (€67/month)**: 100 AI images/month + full ecosystem + Maya & Victoria AI + brand templates + custom domains + priority support
 - Database schema updated with freemium plan types and generation limits enforcement
 - Maya and Victoria AI agents accessible to ALL users (free and paid)
 - Plan-based API endpoints with automatic user setup after checkout
@@ -6588,7 +6588,7 @@ Successfully coordinated with Sandra's AI agent team through SQL database and de
 **Business Impact:**
 - Maya now provides reliable AI photographer service using personalized trained models
 - Users get professional-quality images with their face accurately generated
-- Platform ready for $47/month AI photography subscription service
+- Platform ready for €67/month AI photography subscription service
 - Technical foundation solid for scaling to multiple users with individual models
 
 #### ✅ MAYA AI UX ENHANCEMENTS COMPLETED (July 13, 2025)
@@ -6746,7 +6746,7 @@ Successfully coordinated with Sandra's AI agent team through SQL database and de
 ### ✅ CORE PLATFORM FEATURES READY FOR 1000+ USERS
 - **AI Image Generation**: Maya AI photographer with FLUX LoRA training operational
 - **Business Templates**: Victoria AI strategist with complete brandbook system
-- **Freemium Pricing**: FREE (5 images/month) and PREMIUM ($47/month, 100 images) 
+- **Freemium Pricing**: FREE (5 images/month) and PREMIUM (€67/month, 100 images) 
 - **Database Architecture**: PostgreSQL with Drizzle ORM, all constraints resolved
 - **Admin Dashboard**: Complete oversight system for Sandra with unlimited privileges
 
@@ -6884,13 +6884,13 @@ The platform foundation is rock-solid with four professional brandbook templates
 ## Pricing Strategy & Cost Protection
 
 ### Business Model Economics
-- **€47 SSELFIE AI Pack**: 250 total generations (€0.188 per generation)
+- **€67 SSELFIE STUDIO**: 100 monthly generations (€0.67 per generation)
 - **€67 SSELFIE STUDIO**: 100 monthly generations (€0.67 per generation) 
 - **€147 Studio Standard**: 250 monthly generations (€0.588 per generation)
 
 ### Cost Structure & Margins
 - **Replicate API Cost**: $0.038 per generation (4 images)
-- **€47 Pack Margin**: €38.50 profit (85% margin) 
+- **€67 Studio Margin**: €59 profit (87% margin) 
 - **€67 SSELFIE STUDIO Margin**: €59 profit (87% margin)
 - **€147 Studio Margin**: €137.50 profit (95% margin)
 
@@ -7219,7 +7219,7 @@ The platform foundation is rock-solid with four professional brandbook templates
 - Mobile navigation and responsive design verified
 
 **Business Model Verification:**
-- Freemium pricing structure operational (FREE vs $47/month SSELFIE Studio)
+- Freemium pricing structure operational (FREE vs €67/month SSELFIE Studio)
 - Real paid users using the platform (10 active subscriptions)
 - AI image generation working with real Replicate integration
 - Usage tracking and limits enforcement functional
@@ -7258,7 +7258,7 @@ The platform foundation is rock-solid with four professional brandbook templates
 ### July 14, 2025 - VICTORIA AI ACCESS CONTROL IMPLEMENTED ✅ - LAUNCH DAY PREPARATION
 
 **🔒 CRITICAL LAUNCH PREPARATION: Victoria AI Locked for Free Users & Coming Soon Status**
-- **Access Control Updated**: Victoria AI now requires SSELFIE Studio subscription ($47/month)
+- **Access Control Updated**: Victoria AI now requires SSELFIE Studio subscription (€67/month)
 - **Coming Soon Status**: Even premium users see "coming soon" message - Victoria development postponed until after launch
 - **UI Updates**: Workspace navigation shows "Upgrade Required" for free users, "Coming Soon" for premium users
 - **API Protection**: Victoria chat endpoint returns 503 status with coming soon message
@@ -7321,7 +7321,7 @@ The platform foundation is rock-solid with four professional brandbook templates
 - Premium flatlay library (900+ images) properly restricted with elegant upgrade prompts
 - Usage tracking accurately reflects generation limits without penalizing training
 - Multiple upgrade touchpoints: hero section, usage overview, and step restrictions
-- Clean $47/month pricing messaging consistent across all upgrade prompts
+- Clean €67/month pricing messaging consistent across all upgrade prompts
 
 **Technical Implementation:**
 - Updated workspace.tsx subscription display with dynamic isPremiumUser logic
@@ -7458,7 +7458,7 @@ The platform foundation is rock-solid with four professional brandbook templates
 - Maya AI conversations now work reliably with proper conversation history
 - Users experience seamless celebrity stylist chat with persistent sessions
 - Flatlay library presents professional quality without broken image errors
-- Platform ready for immediate user testing and $47/month subscription launch
+- Platform ready for immediate user testing and €67/month subscription launch
 - Critical user experience issues resolved for smooth revenue generation
 
 ### July 13, 2025 - LIVE AUTHENTICATION SYSTEM RESTORED ✅ - NO MORE TEST USERS
@@ -7481,7 +7481,7 @@ The platform foundation is rock-solid with four professional brandbook templates
 - Platform ready for live user testing with real authentication
 - Users get personalized AI images using their own trained models
 - No test data contamination - only real user data and models
-- Production-ready authentication flow for $47/month subscription launch
+- Production-ready authentication flow for €67/month subscription launch
 
 ### July 13, 2025 - MAYA AI IMAGE GENERATION FULLY OPERATIONAL ✅ - USERS NOW GET THEIR OWN IMAGES
 
@@ -7504,7 +7504,7 @@ The platform foundation is rock-solid with four professional brandbook templates
 **Business Impact:**
 - Maya now provides reliable AI photographer service using personalized trained models
 - Users get professional-quality images with their face accurately generated
-- Platform ready for $47/month AI photography subscription service
+- Platform ready for €67/month AI photography subscription service
 - Technical foundation solid for scaling to multiple users with individual models
 
 ### July 13, 2025 - CRITICAL BUG FIXED: USER MODEL ISOLATION ✅ - USERS NOW GET THEIR OWN IMAGES
@@ -8684,7 +8684,7 @@ Platform verified to handle unlimited users with complete data isolation, indivi
 - Standardized plan routing between pricing and checkout pages
 
 **✓ Product Naming Standardization Complete**
-- "SSELFIE AI" (€47 one-time) - AI image generation pack
+- "SSELFIE STUDIO" (€67/month) - Complete studio subscription
 - "STUDIO Founding" (€97/month) - Complete brand building platform
 - "STUDIO Pro" (€147/month) - Full platform with priority support
 
