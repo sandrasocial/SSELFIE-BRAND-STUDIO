@@ -283,13 +283,15 @@ export default function AdminConsultingAgents() {
       try {
         const history = await loadConversationHistory(conversation.conversationId);
         if (history.messages && history.messages.length > 0) {
+          console.log('📜 Loading conversation history:', history.messages.length, 'messages');
           const chatMessages: ChatMessage[] = history.messages.map((msg: any, index: number) => ({
             id: `${msg.timestamp || Date.now()}-${index}`,
             type: msg.role === 'user' ? 'user' : 'agent',
-            content: msg.role === 'assistant' ? cleanMessageContent(msg.content) : msg.content,
+            content: msg.content, // Don't clean historical messages - preserve original content
             timestamp: msg.timestamp || new Date().toISOString(),
             agentName: msg.role === 'assistant' ? selectedAgent.name : undefined,
           }));
+          console.log('📜 Chat messages mapped:', chatMessages.length);
           setMessages(chatMessages);
         }
       } catch (historyError) {
@@ -369,9 +371,13 @@ export default function AdminConsultingAgents() {
 
       const { response: agentResponse } = await response.json();
       
+      console.log('📨 Received agent response length:', agentResponse?.length || 0);
+      
       // Extract tool results and clean content for professional display
       const toolsUsed = formatToolResults(agentResponse);
       const cleanedContent = cleanMessageContent(agentResponse);
+      
+      console.log('📨 Agent response after cleaning length:', cleanedContent?.length || 0);
 
       const agentMessage: ChatMessage = {
         id: (Date.now() + 1).toString(),
@@ -380,6 +386,12 @@ export default function AdminConsultingAgents() {
         timestamp: new Date().toISOString(),
         agentName: selectedAgent.name
       };
+
+      console.log('💾 Saving agent message to frontend state:', {
+        agentName: selectedAgent.name,
+        contentLength: cleanedContent?.length || 0,
+        contentPreview: cleanedContent?.substring(0, 100) + '...'
+      });
 
       setMessages(prev => [...prev, agentMessage]);
     } catch (error) {
