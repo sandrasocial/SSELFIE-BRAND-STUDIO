@@ -7,7 +7,7 @@ import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
 import { apiRequest } from '@/lib/queryClient';
 import { SandraImages } from '@/lib/sandra-images';
-import { EditorialImageBreak } from '@/components/EditorialImageBreak';
+import { EditorialImageBreak } from '@/components/editorial-image-break';
 import { MemberNavigation } from '@/components/member-navigation';
 
 interface ChatMessage {

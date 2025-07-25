@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { MemberNavigation } from '@/components/member-navigation';
 import { HeroFullBleed } from '@/components/HeroFullBleed';
-import { EditorialImageBreak } from '@/components/EditorialImageBreak';
+import { EditorialImageBreak } from '@/components/editorial-image-break';
 import { EditorialStory } from '@/components/editorial-story';
 import { Button } from '@/components/ui/button';
 import { useQuery } from '@tanstack/react-query';

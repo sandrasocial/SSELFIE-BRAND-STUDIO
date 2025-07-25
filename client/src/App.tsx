@@ -38,6 +38,7 @@ import SimpleTraining from "@/pages/simple-training";
 import TestLogin from "@/pages/test-login";
 import AdminDashboard from "@/pages/admin-dashboard";
 import AdminConsultingAgents from "@/pages/admin-consulting-agents";
+import BridgeMonitor from "@/pages/admin/bridge-monitor";
 
 import AgentApproval from "@/pages/agent-approval";
 import AgentCommandCenter from "@/pages/agent-command-center";
@@ -239,6 +240,7 @@ function Router() {
       <Route path="/admin-dashboard" component={(props) => <ProtectedRoute component={AdminDashboard} {...props} />} />
       <Route path="/admin" component={(props) => <ProtectedRoute component={AdminDashboard} {...props} />} />
       <Route path="/admin/consulting-agents" component={(props) => <ProtectedRoute component={AdminConsultingAgents} {...props} />} />
+      <Route path="/admin/bridge-monitor" component={(props) => <ProtectedRoute component={BridgeMonitor} {...props} />} />
 
       <Route path="/admin-access-only" component={AdminAccessOnly} />
       {/* Old admin routes archived - all functionality moved to main admin dashboard */}
