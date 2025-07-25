@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Link } from 'wouter';
 import { Button } from '@/components/ui/button';
-import { RefreshCw, ArrowLeft } from 'lucide-react';
+import { RefreshCw, ArrowLeft, PlayCircle } from 'lucide-react';
 import { EditorialImageBreak } from '@/components/editorial-image-break';
 
 interface Agent {
@@ -25,6 +25,39 @@ export default function BridgeMonitor() {
   const [tasks, setTasks] = useState<BridgeTask[]>([]);
   const [refreshing, setRefreshing] = useState(false);
   const [lastRefresh, setLastRefresh] = useState<Date>(new Date());
+
+  const submitTestTask = async () => {
+    try {
+      const response = await fetch('/api/agent-bridge/submit-task', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        credentials: 'include',
+        body: JSON.stringify({
+          agentName: 'rachel',
+          instruction: 'Review the landing page copy for Sandra\'s authentic voice and luxury editorial standards',
+          priority: 'high',
+          completionCriteria: [
+            'Voice authenticity verified',
+            'Luxury editorial tone maintained', 
+            'Brand consistency confirmed'
+          ]
+        })
+      });
+      
+      if (response.ok) {
+        const result = await response.json();
+        console.log('✅ Test task submitted:', result.taskId);
+        // Refresh to show new task
+        setTimeout(fetchBridgeData, 1000);
+      } else {
+        console.error('❌ Test task submission failed');
+      }
+    } catch (error) {
+      console.error('❌ Test task error:', error);
+    }
+  };
 
   const fetchBridgeData = async () => {
     setRefreshing(true);
@@ -95,16 +128,27 @@ export default function BridgeMonitor() {
               </div>
             </div>
             
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={fetchBridgeData}
-              disabled={refreshing}
-              className="border-zinc-300 font-light"
-            >
-              <RefreshCw className={`h-4 w-4 mr-2 ${refreshing ? 'animate-spin' : ''}`} />
-              Refresh
-            </Button>
+            <div className="flex space-x-3">
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={submitTestTask}
+                className="border-zinc-300 font-light"
+              >
+                <PlayCircle className="h-4 w-4 mr-2" />
+                Test Bridge
+              </Button>
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={fetchBridgeData}
+                disabled={refreshing}
+                className="border-zinc-300 font-light"
+              >
+                <RefreshCw className={`h-4 w-4 mr-2 ${refreshing ? 'animate-spin' : ''}`} />
+                Refresh
+              </Button>
+            </div>
           </div>
         </div>
       </nav>
