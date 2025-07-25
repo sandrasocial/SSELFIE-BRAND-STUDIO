@@ -453,7 +453,8 @@ export default function AdminConsultingAgents() {
       });
 
       if (!response.ok) {
-        throw new Error('Failed to send message');
+        const errorData = await response.json().catch(() => ({ error: 'Unknown error' }));
+        throw new Error(`Claude API Error (${response.status}): ${errorData.error || 'Service temporarily unavailable'}`);
       }
 
       const { response: agentResponse } = await response.json();
@@ -484,11 +485,27 @@ export default function AdminConsultingAgents() {
     } catch (error) {
       console.error('Claude API error:', error);
       
-      // Fallback response if Claude API fails
+      // Enhanced error handling with specific troubleshooting guidance
+      let errorContent = `⚠️ **Service Temporarily Unavailable**\n\n`;
+      
+      if (error instanceof Error) {
+        if (error.message.includes('500')) {
+          errorContent += `The Claude AI service is experiencing internal server errors (500). This is typically a temporary issue with Anthropic's servers.\n\n**Next Steps:**\n- Wait 30-60 seconds and try again\n- Check Anthropic's status page for service updates\n- This is not a configuration issue on your end`;
+        } else if (error.message.includes('429')) {
+          errorContent += `Rate limit reached. Please wait a moment before sending another message.`;
+        } else if (error.message.includes('401')) {
+          errorContent += `Authentication issue. Please verify your ANTHROPIC_API_KEY is properly configured.`;
+        } else {
+          errorContent += `Connection error: ${error.message}`;
+        }
+      } else {
+        errorContent += `Unexpected error occurred. Please try again in a moment.`;
+      }
+      
       const errorMessage: ChatMessage = {
         id: (Date.now() + 1).toString(),
         type: 'agent',
-        content: `Hello! I'm ${selectedAgent.name}, ${selectedAgent.role}. I'm currently experiencing a connection issue with the Claude API. Please ensure the ANTHROPIC_API_KEY is properly configured. Error: ${error instanceof Error ? error.message : 'Connection failed'}`,
+        content: errorContent,
         timestamp: new Date().toISOString(),
         agentName: selectedAgent.name
       };
