@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Link } from 'wouter';
 import { Button } from '@/components/ui/button';
-import { ArrowLeft, RefreshCw, PlayCircle } from 'lucide-react';
+// Luxury typography focus - no generic icons needed
 // import { EditorialImageBreak } from '@/components/ui/editorial';
 
 // SSELFIE STUDIO Luxury Bridge Coordination Interface
@@ -117,8 +117,7 @@ export default function BridgeMonitor() {
             <div className="flex items-center space-x-8">
               <Link href="/admin-dashboard">
                 <Button variant="ghost" size="sm" className="text-zinc-600 hover:text-black font-light">
-                  <ArrowLeft className="h-4 w-4 mr-2" />
-                  Admin Dashboard
+                  ← Admin Dashboard
                 </Button>
               </Link>
               <div>
@@ -138,8 +137,7 @@ export default function BridgeMonitor() {
                 onClick={submitTestTask}
                 className="border-zinc-300 font-light"
               >
-                <PlayCircle className="h-4 w-4 mr-2" />
-                Test Bridge
+                ▶ Test Bridge
               </Button>
               <Button
                 variant="outline"
@@ -148,22 +146,24 @@ export default function BridgeMonitor() {
                 disabled={refreshing}
                 className="border-zinc-300 font-light"
               >
-                <RefreshCw className={`h-4 w-4 mr-2 ${refreshing ? 'animate-spin' : ''}`} />
-                Refresh
+                {refreshing ? '⟳' : '↻'} Refresh
               </Button>
             </div>
           </div>
         </div>
       </nav>
 
-      {/* Editorial Hero Image */}
-      <EditorialImageBreak
-        src="/assets/gallery/Image-43.jpg"
-        alt="Agent Bridge System Overview"
-        height="small"
-        overlay={true}
-        overlayText="AI Agent Coordination System"
-      />
+      {/* Hero Section */}
+      <div className="bg-zinc-50 border-b border-zinc-200">
+        <div className="max-w-5xl mx-auto px-8 py-12 text-center">
+          <h2 className="font-serif text-4xl font-light text-black mb-4" style={{ fontFamily: 'Times New Roman, serif' }}>
+            AI Agent Coordination System
+          </h2>
+          <p className="text-zinc-600 text-lg font-light">
+            Swiss-precision monitoring with luxury minimalism
+          </p>
+        </div>
+      </div>
 
       <div className="max-w-5xl mx-auto px-8 py-16">
         
