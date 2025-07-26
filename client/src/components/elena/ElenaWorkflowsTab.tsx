@@ -121,12 +121,9 @@ export function ElenaWorkflowsTab() {
     }
   };
 
-  // Real-time polling for new workflows (10-second updates)
+  // Initial load only - no auto-refresh
   useEffect(() => {
-    fetchWorkflows(); // Initial load
-    
-    const interval = setInterval(fetchWorkflows, 10000); // Poll every 10 seconds
-    return () => clearInterval(interval);
+    fetchWorkflows(); // Initial load only
   }, []);
 
   // Priority color mapping
@@ -177,7 +174,7 @@ export function ElenaWorkflowsTab() {
           </div>
           
           <div className="text-xs text-gray-400">
-            Auto-refresh every 10 seconds
+            Manual refresh only
           </div>
         </div>
       </div>
