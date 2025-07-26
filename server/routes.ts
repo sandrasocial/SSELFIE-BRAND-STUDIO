@@ -6719,7 +6719,11 @@ AGENT_CONTEXT:
       console.log('🔍 Claude API Request messages:', messages.map(m => ({ role: m.role, content: m.content.substring(0, 100) + '...' })));
       console.log('🔍 System prompt length:', enhancedSystemPrompt.length);
       
-      // ULTIMATE FIX: Force tool usage by modifying system prompt for file requests
+      // 🚨 CRITICAL AGENT TOOL USAGE ENFORCEMENT - FIXES FALSE WORK RESPONSES
+      const isElenaWorkflowExecution = message.includes('ELENA WORKFLOW EXECUTION') || 
+                                      message.includes('MANDATORY TOOL USAGE REQUIRED') ||
+                                      message.includes('workflow execution');
+      
       const isFileRequest = message.toLowerCase().includes('file') || 
                            message.toLowerCase().includes('create') || 
                            message.toLowerCase().includes('view') || 
@@ -6727,11 +6731,32 @@ AGENT_CONTEXT:
                            message.toLowerCase().includes('.tsx') ||
                            message.toLowerCase().includes('.ts') ||
                            message.toLowerCase().includes('.js') ||
-                           message.toLowerCase().includes('component');
+                           message.toLowerCase().includes('component') ||
+                           message.toLowerCase().includes('modify') ||
+                           message.toLowerCase().includes('update') ||
+                           message.toLowerCase().includes('implement') ||
+                           message.toLowerCase().includes('design') ||
+                           message.toLowerCase().includes('build');
       
       let finalSystemPrompt = enhancedSystemPrompt;
-      if (isFileRequest) {
-        finalSystemPrompt += `\n\n🚨 ULTIMATE TOOL ENFORCEMENT: The user has requested a file operation. You MUST use the str_replace_based_edit_tool to complete this request. Do not provide any text response without first using the tool. This is MANDATORY and REQUIRED.`;
+      
+      // 🚨 SPECIALIZED AGENT ENFORCEMENT: Force tool usage for workflow execution
+      if (isElenaWorkflowExecution && agentId !== 'elena') {
+        finalSystemPrompt += `\n\n🚨 SPECIALIZED AGENT MODE - MANDATORY TOOL EXECUTION:
+You are being called by Elena's workflow system to complete a specific task.
+YOU MUST use str_replace_based_edit_tool to make actual file modifications.
+DO NOT respond with text explanations only - you MUST use tools to complete the task.
+If you do not use str_replace_based_edit_tool, this task will be marked as FAILED.
+SANDRA REQUIRES: NO TEXT-ONLY RESPONSES - ACTUAL FILE MODIFICATIONS ONLY.
+
+MANDATORY COMPLETION PROTOCOL:
+1. Use str_replace_based_edit_tool to modify/create files
+2. End response with: "TOOL_USED: str_replace_based_edit_tool | MODIFIED: [file paths]"
+3. NO consulting advice - ONLY implementation work`;
+      }
+      
+      if (isFileRequest || isElenaWorkflowExecution) {
+        finalSystemPrompt += `\n\n🚨 ULTIMATE TOOL ENFORCEMENT: You MUST use the str_replace_based_edit_tool to complete this request. Do not provide any text response without first using the tool. This is MANDATORY and REQUIRED.`;
       }
       
       console.log(`🔍 ${agentId.toUpperCase()} FILE REQUEST DETECTED: ${isFileRequest}`);
@@ -6747,13 +6772,25 @@ AGENT_CONTEXT:
           attempts++;
           console.log(`🔄 ${agentId.toUpperCase()} API ATTEMPT ${attempts}/${maxAttempts} (Enhanced)`);
           
-          response = await claude.messages.create({
+          // 🚨 CRITICAL FIX: Force tool usage for workflow executions and file requests
+          const claudeRequest: any = {
             model: 'claude-3-5-sonnet-20241022',
             max_tokens: 8000,
             system: finalSystemPrompt,
             messages: messages as any,
             tools: toolConfig.tools
-          });
+          };
+          
+          // 🔧 FORCE TOOL USAGE: When Elena calls agents or file requests, require tools
+          if (isElenaWorkflowExecution && agentId !== 'elena') {
+            claudeRequest.tool_choice = { type: "any" }; // Force agent to use ANY tool - no text-only responses
+            console.log(`🚨 FORCING TOOL USAGE for ${agentId.toUpperCase()}: Elena workflow execution detected`);
+          } else if (isFileRequest) {
+            claudeRequest.tool_choice = { type: "any" }; // Force agent to use ANY tool for file requests
+            console.log(`🚨 FORCING TOOL USAGE for ${agentId.toUpperCase()}: File request detected`);
+          }
+          
+          response = await claude.messages.create(claudeRequest);
           
           console.log(`✅ ${agentId.toUpperCase()} API SUCCESS on attempt ${attempts} (Enhanced)`);
           break; // Success - exit retry loop
@@ -6983,9 +7020,36 @@ AGENT_CONTEXT:
         responseText = response.content[0]?.text || '';
       }
       
-      // DISABLED: Crash prevention system was blocking agent tool usage during Elena workflows
+      // 🔧 CRITICAL FIX: Properly track tool usage for Elena validation
       let fileOperations: any[] = [];
-      console.log(`✅ TOOL BLOCKING DISABLED: Agent ${agentId} can now use str_replace_based_edit_tool freely`);
+      let toolCalls: any[] = [];
+      
+      // Extract actual tool usage from response
+      if (response.content) {
+        for (const contentBlock of response.content) {
+          if (contentBlock.type === 'tool_use') {
+            toolCalls.push({
+              name: contentBlock.name,
+              input: contentBlock.input,
+              id: contentBlock.id,
+              timestamp: new Date().toISOString()
+            });
+            
+            // Track file operations specifically
+            if (contentBlock.name === 'str_replace_based_edit_tool') {
+              fileOperations.push({
+                type: contentBlock.input.command || 'edit',
+                filePath: contentBlock.input.path,
+                operation: contentBlock.input.command,
+                timestamp: new Date().toISOString(),
+                success: true // We'll assume success since Claude executed it
+              });
+            }
+          }
+        }
+      }
+      
+      console.log(`🔍 TOOL TRACKING: ${agentId.toUpperCase()} used ${toolCalls.length} tools, ${fileOperations.length} file operations`);
       
       // PERMANENT FIX: Preserve Elena's complete response before any modifications
       const originalResponseText = responseText;
@@ -7008,7 +7072,7 @@ AGENT_CONTEXT:
       const finalResponseText = agentId === 'elena' ? originalResponseText : responseText;
       console.log(`📤 PERMANENT FIX: Sending ${agentId} response (${finalResponseText.length} characters) to frontend`);
       
-      // Return enhanced response with file operations for live preview
+      // 🚨 CRITICAL FIX: Return tool usage information for Elena's validation
       res.json({
         success: true,
         message: finalResponseText,
@@ -7018,12 +7082,21 @@ AGENT_CONTEXT:
         conversationId: conversationId,
         timestamp: new Date().toISOString(),
         workflowStage: req.body.workflowContext?.stage || 'Active',
-        fileOperations: fileOperations || [],
+        // 🔧 KEY FIX: Properly return tool usage data for Elena validation
+        toolCalls: toolCalls,
+        fileOperations: fileOperations,
         filesCreated: fileOperations.map(f => ({
           path: f.filePath,
           type: f.type || 'file',
           status: 'created'
         })),
+        // Additional validation info for Elena
+        toolUsageValidation: {
+          hasToolCalls: toolCalls.length > 0,
+          hasFileOperations: fileOperations.length > 0,
+          toolsUsed: toolCalls.map(t => t.name),
+          filesModified: fileOperations.map(f => f.filePath)
+        },
         conversationManagement: { disabled: true, reason: "Auto-clear disabled for debugging" }
       });
       
