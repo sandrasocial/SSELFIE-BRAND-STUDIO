@@ -24,7 +24,7 @@ interface WorkflowAnalysis {
   extractedText: string;
 }
 
-class ElenaWorkflowDetectionService {
+export class ElenaWorkflowDetectionService {
   private static instance: ElenaWorkflowDetectionService;
   private stagedWorkflows: Map<string, DetectedWorkflow> = new Map();
 
@@ -71,9 +71,118 @@ class ElenaWorkflowDetectionService {
   }
 
   /**
+   * Stage workflow for execution
+   */
+  stageWorkflow(workflow: DetectedWorkflow): void {
+    this.stagedWorkflows.set(workflow.id, workflow);
+    console.log(`📋 ELENA: Workflow "${workflow.title}" staged with ${workflow.agents.length} agents`);
+  }
+
+  /**
+   * Get all staged workflows for frontend display
+   */
+  getStagedWorkflows(): DetectedWorkflow[] {
+    return Array.from(this.stagedWorkflows.values());
+  }
+
+  /**
+   * Get workflow by ID
+   */
+  getWorkflowById(id: string): DetectedWorkflow | undefined {
+    return this.stagedWorkflows.get(id);
+  }
+
+  /**
+   * Parse complex Elena workflow with 8+ agents from her actual message
+   */
+  parseComplexElenaWorkflow(elenaMessage: string): DetectedWorkflow | null {
+    console.log('🔍 ELENA: Parsing complex workflow from message');
+    
+    // Check for complex workflow indicators
+    const hasComplexWorkflow = elenaMessage.includes('**Aria (Creative Director)**') ||
+                             elenaMessage.includes('**Victoria (UX Designer)**') ||
+                             elenaMessage.includes('**Zara (Technical Architect)**') ||
+                             elenaMessage.includes('SSELFIE STUDIO Launch Excellence Protocol') ||
+                             elenaMessage.includes('Complete Team Launch Preparation');
+    
+    if (!hasComplexWorkflow) {
+      console.log('🔍 ELENA: No complex workflow patterns found');
+      return null;
+    }
+    
+    // Extract workflow title
+    let title = 'SSELFIE STUDIO Launch Excellence Protocol';
+    const titleMatch = elenaMessage.match(/[""]([^"""]+)[""].*workflow/i);
+    if (titleMatch) {
+      title = titleMatch[1];
+    }
+    
+    // Extract all agent assignments
+    const agents: string[] = [];
+    const tasks: string[] = [];
+    
+    // Parse agent assignments with sophisticated pattern matching
+    const agentPatterns = [
+      { name: 'aria', pattern: /\*\*Aria[^*]*?\*\*[^*]*?([^*]+?)(?:\*\*|Priority:|Duration:)/is },
+      { name: 'victoria', pattern: /\*\*Victoria[^*]*?\*\*[^*]*?([^*]+?)(?:\*\*|Priority:|Duration:)/is },
+      { name: 'zara', pattern: /\*\*Zara[^*]*?\*\*[^*]*?([^*]+?)(?:\*\*|Priority:|Duration:)/is },
+      { name: 'maya', pattern: /\*\*Maya[^*]*?\*\*[^*]*?([^*]+?)(?:\*\*|Priority:|Duration:)/is },
+      { name: 'rachel', pattern: /\*\*Rachel[^*]*?\*\*[^*]*?([^*]+?)(?:\*\*|Priority:|Duration:)/is },
+      { name: 'martha', pattern: /\*\*Martha[^*]*?\*\*[^*]*?([^*]+?)(?:\*\*|Priority:|Duration:)/is },
+      { name: 'diana', pattern: /\*\*Diana[^*]*?\*\*[^*]*?([^*]+?)(?:\*\*|Priority:|Duration:)/is },
+      { name: 'quinn', pattern: /\*\*Quinn[^*]*?\*\*[^*]*?([^*]+?)(?:\*\*|Priority:|Duration:)/is }
+    ];
+    
+    agentPatterns.forEach(({ name, pattern }) => {
+      const match = elenaMessage.match(pattern);
+      if (match) {
+        agents.push(name);
+        tasks.push(`${name.toUpperCase()}: ${match[1].trim().substring(0, 200)}...`);
+        console.log(`✅ ELENA: Found ${name} assignment`);
+      }
+    });
+    
+    if (agents.length === 0) {
+      console.log('🔍 ELENA: No agent assignments found in complex workflow');
+      return null;
+    }
+    
+    const workflow: DetectedWorkflow = {
+      id: `elena_workflow_${Date.now()}`,
+      title,
+      description: `Complex multi-agent workflow deploying ${agents.length} agents for comprehensive platform optimization`,
+      agents,
+      tasks,
+      priority: 'high',
+      estimatedDuration: '30-35 minutes',
+      createdAt: new Date(),
+      status: 'staged'
+    };
+    
+    // Store workflow for persistence
+    this.stagedWorkflows.set(workflow.id, workflow);
+    
+    console.log(`✅ ELENA: Complex workflow created with ${agents.length} agents: ${agents.join(', ')}`);
+    return workflow;
+  }
+
+  /**
    * Analyze Elena's conversation for workflow patterns
    */
   analyzeConversation(message: string, agentName: string): WorkflowAnalysis {
+    console.log('🔍 ELENA WORKFLOW ANALYSIS:', message.substring(0, 100) + '...');
+    
+    // First check for complex multi-agent workflow
+    const complexWorkflow = this.parseComplexElenaWorkflow(message);
+    if (complexWorkflow) {
+      return {
+        hasWorkflow: true,
+        confidence: 0.95,
+        workflow: complexWorkflow,
+        patterns: ['Complex Multi-Agent Coordination'],
+        extractedText: message.substring(0, 500)
+      };
+    }
     // Real Elena agent workflow detection
     if (agentName.toLowerCase() !== 'elena') {
       return { hasWorkflow: false, confidence: 0, patterns: [], extractedText: '' };
@@ -441,3 +550,4 @@ class ElenaWorkflowDetectionService {
 // Export singleton instance
 export const elenaWorkflowDetectionService = ElenaWorkflowDetectionService.getInstance();
 export type { DetectedWorkflow, WorkflowAnalysis };
+export default ElenaWorkflowDetectionService;
