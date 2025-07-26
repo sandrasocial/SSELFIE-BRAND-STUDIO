@@ -17,7 +17,7 @@ interface DetectedWorkflow {
 }
 
 class WorkflowDetectionService {
-  private stagedWorkflows: Map<string, DetectedWorkflow> = new Map();
+  public stagedWorkflows: Map<string, DetectedWorkflow> = new Map();
   private executedWorkflows: Map<string, DetectedWorkflow> = new Map();
   
   constructor() {
@@ -448,6 +448,17 @@ Please execute your part of this workflow immediately using your tools. Create a
   clearExecutedWorkflows(): void {
     this.executedWorkflows.clear();
     console.log('🧹 WORKFLOW HISTORY CLEARED');
+  }
+
+  /**
+   * Debug method to check service state
+   */
+  debugServiceState(): void {
+    console.log('🔍 SERVICE DEBUG: stagedWorkflows Map size:', this.stagedWorkflows.size);
+    console.log('🔍 SERVICE DEBUG: executedWorkflows Map size:', this.executedWorkflows.size);
+    this.stagedWorkflows.forEach((workflow, id) => {
+      console.log(`   - Staged: ${id} = ${workflow.name} (${workflow.status})`);
+    });
   }
 }
 
