@@ -426,13 +426,28 @@ export class ElenaWorkflowDetectionService {
           // Create task message for agent based on workflow context
           const taskMessage = this.createAgentTaskMessage(workflow, agent);
           
-          // Execute real agent via Claude API service
+          // Execute real agent via Claude API service with ENFORCED FILE CREATION
           const { claudeApiService } = await import('../services/claude-api-service');
+          
+          // Create enhanced task message with MANDATORY file creation requirement
+          const enforcedTaskMessage = `${taskMessage}
+
+**🚨 MANDATORY FILE CREATION REQUIREMENT:**
+You MUST create the specific file mentioned in Elena's workflow assignment. This is not optional - you must use str_replace_based_edit_tool to create the actual file.
+
+**FILE CREATION EVIDENCE REQUIRED:**
+- Use str_replace_based_edit_tool with command: "create"
+- Create the exact file path Elena specified
+- Include working code/content in the file
+- Do NOT just discuss or plan - CREATE THE ACTUAL FILE
+
+If you do not create the actual file, this task will be marked as FAILED.`;
+          
           const agentResponse = await claudeApiService.sendMessage(
             '42585527', // Sandra's actual user ID
             agent,
             `elena-workflow-${workflowId}-${agent}`, // conversationId
-            taskMessage,
+            enforcedTaskMessage,
             undefined, // systemPrompt (use default agent prompt)
             undefined, // tools (use default tools)
             true // fileEditMode for autonomous execution
@@ -513,6 +528,34 @@ export class ElenaWorkflowDetectionService {
    * Create appropriate task message for agent based on workflow context
    */
   private createAgentTaskMessage(workflow: DetectedWorkflow, agentName: string): string {
+    // Extract specific file paths from Elena's workflow tasks
+    const agentTask = workflow.tasks.find(task => 
+      task.toLowerCase().includes(`**${agentName}`));
+    
+    if (agentTask) {
+      // Parse Elena's specific file path from the task
+      const filePathMatch = agentTask.match(/at ([\w\/\.\-]+)/);
+      const filePath = filePathMatch ? filePathMatch[1] : null;
+      
+      if (filePath) {
+        return `Execute ${agentName} coordination for "${workflow.title}". 
+
+**MANDATORY FILE CREATION:**
+You MUST create the file: ${filePath}
+
+**Elena's Original Assignment:**
+${agentTask}
+
+**REQUIREMENTS:**
+1. Create the exact file path specified above
+2. Include working, production-ready code
+3. Follow SSELFIE luxury design standards
+4. Use str_replace_based_edit_tool with command: "create"
+5. Do NOT just discuss or plan - CREATE THE ACTUAL FILE`;
+      }
+    }
+    
+    // Fallback for agents without specific file assignments
     const agentTasks = {
       aria: `Execute luxury design coordination for "${workflow.title}". Apply Times New Roman typography and SSELFIE editorial luxury standards. Create or enhance components as needed.`,
       zara: `Execute technical coordination for "${workflow.title}". Implement backend architecture, API endpoints, or system optimizations as needed for SSELFIE platform.`,
