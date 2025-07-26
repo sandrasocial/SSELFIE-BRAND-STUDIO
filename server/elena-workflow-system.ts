@@ -939,18 +939,32 @@ ${olgaInstructions}
 🎯 WORKFLOW TASK: ${task}
 ${targetFile ? `Target File: ${targetFile}` : 'Target: Determine appropriate file from task context'}
 
-🚨 MANDATORY TOOL REQUIREMENT:
-- You MUST use str_replace_based_edit_tool to modify files
+🚨 MANDATORY FILE MODIFICATION REQUIREMENT:
+- You MUST use str_replace_based_edit_tool with MODIFICATION commands: str_replace, create, or insert
+- NEVER use "view" command - that is read-only and will FAIL the workflow
 - DO NOT respond with text explanations only
-- DO NOT create new standalone files  
-- MODIFY existing integrated files directly
-- Use str_replace_based_edit_tool for ALL file changes
+- DO NOT just view files - you must MODIFY them
+- MODIFY existing integrated files directly with actual content changes
+- Use str_replace command to ADD new content to existing files
+- Use create command only if creating completely new files
 
-WORKFLOW REQUIREMENT: If you do not use str_replace_based_edit_tool, this task will be marked as FAILED and you will be called again until tools are used.
+CRITICAL WORKFLOW RULE: If you only VIEW files or provide text explanations, this task will be marked as FAILED.
+
+🚨 FORBIDDEN ACTIONS THAT CAUSE FAILURE:
+❌ Using view command on str_replace_based_edit_tool
+❌ Providing analysis without file modifications  
+❌ Describing what you would create instead of creating it
+❌ Reading files without making changes
+
+✅ REQUIRED ACTIONS FOR SUCCESS:
+✅ Use str_replace command to add/modify file content
+✅ Use create command for new files
+✅ Use insert command to add new lines
+✅ Make actual changes to file content
 
 Standards: SSELFIE Studio architecture, maintain existing functionality
 
-MANDATORY: End response with: TOOL_USED: str_replace_based_edit_tool | MODIFIED: [exact file paths that were changed]`;
+MANDATORY: End response with: TOOL_USED: str_replace_based_edit_tool [command] | MODIFIED: [exact file paths that were changed]`;
 
         // Call the agent through the NEW tool integration endpoint that supports str_replace_based_edit_tool
         const fetch = (await import('node-fetch')).default;
@@ -980,19 +994,38 @@ MANDATORY: End response with: TOOL_USED: str_replace_based_edit_tool | MODIFIED:
         if (response.ok) {
           const result = await response.json();
           
-          // STRICT: Verify MANDATORY tool usage from agent-chat-bypass response
+          // STRICT: Verify MANDATORY file MODIFICATION (not just viewing)
           const toolCallsSuccess = result.toolCalls?.length > 0;
           const filesModified = result.filesCreated?.length > 0 || result.fileOperations?.length > 0 || toolCallsSuccess;
           const hasToolUsageConfirmation = result.response?.includes('TOOL_USED: str_replace_based_edit_tool');
           const hasModificationKeywords = result.response?.includes('MODIFIED:') || result.response?.includes('str_replace_based_edit_tool');
           
-          // STRICT VALIDATION: Agent MUST use tools AND confirm usage
-          const actualToolUsage = toolCallsSuccess && (hasToolUsageConfirmation || hasModificationKeywords);
+          // CHECK FOR FORBIDDEN VIEW-ONLY COMMANDS
+          const usedViewCommand = result.response?.includes('📁 Viewing') || 
+                                 result.response?.includes("command: 'view'") ||
+                                 result.response?.includes('command": "view"') ||
+                                 result.response?.includes('view_range:');
+          
+          // STRICT VALIDATION: Agent MUST use MODIFICATION tools (not view)
+          const actualToolUsage = toolCallsSuccess && (hasToolUsageConfirmation || hasModificationKeywords) && !usedViewCommand;
           
           console.log(`✅ REAL AGENT EXECUTION: ${agentName} worked on actual files - ${result.toolCalls?.length || 0} tool calls, ${result.filesCreated?.length || 0} files created, ${result.fileOperations?.length || 0} operations`);
           console.log(`🔍 TOOL VALIDATION: toolCallsSuccess=${toolCallsSuccess}, hasToolUsageConfirmation=${hasToolUsageConfirmation}, actualToolUsage=${actualToolUsage}`);
+          console.log(`🔍 VIEW CHECK: usedViewCommand=${usedViewCommand}`);
           
-          // STRICT SUCCESS: Agent MUST have used tools AND confirmed usage
+          // FAILURE: Agent used forbidden view command (read-only)
+          if (usedViewCommand) {
+            console.log(`❌ ELENA: ${agentName} used FORBIDDEN view command (read-only) instead of modification commands (attempt ${attempt})`);
+            console.log(`📝 Agent response: ${result.response?.substring(0, 300)}...`);
+            
+            if (attempt === MAX_RETRIES) {
+              console.log(`🚨 ELENA: ${agentName} FAILED - used view command after ${MAX_RETRIES} attempts`);
+              return false;
+            }
+            continue;
+          }
+          
+          // SUCCESS: Agent MUST have used modification tools AND confirmed usage
           if (actualToolUsage) {
             console.log(`✅ ELENA: ${agentName} successfully used str_replace_based_edit_tool and modified files`);
             return true;
