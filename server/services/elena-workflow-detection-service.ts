@@ -206,9 +206,17 @@ class ElenaWorkflowDetectionService {
    * Stage workflow for manual execution
    */
   stageWorkflow(workflow: DetectedWorkflow): void {
-    this.stagedWorkflows.set(workflow.id, workflow);
-    console.log(`🎯 ELENA WORKFLOW STAGED: ${workflow.title} (${workflow.agents.length} agents, ${workflow.priority} priority)`);
-    console.log(`📋 WORKFLOW DETAILS: ID=${workflow.id}, Agents=[${workflow.agents.join(', ')}], Status=${workflow.status}`);
+    // Handle both formats - ensure workflow has required properties
+    const safeWorkflow = {
+      ...workflow,
+      tasks: workflow.tasks || [],
+      agents: workflow.agents || [],
+      title: workflow.title || workflow.name || 'Unknown workflow'
+    };
+    
+    this.stagedWorkflows.set(safeWorkflow.id, safeWorkflow);
+    console.log(`🎯 ELENA WORKFLOW STAGED: ${safeWorkflow.title} (${safeWorkflow.agents.length} agents, ${safeWorkflow.priority} priority)`);
+    console.log(`📋 WORKFLOW DETAILS: ID=${safeWorkflow.id}, Agents=[${safeWorkflow.agents.join(', ')}], Status=${safeWorkflow.status}`);
   }
 
 

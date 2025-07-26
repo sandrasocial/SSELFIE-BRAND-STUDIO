@@ -21,9 +21,11 @@ const validateElenaAccess = (req: any, res: any, next: any) => {
     }
   }
 
-  // Check admin token fallback
+  // Check admin token fallback (multiple formats)
   const authHeader = req.headers.authorization;
-  if (authHeader === 'Bearer sandra-admin-2025') {
+  const adminToken = req.headers['x-admin-token'] || req.query?.adminToken || req.body?.adminToken;
+  
+  if (authHeader === 'Bearer sandra-admin-2025' || adminToken === 'sandra-admin-2025') {
     console.log('✅ ELENA STAGED WORKFLOW AUTH: Admin token validated');
     return next();
   }
