@@ -198,66 +198,7 @@ router.get('/workflow-status/:id', validateElenaAccess, async (req, res) => {
   }
 });
 
-/**
- * POST /api/elena/test-workflow-detection
- * Test Elena's workflow detection with sample conversation
- */
-router.post('/test-workflow-detection', validateElenaAccess, async (req, res) => {
-  try {
-    const { message } = req.body;
-    
-    if (!message) {
-      return res.status(400).json({
-        success: false,
-        error: 'Message is required for testing'
-      });
-    }
 
-    const analysis = elenaWorkflowDetectionService.analyzeConversation(message, 'elena');
-    
-    // If workflow detected, stage it automatically
-    if (analysis.hasWorkflow && analysis.workflow) {
-      console.log('✅ WORKFLOW DETECTED: Staging for Agent Activity dashboard');
-      elenaWorkflowDetectionService.stageWorkflow(analysis.workflow);
-    }
-    
-    res.json({
-      success: true,
-      analysis,
-      testMessage: message,
-      timestamp: new Date().toISOString()
-    });
-  } catch (error) {
-    console.error('❌ ELENA WORKFLOW DETECTION TEST ERROR:', error);
-    res.status(500).json({
-      success: false,
-      error: 'Failed to test workflow detection',
-      details: error.message
-    });
-  }
-});
-
-router.post('/create-test-workflow', validateElenaAccess, async (req, res) => {
-  try {
-    console.log('🧪 CREATING TEST WORKFLOW for Agent Activity dashboard');
-    
-    const testWorkflow = elenaWorkflowDetectionService.createTestWorkflow();
-    
-    res.json({
-      success: true,
-      workflow: testWorkflow,
-      message: 'Test workflow created and staged for Agent Activity dashboard',
-      timestamp: new Date().toISOString()
-    });
-  } catch (error) {
-    console.error('❌ CREATE TEST WORKFLOW ERROR:', error);
-    res.status(500).json({
-      success: false,
-      error: 'Failed to create test workflow',
-      details: error.message
-    });
-  }
-});
 
 /**
  * POST /api/elena/clear-all-workflows
