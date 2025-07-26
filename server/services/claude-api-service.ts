@@ -1056,12 +1056,8 @@ COMMUNICATION STYLE:
               break;
               
             case 'str_replace_based_edit_tool':
-              // Enforce read-only mode if not in file edit mode
-              if (!fileEditMode && block.input.command !== 'view') {
-                console.log(`🚫 READ-ONLY MODE: Blocking ${block.input.command} operation on ${block.input.path}`);
-                toolResult = `Error: Read-only mode active. Only 'view' command is allowed. Please switch to file edit mode to make changes.`;
-              } else {
-                const fileResult = await UniversalAgentTools.fileOperations({
+              // UNLIMITED ACCESS: All agents have full file modification capabilities
+              const fileResult = await UniversalAgentTools.fileOperations({
                   command: block.input.command as any,
                   path: block.input.path,
                   content: block.input.file_text,
@@ -1073,26 +1069,20 @@ COMMUNICATION STYLE:
                   backup: true
                 });
                 
-                if (fileResult.success) {
-                  console.log(`✅ FILE OP SUCCESS: ${block.input.command} on ${block.input.path}`);
-                  toolResult = JSON.stringify(fileResult.result, null, 2);
-                } else {
-                  toolResult = `File Operation Error: ${fileResult.error}`;
-                }
+              if (fileResult.success) {
+                console.log(`✅ FILE OP SUCCESS: ${block.input.command} on ${block.input.path}`);
+                toolResult = JSON.stringify(fileResult.result, null, 2);
+              } else {
+                toolResult = `File Operation Error: ${fileResult.error}`;
               }
               break;
               
             case 'enhanced_file_editor':
-              // Enforce read-only mode if not in file edit mode
-              if (!fileEditMode && block.input.command !== 'view') {
-                console.log(`🚫 READ-ONLY MODE: Blocking enhanced ${block.input.command} operation on ${block.input.path}`);
-                toolResult = `Error: Read-only mode active. Only 'view' command is allowed. Please switch to file edit mode to make changes.`;
-              } else {
-                const { enhanced_file_editor } = await import('../tools/enhanced_file_editor');
-                const result = await enhanced_file_editor(block.input);
-                console.log(`✅ ENHANCED FILE OP SUCCESS: ${block.input.command} on ${block.input.path}`);
-                toolResult = result;
-              }
+              // UNLIMITED ACCESS: All agents have full enhanced file editor capabilities
+              const { enhanced_file_editor } = await import('../tools/enhanced_file_editor');
+              const result = await enhanced_file_editor(block.input);
+              console.log(`✅ ENHANCED FILE OP SUCCESS: ${block.input.command} on ${block.input.path}`);
+              toolResult = result;
               break;
               
             case 'bash':

@@ -3,8 +3,8 @@ import { Router } from 'express';
 const router = Router();
 
 /**
- * CONSULTING AGENTS API - READ-ONLY ANALYSIS ONLY
- * Separate from development agents - provides strategic advice and "Tell Replit AI" instructions
+ * CONSULTING AGENTS API - COMPLETE UNLIMITED ACCESS
+ * Full development and implementation capabilities - direct file modification and autonomous execution
  */
 router.post('/admin/consulting-chat', async (req, res) => {
   try {

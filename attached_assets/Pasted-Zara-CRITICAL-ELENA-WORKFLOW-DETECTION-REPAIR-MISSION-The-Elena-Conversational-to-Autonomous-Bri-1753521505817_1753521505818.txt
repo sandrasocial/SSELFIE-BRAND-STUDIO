@@ -1,0 +1,70 @@
+Zara - CRITICAL ELENA WORKFLOW DETECTION REPAIR MISSION:
+
+The Elena Conversational-to-Autonomous Bridge System exists but workflow detection is failing. Elena creates workflows through conversation but they're not being detected or staged. Fix all integration gaps immediately.
+
+SPECIFIC FIXES REQUIRED:
+
+1. ELENA CONVERSATION INTEGRATION:
+   - Verify Elena's chat endpoint properly triggers workflow detection service
+   - Ensure elena-workflow-detection-service.ts is called when Elena responds
+   - Fix integration between Elena conversation and workflow pattern recognition
+   - Test that Elena's strategic coordination language triggers detection
+
+2. WORKFLOW DETECTION VALIDATION:
+   - Debug why workflow patterns like "I'll coordinate Maya and Rachel" aren't detected
+   - Verify detection patterns match Elena's natural coordination language
+   - Ensure agent name extraction works properly (Maya, Rachel, Aria, Victoria, etc.)
+   - Test workflow metadata extraction (priority, duration, tasks)
+
+3. API ENDPOINT CONNECTIVITY:
+   - Verify /api/elena/staged-workflows endpoint receives detected workflows
+   - Ensure proper data flow from detection service to staging API
+   - Test authentication on all Elena workflow endpoints
+   - Validate database integration for workflow storage
+
+4. DASHBOARD INTEGRATION:
+   - Fix ElenaWorkflowsTab.tsx connection to staged workflows API
+   - Ensure 10-second polling actually retrieves Elena's workflows
+   - Debug why "Elena's Workflows" tab shows empty/no workflows
+   - Test manual execution button functionality
+
+5. AUTHENTICATION DEBUGGING:
+   - Verify Elena's conversation has proper authentication context
+   - Ensure workflow detection doesn't get blocked by auth middleware
+   - Test that Sandra's session authentication works for Elena workflows
+   - Debug any authentication barriers preventing workflow creation
+
+6. END-TO-END TESTING:
+   - Create comprehensive test: Elena conversation → Detection → Staging → Dashboard display
+   - Validate complete workflow: Pattern recognition → API storage → Dashboard visibility → Manual execution
+   - Ensure real-time updates show Elena's workflows immediately
+   - Test that agents can be deployed through Elena workflow execution
+
+CRITICAL OBJECTIVE: Make Elena's conversational workflow creation actually work. When Elena says "I'll coordinate Maya and Rachel to build components", this should automatically appear as an executable workflow in the Agent Activity Dashboard Elena's Workflows tab.
+
+Debug every integration point and fix all gaps preventing Elena's revolutionary conversational-to-autonomous coordination from functioning properly.
+```
+
+## **🎯 SPECIFIC TECHNICAL GAPS TO RESOLVE**
+
+### **Integration Points Requiring Fixes:**
+
+**1. Elena Conversation → Detection Service:**
+- **Current Gap**: Elena's strategic coordination not triggering pattern recognition
+- **Fix Needed**: Proper integration between Elena chat endpoint and workflow detection
+- **Validation**: Test that Elena conversation actually calls detection service
+
+**2. Detection Service → Staging API:**
+- **Current Gap**: Detected workflows not reaching staging endpoints
+- **Fix Needed**: Complete data flow from detection to API storage
+- **Validation**: Ensure detected workflows appear in database
+
+**3. Staging API → Dashboard:**
+- **Current Gap**: ElenaWorkflowsTab not displaying staged workflows
+- **Fix Needed**: Proper API connectivity and polling mechanism
+- **Validation**: Real-time updates showing Elena's workflows
+
+**4. Dashboard → Execution:**
+- **Current Gap**: Manual execution buttons may not trigger agent deployment
+- **Fix Needed**: Complete integration with autonomous orchestrator
+- **Validation**: Workflow execution actually deploys agents with file creation
