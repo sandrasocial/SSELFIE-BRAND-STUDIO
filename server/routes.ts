@@ -7207,6 +7207,12 @@ I'll coordinate a **"Platform Launch Readiness Validation"** workflow with Aria,
   });
 
   console.log('✅ Elena Staged Workflows API routes registered');
+  
+  // Elena Conversational-to-Autonomous Bridge API routes (merged with existing elena routes)
+  const elenaConversationalBridgeRoutes = (await import('./api/elena/conversational-bridge')).default;
+  app.use('/api/elena', elenaConversationalBridgeRoutes);
+  console.log('✅ Elena Conversational-to-Autonomous Bridge API routes registered');
+  
   console.log('✅ Plan B Execution System routes registered');
   
   // Agent Bridge System routes for luxury agent-to-agent communication

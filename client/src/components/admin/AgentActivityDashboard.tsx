@@ -7,6 +7,7 @@ import { Button } from '@/components/ui/button';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Progress } from '@/components/ui/progress';
 import { useAgentActivityData } from '@/hooks/useAgentActivityData';
+import { ElenaWorkflowsTab } from './ElenaWorkflowsTab';
 
 interface AgentStatus {
   agentName: string;
@@ -76,40 +77,7 @@ export default function AgentActivityDashboard() {
 
   const deploymentsList = activeDeployments || [];
 
-  // Fetch Elena's staged workflows
-  const { data: stagedWorkflowsData, refetch: refetchStagedWorkflows } = useQuery({
-    queryKey: ['/api/elena/staged-workflows'],
-    refetchInterval: 10000 // Check every 10 seconds for new workflows
-  });
 
-  const stagedWorkflows = stagedWorkflowsData?.workflows || [];
-
-  // Execute staged workflow mutation
-  const executeWorkflowMutation = useMutation({
-    mutationFn: async (workflowId: string) => {
-      const response = await fetch(`/api/elena/execute-staged-workflow/${workflowId}`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' }
-      });
-      
-      if (!response.ok) {
-        throw new Error('Failed to execute workflow');
-      }
-      
-      return response.json();
-    },
-    onSuccess: (data) => {
-      // Refresh all data after successful execution
-      refetchStagedWorkflows();
-      refreshAll();
-      setSelectedDeployment(data.deploymentId);
-      
-      alert(`🚀 WORKFLOW EXECUTED!\n\n${data.message}\n\nDeployment ID: ${data.deploymentId.split('-')[1]}\nAgents: ${data.agents.join(', ')}\n\nView progress in Active Deployments tab.`);
-    },
-    onError: (error: Error) => {
-      alert(`❌ Workflow Execution Failed: ${error.message}`);
-    }
-  });
 
   // Fetch specific deployment details
   const { data: deploymentDetails } = useQuery({
@@ -228,123 +196,16 @@ export default function AgentActivityDashboard() {
 
 
 
-        <Tabs defaultValue="staged" className="space-y-6">
+        <Tabs defaultValue="elena-workflows" className="space-y-6">
           <TabsList className="grid w-full grid-cols-4">
-            <TabsTrigger value="staged">Elena's Workflows</TabsTrigger>
+            <TabsTrigger value="elena-workflows">Elena's Workflows</TabsTrigger>
             <TabsTrigger value="deployments">Active Deployments</TabsTrigger>
             <TabsTrigger value="agents">Agent Status</TabsTrigger>
             <TabsTrigger value="metrics">System Metrics</TabsTrigger>
           </TabsList>
 
-          <TabsContent value="staged" className="space-y-6">
-            {stagedWorkflows.length > 0 ? (
-              <div className="space-y-4">
-                <div className="flex items-center justify-between mb-6">
-                  <div>
-                    <h3 className="font-times text-xl tracking-wide text-zinc-900">
-                      Elena's Workflows Ready for Execution
-                    </h3>
-                    <p className="text-zinc-600 text-sm mt-1">
-                      Workflows detected from Elena's conversation are staged here for manual execution
-                    </p>
-                  </div>
-                  <Badge variant="outline" className="text-zinc-600">
-                    {stagedWorkflows.length} workflows ready
-                  </Badge>
-                </div>
-                
-                {stagedWorkflows.map((workflow: any) => (
-                  <Card key={workflow.id} className="border-zinc-200">
-                    <CardHeader>
-                      <div className="flex items-center justify-between">
-                        <CardTitle className="font-times text-lg tracking-wide">
-                          {workflow.name}
-                        </CardTitle>
-                        <div className="flex items-center gap-2">
-                          <Badge variant={
-                            workflow.priority === 'critical' ? 'destructive' :
-                            workflow.priority === 'high' ? 'default' :
-                            workflow.priority === 'medium' ? 'secondary' : 'outline'
-                          }>
-                            {workflow.priority}
-                          </Badge>
-                          <Badge variant="outline">
-                            {workflow.agents.length} agents
-                          </Badge>
-                        </div>
-                      </div>
-                    </CardHeader>
-                    <CardContent>
-                      <div className="space-y-4">
-                        <p className="text-zinc-700">{workflow.description}</p>
-                        
-                        <div className="grid grid-cols-2 gap-4 text-sm">
-                          <div>
-                            <span className="text-zinc-500">Agents:</span>
-                            <div className="font-medium">{workflow.agents.join(', ')}</div>
-                          </div>
-                          <div>
-                            <span className="text-zinc-500">Duration:</span>
-                            <div className="font-medium">{workflow.estimatedDuration} minutes</div>
-                          </div>
-                          <div>
-                            <span className="text-zinc-500">Requirements:</span>
-                            <div className="font-medium">{workflow.customRequirements.length} tasks</div>
-                          </div>
-                          <div>
-                            <span className="text-zinc-500">Created:</span>
-                            <div className="font-medium">
-                              {new Date(workflow.detectedAt).toLocaleTimeString()}
-                            </div>
-                          </div>
-                        </div>
-                        
-                        {workflow.customRequirements.length > 0 && (
-                          <div>
-                            <span className="text-zinc-500 text-sm">Workflow Tasks:</span>
-                            <ul className="list-disc list-inside text-sm text-zinc-700 mt-1 space-y-1">
-                              {workflow.customRequirements.slice(0, 3).map((req: string, index: number) => (
-                                <li key={index}>{req}</li>
-                              ))}
-                              {workflow.customRequirements.length > 3 && (
-                                <li className="text-zinc-500">... and {workflow.customRequirements.length - 3} more</li>
-                              )}
-                            </ul>
-                          </div>
-                        )}
-                        
-                        <Button 
-                          onClick={() => executeWorkflowMutation.mutate(workflow.id)}
-                          disabled={executeWorkflowMutation.isPending}
-                          className="bg-black text-white hover:bg-zinc-800 w-full"
-                        >
-                          {executeWorkflowMutation.isPending ? 'Executing...' : `Execute "${workflow.name}"`}
-                        </Button>
-                      </div>
-                    </CardContent>
-                  </Card>
-                ))}
-              </div>
-            ) : (
-              <Card className="border-zinc-200">
-                <CardContent className="py-12">
-                  <div className="text-center">
-                    <div className="text-zinc-400 mb-4">
-                      <svg className="w-16 h-16 mx-auto" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1} d="M9 5H7a2 2 0 00-2 2v10a2 2 0 002 2h8a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
-                      </svg>
-                    </div>
-                    <h3 className="font-times text-xl tracking-wide text-zinc-700 mb-2">
-                      N O  W O R K F L O W S  S T A G E D
-                    </h3>
-                    <p className="text-zinc-500 mb-4">Chat with Elena to create workflows that will appear here for manual execution</p>
-                    <p className="text-zinc-400 text-sm">
-                      When Elena creates a workflow in conversation, it will automatically be detected and staged here with a manual trigger button
-                    </p>
-                  </div>
-                </CardContent>
-              </Card>
-            )}
+          <TabsContent value="elena-workflows" className="space-y-6">
+            <ElenaWorkflowsTab />
           </TabsContent>
 
           <TabsContent value="deployments" className="space-y-6">
