@@ -37,13 +37,17 @@ class ElenaWorkflowDetectionService {
   // Workflow detection patterns - Elena's coordination language
   private readonly WORKFLOW_PATTERNS = [
     /I'll coordinate (.*?) (?:and|with) (.*?) to (.*)/i,
+    /I will coordinate (.*?) (?:and|with) (.*?) to (.*)/i,
     /Let's have (.*?) (?:and|with) (.*?) work on (.*)/i,
     /(.*?) (?:and|with) (.*?) should (.*)/i,
     /Deploy (.*?) (?:and|with) (.*?) for (.*)/i,
     /I'll get (.*?) (?:and|with) (.*?) to (.*)/i,
+    /I will get (.*?) (?:and|with) (.*?) to (.*)/i,
     /Activate (.*?) (?:and|with) (.*?) for (.*)/i,
     /Coordinate (.*?) (?:and|with) (.*?) to (.*)/i,
-    /Task (.*?) (?:and|with) (.*?) with (.*)/i
+    /Task (.*?) (?:and|with) (.*?) with (.*)/i,
+    /Let me coordinate (.*?) (?:and|with) (.*?) to (.*)/i,
+    /I need (.*?) (?:and|with) (.*?) to (.*)/i
   ];
 
   // Priority keywords
@@ -70,7 +74,10 @@ class ElenaWorkflowDetectionService {
    * Analyze Elena's conversation for workflow patterns
    */
   analyzeConversation(message: string, agentName: string): WorkflowAnalysis {
+    console.log('🔍 ELENA WORKFLOW ANALYSIS: Starting analysis', { message: message.substring(0, 100), agentName });
+    
     if (agentName.toLowerCase() !== 'elena') {
+      console.log('❌ WORKFLOW ANALYSIS: Skipping - not Elena agent');
       return { hasWorkflow: false, confidence: 0, patterns: [], extractedText: '' };
     }
 
@@ -95,9 +102,11 @@ class ElenaWorkflowDetectionService {
 
     // Check for agent mentions
     const mentionedAgents = this.extractAgentNames(message);
+    console.log('🔍 WORKFLOW ANALYSIS: Mentioned agents:', mentionedAgents);
     if (mentionedAgents.length >= 2) {
       confidence += 0.2;
       extractedAgents.push(...mentionedAgents);
+      console.log('✅ WORKFLOW ANALYSIS: Multiple agents detected (+0.2 confidence)');
     }
 
     // Check for coordination keywords
@@ -105,14 +114,17 @@ class ElenaWorkflowDetectionService {
     for (const keyword of coordinationKeywords) {
       if (message.toLowerCase().includes(keyword)) {
         confidence += 0.1;
+        console.log(`✅ WORKFLOW ANALYSIS: Found keyword "${keyword}" (+0.1 confidence)`);
       }
     }
+    
+    console.log('🎯 WORKFLOW ANALYSIS: Final confidence:', confidence, 'Agents:', extractedAgents.length);
 
     // Remove duplicates
     extractedAgents = [...new Set(extractedAgents)];
     extractedTasks = [...new Set(extractedTasks)];
 
-    const hasWorkflow = confidence >= 0.4 && extractedAgents.length >= 1;
+    const hasWorkflow = confidence >= 0.3 && extractedAgents.length >= 1;
 
     let workflow: DetectedWorkflow | undefined;
     if (hasWorkflow) {
@@ -203,6 +215,28 @@ class ElenaWorkflowDetectionService {
   stageWorkflow(workflow: DetectedWorkflow): void {
     this.stagedWorkflows.set(workflow.id, workflow);
     console.log(`🎯 ELENA WORKFLOW STAGED: ${workflow.title} (${workflow.agents.length} agents, ${workflow.priority} priority)`);
+    console.log(`📋 WORKFLOW DETAILS: ID=${workflow.id}, Agents=[${workflow.agents.join(', ')}], Status=${workflow.status}`);
+  }
+
+  /**
+   * Create test workflow for immediate Agent Activity dashboard demonstration
+   */
+  createTestWorkflow(): DetectedWorkflow {
+    const testWorkflow: DetectedWorkflow = {
+      id: `elena-test-${Date.now()}`,
+      title: "Admin Dashboard Enhancement",
+      description: "Comprehensive luxury editorial design enhancement for admin interface with Times New Roman typography and responsive layout",
+      agents: ['aria', 'zara', 'quinn'],
+      tasks: ['Design luxury admin interface', 'Implement responsive components', 'Quality assurance testing'],
+      priority: 'high',
+      estimatedDuration: '30 minutes',
+      createdAt: new Date(),
+      status: 'staged'
+    };
+    
+    this.stageWorkflow(testWorkflow);
+    console.log(`✅ TEST WORKFLOW CREATED: ${testWorkflow.id} ready for Agent Activity dashboard`);
+    return testWorkflow;
   }
 
   /**
