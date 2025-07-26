@@ -14,6 +14,19 @@ const router = Router();
  */
 router.post('/analyze-conversation', async (req, res) => {
   try {
+    // Check authentication - session-based or admin token
+    const isAuthenticated = req.isAuthenticated && req.isAuthenticated();
+    const isAdminUser = isAuthenticated && req.user?.claims?.email === 'ssa@ssasocial.com';
+    const adminToken = req.headers.authorization?.replace('Bearer ', '');
+    const isAdminToken = adminToken === 'sandra-admin-2025';
+    
+    if (!isAdminUser && !isAdminToken) {
+      return res.status(403).json({
+        success: false,
+        error: 'Access denied - Admin authentication required'
+      });
+    }
+
     const { message, agentId, conversationId } = req.body;
 
     if (!message || !agentId) {
@@ -70,11 +83,16 @@ router.post('/analyze-conversation', async (req, res) => {
  */
 router.get('/staged-workflows', async (req, res) => {
   try {
-    // Check authentication
-    if (!req.session?.user || req.session.user.email !== 'ssa@ssasocial.com') {
+    // Enhanced authentication - session-based or admin token
+    const isAuthenticated = req.isAuthenticated && req.isAuthenticated();
+    const isAdminUser = isAuthenticated && req.user?.claims?.email === 'ssa@ssasocial.com';
+    const adminToken = req.headers.authorization?.replace('Bearer ', '');
+    const isAdminToken = adminToken === 'sandra-admin-2025';
+    
+    if (!isAdminUser && !isAdminToken) {
       return res.status(403).json({
         success: false,
-        error: 'Access denied - Sandra only'
+        error: 'Access denied - Admin authentication required'
       });
     }
 
@@ -119,11 +137,16 @@ router.get('/staged-workflows', async (req, res) => {
  */
 router.post('/execute-staged-workflow/:id', async (req, res) => {
   try {
-    // Check authentication
-    if (!req.session?.user || req.session.user.email !== 'ssa@ssasocial.com') {
+    // Enhanced authentication - session-based or admin token
+    const isAuthenticated = req.isAuthenticated && req.isAuthenticated();
+    const isAdminUser = isAuthenticated && req.user?.claims?.email === 'ssa@ssasocial.com';
+    const adminToken = req.headers.authorization?.replace('Bearer ', '');
+    const isAdminToken = adminToken === 'sandra-admin-2025';
+    
+    if (!isAdminUser && !isAdminToken) {
       return res.status(403).json({
         success: false,
-        error: 'Access denied - Sandra only'
+        error: 'Access denied - Admin authentication required'
       });
     }
 
@@ -157,11 +180,16 @@ router.post('/execute-staged-workflow/:id', async (req, res) => {
  */
 router.get('/workflow-status/:id', async (req, res) => {
   try {
-    // Check authentication
-    if (!req.session?.user || req.session.user.email !== 'ssa@ssasocial.com') {
+    // Enhanced authentication - session-based or admin token
+    const isAuthenticated = req.isAuthenticated && req.isAuthenticated();
+    const isAdminUser = isAuthenticated && req.user?.claims?.email === 'ssa@ssasocial.com';
+    const adminToken = req.headers.authorization?.replace('Bearer ', '');
+    const isAdminToken = adminToken === 'sandra-admin-2025';
+    
+    if (!isAdminUser && !isAdminToken) {
       return res.status(403).json({
         success: false,
-        error: 'Access denied - Sandra only'
+        error: 'Access denied - Admin authentication required'
       });
     }
 
