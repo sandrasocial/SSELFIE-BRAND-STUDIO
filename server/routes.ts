@@ -5229,9 +5229,9 @@ Starting analysis and implementation now...`;
           let workflows = await ElenaWorkflowSystem.getUserWorkflows(userId);
           
           if (workflows.length === 0) {
-            // Create workflow first
-            console.log('🔧 ELENA: Creating admin dashboard workflow');
-            const workflow = await ElenaWorkflowSystem.createWorkflowFromRequest(userId, 'admin dashboard redesign with visual editor integration');
+            // Create workflow from Elena's current conversation context
+            console.log('🔧 ELENA: Creating workflow from conversation context');
+            const workflow = await ElenaWorkflowSystem.createWorkflowFromRequest(userId, message);
             workflows = [workflow];
           }
           
@@ -5262,7 +5262,7 @@ Starting analysis and implementation now...`;
             })
           });
           
-          let responseText = `I'm coordinating the team right now to redesign your admin dashboard! The agents are working on actual file changes.`;
+          let responseText = `I'm coordinating the team right now based on your request! The agents are working on actual file changes.`;
           
           if (claudeResponse.ok) {
             const data = await claudeResponse.json();
