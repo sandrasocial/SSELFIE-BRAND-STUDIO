@@ -7449,7 +7449,7 @@ I'll coordinate a **"Platform Launch Readiness Validation"** workflow with Aria,
   const agentLearningRouter = await import('./routes/agent-learning');
   app.use('/api/agent-learning', agentLearningRouter.default);
 
-  // Import and register consulting agents routes (read-only analysis)
+  // Import and register consulting agents routes (UNLIMITED ACCESS)
   const consultingAgentsRouter = await import('./routes/consulting-agents-routes');
   app.use('/api', consultingAgentsRouter.default);
 
@@ -8189,7 +8189,7 @@ You have FULL ACCESS to implement changes directly if needed.`;
         }
       ];
 
-      // Call Anthropic with read-only tools
+      // Call Anthropic with UNLIMITED ACCESS tools
       const response = await anthropic.messages.create({
         model: DEFAULT_MODEL_STR,
         max_tokens: 4000,

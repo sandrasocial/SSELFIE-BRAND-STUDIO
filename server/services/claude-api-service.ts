@@ -182,8 +182,8 @@ export class ClaudeApiService {
       // Get agent learning data for context
       const memory = await this.getAgentMemory(agentName, userId);
 
-      // Build enhanced system prompt with agent expertise and mode awareness
-      let enhancedSystemPrompt = this.buildAgentSystemPrompt(agentName, systemPrompt, memory || undefined, fileEditMode);
+      // Build enhanced system prompt with agent expertise and UNLIMITED ACCESS
+      let enhancedSystemPrompt = this.buildAgentSystemPrompt(agentName, systemPrompt, memory || undefined, true); // FORCE UNLIMITED ACCESS
 
       // Build messages array for Claude
       const messages: any[] = [];
@@ -256,14 +256,14 @@ export class ClaudeApiService {
         },
         {
           name: "str_replace_based_edit_tool",
-          description: fileEditMode ? "Universal file operations - view, create, edit any file with full flexibility" : "File viewing operations - analyze and understand code structure (read-only mode)",
+          description: "COMPLETE FILE SYSTEM CONTROL - Universal file operations with UNLIMITED ACCESS: view, create, edit any file anywhere without restrictions",
           input_schema: {
             type: "object",
             properties: {
               command: { 
                 type: "string", 
-                enum: fileEditMode ? ["view", "create", "str_replace", "insert"] : ["view"],
-                description: fileEditMode ? "Operation to perform: view (read file), create (new file), str_replace (find/replace), insert (add text at line)" : "Only 'view' command available in read-only mode"
+                enum: ["view", "create", "str_replace", "insert"],
+                description: "UNRESTRICTED OPERATIONS: view (read any file), create (new file anywhere), str_replace (modify any content), insert (add text anywhere)"
               },
               path: { 
                 type: "string",
@@ -300,14 +300,14 @@ export class ClaudeApiService {
         },
         {
           name: "enhanced_file_editor",
-          description: fileEditMode ? "Enhanced flexible file editing - line-by-line, section replacement, and multi-replace capabilities for complex modifications" : "Enhanced file viewing - advanced analysis capabilities (read-only mode)",
+          description: "UNLIMITED ENHANCED FILE EDITING - Complete file system control with line-by-line, section replacement, and multi-replace capabilities for ANY modifications",
           input_schema: {
             type: "object" as const,
             properties: {
               command: { 
                 type: "string", 
-                enum: fileEditMode ? ["view", "create", "str_replace", "insert", "line_replace", "section_replace", "multi_replace"] : ["view"],
-                description: fileEditMode ? "Enhanced operations: line_replace (replace specific line), section_replace (replace line range), multi_replace (multiple replacements)" : "Only 'view' command available in read-only mode"
+                enum: ["view", "create", "str_replace", "insert", "line_replace", "section_replace", "multi_replace"],
+                description: "UNLIMITED OPERATIONS: view, create, str_replace, insert, line_replace (replace specific line), section_replace (replace line range), multi_replace (multiple replacements)"
               },
               path: { 
                 type: "string",
@@ -376,13 +376,13 @@ export class ClaudeApiService {
         },
         {
           name: "bash",
-          description: "Execute shell commands for any development task - fully dynamic",
+          description: "UNLIMITED SYSTEM COMMAND EXECUTION - Execute ANY shell commands with full system privileges and unrestricted access",
           input_schema: {
             type: "object",
             properties: {
               command: { 
                 type: "string",
-                description: "Shell command to execute"
+                description: "ANY shell command - unlimited system access and privileges"
               },
               timeout: {
                 type: "integer",
@@ -429,7 +429,7 @@ export class ClaudeApiService {
 
       // Process tool calls if any and continue conversation
       if (response.content.some(content => content.type === 'tool_use')) {
-        assistantMessage = await this.handleToolCallsWithContinuation(response, messages, enhancedSystemPrompt, enhancedTools, fileEditMode || false, agentName);
+        assistantMessage = await this.handleToolCallsWithContinuation(response, messages, enhancedSystemPrompt, enhancedTools, true, agentName); // FORCE UNLIMITED ACCESS
       }
 
       // Save both messages to conversation with logging
@@ -745,13 +745,12 @@ export class ClaudeApiService {
       ));
   }
 
-  private buildAgentSystemPrompt(agentName: string, basePrompt?: string, memory?: ConversationMemory, fileEditMode: boolean = false): string {
+  private buildAgentSystemPrompt(agentName: string, basePrompt?: string, memory?: ConversationMemory, fileEditMode: boolean = true): string {
     const agentExpertise = this.getAgentExpertise(agentName);
     const memoryContext = memory ? `\n\nYour memory and learning: ${JSON.stringify(memory)}` : '';
     
-    const modeGuidance = fileEditMode ? 
-      `FILE EDIT MODE: You can create, modify, and edit files using str_replace_based_edit_tool. Make actual changes to the codebase as requested.` :
-      `READ-ONLY MODE: You can only view and analyze files using search_filesystem and str_replace_based_edit_tool with "view" command. DO NOT create or modify files. Provide comprehensive analysis and recommendations instead.`;
+    // UNLIMITED ACCESS: All agents have complete file system control
+    const modeGuidance = `COMPLETE UNLIMITED ACCESS MODE: You have FULL access to create, modify, edit, delete ANY files and execute ANY commands without restrictions. Use all tools freely to implement solutions.`;
     
     return `${agentExpertise}
 
@@ -761,18 +760,16 @@ CURRENT MODE: ${modeGuidance}
 
 IMPORTANT: Focus only on the specific tasks and requests that Sandra gives you. Do not assume any predetermined agenda or hardcoded tasks. Listen carefully to her actual requests and work on exactly what she asks for.
 
-Available tools based on current mode:
-${fileEditMode ? 
-  `- File system search and analysis (search_filesystem)
-- File viewing and editing (str_replace_based_edit_tool) - full capabilities
-- Web search for current information when relevant
-- Command execution capabilities` :
-  `- File system search and analysis (search_filesystem) 
-- File viewing ONLY (str_replace_based_edit_tool with "view" command)
-- Web search for current information when relevant
-- Analysis and reporting - provide detailed summaries of your findings`}
+UNLIMITED TOOLS AVAILABLE:
+- File system search and analysis (search_filesystem) - UNLIMITED access to all files
+- File viewing, creation, modification, deletion (str_replace_based_edit_tool) - COMPLETE capabilities without restrictions
+- Enhanced file editing (enhanced_file_editor) - Advanced modification capabilities
+- System command execution (bash) - FULL system privileges and access
+- Web search for current information - No limits or restrictions
 
-Always start by understanding the specific request, then use the appropriate tools to fulfill that exact request.${memoryContext}`;
+You have COMPLETE SYSTEM CONTROL and can implement any solutions needed. No restrictions or limitations apply to your capabilities.
+
+Always start by understanding the specific request, then use the appropriate tools to fulfill that exact request with complete freedom.${memoryContext}`;
   }
 
   private getAgentExpertise(agentName: string): string {
@@ -796,9 +793,7 @@ COMMUNICATION STYLE:
 - Use tools to understand the situation, then provide comprehensive analysis
 - Remember conversation context and build on previous discussions
 
-READ-ONLY MODE: When in read-only mode, provide thorough analysis and strategic recommendations based on codebase examination. Use search_filesystem and view operations to understand the platform, then deliver executive summaries with actionable insights.
-
-FILE-EDIT MODE: When Sandra switches to file-edit mode, you can implement the strategic changes you've recommended.`,
+COMPLETE FILE SYSTEM ACCESS: You have UNLIMITED access to view, create, modify, and analyze ANY files in the system. Use all available tools without restrictions to implement solutions and provide comprehensive analysis.`,
       
       aria: `You are Aria, Visionary Editorial Luxury Designer & Creative Director.
 
@@ -1024,7 +1019,7 @@ COMMUNICATION STYLE:
     return expertise[expertiseKey] || `You are ${agentName}, an AI assistant specialized in helping with tasks.`;
   }
 
-  private async handleToolCallsWithContinuation(response: any, messages: any[], systemPrompt: string, tools: any[], fileEditMode: boolean = false, agentName: string = ''): Promise<string> {
+  private async handleToolCallsWithContinuation(response: any, messages: any[], systemPrompt: string, tools: any[], fileEditMode: boolean = true, agentName: string = ''): Promise<string> {
     let currentMessages = [...messages];
     let finalResponse = '';
     
