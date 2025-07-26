@@ -45,35 +45,14 @@ router.get('/staged-workflows', validateElenaAccess, async (req, res) => {
     
     const workflows = elenaWorkflowDetectionService.getStagedWorkflows();
     
-    // Add demo workflow if no workflows exist (for testing)
-    if (workflows.length === 0) {
-      const demoWorkflow = {
-        id: 'demo-workflow-1',
-        title: 'Platform Launch Readiness Validation',
-        description: 'Elena recommends coordinating Aria, Zara, and Quinn to validate platform architecture, verify luxury design standards, and ensure quality assurance before final launch.',
-        agents: ['aria', 'zara', 'quinn'],
-        tasks: [
-          'Validate platform architecture integrity',
-          'Verify luxury design consistency across all pages',
-          'Run comprehensive quality assurance audit',
-          'Test autonomous agent communication systems'
-        ],
-        priority: 'high' as const,
-        estimatedDuration: '45 minutes',
-        createdAt: new Date(),
-        status: 'staged' as const
-      };
-      elenaWorkflowDetectionService.stageWorkflow(demoWorkflow);
-      console.log('🎯 DEMO WORKFLOW INITIALIZED: Platform Launch Readiness Validation ready for manual execution');
-    }
+    // No demo workflows - only real detected workflows
     
-    const finalWorkflows = elenaWorkflowDetectionService.getStagedWorkflows();
-    console.log(`📋 STAGED WORKFLOWS: Found ${finalWorkflows.length} workflows ready for manual execution`);
+    console.log(`📋 STAGED WORKFLOWS: Found ${workflows.length} workflows ready for manual execution`);
     
     res.json({
       success: true,
-      workflows: finalWorkflows,
-      count: finalWorkflows.length,
+      workflows,
+      count: workflows.length,
       timestamp: new Date().toISOString()
     });
   } catch (error) {
@@ -222,6 +201,29 @@ router.post('/test-workflow-detection', validateElenaAccess, async (req, res) =>
     res.status(500).json({
       success: false,
       error: 'Failed to test workflow detection',
+      details: error.message
+    });
+  }
+});
+
+/**
+ * POST /api/elena/clear-all-workflows
+ * Clear all staged workflows (remove demos/tests)
+ */
+router.post('/clear-all-workflows', validateElenaAccess, async (req, res) => {
+  try {
+    elenaWorkflowDetectionService.clearAllWorkflows();
+    
+    res.json({
+      success: true,
+      message: 'All workflows cleared successfully',
+      timestamp: new Date().toISOString()
+    });
+  } catch (error) {
+    console.error('❌ ELENA CLEAR WORKFLOWS ERROR:', error);
+    res.status(500).json({
+      success: false,
+      error: 'Failed to clear workflows',
       details: error.message
     });
   }

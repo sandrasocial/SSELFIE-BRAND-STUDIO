@@ -44,8 +44,7 @@ export function useAgentActivityData() {
     refetch: refetchCoordination
   } = useQuery<{ metrics: CoordinationMetrics; timestamp: string }>({
     queryKey: ['/api/autonomous-orchestrator/coordination-metrics'],
-    refetchInterval: 30000, // Refresh every 30 seconds
-    staleTime: 20000, // Data is stale after 20 seconds
+    staleTime: 300000, // Data is stale after 5 minutes (no auto-refresh)
   });
 
   const {
@@ -55,8 +54,7 @@ export function useAgentActivityData() {
     refetch: refetchDeployments
   } = useQuery<{ activeDeployments: any[]; count: number; timestamp: string }>({
     queryKey: ['/api/autonomous-orchestrator/active-deployments'],
-    refetchInterval: 15000, // Refresh every 15 seconds
-    staleTime: 10000, // Data is stale after 10 seconds
+    staleTime: 300000, // Data is stale after 5 minutes (no auto-refresh)
   });
 
   // Combined activity data
