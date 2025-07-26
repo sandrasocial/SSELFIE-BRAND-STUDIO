@@ -56,12 +56,9 @@ export async function getCoordinationMetrics(req: Request, res: Response): Promi
     // Get workflow template statistics
     const templateStats = autonomousWorkflowTemplates.getTemplateStatistics();
 
-    // Mock deployment metrics (would be from active deployments in real implementation)
-    const deploymentMetrics = {
-      activeDeployments: 0, // Would come from deployment tracking system
-      totalDeployments: 0,  // Would come from deployment history
-      completionRate: 0     // Would be calculated from historical data
-    };
+    // Get real deployment metrics from deployment tracker
+    const { deploymentTracker } = await import('../../services/deployment-tracking-service');
+    const deploymentMetrics = deploymentTracker.getDeploymentMetrics();
 
     const metrics: CoordinationMetrics = {
       agentCoordination: {
@@ -111,9 +108,11 @@ export async function getActiveDeployments(req: Request, res: Response): Promise
   try {
     console.log('🚀 ACTIVE DEPLOYMENTS: Retrieving active deployments...');
 
-    // In a real implementation, this would query the deployment tracking system
-    // For now, return empty array as no deployments are active
-    const activeDeployments: any[] = [];
+    // Get real active deployments from deployment tracker
+    const { deploymentTracker } = await import('../../services/deployment-tracking-service');
+    const activeDeployments = deploymentTracker.getActiveDeployments();
+
+    console.log(`📊 ACTIVE DEPLOYMENTS: Found ${activeDeployments.length} active deployments`);
 
     res.json({
       success: true,
@@ -140,11 +139,21 @@ export async function getDeploymentStatus(req: Request, res: Response): Promise<
     const { deploymentId } = req.params;
     console.log(`🔍 DEPLOYMENT STATUS: Checking status for deployment ${deploymentId}`);
 
-    // In a real implementation, this would query the specific deployment
-    // For now, return null as no deployments exist
+    // Get deployment from deployment tracker
+    const { deploymentTracker } = await import('../../services/deployment-tracking-service');
+    const deployment = deploymentTracker.getDeployment(deploymentId);
+
+    if (!deployment) {
+      return res.status(404).json({
+        success: false,
+        error: 'Deployment not found',
+        deploymentId
+      });
+    }
+
     res.json({
       success: true,
-      deployment: null,
+      deployment,
       timestamp: new Date().toISOString()
     });
 
