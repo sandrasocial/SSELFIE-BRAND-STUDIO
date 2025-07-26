@@ -5440,6 +5440,11 @@ Workflow Stage: ${savedMemory.workflowStage || 'None'}
         }
       ];
       
+      // 🚨 CRITICAL ELENA WORKFLOW DETECTION for agent-chat-bypass endpoint
+      const isElenaWorkflowExecution = message.includes('ELENA WORKFLOW EXECUTION') || 
+                                      message.includes('MANDATORY TOOL USAGE REQUIRED') ||
+                                      message.includes('workflow execution');
+      
       // Detect file operations to force tool usage for Olga and other file-enabled agents
       const isFileRequest = agentId === 'olga' || 
                            message.toLowerCase().includes('file') || 
@@ -5452,11 +5457,29 @@ Workflow Stage: ${savedMemory.workflowStage || 'None'}
                            message.toLowerCase().includes('organize');
       
       let finalSystemPrompt = agent.systemPrompt;
-      if (isFileRequest) {
-        finalSystemPrompt += `\n\n🚨 MANDATORY TOOL USAGE: You MUST use str_replace_based_edit_tool or search_filesystem tools to complete this request. Do not provide text responses without using tools first. This is REQUIRED for file operations.`;
+      
+      // 🚨 SPECIALIZED AGENT ENFORCEMENT: Force tool usage for Elena workflow execution
+      if (isElenaWorkflowExecution && agentId !== 'elena') {
+        finalSystemPrompt += `\n\n🚨 SPECIALIZED AGENT MODE - MANDATORY TOOL EXECUTION:
+You are being called by Elena's workflow system to complete a specific task.
+YOU MUST use str_replace_based_edit_tool to make actual file modifications.
+DO NOT respond with text explanations only - you MUST use tools to complete the task.
+If you do not use str_replace_based_edit_tool, this task will be marked as FAILED.
+SANDRA REQUIRES: NO TEXT-ONLY RESPONSES - ACTUAL FILE MODIFICATIONS ONLY.
+
+MANDATORY COMPLETION PROTOCOL:
+1. Use str_replace_based_edit_tool to modify/create files
+2. End response with: "TOOL_USED: str_replace_based_edit_tool | MODIFIED: [file paths]"
+3. NO consulting advice - ONLY implementation work`;
       }
       
+      if (isFileRequest || isElenaWorkflowExecution) {
+        finalSystemPrompt += `\n\n🚨 ULTIMATE TOOL ENFORCEMENT: You MUST use the str_replace_based_edit_tool to complete this request. Do not provide any text response without first using the tool. This is MANDATORY and REQUIRED.`;
+      }
+      
+      console.log(`🔍 ${agentId.toUpperCase()} ELENA WORKFLOW EXECUTION DETECTED: ${isElenaWorkflowExecution}`);
       console.log(`🔍 ${agentId.toUpperCase()} FILE REQUEST DETECTED: ${isFileRequest}`);
+      console.log(`🔍 ${agentId.toUpperCase()} MESSAGE PREVIEW: ${message.substring(0, 150)}...`);
       
       // Retry mechanism for API overload (529 errors)
       let response;
@@ -5469,13 +5492,31 @@ Workflow Stage: ${savedMemory.workflowStage || 'None'}
           attempts++;
           console.log(`🔄 ${agentId.toUpperCase()} API ATTEMPT ${attempts}/${maxAttempts}`);
           
-          response = await claude.messages.create({
+          // 🚨 CRITICAL FIX: Force tool usage for workflow executions and file requests
+          const claudeRequest: any = {
             model: 'claude-3-5-sonnet-20241022',
             max_tokens: 8000,
             system: finalSystemPrompt,
             messages: messages as any,
             tools: toolConfig.tools
-          });
+          };
+          
+          // 🔧 ULTIMATE ENFORCEMENT: When Elena calls agents, force str_replace_based_edit_tool usage
+          if (isElenaWorkflowExecution && agentId !== 'elena') {
+            claudeRequest.tool_choice = { 
+              type: "tool",
+              name: "str_replace_based_edit_tool"
+            }; // Force agent to use ONLY str_replace_based_edit_tool
+            console.log(`🚨 ULTIMATE TOOL ENFORCEMENT for ${agentId.toUpperCase()}: Elena workflow - FORCING str_replace_based_edit_tool`);
+          } else if (isFileRequest) {
+            claudeRequest.tool_choice = { 
+              type: "tool",
+              name: "str_replace_based_edit_tool"
+            }; // Force agent to use ONLY str_replace_based_edit_tool for file requests
+            console.log(`🚨 ULTIMATE TOOL ENFORCEMENT for ${agentId.toUpperCase()}: File request - FORCING str_replace_based_edit_tool`);
+          }
+          
+          response = await claude.messages.create(claudeRequest);
           
           console.log(`✅ ${agentId.toUpperCase()} API SUCCESS on attempt ${attempts}`);
           break; // Success - exit retry loop
@@ -6759,7 +6800,9 @@ MANDATORY COMPLETION PROTOCOL:
         finalSystemPrompt += `\n\n🚨 ULTIMATE TOOL ENFORCEMENT: You MUST use the str_replace_based_edit_tool to complete this request. Do not provide any text response without first using the tool. This is MANDATORY and REQUIRED.`;
       }
       
+      console.log(`🔍 ${agentId.toUpperCase()} ELENA WORKFLOW EXECUTION DETECTED: ${isElenaWorkflowExecution}`);
       console.log(`🔍 ${agentId.toUpperCase()} FILE REQUEST DETECTED: ${isFileRequest}`);
+      console.log(`🔍 ${agentId.toUpperCase()} MESSAGE PREVIEW: ${message.substring(0, 150)}...`);
       
       // Retry mechanism for API overload (529 errors) - Second endpoint
       let response;
@@ -6781,13 +6824,19 @@ MANDATORY COMPLETION PROTOCOL:
             tools: toolConfig.tools
           };
           
-          // 🔧 FORCE TOOL USAGE: When Elena calls agents or file requests, require tools
+          // 🔧 ULTIMATE ENFORCEMENT: When Elena calls agents, force str_replace_based_edit_tool usage
           if (isElenaWorkflowExecution && agentId !== 'elena') {
-            claudeRequest.tool_choice = { type: "any" }; // Force agent to use ANY tool - no text-only responses
-            console.log(`🚨 FORCING TOOL USAGE for ${agentId.toUpperCase()}: Elena workflow execution detected`);
+            claudeRequest.tool_choice = { 
+              type: "tool",
+              name: "str_replace_based_edit_tool"
+            }; // Force agent to use ONLY str_replace_based_edit_tool
+            console.log(`🚨 ULTIMATE TOOL ENFORCEMENT for ${agentId.toUpperCase()}: Elena workflow - FORCING str_replace_based_edit_tool`);
           } else if (isFileRequest) {
-            claudeRequest.tool_choice = { type: "any" }; // Force agent to use ANY tool for file requests
-            console.log(`🚨 FORCING TOOL USAGE for ${agentId.toUpperCase()}: File request detected`);
+            claudeRequest.tool_choice = { 
+              type: "tool",
+              name: "str_replace_based_edit_tool"
+            }; // Force agent to use ONLY str_replace_based_edit_tool for file requests
+            console.log(`🚨 ULTIMATE TOOL ENFORCEMENT for ${agentId.toUpperCase()}: File request - FORCING str_replace_based_edit_tool`);
           }
           
           response = await claude.messages.create(claudeRequest);
