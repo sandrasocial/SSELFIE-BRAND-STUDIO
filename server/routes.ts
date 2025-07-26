@@ -291,8 +291,9 @@ app.use('/api/autonomous-orchestrator', autonomousOrchestratorRoutes);
     }
   });
 
-  // Elena workflow routes for visual editor integration (admin access)
-  // app.use('/api/admin/elena', elenaWorkflowRoutes); // DISABLED - Elena uses authentic Claude responses only
+  // Elena workflow routes - ENABLED for conversational-to-autonomous bridge
+  const elenaWorkflowRoutes = await import('./api/elena/staged-workflows.js');
+  app.use('/api/elena', elenaWorkflowRoutes.default);
   
 
 

@@ -27,7 +27,7 @@ router.post('/send-message', async (req, res) => {
   try {
     const { agentName, message, conversationId, tools, fileEditMode } = sendMessageSchema.parse(req.body);
     
-    // CRITICAL FIX: Force fileEditMode to true for all admin agents to eliminate "Read-only mode active" errors
+    // UNLIMITED ACCESS: Force fileEditMode to true for all admin agents to eliminate "Read-only mode active" errors
     // This ensures agents with canModifyFiles: true always get full editing capabilities
     const forceFileEditMode = true;
     
@@ -70,6 +70,21 @@ router.post('/send-message', async (req, res) => {
       tools,
       forceFileEditMode  // Always use full editing capabilities for admin agents
     );
+
+    // Elena workflow detection integration
+    if (agentName.toLowerCase() === 'elena') {
+      try {
+        const { elenaWorkflowDetectionService } = await import('../services/elena-workflow-detection-service.js');
+        const analysis = elenaWorkflowDetectionService.analyzeConversation(response, agentName);
+        
+        if (analysis.hasWorkflow && analysis.workflow) {
+          elenaWorkflowDetectionService.stageWorkflow(analysis.workflow);
+          console.log(`🎯 ELENA WORKFLOW DETECTED: ${analysis.workflow.title} (confidence: ${analysis.confidence})`);
+        }
+      } catch (error) {
+        console.error('❌ ELENA WORKFLOW DETECTION ERROR:', error);
+      }
+    }
 
     res.json({
       success: true,
