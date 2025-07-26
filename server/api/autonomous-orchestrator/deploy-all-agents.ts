@@ -11,8 +11,9 @@ const adminAuth = (req: any, res: any, next: any) => {
   const authHeader = req.headers.authorization;
   const bodyToken = req.body?.adminToken;
   const queryToken = req.query?.adminToken;
+  const headerToken = req.headers['x-admin-token']; // Support x-admin-token header
   
-  if (authHeader === 'Bearer sandra-admin-2025' || bodyToken === 'sandra-admin-2025' || queryToken === 'sandra-admin-2025') {
+  if (authHeader === 'Bearer sandra-admin-2025' || bodyToken === 'sandra-admin-2025' || queryToken === 'sandra-admin-2025' || headerToken === 'sandra-admin-2025') {
     console.log('✅ ELENA WORKFLOW AUTH: Admin token validated for autonomous orchestrator');
     return next();
   }

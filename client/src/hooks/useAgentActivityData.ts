@@ -45,6 +45,20 @@ export function useAgentActivityData() {
   } = useQuery<{ metrics: CoordinationMetrics; timestamp: string }>({
     queryKey: ['/api/autonomous-orchestrator/coordination-metrics'],
     staleTime: 300000, // Data is stale after 5 minutes (no auto-refresh)
+    queryFn: async () => {
+      const response = await fetch('/api/autonomous-orchestrator/coordination-metrics', {
+        method: 'GET',
+        credentials: 'include',
+        headers: {
+          'Content-Type': 'application/json',
+          'x-admin-token': 'sandra-admin-2025'
+        }
+      });
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+      return response.json();
+    }
   });
 
   const {
@@ -55,6 +69,20 @@ export function useAgentActivityData() {
   } = useQuery<{ activeDeployments: any[]; count: number; timestamp: string }>({
     queryKey: ['/api/autonomous-orchestrator/active-deployments'],
     staleTime: 300000, // Data is stale after 5 minutes (no auto-refresh)
+    queryFn: async () => {
+      const response = await fetch('/api/autonomous-orchestrator/active-deployments', {
+        method: 'GET',
+        credentials: 'include',
+        headers: {
+          'Content-Type': 'application/json',
+          'x-admin-token': 'sandra-admin-2025'
+        }
+      });
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+      return response.json();
+    }
   });
 
   // Combined activity data
@@ -93,5 +121,19 @@ export function useDeploymentStatus(deploymentId: string | null) {
     enabled: !!deploymentId,
     refetchInterval: 10000, // Refresh every 10 seconds when active
     staleTime: 5000, // Data is stale after 5 seconds
+    queryFn: async () => {
+      const response = await fetch(`/api/autonomous-orchestrator/deployment-status/${deploymentId}`, {
+        method: 'GET',
+        credentials: 'include',
+        headers: {
+          'Content-Type': 'application/json',
+          'x-admin-token': 'sandra-admin-2025'
+        }
+      });
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+      return response.json();
+    }
   });
 }
