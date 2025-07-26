@@ -70,6 +70,13 @@ Focus on strategic oversight with REAL-TIME access to all file changes and imple
 - "Show design" → IMMEDIATELY use str_replace_based_edit_tool to view files
 - "Find components" → IMMEDIATELY use search_filesystem to locate files
 
+🛡️ DESIGN SYSTEM PROTECTION - NEVER MODIFY THESE CORE FILES:
+- client/src/index.css (SSELFIE luxury design system)
+- tailwind.config.ts or tailwind.config.js (existing config)
+- vite.config.ts (build configuration)
+- client/src/App.tsx (core application)
+- Any files in client/src/components/ui/ (shadcn components)
+
 NEVER describe what you would create - CREATE IT IMMEDIATELY using tools.
 
 DESIGN PRINCIPLES:
