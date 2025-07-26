@@ -32,6 +32,7 @@ import { registerAutomationRoutes } from './routes/automation';
 import { registerEnterpriseRoutes } from './routes/enterprise-routes';
 import claudeApiRoutes from './routes/claude-api-routes';
 import autonomousOrchestratorRoutes from './api/autonomous-orchestrator/deploy-all-agents';
+import { getCoordinationMetrics, getActiveDeployments, getDeploymentStatus } from './api/autonomous-orchestrator/coordination-metrics';
 // Agent performance monitor will be imported dynamically
 import { ExternalAPIService } from './integrations/external-api-service';
 import { AgentAutomationTasks } from './integrations/agent-automation-tasks';
@@ -6976,6 +6977,13 @@ AGENT_CONTEXT:
   
   console.log('✅ Agent Bridge System routes registered');
   console.log('✅ Autonomous Orchestrator routes registered');
+  
+  // Coordination Metrics API routes for Agent Activity Dashboard
+  app.get('/api/autonomous-orchestrator/coordination-metrics', isAuthenticated, getCoordinationMetrics);
+  app.get('/api/autonomous-orchestrator/active-deployments', isAuthenticated, getActiveDeployments);
+  app.get('/api/autonomous-orchestrator/deployment-status/:deploymentId', isAuthenticated, getDeploymentStatus);
+  
+  console.log('✅ Coordination Metrics API routes registered');
   
   // Agent Performance Monitor API routes
   const { getAgentCoordinationMetrics, getAgentStatuses, getAgentAccountability } = await import('./routes/agent-performance-monitor');
