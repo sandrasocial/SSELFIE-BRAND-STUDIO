@@ -144,30 +144,58 @@ export function getToolUsageRecommendation(userMessage: string, agentId: string)
   };
 }
 
-// Agent-specific tool usage patterns
+// ALL AGENTS HAVE UNLIMITED ACCESS - No tool restrictions
 export const AGENT_SPECIFIC_TOOLS = {
   elena: {
-    primary: ['search_filesystem'],
-    description: 'Elena analyzes first, then coordinates other agents to use execution tools'
+    primary: ['search_filesystem', 'str_replace_based_edit_tool', 'bash', 'web_search'],
+    description: 'Elena has UNLIMITED ACCESS to all tools for strategic coordination and implementation'
   },
   aria: {
-    primary: ['str_replace_based_edit_tool', 'search_filesystem'],
-    description: 'Aria designs and implements visual components directly'
+    primary: ['str_replace_based_edit_tool', 'search_filesystem', 'bash', 'web_search'],
+    description: 'Aria has UNLIMITED ACCESS to all tools for luxury design and direct implementation'
   },
   zara: {
-    primary: ['str_replace_based_edit_tool', 'bash', 'search_filesystem'],
-    description: 'Zara handles technical implementation and testing'
+    primary: ['str_replace_based_edit_tool', 'bash', 'search_filesystem', 'web_search'],
+    description: 'Zara has UNLIMITED ACCESS to all tools for technical implementation and testing'
   },
   rachel: {
-    primary: ['str_replace_based_edit_tool', 'search_filesystem'],
-    description: 'Rachel creates and updates content/copy files'
+    primary: ['str_replace_based_edit_tool', 'search_filesystem', 'bash', 'web_search'],
+    description: 'Rachel has UNLIMITED ACCESS to all tools for voice consistency and content creation'
   },
   maya: {
-    primary: ['str_replace_based_edit_tool'],
-    description: 'Maya focuses on AI photography components'
+    primary: ['str_replace_based_edit_tool', 'search_filesystem', 'bash', 'web_search'],
+    description: 'Maya has UNLIMITED ACCESS to all tools for AI photography implementation'
   },
   victoria: {
-    primary: ['str_replace_based_edit_tool', 'search_filesystem'], 
-    description: 'Victoria builds user-facing interfaces'
+    primary: ['str_replace_based_edit_tool', 'search_filesystem', 'bash', 'web_search'],
+    description: 'Victoria has UNLIMITED ACCESS to all tools for UX implementation'
+  },
+  ava: {
+    primary: ['str_replace_based_edit_tool', 'search_filesystem', 'bash', 'web_search'],
+    description: 'Ava has UNLIMITED ACCESS to all tools for automation implementation'
+  },
+  quinn: {
+    primary: ['str_replace_based_edit_tool', 'search_filesystem', 'bash', 'web_search'],
+    description: 'Quinn has UNLIMITED ACCESS to all tools for quality assurance implementation'
+  },
+  sophia: {
+    primary: ['str_replace_based_edit_tool', 'search_filesystem', 'bash', 'web_search'],
+    description: 'Sophia has UNLIMITED ACCESS to all tools for social media feature implementation'
+  },
+  martha: {
+    primary: ['str_replace_based_edit_tool', 'search_filesystem', 'bash', 'web_search'],
+    description: 'Martha has UNLIMITED ACCESS to all tools for marketing implementation'
+  },
+  diana: {
+    primary: ['str_replace_based_edit_tool', 'search_filesystem', 'bash', 'web_search'],
+    description: 'Diana has UNLIMITED ACCESS to all tools for business strategy implementation'
+  },
+  wilma: {
+    primary: ['str_replace_based_edit_tool', 'search_filesystem', 'bash', 'web_search'],
+    description: 'Wilma has UNLIMITED ACCESS to all tools for workflow implementation'
+  },
+  olga: {
+    primary: ['str_replace_based_edit_tool', 'search_filesystem', 'bash', 'web_search'],
+    description: 'Olga has UNLIMITED ACCESS to all tools for repository organization implementation'
   }
 };
