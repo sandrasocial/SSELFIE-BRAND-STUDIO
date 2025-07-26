@@ -19,7 +19,7 @@ export async function search_filesystem(params: SearchParams) {
     console.log('🔍 ADMIN SEARCH: Starting full repository analysis with params:', params);
     
     const results: SearchResult[] = [];
-    const maxFiles = 200; // Enhanced access for Sandra's admin agents to see ALL autonomous orchestrator files
+    const maxFiles = 1000; // UNLIMITED ACCESS: Maximum files increased for complete repository visibility
     
     // Search through project files
     const searchInDirectory = async (dirPath: string, basePath = '') => {
@@ -32,10 +32,11 @@ export async function search_filesystem(params: SearchParams) {
           const fullPath = path.join(dirPath, entry.name);
           const relativePath = path.join(basePath, entry.name);
           
-          // Skip only essential excluded directories - give agents full access
+          // MINIMAL EXCLUSIONS: Only skip build artifacts, allow access to everything else
           if (entry.name === 'node_modules' || 
               entry.name === 'dist' ||
-              entry.name === 'build') {
+              entry.name === 'build' ||
+              entry.name === '.git') {
             continue;
           }
           
@@ -68,9 +69,11 @@ export async function search_filesystem(params: SearchParams) {
     console.log(`✅ ADMIN SEARCH: Found ${results.length} relevant files for comprehensive analysis`);
     
     return { 
-      summary: `Found ${results.length} files relevant to your analysis`,
-      results: results.slice(0, maxFiles),
-      totalFiles: results.length
+      summary: `UNLIMITED ACCESS: Found ${results.length} files across entire repository`,
+      results: results, // Return ALL results, no slicing limitation
+      totalFiles: results.length,
+      accessLevel: "UNLIMITED",
+      note: "Complete repository access enabled - all agents can see entire codebase"
     };
     
   } catch (error) {
@@ -81,7 +84,8 @@ export async function search_filesystem(params: SearchParams) {
 }
 
 function shouldAnalyzeFile(fileName: string): boolean {
-  const codeExtensions = ['.ts', '.tsx', '.js', '.jsx', '.json', '.md', '.css', '.html'];
+  // UNLIMITED FILE TYPE ACCESS: Support ALL common file types agents might need
+  const codeExtensions = ['.ts', '.tsx', '.js', '.jsx', '.json', '.md', '.css', '.html', '.txt', '.xml', '.yaml', '.yml', '.env', '.config', '.toml'];
   return codeExtensions.some(ext => fileName.endsWith(ext));
 }
 
