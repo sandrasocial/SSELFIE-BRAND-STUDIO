@@ -416,8 +416,8 @@ async function executeDeployment(deploymentId: string): Promise<void> {
         if (assignment) {
           deployment.logs.push(`🤖 ${assignment.agentName} executing: ${task.title}`);
           
-          // Simulate longer task execution to keep deployments visible
-          await new Promise(resolve => setTimeout(resolve, 15000));
+          // Much longer task execution to keep deployments visible for several minutes
+          await new Promise(resolve => setTimeout(resolve, 45000)); // 45 seconds per task
           
           deployment.results.push({
             taskId: task.id,
@@ -427,6 +427,7 @@ async function executeDeployment(deploymentId: string): Promise<void> {
           });
 
           deployment.progress = Math.round((deployment.results.length / deployment.tasks.length) * 100);
+          console.log(`✅ Task completed: ${task.title} (${deployment.progress}% total progress)`);
         }
       }
 
@@ -437,9 +438,12 @@ async function executeDeployment(deploymentId: string): Promise<void> {
       deployment.status = 'completed';
       deployment.logs.push(`🎉 Mission ${deployment.missionType} completed successfully!`);
       
-      // Move to history
-      deploymentHistory.set(deploymentId, deployment);
-      activeDeployments.delete(deploymentId);
+      // Keep completed deployments visible for 5 minutes before moving to history
+      setTimeout(() => {
+        console.log(`📁 Moving deployment ${deploymentId} to history after completion display period`);
+        deploymentHistory.set(deploymentId, deployment);
+        activeDeployments.delete(deploymentId);
+      }, 300000); // 5 minutes
     }
 
   } catch (error) {
