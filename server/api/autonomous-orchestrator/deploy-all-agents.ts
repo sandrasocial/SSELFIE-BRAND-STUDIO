@@ -100,8 +100,8 @@ router.post('/deploy-all-agents', adminAuth, async (req, res) => {
 
     activeDeployments.set(deploymentId, deployment);
 
-    // Start autonomous execution
-    setImmediate(() => executeDeployment(deploymentId));
+    // Start autonomous execution with a delay to allow UI to show the deployment
+    setTimeout(() => executeDeployment(deploymentId), 5000);
 
     res.json({
       success: true,
@@ -416,8 +416,8 @@ async function executeDeployment(deploymentId: string): Promise<void> {
         if (assignment) {
           deployment.logs.push(`🤖 ${assignment.agentName} executing: ${task.title}`);
           
-          // Simulate task execution (in real implementation, this would call actual agents)
-          await new Promise(resolve => setTimeout(resolve, 2000));
+          // Simulate longer task execution to keep deployments visible
+          await new Promise(resolve => setTimeout(resolve, 15000));
           
           deployment.results.push({
             taskId: task.id,

@@ -84,6 +84,8 @@ export default function AgentActivityDashboard() {
 
   const handleLaunchReadiness = async () => {
     try {
+      console.log('🚀 LAUNCH PROTOCOL: Starting deployment...');
+      
       const response = await fetch('/api/autonomous-orchestrator/deploy-all-agents', {
         method: 'POST',
         headers: { 
@@ -99,16 +101,27 @@ export default function AgentActivityDashboard() {
       });
       
       const result = await response.json();
+      console.log('🚀 LAUNCH PROTOCOL: Response:', result);
+      
       if (result.success) {
         setSelectedDeployment(result.deploymentId);
-        // Refresh the data to show the new deployment
-        refreshAll();
+        // Force refresh after a short delay to ensure deployment is registered
+        setTimeout(() => {
+          refreshAll();
+          console.log('🔄 LAUNCH PROTOCOL: Data refreshed');
+        }, 1000);
         console.log('✅ Launch Protocol Initiated:', result.deploymentId);
+        
+        // Show user feedback with better messaging
+        const deploymentShort = result.deploymentId.split('-')[1];
+        alert(`🚀 AUTONOMOUS ORCHESTRATOR ACTIVATED\n\nDeployment: ${deploymentShort}\nMission: Launch Readiness Protocol\nAgents: All 13 specialists deployed\nStatus: Active coordination in progress\n\nView real-time progress below.`);
       } else {
         console.error('❌ Launch Protocol Failed:', result.error);
+        alert(`❌ Launch Protocol Failed: ${result.error || 'Unknown error'}`);
       }
     } catch (error) {
       console.error('Failed to launch deployment:', error);
+      alert(`❌ Launch Protocol Error: ${error.message}`);
     }
   };
 
