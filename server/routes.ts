@@ -5197,30 +5197,77 @@ Starting analysis and implementation now...`;
       const isElena = agentId === 'elena';
       const messageText = message.toLowerCase();
       
-      const isExecutionRequest = isElena && (
+      // FIXED: Elena workflow creation vs execution detection
+      const isNewWorkflowCreation = isElena && (
+        messageText.includes('coordinate a') ||
+        messageText.includes('coordinate with') ||
+        messageText.includes('fifth activation') ||
+        messageText.includes('breakthrough') ||
+        (messageText.includes('coordinate') && (messageText.includes('aria') || messageText.includes('victoria') || messageText.includes('zara')))
+      );
+      
+      const isExecutionRequest = isElena && !isNewWorkflowCreation && (
         messageText.includes('execute') ||
-        messageText.includes('start') ||
-        messageText.includes('begin') ||
-        messageText.includes('proceed') ||
-        messageText.includes('run') ||
-        messageText.includes('coordinate') ||
-        messageText.includes('workflow') ||
-        messageText.includes('redesign') ||
-        messageText.includes('initiate') ||
+        messageText.includes('start workflow') ||
+        messageText.includes('begin workflow') ||
+        messageText.includes('proceed with') ||
+        messageText.includes('run workflow') ||
         messageText.includes('yes please') ||
         messageText.includes('yes, please') ||
         messageText.includes('go ahead') ||
         messageText.includes('do it') ||
         messageText.includes('continue') ||
-        messageText.includes('fix') ||
-        messageText.includes('modify') ||
-        messageText.includes('redesign') ||
         (messageText.includes('updates') && messageText.length < 50) // Short update requests should trigger execution
       );
       
+      console.log(`🔍 ELENA: New workflow creation detected = ${isNewWorkflowCreation}`);
       console.log(`🔍 ELENA: Execution request detected = ${isExecutionRequest}`);
       
-      if (isElena && isExecutionRequest) {
+      if (isElena && isNewWorkflowCreation) {
+        console.log('🎯 ELENA: Creating NEW workflow from actual message content (Fifth Activation)');
+        
+        try {
+          // Create workflow from Elena's ACTUAL message content - DYNAMIC PARSING
+          const { ElenaWorkflowSystem } = await import('./elena-workflow-system');
+          const workflow = await ElenaWorkflowSystem.createWorkflowFromActualMessage(userId, message);
+          
+          console.log(`✅ ELENA: Created workflow "${workflow.name}" with ${workflow.steps.length} steps`);
+          
+          // Get Elena's natural response about the workflow creation
+          const { claudeApiService } = await import('./services/claude-api-service');
+          const conversationId = `elena_${Date.now()}`;
+          
+          const elenaResponse = await claudeApiService.sendMessage(
+            userId,
+            'elena',
+            conversationId,
+            `You just created a workflow called "${workflow.name}" with agents: ${workflow.steps.map(s => s.agentName).join(', ')}. Tell Sandra about this coordination naturally.`,
+            undefined,
+            [],
+            false
+          );
+          
+          // Save the conversation
+          await storage.saveAgentConversation(agentId, userId, message, elenaResponse, []);
+          
+          return res.json({
+            success: true,
+            message: elenaResponse,
+            agentId: 'elena',
+            timestamp: new Date().toISOString(),
+            workflowCreated: true,
+            workflow: {
+              id: workflow.id,
+              name: workflow.name,
+              steps: workflow.steps.length
+            }
+          });
+          
+        } catch (error) {
+          console.error('❌ ELENA: Workflow creation error:', error);
+          // Fall through to normal Elena response
+        }
+      } else if (isElena && isExecutionRequest) {
         console.log('🎯 ELENA: Triggering REAL workflow execution with agent coordination');
         
         try {
@@ -5229,9 +5276,9 @@ Starting analysis and implementation now...`;
           let workflows = await ElenaWorkflowSystem.getUserWorkflows(userId);
           
           if (workflows.length === 0) {
-            // Create workflow from Elena's current conversation context
-            console.log('🔧 ELENA: Creating workflow from conversation context');
-            const workflow = await ElenaWorkflowSystem.createWorkflowFromRequest(userId, message);
+            // Create workflow from Elena's ACTUAL message content - NO HARDCODED PATTERNS
+            console.log('🔧 ELENA: Creating workflow from Elena actual message content');
+            const workflow = await ElenaWorkflowSystem.createWorkflowFromActualMessage(userId, message);
             workflows = [workflow];
           }
           

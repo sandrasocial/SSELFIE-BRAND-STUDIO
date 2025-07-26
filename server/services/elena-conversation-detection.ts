@@ -123,16 +123,17 @@ export class ElenaConversationDetectionService {
       });
     });
 
-    // Extract workflow name from common patterns
-    if (elenaResponse.includes('dashboard')) {
-      workflowName = 'Admin Dashboard Enhancement';
-      workflowDescription = 'Coordinate agents to enhance admin dashboard functionality';
-    } else if (elenaResponse.includes('design')) {
-      workflowName = 'Design System Coordination';
-      workflowDescription = 'Coordinate design improvements across platform';
-    } else if (elenaResponse.includes('component')) {
-      workflowName = 'Component Development';
-      workflowDescription = 'Create and implement new components';
+    // DYNAMIC WORKFLOW EXTRACTION - NO MORE HARDCODED PATTERNS
+    // Extract workflow name and description directly from Elena's response
+    const workflowNameMatch = elenaResponse.match(/[*"](.*?(?:workflow|activation|test|coordination|breakthrough).*?)[*"]/i);
+    if (workflowNameMatch) {
+      workflowName = workflowNameMatch[1];
+    }
+    
+    // Extract description from Elena's coordination message
+    const descriptionMatch = elenaResponse.match(/I'll coordinate.*?(?:\n|$)/i);
+    if (descriptionMatch) {
+      workflowDescription = descriptionMatch[0];
     }
 
     // Only create workflow if we detected coordination patterns

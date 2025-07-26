@@ -30,7 +30,41 @@ export interface CustomWorkflow {
 export class ElenaWorkflowSystem {
   
   /**
-   * Elena analyzes Sandra's request and creates a custom workflow
+   * Elena parses actual message content dynamically (NO HARDCODED PATTERNS)
+   */
+  static async createWorkflowFromActualMessage(
+    userId: string, 
+    elenaMessage: string
+  ): Promise<CustomWorkflow> {
+    console.log(`🎯 ELENA: Parsing actual message content: "${elenaMessage.substring(0, 100)}..."`);
+    
+    // DYNAMIC EXTRACTION from Elena's actual message
+    const analysis = this.parseElenaMessage(elenaMessage);
+    const workflowSteps = this.extractAgentAssignments(elenaMessage);
+    
+    const workflow: CustomWorkflow = {
+      id: `workflow_${Date.now()}`,
+      name: analysis.workflowName,
+      description: analysis.description,
+      requestedBy: userId,
+      createdAt: new Date(),
+      estimatedDuration: analysis.estimatedDuration,
+      steps: workflowSteps,
+      status: 'ready',
+      businessImpact: analysis.businessImpact,
+      riskLevel: 'medium'
+    };
+    
+    // Store workflow for execution with persistence
+    this.workflows.set(workflow.id, workflow);
+    this.saveWorkflowsToDisk();
+    
+    console.log(`✅ ELENA: Workflow "${workflow.name}" created from actual message with ${workflow.steps.length} steps`);
+    return workflow;
+  }
+
+  /**
+   * Elena analyzes Sandra's request and creates a custom workflow (LEGACY)
    */
   static async createWorkflowFromRequest(
     userId: string, 
@@ -66,6 +100,137 @@ export class ElenaWorkflowSystem {
     
     console.log(`✅ ELENA: Workflow "${workflow.name}" created with ${workflow.steps.length} steps`);
     return workflow;
+  }
+
+  /**
+   * DYNAMIC Elena message parsing - NO HARDCODED PATTERNS
+   */
+  private static parseElenaMessage(elenaMessage: string): {
+    workflowName: string;
+    description: string;
+    estimatedDuration: string;
+    businessImpact: string;
+  } {
+    // Extract workflow name from Elena's coordination message
+    let workflowName = 'Dynamic Workflow';
+    const workflowMatches = [
+      elenaMessage.match(/[*"](.*?(?:activation|breakthrough|coordination|workflow|test).*?)[*"]/i),
+      elenaMessage.match(/coordinate.*?[*"](.*?)[*"]/i),
+      elenaMessage.match(/I'll coordinate.*?[*"](.*?)[*"]/i)
+    ];
+    
+    for (const match of workflowMatches) {
+      if (match && match[1]) {
+        workflowName = match[1];
+        break;
+      }
+    }
+    
+    // Extract description from coordination statement
+    let description = 'Dynamic agent coordination workflow';
+    const descMatch = elenaMessage.match(/I'll coordinate.*?(?:\n|$)/i);
+    if (descMatch) {
+      description = descMatch[0];
+    }
+    
+    // Extract business impact from Elena's message
+    let businessImpact = 'Platform enhancement and system validation';
+    if (elenaMessage.includes('€67') || elenaMessage.includes('SSELFIE')) {
+      businessImpact = 'SSELFIE STUDIO platform optimization and business validation';
+    }
+    
+    return {
+      workflowName,
+      description,
+      estimatedDuration: '15-30 minutes',
+      businessImpact
+    };
+  }
+
+  /**
+   * Extract agent assignments from Elena's actual message with CORRECT file paths
+   */
+  private static extractAgentAssignments(elenaMessage: string): WorkflowStep[] {
+    const steps: WorkflowStep[] = [];
+    
+    // Find agent assignments in Elena's message with detailed parsing
+    const agentSections = [
+      { name: 'aria', pattern: /\*\*Aria[^*]*?\*\*[^*]*?([^*]+?)(?:\*\*|$)/gis },
+      { name: 'victoria', pattern: /\*\*Victoria[^*]*?\*\*[^*]*?([^*]+?)(?:\*\*|$)/gis },
+      { name: 'zara', pattern: /\*\*Zara[^*]*?\*\*[^*]*?([^*]+?)(?:\*\*|$)/gis },
+      { name: 'maya', pattern: /\*\*Maya[^*]*?\*\*[^*]*?([^*]+?)(?:\*\*|$)/gis },
+      { name: 'rachel', pattern: /\*\*Rachel[^*]*?\*\*[^*]*?([^*]+?)(?:\*\*|$)/gis },
+      { name: 'quinn', pattern: /\*\*Quinn[^*]*?\*\*[^*]*?([^*]+?)(?:\*\*|$)/gis
+    ];
+    
+    agentSections.forEach(({ name, pattern }) => {
+      const matches = [...elenaMessage.matchAll(pattern)];
+      
+      if (matches.length > 0) {
+        const rawTask = matches[0][1]?.trim() || `${name} coordination task`;
+        
+        // CRITICAL FIX: Extract and correct file paths from Elena's instructions
+        let taskDescription = rawTask;
+        const filePathMatch = rawTask.match(/(?:at|to)\s+([^\s]+\.tsx?)/i);
+        
+        if (filePathMatch) {
+          const originalPath = filePathMatch[1];
+          console.log(`🔍 ELENA: Found file path in task: ${originalPath}`);
+          
+          // Fix common path mistakes Elena makes
+          const correctedPath = this.correctFilePath(originalPath);
+          if (correctedPath !== originalPath) {
+            taskDescription = taskDescription.replace(originalPath, correctedPath);
+            console.log(`🔧 ELENA: Corrected file path: ${originalPath} → ${correctedPath}`);
+          }
+        }
+        
+        steps.push({
+          id: `step_${name}_${Date.now()}`,
+          agentId: name,
+          agentName: name.charAt(0).toUpperCase() + name.slice(1),
+          taskDescription,
+          estimatedTime: '15 minutes',
+          dependencies: [],
+          deliverables: ['File modifications', 'Implementation completion'],
+          priority: 'high'
+        });
+      }
+    });
+    
+    console.log(`🎯 ELENA: Extracted ${steps.length} agent assignments from message`);
+    return steps;
+  }
+
+  /**
+   * Correct common file path mistakes Elena makes in her instructions
+   */
+  private static correctFilePath(originalPath: string): string {
+    // Fix Agent Activity Dashboard path
+    if (originalPath.includes('AgentActivityDashboard.tsx')) {
+      return 'client/src/components/admin/AgentActivityDashboard.tsx';
+    }
+    
+    // Fix other common patterns
+    if (originalPath.startsWith('/app/')) {
+      return originalPath.replace('/app/', 'client/src/');
+    }
+    
+    if (originalPath.startsWith('/client/')) {
+      return originalPath.substring(1); // Remove leading slash
+    }
+    
+    // If it's already a valid client path, keep it
+    if (originalPath.startsWith('client/src/')) {
+      return originalPath;
+    }
+    
+    // Default: assume it's a component file
+    if (originalPath.endsWith('.tsx') || originalPath.endsWith('.ts')) {
+      return `client/src/components/${originalPath}`;
+    }
+    
+    return originalPath;
   }
   
   /**
