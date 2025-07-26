@@ -24,28 +24,59 @@ class WorkflowDetectionService {
    */
   detectWorkflowCreation(elenaResponse: string, conversationId?: string): DetectedWorkflow | null {
     console.log('🔍 WORKFLOW DETECTION: Analyzing Elena response for workflow patterns');
+    console.log('🔍 Response preview:', elenaResponse.substring(0, 200) + '...');
     
-    // Keywords that indicate Elena is creating a workflow
-    const workflowKeywords = [
-      'AUTONOMOUS WORKFLOW CREATION',
-      'ACTIVATING NOW',
-      'Deploying Test Workflow',
-      'Agent Selection',
-      'Mission ID',
-      'WORKFLOW EXECUTION',
-      'ACTIVATING TEST PROTOCOL',
-      'autonomous workflow',
-      'creating and activating',
-      'workflow with',
-      'agents should be working'
+    // Natural Elena workflow patterns
+    const coordinationKeywords = [
+      "I'll coordinate",
+      "Let me coordinate", 
+      "I'll assign",
+      "Let me assign",
+      "I'm assigning",
+      "coordinate a",
+      "coordinate the",
+      "workflow with",
+      "I need you to",
+      "You'll handle",
+      "Strategic Coordination",
+      "Elena Strategic Coordination"
     ];
     
-    const hasWorkflowKeywords = workflowKeywords.some(keyword => 
-      elenaResponse.toUpperCase().includes(keyword.toUpperCase())
+    // Check for coordination language
+    const hasCoordinationLanguage = coordinationKeywords.some(keyword => 
+      elenaResponse.includes(keyword)
     );
     
-    if (!hasWorkflowKeywords) {
-      console.log('🔍 WORKFLOW DETECTION: No workflow keywords found');
+    // Check for multiple agent mentions (indicates workflow)
+    const agents = this.extractAgents(elenaResponse);
+    const hasMultipleAgents = agents.length >= 2;
+    
+    // Check for task delegation patterns
+    const delegationPatterns = [
+      /Priority:\s*(Critical|High|Medium|Low)/i,
+      /Duration:\s*\d+\s*minutes?/i,
+      /- I'm assigning you to/i,
+      /- You'll handle/i,
+      /- I need you to/i
+    ];
+    
+    const hasDelegationPattern = delegationPatterns.some(pattern => 
+      pattern.test(elenaResponse)
+    );
+    
+    console.log('🔍 DETECTION ANALYSIS:', {
+      hasCoordinationLanguage,
+      hasMultipleAgents,
+      agentCount: agents.length,
+      hasDelegationPattern,
+      agents: agents.join(', ')
+    });
+    
+    // Detect workflow if Elena is coordinating multiple agents or using delegation language
+    if (hasCoordinationLanguage || (hasMultipleAgents && hasDelegationPattern)) {
+      console.log('✅ WORKFLOW DETECTION: Elena workflow detected!');
+    } else {
+      console.log('❌ WORKFLOW DETECTION: No workflow patterns found');
       return null;
     }
     
@@ -53,7 +84,6 @@ class WorkflowDetectionService {
     
     // Extract workflow details from Elena's response
     const workflowName = this.extractWorkflowName(elenaResponse);
-    const agents = this.extractAgents(elenaResponse);
     const priority = this.extractPriority(elenaResponse);
     const estimatedDuration = this.extractDuration(elenaResponse);
     const requirements = this.extractRequirements(elenaResponse);
@@ -94,21 +124,41 @@ class WorkflowDetectionService {
   private extractWorkflowName(response: string): string {
     // Look for workflow names in quotes or after specific keywords
     const patterns = [
-      /Deploying Test Workflow:\s*"([^"]+)"/i,
+      /\*\*"([^"]+)"\*\*\s*workflow/i,  // **"name"** workflow
+      /"([^"]+)"\s*workflow/i,
+      /coordinate a\s*\*\*"([^"]+)"\*\*/i,  // coordinate a **"name"**
+      /coordinate the\s*\*\*"([^"]+)"\*\*/i,  // coordinate the **"name"**
+      /coordinate a\s*"([^"]+)"/i,
+      /coordinate the\s*"([^"]+)"/i,
       /workflow:\s*"([^"]+)"/i,
-      /Mission ID[:\s]*([A-Z-0-9]+)/i,
-      /Test Workflow[:\s]*([A-Z-\s]+)/i,
-      /DESIGN-CONSISTENCY-VALIDATION/i
+      /"([^"]+)"\s*with/i,
+      /I'll coordinate[^"]*\*\*"([^"]+)"\*\*/i,  // I'll coordinate **"name"**
+      /I'll coordinate[^"]*"([^"]+)"/i,
+      /coordinate.*\*\*"([^"]+)"\*\*/i,  // coordinate **"name"**
+      /coordinate.*"([^"]+)"/i,
+      /Elena Strategic Coordination:\s*([^\n]+)/i,
+      /Mission ID[:\s]*([A-Z-0-9-]+)/i,
+      /Test Workflow[:\s]*([A-Z-\s]+)/i
     ];
     
     for (const pattern of patterns) {
       const match = response.match(pattern);
       if (match && match[1]) {
-        return match[1].trim();
+        const extractedName = match[1].trim();
+        // Filter out markdown artifacts
+        if (extractedName !== '**' && extractedName.length > 2) {
+          return extractedName;
+        }
       }
     }
     
-    return 'Elena Custom Workflow';
+    // If no specific name found, try to extract from first line or context
+    const firstLine = response.split('\n')[0];
+    if (firstLine.includes('coordinate') && firstLine.length < 100) {
+      return firstLine.replace(/.*coordinate\s*/i, '').replace(/\s*with.*/, '').trim();
+    }
+    
+    return 'Elena Strategic Workflow';
   }
   
   /**
