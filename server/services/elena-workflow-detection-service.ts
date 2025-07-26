@@ -278,8 +278,7 @@ class ElenaWorkflowDetectionService {
         };
         
         // Assign task to agent in intelligent task distributor
-        const assignments = await intelligentTaskDistributor.assignOptimalAgents([taskRequirement]);
-        const assignment = assignments.find(a => a.agentName === agent);
+        const assignment = await intelligentTaskDistributor.assignOptimalAgent(taskRequirement);
         
         if (assignment) {
           taskAssignments.push(taskId);
