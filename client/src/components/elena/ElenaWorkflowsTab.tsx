@@ -237,100 +237,123 @@ export function ElenaWorkflowsTab() {
             <div className="text-gray-400 mb-2">Loading workflows...</div>
           </CardContent>
         </Card>
-      ) : (!workflows || workflows.length === 0) && !error ? (
-        <Card className="border-gray-200">
-          <CardContent className="pt-8 pb-8 text-center">
-            <div className="text-gray-400 mb-2">
-              <svg className="w-12 h-12 mx-auto mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1} d="M9 5H7a2 2 0 00-2 2v10a2 2 0 002 2h8a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
-              </svg>
-            </div>
-            <h3 className="text-lg font-semibold text-gray-700 mb-2">No workflows detected</h3>
-            <p className="text-gray-500 text-sm max-w-md mx-auto">
-              When Elena creates coordination workflows through conversation, they'll appear here for manual execution.
-            </p>
-          </CardContent>
-        </Card>
       ) : (
-        <div className="space-y-4">
-          {(workflows || []).map((workflow) => (
-            <Card key={workflow.id} className="border-gray-200 hover:border-gray-300 transition-colors">
-              <CardHeader className="pb-3">
-                <div className="flex items-start justify-between">
-                  <div className="flex-1">
-                    <CardTitle className="text-lg font-semibold text-black mb-2" style={{ fontFamily: 'Times New Roman, serif' }}>
-                      {workflow.name}
-                    </CardTitle>
-                    <div className="flex items-center space-x-3 text-sm text-gray-500">
-                      <span>{formatDate(workflow.detectedAt)}</span>
-                      <Badge className={getPriorityColor(workflow.priority)}>
-                        {workflow.priority} priority
-                      </Badge>
-                      <span className="text-gray-400">•</span>
-                      <span>{workflow.estimatedDuration} min</span>
-                    </div>
+        (() => {
+          const currentWorkflows = activeTab === 'staged' ? workflows : executedWorkflows;
+          
+          if (!currentWorkflows || currentWorkflows.length === 0) {
+            return (
+              <Card className="border-gray-200">
+                <CardContent className="pt-8 pb-8 text-center">
+                  <div className="text-gray-400 mb-2">
+                    <svg className="w-12 h-12 mx-auto mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1} d="M9 5H7a2 2 0 00-2 2v10a2 2 0 002 2h8a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
+                    </svg>
                   </div>
-                  
-                  <div className="flex items-center space-x-2 ml-4">
-                    <Button
-                      onClick={() => executeWorkflow(workflow.id)}
-                      disabled={executing.has(workflow.id)}
-                      size="sm"
-                      className="bg-black text-white hover:bg-gray-800 font-medium px-4"
-                    >
-                      {executing.has(workflow.id) ? 'Executing...' : 'Execute'}
-                    </Button>
-                    <Button
-                      onClick={() => removeWorkflow(workflow.id)}
-                      variant="outline"
-                      size="sm"
-                      className="text-gray-600 hover:text-red-600 border-gray-300"
-                    >
-                      Remove
-                    </Button>
-                  </div>
-                </div>
-              </CardHeader>
-              
-              <CardContent className="pt-0">
-                <p className="text-gray-700 mb-4 leading-relaxed">
-                  {workflow.description}
-                </p>
-                
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  {/* Agents */}
-                  <div>
-                    <h4 className="text-sm font-semibold text-gray-800 mb-2">Agents ({workflow.agents?.length || 0})</h4>
-                    <div className="flex flex-wrap gap-1">
-                      {(workflow.agents || []).map((agent) => (
-                        <Badge key={agent} variant="secondary" className="text-xs">
-                          {agent}
-                        </Badge>
-                      ))}
-                    </div>
-                  </div>
-                  
-                  {/* Requirements */}
-                  <div>
-                    <h4 className="text-sm font-semibold text-gray-800 mb-2">Requirements ({workflow.customRequirements?.length || 0})</h4>
-                    <div className="space-y-1">
-                      {(workflow.customRequirements || []).slice(0, 3).map((requirement, index) => (
-                        <div key={index} className="text-xs text-gray-600 bg-gray-50 px-2 py-1 rounded">
-                          {requirement}
+                  <h3 className="text-lg font-semibold text-gray-700 mb-2">
+                    {activeTab === 'staged' ? 'No workflows detected' : 'No execution history'}
+                  </h3>
+                  <p className="text-gray-500 text-sm max-w-md mx-auto">
+                    {activeTab === 'staged' 
+                      ? "When Elena creates coordination workflows through conversation, they'll appear here for manual execution."
+                      : "Executed workflows will appear here to track your workflow history."
+                    }
+                  </p>
+                </CardContent>
+              </Card>
+            );
+          }
+          
+          return (
+            <div className="space-y-4">
+              {currentWorkflows.map((workflow) => (
+                <Card key={workflow.id} className="border-gray-200 hover:border-gray-300 transition-colors">
+                  <CardHeader className="pb-3">
+                    <div className="flex items-start justify-between">
+                      <div className="flex-1">
+                        <CardTitle className="text-lg font-semibold text-black mb-2" style={{ fontFamily: 'Times New Roman, serif' }}>
+                          {workflow.name}
+                        </CardTitle>
+                        <div className="flex items-center space-x-3 text-sm text-gray-500">
+                          <span>{formatDate(workflow.detectedAt)}</span>
+                          <Badge className={getPriorityColor(workflow.priority)}>
+                            {workflow.priority} priority
+                          </Badge>
+                          <span className="text-gray-400">•</span>
+                          <span>{workflow.estimatedDuration} min</span>
                         </div>
-                      ))}
-                      {(workflow.customRequirements?.length || 0) > 3 && (
-                        <div className="text-xs text-gray-400">
-                          +{(workflow.customRequirements?.length || 0) - 3} more requirements
-                        </div>
-                      )}
+                      </div>
+                      
+                      <div className="flex items-center space-x-2 ml-4">
+                        {activeTab === 'staged' ? (
+                          <>
+                            <Button
+                              onClick={() => executeWorkflow(workflow.id)}
+                              disabled={executing.has(workflow.id)}
+                              size="sm"
+                              className="bg-black text-white hover:bg-gray-800 font-medium px-4"
+                            >
+                              {executing.has(workflow.id) ? 'Executing...' : 'Execute'}
+                            </Button>
+                            <Button
+                              onClick={() => removeWorkflow(workflow.id)}
+                              variant="outline"
+                              size="sm"
+                              className="text-gray-600 hover:text-red-600 border-gray-300"
+                            >
+                              Remove
+                            </Button>
+                          </>
+                        ) : (
+                          <Badge className="bg-green-100 text-green-800 border-green-200">
+                            Executed
+                          </Badge>
+                        )}
+                      </div>
                     </div>
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
-          ))}
-        </div>
+                  </CardHeader>
+                  
+                  <CardContent className="pt-0">
+                    <p className="text-gray-700 mb-4 leading-relaxed">
+                      {workflow.description}
+                    </p>
+                    
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                      {/* Agents */}
+                      <div>
+                        <h4 className="text-sm font-semibold text-gray-800 mb-2">Agents ({workflow.agents?.length || 0})</h4>
+                        <div className="flex flex-wrap gap-1">
+                          {(workflow.agents || []).map((agent) => (
+                            <Badge key={agent} variant="secondary" className="text-xs">
+                              {agent}
+                            </Badge>
+                          ))}
+                        </div>
+                      </div>
+                      
+                      {/* Requirements */}
+                      <div>
+                        <h4 className="text-sm font-semibold text-gray-800 mb-2">Requirements ({workflow.customRequirements?.length || 0})</h4>
+                        <div className="space-y-1">
+                          {(workflow.customRequirements || []).slice(0, 3).map((requirement, index) => (
+                            <div key={index} className="text-xs text-gray-600 bg-gray-50 px-2 py-1 rounded">
+                              {requirement}
+                            </div>
+                          ))}
+                          {(workflow.customRequirements?.length || 0) > 3 && (
+                            <div className="text-xs text-gray-400">
+                              +{(workflow.customRequirements?.length || 0) - 3} more requirements
+                            </div>
+                          )}
+                        </div>
+                      </div>
+                    </div>
+                  </CardContent>
+                </Card>
+              ))}
+            </div>
+          );
+        })()
       )}
     </div>
   );
