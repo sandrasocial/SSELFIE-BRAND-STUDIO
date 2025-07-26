@@ -227,7 +227,11 @@ class ElenaWorkflowDetectionService {
   getStagedWorkflows(): DetectedWorkflow[] {
     return Array.from(this.stagedWorkflows.values())
       .filter(w => w.status === 'staged')
-      .sort((a, b) => b.createdAt.getTime() - a.createdAt.getTime());
+      .sort((a, b) => {
+        const aTime = a.createdAt instanceof Date ? a.createdAt.getTime() : new Date(a.createdAt).getTime();
+        const bTime = b.createdAt instanceof Date ? b.createdAt.getTime() : new Date(b.createdAt).getTime();
+        return bTime - aTime;
+      });
   }
 
   /**

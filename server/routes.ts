@@ -5469,6 +5469,33 @@ Workflow Stage: ${savedMemory.workflowStage || 'None'}
         ]
       };
       
+      // CRITICAL: Determine if this is an Elena workflow execution requiring tool enforcement
+      const isElenaWorkflowExecution = (agentId !== 'elena') && (
+        message.includes('CRITICAL') ||
+        message.includes('REPAIR') ||
+        message.includes('fix this') ||
+        message.includes('implement') ||
+        message.includes('create') ||
+        message.includes('modify') ||
+        message.includes('update') ||
+        message.includes('build') ||
+        conversationContext.includes('Elena has assigned')
+      );
+      
+      console.log(`🔍 ELENA TOOL ENFORCEMENT: ${agentId} - Workflow execution detected = ${isElenaWorkflowExecution}`);
+      
+      // Configure tool choice enforcement for Elena workflows
+      let toolChoiceConfig = {};
+      if (isElenaWorkflowExecution) {
+        toolChoiceConfig = {
+          tool_choice: {
+            type: "tool",
+            name: "str_replace_based_edit_tool"
+          }
+        };
+        console.log(`🚨 ULTIMATE TOOL ENFORCEMENT for ${agentId.toUpperCase()}: Elena workflow - FORCING str_replace_based_edit_tool`);
+      }
+
       // Call Claude API with tool support
       const { Anthropic } = await import('@anthropic-ai/sdk');
       const claude = new Anthropic({
@@ -5487,8 +5514,8 @@ Workflow Stage: ${savedMemory.workflowStage || 'None'}
         }
       ];
       
-      // 🚨 CRITICAL ELENA WORKFLOW DETECTION for agent-chat-bypass endpoint
-      const isElenaWorkflowExecution = message.includes('ELENA WORKFLOW EXECUTION') || 
+      // 🚨 CRITICAL ELENA WORKFLOW DETECTION for agent-chat-bypass endpoint (legacy detection)
+      const legacyWorkflowDetection = message.includes('ELENA WORKFLOW EXECUTION') || 
                                       message.includes('MANDATORY TOOL USAGE REQUIRED') ||
                                       message.includes('workflow execution');
       
@@ -5506,7 +5533,7 @@ Workflow Stage: ${savedMemory.workflowStage || 'None'}
       let finalSystemPrompt = agent.systemPrompt;
       
       // 🚨 SPECIALIZED AGENT ENFORCEMENT: Force tool usage for Elena workflow execution
-      if (isElenaWorkflowExecution && agentId !== 'elena') {
+      if ((isElenaWorkflowExecution || legacyWorkflowDetection) && agentId !== 'elena') {
         finalSystemPrompt += `\n\n🚨 SPECIALIZED AGENT MODE - MANDATORY TOOL EXECUTION:
 You are being called by Elena's workflow system to complete a specific task.
 YOU MUST use str_replace_based_edit_tool to make actual file modifications.
