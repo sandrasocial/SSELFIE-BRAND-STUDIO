@@ -90,8 +90,11 @@ async function executeRealAgentTask(agentName: string, taskTitle: string, taskDe
  */
 router.post('/deploy-all-agents', adminAuth, async (req, res) => {
   try {
+    console.log('🔍 AUTONOMOUS ORCHESTRATOR: Received request body:', JSON.stringify(req.body, null, 2));
+    
     const validation = DeploymentRequestSchema.safeParse(req.body);
     if (!validation.success) {
+      console.error('❌ VALIDATION FAILED:', validation.error.errors);
       return res.status(400).json({
         success: false,
         error: 'Invalid deployment request',
@@ -100,6 +103,7 @@ router.post('/deploy-all-agents', adminAuth, async (req, res) => {
     }
 
     const deploymentRequest = validation.data;
+    console.log('✅ VALIDATION PASSED:', JSON.stringify(deploymentRequest, null, 2));
     const deploymentId = `deployment-${Date.now()}`;
 
     console.log(`🚀 AUTONOMOUS ORCHESTRATOR: Starting deployment ${deploymentId} - Mission: ${deploymentRequest.missionType}`);

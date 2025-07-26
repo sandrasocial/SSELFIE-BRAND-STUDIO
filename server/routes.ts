@@ -7037,6 +7037,17 @@ AGENT_CONTEXT:
       }
 
       console.log(`🚀 EXECUTING STAGED WORKFLOW: ${workflow.name} with ${workflow.agents.length} agents`);
+      
+      const deploymentPayload = {
+        missionType: 'elena-workflow',
+        priority: workflow.priority,
+        estimatedDuration: workflow.estimatedDuration,
+        customRequirements: workflow.customRequirements,
+        targetAgents: workflow.agents,
+        workflowName: workflow.name
+      };
+      
+      console.log('🔍 DEPLOYMENT PAYLOAD:', JSON.stringify(deploymentPayload, null, 2));
 
       // Execute the workflow through autonomous orchestrator
       const response = await fetch('http://localhost:5000/api/autonomous-orchestrator/deploy-all-agents', {
@@ -7045,14 +7056,7 @@ AGENT_CONTEXT:
           'Content-Type': 'application/json',
           'Authorization': 'Bearer sandra-admin-2025'
         },
-        body: JSON.stringify({
-          missionType: 'elena-workflow',
-          priority: workflow.priority,
-          estimatedDuration: workflow.estimatedDuration,
-          customRequirements: workflow.customRequirements,
-          targetAgents: workflow.agents,
-          workflowName: workflow.name
-        })
+        body: JSON.stringify(deploymentPayload)
       });
       
       const result = await response.json();
