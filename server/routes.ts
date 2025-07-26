@@ -7062,40 +7062,9 @@ AGENT_CONTEXT:
 
   console.log('✅ Enhanced Agent Capabilities routes registered');
 
-  // Elena Staged Workflows API - Auto-detect workflows and create manual triggers
-  app.get('/api/elena/staged-workflows', async (req, res) => {
-    try {
-      // Import Elena workflow authentication middleware
-      const { elenaStagedWorkflowAuth } = await import('./middleware/elena-workflow-auth');
-      
-      // Apply Elena workflow authentication
-      elenaStagedWorkflowAuth(req, res, async () => {
-        try {
-          const { workflowDetectionService } = await import('./services/workflow-detection-service');
-          const stagedWorkflows = workflowDetectionService.getStagedWorkflows();
-        
-          console.log(`📋 STAGED WORKFLOWS: Found ${stagedWorkflows.length} workflows ready for manual execution`);
-          
-          res.json({
-            success: true,
-            workflows: stagedWorkflows
-          });
-        } catch (error) {
-          console.error('❌ Error fetching staged workflows:', error);
-          res.status(500).json({ 
-            success: false, 
-            error: 'Failed to fetch staged workflows' 
-          });
-        }
-      });
-    } catch (error) {
-      console.error('❌ Error in staged workflow auth:', error);
-      res.status(500).json({ 
-        success: false, 
-        error: 'Authentication error for staged workflows' 
-      });
-    }
-  });
+  // Elena Staged Workflows API - Register router with proper service connection
+  const elenaStagedWorkflowsRouter = await import('./api/elena/staged-workflows');
+  app.use('/api/elena', elenaStagedWorkflowsRouter.default);
 
   // Execute staged workflow through autonomous orchestrator
   app.post('/api/elena/execute-staged-workflow/:workflowId', async (req, res) => {
