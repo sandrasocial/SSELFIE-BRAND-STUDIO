@@ -19,7 +19,7 @@ export async function search_filesystem(params: SearchParams) {
     console.log('🔍 ADMIN SEARCH: Starting full repository analysis with params:', params);
     
     const results: SearchResult[] = [];
-    const maxFiles = 100; // Full access for Sandra's admin agents
+    const maxFiles = 200; // Enhanced access for Sandra's admin agents to see ALL autonomous orchestrator files
     
     // Search through project files
     const searchInDirectory = async (dirPath: string, basePath = '') => {
@@ -96,8 +96,20 @@ function analyzeFileRelevance(content: string, params: SearchParams, fileName: s
     const fileContent = content.toLowerCase();
     const fileNameLower = fileName.toLowerCase();
     
-    // Extract keywords from query for better matching
-    const keywords = query.split(/[,\s]+/).filter(word => word.length > 2);
+    // Extract keywords from query for better matching - ENHANCED FOR AUTONOMOUS ORCHESTRATOR
+    const keywords = query.split(/[,\s-]+/).filter(word => word.length > 2);
+    
+    // Special handling for autonomous orchestrator queries
+    const autonomousKeywords = [
+      'deploy-all-agents', 'intelligent-task-distributor', 'agent-knowledge-sharing',
+      'workflow-templates', 'autonomous-orchestrator', 'coordination-metrics',
+      'orchestrator', 'deployment', 'coordination', 'workflow', 'knowledge', 'sharing'
+    ];
+    
+    // Check for autonomous orchestrator specific terms
+    const hasAutonomousTerms = keywords.some(k => 
+      autonomousKeywords.some(a => a.includes(k.toLowerCase()) || k.toLowerCase().includes(a))
+    );
     
     // Check for keyword matches
     let keywordMatches = 0;
@@ -111,8 +123,8 @@ function analyzeFileRelevance(content: string, params: SearchParams, fileName: s
     const pathKeywords = ['login', 'auth', 'onboard', 'workspace', 'dashboard', 'nav', 'route', 'page'];
     const pathMatches = pathKeywords.some(key => fileNameLower.includes(key));
     
-    if (keywordMatches > 0 || pathMatches) {
-      reasons.push(`Matches ${keywordMatches} keywords from query`);
+    if (keywordMatches > 0 || pathMatches || hasAutonomousTerms) {
+      reasons.push(`Matches ${keywordMatches} keywords from query${hasAutonomousTerms ? ' (AUTONOMOUS ORCHESTRATOR SYSTEM)' : ''}`);
       relevantContent = extractRelevantContent(content, query);
       relevant = true;
     }
@@ -151,11 +163,16 @@ function analyzeFileRelevance(content: string, params: SearchParams, fileName: s
     }
   }
   
-  // Key architecture files and user experience files
+  // Key architecture files and user experience files - ENHANCED FOR AUTONOMOUS ORCHESTRATOR
   const keyFiles = [
     'schema.ts', 'routes.ts', 'App.tsx', 'package.json', 'replit.md',
     'login', 'auth', 'onboard', 'workspace', 'dashboard', 'navigation',
-    'home', 'landing', 'payment', 'signup'
+    'home', 'landing', 'payment', 'signup',
+    // AUTONOMOUS ORCHESTRATOR SYSTEM KEYWORDS
+    'deploy-all-agents', 'intelligent-task-distributor', 'agent-knowledge-sharing', 
+    'workflow-templates', 'coordination-metrics', 'autonomous-orchestrator',
+    'orchestrator', 'task-distributor', 'knowledge-sharing', 'workflow',
+    'agent-bridge', 'coordination', 'deployment'
   ];
   
   const isKeyFile = keyFiles.some(key => fileName.toLowerCase().includes(key.toLowerCase()));
