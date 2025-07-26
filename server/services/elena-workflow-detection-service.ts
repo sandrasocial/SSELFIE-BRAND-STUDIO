@@ -305,11 +305,16 @@ class ElenaWorkflowDetectionService {
           // Create task message for agent based on workflow context
           const taskMessage = this.createAgentTaskMessage(workflow, agent);
           
-          // Execute real agent via Claude API
-          const agentResult = await executeAgentChat(
+          // Execute real agent via Claude API service
+          const { claudeApiService } = await import('../services/claude-api-service');
+          const agentResult = await claudeApiService.sendMessage(
+            'admin-sandra', // userId for admin
             agent,
+            `elena-workflow-${workflowId}-${agent}`, // conversationId
             taskMessage,
-            'sandra-admin-2025' // Admin authentication
+            undefined, // systemPrompt (use default agent prompt)
+            undefined, // tools (use default tools)
+            true // fileEditMode for autonomous execution
           );
           
           if (agentResult.success) {
