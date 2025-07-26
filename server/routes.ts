@@ -7247,10 +7247,35 @@ I'll coordinate a **"Platform Launch Readiness Validation"** workflow with Aria,
   console.log('✅ Agent Bridge System routes registered');
   console.log('✅ Autonomous Orchestrator routes registered');
   
+  // Dual authentication middleware for admin endpoints
+  const adminAuth = (req: any, res: any, next: any) => {
+    // Check session-based authentication (preferred)
+    if (req.isAuthenticated && req.isAuthenticated()) {
+      const user = req.user;
+      if (user?.claims?.email === 'ssa@ssasocial.com') {
+        console.log('✅ Admin Dashboard Auth: Session authentication validated');
+        return next();
+      }
+    }
+
+    // Check admin token (x-admin-token header)
+    const adminToken = req.headers['x-admin-token'];
+    if (adminToken === 'sandra-admin-2025') {
+      console.log('✅ Admin Dashboard Auth: Token authentication validated');
+      return next();
+    }
+
+    console.log('❌ Admin Dashboard Auth: Authentication failed');
+    return res.status(401).json({ 
+      success: false, 
+      error: 'Admin authentication required for dashboard access' 
+    });
+  };
+
   // Coordination Metrics API routes for Agent Activity Dashboard
-  app.get('/api/autonomous-orchestrator/coordination-metrics', isAuthenticated, getCoordinationMetrics);
-  app.get('/api/autonomous-orchestrator/active-deployments', isAuthenticated, getActiveDeployments);
-  app.get('/api/autonomous-orchestrator/deployment-status/:deploymentId', isAuthenticated, getDeploymentStatus);
+  app.get('/api/autonomous-orchestrator/coordination-metrics', adminAuth, getCoordinationMetrics);
+  app.get('/api/autonomous-orchestrator/active-deployments', adminAuth, getActiveDeployments);
+  app.get('/api/autonomous-orchestrator/deployment-status/:deploymentId', adminAuth, getDeploymentStatus);
   
   console.log('✅ Coordination Metrics API routes registered');
   
