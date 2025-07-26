@@ -4,11 +4,31 @@ import { Elements, PaymentElement, useStripe, useElements } from '@stripe/react-
 import { loadStripe } from '@stripe/stripe-js';
 import { useToast } from "@/hooks/use-toast";
 
-// Initialize Stripe
-if (!import.meta.env.VITE_STRIPE_PUBLIC_KEY) {
-  throw new Error('Missing required Stripe key: VITE_STRIPE_PUBLIC_KEY');
-}
-const stripePromise = loadStripe(import.meta.env.VITE_STRIPE_PUBLIC_KEY);
+// Initialize Stripe with comprehensive error handling
+const getStripePromise = () => {
+  const stripeKey = import.meta.env.VITE_STRIPE_PUBLIC_KEY;
+  console.log('🔐 Stripe Key Check:', {
+    hasKey: !!stripeKey,
+    keyLength: stripeKey?.length || 0,
+    keyPrefix: stripeKey?.substring(0, 7) || 'none'
+  });
+  
+  if (!stripeKey) {
+    console.warn('VITE_STRIPE_PUBLIC_KEY not found - Stripe functionality will be disabled');
+    return null;
+  }
+  
+  try {
+    const promise = loadStripe(stripeKey);
+    console.log('✅ Stripe promise created successfully');
+    return promise;
+  } catch (error) {
+    console.error('❌ Failed to create Stripe promise:', error);
+    return null;
+  }
+};
+
+const stripePromise = getStripePromise();
 
 const CheckoutForm = () => {
   const stripe = useStripe();
@@ -154,6 +174,26 @@ const CheckoutForm = () => {
 export default function Checkout() {
   const [clientSecret, setClientSecret] = useState("");
   const [selectedPlan, setSelectedPlan] = useState<string>('sselfie-studio');
+
+  // Check if Stripe is available
+  if (!stripePromise) {
+    return (
+      <div className="container mx-auto px-4 py-8 max-w-md">
+        <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-6 text-center">
+          <h1 className="text-2xl font-bold text-yellow-800 mb-4">Payment Unavailable</h1>
+          <p className="text-yellow-700 mb-4">
+            Payment processing is currently unavailable. Please contact support for assistance.
+          </p>
+          <button
+            onClick={() => window.location.href = '/'}
+            className="px-6 py-2 bg-black text-white rounded-lg hover:bg-gray-800 transition-colors"
+          >
+            Return Home
+          </button>
+        </div>
+      </div>
+    );
+  }
 
   useEffect(() => {
     // Get selected plan from localStorage or default to studio
