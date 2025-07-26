@@ -11,14 +11,15 @@ import { Badge } from '@/components/ui/badge';
 
 interface DetectedWorkflow {
   id: string;
-  title: string;
+  name: string;
   description: string;
   agents: string[];
-  tasks: string[];
-  priority: 'high' | 'medium' | 'low';
-  estimatedDuration: string;
-  createdAt: string;
-  status: 'staged' | 'executing' | 'completed';
+  priority: 'low' | 'medium' | 'high' | 'critical';
+  estimatedDuration: number;
+  customRequirements: string[];
+  detectedAt: Date;
+  status: 'staged' | 'executed' | 'expired';
+  conversationId?: string;
 }
 
 interface ElenaWorkflowsResponse {
@@ -137,8 +138,8 @@ export function ElenaWorkflowsTab() {
   };
 
   // Format created date
-  const formatDate = (dateString: string) => {
-    const date = new Date(dateString);
+  const formatDate = (dateValue: string | Date) => {
+    const date = typeof dateValue === 'string' ? new Date(dateValue) : dateValue;
     return date.toLocaleString('en-US', { 
       month: 'short', 
       day: 'numeric', 
@@ -225,15 +226,15 @@ export function ElenaWorkflowsTab() {
                 <div className="flex items-start justify-between">
                   <div className="flex-1">
                     <CardTitle className="text-lg font-semibold text-black mb-2" style={{ fontFamily: 'Times New Roman, serif' }}>
-                      {workflow.title}
+                      {workflow.name}
                     </CardTitle>
                     <div className="flex items-center space-x-3 text-sm text-gray-500">
-                      <span>{formatDate(workflow.createdAt)}</span>
+                      <span>{formatDate(workflow.detectedAt)}</span>
                       <Badge className={getPriorityColor(workflow.priority)}>
                         {workflow.priority} priority
                       </Badge>
                       <span className="text-gray-400">•</span>
-                      <span>{workflow.estimatedDuration}</span>
+                      <span>{workflow.estimatedDuration} min</span>
                     </div>
                   </div>
                   
@@ -266,9 +267,9 @@ export function ElenaWorkflowsTab() {
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   {/* Agents */}
                   <div>
-                    <h4 className="text-sm font-semibold text-gray-800 mb-2">Agents ({workflow.agents.length})</h4>
+                    <h4 className="text-sm font-semibold text-gray-800 mb-2">Agents ({workflow.agents?.length || 0})</h4>
                     <div className="flex flex-wrap gap-1">
-                      {workflow.agents.map((agent) => (
+                      {(workflow.agents || []).map((agent) => (
                         <Badge key={agent} variant="secondary" className="text-xs">
                           {agent}
                         </Badge>
@@ -276,18 +277,18 @@ export function ElenaWorkflowsTab() {
                     </div>
                   </div>
                   
-                  {/* Tasks */}
+                  {/* Requirements */}
                   <div>
-                    <h4 className="text-sm font-semibold text-gray-800 mb-2">Tasks ({workflow.tasks.length})</h4>
+                    <h4 className="text-sm font-semibold text-gray-800 mb-2">Requirements ({workflow.customRequirements?.length || 0})</h4>
                     <div className="space-y-1">
-                      {workflow.tasks.slice(0, 3).map((task, index) => (
+                      {(workflow.customRequirements || []).slice(0, 3).map((requirement, index) => (
                         <div key={index} className="text-xs text-gray-600 bg-gray-50 px-2 py-1 rounded">
-                          {task}
+                          {requirement}
                         </div>
                       ))}
-                      {workflow.tasks.length > 3 && (
+                      {(workflow.customRequirements?.length || 0) > 3 && (
                         <div className="text-xs text-gray-400">
-                          +{workflow.tasks.length - 3} more tasks
+                          +{(workflow.customRequirements?.length || 0) - 3} more requirements
                         </div>
                       )}
                     </div>

@@ -4,7 +4,7 @@
  */
 
 import { Router } from 'express';
-import { elenaWorkflowDetectionService } from '../../services/elena-workflow-detection-service';
+import { workflowDetectionService } from '../../services/workflow-detection-service';
 
 const router = Router();
 
@@ -43,7 +43,7 @@ router.get('/staged-workflows', validateElenaAccess, async (req, res) => {
   try {
     console.log('🔍 ELENA STAGED WORKFLOW AUTH: Checking authentication');
     
-    const workflows = elenaWorkflowDetectionService.getStagedWorkflows();
+    const workflows = workflowDetectionService.getStagedWorkflows();
     
     // No demo workflows - only real detected workflows
     
@@ -82,7 +82,7 @@ router.post('/execute-staged-workflow/:id', validateElenaAccess, async (req, res
 
     console.log(`🚀 ELENA WORKFLOW EXECUTION: Starting workflow ${id}`);
     
-    const result = await elenaWorkflowDetectionService.executeWorkflow(id);
+    const result = await workflowDetectionService.executeWorkflow(id);
     
     if (result.success) {
       console.log(`✅ ELENA WORKFLOW EXECUTED: ${id} - ${result.message}`);
@@ -115,7 +115,7 @@ router.delete('/workflow/:id', validateElenaAccess, async (req, res) => {
   try {
     const { id } = req.params;
     
-    const removed = elenaWorkflowDetectionService.removeWorkflow(id);
+    const removed = workflowDetectionService.removeWorkflow(id);
     
     if (removed) {
       console.log(`🗑️ ELENA WORKFLOW REMOVED: ${id}`);
@@ -148,8 +148,7 @@ router.delete('/workflow/:id', validateElenaAccess, async (req, res) => {
 router.get('/workflow-status/:id', validateElenaAccess, async (req, res) => {
   try {
     const { id } = req.params;
-    const workflows = elenaWorkflowDetectionService.getStagedWorkflows();
-    const workflow = workflows.find(w => w.id === id);
+    const workflow = workflowDetectionService.getWorkflow(id);
     
     if (workflow) {
       res.json({
@@ -188,7 +187,7 @@ router.post('/test-workflow-detection', validateElenaAccess, async (req, res) =>
       });
     }
 
-    const analysis = elenaWorkflowDetectionService.analyzeConversation(message, 'elena');
+    const analysis = workflowDetectionService.detectWorkflowCreation(message, 'test-conversation');
     
     res.json({
       success: true,
