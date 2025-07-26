@@ -164,6 +164,14 @@ export default function AdminDashboard() {
   // Quick access tools similar to workspace creative tools
   const quickAccessTools = [
     {
+      id: 'autonomous-orchestrator',
+      title: 'Autonomous Orchestrator',
+      subtitle: 'Agent Coordination',
+      description: 'Deploy all 13 agents in coordinated missions',
+      image: 'https://e33979fc-c9be-4f0d-9a7b-6a3e83046828-00-3ij9k7qy14rai.picard.replit.dev/flatlays/editorial-magazine/editorial-magazine-041.png',
+      link: '/admin/agent-activity'
+    },
+    {
       id: 'bridge-monitor',
       title: 'Bridge Monitor',
       subtitle: 'System Coordination',
