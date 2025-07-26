@@ -25,67 +25,27 @@ class WorkflowDetectionService {
   }
   
   private initializeDemoWorkflow() {
-    // Create multiple test workflows to ensure Elena's workflows show up
-    const testWorkflows = [
-      {
-        id: `elena-demo-workflow-${Date.now()}`,
-        name: 'Platform Launch Readiness Validation',
-        description: 'Elena created workflow: Platform Launch Readiness Validation',
-        agents: ['aria', 'victoria', 'zara'],
-        priority: 'critical' as const,
-        estimatedDuration: 15,
-        customRequirements: [
-          'Luxury brand consistency audit across all pages',
-          'Times New Roman headlines validation',
-          '€67 premium positioning validation',
-          'Mobile-responsive luxury design verification',
-          'Viral scale readiness assessment'
-        ],
-        detectedAt: new Date(),
-        status: 'staged' as const,
-        conversationId: 'elena-demo-conversation-1'
-      },
-      {
-        id: `elena-test-workflow-${Date.now() + 1}`,
-        name: 'Component Architecture Enhancement',
-        description: 'Elena created workflow: Component Architecture Enhancement',
-        agents: ['aria', 'zara', 'olga'],
-        priority: 'high' as const,
-        estimatedDuration: 20,
-        customRequirements: [
-          'Luxury component reorganization',
-          'Performance optimization audit',
-          'File structure cleanup',
-          'Code quality improvements'
-        ],
-        detectedAt: new Date(),
-        status: 'staged' as const,
-        conversationId: 'elena-test-conversation-2'
-      },
-      {
-        id: `elena-agent-test-${Date.now() + 2}`,
-        name: 'Agent Coordination System Test',
-        description: 'Elena created workflow: Agent Coordination System Test',
-        agents: ['maya', 'rachel', 'victoria'],
-        priority: 'medium' as const,
-        estimatedDuration: 12,
-        customRequirements: [
-          'AI photography workflow verification',
-          'Voice consistency validation',
-          'User experience optimization'
-        ],
-        detectedAt: new Date(),
-        status: 'staged' as const,
-        conversationId: 'elena-agent-test-3'
-      }
-    ];
+    const demoWorkflow: DetectedWorkflow = {
+      id: 'elena-demo-workflow-1753515823',
+      name: 'Platform Launch Readiness Validation',
+      description: 'Elena created workflow: Platform Launch Readiness Validation',
+      agents: ['aria', 'victoria', 'zara'],
+      priority: 'critical',
+      estimatedDuration: 15,
+      customRequirements: [
+        'Luxury brand consistency audit across all pages',
+        'Times New Roman headlines validation',
+        '€67 premium positioning validation',
+        'Mobile-responsive luxury design verification',
+        'Viral scale readiness assessment'
+      ],
+      detectedAt: new Date(),
+      status: 'staged',
+      conversationId: 'elena-demo-conversation'
+    };
     
-    testWorkflows.forEach(workflow => {
-      this.stagedWorkflows.set(workflow.id, workflow);
-      console.log(`🎯 DEMO WORKFLOW INITIALIZED: ${workflow.name} ready for manual execution`);
-    });
-    
-    console.log(`✅ ELENA WORKFLOWS READY: ${testWorkflows.length} workflows available for execution`);
+    this.stagedWorkflows.set(demoWorkflow.id, demoWorkflow);
+    console.log(`🎯 DEMO WORKFLOW INITIALIZED: ${demoWorkflow.name} ready for manual execution`);
   }
   
   /**
