@@ -77,7 +77,7 @@ export function registerAdminConversationRoutes(app: Express) {
         .insert(agentConversations)
         .values({
           agentId: agentId,
-          userId: req.user?.claims?.sub || 'admin-sandra',
+          userId: req.user?.claims?.sub || '42585527',
           userMessage: userMessage,
           agentResponse: agentResponse
         })

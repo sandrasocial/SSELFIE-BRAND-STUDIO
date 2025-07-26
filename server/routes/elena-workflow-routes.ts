@@ -51,7 +51,7 @@ router.post('/create-workflow', isAdminOrToken, async (req, res) => {
 
     // Create workflow using Elena's system
     const workflow = await ElenaWorkflowSystem.createWorkflowFromRequest(
-      userId || 'admin-sandra',
+      userId || '42585527',
       request
     );
 

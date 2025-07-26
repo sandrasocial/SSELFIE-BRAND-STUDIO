@@ -308,7 +308,7 @@ class ElenaWorkflowDetectionService {
           // Execute real agent via Claude API service
           const { claudeApiService } = await import('../services/claude-api-service');
           const agentResponse = await claudeApiService.sendMessage(
-            'admin-sandra', // userId for admin
+            '42585527', // Sandra's actual user ID
             agent,
             `elena-workflow-${workflowId}-${agent}`, // conversationId
             taskMessage,
