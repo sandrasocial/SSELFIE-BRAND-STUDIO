@@ -57,7 +57,8 @@
     text-transform: uppercase;
     color: var(--luxury-black);
     -webkit-font-smoothing: antialiased;
-    font-feature-settings: "liga" 1, "kern" 1;
+    font-feature-settings: "liga" 1, "kern" 1, "dlig" 1, "swsh" 1;
+    margin-left: -0.25em; /* Optical alignment for letter-spacing */
   }
 
   .editorial-headline {
