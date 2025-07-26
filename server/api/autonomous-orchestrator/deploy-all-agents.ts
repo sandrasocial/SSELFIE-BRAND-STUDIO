@@ -480,15 +480,15 @@ async function executeDeployment(deploymentId: string): Promise<void> {
       deployment.currentPhase = phaseIndex;
       deployment.logs.push(`📋 Starting phase ${phaseIndex + 1}/${deployment.totalPhases}`);
 
-      // Execute phase tasks
-      const phaseTasks = deployment.tasks.filter((task: any) => task.phaseIndex === phaseIndex);
-      console.log(`🔥 PHASE ${phaseIndex + 1} TASKS:`, phaseTasks.length);
+      // Execute phase tasks - fix filtering to use task assignments with proper phase index
+      const phaseAssignments = deployment.assignedAgents.filter((assignment: any) => assignment.phaseIndex === phaseIndex);
+      console.log(`🔥 PHASE ${phaseIndex + 1} ASSIGNMENTS:`, phaseAssignments.length);
       
-      for (const task of phaseTasks) {
+      for (const assignment of phaseAssignments) {
         if (deployment.status !== 'active') break;
 
-        const assignment = deployment.assignedAgents.find((a: any) => a.taskId === task.id);
-        if (assignment) {
+        const task = deployment.tasks.find((t: any) => t.id === assignment.taskId);
+        if (task) {
           deployment.logs.push(`🤖 ${assignment.agentName} executing: ${task.title}`);
           
           try {
