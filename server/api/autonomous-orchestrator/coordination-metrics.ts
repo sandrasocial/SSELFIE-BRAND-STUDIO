@@ -106,18 +106,47 @@ export async function getCoordinationMetrics(req: Request, res: Response): Promi
  */
 export async function getActiveDeployments(req: Request, res: Response): Promise<void> {
   try {
-    console.log('🚀 ACTIVE DEPLOYMENTS: Retrieving active deployments...');
+    console.log('🚀 ACTIVE DEPLOYMENTS: Retrieving active deployments from all sources...');
 
-    // Get real active deployments from deployment tracker
+    // Get Elena workflow deployments from deployment tracker
     const { deploymentTracker } = await import('../../services/deployment-tracking-service');
-    const activeDeployments = deploymentTracker.getActiveDeployments();
+    const elenaDeployments = deploymentTracker.getActiveDeployments();
 
-    console.log(`📊 ACTIVE DEPLOYMENTS: Found ${activeDeployments.length} active deployments`);
+    // Try to get autonomous orchestrator deployments (graceful fallback if file doesn't exist)
+    let orchestratorDeployments: any[] = [];
+    try {
+      const orchestratorModule = await import('../autonomous-orchestrator/deploy-all-agents');
+      if (orchestratorModule.activeDeployments) {
+        orchestratorDeployments = Array.from(orchestratorModule.activeDeployments.values()).map((deployment: any) => ({
+          id: deployment.id,
+          name: deployment.missionType || deployment.name,
+          type: 'autonomous-orchestrator',
+          status: deployment.status,
+          startTime: deployment.startTime,
+          estimatedCompletion: deployment.estimatedCompletion,
+          agents: deployment.assignedAgents || [],
+          tasks: deployment.tasks ? deployment.tasks.map((t: any) => t.id || t) : [],
+          progress: deployment.progress || 0,
+          metadata: {
+            workflowId: deployment.id,
+            priority: deployment.priority || 'medium',
+            description: deployment.taskDescription || 'Autonomous orchestrator deployment'
+          }
+        }));
+      }
+    } catch (orchestratorError) {
+      console.log('📝 ORCHESTRATOR: No autonomous orchestrator deployments available');
+    }
+
+    // Combine all deployments
+    const allActiveDeployments = [...elenaDeployments, ...orchestratorDeployments];
+
+    console.log(`📊 ACTIVE DEPLOYMENTS: Found ${elenaDeployments.length} Elena workflows + ${orchestratorDeployments.length} orchestrator deployments = ${allActiveDeployments.length} total`);
 
     res.json({
       success: true,
-      activeDeployments,
-      count: activeDeployments.length,
+      activeDeployments: allActiveDeployments,
+      count: allActiveDeployments.length,
       timestamp: new Date().toISOString()
     });
 

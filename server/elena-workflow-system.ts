@@ -380,6 +380,28 @@ export class ElenaWorkflowSystem {
     // Create execution ID for tracking
     const executionId = `exec_${workflowId}_${Date.now()}`;
     
+    // START DEPLOYMENT TRACKING FOR VISUAL DASHBOARD
+    try {
+      const { deploymentTracker } = await import('./services/deployment-tracking-service');
+      const deploymentId = deploymentTracker.startElenaWorkflowDeployment(
+        workflowId,
+        workflow.name,
+        workflow.steps.map(s => s.agentName),
+        workflow.steps.map(s => s.taskDescription),
+        'high', // Elena workflows are high priority
+        workflow.description || `Elena workflow: ${workflow.name}`,
+        parseInt(workflow.estimatedDuration.replace(/\D/g, '')) || 30
+      );
+      
+      console.log(`📊 ELENA: Started deployment tracking ${deploymentId} for workflow ${workflowId}`);
+      
+      // Store deployment ID for progress updates
+      this.workflowDeployments.set(workflowId, deploymentId);
+      
+    } catch (deploymentError) {
+      console.error('⚠️ ELENA: Failed to start deployment tracking:', deploymentError);
+    }
+    
     // Initialize workflow progress with persistence
     this.workflowProgress.set(workflowId, {
       workflowId,
@@ -628,6 +650,9 @@ export class ElenaWorkflowSystem {
         progress.nextActions = nextStep ? [nextStep.taskDescription] : ['Workflow execution complete - all agents finished!'];
         this.saveWorkflowsToDisk(); // Persist progress after each step
         
+        // Update deployment tracking progress after each step
+        await this.updateDeploymentProgress(workflow.id, i, workflow.steps.length);
+        
         // Send progress update
         if (nextStep) {
           await this.sendElenaUpdateToUser(workflow.id, `📋 Progress: Step ${i + 1}/${workflow.steps.length} complete. Next: ${step.agentName} will work on ${nextStep.taskDescription}`);
@@ -650,6 +675,18 @@ export class ElenaWorkflowSystem {
     // Send final completion update to user
     const totalTasks = finalProgress?.completedTasks.length || 0;
     await this.sendElenaUpdateToUser(workflow.id, `🎉 Workflow completed! All ${totalTasks} agent tasks finished with real file modifications. Your project is ready!`);
+    
+    // FINAL DEPLOYMENT TRACKING UPDATE - MARK AS COMPLETED
+    try {
+      const deploymentId = this.workflowDeployments.get(workflow.id);
+      if (deploymentId) {
+        const { deploymentTracker } = await import('./services/deployment-tracking-service');
+        deploymentTracker.updateDeploymentProgress(deploymentId, 100, 'completed');
+        console.log(`✅ ELENA: Marked deployment tracking ${deploymentId} as completed`);
+      }
+    } catch (deploymentError) {
+      console.error('⚠️ ELENA: Final deployment update failed:', deploymentError);
+    }
     
     console.log(`✅ ELENA: REAL WORKFLOW ${workflow.id} completed with verified file changes`);
   }
@@ -867,6 +904,24 @@ INSTRUCTIONS: Work directly on the requested task without coordination delays`;
    */
   private static workflows = new Map<string, CustomWorkflow>();
   private static workflowProgress = new Map<string, any>();
+  private static workflowDeployments = new Map<string, string>(); // workflowId -> deploymentId mapping
+  
+  /**
+   * Update deployment tracking progress for visual dashboard
+   */
+  private static async updateDeploymentProgress(workflowId: string, stepIndex: number, totalSteps: number): Promise<void> {
+    try {
+      const deploymentId = this.workflowDeployments.get(workflowId);
+      if (deploymentId) {
+        const { deploymentTracker } = await import('./services/deployment-tracking-service');
+        const progressPercent = Math.round(((stepIndex + 1) / totalSteps) * 90) + 10; // 10-100% range
+        deploymentTracker.updateDeploymentProgress(deploymentId, progressPercent, 'running');
+        console.log(`📊 ELENA: Updated deployment tracking ${deploymentId} to ${progressPercent}% (step ${stepIndex + 1}/${totalSteps})`);
+      }
+    } catch (error) {
+      console.error('⚠️ ELENA: Deployment progress update failed:', error);
+    }
+  }
   
   // Autonomous monitoring system
   private static autonomousMonitor: NodeJS.Timeout | null = null;
