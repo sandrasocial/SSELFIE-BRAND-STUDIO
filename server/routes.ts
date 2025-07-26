@@ -5519,7 +5519,7 @@ Workflow Stage: ${savedMemory.workflowStage || 'None'}
                                       message.includes('MANDATORY TOOL USAGE REQUIRED') ||
                                       message.includes('workflow execution');
       
-      // Detect file operations to force tool usage for Olga and other file-enabled agents
+      // 🚨 ENHANCED COMPLEX SYSTEM DETECTION - Force tool usage for ALL implementation requests
       const isFileRequest = agentId === 'olga' || 
                            message.toLowerCase().includes('file') || 
                            message.toLowerCase().includes('archive') || 
@@ -5529,6 +5529,32 @@ Workflow Stage: ${savedMemory.workflowStage || 'None'}
                            message.toLowerCase().includes('tool') ||
                            message.toLowerCase().includes('cleanup') ||
                            message.toLowerCase().includes('organize');
+
+      // 🎯 CRITICAL FIX: Detect complex system building requests that need file creation
+      const isComplexSystemRequest = message.toLowerCase().includes('create') ||
+                                    message.toLowerCase().includes('build') ||
+                                    message.toLowerCase().includes('implement') ||
+                                    message.toLowerCase().includes('deploy') ||
+                                    message.toLowerCase().includes('fix') ||
+                                    message.toLowerCase().includes('system') ||
+                                    message.toLowerCase().includes('service') ||
+                                    message.toLowerCase().includes('component') ||
+                                    message.toLowerCase().includes('.ts') ||
+                                    message.toLowerCase().includes('.tsx') ||
+                                    message.toLowerCase().includes('workflow') ||
+                                    message.toLowerCase().includes('dashboard') ||
+                                    message.toLowerCase().includes('interface') ||
+                                    message.toLowerCase().includes('infrastructure') ||
+                                    message.toLowerCase().includes('complete') ||
+                                    message.toLowerCase().includes('now') ||
+                                    message.toLowerCase().includes('test') ||
+                                    message.toUpperCase().includes('ELENA') ||
+                                    message.toUpperCase().includes('CRITICAL') ||
+                                    message.toUpperCase().includes('BUILD') ||
+                                    message.toUpperCase().includes('CREATE');
+
+      // Combine both detection methods
+      const shouldForceTools = isFileRequest || isComplexSystemRequest;
       
       let finalSystemPrompt = agent.systemPrompt;
       
