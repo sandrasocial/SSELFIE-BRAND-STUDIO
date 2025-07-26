@@ -311,7 +311,7 @@ class WorkflowDetectionService {
   }
   
   /**
-   * Execute a staged workflow
+   * Execute a staged workflow - ACTUALLY INVOKE THE AGENTS
    */
   async executeWorkflow(workflowId: string): Promise<{ success: boolean; message: string; }> {
     const workflow = this.stagedWorkflows.get(workflowId);
@@ -331,6 +331,60 @@ class WorkflowDetectionService {
     }
     
     try {
+      // Mark as executing
+      workflow.status = 'executing';
+      
+      console.log(`🚀 ELENA WORKFLOW EXECUTION: Starting workflow ${workflowId}`);
+      console.log(`🎯 AGENTS TO EXECUTE: ${workflow.agents.join(', ')}`);
+      
+      // ACTUALLY EXECUTE THE AGENTS - This was missing!
+      const agentResults: string[] = [];
+      
+      for (const agentName of workflow.agents) {
+        try {
+          console.log(`🔄 EXECUTING AGENT: ${agentName.toUpperCase()}`);
+          
+          // Import Claude API service to call agents
+          const { ClaudeApiService } = await import('./claude-api-service');
+          const claudeService = new ClaudeApiService();
+          
+          // Create workflow task message for the agent
+          const taskMessage = `Elena has assigned you to execute workflow: "${workflow.name}"
+          
+Description: ${workflow.description}
+Priority: ${workflow.priority}
+Requirements: ${workflow.customRequirements.join(', ')}
+
+Please execute your part of this workflow immediately using your tools. Create any necessary files, modifications, or implementations as needed.`;
+          
+          // Generate unique conversation ID for this workflow execution
+          const workflowConversationId = `workflow-${workflowId}-${agentName}-${Date.now()}`;
+          
+          // Call the agent through Claude API with proper parameters
+          const response = await claudeService.sendMessage(
+            '42585527', // userId - Sandra's actual user ID
+            agentName, // agentName
+            workflowConversationId, // conversationId
+            taskMessage, // userMessage
+            undefined, // systemPrompt (use default agent personality)
+            [], // tools (use default universal tools)
+            true // fileEditMode - enable full file access for workflow execution
+          );
+          
+          if (response && typeof response === 'string') {
+            agentResults.push(`✅ ${agentName}: ${response.substring(0, 100)}...`);
+            console.log(`✅ AGENT COMPLETED: ${agentName.toUpperCase()}`);
+          } else {
+            agentResults.push(`❌ ${agentName}: Invalid response format`);
+            console.log(`❌ AGENT FAILED: ${agentName.toUpperCase()} - Invalid response format`);
+          }
+          
+        } catch (agentError) {
+          console.error(`❌ AGENT EXECUTION ERROR (${agentName}):`, agentError);
+          agentResults.push(`❌ ${agentName}: Execution failed - ${agentError.message}`);
+        }
+      }
+      
       // Mark as executed and move to history
       workflow.status = 'executed';
       workflow.detectedAt = new Date(); // Update execution timestamp
@@ -339,13 +393,12 @@ class WorkflowDetectionService {
       this.executedWorkflows.set(workflowId, { ...workflow });
       this.stagedWorkflows.delete(workflowId);
       
-      console.log(`🚀 ELENA WORKFLOW EXECUTION: Starting workflow ${workflowId}`);
-      console.log(`✅ WORKFLOW EXECUTED: ${workflow.name} with agents: ${workflow.agents.join(', ')}`);
-      console.log(`✅ ELENA WORKFLOW EXECUTED: ${workflowId} - Workflow "${workflow.name}" executed successfully with ${workflow.agents.length} agents`);
+      console.log(`✅ WORKFLOW COMPLETED: ${workflow.name} with ${workflow.agents.length} agents`);
+      console.log(`📊 AGENT RESULTS:`, agentResults);
       
       return {
         success: true,
-        message: `Workflow "${workflow.name}" executed successfully with ${workflow.agents.length} agents`
+        message: `Workflow "${workflow.name}" executed successfully with ${workflow.agents.length} agents. Results: ${agentResults.join(' | ')}`
       };
     } catch (error) {
       console.error('❌ WORKFLOW EXECUTION ERROR:', error);
