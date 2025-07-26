@@ -114,7 +114,7 @@ export default function AgentActivityDashboard() {
         
         // Show user feedback with better messaging
         const deploymentShort = result.deploymentId.split('-')[1];
-        alert(`🚀 AUTONOMOUS ORCHESTRATOR ACTIVATED\n\nDeployment: ${deploymentShort}\nMission: Launch Readiness Protocol\nAgents: All 13 specialists deployed\nStatus: Active coordination in progress\n\nView real-time progress below.`);
+        alert(`🚀 AUTONOMOUS ORCHESTRATOR ACTIVATED\n\nDeployment: ${deploymentShort}\nMission: Launch Readiness Protocol\nAgents: ${result.deployment.assignedAgents} specialists deployed\nEstimated Duration: ${Math.round((new Date(result.deployment.estimatedCompletion).getTime() - new Date(result.deployment.startTime).getTime()) / (1000 * 60 * 60))} hours\nStatus: Coordination initiated\n\nRefresh page to view real-time progress in Active Deployments tab.`);
       } else {
         console.error('❌ Launch Protocol Failed:', result.error);
         alert(`❌ Launch Protocol Failed: ${result.error || 'Unknown error'}`);
