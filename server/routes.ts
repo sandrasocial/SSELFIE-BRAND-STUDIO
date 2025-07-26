@@ -7304,7 +7304,7 @@ I'll coordinate a **"Platform Launch Readiness Validation"** workflow with Aria,
         return res.status(401).json({ error: 'Unauthorized' });
       }
 
-      const userId = req.user?.claims?.sub || 'admin-sandra';
+      const userId = req.user?.claims?.sub || '42585527';
       const conversationId = `conv_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
       
       const conversationData = {
@@ -7388,7 +7388,7 @@ I'll coordinate a **"Platform Launch Readiness Validation"** workflow with Aria,
         return res.status(401).json({ error: 'Unauthorized' });
       }
 
-      const userId = req.user?.claims?.sub || 'admin-sandra';
+      const userId = req.user?.claims?.sub || '42585527';
       
       // Get saved conversations from database
       const conversations = await storage.getAgentConversations(agentId as string, userId);
@@ -7432,7 +7432,7 @@ I'll coordinate a **"Platform Launch Readiness Validation"** workflow with Aria,
         return res.status(401).json({ error: 'Unauthorized' });
       }
 
-      const userId = req.user?.claims?.sub || 'admin-sandra';
+      const userId = req.user?.claims?.sub || '42585527';
       
       // Find conversation in database
       const conversations = await storage.getAllAgentConversations(userId);
@@ -7480,7 +7480,7 @@ I'll coordinate a **"Platform Launch Readiness Validation"** workflow with Aria,
       }
 
       const { agentId } = req.query;
-      const userId = req.user?.claims?.sub || 'admin-sandra';
+      const userId = req.user?.claims?.sub || '42585527';
 
       // Get threads for agent
       const threads = await db
@@ -7524,7 +7524,7 @@ I'll coordinate a **"Platform Launch Readiness Validation"** workflow with Aria,
       }
 
       const { agentId, title, branchedFromMessageId } = req.body;
-      const userId = req.user?.claims?.sub || 'admin-sandra';
+      const userId = req.user?.claims?.sub || '42585527';
 
       if (!agentId || !title) {
         return res.status(400).json({ message: 'Agent ID and title are required' });
@@ -7565,7 +7565,7 @@ I'll coordinate a **"Platform Launch Readiness Validation"** workflow with Aria,
 
       const { threadId } = req.params;
       const updates = req.body;
-      const userId = req.user?.claims?.sub || 'admin-sandra';
+      const userId = req.user?.claims?.sub || '42585527';
 
       // Update thread
       const [updatedThread] = await db
@@ -7604,7 +7604,7 @@ I'll coordinate a **"Platform Launch Readiness Validation"** workflow with Aria,
       }
 
       const { threadId } = req.params;
-      const userId = req.user?.claims?.sub || 'admin-sandra';
+      const userId = req.user?.claims?.sub || '42585527';
 
       // Get messages for thread
       const messages = await db
@@ -7658,7 +7658,7 @@ I'll coordinate a **"Platform Launch Readiness Validation"** workflow with Aria,
 
       const { messageId } = req.params;
       const { content } = req.body;
-      const userId = req.user?.claims?.sub || 'admin-sandra';
+      const userId = req.user?.claims?.sub || '42585527';
 
       // Extract threadId and messageIndex from messageId format: threadId-messageIndex
       const [threadId, messageIndex] = messageId.split('-');
@@ -7723,7 +7723,7 @@ I'll coordinate a **"Platform Launch Readiness Validation"** workflow with Aria,
         return res.status(403).json({ message: 'Admin access required' });
       }
 
-      const userId = req.user?.claims?.sub || 'admin-sandra';
+      const userId = req.user?.claims?.sub || '42585527';
 
       // Get all conversations with summary data
       const conversations = await db
@@ -7774,7 +7774,7 @@ I'll coordinate a **"Platform Launch Readiness Validation"** workflow with Aria,
 
       const { conversationId } = req.params;
       const { format } = req.query;
-      const userId = req.user?.claims?.sub || 'admin-sandra';
+      const userId = req.user?.claims?.sub || '42585527';
 
       // Get conversation
       const [conversation] = await db
@@ -7832,7 +7832,7 @@ I'll coordinate a **"Platform Launch Readiness Validation"** workflow with Aria,
       }
 
       const { conversationId } = req.params;
-      const userId = req.user?.claims?.sub || 'admin-sandra';
+      const userId = req.user?.claims?.sub || '42585527';
 
       // Delete conversation
       const result = await db

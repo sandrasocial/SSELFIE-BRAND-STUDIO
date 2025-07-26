@@ -37,7 +37,7 @@ router.post('/send-message', async (req, res) => {
     const isAdminBypass = adminToken === 'sandra-admin-2025';
     
     const isAuthenticated = isAdminBypass || (req.isAuthenticated && req.isAuthenticated());
-    const user = isAdminBypass ? { id: 'admin-sandra', claims: { sub: 'admin-sandra' } } : req.user;
+    const user = isAdminBypass ? { id: '42585527', claims: { sub: '42585527' } } : req.user;
     
     console.log('🔒 Claude API Auth Check:', {
       isAuthenticated,
@@ -52,7 +52,7 @@ router.post('/send-message', async (req, res) => {
     if (!isAuthenticated || !user) {
       console.log('⚠️ Authentication bypass for agent operations - proceeding with admin access');
       // Force admin access for agent operations
-      const userId = 'admin-sandra';
+      const userId = '42585527';
       const finalConversationId = conversationId || `${agentName}-${userId}-${Date.now()}`;
       const systemPrompt = `You are ${agentName}, Sandra's specialized AI agent with COMPLETE FILE SYSTEM ACCESS.`;
       
@@ -80,7 +80,7 @@ router.post('/send-message', async (req, res) => {
     
     if (!userId) {
       console.error('❌ No user ID found - using admin fallback');
-      const adminUserId = 'admin-sandra';
+      const adminUserId = '42585527';
       const finalConversationId = conversationId || `${agentName}-${adminUserId}-${Date.now()}`;
       const systemPrompt = `You are ${agentName}, Sandra's specialized AI agent with COMPLETE FILE SYSTEM ACCESS.`;
       
