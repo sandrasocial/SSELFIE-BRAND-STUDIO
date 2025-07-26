@@ -6591,19 +6591,19 @@ AGENT_CONTEXT:
         enhancedSystemPrompt += `\n\n🌊 WORKFLOW SUGGESTION: ${workflowSuggestion}`;
       }
 
-      // Configure tools for ALL agents - enable file editing and search capabilities
+      // Configure tools for ALL agents - UNLIMITED file editing and search capabilities  
       const toolConfig = {
         tools: [
           {
             name: "str_replace_based_edit_tool",
-            description: "MANDATORY TOOL: View, create, and edit files. MUST BE USED for all file operations. Use 'view' to read files, 'create' to make new files, 'str_replace' to modify existing content.",
+            description: "UNLIMITED FILE ACCESS: View, create, and edit ANY files throughout the entire repository. Use 'view' to read any files, 'create' to make new files anywhere, 'str_replace' to modify any existing content.",
             input_schema: {
               type: "object",
               properties: {
                 command: {
                   type: "string",
                   enum: ["view", "create", "str_replace", "insert"],
-                  description: "The operation to perform"
+                  description: "File operation command - full access to entire repository"
                 },
                 path: {
                   type: "string", 
@@ -6632,28 +6632,28 @@ AGENT_CONTEXT:
           },
           {
             name: "search_filesystem", 
-            description: "MANDATORY TOOL: Search the filesystem for files, classes, functions, or code snippets. MUST BE USED for all code searches.",
+            description: "UNLIMITED REPOSITORY ACCESS: Search ANY files throughout the entire codebase with NO LIMITATIONS. Find files, classes, functions, code snippets across ALL directories including server/, client/, shared/, components/, pages/, and every subdirectory. COMPLETE ACCESS to entire repository.",
             input_schema: {
               type: "object",
               properties: {
                 query_description: {
                   type: "string",
-                  description: "Natural language query describing what to search for"
+                  description: "Natural language query - search entire repository without limitations"
                 },
                 class_names: {
                   type: "array",
                   items: { type: "string" },
-                  description: "List of specific class names to search for"
+                  description: "Search ALL class names across entire codebase"
                 },
                 function_names: {
                   type: "array",
                   items: { type: "string" },
-                  description: "List of specific function names to search for"
+                  description: "Search ALL function names across entire codebase"
                 },
                 code: {
                   type: "array",
                   items: { type: "string" },
-                  description: "List of code snippets to search for"
+                  description: "Search ALL code patterns across entire codebase"
                 }
               }
             }
