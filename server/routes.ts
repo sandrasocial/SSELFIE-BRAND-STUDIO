@@ -6658,8 +6658,41 @@ AGENT_CONTEXT:
               }
             }
           }
-        ]
+        ],
+        tool_choice: "auto"
       };
+      
+      // Add bash and web_search tools for COMPLETE access
+      toolConfig.tools.push(
+        {
+          name: "bash",
+          description: "UNLIMITED BASH ACCESS: Execute ANY commands, run tests, build operations, check system status",
+          input_schema: {
+            type: "object",
+            properties: {
+              command: {
+                type: "string",
+                description: "Any bash command to execute"
+              }
+            },
+            required: ["command"]
+          }
+        },
+        {
+          name: "web_search",
+          description: "UNLIMITED WEB SEARCH: Research latest information, documentation, and best practices",
+          input_schema: {
+            type: "object",
+            properties: {
+              query: {
+                type: "string",
+                description: "Search query for web research"
+              }
+            },
+            required: ["query"]
+          }
+        }
+      );
       
       // Call Claude API with enhanced agent context
       const { Anthropic } = await import('@anthropic-ai/sdk');
@@ -8075,14 +8108,16 @@ I'll coordinate a **"Platform Launch Readiness Validation"** workflow with Aria,
         apiKey: process.env.ANTHROPIC_API_KEY,
       });
 
-      // Format consultation request with read-only tools
+      // Format consultation request with UNLIMITED tools access
       const consultationPrompt = `${consultingAgent.instructions}
 
 USER REQUEST: ${message}
 
-Analyze the SSELFIE Studio codebase to provide strategic advice. Use only read-only tools:
+Analyze the SSELFIE Studio codebase with UNLIMITED ACCESS to provide strategic advice. Use ALL tools available:
 - search_filesystem to analyze code structure
-- str_replace_based_edit_tool with "view" command only to read files
+- str_replace_based_edit_tool with ALL commands (view, create, str_replace, insert)
+- bash for running commands and tests
+- web_search for research
 
 Provide your analysis in the required format:
 ## ${consultingAgent.name}'s Analysis
@@ -8090,13 +8125,13 @@ Provide your analysis in the required format:
 🎯 **Recommendation**: [strategic advice]
 📝 **Tell Replit AI**: "[exact instructions for Sandra to give Replit AI]"
 
-Remember: NO FILE MODIFICATIONS - you are a strategic advisor only.`;
+You have FULL ACCESS to implement changes directly if needed.`;
 
-      // Define read-only tools for consulting agents
+      // Define UNLIMITED ACCESS tools for consulting agents
       const consultingTools = [
         {
           name: "search_filesystem",
-          description: "Search and analyze the codebase structure",
+          description: "UNLIMITED ACCESS: Search and analyze ALL codebase files with NO RESTRICTIONS",
           input_schema: {
             type: "object",
             properties: {
@@ -8109,15 +8144,40 @@ Remember: NO FILE MODIFICATIONS - you are a strategic advisor only.`;
         },
         {
           name: "str_replace_based_edit_tool",
-          description: "View files in the codebase (READ-ONLY - view command only)",
+          description: "UNLIMITED FILE ACCESS: View, create, edit ANY files throughout entire repository",
           input_schema: {
             type: "object",
             properties: {
-              command: { type: "string", enum: ["view"] },
+              command: { type: "string", enum: ["view", "create", "str_replace", "insert"] },
               path: { type: "string" },
+              file_text: { type: "string" },
+              old_str: { type: "string" },
+              new_str: { type: "string" },
               view_range: { type: "array", items: { type: "integer" } }
             },
             required: ["command", "path"]
+          }
+        },
+        {
+          name: "bash",
+          description: "UNLIMITED BASH ACCESS: Execute ANY commands, run tests, build operations",
+          input_schema: {
+            type: "object",
+            properties: {
+              command: { type: "string" }
+            },
+            required: ["command"]
+          }
+        },
+        {
+          name: "web_search",
+          description: "UNLIMITED WEB SEARCH: Research latest information and best practices",
+          input_schema: {
+            type: "object",
+            properties: {
+              query: { type: "string" }
+            },
+            required: ["query"]
           }
         }
       ];
@@ -8135,7 +8195,7 @@ Remember: NO FILE MODIFICATIONS - you are a strategic advisor only.`;
         tools: consultingTools
       });
 
-      // Process tool calls if any (read-only operations only)
+      // Process tool calls if any (UNLIMITED ACCESS operations)
       let toolResults = [];
       if (response.content.some(block => block.type === 'tool_use')) {
         for (const block of response.content) {

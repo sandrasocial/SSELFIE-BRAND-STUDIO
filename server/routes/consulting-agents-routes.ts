@@ -42,14 +42,14 @@ router.post('/admin/consulting-chat', async (req, res) => {
       });
     }
 
-    console.log(`🔍 CONSULTING ${agent.name.toUpperCase()}: Starting read-only analysis`);
+    console.log(`🔍 CONSULTING ${agent.name.toUpperCase()}: Starting UNLIMITED ACCESS analysis`);
 
-    // Create read-only tool configuration for consulting agents
+    // Create UNLIMITED tool configuration for consulting agents
     const consultingToolConfig = {
       tools: [
         {
           name: "search_filesystem",
-          description: "Search and analyze codebase structure and files (read-only access)",
+          description: "UNLIMITED ACCESS: Search and analyze ALL codebase files with NO RESTRICTIONS",
           input_schema: {
             type: "object",
             properties: {
@@ -77,18 +77,30 @@ router.post('/admin/consulting-chat', async (req, res) => {
         },
         {
           name: "str_replace_based_edit_tool",
-          description: "View file contents (READ-ONLY - view command only)",
+          description: "UNLIMITED FILE ACCESS: View, create, edit ANY files throughout entire repository",
           input_schema: {
             type: "object",
             properties: {
               command: {
                 type: "string",
-                enum: ["view"],
-                description: "Only 'view' command allowed for consulting agents"
+                enum: ["view", "create", "str_replace", "insert"],
+                description: "ALL commands allowed for consulting agents - complete file access"
               },
               path: {
                 type: "string",
-                description: "Path to file to view"
+                description: "Path to file for any operation"
+              },
+              file_text: {
+                type: "string",
+                description: "Complete text content for create command"
+              },
+              old_str: {
+                type: "string",
+                description: "Exact string to replace for str_replace command"
+              },
+              new_str: {
+                type: "string",
+                description: "New string to replace with for str_replace command"
               },
               view_range: {
                 type: "array",
@@ -97,6 +109,34 @@ router.post('/admin/consulting-chat', async (req, res) => {
               }
             },
             required: ["command", "path"]
+          }
+        },
+        {
+          name: "bash",
+          description: "UNLIMITED BASH ACCESS: Execute ANY commands, run tests, build operations",
+          input_schema: {
+            type: "object",
+            properties: {
+              command: {
+                type: "string",
+                description: "Any bash command to execute"
+              }
+            },
+            required: ["command"]
+          }
+        },
+        {
+          name: "web_search",
+          description: "UNLIMITED WEB SEARCH: Research latest information and best practices",
+          input_schema: {
+            type: "object",
+            properties: {
+              query: {
+                type: "string",
+                description: "Search query for web research"
+              }
+            },
+            required: ["query"]
           }
         }
       ]
@@ -130,7 +170,7 @@ IMPORTANT: Provide your analysis in this exact format:
     let agentResponse = '';
     let toolResults = [];
 
-    // Handle tool execution (read-only)
+    // Handle tool execution (UNLIMITED ACCESS)
     if (response.content) {
       for (const contentBlock of response.content) {
         if (contentBlock.type === 'text') {
@@ -146,12 +186,17 @@ IMPORTANT: Provide your analysis in this exact format:
               toolResult = await search_filesystem(contentBlock.input);
             } else if (contentBlock.name === 'str_replace_based_edit_tool') {
               const input = contentBlock.input as any;
-              // Enforce read-only access - only allow view command
-              if (input.command !== 'view') {
-                throw new Error('Consulting agents can only use view command - no file modifications allowed');
-              }
+              // UNLIMITED ACCESS - ALL commands allowed
               const { str_replace_based_edit_tool } = await import('../tools/str_replace_based_edit_tool');
               toolResult = await str_replace_based_edit_tool(input);
+            } else if (contentBlock.name === 'bash') {
+              const input = contentBlock.input as any;
+              const { bash } = await import('../tools/bash');
+              toolResult = await bash(input);
+            } else if (contentBlock.name === 'web_search') {
+              const input = contentBlock.input as any;
+              const { web_search } = await import('../tools/web_search');
+              toolResult = await web_search(input);
             }
             
             console.log(`✅ CONSULTING ${agent.name.toUpperCase()} TOOL RESULT: Success`);
