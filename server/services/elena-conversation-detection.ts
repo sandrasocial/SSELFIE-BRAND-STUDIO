@@ -56,6 +56,15 @@ export class ElenaConversationDetectionService {
       /I need\s+(\w+)\s+to\s+(.+)/gi,
       /(\w+)\s+will\s+handle\s+(.+)/gi,
       /I'll assign\s+(\w+)\s+to\s+(.+)/gi,
+      /I've started coordinating the (.*?) workflow/gi,
+      /I've started coordinating (.*?) (?:and|with) (.*?)/gi,
+      /started coordinating the (.*?) workflow/gi,
+      /coordinating the (.*?) workflow/gi,
+      /I'm on it.*coordinating.*workflow/gi,
+      /agents are actively making.*changes/gi,
+      /making sure everything stays in sync/gi,
+      /I'm coordinating (.*?) (?:and|with) (.*?)/gi,
+      /coordinate (.*?) (?:and|with) (.*?) to (.*)/gi
     ];
 
     // Task delegation patterns

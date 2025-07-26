@@ -56,6 +56,8 @@
     font-size: clamp(2.75rem, 9vw, 7rem);
     text-transform: uppercase;
     color: var(--luxury-black);
+    -webkit-font-smoothing: antialiased;
+    font-feature-settings: "liga" 1, "kern" 1;
   }
 
   .editorial-headline {
@@ -104,11 +106,25 @@
 @layer components {
   /* Editorial Hover Effects - SSELFIE Signature */
   .editorial-hover {
-    transition: transform 1200ms cubic-bezier(0.19, 1, 0.22, 1);
+    transition: all 1200ms cubic-bezier(0.19, 1, 0.22, 1);
+    position: relative;
   }
 
   .editorial-hover:hover {
-    transform: scale(1.05);
+    transform: scale(1.02);
+  }
+  
+  .editorial-hover::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(to bottom, transparent 0%, rgba(0,0,0,0.02) 100%);
+    opacity: 0;
+    transition: opacity 800ms ease;
+  }
+
+  .editorial-hover:hover::after {
+    opacity: 1;
   }
 
   /* Navigation subtle hover effects */
