@@ -160,7 +160,7 @@ export class ElenaWorkflowSystem {
       { name: 'zara', pattern: /\*\*Zara[^*]*?\*\*[^*]*?([^*]+?)(?:\*\*|$)/gis },
       { name: 'maya', pattern: /\*\*Maya[^*]*?\*\*[^*]*?([^*]+?)(?:\*\*|$)/gis },
       { name: 'rachel', pattern: /\*\*Rachel[^*]*?\*\*[^*]*?([^*]+?)(?:\*\*|$)/gis },
-      { name: 'quinn', pattern: /\*\*Quinn[^*]*?\*\*[^*]*?([^*]+?)(?:\*\*|$)/gis
+      { name: 'quinn', pattern: /\*\*Quinn[^*]*?\*\*[^*]*?([^*]+?)(?:\*\*|$)/gis }
     ];
     
     agentSections.forEach(({ name, pattern }) => {
