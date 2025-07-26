@@ -4,7 +4,7 @@
  */
 
 import { Router } from 'express';
-import { workflowDetectionService } from '../../services/workflow-detection-service';
+import { elenaWorkflowDetectionService } from '../../services/elena-workflow-detection-service';
 
 const router = Router();
 
@@ -43,7 +43,7 @@ router.get('/staged-workflows', validateElenaAccess, async (req, res) => {
   try {
     console.log('🔍 ELENA STAGED WORKFLOW AUTH: Checking authentication');
     
-    const workflows = workflowDetectionService.getStagedWorkflows();
+    const workflows = elenaWorkflowDetectionService.getStagedWorkflows();
     
     console.log(`📋 STAGED WORKFLOWS: Found ${workflows.length} workflows ready for manual execution`);
     
@@ -71,7 +71,7 @@ router.get('/executed-workflows', validateElenaAccess, async (req, res) => {
   try {
     console.log('🔍 ELENA EXECUTED WORKFLOWS: Retrieving workflow history');
     
-    const executedWorkflows = workflowDetectionService.getExecutedWorkflows();
+    const executedWorkflows = elenaWorkflowDetectionService.getExecutedWorkflows();
     
     console.log(`📋 EXECUTED WORKFLOWS: Found ${executedWorkflows.length} workflows in history`);
     
@@ -108,7 +108,7 @@ router.post('/execute-staged-workflow/:id', validateElenaAccess, async (req, res
 
     console.log(`🚀 ELENA WORKFLOW EXECUTION: Starting workflow ${id}`);
     
-    const result = await workflowDetectionService.executeWorkflow(id);
+    const result = await elenaWorkflowDetectionService.executeWorkflow(id);
     
     if (result.success) {
       console.log(`✅ ELENA WORKFLOW EXECUTED: ${id} - ${result.message}`);
@@ -141,7 +141,7 @@ router.delete('/workflow/:id', validateElenaAccess, async (req, res) => {
   try {
     const { id } = req.params;
     
-    const removed = workflowDetectionService.removeWorkflow(id);
+    const removed = elenaWorkflowDetectionService.removeWorkflow(id);
     
     if (removed) {
       console.log(`🗑️ ELENA WORKFLOW REMOVED: ${id}`);
@@ -174,7 +174,7 @@ router.delete('/workflow/:id', validateElenaAccess, async (req, res) => {
 router.get('/workflow-status/:id', validateElenaAccess, async (req, res) => {
   try {
     const { id } = req.params;
-    const workflow = workflowDetectionService.getWorkflow(id);
+    const workflow = elenaWorkflowDetectionService.getWorkflow(id);
     
     if (workflow) {
       res.json({
@@ -213,7 +213,13 @@ router.post('/test-workflow-detection', validateElenaAccess, async (req, res) =>
       });
     }
 
-    const analysis = workflowDetectionService.detectWorkflowCreation(message, 'test-conversation');
+    const analysis = elenaWorkflowDetectionService.analyzeConversation(message, 'elena');
+    
+    // If workflow detected, stage it automatically
+    if (analysis.hasWorkflow && analysis.workflow) {
+      console.log('✅ WORKFLOW DETECTED: Staging for Agent Activity dashboard');
+      elenaWorkflowDetectionService.stageWorkflow(analysis.workflow);
+    }
     
     res.json({
       success: true,
@@ -226,6 +232,28 @@ router.post('/test-workflow-detection', validateElenaAccess, async (req, res) =>
     res.status(500).json({
       success: false,
       error: 'Failed to test workflow detection',
+      details: error.message
+    });
+  }
+});
+
+router.post('/create-test-workflow', validateElenaAccess, async (req, res) => {
+  try {
+    console.log('🧪 CREATING TEST WORKFLOW for Agent Activity dashboard');
+    
+    const testWorkflow = elenaWorkflowDetectionService.createTestWorkflow();
+    
+    res.json({
+      success: true,
+      workflow: testWorkflow,
+      message: 'Test workflow created and staged for Agent Activity dashboard',
+      timestamp: new Date().toISOString()
+    });
+  } catch (error) {
+    console.error('❌ CREATE TEST WORKFLOW ERROR:', error);
+    res.status(500).json({
+      success: false,
+      error: 'Failed to create test workflow',
       details: error.message
     });
   }
