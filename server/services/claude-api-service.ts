@@ -439,6 +439,21 @@ export class ClaudeApiService {
       console.log('💾 Saving assistant message to database:', assistantMessage.length, 'characters');
       console.log('💾 Assistant message preview:', assistantMessage.substring(0, 200) + '...');
       await this.saveMessage(conversationId, 'assistant', assistantMessage);
+      
+      // ELENA WORKFLOW DETECTION: Analyze Elena's response for workflow patterns (main path)
+      if (agentName === 'elena' && assistantMessage) {
+        try {
+          const { elenaWorkflowDetectionService } = await import('../services/elena-workflow-detection-service');
+          const analysis = elenaWorkflowDetectionService.analyzeConversation(assistantMessage, 'elena');
+          
+          if (analysis.hasWorkflow && analysis.workflow) {
+            elenaWorkflowDetectionService.stageWorkflow(analysis.workflow);
+            console.log(`🎯 ELENA WORKFLOW AUTO-STAGED: ${analysis.workflow.title} (${analysis.confidence} confidence)`);
+          }
+        } catch (error) {
+          console.error('❌ ELENA WORKFLOW DETECTION ERROR:', error);
+        }
+      }
 
       // Update agent learning with new patterns
       await this.updateAgentLearning(agentName, userId, userMessage, assistantMessage);
@@ -1172,6 +1187,21 @@ COMMUNICATION STYLE:
         console.log(`   Block ${i}: type=${block.type}, length=${block.type === 'text' ? block.text?.length : 'N/A'}`);
       });
       console.log(`📝 FINAL RESPONSE PREVIEW: ${finalResponse.substring(0, 200)}...`);
+      
+      // ELENA WORKFLOW DETECTION: Analyze Elena's response for workflow patterns
+      if (agentName === 'elena' && finalResponse) {
+        try {
+          const { elenaWorkflowDetectionService } = await import('../services/elena-workflow-detection-service');
+          const analysis = elenaWorkflowDetectionService.analyzeConversation(finalResponse, 'elena');
+          
+          if (analysis.hasWorkflow && analysis.workflow) {
+            elenaWorkflowDetectionService.stageWorkflow(analysis.workflow);
+            console.log(`🎯 ELENA WORKFLOW AUTO-STAGED: ${analysis.workflow.title} (${analysis.confidence} confidence)`);
+          }
+        } catch (error) {
+          console.error('❌ ELENA WORKFLOW DETECTION ERROR:', error);
+        }
+      }
       
       // If still no response after tool usage, provide a default response
       if (!finalResponse.trim()) {
