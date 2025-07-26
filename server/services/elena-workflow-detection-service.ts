@@ -307,7 +307,7 @@ class ElenaWorkflowDetectionService {
           
           // Execute real agent via Claude API service
           const { claudeApiService } = await import('../services/claude-api-service');
-          const agentResult = await claudeApiService.sendMessage(
+          const agentResponse = await claudeApiService.sendMessage(
             'admin-sandra', // userId for admin
             agent,
             `elena-workflow-${workflowId}-${agent}`, // conversationId
@@ -317,8 +317,9 @@ class ElenaWorkflowDetectionService {
             true // fileEditMode for autonomous execution
           );
           
-          if (agentResult.success) {
-            console.log(`✅ AGENT ${agent.toUpperCase()} COMPLETED: ${agentResult.message?.substring(0, 100)}...`);
+          // sendMessage returns the response string directly, not an object
+          if (agentResponse && typeof agentResponse === 'string' && agentResponse.length > 0) {
+            console.log(`✅ AGENT ${agent.toUpperCase()} COMPLETED: ${agentResponse.substring(0, 100)}...`);
             executionResults.push(`✅ ${agent}: Task completed successfully`);
             
             // Mark task as completed in intelligent task distributor
@@ -326,8 +327,8 @@ class ElenaWorkflowDetectionService {
               await intelligentTaskDistributor.completeTask(taskId, true);
             }
           } else {
-            console.log(`❌ AGENT ${agent.toUpperCase()} FAILED: ${agentResult.error}`);
-            executionResults.push(`❌ ${agent}: ${agentResult.error}`);
+            console.log(`❌ AGENT ${agent.toUpperCase()} FAILED: No response received`);
+            executionResults.push(`❌ ${agent}: No response received`);
             
             // Mark task as failed in intelligent task distributor
             if (taskId) {

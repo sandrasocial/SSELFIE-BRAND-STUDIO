@@ -43,7 +43,14 @@ router.get('/staged-workflows', validateElenaAccess, async (req, res) => {
   try {
     console.log('🔍 ELENA STAGED WORKFLOW AUTH: Checking authentication');
     
-    const workflows = elenaWorkflowDetectionService.getStagedWorkflows();
+    // Import both services to ensure we catch all staged workflows
+    const { elenaConversationDetection } = await import('../../services/elena-conversation-detection');
+    
+    // Get workflows from both services
+    const detectionServiceWorkflows = elenaWorkflowDetectionService.getStagedWorkflows();
+    const conversationServiceWorkflows = elenaConversationDetection.getStagedWorkflows();
+    
+    const workflows = [...detectionServiceWorkflows, ...conversationServiceWorkflows];
     
     console.log(`📋 STAGED WORKFLOWS: Found ${workflows.length} workflows ready for manual execution`);
     

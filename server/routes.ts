@@ -5574,13 +5574,18 @@ Workflow Stage: ${savedMemory.workflowStage || 'None'}
             const detectedWorkflow = elenaConversationDetection.detectWorkflowFromConversation(agentResponse, message);
             
             if (detectedWorkflow) {
-              console.log(`🎯 ELENA WORKFLOW DETECTED: "${detectedWorkflow.name}" staged for manual execution`);
+              console.log(`🎯 ELENA WORKFLOW DETECTED: "${detectedWorkflow.name}" staging for manual execution`);
               console.log(`📋 WORKFLOW DETAILS:`, {
                 id: detectedWorkflow.id,
                 agents: detectedWorkflow.tasks.map(t => t.agentId).join(', '),
                 priority: detectedWorkflow.priority,
                 tasks: detectedWorkflow.tasks.length
               });
+              
+              // Stage the workflow for manual execution
+              const { elenaWorkflowDetectionService } = await import('./services/elena-workflow-detection-service');
+              elenaWorkflowDetectionService.stageWorkflow(detectedWorkflow);
+              console.log('📋 WORKFLOW STAGED: Ready for manual execution in Agent Activity Dashboard');
             } else {
               console.log('📝 ELENA RESPONSE: No workflow patterns detected in conversation');
             }
