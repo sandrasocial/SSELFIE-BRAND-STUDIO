@@ -1,4 +1,4 @@
-import { AgentPersonality } from '../types/agent-types';
+import { v4 as uuidv4 } from 'uuid';
 
 export interface WorkflowDetection {
   id: string;
@@ -8,67 +8,71 @@ export interface WorkflowDetection {
   type: 'coordination' | 'implementation' | 'emergency' | 'workflow';
   timestamp: Date;
   status: 'staged' | 'executing' | 'completed' | 'failed';
-  elenaMessage: string;
+  results?: any[];
 }
 
 export class ElenaWorkflowDetector {
-  private stagedWorkflows: Map<string, WorkflowDetection> = new Map();
-  
-  private readonly WORKFLOW_PATTERNS = [
+  private workflows: Map<string, WorkflowDetection> = new Map();
+
+  // Detection patterns for Elena coordination language
+  private detectionPatterns = [
     {
-      pattern: /coordinate\s+([^.]+?)\s+(?:to|and)\s+([^.]+)/i,
+      pattern: /coordinate\s+([^\.]+?)\s+(?:to|and)\s+([^\.]+)/gi,
       type: 'coordination' as const,
       priority: 'high' as const
     },
     {
-      pattern: /(aria|zara|victoria|elena|maya|sophie|luna|kai|nova|phoenix|sage|raven|ember)\s+(?:create|build|implement|fix|deploy)\s+([^.]+)/i,
+      pattern: /(aria|zara|victoria|elena|maya|sophie|luna|kai|nova|phoenix|sage|raven|ember)\s+(create|build|implement|fix|deploy)\s+([^\.]+)/gi,
       type: 'implementation' as const,
       priority: 'medium' as const
     },
     {
-      pattern: /CRITICAL\s+([^.]+)/i,
+      pattern: /CRITICAL|URGENT|IMMEDIATE|EMERGENCY/gi,
       type: 'emergency' as const,
       priority: 'critical' as const
     },
     {
-      pattern: /elena\s+workflow\s+([^.]+)/i,
+      pattern: /workflow\s+(create|execute|deploy|build)/gi,
       type: 'workflow' as const,
       priority: 'high' as const
     }
   ];
 
-  detectWorkflow(message: string): WorkflowDetection | null {
-    console.log('🔍 ELENA WORKFLOW DETECTION: Analyzing message:', message);
-    
-    for (const { pattern, type, priority } of this.WORKFLOW_PATTERNS) {
-      const match = message.match(pattern);
-      if (match) {
-        console.log('✅ WORKFLOW PATTERN MATCHED:', type, pattern);
-        
-        const agents = this.extractAgents(message);
-        const task = this.extractTask(message, match);
-        
-        const workflow: WorkflowDetection = {
-          id: this.generateWorkflowId(),
-          agents,
-          task,
-          priority,
-          type,
-          timestamp: new Date(),
-          status: 'staged',
-          elenaMessage: message
-        };
+  private agentNames = [
+    'aria', 'zara', 'victoria', 'elena', 'maya', 'sophie', 
+    'luna', 'kai', 'nova', 'phoenix', 'sage', 'raven', 'ember'
+  ];
 
-        this.stagedWorkflows.set(workflow.id, workflow);
+  detectWorkflow(message: string): WorkflowDetection | null {
+    console.log('🔍 ELENA WORKFLOW DETECTION:', message.substring(0, 100));
+
+    // Check for workflow patterns
+    for (const patternConfig of this.detectionPatterns) {
+      const matches = Array.from(message.matchAll(patternConfig.pattern));
+      
+      if (matches.length > 0) {
+        const agents = this.extractAgents(message);
+        const task = this.extractTask(message, matches[0]);
         
-        console.log('🎯 ELENA WORKFLOW DETECTED:', {
-          id: workflow.id,
-          agents: workflow.agents,
-          task: workflow.task,
-          priority: workflow.priority
-        });
-        
-        return workflow;
+        if (agents.length > 0) {
+          const workflow: WorkflowDetection = {
+            id: uuidv4(),
+            agents,
+            task,
+            priority: patternConfig.priority,
+            type: patternConfig.type,
+            timestamp: new Date(),
+            status: 'staged'
+          };
+
+          this.workflows.set(workflow.id, workflow);
+          
+          console.log('✅ ELENA WORKFLOW CREATED:', agents.length, 'agents,', agents.join(', '));
+          console.log('🎯 ELENA WORKFLOW DETECTED: staging for manual execution');
+          console.log('📋 WORKFLOW DETAILS:', `agents: ${agents.join(', ')}, priority: ${workflow.priority}`);
+          
+          return workflow;
+        }
       }
     }
 
@@ -76,106 +80,92 @@ export class ElenaWorkflowDetector {
   }
 
   private extractAgents(message: string): string[] {
-    const agentNames = ['aria', 'zara', 'victoria', 'elena', 'maya', 'sophie', 'luna', 'kai', 'nova', 'phoenix', 'sage', 'raven', 'ember'];
-    const foundAgents: string[] = [];
-    
+    const agents: string[] = [];
     const lowerMessage = message.toLowerCase();
-    for (const agent of agentNames) {
+
+    for (const agent of this.agentNames) {
       if (lowerMessage.includes(agent)) {
-        foundAgents.push(agent);
+        agents.push(agent);
       }
     }
-    
-    return foundAgents.length > 0 ? foundAgents : ['elena'];
+
+    return [...new Set(agents)]; // Remove duplicates
   }
 
   private extractTask(message: string, match: RegExpMatchArray): string {
-    // Extract meaningful task description from the matched pattern
-    if (match[1]) {
-      return match[1].trim();
+    // Extract task from the match or use the full message context
+    if (match.length > 3) {
+      return match[3].trim();
     }
     
-    // Fallback: extract everything after action words
-    const actionMatch = message.match(/(?:create|build|implement|fix|deploy|coordinate)\s+(.+)/i);
-    return actionMatch ? actionMatch[1].trim() : 'workflow task';
+    // Fallback: extract task after common action words
+    const taskMatch = message.match(/(?:create|build|implement|fix|deploy|coordinate.*?to)\s+([^\.]+)/i);
+    return taskMatch ? taskMatch[1].trim() : message.substring(0, 100);
   }
 
-  private generateWorkflowId(): string {
-    return `workflow_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
-  }
-
-  // Dashboard integration methods
+  // Workflow management methods
   getStagedWorkflows(): WorkflowDetection[] {
-    return Array.from(this.stagedWorkflows.values())
-      .filter(w => w.status === 'staged')
-      .sort((a, b) => b.timestamp.getTime() - a.timestamp.getTime());
+    return Array.from(this.workflows.values()).filter(w => w.status === 'staged');
   }
 
   getWorkflow(id: string): WorkflowDetection | undefined {
-    return this.stagedWorkflows.get(id);
+    return this.workflows.get(id);
   }
 
-  updateWorkflowStatus(id: string, status: WorkflowDetection['status']): boolean {
-    const workflow = this.stagedWorkflows.get(id);
+  updateWorkflowStatus(id: string, status: WorkflowDetection['status'], results?: any[]): boolean {
+    const workflow = this.workflows.get(id);
     if (workflow) {
       workflow.status = status;
-      console.log(`📋 WORKFLOW ${id} STATUS UPDATED:`, status);
+      if (results) {
+        workflow.results = results;
+      }
       return true;
     }
     return false;
   }
 
   getAllWorkflows(): WorkflowDetection[] {
-    return Array.from(this.stagedWorkflows.values())
-      .sort((a, b) => b.timestamp.getTime() - a.timestamp.getTime());
+    return Array.from(this.workflows.values());
   }
 
-  // Execute workflow with multiple agents
-  async executeWorkflow(id: string): Promise<{ success: boolean; results: any[] }> {
-    const workflow = this.getWorkflow(id);
-    if (!workflow) {
-      return { success: false, results: [] };
-    }
+  // Execute workflow (integrate with agent deployment)
+  async executeWorkflow(id: string): Promise<boolean> {
+    const workflow = this.workflows.get(id);
+    if (!workflow) return false;
 
-    this.updateWorkflowStatus(id, 'executing');
+    console.log('🚀 EXECUTING ELENA WORKFLOW:', workflow.id);
+    console.log('👥 DEPLOYING AGENTS:', workflow.agents.join(', '));
     
-    console.log('🚀 EXECUTING ELENA WORKFLOW:', {
-      id: workflow.id,
-      agents: workflow.agents,
-      task: workflow.task
-    });
+    this.updateWorkflowStatus(id, 'executing');
 
+    try {
+      // TODO: Integrate with actual agent deployment system
+      const results = await this.deployAgents(workflow.agents, workflow.task);
+      this.updateWorkflowStatus(id, 'completed', results);
+      
+      console.log('✅ ELENA WORKFLOW COMPLETED:', workflow.id);
+      return true;
+    } catch (error) {
+      console.error('❌ ELENA WORKFLOW FAILED:', error);
+      this.updateWorkflowStatus(id, 'failed');
+      return false;
+    }
+  }
+
+  private async deployAgents(agents: string[], task: string): Promise<any[]> {
+    // Placeholder for agent deployment logic
+    // This will integrate with existing agent chat endpoints
     const results = [];
     
-    try {
-      // Deploy agents for workflow execution
-      for (const agentName of workflow.agents) {
-        const result = await this.deployAgent(agentName, workflow.task);
-        results.push(result);
-      }
-      
-      this.updateWorkflowStatus(id, 'completed');
-      return { success: true, results };
-    } catch (error) {
-      console.error('❌ WORKFLOW EXECUTION FAILED:', error);
-      this.updateWorkflowStatus(id, 'failed');
-      return { success: false, results };
+    for (const agent of agents) {
+      console.log(`🎯 DEPLOYING AGENT: ${agent} for task: ${task}`);
+      // TODO: Call agent deployment endpoint
+      results.push({ agent, status: 'deployed', task });
     }
-  }
-
-  private async deployAgent(agentName: string, task: string): Promise<any> {
-    console.log(`🤖 DEPLOYING AGENT ${agentName.toUpperCase()} for task:`, task);
     
-    // This would integrate with the actual agent deployment system
-    // For now, return a success indicator
-    return {
-      agent: agentName,
-      task,
-      status: 'deployed',
-      timestamp: new Date()
-    };
+    return results;
   }
 }
 
-// Export singleton instance
+// Singleton instance for application-wide use
 export const elenaWorkflowDetector = new ElenaWorkflowDetector();
