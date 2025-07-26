@@ -82,92 +82,9 @@ export default function AgentActivityDashboard() {
     refetchInterval: 2000
   });
 
-  const triggerLaunchReadiness = async () => {
-    try {
-      const response = await fetch('/api/autonomous-orchestrator/deploy-all-agents', {
-        method: 'POST',
-        headers: { 
-          'Content-Type': 'application/json',
-          'Authorization': 'Bearer sandra-admin-2025'
-        },
-        body: JSON.stringify({
-          missionType: 'launch-readiness',
-          priority: 'critical',
-          estimatedDuration: 180,
-          customRequirements: ["Launch readiness audit", "Performance optimization", "User experience validation", "Security assessment"]
-        })
-      });
-      
-      const result = await response.json();
-      
-      if (result.success) {
-        setSelectedDeployment(result.deploymentId);
-        setTimeout(() => refreshAll(), 1000);
-        alert(`🚀 LAUNCH READINESS PROTOCOL ACTIVATED\n\nElena is coordinating specialized agents for comprehensive launch audit:\n• Technical performance review\n• User experience validation\n• Security and stability assessment\n• Final deployment readiness\n\nDeployment: ${result.deploymentId.split('-')[1]}\nEstimated Duration: 3 hours\n\nView progress in Active Deployments tab.`);
-      }
-    } catch (error: any) {
-      alert(`❌ Protocol Error: ${error.message}`);
-    }
-  };
 
-  const triggerDesignAudit = async () => {
-    try {
-      const response = await fetch('/api/autonomous-orchestrator/deploy-all-agents', {
-        method: 'POST',
-        headers: { 
-          'Content-Type': 'application/json',
-          'Authorization': 'Bearer sandra-admin-2025'
-        },
-        body: JSON.stringify({
-          missionType: 'design-audit',
-          priority: 'high',
-          estimatedDuration: 120,
-          customRequirements: ["Luxury design consistency audit", "Times New Roman typography validation", "Editorial layout optimization", "Brand alignment review"]
-        })
-      });
-      
-      const result = await response.json();
-      
-      if (result.success) {
-        setSelectedDeployment(result.deploymentId);
-        setTimeout(() => refreshAll(), 1000);
-        alert(`🎨 DESIGN AUDIT PROTOCOL ACTIVATED\n\nElena is coordinating Aria and design specialists for luxury brand audit:\n• Editorial design consistency\n• Typography and layout optimization\n• Brand alignment validation\n• Luxury aesthetic enhancement\n\nDeployment: ${result.deploymentId.split('-')[1]}\nEstimated Duration: 2 hours\n\nView progress in Active Deployments tab.`);
-      }
-    } catch (error) {
-      alert(`❌ Protocol Error: ${error.message}`);
-    }
-  };
 
-  const triggerCustomMission = async () => {
-    const mission = prompt("Enter custom mission requirements (comma-separated):");
-    if (!mission) return;
-    
-    try {
-      const response = await fetch('/api/autonomous-orchestrator/deploy-all-agents', {
-        method: 'POST',
-        headers: { 
-          'Content-Type': 'application/json',
-          'Authorization': 'Bearer sandra-admin-2025'
-        },
-        body: JSON.stringify({
-          missionType: 'custom',
-          priority: 'medium',
-          estimatedDuration: 90,
-          customRequirements: mission.split(',').map(req => req.trim())
-        })
-      });
-      
-      const result = await response.json();
-      
-      if (result.success) {
-        setSelectedDeployment(result.deploymentId);
-        setTimeout(() => refreshAll(), 1000);
-        alert(`🎯 CUSTOM MISSION PROTOCOL ACTIVATED\n\nElena is analyzing requirements and deploying optimal agents:\n${mission.split(',').map(req => `• ${req.trim()}`).join('\n')}\n\nDeployment: ${result.deploymentId.split('-')[1]}\nEstimated Duration: 1.5 hours\n\nView progress in Active Deployments tab.`);
-      }
-    } catch (error) {
-      alert(`❌ Protocol Error: ${error.message}`);
-    }
-  };
+
 
   if (isLoading) {
     return (
@@ -273,46 +190,7 @@ export default function AgentActivityDashboard() {
           </Card>
         </div>
 
-        {/* LAUNCH READINESS PROTOCOL */}
-        <Card className="mb-8 border-zinc-200">
-          <CardHeader>
-            <CardTitle className="font-times text-2xl tracking-wide text-zinc-900">
-              E L E N A  W O R K F L O W  P R O T O C O L S
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-zinc-700 mb-2">
-                  Trigger Elena to create and execute coordinated multi-agent workflows for specialized missions
-                </p>
-                <p className="text-sm text-zinc-500">
-                  Launch Readiness • Design Audit • Custom Missions • Real-time progress tracking
-                </p>
-              </div>
-              <div className="flex gap-3">
-                <Button 
-                  onClick={triggerLaunchReadiness}
-                  className="bg-black text-white hover:bg-zinc-800 px-6 py-2"
-                >
-                  Launch Readiness
-                </Button>
-                <Button 
-                  onClick={triggerDesignAudit}
-                  className="bg-zinc-800 text-white hover:bg-black px-6 py-2"
-                >
-                  Design Audit
-                </Button>
-                <Button 
-                  onClick={triggerCustomMission}
-                  className="border border-zinc-300 text-black hover:bg-zinc-50 px-6 py-2"
-                >
-                  Custom Mission
-                </Button>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
+
 
         <Tabs defaultValue="deployments" className="space-y-6">
           <TabsList className="grid w-full grid-cols-3">
