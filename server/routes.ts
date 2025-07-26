@@ -5186,10 +5186,30 @@ Starting analysis and implementation now...`;
       console.log(`🤖 Admin Agent Chat: ${agentId} - "${message?.substring(0, 50)}..."`);
       console.log('🔥 SANDRA REQUIREMENT: NO FALLBACKS - CLAUDE API ONLY');
       
-      // ELENA WORKFLOW DETECTION INTEGRATION - ANALYZE ELENA'S RESPONSE FOR COORDINATION PATTERNS
-      let shouldAnalyzeElenaResponse = false;
+      // ELENA WORKFLOW DETECTION INTEGRATION - ANALYZE ELENA'S MESSAGE FOR COMPLEX COORDINATION
+      let shouldAnalyzeElenaResponse = false;  
+      let detectedWorkflow = null;
+      
       if (agentId === 'elena') {
-        console.log('🧠 ELENA DETECTED: Will analyze response for workflow patterns after generation');
+        console.log('🧠 ELENA DETECTED: Analyzing message for complex workflow patterns');
+        
+        // Import and use Elena workflow detection service
+        const ElenaWorkflowDetectionService = (await import('./services/elena-workflow-detection-service')).default;
+        const workflowService = ElenaWorkflowDetectionService.getInstance();
+        
+        // Analyze the incoming message for workflow patterns
+        const workflowAnalysis = workflowService.analyzeConversation(message, agentId);
+        
+        if (workflowAnalysis.hasWorkflow && workflowAnalysis.workflow) {
+          detectedWorkflow = workflowAnalysis.workflow;
+          console.log(`✅ ELENA: Complex workflow detected - "${detectedWorkflow.title}" with ${detectedWorkflow.agents.length} agents`);
+          
+          // Save detected workflow to staging
+          workflowService.stageWorkflow(detectedWorkflow);
+        } else {
+          console.log('🔍 ELENA: No workflow patterns detected in message');
+        }
+        
         shouldAnalyzeElenaResponse = true;
       }
       
