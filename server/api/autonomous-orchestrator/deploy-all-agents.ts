@@ -4,6 +4,7 @@ import { intelligentTaskDistributor } from '../../services/intelligent-task-dist
 import { agentKnowledgeSharing } from '../../services/agent-knowledge-sharing';
 import { autonomousWorkflowTemplates } from '../../templates/workflow-templates';
 import { agentImplementationToolkit } from '../../tools/agent_implementation_toolkit';
+import fetch from 'node-fetch';
 // Admin authentication middleware with token support
 const adminAuth = (req: any, res: any, next: any) => {
   // Check for admin token first
@@ -41,6 +42,46 @@ const DeploymentExecutionSchema = z.object({
 // In-memory deployment tracking (in production, this would be database-backed)
 const activeDeployments = new Map<string, any>();
 const deploymentHistory = new Map<string, any>();
+
+/**
+ * Execute real agent task by calling the actual agent chat API
+ */
+async function executeRealAgentTask(agentName: string, taskTitle: string, taskDescription: string) {
+  try {
+    const response = await fetch('http://localhost:5000/api/admin/agents/chat', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': 'Bearer sandra-admin-2025'
+      },
+      body: JSON.stringify({
+        agentId: agentName.toLowerCase(),
+        message: `Execute autonomous task: ${taskTitle}\n\nDescription: ${taskDescription}\n\nPlease complete this task as part of the launch readiness protocol. Create or modify files as needed and provide a summary of your work.`,
+        fileEditMode: true
+      })
+    });
+
+    const result = await response.json();
+    
+    if (result.success) {
+      return {
+        success: true,
+        result: result.response,
+        filesModified: result.filesModified || []
+      };
+    } else {
+      return {
+        success: false,
+        error: result.error || 'Agent execution failed'
+      };
+    }
+  } catch (error) {
+    return {
+      success: false,
+      error: error instanceof Error ? error.message : 'Network error calling agent'
+    };
+  }
+}
 
 /**
  * Deploy all agents with coordinated mission
@@ -347,24 +388,46 @@ async function createCustomWorkflow(deploymentRequest: any): Promise<any> {
     category: 'development',
     estimatedDuration: deploymentRequest.estimatedDuration || 60,
     requiredAgents: deploymentRequest.targetAgents || ['elena', 'aria', 'zara'],
-    phases: [{
-      id: 'custom-phase',
-      name: 'Custom Mission Phase',
-      description: 'Execute custom mission requirements',
-      parallelExecution: true,
-      dependencies: [],
-      estimatedDuration: deploymentRequest.estimatedDuration || 60,
-      tasks: deploymentRequest.customRequirements?.map((req: string, index: number) => ({
-        id: `custom-task-${index}`,
-        title: req,
-        description: req,
-        priority: deploymentRequest.priority,
-        complexity: 'moderate',
-        requiredSkills: ['coordination'],
-        estimatedTime: 15,
-        dependencies: []
-      })) || []
-    }]
+    phases: [
+      {
+        id: 'custom-phase-1',
+        name: 'Custom Mission Phase 1',
+        description: 'Execute first phase of custom mission requirements',
+        parallelExecution: true,
+        dependencies: [],
+        estimatedDuration: (deploymentRequest.estimatedDuration || 60) / 2,
+        tasks: deploymentRequest.customRequirements?.filter((req: string, index: number) => index % 2 === 0).map((req: string, index: number) => ({
+          id: `custom-task-phase1-${index}`,
+          title: req,
+          description: req,
+          priority: deploymentRequest.priority,
+          complexity: 'moderate',
+          requiredSkills: ['coordination'],
+          estimatedTime: 15,
+          dependencies: [],
+          phaseIndex: 0
+        })) || []
+      },
+      {
+        id: 'custom-phase-2',
+        name: 'Custom Mission Phase 2',
+        description: 'Execute second phase of custom mission requirements',
+        parallelExecution: true,
+        dependencies: [],
+        estimatedDuration: (deploymentRequest.estimatedDuration || 60) / 2,
+        tasks: deploymentRequest.customRequirements?.filter((req: string, index: number) => index % 2 === 1).map((req: string, index: number) => ({
+          id: `custom-task-phase2-${index}`,
+          title: req,
+          description: req,
+          priority: deploymentRequest.priority,
+          complexity: 'moderate',
+          requiredSkills: ['coordination'],
+          estimatedTime: 15,
+          dependencies: [],
+          phaseIndex: 1
+        })) || []
+      }
+    ]
   };
 }
 
@@ -375,11 +438,17 @@ async function createDeploymentPlan(workflowTemplate: any, deploymentRequest: an
   const tasks = workflowTemplate.phases.flatMap((phase: any) => phase.tasks);
   const agentAssignments = [];
 
-  // Assign optimal agents to tasks
+  // Assign optimal agents to tasks and ensure proper phase assignment
   for (const task of tasks) {
     const assignment = await intelligentTaskDistributor.assignOptimalAgent(task);
+    // Ensure assignment has the task ID for linking
+    assignment.taskId = task.id;
+    // Preserve the phase index from the task
+    assignment.phaseIndex = task.phaseIndex || 0;
     agentAssignments.push(assignment);
   }
+
+  console.log(`🔥 DEPLOYMENT PLAN CREATED: ${tasks.length} tasks, ${agentAssignments.length} assignments`);
 
   return {
     tasks,
@@ -393,10 +462,15 @@ async function createDeploymentPlan(workflowTemplate: any, deploymentRequest: an
  * Execute deployment autonomously
  */
 async function executeDeployment(deploymentId: string): Promise<void> {
+  console.log(`🔥 EXECUTE DEPLOYMENT CALLED: ${deploymentId}`);
   const deployment = activeDeployments.get(deploymentId);
-  if (!deployment) return;
+  if (!deployment) {
+    console.log(`🔥 DEPLOYMENT NOT FOUND: ${deploymentId}`);
+    return;
+  }
 
   try {
+    console.log(`🔥 DEPLOYMENT FOUND, STARTING EXECUTION: ${deploymentId}`);
     deployment.status = 'active';
     deployment.logs.push(`🎯 Beginning autonomous execution of ${deployment.missionType} mission`);
 
@@ -408,6 +482,7 @@ async function executeDeployment(deploymentId: string): Promise<void> {
 
       // Execute phase tasks
       const phaseTasks = deployment.tasks.filter((task: any) => task.phaseIndex === phaseIndex);
+      console.log(`🔥 PHASE ${phaseIndex + 1} TASKS:`, phaseTasks.length);
       
       for (const task of phaseTasks) {
         if (deployment.status !== 'active') break;
@@ -416,15 +491,33 @@ async function executeDeployment(deploymentId: string): Promise<void> {
         if (assignment) {
           deployment.logs.push(`🤖 ${assignment.agentName} executing: ${task.title}`);
           
-          // Much longer task execution to keep deployments visible for several minutes
-          await new Promise(resolve => setTimeout(resolve, 45000)); // 45 seconds per task
-          
-          deployment.results.push({
-            taskId: task.id,
-            agentName: assignment.agentName,
-            status: 'completed',
-            completedAt: new Date()
-          });
+          try {
+            // REAL AGENT EXECUTION - Call the actual agent system
+            console.log(`🔥 EXECUTING REAL AGENT: ${assignment.agentName} - ${task.title}`);
+            const agentResponse = await executeRealAgentTask(assignment.agentName, task.title, task.description);
+            console.log(`🔥 AGENT RESPONSE:`, { success: agentResponse.success, filesModified: agentResponse.filesModified?.length || 0 });
+            
+            deployment.results.push({
+              taskId: task.id,
+              agentName: assignment.agentName,
+              status: agentResponse.success ? 'completed' : 'failed',
+              completedAt: new Date(),
+              result: agentResponse.result,
+              filesModified: agentResponse.filesModified || []
+            });
+
+            deployment.logs.push(`✅ ${assignment.agentName} completed: ${task.title} - ${agentResponse.filesModified?.length || 0} files modified`);
+          } catch (error) {
+            console.log(`🔥 AGENT EXECUTION ERROR:`, error);
+            deployment.results.push({
+              taskId: task.id,
+              agentName: assignment.agentName,
+              status: 'failed',
+              completedAt: new Date(),
+              error: error instanceof Error ? error.message : 'Unknown error'
+            });
+            deployment.logs.push(`❌ ${assignment.agentName} failed: ${task.title} - ${error instanceof Error ? error.message : 'Unknown error'}`);
+          }
 
           deployment.progress = Math.round((deployment.results.length / deployment.tasks.length) * 100);
           console.log(`✅ Task completed: ${task.title} (${deployment.progress}% total progress)`);

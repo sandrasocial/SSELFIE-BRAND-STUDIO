@@ -5135,8 +5135,26 @@ Starting analysis and implementation now...`;
     }
   });
 
+  // Dual authentication middleware for admin agent chat (session OR token)
+  const adminAgentAuth = (req: any, res: any, next: any) => {
+    // Check for admin token first (for autonomous orchestrator)
+    const authHeader = req.headers.authorization;
+    if (authHeader === 'Bearer sandra-admin-2025') {
+      // Create a mock user object for token authentication
+      req.user = { claims: { sub: 'sandra-admin', email: 'ssa@ssasocial.com' } };
+      return next();
+    }
+    
+    // Check session authentication
+    if (req.isAuthenticated && req.isAuthenticated() && req.user?.claims?.email === 'ssa@ssasocial.com') {
+      return next();
+    }
+    
+    return res.status(401).json({ message: 'Unauthorized' });
+  };
+
   // UNIFIED ADMIN AGENT CHAT ENDPOINT FOR VISUAL EDITOR
-  app.post('/api/admin/agents/chat', isAuthenticated, async (req: any, res) => {
+  app.post('/api/admin/agents/chat', adminAgentAuth, async (req: any, res) => {
     console.log('🎯 ADMIN AGENTS CHAT: Visual Editor Request');
     
     // Declare agentId outside try block so it's available in catch
