@@ -86,17 +86,26 @@ export default function AgentActivityDashboard() {
     try {
       const response = await fetch('/api/autonomous-orchestrator/deploy-all-agents', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: { 
+          'Content-Type': 'application/json',
+          'Authorization': 'Bearer sandra-admin-2025'
+        },
         body: JSON.stringify({
           missionType: 'launch-readiness',
           priority: 'critical',
-          estimatedDuration: 180
+          estimatedDuration: 180,
+          customRequirements: ["Manual launch protocol execution from admin dashboard"]
         })
       });
       
       const result = await response.json();
       if (result.success) {
         setSelectedDeployment(result.deploymentId);
+        // Refresh the data to show the new deployment
+        refreshAll();
+        console.log('✅ Launch Protocol Initiated:', result.deploymentId);
+      } else {
+        console.error('❌ Launch Protocol Failed:', result.error);
       }
     } catch (error) {
       console.error('Failed to launch deployment:', error);
