@@ -5186,19 +5186,11 @@ Starting analysis and implementation now...`;
       console.log(`🤖 Admin Agent Chat: ${agentId} - "${message?.substring(0, 50)}..."`);
       console.log('🔥 SANDRA REQUIREMENT: NO FALLBACKS - CLAUDE API ONLY');
       
-      // ELENA WORKFLOW DETECTION INTEGRATION - AUTO-STAGE WORKFLOWS FROM CONVERSATION
+      // ELENA WORKFLOW DETECTION INTEGRATION - WILL ANALYZE ELENA'S RESPONSE AFTER GENERATION
+      let shouldAnalyzeElenaResponse = false;
       if (agentId === 'elena') {
-        console.log('🧠 ELENA DETECTED: Analyzing message for workflow patterns...');
-        
-        // Import Elena workflow detection service
-        const { ElenaWorkflowDetectionService } = await import('./services/elena-workflow-detection-service');
-        const elenaService = ElenaWorkflowDetectionService.getInstance();
-        
-        // Analyze Elena's response for workflow patterns after she responds
-        const analysisPromise = new Promise(async (resolve) => {
-          // We'll analyze Elena's response after it's generated
-          resolve(true);
-        });
+        console.log('🧠 ELENA DETECTED: Will analyze response for workflow patterns after generation');
+        shouldAnalyzeElenaResponse = true;
       }
       
       // ELENA WORKFLOW EXECUTION DETECTION - TRIGGERS REAL AGENT COORDINATION
