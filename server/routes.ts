@@ -5189,6 +5189,7 @@ Starting analysis and implementation now...`;
       // ELENA WORKFLOW DETECTION INTEGRATION - ANALYZE ELENA'S MESSAGE FOR COMPLEX COORDINATION
       let shouldAnalyzeElenaResponse = false;  
       let detectedWorkflow = null;
+      let shouldExecuteWorkflowImmediately = false;
       
       if (agentId === 'elena') {
         console.log('🧠 ELENA DETECTED: Analyzing message for complex workflow patterns');
@@ -5206,6 +5207,12 @@ Starting analysis and implementation now...`;
           
           // Save detected workflow to staging
           workflowService.stageWorkflow(detectedWorkflow);
+          
+          // Check if this is a MANDATORY FILE CREATION workflow (immediate execution)
+          if (message.includes('MANDATORY') || message.includes('MUST create the file')) {
+            shouldExecuteWorkflowImmediately = true;
+            console.log('🚨 ELENA: MANDATORY FILE CREATION detected - executing workflow immediately');
+          }
         } else {
           console.log('🔍 ELENA: No workflow patterns detected in message');
         }
