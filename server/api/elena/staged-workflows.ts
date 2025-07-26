@@ -66,6 +66,34 @@ router.get('/staged-workflows', validateElenaAccess, async (req, res) => {
 });
 
 /**
+ * GET /api/elena/executed-workflows
+ * Retrieve workflow execution history
+ */
+router.get('/executed-workflows', validateElenaAccess, async (req, res) => {
+  try {
+    console.log('🔍 ELENA EXECUTED WORKFLOWS: Retrieving workflow history');
+    
+    const executedWorkflows = workflowDetectionService.getExecutedWorkflows();
+    
+    console.log(`📋 EXECUTED WORKFLOWS: Found ${executedWorkflows.length} workflows in history`);
+    
+    res.json({
+      success: true,
+      workflows: executedWorkflows,
+      count: executedWorkflows.length,
+      timestamp: new Date().toISOString()
+    });
+  } catch (error) {
+    console.error('❌ ELENA EXECUTED WORKFLOWS ERROR:', error);
+    res.status(500).json({
+      success: false,
+      error: 'Failed to retrieve executed workflows',
+      details: error.message
+    });
+  }
+});
+
+/**
  * POST /api/elena/execute-staged-workflow/:id
  * Execute a specific staged workflow
  */

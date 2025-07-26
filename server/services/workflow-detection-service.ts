@@ -18,6 +18,7 @@ interface DetectedWorkflow {
 
 class WorkflowDetectionService {
   private stagedWorkflows: Map<string, DetectedWorkflow> = new Map();
+  private executedWorkflows: Map<string, DetectedWorkflow> = new Map();
   
   constructor() {
     // Initialize with Elena's test workflow for demonstration
@@ -330,9 +331,17 @@ class WorkflowDetectionService {
     }
     
     try {
-      // Mark as executed
+      // Mark as executed and move to history
       workflow.status = 'executed';
+      workflow.detectedAt = new Date(); // Update execution timestamp
+      
+      // Move from staged to executed workflows
+      this.executedWorkflows.set(workflowId, { ...workflow });
+      this.stagedWorkflows.delete(workflowId);
+      
+      console.log(`🚀 ELENA WORKFLOW EXECUTION: Starting workflow ${workflowId}`);
       console.log(`✅ WORKFLOW EXECUTED: ${workflow.name} with agents: ${workflow.agents.join(', ')}`);
+      console.log(`✅ ELENA WORKFLOW EXECUTED: ${workflowId} - Workflow "${workflow.name}" executed successfully with ${workflow.agents.length} agents`);
       
       return {
         success: true,
@@ -370,6 +379,22 @@ class WorkflowDetectionService {
         console.log(`🗑️ CLEANED UP OLD WORKFLOW: ${workflow.name}`);
       }
     }
+  }
+
+  /**
+   * Get executed workflow history
+   */
+  getExecutedWorkflows(): DetectedWorkflow[] {
+    return Array.from(this.executedWorkflows.values())
+      .sort((a, b) => b.detectedAt.getTime() - a.detectedAt.getTime()); // Most recent first
+  }
+
+  /**
+   * Clear workflow history (admin function)
+   */
+  clearExecutedWorkflows(): void {
+    this.executedWorkflows.clear();
+    console.log('🧹 WORKFLOW HISTORY CLEARED');
   }
 }
 

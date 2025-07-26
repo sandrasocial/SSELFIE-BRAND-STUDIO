@@ -32,38 +32,52 @@ interface ElenaWorkflowsResponse {
 
 export function ElenaWorkflowsTab() {
   const [workflows, setWorkflows] = useState<DetectedWorkflow[]>([]);
+  const [executedWorkflows, setExecutedWorkflows] = useState<DetectedWorkflow[]>([]);
   const [loading, setLoading] = useState(true);
   const [executing, setExecuting] = useState<Set<string>>(new Set());
   const [error, setError] = useState<string | null>(null);
+  const [activeTab, setActiveTab] = useState<'staged' | 'history'>('staged');
 
   // Fetch workflows from API
   const fetchWorkflows = async () => {
     try {
       setLoading(true);
-      const response = await fetch('/api/elena/staged-workflows', {
-        credentials: 'include',
-        headers: {
-          'Authorization': 'Bearer sandra-admin-2025'
-        }
-      });
       
-      if (!response.ok) {
-        throw new Error(`HTTP ${response.status}`);
+      // Fetch both staged and executed workflows
+      const [stagedResponse, executedResponse] = await Promise.all([
+        fetch('/api/elena/staged-workflows', {
+          credentials: 'include',
+          headers: { 'Authorization': 'Bearer sandra-admin-2025' }
+        }),
+        fetch('/api/elena/executed-workflows', {
+          credentials: 'include',
+          headers: { 'Authorization': 'Bearer sandra-admin-2025' }
+        })
+      ]);
+      
+      if (!stagedResponse.ok || !executedResponse.ok) {
+        throw new Error(`HTTP ${stagedResponse.status} / ${executedResponse.status}`);
       }
       
-      const data: ElenaWorkflowsResponse = await response.json();
+      const [stagedData, executedData] = await Promise.all([
+        stagedResponse.json(),
+        executedResponse.json()
+      ]);
       
-      if (data.success) {
-        setWorkflows(data.workflows || []);
+      if (stagedData.success && executedData.success) {
+        setWorkflows(stagedData.workflows || []);
+        setExecutedWorkflows(executedData.workflows || []);
         setError(null);
       } else {
-        setError(data.error || 'Failed to fetch workflows');
+        setError(stagedData.error || executedData.error || 'Failed to fetch workflows');
         setWorkflows([]);
+        setExecutedWorkflows([]);
       }
     } catch (error) {
       console.error('Elena workflows fetch error:', error);
       setError(error.message);
       setWorkflows([]);
+      setExecutedWorkflows([]);
     } finally {
       setLoading(false);
     }
@@ -161,9 +175,28 @@ export function ElenaWorkflowsTab() {
         
         <div className="flex items-center justify-between mt-4">
           <div className="flex items-center space-x-4">
-            <span className="text-sm text-gray-500">
-              {workflows?.length || 0} workflows staged
-            </span>
+            <div className="flex space-x-1 bg-gray-100 rounded-md p-1">
+              <button
+                onClick={() => setActiveTab('staged')}
+                className={`px-3 py-1 text-sm font-medium rounded transition-colors ${
+                  activeTab === 'staged'
+                    ? 'bg-white text-black shadow-sm'
+                    : 'text-gray-600 hover:text-black'
+                }`}
+              >
+                Staged ({workflows?.length || 0})
+              </button>
+              <button
+                onClick={() => setActiveTab('history')}
+                className={`px-3 py-1 text-sm font-medium rounded transition-colors ${
+                  activeTab === 'history'
+                    ? 'bg-white text-black shadow-sm'
+                    : 'text-gray-600 hover:text-black'
+                }`}
+              >
+                History ({executedWorkflows?.length || 0})
+              </button>
+            </div>
             <Button 
               onClick={fetchWorkflows} 
               disabled={loading}
