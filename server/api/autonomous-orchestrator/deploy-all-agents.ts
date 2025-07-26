@@ -48,40 +48,105 @@ const deploymentHistory = new Map<string, any>();
  * Execute real agent task by calling the actual agent chat API
  */
 async function executeRealAgentTask(agentName: string, taskTitle: string, taskDescription: string) {
-  try {
-    const response = await fetch('http://localhost:5000/api/admin/agents/chat', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'Authorization': 'Bearer sandra-admin-2025'
-      },
-      body: JSON.stringify({
-        agentId: agentName.toLowerCase(),
-        message: `Execute autonomous task: ${taskTitle}\n\nDescription: ${taskDescription}\n\nPlease complete this task as part of the launch readiness protocol. Create or modify files as needed and provide a summary of your work.`,
-        fileEditMode: true
-      })
-    });
+  const maxRetries = 3;
+  let lastError = '';
 
-    const result = await response.json();
-    
-    if (result.success) {
-      return {
-        success: true,
-        result: result.response,
-        filesModified: result.filesModified || []
-      };
-    } else {
-      return {
-        success: false,
-        error: result.error || 'Agent execution failed'
-      };
+  for (let attempt = 1; attempt <= maxRetries; attempt++) {
+    try {
+      console.log(`🔥 AGENT EXECUTION: ${agentName} attempt ${attempt}/${maxRetries}`);
+      
+      // Add delay to prevent rate limiting
+      if (attempt > 1) {
+        const delay = Math.pow(2, attempt - 1) * 2000; // 2s, 4s, 8s delays
+        console.log(`⏳ RATE LIMIT PROTECTION: Waiting ${delay}ms before retry`);
+        await new Promise(resolve => setTimeout(resolve, delay));
+      }
+
+      const response = await fetch('http://localhost:5000/api/admin/agents/chat', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': 'Bearer sandra-admin-2025'
+        },
+        body: JSON.stringify({
+          agentId: agentName.toLowerCase(),
+          message: `AUTONOMOUS WORKFLOW TASK - FILE MODIFICATION REQUIRED
+
+Task: ${taskTitle}
+Description: ${taskDescription}
+
+CRITICAL REQUIREMENTS:
+1. You MUST use str_replace_based_edit_tool to create or modify files
+2. You MUST NOT just provide analysis or suggestions
+3. You MUST implement actual code/file changes
+4. Your response will be considered failed if no files are modified
+
+Complete this task now with actual file modifications.`,
+          fileEditMode: true
+        })
+      });
+
+      const result = await response.json();
+      
+      if (result.success) {
+        // Check if agent actually modified files
+        const filesModified = result.filesModified || [];
+        const toolsUsed = result.toolsUsed || 0;
+        
+        if (filesModified.length > 0 || toolsUsed > 0) {
+          console.log(`✅ AGENT SUCCESS: ${agentName} modified ${filesModified.length} files`);
+          return {
+            success: true,
+            result: result.response,
+            filesModified: filesModified
+          };
+        } else {
+          lastError = `Agent ${agentName} did not modify any files (fake execution)`;
+          console.log(`❌ AGENT FAKE EXECUTION: ${agentName} - no files modified`);
+          if (attempt === maxRetries) {
+            return {
+              success: false,
+              error: lastError
+            };
+          }
+          continue; // Retry
+        }
+      } else {
+        lastError = result.error || 'Agent execution failed';
+        console.log(`❌ AGENT ERROR: ${agentName} - ${lastError}`);
+        
+        // Don't retry on authentication errors
+        if (lastError.includes('authentication') || lastError.includes('unauthorized')) {
+          return {
+            success: false,
+            error: lastError
+          };
+        }
+        
+        if (attempt === maxRetries) {
+          return {
+            success: false,
+            error: lastError
+          };
+        }
+      }
+    } catch (error) {
+      lastError = error instanceof Error ? error.message : 'Network error calling agent';
+      console.log(`❌ AGENT NETWORK ERROR: ${agentName} - ${lastError}`);
+      
+      if (attempt === maxRetries) {
+        return {
+          success: false,
+          error: lastError
+        };
+      }
     }
-  } catch (error) {
-    return {
-      success: false,
-      error: error instanceof Error ? error.message : 'Network error calling agent'
-    };
   }
+
+  return {
+    success: false,
+    error: lastError || `Agent ${agentName} failed after ${maxRetries} attempts`
+  };
 }
 
 /**
