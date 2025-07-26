@@ -4,7 +4,21 @@ import { intelligentTaskDistributor } from '../../services/intelligent-task-dist
 import { agentKnowledgeSharing } from '../../services/agent-knowledge-sharing';
 import { autonomousWorkflowTemplates } from '../../templates/workflow-templates';
 import { agentImplementationToolkit } from '../../tools/agent_implementation_toolkit';
-import { isAuthenticated } from '../../replitAuth';
+// Admin authentication middleware with token support
+const adminAuth = (req: any, res: any, next: any) => {
+  // Check for admin token first
+  const authHeader = req.headers.authorization;
+  if (authHeader === 'Bearer sandra-admin-2025') {
+    return next();
+  }
+  
+  // Check session authentication
+  if (req.isAuthenticated && req.isAuthenticated() && req.user?.claims?.email === 'ssa@ssasocial.com') {
+    return next();
+  }
+  
+  return res.status(401).json({ message: 'Unauthorized' });
+};
 
 const router = express.Router();
 
@@ -32,7 +46,7 @@ const deploymentHistory = new Map<string, any>();
  * Deploy all agents with coordinated mission
  * POST /api/autonomous-orchestrator/deploy-all-agents
  */
-router.post('/deploy-all-agents', isAuthenticated, async (req, res) => {
+router.post('/deploy-all-agents', adminAuth, async (req, res) => {
   try {
     const validation = DeploymentRequestSchema.safeParse(req.body);
     if (!validation.success) {
@@ -118,7 +132,7 @@ router.post('/deploy-all-agents', isAuthenticated, async (req, res) => {
  * Get deployment status
  * GET /api/autonomous-orchestrator/deployment-status/:deploymentId
  */
-router.get('/deployment-status/:deploymentId', isAuthenticated, async (req, res) => {
+router.get('/deployment-status/:deploymentId', adminAuth, async (req, res) => {
   try {
     const { deploymentId } = req.params;
     const deployment = activeDeployments.get(deploymentId) || deploymentHistory.get(deploymentId);
@@ -161,7 +175,7 @@ router.get('/deployment-status/:deploymentId', isAuthenticated, async (req, res)
  * Get all active deployments
  * GET /api/autonomous-orchestrator/active-deployments
  */
-router.get('/active-deployments', isAuthenticated, async (req, res) => {
+router.get('/active-deployments', adminAuth, async (req, res) => {
   try {
     const deployments = Array.from(activeDeployments.values()).map(deployment => ({
       id: deployment.id,
@@ -191,7 +205,7 @@ router.get('/active-deployments', isAuthenticated, async (req, res) => {
  * Control deployment execution
  * POST /api/autonomous-orchestrator/control-deployment
  */
-router.post('/control-deployment', isAuthenticated, async (req, res) => {
+router.post('/control-deployment', adminAuth, async (req, res) => {
   try {
     const validation = DeploymentExecutionSchema.safeParse(req.body);
     if (!validation.success) {
@@ -260,7 +274,7 @@ router.post('/control-deployment', isAuthenticated, async (req, res) => {
  * Get agent coordination metrics
  * GET /api/autonomous-orchestrator/coordination-metrics
  */
-router.get('/coordination-metrics', isAuthenticated, async (req, res) => {
+router.get('/coordination-metrics', adminAuth, async (req, res) => {
   try {
     const agentStatuses = intelligentTaskDistributor.getAgentStatus();
     const knowledgeMetrics = agentKnowledgeSharing.getIntelligenceSummary();
