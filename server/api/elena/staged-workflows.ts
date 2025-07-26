@@ -45,8 +45,6 @@ router.get('/staged-workflows', validateElenaAccess, async (req, res) => {
     
     const workflows = workflowDetectionService.getStagedWorkflows();
     
-    // No demo workflows - only real detected workflows
-    
     console.log(`📋 STAGED WORKFLOWS: Found ${workflows.length} workflows ready for manual execution`);
     
     res.json({
