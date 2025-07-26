@@ -429,7 +429,7 @@ export class ClaudeApiService {
 
       // Process tool calls if any and continue conversation
       if (response.content.some(content => content.type === 'tool_use')) {
-        assistantMessage = await this.handleToolCallsWithContinuation(response, messages, enhancedSystemPrompt, enhancedTools, fileEditMode || false);
+        assistantMessage = await this.handleToolCallsWithContinuation(response, messages, enhancedSystemPrompt, enhancedTools, fileEditMode || false, agentName);
       }
 
       // Save both messages to conversation with logging
@@ -1024,7 +1024,7 @@ COMMUNICATION STYLE:
     return expertise[expertiseKey] || `You are ${agentName}, an AI assistant specialized in helping with tasks.`;
   }
 
-  private async handleToolCallsWithContinuation(response: any, messages: any[], systemPrompt: string, tools: any[], fileEditMode: boolean = false): Promise<string> {
+  private async handleToolCallsWithContinuation(response: any, messages: any[], systemPrompt: string, tools: any[], fileEditMode: boolean = false, agentName: string = ''): Promise<string> {
     let currentMessages = [...messages];
     let finalResponse = '';
     
