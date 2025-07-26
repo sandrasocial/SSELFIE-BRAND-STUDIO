@@ -7,18 +7,27 @@ import { agentImplementationToolkit } from '../../tools/agent_implementation_too
 import fetch from 'node-fetch';
 // Admin authentication middleware with token support
 const adminAuth = (req: any, res: any, next: any) => {
-  // Check for admin token first
+  // Check for admin token first (for Elena workflows and autonomous orchestrator)
   const authHeader = req.headers.authorization;
-  if (authHeader === 'Bearer sandra-admin-2025') {
+  const bodyToken = req.body?.adminToken;
+  const queryToken = req.query?.adminToken;
+  
+  if (authHeader === 'Bearer sandra-admin-2025' || bodyToken === 'sandra-admin-2025' || queryToken === 'sandra-admin-2025') {
+    console.log('✅ ELENA WORKFLOW AUTH: Admin token validated for autonomous orchestrator');
     return next();
   }
   
   // Check session authentication
   if (req.isAuthenticated && req.isAuthenticated() && req.user?.claims?.email === 'ssa@ssasocial.com') {
+    console.log('✅ ELENA WORKFLOW AUTH: Session authentication validated');
     return next();
   }
   
-  return res.status(401).json({ message: 'Unauthorized' });
+  console.log('❌ ELENA WORKFLOW AUTH: Authentication failed - no valid token or session');
+  return res.status(401).json({ 
+    message: 'Unauthorized', 
+    error: 'Elena workflow execution requires admin authentication' 
+  });
 };
 
 const router = express.Router();
@@ -66,23 +75,33 @@ async function executeRealAgentTask(agentName: string, taskTitle: string, taskDe
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          'Authorization': 'Bearer sandra-admin-2025'
+          'Authorization': 'Bearer sandra-admin-2025',
+          'X-Workflow-Context': 'elena-autonomous-execution',
+          'X-Admin-Token': 'sandra-admin-2025'
         },
         body: JSON.stringify({
           agentId: agentName.toLowerCase(),
-          message: `AUTONOMOUS WORKFLOW TASK - FILE MODIFICATION REQUIRED
+          message: `ELENA AUTONOMOUS WORKFLOW EXECUTION - FILE MODIFICATION MANDATORY
 
 Task: ${taskTitle}
 Description: ${taskDescription}
 
+🚨 ELENA WORKFLOW EXECUTION CONTEXT:
+- You are executing within Elena's autonomous workflow system
+- File modification authentication is inherited from workflow context
+- You have full str_replace_based_edit_tool access for this coordinated mission
+
 CRITICAL REQUIREMENTS:
 1. You MUST use str_replace_based_edit_tool to create or modify files
-2. You MUST NOT just provide analysis or suggestions
+2. You MUST NOT just provide analysis or suggestions  
 3. You MUST implement actual code/file changes
 4. Your response will be considered failed if no files are modified
+5. This is coordinated agent execution - complete your assigned task
 
-Complete this task now with actual file modifications.`,
-          fileEditMode: true
+Complete this task now with actual file modifications as part of Elena's coordinated workflow.`,
+          fileEditMode: true,
+          workflowContext: 'elena-autonomous-execution',
+          adminToken: 'sandra-admin-2025'
         })
       });
 
