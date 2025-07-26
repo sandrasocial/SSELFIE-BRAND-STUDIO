@@ -366,7 +366,7 @@ export class AgentKnowledgeSharing {
         agentPair: [agent1, agent2] as [string, string],
         collaborationCount: 0,
         averageSuccess: 0,
-        syneryEffectiveness: 0,
+        synegyEffectiveness: 0,
         commonSkills: [],
         complementarySkills: []
       };
@@ -382,8 +382,8 @@ export class AgentKnowledgeSharing {
     metric.averageSuccess = (newSuccesses / metric.collaborationCount) * 100;
     
     // Update synergy effectiveness (rolling average)
-    const currentSynergySum = metric.syneryEffectiveness * totalCollaborations;
-    metric.syneryEffectiveness = (currentSynergySum + syneryEffect) / metric.collaborationCount;
+    const currentSynergySum = metric.synegyEffectiveness * totalCollaborations;
+    metric.synegyEffectiveness = (currentSynergySum + syneryEffect) / metric.collaborationCount;
 
     console.log(`🧠 KNOWLEDGE SHARING: Collaboration tracked - ${agent1} + ${agent2}: ${Math.round(metric.averageSuccess)}% success`);
   }
@@ -398,7 +398,7 @@ export class AgentKnowledgeSharing {
     const relatedIds: string[] = [];
     const insightKeywords = this.extractKeywords(insight.title + ' ' + insight.description);
 
-    for (const [otherId, otherInsight] of this.insights) {
+    for (const [otherId, otherInsight] of Array.from(this.insights)) {
       if (otherId === insightId) continue;
 
       // Check for category match
@@ -473,12 +473,12 @@ export class AgentKnowledgeSharing {
   getCollaborationRecommendations(): { agent1: string; agent2: string; effectiveness: number; reason: string }[] {
     return Array.from(this.collaborationMetrics.values())
       .filter(metric => metric.collaborationCount >= 2) // Only recommend proven collaborations
-      .sort((a, b) => b.syneryEffectiveness - a.syneryEffectiveness)
+      .sort((a, b) => b.synegyEffectiveness - a.synegyEffectiveness)
       .slice(0, 5)
       .map(metric => ({
         agent1: metric.agentPair[0],
         agent2: metric.agentPair[1],
-        effectiveness: Math.round(metric.syneryEffectiveness),
+        effectiveness: Math.round(metric.synegyEffectiveness),
         reason: `${Math.round(metric.averageSuccess)}% success rate across ${metric.collaborationCount} collaborations`
       }));
   }
