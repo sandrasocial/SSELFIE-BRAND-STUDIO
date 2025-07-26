@@ -74,10 +74,8 @@ class ElenaWorkflowDetectionService {
    * Analyze Elena's conversation for workflow patterns
    */
   analyzeConversation(message: string, agentName: string): WorkflowAnalysis {
-    console.log('🔍 ELENA WORKFLOW ANALYSIS: Starting analysis', { message: message.substring(0, 100), agentName });
-    
+    // Real Elena agent workflow detection
     if (agentName.toLowerCase() !== 'elena') {
-      console.log('❌ WORKFLOW ANALYSIS: Skipping - not Elena agent');
       return { hasWorkflow: false, confidence: 0, patterns: [], extractedText: '' };
     }
 
@@ -102,11 +100,9 @@ class ElenaWorkflowDetectionService {
 
     // Check for agent mentions
     const mentionedAgents = this.extractAgentNames(message);
-    console.log('🔍 WORKFLOW ANALYSIS: Mentioned agents:', mentionedAgents);
     if (mentionedAgents.length >= 2) {
       confidence += 0.2;
       extractedAgents.push(...mentionedAgents);
-      console.log('✅ WORKFLOW ANALYSIS: Multiple agents detected (+0.2 confidence)');
     }
 
     // Check for coordination keywords
@@ -114,11 +110,8 @@ class ElenaWorkflowDetectionService {
     for (const keyword of coordinationKeywords) {
       if (message.toLowerCase().includes(keyword)) {
         confidence += 0.1;
-        console.log(`✅ WORKFLOW ANALYSIS: Found keyword "${keyword}" (+0.1 confidence)`);
       }
     }
-    
-    console.log('🎯 WORKFLOW ANALYSIS: Final confidence:', confidence, 'Agents:', extractedAgents.length);
 
     // Remove duplicates
     extractedAgents = [...new Set(extractedAgents)];
@@ -218,26 +211,7 @@ class ElenaWorkflowDetectionService {
     console.log(`📋 WORKFLOW DETAILS: ID=${workflow.id}, Agents=[${workflow.agents.join(', ')}], Status=${workflow.status}`);
   }
 
-  /**
-   * Create test workflow for immediate Agent Activity dashboard demonstration
-   */
-  createTestWorkflow(): DetectedWorkflow {
-    const testWorkflow: DetectedWorkflow = {
-      id: `elena-test-${Date.now()}`,
-      title: "Admin Dashboard Enhancement",
-      description: "Comprehensive luxury editorial design enhancement for admin interface with Times New Roman typography and responsive layout",
-      agents: ['aria', 'zara', 'quinn'],
-      tasks: ['Design luxury admin interface', 'Implement responsive components', 'Quality assurance testing'],
-      priority: 'high',
-      estimatedDuration: '30 minutes',
-      createdAt: new Date(),
-      status: 'staged'
-    };
-    
-    this.stageWorkflow(testWorkflow);
-    console.log(`✅ TEST WORKFLOW CREATED: ${testWorkflow.id} ready for Agent Activity dashboard`);
-    return testWorkflow;
-  }
+
 
   /**
    * Get all staged workflows
