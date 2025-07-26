@@ -7087,6 +7087,50 @@ AGENT_CONTEXT:
     }
   });
 
+  // Test endpoint to manually create Elena's workflow for demonstration
+  app.post('/api/elena/test-workflow-creation', isAuthenticated, async (req, res) => {
+    try {
+      const { workflowDetectionService } = await import('./services/workflow-detection-service');
+      
+      // Elena's test workflow response
+      const elenaTestResponse = `**Elena Strategic Coordination:**
+
+I'll coordinate a **"Platform Launch Readiness Validation"** workflow with Aria, Victoria, and Zara to ensure your SSELFIE STUDIO is perfectly optimized for the 135K viral launch.
+
+**Aria (Creative Director)** - I'm assigning you to conduct a comprehensive luxury brand consistency audit across all pages. Ensure Times New Roman headlines, full bleed hero sections, and proper workspace gallery image integration. Focus on €67 premium positioning validation with luxury editorial standards enforcement. Priority: Critical. Duration: 15 minutes.
+
+**Victoria (UX Designer)** - You'll handle complete user experience flow validation. Verify global navigation consistency, agent card styling patterns from admin dashboard, and mobile-responsive luxury design. Ensure seamless 4-step user journey (TRAIN→STYLE→PHOTOSHOOT→BUILD) optimization. Priority: Critical. Duration: 15 minutes.
+
+**Zara (Technical Architect)** - I need you to implement technical architecture validation for viral scale readiness. Assess platform stability for 135K+ traffic surge, verify €67 payment processing integration, and ensure individual FLUX model training performance. Database scaling preparation is essential. Priority: Critical. Duration: 20 minutes.`;
+
+      console.log('🧪 TESTING: Manual Elena workflow creation triggered');
+      
+      // Manually trigger workflow detection
+      const detectedWorkflow = workflowDetectionService.detectWorkflowCreation(elenaTestResponse, 'manual-test-123');
+      
+      if (detectedWorkflow) {
+        console.log(`🎯 MANUAL TEST: Elena workflow "${detectedWorkflow.name}" successfully detected and staged`);
+        res.json({
+          success: true,
+          message: 'Elena workflow successfully detected and staged',
+          workflow: detectedWorkflow
+        });
+      } else {
+        console.log('❌ MANUAL TEST: Elena workflow detection failed');
+        res.json({
+          success: false,
+          message: 'Elena workflow detection failed'
+        });
+      }
+    } catch (error) {
+      console.error('❌ ERROR: Failed to test workflow creation:', error);
+      res.status(500).json({
+        success: false,
+        error: 'Failed to test workflow creation'
+      });
+    }
+  });
+
   console.log('✅ Elena Staged Workflows API routes registered');
   console.log('✅ Plan B Execution System routes registered');
   
