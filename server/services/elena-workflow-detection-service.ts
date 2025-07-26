@@ -227,20 +227,58 @@ class ElenaWorkflowDetectionService {
     this.stagedWorkflows.set(workflowId, workflow);
 
     try {
-      // Direct workflow execution without autonomous orchestrator dependency
       console.log(`🚀 EXECUTING WORKFLOW: ${workflow.title}`);
       console.log(`📋 AGENTS: ${workflow.agents.join(', ')}`);
       console.log(`📝 TASKS: ${workflow.tasks.join(', ')}`);
       
-      // Simulate workflow execution
-      await new Promise(resolve => setTimeout(resolve, 1000));
+      // REAL AGENT EXECUTION - Import Claude API service for actual agent calls
+      const { executeAgentChat } = await import('../services/claude-api-service');
+      
+      const executionResults: string[] = [];
+      
+      // Execute each agent in the workflow with their tasks
+      for (const agent of workflow.agents) {
+        if (agent === 'elena') continue; // Skip Elena to prevent self-execution
+        
+        try {
+          console.log(`🤖 EXECUTING AGENT: ${agent} for workflow ${workflow.title}`);
+          
+          // Create task message for agent based on workflow context
+          const taskMessage = this.createAgentTaskMessage(workflow, agent);
+          
+          // Execute real agent via Claude API
+          const agentResult = await executeAgentChat(
+            agent,
+            taskMessage,
+            'sandra-admin-2025' // Admin authentication
+          );
+          
+          if (agentResult.success) {
+            console.log(`✅ AGENT ${agent.toUpperCase()} COMPLETED: ${agentResult.message?.substring(0, 100)}...`);
+            executionResults.push(`✅ ${agent}: Task completed successfully`);
+          } else {
+            console.log(`❌ AGENT ${agent.toUpperCase()} FAILED: ${agentResult.error}`);
+            executionResults.push(`❌ ${agent}: ${agentResult.error}`);
+          }
+          
+          // Brief delay between agents
+          await new Promise(resolve => setTimeout(resolve, 500));
+          
+        } catch (agentError) {
+          console.error(`❌ AGENT ${agent} EXECUTION ERROR:`, agentError);
+          executionResults.push(`❌ ${agent}: Execution error - ${agentError.message}`);
+        }
+      }
       
       workflow.status = 'completed';
       this.stagedWorkflows.set(workflowId, workflow);
       
+      const successfulExecutions = executionResults.filter(r => r.startsWith('✅')).length;
+      const totalAgents = workflow.agents.filter(a => a !== 'elena').length;
+      
       return { 
-        success: true, 
-        message: `Workflow "${workflow.title}" executed successfully. Agents ${workflow.agents.join(', ')} have been coordinated.` 
+        success: successfulExecutions > 0,
+        message: `Workflow "${workflow.title}" executed: ${successfulExecutions}/${totalAgents} agents completed tasks successfully. Results: ${executionResults.join(', ')}`
       };
     } catch (error) {
       workflow.status = 'staged'; // revert to staged
@@ -248,6 +286,28 @@ class ElenaWorkflowDetectionService {
       console.error('❌ ELENA WORKFLOW EXECUTION ERROR:', error);
       return { success: false, message: `Execution error: ${error.message}` };
     }
+  }
+
+  /**
+   * Create appropriate task message for agent based on workflow context
+   */
+  private createAgentTaskMessage(workflow: DetectedWorkflow, agentName: string): string {
+    const agentTasks = {
+      aria: `Execute luxury design coordination for "${workflow.title}". Apply Times New Roman typography and SSELFIE editorial luxury standards. Create or enhance components as needed.`,
+      zara: `Execute technical coordination for "${workflow.title}". Implement backend architecture, API endpoints, or system optimizations as needed for SSELFIE platform.`,
+      maya: `Execute AI photography coordination for "${workflow.title}". Optimize FLUX generation systems, celebrity stylist interfaces, or AI model performance as needed.`,
+      victoria: `Execute UX coordination for "${workflow.title}". Enhance user experience, interface design, or usability improvements for SSELFIE Studio platform.`,
+      rachel: `Execute voice coordination for "${workflow.title}". Implement Sandra's authentic voice, copywriting, or messaging consistency across platform touchpoints.`,
+      ava: `Execute automation coordination for "${workflow.title}". Implement workflow automation, process optimization, or system integration for SSELFIE operations.`,
+      quinn: `Execute quality coordination for "${workflow.title}". Perform luxury standards testing, quality assurance, or luxury brand consistency validation.`,
+      sophia: `Execute social media coordination for "${workflow.title}". Implement community features, social integration, or Instagram growth strategies.`,
+      martha: `Execute marketing coordination for "${workflow.title}". Implement conversion optimization, revenue features, or performance marketing improvements.`,
+      diana: `Execute strategy coordination for "${workflow.title}". Implement business strategy, decision support, or strategic planning features.`,
+      wilma: `Execute workflow coordination for "${workflow.title}". Implement process architecture, workflow design, or operational efficiency improvements.`,
+      olga: `Execute organization coordination for "${workflow.title}". Implement file organization, repository cleanup, or architectural improvements.`
+    };
+
+    return agentTasks[agentName] || `Execute coordination tasks for "${workflow.title}" using your specialized expertise to support SSELFIE Studio platform.`;
   }
 
   /**

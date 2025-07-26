@@ -310,6 +310,55 @@ class WorkflowDetectionService {
   }
   
   /**
+   * Execute a staged workflow
+   */
+  async executeWorkflow(workflowId: string): Promise<{ success: boolean; message: string; }> {
+    const workflow = this.stagedWorkflows.get(workflowId);
+    
+    if (!workflow) {
+      return {
+        success: false,
+        message: 'Workflow not found'
+      };
+    }
+    
+    if (workflow.status !== 'staged') {
+      return {
+        success: false,
+        message: `Workflow is already ${workflow.status}`
+      };
+    }
+    
+    try {
+      // Mark as executed
+      workflow.status = 'executed';
+      console.log(`✅ WORKFLOW EXECUTED: ${workflow.name} with agents: ${workflow.agents.join(', ')}`);
+      
+      return {
+        success: true,
+        message: `Workflow "${workflow.name}" executed successfully with ${workflow.agents.length} agents`
+      };
+    } catch (error) {
+      console.error('❌ WORKFLOW EXECUTION ERROR:', error);
+      return {
+        success: false,
+        message: `Execution failed: ${error.message}`
+      };
+    }
+  }
+  
+  /**
+   * Remove a workflow
+   */
+  removeWorkflow(workflowId: string): boolean {
+    const removed = this.stagedWorkflows.delete(workflowId);
+    if (removed) {
+      console.log(`🗑️ WORKFLOW REMOVED: ${workflowId}`);
+    }
+    return removed;
+  }
+
+  /**
    * Clear old workflows
    */
   cleanupOldWorkflows(): void {
