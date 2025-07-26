@@ -26,11 +26,12 @@ const router = express.Router();
 // Schema for autonomous deployment request
 const DeploymentRequestSchema = z.object({
   workflowTemplateId: z.string().optional(),
-  missionType: z.enum(['launch-readiness', 'design-audit', 'technical-review', 'marketing-campaign', 'custom']),
+  missionType: z.enum(['launch-readiness', 'design-audit', 'technical-review', 'marketing-campaign', 'elena-workflow', 'custom']),
   priority: z.enum(['low', 'medium', 'high', 'critical']).default('high'),
   targetAgents: z.array(z.string()).optional(),
   customRequirements: z.array(z.string()).optional(),
-  estimatedDuration: z.number().optional()
+  estimatedDuration: z.number().optional(),
+  workflowName: z.string().optional()
 });
 
 // Schema for deployment execution
@@ -369,6 +370,51 @@ router.get('/coordination-metrics', adminAuth, async (req, res) => {
  * Create custom workflow based on mission type
  */
 async function createCustomWorkflow(deploymentRequest: any): Promise<any> {
+  // Handle Elena workflows specially
+  if (deploymentRequest.missionType === 'elena-workflow') {
+    return {
+      id: 'elena-custom-workflow',
+      name: deploymentRequest.workflowName || 'Elena Strategic Workflow',
+      description: `Elena's strategic workflow: ${deploymentRequest.workflowName || 'Custom Mission'}`,
+      category: 'coordination',
+      estimatedDuration: deploymentRequest.estimatedDuration || 30,
+      requiredAgents: deploymentRequest.targetAgents || ['aria', 'victoria', 'zara'],
+      phases: [
+        {
+          id: 'elena-coordination-phase',
+          name: 'Elena Strategic Coordination Phase',
+          description: 'Execute Elena\'s coordinated multi-agent workflow',
+          parallelExecution: true,
+          dependencies: [],
+          estimatedDuration: deploymentRequest.estimatedDuration || 30,
+          tasks: deploymentRequest.customRequirements?.map((req: string, index: number) => ({
+            id: `elena-task-${index}`,
+            title: req,
+            description: req,
+            priority: deploymentRequest.priority || 'high',
+            complexity: 'moderate',
+            requiredSkills: ['coordination', 'implementation'],
+            estimatedTime: Math.ceil((deploymentRequest.estimatedDuration || 30) / (deploymentRequest.customRequirements?.length || 1)),
+            dependencies: [],
+            phaseIndex: 0
+          })) || [
+            {
+              id: 'elena-default-task',
+              title: 'Execute Elena\'s Strategic Mission',
+              description: 'Complete the strategic coordination task as outlined by Elena',
+              priority: deploymentRequest.priority || 'high',
+              complexity: 'moderate',
+              requiredSkills: ['coordination'],
+              estimatedTime: deploymentRequest.estimatedDuration || 30,
+              dependencies: [],
+              phaseIndex: 0
+            }
+          ]
+        }
+      ]
+    };
+  }
+
   const templates = autonomousWorkflowTemplates.getTemplatesByCategory(
     deploymentRequest.missionType === 'launch-readiness' ? 'launch' :
     deploymentRequest.missionType === 'design-audit' ? 'audit' :
