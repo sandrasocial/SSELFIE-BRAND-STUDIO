@@ -1,0 +1,48 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  body {
+    @apply bg-pure-white text-luxury-black font-editorial;
+  }
+  
+  h1, h2, h3, h4, h5, h6 {
+    @apply font-editorial font-normal tracking-luxury;
+  }
+  
+  h1 {
+    @apply text-headline mb-8;
+  }
+  
+  h2 {
+    @apply text-subhead mb-6;
+  }
+  
+  p {
+    @apply font-system text-soft-gray leading-relaxed mb-4;
+  }
+}
+
+@layer components {
+  .luxury-container {
+    @apply max-w-6xl mx-auto px-6 py-12;
+  }
+  
+  .editorial-grid {
+    @apply grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-12;
+  }
+  
+  .luxury-card {
+    @apply bg-editorial-gray p-8 border-b border-accent-line;
+  }
+  
+  .luxury-button {
+    @apply px-8 py-3 border border-luxury-black text-sm uppercase tracking-tracked 
+    transition-colors hover:bg-luxury-black hover:text-pure-white;
+  }
+  
+  .editorial-text {
+    @apply font-editorial text-lg leading-relaxed text-soft-gray;
+  }
+}

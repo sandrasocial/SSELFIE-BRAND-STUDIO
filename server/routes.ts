@@ -5186,7 +5186,7 @@ Starting analysis and implementation now...`;
       console.log(`🤖 Admin Agent Chat: ${agentId} - "${message?.substring(0, 50)}..."`);
       console.log('🔥 SANDRA REQUIREMENT: NO FALLBACKS - CLAUDE API ONLY');
       
-      // ELENA WORKFLOW DETECTION INTEGRATION - WILL ANALYZE ELENA'S RESPONSE AFTER GENERATION
+      // ELENA WORKFLOW DETECTION INTEGRATION - ANALYZE ELENA'S RESPONSE FOR COORDINATION PATTERNS
       let shouldAnalyzeElenaResponse = false;
       if (agentId === 'elena') {
         console.log('🧠 ELENA DETECTED: Will analyze response for workflow patterns after generation');
@@ -5570,16 +5570,16 @@ Workflow Stage: ${savedMemory.workflowStage || 'None'}
         // 🚀 ELENA WORKFLOW DETECTION - Detect when Elena creates workflows through conversation
         if (agentId === 'elena') {
           try {
-            const { workflowDetectionService } = await import('./services/workflow-detection-service');
-            const detectedWorkflow = workflowDetectionService.detectWorkflowCreation(agentResponse, message);
+            const { elenaConversationDetection } = await import('./services/elena-conversation-detection.js');
+            const detectedWorkflow = elenaConversationDetection.detectWorkflowFromConversation(agentResponse, message);
             
             if (detectedWorkflow) {
               console.log(`🎯 ELENA WORKFLOW DETECTED: "${detectedWorkflow.name}" staged for manual execution`);
               console.log(`📋 WORKFLOW DETAILS:`, {
                 id: detectedWorkflow.id,
-                agents: detectedWorkflow.agents.join(', '),
+                agents: detectedWorkflow.tasks.map(t => t.agentId).join(', '),
                 priority: detectedWorkflow.priority,
-                requirements: detectedWorkflow.customRequirements.length
+                tasks: detectedWorkflow.tasks.length
               });
             } else {
               console.log('📝 ELENA RESPONSE: No workflow patterns detected in conversation');
@@ -7054,9 +7054,15 @@ AGENT_CONTEXT:
 
   console.log('✅ Enhanced Agent Capabilities routes registered');
 
-  // Elena Staged Workflows API - Register router with proper service connection
-  const elenaStagedWorkflowsRouter = await import('./api/elena/staged-workflows');
-  app.use('/api/elena', elenaStagedWorkflowsRouter.default);
+  // Elena Workflow Execution API - NEW COMPLETE SYSTEM
+  const { elenaWorkflowAuth } = await import('./middleware/elena-workflow-auth.js');
+  const { getStagedWorkflows, executeWorkflow, getExecutionStatus, getActiveExecutions, removeWorkflow } = await import('./api/elena/workflow-execution.js');
+  
+  app.get('/api/elena/staged-workflows', elenaWorkflowAuth, getStagedWorkflows);
+  app.post('/api/elena/execute-workflow/:workflowId', elenaWorkflowAuth, executeWorkflow);
+  app.get('/api/elena/execution-status/:executionId', elenaWorkflowAuth, getExecutionStatus);
+  app.get('/api/elena/active-executions', elenaWorkflowAuth, getActiveExecutions);
+  app.delete('/api/elena/remove-workflow/:workflowId', elenaWorkflowAuth, removeWorkflow);
 
   // Execute staged workflow through autonomous orchestrator
   app.post('/api/elena/execute-staged-workflow/:workflowId', async (req, res) => {
