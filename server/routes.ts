@@ -5549,6 +5549,26 @@ Workflow Stage: ${savedMemory.workflowStage || 'None'}
       
       // CRITICAL FIX: ADD CONVERSATION SAVING AND MEMORY MANAGEMENT TO MAIN ENDPOINT
       try {
+        // 🚀 ELENA WORKFLOW DETECTION - Detect when Elena creates workflows through conversation
+        if (agentId === 'elena') {
+          try {
+            const { workflowDetectionService } = await import('./services/workflow-detection-service');
+            const detectedWorkflow = workflowDetectionService.detectWorkflowCreation(agentResponse, message);
+            
+            if (detectedWorkflow) {
+              console.log(`🎯 ELENA WORKFLOW DETECTED: "${detectedWorkflow.name}" staged for manual execution`);
+              console.log(`📋 WORKFLOW DETAILS:`, {
+                id: detectedWorkflow.id,
+                agents: detectedWorkflow.agents.join(', '),
+                priority: detectedWorkflow.priority,
+                requirements: detectedWorkflow.customRequirements.length
+              });
+            }
+          } catch (detectionError) {
+            console.warn('⚠️ WORKFLOW DETECTION ERROR:', detectionError);
+          }
+        }
+        
         // Save conversation to database for future memory retrieval using proper format
         await storage.saveAgentConversation(agentId, userId, message, agentResponse, []);
         console.log(`💾 MEMORY: Conversation saved for ${agentId}`);
@@ -6980,6 +7000,94 @@ AGENT_CONTEXT:
   });
 
   console.log('✅ Enhanced Agent Capabilities routes registered');
+
+  // Elena Staged Workflows API - Auto-detect workflows and create manual triggers
+  app.get('/api/elena/staged-workflows', isAuthenticated, async (req, res) => {
+    try {
+      const { workflowDetectionService } = await import('./services/workflow-detection-service');
+      const stagedWorkflows = workflowDetectionService.getStagedWorkflows();
+      
+      console.log(`📋 STAGED WORKFLOWS: Found ${stagedWorkflows.length} workflows ready for manual execution`);
+      
+      res.json({
+        success: true,
+        workflows: stagedWorkflows
+      });
+    } catch (error) {
+      console.error('❌ Error fetching staged workflows:', error);
+      res.status(500).json({ 
+        success: false, 
+        error: 'Failed to fetch staged workflows' 
+      });
+    }
+  });
+
+  // Execute staged workflow through autonomous orchestrator
+  app.post('/api/elena/execute-staged-workflow/:workflowId', isAuthenticated, async (req, res) => {
+    try {
+      const { workflowId } = req.params;
+      const { workflowDetectionService } = await import('./services/workflow-detection-service');
+      const workflow = workflowDetectionService.getWorkflow(workflowId);
+      
+      if (!workflow) {
+        return res.status(404).json({
+          success: false,
+          error: 'Workflow not found or expired'
+        });
+      }
+
+      console.log(`🚀 EXECUTING STAGED WORKFLOW: ${workflow.name} with ${workflow.agents.length} agents`);
+
+      // Execute the workflow through autonomous orchestrator
+      const response = await fetch('http://localhost:5000/api/autonomous-orchestrator/deploy-all-agents', {
+        method: 'POST',
+        headers: { 
+          'Content-Type': 'application/json',
+          'Authorization': 'Bearer sandra-admin-2025'
+        },
+        body: JSON.stringify({
+          missionType: 'elena-workflow',
+          priority: workflow.priority,
+          estimatedDuration: workflow.estimatedDuration,
+          customRequirements: workflow.customRequirements,
+          targetAgents: workflow.agents,
+          workflowName: workflow.name
+        })
+      });
+      
+      const result = await response.json();
+      
+      if (result.success) {
+        // Mark workflow as executed
+        workflowDetectionService.markWorkflowExecuted(workflowId);
+        
+        console.log(`✅ WORKFLOW EXECUTED: ${workflow.name} → Deployment: ${result.deploymentId}`);
+        
+        res.json({
+          success: true,
+          message: `Elena's workflow "${workflow.name}" is now executing with ${workflow.agents.length} agents`,
+          deploymentId: result.deploymentId,
+          deployment: result.deployment,
+          workflowName: workflow.name,
+          agents: workflow.agents
+        });
+      } else {
+        console.error('❌ WORKFLOW EXECUTION FAILED:', result.error);
+        res.status(500).json({
+          success: false,
+          error: 'Failed to execute workflow through autonomous orchestrator'
+        });
+      }
+    } catch (error) {
+      console.error('❌ Error executing staged workflow:', error);
+      res.status(500).json({ 
+        success: false, 
+        error: 'Failed to execute staged workflow' 
+      });
+    }
+  });
+
+  console.log('✅ Elena Staged Workflows API routes registered');
   console.log('✅ Plan B Execution System routes registered');
   
   // Agent Bridge System routes for luxury agent-to-agent communication
