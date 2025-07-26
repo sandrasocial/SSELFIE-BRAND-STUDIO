@@ -231,17 +231,69 @@ class ElenaWorkflowDetectionService {
       console.log(`📋 AGENTS: ${workflow.agents.join(', ')}`);
       console.log(`📝 TASKS: ${workflow.tasks.join(', ')}`);
       
-      // REAL AGENT EXECUTION - Import Claude API service for actual agent calls
+      // Import dependencies for agent execution and load tracking
       const { executeAgentChat } = await import('../services/claude-api-service');
+      const { intelligentTaskDistributor } = await import('../services/intelligent-task-distributor');
+      const { deploymentTracker } = await import('../services/deployment-tracking-service');
       
       const executionResults: string[] = [];
+      const taskAssignments: string[] = [];
       
-      // Execute each agent in the workflow with their tasks
+      // Start deployment tracking
+      const deploymentId = deploymentTracker.startElenaWorkflowDeployment(
+        workflowId,
+        workflow.title,
+        workflow.agents,
+        workflow.tasks,
+        workflow.priority as 'low' | 'medium' | 'high' | 'critical',
+        workflow.description,
+        parseInt(workflow.estimatedDuration) || 30
+      );
+      
+      // Update deployment status to running
+      deploymentTracker.updateDeploymentProgress(deploymentId, 10, 'running');
+      
+      // Create task assignments in intelligent task distributor
       for (const agent of workflow.agents) {
         if (agent === 'elena') continue; // Skip Elena to prevent self-execution
         
+        const taskId = `${workflowId}-${agent}-${Date.now()}`;
+        const taskRequirement = {
+          id: taskId,
+          title: `${workflow.title} - ${agent} coordination`,
+          description: workflow.description,
+          priority: workflow.priority as 'low' | 'medium' | 'high' | 'critical',
+          complexity: 'moderate' as const,
+          requiredSkills: [agent, 'coordination', 'implementation'],
+          estimatedTime: parseInt(workflow.estimatedDuration) || 30,
+          dependencies: []
+        };
+        
+        // Assign task to agent in intelligent task distributor
+        const assignments = await intelligentTaskDistributor.assignOptimalAgents([taskRequirement]);
+        const assignment = assignments.find(a => a.agentName === agent);
+        
+        if (assignment) {
+          taskAssignments.push(taskId);
+          console.log(`📋 TASK ASSIGNED: ${taskId} to ${agent} (${assignment.confidence}% confidence)`);
+        }
+      }
+      
+      // Execute each agent in the workflow with their tasks
+      const totalAgents = workflow.agents.filter(a => a !== 'elena').length;
+      let completedAgents = 0;
+      
+      for (const agent of workflow.agents) {
+        if (agent === 'elena') continue; // Skip Elena to prevent self-execution
+        
+        const taskId = taskAssignments.find(id => id.includes(agent));
+        
         try {
           console.log(`🤖 EXECUTING AGENT: ${agent} for workflow ${workflow.title}`);
+          
+          // Update deployment progress
+          const progressPercent = Math.round(((completedAgents / totalAgents) * 80) + 10); // 10-90% range
+          deploymentTracker.updateDeploymentProgress(deploymentId, progressPercent);
           
           // Create task message for agent based on workflow context
           const taskMessage = this.createAgentTaskMessage(workflow, agent);
@@ -256,10 +308,22 @@ class ElenaWorkflowDetectionService {
           if (agentResult.success) {
             console.log(`✅ AGENT ${agent.toUpperCase()} COMPLETED: ${agentResult.message?.substring(0, 100)}...`);
             executionResults.push(`✅ ${agent}: Task completed successfully`);
+            
+            // Mark task as completed in intelligent task distributor
+            if (taskId) {
+              await intelligentTaskDistributor.completeTask(taskId, true);
+            }
           } else {
             console.log(`❌ AGENT ${agent.toUpperCase()} FAILED: ${agentResult.error}`);
             executionResults.push(`❌ ${agent}: ${agentResult.error}`);
+            
+            // Mark task as failed in intelligent task distributor
+            if (taskId) {
+              await intelligentTaskDistributor.completeTask(taskId, false);
+            }
           }
+          
+          completedAgents++;
           
           // Brief delay between agents
           await new Promise(resolve => setTimeout(resolve, 500));
@@ -267,6 +331,14 @@ class ElenaWorkflowDetectionService {
         } catch (agentError) {
           console.error(`❌ AGENT ${agent} EXECUTION ERROR:`, agentError);
           executionResults.push(`❌ ${agent}: Execution error - ${agentError.message}`);
+          
+          // Mark task as failed in intelligent task distributor
+          const taskId = taskAssignments.find(id => id.includes(agent));
+          if (taskId) {
+            await intelligentTaskDistributor.completeTask(taskId, false);
+          }
+          
+          completedAgents++;
         }
       }
       
@@ -274,15 +346,30 @@ class ElenaWorkflowDetectionService {
       this.stagedWorkflows.set(workflowId, workflow);
       
       const successfulExecutions = executionResults.filter(r => r.startsWith('✅')).length;
-      const totalAgents = workflow.agents.filter(a => a !== 'elena').length;
+      const workflowSuccess = successfulExecutions > 0;
+      
+      // Complete deployment tracking
+      deploymentTracker.updateDeploymentProgress(deploymentId, 100, 'completing');
+      setTimeout(() => {
+        deploymentTracker.completeDeployment(deploymentId, workflowSuccess);
+      }, 2000); // Give 2 seconds to see completion status
       
       return { 
-        success: successfulExecutions > 0,
+        success: workflowSuccess,
         message: `Workflow "${workflow.title}" executed: ${successfulExecutions}/${totalAgents} agents completed tasks successfully. Results: ${executionResults.join(', ')}`
       };
     } catch (error) {
       workflow.status = 'staged'; // revert to staged
       this.stagedWorkflows.set(workflowId, workflow);
+      
+      // Mark deployment as failed
+      try {
+        const { deploymentTracker } = await import('../services/deployment-tracking-service');
+        deploymentTracker.completeDeployment(deploymentId, false);
+      } catch (importError) {
+        console.error('Failed to complete deployment tracking:', importError);
+      }
+      
       console.error('❌ ELENA WORKFLOW EXECUTION ERROR:', error);
       return { success: false, message: `Execution error: ${error.message}` };
     }
