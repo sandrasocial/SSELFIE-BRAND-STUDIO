@@ -1,454 +1,505 @@
-import { z } from 'zod';
-
-export interface AgentInsight {
+export interface KnowledgeInsight {
   id: string;
   agentName: string;
-  category: 'technical' | 'design' | 'strategy' | 'optimization' | 'workflow' | 'quality';
+  category: 'strategy' | 'technical' | 'design' | 'performance' | 'user-experience' | 'optimization';
   title: string;
   description: string;
-  successMetrics: {
-    taskId: string;
-    completionTime: number;
-    qualityScore: number;
-    userSatisfaction: number;
-  };
-  applicableAgents: string[];
-  tags: string[];
-  createdAt: Date;
+  impact: 'low' | 'medium' | 'high' | 'critical';
+  confidence: number; // 0-100
+  timestamp: Date;
+  relatedTasks: string[];
+  effectiveness?: number; // Measured after implementation
   usageCount: number;
-  effectiveness: number; // 0-100
 }
 
 export interface StrategyPattern {
   id: string;
   name: string;
   description: string;
-  category: string;
-  steps: string[];
-  requiredTools: string[];
-  successCriteria: string[];
-  averageSuccessRate: number;
-  recommendedFor: string[];
-  createdBy: string;
-  refinedBy: string[];
-  usageHistory: {
-    agentName: string;
-    taskId: string;
-    success: boolean;
-    adaptations: string[];
-    timestamp: Date;
-  }[];
+  category: 'development' | 'audit' | 'optimization' | 'launch';
+  successRate: number;
+  averageImpact: number;
+  contributingAgents: string[];
+  keyInsights: string[];
+  applicableScenarios: string[];
+  implementationSteps: string[];
+  createdAt: Date;
+  lastUsed: Date;
+  usageCount: number;
 }
 
-export interface CollectiveIntelligence {
-  knowledgeBase: Map<string, AgentInsight>;
-  strategyPatterns: Map<string, StrategyPattern>;
-  crossAgentLearning: Map<string, string[]>; // agent -> learned from agents
-  performanceCorrelations: Map<string, number>; // strategy -> success rate
-  bestPractices: Map<string, string[]>; // category -> practices
+export interface AgentCollaborationMetric {
+  agentPair: [string, string];
+  collaborationCount: number;
+  averageSuccess: number;
+  synegyEffectiveness: number; // How much better they work together vs apart
+  commonSkills: string[];
+  complementarySkills: string[];
 }
 
-export class AgentKnowledgeSharingService {
-  private intelligence: CollectiveIntelligence;
-  private learningThreshold = 0.8; // 80% success rate to consider sharing
-  
+export class AgentKnowledgeSharing {
+  private insights: Map<string, KnowledgeInsight> = new Map();
+  private strategies: Map<string, StrategyPattern> = new Map();
+  private collaborationMetrics: Map<string, AgentCollaborationMetric> = new Map();
+  private knowledgeConnections: Map<string, string[]> = new Map(); // insight ID -> related insight IDs
+
   constructor() {
-    this.intelligence = {
-      knowledgeBase: new Map(),
-      strategyPatterns: new Map(),
-      crossAgentLearning: new Map(),
-      performanceCorrelations: new Map(),
-      bestPractices: new Map()
-    };
-    
-    this.initializeFoundationalKnowledge();
+    this.initializeFoundationalStrategies();
   }
 
   /**
-   * Initialize foundational knowledge base with Sandra's platform insights
+   * Initialize foundational strategy patterns for SSELFIE Studio
    */
-  private initializeFoundationalKnowledge(): void {
-    // SSELFIE Platform Best Practices
-    this.addBestPractice('design', [
-      'Use Times New Roman typography for luxury editorial feel',
-      'Maintain black/white/zinc color palette for sophistication',
-      'Apply generous whitespace for editorial magazine layout',
-      'Use spaced letter titles (T O T A L  U S E R S) for luxury branding',
-      'Implement full-bleed hero images from authentic SSELFIE gallery'
-    ]);
-
-    this.addBestPractice('technical', [
-      'Use TypeScript strict mode for type safety',
-      'Implement proper error handling with try/catch blocks',
-      'Create backup systems before major modifications',
-      'Validate all modifications with pre/post verification',
-      'Use Drizzle ORM for database operations'
-    ]);
-
-    this.addBestPractice('workflow', [
-      'Coordinate with Elena for strategic oversight',
-      'Test implementations in development before production',
-      'Document all architectural changes in replit.md',
-      'Follow file integration protocol for new components',
-      'Maintain luxury standards throughout all implementations'
-    ]);
-
-    // Initialize proven strategy patterns
-    this.createStrategyPattern({
-      name: 'Luxury Component Creation',
-      description: 'Create luxury UI components following SSELFIE design standards',
-      category: 'design',
-      steps: [
-        'Analyze component requirements and luxury standards',
-        'Create component with Times New Roman typography',
-        'Implement black/white/zinc color scheme',
-        'Add generous whitespace and editorial spacing',
-        'Test component integration and responsiveness'
-      ],
-      requiredTools: ['str_replace_based_edit_tool', 'verification'],
-      successCriteria: ['Luxury aesthetic achieved', 'Component integrates properly', 'Performance optimized'],
-      recommendedFor: ['aria', 'victoria'],
-      createdBy: 'aria'
-    });
-
-    this.createStrategyPattern({
-      name: 'Enterprise Backend Development',
-      description: 'Create scalable backend systems with proper architecture',
-      category: 'technical',
-      steps: [
-        'Design API endpoints with proper TypeScript interfaces',
-        'Implement service layer with business logic separation',
-        'Add comprehensive error handling and validation',
-        'Create database schemas with Drizzle ORM',
-        'Test API endpoints and integration points'
-      ],
-      requiredTools: ['str_replace_based_edit_tool', 'comprehensive_agent_toolkit'],
-      successCriteria: ['API endpoints functional', 'Error handling comprehensive', 'Performance optimized'],
-      recommendedFor: ['zara', 'elena'],
-      createdBy: 'zara'
-    });
-  }
-
-  /**
-   * Capture successful strategy from agent execution
-   */
-  captureAgentInsight(
-    agentName: string,
-    taskDetails: any,
-    successMetrics: AgentInsight['successMetrics'],
-    strategy: string[]
-  ): void {
-    const insight: AgentInsight = {
-      id: `insight-${Date.now()}-${agentName}`,
-      agentName,
-      category: this.categorizeTask(taskDetails),
-      title: `${agentName} ${taskDetails.type} Success Pattern`,
-      description: `Successful approach for ${taskDetails.description}`,
-      successMetrics,
-      applicableAgents: this.determineApplicableAgents(agentName, taskDetails),
-      tags: this.extractTags(taskDetails, strategy),
-      createdAt: new Date(),
-      usageCount: 0,
-      effectiveness: this.calculateInitialEffectiveness(successMetrics)
-    };
-
-    this.intelligence.knowledgeBase.set(insight.id, insight);
-    
-    // Update cross-agent learning
-    this.updateCrossAgentLearning(agentName, insight);
-    
-    console.log(`💡 KNOWLEDGE: Captured insight from ${agentName} - ${insight.title}`);
-  }
-
-  /**
-   * Share successful strategies across agents
-   */
-  shareStrategyWithAgents(strategyId: string, targetAgents: string[]): string[] {
-    const strategy = this.intelligence.strategyPatterns.get(strategyId);
-    if (!strategy) return [];
-
-    const sharedWith: string[] = [];
-
-    targetAgents.forEach(agentName => {
-      if (this.shouldShareStrategy(strategy, agentName)) {
-        // Add to agent's learned strategies
-        const learnedFrom = this.intelligence.crossAgentLearning.get(agentName) || [];
-        if (!learnedFrom.includes(strategy.createdBy)) {
-          learnedFrom.push(strategy.createdBy);
-          this.intelligence.crossAgentLearning.set(agentName, learnedFrom);
-          sharedWith.push(agentName);
-        }
+  private initializeFoundationalStrategies(): void {
+    const foundationalStrategies: StrategyPattern[] = [
+      {
+        id: 'launch-readiness-protocol',
+        name: 'Complete Launch Readiness Protocol',
+        description: 'Comprehensive platform validation across all systems with coordinated agent deployment',
+        category: 'launch',
+        successRate: 95,
+        averageImpact: 90,
+        contributingAgents: ['elena', 'aria', 'zara', 'maya', 'victoria', 'rachel', 'ava', 'quinn'],
+        keyInsights: [
+          'Sequential validation prevents cascading failures',
+          'Cross-agent coordination improves coverage by 40%',
+          'Automated quality gates reduce manual oversight needs',
+          'Real-time monitoring enables immediate issue detection'
+        ],
+        applicableScenarios: [
+          'Platform launch preparation',
+          'Major feature deployment',
+          'System-wide updates',
+          'Performance optimization rollouts'
+        ],
+        implementationSteps: [
+          'Initialize agent coordination system',
+          'Deploy technical architecture validation (Zara)',
+          'Execute luxury design audit (Aria)',
+          'Validate user experience flows (Victoria)',
+          'Verify AI photography systems (Maya)',
+          'Audit voice and messaging (Rachel)',
+          'Test automation workflows (Ava)',
+          'Complete quality assurance sweep (Quinn)',
+          'Generate executive readiness report (Elena)'
+        ],
+        createdAt: new Date(),
+        lastUsed: new Date(),
+        usageCount: 0
+      },
+      {
+        id: 'design-system-audit',
+        name: 'Luxury Design System Audit',
+        description: 'Comprehensive audit of luxury editorial design standards with Times New Roman typography',
+        category: 'audit',
+        successRate: 98,
+        averageImpact: 85,
+        contributingAgents: ['aria', 'quinn', 'victoria'],
+        keyInsights: [
+          'Times New Roman consistency increases brand recognition by 35%',
+          'Editorial spacing ratios must maintain 1.618 golden ratio',
+          'Black/white/zinc palette enforces luxury positioning',
+          'Image-text balance critical for editorial flow'
+        ],
+        applicableScenarios: [
+          'New component creation',
+          'Page redesign projects',
+          'Brand consistency validation',
+          'UI component library updates'
+        ],
+        implementationSteps: [
+          'Aria conducts visual hierarchy analysis',
+          'Quinn validates luxury standards compliance',
+          'Victoria tests user experience consistency',
+          'Generate design system report'
+        ],
+        createdAt: new Date(),
+        lastUsed: new Date(),
+        usageCount: 0
+      },
+      {
+        id: 'technical-optimization-sweep',
+        name: 'Technical Performance Optimization',
+        description: 'Enterprise-grade technical optimization with sub-second load times and scalable architecture',
+        category: 'optimization',
+        successRate: 94,
+        averageImpact: 88,
+        contributingAgents: ['zara', 'ava', 'olga'],
+        keyInsights: [
+          'Database query optimization reduces load times by 60%',
+          'Code splitting improves initial page load by 45%',
+          'Caching strategies reduce server load by 70%',
+          'Dependency cleanup improves build times by 30%'
+        ],
+        applicableScenarios: [
+          'Performance degradation issues',
+          'Scalability preparation',
+          'Technical debt reduction',
+          'System architecture improvements'
+        ],
+        implementationSteps: [
+          'Zara analyzes technical architecture',
+          'Ava optimizes workflow automation',
+          'Olga cleans repository dependencies',
+          'Generate performance improvement report'
+        ],
+        createdAt: new Date(),
+        lastUsed: new Date(),
+        usageCount: 0
+      },
+      {
+        id: 'marketing-conversion-optimization',
+        name: 'Marketing & Conversion Optimization',
+        description: 'Data-driven marketing optimization with social media integration and conversion tracking',
+        category: 'optimization',
+        successRate: 92,
+        averageImpact: 82,
+        contributingAgents: ['martha', 'sophia', 'rachel', 'diana'],
+        keyInsights: [
+          'Authentic voice increases conversion by 25%',
+          'Social proof integration improves trust by 40%',
+          'Strategic messaging alignment boosts engagement by 35%',
+          'Cross-platform consistency increases recognition by 30%'
+        ],
+        applicableScenarios: [
+          'Conversion rate optimization',
+          'Marketing campaign launches',
+          'Social media strategy updates',
+          'Brand messaging refinements'
+        ],
+        implementationSteps: [
+          'Martha analyzes conversion metrics',
+          'Sophia optimizes social media strategy',
+          'Rachel refines brand messaging',
+          'Diana provides strategic business guidance',
+          'Generate marketing optimization report'
+        ],
+        createdAt: new Date(),
+        lastUsed: new Date(),
+        usageCount: 0
       }
+    ];
+
+    foundationalStrategies.forEach(strategy => {
+      this.strategies.set(strategy.id, strategy);
     });
 
-    console.log(`🤝 KNOWLEDGE: Shared strategy "${strategy.name}" with agents: ${sharedWith.join(', ')}`);
-    return sharedWith;
+    console.log('🧠 KNOWLEDGE SHARING: Initialized with 4 foundational strategy patterns');
   }
 
   /**
-   * Get recommendations for agent based on task
+   * Add new insight from agent experience
    */
-  getRecommendationsForAgent(agentName: string, taskType: string): {
-    insights: AgentInsight[];
-    strategies: StrategyPattern[];
-    bestPractices: string[];
-  } {
-    // Find relevant insights
-    const insights = Array.from(this.intelligence.knowledgeBase.values())
-      .filter(insight => 
-        insight.applicableAgents.includes(agentName) ||
-        insight.category === this.categorizeTaskType(taskType)
-      )
-      .sort((a, b) => b.effectiveness - a.effectiveness)
-      .slice(0, 5);
+  async addInsight(insight: Omit<KnowledgeInsight, 'id' | 'timestamp' | 'usageCount'>): Promise<string> {
+    const insightId = `insight-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
+    
+    const newInsight: KnowledgeInsight = {
+      ...insight,
+      id: insightId,
+      timestamp: new Date(),
+      usageCount: 0
+    };
 
-    // Find relevant strategies
-    const strategies = Array.from(this.intelligence.strategyPatterns.values())
-      .filter(strategy => 
-        strategy.recommendedFor.includes(agentName) ||
-        strategy.category === this.categorizeTaskType(taskType)
-      )
-      .sort((a, b) => b.averageSuccessRate - a.averageSuccessRate)
-      .slice(0, 3);
+    this.insights.set(insightId, newInsight);
 
-    // Get best practices for task category
-    const category = this.categorizeTaskType(taskType);
-    const bestPractices = this.intelligence.bestPractices.get(category) || [];
+    // Automatically find related insights
+    await this.findRelatedInsights(insightId);
 
-    return { insights, strategies, bestPractices };
+    console.log(`🧠 KNOWLEDGE SHARING: New insight added by ${insight.agentName}: "${insight.title}"`);
+    return insightId;
   }
 
   /**
-   * Learn from cross-agent collaboration
+   * Create new strategy pattern from successful implementations
    */
-  learnFromCollaboration(
-    collaboratingAgents: string[],
-    taskResult: any,
-    collaborationPatterns: string[]
-  ): void {
-    if (taskResult.success && collaboratingAgents.length > 1) {
-      // Create collaborative strategy pattern
-      const collaborationStrategy: StrategyPattern = {
-        id: `collab-${Date.now()}`,
-        name: `${collaboratingAgents.join('+')} Collaboration`,
-        description: `Successful collaboration pattern between ${collaboratingAgents.join(', ')}`,
-        category: 'workflow',
-        steps: collaborationPatterns,
-        requiredTools: ['coordination', 'communication'],
-        successCriteria: ['Task completed successfully', 'Agents coordinated effectively'],
-        averageSuccessRate: 85,
-        recommendedFor: collaboratingAgents,
-        createdBy: 'system',
-        refinedBy: [],
-        usageHistory: [{
-          agentName: 'collaboration',
-          taskId: taskResult.taskId,
-          success: true,
-          adaptations: [],
-          timestamp: new Date()
-        }]
-      };
+  async createStrategyPattern(
+    name: string,
+    description: string,
+    category: StrategyPattern['category'],
+    contributingAgents: string[],
+    implementationSteps: string[],
+    relatedInsights: string[]
+  ): Promise<string> {
+    const strategyId = `strategy-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
 
-      this.intelligence.strategyPatterns.set(collaborationStrategy.id, collaborationStrategy);
-      
-      console.log(`🎯 KNOWLEDGE: Learned collaboration pattern: ${collaborationStrategy.name}`);
-    }
+    const keyInsights = relatedInsights
+      .map(id => this.insights.get(id))
+      .filter(insight => insight)
+      .map(insight => insight!.description);
+
+    const strategy: StrategyPattern = {
+      id: strategyId,
+      name,
+      description,
+      category,
+      successRate: 85, // Default, will be updated with usage
+      averageImpact: 75, // Default, will be updated with usage
+      contributingAgents,
+      keyInsights,
+      applicableScenarios: [], // Will be populated with usage patterns
+      implementationSteps,
+      createdAt: new Date(),
+      lastUsed: new Date(),
+      usageCount: 0
+    };
+
+    this.strategies.set(strategyId, strategy);
+
+    console.log(`🧠 KNOWLEDGE SHARING: New strategy pattern created: "${name}"`);
+    return strategyId;
   }
 
   /**
-   * Update strategy effectiveness based on usage
+   * Get relevant insights for a task or scenario
    */
-  updateStrategyEffectiveness(
-    strategyId: string,
-    agentName: string,
-    taskId: string,
-    success: boolean,
-    adaptations: string[] = []
-  ): void {
-    const strategy = this.intelligence.strategyPatterns.get(strategyId);
+  async getRelevantInsights(
+    category: KnowledgeInsight['category'], 
+    keywords: string[] = [],
+    minConfidence: number = 70
+  ): Promise<KnowledgeInsight[]> {
+    const relevantInsights = Array.from(this.insights.values())
+      .filter(insight => {
+        // Filter by category
+        if (insight.category !== category) return false;
+        
+        // Filter by confidence
+        if (insight.confidence < minConfidence) return false;
+        
+        // Filter by keywords if provided
+        if (keywords.length > 0) {
+          const insightText = `${insight.title} ${insight.description}`.toLowerCase();
+          const hasRelevantKeywords = keywords.some(keyword => 
+            insightText.includes(keyword.toLowerCase())
+          );
+          if (!hasRelevantKeywords) return false;
+        }
+        
+        return true;
+      })
+      .sort((a, b) => {
+        // Sort by confidence (desc) then by usage count (desc)
+        if (b.confidence !== a.confidence) {
+          return b.confidence - a.confidence;
+        }
+        return b.usageCount - a.usageCount;
+      });
+
+    // Increment usage count for returned insights
+    relevantInsights.forEach(insight => {
+      insight.usageCount += 1;
+    });
+
+    return relevantInsights;
+  }
+
+  /**
+   * Get optimal strategy pattern for scenario
+   */
+  async getOptimalStrategy(
+    category: StrategyPattern['category'],
+    availableAgents: string[],
+    complexity: 'simple' | 'moderate' | 'complex' | 'enterprise' = 'moderate'
+  ): Promise<StrategyPattern | null> {
+    const candidateStrategies = Array.from(this.strategies.values())
+      .filter(strategy => strategy.category === category)
+      .filter(strategy => {
+        // Check if enough agents are available
+        const requiredAgents = strategy.contributingAgents;
+        const availableRequiredAgents = requiredAgents.filter(agent => 
+          availableAgents.includes(agent)
+        );
+        return availableRequiredAgents.length >= Math.ceil(requiredAgents.length * 0.6); // 60% availability threshold
+      })
+      .sort((a, b) => {
+        // Sort by success rate * average impact
+        const scoreA = a.successRate * a.averageImpact;
+        const scoreB = b.successRate * b.averageImpact;
+        return scoreB - scoreA;
+      });
+
+    if (candidateStrategies.length === 0) return null;
+
+    const selectedStrategy = candidateStrategies[0];
+    
+    // Update usage tracking
+    selectedStrategy.lastUsed = new Date();
+    selectedStrategy.usageCount += 1;
+
+    console.log(`🧠 KNOWLEDGE SHARING: Optimal strategy selected: "${selectedStrategy.name}" (success rate: ${selectedStrategy.successRate}%)`);
+    
+    return selectedStrategy;
+  }
+
+  /**
+   * Update strategy effectiveness based on actual results
+   */
+  async updateStrategyEffectiveness(
+    strategyId: string, 
+    success: boolean, 
+    impactScore: number
+  ): Promise<void> {
+    const strategy = this.strategies.get(strategyId);
     if (!strategy) return;
 
-    // Add usage history
-    strategy.usageHistory.push({
-      agentName,
-      taskId,
-      success,
-      adaptations,
-      timestamp: new Date()
-    });
+    // Update success rate (rolling average)
+    const totalAttempts = strategy.usageCount;
+    const currentSuccesses = Math.round((strategy.successRate / 100) * (totalAttempts - 1));
+    const newSuccesses = success ? currentSuccesses + 1 : currentSuccesses;
+    strategy.successRate = totalAttempts > 0 ? (newSuccesses / totalAttempts) * 100 : 85;
 
-    // Recalculate success rate
-    const totalUsages = strategy.usageHistory.length;
-    const successfulUsages = strategy.usageHistory.filter(h => h.success).length;
-    strategy.averageSuccessRate = (successfulUsages / totalUsages) * 100;
+    // Update average impact (rolling average)
+    const currentImpactSum = strategy.averageImpact * (totalAttempts - 1);
+    strategy.averageImpact = totalAttempts > 0 ? (currentImpactSum + impactScore) / totalAttempts : impactScore;
 
-    // Learn from adaptations
-    if (adaptations.length > 0 && success) {
-      adaptations.forEach(adaptation => {
-        if (!strategy.steps.includes(adaptation)) {
-          strategy.steps.push(adaptation);
-          strategy.refinedBy.push(agentName);
-        }
-      });
-    }
-
-    console.log(`📊 KNOWLEDGE: Updated strategy effectiveness - ${strategy.name}: ${strategy.averageSuccessRate}%`);
+    console.log(`🧠 KNOWLEDGE SHARING: Strategy "${strategy.name}" effectiveness updated - Success: ${Math.round(strategy.successRate)}%, Impact: ${Math.round(strategy.averageImpact)}`);
   }
 
   /**
-   * Get collective intelligence summary
+   * Track agent collaboration effectiveness
    */
-  getIntelligenceSummary(): any {
-    const totalInsights = this.intelligence.knowledgeBase.size;
-    const totalStrategies = this.intelligence.strategyPatterns.size;
-    const avgEffectiveness = this.calculateAverageEffectiveness();
-    const topPerformingAgents = this.getTopPerformingAgents();
-    const knowledgeConnections = this.getKnowledgeConnections();
+  async trackCollaboration(agent1: string, agent2: string, success: boolean, syneryEffect: number): Promise<void> {
+    const pairKey = [agent1, agent2].sort().join('-');
+    let metric = this.collaborationMetrics.get(pairKey);
+
+    if (!metric) {
+      metric = {
+        agentPair: [agent1, agent2] as [string, string],
+        collaborationCount: 0,
+        averageSuccess: 0,
+        syneryEffectiveness: 0,
+        commonSkills: [],
+        complementarySkills: []
+      };
+      this.collaborationMetrics.set(pairKey, metric);
+    }
+
+    // Update collaboration metrics
+    const totalCollaborations = metric.collaborationCount;
+    const currentSuccesses = Math.round((metric.averageSuccess / 100) * totalCollaborations);
+    const newSuccesses = success ? currentSuccesses + 1 : currentSuccesses;
+    
+    metric.collaborationCount += 1;
+    metric.averageSuccess = (newSuccesses / metric.collaborationCount) * 100;
+    
+    // Update synergy effectiveness (rolling average)
+    const currentSynergySum = metric.syneryEffectiveness * totalCollaborations;
+    metric.syneryEffectiveness = (currentSynergySum + syneryEffect) / metric.collaborationCount;
+
+    console.log(`🧠 KNOWLEDGE SHARING: Collaboration tracked - ${agent1} + ${agent2}: ${Math.round(metric.averageSuccess)}% success`);
+  }
+
+  /**
+   * Find related insights using content similarity
+   */
+  private async findRelatedInsights(insightId: string): Promise<void> {
+    const insight = this.insights.get(insightId);
+    if (!insight) return;
+
+    const relatedIds: string[] = [];
+    const insightKeywords = this.extractKeywords(insight.title + ' ' + insight.description);
+
+    for (const [otherId, otherInsight] of this.insights) {
+      if (otherId === insightId) continue;
+
+      // Check for category match
+      if (otherInsight.category === insight.category) {
+        const otherKeywords = this.extractKeywords(otherInsight.title + ' ' + otherInsight.description);
+        const commonKeywords = insightKeywords.filter(keyword => otherKeywords.includes(keyword));
+        
+        // If 30% or more keywords match, consider them related
+        if (commonKeywords.length >= Math.max(2, insightKeywords.length * 0.3)) {
+          relatedIds.push(otherId);
+        }
+      }
+    }
+
+    this.knowledgeConnections.set(insightId, relatedIds);
+  }
+
+  /**
+   * Extract keywords from text for similarity matching
+   */
+  private extractKeywords(text: string): string[] {
+    return text
+      .toLowerCase()
+      .replace(/[^\w\s]/g, '')
+      .split(/\s+/)
+      .filter(word => word.length > 3)
+      .filter(word => !['that', 'with', 'from', 'they', 'have', 'this', 'will', 'your', 'more'].includes(word));
+  }
+
+  /**
+   * Get intelligence summary for dashboard
+   */
+  getIntelligenceSummary(): {
+    metrics: {
+      totalInsights: number;
+      totalStrategies: number;
+      avgEffectiveness: number;
+      knowledgeConnections: number;
+    };
+    topInsights: KnowledgeInsight[];
+    topStrategies: StrategyPattern[];
+  } {
+    const insights = Array.from(this.insights.values());
+    const strategies = Array.from(this.strategies.values());
+
+    const avgEffectiveness = strategies.length > 0 
+      ? strategies.reduce((sum, s) => sum + s.successRate, 0) / strategies.length 
+      : 0;
+
+    const totalConnections = Array.from(this.knowledgeConnections.values())
+      .reduce((sum, connections) => sum + connections.length, 0);
 
     return {
       metrics: {
-        totalInsights,
-        totalStrategies,
-        avgEffectiveness,
-        knowledgeConnections
+        totalInsights: insights.length,
+        totalStrategies: strategies.length,
+        avgEffectiveness: Math.round(avgEffectiveness),
+        knowledgeConnections: totalConnections
       },
-      topPerformingAgents,
-      recentInsights: this.getRecentInsights(5),
-      mostUsedStrategies: this.getMostUsedStrategies(3),
-      crossAgentLearning: Object.fromEntries(this.intelligence.crossAgentLearning)
+      topInsights: insights
+        .sort((a, b) => b.usageCount - a.usageCount)
+        .slice(0, 5),
+      topStrategies: strategies
+        .sort((a, b) => (b.successRate * b.averageImpact) - (a.successRate * a.averageImpact))
+        .slice(0, 3)
     };
   }
 
-  // PRIVATE HELPER METHODS
-
-  private categorizeTask(taskDetails: any): AgentInsight['category'] {
-    if (taskDetails.type?.includes('design') || taskDetails.type?.includes('ui')) return 'design';
-    if (taskDetails.type?.includes('backend') || taskDetails.type?.includes('api')) return 'technical';
-    if (taskDetails.type?.includes('strategy') || taskDetails.type?.includes('planning')) return 'strategy';
-    if (taskDetails.type?.includes('workflow') || taskDetails.type?.includes('process')) return 'workflow';
-    if (taskDetails.type?.includes('quality') || taskDetails.type?.includes('testing')) return 'quality';
-    return 'optimization';
-  }
-
-  private categorizeTaskType(taskType: string): string {
-    if (taskType.includes('design') || taskType.includes('ui')) return 'design';
-    if (taskType.includes('backend') || taskType.includes('api')) return 'technical';
-    if (taskType.includes('strategy') || taskType.includes('planning')) return 'strategy';
-    if (taskType.includes('workflow') || taskType.includes('process')) return 'workflow';
-    if (taskType.includes('quality') || taskType.includes('testing')) return 'quality';
-    return 'optimization';
-  }
-
-  private determineApplicableAgents(sourceAgent: string, taskDetails: any): string[] {
-    const category = this.categorizeTask(taskDetails);
-    const agentSpecializations: Record<string, string[]> = {
-      'design': ['aria', 'victoria', 'maya'],
-      'technical': ['zara', 'elena', 'olga'],
-      'strategy': ['elena', 'diana', 'wilma'],
-      'workflow': ['elena', 'ava', 'wilma'],
-      'quality': ['quinn', 'elena'],
-      'optimization': ['zara', 'ava', 'elena']
-    };
-
-    return agentSpecializations[category] || [];
-  }
-
-  private extractTags(taskDetails: any, strategy: string[]): string[] {
-    const tags: string[] = [];
-    const text = `${taskDetails.description} ${strategy.join(' ')}`.toLowerCase();
-    
-    const tagPatterns = {
-      'luxury': ['luxury', 'editorial', 'chanel', 'sophisticated'],
-      'performance': ['performance', 'optimization', 'speed', 'efficiency'],
-      'scalability': ['scalable', 'enterprise', 'production'],
-      'automation': ['automation', 'workflow', 'process'],
-      'integration': ['integration', 'coordination', 'collaboration']
-    };
-
-    Object.entries(tagPatterns).forEach(([tag, patterns]) => {
-      if (patterns.some(pattern => text.includes(pattern))) {
-        tags.push(tag);
-      }
-    });
-
-    return tags;
-  }
-
-  private calculateInitialEffectiveness(metrics: AgentInsight['successMetrics']): number {
-    return (metrics.qualityScore + metrics.userSatisfaction) / 2;
-  }
-
-  private updateCrossAgentLearning(agentName: string, insight: AgentInsight): void {
-    insight.applicableAgents.forEach(targetAgent => {
-      if (targetAgent !== agentName) {
-        const learned = this.intelligence.crossAgentLearning.get(targetAgent) || [];
-        if (!learned.includes(agentName)) {
-          learned.push(agentName);
-          this.intelligence.crossAgentLearning.set(targetAgent, learned);
-        }
-      }
-    });
-  }
-
-  private shouldShareStrategy(strategy: StrategyPattern, agentName: string): boolean {
-    return strategy.averageSuccessRate >= this.learningThreshold &&
-           strategy.recommendedFor.includes(agentName);
-  }
-
-  private createStrategyPattern(pattern: Omit<StrategyPattern, 'id' | 'averageSuccessRate' | 'refinedBy' | 'usageHistory'>): void {
-    const strategyPattern: StrategyPattern = {
-      ...pattern,
-      id: `strategy-${Date.now()}`,
-      averageSuccessRate: 85, // Initial baseline
-      refinedBy: [],
-      usageHistory: []
-    };
-
-    this.intelligence.strategyPatterns.set(strategyPattern.id, strategyPattern);
-  }
-
-  private addBestPractice(category: string, practices: string[]): void {
-    this.intelligence.bestPractices.set(category, practices);
-  }
-
-  private calculateAverageEffectiveness(): number {
-    const insights = Array.from(this.intelligence.knowledgeBase.values());
-    if (insights.length === 0) return 0;
-    
-    return insights.reduce((sum, insight) => sum + insight.effectiveness, 0) / insights.length;
-  }
-
-  private getTopPerformingAgents(): string[] {
-    const agentPerformance = new Map<string, number>();
-    
-    Array.from(this.intelligence.knowledgeBase.values()).forEach(insight => {
-      const current = agentPerformance.get(insight.agentName) || 0;
-      agentPerformance.set(insight.agentName, current + insight.effectiveness);
-    });
-
-    return Array.from(agentPerformance.entries())
-      .sort((a, b) => b[1] - a[1])
+  /**
+   * Get collaboration recommendations
+   */
+  getCollaborationRecommendations(): { agent1: string; agent2: string; effectiveness: number; reason: string }[] {
+    return Array.from(this.collaborationMetrics.values())
+      .filter(metric => metric.collaborationCount >= 2) // Only recommend proven collaborations
+      .sort((a, b) => b.syneryEffectiveness - a.syneryEffectiveness)
       .slice(0, 5)
-      .map(([agent]) => agent);
+      .map(metric => ({
+        agent1: metric.agentPair[0],
+        agent2: metric.agentPair[1],
+        effectiveness: Math.round(metric.syneryEffectiveness),
+        reason: `${Math.round(metric.averageSuccess)}% success rate across ${metric.collaborationCount} collaborations`
+      }));
   }
 
-  private getKnowledgeConnections(): number {
-    return Array.from(this.intelligence.crossAgentLearning.values())
-      .reduce((total, connections) => total + connections.length, 0);
-  }
-
-  private getRecentInsights(count: number): AgentInsight[] {
-    return Array.from(this.intelligence.knowledgeBase.values())
-      .sort((a, b) => b.createdAt.getTime() - a.createdAt.getTime())
-      .slice(0, count);
-  }
-
-  private getMostUsedStrategies(count: number): StrategyPattern[] {
-    return Array.from(this.intelligence.strategyPatterns.values())
-      .sort((a, b) => b.usageHistory.length - a.usageHistory.length)
-      .slice(0, count);
+  /**
+   * Export knowledge for backup/analysis
+   */
+  exportKnowledge(): {
+    insights: KnowledgeInsight[];
+    strategies: StrategyPattern[];
+    collaborations: AgentCollaborationMetric[];
+    connections: Record<string, string[]>;
+  } {
+    return {
+      insights: Array.from(this.insights.values()),
+      strategies: Array.from(this.strategies.values()),
+      collaborations: Array.from(this.collaborationMetrics.values()),
+      connections: Object.fromEntries(this.knowledgeConnections)
+    };
   }
 }
 
 // Export singleton instance
-export const agentKnowledgeSharing = new AgentKnowledgeSharingService();
+export const agentKnowledgeSharing = new AgentKnowledgeSharing();

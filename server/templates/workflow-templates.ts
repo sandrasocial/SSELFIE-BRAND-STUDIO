@@ -1,695 +1,739 @@
-import { TaskRequirement } from '../services/intelligent-task-distributor';
-import { AgentImplementationRequest } from '../tools/agent_implementation_toolkit';
-
-export interface WorkflowTemplate {
+export interface WorkflowTask {
   id: string;
-  name: string;
+  title: string;
   description: string;
-  category: 'launch' | 'optimization' | 'development' | 'audit' | 'maintenance';
-  phases: WorkflowPhase[];
-  estimatedDuration: number; // in minutes
-  requiredAgents: string[];
-  successCriteria: string[];
-  prerequisites: string[];
+  priority: 'low' | 'medium' | 'high' | 'critical';
+  complexity: 'simple' | 'moderate' | 'complex' | 'enterprise';
+  requiredSkills: string[];
+  estimatedTime: number; // in minutes
+  dependencies: string[];
+  agentRecommendations?: string[];
 }
 
 export interface WorkflowPhase {
   id: string;
   name: string;
   description: string;
-  tasks: TaskRequirement[];
   parallelExecution: boolean;
   dependencies: string[];
-  estimatedDuration: number;
+  estimatedDuration: number; // in minutes
+  tasks: WorkflowTask[];
 }
 
-export interface WorkflowExecution {
-  templateId: string;
-  executionId: string;
-  status: 'pending' | 'active' | 'paused' | 'complete' | 'failed';
-  currentPhase: number;
-  startTime: Date;
-  estimatedCompletion?: Date;
-  progress: number;
-  results: any[];
+export interface WorkflowTemplate {
+  id: string;
+  name: string;
+  description: string;
+  category: 'development' | 'audit' | 'optimization' | 'launch' | 'maintenance';
+  estimatedDuration: number; // in minutes
+  requiredAgents: string[];
+  phases: WorkflowPhase[];
+  successCriteria: string[];
+  riskFactors: string[];
+  createdAt: Date;
+  lastUsed?: Date;
+  usageCount: number;
+  successRate: number;
 }
 
 export class AutonomousWorkflowTemplates {
   private templates: Map<string, WorkflowTemplate> = new Map();
 
   constructor() {
-    this.initializeTemplates();
+    this.initializeFoundationalTemplates();
   }
 
   /**
-   * Initialize pre-defined multi-agent workflow templates
+   * Initialize foundational workflow templates for SSELFIE Studio
    */
-  private initializeTemplates(): void {
-    // 1. Launch Readiness Protocol
-    this.createTemplate({
-      id: 'launch-readiness-protocol',
-      name: 'Launch Readiness Protocol',
-      description: 'Complete platform optimization and validation for production launch',
-      category: 'launch',
-      estimatedDuration: 180, // 3 hours
-      requiredAgents: ['elena', 'aria', 'zara', 'maya', 'victoria', 'rachel', 'ava', 'quinn', 'sophia', 'martha', 'diana', 'wilma', 'olga'],
-      successCriteria: [
-        'All systems optimized for production',
-        'Quality assurance validation complete',
-        'Performance benchmarks achieved',
-        'User experience validated',
-        'Content and messaging optimized'
-      ],
-      prerequisites: [
-        'Development environment stable',
-        'Core features implemented',
-        'Database migrations complete'
-      ],
-      phases: [
-        {
-          id: 'strategic-assessment',
-          name: 'Strategic Assessment',
-          description: 'High-level platform readiness assessment',
-          parallelExecution: false,
-          dependencies: [],
-          estimatedDuration: 30,
-          tasks: [
-            {
-              id: 'elena-strategic-overview',
-              title: 'Platform Launch Assessment',
-              description: 'Comprehensive strategic analysis of platform readiness',
-              priority: 'critical',
-              complexity: 'enterprise',
-              requiredSkills: ['strategy', 'coordination', 'planning'],
-              estimatedTime: 30,
-              dependencies: []
-            }
-          ]
-        },
-        {
-          id: 'technical-optimization',
-          name: 'Technical Foundation Optimization',
-          description: 'Backend, architecture, and performance optimization',
-          parallelExecution: true,
-          dependencies: ['strategic-assessment'],
-          estimatedDuration: 60,
-          tasks: [
-            {
-              id: 'zara-architecture-review',
-              title: 'Architecture Performance Review',
-              description: 'Complete technical architecture optimization and performance tuning',
-              priority: 'high',
-              complexity: 'enterprise',
-              requiredSkills: ['backend', 'performance', 'architecture'],
-              estimatedTime: 45,
-              dependencies: []
-            },
-            {
-              id: 'olga-repository-optimization',
-              title: 'Repository Structure Optimization',
-              description: 'Final repository cleanup and organization for production',
-              priority: 'medium',
-              complexity: 'moderate',
-              requiredSkills: ['organization', 'maintenance', 'cleanup'],
-              estimatedTime: 30,
-              dependencies: []
-            }
-          ]
-        },
-        {
-          id: 'design-excellence',
-          name: 'Design Excellence Validation',
-          description: 'Luxury design standards and user experience optimization',
-          parallelExecution: true,
-          dependencies: ['technical-optimization'],
-          estimatedDuration: 45,
-          tasks: [
-            {
-              id: 'aria-luxury-design-audit',
-              title: 'Luxury Design Standards Audit',
-              description: 'Complete validation of luxury design implementation across platform',
-              priority: 'high',
-              complexity: 'complex',
-              requiredSkills: ['luxury-design', 'editorial-layout', 'branding'],
-              estimatedTime: 40,
-              dependencies: []
-            },
-            {
-              id: 'victoria-ux-optimization',
-              title: 'User Experience Optimization',
-              description: 'Final UX validation and conversion optimization',
-              priority: 'high',
-              complexity: 'complex',
-              requiredSkills: ['ux-design', 'conversion-optimization', 'usability'],
-              estimatedTime: 35,
-              dependencies: []
-            },
-            {
-              id: 'maya-ai-photography-validation',
-              title: 'AI Photography System Validation',
-              description: 'Complete validation of AI photography pipeline and celebrity stylist experience',
-              priority: 'high',
-              complexity: 'complex',
-              requiredSkills: ['ai-photography', 'flux-integration', 'user-experience'],
-              estimatedTime: 30,
-              dependencies: []
-            }
-          ]
-        },
-        {
-          id: 'content-marketing-readiness',
-          name: 'Content & Marketing Readiness',
-          description: 'Content, messaging, and marketing system optimization',
-          parallelExecution: true,
-          dependencies: ['design-excellence'],
-          estimatedDuration: 30,
-          tasks: [
-            {
-              id: 'rachel-voice-consistency',
-              title: 'Brand Voice Consistency Validation',
-              description: 'Final validation of Sandra\'s authentic voice across all platform touchpoints',
-              priority: 'high',
-              complexity: 'moderate',
-              requiredSkills: ['copywriting', 'voice-consistency', 'brand-voice'],
-              estimatedTime: 25,
-              dependencies: []
-            },
-            {
-              id: 'sophia-social-integration',
-              title: 'Social Media Integration Readiness',
-              description: 'Validate social media integration and community features',
-              priority: 'medium',
-              complexity: 'moderate',
-              requiredSkills: ['social-media', 'community-management', 'integration'],
-              estimatedTime: 20,
-              dependencies: []
-            },
-            {
-              id: 'martha-conversion-optimization',
-              title: 'Marketing Conversion Optimization',
-              description: 'Final marketing funnel and conversion optimization',
-              priority: 'high',
-              complexity: 'moderate',
-              requiredSkills: ['marketing', 'conversion-optimization', 'analytics'],
-              estimatedTime: 25,
-              dependencies: []
-            }
-          ]
-        },
-        {
-          id: 'quality-business-validation',
-          name: 'Quality & Business Validation',
-          description: 'Final quality assurance and business readiness validation',
-          parallelExecution: true,
-          dependencies: ['content-marketing-readiness'],
-          estimatedDuration: 35,
-          tasks: [
-            {
-              id: 'quinn-luxury-qa',
-              title: 'Luxury Standards Quality Assurance',
-              description: 'Complete quality validation ensuring luxury standards throughout platform',
-              priority: 'critical',
-              complexity: 'complex',
-              requiredSkills: ['quality-assurance', 'luxury-standards', 'validation'],
-              estimatedTime: 30,
-              dependencies: []
-            },
-            {
-              id: 'ava-automation-optimization',
-              title: 'Automation System Optimization',
-              description: 'Final automation workflow optimization for scalable operations',
-              priority: 'medium',
-              complexity: 'moderate',
-              requiredSkills: ['automation', 'workflow-optimization', 'scalability'],
-              estimatedTime: 25,
-              dependencies: []
-            },
-            {
-              id: 'diana-business-strategy',
-              title: 'Business Strategy Launch Validation',
-              description: 'Strategic business validation and launch recommendations',
-              priority: 'high',
-              complexity: 'moderate',
-              requiredSkills: ['business-strategy', 'planning', 'decision-making'],
-              estimatedTime: 20,
-              dependencies: []
-            },
-            {
-              id: 'wilma-workflow-optimization',
-              title: 'Operational Workflow Optimization',
-              description: 'Final operational workflow optimization for efficient business operations',
-              priority: 'medium',
-              complexity: 'moderate',
-              requiredSkills: ['workflow-design', 'efficiency', 'process-optimization'],
-              estimatedTime: 20,
-              dependencies: []
-            }
-          ]
-        }
-      ]
+  private initializeFoundationalTemplates(): void {
+    const templates: WorkflowTemplate[] = [
+      {
+        id: 'complete-launch-readiness',
+        name: 'Complete Launch Readiness Protocol',
+        description: 'Comprehensive platform validation and optimization across all systems',
+        category: 'launch',
+        estimatedDuration: 180, // 3 hours
+        requiredAgents: ['elena', 'aria', 'zara', 'maya', 'victoria', 'rachel', 'ava', 'quinn'],
+        phases: [
+          {
+            id: 'phase-1-system-architecture',
+            name: 'System Architecture Validation',
+            description: 'Validate technical architecture, performance, and scalability',
+            parallelExecution: false,
+            dependencies: [],
+            estimatedDuration: 45,
+            tasks: [
+              {
+                id: 'task-technical-audit',
+                title: 'Complete Technical Architecture Audit',
+                description: 'Comprehensive review of backend architecture, database performance, and code quality',
+                priority: 'critical',
+                complexity: 'enterprise',
+                requiredSkills: ['backend', 'architecture', 'performance'],
+                estimatedTime: 30,
+                dependencies: [],
+                agentRecommendations: ['zara']
+              },
+              {
+                id: 'task-dependency-optimization',
+                title: 'Repository and Dependency Optimization',
+                description: 'Clean repository structure, optimize dependencies, and validate file organization',
+                priority: 'high',
+                complexity: 'moderate',
+                requiredSkills: ['organization', 'maintenance', 'architecture-optimization'],
+                estimatedTime: 15,
+                dependencies: [],
+                agentRecommendations: ['olga']
+              }
+            ]
+          },
+          {
+            id: 'phase-2-design-experience',
+            name: 'Design & User Experience Validation',
+            description: 'Audit luxury design standards and user experience flows',
+            parallelExecution: true,
+            dependencies: ['phase-1-system-architecture'],
+            estimatedDuration: 40,
+            tasks: [
+              {
+                id: 'task-luxury-design-audit',
+                title: 'Luxury Editorial Design System Audit',
+                description: 'Validate Times New Roman typography, editorial spacing, and luxury brand consistency',
+                priority: 'critical',
+                complexity: 'complex',
+                requiredSkills: ['luxury-design', 'editorial-layout', 'branding'],
+                estimatedTime: 25,
+                dependencies: [],
+                agentRecommendations: ['aria']
+              },
+              {
+                id: 'task-ux-flow-validation',
+                title: 'User Experience Flow Validation',
+                description: 'Test complete user journey from landing to BUILD workspace with conversion optimization',
+                priority: 'high',
+                complexity: 'complex',
+                requiredSkills: ['ux-design', 'conversion-optimization', 'usability'],
+                estimatedTime: 20,
+                dependencies: [],
+                agentRecommendations: ['victoria']
+              },
+              {
+                id: 'task-maya-ai-integration',
+                title: 'Maya AI Photography System Validation',
+                description: 'Test AI photography generation, celebrity styling interface, and user workflow',
+                priority: 'critical',
+                complexity: 'complex',
+                requiredSkills: ['ai-photography', 'flux-integration', 'user-experience'],
+                estimatedTime: 15,
+                dependencies: [],
+                agentRecommendations: ['maya']
+              }
+            ]
+          },
+          {
+            id: 'phase-3-content-automation',
+            name: 'Content & Automation Systems',
+            description: 'Validate voice consistency, automation workflows, and content systems',
+            parallelExecution: true,
+            dependencies: ['phase-2-design-experience'],
+            estimatedDuration: 35,
+            tasks: [
+              {
+                id: 'task-voice-consistency-audit',
+                title: 'Brand Voice & Messaging Consistency',
+                description: 'Audit Sandra\'s authentic voice across all customer touchpoints and messaging',
+                priority: 'high',
+                complexity: 'moderate',
+                requiredSkills: ['copywriting', 'brand-voice', 'messaging'],
+                estimatedTime: 20,
+                dependencies: [],
+                agentRecommendations: ['rachel']
+              },
+              {
+                id: 'task-automation-workflow-validation',
+                title: 'Automation Workflow Validation',
+                description: 'Test all automated workflows, scalability systems, and process optimization',
+                priority: 'high',
+                complexity: 'complex',
+                requiredSkills: ['automation', 'workflow-optimization', 'scalability'],
+                estimatedTime: 25,
+                dependencies: [],
+                agentRecommendations: ['ava']
+              }
+            ]
+          },
+          {
+            id: 'phase-4-quality-assurance',
+            name: 'Quality Assurance & Testing',
+            description: 'Comprehensive quality validation with luxury standards enforcement',
+            parallelExecution: false,
+            dependencies: ['phase-3-content-automation'],
+            estimatedDuration: 30,
+            tasks: [
+              {
+                id: 'task-luxury-standards-validation',
+                title: 'Luxury Standards Quality Assurance',
+                description: 'Swiss-precision validation of all luxury standards, performance metrics, and user experience quality',
+                priority: 'critical',
+                complexity: 'enterprise',
+                requiredSkills: ['quality-assurance', 'luxury-standards', 'testing'],
+                estimatedTime: 30,
+                dependencies: ['task-technical-audit', 'task-luxury-design-audit', 'task-ux-flow-validation'],
+                agentRecommendations: ['quinn']
+              }
+            ]
+          },
+          {
+            id: 'phase-5-strategic-coordination',
+            name: 'Strategic Coordination & Launch Report',
+            description: 'Executive coordination and comprehensive launch readiness reporting',
+            parallelExecution: false,
+            dependencies: ['phase-4-quality-assurance'],
+            estimatedDuration: 30,
+            tasks: [
+              {
+                id: 'task-executive-coordination',
+                title: 'Executive Launch Readiness Report',
+                description: 'Comprehensive strategic analysis, readiness assessment, and launch recommendation',
+                priority: 'critical',
+                complexity: 'enterprise',
+                requiredSkills: ['strategy', 'coordination', 'planning'],
+                estimatedTime: 30,
+                dependencies: ['task-luxury-standards-validation'],
+                agentRecommendations: ['elena']
+              }
+            ]
+          }
+        ],
+        successCriteria: [
+          'All technical architecture passes performance benchmarks',
+          'Luxury design standards maintain 100% consistency',
+          'User experience flows achieve >95% conversion rates',
+          'AI photography systems generate high-quality results',
+          'Brand voice maintains authenticity across all touchpoints',
+          'Automation workflows operate without manual intervention',
+          'Quality assurance validates luxury positioning',
+          'Executive report confirms launch readiness'
+        ],
+        riskFactors: [
+          'Database performance degradation under load',
+          'Design inconsistencies affecting brand perception',
+          'User experience friction reducing conversions',
+          'AI generation quality below luxury standards',
+          'Voice inconsistency damaging brand authenticity',
+          'Automation failures requiring manual intervention',
+          'Quality issues affecting customer satisfaction'
+        ],
+        createdAt: new Date(),
+        usageCount: 0,
+        successRate: 95
+      },
+      {
+        id: 'design-system-comprehensive-audit',
+        name: 'Comprehensive Design System Audit',
+        description: 'Deep luxury design system analysis with editorial standards validation',
+        category: 'audit',
+        estimatedDuration: 60,
+        requiredAgents: ['aria', 'quinn', 'victoria'],
+        phases: [
+          {
+            id: 'design-audit-phase-1',
+            name: 'Visual Hierarchy Analysis',
+            description: 'Analyze visual hierarchy, typography, and spacing consistency',
+            parallelExecution: false,
+            dependencies: [],
+            estimatedDuration: 25,
+            tasks: [
+              {
+                id: 'typography-audit',
+                title: 'Times New Roman Typography Audit',
+                description: 'Comprehensive audit of Times New Roman usage, spacing, and hierarchy',
+                priority: 'critical',
+                complexity: 'moderate',
+                requiredSkills: ['luxury-design', 'editorial-layout', 'typography'],
+                estimatedTime: 15,
+                dependencies: [],
+                agentRecommendations: ['aria']
+              },
+              {
+                id: 'spacing-consistency-check',
+                title: 'Editorial Spacing Consistency',
+                description: 'Validate golden ratio spacing and editorial flow consistency',
+                priority: 'high',
+                complexity: 'moderate',
+                requiredSkills: ['editorial-layout', 'design-systems'],
+                estimatedTime: 10,
+                dependencies: ['typography-audit'],
+                agentRecommendations: ['aria']
+              }
+            ]
+          },
+          {
+            id: 'design-audit-phase-2',
+            name: 'Brand Consistency Validation',
+            description: 'Validate brand consistency and luxury positioning',
+            parallelExecution: true,
+            dependencies: ['design-audit-phase-1'],
+            estimatedDuration: 35,
+            tasks: [
+              {
+                id: 'color-palette-validation',
+                title: 'Black/White/Zinc Palette Validation',
+                description: 'Ensure strict adherence to luxury color palette across all components',
+                priority: 'high',
+                complexity: 'moderate',
+                requiredSkills: ['branding', 'luxury-standards'],
+                estimatedTime: 15,
+                dependencies: [],
+                agentRecommendations: ['aria']
+              },
+              {
+                id: 'ux-consistency-check',
+                title: 'User Experience Consistency',
+                description: 'Validate consistent user experience patterns across all interfaces',
+                priority: 'high',
+                complexity: 'moderate',
+                requiredSkills: ['ux-design', 'consistency'],
+                estimatedTime: 15,
+                dependencies: [],
+                agentRecommendations: ['victoria']
+              },
+              {
+                id: 'luxury-standards-enforcement',
+                title: 'Luxury Standards Quality Gate',
+                description: 'Swiss-precision validation of all luxury positioning elements',
+                priority: 'critical',
+                complexity: 'complex',
+                requiredSkills: ['luxury-standards', 'quality-assurance'],
+                estimatedTime: 20,
+                dependencies: ['color-palette-validation', 'ux-consistency-check'],
+                agentRecommendations: ['quinn']
+              }
+            ]
+          }
+        ],
+        successCriteria: [
+          'Typography maintains consistent Times New Roman hierarchy',
+          'Editorial spacing follows golden ratio principles',
+          'Color palette strictly adheres to black/white/zinc luxury standards',
+          'User experience patterns maintain consistency',
+          'All elements pass luxury positioning validation'
+        ],
+        riskFactors: [
+          'Typography inconsistencies affecting brand recognition',
+          'Spacing violations breaking editorial flow',
+          'Color deviations damaging luxury positioning',
+          'UX inconsistencies reducing user confidence'
+        ],
+        createdAt: new Date(),
+        usageCount: 0,
+        successRate: 98
+      },
+      {
+        id: 'technical-performance-optimization',
+        name: 'Technical Performance Optimization',
+        description: 'Enterprise-grade technical optimization and performance tuning',
+        category: 'optimization',
+        estimatedDuration: 90,
+        requiredAgents: ['zara', 'ava', 'olga'],
+        phases: [
+          {
+            id: 'perf-phase-1',
+            name: 'Architecture Analysis',
+            description: 'Deep technical architecture analysis and optimization planning',
+            parallelExecution: false,
+            dependencies: [],
+            estimatedDuration: 30,
+            tasks: [
+              {
+                id: 'architecture-deep-dive',
+                title: 'Technical Architecture Deep Dive',
+                description: 'Comprehensive analysis of backend architecture, database design, and scalability patterns',
+                priority: 'critical',
+                complexity: 'enterprise',
+                requiredSkills: ['architecture', 'backend', 'scalability'],
+                estimatedTime: 30,
+                dependencies: [],
+                agentRecommendations: ['zara']
+              }
+            ]
+          },
+          {
+            id: 'perf-phase-2',
+            name: 'Performance Optimization',
+            description: 'Implementation of performance optimizations and workflow improvements',
+            parallelExecution: true,
+            dependencies: ['perf-phase-1'],
+            estimatedDuration: 60,
+            tasks: [
+              {
+                id: 'database-optimization',
+                title: 'Database Query Optimization',
+                description: 'Optimize database queries, indexing, and connection pooling for sub-second response times',
+                priority: 'critical',
+                complexity: 'enterprise',
+                requiredSkills: ['database', 'performance', 'optimization'],
+                estimatedTime: 25,
+                dependencies: ['architecture-deep-dive'],
+                agentRecommendations: ['zara']
+              },
+              {
+                id: 'workflow-automation-optimization',
+                title: 'Workflow Automation Optimization',
+                description: 'Optimize automation workflows, reduce redundancy, and improve efficiency',
+                priority: 'high',
+                complexity: 'complex',
+                requiredSkills: ['automation', 'workflow-optimization', 'efficiency'],
+                estimatedTime: 20,
+                dependencies: [],
+                agentRecommendations: ['ava']
+              },
+              {
+                id: 'repository-cleanup',
+                title: 'Repository Structure Optimization',
+                description: 'Clean repository structure, optimize dependencies, and improve build performance',
+                priority: 'medium',
+                complexity: 'moderate',
+                requiredSkills: ['organization', 'dependency-management', 'maintenance'],
+                estimatedTime: 15,
+                dependencies: [],
+                agentRecommendations: ['olga']
+              }
+            ]
+          }
+        ],
+        successCriteria: [
+          'Database queries execute in <500ms',
+          'Page load times achieve <2 seconds',
+          'Automation workflows operate with 99% reliability',
+          'Repository structure follows best practices',
+          'Build times reduced by >30%'
+        ],
+        riskFactors: [
+          'Database optimization affecting data integrity',
+          'Workflow changes disrupting existing processes',
+          'Repository changes breaking dependencies'
+        ],
+        createdAt: new Date(),
+        usageCount: 0,
+        successRate: 94
+      },
+      {
+        id: 'marketing-conversion-optimization',
+        name: 'Marketing & Conversion Optimization',
+        description: 'Data-driven marketing optimization with social media integration',
+        category: 'optimization',
+        estimatedDuration: 75,
+        requiredAgents: ['martha', 'sophia', 'rachel', 'diana'],
+        phases: [
+          {
+            id: 'marketing-phase-1',
+            name: 'Analytics and Strategy',
+            description: 'Comprehensive analytics review and strategy development',
+            parallelExecution: true,
+            dependencies: [],
+            estimatedDuration: 30,
+            tasks: [
+              {
+                id: 'conversion-analytics-audit',
+                title: 'Conversion Analytics Deep Dive',
+                description: 'Comprehensive analysis of conversion metrics, user behavior, and optimization opportunities',
+                priority: 'critical',
+                complexity: 'complex',
+                requiredSkills: ['analytics', 'marketing', 'conversion-optimization'],
+                estimatedTime: 20,
+                dependencies: [],
+                agentRecommendations: ['martha']
+              },
+              {
+                id: 'strategic-business-alignment',
+                title: 'Strategic Business Alignment',
+                description: 'Align marketing initiatives with business strategy and growth objectives',
+                priority: 'high',
+                complexity: 'moderate',
+                requiredSkills: ['business-strategy', 'strategic-analysis'],
+                estimatedTime: 15,
+                dependencies: [],
+                agentRecommendations: ['diana']
+              }
+            ]
+          },
+          {
+            id: 'marketing-phase-2',
+            name: 'Content and Messaging Optimization',
+            description: 'Optimize content strategy and brand messaging consistency',
+            parallelExecution: true,
+            dependencies: ['marketing-phase-1'],
+            estimatedDuration: 45,
+            tasks: [
+              {
+                id: 'brand-messaging-optimization',
+                title: 'Brand Messaging Consistency Optimization',
+                description: 'Optimize Sandra\'s authentic voice across all marketing touchpoints',
+                priority: 'critical',
+                complexity: 'moderate',
+                requiredSkills: ['brand-voice', 'messaging', 'copywriting'],
+                estimatedTime: 20,
+                dependencies: ['strategic-business-alignment'],
+                agentRecommendations: ['rachel']
+              },
+              {
+                id: 'social-media-strategy-optimization',
+                title: 'Social Media Strategy Optimization',
+                description: 'Optimize social media strategy for 120K+ Instagram community growth and engagement',
+                priority: 'high',
+                complexity: 'complex',
+                requiredSkills: ['social-media', 'community-management', 'engagement'],
+                estimatedTime: 25,
+                dependencies: ['conversion-analytics-audit'],
+                agentRecommendations: ['sophia']
+              }
+            ]
+          }
+        ],
+        successCriteria: [
+          'Conversion rates increase by >15%',
+          'Brand messaging maintains authentic voice consistency',
+          'Social media engagement increases by >25%',
+          'Marketing ROI improves by >20%',
+          'Customer acquisition cost decreases by >10%'
+        ],
+        riskFactors: [
+          'Messaging changes affecting brand authenticity',
+          'Social media strategy disrupting community',
+          'Conversion optimization reducing user experience quality'
+        ],
+        createdAt: new Date(),
+        usageCount: 0,
+        successRate: 92
+      }
+    ];
+
+    // Store all templates
+    templates.forEach(template => {
+      this.templates.set(template.id, template);
     });
 
-    // 2. Design System Audit
-    this.createTemplate({
-      id: 'design-system-audit',
-      name: 'Design System Audit',
-      description: 'Comprehensive design system audit with Aria, Victoria, and Maya coordination',
-      category: 'audit',
-      estimatedDuration: 90,
-      requiredAgents: ['aria', 'victoria', 'maya', 'quinn'],
-      successCriteria: [
-        'Design consistency validated',
-        'Luxury standards maintained',
-        'User experience optimized',
-        'AI interface excellence achieved'
-      ],
-      prerequisites: ['Basic design system in place'],
-      phases: [
-        {
-          id: 'design-analysis',
-          name: 'Design Analysis Phase',
-          description: 'Comprehensive analysis of current design system',
-          parallelExecution: true,
-          dependencies: [],
-          estimatedDuration: 40,
-          tasks: [
-            {
-              id: 'aria-luxury-audit',
-              title: 'Luxury Design Standards Audit',
-              description: 'Audit all components for luxury editorial standards',
-              priority: 'high',
-              complexity: 'complex',
-              requiredSkills: ['luxury-design', 'editorial-layout', 'consistency'],
-              estimatedTime: 35,
-              dependencies: []
-            },
-            {
-              id: 'victoria-ux-audit',
-              title: 'User Experience Design Audit',
-              description: 'Comprehensive UX audit and usability assessment',
-              priority: 'high',
-              complexity: 'complex',
-              requiredSkills: ['ux-design', 'usability', 'interface-design'],
-              estimatedTime: 35,
-              dependencies: []
-            },
-            {
-              id: 'maya-ai-interface-audit',
-              title: 'AI Photography Interface Audit',
-              description: 'Audit AI photography interface and celebrity stylist experience',
-              priority: 'high',
-              complexity: 'complex',
-              requiredSkills: ['ai-photography', 'interface-design', 'user-experience'],
-              estimatedTime: 30,
-              dependencies: []
-            }
-          ]
-        },
-        {
-          id: 'design-optimization',
-          name: 'Design Optimization Phase',
-          description: 'Implementation of design improvements',
-          parallelExecution: false,
-          dependencies: ['design-analysis'],
-          estimatedDuration: 35,
-          tasks: [
-            {
-              id: 'collaborative-design-optimization',
-              title: 'Collaborative Design Optimization',
-              description: 'Coordinated implementation of design improvements',
-              priority: 'high',
-              complexity: 'enterprise',
-              requiredSkills: ['collaboration', 'design-implementation', 'coordination'],
-              estimatedTime: 30,
-              dependencies: []
-            }
-          ]
-        },
-        {
-          id: 'quality-validation',
-          name: 'Quality Validation Phase',
-          description: 'Final quality validation of design improvements',
-          parallelExecution: false,
-          dependencies: ['design-optimization'],
-          estimatedDuration: 15,
-          tasks: [
-            {
-              id: 'quinn-design-qa',
-              title: 'Design Quality Assurance',
-              description: 'Final quality validation of design system improvements',
-              priority: 'critical',
-              complexity: 'moderate',
-              requiredSkills: ['quality-assurance', 'design-validation', 'luxury-standards'],
-              estimatedTime: 15,
-              dependencies: []
-            }
-          ]
-        }
-      ]
-    });
-
-    // 3. Technical Architecture Review
-    this.createTemplate({
-      id: 'technical-architecture-review',
-      name: 'Technical Architecture Review',
-      description: 'Comprehensive technical review with Zara, Quinn, and Maya collaboration',
-      category: 'audit',
-      estimatedDuration: 120,
-      requiredAgents: ['zara', 'quinn', 'maya', 'elena'],
-      successCriteria: [
-        'Architecture optimized for scale',
-        'Performance benchmarks achieved',
-        'Security standards validated',
-        'AI systems optimized'
-      ],
-      prerequisites: ['Core technical systems implemented'],
-      phases: [
-        {
-          id: 'architecture-analysis',
-          name: 'Architecture Analysis',
-          description: 'Deep technical architecture analysis',
-          parallelExecution: true,
-          dependencies: [],
-          estimatedDuration: 50,
-          tasks: [
-            {
-              id: 'zara-backend-architecture',
-              title: 'Backend Architecture Review',
-              description: 'Comprehensive backend architecture analysis and optimization',
-              priority: 'critical',
-              complexity: 'enterprise',
-              requiredSkills: ['backend', 'architecture', 'performance', 'scalability'],
-              estimatedTime: 45,
-              dependencies: []
-            },
-            {
-              id: 'maya-ai-architecture',
-              title: 'AI Photography Architecture Review',
-              description: 'Technical review of AI photography pipeline and FLUX integration',
-              priority: 'high',
-              complexity: 'complex',
-              requiredSkills: ['ai-systems', 'flux-integration', 'performance'],
-              estimatedTime: 35,
-              dependencies: []
-            }
-          ]
-        },
-        {
-          id: 'performance-optimization',
-          name: 'Performance Optimization',
-          description: 'System performance optimization implementation',
-          parallelExecution: false,
-          dependencies: ['architecture-analysis'],
-          estimatedDuration: 45,
-          tasks: [
-            {
-              id: 'collaborative-optimization',
-              title: 'Collaborative Performance Optimization',
-              description: 'Coordinated implementation of performance improvements',
-              priority: 'high',
-              complexity: 'enterprise',
-              requiredSkills: ['collaboration', 'performance', 'optimization'],
-              estimatedTime: 40,
-              dependencies: []
-            }
-          ]
-        },
-        {
-          id: 'technical-validation',
-          name: 'Technical Validation',
-          description: 'Quality assurance and coordination validation',
-          parallelExecution: true,
-          dependencies: ['performance-optimization'],
-          estimatedDuration: 25,
-          tasks: [
-            {
-              id: 'quinn-technical-qa',
-              title: 'Technical Quality Assurance',
-              description: 'Comprehensive technical quality validation',
-              priority: 'critical',
-              complexity: 'complex',
-              requiredSkills: ['quality-assurance', 'technical-validation', 'testing'],
-              estimatedTime: 20,
-              dependencies: []
-            },
-            {
-              id: 'elena-coordination-review',
-              title: 'Technical Coordination Review',
-              description: 'Strategic review of technical coordination and integration',
-              priority: 'medium',
-              complexity: 'moderate',
-              requiredSkills: ['coordination', 'strategy', 'technical-oversight'],
-              estimatedTime: 15,
-              dependencies: []
-            }
-          ]
-        }
-      ]
-    });
-
-    // 4. Marketing Campaign Creation
-    this.createTemplate({
-      id: 'marketing-campaign-creation',
-      name: 'Marketing Campaign Creation',
-      description: 'Coordinated marketing campaign with Martha, Sophia, and Rachel teamwork',
-      category: 'development',
-      estimatedDuration: 75,
-      requiredAgents: ['martha', 'sophia', 'rachel', 'victoria'],
-      successCriteria: [
-        'Marketing campaign strategy complete',
-        'Content calendar created',
-        'Social media integration ready',
-        'Conversion funnel optimized'
-      ],
-      prerequisites: ['Brand voice established', 'Target audience defined'],
-      phases: [
-        {
-          id: 'campaign-strategy',
-          name: 'Campaign Strategy Development',
-          description: 'Strategic planning and messaging development',
-          parallelExecution: true,
-          dependencies: [],
-          estimatedDuration: 30,
-          tasks: [
-            {
-              id: 'martha-campaign-strategy',
-              title: 'Marketing Campaign Strategy',
-              description: 'Develop comprehensive marketing campaign strategy and tactics',
-              priority: 'high',
-              complexity: 'complex',
-              requiredSkills: ['marketing', 'campaign-planning', 'strategy'],
-              estimatedTime: 25,
-              dependencies: []
-            },
-            {
-              id: 'rachel-messaging-strategy',
-              title: 'Brand Messaging Strategy',
-              description: 'Develop authentic brand messaging aligned with Sandra\'s voice',
-              priority: 'high',
-              complexity: 'moderate',
-              requiredSkills: ['copywriting', 'brand-voice', 'messaging'],
-              estimatedTime: 20,
-              dependencies: []
-            }
-          ]
-        },
-        {
-          id: 'content-creation',
-          name: 'Content Creation & Social Strategy',
-          description: 'Content development and social media planning',
-          parallelExecution: true,
-          dependencies: ['campaign-strategy'],
-          estimatedDuration: 30,
-          tasks: [
-            {
-              id: 'sophia-social-strategy',
-              title: 'Social Media Campaign Strategy',
-              description: 'Develop comprehensive social media strategy and content plan',
-              priority: 'high',
-              complexity: 'moderate',
-              requiredSkills: ['social-media', 'content-planning', 'engagement'],
-              estimatedTime: 25,
-              dependencies: []
-            },
-            {
-              id: 'victoria-conversion-design',
-              title: 'Conversion-Optimized Design',
-              description: 'Design campaign landing pages and conversion elements',
-              priority: 'medium',
-              complexity: 'moderate',
-              requiredSkills: ['conversion-optimization', 'design', 'user-experience'],
-              estimatedTime: 20,
-              dependencies: []
-            }
-          ]
-        },
-        {
-          id: 'campaign-integration',
-          name: 'Campaign Integration & Launch',
-          description: 'Integration and launch preparation',
-          parallelExecution: false,
-          dependencies: ['content-creation'],
-          estimatedDuration: 15,
-          tasks: [
-            {
-              id: 'integrated-campaign-launch',
-              title: 'Integrated Campaign Launch Preparation',
-              description: 'Coordinate all campaign elements for launch readiness',
-              priority: 'critical',
-              complexity: 'complex',
-              requiredSkills: ['coordination', 'integration', 'launch-planning'],
-              estimatedTime: 15,
-              dependencies: []
-            }
-          ]
-        }
-      ]
-    });
+    console.log(`🔄 WORKFLOW TEMPLATES: Initialized with ${templates.length} foundational workflow templates`);
   }
 
   /**
-   * Create and store workflow template
-   */
-  private createTemplate(template: Omit<WorkflowTemplate, 'id'> & { id: string }): void {
-    this.templates.set(template.id, template);
-  }
-
-  /**
-   * Get all available workflow templates
-   */
-  getAvailableTemplates(): WorkflowTemplate[] {
-    return Array.from(this.templates.values());
-  }
-
-  /**
-   * Get template by ID
+   * Get workflow template by ID
    */
   getTemplate(templateId: string): WorkflowTemplate | undefined {
     return this.templates.get(templateId);
   }
 
   /**
-   * Get templates by category
+   * Get all templates by category
    */
   getTemplatesByCategory(category: WorkflowTemplate['category']): WorkflowTemplate[] {
-    return Array.from(this.templates.values()).filter(template => template.category === category);
+    return Array.from(this.templates.values())
+      .filter(template => template.category === category)
+      .sort((a, b) => b.successRate - a.successRate);
   }
 
   /**
-   * Execute workflow template
+   * Get all available templates
    */
-  async executeWorkflowTemplate(templateId: string): Promise<WorkflowExecution> {
+  getAllTemplates(): WorkflowTemplate[] {
+    return Array.from(this.templates.values())
+      .sort((a, b) => {
+        // Sort by success rate * usage count for popularity
+        const scoreA = a.successRate * (a.usageCount + 1);
+        const scoreB = b.successRate * (b.usageCount + 1);
+        return scoreB - scoreA;
+      });
+  }
+
+  /**
+   * Find optimal template for requirements
+   */
+  findOptimalTemplate(
+    category: WorkflowTemplate['category'],
+    availableAgents: string[],
+    maxDuration?: number,
+    complexity: 'simple' | 'moderate' | 'complex' | 'enterprise' = 'moderate'
+  ): WorkflowTemplate | null {
+    const candidates = this.getTemplatesByCategory(category)
+      .filter(template => {
+        // Check duration constraint
+        if (maxDuration && template.estimatedDuration > maxDuration) {
+          return false;
+        }
+
+        // Check agent availability (need at least 60% of required agents)
+        const requiredAgents = template.requiredAgents;
+        const availableRequiredAgents = requiredAgents.filter(agent => 
+          availableAgents.includes(agent)
+        );
+        const availabilityRatio = availableRequiredAgents.length / requiredAgents.length;
+        return availabilityRatio >= 0.6;
+      })
+      .sort((a, b) => {
+        // Sort by success rate weighted by agent availability
+        const aAvailability = a.requiredAgents.filter(agent => availableAgents.includes(agent)).length / a.requiredAgents.length;
+        const bAvailability = b.requiredAgents.filter(agent => availableAgents.includes(agent)).length / b.requiredAgents.length;
+        
+        const aScore = a.successRate * aAvailability;
+        const bScore = b.successRate * bAvailability;
+        
+        return bScore - aScore;
+      });
+
+    return candidates.length > 0 ? candidates[0] : null;
+  }
+
+  /**
+   * Create custom template from requirements
+   */
+  createCustomTemplate(
+    name: string,
+    description: string,
+    category: WorkflowTemplate['category'],
+    requiredAgents: string[],
+    customTasks: WorkflowTask[]
+  ): string {
+    const templateId = `custom-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
+
+    // Organize tasks into phases based on dependencies and complexity
+    const phases = this.organizeTasksIntoPhases(customTasks);
+    const estimatedDuration = phases.reduce((sum, phase) => sum + phase.estimatedDuration, 0);
+
+    const template: WorkflowTemplate = {
+      id: templateId,
+      name,
+      description,
+      category,
+      estimatedDuration,
+      requiredAgents,
+      phases,
+      successCriteria: [],
+      riskFactors: [],
+      createdAt: new Date(),
+      usageCount: 0,
+      successRate: 85 // Default for new templates
+    };
+
+    this.templates.set(templateId, template);
+
+    console.log(`🔄 WORKFLOW TEMPLATES: Created custom template "${name}" (${phases.length} phases, ${estimatedDuration}min)`);
+    return templateId;
+  }
+
+  /**
+   * Update template success metrics
+   */
+  updateTemplateMetrics(templateId: string, success: boolean, actualDuration?: number): void {
     const template = this.templates.get(templateId);
-    if (!template) {
-      throw new Error(`Template ${templateId} not found`);
+    if (!template) return;
+
+    // Update usage count
+    template.usageCount += 1;
+    template.lastUsed = new Date();
+
+    // Update success rate (rolling average)
+    const totalAttempts = template.usageCount;
+    const currentSuccesses = Math.round((template.successRate / 100) * (totalAttempts - 1));
+    const newSuccesses = success ? currentSuccesses + 1 : currentSuccesses;
+    template.successRate = (newSuccesses / totalAttempts) * 100;
+
+    // Update estimated duration if actual duration provided
+    if (actualDuration) {
+      // Use weighted average (70% historical, 30% new data)
+      template.estimatedDuration = Math.round(
+        template.estimatedDuration * 0.7 + actualDuration * 0.3
+      );
     }
 
-    const execution: WorkflowExecution = {
-      templateId,
-      executionId: `exec-${Date.now()}`,
-      status: 'pending',
-      currentPhase: 0,
-      startTime: new Date(),
-      progress: 0,
-      results: []
-    };
-
-    // Calculate estimated completion
-    execution.estimatedCompletion = new Date(
-      execution.startTime.getTime() + template.estimatedDuration * 60000
-    );
-
-    console.log(`🎯 WORKFLOW: Starting execution of "${template.name}" - ID: ${execution.executionId}`);
-
-    return execution;
+    console.log(`🔄 WORKFLOW TEMPLATES: Updated "${template.name}" metrics - Success: ${Math.round(template.successRate)}%`);
   }
 
   /**
-   * Convert workflow tasks to agent implementation requests
+   * Organize tasks into logical phases
    */
-  convertTasksToImplementationRequests(tasks: TaskRequirement[]): AgentImplementationRequest[] {
-    return tasks.map(task => ({
-      agentName: this.determineOptimalAgent(task),
-      taskType: this.mapTaskToImplementationType(task),
-      specifications: {
-        systemName: task.title.replace(/\s+/g, ''),
-        requirements: [task.description, ...task.requiredSkills],
-        complexity: task.complexity,
-        files: [],
-        integrationPoints: []
-      },
-      validation: {
-        requireTesting: task.priority === 'critical',
-        requireVerification: true,
-        performanceTargets: task.priority === 'high' ? ['High performance'] : []
+  private organizeTasksIntoPhases(tasks: WorkflowTask[]): WorkflowPhase[] {
+    const phases: WorkflowPhase[] = [];
+    const processedTasks = new Set<string>();
+    const taskMap = new Map(tasks.map(task => [task.id, task]));
+
+    let phaseIndex = 0;
+    while (processedTasks.size < tasks.length) {
+      const currentPhaseTasks: WorkflowTask[] = [];
+      
+      // Find tasks with no unprocessed dependencies
+      for (const task of tasks) {
+        if (processedTasks.has(task.id)) continue;
+        
+        const unprocessedDependencies = task.dependencies.filter(dep => !processedTasks.has(dep));
+        if (unprocessedDependencies.length === 0) {
+          currentPhaseTasks.push(task);
+        }
       }
-    }));
+
+      if (currentPhaseTasks.length === 0) {
+        // Break circular dependencies by taking tasks with minimum dependencies
+        const remainingTasks = tasks.filter(task => !processedTasks.has(task.id));
+        const minDependencies = Math.min(...remainingTasks.map(task => task.dependencies.length));
+        const nextTask = remainingTasks.find(task => task.dependencies.length === minDependencies);
+        if (nextTask) {
+          currentPhaseTasks.push(nextTask);
+        }
+      }
+
+      // Create phase
+      const phase: WorkflowPhase = {
+        id: `phase-${phaseIndex + 1}`,
+        name: `Phase ${phaseIndex + 1}`,
+        description: `Execute ${currentPhaseTasks.length} task(s)`,
+        parallelExecution: currentPhaseTasks.length > 1,
+        dependencies: phaseIndex > 0 ? [`phase-${phaseIndex}`] : [],
+        estimatedDuration: Math.max(...currentPhaseTasks.map(task => task.estimatedTime)),
+        tasks: currentPhaseTasks
+      };
+
+      phases.push(phase);
+      
+      // Mark tasks as processed
+      currentPhaseTasks.forEach(task => processedTasks.add(task.id));
+      phaseIndex++;
+    }
+
+    return phases;
   }
 
   /**
-   * Determine optimal agent for task
+   * Get template statistics
    */
-  private determineOptimalAgent(task: TaskRequirement): string {
-    const skillAgentMap: Record<string, string> = {
-      'strategy': 'elena',
-      'coordination': 'elena',
-      'luxury-design': 'aria',
-      'editorial-layout': 'aria',
-      'backend': 'zara',
-      'architecture': 'zara',
-      'performance': 'zara',
-      'ai-photography': 'maya',
-      'flux-integration': 'maya',
-      'ux-design': 'victoria',
-      'conversion-optimization': 'victoria',
-      'copywriting': 'rachel',
-      'brand-voice': 'rachel',
-      'automation': 'ava',
-      'workflow-optimization': 'ava',
-      'quality-assurance': 'quinn',
-      'luxury-standards': 'quinn',
-      'social-media': 'sophia',
-      'marketing': 'martha',
-      'business-strategy': 'diana',
-      'workflow-design': 'wilma',
-      'organization': 'olga'
+  getTemplateStatistics(): {
+    totalTemplates: number;
+    templatesByCategory: Record<string, number>;
+    averageSuccessRate: number;
+    mostUsedTemplate: string;
+    newestTemplate: string;
+  } {
+    const templates = Array.from(this.templates.values());
+    
+    const templatesByCategory = templates.reduce((acc, template) => {
+      acc[template.category] = (acc[template.category] || 0) + 1;
+      return acc;
+    }, {} as Record<string, number>);
+
+    const averageSuccessRate = templates.length > 0 
+      ? templates.reduce((sum, t) => sum + t.successRate, 0) / templates.length 
+      : 0;
+
+    const mostUsed = templates.sort((a, b) => b.usageCount - a.usageCount)[0];
+    const newest = templates.sort((a, b) => b.createdAt.getTime() - a.createdAt.getTime())[0];
+
+    return {
+      totalTemplates: templates.length,
+      templatesByCategory,
+      averageSuccessRate: Math.round(averageSuccessRate),
+      mostUsedTemplate: mostUsed?.name || 'None',
+      newestTemplate: newest?.name || 'None'
     };
-
-    // Find the best matching agent based on required skills
-    for (const skill of task.requiredSkills) {
-      const agent = skillAgentMap[skill];
-      if (agent) return agent;
-    }
-
-    // Fallback to Elena for coordination
-    return 'elena';
-  }
-
-  /**
-   * Map task to implementation type
-   */
-  private mapTaskToImplementationType(task: TaskRequirement): AgentImplementationRequest['taskType'] {
-    if (task.title.includes('Optimization') || task.title.includes('Performance')) {
-      return 'optimize-performance';
-    }
-    if (task.title.includes('Design') || task.title.includes('Luxury')) {
-      return 'luxury-redesign';
-    }
-    if (task.title.includes('Architecture') || task.title.includes('Refactor')) {
-      return 'refactor-architecture';
-    }
-    if (task.title.includes('Review') || task.title.includes('Audit')) {
-      return 'build-feature';
-    }
-    return 'create-system';
-  }
-
-  /**
-   * Get workflow execution status
-   */
-  getWorkflowExecutions(): WorkflowExecution[] {
-    // In a real implementation, this would fetch from database
-    return [];
   }
 }
 
