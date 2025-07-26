@@ -96,7 +96,7 @@ export function getSession() {
       httpOnly: true,
       secure: useSecureCookies,
       maxAge: sessionTtl,
-      sameSite: 'none', // CRITICAL: Allow cross-domain cookies for Replit environment
+      sameSite: useSecureCookies ? 'lax' : 'none', // FIX: Use 'lax' for production, 'none' for development
       path: '/',
       // Remove domain restrictions for cross-subdomain compatibility
     },
@@ -262,15 +262,23 @@ export async function setupAuth(app: Express) {
       
       const hasStrategy = req.app.locals.authDomains.includes(hostname);
       
-      // CRITICAL: Use the correct strategy for each domain
+      // ENHANCED: Strategy validation with fallback mechanisms
       if (!hasStrategy) {
         console.error(`❌ No auth strategy found for hostname: ${hostname}`);
         console.error(`❌ Available domains: ${req.app.locals.authDomains.join(', ')}`);
-        return res.status(500).json({ 
-          error: 'Authentication not configured for this domain',
-          hostname,
-          availableDomains: req.app.locals.authDomains
-        });
+        
+        // FIX: Add strategy fallback for edge cases
+        const fallbackDomain = req.app.locals.authDomains.find(d => d.includes('sselfie.ai'));
+        if (fallbackDomain) {
+          console.log(`🔄 Using fallback strategy: ${fallbackDomain}`);
+          hostname = fallbackDomain;
+        } else {
+          return res.status(500).json({ 
+            error: 'Authentication not configured for this domain',
+            hostname,
+            availableDomains: req.app.locals.authDomains
+          });
+        }
       }
       
       const strategyName = `replitauth:${hostname}`;
@@ -376,14 +384,15 @@ export async function setupAuth(app: Express) {
         clientId: !!process.env.REPL_ID
       });
       
-      // CRITICAL: Use openid-client's authorizationCodeGrant method instead of manual fetch
-      console.log('🔧 Using openid-client for token exchange...');
+      // CRITICAL FIX: Use correct openid-client v5+ parameters for authorizationCodeGrant
+      console.log('🔧 Using openid-client v5+ compatible token exchange...');
       
       // Create proper URL object for currentUrl parameter (required by openid-client v5+)
       const currentUrl = new URL(`https://${hostname}/api/callback?code=${code}`);
       
+      // FIX: Use current openid-client v5+ API with proper parameters
       const tokenSet = await client.authorizationCodeGrant(config, currentUrl, {
-        code: code,
+        client_id: process.env.REPL_ID!,
         redirect_uri: `https://${hostname}/api/callback`
       });
       
