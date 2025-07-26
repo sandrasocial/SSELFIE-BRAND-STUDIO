@@ -304,7 +304,8 @@ export class IntelligentTaskDistributor {
       confidence,
       estimatedDuration: this.estimateTaskDuration(task, bestAgent),
       assignedAt: new Date(),
-      status: 'assigned'
+      status: 'assigned',
+      phaseIndex: 0 // Will be set properly during deployment planning
     };
 
     // Update agent load
