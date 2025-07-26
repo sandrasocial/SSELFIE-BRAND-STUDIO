@@ -20,17 +20,19 @@ export async function str_replace_based_edit_tool(params: EditToolParams) {
       hasWriteAccess: true
     });
     
-    // ADMIN AGENTS: FULL FILE ACCESS FOR SANDRA'S TEAM
-    // Enable all file operations: view, create, str_replace, insert
+    // ADMIN AGENTS: ENHANCED PATH RESOLUTION for complex file creation
+    // Convert absolute paths starting with / to relative paths
+    let resolvedPath = params.path;
+    if (params.path.startsWith('/server/') || params.path.startsWith('/client/')) {
+      resolvedPath = params.path.substring(1); // Remove leading slash
+      console.log(`🔧 PATH CORRECTION: ${params.path} → ${resolvedPath}`);
+    }
     
-    const absolutePath = path.resolve(params.path);
-    
-    // ADMIN AGENTS: FULL SYSTEM ACCESS - No path restrictions for Sandra's agents
-    // Security note: This allows agents to work anywhere in the system for maximum flexibility
-    // const projectRoot = process.cwd();
-    // if (!absolutePath.startsWith(projectRoot)) {
-    //   throw new Error('Access denied: Path outside project directory');
-    // }
+    const absolutePath = path.resolve(resolvedPath);
+    const projectRoot = process.cwd();
+    if (!absolutePath.startsWith(projectRoot)) {
+      throw new Error('Access denied: Path outside project directory');
+    }
     
     // Execute the requested command
     switch (params.command) {
