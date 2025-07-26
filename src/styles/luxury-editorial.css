@@ -1,0 +1,97 @@
+/* Luxury Editorial Design System */
+
+@import url('https://fonts.googleapis.com/css2?family=Times+New+Roman:wght@400;700&display=swap');
+
+/* Typography */
+.luxury-heading {
+  font-family: 'Times New Roman', serif;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  color: #000000;
+}
+
+.luxury-body {
+  font-family: 'Times New Roman', serif;
+  font-weight: 400;
+  line-height: 1.6;
+  color: #333333;
+}
+
+/* Editorial Spacing */
+.editorial-container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 2rem;
+}
+
+.editorial-grid {
+  display: grid;
+  grid-template-columns: repeat(12, 1fr);
+  gap: 2rem;
+}
+
+/* Luxury Visual Elements */
+.editorial-divider {
+  width: 100%;
+  height: 1px;
+  background-color: #000000;
+  margin: 3rem 0;
+}
+
+.editorial-image {
+  width: 100%;
+  height: auto;
+  filter: grayscale(100%);
+}
+
+/* Editorial Components */
+.article-header {
+  margin: 4rem 0;
+  text-align: center;
+}
+
+.article-headline {
+  font-size: 3.5rem;
+  line-height: 1.2;
+  margin-bottom: 1rem;
+}
+
+.article-subheading {
+  font-size: 1.5rem;
+  font-style: italic;
+  color: #666666;
+}
+
+/* Luxury UI Elements */
+.luxury-button {
+  font-family: 'Times New Roman', serif;
+  font-size: 1rem;
+  padding: 1rem 2rem;
+  border: 1px solid #000000;
+  background: transparent;
+  color: #000000;
+  transition: all 0.3s ease;
+}
+
+.luxury-button:hover {
+  background: #000000;
+  color: #ffffff;
+}
+
+/* Editorial Layout Classes */
+.editorial-sidebar {
+  grid-column: span 3;
+}
+
+.editorial-main {
+  grid-column: span 9;
+}
+
+/* Luxury Color Palette */
+:root {
+  --editorial-black: #000000;
+  --editorial-white: #ffffff;
+  --editorial-gray-dark: #333333;
+  --editorial-gray-medium: #666666;
+  --editorial-gray-light: #999999;
+}
