@@ -36,7 +36,7 @@
 
 @layer base {
   * {
-    border-color: var(--border);
+    @apply border-border;
     border-radius: 0 !important; /* No rounded corners - editorial luxury */
   }
 
