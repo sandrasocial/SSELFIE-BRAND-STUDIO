@@ -21,32 +21,8 @@ class WorkflowDetectionService {
   private executedWorkflows: Map<string, DetectedWorkflow> = new Map();
   
   constructor() {
-    // Initialize with Elena's test workflow for demonstration
-    this.initializeDemoWorkflow();
-  }
-  
-  private initializeDemoWorkflow() {
-    const demoWorkflow: DetectedWorkflow = {
-      id: 'elena-demo-workflow-1753515823',
-      name: 'Platform Launch Readiness Validation',
-      description: 'Elena created workflow: Platform Launch Readiness Validation',
-      agents: ['aria', 'victoria', 'zara'],
-      priority: 'critical',
-      estimatedDuration: 15,
-      customRequirements: [
-        'Luxury brand consistency audit across all pages',
-        'Times New Roman headlines validation',
-        '€67 premium positioning validation',
-        'Mobile-responsive luxury design verification',
-        'Viral scale readiness assessment'
-      ],
-      detectedAt: new Date(),
-      status: 'staged',
-      conversationId: 'elena-demo-conversation'
-    };
-    
-    this.stagedWorkflows.set(demoWorkflow.id, demoWorkflow);
-    console.log(`🎯 DEMO WORKFLOW INITIALIZED: ${demoWorkflow.name} ready for manual execution`);
+    // Clean service - no demo workflows, only real Elena-created workflows
+    console.log('🧠 ELENA WORKFLOW DETECTION SERVICE: Initialized - ready for real Elena conversations');
   }
   
   /**
