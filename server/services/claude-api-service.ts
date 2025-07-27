@@ -221,7 +221,7 @@ export class ClaudeApiService {
       const memory = await this.getAgentMemory(agentName, userId);
 
       // Build enhanced system prompt with agent expertise and UNLIMITED ACCESS
-      let enhancedSystemPrompt = this.buildAgentSystemPrompt(agentName, systemPrompt, memory || undefined, true); // FORCE UNLIMITED ACCESS
+      let enhancedSystemPrompt = await this.buildAgentSystemPrompt(agentName, systemPrompt, memory || undefined, true); // FORCE UNLIMITED ACCESS
 
       // Build messages array for Claude
       const messages: any[] = [];
@@ -912,8 +912,8 @@ Use tools only if file modifications are specifically requested within the consu
       ));
   }
 
-  private buildAgentSystemPrompt(agentName: string, basePrompt?: string, memory?: ConversationMemory, fileEditMode: boolean = true): string {
-    const agentExpertise = this.getAgentExpertise(agentName);
+  private async buildAgentSystemPrompt(agentName: string, basePrompt?: string, memory?: ConversationMemory, fileEditMode: boolean = true): Promise<string> {
+    const agentExpertise = await this.getAgentExpertise(agentName);
     const memoryContext = memory ? `\n\nYour memory and learning: ${JSON.stringify(memory)}` : '';
     
     // UNLIMITED ACCESS: All agents have complete file system control
@@ -939,13 +939,17 @@ You have COMPLETE SYSTEM CONTROL and can implement any solutions needed. No rest
 Always start by understanding the specific request, then use the appropriate tools to fulfill that exact request with complete freedom.${memoryContext}`;
   }
 
-  private getAgentExpertise(agentName: string): string {
-    // Import clean personalities from agent-conversation-routes.ts
-    const { AGENT_CONFIGS } = require('../routes/agent-conversation-routes');
-    
-    // Use clean personalities from the main agent configuration
-    if (AGENT_CONFIGS[agentName]) {
-      return AGENT_CONFIGS[agentName].systemPrompt;
+  private async getAgentExpertise(agentName: string): Promise<string> {
+    // Import clean personalities from agent-conversation-routes.ts using dynamic import
+    try {
+      const { AGENT_CONFIGS } = await import('../routes/agent-conversation-routes');
+      
+      // Use clean personalities from the main agent configuration
+      if (AGENT_CONFIGS[agentName]) {
+        return AGENT_CONFIGS[agentName].systemPrompt;
+      }
+    } catch (error) {
+      console.log('⚠️ Could not import AGENT_CONFIGS, using fallback personalities');
     }
     
     // Fallback for any undefined agents - all clean personalities without dramatic templates
