@@ -62,20 +62,6 @@ export async function str_replace_based_edit_tool(params: EditToolParams) {
 
 async function viewFile(filePath: string, viewRange?: [number, number]) {
   try {
-    // CRITICAL FIX: Check if path is a directory first
-    const stat = await fs.stat(filePath);
-    
-    if (stat.isDirectory()) {
-      // Return directory listing instead of trying to read as file
-      const entries = await fs.readdir(filePath, { withFileTypes: true });
-      const formattedEntries = entries.map((entry, index) => {
-        const type = entry.isDirectory() ? '📁' : '📄';
-        return `${String(index + 1).padStart(5, ' ')}\t${type} ${entry.name}`;
-      }).join('\n');
-      
-      return `Directory listing for ${filePath}:\n${formattedEntries}`;
-    }
-    
     const content = await fs.readFile(filePath, 'utf-8');
     const lines = content.split('\n');
     

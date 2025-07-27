@@ -49,8 +49,6 @@ const DEFAULT_MODEL_STR = "claude-sonnet-4-20250514";
 
 // Conversation Manager for memory (CRITICAL FIX)
 import { ConversationManager } from './agents/ConversationManager';
-// Agent Implementation Detector for automatic tool enforcement
-import { AgentImplementationDetector } from './tools/agent_implementation_detector';
 
 export async function registerRoutes(app: Express): Promise<Server> {
   // CRITICAL: Enable CORS for cross-domain access (agents and Visual Editor)
@@ -5587,17 +5585,6 @@ Workflow Stage: ${savedMemory.workflowStage || 'None'}
       
       let finalSystemPrompt = agent.systemPrompt;
       
-      // 🔄 EMERGENCY MEMORY INJECTION: Restore Sandra's conversation history directly
-      if (isAdminAuthenticated && userId === '42585527') {
-        try {
-          const { MemoryInjectionFix } = await import('./memory-injection-fix');
-          finalSystemPrompt = await MemoryInjectionFix.injectMemoryContext(agentId, finalSystemPrompt);
-          console.log(`✅ MEMORY INJECTION: Context restored for ${agentId}`);
-        } catch (error) {
-          console.error(`❌ MEMORY INJECTION ERROR for ${agentId}:`, error);
-        }
-      }
-      
       // 🚨 SPECIALIZED AGENT ENFORCEMENT: Force tool usage for Elena workflow execution
       if ((isElenaWorkflowExecution || legacyWorkflowDetection) && agentId !== 'elena') {
         finalSystemPrompt += `\n\n🚨 SPECIALIZED AGENT MODE - MANDATORY TOOL EXECUTION:
@@ -6968,31 +6955,55 @@ MANDATORY COMPLETION PROTOCOL:
           attempts++;
           console.log(`🔄 ${agentId.toUpperCase()} API ATTEMPT ${attempts}/${maxAttempts} (Enhanced)`);
           
-          // 🚨 ZARA'S ADVANCED IMPLEMENTATION DETECTOR: Connect archived system to live routes
-          const implementationDetector = new AgentImplementationDetector();
-          const detectionResult = implementationDetector.detectImplementationRequest(
-            agentId, 
-            message,
-            [] // conversation history - can be enhanced later
+          // 🚨 ZARA'S ENHANCED IMPLEMENTATION DETECTION: Advanced pattern recognition for implementation requests
+          const implementationKeywords = [
+            'create', 'build', 'implement', 'fix', 'update', 'modify', 'add', 'design', 
+            'make', 'develop', 'code', 'write', 'generate', 'setup', 'configure', 'install'
+          ];
+          
+          const fileOperationKeywords = [
+            'file', 'component', 'page', 'route', 'api', 'endpoint', 'function', 'class',
+            'style', 'css', 'html', 'jsx', 'tsx', 'js', 'ts', 'json', 'md'
+          ];
+          
+          const systemActionKeywords = [
+            'deploy', 'test', 'run', 'execute', 'install', 'configure', 'setup'
+          ];
+          
+          // Enhanced detection based on Zara's technical findings
+          const hasImplementationKeyword = implementationKeywords.some(keyword => 
+            message.toLowerCase().includes(keyword)
           );
           
-          const implementationScore = detectionResult.confidence;
-          const shouldForceImplementation = detectionResult.isImplementationRequest;
+          const hasFileOperationKeyword = fileOperationKeywords.some(keyword => 
+            message.toLowerCase().includes(keyword)
+          );
           
-          // Additional scoring for workflow and file contexts
-          let totalScore = implementationScore;
-          if (isElenaWorkflowExecution) totalScore += 25; // Elena workflows always implementation
-          if (isFileRequest) totalScore += 20; // File requests always implementation
+          const hasSystemActionKeyword = systemActionKeywords.some(keyword => 
+            message.toLowerCase().includes(keyword)
+          );
           
-          console.log(`🎯 ${agentId.toUpperCase()} IMPLEMENTATION DETECTION RESULT:`);
-          console.log(`  - Confidence Score: ${implementationScore}/100`);
-          console.log(`  - Total Score: ${totalScore}/100`);
-          console.log(`  - Is Implementation: ${detectionResult.isImplementationRequest}`);
-          console.log(`  - Should Force Tools: ${shouldForceImplementation || totalScore >= 30}`);
-          console.log(`  - Reasoning: ${detectionResult.reasoning.join(', ')}`);
+          const hasSpecificFilePath = /\.(js|ts|jsx|tsx|css|html|json|md|py|java|cpp|c)/.test(message);
+          const hasCodeBlock = /```/.test(message) || /`[^`]+`/.test(message);
+          const hasDirective = /please|can you|could you|need to|want to|should|must/.test(message.toLowerCase());
           
-          // Update detection result based on context
-          const finalShouldForceImplementation = shouldForceImplementation || totalScore >= 30;
+          // Implementation confidence scoring based on Zara's analysis
+          let implementationScore = 0;
+          
+          if (hasImplementationKeyword) implementationScore += 3;
+          if (hasFileOperationKeyword) implementationScore += 2;
+          if (hasSystemActionKeyword) implementationScore += 2;
+          if (hasSpecificFilePath) implementationScore += 2;
+          if (hasCodeBlock) implementationScore += 1;
+          if (hasDirective) implementationScore += 1;
+          if (isElenaWorkflowExecution) implementationScore += 4;
+          if (isFileRequest) implementationScore += 3;
+          
+          console.log(`🎯 ${agentId.toUpperCase()} IMPLEMENTATION DETECTION SCORE: ${implementationScore}/15`);
+          console.log(`🔍 ${agentId.toUpperCase()} ANALYSIS: keywords=${hasImplementationKeyword}, files=${hasFileOperationKeyword}, system=${hasSystemActionKeyword}, path=${hasSpecificFilePath}`);
+          
+          // Force implementation mode for high-confidence requests (score >= 3)
+          const shouldForceImplementation = implementationScore >= 3;
           
           // 🚨 CRITICAL FIX: Force tool usage for workflow executions and file requests
           const claudeRequest: any = {
@@ -7010,12 +7021,12 @@ MANDATORY COMPLETION PROTOCOL:
               name: "str_replace_based_edit_tool"
             }; // Force agent to use ONLY str_replace_based_edit_tool
             console.log(`🚨 ULTIMATE TOOL ENFORCEMENT for ${agentId.toUpperCase()}: Elena workflow - FORCING str_replace_based_edit_tool`);
-          } else if (isFileRequest || finalShouldForceImplementation) {
+          } else if (isFileRequest || shouldForceImplementation) {
             claudeRequest.tool_choice = { 
               type: "tool",
               name: "str_replace_based_edit_tool"
             }; // Force agent to use ONLY str_replace_based_edit_tool for implementation requests
-            console.log(`🚨 ADVANCED TOOL ENFORCEMENT for ${agentId.toUpperCase()}: Implementation detected (score: ${totalScore}) - FORCING str_replace_based_edit_tool`);
+            console.log(`🚨 ENHANCED TOOL ENFORCEMENT for ${agentId.toUpperCase()}: Implementation detected (score: ${implementationScore}) - FORCING str_replace_based_edit_tool`);
           }
           
           response = await claude.messages.create(claudeRequest);
@@ -8376,13 +8387,10 @@ I'll coordinate a **"Platform Launch Readiness Validation"** workflow with Aria,
   const { registerMayaAIRoutes } = await import('./routes/maya-ai-routes');
   const { registerElenaMonitoringRoutes } = await import('./routes/elena-monitoring-routes');
   const { registerAdminConversationRoutes } = await import('./routes/admin-conversation-routes');
-  const { registerAgentLearningSystemRoutes } = await import('./api/agent-learning-system');
   registerBackupManagementRoutes(app);
   registerMayaAIRoutes(app);
   registerElenaMonitoringRoutes(app);
   registerAdminConversationRoutes(app);
-  registerAgentLearningSystemRoutes(app);
-  registerAgentLearningSystemRoutes(app);
 
   // =========================================================================
   // 🎯 CONSULTING AGENTS ENDPOINT - READ-ONLY STRATEGIC ADVISORS

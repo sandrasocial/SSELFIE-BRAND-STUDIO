@@ -1,7 +1,7 @@
 // Agent Tool Integration System - Give Visual Editor Agents Same Tools as Replit AI
 // This system adds str_replace_based_edit_tool, search_filesystem, bash, and web_search to admin agents
 
-import { readFileSync, writeFileSync, existsSync, readdirSync, statSync, mkdirSync } from 'fs';
+import { readFileSync, writeFileSync, existsSync, readdirSync, statSync } from 'fs';
 import { join, dirname } from 'path';
 import { exec } from 'child_process';
 import { promisify } from 'util';
@@ -31,7 +31,7 @@ export class AgentToolSystem {
   private static triggerVisualEditorRefresh(operation: string, filePath: string) {
     try {
       // Store refresh signal for Visual Editor polling
-      (global as any).lastFileChange = {
+      global.lastFileChange = {
         timestamp: Date.now(),
         operation,
         filePath,
@@ -119,24 +119,6 @@ export class AgentToolSystem {
           tool: 'str_replace_based_edit_tool'
         };
       }
-
-      // CRITICAL FIX: Check if path is a directory
-      const stat = statSync(filePath);
-      
-      if (stat.isDirectory()) {
-        // Return directory listing instead of trying to read as file
-        const entries = readdirSync(filePath, { withFileTypes: true });
-        const formattedEntries = entries.map((entry: any, index: number) => {
-          const type = entry.isDirectory() ? '📁' : '📄';
-          return `${String(index + 1).padStart(5, ' ')}\t${type} ${entry.name}`;
-        }).join('\n');
-        
-        return {
-          success: true,
-          result: `Directory listing for ${filePath}:\n${formattedEntries}`,
-          tool: 'str_replace_based_edit_tool'
-        };
-      }
       
       const content = readFileSync(filePath, 'utf8');
       const lines = content.split('\n');
@@ -173,12 +155,38 @@ export class AgentToolSystem {
 
   private static async createFile(filePath: string, content: string): Promise<AgentToolResponse> {
     try {
-      // SIMPLIFIED VERSION: Skip error detection for now to avoid require() issues
-      const finalContent = content;
+      // ERROR DETECTION: Analyze content before creating file
+      console.log(`🔍 ERROR DETECTION: Analyzing file creation: ${filePath}`);
+      const errorResult = await ErrorDetectionIntelligence.detectErrors(filePath, content, 'create');
+      
+      // Check if critical errors can be auto-corrected
+      const hasUncorrectableErrors = errorResult.errors.some(e => 
+        e.severity === 'error' && 
+        !e.fixable && 
+        (e.type === 'security' || e.type === 'structure')
+      );
+      
+      if (errorResult.severity === 'critical' && hasUncorrectableErrors && !errorResult.correctedContent) {
+        console.log(`🚫 CRITICAL ERRORS DETECTED: Blocking file creation`);
+        console.log(`   Errors: ${errorResult.errors.map(e => e.message).join(', ')}`);
+        
+        return {
+          success: false,
+          error: `❌ Critical errors detected - file creation blocked:\n${errorResult.errors.map(e => `- ${e.message}`).join('\n')}\n\nSuggestions:\n${errorResult.suggestions.map(s => `- ${s.description}`).join('\n')}`,
+          tool: 'str_replace_based_edit_tool'
+        };
+      }
+      
+      // Use corrected content if auto-correction is available
+      const finalContent = errorResult.correctedContent || content;
+      if (errorResult.correctedContent) {
+        console.log(`✅ AUTO-CORRECTION: Applied fixes to ${filePath}`);
+      }
       
       // Create directory if it doesn't exist
       const dir = dirname(filePath);
       if (!existsSync(dir)) {
+        const { mkdirSync } = require('fs');
         mkdirSync(dir, { recursive: true });
       }
       

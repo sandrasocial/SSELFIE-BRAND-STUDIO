@@ -4,20 +4,17 @@ import { claudeApiService } from '../services/claude-api-service';
 import { db } from '../db';
 import { claudeConversations } from '../../shared/schema';
 import { eq, and, desc } from 'drizzle-orm';
-import { AgentImplementationDetector } from '../tools/agent_implementation_detector';
 // Agent personalities will be referenced dynamically
 
 const router = Router();
 
-// Schema for sending messages - completely flexible for admin interface compatibility
+// Schema for sending messages
 const sendMessageSchema = z.object({
-  agentName: z.string().optional(),
-  agentId: z.string().optional(), 
-  message: z.string().optional().default(""),
+  agentName: z.string(),
+  message: z.string(),
   conversationId: z.string().optional(),
   tools: z.array(z.any()).optional(),
   fileEditMode: z.boolean().optional(),
-  adminToken: z.string().optional(),
 });
 
 // Schema for getting conversation history
@@ -28,9 +25,7 @@ const getHistorySchema = z.object({
 // Send message to Claude agent with memory and learning
 router.post('/send-message', async (req, res) => {
   try {
-    const parsedData = sendMessageSchema.parse(req.body);
-    const { message, conversationId, tools, fileEditMode } = parsedData;
-    const agentName = parsedData.agentName || parsedData.agentId || 'zara';
+    const { agentName, message, conversationId, tools, fileEditMode } = sendMessageSchema.parse(req.body);
     
     // UNLIMITED ACCESS: Force fileEditMode to true for all admin agents to eliminate "Read-only mode active" errors
     // This ensures agents with canModifyFiles: true always get full editing capabilities
@@ -61,13 +56,6 @@ router.post('/send-message', async (req, res) => {
       const finalConversationId = conversationId || `${agentName}-${userId}-${Date.now()}`;
       const systemPrompt = `You are ${agentName}, Sandra's specialized AI agent with COMPLETE FILE SYSTEM ACCESS.`;
       
-      // 🚨 IMPLEMENTATION DETECTION: Apply to bypass route as well
-      const implementationDetector = new AgentImplementationDetector();
-      const detectionResult = implementationDetector.detectImplementationRequest(agentName, message, []);
-      const finalFileEditMode = forceFileEditMode || detectionResult.isImplementationRequest;
-      
-      console.log(`🎯 ${agentName.toUpperCase()} BYPASS ROUTE IMPLEMENTATION DETECTION: ${detectionResult.isImplementationRequest} (score: ${detectionResult.confidence})`);
-      
       const response = await claudeApiService.sendMessage(
         userId,
         agentName,
@@ -75,13 +63,12 @@ router.post('/send-message', async (req, res) => {
         message,
         systemPrompt,
         tools,
-        finalFileEditMode,
-        detectionResult.isImplementationRequest ? "str_replace_based_edit_tool" : undefined
+        forceFileEditMode
       );
 
       return res.json({ 
         success: true, 
-        response: response,
+        response: response.message,
         conversationId: finalConversationId,
         agentName,
         authBypass: true
@@ -97,13 +84,6 @@ router.post('/send-message', async (req, res) => {
       const finalConversationId = conversationId || `${agentName}-${adminUserId}-${Date.now()}`;
       const systemPrompt = `You are ${agentName}, Sandra's specialized AI agent with COMPLETE FILE SYSTEM ACCESS.`;
       
-      // 🚨 IMPLEMENTATION DETECTION: Apply to fallback route as well
-      const implementationDetector = new AgentImplementationDetector();
-      const detectionResult = implementationDetector.detectImplementationRequest(agentName, message, []);
-      const finalFileEditMode = forceFileEditMode || detectionResult.isImplementationRequest;
-      
-      console.log(`🎯 ${agentName.toUpperCase()} FALLBACK ROUTE IMPLEMENTATION DETECTION: ${detectionResult.isImplementationRequest} (score: ${detectionResult.confidence})`);
-      
       const response = await claudeApiService.sendMessage(
         adminUserId,
         agentName,
@@ -111,13 +91,12 @@ router.post('/send-message', async (req, res) => {
         message,
         systemPrompt,
         tools,
-        finalFileEditMode,
-        detectionResult.isImplementationRequest ? "str_replace_based_edit_tool" : undefined
+        forceFileEditMode
       );
 
       return res.json({ 
         success: true, 
-        response: response,
+        response: response.message,
         conversationId: finalConversationId,
         agentName,
         authFallback: true
@@ -129,23 +108,6 @@ router.post('/send-message', async (req, res) => {
     // Use proper agent expertise from Claude API service
     const systemPrompt = `You are ${agentName}, Sandra's specialized AI agent.`;
 
-    // 🚨 ZARA'S IMPLEMENTATION DETECTION: Apply advanced detection to main Claude API route
-    const implementationDetector = new AgentImplementationDetector();
-    const detectionResult = implementationDetector.detectImplementationRequest(
-      agentName, 
-      message,
-      [] // conversation history - can be enhanced later
-    );
-    
-    console.log(`🎯 ${agentName.toUpperCase()} MAIN API IMPLEMENTATION DETECTION:`);
-    console.log(`  - Confidence Score: ${detectionResult.confidence}/100`);
-    console.log(`  - Is Implementation: ${detectionResult.isImplementationRequest}`);
-    console.log(`  - Should Force Tools: ${detectionResult.isImplementationRequest}`);
-    console.log(`  - Reasoning: ${detectionResult.reasoning.join(', ')}`);
-    
-    // Force file edit mode for implementation requests
-    const finalFileEditMode = forceFileEditMode || detectionResult.isImplementationRequest;
-    
     // Send message to Claude with memory and learning
     const response = await claudeApiService.sendMessage(
       userId,
@@ -154,8 +116,7 @@ router.post('/send-message', async (req, res) => {
       message,
       systemPrompt,
       tools,
-      finalFileEditMode,  // Enhanced with implementation detection
-      detectionResult.isImplementationRequest ? "str_replace_based_edit_tool" : undefined
+      forceFileEditMode  // Always use full editing capabilities for admin agents
     );
 
     // Elena workflow detection integration
@@ -194,12 +155,7 @@ router.get('/conversation/:conversationId', async (req, res) => {
   try {
     const { conversationId } = req.params;
     
-    // Enhanced authentication - support admin token OR session auth
-    const adminToken = req.headers.authorization?.replace('Bearer ', '') || req.query.token;
-    const isSessionAuth = req.isAuthenticated?.() && req.user;
-    const isAdminToken = adminToken === 'sandra-admin-2025';
-    
-    if (!isSessionAuth && !isAdminToken) {
+    if (!req.isAuthenticated?.() || !req.user) {
       return res.status(401).json({ error: 'Authentication required' });
     }
 
@@ -225,16 +181,11 @@ router.get('/agent/:agentName/memory', async (req, res) => {
   try {
     const { agentName } = req.params;
     
-    // Enhanced authentication - support admin token OR session auth
-    const adminToken = req.headers.authorization?.replace('Bearer ', '') || req.query.token;
-    const isSessionAuth = req.isAuthenticated?.() && req.user;
-    const isAdminToken = adminToken === 'sandra-admin-2025';
-    
-    if (!isSessionAuth && !isAdminToken) {
+    if (!req.isAuthenticated?.() || !req.user) {
       return res.status(401).json({ error: 'Authentication required' });
     }
 
-    const userId = isAdminToken ? '42585527' : (req.user as any).claims?.sub;
+    const userId = (req.user as any).claims?.sub;
     const memory = await claudeApiService.getAgentMemory(agentName, userId);
 
     res.json({
@@ -257,24 +208,9 @@ router.get('/conversation/:conversationId/history', async (req, res) => {
   try {
     const { conversationId } = req.params;
     
-    // Enhanced authentication - support admin token OR session auth
-    const adminToken = req.headers.authorization?.replace('Bearer ', '') || req.query.token;
-    const isSessionAuth = req.isAuthenticated?.() && req.user;
-    const isAdminToken = adminToken === 'sandra-admin-2025';
-    
-    if (!isSessionAuth && !isAdminToken) {
-      console.log('🔒 CONVERSATION HISTORY AUTH FAILED:', { 
-        hasSession: !!isSessionAuth, 
-        hasAdminToken: !!isAdminToken,
-        token: adminToken?.substring(0, 10) + '...' 
-      });
+    if (!req.isAuthenticated?.() || !req.user) {
       return res.status(401).json({ error: 'Authentication required' });
     }
-    
-    console.log('✅ CONVERSATION HISTORY AUTH SUCCESS:', { 
-      method: isAdminToken ? 'admin-token' : 'session',
-      conversationId 
-    });
 
     const history = await claudeApiService.getConversationHistory(conversationId);
 
