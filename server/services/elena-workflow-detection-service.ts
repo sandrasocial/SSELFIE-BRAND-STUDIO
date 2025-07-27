@@ -155,9 +155,27 @@ export class ElenaWorkflowDetectionService {
    * Analyze Elena's conversation for workflow patterns
    */
   analyzeConversation(message: string, agentName: string): WorkflowAnalysis {
-    console.log('🔍 ELENA WORKFLOW ANALYSIS:', message.substring(0, 100) + '...');
+    console.log('🔍 ELENA DYNAMIC WORKFLOW ANALYSIS:', message.substring(0, 100) + '...');
     
-    // First check for complex multi-agent workflow
+    // Only analyze Elena's responses for workflow creation
+    if (agentName.toLowerCase() !== 'elena') {
+      return { hasWorkflow: false, confidence: 0, patterns: [], extractedText: '' };
+    }
+
+    // DYNAMIC ELENA RESPONSE PARSING - Parse Elena's actual response for coordination
+    const dynamicWorkflow = this.parseElenaResponseDynamically(message);
+    if (dynamicWorkflow) {
+      console.log('✅ ELENA DYNAMIC: Workflow created from Elena response:', dynamicWorkflow.title);
+      return {
+        hasWorkflow: true,
+        confidence: 0.95,
+        workflow: dynamicWorkflow,
+        patterns: ['Dynamic Elena Response Parsing'],
+        extractedText: message.substring(0, 500)
+      };
+    }
+
+    // First check for complex multi-agent workflow patterns
     const complexWorkflow = this.parseComplexElenaWorkflow(message);
     if (complexWorkflow) {
       return {
@@ -168,63 +186,263 @@ export class ElenaWorkflowDetectionService {
         extractedText: message.substring(0, 500)
       };
     }
-    // Real Elena agent workflow detection
-    if (agentName.toLowerCase() !== 'elena') {
-      return { hasWorkflow: false, confidence: 0, patterns: [], extractedText: '' };
+
+    console.log('❌ ELENA DYNAMIC: No workflow patterns found in Elena response');
+    return { hasWorkflow: false, confidence: 0, patterns: [], extractedText: '' };
+  }
+
+  /**
+   * DYNAMIC ELENA RESPONSE PARSER - Parse Elena's actual message content for coordination
+   */
+  private parseElenaResponseDynamically(elenaMessage: string): DetectedWorkflow | null {
+    console.log('🔍 DYNAMIC ELENA PARSING: Analyzing Elena response for real coordination patterns');
+
+    // Look for Elena's coordination language
+    const coordinationPatterns = [
+      /I'll coordinate (.*?) (?:and|with|&) (.*?) (?:to|for) (.*)/i,
+      /Let me coordinate (.*?) (?:and|with|&) (.*?) (?:to|for) (.*)/i,
+      /I need (.*?) (?:and|with|&) (.*?) (?:to|for) (.*)/i,
+      /Deploy (.*?) (?:and|with|&) (.*?) (?:to|for) (.*)/i,
+      /I'll get (.*?) (?:and|with|&) (.*?) (?:to|for) (.*)/i,
+      /(.*?) and (.*?) should (.*)/i,
+      /(.*?) and (.*?) will (.*)/i,
+      /(.*?) and (.*?) can (.*)/i
+    ];
+
+    let workflowTitle = 'Dynamic Elena Coordination';
+    let workflowDescription = 'Dynamic agent coordination workflow';
+    let agents: string[] = [];
+    let tasks: string[] = [];
+
+    // Parse coordination patterns
+    for (const pattern of coordinationPatterns) {
+      const match = elenaMessage.match(pattern);
+      if (match) {
+        console.log('✅ DYNAMIC PARSING: Found coordination pattern:', match[0]);
+        
+        const agent1 = this.normalizeAgentName(match[1]);
+        const agent2 = this.normalizeAgentName(match[2]);
+        const task = match[3];
+
+        if (agent1 && this.AGENT_NAMES.includes(agent1)) agents.push(agent1);
+        if (agent2 && this.AGENT_NAMES.includes(agent2)) agents.push(agent2);
+        if (task) tasks.push(task);
+
+        workflowDescription = match[0];
+        break;
+      }
     }
 
-    const patterns: string[] = [];
-    let confidence = 0;
-    let extractedAgents: string[] = [];
-    let extractedTasks: string[] = [];
+    // If no coordination pattern, look for agent mentions with task context
+    if (agents.length === 0) {
+      const agentMentions = this.extractAllAgentMentions(elenaMessage);
+      if (agentMentions.length >= 2) {
+        agents = agentMentions;
+        tasks = [`Multi-agent coordination: ${agentMentions.join(' and ')}`];
+        workflowDescription = `Elena coordinating ${agentMentions.join(' and ')} for task execution`;
+        console.log('✅ DYNAMIC PARSING: Created workflow from agent mentions:', agents);
+      }
+    }
 
-    // Check for workflow patterns
-    for (const pattern of this.WORKFLOW_PATTERNS) {
+    // Extract workflow title from Elena's message
+    const titlePatterns = [
+      /[*"](.*?(?:workflow|coordination|breakthrough|activation|test).*?)[*"]/i,
+      /coordinate.*?[*"](.*?)[*"]/i,
+      /working on[*: ]*(.*?)(?:\.|$)/i
+    ];
+
+    for (const pattern of titlePatterns) {
+      const match = elenaMessage.match(pattern);
+      if (match && match[1]) {
+        workflowTitle = match[1].trim();
+        break;
+      }
+    }
+
+    if (agents.length === 0) {
+      console.log('❌ DYNAMIC PARSING: No valid agents found in Elena response');
+      return null;
+    }
+
+    // Create dynamic workflow
+    const workflow: DetectedWorkflow = {
+      id: `elena_dynamic_${Date.now()}`,
+      title: workflowTitle,
+      description: workflowDescription,
+      agents: [...new Set(agents)], // Remove duplicates
+      tasks: tasks.length > 0 ? tasks : [`Coordinate ${agents.join(' and ')} for Elena's assigned tasks`],
+      priority: this.determinePriority(elenaMessage),
+      estimatedDuration: this.extractDurationFromMessage(elenaMessage) || '20-30 minutes',
+      createdAt: new Date(),
+      status: 'staged'
+    };
+
+    console.log('✅ DYNAMIC ELENA: Workflow created dynamically:', {
+      id: workflow.id,
+      title: workflow.title,
+      agents: workflow.agents,
+      tasks: workflow.tasks.length
+    });
+
+    return workflow;
+  }
+
+  /**
+   * Extract all agent mentions from Elena's message
+   */
+  private extractAllAgentMentions(message: string): string[] {
+    const agents: string[] = [];
+    const lowerMessage = message.toLowerCase();
+
+    for (const agentName of this.AGENT_NAMES) {
+      if (lowerMessage.includes(agentName.toLowerCase())) {
+        agents.push(agentName);
+      }
+    }
+
+    return [...new Set(agents)]; // Remove duplicates
+  }
+
+  /**
+   * Normalize agent name (handle variations like "Aria", "ARIA", etc.)
+   */
+  private normalizeAgentName(text: string): string | null {
+    if (!text) return null;
+    
+    const cleanText = text.trim().toLowerCase();
+    const agentName = this.AGENT_NAMES.find(name => 
+      cleanText.includes(name.toLowerCase())
+    );
+    
+    return agentName || null;
+  }
+
+  /**
+   * Extract workflow title from Elena's message  
+   */
+  private extractTitleFromMessage(message: string): string | null {
+    const titlePatterns = [
+      /[*"](.*?(?:workflow|coordination|breakthrough|activation|test).*?)[*"]/i,
+      /coordinate.*?[*"](.*?)[*"]/i,
+      /working on[*: ]*(.*?)(?:\.|$)/i,
+      /for[*: ]*(.*?)(?:\.|$)/i
+    ];
+
+    for (const pattern of titlePatterns) {
+      const match = message.match(pattern);
+      if (match && match[1]) {
+        return match[1].trim();
+      }
+    }
+    return null;
+  }
+
+  /**
+   * Extract workflow description from Elena's message
+   */
+  private extractDescriptionFromMessage(message: string): string | null {
+    const descPatterns = [
+      /I'll coordinate.*?(?:\n|$)/i,
+      /Let me coordinate.*?(?:\n|$)/i,
+      /I need.*?(?:\n|$)/i,
+      /Deploy.*?(?:\n|$)/i
+    ];
+
+    for (const pattern of descPatterns) {
       const match = message.match(pattern);
       if (match) {
-        patterns.push(pattern.source);
-        confidence += 0.3;
+        return match[0].trim();
+      }
+    }
+    return null;
+  }
 
-        // Extract agents and tasks from matches
-        if (match[1]) extractedAgents.push(...this.extractAgentNames(match[1]));
-        if (match[2]) extractedAgents.push(...this.extractAgentNames(match[2]));
-        if (match[3]) extractedTasks.push(match[3]);
+  /**
+   * Extract detailed tasks from Elena's message for specific agents
+   */
+  private extractDetailedTasks(message: string, agents: string[]): string[] {
+    const tasks: string[] = [];
+    
+    for (const agent of agents) {
+      // Look for agent-specific task assignments
+      const agentTaskPattern = new RegExp(`${agent}.*?(?:will|should|can)\\s+([^\\n\\.]+)`, 'i');
+      const match = message.match(agentTaskPattern);
+      if (match) {
+        tasks.push(`${agent.toUpperCase()}: ${match[1].trim()}`);
       }
     }
 
-    // Check for agent mentions
-    const mentionedAgents = this.extractAgentNames(message);
-    if (mentionedAgents.length >= 2) {
-      confidence += 0.2;
-      extractedAgents.push(...mentionedAgents);
-    }
+    return tasks;
+  }
 
-    // Check for coordination keywords
-    const coordinationKeywords = ['coordinate', 'deploy', 'activate', 'task', 'assign', 'work together'];
-    for (const keyword of coordinationKeywords) {
-      if (message.toLowerCase().includes(keyword)) {
-        confidence += 0.1;
+  /**
+   * Extract tasks from Elena's message for specific agents
+   */
+  private extractTasksFromMessage(message: string, agents: string[]): string[] {
+    const tasks: string[] = [];
+    
+    // Look for task-related keywords
+    const taskPatterns = [
+      /create\s+([^\\n\\.]+)/i,
+      /implement\s+([^\\n\\.]+)/i,
+      /build\s+([^\\n\\.]+)/i,
+      /design\s+([^\\n\\.]+)/i,
+      /optimize\s+([^\\n\\.]+)/i
+    ];
+
+    for (const pattern of taskPatterns) {
+      const match = message.match(pattern);
+      if (match) {
+        tasks.push(match[0].trim());
       }
     }
 
-    // Remove duplicates
-    extractedAgents = [...new Set(extractedAgents)];
-    extractedTasks = [...new Set(extractedTasks)];
-
-    const hasWorkflow = confidence >= 0.3 && extractedAgents.length >= 1;
-
-    let workflow: DetectedWorkflow | undefined;
-    if (hasWorkflow) {
-      workflow = this.createWorkflowFromAnalysis(message, extractedAgents, extractedTasks);
+    if (tasks.length === 0) {
+      tasks.push(`Coordinate ${agents.join(' and ')} for Elena's assigned tasks`);
     }
 
-    return {
-      hasWorkflow,
-      confidence,
-      workflow,
-      patterns,
-      extractedText: message
-    };
+    return tasks;
+  }
+
+  /**
+   * Extract duration from Elena's message
+   */
+  private extractDurationFromMessage(message: string): string | null {
+    const durationPatterns = [
+      /(\d+)\s*minutes?/i,
+      /(\d+)\s*hours?/i,
+      /(\d+)\s*mins?/i,
+      /(\d+)-(\d+)\s*minutes?/i,
+      /Duration:\s*(\d+)\s*minutes?/i
+    ];
+
+    for (const pattern of durationPatterns) {
+      const match = message.match(pattern);
+      if (match) {
+        if (match[2]) {
+          return `${match[1]}-${match[2]} minutes`;
+        }
+        return `${match[1]} minutes`;
+      }
+    }
+    return null;
+  }
+
+  /**
+   * Determine priority from Elena's message
+   */
+  private determinePriority(message: string): 'low' | 'medium' | 'high' | 'critical' {
+    const lowerMessage = message.toLowerCase();
+    
+    if (lowerMessage.includes('critical') || lowerMessage.includes('urgent') || lowerMessage.includes('immediately')) {
+      return 'critical';
+    } else if (lowerMessage.includes('high priority') || lowerMessage.includes('important') || lowerMessage.includes('asap')) {
+      return 'high';
+    } else if (lowerMessage.includes('low priority') || lowerMessage.includes('when possible')) {
+      return 'low';
+    }
+    
+    return 'medium';
   }
 
   /**

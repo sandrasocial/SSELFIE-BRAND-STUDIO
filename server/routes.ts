@@ -5819,15 +5819,43 @@ SANDRA'S REQUIREMENT: Agents must DO the work, not just describe it.`;
       
       // CRITICAL FIX: ADD CONVERSATION SAVING AND MEMORY MANAGEMENT TO MAIN ENDPOINT
       try {
-        // 🚀 ELENA WORKFLOW DETECTION - Detect when Elena creates workflows through conversation
+        // 🚀 ELENA DYNAMIC WORKFLOW DETECTION - Analyze Elena's RESPONSE for coordination patterns
+        if (agentId === 'elena') {
+          try {
+            console.log('🔍 ELENA DYNAMIC: Analyzing Elena\'s response for workflow creation patterns');
+            
+            // Import new dynamic Elena workflow detection service
+            const ElenaWorkflowDetectionService = (await import('./services/elena-workflow-detection-service')).default;
+            const workflowService = ElenaWorkflowDetectionService.getInstance();
+            
+            // CRITICAL: Analyze Elena's RESPONSE for coordination patterns, not the input message
+            const workflowAnalysis = workflowService.analyzeConversation(agentResponse, agentId);
+            
+            if (workflowAnalysis.hasWorkflow && workflowAnalysis.workflow) {
+              console.log(`✅ ELENA DYNAMIC: Workflow created from Elena's coordination response!`);
+              console.log(`🎯 WORKFLOW: "${workflowAnalysis.workflow.title}" with agents: ${workflowAnalysis.workflow.agents.join(', ')}`);
+              
+              // Stage the detected workflow for manual execution
+              workflowService.stageWorkflow(workflowAnalysis.workflow);
+              
+              console.log(`📋 ELENA DYNAMIC STAGING: Workflow "${workflowAnalysis.workflow.title}" staged for manual execution`);
+            } else {
+              console.log('🔍 ELENA DYNAMIC: No coordination patterns found in Elena\'s response');
+            }
+          } catch (detectionError) {
+            console.error('❌ ELENA DYNAMIC DETECTION ERROR:', detectionError);
+          }
+        }
+        
+        // Legacy Elena workflow detection (keep for backwards compatibility)
         if (agentId === 'elena') {
           try {
             const { elenaConversationDetection } = await import('./services/elena-conversation-detection.js');
             const detectedWorkflow = elenaConversationDetection.detectWorkflowFromConversation(agentResponse, message);
             
             if (detectedWorkflow) {
-              console.log(`🎯 ELENA WORKFLOW DETECTED: "${detectedWorkflow.name}" staging for manual execution`);
-              console.log(`📋 WORKFLOW DETAILS:`, {
+              console.log(`🎯 ELENA LEGACY: Legacy workflow detected "${detectedWorkflow.name}" (fallback system)`);
+              console.log(`📋 LEGACY WORKFLOW DETAILS:`, {
                 id: detectedWorkflow.id,
                 agents: detectedWorkflow.tasks.map(t => t.agentId).join(', '),
                 priority: detectedWorkflow.priority,
