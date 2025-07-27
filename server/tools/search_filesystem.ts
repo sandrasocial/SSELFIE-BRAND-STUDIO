@@ -19,7 +19,7 @@ export async function search_filesystem(params: SearchParams) {
     console.log('🔍 ADMIN SEARCH: Starting full repository analysis with params:', params);
     
     const results: SearchResult[] = [];
-    const maxFiles = 5000; // UNLIMITED ACCESS: Dramatically increased for complete repository visibility (previously limited to 1000)
+    const maxFiles = 50000; // UNLIMITED ACCESS: MASSIVE increase for complete repository visibility (10x previous limit)
     
     // Search through project files
     const searchInDirectory = async (dirPath: string, basePath = '') => {
@@ -141,13 +141,36 @@ function analyzeFileRelevance(content: string, params: SearchParams, fileName: s
       autonomousKeywords.some(a => a.includes(k.toLowerCase()) || k.toLowerCase().includes(a))
     );
     
-    // Check for keyword matches
+    // ULTIMATE keyword matching - maximum coverage
     let keywordMatches = 0;
     for (const keyword of keywords) {
-      if (fileContent.includes(keyword) || fileNameLower.includes(keyword)) {
+      // Ultra-comprehensive matching patterns
+      if (fileContent.includes(keyword) || 
+          fileNameLower.includes(keyword) || 
+          fileName.toLowerCase().includes(keyword) || 
+          content.toLowerCase().includes(keyword) ||
+          // Match variations and patterns
+          fileContent.includes(keyword.replace('-', '')) ||
+          fileContent.includes(keyword.replace('_', '')) ||
+          fileContent.includes(keyword.charAt(0).toUpperCase() + keyword.slice(1)) || // Capitalize first letter
+          fileName.toLowerCase().split('/').some(part => part.includes(keyword)) || // Check path segments
+          content.toLowerCase().match(new RegExp(`\\b${keyword.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}\\b`)) // Word boundary match
+         ) {
         keywordMatches++;
       }
     }
+    
+    // ULTRA-AGGRESSIVE matching - find everything possible
+    const additionalMatches = keywords.filter(k => 
+      fileNameLower.indexOf(k) !== -1 || 
+      fileContent.indexOf(k) !== -1 ||
+      fileNameLower.replace('-', '').includes(k) ||
+      fileNameLower.replace('_', '').includes(k) ||
+      fileNameLower.replace('.', '').includes(k) ||
+      fileName.replace(/([A-Z])/g, '-$1').toLowerCase().includes(k) || // Convert CamelCase to kebab-case
+      fileName.toLowerCase().split(/[\.\/\\]/).some(part => part.includes(k)) || // Check file path parts
+      content.toLowerCase().split(/[\s\n\r\t,;.!?(){}[\]"'`]/).some(word => word.includes(k)) // Check all words
+    ).length;
     
     // File path matches for specific components - MASSIVELY EXPANDED
     const pathKeywords = [
@@ -160,8 +183,9 @@ function analyzeFileRelevance(content: string, params: SearchParams, fileName: s
     ];
     const pathMatches = pathKeywords.some(key => fileNameLower.includes(key));
     
-    if (keywordMatches > 0 || pathMatches || hasAutonomousTerms) {
-      reasons.push(`Matches ${keywordMatches} keywords from query${hasAutonomousTerms ? ' (AUTONOMOUS ORCHESTRATOR SYSTEM)' : ''}`);
+    const totalMatches = keywordMatches + additionalMatches;
+    if (totalMatches > 0 || pathMatches || hasAutonomousTerms) {
+      reasons.push(`Matches ${totalMatches} keywords from query${hasAutonomousTerms ? ' (AUTONOMOUS ORCHESTRATOR SYSTEM)' : ''}${pathMatches ? ' + path match' : ''}`);
       relevantContent = extractRelevantContent(content, query);
       relevant = true;
     }
