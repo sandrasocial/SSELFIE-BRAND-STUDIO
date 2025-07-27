@@ -12,7 +12,7 @@ const router = Router();
 const sendMessageSchema = z.object({
   agentName: z.string(),
   message: z.string(),
-  conversationId: z.string().optional(),
+  conversationId: z.union([z.string(), z.number()]).optional(),
   tools: z.array(z.any()).optional(),
   fileEditMode: z.boolean().optional(),
 });
@@ -26,6 +26,9 @@ const getHistorySchema = z.object({
 router.post('/send-message', async (req, res) => {
   try {
     const { agentName, message, conversationId, tools, fileEditMode } = sendMessageSchema.parse(req.body);
+    
+    // Convert conversationId to string if it's a number
+    const finalConversationIdParam = conversationId ? conversationId.toString() : undefined;
     
     // UNLIMITED ACCESS: Force fileEditMode to true for all admin agents to eliminate "Read-only mode active" errors
     // This ensures agents with canModifyFiles: true always get full editing capabilities
@@ -53,7 +56,7 @@ router.post('/send-message', async (req, res) => {
       console.log('⚠️ Authentication bypass for agent operations - proceeding with admin access');
       // Force admin access for agent operations
       const userId = '42585527';
-      const finalConversationId = conversationId || `${agentName}-${userId}-${Date.now()}`;
+      const finalConversationId = finalConversationIdParam || `${agentName}-${userId}-${Date.now()}`;
       const systemPrompt = `You are ${agentName}, Sandra's specialized AI agent with COMPLETE FILE SYSTEM ACCESS.`;
       
       const response = await claudeApiService.sendMessage(
@@ -81,7 +84,7 @@ router.post('/send-message', async (req, res) => {
     if (!userId) {
       console.error('❌ No user ID found - using admin fallback');
       const adminUserId = '42585527';
-      const finalConversationId = conversationId || `${agentName}-${adminUserId}-${Date.now()}`;
+      const finalConversationId = finalConversationIdParam || `${agentName}-${adminUserId}-${Date.now()}`;
       const systemPrompt = `You are ${agentName}, Sandra's specialized AI agent with COMPLETE FILE SYSTEM ACCESS.`;
       
       const response = await claudeApiService.sendMessage(
@@ -103,7 +106,7 @@ router.post('/send-message', async (req, res) => {
       });
     }
 
-    const finalConversationId = conversationId || `${agentName}-${userId}-${Date.now()}`;
+    const finalConversationId = finalConversationIdParam || `${agentName}-${userId}-${Date.now()}`;
 
     // Use proper agent expertise from Claude API service
     const systemPrompt = `You are ${agentName}, Sandra's specialized AI agent.`;
