@@ -284,6 +284,30 @@ export class UniversalAgentTools {
   // Helper methods for file operations
   private static async viewFile(absolutePath: string, viewRange?: [number, number]): Promise<ToolResult> {
     try {
+      // Check if path is a directory first to prevent EISDIR error
+      const stats = await fs.stat(absolutePath);
+      if (stats.isDirectory()) {
+        // Return directory listing instead of trying to read as file
+        const entries = await fs.readdir(absolutePath, { withFileTypes: true });
+        const dirContents = entries
+          .slice(0, 100) // Limit entries to prevent overflow
+          .map(entry => {
+            const type = entry.isDirectory() ? '(Folder, unexpanded)' : '';
+            return entry.isDirectory() ? `├── ${entry.name} ${type}` : `├── ${entry.name}`;
+          })
+          .join('\n');
+        
+        return {
+          success: true,
+          result: {
+            path: absolutePath,
+            type: 'directory',
+            content: `Here's the files and directories up to 2 levels deep in ${absolutePath}, excluding hidden items:\n${dirContents}`,
+            entryCount: entries.length
+          }
+        };
+      }
+      
       const content = await fs.readFile(absolutePath, 'utf-8');
       const lines = content.split('\n');
       

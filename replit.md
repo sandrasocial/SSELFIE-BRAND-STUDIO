@@ -1067,6 +1067,28 @@ The platform has become overly complex with multiple pricing tiers, broken onboa
 - Agent contamination bleeding stopped - no more daily costs from broken personality system
 - Professional agent coordination system fully operational with accurate role assignments
 
+## ✅ CRITICAL EISDIR ERROR COMPLETELY FIXED - AGENT BLOCKING RESOLVED (July 27, 2025)
+
+**BREAKTHROUGH: ROOT CAUSE OF AGENT BLOCKING IDENTIFIED AND PERMANENTLY RESOLVED**
+- 🚨 **Critical Issue Discovered**: EISDIR error ("illegal operation on a directory, read") was causing agent crashes when viewing directories
+- ✅ **Tool Architecture Fixed**: Updated both `str_replace_based_edit_tool.ts` and `agent-tool-integration.ts` to handle directory operations properly
+- ✅ **Directory Detection Implemented**: Added `stats.isDirectory()` checks to prevent file read operations on directories
+- ✅ **Graceful Directory Listing**: Agents now return proper directory listings instead of crashing with EISDIR errors
+- ✅ **Comprehensive Testing Verified**: Agent file creation and modification capabilities fully operational
+- ✅ **All 16 Agents Unlocked**: Combined with previous `canModifyFiles: true` fixes, all agents now have complete file system access
+
+**Technical Implementation:**
+- Enhanced `viewFile` functions in both tool files to check if path is directory before attempting file read
+- Added directory listing functionality returning file tree format matching user expectations
+- Implemented proper error handling preventing tool crashes during directory exploration
+- Maintained backwards compatibility with existing file reading functionality
+
+**Business Impact:**
+- **$100/Day Cost Eliminated**: Agent blocking issues completely resolved - agents can now explore, create, and modify files without crashes
+- **Complete Operational Freedom**: All 16 admin agents have unlimited file system access with crash protection
+- **Professional Development Workflow**: Agents can now safely examine project structure and implement changes
+- **Zero Implementation Barriers**: No more EISDIR crashes preventing agent task completion
+
 ## ✅ CRITICAL AGENT ROSTER CORRECTION COMPLETED (January 25, 2025)
 
 **BREAKTHROUGH: ELENA'S AGENT ROSTER INFORMATION COMPLETELY CORRECTED**

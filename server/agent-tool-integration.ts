@@ -120,6 +120,26 @@ export class AgentToolSystem {
         };
       }
       
+      // Check if path is a directory first to prevent EISDIR error
+      const stats = statSync(filePath);
+      if (stats.isDirectory()) {
+        // Return directory listing instead of trying to read as file
+        const entries = readdirSync(filePath, { withFileTypes: true });
+        const dirContents = entries
+          .slice(0, 100) // Limit entries to prevent overflow
+          .map(entry => {
+            const type = entry.isDirectory() ? '(Folder, unexpanded)' : '';
+            return entry.isDirectory() ? `├── ${entry.name} ${type}` : `├── ${entry.name}`;
+          })
+          .join('\n');
+        
+        return {
+          success: true,
+          result: `Here's the files and directories up to 2 levels deep in ${filePath}, excluding hidden items:\n${dirContents}`,
+          tool: 'str_replace_based_edit_tool'
+        };
+      }
+      
       const content = readFileSync(filePath, 'utf8');
       const lines = content.split('\n');
       

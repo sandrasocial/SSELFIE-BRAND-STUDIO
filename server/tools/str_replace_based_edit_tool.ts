@@ -62,6 +62,22 @@ export async function str_replace_based_edit_tool(params: EditToolParams) {
 
 async function viewFile(filePath: string, viewRange?: [number, number]) {
   try {
+    // Check if path is a directory first to prevent EISDIR error
+    const stats = await fs.stat(filePath);
+    if (stats.isDirectory()) {
+      // Return directory listing instead of trying to read as file
+      const entries = await fs.readdir(filePath, { withFileTypes: true });
+      const dirContents = entries
+        .slice(0, 100) // Limit entries to prevent overflow
+        .map(entry => {
+          const type = entry.isDirectory() ? '(Folder)' : '(File)';
+          return `${entry.name} ${type}`;
+        })
+        .join('\n');
+      
+      return `Here's the files and directories in ${filePath}:\n${dirContents}`;
+    }
+    
     const content = await fs.readFile(filePath, 'utf-8');
     const lines = content.split('\n');
     
