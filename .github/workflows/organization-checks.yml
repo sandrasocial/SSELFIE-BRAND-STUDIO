@@ -1,0 +1,71 @@
+name: Repository Organization Checks
+
+on:
+  push:
+    branches: [ main, develop ]
+  pull_request:
+    branches: [ main, develop ]
+
+jobs:
+  organization-check:
+    runs-on: ubuntu-latest
+    
+    steps:
+    - uses: actions/checkout@v2
+    
+    - name: Check Directory Structure
+      run: |
+        # Verify core directories exist
+        for dir in "client" "server" "shared" "components" "pages" "public"; do
+          if [ ! -d "$dir" ]; then
+            echo "❌ Missing required directory: $dir"
+            exit 1
+          fi
+        done
+        echo "✅ Core directory structure verified"
+        
+    - name: Check File Naming Conventions
+      run: |
+        # Check component files follow PascalCase
+        find components pages -name "*.tsx" -o -name "*.jsx" | while read file; do
+          basename=$(basename "$file")
+          if [[ ! $basename =~ ^[A-Z][a-zA-Z0-9]*\.(tsx|jsx)$ ]]; then
+            echo "❌ Invalid component filename: $file"
+            exit 1
+          fi
+        done
+        echo "✅ Component naming conventions verified"
+        
+    - name: Check Import Organization
+      run: |
+        # Basic import order check
+        find . -name "*.ts" -o -name "*.tsx" | while read file; do
+          if grep -A 3 "^import" "$file" | grep -q "^$"; then
+            continue
+          else
+            echo "❌ Import organization issue in: $file"
+            exit 1
+          fi
+        done
+        echo "✅ Import organization verified"
+        
+    - name: Check File Size Limits
+      run: |
+        # Check file sizes
+        find . -name "*.ts" -o -name "*.tsx" | while read file; do
+          lines=$(wc -l < "$file")
+          if [ "$lines" -gt 300 ]; then
+            echo "❌ File too large: $file ($lines lines)"
+            exit 1
+          fi
+        done
+        echo "✅ File size limits verified"
+        
+    - name: Check Directory Depth
+      run: |
+        # Check directory depth
+        if find . -type d -not -path "./node_modules/*" -not -path "./.git/*" | grep -q "/./././."; then
+          echo "❌ Directory depth exceeds 4 levels"
+          exit 1
+        fi
+        echo "✅ Directory depth verified"
