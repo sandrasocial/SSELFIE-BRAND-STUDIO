@@ -19,7 +19,7 @@ export async function search_filesystem(params: SearchParams) {
     console.log('🔍 ADMIN SEARCH: Starting full repository analysis with params:', params);
     
     const results: SearchResult[] = [];
-    const maxFiles = 1000; // UNLIMITED ACCESS: Maximum files increased for complete repository visibility
+    const maxFiles = 5000; // UNLIMITED ACCESS: Dramatically increased for complete repository visibility (previously limited to 1000)
     
     // Search through project files
     const searchInDirectory = async (dirPath: string, basePath = '') => {
@@ -32,13 +32,18 @@ export async function search_filesystem(params: SearchParams) {
           const fullPath = path.join(dirPath, entry.name);
           const relativePath = path.join(basePath, entry.name);
           
-          // MINIMAL EXCLUSIONS: Only skip build artifacts, allow access to everything else
+          // MINIMAL EXCLUSIONS: Only skip major build artifacts, allow access to EVERYTHING else including hidden files
           if (entry.name === 'node_modules' || 
               entry.name === 'dist' ||
               entry.name === 'build' ||
-              entry.name === '.git') {
+              entry.name === '.git' ||
+              entry.name === '.next' ||
+              entry.name === 'coverage') {
             continue;
           }
+          
+          // INCLUDE HIDDEN FILES: Allow access to .env, .replit, .gitignore, etc.
+          // No exclusion for dot files - Sandra needs complete access
           
           if (entry.isDirectory()) {
             await searchInDirectory(fullPath, relativePath);
@@ -66,14 +71,23 @@ export async function search_filesystem(params: SearchParams) {
     
     await searchInDirectory(process.cwd());
     
-    console.log(`✅ ADMIN SEARCH: Found ${results.length} relevant files for comprehensive analysis`);
+    console.log(`✅ ADMIN SEARCH: Found ${results.length} relevant files for comprehensive analysis (max: ${maxFiles})`);
+    
+    // FORCE SHOW MORE RESULTS: If we hit the limit, explicitly tell agents there might be more
+    const hitLimit = results.length >= maxFiles;
     
     return { 
-      summary: `UNLIMITED ACCESS: Found ${results.length} files across entire repository`,
+      summary: `UNLIMITED ACCESS: Found ${results.length} files across entire repository${hitLimit ? ' (LIMIT REACHED - more files available)' : ''}`,
       results: results, // Return ALL results, no slicing limitation
       totalFiles: results.length,
       accessLevel: "UNLIMITED",
-      note: "Complete repository access enabled - all agents can see entire codebase"
+      note: `Complete repository access enabled - all agents can see entire codebase${hitLimit ? '. Search hit maximum limit - refine query for specific files.' : ''}`,
+      searchStats: {
+        filesAnalyzed: results.length,
+        maxCapacity: maxFiles,
+        hitLimit,
+        suggestion: hitLimit ? "Use more specific search terms to find exact files" : "Complete search performed"
+      }
     };
     
   } catch (error) {
@@ -84,8 +98,20 @@ export async function search_filesystem(params: SearchParams) {
 }
 
 function shouldAnalyzeFile(fileName: string): boolean {
-  // UNLIMITED FILE TYPE ACCESS: Support ALL common file types agents might need
-  const codeExtensions = ['.ts', '.tsx', '.js', '.jsx', '.json', '.md', '.css', '.html', '.txt', '.xml', '.yaml', '.yml', '.env', '.config', '.toml'];
+  // UNLIMITED FILE TYPE ACCESS: Support ALL possible file types agents might need
+  const codeExtensions = [
+    '.ts', '.tsx', '.js', '.jsx', '.json', '.md', '.css', '.html', '.txt', '.xml', '.yaml', '.yml', 
+    '.env', '.config', '.toml', '.py', '.java', '.cpp', '.c', '.h', '.php', '.rb', '.go', '.rs', 
+    '.swift', '.kt', '.scala', '.sh', '.bash', '.zsh', '.fish', '.ps1', '.bat', '.cmd', '.sql',
+    '.graphql', '.gql', '.proto', '.dockerfile', '.dockerignore', '.gitignore', '.gitattributes',
+    '.editorconfig', '.prettierrc', '.eslintrc', '.babelrc', '.nvmrc', '.npmrc', '.yarnrc',
+    '.replit', '.nix', '.lock', '.log', '.ini', '.conf', '.properties', '.manifest', '.plist'
+  ];
+  
+  // Also allow files without extensions (like Dockerfile, Makefile, etc.)
+  const hasExtension = fileName.includes('.');
+  if (!hasExtension) return true; // Include files without extensions
+  
   return codeExtensions.some(ext => fileName.endsWith(ext));
 }
 
@@ -101,7 +127,7 @@ function analyzeFileRelevance(content: string, params: SearchParams, fileName: s
     const fileNameLower = fileName.toLowerCase();
     
     // Extract keywords from query for better matching - ENHANCED FOR AUTONOMOUS ORCHESTRATOR
-    const keywords = query.split(/[,\s-]+/).filter(word => word.length > 2);
+    const keywords = query.split(/[,\s-]+/).filter(word => word.length > 1); // UNLIMITED: Reduced minimum length to catch more matches
     
     // Special handling for autonomous orchestrator queries
     const autonomousKeywords = [
@@ -123,8 +149,15 @@ function analyzeFileRelevance(content: string, params: SearchParams, fileName: s
       }
     }
     
-    // File path matches for specific components
-    const pathKeywords = ['login', 'auth', 'onboard', 'workspace', 'dashboard', 'nav', 'route', 'page'];
+    // File path matches for specific components - MASSIVELY EXPANDED
+    const pathKeywords = [
+      'login', 'auth', 'onboard', 'workspace', 'dashboard', 'nav', 'route', 'page',
+      'agent', 'elena', 'workflow', 'activity', 'admin', 'component', 'hook', 'api',
+      'service', 'util', 'lib', 'config', 'schema', 'type', 'interface', 'model',
+      'controller', 'middleware', 'validation', 'test', 'spec', 'story', 'style',
+      'layout', 'template', 'form', 'button', 'modal', 'popup', 'drawer', 'sidebar',
+      'header', 'footer', 'menu', 'tab', 'card', 'table', 'list', 'grid', 'chart'
+    ];
     const pathMatches = pathKeywords.some(key => fileNameLower.includes(key));
     
     if (keywordMatches > 0 || pathMatches || hasAutonomousTerms) {
@@ -167,31 +200,42 @@ function analyzeFileRelevance(content: string, params: SearchParams, fileName: s
     }
   }
   
-  // Key architecture files and user experience files - ENHANCED FOR AUTONOMOUS ORCHESTRATOR
+  // UNLIMITED KEY FILES: Massively expanded to catch EVERYTHING Sandra's agents might need
   const keyFiles = [
-    'schema.ts', 'routes.ts', 'App.tsx', 'package.json', 'replit.md',
+    'schema.ts', 'routes.ts', 'App.tsx', 'package.json', 'replit.md', 'README.md',
     'login', 'auth', 'onboard', 'workspace', 'dashboard', 'navigation',
-    'home', 'landing', 'payment', 'signup',
+    'home', 'landing', 'payment', 'signup', 'profile', 'settings',
     // AUTONOMOUS ORCHESTRATOR SYSTEM KEYWORDS
     'deploy-all-agents', 'intelligent-task-distributor', 'agent-knowledge-sharing', 
     'workflow-templates', 'coordination-metrics', 'autonomous-orchestrator',
     'orchestrator', 'task-distributor', 'knowledge-sharing', 'workflow',
-    'agent-bridge', 'coordination', 'deployment'
+    'agent-bridge', 'coordination', 'deployment', 'elena', 'agent-activity',
+    // SSELFIE STUDIO SPECIFIC
+    'maya', 'victoria', 'rachel', 'ava', 'quinn', 'sophia', 'martha', 'diana', 'wilma', 'olga',
+    'sselfie', 'selfie', 'studio', 'gallery', 'photoshoot', 'ai-generator', 'training',
+    'subscription', 'pricing', 'checkout', 'payment', 'stripe', 'billing',
+    // CORE ARCHITECTURE
+    'index', 'main', 'config', 'env', 'types', 'interfaces', 'models', 'schemas',
+    'services', 'api', 'endpoints', 'routes', 'middleware', 'auth', 'session',
+    'database', 'storage', 'cache', 'queue', 'worker', 'cron', 'scheduler'
   ];
   
   const isKeyFile = keyFiles.some(key => fileName.toLowerCase().includes(key.toLowerCase()));
-  const isUserFlow = fileName.includes('pages/') || fileName.includes('components/') || fileName.includes('hooks/');
+  const isUserFlow = fileName.includes('pages/') || fileName.includes('components/') || fileName.includes('hooks/') || 
+                    fileName.includes('src/') || fileName.includes('server/') || fileName.includes('shared/') ||
+                    fileName.includes('client/') || fileName.includes('api/') || fileName.includes('lib/') ||
+                    fileName.includes('utils/') || fileName.includes('services/') || fileName.includes('tools/');
   
   if (isKeyFile || isUserFlow) {
     reasons.push(`Key user experience file: ${fileName}`);
-    relevantContent = content.substring(0, 3000); // More content for analysis
+    relevantContent = content.substring(0, 8000); // UNLIMITED: Massive content extraction for complete analysis
     relevant = true;
   }
   
   return {
     relevant,
     reason: reasons.join(', '),
-    relevantContent: relevantContent || content.substring(0, 1000) // Fallback to first 1000 chars
+    relevantContent: relevantContent || content.substring(0, 5000) // UNLIMITED: Fallback increased to 5000 chars for complete context
   };
 }
 
@@ -214,5 +258,5 @@ function extractRelevantContent(content: string, searchTerm: string): string {
     }
   });
   
-  return relevantLines.join('\n').substring(0, 1500); // Limit extracted content
+  return relevantLines.join('\n').substring(0, 5000); // UNLIMITED: Dramatically increased content extraction (was 1500)
 }
