@@ -593,6 +593,15 @@ archive/
 - ✅ **Archive Directory Exclusion**: Excluded archive directory from agent search to prevent confusion while maintaining access to live code
 - ✅ **Priority Client/Src Access**: Enhanced search algorithm to prioritize client/src files essential for agent understanding
 
+## ✅ ROUTED PAGES PRIORITY SYSTEM IMPLEMENTED (January 27, 2025)
+
+**BREAKTHROUGH: Agents Now Focus Only on Actually Used Pages from App.tsx Routing**
+- ✅ **Active Routes Mapping**: Created comprehensive list of 41 pages currently routed in App.tsx
+- ✅ **Search Priority System**: Routed pages get +10 relevance boost, non-routed pages get -5 penalty
+- ✅ **Landing Page Clarity**: Agents now clearly see editorial-landing.tsx is main "/" route, landing.tsx is "/old-landing"
+- ✅ **Archive Filtering**: Non-routed pages marked as "⚠️ NON-ROUTED PAGE" to prevent agent confusion
+- ✅ **User Request Fulfilled**: Agents now focus only on pages that are actually used in the application
+
 **Technical Implementation:**
 - **README Update**: Replaced incorrect pricing with accurate €67/month model, FREE plan details, and business metrics
 - **Search Filesystem Enhancement**: Added specific client/src prioritization and archive exclusion for clean agent visibility
