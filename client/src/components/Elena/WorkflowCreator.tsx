@@ -48,13 +48,11 @@ export default function WorkflowCreator() {
 
     setIsCreating(true);
     try {
-      const response = await apiRequest('POST', '/api/admin/agents/chat', {
+      const data = await apiRequest('/api/admin/agents/chat', 'POST', {
         agentId: 'elena',
         message: `Create workflow: ${request.trim()}`,
         adminToken: 'sandra-admin-2025'
       });
-
-      const data = await response.json();
       
       if (data.success) {
         setWorkflow(data.workflow);
@@ -82,13 +80,11 @@ export default function WorkflowCreator() {
 
     setIsExecuting(true);
     try {
-      const response = await apiRequest('POST', '/api/admin/agents/chat', {
+      const data = await apiRequest('/api/admin/agents/chat', 'POST', {
         agentId: 'elena', 
         message: `Execute workflow: ${workflow.id}`,
         adminToken: 'sandra-admin-2025'
       });
-
-      const data = await response.json();
       
       if (data.success) {
         toast({
