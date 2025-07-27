@@ -5712,17 +5712,9 @@ Workflow Stage: ${savedMemory.workflowStage || 'None'}
       
       // PHASE 2.4: TOOL CHOICE APPLICATION (Extracted from Archive) - INCLUDING ELENA AND MANDATORY IMPLEMENTATION
       if (isElenaWorkflowExecution || legacyWorkflowDetection) {
-        finalSystemPrompt += `\n\n🚨 SPECIALIZED AGENT MODE - MANDATORY TOOL EXECUTION:
+        finalSystemPrompt += `\n\n🚨 ELENA WORKFLOW EXECUTION:
 You are being called by Elena's workflow system to complete a specific task.
-YOU MUST use str_replace_based_edit_tool to make actual file modifications.
-DO NOT respond with text explanations only - you MUST use tools to complete the task.
-If you do not use str_replace_based_edit_tool, this task will be marked as FAILED.
-SANDRA REQUIRES: NO TEXT-ONLY RESPONSES - ACTUAL FILE MODIFICATIONS ONLY.
-
-MANDATORY COMPLETION PROTOCOL:
-1. Use str_replace_based_edit_tool to modify/create files
-2. End response with: "TOOL_USED: str_replace_based_edit_tool | MODIFIED: [file paths]"
-3. NO consulting advice - ONLY implementation work`;
+Use str_replace_based_edit_tool to make actual file modifications, then respond authentically with your personality explaining what you accomplished and providing your expert insights.`;
         
         console.log(`🚨 ELENA WORKFLOW TOOL ENFORCEMENT: Forcing str_replace_based_edit_tool for ${agentId}`);
       } else if (mandatoryImplementation) {
@@ -5748,27 +5740,14 @@ Begin with tool usage, then provide your authentic response explaining what you 
         console.log(`🚨 CRITICAL IMPLEMENTATION ENFORCEMENT: Complete system prompt replacement for ${agentId} (${intentAnalysis.intent} detected)`);
       } else if (shouldForceTools) {
         // Archive pattern: Smart tool enforcement for implementation requests
-        finalSystemPrompt += `\n\n🚨 IMPLEMENTATION MODE DETECTED - TOOL USAGE REQUIRED:
-Based on your message analysis, this requires actual implementation work.
-YOU MUST use str_replace_based_edit_tool to complete file operations.
-DO NOT provide theoretical explanations - TAKE ACTION with tools.
-SANDRA'S REQUIREMENT: Agents must DO the work, not just describe it.`;
+        finalSystemPrompt += `\n\n🚨 IMPLEMENTATION MODE DETECTED:
+Use str_replace_based_edit_tool to complete file operations, then respond authentically with your personality explaining what you accomplished.`;
         
         console.log(`🎯 SMART TOOL ENFORCEMENT: Forcing str_replace_based_edit_tool for ${agentId} (Implementation detected)`);
       } else if (intentAnalysis.isConsultation) {
         // 🧠 CONSULTATION MODE: Strategic advice and analysis encouraged
-        finalSystemPrompt += `\n\n💡 CONSULTATION MODE DETECTED - STRATEGIC ADVICE REQUESTED:
-Intent analysis indicates Sandra wants strategic discussion and advice.
-Analysis scores: Consultation(${intentAnalysis.consultationScore}) > Implementation(${intentAnalysis.implementationScore})
-
-Focus on providing:
-- Strategic analysis and recommendations
-- Multiple approach options with pros/cons
-- Thoughtful explanations and reasoning
-- Questions to clarify requirements
-- Planning and architectural guidance
-
-Use tools only if Sandra specifically asks for file modifications within the consultation.`;
+        finalSystemPrompt += `\n\n💡 CONSULTATION MODE DETECTED:
+Sandra wants strategic discussion and advice. Respond authentically with your personality while providing your specialized expertise and insights.`;
         
         console.log(`💡 CONSULTATION MODE: Strategic advice mode activated for ${agentId} (${intentAnalysis.intent} detected)`);
       } else {
