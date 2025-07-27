@@ -27,7 +27,7 @@ const getOidcConfig = memoize(
       );
       console.log('✅ OIDC Discovery successful');
       return config;
-    } catch (error) {
+    } catch (error: any) {
       console.error('❌ OIDC Discovery failed:', error.message);
       
       // FAILSAFE: Create manual configuration if discovery fails
@@ -53,7 +53,7 @@ const getOidcConfig = memoize(
       };
       
       console.log('✅ Manual OIDC configuration created');
-      return manualConfig;
+      return manualConfig as any;
     }
   },
   { maxAge: 3600 * 1000 }
@@ -61,44 +61,36 @@ const getOidcConfig = memoize(
 
 export function getSession() {
   const sessionTtl = 7 * 24 * 60 * 60 * 1000; // 1 week
+  
+  // Enhanced session configuration with conditional settings
+  const isSSELFIEDomain = process.env.REPLIT_DOMAINS?.includes('sselfie.ai') || false;
+  const useSecureCookies = process.env.NODE_ENV === 'production' || isSSELFIEDomain;
+  
+  console.log('🔒 PRODUCTION SESSION CONFIG:', {
+    domain: process.env.REPLIT_DOMAINS,
+    isSSELFIEDomain,
+    useSecureCookies,
+    sessionTtl: '7 days'
+  });
+  
   const pgStore = connectPg(session);
   const sessionStore = new pgStore({
     conString: process.env.DATABASE_URL,
-    createTableIfMissing: true, // CRITICAL: Allow table creation if missing
+    createTableIfMissing: false,
     ttl: sessionTtl,
     tableName: "sessions",
-  });
-
-  // Handle session store errors gracefully
-  sessionStore.on('error', (error) => {
-    console.error('🔒 Session store error:', error);
-  });
-  
-  // PRODUCTION STABILITY: Always use secure cookies for sselfie.ai domain
-  const isSSELFIEDomain = process.env.REPLIT_DOMAINS?.includes('sselfie.ai');
-  const useSecureCookies = isSSELFIEDomain || process.env.NODE_ENV === 'production';
-  
-  console.log('🔒 PRODUCTION SESSION CONFIG:', { 
-    domain: process.env.REPLIT_DOMAINS,
-    isSSELFIEDomain, 
-    useSecureCookies,
-    sessionTtl: sessionTtl / (24 * 60 * 60 * 1000) + ' days'
   });
   
   return session({
     secret: process.env.SESSION_SECRET!,
     store: sessionStore,
     resave: false,
-    saveUninitialized: false, // Only save authenticated sessions
-    rolling: true, // Extend session on each request
-    name: 'connect.sid', // Explicit session name
+    saveUninitialized: false,
     cookie: {
       httpOnly: true,
-      secure: useSecureCookies,
-      maxAge: sessionTtl,
+      secure: useSecureCookies, // FIX: Use secure cookies in production
       sameSite: useSecureCookies ? 'lax' : 'none', // FIX: Use 'lax' for production, 'none' for development
-      path: '/',
-      // Remove domain restrictions for cross-subdomain compatibility
+      maxAge: sessionTtl,
     },
   });
 }
@@ -116,13 +108,6 @@ function updateUserSession(
 async function upsertUser(
   claims: any,
 ) {
-  console.log('🔄 Upserting user:', claims["sub"], claims["email"]);
-  
-  // Check if this is the admin user
-  if (claims["email"] === "ssa@ssasocial.com") {
-    console.log('👑 Setting admin privileges for ssa@ssasocial.com');
-  }
-  
   await storage.upsertUser({
     id: claims["sub"],
     email: claims["email"],
@@ -130,14 +115,6 @@ async function upsertUser(
     lastName: claims["last_name"],
     profileImageUrl: claims["profile_image_url"],
   });
-
-  // Ensure user model exists for both accounts
-  console.log('🔄 Ensuring user model exists for:', claims["email"]);
-  try {
-    await storage.ensureUserModel(claims["sub"]);
-  } catch (error) {
-    console.error('❌ Failed to ensure user model:', error);
-  }
 }
 
 export async function setupAuth(app: Express) {
@@ -158,20 +135,17 @@ export async function setupAuth(app: Express) {
     verified(null, user);
   };
 
-  // Register strategies for configured domains
-  let domains = process.env.REPLIT_DOMAINS!.split(",");
+  // Get domains from environment and add development domains
+  const domains = process.env.REPLIT_DOMAINS!.split(",");
   
-  // Add development domain if not present (from Replit environment)
-  const replitHost = process.env.REPL_SLUG && process.env.REPL_OWNER 
-    ? `${process.env.REPL_ID}-00-${process.env.REPL_SLUG}.${process.env.REPL_OWNER}.replit.dev`
-    : null;
-    
-  if (replitHost && !domains.includes(replitHost)) {
-    domains.push(replitHost);
-    console.log(`🔧 Added development domain: ${replitHost}`);
+  // Add current development domain dynamically
+  const devDomain = `${process.env.REPL_ID}-00-3ij9k7qy14rai.picard.replit.dev`;
+  if (!domains.includes(devDomain)) {
+    domains.push(devDomain);
+    console.log(`🔧 Added development domain: ${devDomain}`);
   }
   
-  // CRITICAL: Add workspace domain for Visual Editor access
+  // Add workspace domain for agent access
   const workspaceDomain = `${process.env.REPL_ID}-00-workspace.ssa27.replit.dev`;
   if (!domains.includes(workspaceDomain)) {
     domains.push(workspaceDomain);
@@ -268,88 +242,87 @@ export async function setupAuth(app: Express) {
         console.error(`❌ Available domains: ${req.app.locals.authDomains.join(', ')}`);
         
         // FIX: Add strategy fallback for edge cases
-        const fallbackDomain = req.app.locals.authDomains.find(d => d.includes('sselfie.ai'));
+        const fallbackDomain = req.app.locals.authDomains.find((d: string) => d.includes('sselfie.ai'));
         if (fallbackDomain) {
           console.log(`🔄 Using fallback strategy: ${fallbackDomain}`);
           hostname = fallbackDomain;
         } else {
-          return res.status(500).json({ 
-            error: 'Authentication not configured for this domain',
-            hostname,
-            availableDomains: req.app.locals.authDomains
-          });
+          // Use first available domain as last resort
+          hostname = req.app.locals.authDomains[0];
+          console.log(`🔄 Using first available domain as fallback: ${hostname}`);
         }
       }
       
-      const strategyName = `replitauth:${hostname}`;
+      console.log(`🔍 Login requested - starting authentication flow with simplified OAuth`);
+      console.log(`🔍 Using strategy: replitauth:${hostname} for domain: ${hostname}`);
       
-      const authOptions: any = {
+      // Use passport to authenticate - this will redirect to OAuth provider
+      passport.authenticate(`replitauth:${hostname}`, {
+        prompt: "login consent",
         scope: ["openid", "email", "profile", "offline_access"],
-        prompt: forceAccountSelection ? "select_account" : "login consent",
-        // Custom parameters to improve branding
-        client_name: "SSELFIE Studio",
-        application_name: "SSELFIE Studio",
-        app_name: "SSELFIE Studio"
-      };
-      
-      if (forceAccountSelection) {
-        console.log('🔍 Forcing account selection for account switching');
-      } else {
-        console.log('🔍 Login requested - starting authentication flow with simplified OAuth');
-      }
-      
-      console.log(`🔍 Using strategy: ${strategyName} for domain: ${hostname}`);
-      passport.authenticate(strategyName, authOptions)(req, res, next);
+      })(req, res, next);
     }
     
-    // Start authentication flow
     authenticateUser();
   });
 
+  // Enhanced callback handling with detailed debugging
   app.get("/api/callback", (req, res, next) => {
-    const hostname = req.hostname;
+    console.log('🔍 OAuth callback received:', {
+      hostname: req.hostname,
+      query: req.query,
+      hasCode: !!req.query.code,
+      hasError: !!req.query.error
+    });
     
-    console.log(`🔍 OAuth callback for hostname: ${hostname}`);
-    console.log(`🔍 Callback query params:`, req.query);
-    
-    // CRITICAL: Prevent infinite loops by checking for errors
     if (req.query.error) {
-      console.error('❌ OAuth error in callback:', req.query.error, req.query.error_description);
-      return res.redirect('/?error=oauth_failed');
+      console.error('❌ OAuth callback error:', req.query.error, req.query.error_description);
+      return res.redirect(`/?error=oauth_error&details=${encodeURIComponent(req.query.error as string)}`);
     }
-
-    // PERMANENT FIX: Always try standard OAuth first, with manual exchange as failsafe
+    
+    if (!req.query.code) {
+      console.error('❌ OAuth callback missing authorization code');
+      return res.redirect('/?error=missing_auth_code');
+    }
+    
+    // Get the correct hostname for strategy matching
+    let hostname = req.hostname;
+    
+    // Handle localhost development
+    if (hostname === 'localhost' || hostname === '127.0.0.1') {
+      const devDomain = domains.find(d => d.includes('replit.dev'));
+      if (devDomain) {
+        console.log(`🔄 Callback localhost detected - using ${devDomain} strategy`);
+        hostname = devDomain;
+      } else {
+        console.log(`🔄 Callback localhost detected - using sselfie.ai strategy`);
+        hostname = 'sselfie.ai';
+      }
+    }
+    
+    const hasStrategy = req.app.locals.authDomains.includes(hostname);
+    
+    if (!hasStrategy) {
+      console.error(`❌ No callback strategy found for hostname: ${hostname}`);
+      console.error(`❌ Available domains: ${req.app.locals.authDomains.join(', ')}`);
+      
+      // ENHANCED: Add more robust fallback for callback
+      const fallbackDomain = req.app.locals.authDomains.find((d: string) => d.includes('sselfie.ai'));
+      if (fallbackDomain) {
+        console.log(`🔄 Using fallback callback strategy: ${fallbackDomain}`);
+        hostname = fallbackDomain;
+      } else {
+        console.log(`🔄 Using first domain for callback: ${req.app.locals.authDomains[0]}`);
+        hostname = req.app.locals.authDomains[0];
+      }
+    }
+    
+    console.log(`🔍 Callback using strategy: replitauth:${hostname}`);
+    
+    // Standard passport callback handling
     passport.authenticate(`replitauth:${hostname}`, {
-      session: true,
-      failureRedirect: false, // Handle failures manually
-      failureFlash: false
-    }, (err, user, info) => {
-      console.log(`🔍 OAuth authenticate result:`, { err: !!err, user: !!user, info });
-      
-      if (err) {
-        console.error('❌ OAuth callback error:', err);
-        return res.redirect('/?error=auth_error');
-      }
-      
-      if (!user) {
-        console.error('❌ OAuth callback: No user returned. Info:', info);
-        // FAILSAFE: If standard OAuth fails but we have an authorization code, try manual exchange
-        if (req.query.code) {
-          console.log('🔄 Standard OAuth failed, attempting manual token exchange...');
-          return handleManualTokenExchange(req, res, next);
-        }
-        return res.redirect('/?error=no_user');
-      }
-      
-      req.logIn(user, (loginErr) => {
-        if (loginErr) {
-          console.error('❌ Login error after OAuth:', loginErr);
-          return res.redirect('/?error=login_failed');
-        }
-        
-        console.log('✅ OAuth callback successful for user:', user.claims?.email);
-        res.redirect('/workspace');
-      });
+      successReturnToOrRedirect: "/workspace",
+      failureRedirect: "/api/manual-callback"
     })(req, res, next);
   });
 
@@ -417,7 +390,7 @@ export async function setupAuth(app: Express) {
         res.redirect('/workspace');
       });
       
-    } catch (error) {
+    } catch (error: any) {
       console.error('❌ Manual token exchange failed:', error);
       console.error('❌ Error details:', error.message);
       res.redirect('/?error=token_exchange_failed&details=' + encodeURIComponent(error.message));
@@ -425,7 +398,7 @@ export async function setupAuth(app: Express) {
   }
 
   app.get("/api/logout", (req, res) => {
-    console.log('🔍 Logout requested for user:', req.user?.claims?.email);
+    console.log('🔍 Logout requested for user:', (req.user as any)?.claims?.email);
     req.logout(() => {
       // Clear session completely to allow account switching
       req.session.destroy((err) => {
@@ -445,91 +418,33 @@ export async function setupAuth(app: Express) {
       });
     });
   });
-
-  // Add account switching route
-  app.get("/api/switch-account", (req, res) => {
-    console.log('🔍 Account switch requested for user:', req.user?.claims?.email);
-    req.logout(() => {
-      // Clear session completely
-      req.session.destroy((err) => {
-        if (err) {
-          console.error('❌ Session destroy error during account switch:', err);
-        }
-        res.clearCookie('connect.sid');
-        console.log('✅ Session cleared for account switch');
-        
-        // Redirect to branded account switch page instead of direct auth
-        res.redirect('/switch-account');
-      });
-    });
-  });
 }
 
 export const isAuthenticated: RequestHandler = async (req, res, next) => {
   const user = req.user as any;
-  const sessionId = req.sessionID;
-  const now = Math.floor(Date.now() / 1000);
 
-  // PRODUCTION LOGGING: Detailed auth state for debugging
-  const authState = {
-    sessionId: sessionId?.substring(0, 8) + '...',
-    isAuthenticated: req.isAuthenticated?.() || false,
-    hasUser: !!user,
-    userEmail: user?.claims?.email,
-    userId: user?.claims?.sub,
-    expiresAt: user?.expires_at,
-    currentTime: now,
-    timeToExpiry: user?.expires_at ? (user.expires_at - now) : 'N/A',
-    hasRefreshToken: !!user?.refresh_token
-  };
-
-  // Only log auth checks for actual endpoint requests (not testing)
-  if (!req.path.includes('quick-auth-test')) {
-    console.log('🔒 AUTH CHECK:', authState);
-  }
-
-  // Check basic authentication
   if (!req.isAuthenticated() || !user?.expires_at) {
-    console.log('❌ Auth failed: No session or expiry');
     return res.status(401).json({ message: "Unauthorized" });
   }
 
-  // Check token expiry with 5-minute buffer for refresh
-  const refreshBuffer = 5 * 60; // 5 minutes
-  if (now <= (user.expires_at - refreshBuffer)) {
-    console.log('✅ Auth valid: Token has time remaining');
+  const now = Math.floor(Date.now() / 1000);
+  if (now <= user.expires_at) {
     return next();
   }
 
-  // Attempt token refresh for near-expiry tokens
   const refreshToken = user.refresh_token;
   if (!refreshToken) {
-    console.log('❌ Auth failed: No refresh token available');
     res.status(401).json({ message: "Unauthorized" });
     return;
   }
 
   try {
-    console.log('🔄 Refreshing token for user:', user.claims?.email);
     const config = await getOidcConfig();
     const tokenResponse = await client.refreshTokenGrant(config, refreshToken);
     updateUserSession(user, tokenResponse);
-    console.log('✅ Token refreshed successfully for:', user.claims?.email);
     return next();
   } catch (error) {
-    console.error('❌ Token refresh failed:', error.message);
-    
-    // Clear the session when refresh fails to avoid stuck authentication state
-    req.logout(() => {
-      req.session.destroy((destroyErr) => {
-        if (destroyErr) {
-          console.error('❌ Session destroy error after failed refresh:', destroyErr);
-        }
-        res.clearCookie('connect.sid');
-        console.log('✅ Session cleared after failed token refresh');
-        res.status(401).json({ message: "Unauthorized", needsLogin: true });
-      });
-    });
+    res.status(401).json({ message: "Unauthorized" });
     return;
   }
 };
