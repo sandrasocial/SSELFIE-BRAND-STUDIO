@@ -343,7 +343,8 @@ export default function AdminConsultingAgents() {
             for (const conversation of recentConversations) {
               console.log('📜 ELENA: Loading conversation:', conversation.id, 'with', conversation.messageCount, 'messages');
               
-              const history = await loadConversationHistory(conversation.id);
+              // Use the database ID directly for history loading
+              const history = await loadConversationHistory(conversation.id.toString());
               if (history.messages && history.messages.length > 0) {
                 const conversationMessages: ChatMessage[] = history.messages.map((msg: any, index: number) => ({
                   id: `${conversation.id}-${msg.timestamp || Date.now()}-${index}`,

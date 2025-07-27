@@ -158,11 +158,22 @@ export class ClaudeApiService {
     console.log('📜 getConversationHistory called for:', conversationId);
     
     try {
-      const conversation = await db
+      // Try first by conversationId string, then by numeric ID as fallback
+      let conversation = await db
         .select()
         .from(claudeConversations)
         .where(eq(claudeConversations.conversationId, conversationId))
         .limit(1);
+
+      // If not found and conversationId is numeric, try by database ID
+      if (conversation.length === 0 && !isNaN(Number(conversationId))) {
+        console.log('📜 Trying by database ID:', conversationId);
+        conversation = await db
+          .select()
+          .from(claudeConversations)
+          .where(eq(claudeConversations.id, Number(conversationId)))
+          .limit(1);
+      }
 
       if (conversation.length === 0) {
         console.log('📜 No conversation found for ID:', conversationId);
