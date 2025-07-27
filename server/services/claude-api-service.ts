@@ -1,7 +1,7 @@
 import Anthropic from '@anthropic-ai/sdk';
 import { z } from 'zod';
 import { db } from '../db';
-import { claudeConversations, claudeMessages, agentLearning, agentCapabilities } from '@shared/schema';
+import { claudeConversations, claudeMessages, agentLearning, agentCapabilities, users } from '@shared/schema';
 import { UniversalAgentTools } from '../tools/universal-agent-tools';
 import { comprehensive_agent_toolkit } from '../tools/comprehensive_agent_toolkit';
 import { agentImplementationToolkit, AgentImplementationRequest } from '../tools/agent_implementation_toolkit';
@@ -55,6 +55,44 @@ export class ClaudeApiService {
 
     if (existing.length > 0) {
       return existing[0].id;
+    }
+
+    // Ensure admin user exists for sandra-admin userId
+    if (userId === 'sandra-admin') {
+      try {
+        const adminExists = await db
+          .select()
+          .from(users)
+          .where(eq(users.email, 'ssa@ssasocial.com'))
+          .limit(1);
+
+        if (adminExists.length === 0) {
+          // Create admin user if doesn't exist
+          await db
+            .insert(users)
+            .values({
+              email: 'ssa@ssasocial.com',
+              name: 'Sandra S Admin',
+              isAdmin: true,
+              subscription: 'premium'
+            })
+            .onConflictDoNothing();
+        }
+        
+        // Use the admin user's actual ID
+        const adminUser = await db
+          .select()
+          .from(users)
+          .where(eq(users.email, 'ssa@ssasocial.com'))
+          .limit(1);
+          
+        if (adminUser.length > 0) {
+          userId = adminUser[0].id;
+        }
+      } catch (error) {
+        console.error('Admin user creation error:', error);
+        // Continue with original userId if admin creation fails
+      }
     }
 
     // Create new conversation

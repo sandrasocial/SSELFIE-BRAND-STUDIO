@@ -5610,6 +5610,13 @@ Workflow Stage: ${savedMemory.workflowStage || 'None'}
 
       const shouldForceTools = shouldEnforceToolChoice(message, agentId);
       
+      // Define isFileRequest variable for logging
+      const isFileRequest = message.toLowerCase().includes('file') || 
+                           message.toLowerCase().includes('component') || 
+                           message.toLowerCase().includes('page') ||
+                           message.toLowerCase().includes('create') ||
+                           message.toLowerCase().includes('modify');
+      
       let finalSystemPrompt = agent.systemPrompt;
       
       // PHASE 2.4: TOOL CHOICE APPLICATION (Extracted from Archive)
