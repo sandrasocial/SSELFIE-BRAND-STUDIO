@@ -5238,28 +5238,19 @@ Starting analysis and implementation now...`;
       if (agentId === 'elena') {
         console.log('🧠 ELENA DETECTED: Analyzing message for complex workflow patterns');
         
-        // RESTORED: Import Elena memory and conversation detection systems
-        const { ElenaConversationDetectionService } = await import('./services/elena-conversation-detection');
-        const { default: ElenaWorkflowMemoryService } = await import('./services/elena-workflow-memory-service');
-        const elenaConversation = ElenaConversationDetectionService.getInstance();
-        const workflowService = ElenaWorkflowMemoryService.getInstance();
+        // Import and use Elena workflow detection service
+        const ElenaWorkflowDetectionService = (await import('./services/elena-workflow-detection-service')).default;
+        const workflowService = ElenaWorkflowDetectionService.getInstance();
         
-        // RESTORED: Analyze with full memory context  
-        const workflowAnalysis = workflowService.detectWorkflowCreation(message, `elena-chat-${Date.now()}`);
-        const conversationMemory = elenaConversation.detectWorkflowFromConversation(message, `elena-conversation-${Date.now()}`);
+        // Analyze the incoming message for workflow patterns
+        const workflowAnalysis = workflowService.analyzeConversation(message, agentId);
         
-        if (workflowAnalysis || conversationMemory) {
-          const selectedWorkflow = workflowAnalysis || conversationMemory;
-          detectedWorkflow = selectedWorkflow;
-          console.log(`✅ ELENA MEMORY RESTORED: Complex workflow detected - "${selectedWorkflow.name || selectedWorkflow.title}" with memory context`);
+        if (workflowAnalysis.hasWorkflow && workflowAnalysis.workflow) {
+          detectedWorkflow = workflowAnalysis.workflow;
+          console.log(`✅ ELENA: Complex workflow detected - "${detectedWorkflow.title}" with ${detectedWorkflow.agents.length} agents`);
           
-          // RESTORED: Save workflow with full memory context
-          if (workflowAnalysis) {
-            workflowService.stageWorkflow(workflowAnalysis.id, workflowAnalysis);
-          }
-          if (conversationMemory) {
-            elenaConversation.stagedWorkflows.set(conversationMemory.id, conversationMemory);
-          }
+          // Save detected workflow to staging
+          workflowService.stageWorkflow(detectedWorkflow);
           
           // Check if this is a MANDATORY FILE CREATION workflow (immediate execution)
           if (message.includes('MANDATORY') || message.includes('MUST create the file')) {
@@ -5859,9 +5850,7 @@ SANDRA'S REQUIREMENT: Agents must DO the work, not just describe it.`;
         // Legacy Elena workflow detection (keep for backwards compatibility)
         if (agentId === 'elena') {
           try {
-            // RESTORED: Elena's full conversation detection system
-            const { ElenaConversationDetectionService } = await import('./services/elena-conversation-detection');
-            const elenaConversationDetection = ElenaConversationDetectionService.getInstance();
+            const { elenaConversationDetection } = await import('./services/elena-conversation-detection.js');
             const detectedWorkflow = elenaConversationDetection.detectWorkflowFromConversation(agentResponse, message);
             
             if (detectedWorkflow) {
@@ -7494,31 +7483,28 @@ MANDATORY COMPLETION PROTOCOL:
 
   console.log('✅ Enhanced Agent Capabilities routes registered');
 
-  // Elena Workflow Execution API - DISABLED (middleware archived)
-  // const { elenaWorkflowAuth } = await import('./middleware/elena-workflow-auth.js'); // ARCHIVED
-  // const { getStagedWorkflows, executeWorkflow, getExecutionStatus, getActiveExecutions, removeWorkflow } = await import('./api/elena/workflow-execution.js');
+  // Elena Workflow Execution API - NEW COMPLETE SYSTEM
+  const { elenaWorkflowAuth } = await import('./middleware/elena-workflow-auth.js');
+  const { getStagedWorkflows, executeWorkflow, getExecutionStatus, getActiveExecutions, removeWorkflow } = await import('./api/elena/workflow-execution.js');
   
-  // app.get('/api/elena/staged-workflows', elenaWorkflowAuth, getStagedWorkflows);
-  // app.post('/api/elena/execute-workflow/:workflowId', elenaWorkflowAuth, executeWorkflow);
-  // app.get('/api/elena/execution-status/:executionId', elenaWorkflowAuth, getExecutionStatus);
-  // app.get('/api/elena/active-executions', elenaWorkflowAuth, getActiveExecutions);
-  // app.delete('/api/elena/remove-workflow/:workflowId', elenaWorkflowAuth, removeWorkflow);
+  app.get('/api/elena/staged-workflows', elenaWorkflowAuth, getStagedWorkflows);
+  app.post('/api/elena/execute-workflow/:workflowId', elenaWorkflowAuth, executeWorkflow);
+  app.get('/api/elena/execution-status/:executionId', elenaWorkflowAuth, getExecutionStatus);
+  app.get('/api/elena/active-executions', elenaWorkflowAuth, getActiveExecutions);
+  app.delete('/api/elena/remove-workflow/:workflowId', elenaWorkflowAuth, removeWorkflow);
 
   // Execute staged workflow through autonomous orchestrator
   app.post('/api/elena/execute-staged-workflow/:workflowId', async (req, res) => {
     try {
-      // Elena workflow authentication middleware archived - using basic auth check
+      // Import Elena workflow authentication middleware
+      const { elenaStagedWorkflowAuth } = await import('./middleware/elena-workflow-auth');
       
-      // Basic admin token check instead of archived middleware
-      const adminToken = req.headers['x-admin-token'] || req.query.adminToken;
-      if (adminToken !== 'sandra-admin-2025') {
-        return res.status(401).json({ success: false, error: 'Unauthorized' });
-      }
+      // Apply Elena workflow authentication
+      elenaStagedWorkflowAuth(req, res, async () => {
+        try {
           const { workflowId } = req.params;
-          // Use Elena workflow detection service instead of archived workflow-detection-service
-          const ElenaWorkflowDetectionService = (await import('./services/elena-workflow-detection-service')).default;
-          const workflowService = ElenaWorkflowDetectionService.getInstance();
-          const workflow = workflowService.getWorkflow(workflowId);
+          const { workflowDetectionService } = await import('./services/workflow-detection-service');
+          const workflow = workflowDetectionService.getWorkflow(workflowId);
         
           if (!workflow) {
             return res.status(404).json({
@@ -7554,7 +7540,7 @@ MANDATORY COMPLETION PROTOCOL:
           
           if (result.success) {
             // Mark workflow as executed
-            workflowService.markWorkflowExecuted(workflowId);
+            workflowDetectionService.markWorkflowExecuted(workflowId);
             
             console.log(`✅ WORKFLOW EXECUTED: ${workflow.name} → Deployment: ${result.deploymentId}`);
             
@@ -7573,11 +7559,19 @@ MANDATORY COMPLETION PROTOCOL:
               error: 'Failed to execute workflow through autonomous orchestrator'
             });
           }
+        } catch (error) {
+          console.error('❌ Error executing staged workflow:', error);
+          res.status(500).json({ 
+            success: false, 
+            error: 'Failed to execute staged workflow' 
+          });
+        }
+      });
     } catch (error) {
-      console.error('❌ Error executing staged workflow:', error);
+      console.error('❌ Error in staged workflow auth:', error);
       res.status(500).json({ 
         success: false, 
-        error: 'Failed to execute staged workflow' 
+        error: 'Authentication error for staged workflow execution' 
       });
     }
   });
@@ -8533,12 +8527,11 @@ I'll coordinate a **"Platform Launch Readiness Validation"** workflow with Aria,
   // Register backup management routes
   const { registerBackupManagementRoutes } = await import('./routes/backup-management-routes');
   const { registerMayaAIRoutes } = await import('./routes/maya-ai-routes');
-  // RESTORED: Elena memory and conversation routes
-  const { registerElenaMemoryRoutes } = await import('./routes/elena-memory-routes');
+  const { registerElenaMonitoringRoutes } = await import('./routes/elena-monitoring-routes');
   const { registerAdminConversationRoutes } = await import('./routes/admin-conversation-routes');
   registerBackupManagementRoutes(app);
   registerMayaAIRoutes(app);
-  registerElenaMemoryRoutes(app);
+  registerElenaMonitoringRoutes(app);
   registerAdminConversationRoutes(app);
 
   // =========================================================================
