@@ -1,0 +1,69 @@
+### **REQUIREMENT #1: DEPLOY IMPLEMENTATION DETECTION SYSTEM**
+
+**TASK:** Move the archived implementation detection logic to live server routes
+
+**SPECIFIC REQUIREMENTS:**
+- **Keyword Detection:** Implement detection for "implement", "fix", "create", "build", "deploy", "NOW"
+- **Tool Enforcement:** Add `tool_choice: "required"` for implementation requests
+- **Mode Switching:** Agents automatically switch between consultation and implementation modes
+- **Confidence Scoring:** Deploy the 15-point confidence system that already exists in archive
+
+**TECHNICAL SPECIFICATION:**
+```typescript
+// In live server routes, not archive
+function detectImplementationRequest(message: string): boolean {
+  const implementationKeywords = ["implement", "fix", "create", "build", "deploy", "NOW"];
+  return implementationKeywords.some(keyword => 
+    message.toLowerCase().includes(keyword.toLowerCase())
+  );
+}
+
+// Force tool usage for implementation requests
+if (detectImplementationRequest(userMessage)) {
+  agentConfig.tool_choice = "required";
+  agentConfig.mode = "implementation";
+} else {
+  agentConfig.mode = "consultation";
+}
+```
+
+### **REQUIREMENT #2: RESTORE BASIC FILE SYSTEM ACCESS**
+
+**TASK:** Fix the EISDIR errors without adding unnecessary "enhancements"
+
+**SPECIFIC REQUIREMENTS:**
+- **Simple Directory Detection:** Add basic check if path is directory vs. file
+- **Return Directory Listings:** For directories, return file list instead of trying to read as file
+- **No Complex Enhancements:** Just fix the basic error, don't add learning systems
+- **Test Immediately:** Verify Zara can access server directory without errors
+
+**TECHNICAL SPECIFICATION:**
+```typescript
+// Simple fix in str_replace_based_edit_tool
+if (fs.statSync(path).isDirectory()) {
+  return { success: true, result: fs.readdirSync(path) };
+} else {
+  return { success: true, result: fs.readFileSync(path, 'utf8') };
+}
+```
+
+### **REQUIREMENT #3: CONNECT ADMIN BYPASS FOR AGENTS**
+
+**TASK:** Enable Sandra's admin agents to modify files without authentication barriers
+
+**SPECIFIC REQUIREMENTS:**
+- **Admin Token Recognition:** Recognize `sandra-admin-2025` token for unlimited access
+- **Bypass User Restrictions:** Admin agents can modify any file in the codebase
+- **File Operation Permissions:** Enable create, edit, delete capabilities for admin agents
+- **No User-Level Restrictions:** Admin agents work on system files, not user-specific content
+
+### **REQUIREMENT #4: SIMPLE AGENT ROUTING LOGIC**
+
+**TASK:** Connect implementation detection to actual agent behavior
+
+**SPECIFIC REQUIREMENTS:**
+- **Route Detection:** When Sandra says "implement" or "fix", route to implementation mode
+- **Tool Activation:** Automatically use file modification tools instead of just describing solutions
+- **Result Reporting:** Show actual file changes made, not analysis of what could be done
+- **Success Verification:** Confirm changes were applied to the codebase
+
