@@ -5587,6 +5587,17 @@ Workflow Stage: ${savedMemory.workflowStage || 'None'}
       
       let finalSystemPrompt = agent.systemPrompt;
       
+      // 🔄 EMERGENCY MEMORY INJECTION: Restore Sandra's conversation history directly
+      if (isAdminAuthenticated && userId === '42585527') {
+        try {
+          const { MemoryInjectionFix } = await import('./memory-injection-fix');
+          finalSystemPrompt = await MemoryInjectionFix.injectMemoryContext(agentId, finalSystemPrompt);
+          console.log(`✅ MEMORY INJECTION: Context restored for ${agentId}`);
+        } catch (error) {
+          console.error(`❌ MEMORY INJECTION ERROR for ${agentId}:`, error);
+        }
+      }
+      
       // 🚨 SPECIALIZED AGENT ENFORCEMENT: Force tool usage for Elena workflow execution
       if ((isElenaWorkflowExecution || legacyWorkflowDetection) && agentId !== 'elena') {
         finalSystemPrompt += `\n\n🚨 SPECIALIZED AGENT MODE - MANDATORY TOOL EXECUTION:
