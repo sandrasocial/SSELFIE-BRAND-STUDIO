@@ -1413,34 +1413,32 @@ COMMUNICATION STYLE:
         // Generate brief implementation confirmation based on tool results
         const toolSummary = toolResults.map(result => {
           try {
-            // Check if content is already JSON string or object
-            let toolData;
-            if (typeof result.content === 'string') {
-              try {
-                toolData = JSON.parse(result.content);
-              } catch {
-                // If parsing fails, extract operation info from string
-                if (result.content.includes('str_replace_based_edit_tool')) {
-                  return 'file modification';
-                } else if (result.content.includes('search_filesystem')) {
-                  return 'file search';
-                } else {
-                  return 'tool executed';
-                }
+            const content = result.content || '';
+            
+            // Handle string content that might describe file operations
+            if (typeof content === 'string') {
+              if (content.includes('File Operation completed successfully') || content.includes('str_replace')) {
+                return 'file modification completed';
+              } else if (content.includes('search_filesystem') || content.includes('Found')) {
+                return 'file search completed';
+              } else if (content.includes('created') || content.includes('updated')) {
+                return 'file operation completed';
+              } else if (content.includes('error') || content.includes('failed')) {
+                return 'operation failed';
+              } else {
+                return 'operation completed';
               }
-            } else {
-              toolData = result.content;
             }
             
-            if (toolData && toolData.operation && toolData.path) {
-              return `${toolData.operation} on ${toolData.path}`;
-            } else if (toolData && toolData.result && toolData.result.operation) {
-              return `${toolData.result.operation} on ${toolData.result.path || 'file'}`;
+            // Handle object content
+            if (typeof content === 'object' && content.operation && content.path) {
+              return `${content.operation} on ${content.path}`;
             }
-            return 'tool executed';
+            
+            return 'operation completed';
           } catch (error) {
             console.log(`⚠️ Tool summary parsing error:`, error);
-            return 'tool executed';
+            return 'operation completed';
           }
         }).join(', ');
         
