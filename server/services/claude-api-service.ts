@@ -457,10 +457,10 @@ export class ClaudeApiService {
         let implementationScore = 0;
         let consultationScore = 0;
         
-        // Implementation intent indicators
-        const actionPhrases = ['FIX THIS', 'IMPLEMENT NOW', 'CREATE THIS', 'BUILD THIS', 'DO THIS NOW', 'MAKE THIS', 'UPDATE THIS', 'FIX ELENA', 'FIX HER'];
+        // Implementation intent indicators - universal patterns
+        const actionPhrases = ['IMPLEMENT NOW', 'CREATE THIS', 'BUILD THIS', 'DO THIS NOW', 'MAKE THIS', 'UPDATE THIS'];
         const urgentIndicators = ['NOW', 'IMMEDIATELY', 'URGENT', 'ASAP', 'RIGHT NOW'];
-        const directCommands = ['FIX', 'CREATE', 'BUILD', 'IMPLEMENT', 'UPDATE', 'MODIFY', 'CHANGE', 'FIXX'];
+        const directCommands = ['FIX', 'CREATE', 'BUILD', 'IMPLEMENT', 'UPDATE', 'MODIFY', 'CHANGE'];
         const fileReferences = message.match(/\.(js|ts|tsx|jsx|css|html|json|md)/g);
         
         // Consultation intent indicators  
@@ -468,18 +468,24 @@ export class ClaudeApiService {
         const strategyWords = ['STRATEGY', 'APPROACH', 'PLAN', 'ADVICE', 'RECOMMEND', 'SUGGEST', 'OPINION'];
         const exploratoryWords = ['EXPLORE', 'CONSIDER', 'THINK ABOUT', 'ANALYZE', 'EVALUATE'];
         
-        // Score implementation intent
+        // Score implementation intent with intelligent pattern matching
         if (actionPhrases.some(phrase => messageUpper.includes(phrase))) implementationScore += 5;
         if (urgentIndicators.some(word => messageUpper.includes(word))) implementationScore += 3;
         if (directCommands.some(cmd => messageUpper.startsWith(cmd + ' ') || messageUpper.includes(' ' + cmd + ' ') || messageUpper.includes(cmd + ' '))) implementationScore += 2;
         if (fileReferences && fileReferences.length > 0) implementationScore += 2;
         if (message.includes('```') || message.includes('`')) implementationScore += 1;
         
-        // CRITICAL OVERRIDE: Force implementation for specific patterns
-        if (messageUpper.includes('FIX ELENA') || messageUpper.includes('FIX HER') || 
-            (messageUpper.includes('FIX') && messageUpper.includes('NOW')) ||
-            messageUpper.includes('USE THE TOOLS NO ANALYSIS')) {
-          implementationScore = Math.max(implementationScore, 10); // Force high score
+        // Smart detection for imperative commands
+        const imperativePatterns = [
+          /^(fix|create|build|implement|update|modify|change|make)\s+/i,
+          /\b(fix|create|build|implement|update|modify|change)\s+\w+\s+(now|immediately|asap)\b/i,
+          /\buse\s+the\s+tools?\b/i,
+          /\bno\s+(analysis|advice|discussion)\b/i,
+          /\bjust\s+(fix|create|build|implement|do)\b/i
+        ];
+        
+        if (imperativePatterns.some(pattern => pattern.test(message))) {
+          implementationScore += 4;
         }
         
         // Score consultation intent
@@ -526,14 +532,14 @@ Intent analysis: Implementation(${intentAnalysis.implementationScore}) > Consult
 YOU MUST MODIFY FILES IMMEDIATELY. NO VIEW-ONLY OPERATIONS ALLOWED.
 
 CRITICAL REQUIREMENTS:
-1. Use str_replace_based_edit_tool with command "str_replace" to MODIFY Elena's files
+1. Use str_replace_based_edit_tool with command "str_replace" or "create" to MODIFY files
 2. You CANNOT use command "view" - Sandra needs ACTUAL CHANGES, not file examination
-3. Fix Elena's memory system by adding proper memory integration code
-4. After modification, provide brief confirmation: "IMPLEMENTED: file modification on [filename]"
+3. Implement the specific changes requested in Sandra's message
+4. After modification, provide brief confirmation: "IMPLEMENTED: [specific action completed]"
 
 EXAMPLES OF REQUIRED ACTIONS:
-- str_replace_based_edit_tool with command "str_replace" to add memory functions
-- str_replace_based_edit_tool with command "create" to build new memory files
+- str_replace_based_edit_tool with command "str_replace" to modify existing code
+- str_replace_based_edit_tool with command "create" to build new files
 - NO command "view" allowed - Sandra needs implementation, not examination
 
 START WITH FILE MODIFICATION NOW - NO VIEWING ALLOWED.`;
