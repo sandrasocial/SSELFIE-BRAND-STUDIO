@@ -71,21 +71,6 @@ export class ElenaWorkflowDetectionService {
   }
 
   /**
-   * Stage workflow for execution
-   */
-  stageWorkflow(workflow: DetectedWorkflow): void {
-    this.stagedWorkflows.set(workflow.id, workflow);
-    console.log(`📋 ELENA: Workflow "${workflow.title}" staged with ${workflow.agents.length} agents`);
-  }
-
-  /**
-   * Get all staged workflows for frontend display
-   */
-  getStagedWorkflows(): DetectedWorkflow[] {
-    return Array.from(this.stagedWorkflows.values());
-  }
-
-  /**
    * Get workflow by ID
    */
   getWorkflowById(id: string): DetectedWorkflow | undefined {
@@ -320,14 +305,13 @@ export class ElenaWorkflowDetectionService {
       ...workflow,
       tasks: workflow.tasks || [],
       agents: workflow.agents || [],
-      title: workflow.title || workflow.name || 'Unknown workflow'
+      title: workflow.title || 'Unknown workflow'
     };
     
     this.stagedWorkflows.set(safeWorkflow.id, safeWorkflow);
     console.log(`🎯 ELENA WORKFLOW STAGED: ${safeWorkflow.title} (${safeWorkflow.agents.length} agents, ${safeWorkflow.priority} priority)`);
     console.log(`📋 WORKFLOW DETAILS: ID=${safeWorkflow.id}, Agents=[${safeWorkflow.agents.join(', ')}], Status=${safeWorkflow.status}`);
   }
-
 
 
   /**
@@ -361,7 +345,7 @@ export class ElenaWorkflowDetectionService {
       console.log(`📝 TASKS: ${workflow.tasks.join(', ')}`);
       
       // Import dependencies for agent execution and load tracking
-      const { executeAgentChat } = await import('../services/claude-api-service');
+      const { claudeApiService } = await import('../services/claude-api-service');
       const { intelligentTaskDistributor } = await import('../services/intelligent-task-distributor');
       const { deploymentTracker } = await import('../services/deployment-tracking-service');
       
@@ -571,7 +555,7 @@ ${agentTask}
       olga: `Execute organization coordination for "${workflow.title}". Implement file organization, repository cleanup, or architectural improvements.`
     };
 
-    return agentTasks[agentName] || `Execute coordination tasks for "${workflow.title}" using your specialized expertise to support SSELFIE Studio platform.`;
+    return (agentTasks as any)[agentName] || `Execute coordination tasks for "${workflow.title}" using your specialized expertise to support SSELFIE Studio platform.`;
   }
 
   /**
@@ -581,13 +565,7 @@ ${agentTask}
     return this.stagedWorkflows.delete(workflowId);
   }
 
-  /**
-   * Clear all workflows (for testing)
-   */
-  clearAllWorkflows(): void {
-    this.stagedWorkflows.clear();
-    console.log('🧹 ELENA WORKFLOWS: All workflows cleared');
-  }
+
 }
 
 // Export singleton instance
