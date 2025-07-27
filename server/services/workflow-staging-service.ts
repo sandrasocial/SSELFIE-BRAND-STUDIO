@@ -166,20 +166,20 @@ export class WorkflowStagingService {
     console.log(`🤖 AGENT DEPLOYMENT: Deploying ${agentId} for task: ${task}`);
 
     try {
-      // Map agent IDs to actual agent endpoints
+      // Map agent IDs to WORKING bypass endpoint (NOT broken /agents/chat)
       const agentEndpoints: Record<string, string> = {
-        'aria': '/api/admin/agents/chat',
-        'victoria': '/api/admin/agents/chat',
-        'zara': '/api/admin/agents/chat',
-        'maya': '/api/admin/agents/chat',
-        'rachel': '/api/admin/agents/chat',
-        'ava': '/api/admin/agents/chat',
-        'quinn': '/api/admin/agents/chat',
-        'sophia': '/api/admin/agents/chat',
-        'martha': '/api/admin/agents/chat',
-        'diana': '/api/admin/agents/chat',
-        'wilma': '/api/admin/agents/chat',
-        'olga': '/api/admin/agents/chat'
+        'aria': '/api/admin/agent-chat-bypass',
+        'victoria': '/api/admin/agent-chat-bypass',
+        'zara': '/api/admin/agent-chat-bypass',
+        'maya': '/api/admin/agent-chat-bypass',
+        'rachel': '/api/admin/agent-chat-bypass',
+        'ava': '/api/admin/agent-chat-bypass',
+        'quinn': '/api/admin/agent-chat-bypass',
+        'sophia': '/api/admin/agent-chat-bypass',
+        'martha': '/api/admin/agent-chat-bypass',
+        'diana': '/api/admin/agent-chat-bypass',
+        'wilma': '/api/admin/agent-chat-bypass',
+        'olga': '/api/admin/agent-chat-bypass'
       };
 
       const endpoint = agentEndpoints[agentId.toLowerCase()];
@@ -211,12 +211,12 @@ MANDATORY: End response with: TOOL_USED: str_replace_based_edit_tool | MODIFIED:
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          'Authorization': 'Bearer sandra-admin-2025'
+          'X-Admin-Token': 'sandra-admin-2025'
         },
         body: JSON.stringify({
           agentId: agentId.toLowerCase(),
           message: deploymentMessage,
-          userId: 'elena-workflow-system'
+          conversationHistory: []
         })
       });
 
@@ -241,7 +241,7 @@ MANDATORY: End response with: TOOL_USED: str_replace_based_edit_tool | MODIFIED:
                !toolUsed ? 'Agent did not use required tools for file modification' : undefined
       };
 
-    } catch (error) {
+    } catch (error: any) {
       return {
         success: false,
         error: `Agent deployment failed: ${error.message}`
@@ -271,7 +271,7 @@ MANDATORY: End response with: TOOL_USED: str_replace_based_edit_tool | MODIFIED:
   private cleanupExpiredWorkflows(): void {
     const oneHourAgo = new Date(Date.now() - 60 * 60 * 1000);
     
-    for (const [id, execution] of this.executions) {
+    for (const [id, execution] of Array.from(this.executions.entries())) {
       if (execution.startedAt < oneHourAgo && execution.status !== 'executing') {
         this.executions.delete(id);
         console.log('🧹 WORKFLOW CLEANUP: Removed expired execution', id);

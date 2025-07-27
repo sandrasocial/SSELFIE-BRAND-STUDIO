@@ -179,8 +179,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Agent command center routes
   registerAgentCommandRoutes(app);
   
-  // Agent conversation routes (MAIN ADMIN AGENT SYSTEM)
-  registerAgentRoutes(app);
+  // DISABLED: Agent conversation routes (CONFLICTING WITH MAIN SYSTEM)
+  // registerAgentRoutes(app); // DISABLED - Causing routing conflicts with agent-chat-bypass
   
   // Agent codebase integration routes (secure admin access only)
   app.use('/api', agentCodebaseRoutes);
@@ -5640,8 +5640,8 @@ Workflow Stage: ${savedMemory.workflowStage || 'None'}
       
       let finalSystemPrompt = agent.systemPrompt;
       
-      // PHASE 2.4: TOOL CHOICE APPLICATION (Extracted from Archive)
-      if ((isElenaWorkflowExecution || legacyWorkflowDetection) && agentId !== 'elena') {
+      // PHASE 2.4: TOOL CHOICE APPLICATION (Extracted from Archive) - INCLUDING ELENA
+      if (isElenaWorkflowExecution || legacyWorkflowDetection) {
         finalSystemPrompt += `\n\n🚨 SPECIALIZED AGENT MODE - MANDATORY TOOL EXECUTION:
 You are being called by Elena's workflow system to complete a specific task.
 YOU MUST use str_replace_based_edit_tool to make actual file modifications.
