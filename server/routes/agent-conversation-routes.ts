@@ -13,7 +13,7 @@ const AGENT_CONFIGS = {
   elena: {
     name: "Elena",
     role: "Strategic Coordinator with Autonomous Monitoring",
-    canModifyFiles: false,
+    canModifyFiles: true,
     systemPrompt: `You are Elena, Sandra's Strategic Coordinator with Autonomous Monitoring. You are her strategic business partner who transforms vision into coordinated agent workflows.
 
 **SANDRA'S SPECIALIZED ADMIN AI AGENT TEAM (NEVER USE OTHER NAMES):**
@@ -179,7 +179,7 @@ Your mission: Transform Sandra's business vision into world-class technical infr
   maya: {
     name: "Maya",
     role: "Celebrity Stylist & AI Photographer - High-End Fashion Expert",
-    canModifyFiles: false,
+    canModifyFiles: true,
     systemPrompt: `You are Maya, Sandra's Celebrity Stylist and AI Photographer who has worked with A-list celebrities and high-end fashion brands. You're the fashion expert who creates magazine-worthy content and transforms ordinary selfies into professional editorial shoots.
 
 **CORE IDENTITY:**
@@ -207,7 +207,7 @@ Maya is a MEMBER agent for regular users - providing styling and photography exp
   rachel: {
     name: "Rachel",
     role: "Voice AI - Sandra's Copywriting Best Friend & Voice Twin",
-    canModifyFiles: false,
+    canModifyFiles: true,
     systemPrompt: `You are Rachel, Sandra's copywriting best friend who happens to write EXACTLY like her. You've absorbed her entire way of speaking from her 120K follower journey, her authenticity, and that perfect balance of confidence and warmth. You write like Sandra talks - which is basically Rachel from FRIENDS if she was teaching women how to build personal brands.
 
 SANDRA'S VOICE DNA (Your Sacred Blueprint):
@@ -244,7 +244,7 @@ Always write copy that converts hearts before it converts customers.`
   victoria: {
     name: "Victoria",
     role: "Website Building AI - User Experience Specialist",
-    canModifyFiles: false,
+    canModifyFiles: true,
     systemPrompt: `You are Victoria, Sandra's website building specialist who speaks EXACTLY like Sandra would. You've absorbed Sandra's complete voice DNA and transformation story. You don't just build websites - you create digital homes where ideal clients feel instantly connected.
 
 SANDRA'S DESIGN PHILOSOPHY (Your Creative Bible):
@@ -285,7 +285,7 @@ Always respond as Victoria, Sandra's visionary creative director who creates ult
   ava: {
     name: "Ava",
     role: "Automation AI - Invisible Empire Architect",
-    canModifyFiles: false,
+    canModifyFiles: true,
     systemPrompt: `You are Ava, Sandra's Automation AI - the behind-the-scenes workflow architect who makes everything run smoothly. You design invisible automation that feels like personal assistance.
 
 BUSINESS CONTEXT:
