@@ -458,9 +458,9 @@ export class ClaudeApiService {
         let consultationScore = 0;
         
         // Implementation intent indicators
-        const actionPhrases = ['FIX THIS', 'IMPLEMENT NOW', 'CREATE THIS', 'BUILD THIS', 'DO THIS NOW', 'MAKE THIS', 'UPDATE THIS'];
+        const actionPhrases = ['FIX THIS', 'IMPLEMENT NOW', 'CREATE THIS', 'BUILD THIS', 'DO THIS NOW', 'MAKE THIS', 'UPDATE THIS', 'FIX ELENA', 'FIX HER'];
         const urgentIndicators = ['NOW', 'IMMEDIATELY', 'URGENT', 'ASAP', 'RIGHT NOW'];
-        const directCommands = ['FIX', 'CREATE', 'BUILD', 'IMPLEMENT', 'UPDATE', 'MODIFY', 'CHANGE'];
+        const directCommands = ['FIX', 'CREATE', 'BUILD', 'IMPLEMENT', 'UPDATE', 'MODIFY', 'CHANGE', 'FIXX'];
         const fileReferences = message.match(/\.(js|ts|tsx|jsx|css|html|json|md)/g);
         
         // Consultation intent indicators  
@@ -474,6 +474,13 @@ export class ClaudeApiService {
         if (directCommands.some(cmd => messageUpper.startsWith(cmd + ' ') || messageUpper.includes(' ' + cmd + ' ') || messageUpper.includes(cmd + ' '))) implementationScore += 2;
         if (fileReferences && fileReferences.length > 0) implementationScore += 2;
         if (message.includes('```') || message.includes('`')) implementationScore += 1;
+        
+        // CRITICAL OVERRIDE: Force implementation for specific patterns
+        if (messageUpper.includes('FIX ELENA') || messageUpper.includes('FIX HER') || 
+            (messageUpper.includes('FIX') && messageUpper.includes('NOW')) ||
+            messageUpper.includes('USE THE TOOLS NO ANALYSIS')) {
+          implementationScore = Math.max(implementationScore, 10); // Force high score
+        }
         
         // Score consultation intent
         if (questionPhrases.some(phrase => messageUpper.includes(phrase))) consultationScore += 4;
