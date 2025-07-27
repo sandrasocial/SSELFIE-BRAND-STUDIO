@@ -231,51 +231,99 @@ export class ClaudeApiService {
       // Get agent learning data for context
       const memory = await this.getAgentMemory(agentName, userId);
       
-      // ELENA MEMORY RESTORATION: Direct memory injection for Elena
+      // ELENA MEMORY RESTORATION: Load actual conversation history from database
       let elenaMemoryContext = '';
       if (agentName === 'elena') {
-        elenaMemoryContext = `
-## ELENA'S COMPLETE MEMORY RESTORATION (PREVIOUS 48 HOURS):
+        try {
+          // Import the ConversationManager to access Elena's saved memory
+          const { ConversationManager } = await import('../agents/ConversationManager');
+          const savedMemory = await ConversationManager.retrieveAgentMemory('elena', userId);
+          
+          if (savedMemory) {
+            elenaMemoryContext = `
+## ELENA'S RESTORED CONVERSATION MEMORY (DATABASE):
 
-**CRITICAL: SANDRA'S TRAIN-STYLE-PHOTOSHOOT-BUILD BUSINESS MODEL DISCUSSION:**
-From our previous conversations, Sandra described her complete business model as a 4-phase system:
+**Previous Context:** ${savedMemory.currentContext || 'No previous context'}
 
+**Key Tasks Completed:**
+${savedMemory.keyTasks?.map(task => `• ${task}`).join('\n') || '• No completed tasks'}
+
+**Recent Decisions:**
+${savedMemory.recentDecisions?.map(decision => `• ${decision}`).join('\n') || '• No recent decisions'}
+
+**Current Workflow Stage:** ${savedMemory.workflowStage || 'ongoing'}
+
+**Last Updated:** ${savedMemory.timestamp ? new Date(savedMemory.timestamp).toLocaleString() : 'Unknown'}
+
+**SANDRA'S BUSINESS MODEL (CORE REFERENCE):**
 🚂 **TRAIN**: Users train their individual AI model with personal selfies (core value proposition)
 🎨 **STYLE**: Brandbook designer + aesthetic theme selection + luxury editorial positioning
 📸 **PHOTOSHOOT**: AI image generation with FLUX model transformations (100 monthly generations limit)  
 🏗️ **BUILD**: Landing page builder + complete business launch tools + workspace management
 
-**RECENT BUSINESS MODEL CONVERSATIONS:**
-- Sandra asked about the TRAIN-STYLE-PHOTOSHOOT-BUILD model multiple times
-- She emphasized this is her complete business framework for SSELFIE Studio
-- The €67/month premium model maps directly to this 4-phase approach
-- Each phase represents a core platform capability she's built
-
-**KEY BUSINESS CONTEXT:**
-- €67/month SSELFIE STUDIO subscription with individual AI model training
-- 135K+ Instagram followers with premium positioning strategy  
-- No free AI access tier - premium-only business model
-- Platform focus: Landing page optimization, selfie guide updates
-- Revenue strategy: Individual AI models, not generic templates
-
-**AGENT COORDINATION PATTERNS FROM PREVIOUS 48 HOURS:**
-- Elena has been coordinating Aria (luxury design), Rachel (copywriting), Zara (development)
-- Recent workflows: landing page optimization, selfie guide business alignment
-- User prefers immediate agent deployment for urgent requests
-- All work must meet luxury editorial design standards (Times New Roman typography)
-
-**USER COMMUNICATION PREFERENCES:**
-- Prefers simple, direct explanations and immediate action
-- Values luxury editorial design standards throughout all implementations
-- Wants agent coordination that leads to real file modifications and deployments
-
 **PLATFORM TECHNICAL STATUS:**
+- €67/month SSELFIE STUDIO subscription with individual AI model training
+- 135K+ Instagram followers with premium positioning strategy
 - editorial-landing.tsx is live and optimized
 - Active workflow system for agent coordination operational
-- Database cleanup and memory integration systems completed
 - All 13 agents have complete codebase access for implementations`;
 
-        console.log('✅ ELENA MEMORY: Direct 48-hour memory context loaded successfully');
+            console.log('✅ ELENA MEMORY: Database conversation history loaded successfully');
+            
+            // Add current project file awareness for Elena
+            try {
+              const { search_filesystem } = await import('../tools/search_filesystem');
+              const currentFiles = await search_filesystem({
+                query_description: "Current project structure and recent implementations",
+                directories: ["client/src", "server"],
+                max_results: 15
+              });
+              
+              if (currentFiles && currentFiles.length > 0) {
+                elenaMemoryContext += `
+
+**CURRENT PROJECT FILES (For Context):**
+${currentFiles.slice(0, 10).map(file => `• ${file.path}`).join('\n')}`;
+              }
+            } catch (error) {
+              console.error('Elena file system awareness error:', error);
+            }
+          } else {
+            // Fallback business context when no saved memory exists
+            elenaMemoryContext = `
+## ELENA'S BUSINESS CONTEXT (Fresh Start):
+
+**SANDRA'S BUSINESS MODEL (CORE REFERENCE):**
+🚂 **TRAIN**: Users train their individual AI model with personal selfies (core value proposition)
+🎨 **STYLE**: Brandbook designer + aesthetic theme selection + luxury editorial positioning
+📸 **PHOTOSHOOT**: AI image generation with FLUX model transformations (100 monthly generations limit)  
+🏗️ **BUILD**: Landing page builder + complete business launch tools + workspace management
+
+**PLATFORM TECHNICAL STATUS:**
+- €67/month SSELFIE STUDIO subscription with individual AI model training
+- 135K+ Instagram followers with premium positioning strategy
+- editorial-landing.tsx is live and optimized
+- Active workflow system for agent coordination operational
+- All 13 agents have complete codebase access for implementations`;
+
+            console.log('📝 ELENA MEMORY: No saved memory found - using business context only');
+          }
+        } catch (error) {
+          console.error('❌ ELENA MEMORY: Error loading conversation history:', error);
+          elenaMemoryContext = `
+## ELENA'S BUSINESS CONTEXT (Error Recovery):
+
+**SANDRA'S BUSINESS MODEL (CORE REFERENCE):**
+🚂 **TRAIN**: Users train their individual AI model with personal selfies
+🎨 **STYLE**: Brandbook designer + aesthetic theme selection  
+📸 **PHOTOSHOOT**: AI image generation with FLUX model transformations
+🏗️ **BUILD**: Landing page builder + complete business launch tools
+
+**PLATFORM STATUS:**
+- €67/month SSELFIE STUDIO subscription
+- editorial-landing.tsx is live and optimized
+- Active workflow system operational`;
+        }
       }
 
       // Build enhanced system prompt with agent expertise and UNLIMITED ACCESS
