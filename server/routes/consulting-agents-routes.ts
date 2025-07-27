@@ -184,8 +184,8 @@ IMPORTANT: Provide your analysis in this exact format:
         }
       ],
       tools: consultingToolConfig.tools as any,
-      // FORCE TOOL USAGE FOR IMPLEMENTATION - Fix from Zara's analysis  
-      tool_choice: isImplementationRequest ? "required" as const : "auto" as const
+      // FORCE TOOL USAGE FOR IMPLEMENTATION - Fix from Zara's analysis
+      ...(isImplementationRequest ? { tool_choice: { type: "any" } } : {})
     });
 
     let agentResponse = '';
