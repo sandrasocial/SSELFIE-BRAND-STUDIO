@@ -31,11 +31,17 @@ export class AgentImplementationDetector {
       reasoning: []
     };
 
-    // Implementation keywords that indicate action vs advice
+    // Implementation keywords that indicate action vs advice  
     const implementationKeywords = [
-      'create', 'build', 'implement', 'generate', 'make', 'develop', 'code',
-      'fix', 'update', 'modify', 'refactor', 'redesign', 'optimize',
-      'set up', 'setup', 'configure', 'install', 'deploy', 'launch'
+      'create', 'build', 'implement', 'generate', 'make', 'develop', 'code', 'write',
+      'fix', 'update', 'modify', 'refactor', 'redesign', 'optimize', 'edit',
+      'set up', 'setup', 'configure', 'install', 'deploy', 'launch', 'add'
+    ];
+    
+    // High-value implementation phrases
+    const strongImplementationPhrases = [
+      'create a', 'build a', 'make a', 'implement a', 'generate a',
+      'create new', 'build new', 'add new', 'write a', 'code a'
     ];
 
     // Advisory keywords that indicate consultation
@@ -66,13 +72,23 @@ export class AgentImplementationDetector {
     const systemBuildingMatches = systemBuildingPhrases.filter(phrase => 
       message.includes(phrase)
     );
+    
+    const strongImplementationMatches = strongImplementationPhrases.filter(phrase => 
+      message.includes(phrase)
+    );
 
     // Calculate confidence score
     let confidence = 0;
     
-    // Strong implementation indicators
+    // High-value implementation phrases (strong indicators)
+    if (strongImplementationMatches.length > 0) {
+      confidence += strongImplementationMatches.length * 35;
+      result.reasoning.push(`Strong implementation phrases found: ${strongImplementationMatches.join(', ')}`);
+    }
+    
+    // Regular implementation indicators
     if (implementationMatches.length > 0) {
-      confidence += implementationMatches.length * 20;
+      confidence += implementationMatches.length * 15;
       result.reasoning.push(`Implementation keywords found: ${implementationMatches.join(', ')}`);
     }
 
@@ -99,7 +115,7 @@ export class AgentImplementationDetector {
 
     // Determine if this is an implementation request
     result.confidence = Math.max(0, Math.min(100, confidence));
-    result.isImplementationRequest = result.confidence >= 60;
+    result.isImplementationRequest = result.confidence >= 35;  // Lowered threshold for better detection
 
     // Generate implementation request if detected
     if (result.isImplementationRequest) {

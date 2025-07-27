@@ -4,6 +4,7 @@ import { claudeApiService } from '../services/claude-api-service';
 import { db } from '../db';
 import { claudeConversations } from '../../shared/schema';
 import { eq, and, desc } from 'drizzle-orm';
+import { AgentImplementationDetector } from '../tools/agent_implementation_detector';
 // Agent personalities will be referenced dynamically
 
 const router = Router();
@@ -56,6 +57,13 @@ router.post('/send-message', async (req, res) => {
       const finalConversationId = conversationId || `${agentName}-${userId}-${Date.now()}`;
       const systemPrompt = `You are ${agentName}, Sandra's specialized AI agent with COMPLETE FILE SYSTEM ACCESS.`;
       
+      // 🚨 IMPLEMENTATION DETECTION: Apply to bypass route as well
+      const implementationDetector = new AgentImplementationDetector();
+      const detectionResult = implementationDetector.detectImplementationRequest(agentName, message, []);
+      const finalFileEditMode = forceFileEditMode || detectionResult.isImplementationRequest;
+      
+      console.log(`🎯 ${agentName.toUpperCase()} BYPASS ROUTE IMPLEMENTATION DETECTION: ${detectionResult.isImplementationRequest} (score: ${detectionResult.confidence})`);
+      
       const response = await claudeApiService.sendMessage(
         userId,
         agentName,
@@ -63,12 +71,13 @@ router.post('/send-message', async (req, res) => {
         message,
         systemPrompt,
         tools,
-        forceFileEditMode
+        finalFileEditMode,
+        detectionResult.isImplementationRequest ? "str_replace_based_edit_tool" : undefined
       );
 
       return res.json({ 
         success: true, 
-        response: response.message,
+        response: response,
         conversationId: finalConversationId,
         agentName,
         authBypass: true
@@ -84,6 +93,13 @@ router.post('/send-message', async (req, res) => {
       const finalConversationId = conversationId || `${agentName}-${adminUserId}-${Date.now()}`;
       const systemPrompt = `You are ${agentName}, Sandra's specialized AI agent with COMPLETE FILE SYSTEM ACCESS.`;
       
+      // 🚨 IMPLEMENTATION DETECTION: Apply to fallback route as well
+      const implementationDetector = new AgentImplementationDetector();
+      const detectionResult = implementationDetector.detectImplementationRequest(agentName, message, []);
+      const finalFileEditMode = forceFileEditMode || detectionResult.isImplementationRequest;
+      
+      console.log(`🎯 ${agentName.toUpperCase()} FALLBACK ROUTE IMPLEMENTATION DETECTION: ${detectionResult.isImplementationRequest} (score: ${detectionResult.confidence})`);
+      
       const response = await claudeApiService.sendMessage(
         adminUserId,
         agentName,
@@ -91,12 +107,13 @@ router.post('/send-message', async (req, res) => {
         message,
         systemPrompt,
         tools,
-        forceFileEditMode
+        finalFileEditMode,
+        detectionResult.isImplementationRequest ? "str_replace_based_edit_tool" : undefined
       );
 
       return res.json({ 
         success: true, 
-        response: response.message,
+        response: response,
         conversationId: finalConversationId,
         agentName,
         authFallback: true
@@ -108,6 +125,23 @@ router.post('/send-message', async (req, res) => {
     // Use proper agent expertise from Claude API service
     const systemPrompt = `You are ${agentName}, Sandra's specialized AI agent.`;
 
+    // 🚨 ZARA'S IMPLEMENTATION DETECTION: Apply advanced detection to main Claude API route
+    const implementationDetector = new AgentImplementationDetector();
+    const detectionResult = implementationDetector.detectImplementationRequest(
+      agentName, 
+      message,
+      [] // conversation history - can be enhanced later
+    );
+    
+    console.log(`🎯 ${agentName.toUpperCase()} MAIN API IMPLEMENTATION DETECTION:`);
+    console.log(`  - Confidence Score: ${detectionResult.confidence}/100`);
+    console.log(`  - Is Implementation: ${detectionResult.isImplementationRequest}`);
+    console.log(`  - Should Force Tools: ${detectionResult.isImplementationRequest}`);
+    console.log(`  - Reasoning: ${detectionResult.reasoning.join(', ')}`);
+    
+    // Force file edit mode for implementation requests
+    const finalFileEditMode = forceFileEditMode || detectionResult.isImplementationRequest;
+    
     // Send message to Claude with memory and learning
     const response = await claudeApiService.sendMessage(
       userId,
@@ -116,7 +150,8 @@ router.post('/send-message', async (req, res) => {
       message,
       systemPrompt,
       tools,
-      forceFileEditMode  // Always use full editing capabilities for admin agents
+      finalFileEditMode,  // Enhanced with implementation detection
+      detectionResult.isImplementationRequest ? "str_replace_based_edit_tool" : undefined
     );
 
     // Elena workflow detection integration
