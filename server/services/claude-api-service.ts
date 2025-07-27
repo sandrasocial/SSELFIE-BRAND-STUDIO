@@ -170,7 +170,8 @@ export class ClaudeApiService {
     userMessage: string,
     systemPrompt?: string,
     tools?: any[],
-    fileEditMode?: boolean
+    fileEditMode?: boolean,
+    forceToolChoice?: string
   ): Promise<string> {
     try {
       // Ensure conversation exists
@@ -413,14 +414,26 @@ export class ClaudeApiService {
         ...(tools || [])
       ];
 
-      // Send to Claude with enhanced capabilities and retry logic
-      const response = await this.sendToClaudeWithRetry({
+      // 🚨 ZARA'S TOOL CHOICE ENFORCEMENT: Force tool usage for implementation requests
+      const claudeRequest: any = {
         model: DEFAULT_MODEL_STR,
         max_tokens: 4000,
         system: enhancedSystemPrompt,
         messages,
         tools: enhancedTools,
-      });
+      };
+      
+      // Apply tool choice enforcement if specified
+      if (forceToolChoice) {
+        claudeRequest.tool_choice = { 
+          type: "tool",
+          name: forceToolChoice
+        };
+        console.log(`🚨 CLAUDE API SERVICE TOOL ENFORCEMENT: Forcing ${forceToolChoice} for ${agentName.toUpperCase()}`);
+      }
+      
+      // Send to Claude with enhanced capabilities and retry logic
+      const response = await this.sendToClaudeWithRetry(claudeRequest);
 
       let assistantMessage = '';
       if (response.content[0] && 'text' in response.content[0]) {
@@ -428,7 +441,7 @@ export class ClaudeApiService {
       }
 
       // Process tool calls if any and continue conversation
-      if (response.content.some(content => content.type === 'tool_use')) {
+      if (response.content.some((content: any) => content.type === 'tool_use')) {
         assistantMessage = await this.handleToolCallsWithContinuation(response, messages, enhancedSystemPrompt, enhancedTools, true, agentName); // FORCE UNLIMITED ACCESS
       }
 
@@ -1246,7 +1259,7 @@ COMMUNICATION STYLE:
       
       console.log(`✅ CONVERSATION CONTINUED: Agent provided analysis after tool usage. Total response length: ${finalResponse.length}`);
       console.log(`📝 CONTINUATION RESPONSE CONTENT BLOCKS: ${continuationResponse.content.length}`);
-      continuationResponse.content.forEach((block, i) => {
+      continuationResponse.content.forEach((block: any, i: number) => {
         console.log(`   Block ${i}: type=${block.type}, length=${block.type === 'text' ? block.text?.length : 'N/A'}`);
       });
       console.log(`📝 FINAL RESPONSE PREVIEW: ${finalResponse.substring(0, 200)}...`);
