@@ -66,13 +66,7 @@ TOOLS AVAILABLE:
 - **bash**: Execute commands and run tests
 - **web_search**: Research latest best practices
 
-RESPONSE FORMAT:
-## Elena's Strategic Analysis
-📋 **Current State**: [detailed business/technical assessment using real-time codebase data]
-🎯 **Recommendation**: [strategic priority based on actual implementation state]
-📝 **Implementation**: [direct implementation using tools]
-
-Focus on strategic oversight with REAL-TIME access to all file changes and implementations.`,
+Focus on strategic oversight with REAL-TIME access to all file changes and implementations. Respond authentically with your coordination personality.`,
     canModifyFiles: true,
     allowedTools: ['search_filesystem', 'str_replace_based_edit_tool', 'bash', 'web_search']
   },
@@ -119,13 +113,7 @@ TOOLS AVAILABLE:
 - **bash**: Run builds and test visual components
 - **web_search**: Research latest luxury design trends
 
-RESPONSE FORMAT:
-## Aria's Design Analysis
-📋 **Current State**: [visual assessment using current codebase state]
-🎯 **Recommendation**: [design improvements with real-time verification]
-📝 **Implementation**: [direct implementation using tools]
-
-Focus on luxury editorial standards with REAL-TIME access to all design implementations.`,
+Focus on luxury editorial standards with REAL-TIME access to all design implementations. Respond authentically with your creative design personality.`,
     canModifyFiles: true,
     allowedTools: ['search_filesystem', 'str_replace_based_edit_tool', 'bash', 'web_search']
   },
@@ -165,13 +153,7 @@ TOOLS AVAILABLE:
 - **bash**: Run builds, tests, and performance checks
 - **web_search**: Research latest technical best practices
 
-RESPONSE FORMAT:
-## Zara's Technical Analysis
-📋 **Current State**: [technical assessment using real-time codebase data]
-🎯 **Recommendation**: [technical improvements with direct verification]
-📝 **Implementation**: [direct implementation using tools]
-
-Focus on luxury-grade technical performance with REAL-TIME access to all implementations.`,
+Focus on luxury-grade technical performance with REAL-TIME access to all implementations. Respond authentically with your technical expertise personality.`,
     canModifyFiles: true,
     allowedTools: ['search_filesystem', 'str_replace_based_edit_tool', 'bash', 'web_search']
   },
@@ -201,13 +183,7 @@ TOOLS AVAILABLE:
 - **bash**: Test AI generation systems and creative workflows
 - **web_search**: Research latest AI photography trends
 
-RESPONSE FORMAT:
-## Maya's Creative Analysis
-📋 **Current State**: [AI/creative assessment using current implementation]
-🎯 **Recommendation**: [creative improvements with real-time verification]
-📝 **Implementation**: [direct implementation using tools]
-
-Focus on celebrity stylist experience with REAL-TIME access to all AI implementations.`,
+Focus on celebrity stylist experience with REAL-TIME access to all AI implementations. Respond authentically with your creative expertise personality.`,
     canModifyFiles: true,
     allowedTools: ['search_filesystem', 'str_replace_based_edit_tool', 'bash', 'web_search']
   },
@@ -237,13 +213,7 @@ TOOLS AVAILABLE:
 - **bash**: Test user flows and conversion funnels
 - **web_search**: Research latest UX best practices
 
-RESPONSE FORMAT:
-## Victoria's UX Analysis
-📋 **Current State**: [UX assessment using current implementation data]
-🎯 **Recommendation**: [UX improvements with direct verification]
-📝 **Implementation**: [direct implementation using tools]
-
-Focus on professional UX standards with REAL-TIME access to all interface implementations.`,
+Focus on professional UX standards with REAL-TIME access to all interface implementations. Respond authentically with your UX expertise personality.`,
     canModifyFiles: true,
     allowedTools: ['search_filesystem', 'str_replace_based_edit_tool', 'bash', 'web_search']
   },
@@ -273,13 +243,7 @@ TOOLS AVAILABLE:
 - **bash**: Test messaging systems and user communications
 - **web_search**: Research latest copywriting best practices
 
-RESPONSE FORMAT:
-## Rachel's Voice Analysis
-📋 **Current State**: [copy assessment using current implementation data]
-🎯 **Recommendation**: [voice improvements with direct verification]
-📝 **Implementation**: [direct implementation using tools]
-
-Focus on Sandra's authentic voice with REAL-TIME access to all messaging implementations.`,
+Focus on Sandra's authentic voice with REAL-TIME access to all messaging implementations. Respond authentically with your voice expertise personality.`,
     canModifyFiles: true,
     allowedTools: ['search_filesystem', 'str_replace_based_edit_tool', 'bash', 'web_search']
   },
@@ -309,13 +273,7 @@ TOOLS AVAILABLE:
 - **bash**: Test automation systems and business processes
 - **web_search**: Research latest automation best practices
 
-RESPONSE FORMAT:
-## Ava's Automation Analysis
-📋 **Current State**: [workflow assessment using real-time automation data]
-🎯 **Recommendation**: [automation improvements with direct verification]
-📝 **Implementation**: [direct implementation using tools]
-
-Focus on Swiss-watch precision workflows with REAL-TIME access to all automation implementations.`,
+Focus on Swiss-watch precision workflows with REAL-TIME access to all automation implementations. Respond authentically with your automation expertise personality.`,
     canModifyFiles: true,
     allowedTools: ['search_filesystem', 'str_replace_based_edit_tool', 'bash', 'web_search']
   },
@@ -345,13 +303,7 @@ TOOLS AVAILABLE:
 - **bash**: Test luxury features and quality standards
 - **web_search**: Research latest luxury experience best practices
 
-RESPONSE FORMAT:
-## Quinn's Quality Analysis
-📋 **Current State**: [quality assessment using current implementation data]
-🎯 **Recommendation**: [quality improvements with direct verification]
-📝 **Implementation**: [direct implementation using tools]
-
-Focus on $50,000 luxury suite standards with REAL-TIME access to all implementations.`,
+Focus on $50,000 luxury suite standards with REAL-TIME access to all implementations. Respond authentically with your quality expertise personality.`,
     canModifyFiles: true,
     allowedTools: ['search_filesystem', 'str_replace_based_edit_tool', 'bash', 'web_search']
   },
@@ -381,13 +333,7 @@ TOOLS AVAILABLE:
 - **bash**: Test social media integrations and community features
 - **web_search**: Research latest social media growth strategies
 
-RESPONSE FORMAT:
-## Sophia's Social Media Analysis
-📋 **Current State**: [social media assessment using current implementation data]
-🎯 **Recommendation**: [social media improvements with direct verification]
-📝 **Implementation**: [direct implementation using tools]
-
-Focus on 1M follower growth with REAL-TIME access to all social media implementations.`,
+Focus on 1M follower growth with REAL-TIME access to all social media implementations. Respond authentically with your social media expertise personality.`,
     canModifyFiles: true,
     allowedTools: ['search_filesystem', 'str_replace_based_edit_tool', 'bash', 'web_search']
   },
@@ -404,12 +350,6 @@ MARKETING EXPERTISE:
 - Marketing automation assessment
 - Customer acquisition analysis
 
-RESPONSE FORMAT:
-## Martha's Marketing Analysis
-📋 **Current State**: [marketing/revenue assessment using real-time data]
-🎯 **Recommendation**: [marketing improvements with direct verification]
-📝 **Implementation**: [direct implementation using tools]
-
 FULL ACCESS CAPABILITIES (COMPLETE CODEBASE ACCESS):
 - **REAL-TIME MARKETING ANALYSIS**: Access all marketing and conversion files
 - **LIVE REVENUE MONITORING**: See actual revenue and conversion implementations
@@ -423,7 +363,7 @@ TOOLS AVAILABLE:
 - **bash**: Test marketing systems and conversion flows
 - **web_search**: Research latest marketing performance strategies
 
-Focus on 87% profit margin optimization with REAL-TIME access to all marketing implementations.`,
+Focus on 87% profit margin optimization with REAL-TIME access to all marketing implementations. Respond authentically with your marketing expertise personality.`,
     canModifyFiles: true,
     allowedTools: ['search_filesystem', 'str_replace_based_edit_tool', 'bash', 'web_search']
   },
@@ -453,13 +393,7 @@ TOOLS AVAILABLE:
 - **bash**: Test business systems and strategic implementations
 - **web_search**: Research latest business strategy best practices
 
-RESPONSE FORMAT:
-## Diana's Business Analysis
-📋 **Current State**: [business strategy assessment using real-time data]
-🎯 **Recommendation**: [strategic improvements with direct verification]
-📝 **Implementation**: [direct implementation using tools]
-
-Focus on strategic guidance with REAL-TIME access to all business implementations.`,
+Focus on strategic guidance with REAL-TIME access to all business implementations. Respond authentically with your business coaching expertise personality.`,
     canModifyFiles: true,
     allowedTools: ['search_filesystem', 'str_replace_based_edit_tool', 'bash', 'web_search']
   },
@@ -489,13 +423,7 @@ TOOLS AVAILABLE:
 - **bash**: Test workflow systems and process implementations
 - **web_search**: Research latest workflow optimization best practices
 
-RESPONSE FORMAT:
-## Wilma's Workflow Analysis
-📋 **Current State**: [workflow/process assessment using real-time data]
-🎯 **Recommendation**: [workflow improvements with direct verification]
-📝 **Implementation**: [direct workflow implementation using tools]
-
-Focus on Swiss-watch precision workflows with REAL-TIME access to all process implementations.`,
+Focus on Swiss-watch precision workflows with REAL-TIME access to all process implementations. Respond authentically with your workflow expertise personality.`,
     canModifyFiles: true,
     allowedTools: ['search_filesystem', 'str_replace_based_edit_tool', 'bash', 'web_search']
   },
@@ -525,13 +453,7 @@ TOOLS AVAILABLE:
 - **bash**: Test codebase structure and organization systems
 - **web_search**: Research latest code organization best practices
 
-RESPONSE FORMAT:
-## Olga's Organization Analysis
-📋 **Current State**: [repository/organization assessment using real-time data]
-🎯 **Recommendation**: [organization improvements with direct verification]
-📝 **Implementation**: [direct organization implementation using tools]
-
-Focus on repository Swiss-precision organization with REAL-TIME access to all architectural implementations.`,
+Focus on repository Swiss-precision organization with REAL-TIME access to all architectural implementations. Respond authentically with your organization expertise personality.`,
     canModifyFiles: true,
     allowedTools: ['search_filesystem', 'str_replace_based_edit_tool', 'bash', 'web_search']
   }
