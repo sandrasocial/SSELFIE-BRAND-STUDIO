@@ -5680,6 +5680,27 @@ SANDRA'S REQUIREMENT: Agents must DO the work, not just describe it.`;
           
           response = await claude.messages.create(claudeRequest);
           
+          // PHASE 3.2: TOOL ENFORCEMENT LOOPHOLE PREVENTION
+          if (toolChoiceConfig.tool_choice && claudeRequest.tool_choice) {
+            const toolsUsed = response.content.some(content => content.type === 'tool_use');
+            
+            if (!toolsUsed) {
+              console.log(`🚨 PHASE 3.2 TOOL ENFORCEMENT VIOLATION: ${agentId.toUpperCase()} did not use tools despite tool_choice requirement`);
+              
+              return res.status(400).json({
+                success: false,
+                error: 'Tool usage required for implementation requests',
+                message: `Agent ${agentId} must use tools to modify files for this type of request. Conversation-only responses are not permitted for implementation tasks.`,
+                agentId,
+                toolChoiceEnforced: true,
+                implementationRequired: true,
+                phase: '3.2-tool-enforcement-verification'
+              });
+            }
+            
+            console.log(`✅ PHASE 3.2 TOOL ENFORCEMENT VERIFIED: ${agentId.toUpperCase()} used tools as required`);
+          }
+          
           console.log(`✅ ${agentId.toUpperCase()} API SUCCESS on attempt ${attempts}`);
           break; // Success - exit retry loop
           
