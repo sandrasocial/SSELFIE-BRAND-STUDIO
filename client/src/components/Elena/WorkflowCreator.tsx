@@ -235,11 +235,11 @@ Example: Design and implement a new onboarding flow with progress tracking"
           {/* Workflow Steps */}
           <div className="space-y-4">
             <h3 style={{ fontFamily: 'Times New Roman' }} className="text-xl font-bold text-black">
-              Workflow Steps ({workflow.steps.length} steps)
+              Workflow Steps ({(workflow.steps || []).length} steps)
             </h3>
             
             <div className="space-y-3">
-              {workflow.steps.map((step, index) => (
+              {(workflow.steps || []).map((step, index) => (
                 <Card key={step.id} className="p-4">
                   <div className="flex items-start justify-between">
                     <div className="flex-1 space-y-2">

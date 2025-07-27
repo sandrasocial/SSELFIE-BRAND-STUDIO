@@ -608,6 +608,30 @@ export class ClaudeApiService {
     assistantMessage: string
   ): Promise<void> {
     try {
+      // Handle admin user ID resolution like in createConversationIfNotExists
+      let resolvedUserId = userId;
+      
+      if (userId === 'sandra-admin') {
+        try {
+          const adminUser = await db
+            .select()
+            .from(users)
+            .where(eq(users.email, 'ssa@ssasocial.com'))
+            .limit(1);
+            
+          if (adminUser.length > 0) {
+            resolvedUserId = adminUser[0].id;
+          } else {
+            // Skip learning update if admin user doesn't exist
+            console.log('⚠️ ADMIN USER NOT FOUND: Skipping agent learning update for sandra-admin');
+            return;
+          }
+        } catch (adminError) {
+          console.error('Admin user resolution error in updateAgentLearning:', adminError);
+          return;
+        }
+      }
+      
       // Extract patterns and preferences from the conversation
       const patterns = this.extractPatterns(userMessage, assistantMessage);
 
@@ -618,7 +642,7 @@ export class ClaudeApiService {
           .from(agentLearning)
           .where(and(
             eq(agentLearning.agentName, agentName),
-            eq(agentLearning.userId, userId),
+            eq(agentLearning.userId, resolvedUserId),
             eq(agentLearning.learningType, pattern.type),
             eq(agentLearning.category, pattern.category)
           ))
@@ -639,7 +663,7 @@ export class ClaudeApiService {
           // Create new learning entry
           await db.insert(agentLearning).values({
             agentName,
-            userId,
+            userId: resolvedUserId,
             learningType: pattern.type,
             category: pattern.category,
             data: pattern.data,
