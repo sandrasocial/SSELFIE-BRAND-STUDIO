@@ -7656,6 +7656,36 @@ I'll coordinate a **"Platform Launch Readiness Validation"** workflow with Aria,
   
   console.log('✅ Agent Performance Monitor API routes registered');
   console.log('✅ Enhanced Handoff System API routes registered');
+
+  // ELENA EXECUTION API ENDPOINTS - Critical bridge to autonomous orchestrator
+  app.post('/api/elena/execute', adminAgentAuth, async (req: any, res) => {
+    console.log('🚀 ELENA EXECUTE API: Request received');
+    try {
+      const { executeElenaWorkflow } = await import('./routes/elena-execution');
+      await executeElenaWorkflow(req, res);
+    } catch (error) {
+      console.error('💥 ELENA EXECUTE ERROR:', error);
+      res.status(500).json({ 
+        success: false, 
+        error: error instanceof Error ? error.message : 'Elena workflow execution failed' 
+      });
+    }
+  });
+
+  app.get('/api/elena/execution/:executionId/status', adminAgentAuth, async (req: any, res) => {
+    try {
+      const { getElenaExecutionStatus } = await import('./routes/elena-execution');
+      await getElenaExecutionStatus(req, res);
+    } catch (error) {
+      console.error('❌ ELENA STATUS ERROR:', error);
+      res.status(500).json({ 
+        success: false, 
+        error: error instanceof Error ? error.message : 'Failed to get execution status' 
+      });
+    }
+  });
+
+  console.log('✅ Elena Execution API routes registered');
   
   await registerEnterpriseRoutes(app);
   
