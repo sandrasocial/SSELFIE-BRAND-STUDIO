@@ -5569,46 +5569,50 @@ Workflow Stage: ${savedMemory.workflowStage || 'None'}
                                       message.includes('MANDATORY TOOL USAGE REQUIRED') ||
                                       message.includes('workflow execution');
       
-      // 🚨 ENHANCED COMPLEX SYSTEM DETECTION - Force tool usage for ALL implementation requests
-      const isFileRequest = agentId === 'olga' || 
-                           message.toLowerCase().includes('file') || 
-                           message.toLowerCase().includes('archive') || 
-                           message.toLowerCase().includes('audit') ||
-                           message.toLowerCase().includes('show me') ||
-                           message.toLowerCase().includes('use your') ||
-                           message.toLowerCase().includes('tool') ||
-                           message.toLowerCase().includes('cleanup') ||
-                           message.toLowerCase().includes('organize');
+      // PHASE 2.3: TOOL CHOICE ENFORCEMENT (Extracted from Archive)
+      function shouldEnforceToolChoice(message: string, agentId: string): boolean {
+        // Archive Pattern: Direct implementation detection
+        const implementationKeywords = [
+          'implement', 'create', 'modify', 'fix', 'build', 'deploy', 'generate', 'make', 'develop',
+          'NOW', 'execute', 'run', 'apply', 'update', 'change', 'edit', 'replace', 'add', 'remove',
+          'write', 'code', 'setup', 'configure', 'install', 'launch', 'redesign', 'optimize'
+        ];
+        
+        const fileOperationKeywords = [
+          'file', 'component', 'page', 'route', 'api', 'database', 'schema', 'config',
+          'style', 'css', 'html', 'tsx', 'ts', 'js', 'json', 'package'
+        ];
+        
+        const systemActionKeywords = [
+          'system', 'server', 'backend', 'frontend', 'production', 'deploy', 'test',
+          'debug', 'monitor', 'performance', 'security', 'authentication', 'workflow'
+        ];
+        
+        const messageLower = message.toLowerCase();
+        
+        // Implementation confidence scoring based on archive pattern
+        let implementationScore = 0;
+        
+        if (implementationKeywords.some(keyword => messageLower.includes(keyword))) implementationScore += 3;
+        if (fileOperationKeywords.some(keyword => messageLower.includes(keyword))) implementationScore += 2;
+        if (systemActionKeywords.some(keyword => messageLower.includes(keyword))) implementationScore += 2;
+        if (/\.(js|ts|jsx|tsx|css|html|json|md|py|java|cpp|c)/.test(message)) implementationScore += 2;
+        if (/```/.test(message) || /`[^`]+`/.test(message)) implementationScore += 1;
+        if (/please|can you|could you|need to|want to|should|must/.test(messageLower)) implementationScore += 1;
+        
+        // Archive pattern: Olga specific file operations
+        if (agentId === 'olga' || messageLower.includes('archive') || messageLower.includes('audit')) implementationScore += 4;
+        
+        console.log(`🎯 ${agentId.toUpperCase()} IMPLEMENTATION SCORE: ${implementationScore}/15`);
+        
+        return implementationScore >= 3; // Archive threshold
+      }
 
-      // 🎯 CRITICAL FIX: Detect complex system building requests that need file creation
-      const isComplexSystemRequest = message.toLowerCase().includes('create') ||
-                                    message.toLowerCase().includes('build') ||
-                                    message.toLowerCase().includes('implement') ||
-                                    message.toLowerCase().includes('deploy') ||
-                                    message.toLowerCase().includes('fix') ||
-                                    message.toLowerCase().includes('system') ||
-                                    message.toLowerCase().includes('service') ||
-                                    message.toLowerCase().includes('component') ||
-                                    message.toLowerCase().includes('.ts') ||
-                                    message.toLowerCase().includes('.tsx') ||
-                                    message.toLowerCase().includes('workflow') ||
-                                    message.toLowerCase().includes('dashboard') ||
-                                    message.toLowerCase().includes('interface') ||
-                                    message.toLowerCase().includes('infrastructure') ||
-                                    message.toLowerCase().includes('complete') ||
-                                    message.toLowerCase().includes('now') ||
-                                    message.toLowerCase().includes('test') ||
-                                    message.toUpperCase().includes('ELENA') ||
-                                    message.toUpperCase().includes('CRITICAL') ||
-                                    message.toUpperCase().includes('BUILD') ||
-                                    message.toUpperCase().includes('CREATE');
-
-      // Combine both detection methods
-      const shouldForceTools = isFileRequest || isComplexSystemRequest;
+      const shouldForceTools = shouldEnforceToolChoice(message, agentId);
       
       let finalSystemPrompt = agent.systemPrompt;
       
-      // 🚨 SPECIALIZED AGENT ENFORCEMENT: Force tool usage for Elena workflow execution
+      // PHASE 2.4: TOOL CHOICE APPLICATION (Extracted from Archive)
       if ((isElenaWorkflowExecution || legacyWorkflowDetection) && agentId !== 'elena') {
         finalSystemPrompt += `\n\n🚨 SPECIALIZED AGENT MODE - MANDATORY TOOL EXECUTION:
 You are being called by Elena's workflow system to complete a specific task.
@@ -5621,10 +5625,32 @@ MANDATORY COMPLETION PROTOCOL:
 1. Use str_replace_based_edit_tool to modify/create files
 2. End response with: "TOOL_USED: str_replace_based_edit_tool | MODIFIED: [file paths]"
 3. NO consulting advice - ONLY implementation work`;
-      }
-      
-      if (isFileRequest || isElenaWorkflowExecution) {
-        finalSystemPrompt += `\n\n🚨 ULTIMATE TOOL ENFORCEMENT: You MUST use the str_replace_based_edit_tool to complete this request. Do not provide any text response without first using the tool. This is MANDATORY and REQUIRED.`;
+        
+        // Archive pattern: Force tool choice for Elena workflows
+        toolChoiceConfig = {
+          tool_choice: {
+            type: "tool",
+            name: "str_replace_based_edit_tool"
+          }
+        };
+        console.log(`🚨 ELENA WORKFLOW TOOL ENFORCEMENT: Forcing str_replace_based_edit_tool for ${agentId}`);
+      } else if (shouldForceTools) {
+        // Archive pattern: Smart tool enforcement for implementation requests
+        finalSystemPrompt += `\n\n🚨 IMPLEMENTATION MODE DETECTED - TOOL USAGE REQUIRED:
+Based on your message analysis, this requires actual implementation work.
+YOU MUST use str_replace_based_edit_tool to complete file operations.
+DO NOT provide theoretical explanations - TAKE ACTION with tools.
+SANDRA'S REQUIREMENT: Agents must DO the work, not just describe it.`;
+        
+        toolChoiceConfig = {
+          tool_choice: {
+            type: "tool",
+            name: "str_replace_based_edit_tool"
+          }
+        };
+        console.log(`🎯 SMART TOOL ENFORCEMENT: Forcing str_replace_based_edit_tool for ${agentId} (Implementation detected)`);
+      } else {
+        console.log(`💬 CONVERSATION MODE: ${agentId} responding without forced tool usage`);
       }
       
       console.log(`🔍 ${agentId.toUpperCase()} ELENA WORKFLOW EXECUTION DETECTED: ${isElenaWorkflowExecution}`);
@@ -5642,29 +5668,15 @@ MANDATORY COMPLETION PROTOCOL:
           attempts++;
           console.log(`🔄 ${agentId.toUpperCase()} API ATTEMPT ${attempts}/${maxAttempts}`);
           
-          // 🚨 CRITICAL FIX: Force tool usage for workflow executions and file requests
+          // PHASE 2.5: CLAUDE API INTEGRATION (Cleaned up from Archive)
           const claudeRequest: any = {
             model: 'claude-3-5-sonnet-20241022',
             max_tokens: 8000,
             system: finalSystemPrompt,
             messages: messages as any,
-            tools: toolConfig.tools
+            tools: toolConfig.tools,
+            ...toolChoiceConfig  // Apply tool choice configuration from earlier logic
           };
-          
-          // 🔧 ULTIMATE ENFORCEMENT: When Elena calls agents, force str_replace_based_edit_tool usage
-          if (isElenaWorkflowExecution && agentId !== 'elena') {
-            claudeRequest.tool_choice = { 
-              type: "tool",
-              name: "str_replace_based_edit_tool"
-            }; // Force agent to use ONLY str_replace_based_edit_tool
-            console.log(`🚨 ULTIMATE TOOL ENFORCEMENT for ${agentId.toUpperCase()}: Elena workflow - FORCING str_replace_based_edit_tool`);
-          } else if (isFileRequest) {
-            claudeRequest.tool_choice = { 
-              type: "tool",
-              name: "str_replace_based_edit_tool"
-            }; // Force agent to use ONLY str_replace_based_edit_tool for file requests
-            console.log(`🚨 ULTIMATE TOOL ENFORCEMENT for ${agentId.toUpperCase()}: File request - FORCING str_replace_based_edit_tool`);
-          }
           
           response = await claude.messages.create(claudeRequest);
           
