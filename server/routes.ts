@@ -5617,7 +5617,7 @@ Workflow Stage: ${savedMemory.workflowStage || 'None'}
       let toolChoiceConfig = {};
       
       // Apply tool_choice enforcement based on detection results
-      if (isElenaWorkflowExecution || mandatoryImplementation || shouldForceTools) {
+      if (isElenaWorkflowExecution || mandatoryImplementation) {
         toolChoiceConfig = {
           tool_choice: {
             type: "any"
@@ -5632,9 +5632,7 @@ Workflow Stage: ${savedMemory.workflowStage || 'None'}
           console.log(`🚨 MANDATORY TOOL ENFORCEMENT for ${agentId.toUpperCase()}: Implementation keywords detected - BLOCKING analysis responses`);
         }
         
-        if (shouldForceTools && !isElenaWorkflowExecution && !mandatoryImplementation) {
-          console.log(`🎯 SMART TOOL ENFORCEMENT for ${agentId.toUpperCase()}: Advanced detection - FORCING str_replace_based_edit_tool`);
-        }
+
       }
 
       // Call Claude API with tool support
