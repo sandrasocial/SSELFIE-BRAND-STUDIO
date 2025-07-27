@@ -629,11 +629,12 @@ export class ElenaWorkflowDetectionService {
           const taskMessage = this.createAgentTaskMessage(workflow, agent);
           
           // Execute agent directly through the agent-chat-bypass endpoint with forced tool usage
-          const agentResponse = await fetch('http://localhost:3000/api/admin/agent-chat-bypass', {
+          const agentResponse = await fetch('http://localhost:5000/api/admin/agent-chat-bypass', {
             method: 'POST',
             headers: {
               'Content-Type': 'application/json',
-              'X-Admin-Token': 'sandra-admin-2025'
+              'X-Admin-Token': 'sandra-admin-2025',
+              'X-Elena-Workflow': 'true'
             },
             body: JSON.stringify({
               agentId: agent,
