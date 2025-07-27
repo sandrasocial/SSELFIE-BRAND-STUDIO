@@ -88,7 +88,8 @@ export class AgentCodebaseIntegration {
       
       return content;
     } catch (error) {
-      throw new Error(`File read error: ${error.message}`);
+      const errorMessage = error instanceof Error ? error.message : 'Unknown error';
+      throw new Error(`File read error: ${errorMessage}`);
     }
   }
   
@@ -151,7 +152,8 @@ export class AgentCodebaseIntegration {
       console.log(`📂 Full path: ${fullPath}`);
       console.log(`📄 Content length: ${content.length} characters`);
     } catch (error) {
-      throw new Error(`File write error: ${error.message}`);
+      const errorMessage = error instanceof Error ? error.message : 'Unknown error';
+      throw new Error(`File write error: ${errorMessage}`);
     }
   }
 
@@ -176,10 +178,11 @@ export class AgentCodebaseIntegration {
         };
       } catch (error) {
         console.error(`❌ Failed to write ${file.filePath}:`, error);
+        const errorMessage = error instanceof Error ? error.message : 'Unknown error';
         return { 
           filePath: file.filePath, 
           success: false, 
-          error: error.message 
+          error: errorMessage 
         };
       }
     });
@@ -239,7 +242,8 @@ export class AgentCodebaseIntegration {
       
       return { diff, versions };
     } catch (error) {
-      throw new Error(`Diff error: ${error.message}`);
+      const errorMessage = error instanceof Error ? error.message : 'Unknown error';
+      throw new Error(`Diff error: ${errorMessage}`);
     }
   }
 
@@ -286,7 +290,8 @@ export class AgentCodebaseIntegration {
       
       console.log(`🔄 Restored ${filePath} from backup: ${backupVersion}`);
     } catch (error) {
-      throw new Error(`Restore error: ${error.message}`);
+      const errorMessage = error instanceof Error ? error.message : 'Unknown error';
+      throw new Error(`Restore error: ${errorMessage}`);
     }
   }
 
@@ -335,9 +340,10 @@ export class AgentCodebaseIntegration {
       
     } catch (error) {
       console.error(`❌ Command failed:`, error);
+      const errorMessage = error instanceof Error ? error.message : 'Unknown error';
       return { 
         stdout: '', 
-        stderr: error.message, 
+        stderr: errorMessage, 
         success: false 
       };
     }
@@ -365,7 +371,8 @@ export class AgentCodebaseIntegration {
         return { success: false, output: result.stderr };
       }
     } catch (error) {
-      return { success: false, output: error.message };
+      const errorMessage = error instanceof Error ? error.message : 'Unknown error';
+      return { success: false, output: errorMessage };
     }
   }
 
@@ -379,8 +386,8 @@ export class AgentCodebaseIntegration {
   ): Promise<{ errors: Array<{line: number, message: string, severity: 'error' | 'warning'}>; suggestions: string[] }> {
     try {
       const content = await this.readFile(agentId, filePath);
-      const errors = [];
-      const suggestions = [];
+      const errors: Array<{line: number, message: string, severity: 'error' | 'warning'}> = [];
+      const suggestions: string[] = [];
       
       // Basic TypeScript/JavaScript error detection
       const lines = content.split('\n');
@@ -394,7 +401,7 @@ export class AgentCodebaseIntegration {
           errors.push({
             line: lineNumber,
             message: 'console.log found in production code',
-            severity: 'warning'
+            severity: 'warning' as const
           });
           suggestions.push('Remove console.log statements from production code');
         }
@@ -403,7 +410,7 @@ export class AgentCodebaseIntegration {
           errors.push({
             line: lineNumber,
             message: 'Using "any" type reduces type safety',
-            severity: 'warning'
+            severity: 'warning' as const
           });
           suggestions.push('Replace "any" with specific types for better type safety');
         }
@@ -412,7 +419,7 @@ export class AgentCodebaseIntegration {
           errors.push({
             line: lineNumber,
             message: 'Use strict equality (===) instead of loose equality (==)',
-            severity: 'warning'
+            severity: 'warning' as const
           });
           suggestions.push('Use === for strict equality comparison');
         }
@@ -423,7 +430,7 @@ export class AgentCodebaseIntegration {
             errors.push({
               line: lineNumber,
               message: 'Missing file extension in relative import',
-              severity: 'error'
+              severity: 'error' as const
             });
             suggestions.push('Add file extensions to relative imports for better compatibility');
           }
@@ -432,7 +439,8 @@ export class AgentCodebaseIntegration {
       
       return { errors, suggestions };
     } catch (error) {
-      throw new Error(`Code analysis error: ${error.message}`);
+      const errorMessage = error instanceof Error ? error.message : 'Unknown error';
+      throw new Error(`Code analysis error: ${errorMessage}`);
     }
   }
 
@@ -458,7 +466,8 @@ export class AgentCodebaseIntegration {
         return { success: false, output: result.stderr };
       }
     } catch (error) {
-      return { success: false, output: error.message };
+      const errorMessage = error instanceof Error ? error.message : 'Unknown error';
+      return { success: false, output: errorMessage };
     }
   }
 
