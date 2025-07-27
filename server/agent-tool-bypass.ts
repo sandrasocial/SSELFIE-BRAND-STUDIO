@@ -145,14 +145,24 @@ export class AgentToolBypass {
       });
     }
     
-    // Extract view patterns
+    // Extract view patterns - BUT PREVENT INVALID FILE PATHS FROM CONVERSATIONAL LANGUAGE
     const viewMatch = message.match(/(?:view|show) (?:file )?([^\s]+)/i);
     if (viewMatch && !createMatch) {
+      const filePath = viewMatch[1];
+      
+      // 🚨 CRITICAL FIX: Prevent conversational words from being treated as file paths
+      const invalidPaths = ['me', 'the', 'files', 'that', 'this', 'them', 'it', 'all', 'what', 'where', 'which'];
+      if (invalidPaths.includes(filePath.toLowerCase()) || filePath.length < 3) {
+        console.log(`❌ BYPASS INVALID PATH DETECTED: "${filePath}" - Skipping tool call`);
+        // Don't add tool call for invalid paths - let normal conversation handle it
+        return { shouldUseTools: false, toolCalls: [] };
+      }
+      
       toolCalls.push({
         name: 'str_replace_based_edit_tool', 
         input: {
           command: 'view',
-          path: viewMatch[1]
+          path: filePath
         }
       });
     }
