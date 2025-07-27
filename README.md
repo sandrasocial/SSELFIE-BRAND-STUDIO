@@ -75,11 +75,22 @@ This project is optimized for Vercel deployment with the following build configu
 
 ## Business Model
 
-- **€47 SSELFIE AI Pack**: 250 total generations
-- **€97 Studio Founding**: 100 monthly generations
-- **€147 Studio Standard**: 250 monthly generations
+**SSELFIE Studio - Single Premium Subscription:**
+- **€67/month SSELFIE Studio**: 100 monthly AI generations with individual model training
+- **FREE Plan**: 6 AI images per month with Maya AI photographer chat
+- **Premium Features**: FLUX Pro luxury models, Maya AI unlimited chat, commercial usage rights
+- **Target Market**: Female entrepreneurs, coaches, and consultants building personal brands
 
-Cost protection with 85-95% profit margins through intelligent usage tracking.
+**Revenue Model:**
+- 87% profit margin (€67 revenue vs €8 costs)
+- 100 monthly generation limit for cost protection
+- Individual AI model training for each subscriber
+- Positioned as "Rolls-Royce of AI personal branding"
+
+**Business Metrics:**
+- 1000+ users
+- €15,132 monthly revenue
+- Premium positioning with luxury editorial design
 
 ## License
 
