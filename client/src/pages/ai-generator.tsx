@@ -190,7 +190,7 @@ Please create 4-6 optimized prompts following the AI Photoshoot format with [tri
       
       try {
         // Check generated images database first (more reliable)
-        const generatedImages = await apiRequest('GET', '/api/generated-images');
+        const generatedImages = await apiRequest('/api/generated-images', 'GET');
         const targetImage = generatedImages.find((img: any) => img.id === generatedImageId);
         
         if (targetImage && targetImage.generationStatus === 'completed' && targetImage.image_urls !== 'processing') {
@@ -222,10 +222,10 @@ Please create 4-6 optimized prompts following the AI Photoshoot format with [tri
         
         // Fallback: Check Replicate API status and update our database
         try {
-          const replicateStatus = await apiRequest('GET', `/api/check-generation/${predictionId}`);
+          const replicateStatus = await apiRequest(`/api/check-generation/${predictionId}`, 'GET');
           if (replicateStatus.status === 'succeeded') {
             // Update our database
-            await apiRequest('POST', `/api/ai/update-status/${generatedImageId}/${predictionId}`);
+            await apiRequest(`/api/ai/update-status/${generatedImageId}/${predictionId}`, 'POST');
           } else if (replicateStatus.status === 'failed') {
             clearInterval(pollInterval);
             toast({
