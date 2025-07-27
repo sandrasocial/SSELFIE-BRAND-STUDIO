@@ -52,6 +52,7 @@ export async function executeElenaWorkflow(req: Request, res: Response) {
     // Transform Elena workflow data for autonomous orchestrator
     const orchestratorMission = {
       missionId: executionId,
+      missionType: 'elena-workflow',
       missionName: workflowName,
       priority: priority,
       agents: agents.map(agent => ({
