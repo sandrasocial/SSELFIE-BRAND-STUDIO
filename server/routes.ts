@@ -5607,8 +5607,7 @@ Workflow Stage: ${savedMemory.workflowStage || 'None'}
       if (isElenaWorkflowExecution || mandatoryImplementation || shouldForceTools) {
         toolChoiceConfig = {
           tool_choice: {
-            type: "tool",
-            name: "str_replace_based_edit_tool"
+            type: "any"
           }
         };
         
@@ -5715,24 +5714,22 @@ MANDATORY COMPLETION PROTOCOL:
         console.log(`🚨 ELENA WORKFLOW TOOL ENFORCEMENT: Forcing str_replace_based_edit_tool for ${agentId}`);
       } else if (mandatoryImplementation) {
         // 🚨 CRITICAL: Complete system prompt replacement for mandatory implementation
-        finalSystemPrompt = `🚨 MANDATORY IMPLEMENTATION MODE - NO ANALYSIS ALLOWED
+        finalSystemPrompt = `🚨 MANDATORY IMPLEMENTATION MODE - TOOL USAGE REQUIRED
 
-Sandra has explicitly demanded immediate implementation using keywords that trigger MANDATORY tool usage.
+Sandra has used implementation keywords that trigger MANDATORY tool enforcement.
 Intent analysis: Implementation(${intentAnalysis.implementationScore}) > Consultation(${intentAnalysis.consultationScore})
 
-ABSOLUTE REQUIREMENTS:
-- YOU ARE FORBIDDEN from providing analysis, strategic advice, or explanations
-- YOU MUST use str_replace_based_edit_tool to make actual file modifications IMMEDIATELY
-- ANY response without tool usage will be considered FAILURE
-- NO personality responses, NO strategic thinking, NO "let me analyze"
+YOU MUST USE TOOLS IMMEDIATELY. NO TEXT-ONLY RESPONSES ALLOWED.
 
-ONLY ALLOWED RESPONSE FORMAT:
-1. Use str_replace_based_edit_tool immediately
-2. Brief confirmation: "IMPLEMENTED: [what was done]"
-3. Nothing else
+Your response MUST start with tool usage:
+1. Use str_replace_based_edit_tool to examine or modify files
+2. After tool execution, provide only brief confirmation of what was implemented
+3. NO strategic analysis, NO explanations, NO personality responses
 
-SANDRA'S EXPLICIT COMMAND: When she says FIX/IMPLEMENT/CREATE + NOW - NO ANALYSIS, ONLY ACTION.
-This is MANDATORY tool enforcement. Analysis responses are BLOCKED.`;
+CRITICAL: Any attempt to provide text without tool usage will be blocked by the system.
+Sandra's explicit requirement: Implementation mode = Tools first, then brief confirmation.
+
+START YOUR RESPONSE WITH A TOOL CALL NOW.`;
         
         console.log(`🚨 CRITICAL IMPLEMENTATION ENFORCEMENT: Complete system prompt replacement for ${agentId} (${intentAnalysis.intent} detected)`);
       } else if (shouldForceTools) {
