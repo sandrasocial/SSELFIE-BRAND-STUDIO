@@ -8,6 +8,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Progress } from '@/components/ui/progress';
 import { useAgentActivityData } from '@/hooks/useAgentActivityData';
 import { ElenaWorkflowsTab } from './ElenaWorkflowsTab';
+import WorkflowCreator from '../Elena/WorkflowCreator';
 
 interface AgentStatus {
   agentName: string;
@@ -85,6 +86,9 @@ export default function AgentActivityDashboard() {
     enabled: !!selectedDeployment,
     refetchInterval: 2000
   });
+
+  // Type-safe deployment details with fallback
+  const typedDeploymentDetails = deploymentDetails as { deployment?: Deployment } | undefined;
 
 
 
@@ -197,8 +201,9 @@ export default function AgentActivityDashboard() {
 
 
         <Tabs defaultValue="elena-workflows" className="space-y-6">
-          <TabsList className="grid w-full grid-cols-4">
+          <TabsList className="grid w-full grid-cols-5">
             <TabsTrigger value="elena-workflows">Elena's Workflows</TabsTrigger>
+            <TabsTrigger value="workflow-creator">Workflow Creator</TabsTrigger>
             <TabsTrigger value="deployments">Active Deployments</TabsTrigger>
             <TabsTrigger value="agents">Agent Status</TabsTrigger>
             <TabsTrigger value="metrics">System Metrics</TabsTrigger>
@@ -206,6 +211,10 @@ export default function AgentActivityDashboard() {
 
           <TabsContent value="elena-workflows" className="space-y-6">
             <ElenaWorkflowsTab />
+          </TabsContent>
+
+          <TabsContent value="workflow-creator" className="space-y-6">
+            <WorkflowCreator />
           </TabsContent>
 
           <TabsContent value="deployments" className="space-y-6">
@@ -360,13 +369,13 @@ export default function AgentActivityDashboard() {
         </Tabs>
 
         {/* DEPLOYMENT DETAILS MODAL */}
-        {selectedDeployment && deploymentDetails && (
+        {selectedDeployment && typedDeploymentDetails?.deployment && (
           <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
             <Card className="w-full max-w-4xl mx-4 max-h-[80vh] overflow-auto border-zinc-200">
               <CardHeader>
                 <div className="flex items-center justify-between">
                   <CardTitle className="font-times text-2xl tracking-wide">
-                    {deploymentDetails.deployment?.missionType?.toUpperCase().replace('-', ' ')}
+                    {typedDeploymentDetails.deployment?.missionType?.toUpperCase().replace('-', ' ')}
                   </CardTitle>
                   <Button 
                     variant="ghost" 
@@ -381,15 +390,15 @@ export default function AgentActivityDashboard() {
                 <div className="grid grid-cols-2 gap-6">
                   <div>
                     <h3 className="font-times text-lg tracking-wide mb-3">P R O G R E S S</h3>
-                    <Progress value={deploymentDetails.deployment?.progress || 0} className="h-3 mb-2" />
+                    <Progress value={typedDeploymentDetails.deployment?.progress || 0} className="h-3 mb-2" />
                     <p className="text-sm text-zinc-600">
-                      Phase {deploymentDetails.deployment?.currentPhase + 1 || 1} of {deploymentDetails.deployment?.totalPhases || 1}
+                      Phase {(typedDeploymentDetails.deployment?.currentPhase || 0) + 1} of {typedDeploymentDetails.deployment?.totalPhases || 1}
                     </p>
                   </div>
                   <div>
                     <h3 className="font-times text-lg tracking-wide mb-3">T A S K S</h3>
                     <div className="text-2xl font-bold text-black">
-                      {deploymentDetails.deployment?.completedTasks || 0}/{deploymentDetails.deployment?.totalTasks || 0}
+                      {typedDeploymentDetails.deployment?.completedTasks || 0}/{typedDeploymentDetails.deployment?.totalTasks || 0}
                     </div>
                     <p className="text-sm text-zinc-600">Completed</p>
                   </div>
@@ -398,7 +407,7 @@ export default function AgentActivityDashboard() {
                 <div>
                   <h3 className="font-times text-lg tracking-wide mb-3">R E C E N T  L O G S</h3>
                   <div className="bg-zinc-50 rounded p-4 max-h-40 overflow-y-auto">
-                    {deploymentDetails.deployment?.recentLogs?.map((log: string, index: number) => (
+                    {typedDeploymentDetails.deployment?.recentLogs?.map((log: string, index: number) => (
                       <div key={index} className="text-sm font-mono mb-1">
                         {log}
                       </div>

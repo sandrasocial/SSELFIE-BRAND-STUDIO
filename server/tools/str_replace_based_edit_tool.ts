@@ -62,21 +62,6 @@ export async function str_replace_based_edit_tool(params: EditToolParams) {
 
 async function viewFile(filePath: string, viewRange?: [number, number]) {
   try {
-    // REQUIREMENT #2 FIX: Handle directories properly
-    const stats = await fs.stat(filePath);
-    
-    if (stats.isDirectory()) {
-      console.log('📁 DIRECTORY DETECTED: Returning file list instead of content');
-      const files = await fs.readdir(filePath);
-      const fileList = files.map(file => `  ${file}`).join('\n');
-      return {
-        success: true,
-        content: `Directory: ${filePath}\nContents:\n${fileList}`,
-        isDirectory: true,
-        files: files
-      };
-    }
-    
     const content = await fs.readFile(filePath, 'utf-8');
     const lines = content.split('\n');
     

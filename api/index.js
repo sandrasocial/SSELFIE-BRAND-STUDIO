@@ -1,47 +1,22 @@
-// Production API handler for Replit deployment
+// Production API handler for Vercel deployment
 const express = require('express');
 const path = require('path');
 
 const app = express();
 
-// Synchronous server initialization for production stability
-let serverInitialized = false;
-let serverInstance = null;
-
-async function initializeServer() {
-  if (serverInitialized && serverInstance) {
-    return serverInstance;
-  }
-  
+// Import the compiled server code
+async function loadServer() {
   try {
-    console.log('🚀 Initializing production server...');
     const { registerRoutes } = await import('../dist/index.js');
-    serverInstance = await registerRoutes(app);
-    serverInitialized = true;
-    console.log('✅ Production server initialized successfully');
-    return serverInstance;
+    const server = await registerRoutes(app);
+    return server;
   } catch (error) {
-    console.error('❌ Failed to initialize server:', error);
+    console.error('Failed to load server:', error);
     throw error;
   }
 }
 
-// Add middleware to ensure server is initialized before handling requests
-app.use(async (req, res, next) => {
-  if (!serverInitialized) {
-    try {
-      await initializeServer();
-    } catch (error) {
-      return res.status(500).json({ 
-        error: 'Server initialization failed',
-        message: error.message 
-      });
-    }
-  }
-  next();
-});
-
-// Initialize server immediately
-initializeServer().catch(console.error);
+// Initialize server
+loadServer().catch(console.error);
 
 module.exports = app;
