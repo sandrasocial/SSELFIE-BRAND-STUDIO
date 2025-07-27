@@ -50,7 +50,7 @@ export default function AgentApprovalDashboard() {
   const { data: proposals = [], isLoading } = useQuery<AgentProposal[]>({
     queryKey: ['/api/agent-proposals'],
     queryFn: async () => {
-      const response = await apiRequest('GET', '/api/agent-proposals');
+      const response = await apiRequest('/api/agent-proposals', 'GET');
       return await response.json();
     },
     refetchInterval: 30000 // Refresh every 30 seconds
