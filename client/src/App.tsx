@@ -35,7 +35,6 @@ import SSELFIEGallery from "@/pages/sselfie-gallery";
 import AIGenerator from "@/pages/ai-generator";
 import AIPhotoshoot from "@/pages/ai-photoshoot";
 import SimpleTraining from "@/pages/simple-training";
-import TestLogin from "@/pages/test-login";
 import AdminDashboard from "@/pages/admin-dashboard";
 import AdminConsultingAgents from "@/pages/admin-consulting-agents";
 import BridgeMonitor from "@/pages/admin/bridge-monitor";
@@ -53,11 +52,7 @@ import VictoriaChat from "@/pages/victoria-chat";
 import VictoriaBuilder from '@/pages/victoria-builder';
 import VictoriaPreview from '@/pages/victoria-preview';
 import PhotoSelection from "@/pages/photo-selection";
-import LiveTestComponent from "@/components/LiveTestComponent";
-import TestPage from "@/components/TestPage";
 import BrandOnboarding from "@/pages/brand-onboarding";
-import TestAgentWork from "@/pages/test-agent-work";
-import TestMayaOptimization from "@/pages/test-maya-optimization";
 import Welcome from "@/pages/welcome";
 import AuthSuccess from "@/pages/auth-success";
 import Login from "@/pages/login";
@@ -262,11 +257,18 @@ function Router() {
       <Route path="/marketing-automation" component={(props) => <ProtectedRoute component={lazy(() => import('@/pages/marketing-automation'))} {...props} />} />
       
       {/* DEBUGGING */}
-      <Route path="/test" component={LiveTestComponent} />
-      <Route path="/test-agent-work" component={TestAgentWork} />
-      <Route path="/test-maya-optimization" component={(props) => <ProtectedRoute component={TestMayaOptimization} {...props} />} />
-      <Route path="/test-buttons" component={TestPage} />
-      <Route path="/test-login" component={TestLogin} />
+      <Route path="/test" component={() => (
+        <div className="p-8">
+          <h1 className="text-2xl mb-4">Navigation Test</h1>
+          <p>If you can see this, navigation is working!</p>
+          <div className="mt-4 space-y-2">
+            <div><a href="/workspace" className="text-blue-600 underline">Go to Workspace</a></div>
+            <div><a href="/victoria-preview" className="text-blue-600 underline">Go to Victoria Preview</a></div>
+            <div><a href="/maya" className="text-blue-600 underline">Go to Maya</a></div>
+          </div>
+        </div>
+      )} />
+      {/* Test routes removed - all test files archived */}
       <Route path="/debug-auth" component={() => {
         const { user, isAuthenticated, isLoading, error } = useAuth();
         return (
