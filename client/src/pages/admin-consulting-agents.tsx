@@ -310,8 +310,53 @@ export default function AdminConsultingAgents() {
 
     setIsLoadingHistory(true);
     try {
-      console.log('🔄 Creating/getting conversation for agent:', selectedAgent.id);
-      // Create or get conversation for this agent
+      console.log('🔄 Loading conversation history for agent:', selectedAgent.id);
+      
+      // For Elena specifically, look for existing conversations with TRAIN-STYLE-PHOTOSHOOT-BUILD context
+      if (selectedAgent.id === 'elena') {
+        console.log('📜 ELENA: Searching for existing conversations with business model discussions');
+        
+        // Try to find Elena's most recent conversation by searching for existing conversation IDs
+        const existingConversations = await fetch('/api/claude/conversations/list', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          credentials: 'include',
+          body: JSON.stringify({ agentName: 'elena' })
+        });
+
+        if (existingConversations.ok) {
+          const conversationList = await existingConversations.json();
+          console.log('📜 ELENA: Found existing conversations:', conversationList.conversations?.length || 0);
+          
+          // Load the most recent Elena conversation that has messages
+          if (conversationList.conversations && conversationList.conversations.length > 0) {
+            const recentConversation = conversationList.conversations[0]; // Most recent first
+            console.log('📜 ELENA: Loading most recent conversation:', recentConversation.id);
+            setConversationId(recentConversation.id);
+            
+            const history = await loadConversationHistory(recentConversation.id);
+            console.log('📜 ELENA: Loaded history with', history.messages?.length || 0, 'messages');
+            
+            if (history.messages && history.messages.length > 0) {
+              const chatMessages: ChatMessage[] = history.messages.map((msg: any, index: number) => ({
+                id: `${msg.timestamp || Date.now()}-${index}`,
+                type: msg.role === 'user' ? 'user' : 'agent',
+                content: msg.content,
+                timestamp: msg.timestamp || new Date().toISOString(),
+                agentName: msg.role === 'assistant' ? selectedAgent.name : undefined,
+              }));
+              
+              console.log('📜 ELENA: Successfully loaded', chatMessages.length, 'historical messages');
+              setMessages(chatMessages);
+              setIsLoadingHistory(false);
+              return;
+            }
+          }
+        }
+      }
+      
+      // Fallback: Create new conversation for any agent or if Elena has no existing conversations
+      console.log('🔄 Creating new conversation for agent:', selectedAgent.id);
       const conversation = await createClaudeConversation(selectedAgent.id);
       console.log('📞 Got conversation:', conversation.conversationId);
       setConversationId(conversation.conversationId);
@@ -324,17 +369,15 @@ export default function AdminConsultingAgents() {
         
         if (history.messages && history.messages.length > 0) {
           console.log('📜 Loading conversation history:', history.messages.length, 'messages');
-          console.log('📜 Sample message:', history.messages[0]);
           
           const chatMessages: ChatMessage[] = history.messages.map((msg: any, index: number) => ({
             id: `${msg.timestamp || Date.now()}-${index}`,
             type: msg.role === 'user' ? 'user' : 'agent',
-            content: msg.content, // Don't clean historical messages - preserve original content
+            content: msg.content,
             timestamp: msg.timestamp || new Date().toISOString(),
             agentName: msg.role === 'assistant' ? selectedAgent.name : undefined,
           }));
-          console.log('📜 Chat messages mapped:', chatMessages.length);
-          console.log('📜 First mapped message:', chatMessages[0]);
+          
           setMessages(chatMessages);
         } else {
           console.log('📜 No messages found in history');
