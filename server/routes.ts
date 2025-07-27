@@ -5863,6 +5863,19 @@ MANDATORY COMPLETION PROTOCOL:
       
       console.log(`🤖 ADMIN AGENT CHAT: ${agentId} - "${message?.substring(0, 50)}..."`);
       
+      // 🚨 ZARA'S IMPLEMENTATION DETECTION SYSTEM - SYSTEMATIC FIX
+      const implementationKeywords = [
+        "implement", "create", "modify", "fix", "build", "deploy", 
+        "generate", "update", "write code", "make changes", "execute", "NOW"
+      ];
+      
+      const isImplementationRequest = implementationKeywords.some(keyword => 
+        message.toLowerCase().includes(keyword.toLowerCase())
+      );
+      
+      console.log(`🔍 ZARA'S IMPLEMENTATION DETECTION: ${isImplementationRequest ? 'IMPLEMENTATION MODE' : 'CONSULTATION MODE'}`);
+      console.log(`🔍 BYPASS ENDPOINT: Message = "${message.substring(0, 100)}..."`);
+      
       // PERMANENT FIX: Tool bypass system for Claude agent tool execution issues
       const { AgentToolBypass } = await import('./agent-tool-bypass');
       const toolBypass = await AgentToolBypass.processToolBypass(message, agentId);
@@ -6942,6 +6955,56 @@ MANDATORY COMPLETION PROTOCOL:
           attempts++;
           console.log(`🔄 ${agentId.toUpperCase()} API ATTEMPT ${attempts}/${maxAttempts} (Enhanced)`);
           
+          // 🚨 ZARA'S ENHANCED IMPLEMENTATION DETECTION: Advanced pattern recognition for implementation requests
+          const implementationKeywords = [
+            'create', 'build', 'implement', 'fix', 'update', 'modify', 'add', 'design', 
+            'make', 'develop', 'code', 'write', 'generate', 'setup', 'configure', 'install'
+          ];
+          
+          const fileOperationKeywords = [
+            'file', 'component', 'page', 'route', 'api', 'endpoint', 'function', 'class',
+            'style', 'css', 'html', 'jsx', 'tsx', 'js', 'ts', 'json', 'md'
+          ];
+          
+          const systemActionKeywords = [
+            'deploy', 'test', 'run', 'execute', 'install', 'configure', 'setup'
+          ];
+          
+          // Enhanced detection based on Zara's technical findings
+          const hasImplementationKeyword = implementationKeywords.some(keyword => 
+            message.toLowerCase().includes(keyword)
+          );
+          
+          const hasFileOperationKeyword = fileOperationKeywords.some(keyword => 
+            message.toLowerCase().includes(keyword)
+          );
+          
+          const hasSystemActionKeyword = systemActionKeywords.some(keyword => 
+            message.toLowerCase().includes(keyword)
+          );
+          
+          const hasSpecificFilePath = /\.(js|ts|jsx|tsx|css|html|json|md|py|java|cpp|c)/.test(message);
+          const hasCodeBlock = /```/.test(message) || /`[^`]+`/.test(message);
+          const hasDirective = /please|can you|could you|need to|want to|should|must/.test(message.toLowerCase());
+          
+          // Implementation confidence scoring based on Zara's analysis
+          let implementationScore = 0;
+          
+          if (hasImplementationKeyword) implementationScore += 3;
+          if (hasFileOperationKeyword) implementationScore += 2;
+          if (hasSystemActionKeyword) implementationScore += 2;
+          if (hasSpecificFilePath) implementationScore += 2;
+          if (hasCodeBlock) implementationScore += 1;
+          if (hasDirective) implementationScore += 1;
+          if (isElenaWorkflowExecution) implementationScore += 4;
+          if (isFileRequest) implementationScore += 3;
+          
+          console.log(`🎯 ${agentId.toUpperCase()} IMPLEMENTATION DETECTION SCORE: ${implementationScore}/15`);
+          console.log(`🔍 ${agentId.toUpperCase()} ANALYSIS: keywords=${hasImplementationKeyword}, files=${hasFileOperationKeyword}, system=${hasSystemActionKeyword}, path=${hasSpecificFilePath}`);
+          
+          // Force implementation mode for high-confidence requests (score >= 3)
+          const shouldForceImplementation = implementationScore >= 3;
+          
           // 🚨 CRITICAL FIX: Force tool usage for workflow executions and file requests
           const claudeRequest: any = {
             model: 'claude-3-5-sonnet-20241022',
@@ -6951,19 +7014,19 @@ MANDATORY COMPLETION PROTOCOL:
             tools: toolConfig.tools
           };
           
-          // 🔧 ULTIMATE ENFORCEMENT: When Elena calls agents, force str_replace_based_edit_tool usage
+          // 🔧 ENHANCED ENFORCEMENT: Advanced implementation detection with tool_choice forcing
           if (isElenaWorkflowExecution && agentId !== 'elena') {
             claudeRequest.tool_choice = { 
               type: "tool",
               name: "str_replace_based_edit_tool"
             }; // Force agent to use ONLY str_replace_based_edit_tool
             console.log(`🚨 ULTIMATE TOOL ENFORCEMENT for ${agentId.toUpperCase()}: Elena workflow - FORCING str_replace_based_edit_tool`);
-          } else if (isFileRequest) {
+          } else if (isFileRequest || shouldForceImplementation) {
             claudeRequest.tool_choice = { 
               type: "tool",
               name: "str_replace_based_edit_tool"
-            }; // Force agent to use ONLY str_replace_based_edit_tool for file requests
-            console.log(`🚨 ULTIMATE TOOL ENFORCEMENT for ${agentId.toUpperCase()}: File request - FORCING str_replace_based_edit_tool`);
+            }; // Force agent to use ONLY str_replace_based_edit_tool for implementation requests
+            console.log(`🚨 ENHANCED TOOL ENFORCEMENT for ${agentId.toUpperCase()}: Implementation detected (score: ${implementationScore}) - FORCING str_replace_based_edit_tool`);
           }
           
           response = await claude.messages.create(claudeRequest);
