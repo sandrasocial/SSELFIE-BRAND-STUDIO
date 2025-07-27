@@ -4575,12 +4575,14 @@ What kind of website would you like to build? Tell me about your business and I'
       // All agents now provide authentic, context-aware responses based on actual analysis
       
       // Import agent personality system for authentic responses
-      const { CONSULTING_AGENT_PERSONALITIES } = await import('./agent-personalities-consulting');
+
       
       // Get agent personality for authentic response generation
       let agentPersonality;
       try {
-        agentPersonality = CONSULTING_AGENT_PERSONALITIES[agentId as keyof typeof CONSULTING_AGENT_PERSONALITIES];
+        // Use master claude-api-service for agent personalities
+        const { claudeApiService } = await import('./services/claude-api-service');
+        agentPersonality = claudeApiService.getAgentExpertise(agentId);
         if (!agentPersonality) {
           return res.status(400).json({ error: `Unknown agent: ${agentId}` });
         }
@@ -5597,7 +5599,7 @@ SANDRA REQUIRES: NO TEXT-ONLY RESPONSES - ACTUAL FILE MODIFICATIONS ONLY.
 MANDATORY COMPLETION PROTOCOL:
 1. Use str_replace_based_edit_tool to modify/create files
 2. End response with: "TOOL_USED: str_replace_based_edit_tool | MODIFIED: [file paths]"
-3. NO consulting advice - ONLY implementation work`;
+3. NO consultation responses - ONLY implementation work`;
       }
       
       if (isFileRequest || isElenaWorkflowExecution) {
@@ -6579,8 +6581,10 @@ ${savedMemory.recentDecisions?.map(decision => `• ${decision}`).join('\n') || 
       // This ensures Elena can still have normal conversations while maintaining workflow capabilities
       
       // Get agent personality from single source of truth
-      const agentPersonalities = await import('./agent-personalities-consulting');
-      const personalityData = agentPersonalities.CONSULTING_AGENT_PERSONALITIES[agentId as keyof typeof agentPersonalities.CONSULTING_AGENT_PERSONALITIES];
+
+      // Use master claude-api-service for agent personalities
+      const { claudeApiService } = await import('./services/claude-api-service');
+      const personalityData = claudeApiService.getAgentExpertise(agentId);
       if (!personalityData) {
         return res.status(400).json({ error: `Unknown agent: ${agentId}` });
       }
@@ -6980,7 +6984,7 @@ SANDRA REQUIRES: NO TEXT-ONLY RESPONSES - ACTUAL FILE MODIFICATIONS ONLY.
 MANDATORY COMPLETION PROTOCOL:
 1. Use str_replace_based_edit_tool to modify/create files
 2. End response with: "TOOL_USED: str_replace_based_edit_tool | MODIFIED: [file paths]"
-3. NO consulting advice - ONLY implementation work`;
+3. NO consultation responses - ONLY implementation work`;
       }
       
       if (isFileRequest || isElenaWorkflowExecution) {
@@ -7820,9 +7824,7 @@ I'll coordinate a **"Platform Launch Readiness Validation"** workflow with Aria,
   const agentLearningRouter = await import('./routes/agent-learning');
   app.use('/api/agent-learning', agentLearningRouter.default);
 
-  // Import and register consulting agents routes (UNLIMITED ACCESS)
-  const consultingAgentsRouter = await import('./routes/consulting-agents-routes');
-  app.use('/api', consultingAgentsRouter.default);
+
 
   // CONVERSATION THREADING & MANAGEMENT API ENDPOINTS
   
@@ -8439,275 +8441,6 @@ I'll coordinate a **"Platform Launch Readiness Validation"** workflow with Aria,
   registerElenaMonitoringRoutes(app);
   registerAdminConversationRoutes(app);
 
-  // =========================================================================
-  // 🎯 CONSULTING AGENTS ENDPOINT - READ-ONLY STRATEGIC ADVISORS
-  // =========================================================================
-  app.post('/api/admin/consulting-agents/chat', async (req, res) => {
-    console.log('🎯 CONSULTING AGENT: Processing strategic advice request');
-    
-    try {
-      const { agentId, message } = req.body;
-      
-      // Admin authentication check - only Sandra can access consulting agents
-      const adminToken = req.headers.authorization?.replace('Bearer ', '');
-      const isAuthenticated = req.isAuthenticated && req.isAuthenticated();
-      const isAdmin = (isAuthenticated && req.user?.claims?.email === 'ssa@ssasocial.com') || adminToken === 'sandra-admin-2025';
-      
-      if (!isAdmin) {
-        return res.status(403).json({ 
-          error: 'Unauthorized',
-          message: 'Consulting agents are available only for Sandra (ssa@ssasocial.com)'
-        });
-      }
-
-      if (!agentId || !message) {
-        return res.status(400).json({ 
-          error: 'Missing required fields',
-          message: 'Both agentId and message are required'
-        });
-      }
-
-      // Import consulting agent personalities (separate from development agents)
-      const { getConsultingAgentPersonality } = await import('./agent-personalities-consulting');
-      const consultingAgent = getConsultingAgentPersonality(agentId);
-      
-      if (!consultingAgent) {
-        return res.status(404).json({ 
-          error: 'Consulting agent not found',
-          message: `Consulting agent '${agentId}' is not available`
-        });
-      }
-
-      console.log(`🎯 CONSULTING AGENT: ${consultingAgent.name} (${consultingAgent.role}) analyzing codebase`);
-
-      // Initialize Anthropic for consulting response
-      const Anthropic = await import('@anthropic-ai/sdk');
-      const anthropic = new Anthropic.default({
-        apiKey: process.env.ANTHROPIC_API_KEY,
-      });
-
-      // Format consultation request with UNLIMITED tools access
-      const consultationPrompt = `${consultingAgent.instructions}
-
-USER REQUEST: ${message}
-
-Analyze the SSELFIE Studio codebase with UNLIMITED ACCESS to provide strategic advice. Use ALL tools available:
-- search_filesystem to analyze code structure
-- str_replace_based_edit_tool with ALL commands (view, create, str_replace, insert)
-- bash for running commands and tests
-- web_search for research
-
-Provide your analysis in the required format:
-## ${consultingAgent.name}'s Analysis
-📋 **Current State**: [brief analysis]
-🎯 **Recommendation**: [strategic advice]
-📝 **Tell Replit AI**: "[exact instructions for Sandra to give Replit AI]"
-
-You have FULL ACCESS to implement changes directly if needed.`;
-
-      // Define UNLIMITED ACCESS tools for consulting agents
-      const consultingTools = [
-        {
-          name: "search_filesystem",
-          description: "UNLIMITED ACCESS: Search and analyze ALL codebase files with NO RESTRICTIONS",
-          input_schema: {
-            type: "object",
-            properties: {
-              query_description: { type: "string" },
-              class_names: { type: "array", items: { type: "string" } },
-              function_names: { type: "array", items: { type: "string" } },
-              code: { type: "array", items: { type: "string" } }
-            }
-          }
-        },
-        {
-          name: "str_replace_based_edit_tool",
-          description: "UNLIMITED FILE ACCESS: View, create, edit ANY files throughout entire repository",
-          input_schema: {
-            type: "object",
-            properties: {
-              command: { type: "string", enum: ["view", "create", "str_replace", "insert"] },
-              path: { type: "string" },
-              file_text: { type: "string" },
-              old_str: { type: "string" },
-              new_str: { type: "string" },
-              view_range: { type: "array", items: { type: "integer" } }
-            },
-            required: ["command", "path"]
-          }
-        },
-        {
-          name: "bash",
-          description: "UNLIMITED BASH ACCESS: Execute ANY commands, run tests, build operations",
-          input_schema: {
-            type: "object",
-            properties: {
-              command: { type: "string" }
-            },
-            required: ["command"]
-          }
-        },
-        {
-          name: "web_search",
-          description: "UNLIMITED WEB SEARCH: Research latest information and best practices",
-          input_schema: {
-            type: "object",
-            properties: {
-              query: { type: "string" }
-            },
-            required: ["query"]
-          }
-        }
-      ];
-
-      // Call Anthropic with UNLIMITED ACCESS tools
-      const response = await anthropic.messages.create({
-        model: DEFAULT_MODEL_STR,
-        max_tokens: 4000,
-        messages: [
-          {
-            role: "user",
-            content: consultationPrompt
-          }
-        ],
-        tools: consultingTools
-      });
-
-      // Process tool calls if any (UNLIMITED ACCESS operations)
-      let toolResults = [];
-      if (response.content.some(block => block.type === 'tool_use')) {
-        for (const block of response.content) {
-          if (block.type === 'tool_use') {
-            const toolName = block.name;
-            const toolInput = block.input as any;
-            
-            console.log(`🔍 CONSULTING TOOL: ${consultingAgent.name} using ${toolName}`);
-            
-            if (toolName === 'search_filesystem') {
-              try {
-                const { search_filesystem } = await import('./tools/search_filesystem');
-                const result = await search_filesystem(toolInput);
-                toolResults.push({
-                  tool: toolName,
-                  result: result
-                });
-              } catch (error) {
-                console.error(`Search filesystem error for ${consultingAgent.name}:`, error);
-                toolResults.push({
-                  tool: toolName,
-                  error: error.message
-                });
-              }
-            } else if (toolName === 'str_replace_based_edit_tool' && toolInput.command === 'view') {
-              try {
-                const { str_replace_based_edit_tool } = await import('./tools/str_replace_based_edit_tool');
-                const result = await str_replace_based_edit_tool(toolInput);
-                toolResults.push({
-                  tool: toolName,
-                  result: result
-                });
-              } catch (error) {
-                console.error(`View file error for ${consultingAgent.name}:`, error);
-                toolResults.push({
-                  tool: toolName,
-                  error: error.message
-                });
-              }
-            } else if (toolName === 'str_replace_based_edit_tool' && toolInput.command !== 'view') {
-              // Block any non-view commands for consulting agents
-              toolResults.push({
-                tool: toolName,
-                error: `BLOCKED: Consulting agents can only use 'view' command. Attempted: '${toolInput.command}'`
-              });
-            }
-          }
-        }
-      }
-
-      // Extract final response text
-      const finalResponse = response.content
-        .filter(block => block.type === 'text')
-        .map(block => block.text)
-        .join('\n');
-
-      console.log(`✅ CONSULTING AGENT: ${consultingAgent.name} provided strategic advice (${finalResponse.length} chars)`);
-
-      res.json({
-        success: true,
-        message: finalResponse,
-        agentId: consultingAgent.id,
-        agentName: consultingAgent.name,
-        agentRole: consultingAgent.role,
-        toolResults: toolResults,
-        consulting: true, // Flag to indicate this is from consulting endpoint
-        timestamp: new Date().toISOString()
-      });
-
-    } catch (error) {
-      console.error('Consulting agent error:', error);
-      res.status(500).json({
-        success: false,
-        error: 'Consulting agent failed',
-        message: `Unable to get strategic advice. Error: ${error.message}`,
-        consulting: true,
-        timestamp: new Date().toISOString()
-      });
-    }
-  });
-
-  // =========================================================================
-  // 📋 CONSULTING AGENTS LIST ENDPOINT
-  // =========================================================================
-  app.get('/api/admin/consulting-agents', async (req, res) => {
-    try {
-      // Admin authentication check
-      const adminToken = req.headers.authorization?.replace('Bearer ', '');
-      const isAuthenticated = req.isAuthenticated && req.isAuthenticated();
-      const isAdmin = (isAuthenticated && req.user?.claims?.email === 'ssa@ssasocial.com') || adminToken === 'sandra-admin-2025';
-      
-      if (!isAdmin) {
-        return res.status(403).json({ 
-          error: 'Unauthorized',
-          message: 'Consulting agents list is available only for Sandra'
-        });
-      }
-
-      // Available consulting agents with their specialties
-      const consultingAgents = [
-        { id: 'elena', name: 'Elena', role: 'Strategic Business Advisor & Coordinator', specialty: 'Business strategy and team coordination' },
-        { id: 'maya', name: 'Maya', role: 'AI Photography & User Experience Consultant', specialty: 'AI generation systems and UX optimization' },
-        { id: 'victoria', name: 'Victoria', role: 'Website Building & UX Strategy Consultant', specialty: 'User experience and conversion optimization' },
-        { id: 'aria', name: 'Aria', role: 'Visual Design & Brand Strategy Consultant', specialty: 'Luxury design and brand consistency' },
-        { id: 'zara', name: 'Zara', role: 'Technical Architecture & Performance Consultant', specialty: 'Code quality and performance optimization' },
-        { id: 'rachel', name: 'Rachel', role: 'Voice & Copywriting Twin Consultant', specialty: 'Brand voice and authentic messaging' },
-        { id: 'ava', name: 'Ava', role: 'Automation & Workflow Strategy Consultant', specialty: 'Process automation and efficiency' },
-        { id: 'quinn', name: 'Quinn', role: 'Quality Assurance & Luxury Standards Consultant', specialty: 'Quality standards and premium positioning' },
-        { id: 'sophia', name: 'Sophia', role: 'Social Media Strategy & Community Growth Consultant', specialty: 'Social growth and community conversion' },
-        { id: 'martha', name: 'Martha', role: 'Marketing & Performance Ads Consultant', specialty: 'Marketing optimization and revenue growth' },
-        { id: 'diana', name: 'Diana', role: 'Business Coaching & Strategic Mentoring Consultant', specialty: 'Business decisions and strategic focus' },
-        { id: 'wilma', name: 'Wilma', role: 'Workflow Architecture & Process Optimization Consultant', specialty: 'Workflow efficiency and scalable processes' },
-        { id: 'olga', name: 'Olga', role: 'Repository Organization & Architecture Analysis Consultant', specialty: 'Code organization and architecture analysis' }
-      ];
-
-      res.json({
-        success: true,
-        consultingAgents,
-        totalAgents: consultingAgents.length,
-        description: 'Read-only strategic advisors that analyze codebase and provide "Tell Replit AI" instructions',
-        capabilities: ['Codebase analysis', 'Strategic recommendations', 'Replit AI instructions'],
-        timestamp: new Date().toISOString()
-      });
-
-    } catch (error) {
-      console.error('Get consulting agents error:', error);
-      res.status(500).json({
-        success: false,
-        error: 'Failed to get consulting agents list'
-      });
-    }
-  });
-
-  const httpServer = createServer(app);
   return httpServer;
 }
 
