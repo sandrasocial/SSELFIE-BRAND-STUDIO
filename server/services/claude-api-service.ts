@@ -578,15 +578,15 @@ Use tools only if file modifications are specifically requested within the consu
           };
           
           // Process the forced tool usage
-          assistantMessage = await this.handleToolCallsWithContinuation(forcedToolResponse, messages, claudeRequest.system, enhancedTools, true, agentName);
+          assistantMessage = await this.handleToolCallsWithContinuation(forcedToolResponse, messages, claudeRequest.system, enhancedTools, true, agentName, true);
         } else {
           // Process normal tool calls
-          assistantMessage = await this.handleToolCallsWithContinuation(response, messages, claudeRequest.system, enhancedTools, true, agentName);
+          assistantMessage = await this.handleToolCallsWithContinuation(response, messages, claudeRequest.system, enhancedTools, true, agentName, true);
         }
       } else {
         // Normal processing for non-implementation requests
         if (response.content.some(content => content.type === 'tool_use')) {
-          assistantMessage = await this.handleToolCallsWithContinuation(response, messages, enhancedSystemPrompt, enhancedTools, true, agentName);
+          assistantMessage = await this.handleToolCallsWithContinuation(response, messages, enhancedSystemPrompt, enhancedTools, true, agentName, false);
         }
       }
 
@@ -1279,7 +1279,7 @@ COMMUNICATION STYLE:
     return expertise[expertiseKey] || `You are ${agentName}, an AI assistant specialized in helping with tasks.`;
   }
 
-  private async handleToolCallsWithContinuation(response: any, messages: any[], systemPrompt: string, tools: any[], fileEditMode: boolean = true, agentName: string = ''): Promise<string> {
+  private async handleToolCallsWithContinuation(response: any, messages: any[], systemPrompt: string, tools: any[], fileEditMode: boolean = true, agentName: string = '', mandatoryImplementation: boolean = false): Promise<string> {
     let currentMessages = [...messages];
     let finalResponse = '';
     
@@ -1404,6 +1404,25 @@ COMMUNICATION STYLE:
     
     // Add tool results to conversation and continue
     if (toolResults.length > 0) {
+      // 🚨 MANDATORY IMPLEMENTATION: Bypass continuation for implementation mode
+      if (mandatoryImplementation) {
+        console.log(`🚨 MANDATORY IMPLEMENTATION: Bypassing personality continuation for ${agentName} - returning brief confirmation`);
+        
+        // Generate brief implementation confirmation based on tool results
+        const toolSummary = toolResults.map(result => {
+          const toolData = JSON.parse(result.content);
+          if (toolData.operation) {
+            return `${toolData.operation} on ${toolData.path || 'file'}`;
+          }
+          return 'tool executed';
+        }).join(', ');
+        
+        finalResponse = `IMPLEMENTED: ${toolSummary}`;
+        console.log(`✅ IMPLEMENTATION CONFIRMATION: ${finalResponse}`);
+        return finalResponse;
+      }
+      
+      // NORMAL MODE: Continue conversation with personality analysis
       // Add a user message with tool results (this is the correct format for Claude API)
       currentMessages.push({
         role: 'user',
