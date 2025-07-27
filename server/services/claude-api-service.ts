@@ -1387,48 +1387,9 @@ COMMUNICATION STYLE:
       }
     }
     
-    // Add tool results to conversation and continue
+    // Add tool results to conversation and continue with authentic agent response
     if (toolResults.length > 0) {
-      // 🚨 MANDATORY IMPLEMENTATION: Bypass continuation for implementation mode
-      if (mandatoryImplementation) {
-        console.log(`🚨 MANDATORY IMPLEMENTATION: Bypassing personality continuation for ${agentName} - returning brief confirmation`);
-        
-        // Generate brief implementation confirmation based on tool results
-        const toolSummary = toolResults.map(result => {
-          try {
-            const content = result.content || '';
-            
-            // Handle string content that might describe file operations
-            if (typeof content === 'string') {
-              if (content.includes('File Operation completed successfully') || content.includes('str_replace')) {
-                return 'file modification completed';
-              } else if (content.includes('search_filesystem') || content.includes('Found')) {
-                return 'file search completed';
-              } else if (content.includes('created') || content.includes('updated')) {
-                return 'file operation completed';
-              } else if (content.includes('error') || content.includes('failed')) {
-                return 'operation failed';
-              } else {
-                return 'operation completed';
-              }
-            }
-            
-            // Handle object content
-            if (typeof content === 'object' && content.operation && content.path) {
-              return `${content.operation} on ${content.path}`;
-            }
-            
-            return 'operation completed';
-          } catch (error) {
-            console.log(`⚠️ Tool summary parsing error:`, error);
-            return 'operation completed';
-          }
-        }).join(', ');
-        
-        finalResponse = `IMPLEMENTED: ${toolSummary}`;
-        console.log(`✅ IMPLEMENTATION CONFIRMATION: ${finalResponse}`);
-        return finalResponse;
-      }
+      console.log(`🎯 TOOL COMPLETION: ${agentName} used ${toolResults.length} tools - continuing with authentic personality response`);
       
       // NORMAL MODE: Continue conversation with personality analysis
       // Add a user message with tool results (this is the correct format for Claude API)
