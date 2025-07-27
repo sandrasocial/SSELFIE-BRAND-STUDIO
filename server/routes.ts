@@ -5863,17 +5863,64 @@ MANDATORY COMPLETION PROTOCOL:
       
       console.log(`🤖 ADMIN AGENT CHAT: ${agentId} - "${message?.substring(0, 50)}..."`);
       
-      // 🚨 ZARA'S IMPLEMENTATION DETECTION SYSTEM - SYSTEMATIC FIX
+      // 🚨 REQUIREMENT #1: EXPANDED IMPLEMENTATION DETECTION PATTERNS
       const implementationKeywords = [
         "implement", "create", "modify", "fix", "build", "deploy", 
-        "generate", "update", "write code", "make changes", "execute", "NOW"
+        "generate", "update", "write code", "make changes", "execute", "NOW",
+        // STRATEGIC REQUIREMENT EXPANSION:
+        "develop", "construct", "establish", "install", "configure", "setup",
+        "launch", "initialize", "bootstrap", "scaffold", "architect", "design",
+        "optimize", "enhance", "upgrade", "refactor", "restructure", "migrate",
+        "integrate", "connect", "link", "bridge", "sync", "automate",
+        "test", "validate", "verify", "debug", "troubleshoot", "resolve",
+        "repair", "patch", "correct", "adjust", "tune", "calibrate",
+        "extend", "expand", "scale", "improve", "polish", "finalize"
       ];
       
-      const isImplementationRequest = implementationKeywords.some(keyword => 
+      // REQUIREMENT #1: Advanced pattern detection with context awareness
+      const fileOperationKeywords = [
+        "file", "directory", "folder", "path", "import", "export", "save", "load", 
+        "read", "write", "edit", "delete", "move", "copy", "rename", "organize"
+      ];
+      
+      const systemActionKeywords = [
+        "system", "service", "component", "module", "package", "library", 
+        "framework", "infrastructure", "architecture", "database", "api", "endpoint"
+      ];
+      
+      // REQUIREMENT #1: Multi-tier detection scoring
+      const hasImplementationKeyword = implementationKeywords.some(keyword => 
         message.toLowerCase().includes(keyword.toLowerCase())
       );
       
-      console.log(`🔍 ZARA'S IMPLEMENTATION DETECTION: ${isImplementationRequest ? 'IMPLEMENTATION MODE' : 'CONSULTATION MODE'}`);
+      const hasFileOperationKeyword = fileOperationKeywords.some(keyword => 
+        message.toLowerCase().includes(keyword.toLowerCase())
+      );
+      
+      const hasSystemActionKeyword = systemActionKeywords.some(keyword => 
+        message.toLowerCase().includes(keyword.toLowerCase())
+      );
+      
+      const hasSpecificFilePath = /\.(js|ts|jsx|tsx|css|html|json|md|py|java|cpp|c)/.test(message);
+      const hasCodeBlock = /```/.test(message) || /`[^`]+`/.test(message);
+      const hasDirective = /please|can you|could you|need to|want to|should|must/.test(message.toLowerCase());
+      
+      // REQUIREMENT #1: Implementation confidence scoring based on Zara's analysis
+      let implementationScore = 0;
+      
+      if (hasImplementationKeyword) implementationScore += 3;
+      if (hasFileOperationKeyword) implementationScore += 2;
+      if (hasSystemActionKeyword) implementationScore += 2;
+      if (hasSpecificFilePath) implementationScore += 2;
+      if (hasCodeBlock) implementationScore += 1;
+      if (hasDirective) implementationScore += 1;
+      
+      const isImplementationRequest = implementationScore >= 3; // Threshold for implementation mode
+      
+      console.log(`🎯 ${agentId.toUpperCase()} IMPLEMENTATION DETECTION ENHANCED:`);
+      console.log(`   Score: ${implementationScore}/15 | Mode: ${isImplementationRequest ? 'IMPLEMENTATION' : 'CONSULTATION'}`);
+      console.log(`   Keywords: impl=${hasImplementationKeyword}, file=${hasFileOperationKeyword}, sys=${hasSystemActionKeyword}`);
+      console.log(`   Context: path=${hasSpecificFilePath}, code=${hasCodeBlock}, directive=${hasDirective}`);
       console.log(`🔍 BYPASS ENDPOINT: Message = "${message.substring(0, 100)}..."`);
       
       // PERMANENT FIX: Tool bypass system for Claude agent tool execution issues
