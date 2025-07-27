@@ -37,7 +37,24 @@ export interface ConversationSummary {
 
 export class AgentMemorySystem {
   private static instance: AgentMemorySystem;
-  private memoryCache = new Map<string, AgentMemoryContext>();
+  private memoryCache = new Map<string, {
+    data: AgentMemoryContext;
+    timestamp: number;
+    accessCount: number;
+    lastAccess: number;
+    priority: 'high' | 'medium' | 'low';
+  }>();
+  private usagePatterns = new Map<string, {
+    accessFrequency: number;
+    averageInterval: number;
+    lastUpdateTime: number;
+  }>();
+  private predictiveInsights = new Map<string, {
+    userId: string;
+    predictedNeeds: string[];
+    confidence: number;
+    generatedAt: Date;
+  }>();
 
   public static getInstance(): AgentMemorySystem {
     if (!AgentMemorySystem.instance) {
@@ -53,12 +70,21 @@ export class AgentMemorySystem {
     try {
       const cacheKey = `${agentName}-${userId}`;
       
-      // Check cache first
+      // Track usage patterns for dynamic caching
+      this.updateUsagePattern(cacheKey);
+      
+      // Check dynamic cache with smart expiration
       if (this.memoryCache.has(cacheKey)) {
         const cached = this.memoryCache.get(cacheKey)!;
-        // Return cached if recent (less than 5 minutes old)
-        if (Date.now() - cached.lastInteraction.getTime() < 5 * 60 * 1000) {
-          return cached;
+        const dynamicDuration = this.calculateDynamicCacheDuration(cacheKey);
+        
+        // Update access tracking
+        cached.accessCount++;
+        cached.lastAccess = Date.now();
+        
+        if (Date.now() - cached.timestamp < dynamicDuration) {
+          console.log(`🔧 DYNAMIC CACHE HIT: ${cacheKey} (${cached.priority} priority, ${Math.round(dynamicDuration/1000)}s TTL)`);
+          return cached.data;
         }
       }
 
@@ -109,8 +135,18 @@ export class AgentMemorySystem {
         lastInteraction: mainConversation.lastMessageAt || mainConversation.createdAt || new Date()
       };
 
-      // Cache the result
-      this.memoryCache.set(cacheKey, memoryContext);
+      // Cache with dynamic priority and usage tracking
+      const priority = this.calculateCachePriority(cacheKey, memoryContext);
+      this.memoryCache.set(cacheKey, {
+        data: memoryContext,
+        timestamp: Date.now(),
+        accessCount: 1,
+        lastAccess: Date.now(),
+        priority
+      });
+      
+      // Generate predictive insights
+      await this.generatePredictiveInsights(agentName, userId, memoryContext);
 
       return memoryContext;
 
@@ -314,25 +350,194 @@ export class AgentMemorySystem {
   }
 
   /**
-   * Clear memory cache for fresh context
+   * Update usage patterns for dynamic caching
+   */
+  private updateUsagePattern(cacheKey: string): void {
+    const now = Date.now();
+    const pattern = this.usagePatterns.get(cacheKey);
+    
+    if (pattern) {
+      const timeSinceLastAccess = now - pattern.lastUpdateTime;
+      pattern.accessFrequency++;
+      pattern.averageInterval = (pattern.averageInterval + timeSinceLastAccess) / 2;
+      pattern.lastUpdateTime = now;
+    } else {
+      this.usagePatterns.set(cacheKey, {
+        accessFrequency: 1,
+        averageInterval: 5 * 60 * 1000, // Default 5 minutes
+        lastUpdateTime: now
+      });
+    }
+  }
+
+  /**
+   * Calculate dynamic cache duration based on usage patterns
+   */
+  private calculateDynamicCacheDuration(cacheKey: string): number {
+    const baseDuration = 5 * 60 * 1000; // 5 minutes
+    const pattern = this.usagePatterns.get(cacheKey);
+    
+    if (!pattern) return baseDuration;
+    
+    // High frequency = longer cache
+    if (pattern.accessFrequency > 10) return baseDuration * 3; // 15 minutes
+    if (pattern.accessFrequency > 5) return baseDuration * 2; // 10 minutes
+    
+    // Short intervals = longer cache
+    if (pattern.averageInterval < 2 * 60 * 1000) return baseDuration * 2; // 10 minutes
+    
+    return baseDuration;
+  }
+
+  /**
+   * Calculate cache priority based on agent importance and usage
+   */
+  private calculateCachePriority(cacheKey: string, context: AgentMemoryContext): 'high' | 'medium' | 'low' {
+    const pattern = this.usagePatterns.get(cacheKey);
+    
+    // Elena (coordination) and frequently used agents get high priority
+    if (context.agentName === 'elena' || (pattern && pattern.accessFrequency > 10)) {
+      return 'high';
+    }
+    
+    // Active agents get medium priority
+    if (pattern && pattern.accessFrequency > 3) {
+      return 'medium';
+    }
+    
+    return 'low';
+  }
+
+  /**
+   * Generate predictive insights based on conversation patterns
+   */
+  private async generatePredictiveInsights(agentName: string, userId: string, context: AgentMemoryContext): Promise<void> {
+    try {
+      const patterns = context.learningContext.successfulPatterns;
+      const preferences = context.learningContext.userPreferences;
+      const predictedNeeds: string[] = [];
+      let confidence = 0;
+
+      // Analyze patterns for predictions
+      if (patterns.includes('design_work') && agentName !== 'aria') {
+        predictedNeeds.push('Consider handoff to Aria for design optimization');
+        confidence += 20;
+      }
+      
+      if (patterns.includes('file_creation') && agentName !== 'zara') {
+        predictedNeeds.push('Technical implementation may require Zara collaboration');
+        confidence += 15;
+      }
+      
+      if (preferences.stylePreference === 'luxury' && !patterns.includes('luxury_styling')) {
+        predictedNeeds.push('User prefers luxury aesthetic - maintain Times New Roman typography');
+        confidence += 25;
+      }
+      
+      if (preferences.responseSpeed === 'fast' && patterns.includes('optimization')) {
+        predictedNeeds.push('User values speed - prioritize performance optimization');
+        confidence += 20;
+      }
+      
+      // Time-based predictions
+      const recentActivity = context.messageHistory.slice(-5);
+      const hasRecentFileWork = recentActivity.some(msg => 
+        msg.content.toLowerCase().includes('file') || 
+        msg.content.toLowerCase().includes('component')
+      );
+      
+      if (hasRecentFileWork && agentName === 'elena') {
+        predictedNeeds.push('Workflow coordination likely needed for file integration');
+        confidence += 30;
+      }
+
+      if (predictedNeeds.length > 0) {
+        this.predictiveInsights.set(`${agentName}-${userId}`, {
+          userId,
+          predictedNeeds,
+          confidence: Math.min(100, confidence),
+          generatedAt: new Date()
+        });
+        
+        console.log(`🔮 PREDICTIVE INSIGHTS: ${agentName} - ${predictedNeeds.length} predictions (${confidence}% confidence)`);
+      }
+
+    } catch (error) {
+      console.error('❌ PREDICTIVE INSIGHTS ERROR:', error);
+    }
+  }
+
+  /**
+   * Get predictive insights for an agent
+   */
+  getPredictiveInsights(agentName: string, userId: string): {predictedNeeds: string[], confidence: number} | null {
+    const insights = this.predictiveInsights.get(`${agentName}-${userId}`);
+    
+    if (!insights) return null;
+    
+    // Check if insights are still fresh (less than 1 hour old)
+    const age = Date.now() - insights.generatedAt.getTime();
+    if (age > 60 * 60 * 1000) {
+      this.predictiveInsights.delete(`${agentName}-${userId}`);
+      return null;
+    }
+    
+    return {
+      predictedNeeds: insights.predictedNeeds,
+      confidence: insights.confidence
+    };
+  }
+
+  /**
+   * Clear memory cache with smart retention for high priority items
    */
   clearCache(agentName?: string, userId?: string): void {
     if (agentName && userId) {
       const cacheKey = `${agentName}-${userId}`;
       this.memoryCache.delete(cacheKey);
+      this.usagePatterns.delete(cacheKey);
+      this.predictiveInsights.delete(cacheKey);
     } else {
+      // Keep high priority items when clearing all
+      const highPriorityEntries = Array.from(this.memoryCache.entries())
+        .filter(([_, entry]) => entry.priority === 'high');
+      
       this.memoryCache.clear();
+      
+      // Restore high priority entries
+      highPriorityEntries.forEach(([key, entry]) => {
+        this.memoryCache.set(key, entry);
+      });
+      
+      console.log(`🔄 MEMORY CACHE CLEARED: Retained ${highPriorityEntries.length} high-priority entries`);
     }
     console.log(`🔄 MEMORY CACHE CLEARED: ${agentName ? `${agentName}-${userId}` : 'all entries'}`);
   }
 
   /**
-   * Get memory statistics
+   * Get enhanced memory statistics with predictive insights
    */
-  getMemoryStats(): { totalEntries: number; cacheSize: string } {
+  getMemoryStats(): { 
+    totalEntries: number; 
+    cacheSize: string;
+    highPriorityEntries: number;
+    predictiveInsights: number;
+    usagePatterns: number;
+    dynamicCacheHits: number;
+  } {
+    const highPriorityCount = Array.from(this.memoryCache.values())
+      .filter(entry => entry.priority === 'high').length;
+    
+    const dynamicCacheHits = Array.from(this.memoryCache.values())
+      .reduce((total, entry) => total + entry.accessCount, 0);
+    
     return {
       totalEntries: this.memoryCache.size,
-      cacheSize: `${JSON.stringify(Array.from(this.memoryCache.values())).length} bytes`
+      cacheSize: `${JSON.stringify(Array.from(this.memoryCache.values())).length} bytes`,
+      highPriorityEntries: highPriorityCount,
+      predictiveInsights: this.predictiveInsights.size,
+      usagePatterns: this.usagePatterns.size,
+      dynamicCacheHits
     };
   }
 }

@@ -169,6 +169,60 @@ export function registerAgentLearningSystemRoutes(app: Express): void {
     }
   });
 
+  // Enhanced routing endpoint with intelligent agent assignment
+  app.post('/api/agent-learning/smart-routing', async (req, res) => {
+    try {
+      const { taskType, context, urgency = 'medium' } = req.body;
+      
+      const routing = agentCollaborationNetwork.getBestAgentForTask(taskType, context, urgency);
+      
+      res.json({
+        success: true,
+        routing,
+        timestamp: new Date().toISOString()
+      });
+    } catch (error) {
+      console.error('Smart routing error:', error);
+      res.status(500).json({ success: false, error: 'Smart routing failed' });
+    }
+  });
+
+  // Predictive insights endpoint for anticipating user needs
+  app.get('/api/agent-learning/predictive-insights/:agentName/:userId', async (req, res) => {
+    try {
+      const { agentName, userId } = req.params;
+      
+      const insights = agentMemorySystem.getPredictiveInsights(agentName, userId);
+      
+      res.json({
+        success: true,
+        insights,
+        agentName,
+        userId,
+        timestamp: new Date().toISOString()
+      });
+    } catch (error) {
+      console.error('Predictive insights error:', error);
+      res.status(500).json({ success: false, error: 'Predictive insights retrieval failed' });
+    }
+  });
+
+  // Enhanced memory statistics with dynamic optimization metrics
+  app.get('/api/agent-learning/memory/enhanced-stats', async (req, res) => {
+    try {
+      const stats = agentMemorySystem.getMemoryStats();
+      
+      res.json({
+        success: true,
+        stats,
+        timestamp: new Date().toISOString()
+      });
+    } catch (error) {
+      console.error('Enhanced memory stats error:', error);
+      res.status(500).json({ success: false, error: 'Enhanced memory stats retrieval failed' });
+    }
+  });
+
   app.get('/api/agent-learning/specialization/:agentName', async (req, res) => {
     try {
       const { agentName } = req.params;
