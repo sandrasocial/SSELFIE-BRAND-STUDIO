@@ -5161,28 +5161,49 @@ Starting analysis and implementation now...`;
 
   // Enhanced authentication middleware for admin agent chat with Elena workflow context
   const adminAgentAuth = (req: any, res: any, next: any) => {
-    // Check for Elena workflow execution context
+    console.log('🔍 ADMIN AGENT AUTH: Checking authentication methods');
+    
+    // Check for Elena workflow execution context (autonomous orchestrator)
     const workflowContext = req.headers['x-workflow-context'];
     const adminToken = req.headers['x-admin-token'] || req.body?.adminToken;
+    const authHeader = req.headers.authorization;
     
+    // Method 1: Elena autonomous execution (highest priority)
     if (workflowContext === 'elena-autonomous-execution' && adminToken === 'sandra-admin-2025') {
       console.log('✅ ELENA WORKFLOW AUTH: Agent file operations authorized for workflow context');
+      req.user = { claims: { sub: 'sandra-admin', email: 'ssa@ssasocial.com' } };
       req.elenaWorkflowExecution = true;
       return next();
     }
     
-    // Check for admin token first (for autonomous orchestrator)
-    const authHeader = req.headers.authorization;
-    if (authHeader === 'Bearer sandra-admin-2025' || adminToken === 'sandra-admin-2025') {
-      // Create a mock user object for token authentication
+    // Method 2: Bearer token authentication (for autonomous orchestrator)
+    if (authHeader === 'Bearer sandra-admin-2025') {
+      console.log('✅ BEARER TOKEN AUTH: Autonomous orchestrator access authorized');
       req.user = { claims: { sub: 'sandra-admin', email: 'ssa@ssasocial.com' } };
       return next();
     }
     
-    // Check session authentication
-    if (req.isAuthenticated && req.isAuthenticated() && req.user?.claims?.email === 'ssa@ssasocial.com') {
+    // Method 3: Admin token in body (for tool requests)
+    if (adminToken === 'sandra-admin-2025') {
+      console.log('✅ ADMIN TOKEN AUTH: Token access authorized');
+      req.user = { claims: { sub: 'sandra-admin', email: 'ssa@ssasocial.com' } };
       return next();
     }
+    
+    // Method 4: Session authentication (for visual editor)
+    if (req.isAuthenticated && req.isAuthenticated() && req.user?.claims?.email === 'ssa@ssasocial.com') {
+      console.log('✅ SESSION AUTH: Authenticated session access authorized');
+      return next();
+    }
+    
+    console.log('❌ AUTH FAILED: No valid authentication method found');
+    console.log('🔍 Auth debug:', {
+      hasWorkflowContext: !!workflowContext,
+      hasAdminToken: !!adminToken,
+      hasAuthHeader: !!authHeader,
+      isAuthenticated: req.isAuthenticated && req.isAuthenticated(),
+      userEmail: req.user?.claims?.email
+    });
     
     return res.status(401).json({ message: 'Unauthorized' });
   };
@@ -5199,10 +5220,10 @@ Starting analysis and implementation now...`;
       const requestData = req.body;
       agentId = requestData.agentId;
       const { message, conversationHistory = [], context } = requestData;
-      const userId = req.user.claims.sub;
+      const userId = req.user?.claims?.sub || 'sandra-admin';
       
       // Verify admin access
-      if (req.user.claims.email !== 'ssa@ssasocial.com') {
+      if (req.user?.claims?.email !== 'ssa@ssasocial.com') {
         return res.status(403).json({ error: 'Admin access required' });
       }
       
