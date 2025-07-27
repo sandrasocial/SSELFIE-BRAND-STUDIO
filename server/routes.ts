@@ -5573,7 +5573,7 @@ Workflow Stage: ${savedMemory.workflowStage || 'None'}
         // Score implementation intent
         if (actionPhrases.some(phrase => messageUpper.includes(phrase))) implementationScore += 5;
         if (urgentIndicators.some(word => messageUpper.includes(word))) implementationScore += 3;
-        if (directCommands.some(cmd => messageUpper.startsWith(cmd + ' ') || messageUpper.includes(' ' + cmd + ' '))) implementationScore += 2;
+        if (directCommands.some(cmd => messageUpper.startsWith(cmd + ' ') || messageUpper.includes(' ' + cmd + ' ') || messageUpper.includes(cmd + ' '))) implementationScore += 2;
         if (fileReferences && fileReferences.length > 0) implementationScore += 2;
         if (message.includes('```') || message.includes('`')) implementationScore += 1;
         
