@@ -219,6 +219,17 @@ export class ClaudeApiService {
 
       // Get agent learning data for context
       const memory = await this.getAgentMemory(agentName, userId);
+      
+      // ELENA MEMORY RESTORATION: Initialize complete 48-hour memory on first call
+      if (agentName === 'elena' && !memory) {
+        try {
+          const { elenaMemoryRestoration } = await import('./elena-memory-restoration');
+          await elenaMemoryRestoration.restoreComplete48HourMemory();
+          console.log('✅ ELENA MEMORY: 48-hour history restored and integrated');
+        } catch (error) {
+          console.log('⚠️ Elena memory restoration error:', error);
+        }
+      }
 
       // Build enhanced system prompt with agent expertise and UNLIMITED ACCESS
       let enhancedSystemPrompt = await this.buildAgentSystemPrompt(agentName, systemPrompt, memory || undefined, true); // FORCE UNLIMITED ACCESS
