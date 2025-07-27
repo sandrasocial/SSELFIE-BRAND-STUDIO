@@ -2,9 +2,12 @@
  * ENHANCED ELENA WORKFLOW SYSTEM WITH MULTI-AGENT COMMUNICATION
  * 
  * Enterprise-ready workflow orchestration with real agent-to-agent communication
+ * ZARA'S FIX: Connected to specialized agent personalities
  */
 
 import { MultiAgentCommunicationSystem, WorkflowContext } from './agents/multi-agent-communication-system.js';
+// ZARA'S FIX: Import specialized agent personalities
+import { CONSULTING_AGENT_PERSONALITIES } from './agent-personalities-consulting';
 
 interface EnhancedWorkflowStep {
   stepId: string;
@@ -205,16 +208,41 @@ ${JSON.stringify(step.sharedData || {}, null, 2)}
 Please execute this step and coordinate with other agents as necessary. Update shared context if needed.
     `;
 
-    // Execute step using multi-agent communication system
-    const response = await this.communicationSystem.sendAgentMessage(
-      'elena',
-      step.agentId,
-      stepMessage,
-      {
-        workflowId: workflow.id,
-        taskId: step.stepId,
-        priority: 'high',
-        requiresResponse: true
+    // ZARA'S FIX: Use specialized agent personalities instead of generic communication
+    console.log(`🎯 ENHANCED ELENA: Using SPECIALIZED AGENT PERSONALITY for ${step.agentId}`);
+    
+    // Get the specialized agent personality from consulting configuration
+    const agentPersonality = CONSULTING_AGENT_PERSONALITIES[step.agentId.toLowerCase()];
+    if (!agentPersonality) {
+      console.error(`❌ ENHANCED ELENA: No specialized personality found for agent ${step.agentId}`);
+      throw new Error(`Specialized agent ${step.agentId} not found`);
+    }
+    
+    console.log(`✅ ENHANCED ELENA: Found specialized ${agentPersonality.name} - ${agentPersonality.role}`);
+    
+    // Import Claude API service to call specialized agents directly
+    const { ClaudeApiService } = await import('./services/claude-api-service');
+    const claudeService = new ClaudeApiService();
+    
+    // Call the SPECIALIZED agent through Claude API (not generic communication)
+    console.log(`🚀 ENHANCED ELENA: Calling SPECIALIZED ${step.agentId} through Claude API with tool enforcement`);
+    
+    const response = await claudeService.sendMessage(
+      '42585527', // Sandra's actual user ID
+      step.agentId.toLowerCase(), // Agent ID for specialized personality
+      `enhanced-workflow-${workflow.id}-${step.stepId}`, // Unique conversation ID
+      stepMessage, // The enhanced workflow step message
+      agentPersonality.systemPrompt, // Use SPECIALIZED system prompt
+      ['search_filesystem', 'str_replace_based_edit_tool', 'bash', 'web_search'], // Full tool suite
+      true, // fileEditMode enabled for tool access
+      false, // Not readonly mode
+      { 
+        // Enhanced workflow context
+        enforceToolUsage: true,
+        workflowContext: true,
+        agentSpecialty: agentPersonality.role,
+        enhancedWorkflow: true,
+        workflowParticipants: workflow.participants
       }
     );
 

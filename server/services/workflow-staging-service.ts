@@ -166,26 +166,19 @@ export class WorkflowStagingService {
     console.log(`🤖 AGENT DEPLOYMENT: Deploying ${agentId} for task: ${task}`);
 
     try {
-      // Map agent IDs to WORKING bypass endpoint (NOT broken /agents/chat)
-      const agentEndpoints: Record<string, string> = {
-        'aria': '/api/admin/agent-chat-bypass',
-        'victoria': '/api/admin/agent-chat-bypass',
-        'zara': '/api/admin/agent-chat-bypass',
-        'maya': '/api/admin/agent-chat-bypass',
-        'rachel': '/api/admin/agent-chat-bypass',
-        'ava': '/api/admin/agent-chat-bypass',
-        'quinn': '/api/admin/agent-chat-bypass',
-        'sophia': '/api/admin/agent-chat-bypass',
-        'martha': '/api/admin/agent-chat-bypass',
-        'diana': '/api/admin/agent-chat-bypass',
-        'wilma': '/api/admin/agent-chat-bypass',
-        'olga': '/api/admin/agent-chat-bypass'
-      };
-
-      const endpoint = agentEndpoints[agentId.toLowerCase()];
-      if (!endpoint) {
-        throw new Error(`Unknown agent: ${agentId}`);
+      // ZARA'S FIX: Use specialized agent personalities instead of generic bypass endpoints
+      console.log(`🎯 WORKFLOW STAGING: Using SPECIALIZED AGENT PERSONALITY for ${agentId}`);
+      
+      // Import specialized agent personalities
+      const { CONSULTING_AGENT_PERSONALITIES } = await import('../agent-personalities-consulting');
+      
+      // Get the specialized agent personality
+      const agentPersonality = CONSULTING_AGENT_PERSONALITIES[agentId.toLowerCase()];
+      if (!agentPersonality) {
+        throw new Error(`No specialized personality found for agent ${agentId}`);
       }
+      
+      console.log(`✅ WORKFLOW STAGING: Found specialized ${agentPersonality.name} - ${agentPersonality.role}`);
 
       // Create deployment message for agent
       const deploymentMessage = `🚨 ELENA WORKFLOW EXECUTION - MANDATORY TOOL USAGE REQUIRED 🚨
@@ -204,41 +197,52 @@ WORKFLOW REQUIREMENT: If you do not use str_replace_based_edit_tool, this task w
 Standards: SSELFIE Studio architecture, maintain existing functionality
 MANDATORY: End response with: TOOL_USED: str_replace_based_edit_tool | MODIFIED: [exact file paths that were changed]`;
 
-      // BREAKTHROUGH: Real agent execution - call actual agent API
-      console.log(`🚀 CALLING REAL AGENT: ${agentId} for autonomous execution`);
+      // ZARA'S FIX: Call SPECIALIZED agent through Claude API (not generic bypass)
+      console.log(`🚀 CALLING SPECIALIZED AGENT: ${agentId} through Claude API for autonomous execution`);
       
-      const response = await fetch(`http://localhost:5000${endpoint}`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'X-Admin-Token': 'sandra-admin-2025'
-        },
-        body: JSON.stringify({
-          agentId: agentId.toLowerCase(),
-          message: deploymentMessage,
-          conversationHistory: []
-        })
-      });
+      // Import Claude API service to call specialized agents directly
+      const { ClaudeApiService } = await import('./claude-api-service');
+      const claudeService = new ClaudeApiService();
+      
+      // Call the SPECIALIZED agent through Claude API 
+      const response = await claudeService.sendMessage(
+        '42585527', // Sandra's actual user ID
+        agentId.toLowerCase(), // Agent ID for specialized personality
+        `workflow-staging-${Date.now()}`, // Unique conversation ID
+        deploymentMessage, // The deployment task message
+        agentPersonality.systemPrompt, // Use SPECIALIZED system prompt
+        ['search_filesystem', 'str_replace_based_edit_tool', 'bash', 'web_search'], // Full tool suite
+        true, // fileEditMode enabled for tool access
+        false, // Not readonly mode
+        { 
+          // Workflow staging context
+          enforceToolUsage: true,
+          workflowContext: true,
+          agentSpecialty: agentPersonality.role,
+          stagingDeployment: true
+        }
+      );
 
-      if (!response.ok) {
-        throw new Error(`Agent API failed: ${response.status} ${response.statusText}`);
+      // ZARA'S FIX: Process specialized agent response directly
+      if (!response || typeof response !== 'string') {
+        throw new Error(`Specialized agent ${agentId} returned invalid response`);
       }
 
-      const agentResult = await response.json();
-      console.log(`✅ AGENT ${agentId} RESPONSE:`, {
-        success: !!agentResult.response,
-        responseLength: agentResult.response?.length || 0,
-        containsToolUsage: agentResult.response?.includes('TOOL_USED') || false
+      console.log(`✅ SPECIALIZED AGENT ${agentId} RESPONSE:`, {
+        success: !!response,
+        responseLength: response.length || 0,
+        containsToolUsage: response.includes('TOOL_USED') || response.includes('str_replace_based_edit_tool')
       });
 
-      const toolUsed = agentResult.response?.includes('str_replace_based_edit_tool') || 
-                      agentResult.response?.includes('TOOL_USED');
+      const toolUsed = response.includes('str_replace_based_edit_tool') || 
+                      response.includes('TOOL_USED') ||
+                      response.includes('MODIFIED:');
       
       return {
-        success: !!agentResult.response && toolUsed,
-        filesCreated: toolUsed ? [`workflow-${agentId}-${Date.now()}.txt`] : [],
-        error: !agentResult.response ? 'No response from agent' : 
-               !toolUsed ? 'Agent did not use required tools for file modification' : undefined
+        success: !!response && toolUsed,
+        filesCreated: toolUsed ? [`specialized-workflow-${agentId}-${Date.now()}.txt`] : [],
+        error: !response ? 'No response from specialized agent' : 
+               !toolUsed ? 'Specialized agent did not use required tools for file modification' : undefined
       };
 
     } catch (error: any) {

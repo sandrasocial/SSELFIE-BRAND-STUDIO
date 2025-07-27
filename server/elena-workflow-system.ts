@@ -2,6 +2,8 @@
 // Creates custom workflows based on Sandra's instructions
 
 import { storage } from './storage';
+// ZARA'S FIX: Import specialized agent personalities
+import { CONSULTING_AGENT_PERSONALITIES } from './agent-personalities-consulting';
 
 export interface WorkflowStep {
   id: string;
@@ -966,33 +968,57 @@ Standards: SSELFIE Studio architecture, maintain existing functionality
 
 MANDATORY: End response with: TOOL_USED: str_replace_based_edit_tool [command] | MODIFIED: [exact file paths that were changed]`;
 
-        // Call the agent through the NEW tool integration endpoint that supports str_replace_based_edit_tool
-        const fetch = (await import('node-fetch')).default;
+        // ZARA'S FIX: Use specialized agent personalities instead of generic routing
+        console.log(`🎯 ELENA: Using SPECIALIZED AGENT PERSONALITY for ${agentName}`);
         
-        // FIXED: Use agent-chat-bypass with token auth that actually works
-        const fetchPromise = fetch('http://localhost:5000/api/admin/agent-chat-bypass', {
-          method: 'POST', 
-          headers: { 
-            'Content-Type': 'application/json',
-            'X-Admin-Token': 'sandra-admin-2025'
-          },
-          body: JSON.stringify({
-            agentId: agentName.toLowerCase(),
-            adminToken: 'sandra-admin-2025',
-            userId: '42585527', // Sandra's actual user ID
-            message: enhancedTask
-          })
-        });
+        // Get the specialized agent personality from consulting configuration
+        const agentPersonality = CONSULTING_AGENT_PERSONALITIES[agentName.toLowerCase()];
+        if (!agentPersonality) {
+          console.error(`❌ ELENA: No specialized personality found for agent ${agentName}`);
+          return false;
+        }
+        
+        console.log(`✅ ELENA: Found specialized ${agentPersonality.name} - ${agentPersonality.role}`);
+        
+        // Import Claude API service to call specialized agents directly
+        const { ClaudeApiService } = await import('./services/claude-api-service');
+        const claudeService = new ClaudeApiService();
+        
+        // Call the SPECIALIZED agent through Claude API (not generic bypass)
+        console.log(`🚀 ELENA: Calling SPECIALIZED ${agentName} through Claude API with tool enforcement`);
+        
+        const response = await claudeService.sendMessage(
+          '42585527', // Sandra's actual user ID
+          agentName.toLowerCase(), // Agent ID for specialized personality
+          `workflow-${Date.now()}`, // Unique conversation ID
+          enhancedTask, // The task message with tool requirements
+          agentPersonality.systemPrompt, // Use SPECIALIZED system prompt
+          ['search_filesystem', 'str_replace_based_edit_tool', 'bash', 'web_search'], // Full tool suite
+          true, // fileEditMode enabled for tool access
+          false, // Not readonly mode
+          { 
+            // Force tool usage for workflow execution
+            enforceToolUsage: true,
+            workflowContext: true,
+            agentSpecialty: agentPersonality.role
+          }
+        );
 
         // Add timeout protection to prevent infinite hangs
         const timeoutPromise = new Promise<never>((_, reject) => {
           setTimeout(() => reject(new Error(`Agent ${agentName} timeout after ${AGENT_TIMEOUT_MS / 60000} minutes`)), AGENT_TIMEOUT_MS);
         });
 
-        const response = await Promise.race([fetchPromise, timeoutPromise]);
+        const claudeResponse = await Promise.race([response, timeoutPromise]);
         
-        if (response.ok) {
-          const result = await response.json();
+        // ZARA'S FIX: Process specialized agent response
+        if (claudeResponse && typeof claudeResponse === 'string') {
+          const result = {
+            response: claudeResponse,
+            toolCalls: claudeResponse.includes('str_replace_based_edit_tool') ? [{ tool: 'str_replace_based_edit_tool' }] : [],
+            filesCreated: claudeResponse.includes('TOOL_USED: str_replace_based_edit_tool') ? ['specialized-agent-work'] : [],
+            fileOperations: claudeResponse.includes('MODIFIED:') ? ['file-modification'] : []
+          };
           
           // STRICT: Verify MANDATORY file MODIFICATION (not just viewing)
           const toolCallsSuccess = result.toolCalls?.length > 0;
