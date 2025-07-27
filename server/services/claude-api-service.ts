@@ -531,18 +531,16 @@ Intent analysis: Implementation(${intentAnalysis.implementationScore}) > Consult
 
 YOU MUST MODIFY FILES IMMEDIATELY. NO VIEW-ONLY OPERATIONS ALLOWED.
 
-CRITICAL REQUIREMENTS:
+IMPLEMENTATION REQUIREMENTS:
 1. Use str_replace_based_edit_tool with command "str_replace" or "create" to MODIFY files
-2. You CANNOT use command "view" - Sandra needs ACTUAL CHANGES, not file examination
-3. Implement the specific changes requested in Sandra's message
-4. After modification, provide brief confirmation: "IMPLEMENTED: [specific action completed]"
+2. Implement the specific changes requested in Sandra's message
+3. After tool usage, respond authentically with your personality and explain what you accomplished
+4. Use your specialized knowledge to provide context and next steps
 
-EXAMPLES OF REQUIRED ACTIONS:
-- str_replace_based_edit_tool with command "str_replace" to modify existing code
-- str_replace_based_edit_tool with command "create" to build new files
-- NO command "view" allowed - Sandra needs implementation, not examination
+YOU ARE STILL YOU - respond with your authentic personality after using tools.
+Sandra values your expertise and individual perspective.
 
-START WITH FILE MODIFICATION NOW - NO VIEWING ALLOWED.`;
+Begin with tool usage, then provide your authentic response explaining what you did.`;
         
         console.log(`🚨 CLAUDE API SERVICE: Implementation mode activated for ${agentName} (${intentAnalysis.intent} detected)`);
       } else if (intentAnalysis.isConsultation) {
@@ -571,41 +569,10 @@ Use tools only if file modifications are specifically requested within the consu
         assistantMessage = response.content[0].text;
       }
 
-      // 🚨 MANDATORY IMPLEMENTATION VALIDATION: Block analysis responses for implementation requests
-      if (mandatoryImplementation) {
-        // Check if response contains tool usage
-        const hasToolUsage = response.content.some(content => content.type === 'tool_use');
-        
-        if (!hasToolUsage) {
-          // Force tool usage by rejecting text-only responses
-          console.log(`🚨 IMPLEMENTATION ENFORCEMENT: Blocking text-only response for ${agentName} - forcing tool usage`);
-          
-          // Create a forced tool usage response for Elena fixes
-          const forcedToolResponse = {
-            content: [{
-              type: 'tool_use',
-              id: 'forced_elena_fix',
-              name: 'str_replace_based_edit_tool',
-              input: {
-                command: 'str_replace',
-                path: 'server/services/elena-workflow-detection-service.ts',
-                old_str: '// Enhanced Elena workflow detection with proper memory context',
-                new_str: '// FIXED: Enhanced Elena workflow detection with simplified memory system'
-              }
-            }]
-          };
-          
-          // Process the forced tool usage
-          assistantMessage = await this.handleToolCallsWithContinuation(forcedToolResponse, messages, claudeRequest.system, enhancedTools, true, agentName, true);
-        } else {
-          // Process normal tool calls
-          assistantMessage = await this.handleToolCallsWithContinuation(response, messages, claudeRequest.system, enhancedTools, true, agentName, true);
-        }
-      } else {
-        // Normal processing for non-implementation requests
-        if (response.content.some(content => content.type === 'tool_use')) {
-          assistantMessage = await this.handleToolCallsWithContinuation(response, messages, enhancedSystemPrompt, enhancedTools, true, agentName, false);
-        }
+      // Process tool calls naturally without forcing template responses
+      if (response.content.some(content => content.type === 'tool_use')) {
+        // Process tool calls and let agent respond authentically
+        assistantMessage = await this.handleToolCallsWithContinuation(response, messages, enhancedSystemPrompt, enhancedTools, true, agentName, false);
       }
 
       // Save both messages to conversation with logging

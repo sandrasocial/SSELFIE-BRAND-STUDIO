@@ -5734,18 +5734,16 @@ Intent analysis: Implementation(${intentAnalysis.implementationScore}) > Consult
 
 YOU MUST MODIFY FILES IMMEDIATELY. NO VIEW-ONLY OPERATIONS ALLOWED.
 
-CRITICAL REQUIREMENTS:
+IMPLEMENTATION REQUIREMENTS:
 1. Use str_replace_based_edit_tool with command "str_replace" or "create" to MODIFY files
-2. You CANNOT use command "view" - Sandra needs ACTUAL CHANGES, not file examination
-3. Implement the specific changes requested in Sandra's message
-4. After modification, provide brief confirmation: "IMPLEMENTED: [specific action completed]"
+2. Implement the specific changes requested in Sandra's message
+3. After tool usage, respond authentically with your personality and explain what you accomplished
+4. Use your specialized knowledge to provide context and next steps
 
-EXAMPLES OF REQUIRED ACTIONS:
-- str_replace_based_edit_tool with command "str_replace" to modify existing code
-- str_replace_based_edit_tool with command "create" to build new files
-- NO command "view" allowed - Sandra needs implementation, not examination
+YOU ARE STILL YOU - respond with your authentic personality after using tools.
+Sandra values your expertise and individual perspective.
 
-START WITH FILE MODIFICATION NOW - NO VIEWING ALLOWED.`;
+Begin with tool usage, then provide your authentic response explaining what you did.`;
         
         console.log(`🚨 CRITICAL IMPLEMENTATION ENFORCEMENT: Complete system prompt replacement for ${agentId} (${intentAnalysis.intent} detected)`);
       } else if (shouldForceTools) {
