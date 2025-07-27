@@ -229,6 +229,57 @@ router.get('/conversation/:conversationId/history', async (req, res) => {
   }
 });
 
+// List all conversations for an agent
+router.post('/conversations/list', async (req, res) => {
+  try {
+    const { agentName } = req.body;
+    
+    if (!req.isAuthenticated?.() || !req.user) {
+      return res.status(401).json({ error: 'Authentication required' });
+    }
+
+    if (!agentName) {
+      return res.status(400).json({ error: 'Agent name is required' });
+    }
+
+    const userId = (req.user as any).claims?.sub;
+    console.log('📜 Listing conversations for agent:', agentName, 'user:', userId);
+    
+    // Get all conversations for this user and agent, ordered by most recent first
+    const conversations = await db
+      .select()
+      .from(claudeConversations)
+      .where(
+        and(
+          eq(claudeConversations.userId, userId),
+          eq(claudeConversations.agentName, agentName)
+        )
+      )
+      .orderBy(desc(claudeConversations.updatedAt));
+
+    console.log('📜 Found', conversations.length, 'conversations for', agentName);
+
+    res.json({
+      success: true,
+      conversations: conversations.map(conv => ({
+        id: conv.id,
+        agentName: conv.agentName,
+        messageCount: conv.messageCount,
+        createdAt: conv.createdAt,
+        updatedAt: conv.updatedAt
+      }))
+    });
+
+  } catch (error) {
+    console.error('Error listing conversations:', error);
+    const errorMessage = error instanceof Error ? error.message : 'Unknown error';
+    res.status(500).json({ 
+      error: 'Failed to list conversations',
+      details: errorMessage 
+    });
+  }
+});
+
 // Clear conversation (preserves agent memory)
 router.post('/conversation/clear', async (req, res) => {
   try {
