@@ -234,6 +234,9 @@ function analyzeFileRelevance(content: string, params: SearchParams, fileName: s
     'workflow-templates', 'coordination-metrics', 'autonomous-orchestrator',
     'orchestrator', 'task-distributor', 'knowledge-sharing', 'workflow',
     'agent-bridge', 'coordination', 'deployment', 'elena', 'agent-activity',
+    // SPECIFIC COMPONENT NAMES (CRITICAL FOR SEARCH)
+    'AgentActivityDashboard', 'ElenaWorkflowsTab', 'WorkflowCreator', 'AgentCoordination',
+    'activitydashboard', 'elenaworkflows', 'workflowstab', 'agentactivity',
     // SSELFIE STUDIO SPECIFIC
     'maya', 'victoria', 'rachel', 'ava', 'quinn', 'sophia', 'martha', 'diana', 'wilma', 'olga',
     'sselfie', 'selfie', 'studio', 'gallery', 'photoshoot', 'ai-generator', 'training',
