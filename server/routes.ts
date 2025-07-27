@@ -5553,11 +5553,49 @@ Workflow Stage: ${savedMemory.workflowStage || 'None'}
         conversationContext.includes('Elena has assigned')
       );
       
-      // 🚨 MANDATORY TOOL ENFORCEMENT: Detect implementation requests that MUST use tools
-      const implementationKeywords = ['FIX', 'implement', 'create', 'NOW', 'fix this', 'implement this', 'create this', 'build this', 'modify this', 'update this'];
-      const mandatoryImplementation = implementationKeywords.some(keyword => 
-        message.toUpperCase().includes(keyword.toUpperCase())
-      );
+      // 🧠 INTELLIGENT INTENT DETECTION: Context-aware analysis of Sandra's request type
+      const detectRequestIntent = (message: string) => {
+        const messageUpper = message.toUpperCase();
+        let implementationScore = 0;
+        let consultationScore = 0;
+        
+        // Implementation intent indicators
+        const actionPhrases = ['FIX THIS', 'IMPLEMENT NOW', 'CREATE THIS', 'BUILD THIS', 'DO THIS NOW', 'MAKE THIS', 'UPDATE THIS'];
+        const urgentIndicators = ['NOW', 'IMMEDIATELY', 'URGENT', 'ASAP', 'RIGHT NOW'];
+        const directCommands = ['FIX', 'CREATE', 'BUILD', 'IMPLEMENT', 'UPDATE', 'MODIFY', 'CHANGE'];
+        const fileReferences = message.match(/\.(js|ts|tsx|jsx|css|html|json|md)/g);
+        
+        // Consultation intent indicators  
+        const questionPhrases = ['HOW SHOULD', 'WHAT DO YOU THINK', 'WHAT WOULD YOU', 'SHOULD I', 'CAN YOU EXPLAIN', 'HELP ME UNDERSTAND'];
+        const strategyWords = ['STRATEGY', 'APPROACH', 'PLAN', 'ADVICE', 'RECOMMEND', 'SUGGEST', 'OPINION'];
+        const exploratoryWords = ['EXPLORE', 'CONSIDER', 'THINK ABOUT', 'ANALYZE', 'EVALUATE'];
+        
+        // Score implementation intent
+        if (actionPhrases.some(phrase => messageUpper.includes(phrase))) implementationScore += 5;
+        if (urgentIndicators.some(word => messageUpper.includes(word))) implementationScore += 3;
+        if (directCommands.some(cmd => messageUpper.startsWith(cmd + ' ') || messageUpper.includes(' ' + cmd + ' '))) implementationScore += 2;
+        if (fileReferences && fileReferences.length > 0) implementationScore += 2;
+        if (message.includes('```') || message.includes('`')) implementationScore += 1;
+        
+        // Score consultation intent
+        if (questionPhrases.some(phrase => messageUpper.includes(phrase))) consultationScore += 4;
+        if (strategyWords.some(word => messageUpper.includes(word))) consultationScore += 3;
+        if (exploratoryWords.some(word => messageUpper.includes(word))) consultationScore += 2;
+        if (messageUpper.includes('?')) consultationScore += 1;
+        
+        return {
+          isImplementation: implementationScore > consultationScore && implementationScore >= 3,
+          isConsultation: consultationScore > implementationScore && consultationScore >= 2,
+          implementationScore,
+          consultationScore,
+          intent: implementationScore > consultationScore ? 'implementation' : 'consultation'
+        };
+      };
+      
+      const intentAnalysis = detectRequestIntent(message);
+      console.log(`🧠 INTENT ANALYSIS for ${agentId}: ${intentAnalysis.intent} (impl: ${intentAnalysis.implementationScore}, consult: ${intentAnalysis.consultationScore})`);
+      
+      const mandatoryImplementation = intentAnalysis.isImplementation;
       
       console.log(`🔍 ELENA TOOL ENFORCEMENT: ${agentId} - Workflow execution detected = ${isElenaWorkflowExecution}`);
       console.log(`🔍 MANDATORY IMPLEMENTATION: ${agentId} - Implementation keywords detected = ${mandatoryImplementation}`);
@@ -5676,20 +5714,21 @@ MANDATORY COMPLETION PROTOCOL:
         
         console.log(`🚨 ELENA WORKFLOW TOOL ENFORCEMENT: Forcing str_replace_based_edit_tool for ${agentId}`);
       } else if (mandatoryImplementation) {
-        // 🚨 NEW: MANDATORY IMPLEMENTATION ENFORCEMENT - Block analysis responses
-        finalSystemPrompt += `\n\n🚨 MANDATORY IMPLEMENTATION MODE - ANALYSIS RESPONSES BLOCKED:
-Sandra has used implementation keywords (FIX, implement, create, NOW) which REQUIRES tool usage.
-YOU ARE BLOCKED from providing analysis or strategic advice responses.
-YOU MUST use str_replace_based_edit_tool to make actual file modifications.
-DO NOT respond with text explanations only - you MUST use tools to complete the task.
-SANDRA'S EXPLICIT REQUIREMENT: When she says "FIX", "implement", "create", or "NOW" - NO ANALYSIS, ONLY ACTION.
+        // 🚨 INTELLIGENT IMPLEMENTATION ENFORCEMENT - Based on intent analysis
+        finalSystemPrompt += `\n\n🚨 IMPLEMENTATION MODE DETECTED - IMMEDIATE ACTION REQUIRED:
+Intent analysis indicates Sandra wants direct implementation work, not strategic discussion.
+Analysis scores: Implementation(${intentAnalysis.implementationScore}) > Consultation(${intentAnalysis.consultationScore})
 
-MANDATORY COMPLETION PROTOCOL:
-1. Use str_replace_based_edit_tool to modify/create files IMMEDIATELY
-2. End response with: "TOOL_USED: str_replace_based_edit_tool | MODIFIED: [file paths]"
-3. ZERO analysis or strategic responses allowed`;
+YOU MUST use str_replace_based_edit_tool to make actual file modifications.
+DO NOT respond with analysis or explanations - Sandra's message indicates she wants immediate action.
+Focus on DOING the work she requested, not discussing approaches.
+
+IMPLEMENTATION PROTOCOL:
+1. Use str_replace_based_edit_tool to modify/create files immediately
+2. Provide brief confirmation of what was implemented
+3. Save strategic discussions for when Sandra asks consultation questions`;
         
-        console.log(`🚨 MANDATORY IMPLEMENTATION ENFORCEMENT: Blocking analysis responses for ${agentId}`);
+        console.log(`🚨 INTELLIGENT IMPLEMENTATION ENFORCEMENT: Intent-based tool forcing for ${agentId} (${intentAnalysis.intent} detected)`);
       } else if (shouldForceTools) {
         // Archive pattern: Smart tool enforcement for implementation requests
         finalSystemPrompt += `\n\n🚨 IMPLEMENTATION MODE DETECTED - TOOL USAGE REQUIRED:
@@ -5699,8 +5738,24 @@ DO NOT provide theoretical explanations - TAKE ACTION with tools.
 SANDRA'S REQUIREMENT: Agents must DO the work, not just describe it.`;
         
         console.log(`🎯 SMART TOOL ENFORCEMENT: Forcing str_replace_based_edit_tool for ${agentId} (Implementation detected)`);
+      } else if (intentAnalysis.isConsultation) {
+        // 🧠 CONSULTATION MODE: Strategic advice and analysis encouraged
+        finalSystemPrompt += `\n\n💡 CONSULTATION MODE DETECTED - STRATEGIC ADVICE REQUESTED:
+Intent analysis indicates Sandra wants strategic discussion and advice.
+Analysis scores: Consultation(${intentAnalysis.consultationScore}) > Implementation(${intentAnalysis.implementationScore})
+
+Focus on providing:
+- Strategic analysis and recommendations
+- Multiple approach options with pros/cons
+- Thoughtful explanations and reasoning
+- Questions to clarify requirements
+- Planning and architectural guidance
+
+Use tools only if Sandra specifically asks for file modifications within the consultation.`;
+        
+        console.log(`💡 CONSULTATION MODE: Strategic advice mode activated for ${agentId} (${intentAnalysis.intent} detected)`);
       } else {
-        console.log(`💬 CONVERSATION MODE: ${agentId} responding without forced tool usage`);
+        console.log(`💬 BALANCED MODE: ${agentId} responding with mixed conversation and implementation capabilities`);
       }
       
       // Final enforcement verification - ensure all tool choice configurations are properly applied

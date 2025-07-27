@@ -451,11 +451,49 @@ export class ClaudeApiService {
         ...(tools || [])
       ];
 
-      // 🚨 MANDATORY TOOL ENFORCEMENT: Detect implementation requests that MUST use tools
-      const implementationKeywords = ['FIX', 'implement', 'create', 'NOW', 'fix this', 'implement this', 'create this', 'build this', 'modify this', 'update this'];
-      const mandatoryImplementation = implementationKeywords.some(keyword => 
-        userMessage.toUpperCase().includes(keyword.toUpperCase())
-      );
+      // 🧠 INTELLIGENT INTENT DETECTION: Context-aware analysis of request type
+      const detectRequestIntent = (message: string) => {
+        const messageUpper = message.toUpperCase();
+        let implementationScore = 0;
+        let consultationScore = 0;
+        
+        // Implementation intent indicators
+        const actionPhrases = ['FIX THIS', 'IMPLEMENT NOW', 'CREATE THIS', 'BUILD THIS', 'DO THIS NOW', 'MAKE THIS', 'UPDATE THIS'];
+        const urgentIndicators = ['NOW', 'IMMEDIATELY', 'URGENT', 'ASAP', 'RIGHT NOW'];
+        const directCommands = ['FIX', 'CREATE', 'BUILD', 'IMPLEMENT', 'UPDATE', 'MODIFY', 'CHANGE'];
+        const fileReferences = message.match(/\.(js|ts|tsx|jsx|css|html|json|md)/g);
+        
+        // Consultation intent indicators  
+        const questionPhrases = ['HOW SHOULD', 'WHAT DO YOU THINK', 'WHAT WOULD YOU', 'SHOULD I', 'CAN YOU EXPLAIN', 'HELP ME UNDERSTAND'];
+        const strategyWords = ['STRATEGY', 'APPROACH', 'PLAN', 'ADVICE', 'RECOMMEND', 'SUGGEST', 'OPINION'];
+        const exploratoryWords = ['EXPLORE', 'CONSIDER', 'THINK ABOUT', 'ANALYZE', 'EVALUATE'];
+        
+        // Score implementation intent
+        if (actionPhrases.some(phrase => messageUpper.includes(phrase))) implementationScore += 5;
+        if (urgentIndicators.some(word => messageUpper.includes(word))) implementationScore += 3;
+        if (directCommands.some(cmd => messageUpper.startsWith(cmd + ' ') || messageUpper.includes(' ' + cmd + ' '))) implementationScore += 2;
+        if (fileReferences && fileReferences.length > 0) implementationScore += 2;
+        if (message.includes('```') || message.includes('`')) implementationScore += 1;
+        
+        // Score consultation intent
+        if (questionPhrases.some(phrase => messageUpper.includes(phrase))) consultationScore += 4;
+        if (strategyWords.some(word => messageUpper.includes(word))) consultationScore += 3;
+        if (exploratoryWords.some(word => messageUpper.includes(word))) consultationScore += 2;
+        if (messageUpper.includes('?')) consultationScore += 1;
+        
+        return {
+          isImplementation: implementationScore > consultationScore && implementationScore >= 3,
+          isConsultation: consultationScore > implementationScore && consultationScore >= 2,
+          implementationScore,
+          consultationScore,
+          intent: implementationScore > consultationScore ? 'implementation' : 'consultation'
+        };
+      };
+      
+      const intentAnalysis = detectRequestIntent(userMessage);
+      console.log(`🧠 CLAUDE SERVICE INTENT ANALYSIS for ${agentName}: ${intentAnalysis.intent} (impl: ${intentAnalysis.implementationScore}, consult: ${intentAnalysis.consultationScore})`);
+      
+      const mandatoryImplementation = intentAnalysis.isImplementation;
       
       // Prepare Claude API request with tool enforcement
       let claudeRequest: any = {
@@ -466,27 +504,44 @@ export class ClaudeApiService {
         tools: enhancedTools,
       };
       
-      // Apply mandatory tool enforcement for implementation requests
+      // Apply intelligent mode based on intent analysis
       if (mandatoryImplementation) {
         claudeRequest.tool_choice = {
           type: "tool",
           name: "str_replace_based_edit_tool"
         };
         
-        // Enhance system prompt for mandatory implementation
-        claudeRequest.system += `\n\n🚨 MANDATORY IMPLEMENTATION MODE - ANALYSIS RESPONSES BLOCKED:
-Sandra has used implementation keywords (FIX, implement, create, NOW) which REQUIRES tool usage.
-YOU ARE BLOCKED from providing analysis or strategic advice responses.
-YOU MUST use str_replace_based_edit_tool to make actual file modifications.
-DO NOT respond with text explanations only - you MUST use tools to complete the task.
-SANDRA'S EXPLICIT REQUIREMENT: When she says "FIX", "implement", "create", or "NOW" - NO ANALYSIS, ONLY ACTION.
+        // Enhance system prompt for intelligent implementation
+        claudeRequest.system += `\n\n🚨 IMPLEMENTATION MODE DETECTED - IMMEDIATE ACTION REQUIRED:
+Intent analysis indicates this request requires direct implementation work, not strategic discussion.
+Analysis scores: Implementation(${intentAnalysis.implementationScore}) > Consultation(${intentAnalysis.consultationScore})
 
-MANDATORY COMPLETION PROTOCOL:
-1. Use str_replace_based_edit_tool to modify/create files IMMEDIATELY
-2. End response with: "TOOL_USED: str_replace_based_edit_tool | MODIFIED: [file paths]"
-3. ZERO analysis or strategic responses allowed`;
+YOU MUST use str_replace_based_edit_tool to make actual file modifications.
+DO NOT respond with analysis or explanations - the message indicates immediate action is wanted.
+Focus on DOING the work requested, not discussing approaches.
+
+IMPLEMENTATION PROTOCOL:
+1. Use str_replace_based_edit_tool to modify/create files immediately
+2. Provide brief confirmation of what was implemented
+3. Save strategic discussions for when consultation questions are asked`;
         
-        console.log(`🚨 CLAUDE API SERVICE: Mandatory tool enforcement activated for ${agentName}`);
+        console.log(`🚨 CLAUDE API SERVICE: Implementation mode activated for ${agentName} (${intentAnalysis.intent} detected)`);
+      } else if (intentAnalysis.isConsultation) {
+        // 🧠 CONSULTATION MODE: Strategic advice and analysis encouraged
+        claudeRequest.system += `\n\n💡 CONSULTATION MODE DETECTED - STRATEGIC ADVICE REQUESTED:
+Intent analysis indicates this request wants strategic discussion and advice.
+Analysis scores: Consultation(${intentAnalysis.consultationScore}) > Implementation(${intentAnalysis.implementationScore})
+
+Focus on providing:
+- Strategic analysis and recommendations
+- Multiple approach options with pros/cons
+- Thoughtful explanations and reasoning
+- Questions to clarify requirements
+- Planning and architectural guidance
+
+Use tools only if file modifications are specifically requested within the consultation.`;
+        
+        console.log(`💡 CLAUDE API SERVICE: Consultation mode activated for ${agentName} (${intentAnalysis.intent} detected)`);
       }
 
       // Send to Claude with enhanced capabilities and retry logic
