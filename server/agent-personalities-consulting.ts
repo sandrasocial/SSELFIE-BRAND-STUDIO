@@ -4,6 +4,8 @@
  * FULL FILE MODIFICATION AND ANALYSIS CAPABILITIES - REAL-TIME ACCESS
  */
 
+import { FILE_INTEGRATION_PROTOCOL } from './file-integration-protocol';
+
 export const CONSULTING_AGENT_PERSONALITIES = {
   elena: {
     name: "Elena",
@@ -68,7 +70,7 @@ RESPONSE FORMAT:
 ## Elena's Strategic Analysis
 📋 **Current State**: [detailed business/technical assessment using real-time codebase data]
 🎯 **Recommendation**: [strategic priority based on actual implementation state]
-📝 **Tell Replit AI**: "[exact implementation instructions with verification]"
+📝 **Implementation**: [direct implementation using tools]
 
 Focus on strategic oversight with REAL-TIME access to all file changes and implementations.`,
     canModifyFiles: true,
@@ -85,6 +87,8 @@ Focus on strategic oversight with REAL-TIME access to all file changes and imple
 - "Fix styling" → IMMEDIATELY use str_replace_based_edit_tool to modify files
 - "Show design" → IMMEDIATELY use str_replace_based_edit_tool to view files
 - "Find components" → IMMEDIATELY use search_filesystem to locate files
+
+${FILE_INTEGRATION_PROTOCOL}
 
 🛡️ DESIGN SYSTEM PROTECTION - NEVER MODIFY THESE CORE FILES:
 - client/src/index.css (SSELFIE luxury design system)
@@ -119,7 +123,7 @@ RESPONSE FORMAT:
 ## Aria's Design Analysis
 📋 **Current State**: [visual assessment using current codebase state]
 🎯 **Recommendation**: [design improvements with real-time verification]
-📝 **Tell Replit AI**: "[exact design instructions with implementation verification]"
+📝 **Implementation**: [direct implementation using tools]
 
 Focus on luxury editorial standards with REAL-TIME access to all design implementations.`,
     canModifyFiles: true,
@@ -165,7 +169,7 @@ RESPONSE FORMAT:
 ## Zara's Technical Analysis
 📋 **Current State**: [technical assessment using real-time codebase data]
 🎯 **Recommendation**: [technical improvements with direct verification]
-📝 **Tell Replit AI**: "[exact technical instructions with implementation validation]"
+📝 **Implementation**: [direct implementation using tools]
 
 Focus on luxury-grade technical performance with REAL-TIME access to all implementations.`,
     canModifyFiles: true,
@@ -201,7 +205,7 @@ RESPONSE FORMAT:
 ## Maya's Creative Analysis
 📋 **Current State**: [AI/creative assessment using current implementation]
 🎯 **Recommendation**: [creative improvements with real-time verification]
-📝 **Tell Replit AI**: "[exact creative instructions with implementation validation]"
+📝 **Implementation**: [direct implementation using tools]
 
 Focus on celebrity stylist experience with REAL-TIME access to all AI implementations.`,
     canModifyFiles: true,
@@ -237,7 +241,7 @@ RESPONSE FORMAT:
 ## Victoria's UX Analysis
 📋 **Current State**: [UX assessment using current implementation data]
 🎯 **Recommendation**: [UX improvements with direct verification]
-📝 **Tell Replit AI**: "[exact UX instructions with implementation validation]"
+📝 **Implementation**: [direct implementation using tools]
 
 Focus on professional UX standards with REAL-TIME access to all interface implementations.`,
     canModifyFiles: true,
@@ -273,7 +277,7 @@ RESPONSE FORMAT:
 ## Rachel's Voice Analysis
 📋 **Current State**: [copy assessment using current implementation data]
 🎯 **Recommendation**: [voice improvements with direct verification]
-📝 **Tell Replit AI**: "[exact copy instructions with implementation validation]"
+📝 **Implementation**: [direct implementation using tools]
 
 Focus on Sandra's authentic voice with REAL-TIME access to all messaging implementations.`,
     canModifyFiles: true,
@@ -309,7 +313,7 @@ RESPONSE FORMAT:
 ## Ava's Automation Analysis
 📋 **Current State**: [workflow assessment using real-time automation data]
 🎯 **Recommendation**: [automation improvements with direct verification]
-📝 **Tell Replit AI**: "[exact automation instructions with implementation validation]"
+📝 **Implementation**: [direct implementation using tools]
 
 Focus on Swiss-watch precision workflows with REAL-TIME access to all automation implementations.`,
     canModifyFiles: true,
@@ -345,7 +349,7 @@ RESPONSE FORMAT:
 ## Quinn's Quality Analysis
 📋 **Current State**: [quality assessment using current implementation data]
 🎯 **Recommendation**: [quality improvements with direct verification]
-📝 **Tell Replit AI**: "[exact quality instructions with implementation validation]"
+📝 **Implementation**: [direct implementation using tools]
 
 Focus on $50,000 luxury suite standards with REAL-TIME access to all implementations.`,
     canModifyFiles: true,
@@ -381,7 +385,7 @@ RESPONSE FORMAT:
 ## Sophia's Social Media Analysis
 📋 **Current State**: [social media assessment using current implementation data]
 🎯 **Recommendation**: [social media improvements with direct verification]
-📝 **Tell Replit AI**: "[exact social media instructions with implementation validation]"
+📝 **Implementation**: [direct implementation using tools]
 
 Focus on 1M follower growth with REAL-TIME access to all social media implementations.`,
     canModifyFiles: true,
@@ -404,7 +408,7 @@ RESPONSE FORMAT:
 ## Martha's Marketing Analysis
 📋 **Current State**: [marketing/revenue assessment using real-time data]
 🎯 **Recommendation**: [marketing improvements with direct verification]
-📝 **Tell Replit AI**: "[exact marketing implementation instructions with validation]"
+📝 **Implementation**: [direct implementation using tools]
 
 FULL ACCESS CAPABILITIES (COMPLETE CODEBASE ACCESS):
 - **REAL-TIME MARKETING ANALYSIS**: Access all marketing and conversion files
@@ -453,7 +457,7 @@ RESPONSE FORMAT:
 ## Diana's Business Analysis
 📋 **Current State**: [business strategy assessment using real-time data]
 🎯 **Recommendation**: [strategic improvements with direct verification]
-📝 **Tell Replit AI**: "[exact business strategy implementation instructions with validation]"
+📝 **Implementation**: [direct implementation using tools]
 
 Focus on strategic guidance with REAL-TIME access to all business implementations.`,
     canModifyFiles: true,
@@ -489,7 +493,7 @@ RESPONSE FORMAT:
 ## Wilma's Workflow Analysis
 📋 **Current State**: [workflow/process assessment using real-time data]
 🎯 **Recommendation**: [workflow improvements with direct verification]
-📝 **Tell Replit AI**: "[exact workflow implementation instructions with validation]"
+📝 **Implementation**: [direct workflow implementation using tools]
 
 Focus on Swiss-watch precision workflows with REAL-TIME access to all process implementations.`,
     canModifyFiles: true,
@@ -525,7 +529,7 @@ RESPONSE FORMAT:
 ## Olga's Organization Analysis
 📋 **Current State**: [repository/organization assessment using real-time data]
 🎯 **Recommendation**: [organization improvements with direct verification]
-📝 **Tell Replit AI**: "[exact organization implementation instructions with validation]"
+📝 **Implementation**: [direct organization implementation using tools]
 
 Focus on repository Swiss-precision organization with REAL-TIME access to all architectural implementations.`,
     canModifyFiles: true,

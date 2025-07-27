@@ -50,7 +50,16 @@ const DEFAULT_MODEL_STR = "claude-sonnet-4-20250514";
 // Conversation Manager for memory (CRITICAL FIX)
 import { ConversationManager } from './agents/ConversationManager';
 
+// Route registration status tracking
+let routesRegistered = false;
+let routeRegistrationComplete: () => void;
+const registrationPromise = new Promise<void>((resolve) => {
+  routeRegistrationComplete = resolve;
+});
+
 export async function registerRoutes(app: Express): Promise<Server> {
+  console.log('🚀 Starting route registration...');
+  
   // CRITICAL: Enable CORS for cross-domain access (agents and Visual Editor)
   app.use((req, res, next) => {
     const origin = req.headers.origin;
@@ -72,6 +81,15 @@ export async function registerRoutes(app: Express): Promise<Server> {
     res.header('Access-Control-Allow-Headers', 'Origin, X-Requested-With, Content-Type, Accept, Authorization, X-Session-Auth');
     res.header('Access-Control-Allow-Credentials', 'true');
     res.header('Access-Control-Max-Age', '86400');
+    
+    // Add initialization check middleware
+    if (!routesRegistered && req.path.startsWith('/api/') && req.path !== '/api/health') {
+      return res.status(503).json({
+        error: 'Server initializing',
+        message: 'Routes are still being registered. Please try again in a moment.',
+        retryAfter: 2
+      });
+    }
     
     if (req.method === 'OPTIONS') {
       return res.sendStatus(200);
@@ -172,6 +190,11 @@ export async function registerRoutes(app: Express): Promise<Server> {
   
   // Agent learning & training routes  
   app.use('/api/agent-learning', agentLearningRoutes);
+  
+  // Intelligent agent routing system routes
+  const intelligentRoutingRoutes = await import('./routes/intelligent-routing-routes');
+  app.use('/api/intelligent-routing', intelligentRoutingRoutes.default);
+  console.log('🧠 Intelligent Agent Routing routes registered');
 
   // Claude API routes for enhanced agent capabilities
   app.use('/api/claude', claudeApiRoutes);
@@ -8393,7 +8416,7 @@ I'll coordinate a **"Platform Launch Readiness Validation"** workflow with Aria,
   registerAdminConversationRoutes(app);
 
   // =========================================================================
-  // 🎯 CONSULTING AGENTS ENDPOINT - READ-ONLY STRATEGIC ADVISORS
+  // 🎯 CONSULTING AGENTS ENDPOINT - FULL IMPLEMENTATION CAPABILITIES
   // =========================================================================
   app.post('/api/admin/consulting-agents/chat', async (req, res) => {
     console.log('🎯 CONSULTING AGENT: Processing strategic advice request');
@@ -8420,9 +8443,9 @@ I'll coordinate a **"Platform Launch Readiness Validation"** workflow with Aria,
         });
       }
 
-      // Import consulting agent personalities (separate from development agents)
-      const { getConsultingAgentPersonality } = await import('./agent-personalities-consulting');
-      const consultingAgent = getConsultingAgentPersonality(agentId);
+      // Import agent personalities for implementation capabilities
+      const { CONSULTING_AGENT_PERSONALITIES } = await import('./agent-personalities-consulting');
+      const consultingAgent = CONSULTING_AGENT_PERSONALITIES[agentId as keyof typeof CONSULTING_AGENT_PERSONALITIES];
       
       if (!consultingAgent) {
         return res.status(404).json({ 
@@ -8444,19 +8467,13 @@ I'll coordinate a **"Platform Launch Readiness Validation"** workflow with Aria,
 
 USER REQUEST: ${message}
 
-Analyze the SSELFIE Studio codebase with UNLIMITED ACCESS to provide strategic advice. Use ALL tools available:
+Implement the requested changes directly using ALL tools available:
 - search_filesystem to analyze code structure
 - str_replace_based_edit_tool with ALL commands (view, create, str_replace, insert)
 - bash for running commands and tests
 - web_search for research
 
-Provide your analysis in the required format:
-## ${consultingAgent.name}'s Analysis
-📋 **Current State**: [brief analysis]
-🎯 **Recommendation**: [strategic advice]
-📝 **Tell Replit AI**: "[exact instructions for Sandra to give Replit AI]"
-
-You have FULL ACCESS to implement changes directly if needed.`;
+YOU HAVE FULL IMPLEMENTATION CAPABILITIES - IMPLEMENT DIRECTLY instead of providing instructions.`;
 
       // Define UNLIMITED ACCESS tools for consulting agents
       const consultingTools = [
@@ -8659,6 +8676,11 @@ You have FULL ACCESS to implement changes directly if needed.`;
       });
     }
   });
+
+  // Mark routes as fully registered
+  routesRegistered = true;
+  routeRegistrationComplete();
+  console.log('✅ All routes registered successfully');
 
   const httpServer = createServer(app);
   return httpServer;
