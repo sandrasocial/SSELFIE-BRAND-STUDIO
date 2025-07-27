@@ -2,6 +2,7 @@
  * ELENA WORKFLOW DETECTION SERVICE
  * Revolutionary conversational-to-autonomous bridge system
  * Detects Elena's strategic coordination language and converts to executable workflows
+ * ZARA'S FIX: Connected to specialized agent personalities
  */
 
 interface DetectedWorkflow {
@@ -628,17 +629,26 @@ export class ElenaWorkflowDetectionService {
           // Create task message for agent based on workflow context
           const taskMessage = this.createAgentTaskMessage(workflow, agent);
           
-          // Execute agent directly through the agent-chat-bypass endpoint with forced tool usage
-          const agentResponse = await fetch('http://localhost:5000/api/admin/agent-chat-bypass', {
-            method: 'POST',
-            headers: {
-              'Content-Type': 'application/json',
-              'X-Admin-Token': 'sandra-admin-2025',
-              'X-Elena-Workflow': 'true'
-            },
-            body: JSON.stringify({
-              agentId: agent,
-              message: `ELENA AUTONOMOUS WORKFLOW EXECUTION - FILE MODIFICATION MANDATORY
+          // ZARA'S FIX: Use specialized agent personalities instead of generic bypass endpoint
+          console.log(`🎯 ELENA DETECTION: Using SPECIALIZED AGENT PERSONALITY for ${agent}`);
+          
+          // Import specialized agent personalities
+          const { CONSULTING_AGENT_PERSONALITIES } = await import('../agent-personalities-consulting');
+          
+          // Get the specialized agent personality
+          const agentPersonality = CONSULTING_AGENT_PERSONALITIES[agent.toLowerCase()];
+          if (!agentPersonality) {
+            throw new Error(`No specialized personality found for agent ${agent}`);
+          }
+          
+          console.log(`✅ ELENA DETECTION: Found specialized ${agentPersonality.name} - ${agentPersonality.role}`);
+          
+          // Import Claude API service to call specialized agents directly
+          const { ClaudeApiService } = await import('./claude-api-service');
+          const claudeService = new ClaudeApiService();
+          
+          // Call the SPECIALIZED agent through Claude API 
+          const enhancedTask = `ELENA AUTONOMOUS WORKFLOW EXECUTION - FILE MODIFICATION MANDATORY
 Task: ${taskMessage}
 
 🚨 ELENA WORKFLOW EXECUTION CONTEXT:
@@ -653,15 +663,35 @@ CRITICAL REQUIREMENTS:
 4. Your response will be considered failed if no files are modified
 5. This is coordinated agent execution - complete your assigned task
 
-Complete this task now with actual file modifications as part of Elena's coordinated workflow.`,
-              adminToken: 'sandra-admin-2025',
-              workflowContext: 'elena-autonomous-execution',
-              fileEditMode: true,
-              conversationHistory: []
-            })
-          });
+Complete this task now with actual file modifications as part of Elena's coordinated workflow.`;
 
-          const result = await agentResponse.json();
+          console.log(`🚀 ELENA DETECTION: Calling SPECIALIZED ${agent} through Claude API for autonomous execution`);
+          
+          const agentResponse = await claudeService.sendMessage(
+            '42585527', // Sandra's actual user ID
+            agent.toLowerCase(), // Agent ID for specialized personality
+            `elena-detection-${workflow.id}-${Date.now()}`, // Unique conversation ID
+            enhancedTask, // The enhanced workflow task message
+            agentPersonality.systemPrompt, // Use SPECIALIZED system prompt
+            ['search_filesystem', 'str_replace_based_edit_tool', 'bash', 'web_search'], // Full tool suite
+            true, // fileEditMode enabled for tool access
+            false, // Not readonly mode
+            { 
+              // Elena detection workflow context
+              enforceToolUsage: true,
+              workflowContext: true,
+              agentSpecialty: agentPersonality.role,
+              elenaAutonomousExecution: true,
+              workflowTitle: workflow.title
+            }
+          );
+
+          // ZARA'S FIX: Process specialized agent response directly
+          const result = {
+            success: !!agentResponse && typeof agentResponse === 'string',
+            response: agentResponse || 'No response from specialized agent',
+            error: !agentResponse ? 'Specialized agent returned no response' : undefined
+          };
           if (!result.success) {
             throw new Error(result.error || 'Agent execution failed');
           }
