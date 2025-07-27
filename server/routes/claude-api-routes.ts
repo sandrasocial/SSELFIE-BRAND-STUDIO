@@ -9,13 +9,15 @@ import { AgentImplementationDetector } from '../tools/agent_implementation_detec
 
 const router = Router();
 
-// Schema for sending messages
+// Schema for sending messages - completely flexible for admin interface compatibility
 const sendMessageSchema = z.object({
-  agentName: z.string(),
-  message: z.string(),
+  agentName: z.string().optional(),
+  agentId: z.string().optional(), 
+  message: z.string().optional().default(""),
   conversationId: z.string().optional(),
   tools: z.array(z.any()).optional(),
   fileEditMode: z.boolean().optional(),
+  adminToken: z.string().optional(),
 });
 
 // Schema for getting conversation history
@@ -26,7 +28,9 @@ const getHistorySchema = z.object({
 // Send message to Claude agent with memory and learning
 router.post('/send-message', async (req, res) => {
   try {
-    const { agentName, message, conversationId, tools, fileEditMode } = sendMessageSchema.parse(req.body);
+    const parsedData = sendMessageSchema.parse(req.body);
+    const { message, conversationId, tools, fileEditMode } = parsedData;
+    const agentName = parsedData.agentName || parsedData.agentId || 'zara';
     
     // UNLIMITED ACCESS: Force fileEditMode to true for all admin agents to eliminate "Read-only mode active" errors
     // This ensures agents with canModifyFiles: true always get full editing capabilities
