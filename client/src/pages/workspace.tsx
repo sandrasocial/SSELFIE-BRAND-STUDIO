@@ -5,7 +5,7 @@ import { Link } from 'wouter';
 import { MemberNavigation } from '@/components/member-navigation';
 import { GlobalFooter } from '@/components/global-footer';
 import { SandraImages } from '@/lib/sandra-images';
-import TestFileAccess from '@/components/TestFileAccess';
+
 
 export default function Workspace() {
   const { user, isAuthenticated, isLoading, error } = useAuth();
@@ -145,7 +145,6 @@ export default function Workspace() {
   if (isLoading) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-white">
-      <TestFileAccess />
         <div className="text-center">
           <div className="animate-spin w-8 h-8 border-2 border-black border-t-transparent rounded-full mx-auto mb-4"></div>
           <p className="text-sm text-gray-600">Loading your workspace...</p>
