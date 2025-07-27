@@ -1856,6 +1856,45 @@ if (messageUpper.includes('FIX ELENA') || messageUpper.includes('FIX HER') ||
 5. **Brief Response**: Returns "IMPLEMENTED: file modification on [filename]" ✅
 
 **Final Status**: Zara is now completely unable to provide view-only operations when implementation commands are used. She must actually modify Elena's files to fix her memory system.
+
+## ✅ UNIVERSAL SMART DETECTION SYSTEM - NO HARDCODED PATTERNS (January 27, 2025)
+
+**BREAKTHROUGH: REMOVED ALL HARDCODED OVERRIDES - IMPLEMENTED INTELLIGENT PATTERN RECOGNITION FOR ALL AGENTS**
+- ✅ **Hardcoded Patterns Eliminated**: Removed specific "FIX ELENA" and "FIX HER" hardcoded overrides
+- ✅ **Universal Smart Detection**: All agents now use intelligent regex pattern matching for any implementation command
+- ✅ **Flexible Pattern Recognition**: System recognizes imperative commands regardless of specific task or agent
+- ✅ **No Task Templates**: Detection works for any request, not just predefined commands
+
+**Enhanced Smart Detection Patterns:**
+```javascript
+const imperativePatterns = [
+  /^(fix|create|build|implement|update|modify|change|make)\s+/i,
+  /\b(fix|create|build|implement|update|modify|change)\s+\w+\s+(now|immediately|asap)\b/i,
+  /\buse\s+the\s+tools?\b/i,
+  /\bno\s+(analysis|advice|discussion)\b/i,
+  /\bjust\s+(fix|create|build|implement|do)\b/i
+];
+```
+
+**Universal Detection Examples:**
+- ✅ "fix anything now" → Implementation mode
+- ✅ "create new component" → Implementation mode
+- ✅ "just build this" → Implementation mode
+- ✅ "use the tools" → Implementation mode
+- ✅ "no analysis just do it" → Implementation mode
+
+**Benefits:**
+- **Universal Application**: Works for ALL agents (Zara, Aria, Maya, Victoria, Rachel, etc.)
+- **Context-Aware**: Detects implementation intent regardless of specific task mentioned
+- **No Maintenance**: No need to add hardcoded patterns for new use cases
+- **Intelligent Recognition**: Uses regex patterns to understand natural language commands
+- **Flexible System**: Adapts to any implementation request automatically
+
+**Technical Implementation:**
+- Removed all hardcoded "FIX ELENA" override patterns
+- Enhanced imperativePatterns array with regex-based detection
+- Universal system prompts reference "specific changes requested in Sandra's message"
+- Smart scoring system gives +4 points for any imperative pattern match
 - **Agent Tool Access**: All agents have str_replace_based_edit_tool, search_filesystem, bash capabilities
 - **Memory System**: Conversation history maintained, agent context preserved across sessions
 - **Authentication**: Session-based auth working, admin token fallback operational
