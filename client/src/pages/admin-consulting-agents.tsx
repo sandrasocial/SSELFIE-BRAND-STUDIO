@@ -174,7 +174,7 @@ export default function AdminConsultingAgents() {
   const [messages, setMessages] = useState<ChatMessage[]>([]);
   const [conversationId, setConversationId] = useState<string | null>(null);
   const [isLoadingHistory, setIsLoadingHistory] = useState(false);
-  const [fileEditMode, setFileEditMode] = useState(false);
+  const [fileEditMode, setFileEditMode] = useState(true);
   
   // Bridge System State
   const [bridgeEnabled, setBridgeEnabled] = useState(false);
