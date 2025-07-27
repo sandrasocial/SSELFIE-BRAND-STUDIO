@@ -312,11 +312,11 @@ export default function AdminConsultingAgents() {
     try {
       console.log('🔄 Loading conversation history for agent:', selectedAgent.id);
       
-      // For Elena specifically, look for existing conversations with TRAIN-STYLE-PHOTOSHOOT-BUILD context
+      // For Elena specifically, load ALL conversations from the last 24 hours
       if (selectedAgent.id === 'elena') {
-        console.log('📜 ELENA: Searching for existing conversations with business model discussions');
+        console.log('📜 ELENA: Loading ALL conversations from last 24 hours');
         
-        // Try to find Elena's most recent conversation by searching for existing conversation IDs
+        // Get all Elena conversations from last 24 hours
         const existingConversations = await fetch('/api/claude/conversations/list', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
@@ -328,29 +328,45 @@ export default function AdminConsultingAgents() {
           const conversationList = await existingConversations.json();
           console.log('📜 ELENA: Found existing conversations:', conversationList.conversations?.length || 0);
           
-          // Load the most recent Elena conversation that has messages
-          if (conversationList.conversations && conversationList.conversations.length > 0) {
-            const recentConversation = conversationList.conversations[0]; // Most recent first
-            console.log('📜 ELENA: Loading most recent conversation:', recentConversation.id);
-            setConversationId(recentConversation.id);
+          // Filter conversations from last 24 hours
+          const last24Hours = new Date(Date.now() - 24 * 60 * 60 * 1000);
+          const recentConversations = conversationList.conversations?.filter((conv: any) => 
+            new Date(conv.updatedAt || conv.createdAt) >= last24Hours
+          ) || [];
+          
+          console.log('📜 ELENA: Found', recentConversations.length, 'conversations from last 24 hours');
+          
+          if (recentConversations.length > 0) {
+            // Combine messages from ALL recent conversations
+            let allMessages: ChatMessage[] = [];
             
-            const history = await loadConversationHistory(recentConversation.id);
-            console.log('📜 ELENA: Loaded history with', history.messages?.length || 0, 'messages');
-            
-            if (history.messages && history.messages.length > 0) {
-              const chatMessages: ChatMessage[] = history.messages.map((msg: any, index: number) => ({
-                id: `${msg.timestamp || Date.now()}-${index}`,
-                type: msg.role === 'user' ? 'user' : 'agent',
-                content: msg.content,
-                timestamp: msg.timestamp || new Date().toISOString(),
-                agentName: msg.role === 'assistant' ? selectedAgent.name : undefined,
-              }));
+            for (const conversation of recentConversations) {
+              console.log('📜 ELENA: Loading conversation:', conversation.id, 'with', conversation.messageCount, 'messages');
               
-              console.log('📜 ELENA: Successfully loaded', chatMessages.length, 'historical messages');
-              setMessages(chatMessages);
-              setIsLoadingHistory(false);
-              return;
+              const history = await loadConversationHistory(conversation.id);
+              if (history.messages && history.messages.length > 0) {
+                const conversationMessages: ChatMessage[] = history.messages.map((msg: any, index: number) => ({
+                  id: `${conversation.id}-${msg.timestamp || Date.now()}-${index}`,
+                  type: msg.role === 'user' ? 'user' : 'agent',
+                  content: msg.content,
+                  timestamp: msg.timestamp || new Date().toISOString(),
+                  agentName: msg.role === 'assistant' ? selectedAgent.name : undefined,
+                }));
+                
+                allMessages = [...allMessages, ...conversationMessages];
+              }
             }
+            
+            // Sort all messages by timestamp
+            allMessages.sort((a, b) => new Date(a.timestamp).getTime() - new Date(b.timestamp).getTime());
+            
+            console.log('📜 ELENA: Successfully loaded', allMessages.length, 'total messages from last 24 hours');
+            
+            // Use the most recent conversation ID for new messages
+            setConversationId(recentConversations[0].id);
+            setMessages(allMessages);
+            setIsLoadingHistory(false);
+            return;
           }
         }
       }

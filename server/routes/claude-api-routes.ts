@@ -259,9 +259,17 @@ router.post('/conversations/list', async (req, res) => {
 
     console.log('📜 Found', conversations.length, 'conversations for', agentName);
 
+    // Filter to last 24 hours for Elena specifically
+    const last24Hours = new Date(Date.now() - 24 * 60 * 60 * 1000);
+    const filteredConversations = agentName === 'elena' 
+      ? conversations.filter(conv => new Date(conv.updatedAt || conv.createdAt) >= last24Hours)
+      : conversations;
+
+    console.log('📜 After 24h filter:', filteredConversations.length, 'conversations for', agentName);
+
     res.json({
       success: true,
-      conversations: conversations.map(conv => ({
+      conversations: filteredConversations.map(conv => ({
         id: conv.id,
         agentName: conv.agentName,
         messageCount: conv.messageCount,
