@@ -5,7 +5,7 @@
  */
 
 import { db } from '../db';
-import { claudeConversations, claudeMessages } from '../shared/schema';
+import { claudeConversations, claudeMessages } from '../../shared/schema';
 import { eq, and, gte, desc } from 'drizzle-orm';
 
 interface HistoricalMemory {
