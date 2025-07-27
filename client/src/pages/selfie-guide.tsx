@@ -113,7 +113,7 @@ export default function SelfieGuide() {
             SSELFIE AI Training Guide
           </div>
           <h1 className="text-4xl md:text-5xl font-light mb-8 tracking-[-0.01em] text-[#0a0a0a] leading-tight" style={{ fontFamily: 'Times New Roman, serif' }}>
-            10 Photos to Transform Your Future
+            10 Photos to Launch Your Business Empire
           </h1>
           <p className="text-lg text-[#666] max-w-2xl mx-auto mb-11 leading-relaxed font-inter">
             Your AI needs just 10 specific photos to create stunning, professional images of you. 
