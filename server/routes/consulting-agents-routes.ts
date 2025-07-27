@@ -13,8 +13,8 @@ router.post('/admin/consulting-chat', async (req, res) => {
       session: req.session?.user ? 'authenticated' : 'none'
     });
 
-    // Admin-only access (Sandra)
-    if (!req.session?.user || req.session.user.email !== 'ssa@ssasocial.com') {
+    // Admin-only access (Sandra) - using req.user from Passport session
+    if (!req.user || !(req.user as any)?.claims?.email || (req.user as any).claims.email !== 'ssa@ssasocial.com') {
       return res.status(403).json({
         success: false,
         message: 'Consulting agents are only available to Sandra'
@@ -148,6 +148,31 @@ router.post('/admin/consulting-chat', async (req, res) => {
       apiKey: process.env.ANTHROPIC_API_KEY,
     });
 
+    // IMPLEMENTATION MODE DETECTION - Fix from Zara's analysis
+    const implementationKeywords = [
+      "implement", "create", "modify", "fix", "build", "deploy", 
+      "generate", "update", "write code", "make changes", "execute", "NOW"
+    ];
+    
+    const isImplementationRequest = implementationKeywords.some(keyword => 
+      message.toLowerCase().includes(keyword.toLowerCase())
+    );
+    
+    console.log(`🔍 IMPLEMENTATION DETECTION: ${isImplementationRequest ? 'IMPLEMENTATION MODE' : 'CONSULTATION MODE'}`);
+    
+    // CONDITIONAL PROMPT SYSTEM - Fix from Zara's analysis  
+    const promptContent = isImplementationRequest 
+      ? `IMPLEMENTATION REQUEST: ${message}
+
+IMPORTANT: Execute this request immediately using your tools. Do not provide analysis - implement the solution now.`
+      : `CONSULTING REQUEST: ${message}
+
+IMPORTANT: Provide your analysis in this exact format:
+## ${agent.name}'s Analysis
+📋 **Current State**: [detailed assessment of what you found]
+🎯 **Recommendation**: [specific improvements needed]  
+📝 **Tell Replit AI**: "[exact instructions for implementation]"`;
+
     const response = await claude.messages.create({
       model: 'claude-3-5-sonnet-20241022',
       max_tokens: 8000,
@@ -155,16 +180,12 @@ router.post('/admin/consulting-chat', async (req, res) => {
       messages: [
         { 
           role: 'user', 
-          content: `CONSULTING REQUEST: ${message}
-
-IMPORTANT: Provide your analysis in this exact format:
-## ${agent.name}'s Analysis
-📋 **Current State**: [detailed assessment of what you found]
-🎯 **Recommendation**: [specific improvements needed]  
-📝 **Tell Replit AI**: "[exact instructions for implementation]"`
+          content: promptContent
         }
       ],
-      tools: consultingToolConfig.tools
+      tools: consultingToolConfig.tools as any,
+      // FORCE TOOL USAGE FOR IMPLEMENTATION - Fix from Zara's analysis  
+      tool_choice: isImplementationRequest ? "required" as const : "auto" as const
     });
 
     let agentResponse = '';
@@ -183,7 +204,7 @@ IMPORTANT: Provide your analysis in this exact format:
             
             if (contentBlock.name === 'search_filesystem') {
               const { search_filesystem } = await import('../tools/search_filesystem');
-              toolResult = await search_filesystem(contentBlock.input);
+              toolResult = await search_filesystem(contentBlock.input as any);
             } else if (contentBlock.name === 'str_replace_based_edit_tool') {
               const input = contentBlock.input as any;
               // UNLIMITED ACCESS - ALL commands allowed
@@ -191,12 +212,18 @@ IMPORTANT: Provide your analysis in this exact format:
               toolResult = await str_replace_based_edit_tool(input);
             } else if (contentBlock.name === 'bash') {
               const input = contentBlock.input as any;
-              const { bash } = await import('../tools/bash');
-              toolResult = await bash(input);
+              try {
+                const { exec } = await import('child_process');
+                const { promisify } = await import('util');
+                const execAsync = promisify(exec);
+                const result = await execAsync(input.command);
+                toolResult = { output: result.stdout, error: result.stderr };
+              } catch (bashError: any) {
+                toolResult = { output: '', error: bashError.message };
+              }
             } else if (contentBlock.name === 'web_search') {
-              const input = contentBlock.input as any;
-              const { web_search } = await import('../tools/web_search');
-              toolResult = await web_search(input);
+              // Web search not implemented for consulting agents
+              toolResult = { results: 'Web search not available in consulting mode' };
             }
             
             console.log(`✅ CONSULTING ${agent.name.toUpperCase()} TOOL RESULT: Success`);
@@ -206,9 +233,9 @@ IMPORTANT: Provide your analysis in this exact format:
               success: true
             });
             
-          } catch (error) {
+          } catch (error: any) {
             console.error(`❌ CONSULTING ${agent.name.toUpperCase()} TOOL ERROR:`, error);
-            agentResponse += `\n\n❌ **Analysis tool error:** ${error.message}`;
+            agentResponse += `\n\n❌ **Analysis tool error:** ${error?.message || 'Unknown error'}`;
           }
         }
       }
@@ -225,16 +252,17 @@ IMPORTANT: Provide your analysis in this exact format:
       message: agentResponse,
       agentName: agent.name,
       agentRole: agent.role,
-      consulting: true,
+      consulting: !isImplementationRequest, // Show implementation mode correctly
+      implementation: isImplementationRequest,
       toolResults: toolResults
     });
 
-  } catch (error) {
+  } catch (error: any) {
     console.error('❌ CONSULTING AGENT ERROR:', error);
     res.status(500).json({
       success: false,
       message: 'Consulting analysis failed',
-      error: error.message
+      error: error?.message || 'Unknown error'
     });
   }
 });
