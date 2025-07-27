@@ -116,8 +116,7 @@ export default function SelfieGuide() {
             10 Photos to Launch Your Business Empire
           </h1>
           <p className="text-lg text-[#666] max-w-2xl mx-auto mb-11 leading-relaxed font-inter">
-            Your AI needs just 10 specific photos to create stunning, professional images of you. 
-            No complicated setup. No professional equipment. Just your phone and good light.
+            After your AI trains on these photos, Victoria will build your complete business website, Maya will create your brand imagery, and you'll be ready to launch in 20 minutes with a professional business presence.
           </p>
         </div>
 
@@ -152,24 +151,24 @@ export default function SelfieGuide() {
             {/* Quick Start */}
             <div className="bg-white border border-[#e5e5e5] p-10 mb-16">
               <h2 className="text-2xl font-light mb-6 text-[#0a0a0a]" style={{ fontFamily: 'Times New Roman, serif' }}>
-                Before You Start
+                Your Business Transformation Kit
               </h2>
               <div className="grid md:grid-cols-2 gap-8">
                 <div>
-                  <h3 className="text-[12px] tracking-[0.2em] uppercase mb-4 font-medium">You'll Need</h3>
+                  <h3 className="text-[12px] tracking-[0.2em] uppercase mb-4 font-medium">Launch Your Business With</h3>
                   <ul className="space-y-2 text-[#666]">
                     <li>• Your phone camera</li>
                     <li>• A window with natural light</li>
                     <li>• 15 minutes</li>
-                    <li>• Your everyday look</li>
+                    <li>• Your vision for success</li>
                   </ul>
                 </div>
                 <div>
-                  <h3 className="text-[12px] tracking-[0.2em] uppercase mb-4 font-medium">Key Rules</h3>
+                  <h3 className="text-[12px] tracking-[0.2em] uppercase mb-4 font-medium">Success Rules</h3>
                   <ul className="space-y-2 text-[#666]">
                     <li>• No filters or heavy editing</li>
                     <li>• Face clearly visible in all shots</li>
-                    <li>• Mix of expressions (not all smiling)</li>
+                    <li>• Mix of expressions (CEO energy)</li>
                     <li>• Recent photos only</li>
                   </ul>
                 </div>
