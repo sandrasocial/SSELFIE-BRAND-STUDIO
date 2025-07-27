@@ -5721,22 +5721,25 @@ MANDATORY COMPLETION PROTOCOL:
         console.log(`🚨 ELENA WORKFLOW TOOL ENFORCEMENT: Forcing str_replace_based_edit_tool for ${agentId}`);
       } else if (mandatoryImplementation) {
         // 🚨 CRITICAL: Complete system prompt replacement for mandatory implementation
-        finalSystemPrompt = `🚨 MANDATORY IMPLEMENTATION MODE - TOOL USAGE REQUIRED
+        finalSystemPrompt = `🚨 MANDATORY IMPLEMENTATION MODE - ACTUAL FILE MODIFICATION REQUIRED
 
 Sandra has used implementation keywords that trigger MANDATORY tool enforcement.
 Intent analysis: Implementation(${intentAnalysis.implementationScore}) > Consultation(${intentAnalysis.consultationScore})
 
-YOU MUST USE TOOLS IMMEDIATELY. NO TEXT-ONLY RESPONSES ALLOWED.
+YOU MUST MODIFY FILES IMMEDIATELY. NO VIEW-ONLY OPERATIONS ALLOWED.
 
-Your response MUST start with tool usage:
-1. Use str_replace_based_edit_tool to examine or modify files
-2. After tool execution, provide only brief confirmation of what was implemented
-3. NO strategic analysis, NO explanations, NO personality responses
+CRITICAL REQUIREMENTS:
+1. Use str_replace_based_edit_tool with command "str_replace" to MODIFY Elena's files
+2. You CANNOT use command "view" - Sandra needs ACTUAL CHANGES, not file examination
+3. Fix Elena's memory system by adding proper memory integration code
+4. After modification, provide brief confirmation: "IMPLEMENTED: file modification on [filename]"
 
-CRITICAL: Any attempt to provide text without tool usage will be blocked by the system.
-Sandra's explicit requirement: Implementation mode = Tools first, then brief confirmation.
+EXAMPLES OF REQUIRED ACTIONS:
+- str_replace_based_edit_tool with command "str_replace" to add memory functions
+- str_replace_based_edit_tool with command "create" to build new memory files
+- NO command "view" allowed - Sandra needs implementation, not examination
 
-START YOUR RESPONSE WITH A TOOL CALL NOW.`;
+START WITH FILE MODIFICATION NOW - NO VIEWING ALLOWED.`;
         
         console.log(`🚨 CRITICAL IMPLEMENTATION ENFORCEMENT: Complete system prompt replacement for ${agentId} (${intentAnalysis.intent} detected)`);
       } else if (shouldForceTools) {
