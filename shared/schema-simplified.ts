@@ -133,7 +133,7 @@ export const userUsage = pgTable("user_usage", {
   id: serial("id").primaryKey(),
   userId: varchar("user_id").references(() => users.id).notNull(),
   plan: varchar("plan").notNull(), // 'sselfie-studio' or 'sselfie-studio-pro'
-  monthlyGenerationsAllowed: integer("monthly_generations_allowed").notNull(), // 100 for Studio, 300 for Pro
+  monthlyGenerationsAllowed: integer("monthly_generations_allowed").notNull(), // 100 for Studio (single tier)
   monthlyGenerationsUsed: integer("monthly_generations_used").default(0),
   sandraAIAccess: boolean("sandra_ai_access").default(false), // false for Studio, true for Pro
   currentPeriodStart: timestamp("current_period_start"),

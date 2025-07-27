@@ -7739,7 +7739,7 @@ Successfully coordinated with Sandra's AI agent team through SQL database and de
 
 **Plan-Based Access Control Architecture:**
 - Sandra AI endpoint restrictions for PRO-only access
-- Generation limit enforcement: 100 vs 300 monthly images
+- Generation limit enforcement: 100 monthly images (single tier)
 - Database tracking of plan status and usage metrics
 - Automatic plan validation for all premium features
 
@@ -9862,7 +9862,7 @@ Platform verified to handle unlimited users with complete data isolation, indivi
 **✓ Simplified Workspace to Core Features**
 - Reduced complex 6-tab workspace to 5 essential tabs
 - Overview: Progress tracking and welcome
-- AI Photoshoot: Generate 300 monthly images
+- AI Photoshoot: Generate 100 monthly images
 - Gallery: Saved AI photos with download/share options
 - Landing Builder: Sandra AI-powered page creation
 - Sandra AI: Chat with context-aware personal assistant
@@ -9871,7 +9871,7 @@ Platform verified to handle unlimited users with complete data isolation, indivi
 **✓ Enhanced Database Architecture**
 - Added missing onboarding columns: personal_mission, business_goals, brand_voice, ai_training_status, current_step, completed
 - Updated subscription schema to single 'sselfie-studio' plan
-- Modified user usage tracking for 300 monthly generations
+- Modified user usage tracking for 100 monthly generations
 - Added model training API endpoint for user-specific AI models
 
 ### July 09, 2025 - Replit Express API Fixed & Production Deployment Working
