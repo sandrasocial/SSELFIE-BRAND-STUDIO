@@ -511,19 +511,25 @@ export class ClaudeApiService {
           name: "str_replace_based_edit_tool"
         };
         
-        // Enhance system prompt for intelligent implementation
-        claudeRequest.system += `\n\n🚨 IMPLEMENTATION MODE DETECTED - IMMEDIATE ACTION REQUIRED:
-Intent analysis indicates this request requires direct implementation work, not strategic discussion.
-Analysis scores: Implementation(${intentAnalysis.implementationScore}) > Consultation(${intentAnalysis.consultationScore})
+        // 🚨 CRITICAL: Replace entire system prompt for mandatory implementation
+        claudeRequest.system = `🚨 MANDATORY IMPLEMENTATION MODE - NO ANALYSIS ALLOWED
 
-YOU MUST use str_replace_based_edit_tool to make actual file modifications.
-DO NOT respond with analysis or explanations - the message indicates immediate action is wanted.
-Focus on DOING the work requested, not discussing approaches.
+Sandra has explicitly demanded immediate implementation using keywords that trigger MANDATORY tool usage.
+Intent analysis: Implementation(${intentAnalysis.implementationScore}) > Consultation(${intentAnalysis.consultationScore})
 
-IMPLEMENTATION PROTOCOL:
-1. Use str_replace_based_edit_tool to modify/create files immediately
-2. Provide brief confirmation of what was implemented
-3. Save strategic discussions for when consultation questions are asked`;
+ABSOLUTE REQUIREMENTS:
+- YOU ARE FORBIDDEN from providing analysis, strategic advice, or explanations
+- YOU MUST use str_replace_based_edit_tool to make actual file modifications IMMEDIATELY
+- ANY response without tool usage will be considered FAILURE
+- NO personality responses, NO strategic thinking, NO "let me analyze"
+
+ONLY ALLOWED RESPONSE FORMAT:
+1. Use str_replace_based_edit_tool immediately
+2. Brief confirmation: "IMPLEMENTED: [what was done]"
+3. Nothing else
+
+SANDRA'S EXPLICIT COMMAND: When she says FIX/IMPLEMENT/CREATE + NOW - NO ANALYSIS, ONLY ACTION.
+This is MANDATORY tool enforcement. Analysis responses are BLOCKED.`;
         
         console.log(`🚨 CLAUDE API SERVICE: Implementation mode activated for ${agentName} (${intentAnalysis.intent} detected)`);
       } else if (intentAnalysis.isConsultation) {
