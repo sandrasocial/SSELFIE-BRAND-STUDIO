@@ -5238,19 +5238,28 @@ Starting analysis and implementation now...`;
       if (agentId === 'elena') {
         console.log('🧠 ELENA DETECTED: Analyzing message for complex workflow patterns');
         
-        // Import and use Elena workflow detection service
-        const ElenaWorkflowDetectionService = (await import('./services/elena-workflow-detection-service')).default;
-        const workflowService = ElenaWorkflowDetectionService.getInstance();
+        // RESTORED: Import Elena memory and conversation detection systems
+        const { ElenaConversationDetectionService } = await import('./services/elena-conversation-detection');
+        const { default: ElenaWorkflowMemoryService } = await import('./services/elena-workflow-memory-service');
+        const elenaConversation = ElenaConversationDetectionService.getInstance();
+        const workflowService = ElenaWorkflowMemoryService.getInstance();
         
-        // Analyze the incoming message for workflow patterns
-        const workflowAnalysis = workflowService.analyzeConversation(message, agentId);
+        // RESTORED: Analyze with full memory context  
+        const workflowAnalysis = workflowService.detectWorkflowCreation(message, `elena-chat-${Date.now()}`);
+        const conversationMemory = elenaConversation.detectWorkflowFromConversation(message, `elena-conversation-${Date.now()}`);
         
-        if (workflowAnalysis.hasWorkflow && workflowAnalysis.workflow) {
-          detectedWorkflow = workflowAnalysis.workflow;
-          console.log(`✅ ELENA: Complex workflow detected - "${detectedWorkflow.title}" with ${detectedWorkflow.agents.length} agents`);
+        if (workflowAnalysis || conversationMemory) {
+          const selectedWorkflow = workflowAnalysis || conversationMemory;
+          detectedWorkflow = selectedWorkflow;
+          console.log(`✅ ELENA MEMORY RESTORED: Complex workflow detected - "${selectedWorkflow.name || selectedWorkflow.title}" with memory context`);
           
-          // Save detected workflow to staging
-          workflowService.stageWorkflow(detectedWorkflow);
+          // RESTORED: Save workflow with full memory context
+          if (workflowAnalysis) {
+            workflowService.stageWorkflow(workflowAnalysis.id, workflowAnalysis);
+          }
+          if (conversationMemory) {
+            elenaConversation.stagedWorkflows.set(conversationMemory.id, conversationMemory);
+          }
           
           // Check if this is a MANDATORY FILE CREATION workflow (immediate execution)
           if (message.includes('MANDATORY') || message.includes('MUST create the file')) {
@@ -5850,10 +5859,10 @@ SANDRA'S REQUIREMENT: Agents must DO the work, not just describe it.`;
         // Legacy Elena workflow detection (keep for backwards compatibility)
         if (agentId === 'elena') {
           try {
-            // Elena conversation detection archived - using dynamic workflow detection instead
-            const ElenaWorkflowDetectionService = (await import('./services/elena-workflow-detection-service')).default;
-            const elenaDetectionService = ElenaWorkflowDetectionService.getInstance();
-            const detectedWorkflow = elenaDetectionService.detectWorkflowFromConversation(agentResponse, message);
+            // RESTORED: Elena's full conversation detection system
+            const { ElenaConversationDetectionService } = await import('./services/elena-conversation-detection');
+            const elenaConversationDetection = ElenaConversationDetectionService.getInstance();
+            const detectedWorkflow = elenaConversationDetection.detectWorkflowFromConversation(agentResponse, message);
             
             if (detectedWorkflow) {
               console.log(`🎯 ELENA LEGACY: Legacy workflow detected "${detectedWorkflow.name}" (fallback system)`);
@@ -8524,11 +8533,12 @@ I'll coordinate a **"Platform Launch Readiness Validation"** workflow with Aria,
   // Register backup management routes
   const { registerBackupManagementRoutes } = await import('./routes/backup-management-routes');
   const { registerMayaAIRoutes } = await import('./routes/maya-ai-routes');
-  // const { registerElenaMonitoringRoutes } = await import('./routes/elena-monitoring-routes'); // ARCHIVED
+  // RESTORED: Elena memory and conversation routes
+  const { registerElenaMemoryRoutes } = await import('./routes/elena-memory-routes');
   const { registerAdminConversationRoutes } = await import('./routes/admin-conversation-routes');
   registerBackupManagementRoutes(app);
   registerMayaAIRoutes(app);
-  // registerElenaMonitoringRoutes(app); // ARCHIVED
+  registerElenaMemoryRoutes(app);
   registerAdminConversationRoutes(app);
 
   // =========================================================================
