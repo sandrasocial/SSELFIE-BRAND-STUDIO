@@ -3,7 +3,7 @@
  * Manages staged workflows in dashboard for manual execution
  */
 
-import { elenaConversationDetection } from './elena-conversation-detection';
+// Removed elena-conversation-detection import - file moved to archive
 
 interface StagedWorkflow {
   id: string;
