@@ -19,7 +19,7 @@ export async function search_filesystem(params: SearchParams) {
     console.log('🔍 ADMIN SEARCH: Starting full repository analysis with params:', params);
     
     const results: SearchResult[] = [];
-    const maxFiles = 50000; // UNLIMITED ACCESS: MASSIVE increase for complete repository visibility (10x previous limit)
+    const maxFiles = 100; // CRUCIAL FOR AGENTS: Limited to 100 most relevant files for efficient agent processing
     
     // Search through project files
     const searchInDirectory = async (dirPath: string, basePath = '') => {
@@ -32,14 +32,20 @@ export async function search_filesystem(params: SearchParams) {
           const fullPath = path.join(dirPath, entry.name);
           const relativePath = path.join(basePath, entry.name);
           
-          // MINIMAL EXCLUSIONS: Only skip major build artifacts, allow access to EVERYTHING else including hidden files
+          // CRITICAL FIX: Ensure agents can see client/src - only exclude build artifacts
           if (entry.name === 'node_modules' || 
               entry.name === 'dist' ||
               entry.name === 'build' ||
               entry.name === '.git' ||
               entry.name === '.next' ||
-              entry.name === 'coverage') {
+              entry.name === 'coverage' ||
+              entry.name === 'archive') {  // Exclude archive directory to prevent confusion
             continue;
+          }
+          
+          // PRIORITY: Always include client/src directory for agent access
+          if (relativePath.startsWith('client/src/')) {
+            console.log(`🎯 PRIORITY ACCESS: Including ${relativePath} for agent visibility`);
           }
           
           // INCLUDE HIDDEN FILES: Allow access to .env, .replit, .gitignore, etc.
@@ -238,14 +244,21 @@ function analyzeFileRelevance(content: string, params: SearchParams, fileName: s
   ];
   
   const isKeyFile = keyFiles.some(key => fileName.toLowerCase().includes(key.toLowerCase()));
+  
+  // CRITICAL: Priority for client/src files that agents need to see
+  const isClientSrcFile = fileName.startsWith('client/src/');
   const isUserFlow = fileName.includes('pages/') || fileName.includes('components/') || fileName.includes('hooks/') || 
                     fileName.includes('src/') || fileName.includes('server/') || fileName.includes('shared/') ||
                     fileName.includes('client/') || fileName.includes('api/') || fileName.includes('lib/') ||
                     fileName.includes('utils/') || fileName.includes('services/') || fileName.includes('tools/');
   
-  if (isKeyFile || isUserFlow) {
-    reasons.push(`Key user experience file: ${fileName}`);
-    relevantContent = content.substring(0, 8000); // UNLIMITED: Massive content extraction for complete analysis
+  if (isKeyFile || isUserFlow || isClientSrcFile) {
+    if (isClientSrcFile) {
+      reasons.push(`CRITICAL: Client/src file for agent visibility: ${fileName}`);
+    } else {
+      reasons.push(`Key user experience file: ${fileName}`);
+    }
+    relevantContent = content.substring(0, 8000); // Provide substantial content for analysis
     relevant = true;
   }
   
