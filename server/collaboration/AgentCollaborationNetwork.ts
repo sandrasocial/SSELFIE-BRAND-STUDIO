@@ -130,7 +130,7 @@ export class AgentCollaborationNetwork {
       const taskLower = taskContext.toLowerCase();
 
       // Search through shared knowledge
-      for (const knowledge of this.sharedKnowledge.values()) {
+      for (const knowledge of Array.from(this.sharedKnowledge.values())) {
         // Skip if agent is the source (they already know this)
         if (knowledge.sourceAgent === agentName) continue;
 
@@ -142,7 +142,7 @@ export class AgentCollaborationNetwork {
         let relevanceScore = 0;
 
         // Context tag matching
-        const matchingTags = knowledge.contextTags.filter(tag => contextTags.includes(tag));
+        const matchingTags = knowledge.contextTags.filter((tag: string) => contextTags.includes(tag));
         relevanceScore += matchingTags.length * 20;
 
         // Task description matching
@@ -266,14 +266,14 @@ export class AgentCollaborationNetwork {
 
       // Find most sharing agent
       const contributionCounts = new Map<string, number>();
-      for (const knowledge of this.sharedKnowledge.values()) {
+      for (const knowledge of Array.from(this.sharedKnowledge.values())) {
         const current = contributionCounts.get(knowledge.sourceAgent) || 0;
         contributionCounts.set(knowledge.sourceAgent, current + 1);
       }
       
       let mostSharedAgent = '';
       let maxContributions = 0;
-      for (const [agent, count] of contributionCounts.entries()) {
+      for (const [agent, count] of Array.from(contributionCounts.entries())) {
         if (count > maxContributions) {
           maxContributions = count;
           mostSharedAgent = agent;
@@ -373,7 +373,7 @@ export class AgentCollaborationNetwork {
     let bestAgent = '';
     let highestScore = 0;
 
-    for (const [agentName, spec] of this.agentSpecializations.entries()) {
+    for (const [agentName, spec] of Array.from(this.agentSpecializations.entries())) {
       let score = 0;
 
       // Primary skill bonus
@@ -587,6 +587,123 @@ export class AgentCollaborationNetwork {
       totalApplications,
       activeAgents: this.agentSpecializations.size,
       cacheSize: `${JSON.stringify(Array.from(this.sharedKnowledge.values())).length} bytes`
+    };
+  }
+
+  /**
+   * Enhanced knowledge routing with smart agent assignment
+   */
+  getBestAgentForTask(taskType: string, context?: string, urgency: 'low' | 'medium' | 'high' = 'medium'): { 
+    agentId: string; 
+    confidence: number; 
+    reasoning: string;
+    alternativeAgents: Array<{agentId: string; confidence: number}>;
+  } {
+    let bestAgent = 'elena';
+    let highestScore = 0;
+    let reasoning = 'Default coordination assignment';
+    const agentScores: Array<{agentId: string; confidence: number; reasoning: string}> = [];
+
+    for (const [agentId, specialization] of Array.from(this.agentSpecializations.entries())) {
+      let score = 0;
+      let agentReasoning = '';
+      
+      // Check primary specializations (weighted heavily)
+      if (specialization.primarySkills.includes(taskType)) {
+        score += 50;
+        agentReasoning += `Primary skill match (${taskType}); `;
+      }
+      
+      // Check secondary specializations
+      if (specialization.secondarySkills.includes(taskType)) {
+        score += 25;
+        agentReasoning += `Secondary skill match; `;
+      }
+      
+      // Context matching with natural language processing
+      if (context) {
+        const contextLower = context.toLowerCase();
+        const skillMatches = specialization.primarySkills.filter(skill => 
+          contextLower.includes(skill.toLowerCase()) || 
+          contextLower.includes(skill.replace('_', ' '))
+        );
+        
+        if (skillMatches.length > 0) {
+          score += 15 * skillMatches.length;
+          agentReasoning += `Context matches: ${skillMatches.join(', ')}; `;
+        }
+      }
+      
+      // Performance history bonus
+      if (specialization.successRate > 85) {
+        score += 10;
+        agentReasoning += `High success rate (${specialization.successRate}%); `;
+      }
+      
+      // Urgency-based routing
+      if (urgency === 'high') {
+        // Prefer agents with fastest response times
+        if (['elena', 'zara', 'aria'].includes(agentId)) {
+          score += 15;
+          agentReasoning += 'High-priority agent for urgent tasks; ';
+        }
+      }
+      
+      // Workload balancing (simulate based on recent activity)
+      const recentTasks = specialization.knowledgeApplications || 0;
+      if (recentTasks < 3) {
+        score += 5; // Bonus for less busy agents
+        agentReasoning += 'Available capacity; ';
+      }
+      
+      agentScores.push({
+        agentId,
+        confidence: Math.min(100, score),
+        reasoning: agentReasoning.trim()
+      });
+      
+      if (score > highestScore) {
+        highestScore = score;
+        bestAgent = agentId;
+        reasoning = agentReasoning.trim();
+      }
+    }
+
+    // Smart task routing based on patterns
+    if (taskType.includes('design') || taskType.includes('ui')) {
+      if (!reasoning.includes('Primary skill match')) {
+        bestAgent = 'aria';
+        reasoning = 'Design task auto-routed to Aria';
+        highestScore = 95;
+      }
+    } else if (taskType.includes('technical') || taskType.includes('code')) {
+      if (!reasoning.includes('Primary skill match')) {
+        bestAgent = 'zara';
+        reasoning = 'Technical task auto-routed to Zara';
+        highestScore = 95;
+      }
+    } else if (taskType.includes('copy') || taskType.includes('voice')) {
+      if (!reasoning.includes('Primary skill match')) {
+        bestAgent = 'rachel';
+        reasoning = 'Copywriting task auto-routed to Rachel';
+        highestScore = 95;
+      }
+    }
+
+    // Sort alternative agents by confidence
+    const alternatives = agentScores
+      .filter(agent => agent.agentId !== bestAgent)
+      .sort((a, b) => b.confidence - a.confidence)
+      .slice(0, 3)
+      .map(agent => ({agentId: agent.agentId, confidence: agent.confidence}));
+
+    console.log(`🎯 SMART ROUTING: ${taskType} → ${bestAgent} (${highestScore}% confidence) - ${reasoning}`);
+
+    return {
+      agentId: bestAgent,
+      confidence: Math.min(100, highestScore),
+      reasoning,
+      alternativeAgents: alternatives
     };
   }
 }

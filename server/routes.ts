@@ -8376,10 +8376,13 @@ I'll coordinate a **"Platform Launch Readiness Validation"** workflow with Aria,
   const { registerMayaAIRoutes } = await import('./routes/maya-ai-routes');
   const { registerElenaMonitoringRoutes } = await import('./routes/elena-monitoring-routes');
   const { registerAdminConversationRoutes } = await import('./routes/admin-conversation-routes');
+  const { registerAgentLearningSystemRoutes } = await import('./api/agent-learning-system');
   registerBackupManagementRoutes(app);
   registerMayaAIRoutes(app);
   registerElenaMonitoringRoutes(app);
   registerAdminConversationRoutes(app);
+  registerAgentLearningSystemRoutes(app);
+  registerAgentLearningSystemRoutes(app);
 
   // =========================================================================
   // 🎯 CONSULTING AGENTS ENDPOINT - READ-ONLY STRATEGIC ADVISORS
