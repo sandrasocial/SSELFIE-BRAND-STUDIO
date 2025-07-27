@@ -34,38 +34,57 @@ export function ElenaWorkflowsTab() {
     refetchInterval: 10000, // Refresh every 10 seconds
   });
 
-  // Mutation to execute workflow
+  // Mutation to execute workflow - Connected to Elena execution API
   const executeWorkflowMutation = useMutation({
-    mutationFn: async (workflowId: string) => {
-      const response = await fetch(`/api/elena/execute-staged-workflow/${workflowId}`, {
+    mutationFn: async (workflow: StagedWorkflow) => {
+      console.log('🚀 ELENA EXECUTE: Sending workflow to execution API');
+      
+      const response = await fetch('/api/elena/execute', {
         method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
         credentials: 'include',
+        body: JSON.stringify({
+          workflowId: workflow.id,
+          workflowName: workflow.title,
+          agents: workflow.agents.map(agentId => ({
+            agentId: agentId,
+            task: `Execute ${workflow.title} - ${workflow.description}`,
+            filePath: null // Will be determined by agent
+          })),
+          priority: workflow.priority
+        }),
       });
       
       if (!response.ok) {
-        throw new Error(`Failed to execute workflow: ${response.statusText}`);
+        const errorData = await response.text();
+        throw new Error(`Failed to execute workflow: ${response.statusText} - ${errorData}`);
       }
       
       return response.json();
     },
-    onSuccess: (data, workflowId) => {
+    onSuccess: (data, workflow) => {
       if (data.success) {
         toast({
-          title: "Workflow Executed",
-          description: "Elena's workflow has been deployed to autonomous orchestrator",
+          title: "Elena Workflow Deployed",
+          description: `${data.workflowName} deployed successfully with ${data.agentsDeployed} agents`,
         });
         
+        console.log('✅ ELENA EXECUTE SUCCESS:', data);
+        
         // Add to executing set
-        setExecutingWorkflows(prev => new Set([...prev, workflowId]));
+        setExecutingWorkflows(prev => new Set([...prev, workflow.id]));
         
         // Refresh both workflows and active deployments
         queryClient.invalidateQueries({ queryKey: ['/api/elena/staged-workflows'] });
         queryClient.invalidateQueries({ queryKey: ['/api/autonomous-orchestrator/active-deployments'] });
+        queryClient.invalidateQueries({ queryKey: ['/api/autonomous-orchestrator/coordination-metrics'] });
       } else {
         toast({
           variant: "destructive",
-          title: "Execution Failed",
-          description: data.message || "Failed to execute Elena's workflow",
+          title: "Elena Execution Failed",
+          description: data.error || "Failed to execute Elena's workflow",
         });
       }
     },
@@ -179,7 +198,7 @@ export function ElenaWorkflowsTab() {
                     </div>
                     
                     <Button
-                      onClick={() => executeWorkflowMutation.mutate(workflow.id)}
+                      onClick={() => executeWorkflowMutation.mutate(workflow)}
                       disabled={isExecuting || workflow.status !== 'staged'}
                       className="bg-black hover:bg-zinc-800 text-white font-medium"
                     >
