@@ -129,17 +129,9 @@ function analyzeFileRelevance(content: string, params: SearchParams, fileName: s
     // Extract keywords from query for better matching - ENHANCED FOR AUTONOMOUS ORCHESTRATOR
     const keywords = query.split(/[,\s-]+/).filter(word => word.length > 1); // UNLIMITED: Reduced minimum length to catch more matches
     
-    // Special handling for autonomous orchestrator queries
-    const autonomousKeywords = [
-      'deploy-all-agents', 'intelligent-task-distributor', 'agent-knowledge-sharing',
-      'workflow-templates', 'autonomous-orchestrator', 'coordination-metrics',
-      'orchestrator', 'deployment', 'coordination', 'workflow', 'knowledge', 'sharing'
-    ];
+    // Dynamic keyword extraction only - no hardcoded patterns
     
-    // Check for autonomous orchestrator specific terms
-    const hasAutonomousTerms = keywords.some(k => 
-      autonomousKeywords.some(a => a.includes(k.toLowerCase()) || k.toLowerCase().includes(a))
-    );
+    // Pure organic search - no hardcoded patterns
     
     // ULTIMATE keyword matching - maximum coverage
     let keywordMatches = 0;
@@ -184,8 +176,8 @@ function analyzeFileRelevance(content: string, params: SearchParams, fileName: s
     const pathMatches = pathKeywords.some(key => fileNameLower.includes(key));
     
     const totalMatches = keywordMatches + additionalMatches;
-    if (totalMatches > 0 || pathMatches || hasAutonomousTerms) {
-      reasons.push(`Matches ${totalMatches} keywords from query${hasAutonomousTerms ? ' (AUTONOMOUS ORCHESTRATOR SYSTEM)' : ''}${pathMatches ? ' + path match' : ''}`);
+    if (totalMatches > 0 || pathMatches) {
+      reasons.push(`Matches ${totalMatches} keywords from query${pathMatches ? ' + path match' : ''}`);
       relevantContent = extractRelevantContent(content, query);
       relevant = true;
     }
@@ -234,9 +226,7 @@ function analyzeFileRelevance(content: string, params: SearchParams, fileName: s
     'workflow-templates', 'coordination-metrics', 'autonomous-orchestrator',
     'orchestrator', 'task-distributor', 'knowledge-sharing', 'workflow',
     'agent-bridge', 'coordination', 'deployment', 'elena', 'agent-activity',
-    // SPECIFIC COMPONENT NAMES (CRITICAL FOR SEARCH)
-    'AgentActivityDashboard', 'ElenaWorkflowsTab', 'WorkflowCreator', 'AgentCoordination',
-    'activitydashboard', 'elenaworkflows', 'workflowstab', 'agentactivity',
+
     // SSELFIE STUDIO SPECIFIC
     'maya', 'victoria', 'rachel', 'ava', 'quinn', 'sophia', 'martha', 'diana', 'wilma', 'olga',
     'sselfie', 'selfie', 'studio', 'gallery', 'photoshoot', 'ai-generator', 'training',
