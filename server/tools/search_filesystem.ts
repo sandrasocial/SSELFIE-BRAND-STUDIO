@@ -121,8 +121,69 @@ function shouldAnalyzeFile(fileName: string): boolean {
   return codeExtensions.some(ext => fileName.endsWith(ext));
 }
 
+// ROUTED PAGES ONLY - Based on App.tsx routing
+const ACTIVE_ROUTED_PAGES = [
+  'editorial-landing.tsx',      // Main landing page "/"
+  'landing.tsx',               // "/old-landing"
+  'about.tsx',                 // "/about"
+  'how-it-works.tsx',          // "/how-it-works"
+  'selfie-guide.tsx',          // "/selfie-guide"
+  'blog.tsx',                  // "/blog"
+  'contact.tsx',               // "/contact"
+  'faq.tsx',                   // "/faq"
+  'terms.tsx',                 // "/terms"
+  'privacy.tsx',               // "/privacy"
+  'pricing.tsx',               // "/pricing"
+  'domain-help.tsx',           // "/domain-help"
+  'checkout.tsx',              // "/checkout"
+  'simple-checkout.tsx',       // "/simple-checkout"
+  'welcome.tsx',               // "/welcome"
+  'thank-you.tsx',             // "/thank-you"
+  'payment-success.tsx',       // "/payment-success"
+  'auth-success.tsx',          // "/auth-success"
+  'switch-account.tsx',        // "/switch-account"
+  'auth-bridge.tsx',           // "/auth"
+  'custom-login.tsx',          // "/sign-in"
+  'auth-login.tsx',            // "/auth-custom"
+  'workspace.tsx',             // "/workspace", "/studio"
+  'onboarding.tsx',            // "/onboarding"
+  'simple-training.tsx',       // "/ai-training", "/simple-training"
+  'ai-photoshoot.tsx',         // "/ai-photoshoot"
+  'sandra-photoshoot.tsx',     // "/sandra-photoshoot"
+  'custom-photoshoot-library.tsx', // "/custom-photoshoot-library"
+  'flatlay-library.tsx',       // "/flatlay-library", "/flatlays"
+  'sandra-ai.tsx',             // "/sandra-ai"
+  'ai-generator.tsx',          // "/ai-generator"
+  'sselfie-gallery.tsx',       // "/gallery", "/sselfie-gallery"
+  'profile.tsx',               // "/profile"
+  'maya.tsx',                  // "/maya"
+  'victoria.tsx',              // "/victoria"
+  'victoria-chat.tsx',         // "/victoria-chat"
+  'photo-selection.tsx',       // "/photo-selection"
+  'brand-onboarding.tsx',      // "/brand-onboarding"
+  'victoria-builder.tsx',      // "/victoria-builder"
+  'victoria-preview.tsx',      // "/victoria-preview"
+  'build.tsx',                 // "/build"
+  'admin-dashboard.tsx',       // "/admin-dashboard", "/admin"
+  'admin-consulting-agents.tsx', // "/admin/consulting-agents"
+  'launch-countdown.tsx',      // "/launch"
+  'auth-explainer.tsx',        // "/login"
+  'not-found.tsx'              // 404 fallback
+];
+
 function analyzeFileRelevance(content: string, params: SearchParams, fileName: string) {
   const reasons: string[] = [];
+  
+  // HIGHEST PRIORITY: Only routed pages in client/src/pages/
+  if (fileName.startsWith('client/src/pages/')) {
+    const pageFileName = fileName.split('/').pop() || '';
+    if (ACTIVE_ROUTED_PAGES.includes(pageFileName)) {
+      reasons.push(`✅ ACTIVE ROUTED PAGE: ${pageFileName} is currently routed in App.tsx`);
+    } else {
+      // De-prioritize non-routed pages
+      reasons.push(`⚠️ NON-ROUTED PAGE: ${pageFileName} exists but is not actively routed in App.tsx`);
+    }
+  }
   let relevantContent = '';
   let relevant = false;
   
@@ -155,6 +216,20 @@ function analyzeFileRelevance(content: string, params: SearchParams, fileName: s
           content.toLowerCase().match(new RegExp(`\\b${keyword.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}\\b`)) // Word boundary match
          ) {
         keywordMatches++;
+      }
+    }
+    
+    // Calculate relevance score - prioritize routed pages
+    let relevanceScore = keywordMatches;
+    
+    // BOOST: Active routed pages get priority
+    if (fileName.startsWith('client/src/pages/')) {
+      const pageFileName = fileName.split('/').pop() || '';
+      if (ACTIVE_ROUTED_PAGES.includes(pageFileName)) {
+        relevanceScore += 10; // Major boost for routed pages
+        reasons.push(`🎯 PRIORITY: Active routed page in App.tsx`);
+      } else {
+        relevanceScore -= 5; // Penalty for non-routed pages
       }
     }
     
