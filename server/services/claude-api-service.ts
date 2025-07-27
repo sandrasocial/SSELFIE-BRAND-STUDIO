@@ -1191,6 +1191,14 @@ COMMUNICATION STYLE:
               break;
               
             case 'str_replace_based_edit_tool':
+              // 🚨 CRITICAL FIX: Prevent invalid file paths from conversational language
+              if (!block.input.path || block.input.path.length < 3 || 
+                  ['me', 'the', 'files', 'show', 'list', 'find'].includes(block.input.path.toLowerCase())) {
+                console.log(`❌ INVALID FILE PATH DETECTED: "${block.input.path}" - Redirecting to search`);
+                toolResult = `Error: Invalid file path "${block.input.path}". To search for files, use the search_filesystem tool instead. For example: {"query_description": "find App.tsx files", "function_names": ["App"], "code": ["SSELFIE Studio"]}`;
+                break;
+              }
+              
               // UNLIMITED ACCESS: All agents have full file modification capabilities
               const fileResult = await UniversalAgentTools.fileOperations({
                   command: block.input.command as any,
