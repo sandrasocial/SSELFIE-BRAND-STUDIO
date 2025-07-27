@@ -451,14 +451,46 @@ export class ClaudeApiService {
         ...(tools || [])
       ];
 
-      // Send to Claude with enhanced capabilities and retry logic
-      const response = await this.sendToClaudeWithRetry({
+      // 🚨 MANDATORY TOOL ENFORCEMENT: Detect implementation requests that MUST use tools
+      const implementationKeywords = ['FIX', 'implement', 'create', 'NOW', 'fix this', 'implement this', 'create this', 'build this', 'modify this', 'update this'];
+      const mandatoryImplementation = implementationKeywords.some(keyword => 
+        userMessage.toUpperCase().includes(keyword.toUpperCase())
+      );
+      
+      // Prepare Claude API request with tool enforcement
+      let claudeRequest: any = {
         model: DEFAULT_MODEL_STR,
         max_tokens: 4000,
         system: enhancedSystemPrompt,
         messages,
         tools: enhancedTools,
-      });
+      };
+      
+      // Apply mandatory tool enforcement for implementation requests
+      if (mandatoryImplementation) {
+        claudeRequest.tool_choice = {
+          type: "tool",
+          name: "str_replace_based_edit_tool"
+        };
+        
+        // Enhance system prompt for mandatory implementation
+        claudeRequest.system += `\n\n🚨 MANDATORY IMPLEMENTATION MODE - ANALYSIS RESPONSES BLOCKED:
+Sandra has used implementation keywords (FIX, implement, create, NOW) which REQUIRES tool usage.
+YOU ARE BLOCKED from providing analysis or strategic advice responses.
+YOU MUST use str_replace_based_edit_tool to make actual file modifications.
+DO NOT respond with text explanations only - you MUST use tools to complete the task.
+SANDRA'S EXPLICIT REQUIREMENT: When she says "FIX", "implement", "create", or "NOW" - NO ANALYSIS, ONLY ACTION.
+
+MANDATORY COMPLETION PROTOCOL:
+1. Use str_replace_based_edit_tool to modify/create files IMMEDIATELY
+2. End response with: "TOOL_USED: str_replace_based_edit_tool | MODIFIED: [file paths]"
+3. ZERO analysis or strategic responses allowed`;
+        
+        console.log(`🚨 CLAUDE API SERVICE: Mandatory tool enforcement activated for ${agentName}`);
+      }
+
+      // Send to Claude with enhanced capabilities and retry logic
+      const response = await this.sendToClaudeWithRetry(claudeRequest);
 
       let assistantMessage = '';
       if (response.content[0] && 'text' in response.content[0]) {

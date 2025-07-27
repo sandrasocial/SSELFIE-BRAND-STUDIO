@@ -5553,18 +5553,38 @@ Workflow Stage: ${savedMemory.workflowStage || 'None'}
         conversationContext.includes('Elena has assigned')
       );
       
-      console.log(`🔍 ELENA TOOL ENFORCEMENT: ${agentId} - Workflow execution detected = ${isElenaWorkflowExecution}`);
+      // 🚨 MANDATORY TOOL ENFORCEMENT: Detect implementation requests that MUST use tools
+      const implementationKeywords = ['FIX', 'implement', 'create', 'NOW', 'fix this', 'implement this', 'create this', 'build this', 'modify this', 'update this'];
+      const mandatoryImplementation = implementationKeywords.some(keyword => 
+        message.toUpperCase().includes(keyword.toUpperCase())
+      );
       
-      // Configure tool choice enforcement for Elena workflows
+      console.log(`🔍 ELENA TOOL ENFORCEMENT: ${agentId} - Workflow execution detected = ${isElenaWorkflowExecution}`);
+      console.log(`🔍 MANDATORY IMPLEMENTATION: ${agentId} - Implementation keywords detected = ${mandatoryImplementation}`);
+      
+      // Configure tool choice enforcement for Elena workflows AND mandatory implementation requests
       let toolChoiceConfig = {};
-      if (isElenaWorkflowExecution) {
+      
+      // Apply tool_choice enforcement based on detection results
+      if (isElenaWorkflowExecution || mandatoryImplementation || shouldForceTools) {
         toolChoiceConfig = {
           tool_choice: {
             type: "tool",
             name: "str_replace_based_edit_tool"
           }
         };
-        console.log(`🚨 ULTIMATE TOOL ENFORCEMENT for ${agentId.toUpperCase()}: Elena workflow - FORCING str_replace_based_edit_tool`);
+        
+        if (isElenaWorkflowExecution) {
+          console.log(`🚨 ULTIMATE TOOL ENFORCEMENT for ${agentId.toUpperCase()}: Elena workflow - FORCING str_replace_based_edit_tool`);
+        }
+        
+        if (mandatoryImplementation) {
+          console.log(`🚨 MANDATORY TOOL ENFORCEMENT for ${agentId.toUpperCase()}: Implementation keywords detected - BLOCKING analysis responses`);
+        }
+        
+        if (shouldForceTools && !isElenaWorkflowExecution && !mandatoryImplementation) {
+          console.log(`🎯 SMART TOOL ENFORCEMENT for ${agentId.toUpperCase()}: Advanced detection - FORCING str_replace_based_edit_tool`);
+        }
       }
 
       // Call Claude API with tool support
@@ -5640,7 +5660,7 @@ Workflow Stage: ${savedMemory.workflowStage || 'None'}
       
       let finalSystemPrompt = agent.systemPrompt;
       
-      // PHASE 2.4: TOOL CHOICE APPLICATION (Extracted from Archive) - INCLUDING ELENA
+      // PHASE 2.4: TOOL CHOICE APPLICATION (Extracted from Archive) - INCLUDING ELENA AND MANDATORY IMPLEMENTATION
       if (isElenaWorkflowExecution || legacyWorkflowDetection) {
         finalSystemPrompt += `\n\n🚨 SPECIALIZED AGENT MODE - MANDATORY TOOL EXECUTION:
 You are being called by Elena's workflow system to complete a specific task.
@@ -5654,14 +5674,22 @@ MANDATORY COMPLETION PROTOCOL:
 2. End response with: "TOOL_USED: str_replace_based_edit_tool | MODIFIED: [file paths]"
 3. NO consulting advice - ONLY implementation work`;
         
-        // Archive pattern: Force tool choice for Elena workflows
-        toolChoiceConfig = {
-          tool_choice: {
-            type: "tool",
-            name: "str_replace_based_edit_tool"
-          }
-        };
         console.log(`🚨 ELENA WORKFLOW TOOL ENFORCEMENT: Forcing str_replace_based_edit_tool for ${agentId}`);
+      } else if (mandatoryImplementation) {
+        // 🚨 NEW: MANDATORY IMPLEMENTATION ENFORCEMENT - Block analysis responses
+        finalSystemPrompt += `\n\n🚨 MANDATORY IMPLEMENTATION MODE - ANALYSIS RESPONSES BLOCKED:
+Sandra has used implementation keywords (FIX, implement, create, NOW) which REQUIRES tool usage.
+YOU ARE BLOCKED from providing analysis or strategic advice responses.
+YOU MUST use str_replace_based_edit_tool to make actual file modifications.
+DO NOT respond with text explanations only - you MUST use tools to complete the task.
+SANDRA'S EXPLICIT REQUIREMENT: When she says "FIX", "implement", "create", or "NOW" - NO ANALYSIS, ONLY ACTION.
+
+MANDATORY COMPLETION PROTOCOL:
+1. Use str_replace_based_edit_tool to modify/create files IMMEDIATELY
+2. End response with: "TOOL_USED: str_replace_based_edit_tool | MODIFIED: [file paths]"
+3. ZERO analysis or strategic responses allowed`;
+        
+        console.log(`🚨 MANDATORY IMPLEMENTATION ENFORCEMENT: Blocking analysis responses for ${agentId}`);
       } else if (shouldForceTools) {
         // Archive pattern: Smart tool enforcement for implementation requests
         finalSystemPrompt += `\n\n🚨 IMPLEMENTATION MODE DETECTED - TOOL USAGE REQUIRED:
@@ -5670,15 +5698,17 @@ YOU MUST use str_replace_based_edit_tool to complete file operations.
 DO NOT provide theoretical explanations - TAKE ACTION with tools.
 SANDRA'S REQUIREMENT: Agents must DO the work, not just describe it.`;
         
-        toolChoiceConfig = {
-          tool_choice: {
-            type: "tool",
-            name: "str_replace_based_edit_tool"
-          }
-        };
         console.log(`🎯 SMART TOOL ENFORCEMENT: Forcing str_replace_based_edit_tool for ${agentId} (Implementation detected)`);
       } else {
         console.log(`💬 CONVERSATION MODE: ${agentId} responding without forced tool usage`);
+      }
+      
+      // Final enforcement verification - ensure all tool choice configurations are properly applied
+      const toolEnforcementActive = isElenaWorkflowExecution || mandatoryImplementation || shouldForceTools;
+      console.log(`🔧 TOOL ENFORCEMENT STATUS for ${agentId.toUpperCase()}: ${toolEnforcementActive ? 'ACTIVE - tool_choice: required' : 'INACTIVE - conversation mode'}`);
+      
+      if (toolEnforcementActive && !toolChoiceConfig.tool_choice) {
+        console.error(`❌ CRITICAL ERROR: Tool enforcement detected but tool_choice not configured for ${agentId}`);
       }
       
       console.log(`🔍 ${agentId.toUpperCase()} ELENA WORKFLOW EXECUTION DETECTED: ${isElenaWorkflowExecution}`);
