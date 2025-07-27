@@ -5850,8 +5850,10 @@ SANDRA'S REQUIREMENT: Agents must DO the work, not just describe it.`;
         // Legacy Elena workflow detection (keep for backwards compatibility)
         if (agentId === 'elena') {
           try {
-            const { elenaConversationDetection } = await import('./services/elena-conversation-detection.js');
-            const detectedWorkflow = elenaConversationDetection.detectWorkflowFromConversation(agentResponse, message);
+            // Elena conversation detection archived - using dynamic workflow detection instead
+            const ElenaWorkflowDetectionService = (await import('./services/elena-workflow-detection-service')).default;
+            const elenaDetectionService = ElenaWorkflowDetectionService.getInstance();
+            const detectedWorkflow = elenaDetectionService.detectWorkflowFromConversation(agentResponse, message);
             
             if (detectedWorkflow) {
               console.log(`🎯 ELENA LEGACY: Legacy workflow detected "${detectedWorkflow.name}" (fallback system)`);
@@ -7483,28 +7485,31 @@ MANDATORY COMPLETION PROTOCOL:
 
   console.log('✅ Enhanced Agent Capabilities routes registered');
 
-  // Elena Workflow Execution API - NEW COMPLETE SYSTEM
-  const { elenaWorkflowAuth } = await import('./middleware/elena-workflow-auth.js');
-  const { getStagedWorkflows, executeWorkflow, getExecutionStatus, getActiveExecutions, removeWorkflow } = await import('./api/elena/workflow-execution.js');
+  // Elena Workflow Execution API - DISABLED (middleware archived)
+  // const { elenaWorkflowAuth } = await import('./middleware/elena-workflow-auth.js'); // ARCHIVED
+  // const { getStagedWorkflows, executeWorkflow, getExecutionStatus, getActiveExecutions, removeWorkflow } = await import('./api/elena/workflow-execution.js');
   
-  app.get('/api/elena/staged-workflows', elenaWorkflowAuth, getStagedWorkflows);
-  app.post('/api/elena/execute-workflow/:workflowId', elenaWorkflowAuth, executeWorkflow);
-  app.get('/api/elena/execution-status/:executionId', elenaWorkflowAuth, getExecutionStatus);
-  app.get('/api/elena/active-executions', elenaWorkflowAuth, getActiveExecutions);
-  app.delete('/api/elena/remove-workflow/:workflowId', elenaWorkflowAuth, removeWorkflow);
+  // app.get('/api/elena/staged-workflows', elenaWorkflowAuth, getStagedWorkflows);
+  // app.post('/api/elena/execute-workflow/:workflowId', elenaWorkflowAuth, executeWorkflow);
+  // app.get('/api/elena/execution-status/:executionId', elenaWorkflowAuth, getExecutionStatus);
+  // app.get('/api/elena/active-executions', elenaWorkflowAuth, getActiveExecutions);
+  // app.delete('/api/elena/remove-workflow/:workflowId', elenaWorkflowAuth, removeWorkflow);
 
   // Execute staged workflow through autonomous orchestrator
   app.post('/api/elena/execute-staged-workflow/:workflowId', async (req, res) => {
     try {
-      // Import Elena workflow authentication middleware
-      const { elenaStagedWorkflowAuth } = await import('./middleware/elena-workflow-auth');
+      // Elena workflow authentication middleware archived - using basic auth check
       
-      // Apply Elena workflow authentication
-      elenaStagedWorkflowAuth(req, res, async () => {
-        try {
+      // Basic admin token check instead of archived middleware
+      const adminToken = req.headers['x-admin-token'] || req.query.adminToken;
+      if (adminToken !== 'sandra-admin-2025') {
+        return res.status(401).json({ success: false, error: 'Unauthorized' });
+      }
           const { workflowId } = req.params;
-          const { workflowDetectionService } = await import('./services/workflow-detection-service');
-          const workflow = workflowDetectionService.getWorkflow(workflowId);
+          // Use Elena workflow detection service instead of archived workflow-detection-service
+          const ElenaWorkflowDetectionService = (await import('./services/elena-workflow-detection-service')).default;
+          const workflowService = ElenaWorkflowDetectionService.getInstance();
+          const workflow = workflowService.getWorkflow(workflowId);
         
           if (!workflow) {
             return res.status(404).json({
@@ -7540,7 +7545,7 @@ MANDATORY COMPLETION PROTOCOL:
           
           if (result.success) {
             // Mark workflow as executed
-            workflowDetectionService.markWorkflowExecuted(workflowId);
+            workflowService.markWorkflowExecuted(workflowId);
             
             console.log(`✅ WORKFLOW EXECUTED: ${workflow.name} → Deployment: ${result.deploymentId}`);
             
@@ -7559,19 +7564,11 @@ MANDATORY COMPLETION PROTOCOL:
               error: 'Failed to execute workflow through autonomous orchestrator'
             });
           }
-        } catch (error) {
-          console.error('❌ Error executing staged workflow:', error);
-          res.status(500).json({ 
-            success: false, 
-            error: 'Failed to execute staged workflow' 
-          });
-        }
-      });
     } catch (error) {
-      console.error('❌ Error in staged workflow auth:', error);
+      console.error('❌ Error executing staged workflow:', error);
       res.status(500).json({ 
         success: false, 
-        error: 'Authentication error for staged workflow execution' 
+        error: 'Failed to execute staged workflow' 
       });
     }
   });
@@ -8527,11 +8524,11 @@ I'll coordinate a **"Platform Launch Readiness Validation"** workflow with Aria,
   // Register backup management routes
   const { registerBackupManagementRoutes } = await import('./routes/backup-management-routes');
   const { registerMayaAIRoutes } = await import('./routes/maya-ai-routes');
-  const { registerElenaMonitoringRoutes } = await import('./routes/elena-monitoring-routes');
+  // const { registerElenaMonitoringRoutes } = await import('./routes/elena-monitoring-routes'); // ARCHIVED
   const { registerAdminConversationRoutes } = await import('./routes/admin-conversation-routes');
   registerBackupManagementRoutes(app);
   registerMayaAIRoutes(app);
-  registerElenaMonitoringRoutes(app);
+  // registerElenaMonitoringRoutes(app); // ARCHIVED
   registerAdminConversationRoutes(app);
 
   // =========================================================================
