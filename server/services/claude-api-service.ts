@@ -43,8 +43,14 @@ export class ClaudeApiService {
   async createConversationIfNotExists(
     userId: string, 
     agentName: string, 
-    conversationId: string
+    conversationId: string | null
   ): Promise<number> {
+    // Generate conversationId if it's null/undefined
+    if (!conversationId) {
+      conversationId = `conv_${agentName}_${Date.now()}_${Math.random().toString(36).substring(2, 15)}`;
+      console.log('🔧 Generated new conversationId:', conversationId);
+    }
+
     // Check if conversation exists
     const existing = await db
       .select()
@@ -53,6 +59,7 @@ export class ClaudeApiService {
       .limit(1);
 
     if (existing.length > 0) {
+      console.log('✅ Using existing conversation:', existing[0].id);
       return existing[0].id;
     }
 
@@ -117,6 +124,13 @@ export class ClaudeApiService {
     }
 
     // Create new conversation
+    console.log('🔧 Creating new conversation with:', {
+      userId,
+      agentName,
+      conversationId,
+      title: `${agentName} conversation`
+    });
+
     const [conversation] = await db
       .insert(claudeConversations)
       .values({
@@ -130,6 +144,7 @@ export class ClaudeApiService {
       })
       .returning();
 
+    console.log('✅ Created new conversation with ID:', conversation.id);
     return conversation.id;
   }
 
@@ -236,7 +251,7 @@ export class ClaudeApiService {
   async sendMessage(
     userId: string,
     agentName: string,
-    conversationId: string,
+    conversationId: string | null,
     userMessage: string,
     systemPrompt?: string,
     tools?: any[],
