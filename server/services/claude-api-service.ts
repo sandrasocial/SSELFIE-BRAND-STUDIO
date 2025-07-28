@@ -649,6 +649,19 @@ ${searchResult.results.slice(0, 10).map((file: any) => `• ${file.path}`).join(
         let implementationScore = 0;
         let consultationScore = 0;
         
+        // CONTINUATION REQUEST DETECTION - highest priority
+        const continuationPhrases = ['CONTINUE', 'KEEP GOING', 'CONTINUE WHERE', 'RESUME', 'CARRY ON'];
+        if (continuationPhrases.some(phrase => messageUpper.includes(phrase))) {
+          return {
+            isContinuation: true,
+            isImplementation: true, // Continuation maintains implementation mode
+            isConsultation: false,
+            implementationScore: 10,
+            consultationScore: 0,
+            intent: 'continuation'
+          };
+        }
+        
         // Implementation intent indicators - universal patterns
         const actionPhrases = ['IMPLEMENT NOW', 'CREATE THIS', 'BUILD THIS', 'DO THIS NOW', 'MAKE THIS', 'UPDATE THIS'];
         const urgentIndicators = ['NOW', 'IMMEDIATELY', 'URGENT', 'ASAP', 'RIGHT NOW'];
@@ -687,6 +700,7 @@ ${searchResult.results.slice(0, 10).map((file: any) => `• ${file.path}`).join(
         if (messageUpper.includes('?')) consultationScore += 1;
         
         return {
+          isContinuation: false,
           isImplementation: implementationScore > consultationScore && implementationScore >= 3,
           isConsultation: consultationScore > implementationScore && consultationScore >= 2,
           implementationScore,
@@ -697,6 +711,12 @@ ${searchResult.results.slice(0, 10).map((file: any) => `• ${file.path}`).join(
       
       const intentAnalysis = detectRequestIntent(userMessage);
       console.log(`🧠 CLAUDE SERVICE INTENT ANALYSIS for ${agentName}: ${intentAnalysis.intent} (impl: ${intentAnalysis.implementationScore}, consult: ${intentAnalysis.consultationScore})`);
+      
+      // CONTINUATION HANDLING: Reset recursion depth for continuation requests
+      if (intentAnalysis.isContinuation) {
+        console.log(`🔄 CONTINUATION DETECTED: Resetting recursion depth for continued work`);
+        recursionDepth = 0; // Reset to allow another 15 cycles
+      }
       
       const mandatoryImplementation = intentAnalysis.isImplementation;
       
@@ -1378,11 +1398,11 @@ I respond like your warm best friend who loves organization - simple, reassuring
       const continuationHasTools = continuationResponse.content.some((block: any) => block.type === 'tool_use');
       
       if (continuationHasTools) {
-        // RECURSION DEPTH PROTECTION: Prevent infinite loops but allow more cycles for complex tasks
-        const maxRecursionDepth = 15; // Increased maximum recursion cycles for complex implementations
+        // RECURSION DEPTH PROTECTION: Prevent infinite loops but allow continuation
+        const maxRecursionDepth = 15; // Maximum recursion cycles per session
         if (recursionDepth >= maxRecursionDepth) {
-          console.log(`⚠️ RECURSION DEPTH LIMIT REACHED: ${recursionDepth}/${maxRecursionDepth} - stopping to prevent infinite loops`);
-          finalResponse += '\n\n[Task requires continuation - agent completed maximum safe work cycles]';
+          console.log(`⚠️ RECURSION DEPTH LIMIT REACHED: ${recursionDepth}/${maxRecursionDepth} - pausing for continuation`);
+          finalResponse += '\n\n**CONTINUATION AVAILABLE** - I completed 15 work cycles and have more to do. Reply "continue" to resume where I left off, or provide new instructions.';
           return finalResponse;
         }
         
