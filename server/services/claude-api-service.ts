@@ -71,8 +71,8 @@ export class ClaudeApiService {
           await db
             .insert(users)
             .values({
-              id: 'sandra-admin',
               name: 'Sandra S Admin',
+              email: 'ssa@ssasocial.com',
               isAdmin: true,
               subscription: 'premium'
             })
