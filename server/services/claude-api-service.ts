@@ -1200,13 +1200,19 @@ I respond like your warm best friend who loves organization - simple, reassuring
               break;
               
             case 'str_replace_based_edit_tool':
-              // 🚨 CRITICAL FIX: Prevent invalid file paths from conversational language
-              if (!block.input.path || block.input.path.length < 3 || 
-                  ['me', 'the', 'files', 'show', 'list', 'find'].includes(block.input.path.toLowerCase())) {
-                console.log(`❌ INVALID FILE PATH DETECTED: "${block.input.path}" - Redirecting to search`);
-                toolResult = `Error: Invalid file path "${block.input.path}". To search for files, use the search_filesystem tool instead. For example: {"query_description": "find App.tsx files", "function_names": ["App"], "code": ["SSELFIE Studio"]}`;
+              // ✅ DIRECTORY BROWSING FIX: Only block empty or conversational paths, allow all valid directory/file paths
+              const conversationalPaths = ['me', 'the', 'files', 'show', 'list', 'find'];
+              const pathValue = block.input.path;
+              console.log(`🔍 PATH VALIDATION: "${pathValue}", empty: ${!pathValue}, trim empty: ${pathValue?.trim() === ''}, conversational: ${conversationalPaths.includes(pathValue?.toLowerCase())}`);
+              
+              if (!pathValue || pathValue.trim() === '' || conversationalPaths.includes(pathValue.toLowerCase())) {
+                console.log(`❌ INVALID FILE PATH DETECTED: "${pathValue}" - Redirecting to search`);
+                toolResult = `Error: Invalid file path "${pathValue}". To search for files, use the search_filesystem tool instead. For example: {"query_description": "find App.tsx files", "function_names": ["App"], "code": ["SSELFIE Studio"]}`;
                 break;
               }
+              
+              console.log(`✅ VALID PATH ACCEPTED: "${pathValue}" - Proceeding with file operation`);
+              
               
               // UNLIMITED ACCESS: All agents have full file modification capabilities
               const fileResult = await UniversalAgentTools.fileOperations({
