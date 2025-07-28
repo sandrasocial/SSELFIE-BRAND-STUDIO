@@ -239,7 +239,7 @@ Example: Design and implement a new onboarding flow with progress tracking"
             </h3>
             
             <div className="space-y-3">
-              {(workflow.steps || []).map((step, index) => (
+              {Array.isArray(workflow.steps) ? workflow.steps.map((step, index) => (
                 <Card key={step.id} className="p-4">
                   <div className="flex items-start justify-between">
                     <div className="flex-1 space-y-2">
@@ -281,7 +281,11 @@ Example: Design and implement a new onboarding flow with progress tracking"
                     </div>
                   </div>
                 </Card>
-              ))}
+              )) : (
+                <div className="text-center py-8 text-gray-500">
+                  <p>No workflow steps available</p>
+                </div>
+              )}
             </div>
           </div>
 
