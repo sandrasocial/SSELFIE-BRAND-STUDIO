@@ -156,6 +156,86 @@ class ElenaWorkflowDetection {
     }
     return workflows;
   }
+
+  async triggerWorkflow(content: string, userId: string, workflowType?: string): Promise<string> {
+    console.log('🚀 ELENA: Triggering workflow detection...');
+    
+    // Detect workflow from content
+    const detectedWorkflow = this.detectWorkflow(content, userId);
+    
+    if (!detectedWorkflow) {
+      console.log('🧠 ELENA: No workflow pattern detected, creating general task');
+      // Create a general workflow if no specific pattern detected
+      const workflowId = uuidv4();
+      const generalWorkflow: WorkflowDetection = {
+        workflowId,
+        workflowType: workflowType || 'general',
+        detectedAt: new Date(),
+        confidence: 0.5,
+        assignedAgents: ['aria'], // Default to Aria for general tasks
+        tasks: [{
+          taskId: uuidv4(),
+          description: content,
+          assignedAgent: 'aria',
+          priority: 'medium',
+          estimatedDuration: '30 minutes',
+          status: 'pending'
+        }],
+        status: 'detected',
+        userId
+      };
+      
+      this.detectedWorkflows.set(workflowId, generalWorkflow);
+      
+      // Assign tasks to agents via unified system
+      await this.assignTasksToAgents(generalWorkflow);
+      
+      return workflowId;
+    }
+    
+    // Assign detected workflow tasks to agents
+    await this.assignTasksToAgents(detectedWorkflow);
+    
+    return detectedWorkflow.workflowId;
+  }
+
+  private async assignTasksToAgents(workflow: WorkflowDetection) {
+    console.log(`🎯 ELENA: Assigning ${workflow.tasks.length} tasks to agents...`);
+    
+    try {
+      // Import the unified agent system
+      const { unifiedAgentSystem } = await import('./unified-agent-system');
+      
+      // Assign each task to the appropriate agent
+      for (const task of workflow.tasks) {
+        console.log(`📋 ELENA: Assigning task to ${task.assignedAgent}: ${task.description}`);
+        
+        // Send task to agent via unified system
+        await unifiedAgentSystem.sendTaskToAgent(
+          task.assignedAgent,
+          task.description,
+          workflow.userId,
+          {
+            workflowId: workflow.workflowId,
+            taskId: task.taskId,
+            priority: task.priority,
+            estimatedDuration: task.estimatedDuration
+          }
+        );
+        
+        // Update task status
+        task.status = 'in_progress';
+      }
+      
+      // Update workflow status
+      workflow.status = 'assigned';
+      console.log(`✅ ELENA: All tasks assigned for workflow ${workflow.workflowId}`);
+      
+    } catch (error) {
+      console.error('❌ ELENA: Error assigning tasks to agents:', error);
+      throw error;
+    }
+  }
 }
 
 // Export singleton instance
