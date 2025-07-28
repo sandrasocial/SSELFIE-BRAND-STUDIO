@@ -1117,7 +1117,6 @@ export class DatabaseStorage implements IStorage {
         plan: plan,
         monthlyGenerationsAllowed: 100,
         monthlyGenerationsUsed: 0,
-        totalGenerationsUsed: 0,
         totalCostIncurred: "0.0000",
         currentPeriodStart: new Date(),
         currentPeriodEnd: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000),
