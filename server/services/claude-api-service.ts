@@ -1378,11 +1378,11 @@ I respond like your warm best friend who loves organization - simple, reassuring
       const continuationHasTools = continuationResponse.content.some((block: any) => block.type === 'tool_use');
       
       if (continuationHasTools) {
-        // RECURSION DEPTH PROTECTION: Prevent infinite loops
-        const maxRecursionDepth = 10; // Maximum recursion cycles
+        // RECURSION DEPTH PROTECTION: Prevent infinite loops but allow more cycles for complex tasks
+        const maxRecursionDepth = 15; // Increased maximum recursion cycles for complex implementations
         if (recursionDepth >= maxRecursionDepth) {
           console.log(`⚠️ RECURSION DEPTH LIMIT REACHED: ${recursionDepth}/${maxRecursionDepth} - stopping to prevent infinite loops`);
-          finalResponse += '\n\n[Agent reached maximum work cycles - task completion attempted]';
+          finalResponse += '\n\n[Task requires continuation - agent completed maximum safe work cycles]';
           return finalResponse;
         }
         
