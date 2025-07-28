@@ -420,24 +420,29 @@ ${searchResult.results.slice(0, 10).map((file: any) => `• ${file.path}`).join(
 
       // Add conversation history (filter out empty messages to avoid Claude API errors)
       for (const msg of history) {
-        if (msg.role !== 'system' && msg.content && msg.content.trim().length > 0) {
-          messages.push({
-            role: msg.role,
-            content: msg.content
-          });
+        if (msg.role !== 'system' && msg.content) {
+          // Ensure content is a string
+          const content = typeof msg.content === 'string' ? msg.content : String(msg.content);
+          if (content.trim().length > 0) {
+            messages.push({
+              role: msg.role,
+              content: content
+            });
+          }
         }
       }
 
-      // Add current user message
+      // Add current user message (ensure it's a string)
       messages.push({
         role: 'user',
-        content: userMessage
+        content: typeof userMessage === 'string' ? userMessage : String(userMessage)
       });
 
       // Debug: Log message array before sending to Claude
       console.log('🔍 Message array being sent to Claude:');
       messages.forEach((msg, index) => {
-        console.log(`  [${index}] ${msg.role}: "${msg.content?.substring(0, 100)}..." (length: ${msg.content?.length || 0})`);
+        const content = typeof msg.content === 'string' ? msg.content : String(msg.content || '');
+        console.log(`  [${index}] ${msg.role}: "${content.substring(0, 100)}..." (length: ${content.length})`);
       });
 
       // Universal dynamic tools - flexible for any task, not hardcoded
@@ -819,7 +824,8 @@ Use tools only if file modifications are specifically requested within the consu
       await this.saveMessage(actualConversationId, 'user', userMessage);
       
       console.log('💾 Saving assistant message to database:', assistantMessage.length, 'characters');
-      console.log('💾 Assistant message preview:', assistantMessage.substring(0, 200) + '...');
+      const messagePreview = typeof assistantMessage === 'string' ? assistantMessage : String(assistantMessage);
+      console.log('💾 Assistant message preview:', messagePreview.substring(0, 200) + '...');
       await this.saveMessage(actualConversationId, 'assistant', assistantMessage);
       
       // ELENA WORKFLOW DETECTION: Disabled due to missing service file
