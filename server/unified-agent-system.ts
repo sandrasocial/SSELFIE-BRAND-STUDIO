@@ -155,14 +155,17 @@ export class UnifiedAgentSystem {
 
     try {
       // Import Claude API service for actual agent execution
-      const { ClaudeApiService } = await import('./services/claude-api-service');
+      const { claudeApiService } = await import('./services/claude-api-service');
       
       // Execute through the unified Claude API
-      const response = await ClaudeApiService.sendMessage(
+      const response = await claudeApiService.sendMessage(
         request.agentId,
-        request.message,
+        'admin',
         request.conversationId,
-        { enforceTools: request.enforceTools }
+        request.message,
+        [],
+        false,
+        request.enforceTools
       );
 
       // Broadcast to WebSocket clients
