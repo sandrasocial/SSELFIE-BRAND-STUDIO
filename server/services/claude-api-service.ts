@@ -1528,7 +1528,7 @@ I respond like your warm best friend who loves organization - simple, reassuring
               const { search_filesystem } = await import('../tools/search_filesystem');
               const searchResult = await search_filesystem(block.input);
               // CRITICAL FIX: search_filesystem returns direct results, not wrapped in success/result
-              const fileCount = searchResult?.results?.length || searchResult?.length || 0;
+              const fileCount = (searchResult as any)?.results?.length || (searchResult as any)?.length || 0;
               console.log(`✅ SEARCH SUCCESS: Found ${fileCount} files`);
               toolResult = `\n\n[Codebase Search Results]\n${JSON.stringify(searchResult, null, 2)}`;
               break;
@@ -1543,18 +1543,17 @@ I respond like your warm best friend who loves organization - simple, reassuring
                 new_str: block.input.new_str,
                 insert_line: block.input.insert_line,
                 insert_text: block.input.insert_text,
-                view_range: block.input.view_range,
-                backup: true // Always backup for safety
+                view_range: block.input.view_range
               });
               
               if (typeof fileResult === 'string') {
                 console.log(`✅ FILE OP SUCCESS: ${block.input.command} on ${block.input.path}`);
                 toolResult = `\n\n[File Operation: ${block.input.command}]\n${fileResult}`;
-              } else if (fileResult?.success) {
+              } else if ((fileResult as any)?.success) {
                 console.log(`✅ FILE OP SUCCESS: ${block.input.command} on ${block.input.path}`);
-                toolResult = `\n\n[File Operation: ${block.input.command}]\n${JSON.stringify(fileResult.result, null, 2)}`;
+                toolResult = `\n\n[File Operation: ${block.input.command}]\n${JSON.stringify((fileResult as any).result, null, 2)}`;
               } else {
-                toolResult = `\n\n[File Operation Error: ${fileResult?.error || 'Unknown error'}]`;
+                toolResult = `\n\n[File Operation Error: ${(fileResult as any)?.error || 'Unknown error'}]`;
               }
               break;
               
