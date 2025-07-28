@@ -1096,7 +1096,7 @@ Use tools only if file modifications are specifically requested within the consu
     
     // Technical terms
     const technicalTerms = ['api', 'database', 'integration', 'architecture', 'deployment'];
-    score += technicalTerms.filter(term => message.toLowerCase().includes(term)).length;
+    score += technicalTerms.filter(term => String(message).toLowerCase().includes(term)).length;
     
     // Question complexity
     const questionMarks = (message.match(/\?/g) || []).length;
@@ -1110,11 +1110,12 @@ Use tools only if file modifications are specifically requested within the consu
   }
 
   private extractSessionContext(message: string): any {
+    const messageStr = String(message).toLowerCase();
     return {
-      mentions_previous_work: message.toLowerCase().includes('previous') || message.toLowerCase().includes('before'),
-      asks_for_improvement: message.toLowerCase().includes('improve') || message.toLowerCase().includes('enhance'),
-      deployment_focused: message.toLowerCase().includes('deploy') || message.toLowerCase().includes('production'),
-      learning_oriented: message.toLowerCase().includes('learn') || message.toLowerCase().includes('understand')
+      mentions_previous_work: messageStr.includes('previous') || messageStr.includes('before'),
+      asks_for_improvement: messageStr.includes('improve') || messageStr.includes('enhance'),
+      deployment_focused: messageStr.includes('deploy') || messageStr.includes('production'),
+      learning_oriented: messageStr.includes('learn') || messageStr.includes('understand')
     };
   }
 
