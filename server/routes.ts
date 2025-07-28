@@ -61,6 +61,34 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
   
+  // Auth user endpoint for frontend - CRITICAL: NO REDIRECT, JUST RETURN USER DATA
+  app.get('/api/auth/user', async (req: any, res) => {
+    try {
+      console.log('🔍 /api/auth/user called - checking authentication');
+      
+      // Check if user is authenticated without using middleware that redirects
+      if (!req.isAuthenticated() || !req.user?.claims?.sub) {
+        console.log('❌ User not authenticated - returning 401');
+        return res.status(401).json({ message: "Unauthorized" });
+      }
+      
+      const userId = req.user.claims.sub;
+      console.log('✅ User authenticated, fetching user data for:', userId);
+      
+      const user = await storage.getUser(userId);
+      if (!user) {
+        console.log('❌ User not found in database:', userId);
+        return res.status(404).json({ message: "User not found" });
+      }
+      
+      console.log('✅ Returning user data:', user.email);
+      res.json(user);
+    } catch (error) {
+      console.error("Error fetching user:", error);
+      res.status(500).json({ message: "Failed to fetch user" });
+    }
+  });
+
   // User info endpoint
   app.get('/api/user/info', (req, res) => {
     if (req.isAuthenticated?.()) {
