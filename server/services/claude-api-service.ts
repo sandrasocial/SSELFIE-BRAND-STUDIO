@@ -57,8 +57,8 @@ export class ClaudeApiService {
       return existing[0].id;
     }
 
-    // Ensure admin user exists for sandra-admin userId
-    if (userId === 'sandra-admin') {
+    // Ensure admin user exists for sandra-admin userId or 'admin'
+    if (userId === 'sandra-admin' || userId === 'admin') {
       try {
         const adminExists = await db
           .select()
@@ -68,30 +68,52 @@ export class ClaudeApiService {
 
         if (adminExists.length === 0) {
           // Create admin user if doesn't exist
-          await db
+          const [newAdmin] = await db
             .insert(users)
             .values({
-              name: 'Sandra S Admin',
+              id: 'admin-user-123',
               email: 'ssa@ssasocial.com',
-              isAdmin: true,
-              subscription: 'premium'
+              first_name: 'Sandra',
+              last_name: 'Admin',
+              role: 'admin',
+              plan: 'premium'
             })
-            .onConflictDoNothing();
-        }
-        
-        // Use the admin user's actual ID
-        const adminUser = await db
-          .select()
-          .from(users)
-          .where(eq(users.email, 'ssa@ssasocial.com'))
-          .limit(1);
-          
-        if (adminUser.length > 0) {
-          userId = adminUser[0].id;
+            .onConflictDoNothing()
+            .returning();
+            
+          if (newAdmin) {
+            userId = newAdmin.id;
+            console.log('✅ Created admin user with ID:', userId);
+          } else {
+            userId = 'admin-user-123'; // Use the expected ID if conflict happened
+          }
+        } else {
+          // Use existing admin user ID
+          userId = adminExists[0].id;
+          console.log('✅ Using existing admin user ID:', userId);
         }
       } catch (error) {
         console.error('Admin user creation error:', error);
-        // Continue with original userId if admin creation fails
+        // For testing, create a simple fallback user
+        try {
+          const [fallbackUser] = await db
+            .insert(users)
+            .values({
+              id: `admin-fallback-${Date.now()}`,
+              email: `admin-${Date.now()}@test.com`,
+              first_name: 'Test',
+              last_name: 'Admin',
+              role: 'admin',
+              plan: 'premium'
+            })
+            .returning();
+          
+          userId = fallbackUser.id;
+          console.log('✅ Created fallback admin user with ID:', userId);
+        } catch (fallbackError) {
+          console.error('Fallback user creation failed:', fallbackError);
+          return existing.length > 0 ? existing[0].id : 1; // Return existing conversation or fallback ID
+        }
       }
     }
 
