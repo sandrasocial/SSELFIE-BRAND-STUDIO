@@ -8944,5 +8944,3 @@ function getRealMetrics(agentId: string) {
     lastActivity: new Date()
   };
 }
-
-
