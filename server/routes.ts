@@ -171,6 +171,55 @@ export async function registerRoutes(app: Express): Promise<Server> {
       });
     }
   });
+
+  // CRITICAL FIX: Missing /api/claude/send-message endpoint for admin dashboard
+  app.post('/api/claude/send-message', async (req, res) => {
+    try {
+      console.log('🔍 Claude send-message called with:', {
+        agentName: req.body.agentName,
+        messageLength: req.body.message?.length,
+        conversationId: req.body.conversationId,
+        fileEditMode: req.body.fileEditMode
+      });
+
+      const { agentName, message, conversationId, fileEditMode = true } = req.body;
+      
+      if (!agentName || !message) {
+        return res.status(400).json({ 
+          success: false, 
+          error: 'Agent name and message are required' 
+        });
+      }
+
+      // Get user ID for authentication
+      let userId = 'admin-sandra'; // Default admin user
+      if (req.isAuthenticated() && req.user?.claims?.sub) {
+        userId = req.user.claims.sub;
+      }
+
+      // Use the Claude API service for agent communication
+      const response = await claudeApiService.sendMessage(
+        agentName,
+        message,
+        conversationId || `conv_${agentName}_${Date.now()}`,
+        fileEditMode,
+        userId
+      );
+
+      res.json({
+        success: true,
+        response: response.content,
+        conversationId: response.conversationId
+      });
+
+    } catch (error) {
+      console.error('Claude send-message error:', error);
+      res.status(500).json({ 
+        success: false, 
+        error: error instanceof Error ? error.message : 'Failed to send message to agent' 
+      });
+    }
+  });
   
   // Auth user endpoint for frontend - CRITICAL: ADMIN AGENT AUTHENTICATION FIX
   app.get('/api/auth/user', async (req: any, res) => {
