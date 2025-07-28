@@ -33,12 +33,23 @@ export async function searchFilesystem(params: SearchParams) {
           const fullPath = path.join(dirPath, entry.name);
           const relativePath = path.join(basePath, entry.name);
           
-          // Skip excluded directories
-          if (entry.name.startsWith('.') || 
-              entry.name === 'node_modules' || 
-              entry.name === 'dist' ||
-              entry.name === 'build' ||
-              entry.name === 'archive') {
+          // CRITICAL: Skip legacy/archive directories that confuse agents
+          const excludeDirectories = [
+            'node_modules', '.git', 'dist', 'build', '.cache',
+            'archive',           // OLD/LEGACY FILES - CRITICAL TO SKIP
+            'src',              // LEGACY ROOT SRC (NOT client/src)
+            'components',       // SCATTERED COMPONENTS (NOT client/src/components)
+            'attached_assets',  // USER UPLOADS
+            'logs', 'temp', 'tmp'
+          ];
+          
+          if (entry.name.startsWith('.') || excludeDirectories.includes(entry.name)) {
+            continue;
+          }
+          
+          // ADDITIONAL CHECK: Skip any path containing excluded directories
+          if (excludeDirectories.some(exclude => relativePath.includes(exclude))) {
+            console.log(`🚫 CONSULTING SEARCH: Skipping legacy path: ${relativePath}`);
             continue;
           }
           
