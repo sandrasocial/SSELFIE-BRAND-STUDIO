@@ -281,6 +281,58 @@ export async function registerRoutes(app: Express): Promise<Server> {
       });
     }
   });
+
+  // 🧠 ELENA WORKFLOW DETECTION ENDPOINTS
+  const { elenaWorkflowDetection } = await import('./elena-workflow-detection');
+  
+  // Manual workflow trigger endpoint
+  app.post('/api/elena/trigger-workflow', async (req, res) => {
+    try {
+      const { content, workflowType, userId } = req.body;
+      
+      if (!content) {
+        return res.status(400).json({ error: 'Content is required' });
+      }
+      
+      const workflowId = await elenaWorkflowDetection.triggerWorkflow(
+        content,
+        userId || '42585527', // Default to admin user
+        workflowType
+      );
+      
+      res.json({
+        success: true,
+        workflowId,
+        message: 'Elena workflow detection triggered',
+        elena_status: 'analyzing_and_assigning'
+      });
+      
+    } catch (error) {
+      console.error('❌ Elena workflow trigger error:', error);
+      res.status(500).json({
+        success: false,
+        error: error instanceof Error ? error.message : 'Failed to trigger workflow'
+      });
+    }
+  });
+  
+  // Elena detection status endpoint
+  app.get('/api/elena/status', (req, res) => {
+    try {
+      const status = elenaWorkflowDetection.getDetectionStatus();
+      res.json({
+        success: true,
+        elena: status,
+        message: 'Elena workflow detection system operational'
+      });
+    } catch (error) {
+      console.error('❌ Elena status error:', error);
+      res.status(500).json({
+        success: false,
+        error: 'Failed to get Elena status'
+      });
+    }
+  });
   
   return server;
 }
