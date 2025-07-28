@@ -8,6 +8,9 @@ import { setupAuth, isAuthenticated } from "./replitAuth";
 // UNIFIED AGENT SYSTEM IMPORT (Single source of truth)
 import { unifiedAgentSystem } from './unified-agent-system';
 
+// ELENA WORKFLOW DETECTION IMPORT
+import { elenaWorkflowDetection } from './elena-workflow-detection';
+
 export async function registerRoutes(app: Express): Promise<Server> {
   console.log('🚀 Starting route registration...');
   
@@ -172,7 +175,55 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  // CRITICAL FIX: Missing /api/claude/send-message endpoint for admin dashboard
+  // STREAMING CLAUDE SEND-MESSAGE: Real-time text streaming like Replit AI
+  app.post('/api/claude/send-message-stream', async (req, res) => {
+    try {
+      const { agentName, message, conversationId, fileEditMode = true } = req.body;
+      
+      if (!agentName || !message) {
+        return res.status(400).json({ 
+          success: false, 
+          error: 'Agent name and message are required' 
+        });
+      }
+
+      // Get user ID for authentication
+      let userId = 'admin-sandra';
+      if (req.isAuthenticated() && req.user?.claims?.sub) {
+        userId = req.user.claims.sub;
+      }
+
+      // Import streaming service
+      const { streamingService } = await import('./services/streaming-response-service');
+
+      // Get response from Claude API service (non-streaming first)
+      const response = await claudeApiService.sendMessage(
+        agentName,
+        message,
+        conversationId || `conv_${agentName}_${Date.now()}`,
+        fileEditMode,
+        userId
+      );
+
+      // Stream the response like Replit AI agents
+      await streamingService.streamClaudeResponse(res, agentName, response.content, {
+        conversationId: response.conversationId,
+        showToolExecution: true
+      });
+
+    } catch (error) {
+      console.error('Streaming Claude error:', error);
+      res.writeHead(200, { 'Content-Type': 'text/event-stream' });
+      res.write(`data: ${JSON.stringify({
+        type: 'error',
+        error: error instanceof Error ? error.message : 'Failed to process request',
+        timestamp: new Date().toISOString()
+      })}\n\n`);
+      res.end();
+    }
+  });
+
+  // LEGACY NON-STREAMING ENDPOINT: For backward compatibility
   app.post('/api/claude/send-message', async (req, res) => {
     try {
       console.log('🔍 Claude send-message called with:', {
