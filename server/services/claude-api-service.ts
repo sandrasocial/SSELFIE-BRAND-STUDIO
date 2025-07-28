@@ -685,7 +685,7 @@ ${searchResult.results.slice(0, 10).map((file: any) => `• ${file.path}`).join(
         if (urgentIndicators.some(word => messageUpper.includes(word))) implementationScore += 3;
         if (directCommands.some(cmd => messageUpper.startsWith(cmd + ' ') || messageUpper.includes(' ' + cmd + ' ') || messageUpper.includes(cmd + ' '))) implementationScore += 2;
         if (fileReferences && fileReferences.length > 0) implementationScore += 2;
-        if (message.includes('```') || message.includes('`')) implementationScore += 1;
+        if (messageStr.includes('```') || messageStr.includes('`')) implementationScore += 1;
         
         // Smart detection for imperative commands
         const imperativePatterns = [
