@@ -62,15 +62,22 @@ function generateSecureSessionId(): string {
   return crypto.randomUUID();
 }
 
-export function validateSession(req: Request, res: Response, next: Function) {
-  const sessionId = req.cookies.sessionId;
-  
-  if (!sessionId) {
-    return res.status(401).json({ error: 'No session found' });
+export async function validateSession(req: Request, res: Response, next: Function) {
+  // Check if user is authenticated via Replit OAuth
+  if (req.isAuthenticated?.() && req.user) {
+    const user = req.user as any;
+    // Validate token expiration
+    const now = Math.floor(Date.now() / 1000);
+    if (user.expires_at && now <= user.expires_at) {
+      return next();
+    }
   }
 
-  // Validate session here
-  // TODO: Add session store validation
-  
-  next();
+  // Check for admin bypass token
+  const adminToken = req.headers.authorization?.replace('Bearer ', '') || req.headers['x-admin-token'];
+  if (adminToken === 'sandra-admin-2025') {
+    return next();
+  }
+
+  return res.status(401).json({ error: 'Invalid or expired session' });
 }

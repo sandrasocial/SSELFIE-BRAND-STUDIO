@@ -52,95 +52,187 @@ export function useStreamingChat({ onMessageComplete, onError }: UseStreamingCha
 
     setMessages(prev => [...prev, agentMessage]);
 
-    try {
-      // Start streaming
-      const response = await fetch('/api/claude/send-message-stream', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': 'Bearer sandra-admin-2025',
-        },
-        credentials: 'include',
-        body: JSON.stringify({
-          agentName,
-          message,
-          conversationId,
-          fileEditMode,
-        }),
-      });
+    let retryCount = 0;
+    const maxRetries = 3;
+    
+    const attemptStreaming = async (): Promise<void> => {
+      try {
+        const controller = new AbortController();
+        const timeoutId = setTimeout(() => controller.abort(), 30000);
+        
+        // Start streaming
+        const response = await fetch('/api/claude/send-message-stream', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': 'Bearer sandra-admin-2025',
+          },
+          credentials: 'include',
+          signal: controller.signal,
+          body: JSON.stringify({
+            agentName,
+            message,
+            conversationId,
+            fileEditMode,
+          }),
+        });
 
-      if (!response.ok) {
-        throw new Error(`Stream failed: ${response.statusText}`);
-      }
+        clearTimeout(timeoutId);
 
-      // Handle Server-Sent Events
-      const reader = response.body?.getReader();
-      if (!reader) {
-        throw new Error('No response stream available');
-      }
+        if (!response.ok) {
+          throw new Error(`Stream failed: ${response.statusText}`);
+        }
 
-      const decoder = new TextDecoder();
-      let streamedContent = '';
+        // Handle Server-Sent Events
+        const reader = response.body?.getReader();
+        if (!reader) {
+          throw new Error('No response stream available');
+        }
 
-      while (true) {
-        const { done, value } = await reader.read();
-        if (done) break;
+        const decoder = new TextDecoder();
+        let streamedContent = '';
 
-        const chunk = decoder.decode(value, { stream: true });
-        const lines = chunk.split('\n');
+        while (true) {
+          const { done, value } = await reader.read();
+          if (done) break;
 
-        for (const line of lines) {
-          if (line.startsWith('data: ')) {
-            try {
-              const data = JSON.parse(line.slice(6));
-              
-              if (data.type === 'chunk') {
-                streamedContent += data.chunk;
+          const chunk = decoder.decode(value, { stream: true });
+          const lines = chunk.split('\n');
+
+          for (const line of lines) {
+            if (line.startsWith('data: ')) {
+              try {
+                const data = JSON.parse(line.slice(6));
                 
-                // Update the streaming message
-                setMessages(prev => prev.map(msg => 
-                  msg.id === agentMessageId 
-                    ? { 
-                        ...msg, 
-                        streamingContent: streamedContent,
-                        progress: data.progress || 0 
-                      }
-                    : msg
-                ));
-              } else if (data.type === 'complete') {
-                // Finalize the message
-                const finalMessage: StreamingMessage = {
-                  ...agentMessage,
-                  content: data.finalText || streamedContent,
-                  isStreaming: false,
-                  streamingContent: undefined,
-                  progress: 100,
-                };
+                if (data.type === 'chunk') {
+                  streamedContent += data.chunk;
+                  
+                  // Update the streaming message
+                  setMessages(prev => prev.map(msg => 
+                    msg.id === agentMessageId 
+                      ? { 
+                          ...msg, 
+                          streamingContent: streamedContent,
+                          progress: data.progress || 0 
+                        }
+                      : msg
+                  ));
+                } else if (data.type === 'complete') {
+                  // Finalize the message
+                  const finalMessage: StreamingMessage = {
+                    ...agentMessage,
+                    content: data.finalText || streamedContent,
+                    isStreaming: false,
+                    streamingContent: undefined,
+                    progress: 100,
+                  };
 
-                setMessages(prev => prev.map(msg => 
-                  msg.id === agentMessageId ? finalMessage : msg
-                ));
+                  setMessages(prev => prev.map(msg => 
+                    msg.id === agentMessageId ? finalMessage : msg
+                  ));
 
-                onMessageComplete?.(finalMessage);
-                break;
-              } else if (data.type === 'error') {
-                throw new Error(data.error);
+                  onMessageComplete?.(finalMessage);
+                  return;
+                } else if (data.type === 'error') {
+                  throw new Error(data.error);
+                }
+              } catch (parseError) {
+                console.warn('Failed to parse streaming data:', parseError);
               }
-            } catch (parseError) {
-              console.warn('Failed to parse streaming data:', parseError);
             }
           }
         }
+      } catch (error) {
+        console.error(`Streaming attempt ${retryCount + 1} failed:`, error);
+        
+        if (retryCount < maxRetries && 
+            error instanceof Error && 
+            (error.message.includes('network error') || 
+             error.message.includes('ERR_NETWORK_IO_SUSPENDED') ||
+             error.name === 'AbortError' ||
+             error.message.includes('Stream failed'))) {
+          
+          retryCount++;
+          console.log(`Retrying streaming request (${retryCount}/${maxRetries})...`);
+          
+          // Update progress to show retry
+          setMessages(prev => prev.map(msg => 
+            msg.id === agentMessageId 
+              ? { 
+                  ...msg, 
+                  streamingContent: `Retrying connection (${retryCount}/${maxRetries})...`,
+                  progress: (retryCount / maxRetries) * 50
+                }
+              : msg
+          ));
+          
+          await new Promise(resolve => setTimeout(resolve, Math.pow(2, retryCount) * 1000));
+          return attemptStreaming();
+        }
+        
+        // Fallback to non-streaming endpoint
+        console.log('Streaming failed, falling back to regular endpoint...');
+        try {
+          const fallbackResponse = await fetch('/api/claude/send-message', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+              'Authorization': 'Bearer sandra-admin-2025',
+            },
+            credentials: 'include',
+            body: JSON.stringify({
+              agentName,
+              message,
+              conversationId,
+              fileEditMode
+            })
+          });
+          
+          if (!fallbackResponse.ok) {
+            throw new Error(`Fallback failed: HTTP ${fallbackResponse.status}`);
+          }
+          
+          const data = await fallbackResponse.json();
+          
+          if (data.success) {
+            const finalMessage: StreamingMessage = {
+              id: agentMessageId,
+              type: 'agent',
+              content: data.response,
+              timestamp: new Date().toISOString(),
+              agentName,
+              isStreaming: false,
+              streamingContent: undefined,
+              progress: 100,
+            };
+
+            setMessages(prev => prev.map(msg => 
+              msg.id === agentMessageId ? finalMessage : msg
+            ));
+
+            onMessageComplete?.(finalMessage);
+            return;
+          } else {
+            throw new Error(data.error || 'Fallback request failed');
+          }
+        } catch (fallbackError) {
+          console.error('Fallback also failed:', fallbackError);
+          throw error;
+        }
       }
+    };
+    
+    try {
+      await attemptStreaming();
     } catch (error) {
-      console.error('Streaming error:', error);
+      console.error('Final streaming error:', error);
       
       // Update message with error
       setMessages(prev => prev.map(msg => 
         msg.id === agentMessageId 
           ? { 
               ...msg, 
-              content: `Error: ${error instanceof Error ? error.message : 'Failed to process request'}`,
+              content: `Connection error. Please try again. Details: ${error instanceof Error ? error.message : 'Unknown error'}`,
               isStreaming: false,
               streamingContent: undefined
             }
