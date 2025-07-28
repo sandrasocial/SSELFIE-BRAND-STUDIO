@@ -801,20 +801,8 @@ Use tools only if file modifications are specifically requested within the consu
       console.log('💾 Assistant message preview:', assistantMessage.substring(0, 200) + '...');
       await this.saveMessage(actualConversationId, 'assistant', assistantMessage);
       
-      // ELENA WORKFLOW DETECTION: Analyze Elena's response for workflow patterns (main path)
-      if (agentName === 'elena' && assistantMessage) {
-        try {
-          const { elenaWorkflowDetectionService } = await import('../services/elena-workflow-detection-service');
-          const analysis = elenaWorkflowDetectionService.analyzeConversation(assistantMessage, 'elena');
-          
-          if (analysis.hasWorkflow && analysis.workflow) {
-            elenaWorkflowDetectionService.stageWorkflow(analysis.workflow);
-            console.log(`🎯 ELENA WORKFLOW AUTO-STAGED: ${analysis.workflow.title} (${analysis.confidence} confidence)`);
-          }
-        } catch (error) {
-          console.error('❌ ELENA WORKFLOW DETECTION ERROR:', error);
-        }
-      }
+      // ELENA WORKFLOW DETECTION: Disabled due to missing service file
+      // Elena workflow detection temporarily disabled
 
       // Update agent learning with new patterns
       await this.updateAgentLearning(agentName, userId, userMessage, assistantMessage);
@@ -1399,20 +1387,8 @@ I respond like your warm best friend who loves organization - simple, reassuring
       });
       console.log(`📝 FINAL RESPONSE PREVIEW: ${finalResponse.substring(0, 200)}...`);
       
-      // ELENA WORKFLOW DETECTION: Analyze Elena's response for workflow patterns
-      if (agentName === 'elena' && finalResponse) {
-        try {
-          const { elenaWorkflowDetectionService } = await import('../services/elena-workflow-detection-service');
-          const analysis = elenaWorkflowDetectionService.analyzeConversation(finalResponse, 'elena');
-          
-          if (analysis.hasWorkflow && analysis.workflow) {
-            elenaWorkflowDetectionService.stageWorkflow(analysis.workflow);
-            console.log(`🎯 ELENA WORKFLOW AUTO-STAGED: ${analysis.workflow.title} (${analysis.confidence} confidence)`);
-          }
-        } catch (error) {
-          console.error('❌ ELENA WORKFLOW DETECTION ERROR:', error);
-        }
-      }
+      // ELENA WORKFLOW DETECTION: Disabled due to missing service file
+      // Elena workflow detection temporarily disabled
       
       // If still no response after tool usage, provide a default response
       if (!finalResponse.trim()) {
