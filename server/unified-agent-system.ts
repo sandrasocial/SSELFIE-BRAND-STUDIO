@@ -159,13 +159,13 @@ export class UnifiedAgentSystem {
       
       // Execute through the unified Claude API
       const response = await claudeApiService.sendMessage(
-        request.agentId,
-        'admin',
+        '42585527', // userId - existing admin user ID
+        request.agentId, // agentName 
         request.conversationId,
         request.message,
-        [],
-        false,
-        request.enforceTools
+        undefined, // systemPrompt
+        undefined, // tools  
+        request.enforceTools || false // fileEditMode
       );
 
       // Broadcast to WebSocket clients
