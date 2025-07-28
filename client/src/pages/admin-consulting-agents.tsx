@@ -40,7 +40,7 @@ interface ChatMessage {
 }
 
 // Claude API functions
-const sendClaudeMessage = async (agentName: string, message: string, conversationId: string, fileEditMode: boolean = false) => {
+const sendClaudeMessage = async (agentName: string, message: string, conversationId: string, fileEditMode: boolean = true) => {
   const response = await fetch('/api/claude/send-message', {
     method: 'POST',
     headers: {
