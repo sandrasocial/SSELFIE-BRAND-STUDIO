@@ -162,9 +162,22 @@ export default function AdminConsultingAgents() {
   const [location] = useLocation();
   const [selectedAgent, setSelectedAgent] = useState<ConsultingAgent | null>(null);
   const [message, setMessage] = useState('');
-  const [isLoading, setIsLoading] = useState(false);
-  const [messages, setMessages] = useState<ChatMessage[]>([]);
   const [conversationId, setConversationId] = useState<string | null>(null);
+  
+  // Streaming chat integration
+  const {
+    messages,
+    isStreaming,
+    sendStreamingMessage,
+    clearMessages,
+  } = useStreamingChat({
+    onMessageComplete: (message) => {
+      console.log('Message completed:', message);
+    },
+    onError: (error) => {
+      console.error('Streaming error:', error);
+    },
+  });
   const [isLoadingHistory, setIsLoadingHistory] = useState(false);
   const [fileEditMode, setFileEditMode] = useState(true);
   
@@ -292,7 +305,7 @@ export default function AdminConsultingAgents() {
   useEffect(() => {
     if (selectedAgent) {
       console.log('🔄 Clearing messages for agent switch:', selectedAgent.id);
-      setMessages([]);
+      clearMessages();
       setConversationId(null);
     }
   }, [selectedAgent?.id]);
@@ -322,22 +335,13 @@ export default function AdminConsultingAgents() {
         if (history.messages && history.messages.length > 0) {
           console.log('📜 Loading conversation history:', history.messages.length, 'messages');
           
-          const chatMessages: ChatMessage[] = history.messages.map((msg: any, index: number) => ({
-            id: `${msg.timestamp || Date.now()}-${index}`,
-            type: msg.role === 'user' ? 'user' : 'agent',
-            content: msg.content,
-            timestamp: msg.timestamp || new Date().toISOString(),
-            agentName: msg.role === 'assistant' ? selectedAgent.name : undefined,
-          }));
-          
-          setMessages(chatMessages);
+          // History loading is handled by the streaming hook
+          console.log('📜 History will be loaded by streaming system');
         } else {
           console.log('📜 No messages found in history');
-          setMessages([]);
         }
       } catch (historyError) {
         console.log('📜 Error loading conversation history:', historyError);
-        setMessages([]);
       }
     } catch (error) {
       console.error('Failed to load conversation:', error);
@@ -370,26 +374,36 @@ export default function AdminConsultingAgents() {
   const sendMessage = async () => {
     if (!selectedAgent || !message.trim()) return;
 
-    const userMessage: ChatMessage = {
-      id: Date.now().toString(),
-      type: 'user',
-      content: message.trim(),
-      timestamp: new Date().toISOString()
-    };
-
-    setMessages(prev => [...prev, userMessage]);
+    const messageContent = message.trim();
     setMessage('');
-    setIsLoading(true);
 
+    // Use streaming for all messages
     try {
-      // Check if Agent Bridge is enabled for this agent
-      if (bridgeEnabled) {
-        // Use Agent Bridge for implementation
+      let currentConversationId = conversationId;
+      if (!currentConversationId) {
+        const conversation = await createClaudeConversation(selectedAgent.id);
+        currentConversationId = conversation.conversationId;
+        setConversationId(currentConversationId);
+      }
+
+      await sendStreamingMessage(
+        selectedAgent.id,
+        messageContent,
+        currentConversationId,
+        fileEditMode
+      );
+    } catch (error) {
+      console.error('Failed to send streaming message:', error);
+    }
+
+    // Bridge system integration (optional)
+    if (bridgeEnabled) {
+      try {
         console.log('🌉 Using Agent Bridge for:', selectedAgent.id);
         
         const bridgeResult = await submitTask(
           selectedAgent.id,
-          userMessage.content,
+          messageContent,
           'high',
           {
             conversationContext: messages.map(m => m.content),
@@ -407,108 +421,11 @@ export default function AdminConsultingAgents() {
         );
 
         if (bridgeResult.success) {
-          const bridgeMessage: ChatMessage = {
-            id: (Date.now() + 1).toString(),
-            type: 'agent',
-            content: `✨ **Bridge Implementation Started**\n\nI've submitted your request to the Agent Bridge System for immediate implementation. You can monitor the progress in the luxury progress display.\n\n**Task ID**: ${bridgeResult.taskId}\n**Status**: Processing with luxury validation standards\n\nI'll continue our conversation while the implementation runs in the background.`,
-            timestamp: new Date().toISOString(),
-            agentName: selectedAgent.name
-          };
-          
-          setMessages(prev => [...prev, bridgeMessage]);
-          setIsLoading(false);
-          return;
-        } else {
-          // Fall back to regular chat if bridge fails
-          console.error('🌉 Bridge submission failed:', bridgeResult.error);
+          console.log('Bridge task submitted successfully');
         }
+      } catch (bridgeError) {
+        console.error('Bridge submission failed:', bridgeError);
       }
-
-      // Regular consulting chat flow
-      let currentConversationId = conversationId;
-      if (!currentConversationId) {
-        const conversation = await createClaudeConversation(selectedAgent.id);
-        currentConversationId = conversation.conversationId;
-        setConversationId(currentConversationId);
-      }
-
-      if (!currentConversationId) {
-        throw new Error('Failed to create conversation');
-      }
-      
-      const response = await fetch('/api/claude/send-message', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        credentials: 'include',
-        body: JSON.stringify({
-          agentName: selectedAgent.id,
-          message: userMessage.content,
-          conversationId: currentConversationId,
-          fileEditMode,
-        }),
-      });
-
-      if (!response.ok) {
-        const errorData = await response.json().catch(() => ({ error: 'Unknown error' }));
-        throw new Error(`Claude API Error (${response.status}): ${errorData.error || 'Service temporarily unavailable'}`);
-      }
-
-      const { response: agentResponse } = await response.json();
-      
-      console.log('📨 Received agent response length:', agentResponse?.length || 0);
-      
-      // Extract tool results and clean content for professional display
-      const toolsUsed = formatToolResults(agentResponse);
-      const cleanedContent = cleanMessageContent(agentResponse);
-      
-      console.log('📨 Agent response after cleaning length:', cleanedContent?.length || 0);
-
-      const agentMessage: ChatMessage = {
-        id: (Date.now() + 1).toString(),
-        type: 'agent',
-        content: cleanedContent,
-        timestamp: new Date().toISOString(),
-        agentName: selectedAgent.name
-      };
-
-      console.log('💾 Saving agent message to frontend state:', {
-        agentName: selectedAgent.name,
-        contentLength: cleanedContent?.length || 0,
-        contentPreview: cleanedContent?.substring(0, 100) + '...'
-      });
-
-      setMessages(prev => [...prev, agentMessage]);
-    } catch (error) {
-      console.error('Claude API error:', error);
-      
-      // Enhanced error handling with specific troubleshooting guidance
-      let errorContent = `⚠️ **Service Temporarily Unavailable**\n\n`;
-      
-      if (error instanceof Error) {
-        if (error.message.includes('500')) {
-          errorContent += `The Claude AI service is experiencing internal server errors (500). This is typically a temporary issue with Anthropic's servers.\n\n**Next Steps:**\n- Wait 30-60 seconds and try again\n- Check Anthropic's status page for service updates\n- This is not a configuration issue on your end`;
-        } else if (error.message.includes('429')) {
-          errorContent += `Rate limit reached. Please wait a moment before sending another message.`;
-        } else if (error.message.includes('401')) {
-          errorContent += `Authentication issue. Please verify your ANTHROPIC_API_KEY is properly configured.`;
-        } else {
-          errorContent += `Connection error: ${error.message}`;
-        }
-      } else {
-        errorContent += `Unexpected error occurred. Please try again in a moment.`;
-      }
-      
-      const errorMessage: ChatMessage = {
-        id: (Date.now() + 1).toString(),
-        type: 'agent',
-        content: errorContent,
-        timestamp: new Date().toISOString(),
-        agentName: selectedAgent.name
-      };
-
-      setMessages(prev => [...prev, errorMessage]);
-    } finally {
-      setIsLoading(false);
     }
   };
 
@@ -517,7 +434,7 @@ export default function AdminConsultingAgents() {
 
     try {
       await clearConversation(selectedAgent.id);
-      setMessages([]);
+      clearMessages();
       setConversationId(null);
       // Reload conversation to get fresh ID
       await loadAgentConversationHistory();
@@ -701,7 +618,7 @@ export default function AdminConsultingAgents() {
                           Loading Memory
                         </div>
                       )}
-                      {messages.length > 0 && !isLoading && (
+                      {messages.length > 0 && !isStreaming && (
                         <>
                           <button
                             onClick={handleClearChat}
@@ -726,52 +643,20 @@ export default function AdminConsultingAgents() {
                 {/* Messages Area */}
                 <div className="flex-1 overflow-y-auto space-y-6 mb-6">
                   {messages.map((msg) => (
-                    <div
+                    <StreamingChatMessage
                       key={msg.id}
-                      className={`flex ${msg.type === 'user' ? 'justify-end' : 'justify-start'}`}
-                    >
-                      <div className={`max-w-[80%] p-4 ${
-                        msg.type === 'user' 
-                          ? 'bg-black text-white ml-4' 
-                          : 'bg-gray-50 text-black mr-4'
-                      }`}>
-                        {msg.type === 'agent' && (
-                          <div className="flex items-center gap-2 mb-2">
-                            <span className="text-xs uppercase tracking-wide text-gray-500">
-                              {msg.agentName}
-                            </span>
-                            {/* Tool Usage Indicator - Simplified */}
-                            {msg.content.includes('[File Operation:') && (
-                              <div className="flex items-center gap-1">
-                                <span className="text-xs text-gray-400">•</span>
-                                <span className="text-xs px-2 py-1 bg-blue-100 text-blue-700 rounded-sm">
-                                  File Edit
-                                </span>
-                              </div>
-                            )}
-                            {msg.content.includes('[Codebase Search Results]') && (
-                              <div className="flex items-center gap-1">
-                                <span className="text-xs text-gray-400">•</span>
-                                <span className="text-xs px-2 py-1 bg-green-100 text-green-700 rounded-sm">
-                                  Code Search
-                                </span>
-                              </div>
-                            )}
-                          </div>
-                        )}
-                        <div className="text-sm leading-relaxed whitespace-pre-wrap">
-                          {cleanMessageContent(msg.content)}
-                        </div>
-                        {msg.timestamp && (
-                          <div className="text-xs text-gray-400 mt-2">
-                            {new Date(msg.timestamp).toLocaleTimeString()}
-                          </div>
-                        )}
-                      </div>
-                    </div>
+                      id={msg.id}
+                      type={msg.type}
+                      content={msg.content}
+                      agentName={msg.agentName}
+                      timestamp={msg.timestamp}
+                      isStreaming={msg.isStreaming}
+                      streamingContent={msg.streamingContent}
+                      progress={msg.progress}
+                    />
                   ))}
                   
-                  {isLoading && (
+                  {isStreaming && (
                     <div className="flex justify-start">
                       <div className="max-w-[80%] p-4 bg-gray-50 text-black mr-4">
                         <div className="flex items-center gap-2 mb-2">
@@ -811,7 +696,7 @@ export default function AdminConsultingAgents() {
                     />
                     <button
                       onClick={sendMessage}
-                      disabled={isLoading || !message.trim()}
+                      disabled={isStreaming || !message.trim()}
                       className="px-8 py-4 bg-black text-white font-light uppercase tracking-wide hover:bg-gray-800 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
                     >
                       {bridgeEnabled ? 'Chat & Implement' : 'Send'}
