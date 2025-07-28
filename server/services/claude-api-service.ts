@@ -1414,12 +1414,10 @@ I respond like your warm best friend who loves organization - simple, reassuring
             case 'search_filesystem':
               const { search_filesystem } = await import('../tools/search_filesystem');
               const searchResult = await search_filesystem(block.input);
-              if (searchResult.success) {
-                console.log(`✅ SEARCH SUCCESS: Found ${searchResult.result?.totalFiles || 0} files`);
-                toolResult = `\n\n[Codebase Search Results]\n${JSON.stringify(searchResult.result, null, 2)}`;
-              } else {
-                toolResult = `\n\n[Search Error: ${searchResult.error}]`;
-              }
+              // CRITICAL FIX: search_filesystem returns direct results, not wrapped in success/result
+              const fileCount = searchResult?.results?.length || searchResult?.length || 0;
+              console.log(`✅ SEARCH SUCCESS: Found ${fileCount} files`);
+              toolResult = `\n\n[Codebase Search Results]\n${JSON.stringify(searchResult, null, 2)}`;
               break;
               
             case 'str_replace_based_edit_tool':
