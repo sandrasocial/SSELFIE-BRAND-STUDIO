@@ -1374,22 +1374,42 @@ I respond like your warm best friend who loves organization - simple, reassuring
         tool_choice: fileEditMode ? { type: "auto" } : undefined // Allow tools when in file edit mode
       });
       
-      // Extract ALL text content from continuation response
-      for (const content of continuationResponse.content) {
-        if (content.type === 'text') {
-          finalResponse += (finalResponse ? '\n\n' : '') + content.text;
+      // CHECK IF CONTINUATION RESPONSE HAS MORE TOOLS - RECURSIVE PROCESSING
+      const continuationHasTools = continuationResponse.content.some((block: any) => block.type === 'tool_use');
+      
+      if (continuationHasTools) {
+        console.log(`🔄 AGENT CONTINUING WORK: Continuation response has ${continuationResponse.content.filter((b: any) => b.type === 'tool_use').length} more tools - processing recursively`);
+        
+        // RECURSIVE CALL: Process the continuation response that has more tools
+        const recursiveResult = await this.handleToolCallsWithContinuation(
+          continuationResponse,
+          currentMessages,
+          systemPrompt,
+          tools,
+          fileEditMode,
+          agentName,
+          mandatoryImplementation
+        );
+        
+        finalResponse += (finalResponse ? '\n\n' : '') + recursiveResult;
+        console.log(`🎯 RECURSIVE WORK COMPLETE: Agent finished autonomous working cycle. Total response: ${finalResponse.length} chars`);
+        
+      } else {
+        // No more tools, extract text response normally
+        for (const content of continuationResponse.content) {
+          if (content.type === 'text') {
+            finalResponse += (finalResponse ? '\n\n' : '') + content.text;
+          }
         }
+        
+        console.log(`✅ CONVERSATION CONTINUED: Agent provided final analysis. Total response length: ${finalResponse.length}`);
       }
       
-      console.log(`✅ CONVERSATION CONTINUED: Agent provided analysis after tool usage. Total response length: ${finalResponse.length}`);
       console.log(`📝 CONTINUATION RESPONSE CONTENT BLOCKS: ${continuationResponse.content.length}`);
       continuationResponse.content.forEach((block: any, i: number) => {
         console.log(`   Block ${i}: type=${block.type}, length=${block.type === 'text' ? block.text?.length : 'N/A'}`);
       });
       console.log(`📝 FINAL RESPONSE PREVIEW: ${finalResponse.substring(0, 200)}...`);
-      
-      // ELENA WORKFLOW DETECTION: Disabled due to missing service file
-      // Elena workflow detection temporarily disabled
       
       // If still no response after tool usage, provide a default response
       if (!finalResponse.trim()) {
