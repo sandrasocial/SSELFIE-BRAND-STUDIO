@@ -33,9 +33,8 @@ import { registerEnterpriseRoutes } from './routes/enterprise-routes';
 import claudeApiRoutes from './routes/claude-api-routes';
 import autonomousOrchestratorRoutes from './api/autonomous-orchestrator/deploy-all-agents';
 import { getCoordinationMetrics, getActiveDeployments, getDeploymentStatus } from './api/autonomous-orchestrator/coordination-metrics';
-// UNIFIED AGENT ARCHITECTURE IMPORTS
-import { UnifiedAgentOrchestrator } from './unified-agent-architecture';
-import { agentRealtimeBridge } from './agent-realtime-bridge';
+// UNIFIED AGENT SYSTEM IMPORT (Single source of truth)
+import { unifiedAgentSystem } from './unified-agent-system';
 // Agent performance monitor will be imported dynamically
 import { ExternalAPIService } from './integrations/external-api-service';
 import { AgentAutomationTasks } from './integrations/agent-automation-tasks';
@@ -8887,45 +8886,39 @@ YOU HAVE FULL IMPLEMENTATION CAPABILITIES - IMPLEMENT DIRECTLY instead of provid
     }
   });
 
-  // ✨ UNIFIED AGENT ARCHITECTURE INTEGRATION
-  // Initialize the unified orchestrator system
-  console.log('🚀 Initializing Unified Agent Architecture...');
-  const { UnifiedAgentOrchestrator } = await import('./unified-agent-architecture');
-  const { agentRealtimeBridge } = await import('./agent-realtime-bridge');
+  // ✨ UNIFIED AGENT SYSTEM INTEGRATION (Single source of truth)
+  // All competing systems DEACTIVATED - decision paralysis resolved
+  console.log('🎯 UNIFIED AGENT SYSTEM: Single execution pathway active');
   
-  // Initialize the unified agent orchestrator
-  const orchestrator = new UnifiedAgentOrchestrator();
-  await orchestrator.initialize();
+  // NO COMPETING IMPORTS - all agent integration handled by unified-agent-system.ts
+  // Initialized in server/index.ts - no need for additional initialization here
   
-  // Initialize the real-time bridge
-  await agentRealtimeBridge.initialize(app);
-  
-  // Unified agent execution endpoint
+  // Legacy route redirect to unified system (DEPRECATED - use /api/agents/execute)
   app.post('/api/unified-agents/execute', isAuthenticated, async (req: any, res) => {
     try {
-      const { agentName, task, context, priority = 'medium' } = req.body;
+      // Redirect to the unified agent system
+      const { agentName: agentId, task: message, context } = req.body;
       const userId = req.user.claims.sub;
       
-      console.log(`🎯 Unified Agent Execution Request: ${agentName} for user ${userId}`);
+      console.log(`🔄 LEGACY REDIRECT: ${agentId} -> unified-agent-system`);
       
-      const result = await orchestrator.executeAgentTask({
-        agentName,
-        task,
-        context: { ...context, userId },
-        priority,
-        userId
+      // Use unified agent system
+      const result = await unifiedAgentSystem.executeAgent({
+        agentId,
+        message,
+        conversationId: `legacy_${Date.now()}`,
+        enforceTools: true
       });
       
       res.json({
-        success: true,
-        executionId: result.executionId,
-        status: result.status,
-        result: result.result,
-        message: `Agent ${agentName} execution initiated successfully`
+        success: result.success,
+        status: result.success ? 'completed' : 'failed',
+        result: result.response,
+        message: `Agent ${agentId} execution ${result.success ? 'completed' : 'failed'}`
       });
       
     } catch (error) {
-      console.error('❌ Unified agent execution error:', error);
+      console.error('❌ Legacy agent execution error:', error);
       res.status(500).json({
         success: false,
         error: error.message || 'Agent execution failed'
@@ -8933,15 +8926,16 @@ YOU HAVE FULL IMPLEMENTATION CAPABILITIES - IMPLEMENT DIRECTLY instead of provid
     }
   });
   
-  // Get unified agent status
+  // Legacy status endpoint (DEPRECATED - use /api/agents/status)
   app.get('/api/unified-agents/status/:executionId', isAuthenticated, async (req: any, res) => {
     try {
-      const { executionId } = req.params;
-      const status = await orchestrator.getExecutionStatus(executionId);
+      // Return unified system status
+      const systemStatus = unifiedAgentSystem.getSystemStatus();
       
       res.json({
         success: true,
-        status
+        status: systemStatus,
+        legacy_note: 'This endpoint is deprecated. Use /api/agents/status for current system status.'
       });
       
     } catch (error) {
@@ -8953,14 +8947,25 @@ YOU HAVE FULL IMPLEMENTATION CAPABILITIES - IMPLEMENT DIRECTLY instead of provid
     }
   });
   
-  // List available agents
+  // Legacy available agents endpoint (DEPRECATED)
   app.get('/api/unified-agents/available', isAuthenticated, async (req: any, res) => {
     try {
-      const agents = await orchestrator.getAvailableAgents();
+      // Return hardcoded agent list for legacy compatibility
+      const agents = [
+        { id: 'elena', name: 'Elena', role: 'AI Agent Director & CEO' },
+        { id: 'aria', name: 'Aria', role: 'Visionary Editorial Luxury Designer' },
+        { id: 'zara', name: 'Zara', role: 'Dev AI - Technical Mastermind' },
+        { id: 'maya', name: 'Maya', role: 'AI Photography Specialist' },
+        { id: 'victoria', name: 'Victoria', role: 'Business-Building UX Expert' },
+        { id: 'rachel', name: 'Rachel', role: 'Voice AI - Copywriting Expert' },
+        { id: 'ava', name: 'Ava', role: 'Automation AI - Empire Architect' },
+        { id: 'quinn', name: 'Quinn', role: 'QA AI - Luxury Quality Guardian' }
+      ];
       
       res.json({
         success: true,
-        agents
+        agents,
+        legacy_note: 'This endpoint is deprecated. All agents are now accessible through the unified system.'
       });
       
     } catch (error) {
@@ -8972,7 +8977,7 @@ YOU HAVE FULL IMPLEMENTATION CAPABILITIES - IMPLEMENT DIRECTLY instead of provid
     }
   });
   
-  console.log('✅ Unified Agent Architecture integrated successfully');
+  console.log('✅ UNIFIED AGENT SYSTEM: All competing systems deactivated, decision paralysis resolved');
 
   // Mark routes as fully registered
   routesRegistered = true;
