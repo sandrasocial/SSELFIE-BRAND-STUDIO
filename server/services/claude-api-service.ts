@@ -258,11 +258,62 @@ export class ClaudeApiService {
     fileEditMode?: boolean
   ): Promise<string> {
     try {
-      // Ensure conversation exists
-      await this.createConversationIfNotExists(userId, agentName, conversationId);
+      // Step 1: Get or create conversation and get the actual conversationId
+      let actualConversationId = conversationId;
+      
+      if (!conversationId) {
+        // First, try to find existing conversation for this agent and user
+        const existingConversations = await db
+          .select()
+          .from(claudeConversations)
+          .where(
+            and(
+              eq(claudeConversations.userId, userId),
+              eq(claudeConversations.agentName, agentName),
+              eq(claudeConversations.status, 'active')
+            )
+          )
+          .orderBy(desc(claudeConversations.createdAt))
+          .limit(1);
 
-      // Get conversation history
-      const history = await this.getConversationHistory(conversationId);
+        if (existingConversations.length > 0) {
+          actualConversationId = existingConversations[0].conversationId;
+          console.log('✅ Using existing conversation:', actualConversationId);
+        } else {
+          // Create new conversation and get the conversationId
+          await this.createConversationIfNotExists(userId, agentName, null);
+          
+          // Get the newly created conversation
+          const newConversations = await db
+            .select()
+            .from(claudeConversations)
+            .where(
+              and(
+                eq(claudeConversations.userId, userId),
+                eq(claudeConversations.agentName, agentName)
+              )
+            )
+            .orderBy(desc(claudeConversations.createdAt))
+            .limit(1);
+          
+          if (newConversations.length > 0) {
+            actualConversationId = newConversations[0].conversationId;
+            console.log('✅ Using newly created conversation:', actualConversationId);
+          }
+        }
+      } else {
+        // Ensure the provided conversation exists
+        await this.createConversationIfNotExists(userId, agentName, conversationId);
+        actualConversationId = conversationId;
+      }
+
+      if (!actualConversationId) {
+        throw new Error('Failed to get or create conversation ID');
+      }
+
+      // Get conversation history using the actual conversation ID
+      console.log('📜 Getting conversation history for:', actualConversationId);
+      const history = await this.getConversationHistory(actualConversationId);
 
       // Get agent learning data for context
       const memory = await this.getAgentMemory(agentName, userId);
@@ -744,11 +795,11 @@ Use tools only if file modifications are specifically requested within the consu
 
       // Save both messages to conversation with logging
       console.log('💾 Saving user message to database:', userMessage.length, 'characters');
-      await this.saveMessage(conversationId, 'user', userMessage);
+      await this.saveMessage(actualConversationId, 'user', userMessage);
       
       console.log('💾 Saving assistant message to database:', assistantMessage.length, 'characters');
       console.log('💾 Assistant message preview:', assistantMessage.substring(0, 200) + '...');
-      await this.saveMessage(conversationId, 'assistant', assistantMessage);
+      await this.saveMessage(actualConversationId, 'assistant', assistantMessage);
       
       // ELENA WORKFLOW DETECTION: Analyze Elena's response for workflow patterns (main path)
       if (agentName === 'elena' && assistantMessage) {
