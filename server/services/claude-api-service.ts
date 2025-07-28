@@ -79,10 +79,10 @@ export class ClaudeApiService {
             .values({
               id: 'admin-user-123',
               email: 'ssa@ssasocial.com',
-              first_name: 'Sandra',
-              last_name: 'Admin',
+              firstName: 'Sandra',
+              lastName: 'Admin',
               role: 'admin',
-              plan: 'premium'
+              plan: 'sselfie-studio'
             })
             .onConflictDoNothing()
             .returning();
@@ -107,10 +107,10 @@ export class ClaudeApiService {
             .values({
               id: `admin-fallback-${Date.now()}`,
               email: `admin-${Date.now()}@test.com`,
-              first_name: 'Test',
-              last_name: 'Admin',
+              firstName: 'Test',
+              lastName: 'Admin',
               role: 'admin',
-              plan: 'premium'
+              plan: 'sselfie-studio'
             })
             .returning();
           
@@ -816,7 +816,7 @@ Use tools only if file modifications are specifically requested within the consu
       }
 
       // Process tool calls naturally without forcing template responses
-      if (response.content.some(content => content.type === 'tool_use')) {
+      if (response.content.some((content: any) => content.type === 'tool_use')) {
         // Process tool calls and let agent respond authentically
         assistantMessage = await this.handleToolCallsWithContinuation(response, messages, enhancedSystemPrompt, enhancedTools, true, agentName, false, recursionDepth);
       }
@@ -1304,7 +1304,8 @@ I respond like your warm best friend who loves organization - simple, reassuring
             case 'search_filesystem':
               const { search_filesystem } = await import('../tools/search_filesystem');
               const searchResult = await search_filesystem(block.input);
-              console.log(`✅ SEARCH SUCCESS: Found ${searchResult.length || 0} files`);
+              const fileCount = searchResult?.results?.length || 0;
+              console.log(`✅ SEARCH SUCCESS: Found ${fileCount} files`);
               toolResult = JSON.stringify(searchResult, null, 2);
               break;
               
@@ -1325,7 +1326,16 @@ I respond like your warm best friend who loves organization - simple, reassuring
               
               // UNLIMITED ACCESS: All agents have full file modification capabilities
               const { str_replace_based_edit_tool } = await import('../tools/str_replace_based_edit_tool');
-              const fileResult = await str_replace_based_edit_tool(block.input);
+              const fileResult = await str_replace_based_edit_tool({
+                command: block.input.command,
+                path: block.input.path,
+                file_text: block.input.file_text,
+                old_str: block.input.old_str,
+                new_str: block.input.new_str,
+                insert_line: block.input.insert_line,
+                insert_text: block.input.insert_text,
+                view_range: block.input.view_range
+              });
               console.log(`✅ FILE OP SUCCESS: ${block.input.command} on ${block.input.path}`);
               toolResult = fileResult;
               break;
@@ -1527,7 +1537,7 @@ I respond like your warm best friend who loves organization - simple, reassuring
               const fileResult = await str_replace_based_edit_tool({
                 command: block.input.command as any,
                 path: block.input.path,
-                content: block.input.file_text,
+                file_text: block.input.file_text,
                 old_str: block.input.old_str,
                 new_str: block.input.new_str,
                 insert_line: block.input.insert_line,
@@ -1536,11 +1546,14 @@ I respond like your warm best friend who loves organization - simple, reassuring
                 backup: true // Always backup for safety
               });
               
-              if (fileResult.success) {
+              if (typeof fileResult === 'string') {
+                console.log(`✅ FILE OP SUCCESS: ${block.input.command} on ${block.input.path}`);
+                toolResult = `\n\n[File Operation: ${block.input.command}]\n${fileResult}`;
+              } else if (fileResult?.success) {
                 console.log(`✅ FILE OP SUCCESS: ${block.input.command} on ${block.input.path}`);
                 toolResult = `\n\n[File Operation: ${block.input.command}]\n${JSON.stringify(fileResult.result, null, 2)}`;
               } else {
-                toolResult = `\n\n[File Operation Error: ${fileResult.error}]`;
+                toolResult = `\n\n[File Operation Error: ${fileResult?.error || 'Unknown error'}]`;
               }
               break;
               
