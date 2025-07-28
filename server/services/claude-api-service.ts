@@ -1251,7 +1251,7 @@ I respond like your warm best friend who loves organization - simple, reassuring
     return expertise[expertiseKey] || `You are ${agentName}, an AI assistant specialized in helping with tasks.`;
   }
 
-  private async handleToolCallsWithContinuation(response: any, messages: any[], systemPrompt: string, tools: any[], fileEditMode: boolean = true, agentName: string = '', mandatoryImplementation: boolean = false): Promise<string> {
+  private async handleToolCallsWithContinuation(response: any, messages: any[], systemPrompt: string, tools: any[], fileEditMode: boolean = true, agentName: string = '', mandatoryImplementation: boolean = false, recursionDepth: number = 0): Promise<string> {
     let currentMessages = [...messages];
     let finalResponse = '';
     
@@ -1378,22 +1378,43 @@ I respond like your warm best friend who loves organization - simple, reassuring
       const continuationHasTools = continuationResponse.content.some((block: any) => block.type === 'tool_use');
       
       if (continuationHasTools) {
-        console.log(`🔄 AGENT CONTINUING WORK: Continuation response has ${continuationResponse.content.filter((b: any) => b.type === 'tool_use').length} more tools - processing recursively`);
+        // RECURSION DEPTH PROTECTION: Prevent infinite loops
+        const maxRecursionDepth = 10; // Maximum recursion cycles
+        if (recursionDepth >= maxRecursionDepth) {
+          console.log(`⚠️ RECURSION DEPTH LIMIT REACHED: ${recursionDepth}/${maxRecursionDepth} - stopping to prevent infinite loops`);
+          finalResponse += '\n\n[Agent reached maximum work cycles - task completion attempted]';
+          return finalResponse;
+        }
         
-        // TOKEN MANAGEMENT: Check conversation size before recursion
+        console.log(`🔄 AGENT CONTINUING WORK: Continuation response has ${continuationResponse.content.filter((b: any) => b.type === 'tool_use').length} more tools - processing recursively (depth: ${recursionDepth + 1}/${maxRecursionDepth})`);
+        
+        // TOKEN MANAGEMENT: More aggressive conversation size checking
         const currentTokenEstimate = JSON.stringify(currentMessages).length / 4; // Rough estimate: 4 chars = 1 token
-        const maxSafeTokens = 180000; // Leave buffer below 200k limit
+        const maxSafeTokens = 150000; // More conservative limit - start summarizing earlier
+        
+        console.log(`🔍 TOKEN CHECK: Current estimated tokens: ${currentTokenEstimate}, max safe: ${maxSafeTokens}`);
         
         if (currentTokenEstimate > maxSafeTokens) {
-          console.log(`⚠️ TOKEN LIMIT APPROACHING: ${currentTokenEstimate} tokens, summarizing conversation for continued work`);
+          console.log(`⚠️ TOKEN LIMIT APPROACHING: ${currentTokenEstimate} tokens, implementing aggressive summarization`);
           
-          // CONVERSATION SUMMARIZATION: Keep essential context while reducing tokens
+          // AGGRESSIVE CONVERSATION SUMMARIZATION: Keep only essential context
+          const userRequest = currentMessages.find(msg => msg.role === 'user')?.content || 'Continue working on the assigned task';
+          const recentProgress = finalResponse.substring(Math.max(0, finalResponse.length - 300)); // Last 300 chars only
+          
           const summarizedMessages = [
-            { role: 'user', content: currentMessages[0]?.content || 'Continue working on the task' },
-            { role: 'assistant', content: `Previous work summary: I've been working on this task and used multiple tools. Current progress: ${finalResponse.substring(0, 500)}...` }
+            { 
+              role: 'user', 
+              content: `Original request: ${userRequest.substring(0, 200)}...` 
+            },
+            { 
+              role: 'assistant', 
+              content: `I'm continuing work on this task. Recent progress: ${recentProgress}` 
+            }
           ];
           
-          // Continue with summarized context
+          console.log(`🗜️ CONVERSATION COMPRESSED: ${currentMessages.length} messages → ${summarizedMessages.length} messages`);
+          
+          // Continue with heavily summarized context
           const recursiveResult = await this.handleToolCallsWithContinuation(
             continuationResponse,
             summarizedMessages,
@@ -1401,11 +1422,12 @@ I respond like your warm best friend who loves organization - simple, reassuring
             tools,
             fileEditMode,
             agentName,
-            mandatoryImplementation
+            mandatoryImplementation,
+            recursionDepth + 1
           );
           
           finalResponse += (finalResponse ? '\n\n' : '') + recursiveResult;
-          console.log(`🎯 RECURSIVE WORK COMPLETE WITH SUMMARIZATION: Agent finished autonomous working cycle. Total response: ${finalResponse.length} chars`);
+          console.log(`🎯 RECURSIVE WORK COMPLETE WITH AGGRESSIVE SUMMARIZATION: Agent finished autonomous working cycle. Total response: ${finalResponse.length} chars`);
           
         } else {
           // Normal recursive processing with full context
@@ -1416,7 +1438,8 @@ I respond like your warm best friend who loves organization - simple, reassuring
             tools,
             fileEditMode,
             agentName,
-            mandatoryImplementation
+            mandatoryImplementation,
+            recursionDepth + 1
           );
           
           finalResponse += (finalResponse ? '\n\n' : '') + recursiveResult;
