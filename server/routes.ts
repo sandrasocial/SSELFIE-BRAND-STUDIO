@@ -214,13 +214,15 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
     } catch (error) {
       console.error('Streaming Claude error:', error);
-      res.writeHead(200, { 'Content-Type': 'text/event-stream' });
-      res.write(`data: ${JSON.stringify({
-        type: 'error',
-        error: error instanceof Error ? error.message : 'Failed to process request',
-        timestamp: new Date().toISOString()
-      })}\n\n`);
-      res.end();
+      if (!res.headersSent) {
+        res.writeHead(200, { 'Content-Type': 'text/event-stream' });
+        res.write(`data: ${JSON.stringify({
+          type: 'error',
+          error: error instanceof Error ? error.message : 'Failed to process request',
+          timestamp: new Date().toISOString()
+        })}\n\n`);
+        res.end();
+      }
     }
   });
 
