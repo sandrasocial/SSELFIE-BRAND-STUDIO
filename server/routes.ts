@@ -63,8 +63,12 @@ export async function registerRoutes(app: Express): Promise<Server> {
         });
       }
       
-      // Use existing admin user ID 
-      const userId = '42585527';
+      // Get authenticated user ID or use admin fallback
+      let userId = 'admin-sandra';
+      if (req.isAuthenticated?.() && req.user) {
+        const user = req.user as any;
+        userId = user.claims?.sub || userId;
+      }
       
       const response = await claudeApiService.sendMessage(
         userId,
@@ -98,8 +102,12 @@ export async function registerRoutes(app: Express): Promise<Server> {
         });
       }
       
-      // Use existing admin user ID 
-      const userId = '42585527';
+      // Get authenticated user ID or use admin fallback
+      let userId = 'admin-sandra';
+      if (req.isAuthenticated?.() && req.user) {
+        const user = req.user as any;
+        userId = user.claims?.sub || userId;
+      }
       
       // Generate new conversation ID
       const conversationId = `conv_${agentName}_${Date.now()}_${Math.random().toString(36).substring(2, 15)}`;
@@ -348,9 +356,16 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.status(400).json({ error: 'Content is required' });
       }
       
+      // Get authenticated user ID or use admin fallback
+      let authenticatedUserId = 'admin-sandra';
+      if (req.isAuthenticated?.() && req.user) {
+        const user = req.user as any;
+        authenticatedUserId = user.claims?.sub || authenticatedUserId;
+      }
+      
       const workflowId = await elenaWorkflowDetection.triggerWorkflow(
         content,
-        userId || '42585527', // Default to admin user
+        userId || authenticatedUserId, // Use authenticated user or admin
         workflowType
       );
       
