@@ -38,6 +38,28 @@ export async function registerRoutes(app: Express): Promise<Server> {
     try {
       const { agentName, message, conversationId, fileEditMode } = req.body;
       
+      console.log('🔍 Claude send-message called with:', {
+        agentName,
+        messageLength: message?.length || 0,
+        conversationId,
+        fileEditMode
+      });
+      
+      // Validate required fields
+      if (!agentName) {
+        return res.status(400).json({ 
+          success: false, 
+          error: 'Agent name is required' 
+        });
+      }
+      
+      if (!message) {
+        return res.status(400).json({ 
+          success: false, 
+          error: 'Message is required' 
+        });
+      }
+      
       // Use existing admin user ID 
       const userId = '42585527';
       
