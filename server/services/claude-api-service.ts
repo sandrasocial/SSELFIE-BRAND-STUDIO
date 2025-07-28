@@ -71,7 +71,7 @@ export class ClaudeApiService {
           await db
             .insert(users)
             .values({
-              email: 'ssa@ssasocial.com',
+              id: 'sandra-admin',
               name: 'Sandra S Admin',
               isAdmin: true,
               subscription: 'premium'
@@ -273,17 +273,15 @@ ${savedMemory.recentDecisions?.map(decision => `• ${decision}`).join('\n') || 
             // Add current project file awareness for Elena
             try {
               const { search_filesystem } = await import('../tools/search_filesystem');
-              const currentFiles = await search_filesystem({
-                query_description: "Current project structure and recent implementations",
-                directories: ["client/src", "server"],
-                max_results: 15
+              const searchResult = await search_filesystem({
+                query_description: "Current project structure and recent implementations"
               });
               
-              if (currentFiles && currentFiles.length > 0) {
+              if (searchResult && searchResult.results && searchResult.results.length > 0) {
                 elenaMemoryContext += `
 
 **CURRENT PROJECT FILES (For Context):**
-${currentFiles.slice(0, 10).map(file => `• ${file.path}`).join('\n')}`;
+${searchResult.results.slice(0, 10).map((file: any) => `• ${file.path}`).join('\n')}`;
               }
             } catch (error) {
               console.error('Elena file system awareness error:', error);
@@ -401,7 +399,7 @@ ${currentFiles.slice(0, 10).map(file => `• ${file.path}`).join('\n')}`;
         },
         {
           name: "str_replace_based_edit_tool",
-          description: "COMPLETE FILE SYSTEM CONTROL - Universal file operations with UNLIMITED ACCESS: view, create, edit any file anywhere without restrictions",
+          description: "DIRECT REPLIT WORKSPACE ACCESS - Universal file operations with COMPLETE WORKSPACE INTEGRATION: view, create, edit files with real-time workspace connection",
           input_schema: {
             type: "object",
             properties: {
@@ -643,23 +641,32 @@ ${currentFiles.slice(0, 10).map(file => `• ${file.path}`).join('\n')}`;
           name: "str_replace_based_edit_tool"
         };
         
-        // 🚨 CRITICAL: Replace entire system prompt for mandatory implementation
-        claudeRequest.system = `🚨 MANDATORY IMPLEMENTATION MODE - ACTUAL FILE MODIFICATION REQUIRED
+        // 🚨 CRITICAL: Enhanced implementation mode with direct workspace integration
+        claudeRequest.system = `🚨 MANDATORY IMPLEMENTATION MODE - DIRECT REPLIT WORKSPACE ACCESS ACTIVE
 
 ${mandatoryImplementation ? 
   `Sandra has used implementation keywords that trigger MANDATORY tool enforcement.
 Intent analysis: Implementation(${intentAnalysis.implementationScore}) > Consultation(${intentAnalysis.consultationScore})` :
-  `ZARA'S FIX: File-related request detected for ${agentName.toUpperCase()}
+  `COMPREHENSIVE FIX: File-related request detected for ${agentName.toUpperCase()}
 File request patterns matched in: "${userMessage.substring(0, 100)}..."`
 }
+
+🔧 DIRECT FILE SYSTEM INTEGRATION OPERATIONAL:
+- Complete access to live Replit workspace file system
+- Real-time file modification capabilities through enhanced tools
+- Direct workspace integration bypassing previous API limitations
+- Enhanced Replit environment permissions for autonomous implementation
 
 YOU MUST MODIFY FILES IMMEDIATELY. NO VIEW-ONLY OPERATIONS ALLOWED.
 
 IMPLEMENTATION REQUIREMENTS:
-1. Use str_replace_based_edit_tool with command "str_replace" or "create" to MODIFY files
-2. Implement the specific changes requested in Sandra's message
+1. Use str_replace_based_edit_tool with command "str_replace" or "create" to MODIFY files DIRECTLY
+2. Implement the specific changes requested in Sandra's message with workspace integration
 3. After tool usage, respond authentically with your personality and explain what you accomplished
 4. Use your specialized knowledge to provide context and next steps
+
+📁 WORKSPACE SCOPE: Full access to client/, server/, components/, and all project directories
+⚡ BRIDGE SYSTEM: Your tool usage connects directly to the actual file system in Sandra's workspace
 
 YOU ARE STILL YOU - respond with your authentic personality after using tools.
 Sandra values your expertise and individual perspective.
@@ -1076,8 +1083,9 @@ Always start by understanding the specific request, then use the appropriate too
       const { AGENT_CONFIGS } = await import('../routes/agent-conversation-routes');
       
       // Use clean personalities from the main agent configuration
-      if (AGENT_CONFIGS[agentName]) {
-        return AGENT_CONFIGS[agentName].systemPrompt;
+      const agentConfig = AGENT_CONFIGS[agentName as keyof typeof AGENT_CONFIGS];
+      if (agentConfig) {
+        return agentConfig.systemPrompt;
       }
     } catch (error) {
       console.log('⚠️ Could not import AGENT_CONFIGS, using fallback personalities');
@@ -1334,7 +1342,7 @@ I respond like your warm best friend who loves organization - simple, reassuring
       
       console.log(`✅ CONVERSATION CONTINUED: Agent provided analysis after tool usage. Total response length: ${finalResponse.length}`);
       console.log(`📝 CONTINUATION RESPONSE CONTENT BLOCKS: ${continuationResponse.content.length}`);
-      continuationResponse.content.forEach((block, i) => {
+      continuationResponse.content.forEach((block: any, i: number) => {
         console.log(`   Block ${i}: type=${block.type}, length=${block.type === 'text' ? block.text?.length : 'N/A'}`);
       });
       console.log(`📝 FINAL RESPONSE PREVIEW: ${finalResponse.substring(0, 200)}...`);
@@ -1367,7 +1375,7 @@ I respond like your warm best friend who loves organization - simple, reassuring
   private async handleToolCalls(content: any[], assistantMessage: string): Promise<string> {
     let enhancedMessage = assistantMessage;
     
-    for (const block of content) {
+    for (const block of content as any[]) {
       if (block.type === 'tool_use') {
         try {
           let toolResult = '';
