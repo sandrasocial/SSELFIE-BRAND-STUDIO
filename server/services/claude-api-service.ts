@@ -1285,8 +1285,8 @@ I respond like your warm best friend who loves organization - simple, reassuring
           
           switch (block.name) {
             case 'search_filesystem':
-              const { searchFilesystem } = await import('../tools/search_filesystem');
-              const searchResult = await searchFilesystem(block.input);
+              const { search_filesystem } = await import('../tools/search_filesystem');
+              const searchResult = await search_filesystem(block.input);
               console.log(`✅ SEARCH SUCCESS: Found ${searchResult.length || 0} files`);
               toolResult = JSON.stringify(searchResult, null, 2);
               break;
@@ -1436,8 +1436,8 @@ I respond like your warm best friend who loves organization - simple, reassuring
           
           switch (block.name) {
             case 'search_filesystem':
-              const { searchFilesystem } = await import('../tools/search_filesystem');
-              const searchResult = await searchFilesystem(block.input);
+              const { search_filesystem } = await import('../tools/search_filesystem');
+              const searchResult = await search_filesystem(block.input);
               if (searchResult.success) {
                 console.log(`✅ SEARCH SUCCESS: Found ${searchResult.result?.totalFiles || 0} files`);
                 toolResult = `\n\n[Codebase Search Results]\n${JSON.stringify(searchResult.result, null, 2)}`;
