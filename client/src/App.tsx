@@ -39,6 +39,7 @@ import AdminDashboard from "@/pages/admin-dashboard";
 import AdminConsultingAgents from "@/pages/admin-consulting-agents";
 import BridgeMonitor from "@/pages/admin/bridge-monitor";
 import AgentActivityDashboard from "@/components/admin/AgentActivityDashboard";
+import { UnifiedAgentInterface } from "@/components/admin/UnifiedAgentInterface";
 
 import AgentApproval from "@/pages/agent-approval";
 import AgentCommandCenter from "@/pages/agent-command-center";
@@ -235,6 +236,30 @@ function Router() {
       {/* SANDRA'S ADMIN DASHBOARD - LUXURY EDITORIAL DESIGN */}
       <Route path="/admin-dashboard" component={(props) => <ProtectedRoute component={AdminDashboard} {...props} />} />
       <Route path="/admin" component={(props) => <ProtectedRoute component={AdminDashboard} {...props} />} />
+      <Route path="/admin/unified-agents" component={(props) => <ProtectedRoute component={() => (
+        <div className="min-h-screen bg-gray-50">
+          <div className="bg-white border-b">
+            <div className="max-w-7xl mx-auto px-4 py-6">
+              <div className="flex items-center justify-between">
+                <div>
+                  <h1 className="text-3xl font-bold text-gray-900" style={{ fontFamily: 'Times New Roman, serif' }}>
+                    Unified Agent Architecture
+                  </h1>
+                  <p className="text-gray-600 mt-1">
+                    Real-time agent execution and monitoring system
+                  </p>
+                </div>
+                <div className="text-sm text-gray-500">
+                  SSELFIE Studio Admin
+                </div>
+              </div>
+            </div>
+          </div>
+          <div className="max-w-7xl mx-auto px-4 py-8">
+            <UnifiedAgentInterface />
+          </div>
+        </div>
+      )} {...props} />} />
       <Route path="/admin/consulting-agents" component={(props) => <ProtectedRoute component={AdminConsultingAgents} {...props} />} />
       <Route path="/admin/bridge-monitor" component={(props) => <ProtectedRoute component={BridgeMonitor} {...props} />} />
       <Route path="/admin/agent-activity" component={(props) => <ProtectedRoute component={AgentActivityDashboard} {...props} />} />

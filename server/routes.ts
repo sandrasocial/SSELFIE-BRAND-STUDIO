@@ -33,6 +33,9 @@ import { registerEnterpriseRoutes } from './routes/enterprise-routes';
 import claudeApiRoutes from './routes/claude-api-routes';
 import autonomousOrchestratorRoutes from './api/autonomous-orchestrator/deploy-all-agents';
 import { getCoordinationMetrics, getActiveDeployments, getDeploymentStatus } from './api/autonomous-orchestrator/coordination-metrics';
+// UNIFIED AGENT ARCHITECTURE IMPORTS
+import { UnifiedAgentOrchestrator } from './unified-agent-architecture';
+import { agentRealtimeBridge } from './agent-realtime-bridge';
 // Agent performance monitor will be imported dynamically
 import { ExternalAPIService } from './integrations/external-api-service';
 import { AgentAutomationTasks } from './integrations/agent-automation-tasks';
@@ -8883,6 +8886,93 @@ YOU HAVE FULL IMPLEMENTATION CAPABILITIES - IMPLEMENT DIRECTLY instead of provid
       });
     }
   });
+
+  // ✨ UNIFIED AGENT ARCHITECTURE INTEGRATION
+  // Initialize the unified orchestrator system
+  console.log('🚀 Initializing Unified Agent Architecture...');
+  const { UnifiedAgentOrchestrator } = await import('./unified-agent-architecture');
+  const { agentRealtimeBridge } = await import('./agent-realtime-bridge');
+  
+  // Initialize the unified agent orchestrator
+  const orchestrator = new UnifiedAgentOrchestrator();
+  await orchestrator.initialize();
+  
+  // Initialize the real-time bridge
+  await agentRealtimeBridge.initialize(app);
+  
+  // Unified agent execution endpoint
+  app.post('/api/unified-agents/execute', isAuthenticated, async (req: any, res) => {
+    try {
+      const { agentName, task, context, priority = 'medium' } = req.body;
+      const userId = req.user.claims.sub;
+      
+      console.log(`🎯 Unified Agent Execution Request: ${agentName} for user ${userId}`);
+      
+      const result = await orchestrator.executeAgentTask({
+        agentName,
+        task,
+        context: { ...context, userId },
+        priority,
+        userId
+      });
+      
+      res.json({
+        success: true,
+        executionId: result.executionId,
+        status: result.status,
+        result: result.result,
+        message: `Agent ${agentName} execution initiated successfully`
+      });
+      
+    } catch (error) {
+      console.error('❌ Unified agent execution error:', error);
+      res.status(500).json({
+        success: false,
+        error: error.message || 'Agent execution failed'
+      });
+    }
+  });
+  
+  // Get unified agent status
+  app.get('/api/unified-agents/status/:executionId', isAuthenticated, async (req: any, res) => {
+    try {
+      const { executionId } = req.params;
+      const status = await orchestrator.getExecutionStatus(executionId);
+      
+      res.json({
+        success: true,
+        status
+      });
+      
+    } catch (error) {
+      console.error('❌ Agent status fetch error:', error);
+      res.status(500).json({
+        success: false,
+        error: error.message || 'Failed to fetch agent status'
+      });
+    }
+  });
+  
+  // List available agents
+  app.get('/api/unified-agents/available', isAuthenticated, async (req: any, res) => {
+    try {
+      const agents = await orchestrator.getAvailableAgents();
+      
+      res.json({
+        success: true,
+        agents
+      });
+      
+    } catch (error) {
+      console.error('❌ Available agents fetch error:', error);
+      res.status(500).json({
+        success: false,
+        error: error.message || 'Failed to fetch available agents'
+      });
+    }
+  });
+  
+  console.log('✅ Unified Agent Architecture integrated successfully');
 
   // Mark routes as fully registered
   routesRegistered = true;
