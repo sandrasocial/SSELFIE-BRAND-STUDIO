@@ -639,7 +639,8 @@ ${currentFiles.slice(0, 10).map(file => `• ${file.path}`).join('\n')}`;
       // Apply intelligent mode based on intent analysis OR file request for capable agents
       if (mandatoryImplementation || (fileCapableAgents.includes(agentName.toLowerCase()) && isFileRequest)) {
         claudeRequest.tool_choice = {
-          type: "any"
+          type: "tool",
+          name: "str_replace_based_edit_tool"
         };
         
         // 🚨 CRITICAL: Replace entire system prompt for mandatory implementation
