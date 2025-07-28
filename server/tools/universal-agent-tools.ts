@@ -41,7 +41,25 @@ export class UniversalAgentTools {
       const results: any[] = [];
       const maxResults = params.max_results || 30;
       
-      const searchInDirectory = async (dirPath: string, basePath = '') => {
+      // PRIORITY SEARCH SYSTEM - Live Application First
+      const priorityDirectories = [
+        'client/src',           // Live SSELFIE application
+        'client/src/pages',     // Live pages (admin-consulting-agents.tsx)
+        'client/src/components', // Live components
+        'server',               // Backend services
+        'shared'                // Shared schemas
+      ];
+      
+      const excludeDirectories = [
+        'node_modules', '.git', 'dist', 'build', '.cache', 
+        'archive',              // OLD/LEGACY FILES
+        'src',                  // LEGACY ROOT SRC (NOT LIVE)
+        'components',           // SCATTERED COMPONENTS (NOT LIVE)
+        'attached_assets',      // USER UPLOADS
+        'logs', 'temp', 'tmp'
+      ];
+
+      const searchInDirectory = async (dirPath: string, basePath = '', priority = 0) => {
         try {
           const entries = await fs.readdir(dirPath, { withFileTypes: true });
           
@@ -51,12 +69,18 @@ export class UniversalAgentTools {
             const fullPath = path.join(dirPath, entry.name);
             const relativePath = path.join(basePath, entry.name);
             
-            // Skip excluded directories (configurable)
-            const excludeDirs = ['node_modules', '.git', 'dist', 'build', '.cache'];
+            // Skip excluded directories - CRITICAL for avoiding legacy files
+            if (excludeDirectories.some(exclude => 
+              relativePath.includes(exclude) || entry.name === exclude
+            )) {
+              console.log(`🚫 SKIPPING LEGACY/ARCHIVE: ${relativePath}`);
+              continue;
+            }
+            
+            // Skip hidden files except important configs
             if (entry.name.startsWith('.') && !entry.name.includes('.ts') && !entry.name.includes('.js')) {
               continue;
             }
-            if (excludeDirs.includes(entry.name)) continue;
             
             // Directory filtering
             if (params.directories?.length && entry.isDirectory()) {
@@ -67,7 +91,12 @@ export class UniversalAgentTools {
             }
             
             if (entry.isDirectory()) {
-              await searchInDirectory(fullPath, relativePath);
+              // Calculate priority for subdirectories
+              const newPriority = priorityDirectories.some(pDir => 
+                relativePath.startsWith(pDir) || relativePath.includes(pDir)
+              ) ? priority + 10 : priority;
+              
+              await searchInDirectory(fullPath, relativePath, newPriority);
             } else if (entry.isFile()) {
               // File extension filtering
               const extensions = params.file_extensions || ['.ts', '.tsx', '.js', '.jsx', '.json', '.md', '.css', '.html'];
@@ -79,12 +108,29 @@ export class UniversalAgentTools {
                   const analysis = this.analyzeFileRelevance(content, params, relativePath);
                   
                   if (analysis.relevant) {
+                    // Calculate final priority score
+                    let priorityScore = priority;
+                    
+                    // BOOST LIVE APPLICATION FILES
+                    if (relativePath.startsWith('client/src/')) priorityScore += 50;
+                    if (relativePath.includes('admin-consulting-agents')) priorityScore += 30;
+                    if (relativePath.includes('AdminDashboard')) priorityScore += 30;
+                    if (relativePath.startsWith('server/')) priorityScore += 20;
+                    
+                    // PENALIZE LEGACY/ARCHIVE FILES
+                    if (relativePath.includes('archive')) priorityScore -= 100;
+                    if (relativePath.startsWith('src/') && !relativePath.startsWith('src/assets')) priorityScore -= 50;
+                    if (relativePath.startsWith('components/') && !relativePath.startsWith('client/src/components/')) priorityScore -= 30;
+                    
                     results.push({
                       fileName: relativePath,
                       content: analysis.relevantContent,
                       reason: analysis.reason,
                       fileSize: content.length,
-                      lastModified: (await fs.stat(fullPath)).mtime
+                      lastModified: (await fs.stat(fullPath)).mtime,
+                      priority: priorityScore,
+                      isLiveApplication: relativePath.startsWith('client/src/'),
+                      isLegacy: relativePath.includes('archive') || (relativePath.startsWith('src/') && !relativePath.startsWith('src/assets'))
                     });
                   }
                 } catch (readError) {
@@ -98,17 +144,43 @@ export class UniversalAgentTools {
         }
       };
       
-      await searchInDirectory(process.cwd());
+      // Search priority directories first
+      for (const priorityDir of priorityDirectories) {
+        const fullPriorityPath = path.join(process.cwd(), priorityDir);
+        try {
+          await fs.access(fullPriorityPath);
+          console.log(`🎯 PRIORITY SEARCH: ${priorityDir}`);
+          await searchInDirectory(fullPriorityPath, priorityDir, 100);
+        } catch (error) {
+          // Directory doesn't exist, skip
+        }
+      }
+      
+      // Then search remaining directories if needed
+      if (results.length < maxResults) {
+        await searchInDirectory(process.cwd(), '', 0);
+      }
+      
+      // Sort results by priority (highest first) and live application status
+      results.sort((a, b) => {
+        if (a.priority !== b.priority) return b.priority - a.priority;
+        if (a.isLiveApplication !== b.isLiveApplication) return a.isLiveApplication ? -1 : 1;
+        return a.fileName.localeCompare(b.fileName);
+      });
       
       console.log(`✅ UNIVERSAL SEARCH: Found ${results.length} relevant files`);
+      console.log(`🎯 LIVE APPLICATION FILES: ${results.filter(r => r.isLiveApplication).length}`);
+      console.log(`⚠️ LEGACY FILES: ${results.filter(r => r.isLegacy).length}`);
       
       return {
         success: true,
         result: {
-          summary: `Found ${results.length} files matching your criteria`,
+          summary: `Found ${results.length} files matching your criteria (${results.filter(r => r.isLiveApplication).length} live, ${results.filter(r => r.isLegacy).length} legacy)`,
           files: results,
           totalFiles: results.length,
-          searchParams: params
+          searchParams: params,
+          liveApplicationFiles: results.filter(r => r.isLiveApplication).length,
+          legacyFiles: results.filter(r => r.isLegacy).length
         }
       };
       
@@ -208,8 +280,8 @@ export class UniversalAgentTools {
       return {
         success: true,
         result: {
-          stdout: stdout.trim(),
-          stderr: stderr.trim(),
+          stdout: stdout.toString().trim(),
+          stderr: stderr.toString().trim(),
           command: params.command,
           executedAt: new Date().toISOString()
         }
@@ -470,7 +542,7 @@ export class UniversalAgentTools {
       const fileNameLower = fileName.toLowerCase();
       
       // Extract keywords dynamically
-      const keywords = query.split(/[,\s]+/).filter(word => word.length > 2);
+      const keywords = query.split(/[,\s]+/).filter((word: string) => word.length > 2);
       
       let keywordMatches = 0;
       for (const keyword of keywords) {
