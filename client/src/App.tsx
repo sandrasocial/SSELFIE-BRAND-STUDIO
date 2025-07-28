@@ -146,8 +146,22 @@ function Router() {
       {/* LAUNCH COUNTDOWN */}
       <Route path="/launch" component={LaunchCountdown} />
       
-      {/* PUBLIC PAGES */}
-      <Route path="/" component={EditorialLanding} />
+      {/* PUBLIC PAGES - Direct admin interface for Sandra */}
+      <Route path="/" component={() => {
+        // Direct redirect to admin consulting agents for development/testing
+        React.useEffect(() => {
+          window.location.href = '/admin/consulting-agents';
+        }, []);
+        
+        return (
+          <div className="min-h-screen flex items-center justify-center">
+            <div className="text-center">
+              <div className="animate-spin w-8 h-8 border-4 border-black border-t-transparent rounded-full mx-auto mb-4" />
+              <p>Redirecting to admin interface...</p>
+            </div>
+          </div>
+        );
+      }} />
       
       {/* BRANDED AUTHENTICATION PAGES */}
       <Route path="/login" component={AuthExplainer} />
