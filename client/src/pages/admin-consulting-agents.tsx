@@ -144,25 +144,15 @@ const formatToolResults = (content: string): string[] => {
   return tools;
 };
 
-// Clean message content - remove raw tool outputs for professional display
+// TEMPORARILY DISABLED: Clean message content function (showing all agent work)
 const cleanMessageContent = (content: string): string => {
-  // First, preserve the original content for debugging
-  console.log('🔍 Original agent response length:', content.length);
-  console.log('🔍 Original response preview:', content.substring(0, 200));
+  // DISABLED: Return original content to see what agents are actually doing
+  console.log('🔍 SHOWING FULL AGENT RESPONSE (cleanMessageContent DISABLED)');
+  console.log('🔍 Response length:', content.length);
+  console.log('🔍 Response preview:', content.substring(0, 200));
   
-  let cleaned = content
-    .replace(/\n\n\[Codebase Search Results\][^]*?(?=\n\n|\n$|$)/g, '')
-    .replace(/\n\n\[File Operation:[^]*?(?=\n\n|\n$|$)/g, '')
-    .replace(/\n\n\[Command Execution\][^]*?(?=\n\n|\n$|$)/g, '')
-    .replace(/\n\n\[Web Search Results\][^]*?(?=\n\n|\n$|$)/g, '')
-    .replace(/\n\n\[.*?\][^]*?(?=\n\n|\n$|$)/g, '')
-    .trim();
-  
-  console.log('🔍 Cleaned response length:', cleaned.length);
-  console.log('🔍 Cleaned response preview:', cleaned.substring(0, 200));
-  
-  // Return the cleaned content regardless of length - don't replace with generic message
-  return cleaned || content; // Fallback to original if cleaning went wrong
+  // Return the original content without any cleaning to see agent tool usage
+  return content;
 };
 
 export default function AdminConsultingAgents() {
@@ -178,7 +168,7 @@ export default function AdminConsultingAgents() {
   
   // Bridge System State
   const [bridgeEnabled, setBridgeEnabled] = useState(false);
-  const { submitTask, isSubmitting, activeTasks, getHealth } = useAgentBridge();
+  const { submitTask, isSubmitting, activeTasks } = useAgentBridge();
 
   // Define agents with matching admin dashboard data
   const consultingAgents: ConsultingAgent[] = [
@@ -312,65 +302,8 @@ export default function AdminConsultingAgents() {
     try {
       console.log('🔄 Loading conversation history for agent:', selectedAgent.id);
       
-      // For Elena specifically, load ALL conversations from the last 24 hours
-      if (selectedAgent.id === 'elena') {
-        console.log('📜 ELENA: Loading ALL conversations from last 24 hours');
-        
-        // Get all Elena conversations from last 24 hours
-        const existingConversations = await fetch('/api/claude/conversations/list', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          credentials: 'include',
-          body: JSON.stringify({ agentName: 'elena' })
-        });
-
-        if (existingConversations.ok) {
-          const conversationList = await existingConversations.json();
-          console.log('📜 ELENA: Found existing conversations:', conversationList.conversations?.length || 0);
-          
-          // Filter conversations from last 24 hours
-          const last24Hours = new Date(Date.now() - 24 * 60 * 60 * 1000);
-          const recentConversations = conversationList.conversations?.filter((conv: any) => 
-            new Date(conv.updatedAt || conv.createdAt) >= last24Hours
-          ) || [];
-          
-          console.log('📜 ELENA: Found', recentConversations.length, 'conversations from last 24 hours');
-          
-          if (recentConversations.length > 0) {
-            // Combine messages from ALL recent conversations
-            let allMessages: ChatMessage[] = [];
-            
-            for (const conversation of recentConversations) {
-              console.log('📜 ELENA: Loading conversation:', conversation.id, 'with', conversation.messageCount, 'messages');
-              
-              // Use the database ID directly for history loading
-              const history = await loadConversationHistory(conversation.id.toString());
-              if (history.messages && history.messages.length > 0) {
-                const conversationMessages: ChatMessage[] = history.messages.map((msg: any, index: number) => ({
-                  id: `${conversation.id}-${msg.timestamp || Date.now()}-${index}`,
-                  type: msg.role === 'user' ? 'user' : 'agent',
-                  content: msg.content,
-                  timestamp: msg.timestamp || new Date().toISOString(),
-                  agentName: msg.role === 'assistant' ? selectedAgent.name : undefined,
-                }));
-                
-                allMessages = [...allMessages, ...conversationMessages];
-              }
-            }
-            
-            // Sort all messages by timestamp
-            allMessages.sort((a, b) => new Date(a.timestamp).getTime() - new Date(b.timestamp).getTime());
-            
-            console.log('📜 ELENA: Successfully loaded', allMessages.length, 'total messages from last 24 hours');
-            
-            // Use the most recent conversation ID for new messages
-            setConversationId(recentConversations[0].id);
-            setMessages(allMessages);
-            setIsLoadingHistory(false);
-            return;
-          }
-        }
-      }
+      // SIMPLIFIED: Elena uses standard conversation loading (complex 24-hour loading removed)
+      console.log('📜 SIMPLIFIED: Using standard conversation loading for all agents including Elena');
       
       // Fallback: Create new conversation for any agent or if Elena has no existing conversations
       console.log('🔄 Creating new conversation for agent:', selectedAgent.id);
@@ -790,48 +723,75 @@ export default function AdminConsultingAgents() {
 
                 {/* Messages Area */}
                 <div className="flex-1 overflow-y-auto space-y-6 mb-6">
-                  {messages.length === 0 && (
-                    <div className="text-center py-12">
-                      <p className="text-gray-500 font-light italic">
-                        Start a conversation with {selectedAgent.name} for strategic analysis
-                      </p>
-                    </div>
-                  )}
-                  
                   {messages.map((msg) => (
-                    <div key={msg.id} className={`flex ${msg.type === 'user' ? 'justify-end' : 'justify-start'}`}>
-                      <div className={`max-w-[80%] ${
+                    <div
+                      key={msg.id}
+                      className={`flex ${msg.type === 'user' ? 'justify-end' : 'justify-start'}`}
+                    >
+                      <div className={`max-w-[80%] p-4 ${
                         msg.type === 'user' 
-                          ? 'bg-black text-white' 
-                          : 'bg-gray-50 text-black border border-gray-200'
-                      } p-4 rounded-sm`}>
+                          ? 'bg-black text-white ml-4' 
+                          : 'bg-gray-50 text-black mr-4'
+                      }`}>
                         {msg.type === 'agent' && (
-                          <div className="text-xs uppercase tracking-wide opacity-70 mb-2">
-                            {msg.agentName}
+                          <div className="flex items-center gap-2 mb-2">
+                            <span className="text-xs uppercase tracking-wide text-gray-500">
+                              {msg.agentName}
+                            </span>
+                            {/* Tool Usage Indicator - Simplified */}
+                            {msg.content.includes('[File Operation:') && (
+                              <div className="flex items-center gap-1">
+                                <span className="text-xs text-gray-400">•</span>
+                                <span className="text-xs px-2 py-1 bg-blue-100 text-blue-700 rounded-sm">
+                                  File Edit
+                                </span>
+                              </div>
+                            )}
+                            {msg.content.includes('[Codebase Search Results]') && (
+                              <div className="flex items-center gap-1">
+                                <span className="text-xs text-gray-400">•</span>
+                                <span className="text-xs px-2 py-1 bg-green-100 text-green-700 rounded-sm">
+                                  Code Search
+                                </span>
+                              </div>
+                            )}
                           </div>
                         )}
-                        <div className="whitespace-pre-wrap font-light leading-relaxed">
-                          {msg.content}
+                        <div className="text-sm leading-relaxed whitespace-pre-wrap">
+                          {cleanMessageContent(msg.content)}
                         </div>
-                        <div className="text-xs opacity-50 mt-2">
-                          {new Date(msg.timestamp).toLocaleTimeString()}
-                        </div>
+                        {msg.timestamp && (
+                          <div className="text-xs text-gray-400 mt-2">
+                            {new Date(msg.timestamp).toLocaleTimeString()}
+                          </div>
+                        )}
                       </div>
                     </div>
                   ))}
                   
                   {isLoading && (
                     <div className="flex justify-start">
-                      <div className="bg-gray-50 border border-gray-200 p-4 rounded-sm">
-                        <div className="text-xs uppercase tracking-wide opacity-70 mb-2">
-                          {selectedAgent.name}
+                      <div className="max-w-[80%] p-4 bg-gray-50 text-black mr-4">
+                        <div className="flex items-center gap-2 mb-2">
+                          <span className="text-xs uppercase tracking-wide text-gray-500">
+                            {selectedAgent.name}
+                          </span>
+                          <div className="flex items-center gap-1">
+                            <div className="w-2 h-2 bg-gray-400 rounded-full animate-pulse"></div>
+                            <span className="text-xs text-gray-400">Working...</span>
+                          </div>
                         </div>
                         <div className="flex items-center gap-2">
-                          <div className="w-2 h-2 bg-gray-400 rounded-full animate-pulse"></div>
-                          <div className="w-2 h-2 bg-gray-400 rounded-full animate-pulse delay-75"></div>
-                          <div className="w-2 h-2 bg-gray-400 rounded-full animate-pulse delay-150"></div>
+                          <div className="w-3 h-3 border border-gray-400 border-t-black rounded-full animate-spin"></div>
+                          <span className="text-sm text-gray-600">Agent is analyzing...</span>
                         </div>
                       </div>
+                    </div>
+                  )}
+                  
+                  {messages.length === 0 && (
+                    <div className="text-center py-12 text-gray-500 font-light italic">
+                      Start a conversation with {selectedAgent?.name} for strategic analysis
                     </div>
                   )}
                 </div>
@@ -843,7 +803,7 @@ export default function AdminConsultingAgents() {
                       value={message}
                       onChange={(e) => setMessage(e.target.value)}
                       onKeyPress={handleKeyPress}
-                      placeholder={`Ask ${selectedAgent.name} for strategic analysis...`}
+                      placeholder={`Ask ${selectedAgent?.name} for strategic analysis...`}
                       className="flex-1 resize-none border border-gray-300 rounded-sm p-4 font-light leading-relaxed focus:outline-none focus:border-black transition-colors"
                       rows={3}
                     />
