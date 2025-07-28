@@ -1399,10 +1399,10 @@ I respond like your warm best friend who loves organization - simple, reassuring
       
       if (continuationHasTools) {
         // RECURSION DEPTH PROTECTION: Prevent infinite loops but allow continuation
-        const maxRecursionDepth = 15; // Maximum recursion cycles per session
+        const maxRecursionDepth = 25; // Increased for complex workflows like Elena detection
         if (recursionDepth >= maxRecursionDepth) {
           console.log(`⚠️ RECURSION DEPTH LIMIT REACHED: ${recursionDepth}/${maxRecursionDepth} - pausing for continuation`);
-          finalResponse += '\n\n**CONTINUATION AVAILABLE** - I completed 15 work cycles and have more to do. Reply "continue" to resume where I left off, or provide new instructions.';
+          finalResponse += '\n\n**CONTINUATION AVAILABLE** - I completed 25 work cycles and have more to do. Reply "continue" to resume where I left off, or provide new instructions.';
           return finalResponse;
         }
         
