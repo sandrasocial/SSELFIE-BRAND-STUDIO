@@ -68,6 +68,10 @@ import LaunchCountdown from "@/pages/launch-countdown";
 import AdminAccessOnly from "@/pages/admin-access-only";
 import Build from "@/pages/build";
 
+// Test Components
+import TestZara from "./test-zara";
+import TestDemo from "./test-demo";
+
 // Removed duplicate photoshoot imports - using existing system
 
 
@@ -181,7 +185,7 @@ function Router() {
         );
       }} />
 
-      {/* DEVELOPMENT TEST PAGE */}
+      {/* DEVELOPMENT TEST PAGES */}
       <Route path="/test" component={() => (
         <div className="p-8">
           <h1 className="text-2xl mb-4">Navigation Test</h1>
@@ -190,9 +194,15 @@ function Router() {
             <div><a href="/workspace" className="text-blue-600 underline">Go to Workspace</a></div>
             <div><a href="/victoria-preview" className="text-blue-600 underline">Go to Victoria Preview</a></div>
             <div><a href="/maya" className="text-blue-600 underline">Go to Maya</a></div>
+            <div><a href="/test-zara" className="text-blue-600 underline">Test Zara Component</a></div>
+            <div><a href="/test-demo" className="text-blue-600 underline">Test Demo Page</a></div>
           </div>
         </div>
       )} />
+      
+      {/* ZARA TEST COMPONENTS */}
+      <Route path="/test-zara" component={TestZara} />
+      <Route path="/test-demo" component={TestDemo} />
       <Route path="/old-landing" component={Landing} />
       <Route path="/about" component={About} />
       <Route path="/how-it-works" component={HowItWorks} />
