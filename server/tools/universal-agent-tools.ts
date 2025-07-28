@@ -43,18 +43,17 @@ export class UniversalAgentTools {
       
       // PRIORITY SEARCH SYSTEM - Live Application First
       const priorityDirectories = [
-        'client/src',           // Live SSELFIE application
-        'client/src/pages',     // Live pages (admin-consulting-agents.tsx)
-        'client/src/components', // Live components
+        'client/src',           // Live SSELFIE application frontend
+        'client',               // Client-side files
         'server',               // Backend services
+        'src',                  // Source files (part of live app)
+        'api',                  // API endpoints and routes
         'shared'                // Shared schemas
       ];
       
       const excludeDirectories = [
         'node_modules', '.git', 'dist', 'build', '.cache', 
         'archive',              // OLD/LEGACY FILES
-        'src',                  // LEGACY ROOT SRC (NOT LIVE)
-        'components',           // SCATTERED COMPONENTS (NOT LIVE)
         'attached_assets',      // USER UPLOADS
         'logs', 'temp', 'tmp'
       ];
@@ -113,14 +112,16 @@ export class UniversalAgentTools {
                     
                     // BOOST LIVE APPLICATION FILES
                     if (relativePath.startsWith('client/src/')) priorityScore += 50;
+                    if (relativePath.startsWith('client/')) priorityScore += 45;
+                    if (relativePath.startsWith('server/')) priorityScore += 40;
+                    if (relativePath.startsWith('src/')) priorityScore += 35;
+                    if (relativePath.startsWith('api/')) priorityScore += 35;
+                    if (relativePath.startsWith('shared/')) priorityScore += 30;
                     if (relativePath.includes('admin-consulting-agents')) priorityScore += 30;
                     if (relativePath.includes('AdminDashboard')) priorityScore += 30;
-                    if (relativePath.startsWith('server/')) priorityScore += 20;
                     
-                    // PENALIZE LEGACY/ARCHIVE FILES
+                    // PENALIZE ONLY ARCHIVE FILES
                     if (relativePath.includes('archive')) priorityScore -= 100;
-                    if (relativePath.startsWith('src/') && !relativePath.startsWith('src/assets')) priorityScore -= 50;
-                    if (relativePath.startsWith('components/') && !relativePath.startsWith('client/src/components/')) priorityScore -= 30;
                     
                     results.push({
                       fileName: relativePath,
@@ -129,8 +130,8 @@ export class UniversalAgentTools {
                       fileSize: content.length,
                       lastModified: (await fs.stat(fullPath)).mtime,
                       priority: priorityScore,
-                      isLiveApplication: relativePath.startsWith('client/src/'),
-                      isLegacy: relativePath.includes('archive') || (relativePath.startsWith('src/') && !relativePath.startsWith('src/assets'))
+                      isLiveApplication: relativePath.startsWith('client/') || relativePath.startsWith('server/') || relativePath.startsWith('src/') || relativePath.startsWith('api/') || relativePath.startsWith('shared/'),
+                      isLegacy: relativePath.includes('archive')
                     });
                   }
                 } catch (readError) {
