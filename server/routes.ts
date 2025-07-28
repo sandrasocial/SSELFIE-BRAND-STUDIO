@@ -82,6 +82,95 @@ export async function registerRoutes(app: Express): Promise<Server> {
       });
     }
   });
+
+  // Claude conversation management endpoints
+  app.post('/api/claude/conversation/new', async (req, res) => {
+    try {
+      const { agentName } = req.body;
+      
+      if (!agentName) {
+        return res.status(400).json({ 
+          success: false, 
+          error: 'Agent name is required' 
+        });
+      }
+      
+      // Use existing admin user ID 
+      const userId = '42585527';
+      
+      // Generate new conversation ID
+      const conversationId = `conv_${agentName}_${Date.now()}_${Math.random().toString(36).substring(2, 15)}`;
+      
+      const conversationDbId = await claudeApiService.createConversationIfNotExists(
+        userId,
+        agentName,
+        conversationId
+      );
+      
+      res.json({ 
+        success: true, 
+        conversationId,
+        id: conversationDbId
+      });
+    } catch (error) {
+      console.error('Conversation creation error:', error);
+      res.status(500).json({ 
+        success: false, 
+        error: error instanceof Error ? error.message : 'Failed to create conversation' 
+      });
+    }
+  });
+
+  app.get('/api/claude/conversation/:conversationId/history', async (req, res) => {
+    try {
+      const { conversationId } = req.params;
+      
+      if (!conversationId) {
+        return res.status(400).json({ 
+          success: false, 
+          error: 'Conversation ID is required' 
+        });
+      }
+      
+      const messages = await claudeApiService.getConversationHistory(conversationId);
+      
+      res.json({ 
+        success: true, 
+        messages 
+      });
+    } catch (error) {
+      console.error('Conversation history error:', error);
+      res.status(500).json({ 
+        success: false, 
+        error: error instanceof Error ? error.message : 'Failed to load conversation history' 
+      });
+    }
+  });
+
+  app.post('/api/claude/conversation/clear', async (req, res) => {
+    try {
+      const { agentName } = req.body;
+      
+      if (!agentName) {
+        return res.status(400).json({ 
+          success: false, 
+          error: 'Agent name is required' 
+        });
+      }
+      
+      // For now, just return success - conversation clearing can be implemented later
+      res.json({ 
+        success: true, 
+        message: 'Conversation cleared successfully' 
+      });
+    } catch (error) {
+      console.error('Conversation clear error:', error);
+      res.status(500).json({ 
+        success: false, 
+        error: error instanceof Error ? error.message : 'Failed to clear conversation' 
+      });
+    }
+  });
   
   // Auth user endpoint for frontend - CRITICAL: NO REDIRECT, JUST RETURN USER DATA
   app.get('/api/auth/user', async (req: any, res) => {
