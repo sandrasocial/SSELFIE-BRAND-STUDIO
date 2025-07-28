@@ -37,6 +37,12 @@ export class StreamingResponseService {
       agentName
     } = options;
 
+    // Check if headers already sent to prevent the error
+    if (res.headersSent) {
+      console.warn('Headers already sent, cannot set streaming headers');
+      return;
+    }
+
     // Set headers for Server-Sent Events (SSE)
     res.writeHead(200, {
       'Content-Type': 'text/event-stream',
@@ -101,6 +107,12 @@ export class StreamingResponseService {
   ): Promise<void> {
     const { conversationId, showToolExecution = true } = options;
 
+    // Check if headers already sent to prevent the error
+    if (res.headersSent) {
+      console.warn('Headers already sent, cannot set streaming headers');
+      return;
+    }
+
     // Set SSE headers
     res.writeHead(200, {
       'Content-Type': 'text/event-stream',
@@ -126,13 +138,37 @@ export class StreamingResponseService {
       })}\n\n`);
     }
 
-    // Stream the actual message content
-    await this.streamTextResponse(res, messageContent, {
-      delayMs: 40, // Slightly faster for agent responses
-      chunkSize: 4, // Slightly larger chunks
+    // Stream the actual message content (headers already set)
+    const words = messageContent.split(' ');
+    let accumulatedText = '';
+    
+    // Stream text in chunks without setting headers again
+    for (let i = 0; i < words.length; i += 4) {
+      const chunk = words.slice(i, i + 4).join(' ');
+      accumulatedText += (accumulatedText ? ' ' : '') + chunk;
+      
+      // Send chunk with progress info
+      res.write(`data: ${JSON.stringify({
+        type: 'chunk',
+        chunk: chunk + ' ',
+        accumulatedText,
+        progress: Math.round((i + 4) / words.length * 100),
+        timestamp: new Date().toISOString()
+      })}\n\n`);
+
+      // Add natural delay
+      await new Promise(resolve => setTimeout(resolve, 40));
+    }
+
+    // Send completion signal
+    res.write(`data: ${JSON.stringify({
+      type: 'complete',
+      finalText: messageContent,
       conversationId,
-      agentName
-    });
+      timestamp: new Date().toISOString()
+    })}\n\n`);
+
+    res.end();
   }
 
   /**

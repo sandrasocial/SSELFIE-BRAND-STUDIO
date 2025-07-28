@@ -195,8 +195,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
         });
       }
 
-      // Get user ID for authentication
-      let userId = 'admin-sandra';
+      // Get user ID for authentication - Use Sandra's actual user ID
+      let userId = '42585527'; // Sandra's authenticated user ID
       if (req.isAuthenticated() && req.user) {
         const user = req.user as any;
         userId = user.claims?.sub || userId;
@@ -207,11 +207,13 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
       // Get response from Claude API service (non-streaming first)
       const response = await claudeApiService.sendMessage(
+        userId,
         agentName,
-        message,
         conversationId || `conv_${agentName}_${Date.now()}`,
-        fileEditMode,
-        userId
+        message,
+        undefined, // systemPrompt
+        undefined, // tools
+        fileEditMode
       );
 
       // Stream the response like Replit AI agents
@@ -253,8 +255,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
         });
       }
 
-      // Get user ID for authentication
-      let userId = 'admin-sandra'; // Default admin user
+      // Get user ID for authentication - Use Sandra's actual user ID
+      let userId = '42585527'; // Sandra's authenticated user ID
       if (req.isAuthenticated() && req.user) {
         const user = req.user as any;
         userId = user.claims?.sub || userId;
@@ -262,11 +264,13 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
       // Use the Claude API service for agent communication
       const response = await claudeApiService.sendMessage(
+        userId,
         agentName,
-        message,
         conversationId || `conv_${agentName}_${Date.now()}`,
-        fileEditMode,
-        userId
+        message,
+        undefined, // systemPrompt
+        undefined, // tools
+        fileEditMode
       );
 
       res.json({
