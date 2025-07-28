@@ -8617,6 +8617,11 @@ I'll coordinate a **"Platform Launch Readiness Validation"** workflow with Aria,
   registerElenaMonitoringRoutes(app);
   registerAdminConversationRoutes(app);
 
+  // CRITICAL FIX: Register Claude API routes that were imported but never registered
+  console.log('✅ Registering Claude API routes...');
+  app.use('/api/claude', claudeApiRoutes);
+  console.log('✅ Claude API routes registered successfully');
+
   // =========================================================================
   // 🎯 CONSULTING AGENTS ENDPOINT - FULL IMPLEMENTATION CAPABILITIES
   // =========================================================================
