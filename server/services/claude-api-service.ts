@@ -1380,19 +1380,48 @@ I respond like your warm best friend who loves organization - simple, reassuring
       if (continuationHasTools) {
         console.log(`🔄 AGENT CONTINUING WORK: Continuation response has ${continuationResponse.content.filter((b: any) => b.type === 'tool_use').length} more tools - processing recursively`);
         
-        // RECURSIVE CALL: Process the continuation response that has more tools
-        const recursiveResult = await this.handleToolCallsWithContinuation(
-          continuationResponse,
-          currentMessages,
-          systemPrompt,
-          tools,
-          fileEditMode,
-          agentName,
-          mandatoryImplementation
-        );
+        // TOKEN MANAGEMENT: Check conversation size before recursion
+        const currentTokenEstimate = JSON.stringify(currentMessages).length / 4; // Rough estimate: 4 chars = 1 token
+        const maxSafeTokens = 180000; // Leave buffer below 200k limit
         
-        finalResponse += (finalResponse ? '\n\n' : '') + recursiveResult;
-        console.log(`🎯 RECURSIVE WORK COMPLETE: Agent finished autonomous working cycle. Total response: ${finalResponse.length} chars`);
+        if (currentTokenEstimate > maxSafeTokens) {
+          console.log(`⚠️ TOKEN LIMIT APPROACHING: ${currentTokenEstimate} tokens, summarizing conversation for continued work`);
+          
+          // CONVERSATION SUMMARIZATION: Keep essential context while reducing tokens
+          const summarizedMessages = [
+            { role: 'user', content: currentMessages[0]?.content || 'Continue working on the task' },
+            { role: 'assistant', content: `Previous work summary: I've been working on this task and used multiple tools. Current progress: ${finalResponse.substring(0, 500)}...` }
+          ];
+          
+          // Continue with summarized context
+          const recursiveResult = await this.handleToolCallsWithContinuation(
+            continuationResponse,
+            summarizedMessages,
+            systemPrompt,
+            tools,
+            fileEditMode,
+            agentName,
+            mandatoryImplementation
+          );
+          
+          finalResponse += (finalResponse ? '\n\n' : '') + recursiveResult;
+          console.log(`🎯 RECURSIVE WORK COMPLETE WITH SUMMARIZATION: Agent finished autonomous working cycle. Total response: ${finalResponse.length} chars`);
+          
+        } else {
+          // Normal recursive processing with full context
+          const recursiveResult = await this.handleToolCallsWithContinuation(
+            continuationResponse,
+            currentMessages,
+            systemPrompt,
+            tools,
+            fileEditMode,
+            agentName,
+            mandatoryImplementation
+          );
+          
+          finalResponse += (finalResponse ? '\n\n' : '') + recursiveResult;
+          console.log(`🎯 RECURSIVE WORK COMPLETE: Agent finished autonomous working cycle. Total response: ${finalResponse.length} chars`);
+        }
         
       } else {
         // No more tools, extract text response normally
