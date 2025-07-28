@@ -943,20 +943,19 @@ ${targetFile ? `Target File: ${targetFile}` : 'Target: Determine appropriate fil
 
 🚨 MANDATORY FILE MODIFICATION REQUIREMENT:
 - You MUST use str_replace_based_edit_tool with MODIFICATION commands: str_replace, create, or insert
-- NEVER use "view" command - that is read-only and will FAIL the workflow
+- You MAY use "view" command FIRST to understand file content, then MODIFY
 - DO NOT respond with text explanations only
-- DO NOT just view files - you must MODIFY them
+- You can VIEW files to understand them, but you must also MODIFY them
 - MODIFY existing integrated files directly with actual content changes
 - Use str_replace command to ADD new content to existing files
 - Use create command only if creating completely new files
 
-CRITICAL WORKFLOW RULE: If you only VIEW files or provide text explanations, this task will be marked as FAILED.
+CRITICAL WORKFLOW RULE: You can view files for analysis, but you MUST also modify them.
 
 🚨 FORBIDDEN ACTIONS THAT CAUSE FAILURE:
-❌ Using view command on str_replace_based_edit_tool
-❌ Providing analysis without file modifications  
+❌ Providing analysis without any file modifications  
 ❌ Describing what you would create instead of creating it
-❌ Reading files without making changes
+❌ Only viewing files without making any changes
 
 ✅ REQUIRED ACTIONS FOR SUCCESS:
 ✅ Use str_replace command to add/modify file content
@@ -1026,26 +1025,33 @@ MANDATORY: End response with: TOOL_USED: str_replace_based_edit_tool [command] |
           const hasToolUsageConfirmation = result.response?.includes('TOOL_USED: str_replace_based_edit_tool');
           const hasModificationKeywords = result.response?.includes('MODIFIED:') || result.response?.includes('str_replace_based_edit_tool');
           
-          // CHECK FOR FORBIDDEN VIEW-ONLY COMMANDS
+          // CHECK FOR MODIFICATION TOOLS (view commands are ALLOWED for analysis before modification)
           const usedViewCommand = result.response?.includes('📁 Viewing') || 
                                  result.response?.includes("command: 'view'") ||
                                  result.response?.includes('command": "view"') ||
                                  result.response?.includes('view_range:');
           
-          // STRICT VALIDATION: Agent MUST use MODIFICATION tools (not view)
-          const actualToolUsage = toolCallsSuccess && (hasToolUsageConfirmation || hasModificationKeywords) && !usedViewCommand;
+          const usedModificationCommand = result.response?.includes("command: 'str_replace'") ||
+                                         result.response?.includes('command": "str_replace"') ||
+                                         result.response?.includes("command: 'create'") ||
+                                         result.response?.includes('command": "create"') ||
+                                         result.response?.includes("command: 'insert'") ||
+                                         result.response?.includes('command": "insert"');
+          
+          // SMART VALIDATION: Agent can view AND modify, or just modify directly
+          const actualToolUsage = toolCallsSuccess && (hasToolUsageConfirmation || hasModificationKeywords || usedModificationCommand);
           
           console.log(`✅ REAL AGENT EXECUTION: ${agentName} worked on actual files - ${result.toolCalls?.length || 0} tool calls, ${result.filesCreated?.length || 0} files created, ${result.fileOperations?.length || 0} operations`);
           console.log(`🔍 TOOL VALIDATION: toolCallsSuccess=${toolCallsSuccess}, hasToolUsageConfirmation=${hasToolUsageConfirmation}, actualToolUsage=${actualToolUsage}`);
-          console.log(`🔍 VIEW CHECK: usedViewCommand=${usedViewCommand}`);
+          console.log(`🔍 COMMAND CHECK: usedViewCommand=${usedViewCommand}, usedModificationCommand=${usedModificationCommand}`);
           
-          // FAILURE: Agent used forbidden view command (read-only)
-          if (usedViewCommand) {
-            console.log(`❌ ELENA: ${agentName} used FORBIDDEN view command (read-only) instead of modification commands (attempt ${attempt})`);
+          // ONLY FAIL if agent used ONLY view without any modifications
+          if (usedViewCommand && !usedModificationCommand && !hasModificationKeywords) {
+            console.log(`❌ ELENA: ${agentName} used ONLY view command without modifications (attempt ${attempt})`);
             console.log(`📝 Agent response: ${result.response?.substring(0, 300)}...`);
             
             if (attempt === MAX_RETRIES) {
-              console.log(`🚨 ELENA: ${agentName} FAILED - used view command after ${MAX_RETRIES} attempts`);
+              console.log(`🚨 ELENA: ${agentName} FAILED - view-only after ${MAX_RETRIES} attempts`);
               return false;
             }
             continue;
