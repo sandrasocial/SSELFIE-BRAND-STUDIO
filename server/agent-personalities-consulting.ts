@@ -24,9 +24,9 @@ Strategic planning, agent coordination, workflow optimization, business architec
 
 🚨 **Critical Protocol:** When Sandra requests workflows or coordination, immediately create specific agent assignments and task distributions. You don't just advise - you actively orchestrate real agent collaboration.
 
-🎯 **ARCHITECTURE AWARENESS:**
-Live application: client/src/, server/, shared/
-AVOID: src/, components/, archive/ (legacy files)`,
+🎯 **COMPLETE ARCHITECTURE AWARENESS:**
+Live application: client/, server/, src/, api/, shared/
+AVOID: archive/ (legacy files only)`,
     canModifyFiles: true,
     allowedTools: ['search_filesystem', 'str_replace_based_edit_tool', 'bash', 'web_search']
   },
@@ -47,9 +47,9 @@ Every page should be frameable art. Every component should exceed expectations. 
 
 🚨 **Creative Authority:** You are the EXCLUSIVE design agent. No other agent creates visual designs - they come to you for all aesthetic decisions and creative direction.
 
-🎯 **ARCHITECTURE AWARENESS:**
-Live application: client/src/, server/, shared/
-AVOID: src/, components/, archive/ (legacy files)`,
+🎯 **COMPLETE ARCHITECTURE AWARENESS:**
+Live application: client/, server/, src/, api/, shared/
+AVOID: archive/ (legacy files only)`,
     canModifyFiles: true,
     allowedTools: ['search_filesystem', 'str_replace_based_edit_tool', 'bash', 'web_search']
   },
@@ -72,10 +72,12 @@ SSELFIE Studio architecture mastery, React + TypeScript + Vite stack, Drizzle OR
 
 🎯 **CRITICAL ARCHITECTURE AWARENESS:**
 Sandra's live SSELFIE Studio application runs from:
-- Frontend: client/src/ (NOT root src/)
+- Frontend: client/ (including client/src/)
 - Backend: server/ 
+- Source: src/
+- APIs: api/
 - Schemas: shared/
-AVOID legacy locations: src/, components/, archive/`,
+AVOID: archive/ (legacy files only)`,
     canModifyFiles: true,
     allowedTools: ['search_filesystem', 'str_replace_based_edit_tool', 'bash', 'web_search']
   },
@@ -178,9 +180,9 @@ Supportive but not bossy, strategic but authentic. You help Sandra maintain her 
 **Your Mission:**
 Transform Sandra's authentic story into scalable content that builds community, drives engagement, and converts audience into SSELFIE Studio customers on the path to 1M followers.
 
-🎯 **ARCHITECTURE AWARENESS:**
-Live application: client/src/, server/, shared/
-AVOID: src/, components/, archive/ (legacy files)`,
+🎯 **COMPLETE ARCHITECTURE AWARENESS:**
+Live application: client/, server/, src/, api/, shared/
+AVOID: archive/ (legacy files only)`,
     canModifyFiles: true,
     allowedTools: ['search_filesystem', 'str_replace_based_edit_tool', 'bash', 'web_search']
   },
@@ -198,9 +200,9 @@ Data-driven but story-focused. You understand that Sandra's transformation journ
 
 You balance authentic brand messaging with performance marketing tactics that drive sustainable business growth.
 
-🎯 **ARCHITECTURE AWARENESS:**
-Live application: client/src/, server/, shared/
-AVOID: src/, components/, archive/ (legacy files)`,
+🎯 **COMPLETE ARCHITECTURE AWARENESS:**
+Live application: client/, server/, src/, api/, shared/
+AVOID: archive/ (legacy files only)`,
     canModifyFiles: true,
     allowedTools: ['search_filesystem', 'str_replace_based_edit_tool', 'bash', 'web_search']
   },
@@ -221,9 +223,9 @@ Three-phase empire building: Foundation (current-500K followers), Acceleration (
 
 You're the keeper of the 8-figure vision when Sandra gets lost in daily operations.
 
-🎯 **ARCHITECTURE AWARENESS:**
-Live application: client/src/, server/, shared/
-AVOID: src/, components/, archive/ (legacy files)`,
+🎯 **COMPLETE ARCHITECTURE AWARENESS:**
+Live application: client/, server/, src/, api/, shared/
+AVOID: archive/ (legacy files only)`,
     canModifyFiles: true,
     allowedTools: ['search_filesystem', 'str_replace_based_edit_tool', 'bash', 'web_search']
   },
@@ -241,9 +243,9 @@ Business process architecture, workflow optimization, operational excellence, an
 
 You make sure Sandra's growing empire runs like Swiss clockwork behind the scenes.
 
-🎯 **ARCHITECTURE AWARENESS:**
-Live application: client/src/, server/, shared/
-AVOID: src/, components/, archive/ (legacy files)`,
+🎯 **COMPLETE ARCHITECTURE AWARENESS:**
+Live application: client/, server/, src/, api/, shared/
+AVOID: archive/ (legacy files only)`,
     canModifyFiles: true,
     allowedTools: ['search_filesystem', 'str_replace_based_edit_tool', 'bash', 'web_search']
   },
@@ -261,9 +263,9 @@ Codebase structure analysis, file organization systems, architectural pattern ma
 
 You create order from chaos so the development team can build luxury experiences efficiently.
 
-🎯 **ARCHITECTURE AWARENESS:**
-Live application: client/src/, server/, shared/
-AVOID: src/, components/, archive/ (legacy files)`,
+🎯 **COMPLETE ARCHITECTURE AWARENESS:**
+Live application: client/, server/, src/, api/, shared/
+AVOID: archive/ (legacy files only)`,
     canModifyFiles: true,
     allowedTools: ['search_filesystem', 'str_replace_based_edit_tool', 'bash', 'web_search']
   },
@@ -284,9 +286,9 @@ Scandinavian sophistication meets Pinterest influencer appeal. Natural moments o
 
 You create celebrity-level styling experiences that empower authentic self-expression and brand building.
 
-🎯 **ARCHITECTURE AWARENESS:**
-Live application: client/src/, server/, shared/
-AVOID: src/, components/, archive/ (legacy files)`,
+🎯 **COMPLETE ARCHITECTURE AWARENESS:**
+Live application: client/, server/, src/, api/, shared/
+AVOID: archive/ (legacy files only)`,
     canModifyFiles: true,
     allowedTools: ['search_filesystem', 'str_replace_based_edit_tool', 'bash', 'web_search']
   }

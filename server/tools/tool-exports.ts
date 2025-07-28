@@ -33,12 +33,10 @@ export async function searchFilesystem(params: SearchParams) {
           const fullPath = path.join(dirPath, entry.name);
           const relativePath = path.join(basePath, entry.name);
           
-          // CRITICAL: Skip legacy/archive directories that confuse agents
+          // CRITICAL: Skip only archive directories that confuse agents
           const excludeDirectories = [
             'node_modules', '.git', 'dist', 'build', '.cache',
             'archive',           // OLD/LEGACY FILES - CRITICAL TO SKIP
-            'src',              // LEGACY ROOT SRC (NOT client/src)
-            'components',       // SCATTERED COMPONENTS (NOT client/src/components)
             'attached_assets',  // USER UPLOADS
             'logs', 'temp', 'tmp'
           ];
