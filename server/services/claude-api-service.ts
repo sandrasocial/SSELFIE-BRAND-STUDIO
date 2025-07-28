@@ -650,7 +650,9 @@ ${searchResult.results.slice(0, 10).map((file: any) => `• ${file.path}`).join(
 
       // 🧠 INTELLIGENT INTENT DETECTION: Context-aware analysis of request type
       const detectRequestIntent = (message: string) => {
-        const messageUpper = message.toUpperCase();
+        // Ensure message is a string before calling string methods
+        const messageStr = typeof message === 'string' ? message : String(message);
+        const messageUpper = messageStr.toUpperCase();
         let implementationScore = 0;
         let consultationScore = 0;
         
@@ -671,7 +673,7 @@ ${searchResult.results.slice(0, 10).map((file: any) => `• ${file.path}`).join(
         const actionPhrases = ['IMPLEMENT NOW', 'CREATE THIS', 'BUILD THIS', 'DO THIS NOW', 'MAKE THIS', 'UPDATE THIS'];
         const urgentIndicators = ['NOW', 'IMMEDIATELY', 'URGENT', 'ASAP', 'RIGHT NOW'];
         const directCommands = ['FIX', 'CREATE', 'BUILD', 'IMPLEMENT', 'UPDATE', 'MODIFY', 'CHANGE'];
-        const fileReferences = message.match(/\.(js|ts|tsx|jsx|css|html|json|md)/g);
+        const fileReferences = messageStr.match(/\.(js|ts|tsx|jsx|css|html|json|md)/g);
         
         // Consultation intent indicators  
         const questionPhrases = ['HOW SHOULD', 'WHAT DO YOU THINK', 'WHAT WOULD YOU', 'SHOULD I', 'CAN YOU EXPLAIN', 'HELP ME UNDERSTAND'];
@@ -694,7 +696,7 @@ ${searchResult.results.slice(0, 10).map((file: any) => `• ${file.path}`).join(
           /\bjust\s+(fix|create|build|implement|do)\b/i
         ];
         
-        if (imperativePatterns.some(pattern => pattern.test(message))) {
+        if (imperativePatterns.some(pattern => pattern.test(messageStr))) {
           implementationScore += 4;
         }
         
