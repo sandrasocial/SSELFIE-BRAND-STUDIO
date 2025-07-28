@@ -1,0 +1,178 @@
+@import 'tailwindcss/base';
+@import 'tailwindcss/components';
+@import 'tailwindcss/utilities';
+
+/* SSELFIE Studio Global Styles */
+
+/* Custom CSS Variables */
+:root {
+  --color-luxury-black: #0a0a0a;
+  --color-pure-white: #ffffff;
+  --color-editorial-gray: #f5f5f5;
+  --color-mid-gray: #fafafa;
+  --color-soft-gray: #666666;
+  --color-accent-line: #e5e5e5;
+}
+
+/* Dark mode variables */
+.dark {
+  --color-luxury-black: #ffffff;
+  --color-pure-white: #0a0a0a;
+  --color-editorial-gray: #1a1a1a;
+  --color-mid-gray: #0f0f0f;
+  --color-soft-gray: #999999;
+  --color-accent-line: #333333;
+}
+
+/* Base styles */
+* {
+  box-sizing: border-box;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', sans-serif;
+  font-weight: 300;
+  line-height: 1.6;
+  color: var(--color-luxury-black);
+  background-color: var(--color-pure-white);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* Typography */
+.font-times {
+  font-family: 'Times New Roman', Times, serif;
+}
+
+.font-system {
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', sans-serif;
+}
+
+/* Custom selection */
+::selection {
+  background-color: var(--color-luxury-black);
+  color: var(--color-pure-white);
+}
+
+::-moz-selection {
+  background-color: var(--color-luxury-black);
+  color: var(--color-pure-white);
+}
+
+/* Utility classes */
+.luxury-transition {
+  transition: all 300ms cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.editorial-spacing {
+  letter-spacing: -0.01em;
+}
+
+.tracked-wide {
+  letter-spacing: 0.4em;
+}
+
+/* Button styles */
+.btn-primary {
+  @apply bg-black text-white px-6 py-3 font-medium hover:bg-gray-800 transition-colors;
+}
+
+.btn-secondary {
+  @apply text-black border border-black px-6 py-3 font-medium hover:bg-black hover:text-white transition-colors;
+}
+
+/* Form styles */
+.form-input {
+  @apply w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:border-black transition-colors;
+}
+
+.form-input:focus {
+  box-shadow: 0 0 0 1px var(--color-luxury-black);
+}
+
+/* Card styles */
+.card {
+  @apply bg-white border border-gray-200 rounded-lg shadow-sm;
+}
+
+.card-hover {
+  @apply hover:shadow-md transition-shadow duration-200;
+}
+
+/* Loading animations */
+@keyframes pulse {
+  0%, 100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.5;
+  }
+}
+
+@keyframes spin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.animate-pulse {
+  animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+}
+
+.animate-spin {
+  animation: spin 1s linear infinite;
+}
+
+/* Responsive typography */
+@media (max-width: 640px) {
+  h1 {
+    font-size: 2rem;
+  }
+  
+  h2 {
+    font-size: 1.5rem;
+  }
+  
+  h3 {
+    font-size: 1.25rem;
+  }
+}
+
+/* Focus styles for accessibility */
+.focus-visible:focus {
+  outline: 2px solid var(--color-luxury-black);
+  outline-offset: 2px;
+}
+
+/* Scrollbar styles */
+::-webkit-scrollbar {
+  width: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: var(--color-editorial-gray);
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--color-soft-gray);
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: var(--color-luxury-black);
+}
+
+/* Print styles */
+@media print {
+  * {
+    background: white !important;
+    color: black !important;
+  }
+}
