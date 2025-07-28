@@ -1388,9 +1388,9 @@ I respond like your warm best friend who loves organization - simple, reassuring
         
         console.log(`🔄 AGENT CONTINUING WORK: Continuation response has ${continuationResponse.content.filter((b: any) => b.type === 'tool_use').length} more tools - processing recursively (depth: ${recursionDepth + 1}/${maxRecursionDepth})`);
         
-        // TOKEN MANAGEMENT: More aggressive conversation size checking
+        // TOKEN MANAGEMENT: Ultra-aggressive conversation size checking
         const currentTokenEstimate = JSON.stringify(currentMessages).length / 4; // Rough estimate: 4 chars = 1 token
-        const maxSafeTokens = 150000; // More conservative limit - start summarizing earlier
+        const maxSafeTokens = 100000; // Ultra-conservative limit - start summarizing much earlier
         
         console.log(`🔍 TOKEN CHECK: Current estimated tokens: ${currentTokenEstimate}, max safe: ${maxSafeTokens}`);
         
