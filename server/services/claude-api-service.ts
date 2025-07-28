@@ -624,8 +624,20 @@ ${currentFiles.slice(0, 10).map(file => `• ${file.path}`).join('\n')}`;
         tools: enhancedTools,
       };
       
-      // Apply intelligent mode based on intent analysis
-      if (mandatoryImplementation) {
+      // ZARA'S FIX: MANDATORY TOOL ENFORCEMENT FOR FILE-CAPABLE AGENTS
+      const fileCapableAgents = ['zara', 'aria', 'elena', 'maya', 'victoria', 'rachel', 'ava', 'quinn', 'sophia', 'martha', 'diana', 'wilma', 'olga'];
+      const fileRequestPatterns = [
+        /\b(fix|create|build|implement|update|modify|change|view|show|check|find)\s+(the\s+)?(file|component|page|code|system|dashboard|elena|workflow)/i,
+        /please\s+(fix|create|implement|help)/i,
+        /\b(elena|zara|aria)\s+(is|was|are)\s+(not|completely|still|blocked)/i,
+        /file\s+(modification|access|creation|editing)/i,
+        /can\s+(you|zara|aria|elena)\s+(create|fix|implement|help)/i
+      ];
+      
+      const isFileRequest = fileRequestPatterns.some(pattern => pattern.test(userMessage));
+      
+      // Apply intelligent mode based on intent analysis OR file request for capable agents
+      if (mandatoryImplementation || (fileCapableAgents.includes(agentName.toLowerCase()) && isFileRequest)) {
         claudeRequest.tool_choice = {
           type: "any"
         };
@@ -633,8 +645,12 @@ ${currentFiles.slice(0, 10).map(file => `• ${file.path}`).join('\n')}`;
         // 🚨 CRITICAL: Replace entire system prompt for mandatory implementation
         claudeRequest.system = `🚨 MANDATORY IMPLEMENTATION MODE - ACTUAL FILE MODIFICATION REQUIRED
 
-Sandra has used implementation keywords that trigger MANDATORY tool enforcement.
-Intent analysis: Implementation(${intentAnalysis.implementationScore}) > Consultation(${intentAnalysis.consultationScore})
+${mandatoryImplementation ? 
+  `Sandra has used implementation keywords that trigger MANDATORY tool enforcement.
+Intent analysis: Implementation(${intentAnalysis.implementationScore}) > Consultation(${intentAnalysis.consultationScore})` :
+  `ZARA'S FIX: File-related request detected for ${agentName.toUpperCase()}
+File request patterns matched in: "${userMessage.substring(0, 100)}..."`
+}
 
 YOU MUST MODIFY FILES IMMEDIATELY. NO VIEW-ONLY OPERATIONS ALLOWED.
 
@@ -649,7 +665,7 @@ Sandra values your expertise and individual perspective.
 
 Begin with tool usage, then provide your authentic response explaining what you did.`;
         
-        console.log(`🚨 CLAUDE API SERVICE: Implementation mode activated for ${agentName} (${intentAnalysis.intent} detected)`);
+        console.log(`🚨 CLAUDE API SERVICE: Implementation mode activated for ${agentName} (${mandatoryImplementation ? intentAnalysis.intent : 'file-request'} detected)`);
       } else if (intentAnalysis.isConsultation) {
         // 🧠 CONSULTATION MODE: Strategic advice and analysis encouraged
         claudeRequest.system += `\n\n💡 CONSULTATION MODE DETECTED - STRATEGIC ADVICE REQUESTED:
