@@ -713,9 +713,10 @@ ${searchResult.results.slice(0, 10).map((file: any) => `• ${file.path}`).join(
       console.log(`🧠 CLAUDE SERVICE INTENT ANALYSIS for ${agentName}: ${intentAnalysis.intent} (impl: ${intentAnalysis.implementationScore}, consult: ${intentAnalysis.consultationScore})`);
       
       // CONTINUATION HANDLING: Reset recursion depth for continuation requests
+      let recursionDepth = 0; // Initialize recursion depth
       if (intentAnalysis.isContinuation) {
         console.log(`🔄 CONTINUATION DETECTED: Resetting recursion depth for continued work`);
-        recursionDepth = 0; // Reset to allow another 15 cycles
+        recursionDepth = 0; // Reset to allow another 25 cycles
       }
       
       const mandatoryImplementation = intentAnalysis.isImplementation;
@@ -810,7 +811,7 @@ Use tools only if file modifications are specifically requested within the consu
       // Process tool calls naturally without forcing template responses
       if (response.content.some(content => content.type === 'tool_use')) {
         // Process tool calls and let agent respond authentically
-        assistantMessage = await this.handleToolCallsWithContinuation(response, messages, enhancedSystemPrompt, enhancedTools, true, agentName, false);
+        assistantMessage = await this.handleToolCallsWithContinuation(response, messages, enhancedSystemPrompt, enhancedTools, true, agentName, false, recursionDepth);
       }
 
       // Save both messages to conversation with logging

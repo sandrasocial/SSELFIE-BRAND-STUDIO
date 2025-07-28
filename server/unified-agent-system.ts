@@ -154,6 +154,30 @@ export class UnifiedAgentSystem {
     console.log(`🤖 EXECUTING: ${request.agentId} through unified system`);
 
     try {
+      // ELENA WORKFLOW DETECTION INTEGRATION
+      if (request.agentId === 'elena') {
+        console.log('🧠 ELENA: Checking for workflow patterns in message...');
+        
+        // Import Elena workflow detection
+        const { elenaWorkflowDetection } = await import('./elena-workflow-detection');
+        
+        // Detect workflow patterns in Elena's message
+        const detectedWorkflow = elenaWorkflowDetection.detectWorkflow(request.message, '42585527');
+        
+        if (detectedWorkflow) {
+          console.log(`🎯 ELENA: Detected ${detectedWorkflow.workflowType} workflow - assigning to ${detectedWorkflow.assignedAgents.join(', ')}`);
+          
+          // Create workflow tasks for specialized agents
+          await elenaWorkflowDetection.assignTasks(
+            detectedWorkflow.workflowId, 
+            detectedWorkflow.tasks, 
+            '42585527'
+          );
+          
+          console.log('✅ ELENA: Workflow created and tasks assigned to specialized agents');
+        }
+      }
+
       // Import Claude API service for actual agent execution
       const { claudeApiService } = await import('./services/claude-api-service');
       
