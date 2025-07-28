@@ -4,6 +4,7 @@ import { setupVite, serveStatic, log } from "./vite";
 import { TrainingCompletionMonitor } from "./training-completion-monitor";
 import { registerCoverImageRoutes } from "./routes/cover-image-routes";
 import { agentCommunicationFix } from "./agent-communication-fix";
+import { agentExpressBridge } from "./middleware/agent-express-bridge";
 import cors from "cors";
 
 const app = express();
@@ -84,6 +85,12 @@ app.use(express.static('public'));
   // - WebSocket communication failures
   await agentCommunicationFix.initialize(server);
   console.log('✅ AGENT COMMUNICATION FIX: Blockages resolved, dynamic behavior enabled');
+
+  // 🌉 CRITICAL: Initialize Agent Express Bridge
+  // This solves the architecture mismatch where agents expect Next.js patterns
+  // but we're running Express + React + Vite architecture
+  await agentExpressBridge.initialize(app, server);
+  console.log('✅ AGENT EXPRESS BRIDGE: Architecture mismatch resolved, Next.js patterns enabled');
 
   // Register agent communication status routes
   const { registerAgentCommunicationStatusRoutes } = await import('./routes/agent-communication-status');
