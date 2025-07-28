@@ -189,8 +189,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
       // Get user ID for authentication
       let userId = 'admin-sandra';
-      if (req.isAuthenticated() && req.user?.claims?.sub) {
-        userId = req.user.claims.sub;
+      if (req.isAuthenticated() && req.user) {
+        const user = req.user as any;
+        userId = user.claims?.sub || userId;
       }
 
       // Import streaming service
@@ -206,8 +207,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
       );
 
       // Stream the response like Replit AI agents
-      await streamingService.streamClaudeResponse(res, agentName, response.content, {
-        conversationId: response.conversationId,
+      await streamingService.streamClaudeResponse(res, agentName, response, {
+        conversationId: conversationId,
         showToolExecution: true
       });
 
@@ -244,8 +245,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
       // Get user ID for authentication
       let userId = 'admin-sandra'; // Default admin user
-      if (req.isAuthenticated() && req.user?.claims?.sub) {
-        userId = req.user.claims.sub;
+      if (req.isAuthenticated() && req.user) {
+        const user = req.user as any;
+        userId = user.claims?.sub || userId;
       }
 
       // Use the Claude API service for agent communication

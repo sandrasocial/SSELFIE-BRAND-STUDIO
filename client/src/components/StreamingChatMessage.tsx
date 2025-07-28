@@ -1,96 +1,98 @@
-/**
- * STREAMING CHAT MESSAGE COMPONENT
- * 
- * Displays streaming text messages like Replit AI agents
- * Shows real-time typing effect with progress indicator
- */
-
 import React from 'react';
 
 interface StreamingChatMessageProps {
   id: string;
   type: 'user' | 'agent';
   content: string;
-  isStreaming?: boolean;
-  streamingContent?: string;
   agentName?: string;
   timestamp: string;
+  isStreaming?: boolean;
+  streamingContent?: string;
   progress?: number;
 }
 
-export const StreamingChatMessage: React.FC<StreamingChatMessageProps> = ({
+// Content cleaning utility functions
+const cleanMessageContent = (content: string): string => {
+  if (!content) return '';
+  
+  // Remove tool results sections
+  let cleaned = content.replace(/\[File Operation:[^\]]*\]/g, '');
+  cleaned = cleaned.replace(/\[Codebase Search Results\][^]*?(?=\n\n|\n[A-Z]|$)/g, '');
+  cleaned = cleaned.replace(/\[Tool Results\][^]*?(?=\n\n|\n[A-Z]|$)/g, '');
+  
+  // Clean up extra whitespace
+  cleaned = cleaned.replace(/\n\s*\n\s*\n/g, '\n\n');
+  cleaned = cleaned.trim();
+  
+  return cleaned;
+};
+
+export function StreamingChatMessage({
+  id,
   type,
   content,
-  isStreaming,
-  streamingContent,
   agentName,
   timestamp,
-  progress
-}) => {
-  const displayContent = isStreaming ? streamingContent || '' : content;
-  const showCursor = isStreaming && streamingContent;
+  isStreaming = false,
+  streamingContent = '',
+  progress = 0
+}: StreamingChatMessageProps) {
+  // Use streaming content if available, otherwise use regular content
+  const displayContent = isStreaming && streamingContent ? streamingContent : content;
+  const cleanedContent = cleanMessageContent(displayContent);
 
   return (
-    <div className={`mb-6 ${type === 'user' ? 'ml-auto max-w-2xl' : 'mr-auto max-w-4xl'}`}>
-      {/* Agent Header */}
-      {type === 'agent' && (
-        <div className="flex items-center gap-3 mb-2">
-          <div className="w-8 h-8 bg-black rounded-sm flex items-center justify-center">
-            <span className="text-white text-xs font-medium">
-              {agentName?.charAt(0).toUpperCase()}
-            </span>
-          </div>
-          <div className="flex items-center gap-2">
-            <span className="font-serif text-sm font-light uppercase tracking-wider text-black">
+    <div className={`flex ${type === 'user' ? 'justify-end' : 'justify-start'}`}>
+      <div className={`max-w-[80%] p-4 ${
+        type === 'user' 
+          ? 'bg-black text-white ml-4' 
+          : 'bg-gray-50 text-black mr-4'
+      }`}>
+        {type === 'agent' && (
+          <div className="flex items-center gap-2 mb-2">
+            <span className="text-xs uppercase tracking-wide text-gray-500">
               {agentName}
             </span>
+            
+            {/* Tool Usage Indicators */}
+            {content.includes('[File Operation:') && (
+              <div className="flex items-center gap-1">
+                <span className="text-xs text-gray-400">•</span>
+                <span className="text-xs px-2 py-1 bg-blue-100 text-blue-700 rounded-sm">
+                  File Edit
+                </span>
+              </div>
+            )}
+            {content.includes('[Codebase Search Results]') && (
+              <div className="flex items-center gap-1">
+                <span className="text-xs text-gray-400">•</span>
+                <span className="text-xs px-2 py-1 bg-green-100 text-green-700 rounded-sm">
+                  Code Search
+                </span>
+              </div>
+            )}
+            
+            {/* Streaming Indicator */}
             {isStreaming && (
-              <div className="flex items-center gap-2">
-                <div className="flex gap-1">
-                  <div className="w-1 h-1 bg-black rounded-full animate-pulse"></div>
-                  <div className="w-1 h-1 bg-black rounded-full animate-pulse" style={{ animationDelay: '0.1s' }}></div>
-                  <div className="w-1 h-1 bg-black rounded-full animate-pulse" style={{ animationDelay: '0.2s' }}></div>
-                </div>
-                {progress && (
-                  <span className="text-xs text-gray-500">{progress}%</span>
-                )}
+              <div className="flex items-center gap-1">
+                <div className="w-2 h-2 bg-gray-400 rounded-full animate-pulse"></div>
+                <span className="text-xs text-gray-400">Streaming... {progress}%</span>
               </div>
             )}
           </div>
-        </div>
-      )}
-
-      {/* Message Content */}
-      <div className={`
-        p-4 
-        ${type === 'user' 
-          ? 'bg-black text-white' 
-          : 'bg-gray-50 text-black border border-gray-200'
-        }
-        ${type === 'user' ? 'rounded-sm' : 'border-l-4 border-l-black pl-6'}
-      `}>
-        <div className="whitespace-pre-wrap font-light leading-relaxed">
-          {displayContent}
-          {showCursor && (
-            <span className="inline-block w-2 h-5 bg-black ml-1 animate-pulse"></span>
-          )}
+        )}
+        
+        <div className="text-sm leading-relaxed whitespace-pre-wrap">
+          {cleanedContent}
+          {isStreaming && <span className="animate-pulse">|</span>}
         </div>
         
-        {/* Streaming Progress Bar */}
-        {isStreaming && progress && (
-          <div className="mt-3 w-full bg-gray-200 rounded-full h-1">
-            <div 
-              className="bg-black h-1 rounded-full transition-all duration-300"
-              style={{ width: `${progress}%` }}
-            ></div>
+        {timestamp && (
+          <div className="text-xs text-gray-400 mt-2">
+            {new Date(timestamp).toLocaleTimeString()}
           </div>
         )}
       </div>
-
-      {/* Timestamp */}
-      <div className={`mt-2 text-xs text-gray-500 ${type === 'user' ? 'text-right' : 'text-left'}`}>
-        {new Date(timestamp).toLocaleTimeString()}
-      </div>
     </div>
   );
-};
+}
