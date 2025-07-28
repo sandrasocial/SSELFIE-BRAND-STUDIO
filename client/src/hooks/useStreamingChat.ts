@@ -1,217 +1,186 @@
 /**
  * STREAMING CHAT HOOK
  * 
- * React hook for real-time streaming chat like Replit AI agents
- * Provides word-by-word streaming text display
+ * React hook for real-time streaming chat with AI agents like Replit AI
+ * Handles Server-Sent Events (SSE) for word-by-word text streaming
  */
 
-import { useState, useCallback, useRef, useEffect } from 'react';
+import { useState, useCallback, useRef } from 'react';
 
 interface StreamingMessage {
   id: string;
   type: 'user' | 'agent';
   content: string;
-  isStreaming?: boolean;
-  streamingContent?: string;
   agentName?: string;
   timestamp: string;
+  isStreaming?: boolean;
+  streamingContent?: string;
   progress?: number;
 }
 
 interface UseStreamingChatOptions {
   onMessageComplete?: (message: StreamingMessage) => void;
-  onError?: (error: string) => void;
+  onError?: (error: Error) => void;
 }
 
 export const useStreamingChat = (options: UseStreamingChatOptions = {}) => {
   const [messages, setMessages] = useState<StreamingMessage[]>([]);
-  const [isLoading, setIsLoading] = useState(false);
+  const [isStreaming, setIsStreaming] = useState(false);
   const eventSourceRef = useRef<EventSource | null>(null);
-  const currentStreamingMessageRef = useRef<string | null>(null);
+  const currentMessageRef = useRef<StreamingMessage | null>(null);
 
-  const { onMessageComplete, onError } = options;
-
-  // Clean up EventSource on unmount
-  useEffect(() => {
-    return () => {
-      if (eventSourceRef.current) {
-        eventSourceRef.current.close();
-      }
-    };
-  }, []);
-
-  const sendStreamingMessage = useCallback(async (
-    agentName: string, 
-    message: string, 
-    conversationId?: string,
-    fileEditMode: boolean = true
-  ) => {
-    setIsLoading(true);
-
-    // Add user message immediately
+  const addUserMessage = useCallback((content: string, agentName?: string) => {
     const userMessage: StreamingMessage = {
       id: `user-${Date.now()}`,
       type: 'user',
-      content: message,
-      timestamp: new Date().toISOString()
-    };
-    setMessages(prev => [...prev, userMessage]);
-
-    // Create streaming agent message placeholder
-    const agentMessageId = `agent-${Date.now()}`;
-    const agentMessage: StreamingMessage = {
-      id: agentMessageId,
-      type: 'agent',
-      content: '',
-      isStreaming: true,
-      streamingContent: '',
+      content,
       agentName,
       timestamp: new Date().toISOString(),
-      progress: 0
     };
-    setMessages(prev => [...prev, agentMessage]);
-    currentStreamingMessageRef.current = agentMessageId;
 
+    setMessages(prev => [...prev, userMessage]);
+    return userMessage;
+  }, []);
+
+  const sendStreamingMessage = useCallback(async (
+    agentName: string,
+    message: string,
+    conversationId: string,
+    fileEditMode: boolean = true
+  ) => {
     try {
-      // Create EventSource for streaming response
-      const url = new URL('/api/claude/send-message-stream', window.location.origin);
+      setIsStreaming(true);
       
-      // Close existing connection
-      if (eventSourceRef.current) {
-        eventSourceRef.current.close();
-      }
+      // Add user message immediately
+      addUserMessage(message, agentName);
 
-      // Send POST request to initiate streaming
+      // Create initial agent message for streaming
+      const agentMessage: StreamingMessage = {
+        id: `agent-${Date.now()}`,
+        type: 'agent',
+        content: '',
+        agentName,
+        timestamp: new Date().toISOString(),
+        isStreaming: true,
+        streamingContent: '',
+        progress: 0,
+      };
+
+      currentMessageRef.current = agentMessage;
+      setMessages(prev => [...prev, agentMessage]);
+
+      // Start streaming
       const response = await fetch('/api/claude/send-message-stream', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          'Authorization': 'Bearer sandra-admin-2025'
+          'Authorization': 'Bearer sandra-admin-2025',
         },
+        credentials: 'include',
         body: JSON.stringify({
           agentName,
           message,
           conversationId,
-          fileEditMode
-        })
+          fileEditMode,
+        }),
       });
 
       if (!response.ok) {
-        throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+        throw new Error(`Stream failed: ${response.statusText}`);
       }
 
-      // Set up EventSource for streaming
+      // Handle Server-Sent Events
       const reader = response.body?.getReader();
-      const decoder = new TextDecoder();
-
       if (!reader) {
-        throw new Error('No readable stream available');
+        throw new Error('No response stream available');
       }
 
-      let accumulatedContent = '';
-      
-      const readStream = async (): Promise<void> => {
-        try {
-          const { done, value } = await reader.read();
-          
-          if (done) {
-            // Stream complete
-            setMessages(prev => prev.map(msg => 
-              msg.id === agentMessageId 
-                ? { ...msg, isStreaming: false, content: accumulatedContent }
-                : msg
-            ));
-            setIsLoading(false);
-            currentStreamingMessageRef.current = null;
-            
-            if (onMessageComplete) {
-              onMessageComplete({
-                ...agentMessage,
-                content: accumulatedContent,
-                isStreaming: false
-              });
-            }
-            return;
-          }
+      const decoder = new TextDecoder();
+      let streamedContent = '';
 
-          const chunk = decoder.decode(value, { stream: true });
-          const lines = chunk.split('\n');
-          
-          for (const line of lines) {
-            if (line.startsWith('data: ')) {
-              try {
-                const data = JSON.parse(line.slice(6));
+      while (true) {
+        const { done, value } = await reader.read();
+        if (done) break;
+
+        const chunk = decoder.decode(value, { stream: true });
+        const lines = chunk.split('\n');
+
+        for (const line of lines) {
+          if (line.startsWith('data: ')) {
+            try {
+              const data = JSON.parse(line.slice(6));
+              
+              if (data.type === 'content') {
+                streamedContent += data.content;
                 
-                if (data.type === 'chunk') {
-                  accumulatedContent = data.accumulatedText;
-                  
-                  setMessages(prev => prev.map(msg => 
-                    msg.id === agentMessageId 
-                      ? { 
-                          ...msg, 
-                          streamingContent: accumulatedContent,
-                          progress: data.progress 
-                        }
-                      : msg
-                  ));
-                } else if (data.type === 'complete') {
-                  accumulatedContent = data.finalText;
-                } else if (data.type === 'error') {
-                  throw new Error(data.error);
-                }
-              } catch (parseError) {
-                console.warn('Failed to parse SSE data:', parseError);
-              }
-            }
-          }
+                setMessages(prev => prev.map(msg => 
+                  msg.id === agentMessage.id 
+                    ? { ...msg, streamingContent, progress: data.progress || 0 }
+                    : msg
+                ));
+              } else if (data.type === 'complete') {
+                // Finalize message
+                const finalMessage = {
+                  ...agentMessage,
+                  content: streamedContent,
+                  isStreaming: false,
+                  streamingContent: undefined,
+                  progress: 100,
+                };
 
-          // Continue reading
-          readStream();
-        } catch (error) {
-          console.error('Stream reading error:', error);
-          setIsLoading(false);
-          if (onError) {
-            onError(error instanceof Error ? error.message : 'Stream error');
+                setMessages(prev => prev.map(msg => 
+                  msg.id === agentMessage.id ? finalMessage : msg
+                ));
+
+                options.onMessageComplete?.(finalMessage);
+                break;
+              }
+            } catch (e) {
+              console.warn('Failed to parse SSE data:', line);
+            }
           }
         }
-      };
-
-      await readStream();
+      }
 
     } catch (error) {
-      console.error('Streaming error:', error);
-      setIsLoading(false);
-      currentStreamingMessageRef.current = null;
+      console.error('Streaming chat error:', error);
+      options.onError?.(error as Error);
       
-      // Update message with error
-      setMessages(prev => prev.map(msg => 
-        msg.id === agentMessageId 
-          ? { 
-              ...msg, 
-              isStreaming: false, 
-              content: 'Sorry, I encountered an error while processing your request.' 
-            }
-          : msg
-      ));
+      // Show error message
+      const errorMessage: StreamingMessage = {
+        id: `error-${Date.now()}`,
+        type: 'agent',
+        content: `Error: ${(error as Error).message}`,
+        agentName,
+        timestamp: new Date().toISOString(),
+      };
 
-      if (onError) {
-        onError(error instanceof Error ? error.message : 'Unknown error');
-      }
+      setMessages(prev => [...prev, errorMessage]);
+    } finally {
+      setIsStreaming(false);
+      currentMessageRef.current = null;
     }
-  }, [onMessageComplete, onError]);
+  }, [addUserMessage, options]);
 
   const clearMessages = useCallback(() => {
     setMessages([]);
+  }, []);
+
+  const cancelStreaming = useCallback(() => {
     if (eventSourceRef.current) {
       eventSourceRef.current.close();
+      eventSourceRef.current = null;
     }
-    currentStreamingMessageRef.current = null;
+    setIsStreaming(false);
+    currentMessageRef.current = null;
   }, []);
 
   return {
     messages,
-    isLoading,
+    isStreaming,
     sendStreamingMessage,
-    clearMessages
+    clearMessages,
+    cancelStreaming,
+    addUserMessage,
   };
 };

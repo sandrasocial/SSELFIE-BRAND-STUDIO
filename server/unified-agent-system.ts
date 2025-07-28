@@ -259,6 +259,57 @@ export class UnifiedAgentSystem {
   }
 
   /**
+   * Send task to specific agent (Elena workflow integration)
+   */
+  async sendTaskToAgent(agentName: string, taskDescription: string, userId: string, metadata?: any): Promise<{ success: boolean; conversationId?: string; error?: string }> {
+    console.log(`🎯 UNIFIED SYSTEM: Sending task to ${agentName}: ${taskDescription}`);
+    
+    try {
+      // Generate unique conversation ID for this task
+      const conversationId = `task_${agentName}_${Date.now()}_${Math.random().toString(36).substring(2, 15)}`;
+      
+      // Import Claude API service for agent execution
+      const { claudeApiService } = await import('./services/claude-api-service');
+      
+      // Send task to agent via Claude API
+      const response = await claudeApiService.sendMessage(
+        userId,
+        agentName,
+        conversationId,
+        taskDescription,
+        undefined, // systemPrompt
+        undefined, // tools
+        true // fileEditMode - enable for task execution
+      );
+      
+      // Broadcast task assignment to WebSocket clients
+      this.broadcastToClients({
+        type: 'task_assigned',
+        agentName,
+        taskDescription,
+        conversationId,
+        metadata,
+        timestamp: new Date().toISOString()
+      });
+      
+      console.log(`✅ UNIFIED SYSTEM: Task successfully sent to ${agentName}`);
+      
+      return {
+        success: true,
+        conversationId
+      };
+      
+    } catch (error) {
+      console.error(`❌ UNIFIED SYSTEM: Failed to send task to ${agentName}:`, error);
+      
+      return {
+        success: false,
+        error: error instanceof Error ? error.message : 'Unknown error'
+      };
+    }
+  }
+
+  /**
    * Get system status
    */
   getSystemStatus() {

@@ -334,7 +334,6 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // 🧠 ELENA WORKFLOW DETECTION ENDPOINTS
-  const { elenaWorkflowDetection } = await import('./elena-workflow-detection');
   
   // Manual workflow trigger endpoint
   app.post('/api/elena/trigger-workflow', async (req, res) => {

@@ -7,6 +7,8 @@ import { GlobalFooter } from '@/components/global-footer';
 import AgentBridgeToggle from '@/components/admin/AgentBridgeToggle';
 import LuxuryProgressDisplay from '@/components/admin/LuxuryProgressDisplay';
 import { useAgentBridge } from '@/hooks/use-agent-bridge';
+import { useStreamingChat } from '@/hooks/useStreamingChat';
+import { StreamingChatMessage } from '@/components/StreamingChatMessage';
 
 // Agent images - same as admin dashboard
 import AgentElena from '@assets/out-0 (33)_1753426218039.png';
