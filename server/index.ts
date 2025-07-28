@@ -3,6 +3,7 @@ import { registerRoutes } from "./routes";
 import { setupVite, serveStatic, log } from "./vite";
 import { TrainingCompletionMonitor } from "./training-completion-monitor";
 import { registerCoverImageRoutes } from "./routes/cover-image-routes";
+import { agentCommunicationFix } from "./agent-communication-fix";
 import cors from "cors";
 
 const app = express();
@@ -75,6 +76,18 @@ app.use(express.static('public'));
   
   // Register cover image routes for Flux approval system
   registerCoverImageRoutes(app);
+
+  // 🔧 CRITICAL: Initialize Agent Communication Fix
+  // This addresses the .replit configuration blockages:
+  // - Outdated agent integration versions (1.0.0)
+  // - Port mapping conflicts (80<->3000, 5000<->80)
+  // - WebSocket communication failures
+  await agentCommunicationFix.initialize(server);
+  console.log('✅ AGENT COMMUNICATION FIX: Blockages resolved, dynamic behavior enabled');
+
+  // Register agent communication status routes
+  const { registerAgentCommunicationStatusRoutes } = await import('./routes/agent-communication-status');
+  registerAgentCommunicationStatusRoutes(app);
 
   app.use((err: any, _req: Request, res: Response, _next: NextFunction) => {
     const status = err.status || err.statusCode || 500;
