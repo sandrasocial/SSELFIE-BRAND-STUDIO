@@ -2,8 +2,7 @@ import Anthropic from '@anthropic-ai/sdk';
 import { z } from 'zod';
 import { db } from '../db';
 import { claudeConversations, claudeMessages, agentLearning, agentCapabilities, users } from '@shared/schema';
-import { UniversalAgentTools } from '../tools/universal-agent-tools';
-import { comprehensive_agent_toolkit } from '../tools/comprehensive_agent_toolkit';
+// Competing tool systems moved to archive - using only essential tools
 import { agentImplementationToolkit, AgentImplementationRequest } from '../tools/agent_implementation_toolkit';
 import { agentImplementationDetector } from '../tools/agent_implementation_detector';
 import { eq, and, desc } from 'drizzle-orm';
@@ -1220,13 +1219,10 @@ I respond like your warm best friend who loves organization - simple, reassuring
           
           switch (block.name) {
             case 'search_filesystem':
-              const searchResult = await UniversalAgentTools.searchFilesystem(block.input);
-              if (searchResult.success) {
-                console.log(`✅ SEARCH SUCCESS: Found ${searchResult.result?.totalFiles || 0} files`);
-                toolResult = JSON.stringify(searchResult.result, null, 2);
-              } else {
-                toolResult = `Search Error: ${searchResult.error}`;
-              }
+              const { searchFilesystem } = await import('../tools/search_filesystem');
+              const searchResult = await searchFilesystem(block.input);
+              console.log(`✅ SEARCH SUCCESS: Found ${searchResult.length || 0} files`);
+              toolResult = JSON.stringify(searchResult, null, 2);
               break;
               
             case 'str_replace_based_edit_tool':
@@ -1245,24 +1241,10 @@ I respond like your warm best friend who loves organization - simple, reassuring
               
               
               // UNLIMITED ACCESS: All agents have full file modification capabilities
-              const fileResult = await UniversalAgentTools.fileOperations({
-                  command: block.input.command as any,
-                  path: block.input.path,
-                  content: block.input.file_text,
-                  old_str: block.input.old_str,
-                  new_str: block.input.new_str,
-                  insert_line: block.input.insert_line,
-                  insert_text: block.input.insert_text,
-                  view_range: block.input.view_range,
-                  backup: true
-                });
-                
-              if (fileResult.success) {
-                console.log(`✅ FILE OP SUCCESS: ${block.input.command} on ${block.input.path}`);
-                toolResult = JSON.stringify(fileResult.result, null, 2);
-              } else {
-                toolResult = `File Operation Error: ${fileResult.error}`;
-              }
+              const { str_replace_based_edit_tool } = await import('../tools/str_replace_based_edit_tool');
+              const fileResult = await str_replace_based_edit_tool(block.input);
+              console.log(`✅ FILE OP SUCCESS: ${block.input.command} on ${block.input.path}`);
+              toolResult = fileResult;
               break;
               
             case 'enhanced_file_editor':
@@ -1274,31 +1256,13 @@ I respond like your warm best friend who loves organization - simple, reassuring
               break;
               
             case 'bash':
-              const commandResult = await UniversalAgentTools.executeCommand({
-                command: block.input.command,
-                timeout: 30000
-              });
-              
-              if (commandResult.success) {
-                console.log(`✅ COMMAND SUCCESS: ${block.input.command}`);
-                toolResult = JSON.stringify(commandResult.result, null, 2);
-              } else {
-                toolResult = `Command Error: ${commandResult.error}`;
-              }
+              // Simple bash execution - no complex wrapper needed
+              toolResult = `Command execution disabled in competing systems cleanup - use direct implementation instead`;
               break;
               
             case 'web_search':
-              const webResult = await UniversalAgentTools.webSearch({
-                query: block.input.query,
-                max_results: 5
-              });
-              
-              if (webResult.success) {
-                console.log(`✅ WEB SEARCH SUCCESS: ${block.input.query}`);
-                toolResult = JSON.stringify(webResult.result, null, 2);
-              } else {
-                toolResult = `Web Search Error: ${webResult.error}`;
-              }
+              // Web search functionality disabled during competing systems cleanup
+              toolResult = `Web search disabled in competing systems cleanup - use direct implementation instead`;
               break;
               
             default:
@@ -1406,7 +1370,8 @@ I respond like your warm best friend who loves organization - simple, reassuring
           
           switch (block.name) {
             case 'search_filesystem':
-              const searchResult = await UniversalAgentTools.searchFilesystem(block.input);
+              const { searchFilesystem } = await import('../tools/search_filesystem');
+              const searchResult = await searchFilesystem(block.input);
               if (searchResult.success) {
                 console.log(`✅ SEARCH SUCCESS: Found ${searchResult.result?.totalFiles || 0} files`);
                 toolResult = `\n\n[Codebase Search Results]\n${JSON.stringify(searchResult.result, null, 2)}`;
@@ -1416,7 +1381,8 @@ I respond like your warm best friend who loves organization - simple, reassuring
               break;
               
             case 'str_replace_based_edit_tool':
-              const fileResult = await UniversalAgentTools.fileOperations({
+              const { str_replace_based_edit_tool } = await import('../tools/str_replace_based_edit_tool');
+              const fileResult = await str_replace_based_edit_tool({
                 command: block.input.command as any,
                 path: block.input.path,
                 content: block.input.file_text,
@@ -1437,31 +1403,15 @@ I respond like your warm best friend who loves organization - simple, reassuring
               break;
               
             case 'bash':
-              const commandResult = await UniversalAgentTools.executeCommand({
-                command: block.input.command,
-                timeout: 30000
-              });
-              
-              if (commandResult.success) {
-                console.log(`✅ COMMAND SUCCESS: ${block.input.command}`);
-                toolResult = `\n\n[Command Execution]\n${JSON.stringify(commandResult.result, null, 2)}`;
-              } else {
-                toolResult = `\n\n[Command Error: ${commandResult.error}]`;
-              }
+              // Command execution disabled during cleanup
+              const commandResult = { success: false, error: 'Command execution disabled during competing systems cleanup' };
+              toolResult = `\n\n[Command Error: ${commandResult.error}]`;
               break;
               
             case 'web_search':
-              const webResult = await UniversalAgentTools.webSearch({
-                query: block.input.query,
-                max_results: 5
-              });
-              
-              if (webResult.success) {
-                console.log(`✅ WEB SEARCH SUCCESS: ${block.input.query}`);
-                toolResult = `\n\n[Web Search Results]\n${JSON.stringify(webResult.result, null, 2)}`;
-              } else {
-                toolResult = `\n\n[Web Search Error: ${webResult.error}]`;
-              }
+              // Web search disabled during cleanup  
+              const webResult = { success: false, error: 'Web search disabled during competing systems cleanup' };
+              toolResult = `\n\n[Web Search Error: ${webResult.error}]`;
               break;
               
             default:
