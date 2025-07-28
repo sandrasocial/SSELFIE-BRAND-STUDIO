@@ -1029,7 +1029,7 @@ Use tools only if file modifications are specifically requested within the consu
     };
 
     for (const [patternType, keywords] of Object.entries(communicationPatterns)) {
-      if (keywords.some(keyword => userMessage.toLowerCase().includes(keyword))) {
+      if (keywords.some(keyword => String(userMessage).toLowerCase().includes(keyword))) {
         patterns.push({
           type: 'preference',
           category: 'communication',
@@ -1048,7 +1048,7 @@ Use tools only if file modifications are specifically requested within the consu
     };
 
     for (const [taskType, keywords] of Object.entries(taskPatterns)) {
-      if (keywords.some(keyword => userMessage.toLowerCase().includes(keyword))) {
+      if (keywords.some(keyword => String(userMessage).toLowerCase().includes(keyword))) {
         patterns.push({
           type: 'pattern',
           category: 'task',
