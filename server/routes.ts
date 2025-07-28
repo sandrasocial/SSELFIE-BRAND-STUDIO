@@ -5933,8 +5933,8 @@ Sandra wants strategic discussion and advice. Respond authentically with your pe
         // Legacy Elena workflow detection (keep for backwards compatibility)
         if (agentId === 'elena') {
           try {
-            const { elenaConversationDetection } = await import('./services/elena-conversation-detection.js');
-            const detectedWorkflow = elenaConversationDetection.detectWorkflowFromConversation(agentResponse, message);
+            const { elenaWorkflowDetectionService } = await import('./services/elena-workflow-detection-service.js');
+            const detectedWorkflow = elenaWorkflowDetectionService.detectWorkflowFromConversation(agentResponse, message);
             
             if (detectedWorkflow) {
               console.log(`🎯 ELENA LEGACY: Legacy workflow detected "${detectedWorkflow.name}" (fallback system)`);

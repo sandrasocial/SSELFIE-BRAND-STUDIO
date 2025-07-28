@@ -3,7 +3,7 @@
  * Manages staged workflows in dashboard for manual execution
  */
 
-import { elenaConversationDetection } from './elena-conversation-detection';
+import { elenaWorkflowDetectionService } from './elena-workflow-detection-service';
 
 interface StagedWorkflow {
   id: string;
@@ -62,7 +62,7 @@ export class WorkflowStagingService {
    * Get all staged workflows ready for manual execution
    */
   getStagedWorkflows(): StagedWorkflow[] {
-    const detectedWorkflows = elenaConversationDetection.getStagedWorkflows();
+    const detectedWorkflows = elenaWorkflowDetectionService.getStagedWorkflows();
     
     return detectedWorkflows.map(workflow => ({
       id: workflow.id,
@@ -89,7 +89,7 @@ export class WorkflowStagingService {
     console.log('🚀 WORKFLOW STAGING: Executing workflow', workflowId);
 
     // Execute through Elena conversation detection service
-    const result = await elenaConversationDetection.executeWorkflow(workflowId);
+    const result = await elenaWorkflowDetectionService.executeWorkflow(workflowId);
     
     if (result.success && result.executionId) {
       // Create execution tracking
@@ -122,7 +122,7 @@ export class WorkflowStagingService {
 
     try {
       // Get workflow details from Elena conversation detection
-      const workflow = elenaConversationDetection.getWorkflowStatus(executionId);
+      const workflow = elenaWorkflowDetectionService.getWorkflowStatus(executionId);
       if (!workflow) {
         throw new Error('Workflow not found');
       }
@@ -283,7 +283,7 @@ MANDATORY: End response with: TOOL_USED: str_replace_based_edit_tool | MODIFIED:
     }
 
     // Also cleanup Elena conversation detection
-    elenaConversationDetection.cleanupExpiredWorkflows();
+    elenaWorkflowDetectionService.cleanupExpiredWorkflows();
   }
 
   /**
@@ -291,7 +291,7 @@ MANDATORY: End response with: TOOL_USED: str_replace_based_edit_tool | MODIFIED:
    */
   removeWorkflow(workflowId: string): boolean {
     // Remove from Elena conversation detection
-    const staged = elenaConversationDetection.getStagedWorkflows();
+    const staged = elenaWorkflowDetectionService.getStagedWorkflows();
     const workflow = staged.find(w => w.id === workflowId);
     
     if (workflow) {
