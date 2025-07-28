@@ -263,8 +263,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
       res.json({
         success: true,
-        response: response.content,
-        conversationId: response.conversationId
+        response: response,
+        conversationId: conversationId || `conv_${agentName}_${Date.now()}`
       });
 
     } catch (error) {
