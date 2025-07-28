@@ -1358,19 +1358,20 @@ I respond like your warm best friend who loves organization - simple, reassuring
       
       console.log(`🔄 CONTINUING CONVERSATION: Processing ${toolResults.length} tool results. Current response length: ${finalResponse.length}`);
       
-      // Add explicit analysis instruction to prevent more tool usage
+      // CRITICAL FIX: Allow agents to continue using tools dynamically as needed
       currentMessages.push({
         role: 'user',
-        content: "Now provide your comprehensive analysis based on the tool results above. Do not use any more tools - just analyze and respond with your findings."
+        content: "Based on the tool results above, provide your analysis and continue working. You can use additional tools if needed to complete the task."
       });
       
-      // Continue conversation with tool results - NO TOOLS to force analysis, WITH RETRY LOGIC
+      // Continue conversation with tool results - KEEP TOOLS AVAILABLE for dynamic work
       const continuationResponse = await this.sendToClaudeWithRetry({
         model: DEFAULT_MODEL_STR,
         max_tokens: 4000,
         system: systemPrompt,
         messages: currentMessages,
-        // NO TOOLS - force Claude to analyze instead of making more tool calls
+        tools: tools, // CRITICAL FIX: Keep tools available for continued dynamic work
+        tool_choice: fileEditMode ? { type: "auto" } : undefined // Allow tools when in file edit mode
       });
       
       // Extract ALL text content from continuation response
