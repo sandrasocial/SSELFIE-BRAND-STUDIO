@@ -142,85 +142,8 @@ export class UnifiedAgentOrchestrator {
    * Register unified API routes for agent execution
    */
   private registerUnifiedRoutes() {
-    // Unified agent execution endpoint
-    this.app.post('/api/unified-agent/execute', async (req, res) => {
-      try {
-        const { agentName, action, params, conversationId } = req.body;
-        
-        // Create execution context with full capabilities
-        const context: AgentExecutionContext = {
-          userId: (req.user as any)?.id || 'admin-user',
-          agentName,
-          conversationId: conversationId || `${agentName}-${Date.now()}`,
-          hasFileAccess: true,
-          hasDatabaseAccess: true,
-          hasRealtimeAccess: true
-        };
-
-        const result = await this.executeAgentAction(context, action, params);
-        
-        res.json({
-          success: true,
-          result,
-          context: {
-            agentName: context.agentName,
-            hasFullAccess: context.hasFileAccess && context.hasDatabaseAccess
-          }
-        });
-      } catch (error) {
-        console.error('❌ Unified agent execution error:', error);
-        res.status(500).json({
-          success: false,
-          error: error instanceof Error ? error.message : 'Unknown error'
-        });
-      }
-    });
-
-    // Real-time agent state endpoint
-    this.app.get('/api/unified-agent/state/:agentName', (req, res) => {
-      const { agentName } = req.params;
-      const context = this.activeAgents.get(agentName);
-      const actions = this.actionQueue.get(agentName) || [];
-
-      res.json({
-        success: true,
-        agent: {
-          name: agentName,
-          isActive: !!context,
-          context: context || null,
-          recentActions: actions.slice(-10), // Last 10 actions
-          capabilities: {
-            fileAccess: context?.hasFileAccess || false,
-            databaseAccess: context?.hasDatabaseAccess || false,
-            realtimeAccess: context?.hasRealtimeAccess || false
-          }
-        }
-      });
-    });
-
-    // Database operation endpoint for agents
-    this.app.post('/api/unified-agent/database', async (req, res) => {
-      try {
-        const { operation, table, data, where } = req.body;
-        
-        // Execute database operations with proper validation
-        const result = await this.executeDatabaseOperation(operation, table, data, where);
-        
-        res.json({
-          success: true,
-          operation,
-          result
-        });
-      } catch (error) {
-        console.error('❌ Agent database operation error:', error);
-        res.status(500).json({
-          success: false,
-          error: error instanceof Error ? error.message : 'Database operation failed'
-        });
-      }
-    });
-
-    console.log('✅ UNIFIED ROUTES: Agent execution routes registered');
+    // Routes are handled in server/routes.ts for consistency
+    console.log('✅ UNIFIED AGENT ROUTES: Handled by main routes.ts file');
   }
 
   /**
