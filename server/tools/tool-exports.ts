@@ -33,21 +33,36 @@ export async function search_filesystem(params: SearchParams) {
           const fullPath = path.join(dirPath, entry.name);
           const relativePath = path.join(basePath, entry.name);
           
-          // CRITICAL: Skip only archive directories that confuse agents
+          // LIVE APP FOCUS: Only search in directories relevant to the live SSELFIE Studio app
+          const liveAppDirectories = ['api', 'server', 'client', 'src', 'components', 'pages', 'admin', 'shared'];
           const excludeDirectories = [
             'node_modules', '.git', 'dist', 'build', '.cache',
-            'archive',           // OLD/LEGACY FILES - CRITICAL TO SKIP
-            'attached_assets',  // USER UPLOADS
-            'logs', 'temp', 'tmp'
+            'archive', 'attached_assets', 'logs', 'temp', 'tmp', 'data',
+            'docs', 'marketing', 'quality_protocols', 'selfie_studio_launch', 
+            'technical_analysis', 'temp_training', 'test', 'workflows'
           ];
           
-          if (entry.name.startsWith('.') || excludeDirectories.includes(entry.name)) {
+          // Skip excluded directories completely
+          if (excludeDirectories.includes(entry.name) || entry.name.startsWith('.')) {
             continue;
           }
           
-          // ADDITIONAL CHECK: Skip any path containing excluded directories
+          // For root level, only include live app directories
+          if (basePath === '' && entry.isDirectory() && !liveAppDirectories.includes(entry.name)) {
+            continue;
+          }
+          
+          // Include important root-level files like App.tsx, package.json, etc.
+          if (basePath === '' && entry.isFile()) {
+            const importantRootFiles = ['app.tsx', 'package.json', 'tsconfig.json', 'vite.config.ts', 'tailwind.config.ts'];
+            if (!importantRootFiles.some(file => entry.name.toLowerCase().includes(file.toLowerCase()))) {
+              continue;
+            }
+          }
+          
+          // Skip any path containing excluded directories
           if (excludeDirectories.some(exclude => relativePath.includes(exclude))) {
-            console.log(`🚫 CONSULTING SEARCH: Skipping legacy path: ${relativePath}`);
+            console.log(`🚫 CONSULTING SEARCH: Skipping irrelevant path: ${relativePath}`);
             continue;
           }
           
