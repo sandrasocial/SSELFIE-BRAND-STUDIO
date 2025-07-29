@@ -60,12 +60,14 @@ export function useStreamingChat({ onMessageComplete, onError }: UseStreamingCha
         const controller = new AbortController();
         const timeoutId = setTimeout(() => controller.abort(), 30000);
         
-        // Start streaming
+        // Start streaming with proper error handling
         const response = await fetch('/api/claude/send-message-stream', {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
             'Authorization': 'Bearer sandra-admin-2025',
+            'Accept': 'text/event-stream',
+            'Cache-Control': 'no-cache',
           },
           credentials: 'include',
           signal: controller.signal,
@@ -80,7 +82,9 @@ export function useStreamingChat({ onMessageComplete, onError }: UseStreamingCha
         clearTimeout(timeoutId);
 
         if (!response.ok) {
-          throw new Error(`Stream failed: ${response.statusText}`);
+          const errorText = await response.text().catch(() => 'Unknown error');
+          console.error('Streaming response error:', response.status, response.statusText, errorText);
+          throw new Error(`Stream failed: ${response.status} ${response.statusText} - ${errorText}`);
         }
 
         // Handle Server-Sent Events

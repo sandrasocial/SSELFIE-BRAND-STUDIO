@@ -36,6 +36,13 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Add essential API routes
   const { claudeApiService } = await import('./services/claude-api-service');
   
+  // Agent Memory System Routes
+  const { storeAgentLearning, getAgentMemory, updateLearningPattern } = await import('./api/agent-memory');
+  
+  app.post('/api/agent-memory/store', storeAgentLearning);
+  app.get('/api/agent-memory/:agentName/:userId', getAgentMemory);
+  app.put('/api/agent-memory/update/:learningId', updateLearningPattern);
+  
   // Claude API route for frontend compatibility (bypass auth for now)
   app.post('/api/claude/send-message', async (req, res) => {
     try {
