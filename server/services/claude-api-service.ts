@@ -789,9 +789,9 @@ IMPORTANT: Use this context to inform your responses, but maintain your authenti
       // Prepare Claude API request with natural tool availability
       let claudeRequest: any = {
         model: DEFAULT_MODEL_STR,
-        max_tokens: 2000, // COST OPTIMIZATION: Reduced from 4000 to 2000
+        max_tokens: 1500, // AGGRESSIVE COST OPTIMIZATION: Reduced from 4000 to 1500
         system: enhancedSystemPrompt,
-        messages: messages.slice(-10), // COST OPTIMIZATION: Only keep last 10 messages for context
+        messages: messages.slice(-5), // AGGRESSIVE COST OPTIMIZATION: Only keep last 5 messages for context
         tools: enhancedTools,
       };
       
@@ -1410,7 +1410,7 @@ I respond like your warm best friend who loves organization - simple, reassuring
       // Continue conversation with tool results - KEEP TOOLS AVAILABLE for dynamic work
       const continuationResponse = await this.sendToClaudeWithRetry({
         model: DEFAULT_MODEL_STR,
-        max_tokens: 4000,
+        max_tokens: 1500, // AGGRESSIVE COST OPTIMIZATION: Reduced from 4000 to 1500
         system: systemPrompt,
         messages: currentMessages,
         tools: tools, // CRITICAL FIX: Keep tools available for continued dynamic work
