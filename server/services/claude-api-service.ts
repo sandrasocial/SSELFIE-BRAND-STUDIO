@@ -789,9 +789,9 @@ IMPORTANT: Use this context to inform your responses, but maintain your authenti
       // Prepare Claude API request with natural tool availability
       let claudeRequest: any = {
         model: DEFAULT_MODEL_STR,
-        max_tokens: 4000,
+        max_tokens: 2000, // COST OPTIMIZATION: Reduced from 4000 to 2000
         system: enhancedSystemPrompt,
-        messages,
+        messages: messages.slice(-10), // COST OPTIMIZATION: Only keep last 10 messages for context
         tools: enhancedTools,
       };
       
@@ -810,14 +810,15 @@ IMPORTANT: Use this context to inform your responses, but maintain your authenti
         // Disabled - no more mandatory tool enforcement
       } else {
         // 🧠 NATURAL CONVERSATION MODE: Agent chooses when tools are needed
-        claudeRequest.system += `\n\n💬 NATURAL CONVERSATION MODE - SMART TOOL USAGE:
-You are smart enough to know when tools are needed. Use tools only when:
-- You need to view, create, or modify files
-- You need to search for specific code or information
-- The user explicitly asks for implementation or file changes
+        claudeRequest.system += `\n\n💬 COST-OPTIMIZED CONVERSATION MODE:
+IMPORTANT: Keep responses under 500 words to minimize costs.
+Use tools ONLY when absolutely necessary:
+- File modifications explicitly requested
+- Specific code searches required
+- User asks "show me the code" or "modify this file"
 
-For normal conversations, discussion, advice, or analysis - just respond naturally without tools.
-Your tools are available when you need them, but don't feel forced to use them for simple conversations.`;
+For advice, planning, or discussion - respond directly without tools.
+Be concise and focused in your responses.`;
         
         console.log(`💬 CLAUDE API SERVICE: Natural conversation mode for ${agentName} - agent chooses tool usage`);
       }
