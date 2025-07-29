@@ -58,6 +58,7 @@ export class EffortBasedAgentExecutor {
     
     console.log(`🎯 EFFORT-BASED EXECUTION: Starting task for ${request.agentName}`);
     console.log(`📝 Task: ${request.task.substring(0, 100)}...`);
+    console.log(`👤 User ID: ${request.userId}`);
 
     try {
       // Initialize execution context
@@ -78,7 +79,7 @@ export class EffortBasedAgentExecutor {
         // Execute single agent step with optimized context
         const stepResult = await this.executeAgentStep(
           request.agentName,
-          request.userId,
+          request.userId, // Use userId from request
           request.task,
           context,
           iteration,

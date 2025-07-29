@@ -45,6 +45,13 @@ export class ClaudeApiService {
     agentName: string, 
     conversationId: string | null
   ): Promise<number> {
+    console.log('🔧 Creating conversation with userId:', userId, 'agentName:', agentName, 'conversationId:', conversationId);
+    
+    // Validate userId is not null/undefined
+    if (!userId) {
+      throw new Error('userId is required for conversation creation');
+    }
+    
     // Generate conversationId if it's null/undefined
     if (!conversationId) {
       conversationId = `conv_${agentName}_${Date.now()}_${Math.random().toString(36).substring(2, 15)}`;
