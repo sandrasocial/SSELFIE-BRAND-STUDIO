@@ -5,6 +5,7 @@ import { claudeConversations, claudeMessages, agentLearning, agentCapabilities, 
 // Competing tool systems moved to archive - using only essential tools
 import { agentImplementationToolkit, AgentImplementationRequest } from '../tools/agent_implementation_toolkit';
 import { agentImplementationDetector } from '../tools/agent_implementation_detector';
+import { agentSearchCache } from './agent-search-cache';
 import { eq, and, desc } from 'drizzle-orm';
 import fetch from 'node-fetch';
 
@@ -488,6 +489,27 @@ ${searchResult.results.slice(0, 10).map((file: any) => `• ${file.path}`).join(
       const baseSystemPrompt = systemPrompt + elenaMemoryContext;
       let enhancedSystemPrompt = await this.buildAgentSystemPrompt(agentName, baseSystemPrompt, memory || undefined, true); // FORCE UNLIMITED ACCESS
       
+      // ADD SEARCH OPTIMIZATION CONTEXT FOR ALL AGENTS
+      const searchSummary = agentSearchCache.getSearchSummary(actualConversationId, agentName);
+      enhancedSystemPrompt += `
+
+## 🔍 SEARCH OPTIMIZATION CONTEXT
+
+${searchSummary}
+
+**⚠️ CRITICAL SEARCH OPTIMIZATION RULES:**
+1. **Check Previous Searches**: Before using search_filesystem, you already have comprehensive file visibility above
+2. **Avoid Repetitive Searches**: Don't search for the same thing multiple times in one conversation
+3. **Build Comprehensive Analysis**: Use cached search results to provide complete answers
+4. **Focus on Implementation**: Use your existing file knowledge to implement solutions directly
+5. **Search Only When Necessary**: Only search if you need specific files not already discovered
+
+**ELENA-SPECIFIC CONTEXT BUILDING:**
+- You have already searched the codebase extensively in this conversation
+- Use the discovered files above to analyze what's built vs. what's missing
+- Provide definitive answers based on your comprehensive file visibility
+- Don't get stuck in analysis loops - make strategic recommendations based on what you've found`;
+      
       // ADVANCED MEMORY SYSTEM: Add context-aware memory without overriding personality
       if (conversationMemory && agentName !== 'elena') {
         enhancedSystemPrompt += `\n\n## CONVERSATION CONTEXT (Background Information):
@@ -841,7 +863,7 @@ Be concise and focused in your responses.`;
       // Process tool calls naturally without forcing template responses
       if (response.content.some(content => content.type === 'tool_use')) {
         // Process tool calls and let agent respond authentically
-        assistantMessage = await this.handleToolCallsWithContinuation(response, messages, enhancedSystemPrompt, enhancedTools, true, agentName, false);
+        assistantMessage = await this.handleToolCallsWithContinuation(response, messages, enhancedSystemPrompt, enhancedTools, true, agentName, false, actualConversationId);
       }
 
       // Save both messages to conversation with logging
@@ -1575,7 +1597,50 @@ I respond like your warm best friend who loves organization - simple, reassuring
           switch (block.name) {
             case 'search_filesystem':
               const { search_filesystem } = await import('../tools/search_filesystem');
-              const searchResult = await search_filesystem(block.input);
+              const searchInput = block.input as any;
+              let searchResult: any;
+              
+              // ✅ SEARCH CACHE INTEGRATION: Check if agent should skip this search
+              if (searchInput?.query_description && currentConversationId && agentName) {
+                const shouldSkip = agentSearchCache.shouldSkipSearch(
+                  currentConversationId, 
+                  agentName, 
+                  searchInput.query_description
+                );
+                
+                if (shouldSkip.shouldSkip && shouldSkip.suggestedFiles) {
+                  console.log(`🔄 SEARCH OPTIMIZATION: Preventing repetitive search for ${agentName}`);
+                  console.log(`🔄 REASON: ${shouldSkip.reason}`);
+                  console.log(`🔄 CACHED FILES: ${shouldSkip.suggestedFiles.length} files available`);
+                  
+                  // Return cached results instead of performing new search
+                  searchResult = {
+                    success: true,
+                    results: shouldSkip.suggestedFiles,
+                    message: `Search optimized - returning ${shouldSkip.suggestedFiles.length} cached results`,
+                    optimization_note: shouldSkip.reason,
+                    cached: true
+                  };
+                } else {
+                  // Perform the search and cache results
+                  searchResult = await search_filesystem(searchInput);
+                  
+                  // Cache the search results for future optimization
+                  if (searchResult?.results) {
+                    agentSearchCache.addSearchResults(
+                      currentConversationId,
+                      agentName,
+                      searchInput.query_description,
+                      searchResult.results
+                    );
+                    console.log(`💾 SEARCH CACHE: Cached ${searchResult.results.length} results for ${agentName}`);
+                  }
+                }
+              } else {
+                // Fallback for searches without query_description or missing context
+                searchResult = await search_filesystem(searchInput);
+              }
+              
               // CRITICAL FIX: search_filesystem returns direct results, not wrapped in success/result
               const fileCount = searchResult?.results?.length || searchResult?.length || 0;
               console.log(`✅ SEARCH SUCCESS: Found ${fileCount} files`);
