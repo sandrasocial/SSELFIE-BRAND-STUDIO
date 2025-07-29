@@ -36,6 +36,7 @@ import AIGenerator from "@/pages/ai-generator";
 import AIPhotoshoot from "@/pages/ai-photoshoot";
 import SimpleTraining from "@/pages/simple-training";
 import AdminDashboard from "@/pages/admin-dashboard";
+import { EffortBasedAgentInterface } from "@/components/effort-based-agents/EffortBasedAgentInterface";
 import AdminConsultingAgents from "@/pages/admin-consulting-agents";
 
 import BridgeMonitor from "@/pages/admin/bridge-monitor";
@@ -262,6 +263,7 @@ function Router() {
         </div>
       )} {...props} />} />
       <Route path="/admin/consulting-agents" component={(props) => <ProtectedRoute component={AdminConsultingAgents} {...props} />} />
+      <Route path="/admin/effort-agents" component={(props) => <ProtectedRoute component={EffortBasedAgentInterface} {...props} />} />
 
       <Route path="/admin/bridge-monitor" component={(props) => <ProtectedRoute component={BridgeMonitor} {...props} />} />
       <Route path="/admin/agent-activity" component={(props) => <ProtectedRoute component={AgentActivityDashboard} {...props} />} />

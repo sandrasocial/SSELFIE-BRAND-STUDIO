@@ -87,6 +87,11 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // EFFORT-BASED AGENT SYSTEM - Revolutionary cost-optimized execution
+  console.log('🎯 Registering effort-based agent routes...');
+  const { registerEffortBasedAgentRoutes } = await import('./routes/effort-based-agent-routes');
+  registerEffortBasedAgentRoutes(app);
+
   // Claude conversation management endpoints
   app.post('/api/claude/conversation/new', async (req, res) => {
     try {
