@@ -266,6 +266,66 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
   
+  // AI Images route for workspace gallery - CRITICAL: Missing endpoint restored
+  app.get('/api/ai-images', isAuthenticated, async (req: any, res) => {
+    try {
+      const userId = req.user.claims.sub;
+      console.log('🖼️ Fetching AI images for user:', userId);
+      
+      // Import database and schema
+      const { db } = await import('./db');
+      const { aiImages } = await import('../shared/schema');
+      const { eq, desc } = await import('drizzle-orm');
+      
+      // Query user's AI images from database
+      const userImages = await db
+        .select()
+        .from(aiImages)
+        .where(eq(aiImages.userId, userId))
+        .orderBy(desc(aiImages.createdAt));
+      
+      console.log(`✅ Found ${userImages.length} AI images for user ${userId}`);
+      res.json(userImages);
+      
+    } catch (error) {
+      console.error('❌ Error fetching AI images:', error);
+      res.status(500).json({ message: "Failed to fetch AI images", error: error.message });
+    }
+  });
+
+  // User model endpoint for workspace model status
+  app.get('/api/user-model', isAuthenticated, async (req: any, res) => {
+    try {
+      const userId = req.user.claims.sub;
+      console.log('🤖 Fetching user model for:', userId);
+      
+      // Import database and schema
+      const { db } = await import('./db');
+      const { userModels } = await import('../shared/schema');
+      const { eq, desc } = await import('drizzle-orm');
+      
+      // Query user's latest model
+      const [userModel] = await db
+        .select()
+        .from(userModels)
+        .where(eq(userModels.userId, userId))
+        .orderBy(desc(userModels.createdAt))
+        .limit(1);
+      
+      if (userModel) {
+        console.log(`✅ Found user model: ${userModel.modelName} (${userModel.trainingStatus})`);
+        res.json(userModel);
+      } else {
+        console.log('⚠️ No user model found');
+        res.json(null);
+      }
+      
+    } catch (error) {
+      console.error('❌ Error fetching user model:', error);
+      res.status(500).json({ message: "Failed to fetch user model", error: error.message });
+    }
+  });
+
   // Auth user endpoint for frontend - CRITICAL: ADMIN AGENT AUTHENTICATION FIX
   app.get('/api/auth/user', async (req: any, res) => {
     try {

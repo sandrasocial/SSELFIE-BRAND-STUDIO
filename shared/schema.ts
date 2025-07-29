@@ -717,41 +717,4 @@ export type InsertUsageHistory = typeof usageHistory.$inferInsert;
 export { userStyleguides, styleguideTemplates } from "./styleguide-schema";
 export type { UserStyleguide, StyleguideTemplate, InsertUserStyleguide, InsertStyleguideTemplate } from "./styleguide-schema";
 
-// Export all types for easier importing
-export type { 
-  User, 
-  InsertUser, 
-  Project, 
-  InsertProject, 
-  AiImage, 
-  InsertAiImage, 
-  Template, 
-  Subscription, 
-  InsertSubscription, 
-  UserProfile, 
-  InsertUserProfile, 
-  OnboardingData, 
-  InsertOnboardingData, 
-  SelfieUpload, 
-  InsertSelfieUpload, 
-  UserModel, 
-  InsertUserModel, 
-  BrandOnboarding, 
-  InsertBrandOnboarding, 
-  UserLandingPage, 
-  InsertUserLandingPage, 
-  UserUsage, 
-  InsertUserUsage,
-  GenerationTracker,
-  InsertGenerationTracker,
-  MayaChat,
-  InsertMayaChat,
-  MayaChatMessage,
-  InsertMayaChatMessage,
-  PhotoSelection,
-  InsertPhotoSelection,
-  AgentConversation,
-  InsertAgentConversation,
-  EmailCapture,
-  InsertEmailCapture
-};
+// Note: Type exports are handled individually above to avoid conflicts
