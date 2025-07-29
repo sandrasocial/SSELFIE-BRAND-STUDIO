@@ -39,7 +39,7 @@ export function registerEffortBasedAgentRoutes(app: Express) {
       
       let userId;
       if (isAdminRequest) {
-        userId = 'admin-sandra';
+        userId = '42585527'; // Sandra's actual admin user ID
       } else if (req.isAuthenticated()) {
         userId = req.user?.claims?.sub || req.user?.id;
       }
