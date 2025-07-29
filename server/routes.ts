@@ -96,18 +96,27 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const adminToken = req.headers.authorization?.replace('Bearer ', '') || req.headers['x-admin-token'];
       const isAdminRequest = adminToken === 'sandra-admin-2025';
       
+      console.log('🔐 AUTH DEBUG: adminToken =', adminToken, 'isAdminRequest =', isAdminRequest);
+      
       let userId;
       if (isAdminRequest) {
         userId = '42585527'; // Sandra's actual admin user ID
+        console.log('✅ ADMIN AUTH: Using Sandra admin userId:', userId);
       } else if (req.isAuthenticated()) {
         userId = req.user?.claims?.sub || req.user?.id;
+        console.log('🔒 SESSION AUTH: Using session userId:', userId);
       }
+
+      console.log('👤 FINAL userId:', userId);
 
       if (!userId) {
         return res.status(401).json({ success: false, message: 'Unauthorized' });
       }
 
-      const result = await effortBasedExecutor.executeTask(req.body, userId);
+      const result = await effortBasedExecutor.executeTask({
+        ...req.body,
+        userId
+      });
       res.json({ success: true, result });
     } catch (error) {
       console.error('Effort-based execution error:', error);
