@@ -63,8 +63,8 @@ export class ClaudeApiService {
       return existing[0].id;
     }
 
-    // Ensure admin user exists for various admin user IDs
-    if (userId === 'sandra-admin' || userId === 'admin' || userId === 'admin-sandra' || userId === '42585527') {
+    // Ensure admin user exists for sandra-admin userId or 'admin'
+    if (userId === 'sandra-admin' || userId === 'admin') {
       try {
         const adminExists = await db
           .select()
@@ -79,10 +79,10 @@ export class ClaudeApiService {
             .values({
               id: 'admin-user-123',
               email: 'ssa@ssasocial.com',
-              firstName: 'Sandra',
-              lastName: 'Admin',
+              first_name: 'Sandra',
+              last_name: 'Admin',
               role: 'admin',
-              plan: 'sselfie-studio'
+              plan: 'premium'
             })
             .onConflictDoNothing()
             .returning();
@@ -107,10 +107,10 @@ export class ClaudeApiService {
             .values({
               id: `admin-fallback-${Date.now()}`,
               email: `admin-${Date.now()}@test.com`,
-              firstName: 'Test',
-              lastName: 'Admin',
+              first_name: 'Test',
+              last_name: 'Admin',
               role: 'admin',
-              plan: 'sselfie-studio'
+              plan: 'premium'
             })
             .returning();
           
@@ -420,29 +420,24 @@ ${searchResult.results.slice(0, 10).map((file: any) => `• ${file.path}`).join(
 
       // Add conversation history (filter out empty messages to avoid Claude API errors)
       for (const msg of history) {
-        if (msg.role !== 'system' && msg.content) {
-          // Ensure content is a string
-          const content = typeof msg.content === 'string' ? msg.content : String(msg.content);
-          if (content.trim().length > 0) {
-            messages.push({
-              role: msg.role,
-              content: content
-            });
-          }
+        if (msg.role !== 'system' && msg.content && msg.content.trim().length > 0) {
+          messages.push({
+            role: msg.role,
+            content: msg.content
+          });
         }
       }
 
-      // Add current user message (ensure it's a string)
+      // Add current user message
       messages.push({
         role: 'user',
-        content: typeof userMessage === 'string' ? userMessage : String(userMessage)
+        content: userMessage
       });
 
       // Debug: Log message array before sending to Claude
       console.log('🔍 Message array being sent to Claude:');
       messages.forEach((msg, index) => {
-        const content = typeof msg.content === 'string' ? msg.content : String(msg.content || '');
-        console.log(`  [${index}] ${msg.role}: "${content.substring(0, 100)}..." (length: ${content.length})`);
+        console.log(`  [${index}] ${msg.role}: "${msg.content?.substring(0, 100)}..." (length: ${msg.content?.length || 0})`);
       });
 
       // Universal dynamic tools - flexible for any task, not hardcoded
@@ -650,30 +645,15 @@ ${searchResult.results.slice(0, 10).map((file: any) => `• ${file.path}`).join(
 
       // 🧠 INTELLIGENT INTENT DETECTION: Context-aware analysis of request type
       const detectRequestIntent = (message: string) => {
-        // Ensure message is a string before calling string methods
-        const messageStr = typeof message === 'string' ? message : String(message);
-        const messageUpper = messageStr.toUpperCase();
+        const messageUpper = message.toUpperCase();
         let implementationScore = 0;
         let consultationScore = 0;
-        
-        // CONTINUATION REQUEST DETECTION - highest priority
-        const continuationPhrases = ['CONTINUE', 'KEEP GOING', 'CONTINUE WHERE', 'RESUME', 'CARRY ON'];
-        if (continuationPhrases.some(phrase => messageUpper.includes(phrase))) {
-          return {
-            isContinuation: true,
-            isImplementation: true, // Continuation maintains implementation mode
-            isConsultation: false,
-            implementationScore: 10,
-            consultationScore: 0,
-            intent: 'continuation'
-          };
-        }
         
         // Implementation intent indicators - universal patterns
         const actionPhrases = ['IMPLEMENT NOW', 'CREATE THIS', 'BUILD THIS', 'DO THIS NOW', 'MAKE THIS', 'UPDATE THIS'];
         const urgentIndicators = ['NOW', 'IMMEDIATELY', 'URGENT', 'ASAP', 'RIGHT NOW'];
         const directCommands = ['FIX', 'CREATE', 'BUILD', 'IMPLEMENT', 'UPDATE', 'MODIFY', 'CHANGE'];
-        const fileReferences = messageStr.match(/\.(js|ts|tsx|jsx|css|html|json|md)/g);
+        const fileReferences = message.match(/\.(js|ts|tsx|jsx|css|html|json|md)/g);
         
         // Consultation intent indicators  
         const questionPhrases = ['HOW SHOULD', 'WHAT DO YOU THINK', 'WHAT WOULD YOU', 'SHOULD I', 'CAN YOU EXPLAIN', 'HELP ME UNDERSTAND'];
@@ -685,7 +665,7 @@ ${searchResult.results.slice(0, 10).map((file: any) => `• ${file.path}`).join(
         if (urgentIndicators.some(word => messageUpper.includes(word))) implementationScore += 3;
         if (directCommands.some(cmd => messageUpper.startsWith(cmd + ' ') || messageUpper.includes(' ' + cmd + ' ') || messageUpper.includes(cmd + ' '))) implementationScore += 2;
         if (fileReferences && fileReferences.length > 0) implementationScore += 2;
-        if (messageStr.includes('```') || messageStr.includes('`')) implementationScore += 1;
+        if (message.includes('```') || message.includes('`')) implementationScore += 1;
         
         // Smart detection for imperative commands
         const imperativePatterns = [
@@ -696,7 +676,7 @@ ${searchResult.results.slice(0, 10).map((file: any) => `• ${file.path}`).join(
           /\bjust\s+(fix|create|build|implement|do)\b/i
         ];
         
-        if (imperativePatterns.some(pattern => pattern.test(messageStr))) {
+        if (imperativePatterns.some(pattern => pattern.test(message))) {
           implementationScore += 4;
         }
         
@@ -707,7 +687,6 @@ ${searchResult.results.slice(0, 10).map((file: any) => `• ${file.path}`).join(
         if (messageUpper.includes('?')) consultationScore += 1;
         
         return {
-          isContinuation: false,
           isImplementation: implementationScore > consultationScore && implementationScore >= 3,
           isConsultation: consultationScore > implementationScore && consultationScore >= 2,
           implementationScore,
@@ -718,13 +697,6 @@ ${searchResult.results.slice(0, 10).map((file: any) => `• ${file.path}`).join(
       
       const intentAnalysis = detectRequestIntent(userMessage);
       console.log(`🧠 CLAUDE SERVICE INTENT ANALYSIS for ${agentName}: ${intentAnalysis.intent} (impl: ${intentAnalysis.implementationScore}, consult: ${intentAnalysis.consultationScore})`);
-      
-      // COST-EFFECTIVE CONTINUATION: Smart task resumption without API drain
-      let recursionDepth = 0; // Initialize recursion depth
-      if (intentAnalysis.isContinuation) {
-        console.log(`🔄 CONTINUATION DETECTED: Using cost-effective single-cycle approach`);
-        recursionDepth = 0; // Fresh start with single API call limit
-      }
       
       const mandatoryImplementation = intentAnalysis.isImplementation;
       
@@ -749,17 +721,15 @@ ${searchResult.results.slice(0, 10).map((file: any) => `• ${file.path}`).join(
       
       const isFileRequest = fileRequestPatterns.some(pattern => pattern.test(userMessage));
       
-      // Apply intelligent mode based on intent analysis OR file request for capable agents  
-      // COST PROTECTION: Remove mandatory tool enforcement to prevent API drain
+      // Apply intelligent mode based on intent analysis OR file request for capable agents
       if (mandatoryImplementation || (fileCapableAgents.includes(agentName.toLowerCase()) && isFileRequest)) {
-        // Tools available but not enforced - let agents choose based on context
-        // claudeRequest.tool_choice = {
-        //   type: "tool", 
-        //   name: "str_replace_based_edit_tool"
-        // };
+        claudeRequest.tool_choice = {
+          type: "tool",
+          name: "str_replace_based_edit_tool"
+        };
         
-        // 💰 COST-PROTECTED: Implementation mode with optional tool usage
-        claudeRequest.system = `💰 COST-PROTECTED IMPLEMENTATION MODE - TOOLS AVAILABLE BUT NOT ENFORCED
+        // 🚨 CRITICAL: Enhanced implementation mode with direct workspace integration
+        claudeRequest.system = `🚨 MANDATORY IMPLEMENTATION MODE - DIRECT REPLIT WORKSPACE ACCESS ACTIVE
 
 ${mandatoryImplementation ? 
   `Sandra has used implementation keywords that trigger MANDATORY tool enforcement.
@@ -774,14 +744,13 @@ File request patterns matched in: "${userMessage.substring(0, 100)}..."`
 - Direct workspace integration bypassing previous API limitations
 - Enhanced Replit environment permissions for autonomous implementation
 
-FLEXIBLE IMPLEMENTATION APPROACH - COST PROTECTION ACTIVE:
-You have tools available but are NOT required to use them for every message.
+YOU MUST MODIFY FILES IMMEDIATELY. NO VIEW-ONLY OPERATIONS ALLOWED.
 
-SMART IMPLEMENTATION GUIDANCE:
-1. For simple questions or status checks: Respond with conversation only (saves API costs)
-2. For actual file modification requests: Use str_replace_based_edit_tool when appropriate
-3. Use your judgment - not every message needs tool usage
-4. Respond authentically with your personality whether using tools or not
+IMPLEMENTATION REQUIREMENTS:
+1. Use str_replace_based_edit_tool with command "str_replace" or "create" to MODIFY files DIRECTLY
+2. Implement the specific changes requested in Sandra's message with workspace integration
+3. After tool usage, respond authentically with your personality and explain what you accomplished
+4. Use your specialized knowledge to provide context and next steps
 
 📁 WORKSPACE SCOPE: Full access to client/, server/, components/, and all project directories
 ⚡ BRIDGE SYSTEM: Your tool usage connects directly to the actual file system in Sandra's workspace
@@ -819,9 +788,9 @@ Use tools only if file modifications are specifically requested within the consu
       }
 
       // Process tool calls naturally without forcing template responses
-      if (response.content.some((content: any) => content.type === 'tool_use')) {
+      if (response.content.some(content => content.type === 'tool_use')) {
         // Process tool calls and let agent respond authentically
-        assistantMessage = await this.handleToolCallsWithContinuation(response, messages, enhancedSystemPrompt, enhancedTools, true, agentName, false, recursionDepth);
+        assistantMessage = await this.handleToolCallsWithContinuation(response, messages, enhancedSystemPrompt, enhancedTools, true, agentName, false);
       }
 
       // Save both messages to conversation with logging
@@ -829,8 +798,7 @@ Use tools only if file modifications are specifically requested within the consu
       await this.saveMessage(actualConversationId, 'user', userMessage);
       
       console.log('💾 Saving assistant message to database:', assistantMessage.length, 'characters');
-      const messagePreview = typeof assistantMessage === 'string' ? assistantMessage : String(assistantMessage);
-      console.log('💾 Assistant message preview:', messagePreview.substring(0, 200) + '...');
+      console.log('💾 Assistant message preview:', assistantMessage.substring(0, 200) + '...');
       await this.saveMessage(actualConversationId, 'assistant', assistantMessage);
       
       // ELENA WORKFLOW DETECTION: Disabled due to missing service file
@@ -1032,7 +1000,7 @@ Use tools only if file modifications are specifically requested within the consu
     };
 
     for (const [patternType, keywords] of Object.entries(communicationPatterns)) {
-      if (keywords.some(keyword => String(userMessage).toLowerCase().includes(keyword))) {
+      if (keywords.some(keyword => userMessage.toLowerCase().includes(keyword))) {
         patterns.push({
           type: 'preference',
           category: 'communication',
@@ -1051,7 +1019,7 @@ Use tools only if file modifications are specifically requested within the consu
     };
 
     for (const [taskType, keywords] of Object.entries(taskPatterns)) {
-      if (keywords.some(keyword => String(userMessage).toLowerCase().includes(keyword))) {
+      if (keywords.some(keyword => userMessage.toLowerCase().includes(keyword))) {
         patterns.push({
           type: 'pattern',
           category: 'task',
@@ -1099,7 +1067,7 @@ Use tools only if file modifications are specifically requested within the consu
     
     // Technical terms
     const technicalTerms = ['api', 'database', 'integration', 'architecture', 'deployment'];
-    score += technicalTerms.filter(term => String(message).toLowerCase().includes(term)).length;
+    score += technicalTerms.filter(term => message.toLowerCase().includes(term)).length;
     
     // Question complexity
     const questionMarks = (message.match(/\?/g) || []).length;
@@ -1113,12 +1081,11 @@ Use tools only if file modifications are specifically requested within the consu
   }
 
   private extractSessionContext(message: string): any {
-    const messageStr = String(message).toLowerCase();
     return {
-      mentions_previous_work: messageStr.includes('previous') || messageStr.includes('before'),
-      asks_for_improvement: messageStr.includes('improve') || messageStr.includes('enhance'),
-      deployment_focused: messageStr.includes('deploy') || messageStr.includes('production'),
-      learning_oriented: messageStr.includes('learn') || messageStr.includes('understand')
+      mentions_previous_work: message.toLowerCase().includes('previous') || message.toLowerCase().includes('before'),
+      asks_for_improvement: message.toLowerCase().includes('improve') || message.toLowerCase().includes('enhance'),
+      deployment_focused: message.toLowerCase().includes('deploy') || message.toLowerCase().includes('production'),
+      learning_oriented: message.toLowerCase().includes('learn') || message.toLowerCase().includes('understand')
     };
   }
 
@@ -1284,7 +1251,7 @@ I respond like your warm best friend who loves organization - simple, reassuring
     return expertise[expertiseKey] || `You are ${agentName}, an AI assistant specialized in helping with tasks.`;
   }
 
-  private async handleToolCallsWithContinuation(response: any, messages: any[], systemPrompt: string, tools: any[], fileEditMode: boolean = true, agentName: string = '', mandatoryImplementation: boolean = false, recursionDepth: number = 0): Promise<string> {
+  private async handleToolCallsWithContinuation(response: any, messages: any[], systemPrompt: string, tools: any[], fileEditMode: boolean = true, agentName: string = '', mandatoryImplementation: boolean = false): Promise<string> {
     let currentMessages = [...messages];
     let finalResponse = '';
     
@@ -1308,8 +1275,7 @@ I respond like your warm best friend who loves organization - simple, reassuring
             case 'search_filesystem':
               const { search_filesystem } = await import('../tools/search_filesystem');
               const searchResult = await search_filesystem(block.input);
-              const fileCount = searchResult?.results?.length || 0;
-              console.log(`✅ SEARCH SUCCESS: Found ${fileCount} files`);
+              console.log(`✅ SEARCH SUCCESS: Found ${searchResult.length || 0} files`);
               toolResult = JSON.stringify(searchResult, null, 2);
               break;
               
@@ -1330,16 +1296,7 @@ I respond like your warm best friend who loves organization - simple, reassuring
               
               // UNLIMITED ACCESS: All agents have full file modification capabilities
               const { str_replace_based_edit_tool } = await import('../tools/str_replace_based_edit_tool');
-              const fileResult = await str_replace_based_edit_tool({
-                command: block.input.command,
-                path: block.input.path,
-                file_text: block.input.file_text,
-                old_str: block.input.old_str,
-                new_str: block.input.new_str,
-                insert_line: block.input.insert_line,
-                insert_text: block.input.insert_text,
-                view_range: block.input.view_range
-              });
+              const fileResult = await str_replace_based_edit_tool(block.input);
               console.log(`✅ FILE OP SUCCESS: ${block.input.command} on ${block.input.path}`);
               toolResult = fileResult;
               break;
@@ -1401,66 +1358,42 @@ I respond like your warm best friend who loves organization - simple, reassuring
       
       console.log(`🔄 CONTINUING CONVERSATION: Processing ${toolResults.length} tool results. Current response length: ${finalResponse.length}`);
       
-      // COST CONTROL: Prevent recursive cycles that drain API credits
-      const shouldContinueWithTools = recursionDepth < 2; // Only allow 2 tool cycles maximum
-      
-      // COST-EFFECTIVE APPROACH: Complete work efficiently without endless loops
-      if (recursionDepth >= 2) {
-        currentMessages.push({
-          role: 'user',
-          content: "Based on the tool results above, provide your final analysis. Work complete - no additional tools needed."
-        });
-      } else {
-        currentMessages.push({
-          role: 'user',
-          content: "Based on the tool results above, provide your analysis and continue working if needed."
-        });
-      }
-      
-      // SINGLE-CYCLE COMPLETION: No recursive API calls to prevent cost drain
-      const continuationResponse = await this.sendToClaudeWithRetry({
-        model: DEFAULT_MODEL_STR,
-        max_tokens: 2000, // Reduced token limit to control costs
-        system: systemPrompt,
-        messages: currentMessages,
-        tools: [], // NO TOOLS: Prevent recursive cycles
-        tool_choice: undefined // NO TOOL ENFORCEMENT: Analysis only
+      // CRITICAL FIX: Allow agents to continue using tools dynamically as needed
+      currentMessages.push({
+        role: 'user',
+        content: "Based on the tool results above, provide your analysis and continue working. You can use additional tools if needed to complete the task."
       });
       
-      // COST PROTECTION: Never allow recursive tool calls
-      const continuationHasTools = false; // FORCED: Block all recursive tool usage
+      // Continue conversation with tool results - KEEP TOOLS AVAILABLE for dynamic work
+      const continuationResponse = await this.sendToClaudeWithRetry({
+        model: DEFAULT_MODEL_STR,
+        max_tokens: 4000,
+        system: systemPrompt,
+        messages: currentMessages,
+        tools: tools, // CRITICAL FIX: Keep tools available for continued dynamic work
+        tool_choice: fileEditMode ? { type: "auto" } : undefined // Allow tools when in file edit mode
+      });
       
-      if (false) { // DISABLED: No recursive processing to prevent $3-5 conversations
+      // CHECK IF CONTINUATION RESPONSE HAS MORE TOOLS - RECURSIVE PROCESSING
+      const continuationHasTools = continuationResponse.content.some((block: any) => block.type === 'tool_use');
+      
+      if (continuationHasTools) {
+        console.log(`🔄 AGENT CONTINUING WORK: Continuation response has ${continuationResponse.content.filter((b: any) => b.type === 'tool_use').length} more tools - processing recursively`);
         
-        console.log(`🔄 AGENT CONTINUING WORK: Continuation response has ${continuationResponse.content.filter((b: any) => b.type === 'tool_use').length} more tools - processing recursively (depth: ${recursionDepth + 1}/${maxRecursionDepth})`);
-        
-        // TOKEN MANAGEMENT: Ultra-aggressive conversation size checking
+        // TOKEN MANAGEMENT: Check conversation size before recursion
         const currentTokenEstimate = JSON.stringify(currentMessages).length / 4; // Rough estimate: 4 chars = 1 token
-        const maxSafeTokens = 100000; // Ultra-conservative limit - start summarizing much earlier
-        
-        console.log(`🔍 TOKEN CHECK: Current estimated tokens: ${currentTokenEstimate}, max safe: ${maxSafeTokens}`);
+        const maxSafeTokens = 180000; // Leave buffer below 200k limit
         
         if (currentTokenEstimate > maxSafeTokens) {
-          console.log(`⚠️ TOKEN LIMIT APPROACHING: ${currentTokenEstimate} tokens, implementing aggressive summarization`);
+          console.log(`⚠️ TOKEN LIMIT APPROACHING: ${currentTokenEstimate} tokens, summarizing conversation for continued work`);
           
-          // AGGRESSIVE CONVERSATION SUMMARIZATION: Keep only essential context
-          const userRequest = currentMessages.find(msg => msg.role === 'user')?.content || 'Continue working on the assigned task';
-          const recentProgress = finalResponse.substring(Math.max(0, finalResponse.length - 300)); // Last 300 chars only
-          
+          // CONVERSATION SUMMARIZATION: Keep essential context while reducing tokens
           const summarizedMessages = [
-            { 
-              role: 'user', 
-              content: `Original request: ${userRequest.substring(0, 200)}...` 
-            },
-            { 
-              role: 'assistant', 
-              content: `I'm continuing work on this task. Recent progress: ${recentProgress}` 
-            }
+            { role: 'user', content: currentMessages[0]?.content || 'Continue working on the task' },
+            { role: 'assistant', content: `Previous work summary: I've been working on this task and used multiple tools. Current progress: ${finalResponse.substring(0, 500)}...` }
           ];
           
-          console.log(`🗜️ CONVERSATION COMPRESSED: ${currentMessages.length} messages → ${summarizedMessages.length} messages`);
-          
-          // Continue with heavily summarized context
+          // Continue with summarized context
           const recursiveResult = await this.handleToolCallsWithContinuation(
             continuationResponse,
             summarizedMessages,
@@ -1468,12 +1401,11 @@ I respond like your warm best friend who loves organization - simple, reassuring
             tools,
             fileEditMode,
             agentName,
-            mandatoryImplementation,
-            recursionDepth + 1
+            mandatoryImplementation
           );
           
           finalResponse += (finalResponse ? '\n\n' : '') + recursiveResult;
-          console.log(`🎯 RECURSIVE WORK COMPLETE WITH AGGRESSIVE SUMMARIZATION: Agent finished autonomous working cycle. Total response: ${finalResponse.length} chars`);
+          console.log(`🎯 RECURSIVE WORK COMPLETE WITH SUMMARIZATION: Agent finished autonomous working cycle. Total response: ${finalResponse.length} chars`);
           
         } else {
           // Normal recursive processing with full context
@@ -1484,8 +1416,7 @@ I respond like your warm best friend who loves organization - simple, reassuring
             tools,
             fileEditMode,
             agentName,
-            mandatoryImplementation,
-            recursionDepth + 1
+            mandatoryImplementation
           );
           
           finalResponse += (finalResponse ? '\n\n' : '') + recursiveResult;
@@ -1493,14 +1424,14 @@ I respond like your warm best friend who loves organization - simple, reassuring
         }
         
       } else {
-        // SINGLE RESPONSE: Extract text and complete (no recursion)
+        // No more tools, extract text response normally
         for (const content of continuationResponse.content) {
           if (content.type === 'text') {
             finalResponse += (finalResponse ? '\n\n' : '') + content.text;
           }
         }
         
-        console.log(`✅ COST-CONTROLLED COMPLETION: Single-cycle analysis completed. Response length: ${finalResponse.length}`);
+        console.log(`✅ CONVERSATION CONTINUED: Agent provided final analysis. Total response length: ${finalResponse.length}`);
       }
       
       console.log(`📝 CONTINUATION RESPONSE CONTENT BLOCKS: ${continuationResponse.content.length}`);
@@ -1534,7 +1465,7 @@ I respond like your warm best friend who loves organization - simple, reassuring
               const { search_filesystem } = await import('../tools/search_filesystem');
               const searchResult = await search_filesystem(block.input);
               // CRITICAL FIX: search_filesystem returns direct results, not wrapped in success/result
-              const fileCount = (searchResult as any)?.results?.length || (searchResult as any)?.length || 0;
+              const fileCount = searchResult?.results?.length || searchResult?.length || 0;
               console.log(`✅ SEARCH SUCCESS: Found ${fileCount} files`);
               toolResult = `\n\n[Codebase Search Results]\n${JSON.stringify(searchResult, null, 2)}`;
               break;
@@ -1544,22 +1475,20 @@ I respond like your warm best friend who loves organization - simple, reassuring
               const fileResult = await str_replace_based_edit_tool({
                 command: block.input.command as any,
                 path: block.input.path,
-                file_text: block.input.file_text,
+                content: block.input.file_text,
                 old_str: block.input.old_str,
                 new_str: block.input.new_str,
                 insert_line: block.input.insert_line,
                 insert_text: block.input.insert_text,
-                view_range: block.input.view_range
+                view_range: block.input.view_range,
+                backup: true // Always backup for safety
               });
               
-              if (typeof fileResult === 'string') {
+              if (fileResult.success) {
                 console.log(`✅ FILE OP SUCCESS: ${block.input.command} on ${block.input.path}`);
-                toolResult = `\n\n[File Operation: ${block.input.command}]\n${fileResult}`;
-              } else if ((fileResult as any)?.success) {
-                console.log(`✅ FILE OP SUCCESS: ${block.input.command} on ${block.input.path}`);
-                toolResult = `\n\n[File Operation: ${block.input.command}]\n${JSON.stringify((fileResult as any).result, null, 2)}`;
+                toolResult = `\n\n[File Operation: ${block.input.command}]\n${JSON.stringify(fileResult.result, null, 2)}`;
               } else {
-                toolResult = `\n\n[File Operation Error: ${(fileResult as any)?.error || 'Unknown error'}]`;
+                toolResult = `\n\n[File Operation Error: ${fileResult.error}]`;
               }
               break;
               

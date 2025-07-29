@@ -68,10 +68,6 @@ import LaunchCountdown from "@/pages/launch-countdown";
 import AdminAccessOnly from "@/pages/admin-access-only";
 import Build from "@/pages/build";
 
-// Test Components
-import TestZara from "./test-zara";
-import TestDemo from "./test-demo";
-
 // Removed duplicate photoshoot imports - using existing system
 
 
@@ -150,22 +146,8 @@ function Router() {
       {/* LAUNCH COUNTDOWN */}
       <Route path="/launch" component={LaunchCountdown} />
       
-      {/* PUBLIC PAGES - Direct admin interface for Sandra */}
-      <Route path="/" component={() => {
-        // Direct redirect to admin consulting agents for development/testing
-        React.useEffect(() => {
-          window.location.href = '/admin/consulting-agents';
-        }, []);
-        
-        return (
-          <div className="min-h-screen flex items-center justify-center">
-            <div className="text-center">
-              <div className="animate-spin w-8 h-8 border-4 border-black border-t-transparent rounded-full mx-auto mb-4" />
-              <p>Redirecting to admin interface...</p>
-            </div>
-          </div>
-        );
-      }} />
+      {/* PUBLIC PAGES */}
+      <Route path="/" component={EditorialLanding} />
       
       {/* BRANDED AUTHENTICATION PAGES */}
       <Route path="/login" component={AuthExplainer} />
@@ -185,7 +167,7 @@ function Router() {
         );
       }} />
 
-      {/* DEVELOPMENT TEST PAGES */}
+      {/* DEVELOPMENT TEST PAGE */}
       <Route path="/test" component={() => (
         <div className="p-8">
           <h1 className="text-2xl mb-4">Navigation Test</h1>
@@ -194,15 +176,9 @@ function Router() {
             <div><a href="/workspace" className="text-blue-600 underline">Go to Workspace</a></div>
             <div><a href="/victoria-preview" className="text-blue-600 underline">Go to Victoria Preview</a></div>
             <div><a href="/maya" className="text-blue-600 underline">Go to Maya</a></div>
-            <div><a href="/test-zara" className="text-blue-600 underline">Test Zara Component</a></div>
-            <div><a href="/test-demo" className="text-blue-600 underline">Test Demo Page</a></div>
           </div>
         </div>
       )} />
-      
-      {/* ZARA TEST COMPONENTS */}
-      <Route path="/test-zara" component={TestZara} />
-      <Route path="/test-demo" component={TestDemo} />
       <Route path="/old-landing" component={Landing} />
       <Route path="/about" component={About} />
       <Route path="/how-it-works" component={HowItWorks} />

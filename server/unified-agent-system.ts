@@ -154,30 +154,6 @@ export class UnifiedAgentSystem {
     console.log(`🤖 EXECUTING: ${request.agentId} through unified system`);
 
     try {
-      // ELENA WORKFLOW DETECTION INTEGRATION
-      if (request.agentId === 'elena') {
-        console.log('🧠 ELENA: Checking for workflow patterns in message...');
-        
-        // Import Elena workflow detection
-        const { elenaWorkflowDetection } = await import('./elena-workflow-detection');
-        
-        // Detect workflow patterns in Elena's message
-        const detectedWorkflow = elenaWorkflowDetection.detectWorkflow(request.message, '42585527');
-        
-        if (detectedWorkflow) {
-          console.log(`🎯 ELENA: Detected ${detectedWorkflow.workflowType} workflow - assigning to ${detectedWorkflow.assignedAgents.join(', ')}`);
-          
-          // Create workflow tasks for specialized agents
-          await elenaWorkflowDetection.assignTasks(
-            detectedWorkflow.workflowId, 
-            detectedWorkflow.tasks, 
-            '42585527'
-          );
-          
-          console.log('✅ ELENA: Workflow created and tasks assigned to specialized agents');
-        }
-      }
-
       // Import Claude API service for actual agent execution
       const { claudeApiService } = await import('./services/claude-api-service');
       
@@ -255,57 +231,6 @@ export class UnifiedAgentSystem {
           client.send(JSON.stringify(message));
         }
       });
-    }
-  }
-
-  /**
-   * Send task to specific agent (Elena workflow integration)
-   */
-  async sendTaskToAgent(agentName: string, taskDescription: string, userId: string, metadata?: any): Promise<{ success: boolean; conversationId?: string; error?: string }> {
-    console.log(`🎯 UNIFIED SYSTEM: Sending task to ${agentName}: ${taskDescription}`);
-    
-    try {
-      // Generate unique conversation ID for this task
-      const conversationId = `task_${agentName}_${Date.now()}_${Math.random().toString(36).substring(2, 15)}`;
-      
-      // Import Claude API service for agent execution
-      const { claudeApiService } = await import('./services/claude-api-service');
-      
-      // Send task to agent via Claude API
-      const response = await claudeApiService.sendMessage(
-        userId,
-        agentName,
-        conversationId,
-        taskDescription,
-        undefined, // systemPrompt
-        undefined, // tools
-        true // fileEditMode - enable for task execution
-      );
-      
-      // Broadcast task assignment to WebSocket clients
-      this.broadcastToClients({
-        type: 'task_assigned',
-        agentName,
-        taskDescription,
-        conversationId,
-        metadata,
-        timestamp: new Date().toISOString()
-      });
-      
-      console.log(`✅ UNIFIED SYSTEM: Task successfully sent to ${agentName}`);
-      
-      return {
-        success: true,
-        conversationId
-      };
-      
-    } catch (error) {
-      console.error(`❌ UNIFIED SYSTEM: Failed to send task to ${agentName}:`, error);
-      
-      return {
-        success: false,
-        error: error instanceof Error ? error.message : 'Unknown error'
-      };
     }
   }
 

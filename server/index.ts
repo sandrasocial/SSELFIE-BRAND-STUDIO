@@ -4,7 +4,6 @@ import { setupVite, serveStatic, log } from "./vite";
 import { TrainingCompletionMonitor } from "./training-completion-monitor";
 import { registerCoverImageRoutes } from "./routes/cover-image-routes";
 import { unifiedAgentSystem } from "./unified-agent-system";
-import { elenaWorkflowDetection } from "./elena-workflow-detection";
 import cors from "cors";
 
 const app = express();
@@ -83,13 +82,6 @@ app.use(express.static('public'));
   // Eliminates decision paralysis causing agents to default to analysis mode
   await unifiedAgentSystem.initialize(app, server);
   console.log('✅ UNIFIED AGENT SYSTEM: Decision paralysis resolved, single integration active');
-
-  // 🧠 ELENA: Initialize workflow detection system
-  // Elena automatically detects workflows and assigns tasks to appropriate agents
-  const elenaStatus = elenaWorkflowDetection.getDetectionStatus();
-  console.log('🧠 ELENA WORKFLOW DETECTION: Intelligent workflow monitoring active');
-  console.log(`🔍 Monitoring patterns: ${elenaStatus.patterns.join(', ')}`);
-  console.log('✅ ELENA: Will automatically assign tasks to agents when workflows are detected');
 
   app.use((err: any, _req: Request, res: Response, _next: NextFunction) => {
     const status = err.status || err.statusCode || 500;
