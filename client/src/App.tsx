@@ -31,6 +31,8 @@ import SandraPhotoshoot from "@/pages/sandra-photoshoot";
 import SandraAI from "@/pages/sandra-ai";
 import RachelChat from "@/pages/rachel-chat";
 import RachelActivation from "@/pages/rachel-activation";
+import LuxuryChatInterface from "@/components/LuxuryChatInterface";
+import TestImplementation from "@/components/TestImplementation";
 import SSELFIEGallery from "@/pages/sselfie-gallery";
 import AIGenerator from "@/pages/ai-generator";
 import AIPhotoshoot from "@/pages/ai-photoshoot";
@@ -281,6 +283,31 @@ function Router() {
       <Route path="/admin/ai-models" component={() => <div className="p-8">AI Models Management - Coming Soon</div>} />
       <Route path="/rachel-chat" component={(props) => <ProtectedRoute component={RachelChat} {...props} />} />
       <Route path="/rachel-activation" component={(props) => <ProtectedRoute component={RachelActivation} {...props} />} />
+      
+      {/* WEEK 1 COMPLETION - Integrated Orphaned Components */}
+      <Route path="/luxury-chat" component={(props) => <ProtectedRoute component={() => (
+        <div className="min-h-screen bg-gray-50 p-6">
+          <div className="max-w-4xl mx-auto">
+            <LuxuryChatInterface 
+              agentName="SSELFIE Assistant"
+              agentRole="Luxury Brand Specialist"
+              status="active"
+              onSendMessage={(message) => console.log('Message sent:', message)}
+              messages={[]}
+            />
+          </div>
+        </div>
+      )} {...props} />} />
+      <Route path="/test-implementation" component={(props) => <ProtectedRoute component={() => (
+        <div className="min-h-screen bg-gray-50 p-6">
+          <div className="max-w-4xl mx-auto">
+            <TestImplementation 
+              title="Week 1 Integration Test"
+              message="This component has been successfully integrated into the SSELFIE Studio routing system"
+            />
+          </div>
+        </div>
+      )} {...props} />} />
       
       {/* ADMIN MARKETING AUTOMATION */}
       <Route path="/marketing-automation" component={(props) => <ProtectedRoute component={lazy(() => import('@/pages/marketing-automation'))} {...props} />} />
