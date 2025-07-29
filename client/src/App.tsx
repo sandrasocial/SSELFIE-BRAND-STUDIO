@@ -262,6 +262,7 @@ function Router() {
         </div>
       )} {...props} />} />
       <Route path="/admin/consulting-agents" component={(props) => <ProtectedRoute component={AdminConsultingAgents} {...props} />} />
+      <Route path="/admin/model-test" component={(props) => <ProtectedRoute component={AdminModelTest} {...props} />} />
       <Route path="/admin/bridge-monitor" component={(props) => <ProtectedRoute component={BridgeMonitor} {...props} />} />
       <Route path="/admin/agent-activity" component={(props) => <ProtectedRoute component={AgentActivityDashboard} {...props} />} />
 

@@ -15,7 +15,7 @@ export interface SearchResult {
   reason: string;
 }
 
-export async function searchFilesystem(params: SearchParams) {
+export async function search_filesystem(params: SearchParams) {
   try {
     console.log('🔍 CONSULTING SEARCH: Starting codebase analysis with params:', params);
     
