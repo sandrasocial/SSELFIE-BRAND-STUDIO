@@ -411,9 +411,17 @@ ${searchResult.results.slice(0, 10).map((file: any) => `• ${file.path}`).join(
         }
       }
 
+      // Detect if this is a continuation request
+      const isContinuationRequest = /^(continue|keep going|finish|complete|resume|go on)\s*\.?$/i.test(userMessage.trim());
+      
       // Build enhanced system prompt with agent expertise and UNLIMITED ACCESS
       const baseSystemPrompt = systemPrompt + elenaMemoryContext;
       let enhancedSystemPrompt = await this.buildAgentSystemPrompt(agentName, baseSystemPrompt, memory || undefined, true); // FORCE UNLIMITED ACCESS
+      
+      // Add continuation context if this is a continuation request
+      if (isContinuationRequest) {
+        enhancedSystemPrompt += `\n\n🔄 CONTINUATION MODE: The user asked you to continue. Look at your last response and pick up exactly where you left off. Complete any unfinished analysis, tasks, or implementations. Don't start over - continue from where you stopped.`;
+      }
 
       // Build messages array for Claude
       const messages: any[] = [];
@@ -1348,12 +1356,15 @@ I respond like your warm best friend who loves organization - simple, reassuring
         if (currentTokenEstimate > maxSafeTokens) {
           console.log(`💰 COST PROTECTION: ${currentTokenEstimate} tokens exceeds limit, stopping recursion to prevent API drainage`);
           
-          // Extract text response and complete task
+          // Extract text response and add continuation instruction
           for (const content of continuationResponse.content) {
             if (content.type === 'text') {
               finalResponse += (finalResponse ? '\n\n' : '') + content.text;
             }
           }
+          
+          // Add continuation instruction for user
+          finalResponse += '\n\n*⏸️ Task paused due to token limits. Say "continue" to resume exactly where I left off.*';
         } else {
           // Very limited recursion with minimal context
           const minimalMessages = [
@@ -1375,14 +1386,17 @@ I respond like your warm best friend who loves organization - simple, reassuring
         }
         
       } else if (continuationHasTools) {
-        console.log(`✅ TASK COMPLETION: Agent reached natural stopping point after ${maxRecursiveDepth} iterations`);
+        console.log(`⏸️ TASK PAUSED: Agent reached recursion limit but has more work to do`);
         
-        // Extract any text response and complete naturally
+        // Extract any text response and add continuation instruction
         for (const content of continuationResponse.content) {
           if (content.type === 'text') {
             finalResponse += (finalResponse ? '\n\n' : '') + content.text;
           }
         }
+        
+        // Add continuation instruction for user
+        finalResponse += '\n\n*⏸️ Task paused to manage costs. Say "continue" to resume exactly where I left off.*';
       } else {
         // No more tools, extract text response normally
         for (const content of continuationResponse.content) {
