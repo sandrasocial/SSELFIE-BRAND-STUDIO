@@ -20,6 +20,7 @@ import AgentDiana from '@assets/out-2 (18)_1753426218045.png';
 import AgentWilma from '@assets/out-0 (22)_1753426218045.png';
 import AgentOlga from '@assets/out-0 (32)_1753426290403.png';
 
+
 // Hero and quick access images
 import HeroImage from '@assets/image_1753426780577.png';
 
@@ -157,6 +158,15 @@ export default function AdminDashboard() {
       image: AgentOlga,
       link: '/admin/consulting-agents?agent=olga',
       specialty: 'File architecture and dependency mapping',
+      status: 'ready'
+    },
+    {
+      id: 'flux',
+      title: 'Advanced Flux LoRA Prompt Specialist & Celebrity AI Stylist',
+      description: 'Elite celebrity AI stylist and advanced Flux LoRA prompt specialist who creates exceptional AI photoshoot collections.',
+      image: AgentFlux,
+      link: '/admin/consulting-agents?agent=flux',
+      specialty: 'Advanced AI photography and celebrity styling',
       status: 'ready'
     }
   ];

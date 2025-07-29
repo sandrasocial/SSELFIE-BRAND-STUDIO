@@ -23,6 +23,7 @@ import AgentDiana from '@assets/out-2 (18)_1753426218045.png';
 import AgentWilma from '@assets/out-0 (22)_1753426218045.png';
 import AgentOlga from '@assets/out-0 (32)_1753426290403.png';
 
+
 interface ConsultingAgent {
   id: string;
   name: string;
@@ -330,13 +331,6 @@ export default function AdminConsultingAgents() {
       role: 'Repository Organization & Architecture Analysis',
       specialty: 'Safe repository organization and cleanup specialist who never breaks anything.',
       image: AgentOlga
-    },
-    {
-      id: 'flux',
-      name: 'Flux',
-      role: 'Advanced Flux LoRA Prompt Specialist & Celebrity AI Stylist',
-      specialty: 'Elite celebrity AI stylist and advanced Flux LoRA prompt specialist who creates exceptional AI photoshoot collections.',
-      image: AgentOlga // Using Olga's image as placeholder - you may want to add a specific FLUX agent image
     }
   ];
 
@@ -387,7 +381,7 @@ export default function AdminConsultingAgents() {
         setAvailableConversations(conversationList.conversations);
         
         // Found existing conversations - prioritize ones with messages
-        const conversationsWithMessages = conversationList.conversations.filter(conv => conv.messageCount && conv.messageCount > 0);
+        const conversationsWithMessages = conversationList.conversations.filter((conv: any) => conv.messageCount && conv.messageCount > 0);
         const targetConversation = conversationsWithMessages.length > 0 
           ? conversationsWithMessages[0]  // Use conversation with messages
           : conversationList.conversations[0]; // Fall back to most recent
