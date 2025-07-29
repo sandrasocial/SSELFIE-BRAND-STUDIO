@@ -49,9 +49,9 @@ interface Conversation {
   updatedAt: string;
 }
 
-// Effort-based agent API functions - Cost-effective execution
+// Consulting agent API functions - Proper coordination mode
 const sendClaudeMessage = async (agentName: string, message: string, conversationId: string, fileEditMode: boolean = true, signal?: AbortSignal) => {
-  const response = await fetch('/api/agents/effort-based/execute', {
+  const response = await fetch('/api/admin/agent-chat-bypass', {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
@@ -60,11 +60,10 @@ const sendClaudeMessage = async (agentName: string, message: string, conversatio
     credentials: 'include',
     signal,
     body: JSON.stringify({
-      agentName: agentName.toLowerCase(),
-      task: message,
-      priority: 'high',
-      maxEffort: 10,
-      conversationId
+      agentName,
+      message,
+      conversationId,
+      fileEditMode
     }),
   });
 
