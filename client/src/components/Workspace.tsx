@@ -56,11 +56,11 @@ export default function Workspace() {
       },
       {
         number: 4,
-        title: 'Build',
-        subtitle: 'Complete business in 20 minutes',
-        description: 'Victoria creates your website, booking system, and custom domain instantly',
+        title: 'BUILD',
+        subtitle: 'Complete luxury business in 20 minutes',
+        description: 'Victoria AI transforms your vision into a sophisticated website, booking system, and custom domain with editorial precision',
         status: hasImages ? 'available' : 'upcoming',
-        action: 'Build Business',
+        action: 'Launch Your Empire',
         path: '/victoria'
       }
     ];
