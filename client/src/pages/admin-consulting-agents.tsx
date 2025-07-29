@@ -132,6 +132,7 @@ const listAgentConversations = async (agentName: string, limit = 10) => {
       method: 'GET',
       headers: {
         'Content-Type': 'application/json',
+        'Authorization': 'Bearer sandra-admin-2025'
       },
       credentials: 'include',
     });
@@ -152,17 +153,31 @@ const listAgentConversations = async (agentName: string, limit = 10) => {
     console.log('📋 Frontend: Conversation list API returned:', {
       success: data.success,
       conversationCount: data.conversations?.length || 0,
-      agentName: data.agentName
+      agentName: data.agentName,
+      rawData: data
     });
+    
+    // Ensure conversations is always an array
+    if (data.success && data.conversations) {
+      return {
+        ...data,
+        conversations: Array.isArray(data.conversations) ? data.conversations : []
+      };
+    }
     
     return data;
   } catch (error) {
-    console.error('📋 Frontend: List conversations error:', error);
+    console.error('📋 Frontend: List conversations CATCH error:', error);
+    console.error('📋 Frontend: Error details:', {
+      name: error instanceof Error ? error.name : 'Unknown',
+      message: error instanceof Error ? error.message : String(error),
+      stack: error instanceof Error ? error.stack : 'No stack'
+    });
     return {
       success: false,
       conversations: [],
       agentName,
-      error: error
+      error: error instanceof Error ? error.message : String(error)
     };
   }
 };

@@ -245,7 +245,16 @@ router.get('/conversations/list', async (req, res) => {
     const isAuthenticated = isAdminBypass || (req.isAuthenticated && req.isAuthenticated());
     const user = isAdminBypass ? { id: '42585527', claims: { sub: '42585527' } } : req.user;
     
+    console.log('📋 Auth check:', { 
+      hasAuthHeader: !!req.headers.authorization,
+      isAdminBypass,
+      isAuthenticated,
+      hasUser: !!user,
+      userId: (user as any)?.id || (user as any)?.claims?.sub
+    });
+    
     if (!isAuthenticated || !user) {
+      console.log('📋 Authentication failed, returning 401');
       return res.status(401).json({ error: 'Authentication required' });
     }
 
