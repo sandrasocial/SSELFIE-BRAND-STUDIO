@@ -77,10 +77,9 @@ export class ClaudeApiService {
           const [newAdmin] = await db
             .insert(users)
             .values({
-              id: 'admin-user-123',
               email: 'ssa@ssasocial.com',
-              first_name: 'Sandra',
-              last_name: 'Admin',
+              firstName: 'Sandra',
+              lastName: 'Admin',
               role: 'admin',
               plan: 'premium'
             })
@@ -105,10 +104,9 @@ export class ClaudeApiService {
           const [fallbackUser] = await db
             .insert(users)
             .values({
-              id: `admin-fallback-${Date.now()}`,
               email: `admin-${Date.now()}@test.com`,
-              first_name: 'Test',
-              last_name: 'Admin',
+              firstName: 'Test',
+              lastName: 'Admin',
               role: 'admin',
               plan: 'premium'
             })
