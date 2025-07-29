@@ -6,6 +6,12 @@ import { MemberNavigation } from '@/components/member-navigation';
 import { GlobalFooter } from '@/components/global-footer';
 import { SandraImages } from '@/lib/sandra-images';
 
+// Elena's Revolutionary 4-Phase Navigation System
+import { ElenaPhaseNavigation } from '@/components/workspace/ElenaPhaseNavigation';
+import { PremiumProgressDashboard } from '@/components/workspace/PremiumProgressDashboard';
+import { LuxuryPhaseCard } from '@/components/workspace/LuxuryPhaseCard';
+import { ResponsiveWorkspaceGrid } from '@/components/workspace/ResponsiveWorkspaceGrid';
+
 
 export default function Workspace() {
   const { user, isAuthenticated, isLoading, error } = useAuth();
@@ -48,76 +54,7 @@ export default function Workspace() {
                        user?.plan === 'sselfie-studio' ||
                        (usage as any)?.plan === 'sselfie-studio';
 
-  // Simplified User Journey - 3 clear steps
-  const getJourneySteps = () => {
-    // Step 1: Upload Photos - Enhanced training status detection  
-    const model = userModel as any;
-    const step1Complete = model?.trainingStatus === 'completed';
-    const step1InProgress = model?.trainingStatus === 'training' || 
-                          model?.trainingStatus === 'starting' ||
-                          model?.trainingStatus === 'processing' ||
-                          model?.trainingStatus === 'pending' ||
-                          (model?.replicateModelId && model?.trainingStatus !== 'completed' && model?.trainingStatus !== 'failed');
-    
-    // Step 2: Take Photos  
-    const step2Ready = step1Complete;
-    const images = Array.isArray(aiImages) ? aiImages : [];
-    const step2HasPhotos = images.length > 0;
-    
-    // Step 3: AI Photoshoot - should be ready when model is trained
-    const step3Ready = step1Complete;
-    
-    return [
-      {
-        id: 'upload',
-        title: 'Upload Your Selfies',
-        description: 'Just grab a few selfies from your phone and upload them. Takes about 2 minutes.',
-        timeEstimate: '2 minutes',
-        status: step1Complete ? 'complete' : step1InProgress ? 'progress' : 'start',
-        statusMessage: step1Complete ? 'Done! Ready for photos' : 
-                      step1InProgress ? 'AI training in progress... (Check back in a few minutes)' : 
-                      'Start here first',
-        link: step1InProgress ? '#' : '/ai-training', // Don't link to training page if already training
-        image: "https://i.postimg.cc/bNF14sGc/out-1-4.png",
-        nextStep: step1Complete ? null : 'Upload a few selfies to get started'
-      },
-      {
-        id: 'photoshoot',
-        title: 'Chat with Maya',
-        description: 'Your personal photographer who creates stunning photos in any style you want.',
-        timeEstimate: '10 minutes',
-        status: step2HasPhotos ? 'complete' : step2Ready ? 'ready' : 'locked',
-        statusMessage: step2HasPhotos ? `${images.length} photos ready` :
-                      step2Ready ? 'Ready for your photoshoot' :
-                      'Upload selfies first',
-        link: step2Ready ? '/maya' : '#',
-        image: "https://i.postimg.cc/HWFbv1DB/file-32.png",
-        nextStep: step2HasPhotos ? null : step2Ready ? 'Chat with Maya to create photos' : null
-      },
-      {
-        id: 'aiphotoshoot', 
-        title: 'AI Photoshoot',
-        description: 'Create professional photos instantly with your trained AI model.',
-        timeEstimate: '5 minutes',
-        status: step3Ready ? 'ready' : 'locked',
-        statusMessage: step3Ready ? 'Ready to shoot' : 'Train your AI first',
-        link: step3Ready ? '/ai-photoshoot' : '#',
-        image: "https://i.postimg.cc/4N8v1bP5/IMG-6564.jpg",
-        nextStep: step3Ready ? 'Create photos then build your website' : null
-      },
-      {
-        id: 'build',
-        title: 'Build Your Website',
-        description: 'Create your complete business website with Victoria as your design consultant.',
-        timeEstimate: '15 minutes',
-        status: step1Complete ? 'ready' : 'locked',
-        statusMessage: step1Complete ? 'Ready to build' : 'Train your AI first',
-        link: step1Complete ? '/build' : '#',
-        image: "https://i.postimg.cc/HWFbv1DB/file-32.png",
-        nextStep: step1Complete ? 'Chat with Victoria to build your website' : null
-      }
-    ];
-  };
+
 
   const getSimpleStats = () => {
     if (!usage) return { used: 0, remaining: 5, plan: 'Free' };
@@ -176,6 +113,56 @@ export default function Workspace() {
       </div>
     );
   }
+
+  // Elena's Revolutionary 4-Phase Journey System
+  const getJourneySteps = () => {
+    const hasImages = Array.isArray(aiImages) && aiImages.length > 0;
+    const hasTraining = userModel && (userModel as any).trainingStatus === 'completed';
+    const modelStatus = (userModel as any)?.trainingStatus || 'none';
+
+    return [
+      {
+        id: 'train',
+        title: 'Train Your AI Model',
+        description: 'Upload 10-15 selfies to create your personal FLUX AI model. This takes about 15 minutes.',
+        image: SandraImages.editorial.phone1,
+        link: '/ai-training',
+        status: hasTraining ? 'complete' : hasImages ? 'progress' : 'ready',
+        statusMessage: hasTraining ? 'Model Ready' : hasImages ? 'Training...' : 'Start Here',
+        nextStep: hasTraining ? 'Ready for Maya styling session' : hasImages ? 'AI model training in progress' : 'Upload your selfies to begin'
+      },
+      {
+        id: 'style', 
+        title: 'Style with Maya',
+        description: 'Chat with Maya, your AI celebrity stylist, to define your perfect editorial style and aesthetic.',
+        image: SandraImages.editorial.mirror,
+        link: '/maya',
+        status: hasTraining ? 'ready' : 'locked',
+        statusMessage: hasTraining ? 'Maya Ready' : 'Train AI First',
+        nextStep: hasTraining ? 'Define your signature style with Maya' : 'Complete AI training first'
+      },
+      {
+        id: 'photoshoot',
+        title: 'AI Photoshoot',
+        description: 'Generate luxury editorial photos instantly using your trained AI model and Maya\'s styling direction.',
+        image: SandraImages.editorial.laptop1,
+        link: '/generate',
+        status: hasTraining ? 'ready' : 'locked',
+        statusMessage: hasTraining ? 'Generate Photos' : 'Complete Previous Steps',
+        nextStep: hasTraining ? 'Create professional photos instantly' : 'Complete training and styling first'
+      },
+      {
+        id: 'build',
+        title: 'Build Your Brand',
+        description: 'Create landing pages, business websites, and professional presence using your AI photos.',
+        image: SandraImages.editorial.luxury1,
+        link: '/build',
+        status: hasTraining ? 'ready' : 'locked',
+        statusMessage: hasTraining ? 'Build Website' : 'Complete Previous Steps',
+        nextStep: hasTraining ? 'Launch your professional website' : 'Complete previous phases first'
+      }
+    ];
+  };
 
   const journeySteps = getJourneySteps();
   const stats = getSimpleStats();
