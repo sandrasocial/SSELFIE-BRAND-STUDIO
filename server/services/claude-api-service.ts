@@ -719,11 +719,11 @@ ${searchResult.results.slice(0, 10).map((file: any) => `• ${file.path}`).join(
       const intentAnalysis = detectRequestIntent(userMessage);
       console.log(`🧠 CLAUDE SERVICE INTENT ANALYSIS for ${agentName}: ${intentAnalysis.intent} (impl: ${intentAnalysis.implementationScore}, consult: ${intentAnalysis.consultationScore})`);
       
-      // CONTINUATION HANDLING: Reset recursion depth for continuation requests
+      // COST-EFFECTIVE CONTINUATION: Smart task resumption without API drain
       let recursionDepth = 0; // Initialize recursion depth
       if (intentAnalysis.isContinuation) {
-        console.log(`🔄 CONTINUATION DETECTED: Resetting recursion depth for continued work`);
-        recursionDepth = 0; // Reset to allow another 25 cycles
+        console.log(`🔄 CONTINUATION DETECTED: Using cost-effective single-cycle approach`);
+        recursionDepth = 0; // Fresh start with single API call limit
       }
       
       const mandatoryImplementation = intentAnalysis.isImplementation;
@@ -1398,50 +1398,36 @@ I respond like your warm best friend who loves organization - simple, reassuring
       
       console.log(`🔄 CONTINUING CONVERSATION: Processing ${toolResults.length} tool results. Current response length: ${finalResponse.length}`);
       
-      // COST-CONTROLLED RECURSION: Smart continuation management
-      const shouldContinueWithTools = recursionDepth < 2; // Only allow 2 automatic continuations
+      // COST CONTROL: Prevent recursive cycles that drain API credits
+      const shouldContinueWithTools = recursionDepth < 2; // Only allow 2 tool cycles maximum
       
-      if (shouldContinueWithTools && recursionDepth === 0) {
-        // First continuation: Allow analysis with limited tool access
+      // COST-EFFECTIVE APPROACH: Complete work efficiently without endless loops
+      if (recursionDepth >= 2) {
         currentMessages.push({
           role: 'user',
-          content: "Analyze the tool results above and continue working if needed. You have 2 more tool cycles available."
-        });
-      } else if (shouldContinueWithTools && recursionDepth === 1) {
-        // Second continuation: Final tool opportunity
-        currentMessages.push({
-          role: 'user',
-          content: "Complete any remaining essential work. This is your final tool cycle."
+          content: "Based on the tool results above, provide your final analysis. Work complete - no additional tools needed."
         });
       } else {
-        // Force completion without more API calls
         currentMessages.push({
           role: 'user',
-          content: "Provide your final analysis of what you accomplished. No additional tools needed."
+          content: "Based on the tool results above, provide your analysis and continue working if needed."
         });
       }
       
-      // Continue conversation with controlled tool access
+      // SINGLE-CYCLE COMPLETION: No recursive API calls to prevent cost drain
       const continuationResponse = await this.sendToClaudeWithRetry({
         model: DEFAULT_MODEL_STR,
-        max_tokens: 3000, // Reduced token limit to control costs
+        max_tokens: 2000, // Reduced token limit to control costs
         system: systemPrompt,
         messages: currentMessages,
-        tools: shouldContinueWithTools ? tools : [], // Remove tools after 2 cycles
-        tool_choice: shouldContinueWithTools && fileEditMode ? { type: "auto" } : undefined
+        tools: [], // NO TOOLS: Prevent recursive cycles
+        tool_choice: undefined // NO TOOL ENFORCEMENT: Analysis only
       });
       
-      // CHECK IF CONTINUATION RESPONSE HAS MORE TOOLS - RECURSIVE PROCESSING
-      const continuationHasTools = continuationResponse.content.some((block: any) => block.type === 'tool_use');
+      // COST PROTECTION: Never allow recursive tool calls
+      const continuationHasTools = false; // FORCED: Block all recursive tool usage
       
-      if (continuationHasTools) {
-        // AGGRESSIVE COST CONTROL: Maximum 3 total cycles to prevent $3-5 conversations
-        const maxRecursionDepth = 3; // CRITICAL: Reduced from 25 → 3 cycles max
-        if (recursionDepth >= maxRecursionDepth) {
-          console.log(`💰 COST PROTECTION: Reached ${recursionDepth}/${maxRecursionDepth} cycles limit`);
-          finalResponse += '\n\n**WORK PAUSED** - I completed 3 cycles to prevent API cost drain. Reply "continue" to resume with fresh context.';
-          return finalResponse;
-        }
+      if (false) { // DISABLED: No recursive processing to prevent $3-5 conversations
         
         console.log(`🔄 AGENT CONTINUING WORK: Continuation response has ${continuationResponse.content.filter((b: any) => b.type === 'tool_use').length} more tools - processing recursively (depth: ${recursionDepth + 1}/${maxRecursionDepth})`);
         
@@ -1504,14 +1490,14 @@ I respond like your warm best friend who loves organization - simple, reassuring
         }
         
       } else {
-        // No more tools, extract text response normally
+        // SINGLE RESPONSE: Extract text and complete (no recursion)
         for (const content of continuationResponse.content) {
           if (content.type === 'text') {
             finalResponse += (finalResponse ? '\n\n' : '') + content.text;
           }
         }
         
-        console.log(`✅ CONVERSATION CONTINUED: Agent provided final analysis. Total response length: ${finalResponse.length}`);
+        console.log(`✅ COST-CONTROLLED COMPLETION: Single-cycle analysis completed. Response length: ${finalResponse.length}`);
       }
       
       console.log(`📝 CONTINUATION RESPONSE CONTENT BLOCKS: ${continuationResponse.content.length}`);
