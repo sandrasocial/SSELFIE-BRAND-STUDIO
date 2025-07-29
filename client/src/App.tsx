@@ -37,6 +37,7 @@ import AIPhotoshoot from "@/pages/ai-photoshoot";
 import SimpleTraining from "@/pages/simple-training";
 import AdminDashboard from "@/pages/admin-dashboard";
 import AdminConsultingAgents from "@/pages/admin-consulting-agents";
+import AdminModelTest from "@/pages/admin-model-test";
 import BridgeMonitor from "@/pages/admin/bridge-monitor";
 import AgentActivityDashboard from "@/components/admin/AgentActivityDashboard";
 import { UnifiedAgentInterface } from "@/components/admin/UnifiedAgentInterface";
