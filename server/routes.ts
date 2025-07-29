@@ -491,25 +491,34 @@ export async function registerRoutes(app: Express): Promise<Server> {
       // Generate conversation ID
       const conversationId = `admin_${agentName}_${Date.now()}`;
 
-      // Use Claude API service for agent communication (correct parameter order)
-      const response = await claudeApiService.sendMessage(
-        userId,        // First parameter: userId  
-        agentName,     // Second parameter: agentName
-        conversationId, // Third parameter: conversationId
-        message,       // Fourth parameter: userMessage
-        undefined,     // Fifth parameter: systemPrompt (optional)
-        undefined,     // Sixth parameter: tools (optional) 
-        fileEditMode   // Seventh parameter: fileEditMode
-      );
+      // COST OPTIMIZATION: Use effort-based executor instead of expensive Claude API
+      console.log('💰 COST OPTIMIZATION: Routing agent through effort-based executor');
+      const { effortBasedExecutor } = await import('./services/effort-based-agent-executor');
+      
+      const response = await effortBasedExecutor.executeTask({
+        agentName,
+        userId,
+        task: message,
+        conversationId,
+        maxEffort: 50, // Reasonable effort limit
+        priority: 'high' // Admin requests get priority
+      });
 
       console.log(`✅ Agent ${agentName} responded successfully`);
 
       res.json({
         success: true,
-        response: (response as any).content || response,
+        response: response.result,
         agentName,
         conversationId,
-        timestamp: new Date().toISOString()
+        timestamp: new Date().toISOString(),
+        // Cost tracking for transparency
+        costOptimization: {
+          effortUsed: response.effortUsed,
+          costEstimate: response.costEstimate,
+          apiCallsUsed: response.apiCallsUsed,
+          taskCompleted: response.taskCompleted
+        }
       });
 
     } catch (error) {
