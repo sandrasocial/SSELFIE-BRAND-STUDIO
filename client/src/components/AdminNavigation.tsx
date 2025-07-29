@@ -24,18 +24,6 @@ export function AdminNavigation() {
               Workspace
             </button>
             <button 
-              onClick={() => setLocation("/luxury-chat")}
-              className="text-xs uppercase tracking-[0.4em] text-white/80 hover:text-white transition-all duration-300"
-            >
-              Luxury Chat
-            </button>
-            <button 
-              onClick={() => setLocation("/test-implementation")}
-              className="text-xs uppercase tracking-[0.4em] text-white/80 hover:text-white transition-all duration-300"
-            >
-              Test Component
-            </button>
-            <button 
               onClick={() => setLocation("/visual-editor")}
               className="text-xs uppercase tracking-[0.4em] text-white/80 hover:text-white transition-all duration-300"
             >
