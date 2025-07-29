@@ -78,17 +78,6 @@ export default function AgentActivityDashboard() {
 
   const deploymentsList = activeDeployments || [];
 
-  // Debug logging to see what data we're getting
-  React.useEffect(() => {
-    console.log('🔍 AgentActivityDashboard data check:', {
-      coordinationMetrics,
-      activeDeployments,
-      isLoading,
-      error: error?.message,
-      lastUpdated
-    });
-  }, [coordinationMetrics, activeDeployments, isLoading, error, lastUpdated]);
-
 
 
   // Fetch specific deployment details
@@ -109,9 +98,6 @@ export default function AgentActivityDashboard() {
     return (
       <div className="min-h-screen bg-white p-8">
         <div className="max-w-7xl mx-auto">
-          <div className="text-center mb-4">
-            <h2 className="font-times text-2xl tracking-wide">Loading Agent Activity Dashboard...</h2>
-          </div>
           <div className="animate-pulse space-y-6">
             <div className="h-8 bg-zinc-200 rounded w-64"></div>
             <div className="grid grid-cols-4 gap-6">
@@ -119,25 +105,6 @@ export default function AgentActivityDashboard() {
                 <div key={i} className="h-32 bg-zinc-200 rounded"></div>
               ))}
             </div>
-          </div>
-        </div>
-      </div>
-    );
-  }
-
-  if (error) {
-    return (
-      <div className="min-h-screen bg-white p-8">
-        <div className="max-w-7xl mx-auto">
-          <div className="text-center">
-            <h2 className="font-times text-2xl tracking-wide text-red-600 mb-4">Connection Error</h2>
-            <p className="text-zinc-600 mb-4">{error.message}</p>
-            <button 
-              onClick={refreshAll}
-              className="bg-black text-white px-6 py-2 hover:bg-zinc-800"
-            >
-              Retry Connection
-            </button>
           </div>
         </div>
       </div>

@@ -166,7 +166,7 @@ export class EffortBasedAgentExecutor {
         effortUsed: effortMetrics.complexity,
         costEstimate,
         apiCallsUsed: totalApiCalls,
-        toolsUsed: Array.from(new Set(toolsUsed)), // Remove duplicates
+        toolsUsed: [...new Set(toolsUsed)], // Remove duplicates
         checkpointId
       };
 
@@ -204,7 +204,7 @@ export class EffortBasedAgentExecutor {
       const response = await this.claudeService.sendMessage(
         userId,
         agentName,
-        conversationId || null,
+        conversationId,
         optimizedPrompt,
         undefined, // system prompt already optimized
         undefined, // tools handled by service
@@ -237,27 +237,9 @@ export class EffortBasedAgentExecutor {
       return this.contextCache.get(cacheKey);
     }
 
-    // Build minimal context - handle case sensitivity and name mapping
-    const normalizedName = agentName.toLowerCase();
-    const nameMapping: Record<string, string> = {
-      'elena': 'elena',
-      'aria': 'aria', 
-      'zara': 'zara',
-      'maya': 'maya',
-      'victoria': 'victoria',
-      'rachel': 'rachel',
-      'ava': 'ava',
-      'quinn': 'quinn',
-      'sophia': 'sophia',
-      'martha': 'martha',
-      'diana': 'diana',
-      'wilma': 'wilma',
-      'olga': 'olga'
-    };
-    
-    const mappedName = nameMapping[normalizedName] || agentName;
+    // Build minimal context
     const context = {
-      agentPersonality: CONSULTING_AGENT_PERSONALITIES[mappedName as keyof typeof CONSULTING_AGENT_PERSONALITIES],
+      agentPersonality: CONSULTING_AGENT_PERSONALITIES[agentName as keyof typeof CONSULTING_AGENT_PERSONALITIES],
       recentMessages: await this.getRecentMessages(conversationId, 3), // Only last 3 messages
       projectState: await this.getCurrentProjectState(),
       timestamp: new Date().toISOString()
@@ -278,9 +260,7 @@ export class EffortBasedAgentExecutor {
     const agent = context.agentPersonality;
     
     if (!agent) {
-      console.error(`❌ Agent personality not found for ${agentName}, available agents:`, Object.keys(CONSULTING_AGENT_PERSONALITIES));
-      // Fallback to basic prompt without personality
-      return `TASK: ${task}\n\n${iteration > 1 ? `ITERATION ${iteration}: Continue working on the task above.` : ''}\n\nCOST-OPTIMIZED MODE: Be direct and complete the task efficiently.\n\nRespond with your implementation or next steps.`;
+      throw new Error(`Agent ${agentName} not found in personalities`);
     }
 
     // Compressed system prompt (vs 2000+ token original)

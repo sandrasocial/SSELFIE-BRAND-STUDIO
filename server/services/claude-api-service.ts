@@ -348,7 +348,6 @@ export class ClaudeApiService {
           console.log('✅ Using existing conversation:', actualConversationId);
         } else {
           // Create new conversation and get the conversationId
-          console.log('🔧 Calling createConversationIfNotExists with userId:', userId, 'agentName:', agentName);
           await this.createConversationIfNotExists(userId, agentName, null);
           
           // Get the newly created conversation

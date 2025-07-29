@@ -45,8 +45,6 @@ export function MemberNavigation({ transparent = true }: MemberNavigationProps) 
     { path: '/maya', label: 'Photoshoot' },
     { path: '/gallery', label: 'Gallery' },
     { path: '/flatlay-library', label: 'Flatlays' },
-    { path: '/luxury-chat', label: 'Luxury Chat' },
-    { path: '/test-implementation', label: 'Test Component' },
     { path: '/profile', label: 'Profile' },
   ];
 
