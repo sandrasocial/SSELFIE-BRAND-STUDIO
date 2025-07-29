@@ -379,17 +379,22 @@ export default function AdminConsultingAgents() {
         // Store available conversations for potential selection
         setAvailableConversations(conversationList.conversations);
         
-        // Found existing conversations - load the most recent one
-        const mostRecent = conversationList.conversations[0];
-        console.log('📞 Found existing conversation:', mostRecent.conversationId, 'with', mostRecent.messageCount, 'messages');
-        console.log('📋 Total conversations available:', conversationList.conversations.length);
+        // Found existing conversations - prioritize ones with messages
+        const conversationsWithMessages = conversationList.conversations.filter(conv => conv.messageCount && conv.messageCount > 0);
+        const targetConversation = conversationsWithMessages.length > 0 
+          ? conversationsWithMessages[0]  // Use conversation with messages
+          : conversationList.conversations[0]; // Fall back to most recent
         
-        setConversationId(mostRecent.conversationId);
+        console.log('📞 Found existing conversation:', targetConversation.conversationId, 'with', targetConversation.messageCount, 'messages');
+        console.log('📋 Total conversations available:', conversationList.conversations.length);
+        console.log('📋 Conversations with messages:', conversationsWithMessages.length);
+        
+        setConversationId(targetConversation.conversationId);
         
         // Load the conversation history
         try {
-          console.log('📜 Loading existing conversation history for:', mostRecent.conversationId);
-          const history = await loadConversationHistory(mostRecent.conversationId);
+          console.log('📜 Loading existing conversation history for:', targetConversation.conversationId);
+          const history = await loadConversationHistory(targetConversation.conversationId);
           console.log('📜 Raw history response:', history);
           
           if (history.messages && history.messages.length > 0) {
