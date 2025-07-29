@@ -330,6 +330,13 @@ export default function AdminConsultingAgents() {
       role: 'Repository Organization & Architecture Analysis',
       specialty: 'Safe repository organization and cleanup specialist who never breaks anything.',
       image: AgentOlga
+    },
+    {
+      id: 'flux',
+      name: 'Flux',
+      role: 'Advanced Flux LoRA Prompt Specialist & Celebrity AI Stylist',
+      specialty: 'Elite celebrity AI stylist and advanced Flux LoRA prompt specialist who creates exceptional AI photoshoot collections.',
+      image: AgentOlga // Using Olga's image as placeholder - you may want to add a specific FLUX agent image
     }
   ];
 
