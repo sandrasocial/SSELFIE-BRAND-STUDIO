@@ -248,8 +248,8 @@ export default function AdminConsultingAgents() {
   const [fileEditMode, setFileEditMode] = useState(true);
   const [abortController, setAbortController] = useState<AbortController | null>(null);
   
-  // Bridge System State
-  const [bridgeEnabled, setBridgeEnabled] = useState(false);
+  // Bridge System State - ALWAYS ENABLED for cost optimization
+  const [bridgeEnabled, setBridgeEnabled] = useState(true);
   const { submitTask, isSubmitting, activeTasks } = useAgentBridge();
 
   // Define agents with matching admin dashboard data
@@ -497,35 +497,57 @@ export default function AdminConsultingAgents() {
     setAbortController(controller);
 
     try {
-      // COST OPTIMIZATION: Always route admin agents through effort-based executor
-      console.log('💰 COST OPTIMIZATION: Routing all admin agents through effort-based executor');
+      // CRITICAL: Use bridge system instead of expensive Claude API
+      console.log('💰 COST OPTIMIZATION: Using bridge system for all admin agents');
       
-      // Ensure conversation ID exists
-      let currentConversationId = conversationId;
-      if (!currentConversationId) {
-        const conversation = await createClaudeConversation(selectedAgent.id);
-        currentConversationId = conversation.conversationId;
-        setConversationId(currentConversationId);
+      // Use the bridge system for cost-effective execution
+      if (bridgeEnabled || true) { // Force bridge system for all agents
+        try {
+          console.log('🌉 BRIDGE: Submitting task for', selectedAgent.id);
+          const taskResult = await submitTask(
+            selectedAgent.id,
+            userMessage.content,
+            {
+              priority: 'high',
+              fileEditMode: fileEditMode,
+              adminToken: 'sandra-admin-2025'
+            }
+          );
+          
+          if (taskResult.success) {
+            const agentResponse: ChatMessage = {
+              id: Date.now().toString() + '-agent',
+              type: 'agent',
+              content: taskResult.result || 'Task completed successfully',
+              timestamp: new Date().toISOString(),
+              agentName: selectedAgent.name
+            };
+
+            setMessages(prev => [...prev, agentResponse]);
+            console.log('✅ BRIDGE SUCCESS: Cost-effective execution completed');
+            return; // Exit early - task completed
+          }
+        } catch (bridgeError) {
+          console.warn('🌉 BRIDGE: Fallback to direct API', bridgeError);
+        }
       }
 
-      if (!currentConversationId) {
-        throw new Error('Failed to create conversation');
-      }
+      // FALLBACK: Direct API call (should rarely be used)
+      console.log('⚠️ FALLBACK: Using direct API call');
       
-      const response = await fetch('/api/agents/effort-based/execute', {
+      const response = await fetch('/api/claude/send-message', {
         method: 'POST',
         headers: { 
           'Content-Type': 'application/json',
           'x-admin-token': 'sandra-admin-2025'
         },
         credentials: 'include',
-        signal: controller.signal, // Add abort signal support
+        signal: controller.signal,
         body: JSON.stringify({
           agentName: selectedAgent.id,
-          task: userMessage.content,
-          conversationId: currentConversationId,
-          priority: 'high',
-          maxEffort: 3
+          message: userMessage.content,
+          conversationId: conversationId || `conv_${selectedAgent.id}_${Date.now()}`,
+          fileEditMode: fileEditMode
         }),
       });
 
@@ -542,19 +564,19 @@ export default function AdminConsultingAgents() {
       }
 
       const result = await response.json();
-      console.log('✅ Effort-based response:', result);
+      console.log('✅ Direct API response:', result);
 
-      if (result.success && result.result) {
+      if (result.success) {
         const agentResponse: ChatMessage = {
           id: Date.now().toString() + '-agent',
-          type: 'agent',
-          content: result.result.result || 'Task completed',
+          type: 'agent', 
+          content: result.response || result.message || 'Task completed',
           timestamp: new Date().toISOString(),
           agentName: selectedAgent.name
         };
 
         setMessages(prev => [...prev, agentResponse]);
-        console.log(`💰 COST EFFICIENT: $${result.result.costEstimate?.toFixed(2) || '0.00'} (effort-based) vs ~$25 (traditional)`);
+        console.log('✅ DIRECT API: Task completed');
       } else {
         throw new Error(result.error || 'Agent execution failed');
       }
