@@ -749,15 +749,17 @@ ${searchResult.results.slice(0, 10).map((file: any) => `• ${file.path}`).join(
       
       const isFileRequest = fileRequestPatterns.some(pattern => pattern.test(userMessage));
       
-      // Apply intelligent mode based on intent analysis OR file request for capable agents
+      // Apply intelligent mode based on intent analysis OR file request for capable agents  
+      // COST PROTECTION: Remove mandatory tool enforcement to prevent API drain
       if (mandatoryImplementation || (fileCapableAgents.includes(agentName.toLowerCase()) && isFileRequest)) {
-        claudeRequest.tool_choice = {
-          type: "tool",
-          name: "str_replace_based_edit_tool"
-        };
+        // Tools available but not enforced - let agents choose based on context
+        // claudeRequest.tool_choice = {
+        //   type: "tool", 
+        //   name: "str_replace_based_edit_tool"
+        // };
         
-        // 🚨 CRITICAL: Enhanced implementation mode with direct workspace integration
-        claudeRequest.system = `🚨 MANDATORY IMPLEMENTATION MODE - DIRECT REPLIT WORKSPACE ACCESS ACTIVE
+        // 💰 COST-PROTECTED: Implementation mode with optional tool usage
+        claudeRequest.system = `💰 COST-PROTECTED IMPLEMENTATION MODE - TOOLS AVAILABLE BUT NOT ENFORCED
 
 ${mandatoryImplementation ? 
   `Sandra has used implementation keywords that trigger MANDATORY tool enforcement.
@@ -772,13 +774,14 @@ File request patterns matched in: "${userMessage.substring(0, 100)}..."`
 - Direct workspace integration bypassing previous API limitations
 - Enhanced Replit environment permissions for autonomous implementation
 
-YOU MUST MODIFY FILES IMMEDIATELY. NO VIEW-ONLY OPERATIONS ALLOWED.
+FLEXIBLE IMPLEMENTATION APPROACH - COST PROTECTION ACTIVE:
+You have tools available but are NOT required to use them for every message.
 
-IMPLEMENTATION REQUIREMENTS:
-1. Use str_replace_based_edit_tool with command "str_replace" or "create" to MODIFY files DIRECTLY
-2. Implement the specific changes requested in Sandra's message with workspace integration
-3. After tool usage, respond authentically with your personality and explain what you accomplished
-4. Use your specialized knowledge to provide context and next steps
+SMART IMPLEMENTATION GUIDANCE:
+1. For simple questions or status checks: Respond with conversation only (saves API costs)
+2. For actual file modification requests: Use str_replace_based_edit_tool when appropriate
+3. Use your judgment - not every message needs tool usage
+4. Respond authentically with your personality whether using tools or not
 
 📁 WORKSPACE SCOPE: Full access to client/, server/, components/, and all project directories
 ⚡ BRIDGE SYSTEM: Your tool usage connects directly to the actual file system in Sandra's workspace
