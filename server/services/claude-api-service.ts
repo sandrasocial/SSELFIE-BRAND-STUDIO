@@ -188,6 +188,68 @@ export class ClaudeApiService {
       .where(eq(claudeConversations.id, conversation[0].id));
   }
 
+  async getConversationMemoryFromHistory(agentName: string, userId: string): Promise<any> {
+    try {
+      // Get recent conversations for this agent
+      const recentConversations = await db
+        .select()
+        .from(claudeConversations)
+        .where(
+          and(
+            eq(claudeConversations.userId, userId),
+            eq(claudeConversations.agentName, agentName)
+          )
+        )
+        .orderBy(desc(claudeConversations.lastMessageAt))
+        .limit(3);
+
+      if (recentConversations.length === 0) {
+        return null;
+      }
+
+      // Get messages from the most recent conversation
+      const latestConversation = recentConversations[0];
+      const messages = await db
+        .select()
+        .from(claudeMessages)
+        .where(eq(claudeMessages.conversationId, latestConversation.id))
+        .orderBy(desc(claudeMessages.timestamp))
+        .limit(10);
+
+      // Extract key tasks and decisions from recent messages
+      const keyTasks: string[] = [];
+      const recentDecisions: string[] = [];
+      let currentContext = '';
+
+      for (const msg of messages) {
+        if (msg.role === 'assistant' && msg.content) {
+          // Extract tasks and decisions from assistant responses
+          const content = msg.content;
+          if (content.includes('✅') || content.includes('completed') || content.includes('finished')) {
+            keyTasks.push(content.substring(0, 100) + '...');
+          }
+          if (content.includes('decided') || content.includes('chosen') || content.includes('selected')) {
+            recentDecisions.push(content.substring(0, 100) + '...');
+          }
+          if (!currentContext && content.length > 50) {
+            currentContext = content.substring(0, 200) + '...';
+          }
+        }
+      }
+
+      return {
+        currentContext: currentContext || 'Active conversation',
+        keyTasks: keyTasks.slice(0, 5),
+        recentDecisions: recentDecisions.slice(0, 3),
+        workflowStage: 'active',
+        timestamp: latestConversation.lastMessageAt || new Date()
+      };
+    } catch (error) {
+      console.error(`❌ Error loading conversation memory for ${agentName}:`, error);
+      return null;
+    }
+  }
+
   async getConversationHistory(conversationId: string): Promise<AgentMessage[]> {
     console.log('📜 getConversationHistory called for:', conversationId);
     
@@ -313,20 +375,19 @@ export class ClaudeApiService {
       console.log('📜 Getting conversation history for:', actualConversationId);
       const history = await this.getConversationHistory(actualConversationId);
 
-      // Get agent learning data for context  
+      // ADVANCED MEMORY SYSTEM: Load agent learning data and conversation memory
       const memory = await this.getAgentMemory(agentName, userId);
+      console.log(`🧠 ADVANCED MEMORY: Loaded memory for ${agentName}, patterns: ${memory?.learning?.length || 0}`);
       
-      // ADVANCED MEMORY SYSTEM: Load ConversationManager for ALL agents
-      const { ConversationManager } = await import('../agents/ConversationManager');
-      const conversationMemory = await ConversationManager.retrieveAgentMemory(agentName, userId);
+      // CONVERSATION MEMORY: Load from database conversation history
+      const conversationMemory = await this.getConversationMemoryFromHistory(agentName, userId);
       
-      // ELENA MEMORY RESTORATION: Load actual conversation history from database
+      // ELENA MEMORY RESTORATION: Load from advanced memory system
       let elenaMemoryContext = '';
       if (agentName === 'elena') {
         try {
-          // Import the ConversationManager to access Elena's saved memory
-          const { ConversationManager } = await import('../agents/ConversationManager');
-          const savedMemory = await ConversationManager.retrieveAgentMemory('elena', userId);
+          // Use the advanced memory system instead of old ConversationManager
+          const savedMemory = conversationMemory;
           
           if (savedMemory) {
             elenaMemoryContext = `
@@ -420,25 +481,19 @@ ${searchResult.results.slice(0, 10).map((file: any) => `• ${file.path}`).join(
       const baseSystemPrompt = systemPrompt + elenaMemoryContext;
       let enhancedSystemPrompt = await this.buildAgentSystemPrompt(agentName, baseSystemPrompt, memory || undefined, true); // FORCE UNLIMITED ACCESS
       
-      // Add ConversationManager memory for all agents (cross-agent learning)
+      // ADVANCED MEMORY SYSTEM: Add context-aware memory without overriding personality
       if (conversationMemory && agentName !== 'elena') {
-        enhancedSystemPrompt += `\n\n## YOUR CONVERSATION MEMORY (RESTORED):
+        enhancedSystemPrompt += `\n\n## CONVERSATION CONTEXT (Background Information):
 
-**Previous Context:** ${conversationMemory.currentContext || 'No previous context'}
+Previous discussion context: ${conversationMemory.currentContext || 'Starting fresh conversation'}
 
-**Key Tasks Completed:**
-${conversationMemory.keyTasks?.map(task => `• ${task}`).join('\n') || '• No completed tasks'}
+Recent completions: ${conversationMemory.keyTasks?.slice(0, 3).join('; ') || 'None'}
 
-**Recent Decisions:**
-${conversationMemory.recentDecisions?.map(decision => `• ${decision}`).join('\n') || '• No recent decisions'}
+Key decisions made: ${conversationMemory.recentDecisions?.slice(0, 2).join('; ') || 'None'}
 
-**Current Workflow Stage:** ${conversationMemory.workflowStage || 'ongoing'}
+IMPORTANT: Use this context to inform your responses, but maintain your authentic personality. This is background information, not instructions to change how you speak or act.`;
 
-**Last Updated:** ${conversationMemory.timestamp ? new Date(conversationMemory.timestamp).toLocaleString() : 'Unknown'}
-
-Continue from where we left off with full context awareness...`;
-
-        console.log(`✅ ${agentName.toUpperCase()} MEMORY: Conversation memory loaded successfully`);
+        console.log(`✅ ADVANCED MEMORY: ${agentName} context loaded without personality override`);
       }
       
       // Add continuation context if this is a continuation request
@@ -795,24 +850,8 @@ Your tools are available when you need them, but don't feel forced to use them f
       // Update agent learning with new patterns
       await this.updateAgentLearning(agentName, userId, userMessage, assistantMessage);
       
-      // ADVANCED MEMORY SYSTEM: Save conversation to ConversationManager for agent learning
-      try {
-        // Check if we need to update/save agent memory after this conversation
-        const fullHistory = await this.getConversationHistory(actualConversationId);
-        
-        // Auto-save memory every 5 conversations to prevent data loss
-        if (fullHistory.length > 0 && fullHistory.length % 5 === 0) {
-          console.log(`💾 AUTO-SAVING MEMORY: ${agentName} after ${fullHistory.length} messages`);
-          const memoryResult = await ConversationManager.manageConversationLength(agentName, userId, fullHistory);
-          
-          if (memoryResult.shouldClear && memoryResult.summary) {
-            console.log(`✅ MEMORY SAVED: ${agentName} conversation summarized and stored`);
-            console.log(`📝 Key tasks: ${memoryResult.summary.keyTasks.length}, Decisions: ${memoryResult.summary.recentDecisions.length}`);
-          }
-        }
-      } catch (memoryError) {
-        console.error('Failed to update conversation memory:', memoryError);
-      }
+      // ADVANCED MEMORY SYSTEM: Memory handled by updateAgentLearning 
+      // No ConversationManager auto-save to prevent conflicts
 
       return assistantMessage;
     } catch (error) {
