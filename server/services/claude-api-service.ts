@@ -1374,29 +1374,38 @@ I respond like your warm best friend who loves organization - simple, reassuring
         tool_choice: fileEditMode ? { type: "auto" } : undefined // Allow tools when in file edit mode
       });
       
-      // CHECK IF CONTINUATION RESPONSE HAS MORE TOOLS - RECURSIVE PROCESSING
+      // COST OPTIMIZATION: LIMIT RECURSIVE PROCESSING TO PREVENT API DRAINAGE
       const continuationHasTools = continuationResponse.content.some((block: any) => block.type === 'tool_use');
       
-      if (continuationHasTools) {
-        console.log(`🔄 AGENT CONTINUING WORK: Continuation response has ${continuationResponse.content.filter((b: any) => b.type === 'tool_use').length} more tools - processing recursively`);
+      // Track recursive depth to prevent expensive loops
+      const recursiveDepth = (currentMessages.filter(m => m.role === 'assistant').length || 0);
+      const maxRecursiveDepth = 2; // Maximum 2 recursive calls to control costs
+      
+      if (continuationHasTools && recursiveDepth < maxRecursiveDepth) {
+        console.log(`🔄 CONTROLLED RECURSION: Depth ${recursiveDepth}/${maxRecursiveDepth}, processing ${continuationResponse.content.filter((b: any) => b.type === 'tool_use').length} more tools`);
         
-        // TOKEN MANAGEMENT: Check conversation size before recursion
-        const currentTokenEstimate = JSON.stringify(currentMessages).length / 4; // Rough estimate: 4 chars = 1 token
-        const maxSafeTokens = 180000; // Leave buffer below 200k limit
+        // TOKEN MANAGEMENT: More aggressive token limits
+        const currentTokenEstimate = JSON.stringify(currentMessages).length / 4;
+        const maxSafeTokens = 50000; // Much lower limit to prevent expensive calls
         
         if (currentTokenEstimate > maxSafeTokens) {
-          console.log(`⚠️ TOKEN LIMIT APPROACHING: ${currentTokenEstimate} tokens, summarizing conversation for continued work`);
+          console.log(`💰 COST PROTECTION: ${currentTokenEstimate} tokens exceeds limit, stopping recursion to prevent API drainage`);
           
-          // CONVERSATION SUMMARIZATION: Keep essential context while reducing tokens
-          const summarizedMessages = [
-            { role: 'user', content: currentMessages[0]?.content || 'Continue working on the task' },
-            { role: 'assistant', content: `Previous work summary: I've been working on this task and used multiple tools. Current progress: ${finalResponse.substring(0, 500)}...` }
+          // Extract text response and stop recursion
+          for (const content of continuationResponse.content) {
+            if (content.type === 'text') {
+              finalResponse += (finalResponse ? '\n\n' : '') + content.text + '\n\n[Additional analysis stopped to control API costs]';
+            }
+          }
+        } else {
+          // Very limited recursion with minimal context
+          const minimalMessages = [
+            currentMessages[currentMessages.length - 1] || { role: 'user', content: 'Complete the task efficiently' }
           ];
           
-          // Continue with summarized context
           const recursiveResult = await this.handleToolCallsWithContinuation(
             continuationResponse,
-            summarizedMessages,
+            minimalMessages,
             systemPrompt,
             tools,
             fileEditMode,
@@ -1405,24 +1414,18 @@ I respond like your warm best friend who loves organization - simple, reassuring
           );
           
           finalResponse += (finalResponse ? '\n\n' : '') + recursiveResult;
-          console.log(`🎯 RECURSIVE WORK COMPLETE WITH SUMMARIZATION: Agent finished autonomous working cycle. Total response: ${finalResponse.length} chars`);
-          
-        } else {
-          // Normal recursive processing with full context
-          const recursiveResult = await this.handleToolCallsWithContinuation(
-            continuationResponse,
-            currentMessages,
-            systemPrompt,
-            tools,
-            fileEditMode,
-            agentName,
-            mandatoryImplementation
-          );
-          
-          finalResponse += (finalResponse ? '\n\n' : '') + recursiveResult;
-          console.log(`🎯 RECURSIVE WORK COMPLETE: Agent finished autonomous working cycle. Total response: ${finalResponse.length} chars`);
+          console.log(`💰 COST-CONTROLLED RECURSION COMPLETE: Limited to prevent API drainage`);
         }
         
+      } else if (continuationHasTools) {
+        console.log(`💰 RECURSION BLOCKED: Depth limit ${maxRecursiveDepth} reached to prevent API cost drainage`);
+        
+        // Extract any text response and stop
+        for (const content of continuationResponse.content) {
+          if (content.type === 'text') {
+            finalResponse += (finalResponse ? '\n\n' : '') + content.text + '\n\n[Analysis complete - stopped to control API costs]';
+          }
+        }
       } else {
         // No more tools, extract text response normally
         for (const content of continuationResponse.content) {
