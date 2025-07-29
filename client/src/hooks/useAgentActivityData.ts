@@ -42,7 +42,7 @@ export function useAgentActivityData() {
     isLoading: coordinationLoading,
     error: coordinationError,
     refetch: refetchCoordination
-  } = useQuery<{ metrics: CoordinationMetrics; timestamp: string }>({
+  } = useQuery<CoordinationMetrics>({
     queryKey: ['/api/autonomous-orchestrator/coordination-metrics'],
     staleTime: 300000, // Data is stale after 5 minutes (no auto-refresh)
     queryFn: async () => {
@@ -66,7 +66,7 @@ export function useAgentActivityData() {
     isLoading: deploymentsLoading,
     error: deploymentsError,
     refetch: refetchDeployments
-  } = useQuery<{ activeDeployments: any[]; count: number; timestamp: string }>({
+  } = useQuery<{ deployments: any[] }>({
     queryKey: ['/api/autonomous-orchestrator/active-deployments'],
     staleTime: 300000, // Data is stale after 5 minutes (no auto-refresh)
     queryFn: async () => {
@@ -87,9 +87,9 @@ export function useAgentActivityData() {
 
   // Combined activity data
   const activityData: ActivityData | undefined = coordinationData && deploymentsData ? {
-    coordinationMetrics: coordinationData.metrics,
-    activeDeployments: deploymentsData.activeDeployments || [],
-    timestamp: coordinationData.timestamp
+    coordinationMetrics: coordinationData,
+    activeDeployments: deploymentsData.deployments || [],
+    timestamp: new Date().toISOString()
   } : undefined;
 
   const isLoading = coordinationLoading || deploymentsLoading;
@@ -106,9 +106,9 @@ export function useAgentActivityData() {
     isLoading,
     error,
     refreshAll,
-    coordinationMetrics: coordinationData?.metrics,
-    activeDeployments: deploymentsData?.activeDeployments || [],
-    lastUpdated: coordinationData?.timestamp
+    coordinationMetrics: coordinationData,
+    activeDeployments: deploymentsData?.deployments || [],
+    lastUpdated: new Date().toISOString()
   };
 }
 
