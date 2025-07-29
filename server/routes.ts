@@ -269,7 +269,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // AI Images route for workspace gallery - CRITICAL: Missing endpoint restored
   app.get('/api/ai-images', isAuthenticated, async (req: any, res) => {
     try {
-      const userId = req.user.claims.sub;
+      const userId = (req.user as any)?.claims?.sub;
       console.log('🖼️ Fetching AI images for user:', userId);
       
       // Import database and schema
@@ -289,14 +289,14 @@ export async function registerRoutes(app: Express): Promise<Server> {
       
     } catch (error) {
       console.error('❌ Error fetching AI images:', error);
-      res.status(500).json({ message: "Failed to fetch AI images", error: error.message });
+      res.status(500).json({ message: "Failed to fetch AI images", error: error instanceof Error ? error.message : 'Unknown error' });
     }
   });
 
   // User model endpoint for workspace model status
   app.get('/api/user-model', isAuthenticated, async (req: any, res) => {
     try {
-      const userId = req.user.claims.sub;
+      const userId = (req.user as any)?.claims?.sub;
       console.log('🤖 Fetching user model for:', userId);
       
       // Import database and schema
@@ -322,7 +322,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       
     } catch (error) {
       console.error('❌ Error fetching user model:', error);
-      res.status(500).json({ message: "Failed to fetch user model", error: error.message });
+      res.status(500).json({ message: "Failed to fetch user model", error: error instanceof Error ? error.message : 'Unknown error' });
     }
   });
 
@@ -332,8 +332,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
       console.log('🔍 /api/auth/user called - checking authentication');
       
       // Check if user is authenticated through normal session
-      if (req.isAuthenticated() && req.user?.claims?.sub) {
-        const userId = req.user.claims.sub;
+      if (req.isAuthenticated() && (req.user as any)?.claims?.sub) {
+        const userId = (req.user as any).claims.sub;
         console.log('✅ User authenticated via session, fetching user data for:', userId);
         
         const user = await storage.getUser(userId);
