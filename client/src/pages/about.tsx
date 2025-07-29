@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { PreLoginNavigationUnified } from '@/components/pre-login-navigation-unified';
-import { HeroFullBleed } from '@/components/luxury/HeroFullBleed';
+import { HeroFullBleed } from '@/components/hero-full-bleed';
 import { EditorialStory } from '@/components/editorial-story';
 import { EditorialImageBreak } from '@/components/editorial-image-break';
 import PowerQuote from '@/components/power-quote';
@@ -103,15 +103,14 @@ export default function AboutPage() {
       <PreLoginNavigationUnified />
       
       <main>
-        {/* Hero Section - Using new consistent design */}
+        {/* Hero Section */}
         <HeroFullBleed
-          variant="about"
-          title="Sandra"
-          subtitle="Sigurjónsdóttir"
+          backgroundImage={SandraImages.portraits.professional[0]}
           tagline="The Icelandic Selfie Queen"
-          description="From €3.50 in my account to 120K followers. This is my real story - the messy, vulnerable truth about building an empire from rock bottom."
-          ctaText="Read My Story"
+          title="SANDRA"
+          ctaText="My story"
           ctaLink="#story"
+          fullHeight={true}
         />
 
         {/* Welcome Editorial Story */}

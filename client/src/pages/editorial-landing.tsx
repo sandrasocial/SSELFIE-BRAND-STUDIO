@@ -7,7 +7,6 @@ import WelcomeEditorial from "@/components/welcome-editorial";
 import { EmailCaptureModal } from "@/components/email-capture-modal";
 import { InlineEmailCapture } from "@/components/inline-email-capture";
 import { GlobalFooter } from "@/components/global-footer";
-import { HeroFullBleed } from "@/components/luxury/HeroFullBleed";
 
 export default function EditorialLanding() {
   const [isEmailModalOpen, setIsEmailModalOpen] = useState(false);
@@ -245,16 +244,40 @@ export default function EditorialLanding() {
         </div>
       )}
 
-      {/* Hero Section - Using new HeroFullBleed component with Rachel's messaging */}
-      <HeroFullBleed
-        variant="homepage"
-        title="Still posting into the void"
-        subtitle="while everyone else 'gets' social media?"
-        tagline="The Icelandic Selfie Queen"
-        description="I see you, gorgeous. I was there too - €3.50 in my account, wondering if I was delusional. What if I told you your 'mess' is actually your message? And it's worth 6 figures?"
-        ctaText="Start Free Today"
-        ctaLink="#get-started"
-      />
+      {/* Hero Section - Full Bleed Editorial */}
+      <section className="relative min-h-screen flex items-end justify-center bg-black text-white overflow-hidden">
+        <div className="absolute inset-0 opacity-40">
+          <img
+            src={SandraImages.hero.homepage}
+            alt="Sandra Sigurjónsdóttir - SSELFIE Studio Founder transforming personal branding with AI"
+            className="w-full h-full object-cover object-center"
+            loading="eager"
+            fetchpriority="high"
+          />
+        </div>
+        
+        {/* Hero Content - Positioned Lower */}
+        <div className="relative z-10 text-center max-w-6xl px-4 sm:px-6 lg:px-8 pb-16 sm:pb-20 md:pb-24">
+          <p className="text-[10px] sm:text-xs uppercase tracking-[0.3em] sm:tracking-[0.4em] text-white/70 mb-4 sm:mb-6 font-light">
+            IT STARTS WITH YOUR SELFIES
+          </p>
+          
+          <h1 className="font-serif text-4xl sm:text-6xl md:text-8xl lg:text-9xl xl:text-[10rem] font-extralight text-white tracking-[0.3em] sm:tracking-[0.4em] md:tracking-[0.5em] mb-2 sm:mb-4 leading-none">
+            SSELFIE
+          </h1>
+          
+          <p className="text-[10px] sm:text-xs md:text-sm uppercase tracking-[0.3em] sm:tracking-[0.4em] text-white/70 mb-8 sm:mb-10 font-light">
+            STUDIO
+          </p>
+          
+          <button
+            onClick={() => handleGetStarted('free')}
+            className="inline-block text-[10px] sm:text-xs uppercase tracking-[0.25em] sm:tracking-[0.3em] text-white border-b border-white/30 pb-1 sm:pb-2 hover:border-white hover:tracking-[0.3em] sm:hover:tracking-[0.35em] transition-all duration-300"
+          >
+            START FOR FREE
+          </button>
+        </div>
+      </section>
 
       {/* Welcome Section - Editorial Style */}
       <WelcomeEditorial />

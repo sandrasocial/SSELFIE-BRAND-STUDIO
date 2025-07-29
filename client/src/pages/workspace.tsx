@@ -5,8 +5,6 @@ import { Link } from 'wouter';
 import { MemberNavigation } from '@/components/member-navigation';
 import { GlobalFooter } from '@/components/global-footer';
 import { SandraImages } from '@/lib/sandra-images';
-import { HeroFullBleed } from '@/components/luxury/HeroFullBleed';
-import { AgentCard } from '@/components/luxury/AgentCard';
 
 
 export default function Workspace() {
