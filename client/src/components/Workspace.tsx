@@ -29,39 +29,43 @@ export default function Workspace() {
     return [
       {
         number: 1,
-        title: 'Upload Selfies',
-        subtitle: '10-15 phone selfies with window light',
-        description: 'Simple tutorial shows you exactly how to capture the right shots',
+        title: 'TRAIN Your AI Model',
+        subtitle: 'Just you, your phone, and 15 minutes',
+        description: 'Hey gorgeous! I remember feeling so awkward taking selfies at first. But here\'s what I learned: your phone already knows how to make you look incredible. Trust me on this one.',
         status: hasImages ? 'completed' : 'current',
-        action: hasImages ? 'View Gallery' : 'Start Upload',
-        path: '/upload'
+        action: hasImages ? 'View Your Training' : 'Let\'s Do This',
+        path: '/ai-training',
+        sandraNote: 'I was shaking when I took my first selfies. Now look where we are.'
       },
       {
         number: 2,
-        title: 'Chat with Maya',
-        subtitle: 'AI celebrity stylist consultation',
-        description: 'Tell Maya your vision and she\'ll craft your perfect editorial style',
+        title: 'STYLE Your Vision',
+        subtitle: 'Maya knows exactly what works',
+        description: 'This is where the magic happens, babe. Maya\'s going to help you figure out your visual story. No more guessing what "on brand" means - she\'ll show you.',
         status: hasImages ? 'current' : 'upcoming',
         action: 'Chat with Maya',
-        path: '/maya'
+        path: '/maya',
+        sandraNote: 'Maya gets it. She\'ll help you find your thing.'
       },
       {
         number: 3,
-        title: 'AI Photoshoot',
-        subtitle: 'Editorial-quality brand photos instantly',
-        description: 'Watch Maya transform your selfies into luxury brand photography',
+        title: 'PHOTOSHOOT Magic',
+        subtitle: 'Watch your transformation happen',
+        description: 'Okay, this part still gives me chills. You\'re about to see yourself the way others see you - confident, powerful, unstoppable. Get ready.',
         status: hasImages ? 'available' : 'upcoming',
-        action: 'Generate Photos',
-        path: '/generate'
+        action: 'Generate Your Photos',
+        path: '/ai-photoshoot',
+        sandraNote: 'The first time I saw my AI photos, I cried. Good tears.'
       },
       {
         number: 4,
-        title: 'BUILD',
-        subtitle: 'Complete luxury business in 20 minutes',
-        description: 'Victoria AI transforms your vision into a sophisticated website, booking system, and custom domain with editorial precision',
+        title: 'BUILD Your Empire',
+        subtitle: 'From photos to full business in 20 minutes',
+        description: 'This is it, gorgeous. Victoria\'s going to help you turn everything we just created into a real business. Website, booking system, the works. Your mess becomes your message becomes your money.',
         status: hasImages ? 'available' : 'upcoming',
         action: 'Launch Your Empire',
-        path: '/victoria'
+        path: '/build',
+        sandraNote: 'I built my first €10K month with exactly this process.'
       }
     ];
   };
@@ -111,10 +115,10 @@ export default function Workspace() {
                 className="text-5xl font-serif text-black uppercase tracking-wide mb-2" 
                 style={{ fontFamily: 'Times New Roman, serif' }}
               >
-                Your Studio
+                Hey Gorgeous
               </h1>
               <p className="text-lg text-gray-600">
-                Transform your phone selfies into a complete business ecosystem
+                Welcome to your studio. This is where your mess becomes your message becomes your money. Ready?
               </p>
             </div>
             <div className="text-right">
@@ -141,10 +145,10 @@ export default function Workspace() {
             className="text-3xl font-serif text-black uppercase tracking-wide mb-4" 
             style={{ fontFamily: 'Times New Roman, serif' }}
           >
-            Your Transformation Journey
+            Here's How We Do This
           </h2>
           <p className="text-lg text-gray-600 max-w-2xl">
-            From phone selfies to live business in 20 minutes. Follow these steps to build your empire.
+            I remember when I first started - I had no clue what I was doing. But I figured out the exact process that works. You don't need to have it all together. You just need to start.
           </p>
         </div>
 
