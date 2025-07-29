@@ -1425,10 +1425,22 @@ I respond like your warm best friend who loves organization - simple, reassuring
       
       // AGENT TASK COMPLETION: Allow agents to complete their work naturally
       const recursiveDepth = (currentMessages.filter(m => m.role === 'assistant').length || 0);
-      const maxRecursiveDepth = 8; // Increased limit for proper task completion
+      const maxRecursiveDepth = 12; // High limit for complex analysis and implementation tasks
       
       if (continuationHasTools && recursiveDepth < maxRecursiveDepth) {
         console.log(`🔄 AGENT WORKING: Depth ${recursiveDepth}/${maxRecursiveDepth}, processing ${continuationResponse.content.filter((b: any) => b.type === 'tool_use').length} more tools`);
+        
+        // Show current work progress to user
+        let currentText = '';
+        for (const content of continuationResponse.content) {
+          if (content.type === 'text') {
+            currentText += content.text;
+          }
+        }
+        
+        if (currentText.trim()) {
+          finalResponse += (finalResponse ? '\n\n' : '') + currentText;
+        }
         
         // NATURAL TASK COMPLETION: Let agents finish their work without artificial interruptions
         const recursiveResult = await this.handleToolCallsWithContinuation(
@@ -1445,16 +1457,33 @@ I respond like your warm best friend who loves organization - simple, reassuring
         console.log(`✅ AGENT TASK COMPLETED: Agent finished work naturally`);
         
       } else if (continuationHasTools) {
-        console.log(`🔄 MAXIMUM DEPTH REACHED: Agent completed maximum work cycles`);
+        console.log(`🔄 CONTINUING WORK: Processing remaining tools at depth ${recursiveDepth}`);
         
-        // Extract final response without artificial pause
+        // Show current progress to user
+        let currentText = '';
         for (const content of continuationResponse.content) {
           if (content.type === 'text') {
-            finalResponse += (finalResponse ? '\n\n' : '') + content.text;
+            currentText += content.text;
           }
         }
         
-        // No artificial pause - let agents complete naturally
+        if (currentText.trim()) {
+          finalResponse += (finalResponse ? '\n\n' : '') + currentText;
+        }
+        
+        // Continue processing tools even at max depth for critical analysis tasks
+        const continuationResult = await this.handleToolCallsWithContinuation(
+          continuationResponse,
+          currentMessages.slice(-3), // Keep recent context
+          systemPrompt,
+          tools,
+          fileEditMode,
+          agentName,
+          mandatoryImplementation
+        );
+        
+        finalResponse += (finalResponse ? '\n\n' : '') + continuationResult;
+        console.log(`✅ EXTENDED PROCESSING: Agent completed extended analysis`)
       } else {
         // No more tools, extract text response normally
         for (const content of continuationResponse.content) {
