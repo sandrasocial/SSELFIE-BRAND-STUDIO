@@ -159,16 +159,17 @@ export default function AdminDashboard() {
       link: '/admin/consulting-agents?agent=olga',
       specialty: 'File architecture and dependency mapping',
       status: 'ready'
-    },
-    {
-      id: 'flux',
-      title: 'Advanced Flux LoRA Prompt Specialist & Celebrity AI Stylist',
-      description: 'Elite celebrity AI stylist and advanced Flux LoRA prompt specialist who creates exceptional AI photoshoot collections.',
-      image: AgentFlux,
-      link: '/admin/consulting-agents?agent=flux',
-      specialty: 'Advanced AI photography and celebrity styling',
-      status: 'ready'
     }
+    // Flux agent temporarily disabled due to missing image asset
+    // {
+    //   id: 'flux',
+    //   title: 'Advanced Flux LoRA Prompt Specialist & Celebrity AI Stylist',
+    //   description: 'Elite celebrity AI stylist and advanced Flux LoRA prompt specialist who creates exceptional AI photoshoot collections.',
+    //   image: AgentOlga, // Using Olga's image temporarily
+    //   link: '/admin/consulting-agents?agent=flux',
+    //   specialty: 'Advanced AI photography and celebrity styling',
+    //   status: 'ready'
+    // }
   ];
 
   // Quick access tools similar to workspace creative tools
