@@ -1,58 +1,28 @@
 import React from 'react';
-import styled from 'styled-components';
-
-const LuxuryContainer = styled.div`
-  background-color: #ffffff;
-  padding: 4rem 2rem;
-  max-width: 1200px;
-  margin: 0 auto;
-`;
-
-const EditorialHeadline = styled.h1`
-  font-family: "Times New Roman", Times, serif;
-  font-size: 3.5rem;
-  font-weight: 400;
-  color: #0a0a0a;
-  letter-spacing: -0.02em;
-  line-height: 1.2;
-  margin-bottom: 2rem;
-`;
-
-const LuxuryText = styled.p`
-  font-family: "Times New Roman", Times, serif;
-  font-size: 1.25rem;
-  line-height: 1.6;
-  color: #0a0a0a;
-  margin-bottom: 1.5rem;
-`;
-
-const EditorialCard = styled.div`
-  background-color: #f5f5f5;
-  padding: 3rem;
-  margin: 2rem 0;
-  border: 1px solid #0a0a0a;
-`;
+import { cn } from "@/lib/utils";
 
 const AriaEditorialShowcase: React.FC = () => {
   return (
-    <LuxuryContainer>
-      <EditorialHeadline>The Art of Luxury Transformation</EditorialHeadline>
+    <div className="bg-white py-16 px-8 max-w-6xl mx-auto">
+      <h1 className="font-serif text-5xl font-normal text-black tracking-tight leading-tight mb-8">
+        The Art of Luxury Transformation
+      </h1>
       
-      <EditorialCard>
-        <LuxuryText>
+      <div className="bg-gray-50 p-12 my-8 border border-black">
+        <p className="font-serif text-xl leading-relaxed text-black mb-6">
           From rock bottom to empire, every journey begins with a single step into transformation. 
           This is where ambition meets destiny, where your future self emerges from the shadows of doubt.
-        </LuxuryText>
-      </EditorialCard>
+        </p>
+      </div>
 
-      <EditorialCard>
-        <LuxuryText>
+      <div className="bg-gray-50 p-12 my-8 border border-black">
+        <p className="font-serif text-xl leading-relaxed text-black mb-6">
           Embrace the power of your narrative. Your story, crafted with intention, 
           becomes the foundation of your legacy. This is more than change – 
           this is metamorphosis.
-        </LuxuryText>
-      </EditorialCard>
-    </LuxuryContainer>
+        </p>
+      </div>
+    </div>
   );
 };
 
