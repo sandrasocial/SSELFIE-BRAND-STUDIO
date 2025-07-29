@@ -70,11 +70,14 @@ export async function registerRoutes(app: Express): Promise<Server> {
         });
       }
       
-      // Get authenticated user ID or use admin fallback
-      let userId = 'admin-sandra';
+      // Get authenticated user ID (Sandra's actual ID)
+      let userId = '42585527'; // Sandra's actual user ID
       if (req.isAuthenticated?.() && req.user) {
         const user = req.user as any;
         userId = user.claims?.sub || userId;
+        console.log('✅ Using authenticated user ID:', userId);
+      } else {
+        console.log('✅ Using fallback Sandra user ID:', userId);
       }
       
       const response = await claudeApiService.sendMessage(
@@ -109,8 +112,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
         });
       }
       
-      // Get authenticated user ID or use admin fallback
-      let userId = 'admin-sandra';
+      // Get authenticated user ID (Sandra's actual ID)  
+      let userId = '42585527'; // Sandra's actual user ID
       if (req.isAuthenticated?.() && req.user) {
         const user = req.user as any;
         userId = user.claims?.sub || userId;

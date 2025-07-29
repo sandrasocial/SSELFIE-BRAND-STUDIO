@@ -63,8 +63,8 @@ export class ClaudeApiService {
       return existing[0].id;
     }
 
-    // Ensure admin user exists for sandra-admin userId or 'admin'
-    if (userId === 'sandra-admin' || userId === 'admin') {
+    // Ensure admin user exists for various admin user IDs
+    if (userId === 'sandra-admin' || userId === 'admin' || userId === 'admin-sandra' || userId === '42585527') {
       try {
         const adminExists = await db
           .select()
