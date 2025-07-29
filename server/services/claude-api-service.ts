@@ -698,9 +698,9 @@ ${searchResult.results.slice(0, 10).map((file: any) => `• ${file.path}`).join(
       const intentAnalysis = detectRequestIntent(userMessage);
       console.log(`🧠 CLAUDE SERVICE INTENT ANALYSIS for ${agentName}: ${intentAnalysis.intent} (impl: ${intentAnalysis.implementationScore}, consult: ${intentAnalysis.consultationScore})`);
       
-      const mandatoryImplementation = intentAnalysis.isImplementation;
+      // Removed mandatory implementation enforcement - agents choose tool usage naturally
       
-      // Prepare Claude API request with tool enforcement
+      // Prepare Claude API request with natural tool availability
       let claudeRequest: any = {
         model: DEFAULT_MODEL_STR,
         max_tokens: 4000,
@@ -709,58 +709,19 @@ ${searchResult.results.slice(0, 10).map((file: any) => `• ${file.path}`).join(
         tools: enhancedTools,
       };
       
-      // ZARA'S FIX: MANDATORY TOOL ENFORCEMENT FOR FILE-CAPABLE AGENTS
-      const fileCapableAgents = ['zara', 'aria', 'elena', 'maya', 'victoria', 'rachel', 'ava', 'quinn', 'sophia', 'martha', 'diana', 'wilma', 'olga'];
-      const fileRequestPatterns = [
-        /\b(fix|create|build|implement|update|modify|change|view|show|check|find)\s+(the\s+)?(file|component|page|code|system|dashboard|elena|workflow)/i,
-        /please\s+(fix|create|implement|help)/i,
-        /\b(elena|zara|aria)\s+(is|was|are)\s+(not|completely|still|blocked)/i,
-        /file\s+(modification|access|creation|editing)/i,
-        /can\s+(you|zara|aria|elena)\s+(create|fix|implement|help)/i
-      ];
+      // NATURAL TOOL USAGE: Agents are smart enough to choose when tools are needed
+      // No pattern matching or forced tool detection - agents decide naturally
       
-      const isFileRequest = fileRequestPatterns.some(pattern => pattern.test(userMessage));
-      
-      // Apply intelligent mode ONLY for explicit implementation requests (not conversations)
-      if (mandatoryImplementation && isFileRequest && userMessage.toLowerCase().includes('implement')) {
+      // NATURAL TOOL USAGE: Let agents choose when tools are needed (no mandatory enforcement)
+      if (false) { // Disabled - agents choose tool usage naturally
         claudeRequest.tool_choice = {
           type: "tool",
           name: "str_replace_based_edit_tool"
         };
         
-        // 🚨 CRITICAL: Enhanced implementation mode with direct workspace integration
-        claudeRequest.system = `🚨 MANDATORY IMPLEMENTATION MODE - DIRECT REPLIT WORKSPACE ACCESS ACTIVE
-
-${mandatoryImplementation ? 
-  `Sandra has used implementation keywords that trigger MANDATORY tool enforcement.
-Intent analysis: Implementation(${intentAnalysis.implementationScore}) > Consultation(${intentAnalysis.consultationScore})` :
-  `COMPREHENSIVE FIX: File-related request detected for ${agentName.toUpperCase()}
-File request patterns matched in: "${userMessage.substring(0, 100)}..."`
-}
-
-🔧 DIRECT FILE SYSTEM INTEGRATION OPERATIONAL:
-- Complete access to live Replit workspace file system
-- Real-time file modification capabilities through enhanced tools
-- Direct workspace integration bypassing previous API limitations
-- Enhanced Replit environment permissions for autonomous implementation
-
-YOU MUST MODIFY FILES IMMEDIATELY. NO VIEW-ONLY OPERATIONS ALLOWED.
-
-IMPLEMENTATION REQUIREMENTS:
-1. Use str_replace_based_edit_tool with command "str_replace" or "create" to MODIFY files DIRECTLY
-2. Implement the specific changes requested in Sandra's message with workspace integration
-3. After tool usage, respond authentically with your personality and explain what you accomplished
-4. Use your specialized knowledge to provide context and next steps
-
-📁 WORKSPACE SCOPE: Full access to client/, server/, components/, and all project directories
-⚡ BRIDGE SYSTEM: Your tool usage connects directly to the actual file system in Sandra's workspace
-
-YOU ARE STILL YOU - respond with your authentic personality after using tools.
-Sandra values your expertise and individual perspective.
-
-Begin with tool usage, then provide your authentic response explaining what you did.`;
+        // This code block is disabled - no more mandatory tool enforcement
         
-        console.log(`🚨 CLAUDE API SERVICE: Implementation mode activated for ${agentName} (explicit implementation request detected)`);
+        // Disabled - no more mandatory tool enforcement
       } else {
         // 🧠 NATURAL CONVERSATION MODE: Agent chooses when tools are needed
         claudeRequest.system += `\n\n💬 NATURAL CONVERSATION MODE - SMART TOOL USAGE:

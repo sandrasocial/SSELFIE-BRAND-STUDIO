@@ -188,26 +188,7 @@ export class Phase3ToolEnforcementAudit {
     return `
 // PHASE 3.2: TOOL ENFORCEMENT LOOPHOLE PREVENTION
 
-// Add to agent-chat-bypass endpoint after Claude response:
-if (shouldForceTools && claudeRequest.tool_choice) {
-  // Verify tools were actually used
-  const toolsUsed = response.content.some(content => content.type === 'tool_use');
-  
-  if (!toolsUsed) {
-    console.log('🚨 TOOL ENFORCEMENT VIOLATION: No tools used despite tool_choice requirement');
-    
-    return res.status(400).json({
-      success: false,
-      error: 'Tool usage required',
-      message: 'Implementation requests must use tools to modify files. Conversation-only responses not permitted.',
-      agentId,
-      toolChoiceEnforced: true,
-      implementationRequired: true
-    });
-  }
-  
-  console.log('✅ TOOL ENFORCEMENT VERIFIED: Tools were used as required');
-}
+// REMOVED: Tool enforcement verification - agents choose tool usage naturally
 `;
   }
 }

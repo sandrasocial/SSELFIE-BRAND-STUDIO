@@ -5443,7 +5443,7 @@ Workflow Stage: ${savedMemory.workflowStage || 'None'}
       const intentAnalysis = detectRequestIntent(message);
       console.log(`🧠 INTENT ANALYSIS for ${agentId}: ${intentAnalysis.intent} (impl: ${intentAnalysis.implementationScore}, consult: ${intentAnalysis.consultationScore})`);
       
-      const mandatoryImplementation = intentAnalysis.isImplementation;
+      // Removed mandatory implementation - agents choose tool usage naturally
       
       console.log(`🔍 ELENA TOOL ENFORCEMENT: ${agentId} - Workflow execution detected = ${isElenaWorkflowExecution}`);
       console.log(`🔍 MANDATORY IMPLEMENTATION: ${agentId} - Implementation keywords detected = ${mandatoryImplementation}`);
