@@ -50,13 +50,14 @@ interface Conversation {
 }
 
 // Claude API functions
-const sendClaudeMessage = async (agentName: string, message: string, conversationId: string, fileEditMode: boolean = true) => {
+const sendClaudeMessage = async (agentName: string, message: string, conversationId: string, fileEditMode: boolean = true, signal?: AbortSignal) => {
   const response = await fetch('/api/claude/send-message', {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
     },
     credentials: 'include',
+    signal, // Add abort signal support
     body: JSON.stringify({
       agentName,
       message,
@@ -234,6 +235,7 @@ export default function AdminConsultingAgents() {
   const [conversationId, setConversationId] = useState<string | null>(null);
   const [isLoadingHistory, setIsLoadingHistory] = useState(false);
   const [fileEditMode, setFileEditMode] = useState(true);
+  const [abortController, setAbortController] = useState<AbortController | null>(null);
   
   // Bridge System State
   const [bridgeEnabled, setBridgeEnabled] = useState(false);
@@ -478,6 +480,10 @@ export default function AdminConsultingAgents() {
     setMessages(prev => [...prev, userMessage]);
     setMessage('');
     setIsLoading(true);
+    
+    // Create abort controller for stopping agent
+    const controller = new AbortController();
+    setAbortController(controller);
 
     try {
       // Check if Agent Bridge is enabled for this agent
@@ -538,6 +544,7 @@ export default function AdminConsultingAgents() {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         credentials: 'include',
+        signal: controller.signal, // Add abort signal support
         body: JSON.stringify({
           agentName: selectedAgent.id,
           message: userMessage.content,
@@ -579,34 +586,47 @@ export default function AdminConsultingAgents() {
     } catch (error) {
       console.error('Claude API error:', error);
       
-      // Enhanced error handling with specific troubleshooting guidance
-      let errorContent = `⚠️ **Service Temporarily Unavailable**\n\n`;
-      
-      if (error instanceof Error) {
-        if (error.message.includes('500')) {
-          errorContent += `The Claude AI service is experiencing internal server errors (500). This is typically a temporary issue with Anthropic's servers.\n\n**Next Steps:**\n- Wait 30-60 seconds and try again\n- Check Anthropic's status page for service updates\n- This is not a configuration issue on your end`;
-        } else if (error.message.includes('429')) {
-          errorContent += `Rate limit reached. Please wait a moment before sending another message.`;
-        } else if (error.message.includes('401')) {
-          errorContent += `Authentication issue. Please verify your ANTHROPIC_API_KEY is properly configured.`;
-        } else {
-          errorContent += `Connection error: ${error.message}`;
-        }
+      // Check if this was an abort signal (user stopped the agent)
+      if (error instanceof Error && error.name === 'AbortError') {
+        const stoppedMessage: ChatMessage = {
+          id: (Date.now() + 1).toString(),
+          type: 'agent',
+          content: `⏹️ **Agent Stopped**\n\nConversation was stopped by user.`,
+          timestamp: new Date().toISOString(),
+          agentName: selectedAgent.name
+        };
+        setMessages(prev => [...prev, stoppedMessage]);
       } else {
-        errorContent += `Unexpected error occurred. Please try again in a moment.`;
-      }
-      
-      const errorMessage: ChatMessage = {
-        id: (Date.now() + 1).toString(),
-        type: 'agent',
-        content: errorContent,
-        timestamp: new Date().toISOString(),
-        agentName: selectedAgent.name
-      };
+        // Enhanced error handling with specific troubleshooting guidance
+        let errorContent = `⚠️ **Service Temporarily Unavailable**\n\n`;
+        
+        if (error instanceof Error) {
+          if (error.message.includes('500')) {
+            errorContent += `The Claude AI service is experiencing internal server errors (500). This is typically a temporary issue with Anthropic's servers.\n\n**Next Steps:**\n- Wait 30-60 seconds and try again\n- Check Anthropic's status page for service updates\n- This is not a configuration issue on your end`;
+          } else if (error.message.includes('429')) {
+            errorContent += `Rate limit reached. Please wait a moment before sending another message.`;
+          } else if (error.message.includes('401')) {
+            errorContent += `Authentication issue. Please verify your ANTHROPIC_API_KEY is properly configured.`;
+          } else {
+            errorContent += `Connection error: ${error.message}`;
+          }
+        } else {
+          errorContent += `Unexpected error occurred. Please try again in a moment.`;
+        }
+        
+        const errorMessage: ChatMessage = {
+          id: (Date.now() + 1).toString(),
+          type: 'agent',
+          content: errorContent,
+          timestamp: new Date().toISOString(),
+          agentName: selectedAgent.name
+        };
 
-      setMessages(prev => [...prev, errorMessage]);
+        setMessages(prev => [...prev, errorMessage]);
+      }
     } finally {
       setIsLoading(false);
+      setAbortController(null); // Clear abort controller
     }
   };
 
@@ -637,6 +657,15 @@ export default function AdminConsultingAgents() {
       setConversationId(conversation.conversationId);
     } catch (error) {
       console.error('Failed to create new conversation:', error);
+    }
+  };
+
+  const stopAgent = () => {
+    if (abortController && isLoading) {
+      console.log('⏹️ Stopping agent execution...');
+      abortController.abort();
+      setAbortController(null);
+      setIsLoading(false);
     }
   };
 
@@ -799,6 +828,15 @@ export default function AdminConsultingAgents() {
                           Loading Memory
                         </div>
                       )}
+                      {isLoading && abortController && (
+                        <button
+                          onClick={stopAgent}
+                          className="px-3 py-1 text-xs font-light text-red-600 hover:text-red-700 border border-red-300 hover:border-red-500 transition-colors uppercase tracking-wider"
+                          title="Stop agent execution"
+                        >
+                          Stop Agent
+                        </button>
+                      )}
                       {messages.length > 0 && !isLoading && (
                         <>
                           <button
@@ -907,13 +945,23 @@ export default function AdminConsultingAgents() {
                       className="flex-1 resize-none border border-gray-300 rounded-sm p-4 font-light leading-relaxed focus:outline-none focus:border-black transition-colors"
                       rows={3}
                     />
-                    <button
-                      onClick={sendMessage}
-                      disabled={isLoading || !message.trim()}
-                      className="px-8 py-4 bg-black text-white font-light uppercase tracking-wide hover:bg-gray-800 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
-                    >
-                      {bridgeEnabled ? 'Chat & Implement' : 'Send'}
-                    </button>
+                    <div className="flex flex-col gap-2">
+                      {isLoading && abortController && (
+                        <button
+                          onClick={stopAgent}
+                          className="px-6 py-2 border border-red-300 text-red-600 font-light uppercase tracking-wide hover:border-red-500 hover:text-red-700 transition-colors text-xs"
+                        >
+                          Stop Agent
+                        </button>
+                      )}
+                      <button
+                        onClick={sendMessage}
+                        disabled={isLoading || !message.trim()}
+                        className="px-8 py-4 bg-black text-white font-light uppercase tracking-wide hover:bg-gray-800 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                      >
+                        {bridgeEnabled ? 'Chat & Implement' : 'Send'}
+                      </button>
+                    </div>
                   </div>
                 </div>
               </>
