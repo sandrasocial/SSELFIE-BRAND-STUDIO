@@ -33,6 +33,7 @@ import RachelChat from "@/pages/rachel-chat";
 import RachelActivation from "@/pages/rachel-activation";
 import LuxuryChatInterface from "@/components/LuxuryChatInterface";
 import TestImplementation from "@/components/TestImplementation";
+import { DevPreviewModal } from "@/components/dev-preview-modal";
 import SSELFIEGallery from "@/pages/sselfie-gallery";
 import AIGenerator from "@/pages/ai-generator";
 import AIPhotoshoot from "@/pages/ai-photoshoot";
