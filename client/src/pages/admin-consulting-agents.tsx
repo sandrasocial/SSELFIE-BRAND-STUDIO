@@ -589,11 +589,18 @@ export default function AdminConsultingAgents() {
       
       const agentResponse = responseData.result.result;
       
+      console.log('📨 Raw agent response:', agentResponse);
+      console.log('📨 Agent response type:', typeof agentResponse);
       console.log('📨 Received agent response length:', agentResponse?.length || 0);
       
-      // Extract tool results and clean content for professional display
-      const toolsUsed = formatToolResults(agentResponse);
-      const cleanedContent = cleanMessageContent(agentResponse);
+      // Use raw response directly to prevent content stripping
+      const cleanedContent = agentResponse || 'No response received from agent';
+      
+      console.log('🔍 FRONTEND DEBUG - Final content for display:', {
+        originalLength: agentResponse?.length || 0,
+        finalLength: cleanedContent?.length || 0,
+        contentPreview: cleanedContent.substring(0, 200)
+      });
       
       console.log('📨 Agent response after cleaning length:', cleanedContent?.length || 0);
 

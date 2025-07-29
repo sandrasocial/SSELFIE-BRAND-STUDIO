@@ -38,7 +38,7 @@ export class SmartContextManager {
   private contextCache = new Map<string, OptimizedContext>();
   private compressionCache = new Map<string, string>();
   private readonly CACHE_DURATION = 10 * 60 * 1000; // 10 minutes
-  private readonly MAX_CONTEXT_TOKENS = 800; // Aggressive token limit
+  private readonly MAX_CONTEXT_TOKENS = 400; // Ultra-aggressive token limit to prevent overflow
 
   /**
    * Get optimized context for agent execution
