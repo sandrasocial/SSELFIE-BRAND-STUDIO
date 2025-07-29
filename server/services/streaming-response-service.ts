@@ -94,7 +94,7 @@ export class StreamingResponseService {
   }
 
   /**
-   * Stream Claude API response with tool execution updates
+   * Stream Claude API response with tool execution updates and robust error handling
    */
   public async streamClaudeResponse(
     res: Response,
@@ -107,68 +107,123 @@ export class StreamingResponseService {
   ): Promise<void> {
     const { conversationId, showToolExecution = true } = options;
 
-    // Check if headers already sent to prevent the error
-    if (res.headersSent) {
-      console.warn('Headers already sent, cannot set streaming headers');
-      return;
-    }
+    try {
+      // Check if headers already sent to prevent the error
+      if (res.headersSent) {
+        console.warn('⚠️ Headers already sent, cannot initiate streaming');
+        return;
+      }
 
-    // Set SSE headers
-    res.writeHead(200, {
-      'Content-Type': 'text/event-stream',
-      'Cache-Control': 'no-cache',
-      'Connection': 'keep-alive',
-      'Access-Control-Allow-Origin': '*'
-    });
+      // Set SSE headers with error handling
+      res.writeHead(200, {
+        'Content-Type': 'text/event-stream',
+        'Cache-Control': 'no-cache',
+        'Connection': 'keep-alive',
+        'Access-Control-Allow-Origin': '*',
+        'X-Accel-Buffering': 'no' // Disable nginx buffering
+      });
 
-    // Send agent start signal
-    res.write(`data: ${JSON.stringify({
-      type: 'agent_start',
-      agentName,
-      conversationId,
-      timestamp: new Date().toISOString()
-    })}\n\n`);
-
-    // If showing tool execution, stream tool usage
-    if (showToolExecution) {
-      res.write(`data: ${JSON.stringify({
-        type: 'tool_thinking',
-        message: `${agentName} is analyzing your request...`,
+      // Send agent start signal
+      this.safeWrite(res, {
+        type: 'agent_start',
+        agentName,
+        conversationId,
         timestamp: new Date().toISOString()
-      })}\n\n`);
-    }
+      });
 
-    // Stream the actual message content (headers already set)
-    const words = messageContent.split(' ');
-    let accumulatedText = '';
-    
-    // Stream text in chunks without setting headers again
-    for (let i = 0; i < words.length; i += 4) {
-      const chunk = words.slice(i, i + 4).join(' ');
-      accumulatedText += (accumulatedText ? ' ' : '') + chunk;
+      // If showing tool execution, stream tool usage
+      if (showToolExecution) {
+        this.safeWrite(res, {
+          type: 'tool_thinking',
+          message: `${agentName} is analyzing your request...`,
+          timestamp: new Date().toISOString()
+        });
+      }
+
+      // Stream the actual message content with validation
+      if (!messageContent || typeof messageContent !== 'string') {
+        this.safeWrite(res, {
+          type: 'error',
+          error: 'Invalid message content received',
+          timestamp: new Date().toISOString()
+        });
+        res.end();
+        return;
+      }
+
+      const words = messageContent.split(' ');
+      let accumulatedText = '';
       
-      // Send chunk with progress info
-      res.write(`data: ${JSON.stringify({
-        type: 'chunk',
-        chunk: chunk + ' ',
-        accumulatedText,
-        progress: Math.round((i + 4) / words.length * 100),
+      // Stream text in chunks with connection checks
+      for (let i = 0; i < words.length; i += 4) {
+        // Check if connection is still alive
+        if (res.destroyed || res.writableEnded) {
+          console.log('🔌 Client disconnected during streaming');
+          return;
+        }
+
+        const chunk = words.slice(i, i + 4).join(' ');
+        accumulatedText += (accumulatedText ? ' ' : '') + chunk;
+        
+        // Send chunk with progress info
+        this.safeWrite(res, {
+          type: 'chunk',
+          chunk: chunk + ' ',
+          accumulatedText,
+          progress: Math.round((i + 4) / words.length * 100),
+          timestamp: new Date().toISOString()
+        });
+
+        // Add natural delay with connection check
+        await new Promise(resolve => setTimeout(resolve, 40));
+      }
+
+      // Send completion signal
+      this.safeWrite(res, {
+        type: 'complete',
+        finalText: messageContent,
+        conversationId,
         timestamp: new Date().toISOString()
-      })}\n\n`);
+      });
 
-      // Add natural delay
-      await new Promise(resolve => setTimeout(resolve, 40));
+      res.end();
+      console.log(`✅ Streaming completed for agent: ${agentName}`);
+
+    } catch (error) {
+      console.error('❌ Streaming error:', error);
+      
+      if (!res.headersSent) {
+        res.writeHead(500, { 'Content-Type': 'application/json' });
+        res.end(JSON.stringify({
+          success: false,
+          error: 'Streaming service error'
+        }));
+      } else if (!res.destroyed) {
+        this.safeWrite(res, {
+          type: 'error',
+          error: error instanceof Error ? error.message : 'Unknown streaming error',
+          timestamp: new Date().toISOString()
+        });
+        res.end();
+      }
     }
+  }
 
-    // Send completion signal
-    res.write(`data: ${JSON.stringify({
-      type: 'complete',
-      finalText: messageContent,
-      conversationId,
-      timestamp: new Date().toISOString()
-    })}\n\n`);
-
-    res.end();
+  /**
+   * Safe write method that handles connection errors
+   */
+  private safeWrite(res: Response, data: any): boolean {
+    try {
+      if (res.destroyed || res.writableEnded) {
+        return false;
+      }
+      
+      res.write(`data: ${JSON.stringify(data)}\n\n`);
+      return true;
+    } catch (error) {
+      console.error('Safe write error:', error);
+      return false;
+    }
   }
 
   /**
