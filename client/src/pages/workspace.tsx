@@ -12,7 +12,7 @@ export default function Workspace() {
   
 
 
-  // Fetch user data
+  // Fetch user data with proper typing
   const { data: aiImages = [] } = useQuery({
     queryKey: ['/api/ai-images'],
     enabled: isAuthenticated
@@ -21,7 +21,7 @@ export default function Workspace() {
   const { data: userModel, refetch: refetchUserModel } = useQuery({
     queryKey: ['/api/user-model'],
     enabled: isAuthenticated,
-    refetchInterval: (data) => {
+    refetchInterval: (data: any) => {
       // Auto-refresh every 10 seconds if training is in progress
       const isTraining = data?.trainingStatus === 'training' || 
                         data?.trainingStatus === 'starting' ||
@@ -32,35 +32,37 @@ export default function Workspace() {
     }
   });
 
-  const { data: subscription } = useQuery({
+  const { data: subscription = {} } = useQuery({
     queryKey: ['/api/subscription'],
     enabled: isAuthenticated
   });
 
-  const { data: usage } = useQuery({
+  const { data: usage = {} } = useQuery({
     queryKey: ['/api/usage/status'],
     enabled: isAuthenticated
   });
 
   // Check if user has premium access - Enhanced detection
-  const isPremiumUser = subscription?.plan === 'sselfie-studio' || 
+  const isPremiumUser = (subscription as any)?.plan === 'sselfie-studio' || 
                        user?.plan === 'admin' || 
                        user?.plan === 'sselfie-studio' ||
-                       usage?.plan === 'sselfie-studio';
+                       (usage as any)?.plan === 'sselfie-studio';
 
   // Simplified User Journey - 3 clear steps
   const getJourneySteps = () => {
-    // Step 1: Upload Photos - Enhanced training status detection
-    const step1Complete = userModel?.trainingStatus === 'completed';
-    const step1InProgress = userModel?.trainingStatus === 'training' || 
-                          userModel?.trainingStatus === 'starting' ||
-                          userModel?.trainingStatus === 'processing' ||
-                          userModel?.trainingStatus === 'pending' ||
-                          (userModel?.replicateModelId && userModel?.trainingStatus !== 'completed' && userModel?.trainingStatus !== 'failed');
+    // Step 1: Upload Photos - Enhanced training status detection  
+    const model = userModel as any;
+    const step1Complete = model?.trainingStatus === 'completed';
+    const step1InProgress = model?.trainingStatus === 'training' || 
+                          model?.trainingStatus === 'starting' ||
+                          model?.trainingStatus === 'processing' ||
+                          model?.trainingStatus === 'pending' ||
+                          (model?.replicateModelId && model?.trainingStatus !== 'completed' && model?.trainingStatus !== 'failed');
     
     // Step 2: Take Photos  
     const step2Ready = step1Complete;
-    const step2HasPhotos = aiImages.length > 0;
+    const images = Array.isArray(aiImages) ? aiImages : [];
+    const step2HasPhotos = images.length > 0;
     
     // Step 3: AI Photoshoot - should be ready when model is trained
     const step3Ready = step1Complete;
@@ -85,7 +87,7 @@ export default function Workspace() {
         description: 'Your personal photographer who creates stunning photos in any style you want.',
         timeEstimate: '10 minutes',
         status: step2HasPhotos ? 'complete' : step2Ready ? 'ready' : 'locked',
-        statusMessage: step2HasPhotos ? `${aiImages.length} photos ready` :
+        statusMessage: step2HasPhotos ? `${images.length} photos ready` :
                       step2Ready ? 'Ready for your photoshoot' :
                       'Upload selfies first',
         link: step2Ready ? '/maya' : '#',
@@ -120,20 +122,21 @@ export default function Workspace() {
   const getSimpleStats = () => {
     if (!usage) return { used: 0, remaining: 5, plan: 'Free' };
     
-    if (usage.plan === 'admin' || usage.isAdmin) {
+    const usageData = usage as any;
+    if (usageData.plan === 'admin' || usageData.isAdmin) {
       return {
-        used: usage.monthlyUsed || 0,
+        used: usageData.monthlyUsed || 0,
         remaining: 'Unlimited',
         plan: 'Admin'
       };
     }
     
     // Enhanced plan detection from multiple sources
-    const userPlan = user?.plan || subscription?.plan || usage?.plan || 'free';
+    const userPlan = user?.plan || (subscription as any)?.plan || usageData?.plan || 'free';
     const isStudioUser = userPlan === 'sselfie-studio' || userPlan === 'admin';
     
-    const used = usage.monthlyUsed || 0;
-    const total = isStudioUser ? (usage.monthlyAllowed || 100) : (usage.monthlyAllowed || 6);
+    const used = usageData.monthlyUsed || 0;
+    const total = isStudioUser ? (usageData.monthlyAllowed || 100) : (usageData.monthlyAllowed || 6);
     
     return {
       used,
@@ -385,7 +388,7 @@ export default function Workspace() {
               <div className="group">
                 <div className="relative overflow-hidden bg-black opacity-60" style={{ aspectRatio: '21/9' }}>
                   <img 
-                    src={SandraImages.editorial.lifestyle}
+                    src="https://i.postimg.cc/HWFbv1DB/file-32.png"
                     alt="Victoria"
                     className="w-full h-full object-cover opacity-40"
                   />
