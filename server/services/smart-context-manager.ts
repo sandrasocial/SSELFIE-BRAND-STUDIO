@@ -173,7 +173,7 @@ COST-OPTIMIZED: Keep responses under 300 words. Be direct and efficient.`;
     ];
 
     for (const pattern of capabilityPatterns) {
-      const matches = [...systemPrompt.matchAll(pattern)];
+      const matches = Array.from(systemPrompt.matchAll(pattern));
       matches.slice(0, 3).forEach(match => { // Only top 3 capabilities
         capabilities.push(match[1].trim());
       });
@@ -292,7 +292,7 @@ COST-OPTIMIZED: Keep responses under 300 words. Be direct and efficient.`;
     const now = Date.now();
     let clearedCount = 0;
 
-    for (const [key, context] of this.contextCache.entries()) {
+    for (const [key, context] of Array.from(this.contextCache.entries())) {
       if (now - context.cacheTimestamp > this.CACHE_DURATION) {
         this.contextCache.delete(key);
         clearedCount++;

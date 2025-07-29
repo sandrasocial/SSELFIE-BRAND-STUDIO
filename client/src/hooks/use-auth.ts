@@ -59,7 +59,7 @@ export function useAuth() {
         console.log('✅ Auth check: User authenticated:', userData.email);
         return userData;
       } catch (error) {
-        console.log('❌ Auth check: Error:', error.message);
+        console.log('❌ Auth check: Error:', (error as Error).message);
         return null; // Treat errors as not authenticated
       }
     }
