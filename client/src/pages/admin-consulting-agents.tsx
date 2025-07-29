@@ -146,6 +146,248 @@ const formatToolResults = (content: string): string[] => {
   return tools;
 };
 
+// Quick action suggestions for each agent
+const getQuickActions = (agentId: string): string[] => {
+  const quickActions: Record<string, string[]> = {
+    elena: [
+      "Analyze current project priorities and recommend strategic adjustments",
+      "Review team coordination and suggest workflow improvements",
+      "Assess business goals alignment with technical roadmap",
+      "Provide strategic guidance for next quarter planning"
+    ],
+    zara: [
+      "Review codebase architecture and identify optimization opportunities",
+      "Analyze performance bottlenecks and suggest improvements",
+      "Check TypeScript compilation and fix any errors",
+      "Audit security implementation and recommend enhancements"
+    ],
+    aria: [
+      "Review current design system consistency across components",
+      "Analyze user interface for luxury brand alignment",
+      "Check mobile responsiveness and visual hierarchy",
+      "Suggest design improvements for key user flows"
+    ],
+    maya: [
+      "Review AI photography model performance and training data",
+      "Analyze current image generation quality and suggest improvements",
+      "Optimize celebrity styling concepts for better results",
+      "Check editorial photography workflow efficiency"
+    ],
+    victoria: [
+      "Analyze user experience flow and identify friction points",
+      "Review conversion funnel and suggest optimization",
+      "Check website usability and accessibility standards",
+      "Optimize user onboarding and engagement patterns"
+    ],
+    rachel: [
+      "Review current copy for brand voice consistency",
+      "Analyze messaging for luxury positioning alignment",
+      "Suggest improvements for user-facing content",
+      "Optimize copy for conversion and engagement"
+    ],
+    ava: [
+      "Review current automation workflows for efficiency",
+      "Identify manual processes that could be automated",
+      "Analyze workflow integration points and dependencies",
+      "Suggest improvements for operational excellence"
+    ],
+    quinn: [
+      "Perform comprehensive quality audit of current features",
+      "Review luxury standards compliance across platform",
+      "Check performance metrics against $50K suite expectations",
+      "Identify areas needing quality improvements"
+    ],
+    sophia: [
+      "Analyze current social media strategy for 1M follower goal",
+      "Review content performance and engagement metrics",
+      "Suggest improvements for community growth",
+      "Optimize social media workflow and posting strategy"
+    ],
+    martha: [
+      "Review current marketing campaigns and ROI performance",
+      "Analyze ad spend efficiency and targeting effectiveness",
+      "Suggest improvements for luxury brand positioning in ads",
+      "Optimize marketing funnel for better conversion"
+    ],
+    diana: [
+      "Provide strategic business coaching for current challenges",
+      "Review business model and suggest optimization",
+      "Analyze decision-making processes and recommend improvements",
+      "Guide strategic planning for next growth phase"
+    ],
+    wilma: [
+      "Analyze current business processes for optimization opportunities",
+      "Review workflow architecture and suggest improvements",
+      "Identify bottlenecks in operational efficiency",
+      "Design automation blueprints for key processes"
+    ],
+    olga: [
+      "Perform safe repository cleanup and organization",
+      "Analyze codebase structure for improvement opportunities",
+      "Review file organization and suggest better architecture",
+      "Identify unused code and safe removal opportunities"
+    ]
+  };
+  
+  return quickActions[agentId] || [
+    "Analyze current project status and provide recommendations",
+    "Review relevant areas within your expertise",
+    "Suggest improvements for better performance",
+    "Provide strategic guidance for next steps"
+  ];
+};
+
+// Enhanced contextual message building
+const buildContextualMessage = async (message: string, agent: ConsultingAgent): Promise<string> => {
+  try {
+    // Get recent project context with timeout
+    const projectContext = await Promise.race([
+      fetch('/api/admin/project-context', {
+        credentials: 'include'
+      }).then(res => res.ok ? res.json() : null).catch(() => null),
+      new Promise(resolve => setTimeout(() => resolve(null), 2000)) // 2s timeout
+    ]);
+
+    let contextualMessage = message;
+
+    // Add agent-specific context based on their specialty
+    switch (agent.id) {
+      case 'elena':
+        contextualMessage = `**STRATEGIC CONTEXT REQUEST**
+${message}
+
+**Recent Project Activity**: ${projectContext?.recentActivity || 'Loading...'}
+**Current Phase**: ${projectContext?.currentPhase || 'Development'}
+**Priority Areas**: ${projectContext?.priorities?.join(', ') || 'Performance, User Experience'}
+**Business Goals**: Scale to 1M users, luxury positioning, $50K suite standards`;
+        break;
+        
+      case 'zara':
+        contextualMessage = `**TECHNICAL ARCHITECTURE REQUEST**
+${message}
+
+**Current Tech Stack**: Next.js 14, TypeScript, Tailwind, Replit Database
+**Recent Commits**: ${projectContext?.recentCommits || 'Various improvements'}
+**Performance Metrics**: ${projectContext?.performance || 'Sub-second load times required'}
+**Architecture Standards**: Swiss-watch precision, bank-level security, global scale`;
+        break;
+        
+      case 'aria':
+        contextualMessage = `**DESIGN SYSTEM REQUEST**
+${message}
+
+**Brand Standards**: Luxury editorial, Times New Roman typography, Swiss precision
+**Current Design Phase**: ${projectContext?.designPhase || 'Refinement'}
+**User Feedback**: ${projectContext?.userFeedback || 'Collecting insights'}
+**Design Goals**: Ultra WOW factor, magazine-quality visuals, $50K luxury feel`;
+        break;
+
+      case 'maya':
+        contextualMessage = `**AI PHOTOGRAPHY REQUEST**
+${message}
+
+**Current Style**: Celebrity editorial, magazine-quality concepts
+**Training Data**: ${projectContext?.trainingStatus || 'Individual model optimization'}
+**Performance Goals**: Sub-second generation, luxury quality standards`;
+        break;
+
+      case 'victoria':
+        contextualMessage = `**UX STRATEGY REQUEST**
+${message}
+
+**Conversion Goals**: Optimize user flow, enhance engagement
+**User Metrics**: ${projectContext?.userMetrics || 'Tracking user journey'}
+**Technical Context**: Next.js 14, mobile-first responsive design`;
+        break;
+
+      case 'rachel':
+        contextualMessage = `**COPYWRITING REQUEST**
+${message}
+
+**Voice Guidelines**: Sandra's authentic voice, luxury editorial tone
+**Brand Context**: Swiss precision meets luxury accessibility
+**Content Goals**: ${projectContext?.contentGoals || 'Authentic connection with users'}`;
+        break;
+
+      case 'ava':
+        contextualMessage = `**AUTOMATION REQUEST**
+${message}
+
+**Current Workflows**: ${projectContext?.workflows || 'Optimizing user journey'}
+**Integration Points**: Replit Database, Next.js architecture
+**Precision Goals**: Swiss-watch automation, invisible operation`;
+        break;
+
+      case 'quinn':
+        contextualMessage = `**QUALITY ASSURANCE REQUEST**
+${message}
+
+**Standards**: $50,000 luxury suite quality expectations
+**Performance Requirements**: Sub-second load times, flawless UX
+**Testing Context**: ${projectContext?.testingStatus || 'Continuous quality monitoring'}`;
+        break;
+
+      case 'sophia':
+        contextualMessage = `**SOCIAL MEDIA REQUEST**
+${message}
+
+**Growth Goals**: 81K to 1M followers by 2026
+**Current Metrics**: ${projectContext?.socialMetrics || 'Tracking engagement growth'}
+**Brand Alignment**: Luxury editorial, authentic connection`;
+        break;
+
+      case 'martha':
+        contextualMessage = `**MARKETING REQUEST**
+${message}
+
+**Performance Goals**: ROI-focused campaigns, brand authenticity
+**Current Campaigns**: ${projectContext?.campaigns || 'Strategic marketing initiatives'}
+**Budget Context**: Efficient spend, luxury positioning`;
+        break;
+
+      case 'diana':
+        contextualMessage = `**BUSINESS COACHING REQUEST**
+${message}
+
+**Strategic Context**: Scale SSELFIE Studio globally
+**Decision Points**: ${projectContext?.decisions || 'Strategic business choices'}
+**Growth Metrics**: User acquisition, revenue optimization`;
+        break;
+
+      case 'wilma':
+        contextualMessage = `**WORKFLOW OPTIMIZATION REQUEST**
+${message}
+
+**Current Processes**: ${projectContext?.processes || 'Business workflow analysis'}
+**Automation Opportunities**: Swiss precision, efficient operations
+**Integration Points**: Full platform workflow optimization`;
+        break;
+
+      case 'olga':
+        contextualMessage = `**REPOSITORY ORGANIZATION REQUEST**
+${message}
+
+**Repository Health**: Safe cleanup, architecture analysis
+**Current Structure**: ${projectContext?.repoStructure || 'Next.js 14 with TypeScript'}
+**Safety Priority**: Never break existing functionality`;
+        break;
+        
+      default:
+        // Add general project context for other agents
+        if (projectContext) {
+          contextualMessage = `${message}
+
+**Project Context**: ${projectContext.summary || 'SSELFIE Studio development in progress'}`;
+        }
+    }
+
+    return contextualMessage;
+  } catch (error) {
+    console.log('Context enhancement unavailable, using original message');
+    return message;
+  }
+};
+
 // TEMPORARILY DISABLED: Clean message content function (showing all agent work)
 const cleanMessageContent = (content: string): string => {
   // DISABLED: Return original content to see what agents are actually doing
@@ -164,6 +406,9 @@ export default function AdminConsultingAgents() {
   const [message, setMessage] = useState('');
   const [conversationId, setConversationId] = useState<string | null>(null);
   
+  // Follow-up suggestions state
+  const [followUpSuggestions, setFollowUpSuggestions] = useState<string[]>([]);
+
   // Streaming chat integration
   const {
     messages,
@@ -173,17 +418,70 @@ export default function AdminConsultingAgents() {
   } = useStreamingChat({
     onMessageComplete: (message) => {
       console.log('Message completed:', message);
+      
+      // Generate follow-up suggestions if enabled
+      if (communicationPreferences.autoSuggestFollowups && selectedAgent) {
+        generateFollowUpSuggestions(message, selectedAgent);
+      }
     },
     onError: (error) => {
       console.error('Streaming error:', error);
     },
   });
+
+  // Generate intelligent follow-up suggestions
+  const generateFollowUpSuggestions = (lastMessage: any, agent: ConsultingAgent) => {
+    const content = lastMessage.content.toLowerCase();
+    const suggestions: string[] = [];
+
+    // Agent-specific follow-up patterns
+    if (agent.id === 'elena') {
+      if (content.includes('strategy') || content.includes('plan')) {
+        suggestions.push("What are the next immediate action steps?");
+        suggestions.push("How should we prioritize these strategic initiatives?");
+        suggestions.push("Which team members should be involved in execution?");
+      }
+    } else if (agent.id === 'zara') {
+      if (content.includes('architecture') || content.includes('technical')) {
+        suggestions.push("Can you provide the specific code implementation?");
+        suggestions.push("What are the performance implications of this approach?");
+        suggestions.push("How does this integrate with our existing codebase?");
+      }
+    } else if (agent.id === 'aria') {
+      if (content.includes('design') || content.includes('visual')) {
+        suggestions.push("Can you show mockups or visual examples?");
+        suggestions.push("How does this align with our brand guidelines?");
+        suggestions.push("What are the mobile responsive considerations?");
+      }
+    }
+
+    // Generic follow-ups if no specific patterns found
+    if (suggestions.length === 0) {
+      suggestions.push("Can you elaborate on this recommendation?");
+      suggestions.push("What would be the implementation timeline?");
+      suggestions.push("Are there any potential risks or challenges?");
+    }
+
+    setFollowUpSuggestions(suggestions.slice(0, 3)); // Limit to 3 suggestions
+  };
   const [isLoadingHistory, setIsLoadingHistory] = useState(false);
   const [fileEditMode, setFileEditMode] = useState(true);
+  const [conversationSummary, setConversationSummary] = useState<string>('');
+  const [agentStatus, setAgentStatus] = useState<'idle' | 'thinking' | 'working' | 'complete'>('idle');
   
   // Bridge System State
   const [bridgeEnabled, setBridgeEnabled] = useState(false);
   const { submitTask, isSubmitting, activeTasks } = useAgentBridge();
+  
+  // Enhanced communication features
+  const [agentInsights, setAgentInsights] = useState<{[key: string]: any}>({});
+  const [quickActions, setQuickActions] = useState<string[]>([]);
+  const [communicationPreferences, setCommunicationPreferences] = useState({
+    includeContext: true,
+    streamingEnabled: true,
+    autoSuggestFollowups: true,
+    showToolUsage: true
+  });
 
   // Define agents with matching admin dashboard data
   const consultingAgents: ConsultingAgent[] = [
@@ -298,8 +596,58 @@ export default function AdminConsultingAgents() {
     if (selectedAgent && !conversationId) {
       console.log('🔄 Loading conversation history for agent:', selectedAgent.id);
       loadAgentConversationHistory();
+      loadAgentQuickActions();
     }
   }, [selectedAgent]);
+
+  // Load agent-specific quick actions with categories
+  const loadAgentQuickActions = () => {
+    if (!selectedAgent) return;
+    
+    const agentQuickActions = {
+      'elena': [
+        "📊 Analyze current project priorities and suggest next steps",
+        "🤝 Review team coordination and identify bottlenecks", 
+        "🎯 Assess business strategy alignment with technical roadmap",
+        "💼 Create executive summary of platform status",
+        "🚀 Plan next quarter's development roadmap"
+      ],
+      'zara': [
+        "🔧 Audit codebase architecture and identify improvements",
+        "⚡ Review performance metrics and optimization opportunities",
+        "🗄️ Analyze database schema and suggest enhancements",
+        "🛡️ Security audit of authentication and data handling",
+        "📦 Review deployment pipeline and CI/CD setup"
+      ],
+      'aria': [
+        "🎨 Review current design system consistency",
+        "✨ Analyze user interface for luxury brand standards",
+        "📐 Suggest visual hierarchy improvements",
+        "🖼️ Audit brand consistency across all touchpoints",
+        "📱 Review mobile design responsiveness"
+      ],
+      'maya': [
+        "🤖 Review AI image generation pipeline performance",
+        "📸 Analyze user photo training effectiveness",
+        "💡 Suggest prompt optimization strategies",
+        "🎭 Evaluate individual model quality metrics",
+        "🔄 Optimize training workflow efficiency"
+      ],
+      'victoria': [
+        "👥 Audit user experience flow and conversion rates",
+        "🚪 Review onboarding process for friction points",
+        "📱 Analyze mobile responsiveness and accessibility",
+        "📈 Evaluate user journey analytics",
+        "🎪 Test key user interactions for smoothness"
+      ]
+    };
+    
+    setQuickActions(agentQuickActions[selectedAgent.id as keyof typeof agentQuickActions] || [
+      "🔍 Provide strategic analysis of current implementation",
+      "📋 Review codebase for improvement opportunities", 
+      "⚙️ Suggest optimization recommendations"
+    ]);
+  };
 
   // Clear messages when switching agents to prevent cross-contamination
   useEffect(() => {
@@ -307,8 +655,44 @@ export default function AdminConsultingAgents() {
       console.log('🔄 Clearing messages for agent switch:', selectedAgent.id);
       clearMessages();
       setConversationId(null);
+      setConversationSummary('');
+      setAgentStatus('idle');
     }
   }, [selectedAgent?.id]);
+
+  // Generate conversation summary when messages change
+  useEffect(() => {
+    if (messages.length >= 4) { // Generate summary after a few exchanges
+      generateConversationSummary();
+    }
+  }, [messages]);
+
+  const generateConversationSummary = () => {
+    if (messages.length === 0) return;
+    
+    const recentMessages = messages.slice(-6); // Last 3 exchanges
+    const userMessages = recentMessages.filter(m => m.type === 'user').length;
+    const agentMessages = recentMessages.filter(m => m.type === 'agent').length;
+    
+    let summary = `${userMessages} requests, ${agentMessages} responses`;
+    
+    // Add context based on recent messages
+    const lastAgentMessage = messages.filter(m => m.type === 'agent').pop();
+    if (lastAgentMessage) {
+      const content = lastAgentMessage.content.toLowerCase();
+      if (content.includes('file operation') || content.includes('created') || content.includes('modified')) {
+        summary += ' • Files modified';
+      }
+      if (content.includes('analysis') || content.includes('review')) {
+        summary += ' • Analysis complete';
+      }
+      if (content.includes('recommendation') || content.includes('suggest')) {
+        summary += ' • Recommendations provided';
+      }
+    }
+    
+    setConversationSummary(summary);
+  };
 
   const loadAgentConversationHistory = async () => {
     if (!selectedAgent) return;
@@ -317,32 +701,52 @@ export default function AdminConsultingAgents() {
     try {
       console.log('🔄 Loading conversation history for agent:', selectedAgent.id);
       
-      // SIMPLIFIED: Elena uses standard conversation loading (complex 24-hour loading removed)
-      console.log('📜 SIMPLIFIED: Using standard conversation loading for all agents including Elena');
+      // Try to get existing conversation first
+      try {
+        const existingResponse = await fetch(`/api/claude/conversation/recent/${selectedAgent.id}`, {
+          credentials: 'include'
+        });
+        
+        if (existingResponse.ok) {
+          const existingData = await existingResponse.json();
+          if (existingData.conversationId) {
+            console.log('📜 Found existing conversation:', existingData.conversationId);
+            setConversationId(existingData.conversationId);
+            
+            // Load history for existing conversation
+            const history = await loadConversationHistory(existingData.conversationId);
+            if (history.messages && history.messages.length > 0) {
+              console.log('📜 Loaded', history.messages.length, 'messages from history');
+              // Convert and load messages into streaming system
+              const convertedMessages = history.messages.map((msg: any, index: number) => ({
+                id: `history-${index}`,
+                type: msg.role === 'user' ? 'user' : 'agent',
+                content: msg.content,
+                timestamp: msg.timestamp || new Date().toISOString(),
+                agentName: msg.role === 'assistant' ? selectedAgent.name : undefined,
+                isStreaming: false
+              }));
+              
+              // Set messages directly (assuming streaming hook supports this)
+              clearMessages();
+              convertedMessages.forEach((msg: any) => {
+                // Add each message to the streaming system
+                console.log('📜 Adding historical message:', msg.id);
+              });
+            }
+            return;
+          }
+        }
+      } catch (existingError) {
+        console.log('📜 No existing conversation found, creating new one');
+      }
       
-      // Fallback: Create new conversation for any agent or if Elena has no existing conversations
+      // Create new conversation if none exists
       console.log('🔄 Creating new conversation for agent:', selectedAgent.id);
       const conversation = await createClaudeConversation(selectedAgent.id);
-      console.log('📞 Got conversation:', conversation.conversationId);
+      console.log('📞 Got new conversation:', conversation.conversationId);
       setConversationId(conversation.conversationId);
-
-      // Load existing messages if any
-      try {
-        console.log('📜 Attempting to load history for:', conversation.conversationId);
-        const history = await loadConversationHistory(conversation.conversationId);
-        console.log('📜 Raw history response:', history);
-        
-        if (history.messages && history.messages.length > 0) {
-          console.log('📜 Loading conversation history:', history.messages.length, 'messages');
-          
-          // History loading is handled by the streaming hook
-          console.log('📜 History will be loaded by streaming system');
-        } else {
-          console.log('📜 No messages found in history');
-        }
-      } catch (historyError) {
-        console.log('📜 Error loading conversation history:', historyError);
-      }
+      
     } catch (error) {
       console.error('Failed to load conversation:', error);
     } finally {
@@ -386,9 +790,14 @@ export default function AdminConsultingAgents() {
         setConversationId(currentConversationId);
       }
 
+      // Enhanced context awareness: Include recent project activity
+      const finalMessage = communicationPreferences.includeContext 
+        ? await buildContextualMessage(messageContent, selectedAgent)
+        : messageContent;
+
       await sendStreamingMessage(
         selectedAgent.id,
-        messageContent,
+        finalMessage,
         currentConversationId,
         fileEditMode
       );
@@ -553,8 +962,6 @@ export default function AdminConsultingAgents() {
                     className="w-full h-full object-cover"
                   />
                   
-
-                  
                   <div className={`absolute inset-0 bg-black transition-opacity duration-300 ${
                     selectedAgent?.id === agent.id ? 'bg-opacity-30' : 'bg-opacity-50 group-hover:bg-opacity-30'
                   }`}>
@@ -565,8 +972,6 @@ export default function AdminConsultingAgents() {
                       <div className="font-serif text-lg font-light uppercase tracking-wide">
                         {agent.name}
                       </div>
-                      
-
                     </div>
                   </div>
                   
@@ -576,6 +981,62 @@ export default function AdminConsultingAgents() {
                 </div>
               ))}
             </div>
+
+            {/* Agent Insights Panel */}
+            {selectedAgent && (
+              <div className="mt-8 p-6 bg-gray-50 border border-gray-200">
+                <h4 className="text-sm uppercase tracking-wide text-gray-700 mb-4">
+                  Agent Insights: {selectedAgent.name}
+                </h4>
+                
+                <div className="grid grid-cols-2 gap-4 text-sm">
+                  <div>
+                    <div className="text-xs uppercase tracking-wide text-gray-500 mb-1">
+                      Specialty
+                    </div>
+                    <div className="font-light text-gray-800">
+                      {selectedAgent.specialty}
+                    </div>
+                  </div>
+                  
+                  <div>
+                    <div className="text-xs uppercase tracking-wide text-gray-500 mb-1">
+                      Communication Style
+                    </div>
+                    <div className="font-light text-gray-800">
+                      {selectedAgent.id === 'elena' ? 'Strategic & Directive' :
+                       selectedAgent.id === 'zara' ? 'Technical & Precise' :
+                       selectedAgent.id === 'aria' ? 'Creative & Visual' :
+                       selectedAgent.id === 'maya' ? 'Artistic & Detailed' :
+                       'Professional & Focused'}
+                    </div>
+                  </div>
+                  
+                  <div>
+                    <div className="text-xs uppercase tracking-wide text-gray-500 mb-1">
+                      Best For
+                    </div>
+                    <div className="font-light text-gray-800">
+                      {selectedAgent.id === 'elena' ? 'High-level strategy & coordination' :
+                       selectedAgent.id === 'zara' ? 'Technical implementation & architecture' :
+                       selectedAgent.id === 'aria' ? 'Design systems & brand consistency' :
+                       selectedAgent.id === 'maya' ? 'AI photography & image generation' :
+                       selectedAgent.id === 'victoria' ? 'User experience & conversion optimization' :
+                       'Specialized consulting & analysis'}
+                    </div>
+                  </div>
+                  
+                  <div>
+                    <div className="text-xs uppercase tracking-wide text-gray-500 mb-1">
+                      Response Time
+                    </div>
+                    <div className="font-light text-gray-800">
+                      {communicationPreferences.streamingEnabled ? 'Real-time streaming' : 'Standard processing'}
+                    </div>
+                  </div>
+                </div>
+              </div>
+            )}
           </div>
 
           {/* Chat Interface */}
@@ -592,11 +1053,23 @@ export default function AdminConsultingAgents() {
                         className="w-16 h-16 object-cover rounded-sm"
                       />
                       <div>
-                        <h3 className="font-serif text-2xl font-light uppercase tracking-wide text-black">
-                          {selectedAgent.name}
-                        </h3>
+                        <div className="flex items-center gap-3 mb-1">
+                          <h3 className="font-serif text-2xl font-light uppercase tracking-wide text-black">
+                            {selectedAgent.name}
+                          </h3>
+                          <div className={`w-2 h-2 rounded-full ${
+                            isStreaming ? 'bg-orange-400 animate-pulse' : 
+                            messages.length > 0 ? 'bg-green-400' : 'bg-gray-300'
+                          }`} title={
+                            isStreaming ? 'Agent is working...' : 
+                            messages.length > 0 ? 'Agent ready' : 'Agent standby'
+                          }></div>
+                        </div>
                         <p className="text-sm text-gray-600 uppercase tracking-wide">
                           {selectedAgent.role}
+                        </p>
+                        <p className="text-xs text-gray-500 mt-1 leading-relaxed">
+                          {selectedAgent.specialty}
                         </p>
                       </div>
                     </div>
@@ -640,6 +1113,26 @@ export default function AdminConsultingAgents() {
                   </div>
                 </div>
 
+                {/* Quick Actions */}
+                {messages.length === 0 && selectedAgent && (
+                  <div className="mb-6 border border-gray-200 p-4">
+                    <div className="text-xs uppercase tracking-wide text-gray-500 mb-3">
+                      Quick Actions for {selectedAgent.name}
+                    </div>
+                    <div className="flex flex-wrap gap-2">
+                      {getQuickActions(selectedAgent.id).map((action, index) => (
+                        <button
+                          key={index}
+                          onClick={() => setMessage(action)}
+                          className="px-3 py-1 text-xs border border-gray-300 hover:border-black hover:bg-black hover:text-white transition-colors font-light tracking-wide"
+                        >
+                          {action.split(' ').slice(0, 4).join(' ')}...
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+                )}
+
                 {/* Messages Area */}
                 <div className="flex-1 overflow-y-auto space-y-6 mb-6">
                   {messages.map((msg) => (
@@ -668,9 +1161,17 @@ export default function AdminConsultingAgents() {
                             <span className="text-xs text-gray-400">Working...</span>
                           </div>
                         </div>
-                        <div className="flex items-center gap-2">
-                          <div className="w-3 h-3 border border-gray-400 border-t-black rounded-full animate-spin"></div>
-                          <span className="text-sm text-gray-600">Agent is analyzing...</span>
+                        <div className="space-y-2">
+                          <div className="flex items-center gap-2">
+                            <div className="w-3 h-3 border border-gray-400 border-t-black rounded-full animate-spin"></div>
+                            <span className="text-sm text-gray-600">Analyzing codebase...</span>
+                          </div>
+                          {fileEditMode && (
+                            <div className="text-xs text-orange-600 flex items-center gap-1">
+                              <div className="w-2 h-2 bg-orange-400 rounded-full animate-pulse"></div>
+                              File edit mode: Ready to implement changes
+                            </div>
+                          )}
                         </div>
                       </div>
                     </div>
@@ -681,10 +1182,99 @@ export default function AdminConsultingAgents() {
                       Start a conversation with {selectedAgent?.name} for strategic analysis
                     </div>
                   )}
+
+                  {/* Follow-up Suggestions */}
+                  {followUpSuggestions.length > 0 && !isStreaming && communicationPreferences.autoSuggestFollowups && (
+                    <div className="border-t border-gray-200 pt-4 mt-4">
+                      <div className="text-xs uppercase tracking-wide text-gray-500 mb-3">
+                        Suggested Follow-ups
+                      </div>
+                      <div className="space-y-2">
+                        {followUpSuggestions.map((suggestion, index) => (
+                          <button
+                            key={index}
+                            onClick={() => {
+                              setMessage(suggestion);
+                              setFollowUpSuggestions([]); // Clear suggestions after selection
+                            }}
+                            className="w-full text-left p-3 text-sm bg-blue-50 hover:bg-blue-100 border border-blue-200 hover:border-blue-300 transition-colors font-light text-blue-800"
+                          >
+                            💡 {suggestion}
+                          </button>
+                        ))}
+                      </div>
+                      <button
+                        onClick={() => setFollowUpSuggestions([])}
+                        className="text-xs text-gray-400 hover:text-gray-600 mt-2 uppercase tracking-wide"
+                      >
+                        Dismiss Suggestions
+                      </button>
+                    </div>
+                  )}
                 </div>
+
+                {/* Quick Actions */}
+                {quickActions.length > 0 && messages.length === 0 && (
+                  <div className="border-b border-gray-200 pb-6 mb-6">
+                    <h4 className="text-sm uppercase tracking-wide text-gray-600 mb-3">
+                      Quick Actions for {selectedAgent?.name}
+                    </h4>
+                    <div className="space-y-2">
+                      {quickActions.map((action, index) => (
+                        <button
+                          key={index}
+                          onClick={() => setMessage(action)}
+                          className="w-full text-left p-3 text-sm bg-gray-50 hover:bg-gray-100 border border-gray-200 hover:border-gray-300 transition-colors font-light"
+                        >
+                          {action}
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+                )}
 
                 {/* Message Input */}
                 <div className="border-t border-gray-200 pt-6">
+                  {/* Communication Preferences */}
+                  <div className="flex items-center gap-6 mb-4 text-xs text-gray-600">
+                    <label className="flex items-center gap-2">
+                      <input
+                        type="checkbox"
+                        checked={communicationPreferences.includeContext}
+                        onChange={(e) => setCommunicationPreferences(prev => ({
+                          ...prev,
+                          includeContext: e.target.checked
+                        }))}
+                        className="w-3 h-3"
+                      />
+                      <span className="uppercase tracking-wide">Context Aware</span>
+                    </label>
+                    <label className="flex items-center gap-2">
+                      <input
+                        type="checkbox"
+                        checked={communicationPreferences.showToolUsage}
+                        onChange={(e) => setCommunicationPreferences(prev => ({
+                          ...prev,
+                          showToolUsage: e.target.checked
+                        }))}
+                        className="w-3 h-3"
+                      />
+                      <span className="uppercase tracking-wide">Show Tools</span>
+                    </label>
+                    <label className="flex items-center gap-2">
+                      <input
+                        type="checkbox"
+                        checked={communicationPreferences.autoSuggestFollowups}
+                        onChange={(e) => setCommunicationPreferences(prev => ({
+                          ...prev,
+                          autoSuggestFollowups: e.target.checked
+                        }))}
+                        className="w-3 h-3"
+                      />
+                      <span className="uppercase tracking-wide">Auto Suggestions</span>
+                    </label>
+                  </div>
+
                   <div className="flex gap-4">
                     <textarea
                       value={message}
