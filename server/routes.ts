@@ -25,6 +25,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
     res.json({ status: 'ok', timestamp: new Date().toISOString() });
   });
   
+  // Test endpoint for search cache system
+  const { agentSearchCacheTestRouter } = await import('./routes/agent-search-cache-test');
+  app.use('/api', agentSearchCacheTestRouter);
+  
   // UNIFIED AGENT SYSTEM - Single integration layer
   console.log('🎯 UNIFIED AGENT SYSTEM: Initializing single integration layer...');
   await unifiedAgentSystem.initialize(app, server);
