@@ -32,15 +32,31 @@ export async function search_filesystem(params: SearchParams) {
           const fullPath = path.join(dirPath, entry.name);
           const relativePath = path.join(basePath, entry.name);
           
-          // CRITICAL FIX: Ensure agents can see client/src - only exclude build artifacts
-          if (entry.name === 'node_modules' || 
-              entry.name === 'dist' ||
-              entry.name === 'build' ||
-              entry.name === '.git' ||
-              entry.name === '.next' ||
-              entry.name === 'coverage' ||
-              entry.name === 'archive') {  // Exclude archive directory to prevent confusion
+          // LIVE APP FOCUS: Only search in directories relevant to the live SSELFIE Studio app
+          const liveAppDirectories = ['api', 'server', 'client', 'src', 'components', 'pages', 'admin', 'shared'];
+          const excludeDirectories = [
+            'node_modules', 'dist', 'build', '.git', '.next', 'coverage',
+            'archive', 'attached_assets', 'logs', 'temp', 'tmp', 'data',
+            'docs', 'marketing', 'quality_protocols', 'selfie_studio_launch',
+            'technical_analysis', 'temp_training', 'test', 'workflows'
+          ];
+          
+          // Skip excluded directories completely
+          if (excludeDirectories.includes(entry.name)) {
             continue;
+          }
+          
+          // For root level, only include live app directories
+          if (basePath === '' && entry.isDirectory() && !liveAppDirectories.includes(entry.name)) {
+            continue;
+          }
+          
+          // Include important root-level files like App.tsx, package.json, etc.
+          if (basePath === '' && entry.isFile()) {
+            const importantRootFiles = ['app.tsx', 'package.json', 'tsconfig.json', 'vite.config.ts', 'tailwind.config.ts'];
+            if (!importantRootFiles.some(file => entry.name.toLowerCase().includes(file.toLowerCase()))) {
+              continue;
+            }
           }
           
           // PRIORITY: Always include client/src directory for agent access
