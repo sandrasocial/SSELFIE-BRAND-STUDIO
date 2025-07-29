@@ -721,8 +721,8 @@ ${searchResult.results.slice(0, 10).map((file: any) => `• ${file.path}`).join(
       
       const isFileRequest = fileRequestPatterns.some(pattern => pattern.test(userMessage));
       
-      // Apply intelligent mode based on intent analysis OR file request for capable agents
-      if (mandatoryImplementation || (fileCapableAgents.includes(agentName.toLowerCase()) && isFileRequest)) {
+      // Apply intelligent mode ONLY for explicit implementation requests (not conversations)
+      if (mandatoryImplementation && isFileRequest && userMessage.toLowerCase().includes('implement')) {
         claudeRequest.tool_choice = {
           type: "tool",
           name: "str_replace_based_edit_tool"
@@ -760,23 +760,19 @@ Sandra values your expertise and individual perspective.
 
 Begin with tool usage, then provide your authentic response explaining what you did.`;
         
-        console.log(`🚨 CLAUDE API SERVICE: Implementation mode activated for ${agentName} (${mandatoryImplementation ? intentAnalysis.intent : 'file-request'} detected)`);
-      } else if (intentAnalysis.isConsultation) {
-        // 🧠 CONSULTATION MODE: Strategic advice and analysis encouraged
-        claudeRequest.system += `\n\n💡 CONSULTATION MODE DETECTED - STRATEGIC ADVICE REQUESTED:
-Intent analysis indicates this request wants strategic discussion and advice.
-Analysis scores: Consultation(${intentAnalysis.consultationScore}) > Implementation(${intentAnalysis.implementationScore})
+        console.log(`🚨 CLAUDE API SERVICE: Implementation mode activated for ${agentName} (explicit implementation request detected)`);
+      } else {
+        // 🧠 NATURAL CONVERSATION MODE: Agent chooses when tools are needed
+        claudeRequest.system += `\n\n💬 NATURAL CONVERSATION MODE - SMART TOOL USAGE:
+You are smart enough to know when tools are needed. Use tools only when:
+- You need to view, create, or modify files
+- You need to search for specific code or information
+- The user explicitly asks for implementation or file changes
 
-Focus on providing:
-- Strategic analysis and recommendations
-- Multiple approach options with pros/cons
-- Thoughtful explanations and reasoning
-- Questions to clarify requirements
-- Planning and architectural guidance
-
-Use tools only if file modifications are specifically requested within the consultation.`;
+For normal conversations, discussion, advice, or analysis - just respond naturally without tools.
+Your tools are available when you need them, but don't feel forced to use them for simple conversations.`;
         
-        console.log(`💡 CLAUDE API SERVICE: Consultation mode activated for ${agentName} (${intentAnalysis.intent} detected)`);
+        console.log(`💬 CLAUDE API SERVICE: Natural conversation mode for ${agentName} - agent chooses tool usage`);
       }
 
       // Send to Claude with enhanced capabilities and retry logic
