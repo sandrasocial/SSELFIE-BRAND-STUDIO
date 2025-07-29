@@ -453,6 +453,107 @@ export async function registerRoutes(app: Express): Promise<Server> {
       });
     }
   });
+
+  // AGENT COMMUNICATION FIX - Add missing /api/admin/agent-chat-bypass endpoint
+  app.post('/api/admin/agent-chat-bypass', async (req, res) => {
+    try {
+      console.log('🔄 AGENT CHAT BYPASS: Processing agent request');
+      
+      const { agentName, message, fileEditMode = true, forceToolChoice } = req.body;
+      
+      // Admin authentication check
+      const adminToken = req.headers['authorization'] || req.headers['x-admin-token'];
+      const isAuthenticated = req.isAuthenticated?.() && (req.user as any)?.claims?.email === 'ssa@ssasocial.com';
+      
+      if (!isAuthenticated && adminToken !== 'sandra-admin-2025') {
+        return res.status(401).json({ 
+          success: false, 
+          error: 'Admin access required' 
+        });
+      }
+
+      if (!agentName || !message) {
+        return res.status(400).json({ 
+          success: false, 
+          error: 'Agent name and message are required' 
+        });
+      }
+
+      // Get user ID
+      let userId = '42585527'; // Sandra's admin user ID
+      if (req.isAuthenticated() && (req.user as any)?.claims?.sub) {
+        userId = (req.user as any).claims.sub;
+      }
+
+      console.log(`🤖 Calling agent ${agentName} with message length: ${message.length}`);
+      console.log(`🔧 Using userId: ${userId} for agent: ${agentName}`);
+
+      // Generate conversation ID
+      const conversationId = `admin_${agentName}_${Date.now()}`;
+
+      // Use Claude API service for agent communication (correct parameter order)
+      const response = await claudeApiService.sendMessage(
+        userId,        // First parameter: userId  
+        agentName,     // Second parameter: agentName
+        conversationId, // Third parameter: conversationId
+        message,       // Fourth parameter: userMessage
+        undefined,     // Fifth parameter: systemPrompt (optional)
+        undefined,     // Sixth parameter: tools (optional) 
+        fileEditMode   // Seventh parameter: fileEditMode
+      );
+
+      console.log(`✅ Agent ${agentName} responded successfully`);
+
+      res.json({
+        success: true,
+        response: (response as any).content || response,
+        agentName,
+        conversationId,
+        timestamp: new Date().toISOString()
+      });
+
+    } catch (error) {
+      console.error('❌ Agent chat bypass error:', error);
+      res.status(500).json({
+        success: false,
+        error: error instanceof Error ? error.message : 'Agent communication failed',
+        timestamp: new Date().toISOString()
+      });
+    }
+  });
+
+  // Agent status endpoint for monitoring  
+  app.get('/api/admin/agent-chat-bypass', async (req, res) => {
+    try {
+      // Admin authentication check
+      const adminToken = req.headers['authorization'] || req.headers['x-admin-token'];
+      const isAuthenticated = req.isAuthenticated?.() && (req.user as any)?.claims?.email === 'ssa@ssasocial.com';
+      
+      if (!isAuthenticated && adminToken !== 'sandra-admin-2025') {
+        return res.status(401).json({ 
+          success: false, 
+          error: 'Admin access required' 
+        });
+      }
+
+      res.json({
+        success: true,
+        status: 'Agent communication system operational',
+        availableAgents: [
+          'Elena', 'Aria', 'Zara', 'Maya', 'Victoria', 'Rachel', 
+          'Ava', 'Quinn', 'Sophia', 'Martha', 'Diana', 'Wilma', 'Olga'
+        ],
+        timestamp: new Date().toISOString()
+      });
+
+    } catch (error) {
+      console.error('❌ Agent status error:', error);
+      res.status(500).json({
+        success: false,
+        error: error instanceof Error ? error.message : 'Status check failed'
+      });
+    }
+  });
   
   return server;
 }
