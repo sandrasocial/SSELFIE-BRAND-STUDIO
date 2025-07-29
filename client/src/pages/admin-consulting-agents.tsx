@@ -137,9 +137,15 @@ const listAgentConversations = async (agentName: string, limit = 10) => {
     });
 
     if (!response.ok) {
-      console.error('📋 Frontend: Conversation list API failed:', response.status);
-      const error = await response.json();
-      throw new Error(error.details || 'Failed to list conversations');
+      console.error('📋 Frontend: Conversation list API failed:', response.status, response.statusText);
+      try {
+        const error = await response.json();
+        console.error('📋 Frontend: Error details:', error);
+        throw new Error(error.details || 'Failed to list conversations');
+      } catch (parseError) {
+        console.error('📋 Frontend: Could not parse error response');
+        throw new Error(`API failed with status ${response.status}`);
+      }
     }
 
     const data = await response.json();
@@ -155,7 +161,8 @@ const listAgentConversations = async (agentName: string, limit = 10) => {
     return {
       success: false,
       conversations: [],
-      agentName
+      agentName,
+      error: error
     };
   }
 };
@@ -351,6 +358,7 @@ export default function AdminConsultingAgents() {
       // STEP 1: Check for existing conversations first
       console.log('📋 STEP 1: Checking for existing conversations');
       const conversationList = await listAgentConversations(selectedAgent.id, 5);
+      console.log('📋 STEP 1 RESULT:', conversationList);
       
       if (conversationList.success && conversationList.conversations && conversationList.conversations.length > 0) {
         // Store available conversations for potential selection
