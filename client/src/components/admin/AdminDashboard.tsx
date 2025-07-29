@@ -4,6 +4,8 @@ import { useAuth } from '@/hooks/use-auth';
 import { MemberNavigation } from '@/components/member-navigation';
 import { GlobalFooter } from '@/components/global-footer';
 import { SandraImages } from '@/lib/sandra-images';
+import { HeroFullBleed } from '@/components/luxury/HeroFullBleed';
+import { AgentCard } from '@/components/luxury/AgentCard';
 
 // New agent images uploaded by user
 import AgentElena from '@assets/out-0 (33)_1753426218039.png';
