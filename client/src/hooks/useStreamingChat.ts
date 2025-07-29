@@ -58,7 +58,10 @@ export function useStreamingChat({ onMessageComplete, onError }: UseStreamingCha
     const attemptStreaming = async (): Promise<void> => {
       try {
         const controller = new AbortController();
-        const timeoutId = setTimeout(() => controller.abort(), 30000);
+        const timeoutId = setTimeout(() => {
+          console.log('Stream timeout reached, aborting...');
+          controller.abort();
+        }, 30000);
         
         // Start streaming with proper error handling
         const response = await fetch('/api/claude/send-message-stream', {
@@ -82,6 +85,9 @@ export function useStreamingChat({ onMessageComplete, onError }: UseStreamingCha
         clearTimeout(timeoutId);
 
         if (!response.ok) {
+          if (controller.signal.aborted) {
+            throw new Error('Request was aborted due to timeout');
+          }
           const errorText = await response.text().catch(() => 'Unknown error');
           console.error('Streaming response error:', response.status, response.statusText, errorText);
           throw new Error(`Stream failed: ${response.status} ${response.statusText} - ${errorText}`);

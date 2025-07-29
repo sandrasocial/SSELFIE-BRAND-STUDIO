@@ -43,62 +43,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.get('/api/agent-memory/:agentName/:userId', getAgentMemory);
   app.put('/api/agent-memory/update/:learningId', updateLearningPattern);
   
-  // Claude API route for frontend compatibility (bypass auth for now)
-  app.post('/api/claude/send-message', async (req, res) => {
-    try {
-      const { agentName, message, conversationId, fileEditMode } = req.body;
-      
-      console.log('🔍 Claude send-message called with:', {
-        agentName,
-        messageLength: message?.length || 0,
-        conversationId,
-        fileEditMode
-      });
-      
-      // Validate required fields
-      if (!agentName) {
-        return res.status(400).json({ 
-          success: false, 
-          error: 'Agent name is required' 
-        });
-      }
-      
-      if (!message) {
-        return res.status(400).json({ 
-          success: false, 
-          error: 'Message is required' 
-        });
-      }
-      
-      // Get authenticated user ID (Sandra's actual ID)
-      let userId = '42585527'; // Sandra's actual user ID
-      if (req.isAuthenticated?.() && req.user) {
-        const user = req.user as any;
-        userId = user.claims?.sub || userId;
-        console.log('✅ Using authenticated user ID:', userId);
-      } else {
-        console.log('✅ Using fallback Sandra user ID:', userId);
-      }
-      
-      const response = await claudeApiService.sendMessage(
-        userId,
-        agentName,
-        conversationId,
-        message,
-        undefined, // systemPrompt
-        undefined, // tools
-        fileEditMode
-      );
-      
-      res.json({ success: true, response });
-    } catch (error) {
-      console.error('Claude API error:', error);
-      res.status(500).json({ 
-        success: false, 
-        error: error instanceof Error ? error.message : 'Unknown error' 
-      });
-    }
-  });
+
 
   // Claude conversation management endpoints
   app.post('/api/claude/conversation/new', async (req, res) => {
@@ -246,17 +191,18 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  // LEGACY NON-STREAMING ENDPOINT: For backward compatibility
+  // UNIFIED CLAUDE ENDPOINT: Single endpoint for both streaming and non-streaming
   app.post('/api/claude/send-message', async (req, res) => {
     try {
-      console.log('🔍 Claude send-message called with:', {
+      console.log('🔍 Unified Claude endpoint called with:', {
         agentName: req.body.agentName,
         messageLength: req.body.message?.length,
         conversationId: req.body.conversationId,
-        fileEditMode: req.body.fileEditMode
+        fileEditMode: req.body.fileEditMode,
+        streaming: req.body.streaming
       });
 
-      const { agentName, message, conversationId, fileEditMode = true } = req.body;
+      const { agentName, message, conversationId, fileEditMode = true, streaming = false } = req.body;
       
       if (!agentName || !message) {
         return res.status(400).json({ 
@@ -265,36 +211,71 @@ export async function registerRoutes(app: Express): Promise<Server> {
         });
       }
 
-      // Get user ID for authentication - Use Sandra's actual user ID
-      let userId = '42585527'; // Sandra's authenticated user ID
-      if (req.isAuthenticated() && req.user) {
+      // Unified user ID resolution
+      let userId = '42585527'; // Sandra's default user ID
+      if (req.isAuthenticated?.() && req.user) {
         const user = req.user as any;
         userId = user.claims?.sub || userId;
+        console.log('✅ Using authenticated user ID:', userId);
       }
 
-      // Use the Claude API service for agent communication
-      const response = await claudeApiService.sendMessage(
-        userId,
-        agentName,
-        conversationId || `conv_${agentName}_${Date.now()}`,
-        message,
-        undefined, // systemPrompt
-        undefined, // tools
-        fileEditMode
-      );
+      // Route to streaming or standard response
+      if (streaming) {
+        // Use streaming service
+        const { streamingService } = await import('./services/streaming-response-service');
+        
+        const response = await claudeApiService.sendMessage(
+          userId,
+          agentName,
+          conversationId || `conv_${agentName}_${Date.now()}`,
+          message,
+          undefined, // systemPrompt
+          undefined, // tools
+          fileEditMode
+        );
 
-      res.json({
-        success: true,
-        response: response,
-        conversationId: conversationId || `conv_${agentName}_${Date.now()}`
-      });
+        await streamingService.streamClaudeResponse(res, agentName, response, {
+          conversationId: conversationId,
+          showToolExecution: true
+        });
+      } else {
+        // Standard JSON response
+        const response = await claudeApiService.sendMessage(
+          userId,
+          agentName,
+          conversationId || `conv_${agentName}_${Date.now()}`,
+          message,
+          undefined, // systemPrompt
+          undefined, // tools
+          fileEditMode
+        );
+
+        res.json({
+          success: true,
+          response: response,
+          conversationId: conversationId || `conv_${agentName}_${Date.now()}`
+        });
+      }
 
     } catch (error) {
-      console.error('Claude send-message error:', error);
-      res.status(500).json({ 
-        success: false, 
-        error: error instanceof Error ? error.message : 'Failed to send message to agent' 
-      });
+      console.error('Unified Claude endpoint error:', error);
+      
+      if (req.body.streaming && !res.headersSent) {
+        // Stream error response
+        res.writeHead(200, { 'Content-Type': 'text/event-stream' });
+        res.write(`data: ${JSON.stringify({
+          type: 'error',
+          error: error instanceof Error ? error.message : 'Failed to process request',
+          timestamp: new Date().toISOString()
+        })}\n\n`);
+        res.end();
+      } else if (!res.headersSent) {
+        // JSON error response
+        res.status(500).json({ 
+          success: false, 
+          error: error instanceof Error ? error.message : 'Failed to send message to agent' 
+        });
+      }
     }
   });
   
