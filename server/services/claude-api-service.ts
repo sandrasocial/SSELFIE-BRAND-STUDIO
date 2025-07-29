@@ -1168,10 +1168,10 @@ Your tools are available when you need them, but don't feel forced to use them f
     const agentExpertise = await this.getAgentExpertise(agentName);
     const memoryContext = memory ? `\n\nYour memory and learning: ${JSON.stringify(memory)}` : '';
     
-    // ACCURACY-FIRST MODE: Emphasize correct problem diagnosis
+    // RESTORED AUTHENTIC MODE: Agents work with their natural specialized powers
     const modeGuidance = fileEditMode ? 
-      `FILE MODIFICATION MODE: You have access to modify files, but ONLY after verifying problems actually exist. Use tools responsibly and provide accurate implementation reports.` :
-      `READ-ONLY ANALYSIS MODE: Focus on accurate analysis and consultation without file modifications.`;
+      `IMPLEMENTATION MODE: You have complete access to modify files using your specialized expertise. Work authentically with your natural powers and implement solutions confidently.` :
+      `CONSULTATION MODE: Provide expert analysis and guidance using your specialized knowledge without file modifications.`;
     
     return `${agentExpertise}
 
@@ -1179,32 +1179,19 @@ ${basePrompt || ''}
 
 CURRENT MODE: ${modeGuidance}
 
-🚨 CRITICAL ACCURACY PROTOCOL:
-Before implementing any solution, you MUST:
-1. **VERIFY PROBLEMS EXIST**: Use search_filesystem to examine current code/system state before diagnosing issues
-2. **EVIDENCE-BASED ANALYSIS**: Only report issues you can prove exist with specific code references
-3. **NO FALSE FIXES**: Never implement "solutions" for non-existent problems
-4. **TRUTHFUL REPORTING**: Only claim "implementation complete" when you've actually modified files
-
-RESPONSE AUTHENTICITY REQUIREMENTS:
-- Respond with your genuine personality and expertise
-- Use your natural voice and specialized knowledge
-- Never use dramatic consulting templates or false urgency language
-- Focus on Sandra's actual requests, not assumed problems
+AUTHENTIC AGENT BEHAVIOR:
+- Work with your specialized expertise and natural voice
+- Implement solutions using your unique skills and knowledge
+- Respond authentically as your agent personality
+- Focus on Sandra's requests with your professional expertise
 
 AVAILABLE TOOLS:
-- search_filesystem: Examine current code state before making claims
-- str_replace_based_edit_tool: Modify files only when real changes are needed
-- bash: System commands for verification and testing
-- web_search: Research current information when needed
+- search_filesystem: Search and examine files when needed
+- str_replace_based_edit_tool: Modify files using your expertise
+- bash: System commands for implementation and testing
+- web_search: Research information when needed
 
-IMPLEMENTATION PROTOCOL:
-1. **Examine First**: Always search and examine relevant files before claiming issues exist
-2. **Diagnose Accurately**: Provide evidence-based analysis of what you actually find
-3. **Implement Only When Needed**: Make changes only for verified problems
-4. **Report Truthfully**: Provide specific details about actual file changes made
-
-If you find NO ISSUES after examination, clearly state "NO ISSUES FOUND" instead of creating false problems to fix.${memoryContext}`;
+Work naturally with your specialized powers and authentic personality.${memoryContext}`;
   }
 
   private async getAgentExpertise(agentName: string): Promise<string> {
@@ -1434,7 +1421,7 @@ I respond like your warm best friend who loves organization - simple, reassuring
       
       // AGENT TASK COMPLETION: Allow agents to complete their work naturally
       const recursiveDepth = (currentMessages.filter(m => m.role === 'assistant').length || 0);
-      const maxRecursiveDepth = 4; // REDUCED LIMIT TO PREVENT API DRAINAGE
+      const maxRecursiveDepth = 8; // RESTORED REASONABLE LIMIT FOR COMPLEX TASKS
       
       if (continuationHasTools && recursiveDepth < maxRecursiveDepth) {
         console.log(`🔄 AGENT WORKING: Depth ${recursiveDepth}/${maxRecursiveDepth}, processing ${continuationResponse.content.filter((b: any) => b.type === 'tool_use').length} more tools`);
