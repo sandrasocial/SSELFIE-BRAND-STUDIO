@@ -1398,31 +1398,48 @@ I respond like your warm best friend who loves organization - simple, reassuring
       
       console.log(`🔄 CONTINUING CONVERSATION: Processing ${toolResults.length} tool results. Current response length: ${finalResponse.length}`);
       
-      // CRITICAL FIX: Allow agents to continue using tools dynamically as needed
-      currentMessages.push({
-        role: 'user',
-        content: "Based on the tool results above, provide your analysis and continue working. You can use additional tools if needed to complete the task."
-      });
+      // COST-CONTROLLED RECURSION: Smart continuation management
+      const shouldContinueWithTools = recursionDepth < 2; // Only allow 2 automatic continuations
       
-      // Continue conversation with tool results - KEEP TOOLS AVAILABLE for dynamic work
+      if (shouldContinueWithTools && recursionDepth === 0) {
+        // First continuation: Allow analysis with limited tool access
+        currentMessages.push({
+          role: 'user',
+          content: "Analyze the tool results above and continue working if needed. You have 2 more tool cycles available."
+        });
+      } else if (shouldContinueWithTools && recursionDepth === 1) {
+        // Second continuation: Final tool opportunity
+        currentMessages.push({
+          role: 'user',
+          content: "Complete any remaining essential work. This is your final tool cycle."
+        });
+      } else {
+        // Force completion without more API calls
+        currentMessages.push({
+          role: 'user',
+          content: "Provide your final analysis of what you accomplished. No additional tools needed."
+        });
+      }
+      
+      // Continue conversation with controlled tool access
       const continuationResponse = await this.sendToClaudeWithRetry({
         model: DEFAULT_MODEL_STR,
-        max_tokens: 4000,
+        max_tokens: 3000, // Reduced token limit to control costs
         system: systemPrompt,
         messages: currentMessages,
-        tools: tools, // CRITICAL FIX: Keep tools available for continued dynamic work
-        tool_choice: fileEditMode ? { type: "auto" } : undefined // Allow tools when in file edit mode
+        tools: shouldContinueWithTools ? tools : [], // Remove tools after 2 cycles
+        tool_choice: shouldContinueWithTools && fileEditMode ? { type: "auto" } : undefined
       });
       
       // CHECK IF CONTINUATION RESPONSE HAS MORE TOOLS - RECURSIVE PROCESSING
       const continuationHasTools = continuationResponse.content.some((block: any) => block.type === 'tool_use');
       
       if (continuationHasTools) {
-        // RECURSION DEPTH PROTECTION: Prevent infinite loops but allow continuation
-        const maxRecursionDepth = 5; // REDUCED to prevent API credit drain - was 25
+        // AGGRESSIVE COST CONTROL: Maximum 3 total cycles to prevent $3-5 conversations
+        const maxRecursionDepth = 3; // CRITICAL: Reduced from 25 → 3 cycles max
         if (recursionDepth >= maxRecursionDepth) {
-          console.log(`⚠️ RECURSION DEPTH LIMIT REACHED: ${recursionDepth}/${maxRecursionDepth} - pausing for continuation`);
-          finalResponse += '\n\n**WORK PAUSED** - I completed 5 cycles to prevent API credit waste. Reply "continue" to resume, or provide new instructions.';
+          console.log(`💰 COST PROTECTION: Reached ${recursionDepth}/${maxRecursionDepth} cycles limit`);
+          finalResponse += '\n\n**WORK PAUSED** - I completed 3 cycles to prevent API cost drain. Reply "continue" to resume with fresh context.';
           return finalResponse;
         }
         
