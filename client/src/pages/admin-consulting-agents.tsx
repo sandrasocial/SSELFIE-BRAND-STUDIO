@@ -550,9 +550,7 @@ export default function AdminConsultingAgents() {
           type: 'agent',
           content: result.result.result || 'Task completed',
           timestamp: new Date().toISOString(),
-          agentName: selectedAgent.name,
-          cost: result.result.costEstimate || 0,
-          effortUsed: result.result.effortUsed || 0
+          agentName: selectedAgent.name
         };
 
         setMessages(prev => [...prev, agentResponse]);

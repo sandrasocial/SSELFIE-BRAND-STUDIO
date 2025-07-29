@@ -28,10 +28,10 @@ export function ElenaWorkflowsTab() {
   const queryClient = useQueryClient();
   const [executingWorkflows, setExecutingWorkflows] = useState<Set<string>>(new Set());
 
-  // Query staged workflows
+  // Query staged workflows - NO POLLING in chat interface, only manual refresh
   const { data: workflowsData, isLoading } = useQuery({
     queryKey: ['/api/elena/staged-workflows'],
-    refetchInterval: 10000, // Refresh every 10 seconds
+    staleTime: 300000, // Data is stale after 5 minutes (no auto-refresh)
   });
 
   // Mutation to execute workflow - Connected to Elena execution API
@@ -74,7 +74,7 @@ export function ElenaWorkflowsTab() {
         console.log('✅ ELENA EXECUTE SUCCESS:', data);
         
         // Add to executing set
-        setExecutingWorkflows(prev => new Set([...prev, workflow.id]));
+        setExecutingWorkflows(prev => new Set([...Array.from(prev), workflow.id]));
         
         // Refresh both workflows and active deployments
         queryClient.invalidateQueries({ queryKey: ['/api/elena/staged-workflows'] });
@@ -97,7 +97,7 @@ export function ElenaWorkflowsTab() {
     },
   });
 
-  const workflows: StagedWorkflow[] = workflowsData?.workflows || [];
+  const workflows: StagedWorkflow[] = (workflowsData as { workflows?: StagedWorkflow[] })?.workflows || [];
 
   const getPriorityColor = (priority: string) => {
     switch (priority) {
