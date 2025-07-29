@@ -192,9 +192,9 @@ export class ConversationManager {
     return {
       agentId,
       userId,
-      keyTasks: [...new Set(keyTasks)].slice(0, 15), // Remove duplicates and keep top 15 tasks
+      keyTasks: Array.from(new Set(keyTasks)).slice(0, 15), // Remove duplicates and keep top 15 tasks
       currentContext,
-      recentDecisions: [...new Set(recentDecisions)].slice(0, 8), // Remove duplicates and keep top 8 decisions
+      recentDecisions: Array.from(new Set(recentDecisions)).slice(0, 8), // Remove duplicates and keep top 8 decisions
       workflowStage,
       timestamp: new Date()
     };
@@ -212,7 +212,7 @@ export class ConversationManager {
         summary.userId,
         '**CONVERSATION_MEMORY**',
         JSON.stringify(summary),
-        { workflowStage: summary.workflowStage }
+        []
       );
       
       console.log(`💾 Agent memory saved for ${summary.agentId}`);
@@ -231,7 +231,11 @@ export class ConversationManager {
       // Find the most recent memory entry
       const memoryEntry = conversations
         .filter(conv => conv.userMessage === '**CONVERSATION_MEMORY**')
-        .sort((a, b) => new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime())[0];
+        .sort((a, b) => {
+          const dateA = a.timestamp ? new Date(a.timestamp).getTime() : 0;
+          const dateB = b.timestamp ? new Date(b.timestamp).getTime() : 0;
+          return dateB - dateA;
+        })[0];
       
       if (memoryEntry) {
         return JSON.parse(memoryEntry.agentResponse);
@@ -252,7 +256,11 @@ export class ConversationManager {
       const conversations = await storage.getAgentConversations(userId, agentId);
       const memoryEntries = conversations
         .filter(conv => conv.userMessage === '**CONVERSATION_MEMORY**')
-        .sort((a, b) => new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime());
+        .sort((a, b) => {
+          const dateA = a.timestamp ? new Date(a.timestamp).getTime() : 0;
+          const dateB = b.timestamp ? new Date(b.timestamp).getTime() : 0;
+          return dateB - dateA;
+        });
       
       // Keep only the 3 most recent memory entries
       if (memoryEntries.length > 3) {
