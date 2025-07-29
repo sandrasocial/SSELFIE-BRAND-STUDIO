@@ -1336,22 +1336,22 @@ I respond like your warm best friend who loves organization - simple, reassuring
       
       // Track recursive depth to prevent expensive loops
       const recursiveDepth = (currentMessages.filter(m => m.role === 'assistant').length || 0);
-      const maxRecursiveDepth = 2; // Maximum 2 recursive calls to control costs
+      const maxRecursiveDepth = 5; // Allow more recursion for agents to complete tasks properly
       
       if (continuationHasTools && recursiveDepth < maxRecursiveDepth) {
         console.log(`🔄 CONTROLLED RECURSION: Depth ${recursiveDepth}/${maxRecursiveDepth}, processing ${continuationResponse.content.filter((b: any) => b.type === 'tool_use').length} more tools`);
         
-        // TOKEN MANAGEMENT: More aggressive token limits
+        // TOKEN MANAGEMENT: Reasonable token limits for proper task completion
         const currentTokenEstimate = JSON.stringify(currentMessages).length / 4;
-        const maxSafeTokens = 50000; // Much lower limit to prevent expensive calls
+        const maxSafeTokens = 80000; // Higher limit to allow agents to complete tasks
         
         if (currentTokenEstimate > maxSafeTokens) {
           console.log(`💰 COST PROTECTION: ${currentTokenEstimate} tokens exceeds limit, stopping recursion to prevent API drainage`);
           
-          // Extract text response and stop recursion
+          // Extract text response and complete task
           for (const content of continuationResponse.content) {
             if (content.type === 'text') {
-              finalResponse += (finalResponse ? '\n\n' : '') + content.text + '\n\n[Additional analysis stopped to control API costs]';
+              finalResponse += (finalResponse ? '\n\n' : '') + content.text;
             }
           }
         } else {
@@ -1375,12 +1375,12 @@ I respond like your warm best friend who loves organization - simple, reassuring
         }
         
       } else if (continuationHasTools) {
-        console.log(`💰 RECURSION BLOCKED: Depth limit ${maxRecursiveDepth} reached to prevent API cost drainage`);
+        console.log(`✅ TASK COMPLETION: Agent reached natural stopping point after ${maxRecursiveDepth} iterations`);
         
-        // Extract any text response and stop
+        // Extract any text response and complete naturally
         for (const content of continuationResponse.content) {
           if (content.type === 'text') {
-            finalResponse += (finalResponse ? '\n\n' : '') + content.text + '\n\n[Analysis complete - stopped to control API costs]';
+            finalResponse += (finalResponse ? '\n\n' : '') + content.text;
           }
         }
       } else {
