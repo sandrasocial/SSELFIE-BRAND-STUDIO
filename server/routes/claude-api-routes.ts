@@ -253,7 +253,7 @@ router.get('/conversations/list', async (req, res) => {
     
     console.log('📋 Listing conversations for:', { agentName, userId, limit });
 
-    // Query conversations from database
+    // Query conversations from database - using correct snake_case column names from schema
     let whereConditions = [eq(claudeConversations.userId, userId)];
     
     // Filter by agent if specified
