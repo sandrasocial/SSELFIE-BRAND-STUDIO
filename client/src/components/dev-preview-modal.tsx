@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { X, Check, RotateCcw, Copy, Download } from 'lucide-react';
-import { LiveComponentPreview } from './LiveComponentPreview';
+// import { LiveComponentPreview } from './LiveComponentPreview';
 
 interface DevPreviewModalProps {
   isOpen: boolean;
@@ -100,14 +100,8 @@ export function DevPreviewModal({
                 <p className="text-sm text-gray-600 mb-4">{previewData.description}</p>
               </div>
               
-              {/* Use LiveComponentPreview for Victoria's components */}
-              {previewData.fileContent && previewData.type === 'component' ? (
-                <LiveComponentPreview 
-                  fileContent={previewData.fileContent}
-                  componentName={previewData.filePath?.split('/').pop()?.replace('.tsx', '')}
-                  type={previewData.type}
-                />
-              ) : previewData.preview ? (
+              {/* Use preview system for Victoria's components */}
+              {previewData.preview ? (
                 <div className="border border-gray-200 rounded-lg overflow-hidden">
                   <div className="bg-gray-100 px-3 py-2 text-xs text-gray-600 border-b">
                     Preview - {previewData.type}
