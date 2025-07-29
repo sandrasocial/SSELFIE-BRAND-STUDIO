@@ -6,6 +6,7 @@ interface SearchParams {
   class_names?: string[];
   function_names?: string[];
   code?: string[];
+  directories?: string[];
 }
 
 interface SearchResult {
@@ -36,18 +37,25 @@ export async function search_filesystem(params: SearchParams) {
           const liveAppDirectories = ['api', 'server', 'client', 'src', 'components', 'pages', 'admin', 'shared'];
           const excludeDirectories = [
             'node_modules', 'dist', 'build', '.git', '.next', 'coverage',
-            'archive', 'attached_assets', 'logs', 'temp', 'tmp', 'data',
+            'attached_assets', 'logs', 'temp', 'tmp', 'data',
             'docs', 'marketing', 'quality_protocols', 'selfie_studio_launch',
             'technical_analysis', 'temp_training', 'test', 'workflows'
           ];
           
-          // Skip excluded directories completely
-          if (excludeDirectories.includes(entry.name)) {
+          // Allow archive access only when specifically searched for
+          const searchingForArchive = params.query_description?.toLowerCase().includes('archive') ||
+                                    params.directories?.some(dir => dir.toLowerCase().includes('archive'));
+          
+          // Skip excluded directories, but allow archive if specifically requested
+          if (excludeDirectories.includes(entry.name) || 
+              (entry.name === 'archive' && !searchingForArchive)) {
             continue;
           }
           
-          // For root level, only include live app directories
-          if (basePath === '' && entry.isDirectory() && !liveAppDirectories.includes(entry.name)) {
+          // For root level, only include live app directories (and archive if specifically requested)
+          if (basePath === '' && entry.isDirectory() && 
+              !liveAppDirectories.includes(entry.name) && 
+              !(entry.name === 'archive' && searchingForArchive)) {
             continue;
           }
           
