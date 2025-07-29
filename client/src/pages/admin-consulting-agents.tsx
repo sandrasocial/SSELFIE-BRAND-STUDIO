@@ -569,12 +569,25 @@ export default function AdminConsultingAgents() {
       });
 
       if (!response.ok) {
+        console.error('🚨 API Request failed:', {
+          status: response.status,
+          statusText: response.statusText,
+          url: response.url
+        });
+        
         const errorData = await response.json().catch(() => ({ error: 'Unknown error' }));
-        throw new Error(`Claude API Error (${response.status}): ${errorData.error || 'Service temporarily unavailable'}`);
+        console.error('🚨 API Error details:', errorData);
+        throw new Error(`Agent API Error (${response.status}): ${errorData.error || errorData.message || 'Service temporarily unavailable'}`);
       }
 
-      const { result } = await response.json();
-      const agentResponse = result.result;
+      const responseData = await response.json();
+      console.log('🔍 Full API response:', responseData);
+      
+      if (!responseData.success || !responseData.result) {
+        throw new Error('Invalid response format from agent API');
+      }
+      
+      const agentResponse = responseData.result.result;
       
       console.log('📨 Received agent response length:', agentResponse?.length || 0);
       
@@ -600,7 +613,11 @@ export default function AdminConsultingAgents() {
 
       setMessages(prev => [...prev, agentMessage]);
     } catch (error) {
-      console.error('Claude API error:', error);
+      console.error('🚨 Complete error details:', {
+        error,
+        message: error instanceof Error ? error.message : String(error),
+        stack: error instanceof Error ? error.stack : 'No stack trace'
+      });
       
       // Check if this was an abort signal (user stopped the agent)
       if (error instanceof Error && error.name === 'AbortError') {
