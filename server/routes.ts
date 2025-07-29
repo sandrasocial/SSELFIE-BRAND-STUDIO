@@ -33,6 +33,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Add essential API routes
   const { claudeApiService } = await import('./services/claude-api-service');
   
+  // Register Claude API routes (includes conversation list endpoint)
+  const claudeApiRoutes = await import('./routes/claude-api-routes');
+  app.use('/api/claude', claudeApiRoutes.default);
+  
   // Claude API route for frontend compatibility (bypass auth for now)
   app.post('/api/claude/send-message', async (req, res) => {
     try {
@@ -121,6 +125,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Conversation history endpoint (kept here for compatibility)
   app.get('/api/claude/conversation/:conversationId/history', async (req, res) => {
     try {
       const { conversationId } = req.params;
