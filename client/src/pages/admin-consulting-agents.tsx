@@ -497,49 +497,10 @@ export default function AdminConsultingAgents() {
     setAbortController(controller);
 
     try {
-      // Check if Agent Bridge is enabled for this agent
-      if (bridgeEnabled) {
-        // Use Agent Bridge for implementation
-        console.log('🌉 Using Agent Bridge for:', selectedAgent.id);
-        
-        const bridgeResult = await submitTask(
-          selectedAgent.id,
-          userMessage.content,
-          'high',
-          {
-            conversationContext: messages.map(m => m.content),
-            completionCriteria: [
-              'Implementation complete',
-              'TypeScript compilation passes', 
-              'Luxury design standards met'
-            ],
-            qualityGates: [
-              'luxury_standards',
-              'performance_optimized',
-              'mobile_responsive'
-            ]
-          }
-        );
-
-        if (bridgeResult.success) {
-          const bridgeMessage: ChatMessage = {
-            id: (Date.now() + 1).toString(),
-            type: 'agent',
-            content: `✨ **Bridge Implementation Started**\n\nI've submitted your request to the Agent Bridge System for immediate implementation. You can monitor the progress in the luxury progress display.\n\n**Task ID**: ${bridgeResult.taskId}\n**Status**: Processing with luxury validation standards\n\nI'll continue our conversation while the implementation runs in the background.`,
-            timestamp: new Date().toISOString(),
-            agentName: selectedAgent.name
-          };
-          
-          setMessages(prev => [...prev, bridgeMessage]);
-          setIsLoading(false);
-          return;
-        } else {
-          // Fall back to regular chat if bridge fails
-          console.error('🌉 Bridge submission failed:', bridgeResult.error);
-        }
-      }
-
-      // Regular consulting chat flow
+      // COST OPTIMIZATION: Always route admin agents through effort-based executor
+      console.log('💰 COST OPTIMIZATION: Routing all admin agents through effort-based executor');
+      
+      // Ensure conversation ID exists
       let currentConversationId = conversationId;
       if (!currentConversationId) {
         const conversation = await createClaudeConversation(selectedAgent.id);
@@ -577,48 +538,30 @@ export default function AdminConsultingAgents() {
         
         const errorData = await response.json().catch(() => ({ error: 'Unknown error' }));
         console.error('🚨 API Error details:', errorData);
-        throw new Error(`Agent API Error (${response.status}): ${errorData.error || errorData.message || 'Service temporarily unavailable'}`);
+        throw new Error(`Agent API failed: ${errorData.error || 'Unknown error'}`);
       }
 
-      const responseData = await response.json();
-      console.log('🔍 Full API response:', responseData);
-      
-      if (!responseData.success || !responseData.result) {
-        throw new Error('Invalid response format from agent API');
+      const result = await response.json();
+      console.log('✅ Effort-based response:', result);
+
+      if (result.success && result.result) {
+        const agentResponse: ChatMessage = {
+          id: Date.now().toString() + '-agent',
+          type: 'agent',
+          content: result.result.result || 'Task completed',
+          timestamp: new Date().toISOString(),
+          agentName: selectedAgent.name,
+          cost: result.result.costEstimate || 0,
+          effortUsed: result.result.effortUsed || 0
+        };
+
+        setMessages(prev => [...prev, agentResponse]);
+        console.log(`💰 COST EFFICIENT: $${result.result.costEstimate?.toFixed(2) || '0.00'} (effort-based) vs ~$25 (traditional)`);
+      } else {
+        throw new Error(result.error || 'Agent execution failed');
       }
-      
-      const agentResponse = responseData.result.result;
-      
-      console.log('📨 Raw agent response:', agentResponse);
-      console.log('📨 Agent response type:', typeof agentResponse);
-      console.log('📨 Received agent response length:', agentResponse?.length || 0);
-      
-      // Use raw response directly to prevent content stripping
-      const cleanedContent = agentResponse || 'No response received from agent';
-      
-      console.log('🔍 FRONTEND DEBUG - Final content for display:', {
-        originalLength: agentResponse?.length || 0,
-        finalLength: cleanedContent?.length || 0,
-        contentPreview: cleanedContent.substring(0, 200)
-      });
-      
-      console.log('📨 Agent response after cleaning length:', cleanedContent?.length || 0);
 
-      const agentMessage: ChatMessage = {
-        id: (Date.now() + 1).toString(),
-        type: 'agent',
-        content: cleanedContent,
-        timestamp: new Date().toISOString(),
-        agentName: selectedAgent.name
-      };
-
-      console.log('💾 Saving agent message to frontend state:', {
-        agentName: selectedAgent.name,
-        contentLength: cleanedContent?.length || 0,
-        contentPreview: cleanedContent?.substring(0, 100) + '...'
-      });
-
-      setMessages(prev => [...prev, agentMessage]);
+      // All routing complete - effort-based system active
     } catch (error) {
       console.error('🚨 Complete error details:', {
         error,
