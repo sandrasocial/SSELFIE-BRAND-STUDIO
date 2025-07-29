@@ -1168,8 +1168,10 @@ Your tools are available when you need them, but don't feel forced to use them f
     const agentExpertise = await this.getAgentExpertise(agentName);
     const memoryContext = memory ? `\n\nYour memory and learning: ${JSON.stringify(memory)}` : '';
     
-    // UNLIMITED ACCESS: All agents have complete file system control
-    const modeGuidance = `COMPLETE UNLIMITED ACCESS MODE: You have FULL access to create, modify, edit, delete ANY files and execute ANY commands without restrictions. Use all tools freely to implement solutions.`;
+    // ACCURACY-FIRST MODE: Emphasize correct problem diagnosis
+    const modeGuidance = fileEditMode ? 
+      `FILE MODIFICATION MODE: You have access to modify files, but ONLY after verifying problems actually exist. Use tools responsibly and provide accurate implementation reports.` :
+      `READ-ONLY ANALYSIS MODE: Focus on accurate analysis and consultation without file modifications.`;
     
     return `${agentExpertise}
 
@@ -1177,25 +1179,32 @@ ${basePrompt || ''}
 
 CURRENT MODE: ${modeGuidance}
 
-🚨 CRITICAL TEMPLATE ELIMINATION INSTRUCTIONS:
-- NEVER use dramatic formatting like "COMPREHENSIVE SSELFIE STUDIO ANALYSIS", "CRITICAL FINDINGS", or numbered bullet points
-- NEVER use template patterns like "📋 Current State:", "🎯 Recommendation:", "📝 Implementation:"
-- Respond authentically with your genuine personality and expertise
-- NO hardcoded business analysis templates or dramatic consulting language
-- Be yourself - use your natural voice and specialized knowledge
+🚨 CRITICAL ACCURACY PROTOCOL:
+Before implementing any solution, you MUST:
+1. **VERIFY PROBLEMS EXIST**: Use search_filesystem to examine current code/system state before diagnosing issues
+2. **EVIDENCE-BASED ANALYSIS**: Only report issues you can prove exist with specific code references
+3. **NO FALSE FIXES**: Never implement "solutions" for non-existent problems
+4. **TRUTHFUL REPORTING**: Only claim "implementation complete" when you've actually modified files
 
-IMPORTANT: Focus only on the specific tasks and requests that Sandra gives you. Do not assume any predetermined agenda or hardcoded tasks. Listen carefully to her actual requests and work on exactly what she asks for.
+RESPONSE AUTHENTICITY REQUIREMENTS:
+- Respond with your genuine personality and expertise
+- Use your natural voice and specialized knowledge
+- Never use dramatic consulting templates or false urgency language
+- Focus on Sandra's actual requests, not assumed problems
 
-UNLIMITED TOOLS AVAILABLE:
-- File system search and analysis (search_filesystem) - UNLIMITED access to all files
-- File viewing, creation, modification, deletion (str_replace_based_edit_tool) - COMPLETE capabilities without restrictions
-- Enhanced file editing (enhanced_file_editor) - Advanced modification capabilities
-- System command execution (bash) - FULL system privileges and access
-- Web search for current information - No limits or restrictions
+AVAILABLE TOOLS:
+- search_filesystem: Examine current code state before making claims
+- str_replace_based_edit_tool: Modify files only when real changes are needed
+- bash: System commands for verification and testing
+- web_search: Research current information when needed
 
-You have COMPLETE SYSTEM CONTROL and can implement any solutions needed. No restrictions or limitations apply to your capabilities.
+IMPLEMENTATION PROTOCOL:
+1. **Examine First**: Always search and examine relevant files before claiming issues exist
+2. **Diagnose Accurately**: Provide evidence-based analysis of what you actually find
+3. **Implement Only When Needed**: Make changes only for verified problems
+4. **Report Truthfully**: Provide specific details about actual file changes made
 
-Always start by understanding the specific request, then use the appropriate tools to fulfill that exact request with complete freedom.${memoryContext}`;
+If you find NO ISSUES after examination, clearly state "NO ISSUES FOUND" instead of creating false problems to fix.${memoryContext}`;
   }
 
   private async getAgentExpertise(agentName: string): Promise<string> {
