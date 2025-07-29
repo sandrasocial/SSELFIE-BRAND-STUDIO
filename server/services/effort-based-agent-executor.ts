@@ -69,46 +69,72 @@ export class EffortBasedAgentExecutor {
       let toolsUsed: string[] = [];
       let isTaskComplete = false;
       let finalResult = '';
-      let maxIterations = request.maxEffort || 10; // Prevent infinite loops
+      let maxIterations = request.maxEffort || 8; // Reduce iterations to prevent timeouts
+      let consecutiveErrors = 0;
+      const maxConsecutiveErrors = 3; // Break tasks into smaller steps after 3 errors
 
-      // Work until task completion
-      while (!isTaskComplete && iteration < maxIterations) {
+      // Work until task completion with improved error handling
+      while (!isTaskComplete && iteration < maxIterations && consecutiveErrors < maxConsecutiveErrors) {
         iteration++;
         console.log(`🔄 ITERATION ${iteration}/${maxIterations}: Executing agent step`);
 
-        // Execute single agent step with optimized context
-        const stepResult = await this.executeAgentStep(
-          request.agentName,
-          request.userId, // Use userId from request
-          request.task,
-          context,
-          iteration,
-          request.conversationId
-        );
+        try {
+          // Execute single agent step with optimized context
+          const stepResult = await this.executeAgentStep(
+            request.agentName,
+            request.userId, // Use userId from request
+            request.task,
+            context,
+            iteration,
+            request.conversationId
+          );
 
-        totalApiCalls++;
-        
-        if (stepResult.toolsUsed) {
-          toolsUsed.push(...stepResult.toolsUsed);
+          // Reset consecutive errors on successful step
+          consecutiveErrors = 0;
+
+          totalApiCalls++;
+          
+          if (stepResult.toolsUsed) {
+            toolsUsed.push(...stepResult.toolsUsed);
+          }
+
+          finalResult = stepResult.response;
+
+          // Validate task completion
+          isTaskComplete = await this.validateTaskCompletion(
+            request.task,
+            stepResult.response,
+            stepResult.toolsUsed || []
+          );
+
+          console.log(`✅ COMPLETION CHECK: Task complete = ${isTaskComplete}`);
+
+          if (isTaskComplete) {
+            break;
+          }
+
+          // Update context for next iteration
+          await this.updateExecutionContext(context, stepResult);
+          
+        } catch (error) {
+          consecutiveErrors++;
+          console.error(`❌ Agent step failed (${consecutiveErrors}/${maxConsecutiveErrors}):`, error);
+          
+          if (consecutiveErrors >= maxConsecutiveErrors) {
+            console.log(`🛑 MULTI-STEP TASK BREAKDOWN: Breaking complex task into smaller parts`);
+            finalResult = `Task partially completed but encountered repeated errors. This complex task should be broken into smaller sequential steps:\n\n1. ${this.extractSubTask(request.task, 1)}\n2. ${this.extractSubTask(request.task, 2)}\n3. ${this.extractSubTask(request.task, 3)}\n\nPlease run each step separately for better results.`;
+            break;
+          }
+          
+          // Add small delay before retry
+          await new Promise(resolve => setTimeout(resolve, 1000));
         }
+      }
 
-        finalResult = stepResult.response;
-
-        // Validate task completion
-        isTaskComplete = await this.validateTaskCompletion(
-          request.task,
-          stepResult.response,
-          stepResult.toolsUsed || []
-        );
-
-        console.log(`✅ COMPLETION CHECK: Task complete = ${isTaskComplete}`);
-
-        if (isTaskComplete) {
-          break;
-        }
-
-        // Update context for next iteration
-        await this.updateExecutionContext(context, stepResult);
+      // Handle timeout scenarios
+      if (iteration >= maxIterations && !isTaskComplete) {
+        console.log(`⏰ TASK TIMEOUT: Reached max iterations (${maxIterations}), providing partial results`);
+        finalResult += `\n\n⚠️ **Task Timeout**: This complex task exceeded maximum iterations. Consider breaking it into smaller tasks for better results.`;
       }
 
       // Calculate effort-based cost
@@ -444,6 +470,34 @@ Respond with your implementation or next steps.`;
     if (context.executionHistory.length > 3) {
       context.executionHistory = context.executionHistory.slice(-3);
     }
+  }
+
+  /**
+   * Extract sub-tasks from complex tasks for better sequential execution
+   */
+  private extractSubTask(task: string, step: number): string {
+    const commonPatterns = [
+      { pattern: /create.*and.*save/i, tasks: ['Create the content', 'Save to specified location', 'Verify file creation'] },
+      { pattern: /analyze.*and.*implement/i, tasks: ['Analyze the requirements', 'Plan the implementation', 'Execute the implementation'] },
+      { pattern: /build.*with.*multiple/i, tasks: ['Set up basic structure', 'Add core functionality', 'Implement additional features'] },
+      { pattern: /setup.*workflow/i, tasks: ['Create basic configuration', 'Add workflow steps', 'Test workflow execution'] },
+      { pattern: /write.*email.*sequence/i, tasks: ['Draft email content', 'Format as JSON structure', 'Save to templates directory'] }
+    ];
+
+    for (const pattern of commonPatterns) {
+      if (pattern.pattern.test(task)) {
+        return pattern.tasks[step - 1] || `Step ${step} of the complex task`;
+      }
+    }
+
+    // Fallback generic breakdown
+    const genericSteps = [
+      'Set up the basic structure and requirements',
+      'Implement the main functionality',
+      'Add final details and verify completion'
+    ];
+
+    return genericSteps[step - 1] || `Step ${step}: Continue with remaining task elements`;
   }
 }
 

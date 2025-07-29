@@ -1330,7 +1330,7 @@ I respond like your warm best friend who loves organization - simple, reassuring
               break;
               
             case 'str_replace_based_edit_tool':
-              // ✅ DIRECTORY BROWSING FIX: Only block empty or conversational paths, allow all valid directory/file paths
+              // ✅ ENHANCED PARAMETER VALIDATION: Fix complex file operations
               const conversationalPaths = ['me', 'the', 'files', 'show', 'list', 'find'];
               const pathValue = block.input.path;
               console.log(`🔍 PATH VALIDATION: "${pathValue}", empty: ${!pathValue}, trim empty: ${pathValue?.trim() === ''}, conversational: ${conversationalPaths.includes(pathValue?.toLowerCase())}`);
@@ -1341,8 +1341,26 @@ I respond like your warm best friend who loves organization - simple, reassuring
                 break;
               }
               
-              console.log(`✅ VALID PATH ACCEPTED: "${pathValue}" - Proceeding with file operation`);
+              // ✅ PARAMETER VALIDATION: Check for missing required parameters
+              if (block.input.command === 'create' && !block.input.file_text) {
+                console.log(`❌ MISSING PARAMETER: file_text required for create command`);
+                toolResult = `Parameter Error: The 'create' command requires 'file_text' parameter. Please provide the content for the file you want to create.`;
+                break;
+              }
               
+              if (block.input.command === 'str_replace' && !block.input.old_str) {
+                console.log(`❌ MISSING PARAMETER: old_str required for str_replace command`);
+                toolResult = `Parameter Error: The 'str_replace' command requires 'old_str' parameter. Please provide the text you want to replace.`;
+                break;
+              }
+              
+              if (block.input.command === 'insert' && (block.input.insert_line === undefined || !block.input.insert_text)) {
+                console.log(`❌ MISSING PARAMETER: insert_line and insert_text required for insert command`);
+                toolResult = `Parameter Error: The 'insert' command requires both 'insert_line' and 'insert_text' parameters.`;
+                break;
+              }
+              
+              console.log(`✅ VALID PATH ACCEPTED: "${pathValue}" - Proceeding with file operation`);
               
               // UNLIMITED ACCESS: All agents have full file modification capabilities
               const { str_replace_based_edit_tool } = await import('../tools/str_replace_based_edit_tool');
