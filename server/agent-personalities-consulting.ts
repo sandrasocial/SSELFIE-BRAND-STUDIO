@@ -490,4 +490,3 @@ AVOID: archive/ (legacy files only)`,
 };
 
 export type ConsultingAgentId = keyof typeof CONSULTING_AGENT_PERSONALITIES;
-```
