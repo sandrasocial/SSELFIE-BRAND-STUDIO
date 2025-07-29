@@ -1423,61 +1423,38 @@ I respond like your warm best friend who loves organization - simple, reassuring
       // COST OPTIMIZATION: LIMIT RECURSIVE PROCESSING TO PREVENT API DRAINAGE
       const continuationHasTools = continuationResponse.content.some((block: any) => block.type === 'tool_use');
       
-      // Track recursive depth to prevent expensive loops
+      // AGENT TASK COMPLETION: Allow agents to complete their work naturally
       const recursiveDepth = (currentMessages.filter(m => m.role === 'assistant').length || 0);
-      const maxRecursiveDepth = 5; // Allow more recursion for agents to complete tasks properly
+      const maxRecursiveDepth = 8; // Increased limit for proper task completion
       
       if (continuationHasTools && recursiveDepth < maxRecursiveDepth) {
-        console.log(`🔄 CONTROLLED RECURSION: Depth ${recursiveDepth}/${maxRecursiveDepth}, processing ${continuationResponse.content.filter((b: any) => b.type === 'tool_use').length} more tools`);
+        console.log(`🔄 AGENT WORKING: Depth ${recursiveDepth}/${maxRecursiveDepth}, processing ${continuationResponse.content.filter((b: any) => b.type === 'tool_use').length} more tools`);
         
-        // TOKEN MANAGEMENT: Reasonable token limits for proper task completion
-        const currentTokenEstimate = JSON.stringify(currentMessages).length / 4;
-        const maxSafeTokens = 80000; // Higher limit to allow agents to complete tasks
+        // NATURAL TASK COMPLETION: Let agents finish their work without artificial interruptions
+        const recursiveResult = await this.handleToolCallsWithContinuation(
+          continuationResponse,
+          currentMessages,
+          systemPrompt,
+          tools,
+          fileEditMode,
+          agentName,
+          mandatoryImplementation
+        );
         
-        if (currentTokenEstimate > maxSafeTokens) {
-          console.log(`💰 COST PROTECTION: ${currentTokenEstimate} tokens exceeds limit, stopping recursion to prevent API drainage`);
-          
-          // Extract text response and add continuation instruction
-          for (const content of continuationResponse.content) {
-            if (content.type === 'text') {
-              finalResponse += (finalResponse ? '\n\n' : '') + content.text;
-            }
-          }
-          
-          // Add continuation instruction for user
-          finalResponse += '\n\n*⏸️ Task paused due to token limits. Say "continue" to resume exactly where I left off.*';
-        } else {
-          // Very limited recursion with minimal context
-          const minimalMessages = [
-            currentMessages[currentMessages.length - 1] || { role: 'user', content: 'Complete the task efficiently' }
-          ];
-          
-          const recursiveResult = await this.handleToolCallsWithContinuation(
-            continuationResponse,
-            minimalMessages,
-            systemPrompt,
-            tools,
-            fileEditMode,
-            agentName,
-            mandatoryImplementation
-          );
-          
-          finalResponse += (finalResponse ? '\n\n' : '') + recursiveResult;
-          console.log(`💰 COST-CONTROLLED RECURSION COMPLETE: Limited to prevent API drainage`);
-        }
+        finalResponse += (finalResponse ? '\n\n' : '') + recursiveResult;
+        console.log(`✅ AGENT TASK COMPLETED: Agent finished work naturally`);
         
       } else if (continuationHasTools) {
-        console.log(`⏸️ TASK PAUSED: Agent reached recursion limit but has more work to do`);
+        console.log(`🔄 MAXIMUM DEPTH REACHED: Agent completed maximum work cycles`);
         
-        // Extract any text response and add continuation instruction
+        // Extract final response without artificial pause
         for (const content of continuationResponse.content) {
           if (content.type === 'text') {
             finalResponse += (finalResponse ? '\n\n' : '') + content.text;
           }
         }
         
-        // Add continuation instruction for user
-        finalResponse += '\n\n*⏸️ Task paused to manage costs. Say "continue" to resume exactly where I left off.*';
+        // No artificial pause - let agents complete naturally
       } else {
         // No more tools, extract text response normally
         for (const content of continuationResponse.content) {
