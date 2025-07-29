@@ -39,6 +39,15 @@ interface ChatMessage {
   agentName?: string;
 }
 
+interface Conversation {
+  id: number;
+  conversationId: string;
+  agentName: string;
+  messageCount: number;
+  createdAt: string;
+  updatedAt: string;
+}
+
 // Claude API functions
 const sendClaudeMessage = async (agentName: string, message: string, conversationId: string, fileEditMode: boolean = true) => {
   const response = await fetch('/api/claude/send-message', {
@@ -116,6 +125,41 @@ const loadConversationHistory = async (conversationId: string) => {
   }
 };
 
+const listAgentConversations = async (agentName: string, limit = 10) => {
+  try {
+    console.log('📋 Frontend: Listing conversations for agent:', agentName);
+    const response = await fetch(`/api/claude/conversations/list?agentName=${agentName}&limit=${limit}`, {
+      method: 'GET',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      credentials: 'include',
+    });
+
+    if (!response.ok) {
+      console.error('📋 Frontend: Conversation list API failed:', response.status);
+      const error = await response.json();
+      throw new Error(error.details || 'Failed to list conversations');
+    }
+
+    const data = await response.json();
+    console.log('📋 Frontend: Conversation list API returned:', {
+      success: data.success,
+      conversationCount: data.conversations?.length || 0,
+      agentName: data.agentName
+    });
+    
+    return data;
+  } catch (error) {
+    console.error('📋 Frontend: List conversations error:', error);
+    return {
+      success: false,
+      conversations: [],
+      agentName
+    };
+  }
+};
+
 const clearConversation = async (agentName: string) => {
   const response = await fetch('/api/claude/conversation/clear', {
     method: 'POST',
@@ -159,6 +203,8 @@ export default function AdminConsultingAgents() {
   const { user } = useAuth();
   const [location] = useLocation();
   const [selectedAgent, setSelectedAgent] = useState<ConsultingAgent | null>(null);
+  const [availableConversations, setAvailableConversations] = useState<Conversation[]>([]);
+  const [showConversationSelector, setShowConversationSelector] = useState(false);
   const [message, setMessage] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [messages, setMessages] = useState<ChatMessage[]>([]);
@@ -302,43 +348,68 @@ export default function AdminConsultingAgents() {
     try {
       console.log('🔄 Loading conversation history for agent:', selectedAgent.id);
       
-      // SIMPLIFIED: Elena uses standard conversation loading (complex 24-hour loading removed)
-      console.log('📜 SIMPLIFIED: Using standard conversation loading for all agents including Elena');
+      // STEP 1: Check for existing conversations first
+      console.log('📋 STEP 1: Checking for existing conversations');
+      const conversationList = await listAgentConversations(selectedAgent.id, 5);
       
-      // Fallback: Create new conversation for any agent or if Elena has no existing conversations
-      console.log('🔄 Creating new conversation for agent:', selectedAgent.id);
-      const conversation = await createClaudeConversation(selectedAgent.id);
-      console.log('📞 Got conversation:', conversation.conversationId);
-      setConversationId(conversation.conversationId);
-
-      // Load existing messages if any
-      try {
-        console.log('📜 Attempting to load history for:', conversation.conversationId);
-        const history = await loadConversationHistory(conversation.conversationId);
-        console.log('📜 Raw history response:', history);
+      if (conversationList.success && conversationList.conversations && conversationList.conversations.length > 0) {
+        // Store available conversations for potential selection
+        setAvailableConversations(conversationList.conversations);
         
-        if (history.messages && history.messages.length > 0) {
-          console.log('📜 Loading conversation history:', history.messages.length, 'messages');
+        // Found existing conversations - load the most recent one
+        const mostRecent = conversationList.conversations[0];
+        console.log('📞 Found existing conversation:', mostRecent.conversationId, 'with', mostRecent.messageCount, 'messages');
+        console.log('📋 Total conversations available:', conversationList.conversations.length);
+        
+        setConversationId(mostRecent.conversationId);
+        
+        // Load the conversation history
+        try {
+          console.log('📜 Loading existing conversation history for:', mostRecent.conversationId);
+          const history = await loadConversationHistory(mostRecent.conversationId);
+          console.log('📜 Raw history response:', history);
           
-          const chatMessages: ChatMessage[] = history.messages.map((msg: any, index: number) => ({
-            id: `${msg.timestamp || Date.now()}-${index}`,
-            type: msg.role === 'user' ? 'user' : 'agent',
-            content: msg.content,
-            timestamp: msg.timestamp || new Date().toISOString(),
-            agentName: msg.role === 'assistant' ? selectedAgent.name : undefined,
-          }));
-          
-          setMessages(chatMessages);
-        } else {
-          console.log('📜 No messages found in history');
+          if (history.messages && history.messages.length > 0) {
+            console.log('📜 ✅ LOADED EXISTING CONVERSATION:', history.messages.length, 'messages');
+            
+            const chatMessages: ChatMessage[] = history.messages.map((msg: any, index: number) => ({
+              id: `${msg.timestamp || Date.now()}-${index}`,
+              type: msg.role === 'user' ? 'user' : 'agent',
+              content: msg.content,
+              timestamp: msg.timestamp || new Date().toISOString(),
+              agentName: msg.role === 'assistant' ? selectedAgent.name : undefined,
+            }));
+            
+            setMessages(chatMessages);
+            console.log('📜 ✅ CONVERSATION HISTORY DISPLAYED - User can see previous chat!');
+            
+            // Show conversation selector if multiple conversations exist
+            if (conversationList.conversations.length > 1) {
+              console.log('📋 Multiple conversations found - enabling conversation selector');
+              setShowConversationSelector(true);
+            }
+          } else {
+            console.log('📜 Existing conversation found but no messages');
+            setMessages([]);
+          }
+        } catch (historyError) {
+          console.log('📜 Error loading existing conversation history:', historyError);
           setMessages([]);
         }
-      } catch (historyError) {
-        console.log('📜 Error loading conversation history:', historyError);
-        setMessages([]);
+      } else {
+        // STEP 2: No existing conversations found - create new one
+        console.log('📋 STEP 2: No existing conversations found, creating new conversation');
+        const conversation = await createClaudeConversation(selectedAgent.id);
+        console.log('📞 Created new conversation:', conversation.conversationId);
+        setConversationId(conversation.conversationId);
+        setMessages([]); // Start with empty conversation
+        setAvailableConversations([]);
+        setShowConversationSelector(false);
+        console.log('📜 ✅ NEW CONVERSATION CREATED - Ready for first message');
       }
     } catch (error) {
       console.error('Failed to load conversation:', error);
+      setMessages([]);
     } finally {
       setIsLoadingHistory(false);
     }
