@@ -31,9 +31,19 @@ export function registerEffortBasedAgentRoutes(app: Express) {
    * Execute task with effort-based pricing
    * POST /api/agents/effort-based/execute
    */
-  app.post('/api/agents/effort-based/execute', isAuthenticated, async (req: any, res) => {
+  app.post('/api/agents/effort-based/execute', async (req: any, res) => {
     try {
-      const userId = req.user?.claims?.sub || req.user?.id;
+      // Admin authentication bypass
+      const adminToken = req.headers.authorization?.replace('Bearer ', '') || req.headers['x-admin-token'];
+      const isAdminRequest = adminToken === 'sandra-admin-2025';
+      
+      let userId;
+      if (isAdminRequest) {
+        userId = 'admin-sandra';
+      } else if (req.isAuthenticated()) {
+        userId = req.user?.claims?.sub || req.user?.id;
+      }
+      
       if (!userId) {
         return res.status(401).json({ error: 'User authentication required' });
       }
@@ -134,7 +144,14 @@ export function registerEffortBasedAgentRoutes(app: Express) {
    * Get available agents for effort-based execution
    * GET /api/agents/effort-based/available
    */
-  app.get('/api/agents/effort-based/available', isAuthenticated, async (req: any, res) => {
+  app.get('/api/agents/effort-based/available', async (req: any, res) => {
+    // Admin authentication bypass
+    const adminToken = req.headers.authorization?.replace('Bearer ', '') || req.headers['x-admin-token'];
+    const isAdminRequest = adminToken === 'sandra-admin-2025';
+    
+    if (!isAdminRequest && !req.isAuthenticated()) {
+      return res.status(401).json({ message: "Unauthorized" });
+    }
     try {
       const agents = [
         {
