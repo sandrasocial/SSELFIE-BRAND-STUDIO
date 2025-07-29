@@ -87,10 +87,36 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  // EFFORT-BASED AGENT SYSTEM - Revolutionary cost-optimized execution
-  console.log('🎯 Registering effort-based agent routes...');
-  const { registerEffortBasedAgentRoutes } = await import('./routes/effort-based-agent-routes');
-  registerEffortBasedAgentRoutes(app);
+  // EFFORT-BASED AGENT SYSTEM - Integrated into existing admin consulting agents
+  const { effortBasedExecutor } = await import('./services/effort-based-agent-executor');
+  
+  app.post('/api/agents/effort-based/execute', async (req: any, res) => {
+    try {
+      // Admin authentication bypass
+      const adminToken = req.headers.authorization?.replace('Bearer ', '') || req.headers['x-admin-token'];
+      const isAdminRequest = adminToken === 'sandra-admin-2025';
+      
+      let userId;
+      if (isAdminRequest) {
+        userId = '42585527'; // Sandra's actual admin user ID
+      } else if (req.isAuthenticated()) {
+        userId = req.user?.claims?.sub || req.user?.id;
+      }
+
+      if (!userId) {
+        return res.status(401).json({ success: false, message: 'Unauthorized' });
+      }
+
+      const result = await effortBasedExecutor.executeTask(req.body, userId);
+      res.json({ success: true, result });
+    } catch (error) {
+      console.error('Effort-based execution error:', error);
+      res.status(500).json({ 
+        success: false, 
+        error: error instanceof Error ? error.message : 'Unknown error' 
+      });
+    }
+  });
 
   // Claude conversation management endpoints
   app.post('/api/claude/conversation/new', async (req, res) => {

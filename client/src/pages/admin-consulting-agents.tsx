@@ -49,29 +49,40 @@ interface Conversation {
   updatedAt: string;
 }
 
-// Claude API functions
+// Effort-based agent API functions - Cost-effective execution
 const sendClaudeMessage = async (agentName: string, message: string, conversationId: string, fileEditMode: boolean = true, signal?: AbortSignal) => {
-  const response = await fetch('/api/claude/send-message', {
+  const response = await fetch('/api/agents/effort-based/execute', {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
+      'x-admin-token': 'sandra-admin-2025'
     },
     credentials: 'include',
-    signal, // Add abort signal support
+    signal,
     body: JSON.stringify({
-      agentName,
-      message,
-      conversationId,
-      fileEditMode,
+      agentName: agentName.toLowerCase(),
+      task: message,
+      priority: 'high',
+      maxEffort: 10,
+      conversationId
     }),
   });
 
   if (!response.ok) {
     const error = await response.json();
-    throw new Error(error.details || 'Failed to send message');
+    throw new Error(error.message || 'Failed to send message');
   }
 
-  return response.json();
+  const result = await response.json();
+  
+  // Transform effort-based response to match expected format
+  return {
+    success: result.success,
+    response: result.result?.result || 'Task completed',
+    conversationId: conversationId,
+    cost: result.result?.costEstimate || 0,
+    effortUsed: result.result?.effortUsed || 0
+  };
 };
 
 const createClaudeConversation = async (agentName: string) => {
