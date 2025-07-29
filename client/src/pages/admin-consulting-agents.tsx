@@ -551,16 +551,20 @@ export default function AdminConsultingAgents() {
         throw new Error('Failed to create conversation');
       }
       
-      const response = await fetch('/api/claude/send-message', {
+      const response = await fetch('/api/agents/effort-based/execute', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: { 
+          'Content-Type': 'application/json',
+          'x-admin-token': 'sandra-admin-2025'
+        },
         credentials: 'include',
         signal: controller.signal, // Add abort signal support
         body: JSON.stringify({
           agentName: selectedAgent.id,
-          message: userMessage.content,
+          task: userMessage.content,
           conversationId: currentConversationId,
-          fileEditMode,
+          priority: 'high',
+          maxEffort: 3
         }),
       });
 
@@ -569,7 +573,8 @@ export default function AdminConsultingAgents() {
         throw new Error(`Claude API Error (${response.status}): ${errorData.error || 'Service temporarily unavailable'}`);
       }
 
-      const { response: agentResponse } = await response.json();
+      const { result } = await response.json();
+      const agentResponse = result.result;
       
       console.log('📨 Received agent response length:', agentResponse?.length || 0);
       
