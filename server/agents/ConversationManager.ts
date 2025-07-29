@@ -253,7 +253,7 @@ export class ConversationManager {
    */
   static async cleanupOldMemories(agentId: string, userId: string): Promise<void> {
     try {
-      const conversations = await storage.getAgentConversations(userId, agentId);
+      const conversations = await storage.getAgentConversations(agentId, userId);
       const memoryEntries = conversations
         .filter(conv => conv.userMessage === '**CONVERSATION_MEMORY**')
         .sort((a, b) => {
