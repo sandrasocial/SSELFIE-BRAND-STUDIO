@@ -1419,10 +1419,10 @@ I respond like your warm best friend who loves organization - simple, reassuring
       
       if (continuationHasTools) {
         // RECURSION DEPTH PROTECTION: Prevent infinite loops but allow continuation
-        const maxRecursionDepth = 25; // Increased for complex workflows like Elena detection
+        const maxRecursionDepth = 5; // REDUCED to prevent API credit drain - was 25
         if (recursionDepth >= maxRecursionDepth) {
           console.log(`⚠️ RECURSION DEPTH LIMIT REACHED: ${recursionDepth}/${maxRecursionDepth} - pausing for continuation`);
-          finalResponse += '\n\n**CONTINUATION AVAILABLE** - I completed 25 work cycles and have more to do. Reply "continue" to resume where I left off, or provide new instructions.';
+          finalResponse += '\n\n**WORK PAUSED** - I completed 5 cycles to prevent API credit waste. Reply "continue" to resume, or provide new instructions.';
           return finalResponse;
         }
         
