@@ -601,6 +601,66 @@ Remember: You are the MEMBER experience Victoria - provide website building guid
     }
   });
 
+  // Save preview images to permanent gallery endpoint
+  app.post('/api/save-preview-to-gallery', isAuthenticated, async (req: any, res) => {
+    try {
+      const { trackerId, selectedImageUrls } = req.body;
+      
+      if (!trackerId || !selectedImageUrls || !Array.isArray(selectedImageUrls)) {
+        return res.status(400).json({ error: 'trackerId and selectedImageUrls array required' });
+      }
+      
+      // Get the correct database user ID
+      const authUserId = req.user.claims.sub;
+      const claims = req.user.claims;
+      
+      let user = await storage.getUser(authUserId);
+      if (!user && claims.email) {
+        user = await storage.getUserByEmail(claims.email);
+      }
+      
+      if (!user) {
+        return res.status(404).json({ error: 'User not found' });
+      }
+      
+      const dbUserId = user.id;
+      const tracker = await storage.getGenerationTracker(trackerId);
+      if (!tracker || tracker.userId !== dbUserId) {
+        return res.status(403).json({ error: 'Unauthorized access to tracker' });
+      }
+      
+      // Save each selected image to gallery with permanent S3 storage
+      const savedImages = [];
+      for (const imageUrl of selectedImageUrls) {
+        const galleryImage = await storage.saveAIImage({
+          userId: dbUserId,
+          imageUrl: imageUrl, // Already permanent S3 URL from tracker
+          prompt: tracker.prompt || 'Maya Editorial Photoshoot',
+          category: 'Maya AI',
+          status: 'completed',
+          generationStatus: 'completed',
+          predictionId: tracker.predictionId || '',
+        });
+        
+        savedImages.push(galleryImage);
+        console.log(`💖 GALLERY SAVE: Saved image ${galleryImage.id} to gallery for user ${dbUserId}`);
+      }
+      
+      res.json({
+        success: true,
+        message: `Successfully saved ${savedImages.length} image(s) to your gallery`,
+        savedImages: savedImages.length
+      });
+      
+    } catch (error) {
+      console.error('❌ GALLERY SAVE ERROR:', error);
+      res.status(500).json({ 
+        error: 'Failed to save images to gallery',
+        details: error instanceof Error ? error.message : 'Unknown error'
+      });
+    }
+  });
+
   // Auth user endpoint - Production ready
   app.get('/api/auth/user', isAuthenticated, async (req: any, res) => {
     try {
