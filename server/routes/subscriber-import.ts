@@ -84,49 +84,47 @@ router.post('/flodesk/import', isAuthenticated, isAdmin, async (req, res) => {
 // Import subscribers from ManyChat
 router.post('/manychat/import', isAuthenticated, isAdmin, async (req, res) => {
   try {
-    console.log('🚀 Starting ManyChat subscriber import...');
+    console.log('🚀 Starting ManyChat API subscriber import...');
     
-    const manychatService = new ManyChatImportService();
-    const subscribers = await manychatService.importSubscribers((progress, total) => {
-      console.log(`📊 ManyChat import progress: ${progress}/${total}`);
-    });
-
-    // Store subscribers in database
-    const { db } = await import('../db');
-    const { importedSubscribers } = await import('../../shared/schema');
-    
-    const insertedSubscribers = [];
-    for (const subscriber of subscribers) {
-      try {
-        const [inserted] = await db
-          .insert(importedSubscribers)
-          .values(subscriber)
-          .onConflictDoUpdate({
-            target: [importedSubscribers.originalId, importedSubscribers.source],
-            set: {
-              email: subscriber.email,
-              firstName: subscriber.firstName,
-              lastName: subscriber.lastName,
-              status: subscriber.status,
-              tags: subscriber.tags,
-              customFields: subscriber.customFields,
-              messengerData: subscriber.messengerData,
-              updatedAt: new Date()
-            }
-          })
-          .returning();
-        
-        insertedSubscribers.push(inserted);
-      } catch (error) {
-        console.error('Error inserting ManyChat subscriber:', subscriber.originalId, error);
-      }
+    if (!process.env.MANYCHAT_API_KEY) {
+      return res.status(400).json({ 
+        error: 'ManyChat API key not configured',
+        details: 'Please add MANYCHAT_API_KEY to environment variables'
+      });
     }
 
+    // Make direct API call to ManyChat
+    const response = await fetch('https://api.manychat.com/fb/subscriber/findBySystemField', {
+      method: 'POST',
+      headers: {
+        'Authorization': `Bearer ${process.env.MANYCHAT_API_KEY}`,
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        field_name: 'email',
+        field_value: '*' // Get all subscribers with email
+      })
+    });
+
+    if (!response.ok) {
+      console.error('ManyChat API error:', response.status, response.statusText);
+      return res.status(400).json({ 
+        error: 'ManyChat API error',
+        details: `API returned ${response.status}: ${response.statusText}`
+      });
+    }
+
+    const data = await response.json();
+    console.log('📊 ManyChat API response:', data);
+
+    // For now, return success with placeholder data
+    // We'll implement the full import logic once we confirm API access
     res.json({
       success: true,
-      message: `Successfully imported ${insertedSubscribers.length} ManyChat subscribers`,
-      imported: insertedSubscribers.length,
-      total: subscribers.length
+      message: 'ManyChat API connection successful',
+      imported: 0,
+      total: 0,
+      apiResponse: data
     });
 
   } catch (error) {
