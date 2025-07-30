@@ -205,15 +205,26 @@ Remember: You are the MEMBER experience Maya - provide creative guidance and ima
         const claudeData = await claudeResponse.json();
         response = claudeData.content[0].text;
         
-        // Check if Maya wants to generate images
-        if (response.toLowerCase().includes('generate') && 
-            (response.toLowerCase().includes('photo') || 
-             response.toLowerCase().includes('image') || 
-             response.toLowerCase().includes('picture'))) {
+        // Check if Maya wants to generate images and extract the detailed prompt
+        if (response.toLowerCase().includes('generate') || 
+            response.toLowerCase().includes('create') ||
+            response.toLowerCase().includes('photoshoot') ||
+            response.toLowerCase().includes('ready to')) {
           canGenerate = true;
           
-          // Extract or create a generation prompt from Maya's response
-          generatedPrompt = `${message} - professional editorial photography, luxury styling, magazine quality`;
+          // Maya should include a hidden generation prompt in her response
+          // Extract prompts that contain technical details like "raw photo, visible skin pores"
+          const promptRegex = /```prompt\s*([\s\S]*?)\s*```/i;
+          const promptMatch = response.match(promptRegex);
+          
+          if (promptMatch) {
+            generatedPrompt = promptMatch[1].trim();
+            // Remove the prompt from the conversation response
+            response = response.replace(promptRegex, '').trim();
+          } else {
+            // Fallback: Create a basic prompt from the conversation context
+            generatedPrompt = `raw photo, visible skin pores, film grain, ${message.toLowerCase()}, professional editorial photography, natural lighting, unretouched natural skin texture, subsurface scattering, photographed on film, magazine quality, authentic emotion`;
+          }
         }
 
       } catch (error) {
