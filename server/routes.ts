@@ -428,15 +428,15 @@ Remember: You are the MEMBER experience Victoria - provide website building guid
         });
       }
 
-      // CORRECT FLUX LoRA ARCHITECTURE - Individual LoRA weights with base model
-      const loraWeights = `sandrasocial/${userModel.modelName}`; // e.g., "sandrasocial/42585527-selfie-lora"
+      // CORRECT FLUX LoRA ARCHITECTURE - Individual LoRA weights with version
+      const loraWeights = `${userModel.replicateModelId}:${userModel.replicateVersionId}`; // e.g., "sandrasocial/42585527-selfie-lora-1753201482760:80c29fa2"
       const triggerWord = userModel.triggerWord || `user${userId}`;
       
       console.log('🔍 Maya: FLUX LoRA details:', {
         baseModel: 'black-forest-labs/flux-dev-lora',
         loraWeights,
-        modelName: userModel.modelName,
         replicateModelId: userModel.replicateModelId,
+        replicateVersionId: userModel.replicateVersionId,
         triggerWord,
         trainingStatus: userModel.trainingStatus
       });
