@@ -74,6 +74,30 @@ export const SandraImages = {
   // Email capture modal image
   emailCapture: "https://i.postimg.cc/282KsWkc/out-1-6.png",
 
+  // YOUR WORKSPACE GALLERY - Actual generated AI images from SSELFIE Studio  
+  gallery: [
+    "https://sselfie-training-zips.s3.eu-north-1.amazonaws.com/images/42585527/tracker_415_img_0_1753890218680.png",
+    "https://sselfie-training-zips.s3.eu-north-1.amazonaws.com/images/42585527/tracker_415_img_1_1753890221275.png",
+    "https://sselfie-training-zips.s3.eu-north-1.amazonaws.com/images/42585527/tracker_414_img_1_1753890135683.png",
+    "https://sselfie-training-zips.s3.amazonaws.com/images/42585527/tracker_410_img_0_1753869832379.png",
+    "https://sselfie-training-zips.s3.eu-north-1.amazonaws.com/images/42585527/tracker_409_img_1_1753868618063.png",
+    "https://sselfie-training-zips.s3.eu-north-1.amazonaws.com/images/42585527/tracker_408_img_0_1753868166568.png",
+    "https://sselfie-training-zips.s3.eu-north-1.amazonaws.com/images/42585527/tracker_407_img_1_1753868018532.png",
+    "https://sselfie-training-zips.s3.eu-north-1.amazonaws.com/images/42585527/tracker_406_img_0_1753866550408.png",
+    "https://sselfie-training-zips.s3.eu-north-1.amazonaws.com/images/42585527/tracker_404_img_1_1753866131912.png",
+    "https://sselfie-training-zips.s3.eu-north-1.amazonaws.com/images/42585527/tracker_404_img_0_1753866130384.png",
+    "https://sselfie-training-zips.s3.amazonaws.com/images/42585527/tracker_402_img_1_1753865172383.png",
+    "https://sselfie-training-zips.s3.amazonaws.com/images/42585527/tracker_402_img_0_1753865170431.png",
+    "https://sselfie-training-zips.s3.amazonaws.com/images/42585527/tracker_401_img_0_1753864887977.png",
+    "https://sselfie-training-zips.s3.eu-north-1.amazonaws.com/images/42585527/tracker_400_img_1_1753864027213.png",
+    "https://sselfie-training-zips.s3.amazonaws.com/images/42585527/tracker_400_img_0_1753864025151.png",
+    "https://sselfie-training-zips.s3.amazonaws.com/images/42585527/tracker_395_img_0_1753543790256.png",
+    "https://sselfie-training-zips.s3.eu-north-1.amazonaws.com/images/42585527/tracker_394_img_0_1753508525258.png",
+    "https://sselfie-training-zips.s3.eu-north-1.amazonaws.com/images/42585527/tracker_392_img_1_1753467238553.png",
+    "https://sselfie-training-zips.s3.eu-north-1.amazonaws.com/images/42585527/tracker_392_img_0_1753467237036.png",
+    "https://sselfie-training-zips.s3.eu-north-1.amazonaws.com/images/42585527/tracker_387_img_0_1753377587315.png"
+  ],
+
   // AI IMAGES GALLERY (pick and rotate for carousels, grids, or random display)
   aiGallery: [
     "https://i.postimg.cc/sgmtqFrQ/out-0-1.webp",

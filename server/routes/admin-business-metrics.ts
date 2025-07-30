@@ -1,7 +1,7 @@
 import { Router } from 'express';
 import { isAuthenticated } from '../replitAuth';
 import { db } from '../db';
-import { users, importedSubscribers, aiImages, subscriptions } from '../../shared/schema';
+import { users, importedSubscribers, aiImages, subscriptions, userModels } from '../../shared/schema';
 import { sql, count, sum, eq, gte } from 'drizzle-orm';
 
 const router = Router();
@@ -62,13 +62,12 @@ router.get('/business-metrics', isAuthenticated, isAdmin, async (req, res) => {
       .from(users)
       .where(sql`plan IS NOT NULL AND plan != 'free'`);
 
-    // Get trained models count
+    // Get trained models count - simplified query
     const trainedModelsResult = await db
       .select({
-        trainedModels: sql<number>`COUNT(DISTINCT user_id)`
+        trainedModels: count()
       })
-      .from(aiImages)
-      .where(sql`model_name IS NOT NULL`);
+      .from(userModels);
 
     const totalRevenue = revenueResult[0]?.totalRevenue || 0;
     const monthlyRevenue = (monthlyRevenueResult[0]?.studioUsers || 0) * 67 + (monthlyRevenueResult[0]?.basicUsers || 0) * 29;
