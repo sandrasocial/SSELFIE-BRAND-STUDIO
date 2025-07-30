@@ -147,7 +147,7 @@ export default function Workspace() {
         title: 'AI Photoshoot',
         description: 'Generate luxury editorial photos instantly using your trained AI model and Maya\'s styling direction.',
         image: SandraImages.editorial.laptop1,
-        link: '/generate',
+        link: '/ai-photoshoot',
         status: hasTraining ? 'ready' : 'locked',
         statusMessage: hasTraining ? 'Generate Photos' : 'Complete Previous Steps',
         nextStep: hasTraining ? 'Create professional photos instantly' : 'Complete training and styling first'
@@ -156,7 +156,7 @@ export default function Workspace() {
         id: 'build',
         title: 'Build Your Brand',
         description: 'Create landing pages, business websites, and professional presence using your AI photos.',
-        image: SandraImages.editorial.luxury1,
+        image: SandraImages.editorial.aiSuccess,
         link: '/build',
         status: hasTraining ? 'ready' : 'locked',
         statusMessage: hasTraining ? 'Build Website' : 'Complete Previous Steps',
@@ -250,7 +250,7 @@ export default function Workspace() {
                     <div className="absolute inset-0 flex items-center justify-center">
                       <div className="text-white text-center">
                         <div className="font-serif text-3xl md:text-4xl font-light tracking-[0.4em] uppercase">
-                          {index === 0 ? 'T R A I N' : index === 1 ? 'S T Y L E' : index === 2 ? 'P H O T O S H O O T' : 'B U I L D'}
+                          {index === 0 ? 'T R A I N' : index === 1 ? 'S T Y L E' : index === 2 ? 'S H O O T' : 'B U I L D'}
                         </div>
                         <div className="text-xs tracking-[0.2em] uppercase opacity-80 mt-2">
                           Step {index + 1}
