@@ -179,15 +179,15 @@ export class ModelTrainingService {
           input: {
             input_images: zipUrl,
             trigger_word: triggerWord,
-            steps: 1000, // 🔧 PROVEN WORKING: Exact parameters that created successful model with facial accuracy
-            learning_rate: 1e-5, // 🔧 PROVEN WORKING: Conservative learning rate prevents overfitting while maintaining realism
+            steps: 1200, // 🚀 OPTIMIZED: Research shows 1200-1800 steps optimal for FLUX facial accuracy (was 1000)
+            learning_rate: 4e-6, // 🚀 OPTIMIZED: Reduced from 1e-5 to prevent overtraining artifacts in faces (research: 2.5e-5 for character, lower for facial detail)
             batch_size: 1, // 🔧 PROVEN WORKING: Single batch for precise training
             lora_rank: 16, // 🔧 PROVEN WORKING: Perfect balance prevents overfitting while maintaining quality
-            resolution: "512", // 🔧 PROVEN WORKING: Resolution that creates successful facial accuracy without overfitting
+            resolution: "1024", // 🚀 OPTIMIZED: Increased from 512 to 1024 for FLUX facial detail (research shows 1024px captures character detail better)
             optimizer: "adamw8bit", // 🔧 OPTIMAL: Memory efficient optimizer
             autocaption: false, // 🔧 OPTIMAL: Manual captioning for better control
             cache_latents_to_disk: false, // 🔧 OPTIMAL: Memory optimization
-            caption_dropout_rate: 0.1 // 🔧 FIXED: Reduced from 0.15 to maintain consistency
+            caption_dropout_rate: 0.05 // 🚀 OPTIMIZED: Reduced from 0.1 to maintain better facial consistency (research shows lower dropout for face accuracy)
           },
           destination: `sandrasocial/${modelName}`
         })

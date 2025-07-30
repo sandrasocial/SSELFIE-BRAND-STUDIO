@@ -73,9 +73,16 @@ export class UnifiedGenerationService {
       finalPrompt = `${triggerWord} ${finalPrompt}`;
     }
     
-    // Add enhanced realism foundation for user likeness and skin texture
+    // Add enhanced realism foundation with face optimization for full body shots
     if (!finalPrompt.includes('raw photo')) {
-      finalPrompt = `raw photo, visible skin pores, natural skin texture, subsurface scattering, film grain, ${finalPrompt}, unretouched skin, authentic facial features, professional photography`;
+      finalPrompt = `raw photo, visible skin pores, natural skin texture, subsurface scattering, film grain, ${finalPrompt}, unretouched skin, authentic facial features, hyperrealistic facial rendering, professional photography`;
+    }
+    
+    // Enhanced facial likeness optimization for full body compositions
+    if (!finalPrompt.includes('facial likeness') && !finalPrompt.includes('close-up')) {
+      // This is likely a full body shot - enhance facial clarity
+      const triggerWordDoubling = `${triggerWord} facial likeness with authentic skin pores`;
+      finalPrompt = finalPrompt.replace(triggerWord, `${triggerWord}, ${triggerWordDoubling}`);
     }
     
     console.log(`🎯 UNIFIED FINAL PROMPT: "${finalPrompt}"`);
