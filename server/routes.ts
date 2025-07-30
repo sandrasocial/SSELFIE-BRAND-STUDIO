@@ -265,6 +265,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Email automation routes
   app.use('/api/email', emailAutomation);
   
+  // Subscriber import routes
+  const subscriberImport = await import('./routes/subscriber-import');
+  app.use('/api/subscribers', subscriberImport.default);
+  
   // AI Images endpoint - Production ready
   app.get('/api/ai-images', isAuthenticated, async (req: any, res) => {
     try {
