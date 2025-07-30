@@ -90,17 +90,17 @@ export function WebsiteWizard({ onComplete }: WebsiteWizardProps) {
   };
 
   const stepTitles = [
-    'Business Information',
-    'Brand & Audience',
-    'Features & Content',
-    'Review & Generate'
+    'Tell Me About Your Business',
+    'Your Brand & Dream Clients',
+    'Fun Features & Your Message',
+    'Let\'s Make This Happen!'
   ];
 
   return (
     <div className="max-w-4xl mx-auto p-8">
       <div className="mb-8">
         <h1 className="text-4xl font-normal mb-4" style={{ fontFamily: 'Times New Roman' }}>
-          Website Generation Wizard
+          Let's Build Your Dream Website Together!
         </h1>
         <div className="flex items-center space-x-2 mb-6">
           {stepTitles.map((title, index) => (
@@ -122,38 +122,38 @@ export function WebsiteWizard({ onComplete }: WebsiteWizardProps) {
             </div>
           ))}
         </div>
-        <h2 className="text-xl text-gray-600">{stepTitles[currentStep - 1]}</h2>
+        <h2 className="text-xl text-gray-600">Step {currentStep}: {stepTitles[currentStep - 1]}</h2>
       </div>
 
       <div className="bg-white p-8 border border-gray-200">
         {currentStep === 1 && (
           <div className="space-y-6">
             <div>
-              <Label htmlFor="businessName">Business Name</Label>
+              <Label htmlFor="businessName">What's your gorgeous business called? ✨</Label>
               <Input
                 id="businessName"
                 value={formData.businessName || ''}
                 onChange={(e) => setFormData(prev => ({ ...prev, businessName: e.target.value }))}
-                placeholder="Enter your business name"
+                placeholder="Tell me your business name, babe!"
                 className="mt-2"
               />
             </div>
             <div>
-              <Label htmlFor="businessDescription">Business Description</Label>
+              <Label htmlFor="businessDescription">Tell me all about your amazing business! 💫</Label>
               <Textarea
                 id="businessDescription"
                 value={formData.businessDescription || ''}
                 onChange={(e) => setFormData(prev => ({ ...prev, businessDescription: e.target.value }))}
-                placeholder="Describe what your business does"
+                placeholder="Don't be shy - what magic do you create for your clients?"
                 className="mt-2"
                 rows={4}
               />
             </div>
             <div>
-              <Label htmlFor="businessType">Business Type</Label>
+              <Label htmlFor="businessType">What kind of business magic are you working? 🌟</Label>
               <Select onValueChange={(value) => setFormData(prev => ({ ...prev, businessType: value }))}>
                 <SelectTrigger className="mt-2">
-                  <SelectValue placeholder="Select your business type" />
+                  <SelectValue placeholder="Pick the one that feels most like you!" />
                 </SelectTrigger>
                 <SelectContent>
                   {businessTypes.map((type) => (
@@ -170,10 +170,10 @@ export function WebsiteWizard({ onComplete }: WebsiteWizardProps) {
         {currentStep === 2 && (
           <div className="space-y-6">
             <div>
-              <Label htmlFor="brandPersonality">Brand Personality</Label>
+              <Label htmlFor="brandPersonality">What's your brand's personality, gorgeous? 💅</Label>
               <Select onValueChange={(value) => setFormData(prev => ({ ...prev, brandPersonality: value }))}>
                 <SelectTrigger className="mt-2">
-                  <SelectValue placeholder="Select your brand personality" />
+                  <SelectValue placeholder="How do you want to show up in the world?" />
                 </SelectTrigger>
                 <SelectContent>
                   {brandPersonalities.map((personality) => (
@@ -185,12 +185,12 @@ export function WebsiteWizard({ onComplete }: WebsiteWizardProps) {
               </Select>
             </div>
             <div>
-              <Label htmlFor="targetAudience">Target Audience</Label>
+              <Label htmlFor="targetAudience">Who are your dream clients, honey? 🎯</Label>
               <Textarea
                 id="targetAudience"
                 value={formData.targetAudience || ''}
                 onChange={(e) => setFormData(prev => ({ ...prev, targetAudience: e.target.value }))}
-                placeholder="Describe your ideal clients or customers"
+                placeholder="Tell me about the amazing people you love working with!"
                 className="mt-2"
                 rows={3}
               />
@@ -201,7 +201,7 @@ export function WebsiteWizard({ onComplete }: WebsiteWizardProps) {
         {currentStep === 3 && (
           <div className="space-y-6">
             <div>
-              <Label>Key Features</Label>
+              <Label>What amazing features should we add to make your site sparkle? ✨</Label>
               <div className="grid grid-cols-2 gap-4 mt-4">
                 {availableFeatures.map((feature) => (
                   <div key={feature} className="flex items-center space-x-2">
@@ -218,12 +218,12 @@ export function WebsiteWizard({ onComplete }: WebsiteWizardProps) {
               </div>
             </div>
             <div>
-              <Label htmlFor="contentStrategy">Content Strategy</Label>
+              <Label htmlFor="contentStrategy">What's your heart-centered message, babe? 💖</Label>
               <Textarea
                 id="contentStrategy"
                 value={formData.contentStrategy || ''}
                 onChange={(e) => setFormData(prev => ({ ...prev, contentStrategy: e.target.value }))}
-                placeholder="Describe the key messages and content approach for your website"
+                placeholder="What do you want your dream clients to feel when they visit your site?"
                 className="mt-2"
                 rows={4}
               />
@@ -233,19 +233,19 @@ export function WebsiteWizard({ onComplete }: WebsiteWizardProps) {
 
         {currentStep === 4 && (
           <div className="space-y-6">
-            <h3 className="text-lg font-medium">Review Your Website Requirements</h3>
+            <h3 className="text-lg font-medium">Let's double-check this gorgeous plan! 👀✨</h3>
             <div className="space-y-4 text-sm">
               <div>
-                <strong>Business:</strong> {formData.businessName}
+                <strong>Your beautiful business:</strong> {formData.businessName}
               </div>
               <div>
-                <strong>Type:</strong> {formData.businessType?.replace('-', ' ')}
+                <strong>Business magic:</strong> {formData.businessType?.replace('-', ' ')}
               </div>
               <div>
-                <strong>Brand:</strong> {formData.brandPersonality}
+                <strong>Brand personality:</strong> {formData.brandPersonality}
               </div>
               <div>
-                <strong>Features:</strong> {formData.keyFeatures?.join(', ')}
+                <strong>Sparkly features:</strong> {formData.keyFeatures?.join(', ')}
               </div>
             </div>
           </div>
@@ -258,7 +258,7 @@ export function WebsiteWizard({ onComplete }: WebsiteWizardProps) {
             disabled={currentStep === 1}
             className="px-8"
           >
-            Previous
+            Back a step
           </Button>
           {currentStep < 4 ? (
             <Button
@@ -266,7 +266,7 @@ export function WebsiteWizard({ onComplete }: WebsiteWizardProps) {
               disabled={currentStep === 1 && !formData.businessName}
               className="px-8 bg-black text-white hover:bg-gray-800"
             >
-              Next
+              Keep going! ✨
             </Button>
           ) : (
             <Button
@@ -274,7 +274,7 @@ export function WebsiteWizard({ onComplete }: WebsiteWizardProps) {
               disabled={!isFormValid() || isGenerating}
               className="px-8 bg-black text-white hover:bg-gray-800"
             >
-              {isGenerating ? 'Generating Website...' : 'Generate Website'}
+              {isGenerating ? 'Creating your magic... ✨' : 'Let\'s build this beauty! 🚀'}
             </Button>
           )}
         </div>
