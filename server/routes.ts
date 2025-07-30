@@ -428,14 +428,13 @@ Remember: You are the MEMBER experience Victoria - provide website building guid
         });
       }
 
-      // INDIVIDUAL USER MODEL ARCHITECTURE - Complete user isolation
-      const fullUserModel = `${userModel.replicateModelId}:${userModel.replicateVersionId}`;
+      // CORRECT FLUX LoRA ARCHITECTURE - Individual LoRA weights with base model
+      const loraWeights = userModel.replicateModelId; // e.g., "sandrasocial/42585527-selfie-lora"
       const triggerWord = userModel.triggerWord || `user${userId}`;
       
-      console.log('🔍 Maya: Individual User Model details:', {
-        replicateModelId: userModel.replicateModelId,
-        replicateVersionId: userModel.replicateVersionId,
-        fullUserModel,
+      console.log('🔍 Maya: FLUX LoRA details:', {
+        baseModel: 'black-forest-labs/flux-dev-lora',
+        loraWeights,
         triggerWord,
         trainingStatus: userModel.trainingStatus
       });
@@ -452,13 +451,15 @@ Remember: You are the MEMBER experience Victoria - provide website building guid
       }
       
       console.log('🎯 Maya: Final prompt:', finalPrompt);
-      console.log('🔒 Maya: Using individual user model:', fullUserModel);
+      console.log('🔒 Maya: Using FLUX LoRA - Base: black-forest-labs/flux-dev-lora, Weights:', loraWeights);
 
-      // Build CORRECT Replicate API request using INDIVIDUAL USER MODEL
+      // Build CORRECT Replicate API request using FLUX LoRA ARCHITECTURE
       const requestBody = {
-        version: fullUserModel,
+        version: "black-forest-labs/flux-dev-lora",
         input: {
           prompt: finalPrompt,
+          lora_weights: loraWeights,
+          lora_scale: 1.1,
           guidance: 2.82,
           num_inference_steps: 48,
           num_outputs: 2,
