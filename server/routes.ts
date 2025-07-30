@@ -159,7 +159,15 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
       // Prepare model version and prompt
       const fullModelVersion = `${userModel.replicateModelId}:${userModel.replicateVersionId}`;
-      const triggerWord = `user${userId}`;
+      const triggerWord = userModel.triggerWord || `user${userId}`;
+      
+      console.log('🔍 Maya: Model details:', {
+        replicateModelId: userModel.replicateModelId,
+        replicateVersionId: userModel.replicateVersionId,
+        fullModelVersion,
+        triggerWord,
+        trainingStatus: userModel.trainingStatus
+      });
       
       // Build enhanced prompt with trigger word and quality settings
       let finalPrompt = actualPrompt;
