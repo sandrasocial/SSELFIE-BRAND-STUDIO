@@ -223,24 +223,29 @@ Sandra's revolutionary AI-powered business management system with specialized ag
 - **Full Codebase Access**: All agents can assist with development, optimization, and feature implementation
 - **Deployment Architecture**: Replit hosting infrastructure (NOT Vercel)
 
-## ✅ FLUX LoRA ARCHITECTURE CONFIRMED (January 30, 2025)
+## ✅ DIANA-APPROVED PRICING MODEL IMPLEMENTED - SUSTAINABLE 2-TIER SYSTEM OPERATIONAL (January 30, 2025)
 
-**CRITICAL ARCHITECTURAL CLARIFICATION:**
-- **INDIVIDUAL USER LoRA WEIGHTS**: Each user has their own trained LoRA weights for the base FLUX model
-- **Base Model**: `black-forest-labs/flux-dev-lora` (shared base model for all users)
-- **LoRA Weights**: `sandrasocial/{userId}-selfie-lora-{timestamp}:{versionId}` (individual user weights with version)
-- **LoRA Scale**: `1.1` for enhanced user likeness
-- **Complete User Isolation**: Zero cross-contamination between users' LoRA weights
-- **Training Architecture**: Uses `ostris/flux-dev-lora-trainer:26dce37af90b9d997eeb970d92e47de3064d46c300504ae376c75bef6a9022d2`
-- **Database Storage**: `replicate_model_id` + `replicate_version_id` stores user's complete LoRA reference
-- **Trigger Word**: `user{userId}` format for personalization (e.g., `user42585527`)
-- **Example**: `sandrasocial/42585527-selfie-lora-1753201482760:80c29fa2e004372979eb32b55b99607de5174db5e98e806efb509788eaf2fd96`
+**BREAKTHROUGH: Complete implementation of Diana's sustainable pricing architecture**
+- ✅ **€29 Basic Tier**: Trained personal AI model + 30 monthly AI photos + Maya AI photographer access
+- ✅ **€67 Full Access Tier**: Complete package with trained model + 100 photos + Maya + Victoria + website builder + flatlay library
+- ✅ **Core Dependency Model**: Trained models are THE requirement for accessing AI agents (not just image generation)
+- ✅ **Database Schema Updated**: Complete user table enhancement with plan-specific access controls and generation limits
+- ✅ **Authentication Flow Updated**: All access control logic updated across workspace, ai-photoshoot, checkout, and admin systems
+- ✅ **Pricing Page Enhanced**: Complete value differentiation between tiers with proper business model messaging
+- ✅ **Checkout System Updated**: Stripe integration updated for new pricing structure with €29/€67 pricing in euros
+- ✅ **Legacy Support**: Maintains backward compatibility with existing 'sselfie-studio' and 'images-only' plan references
 
-**Maya Generation Architecture Fixed:**
-- Updated Maya API endpoint to use correct FLUX LoRA architecture with base model + individual user LoRA weights
-- Added proper `lora_scale: 1.1` parameter for enhanced user likeness
-- Fixed Maya language to use "photoshoot" terminology instead of technical "prompt" language
-- Corrected frontend image preview system to handle immediate completion from backend polling
+**Business Model Confirmation:**
+- **Trained Models = Core Value**: Users MUST have trained models to access Maya AI and Victoria AI (not just for image generation)
+- **Sustainable Economics**: €29 covers training costs while €67 provides full ecosystem access with healthy margins
+- **Clear Value Ladder**: Basic tier perfect for individual users, Full Access for business builders needing complete ecosystem
+- **Future-Proof Architecture**: Plan structure supports unlimited feature additions to Full Access tier
+
+**Technical Implementation:**
+- **Access Control Matrix**: Complete implementation of hasMayaAIAccess() and hasVictoriaAIAccess() with trained model requirements
+- **Generation Limits**: 30 images (Basic) vs 100 images (Full Access) with proper tracking and enforcement
+- **Database Migration**: Successfully pushed schema changes with agent_capabilities table and enhanced user plan structure
+- **Frontend Integration**: Workspace and checkout pages fully updated with new pricing display and plan detection logic
 
 ## Sandra's Admin Command Center - COMPLETELY REDESIGNED (July 18, 2025)
 

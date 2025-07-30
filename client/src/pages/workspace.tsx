@@ -49,14 +49,16 @@ export default function Workspace() {
     enabled: isAuthenticated
   });
 
-  // Check if user has full access (previously premium) - Enhanced detection
-  const hasFullAccess = (subscription as any)?.plan === 'full-access' || 
+  // Check if user has full access based on new pricing structure
+  const hasFullAccess = user?.plan === 'full-access' || 
+                        user?.role === 'admin' ||
+                        (subscription as any)?.plan === 'full-access' || 
                         (subscription as any)?.plan === 'sselfie-studio' || // Legacy plan support
-                        user?.plan === 'admin' || 
-                        user?.plan === 'full-access' ||
-                        user?.plan === 'sselfie-studio' || // Legacy plan support
                         (usage as any)?.plan === 'full-access' ||
                         (usage as any)?.plan === 'sselfie-studio'; // Legacy plan support
+
+  // Check if user has trained model (required for both tiers)
+  const hasTrainedModel = userModel && (userModel as any).trainingStatus === 'completed';
 
 
 
@@ -73,16 +75,16 @@ export default function Workspace() {
     }
     
     // Enhanced plan detection from multiple sources
-    const userPlan = user?.plan || (subscription as any)?.plan || usageData?.plan || 'images-only';
+    const userPlan = user?.plan || (subscription as any)?.plan || usageData?.plan || 'basic';
     const hasFullAccessPlan = userPlan === 'full-access' || userPlan === 'sselfie-studio' || userPlan === 'admin';
     
-    const used = usageData.monthlyUsed || 0;
-    const total = hasFullAccessPlan ? (usageData.monthlyAllowed || 100) : (usageData.monthlyAllowed || 25);
+    const used = usageData.monthlyUsed || user?.generationsUsedThisMonth || 0;
+    const total = hasFullAccessPlan ? (user?.monthlyGenerationLimit || 100) : (user?.monthlyGenerationLimit || 30);
     
     return {
       used,
       remaining: total - used,
-      plan: hasFullAccessPlan ? 'Full Access' : 'Images Only'
+      plan: hasFullAccessPlan ? 'Full Access' : 'Basic'
     };
   };
 
