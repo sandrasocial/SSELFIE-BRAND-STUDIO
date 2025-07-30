@@ -14,15 +14,9 @@ export function useAuth() {
       console.log('🔍 Auth check: Making request to /api/auth/user');
       
       try {
-        // CRITICAL FIX: Include admin token for agent authentication
         const headers: Record<string, string> = {
           'Cache-Control': 'no-cache'
         };
-        
-        // Check if this is Sandra's admin session
-        if (window.location.hostname.includes('replit') || window.location.hostname.includes('sselfie')) {
-          headers['X-Admin-Token'] = 'sandra-admin-2025';
-        }
         
         const response = await fetch('/api/auth/user', {
           credentials: 'include',
