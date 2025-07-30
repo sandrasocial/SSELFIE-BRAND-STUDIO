@@ -1,7 +1,7 @@
 import type { Express } from "express";
 import { isAuthenticated } from "../replitAuth";
 import { storage } from "../storage";
-import { sendWelcomeEmail } from "../email-service";
+// import { sendWelcomeEmail } from "../email-service";
 import Stripe from "stripe";
 
 if (!process.env.STRIPE_SECRET_KEY) {
@@ -9,14 +9,36 @@ if (!process.env.STRIPE_SECRET_KEY) {
 }
 
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY, {
-  apiVersion: "2023-10-16",
+  apiVersion: "2025-06-30.basil",
 });
 
 export function registerCheckoutRoutes(app: Express) {
   // Create Stripe Checkout Session (simpler and more reliable)
   app.post("/api/create-checkout-session", async (req: any, res) => {
     try {
-      const { successUrl, cancelUrl } = req.body;
+      const { successUrl, cancelUrl, plan = 'full-access' } = req.body;
+      
+      // Define pricing for different plans
+      const planConfig = {
+        'images-only': {
+          name: 'SSELFIE Studio Images Only',
+          description: '25 monthly AI photos with your personal model',
+          amount: 2900, // €29.00 in cents
+        },
+        'full-access': {
+          name: 'SSELFIE Studio Full Access',
+          description: '100 monthly AI photos + Maya AI + Victoria website builder',
+          amount: 6700, // €67.00 in cents
+        },
+        // Legacy support
+        'sselfie-studio': {
+          name: 'SSELFIE Studio Full Access',
+          description: '100 monthly AI photos + Maya AI + Victoria website builder',
+          amount: 6700, // €67.00 in cents
+        }
+      };
+
+      const selectedPlan = planConfig[plan as keyof typeof planConfig] || planConfig['full-access'];
       
       const session = await stripe.checkout.sessions.create({
         payment_method_types: ['card'],
@@ -25,10 +47,10 @@ export function registerCheckoutRoutes(app: Express) {
             price_data: {
               currency: 'eur',
               product_data: {
-                name: 'SSELFIE AI Brand Photoshoot',
-                description: '100 monthly AI-generated professional photos',
+                name: selectedPlan.name,
+                description: selectedPlan.description,
               },
-              unit_amount: 4700, // €67.00 in cents
+              unit_amount: selectedPlan.amount,
             },
             quantity: 1,
           },
@@ -36,6 +58,9 @@ export function registerCheckoutRoutes(app: Express) {
         mode: 'payment',
         success_url: successUrl,
         cancel_url: cancelUrl,
+        metadata: {
+          plan: plan
+        }
       });
 
       res.json({ url: session.url });
@@ -121,17 +146,20 @@ async function triggerPostPurchaseAutomation(userId: string, plan: string) {
     if (!user) return;
 
     // Send welcome email (in production, integrate with email service)
-    await sendWelcomeEmail(user, plan);
+    // await sendWelcomeEmail(user, plan);
 
     // Setup onboarding data
-    await storage.createOnboardingData({
-      userId,
-      currentStep: plan === 'ai-pack' ? 'selfie-upload' : 'brand-questionnaire',
-      brandVibe: '',
-      targetClient: '',
-      businessGoal: '',
-      completedSteps: [],
-    });
+    const existingOnboarding = await storage.getOnboardingData(userId);
+    if (!existingOnboarding) {
+      await storage.saveOnboardingData({
+        userId,
+        currentStep: plan === 'images-only' ? 'ai-training' : 'brand-questionnaire',
+        brandVibe: '',
+        targetClient: '',
+        businessGoal: '',
+        completedSteps: [],
+      });
+    }
 
     console.log(`Post-purchase automation completed for user ${userId}, plan ${plan}`);
   } catch (error) {
@@ -139,12 +167,13 @@ async function triggerPostPurchaseAutomation(userId: string, plan: string) {
   }
 }
 
-async function sendWelcomeEmail(user: any, plan: string) {
-  try {
-    await EmailService.sendWelcomeEmail(user.email, user.firstName || 'Beautiful', plan);
-    console.log(`Welcome email sent successfully to ${user.email} for ${plan}`);
-  } catch (error) {
-    console.error('Failed to send welcome email:', error);
-    // Don't throw error - payment should still process even if email fails
-  }
-}
+// Email service disabled for now
+// async function sendWelcomeEmail(user: any, plan: string) {
+//   try {
+//     await EmailService.sendWelcomeEmail(user.email, user.firstName || 'Beautiful', plan);
+//     console.log(`Welcome email sent successfully to ${user.email} for ${plan}`);
+//   } catch (error) {
+//     console.error('Failed to send welcome email:', error);
+//     // Don't throw error - payment should still process even if email fails
+//   }
+// }
