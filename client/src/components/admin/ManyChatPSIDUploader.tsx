@@ -119,15 +119,19 @@ export function ManyChatPSIDUploader({ onPSIDListReady }: ManyChatPSIDUploaderPr
           <Alert>
             <AlertCircle className="h-4 w-4" />
             <AlertDescription>
-              <strong>Export Instructions:</strong>
+              <strong>Updated Export Instructions (ManyChat 2025):</strong>
               <ol className="mt-2 ml-4 list-decimal space-y-1">
                 <li>Log into your ManyChat dashboard</li>
-                <li>Navigate to <strong>Audience</strong> page</li>
-                <li>Make sure no search filters are active</li>
+                <li>Navigate to <strong>Contacts</strong> page (as shown in your screenshot)</li>
+                <li>Select all contacts (click checkbox in header to select all 4608)</li>
                 <li>Click <strong>Bulk Actions</strong> button</li>
-                <li>Select <strong>Export PSIDs</strong> option</li>
-                <li>Download the generated file</li>
+                <li>Select <strong>Export Custom to System Field</strong></li>
+                <li>Choose to export the <strong>Facebook PSID</strong> or <strong>Contact ID</strong> field</li>
+                <li>Download the generated CSV file</li>
               </ol>
+              <p className="mt-2 text-sm text-amber-600">
+                <strong>Note:</strong> ManyChat changed their interface. If export isn't available, we can use the ManyChat API directly instead.
+              </p>
             </AlertDescription>
           </Alert>
         </CardContent>
@@ -141,7 +145,7 @@ export function ManyChatPSIDUploader({ onPSIDListReady }: ManyChatPSIDUploaderPr
             Step 2: Upload Subscriber IDs
           </CardTitle>
           <CardDescription>
-            Upload your exported PSID file or paste the IDs directly
+            Upload your exported contact file or paste the IDs directly. If manual export doesn't work, we'll use ManyChat API instead.
           </CardDescription>
         </CardHeader>
         <CardContent className="space-y-4">

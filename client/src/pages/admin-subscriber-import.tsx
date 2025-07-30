@@ -70,6 +70,25 @@ export default function AdminSubscriberImport() {
     }
   };
 
+  const handleManyChatAPIImport = async () => {
+    setImporting(true);
+    try {
+      const response = await apiRequest('/api/subscribers/manychat/import', 'POST', {});
+      toast({
+        title: "ManyChat API Import Successful",
+        description: `Imported ${response.imported} subscribers directly from ManyChat API`,
+      });
+    } catch (error) {
+      toast({
+        title: "ManyChat API Import Failed",
+        description: error instanceof Error ? error.message : "Failed to import from ManyChat API. Please check your API token.",
+        variant: "destructive",
+      });
+    } finally {
+      setImporting(false);
+    }
+  };
+
   const handleCompleteImport = async () => {
     setImporting(true);
     try {
@@ -152,17 +171,27 @@ export default function AdminSubscriberImport() {
               <Alert className="mb-4">
                 <AlertCircle className="h-4 w-4" />
                 <AlertDescription>
-                  ManyChat requires manual PSID export first due to platform limitations
+                  <strong>Two Options:</strong> Manual contact export OR direct ManyChat API import (requires API token)
                 </AlertDescription>
               </Alert>
-              <Button 
-                onClick={() => setShowManyChatUploader(true)} 
-                disabled={importing}
-                className="w-full"
-                variant="outline"
-              >
-                {importing ? 'Processing...' : 'Start ManyChat Import Process'}
-              </Button>
+              <div className="space-y-2">
+                <Button 
+                  onClick={() => setShowManyChatUploader(true)} 
+                  disabled={importing}
+                  className="w-full"
+                  variant="outline"
+                >
+                  {importing ? 'Processing...' : 'Manual Upload Method'}
+                </Button>
+                <Button 
+                  onClick={handleManyChatAPIImport} 
+                  disabled={importing}
+                  className="w-full"
+                  variant="default"
+                >
+                  {importing ? 'Importing...' : 'Direct API Import (Recommended)'}
+                </Button>
+              </div>
             </CardContent>
           </Card>
 
