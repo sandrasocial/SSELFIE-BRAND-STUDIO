@@ -1106,6 +1106,69 @@ Remember: You are the MEMBER experience Victoria - provide website building guid
     }
   });
 
+  // AI Photoshoot Generation - CRITICAL MISSING ENDPOINT
+  app.post('/api/generate-user-images', isAuthenticated, async (req: any, res) => {
+    try {
+      const { category, subcategory } = req.body;
+      const authUserId = req.user.claims.sub;
+      
+      // Get the correct database user ID
+      let user = await storage.getUser(authUserId);
+      if (!user) {
+        const claims = req.user.claims;
+        if (claims.email) {
+          user = await storage.getUserByEmail(claims.email);
+        }
+      }
+      
+      if (!user) {
+        return res.status(404).json({ error: 'User not found' });
+      }
+      
+      // Verify user has trained model
+      const userModel = await storage.getUserModelByUserId(user.id);
+      if (!userModel || userModel.trainingStatus !== 'completed') {
+        return res.status(400).json({ 
+          error: 'AI model not found or training not completed',
+          message: 'Please train your model first'
+        });
+      }
+      
+      // Generate sophisticated prompt based on category and subcategory
+      let prompt = `sophisticated editorial photoshoot featuring ${category}`;
+      if (subcategory && subcategory !== category) {
+        prompt += ` with ${subcategory} styling`;
+      }
+      prompt += `, luxury fashion photography, professional lighting, high-end editorial aesthetic`;
+      
+      console.log(`🎬 AI PHOTOSHOOT: Generating ${category}/${subcategory} for user ${user.id}`);
+      
+      // Use UnifiedGenerationService with correct guidance_scale parameter
+      const { UnifiedGenerationService } = await import('./unified-generation-service');
+      const result = await UnifiedGenerationService.generateImages({
+        userId: user.id,
+        prompt,
+        category: `${category} - ${subcategory}` 
+      });
+      
+      res.json({
+        success: true,
+        predictionId: result.predictionId,
+        generatedImageId: result.id,
+        trackerId: result.id,
+        message: "AI photoshoot generation started!"
+      });
+      
+    } catch (error) {
+      console.error('❌ AI Photoshoot generation error:', error);
+      res.status(500).json({ 
+        success: false,
+        message: "Failed to start AI photoshoot generation", 
+        error: error instanceof Error ? error.message : 'Unknown error'
+      });
+    }
+  });
+
   // User info endpoint
   app.get('/api/user/info', (req, res) => {
     if (req.isAuthenticated?.()) {
