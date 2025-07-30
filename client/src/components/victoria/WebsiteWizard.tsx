@@ -308,7 +308,7 @@ export function WebsiteWizard({ onComplete }: WebsiteWizardProps) {
                         <Checkbox
                           id={feature}
                           checked={formData.keyFeatures?.includes(feature) || false}
-                          onChange={() => handleFeatureToggle(feature)}
+                          onCheckedChange={() => handleFeatureToggle(feature)}
                           className="border-2 border-gray-300"
                         />
                         <Label htmlFor={feature} className="text-base font-light" 
@@ -390,7 +390,6 @@ export function WebsiteWizard({ onComplete }: WebsiteWizardProps) {
           </div>
         </div>
       </div>
-    </div>
     </div>
   );
 }
