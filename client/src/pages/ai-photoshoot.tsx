@@ -13,7 +13,7 @@ const PROMPT_COLLECTIONS = {
     id: 'healing-mindset',
     name: 'HEALING MINDSET',
     subtitle: 'Phoenix Rising',
-    description: 'The quiet strength of a woman who rebuilt herself - capturing the beauty of healing and the power of rising',
+    description: 'For when you want to capture how far you\'ve come. You know that quiet strength you have now? The one that came from surviving what almost broke you? Let\'s photograph that.',
     preview: SandraImages.portraits.professional[2],
     prompts: [
       {
@@ -106,7 +106,7 @@ const PROMPT_COLLECTIONS = {
     id: 'magazine-covers',
     name: 'E D I T O R I A L',
     subtitle: 'P O W E R',
-    description: 'High-fashion editorial portraits for your brand',
+    description: 'Ready to look like the CEO you already are? These are for when you want photos that make people stop scrolling and think "wow, who is SHE?" Pure magazine cover energy.',
     preview: SandraImages.portraits.professional[1],
     prompts: [
       {
