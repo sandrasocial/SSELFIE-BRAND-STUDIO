@@ -1367,6 +1367,7 @@ export default function AIPhotoshootPage() {
             </div>
           </div>
         )}
+      </div>
 
       {/* LUXURY IMAGE PREVIEW MODAL */}
       {((showPreviewModal || generatingImages) && (generatedImages.length > 0 || generatingImages)) && (
@@ -1564,13 +1565,6 @@ export default function AIPhotoshootPage() {
           </div>
         </div>
       )}
-      </div>
-      </div>
-      </div>
-      </div>
-      </div>
-      </div>
-      </div>
     </div>
   );
 }
