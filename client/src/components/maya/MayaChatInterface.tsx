@@ -90,7 +90,7 @@ export function MayaChatInterface() {
             setChatMessages(formattedMessages);
             
             // Count messages with images for verification
-            const messagesWithImages = formattedMessages.filter(m => m.imagePreview && m.imagePreview.length > 0);
+            const messagesWithImages = formattedMessages.filter((m: MayaChatMessage) => m.imagePreview && m.imagePreview.length > 0);
             console.log(`✅ Maya: LOADED ${messagesWithImages.length} messages with permanent S3 images!`);
             
             return;
@@ -174,7 +174,7 @@ What kind of vibe are we creating today? Or just say "surprise me" and I'll crea
           // Add image preview to the last Maya message - ARCHIVE FORMAT
           setChatMessages(prev => {
             const newMessages = [...prev];
-            const lastMayaIndex = newMessages.map(m => m.role).lastIndexOf('maya');
+            const lastMayaIndex = newMessages.map((m: MayaChatMessage) => m.role).lastIndexOf('maya');
             if (lastMayaIndex >= 0) {
               newMessages[lastMayaIndex] = {
                 ...newMessages[lastMayaIndex],
@@ -265,6 +265,20 @@ What kind of vibe are we creating today? Or just say "surprise me" and I'll crea
       console.log('🎬 Maya: Adding Maya response message with generating state');
       setChatMessages(prev => [...prev, mayaMessage]);
       queryClient.invalidateQueries({ queryKey: ['/api/generation-trackers/completed'] });
+    },
+    onError: (error) => {
+      console.error('Maya chat error:', error);
+      setIsGenerating(false);
+      setGenerationProgress(0);
+      setCurrentTrackerId(null);
+      
+      // Add error message for user
+      setChatMessages(prev => [...prev, {
+        id: Date.now(),
+        role: 'maya',
+        content: `💭 Oops! Something went wrong with the image generation. Let me try that again for you! ${error instanceof Error ? error.message : 'Please try sending your message again.'}`,
+        timestamp: new Date().toISOString()
+      }]);
     }
   });
 
@@ -391,7 +405,7 @@ What kind of vibe are we creating today? Or just say "surprise me" and I'll crea
                     {(Array.isArray(msg.imagePreview) 
                       ? msg.imagePreview 
                       : (msg.imagePreview as GenerationTracker)?.imageUrls 
-                        ? JSON.parse((msg.imagePreview as GenerationTracker).imageUrls) 
+                        ? JSON.parse((msg.imagePreview as GenerationTracker).imageUrls || '[]') 
                         : []
                     ).map((imageUrl: string, index: number) => (
                       <div key={index} className="relative group">

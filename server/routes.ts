@@ -88,6 +88,102 @@ export async function registerRoutes(app: Express): Promise<Server> {
       });
     }
   });
+
+  // Maya Chat endpoints - Production ready
+  app.get('/api/maya-chats', isAuthenticated, async (req: any, res) => {
+    try {
+      const userId = req.user?.claims?.sub;
+      console.log('💬 Fetching Maya chats for user:', userId);
+      
+      const userChats = await storage.getMayaChats(userId);
+      res.json(userChats);
+      
+    } catch (error) {
+      console.error('❌ Error fetching Maya chats:', error);
+      res.status(500).json({ 
+        message: "Failed to fetch Maya chats", 
+        error: error instanceof Error ? error.message : 'Unknown error'
+      });
+    }
+  });
+
+  app.post('/api/maya-chats', isAuthenticated, async (req: any, res) => {
+    try {
+      const userId = req.user?.claims?.sub;
+      const { chatTitle, chatSummary } = req.body;
+      
+      console.log('💬 Creating Maya chat for user:', userId);
+      
+      const chat = await storage.createMayaChat({
+        userId,
+        chatTitle: chatTitle || 'New Maya Photoshoot',
+        chatSummary
+      });
+      
+      res.json(chat);
+    } catch (error) {
+      console.error('❌ Error creating Maya chat:', error);
+      res.status(500).json({ 
+        message: "Failed to create Maya chat", 
+        error: error instanceof Error ? error.message : 'Unknown error'
+      });
+    }
+  });
+
+  // Maya Image Generation endpoint - Production ready
+  app.post('/api/maya-generate-images', isAuthenticated, async (req: any, res) => {
+    try {
+      const userId = req.user?.claims?.sub;
+      const { prompt, customPrompt, chatId } = req.body;
+      
+      console.log('🎬 Maya: Starting image generation for user:', userId);
+      console.log('🎬 Maya: Prompt:', prompt);
+      
+      // Import generation service
+      const { UnifiedGenerationService } = await import('./unified-generation-service');
+      
+      // Get user's trained model
+      const { db } = await import('./db');
+      const { userModels } = await import('../shared/schema');
+      const { eq } = await import('drizzle-orm');
+      
+      const [userModel] = await db
+        .select()
+        .from(userModels)
+        .where(eq(userModels.userId, userId));
+      
+      if (!userModel || userModel.trainingStatus !== 'completed') {
+        return res.status(400).json({
+          success: false,
+          message: "No trained model available. Please complete training first."
+        });
+      }
+      
+      // Start generation with user's model
+      const generation = await UnifiedGenerationService.generateImages({
+        userId,
+        prompt: customPrompt || prompt,
+        category: 'Maya Chat'
+      });
+      
+      console.log('🎬 Maya: Generation started with ID:', generation.id);
+      
+      res.json({
+        success: true,
+        imageId: generation.id,
+        message: "✨ Creating your stunning editorial moment right now! This is going to be absolutely gorgeous...",
+        trackerId: generation.id
+      });
+      
+    } catch (error) {
+      console.error('❌ Maya generation error:', error);
+      res.status(500).json({ 
+        success: false,
+        message: "Failed to start image generation", 
+        error: error instanceof Error ? error.message : 'Unknown error'
+      });
+    }
+  });
   
   // UNIFIED AGENT SYSTEM - Single integration layer
   console.log('🎯 UNIFIED AGENT SYSTEM: Initializing single integration layer...');
