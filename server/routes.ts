@@ -539,6 +539,10 @@ Remember: You are the MEMBER experience Victoria - provide website building guid
   const claudeApiRoutes = await import('./routes/claude-api-routes');
   app.use('/api/claude', claudeApiRoutes.default);
   
+  // Register flatlay library routes for Victoria
+  const flatlayLibraryRoutes = await import('./routes/flatlay-library');
+  app.use(flatlayLibraryRoutes.default);
+  
   // Generation tracker polling endpoint for live progress
   app.get('/api/generation-tracker/:trackerId', isAuthenticated, async (req: any, res) => {
     try {

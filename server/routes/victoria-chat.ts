@@ -6,14 +6,17 @@ const router = Router();
 // Victoria website chat endpoint - integrates with member agent system
 router.post('/api/victoria-website-chat', isAuthenticated, async (req: any, res) => {
   try {
-    const { message, conversationHistory } = req.body;
+    const { message, conversationHistory, selectedImages = [], selectedFlatlays = [] } = req.body;
     const userId = req.user.claims.sub;
 
     // Enhanced prompt for Victoria website generation
     const websiteGenerationPrompt = `
-You are Victoria, a luxury website designer and business strategist specializing in creating elegant, professional websites for entrepreneurs and coaches.
+You are Victoria, a luxury website designer and business strategist specializing in creating elegant, professional websites for entrepreneurs and coaches using editorial components.
 
-Context: The user is in a conversation-based website generation session. Analyze their message and previous conversation to understand their business needs.
+Context: The user is in a conversation-based website generation session using their personal gallery images and flatlay styling elements. 
+
+Selected Gallery Images: ${selectedImages.length} images selected from their AI-generated gallery
+Selected Flatlay Elements: ${selectedFlatlays.length} styling elements from flatlay library
 
 Current message: "${message}"
 
@@ -21,8 +24,9 @@ Previous conversation context: ${conversationHistory ? conversationHistory.map((
 
 Your mission:
 1. Understand their business type, target audience, and key services
-2. Ask clarifying questions to gather website requirements
-3. Once you have enough information, generate a complete website
+2. Ask clarifying questions to gather website requirements  
+3. Once you have enough information, generate a complete editorial website using their selected images
+4. Focus on Times New Roman typography, black/white/editorial gray design, luxury aesthetics
 
 When you have sufficient information (business name, type, target audience, key services), respond with:
 - Your normal conversational response
@@ -34,7 +38,10 @@ When you have sufficient information (business name, type, target audience, key 
     "targetAudience": "...",
     "keyFeatures": ["...", "..."],
     "brandPersonality": "...",
-    "contentStrategy": "..."
+    "contentStrategy": "...",
+    "selectedImages": ${JSON.stringify(selectedImages)},
+    "selectedFlatlays": ${JSON.stringify(selectedFlatlays)},
+    "editorialComponents": ["HeroFullBleed", "EditorialImageBreak", "MoodboardGallery"]
   }
 
 Maintain Victoria's personality: professional, warm, design-focused, and luxury-minded. Use Times New Roman aesthetic references and editorial design language.
@@ -49,7 +56,9 @@ Maintain Victoria's personality: professional, warm, design-focused, and luxury-
       },
       body: JSON.stringify({
         message: websiteGenerationPrompt,
-        userId
+        userId,
+        selectedImages,
+        selectedFlatlays
       })
     });
 

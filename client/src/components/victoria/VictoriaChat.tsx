@@ -12,14 +12,18 @@ interface ChatMessage {
 
 interface VictoriaChatProps {
   onWebsiteGenerated: (website: any) => void;
+  selectedImages?: string[];
+  selectedFlatlays?: string[];
 }
 
-export function VictoriaChat({ onWebsiteGenerated }: VictoriaChatProps) {
+export function VictoriaChat({ onWebsiteGenerated, selectedImages = [], selectedFlatlays = [] }: VictoriaChatProps) {
   const [messages, setMessages] = useState<ChatMessage[]>([
     {
       id: '1',
       type: 'victoria',
-      content: "Hello! I'm Victoria, your personal website designer. I'll help you create a beautiful, professional website for your business. Let's start by telling me about your business - what do you do and who do you help?",
+      content: `Hello! I'm Victoria, your personal website designer. I can see you've selected ${selectedImages.length} beautiful images from your gallery and ${selectedFlatlays.length} flatlay styling elements. Perfect! 
+
+Now, let's create your editorial website. Tell me about your business - what do you do, who do you help, and what's your unique story? I'll use your selected images to create stunning editorial layouts that truly represent your brand.`,
       timestamp: new Date()
     }
   ]);
@@ -54,7 +58,9 @@ export function VictoriaChat({ onWebsiteGenerated }: VictoriaChatProps) {
       // Send message to Victoria via member agent endpoint
       const response = await apiRequest('/api/victoria-website-chat', 'POST', {
         message: inputValue,
-        conversationHistory: messages.slice(-5) // Last 5 messages for context
+        conversationHistory: messages.slice(-5), // Last 5 messages for context
+        selectedImages,
+        selectedFlatlays
       });
 
       const victoriaMessage: ChatMessage = {
