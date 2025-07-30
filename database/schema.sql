@@ -145,7 +145,3 @@ BEGIN
 END;
 $$ LANGUAGE plpgsql;
 
-CREATE TRIGGER trigger_update_monthly_usage
-    AFTER INSERT ON image_generations
-    FOR EACH ROW
-    EXECUTE FUNCTION update_monthly_usage();

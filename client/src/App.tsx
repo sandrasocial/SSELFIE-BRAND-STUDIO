@@ -38,6 +38,7 @@ import SimpleTraining from "@/pages/simple-training";
 import AdminDashboard from "@/pages/admin-dashboard";
 
 import AdminConsultingAgents from "@/pages/admin-consulting-agents";
+import AdminSubscriberImport from "@/pages/admin-subscriber-import";
 
 import BridgeMonitor from "@/pages/admin/bridge-monitor";
 import AgentActivityDashboard from "@/components/admin/AgentActivityDashboard";
@@ -263,6 +264,7 @@ function Router() {
         </div>
       )} {...props} />} />
       <Route path="/admin/consulting-agents" component={(props) => <ProtectedRoute component={AdminConsultingAgents} {...props} />} />
+      <Route path="/admin/subscriber-import" component={(props) => <ProtectedRoute component={AdminSubscriberImport} {...props} />} />
 
 
       <Route path="/admin/bridge-monitor" component={(props) => <ProtectedRoute component={BridgeMonitor} {...props} />} />

@@ -658,6 +658,26 @@ export const insertWebsiteBuilderConversationsSchema = createInsertSchema(websit
 export type UserWebsiteOnboarding = typeof userWebsiteOnboarding.$inferSelect;
 export type InsertUserWebsiteOnboarding = z.infer<typeof insertUserWebsiteOnboardingSchema>;
 export type UserGeneratedWebsite = typeof userGeneratedWebsites.$inferSelect;
+
+// Imported subscribers table for email list migration
+export const importedSubscribers = pgTable("imported_subscribers", {
+  id: varchar("id").primaryKey().$defaultFn(() => crypto.randomUUID()),
+  email: varchar("email"),
+  firstName: varchar("first_name"),
+  lastName: varchar("last_name"),
+  source: varchar("source").notNull(), // 'flodesk' | 'manychat'
+  originalId: varchar("original_id").notNull(),
+  status: varchar("status").notNull(), // 'active' | 'unsubscribed'
+  tags: jsonb("tags").$type<string[]>().default([]),
+  customFields: jsonb("custom_fields").$type<Record<string, any>>().default({}),
+  messengerData: jsonb("messenger_data"),
+  importedAt: timestamp("imported_at").defaultNow(),
+  createdAt: timestamp("created_at").defaultNow(),
+  updatedAt: timestamp("updated_at").defaultNow()
+});
+
+export type ImportedSubscriber = typeof importedSubscribers.$inferSelect;
+export type InsertImportedSubscriber = typeof importedSubscribers.$inferInsert;
 export type InsertUserGeneratedWebsite = z.infer<typeof insertUserGeneratedWebsitesSchema>;
 export type WebsiteBuilderConversation = typeof websiteBuilderConversations.$inferSelect;
 export type InsertWebsiteBuilderConversation = z.infer<typeof insertWebsiteBuilderConversationsSchema>;
