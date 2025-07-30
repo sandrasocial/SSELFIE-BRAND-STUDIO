@@ -1,32 +1,28 @@
-interface MoodboardImage {
-  url: string;
-  alt: string;
-  span: number;
-  aspect: 'square' | 'wide' | 'tall';
-}
-
 interface MoodboardSectionProps {
-  images: MoodboardImage[];
+  title: string;
+  images: string[];
   backgroundColor?: string;
   padding?: string;
 }
 
 export const MoodboardSection: React.FC<MoodboardSectionProps> = ({
-  images,
-  backgroundColor = 'bg-editorial-gray',
-  padding = 'p-2'
+  title,
+  images
 }) => {
   return (
-    <section className={`portfolio-grid ${backgroundColor} ${padding}`}>
-      {images.map((image, index) => (
-        <div key={index} className={`grid-item span-${image.span} aspect-${image.aspect}`}>
-          <img 
-            src={image.url} 
-            alt={image.alt} 
-            className="w-full h-full object-cover editorial-hover"
-          />
-        </div>
-      ))}
-    </section>
+    <div className="text-center">
+      <h4 className="font-serif text-lg mb-6 tracking-wide">{title}</h4>
+      <div className="grid grid-cols-1 gap-4">
+        {images.map((image, index) => (
+          <div key={index} className="aspect-[4/5] overflow-hidden">
+            <img 
+              src={image} 
+              alt={`${title} ${index + 1}`}
+              className="w-full h-full object-cover"
+            />
+          </div>
+        ))}
+      </div>
+    </div>
   );
 };
