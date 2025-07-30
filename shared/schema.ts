@@ -415,6 +415,8 @@ export const brandOnboarding = pgTable("brand_onboarding", {
   updatedAt: timestamp("updated_at").defaultNow(),
 });
 
+
+
 // User landing pages table for live hosting
 export const userLandingPages = pgTable("user_landing_pages", {
   id: serial("id").primaryKey(),
@@ -455,6 +457,8 @@ export const mayaChatMessages = pgTable("maya_chat_messages", {
 
 
 
+
+
 // Schema exports
 export const upsertUserSchema = createInsertSchema(users);
 export const insertUserProfileSchema = createInsertSchema(userProfiles).omit({ id: true, createdAt: true, updatedAt: true });
@@ -470,9 +474,11 @@ export const insertVictoriaChatSchema = createInsertSchema(victoriaChats).omit({
 export const insertPhotoSelectionSchema = createInsertSchema(photoSelections).omit({ id: true, createdAt: true, updatedAt: true });
 export const insertLandingPageSchema = createInsertSchema(landingPages).omit({ id: true, createdAt: true, updatedAt: true });
 export const insertBrandOnboardingSchema = createInsertSchema(brandOnboarding).omit({ id: true, createdAt: true, updatedAt: true });
+
 export const insertUserLandingPageSchema = createInsertSchema(userLandingPages).omit({ id: true, createdAt: true, updatedAt: true });
 export const insertMayaChatSchema = createInsertSchema(mayaChats).omit({ id: true, createdAt: true, updatedAt: true });
 export const insertMayaChatMessageSchema = createInsertSchema(mayaChatMessages).omit({ id: true, createdAt: true });
+export const insertGenerationTrackerSchema = createInsertSchema(generationTrackers).omit({ id: true, createdAt: true, completedAt: true });
 export const insertAgentConversationSchema = createInsertSchema(agentConversations).omit({ id: true, timestamp: true });
 
 // Claude API schemas
@@ -494,11 +500,15 @@ export type MayaChat = typeof mayaChats.$inferSelect;
 export type InsertMayaChat = typeof mayaChats.$inferInsert;
 export type MayaChatMessage = typeof mayaChatMessages.$inferSelect;
 export type InsertMayaChatMessage = typeof mayaChatMessages.$inferInsert;
+export type GenerationTracker = typeof generationTrackers.$inferSelect;
+export type InsertGenerationTracker = z.infer<typeof insertGenerationTrackerSchema>;
 // User profiles table schema already defined at top of file
 
 export type UserProfile = typeof userProfiles.$inferSelect;
 export type InsertBrandOnboarding = z.infer<typeof insertBrandOnboardingSchema>;
 export type BrandOnboarding = typeof brandOnboarding.$inferSelect;
+export type Website = typeof websites.$inferSelect;
+export type InsertWebsite = z.infer<typeof insertWebsiteSchema>;
 export type InsertUserProfile = z.infer<typeof insertUserProfileSchema>;
 export type InsertProject = z.infer<typeof insertProjectSchema>;
 
@@ -537,10 +547,7 @@ export type UserLandingPage = typeof userLandingPages.$inferSelect;
 export type InsertAgentConversation = z.infer<typeof insertAgentConversationSchema>;
 export type AgentConversation = typeof agentConversations.$inferSelect;
 
-// Generation tracker schemas and types
-export const insertGenerationTrackerSchema = createInsertSchema(generationTrackers).omit({ id: true, createdAt: true, updatedAt: true });
-export type GenerationTracker = typeof generationTrackers.$inferSelect;
-export type InsertGenerationTracker = z.infer<typeof insertGenerationTrackerSchema>;
+
 
 
 

@@ -6,6 +6,7 @@ import { storage } from "./storage";
 import { setupAuth, isAuthenticated } from "./replitAuth";
 import victoriaWebsiteRouter from "./routes/victoria-website";
 import { registerVictoriaService } from "./routes/victoria-service";
+import { registerVictoriaWebsiteGenerator } from "./routes/victoria-website-generator";
 
 // UNIFIED AGENT SYSTEM IMPORT (Single source of truth)
 import { unifiedAgentSystem } from './unified-agent-system';
@@ -24,6 +25,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
   
   // Register Victoria AI service layer
   registerVictoriaService(app);
+  
+  // Register Victoria website generator
+  registerVictoriaWebsiteGenerator(app);
   
   // Website management endpoints
   app.get('/api/websites', isAuthenticated, async (req: any, res) => {

@@ -1003,6 +1003,15 @@ export class DatabaseStorage implements IStorage {
       .where(eq(mayaChatMessages.id, messageId));
   }
 
+  // Missing generation tracker method for website generator
+  async getGenerationTracker(trackerId: string): Promise<GenerationTracker | undefined> {
+    const [tracker] = await db
+      .select()
+      .from(generationTrackers)
+      .where(eq(generationTrackers.predictionId, trackerId));
+    return tracker;
+  }
+
   // Admin operations
   async setUserAsAdmin(email: string): Promise<User | null> {
     try {
