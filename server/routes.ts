@@ -1038,7 +1038,7 @@ Remember: You are the MEMBER experience Victoria - provide website building guid
       // BYPASS BROKEN EFFORT-BASED SYSTEM: Use direct Claude API for real agent work
       console.log('💰 ROUTING FIX: Using direct Claude API - bypassing broken effort-based executor');
       
-      const { claudeApiService } = await import('./claude-api-service');
+      const { claudeApiService } = await import('./services/claude-api-service');
       const response = await claudeApiService.sendMessage(
         userId,
         agentId,
