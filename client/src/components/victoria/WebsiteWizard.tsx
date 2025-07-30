@@ -160,11 +160,64 @@ export function WebsiteWizard({ onComplete }: WebsiteWizardProps) {
           </h2>
           <div className="w-24 h-px bg-black mx-auto mt-4"></div>
         </div>
-      </div>
 
+        {/* Editorial Form Container */}
+        <div className="max-w-4xl mx-auto">
+          <div className="bg-white border-2 border-gray-100 p-12 shadow-sm">
+            
+            {currentStep === 1 && (
+              <div className="space-y-8">
+                <div>
+                  <Label htmlFor="businessName" className="text-lg font-light mb-4 block" 
+                         style={{ fontFamily: 'Times New Roman, serif', color: '#0a0a0a' }}>
+                    What is your business called?
+                  </Label>
+                  <Input
+                    id="businessName"
+                    value={formData.businessName || ''}
+                    onChange={(e) => setFormData(prev => ({ ...prev, businessName: e.target.value }))}
+                    placeholder="Your business name"
+                    className="mt-3 text-lg border-0 border-b-2 border-gray-200 rounded-none px-0 py-4 focus:ring-0 focus:border-black transition-colors duration-300"
+                    style={{ fontFamily: 'Times New Roman, serif' }}
+                  />
+                </div>
+                <div>
+                  <Label htmlFor="businessDescription" className="text-lg font-light mb-4 block" 
+                         style={{ fontFamily: 'Times New Roman, serif', color: '#0a0a0a' }}>
+                    Describe your business and what you offer
+                  </Label>
+                  <Textarea
+                    id="businessDescription"
+                    value={formData.businessDescription || ''}
+                    onChange={(e) => setFormData(prev => ({ ...prev, businessDescription: e.target.value }))}
+                    placeholder="Tell us about your services, mission, and what makes you unique..."
+                    className="mt-3 text-lg border-0 border-b-2 border-gray-200 rounded-none px-0 py-4 focus:ring-0 focus:border-black transition-colors duration-300 resize-none"
+                    style={{ fontFamily: 'Times New Roman, serif' }}
+                    rows={4}
+                  />
+                </div>
+                <div>
+                  <Label htmlFor="businessType" className="text-lg font-light mb-4 block" 
+                         style={{ fontFamily: 'Times New Roman, serif', color: '#0a0a0a' }}>
+                    What type of business is this?
+                  </Label>
+                  <Select onValueChange={(value) => setFormData(prev => ({ ...prev, businessType: value }))}>
+                    <SelectTrigger className="mt-3 text-lg border-0 border-b-2 border-gray-200 rounded-none px-0 py-4 focus:ring-0 focus:border-black transition-colors duration-300">
+                      <SelectValue placeholder="Select your business category" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {businessTypes.map((type) => (
+                        <SelectItem key={type} value={type}>
+                          {type.charAt(0).toUpperCase() + type.slice(1).replace('-', ' ')}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+              </div>
+            )}
 
-
-        {currentStep === 2 && (
+            {currentStep === 2 && (
           <div className="space-y-6">
             <div>
               <Label htmlFor="brandPersonality">What's your brand's personality?</Label>
@@ -248,32 +301,37 @@ export function WebsiteWizard({ onComplete }: WebsiteWizardProps) {
           </div>
         )}
 
-        <div className="flex justify-between mt-8">
-          <Button
-            variant="outline"
-            onClick={prevStep}
-            disabled={currentStep === 1}
-            className="px-8"
-          >
-            Back a step
-          </Button>
-          {currentStep < 4 ? (
-            <Button
-              onClick={nextStep}
-              disabled={currentStep === 1 && !formData.businessName}
-              className="px-8 bg-black text-white hover:bg-gray-800"
-            >
-              Keep going!
-            </Button>
-          ) : (
-            <Button
-              onClick={handleSubmit}
-              disabled={!isFormValid() || isGenerating}
-              className="px-8 bg-black text-white hover:bg-gray-800"
-            >
-              {isGenerating ? 'Creating your website...' : 'Let\'s build your website!'}
-            </Button>
-          )}
+            <div className="flex justify-between mt-12 pt-8 border-t border-gray-100">
+              <Button
+                variant="outline"
+                onClick={prevStep}
+                disabled={currentStep === 1}
+                className="px-8 py-3 text-lg font-light border-2 border-gray-300 hover:border-black transition-colors duration-300"
+                style={{ fontFamily: 'Times New Roman, serif' }}
+              >
+                Previous
+              </Button>
+              {currentStep < 4 ? (
+                <Button
+                  onClick={nextStep}
+                  disabled={currentStep === 1 && !formData.businessName}
+                  className="px-8 py-3 text-lg font-light bg-black text-white hover:bg-gray-800 transition-colors duration-300"
+                  style={{ fontFamily: 'Times New Roman, serif' }}
+                >
+                  Continue
+                </Button>
+              ) : (
+                <Button
+                  onClick={handleSubmit}
+                  disabled={!isFormValid() || isGenerating}
+                  className="px-8 py-3 text-lg font-light bg-black text-white hover:bg-gray-800 transition-colors duration-300"
+                  style={{ fontFamily: 'Times New Roman, serif' }}
+                >
+                  {isGenerating ? 'Creating your website...' : 'Create My Website'}
+                </Button>
+              )}
+            </div>
+          </div>
         </div>
       </div>
     </div>
