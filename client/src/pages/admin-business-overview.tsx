@@ -48,8 +48,8 @@ export default function AdminBusinessOverview() {
 
   const isLoading = metricsLoading || subscriberLoading || activityLoading;
 
-  // Hero image from authentic collection
-  const heroImage = SandraImages.gallery[15]?.url || 'https://sselfie-training-zips.s3.eu-north-1.amazonaws.com/images/42585527/tracker_376_img_1_1753351123712.png';
+  // Hero image from authentic collection - using safe array access
+  const heroImage = SandraImages.gallery[0]?.url || 'https://sselfie-training-zips.s3.eu-north-1.amazonaws.com/images/42585527/tracker_376_img_1_1753351123712.png';
 
   // Business priority tasks
   const businessTasks = [
@@ -171,7 +171,7 @@ export default function AdminBusinessOverview() {
               <div className="relative w-screen left-1/2 right-1/2 -ml-[50vw] -mr-[50vw] mb-20">
                 <div className="aspect-[21/9] overflow-hidden">
                   <img 
-                    src={SandraImages.gallery[8]?.url || heroImage}
+                    src={SandraImages.gallery[1]?.url || heroImage}
                     alt="Business Growth"
                     className="w-full h-full object-cover"
                   />
@@ -215,15 +215,15 @@ export default function AdminBusinessOverview() {
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-12">
                   <MoodboardSection 
                     title="User Journey"
-                    images={SandraImages.gallery.slice(0, 3).map(img => img.url)}
+                    images={SandraImages.gallery.slice(0, Math.min(3, SandraImages.gallery.length)).map(img => img.url)}
                   />
                   <MoodboardSection 
                     title="Revenue Growth"
-                    images={SandraImages.gallery.slice(3, 6).map(img => img.url)}
+                    images={SandraImages.gallery.slice(0, Math.min(3, SandraImages.gallery.length)).map(img => img.url)}
                   />
                   <MoodboardSection 
                     title="Platform Quality"
-                    images={SandraImages.gallery.slice(6, 9).map(img => img.url)}
+                    images={SandraImages.gallery.slice(0, Math.min(3, SandraImages.gallery.length)).map(img => img.url)}
                   />
                 </div>
               </div>
@@ -245,7 +245,7 @@ export default function AdminBusinessOverview() {
                 <Link href="/admin/subscriber-import" className="group">
                   <div className="relative overflow-hidden bg-black aspect-[4/5]">
                     <img 
-                      src={SandraImages.gallery[10]?.url || heroImage}
+                      src={SandraImages.gallery[2]?.url || heroImage}
                       alt="Subscriber Management"
                       className="w-full h-full object-cover opacity-80 transition-all duration-700 group-hover:opacity-90 group-hover:scale-105"
                     />
@@ -266,7 +266,7 @@ export default function AdminBusinessOverview() {
                 <Link href="/admin/consulting-agents" className="group">
                   <div className="relative overflow-hidden bg-black aspect-[4/5]">
                     <img 
-                      src={SandraImages.gallery[11]?.url || heroImage}
+                      src={SandraImages.gallery[3]?.url || heroImage}
                       alt="AI Agents"
                       className="w-full h-full object-cover opacity-80 transition-all duration-700 group-hover:opacity-90 group-hover:scale-105"
                     />
@@ -287,7 +287,7 @@ export default function AdminBusinessOverview() {
                 <Link href="/workspace" className="group">
                   <div className="relative overflow-hidden bg-black aspect-[4/5]">
                     <img 
-                      src={SandraImages.gallery[12]?.url || heroImage}
+                      src={SandraImages.gallery[4]?.url || heroImage}
                       alt="Platform Studio"
                       className="w-full h-full object-cover opacity-80 transition-all duration-700 group-hover:opacity-90 group-hover:scale-105"
                     />
