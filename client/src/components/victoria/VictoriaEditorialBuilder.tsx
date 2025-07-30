@@ -52,6 +52,12 @@ export function VictoriaEditorialBuilder({ onWebsiteGenerated }: VictoriaEditori
     queryKey: ['/api/flatlay-library'],
   });
 
+  // Load existing brand onboarding data
+  const { data: brandData, isLoading: brandLoading } = useQuery({
+    queryKey: ['/api/brand-onboarding'],
+    retry: false,
+  });
+
   const handleImageSelection = (imageUrl: string) => {
     setSelectedImages(prev => 
       prev.includes(imageUrl) 
@@ -82,6 +88,8 @@ export function VictoriaEditorialBuilder({ onWebsiteGenerated }: VictoriaEditori
   };
 
   const generateEditorialPages = (businessData: any, images: string[], flatlays: string[]): WebsitePage[] => {
+    // Use brand onboarding data if available
+    const data = brandData || businessData;
     return [
       {
         id: 'home',
@@ -91,9 +99,9 @@ export function VictoriaEditorialBuilder({ onWebsiteGenerated }: VictoriaEditori
             type: 'hero',
             content: {
               backgroundImage: images[0] || '/placeholder-hero.jpg',
-              title: businessData.businessName,
-              subtitle: businessData.businessDescription,
-              tagline: businessData.brandPersonality,
+              title: data.businessName || data.personalBrandName,
+              subtitle: data.businessDescription || data.tagline,
+              tagline: data.brandPersonality || data.uniqueApproach,
               ctaText: 'Discover More',
               ctaLink: '#about'
             }
@@ -105,7 +113,7 @@ export function VictoriaEditorialBuilder({ onWebsiteGenerated }: VictoriaEditori
               alt: 'Our Story',
               height: 'medium',
               overlay: true,
-              overlayText: businessData.businessDescription
+              overlayText: data.personalStory || data.businessDescription
             }
           },
           {
@@ -128,11 +136,11 @@ export function VictoriaEditorialBuilder({ onWebsiteGenerated }: VictoriaEditori
           {
             type: 'about-me',
             content: {
-              name: businessData.businessName || 'Your Name',
-              role: businessData.businessType || 'Your Role',
+              name: data.businessName || data.personalBrandName || 'Your Name',
+              role: data.businessType || data.primaryOffer || 'Your Role',
               image: images[2] || flatlays[0],
-              story: businessData.businessDescription || 'Your story and journey in building this business.',
-              approach: `I serve ${businessData.targetAudience || 'ambitious professionals'} with a unique approach that combines expertise with authentic connection.`
+              story: data.personalStory || data.whyStarted || 'Your story and journey in building this business.',
+              approach: `I serve ${data.targetClient || data.targetAudience || 'ambitious professionals'} with ${data.uniqueApproach || 'a unique approach that combines expertise with authentic connection'}.`
             }
           },
           {
@@ -152,7 +160,7 @@ export function VictoriaEditorialBuilder({ onWebsiteGenerated }: VictoriaEditori
               title: 'Why I Do This Work',
               subtitle: 'My Mission & Values',
               image: images[5] || flatlays[3],
-              content: `<p>Every client deserves exceptional results. I believe in ${businessData.brandPersonality || 'authentic'} approaches that create lasting impact.</p><p>My work is driven by the belief that when you feel confident in your brand, you can achieve anything.</p>`
+              content: `<p>${data.problemYouSolve || 'Every client deserves exceptional results'}. I believe in ${data.brandPersonality || data.brandValues || 'authentic'} approaches that create lasting impact.</p><p>My work is driven by ${data.brandValues || 'the belief that when you feel confident in your brand, you can achieve anything'}.</p>`
             }
           }
         ]
@@ -173,7 +181,7 @@ export function VictoriaEditorialBuilder({ onWebsiteGenerated }: VictoriaEditori
           {
             type: 'services',
             content: {
-              features: businessData.keyFeatures || []
+              features: data.keyFeatures || [data.primaryOffer, data.secondaryOffer].filter(Boolean) || []
             }
           }
         ]
@@ -194,8 +202,11 @@ export function VictoriaEditorialBuilder({ onWebsiteGenerated }: VictoriaEditori
           {
             type: 'contact',
             content: {
-              businessName: businessData.businessName,
-              businessType: businessData.businessType
+              businessName: data.businessName || data.personalBrandName,
+              businessType: data.businessType || data.primaryOffer,
+              email: data.email,
+              instagramHandle: data.instagramHandle,
+              location: data.location
             }
           }
         ]
@@ -214,6 +225,24 @@ export function VictoriaEditorialBuilder({ onWebsiteGenerated }: VictoriaEditori
             <p className="text-xl text-gray-600 max-w-3xl">
               Select images from your gallery and flatlay library to create your editorial website foundation.
             </p>
+            
+            {/* Link to Brand Onboarding */}
+            <div className="bg-gray-50 border border-gray-200 p-6 mt-8">
+              <h3 className="text-lg font-normal mb-3" style={{ fontFamily: 'Times New Roman' }}>
+                Complete Your Brand Story First
+              </h3>
+              <p className="text-gray-600 mb-4">
+                For the best website results, complete your brand onboarding questionnaire first. 
+                This helps Victoria understand your story, target audience, and services.
+              </p>
+              <Button 
+                onClick={() => window.location.href = '/brand-onboarding'}
+                variant="outline"
+                className="mb-4"
+              >
+                Complete Brand Questionnaire
+              </Button>
+            </div>
           </div>
 
           {/* Gallery Selection */}
@@ -452,9 +481,24 @@ function VictoriaWebsitePreview({ website }: { website: WebsiteData }) {
                 <p className="text-gray-600 mb-2">
                   {section.content.businessName}
                 </p>
-                <p className="text-gray-600">
+                <p className="text-gray-600 mb-2">
                   Specializing in {section.content.businessType}
                 </p>
+                {section.content.email && (
+                  <p className="text-gray-600 mb-2">
+                    Email: {section.content.email}
+                  </p>
+                )}
+                {section.content.instagramHandle && (
+                  <p className="text-gray-600 mb-2">
+                    Instagram: {section.content.instagramHandle}
+                  </p>
+                )}
+                {section.content.location && (
+                  <p className="text-gray-600">
+                    Based in: {section.content.location}
+                  </p>
+                )}
               </div>
               <div>
                 <h3 className="text-xl font-normal mb-4" style={{ fontFamily: 'Times New Roman' }}>
