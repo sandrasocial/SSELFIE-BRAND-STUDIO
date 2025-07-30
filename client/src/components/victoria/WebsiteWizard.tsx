@@ -97,21 +97,61 @@ export function WebsiteWizard({ onComplete }: WebsiteWizardProps) {
   ];
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-white to-gray-50">
-      {/* Editorial Header Section */}
-      <div className="max-w-5xl mx-auto px-12 py-16">
+    <div className="min-h-screen bg-white">
+      {/* Full Bleed Hero Section */}
+      <div className="relative h-screen w-full overflow-hidden">
+        {/* Hero Background Image */}
+        <div 
+          className="absolute inset-0 bg-cover bg-center bg-no-repeat"
+          style={{
+            backgroundImage: `linear-gradient(rgba(10, 10, 10, 0.3), rgba(10, 10, 10, 0.5)), url('https://images.unsplash.com/photo-1594736797933-d0401ba52fe6?q=80&w=2070&auto=format&fit=crop')`
+          }}
+        />
+        
+        {/* Hero Content Overlay */}
+        <div className="relative z-10 flex items-center justify-center h-full">
+          <div className="text-center px-8 max-w-4xl">
+            <h1 className="text-8xl font-normal mb-12 tracking-wide leading-none text-white" 
+                style={{ fontFamily: 'Times New Roman, serif' }}>
+              Craft Your Digital
+              <br />
+              <span className="italic font-light">Empire</span>
+            </h1>
+            <p className="text-2xl text-white font-light max-w-3xl mx-auto leading-relaxed opacity-90" 
+               style={{ fontFamily: 'Times New Roman, serif' }}>
+              Where luxury meets functionality. Where your vision becomes digital reality.
+            </p>
+            <div className="mt-8 pt-6 border-t border-white/30">
+              <span className="text-lg font-normal text-white/90" 
+                    style={{ fontFamily: 'Times New Roman, serif' }}>
+                €67/month • Premium Digital Architecture
+              </span>
+            </div>
+          </div>
+        </div>
+        
+        {/* Elegant Scroll Indicator */}
+        <div className="absolute bottom-8 left-1/2 transform -translate-x-1/2 text-white/70">
+          <div className="flex flex-col items-center animate-bounce">
+            <span className="text-sm mb-2" style={{ fontFamily: 'Times New Roman, serif' }}>Begin Your Journey</span>
+            <div className="w-px h-8 bg-white/50"></div>
+          </div>
+        </div>
+      </div>
+
+      {/* Content Section with Editorial Spacing */}
+      <div className="max-w-5xl mx-auto px-12 py-20">
+        <div className="mb-20">
+          {/* Editorial Chapter Introduction */}
         <div className="text-center mb-20">
-          <h1 className="text-6xl font-normal mb-8 tracking-wide leading-tight" 
+          <h2 className="text-4xl font-light mb-6" 
               style={{ fontFamily: 'Times New Roman, serif', color: '#0a0a0a' }}>
-            Craft Your Digital
-            <br />
-            <span className="italic">Empire</span>
-          </h1>
-          <p className="text-xl text-gray-600 font-light max-w-2xl mx-auto leading-relaxed" 
+            Your Digital Transformation
+          </h2>
+          <div className="w-32 h-px bg-black mx-auto mb-8"></div>
+          <p className="text-lg text-gray-600 font-light max-w-2xl mx-auto" 
              style={{ fontFamily: 'Times New Roman, serif' }}>
-            Where luxury meets functionality. Where your vision becomes digital reality.
-            <br />
-            <span className="text-sm font-normal mt-4 block">€67/month • Premium Digital Architecture</span>
+            Four curated steps to architect your premium digital presence
           </p>
         </div>
 
@@ -350,6 +390,7 @@ export function WebsiteWizard({ onComplete }: WebsiteWizardProps) {
           </div>
         </div>
       </div>
+    </div>
     </div>
   );
 }
