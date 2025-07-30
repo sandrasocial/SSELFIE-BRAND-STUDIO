@@ -129,17 +129,17 @@ export function WebsiteWizard({ onComplete }: WebsiteWizardProps) {
         {currentStep === 1 && (
           <div className="space-y-6">
             <div>
-              <Label htmlFor="businessName">What's your gorgeous business called? ✨</Label>
+              <Label htmlFor="businessName">What's your business called?</Label>
               <Input
                 id="businessName"
                 value={formData.businessName || ''}
                 onChange={(e) => setFormData(prev => ({ ...prev, businessName: e.target.value }))}
-                placeholder="Tell me your business name, babe!"
+                placeholder="Tell me your business name!"
                 className="mt-2"
               />
             </div>
             <div>
-              <Label htmlFor="businessDescription">Tell me all about your amazing business! 💫</Label>
+              <Label htmlFor="businessDescription">Tell me all about your amazing business!</Label>
               <Textarea
                 id="businessDescription"
                 value={formData.businessDescription || ''}
@@ -150,7 +150,7 @@ export function WebsiteWizard({ onComplete }: WebsiteWizardProps) {
               />
             </div>
             <div>
-              <Label htmlFor="businessType">What kind of business magic are you working? 🌟</Label>
+              <Label htmlFor="businessType">What kind of business magic are you working?</Label>
               <Select onValueChange={(value) => setFormData(prev => ({ ...prev, businessType: value }))}>
                 <SelectTrigger className="mt-2">
                   <SelectValue placeholder="Pick the one that feels most like you!" />
@@ -170,7 +170,7 @@ export function WebsiteWizard({ onComplete }: WebsiteWizardProps) {
         {currentStep === 2 && (
           <div className="space-y-6">
             <div>
-              <Label htmlFor="brandPersonality">What's your brand's personality, gorgeous? 💅</Label>
+              <Label htmlFor="brandPersonality">What's your brand's personality?</Label>
               <Select onValueChange={(value) => setFormData(prev => ({ ...prev, brandPersonality: value }))}>
                 <SelectTrigger className="mt-2">
                   <SelectValue placeholder="How do you want to show up in the world?" />
@@ -185,7 +185,7 @@ export function WebsiteWizard({ onComplete }: WebsiteWizardProps) {
               </Select>
             </div>
             <div>
-              <Label htmlFor="targetAudience">Who are your dream clients, honey? 🎯</Label>
+              <Label htmlFor="targetAudience">Who are your dream clients?</Label>
               <Textarea
                 id="targetAudience"
                 value={formData.targetAudience || ''}
@@ -201,7 +201,7 @@ export function WebsiteWizard({ onComplete }: WebsiteWizardProps) {
         {currentStep === 3 && (
           <div className="space-y-6">
             <div>
-              <Label>What amazing features should we add to make your site sparkle? ✨</Label>
+              <Label>What amazing features should we add to make your site shine?</Label>
               <div className="grid grid-cols-2 gap-4 mt-4">
                 {availableFeatures.map((feature) => (
                   <div key={feature} className="flex items-center space-x-2">
@@ -218,7 +218,7 @@ export function WebsiteWizard({ onComplete }: WebsiteWizardProps) {
               </div>
             </div>
             <div>
-              <Label htmlFor="contentStrategy">What's your heart-centered message, babe? 💖</Label>
+              <Label htmlFor="contentStrategy">What's your heart-centered message?</Label>
               <Textarea
                 id="contentStrategy"
                 value={formData.contentStrategy || ''}
@@ -233,7 +233,7 @@ export function WebsiteWizard({ onComplete }: WebsiteWizardProps) {
 
         {currentStep === 4 && (
           <div className="space-y-6">
-            <h3 className="text-lg font-medium">Let's double-check this gorgeous plan! 👀✨</h3>
+            <h3 className="text-lg font-medium">Let's review your website plan!</h3>
             <div className="space-y-4 text-sm">
               <div>
                 <strong>Your beautiful business:</strong> {formData.businessName}
@@ -266,7 +266,7 @@ export function WebsiteWizard({ onComplete }: WebsiteWizardProps) {
               disabled={currentStep === 1 && !formData.businessName}
               className="px-8 bg-black text-white hover:bg-gray-800"
             >
-              Keep going! ✨
+              Keep going!
             </Button>
           ) : (
             <Button
@@ -274,7 +274,7 @@ export function WebsiteWizard({ onComplete }: WebsiteWizardProps) {
               disabled={!isFormValid() || isGenerating}
               className="px-8 bg-black text-white hover:bg-gray-800"
             >
-              {isGenerating ? 'Creating your magic... ✨' : 'Let\'s build this beauty! 🚀'}
+              {isGenerating ? 'Creating your website...' : 'Let\'s build your website!'}
             </Button>
           )}
         </div>
