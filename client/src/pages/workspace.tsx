@@ -92,8 +92,19 @@ export default function Workspace() {
     return (
       <div className="min-h-screen flex items-center justify-center bg-white">
         <div className="text-center">
-          <div className="animate-spin w-8 h-8 border-2 border-black border-t-transparent rounded-full mx-auto mb-4"></div>
-          <p className="text-sm text-gray-600">Loading your workspace...</p>
+          {/* LUXURY LOADING ANIMATION */}
+          <div className="relative w-16 h-16 mx-auto mb-6">
+            <div className="absolute inset-0 border-2 border-gray-200 rounded-full"></div>
+            <div className="absolute inset-0 border-2 border-black border-t-transparent rounded-full animate-spin"></div>
+            <div className="absolute inset-2 border border-gray-300 rounded-full animate-pulse"></div>
+          </div>
+          
+          <div className="font-serif text-lg font-light uppercase tracking-[0.3em] text-black mb-2">
+            Loading Studio
+          </div>
+          <p className="text-xs text-gray-600 font-light tracking-wide">
+            ✨ Preparing your luxury workspace...
+          </p>
         </div>
       </div>
     );
