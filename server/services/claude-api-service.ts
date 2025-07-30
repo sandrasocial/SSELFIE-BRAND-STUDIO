@@ -643,82 +643,7 @@ IMPORTANT: Use this context to inform your responses, but maintain your authenti
             required: ["command", "path"]
           }
         },
-        {
-          name: "enhanced_file_editor",
-          description: "UNLIMITED ENHANCED FILE EDITING - Complete file system control with line-by-line, section replacement, and multi-replace capabilities for ANY modifications",
-          input_schema: {
-            type: "object" as const,
-            properties: {
-              command: { 
-                type: "string", 
-                enum: ["view", "create", "str_replace", "insert", "line_replace", "section_replace", "multi_replace"],
-                description: "UNLIMITED OPERATIONS: view, create, str_replace, insert, line_replace (replace specific line), section_replace (replace line range), multi_replace (multiple replacements)"
-              },
-              path: { 
-                type: "string",
-                description: "File path relative to project root"
-              },
-              file_text: { 
-                type: "string",
-                description: "Complete file content (for create command)"
-              },
-              old_str: { 
-                type: "string",
-                description: "Text to find and replace (for str_replace command)"
-              },
-              new_str: { 
-                type: "string",
-                description: "Replacement text (for str_replace command)"
-              },
-              insert_line: { 
-                type: "integer",
-                description: "Line number to insert at (for insert command)"
-              },
-              insert_text: { 
-                type: "string",
-                description: "Text to insert (for insert command)"
-              },
-              line_number: {
-                type: "integer", 
-                description: "Specific line number to replace (for line_replace command)"
-              },
-              line_content: {
-                type: "string",
-                description: "New content for the line (for line_replace command)"
-              },
-              start_line: {
-                type: "integer",
-                description: "Starting line number for section replacement (for section_replace command)"
-              },
-              end_line: {
-                type: "integer", 
-                description: "Ending line number for section replacement (for section_replace command)"
-              },
-              section_content: {
-                type: "string",
-                description: "New content for the section (for section_replace command)"
-              },
-              replacements: {
-                type: "array",
-                items: {
-                  type: "object",
-                  properties: {
-                    old: { type: "string", description: "Text to find" },
-                    new: { type: "string", description: "Replacement text" }
-                  },
-                  required: ["old", "new"]
-                },
-                description: "Array of replacements for multi_replace command"
-              },
-              view_range: {
-                type: "array",
-                items: { type: "integer" },
-                description: "Line range for view command [start, end]"
-              }
-            },
-            required: ["command", "path"]
-          }
-        },
+
         {
           name: "bash",
           description: "UNLIMITED SYSTEM COMMAND EXECUTION - Execute ANY shell commands with full system privileges and unrestricted access",
@@ -815,13 +740,61 @@ IMPORTANT: Use this context to inform your responses, but maintain your authenti
       
       // Removed mandatory implementation enforcement - agents choose tool usage naturally
       
-      // Prepare Claude API request with natural tool availability
+      // CRITICAL FIX: Clean minimal tools to prevent Claude API "Extra inputs" error
+      const cleanTools = [
+        {
+          name: "str_replace_based_edit_tool",
+          description: "Edit and view files in the workspace",
+          input_schema: {
+            type: "object",
+            properties: {
+              command: { 
+                type: "string", 
+                enum: ["view", "create", "str_replace", "insert"],
+                description: "Command to execute: view, create, str_replace, or insert"
+              },
+              path: { 
+                type: "string",
+                description: "File path relative to project root"
+              },
+              file_text: { 
+                type: "string",
+                description: "Complete file content for create command"
+              },
+              old_str: { 
+                type: "string",
+                description: "Text to find and replace for str_replace command"
+              },
+              new_str: { 
+                type: "string",
+                description: "Replacement text for str_replace command"
+              },
+              insert_line: { 
+                type: "integer",
+                description: "Line number to insert at for insert command"
+              },
+              insert_text: { 
+                type: "string",
+                description: "Text to insert for insert command"
+              },
+              view_range: { 
+                type: "array", 
+                items: { type: "integer" },
+                description: "Line range [start, end] for view command"
+              }
+            },
+            required: ["command", "path"]
+          }
+        }
+      ];
+
+      // Prepare Claude API request with minimal clean tools
       let claudeRequest: any = {
         model: DEFAULT_MODEL_STR,
-        max_tokens: 1500, // AGGRESSIVE COST OPTIMIZATION: Reduced from 4000 to 1500
+        max_tokens: 1500,
         system: enhancedSystemPrompt,
-        messages: messages.slice(-5), // AGGRESSIVE COST OPTIMIZATION: Only keep last 5 messages for context
-        tools: enhancedTools,
+        messages: messages.slice(-5),
+        tools: cleanTools,
       };
       
       // NATURAL TOOL USAGE: Agents are smart enough to choose when tools are needed
@@ -850,6 +823,25 @@ For advice, planning, or discussion - respond directly without tools.
 Be concise and focused in your responses.`;
         
         console.log(`💬 CLAUDE API SERVICE: Natural conversation mode for ${agentName} - agent chooses tool usage`);
+      }
+
+      // DEBUG: Log the exact request being sent to Claude
+      console.log('🔍 CLAUDE REQUEST DEBUG:', JSON.stringify({
+        model: claudeRequest.model,
+        max_tokens: claudeRequest.max_tokens,
+        system: claudeRequest.system.substring(0, 200) + '...',
+        messages: claudeRequest.messages.length,
+        tools: claudeRequest.tools?.length || 0,
+        toolNames: claudeRequest.tools?.map(t => t.name) || []
+      }, null, 2));
+      
+      // CRITICAL DEBUG: Check if tools are actually in the request
+      if (!claudeRequest.tools || claudeRequest.tools.length === 0) {
+        console.log('⚠️ TOOLS MISSING FROM REQUEST! Setting clean tools...');
+        claudeRequest.tools = cleanTools;
+        console.log('✅ TOOLS FIXED: Set', cleanTools.length, 'clean tools for', agentName);
+      } else {  
+        console.log('✅ TOOLS PRESENT:', claudeRequest.tools.length, 'tools found for', agentName);
       }
 
       // Send to Claude with enhanced capabilities and retry logic
