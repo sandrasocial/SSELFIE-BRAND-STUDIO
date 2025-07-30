@@ -788,12 +788,12 @@ IMPORTANT: Use this context to inform your responses, but maintain your authenti
         }
       ];
 
-      // CRITICAL COST OPTIMIZATION: Drastically reduce token usage
+      // RESTORED FULL AGENT CAPABILITIES
       let claudeRequest: any = {
         model: DEFAULT_MODEL_STR,
-        max_tokens: 800, // REDUCED from 1500 to 800 - 47% cost reduction
-        system: enhancedSystemPrompt.substring(0, 1000), // TRUNCATE system prompt - 80% reduction
-        messages: messages.slice(-2), // ONLY last 2 messages instead of 5 - 60% context reduction
+        max_tokens: 1500, // RESTORED from 800 to 1500 for full agent responses
+        system: enhancedSystemPrompt, // FULL system prompt - no truncation
+        messages: messages, // FULL conversation history for proper context
         tools: cleanTools,
       };
       
@@ -811,18 +811,16 @@ IMPORTANT: Use this context to inform your responses, but maintain your authenti
         
         // Disabled - no more mandatory tool enforcement
       } else {
-        // 🧠 NATURAL CONVERSATION MODE: Agent chooses when tools are needed
-        claudeRequest.system += `\n\n💬 COST-OPTIMIZED CONVERSATION MODE:
-IMPORTANT: Keep responses under 500 words to minimize costs.
-Use tools ONLY when absolutely necessary:
-- File modifications explicitly requested
-- Specific code searches required
-- User asks "show me the code" or "modify this file"
+        // 🧠 FULL AGENT CAPABILITIES RESTORED: Agents use tools as needed for their specialized work
+        claudeRequest.system += `\n\n💪 FULL AGENT CAPABILITIES MODE:
+You have complete access to all tools and should use them whenever they help accomplish your specialized work:
+- Use str_replace_based_edit_tool for file operations and code analysis
+- Use search_filesystem to examine codebase structure and find issues
+- Use all tools naturally as part of your specialized expertise
 
-For advice, planning, or discussion - respond directly without tools.
-Be concise and focused in your responses.`;
+Provide thorough, detailed analysis and implementation as Sandra's expert agent.`;
         
-        console.log(`💬 CLAUDE API SERVICE: Natural conversation mode for ${agentName} - agent chooses tool usage`);
+        console.log(`💪 CLAUDE API SERVICE: Full capabilities mode for ${agentName} - complete tool access restored`);
       }
 
       // DEBUG: Log the exact request being sent to Claude
@@ -852,17 +850,22 @@ Be concise and focused in your responses.`;
         assistantMessage = response.content[0].text;
       }
 
-      // CRITICAL COST FIX: Skip expensive tool continuation to prevent "Extra inputs" errors
-      // Tool calls consume 2-3x more API credits and cause the $5 Elena analysis issue
+      // FULL AGENT CAPABILITIES: Process tool usage when agents need to use tools
       if (response.content.some(content => content.type === 'tool_use')) {
-        console.log('⚠️ COST OPTIMIZATION: Skipping tool continuation to prevent expensive API overruns');
-        // Extract text response if available, skip tool continuation
-        const textContent = response.content.find(content => content.type === 'text');
-        if (textContent && 'text' in textContent) {
-          assistantMessage = textContent.text;
-        } else {
-          assistantMessage = 'Task initiated - using cost-optimized execution mode';
-        }
+        console.log('🔧 AGENT TOOL USAGE: Processing tool calls for detailed analysis');
+        
+        // Use existing tool handling method with proper system configuration
+        const toolResult = await this.handleToolCallsWithContinuation(
+          response,
+          messages,
+          enhancedSystemPrompt,
+          cleanTools,
+          fileEditMode,
+          agentName,
+          false // not mandatory implementation
+        );
+        
+        assistantMessage = toolResult;
       }
 
       // Save both messages to conversation with logging
