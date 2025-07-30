@@ -429,12 +429,14 @@ Remember: You are the MEMBER experience Victoria - provide website building guid
       }
 
       // CORRECT FLUX LoRA ARCHITECTURE - Individual LoRA weights with base model
-      const loraWeights = userModel.replicateModelId; // e.g., "sandrasocial/42585527-selfie-lora"
+      const loraWeights = `sandrasocial/${userModel.modelName}`; // e.g., "sandrasocial/42585527-selfie-lora"
       const triggerWord = userModel.triggerWord || `user${userId}`;
       
       console.log('🔍 Maya: FLUX LoRA details:', {
         baseModel: 'black-forest-labs/flux-dev-lora',
         loraWeights,
+        modelName: userModel.modelName,
+        replicateModelId: userModel.replicateModelId,
         triggerWord,
         trainingStatus: userModel.trainingStatus
       });
