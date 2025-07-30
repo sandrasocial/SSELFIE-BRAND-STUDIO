@@ -81,10 +81,10 @@ router.post('/flodesk/import', isAuthenticated, isAdmin, async (req, res) => {
   }
 });
 
-// Import subscribers from ManyChat
+// Import subscribers from ManyChat (Direct API not supported - Use manual export)
 router.post('/manychat/import', isAuthenticated, isAdmin, async (req, res) => {
   try {
-    console.log('🚀 Starting ManyChat API subscriber import...');
+    console.log('🚀 ManyChat API limitation check...');
     
     if (!process.env.MANYCHAT_API_KEY) {
       return res.status(400).json({ 
@@ -93,44 +93,39 @@ router.post('/manychat/import', isAuthenticated, isAdmin, async (req, res) => {
       });
     }
 
-    // Make direct API call to ManyChat
-    const response = await fetch('https://api.manychat.com/fb/subscriber/findBySystemField', {
-      method: 'POST',
+    // Test API connection to confirm key works
+    const testResponse = await fetch('https://api.manychat.com/fb/page/getInfo', {
+      method: 'GET',
       headers: {
         'Authorization': `Bearer ${process.env.MANYCHAT_API_KEY}`,
         'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({
-        field_name: 'email',
-        field_value: '*' // Get all subscribers with email
-      })
+      }
     });
 
-    if (!response.ok) {
-      console.error('ManyChat API error:', response.status, response.statusText);
+    if (!testResponse.ok) {
       return res.status(400).json({ 
-        error: 'ManyChat API error',
-        details: `API returned ${response.status}: ${response.statusText}`
+        error: 'ManyChat API authentication failed',
+        details: `API returned ${testResponse.status}: ${testResponse.statusText}`
       });
     }
 
-    const data = await response.json();
-    console.log('📊 ManyChat API response:', data);
+    const pageData = await testResponse.json();
+    console.log('✅ ManyChat API connected to page:', pageData.data?.name);
 
-    // For now, return success with placeholder data
-    // We'll implement the full import logic once we confirm API access
+    // ManyChat API limitation: No bulk subscriber endpoint exists
     res.json({
-      success: true,
-      message: 'ManyChat API connection successful',
-      imported: 0,
-      total: 0,
-      apiResponse: data
+      success: false,
+      message: 'ManyChat API Limitation: Bulk subscriber import not supported',
+      details: 'ManyChat intentionally does not provide a bulk subscriber list endpoint. Please use manual export method.',
+      apiConnected: true,
+      pageName: pageData.data?.name,
+      recommendation: 'Use manual export: Bulk Actions → Export Custom to System Field → Facebook PSID'
     });
 
   } catch (error) {
-    console.error('ManyChat import error:', error);
+    console.error('ManyChat API test error:', error);
     res.status(500).json({ 
-      error: 'Failed to import ManyChat subscribers',
+      error: 'Failed to test ManyChat API connection',
       details: error instanceof Error ? error.message : 'Unknown error'
     });
   }
