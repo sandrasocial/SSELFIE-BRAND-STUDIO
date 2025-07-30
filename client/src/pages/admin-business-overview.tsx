@@ -4,6 +4,7 @@ import { Link } from 'wouter';
 import { MemberNavigation } from '@/components/member-navigation';
 import { GlobalFooter } from '@/components/global-footer';
 import { SandraImages } from '@/lib/sandra-images';
+import pageBreakImage from "@assets/out-0 (31).png";
 
 // Moodboard style component with authentic Sandra images
 const MoodboardSection = ({ title, images, className = '' }: {
@@ -63,7 +64,6 @@ export default function AdminBusinessOverview() {
   return (
     <div className="min-h-screen bg-white">
       <MemberNavigation />
-      
       {/* Full Bleed Hero Image */}
       <section className="relative min-h-screen flex items-center justify-center bg-black text-white overflow-hidden">
         <div className="absolute inset-0 opacity-60">
@@ -89,7 +89,6 @@ export default function AdminBusinessOverview() {
           </p>
         </div>
       </section>
-
       {/* Main Business Content */}
       <section className="py-32">
         <div className="max-w-7xl mx-auto px-8">
@@ -171,9 +170,9 @@ export default function AdminBusinessOverview() {
               <div className="relative w-screen left-1/2 right-1/2 -ml-[50vw] -mr-[50vw] mb-20">
                 <div className="aspect-[21/9] overflow-hidden">
                   <img 
-                    src={SandraImages.gallery[1] || SandraImages.editorial.laptop1}
+                    src={pageBreakImage}
                     alt="Business Growth"
-                    className="w-full h-full object-cover"
+                    className="w-full h-full object-cover ml-[0px] mr-[0px] mt-[0px] mb-[0px] pt-[0px] pb-[0px]"
                   />
                 </div>
               </div>
@@ -342,7 +341,6 @@ export default function AdminBusinessOverview() {
           </div>
         </div>
       </section>
-
       <GlobalFooter />
     </div>
   );
