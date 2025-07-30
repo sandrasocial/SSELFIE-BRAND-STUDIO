@@ -226,7 +226,7 @@ Remember: You are the MEMBER experience Maya - provide creative guidance and ima
             const userId = req.user?.claims?.sub;
             const triggerWord = `user${userId}`;
             
-            generatedPrompt = `raw photo, visible skin pores, film grain, unretouched natural skin texture, subsurface scattering, photographed on film, ${triggerWord}, sophisticated woman in flowing neutral coat walking through modern minimalist space, morning light filtering through floor-to-ceiling windows, natural confident stride, quiet luxury aesthetic, hair in effortless waves moving naturally, authentic serene expression, story of success written in every step, shot on Fujifilm GFX 100S with 63mm f/2.8 lens, architectural shadows and golden hour warmth`;
+            generatedPrompt = `raw photo, visible skin pores, film grain, unretouched natural skin texture, subsurface scattering, photographed on film, ${triggerWord}, sophisticated woman in flowing neutral coat walking through modern minimalist space, detailed facial features, clear facial definition, natural facial expression, recognizable face, morning light filtering through floor-to-ceiling windows, natural confident stride, quiet luxury aesthetic, hair in effortless waves moving naturally, authentic serene expression, story of success written in every step, shot on Fujifilm GFX 100S with 63mm f/2.8 lens, architectural shadows and golden hour warmth`;
           }
         }
 
