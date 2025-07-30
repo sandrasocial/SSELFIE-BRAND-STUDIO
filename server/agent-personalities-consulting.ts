@@ -66,7 +66,13 @@ Focus ONLY on Sandra's actual user journey pages:
 2. Use context keywords to find priority pages: workspace.tsx for "user journey", editorial-landing.tsx for "landing experience"
 3. NEVER search archive/ directory - only live application files
 4. MODIFY existing routed pages instead of creating new components
-5. Focus on client/src/pages/ and client/src/components/ directories`,
+5. Focus on client/src/pages/ and client/src/components/ directories
+
+**COST-EFFECTIVE DIRECT REPOSITORY ACCESS:**
+- Use "examine [file-path]" for direct file access without API costs
+- Use "search for [keyword]" for zero-cost filesystem searches
+- Direct tool execution bypasses expensive Claude API calls
+- Repository operations completed in milliseconds instead of seconds`,
     canModifyFiles: true,
     allowedTools: ['search_filesystem', 'str_replace_based_edit_tool', 'bash', 'web_search']
   },
