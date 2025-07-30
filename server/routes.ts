@@ -428,11 +428,12 @@ Remember: You are the MEMBER experience Victoria - provide website building guid
         });
       }
 
-      // USER'S INDIVIDUAL TRAINED MODEL - Direct model usage (not LoRA)
-      const userModelVersion = userModel.replicateVersionId; // e.g., "80c29fa2e004372979eb32b55b99607de5174db5e98e806efb509788eaf2fd96"
+      // CORRECT INDIVIDUAL MODEL ARCHITECTURE - Full model version
+      const fullModelVersion = `${userModel.replicateModelId}:${userModel.replicateVersionId}`;
       const triggerWord = userModel.triggerWord || `user${userId}`;
       
       console.log('🔍 Maya: Individual Model details:', {
+        fullModelVersion,
         replicateModelId: userModel.replicateModelId,
         replicateVersionId: userModel.replicateVersionId,
         triggerWord,
@@ -451,13 +452,14 @@ Remember: You are the MEMBER experience Victoria - provide website building guid
       }
       
       console.log('🎯 Maya: Final prompt:', finalPrompt);
-      console.log('🔒 Maya: Using Individual Model Version:', userModelVersion);
+      console.log('🔒 Maya: Using Individual Model Version:', fullModelVersion);
 
-      // Build CORRECT Replicate API request using USER'S TRAINED MODEL
+      // Build CORRECT Replicate API request using INDIVIDUAL TRAINED MODEL (from unified-generation-service.ts)
       const requestBody = {
-        version: userModelVersion, // User's individual trained model version
+        version: fullModelVersion, // Complete individual model version
         input: {
           prompt: finalPrompt,
+          lora_scale: 1.1, // ENHANCED: Stronger user likeness (from working implementation)
           guidance: 2.82,
           num_inference_steps: 48,
           num_outputs: 2,
