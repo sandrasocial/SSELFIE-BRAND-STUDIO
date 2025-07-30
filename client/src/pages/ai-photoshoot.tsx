@@ -1146,51 +1146,45 @@ export default function AIPhotoshootPage() {
 
         {!selectedCollection ? (
           <div>
-            {/* Collection Grid - Lookbook Style */}
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-8 max-w-4xl mx-auto">
+            {/* Collection Cards Grid - Admin Agent Style */}
+            <div className="grid grid-cols-2 md:grid-cols-3 gap-6 max-w-4xl mx-auto">
               {Object.values(PROMPT_COLLECTIONS).map((collection) => (
                 <div
                   key={collection.id}
                   onClick={() => setSelectedCollection(collection.id)}
-                  className="relative cursor-pointer transition-all duration-500 overflow-hidden group rounded-sm"
-                  style={{ height: '360px', width: '100%' }}
+                  className={`relative group cursor-pointer transition-all duration-300 aspect-square overflow-hidden ${
+                    selectedCollection === collection.id 
+                      ? 'ring-2 ring-black' 
+                      : 'hover:scale-[1.02]'
+                  }`}
                 >
-                  {/* Collection Image */}
                   <img
                     src={collection.preview}
                     alt={collection.name}
-                    className="w-full h-full object-cover transition-all duration-700 group-hover:scale-105"
+                    className="w-full h-full object-cover"
                   />
                   
-                  {/* Soft Dark Overlay */}
-                  <div className="absolute inset-0 bg-black/30 group-hover:bg-black/20 transition-all duration-500"></div>
-                  
-                  {/* Elegant Two-Line Title Overlay */}
-                  <div className="absolute inset-0 flex items-center justify-center p-4">
-                    <div className="text-white text-center max-w-full">
-                      <div className="font-serif text-lg md:text-2xl font-light uppercase mb-1 whitespace-nowrap overflow-hidden" 
-                           style={{ letterSpacing: '0.2em' }}>
+                  <div className={`absolute inset-0 bg-black transition-opacity duration-300 ${
+                    selectedCollection === collection.id ? 'bg-opacity-30' : 'bg-opacity-50 group-hover:bg-opacity-30'
+                  }`}>
+                    <div className="absolute bottom-0 left-0 right-0 p-4 text-white">
+                      <div className="text-xs tracking-[0.2em] uppercase opacity-70 mb-1">
+                        {collection.prompts.length} Styles
+                      </div>
+                      <div className="font-serif text-lg font-light uppercase tracking-wide">
                         {collection.name}
                       </div>
                       {collection.subtitle && (
-                        <div className="font-serif text-base md:text-lg font-light uppercase mb-3 whitespace-nowrap overflow-hidden" 
-                             style={{ letterSpacing: '0.2em' }}>
+                        <div className="text-xs tracking-wide opacity-80 mt-1">
                           {collection.subtitle}
                         </div>
                       )}
-                      <div className="text-[10px] md:text-xs uppercase opacity-80 px-2" 
-                           style={{ letterSpacing: '0.1em', lineHeight: '1.2' }}>
-                        {collection.description}
-                      </div>
                     </div>
                   </div>
                   
-                  {/* Minimalist Count Badge */}
-                  <div className="absolute top-4 right-4">
-                    <div className="bg-white/90 px-2 py-1 text-xs font-light text-black">
-                      {collection.prompts.length} styles
-                    </div>
-                  </div>
+                  {selectedCollection === collection.id && (
+                    <div className="absolute top-4 right-4 w-3 h-3 bg-white rounded-full"></div>
+                  )}
                 </div>
               ))}
             </div>
@@ -1224,64 +1218,74 @@ export default function AIPhotoshootPage() {
 
             </div>
 
-            {/* Prompts Grid - Minimalist Cards */}
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-              {PROMPT_COLLECTIONS[selectedCollection]?.prompts.map((prompt) => (
-                <div
-                  key={prompt.id}
-                  className={`bg-gray-50 border border-gray-100 transition-all duration-500 ${
-                    userModel?.trainingStatus === 'completed' 
-                      ? 'cursor-pointer hover:border-black hover:shadow-lg hover:-translate-y-1' 
-                      : 'opacity-60 cursor-default'
-                  }`}
-                  onClick={() => {
-                    if (userModel?.trainingStatus === 'completed') {
-                      generateFromPrompt(prompt);
-                    }
-                  }}
-                >
-                  {/* Image Placeholder Area - Ready for Collection Images */}
-                  <div className="bg-gray-200 relative overflow-hidden" style={{ height: '200px' }}>
-                    <div className="absolute inset-0 bg-black/20"></div>
+            {/* Prompt Cards Grid - Admin Agent Style */}
+            <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+              {(PROMPT_COLLECTIONS as any)[selectedCollection]?.prompts.map((prompt: any) => {
+                const canGenerate = (userModel as any)?.trainingStatus === 'completed';
+                
+                return (
+                  <div
+                    key={prompt.id}
+                    onClick={() => {
+                      if (canGenerate) {
+                        generateFromPrompt(prompt);
+                      } else {
+                        toast({
+                          title: "Training Required",
+                          description: "Please complete your AI model training first.",
+                          variant: "destructive",
+                        });
+                      }
+                    }}
+                    className={`relative group cursor-pointer transition-all duration-300 aspect-square overflow-hidden ${
+                      canGenerate 
+                        ? 'hover:scale-[1.02]' 
+                        : 'opacity-50 cursor-not-allowed'
+                    }`}
+                  >
+                    {/* Use collection preview image for all prompts in that collection */}
+                    <img
+                      src={(PROMPT_COLLECTIONS as any)[selectedCollection]?.preview}
+                      alt={prompt.name}
+                      className="w-full h-full object-cover"
+                    />
                     
-                    {/* Title Overlay */}
-                    <div className="absolute inset-0 flex items-center justify-center">
-                      <div className="text-white text-center px-4">
-                        <div className="font-serif text-lg font-light tracking-[0.3em] uppercase">
-                          {prompt.name.replace(/\s/g, ' ')}
+                    <div className={`absolute inset-0 bg-black transition-opacity duration-300 ${
+                      canGenerate ? 'bg-opacity-60 group-hover:bg-opacity-40' : 'bg-opacity-70'
+                    }`}>
+                      <div className="absolute bottom-0 left-0 right-0 p-3 text-white">
+                        <div className="text-xs tracking-[0.2em] uppercase opacity-70 mb-1">
+                          {prompt.category}
+                        </div>
+                        <div className="font-serif text-sm font-light uppercase tracking-wide leading-tight">
+                          {prompt.name}
                         </div>
                       </div>
                     </div>
                     
-                    {/* Status Badge */}
-                    <div className="absolute top-4 right-4">
-                      <div className={`px-2 py-1 text-xs font-light ${
-                        userModel?.trainingStatus === 'completed' 
-                          ? 'bg-white/90 text-black' 
-                          : 'bg-white/70 text-gray-600'
-                      }`}>
-                        {userModel?.trainingStatus === 'completed' 
-                          ? (generatingImages && selectedPrompt?.id === prompt.id ? 'Creating...' : 'Ready')
-                          : 'Locked'
-                        }
+                    {/* Generate button overlay on hover */}
+                    {canGenerate && (
+                      <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+                        <button 
+                          className="px-4 py-2 text-xs uppercase tracking-wide bg-white text-black font-light hover:bg-black hover:text-white transition-all duration-300"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            generateFromPrompt(prompt);
+                          }}
+                        >
+                          Generate
+                        </button>
                       </div>
-                    </div>
+                    )}
+                    
+                    {!canGenerate && (
+                      <div className="absolute top-2 right-2 text-xs bg-red-500 text-white px-2 py-1 uppercase tracking-wide">
+                        Training Required
+                      </div>
+                    )}
                   </div>
-                  
-                  {/* Card Content */}
-                  <div className="p-6">
-                    <div className="text-xs tracking-[0.2em] uppercase text-gray-500 mb-2">
-                      {prompt.category}
-                    </div>
-                    <h3 className="font-serif text-lg font-light mb-3 leading-tight">
-                      {prompt.name}
-                    </h3>
-                    <p className="text-sm text-gray-600 leading-relaxed font-light">
-                      {prompt.description}
-                    </p>
-                  </div>
-                </div>
-              ))}
+                );
+              })}
             </div>
           </div>
         )}
