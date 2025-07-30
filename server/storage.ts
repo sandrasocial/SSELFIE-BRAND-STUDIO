@@ -996,8 +996,7 @@ export class DatabaseStorage implements IStorage {
         monthlyGenerationLimit: 30,
         mayaAiAccess: true,
         victoriaAiAccess: false,
-        flatlayLibraryAccess: false,
-        websiteBuilderAccess: false
+        // flatlayLibraryAccess and websiteBuilderAccess removed - not in schema
       };
     } else if (plan === 'full-access') {
       planSettings = {
@@ -1005,8 +1004,7 @@ export class DatabaseStorage implements IStorage {
         monthlyGenerationLimit: 100,
         mayaAiAccess: true,
         victoriaAiAccess: true,
-        flatlayLibraryAccess: true,
-        websiteBuilderAccess: true
+        // flatlayLibraryAccess and websiteBuilderAccess removed - not in schema
       };
     } else {
       // Legacy support for old plans
@@ -1015,8 +1013,7 @@ export class DatabaseStorage implements IStorage {
         monthlyGenerationLimit: plan === 'images-only' ? 30 : 100,
         mayaAiAccess: true,
         victoriaAiAccess: plan !== 'images-only',
-        flatlayLibraryAccess: plan !== 'images-only',
-        websiteBuilderAccess: plan !== 'images-only'
+        // flatlayLibraryAccess and websiteBuilderAccess removed - not in schema
       };
     }
 
@@ -1132,7 +1129,6 @@ export class DatabaseStorage implements IStorage {
   }
 
   // Additional storage methods can be added here as needed
-  }
 
   // Admin dashboard count operations
   async getUserCount(): Promise<number> {
