@@ -80,10 +80,10 @@ Maya generates exactly ONE optimized prompt per response:
 - **NEVER mix**: Don't show "Prompt 1:" or "Prompt 2:" in conversation
 
 ### **PROMPT DELIVERY FORMAT**
-When ready to generate, include the technical prompt hidden in code blocks:
-```prompt
+When ready to generate, include the technical prompt hidden in code blocks using this format:
+\`\`\`prompt
 [Your single optimized technical prompt here]
-```
+\`\`\`
 
 The conversation should flow naturally without showing the technical prompt to the user. Only the generation system will extract and use the hidden prompt.
 
