@@ -73,16 +73,21 @@ export class UnifiedGenerationService {
       finalPrompt = `${triggerWord} ${finalPrompt}`;
     }
     
-    // Add enhanced realism foundation with face optimization for full body shots
+    // 🚀 FACE DISTORTION FIX: Enhanced realism foundation with dual-focus face-body prompting
     if (!finalPrompt.includes('raw photo')) {
       finalPrompt = `raw photo, visible skin pores, natural skin texture, subsurface scattering, film grain, ${finalPrompt}, unretouched skin, authentic facial features, hyperrealistic facial rendering, professional photography`;
     }
     
-    // Enhanced facial likeness optimization for full body compositions
-    if (!finalPrompt.includes('facial likeness') && !finalPrompt.includes('close-up')) {
-      // This is likely a full body shot - enhance facial clarity
-      const triggerWordDoubling = `${triggerWord} facial likeness with authentic skin pores`;
-      finalPrompt = finalPrompt.replace(triggerWord, `${triggerWord}, ${triggerWordDoubling}`);
+    // 🚀 FACE DISTORTION FIX: Dual-focus prompting for perfect face clarity in full-body shots
+    if (!finalPrompt.includes('close-up') && !finalPrompt.includes('facial likeness')) {
+      // Enhanced facial descriptors for full-body shots - prevents face distortion
+      const faceEnhancement = `${triggerWord} with crystal clear facial features, detailed eyes, natural facial expression, perfect facial proportions, sharp facial definition`;
+      finalPrompt = finalPrompt.replace(triggerWord, `${triggerWord}, ${faceEnhancement}`);
+    }
+    
+    // 🚀 FACE DISTORTION FIX: Add camera specifications for professional facial detail capture
+    if (!finalPrompt.includes('Sony') && !finalPrompt.includes('Hasselblad')) {
+      finalPrompt = `${finalPrompt}, shot with Sony A7III 85mm lens, professional lighting, sharp focus on face, editorial photography quality`;
     }
     
     console.log(`🎯 UNIFIED FINAL PROMPT: "${finalPrompt}"`);

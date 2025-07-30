@@ -1183,6 +1183,66 @@ Remember: You are the MEMBER experience Victoria - provide website building guid
       });
     }
   });
+
+  // Model training endpoint for workspace step 1 - Uses BulletproofUploadService
+  app.post('/api/start-model-training', isAuthenticated, async (req: any, res) => {
+    try {
+      const authUserId = req.user.claims.sub;
+      const claims = req.user.claims;
+      const { selfieImages } = req.body;
+      
+      console.log(`🚀 BULLETPROOF TRAINING: Starting for user ${authUserId} with ${selfieImages?.length || 0} images`);
+      
+      // Get or create database user
+      let user = await storage.getUser(authUserId);
+      if (!user && claims.email) {
+        user = await storage.getUserByEmail(claims.email);
+      }
+      
+      if (!user) {
+        // Create user from claims
+        user = await storage.createUser({
+          id: authUserId,
+          email: claims.email,
+          firstName: claims.first_name,
+          lastName: claims.last_name,
+          profileImageUrl: claims.profile_image_url,
+        });
+      }
+      
+      // Import and use BulletproofUploadService
+      const { BulletproofUploadService } = await import('./bulletproof-upload-service');
+      
+      const result = await BulletproofUploadService.uploadAndTrainModel(user.id, selfieImages);
+      
+      if (!result.success) {
+        return res.status(400).json({
+          success: false,
+          message: "Training validation failed. Please fix the issues below and try again.",
+          errors: result.errors,
+          requiresRestart: result.requiresRestart
+        });
+      }
+      
+      res.json({
+        success: true,
+        message: "✨ BULLETPROOF training started! Your personal AI model will be ready in 30-45 minutes.",
+        trainingId: result.trainingId,
+        status: 'training',
+        modelType: 'flux-bulletproof',
+        estimatedCompletionTime: "40 minutes",
+        triggerWord: `user${user.id}`
+      });
+      
+    } catch (error) {
+      console.error(`❌ Bulletproof training failed:`, error);
+      res.status(500).json({ 
+        message: "AI model training failed - please restart upload process", 
+        error: error instanceof Error ? error.message : 'Unknown error',
+        requiresRestart: true
+      });
+    }
+  });
   
   return server;
 }
