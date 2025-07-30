@@ -329,8 +329,8 @@ export class ModelTrainingService {
       return PROMPT_TEMPLATES[categoryLower][subcategoryLower];
     }
     
-    // Fallback mapping for common subcategories
-    const fallbackMappings: Record<string, string> = {
+    // Category mapping for common subcategories
+    const categoryMappings: Record<string, string> = {
       'magazine cover': PROMPT_TEMPLATES.editorial.business,
       'fashion': PROMPT_TEMPLATES.editorial.creative,
       'business': PROMPT_TEMPLATES.editorial.business,
@@ -347,7 +347,7 @@ export class ModelTrainingService {
       'events': PROMPT_TEMPLATES.professional.networking
     };
     
-    return fallbackMappings[subcategoryLower] || PROMPT_TEMPLATES.editorial.lifestyle;
+    return categoryMappings[subcategoryLower] || PROMPT_TEMPLATES.editorial.lifestyle;
   }
 
   // Generate images from category/subcategory (AI Generator usage)
@@ -375,11 +375,11 @@ export class ModelTrainingService {
       // 🔒 PERMANENT ARCHITECTURE VALIDATION - NEVER REMOVE
       ArchitectureValidator.enforceZeroTolerance();
       
-      // ZERO FALLBACKS: Every user MUST have their own trained model
+      // INDIVIDUAL MODELS ONLY: Every user MUST have their own trained model
       const userModel = await storage.getUserModelByUserId(userId);
       
       if (!userModel || userModel.trainingStatus !== 'completed' || !userModel.replicateVersionId) {
-        throw new Error('USER_MODEL_NOT_TRAINED: User must train their AI model before generating images. No fallback models allowed.');
+        throw new Error('USER_MODEL_NOT_TRAINED: User must train their AI model before generating images. Individual models required.');
       }
       
       // Extract version hash from Replicate version ID
