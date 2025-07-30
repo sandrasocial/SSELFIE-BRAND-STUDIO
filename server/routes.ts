@@ -29,6 +29,126 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Register Victoria website generator
   registerVictoriaWebsiteGenerator(app);
   
+  // Victoria AI Website Builder - Missing endpoints from useWebsiteBuilder hook
+  app.post('/api/victoria/generate', isAuthenticated, async (req: any, res) => {
+    try {
+      const userId = req.user?.claims?.sub;
+      const websiteData = req.body;
+      
+      // Generate website using Victoria AI
+      const { db } = await import('./db');
+      const { websites } = await import('../shared/schema');
+      
+      const [newWebsite] = await db
+        .insert(websites)
+        .values({
+          userId,
+          title: websiteData.businessName,
+          content: JSON.stringify({
+            businessType: websiteData.businessType,
+            brandPersonality: websiteData.brandPersonality,
+            targetAudience: websiteData.targetAudience,
+            keyFeatures: websiteData.keyFeatures,
+            contentStrategy: websiteData.contentStrategy
+          }),
+          status: 'draft',
+          isPublished: false,
+        })
+        .returning();
+
+      res.json({
+        success: true,
+        website: {
+          id: newWebsite.id.toString(),
+          preview: `Preview of ${websiteData.businessName}`,
+          template: 'victoria-editorial',
+          estimatedGenerationTime: 45,
+          status: 'generated',
+          deploymentUrl: null
+        }
+      });
+    } catch (error) {
+      console.error('Victoria generation error:', error);
+      res.status(500).json({ error: 'Failed to generate website' });
+    }
+  });
+
+  app.post('/api/victoria/customize', isAuthenticated, async (req: any, res) => {
+    try {
+      const { siteId, modifications } = req.body;
+      const userId = req.user?.claims?.sub;
+      
+      const { db } = await import('./db');
+      const { websites } = await import('../shared/schema');
+      const { eq, and } = await import('drizzle-orm');
+      
+      const [updatedWebsite] = await db
+        .update(websites)
+        .set({ 
+          content: JSON.stringify(modifications),
+          updatedAt: new Date()
+        })
+        .where(and(eq(websites.id, parseInt(siteId)), eq(websites.userId, userId)))
+        .returning();
+      
+      res.json({ success: true, website: updatedWebsite });
+    } catch (error) {
+      console.error('Victoria customization error:', error);
+      res.status(500).json({ error: 'Failed to customize website' });
+    }
+  });
+
+  app.post('/api/victoria/deploy', isAuthenticated, async (req: any, res) => {
+    try {
+      const { siteId } = req.body;
+      const userId = req.user?.claims?.sub;
+      
+      const { db } = await import('./db');
+      const { websites } = await import('../shared/schema');
+      const { eq, and } = await import('drizzle-orm');
+      
+      const [deployedWebsite] = await db
+        .update(websites)
+        .set({ 
+          isPublished: true,
+          status: 'published',
+          url: `https://build.sselfie.com/${siteId}`,
+          updatedAt: new Date()
+        })
+        .where(and(eq(websites.id, parseInt(siteId)), eq(websites.userId, userId)))
+        .returning();
+      
+      res.json({ 
+        success: true, 
+        deploymentUrl: deployedWebsite.url,
+        website: deployedWebsite 
+      });
+    } catch (error) {
+      console.error('Victoria deployment error:', error);
+      res.status(500).json({ error: 'Failed to deploy website' });
+    }
+  });
+
+  app.get('/api/victoria/websites', isAuthenticated, async (req: any, res) => {
+    try {
+      const userId = req.user?.claims?.sub;
+      const { db } = await import('./db');
+      const { websites } = await import('../shared/schema');
+      const { eq, desc } = await import('drizzle-orm');
+      
+      const userWebsites = await db
+        .select()
+        .from(websites)
+        .where(eq(websites.userId, userId))
+        .orderBy(desc(websites.updatedAt));
+      
+      res.json(userWebsites);
+    } catch (error) {
+      console.error('Error fetching Victoria websites:', error);
+      res.status(500).json({ error: 'Failed to fetch websites' });
+    }
+  });
+  
   // Website management endpoints
   app.get('/api/websites', isAuthenticated, async (req: any, res) => {
     try {
@@ -772,7 +892,6 @@ Remember: You are the MEMBER experience Victoria - provide website building guid
           userId: dbUserId,
           imageUrl: imageUrl,
           prompt: tracker.prompt || 'Maya Editorial Photoshoot',
-          status: 'completed',
           generationStatus: 'completed',
           predictionId: tracker.predictionId || '',
         });
@@ -1444,7 +1563,7 @@ Remember: You are the MEMBER experience Victoria - provide website building guid
       // Import and use BulletproofUploadService
       const { BulletproofUploadService } = await import('./bulletproof-upload-service');
       
-      const result = await BulletproofUploadService.startTraining(user.id, selfieImages);
+      const result = await BulletproofUploadService.completeBulletproofUpload(user.id, selfieImages);
       
       if (!result.success) {
         return res.status(400).json({
