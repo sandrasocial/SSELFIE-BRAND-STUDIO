@@ -428,13 +428,11 @@ Remember: You are the MEMBER experience Victoria - provide website building guid
         });
       }
 
-      // CORRECT FLUX LoRA ARCHITECTURE - Individual LoRA weights with version
-      const loraWeights = `${userModel.replicateModelId}:${userModel.replicateVersionId}`; // e.g., "sandrasocial/42585527-selfie-lora-1753201482760:80c29fa2"
+      // USER'S INDIVIDUAL TRAINED MODEL - Direct model usage (not LoRA)
+      const userModelVersion = userModel.replicateVersionId; // e.g., "80c29fa2e004372979eb32b55b99607de5174db5e98e806efb509788eaf2fd96"
       const triggerWord = userModel.triggerWord || `user${userId}`;
       
-      console.log('🔍 Maya: FLUX LoRA details:', {
-        baseModel: 'black-forest-labs/flux-dev-lora',
-        loraWeights,
+      console.log('🔍 Maya: Individual Model details:', {
         replicateModelId: userModel.replicateModelId,
         replicateVersionId: userModel.replicateVersionId,
         triggerWord,
@@ -453,15 +451,13 @@ Remember: You are the MEMBER experience Victoria - provide website building guid
       }
       
       console.log('🎯 Maya: Final prompt:', finalPrompt);
-      console.log('🔒 Maya: Using FLUX LoRA - Base: black-forest-labs/flux-dev-lora, Weights:', loraWeights);
+      console.log('🔒 Maya: Using Individual Model Version:', userModelVersion);
 
-      // Build CORRECT Replicate API request using FLUX LoRA ARCHITECTURE
+      // Build CORRECT Replicate API request using USER'S TRAINED MODEL
       const requestBody = {
-        version: "black-forest-labs/flux-dev-lora",
+        version: userModelVersion, // User's individual trained model version
         input: {
           prompt: finalPrompt,
-          lora_weights: loraWeights,
-          lora_scale: 1.1,
           guidance: 2.82,
           num_inference_steps: 48,
           num_outputs: 2,
