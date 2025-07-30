@@ -97,75 +97,72 @@ export function WebsiteWizard({ onComplete }: WebsiteWizardProps) {
   ];
 
   return (
-    <div className="max-w-4xl mx-auto p-8">
-      <div className="mb-8">
-        <h1 className="text-4xl font-normal mb-4" style={{ fontFamily: 'Times New Roman' }}>
-          Let's Build Your Dream Website Together!
-        </h1>
-        <div className="flex items-center space-x-2 mb-6">
-          {stepTitles.map((title, index) => (
-            <div key={index} className="flex items-center">
-              <div
-                className={`w-8 h-8 rounded-full flex items-center justify-center text-sm ${
-                  index + 1 === currentStep
-                    ? 'bg-black text-white'
-                    : index + 1 < currentStep
-                    ? 'bg-gray-600 text-white'
-                    : 'bg-gray-200 text-gray-600'
-                }`}
-              >
-                {index + 1}
-              </div>
-              {index < stepTitles.length - 1 && (
-                <div className="w-16 h-px bg-gray-300 mx-2"></div>
-              )}
-            </div>
-          ))}
+    <div className="min-h-screen bg-gradient-to-b from-white to-gray-50">
+      {/* Editorial Header Section */}
+      <div className="max-w-5xl mx-auto px-12 py-16">
+        <div className="text-center mb-20">
+          <h1 className="text-6xl font-normal mb-8 tracking-wide leading-tight" 
+              style={{ fontFamily: 'Times New Roman, serif', color: '#0a0a0a' }}>
+            Craft Your Digital
+            <br />
+            <span className="italic">Empire</span>
+          </h1>
+          <p className="text-xl text-gray-600 font-light max-w-2xl mx-auto leading-relaxed" 
+             style={{ fontFamily: 'Times New Roman, serif' }}>
+            Where luxury meets functionality. Where your vision becomes digital reality.
+            <br />
+            <span className="text-sm font-normal mt-4 block">€67/month • Premium Digital Architecture</span>
+          </p>
         </div>
-        <h2 className="text-xl text-gray-600">Step {currentStep}: {stepTitles[currentStep - 1]}</h2>
+
+        {/* Luxury Progress Indicator */}
+        <div className="flex justify-center mb-16">
+          <div className="flex items-center space-x-8">
+            {stepTitles.map((title, index) => (
+              <div key={index} className="flex items-center group">
+                <div className="flex flex-col items-center">
+                  <div
+                    className={`w-12 h-12 flex items-center justify-center text-sm font-light transition-all duration-500 transform ${
+                      index + 1 === currentStep
+                        ? 'bg-black text-white scale-110 shadow-lg'
+                        : index + 1 < currentStep
+                        ? 'bg-gray-800 text-white scale-105'
+                        : 'bg-white text-gray-400 border border-gray-200 hover:border-gray-400'
+                    }`}
+                    style={{ 
+                      borderRadius: '2px',
+                      fontFamily: 'Times New Roman, serif'
+                    }}
+                  >
+                    {index + 1 < currentStep ? '✓' : index + 1}
+                  </div>
+                  <span className={`text-xs mt-3 font-light transition-colors duration-300 ${
+                    index + 1 === currentStep ? 'text-black' : 'text-gray-400'
+                  }`} style={{ fontFamily: 'Times New Roman, serif' }}>
+                    {title.length > 20 ? `${title.substring(0, 20)}...` : title}
+                  </span>
+                </div>
+                {index < stepTitles.length - 1 && (
+                  <div className={`w-20 h-px mx-6 transition-colors duration-500 ${
+                    index + 1 < currentStep ? 'bg-black' : 'bg-gray-200'
+                  }`}></div>
+                )}
+              </div>
+            ))}
+          </div>
+        </div>
+
+        {/* Current Step Indicator */}
+        <div className="text-center mb-12">
+          <h2 className="text-2xl font-light text-gray-700" 
+              style={{ fontFamily: 'Times New Roman, serif' }}>
+            Chapter {currentStep}
+          </h2>
+          <div className="w-24 h-px bg-black mx-auto mt-4"></div>
+        </div>
       </div>
 
-      <div className="bg-white p-8 border border-gray-200">
-        {currentStep === 1 && (
-          <div className="space-y-6">
-            <div>
-              <Label htmlFor="businessName">What's your business called?</Label>
-              <Input
-                id="businessName"
-                value={formData.businessName || ''}
-                onChange={(e) => setFormData(prev => ({ ...prev, businessName: e.target.value }))}
-                placeholder="Tell me your business name!"
-                className="mt-2"
-              />
-            </div>
-            <div>
-              <Label htmlFor="businessDescription">Tell me all about your amazing business!</Label>
-              <Textarea
-                id="businessDescription"
-                value={formData.businessDescription || ''}
-                onChange={(e) => setFormData(prev => ({ ...prev, businessDescription: e.target.value }))}
-                placeholder="Don't be shy - what magic do you create for your clients?"
-                className="mt-2"
-                rows={4}
-              />
-            </div>
-            <div>
-              <Label htmlFor="businessType">What kind of business magic are you working?</Label>
-              <Select onValueChange={(value) => setFormData(prev => ({ ...prev, businessType: value }))}>
-                <SelectTrigger className="mt-2">
-                  <SelectValue placeholder="Pick the one that feels most like you!" />
-                </SelectTrigger>
-                <SelectContent>
-                  {businessTypes.map((type) => (
-                    <SelectItem key={type} value={type}>
-                      {type.charAt(0).toUpperCase() + type.slice(1).replace('-', ' ')}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </div>
-          </div>
-        )}
+
 
         {currentStep === 2 && (
           <div className="space-y-6">
