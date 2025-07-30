@@ -1,11 +1,10 @@
 
 import React, { useState, useMemo } from 'react';
 import { useQuery } from '@tanstack/react-query';
-import Link from 'next/link';
-import { MemberNavigation } from '../components/MemberNavigation';
-import { GlobalFooter } from '../components/GlobalFooter';
+import { Link } from 'wouter';
+import { GlobalFooter } from '../components/global-footer';
 import { MoodboardSection } from '../components/MoodboardSection';
-import { SandraImages } from '../data/SandraImages';
+import { SandraImages } from '../lib/sandra-images';
 
 export default function AdminBusinessOverview() {
   // WILMA'S WORKFLOW STATE MANAGEMENT
@@ -230,6 +229,67 @@ export default function AdminBusinessOverview() {
         </div>
       </section>
 
+      {/* CONTENT SECTIONS */}
+      <section className="py-20 bg-white text-black">
+        <div className="max-w-6xl mx-auto px-8">
+          {activeView === 'overview' && (
+            <>
+              {/* Business Metrics Grid */}
+              <div className="grid grid-cols-2 md:grid-cols-6 gap-0 mb-20 border border-gray-200">
+                <div className="text-center p-8 border border-gray-200">
+                  <div className="font-serif text-4xl font-light mb-2">
+                    €{businessMetrics?.totalRevenue || 0}
+                  </div>
+                  <div className="text-xs tracking-[0.3em] uppercase text-gray-500">
+                    Total Revenue
+                  </div>
+                </div>
+                
+                <div className="text-center p-8 border border-gray-200">
+                  <div className="font-serif text-4xl font-light mb-2">
+                    €{businessMetrics?.monthlyRevenue || 0}
+                  </div>
+                  <div className="text-xs tracking-[0.3em] uppercase text-gray-500">
+                    Monthly Revenue
+                  </div>
+                </div>
+                
+                <div className="text-center p-8 border border-gray-200">
+                  <div className="font-serif text-4xl font-light mb-2">
+                    {businessMetrics?.totalSubscribers || 0}
+                  </div>
+                  <div className="text-xs tracking-[0.3em] uppercase text-gray-500">
+                    Total Subscribers
+                  </div>
+                </div>
+                
+                <div className="text-center p-8 border border-gray-200">
+                  <div className="font-serif text-4xl font-light mb-2">
+                    {businessMetrics?.activeUsers || 0}
+                  </div>
+                  <div className="text-xs tracking-[0.3em] uppercase text-gray-500">
+                    Active Users
+                  </div>
+                </div>
+                
+                <div className="text-center p-8 border border-gray-200">
+                  <div className="font-serif text-4xl font-light mb-2">
+                    {businessMetrics?.totalAIImages || 0}
+                  </div>
+                  <div className="text-xs tracking-[0.3em] uppercase text-gray-500">
+                    AI Images Generated
+                  </div>
+                </div>
+                
+                <div className="text-center p-8 border border-gray-200">
+                  <div className="font-serif text-4xl font-light mb-2">
+                    {businessMetrics?.trainedModels || 0}
+                  </div>
+                  <div className="text-xs tracking-[0.3em] uppercase text-gray-500">
+                    Trained Models
+                  </div>
+                </div>
+              </div>
 
               {/* Full Bleed Image Page Break - Your Workspace Gallery */}
               <div className="relative w-screen left-1/2 right-1/2 -ml-[50vw] -mr-[50vw] mb-20">
