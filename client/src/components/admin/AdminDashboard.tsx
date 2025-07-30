@@ -173,7 +173,16 @@ export default function AdminDashboard() {
   ];
 
   // Quick access tools similar to workspace creative tools
-  const quickAccessTools = [
+
+  const adminQuickTools = [
+    {
+      id: 'business-overview',
+      title: 'Business Overview',
+      subtitle: 'Revenue & Analytics',
+      description: 'Complete business metrics and subscriber analytics',
+      image: HeroImage,
+      link: '/admin/business-overview'
+    },
     {
       id: 'autonomous-orchestrator',
       title: 'Autonomous Orchestrator',
@@ -317,7 +326,7 @@ export default function AdminDashboard() {
 
             {/* Compact Elegant Widgets - Same as workspace */}
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-              {quickAccessTools.map((tool) => (
+              {adminQuickTools.map((tool) => (
                 <Link key={tool.id} href={tool.link} className="group">
                   <div className="relative overflow-hidden bg-black" style={{ aspectRatio: '21/9' }}>
                     <img 

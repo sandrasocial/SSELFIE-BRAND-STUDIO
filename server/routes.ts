@@ -9,6 +9,7 @@ import victoriaWebsiteRouter from "./routes/victoria-website";
 import { registerVictoriaService } from "./routes/victoria-service";
 import { registerVictoriaWebsiteGenerator } from "./routes/victoria-website-generator";
 import subscriberImportRouter from './routes/subscriber-import';
+import adminBusinessMetricsRouter from './routes/admin-business-metrics';
 
 // UNIFIED AGENT SYSTEM IMPORT (Single source of truth)
 import { unifiedAgentSystem } from './unified-agent-system';
@@ -269,6 +270,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Subscriber import routes
   const subscriberImport = await import('./routes/subscriber-import');
   app.use('/api/subscribers', subscriberImport.default);
+  app.use('/api/admin', adminBusinessMetricsRouter);
   
   // AI Images endpoint - Production ready
   app.get('/api/ai-images', isAuthenticated, async (req: any, res) => {
