@@ -1368,161 +1368,208 @@ export default function AIPhotoshootPage() {
           </div>
         )}
 
-      {/* Maya-style Image Preview Modal - Show when images are available */}
-      {(() => {
-        console.log('AI-PHOTOSHOOT: Preview modal check - showPreviewModal:', showPreviewModal, 'generatedImages.length:', generatedImages.length);
-        return (showPreviewModal || generatingImages) && (generatedImages.length > 0 || generatingImages);
-      })() && (
-        <div className="fixed inset-0 bg-black bg-opacity-90 z-50 flex items-center justify-center p-4" onClick={() => setShowPreviewModal(false)}>
-          <div className="bg-white max-w-5xl w-full max-h-[90vh] overflow-y-auto" onClick={(e) => e.stopPropagation()}>
-            {/* Modal Header */}
-            <div className="p-6 border-b border-gray-200">
+      {/* LUXURY IMAGE PREVIEW MODAL */}
+      {((showPreviewModal || generatingImages) && (generatedImages.length > 0 || generatingImages)) && (
+        <div className="fixed inset-0 bg-black/95 backdrop-blur-sm z-50 flex items-center justify-center p-6" onClick={() => setShowPreviewModal(false)}>
+          <div className="bg-white max-w-6xl w-full max-h-[95vh] overflow-y-auto shadow-2xl" onClick={(e) => e.stopPropagation()}>
+            {/* LUXURY MODAL HEADER */}
+            <div className="px-8 py-6 border-b border-gray-100 bg-gradient-to-r from-white to-gray-50">
               <div className="flex items-center justify-between">
                 <div>
-                  <h3 className="font-times text-xl font-light text-black">Your AI Photos</h3>
-                  <p className="text-sm text-gray-600 mt-1">{selectedPrompt?.name} • {generatedImages.length} images</p>
+                  <h3 className="font-serif text-xl font-light uppercase tracking-[0.3em] text-black mb-1">
+                    AI Photography Results
+                  </h3>
+                  <p className="text-sm text-gray-600 font-light tracking-wide">
+                    ✨ Professional-grade images ready for your gallery
+                  </p>
                 </div>
                 <button 
                   onClick={() => setShowPreviewModal(false)}
-                  className="w-8 h-8 flex items-center justify-center text-gray-400 hover:text-black rounded-full transition-colors"
+                  className="p-2 hover:bg-gray-100 rounded-full transition-colors duration-200"
                 >
-                  <span className="text-xl leading-none">×</span>
+                  <div className="w-6 h-6 relative">
+                    <div className="absolute inset-0 flex items-center justify-center">
+                      <div className="w-4 h-0.5 bg-black transform rotate-45 absolute"></div>
+                      <div className="w-4 h-0.5 bg-black transform -rotate-45 absolute"></div>
+                    </div>
+                  </div>
                 </button>
               </div>
             </div>
 
-            {/* LUXURY Progress Experience During Generation */}
-            {generatingImages && (
-              <div className="p-8 border-b border-gray-100">
-                <div className="text-center mb-6">
-                  <div className="font-times text-xl font-light text-black mb-2">
-                    Crafting Your Luxury Photography
-                  </div>
-                  <div className="text-sm text-gray-500 tracking-wide uppercase">
-                    Professional AI • Studio Quality • {Math.round(generationProgress)}% Complete
-                  </div>
+            {/* LUXURY CONTENT AREA */}
+            {generatingImages ? (
+              <div className="p-12 text-center">
+                {/* LUXURY GENERATION ANIMATION */}
+                <div className="relative w-24 h-24 mx-auto mb-8">
+                  <div className="absolute inset-0 border-2 border-gray-200 rounded-full"></div>
+                  <div className="absolute inset-0 border-2 border-black border-t-transparent rounded-full animate-spin"></div>
+                  <div className="absolute inset-4 border border-gray-300 rounded-full animate-pulse"></div>
+                  <div className="absolute inset-8 bg-black/5 rounded-full"></div>
                 </div>
                 
-                {/* Premium Progress Bar */}
-                <div className="w-full max-w-md mx-auto">
-                  <div className="w-full bg-gray-100 h-0.5 rounded-full overflow-hidden">
+                <div className="font-serif text-2xl font-light uppercase tracking-[0.3em] text-black mb-3">
+                  Creating Magic
+                </div>
+                <p className="text-lg text-gray-600 mb-6 font-light max-w-md mx-auto leading-relaxed">
+                  Your professional AI photographer is crafting gallery-ready images with natural skin texture and film authenticity
+                </p>
+                
+                {/* LUXURY PROGRESS BAR */}
+                <div className="max-w-md mx-auto">
+                  <div className="w-full bg-gray-100 rounded-full h-2 mb-3 overflow-hidden">
                     <div 
-                      className="bg-gradient-to-r from-black via-gray-800 to-black h-0.5 transition-all duration-500 ease-out rounded-full" 
+                      className="bg-gradient-to-r from-black via-gray-800 to-black h-2 rounded-full transition-all duration-500 ease-out"
                       style={{ width: `${generationProgress}%` }}
                     ></div>
                   </div>
+                  <div className="flex justify-between text-xs text-gray-500 font-light">
+                    <span>Processing...</span>
+                    <span>{Math.round(generationProgress)}% Complete</span>
+                  </div>
                 </div>
                 
-                {/* Luxury Value Messaging */}
-                <div className="text-center mt-6 text-xs text-gray-600 leading-relaxed">
-                  <div className="mb-1">✨ <strong>€67 Premium Service:</strong> Professional-grade AI photography</div>
-                  <div>Natural skin texture • Film grain authenticity • Gallery-ready results</div>
+                {/* VALUE MESSAGING */}
+                <div className="mt-8 p-4 bg-gray-50/50 rounded-lg max-w-lg mx-auto">
+                  <div className="text-xs text-gray-600 leading-relaxed">
+                    <div className="mb-2"><strong>€67 Premium Experience:</strong></div>
+                    <div>Professional film grain • Natural skin texture • Gallery-ready composition</div>
+                  </div>
+                </div>
+              </div>
+            ) : (
+              <div className="p-8">
+                <div className="text-center mb-8">
+                  <div className="font-serif text-lg font-light uppercase tracking-[0.2em] text-black mb-2">
+                    {selectedPrompt?.name}
+                  </div>
+                  <div className="text-sm text-gray-600">
+                    {generatedImages.length} Professional Images Generated
+                  </div>
+                </div>
+                
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 max-w-5xl mx-auto">
+                  {generatedImages.map((imageUrl, index) => (
+                    <div key={index} className="relative group aspect-[3/4] overflow-hidden shadow-lg hover:shadow-2xl transition-all duration-500">
+                      <img 
+                        src={imageUrl}
+                        alt={`Generated image ${index + 1}`}
+                        className="w-full h-full object-cover cursor-pointer group-hover:scale-105 transition-transform duration-700"
+                        onClick={() => setSelectedImage(imageUrl)}
+                        style={{
+                          filter: 'contrast(1.05) saturate(1.02)',
+                        }}
+                      />
+                      
+                      {/* LUXURY OVERLAY */}
+                      <div className="absolute inset-0 bg-black/0 group-hover:bg-black/10 transition-all duration-300" />
+                      
+                      {/* LUXURY SAVE BUTTON */}
+                      <button
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          saveToGallery(imageUrl);
+                        }}
+                        disabled={savingImages.has(imageUrl)}
+                        className="absolute top-4 right-4 w-10 h-10 flex items-center justify-center bg-white/95 backdrop-blur-sm hover:bg-white border border-white/20 hover:border-gray-200 rounded-full transition-all duration-300 shadow-lg hover:shadow-xl"
+                        title={savedImages.has(imageUrl) ? 'Saved to gallery' : 'Save to gallery'}
+                      >
+                        {savingImages.has(imageUrl) ? (
+                          <div className="w-4 h-4 border-2 border-gray-400 border-t-transparent rounded-full animate-spin"></div>
+                        ) : savedImages.has(imageUrl) ? (
+                          <span className="text-red-500 text-lg">♥</span>
+                        ) : (
+                          <span className="text-gray-400 hover:text-red-500 text-lg transition-colors">♡</span>
+                        )}
+                      </button>
+                      
+                      {/* LUXURY SAVED INDICATOR */}
+                      {savedImages.has(imageUrl) && (
+                        <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/80 via-black/40 to-transparent p-4">
+                          <div className="text-white text-sm font-light tracking-wide">
+                            ✓ Saved to Gallery
+                          </div>
+                        </div>
+                      )}
+                    </div>
+                  ))}
+                </div>
+                
+                {/* LUXURY STATUS MESSAGE */}
+                <div className="mt-8 p-6 bg-gradient-to-r from-gray-50 to-white rounded-lg border border-gray-100 max-w-2xl mx-auto">
+                  <div className="text-center">
+                    <div className="text-sm text-gray-700 font-light leading-relaxed">
+                      <strong>Preview Gallery:</strong> These are high-quality temporary previews. 
+                      Click the heart (♡) to save your favorites permanently to your gallery.
+                    </div>
+                  </div>
                 </div>
               </div>
             )}
-
-            {/* Image Grid - Mobile Stack, Desktop Grid */}
-            <div className="p-6">
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                {generatedImages.map((imageUrl, index) => (
-                  <div key={index} className="relative group">
-                    <img 
-                      src={imageUrl}
-                      alt={`Generated image ${index + 1}`}
-                      className="w-full h-32 object-cover cursor-pointer hover:scale-105 transition-transform duration-200"
-                      onClick={() => setSelectedImage(imageUrl)}
-                    />
-                    
-                    {/* Minimalistic Heart Save Button */}
-                    <button
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        saveToGallery(imageUrl);
-                      }}
-                      disabled={savingImages.has(imageUrl)}
-                      className="absolute top-2 right-2 w-8 h-8 flex items-center justify-center bg-white/90 hover:bg-white border border-gray-200 hover:border-gray-300 rounded-full transition-all shadow-sm"
-                      title={savedImages.has(imageUrl) ? 'Saved to gallery' : 'Save to gallery'}
-                    >
-                      {savingImages.has(imageUrl) ? (
-                        <div className="w-3 h-3 border border-gray-400 border-t-transparent rounded-full animate-spin"></div>
-                      ) : savedImages.has(imageUrl) ? (
-                        <span className="text-red-500 text-sm">♥</span>
-                      ) : (
-                        <span className="text-gray-400 hover:text-red-500 text-sm transition-colors">♡</span>
-                      )}
-                    </button>
-                    
-                    {/* Subtle Saved Indicator */}
-                    {savedImages.has(imageUrl) && (
-                      <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/60 to-transparent p-2">
-                        <div className="text-white text-xs font-medium">
-                          ✓ Saved
-                        </div>
-                      </div>
-                    )}
-                    
-                    {/* Hover overlay */}
-                    <div className="absolute inset-0 bg-black/0 hover:bg-black/10 transition-colors pointer-events-none"></div>
-                  </div>
-                ))}
-              </div>
-              
-              {/* Preview Status Message */}
-              <div className="mt-3 text-xs text-gray-500 bg-gray-50 p-3 rounded border">
-                <strong>Preview Mode:</strong> These are temporary preview images. Click the heart (♡) to save your favorites permanently to your gallery.
-              </div>
-            </div>
           </div>
         </div>
       )}
 
-      {/* Full-Size Image Modal with Heart-Save */}
+      {/* LUXURY FULL-SIZE IMAGE MODAL */}
       {selectedImage && (
         <div 
-          className="fixed inset-0 bg-black bg-opacity-90 flex items-center justify-center z-50 p-4"
+          className="fixed inset-0 bg-black/95 backdrop-blur-sm flex items-center justify-center z-50 p-6"
           onClick={() => setSelectedImage(null)}
         >
-          <div className="relative max-w-5xl max-h-full">
+          <div className="relative max-w-6xl max-h-full">
             <img 
               src={selectedImage}
               alt="Full size view"
               className="max-w-full max-h-full object-contain rounded-lg shadow-2xl"
               onClick={(e) => e.stopPropagation()}
+              style={{
+                filter: 'contrast(1.05) saturate(1.02)',
+              }}
             />
             
-            {/* Modal Controls */}
-            <div className="absolute top-4 right-4 flex gap-2">
-              {/* Heart Save Button in Modal */}
+            {/* LUXURY MODAL CONTROLS */}
+            <div className="absolute top-6 right-6 flex gap-3">
+              {/* LUXURY SAVE BUTTON */}
               <button
                 onClick={(e) => {
                   e.stopPropagation();
                   saveToGallery(selectedImage);
                 }}
                 disabled={savingImages.has(selectedImage)}
-                className="w-10 h-10 flex items-center justify-center bg-white/90 hover:bg-white border border-gray-200 hover:border-gray-300 rounded-full transition-all shadow-lg"
+                className="w-12 h-12 flex items-center justify-center bg-white/95 backdrop-blur-sm hover:bg-white border border-white/20 hover:border-gray-200 rounded-full transition-all duration-300 shadow-xl hover:shadow-2xl"
                 title={savedImages.has(selectedImage) ? 'Saved to gallery' : 'Save to gallery'}
               >
                 {savingImages.has(selectedImage) ? (
-                  <div className="w-4 h-4 border border-gray-400 border-t-transparent rounded-full animate-spin"></div>
+                  <div className="w-5 h-5 border-2 border-gray-400 border-t-transparent rounded-full animate-spin"></div>
                 ) : savedImages.has(selectedImage) ? (
-                  <span className="text-red-500 text-lg">♥</span>
+                  <span className="text-red-500 text-xl">♥</span>
                 ) : (
-                  <span className="text-gray-400 hover:text-red-500 text-lg transition-colors">♡</span>
+                  <span className="text-gray-400 hover:text-red-500 text-xl transition-colors">♡</span>
                 )}
               </button>
               
-              {/* Close Button */}
-              <button 
+              {/* LUXURY CLOSE BUTTON */}
+              <button
                 onClick={() => setSelectedImage(null)}
-                className="w-10 h-10 flex items-center justify-center bg-white/90 hover:bg-white text-gray-700 hover:text-black rounded-full transition-all shadow-lg"
-                title="Close"
+                className="w-12 h-12 flex items-center justify-center bg-white/95 backdrop-blur-sm hover:bg-white border border-white/20 hover:border-gray-200 rounded-full transition-all duration-300 shadow-xl hover:shadow-2xl"
               >
-                <span className="text-xl leading-none">×</span>
+                <div className="w-6 h-6 relative">
+                  <div className="absolute inset-0 flex items-center justify-center">
+                    <div className="w-4 h-0.5 bg-gray-600 transform rotate-45 absolute"></div>
+                    <div className="w-4 h-0.5 bg-gray-600 transform -rotate-45 absolute"></div>
+                  </div>
+                </div>
               </button>
             </div>
           </div>
         </div>
       )}
+      </div>
+      </div>
+      </div>
+      </div>
+      </div>
+      </div>
       </div>
     </div>
   );
