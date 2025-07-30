@@ -48,8 +48,8 @@ export default function AdminBusinessOverview() {
 
   const isLoading = metricsLoading || subscriberLoading || activityLoading;
 
-  // Hero image from your authentic gallery - using your actual workspace collection
-  const heroImage = SandraImages.aiGallery[0] || SandraImages.hero.dashboard;
+  // Hero image from your authentic workspace gallery - using your actual generated AI images
+  const heroImage = SandraImages.gallery[0] || SandraImages.hero.dashboard;
 
   // Business priority tasks
   const businessTasks = [
@@ -167,11 +167,11 @@ export default function AdminBusinessOverview() {
                 </div>
               </div>
 
-              {/* Full Bleed Image Page Break - Your Editorial Collection */}
+              {/* Full Bleed Image Page Break - Your Workspace Gallery */}
               <div className="relative w-screen left-1/2 right-1/2 -ml-[50vw] -mr-[50vw] mb-20">
                 <div className="aspect-[21/9] overflow-hidden">
                   <img 
-                    src={SandraImages.aiGallery[1] || SandraImages.editorial.laptop1}
+                    src={SandraImages.gallery[1] || SandraImages.editorial.laptop1}
                     alt="Business Growth"
                     className="w-full h-full object-cover"
                   />
@@ -216,25 +216,25 @@ export default function AdminBusinessOverview() {
                   <MoodboardSection 
                     title="User Journey"
                     images={[
-                      SandraImages.aiGallery[0] || SandraImages.editorial.laptop1,
-                      SandraImages.aiGallery[1] || SandraImages.editorial.phone1,
-                      SandraImages.aiGallery[2] || SandraImages.editorial.thinking
+                      SandraImages.gallery[0] || SandraImages.editorial.laptop1,
+                      SandraImages.gallery[1] || SandraImages.editorial.phone1,
+                      SandraImages.gallery[2] || SandraImages.editorial.thinking
                     ]}
                   />
                   <MoodboardSection 
                     title="Revenue Growth"
                     images={[
-                      SandraImages.aiGallery[3] || SandraImages.journey.building,
-                      SandraImages.aiGallery[4] || SandraImages.journey.success,
-                      SandraImages.aiGallery[5] || SandraImages.hero.pricing
+                      SandraImages.gallery[3] || SandraImages.journey.building,
+                      SandraImages.gallery[4] || SandraImages.journey.success,
+                      SandraImages.gallery[5] || SandraImages.hero.pricing
                     ]}
                   />
                   <MoodboardSection 
                     title="Platform Quality"
                     images={[
-                      SandraImages.aiGallery[6] || SandraImages.flatlays.workspace1,
-                      SandraImages.aiGallery[7] || SandraImages.flatlays.luxury,
-                      SandraImages.aiGallery[8] || SandraImages.editorial.aiSuccess
+                      SandraImages.gallery[6] || SandraImages.flatlays.workspace1,
+                      SandraImages.gallery[7] || SandraImages.flatlays.luxury,
+                      SandraImages.gallery[8] || SandraImages.editorial.aiSuccess
                     ]}
                   />
                 </div>
@@ -252,12 +252,12 @@ export default function AdminBusinessOverview() {
                 </div>
               </div>
 
-              {/* Image Cards - Your Authentic Gallery */}
+              {/* Image Cards - Your Workspace Gallery */}
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 mb-20">
                 <Link href="/admin/subscriber-import" className="group">
                   <div className="relative overflow-hidden bg-black aspect-[4/5]">
                     <img 
-                      src={SandraImages.aiGallery[9] || SandraImages.editorial.laptop2}
+                      src={SandraImages.gallery[9] || SandraImages.editorial.laptop2}
                       alt="Subscriber Management"
                       className="w-full h-full object-cover opacity-80 transition-all duration-700 group-hover:opacity-90 group-hover:scale-105"
                     />
@@ -278,7 +278,7 @@ export default function AdminBusinessOverview() {
                 <Link href="/admin/consulting-agents" className="group">
                   <div className="relative overflow-hidden bg-black aspect-[4/5]">
                     <img 
-                      src={SandraImages.aiGallery[10] || SandraImages.hero.agents}
+                      src={SandraImages.gallery[10] || SandraImages.hero.agents}
                       alt="AI Agents"
                       className="w-full h-full object-cover opacity-80 transition-all duration-700 group-hover:opacity-90 group-hover:scale-105"
                     />
@@ -299,7 +299,7 @@ export default function AdminBusinessOverview() {
                 <Link href="/workspace" className="group">
                   <div className="relative overflow-hidden bg-black aspect-[4/5]">
                     <img 
-                      src={SandraImages.aiGallery[11] || SandraImages.hero.homepage}
+                      src={SandraImages.gallery[11] || SandraImages.hero.homepage}
                       alt="Platform Studio"
                       className="w-full h-full object-cover opacity-80 transition-all duration-700 group-hover:opacity-90 group-hover:scale-105"
                     />
