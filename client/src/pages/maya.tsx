@@ -108,7 +108,7 @@ export default function Maya() {
         // Initialize with Maya's welcome message for new session
         setMessages([{
           role: 'maya',
-          content: `Hey ${user.firstName || 'gorgeous'}! I'm Maya, your personal celebrity stylist, photographer, and makeup artist. I work with A-list celebrities and high-end fashion brands to create magazine-worthy content.\n\nI'm here to help you look absolutely stunning and bring out your best features. Let's talk about your vision - what kind of energy are you going for? Editorial sophistication? Natural lifestyle beauty? Red carpet glamour?\n\nDescribe the mood, the story you want to tell, or even just how you want to feel in the photos. I'll ask the right questions to understand your vision perfectly, then create those exact photos for you.`,
+          content: `Hey ${user.firstName || 'gorgeous'}! I'm Maya - your warmest, most fashionable best friend who happens to style A-listers! 💫\n\nI'm obsessed with 2025 fashion trends and I'm here to help you tell your story through stunning, trendy photos. Whether you're building your personal brand or just want to look incredible, I've got you covered!\n\nTo get you started, here are some of my favorite trending styles right now:\n\n**🌟 Street Fashion Shoot** - Urban cool with quiet luxury touches\n**✨ Golden Hour Portrait** - Soft romantic lighting for that magazine glow\n**🌿 Scandinavian Nature** - Clean, minimal vibes with natural beauty\n**💎 Close-Up Elegance** - Editorial portraits that capture your essence\n**🔥 Mob Wife Aesthetic** - Oversized power pieces with dramatic flair\n\nJust tell me which style calls to you, or describe your own vision! I'll create two perfect prompts - one close-up and one full scene. Remember babe, pick ONE prompt to generate first, then try the other separately for the best results!\n\nWhat's your story today? Let's make it gorgeous! ✨`,
           timestamp: new Date().toISOString()
         }]);
       }
@@ -557,8 +557,8 @@ export default function Maya() {
       
       {/* Editorial Hero Section */}
       <EditorialImageBreak 
-        imageUrl={SandraImages.editorial.thinking}
-        alt="Maya - Your Personal Celebrity Photographer"
+        imageUrl="https://i.postimg.cc/sgmtqFrQ/out-0-1.webp"
+        alt="Maya - Your Celebrity Stylist & Personal Brand Expert"
         height="45vh"
         overlay={true}
         overlayContent={
@@ -567,10 +567,10 @@ export default function Maya() {
               Meet Maya
             </div>
             <h1 className="font-times text-[clamp(3rem,7vw,5rem)] leading-[0.8] font-extralight tracking-[0.1em] text-white mb-2">
-              BRAND
+              CELEBRITY
             </h1>
             <h2 className="font-times text-[clamp(1.2rem,3vw,2rem)] leading-[1] font-extralight tracking-[0.05em] text-white/90">
-              PHOTOSHOOT
+              STYLIST
             </h2>
           </div>
         }
@@ -618,7 +618,7 @@ export default function Maya() {
                     <div className="text-center py-12">
                       <div className="w-16 h-16 bg-white mx-auto mb-6 overflow-hidden border border-gray-200">
                         <img 
-                          src={SandraImages.editorial.thinking}
+                          src="https://i.postimg.cc/sgmtqFrQ/out-0-1.webp"
                           alt="Maya"
                           className="w-full h-full object-cover object-center top"
                         />
@@ -627,12 +627,29 @@ export default function Maya() {
                         Hey {user?.firstName || 'gorgeous'}!
                       </h4>
                       <p className="text-sm text-[#666666] mb-6 max-w-md mx-auto leading-relaxed">
-                        I'm Maya, your personal celebrity photographer. Tell me what kind of photos you want to create and I'll help you plan the perfect shoot.
+                        I'm Maya - your warmest, most fashionable best friend who happens to style A-listers! Choose a trending style to get started:
                       </p>
-                      <div className="space-y-2 text-xs text-[#666666] max-w-sm mx-auto">
-                        <div>"I want editorial portraits like Vogue"</div>
-                        <div>"Create lifestyle photos for my business"</div>
-                        <div>"I need professional headshots"</div>
+                      <div className="space-y-3 text-xs text-[#666666] max-w-sm mx-auto">
+                        <div className="p-3 bg-white border border-gray-100 hover:border-gray-200 transition-colors cursor-pointer" 
+                             onClick={() => setInput("Street Fashion Shoot - Urban cool with quiet luxury touches")}>
+                          <span className="font-medium">Street Fashion Shoot</span> - Urban cool with quiet luxury
+                        </div>
+                        <div className="p-3 bg-white border border-gray-100 hover:border-gray-200 transition-colors cursor-pointer"
+                             onClick={() => setInput("Golden Hour Portrait - Soft romantic lighting for magazine glow")}>
+                          <span className="font-medium">Golden Hour Portrait</span> - Soft romantic lighting
+                        </div>
+                        <div className="p-3 bg-white border border-gray-100 hover:border-gray-200 transition-colors cursor-pointer"
+                             onClick={() => setInput("Scandinavian Nature - Clean minimal vibes with natural beauty")}>
+                          <span className="font-medium">Scandinavian Nature</span> - Clean minimal vibes
+                        </div>
+                        <div className="p-3 bg-white border border-gray-100 hover:border-gray-200 transition-colors cursor-pointer"
+                             onClick={() => setInput("Close-Up Elegance - Editorial portraits that capture essence")}>
+                          <span className="font-medium">Close-Up Elegance</span> - Editorial portraits
+                        </div>
+                        <div className="p-3 bg-white border border-gray-100 hover:border-gray-200 transition-colors cursor-pointer"
+                             onClick={() => setInput("Mob Wife Aesthetic - Oversized power pieces with dramatic flair")}>
+                          <span className="font-medium">Mob Wife Aesthetic</span> - Oversized power pieces
+                        </div>
                       </div>
                     </div>
                   )}
