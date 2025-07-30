@@ -223,6 +223,21 @@ Sandra's revolutionary AI-powered business management system with specialized ag
 - **Full Codebase Access**: All agents can assist with development, optimization, and feature implementation
 - **Deployment Architecture**: Replit hosting infrastructure (NOT Vercel)
 
+## ✅ INDIVIDUAL USER MODEL ARCHITECTURE CONFIRMED (January 30, 2025)
+
+**CRITICAL ARCHITECTURAL CLARIFICATION:**
+- **INDIVIDUAL USER MODELS ONLY**: Each user has their own complete trained FLUX model
+- **Format**: `sandrasocial/{userId}-selfie-lora:{versionId}` (NO shared models, NO base model + LoRA approach)
+- **Complete User Isolation**: Zero cross-contamination between users
+- **Training Architecture**: Uses `ostris/flux-dev-lora-trainer:26dce37af90b9d997eeb970d92e47de3064d46c300504ae376c75bef6a9022d2`
+- **Database Storage**: `replicate_model_id` + `replicate_version_id` for each user's individual model
+- **Trigger Word**: `user{userId}` format for personalization (e.g., `user42585527`)
+
+**Maya Generation Fixed:**
+- Updated Maya API endpoint to use correct individual user model instead of incorrect LoRA approach
+- Fixed Maya language to use "photoshoot" terminology instead of technical "prompt" language
+- Corrected frontend image preview system to handle immediate completion from backend polling
+
 ## Sandra's Admin Command Center - COMPLETELY REDESIGNED (July 18, 2025)
 
 **LUXURY MINIMALIST ADMIN DASHBOARD COMPLETE:**
