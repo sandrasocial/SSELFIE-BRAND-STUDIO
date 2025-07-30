@@ -8,8 +8,8 @@ import { Link } from 'wouter';
 const steps = [
   {
     number: "01",
-    title: "Start free or choose Studio",
-    description: "FREE tier: 5 AI images to test the magic. SSELFIE Studio ($47/month): 100 AI images + MAYA celebrity stylist + VICTORIA brand strategist + full ecosystem.",
+    title: "Choose your plan",
+    description: "Basic (€29/month): Personal AI model + 30 photos + Maya AI photographer. Full Access (€67/month): Everything in Basic + 100 photos + Victoria website builder + luxury flatlay library.",
     image: SandraImages.editorial.phone2
   },
   {
@@ -40,8 +40,8 @@ const steps = [
 
 const faqs = [
   {
-    question: "What's the difference between FREE and Studio?",
-    answer: "FREE: 5 AI images to test the magic + basic chat with MAYA & VICTORIA. SSELFIE Studio ($47/month): 100 AI images + full ecosystem + luxury templates + custom domains."
+    question: "What's the difference between Basic and Full Access?",
+    answer: "Basic (€29/month): Personal AI model + 30 photos + Maya AI photographer. Full Access (€67/month): Everything in Basic + 100 photos + Victoria website builder + luxury flatlay library + all future features."
   },
   {
     question: "Do I need to be tech-savvy?",
@@ -60,8 +60,8 @@ const faqs = [
     answer: "MAYA is your celebrity stylist/photographer who creates editorial images. VICTORIA is your brand strategist who builds complete websites. Both are AI agents trained on Sandra's expertise."
   },
   {
-    question: "Can I upgrade from FREE to Studio later?",
-    answer: "Absolutely. Start free, upgrade to Studio anytime when you're ready for the full ecosystem and 100 monthly images."
+    question: "Can I upgrade from Basic to Full Access later?",
+    answer: "Absolutely. Start with Basic, upgrade to Full Access anytime when you're ready for Victoria's website builder and the complete ecosystem."
   }
 ];
 
@@ -131,7 +131,7 @@ export default function HowItWorksPage() {
         {
           "@type": "HowToStep",
           "name": "Choose Your Plan",
-          "text": "Start with FREE (5 AI images) or SSELFIE Studio ($47/month) for full ecosystem",
+          "text": "Start with Basic (€29/month) or Full Access (€67/month) for complete ecosystem",
           "url": "https://sselfie.ai/pricing"
         },
         {
