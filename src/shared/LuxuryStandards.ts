@@ -1,17 +1,19 @@
 export const LUXURY_STANDARDS = {
-  // Visual standards
+  // ARIA'S EXCLUSIVE EDITORIAL LUXURY STANDARDS
+  // Pure editorial sophistication - black, white, editorial gray only
   typography: {
     fontFamily: 'Times New Roman, serif',
     headingSize: '2.5rem',
     bodySize: '1.125rem',
-    lineHeight: 1.8
+    lineHeight: 1.8,
+    letterSpacing: '0.025em'
   },
   
   colors: {
-    primary: '#C0B283', // Luxury gold
-    secondary: '#373737', // Rich charcoal
-    accent: '#DCD0C0', // Warm taupe
-    background: '#F4F4F4' // Soft white
+    primary: '#0a0a0a', // Editorial black - pure sophistication
+    secondary: '#ffffff', // Gallery white - pristine clarity
+    accent: '#f5f5f5', // Editorial gray - magazine luxury
+    background: '#ffffff' // Pure white canvas
   },
 
   // Animation standards  
