@@ -861,6 +861,79 @@ Remember: You are the MEMBER experience Victoria - provide website building guid
     }
   });
 
+  // Admin agent chat bypass endpoint for consulting agents
+  app.post('/api/admin/agent-chat-bypass', async (req: any, res) => {
+    try {
+      console.log('🔄 ADMIN AGENT CHAT BYPASS: Processing request');
+      
+      // Admin authentication
+      const adminToken = req.headers['x-admin-token'];
+      const isAuthenticated = req.isAuthenticated?.() && (req.user as any)?.claims?.email === 'ssa@ssasocial.com';
+      
+      if (!isAuthenticated && adminToken !== 'sandra-admin-2025') {
+        return res.status(401).json({ 
+          success: false, 
+          message: 'Admin access required' 
+        });
+      }
+      
+      const { agentId, message, fileEditMode = true, conversationId } = req.body;
+      
+      if (!agentId || !message?.trim()) {
+        return res.status(400).json({
+          success: false,
+          message: 'Agent ID and message are required'
+        });
+      }
+      
+      console.log(`🤖 ADMIN AGENT: ${agentId} - Processing message with file edit mode: ${fileEditMode}`);
+      
+      // Get agent personality from consulting system
+      const { CONSULTING_AGENT_PERSONALITIES } = await import('./agent-personalities-consulting');
+      const agentConfig = CONSULTING_AGENT_PERSONALITIES[agentId];
+      
+      if (!agentConfig) {
+        return res.status(404).json({
+          success: false,
+          message: `Agent ${agentId} not found in consulting system`
+        });
+      }
+      
+      // Use Sandra's admin user ID
+      const userId = '42585527';
+      
+      // Generate conversation ID if not provided
+      const finalConversationId = conversationId || `admin_${agentId}_${Date.now()}`;
+      
+      const response = await claudeApiService.sendMessage(
+        userId,
+        agentId,
+        finalConversationId,
+        message,
+        agentConfig.systemPrompt,
+        agentConfig.allowedTools,
+        fileEditMode
+      );
+      
+      console.log(`✅ ADMIN AGENT ${agentId}: Response generated successfully`);
+      
+      res.json({
+        success: true,
+        response: response,
+        agentName: agentConfig.name,
+        conversationId: finalConversationId
+      });
+      
+    } catch (error: any) {
+      console.error('❌ ADMIN AGENT CHAT BYPASS ERROR:', error);
+      res.status(500).json({
+        success: false,
+        message: 'Admin agent chat failed',
+        error: error?.message || 'Unknown error'
+      });
+    }
+  });
+
   // Claude conversation management endpoints
   app.post('/api/claude/conversation/new', async (req, res) => {
     try {
