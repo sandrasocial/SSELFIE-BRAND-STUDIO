@@ -1,11 +1,11 @@
 import React, { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { useAuth } from '@/hooks/useAuth';
+import { useAuth } from '@/hooks/use-auth';
 import { apiRequest } from '@/lib/queryClient';
 import { Heart, Send, Loader2 } from 'lucide-react';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
-import { SandraImages } from '@/data/sandra-images';
+import { SandraImages } from '@/lib/sandra-images';
 
 interface MayaChatMessage {
   id: number;
