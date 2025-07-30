@@ -6,6 +6,7 @@ import { AlertCircle, Download, Users, Mail, MessageSquare } from 'lucide-react'
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { useToast } from '@/hooks/use-toast';
 import { apiRequest } from '@/lib/queryClient';
+import { ManyChatPSIDUploader } from '@/components/admin/ManyChatPSIDUploader';
 
 interface ImportResult {
   success: boolean;
@@ -27,6 +28,7 @@ interface ImportResult {
 export default function AdminSubscriberImport() {
   const [importing, setImporting] = useState(false);
   const [importResult, setImportResult] = useState<ImportResult | null>(null);
+  const [showManyChatUploader, setShowManyChatUploader] = useState(false);
   const { toast } = useToast();
 
   const handleFlodeskImport = async () => {
@@ -48,18 +50,19 @@ export default function AdminSubscriberImport() {
     }
   };
 
-  const handleManyChatImport = async () => {
+  const handleManyChatPSIDList = async (psids: string[]) => {
     setImporting(true);
     try {
-      const response = await apiRequest('/api/subscribers/manychat/import', 'POST', {});
+      const response = await apiRequest('/api/subscribers/manychat/import-psids', 'POST', { psids });
       toast({
         title: "ManyChat Import Successful",
-        description: `Imported ${response.imported} subscribers from ManyChat`,
+        description: `Imported ${response.imported} subscribers from ${psids.length} PSIDs`,
       });
+      setShowManyChatUploader(false);
     } catch (error) {
       toast({
         title: "ManyChat Import Failed", 
-        description: error instanceof Error ? error.message : "Failed to import from ManyChat",
+        description: error instanceof Error ? error.message : "Failed to import ManyChat subscribers",
         variant: "destructive",
       });
     } finally {
@@ -146,13 +149,19 @@ export default function AdminSubscriberImport() {
               </CardDescription>
             </CardHeader>
             <CardContent>
+              <Alert className="mb-4">
+                <AlertCircle className="h-4 w-4" />
+                <AlertDescription>
+                  ManyChat requires manual PSID export first due to platform limitations
+                </AlertDescription>
+              </Alert>
               <Button 
-                onClick={handleManyChatImport} 
+                onClick={() => setShowManyChatUploader(true)} 
                 disabled={importing}
                 className="w-full"
                 variant="outline"
               >
-                {importing ? "Importing..." : "Import from ManyChat"}
+                {importing ? 'Processing...' : 'Start ManyChat Import Process'}
               </Button>
             </CardContent>
           </Card>
@@ -187,6 +196,26 @@ export default function AdminSubscriberImport() {
             Contact support if you need help setting up the integration.
           </AlertDescription>
         </Alert>
+
+        {/* ManyChat PSID Uploader */}
+        {showManyChatUploader && (
+          <Card className="mb-8">
+            <CardHeader>
+              <CardTitle>ManyChat Import Process</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <ManyChatPSIDUploader onPSIDListReady={handleManyChatPSIDList} />
+              <div className="mt-4 text-center">
+                <Button 
+                  variant="outline" 
+                  onClick={() => setShowManyChatUploader(false)}
+                >
+                  Cancel Import Process
+                </Button>
+              </div>
+            </CardContent>
+          </Card>
+        )}
 
         {/* Import Results */}
         {importResult && (
