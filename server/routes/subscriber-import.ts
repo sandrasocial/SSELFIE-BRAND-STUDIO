@@ -5,6 +5,7 @@ import { Router } from 'express';
 import { isAuthenticated } from '../replitAuth';
 import FlodeskImportService from '../services/flodesk-import';
 import { ManyChatImportService } from '../services/manychat-import';
+import { randomUUID } from 'crypto';
 import { storage } from '../storage';
 
 const router = Router();
@@ -37,7 +38,20 @@ router.post('/flodesk/import', isAuthenticated, isAdmin, async (req, res) => {
       try {
         const [inserted] = await db
           .insert(importedSubscribers)
-          .values(subscriber)
+          .values({
+            id: randomUUID(),
+            email: subscriber.email,
+            firstName: subscriber.firstName,
+            lastName: subscriber.lastName,
+            source: subscriber.source,
+            originalId: subscriber.originalId || subscriber.email,
+            status: subscriber.status,
+            tags: subscriber.tags,
+            customFields: subscriber.customFields,
+            importedAt: new Date(),
+            createdAt: new Date(),
+            updatedAt: new Date(),
+          })
           .returning();
         
         insertedSubscribers.push(inserted);
