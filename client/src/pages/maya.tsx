@@ -365,6 +365,20 @@ export default function Maya() {
       // Handle successful response
       if (data.success) {
         
+        // Check if images are already available (immediate completion)
+        if (data.images && data.images.length > 0) {
+          console.log('✅ Maya: Images completed immediately!', data.images);
+          setGeneratedImages(data.images);
+          setGenerationProgress(100);
+          setIsGenerating(false);
+          
+          toast({
+            title: "Photoshoot Complete!",
+            description: "Your stunning photos are ready to view!",
+          });
+          return;
+        }
+        
         // Check if it's a model validation error
         if (data.requiresTraining) {
           toast({
@@ -378,19 +392,19 @@ export default function Maya() {
           return;
         }
         
+      } else {
         throw new Error(data.error || 'Failed to generate images');
       }
       
-      if (data.success && data.imageId) {
-        console.log('✅ Maya: Generation started successfully, tracking ID:', data.imageId);
-        setCurrentTrackerId(data.imageId);
+      if (data.success && data.predictionId) {
+        console.log('✅ Maya: Generation started successfully, prediction ID:', data.predictionId);
         
-        // Start polling tracker for completion
-        pollForTrackerCompletion(data.imageId);
+        // Maya's backend handles polling automatically and returns images when complete
+        // No need for frontend polling since backend already waits for completion
         
         toast({
-          title: "Maya is creating your photos",
-          description: "Your images are generating - watch the preview appear below!",
+          title: "Maya is creating your photoshoot",
+          description: "Your editorial photos are generating...",
         });
       }
     } catch (error) {
