@@ -90,10 +90,10 @@ export function WebsiteWizard({ onComplete }: WebsiteWizardProps) {
   };
 
   const stepTitles = [
-    'Tell Me About Your Business',
-    'Your Brand & Dream Clients',
-    'Fun Features & Your Message',
-    'Let\'s Make This Happen!'
+    'Tell Me About Your Personal Brand',
+    'Your Brand & Ideal Clients',
+    'Essential Features & Your Message',
+    'Review & Create Your Website'
   ];
 
   return (
@@ -170,13 +170,13 @@ export function WebsiteWizard({ onComplete }: WebsiteWizardProps) {
                 <div>
                   <Label htmlFor="businessName" className="text-lg font-light mb-4 block" 
                          style={{ fontFamily: 'Times New Roman, serif', color: '#0a0a0a' }}>
-                    What is your business called?
+                    What is your Personal Brand called?
                   </Label>
                   <Input
                     id="businessName"
                     value={formData.businessName || ''}
                     onChange={(e) => setFormData(prev => ({ ...prev, businessName: e.target.value }))}
-                    placeholder="Your business name"
+                    placeholder="Your Personal Brand name"
                     className="mt-3 text-lg border-0 border-b-2 border-gray-200 rounded-none px-0 py-4 focus:ring-0 focus:border-black transition-colors duration-300"
                     style={{ fontFamily: 'Times New Roman, serif' }}
                   />
@@ -184,13 +184,13 @@ export function WebsiteWizard({ onComplete }: WebsiteWizardProps) {
                 <div>
                   <Label htmlFor="businessDescription" className="text-lg font-light mb-4 block" 
                          style={{ fontFamily: 'Times New Roman, serif', color: '#0a0a0a' }}>
-                    Describe your business and what you offer
+                    Tell me about your Personal Brand and what you offer
                   </Label>
                   <Textarea
                     id="businessDescription"
                     value={formData.businessDescription || ''}
                     onChange={(e) => setFormData(prev => ({ ...prev, businessDescription: e.target.value }))}
-                    placeholder="Tell us about your services, mission, and what makes you unique..."
+                    placeholder="Share your services, mission, and what makes your Personal Brand unique..."
                     className="mt-3 text-lg border-0 border-b-2 border-gray-200 rounded-none px-0 py-4 focus:ring-0 focus:border-black transition-colors duration-300 resize-none"
                     style={{ fontFamily: 'Times New Roman, serif' }}
                     rows={4}
@@ -199,11 +199,11 @@ export function WebsiteWizard({ onComplete }: WebsiteWizardProps) {
                 <div>
                   <Label htmlFor="businessType" className="text-lg font-light mb-4 block" 
                          style={{ fontFamily: 'Times New Roman, serif', color: '#0a0a0a' }}>
-                    What type of business is this?
+                    What type of Personal Brand do you have?
                   </Label>
                   <Select onValueChange={(value) => setFormData(prev => ({ ...prev, businessType: value }))}>
                     <SelectTrigger className="mt-3 text-lg border-0 border-b-2 border-gray-200 rounded-none px-0 py-4 focus:ring-0 focus:border-black transition-colors duration-300">
-                      <SelectValue placeholder="Select your business category" />
+                      <SelectValue placeholder="Select your Personal Brand category" />
                     </SelectTrigger>
                     <SelectContent>
                       {businessTypes.map((type) => (
@@ -218,68 +218,84 @@ export function WebsiteWizard({ onComplete }: WebsiteWizardProps) {
             )}
 
             {currentStep === 2 && (
-          <div className="space-y-6">
-            <div>
-              <Label htmlFor="brandPersonality">What's your brand's personality?</Label>
-              <Select onValueChange={(value) => setFormData(prev => ({ ...prev, brandPersonality: value }))}>
-                <SelectTrigger className="mt-2">
-                  <SelectValue placeholder="How do you want to show up in the world?" />
-                </SelectTrigger>
-                <SelectContent>
-                  {brandPersonalities.map((personality) => (
-                    <SelectItem key={personality} value={personality}>
-                      {personality.charAt(0).toUpperCase() + personality.slice(1)}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </div>
-            <div>
-              <Label htmlFor="targetAudience">Who are your dream clients?</Label>
-              <Textarea
-                id="targetAudience"
-                value={formData.targetAudience || ''}
-                onChange={(e) => setFormData(prev => ({ ...prev, targetAudience: e.target.value }))}
-                placeholder="Tell me about the amazing people you love working with!"
-                className="mt-2"
-                rows={3}
-              />
-            </div>
-          </div>
-        )}
-
-        {currentStep === 3 && (
-          <div className="space-y-6">
-            <div>
-              <Label>What amazing features should we add to make your site shine?</Label>
-              <div className="grid grid-cols-2 gap-4 mt-4">
-                {availableFeatures.map((feature) => (
-                  <div key={feature} className="flex items-center space-x-2">
-                    <Checkbox
-                      id={feature}
-                      checked={formData.keyFeatures?.includes(feature) || false}
-                      onChange={() => handleFeatureToggle(feature)}
-                    />
-                    <Label htmlFor={feature} className="text-sm">
-                      {feature}
-                    </Label>
-                  </div>
-                ))}
+              <div className="space-y-8">
+                <div>
+                  <Label htmlFor="brandPersonality" className="text-lg font-light mb-4 block" 
+                         style={{ fontFamily: 'Times New Roman, serif', color: '#0a0a0a' }}>
+                    What is your Personal Brand's personality?
+                  </Label>
+                  <Select onValueChange={(value) => setFormData(prev => ({ ...prev, brandPersonality: value }))}>
+                    <SelectTrigger className="mt-3 text-lg border-0 border-b-2 border-gray-200 rounded-none px-0 py-4 focus:ring-0 focus:border-black transition-colors duration-300">
+                      <SelectValue placeholder="How do you want to show up professionally?" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {brandPersonalities.map((personality) => (
+                        <SelectItem key={personality} value={personality}>
+                          {personality.charAt(0).toUpperCase() + personality.slice(1)}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+                <div>
+                  <Label htmlFor="targetAudience" className="text-lg font-light mb-4 block" 
+                         style={{ fontFamily: 'Times New Roman, serif', color: '#0a0a0a' }}>
+                    Who are your ideal clients?
+                  </Label>
+                  <Textarea
+                    id="targetAudience"
+                    value={formData.targetAudience || ''}
+                    onChange={(e) => setFormData(prev => ({ ...prev, targetAudience: e.target.value }))}
+                    placeholder="Describe the clients you love working with and who need your expertise..."
+                    className="mt-3 text-lg border-0 border-b-2 border-gray-200 rounded-none px-0 py-4 focus:ring-0 focus:border-black transition-colors duration-300 resize-none"
+                    style={{ fontFamily: 'Times New Roman, serif' }}
+                    rows={4}
+                  />
+                </div>
               </div>
-            </div>
-            <div>
-              <Label htmlFor="contentStrategy">What's your heart-centered message?</Label>
-              <Textarea
-                id="contentStrategy"
-                value={formData.contentStrategy || ''}
-                onChange={(e) => setFormData(prev => ({ ...prev, contentStrategy: e.target.value }))}
-                placeholder="What do you want your dream clients to feel when they visit your site?"
-                className="mt-2"
-                rows={4}
-              />
-            </div>
-          </div>
-        )}
+            )}
+
+            {currentStep === 3 && (
+              <div className="space-y-8">
+                <div>
+                  <Label className="text-lg font-light mb-4 block" 
+                         style={{ fontFamily: 'Times New Roman, serif', color: '#0a0a0a' }}>
+                    What essential features should we include on your website?
+                  </Label>
+                  <div className="grid grid-cols-2 gap-6 mt-6">
+                    {availableFeatures.map((feature) => (
+                      <div key={feature} className="flex items-center space-x-3">
+                        <Checkbox
+                          id={feature}
+                          checked={formData.keyFeatures?.includes(feature) || false}
+                          onChange={() => handleFeatureToggle(feature)}
+                          className="border-2 border-gray-300"
+                        />
+                        <Label htmlFor={feature} className="text-base font-light" 
+                               style={{ fontFamily: 'Times New Roman, serif' }}>
+                          {feature}
+                        </Label>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+                <div>
+                  <Label htmlFor="contentStrategy" className="text-lg font-light mb-4 block" 
+                         style={{ fontFamily: 'Times New Roman, serif', color: '#0a0a0a' }}>
+                    What is your core message and value proposition?
+                  </Label>
+                  <Textarea
+                    id="contentStrategy"
+                    value={formData.contentStrategy || ''}
+                    onChange={(e) => setFormData(prev => ({ ...prev, contentStrategy: e.target.value }))}
+                    placeholder="What do you want your ideal clients to understand and feel when they visit your website?"
+                    className="mt-3 text-lg border-0 border-b-2 border-gray-200 rounded-none px-0 py-4 focus:ring-0 focus:border-black transition-colors duration-300 resize-none"
+                    style={{ fontFamily: 'Times New Roman, serif' }}
+                    rows={4}
+                  />
+                </div>
+              </div>
+            )}
 
         {currentStep === 4 && (
           <div className="space-y-6">
