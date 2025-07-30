@@ -661,6 +661,33 @@ Remember: You are the MEMBER experience Victoria - provide website building guid
     }
   });
 
+  // Gallery images endpoint (alias for ai-images for compatibility)
+  app.get('/api/gallery-images', isAuthenticated, async (req: any, res) => {
+    try {
+      const authUserId = req.user.claims.sub;
+      const claims = req.user.claims;
+      
+      // Get the correct database user ID
+      let user = await storage.getUser(authUserId);
+      if (!user && claims.email) {
+        user = await storage.getUserByEmail(claims.email);
+      }
+      
+      if (!user) {
+        return res.status(404).json({ error: 'User not found' });
+      }
+      
+      console.log(`🖼️ Fetching gallery images for user: ${user.id}`);
+      const aiImages = await storage.getUserAIImages(user.id);
+      console.log(`✅ Found ${aiImages.length} gallery images for user ${user.id}`);
+      
+      res.json(aiImages);
+    } catch (error) {
+      console.error("Error fetching gallery images:", error);
+      res.status(500).json({ message: "Failed to fetch gallery images" });
+    }
+  });
+
   // Auth user endpoint - Production ready
   app.get('/api/auth/user', isAuthenticated, async (req: any, res) => {
     try {
