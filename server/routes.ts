@@ -489,55 +489,29 @@ Remember: You are the MEMBER experience Victoria - provide website building guid
         throw new Error(`Replicate API error: ${response.status} - ${errorText}`);
       }
 
-      const replicateResult = await response.json();
-      console.log('✅ Maya: Prediction started:', replicateResult.id);
-      
-      // Poll for completion and return images directly
-      let finalResult = replicateResult;
-      let attempts = 0;
-      const maxAttempts = 60; // 2 minutes maximum
-      
-      while ((finalResult.status === 'starting' || finalResult.status === 'processing') && attempts < maxAttempts) {
-        await new Promise(resolve => setTimeout(resolve, 2000)); // Wait 2 seconds
-        
-        const statusResponse = await fetch(`https://api.replicate.com/v1/predictions/${finalResult.id}`, {
-          headers: { 'Authorization': `Token ${process.env.REPLICATE_API_TOKEN}` }
-        });
-        
-        if (statusResponse.ok) {
-          finalResult = await statusResponse.json();
-          console.log(`🎬 Maya: Status check ${attempts + 1}: ${finalResult.status}`);
-        }
-        
-        attempts++;
-      }
+      const prediction = await response.json();
+      console.log('✅ Maya: Prediction started:', prediction.id);
 
-      if (finalResult.status === 'succeeded' && finalResult.output) {
-        const images = Array.isArray(finalResult.output) ? finalResult.output : [finalResult.output];
-        console.log('✅ Maya: Generation completed with', images.length, 'images');
-        
-        res.json({
-          success: true,
-          images: images,
-          message: "✨ Your stunning editorial photos are ready! Looking absolutely gorgeous!",
-          predictionId: finalResult.id
-        });
-      } else if (finalResult.status === 'failed') {
-        console.error('🚨 Maya: Generation failed:', finalResult.error);
-        res.status(500).json({
-          success: false,
-          message: "Image generation failed",
-          error: finalResult.error
-        });
-      } else {
-        console.log('⏱️ Maya: Generation timeout after', attempts, 'attempts');
-        res.json({
-          success: true,
-          images: [],
-          message: "✨ Your images are still generating! They'll appear shortly...",
-          predictionId: finalResult.id
-        });
-      }
+      // Create generation tracker for live progress monitoring (like working system from 2 days ago)
+      const trackerData: InsertGenerationTracker = {
+        userId,
+        predictionId: prediction.id,
+        prompt: finalPrompt,
+        style: 'Maya Editorial',
+        status: 'processing'
+      };
+      
+      const savedTracker = await storage.saveGenerationTracker(trackerData);
+      console.log('📊 Maya: Created tracker:', savedTracker.id);
+
+      // Return immediately with trackerId for live frontend polling (working pattern from 2 days ago)
+      res.json({
+        success: true,
+        trackerId: savedTracker.id,
+        predictionId: prediction.id,
+        message: "✨ Maya is creating your stunning editorial photos! Watch the magic happen...",
+        status: 'processing'
+      });
       
     } catch (error) {
       console.error('❌ Maya generation error:', error);
@@ -561,6 +535,72 @@ Remember: You are the MEMBER experience Victoria - provide website building guid
   const claudeApiRoutes = await import('./routes/claude-api-routes');
   app.use('/api/claude', claudeApiRoutes.default);
   
+  // Generation tracker polling endpoint for live progress
+  app.get('/api/generation-tracker/:trackerId', isAuthenticated, async (req: any, res) => {
+    try {
+      const { trackerId } = req.params;
+      const tracker = await storage.getGenerationTracker(parseInt(trackerId));
+      
+      if (!tracker) {
+        return res.status(404).json({ error: 'Generation tracker not found' });
+      }
+      
+      // Verify user owns this tracker
+      const authUserId = req.user.claims.sub;
+      const claims = req.user.claims;
+      
+      // Get the correct database user ID
+      let user = await storage.getUser(authUserId);
+      if (!user && claims.email) {
+        user = await storage.getUserByEmail(claims.email);
+      }
+      
+      if (!user) {
+        return res.status(404).json({ error: 'User not found' });
+      }
+      
+      // Check if tracker belongs to this user
+      if (tracker.userId !== user.id) {
+        return res.status(403).json({ error: 'Unauthorized access to tracker' });
+      }
+      
+      // Parse URLs for preview
+      let imageUrls = [];
+      let errorMessage = null;
+      
+      try {
+        if (tracker.imageUrls) {
+          const parsed = JSON.parse(tracker.imageUrls);
+          if (tracker.status === 'failed' && Array.isArray(parsed) && parsed.length > 0 && parsed[0].includes('Error:')) {
+            errorMessage = parsed[0].replace('Error: ', '');
+            imageUrls = [];
+          } else {
+            imageUrls = parsed;
+          }
+        }
+      } catch {
+        imageUrls = [];
+      }
+      
+      console.log(`🎬 TRACKER ${trackerId}: Status=${tracker.status}, URLs=${imageUrls.length}, User=${user.id}`);
+      
+      res.json({
+        id: tracker.id,
+        status: tracker.status,
+        imageUrls,
+        errorMessage,
+        predictionId: tracker.predictionId,
+        prompt: tracker.prompt,
+        style: tracker.style,
+        createdAt: tracker.createdAt
+      });
+      
+    } catch (error) {
+      console.error('Error fetching generation tracker:', error);
+      res.status(500).json({ error: 'Failed to fetch tracker status' });
+    }
+  });
+
   // Auth user endpoint - Production ready
   app.get('/api/auth/user', isAuthenticated, async (req: any, res) => {
     try {

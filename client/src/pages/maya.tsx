@@ -378,6 +378,21 @@ export default function Maya() {
           });
           return;
         }
+
+        // Start live progress tracking with trackerId (working pattern from 2 days ago)
+        if (data.trackerId) {
+          console.log('🎬 Maya: Starting live progress tracking with tracker:', data.trackerId);
+          setCurrentTrackerId(data.trackerId);
+          
+          toast({
+            title: "Maya is creating your photoshoot",
+            description: "Watch your editorial photos generate in real-time!",
+          });
+          
+          // Start polling for completion
+          pollForTrackerCompletion(data.trackerId);
+          return;
+        }
         
         // Check if it's a model validation error
         if (data.requiresTraining) {
@@ -394,18 +409,6 @@ export default function Maya() {
         
       } else {
         throw new Error(data.error || 'Failed to generate images');
-      }
-      
-      if (data.success && data.predictionId) {
-        console.log('✅ Maya: Generation started successfully, prediction ID:', data.predictionId);
-        
-        // Maya's backend handles polling automatically and returns images when complete
-        // No need for frontend polling since backend already waits for completion
-        
-        toast({
-          title: "Maya is creating your photoshoot",
-          description: "Your editorial photos are generating...",
-        });
       }
     } catch (error) {
       console.error('Error generating images:', error);
