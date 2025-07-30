@@ -228,12 +228,13 @@ Sandra's revolutionary AI-powered business management system with specialized ag
 **CRITICAL ARCHITECTURAL CLARIFICATION:**
 - **INDIVIDUAL USER LoRA WEIGHTS**: Each user has their own trained LoRA weights for the base FLUX model
 - **Base Model**: `black-forest-labs/flux-dev-lora` (shared base model for all users)
-- **LoRA Weights**: `sandrasocial/{userId}-selfie-lora-{timestamp}` (individual user weights)
+- **LoRA Weights**: `sandrasocial/{userId}-selfie-lora-{timestamp}:{versionId}` (individual user weights with version)
 - **LoRA Scale**: `1.1` for enhanced user likeness
 - **Complete User Isolation**: Zero cross-contamination between users' LoRA weights
 - **Training Architecture**: Uses `ostris/flux-dev-lora-trainer:26dce37af90b9d997eeb970d92e47de3064d46c300504ae376c75bef6a9022d2`
-- **Database Storage**: `replicate_model_id` stores user's individual LoRA weights path
+- **Database Storage**: `replicate_model_id` + `replicate_version_id` stores user's complete LoRA reference
 - **Trigger Word**: `user{userId}` format for personalization (e.g., `user42585527`)
+- **Example**: `sandrasocial/42585527-selfie-lora-1753201482760:80c29fa2e004372979eb32b55b99607de5174db5e98e806efb509788eaf2fd96`
 
 **Maya Generation Architecture Fixed:**
 - Updated Maya API endpoint to use correct FLUX LoRA architecture with base model + individual user LoRA weights
