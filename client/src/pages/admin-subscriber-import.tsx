@@ -171,7 +171,7 @@ export default function AdminSubscriberImport() {
               <Alert className="mb-4">
                 <AlertCircle className="h-4 w-4" />
                 <AlertDescription>
-                  <strong>Two Options:</strong> Manual contact export OR direct ManyChat API import (requires API token)
+                  <strong>Manual Export Required:</strong> ManyChat API doesn't support bulk subscriber lists. Use manual export method below.
                 </AlertDescription>
               </Alert>
               <div className="space-y-2">
@@ -189,7 +189,7 @@ export default function AdminSubscriberImport() {
                   className="w-full"
                   variant="default"
                 >
-                  {importing ? 'Importing...' : 'Direct API Import (Recommended)'}
+                  {importing ? 'Testing...' : 'Test API Connection'}
                 </Button>
               </div>
             </CardContent>
