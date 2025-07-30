@@ -49,11 +49,14 @@ export default function Workspace() {
     enabled: isAuthenticated
   });
 
-  // Check if user has premium access - Enhanced detection
-  const isPremiumUser = (subscription as any)?.plan === 'sselfie-studio' || 
-                       user?.plan === 'admin' || 
-                       user?.plan === 'sselfie-studio' ||
-                       (usage as any)?.plan === 'sselfie-studio';
+  // Check if user has full access (previously premium) - Enhanced detection
+  const hasFullAccess = (subscription as any)?.plan === 'full-access' || 
+                        (subscription as any)?.plan === 'sselfie-studio' || // Legacy plan support
+                        user?.plan === 'admin' || 
+                        user?.plan === 'full-access' ||
+                        user?.plan === 'sselfie-studio' || // Legacy plan support
+                        (usage as any)?.plan === 'full-access' ||
+                        (usage as any)?.plan === 'sselfie-studio'; // Legacy plan support
 
 
 
@@ -70,16 +73,16 @@ export default function Workspace() {
     }
     
     // Enhanced plan detection from multiple sources
-    const userPlan = user?.plan || (subscription as any)?.plan || usageData?.plan || 'free';
-    const isStudioUser = userPlan === 'sselfie-studio' || userPlan === 'admin';
+    const userPlan = user?.plan || (subscription as any)?.plan || usageData?.plan || 'images-only';
+    const hasFullAccessPlan = userPlan === 'full-access' || userPlan === 'sselfie-studio' || userPlan === 'admin';
     
     const used = usageData.monthlyUsed || 0;
-    const total = isStudioUser ? (usageData.monthlyAllowed || 100) : (usageData.monthlyAllowed || 6);
+    const total = hasFullAccessPlan ? (usageData.monthlyAllowed || 100) : (usageData.monthlyAllowed || 25);
     
     return {
       used,
       remaining: total - used,
-      plan: isStudioUser ? 'Studio' : 'Free'
+      plan: hasFullAccessPlan ? 'Full Access' : 'Images Only'
     };
   };
 
@@ -452,16 +455,16 @@ export default function Workspace() {
                   </div>
                 </div>
                 
-                {!isPremiumUser && (
+                {!hasFullAccess && (
                   <div className="mt-8 pt-8 border-t border-gray-200">
                     <p className="text-sm text-gray-600 mb-4 leading-relaxed">
-                      Want more photos and premium features? The Studio plan gives you 100 photos per month plus access to our flatlay library.
+                      Want more photos and full features? Full Access gives you 100 photos per month plus Maya AI chat and Victoria website builder.
                     </p>
                     <a
                       href="/pricing"
                       className="inline-block px-6 py-3 border border-black text-black text-xs uppercase tracking-wide hover:bg-black hover:text-white transition-all duration-300"
                     >
-                      Upgrade to Studio
+                      Upgrade to Full Access
                     </a>
                   </div>
                 )}

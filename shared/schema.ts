@@ -34,12 +34,12 @@ export const users = pgTable("users", {
   profileImageUrl: varchar("profile_image_url"),
   stripeCustomerId: varchar("stripe_customer_id"),
   stripeSubscriptionId: varchar("stripe_subscription_id"),
-  plan: varchar("plan").default("free"), // free, sselfie-studio
+  plan: varchar("plan").default("images-only"), // images-only, full-access
   role: varchar("role").default("user"), // user, admin, founder
-  monthlyGenerationLimit: integer("monthly_generation_limit").default(5), // 5 for free, 100 for paid, unlimited (-1) for admin
+  monthlyGenerationLimit: integer("monthly_generation_limit").default(25), // 25 for images-only, 100 for full-access, unlimited (-1) for admin
   generationsUsedThisMonth: integer("generations_used_this_month").default(0),
-  mayaAiAccess: boolean("maya_ai_access").default(true),
-  victoriaAiAccess: boolean("victoria_ai_access").default(false),
+  mayaAiAccess: boolean("maya_ai_access").default(false), // Only for full-access tier
+  victoriaAiAccess: boolean("victoria_ai_access").default(false), // Only for full-access tier
   createdAt: timestamp("created_at").defaultNow(),
   updatedAt: timestamp("updated_at").defaultNow(),
 });
@@ -478,7 +478,7 @@ export const insertBrandOnboardingSchema = createInsertSchema(brandOnboarding).o
 export const insertUserLandingPageSchema = createInsertSchema(userLandingPages).omit({ id: true, createdAt: true, updatedAt: true });
 export const insertMayaChatSchema = createInsertSchema(mayaChats).omit({ id: true, createdAt: true, updatedAt: true });
 export const insertMayaChatMessageSchema = createInsertSchema(mayaChatMessages).omit({ id: true, createdAt: true });
-export const insertGenerationTrackerSchema = createInsertSchema(generationTrackers).omit({ id: true, createdAt: true, completedAt: true });
+export const insertGenerationTrackerSchema = createInsertSchema(generationTrackers).omit({ id: true, createdAt: true });
 export const insertAgentConversationSchema = createInsertSchema(agentConversations).omit({ id: true, timestamp: true });
 
 // Claude API schemas
@@ -507,8 +507,7 @@ export type InsertGenerationTracker = z.infer<typeof insertGenerationTrackerSche
 export type UserProfile = typeof userProfiles.$inferSelect;
 export type InsertBrandOnboarding = z.infer<typeof insertBrandOnboardingSchema>;
 export type BrandOnboarding = typeof brandOnboarding.$inferSelect;
-export type Website = typeof websites.$inferSelect;
-export type InsertWebsite = z.infer<typeof insertWebsiteSchema>;
+// Website types already defined above at lines 750-751
 export type InsertUserProfile = z.infer<typeof insertUserProfileSchema>;
 export type InsertProject = z.infer<typeof insertProjectSchema>;
 

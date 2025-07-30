@@ -18,12 +18,12 @@ export default function Pricing() {
   // SEO Meta tags setup
   useEffect(() => {
     // Update page title
-    document.title = "Pricing - SSELFIE Studio | Start FREE or €67/month";
+    document.title = "Pricing - SSELFIE Studio | €29 Images or €67 Full Access";
     
     // Update meta description
     const metaDescription = document.querySelector('meta[name="description"]');
     if (metaDescription) {
-      metaDescription.setAttribute('content', 'Start FREE with 6 AI images/month or upgrade to SSELFIE Studio (€67/month) for 100 AI images and Maya AI chat.');
+      metaDescription.setAttribute('content', 'Choose your plan: Images Only (€29/month, 25 AI images) or Full Access (€67/month, 100 images + Maya & Victoria AI).');
     }
 
     // Update Open Graph tags
@@ -34,7 +34,7 @@ export default function Pricing() {
 
     const ogDescription = document.querySelector('meta[property="og:description"]');
     if (ogDescription) {
-      ogDescription.setAttribute('content', 'Choose your plan: FREE (6 AI images/month) or SSELFIE Studio (€67/month) for 100 AI images and full platform access.');
+      ogDescription.setAttribute('content', 'Choose your plan: Images Only (€29/month, 25 AI images) or Full Access (€67/month, 100 images + Maya & Victoria AI).');
     }
 
     const ogUrl = document.querySelector('meta[property="og:url"]');
@@ -45,12 +45,12 @@ export default function Pricing() {
     // Update Twitter Card tags
     const twitterTitle = document.querySelector('meta[property="twitter:title"]');
     if (twitterTitle) {
-      twitterTitle.setAttribute('content', 'SSELFIE Studio Pricing - Start FREE or €67/month');
+      twitterTitle.setAttribute('content', 'SSELFIE Studio Pricing - €29 Images or €67 Full Access');
     }
 
     const twitterDescription = document.querySelector('meta[property="twitter:description"]');
     if (twitterDescription) {
-      twitterDescription.setAttribute('content', 'AI personal branding platform. Start FREE with 6 images/month or upgrade to €67/month for 100 images and BUILD features.');
+      twitterDescription.setAttribute('content', 'AI personal branding platform. Choose Images Only (€29/month, 25 images) or Full Access (€67/month, 100 images + Maya & Victoria AI).');
     }
 
     // Add structured data for pricing
@@ -67,22 +67,22 @@ export default function Pricing() {
       "offers": [
         {
           "@type": "Offer",
-          "name": "FREE Plan",
-          "description": "6 AI images per month with Maya AI photographer chat",
-          "price": "0",
+          "name": "Images Only",
+          "description": "25 AI images per month with trained personal model",
+          "price": "29",
           "priceCurrency": "EUR",
           "availability": "https://schema.org/InStock",
-          "url": "https://sselfie.ai/pricing",
+          "url": "https://sselfie.ai/checkout?plan=images-only",
           "priceValidUntil": "2025-12-31"
         },
         {
           "@type": "Offer", 
-          "name": "SSELFIE Studio",
-          "description": "100 AI images, Maya AI chat, and BUILD workspace access",
+          "name": "Full Access",
+          "description": "100 AI images, Maya AI chat, Victoria website builder, and BUILD workspace",
           "price": "67",
           "priceCurrency": "EUR",
           "availability": "https://schema.org/InStock",
-          "url": "https://sselfie.ai/checkout",
+          "url": "https://sselfie.ai/checkout?plan=full-access",
           "priceValidUntil": "2025-12-31"
         }
       ],
@@ -122,15 +122,20 @@ export default function Pricing() {
   }, []);
 
   const handleGetStarted = (plan: string) => {
-    if (plan === 'free') {
-      setShowEmailModal(true);
+    if (plan === 'images-only') {
+      toast({
+        title: "Images Only Plan", 
+        description: "Redirecting to checkout for €29/month plan...",
+      });
+      localStorage.setItem('selectedPlan', 'images-only');
+      setLocation('/checkout?plan=images-only');
     } else {
       toast({
-        title: "SSELFIE Studio Premium", 
+        title: "Full Access Plan", 
         description: "Redirecting to checkout for €67/month luxury plan...",
       });
-      localStorage.setItem('selectedPlan', 'sselfie-studio-premium');
-      setLocation('/checkout');
+      localStorage.setItem('selectedPlan', 'full-access');
+      setLocation('/checkout?plan=full-access');
     }
   };
 
@@ -186,7 +191,7 @@ export default function Pricing() {
             <div className="w-16 h-px bg-[#B5B5B3] mx-auto mb-6 sm:mb-8"></div>
             <p className="text-base sm:text-lg md:text-xl text-gray-600 max-w-3xl mx-auto font-light leading-relaxed px-4"
                itemProp="description">
-              Look, you don't need to go all in on day one. Start free, test the magic, then upgrade when you're ready. Your call.
+              Choose what works for you: Images Only for instant AI photography, or Full Access for the complete business-building experience.
             </p>
           </div>
         </section>
@@ -198,47 +203,47 @@ export default function Pricing() {
           <div className="max-w-5xl mx-auto">
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6 sm:gap-8 md:gap-10 lg:gap-12">
               
-              {/* FREE Tier - Enhanced Mobile */}
+              {/* Images Only Tier */}
               <div className="bg-gray-50 p-6 sm:p-8 md:p-10 lg:p-12 text-center group hover:bg-black hover:text-white transition-all duration-500"
                    itemScope
                    itemType="https://schema.org/Offer">
                 <h3 className="font-serif text-xl sm:text-2xl md:text-3xl font-light mb-4 sm:mb-6"
-                    itemProp="name">Try SSELFIE</h3>
-                <div className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-light mb-6 sm:mb-8"
-                     itemProp="price">
-                  FREE<span className="text-sm sm:text-base md:text-lg text-gray-500 group-hover:text-white/60"></span>
+                    itemProp="name">Images Only</h3>
+                <div className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-light mb-6 sm:mb-8">
+                  <span itemProp="price">€29</span>
+                  <span className="text-sm sm:text-base md:text-lg text-gray-500 group-hover:text-white/60">/month</span>
                 </div>
                 
                 <div className="space-y-3 sm:space-y-4 mb-8 sm:mb-10 md:mb-12 text-left"
                      itemProp="description">
                   <div className="flex items-start">
                     <span className="text-black group-hover:text-white mr-3 flex-shrink-0">•</span>
-                    <span className="text-sm sm:text-base">6 AI images per month</span>
+                    <span className="text-sm sm:text-base">25 AI images per month</span>
                   </div>
                   <div className="flex items-start">
                     <span className="text-black group-hover:text-white mr-3 flex-shrink-0">•</span>
-                    <span className="text-sm sm:text-base">Maya AI photographer chat</span>
+                    <span className="text-sm sm:text-base">Trained personal AI model</span>
                   </div>
                   <div className="flex items-start">
                     <span className="text-black group-hover:text-white mr-3 flex-shrink-0">•</span>
-                    <span className="text-sm sm:text-base">Standard FLUX quality</span>
+                    <span className="text-sm sm:text-base">Professional FLUX quality</span>
                   </div>
                   <div className="flex items-start">
                     <span className="text-black group-hover:text-white mr-3 flex-shrink-0">•</span>
-                    <span className="text-sm sm:text-base">One AI model training</span>
+                    <span className="text-sm sm:text-base">Editorial photo collections</span>
                   </div>
                 </div>
                 
                 <button
-                  onClick={() => handleGetStarted('free')}
+                  onClick={() => handleGetStarted('images-only')}
                   className="w-full py-3 sm:py-4 border border-black group-hover:border-white text-black group-hover:text-white text-xs sm:text-sm uppercase tracking-[0.25em] sm:tracking-[0.3em] hover:bg-black hover:text-white group-hover:hover:bg-white group-hover:hover:text-black transition-all duration-300"
-                  aria-label="Start free SSELFIE plan with 5 AI images per month"
+                  aria-label="Get Images Only plan for €29 per month with 25 AI images"
                 >
-                  Start Free
+                  Get Images Only
                 </button>
               </div>
 
-              {/* SSELFIE Studio - Enhanced Mobile */}
+              {/* Full Access Tier */}
               <div className="bg-black text-white p-6 sm:p-8 md:p-10 lg:p-12 text-center relative"
                    itemScope
                    itemType="https://schema.org/Offer">
@@ -249,7 +254,7 @@ export default function Pricing() {
                 </div>
                 
                 <h3 className="font-serif text-xl sm:text-2xl md:text-3xl font-light mb-4 sm:mb-6 mt-2 sm:mt-0"
-                    itemProp="name">SSELFIE Studio Premium</h3>
+                    itemProp="name">Full Access</h3>
                 <div className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-light mb-6 sm:mb-8">
                   <span itemProp="price">€67</span>
                   <span className="text-sm sm:text-base md:text-lg text-gray-400">/month</span>
@@ -262,28 +267,28 @@ export default function Pricing() {
                   </div>
                   <div className="flex items-start">
                     <span className="text-white mr-3">•</span>
-                    <span className="text-sm">FLUX Pro luxury models</span>
-                  </div>
-                  <div className="flex items-start">
-                    <span className="text-white mr-3">•</span>
                     <span className="text-sm">Maya AI unlimited chat</span>
                   </div>
                   <div className="flex items-start">
                     <span className="text-white mr-3">•</span>
-                    <span className="text-sm">Premium training quality</span>
+                    <span className="text-sm">Victoria website builder</span>
                   </div>
                   <div className="flex items-start">
                     <span className="text-white mr-3">•</span>
-                    <span className="text-sm">Commercial usage rights</span>
+                    <span className="text-sm">BUILD workspace access</span>
+                  </div>
+                  <div className="flex items-start">
+                    <span className="text-white mr-3">•</span>
+                    <span className="text-sm">Premium FLUX Pro quality</span>
                   </div>
                 </div>
                 
                 <button
-                  onClick={() => handleGetStarted('sselfie-studio')}
+                  onClick={() => handleGetStarted('full-access')}
                   className="w-full py-3 sm:py-4 border border-white text-white text-xs sm:text-sm uppercase tracking-[0.25em] sm:tracking-[0.3em] hover:bg-white hover:text-black transition-all duration-300"
-                  aria-label="Get SSELFIE Studio Premium plan for €67 per month with 100 ultra-realistic AI images"
+                  aria-label="Get Full Access plan for €67 per month with 100 AI images, Maya & Victoria"
                 >
-                  Get Premium
+                  Get Full Access
                 </button>
               </div>
               
@@ -316,13 +321,13 @@ export default function Pricing() {
                    itemType="https://schema.org/Question">
                 <h3 className="font-serif text-lg sm:text-xl font-light text-black leading-tight"
                     itemProp="name">
-                  What's the difference between FREE and Premium?
+                  What's the difference between Images Only and Full Access?
                 </h3>
                 <div itemScope itemType="https://schema.org/Answer">
                   <p className="text-sm sm:text-base text-gray-600 font-light leading-relaxed"
                      itemProp="text">
-                    FREE: 6 AI images per month + Maya AI chat with standard FLUX quality. 
-                    Premium (€67/month): 100 ultra-realistic images with FLUX Pro luxury models + unlimited Maya AI chat.
+                    Images Only (€29/month): 25 AI images with your trained personal model. 
+                    Full Access (€67/month): 100 AI images + Maya AI chat + Victoria website builder + BUILD workspace.
                   </p>
                 </div>
               </div>
@@ -363,13 +368,12 @@ export default function Pricing() {
                    itemType="https://schema.org/Question">
                 <h3 className="font-serif text-lg sm:text-xl font-light text-black leading-tight"
                     itemProp="name">
-                  Can I upgrade from FREE to Premium later?
+                  Can I upgrade from Images Only to Full Access later?
                 </h3>
                 <div itemScope itemType="https://schema.org/Answer">
                   <p className="text-sm sm:text-base text-gray-600 font-light leading-relaxed"
                      itemProp="text">
-                    Absolutely. Start free, upgrade to Premium anytime when you're ready for ultra-realistic FLUX Pro quality 
-                    and 100 monthly images.
+                    Absolutely. Start with Images Only (€29/month), then upgrade to Full Access (€67/month) when you're ready for Maya AI, Victoria website builder, and BUILD workspace features.
                   </p>
                 </div>
               </div>

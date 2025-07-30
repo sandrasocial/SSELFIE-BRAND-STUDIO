@@ -36,7 +36,13 @@ const CheckoutForm = () => {
   const { toast } = useToast();
   const [, setLocation] = useLocation();
   const [loading, setLoading] = useState(false);
-  const [selectedPlan] = useState<string>('sselfie-studio');
+  const [selectedPlan] = useState<string>(() => {
+    // Check URL params and localStorage for plan selection
+    const urlParams = new URLSearchParams(window.location.search);
+    const urlPlan = urlParams.get('plan');
+    const storedPlan = localStorage.getItem('selectedPlan');
+    return urlPlan || storedPlan || 'full-access';
+  });
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
