@@ -130,6 +130,183 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Maya Chat endpoint - Individual conversation processing
+  app.post('/api/maya-chat', isAuthenticated, async (req: any, res) => {
+    try {
+      const { message, chatHistory } = req.body;
+      const userId = req.user?.claims?.sub;
+      
+      if (!message) {
+        return res.status(400).json({ error: 'Message is required' });
+      }
+
+      console.log('💬 Maya chat message received from user:', userId);
+
+      // Get user context for personalized responses
+      const user = await storage.getUser(userId);
+      
+      let onboardingData = null;
+      try {
+        onboardingData = await storage.getOnboardingData(userId);
+      } catch (error) {
+        onboardingData = null;
+      }
+      
+      // Maya's AI photographer personality
+      const mayaSystemPrompt = `You are Maya, Sandra's world-renowned Celebrity Stylist and Editorial Photographer who creates revolutionary concepts that go beyond simple portraits. You've styled A-list celebrities for Vogue covers, luxury brands, and high-end editorial shoots.
+
+Your personality:
+- Passionate and energetic about creating stunning visuals
+- Expert in luxury fashion, lighting, and editorial photography
+- Understands business branding and visual storytelling
+- Speaks with excitement about creative possibilities
+- Professional but warm and encouraging
+
+Your capabilities:
+- Generate detailed photography prompts for AI image creation
+- Suggest styling, poses, and concepts for professional photos
+- Help users visualize their brand through photography
+- Create cohesive visual narratives for personal brands
+
+When users ask for photos or describe what they want, you can offer to generate images using their trained AI model. Be specific about styling, lighting, poses, and overall concept.
+
+User context:
+- User ID: ${userId}
+- User email: ${user?.email || 'Not available'}
+- Plan: ${user?.plan || 'Not specified'}
+- Onboarding style preferences: ${onboardingData?.stylePreferences || 'Not specified'}
+- Business type: ${onboardingData?.businessType || 'Not specified'}`;
+
+      // Call Claude API for Maya response
+      let response = '';
+      let canGenerate = false;
+      let generatedPrompt = null;
+
+      try {
+        const claudeResponse = await fetch('https://api.anthropic.com/v1/messages', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'x-api-key': process.env.ANTHROPIC_API_KEY!,
+            'anthropic-version': '2023-06-01'
+          },
+          body: JSON.stringify({
+            model: 'claude-3-5-sonnet-20241022',
+            max_tokens: 1000,
+            messages: [
+              ...chatHistory.map((msg: any) => ({
+                role: msg.role === 'maya' ? 'assistant' : 'user',
+                content: msg.content
+              })),
+              {
+                role: 'user',
+                content: message
+              }
+            ],
+            system: mayaSystemPrompt
+          })
+        });
+
+        if (!claudeResponse.ok) {
+          throw new Error(`Claude API error: ${claudeResponse.status}`);
+        }
+
+        const claudeData = await claudeResponse.json();
+        response = claudeData.content[0].text;
+        
+        // Check if Maya wants to generate images
+        if (response.toLowerCase().includes('generate') && 
+            (response.toLowerCase().includes('photo') || 
+             response.toLowerCase().includes('image') || 
+             response.toLowerCase().includes('picture'))) {
+          canGenerate = true;
+          
+          // Extract or create a generation prompt from Maya's response
+          generatedPrompt = `${message} - professional editorial photography, luxury styling, magazine quality`;
+        }
+
+      } catch (error) {
+        console.error('Maya Claude API error:', error);
+        response = "I'm having trouble connecting to my creative systems right now. Could you try again in a moment? I'm excited to help you create amazing photos! ✨";
+      }
+
+      res.json({
+        message: response,
+        canGenerate,
+        generatedPrompt: canGenerate ? generatedPrompt : undefined,
+        timestamp: new Date().toISOString()
+      });
+
+    } catch (error) {
+      console.error('Maya chat error:', error);
+      res.status(500).json({ error: 'Failed to process Maya chat' });
+    }
+  });
+
+  // Maya Chat Messages endpoints
+  app.get('/api/maya-chats/:chatId/messages', isAuthenticated, async (req: any, res) => {
+    try {
+      const { chatId } = req.params;
+      const messages = await storage.getMayaChatMessages(parseInt(chatId));
+      res.json(messages);
+    } catch (error) {
+      console.error('❌ Error fetching Maya chat messages:', error);
+      res.status(500).json({ 
+        message: "Failed to fetch chat messages", 
+        error: error instanceof Error ? error.message : 'Unknown error'
+      });
+    }
+  });
+
+  app.post('/api/maya-chats/:chatId/messages', isAuthenticated, async (req: any, res) => {
+    try {
+      const { chatId } = req.params;
+      const { role, content, imagePreview, generatedPrompt } = req.body;
+      
+      console.log('💬 Saving Maya message to chat:', chatId);
+      
+      const message = await storage.createMayaChatMessage({
+        chatId: parseInt(chatId),
+        role,
+        content,
+        imagePreview: imagePreview ? JSON.stringify(imagePreview) : null,
+        generatedPrompt
+      });
+      
+      res.json(message);
+    } catch (error) {
+      console.error('❌ Error saving Maya chat message:', error);
+      res.status(500).json({ 
+        message: "Failed to save message", 
+        error: error instanceof Error ? error.message : 'Unknown error'
+      });
+    }
+  });
+
+  // Update Maya message with image preview - CRITICAL FOR PERSISTENT IMAGES
+  app.patch('/api/maya-chats/:chatId/messages/:messageId/update-preview', isAuthenticated, async (req: any, res) => {
+    try {
+      const { chatId, messageId } = req.params;
+      const { imagePreview, generatedPrompt } = req.body;
+      
+      console.log(`🎬 Maya: Updating message ${messageId} with image preview`);
+      
+      // Update the Maya message with image preview data
+      await storage.updateMayaChatMessage(parseInt(messageId), {
+        imagePreview,
+        generatedPrompt
+      });
+      
+      res.json({ success: true, message: 'Preview updated successfully' });
+    } catch (error) {
+      console.error('❌ Error updating Maya message preview:', error);
+      res.status(500).json({ 
+        message: "Failed to update message preview", 
+        error: error instanceof Error ? error.message : 'Unknown error'
+      });
+    }
+  });
+
   // Maya Image Generation endpoint - Restored working version
   app.post('/api/maya-generate-images', isAuthenticated, async (req: any, res) => {
     try {
