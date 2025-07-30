@@ -36,7 +36,7 @@ import AIGenerator from "@/pages/ai-generator";
 import AIPhotoshoot from "@/pages/ai-photoshoot";
 import SimpleTraining from "@/pages/simple-training";
 import AdminDashboard from "@/pages/admin-dashboard";
-
+import AdminBusinessOverview from "@/pages/admin-business-overview";
 import AdminConsultingAgents from "@/pages/admin-consulting-agents";
 import AdminSubscriberImport from "@/pages/admin-subscriber-import";
 
@@ -263,6 +263,7 @@ function Router() {
           </div>
         </div>
       )} {...props} />} />
+      <Route path="/admin/business-overview" component={(props) => <ProtectedRoute component={AdminBusinessOverview} {...props} />} />
       <Route path="/admin/consulting-agents" component={(props) => <ProtectedRoute component={AdminConsultingAgents} {...props} />} />
       <Route path="/admin/subscriber-import" component={(props) => <ProtectedRoute component={AdminSubscriberImport} {...props} />} />
 
