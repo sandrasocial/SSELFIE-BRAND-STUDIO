@@ -90,7 +90,9 @@ export function MayaChatInterface() {
             setChatMessages(formattedMessages);
             
             // Count messages with images for verification
-            const messagesWithImages = formattedMessages.filter((m: MayaChatMessage) => m.imagePreview && m.imagePreview.length > 0);
+            const messagesWithImages = formattedMessages.filter((m: MayaChatMessage) => 
+              m.imagePreview && Array.isArray(m.imagePreview) && m.imagePreview.length > 0
+            );
             console.log(`✅ Maya: LOADED ${messagesWithImages.length} messages with permanent S3 images!`);
             
             return;
