@@ -463,8 +463,19 @@ export default function Maya() {
     setSavingImages(prev => new Set([...Array.from(prev), imageUrl]));
     
     try {
-      console.log('🔴 HEART CLICK: Saving image:', imageUrl);
-      console.log('🔴 HEART CLICK: Current tracker ID:', currentTrackerId);
+      // Extract tracker ID from image URL if currentTrackerId is null
+      let trackerId = currentTrackerId;
+      if (!trackerId) {
+        const match = imageUrl.match(/tracker_(\d+)_/);
+        if (match) {
+          trackerId = parseInt(match[1]);
+          console.log('🔴 HEART CLICK: Extracted tracker ID from URL:', trackerId);
+        }
+      }
+      
+      if (!trackerId) {
+        throw new Error('No tracker ID available for this image');
+      }
       
       const response = await fetch('/api/save-preview-to-gallery', {
         method: 'POST',
@@ -473,14 +484,12 @@ export default function Maya() {
         },
         credentials: 'include',
         body: JSON.stringify({
-          trackerId: currentTrackerId,
+          trackerId: trackerId,
           selectedImageUrls: [imageUrl]
         }),
       });
 
-      console.log('🔴 HEART CLICK: Response status:', response.status);
       const data = await response.json();
-      console.log('🔴 HEART CLICK: Response data:', data);
 
       if (!response.ok) {
         throw new Error(data.error || 'Failed to save images');
@@ -488,14 +497,13 @@ export default function Maya() {
       
       // Mark image as saved - this should turn the heart red
       setSavedImages(prev => new Set([...Array.from(prev), imageUrl]));
-      console.log('🔴 HEART CLICK: Marked image as saved, heart should turn red');
       
       // Refresh both gallery endpoints to show newly saved images
       queryClient.invalidateQueries({ queryKey: ['/api/gallery-images'] });
       queryClient.invalidateQueries({ queryKey: ['/api/ai-images'] });
       
     } catch (error) {
-      console.error('🔴 HEART CLICK ERROR:', error);
+      console.error('Error saving to gallery:', error);
     } finally {
       setSavingImages(prev => {
         const newSet = new Set(Array.from(prev));
