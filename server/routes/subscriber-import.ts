@@ -38,12 +38,16 @@ router.post('/flodesk/import', isAuthenticated, isAdmin, async (req, res) => {
         const [inserted] = await db
           .insert(importedSubscribers)
           .values(subscriber)
-.onConflictDoNothing()
           .returning();
         
         insertedSubscribers.push(inserted);
-      } catch (error) {
-        console.error('Error inserting subscriber:', subscriber.email, error);
+      } catch (error: any) {
+        // Skip duplicates silently
+        if (error.code === '23505') {
+          console.log(`⏭️ Skipping duplicate subscriber: ${subscriber.email}`);
+        } else {
+          console.error('Error inserting subscriber:', subscriber.email, error);
+        }
       }
     }
 
