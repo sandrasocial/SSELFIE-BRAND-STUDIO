@@ -50,7 +50,7 @@ export default function AdminBusinessOverview() {
   const isLoading = metricsLoading || subscriberLoading || activityLoading;
 
   // Hero image from your authentic workspace gallery - using your actual generated AI images
-  const heroImage = SandraImages.gallery[0] || SandraImages.hero.dashboard;
+  const heroImage = "https://sselfie-training-zips.s3.eu-north-1.amazonaws.com/images/42585527/tracker_377_img_1_1753351608174.png";
 
   // Business priority tasks
   const businessTasks = [
@@ -215,8 +215,8 @@ export default function AdminBusinessOverview() {
                   <MoodboardSection 
                     title="User Journey"
                     images={[
-                      SandraImages.gallery[0] || SandraImages.editorial.laptop1,
-                      SandraImages.gallery[1] || SandraImages.editorial.phone1,
+                      "https://sselfie-training-zips.s3.eu-north-1.amazonaws.com/images/42585527/tracker_373_img_0_1753350079138.png",
+                      "attached_assets/out-0 (31).png",
                       SandraImages.gallery[2] || SandraImages.editorial.thinking
                     ]}
                   />
