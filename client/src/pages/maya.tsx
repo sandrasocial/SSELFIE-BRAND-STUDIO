@@ -463,7 +463,39 @@ export default function Maya() {
     setSavingImages(prev => new Set([...Array.from(prev), imageUrl]));
     
     try {
-      await saveSelectedToGallery([imageUrl]);
+      console.log('🔴 HEART CLICK: Saving image:', imageUrl);
+      console.log('🔴 HEART CLICK: Current tracker ID:', currentTrackerId);
+      
+      const response = await fetch('/api/save-preview-to-gallery', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        credentials: 'include',
+        body: JSON.stringify({
+          trackerId: currentTrackerId,
+          selectedImageUrls: [imageUrl]
+        }),
+      });
+
+      console.log('🔴 HEART CLICK: Response status:', response.status);
+      const data = await response.json();
+      console.log('🔴 HEART CLICK: Response data:', data);
+
+      if (!response.ok) {
+        throw new Error(data.error || 'Failed to save images');
+      }
+      
+      // Mark image as saved - this should turn the heart red
+      setSavedImages(prev => new Set([...Array.from(prev), imageUrl]));
+      console.log('🔴 HEART CLICK: Marked image as saved, heart should turn red');
+      
+      // Refresh both gallery endpoints to show newly saved images
+      queryClient.invalidateQueries({ queryKey: ['/api/gallery-images'] });
+      queryClient.invalidateQueries({ queryKey: ['/api/ai-images'] });
+      
+    } catch (error) {
+      console.error('🔴 HEART CLICK ERROR:', error);
     } finally {
       setSavingImages(prev => {
         const newSet = new Set(Array.from(prev));
