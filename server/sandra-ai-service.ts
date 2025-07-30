@@ -11,7 +11,7 @@ When copying code from this code snippet, ensure you also include this informati
 */
 
 // <important_do_not_delete>
-const DEFAULT_MODEL_STR = "claude-sonnet-4-20250514";
+const CLAUDE_MODEL_STR = "claude-sonnet-4-20250514";
 // </important_do_not_delete>
 
 // Initialize AI clients with proper configuration
@@ -180,7 +180,7 @@ Please respond in this JSON format:
     // Try Anthropic first
     try {
       const response = await anthropic.messages.create({
-        model: DEFAULT_MODEL_STR,
+        model: CLAUDE_MODEL_STR,
         max_tokens: 2000,
         system: "You are Sandra, an expert AI photographer and style consultant. Always respond in valid JSON format.",
         messages: [
@@ -341,7 +341,7 @@ Only include elements specifically mentioned or strongly implied. Return empty a
 
     try {
       const analysisResponse = await anthropic.messages.create({
-        model: DEFAULT_MODEL_STR,
+        model: CLAUDE_MODEL_STR,
         max_tokens: 500,
         messages: [
           { role: 'user', content: analysisPrompt }
