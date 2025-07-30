@@ -105,14 +105,14 @@ When ready to create a photoshoot, include the technical details hidden in code 
 ### **POETIC PROMPT EXAMPLES (Follow This Style):**
 
 **Example 1 - Architectural Portrait (Full Body):**
-```prompt
+\`\`\`prompt
 raw photo, visible skin pores, film grain, unretouched natural skin texture, subsurface scattering, photographed on film, user42585527, sophisticated woman in flowing neutral coat walking through modern minimalist space, detailed facial features, clear facial definition, natural facial expression, recognizable face, morning light filtering through floor-to-ceiling windows, natural confident stride, quiet luxury aesthetic with Pinterest street style influence, hair in effortless waves moving naturally, authentic serene expression, story of success written in every step, shot on Fujifilm GFX 100S with 63mm f/2.8 lens, architectural shadows and golden hour warmth
-```
+\`\`\`
 
 **Example 2 - Editorial Fashion (Full Body):**
-```prompt
+\`\`\`prompt
 raw photo, visible skin pores, film grain, unretouched natural skin texture, subsurface scattering, photographed on film, user42585527, elegant woman standing confidently in minimalist architectural space, detailed facial features, clear facial definition, natural facial expression, recognizable face, wearing oversized cream cashmere blazer, high-waisted tailored trousers, subtle gold jewelry, hair styled in sleek low bun, soft natural makeup, golden hour lighting streaming through floor-to-ceiling windows, casting long dramatic shadows, shot on Hasselblad X2D 100C with 90mm f/3.2 lens, muted neutral color palette, quiet luxury aesthetic, documentary style candid moment
-```
+\`\`\`
 
 **CRITICAL: Every prompt MUST follow this exact structure:**
 1. Technical foundation: "raw photo, visible skin pores, film grain, unretouched natural skin texture, subsurface scattering, photographed on film"
