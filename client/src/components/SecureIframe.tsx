@@ -20,7 +20,7 @@ export default function SecureIframe({
       title={title}
       className={className}
       style={{ height }}
-      sandbox="allow-scripts allow-same-origin allow-forms allow-popups allow-downloads"
+      sandbox="allow-scripts allow-same-origin allow-forms allow-popups"
       loading="lazy"
       referrerPolicy="strict-origin-when-cross-origin"
     />

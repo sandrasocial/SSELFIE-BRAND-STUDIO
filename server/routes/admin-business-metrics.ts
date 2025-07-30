@@ -2,7 +2,7 @@ import { Router } from 'express';
 import { isAuthenticated } from '../replitAuth';
 import { db } from '../db';
 import { users, importedSubscribers, aiImages, subscriptions, userModels } from '../../shared/schema';
-import { sql, count, sum, eq, gte } from 'drizzle-orm';
+import { sql, count, sum, eq, gte, desc } from 'drizzle-orm';
 
 const router = Router();
 
@@ -149,7 +149,7 @@ router.get('/recent-activity', isAuthenticated, isAdmin, async (req, res) => {
       })
       .from(users)
       .where(gte(users.createdAt, sql`NOW() - INTERVAL '30 days'`))
-      .orderBy(sql`created_at DESC`)
+      .orderBy(desc(users.createdAt))
       .limit(10);
 
     // Get recent AI image generations
@@ -161,7 +161,7 @@ router.get('/recent-activity', isAuthenticated, isAdmin, async (req, res) => {
       })
       .from(aiImages)
       .where(gte(aiImages.createdAt, sql`NOW() - INTERVAL '7 days'`))
-      .orderBy(sql`created_at DESC`)
+      .orderBy(desc(aiImages.createdAt))
       .limit(20);
 
     console.log('✅ Recent activity fetched');
