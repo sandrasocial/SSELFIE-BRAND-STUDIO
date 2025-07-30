@@ -13,14 +13,16 @@ async function testManyChatConnection() {
   console.log(`📊 API Key format: ${apiKey.split(':')[0]}:***`);
   
   try {
-    const response = await fetch('https://api.manychat.com/fb/subscriber/getInfo', {
+    // Test ManyChat connection with findByName endpoint
+    const response = await fetch('https://api.manychat.com/fb/subscriber/findByName', {
       method: 'POST',
       headers: {
         'Authorization': `Bearer ${apiKey}`,
         'Content-Type': 'application/json'
       },
       body: JSON.stringify({
-        subscriber_id: "test"
+        name: '',  // Empty name to get subscribers
+        limit: 5
       })
     });
     
