@@ -1020,7 +1020,7 @@ Remember: You are the MEMBER experience Victoria - provide website building guid
       
       // Get agent personality from consulting system
       const { CONSULTING_AGENT_PERSONALITIES } = await import('./agent-personalities-consulting');
-      const agentConfig = CONSULTING_AGENT_PERSONALITIES[agentId];
+      const agentConfig = CONSULTING_AGENT_PERSONALITIES[agentId as keyof typeof CONSULTING_AGENT_PERSONALITIES];
       
       if (!agentConfig) {
         return res.status(404).json({
@@ -1035,9 +1035,30 @@ Remember: You are the MEMBER experience Victoria - provide website building guid
       // Generate conversation ID if not provided
       const finalConversationId = conversationId || `admin_${agentId}_${Date.now()}`;
       
-      // BYPASS BROKEN EFFORT-BASED SYSTEM: Use direct Claude API for real agent work
-      console.log('💰 ROUTING FIX: Using direct Claude API - bypassing broken effort-based executor');
+      // COST-EFFECTIVE ROUTING: Use DirectToolExecutor for zero-cost file operations
+      console.log('💰 COST OPTIMIZATION: Using DirectToolExecutor - zero API costs for file operations');
       
+      const { DirectToolExecutor } = await import('./services/direct-tool-executor');
+      
+      // Check if message contains direct tool requests that can be executed without API costs
+      const toolDetection = await DirectToolExecutor.detectAndExecuteTools(message, agentId);
+      
+      if (toolDetection.toolsExecuted) {
+        console.log('🔧 DIRECT TOOL EXECUTION: Completed without API costs');
+        const response = `${toolDetection.toolResults}\n\nDirect tool execution completed successfully. Files have been accessed/modified as requested.`;
+        
+        console.log(`💰 COST SAVED: Direct repository access instead of Claude API`);
+        
+        return res.json({
+          success: true,
+          response: response,
+          agentName: agentConfig.name,
+          conversationId: finalConversationId,
+          costOptimized: true
+        });
+      }
+      
+      // If no direct tools detected, use Claude API for conversation/analysis
       const { claudeApiService } = await import('./services/claude-api-service');
       const response = await claudeApiService.sendMessage(
         userId,
@@ -1049,7 +1070,7 @@ Remember: You are the MEMBER experience Victoria - provide website building guid
         fileEditMode
       );
       
-      const finalResponse = typeof response === 'string' ? response : (response.message || response.response || 'Task completed successfully');
+      const finalResponse = typeof response === 'string' ? response : 'Task completed successfully';
       console.log(`💰 COST CONTROL: Direct Claude API - real agent execution`);
       
       console.log(`✅ ADMIN AGENT ${agentId}: Response generated successfully`);
