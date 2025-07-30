@@ -216,7 +216,7 @@ export default function AdminBusinessOverview() {
                     title="User Journey"
                     images={[
                       "https://sselfie-training-zips.s3.eu-north-1.amazonaws.com/images/42585527/tracker_373_img_0_1753350079138.png",
-                      "attached_assets/image_1753913260983.png",
+                      "https://sselfie-training-zips.s3.eu-north-1.amazonaws.com/images/42585527/tracker_368_img_0_1753349329061.png",
                       SandraImages.gallery[2] || SandraImages.editorial.thinking
                     ]}
                   />
