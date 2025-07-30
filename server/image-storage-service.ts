@@ -27,10 +27,7 @@ export class ImageStorageService {
       }
       
       // Download image from Replicate with error handling
-      const response = await fetch(replicateUrl, {
-        // @ts-ignore - Adding Node.js specific options
-        agent: false // Disable SSL verification for development
-      });
+      const response = await fetch(replicateUrl);
       if (!response.ok) {
         throw new Error(`Failed to download image: ${response.status} ${response.statusText}`);
       }

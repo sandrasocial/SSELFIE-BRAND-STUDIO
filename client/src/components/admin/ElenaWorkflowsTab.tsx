@@ -37,7 +37,7 @@ export function ElenaWorkflowsTab() {
   // Mutation to execute workflow - Connected to Elena execution API
   const executeWorkflowMutation = useMutation({
     mutationFn: async (workflow: StagedWorkflow) => {
-      console.log('🚀 ELENA EXECUTE: Sending workflow to execution API');
+      // Execute workflow through Elena API
       
       const response = await fetch('/api/elena/execute', {
         method: 'POST',
@@ -71,7 +71,7 @@ export function ElenaWorkflowsTab() {
           description: `${data.workflowName} deployed successfully with ${data.agentsDeployed} agents`,
         });
         
-        console.log('✅ ELENA EXECUTE SUCCESS:', data);
+        // Workflow execution successful
         
         // Add to executing set
         setExecutingWorkflows(prev => new Set([...Array.from(prev), workflow.id]));
