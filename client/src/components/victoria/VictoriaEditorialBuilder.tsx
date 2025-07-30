@@ -2,6 +2,8 @@ import React, { useState, useEffect } from 'react';
 import { HeroFullBleed } from '@/components/hero-full-bleed';
 import { EditorialImageBreak } from '@/components/editorial-image-break';
 import { MoodboardGallery } from '@/components/moodboard-gallery';
+import EditorialSpread from '@/components/editorial-spread';
+import { EditorialCard } from '@/components/ui/editorial-card';
 import { VictoriaChat } from './VictoriaChat';
 import { Button } from '@/components/ui/button';
 import { useQuery } from '@tanstack/react-query';
@@ -26,7 +28,7 @@ interface WebsitePage {
 }
 
 interface WebsiteSection {
-  type: 'hero' | 'editorial-break' | 'moodboard' | 'text-content' | 'services' | 'contact';
+  type: 'hero' | 'editorial-break' | 'moodboard' | 'editorial-spread' | 'editorial-card' | 'text-content' | 'services' | 'contact' | 'about-me';
   content: any;
 }
 
@@ -124,20 +126,33 @@ export function VictoriaEditorialBuilder({ onWebsiteGenerated }: VictoriaEditori
         title: 'About',
         sections: [
           {
-            type: 'hero',
+            type: 'about-me',
             content: {
-              backgroundImage: images[2] || '/placeholder-about.jpg',
-              title: 'About',
-              subtitle: 'Our Story',
-              fullHeight: false
+              name: businessData.businessName || 'Your Name',
+              role: businessData.businessType || 'Your Role',
+              image: images[2] || flatlays[0],
+              story: businessData.businessDescription || 'Your story and journey in building this business.',
+              approach: `I serve ${businessData.targetAudience || 'ambitious professionals'} with a unique approach that combines expertise with authentic connection.`
             }
           },
           {
-            type: 'text-content',
+            type: 'editorial-spread',
             content: {
-              title: businessData.businessName,
-              description: businessData.businessDescription,
-              targetAudience: businessData.targetAudience
+              leftImage: images[3] || flatlays[1],
+              rightImage: images[4] || flatlays[2],
+              title: 'My Journey',
+              description: 'From vision to reality, every step has been crafted with intention and purpose.',
+              leftCaption: 'Behind the Scenes',
+              rightCaption: 'The Process'
+            }
+          },
+          {
+            type: 'editorial-card',
+            content: {
+              title: 'Why I Do This Work',
+              subtitle: 'My Mission & Values',
+              image: images[5] || flatlays[3],
+              content: `<p>Every client deserves exceptional results. I believe in ${businessData.brandPersonality || 'authentic'} approaches that create lasting impact.</p><p>My work is driven by the belief that when you feel confident in your brand, you can achieve anything.</p>`
             }
           }
         ]
@@ -318,6 +333,73 @@ function VictoriaWebsitePreview({ website }: { website: WebsiteData }) {
           <MoodboardGallery
             items={section.content.items}
           />
+        );
+      
+      case 'editorial-spread':
+        return (
+          <EditorialSpread
+            leftImage={section.content.leftImage}
+            rightImage={section.content.rightImage}
+            title={section.content.title}
+            description={section.content.description}
+            leftCaption={section.content.leftCaption}
+            rightCaption={section.content.rightCaption}
+          />
+        );
+      
+      case 'editorial-card':
+        return (
+          <div className="max-w-4xl mx-auto p-8">
+            <EditorialCard
+              title={section.content.title}
+              subtitle={section.content.subtitle}
+              image={section.content.image}
+            >
+              <div dangerouslySetInnerHTML={{ __html: section.content.content }} />
+            </EditorialCard>
+          </div>
+        );
+      
+      case 'about-me':
+        return (
+          <div className="max-w-4xl mx-auto p-8">
+            {/* Admin-style card for About Me section */}
+            <div className="relative mb-8 overflow-hidden bg-gray-50" style={{ aspectRatio: '21/9' }}>
+              <img 
+                src={section.content.image}
+                alt={section.content.name}
+                className="w-full h-full object-cover"
+              />
+              
+              {/* Dark overlay like admin cards */}
+              <div className="absolute inset-0 bg-black/40"></div>
+              
+              {/* Content overlay */}
+              <div className="absolute inset-0 flex items-center justify-center">
+                <div className="text-white text-center">
+                  <div className="font-serif text-2xl md:text-4xl font-light tracking-[0.3em] uppercase mb-4">
+                    {section.content.name}
+                  </div>
+                  <div className="text-sm md:text-base tracking-[0.2em] uppercase opacity-80">
+                    {section.content.role}
+                  </div>
+                </div>
+              </div>
+            </div>
+            
+            {/* About content */}
+            <div className="prose prose-lg max-w-none">
+              <h2 className="text-4xl font-normal mb-6" style={{ fontFamily: 'Times New Roman' }}>
+                About {section.content.name}
+              </h2>
+              <p className="text-lg text-gray-600 leading-relaxed mb-6">
+                {section.content.story}
+              </p>
+              <p className="text-base text-gray-500">
+                {section.content.approach}
+              </p>
+            </div>
+          </div>
         );
       
       case 'text-content':
