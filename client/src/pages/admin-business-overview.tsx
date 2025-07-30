@@ -48,8 +48,8 @@ export default function AdminBusinessOverview() {
 
   const isLoading = metricsLoading || subscriberLoading || activityLoading;
 
-  // Hero image from authentic collection - using safe array access
-  const heroImage = SandraImages.gallery[0]?.url || 'https://sselfie-training-zips.s3.eu-north-1.amazonaws.com/images/42585527/tracker_376_img_1_1753351123712.png';
+  // Hero image from your authentic gallery - using your actual workspace collection
+  const heroImage = SandraImages.aiGallery[0] || SandraImages.hero.dashboard;
 
   // Business priority tasks
   const businessTasks = [
@@ -167,11 +167,11 @@ export default function AdminBusinessOverview() {
                 </div>
               </div>
 
-              {/* Full Bleed Image Page Break */}
+              {/* Full Bleed Image Page Break - Your Editorial Collection */}
               <div className="relative w-screen left-1/2 right-1/2 -ml-[50vw] -mr-[50vw] mb-20">
                 <div className="aspect-[21/9] overflow-hidden">
                   <img 
-                    src={SandraImages.gallery[1]?.url || heroImage}
+                    src={SandraImages.aiGallery[1] || SandraImages.editorial.laptop1}
                     alt="Business Growth"
                     className="w-full h-full object-cover"
                   />
@@ -215,15 +215,27 @@ export default function AdminBusinessOverview() {
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-12">
                   <MoodboardSection 
                     title="User Journey"
-                    images={SandraImages.gallery.slice(0, Math.min(3, SandraImages.gallery.length)).map(img => img.url)}
+                    images={[
+                      SandraImages.aiGallery[0] || SandraImages.editorial.laptop1,
+                      SandraImages.aiGallery[1] || SandraImages.editorial.phone1,
+                      SandraImages.aiGallery[2] || SandraImages.editorial.thinking
+                    ]}
                   />
                   <MoodboardSection 
                     title="Revenue Growth"
-                    images={SandraImages.gallery.slice(0, Math.min(3, SandraImages.gallery.length)).map(img => img.url)}
+                    images={[
+                      SandraImages.aiGallery[3] || SandraImages.journey.building,
+                      SandraImages.aiGallery[4] || SandraImages.journey.success,
+                      SandraImages.aiGallery[5] || SandraImages.hero.pricing
+                    ]}
                   />
                   <MoodboardSection 
                     title="Platform Quality"
-                    images={SandraImages.gallery.slice(0, Math.min(3, SandraImages.gallery.length)).map(img => img.url)}
+                    images={[
+                      SandraImages.aiGallery[6] || SandraImages.flatlays.workspace1,
+                      SandraImages.aiGallery[7] || SandraImages.flatlays.luxury,
+                      SandraImages.aiGallery[8] || SandraImages.editorial.aiSuccess
+                    ]}
                   />
                 </div>
               </div>
@@ -240,12 +252,12 @@ export default function AdminBusinessOverview() {
                 </div>
               </div>
 
-              {/* Image Cards - Agent Card Style */}
+              {/* Image Cards - Your Authentic Gallery */}
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 mb-20">
                 <Link href="/admin/subscriber-import" className="group">
                   <div className="relative overflow-hidden bg-black aspect-[4/5]">
                     <img 
-                      src={SandraImages.gallery[2]?.url || heroImage}
+                      src={SandraImages.aiGallery[9] || SandraImages.editorial.laptop2}
                       alt="Subscriber Management"
                       className="w-full h-full object-cover opacity-80 transition-all duration-700 group-hover:opacity-90 group-hover:scale-105"
                     />
@@ -266,7 +278,7 @@ export default function AdminBusinessOverview() {
                 <Link href="/admin/consulting-agents" className="group">
                   <div className="relative overflow-hidden bg-black aspect-[4/5]">
                     <img 
-                      src={SandraImages.gallery[3]?.url || heroImage}
+                      src={SandraImages.aiGallery[10] || SandraImages.hero.agents}
                       alt="AI Agents"
                       className="w-full h-full object-cover opacity-80 transition-all duration-700 group-hover:opacity-90 group-hover:scale-105"
                     />
@@ -287,7 +299,7 @@ export default function AdminBusinessOverview() {
                 <Link href="/workspace" className="group">
                   <div className="relative overflow-hidden bg-black aspect-[4/5]">
                     <img 
-                      src={SandraImages.gallery[4]?.url || heroImage}
+                      src={SandraImages.aiGallery[11] || SandraImages.hero.homepage}
                       alt="Platform Studio"
                       className="w-full h-full object-cover opacity-80 transition-all duration-700 group-hover:opacity-90 group-hover:scale-105"
                     />
