@@ -10,7 +10,7 @@ import { GlobalFooter } from "@/components/global-footer";
 
 export default function EditorialLanding() {
   const [isEmailModalOpen, setIsEmailModalOpen] = useState(false);
-  const [selectedPlan, setSelectedPlan] = useState<'free' | 'sselfie-studio'>('free');
+  const [selectedPlan, setSelectedPlan] = useState<'basic' | 'full-access'>('basic');
   const [, setLocation] = useLocation();
 
   // SEO Meta Tags and Performance Optimization
@@ -24,19 +24,19 @@ export default function EditorialLanding() {
       metaDescription.setAttribute('name', 'description');
       document.head.appendChild(metaDescription);
     }
-    metaDescription.setAttribute('content', 'Transform selfies into professional brand photos with AI. Maya AI photographer & Victoria AI strategist help you build your personal brand and launch your business in 20 minutes. Start free - 5 AI images included.');
+    metaDescription.setAttribute('content', 'Transform selfies into professional brand photos with AI. Maya AI photographer & Victoria website builder. €29 Basic or €67 Full Access with trained personal AI model.');
     
     // Add comprehensive SEO meta tags
     const seoTags = [
       { name: 'keywords', content: 'AI personal branding, AI photographer, professional headshots AI, personal brand builder, selfie to professional photos, AI brand strategist, business launch platform, professional photos from selfies, AI personal brand coach, digital brand transformation' },
       { property: 'og:title', content: 'SSELFIE Studio - AI Personal Branding Platform | Professional Photos from Selfies' },
-      { property: 'og:description', content: 'Transform selfies into professional brand photos with AI. Maya AI photographer & Victoria AI strategist included. Launch your business in 20 minutes. Start free today.' },
+      { property: 'og:description', content: 'Transform selfies into professional brand photos with AI. Maya AI photographer & Victoria website builder. €29 Basic or €67 Full Access with trained personal AI model.' },
       { property: 'og:type', content: 'website' },
       { property: 'og:url', content: window.location.href },
       { property: 'og:site_name', content: 'SSELFIE Studio' },
       { name: 'twitter:card', content: 'summary_large_image' },
       { name: 'twitter:title', content: 'SSELFIE Studio - AI Personal Branding Platform' },
-      { name: 'twitter:description', content: 'Transform selfies into professional brand photos with AI. Maya AI photographer & Victoria AI strategist. Start free today.' },
+      { name: 'twitter:description', content: 'Transform selfies into professional brand photos with AI. Maya AI photographer & Victoria website builder. €29 Basic or €67 Full Access.' },
       { name: 'twitter:creator', content: '@sandra.social' },
       { name: 'author', content: 'Sandra Sigurjónsdóttir' },
       { name: 'robots', content: 'index, follow, max-image-preview:large' }
@@ -46,7 +46,7 @@ export default function EditorialLanding() {
       let existingTag = document.querySelector(`meta[${tag.property ? 'property' : 'name'}="${tag.property || tag.name}"]`);
       if (!existingTag) {
         existingTag = document.createElement('meta');
-        existingTag.setAttribute(tag.property ? 'property' : 'name', tag.property || tag.name);
+        existingTag.setAttribute(tag.property ? 'property' : 'name', tag.property || tag.name!);
         document.head.appendChild(existingTag);
       }
       existingTag.setAttribute('content', tag.content);
@@ -68,17 +68,17 @@ export default function EditorialLanding() {
       "offers": [
         {
           "@type": "Offer",
-          "name": "Free Plan",
-          "price": "0",
-          "priceCurrency": "USD",
-          "description": "5 AI images per month, Maya AI photographer chat, Victoria AI strategist chat"
+          "name": "SSELFIE Studio Basic",
+          "price": "29",
+          "priceCurrency": "EUR",
+          "description": "Trained personal AI model + 30 monthly AI photos + Maya AI photographer access"
         },
         {
           "@type": "Offer", 
-          "name": "SSELFIE Studio",
-          "price": "47",
-          "priceCurrency": "USD",
-          "description": "100 AI images monthly, complete Maya & Victoria AI access, landing page builder"
+          "name": "SSELFIE Studio Full Access",
+          "price": "67",
+          "priceCurrency": "EUR",
+          "description": "Complete package with trained model + 100 photos + Maya + Victoria + website builder + flatlay library"
         }
       ]
     };
@@ -86,7 +86,7 @@ export default function EditorialLanding() {
     let structuredDataScript = document.querySelector('script[type="application/ld+json"]');
     if (!structuredDataScript) {
       structuredDataScript = document.createElement('script');
-      structuredDataScript.type = 'application/ld+json';
+      (structuredDataScript as HTMLScriptElement).type = 'application/ld+json';
       document.head.appendChild(structuredDataScript);
     }
     structuredDataScript.textContent = JSON.stringify(structuredData);
@@ -104,7 +104,7 @@ export default function EditorialLanding() {
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
 
-  const handleGetStarted = (plan: 'free' | 'sselfie-studio') => {
+  const handleGetStarted = (plan: 'basic' | 'full-access') => {
     // Store the selected plan
     localStorage.setItem('selectedPlan', plan);
     
@@ -112,12 +112,8 @@ export default function EditorialLanding() {
     const emailCaptured = localStorage.getItem('emailCaptured');
     
     if (emailCaptured) {
-      // Email already captured, proceed to authentication
-      if (plan === 'free') {
-        window.location.href = '/api/login';
-      } else {
-        setLocation('/checkout');
-      }
+      // Email already captured, proceed to checkout for both plans
+      setLocation(`/checkout?plan=${plan}`);
     } else {
       // Show email capture modal first
       setSelectedPlan(plan);
@@ -183,10 +179,10 @@ export default function EditorialLanding() {
             </button>
             
             <button
-              onClick={() => handleGetStarted('free')}
+              onClick={() => handleGetStarted('basic')}
               className="hidden md:block px-6 py-3 border border-white/50 text-white text-xs uppercase tracking-[0.3em] hover:bg-white hover:text-black transition-all duration-300"
             >
-              Start Here
+              Start €29
             </button>
           </div>
         </div>
@@ -227,10 +223,10 @@ export default function EditorialLanding() {
               Login
             </button>
             <button
-              onClick={() => { handleGetStarted('free'); setMobileMenuOpen(false); }}
+              onClick={() => { handleGetStarted('basic'); setMobileMenuOpen(false); }}
               className="px-8 py-4 border border-white/50 text-white text-xs uppercase tracking-[0.3em] hover:bg-white hover:text-black transition-all duration-300 mt-8"
             >
-              Start Here
+              Start €29
             </button>
             
             {/* Close Button */}
@@ -252,7 +248,7 @@ export default function EditorialLanding() {
             alt="Sandra Sigurjónsdóttir - SSELFIE Studio Founder transforming personal branding with AI"
             className="w-full h-full object-cover object-center"
             loading="eager"
-            fetchpriority="high"
+            fetchPriority="high"
           />
         </div>
         
@@ -271,10 +267,10 @@ export default function EditorialLanding() {
           </p>
           
           <button
-            onClick={() => handleGetStarted('free')}
+            onClick={() => handleGetStarted('basic')}
             className="inline-block text-[10px] sm:text-xs uppercase tracking-[0.25em] sm:tracking-[0.3em] text-white border-b border-white/30 pb-1 sm:pb-2 hover:border-white hover:tracking-[0.3em] sm:hover:tracking-[0.35em] transition-all duration-300"
           >
-            START FOR FREE
+            START €29
           </button>
         </div>
       </section>
@@ -504,14 +500,75 @@ export default function EditorialLanding() {
         </div>
       </section>
 
-      {/* Inline Email Capture Form */}
-      <InlineEmailCapture 
-        plan="free"
-        onEmailCaptured={(email) => {
-          console.log('Email captured:', email);
-          // Inline capture will handle redirect to authentication
-        }}
-      />
+      {/* Conversion Section - Strategic Pricing Display */}
+      <section className="py-24 bg-gray-50">
+        <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
+          <div className="text-xs uppercase tracking-[0.4em] text-gray-500 mb-6">
+            Choose Your Start
+          </div>
+          
+          <h2 className="font-serif text-2xl sm:text-3xl md:text-4xl font-light text-black mb-12">
+            Ready to transform your selfies<br />into your personal brand?
+          </h2>
+          
+          <div className="grid md:grid-cols-2 gap-8 max-w-3xl mx-auto">
+            {/* Basic Plan */}
+            <div className="bg-white p-8 border border-gray-200 hover:border-black transition-all duration-300">
+              <div className="text-xs uppercase tracking-[0.4em] text-gray-500 mb-4">
+                Basic
+              </div>
+              <div className="font-serif text-3xl font-light mb-2">€29</div>
+              <div className="text-sm text-gray-600 mb-6">per month</div>
+              
+              <ul className="text-left text-sm space-y-3 mb-8">
+                <li>• Your personal AI model</li>
+                <li>• 30 AI photos monthly</li>
+                <li>• Maya AI photographer</li>
+                <li>• All basic editing tools</li>
+              </ul>
+              
+              <button
+                onClick={() => handleGetStarted('basic')}
+                className="w-full py-4 bg-black text-white text-xs uppercase tracking-[0.3em] hover:opacity-90 transition-opacity"
+              >
+                Start Basic
+              </button>
+            </div>
+            
+            {/* Full Access Plan - Popular */}
+            <div className="bg-black text-white p-8 border border-black relative">
+              <div className="absolute -top-3 left-1/2 transform -translate-x-1/2 bg-white text-black px-4 py-1 text-xs uppercase tracking-[0.3em]">
+                Popular
+              </div>
+              
+              <div className="text-xs uppercase tracking-[0.4em] text-white/70 mb-4">
+                Full Access
+              </div>
+              <div className="font-serif text-3xl font-light mb-2">€67</div>
+              <div className="text-sm text-white/70 mb-6">per month</div>
+              
+              <ul className="text-left text-sm space-y-3 mb-8">
+                <li>• Everything in Basic</li>
+                <li>• 100 AI photos monthly</li>
+                <li>• Victoria website builder</li>
+                <li>• Luxury flatlay library</li>
+                <li>• All future features</li>
+              </ul>
+              
+              <button
+                onClick={() => handleGetStarted('full-access')}
+                className="w-full py-4 bg-white text-black text-xs uppercase tracking-[0.3em] hover:bg-gray-100 transition-colors"
+              >
+                Start Full Access
+              </button>
+            </div>
+          </div>
+          
+          <p className="text-sm text-gray-600 mt-8">
+            Both plans include your personal AI model training. Cancel anytime.
+          </p>
+        </div>
+      </section>
 
       {/* Quote Section - Editorial */}
       <section className="py-32 bg-black text-white text-center">
@@ -522,16 +579,16 @@ export default function EditorialLanding() {
           </blockquote>
           
           <button
-            onClick={() => handleGetStarted('free')}
+            onClick={() => handleGetStarted('basic')}
             className="inline-block px-12 py-6 border border-white text-white text-xs uppercase tracking-[0.3em] hover:bg-white hover:text-black transition-all duration-300 mr-4"
           >
-            Start Free Today
+            Start €29
           </button>
           <button
-            onClick={() => handleGetStarted('sselfie-studio')}
+            onClick={() => handleGetStarted('full-access')}
             className="inline-block px-12 py-6 bg-white text-black text-xs uppercase tracking-[0.3em] hover:bg-gray-100 transition-all duration-300"
           >
-            Get Studio $47/mo
+            Full Access €67
           </button>
         </div>
       </section>
