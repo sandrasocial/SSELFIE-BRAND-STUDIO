@@ -65,6 +65,30 @@ function ChatHistoryLinks({ onChatSelect }: { onChatSelect: (chatId: number) => 
 
 export default function Maya() {
   const { user, isLoading } = useAuth();
+  
+  // LUXURY LOADING STATE
+  if (isLoading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-white">
+        <div className="text-center">
+          {/* LUXURY LOADING ANIMATION */}
+          <div className="relative w-20 h-20 mx-auto mb-8">
+            <div className="absolute inset-0 border-2 border-gray-200 rounded-full"></div>
+            <div className="absolute inset-0 border-2 border-black border-t-transparent rounded-full animate-spin"></div>
+            <div className="absolute inset-3 border border-gray-300 rounded-full animate-pulse"></div>
+            <div className="absolute inset-6 bg-black/5 rounded-full"></div>
+          </div>
+          
+          <div className="font-serif text-xl font-light uppercase tracking-[0.3em] text-black mb-3">
+            Maya Loading
+          </div>
+          <p className="text-sm text-gray-600 font-light tracking-wide max-w-xs mx-auto leading-relaxed">
+            ✨ Your celebrity stylist is preparing your personalized session...
+          </p>
+        </div>
+      </div>
+    );
+  }
   const [, setLocation] = useLocation();
   const { toast } = useToast();
   const queryClient = useQueryClient();

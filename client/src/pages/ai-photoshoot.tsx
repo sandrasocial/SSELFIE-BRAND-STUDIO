@@ -793,7 +793,7 @@ export default function AIPhotoshootPage() {
         },
         credentials: 'include',
         body: JSON.stringify({
-          customPrompt: prompt.prompt.replace('[triggerword]', userModel?.triggerWord || 'useradmin_sandra_2025')
+          customPrompt: prompt.prompt.replace('[triggerword]', (userModel as any)?.triggerWord || 'useradmin_sandra_2025')
         }),
       });
 
@@ -854,7 +854,7 @@ export default function AIPhotoshootPage() {
       setShowPreviewModal(false);
       toast({
         title: "Generation Failed",
-        description: error.message || "Something went wrong with image generation",
+        description: (error as Error).message || "Something went wrong with image generation",
         variant: "destructive",
       });
     }
@@ -880,7 +880,7 @@ export default function AIPhotoshootPage() {
         
         if (completedResponse.ok) {
           const completedTrackers = await completedResponse.json();
-          const ourTracker = completedTrackers.find(t => t.id === trackerId);
+          const ourTracker = completedTrackers.find((t: any) => t.id === trackerId);
           
           if (ourTracker && ourTracker.status === 'completed' && ourTracker.imageUrls?.length > 0) {
             console.log('AI-PHOTOSHOOT: ✅ TRACKER ALREADY COMPLETED!', ourTracker);
@@ -1113,13 +1113,26 @@ export default function AIPhotoshootPage() {
     <div className="min-h-screen bg-white">
       <MemberNavigation />
       
-      {/* Generation Progress Bar */}
+      {/* LUXURY GENERATION PROGRESS BAR */}
       {generatingImages && (
-        <div className="fixed top-0 left-0 right-0 h-0.5 bg-gray-100 z-50">
-          <div 
-            className="h-full bg-black transition-all duration-300 ease-out"
-            style={{ width: `${generationProgress}%` }}
-          />
+        <div className="fixed top-0 left-0 right-0 z-50">
+          {/* Luxury Progress Bar */}
+          <div className="h-1 bg-gray-100/80 backdrop-blur-sm">
+            <div 
+              className="h-full bg-gradient-to-r from-black via-gray-800 to-black transition-all duration-500 ease-out"
+              style={{ width: `${generationProgress}%` }}
+            />
+          </div>
+          
+          {/* Luxury Value Messaging */}
+          <div className="bg-white/95 backdrop-blur-md border-b border-gray-100 px-6 py-3">
+            <div className="max-w-4xl mx-auto text-center">
+              <div className="text-xs text-gray-600 leading-relaxed">
+                <div className="mb-1">✨ <strong>€67 Premium Service:</strong> Professional-grade AI photography</div>
+                <div>Natural skin texture • Film grain authenticity • Gallery-ready results</div>
+              </div>
+            </div>
+          </div>
         </div>
       )}
       
@@ -1128,7 +1141,7 @@ export default function AIPhotoshootPage() {
         backgroundImage={SandraImages.editorial.laptop1}
         tagline="Where your vision meets reality"
         title="PHOTOSHOOT"
-        subtitle={userModel?.trainingStatus === 'completed' ? "YOUR MODEL IS TRAINED" : "COMPLETE TRAINING FIRST"}
+        subtitle={(userModel as any)?.trainingStatus === 'completed' ? "YOUR MODEL IS TRAINED" : "COMPLETE TRAINING FIRST"}
         ctaText="Start Creating"
         ctaLink="#collections"
       />
@@ -1146,23 +1159,49 @@ export default function AIPhotoshootPage() {
 
         {!selectedCollection ? (
           <div>
-            {/* Collection Cards Grid - Admin Agent Style */}
-            <div className="grid grid-cols-2 md:grid-cols-3 gap-6 max-w-4xl mx-auto">
+            {/* Collection Cards Grid - LUXURY GALLERY TREATMENT */}
+            <div className="grid grid-cols-2 md:grid-cols-3 gap-8 max-w-5xl mx-auto">
               {Object.values(PROMPT_COLLECTIONS).map((collection) => (
                 <div
                   key={collection.id}
                   onClick={() => setSelectedCollection(collection.id)}
-                  className={`relative group cursor-pointer transition-all duration-300 aspect-square overflow-hidden ${
+                  className={`relative group cursor-pointer transition-all duration-500 aspect-[3/4] overflow-hidden shadow-[0_8px_30px_rgb(0,0,0,0.12)] ${
                     selectedCollection === collection.id 
-                      ? 'ring-2 ring-black' 
-                      : 'hover:scale-[1.02]'
+                      ? 'ring-2 ring-black transform scale-[1.02]' 
+                      : 'hover:scale-[1.03] hover:shadow-[0_20px_60px_rgb(0,0,0,0.25)]'
                   }`}
+                  style={{
+                    background: 'linear-gradient(135deg, #f8f9fa 0%, #ffffff 100%)',
+                    backdropFilter: 'blur(10px)'
+                  }}
                 >
-                  <img
-                    src={collection.preview}
-                    alt={collection.name}
-                    className="w-full h-full object-cover"
-                  />
+                  {/* LUXURY IMAGE CONTAINER */}
+                  <div className="relative w-full h-3/4 overflow-hidden">
+                    <img
+                      src={collection.preview}
+                      alt={collection.name}
+                      className="w-full h-full object-cover transition-all duration-700 group-hover:scale-105"
+                      style={{
+                        filter: 'contrast(1.1) saturate(1.05)',
+                      }}
+                    />
+                    {/* LUXURY OVERLAY GRADIENT */}
+                    <div className="absolute inset-0 bg-gradient-to-t from-black/30 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
+                  </div>
+                  
+                  {/* LUXURY TYPOGRAPHY TREATMENT */}
+                  <div className="absolute bottom-0 left-0 right-0 p-6 bg-white/95 backdrop-blur-sm">
+                    <div className="text-center">
+                      <div className="font-serif text-sm font-light uppercase tracking-[0.3em] text-black mb-1">
+                        {collection.name}
+                      </div>
+                      {collection.subtitle && (
+                        <div className="text-xs tracking-[0.2em] opacity-70 font-light uppercase">
+                          {collection.subtitle}
+                        </div>
+                      )}
+                    </div>
+                  </div>
                   
                   <div className={`absolute inset-0 bg-black transition-opacity duration-300 ${
                     selectedCollection === collection.id ? 'bg-opacity-30' : 'bg-opacity-50 group-hover:bg-opacity-30'
@@ -1203,23 +1242,23 @@ export default function AIPhotoshootPage() {
             <div className="text-center mb-16">
               <h2 className="font-serif text-[clamp(2rem,4vw,3rem)] font-light uppercase mb-2" 
                   style={{ letterSpacing: '0.3em' }}>
-                {PROMPT_COLLECTIONS[selectedCollection]?.name}
+                {(PROMPT_COLLECTIONS as any)[selectedCollection]?.name}
               </h2>
-              {PROMPT_COLLECTIONS[selectedCollection]?.subtitle && (
+              {(PROMPT_COLLECTIONS as any)[selectedCollection]?.subtitle && (
                 <h3 className="font-serif text-[clamp(1.5rem,3vw,2rem)] font-light uppercase mb-4" 
                     style={{ letterSpacing: '0.3em' }}>
-                  {PROMPT_COLLECTIONS[selectedCollection]?.subtitle}
+                  {(PROMPT_COLLECTIONS as any)[selectedCollection]?.subtitle}
                 </h3>
               )}
               <p className="text-gray-600 max-w-2xl mx-auto text-lg font-light">
-                {PROMPT_COLLECTIONS[selectedCollection]?.description}
+                {(PROMPT_COLLECTIONS as any)[selectedCollection]?.description}
               </p>
               
 
             </div>
 
-            {/* Prompt Cards Grid - Admin Agent Style */}
-            <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+            {/* LUXURY PROMPT CARDS GALLERY */}
+            <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
               {(PROMPT_COLLECTIONS as any)[selectedCollection]?.prompts.map((prompt: any) => {
                 const canGenerate = (userModel as any)?.trainingStatus === 'completed';
                 
@@ -1237,12 +1276,51 @@ export default function AIPhotoshootPage() {
                         });
                       }
                     }}
-                    className={`relative group cursor-pointer transition-all duration-300 aspect-square overflow-hidden ${
+                    className={`relative group cursor-pointer transition-all duration-500 aspect-[3/4] overflow-hidden ${
                       canGenerate 
-                        ? 'hover:scale-[1.02]' 
-                        : 'opacity-50 cursor-not-allowed'
+                        ? 'hover:scale-[1.03] shadow-[0_8px_30px_rgb(0,0,0,0.12)] hover:shadow-[0_20px_60px_rgb(0,0,0,0.25)]' 
+                        : 'opacity-40 cursor-not-allowed shadow-[0_4px_15px_rgb(0,0,0,0.08)]'
                     }`}
+                    style={{
+                      background: 'linear-gradient(135deg, #f8f9fa 0%, #ffffff 100%)',
+                      backdropFilter: 'blur(5px)',
+                      border: '1px solid rgba(0,0,0,0.05)'
+                    }}
                   >
+                    {/* LUXURY PROMPT PREVIEW */}
+                    <div className="relative w-full h-full">
+                      {/* Elegant Preview Placeholder */}
+                      <div className="w-full h-3/4 bg-gradient-to-br from-gray-50 to-gray-100 flex items-center justify-center">
+                        <div className="text-center p-4">
+                          <div className="w-16 h-16 mx-auto mb-3 bg-black/10 rounded-full flex items-center justify-center">
+                            <div className="w-8 h-8 border-2 border-black/20 rounded-full" />
+                          </div>
+                          <div className="text-xs uppercase tracking-[0.2em] font-light text-gray-600">
+                            {prompt.category}
+                          </div>
+                        </div>
+                      </div>
+                      
+                      {/* LUXURY PROMPT DETAILS */}
+                      <div className="absolute bottom-0 left-0 right-0 p-4 bg-white/95 backdrop-blur-sm">
+                        <div className="text-center">
+                          <div className="font-serif text-xs font-light uppercase tracking-[0.2em] text-black mb-1">
+                            {prompt.name}
+                          </div>
+                          <div className="text-[10px] text-gray-600 font-light leading-relaxed line-clamp-2">
+                            {prompt.description}
+                          </div>
+                        </div>
+                      </div>
+                      
+                      {/* LUXURY HOVER EFFECT */}
+                      <div className="absolute inset-0 bg-gradient-to-t from-black/20 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-all duration-500" />
+                      
+                      {/* GENERATION INDICATOR */}
+                      {canGenerate && (
+                        <div className="absolute top-3 right-3 w-2 h-2 bg-green-500 rounded-full opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+                      )}
+                    </div>
                     {/* Use collection preview image for all prompts in that collection */}
                     <img
                       src={(PROMPT_COLLECTIONS as any)[selectedCollection]?.preview}
