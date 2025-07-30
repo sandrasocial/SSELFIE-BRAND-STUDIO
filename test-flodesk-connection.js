@@ -14,13 +14,60 @@ async function testFlodeskConnection() {
   console.log(`🔑 API Key prefix: ${apiKey.substring(0, 15)}...`);
   
   try {
-    const response = await fetch('https://api.flodesk.com/v1/subscribers?page=1&limit=5', {
+    // Try different Flodesk API approaches
+    console.log('🔍 Testing multiple authentication approaches...');
+    
+    // Test 1: Standard Bearer token
+    let response = await fetch('https://api.flodesk.com/v1/subscribers?page=1&limit=5', {
       headers: {
         'Authorization': `Bearer ${apiKey}`,
         'Content-Type': 'application/json',
-        'User-Agent': 'SSELFIE Studio (https://sselfie.ai)'
+        'User-Agent': 'SSELFIE Studio/1.0',
+        'Accept': 'application/json'
       }
     });
+    
+    console.log(`📡 Test 1 (Bearer): ${response.status} ${response.statusText}`);
+    
+    if (!response.ok) {
+      // Test 2: Try different endpoint format
+      response = await fetch('https://api.flodesk.com/v1/subscribers', {
+        headers: {
+          'Authorization': `Bearer ${apiKey}`,
+          'Content-Type': 'application/json',
+          'Accept': 'application/json'
+        }
+      });
+      
+      console.log(`📡 Test 2 (No params): ${response.status} ${response.statusText}`);
+    }
+    
+    if (!response.ok) {
+      // Test 3: Try X-API-Key format
+      response = await fetch('https://api.flodesk.com/v1/subscribers?page=1&limit=5', {
+        headers: {
+          'X-API-Key': apiKey,
+          'Content-Type': 'application/json',
+          'Accept': 'application/json'
+        }
+      });
+      
+      console.log(`📡 Test 3 (X-API-Key): ${response.status} ${response.statusText}`);
+    }
+    
+    if (!response.ok) {
+      // Test 4: Try BASIC AUTH (from official docs)
+      const basicAuth = Buffer.from(`${apiKey}:`).toString('base64');
+      response = await fetch('https://api.flodesk.com/v1/subscribers?page=1&per_page=5', {
+        headers: {
+          'Authorization': `Basic ${basicAuth}`,
+          'Content-Type': 'application/json',
+          'User-Agent': 'SSELFIE Studio/1.0'
+        }
+      });
+      
+      console.log(`📡 Test 4 (Basic Auth): ${response.status} ${response.statusText}`);
+    }
     
     console.log(`📡 Response status: ${response.status} ${response.statusText}`);
     

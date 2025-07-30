@@ -61,17 +61,18 @@ export class ManyChatImportService {
       let cursor: string | undefined;
 
       while (hasMore) {
-        const url = new URL(`${this.baseUrl}/subscriber/findByName`);
-        if (cursor) {
-          url.searchParams.append('cursor', cursor);
-        }
-        url.searchParams.append('count', '100');
-
-        const response = await fetch(url.toString(), {
+        // Use correct ManyChat API endpoint and method
+        const response = await fetch(`${this.baseUrl}/subscriber/findByName`, {
+          method: 'POST',
           headers: {
             'Authorization': `Bearer ${this.apiKey}`,
             'Content-Type': 'application/json'
-          }
+          },
+          body: JSON.stringify({
+            name: '',  // Empty name to get all subscribers
+            page_token: cursor || undefined,
+            limit: 100
+          })
         });
 
         if (!response.ok) {

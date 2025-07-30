@@ -51,11 +51,13 @@ export class FlodeskImportService {
       let hasMore = true;
 
       while (hasMore) {
-        const response = await fetch(`${this.baseUrl}/subscribers?page=${page}&limit=100`, {
+        // Use Basic Auth as per Flodesk API documentation
+        const basicAuth = Buffer.from(`${this.apiKey}:`).toString('base64');
+        const response = await fetch(`${this.baseUrl}/subscribers?page=${page}&per_page=100`, {
           headers: {
-            'Authorization': `Bearer ${this.apiKey}`,
+            'Authorization': `Basic ${basicAuth}`,
             'Content-Type': 'application/json',
-            'User-Agent': 'SSELFIE Studio (https://sselfie.ai)'
+            'User-Agent': 'SSELFIE Studio/1.0 (https://sselfie.ai)'
           }
         });
 
