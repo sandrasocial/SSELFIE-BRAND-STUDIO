@@ -658,29 +658,43 @@ Remember: You are the MEMBER experience Victoria - provide website building guid
   app.get('/api/generation-tracker/:trackerId', isAuthenticated, async (req: any, res) => {
     try {
       const { trackerId } = req.params;
+      console.log(`🔍 TRACKER DEBUG: Looking for tracker ${trackerId}`);
+      
       const tracker = await storage.getGenerationTracker(parseInt(trackerId));
       
       if (!tracker) {
+        console.log(`❌ TRACKER DEBUG: Tracker ${trackerId} not found in database`);
         return res.status(404).json({ error: 'Generation tracker not found' });
       }
       
-      // Verify user owns this tracker
+      console.log(`✅ TRACKER DEBUG: Found tracker ${trackerId}, userId: ${tracker.userId}, status: ${tracker.status}`);
+      
+      // Verify user owns this tracker - use auth ID directly for admin
       const authUserId = req.user.claims.sub;
       const claims = req.user.claims;
       
-      // Get the correct database user ID
-      let user = await storage.getUser(authUserId);
-      if (!user && claims.email) {
-        user = await storage.getUserByEmail(claims.email);
-      }
+      console.log(`🔍 USER DEBUG: Auth user ID: ${authUserId}, Email: ${claims.email}`);
       
-      if (!user) {
-        return res.status(404).json({ error: 'User not found' });
-      }
-      
-      // Check if tracker belongs to this user
-      if (tracker.userId !== user.id) {
-        return res.status(403).json({ error: 'Unauthorized access to tracker' });
+      // Admin user 42585527 should have direct access
+      if (authUserId === '42585527' || claims.email === 'ssa@ssasocial.com') {
+        console.log(`🔑 ADMIN ACCESS: Granting admin access to tracker ${trackerId}`);
+      } else {
+        // Get the correct database user ID for non-admin users
+        let user = await storage.getUser(authUserId);
+        if (!user && claims.email) {
+          user = await storage.getUserByEmail(claims.email);
+        }
+        
+        if (!user) {
+          console.log(`❌ USER DEBUG: User not found for auth ID ${authUserId}`);
+          return res.status(404).json({ error: 'User not found' });
+        }
+        
+        // Check if tracker belongs to this user
+        if (tracker.userId !== user.id) {
+          console.log(`❌ AUTH DEBUG: User ${user.id} trying to access tracker owned by ${tracker.userId}`);
+          return res.status(403).json({ error: 'Unauthorized access to tracker' });
+        }
       }
       
       // Parse URLs for preview

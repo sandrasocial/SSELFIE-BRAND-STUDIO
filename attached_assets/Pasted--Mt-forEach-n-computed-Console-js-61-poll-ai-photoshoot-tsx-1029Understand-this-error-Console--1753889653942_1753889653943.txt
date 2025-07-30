@@ -1,0 +1,39 @@
+
+Mt.forEach.n.<computed> @ Console.js:61
+poll @ ai-photoshoot.tsx:1029Understand this error
+Console.js:61 🔍 useAuth final state: {isAuthenticated: true, actuallyLoading: false, hasUser: true, userId: '42585527', rawLoading: false, …}
+Console.js:61 AI-PHOTOSHOOT: Preview modal check - showPreviewModal: true generatedImages.length: 0
+Console.js:61 🔍 useAuth final state: {isAuthenticated: true, actuallyLoading: false, hasUser: true, userId: '42585527', rawLoading: false, …}
+ai-photoshoot.tsx:922  GET https://e33979fc-c9be-4f0d-9a7b-6a3e83046828-00-3ij9k7qy14rai.picard.replit.dev/api/generation-tracker/412 404 (Not Found)
+window.fetch @ Network.js:219
+poll @ ai-photoshoot.tsx:922
+setTimeout
+poll @ ai-photoshoot.tsx:1031Understand this error
+Console.js:61 AI-PHOTOSHOOT: Polling attempt 3/40, status: 404
+Console.js:61 AI-PHOTOSHOOT: Tracker not found, checking completed list...
+Console.js:61 AI-PHOTOSHOOT: Checking for immediate completion...
+Console.js:61 AI-PHOTOSHOOT: Immediate completion check failed, continuing with polling: SyntaxError: Unexpected token '<', "<!DOCTYPE "... is not valid JSON
+Console.js:61 AI-PHOTOSHOOT: Tracker fetch failed: 404
+Mt.forEach.n.<computed> @ Console.js:61
+poll @ ai-photoshoot.tsx:958
+setTimeout
+poll @ ai-photoshoot.tsx:1031Understand this error
+Console.js:61 AI-PHOTOSHOOT: Polling error: Error: Failed to fetch tracker status
+    at poll (ai-photoshoot.tsx:959:17)
+Mt.forEach.n.<computed> @ Console.js:61
+poll @ ai-photoshoot.tsx:1029
+setTimeout
+poll @ ai-photoshoot.tsx:1031Understand this error
+Console.js:61 🔍 useAuth final state: {isAuthenticated: true, actuallyLoading: false, hasUser: true, userId: '42585527', rawLoading: false, …}
+Console.js:61 AI-PHOTOSHOOT: Preview modal check - showPreviewModal: true generatedImages.length: 0
+Console.js:61 🔍 useAuth final state: {isAuthenticated: true, actuallyLoading: false, hasUser: true, userId: '42585527', rawLoading: false, …}
+ai-photoshoot.tsx:922  GET https://e33979fc-c9be-4f0d-9a7b-6a3e83046828-00-3ij9k7qy14rai.picard.replit.dev/api/generation-tracker/412 404 (Not Found)
+window.fetch @ Network.js:219
+poll @ ai-photoshoot.tsx:922
+setTimeout
+poll @ ai-photoshoot.tsx:1031
+setTimeout
+poll @ ai-photoshoot.tsx:1031Understand this error
+Console.js:61 AI-PHOTOSHOOT: Polling attempt 4/40, status: 404
+Console.js:61 AI-PHOTOSHOOT: Tracker not found, checking completed list...
+Console.js:61 AI-PHOTOSHOOT: Checking for immediate completion...
