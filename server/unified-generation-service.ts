@@ -85,6 +85,7 @@ export class UnifiedGenerationService {
       version: fullModelVersion,
       input: {
         prompt: finalPrompt,
+        lora_scale: 1.1, // ENHANCED: Stronger user likeness
         guidance: 2.82,
         num_inference_steps: 48,
         num_outputs: 2,
@@ -104,6 +105,7 @@ export class UnifiedGenerationService {
     ArchitectureValidator.validateGenerationRequest(requestBody, userId, isPremium);
     
     console.log(`🚀 SANDRA'S ENHANCED PARAMETERS:`, {
+      lora_scale: requestBody.input.lora_scale,
       guidance: requestBody.input.guidance,
       steps: requestBody.input.num_inference_steps,
       megapixels: requestBody.input.megapixels,
