@@ -1003,12 +1003,12 @@ export class DatabaseStorage implements IStorage {
       .where(eq(mayaChatMessages.id, messageId));
   }
 
-  // Missing generation tracker method for website generator
-  async getGenerationTracker(trackerId: string): Promise<GenerationTracker | undefined> {
+  // Get generation tracker by prediction ID for website generator
+  async getGenerationTrackerByPredictionId(predictionId: string): Promise<GenerationTracker | undefined> {
     const [tracker] = await db
       .select()
       .from(generationTrackers)
-      .where(eq(generationTrackers.predictionId, trackerId));
+      .where(eq(generationTrackers.predictionId, predictionId));
     return tracker;
   }
 
