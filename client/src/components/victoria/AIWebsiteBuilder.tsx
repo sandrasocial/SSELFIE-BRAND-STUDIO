@@ -7,7 +7,7 @@ import { useWebsiteBuilder } from '@/hooks/useWebsiteBuilder';
 import { Button } from '@/components/ui/button';
 
 export function AIWebsiteBuilder() {
-  const [currentView, setCurrentView] = useState<'mode-select' | 'wizard' | 'chat' | 'preview' | 'customize'>('mode-select');
+  const [currentView, setCurrentView] = useState<'wizard' | 'preview' | 'customize'>('wizard');
   const { currentWebsite, generationProgress, isGenerating, simulateProgress } = useWebsiteBuilder();
 
   useEffect(() => {
