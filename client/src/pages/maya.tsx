@@ -445,8 +445,9 @@ export default function Maya() {
         setSavedImages(prev => new Set([...Array.from(prev), url]));
       });
       
-      // Refresh gallery to show newly saved images
+      // Refresh both gallery endpoints to show newly saved images
       queryClient.invalidateQueries({ queryKey: ['/api/gallery-images'] });
+      queryClient.invalidateQueries({ queryKey: ['/api/ai-images'] });
       
       // Remove toast - Maya explains everything in chat
     } catch (error) {
