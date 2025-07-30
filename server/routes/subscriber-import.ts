@@ -38,17 +38,7 @@ router.post('/flodesk/import', isAuthenticated, isAdmin, async (req, res) => {
         const [inserted] = await db
           .insert(importedSubscribers)
           .values(subscriber)
-          .onConflictDoUpdate({
-            target: [importedSubscribers.email, importedSubscribers.source],
-            set: {
-              firstName: subscriber.firstName,
-              lastName: subscriber.lastName,
-              status: subscriber.status,
-              tags: subscriber.tags,
-              customFields: subscriber.customFields,
-              updatedAt: new Date()
-            }
-          })
+.onConflictDoNothing()
           .returning();
         
         insertedSubscribers.push(inserted);
