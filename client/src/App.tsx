@@ -49,6 +49,7 @@ import AgentCommandCenter from "@/pages/agent-command-center";
 import CustomPhotoshootLibrary from "@/pages/custom-photoshoot-library";
 import FlatlayLibrary from "@/pages/flatlay-library";
 import Maya from "@/pages/maya";
+import MayaChatWrapper from "@/pages/maya-chat-wrapper";
 import Victoria from "@/pages/victoria";
 import VictoriaChat from "@/pages/victoria-chat";
 
@@ -225,7 +226,8 @@ function Router() {
       <Route path="/profile" component={(props) => <ProtectedRoute component={Profile} {...props} />} />
       
       {/* AI AGENTS */}
-      <Route path="/maya" component={(props) => <ProtectedRoute component={Maya} {...props} />} />
+      <Route path="/maya" component={(props) => <ProtectedRoute component={MayaChatWrapper} {...props} />} />
+      <Route path="/maya-old" component={(props) => <ProtectedRoute component={Maya} {...props} />} />
       <Route path="/victoria" component={(props) => <ProtectedRoute component={Victoria} {...props} />} />
       <Route path="/victoria-chat" component={(props) => <ProtectedRoute component={VictoriaChat} {...props} />} />
       <Route path="/photo-selection" component={(props) => <ProtectedRoute component={PhotoSelection} {...props} />} />
