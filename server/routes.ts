@@ -130,7 +130,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  // Maya Chat endpoint - Individual conversation processing
+  // Maya Chat endpoint - MEMBER AGENT (Image Generation Guide)
   app.post('/api/maya-chat', isAuthenticated, async (req: any, res) => {
     try {
       const { message, chatHistory } = req.body;
@@ -140,7 +140,11 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.status(400).json({ error: 'Message is required' });
       }
 
-      console.log('💬 Maya chat message received from user:', userId);
+      console.log('💬 Maya MEMBER chat message received from user:', userId);
+
+      // Import member agent personality (secure - no file modification)
+      const { MEMBER_AGENT_PERSONALITIES } = await import('./member-agent-personalities');
+      const mayaPersonality = MEMBER_AGENT_PERSONALITIES.maya;
 
       // Get user context for personalized responses
       const user = await storage.getUser(userId);
@@ -152,30 +156,17 @@ export async function registerRoutes(app: Express): Promise<Server> {
         onboardingData = null;
       }
       
-      // Maya's AI photographer personality
-      const mayaSystemPrompt = `You are Maya, Sandra's world-renowned Celebrity Stylist and Editorial Photographer who creates revolutionary concepts that go beyond simple portraits. You've styled A-list celebrities for Vogue covers, luxury brands, and high-end editorial shoots.
+      // Enhanced member system prompt with user context
+      const memberSystemPrompt = `${mayaPersonality.systemPrompt}
 
-Your personality:
-- Passionate and energetic about creating stunning visuals
-- Expert in luxury fashion, lighting, and editorial photography
-- Understands business branding and visual storytelling
-- Speaks with excitement about creative possibilities
-- Professional but warm and encouraging
-
-Your capabilities:
-- Generate detailed photography prompts for AI image creation
-- Suggest styling, poses, and concepts for professional photos
-- Help users visualize their brand through photography
-- Create cohesive visual narratives for personal brands
-
-When users ask for photos or describe what they want, you can offer to generate images using their trained AI model. Be specific about styling, lighting, poses, and overall concept.
-
-User context:
+Current user context:
 - User ID: ${userId}
 - User email: ${user?.email || 'Not available'}
 - Plan: ${user?.plan || 'Not specified'}
 - Onboarding style preferences: ${onboardingData?.stylePreferences || 'Not specified'}
-- Business type: ${onboardingData?.businessType || 'Not specified'}`;
+- Business type: ${onboardingData?.businessType || 'Not specified'}
+
+Remember: You are the MEMBER experience Maya - provide creative guidance and image generation support WITHOUT any file modification capabilities.`;
 
       // Call Claude API for Maya response
       let response = '';
@@ -203,7 +194,7 @@ User context:
                 content: message
               }
             ],
-            system: mayaSystemPrompt
+            system: memberSystemPrompt
           })
         });
 
@@ -234,12 +225,104 @@ User context:
         message: response,
         canGenerate,
         generatedPrompt: canGenerate ? generatedPrompt : undefined,
+        agentName: 'Maya - Celebrity Stylist & AI Photography Guide',
+        agentType: 'member',
         timestamp: new Date().toISOString()
       });
 
     } catch (error) {
       console.error('Maya chat error:', error);
       res.status(500).json({ error: 'Failed to process Maya chat' });
+    }
+  });
+
+  // Victoria Website Chat endpoint - MEMBER AGENT (Website Building Guide)
+  app.post('/api/victoria-website-chat', isAuthenticated, async (req: any, res) => {
+    try {
+      const { message, onboardingData, conversationHistory } = req.body;
+      const userId = req.user?.claims?.sub;
+      
+      if (!message) {
+        return res.status(400).json({ error: 'Message is required' });
+      }
+
+      console.log('💬 Victoria MEMBER website chat message received from user:', userId);
+
+      // Import member agent personality (secure - no file modification)
+      const { MEMBER_AGENT_PERSONALITIES } = await import('./member-agent-personalities');
+      const victoriaPersonality = MEMBER_AGENT_PERSONALITIES.victoria;
+
+      // Get user context for personalized responses
+      const user = await storage.getUser(userId);
+      
+      // Enhanced member system prompt with user context
+      const memberSystemPrompt = `${victoriaPersonality.systemPrompt}
+
+Current user context:
+- User ID: ${userId}
+- User email: ${user?.email || 'Not available'}
+- Plan: ${user?.plan || 'Not specified'}
+- Business type: ${onboardingData?.businessType || 'Not specified'}
+- Brand goals: ${onboardingData?.goals || 'Not specified'}
+- Personal brand name: ${onboardingData?.personalBrandName || 'Not specified'}
+
+Remember: You are the MEMBER experience Victoria - provide website building guidance and business strategy WITHOUT any file modification capabilities.`;
+
+      // Call Claude API for Victoria's response
+      try {
+        const claudeResponse = await fetch('https://api.anthropic.com/v1/messages', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'x-api-key': process.env.ANTHROPIC_API_KEY!,
+            'anthropic-version': '2023-06-01'
+          },
+          body: JSON.stringify({
+            model: 'claude-3-5-sonnet-20241022',
+            max_tokens: 1000,
+            messages: [
+              ...(conversationHistory || []).map((msg: any) => ({
+                role: msg.role === 'victoria' ? 'assistant' : 'user',
+                content: msg.content
+              })),
+              {
+                role: 'user',
+                content: message
+              }
+            ],
+            system: memberSystemPrompt
+          })
+        });
+
+        if (!claudeResponse.ok) {
+          throw new Error(`Claude API error: ${claudeResponse.status}`);
+        }
+
+        const claudeData = await claudeResponse.json();
+        const response = claudeData.content[0].text;
+
+        res.json({
+          success: true,
+          response,
+          agentName: 'Victoria - Website Building Guide & Business Expert',
+          agentType: 'member',
+          timestamp: new Date().toISOString()
+        });
+
+      } catch (error) {
+        console.error('Victoria Claude API error:', error);
+        res.json({
+          success: true,
+          response: "Hey beautiful! I'm having a little technical hiccup right now, but I'm still here to help you build an amazing website! Could you try again in just a moment? I'm so excited to work on this with you! 💫",
+          agentName: 'Victoria - Website Building Guide & Business Expert',
+          agentType: 'member',
+          timestamp: new Date().toISOString()
+        });
+      }
+
+    } catch (error) {
+      console.error('Victoria website chat error:', error);
+      res.status(500).json({ error: 'Failed to process Victoria website chat' });
     }
   });
 
