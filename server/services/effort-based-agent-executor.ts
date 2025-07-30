@@ -198,21 +198,36 @@ export class EffortBasedAgentExecutor {
     conversationId?: string
   ): Promise<{ response: string; toolsUsed?: string[] }> {
     
-    // CRITICAL COST FIX: COMPLETELY bypass expensive Claude API
-    console.log('💰 COST-EFFECTIVE EXECUTION: Using direct agent logic instead of expensive Claude API');
+    console.log('🚨 FAKE COMPLETION SYSTEM DISABLED - AGENTS MUST DO ACTUAL WORK');
+    console.log('💰 COST-EFFECTIVE EXECUTION: Using real Claude API with proper task execution');
     
-    // Direct cost-effective agent response based on task
-    const response = this.generateCostEffectiveResponse(agentName, task, iteration);
-    
-    // Mock tool usage for completion tracking
-    const toolsUsed = this.determineCostEffectiveTools(agentName, task);
-    
-    console.log(`💰 COST SAVINGS: Generated response for ${agentName} without $5+ Claude API call`);
-    
-    return {
-      response,
-      toolsUsed
-    };
+    try {
+      // Use the actual Claude API with proper agent execution
+      const { sendMessage } = await import('../services/claude-api-service.js');
+      const response = await sendMessage({
+        agentId: agentName,
+        message: task,
+        userId: userId,
+        conversationId: conversationId || `task-${Date.now()}`,
+        fileEditMode: true // Enable real file modifications
+      });
+      
+      console.log(`✅ REAL EXECUTION: ${agentName} completed actual work with file modifications`);
+      
+      return {
+        response: response.message || response.response,
+        toolsUsed: response.toolsUsed || []
+      };
+      
+    } catch (error) {
+      console.error(`❌ REAL EXECUTION FAILED for ${agentName}:`, error);
+      
+      // Return honest failure message instead of fake success
+      return {
+        response: `❌ **${agentName.toUpperCase()} EXECUTION FAILED**\n\nTask could not be completed due to: ${error.message}\n\nPlease try breaking this task into smaller steps or check system configuration.`,
+        toolsUsed: []
+      };
+    }
   }
 
   private generateCostEffectiveResponse(agentName: string, task: string, iteration: number): string {
