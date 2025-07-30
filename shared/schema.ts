@@ -392,6 +392,11 @@ export const brandOnboarding = pgTable("brand_onboarding", {
   // Brand Personality
   brandPersonality: varchar("brand_personality").notNull(),
   brandValues: text("brand_values"),
+  // Design Preferences (from Zara's audit)
+  stylePreference: varchar("style_preference").default("editorial-luxury"),
+  colorScheme: varchar("color_scheme").default("black-white-editorial"),
+  typographyStyle: varchar("typography_style").default("times-editorial"),
+  designPersonality: varchar("design_personality").default("sophisticated"),
   createdAt: timestamp("created_at").defaultNow(),
   updatedAt: timestamp("updated_at").defaultNow(),
 });

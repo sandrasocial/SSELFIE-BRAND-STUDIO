@@ -35,6 +35,12 @@ interface BrandOnboardingData {
   // Brand Personality
   brandPersonality: string; // sophisticated, warm, bold, minimalist, etc.
   brandValues: string; // 3-5 core values
+  
+  // Design Preferences (Missing from Zara's audit)
+  stylePreference: string; // editorial-luxury, modern-minimal, warm-personal, professional-clean
+  colorScheme: string; // black-white-editorial, warm-neutrals, bold-accent, monochrome
+  typographyStyle: string; // times-editorial, modern-sans, classic-serif, contemporary-mix
+  designPersonality: string; // sophisticated, approachable, bold, elegant, authentic
 }
 
 export default function BrandOnboarding() {
@@ -58,7 +64,11 @@ export default function BrandOnboarding() {
     email: '',
     location: '',
     brandPersonality: '',
-    brandValues: ''
+    brandValues: '',
+    stylePreference: 'editorial-luxury',
+    colorScheme: 'black-white-editorial',
+    typographyStyle: 'times-editorial',
+    designPersonality: 'sophisticated'
   });
   const { toast } = useToast();
   const queryClient = useQueryClient();
@@ -122,7 +132,7 @@ export default function BrandOnboarding() {
   };
 
   const handleNextStep = () => {
-    if (currentStep < 4) {
+    if (currentStep < 5) {
       setCurrentStep(currentStep + 1);
     } else {
       // Final step - save all data
@@ -146,6 +156,8 @@ export default function BrandOnboarding() {
         return formData.primaryOffer && formData.primaryOfferPrice;
       case 4:
         return formData.email && formData.brandPersonality;
+      case 5:
+        return formData.stylePreference && formData.colorScheme && formData.typographyStyle;
       default:
         return false;
     }
@@ -175,7 +187,7 @@ export default function BrandOnboarding() {
             </Link>
             <div className="text-center">
               <h1 className="text-2xl font-serif text-black">Brand Story</h1>
-              <p className="text-sm text-gray-600 mt-1">Step {currentStep} of 4</p>
+              <p className="text-sm text-gray-600 mt-1">Step {currentStep} of 5</p>
             </div>
             <div className="w-24" /> {/* Spacer */}
           </div>
@@ -187,7 +199,7 @@ export default function BrandOnboarding() {
         <div className="w-full bg-gray-200 rounded-full h-2">
           <div 
             className="bg-black h-2 rounded-full transition-all duration-300" 
-            style={{ width: `${(currentStep / 4) * 100}%` }}
+            style={{ width: `${(currentStep / 5) * 100}%` }}
           />
         </div>
       </div>
@@ -447,6 +459,103 @@ export default function BrandOnboarding() {
           </div>
         )}
 
+        {currentStep === 5 && (
+          <div className="space-y-6">
+            <div className="text-center mb-8">
+              <h2 className="text-3xl font-serif text-black mb-3">Design Preferences</h2>
+              <p className="text-gray-600 text-lg">Choose the visual style for your website</p>
+            </div>
+
+            <div>
+              <label className="block text-sm font-medium text-black mb-4">Website Style *</label>
+              <div className="grid grid-cols-2 gap-4">
+                {[
+                  { value: 'editorial-luxury', label: 'Editorial Luxury', desc: 'Magazine-style with Times New Roman' },
+                  { value: 'modern-minimal', label: 'Modern Minimal', desc: 'Clean lines and contemporary fonts' },
+                  { value: 'warm-personal', label: 'Warm Personal', desc: 'Approachable and friendly design' },
+                  { value: 'professional-clean', label: 'Professional Clean', desc: 'Crisp business aesthetic' }
+                ].map((style) => (
+                  <div
+                    key={style.value}
+                    onClick={() => handleInputChange('stylePreference', style.value)}
+                    className={`p-4 border-2 rounded-lg cursor-pointer transition-all ${
+                      formData.stylePreference === style.value
+                        ? 'border-black bg-gray-50'
+                        : 'border-gray-200 hover:border-gray-300'
+                    }`}
+                  >
+                    <h3 className="font-medium text-black mb-1">{style.label}</h3>
+                    <p className="text-sm text-gray-600">{style.desc}</p>
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            <div>
+              <label className="block text-sm font-medium text-black mb-4">Color Scheme *</label>
+              <div className="grid grid-cols-2 gap-4">
+                {[
+                  { value: 'black-white-editorial', label: 'Black & White Editorial', desc: 'Classic magazine contrast' },
+                  { value: 'warm-neutrals', label: 'Warm Neutrals', desc: 'Creams, beiges, and soft browns' },
+                  { value: 'bold-accent', label: 'Bold Accent', desc: 'Neutral base with strong accent color' },
+                  { value: 'monochrome', label: 'Monochrome', desc: 'Single color with tonal variations' }
+                ].map((color) => (
+                  <div
+                    key={color.value}
+                    onClick={() => handleInputChange('colorScheme', color.value)}
+                    className={`p-4 border-2 rounded-lg cursor-pointer transition-all ${
+                      formData.colorScheme === color.value
+                        ? 'border-black bg-gray-50'
+                        : 'border-gray-200 hover:border-gray-300'
+                    }`}
+                  >
+                    <h3 className="font-medium text-black mb-1">{color.label}</h3>
+                    <p className="text-sm text-gray-600">{color.desc}</p>
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            <div>
+              <label className="block text-sm font-medium text-black mb-4">Typography Style *</label>
+              <div className="grid grid-cols-2 gap-4">
+                {[
+                  { value: 'times-editorial', label: 'Times Editorial', desc: 'Classic serif for luxury appeal' },
+                  { value: 'modern-sans', label: 'Modern Sans', desc: 'Clean contemporary typefaces' },
+                  { value: 'classic-serif', label: 'Classic Serif', desc: 'Traditional book-style fonts' },
+                  { value: 'contemporary-mix', label: 'Contemporary Mix', desc: 'Serif headers, sans body text' }
+                ].map((typo) => (
+                  <div
+                    key={typo.value}
+                    onClick={() => handleInputChange('typographyStyle', typo.value)}
+                    className={`p-4 border-2 rounded-lg cursor-pointer transition-all ${
+                      formData.typographyStyle === typo.value
+                        ? 'border-black bg-gray-50'
+                        : 'border-gray-200 hover:border-gray-300'
+                    }`}
+                  >
+                    <h3 className="font-medium text-black mb-1">{typo.label}</h3>
+                    <p className="text-sm text-gray-600">{typo.desc}</p>
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            <div>
+              <label htmlFor="design-personality" className="block text-sm font-medium text-black mb-2">Design Personality</label>
+              <Input
+                id="design-personality"
+                name="designPersonality"
+                value={formData.designPersonality}
+                onChange={(e) => handleInputChange('designPersonality', e.target.value)}
+                placeholder="sophisticated, approachable, bold, elegant, authentic"
+                className="w-full"
+              />
+              <p className="text-sm text-gray-500 mt-1">How should your website feel to visitors?</p>
+            </div>
+          </div>
+        )}
+
         {/* Navigation Buttons */}
         <div className="flex justify-between items-center mt-12 pt-8 border-t border-gray-200">
           <Button
@@ -460,7 +569,7 @@ export default function BrandOnboarding() {
 
           <div className="text-center">
             <p className="text-sm text-gray-500 mb-2">
-              {currentStep === 4 ? 'Ready to create your template?' : 'Complete this step to continue'}
+              {currentStep === 5 ? 'Ready to create your template?' : 'Complete this step to continue'}
             </p>
           </div>
 
@@ -474,7 +583,7 @@ export default function BrandOnboarding() {
                 <div className="animate-spin w-4 h-4 border-2 border-white border-t-transparent rounded-full mr-2" />
                 Creating Template...
               </div>
-            ) : currentStep === 4 ? (
+            ) : currentStep === 5 ? (
               'Create My Template ›'
             ) : (
               'Next ›'

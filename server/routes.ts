@@ -5,6 +5,7 @@ import { setupRollbackRoutes } from './routes/rollback.js';
 import { storage } from "./storage";
 import { setupAuth, isAuthenticated } from "./replitAuth";
 import victoriaWebsiteRouter from "./routes/victoria-website";
+import { registerVictoriaService } from "./routes/victoria-service";
 
 // UNIFIED AGENT SYSTEM IMPORT (Single source of truth)
 import { unifiedAgentSystem } from './unified-agent-system';
@@ -20,6 +21,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
   
   // Setup rollback routes
   setupRollbackRoutes(app);
+  
+  // Register Victoria AI service layer
+  registerVictoriaService(app);
   
   // Health check endpoint
   app.get('/api/health', (req, res) => {
