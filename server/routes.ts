@@ -25,6 +25,109 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Register Victoria AI service layer
   registerVictoriaService(app);
   
+  // Website management endpoints
+  app.get('/api/websites', isAuthenticated, async (req: any, res) => {
+    try {
+      const userId = req.user?.claims?.sub;
+      const { db } = await import('./db');
+      const { websites } = await import('../shared/schema');
+      const { eq, desc } = await import('drizzle-orm');
+      
+      const userWebsites = await db
+        .select()
+        .from(websites)
+        .where(eq(websites.userId, userId))
+        .orderBy(desc(websites.updatedAt));
+      
+      res.json(userWebsites);
+    } catch (error) {
+      console.error("Error fetching websites:", error);
+      res.status(500).json({ message: "Failed to fetch websites" });
+    }
+  });
+
+  app.post('/api/websites', isAuthenticated, async (req: any, res) => {
+    try {
+      const userId = req.user?.claims?.sub;
+      const { db } = await import('./db');
+      const { websites, insertWebsiteSchema } = await import('../shared/schema');
+      
+      const validatedData = insertWebsiteSchema.parse({ ...req.body, userId });
+      
+      const [newWebsite] = await db
+        .insert(websites)
+        .values(validatedData)
+        .returning();
+      
+      res.json(newWebsite);
+    } catch (error) {
+      console.error("Error creating website:", error);
+      res.status(500).json({ message: "Failed to create website" });
+    }
+  });
+
+  app.put('/api/websites/:id', isAuthenticated, async (req: any, res) => {
+    try {
+      const userId = req.user?.claims?.sub;
+      const websiteId = parseInt(req.params.id);
+      const { db } = await import('./db');
+      const { websites } = await import('../shared/schema');
+      const { eq, and } = await import('drizzle-orm');
+      
+      const [updatedWebsite] = await db
+        .update(websites)
+        .set({ ...req.body, updatedAt: new Date() })
+        .where(and(eq(websites.id, websiteId), eq(websites.userId, userId)))
+        .returning();
+      
+      if (!updatedWebsite) {
+        return res.status(404).json({ message: "Website not found" });
+      }
+      
+      res.json(updatedWebsite);
+    } catch (error) {
+      console.error("Error updating website:", error);
+      res.status(500).json({ message: "Failed to update website" });
+    }
+  });
+
+  app.delete('/api/websites/:id', isAuthenticated, async (req: any, res) => {
+    try {
+      const userId = req.user?.claims?.sub;
+      const websiteId = parseInt(req.params.id);
+      const { db } = await import('./db');
+      const { websites } = await import('../shared/schema');
+      const { eq, and } = await import('drizzle-orm');
+      
+      const [deletedWebsite] = await db
+        .delete(websites)
+        .where(and(eq(websites.id, websiteId), eq(websites.userId, userId)))
+        .returning();
+      
+      if (!deletedWebsite) {
+        return res.status(404).json({ message: "Website not found" });
+      }
+      
+      res.json({ message: "Website deleted successfully" });
+    } catch (error) {
+      console.error("Error deleting website:", error);
+      res.status(500).json({ message: "Failed to delete website" });
+    }
+  });
+
+  app.post('/api/websites/:id/refresh-screenshot', isAuthenticated, async (req: any, res) => {
+    try {
+      const userId = req.user?.claims?.sub;
+      const websiteId = parseInt(req.params.id);
+      // TODO: Implement screenshot generation logic
+      // For now, return success
+      res.json({ message: "Screenshot refresh requested" });
+    } catch (error) {
+      console.error("Error refreshing screenshot:", error);
+      res.status(500).json({ message: "Failed to refresh screenshot" });
+    }
+  });
+  
   // Health check endpoint
   app.get('/api/health', (req, res) => {
     res.json({ status: 'ok', timestamp: new Date().toISOString() });
