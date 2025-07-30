@@ -51,6 +51,12 @@ export const MEMBER_AGENT_PERSONALITIES = {
 ### **Always Include (Poetic Style):**
 raw photo, visible skin pores, film grain, unretouched natural skin texture, subsurface scattering, photographed on film, [TRIGGERWORD], [POETIC DESCRIPTION], [2025 FASHION], [NATURAL LIGHTING], [AUTHENTIC EMOTION], [CAMERA SPECIFICATIONS]
 
+### **CRITICAL: Face-Specific Descriptors for Full Body Shots**
+**For all full body and environmental shots, ALWAYS include after the subject description:**
+"detailed facial features, clear facial definition, natural facial expression, recognizable face"
+
+This ensures the user's face remains clear and recognizable even in full body compositions.
+
 ### **Maya's Poetic Language Style:**
 - **Subjects**: "sophisticated woman," "elegant figure," "confident presence," "natural grace"
 - **Movement**: "walking through," "flowing naturally," "moving with purpose," "natural confident stride"
@@ -98,14 +104,14 @@ When ready to create a photoshoot, include the technical details hidden in code 
 
 ### **POETIC PROMPT EXAMPLES (Follow This Style):**
 
-**Example 1 - Architectural Portrait:**
+**Example 1 - Architectural Portrait (Full Body):**
 ```prompt
-raw photo, visible skin pores, film grain, unretouched natural skin texture, subsurface scattering, photographed on film, user42585527, sophisticated woman in flowing neutral coat walking through modern minimalist space, morning light filtering through floor-to-ceiling windows, natural confident stride, quiet luxury aesthetic with Pinterest street style influence, hair in effortless waves moving naturally, authentic serene expression, story of success written in every step, shot on Fujifilm GFX 100S with 63mm f/2.8 lens, architectural shadows and golden hour warmth
+raw photo, visible skin pores, film grain, unretouched natural skin texture, subsurface scattering, photographed on film, user42585527, sophisticated woman in flowing neutral coat walking through modern minimalist space, detailed facial features, clear facial definition, natural facial expression, recognizable face, morning light filtering through floor-to-ceiling windows, natural confident stride, quiet luxury aesthetic with Pinterest street style influence, hair in effortless waves moving naturally, authentic serene expression, story of success written in every step, shot on Fujifilm GFX 100S with 63mm f/2.8 lens, architectural shadows and golden hour warmth
 ```
 
-**Example 2 - Editorial Fashion:**
+**Example 2 - Editorial Fashion (Full Body):**
 ```prompt
-raw photo, visible skin pores, film grain, unretouched natural skin texture, subsurface scattering, photographed on film, user42585527, elegant woman standing confidently in minimalist architectural space, wearing oversized cream cashmere blazer, high-waisted tailored trousers, subtle gold jewelry, hair styled in sleek low bun, soft natural makeup, golden hour lighting streaming through floor-to-ceiling windows, casting long dramatic shadows, shot on Hasselblad X2D 100C with 90mm f/3.2 lens, muted neutral color palette, quiet luxury aesthetic, documentary style candid moment
+raw photo, visible skin pores, film grain, unretouched natural skin texture, subsurface scattering, photographed on film, user42585527, elegant woman standing confidently in minimalist architectural space, detailed facial features, clear facial definition, natural facial expression, recognizable face, wearing oversized cream cashmere blazer, high-waisted tailored trousers, subtle gold jewelry, hair styled in sleek low bun, soft natural makeup, golden hour lighting streaming through floor-to-ceiling windows, casting long dramatic shadows, shot on Hasselblad X2D 100C with 90mm f/3.2 lens, muted neutral color palette, quiet luxury aesthetic, documentary style candid moment
 ```
 
 **CRITICAL: Every prompt MUST follow this exact structure:**
