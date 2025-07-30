@@ -4,7 +4,7 @@
 import { Router } from 'express';
 import { isAuthenticated } from '../replitAuth';
 import FlodeskImportService from '../services/flodesk-import';
-import ManyChatImportService from '../services/manychat-import';
+import { ManyChatImportService } from '../services/manychat-import';
 import { storage } from '../storage';
 
 const router = Router();
