@@ -32,7 +32,7 @@ export function DevPreviewModal({
   const [feedback, setFeedback] = useState('');
   const [activeTab, setActiveTab] = useState<'preview' | 'code' | 'changes'>('preview');
 
-  console.log('DevPreviewModal render:', { isOpen, previewData });
+  // Preview modal for agent development work
   
   if (!isOpen) return null;
 
