@@ -1128,7 +1128,7 @@ export default function AIPhotoshootPage() {
           <div className="bg-white/95 backdrop-blur-md border-b border-gray-100 px-6 py-3">
             <div className="max-w-4xl mx-auto text-center">
               <div className="text-xs text-gray-600 leading-relaxed">
-                <div className="mb-1">✨ <strong>€67 Premium Service:</strong> Professional-grade AI photography</div>
+                <div className="mb-1"><strong>€67 Premium Service:</strong> Professional-grade AI photography</div>
                 <div>Natural skin texture • Film grain authenticity • Gallery-ready results</div>
               </div>
             </div>
@@ -1334,7 +1334,7 @@ export default function AIPhotoshootPage() {
                     AI Photography Results
                   </h3>
                   <p className="text-sm text-gray-600 font-light tracking-wide">
-                    ✨ Professional-grade images ready for your gallery
+                    Professional-grade images ready for your gallery
                   </p>
                 </div>
                 <button 
@@ -1441,7 +1441,7 @@ export default function AIPhotoshootPage() {
                       {savedImages.has(imageUrl) && (
                         <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/80 via-black/40 to-transparent p-4">
                           <div className="text-white text-sm font-light tracking-wide">
-                            ✓ Saved to Gallery
+                            Saved to Gallery
                           </div>
                         </div>
                       )}
