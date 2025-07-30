@@ -49,9 +49,9 @@ interface Conversation {
   updatedAt: string;
 }
 
-// Effort-based agent API functions - Cost-effective execution
+// Admin consulting agent API functions - Using correct agent personalities
 const sendClaudeMessage = async (agentName: string, message: string, conversationId: string, fileEditMode: boolean = true, signal?: AbortSignal) => {
-  const response = await fetch('/api/agents/effort-based/execute', {
+  const response = await fetch('/api/admin/agent-chat-bypass', {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
@@ -60,10 +60,9 @@ const sendClaudeMessage = async (agentName: string, message: string, conversatio
     credentials: 'include',
     signal,
     body: JSON.stringify({
-      agentName: agentName.toLowerCase(),
-      task: message,
-      priority: 'high',
-      maxEffort: 10,
+      agentId: agentName.toLowerCase(),
+      message,
+      fileEditMode,
       conversationId
     }),
   });
@@ -75,13 +74,12 @@ const sendClaudeMessage = async (agentName: string, message: string, conversatio
 
   const result = await response.json();
   
-  // Transform effort-based response to match expected format
+  // Handle admin agent chat response format
   return {
-    success: result.success,
-    response: result.result?.result || 'Task completed',
+    success: true,
+    response: result.response || result.message || 'Task completed',
     conversationId: conversationId,
-    cost: result.result?.costEstimate || 0,
-    effortUsed: result.result?.effortUsed || 0
+    agentName: result.agentName || agentName
   };
 };
 
