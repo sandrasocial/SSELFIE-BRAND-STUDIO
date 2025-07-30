@@ -4,6 +4,7 @@ import { createServer, type Server } from "http";
 import { setupRollbackRoutes } from './routes/rollback.js';
 import { storage } from "./storage";
 import { setupAuth, isAuthenticated } from "./replitAuth";
+import victoriaWebsiteRouter from "./routes/victoria-website";
 
 // UNIFIED AGENT SYSTEM IMPORT (Single source of truth)
 import { unifiedAgentSystem } from './unified-agent-system';

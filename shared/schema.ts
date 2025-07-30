@@ -469,6 +469,25 @@ export const insertAgentCapabilitySchema = createInsertSchema(agentCapabilities)
 // Type exports
 export type UpsertUser = z.infer<typeof upsertUserSchema>;
 export type User = typeof users.$inferSelect;
+
+// Website storage table for Victoria-generated websites
+export const websites = pgTable("websites", {
+  id: varchar("id").primaryKey(),
+  userId: varchar("user_id").notNull().references(() => users.id),
+  businessName: varchar("business_name").notNull(),
+  businessType: varchar("business_type").notNull(),
+  status: varchar("status").notNull().default("draft"), // draft, generated, deployed
+  template: varchar("template").notNull(),
+  content: jsonb("content").notNull(),
+  design: jsonb("design").notNull(),
+  deploymentUrl: varchar("deployment_url"),
+  metadata: jsonb("metadata").default({}),
+  createdAt: timestamp("created_at").defaultNow(),
+  updatedAt: timestamp("updated_at").defaultNow(),
+});
+
+export type Website = typeof websites.$inferSelect;
+export type InsertWebsite = typeof websites.$inferInsert;
 export type MayaChat = typeof mayaChats.$inferSelect;
 export type InsertMayaChat = typeof mayaChats.$inferInsert;
 export type MayaChatMessage = typeof mayaChatMessages.$inferSelect;
