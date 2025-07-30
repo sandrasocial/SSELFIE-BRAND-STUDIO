@@ -7,6 +7,8 @@ import { GlobalFooter } from '@/components/global-footer';
 import AgentBridgeToggle from '@/components/admin/AgentBridgeToggle';
 import LuxuryProgressDisplay from '@/components/admin/LuxuryProgressDisplay';
 import { useAgentBridge } from '@/hooks/use-agent-bridge';
+import ReactMarkdown from 'react-markdown';
+import remarkGfm from 'remark-gfm';
 
 // Agent images - same as admin dashboard
 import AgentElena from '@assets/out-0 (33)_1753426218039.png';
@@ -221,15 +223,28 @@ const formatToolResults = (content: string): string[] => {
   return tools;
 };
 
-// TEMPORARILY DISABLED: Clean message content function (showing all agent work)
+// Smart content cleaning for luxury user experience
 const cleanMessageContent = (content: string): string => {
-  // DISABLED: Return original content to see what agents are actually doing
-  console.log('🔍 SHOWING FULL AGENT RESPONSE (cleanMessageContent DISABLED)');
-  console.log('🔍 Response length:', content.length);
-  console.log('🔍 Response preview:', content.substring(0, 200));
+  let cleaned = content;
   
-  // Return the original content without any cleaning to see agent tool usage
-  return content;
+  // Remove raw tool output sections that clutter the user experience
+  cleaned = cleaned.replace(/\[File Operation:.*?\]/gs, '');
+  cleaned = cleaned.replace(/\[Codebase Search Results:.*?\]/gs, '');
+  cleaned = cleaned.replace(/\[Command Execution:.*?\]/gs, '');
+  cleaned = cleaned.replace(/\[Web Search Results:.*?\]/gs, '');
+  
+  // Remove technical debugging messages
+  cleaned = cleaned.replace(/🔧 UNIVERSAL TOOL:.*?\n/g, '');
+  cleaned = cleaned.replace(/🔍 PATH VALIDATION:.*?\n/g, '');
+  cleaned = cleaned.replace(/✅ VALID PATH ACCEPTED:.*?\n/g, '');
+  cleaned = cleaned.replace(/✅ FILE OP SUCCESS:.*?\n/g, '');
+  cleaned = cleaned.replace(/🎯 TOOL COMPLETION:.*?\n/g, '');
+  
+  // Remove empty lines and excessive whitespace
+  cleaned = cleaned.replace(/\n\s*\n\s*\n/g, '\n\n');
+  cleaned = cleaned.trim();
+  
+  return cleaned || 'Agent response processed successfully.';
 };
 
 export default function AdminConsultingAgents() {
@@ -861,47 +876,68 @@ export default function AdminConsultingAgents() {
                 </div>
 
                 {/* Messages Area */}
-                <div className="flex-1 overflow-y-auto space-y-6 mb-6">
+                <div className="flex-1 overflow-y-auto space-y-8 mb-6 px-2">
                   {messages.map((msg) => (
                     <div
                       key={msg.id}
                       className={`flex ${msg.type === 'user' ? 'justify-end' : 'justify-start'}`}
                     >
-                      <div className={`max-w-[80%] p-4 ${
+                      <div className={`max-w-[80%] p-6 ${
                         msg.type === 'user' 
-                          ? 'bg-black text-white ml-4' 
-                          : 'bg-gray-50 text-black mr-4'
+                          ? 'bg-black text-white ml-4 shadow-sm' 
+                          : 'bg-white text-black mr-4 border border-gray-100 shadow-sm'
                       }`}>
                         {msg.type === 'agent' && (
                           <div className="flex items-center gap-2 mb-2">
                             <span className="text-xs uppercase tracking-wide text-gray-500">
                               {msg.agentName}
                             </span>
-                            {/* Tool Usage Indicator - Simplified */}
-                            {msg.content.includes('[File Operation:') && (
-                              <div className="flex items-center gap-1">
-                                <span className="text-xs text-gray-400">•</span>
-                                <span className="text-xs px-2 py-1 bg-blue-100 text-blue-700 rounded-sm">
-                                  File Edit
-                                </span>
-                              </div>
-                            )}
-                            {msg.content.includes('[Codebase Search Results]') && (
-                              <div className="flex items-center gap-1">
-                                <span className="text-xs text-gray-400">•</span>
-                                <span className="text-xs px-2 py-1 bg-green-100 text-green-700 rounded-sm">
-                                  Code Search
-                                </span>
+                            {/* Elegant Tool Usage Indicators */}
+                            {formatToolResults(msg.content).length > 0 && (
+                              <div className="flex items-center gap-2">
+                                {formatToolResults(msg.content).map(tool => (
+                                  <span key={tool} className="inline-flex items-center gap-1">
+                                    <div className="w-1.5 h-1.5 rounded-full bg-gray-300"></div>
+                                    <span className="text-xs text-gray-500 uppercase tracking-wider">
+                                      {tool === 'str_replace_based_edit_tool' ? 'Files' :
+                                       tool === 'search_filesystem' ? 'Search' :
+                                       tool === 'bash' ? 'Execute' :
+                                       tool === 'web_search' ? 'Research' : tool}
+                                    </span>
+                                  </span>
+                                ))}
                               </div>
                             )}
                           </div>
                         )}
-                        <div className="text-sm leading-relaxed whitespace-pre-wrap">
-                          {cleanMessageContent(msg.content)}
+                        <div className="text-sm leading-relaxed">
+                          <ReactMarkdown 
+                            remarkPlugins={[remarkGfm]}
+                            components={{
+                              h1: ({children}) => <h1 className="text-lg font-semibold mb-3 text-black" style={{ fontFamily: 'Times New Roman, serif' }}>{children}</h1>,
+                              h2: ({children}) => <h2 className="text-base font-semibold mb-2 text-black" style={{ fontFamily: 'Times New Roman, serif' }}>{children}</h2>,
+                              h3: ({children}) => <h3 className="text-sm font-semibold mb-2 text-black" style={{ fontFamily: 'Times New Roman, serif' }}>{children}</h3>,
+                              strong: ({children}) => <strong className="font-semibold text-black">{children}</strong>,
+                              em: ({children}) => <em className="italic text-gray-700">{children}</em>,
+                              p: ({children}) => <p className="mb-3 last:mb-0">{children}</p>,
+                              ul: ({children}) => <ul className="list-disc pl-6 mb-3 space-y-1">{children}</ul>,
+                              ol: ({children}) => <ol className="list-decimal pl-6 mb-3 space-y-1">{children}</ol>,
+                              li: ({children}) => <li className="text-sm">{children}</li>,
+                              code: ({children}) => <code className="bg-gray-100 px-2 py-1 rounded text-xs font-mono">{children}</code>,
+                              pre: ({children}) => <pre className="bg-gray-50 p-3 rounded border text-xs font-mono overflow-x-auto mb-3">{children}</pre>,
+                              blockquote: ({children}) => <blockquote className="border-l-4 border-gray-300 pl-4 italic text-gray-600 my-3">{children}</blockquote>
+                            }}
+                          >
+                            {cleanMessageContent(msg.content)}
+                          </ReactMarkdown>
                         </div>
                         {msg.timestamp && (
-                          <div className="text-xs text-gray-400 mt-2">
-                            {new Date(msg.timestamp).toLocaleTimeString()}
+                          <div className="text-xs text-gray-400 mt-4 pt-2 border-t border-gray-100">
+                            {new Date(msg.timestamp).toLocaleTimeString([], { 
+                              hour: '2-digit', 
+                              minute: '2-digit',
+                              hour12: false 
+                            })}
                           </div>
                         )}
                       </div>
@@ -910,40 +946,57 @@ export default function AdminConsultingAgents() {
                   
                   {isLoading && (
                     <div className="flex justify-start">
-                      <div className="max-w-[80%] p-4 bg-gray-50 text-black mr-4">
-                        <div className="flex items-center gap-2 mb-2">
+                      <div className="max-w-[80%] p-6 bg-white text-black mr-4 border border-gray-100 shadow-sm">
+                        <div className="flex items-center gap-2 mb-3">
                           <span className="text-xs uppercase tracking-wide text-gray-500">
                             {selectedAgent.name}
                           </span>
-                          <div className="flex items-center gap-1">
-                            <div className="w-2 h-2 bg-gray-400 rounded-full animate-pulse"></div>
-                            <span className="text-xs text-gray-400">Working...</span>
+                          <div className="flex items-center gap-2">
+                            <div className="w-1.5 h-1.5 rounded-full bg-gray-300"></div>
+                            <span className="text-xs text-gray-500 uppercase tracking-wider">Working</span>
                           </div>
                         </div>
-                        <div className="flex items-center gap-2">
-                          <div className="w-3 h-3 border border-gray-400 border-t-black rounded-full animate-spin"></div>
-                          <span className="text-sm text-gray-600">Agent is analyzing...</span>
+                        <div className="flex items-center gap-3">
+                          <div className="w-4 h-4 border border-gray-300 border-t-black rounded-full animate-spin"></div>
+                          <span className="text-sm text-gray-600 font-light">Agent is analyzing your request...</span>
+                        </div>
+                        <div className="mt-4 pt-3 border-t border-gray-100">
+                          <div className="flex gap-2">
+                            <div className="w-2 h-1 bg-gray-200 rounded animate-pulse"></div>
+                            <div className="w-3 h-1 bg-gray-200 rounded animate-pulse delay-75"></div>
+                            <div className="w-2 h-1 bg-gray-200 rounded animate-pulse delay-150"></div>
+                          </div>
                         </div>
                       </div>
                     </div>
                   )}
                   
-                  {messages.length === 0 && (
-                    <div className="text-center py-12 text-gray-500 font-light italic">
-                      Start a conversation with {selectedAgent?.name} for strategic analysis
+                  {messages.length === 0 && !isLoading && (
+                    <div className="text-center py-16 px-8">
+                      <div className="max-w-md mx-auto">
+                        <h3 className="text-lg font-light mb-3 text-gray-700" style={{ fontFamily: 'Times New Roman, serif' }}>
+                          {selectedAgent?.name} - {selectedAgent?.role}
+                        </h3>
+                        <p className="text-sm text-gray-500 font-light leading-relaxed mb-6">
+                          {selectedAgent?.specialty}
+                        </p>
+                        <div className="text-xs text-gray-400 uppercase tracking-wider">
+                          Start your conversation below
+                        </div>
+                      </div>
                     </div>
                   )}
                 </div>
 
                 {/* Message Input */}
-                <div className="border-t border-gray-200 pt-6">
-                  <div className="flex gap-4">
+                <div className="border-t border-gray-200 pt-6 bg-gray-50">
+                  <div className="flex gap-4 p-4">
                     <textarea
                       value={message}
                       onChange={(e) => setMessage(e.target.value)}
                       onKeyPress={handleKeyPress}
                       placeholder={`Ask ${selectedAgent?.name} for strategic analysis...`}
-                      className="flex-1 resize-none border border-gray-300 rounded-sm p-4 font-light leading-relaxed focus:outline-none focus:border-black transition-colors"
+                      className="flex-1 resize-none border border-gray-200 rounded-sm p-4 font-light leading-relaxed focus:outline-none focus:border-black focus:bg-white transition-all duration-200 shadow-sm"
                       rows={3}
                     />
                     <div className="flex flex-col gap-2">
@@ -958,7 +1011,7 @@ export default function AdminConsultingAgents() {
                       <button
                         onClick={sendMessage}
                         disabled={isLoading || !message.trim()}
-                        className="px-8 py-4 bg-black text-white font-light uppercase tracking-wide hover:bg-gray-800 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                        className="px-8 py-4 bg-black text-white font-light uppercase tracking-wide hover:bg-gray-800 disabled:opacity-50 disabled:cursor-not-allowed transition-colors shadow-sm"
                       >
                         {bridgeEnabled ? 'Chat & Implement' : 'Send'}
                       </button>
