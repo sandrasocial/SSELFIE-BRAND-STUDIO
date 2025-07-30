@@ -222,7 +222,11 @@ export function ManyChatPSIDUploader({ onPSIDListReady }: ManyChatPSIDUploaderPr
             </CardDescription>
           </CardHeader>
           <CardContent>
-            <Button onClick={handleProceedWithImport} className="w-full">
+            <Button 
+              onClick={handleProceedWithImport} 
+              className="w-full bg-black text-white hover:bg-gray-800"
+              disabled={psidList.length === 0}
+            >
               Import {psidList.length} ManyChat Subscribers
             </Button>
             <p className="text-sm text-muted-foreground mt-2 text-center">
