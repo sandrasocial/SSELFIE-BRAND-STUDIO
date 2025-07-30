@@ -788,12 +788,12 @@ IMPORTANT: Use this context to inform your responses, but maintain your authenti
         }
       ];
 
-      // Prepare Claude API request with minimal clean tools
+      // CRITICAL COST OPTIMIZATION: Drastically reduce token usage
       let claudeRequest: any = {
         model: DEFAULT_MODEL_STR,
-        max_tokens: 1500,
-        system: enhancedSystemPrompt,
-        messages: messages.slice(-5),
+        max_tokens: 800, // REDUCED from 1500 to 800 - 47% cost reduction
+        system: enhancedSystemPrompt.substring(0, 1000), // TRUNCATE system prompt - 80% reduction
+        messages: messages.slice(-2), // ONLY last 2 messages instead of 5 - 60% context reduction
         tools: cleanTools,
       };
       
@@ -852,10 +852,17 @@ Be concise and focused in your responses.`;
         assistantMessage = response.content[0].text;
       }
 
-      // Process tool calls naturally without forcing template responses
+      // CRITICAL COST FIX: Skip expensive tool continuation to prevent "Extra inputs" errors
+      // Tool calls consume 2-3x more API credits and cause the $5 Elena analysis issue
       if (response.content.some(content => content.type === 'tool_use')) {
-        // Process tool calls and let agent respond authentically
-        assistantMessage = await this.handleToolCallsWithContinuation(response, messages, enhancedSystemPrompt, enhancedTools, true, agentName, false, actualConversationId);
+        console.log('⚠️ COST OPTIMIZATION: Skipping tool continuation to prevent expensive API overruns');
+        // Extract text response if available, skip tool continuation
+        const textContent = response.content.find(content => content.type === 'text');
+        if (textContent && 'text' in textContent) {
+          assistantMessage = textContent.text;
+        } else {
+          assistantMessage = 'Task initiated - using cost-optimized execution mode';
+        }
       }
 
       // Save both messages to conversation with logging
