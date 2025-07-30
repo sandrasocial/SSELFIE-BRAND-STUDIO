@@ -905,15 +905,23 @@ Remember: You are the MEMBER experience Victoria - provide website building guid
       // Generate conversation ID if not provided
       const finalConversationId = conversationId || `admin_${agentId}_${Date.now()}`;
       
-      const response = await claudeApiService.sendMessage(
-        userId,
-        agentId,
-        finalConversationId,
-        message,
-        agentConfig.systemPrompt,
-        agentConfig.allowedTools,
-        fileEditMode
-      );
+      // CRITICAL COST OPTIMIZATION: Route to effort-based system instead of expensive Claude API
+      console.log('💰 COST OPTIMIZATION: Using effort-based executor to prevent $5+ API calls');
+      
+      const { EffortBasedAgentExecutor } = await import('./services/effort-based-agent-executor');
+      const effortExecutor = new EffortBasedAgentExecutor();
+      
+      const taskResult = await effortExecutor.executeTask({
+        agentName: agentId,
+        userId: userId,
+        task: message,
+        conversationId: finalConversationId,
+        maxEffort: 3, // Limit to prevent expensive overruns like Elena's $5 analysis
+        priority: 'high'
+      });
+      
+      const response = taskResult.result;
+      console.log(`💰 COST SAVINGS: $${taskResult.costEstimate.toFixed(2)} vs $5-10 direct Claude API`);
       
       console.log(`✅ ADMIN AGENT ${agentId}: Response generated successfully`);
       
