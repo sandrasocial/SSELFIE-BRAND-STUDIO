@@ -6,6 +6,7 @@ import { claudeConversations, claudeMessages, agentLearning, agentCapabilities, 
 import { agentImplementationToolkit, AgentImplementationRequest } from '../tools/agent_implementation_toolkit';
 import { agentImplementationDetector } from '../tools/agent_implementation_detector';
 import { agentSearchCache } from './agent-search-cache';
+import { DirectToolExecutor } from './direct-tool-executor';
 import { eq, and, desc } from 'drizzle-orm';
 import fetch from 'node-fetch';
 
@@ -326,6 +327,14 @@ export class ClaudeApiService {
     fileEditMode?: boolean
   ): Promise<string> {
     try {
+      // DIRECT TOOL DETECTION: Execute file operations without Claude API costs
+      const directToolResult = await DirectToolExecutor.detectAndExecuteTools(userMessage, agentName);
+      if (directToolResult.toolsExecuted) {
+        console.log('🎯 DIRECT TOOLS: Executed file operations without API costs');
+        // Return the tool results immediately without Claude API call
+        return directToolResult.toolResults;
+      }
+      
       // Step 1: Get or create conversation and get the actual conversationId
       let actualConversationId = conversationId;
       
