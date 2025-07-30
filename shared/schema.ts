@@ -34,16 +34,12 @@ export const users = pgTable("users", {
   profileImageUrl: varchar("profile_image_url"),
   stripeCustomerId: varchar("stripe_customer_id"),
   stripeSubscriptionId: varchar("stripe_subscription_id"),
-  plan: varchar("plan").default("basic"), // basic, full-access (no more images-only)
+  plan: varchar("plan").default("free"), // basic, full-access (no more images-only)
   role: varchar("role").default("user"), // user, admin, founder
-  monthlyGenerationLimit: integer("monthly_generation_limit").default(30), // 30 for basic, 100 for full-access, unlimited (-1) for admin
+  monthlyGenerationLimit: integer("monthly_generation_limit").default(5), // 30 for basic, 100 for full-access, unlimited (-1) for admin
   generationsUsedThisMonth: integer("generations_used_this_month").default(0),
-  hasTrainedModel: boolean("has_trained_model").default(false), // Required for both tiers
   mayaAiAccess: boolean("maya_ai_access").default(true), // Available on both tiers
   victoriaAiAccess: boolean("victoria_ai_access").default(false), // Only for full-access tier
-  aiPhotoshootAccess: boolean("ai_photoshoot_access").default(true), // Available on both tiers
-  flatlayLibraryAccess: boolean("flatlay_library_access").default(false), // Only for full-access tier
-  websiteBuilderAccess: boolean("website_builder_access").default(false), // Only for full-access tier
   createdAt: timestamp("created_at").defaultNow(),
   updatedAt: timestamp("updated_at").defaultNow(),
 });
