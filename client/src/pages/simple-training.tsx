@@ -378,65 +378,112 @@ export default function SimpleTraining() {
                 You'll receive an email when it's ready.
               </p>
               
-              {/* Progress Bar */}
+              {/* LUXURY TRAINING ANIMATION */}
               <div style={{
-                maxWidth: '400px',
-                margin: '0 auto 20px auto',
-                background: 'rgba(255, 255, 255, 0.1)',
-                borderRadius: '12px',
+                position: 'relative',
+                width: '100px',
+                height: '100px',
+                margin: '0 auto 40px auto'
+              }}>
+                <div style={{
+                  position: 'absolute',
+                  inset: 0,
+                  border: '2px solid rgba(255, 255, 255, 0.1)',
+                  borderRadius: '50%'
+                }}></div>
+                <div style={{
+                  position: 'absolute',
+                  inset: 0,
+                  border: '2px solid #ffffff',
+                  borderTop: '2px solid transparent',
+                  borderRadius: '50%',
+                  animation: 'spin 2s linear infinite'
+                }}></div>
+                <div style={{
+                  position: 'absolute',
+                  inset: '12px',
+                  border: '1px solid rgba(255, 255, 255, 0.3)',
+                  borderRadius: '50%',
+                  animation: 'pulse 2s ease-in-out infinite'
+                }}></div>
+                <div style={{
+                  position: 'absolute',
+                  inset: '24px',
+                  background: 'rgba(255, 255, 255, 0.05)',
+                  borderRadius: '50%'
+                }}></div>
+              </div>
+              
+              {/* LUXURY PROGRESS BAR */}
+              <div style={{
+                maxWidth: '500px',
+                margin: '0 auto 30px auto',
+                background: 'rgba(255, 255, 255, 0.08)',
+                borderRadius: '16px',
                 overflow: 'hidden',
-                height: '8px'
+                height: '12px',
+                boxShadow: 'inset 0 2px 4px rgba(0, 0, 0, 0.1)'
               }}>
                 <div style={{
                   width: `${Math.max(5, trainingProgress)}%`,
                   height: '100%',
-                  background: '#ffffff',
-                  transition: 'width 0.3s ease'
+                  background: 'linear-gradient(90deg, #ffffff 0%, rgba(255, 255, 255, 0.9) 50%, #ffffff 100%)',
+                  transition: 'width 0.5s ease-out',
+                  borderRadius: '16px'
                 }}></div>
               </div>
               
-              {/* Training Stats */}
+              {/* LUXURY PROGRESS STATS */}
               <div style={{
                 display: 'flex',
                 justifyContent: 'center',
-                gap: 'clamp(20px, 5vw, 40px)',
-                fontSize: 'clamp(12px, 3vw, 14px)',
-                opacity: 0.8,
-                marginBottom: '20px',
+                gap: 'clamp(30px, 5vw, 60px)',
+                fontSize: 'clamp(13px, 3vw, 16px)',
+                marginBottom: '30px',
                 flexWrap: 'wrap',
                 padding: '0 20px'
               }}>
-                <div>Progress: {Math.max(5, trainingProgress)}%</div>
+                <div style={{
+                  opacity: 0.9,
+                  fontWeight: 300,
+                  letterSpacing: '0.05em'
+                }}>
+                  Progress: {Math.max(5, trainingProgress)}%
+                </div>
                 {estimatedTimeRemaining && (
-                  <div>Time Remaining: {estimatedTimeRemaining}</div>
+                  <div style={{
+                    opacity: 0.9,
+                    fontWeight: 300,
+                    letterSpacing: '0.05em'
+                  }}>
+                    Time Remaining: {estimatedTimeRemaining}
+                  </div>
                 )}
               </div>
               
+              {/* LUXURY VALUE MESSAGING */}
               <div style={{
-                display: 'flex',
-                justifyContent: 'center',
-                alignItems: 'center',
-                gap: 'clamp(20px, 5vw, 40px)',
-                marginBottom: '40px',
-                flexWrap: 'wrap',
-                padding: '0 20px'
+                maxWidth: '600px',
+                margin: '0 auto 40px auto',
+                padding: '24px 32px',
+                background: 'rgba(255, 255, 255, 0.05)',
+                borderRadius: '16px',
+                border: '1px solid rgba(255, 255, 255, 0.1)',
+                textAlign: 'center'
               }}>
                 <div style={{
-                  width: '16px',
-                  height: '16px',
-                  border: '2px solid rgba(255, 255, 255, 0.3)',
-                  borderTop: '2px solid #ffffff',
-                  borderRadius: '50%',
-                  animation: 'spin 1s linear infinite'
-                }}></div>
-                <div style={{
                   fontSize: 'clamp(12px, 3vw, 14px)',
-                  letterSpacing: '0.1em',
-                  textTransform: 'uppercase',
-                  opacity: 0.7,
-                  textAlign: 'center'
+                  opacity: 0.8,
+                  lineHeight: 1.6,
+                  fontWeight: 300,
+                  letterSpacing: '0.025em'
                 }}>
-                  Creating your personal AI model...
+                  <div style={{ marginBottom: '8px', fontWeight: 400 }}>
+                    ✨ <strong>€67 Premium Training Experience</strong>
+                  </div>
+                  <div>
+                    Professional-grade model • Face distortion prevention • Gallery-ready results
+                  </div>
                 </div>
               </div>
               
@@ -787,43 +834,103 @@ export default function SimpleTraining() {
               </div>
             )}
 
-            {/* Simple Start Button */}
+            {/* LUXURY START BUTTON */}
             <button
               onClick={handleStartTraining}
               disabled={selfieImages.length < 10 || startTraining.isPending}
               style={{
-                padding: 'clamp(14px, 3vw, 18px) clamp(24px, 6vw, 36px)',
-                fontSize: 'clamp(14px, 3.5vw, 16px)',
-                fontWeight: 500,
-                border: 'none',
-                borderRadius: '8px',
-                color: '#ffffff',
-                background: selfieImages.length >= 10 ? '#0a0a0a' : '#cccccc',
+                padding: 'clamp(16px, 3vw, 20px) clamp(32px, 6vw, 48px)',
+                fontSize: 'clamp(12px, 3vw, 14px)',
+                fontWeight: 400,
+                letterSpacing: '0.15em',
+                textTransform: 'uppercase',
+                border: selfieImages.length >= 10 ? '1px solid #0a0a0a' : '1px solid #cccccc',
+                borderRadius: '2px',
+                color: selfieImages.length >= 10 ? '#ffffff' : '#999999',
+                background: selfieImages.length >= 10 ? '#0a0a0a' : '#f5f5f5',
                 cursor: selfieImages.length >= 10 ? 'pointer' : 'not-allowed',
-                transition: 'all 300ms ease',
-                marginBottom: '24px',
+                transition: 'all 400ms ease',
+                marginBottom: '32px',
                 textAlign: 'center',
-                whiteSpace: 'nowrap',
+                position: 'relative',
                 overflow: 'hidden',
-                textOverflow: 'ellipsis',
-                maxWidth: '300px'
+                minWidth: '280px',
+                maxWidth: '400px'
+              }}
+              onMouseEnter={(e) => {
+                if (selfieImages.length >= 10) {
+                  const target = e.target as HTMLElement;
+                  target.style.background = 'transparent';
+                  target.style.color = '#0a0a0a';
+                }
+              }}
+              onMouseLeave={(e) => {
+                if (selfieImages.length >= 10) {
+                  const target = e.target as HTMLElement;
+                  target.style.background = '#0a0a0a';
+                  target.style.color = '#ffffff';
+                }
               }}
             >
-              {startTraining.isPending ? 'Starting training...' : 
-               selfieImages.length < 10 ? `Upload ${10 - selfieImages.length} more photos` : 
-               'Start AI Training (20 minutes)'}
+              {startTraining.isPending ? (
+                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '12px' }}>
+                  <div style={{
+                    width: '16px',
+                    height: '16px',
+                    border: '2px solid rgba(255, 255, 255, 0.3)',
+                    borderTop: '2px solid #ffffff',
+                    borderRadius: '50%',
+                    animation: 'spin 1s linear infinite'
+                  }}></div>
+                  INITIATING TRAINING...
+                </div>
+              ) : selfieImages.length < 10 ? 
+                `Upload ${10 - selfieImages.length} More Photos` : 
+                '✨ Start Premium AI Training'}
             </button>
 
+            {/* LUXURY VALUE MESSAGING */}
             {selfieImages.length >= 10 && !startTraining.isPending && (
-              <p style={{
-                fontSize: 'clamp(12px, 3vw, 14px)',
-                color: '#666666',
-                fontWeight: 300,
-                padding: '0 20px',
+              <div style={{
+                maxWidth: '500px',
+                margin: '0 auto 24px auto',
+                padding: '20px 24px',
+                background: 'linear-gradient(135deg, #f8f8f8 0%, #ffffff 100%)',
+                borderRadius: '12px',
+                border: '1px solid #e8e8e8',
                 textAlign: 'center'
               }}>
-                Your AI will learn from these photos and be ready in about 20 minutes
-              </p>
+                <div style={{
+                  fontSize: 'clamp(13px, 3vw, 15px)',
+                  color: '#333333',
+                  fontWeight: 300,
+                  lineHeight: 1.5,
+                  letterSpacing: '0.025em'
+                }}>
+                  <div style={{ marginBottom: '8px', fontWeight: 500 }}>
+                    ✨ <strong>€67 Premium Training Experience</strong>
+                  </div>
+                  <div style={{ opacity: 0.8 }}>
+                    Professional-grade AI model • 20-minute training • Face distortion prevention
+                  </div>
+                </div>
+              </div>
+            )}
+
+            {/* SIMPLE STATUS MESSAGE FOR OTHER STATES */}
+            {selfieImages.length < 10 && !startTraining.isPending && (
+              <div style={{
+                fontSize: 'clamp(12px, 3vw, 14px)',
+                color: '#888888',
+                fontWeight: 300,
+                padding: '0 20px',
+                textAlign: 'center',
+                maxWidth: '400px',
+                margin: '0 auto',
+                lineHeight: 1.4
+              }}>
+                Upload at least 10 photos to create your personalized AI model
+              </div>
             )}
           </div>
         </section>
