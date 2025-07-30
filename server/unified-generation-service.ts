@@ -86,7 +86,7 @@ export class UnifiedGenerationService {
       input: {
         prompt: finalPrompt,
         lora_scale: 1.1, // ENHANCED: Stronger user likeness
-        guidance: 2.82,
+        guidance_scale: 2.8, // CRITICAL FIX: Correct parameter name for realistic images
         num_inference_steps: 48,
         num_outputs: 2,
         aspect_ratio: "3:4",
@@ -106,7 +106,7 @@ export class UnifiedGenerationService {
     
     console.log(`🚀 SANDRA'S ENHANCED PARAMETERS:`, {
       lora_scale: requestBody.input.lora_scale,
-      guidance: requestBody.input.guidance,
+      guidance_scale: requestBody.input.guidance_scale,
       steps: requestBody.input.num_inference_steps,
       megapixels: requestBody.input.megapixels,
       go_fast: requestBody.input.go_fast,
