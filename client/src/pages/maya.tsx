@@ -9,6 +9,7 @@ import { apiRequest } from '@/lib/queryClient';
 import { SandraImages } from '@/lib/sandra-images';
 import { EditorialImageBreak } from '@/components/editorial-image-break';
 import { MemberNavigation } from '@/components/member-navigation';
+import { MayaChatInterface } from '@/components/maya/MayaChatInterface';
 
 interface ChatMessage {
   id?: number;
@@ -356,43 +357,13 @@ export default function Maya() {
     
     try {
       console.log('🔐 Maya: Making authenticated request to /api/maya-generate-images');
-      const response = await fetch('/api/maya-generate-images', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        credentials: 'include', // Ensure authentication cookies are sent
-        body: JSON.stringify({ customPrompt: prompt }),
+      const data = await apiRequest('/api/maya-generate-images', 'POST', {
+        customPrompt: prompt
       });
+      console.log('📡 Maya: Server response:', data);
 
-      const data = await response.json();
-      console.log('📡 Maya: Server response:', { status: response.status, ok: response.ok, data });
-
-      // Handle usage limit errors with upgrade prompts
-      if (!response.ok) {
-        console.error('Maya generation error:', {
-          status: response.status,
-          statusText: response.statusText,
-          data
-        });
-        
-        if (response.status === 401) {
-          toast({
-            title: "Authentication Required",
-            description: "Please log in to use Maya AI image generation.",
-            variant: "destructive",
-          });
-          setTimeout(() => {
-            window.location.href = '/login';
-          }, 1500);
-          return;
-        }
-        
-        if (response.status === 403 && data.upgrade) {
-          // Remove toast - Maya explains everything in chat
-          window.location.href = '/pricing';
-          return;
-        }
+      // Handle successful response
+      if (data.success) {
         
         // Check if it's a model validation error
         if (data.requiresTraining) {
