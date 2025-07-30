@@ -4,6 +4,7 @@ import { createServer, type Server } from "http";
 import { setupRollbackRoutes } from './routes/rollback.js';
 import { storage } from "./storage";
 import { setupAuth, isAuthenticated } from "./replitAuth";
+import emailAutomation from './routes/email-automation';
 import victoriaWebsiteRouter from "./routes/victoria-website";
 import { registerVictoriaService } from "./routes/victoria-service";
 import { registerVictoriaWebsiteGenerator } from "./routes/victoria-website-generator";
@@ -260,6 +261,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Test endpoint for search cache system
   const { agentSearchCacheTestRouter } = await import('./routes/agent-search-cache-test');
   app.use('/api', agentSearchCacheTestRouter);
+  
+  // Email automation routes
+  app.use('/api/email', emailAutomation);
   
   // AI Images endpoint - Production ready
   app.get('/api/ai-images', isAuthenticated, async (req: any, res) => {
