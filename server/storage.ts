@@ -637,14 +637,18 @@ export class DatabaseStorage implements IStorage {
   async hasMayaAIAccess(userId: string): Promise<boolean> {
     // Maya AI requires trained model on both basic and full-access tiers
     const user = await this.getUser(userId);
-    return user?.hasTrainedModel || user?.role === 'admin' || false;
+    const userModel = await this.getUserModel(userId);
+    const hasTrainedModel = userModel?.trainingStatus === 'completed';
+    return hasTrainedModel || user?.role === 'admin' || false;
   }
 
   async hasVictoriaAIAccess(userId: string): Promise<boolean> {
     // Victoria AI requires full-access tier + trained model
     const user = await this.getUser(userId);
+    const userModel = await this.getUserModel(userId);
+    const hasTrainedModel = userModel?.trainingStatus === 'completed';
     const hasFullAccess = user?.plan === 'full-access' || user?.role === 'admin';
-    return hasFullAccess && (user?.hasTrainedModel || user?.role === 'admin');
+    return hasFullAccess && (hasTrainedModel || user?.role === 'admin');
   }
 
   async hasSandraAIAccess(userId: string): Promise<boolean> {
@@ -992,7 +996,6 @@ export class DatabaseStorage implements IStorage {
         monthlyGenerationLimit: 30,
         mayaAiAccess: true,
         victoriaAiAccess: false,
-        aiPhotoshootAccess: true,
         flatlayLibraryAccess: false,
         websiteBuilderAccess: false
       };
@@ -1002,7 +1005,6 @@ export class DatabaseStorage implements IStorage {
         monthlyGenerationLimit: 100,
         mayaAiAccess: true,
         victoriaAiAccess: true,
-        aiPhotoshootAccess: true,
         flatlayLibraryAccess: true,
         websiteBuilderAccess: true
       };
@@ -1013,7 +1015,6 @@ export class DatabaseStorage implements IStorage {
         monthlyGenerationLimit: plan === 'images-only' ? 30 : 100,
         mayaAiAccess: true,
         victoriaAiAccess: plan !== 'images-only',
-        aiPhotoshootAccess: true,
         flatlayLibraryAccess: plan !== 'images-only',
         websiteBuilderAccess: plan !== 'images-only'
       };
@@ -1130,68 +1131,7 @@ export class DatabaseStorage implements IStorage {
     return subscription;
   }
 
-  // User plan upgrade method
-  async upgradeUserToPremium(userId: string, plan: string): Promise<User> {
-    console.log(`🔄 Upgrading user ${userId} to plan: ${plan}`);
-
-    // Update user plan
-    const [updatedUser] = await db
-      .update(users)
-      .set({ 
-        plan: plan,
-        monthlyGenerationLimit: plan === 'sselfie-studio' ? 100 : 100, // 100 generations for premium
-        mayaAiAccess: true,
-        victoriaAiAccess: true,
-        updatedAt: new Date()
-      })
-      .where(eq(users.id, userId))
-      .returning();
-
-    // Create or update subscription record
-    const existingSubscription = await this.getSubscription(userId);
-
-    if (existingSubscription) {
-      await this.updateSubscription(existingSubscription.id, {
-        plan: plan,
-        status: 'active'
-      });
-    } else {
-      await this.createSubscription({
-        userId,
-        plan,
-        status: 'active'
-      });
-    }
-
-    // CRITICAL: Initialize or update user usage record for the new plan
-    const existingUsage = await this.getUserUsage(userId);
-
-    if (existingUsage) {
-      // Update existing usage with new plan limits
-      await this.updateUserUsage(userId, {
-        plan: plan,
-        monthlyGenerationsAllowed: 100,
-        currentPeriodStart: new Date(),
-        currentPeriodEnd: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000), // 30 days from now
-        isLimitReached: false
-      });
-    } else {
-      // Create new usage record for upgraded user
-      await this.createUserUsage({
-        userId,
-        plan: plan,
-        monthlyGenerationsAllowed: 100,
-        monthlyGenerationsUsed: 0,
-        totalCostIncurred: "0.0000",
-        currentPeriodStart: new Date(),
-        currentPeriodEnd: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000),
-        isLimitReached: false,
-        lastGenerationAt: null
-      });
-    }
-
-    console.log(`✅ User ${userId} successfully upgraded to ${plan} with usage initialized`);
-    return updatedUser;
+  // Additional storage methods can be added here as needed
   }
 
   // Admin dashboard count operations

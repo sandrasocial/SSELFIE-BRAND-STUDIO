@@ -705,7 +705,7 @@ export const agentPerformanceMetrics = pgTable("agent_performance_metrics", {
   taskType: varchar("task_type").notNull(),
   successRate: decimal("success_rate").notNull(),
   averageTime: integer("average_time").default(0), // in milliseconds
-  userSatisfactionScore: decimal("user_satisfaction_score").default(0),
+  userSatisfactionScore: decimal("user_satisfaction_score").default("0"),
   totalTasks: integer("total_tasks").default(0),
   improvementTrend: varchar("improvement_trend").default('stable'), // 'improving', 'stable', 'declining'
   lastUpdated: timestamp("last_updated").defaultNow().notNull(),
