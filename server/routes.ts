@@ -905,8 +905,8 @@ Remember: You are the MEMBER experience Victoria - provide website building guid
       // Generate conversation ID if not provided
       const finalConversationId = conversationId || `admin_${agentId}_${Date.now()}`;
       
-      // CRITICAL COST OPTIMIZATION: Route to effort-based system instead of expensive Claude API
-      console.log('💰 COST OPTIMIZATION: Using effort-based executor to prevent $5+ API calls');
+      // COMPLETE COST OPTIMIZATION: Only use effort-based executor - NO expensive Claude API
+      console.log('💰 ROUTING FIX: Using ONLY effort-based executor - expensive Claude API completely removed');
       
       const { EffortBasedAgentExecutor } = await import('./services/effort-based-agent-executor');
       const effortExecutor = new EffortBasedAgentExecutor();
@@ -916,12 +916,16 @@ Remember: You are the MEMBER experience Victoria - provide website building guid
         userId: userId,
         task: message,
         conversationId: finalConversationId,
-        maxEffort: 3, // Limit to prevent expensive overruns like Elena's $5 analysis
+        maxEffort: 2, // Reduced from 3 to 2 - even more cost control
         priority: 'high'
       });
       
-      const response = taskResult.result;
-      console.log(`💰 COST SAVINGS: $${taskResult.costEstimate.toFixed(2)} vs $5-10 direct Claude API`);
+      if (!taskResult.success) {
+        throw new Error('Agent task execution failed: ' + taskResult.error);
+      }
+      
+      const response = taskResult.result || 'Task completed successfully';
+      console.log(`💰 COST CONTROL: $${taskResult.costEstimate.toFixed(2)} - No expensive Claude API routing`);
       
       console.log(`✅ ADMIN AGENT ${agentId}: Response generated successfully`);
       
