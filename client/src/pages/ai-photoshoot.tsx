@@ -21,21 +21,21 @@ const PROMPT_COLLECTIONS = {
         name: 'Morning Solitude',
         category: 'Inner Peace',
         description: 'Finding stillness in the storm - the morning ritual that saved your sanity',
-        prompt: 'film photograph, natural film grain, [triggerword], woman in soft neutral clothing sitting in meditation pose by large window, morning light gently illuminating her peaceful face, eyes closed in deep contemplation, natural untouched beauty, hair in simple loose style, hands resting gently, shot on Leica Q2 with 28mm f/1.7 lens, meditation photography, soft morning lighting, inner peace aesthetic'
+        prompt: 'editorial portrait, film photograph with natural film grain, [triggerword], woman in luxurious soft neutral cashmere layers sitting in elegant meditation pose by floor-to-ceiling window, crystal clear facial features with flawless skin texture, eyes gently closed in serene contemplation, natural editorial beauty with perfect bone structure, hair in effortlessly loose waves catching morning light, hands gracefully positioned, shot on Hasselblad X2D 100C with 80mm f/2.8 lens at f/4, luxury meditation lifestyle photography, golden morning light with soft directional shadows, sophisticated inner peace aesthetic'
       },
       {
         id: 'ocean-therapy-walk',
         name: 'Ocean Healing',
         category: 'Nature Therapy',
         description: 'Where the ocean became your therapist - finding peace in endless horizons',
-        prompt: 'film photograph, natural film grain, [triggerword], woman in flowing linen dress walking alone on empty beach at dawn, ocean waves gently reaching shore, contemplative expression while processing thoughts, hair moving naturally in sea breeze, bare feet in sand, shot on Canon EOS R5 with 85mm f/1.4 lens, ocean therapy photography, golden dawn lighting, healing solitude aesthetic'
+        prompt: 'editorial lifestyle portrait, film photograph with natural film grain, [triggerword], woman in flowing ivory linen maxi dress walking gracefully on pristine empty beach at golden hour dawn, crystal clear facial features with natural radiant skin, contemplative expression with perfect editorial composure, hair flowing naturally in gentle sea breeze with editorial movement, bare feet elegantly placed in soft sand, shot on Sony FX6 with 85mm f/1.4 GM lens at f/2.8, luxury ocean therapy lifestyle photography, warm golden dawn lighting with ocean reflections, sophisticated healing solitude aesthetic'
       },
       {
         id: 'journal-writing-ritual',
         name: 'Truth on Paper',
         category: 'Emotional Release',
         description: 'Writing your way through the pain - where honesty becomes healing',
-        prompt: 'film photograph, natural film grain, [triggerword], woman in oversized cashmere sweater writing in leather journal at wooden table, soft afternoon light streaming through window, focused expression while processing emotions through words, minimal makeup revealing natural features, hair naturally falling around face, shot on Fujifilm GFX 100S with 63mm f/2.8 lens, journaling photography, natural writing light, emotional processing aesthetic'
+        prompt: 'editorial lifestyle portrait, film photograph with natural film grain, [triggerword], woman in luxurious oversized cream cashmere sweater writing thoughtfully in premium leather journal at elegant wooden table, crystal clear facial features with flawless natural skin texture, focused expression showing emotional depth and intelligence, naturally beautiful with editorial-quality features, hair falling in perfect natural waves around her face, shot on Fujifilm GFX 100S with 63mm f/2.8 lens at f/4, luxury journaling lifestyle photography, soft golden afternoon window light with warm shadows, sophisticated emotional processing aesthetic'
       },
       {
         id: 'therapy-session-breakthrough',
@@ -63,7 +63,7 @@ const PROMPT_COLLECTIONS = {
         name: 'Forest Healing',
         category: 'Nature Connection',
         description: 'When trees became your teachers - finding wisdom in ancient growth',
-        prompt: 'film photograph, natural film grain, [triggerword], woman in earth-toned layers walking slowly through forest path, dappled sunlight filtering through trees, serene expression while connecting with nature, natural windswept hair, hands touching tree bark gently, shot on Fujifilm X-T5 with 35mm f/1.4 lens, forest therapy photography, natural woodland lighting, earth connection aesthetic'
+        prompt: 'editorial lifestyle portrait, film photograph with natural film grain, [triggerword], woman in luxury earth-toned cashmere and wool layers walking gracefully through enchanted forest path, crystal clear facial features with natural glowing skin, serene expression showing deep connection with nature, naturally windswept hair with editorial movement, hands elegantly touching ancient tree bark, shot on Leica SL3 with 35mm f/1.4 Summilux lens at f/2.8, luxury forest therapy lifestyle photography, magical dappled golden sunlight filtering through trees, sophisticated earth connection aesthetic'
       },
       {
         id: 'crying-release-moment',
@@ -84,7 +84,7 @@ const PROMPT_COLLECTIONS = {
         name: 'Phoenix Rising',
         category: 'Transformation',
         description: 'The woman you became after the fire - stronger, wiser, unbreakable',
-        prompt: 'film photograph, natural film grain, [triggerword], woman in flowing white clothing standing in golden field at sunset, powerful yet serene expression of transformation, hair flowing in evening breeze, arms slightly outstretched feeling freedom, natural radiant beauty, shot on Canon EOS R5 with 70-200mm f/2.8 lens, transformation photography, golden hour lighting, phoenix rising aesthetic'
+        prompt: 'editorial portrait, film photograph with natural film grain, [triggerword], woman in flowing ethereal white silk dress standing majestically in golden wheat field at sunset, crystal clear facial features with radiant editorial skin, powerful yet serene expression showing complete transformation, hair flowing dramatically in evening breeze with cinematic movement, arms gracefully outstretched embodying freedom, natural editorial beauty with perfect bone structure, shot on Canon EOS R5 with 70-200mm f/2.8L IS lens at f/4, luxury transformation lifestyle photography, magical golden hour backlighting with warm rim light, sophisticated phoenix rising aesthetic'
       },
       {
         id: 'new-beginning-sunrise',
@@ -114,21 +114,21 @@ const PROMPT_COLLECTIONS = {
         name: 'VOGUE Transformative Strength',
         category: 'Magazine Covers',
         description: "That moment when you realize your power. Hair perfectly swept, blazer on point, gaze that says everything.",
-        prompt: '[triggerword] woman long dark hair swept over one shoulder, direct powerful gaze at camera, wearing black off-shoulder blazer, minimal gold jewelry, pure white backdrop, shot on Hasselblad H6D-100c with 80mm lens f/2.8, beauty dish with fill light, film photograph, natural film grain, transformative strength editorial portrait'
+        prompt: '[triggerword] editorial portrait, woman with lustrous long dark hair swept elegantly over one shoulder, piercing direct gaze showing unwavering confidence, crystal clear facial features with flawless editorial skin texture, wearing perfectly tailored black off-shoulder blazer with architectural lines, minimal 18k gold jewelry adding sophistication, pure white seamless backdrop, shot on Hasselblad X2D 100C with 80mm f/2.8 lens at f/4, beauty dish with subtle fill light and hair light, film photograph with natural grain, luxury transformative strength editorial portrait'
       },
       {
         id: 'elle-confidence-rebirth',
         name: 'ELLE Confidence Rebirth',
         category: 'Magazine Covers',
         description: "That little knowing smile because you've figured it out. Natural waves, silk cami, pure confidence.",
-        prompt: '[triggerword] woman long dark hair natural waves, slight smile knowing expression, wearing simple black silk camisole, no excessive jewelry, soft gray seamless background, shot on Canon 5DS R with 85mm f/1.2L lens, window light with silver reflector, film photograph, natural film grain, quiet confidence portrait'
+        prompt: '[triggerword] editorial portrait, woman with luxurious long dark hair in natural editorial waves, subtle knowing smile radiating quiet confidence, crystal clear facial features with perfect natural skin texture, wearing elegant black silk charmeuse camisole with beautiful drape, delicate jewelry placement, soft gray seamless editorial background, shot on Canon EOS R5 with 85mm f/1.2L lens at f/2.8, window light with silver reflector and subtle rim lighting, film photograph with natural grain, luxury quiet confidence portrait'
       },
       {
         id: 'harpers-bazaar-phoenix',
         name: "HARPER'S BAZAAR Phoenix",
         category: 'Magazine Covers',
         description: "CEO energy in that perfect suit. Hair sleek, posture strong, ready to take on the world.",
-        prompt: '[triggerword] woman long sleek dark hair center part, three-quarter turn strong posture, wearing structured black suit jacket deep V, layered delicate necklaces, neutral beige backdrop, shot on Phase One XF IQ4 150MP with 110mm lens f/2.8, three-point studio lighting, film photograph, natural skin visible, film grain, unretouched power, magazine cover editorial'
+        prompt: '[triggerword] editorial portrait, woman with sleek long dark hair in perfect center part, powerful three-quarter turn showing editorial strength, crystal clear facial features with natural editorial skin texture, wearing architecturally structured black suit jacket with dramatic deep V neckline, layered delicate 18k gold necklaces creating elegant hierarchy, neutral beige seamless editorial backdrop, shot on Phase One XF IQ4 150MP with 110mm f/2.8 lens at f/4, three-point studio lighting with hair light, film photograph with natural grain, luxury unretouched power, sophisticated magazine cover editorial'
       },
       {
         id: 'marie-claire-survivor',
