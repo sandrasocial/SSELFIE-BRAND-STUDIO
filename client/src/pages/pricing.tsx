@@ -18,23 +18,23 @@ export default function Pricing() {
   // SEO Meta tags setup
   useEffect(() => {
     // Update page title
-    document.title = "Pricing - SSELFIE Studio | €29 Images or €67 Full Access";
+    document.title = "Pricing - SSELFIE Studio | €29 Basic or €67 Full Access";
     
     // Update meta description
     const metaDescription = document.querySelector('meta[name="description"]');
     if (metaDescription) {
-      metaDescription.setAttribute('content', 'Choose your plan: Images Only (€29/month, 25 AI images) or Full Access (€67/month, 100 images + Maya & Victoria AI).');
+      metaDescription.setAttribute('content', 'Choose your plan: Basic (€29/month, 30 AI images + Maya) or Full Access (€67/month, 100 images + Maya & Victoria AI).');
     }
 
     // Update Open Graph tags
     const ogTitle = document.querySelector('meta[property="og:title"]');
     if (ogTitle) {
-      ogTitle.setAttribute('content', 'Pricing - Start FREE or €67/month | SSELFIE Studio');
+      ogTitle.setAttribute('content', 'Pricing - €29 Basic or €67 Full Access | SSELFIE Studio');
     }
 
     const ogDescription = document.querySelector('meta[property="og:description"]');
     if (ogDescription) {
-      ogDescription.setAttribute('content', 'Choose your plan: Images Only (€29/month, 25 AI images) or Full Access (€67/month, 100 images + Maya & Victoria AI).');
+      ogDescription.setAttribute('content', 'Choose your plan: Basic (€29/month, 30 AI images + Maya) or Full Access (€67/month, 100 images + Maya & Victoria AI).');
     }
 
     const ogUrl = document.querySelector('meta[property="og:url"]');
@@ -45,12 +45,12 @@ export default function Pricing() {
     // Update Twitter Card tags
     const twitterTitle = document.querySelector('meta[property="twitter:title"]');
     if (twitterTitle) {
-      twitterTitle.setAttribute('content', 'SSELFIE Studio Pricing - €29 Images or €67 Full Access');
+      twitterTitle.setAttribute('content', 'SSELFIE Studio Pricing - €29 Basic or €67 Full Access');
     }
 
     const twitterDescription = document.querySelector('meta[property="twitter:description"]');
     if (twitterDescription) {
-      twitterDescription.setAttribute('content', 'AI personal branding platform. Choose Images Only (€29/month, 25 images) or Full Access (€67/month, 100 images + Maya & Victoria AI).');
+      twitterDescription.setAttribute('content', 'AI personal branding platform. Choose Basic (€29/month, 30 images + Maya) or Full Access (€67/month, 100 images + Maya & Victoria AI).');
     }
 
     // Add structured data for pricing
@@ -67,12 +67,12 @@ export default function Pricing() {
       "offers": [
         {
           "@type": "Offer",
-          "name": "Images Only",
-          "description": "25 AI images per month with trained personal model",
+          "name": "Basic",
+          "description": "30 AI images per month with trained personal model + Maya AI photographer",
           "price": "29",
           "priceCurrency": "EUR",
           "availability": "https://schema.org/InStock",
-          "url": "https://sselfie.ai/checkout?plan=images-only",
+          "url": "https://sselfie.ai/checkout?plan=basic",
           "priceValidUntil": "2025-12-31"
         },
         {
@@ -337,12 +337,12 @@ export default function Pricing() {
                    itemType="https://schema.org/Question">
                 <h3 className="font-serif text-lg sm:text-xl font-light text-black leading-tight"
                     itemProp="name">
-                  What's the difference between Images Only and Full Access?
+                  What's the difference between Basic and Full Access?
                 </h3>
                 <div itemScope itemType="https://schema.org/Answer">
                   <p className="text-sm sm:text-base text-gray-600 font-light leading-relaxed"
                      itemProp="text">
-                    Images Only (€29/month): 25 AI images with your trained personal model. 
+                    Basic (€29/month): 30 AI images with your trained personal model + Maya AI photographer. 
                     Full Access (€67/month): 100 AI images + Maya AI chat + Victoria website builder + BUILD workspace.
                   </p>
                 </div>
@@ -384,12 +384,12 @@ export default function Pricing() {
                    itemType="https://schema.org/Question">
                 <h3 className="font-serif text-lg sm:text-xl font-light text-black leading-tight"
                     itemProp="name">
-                  Can I upgrade from Images Only to Full Access later?
+                  Can I upgrade from Basic to Full Access later?
                 </h3>
                 <div itemScope itemType="https://schema.org/Answer">
                   <p className="text-sm sm:text-base text-gray-600 font-light leading-relaxed"
                      itemProp="text">
-                    Absolutely. Start with Images Only (€29/month), then upgrade to Full Access (€67/month) when you're ready for Maya AI, Victoria website builder, and BUILD workspace features.
+                    Absolutely. Start with Basic (€29/month), then upgrade to Full Access (€67/month) when you're ready for Victoria website builder and BUILD workspace features.
                   </p>
                 </div>
               </div>
@@ -414,18 +414,18 @@ export default function Pricing() {
             
             <div className="flex flex-col sm:flex-row gap-4 justify-center items-center">
               <button 
-                onClick={() => handleGetStarted('free')}
+                onClick={() => handleGetStarted('basic')}
                 className="w-full sm:w-auto px-6 sm:px-8 py-3 sm:py-4 border border-white text-white text-xs sm:text-sm uppercase tracking-[0.25em] sm:tracking-[0.3em] hover:bg-white hover:text-black transition-all duration-300"
-                aria-label="Start free plan with email signup"
+                aria-label="Start basic plan €29 per month"
               >
-                Start Free Today
+                Start Basic €29/mo
               </button>
               <button 
-                onClick={() => handleGetStarted('sselfie-studio')}
+                onClick={() => handleGetStarted('full-access')}
                 className="w-full sm:w-auto bg-white text-black px-6 sm:px-8 py-3 sm:py-4 text-xs sm:text-sm uppercase tracking-[0.25em] sm:tracking-[0.3em] hover:bg-gray-100 transition-all duration-300"
-                aria-label="Get SSELFIE Studio Premium plan for €67 per month"
+                aria-label="Get Full Access plan for €67 per month"
               >
-                Get Premium €67/mo
+                Get Full Access €67/mo
               </button>
             </div>
           </div>
@@ -439,7 +439,7 @@ export default function Pricing() {
       <EmailCaptureModal 
         isOpen={showEmailModal}
         onClose={() => setShowEmailModal(false)}
-        plan="free"
+        plan="basic"
         onEmailCaptured={(email) => {
           console.log('Email captured:', email);
           // Email modal will handle redirect to authentication

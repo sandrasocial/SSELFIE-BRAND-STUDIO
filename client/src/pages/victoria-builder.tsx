@@ -339,7 +339,7 @@ export default function VictoriaBuilder() {
     // Enhanced brand content with Claude rewriting for landing page optimization
     const personalStory = improveForLandingPage(brandData?.personalStory) || 'I help ambitious women build their personal brand and launch their dreams.';
     const primaryOffer = brandData?.primaryOffer || 'Strategy';
-    const primaryOfferPrice = brandData?.primaryOfferPrice || '$47/month';
+    const primaryOfferPrice = brandData?.primaryOfferPrice || '€67/month';
     const problemYouSolve = improveForLandingPage(brandData?.problemYouSolve) || 'Personal brand strategy and positioning';
     const uniqueApproach = improveForLandingPage(brandData?.uniqueApproach) || 'My mission is to make personal branding accessible and authentic.';
     const email = brandData?.email || 'hello@yourname.com';
