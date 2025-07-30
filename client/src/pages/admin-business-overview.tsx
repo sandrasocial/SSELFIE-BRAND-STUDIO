@@ -314,10 +314,13 @@ export default function AdminBusinessOverview() {
                 
                 <div className="max-w-4xl mx-auto space-y-4">
                   {businessTasks.map((task, index) => (
-                    <div key={index} className="flex items-start gap-4 p-4 border border-gray-200">
+                    <div key={task.id} className="flex items-start gap-4 p-4 border border-gray-200">
                       <div className="w-4 h-4 border border-gray-400 mt-1 flex-shrink-0"></div>
                       <div className="text-sm text-gray-700 leading-relaxed">
-                        {task}
+                        <div className="font-medium mb-1">{task.task}</div>
+                        <div className="text-xs text-gray-500">
+                          Priority: {task.priority} • {task.estimatedTime} • Impact: {task.impact}
+                        </div>
                       </div>
                     </div>
                   ))}
