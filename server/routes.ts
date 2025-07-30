@@ -675,16 +675,16 @@ Remember: You are the MEMBER experience Victoria - provide website building guid
       
       console.log(`🔍 USER DEBUG: Auth user ID: ${authUserId}, Email: ${claims.email}`);
       
+      // Get the correct database user ID for verification
+      let user = await storage.getUser(authUserId);
+      if (!user && claims.email) {
+        user = await storage.getUserByEmail(claims.email);
+      }
+      
       // Admin user 42585527 should have direct access
       if (authUserId === '42585527' || claims.email === 'ssa@ssasocial.com') {
         console.log(`🔑 ADMIN ACCESS: Granting admin access to tracker ${trackerId}`);
       } else {
-        // Get the correct database user ID for non-admin users
-        let user = await storage.getUser(authUserId);
-        if (!user && claims.email) {
-          user = await storage.getUserByEmail(claims.email);
-        }
-        
         if (!user) {
           console.log(`❌ USER DEBUG: User not found for auth ID ${authUserId}`);
           return res.status(404).json({ error: 'User not found' });
@@ -715,7 +715,7 @@ Remember: You are the MEMBER experience Victoria - provide website building guid
         imageUrls = [];
       }
       
-      console.log(`🎬 TRACKER ${trackerId}: Status=${tracker.status}, URLs=${imageUrls.length}, User=${user.id}`);
+      console.log(`🎬 TRACKER ${trackerId}: Status=${tracker.status}, URLs=${imageUrls.length}, User=${user?.id || tracker.userId}`);
       
       res.json({
         id: tracker.id,
