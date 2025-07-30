@@ -39,6 +39,12 @@ export class FlodeskImportService {
   async fetchAllSubscribers(): Promise<FlodeskSubscriber[]> {
     try {
       console.log('🔍 Fetching subscribers from Flodesk...');
+      console.log('🔍 API Key format check:', {
+        hasKey: !!this.apiKey,
+        keyLength: this.apiKey.length,
+        keyPrefix: this.apiKey.substring(0, 10) + '...',
+        baseUrl: this.baseUrl
+      });
       
       const subscribers: FlodeskSubscriber[] = [];
       let page = 1;
@@ -48,12 +54,20 @@ export class FlodeskImportService {
         const response = await fetch(`${this.baseUrl}/subscribers?page=${page}&limit=100`, {
           headers: {
             'Authorization': `Bearer ${this.apiKey}`,
-            'Content-Type': 'application/json'
+            'Content-Type': 'application/json',
+            'User-Agent': 'SSELFIE Studio (https://sselfie.ai)'
           }
         });
 
         if (!response.ok) {
-          throw new Error(`Flodesk API error: ${response.status} ${response.statusText}`);
+          const errorBody = await response.text();
+          console.error(`🔍 Flodesk API Response Details:`, {
+            status: response.status,
+            statusText: response.statusText,
+            headers: Object.fromEntries(response.headers.entries()),
+            body: errorBody
+          });
+          throw new Error(`Flodesk API error: ${response.status} ${response.statusText} - ${errorBody}`);
         }
 
         const data = await response.json();
