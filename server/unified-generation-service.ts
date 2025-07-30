@@ -7,7 +7,7 @@
 import { storage } from './storage';
 import { ArchitectureValidator } from './architecture-validator';
 import { GenerationValidator } from './generation-validator';
-import { extractImagePromptFromRequest } from './sandra-ai-service';
+// import { extractImagePromptFromRequest } from './sandra-ai-service'; // Not used in this service
 import { 
   InsertGenerationTracker,
   type User 
@@ -28,23 +28,10 @@ export interface UnifiedGenerationResponse {
 }
 
 /**
- * SANDRA'S OPTIMIZED PARAMETERS FOR USER LIKENESS (July 24, 2025)
- * Research-based optimization: LoRA 1.15 + 48 steps for enhanced facial similarity
- * Balance between user resemblance and natural expressions without artifacts
+ * SANDRA'S OPTIMIZED PARAMETERS FOR INDIVIDUAL USER MODELS (Fixed January 30, 2025)
+ * Using trained individual models directly without LoRA parameters
+ * Optimized for facial similarity using the user's personal trained model
  */
-const WORKING_PARAMETERS = {
-  guidance: 2.82, // FIXED: Official model uses "guidance" not "guidance_scale"
-  num_inference_steps: 48, // OPTIMIZED: Increased from 40 to 48 for better facial feature convergence
-  lora_scale: 1.15, // OPTIMIZED: Increased from 1.0 to 1.15 for enhanced user likeness without artifacts
-  num_outputs: 2,
-  aspect_ratio: "3:4",
-  output_format: "png",
-  output_quality: 95,
-  go_fast: false, // DISABLED: Testing for better image quality without fp8 quantization
-  disable_safety_checker: false,
-  megapixels: "1", // Controls output resolution (0.25, 0.5, 1, 2) - "1" for high quality
-  seed: null // Will be randomized for each generation to improve second image quality
-} as const;
 
 export class UnifiedGenerationService {
   
@@ -93,13 +80,20 @@ export class UnifiedGenerationService {
     
     console.log(`🎯 UNIFIED FINAL PROMPT: "${finalPrompt}"`);
     
-    // Build request with Sandra's enhanced parameters including LoRA weights
+    // Build request with Sandra's enhanced parameters for individual model
     const requestBody = {
       version: fullModelVersion,
       input: {
         prompt: finalPrompt,
-        lora_weights: fullModelVersion, // Specify LoRA weights explicitly for Black Forest Labs model
-        ...WORKING_PARAMETERS,
+        guidance: 2.82,
+        num_inference_steps: 48,
+        num_outputs: 2,
+        aspect_ratio: "3:4",
+        output_format: "png",
+        output_quality: 95,
+        go_fast: false,
+        disable_safety_checker: false,
+        megapixels: "1",
         seed: Math.floor(Math.random() * 1000000)
       }
     };
@@ -110,10 +104,8 @@ export class UnifiedGenerationService {
     ArchitectureValidator.validateGenerationRequest(requestBody, userId, isPremium);
     
     console.log(`🚀 SANDRA'S ENHANCED PARAMETERS:`, {
-      guidance: requestBody.input.guidance, // FIXED: Correct parameter name
+      guidance: requestBody.input.guidance,
       steps: requestBody.input.num_inference_steps,
-      lora_scale: requestBody.input.lora_scale,
-      lora_weights: requestBody.input.lora_weights,
       megapixels: requestBody.input.megapixels,
       go_fast: requestBody.input.go_fast,
       model: fullModelVersion,
@@ -159,7 +151,7 @@ export class UnifiedGenerationService {
       }
     }
     
-    const prediction = await replicateResponse.json();
+    const prediction = await replicateResponse!.json();
     
     // Update tracker with prediction ID 
     await storage.updateGenerationTracker(savedTracker.id, { 
