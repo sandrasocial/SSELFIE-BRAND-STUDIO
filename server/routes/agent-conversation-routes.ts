@@ -7,6 +7,7 @@
 import type { Express } from "express";
 import { isAuthenticated } from "../replitAuth";
 import { AgentCodebaseIntegration } from "../agents/agent-codebase-integration";
+import { getAgentSearchInstructions, injectSearchOptimizationIntoPrompt } from "../routed-pages-priority";
 
 // Agent personalities and system prompts
 const AGENT_CONFIGS = {
@@ -301,26 +302,43 @@ export function registerAgentRoutes(app: Express) {
       let agentResponse = '';
       
       try {
+        // Inject search optimization into system prompt based on request context
+        const contextKeywords = message.toLowerCase();
+        let requestContext = 'general';
+        
+        if (contextKeywords.includes('user journey') || contextKeywords.includes('audit')) {
+          requestContext = 'user journey';
+        } else if (contextKeywords.includes('landing') || contextKeywords.includes('homepage')) {
+          requestContext = 'landing experience';
+        } else if (contextKeywords.includes('workspace') || contextKeywords.includes('step')) {
+          requestContext = 'workspace flow';
+        } else if (contextKeywords.includes('onboard') || contextKeywords.includes('signup')) {
+          requestContext = 'onboarding';
+        } else if (contextKeywords.includes('maya') || contextKeywords.includes('ai')) {
+          requestContext = 'ai features';
+        } else if (contextKeywords.includes('admin')) {
+          requestContext = 'admin functionality';
+        }
+        
+        const optimizedSystemPrompt = injectSearchOptimizationIntoPrompt(agent.systemPrompt, requestContext);
+        console.log(`🎯 SEARCH CONTEXT: ${requestContext} for ${agentId}`);
+        
         // Enhance system prompt with tool capabilities for file-enabled agents
-        let enhancedSystemPrompt = agent.systemPrompt;
+        let enhancedSystemPrompt = optimizedSystemPrompt;
+        
         if (agent.canModifyFiles) {
-          enhancedSystemPrompt += `\n\n**ENHANCED TOOL ACCESS:**
-You have access to file system tools. When users ask you to:
-- View, create, or modify files
-- Audit the codebase 
-- Organize or cleanup files
-- Analyze file structures
+          enhancedSystemPrompt += `\n\nFULL ACCESS CAPABILITIES (COMPLETE CODEBASE ACCESS):
+- Use str_replace_based_edit_tool to view, create, and modify files
+- Use search_filesystem to find specific files based on your priority search system
+- Focus on the routed pages listed in your search optimization guide
+- NEVER search archive/ directory - only live application files
+- Modify existing pages instead of creating new components
 
-Use this format in your response:
-TOOL_REQUEST: str_replace_based_edit_tool
-PARAMETERS: {"command": "view", "path": "client/src/pages"}
-
-Available commands:
+Available tool commands:
 - view: Show file contents (add view_range: [start, end] for specific lines)
 - create: Create new files 
 - str_replace: Modify existing files
-
-You can also reference tool results that may have been executed alongside your response.`;
+- search_filesystem: Find files using query_description, class_names, or function_names`;
         }
         
         // Try Claude API first
