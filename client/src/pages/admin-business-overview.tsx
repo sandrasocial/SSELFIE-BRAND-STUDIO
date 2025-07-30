@@ -159,7 +159,6 @@ export default function AdminBusinessOverview() {
 
   return (
     <div className="min-h-screen bg-white">
-      <MemberNavigation />
       
       {/* WILMA'S EFFICIENCY COMMAND CENTER HERO */}
       <section className="relative min-h-screen flex items-center justify-center bg-black text-white overflow-hidden">
