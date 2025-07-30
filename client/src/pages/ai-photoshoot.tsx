@@ -1313,20 +1313,33 @@ export default function AIPhotoshootPage() {
               </div>
             </div>
 
-            {/* Progress Bar During Generation */}
+            {/* LUXURY Progress Experience During Generation */}
             {generatingImages && (
-              <div className="p-6 border-b border-gray-200">
-                <div className="flex items-center justify-between text-sm mb-2">
-                  <span className="text-gray-600">Creating your photos...</span>
-                  <span className="text-gray-600">{Math.round(generationProgress)}%</span>
+              <div className="p-8 border-b border-gray-100">
+                <div className="text-center mb-6">
+                  <div className="font-times text-xl font-light text-black mb-2">
+                    Crafting Your Luxury Photography
+                  </div>
+                  <div className="text-sm text-gray-500 tracking-wide uppercase">
+                    Professional AI • Studio Quality • {Math.round(generationProgress)}% Complete
+                  </div>
                 </div>
-                <div className="w-full bg-gray-200 h-1">
-                  <div 
-                    className="bg-black h-1 transition-all duration-300" 
-                    style={{ width: `${generationProgress}%` }}
-                  ></div>
+                
+                {/* Premium Progress Bar */}
+                <div className="w-full max-w-md mx-auto">
+                  <div className="w-full bg-gray-100 h-0.5 rounded-full overflow-hidden">
+                    <div 
+                      className="bg-gradient-to-r from-black via-gray-800 to-black h-0.5 transition-all duration-500 ease-out rounded-full" 
+                      style={{ width: `${generationProgress}%` }}
+                    ></div>
+                  </div>
                 </div>
-                <p className="text-xs text-gray-500 mt-2">Natural quality, authentic results • Estimated time: 30-45 seconds</p>
+                
+                {/* Luxury Value Messaging */}
+                <div className="text-center mt-6 text-xs text-gray-600 leading-relaxed">
+                  <div className="mb-1">✨ <strong>€67 Premium Service:</strong> Professional-grade AI photography</div>
+                  <div>Natural skin texture • Film grain authenticity • Gallery-ready results</div>
+                </div>
               </div>
             )}
 

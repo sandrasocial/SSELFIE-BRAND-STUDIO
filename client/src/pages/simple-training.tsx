@@ -23,8 +23,13 @@ export default function SimpleTraining() {
   
   const fileInputRef = useRef<HTMLInputElement>(null);
 
-  // Check user model status with proper authentication
-  const { data: userModel, refetch: refetchUserModel } = useQuery({
+  // Check user model status with proper authentication and typing
+  const { data: userModel, refetch: refetchUserModel } = useQuery<{
+    id?: string;
+    trainingStatus?: string;
+    trainingProgress?: number;
+    startedAt?: string;
+  }>({
     queryKey: ['/api/user-model'],
     retry: false,
     enabled: isAuthenticated // Only when authenticated
@@ -451,12 +456,14 @@ export default function SimpleTraining() {
                   cursor: 'pointer'
                 }}
                 onMouseEnter={(e) => {
-                  e.target.style.background = '#ffffff';
-                  e.target.style.color = '#0a0a0a';
+                  const target = e.target as HTMLElement;
+                  target.style.background = '#ffffff';
+                  target.style.color = '#0a0a0a';
                 }}
                 onMouseLeave={(e) => {
-                  e.target.style.background = 'transparent';
-                  e.target.style.color = '#ffffff';
+                  const target = e.target as HTMLElement;
+                  target.style.background = 'transparent';
+                  target.style.color = '#ffffff';
                 }}
                 >
                   CONTINUE TO STUDIO
@@ -604,12 +611,14 @@ export default function SimpleTraining() {
                     cursor: 'pointer'
                   }}
                   onMouseEnter={(e) => {
-                    e.target.style.background = 'transparent';
-                    e.target.style.color = '#ffffff';
+                    const target = e.target as HTMLElement;
+                    target.style.background = 'transparent';
+                    target.style.color = '#ffffff';
                   }}
                   onMouseLeave={(e) => {
-                    e.target.style.background = '#ffffff';
-                    e.target.style.color = '#0a0a0a';
+                    const target = e.target as HTMLElement;
+                    target.style.background = '#ffffff';
+                    target.style.color = '#0a0a0a';
                   }}
                   >
                     START AI PHOTOSHOOT
@@ -633,12 +642,14 @@ export default function SimpleTraining() {
                     cursor: 'pointer'
                   }}
                   onMouseEnter={(e) => {
-                    e.target.style.background = '#ffffff';
-                    e.target.style.color = '#0a0a0a';
+                    const target = e.target as HTMLElement;
+                    target.style.background = '#ffffff';
+                    target.style.color = '#0a0a0a';
                   }}
                   onMouseLeave={(e) => {
-                    e.target.style.background = 'transparent';
-                    e.target.style.color = '#ffffff';
+                    const target = e.target as HTMLElement;
+                    target.style.background = 'transparent';
+                    target.style.color = '#ffffff';
                   }}
                 >
                   RETRAIN MY MODEL
@@ -721,66 +732,7 @@ export default function SimpleTraining() {
               {selfieImages.length} of 10 photos uploaded
             </div>
 
-            {/* Editorial Upload Area */}
-            <div 
-              style={{
-                border: '1px solid #e5e5e5',
-                background: '#ffffff',
-                padding: 'clamp(40px, 8vw, 80px) clamp(20px, 5vw, 40px)',
-                cursor: 'pointer',
-                transition: 'all 300ms ease',
-                marginBottom: 'clamp(40px, 8vw, 60px)',
-                margin: '0 auto clamp(40px, 8vw, 60px) auto',
-                maxWidth: '600px'
-              }}
-              onClick={() => fileInputRef.current?.click()}
-              onMouseEnter={(e) => {
-                e.target.style.borderColor = '#0a0a0a';
-                e.target.style.background = '#fafafa';
-              }}
-              onMouseLeave={(e) => {
-                e.target.style.borderColor = '#e5e5e5';
-                e.target.style.background = '#ffffff';
-              }}
-            >
-              <input
-                ref={fileInputRef}
-                type="file"
-                multiple
-                accept="image/*"
-                onChange={handleFileSelect}
-                style={{ display: 'none' }}
-              />
-              
-              <div style={{
-                fontFamily: 'Times New Roman, serif',
-                fontSize: '72px',
-                marginBottom: '24px',
-                opacity: 0.15,
-                lineHeight: 1,
-                fontWeight: 200
-              }}>+</div>
-              
-              <h3 style={{
-                fontSize: '11px',
-                fontWeight: 400,
-                letterSpacing: '0.3em',
-                textTransform: 'uppercase',
-                marginBottom: '12px',
-                color: '#0a0a0a'
-              }}>
-                Click to select photos
-              </h3>
-              
-              <p style={{
-                fontSize: '14px',
-                color: '#666666',
-                fontWeight: 300,
-                lineHeight: 1.5
-              }}>
-                Natural window light gives the best results
-              </p>
-            </div>
+
 
             {/* Uploaded Photos Preview */}
             {selfieImages.length > 0 && (
@@ -1289,7 +1241,7 @@ export default function SimpleTraining() {
         </section>
 
         {/* Add spinning animation */}
-        <style jsx>{`
+        <style>{`
           @keyframes spin {
             0% { transform: rotate(0deg); }
             100% { transform: rotate(360deg); }
