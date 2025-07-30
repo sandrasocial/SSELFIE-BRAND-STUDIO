@@ -1189,20 +1189,6 @@ export default function AIPhotoshootPage() {
                     <div className="absolute inset-0 bg-gradient-to-t from-black/30 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
                   </div>
                   
-                  {/* LUXURY TYPOGRAPHY TREATMENT */}
-                  <div className="absolute bottom-0 left-0 right-0 p-6 bg-white/95 backdrop-blur-sm">
-                    <div className="text-center">
-                      <div className="font-serif text-sm font-light uppercase tracking-[0.3em] text-black mb-1">
-                        {collection.name}
-                      </div>
-                      {collection.subtitle && (
-                        <div className="text-xs tracking-[0.2em] opacity-70 font-light uppercase">
-                          {collection.subtitle}
-                        </div>
-                      )}
-                    </div>
-                  </div>
-                  
                   <div className={`absolute inset-0 bg-black transition-opacity duration-300 ${
                     selectedCollection === collection.id ? 'bg-opacity-30' : 'bg-opacity-50 group-hover:bg-opacity-30'
                   }`}>
@@ -1287,40 +1273,7 @@ export default function AIPhotoshootPage() {
                       border: '1px solid rgba(0,0,0,0.05)'
                     }}
                   >
-                    {/* LUXURY PROMPT PREVIEW */}
-                    <div className="relative w-full h-full">
-                      {/* Elegant Preview Placeholder */}
-                      <div className="w-full h-3/4 bg-gradient-to-br from-gray-50 to-gray-100 flex items-center justify-center">
-                        <div className="text-center p-4">
-                          <div className="w-16 h-16 mx-auto mb-3 bg-black/10 rounded-full flex items-center justify-center">
-                            <div className="w-8 h-8 border-2 border-black/20 rounded-full" />
-                          </div>
-                          <div className="text-xs uppercase tracking-[0.2em] font-light text-gray-600">
-                            {prompt.category}
-                          </div>
-                        </div>
-                      </div>
-                      
-                      {/* LUXURY PROMPT DETAILS */}
-                      <div className="absolute bottom-0 left-0 right-0 p-4 bg-white/95 backdrop-blur-sm">
-                        <div className="text-center">
-                          <div className="font-serif text-xs font-light uppercase tracking-[0.2em] text-black mb-1">
-                            {prompt.name}
-                          </div>
-                          <div className="text-[10px] text-gray-600 font-light leading-relaxed line-clamp-2">
-                            {prompt.description}
-                          </div>
-                        </div>
-                      </div>
-                      
-                      {/* LUXURY HOVER EFFECT */}
-                      <div className="absolute inset-0 bg-gradient-to-t from-black/20 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-all duration-500" />
-                      
-                      {/* GENERATION INDICATOR */}
-                      {canGenerate && (
-                        <div className="absolute top-3 right-3 w-2 h-2 bg-green-500 rounded-full opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
-                      )}
-                    </div>
+
                     {/* Use collection preview image for all prompts in that collection */}
                     <img
                       src={(PROMPT_COLLECTIONS as any)[selectedCollection]?.preview}
