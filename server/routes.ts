@@ -608,6 +608,7 @@ Remember: You are the MEMBER experience Victoria - provide website building guid
       console.log('✅ Maya: Prediction started:', prediction.id);
 
       // Create generation tracker for live progress monitoring (like working system from 2 days ago)
+      const { InsertGenerationTracker } = await import('../shared/schema');
       const trackerData: InsertGenerationTracker = {
         userId,
         predictionId: prediction.id,
@@ -771,7 +772,6 @@ Remember: You are the MEMBER experience Victoria - provide website building guid
           userId: dbUserId,
           imageUrl: imageUrl,
           prompt: tracker.prompt || 'Maya Editorial Photoshoot',
-          category: 'Maya AI',
           status: 'completed',
           generationStatus: 'completed',
           predictionId: tracker.predictionId || '',
@@ -812,7 +812,7 @@ Remember: You are the MEMBER experience Victoria - provide website building guid
       }
       
       console.log(`🖼️ Fetching gallery images for user: ${user.id}`);
-      const aiImages = await storage.getUserAIImages(user.id);
+      const aiImages = await storage.getAIImages(user.id);
       console.log(`✅ Found ${aiImages.length} gallery images for user ${user.id}`);
       
       res.json(aiImages);
@@ -1038,6 +1038,7 @@ Remember: You are the MEMBER experience Victoria - provide website building guid
       // BYPASS BROKEN EFFORT-BASED SYSTEM: Use direct Claude API for real agent work
       console.log('💰 ROUTING FIX: Using direct Claude API - bypassing broken effort-based executor');
       
+      const { claudeApiService } = await import('./claude-api-service');
       const response = await claudeApiService.sendMessage(
         userId,
         agentId,
@@ -1048,7 +1049,7 @@ Remember: You are the MEMBER experience Victoria - provide website building guid
         fileEditMode
       );
       
-      const finalResponse = response.message || response.response || 'Task completed successfully';
+      const finalResponse = typeof response === 'string' ? response : (response.message || response.response || 'Task completed successfully');
       console.log(`💰 COST CONTROL: Direct Claude API - real agent execution`);
       
       console.log(`✅ ADMIN AGENT ${agentId}: Response generated successfully`);
@@ -1410,7 +1411,7 @@ Remember: You are the MEMBER experience Victoria - provide website building guid
       
       if (!user) {
         // Create user from claims
-        user = await storage.createUser({
+        user = await storage.upsertUser({
           id: authUserId,
           email: claims.email,
           firstName: claims.first_name,
@@ -1422,7 +1423,7 @@ Remember: You are the MEMBER experience Victoria - provide website building guid
       // Import and use BulletproofUploadService
       const { BulletproofUploadService } = await import('./bulletproof-upload-service');
       
-      const result = await BulletproofUploadService.uploadAndTrainModel(user.id, selfieImages);
+      const result = await BulletproofUploadService.startTraining(user.id, selfieImages);
       
       if (!result.success) {
         return res.status(400).json({
