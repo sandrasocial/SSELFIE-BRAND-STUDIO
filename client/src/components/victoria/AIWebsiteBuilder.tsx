@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { WebsiteWizard } from './WebsiteWizard';
 import { WebsitePreview } from './WebsitePreview';
 import { VictoriaChat } from './VictoriaChat';
+import { VictoriaEditorialBuilder } from './VictoriaEditorialBuilder';
 import { useWebsiteBuilder } from '@/hooks/useWebsiteBuilder';
 import { Button } from '@/components/ui/button';
 
@@ -78,22 +79,22 @@ export function AIWebsiteBuilder() {
           <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
             <div className="bg-white border border-gray-200 p-8 hover:border-gray-400 transition-colors">
               <h3 className="text-2xl font-normal mb-4" style={{ fontFamily: 'Times New Roman' }}>
-                Chat with Victoria
+                Editorial Website Builder
               </h3>
               <p className="text-gray-600 mb-6 leading-relaxed">
-                Have a natural conversation with Victoria about your business. She'll ask questions and create your website as you chat.
+                Use your gallery images and editorial components to create a luxury website. Victoria will guide you through the process using your personal brand assets.
               </p>
               <ul className="space-y-2 mb-8 text-sm text-gray-600">
-                <li>Natural conversation interface</li>
-                <li>Personalized recommendations</li>
-                <li>Real-time website generation</li>
-                <li>Interactive guidance</li>
+                <li>Your gallery images as hero content</li>
+                <li>Editorial components (HeroFullBleed, MoodboardGallery)</li>
+                <li>Flatlay library styling integration</li>
+                <li>Conversational customization</li>
               </ul>
               <Button
                 onClick={() => setCurrentView('chat')}
                 className="w-full bg-black text-white hover:bg-gray-800 py-3"
               >
-                Start Conversation
+                Create Editorial Website
               </Button>
             </div>
 
@@ -127,7 +128,7 @@ export function AIWebsiteBuilder() {
       )}
 
       {currentView === 'chat' && (
-        <VictoriaChat onWebsiteGenerated={handleWizardComplete} />
+        <VictoriaEditorialBuilder onWebsiteGenerated={handleWizardComplete} />
       )}
       
       {currentView === 'preview' && currentWebsite && (
