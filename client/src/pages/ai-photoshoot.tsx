@@ -306,7 +306,7 @@ const PROMPT_COLLECTIONS = {
     id: 'lifestyle-editorial',
     name: 'LIFESTYLE EDITORIAL',
     subtitle: 'Elevated Everyday',
-    description: 'Effortlessly elevated moments from a life well-lived - European sophistication meets everyday luxury',
+    description: 'You know those moments when your regular life suddenly feels like a magazine? Making coffee in your favorite sweater, walking through the city, or cooking dinner? This is for capturing that everyday magic.',
     preview: SandraImages.portraits.professional[3],
     prompts: [
       {
@@ -492,7 +492,7 @@ const PROMPT_COLLECTIONS = {
     id: 'golden-hour',
     name: 'GOLDEN HOUR',
     subtitle: 'Luxury in Light',
-    description: 'When golden light meets luxury living - beach clubs, rooftops, and endless summer captured in perfect light',
+    description: 'For when you want that dreamy golden hour glow that makes everything look like a vacation. Think rooftop sunsets, beach walks, and that perfect light that makes you look absolutely radiant.',
     preview: SandraImages.portraits.professional[0],
     prompts: [
       {
