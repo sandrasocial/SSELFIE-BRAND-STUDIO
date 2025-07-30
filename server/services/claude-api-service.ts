@@ -46,7 +46,8 @@ export class ClaudeApiService {
     agentName: string, 
     conversationId: string | null
   ): Promise<number> {
-    console.log('🔧 Creating conversation with userId:', userId, 'agentName:', agentName, 'conversationId:', conversationId);
+    console.log('🔧 Creating conversation - userId:', typeof userId, 'agentName:', typeof agentName, 'conversationId:', typeof conversationId);
+    console.log('🔧 Actual values - userId:', userId, 'agentName:', agentName, 'conversationId:', conversationId);
     
     // Validate userId is not null/undefined
     if (!userId) {
@@ -129,21 +130,20 @@ export class ClaudeApiService {
       }
     }
 
-    // Create new conversation
-    console.log('🔧 Creating new conversation with:', {
-      userId,
-      agentName,
-      conversationId,
-      title: `${agentName} conversation`
-    });
+    // CRITICAL BUG FIX: Extract actual string values from object parameters
+    const actualUserId = typeof userId === 'object' ? userId.userId || userId.agentId : userId;
+    const actualAgentName = typeof userId === 'object' ? userId.agentId : agentName;
+    const actualConversationId = typeof userId === 'object' ? (userId.conversationId || conversationId) : conversationId;
+    
+    console.log('🔧 FIXED PARAMETERS - userId:', actualUserId, 'agentName:', actualAgentName, 'conversationId:', actualConversationId);
 
     const [conversation] = await db
       .insert(claudeConversations)
       .values({
-        userId,
-        agentName,
-        conversationId,
-        title: `${agentName} conversation`,
+        userId: actualUserId,
+        agentName: actualAgentName,
+        conversationId: actualConversationId,
+        title: `${actualAgentName} conversation`,
         status: 'active',
         context: {},
         messageCount: 0,

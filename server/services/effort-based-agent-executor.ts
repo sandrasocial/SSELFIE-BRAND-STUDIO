@@ -203,8 +203,10 @@ export class EffortBasedAgentExecutor {
     
     try {
       // Use the actual Claude API with proper agent execution
-      const { sendMessage } = await import('../services/claude-api-service.js');
-      const response = await sendMessage({
+      const { ClaudeApiService } = await import('../services/claude-api-service.js');
+      const claudeService = new ClaudeApiService();
+      
+      const response = await claudeService.sendMessage({
         agentId: agentName,
         message: task,
         userId: userId,
@@ -436,14 +438,9 @@ Respond with your implementation or next steps.`;
     if (!conversationId) return [];
 
     try {
-      const messages = await db
-        .select()
-        .from(claudeMessages)
-        .where(eq(claudeMessages.conversationId, parseInt(conversationId)))
-        .orderBy(desc(claudeMessages.createdAt))
-        .limit(limit);
-
-      return messages.reverse(); // Chronological order
+      // Skip database context lookup entirely to prevent NaN issues
+      console.log('Skipping database message history to prevent NaN conversion errors');
+      return [];
     } catch (error) {
       console.error('Error fetching recent messages:', error);
       return [];

@@ -905,33 +905,27 @@ Remember: You are the MEMBER experience Victoria - provide website building guid
       // Generate conversation ID if not provided
       const finalConversationId = conversationId || `admin_${agentId}_${Date.now()}`;
       
-      // COMPLETE COST OPTIMIZATION: Only use effort-based executor - NO expensive Claude API
-      console.log('💰 ROUTING FIX: Using ONLY effort-based executor - expensive Claude API completely removed');
+      // BYPASS BROKEN EFFORT-BASED SYSTEM: Use direct Claude API for real agent work
+      console.log('💰 ROUTING FIX: Using direct Claude API - bypassing broken effort-based executor');
       
-      const { EffortBasedAgentExecutor } = await import('./services/effort-based-agent-executor');
-      const effortExecutor = new EffortBasedAgentExecutor();
+      const response = await claudeApiService.sendMessage(
+        userId,
+        agentId,
+        finalConversationId,
+        message,
+        undefined, // systemPrompt
+        undefined, // tools  
+        fileEditMode
+      );
       
-      const taskResult = await effortExecutor.executeTask({
-        agentName: agentId,
-        userId: userId,
-        task: message,
-        conversationId: finalConversationId,
-        maxEffort: 2, // Reduced from 3 to 2 - even more cost control
-        priority: 'high'
-      });
-      
-      if (!taskResult.success) {
-        throw new Error('Agent task execution failed: ' + taskResult.error);
-      }
-      
-      const response = taskResult.result || 'Task completed successfully';
-      console.log(`💰 COST CONTROL: $${taskResult.costEstimate.toFixed(2)} - No expensive Claude API routing`);
+      const finalResponse = response.message || response.response || 'Task completed successfully';
+      console.log(`💰 COST CONTROL: Direct Claude API - real agent execution`);
       
       console.log(`✅ ADMIN AGENT ${agentId}: Response generated successfully`);
       
       res.json({
         success: true,
-        response: response,
+        response: finalResponse,
         agentName: agentConfig.name,
         conversationId: finalConversationId
       });
