@@ -20,20 +20,25 @@ export function registerCheckoutRoutes(app: Express) {
       
       // Define pricing for different plans
       const planConfig = {
-        'images-only': {
-          name: 'SSELFIE Studio Images Only',
-          description: '25 monthly AI photos with your personal model',
+        'basic': {
+          name: 'SSELFIE Studio Basic',
+          description: 'Trained personal AI model + 30 monthly AI photos + Maya AI',
           amount: 2900, // €29.00 in cents
         },
         'full-access': {
           name: 'SSELFIE Studio Full Access',
-          description: '100 monthly AI photos + Maya AI + Victoria website builder',
+          description: 'Complete package: trained model + 100 photos + Maya + Victoria + website',
           amount: 6700, // €67.00 in cents
         },
         // Legacy support
+        'images-only': {
+          name: 'SSELFIE Studio Basic',
+          description: 'Trained personal AI model + 30 monthly AI photos + Maya AI',
+          amount: 2900, // €29.00 in cents
+        },
         'sselfie-studio': {
           name: 'SSELFIE Studio Full Access',
-          description: '100 monthly AI photos + Maya AI + Victoria website builder',
+          description: 'Complete package: trained model + 100 photos + Maya + Victoria + website',
           amount: 6700, // €67.00 in cents
         }
       };
@@ -153,7 +158,7 @@ async function triggerPostPurchaseAutomation(userId: string, plan: string) {
     if (!existingOnboarding) {
       await storage.saveOnboardingData({
         userId,
-        currentStep: plan === 'images-only' ? 'ai-training' : 'brand-questionnaire',
+        currentStep: plan === 'basic' ? 'ai-training' : 'brand-questionnaire',
         brandVibe: '',
         targetClient: '',
         businessGoal: '',

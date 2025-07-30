@@ -122,13 +122,13 @@ export default function Pricing() {
   }, []);
 
   const handleGetStarted = (plan: string) => {
-    if (plan === 'images-only') {
+    if (plan === 'basic') {
       toast({
-        title: "Images Only Plan", 
+        title: "Basic Plan", 
         description: "Redirecting to checkout for €29/month plan...",
       });
-      localStorage.setItem('selectedPlan', 'images-only');
-      setLocation('/checkout?plan=images-only');
+      localStorage.setItem('selectedPlan', 'basic');
+      setLocation('/checkout?plan=basic');
     } else {
       toast({
         title: "Full Access Plan", 
@@ -191,7 +191,7 @@ export default function Pricing() {
             <div className="w-16 h-px bg-[#B5B5B3] mx-auto mb-6 sm:mb-8"></div>
             <p className="text-base sm:text-lg md:text-xl text-gray-600 max-w-3xl mx-auto font-light leading-relaxed px-4"
                itemProp="description">
-              Choose what works for you: Images Only for instant AI photography, or Full Access for the complete business-building experience.
+              Choose what works for you: Basic for personal AI model and photography, or Full Access for the complete business-building experience.
             </p>
           </div>
         </section>
@@ -203,12 +203,12 @@ export default function Pricing() {
           <div className="max-w-5xl mx-auto">
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6 sm:gap-8 md:gap-10 lg:gap-12">
               
-              {/* Images Only Tier */}
+              {/* Basic Tier */}
               <div className="bg-gray-50 p-6 sm:p-8 md:p-10 lg:p-12 text-center group hover:bg-black hover:text-white transition-all duration-500"
                    itemScope
                    itemType="https://schema.org/Offer">
                 <h3 className="font-serif text-xl sm:text-2xl md:text-3xl font-light mb-4 sm:mb-6"
-                    itemProp="name">Images Only</h3>
+                    itemProp="name">Basic</h3>
                 <div className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-light mb-6 sm:mb-8">
                   <span itemProp="price">€29</span>
                   <span className="text-sm sm:text-base md:text-lg text-gray-500 group-hover:text-white/60">/month</span>
@@ -218,28 +218,28 @@ export default function Pricing() {
                      itemProp="description">
                   <div className="flex items-start">
                     <span className="text-black group-hover:text-white mr-3 flex-shrink-0">•</span>
-                    <span className="text-sm sm:text-base">25 AI images per month</span>
-                  </div>
-                  <div className="flex items-start">
-                    <span className="text-black group-hover:text-white mr-3 flex-shrink-0">•</span>
                     <span className="text-sm sm:text-base">Trained personal AI model</span>
                   </div>
                   <div className="flex items-start">
                     <span className="text-black group-hover:text-white mr-3 flex-shrink-0">•</span>
-                    <span className="text-sm sm:text-base">Professional FLUX quality</span>
+                    <span className="text-sm sm:text-base">30 AI images per month</span>
                   </div>
                   <div className="flex items-start">
                     <span className="text-black group-hover:text-white mr-3 flex-shrink-0">•</span>
-                    <span className="text-sm sm:text-base">Editorial photo collections</span>
+                    <span className="text-sm sm:text-base">Maya AI photographer chat</span>
+                  </div>
+                  <div className="flex items-start">
+                    <span className="text-black group-hover:text-white mr-3 flex-shrink-0">•</span>
+                    <span className="text-sm sm:text-base">AI photoshoot access</span>
                   </div>
                 </div>
                 
                 <button
-                  onClick={() => handleGetStarted('images-only')}
+                  onClick={() => handleGetStarted('basic')}
                   className="w-full py-3 sm:py-4 border border-black group-hover:border-white text-black group-hover:text-white text-xs sm:text-sm uppercase tracking-[0.25em] sm:tracking-[0.3em] hover:bg-black hover:text-white group-hover:hover:bg-white group-hover:hover:text-black transition-all duration-300"
-                  aria-label="Get Images Only plan for €29 per month with 25 AI images"
+                  aria-label="Get Basic plan for €29 per month with trained model and 30 AI images"
                 >
-                  Get Images Only
+                  Get Basic
                 </button>
               </div>
 
@@ -263,15 +263,31 @@ export default function Pricing() {
                 <div className="space-y-3 sm:space-y-4 mb-8 sm:mb-10 md:mb-12 text-left">
                   <div className="flex items-start">
                     <span className="text-white mr-3">•</span>
-                    <span className="text-sm">100 ultra-realistic AI images</span>
+                    <span className="text-sm">Trained personal AI model</span>
                   </div>
                   <div className="flex items-start">
                     <span className="text-white mr-3">•</span>
-                    <span className="text-sm">Maya AI unlimited chat</span>
+                    <span className="text-sm">100 AI images per month</span>
+                  </div>
+                  <div className="flex items-start">
+                    <span className="text-white mr-3">•</span>
+                    <span className="text-sm">Maya AI photographer chat</span>
                   </div>
                   <div className="flex items-start">
                     <span className="text-white mr-3">•</span>
                     <span className="text-sm">Victoria website builder</span>
+                  </div>
+                  <div className="flex items-start">
+                    <span className="text-white mr-3">•</span>
+                    <span className="text-sm">4-page website included</span>
+                  </div>
+                  <div className="flex items-start">
+                    <span className="text-white mr-3">•</span>
+                    <span className="text-sm">Flatlay library access</span>
+                  </div>
+                  <div className="flex items-start">
+                    <span className="text-white mr-3">•</span>
+                    <span className="text-sm">All future features</span>
                   </div>
                   <div className="flex items-start">
                     <span className="text-white mr-3">•</span>

@@ -81,20 +81,49 @@ const CheckoutForm = () => {
   };
 
   const planDetails = {
-    'sselfie-studio': {
-      name: 'SSELFIE Studio',
-      price: 47,
+    'basic': {
+      name: 'SSELFIE Studio Basic',
+      price: 29,
       features: [
+        'Trained personal AI model',
+        '30 AI images per month',
+        'Maya AI photographer chat',
+        'AI photoshoot access',
+        'Email support'
+      ]
+    },
+    'full-access': {
+      name: 'SSELFIE Studio Full Access',
+      price: 67,
+      features: [
+        'Trained personal AI model',
         '100 AI images per month',
-        'Maya AI + Victoria AI unlimited',
-        'Complete brand builder ecosystem',
-        'Landing pages + custom domain',
+        'Maya AI photographer chat',
+        'Victoria website builder',
+        '4-page website included',
+        'Flatlay library access',
+        'All future features',
+        'Priority support'
+      ]
+    },
+    // Legacy support
+    'sselfie-studio': {
+      name: 'SSELFIE Studio Full Access',
+      price: 67,
+      features: [
+        'Trained personal AI model',
+        '100 AI images per month',
+        'Maya AI photographer chat',
+        'Victoria website builder',
+        '4-page website included',
+        'Flatlay library access',
+        'All future features',
         'Priority support'
       ]
     }
   };
 
-  const plan = planDetails[selectedPlan as keyof typeof planDetails];
+  const plan = planDetails[selectedPlan as keyof typeof planDetails] || planDetails['full-access'];
 
   return (
     <div className="max-w-4xl mx-auto px-8 py-16">
@@ -119,7 +148,7 @@ const CheckoutForm = () => {
                 <p className="text-gray-600 text-sm">Monthly subscription</p>
               </div>
               <div className="text-right">
-                <div className="text-2xl font-light">${plan.price}</div>
+                <div className="text-2xl font-light">€{plan.price}</div>
                 <div className="text-sm text-gray-500">per month</div>
               </div>
             </div>
@@ -139,7 +168,7 @@ const CheckoutForm = () => {
             <div className="border-t border-gray-200 pt-6 mt-6">
               <div className="flex justify-between items-center text-lg font-medium">
                 <span>Total due today:</span>
-                <span>${plan.price}</span>
+                <span>€{plan.price}</span>
               </div>
               <p className="text-sm text-gray-500 mt-2">
                 Billed monthly • Cancel anytime
@@ -161,7 +190,7 @@ const CheckoutForm = () => {
                 disabled={loading || !stripe || !elements}
                 className="w-full py-4 bg-black text-white text-sm uppercase tracking-[0.3em] hover:opacity-90 transition-opacity disabled:opacity-50"
               >
-                {loading ? 'Processing...' : `Complete Purchase - $${plan.price}/month`}
+                {loading ? 'Processing...' : `Complete Purchase - €${plan.price}/month`}
               </button>
             </form>
 

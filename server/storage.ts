@@ -110,6 +110,7 @@ export interface IStorage {
 
   // User plan upgrade operations
   upgradeUserToPremium(userId: string, plan: string): Promise<User>;
+  upgradeUserPlan(userId: string, plan: string): Promise<User>;
 
   // Usage operations
   getUserUsage(userId: string): Promise<UserUsage | undefined>;
@@ -629,19 +630,21 @@ export class DatabaseStorage implements IStorage {
 
   // Plan-based access control methods
   async getUserPlan(userId: string): Promise<string | null> {
-    const subscription = await this.getSubscription(userId);
-    return subscription?.plan || 'free'; // Default to free if no subscription
+    const user = await this.getUser(userId);
+    return user?.plan || 'basic'; // Default to basic plan
   }
 
   async hasMayaAIAccess(userId: string): Promise<boolean> {
-    // Maya AI (photographer) is accessible to everyone
-    return true;
+    // Maya AI requires trained model on both basic and full-access tiers
+    const user = await this.getUser(userId);
+    return user?.hasTrainedModel || user?.role === 'admin' || false;
   }
 
   async hasVictoriaAIAccess(userId: string): Promise<boolean> {
-    // Victoria AI (brand strategist) is locked for free users - premium only
-    const usage = await this.getUserUsage(userId);
-    return usage?.plan === 'admin' || usage?.plan === 'sselfie-studio'; // Admin and paid users get Victoria access
+    // Victoria AI requires full-access tier + trained model
+    const user = await this.getUser(userId);
+    const hasFullAccess = user?.plan === 'full-access' || user?.role === 'admin';
+    return hasFullAccess && (user?.hasTrainedModel || user?.role === 'admin');
   }
 
   async hasSandraAIAccess(userId: string): Promise<boolean> {
@@ -650,23 +653,22 @@ export class DatabaseStorage implements IStorage {
   }
 
   async getGenerationLimits(userId: string): Promise<{ allowed: number; used: number }> {
-    const usage = await this.getUserUsage(userId);
-    const plan = await this.getUserPlan(userId);
-
+    const user = await this.getUser(userId);
+    
     // Admin users get unlimited access
-    if (plan === 'admin') {
+    if (user?.role === 'admin') {
       return {
         allowed: 999999,
-        used: usage?.monthlyGenerationsUsed || 0
+        used: user?.generationsUsedThisMonth || 0
       };
     }
 
-    // Default limits based on plan
-    const defaultAllowed = plan === 'free' ? 5 : 100;
-
+    // Generation limits based on plan
+    const monthlyLimit = user?.monthlyGenerationLimit || 30; // Default to basic plan
+    
     return {
-      allowed: usage?.monthlyGenerationsAllowed || defaultAllowed,
-      used: usage?.monthlyGenerationsUsed || 0
+      allowed: monthlyLimit,
+      used: user?.generationsUsedThisMonth || 0
     };
   }
 
@@ -973,6 +975,60 @@ export class DatabaseStorage implements IStorage {
       .values(data)
       .returning();
     return chat;
+  }
+
+  // User plan upgrade operations
+  async upgradeUserToPremium(userId: string, plan: string): Promise<User> {
+    return this.upgradeUserPlan(userId, plan);
+  }
+
+  async upgradeUserPlan(userId: string, plan: string): Promise<User> {
+    // Determine the plan settings based on new pricing structure
+    let planSettings: Partial<User>;
+    
+    if (plan === 'basic') {
+      planSettings = {
+        plan: 'basic',
+        monthlyGenerationLimit: 30,
+        mayaAiAccess: true,
+        victoriaAiAccess: false,
+        aiPhotoshootAccess: true,
+        flatlayLibraryAccess: false,
+        websiteBuilderAccess: false
+      };
+    } else if (plan === 'full-access') {
+      planSettings = {
+        plan: 'full-access',
+        monthlyGenerationLimit: 100,
+        mayaAiAccess: true,
+        victoriaAiAccess: true,
+        aiPhotoshootAccess: true,
+        flatlayLibraryAccess: true,
+        websiteBuilderAccess: true
+      };
+    } else {
+      // Legacy support for old plans
+      planSettings = {
+        plan: plan,
+        monthlyGenerationLimit: plan === 'images-only' ? 30 : 100,
+        mayaAiAccess: true,
+        victoriaAiAccess: plan !== 'images-only',
+        aiPhotoshootAccess: true,
+        flatlayLibraryAccess: plan !== 'images-only',
+        websiteBuilderAccess: plan !== 'images-only'
+      };
+    }
+
+    const [updatedUser] = await db
+      .update(users)
+      .set({
+        ...planSettings,
+        updatedAt: new Date()
+      })
+      .where(eq(users.id, userId))
+      .returning();
+
+    return updatedUser;
   }
 
   async getMayaChatMessages(chatId: number): Promise<MayaChatMessage[]> {
