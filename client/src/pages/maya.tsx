@@ -730,23 +730,47 @@ export default function Maya() {
                                       onClick={() => setSelectedImage(imageUrl)}
                                     />
                                     
-                                    {/* Minimalistic Heart Save Button */}
+                                    {/* Heart Save Button */}
                                     <button
                                       onClick={(e) => {
                                         e.stopPropagation();
                                         saveToGallery(imageUrl);
                                       }}
                                       disabled={savingImages.has(imageUrl)}
-                                      className="absolute top-2 right-2 w-8 h-8 flex items-center justify-center bg-white/90 hover:bg-white border border-gray-200 hover:border-gray-300 rounded-full transition-all shadow-sm"
+                                      style={{
+                                        position: 'absolute',
+                                        top: '8px',
+                                        right: '8px',
+                                        width: '32px',
+                                        height: '32px',
+                                        display: 'flex',
+                                        alignItems: 'center',
+                                        justifyContent: 'center',
+                                        background: savedImages.has(imageUrl) ? 'rgba(255, 68, 68, 0.9)' : 'rgba(255, 255, 255, 0.9)',
+                                        border: 'none',
+                                        color: savedImages.has(imageUrl) ? '#ffffff' : '#666666',
+                                        fontSize: '16px',
+                                        cursor: savingImages.has(imageUrl) ? 'not-allowed' : 'pointer',
+                                        borderRadius: '50%',
+                                        transition: 'all 300ms ease',
+                                        boxShadow: '0 1px 3px rgba(0, 0, 0, 0.1)',
+                                        zIndex: 10
+                                      }}
                                       title={savedImages.has(imageUrl) ? 'Saved to gallery' : 'Save to gallery'}
+                                      onMouseEnter={(e) => {
+                                        if (!savingImages.has(imageUrl)) {
+                                          e.currentTarget.style.background = savedImages.has(imageUrl) ? 'rgba(255, 68, 68, 1)' : 'rgba(255, 255, 255, 1)';
+                                          e.currentTarget.style.transform = 'scale(1.1)';
+                                        }
+                                      }}
+                                      onMouseLeave={(e) => {
+                                        if (!savingImages.has(imageUrl)) {
+                                          e.currentTarget.style.background = savedImages.has(imageUrl) ? 'rgba(255, 68, 68, 0.9)' : 'rgba(255, 255, 255, 0.9)';
+                                          e.currentTarget.style.transform = 'scale(1)';
+                                        }
+                                      }}
                                     >
-                                      {savingImages.has(imageUrl) ? (
-                                        <div className="w-3 h-3 border border-gray-400 border-t-transparent rounded-full animate-spin"></div>
-                                      ) : savedImages.has(imageUrl) ? (
-                                        <span className="text-red-500 text-sm">♥</span>
-                                      ) : (
-                                        <span className="text-gray-400 hover:text-red-500 text-sm transition-colors">♡</span>
-                                      )}
+                                      {savingImages.has(imageUrl) ? '⟳' : (savedImages.has(imageUrl) ? '♥' : '♡')}
                                     </button>
                                     
                                     {/* Subtle Saved Indicator */}
