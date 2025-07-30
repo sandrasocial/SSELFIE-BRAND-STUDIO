@@ -379,39 +379,39 @@ export default function EditorialLanding() {
           </div>
 
           <div className="grid md:grid-cols-2 gap-8 sm:gap-10 md:gap-12">
-            {/* FREE PLAN */}
+            {/* BASIC PLAN */}
             <div className="bg-gray-50 p-8 sm:p-10 md:p-12 text-center group hover:bg-black hover:text-white transition-all duration-500">
-              <h3 className="font-serif text-2xl sm:text-3xl font-light mb-4 sm:mb-6">Start Free</h3>
-              <div className="text-3xl sm:text-4xl md:text-5xl font-light mb-6 sm:mb-8">FREE<span className="text-sm sm:text-base md:text-lg text-gray-500 group-hover:text-white/60"> forever</span></div>
+              <h3 className="font-serif text-2xl sm:text-3xl font-light mb-4 sm:mb-6">Basic</h3>
+              <div className="text-3xl sm:text-4xl md:text-5xl font-light mb-6 sm:mb-8">€29<span className="text-sm sm:text-base md:text-lg text-gray-500 group-hover:text-white/60">/month</span></div>
               
               <div className="space-y-3 sm:space-y-4 mb-8 sm:mb-10 md:mb-12 text-left">
                 <div className="flex items-start">
                   <span className="text-black group-hover:text-white mr-3">•</span>
-                  <span className="text-sm">5 AI images per month</span>
+                  <span className="text-sm">Your personal AI model</span>
                 </div>
                 <div className="flex items-start">
                   <span className="text-black group-hover:text-white mr-3">•</span>
-                  <span className="text-sm">Maya AI photographer chat</span>
+                  <span className="text-sm">30 AI photos monthly</span>
                 </div>
                 <div className="flex items-start">
                   <span className="text-black group-hover:text-white mr-3">•</span>
-                  <span className="text-sm">Victoria AI brand strategist chat</span>
+                  <span className="text-sm">Maya AI photographer</span>
                 </div>
                 <div className="flex items-start">
                   <span className="text-black group-hover:text-white mr-3">•</span>
-                  <span className="text-sm">Basic luxury flatlay collections</span>
+                  <span className="text-sm">All basic editing tools</span>
                 </div>
               </div>
               
               <button
-                onClick={() => handleGetStarted('free')}
+                onClick={() => handleGetStarted('basic')}
                 className="w-full py-4 border border-black group-hover:border-white text-black group-hover:text-white text-xs uppercase tracking-[0.3em] hover:bg-black hover:text-white group-hover:hover:bg-white group-hover:hover:text-black transition-all duration-300"
               >
-                Start Free Today
+                Start Basic
               </button>
             </div>
 
-            {/* SSELFIE STUDIO PAID */}
+            {/* FULL ACCESS PLAN */}
             <div className="bg-black text-white p-8 sm:p-10 md:p-12 text-center relative">
               <div className="absolute -top-3 sm:-top-4 left-1/2 transform -translate-x-1/2">
                 <div className="bg-white text-black px-4 sm:px-6 py-1 sm:py-2 text-xs uppercase tracking-[0.3em]">
@@ -419,48 +419,44 @@ export default function EditorialLanding() {
                 </div>
               </div>
               
-              <h3 className="font-serif text-2xl sm:text-3xl font-light mb-4 sm:mb-6">SSELFIE Studio</h3>
-              <div className="text-3xl sm:text-4xl md:text-5xl font-light mb-6 sm:mb-8">$47<span className="text-sm sm:text-base md:text-lg text-gray-400">/month</span></div>
+              <h3 className="font-serif text-2xl sm:text-3xl font-light mb-4 sm:mb-6">Full Access</h3>
+              <div className="text-3xl sm:text-4xl md:text-5xl font-light mb-6 sm:mb-8">€67<span className="text-sm sm:text-base md:text-lg text-gray-400">/month</span></div>
               
               <div className="space-y-3 sm:space-y-4 mb-8 sm:mb-10 md:mb-12 text-left">
                 <div className="flex items-start">
                   <span className="text-white mr-3">•</span>
-                  <span className="text-sm">100 AI images per month</span>
+                  <span className="text-sm">Everything in Basic</span>
                 </div>
                 <div className="flex items-start">
                   <span className="text-white mr-3">•</span>
-                  <span className="text-sm">Full luxury flatlay collections</span>
+                  <span className="text-sm">100 AI photos monthly</span>
                 </div>
                 <div className="flex items-start">
                   <span className="text-white mr-3">•</span>
-                  <span className="text-sm">Maya & Victoria AI agents</span>
+                  <span className="text-sm">Victoria website builder</span>
                 </div>
                 <div className="flex items-start">
                   <span className="text-white mr-3">•</span>
-                  <span className="text-sm">Brand templates & landing pages</span>
+                  <span className="text-sm">Luxury flatlay library</span>
                 </div>
                 <div className="flex items-start">
                   <span className="text-white mr-3">•</span>
-                  <span className="text-sm">Custom domain connection</span>
-                </div>
-                <div className="flex items-start">
-                  <span className="text-white mr-3">•</span>
-                  <span className="text-sm">Priority support</span>
+                  <span className="text-sm">All future features</span>
                 </div>
               </div>
               
               <button
-                onClick={() => handleGetStarted('sselfie-studio')}
+                onClick={() => handleGetStarted('full-access')}
                 className="w-full py-4 border border-white text-white text-xs uppercase tracking-[0.3em] hover:bg-white hover:text-black transition-all duration-300"
               >
-                Start Studio $47/mo
+                Start Full Access
               </button>
             </div>
           </div>
           
           <div className="text-center mt-8 sm:mt-10 md:mt-12">
             <p className="text-sm text-gray-500 px-4">
-              No contracts. Cancel anytime. 30-day money-back guarantee.
+              Both plans include your personal AI model training. Cancel anytime.
             </p>
           </div>
         </div>
@@ -500,75 +496,7 @@ export default function EditorialLanding() {
         </div>
       </section>
 
-      {/* Conversion Section - Strategic Pricing Display */}
-      <section className="py-24 bg-gray-50">
-        <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-          <div className="text-xs uppercase tracking-[0.4em] text-gray-500 mb-6">
-            Choose Your Start
-          </div>
-          
-          <h2 className="font-serif text-2xl sm:text-3xl md:text-4xl font-light text-black mb-12">
-            Ready to transform your selfies<br />into your personal brand?
-          </h2>
-          
-          <div className="grid md:grid-cols-2 gap-8 max-w-3xl mx-auto">
-            {/* Basic Plan */}
-            <div className="bg-white p-8 border border-gray-200 hover:border-black transition-all duration-300">
-              <div className="text-xs uppercase tracking-[0.4em] text-gray-500 mb-4">
-                Basic
-              </div>
-              <div className="font-serif text-3xl font-light mb-2">€29</div>
-              <div className="text-sm text-gray-600 mb-6">per month</div>
-              
-              <ul className="text-left text-sm space-y-3 mb-8">
-                <li>• Your personal AI model</li>
-                <li>• 30 AI photos monthly</li>
-                <li>• Maya AI photographer</li>
-                <li>• All basic editing tools</li>
-              </ul>
-              
-              <button
-                onClick={() => handleGetStarted('basic')}
-                className="w-full py-4 bg-black text-white text-xs uppercase tracking-[0.3em] hover:opacity-90 transition-opacity"
-              >
-                Start Basic
-              </button>
-            </div>
-            
-            {/* Full Access Plan - Popular */}
-            <div className="bg-black text-white p-8 border border-black relative">
-              <div className="absolute -top-3 left-1/2 transform -translate-x-1/2 bg-white text-black px-4 py-1 text-xs uppercase tracking-[0.3em]">
-                Popular
-              </div>
-              
-              <div className="text-xs uppercase tracking-[0.4em] text-white/70 mb-4">
-                Full Access
-              </div>
-              <div className="font-serif text-3xl font-light mb-2">€67</div>
-              <div className="text-sm text-white/70 mb-6">per month</div>
-              
-              <ul className="text-left text-sm space-y-3 mb-8">
-                <li>• Everything in Basic</li>
-                <li>• 100 AI photos monthly</li>
-                <li>• Victoria website builder</li>
-                <li>• Luxury flatlay library</li>
-                <li>• All future features</li>
-              </ul>
-              
-              <button
-                onClick={() => handleGetStarted('full-access')}
-                className="w-full py-4 bg-white text-black text-xs uppercase tracking-[0.3em] hover:bg-gray-100 transition-colors"
-              >
-                Start Full Access
-              </button>
-            </div>
-          </div>
-          
-          <p className="text-sm text-gray-600 mt-8">
-            Both plans include your personal AI model training. Cancel anytime.
-          </p>
-        </div>
-      </section>
+
 
       {/* Quote Section - Editorial */}
       <section className="py-32 bg-black text-white text-center">
