@@ -604,34 +604,50 @@ Remember: You are the MEMBER experience Victoria - provide website building guid
   // Save preview images to permanent gallery endpoint
   app.post('/api/save-preview-to-gallery', isAuthenticated, async (req: any, res) => {
     try {
+      console.log('🚀 SAVE-TO-GALLERY: Request received');
+      console.log('🚀 SAVE-TO-GALLERY: Body:', req.body);
+      console.log('🚀 SAVE-TO-GALLERY: User claims:', req.user?.claims);
+      
       const { trackerId, selectedImageUrls } = req.body;
       
       if (!trackerId || !selectedImageUrls || !Array.isArray(selectedImageUrls)) {
+        console.log('❌ SAVE-TO-GALLERY: Missing data - trackerId:', trackerId, 'selectedImageUrls:', selectedImageUrls);
         return res.status(400).json({ error: 'trackerId and selectedImageUrls array required' });
       }
       
       // Get the correct database user ID
       const authUserId = req.user.claims.sub;
       const claims = req.user.claims;
+      console.log('🚀 SAVE-TO-GALLERY: Auth user ID:', authUserId);
       
       let user = await storage.getUser(authUserId);
       if (!user && claims.email) {
+        console.log('🚀 SAVE-TO-GALLERY: Trying by email:', claims.email);
         user = await storage.getUserByEmail(claims.email);
       }
       
       if (!user) {
+        console.log('❌ SAVE-TO-GALLERY: User not found for ID:', authUserId);
         return res.status(404).json({ error: 'User not found' });
       }
       
+      console.log('🚀 SAVE-TO-GALLERY: Found user:', user.id);
+      
       const dbUserId = user.id;
       const tracker = await storage.getGenerationTracker(trackerId);
+      console.log('🚀 SAVE-TO-GALLERY: Tracker found:', tracker?.id, 'User match:', tracker?.userId === dbUserId);
+      
       if (!tracker || tracker.userId !== dbUserId) {
+        console.log('❌ SAVE-TO-GALLERY: Unauthorized - tracker user:', tracker?.userId, 'request user:', dbUserId);
         return res.status(403).json({ error: 'Unauthorized access to tracker' });
       }
       
       // Save each selected image to gallery with permanent S3 storage
       const savedImages = [];
+      console.log('🚀 SAVE-TO-GALLERY: Saving', selectedImageUrls.length, 'images');
+      
       for (const imageUrl of selectedImageUrls) {
+        console.log('🚀 SAVE-TO-GALLERY: Saving image:', imageUrl);
         const galleryImage = await storage.saveAIImage({
           userId: dbUserId,
           imageUrl: imageUrl, // Already permanent S3 URL from tracker
@@ -645,6 +661,8 @@ Remember: You are the MEMBER experience Victoria - provide website building guid
         savedImages.push(galleryImage);
         console.log(`💖 GALLERY SAVE: Saved image ${galleryImage.id} to gallery for user ${dbUserId}`);
       }
+      
+      console.log(`✅ SAVE-TO-GALLERY: Successfully saved ${savedImages.length} images`);
       
       res.json({
         success: true,
