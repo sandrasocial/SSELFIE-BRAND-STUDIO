@@ -130,17 +130,15 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  // Maya Image Generation endpoint - Production ready
+  // Maya Image Generation endpoint - Restored working version
   app.post('/api/maya-generate-images', isAuthenticated, async (req: any, res) => {
     try {
       const userId = req.user?.claims?.sub;
-      const { prompt, customPrompt, chatId } = req.body;
+      const { prompt, customPrompt } = req.body;
+      const actualPrompt = customPrompt || prompt;
       
       console.log('🎬 Maya: Starting image generation for user:', userId);
-      console.log('🎬 Maya: Prompt:', prompt);
-      
-      // Import generation service
-      const { UnifiedGenerationService } = await import('./unified-generation-service');
+      console.log('🎬 Maya: Prompt:', actualPrompt);
       
       // Get user's trained model
       const { db } = await import('./db');
@@ -158,22 +156,108 @@ export async function registerRoutes(app: Express): Promise<Server> {
           message: "No trained model available. Please complete training first."
         });
       }
+
+      // Prepare model version and prompt
+      const fullModelVersion = `${userModel.replicateModelId}:${userModel.replicateVersionId}`;
+      const triggerWord = `user${userId}`;
       
-      // Start generation with user's model
-      const generation = await UnifiedGenerationService.generateImages({
-        userId,
-        prompt: customPrompt || prompt,
-        category: 'Maya Chat'
+      // Build enhanced prompt with trigger word and quality settings
+      let finalPrompt = actualPrompt;
+      if (!finalPrompt.includes(triggerWord)) {
+        finalPrompt = `${triggerWord} ${finalPrompt}`;
+      }
+      
+      // Add editorial photography enhancements
+      if (!finalPrompt.includes('raw photo')) {
+        finalPrompt = `raw photo, visible skin pores, natural skin texture, subsurface scattering, film grain, ${finalPrompt}, unretouched skin, authentic facial features, professional photography`;
+      }
+      
+      console.log('🎯 Maya: Final prompt:', finalPrompt);
+      console.log('🔒 Maya: Using model:', fullModelVersion);
+
+      // Build Replicate API request
+      const requestBody = {
+        version: fullModelVersion,
+        input: {
+          prompt: finalPrompt,
+          guidance: 2.82,
+          num_inference_steps: 48,
+          num_outputs: 2,
+          aspect_ratio: "3:4",
+          output_format: "png",
+          output_quality: 95,
+          go_fast: false,
+          disable_safety_checker: false,
+          megapixels: "1",
+          seed: Math.floor(Math.random() * 1000000)
+        }
+      };
+
+      // Call Replicate API directly
+      const response = await fetch('https://api.replicate.com/v1/predictions', {
+        method: 'POST',
+        headers: {
+          'Authorization': `Token ${process.env.REPLICATE_API_TOKEN}`,
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(requestBody)
       });
+
+      if (!response.ok) {
+        const errorText = await response.text();
+        console.error('🚨 Replicate API error:', response.status, errorText);
+        throw new Error(`Replicate API error: ${response.status} - ${errorText}`);
+      }
+
+      const replicateResult = await response.json();
+      console.log('✅ Maya: Prediction started:', replicateResult.id);
       
-      console.log('🎬 Maya: Generation started with ID:', generation.id);
+      // Poll for completion and return images directly
+      let finalResult = replicateResult;
+      let attempts = 0;
+      const maxAttempts = 60; // 2 minutes maximum
       
-      res.json({
-        success: true,
-        imageId: generation.id,
-        message: "✨ Creating your stunning editorial moment right now! This is going to be absolutely gorgeous...",
-        trackerId: generation.id
-      });
+      while ((finalResult.status === 'starting' || finalResult.status === 'processing') && attempts < maxAttempts) {
+        await new Promise(resolve => setTimeout(resolve, 2000)); // Wait 2 seconds
+        
+        const statusResponse = await fetch(`https://api.replicate.com/v1/predictions/${finalResult.id}`, {
+          headers: { 'Authorization': `Token ${process.env.REPLICATE_API_TOKEN}` }
+        });
+        
+        if (statusResponse.ok) {
+          finalResult = await statusResponse.json();
+          console.log(`🎬 Maya: Status check ${attempts + 1}: ${finalResult.status}`);
+        }
+        
+        attempts++;
+      }
+
+      if (finalResult.status === 'succeeded' && finalResult.output) {
+        const images = Array.isArray(finalResult.output) ? finalResult.output : [finalResult.output];
+        console.log('✅ Maya: Generation completed with', images.length, 'images');
+        
+        res.json({
+          success: true,
+          images: images,
+          message: "✨ Your stunning editorial photos are ready! Looking absolutely gorgeous!",
+          predictionId: finalResult.id
+        });
+      } else if (finalResult.status === 'failed') {
+        console.error('🚨 Maya: Generation failed:', finalResult.error);
+        res.status(500).json({
+          success: false,
+          message: "Image generation failed",
+          error: finalResult.error
+        });
+      } else {
+        console.log('⏱️ Maya: Generation timeout after', attempts, 'attempts');
+        res.json({
+          success: true,
+          images: [],
+          message: "✨ Your images are still generating! They'll appear shortly...",
+          predictionId: finalResult.id
+        });
+      }
       
     } catch (error) {
       console.error('❌ Maya generation error:', error);
