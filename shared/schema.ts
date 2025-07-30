@@ -44,6 +44,20 @@ export const users = pgTable("users", {
   updatedAt: timestamp("updated_at").defaultNow(),
 });
 
+// Website schema for Victoria website builder
+export const websites = pgTable("websites", {
+  id: serial("id").primaryKey(),
+  userId: varchar("user_id").references(() => users.id, { onDelete: "cascade" }).notNull(),
+  title: varchar("title").notNull(),
+  url: varchar("url"), // Generated URL
+  status: varchar("status").notNull().default("draft"), // draft, published, archived
+  content: jsonb("content").notNull(), // Website content data
+  screenshotUrl: varchar("screenshot_url"), // Screenshot for preview
+  isPublished: boolean("is_published").default(false),
+  createdAt: timestamp("created_at").defaultNow(),
+  updatedAt: timestamp("updated_at").defaultNow(),
+});
+
 // User profile table for additional profile information
 export const userProfiles = pgTable("user_profiles", {
   id: serial("id").primaryKey(),
@@ -475,24 +489,7 @@ export const insertAgentCapabilitySchema = createInsertSchema(agentCapabilities)
 export type UpsertUser = z.infer<typeof upsertUserSchema>;
 export type User = typeof users.$inferSelect;
 
-// Website storage table for Victoria-generated websites
-export const websites = pgTable("websites", {
-  id: varchar("id").primaryKey(),
-  userId: varchar("user_id").notNull().references(() => users.id),
-  businessName: varchar("business_name").notNull(),
-  businessType: varchar("business_type").notNull(),
-  status: varchar("status").notNull().default("draft"), // draft, generated, deployed
-  template: varchar("template").notNull(),
-  content: jsonb("content").notNull(),
-  design: jsonb("design").notNull(),
-  deploymentUrl: varchar("deployment_url"),
-  metadata: jsonb("metadata").default({}),
-  createdAt: timestamp("created_at").defaultNow(),
-  updatedAt: timestamp("updated_at").defaultNow(),
-});
-
-export type Website = typeof websites.$inferSelect;
-export type InsertWebsite = typeof websites.$inferInsert;
+// Website types already defined above
 export type MayaChat = typeof mayaChats.$inferSelect;
 export type InsertMayaChat = typeof mayaChats.$inferInsert;
 export type MayaChatMessage = typeof mayaChatMessages.$inferSelect;
@@ -740,5 +737,10 @@ export type InsertUsageHistory = typeof usageHistory.$inferInsert;
 // Export styleguide tables and types  
 export { userStyleguides, styleguideTemplates } from "./styleguide-schema";
 export type { UserStyleguide, StyleguideTemplate, InsertUserStyleguide, InsertStyleguideTemplate } from "./styleguide-schema";
+
+// Website management schema types
+export const insertWebsiteSchema = createInsertSchema(websites);
+export type InsertWebsite = z.infer<typeof insertWebsiteSchema>;
+export type Website = typeof websites.$inferSelect;
 
 // Note: Type exports are handled individually above to avoid conflicts

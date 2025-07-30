@@ -11,6 +11,7 @@ import { ElenaPhaseNavigation } from '@/components/workspace/ElenaPhaseNavigatio
 import { PremiumProgressDashboard } from '@/components/workspace/PremiumProgressDashboard';
 import { LuxuryPhaseCard } from '@/components/workspace/LuxuryPhaseCard';
 import { ResponsiveWorkspaceGrid } from '@/components/workspace/ResponsiveWorkspaceGrid';
+import { WebsiteManager } from '@/components/workspace/WebsiteManager';
 
 
 export default function Workspace() {
@@ -371,13 +372,13 @@ export default function Workspace() {
                 </div>
               </Link>
 
-              {/* Victoria Widget - Locked */}
-              <div className="group">
-                <div className="relative overflow-hidden bg-black opacity-60" style={{ aspectRatio: '21/9' }}>
+              {/* Victoria Widget - Active */}
+              <Link href="/victoria" className="group">
+                <div className="relative overflow-hidden bg-black" style={{ aspectRatio: '21/9' }}>
                   <img 
                     src="https://i.postimg.cc/HWFbv1DB/file-32.png"
-                    alt="Victoria"
-                    className="w-full h-full object-cover opacity-40"
+                    alt="Victoria Website Builder"
+                    className="w-full h-full object-cover opacity-60 transition-all duration-700 group-hover:opacity-80 group-hover:scale-105"
                   />
                   
                   {/* Elegant Text Overlay */}
@@ -386,26 +387,38 @@ export default function Workspace() {
                       <div className="font-serif text-xl md:text-2xl font-light tracking-[0.3em] uppercase">
                         V I C T O R I A
                       </div>
-                      <div className="text-xs tracking-[0.2em] uppercase opacity-60 mt-2">
-                        Coming Soon
+                      <div className="text-xs tracking-[0.2em] uppercase opacity-70 mt-2">
+                        Website Builder
                       </div>
                     </div>
                   </div>
                   
-                  {/* Lock Overlay */}
-                  <div className="absolute inset-0 bg-black/30"></div>
-                  
-                  {/* Subtle Lock Indicator */}
-                  <div className="absolute bottom-4 right-4">
-                    <div className="w-4 h-4 border border-white/50 rounded-sm flex items-center justify-center">
-                      <div className="w-1.5 h-1.5 border border-white/50 rounded-full"></div>
-                    </div>
-                  </div>
+                  {/* Subtle Hover Effect */}
+                  <div className="absolute inset-0 border border-white opacity-0 group-hover:opacity-30 transition-opacity duration-500"></div>
                 </div>
-              </div>
+              </Link>
 
             </div>
           </div>
+
+          {/* Website Management Section - For users who have completed their journey */}
+          {journeySteps.filter(s => s.status === 'complete').length >= 3 && (
+            <div className="mb-32">
+              <div className="text-center mb-12">
+                <div className="text-xs tracking-[0.4em] uppercase text-gray-500 mb-4">
+                  Your Websites
+                </div>
+                <h3 className="font-serif text-2xl font-light tracking-wide">
+                  Website Management
+                </h3>
+                <p className="text-gray-600 max-w-2xl mx-auto mt-4 font-light">
+                  Create and manage professional websites using your AI photos and brand elements.
+                </p>
+              </div>
+
+              <WebsiteManager />
+            </div>
+          )}
 
           {/* Your Current Plan - Simple and Clean */}
           <div className="text-center py-20">
