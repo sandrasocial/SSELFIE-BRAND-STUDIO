@@ -132,7 +132,7 @@ export default function SimpleTraining() {
   // Start bulletproof model training mutation
   const startTraining = useMutation({
     mutationFn: async (images: string[]) => {
-      const response = await apiRequest('POST', '/api/start-model-training', {
+      const response = await apiRequest('/api/start-model-training', 'POST', {
         selfieImages: images
       });
       return response;
