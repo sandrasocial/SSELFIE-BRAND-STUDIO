@@ -6,7 +6,7 @@
 
 import { storage } from './storage';
 import { ArchitectureValidator } from './architecture-validator';
-import { GenerationValidator } from './generation-validator';
+import { ModelValidationService } from './model-validation-service';
 // import { extractImagePromptFromRequest } from './sandra-ai-service'; // Not used in this service
 import { 
   InsertGenerationTracker,
@@ -44,21 +44,11 @@ export class UnifiedGenerationService {
     
     console.log(`🚀 UNIFIED GENERATION: Starting for user ${userId}`);
     
-    // CRITICAL: Get user model information for validation
-    const userModel = await storage.getUserModelByUserId(userId);
-    if (!userModel || userModel.trainingStatus !== 'completed') {
-      throw new Error('User model not available or training not completed');
-    }
+    // CRITICAL: Use new validation service to check and correct model data
+    const modelValidation = await ModelValidationService.enforceUserModelRequirements(userId);
+    const { modelId, versionId, triggerWord } = modelValidation;
     
-    // CRITICAL FIX: Use ONLY the version ID directly (as shown in Replicate screenshots)
-    const fullModelVersion = userModel.replicateVersionId;
-    
-    // GLOBAL FIX: Prevent null or undefined version IDs affecting ALL users
-    if (!fullModelVersion) {
-      throw new Error(`CRITICAL: User ${userId} has no version ID. Model: ${userModel.replicateModelId}, Status: ${userModel.trainingStatus}`);
-    }
-    const triggerWord = userModel.triggerWord || `user${userId}`; // Use actual trained trigger word
-    console.log(`🔒 VALIDATED: User ${userId} can generate with model: ${fullModelVersion}, trigger: ${triggerWord}`);
+    console.log(`🔒 VALIDATED: User ${userId} can generate with model: ${modelId}:${versionId}, trigger: ${triggerWord}`);
     
     // Create generation tracker for Maya chat preview (NOT gallery)
     const trackerData: InsertGenerationTracker = {
@@ -98,10 +88,9 @@ export class UnifiedGenerationService {
     
     console.log(`🎯 UNIFIED FINAL PROMPT: "${finalPrompt}"`);
     
-    // UNIVERSAL INDIVIDUAL MODEL ARCHITECTURE: All users use sandrasocial/{userId}-selfie-lora:{versionId}
-    // CRITICAL FIX: Ensure version ID is properly formatted for ALL users
-    const modelVersion = `${userModel.replicateModelId}:${fullModelVersion}`;
-    console.log(`🔒 VERSION VALIDATION: Model: ${userModel.replicateModelId}, Version: ${fullModelVersion}, Combined: ${modelVersion}`);
+    // UNIVERSAL INDIVIDUAL MODEL ARCHITECTURE: All users use their validated trained models
+    const modelVersion = `${modelId}:${versionId}`;
+    console.log(`🔒 VERSION VALIDATION: Model: ${modelId}, Version: ${versionId}, Combined: ${modelVersion}`);
     
     const requestBody = {
       version: modelVersion,
