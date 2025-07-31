@@ -524,6 +524,18 @@ export class BulletproofUploadService {
     
     // STEP 5: Update database
     const dbUpdate = await this.updateDatabaseWithTraining(userId, trainingStart.trainingId, triggerWord, trainingStart.modelName);
+    
+    // STEP 6: Set up immediate monitoring for this training
+    // Schedule a check for this specific training after 2 minutes
+    setTimeout(async () => {
+      try {
+        const { TrainingCompletionMonitor } = await import('./training-completion-monitor');
+        console.log(`🔍 SCHEDULED CHECK: Checking training ${trainingStart.trainingId} for user ${userId}`);
+        await TrainingCompletionMonitor.checkAndUpdateTraining(trainingStart.trainingId, userId);
+      } catch (error) {
+        console.error(`❌ SCHEDULED CHECK FAILED for training ${trainingStart.trainingId}:`, error);
+      }
+    }, 2 * 60 * 1000); // 2 minutes
     if (!dbUpdate.success) {
       allErrors.push(...dbUpdate.errors);
       return { success: false, errors: allErrors, trainingId: null, requiresRestart: true };

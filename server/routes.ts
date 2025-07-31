@@ -11,6 +11,8 @@ import { registerVictoriaWebsiteGenerator } from "./routes/victoria-website-gene
 import subscriberImportRouter from './routes/subscriber-import';
 import adminBusinessMetricsRouter from './routes/admin-business-metrics';
 import { whitelabelRoutes } from './routes/white-label-setup';
+import path from 'path';
+import fs from 'fs';
 
 // UNIFIED AGENT SYSTEM IMPORT (Single source of truth)
 import { unifiedAgentSystem } from './unified-agent-system';
@@ -23,6 +25,23 @@ export async function registerRoutes(app: Express): Promise<Server> {
   
   // Setup authentication
   await setupAuth(app);
+  
+  // CRITICAL: Serve training ZIP files with correct content type
+  app.get("/training-zip/:filename", (req, res) => {
+    const filename = req.params.filename;
+    const filePath = path.join(process.cwd(), 'temp_training', filename);
+    
+    if (!fs.existsSync(filePath)) {
+      return res.status(404).json({ error: 'Training ZIP file not found' });
+    }
+    
+    // Set correct content type for ZIP files
+    res.setHeader('Content-Type', 'application/zip');
+    res.setHeader('Content-Disposition', `attachment; filename="${filename}"`);
+    
+    console.log(`📦 Serving training ZIP: ${filename} (${fs.statSync(filePath).size} bytes)`);
+    res.sendFile(filePath);
+  });
   
   // Setup rollback routes
   setupRollbackRoutes(app);
