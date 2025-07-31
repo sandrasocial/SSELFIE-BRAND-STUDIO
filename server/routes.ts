@@ -865,6 +865,10 @@ Remember: You are the MEMBER experience Victoria - provide website building guid
   // Maya Image Generation endpoint - Restored working version
   app.post('/api/maya-generate-images', isAuthenticated, async (req: any, res) => {
     try {
+      // FORCE VISIBILITY - This endpoint should ALWAYS log when hit
+      console.error('🚨🚨🚨 MAYA ENDPOINT DEFINITELY HIT - START OF FUNCTION 🚨🚨🚨');
+      console.error('🚨🚨🚨 REQUEST RECEIVED - PROCESSING MAYA GENERATION 🚨🚨🚨');
+      
       const userId = req.user?.claims?.sub;
       const { prompt, customPrompt } = req.body;
       const actualPrompt = customPrompt || prompt;
