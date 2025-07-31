@@ -68,6 +68,7 @@ export default function Maya() {
   
   // CRITICAL FIX: Prevent chat refresh from useAuth re-renders
   const [isInitialized, setIsInitialized] = useState(false);
+  const [chatHasMessages, setChatHasMessages] = useState(false);
   
   // LUXURY LOADING STATE
   if (isLoading) {
@@ -125,24 +126,36 @@ export default function Maya() {
     }
   }, [user, isLoading, setLocation, toast]);
 
-  // CRITICAL FIX: Initialize only once to prevent chat refresh
+  // CRITICAL FIX: Initialize only once to prevent chat refresh - ENHANCED
   useEffect(() => {
-    if (user && !isInitialized) {
+    if (user && !isInitialized && !chatHasMessages) {
+      console.log('🚀 Maya: First initialization - setting up chat');
       setIsInitialized(true);
       
       if (chatIdFromUrl) {
         // Load specific chat from URL parameter
+        console.log('📂 Maya: Loading existing chat from URL:', chatIdFromUrl);
         loadChatHistory(parseInt(chatIdFromUrl));
       } else {
         // Initialize with Maya's welcome message for new session
+        console.log('💬 Maya: Creating new chat with welcome message'); 
         setMessages([{
           role: 'maya',
           content: `Hey ${user.firstName || 'gorgeous'}! I'm Maya - your warmest, most fashionable best friend who happens to style A-listers! 💫\n\nI'm obsessed with 2025 fashion trends and I'm here to help you tell your story through stunning, trendy photos. Whether you're building your personal brand or just want to look incredible, I've got you covered!\n\nTo get you started, here are some of my favorite trending styles right now:\n\n**🌟 Street Fashion Shoot** - Urban cool with quiet luxury touches\n**✨ Golden Hour Portrait** - Soft romantic lighting for that magazine glow\n**🌿 Scandinavian Nature** - Clean, minimal vibes with natural beauty\n**💎 Close-Up Elegance** - Editorial portraits that capture your essence\n**🔥 Mob Wife Aesthetic** - Oversized power pieces with dramatic flair\n\nJust tell me which style calls to you, or describe your own vision! I'll create two perfect prompts - one close-up and one full scene. Remember babe, pick ONE prompt to generate first, then try the other separately for the best results!\n\nWhat's your story today? Let's make it gorgeous! ✨`,
           timestamp: new Date().toISOString()
         }]);
+        setChatHasMessages(true);
       }
     }
-  }, [user, isInitialized, chatIdFromUrl]);
+  }, [user, isInitialized, chatHasMessages, chatIdFromUrl]);
+  
+  // CRITICAL FIX: Track when messages exist to prevent re-initialization
+  useEffect(() => {
+    if (messages.length > 0 && !chatHasMessages) {
+      console.log('📝 Maya: Messages detected, locking chat state');
+      setChatHasMessages(true);
+    }
+  }, [messages.length, chatHasMessages]);
 
   const sendMessage = async () => {
     if (!input.trim()) return;
@@ -318,32 +331,42 @@ export default function Maya() {
         
         if (tracker.status === 'completed' && tracker.imageUrls && tracker.imageUrls.length > 0) {
           console.log('✅ Maya: Generation completed! Images:', tracker.imageUrls);
+          console.log('🔍 Maya: BEFORE State Update - About to update messages with images');
           
-          // CRITICAL FIX: Stop polling immediately to prevent multiple state updates
+          // STOP ALL POLLING IMMEDIATELY
           setGenerationProgress(100);
           setIsGenerating(false);  
           setGeneratedImages(tracker.imageUrls);
           
-          // CRITICAL FIX: Use functional update to prevent stale closures
+          // CRITICAL FIX: Use callback pattern to prevent state reset
           setMessages(prevMessages => {
+            console.log('🔍 Maya: INSIDE State Update - Messages count:', prevMessages.length);
+            console.log('🔍 Maya: INSIDE State Update - Messages:', prevMessages.map(m => `${m.role}: ${m.content?.substring(0, 50)}...`));
+            
             // Find the last Maya message
             const lastMayaIndex = prevMessages.map(m => m.role).lastIndexOf('maya');
             if (lastMayaIndex >= 0) {
-              console.log('🔄 Maya: Updating last Maya message with images');
+              console.log('🔄 Maya: Found Maya message at index', lastMayaIndex, 'updating with images');
               
-              // Create new array with updated message - PREVENT CHAT REFRESH
+              // Create new array with updated message - NO STATE RESET
               const updatedMessages = [...prevMessages];
               updatedMessages[lastMayaIndex] = {
                 ...updatedMessages[lastMayaIndex],
                 imagePreview: tracker.imageUrls
               };
               
-              // Async database save without blocking UI
+              console.log('✅ Maya: Updated messages count:', updatedMessages.length);
+              console.log('✅ Maya: Updated message has images:', !!updatedMessages[lastMayaIndex].imagePreview);
+              
+              // LOCK CHAT STATE - prevent any further initialization
+              setChatHasMessages(true);
+              
+              // ASYNC database save - don't block
               const messageId = updatedMessages[lastMayaIndex].id;
               if (currentChatId && messageId) {
-                console.log('💾 Maya: Saving images to database for message', messageId);
-                // Use setTimeout to prevent blocking the state update
-                setTimeout(() => {
+                console.log('💾 Maya: Scheduling database save for message', messageId);
+                // Completely async - no blocking
+                requestAnimationFrame(() => {
                   fetch(`/api/maya-chats/${currentChatId}/messages/${messageId}/update-preview`, {
                     method: 'PATCH',
                     credentials: 'include',
@@ -353,28 +376,31 @@ export default function Maya() {
                     })
                   }).then(response => {
                     if (response.ok) {
-                      console.log('✅ Maya: Images saved to database successfully');
+                      console.log('✅ Maya: Images saved to database successfully - CHAT PRESERVED');
                     } else {
                       console.error('❌ Maya: Failed to save images to database');
                     }
                   }).catch(error => console.error('Error saving images to database:', error));
-                }, 0);
+                });
               }
               
               return updatedMessages;
+            } else {
+              console.error('❌ Maya: Could not find Maya message to update with images!');
+              return prevMessages;
             }
-            return prevMessages;
           });
           
-          // Show success toast - delayed to avoid UI conflicts
-          setTimeout(() => {
+          // Success notification - completely async
+          requestAnimationFrame(() => {
             toast({
               title: "Photoshoot Complete!",
               description: `${tracker.imageUrls.length} stunning photos are ready to view!`,
             });
-          }, 100);
+          });
           
-          return; // EXIT POLLING IMMEDIATELY
+          console.log('🛑 Maya: STOPPING POLLING - Images added to chat');
+          return; // STOP POLLING
         }
         
         if (tracker.status === 'failed') {
