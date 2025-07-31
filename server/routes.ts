@@ -515,11 +515,11 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  // User Model endpoint - Production ready
-  app.get('/api/user-model', isAuthenticated, async (req: any, res) => {
+  // User Model endpoint - Production ready (DUPLICATE - REMOVE THIS ONE)
+  app.get('/api/user-model-old', isAuthenticated, async (req: any, res) => {
     try {
       const userId = req.user?.claims?.sub;
-      console.log('🤖 Fetching user model for user:', userId);
+      console.log('🤖 OLD ENDPOINT - Fetching user model for user:', userId);
       
       const { db } = await import('./db');
       const { userModels } = await import('../shared/schema');
@@ -1609,10 +1609,12 @@ Remember: You are the MEMBER experience Victoria - provide website building guid
     }
   });
 
-  // User model endpoint for workspace model status
+  // User model endpoint for workspace model status  
   app.get('/api/user-model', isAuthenticated, async (req: any, res) => {
     try {
       const userId = (req.user as any)?.claims?.sub;
+      console.log('🤖 DEBUG: Full user object:', JSON.stringify(req.user, null, 2));
+      console.log('🤖 DEBUG: Session impersonation:', req.session?.impersonatedUser?.id);
       console.log('🤖 Fetching user model for:', userId);
       
       // Import database and schema
