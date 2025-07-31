@@ -1802,20 +1802,61 @@ Remember: You are the MEMBER experience Victoria - provide website building guid
         });
       }
       
-      // Generate sophisticated prompt based on category and subcategory
-      let prompt = `sophisticated editorial photoshoot featuring ${category}`;
-      if (subcategory && subcategory !== category) {
-        prompt += ` with ${subcategory} styling`;
-      }
-      prompt += `, luxury fashion photography, professional lighting, high-end editorial aesthetic`;
-      
       console.log(`🎬 AI PHOTOSHOOT: Generating ${category}/${subcategory} for user ${user.id}`);
       
-      // Use UnifiedGenerationService with correct guidance_scale parameter
+      // MAYA'S INTELLIGENT PROMPT GENERATION FOR PHOTOSHOOT COLLECTIONS
+      let generatedPrompt = '';
+      
+      try {
+        // Use Maya's expertise to create sophisticated collection prompts
+        const claudeResponse = await fetch('https://api.anthropic.com/v1/messages', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'x-api-key': process.env.ANTHROPIC_API_KEY!,
+            'anthropic-version': '2023-06-01'
+          },
+          body: JSON.stringify({
+            model: "claude-3-5-sonnet-20241022",
+            max_tokens: 600,
+            messages: [{
+              role: "user",
+              content: `You are Maya, the celebrity stylist expert. Create ONE sophisticated editorial photoshoot prompt for "${category} - ${subcategory}".
+
+Format: [detailed scene/location], [luxury fashion description], [authentic expression/pose], [professional photography details]
+
+Rules:
+- Use luxury editorial language (not generic)
+- Include specific 2025 fashion trends
+- Add environmental storytelling
+- Natural authentic expressions (no fake smiles)
+- Professional photography techniques
+- Keep it sophisticated and editorial
+
+Example: "minimalist rooftop terrace overlooking city skyline at golden hour, wearing architectural cashmere blazer in camel with wide-leg trousers, natural confident expression while reviewing documents, shot on Hasselblad X2D with 35mm lens, dramatic directional lighting creating editorial shadows"`
+            }]
+          })
+        });
+
+        if (claudeResponse.ok) {
+          const claudeData = await claudeResponse.json();
+          generatedPrompt = claudeData.content[0].text.trim();
+          console.log('✅ MAYA COLLECTION PROMPT GENERATED:', generatedPrompt.substring(0, 150));
+        } else {
+          throw new Error('Maya prompt generation failed');
+        }
+        
+      } catch (error) {
+        console.error('❌ Maya collection prompt generation failed:', error);
+        // Sophisticated fallback instead of generic
+        generatedPrompt = `luxury ${category} editorial featuring ${subcategory} styling, sophisticated fashion photography, authentic editorial expression, professional lighting`;
+      }
+      
+      // Use UnifiedGenerationService with Maya's sophisticated prompt and correct parameters
       const { UnifiedGenerationService } = await import('./unified-generation-service');
       const result = await UnifiedGenerationService.generateImages({
         userId: user.id,
-        prompt,
+        prompt: generatedPrompt,
         category: `${category} - ${subcategory}` 
       });
       
@@ -1949,6 +1990,108 @@ Remember: You are the MEMBER experience Victoria - provide website building guid
       res.status(500).json({ 
         success: false,
         error: 'Failed to restart training' 
+      });
+    }
+  });
+
+  // Maya Collection Update endpoint - Allow Maya to refresh prompts with her latest expertise
+  app.post('/api/maya-update-collections', isAuthenticated, async (req: any, res) => {
+    try {
+      const userId = req.user?.claims?.sub;
+      const { collections } = req.body;
+      
+      if (!collections || !Array.isArray(collections)) {
+        return res.status(400).json({ error: 'Collections array required' });
+      }
+      
+      console.log(`🎨 MAYA COLLECTION UPDATE: Updating ${collections.length} collections for user ${userId}`);
+      
+      const updatedCollections = [];
+      
+      for (const collection of collections) {
+        const updatedPrompts = [];
+        
+        for (const oldPrompt of collection.prompts) {
+          try {
+            // Use Maya's expertise to upgrade each prompt
+            const claudeResponse = await fetch('https://api.anthropic.com/v1/messages', {
+              method: 'POST',
+              headers: {
+                'Content-Type': 'application/json',
+                'x-api-key': process.env.ANTHROPIC_API_KEY!,
+                'anthropic-version': '2023-06-01'
+              },
+              body: JSON.stringify({
+                model: "claude-3-5-sonnet-20241022",
+                max_tokens: 700,
+                messages: [{
+                  role: "user",
+                  content: `You are Maya, celebrity stylist expert. Upgrade this photoshoot prompt with your latest 2025 fashion expertise and sophisticated editorial vision.
+
+Original prompt: "${oldPrompt.prompt}"
+Prompt name: "${oldPrompt.name}"
+Category: "${oldPrompt.category}"
+
+Create an upgraded version with:
+- Latest 2025 fashion trends and styling
+- Luxury editorial sophistication 
+- Environmental storytelling and mood
+- Authentic expressions (no fake smiles)
+- Professional photography techniques
+- Anatomically correct descriptions (proper hands/feet)
+
+Format: [detailed luxurious scene/location], [specific 2025 fashion with textures/colors], [authentic expression/natural pose], [professional camera/lighting details], detailed hands, perfect fingers, natural hand positioning, well-formed feet, accurate anatomy`
+                }]
+              })
+            });
+
+            if (claudeResponse.ok) {
+              const claudeData = await claudeResponse.json();
+              const upgradedPrompt = claudeData.content[0].text.trim();
+              
+              updatedPrompts.push({
+                ...oldPrompt,
+                prompt: upgradedPrompt,
+                lastUpdated: new Date().toISOString()
+              });
+              
+              console.log(`✅ MAYA UPGRADED: "${oldPrompt.name}" -> Enhanced with 2025 trends`);
+            } else {
+              // Keep original if upgrade fails
+              updatedPrompts.push(oldPrompt);
+              console.log(`⚠️ MAYA UPGRADE SKIPPED: "${oldPrompt.name}" - API error`);
+            }
+            
+          } catch (error) {
+            console.error(`❌ Maya upgrade failed for "${oldPrompt.name}":`, error);
+            // Keep original if upgrade fails
+            updatedPrompts.push(oldPrompt);
+          }
+        }
+        
+        updatedCollections.push({
+          ...collection,
+          prompts: updatedPrompts,
+          lastUpdated: new Date().toISOString()
+        });
+      }
+      
+      res.json({
+        success: true,
+        message: `Maya successfully updated ${updatedCollections.length} collections with latest 2025 trends and anatomy fixes`,
+        updatedCollections,
+        upgradeStats: {
+          totalCollections: collections.length,
+          totalPrompts: collections.reduce((acc, col) => acc + col.prompts.length, 0),
+          timestamp: new Date().toISOString()
+        }
+      });
+      
+    } catch (error) {
+      console.error('❌ Maya collection update error:', error);
+      res.status(500).json({ 
+        error: 'Failed to update collections',
+        message: error instanceof Error ? error.message : 'Unknown error'
       });
     }
   });
