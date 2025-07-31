@@ -35,6 +35,7 @@ import SSELFIEGallery from "@/pages/sselfie-gallery";
 import AIGenerator from "@/pages/ai-generator";
 import AIPhotoshoot from "@/pages/ai-photoshoot";
 import SimpleTraining from "@/pages/simple-training";
+import AITraining from "@/pages/ai-training";
 
 import AdminDashboard from "@/pages/admin-dashboard";
 import AdminBusinessOverview from "@/pages/admin-business-overview";
@@ -215,7 +216,7 @@ function Router() {
       <Route path="/onboarding" component={(props) => <ProtectedRoute component={Onboarding} {...props} />} />
       
       {/* AI TRAINING & PHOTOSHOOT WORKFLOW */}
-      <Route path="/ai-training" component={(props) => <ProtectedRoute component={SimpleTraining} {...props} />} />
+      <Route path="/ai-training" component={(props) => <ProtectedRoute component={AITraining} {...props} />} />
       <Route path="/simple-training" component={(props) => <ProtectedRoute component={SimpleTraining} {...props} />} />
 
       <Route path="/ai-photoshoot" component={(props) => <ProtectedRoute component={AIPhotoshoot} {...props} />} />
