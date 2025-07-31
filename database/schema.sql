@@ -1,7 +1,7 @@
 -- SSELFIE Studio Database Schema
 -- Complete user journey database architecture
 
--- Users table with AI model preferences
+-- Users table with AI model preferences and business profiles
 CREATE TABLE users (
     id SERIAL PRIMARY KEY,
     email VARCHAR(255) UNIQUE NOT NULL,
@@ -10,6 +10,9 @@ CREATE TABLE users (
     first_name VARCHAR(100),
     last_name VARCHAR(100),
     avatar_url TEXT,
+    phone VARCHAR(20),
+    location VARCHAR(255),
+    instagram_handle VARCHAR(100),
     
     -- AI Model Preferences
     preferred_ai_model VARCHAR(50) DEFAULT 'flux-schnell',
@@ -18,8 +21,54 @@ CREATE TABLE users (
     -- Account status
     is_active BOOLEAN DEFAULT true,
     subscription_tier VARCHAR(20) DEFAULT 'free',
+    subscription_plan VARCHAR(50),
+    subscription_price DECIMAL(10,2),
     
     -- Timestamps
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+-- Business profiles for SSELFIE Studio clients
+CREATE TABLE business_profiles (
+    id SERIAL PRIMARY KEY,
+    user_id INTEGER REFERENCES users(id) ON DELETE CASCADE,
+    
+    -- Business information
+    business_name VARCHAR(255) NOT NULL,
+    business_description TEXT,
+    target_audience TEXT,
+    website VARCHAR(255),
+    
+    -- Brand colors and aesthetic
+    brand_colors JSONB DEFAULT '{}',
+    brand_aesthetic TEXT,
+    
+    -- Bio options
+    bio_options JSONB DEFAULT '[]',
+    
+    -- Status
+    is_active BOOLEAN DEFAULT true,
+    
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+-- Services offered by businesses
+CREATE TABLE business_services (
+    id SERIAL PRIMARY KEY,
+    business_profile_id INTEGER REFERENCES business_profiles(id) ON DELETE CASCADE,
+    
+    -- Service details
+    service_name VARCHAR(255) NOT NULL,
+    price VARCHAR(50) NOT NULL,
+    duration VARCHAR(100),
+    description TEXT,
+    package_deal TEXT,
+    
+    -- Status
+    is_active BOOLEAN DEFAULT true,
+    
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
