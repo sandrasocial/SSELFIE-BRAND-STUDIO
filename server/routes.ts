@@ -889,21 +889,9 @@ Remember: You are the MEMBER experience Victoria - provide website building guid
         });
       }
 
-      // UNIVERSAL FIX: Handle both model storage formats for ALL users
-      // Format 1 (Admin): Internal ID only: "84gamavggnrma0crbz69d7jpb4"
-      // Format 2 (Shannon): Full path: "sandrasocial/shannon-1753945376880-selfie-lora-1753956621083"
-      // Solution: Always use ONLY the version ID for generation (works for all formats)
-      
-      const fullModelVersion = userModel.replicateVersionId; // UNIVERSAL: Works for all users
+      // RESTORE ORIGINAL WORKING ARCHITECTURE - Handle different model formats correctly
+      const fullModelVersion = userModel.replicateVersionId;
       const triggerWord = userModel.triggerWord || `user${userId}`;
-      
-      console.log('🔍 Maya: Universal Model details:', {
-        storedModelId: userModel.replicateModelId,
-        modelIdFormat: userModel.replicateModelId?.includes('/') ? 'FULL_PATH' : 'INTERNAL_ID',
-        usingVersionId: fullModelVersion,
-        triggerWord,
-        trainingStatus: userModel.trainingStatus
-      });
       
       // Build enhanced prompt with trigger word and quality settings
       let finalPrompt = actualPrompt;
@@ -911,32 +899,60 @@ Remember: You are the MEMBER experience Victoria - provide website building guid
         finalPrompt = `${triggerWord} ${finalPrompt}`;
       }
       
-      // Add editorial photography enhancements
+      // Add editorial photography enhancements  
       if (!finalPrompt.includes('raw photo')) {
         finalPrompt = `raw photo, visible skin pores, natural skin texture, subsurface scattering, film grain, ${finalPrompt}, unretouched skin, authentic facial features, professional photography`;
       }
       
       console.log('🎯 Maya: Final prompt:', finalPrompt);
-      console.log('🔒 Maya: Using Individual Model:', userModel.replicateModelId);
+      console.log('🔒 Maya: Model Format Check:', {
+        modelId: userModel.replicateModelId,
+        versionId: fullModelVersion,
+        hasSlash: userModel.replicateModelId?.includes('/'),
+        triggerWord
+      });
 
-      // Shannon's trained model - use her individual model directly with version ID only
-      const requestBody = {
-        version: fullModelVersion, // Use ONLY the version ID (works for individual trained models)
-        input: {
-          prompt: finalPrompt,
-          lora_scale: 1.1, // Shannon's model uses lora_scale parameter
-          guidance_scale: 2.8,
-          num_inference_steps: 28,
-          num_outputs: 2,
-          aspect_ratio: "3:4",
-          output_format: "png", 
-          output_quality: 95,
-          go_fast: false,
-          disable_safety_checker: false,
-          megapixels: "1",
-          seed: Math.floor(Math.random() * 1000000)
-        }
-      };
+      // RESTORED ORIGINAL LOGIC: Differentiate between admin and user model formats
+      let requestBody;
+      if (userModel.replicateModelId?.includes('/')) {
+        // Shannon's format: Use model:version format
+        requestBody = {
+          version: `${userModel.replicateModelId}:${fullModelVersion}`,
+          input: {
+            prompt: finalPrompt,
+            lora_scale: 1.1,
+            guidance_scale: 2.8,
+            num_inference_steps: 28,
+            num_outputs: 2,
+            aspect_ratio: "3:4",
+            output_format: "png",
+            output_quality: 95,
+            go_fast: false,
+            disable_safety_checker: false,
+            megapixels: "1",
+            seed: Math.floor(Math.random() * 1000000)
+          }
+        };
+      } else {
+        // Admin format: Use version ID only (for admin's older model format)
+        requestBody = {
+          version: fullModelVersion,
+          input: {
+            prompt: finalPrompt,
+            lora_scale: 1.1,
+            guidance_scale: 2.8,
+            num_inference_steps: 28,
+            num_outputs: 2,
+            aspect_ratio: "3:4",
+            output_format: "png",
+            output_quality: 95,
+            go_fast: false,
+            disable_safety_checker: false,
+            megapixels: "1",
+            seed: Math.floor(Math.random() * 1000000)
+          }
+        };
+      }
 
       // Call Replicate API directly
       const response = await fetch('https://api.replicate.com/v1/predictions', {

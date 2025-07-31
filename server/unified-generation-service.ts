@@ -93,24 +93,47 @@ export class UnifiedGenerationService {
     
     console.log(`🎯 UNIFIED FINAL PROMPT: "${finalPrompt}"`);
     
-    // Shannon's trained model - use version ID only (correct for individual trained models)
-    const requestBody = {
-      version: fullModelVersion, // Use ONLY the version ID
-      input: {
-        prompt: finalPrompt,
-        lora_scale: 1.1, // Shannon's model uses lora_scale parameter
-        guidance_scale: 2.8, // Restored original parameter
-        num_inference_steps: 28, // Restored original parameter
-        num_outputs: 2,
-        aspect_ratio: "3:4",
-        output_format: "png",
-        output_quality: 95,
-        go_fast: false,
-        disable_safety_checker: false,
-        megapixels: "1",
-        seed: Math.floor(Math.random() * 1000000)
-      }
-    };
+    // RESTORED ORIGINAL LOGIC: Handle different model formats correctly
+    let requestBody;
+    if (userModel.replicateModelId?.includes('/')) {
+      // Shannon's format: Use model:version format
+      requestBody = {
+        version: `${userModel.replicateModelId}:${fullModelVersion}`,
+        input: {
+          prompt: finalPrompt,
+          lora_scale: 1.1,
+          guidance_scale: 2.8,
+          num_inference_steps: 28,
+          num_outputs: 2,
+          aspect_ratio: "3:4",
+          output_format: "png",
+          output_quality: 95,
+          go_fast: false,
+          disable_safety_checker: false,
+          megapixels: "1",
+          seed: Math.floor(Math.random() * 1000000)
+        }
+      };
+    } else {
+      // Admin format: Use version ID only
+      requestBody = {
+        version: fullModelVersion,
+        input: {
+          prompt: finalPrompt,
+          lora_scale: 1.1,
+          guidance_scale: 2.8,
+          num_inference_steps: 28,
+          num_outputs: 2,
+          aspect_ratio: "3:4",
+          output_format: "png",
+          output_quality: 95,
+          go_fast: false,
+          disable_safety_checker: false,
+          megapixels: "1",
+          seed: Math.floor(Math.random() * 1000000)
+        }
+      };
+    }
     
     // Validate request
     const user = await storage.getUser(userId);
