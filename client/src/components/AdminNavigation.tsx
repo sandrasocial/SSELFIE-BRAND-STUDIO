@@ -1,10 +1,14 @@
 import React, { useState, useEffect } from 'react';
 import { useLocation } from 'wouter';
+import { useAuth } from '@/hooks/use-auth';
 
 export function AdminNavigation() {
   const [, setLocation] = useLocation();
-  const [currentAccount, setCurrentAccount] = useState('ssa@ssasocial.com');
+  const { user } = useAuth();
   const [isLoading, setIsLoading] = useState(false);
+  
+  // Determine current account from auth state
+  const currentAccount = user?.email || 'ssa@ssasocial.com';
 
   const accounts = [
     { email: 'ssa@ssasocial.com', label: 'SSA Admin' },
@@ -16,16 +20,35 @@ export function AdminNavigation() {
     
     setIsLoading(true);
     try {
-      const response = await fetch('/api/switch-account', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email })
-      });
-      
-      if (response.ok) {
-        setCurrentAccount(email);
-        // Reload to refresh session
-        window.location.reload();
+      if (email === 'shannon@soulresets.com') {
+        // Switch to Shannon's account
+        const response = await fetch('/api/admin/impersonate-user', {
+          method: 'POST',
+          headers: { 
+            'Content-Type': 'application/json',
+            'x-admin-token': 'sandra-admin-2025'
+          },
+          body: JSON.stringify({ email: 'shannon@soulresets.com' })
+        });
+        
+        if (response.ok) {
+          setCurrentAccount(email);
+          window.location.reload();
+        }
+      } else {
+        // Switch back to admin account
+        const response = await fetch('/api/admin/stop-impersonation', {
+          method: 'POST',
+          headers: { 
+            'Content-Type': 'application/json',
+            'x-admin-token': 'sandra-admin-2025'
+          }
+        });
+        
+        if (response.ok) {
+          setCurrentAccount(email);
+          window.location.reload();
+        }
       }
     } catch (error) {
       console.error('Account switch failed:', error);
