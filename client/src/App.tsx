@@ -381,7 +381,6 @@ function App() {
   
   return (
     <>
-      <AccountSwitcher />
       <Toaster />
       <Router />
     </>
