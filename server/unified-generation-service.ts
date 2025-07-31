@@ -91,8 +91,10 @@ export class UnifiedGenerationService {
       .replace(/professional photography,?\s*/gi, '')
       .trim();
     
-    // 🎯 UNIVERSAL MAYA PROMPT STRUCTURE FOR ALL USERS
-    const finalPrompt = `raw photo, visible skin pores, film grain, unretouched natural skin texture, subsurface scattering, photographed on film, ${triggerWord}, ${cleanPrompt}`;
+    // 🎯 UNIVERSAL MAYA PROMPT STRUCTURE FOR ALL USERS WITH ANATOMY FIXES
+    // Add anatomy-specific terms to prevent deformities
+    const anatomyTerms = "detailed hands, perfect fingers, natural hand positioning, well-formed feet, accurate anatomy";
+    const finalPrompt = `raw photo, visible skin pores, film grain, unretouched natural skin texture, subsurface scattering, photographed on film, ${triggerWord}, ${cleanPrompt}, ${anatomyTerms}`;
     
     console.log(`🎯 UNIFIED FINAL PROMPT: "${finalPrompt}"`);
     
@@ -105,9 +107,9 @@ export class UnifiedGenerationService {
       version: modelVersion,
       input: {
         prompt: finalPrompt,
-        lora_scale: 0.9,
-        guidance_scale: 3.0,
-        num_inference_steps: 40,
+        lora_scale: 0.9, // Keep for facial accuracy
+        guidance_scale: 5.0, // 🔥 ANATOMY FIX: Increased from 3.0 to 5.0 for better anatomy adherence
+        num_inference_steps: 50, // 🔥 ANATOMY FIX: Increased from 40 to 50 for detailed extremities
         num_outputs: 2,
         aspect_ratio: "3:4",
         output_format: "png",
