@@ -56,7 +56,10 @@ export class ModelTrainingService {
 
   // Generate unique trigger word for user
   static generateTriggerWord(userId: string): string {
-    return `user${userId}`;
+    // Generate consistent trigger word using clean user ID format
+    // Remove special characters and ensure numeric ID for proper training
+    const cleanUserId = userId.replace(/[^a-zA-Z0-9]/g, '');
+    return `user${cleanUserId}`;
   }
 
   // Create ZIP file with user's selfie images for training
