@@ -68,7 +68,6 @@ export default function Maya() {
   
   // CRITICAL FIX: Prevent chat refresh from useAuth re-renders
   const [isInitialized, setIsInitialized] = useState(false);
-  const [chatHasMessages, setChatHasMessages] = useState(false);
   
   // LUXURY LOADING STATE
   if (isLoading) {
@@ -97,24 +96,9 @@ export default function Maya() {
   const { toast } = useToast();
   const queryClient = useQueryClient();
   
-  // CRITICAL: Single-time URL parameter reading with immediate clearing
-  const [urlChatId, setUrlChatId] = useState<string | null>(null);
-  
-  useEffect(() => {
-    const urlParams = new URLSearchParams(window.location.search);
-    const chatIdFromUrl = urlParams.get('chat');
-    
-    if (chatIdFromUrl) {
-      console.log('🔗 Maya: Found URL chat parameter:', chatIdFromUrl);
-      setUrlChatId(chatIdFromUrl); // Store it once
-      
-      // IMMEDIATELY clear URL to prevent any further reads
-      const url = new URL(window.location.href);
-      url.searchParams.delete('chat');
-      window.history.replaceState({}, '', url.toString());
-      console.log('🔗 Maya: IMMEDIATELY cleared URL chat parameter');
-    }
-  }, []); // Run only once on mount
+  // Simple URL parameter reading - ORIGINAL WORKING VERSION
+  const urlParams = new URLSearchParams(window.location.search);
+  const chatIdFromUrl = urlParams.get('chat');
   const [messages, setMessages] = useState<ChatMessage[]>([]);
   const [input, setInput] = useState('');
   const [isTyping, setIsTyping] = useState(false);
@@ -141,45 +125,18 @@ export default function Maya() {
     }
   }, [user, isLoading, setLocation, toast]);
 
-  // NUCLEAR OPTION: Block ALL reinitialization after any chat setup
-  const [hasEverInitialized, setHasEverInitialized] = useState(false);
-  
-  // CRITICAL FIX: Initialize EXACTLY ONCE - NO EXCEPTIONS
+  // ORIGINAL WORKING LOGIC: Simple initialization once
   useEffect(() => {
-    // NUCLEAR LOCK: If we've EVER initialized, NEVER do it again
-    if (hasEverInitialized) {
-      console.log('🔒 Maya: NUCLEAR BLOCK - Already initialized, preventing ALL reinitialization');
-      return;
-    }
-    
-    // ABSOLUTE LOCK: Never re-initialize if we're generating images or have established chat
-    if (isGenerating || chatHasMessages) {
-      console.log('🔒 Maya: BLOCKED re-initialization - generating or chat established');
-      return;
-    }
-    
-    // ABSOLUTE LOCK: Never re-initialize if messages exist (even from loadChatHistory)  
-    if (messages.length > 0) {
-      console.log('🔒 Maya: BLOCKED re-initialization - messages already exist');
-      setChatHasMessages(true); // Lock the state
-      setHasEverInitialized(true); // NUCLEAR LOCK
-      return;
-    }
-    
     if (user && !isInitialized) {
-      console.log('🚀 Maya: ONCE-ONLY initialization - setting up chat');
+      console.log('🚀 Maya: Initializing chat');
       setIsInitialized(true);
-      setChatHasMessages(true); // Lock immediately
-      setHasEverInitialized(true); // NUCLEAR LOCK - never again
       
-      if (urlChatId && !isGenerating && messages.length === 0) {
-        // Load specific chat from URL parameter ONLY if not generating AND no messages exist
-        console.log('📂 Maya: Loading existing chat from URL (NUCLEAR ONCE):', urlChatId);
-        loadChatHistory(parseInt(urlChatId));
-        setUrlChatId(null); // Clear after use to prevent repeat loads
+      if (chatIdFromUrl) {
+        console.log('📂 Maya: Loading existing chat from URL:', chatIdFromUrl);
+        loadChatHistory(parseInt(chatIdFromUrl));
       } else {
         // Initialize with Maya's welcome message for new session
-        console.log('💬 Maya: Creating new chat with welcome message (NUCLEAR ONCE)'); 
+        console.log('💬 Maya: Creating new chat with welcome message'); 
         setMessages([{
           role: 'maya',
           content: `Hey ${user.firstName || 'gorgeous'}! I'm Maya - your warmest, most fashionable best friend who happens to style A-listers! 💫\n\nI'm obsessed with 2025 fashion trends and I'm here to help you tell your story through stunning, trendy photos. Whether you're building your personal brand or just want to look incredible, I've got you covered!\n\nTo get you started, here are some of my favorite trending styles right now:\n\n**🌟 Street Fashion Shoot** - Urban cool with quiet luxury touches\n**✨ Golden Hour Portrait** - Soft romantic lighting for that magazine glow\n**🌿 Scandinavian Nature** - Clean, minimal vibes with natural beauty\n**💎 Close-Up Elegance** - Editorial portraits that capture your essence\n**🔥 Mob Wife Aesthetic** - Oversized power pieces with dramatic flair\n\nJust tell me which style calls to you, or describe your own vision! I'll create two perfect prompts - one close-up and one full scene. Remember babe, pick ONE prompt to generate first, then try the other separately for the best results!\n\nWhat's your story today? Let's make it gorgeous! ✨`,
@@ -187,15 +144,7 @@ export default function Maya() {
         }]);
       }
     }
-  }, [user, isInitialized, messages.length, isGenerating, chatHasMessages, urlChatId, hasEverInitialized]);
-  
-  // CRITICAL FIX: Track when messages exist to prevent re-initialization
-  useEffect(() => {
-    if (messages.length > 0 && !chatHasMessages) {
-      console.log('📝 Maya: Messages detected, locking chat state');
-      setChatHasMessages(true);
-    }
-  }, [messages.length, chatHasMessages]);
+  }, [user, isInitialized, chatIdFromUrl]);
 
   const sendMessage = async () => {
     if (!input.trim()) return;
@@ -398,8 +347,7 @@ export default function Maya() {
               console.log('✅ Maya: Updated messages count:', updatedMessages.length);
               console.log('✅ Maya: Updated message has images:', !!updatedMessages[lastMayaIndex].imagePreview);
               
-              // ABSOLUTE LOCK: Prevent any further initialization
-              setChatHasMessages(true);
+              // Images successfully added to chat
               
               // URL parameter already cleared immediately after reading
               
