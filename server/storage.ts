@@ -94,6 +94,10 @@ export interface IStorage {
   createUserModel(data: InsertUserModel): Promise<UserModel>;
   updateUserModel(userId: string, data: Partial<UserModel>): Promise<UserModel>;
   ensureUserModel(userId: string): Promise<UserModel>;
+  deleteFailedTrainingData(userId: string): Promise<void>;
+  checkTrainingStatus(userId: string): Promise<{ needsRestart: boolean; reason: string }>;
+  deleteFailedTrainingData(userId: string): Promise<void>;
+  checkTrainingStatus(userId: string): Promise<{ needsRestart: boolean; reason: string }>;
   deleteUserModel(userId: string): Promise<void>;
   getMonthlyRetrainCount(userId: string, month: number, year: number): Promise<number>;
   getAllInProgressTrainings(): Promise<UserModel[]>;
@@ -468,6 +472,41 @@ export class DatabaseStorage implements IStorage {
       .where(eq(userModels.userId, userId))
       .returning();
     return updated;
+  }
+
+  // 🚨 CRITICAL: Clean up failed training data completely
+  async deleteFailedTrainingData(userId: string): Promise<void> {
+    console.log(`🗑️ CLEANUP: Deleting all failed training data for user ${userId}`);
+    
+    // Delete in correct order to avoid foreign key constraints
+    await db.delete(generationTrackers).where(eq(generationTrackers.userId, userId));
+    await db.delete(aiImages).where(eq(aiImages.userId, userId));
+    await db.delete(userModels).where(eq(userModels.userId, userId));
+    
+    console.log(`✅ CLEANUP: All training data deleted for user ${userId} - ready for fresh start`);
+  }
+
+  // 🔍 Check if user needs to restart training due to failure
+  async checkTrainingStatus(userId: string): Promise<{ needsRestart: boolean; reason: string }> {
+    const model = await this.getUserModel(userId);
+    
+    if (!model) {
+      return { needsRestart: true, reason: 'No training data found - please start training' };
+    }
+
+    if (model.trainingStatus === 'failed') {
+      return { needsRestart: true, reason: 'Training failed - please restart with new images' };
+    }
+
+    if (model.trainingStatus === 'training' && model.startedAt) {
+      // Check if training has been stuck for more than 2 hours
+      const hoursAgo = (Date.now() - new Date(model.startedAt).getTime()) / (1000 * 60 * 60);
+      if (hoursAgo > 2) {
+        return { needsRestart: true, reason: 'Training appears stuck - please restart' };
+      }
+    }
+
+    return { needsRestart: false, reason: 'Training is proceeding normally' };
   }
 
   async ensureUserModel(userId: string): Promise<UserModel> {
