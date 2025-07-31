@@ -889,8 +889,17 @@ Remember: You are the MEMBER experience Victoria - provide website building guid
         });
       }
 
-      // RESTORE ORIGINAL WORKING ARCHITECTURE - Handle different model formats correctly
+      // GLOBAL FIX: Ensure version ID is properly formatted for ALL users
       const fullModelVersion = userModel.replicateVersionId;
+      
+      // GLOBAL FIX: Prevent null or undefined version IDs affecting ALL users
+      if (!fullModelVersion) {
+        return res.status(400).json({
+          success: false,
+          message: `CRITICAL: User ${userId} has no version ID. Model: ${userModel.replicateModelId}, Status: ${userModel.trainingStatus}`
+        });
+      }
+      
       const triggerWord = userModel.triggerWord || `user${userId}`;
       
       // Build enhanced prompt with trigger word and quality settings
@@ -913,8 +922,12 @@ Remember: You are the MEMBER experience Victoria - provide website building guid
       });
 
       // UNIVERSAL INDIVIDUAL MODEL ARCHITECTURE: All users use sandrasocial/{userId}-selfie-lora:{versionId}
+      // CRITICAL FIX: Ensure version ID is properly formatted for ALL users
+      const modelVersion = `${userModel.replicateModelId}:${fullModelVersion}`;
+      console.log(`🔒 MAYA VERSION VALIDATION: Model: ${userModel.replicateModelId}, Version: ${fullModelVersion}, Combined: ${modelVersion}`);
+      
       const requestBody = {
-        version: `${userModel.replicateModelId}:${fullModelVersion}`,
+        version: modelVersion,
         input: {
           prompt: finalPrompt,
           lora_scale: 1.1,
