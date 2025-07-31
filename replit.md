@@ -833,7 +833,7 @@ archive/
 
 **VERIFICATION CONFIRMED**: Console logs show `🚀 Maya: Initializing chat ONCE - PERMANENT LOCK` with stable chat loading and no refresh loops
 
-**ROOT CAUSE RESOLUTION (July 31, 2025)**: Fixed training progress polling interference by restricting workspace.tsx global polling to only run when actually on workspace page (`currentPath === '/workspace' || currentPath === '/'`). This eliminates the global useAuth re-renders that were causing Maya chat reinitialization even when users were on Maya page.
+**ROOT CAUSE RESOLUTION (July 31, 2025)**: Fixed Maya chat refresh issue by removing unnecessary `useAuth()` call from App component line 349. The `user` variable was extracted but never used, causing App re-renders every time auth cache changed, leading to Maya re-initialization. AccountSwitcher component also completely removed as it was globally invalidating auth cache.
 
 ## ✅ CRITICAL INDIVIDUAL MODEL ARCHITECTURE COMPLETELY FIXED - UNIVERSAL PROPER MODEL FORMAT IMPLEMENTED (July 31, 2025)
 
