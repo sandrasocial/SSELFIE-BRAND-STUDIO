@@ -51,8 +51,8 @@ export class UnifiedGenerationService {
     }
     
     const fullModelVersion = `${userModel.replicateModelId}:${userModel.replicateVersionId}`;
-    const triggerWord = `user${userId}`;
-    console.log(`🔒 VALIDATED: User ${userId} can generate with model: ${fullModelVersion}`);
+    const triggerWord = userModel.triggerWord || `user${userId}`; // Use actual trained trigger word
+    console.log(`🔒 VALIDATED: User ${userId} can generate with model: ${fullModelVersion}, trigger: ${triggerWord}`);
     
     // Create generation tracker for Maya chat preview (NOT gallery)
     const trackerData: InsertGenerationTracker = {
