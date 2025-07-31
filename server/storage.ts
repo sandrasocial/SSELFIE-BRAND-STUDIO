@@ -490,8 +490,10 @@ export class DatabaseStorage implements IStorage {
   async checkTrainingStatus(userId: string): Promise<{ needsRestart: boolean; reason: string }> {
     const model = await this.getUserModel(userId);
     
+    // 🔧 FIX: Only show restart UI if there's actually FAILED training data
+    // New users with no model should go through normal training flow
     if (!model) {
-      return { needsRestart: true, reason: 'No training data found - please start training' };
+      return { needsRestart: false, reason: 'Ready to start training' };
     }
 
     if (model.trainingStatus === 'failed') {
