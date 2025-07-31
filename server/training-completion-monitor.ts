@@ -60,10 +60,11 @@ export class TrainingCompletionMonitor {
         
         await storage.updateUserModel(userId, {
           trainingStatus: 'completed',
-          replicateVersionId: versionId,
+          replicateVersionId: versionId, // Store version ID only (universal format)
           triggerWord: triggerWord, // CRITICAL: Ensure trigger word is stored
           trainedModelPath: `sandrasocial/${userId}-selfie-lora`,
           modelType: 'flux-standard',
+          // Keep replicateModelId as training ID for tracking purposes
           updatedAt: new Date()
         });
 
