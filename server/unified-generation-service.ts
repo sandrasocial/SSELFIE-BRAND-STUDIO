@@ -71,9 +71,8 @@ export class UnifiedGenerationService {
     
     const savedTracker = await storage.saveGenerationTracker(trackerData);
     
-    // 🔥 CRITICAL FIX: TRIGGER WORD POSITIONING FOR FACIAL ACCURACY
-    // Shannon's success: trigger word at BEGINNING = strong facial accuracy
-    // Previous admin issue: trigger word in middle = weak facial recognition
+    // 🔥 UNIVERSAL PROMPT STRUCTURE FOR ALL USERS
+    // Format: raw photo, visible skin pores, film grain, unretouched natural skin texture, subsurface scattering, photographed on film, [TRIGGERWORD], [POETIC DESCRIPTION], [2025 FASHION], [NATURAL LIGHTING], [AUTHENTIC EMOTION]
     
     // Remove trigger word if already present anywhere in prompt
     let cleanPrompt = prompt;
@@ -81,13 +80,19 @@ export class UnifiedGenerationService {
       cleanPrompt = cleanPrompt.replace(new RegExp(triggerWord, 'g'), '').trim();
     }
     
-    // 🎯 SIMPLIFIED PROMPT ENHANCEMENT: Add technical photography terms
-    if (!cleanPrompt.includes('raw photo')) {
-      cleanPrompt = `raw photo, visible skin pores, film grain, unretouched natural skin texture, ${cleanPrompt}, professional photography`;
-    }
+    // Remove any existing technical photography terms to avoid duplication
+    cleanPrompt = cleanPrompt
+      .replace(/raw photo,?\s*/gi, '')
+      .replace(/visible skin pores,?\s*/gi, '')
+      .replace(/film grain,?\s*/gi, '')
+      .replace(/unretouched natural skin texture,?\s*/gi, '')
+      .replace(/subsurface scattering,?\s*/gi, '')
+      .replace(/photographed on film,?\s*/gi, '')
+      .replace(/professional photography,?\s*/gi, '')
+      .trim();
     
-    // 🔒 MANDATORY: Place trigger word at ABSOLUTE BEGINNING for maximum LoRA influence
-    const finalPrompt = `${triggerWord} ${cleanPrompt}`;
+    // 🎯 UNIVERSAL MAYA PROMPT STRUCTURE FOR ALL USERS
+    const finalPrompt = `raw photo, visible skin pores, film grain, unretouched natural skin texture, subsurface scattering, photographed on film, ${triggerWord}, ${cleanPrompt}`;
     
     console.log(`🎯 UNIFIED FINAL PROMPT: "${finalPrompt}"`);
     
