@@ -10,7 +10,7 @@ import { registerVictoriaService } from "./routes/victoria-service";
 import { registerVictoriaWebsiteGenerator } from "./routes/victoria-website-generator";
 import subscriberImportRouter from './routes/subscriber-import';
 import adminBusinessMetricsRouter from './routes/admin-business-metrics';
-import whiteLabelSetupRouter from './routes/white-label-setup';
+import { whitelabelRoutes } from './routes/white-label-setup';
 
 // UNIFIED AGENT SYSTEM IMPORT (Single source of truth)
 import { unifiedAgentSystem } from './unified-agent-system';
@@ -274,7 +274,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.use('/api/admin', adminBusinessMetricsRouter);
   
   // Register white-label client setup endpoints
-  app.use(whiteLabelSetupRouter);
+  app.use(whitelabelRoutes);
   
   // AI Images endpoint - Production ready
   app.get('/api/ai-images', isAuthenticated, async (req: any, res) => {
