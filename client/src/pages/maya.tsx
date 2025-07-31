@@ -125,10 +125,11 @@ export default function Maya() {
     }
   }, [user, isLoading, setLocation, toast]);
 
-  // ORIGINAL WORKING LOGIC: Simple initialization once
+  // BULLETPROOF: Initialize once and lock to prevent refresh loops
   useEffect(() => {
-    if (user && !isInitialized) {
-      console.log('🚀 Maya: Initializing chat');
+    // CRITICAL: Additional protections against refresh loops
+    if (user && user.id && !isInitialized && !isGenerating && messages.length === 0) {
+      console.log('🚀 Maya: Initializing chat ONCE');
       setIsInitialized(true);
       
       if (chatIdFromUrl) {
@@ -144,7 +145,7 @@ export default function Maya() {
         }]);
       }
     }
-  }, [user, isInitialized, chatIdFromUrl]);
+  }, [user?.id, isInitialized, chatIdFromUrl]); // Only depend on stable user.id, not entire user object
 
   const sendMessage = async () => {
     if (!input.trim()) return;
