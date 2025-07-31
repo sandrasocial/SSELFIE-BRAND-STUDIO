@@ -835,14 +835,20 @@ archive/
 
 **ROOT CAUSE RESOLUTION (July 31, 2025)**: Fixed Maya chat refresh issue by removing unnecessary `useAuth()` call from App component line 349. The `user` variable was extracted but never used, causing App re-renders every time auth cache changed, leading to Maya re-initialization. AccountSwitcher component also completely removed as it was globally invalidating auth cache.
 
-## ✅ CRITICAL ROOT CAUSE IDENTIFIED - SHANNON TRAINED WITH GENERIC DATA (July 31, 2025)
+## ✅ CRITICAL ROOT CAUSE IDENTIFIED - DATA CONTAMINATION CONFIRMED (July 31, 2025)
 
-**BREAKTHROUGH: Found exact issue - Shannon's model trained successfully but with wrong training data**
-- 🚨 **Training Data Issue Discovered**: Shannon's model shows "Succeeded" but generates generic faces, not her individual features
+**BREAKTHROUGH: Found exact issue - Shannon's model trained with admin's generic data instead of her actual selfies**
+- 🚨 **Data Contamination Discovered**: Shannon's recent training ZIP (1.6MB) identical to admin's generic data, not her actual 4.6MB training data
 - ✅ **System Architecture Perfect**: LoRA weights (172MB) download correctly, trigger word used, all technical aspects working
 - ✅ **Model Infrastructure Working**: Prediction succeeds, weights load in 0.82s, generation completes successfully
-- ❌ **Wrong Training Data**: LoRA weights contain generic features because training used generic stock photos instead of Shannon's actual selfies
-- 🔧 **Solution Required**: Shannon needs to retrain model using her actual training data (Shannon Training DATA _1753943333045.zip)
+- ❌ **Wrong Training Source**: Training used admin's generic 1.6MB data instead of Shannon's actual 4.6MB selfies from attached zip
+- 🔧 **Solution Required**: Shannon needs to retrain model with her actual training data to get individual features instead of generic faces
+
+**Evidence of Data Contamination:**
+- Shannon's good training: `training_shannon-1753945376880_1753949559145.zip` (4.6MB) ✅ Her actual data
+- Shannon's recent training: `training_shannon-1753945376880_1753956620911.zip` (1.6MB) ❌ **IDENTICAL SIZE to admin data**
+- Admin's generic training: `training_42585527_1753952315517.zip` (1.6MB) - Generic faces
+- **Conclusion**: Shannon's model learned admin's generic faces instead of her individual features
 
 **Technical Implementation:**
 - Added version ID validation in unified-generation-service.ts: `if (!fullModelVersion) throw Error`
