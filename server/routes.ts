@@ -958,7 +958,7 @@ Remember: You are the MEMBER experience Victoria - provide website building guid
         version: modelVersion,
         input: {
           prompt: finalPrompt,
-          lora_scale: 1.0,
+          lora_scale: 0.9,
           guidance_scale: 3.5,
           num_inference_steps: 40,
           num_outputs: 2,
