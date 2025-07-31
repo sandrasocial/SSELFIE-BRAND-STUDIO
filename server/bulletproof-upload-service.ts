@@ -292,11 +292,13 @@ export class BulletproofUploadService {
     userId: string, 
     zipUrl: string, 
     triggerWord: string
-  ): Promise<{ success: boolean; errors: string[]; trainingId: string | null }> {
+  ): Promise<{ success: boolean; errors: string[]; trainingId: string | null; modelName: string | null }> {
     console.log(`🚀 REPLICATE TRAINING: Starting for user ${userId}`);
     
     const errors: string[] = [];
-    const modelName = `${userId}-selfie-lora`;
+    // Use timestamp to ensure unique model names and avoid conflicts
+    const timestamp = Date.now();
+    const modelName = `${userId}-selfie-${timestamp}`;
     
     try {
       // Create user-specific model first
@@ -354,13 +356,13 @@ export class BulletproofUploadService {
             if (!retryCreateResponse.ok && retryCreateResponse.status !== 422) {
               const errorData = await retryCreateResponse.json();
               errors.push(`Failed to recreate model after deletion: ${JSON.stringify(errorData)}`);
-              return { success: false, errors, trainingId: null };
+              return { success: false, errors, trainingId: null, modelName: null };
             }
           }
         } else {
           const errorData = await createModelResponse.json();
           errors.push(`Failed to create model: ${JSON.stringify(errorData)}`);
-          return { success: false, errors, trainingId: null };
+          return { success: false, errors, trainingId: null, modelName: null };
         }
       }
       
@@ -393,20 +395,20 @@ export class BulletproofUploadService {
         const errorText = await trainingResponse.text();
         console.error(`❌ REPLICATE API ERROR: Status ${trainingResponse.status}, Response: ${errorText}`);
         errors.push(`Replicate training failed (${trainingResponse.status}): ${errorText}`);
-        return { success: false, errors, trainingId: null };
+        return { success: false, errors, trainingId: null, modelName: null };
       }
       
       const trainingData = await trainingResponse.json();
       
       console.log(`✅ REPLICATE TRAINING: Started successfully with ID ${trainingData.id}`);
       
-      return { success: true, errors: [], trainingId: trainingData.id };
+      return { success: true, errors: [], trainingId: trainingData.id, modelName: modelName };
       
     } catch (error) {
       console.error(`❌ REPLICATE TRAINING: Failed for user ${userId}:`, error);
       console.error(`❌ REPLICATE API TOKEN:`, process.env.REPLICATE_API_TOKEN ? 'Present' : 'MISSING');
       errors.push(`Training start failed: ${error.message || error}`);
-      return { success: false, errors, trainingId: null };
+      return { success: false, errors, trainingId: null, modelName: null };
     }
   }
   
@@ -419,7 +421,8 @@ export class BulletproofUploadService {
   static async updateDatabaseWithTraining(
     userId: string, 
     trainingId: string, 
-    triggerWord: string
+    triggerWord: string,
+    modelName: string
   ): Promise<{ success: boolean; errors: string[] }> {
     console.log(`💾 DATABASE UPDATE: Storing training for user ${userId}`);
     
@@ -429,6 +432,7 @@ export class BulletproofUploadService {
       // Store training information
       await storage.updateUserModel(userId, {
         replicateModelId: trainingId,
+        modelName: modelName,
         triggerWord: triggerWord,
         trainingStatus: 'training',
         trainingProgress: 0,
@@ -505,7 +509,7 @@ export class BulletproofUploadService {
     }
     
     // STEP 5: Update database
-    const dbUpdate = await this.updateDatabaseWithTraining(userId, trainingStart.trainingId, triggerWord);
+    const dbUpdate = await this.updateDatabaseWithTraining(userId, trainingStart.trainingId, triggerWord, trainingStart.modelName);
     if (!dbUpdate.success) {
       allErrors.push(...dbUpdate.errors);
       return { success: false, errors: allErrors, trainingId: null, requiresRestart: true };
