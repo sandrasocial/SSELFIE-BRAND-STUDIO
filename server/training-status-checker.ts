@@ -30,15 +30,15 @@ export class TrainingStatusChecker {
       
       // If training is completed successfully
       if (trainingData.status === 'succeeded' && trainingData.version) {
-        const modelVersion = trainingData.version;
-        const fullModelId = `sandrasocial/${userId}-selfie-lora:${modelVersion}`;
+        const versionId = trainingData.version;
         
-        console.log(`✅ Training completed! Updating to: ${fullModelId}`);
+        console.log(`✅ Training completed! Version ID: ${versionId}`);
         
-        // Update user model in database
+        // Update user model in database - UNIVERSAL FORMAT FIX
         await storage.updateUserModel(userId, {
           trainingStatus: 'completed',
-          replicateModelId: fullModelId,
+          replicateVersionId: versionId, // Store version ID only (universal format)
+          // Keep replicateModelId as training ID for tracking purposes
           updatedAt: new Date()
         });
         
