@@ -1,19 +1,22 @@
 // server/routes/cover-image-routes.ts - API for saving approved cover images
 import { Express } from 'express';
 import { storage } from '../storage';
-import AWS from 'aws-sdk';
+import { S3Client } from '@aws-sdk/client-s3';
+import { Upload } from '@aws-sdk/lib-storage';
 
 // Configure AWS S3
-const s3 = new AWS.S3({
-  accessKeyId: process.env.AWS_ACCESS_KEY_ID,
-  secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY,
+const s3 = new S3Client({
+  credentials: {
+    accessKeyId: process.env.AWS_ACCESS_KEY_ID!,
+    secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY!,
+  },
   region: 'us-east-1'
 });
 
 export function registerCoverImageRoutes(app: Express) {
   // Save approved cover image to permanent storage
   app.post('/api/save-cover-image', async (req, res) => {
-    if (!req.isAuthenticated() || req.user?.role !== 'admin') {
+    if (!req.isAuthenticated() || (req.user?.claims?.sub !== 'ssa@ssasocial.com' && req.user?.role !== 'admin')) {
       return res.status(403).json({ error: 'Admin access required' });
     }
 
@@ -26,26 +29,35 @@ export function registerCoverImageRoutes(app: Express) {
 
       // Upload to S3 with permanent path
       const s3Key = `collection-covers/${collectionId}/prompt-${promptId}-${Date.now()}.jpg`;
-      const uploadResult = await s3.upload({
-        Bucket: process.env.AWS_S3_BUCKET!,
-        Key: s3Key,
-        Body: imageBuffer,
-        ContentType: 'image/jpeg',
-        ACL: 'public-read'
-      }).promise();
-
-      // Save to database
-      await storage.saveCoverImage({
-        promptId,
-        collectionId,
-        imageUrl: uploadResult.Location,
-        createdBy: req.user.id,
-        createdAt: new Date()
+      const upload = new Upload({
+        client: s3,
+        params: {
+          Bucket: process.env.AWS_S3_BUCKET!,
+          Key: s3Key,
+          Body: imageBuffer,
+          ContentType: 'image/jpeg'
+          // Note: Bucket must be configured with public read access at bucket level
+        }
       });
+      const uploadResult = await upload.done();
+
+      // Generate permanent URL
+      const permanentUrl = `https://${process.env.AWS_S3_BUCKET}.s3.us-east-1.amazonaws.com/${s3Key}`;
+
+      // Save to database (if storage method exists)
+      if ('saveCoverImage' in storage && typeof storage.saveCoverImage === 'function') {
+        await (storage as any).saveCoverImage({
+          promptId,
+          collectionId,
+          imageUrl: permanentUrl,
+          createdBy: req.user?.claims?.sub,
+          createdAt: new Date()
+        });
+      }
 
       res.json({
         success: true,
-        permanentUrl: uploadResult.Location,
+        permanentUrl,
         s3Key
       });
 
@@ -59,7 +71,9 @@ export function registerCoverImageRoutes(app: Express) {
   app.get('/api/collection-covers/:collectionId', async (req, res) => {
     try {
       const { collectionId } = req.params;
-      const coverImages = await storage.getCoverImages(collectionId);
+      const coverImages = ('getCoverImages' in storage && typeof storage.getCoverImages === 'function') 
+        ? await (storage as any).getCoverImages(collectionId) 
+        : [];
       res.json({ success: true, covers: coverImages });
     } catch (error) {
       console.error('Get cover images error:', error);

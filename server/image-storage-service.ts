@@ -1,4 +1,5 @@
-import AWS from 'aws-sdk';
+import { S3Client, PutObjectCommand } from '@aws-sdk/client-s3';
+import { Upload } from '@aws-sdk/lib-storage';
 import { storage } from './storage';
 
 /**
@@ -7,9 +8,11 @@ import { storage } from './storage';
  * Ensures all user images are permanently available even when Replicate URLs expire
  */
 export class ImageStorageService {
-  private static s3 = new AWS.S3({
-    accessKeyId: process.env.AWS_ACCESS_KEY_ID,
-    secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY,
+  private static s3 = new S3Client({
+    credentials: {
+      accessKeyId: process.env.AWS_ACCESS_KEY_ID!,
+      secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY!,
+    },
     region: process.env.AWS_REGION || 'us-east-1'
   });
 
@@ -42,16 +45,19 @@ export class ImageStorageService {
       const filename = `images/${userId}/${imageId}_${timestamp}.${fileExtension}`;
       
       // Upload to S3 (without ACL since bucket doesn't support it)
-      const uploadParams = {
-        Bucket: this.BUCKET_NAME,
-        Key: filename,
-        Body: imageBuffer,
-        ContentType: contentType
-        // Note: Bucket must be configured with public read access at bucket level
-      };
+      const upload = new Upload({
+        client: this.s3,
+        params: {
+          Bucket: this.BUCKET_NAME,
+          Key: filename,
+          Body: imageBuffer,
+          ContentType: contentType
+          // Note: Bucket must be configured with public read access at bucket level
+        }
+      });
       
-      const uploadResult = await this.s3.upload(uploadParams).promise();
-      const permanentUrl = uploadResult.Location;
+      const uploadResult = await upload.done();
+      const permanentUrl = `https://${this.BUCKET_NAME}.s3.${process.env.AWS_REGION || 'us-east-1'}.amazonaws.com/${filename}`;
       
       console.log(`Image stored permanently at: ${permanentUrl}`);
       return permanentUrl;
