@@ -850,6 +850,12 @@ archive/
 - Admin's generic training: `training_42585527_1753952315517.zip` (1.6MB) - Generic faces
 - **Conclusion**: Shannon's model learned admin's generic faces instead of her individual features
 
+**Data Cleanup Completed (July 31, 2025):**
+- ✅ **Database Cleared**: Removed contaminated user_models and ai_images records for Shannon
+- ✅ **File System Cleaned**: Removed contaminated training ZIP files, kept good 4.6MB reference data
+- ✅ **Ready for Fresh Start**: Shannon can now retrain with her actual selfies using admin impersonation
+- 🔧 **Next**: Delete Replicate model, upload actual selfies, start fresh training with individual features
+
 **Technical Implementation:**
 - Added version ID validation in unified-generation-service.ts: `if (!fullModelVersion) throw Error`
 - Enhanced Maya generation endpoint in routes.ts with identical version validation
