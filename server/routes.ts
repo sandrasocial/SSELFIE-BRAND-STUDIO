@@ -315,6 +315,92 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // MISSING ENDPOINT: Training progress for real-time updates
+  app.get('/api/training-progress/:userId', isAuthenticated, async (req: any, res) => {
+    try {
+      const { userId } = req.params;
+      const authUserId = req.user.claims.sub;
+      
+      // Ensure user can only access their own training progress
+      if (userId !== authUserId) {
+        return res.status(403).json({ error: 'Access denied' });
+      }
+      
+      const userModel = await storage.getUserModelByUserId(userId);
+      
+      if (!userModel) {
+        return res.status(404).json({ error: 'No training found for this user' });
+      }
+
+      let progress = 0;
+      let status = userModel.trainingStatus;
+      let isRealTraining = false;
+      
+      // Check real Replicate training status if we have a training ID
+      if (userModel.replicateModelId) {
+        try {
+          const response = await fetch(`https://api.replicate.com/v1/trainings/${userModel.replicateModelId}`, {
+            headers: {
+              'Authorization': `Token ${process.env.REPLICATE_API_TOKEN}`
+            }
+          });
+          
+          if (response.ok) {
+            const replicateData = await response.json();
+            status = replicateData.status;
+            isRealTraining = true;
+            
+            // Calculate progress based on Replicate status
+            if (status === 'succeeded') {
+              progress = 100;
+              // Update our database if training completed
+              await storage.updateUserModel(userId, {
+                trainingStatus: 'completed',
+                replicateVersionId: replicateData.output?.version || null
+              });
+            } else if (status === 'failed') {
+              progress = 0;
+              await storage.updateUserModel(userId, {
+                trainingStatus: 'failed'
+              });
+            } else if (status === 'processing') {
+              // Estimate progress based on time elapsed
+              const startTime = new Date(userModel.startedAt || userModel.createdAt).getTime();
+              const elapsed = Date.now() - startTime;
+              const estimatedDuration = 20 * 60 * 1000; // 20 minutes
+              progress = Math.min(90, Math.floor((elapsed / estimatedDuration) * 100));
+            } else if (status === 'starting') {
+              progress = 10;
+            }
+          }
+        } catch (error) {
+          console.error('Error checking Replicate status:', error);
+        }
+      } else {
+        // No Replicate ID yet, estimate based on local status
+        if (status === 'training') {
+          const startTime = new Date(userModel.startedAt || userModel.createdAt).getTime();
+          const elapsed = Date.now() - startTime;
+          const estimatedDuration = 20 * 60 * 1000; // 20 minutes
+          progress = Math.min(90, Math.floor((elapsed / estimatedDuration) * 100));
+        }
+      }
+
+      res.json({
+        userId,
+        status,
+        progress,
+        isRealTraining,
+        replicateModelId: userModel.replicateModelId,
+        modelName: userModel.modelName
+      });
+      
+    } catch (error) {
+      console.error('Error getting training progress:', error);
+      res.status(500).json({ error: 'Failed to get training progress' });
+    }
+  });
+
   // Simple training page route (for direct image upload)
   app.post('/api/train-model', isAuthenticated, async (req: any, res) => {
     try {
