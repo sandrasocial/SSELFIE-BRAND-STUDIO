@@ -182,15 +182,15 @@ export class ModelTrainingService {
           input: {
             input_images: zipUrl,
             trigger_word: triggerWord,
-            steps: 1200, // 🚀 FACE DISTORTION FIX: Optimized steps for better facial accuracy (research: 1200-1800 optimal for FLUX faces)
-            learning_rate: 4e-6, // 🚀 FACE DISTORTION FIX: Reduced learning rate prevents facial overtraining artifacts (was 1e-5)
-            batch_size: 1, // 🔧 PROVEN WORKING: Single batch for precise training
-            lora_rank: 16, // 🔧 PROVEN WORKING: Perfect balance prevents overfitting while maintaining quality
-            resolution: "1024", // 🚀 FACE DISTORTION FIX: Higher resolution captures facial detail better (was 512)
-            optimizer: "adamw8bit", // 🔧 OPTIMAL: Memory efficient optimizer
-            autocaption: false, // 🔧 OPTIMAL: Manual captioning for better control
-            cache_latents_to_disk: false, // 🔧 OPTIMAL: Memory optimization
-            caption_dropout_rate: 0.05 // 🚀 FACE DISTORTION FIX: Lower dropout for better facial consistency (was 0.1)
+            steps: 1000, // 🎯 RESEARCH-PROVEN: Community consensus for face training (1000-2000 optimal range)
+            learning_rate: 4e-4, // 🎯 RESEARCH-PROVEN: 0.0004 works excellent for character/face training
+            batch_size: 1, // 🎯 RESEARCH-PROVEN: Single batch for precise training
+            lora_rank: 32, // 🎯 RESEARCH-PROVEN: 32 for complex features and character training
+            resolution: "1024", // 🎯 RESEARCH-PROVEN: 1024x1024 ideal resolution
+            optimizer: "adamw8bit", // 🎯 RESEARCH-PROVEN: Memory efficient optimizer
+            autocaption: false, // 🎯 RESEARCH-PROVEN: Manual captioning for better control
+            cache_latents_to_disk: false, // 🎯 RESEARCH-PROVEN: Memory optimization
+            caption_dropout_rate: 0.1 // 🎯 RESEARCH-PROVEN: 0.1 standard for face training
           },
           destination: `sandrasocial/${modelName}`
         })
