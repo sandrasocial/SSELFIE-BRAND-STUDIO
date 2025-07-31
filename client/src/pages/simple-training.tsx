@@ -96,26 +96,38 @@ export default function SimpleTraining() {
         setStartTime(new Date(userModel.startedAt));
       }
     } else if (userModel && userModel.trainingStatus === 'completed') {
-      console.log('✅ Found completed training on page load - redirecting to workspace');
-      // Training is already completed, redirect to workspace
-      toast({
-        title: "Training Already Complete!",
-        description: "Your AI model is ready. Redirecting to workspace...",
-      });
+      console.log('✅ Found completed training on page load');
+      // Only redirect if user is actually on the training page
+      const currentPath = window.location.pathname;
+      const isOnTrainingPage = currentPath.includes('simple-training') || currentPath.includes('ai-training');
       
-      setTimeout(() => {
-        window.location.href = '/workspace';
-      }, 2000);
+      if (isOnTrainingPage) {
+        console.log('✅ User on training page - redirecting to workspace');
+        toast({
+          title: "Training Already Complete!",
+          description: "Your AI model is ready. Redirecting to workspace...",
+        });
+        
+        setTimeout(() => {
+          window.location.href = '/workspace';
+        }, 2000);
+      } else {
+        console.log('✅ Training complete but user on different page - no redirect needed');
+      }
     }
   }, [userModel, trainingStatus, isAuthenticated]);
 
-  // Poll for training status updates with progress - ONLY when on training page
+  // Poll for training status updates with progress - ONLY when on training page  
   useEffect(() => {
     const isCurrentlyTraining = isTrainingStarted || (userModel && userModel.trainingStatus === 'training');
     
     // CRITICAL FIX: Only poll when we're actually on the training page and training is active
-    if (isCurrentlyTraining && isAuthenticated) {
-      console.log('🔄 Training detected, starting status polling...');
+    // PREVENT MAYA INTERFERENCE: Do not poll or redirect if user is not on training-related pages
+    const currentPath = window.location.pathname;
+    const isOnTrainingPage = currentPath.includes('simple-training') || currentPath.includes('ai-training');
+    
+    if (isCurrentlyTraining && isAuthenticated && isOnTrainingPage) {
+      console.log('🔄 Training detected on training page, starting status polling...');
       
       const interval = setInterval(async () => {
         // STOP POLLING: If training is no longer active, clear interval immediately
@@ -130,20 +142,23 @@ export default function SimpleTraining() {
         
         // Check if training completed
         if (updatedData?.data?.trainingStatus === 'completed') {
-          console.log('✅ Training completed! Stopping polling and redirecting...');
+          console.log('✅ Training completed! Stopping polling...');
           setIsTrainingStarted(false);
           setTrainingProgress(100);
           clearInterval(interval); // CRITICAL: Stop polling immediately
           
-          // Show success message and redirect
-          toast({
-            title: "Training Complete!",
-            description: "Your AI model is ready. Redirecting to workspace...",
-          });
-          
-          setTimeout(() => {
-            window.location.href = '/workspace';
-          }, 2000);
+          // ONLY redirect if still on training page - don't interrupt Maya
+          const stillOnTrainingPage = window.location.pathname.includes('simple-training') || window.location.pathname.includes('ai-training');
+          if (stillOnTrainingPage) {
+            toast({
+              title: "Training Complete!",
+              description: "Your AI model is ready. Redirecting to workspace...",
+            });
+            
+            setTimeout(() => {
+              window.location.href = '/workspace';
+            }, 2000);
+          }
           
           return; // Exit early
         }
