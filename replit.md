@@ -42,6 +42,8 @@ Preferred communication style: Simple, everyday language.
 - **Continuous Working Patterns:** Agents are designed to work continuously until tasks are completed, providing real-time progress updates.
 - **Error Prevention:** Comprehensive error detection and auto-correction capabilities are integrated into file operations.
 - **Unified Generation Service:** A single service handles all image generation, standardizing parameters for consistent quality and eliminating conflicts.
+- **Maya Generation Intelligence:** Universal prompt structure with trigger word positioning, anatomy fixes (guidance_scale: 5.0, steps: 50), and intelligent conversation-to-prompt conversion system.
+- **AI Photoshoot Enhancement:** Maya's expert prompt generation for collections with latest 2025 trends, luxury editorial sophistication, and anatomical accuracy.
 
 **Deployment:**
 - **Environment:** Built specifically for Replit infrastructure, not Vercel.
