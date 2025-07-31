@@ -93,47 +93,24 @@ export class UnifiedGenerationService {
     
     console.log(`🎯 UNIFIED FINAL PROMPT: "${finalPrompt}"`);
     
-    // RESTORED ORIGINAL LOGIC: Handle different model formats correctly
-    let requestBody;
-    if (userModel.replicateModelId?.includes('/')) {
-      // Shannon's format: Use model:version format
-      requestBody = {
-        version: `${userModel.replicateModelId}:${fullModelVersion}`,
-        input: {
-          prompt: finalPrompt,
-          lora_scale: 1.1,
-          guidance_scale: 2.8,
-          num_inference_steps: 28,
-          num_outputs: 2,
-          aspect_ratio: "3:4",
-          output_format: "png",
-          output_quality: 95,
-          go_fast: false,
-          disable_safety_checker: false,
-          megapixels: "1",
-          seed: Math.floor(Math.random() * 1000000)
-        }
-      };
-    } else {
-      // Admin format: Use version ID only
-      requestBody = {
-        version: fullModelVersion,
-        input: {
-          prompt: finalPrompt,
-          lora_scale: 1.1,
-          guidance_scale: 2.8,
-          num_inference_steps: 28,
-          num_outputs: 2,
-          aspect_ratio: "3:4",
-          output_format: "png",
-          output_quality: 95,
-          go_fast: false,
-          disable_safety_checker: false,
-          megapixels: "1",
-          seed: Math.floor(Math.random() * 1000000)
-        }
-      };
-    }
+    // UNIVERSAL INDIVIDUAL MODEL ARCHITECTURE: All users use sandrasocial/{userId}-selfie-lora:{versionId}
+    const requestBody = {
+      version: `${userModel.replicateModelId}:${fullModelVersion}`,
+      input: {
+        prompt: finalPrompt,
+        lora_scale: 1.1,
+        guidance_scale: 2.8,
+        num_inference_steps: 28,
+        num_outputs: 2,
+        aspect_ratio: "3:4",
+        output_format: "png",
+        output_quality: 95,
+        go_fast: false,
+        disable_safety_checker: false,
+        megapixels: "1",
+        seed: Math.floor(Math.random() * 1000000)
+      }
+    };
     
     // Validate request
     const user = await storage.getUser(userId);
