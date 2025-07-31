@@ -917,11 +917,11 @@ Remember: You are the MEMBER experience Victoria - provide website building guid
       }
       
       console.log('🎯 Maya: Final prompt:', finalPrompt);
-      console.log('🔒 Maya: Using Individual Model Version:', fullModelVersion);
+      console.log('🔒 Maya: Using Individual Model:', userModel.replicateModelId);
 
-      // Build CORRECT Replicate API request using sandrasocial format
+      // Build CORRECT Replicate API request using stored model ID (already contains full path)
       const requestBody = {
-        version: `sandrasocial/${userId}-selfie-lora:${fullModelVersion}`, // Correct sandrasocial format
+        version: `${userModel.replicateModelId}:${fullModelVersion}`, // Use stored model ID + version ID
         input: {
           prompt: finalPrompt,
           lora_scale: 1.1, // Restored original parameter

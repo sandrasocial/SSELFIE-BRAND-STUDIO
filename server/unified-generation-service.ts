@@ -93,9 +93,9 @@ export class UnifiedGenerationService {
     
     console.log(`🎯 UNIFIED FINAL PROMPT: "${finalPrompt}"`);
     
-    // Build request using sandrasocial format
+    // Build request using stored model ID (already contains full path)
     const requestBody = {
-      version: `sandrasocial/${userId}-selfie-lora:${fullModelVersion}`,
+      version: `${userModel.replicateModelId}:${fullModelVersion}`,
       input: {
         prompt: finalPrompt,
         lora_scale: 1.1, // Restored original parameter
