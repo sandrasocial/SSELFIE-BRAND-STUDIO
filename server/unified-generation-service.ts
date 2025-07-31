@@ -52,6 +52,11 @@ export class UnifiedGenerationService {
     
     // CRITICAL FIX: Use ONLY the version ID directly (as shown in Replicate screenshots)
     const fullModelVersion = userModel.replicateVersionId;
+    
+    // GLOBAL FIX: Prevent null or undefined version IDs affecting ALL users
+    if (!fullModelVersion) {
+      throw new Error(`CRITICAL: User ${userId} has no version ID. Model: ${userModel.replicateModelId}, Status: ${userModel.trainingStatus}`);
+    }
     const triggerWord = userModel.triggerWord || `user${userId}`; // Use actual trained trigger word
     console.log(`🔒 VALIDATED: User ${userId} can generate with model: ${fullModelVersion}, trigger: ${triggerWord}`);
     
@@ -94,8 +99,12 @@ export class UnifiedGenerationService {
     console.log(`🎯 UNIFIED FINAL PROMPT: "${finalPrompt}"`);
     
     // UNIVERSAL INDIVIDUAL MODEL ARCHITECTURE: All users use sandrasocial/{userId}-selfie-lora:{versionId}
+    // CRITICAL FIX: Ensure version ID is properly formatted for ALL users
+    const modelVersion = `${userModel.replicateModelId}:${fullModelVersion}`;
+    console.log(`🔒 VERSION VALIDATION: Model: ${userModel.replicateModelId}, Version: ${fullModelVersion}, Combined: ${modelVersion}`);
+    
     const requestBody = {
-      version: `${userModel.replicateModelId}:${fullModelVersion}`,
+      version: modelVersion,
       input: {
         prompt: finalPrompt,
         lora_scale: 1.1,
@@ -117,14 +126,15 @@ export class UnifiedGenerationService {
     const isPremium = user?.plan === 'sselfie-studio' || user?.role === 'admin';
     ArchitectureValidator.validateGenerationRequest(requestBody, userId, isPremium);
     
-    console.log(`🚀 SANDRA'S ENHANCED PARAMETERS:`, {
+    console.log(`🚀 GLOBAL VERSION FIX VERIFIED:`, {
+      userId: userId,
+      model: userModel.replicateModelId,
+      versionId: fullModelVersion,
+      combined: modelVersion,
+      trigger: triggerWord,
       lora_scale: requestBody.input.lora_scale,
       guidance_scale: requestBody.input.guidance_scale,
-      steps: requestBody.input.num_inference_steps,
-      megapixels: requestBody.input.megapixels,
-      go_fast: requestBody.input.go_fast,
-      model: fullModelVersion,
-      trigger: triggerWord
+      steps: requestBody.input.num_inference_steps
     });
     
     // Call Replicate API with retry logic
