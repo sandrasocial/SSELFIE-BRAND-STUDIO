@@ -346,8 +346,6 @@ function AppWithProvider() {
 }
 
 function App() {
-  const { user } = useAuth();
-  
   // Enhanced domain access handling
   useEffect(() => {
     try {
