@@ -342,15 +342,15 @@ export class BulletproofUploadService {
           input: {
             input_images: zipUrl,
             trigger_word: triggerWord,
-            steps: 1800, // 🔥 INDIVIDUAL FEATURES FIX: Increased from 1200 to 1800 for proper facial learning
-            learning_rate: 1e-4, // 🔥 INDIVIDUAL FEATURES FIX: Increased from 4e-6 to 1e-4 for stronger facial feature capture
+            steps: 1000, // 🎯 RESEARCH-PROVEN: Community consensus for face training (1000-2000 optimal range)
+            learning_rate: 4e-4, // 🎯 RESEARCH-PROVEN: 0.0004 works excellent for character/face training
             batch_size: 1,
-            lora_rank: 32, // 🔥 INDIVIDUAL FEATURES FIX: Increased from 16 to 32 for higher capacity facial detail
-            resolution: "1024", // ✅ Keep 1024 for facial detail
+            lora_rank: 32, // 🎯 RESEARCH-PROVEN: 32 for complex features and character training
+            resolution: "1024", // 🎯 RESEARCH-PROVEN: 1024x1024 ideal resolution
             optimizer: "adamw8bit",
             autocaption: false,
             cache_latents_to_disk: false,
-            caption_dropout_rate: 0.02 // 🔥 INDIVIDUAL FEATURES FIX: Reduced from 0.05 to 0.02 to preserve facial descriptors
+            caption_dropout_rate: 0.1 // 🎯 RESEARCH-PROVEN: 0.1 standard for face training (not too low)
           },
           destination: `sandrasocial/${modelName}`
         })
