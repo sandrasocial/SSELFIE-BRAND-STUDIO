@@ -835,15 +835,14 @@ archive/
 
 **ROOT CAUSE RESOLUTION (July 31, 2025)**: Fixed Maya chat refresh issue by removing unnecessary `useAuth()` call from App component line 349. The `user` variable was extracted but never used, causing App re-renders every time auth cache changed, leading to Maya re-initialization. AccountSwitcher component also completely removed as it was globally invalidating auth cache.
 
-## ✅ CRITICAL VERSION ID BUG FIXED GLOBALLY - NO MORE GENERIC MODELS FOR ANY USER (July 31, 2025)
+## ✅ CRITICAL DISCOVERY - SHANNON'S MODEL TRAINING STATUS REVEALED (July 31, 2025)
 
-**BREAKTHROUGH: Fixed critical version ID bug causing ALL users to receive generic results instead of trained individual features**
-- ✅ **Root Cause Identified**: System was calling Replicate API with `null` version ID, defaulting to base model for ALL users despite having trained individual models
-- ✅ **Global Version Validation**: Added comprehensive version ID validation across all generation endpoints preventing null/undefined version calls
-- ✅ **Shannon Model Confirmed Working**: Test generation successful - `sandrasocial/shannon-1753945376880-selfie-lora-1753956621083:8593fd5f4c0d09c2fe58a3970177a2040c1162f9bf0e4354541b7e3f9b2c3d97`
-- ✅ **Maya Generation Fixed**: Enhanced Maya endpoint with same version validation and detailed logging
-- ✅ **Unified Generation Service**: Complete version validation prevents any null version API calls
-- ✅ **Universal Protection**: ALL users now protected from generic model contamination - NO EXCEPTIONS
+**BREAKTHROUGH: Found the exact root cause - Shannon's model was never properly trained**
+- 🚨 **Root Cause Discovered**: Shannon's Replicate model has `status: null` instead of "succeeded" - training failed
+- ✅ **Request Format Confirmed Correct**: We send perfect format `sandrasocial/shannon-1753945376880-selfie-lora-1753956621083:8593fd5f4c0d09c2fe58a3970177a2040c1162f9bf0e4354541b7e3f9b2c3d97`
+- ✅ **Maya Endpoint Validation Working**: All debug logs confirm endpoint receives and processes requests correctly
+- ✅ **Model Exists But Incomplete**: Model created `2025-07-31T10:25:08.443Z` but training never completed successfully
+- 🔍 **Next Action Required**: Check Shannon's training history and retrain model properly for individual features
 
 **Technical Implementation:**
 - Added version ID validation in unified-generation-service.ts: `if (!fullModelVersion) throw Error`
