@@ -76,8 +76,9 @@ export default function AccountSwitcher() {
     switchToAdminMutation.mutate();
   };
 
-  // Don't show if not admin or Shannon
-  if (!isAdmin && !isViewingShannon) {
+  // Always show the switcher when viewing Shannon or when admin
+  // This allows switching from Shannon back to admin
+  if (!isViewingShannon && !isAdmin) {
     return null;
   }
 
