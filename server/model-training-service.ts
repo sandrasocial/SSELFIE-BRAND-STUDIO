@@ -182,15 +182,15 @@ export class ModelTrainingService {
           input: {
             input_images: zipUrl,
             trigger_word: triggerWord,
-            steps: 1000, // 🎯 RESEARCH-PROVEN: Community consensus for face training (1000-2000 optimal range)
-            learning_rate: 4e-4, // 🎯 RESEARCH-PROVEN: 0.0004 works excellent for character/face training
-            batch_size: 1, // 🎯 RESEARCH-PROVEN: Single batch for precise training
-            lora_rank: 32, // 🎯 RESEARCH-PROVEN: 32 for complex features and character training
-            resolution: "1024", // 🎯 RESEARCH-PROVEN: 1024x1024 ideal resolution
-            optimizer: "adamw8bit", // 🎯 RESEARCH-PROVEN: Memory efficient optimizer
-            autocaption: false, // 🎯 RESEARCH-PROVEN: Manual captioning for better control
-            cache_latents_to_disk: false, // 🎯 RESEARCH-PROVEN: Memory optimization
-            caption_dropout_rate: 0.1 // 🎯 RESEARCH-PROVEN: 0.1 standard for face training
+            steps: 1000, // 🔥 SHANNON'S SUCCESS: 1000 steps = optimal balance (vs 1200 overtraining)
+            learning_rate: 0.0004, // 🔥 SHANNON'S SUCCESS: 0.0004 = strong feature learning (vs 0.0001 too weak)
+            batch_size: 1, // 🔥 SHANNON'S SUCCESS: Single batch for precise training
+            lora_rank: 32, // 🔥 SHANNON'S SUCCESS: 32 for complex facial features
+            resolution: "1024", // 🔥 SHANNON'S SUCCESS: 1024x1024 ideal resolution
+            optimizer: "adamw8bit", // 🔥 SHANNON'S SUCCESS: Memory efficient optimizer
+            autocaption: false, // 🔥 SHANNON'S SUCCESS: Disabled = pure trigger word association (vs true = diluted)
+            cache_latents_to_disk: false, // 🔥 SHANNON'S SUCCESS: Memory optimization
+            caption_dropout_rate: 0.1 // 🔥 SHANNON'S SUCCESS: 0.1 = better generalization (vs 0.05 = overfitting)
           },
           destination: `sandrasocial/${modelName}`
         })
