@@ -296,9 +296,7 @@ export class BulletproofUploadService {
     console.log(`🚀 REPLICATE TRAINING: Starting for user ${userId}`);
     
     const errors: string[] = [];
-    // Use timestamp to ensure unique model names and avoid conflicts
-    const timestamp = Date.now();
-    const modelName = `${userId}-selfie-${timestamp}`;
+    const modelName = `${userId}-selfie-lora`;
     
     try {
       // Create user-specific model first
@@ -429,15 +427,31 @@ export class BulletproofUploadService {
     const errors: string[] = [];
     
     try {
-      // Store training information
-      await storage.updateUserModel(userId, {
-        replicateModelId: trainingId,
-        modelName: modelName,
-        triggerWord: triggerWord,
-        trainingStatus: 'training',
-        trainingProgress: 0,
-        startedAt: new Date()
-      });
+      // Check if user model exists, create if not
+      let existingModel = await storage.getUserModelByUserId(userId);
+      
+      if (!existingModel) {
+        // Create new user model
+        await storage.createUserModel({
+          userId: userId,
+          replicateModelId: trainingId,
+          modelName: modelName,
+          triggerWord: triggerWord,
+          trainingStatus: 'training',
+          trainingProgress: 0,
+          startedAt: new Date()
+        });
+      } else {
+        // Update existing user model
+        await storage.updateUserModel(userId, {
+          replicateModelId: trainingId,
+          modelName: modelName,
+          triggerWord: triggerWord,
+          trainingStatus: 'training',
+          trainingProgress: 0,
+          startedAt: new Date()
+        });
+      }
       
       // Verify database update
       const updatedModel = await storage.getUserModelByUserId(userId);
