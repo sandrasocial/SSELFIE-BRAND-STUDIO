@@ -1,4 +1,4 @@
-import AWS from 'aws-sdk';
+import { S3Client, PutBucketPolicyCommand, GetBucketPolicyCommand, ListObjectsCommand, PutObjectCommand, DeleteObjectCommand } from '@aws-sdk/client-s3';
 import fs from 'fs';
 
 /**
@@ -6,9 +6,11 @@ import fs from 'fs';
  * Updates the bucket policy to allow sselfie-s3-user proper access
  */
 export class S3PolicyUpdater {
-  private static s3 = new AWS.S3({
-    accessKeyId: process.env.AWS_ACCESS_KEY_ID,
-    secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY,
+  private static s3 = new S3Client({
+    credentials: {
+      accessKeyId: process.env.AWS_ACCESS_KEY_ID!,
+      secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY!,
+    },
     region: 'us-east-1'
   });
 
@@ -59,7 +61,8 @@ export class S3PolicyUpdater {
         Policy: JSON.stringify(this.FIXED_POLICY)
       };
 
-      await this.s3.putBucketPolicy(policyParams).promise();
+      const command = new PutBucketPolicyCommand(policyParams);
+      await this.s3.send(command);
       
       console.log('✅ S3 POLICY FIX: Bucket policy updated successfully');
       return { 
@@ -71,7 +74,7 @@ export class S3PolicyUpdater {
       console.error('❌ S3 POLICY FIX: Failed to update bucket policy:', error);
       return { 
         success: false, 
-        message: `Failed to update S3 bucket policy: ${error.message}` 
+        message: `Failed to update S3 bucket policy: ${error instanceof Error ? error.message : 'Unknown error'}` 
       };
     }
   }
@@ -83,9 +86,10 @@ export class S3PolicyUpdater {
     try {
       console.log('🔍 S3 POLICY CHECK: Getting current bucket policy...');
       
-      const result = await this.s3.getBucketPolicy({
+      const command = new GetBucketPolicyCommand({
         Bucket: this.BUCKET_NAME
-      }).promise();
+      });
+      const result = await this.s3.send(command);
 
       const policy = JSON.parse(result.Policy || '{}');
       console.log('📋 Current bucket policy:', JSON.stringify(policy, null, 2));
@@ -101,7 +105,7 @@ export class S3PolicyUpdater {
       return { 
         success: false, 
         policy: null, 
-        message: `Failed to get bucket policy: ${error.message}` 
+        message: `Failed to get bucket policy: ${error instanceof Error ? error.message : 'Unknown error'}` 
       };
     }
   }
@@ -114,29 +118,32 @@ export class S3PolicyUpdater {
       console.log('🧪 S3 ACCESS TEST: Testing bucket access...');
       
       // Test listing bucket contents
-      const listResult = await this.s3.listObjects({
+      const listCommand = new ListObjectsCommand({
         Bucket: this.BUCKET_NAME,
         MaxKeys: 5
-      }).promise();
+      });
+      const listResult = await this.s3.send(listCommand);
 
       console.log(`✅ S3 ACCESS TEST: Can list bucket - found ${listResult.Contents?.length || 0} objects`);
       
       // Test upload (small test file)
       const testKey = `test-access-${Date.now()}.txt`;
-      await this.s3.upload({
+      const putCommand = new PutObjectCommand({
         Bucket: this.BUCKET_NAME,
         Key: testKey,
         Body: 'S3 access test',
         ContentType: 'text/plain'
-      }).promise();
+      });
+      await this.s3.send(putCommand);
 
       console.log('✅ S3 ACCESS TEST: Upload test successful');
       
       // Clean up test file
-      await this.s3.deleteObject({
+      const deleteCommand = new DeleteObjectCommand({
         Bucket: this.BUCKET_NAME,
         Key: testKey
-      }).promise();
+      });
+      await this.s3.send(deleteCommand);
 
       console.log('✅ S3 ACCESS TEST: Delete test successful');
       
@@ -149,7 +156,7 @@ export class S3PolicyUpdater {
       console.error('❌ S3 ACCESS TEST: Failed:', error);
       return { 
         success: false, 
-        message: `S3 access test failed: ${error.message}` 
+        message: `S3 access test failed: ${error instanceof Error ? error.message : 'Unknown error'}` 
       };
     }
   }

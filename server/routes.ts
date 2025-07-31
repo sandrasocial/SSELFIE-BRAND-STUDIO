@@ -97,13 +97,14 @@ export async function registerRoutes(app: Express): Promise<Server> {
         .values({
           userId,
           title: websiteData.businessName,
-          content: JSON.stringify({
+          slug: `${websiteData.businessName.toLowerCase().replace(/\s+/g, '-')}-${Date.now()}`,
+          content: {
             businessType: websiteData.businessType,
             brandPersonality: websiteData.brandPersonality,
             targetAudience: websiteData.targetAudience,
             keyFeatures: websiteData.keyFeatures,
             contentStrategy: websiteData.contentStrategy
-          }),
+          },
           status: 'draft',
           isPublished: false,
         })
@@ -940,17 +941,13 @@ Remember: You are the MEMBER experience Victoria - provide website building guid
   // Maya Image Generation endpoint - Restored working version
   app.post('/api/maya-generate-images', isAuthenticated, async (req: any, res) => {
     try {
-      // FORCE VISIBILITY - This endpoint should ALWAYS log when hit
-      console.error('🚨🚨🚨 MAYA ENDPOINT DEFINITELY HIT - START OF FUNCTION 🚨🚨🚨');
-      console.error('🚨🚨🚨 REQUEST RECEIVED - PROCESSING MAYA GENERATION 🚨🚨🚨');
+      console.log('🎬 Maya generation endpoint called');
       
       const userId = req.user?.claims?.sub;
       const { prompt, customPrompt } = req.body;
       const actualPrompt = customPrompt || prompt;
       
-      console.log('🎬 Maya: Starting image generation for user:', userId);
-      console.log('🎬 Maya: Prompt:', actualPrompt);
-      console.error('🚨🚨🚨 MAYA ENDPOINT HIT - VALIDATION STARTING 🚨🚨🚨');
+      console.log('🎬 Maya: Starting generation for user:', userId);
       
       // CRITICAL: Validate and correct user model using new validation service
       const { ModelValidationService } = await import('./model-validation-service');
@@ -978,21 +975,9 @@ Remember: You are the MEMBER experience Victoria - provide website building guid
         finalPrompt = `raw photo, visible skin pores, film grain, unretouched natural skin texture, ${finalPrompt}, professional photography`;
       }
       
-      console.log('🎯 Maya: Final prompt:', finalPrompt);
-      console.log('🔒 Maya: Model Format Check:', {
-        modelId: modelId,
-        versionId: versionId,
-        hasSlash: modelId.includes('/'),
-        triggerWord
-      });
-
       // UNIVERSAL INDIVIDUAL MODEL ARCHITECTURE: All users use their validated trained models
       const modelVersion = `${modelId}:${versionId}`;
-      console.log(`🔒 MAYA VERSION VALIDATION: Model: ${modelId}, Version: ${versionId}, Combined: ${modelVersion}`);
-      
-      // EMERGENCY DEBUG: Force visibility of version format
-      console.error(`🚨🚨🚨 MAYA DEBUG: SENDING TO REPLICATE API: ${modelVersion} 🚨🚨🚨`);
-      console.error(`🚨🚨🚨 REQUEST BODY DEBUG: ${JSON.stringify({ version: modelVersion }, null, 2)} 🚨🚨🚨`);
+      console.log(`🎬 Maya: Using model ${modelVersion}`);
       
       // CRITICAL TEST: Check if model exists on Replicate before generation
       console.error(`🔍 PRE-GENERATION MODEL CHECK: Testing existence of ${modelId}`);

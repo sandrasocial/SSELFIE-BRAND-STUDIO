@@ -115,10 +115,10 @@ export class UnifiedGenerationService {
     const isPremium = user?.plan === 'sselfie-studio' || user?.role === 'admin';
     ArchitectureValidator.validateGenerationRequest(requestBody, userId, isPremium);
     
-    console.log(`🚀 GLOBAL VERSION FIX VERIFIED:`, {
+    console.log(`🚀 GENERATION REQUEST VERIFIED:`, {
       userId: userId,
-      model: userModel.replicateModelId,
-      versionId: fullModelVersion,
+      model: modelId,
+      versionId: versionId,
       combined: modelVersion,
       trigger: triggerWord,
       lora_scale: requestBody.input.lora_scale,
