@@ -65,14 +65,9 @@ export function useAuth() {
   // CRITICAL: Don't consider it loading if we got a definitive answer (even if null)
   const actuallyLoading = isLoading && user === undefined;
 
-  console.log('🔍 useAuth final state:', { 
-    isAuthenticated, 
-    actuallyLoading, 
-    hasUser: !!user, 
-    userId: user?.id,
-    rawLoading: isLoading,
-    userData: user
-  });
+  // MAYA FIX: Remove console.log that was causing constant re-renders in browser console
+  // Only log significant state changes, not every render
+  // console.log('🔍 useAuth final state:', { isAuthenticated, actuallyLoading });
 
   return {
     user,
