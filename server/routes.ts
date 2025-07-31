@@ -889,13 +889,22 @@ Remember: You are the MEMBER experience Victoria - provide website building guid
         });
       }
 
-      // CORRECT INDIVIDUAL MODEL ARCHITECTURE - Full model version
-      const fullModelVersion = `${userModel.replicateModelId}:${userModel.replicateVersionId}`;
+      // CRITICAL FIX: Use version ID directly like admin working model
+      // Admin model works with: 84gamavggnrma0crbz69d7jpb4:26dce37af90b9d997eeb970d92e47de3064d46c300504ae376c75bef6a9022d2
+      // Shannon stored full path incorrectly, extract just the internal ID
+      let modelId = userModel.replicateModelId;
+      if (modelId.includes('/')) {
+        // Extract internal ID from full path (e.g., extract ID from sandrasocial/shannon-...)
+        modelId = userModel.replicateVersionId; // Use version ID directly like working admin model
+      }
+      
+      const fullModelVersion = userModel.replicateVersionId; // Use ONLY version ID like admin working model
       const triggerWord = userModel.triggerWord || `user${userId}`;
       
       console.log('🔍 Maya: Individual Model details:', {
+        originalModelId: userModel.replicateModelId,
+        extractedModelId: modelId,
         fullModelVersion,
-        replicateModelId: userModel.replicateModelId,
         replicateVersionId: userModel.replicateVersionId,
         triggerWord,
         trainingStatus: userModel.trainingStatus
