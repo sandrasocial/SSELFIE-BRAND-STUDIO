@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { useAuth } from '@/hooks/use-auth';
 import { useLocation } from 'wouter';
 import { useToast } from '@/hooks/use-toast';
@@ -125,17 +125,29 @@ export default function Maya() {
     }
   }, [user, isLoading, setLocation, toast]);
 
-  // BULLETPROOF: Initialize once and lock to prevent refresh loops
+  // CRITICAL: Store initialization ref to prevent any refresh loops
+  const initializationRef = useRef(false);
+  const chatLoadedRef = useRef(false);
+  
+  // BULLETPROOF: Initialize once and lock permanently
   useEffect(() => {
-    // CRITICAL: Additional protections against refresh loops
-    if (user && user.id && !isInitialized && !isGenerating && messages.length === 0) {
-      console.log('🚀 Maya: Initializing chat ONCE');
+    // ABSOLUTELY BULLETPROOF: Multiple layers of protection
+    if (user && user.id && !initializationRef.current && !isGenerating) {
+      console.log('🚀 Maya: Initializing chat ONCE - PERMANENT LOCK');
+      initializationRef.current = true; // PERMANENT LOCK
       setIsInitialized(true);
       
-      if (chatIdFromUrl) {
+      if (chatIdFromUrl && !chatLoadedRef.current) {
         console.log('📂 Maya: Loading existing chat from URL:', chatIdFromUrl);
+        chatLoadedRef.current = true; // PERMANENT CHAT LOAD LOCK
+        
+        // CRITICAL: Clear URL parameter IMMEDIATELY to prevent refresh loops
+        const cleanUrl = window.location.pathname;
+        window.history.replaceState({}, '', cleanUrl);
+        console.log('🧹 Maya: URL parameter cleared immediately');
+        
         loadChatHistory(parseInt(chatIdFromUrl));
-      } else {
+      } else if (!chatIdFromUrl && messages.length === 0) {
         // Initialize with Maya's welcome message for new session
         console.log('💬 Maya: Creating new chat with welcome message'); 
         setMessages([{
@@ -145,7 +157,7 @@ export default function Maya() {
         }]);
       }
     }
-  }, [user?.id, isInitialized, chatIdFromUrl]); // Only depend on stable user.id, not entire user object
+  }, [user?.id]); // Minimal dependencies
 
   const sendMessage = async () => {
     if (!input.trim()) return;
@@ -348,9 +360,16 @@ export default function Maya() {
               console.log('✅ Maya: Updated messages count:', updatedMessages.length);
               console.log('✅ Maya: Updated message has images:', !!updatedMessages[lastMayaIndex].imagePreview);
               
+              // CRITICAL: BLOCK ALL REFRESH TRIGGERS DURING IMAGE UPDATE
+              initializationRef.current = true; // TRIPLE LOCK
+              chatLoadedRef.current = true; // TRIPLE LOCK
+              
               // Images successfully added to chat
               
-              // URL parameter already cleared immediately after reading
+              // CRITICAL: Ensure URL is completely clean after image completion
+              const cleanUrl = window.location.pathname;
+              window.history.replaceState({}, '', cleanUrl);
+              console.log('🧹 Maya: URL cleaned after image completion');
               
               // ASYNC database save - don't block
               const messageId = updatedMessages[lastMayaIndex].id;
