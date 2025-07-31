@@ -140,9 +140,9 @@ export default function SimpleTraining() {
         }
         
         // Get progress data if we have user model and still training
-        if (userModel?.id) {
+        if (userModel?.userId) {
           try {
-            const progressResponse = await fetch(`/api/training-progress/${userModel.id}`, {
+            const progressResponse = await fetch(`/api/training-progress/${userModel.userId}`, {
               credentials: 'include'
             });
             if (progressResponse.ok) {

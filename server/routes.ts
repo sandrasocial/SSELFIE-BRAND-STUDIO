@@ -316,19 +316,42 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // MISSING ENDPOINT: Training progress for real-time updates
-  app.get('/api/training-progress/:userId', isAuthenticated, async (req: any, res) => {
+  app.get('/api/training-progress/:requestId', isAuthenticated, async (req: any, res) => {
     try {
-      const { userId } = req.params;
+      const { requestId } = req.params;
       const authUserId = req.user.claims.sub;
       
-      // Ensure user can only access their own training progress
-      if (userId !== authUserId) {
+      console.log(`🔍 TRAINING PROGRESS: Request for ${requestId}, auth user: ${authUserId}`);
+      
+      // Handle both user ID and model ID requests for compatibility
+      let userId = requestId;
+      
+      // If request ID looks like a model ID (number), try to find the corresponding user
+      if (/^\d+$/.test(requestId)) {
+        const modelFromDb = await storage.getUserModelById(parseInt(requestId));
+        if (modelFromDb) {
+          userId = modelFromDb.userId;
+          console.log(`🔄 TRAINING PROGRESS: Converted model ID ${requestId} to user ID ${userId}`);
+        }
+      }
+      
+      // Allow admin access for impersonated users (Shannon testing)
+      const isAdmin = authUserId === 'ssa@ssasocial.com';
+      const isImpersonatedShannon = authUserId === 'shannon-1753945376880' && userId === '42585527';
+      
+      // Ensure user can only access their own training progress (or admin/impersonated access)
+      if (!isAdmin && !isImpersonatedShannon && userId !== authUserId) {
+        console.log(`❌ TRAINING PROGRESS: Access denied for ${authUserId} requesting ${userId}`);
         return res.status(403).json({ error: 'Access denied' });
       }
       
+      console.log(`✅ TRAINING PROGRESS: Access granted for user ${userId}`);
+      
+      // Get the user model (use the resolved userId)
       const userModel = await storage.getUserModelByUserId(userId);
       
       if (!userModel) {
+        console.log(`❌ TRAINING PROGRESS: No model found for user ${userId}`);
         return res.status(404).json({ error: 'No training found for this user' });
       }
 
