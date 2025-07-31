@@ -19,46 +19,83 @@ export default function MayaCollectionManager() {
   const [updateResult, setUpdateResult] = useState<UpdateResult | null>(null);
   const { toast } = useToast();
 
-  // Default photoshoot collections to update
-  const getDefaultCollections = () => [
+  // Get your actual AI photoshoot collections to update
+  const getActualCollections = () => [
     {
-      id: 'executive-power',
-      name: 'Executive Power',
-      description: 'Sophisticated business editorial moments',
+      id: 'healing-mindset',
+      name: 'HEALING MINDSET',
+      subtitle: 'Phoenix Rising', 
+      description: 'For when you want to capture how far you\'ve come. You know that quiet strength you have now? The one that came from surviving what almost broke you? Let\'s photograph that.',
       prompts: [
-        { id: 'boardroom', name: 'Boardroom Authority', category: 'business', prompt: 'professional business portrait in modern office' },
-        { id: 'power-lunch', name: 'Power Lunch', category: 'business', prompt: 'elegant dining scene with professional attire' },
-        { id: 'leadership', name: 'Leadership Moment', category: 'business', prompt: 'confident executive in meeting room' }
+        { id: 'morning-meditation-solitude', name: 'Morning Solitude', category: 'Inner Peace', prompt: '[triggerword], woman finding stillness in the storm through morning meditation, luxurious soft neutral cashmere layers and flowing linen, soft golden morning light streaming through floor-to-ceiling window, peaceful contemplation with eyes gently closed, raw photo, visible skin pores, film grain, unretouched natural skin texture, subsurface scattering, photographed on film' },
+        { id: 'ocean-therapy-walk', name: 'Ocean Healing', category: 'Nature Therapy', prompt: '[triggerword], woman walking alone on empty beach where the ocean became her therapist, flowing ivory linen maxi dress moving in sea breeze, warm golden dawn lighting with ocean reflections creating healing solitude, contemplative expression while processing thoughts and finding peace in endless horizons, raw photo, visible skin pores, film grain, unretouched natural skin texture, subsurface scattering, photographed on film' },
+        { id: 'phoenix-rising-portrait', name: 'Phoenix Rising', category: 'Transformation', prompt: '[triggerword], woman who became stronger after the fire - the phoenix rising moment, flowing ethereal white silk dress perfect for transformation photography, magical golden hour backlighting in wheat field at sunset creating warm rim light, powerful yet serene expression with arms outstretched feeling freedom after becoming unbreakable, raw photo, visible skin pores, film grain, unretouched natural skin texture, subsurface scattering, photographed on film' }
       ]
     },
     {
-      id: 'coastal-luxury',
-      name: 'Coastal Luxury', 
-      description: 'Beach elegance meets high fashion',
+      id: 'magazine-covers',
+      name: 'E D I T O R I A L',
+      subtitle: 'P O W E R',
+      description: 'Ready to look like the CEO you already are? These are for when you want photos that make people stop scrolling and think "wow, who is SHE?" Pure magazine cover energy.',
       prompts: [
-        { id: 'sunset', name: 'Sunset Sophistication', category: 'lifestyle', prompt: 'luxury beach resort fashion photography' },
-        { id: 'ocean', name: 'Ocean Editorial', category: 'lifestyle', prompt: 'seaside fashion shoot with natural lighting' },
-        { id: 'beach-walk', name: 'Beach Walk', category: 'lifestyle', prompt: 'elegant woman walking on beach' }
+        { id: 'vogue-transformative-strength', name: 'VOGUE Transformative Strength', category: 'Magazine Covers', prompt: '[triggerword], woman realizing her power in that transformative strength moment, perfectly tailored black off-shoulder blazer with architectural lines and minimal gold jewelry, pure white seamless backdrop with beauty dish lighting creating editorial drama, piercing direct gaze that says everything while hair is swept perfectly over one shoulder, raw photo, visible skin pores, film grain, unretouched natural skin texture, subsurface scattering, photographed on film' },
+        { id: 'elle-confidence-rebirth', name: 'ELLE Confidence Rebirth', category: 'Magazine Covers', prompt: '[triggerword], woman with that little knowing smile because she has figured it out, elegant black silk charmeuse camisole with beautiful drape and delicate jewelry, soft gray seamless background with window light and silver reflector creating gentle illumination, subtle knowing expression radiating quiet confidence with natural waves framing her face, raw photo, visible skin pores, film grain, unretouched natural skin texture, subsurface scattering, photographed on film' },
+        { id: 'harpers-bazaar-phoenix', name: "HARPER'S BAZAAR Phoenix", category: 'Magazine Covers', prompt: '[triggerword], woman with CEO energy in that perfect suit ready to take on the world, architecturally structured black suit jacket with dramatic deep V and layered 18k gold necklaces, neutral beige seamless backdrop with three-point studio lighting creating editorial drama, powerful three-quarter turn with strong posture and sleek hair in perfect center part, raw photo, visible skin pores, film grain, unretouched natural skin texture, subsurface scattering, photographed on film' }
+      ]
+    },
+    {
+      id: 'street-documentary', 
+      name: 'STREET DOCUMENTARY',
+      subtitle: 'Urban Confidence',
+      description: 'Candid moments of moving through the world with quiet authority - street photography that captures authentic confidence',
+      prompts: [
+        { id: 'copenhagen-bike-commute', name: 'Copenhagen Commute', category: 'Urban Movement', prompt: '[triggerword], woman cycling through the city with effortless grace and sustainable luxury in motion, tailored wool coat and leather crossbody bag perfect for urban sophistication, natural daylight illuminating colorful Nordic Copenhagen buildings creating Scandinavian charm, confident expression while commuting with minimal gold jewelry and hair moving gently in breeze, raw photo, visible skin pores, film grain, unretouched natural skin texture, subsurface scattering, photographed on film' },
+        { id: 'milan-fashion-walk', name: 'Milan Fashion District', category: 'Style in Motion', prompt: '[triggerword], woman walking through the fashion capital with innate style where elegance meets everyday, elevated basics with long camel coat and designer accessories showcasing Italian sophistication, golden hour lighting illuminating beautiful Italian architecture creating fashion district ambiance, purposeful stride with serene focused expression and effortlessly styled hair, raw photo, visible skin pores, film grain, unretouched natural skin texture, subsurface scattering, photographed on film' },
+        { id: 'london-crosswalk-moment', name: 'London Crosswalk', category: 'City Navigation', prompt: '[triggerword], woman navigating the city with quiet confidence in urban moments that feel cinematic, classic trench coat with minimal scarf and leather boots creating British sophistication, overcast natural lighting illuminating classic British architecture during street crossing, determined expression while navigating crosswalk with hair moving in city breeze, raw photo, visible skin pores, film grain, unretouched natural skin texture, subsurface scattering, photographed on film' }
+      ]
+    },
+    {
+      id: 'lifestyle-editorial',
+      name: 'LIFESTYLE EDITORIAL', 
+      subtitle: 'Authentic Moments',
+      description: 'Those beautiful in-between moments when life feels like art - elevated everyday photography',
+      prompts: [
+        { id: 'morning-coffee-ritual', name: 'Morning Coffee Ritual', category: 'Daily Rituals', prompt: '[triggerword], woman in her morning coffee ritual where life feels like art, cream silk camisole and cashmere robe creating elegant morning comfort, warm golden sunlight streaming through large kitchen windows illuminating marble countertops during peaceful daily routine, serene expression while holding ceramic mug with steam visible and hair in natural morning waves, raw photo, visible skin pores, film grain, unretouched natural skin texture, subsurface scattering, photographed on film' },
+        { id: 'reading-window-light', name: 'Reading by Window', category: 'Quiet Moments', prompt: '[triggerword], woman reading by window in quiet moments that feel cinematic, oversized cream sweater perfect for cozy sophistication, soft natural afternoon light streaming through sheer curtains creating dreamy illumination, peaceful focused expression while reading with book in lap and hair naturally framing face, raw photo, visible skin pores, film grain, unretouched natural skin texture, subsurface scattering, photographed on film' },
+        { id: 'evening-skincare-ritual', name: 'Evening Skincare', category: 'Self-Care', prompt: '[triggerword], woman in evening skincare ritual as beautiful self-care moment, white cotton robe creating spa-like elegance, warm bathroom lighting with candles creating intimate luxury atmosphere, gentle expression while applying skincare with mirror reflection and hair pulled back naturally, raw photo, visible skin pores, film grain, unretouched natural skin texture, subsurface scattering, photographed on film' }
+      ]
+    },
+    {
+      id: 'vogue-editorial',
+      name: 'VOGUE EDITORIAL',
+      subtitle: 'High Fashion',
+      description: 'When you want pure high fashion drama - editorial moments that belong in Vogue',
+      prompts: [
+        { id: 'architectural-blazer', name: 'Architectural Power', category: 'Power Suiting', prompt: '[triggerword], woman in architectural power blazer creating high fashion drama perfect for Vogue, structured black blazer with dramatic shoulders and minimal accessories showcasing editorial sophistication, studio lighting with beauty dish and fill creating fashion photography drama, confident expression with sleek hair and strong jawline highlighting architectural fashion, raw photo, visible skin pores, film grain, unretouched natural skin texture, subsurface scattering, photographed on film' },
+        { id: 'silk-slip-elegance', name: 'Silk Slip Elegance', category: 'Luxury Minimalism', prompt: '[triggerword], woman in silk slip elegance creating luxury minimalism perfect for editorial, champagne silk slip dress with delicate gold jewelry showcasing understated luxury, soft window light creating gentle shadows and editorial mood, serene expression with natural waves and authentic beauty highlighting silk texture, raw photo, visible skin pores, film grain, unretouched natural skin texture, subsurface scattering, photographed on film' },
+        { id: 'couture-statement', name: 'Couture Statement', category: 'High Fashion', prompt: '[triggerword], woman making couture statement in high fashion moment, dramatic black evening wear with architectural details showcasing couture craftsmanship, dramatic studio lighting creating high fashion editorial atmosphere, powerful expression with perfect styling and editorial hair showing fashion authority, raw photo, visible skin pores, film grain, unretouched natural skin texture, subsurface scattering, photographed on film' }
+      ]
+    },
+    {
+      id: 'golden-hour',
+      name: 'GOLDEN HOUR',
+      subtitle: 'Natural Light',
+      description: 'Chasing that perfect light - golden hour photography that makes everything magical',
+      prompts: [
+        { id: 'field-freedom', name: 'Field Freedom', category: 'Nature', prompt: '[triggerword], woman experiencing field freedom in golden hour magic, flowing white linen dress perfect for natural movement, warm golden sunset light creating rim lighting and lens flares during golden hour photography, joyful expression with arms outstretched and hair flowing in evening breeze showing pure freedom, raw photo, visible skin pores, film grain, unretouched natural skin texture, subsurface scattering, photographed on film' },
+        { id: 'urban-sunset', name: 'Urban Sunset', category: 'City Golden Hour', prompt: '[triggerword], woman in urban sunset creating city golden hour magic, casual chic outfit with denim jacket perfect for urban exploration, warm golden hour light illuminating city architecture and creating urban photography mood, contemplative expression while walking through city streets with hair catching light naturally, raw photo, visible skin pores, film grain, unretouched natural skin texture, subsurface scattering, photographed on film' },
+        { id: 'garden-serenity', name: 'Garden Serenity', category: 'Natural Beauty', prompt: '[triggerword], woman in garden serenity during golden hour natural beauty, soft pastel dress with delicate details perfect for garden photography, warm golden light filtering through leaves creating dappled natural lighting, peaceful expression while surrounded by flowers with hair glowing in natural light, raw photo, visible skin pores, film grain, unretouched natural skin texture, subsurface scattering, photographed on film' }
       ]
     },
     {
       id: 'urban-edge',
-      name: 'Urban Edge',
-      description: 'City sophistication with editorial attitude',
+      name: 'URBAN EDGE',
+      subtitle: 'City Attitude',
+      description: 'City life with an edge - architectural backgrounds and urban sophistication',
       prompts: [
-        { id: 'rooftop', name: 'Rooftop Authority', category: 'editorial', prompt: 'confident woman on city rooftop' },
-        { id: 'industrial', name: 'Industrial Chic', category: 'editorial', prompt: 'fashion photography in industrial setting' },
-        { id: 'street-style', name: 'Street Style', category: 'editorial', prompt: 'urban fashion photography street scene' }
-      ]
-    },
-    {
-      id: 'minimalist-luxury',
-      name: 'Minimalist Luxury',
-      description: 'Clean sophistication and refined elegance',
-      prompts: [
-        { id: 'studio', name: 'Studio Elegance', category: 'minimalist', prompt: 'clean studio portrait luxury fashion' },
-        { id: 'architectural', name: 'Architectural Lines', category: 'minimalist', prompt: 'modern architecture background fashion' },
-        { id: 'gallery', name: 'Gallery Moment', category: 'minimalist', prompt: 'art gallery sophisticated portrait' }
+        { id: 'rooftop-authority', name: 'Rooftop Authority', category: 'City Power', prompt: '[triggerword], woman with rooftop authority showing city power and urban sophistication, black leather jacket with minimal accessories creating edgy city style, dramatic city skyline background with urban architecture, confident expression with wind-blown hair showing metropolitan authority, raw photo, visible skin pores, film grain, unretouched natural skin texture, subsurface scattering, photographed on film' },
+        { id: 'industrial-chic', name: 'Industrial Chic', category: 'Urban Fashion', prompt: '[triggerword], woman embodying industrial chic in urban fashion moment, structured coat with architectural details perfect for city sophistication, industrial background with concrete and steel creating urban editorial mood, powerful expression with sleek styling showing metropolitan edge, raw photo, visible skin pores, film grain, unretouched natural skin texture, subsurface scattering, photographed on film' },
+        { id: 'street-style', name: 'Street Style', category: 'Urban Movement', prompt: '[triggerword], woman in street style showing urban movement and city confidence, trendy oversized blazer with street fashion accessories, urban street background with graffiti and city life, dynamic expression while walking with hair in motion showing street sophistication, raw photo, visible skin pores, film grain, unretouched natural skin texture, subsurface scattering, photographed on film' }
       ]
     }
   ];
@@ -68,7 +105,7 @@ export default function MayaCollectionManager() {
     setUpdateResult(null);
     
     try {
-      const collections = getDefaultCollections();
+      const collections = getActualCollections();
       
       toast({
         title: "Maya is updating collections...",
@@ -123,14 +160,17 @@ export default function MayaCollectionManager() {
       <div className="space-y-4">
         {/* Collections Preview */}
         <div className="bg-gray-50 p-4 rounded">
-          <h3 className="font-medium mb-2">Collections to Update:</h3>
-          <div className="grid grid-cols-2 gap-2 text-sm">
-            {getDefaultCollections().map(collection => (
+          <h3 className="font-medium mb-2">Your AI Photoshoot Collections to Update:</h3>
+          <div className="grid grid-cols-1 gap-2 text-sm">
+            {getActualCollections().map(collection => (
               <div key={collection.id} className="flex justify-between">
-                <span>{collection.name}</span>
+                <span className="font-medium">{collection.name}</span>
                 <span className="text-gray-500">{collection.prompts.length} prompts</span>
               </div>
             ))}
+          </div>
+          <div className="mt-3 pt-3 border-t text-xs text-gray-600">
+            Total: {getActualCollections().reduce((acc, col) => acc + col.prompts.length, 0)} prompts across 7 collections
           </div>
         </div>
 
