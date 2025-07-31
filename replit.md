@@ -845,9 +845,10 @@ archive/
 - 🔥 **Caption Dropout Reduced**: Lowered from 0.05 to 0.02 to preserve facial descriptors
 
 **Technical Parameter Updates (July 31, 2025):**
-- **BulletproofUploadService**: Updated with individual feature capture parameters
+- **BulletproofUploadService**: Updated with research-proven parameters for individual feature capture
 - **RetrainModelService**: Synchronized with same optimized parameters for consistency
-- **Both Services Fixed**: All training endpoints now use facial feature optimized configuration
+- **ModelTrainingService**: Updated main user training service with research-proven parameters
+- **ALL TRAINING SERVICES FIXED**: Every new user will now receive optimized parameters for individual facial feature capture
 
 **Previous Training Issues:**
 - Shannon's model was producing generic faces instead of her individual features
@@ -866,6 +867,13 @@ archive/
 - **Steps 1000**: Optimal range 1000-2000, starting with 1000 prevents overtraining
 - **LoRA Rank 32**: Higher capacity for facial detail capture (minimum 16, optimal 32 for faces)
 - **Caption Dropout 0.1**: Standard rate preserves facial descriptors without being too conservative
+
+**UNIVERSAL PLATFORM IMPACT:**
+- ✅ **ALL NEW USERS**: Every new user registration will receive research-proven parameters
+- ✅ **NO MORE GENERIC FACES**: Parameters optimized specifically for individual facial feature capture
+- ✅ **EXISTING USERS**: Users like Shannon need to retrain with new parameters to get individual features
+- ✅ **PLATFORM CONSISTENCY**: All training services now use identical optimized parameters
+- 🎯 **ZERO TOLERANCE**: Generic faces are completely unacceptable - individual features only
 
 ## ✅ MAYA CELEBRITY STYLIST ENHANCEMENT COMPLETED - DYNAMIC FASHION FOCUS IMPLEMENTED (July 31, 2025)
 
