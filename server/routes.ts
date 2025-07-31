@@ -389,7 +389,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
               });
             } else if (status === 'processing') {
               // Estimate progress based on time elapsed
-              const startTime = new Date(userModel.startedAt || userModel.createdAt).getTime();
+              const startTime = new Date(userModel.startedAt || userModel.createdAt || new Date()).getTime();
               const elapsed = Date.now() - startTime;
               const estimatedDuration = 20 * 60 * 1000; // 20 minutes
               progress = Math.min(90, Math.floor((elapsed / estimatedDuration) * 100));
@@ -403,7 +403,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       } else {
         // No Replicate ID yet, estimate based on local status
         if (status === 'training') {
-          const startTime = new Date(userModel.startedAt || userModel.createdAt).getTime();
+          const startTime = new Date(userModel.startedAt || userModel.createdAt || new Date()).getTime();
           const elapsed = Date.now() - startTime;
           const estimatedDuration = 20 * 60 * 1000; // 20 minutes
           progress = Math.min(90, Math.floor((elapsed / estimatedDuration) * 100));
@@ -964,8 +964,8 @@ Remember: You are the MEMBER experience Victoria - provide website building guid
       console.log('✅ Maya: Prediction started:', prediction.id);
 
       // Create generation tracker for live progress monitoring (like working system from 2 days ago)
-      const { InsertGenerationTracker } = await import('../shared/schema');
-      const trackerData: InsertGenerationTracker = {
+      const { insertGenerationTrackerSchema } = await import('../shared/schema');
+      const trackerData = {
         userId,
         predictionId: prediction.id,
         prompt: finalPrompt,
