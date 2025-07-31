@@ -655,23 +655,11 @@ export default function Maya() {
       
       {/* Editorial Hero Section */}
       <EditorialImageBreak 
-        imageUrl="https://i.postimg.cc/sgmtqFrQ/out-0-1.webp"
+        src="https://i.postimg.cc/sgmtqFrQ/out-0-1.webp"
         alt="Maya - Your Celebrity Stylist & Personal Brand Expert"
         height="large"
         overlay={true}
-        overlayContent={
-          <div className="max-w-3xl mx-auto text-center px-6">
-            <div className="text-[10px] sm:text-xs font-normal tracking-[0.4em] uppercase text-white/80 mb-4">
-              Meet Maya
-            </div>
-            <h1 className="font-times text-[clamp(3rem,7vw,5rem)] leading-[0.8] font-extralight tracking-[0.1em] text-white mb-2">
-              CELEBRITY
-            </h1>
-            <h2 className="font-times text-[clamp(1.2rem,3vw,2rem)] leading-[1] font-extralight tracking-[0.05em] text-white/90">
-              STYLIST
-            </h2>
-          </div>
-        }
+        overlayText="MAYA - YOUR CELEBRITY STYLIST"
       />
 
       {/* Main Chat Interface */}
