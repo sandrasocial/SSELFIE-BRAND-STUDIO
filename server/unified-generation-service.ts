@@ -50,8 +50,8 @@ export class UnifiedGenerationService {
       throw new Error('User model not available or training not completed');
     }
     
-    // CRITICAL FIX: Use only the version ID for model format (not the concatenated format)
-    const fullModelVersion = userModel.replicateVersionId || `${userModel.replicateModelId}:${userModel.replicateVersionId}`;
+    // CRITICAL FIX: Use ONLY the version ID directly (as shown in Replicate screenshots)
+    const fullModelVersion = userModel.replicateVersionId;
     const triggerWord = userModel.triggerWord || `user${userId}`; // Use actual trained trigger word
     console.log(`🔒 VALIDATED: User ${userId} can generate with model: ${fullModelVersion}, trigger: ${triggerWord}`);
     
