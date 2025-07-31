@@ -91,6 +91,7 @@ export interface IStorage {
   // User Model operations
   getUserModel(userId: string): Promise<UserModel | undefined>;
   getUserModelByUserId(userId: string): Promise<UserModel | undefined>;
+  getUserModelById(modelId: number): Promise<UserModel | undefined>;
   createUserModel(data: InsertUserModel): Promise<UserModel>;
   updateUserModel(userId: string, data: Partial<UserModel>): Promise<UserModel>;
   ensureUserModel(userId: string): Promise<UserModel>;
@@ -457,6 +458,14 @@ export class DatabaseStorage implements IStorage {
   async getUserModelByUserId(userId: string): Promise<UserModel | undefined> {
     // Alias for getUserModel - same functionality
     return this.getUserModel(userId);
+  }
+
+  async getUserModelById(modelId: number): Promise<UserModel | undefined> {
+    const [model] = await db
+      .select()
+      .from(userModels)
+      .where(eq(userModels.id, modelId));
+    return model;
   }
 
   async createUserModel(data: InsertUserModel): Promise<UserModel> {
