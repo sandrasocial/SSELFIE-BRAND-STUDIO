@@ -779,7 +779,46 @@ export default function SimpleTraining() {
               {selfieImages.length} of 10 photos uploaded
             </div>
 
+            {/* Hidden File Input */}
+            <input
+              ref={fileInputRef}
+              type="file"
+              multiple
+              accept="image/*"
+              onChange={handleFileSelect}
+              style={{ display: 'none' }}
+            />
 
+            {/* Upload Button */}
+            <button
+              onClick={() => fileInputRef.current?.click()}
+              style={{
+                padding: '16px 32px',
+                fontSize: '12px',
+                fontWeight: 400,
+                letterSpacing: '0.2em',
+                textTransform: 'uppercase',
+                border: '1px solid #0a0a0a',
+                borderRadius: '2px',
+                color: '#0a0a0a',
+                background: 'transparent',
+                cursor: 'pointer',
+                transition: 'all 300ms ease',
+                marginBottom: '40px'
+              }}
+              onMouseEnter={(e) => {
+                const target = e.target as HTMLElement;
+                target.style.background = '#0a0a0a';
+                target.style.color = '#ffffff';
+              }}
+              onMouseLeave={(e) => {
+                const target = e.target as HTMLElement;
+                target.style.background = 'transparent';
+                target.style.color = '#0a0a0a';
+              }}
+            >
+              + Select Photos to Upload
+            </button>
 
             {/* Uploaded Photos Preview */}
             {selfieImages.length > 0 && (
