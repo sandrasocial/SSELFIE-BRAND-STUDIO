@@ -76,14 +76,16 @@ export default function AccountSwitcher() {
     switchToAdminMutation.mutate();
   };
 
-  // Always show the switcher when viewing Shannon or when admin
-  // This allows switching from Shannon back to admin
-  if (!isViewingShannon && !isAdmin) {
-    return null;
-  }
+  // ZARA FIX: Force visibility for debugging - remove conditional hiding
+  console.log('🔧 ZARA DEBUG: AccountSwitcher render check', {
+    isViewingShannon,
+    isAdmin,
+    userEmail: user?.email,
+    userRole: user?.role
+  });
 
   return (
-    <Card className="fixed top-4 right-4 z-50 bg-white border-2 shadow-lg max-w-sm">
+    <Card className="fixed top-4 right-4 z-[9999] bg-red-500 border-4 border-black shadow-2xl max-w-sm">
       <CardContent className="p-4">
         <div className="space-y-3">
           <div className="flex items-center gap-2">
