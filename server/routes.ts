@@ -464,6 +464,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.get('/api/health', (req, res) => {
     res.json({ status: 'ok', timestamp: new Date().toISOString() });
   });
+
+
   
   // Test endpoint for search cache system
   const { agentSearchCacheTestRouter } = await import('./routes/agent-search-cache-test');

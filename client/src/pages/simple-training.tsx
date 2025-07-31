@@ -109,22 +109,31 @@ export default function SimpleTraining() {
     }
   }, [userModel, trainingStatus, isAuthenticated]);
 
-  // Poll for training status updates with progress
+  // Poll for training status updates with progress - ONLY when on training page
   useEffect(() => {
     const isCurrentlyTraining = isTrainingStarted || (userModel && userModel.trainingStatus === 'training');
     
+    // CRITICAL FIX: Only poll when we're actually on the training page and training is active
     if (isCurrentlyTraining && isAuthenticated) {
       console.log('🔄 Training detected, starting status polling...');
       
       const interval = setInterval(async () => {
+        // STOP POLLING: If training is no longer active, clear interval immediately
+        if (!isTrainingStarted && userModel?.trainingStatus !== 'training') {
+          console.log('🛑 Training no longer active, stopping poll');
+          clearInterval(interval);
+          return;
+        }
+        
         // Update user model data
         const updatedData = await refetchUserModel();
         
         // Check if training completed
         if (updatedData?.data?.trainingStatus === 'completed') {
-          console.log('✅ Training completed! Redirecting to workspace...');
+          console.log('✅ Training completed! Stopping polling and redirecting...');
           setIsTrainingStarted(false);
           setTrainingProgress(100);
+          clearInterval(interval); // CRITICAL: Stop polling immediately
           
           // Show success message and redirect
           toast({
@@ -136,11 +145,11 @@ export default function SimpleTraining() {
             window.location.href = '/workspace';
           }, 2000);
           
-          return; // Exit early to avoid further polling
+          return; // Exit early
         }
         
         // Get progress data if we have user model and still training
-        if (userModel?.userId) {
+        if (userModel?.userId && userModel?.trainingStatus === 'training') {
           try {
             const progressResponse = await fetch(`/api/training-progress/${userModel.userId}`, {
               credentials: 'include'
@@ -156,7 +165,10 @@ export default function SimpleTraining() {
         }
       }, 5000); // Poll every 5 seconds
 
-      return () => clearInterval(interval);
+      return () => {
+        console.log('🧹 Cleaning up training polling interval');
+        clearInterval(interval);
+      };
     }
   }, [isTrainingStarted, userModel, refetchUserModel, isAuthenticated]);
 
