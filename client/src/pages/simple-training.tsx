@@ -569,7 +569,7 @@ export default function SimpleTraining() {
     );
   }
 
-  // Training failure restart view
+  // Training failure restart view - LUXURY EDITORIAL DESIGN
   if (isRetrainingMode || (trainingStatus?.needsRestart && userModel?.trainingStatus !== 'completed')) {
     return (
       <div style={{ 
@@ -581,138 +581,183 @@ export default function SimpleTraining() {
       }}>
         <MemberNavigation />
         
-        {/* Training Failure Section */}
+        {/* Editorial Training Restart Section */}
         <section style={{
           minHeight: '100vh',
           display: 'flex',
           alignItems: 'center',
           justifyContent: 'center',
-          background: '#f5f5f5',
-          padding: '40px'
+          background: '#0a0a0a',
+          color: '#ffffff',
+          position: 'relative',
+          overflow: 'hidden'
         }}>
           <div style={{
-            maxWidth: '800px',
+            position: 'absolute',
+            inset: 0,
+            opacity: 0.3
+          }}>
+            <img 
+              src={SandraImages.editorial.moodboardBlack}
+              alt=""
+              style={{
+                width: '100%',
+                height: '100%',
+                objectFit: 'cover'
+              }}
+            />
+          </div>
+          
+          <div style={{
+            position: 'relative',
+            zIndex: 2,
             textAlign: 'center',
-            background: '#ffffff',
-            padding: '60px 40px',
-            borderRadius: '8px',
-            boxShadow: '0 4px 20px rgba(0, 0, 0, 0.1)'
+            maxWidth: '900px',
+            padding: '0 40px'
           }}>
             <div style={{
-              fontSize: '48px',
-              marginBottom: '24px'
+              fontSize: '11px',
+              letterSpacing: '0.4em',
+              textTransform: 'uppercase',
+              color: 'rgba(255, 255, 255, 0.7)',
+              marginBottom: '40px',
+              fontWeight: 300
             }}>
-              🚨
+              AI MODEL TRAINING SYSTEM
             </div>
             
             <h1 style={{
               fontFamily: 'Times New Roman, serif',
-              fontSize: 'clamp(2rem, 5vw, 3rem)',
+              fontSize: 'clamp(3rem, 8vw, 8rem)',
+              lineHeight: 0.9,
               fontWeight: 200,
-              letterSpacing: '-0.01em',
+              letterSpacing: '-0.02em',
               textTransform: 'uppercase',
-              marginBottom: '24px',
-              color: '#dc2626'
+              marginBottom: '32px'
             }}>
-              Training Needs Restart
+              FRESH START
             </h1>
             
             <p style={{
-              fontSize: '18px',
-              lineHeight: 1.6,
-              marginBottom: '32px',
-              color: '#6b7280',
-              maxWidth: '600px',
-              margin: '0 auto 32px auto'
+              fontSize: 'clamp(18px, 4vw, 24px)',
+              lineHeight: 1.4,
+              fontWeight: 300,
+              maxWidth: '700px',
+              margin: '0 auto 48px auto',
+              opacity: 0.9
             }}>
-              {trainingStatus?.reason || 'Your AI model training encountered an issue and needs to be restarted with fresh images.'}
+              {trainingStatus?.reason === 'No training data found - please start training' 
+                ? 'Ready to create your personal AI model with fresh images'
+                : 'Your previous training requires a fresh start with new images'
+              }
             </p>
             
+            {/* Editorial Message Box */}
             <div style={{
-              background: '#fef3c7',
-              border: '1px solid #f59e0b',
-              borderRadius: '8px',
-              padding: '20px',
-              marginBottom: '32px',
+              maxWidth: '800px',
+              margin: '0 auto 48px auto',
+              padding: '32px 40px',
+              background: 'rgba(255, 255, 255, 0.05)',
+              border: '1px solid rgba(255, 255, 255, 0.2)',
               textAlign: 'left'
             }}>
-              <h3 style={{
+              <div style={{
+                fontSize: '13px',
+                letterSpacing: '0.05em',
+                textTransform: 'uppercase',
+                fontWeight: 400,
+                marginBottom: '16px',
+                opacity: 0.8
+              }}>
+                Training Process
+              </div>
+              
+              <div style={{
                 fontSize: '16px',
-                fontWeight: 600,
-                marginBottom: '8px',
-                color: '#92400e'
+                lineHeight: 1.6,
+                fontWeight: 300,
+                opacity: 0.9
               }}>
-                What happens when you restart:
-              </h3>
-              <ul style={{
-                fontSize: '14px',
-                color: '#92400e',
-                paddingLeft: '20px',
-                lineHeight: 1.6
-              }}>
-                <li>All previous training data will be cleared</li>
-                <li>You'll need to upload new selfie images (minimum 10)</li>
-                <li>Fresh training will start with improved parameters</li>
-                <li>Training will take approximately 30-45 minutes</li>
-              </ul>
+                <div style={{ marginBottom: '12px' }}>
+                  • Upload 10-20 high-quality selfie images
+                </div>
+                <div style={{ marginBottom: '12px' }}>
+                  • AI creates your personal model (30-45 minutes)
+                </div>
+                <div style={{ marginBottom: '12px' }}>
+                  • Generate unlimited editorial-quality images
+                </div>
+                <div>
+                  • Professional face distortion prevention included
+                </div>
+              </div>
             </div>
             
             <div style={{
               display: 'flex',
-              gap: '16px',
+              gap: '24px',
               justifyContent: 'center',
-              flexWrap: 'wrap'
+              flexWrap: 'wrap',
+              alignItems: 'center'
             }}>
               <button
                 onClick={() => restartTrainingMutation.mutate()}
                 disabled={restartTrainingMutation.isPending}
                 style={{
-                  padding: '16px 32px',
-                  fontSize: '14px',
-                  fontWeight: 600,
-                  background: '#dc2626',
-                  color: '#ffffff',
+                  padding: '20px 40px',
+                  fontSize: '11px',
+                  fontWeight: 400,
+                  letterSpacing: '0.3em',
+                  textTransform: 'uppercase',
+                  background: '#ffffff',
+                  color: '#0a0a0a',
                   border: 'none',
-                  borderRadius: '8px',
                   cursor: 'pointer',
                   transition: 'all 300ms ease',
                   opacity: restartTrainingMutation.isPending ? 0.6 : 1
                 }}
                 onMouseEnter={(e) => {
                   if (!restartTrainingMutation.isPending) {
-                    (e.target as HTMLElement).style.background = '#b91c1c';
+                    (e.target as HTMLElement).style.background = '#f5f5f5';
                   }
                 }}
                 onMouseLeave={(e) => {
                   if (!restartTrainingMutation.isPending) {
-                    (e.target as HTMLElement).style.background = '#dc2626';
+                    (e.target as HTMLElement).style.background = '#ffffff';
                   }
                 }}
               >
-                {restartTrainingMutation.isPending ? 'Clearing Data...' : 'Clear & Restart Training'}
+                {restartTrainingMutation.isPending ? 'CLEARING...' : 'START FRESH TRAINING'}
               </button>
               
               <Link href="/workspace">
-                <button style={{
-                  padding: '16px 32px',
-                  fontSize: '14px',
-                  fontWeight: 600,
+                <div style={{
+                  padding: '20px 40px',
+                  fontSize: '11px',
+                  fontWeight: 400,
+                  letterSpacing: '0.3em',
+                  textTransform: 'uppercase',
+                  textDecoration: 'none',
+                  border: '1px solid rgba(255, 255, 255, 0.4)',
+                  color: 'rgba(255, 255, 255, 0.8)',
                   background: 'transparent',
-                  color: '#6b7280',
-                  border: '1px solid #d1d5db',
-                  borderRadius: '8px',
+                  transition: 'all 300ms ease',
                   cursor: 'pointer',
-                  transition: 'all 300ms ease'
+                  display: 'inline-block'
                 }}
                 onMouseEnter={(e) => {
-                  (e.target as HTMLElement).style.background = '#f3f4f6';
+                  const target = e.target as HTMLElement;
+                  target.style.borderColor = 'rgba(255, 255, 255, 0.8)';
+                  target.style.color = '#ffffff';
                 }}
                 onMouseLeave={(e) => {
-                  (e.target as HTMLElement).style.background = 'transparent';
+                  const target = e.target as HTMLElement;
+                  target.style.borderColor = 'rgba(255, 255, 255, 0.4)';
+                  target.style.color = 'rgba(255, 255, 255, 0.8)';
                 }}
                 >
-                  Return to Workspace
-                </button>
+                  RETURN TO WORKSPACE
+                </div>
               </Link>
             </div>
           </div>
