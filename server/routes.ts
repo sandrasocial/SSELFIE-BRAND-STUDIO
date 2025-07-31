@@ -913,9 +913,9 @@ Remember: You are the MEMBER experience Victoria - provide website building guid
         finalPrompt = `${triggerWord} ${finalPrompt}`;
       }
       
-      // Add editorial photography enhancements  
+      // Add basic photography enhancements  
       if (!finalPrompt.includes('raw photo')) {
-        finalPrompt = `raw photo, visible skin pores, natural skin texture, subsurface scattering, film grain, ${finalPrompt}, unretouched skin, authentic facial features, professional photography`;
+        finalPrompt = `raw photo, visible skin pores, film grain, unretouched natural skin texture, ${finalPrompt}, professional photography`;
       }
       
       console.log('🎯 Maya: Final prompt:', finalPrompt);
@@ -959,7 +959,7 @@ Remember: You are the MEMBER experience Victoria - provide website building guid
         input: {
           prompt: finalPrompt,
           lora_scale: 0.9,
-          guidance_scale: 3.5,
+          guidance_scale: 3.0,
           num_inference_steps: 40,
           num_outputs: 2,
           aspect_ratio: "3:4",
