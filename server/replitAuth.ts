@@ -427,6 +427,23 @@ export const isAuthenticated: RequestHandler = async (req, res, next) => {
     return res.status(401).json({ message: "Unauthorized" });
   }
 
+  // CRITICAL FIX: Handle impersonation by overriding user claims
+  if (req.session?.impersonatedUser) {
+    const impersonatedUser = req.session.impersonatedUser;
+    console.log(`🎭 Using impersonated user in isAuthenticated: ${impersonatedUser.email}`);
+    
+    // Override the user claims to use impersonated user's data
+    req.user.claims = {
+      sub: impersonatedUser.id,
+      email: impersonatedUser.email,
+      first_name: impersonatedUser.firstName,
+      last_name: impersonatedUser.lastName,
+      profile_image_url: impersonatedUser.profileImageUrl
+    };
+    
+    return next();
+  }
+
   const now = Math.floor(Date.now() / 1000);
   if (now <= user.expires_at) {
     return next();
