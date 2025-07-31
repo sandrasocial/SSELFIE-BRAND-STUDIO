@@ -315,11 +315,53 @@ export class BulletproofUploadService {
         })
       });
       
-      // Model might already exist (422 error is OK)
-      if (!createModelResponse.ok && createModelResponse.status !== 422) {
-        const errorData = await createModelResponse.json();
-        errors.push(`Failed to create model: ${JSON.stringify(errorData)}`);
-        return { success: false, errors, trainingId: null };
+      // Handle existing model scenarios
+      if (!createModelResponse.ok) {
+        if (createModelResponse.status === 422 || createModelResponse.status === 409) {
+          console.log(`⚠️ Model ${modelName} already exists (status ${createModelResponse.status}) - deleting and recreating`);
+          
+          // Always try to delete existing model first
+          console.log(`🗑️ Deleting existing model ${modelName} before creating new one`);
+          
+          const deleteResponse = await fetch(`https://api.replicate.com/v1/models/sandrasocial/${modelName}`, {
+            method: 'DELETE',
+            headers: {
+              'Authorization': `Token ${process.env.REPLICATE_API_TOKEN}`,
+            }
+          });
+          
+          if (!deleteResponse.ok) {
+            console.log(`⚠️ Could not delete existing model, but continuing anyway`);
+          } else {
+            console.log(`✅ Successfully deleted existing model ${modelName}`);
+            
+            // Try creating again after deletion
+            const retryCreateResponse = await fetch('https://api.replicate.com/v1/models', {
+              method: 'POST',
+              headers: {
+                'Authorization': `Token ${process.env.REPLICATE_API_TOKEN}`,
+                'Content-Type': 'application/json',
+              },
+              body: JSON.stringify({
+                owner: "sandrasocial",
+                name: modelName,
+                description: `SSELFIE AI model for user ${userId}`,
+                visibility: "private",
+                hardware: "gpu-t4"
+              })
+            });
+            
+            if (!retryCreateResponse.ok && retryCreateResponse.status !== 422) {
+              const errorData = await retryCreateResponse.json();
+              errors.push(`Failed to recreate model after deletion: ${JSON.stringify(errorData)}`);
+              return { success: false, errors, trainingId: null };
+            }
+          }
+        } else {
+          const errorData = await createModelResponse.json();
+          errors.push(`Failed to create model: ${JSON.stringify(errorData)}`);
+          return { success: false, errors, trainingId: null };
+        }
       }
       
       // Start training
