@@ -30,16 +30,19 @@ router.post('/api/admin/impersonate-user', async (req: any, res) => {
       return res.status(404).json({ error: 'User not found' });
     }
 
-    // Create admin session for this user
-    req.session.impersonatedUser = {
-      id: targetUser.id,
-      email: targetUser.email,
-      firstName: targetUser.firstName,
-      lastName: targetUser.lastName,
-      plan: targetUser.plan,
-      mayaAiAccess: targetUser.mayaAiAccess,
-      victoriaAiAccess: targetUser.victoriaAiAccess
-    };
+    // Create full user impersonation session - replaces main user session
+    req.session.impersonatedUser = targetUser;
+    
+    // Override user claims for complete impersonation
+    if (req.user) {
+      req.user.claims = {
+        sub: targetUser.id,
+        email: targetUser.email,
+        first_name: targetUser.firstName,
+        last_name: targetUser.lastName,
+        profile_image_url: targetUser.profileImageUrl
+      };
+    }
 
     res.json({
       success: true,
@@ -68,6 +71,17 @@ router.post('/api/admin/stop-impersonation', async (req: any, res) => {
     }
 
     delete req.session.impersonatedUser;
+    
+    // Restore original admin user session
+    if (req.user) {
+      req.user.claims = {
+        sub: '42585527',
+        email: 'ssa@ssasocial.com',
+        first_name: 'Sandra',
+        last_name: 'Sigurjonsdottir',
+        profile_image_url: null
+      };
+    }
     
     res.json({
       success: true,
