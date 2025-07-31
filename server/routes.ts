@@ -276,6 +276,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Register white-label client setup endpoints
   app.use(whitelabelRoutes);
   
+  // Admin user management routes
+  const adminUserManagement = await import('./routes/admin-user-management');
+  app.use(adminUserManagement.default);
+  
   // AI Images endpoint - Production ready
   app.get('/api/ai-images', isAuthenticated, async (req: any, res) => {
     try {

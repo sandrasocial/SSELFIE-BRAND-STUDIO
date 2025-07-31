@@ -1,9 +1,10 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { Link } from 'wouter';
 import { useAuth } from '@/hooks/use-auth';
 import { MemberNavigation } from '@/components/member-navigation';
 import { GlobalFooter } from '@/components/global-footer';
 import { SandraImages } from '@/lib/sandra-images';
+import WhiteLabelClientManager from '@/components/admin/WhiteLabelClientManager';
 
 // New agent images uploaded by user
 import AgentElena from '@assets/out-0 (33)_1753426218039.png';
@@ -26,6 +27,7 @@ import HeroImage from '@assets/image_1753426780577.png';
 
 export default function AdminDashboard() {
   const { user } = useAuth();
+  const [activeTab, setActiveTab] = useState('agents');
 
   // Check if user is Sandra (admin access required)
   if (!user || (user.email !== 'ssa@ssasocial.com' && user.role !== 'admin')) {
@@ -251,19 +253,49 @@ export default function AdminDashboard() {
       <section className="py-32">
         <div className="max-w-7xl mx-auto px-8">
           
-          {/* Agent Team Overview */}
-          <div className="text-center mb-20">
-            <div className="text-xs tracking-[0.4em] uppercase text-gray-500 mb-8">
-              Your AI Agent Team
+          {/* Admin Tab Navigation */}
+          <div className="text-center mb-12">
+            <div className="flex justify-center gap-8 mb-12">
+              <button
+                onClick={() => setActiveTab('agents')}
+                className={`px-6 py-3 text-sm tracking-wide uppercase transition-colors ${
+                  activeTab === 'agents' 
+                    ? 'bg-black text-white' 
+                    : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
+                }`}
+              >
+                AI Agents
+              </button>
+              <button
+                onClick={() => setActiveTab('clients')}
+                className={`px-6 py-3 text-sm tracking-wide uppercase transition-colors ${
+                  activeTab === 'clients' 
+                    ? 'bg-black text-white' 
+                    : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
+                }`}
+              >
+                White-Label Clients
+              </button>
             </div>
-            <h2 className="font-serif text-[clamp(2rem,5vw,4rem)] font-light uppercase tracking-wide leading-tight mb-8">
-              13 Strategic Consultants
-            </h2>
-            <p className="text-lg text-gray-600 max-w-2xl mx-auto font-light leading-relaxed">
-              Your complete AI agent consulting team. Each specialist analyzes SSELFIE Studio codebase 
-              and provides exact strategic instructions for Replit AI implementation. Pure advisory, no modifications.
-            </p>
           </div>
+
+          {activeTab === 'clients' ? (
+            <WhiteLabelClientManager />
+          ) : (
+            <>
+              {/* Agent Team Overview */}
+              <div className="text-center mb-20">
+                <div className="text-xs tracking-[0.4em] uppercase text-gray-500 mb-8">
+                  Your AI Agent Team
+                </div>
+                <h2 className="font-serif text-[clamp(2rem,5vw,4rem)] font-light uppercase tracking-wide leading-tight mb-8">
+                  13 Strategic Consultants
+                </h2>
+                <p className="text-lg text-gray-600 max-w-2xl mx-auto font-light leading-relaxed">
+                  Your complete AI agent consulting team. Each specialist analyzes SSELFIE Studio codebase 
+                  and provides exact strategic instructions for Replit AI implementation. Pure advisory, no modifications.
+                </p>
+              </div>
 
           {/* Agent Cards Grid - Smaller Cards for 13 Agents */}
           <div className="grid grid-cols-2 lg:grid-cols-4 xl:grid-cols-5 gap-6 mb-20">
@@ -354,6 +386,8 @@ export default function AdminDashboard() {
               ))}
             </div>
           </div>
+          </>
+          )}
 
           {/* Admin Actions Footer */}
           <div className="text-center">
