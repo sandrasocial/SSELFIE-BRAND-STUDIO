@@ -684,7 +684,7 @@ Remember: You are the MEMBER experience Maya - provide creative guidance and ima
             const userId = req.user?.claims?.sub;
             const triggerWord = `user${userId}`;
             
-            generatedPrompt = `raw photo, visible skin pores, film grain, unretouched natural skin texture, subsurface scattering, photographed on film, ${triggerWord}, sophisticated woman in flowing neutral coat walking through modern minimalist space, detailed facial features, clear facial definition, natural facial expression, recognizable face, morning light filtering through floor-to-ceiling windows, natural confident stride, quiet luxury aesthetic, hair in effortless waves moving naturally, authentic serene expression, story of success written in every step, shot on Fujifilm GFX 100S with 63mm f/2.8 lens, architectural shadows and golden hour warmth`;
+            generatedPrompt = `raw photo, visible skin pores, film grain, unretouched natural skin texture, subsurface scattering, photographed on film, ${triggerWord}, trendsetting fashion icon mid-stride in oversized blazer worn off-shoulder, detailed facial features with editorial attitude, clear facial definition with magnetic charisma, natural confident expression, recognizable face with fashion week energy, dramatic golden hour light streaming through industrial windows, hair flowing naturally with movement, oversized blazer sleeves creating dramatic silhouette, wide-leg trousers flowing with confident stride, statement jewelry catching light during motion, authentic fashion moment captured, story of editorial authority written in every gesture, shot on Canon EOS R5 with 85mm f/1.4 lens, fashion photography lighting with dramatic shadows`;
           }
         }
 
