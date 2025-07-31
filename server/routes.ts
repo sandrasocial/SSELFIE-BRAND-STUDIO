@@ -53,6 +53,35 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Register Victoria website generator
   registerVictoriaWebsiteGenerator(app);
   
+  // CRITICAL: System health check for user models
+  app.get('/api/admin/validate-all-models', isAuthenticated, async (req: any, res) => {
+    try {
+      const userId = req.user?.claims?.sub;
+      const user = await storage.getUser(userId);
+      
+      // Only admin can access this endpoint
+      if (user?.role !== 'admin') {
+        return res.status(403).json({ error: 'Admin access required' });
+      }
+      
+      const { ModelValidationService } = await import('./model-validation-service');
+      const results = await ModelValidationService.validateAllCompletedModels();
+      
+      res.json({
+        success: true,
+        results,
+        message: `Validation complete: ${results.healthy} healthy, ${results.corrupted} corrupted, ${results.corrected} corrected`
+      });
+      
+    } catch (error) {
+      console.error('❌ Model validation endpoint error:', error);
+      res.status(500).json({ 
+        error: 'Validation failed',
+        message: error instanceof Error ? error.message : 'Unknown error'
+      });
+    }
+  });
+
   // Victoria AI Website Builder - Missing endpoints from useWebsiteBuilder hook
   app.post('/api/victoria/generate', isAuthenticated, async (req: any, res) => {
     try {
@@ -923,35 +952,20 @@ Remember: You are the MEMBER experience Victoria - provide website building guid
       console.log('🎬 Maya: Prompt:', actualPrompt);
       console.error('🚨🚨🚨 MAYA ENDPOINT HIT - VALIDATION STARTING 🚨🚨🚨');
       
-      // Get user's trained model
-      const { db } = await import('./db');
-      const { userModels } = await import('../shared/schema');
-      const { eq } = await import('drizzle-orm');
+      // CRITICAL: Validate and correct user model using new validation service
+      const { ModelValidationService } = await import('./model-validation-service');
       
-      const [userModel] = await db
-        .select()
-        .from(userModels)
-        .where(eq(userModels.userId, userId));
-      
-      if (!userModel || userModel.trainingStatus !== 'completed') {
+      let modelValidation;
+      try {
+        modelValidation = await ModelValidationService.enforceUserModelRequirements(userId);
+      } catch (error) {
         return res.status(400).json({
           success: false,
-          message: "No trained model available. Please complete training first."
-        });
-      }
-
-      // GLOBAL FIX: Ensure version ID is properly formatted for ALL users
-      const fullModelVersion = userModel.replicateVersionId;
-      
-      // GLOBAL FIX: Prevent null or undefined version IDs affecting ALL users
-      if (!fullModelVersion) {
-        return res.status(400).json({
-          success: false,
-          message: `CRITICAL: User ${userId} has no version ID. Model: ${userModel.replicateModelId}, Status: ${userModel.trainingStatus}`
+          message: error instanceof Error ? error.message : "Model validation failed"
         });
       }
       
-      const triggerWord = userModel.triggerWord || `user${userId}`;
+      const { modelId, versionId, triggerWord } = modelValidation;
       
       // Build enhanced prompt with trigger word and quality settings
       let finalPrompt = actualPrompt;
@@ -966,26 +980,25 @@ Remember: You are the MEMBER experience Victoria - provide website building guid
       
       console.log('🎯 Maya: Final prompt:', finalPrompt);
       console.log('🔒 Maya: Model Format Check:', {
-        modelId: userModel.replicateModelId,
-        versionId: fullModelVersion,
-        hasSlash: userModel.replicateModelId?.includes('/'),
+        modelId: modelId,
+        versionId: versionId,
+        hasSlash: modelId.includes('/'),
         triggerWord
       });
 
-      // UNIVERSAL INDIVIDUAL MODEL ARCHITECTURE: All users use sandrasocial/{userId}-selfie-lora:{versionId}
-      // CRITICAL FIX: Ensure version ID is properly formatted for ALL users
-      const modelVersion = `${userModel.replicateModelId}:${fullModelVersion}`;
-      console.log(`🔒 MAYA VERSION VALIDATION: Model: ${userModel.replicateModelId}, Version: ${fullModelVersion}, Combined: ${modelVersion}`);
+      // UNIVERSAL INDIVIDUAL MODEL ARCHITECTURE: All users use their validated trained models
+      const modelVersion = `${modelId}:${versionId}`;
+      console.log(`🔒 MAYA VERSION VALIDATION: Model: ${modelId}, Version: ${versionId}, Combined: ${modelVersion}`);
       
       // EMERGENCY DEBUG: Force visibility of version format
       console.error(`🚨🚨🚨 MAYA DEBUG: SENDING TO REPLICATE API: ${modelVersion} 🚨🚨🚨`);
       console.error(`🚨🚨🚨 REQUEST BODY DEBUG: ${JSON.stringify({ version: modelVersion }, null, 2)} 🚨🚨🚨`);
       
-      // CRITICAL TEST: Check if Shannon's model exists on Replicate before generation
-      console.error(`🔍 PRE-GENERATION MODEL CHECK: Testing existence of ${userModel.replicateModelId}`);
+      // CRITICAL TEST: Check if model exists on Replicate before generation
+      console.error(`🔍 PRE-GENERATION MODEL CHECK: Testing existence of ${modelId}`);
       
       try {
-        const modelCheckResponse = await fetch(`https://api.replicate.com/v1/models/${userModel.replicateModelId}`, {
+        const modelCheckResponse = await fetch(`https://api.replicate.com/v1/models/${modelId}`, {
           headers: {
             'Authorization': `Token ${process.env.REPLICATE_API_TOKEN}`,
           }
@@ -1793,11 +1806,15 @@ Remember: You are the MEMBER experience Victoria - provide website building guid
         return res.status(404).json({ error: 'User not found' });
       }
       
-      // Verify user has trained model
-      const userModel = await storage.getUserModelByUserId(user.id);
-      if (!userModel || userModel.trainingStatus !== 'completed') {
-        return res.status(400).json({ 
-          error: 'AI model not found or training not completed',
+      // CRITICAL: Validate and correct user model using new validation service
+      const { ModelValidationService } = await import('./model-validation-service');
+      
+      let modelValidation;
+      try {
+        modelValidation = await ModelValidationService.enforceUserModelRequirements(user.id);
+      } catch (error) {
+        return res.status(400).json({
+          error: error instanceof Error ? error.message : "Model validation failed",
           message: 'Please train your model first'
         });
       }
