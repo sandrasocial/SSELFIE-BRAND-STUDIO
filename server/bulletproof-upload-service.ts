@@ -348,8 +348,9 @@ export class BulletproofUploadService {
       });
       
       if (!trainingResponse.ok) {
-        const errorData = await trainingResponse.json();
-        errors.push(`Replicate training failed: ${JSON.stringify(errorData)}`);
+        const errorText = await trainingResponse.text();
+        console.error(`❌ REPLICATE API ERROR: Status ${trainingResponse.status}, Response: ${errorText}`);
+        errors.push(`Replicate training failed (${trainingResponse.status}): ${errorText}`);
         return { success: false, errors, trainingId: null };
       }
       
@@ -361,7 +362,8 @@ export class BulletproofUploadService {
       
     } catch (error) {
       console.error(`❌ REPLICATE TRAINING: Failed for user ${userId}:`, error);
-      errors.push(`Training start failed: ${error.message}`);
+      console.error(`❌ REPLICATE API TOKEN:`, process.env.REPLICATE_API_TOKEN ? 'Present' : 'MISSING');
+      errors.push(`Training start failed: ${error.message || error}`);
       return { success: false, errors, trainingId: null };
     }
   }
