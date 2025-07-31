@@ -30,6 +30,14 @@ router.post('/api/admin/impersonate-user', async (req: any, res) => {
       return res.status(404).json({ error: 'User not found' });
     }
 
+    // Store admin session before impersonation
+    req.session.adminOriginalUser = {
+      id: '42585527',
+      email: 'ssa@ssasocial.com',
+      firstName: 'Sandra',
+      lastName: 'Sigurjonsdottir'
+    };
+    
     // Create full user impersonation session - replaces main user session
     req.session.impersonatedUser = targetUser;
     
@@ -71,6 +79,7 @@ router.post('/api/admin/stop-impersonation', async (req: any, res) => {
     }
 
     delete req.session.impersonatedUser;
+    delete req.session.adminOriginalUser;
     
     // Restore original admin user session
     if (req.user) {
@@ -94,19 +103,42 @@ router.post('/api/admin/stop-impersonation', async (req: any, res) => {
   }
 });
 
-// Admin endpoint to get all white-label clients
-router.get('/api/admin/white-label-clients', async (req: any, res) => {
+// Enhanced admin auth check middleware
+const checkAdminAuth = (req: any, res: any, next: any) => {
   try {
-    // Check admin authentication
     const adminToken = req.headers['x-admin-token'];
     const isAdminAuth = adminToken === 'sandra-admin-2025';
     
     const sessionUser = req.user;
     const isSessionAdmin = req.isAuthenticated && sessionUser?.claims?.email === 'ssa@ssasocial.com';
     
-    if (!isAdminAuth && !isSessionAdmin) {
+    // Check if we have an impersonation session (admin testing user accounts)
+    const isImpersonating = req.session?.impersonatedUser;
+    const hasAdminOrigin = req.session?.adminOriginalUser || isSessionAdmin;
+    
+    console.log('🔐 Admin auth check:', {
+      isAdminAuth,
+      isSessionAdmin,
+      isImpersonating,
+      hasAdminOrigin,
+      userEmail: sessionUser?.claims?.email,
+      impersonatedEmail: req.session?.impersonatedUser?.email
+    });
+    
+    if (!isAdminAuth && !isSessionAdmin && !hasAdminOrigin) {
       return res.status(401).json({ message: "Admin access required" });
     }
+    
+    next();
+  } catch (error) {
+    console.error('Admin auth error:', error);
+    res.status(401).json({ message: "Admin access required" });
+  }
+};
+
+// Admin endpoint to get all white-label clients
+router.get('/api/admin/white-label-clients', checkAdminAuth, async (req: any, res) => {
+  try {
 
     const allUsers = await storage.getAllUsers();
     
