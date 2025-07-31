@@ -919,7 +919,7 @@ Remember: You are the MEMBER experience Victoria - provide website building guid
           prompt: finalPrompt,
           lora_scale: 1.1,
           guidance_scale: 2.8,
-          num_inference_steps: 28,
+          num_inference_steps: 40,
           num_outputs: 2,
           aspect_ratio: "3:4",
           output_format: "png",
