@@ -143,7 +143,7 @@ export default function Workspace() {
         title: 'Train Your AI Model',
         description: 'Upload 10-15 selfies to create your personal FLUX AI model. This takes about 15 minutes.',
         image: SandraImages.editorial.phone1,
-        link: '/ai-training',
+        link: '/onboarding',
         status: hasTraining ? 'complete' : hasImages ? 'progress' : 'ready',
         statusMessage: hasTraining ? 'Model Ready' : hasImages ? 'Training...' : 'Start Here',
         nextStep: hasTraining ? 'Ready for Maya styling session' : hasImages ? 'AI model training in progress' : 'Upload your selfies to begin'
