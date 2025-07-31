@@ -1,10 +1,11 @@
-import React, { useState } from 'react';
-import { Link } from 'wouter';
+import React, { useState, useEffect } from 'react';
+import { Link, useLocation } from 'wouter';
 import { useAuth } from '@/hooks/use-auth';
 import { AdminNavigation } from '@/components/AdminNavigation';
 import { GlobalFooter } from '@/components/global-footer';
 import { SandraImages } from '@/lib/sandra-images';
 import WhiteLabelClientManager from '@/components/admin/WhiteLabelClientManager';
+import MayaCollectionManager from '@/components/admin/MayaCollectionManager';
 
 // New agent images uploaded by user
 import AgentElena from '@assets/out-0 (33)_1753426218039.png';
@@ -27,7 +28,17 @@ import HeroImage from '@assets/image_1753426780577.png';
 
 export default function AdminDashboard() {
   const { user } = useAuth();
+  const [location] = useLocation();
   const [activeTab, setActiveTab] = useState('agents');
+
+  // Handle URL parameter for direct navigation to Maya tab
+  useEffect(() => {
+    const urlParams = new URLSearchParams(window.location.search);
+    const tabParam = urlParams.get('tab');
+    if (tabParam === 'maya') {
+      setActiveTab('maya');
+    }
+  }, [location]);
 
   // Check if user is Sandra (admin access required)
   if (!user || (user.email !== 'ssa@ssasocial.com' && user.role !== 'admin')) {
@@ -210,6 +221,14 @@ export default function AdminDashboard() {
       link: '/admin/consulting-agents'
     },
     {
+      id: 'maya-collections',
+      title: 'Maya Collections',
+      subtitle: 'AI Photoshoot Updates',
+      description: 'Update prompts with 2025 trends & anatomy fixes',
+      image: AgentMaya,
+      link: '/admin?tab=maya'
+    },
+    {
       id: 'platform-overview',
       title: 'Platform Status',
       subtitle: 'System Health',
@@ -267,6 +286,16 @@ export default function AdminDashboard() {
                 AI Agents
               </button>
               <button
+                onClick={() => setActiveTab('maya')}
+                className={`px-6 py-3 text-sm tracking-wide uppercase transition-colors ${
+                  activeTab === 'maya' 
+                    ? 'bg-black text-white' 
+                    : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
+                }`}
+              >
+                Maya Collections
+              </button>
+              <button
                 onClick={() => setActiveTab('clients')}
                 className={`px-6 py-3 text-sm tracking-wide uppercase transition-colors ${
                   activeTab === 'clients' 
@@ -281,6 +310,22 @@ export default function AdminDashboard() {
 
           {activeTab === 'clients' ? (
             <WhiteLabelClientManager />
+          ) : activeTab === 'maya' ? (
+            <div className="max-w-4xl mx-auto">
+              <div className="text-center mb-12">
+                <div className="text-xs tracking-[0.4em] uppercase text-gray-500 mb-8">
+                  AI Photoshoot Collections
+                </div>
+                <h2 className="font-serif text-[clamp(2rem,5vw,4rem)] font-light uppercase tracking-wide leading-tight mb-8">
+                  Maya Collection Manager
+                </h2>
+                <p className="text-lg text-gray-600 max-w-2xl mx-auto font-light leading-relaxed">
+                  Update all AI photoshoot collection prompts with Maya's latest 2025 fashion expertise, 
+                  luxury editorial sophistication, and anatomical accuracy fixes.
+                </p>
+              </div>
+              <MayaCollectionManager />
+            </div>
           ) : (
             <>
               {/* Agent Team Overview */}
