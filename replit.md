@@ -825,12 +825,12 @@ archive/
 - Added format detection and automatic handling for both existing storage patterns
 - Maintained all trigger words and training data integrity throughout the fix
 
-**PARAMETERS RESTORED TO ORIGINAL WORKING VALUES (July 31, 2025 12:14 PM):**
-- ✅ **Original Parameters Restored**: lora_scale: 1.1, guidance_scale: 2.8, num_inference_steps: 28
-- ✅ **Correct API Format Implemented**: version: "sandrasocial/{userId}-selfie-lora:{versionId}"
-- ✅ **Direct API Test Confirmed**: New prediction `bhcm704sb9rma0crc1krxsrtt8` uses correct original parameters
-- ✅ **Applied to Both Services**: Maya routes.ts and unified-generation-service.ts updated with correct format
-- ✅ **Universal Solution**: All users with completed training now use correct sandrasocial API format
+**CRITICAL API FORMAT FIX COMPLETED (July 31, 2025 12:24 PM):**
+- ✅ **Root Cause Fixed**: API was constructing wrong version format instead of using stored replicate_model_id
+- ✅ **Correct Format Implemented**: version: "{storedModelId}:{versionId}" using database replicate_model_id
+- ✅ **Shannon's Model Confirmed**: Uses "sandrasocial/shannon-1753945376880-selfie-lora-1753956621083:8593fd5f4c0d09c2fe58a3970177a2040c1162f9bf0e4354541b7e3f9b2c3d97"
+- ✅ **API Test Successful**: Prediction `9edr5awez5rma0crc1r8ft86qm` uses correct model format with original parameters
+- ✅ **Universal Fix Applied**: Both Maya routes.ts and unified-generation-service.ts now use stored model ID instead of constructing format
 
 **Business Impact:**
 - **Shannon's Soul Resets**: Maya now generates her actual trained likeness instead of generic faces
