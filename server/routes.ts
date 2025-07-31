@@ -13,6 +13,7 @@ import adminBusinessMetricsRouter from './routes/admin-business-metrics';
 import { whitelabelRoutes } from './routes/white-label-setup';
 import path from 'path';
 import fs from 'fs';
+import { ModelRetrainService } from './retrain-model';
 
 // UNIFIED AGENT SYSTEM IMPORT (Single source of truth)
 import { unifiedAgentSystem } from './unified-agent-system';
@@ -1821,6 +1822,47 @@ Remember: You are the MEMBER experience Victoria - provide website building guid
         message: "AI model training failed - please restart upload process", 
         error: error instanceof Error ? error.message : 'Unknown error',
         requiresRestart: true
+      });
+    }
+  });
+
+  // Admin endpoint to restart training for accidentally deleted models
+  app.post('/api/admin/restart-training/:userId', async (req: any, res) => {
+    try {
+      // Admin authentication check
+      const adminToken = req.headers['x-admin-token'];
+      const isAdminAuth = adminToken === 'sandra-admin-2025';
+      
+      const sessionUser = req.user;
+      const isSessionAdmin = req.isAuthenticated && sessionUser?.claims?.email === 'ssa@ssasocial.com';
+      
+      if (!isAdminAuth && !isSessionAdmin) {
+        return res.status(401).json({ message: "Admin access required" });
+      }
+      
+      const { userId } = req.params;
+      console.log(`🔄 Admin requesting training restart for user: ${userId}`);
+      
+      const result = await ModelRetrainService.restartTraining(userId);
+      
+      if (result.success) {
+        res.json({
+          success: true,
+          message: result.message,
+          replicateModelId: result.replicateModelId
+        });
+      } else {
+        res.status(400).json({
+          success: false,
+          error: result.message
+        });
+      }
+      
+    } catch (error) {
+      console.error('❌ Admin restart training error:', error);
+      res.status(500).json({ 
+        success: false,
+        error: 'Failed to restart training' 
       });
     }
   });
