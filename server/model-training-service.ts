@@ -385,14 +385,17 @@ export class ModelTrainingService {
         throw new Error('USER_MODEL_NOT_TRAINED: User must train their AI model before generating images. Individual models required.');
       }
       
-      // Extract version hash from Replicate version ID
-      const versionHash = userModel.replicateVersionId.split(':').pop();
+      // GLOBAL FIX: Use full model:version format like other endpoints
+      const fullModelVersion = userModel.replicateVersionId;
       
-      if (!versionHash || versionHash.length < 10) {
-        throw new Error('INVALID_MODEL_VERSION: User model version is corrupted. Must retrain AI model.');
+      // GLOBAL FIX: Prevent null or undefined version IDs affecting ALL users
+      if (!fullModelVersion) {
+        throw new Error(`CRITICAL: User ${userId} has no version ID. Model: ${userModel.replicateModelId}, Status: ${userModel.trainingStatus}`);
       }
       
-      const modelToUse = versionHash;
+      // CRITICAL FIX: Use same format as Maya and unified service
+      const modelVersion = `${userModel.replicateModelId}:${fullModelVersion}`;
+      console.log(`🔒 MODEL TRAINING SERVICE VERSION VALIDATION: Model: ${userModel.replicateModelId}, Version: ${fullModelVersion}, Combined: ${modelVersion}`);
       const triggerWord = userModel.triggerWord || `user${userId}`;
       
       
@@ -423,7 +426,7 @@ export class ModelTrainingService {
 
       // Call REAL Replicate API for image generation with optimal realistic settings
       const requestBody = {
-        version: modelToUse,
+        version: modelVersion,
         input: {
           prompt: finalPrompt,
           negative_prompt: "portrait, headshot, passport photo, studio shot, centered face, isolated subject, corporate headshot, ID photo, school photo, posed, glossy skin, shiny skin, oily skin, plastic skin, overly polished, artificial lighting, fake appearance, heavily airbrushed, perfect skin, flawless complexion, heavy digital enhancement, strong beauty filter, unrealistic skin texture, synthetic appearance, smooth skin, airbrushed, retouched, magazine retouching, digital perfection, waxy skin, doll-like skin, porcelain skin, flawless makeup, heavy foundation, concealer, smooth face, perfect complexion, digital smoothing, beauty app filter, Instagram filter, snapchat filter, face tune, photoshop skin, shiny face, polished skin, reflective skin, wet skin, slick skin, lacquered skin, varnished skin, glossy finish, artificial shine, digital glow, skin blur, inconsistent hair color, wrong hair color, blonde hair, light hair, short hair, straight hair, flat hair, limp hair, greasy hair, stringy hair, unflattering hair, bad hair day, messy hair, unkempt hair, oily hair, lifeless hair, dull hair, damaged hair",
