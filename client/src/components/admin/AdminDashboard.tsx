@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { Link } from 'wouter';
 import { useAuth } from '@/hooks/use-auth';
-import { MemberNavigation } from '@/components/member-navigation';
+import { AdminNavigation } from '@/components/AdminNavigation';
 import { GlobalFooter } from '@/components/global-footer';
 import { SandraImages } from '@/lib/sandra-images';
 import WhiteLabelClientManager from '@/components/admin/WhiteLabelClientManager';
@@ -221,7 +221,7 @@ export default function AdminDashboard() {
 
   return (
     <div className="min-h-screen bg-white">
-      <MemberNavigation />
+      <AdminNavigation />
       
       {/* Editorial Hero Section - Same as Workspace */}
       <section className="relative min-h-screen flex items-center justify-center bg-black text-white overflow-hidden">
