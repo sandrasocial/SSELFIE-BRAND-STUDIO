@@ -49,16 +49,18 @@ export default function SimpleTraining() {
   const restartTrainingMutation = useMutation({
     mutationFn: () => apiRequest('/api/restart-training', 'POST'),
     onSuccess: () => {
-      toast({
-        title: "Training Reset Complete",
-        description: "Your training data has been cleared. You can now start fresh training.",
-      });
+      // Clear state and redirect to training page
       setIsRetrainingMode(false);
       setSelfieImages([]);
       setIsTrainingStarted(false);
       setTrainingProgress(0);
       refetchUserModel();
       refetchTrainingStatus();
+      
+      // Redirect to training page after clearing data
+      setTimeout(() => {
+        window.location.href = '/ai-training';
+      }, 500);
     },
     onError: () => {
       toast({
@@ -82,11 +84,7 @@ export default function SimpleTraining() {
     if (trainingStatus?.needsRestart && userModel?.trainingStatus !== 'completed') {
       console.log('🚨 TRAINING FAILURE DETECTED:', trainingStatus.reason);
       setIsRetrainingMode(true);
-      toast({
-        title: "Training Issue Detected",
-        description: trainingStatus.reason,
-        variant: "destructive"
-      });
+      // Removed red toast notification per user request
       return; // Don't proceed with normal training flow
     }
     
