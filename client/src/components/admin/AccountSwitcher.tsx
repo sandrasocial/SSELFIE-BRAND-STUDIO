@@ -11,6 +11,11 @@ export default function AccountSwitcher() {
   const { user } = useAuth();
   const { toast } = useToast();
   const queryClient = useQueryClient();
+  
+  // ZARA FIX: Force render regardless of any errors
+  React.useEffect(() => {
+    console.log('🔧 ZARA: AccountSwitcher mounted and rendering');
+  }, []);
 
   // Check if currently viewing Shannon's account
   const isViewingShannon = user?.email === 'shannon@soulresets.com';
@@ -85,71 +90,75 @@ export default function AccountSwitcher() {
   });
 
   return (
-    <Card className="fixed top-4 right-4 z-[9999] bg-red-500 border-4 border-black shadow-2xl max-w-sm">
-      <CardContent className="p-4">
-        <div className="space-y-3">
+    <div 
+      className="fixed top-4 right-4 z-[9999] bg-red-600 text-white p-6 border-4 border-black shadow-2xl rounded-lg max-w-sm"
+      style={{ 
+        position: 'fixed', 
+        top: '16px', 
+        right: '16px', 
+        zIndex: 9999,
+        backgroundColor: 'red',
+        color: 'white',
+        border: '4px solid black',
+        padding: '24px',
+        borderRadius: '8px'
+      }}
+    >
+      <div className="space-y-4">
+        <div className="flex items-center gap-2">
           <div className="flex items-center gap-2">
-            <div className="flex items-center gap-2">
-              {isViewingShannon ? (
-                <User className="h-4 w-4 text-blue-600" />
-              ) : (
-                <Shield className="h-4 w-4 text-purple-600" />
-              )}
-              <div className="text-sm">
-                <div className="font-medium">
-                  {isViewingShannon ? 'Viewing Shannon\'s Account' : 'Admin Account'}
-                </div>
-                <div className="text-gray-500 text-xs">
-                  {user?.email}
-                </div>
+            {isViewingShannon ? (
+              <User className="h-5 w-5 text-white" />
+            ) : (
+              <Shield className="h-5 w-5 text-white" />
+            )}
+            <div className="text-sm">
+              <div className="font-bold text-white">
+                🔧 ZARA: {isViewingShannon ? 'Shannon Account' : 'Admin Account'}
+              </div>
+              <div className="text-white text-xs">
+                {user?.email || 'No email'}
               </div>
             </div>
           </div>
-          
-          <div className="flex gap-2">
-            {isViewingShannon ? (
-              <Button
-                size="sm"
-                variant="outline"
-                onClick={handleSwitchToAdmin}
-                disabled={switchToAdminMutation.isPending}
-                className="flex-1"
-              >
-                {switchToAdminMutation.isPending ? (
-                  <>
-                    <Settings className="h-3 w-3 mr-1 animate-spin" />
-                    Switching...
-                  </>
-                ) : (
-                  <>
-                    <Shield className="h-3 w-3 mr-1" />
-                    Switch to Admin
-                  </>
-                )}
-              </Button>
-            ) : (
-              <Button
-                size="sm"
-                onClick={handleSwitchToShannon}
-                disabled={switchToShannonMutation.isPending}
-                className="flex-1"
-              >
-                {switchToShannonMutation.isPending ? (
-                  <>
-                    <Settings className="h-3 w-3 mr-1 animate-spin" />
-                    Switching...
-                  </>
-                ) : (
-                  <>
-                    <User className="h-3 w-3 mr-1" />
-                    View Shannon
-                  </>
-                )}
-              </Button>
-            )}
-          </div>
         </div>
-      </CardContent>
-    </Card>
+          
+        <div className="flex gap-2">
+          {isViewingShannon ? (
+            <button
+              onClick={handleSwitchToAdmin}
+              disabled={switchToAdminMutation.isPending}
+              className="bg-black text-white px-4 py-2 rounded border-2 border-white font-medium hover:bg-gray-800"
+              style={{
+                backgroundColor: 'black',
+                color: 'white',
+                padding: '8px 16px',
+                border: '2px solid white',
+                borderRadius: '4px',
+                fontWeight: 'bold'
+              }}
+            >
+              {switchToAdminMutation.isPending ? 'Switching...' : '🔧 Switch to Admin'}
+            </button>
+          ) : (
+            <button
+              onClick={handleSwitchToShannon}
+              disabled={switchToShannonMutation.isPending}
+              className="bg-black text-white px-4 py-2 rounded border-2 border-white font-medium hover:bg-gray-800"
+              style={{
+                backgroundColor: 'black',
+                color: 'white',
+                padding: '8px 16px',
+                border: '2px solid white',
+                borderRadius: '4px',
+                fontWeight: 'bold'
+              }}
+            >
+              {switchToShannonMutation.isPending ? 'Switching...' : '🔧 View Shannon'}
+            </button>
+          )}
+        </div>
+      </div>
+    </div>
   );
 }
