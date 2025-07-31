@@ -5,7 +5,7 @@ import path from 'path';
 import { fileURLToPath } from 'url';
 import { storage } from './storage';
 import { ArchitectureValidator } from './architecture-validator';
-import AWS from 'aws-sdk';
+import { S3Client, PutObjectCommand } from '@aws-sdk/client-s3';
 
 // Image categories and prompt templates
 export const IMAGE_CATEGORIES = {
@@ -48,9 +48,11 @@ export const GENERATION_SETTINGS = {
 // Each user gets ONLY their own trained LoRA weights - NO EXCEPTIONS
 export class ModelTrainingService {
   // Configure AWS S3 (use environment region for consistency)
-  private static s3 = new AWS.S3({
-    accessKeyId: process.env.AWS_ACCESS_KEY_ID,
-    secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY,
+  private static s3 = new S3Client({
+    credentials: {
+      accessKeyId: process.env.AWS_ACCESS_KEY_ID!,
+      secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY!,
+    },
     region: process.env.AWS_REGION || 'us-east-1'
   });
 
