@@ -47,11 +47,11 @@ export const GENERATION_SETTINGS = {
 // Creates individual LoRA models for each user using ostris/flux-dev-lora-trainer
 // Each user gets ONLY their own trained LoRA weights - NO EXCEPTIONS
 export class ModelTrainingService {
-  // Configure AWS S3 (ensure US East 1 for global access and Replicate compatibility)
+  // Configure AWS S3 (use environment region for consistency)
   private static s3 = new AWS.S3({
     accessKeyId: process.env.AWS_ACCESS_KEY_ID,
     secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY,
-    region: 'us-east-1'
+    region: process.env.AWS_REGION || 'us-east-1'
   });
 
   // Generate unique trigger word for user

@@ -174,26 +174,27 @@ export class BulletproofUploadService {
   
   /**
    * STEP 3: CREATE TRAINING ZIP WITH VERIFICATION
-   * - Download from S3 to ensure integrity
+   * - Use original image data to avoid S3 download issues
    * - Create ZIP file with proper structure
    * - CRITICAL: NEVER create ZIP with less than 10 images
    */
   static async createTrainingZip(
     userId: string, 
+    validImages: string[],
     s3Urls: string[]
   ): Promise<{ success: boolean; errors: string[]; zipUrl: string | null }> {
     console.log(`📦 ZIP CREATION: Starting for user ${userId}`);
     
     const errors: string[] = [];
     
-    // 🛡️ CRITICAL GATE 3: Check S3 URLs count before ANY ZIP operations
-    if (!s3Urls || s3Urls.length < 10) {
-      errors.push(`❌ CRITICAL: Cannot create ZIP - only ${s3Urls?.length || 0} S3 URLs. Need minimum 10.`);
-      console.log(`❌ ZIP CREATION BLOCKED: Insufficient S3 URLs (${s3Urls?.length || 0}/10 minimum)`);
+    // 🛡️ CRITICAL GATE 3: Check image count before ANY ZIP operations
+    if (!validImages || validImages.length < 10) {
+      errors.push(`❌ CRITICAL: Cannot create ZIP - only ${validImages?.length || 0} images. Need minimum 10.`);
+      console.log(`❌ ZIP CREATION BLOCKED: Insufficient images (${validImages?.length || 0}/10 minimum)`);
       return { success: false, errors, zipUrl: null };
     }
     
-    console.log(`🛡️ ZIP GATE 3 PASSED: ${s3Urls.length} S3 URLs available (meets minimum 10)`);
+    console.log(`🛡️ ZIP GATE 3 PASSED: ${validImages.length} images available (meets minimum 10)`);
     
     const tempDir = path.join(process.cwd(), 'temp_training');
     
@@ -209,28 +210,15 @@ export class BulletproofUploadService {
       
       archive.pipe(output);
       
-      // Download each image from S3 and add to ZIP
-      for (let i = 0; i < s3Urls.length; i++) {
+      // Add each image directly from base64 data (avoiding S3 download)
+      for (let i = 0; i < validImages.length; i++) {
         try {
-          const s3Key = s3Urls[i].split('/').slice(-2).join('/'); // Extract key from URL
-          const bucketName = process.env.AWS_S3_BUCKET;
+          const imageData = validImages[i];
+          const base64Data = imageData.replace(/^data:image\/[a-z]+;base64,/, '');
+          const imageBuffer = Buffer.from(base64Data, 'base64');
           
-          if (!bucketName) {
-            errors.push(`❌ CRITICAL: AWS_S3_BUCKET environment variable is required`);
-            break;
-          }
-          
-          const s3Object = await this.s3.getObject({
-            Bucket: bucketName,
-            Key: s3Key
-          }).promise();
-          
-          if (!s3Object.Body) {
-            errors.push(`Failed to download image ${i + 1} from S3`);
-            continue;
-          }
-          
-          archive.append(s3Object.Body as Buffer, { name: `image_${i + 1}.jpg` });
+          archive.append(imageBuffer, { name: `image_${i + 1}.jpg` });
+          console.log(`✅ ZIP: Added image ${i + 1} to ZIP (${imageBuffer.length} bytes)`);
           
         } catch (error) {
           console.error(`❌ ZIP: Failed to add image ${i + 1}:`, error);
@@ -260,7 +248,7 @@ export class BulletproofUploadService {
       
       // 🛡️ CRITICAL GATE 5: Count actual files in ZIP
       let actualFileCount = 0;
-      for (let i = 0; i < s3Urls.length; i++) {
+      for (let i = 0; i < validImages.length; i++) {
         // Count successful additions (errors would have been logged above)
         if (!errors.some(e => e.includes(`image ${i + 1}`))) {
           actualFileCount++;
@@ -459,7 +447,7 @@ export class BulletproofUploadService {
     }
     
     // STEP 3: Create ZIP
-    const zipCreation = await this.createTrainingZip(userId, s3Upload.s3Urls);
+    const zipCreation = await this.createTrainingZip(userId, validation.validImages, s3Upload.s3Urls);
     if (!zipCreation.success || !zipCreation.zipUrl) {
       allErrors.push(...zipCreation.errors);
       return { success: false, errors: allErrors, trainingId: null, requiresRestart: true };
