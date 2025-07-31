@@ -31,7 +31,6 @@ export function registerVictoriaWebsiteGenerator(app: Express) {
         .values({
           userId,
           title: data.businessName,
-          description: data.businessDescription,
           content: JSON.stringify(websiteStructure),
           templateId: 'victoria-editorial',
           isPublished: false,
@@ -70,7 +69,7 @@ export function registerVictoriaWebsiteGenerator(app: Express) {
         return res.status(404).send('Website not found');
       }
 
-      const websiteContent = JSON.parse(website.content || '{}');
+      const websiteContent = JSON.parse(website.content as string || '{}');
       const html = generatePreviewHTML(website.title, websiteContent);
       
       res.send(html);
