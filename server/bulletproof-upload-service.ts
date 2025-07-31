@@ -1,4 +1,4 @@
-import AWS from 'aws-sdk';
+import { S3Client, PutObjectCommand } from '@aws-sdk/client-s3';
 import fs from 'fs';
 import path from 'path';
 import archiver from 'archiver';
@@ -15,9 +15,11 @@ import { storage } from './storage';
  * 5. Photo permission notifications
  */
 export class BulletproofUploadService {
-  private static s3 = new AWS.S3({
-    accessKeyId: process.env.AWS_ACCESS_KEY_ID,
-    secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY,
+  private static s3 = new S3Client({
+    credentials: {
+      accessKeyId: process.env.AWS_ACCESS_KEY_ID!,
+      secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY!,
+    },
     region: process.env.AWS_REGION || 'us-east-1'
   });
 
