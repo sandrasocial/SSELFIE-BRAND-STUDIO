@@ -258,6 +258,44 @@ export async function registerRoutes(app: Express): Promise<Server> {
   
 
   
+  // 🚨 Check training status and handle failures
+  app.get('/api/training-status', isAuthenticated, async (req: any, res) => {
+    try {
+      const userId = req.user?.claims?.sub;
+      console.log(`🔍 Checking training status for user: ${userId}`);
+      
+      const status = await storage.checkTrainingStatus(userId);
+      res.json(status);
+    } catch (error) {
+      console.error('Error checking training status:', error);
+      res.status(500).json({ 
+        needsRestart: true, 
+        reason: 'Unable to check training status - please try again' 
+      });
+    }
+  });
+
+  // 🗑️ Clean up failed training data and force restart
+  app.post('/api/restart-training', isAuthenticated, async (req: any, res) => {
+    try {
+      const userId = req.user?.claims?.sub;
+      console.log(`🗑️ RESTART: User ${userId} requesting fresh training start`);
+      
+      await storage.deleteFailedTrainingData(userId);
+      
+      res.json({ 
+        success: true, 
+        message: 'Training data cleared - ready for fresh start' 
+      });
+    } catch (error) {
+      console.error('Error restarting training:', error);
+      res.status(500).json({ 
+        success: false, 
+        message: 'Failed to clear training data' 
+      });
+    }
+  });
+
   // Simple training page route (for direct image upload)
   app.post('/api/train-model', isAuthenticated, async (req: any, res) => {
     try {

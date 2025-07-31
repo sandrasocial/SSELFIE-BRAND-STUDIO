@@ -35,13 +35,60 @@ export default function SimpleTraining() {
     enabled: isAuthenticated // Only when authenticated
   });
 
+  // Check training status for failures
+  const { data: trainingStatus, refetch: refetchTrainingStatus } = useQuery<{
+    needsRestart: boolean;
+    reason: string;
+  }>({
+    queryKey: ['/api/training-status'],
+    retry: false,
+    enabled: isAuthenticated
+  });
+
+  // Restart training mutation
+  const restartTrainingMutation = useMutation({
+    mutationFn: () => apiRequest('/api/restart-training', 'POST'),
+    onSuccess: () => {
+      toast({
+        title: "Training Reset Complete",
+        description: "Your training data has been cleared. You can now start fresh training.",
+      });
+      setIsRetrainingMode(false);
+      setSelfieImages([]);
+      setIsTrainingStarted(false);
+      setTrainingProgress(0);
+      refetchUserModel();
+      refetchTrainingStatus();
+    },
+    onError: () => {
+      toast({
+        title: "Reset Failed",
+        description: "Unable to reset training. Please try again.",
+        variant: "destructive"
+      });
+    }
+  });
+
   // Initialize training state based on userModel data
   useEffect(() => {
     console.log('📊 User Model Debug:', {
       userModel,
       isAuthenticated,
-      trainingStatus: userModel?.trainingStatus
+      trainingStatus: userModel?.trainingStatus,
+      needsRestart: trainingStatus?.needsRestart
     });
+    
+    // Check if training failed and needs restart
+    if (trainingStatus?.needsRestart && userModel?.trainingStatus !== 'completed') {
+      console.log('🚨 TRAINING FAILURE DETECTED:', trainingStatus.reason);
+      setIsRetrainingMode(true);
+      toast({
+        title: "Training Issue Detected",
+        description: trainingStatus.reason,
+        variant: "destructive"
+      });
+      return; // Don't proceed with normal training flow
+    }
     
     if (userModel && userModel.trainingStatus === 'training') {
       console.log('🔄 Found active training on page load:', userModel);
@@ -62,7 +109,7 @@ export default function SimpleTraining() {
         window.location.href = '/workspace';
       }, 2000);
     }
-  }, [userModel, isAuthenticated]);
+  }, [userModel, trainingStatus, isAuthenticated]);
 
   // Poll for training status updates with progress
   useEffect(() => {
@@ -519,6 +566,158 @@ export default function SimpleTraining() {
             </div>
           </section>
         </div>
+    );
+  }
+
+  // Training failure restart view
+  if (isRetrainingMode || (trainingStatus?.needsRestart && userModel?.trainingStatus !== 'completed')) {
+    return (
+      <div style={{ 
+        minHeight: '100vh', 
+        background: '#ffffff',
+        fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif',
+        fontWeight: 300,
+        color: '#0a0a0a'
+      }}>
+        <MemberNavigation />
+        
+        {/* Training Failure Section */}
+        <section style={{
+          minHeight: '100vh',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          background: '#f5f5f5',
+          padding: '40px'
+        }}>
+          <div style={{
+            maxWidth: '800px',
+            textAlign: 'center',
+            background: '#ffffff',
+            padding: '60px 40px',
+            borderRadius: '8px',
+            boxShadow: '0 4px 20px rgba(0, 0, 0, 0.1)'
+          }}>
+            <div style={{
+              fontSize: '48px',
+              marginBottom: '24px'
+            }}>
+              🚨
+            </div>
+            
+            <h1 style={{
+              fontFamily: 'Times New Roman, serif',
+              fontSize: 'clamp(2rem, 5vw, 3rem)',
+              fontWeight: 200,
+              letterSpacing: '-0.01em',
+              textTransform: 'uppercase',
+              marginBottom: '24px',
+              color: '#dc2626'
+            }}>
+              Training Needs Restart
+            </h1>
+            
+            <p style={{
+              fontSize: '18px',
+              lineHeight: 1.6,
+              marginBottom: '32px',
+              color: '#6b7280',
+              maxWidth: '600px',
+              margin: '0 auto 32px auto'
+            }}>
+              {trainingStatus?.reason || 'Your AI model training encountered an issue and needs to be restarted with fresh images.'}
+            </p>
+            
+            <div style={{
+              background: '#fef3c7',
+              border: '1px solid #f59e0b',
+              borderRadius: '8px',
+              padding: '20px',
+              marginBottom: '32px',
+              textAlign: 'left'
+            }}>
+              <h3 style={{
+                fontSize: '16px',
+                fontWeight: 600,
+                marginBottom: '8px',
+                color: '#92400e'
+              }}>
+                What happens when you restart:
+              </h3>
+              <ul style={{
+                fontSize: '14px',
+                color: '#92400e',
+                paddingLeft: '20px',
+                lineHeight: 1.6
+              }}>
+                <li>All previous training data will be cleared</li>
+                <li>You'll need to upload new selfie images (minimum 10)</li>
+                <li>Fresh training will start with improved parameters</li>
+                <li>Training will take approximately 30-45 minutes</li>
+              </ul>
+            </div>
+            
+            <div style={{
+              display: 'flex',
+              gap: '16px',
+              justifyContent: 'center',
+              flexWrap: 'wrap'
+            }}>
+              <button
+                onClick={() => restartTrainingMutation.mutate()}
+                disabled={restartTrainingMutation.isPending}
+                style={{
+                  padding: '16px 32px',
+                  fontSize: '14px',
+                  fontWeight: 600,
+                  background: '#dc2626',
+                  color: '#ffffff',
+                  border: 'none',
+                  borderRadius: '8px',
+                  cursor: 'pointer',
+                  transition: 'all 300ms ease',
+                  opacity: restartTrainingMutation.isPending ? 0.6 : 1
+                }}
+                onMouseEnter={(e) => {
+                  if (!restartTrainingMutation.isPending) {
+                    (e.target as HTMLElement).style.background = '#b91c1c';
+                  }
+                }}
+                onMouseLeave={(e) => {
+                  if (!restartTrainingMutation.isPending) {
+                    (e.target as HTMLElement).style.background = '#dc2626';
+                  }
+                }}
+              >
+                {restartTrainingMutation.isPending ? 'Clearing Data...' : 'Clear & Restart Training'}
+              </button>
+              
+              <Link href="/workspace">
+                <button style={{
+                  padding: '16px 32px',
+                  fontSize: '14px',
+                  fontWeight: 600,
+                  background: 'transparent',
+                  color: '#6b7280',
+                  border: '1px solid #d1d5db',
+                  borderRadius: '8px',
+                  cursor: 'pointer',
+                  transition: 'all 300ms ease'
+                }}
+                onMouseEnter={(e) => {
+                  (e.target as HTMLElement).style.background = '#f3f4f6';
+                }}
+                onMouseLeave={(e) => {
+                  (e.target as HTMLElement).style.background = 'transparent';
+                }}
+                >
+                  Return to Workspace
+                </button>
+              </Link>
+            </div>
+          </div>
+        </section>
+      </div>
     );
   }
 
