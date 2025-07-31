@@ -29,7 +29,15 @@ export default function Workspace() {
     queryKey: ['/api/user-model'],
     enabled: isAuthenticated,
     refetchInterval: (data: any) => {
-      // Auto-refresh every 10 seconds if training is in progress
+      // CRITICAL FIX: Only auto-refresh when actually on workspace page to prevent Maya interference
+      const currentPath = window.location.pathname;
+      const isOnWorkspacePage = currentPath === '/workspace' || currentPath === '/';
+      
+      if (!isOnWorkspacePage) {
+        return false; // Never auto-refresh when user is on other pages (Maya, etc.)
+      }
+      
+      // Auto-refresh every 10 seconds if training is in progress and on workspace
       const isTraining = data?.trainingStatus === 'training' || 
                         data?.trainingStatus === 'starting' ||
                         data?.trainingStatus === 'processing' ||
