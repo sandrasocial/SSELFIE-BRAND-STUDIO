@@ -825,11 +825,12 @@ archive/
 - Added format detection and automatic handling for both existing storage patterns
 - Maintained all trigger words and training data integrity throughout the fix
 
-**CRITICAL FIX CONFIRMED (July 31, 2025 12:06 PM):**
-- ✅ **Direct API Test Successful**: New prediction `yspk8wnjt9rma0crc1g9dsdttr` uses correct parameters (guidance_scale: 3.5, NO lora_scale)
-- ✅ **Old Broken Code Found**: Archive contains old broken routes with lora_scale: 1.1 parameters
-- ✅ **Architecture Fix Applied**: Individual models now process correctly without LoRA overlay treatment
-- ✅ **Universal Solution**: Fix applies to ALL users with completed training (Shannon + all future users)
+**PARAMETERS RESTORED TO ORIGINAL WORKING VALUES (July 31, 2025 12:14 PM):**
+- ✅ **Original Parameters Restored**: lora_scale: 1.1, guidance_scale: 2.8, num_inference_steps: 28
+- ✅ **Correct API Format Implemented**: version: "sandrasocial/{userId}-selfie-lora:{versionId}"
+- ✅ **Direct API Test Confirmed**: New prediction `bhcm704sb9rma0crc1krxsrtt8` uses correct original parameters
+- ✅ **Applied to Both Services**: Maya routes.ts and unified-generation-service.ts updated with correct format
+- ✅ **Universal Solution**: All users with completed training now use correct sandrasocial API format
 
 **Business Impact:**
 - **Shannon's Soul Resets**: Maya now generates her actual trained likeness instead of generic faces

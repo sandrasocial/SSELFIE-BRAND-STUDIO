@@ -919,14 +919,14 @@ Remember: You are the MEMBER experience Victoria - provide website building guid
       console.log('🎯 Maya: Final prompt:', finalPrompt);
       console.log('🔒 Maya: Using Individual Model Version:', fullModelVersion);
 
-      // Build CORRECT Replicate API request for INDIVIDUAL TRAINED MODEL
+      // Build CORRECT Replicate API request using sandrasocial format
       const requestBody = {
-        version: fullModelVersion, // Complete individual model version
+        version: `sandrasocial/${userId}-selfie-lora:${fullModelVersion}`, // Correct sandrasocial format
         input: {
           prompt: finalPrompt,
-          // CRITICAL FIX: Individual models don't use lora_scale - they ARE the trained model
-          guidance_scale: 3.5, // Higher guidance for individual models  
-          num_inference_steps: 50, // More steps for better individual model quality
+          lora_scale: 1.1, // Restored original parameter
+          guidance_scale: 2.8, // Restored original parameter  
+          num_inference_steps: 28, // Restored original parameter
           num_outputs: 2,
           aspect_ratio: "3:4",
           output_format: "png",
