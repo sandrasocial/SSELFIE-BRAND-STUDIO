@@ -919,14 +919,14 @@ Remember: You are the MEMBER experience Victoria - provide website building guid
       console.log('🎯 Maya: Final prompt:', finalPrompt);
       console.log('🔒 Maya: Using Individual Model Version:', fullModelVersion);
 
-      // Build CORRECT Replicate API request using INDIVIDUAL TRAINED MODEL (from unified-generation-service.ts)
+      // Build CORRECT Replicate API request for INDIVIDUAL TRAINED MODEL
       const requestBody = {
         version: fullModelVersion, // Complete individual model version
         input: {
           prompt: finalPrompt,
-          lora_scale: 1.1, // ENHANCED: Stronger user likeness (from working implementation)
-          guidance_scale: 2.8,
-          num_inference_steps: 48,
+          // CRITICAL FIX: Individual models don't use lora_scale - they ARE the trained model
+          guidance_scale: 3.5, // Higher guidance for individual models  
+          num_inference_steps: 50, // More steps for better individual model quality
           num_outputs: 2,
           aspect_ratio: "3:4",
           output_format: "png",

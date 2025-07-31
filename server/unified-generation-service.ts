@@ -93,14 +93,14 @@ export class UnifiedGenerationService {
     
     console.log(`🎯 UNIFIED FINAL PROMPT: "${finalPrompt}"`);
     
-    // Build request with Sandra's enhanced parameters for individual model
+    // Build request for INDIVIDUAL TRAINED MODEL (not LoRA overlay)
     const requestBody = {
       version: fullModelVersion,
       input: {
         prompt: finalPrompt,
-        lora_scale: 1.1, // ENHANCED: Stronger user likeness
-        guidance_scale: 2.8, // CRITICAL FIX: Correct parameter name for realistic images
-        num_inference_steps: 48,
+        // CRITICAL FIX: Individual models don't use lora_scale - they ARE the trained model
+        guidance_scale: 3.5, // Higher guidance for individual models
+        num_inference_steps: 50, // More steps for better individual model quality
         num_outputs: 2,
         aspect_ratio: "3:4",
         output_format: "png",
