@@ -66,6 +66,9 @@ function ChatHistoryLinks({ onChatSelect }: { onChatSelect: (chatId: number) => 
 export default function Maya() {
   const { user, isLoading } = useAuth();
   
+  // CRITICAL FIX: Prevent chat refresh from useAuth re-renders
+  const [isInitialized, setIsInitialized] = useState(false);
+  
   // LUXURY LOADING STATE
   if (isLoading) {
     return (
@@ -122,9 +125,11 @@ export default function Maya() {
     }
   }, [user, isLoading, setLocation, toast]);
 
-  // Load specific chat or initialize with welcome message (SESSION-BASED)
+  // CRITICAL FIX: Initialize only once to prevent chat refresh
   useEffect(() => {
-    if (user && messages.length === 0) {
+    if (user && !isInitialized) {
+      setIsInitialized(true);
+      
       if (chatIdFromUrl) {
         // Load specific chat from URL parameter
         loadChatHistory(parseInt(chatIdFromUrl));
@@ -137,7 +142,7 @@ export default function Maya() {
         }]);
       }
     }
-  }, [user, messages.length, chatIdFromUrl]);
+  }, [user, isInitialized, chatIdFromUrl]);
 
   const sendMessage = async () => {
     if (!input.trim()) return;
@@ -314,51 +319,62 @@ export default function Maya() {
         if (tracker.status === 'completed' && tracker.imageUrls && tracker.imageUrls.length > 0) {
           console.log('✅ Maya: Generation completed! Images:', tracker.imageUrls);
           
-          // Image generation completed
+          // CRITICAL FIX: Stop polling immediately to prevent multiple state updates
           setGenerationProgress(100);
-          setIsGenerating(false);
+          setIsGenerating(false);  
           setGeneratedImages(tracker.imageUrls);
           
-          // Add image preview to the last Maya message and save permanently
-          setMessages(prev => {
-            const newMessages = [...prev];
-            const lastMayaIndex = newMessages.map(m => m.role).lastIndexOf('maya');
+          // CRITICAL FIX: Use functional update to prevent stale closures
+          setMessages(prevMessages => {
+            // Find the last Maya message
+            const lastMayaIndex = prevMessages.map(m => m.role).lastIndexOf('maya');
             if (lastMayaIndex >= 0) {
               console.log('🔄 Maya: Updating last Maya message with images');
-              newMessages[lastMayaIndex] = {
-                ...newMessages[lastMayaIndex],
+              
+              // Create new array with updated message - PREVENT CHAT REFRESH
+              const updatedMessages = [...prevMessages];
+              updatedMessages[lastMayaIndex] = {
+                ...updatedMessages[lastMayaIndex],
                 imagePreview: tracker.imageUrls
               };
               
-              // Save the updated message with images to database using existing update route
-              if (currentChatId && newMessages[lastMayaIndex].id) {
-                console.log('💾 Maya: Saving images to database for message', newMessages[lastMayaIndex].id);
-                fetch(`/api/maya-chats/${currentChatId}/messages/${newMessages[lastMayaIndex].id}/update-preview`, {
-                  method: 'PATCH',
-                  credentials: 'include',
-                  headers: { 'Content-Type': 'application/json' },
-                  body: JSON.stringify({
-                    imagePreview: JSON.stringify(tracker.imageUrls)
-                  })
-                }).then(response => {
-                  if (response.ok) {
-                    console.log('✅ Maya: Images saved to database successfully');
-                  } else {
-                    console.error('❌ Maya: Failed to save images to database');
-                  }
-                }).catch(error => console.error('Error saving images to database:', error));
+              // Async database save without blocking UI
+              const messageId = updatedMessages[lastMayaIndex].id;
+              if (currentChatId && messageId) {
+                console.log('💾 Maya: Saving images to database for message', messageId);
+                // Use setTimeout to prevent blocking the state update
+                setTimeout(() => {
+                  fetch(`/api/maya-chats/${currentChatId}/messages/${messageId}/update-preview`, {
+                    method: 'PATCH',
+                    credentials: 'include',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                      imagePreview: JSON.stringify(tracker.imageUrls)
+                    })
+                  }).then(response => {
+                    if (response.ok) {
+                      console.log('✅ Maya: Images saved to database successfully');
+                    } else {
+                      console.error('❌ Maya: Failed to save images to database');
+                    }
+                  }).catch(error => console.error('Error saving images to database:', error));
+                }, 0);
               }
+              
+              return updatedMessages;
             }
-            return newMessages;
+            return prevMessages;
           });
           
-          // Show success toast
-          toast({
-            title: "Photoshoot Complete!",
-            description: `${tracker.imageUrls.length} stunning photos are ready to view!`,
-          });
+          // Show success toast - delayed to avoid UI conflicts
+          setTimeout(() => {
+            toast({
+              title: "Photoshoot Complete!",
+              description: `${tracker.imageUrls.length} stunning photos are ready to view!`,
+            });
+          }, 100);
           
-          return;
+          return; // EXIT POLLING IMMEDIATELY
         }
         
         if (tracker.status === 'failed') {
