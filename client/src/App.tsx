@@ -46,6 +46,7 @@ import { UnifiedAgentInterface } from "@/components/admin/UnifiedAgentInterface"
 
 import AgentApproval from "@/pages/agent-approval";
 import AgentCommandCenter from "@/pages/agent-command-center";
+import UserImpersonationBanner from "@/components/admin/UserImpersonationBanner";
 
 import CustomPhotoshootLibrary from "@/pages/custom-photoshoot-library";
 import FlatlayLibrary from "@/pages/flatlay-library";
@@ -330,7 +331,19 @@ function Router() {
   );
 }
 
+function AppWithProvider() {
+  return (
+    <QueryClientProvider client={queryClient}>
+      <TooltipProvider>
+        <App />
+      </TooltipProvider>
+    </QueryClientProvider>
+  );
+}
+
 function App() {
+  const { user } = useAuth();
+  
   // Enhanced domain access handling
   useEffect(() => {
     try {
@@ -362,15 +375,25 @@ function App() {
   }, []);
 
   console.log('SSELFIE Studio: App rendering...');
+  
+  // Check if we're impersonating Shannon for testing
+  const isImpersonatingShannon = user && user.email === 'shannon@soulresets.com';
 
   return (
-    <QueryClientProvider client={queryClient}>
-      <TooltipProvider>
-        <Toaster />
-        <Router />
-      </TooltipProvider>
-    </QueryClientProvider>
+    <>
+      {isImpersonatingShannon && (
+        <UserImpersonationBanner 
+          impersonatedUser={{
+            email: user.email || '',
+            firstName: user.firstName || '',
+            lastName: user.lastName || ''
+          }}
+        />
+      )}
+      <Toaster />
+      <Router />
+    </>
   );
 }
 
-export default App;
+export default AppWithProvider;

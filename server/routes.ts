@@ -960,9 +960,15 @@ Remember: You are the MEMBER experience Victoria - provide website building guid
     }
   });
 
-  // Auth user endpoint - Production ready
+  // Auth user endpoint - Production ready with impersonation support
   app.get('/api/auth/user', isAuthenticated, async (req: any, res) => {
     try {
+      // Check for impersonated user first (admin testing)
+      if (req.session?.impersonatedUser) {
+        console.log('🎭 Returning impersonated user:', req.session.impersonatedUser.email);
+        return res.json(req.session.impersonatedUser);
+      }
+      
       const userId = req.user?.claims?.sub;
       const user = await storage.getUser(userId);
       res.json(user);
