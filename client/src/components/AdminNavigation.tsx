@@ -66,9 +66,13 @@ export function AdminNavigation({ transparent = true }: AdminNavigationProps) {
           body: JSON.stringify({ email: 'shannon@soulresets.com' })
         });
         
-        if (response.ok) {
-          setCurrentAccount(email);
-          window.location.reload();
+        const result = await response.json();
+        if (response.ok && result.success) {
+          console.log('Successfully switched to Shannon:', result.user);
+          // Navigate to workspace for Shannon's account
+          window.location.href = '/workspace';
+        } else {
+          console.error('Failed to switch to Shannon:', result);
         }
       } else {
         // Switch back to admin account
@@ -80,9 +84,13 @@ export function AdminNavigation({ transparent = true }: AdminNavigationProps) {
           }
         });
         
-        if (response.ok) {
-          setCurrentAccount(email);
-          window.location.reload();
+        const result = await response.json();
+        if (response.ok && result.success) {
+          console.log('Successfully switched back to admin');
+          // Navigate back to admin dashboard
+          window.location.href = '/admin-dashboard';
+        } else {
+          console.error('Failed to switch back to admin:', result);
         }
       }
     } catch (error) {
