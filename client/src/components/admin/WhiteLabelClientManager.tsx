@@ -1,12 +1,10 @@
-import React, { useState } from 'react';
-import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import React from 'react';
+import { useMutation } from '@tanstack/react-query';
 import { apiRequest } from '@/lib/queryClient';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Badge } from '@/components/ui/badge';
-import { Input } from '@/components/ui/input';
 import { useToast } from '@/hooks/use-toast';
-import { User, Settings, Eye, LogOut, Search } from 'lucide-react';
+import { User, Settings, Eye } from 'lucide-react';
 
 interface WhiteLabelClient {
   id: string;
