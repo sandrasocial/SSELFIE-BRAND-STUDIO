@@ -71,18 +71,23 @@ export class UnifiedGenerationService {
     
     const savedTracker = await storage.saveGenerationTracker(trackerData);
     
-    // Prepare final prompt with trigger word
-    let finalPrompt = prompt;
+    // 🔥 CRITICAL FIX: TRIGGER WORD POSITIONING FOR FACIAL ACCURACY
+    // Shannon's success: trigger word at BEGINNING = strong facial accuracy
+    // Previous admin issue: trigger word in middle = weak facial recognition
     
-    // Ensure trigger word is at the beginning
-    if (!finalPrompt.includes(triggerWord)) {
-      finalPrompt = `${triggerWord} ${finalPrompt}`;
+    // Remove trigger word if already present anywhere in prompt
+    let cleanPrompt = prompt;
+    if (cleanPrompt.includes(triggerWord)) {
+      cleanPrompt = cleanPrompt.replace(new RegExp(triggerWord, 'g'), '').trim();
     }
     
-    // 🎯 SIMPLIFIED PROMPT ENHANCEMENT: Reduce overfitting, maintain face consistency
-    if (!finalPrompt.includes('raw photo')) {
-      finalPrompt = `raw photo, visible skin pores, film grain, unretouched natural skin texture, ${finalPrompt}, professional photography`;
+    // 🎯 SIMPLIFIED PROMPT ENHANCEMENT: Add technical photography terms
+    if (!cleanPrompt.includes('raw photo')) {
+      cleanPrompt = `raw photo, visible skin pores, film grain, unretouched natural skin texture, ${cleanPrompt}, professional photography`;
     }
+    
+    // 🔒 MANDATORY: Place trigger word at ABSOLUTE BEGINNING for maximum LoRA influence
+    const finalPrompt = `${triggerWord} ${cleanPrompt}`;
     
     console.log(`🎯 UNIFIED FINAL PROMPT: "${finalPrompt}"`);
     
