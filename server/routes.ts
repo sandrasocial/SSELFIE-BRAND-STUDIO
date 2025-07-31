@@ -256,6 +256,82 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
   
+  // Model training endpoint - Start training with selfie images
+  app.post('/api/start-model-training', isAuthenticated, async (req: any, res) => {
+    try {
+      const userId = req.user?.claims?.sub;
+      const { selfieImages } = req.body;
+      
+      console.log(`🚀 Starting model training for user: ${userId}`);
+      console.log(`📊 Received ${selfieImages?.length || 0} selfie images`);
+      
+      if (!selfieImages || !Array.isArray(selfieImages) || selfieImages.length < 5) {
+        return res.status(400).json({
+          success: false,
+          message: 'At least 5 selfie images are required for training'
+        });
+      }
+      
+      // Import the model training service
+      const { ModelTrainingService } = await import('./model-training-service');
+      
+      // Start the training process
+      const result = await ModelTrainingService.startModelTraining(userId, selfieImages);
+      
+      res.json({
+        success: true,
+        message: 'Model training started successfully',
+        trainingId: result.trainingId,
+        status: result.status,
+        estimatedTime: '20-30 minutes'
+      });
+      
+    } catch (error) {
+      console.error('❌ Error starting model training:', error);
+      res.status(500).json({
+        success: false,
+        message: 'Failed to start model training',
+        error: error instanceof Error ? error.message : 'Unknown error'
+      });
+    }
+  });
+  
+  // Simple training page route (for direct image upload)
+  app.post('/api/train-model', isAuthenticated, async (req: any, res) => {
+    try {
+      const userId = req.user?.claims?.sub;
+      const { images } = req.body;
+      
+      console.log(`🎯 Training model for user: ${userId} with ${images?.length || 0} images`);
+      
+      if (!images || !Array.isArray(images) || images.length < 5) {
+        return res.status(400).json({
+          success: false,
+          message: 'At least 5 images are required for training'
+        });
+      }
+      
+      const { ModelTrainingService } = await import('./model-training-service');
+      const result = await ModelTrainingService.startModelTraining(userId, images);
+      
+      res.json({
+        success: true,
+        message: 'Training started successfully',
+        trainingId: result.trainingId,
+        triggerWord: `${userId}_selfie`, // Simple trigger word
+        status: result.status
+      });
+      
+    } catch (error) {
+      console.error('❌ Training error:', error);
+      res.status(500).json({
+        success: false,
+        message: 'Training failed',
+        error: error instanceof Error ? error.message : String(error)
+      });
+    }
+  });
+
   // Health check endpoint
   app.get('/api/health', (req, res) => {
     res.json({ status: 'ok', timestamp: new Date().toISOString() });
