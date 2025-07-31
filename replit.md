@@ -833,6 +833,8 @@ archive/
 
 **VERIFICATION CONFIRMED**: Console logs show `🚀 Maya: Initializing chat ONCE - PERMANENT LOCK` with stable chat loading and no refresh loops
 
+**ROOT CAUSE RESOLUTION (July 31, 2025)**: Fixed training progress polling interference by restricting workspace.tsx global polling to only run when actually on workspace page (`currentPath === '/workspace' || currentPath === '/'`). This eliminates the global useAuth re-renders that were causing Maya chat reinitialization even when users were on Maya page.
+
 ## ✅ CRITICAL INDIVIDUAL MODEL ARCHITECTURE COMPLETELY FIXED - UNIVERSAL PROPER MODEL FORMAT IMPLEMENTED (July 31, 2025)
 
 **BREAKTHROUGH: Fixed fundamental training-to-generation architecture mismatch affecting ALL users including admin**
