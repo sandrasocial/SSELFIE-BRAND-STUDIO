@@ -49,9 +49,11 @@ export const websites = pgTable("websites", {
   id: serial("id").primaryKey(),
   userId: varchar("user_id").references(() => users.id, { onDelete: "cascade" }).notNull(),
   title: varchar("title").notNull(),
+  slug: varchar("slug").notNull().unique(), // URL slug for preview
   url: varchar("url"), // Generated URL
   status: varchar("status").notNull().default("draft"), // draft, published, archived
   content: jsonb("content").notNull(), // Website content data
+  templateId: varchar("template_id").default("victoria-editorial"),
   screenshotUrl: varchar("screenshot_url"), // Screenshot for preview
   isPublished: boolean("is_published").default(false),
   createdAt: timestamp("created_at").defaultNow(),
@@ -480,6 +482,7 @@ export const insertMayaChatSchema = createInsertSchema(mayaChats).omit({ id: tru
 export const insertMayaChatMessageSchema = createInsertSchema(mayaChatMessages).omit({ id: true, createdAt: true });
 export const insertGenerationTrackerSchema = createInsertSchema(generationTrackers).omit({ id: true, createdAt: true });
 export const insertAgentConversationSchema = createInsertSchema(agentConversations).omit({ id: true, timestamp: true });
+export const insertWebsiteSchema = createInsertSchema(websites).omit({ id: true, createdAt: true, updatedAt: true });
 
 // Claude API schemas
 export const insertClaudeConversationSchema = createInsertSchema(claudeConversations).omit({ id: true, createdAt: true, updatedAt: true });
@@ -495,7 +498,9 @@ export const insertAgentCapabilitySchema = createInsertSchema(agentCapabilities)
 export type UpsertUser = z.infer<typeof upsertUserSchema>;
 export type User = typeof users.$inferSelect;
 
-// Website types already defined above
+// Website types
+export type Website = typeof websites.$inferSelect;
+export type InsertWebsite = z.infer<typeof insertWebsiteSchema>;
 export type MayaChat = typeof mayaChats.$inferSelect;
 export type InsertMayaChat = typeof mayaChats.$inferInsert;
 export type MayaChatMessage = typeof mayaChatMessages.$inferSelect;
@@ -765,8 +770,7 @@ export { userStyleguides, styleguideTemplates } from "./styleguide-schema";
 export type { UserStyleguide, StyleguideTemplate, InsertUserStyleguide, InsertStyleguideTemplate } from "./styleguide-schema";
 
 // Website management schema types
-export const insertWebsiteSchema = createInsertSchema(websites);
-export type InsertWebsite = z.infer<typeof insertWebsiteSchema>;
+// Website schema already defined above
 export type Website = typeof websites.$inferSelect;
 
 // Note: Type exports are handled individually above to avoid conflicts
