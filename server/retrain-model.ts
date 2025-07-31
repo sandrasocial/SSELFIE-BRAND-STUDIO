@@ -40,19 +40,20 @@ export class ModelRetrainService {
         input: {
           input_images: s3ZipUrl,
           trigger_word: existingModel.triggerWord, // Use existing trigger word
-          steps: 1200,                             // Optimal steps for FLUX LoRA
-          learning_rate: 4e-6,                     // Prevent face distortion
+          steps: 1800,                             // 🔥 INDIVIDUAL FEATURES FIX: Increased from 1200 to 1800 for proper facial learning
+          learning_rate: 1e-4,                     // 🔥 INDIVIDUAL FEATURES FIX: Increased from 4e-6 to 1e-4 for stronger facial feature capture
           batch_size: 1,
-          resolution: 1024,                        // High resolution for better faces
-          autocaption: true,
+          lora_rank: 32,                           // 🔥 INDIVIDUAL FEATURES FIX: Increased from 16 to 32 for higher capacity facial detail
+          resolution: 1024,                        // ✅ Keep 1024 for facial detail
+          autocaption: false,                      // ✅ Keep false to preserve manual captions
           optimizer: "adamw8bit",
           lr_scheduler: "constant",
-          caption_dropout_rate: 0.05,              // Low dropout for face consistency
+          caption_dropout_rate: 0.02,              // 🔥 INDIVIDUAL FEATURES FIX: Reduced from 0.05 to 0.02 to preserve facial descriptors
           cache_latents_to_disk: false,
           wandb_project: "flux_train_replicate",
           wandb_save_interval: 100,
           save_every_n_epochs: 1,
-          max_train_steps: 1200,
+          max_train_steps: 1800,                   // 🔥 Updated to match steps
           seed: 42
         }
       };

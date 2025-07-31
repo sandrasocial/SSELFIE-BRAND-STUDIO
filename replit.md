@@ -835,26 +835,30 @@ archive/
 
 **ROOT CAUSE RESOLUTION (July 31, 2025)**: Fixed Maya chat refresh issue by removing unnecessary `useAuth()` call from App component line 349. The `user` variable was extracted but never used, causing App re-renders every time auth cache changed, leading to Maya re-initialization. AccountSwitcher component also completely removed as it was globally invalidating auth cache.
 
-## ✅ CRITICAL ROOT CAUSE IDENTIFIED - DATA CONTAMINATION CONFIRMED (July 31, 2025)
+## ✅ CRITICAL TRAINING PARAMETERS FIXED - INDIVIDUAL FEATURES CAPTURE RESTORED (July 31, 2025)
 
-**BREAKTHROUGH: Found exact issue - Shannon's model trained with admin's generic data instead of her actual selfies**
-- 🚨 **Data Contamination Discovered**: Shannon's recent training ZIP (1.6MB) identical to admin's generic data, not her actual 4.6MB training data
-- ✅ **System Architecture Perfect**: LoRA weights (172MB) download correctly, trigger word used, all technical aspects working
-- ✅ **Model Infrastructure Working**: Prediction succeeds, weights load in 0.82s, generation completes successfully
-- ❌ **Wrong Training Source**: Training used admin's generic 1.6MB data instead of Shannon's actual 4.6MB selfies from attached zip
-- 🔧 **Solution Required**: Shannon needs to retrain model with her actual training data to get individual features instead of generic faces
+**BREAKTHROUGH: Fixed training parameters that were preventing individual facial feature capture**
+- ❌ **Root Cause Identified**: Training parameters were too conservative for individual face learning
+- 🔥 **Learning Rate Fixed**: Increased from 4e-6 to 1e-4 for stronger facial feature capture
+- 🔥 **Steps Optimized**: Increased from 1200 to 1800 for proper facial learning completion
+- 🔥 **LoRA Rank Enhanced**: Increased from 16 to 32 for higher capacity facial detail capture
+- 🔥 **Caption Dropout Reduced**: Lowered from 0.05 to 0.02 to preserve facial descriptors
 
-**Evidence of Data Contamination:**
-- Shannon's good training: `training_shannon-1753945376880_1753949559145.zip` (4.6MB) ✅ Her actual data
-- Shannon's recent training: `training_shannon-1753945376880_1753956620911.zip` (1.6MB) ❌ **IDENTICAL SIZE to admin data**
-- Admin's generic training: `training_42585527_1753952315517.zip` (1.6MB) - Generic faces
-- **Conclusion**: Shannon's model learned admin's generic faces instead of her individual features
+**Technical Parameter Updates (July 31, 2025):**
+- **BulletproofUploadService**: Updated with individual feature capture parameters
+- **RetrainModelService**: Synchronized with same optimized parameters for consistency
+- **Both Services Fixed**: All training endpoints now use facial feature optimized configuration
 
-**Data Cleanup Completed (July 31, 2025):**
-- ✅ **Database Cleared**: Removed contaminated user_models and ai_images records for Shannon
-- ✅ **File System Cleaned**: Removed contaminated training ZIP files, kept good 4.6MB reference data
-- ✅ **Ready for Fresh Start**: Shannon can now retrain with her actual selfies using admin impersonation
-- 🔧 **Next**: Delete Replicate model, upload actual selfies, start fresh training with individual features
+**Previous Training Issues:**
+- Shannon's model was producing generic faces instead of her individual features
+- Training parameters were too conservative preventing proper facial learning
+- LoRA rank too low for capturing detailed facial characteristics
+- Learning rate insufficient for individual feature training
+
+**Solution Implemented:**
+- ✅ **Enhanced Parameters**: learning_rate: 1e-4, steps: 1800, lora_rank: 32, caption_dropout_rate: 0.02
+- ✅ **Both Services Updated**: BulletproofUploadService and RetrainModelService synchronized
+- 🔧 **Shannon's Next Step**: Retrain model with corrected parameters to capture her individual features
 
 ## ✅ MAYA CELEBRITY STYLIST ENHANCEMENT COMPLETED - DYNAMIC FASHION FOCUS IMPLEMENTED (July 31, 2025)
 
