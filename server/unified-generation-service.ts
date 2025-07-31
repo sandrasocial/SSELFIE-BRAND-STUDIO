@@ -94,14 +94,11 @@ export class UnifiedGenerationService {
     console.log(`🎯 UNIFIED FINAL PROMPT: "${finalPrompt}"`);
     
     // UNIVERSAL INDIVIDUAL MODEL ARCHITECTURE: All users use sandrasocial/{userId}-selfie-lora:{versionId}
-    // SHANNON OPTIMIZATION: Higher LoRA scale for better facial feature activation
-    const loraScale = userId === 'shannon-1753945376880' ? 1.4 : 1.1;
-    
     const requestBody = {
       version: `${userModel.replicateModelId}:${fullModelVersion}`,
       input: {
         prompt: finalPrompt,
-        lora_scale: loraScale,
+        lora_scale: 1.1,
         guidance_scale: 2.8,
         num_inference_steps: 40,
         num_outputs: 2,
