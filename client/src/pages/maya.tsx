@@ -9,7 +9,7 @@ import { apiRequest } from '@/lib/queryClient';
 import { SandraImages } from '@/lib/sandra-images';
 import { EditorialImageBreak } from '@/components/editorial-image-break';
 import { MemberNavigation } from '@/components/member-navigation';
-import { MayaChatInterface } from '@/components/maya/MayaChatInterface';
+// import { MayaChatInterface } from '@/components/maya/MayaChatInterface';
 
 interface ChatMessage {
   id?: number;
@@ -312,6 +312,8 @@ export default function Maya() {
         // Maya polling successfully
         
         if (tracker.status === 'completed' && tracker.imageUrls && tracker.imageUrls.length > 0) {
+          console.log('✅ Maya: Generation completed! Images:', tracker.imageUrls);
+          
           // Image generation completed
           setGenerationProgress(100);
           setIsGenerating(false);
@@ -322,6 +324,7 @@ export default function Maya() {
             const newMessages = [...prev];
             const lastMayaIndex = newMessages.map(m => m.role).lastIndexOf('maya');
             if (lastMayaIndex >= 0) {
+              console.log('🔄 Maya: Updating last Maya message with images');
               newMessages[lastMayaIndex] = {
                 ...newMessages[lastMayaIndex],
                 imagePreview: tracker.imageUrls
@@ -329,6 +332,7 @@ export default function Maya() {
               
               // Save the updated message with images to database using existing update route
               if (currentChatId && newMessages[lastMayaIndex].id) {
+                console.log('💾 Maya: Saving images to database for message', newMessages[lastMayaIndex].id);
                 fetch(`/api/maya-chats/${currentChatId}/messages/${newMessages[lastMayaIndex].id}/update-preview`, {
                   method: 'PATCH',
                   credentials: 'include',
@@ -336,10 +340,22 @@ export default function Maya() {
                   body: JSON.stringify({
                     imagePreview: JSON.stringify(tracker.imageUrls)
                   })
+                }).then(response => {
+                  if (response.ok) {
+                    console.log('✅ Maya: Images saved to database successfully');
+                  } else {
+                    console.error('❌ Maya: Failed to save images to database');
+                  }
                 }).catch(error => console.error('Error saving images to database:', error));
               }
             }
             return newMessages;
+          });
+          
+          // Show success toast
+          toast({
+            title: "Photoshoot Complete!",
+            description: `${tracker.imageUrls.length} stunning photos are ready to view!`,
           });
           
           return;
@@ -641,7 +657,7 @@ export default function Maya() {
       <EditorialImageBreak 
         imageUrl="https://i.postimg.cc/sgmtqFrQ/out-0-1.webp"
         alt="Maya - Your Celebrity Stylist & Personal Brand Expert"
-        height="45vh"
+        height="large"
         overlay={true}
         overlayContent={
           <div className="max-w-3xl mx-auto text-center px-6">
