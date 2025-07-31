@@ -929,6 +929,26 @@ Remember: You are the MEMBER experience Victoria - provide website building guid
       
       // EMERGENCY DEBUG: Force visibility of version format
       console.error(`🚨🚨🚨 MAYA DEBUG: SENDING TO REPLICATE API: ${modelVersion} 🚨🚨🚨`);
+      console.error(`🚨🚨🚨 REQUEST BODY DEBUG: ${JSON.stringify({ version: modelVersion }, null, 2)} 🚨🚨🚨`);
+      
+      // CRITICAL TEST: Check if Shannon's model exists on Replicate before generation
+      console.error(`🔍 PRE-GENERATION MODEL CHECK: Testing existence of ${userModel.replicateModelId}`);
+      
+      try {
+        const modelCheckResponse = await fetch(`https://api.replicate.com/v1/models/${userModel.replicateModelId}`, {
+          headers: {
+            'Authorization': `Token ${process.env.REPLICATE_API_TOKEN}`,
+          }
+        });
+        console.error(`🔍 MODEL CHECK RESULT: ${modelCheckResponse.status} - ${modelCheckResponse.ok ? 'EXISTS' : 'NOT FOUND'}`);
+        
+        if (!modelCheckResponse.ok) {
+          const errorText = await modelCheckResponse.text();
+          console.error(`🚨 SHANNON'S MODEL NOT FOUND: ${errorText}`);
+        }
+      } catch (modelCheckError) {
+        console.error(`🚨 MODEL CHECK FAILED:`, modelCheckError);
+      }
       
       const requestBody = {
         version: modelVersion,
