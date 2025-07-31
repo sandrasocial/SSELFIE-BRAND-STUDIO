@@ -919,17 +919,17 @@ Remember: You are the MEMBER experience Victoria - provide website building guid
       console.log('🎯 Maya: Final prompt:', finalPrompt);
       console.log('🔒 Maya: Using Individual Model:', userModel.replicateModelId);
 
-      // Build CORRECT Replicate API request using stored model ID (already contains full path)
+      // Shannon's trained model - use her individual model directly with version ID only
       const requestBody = {
-        version: `${userModel.replicateModelId}:${fullModelVersion}`, // Use stored model ID + version ID
+        version: fullModelVersion, // Use ONLY the version ID (works for individual trained models)
         input: {
           prompt: finalPrompt,
-          lora_scale: 1.1, // Restored original parameter
-          guidance_scale: 2.8, // Restored original parameter  
-          num_inference_steps: 28, // Restored original parameter
+          lora_scale: 1.1, // Shannon's model uses lora_scale parameter
+          guidance_scale: 2.8,
+          num_inference_steps: 28,
           num_outputs: 2,
           aspect_ratio: "3:4",
-          output_format: "png",
+          output_format: "png", 
           output_quality: 95,
           go_fast: false,
           disable_safety_checker: false,

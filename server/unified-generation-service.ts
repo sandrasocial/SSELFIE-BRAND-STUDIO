@@ -93,12 +93,12 @@ export class UnifiedGenerationService {
     
     console.log(`🎯 UNIFIED FINAL PROMPT: "${finalPrompt}"`);
     
-    // Build request using stored model ID (already contains full path)
+    // Shannon's trained model - use version ID only (correct for individual trained models)
     const requestBody = {
-      version: `${userModel.replicateModelId}:${fullModelVersion}`,
+      version: fullModelVersion, // Use ONLY the version ID
       input: {
         prompt: finalPrompt,
-        lora_scale: 1.1, // Restored original parameter
+        lora_scale: 1.1, // Shannon's model uses lora_scale parameter
         guidance_scale: 2.8, // Restored original parameter
         num_inference_steps: 28, // Restored original parameter
         num_outputs: 2,
