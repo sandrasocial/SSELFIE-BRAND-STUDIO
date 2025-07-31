@@ -680,11 +680,57 @@ Remember: You are the MEMBER experience Maya - provide creative guidance and ima
             // Remove the prompt from the conversation response
             response = response.replace(promptRegex, '').trim();
           } else {
-            // Fallback: Create a poetic prompt in Maya's sophisticated style
+            // INTELLIGENT PROMPT CONVERSION: Transform Maya's exact conversational vision into accurate generation prompts
             const userId = req.user?.claims?.sub;
             const triggerWord = `user${userId}`;
             
-            generatedPrompt = `raw photo, visible skin pores, film grain, unretouched natural skin texture, subsurface scattering, photographed on film, ${triggerWord}, trendsetting fashion icon mid-stride in oversized blazer worn off-shoulder, detailed facial features with editorial attitude, clear facial definition with magnetic charisma, natural confident expression, recognizable face with fashion week energy, dramatic golden hour light streaming through industrial windows, hair flowing naturally with movement, oversized blazer sleeves creating dramatic silhouette, wide-leg trousers flowing with confident stride, statement jewelry catching light during motion, authentic fashion moment captured, story of editorial authority written in every gesture, shot on Canon EOS R5 with 85mm f/1.4 lens, fashion photography lighting with dramatic shadows`;
+            console.log('🎯 MAYA PROMPT CONVERSION: Converting conversation to generation prompt');
+            console.log('🎬 MAYA DESCRIPTION TO CONVERT:', response.substring(0, 300));
+            
+            try {
+              // Use Claude to intelligently convert Maya's exact description to a generation prompt
+              const claudeResponse = await fetch('https://api.anthropic.com/v1/messages', {
+                method: 'POST',
+                headers: {
+                  'Content-Type': 'application/json',
+                  'x-api-key': process.env.ANTHROPIC_API_KEY!,
+                  'anthropic-version': '2023-06-01'
+                },
+                body: JSON.stringify({
+                  model: "claude-3-5-sonnet-20241022",
+                  max_tokens: 800,
+                  messages: [{
+                    role: "user",
+                    content: `Convert Maya's exact description into a detailed FLUX generation prompt. Keep her exact vision - don't change locations, clothing, or mood. Just format it technically.
+
+Maya's description: "${response}"
+
+Convert to this exact format:
+${triggerWord}, [Maya's exact scene/location], [Maya's exact clothing description], [Maya's exact mood/expression], [technical photography details]
+
+Rules:
+- Keep Maya's EXACT scene (beach/rocks/studio/etc)  
+- Keep her EXACT clothing descriptions
+- Keep her EXACT mood and expression
+- Only add technical photography terms
+- No generic fallbacks - use her specific vision`
+                  }]
+                })
+              });
+
+              if (claudeResponse.ok) {
+                const claudeData = await claudeResponse.json();
+                generatedPrompt = claudeData.content[0].text.trim();
+                console.log('✅ MAYA PROMPT CONVERTED:', generatedPrompt.substring(0, 200));
+              } else {
+                throw new Error('Claude conversion failed');
+              }
+              
+            } catch (error) {
+              console.error('❌ Maya prompt conversion failed:', error);
+              // Simple fallback that uses user's last message context instead of hardcoded content
+              generatedPrompt = `${triggerWord}, ${message}, editorial fashion photography, natural lighting, authentic expression`;
+            }
           }
         }
 
