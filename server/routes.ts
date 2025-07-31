@@ -871,6 +871,7 @@ Remember: You are the MEMBER experience Victoria - provide website building guid
       
       console.log('🎬 Maya: Starting image generation for user:', userId);
       console.log('🎬 Maya: Prompt:', actualPrompt);
+      console.error('🚨🚨🚨 MAYA ENDPOINT HIT - VALIDATION STARTING 🚨🚨🚨');
       
       // Get user's trained model
       const { db } = await import('./db');
@@ -925,6 +926,9 @@ Remember: You are the MEMBER experience Victoria - provide website building guid
       // CRITICAL FIX: Ensure version ID is properly formatted for ALL users
       const modelVersion = `${userModel.replicateModelId}:${fullModelVersion}`;
       console.log(`🔒 MAYA VERSION VALIDATION: Model: ${userModel.replicateModelId}, Version: ${fullModelVersion}, Combined: ${modelVersion}`);
+      
+      // EMERGENCY DEBUG: Force visibility of version format
+      console.error(`🚨🚨🚨 MAYA DEBUG: SENDING TO REPLICATE API: ${modelVersion} 🚨🚨🚨`);
       
       const requestBody = {
         version: modelVersion,
