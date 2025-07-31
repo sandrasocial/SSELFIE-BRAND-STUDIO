@@ -296,7 +296,8 @@ export class BulletproofUploadService {
     console.log(`🚀 REPLICATE TRAINING: Starting for user ${userId}`);
     
     const errors: string[] = [];
-    const modelName = `${userId}-selfie-lora`;
+    const timestamp = Date.now();
+    const modelName = `${userId}-selfie-lora-${timestamp}`;
     
     try {
       // Create user-specific model first
