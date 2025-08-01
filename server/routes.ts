@@ -1746,6 +1746,7 @@ Remember: You are the MEMBER experience Victoria - provide website building guid
       
       console.log(`🤖 HYBRID SYSTEM: ${contentAnalysis.detectedType} detected (confidence: ${contentAnalysis.confidence})`);
       console.log(`🎯 REASONING: ${contentAnalysis.reasoning}`);
+      console.log(`⚡ ROUTING DECISION: needsClaudeGeneration = ${contentAnalysis.needsClaudeGeneration}`);
       
       if (contentAnalysis.needsClaudeGeneration) {
         // Use Claude API for content generation
@@ -1770,15 +1771,35 @@ Available tools:
 - search_filesystem (find files and code)`;
 
           // Use the existing Claude API service with DIRECT tool access
-          const response = await claudeService.sendMessageToAgent(
-            agentId,
-            message,
-            userId,
-            finalConversationId,
-            true // fileEditMode - gives direct tool access
-          );
+          try {
+            const { claudeApiService } = await import('./services/claude-api-service');
+            const response = await claudeApiService.sendMessage(
+              userId,
+              agentId,
+              finalConversationId,
+              message,
+              systemPrompt,
+              undefined // tools - handled by Claude directly
+            );
+            
+            if (response && response.length > 0) {
+              console.log(`✅ CLAUDE API SUCCESS: ${response.length} characters for ${agentId}`);
+              
+              return res.json({
+                success: true,
+                response: response,
+                agentName: agentConfig.name,
+                conversationId: finalConversationId,
+                contentGenerated: true,
+                claudeApiUsed: true
+              });
+            }
+          } catch (methodError) {
+            console.log(`❌ CLAUDE API METHOD ERROR: ${methodError.message}`);
+            throw methodError;
+          }
 
-          console.log(`✅ CLAUDE API SERVICE: ${response.length} characters for ${agentId}`);
+
           
           return res.json({
             success: true,

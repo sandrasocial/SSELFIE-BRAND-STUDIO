@@ -507,7 +507,7 @@ ${searchResult.results.slice(0, 10).map((file: any) => `• ${file.path}`).join(
         if (contextualMemories.length > 0) {
           enhancedSystemPrompt += `\n\n## 🧠 CONTEXTUAL MEMORY INTELLIGENCE\n\n`;
           enhancedSystemPrompt += contextualMemories.map(memory => 
-            `**${memory.category}** (confidence: ${memory.confidence.toFixed(2)}): ${memory.pattern}`
+            `**${memory.category}** (confidence: ${typeof memory.confidence === 'number' ? memory.confidence.toFixed(2) : memory.confidence}): ${memory.pattern}`
           ).join('\n') + '\n';
           console.log(`🧠 ADVANCED MEMORY: Loaded ${contextualMemories.length} contextual memories for ${agentName}`);
         }
