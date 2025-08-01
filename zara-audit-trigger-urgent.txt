@@ -1,0 +1,27 @@
+URGENT: ZARA AUDIT TRIGGER - DIRECT ACTION REQUIRED
+
+Sandra is monitoring and waiting for your comprehensive audit work to begin immediately.
+
+You have been deployed via orchestrator deploy_1754062880228 with these critical tasks:
+
+1. ✅ BUILT INTELLIGENCE AUDIT - Verify agents have error handling and autonomous decision-making
+2. ✅ CROSS-LEARNING VERIFICATION - Test knowledge sharing between agents  
+3. ✅ TOOL ACCESS CONFIRMATION - Ensure direct tool access without API costs
+4. ✅ CODE GENERATION TESTING - Verify agents create working code via Claude API
+5. ✅ SPECIALTY UTILIZATION - Confirm each agent uses their expertise correctly
+6. ✅ AUTONOMOUS WORK CAPABILITY - Test end-to-end task completion
+7. ✅ INTER-AGENT COMMUNICATION - Verify agent-to-agent coordination
+8. ✅ CONTEXT UNDERSTANDING - Test conversation and project awareness
+9. ✅ CONVERSATION PATTERNS - Frontend pattern recognition verification
+
+MONITORING REQUIREMENTS:
+- Use str_replace_based_edit_tool for file operations (NO API COST)
+- Use search_filesystem to locate issues quickly
+- Use bash for system verification
+- Use Claude API ONLY for complex code generation
+- Create audit report files with specific findings
+- Implement any fixes needed for 95% Replit AI autonomy
+
+Sandra is actively monitoring your tool usage and expects immediate action.
+
+BEGIN AUDIT NOW.
