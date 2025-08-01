@@ -145,15 +145,6 @@ export class AdvancedMemorySystem {
         timestamp: new Date()
       };
 
-      return interaction;
-        sourceAgent,
-        targetAgent,
-        sharedKnowledge: adaptedKnowledge,
-        interactionType: 'knowledge_transfer',
-        success: true,
-        timestamp: new Date()
-      };
-
       console.log(`✅ SHARED: ${adaptedKnowledge.length} patterns from ${sourceAgent} to ${targetAgent}`);
       return interaction;
 
