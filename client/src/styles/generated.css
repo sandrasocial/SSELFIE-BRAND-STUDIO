@@ -1,6 +1,6 @@
-/* Admin Dashboard Luxury Enhancements */
+/* Admin Dashboard Luxury Enhancements - SSELFIE Editorial Standards */
 .admin-dashboard-luxury {
-  background: linear-gradient(135deg, #f8f9fa 0%, #ffffff 100%);
+  background: var(--mid-gray);
   min-height: 100vh;
 }
 
@@ -12,9 +12,9 @@
 }
 
 .admin-metric-card {
-  background: white;
-  border-radius: 12px;
-  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+  background: var(--pure-white);
+  border-radius: 0; /* Editorial luxury - no rounded corners */
+  border: 1px solid var(--accent-line);
   padding: 1.5rem;
-  transition: all 0.3s ease;
+  transition: all 800ms cubic-bezier(0.19, 1, 0.22, 1);
 }

@@ -184,8 +184,8 @@ export class UnifiedAgentSystem {
 
       return {
         success: true,
-        response: typeof response === 'string' ? response : response.content || response,
-        toolsUsed: typeof response === 'object' && response.toolsUsed ? response.toolsUsed : [],
+        response: typeof response === 'string' ? response : (response as any)?.content || response,
+        toolsUsed: typeof response === 'object' && (response as any)?.toolsUsed ? (response as any).toolsUsed : [],
       };
 
     } catch (error) {
