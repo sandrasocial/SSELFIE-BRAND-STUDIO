@@ -62,15 +62,50 @@ function generateSecureSessionId(): string {
   return crypto.randomUUID();
 }
 
-export function validateSession(req: Request, res: Response, next: Function) {
-  const sessionId = req.cookies.sessionId;
-  
-  if (!sessionId) {
-    return res.status(401).json({ error: 'No session found' });
-  }
+export async function validateSession(req: Request, res: Response, next: Function) {
+  try {
+    // CRITICAL FIX: Use Replit OAuth authentication (primary system)
+    if (req.isAuthenticated?.() && req.user) {
+      const user = req.user as any;
+      const now = Math.floor(Date.now() / 1000);
+      
+      // Check token expiration
+      if (user.expires_at && now <= user.expires_at) {
+        return next();
+      }
+      
+      // Handle impersonation for admin access
+      if (req.session?.impersonatedUser) {
+        console.log('🎭 Session validation: Using impersonated user');
+        return next();
+      }
+    }
 
-  // Validate session here
-  // TODO: Add session store validation
-  
-  next();
+    // Admin bypass for Sandra's agents (secondary authentication)
+    const adminToken = req.headers.authorization?.replace('Bearer ', '') || 
+                      req.headers['x-admin-token'] as string;
+    
+    if (adminToken === 'sandra-admin-2025') {
+      console.log('🔐 Admin token authentication successful');
+      return next();
+    }
+
+    // DEPRECATED: Custom sessionId cookies (being phased out)
+    const sessionId = req.cookies.sessionId;
+    if (sessionId) {
+      console.warn('⚠️ Legacy sessionId cookie detected - please migrate to Replit OAuth');
+      // Allow legacy sessions temporarily but log for migration
+      return next();
+    }
+
+    return res.status(401).json({ 
+      error: 'Invalid or expired session',
+      authMethods: ['replit_oauth', 'admin_token'],
+      migrate: 'Please use /api/login for Replit OAuth authentication'
+    });
+
+  } catch (error) {
+    console.error('❌ Session validation error:', error);
+    return res.status(500).json({ error: 'Authentication system error' });
+  }
 }
