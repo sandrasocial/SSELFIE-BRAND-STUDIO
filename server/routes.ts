@@ -19,6 +19,7 @@ import { ModelRetrainService } from './retrain-model';
 // UNIFIED AGENT SYSTEM IMPORT (Single source of truth)
 import { unifiedAgentSystem } from './unified-agent-system';
 import { setupImplementationRoutes } from './agent-implementation-routes';
+import { registerStreamingAdminRoutes } from './routes/streaming-admin-routes';
 
 // Generate Victoria website HTML content
 function generateWebsiteHTML(websiteData: any, onboardingData: any) {
@@ -1332,6 +1333,9 @@ Remember: You are the MEMBER experience Victoria - provide website building guid
       });
     }
   });
+  
+  // STREAMING ADMIN ROUTES - Fixed WebSocket communication
+  registerStreamingAdminRoutes(app, server);
   
   // UNIFIED AGENT SYSTEM - Single integration layer
   console.log('🎯 UNIFIED AGENT SYSTEM: Initializing single integration layer...');

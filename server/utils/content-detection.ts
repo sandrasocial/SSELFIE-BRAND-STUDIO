@@ -139,14 +139,50 @@ export class EnhancedContentDetector {
       };
     }
     
-    // For ambiguous cases (safer, faster)
+    // Enhanced conversational detection - CRITICAL FIX
+    const conversationalPatterns = [
+      'hello', 'hi', 'hey', 'how are you', 'what do you think', 'tell me', 'explain',
+      'why', 'what', 'how', 'when', 'where', 'who', 'can you', 'would you',
+      'feeling', 'today', 'opinion', 'thoughts', 'advice', 'help me understand',
+      'maya', 'elena', 'zara', 'quinn', 'olga', 'victoria'  // Agent names
+    ];
+    
+    const isConversational = conversationalPatterns.some(pattern => 
+      messageWords.includes(pattern)
+    );
+    
+    // FIXED: Simple file operations that actually need tool mode
+    if (hasFileDeletion || hasDeleteCommand || hasSimpleFileCreation) {
+      return {
+        needsClaudeGeneration: false,
+        confidence: 0.8,
+        detectedType: 'tool_operation',
+        complexity,
+        contextualFactors: [...contextualFactors, 'Simple file operation'],
+        reasoning: 'Simple file operation - using autonomous tools'
+      };
+    }
+    
+    // FIXED: Conversational messages should use Claude API
+    if (isConversational) {
+      return {
+        needsClaudeGeneration: true,
+        confidence: 0.9,
+        detectedType: 'content_generation',
+        complexity,
+        contextualFactors: [...contextualFactors, 'Conversational interaction'],
+        reasoning: 'Conversational pattern detected - routing to Claude for natural response'
+      };
+    }
+    
+    // Default to Claude API for all other ambiguous cases (like Replit AI)
     return {
-      needsClaudeGeneration: false,
-      confidence: 0.5,
+      needsClaudeGeneration: true,
+      confidence: 0.7,
       detectedType: 'hybrid',
       complexity,
-      contextualFactors,
-      reasoning: 'Ambiguous request - defaulting to tool operation for efficiency'
+      contextualFactors: [...contextualFactors, 'Ambiguous request'],
+      reasoning: 'Ambiguous request - defaulting to Claude for comprehensive response'
     };
   }
 
