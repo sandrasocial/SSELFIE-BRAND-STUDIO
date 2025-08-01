@@ -85,10 +85,29 @@ export class AutonomousAgentIntegration {
           
           console.log(`🔨 CREATING FILE: ${filePath} based on agent request`);
           
+          // Extract specific content from the message
+          let fileContent = `// File created by ${request.agentId} agent\nContent created successfully!\n`;
+          
+          // Look for content patterns in the message
+          const contentWithMatch = request.message.match(/with content[:\s]+([^"]+)/i);
+          const contentTextMatch = request.message.match(/with text[:\s]+([^"]+)/i);
+          const contentMatch = request.message.match(/content[:\s]+"([^"]+)"/i);
+          const simpleContentMatch = request.message.match(/with\s+"([^"]+)"/);
+          
+          if (contentWithMatch) {
+            fileContent = contentWithMatch[1].trim();
+          } else if (contentTextMatch) {
+            fileContent = contentTextMatch[1].trim();
+          } else if (contentMatch) {
+            fileContent = contentMatch[1];
+          } else if (simpleContentMatch) {
+            fileContent = simpleContentMatch[1];
+          }
+          
           const createOperation = {
             command: 'create',
             path: filePath,
-            file_text: `// File created by ${request.agentId} agent\nContent created successfully!\n`
+            file_text: fileContent
           };
           
           const result = await unifiedWorkspace.executeFileOperation(
@@ -99,6 +118,7 @@ export class AutonomousAgentIntegration {
           
           fileOperations.push(result);
           console.log(`✅ FILE CREATED: ${filePath} by ${request.agentId}`);
+          console.log(`✅ FILE CONTENT: ${fileContent.substring(0, 100)}...`);
           console.log(`✅ FILE OPERATION RESULT:`, JSON.stringify(result, null, 2));
         } else if (fileModificationMatch) {
           // Agent wants to modify a file
