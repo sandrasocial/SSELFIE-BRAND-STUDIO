@@ -1870,16 +1870,17 @@ Available tools (USE THEM):
           });
         }
       } else {
-        // Use autonomous system for tool operations
-        console.log('🎯 AUTONOMOUS SYSTEM: Executing direct tool operations');
+        // Use full autonomous agent integration system
+        console.log('🎯 FULL AUTONOMOUS SYSTEM: Using complete autonomous-agent-integration stack');
         
         try {
-          const { hybridAgentSystem } = await import('./services/hybrid-agent-system');
+          const { AutonomousAgentIntegration } = await import('./services/autonomous-agent-integration');
           
-          const autonomousResult = await hybridAgentSystem.executeDirectToolOperation({
+          const autonomousAgent = AutonomousAgentIntegration.getInstance();
+          const autonomousResult = await autonomousAgent.processAutonomousRequest({
             agentId,
             message,
-            userId,
+            context: userId,
             conversationId: finalConversationId
           });
 
@@ -1888,8 +1889,12 @@ Available tools (USE THEM):
             response: autonomousResult.response,
             contentGenerated: false,
             claudeApiUsed: false,
-            toolsUsed: autonomousResult.toolsUsed,
+            toolsUsed: ['autonomous-navigation', 'intelligent-context', 'predictive-validation'],
             fileOperations: autonomousResult.fileOperations,
+            navigationResults: autonomousResult.navigationResults,
+            validationResults: autonomousResult.validationResults,
+            costOptimized: autonomousResult.costOptimized,
+            agentState: autonomousResult.agentState,
             agentId,
             conversationId: finalConversationId
           });
