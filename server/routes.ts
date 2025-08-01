@@ -335,7 +335,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         
         // Call unified agent system for Victoria
         const victoriaResponse = await unifiedAgentSystem.executeAgent({
-          agentName: 'victoria',
+          agentId: 'victoria',
           task: `Generate website for ${websiteData.businessName}`,
           context: victoriaRequest,
           userId
@@ -462,6 +462,84 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
   
   // BUILD onboarding API endpoints - Save user onboarding data for Victoria
+  // Check if user has completed onboarding
+  app.get('/api/build/onboarding/check', isAuthenticated, async (req: any, res) => {
+    try {
+      const userId = req.user?.claims?.sub;
+      
+      if (!userId) {
+        return res.status(401).json({ error: 'Unauthorized' });
+      }
+      
+      const { db } = await import('./db');
+      const { onboardingData } = await import('../shared/schema');
+      const { eq } = await import('drizzle-orm');
+      
+      const existingOnboarding = await db
+        .select()
+        .from(onboardingData)
+        .where(eq(onboardingData.userId, userId))
+        .limit(1);
+      
+      console.log('🔍 Onboarding Check for user:', userId, 'Found:', !!existingOnboarding[0]);
+      
+      res.json({
+        hasOnboarding: !!existingOnboarding[0],
+        onboardingData: existingOnboarding[0] || null
+      });
+    } catch (error) {
+      console.error('Onboarding check error:', error);
+      res.status(500).json({ error: 'Failed to check onboarding status' });
+    }
+  });
+
+  // Get user's websites
+  app.get('/api/victoria/websites', isAuthenticated, async (req: any, res) => {
+    try {
+      const userId = req.user?.claims?.sub;
+      
+      if (!userId) {
+        return res.status(401).json({ error: 'Unauthorized' });
+      }
+      
+      const { db } = await import('./db');
+      const { websites } = await import('../shared/schema');
+      const { eq, desc } = await import('drizzle-orm');
+      
+      const userWebsites = await db
+        .select()
+        .from(websites)
+        .where(eq(websites.userId, userId))
+        .orderBy(desc(websites.createdAt))
+        .limit(10);
+      
+      console.log('🌐 Websites Check for user:', userId, 'Found:', userWebsites.length);
+      
+      res.json({
+        websites: userWebsites.map(site => ({
+          id: site.id.toString(),
+          title: site.title,
+          slug: site.slug,
+          status: site.status,
+          isPublished: site.isPublished,
+          createdAt: site.createdAt,
+          // Generate preview HTML for existing websites
+          preview: generateWebsiteHTML({
+            businessName: site.title,
+            businessDescription: (site.content as any)?.businessDescription || '',
+            businessType: (site.content as any)?.businessType || 'professional-services',
+            brandPersonality: (site.content as any)?.brandPersonality || 'professional',
+            targetAudience: (site.content as any)?.targetAudience || '',
+            keyFeatures: (site.content as any)?.keyFeatures || []
+          }, (site.content as any)?.enhancedData)
+        }))
+      });
+    } catch (error) {
+      console.error('Websites fetch error:', error);
+      res.status(500).json({ error: 'Failed to fetch websites' });
+    }
+  });
+
   app.post('/api/build/onboarding', isAuthenticated, async (req: any, res) => {
     try {
       const userId = req.user?.claims?.sub;
