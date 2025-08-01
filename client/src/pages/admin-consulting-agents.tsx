@@ -228,27 +228,22 @@ const formatToolResults = (content: string): string[] => {
   return tools;
 };
 
-// Smart content cleaning for luxury user experience
+// Preserve agent responses while cleaning only technical noise
 const cleanMessageContent = (content: string): string => {
   let cleaned = content;
   
-  // Remove raw tool output sections that clutter the user experience
-  cleaned = cleaned.replace(/\[File Operation:.*?\]/g, '');
-  cleaned = cleaned.replace(/\[Codebase Search Results:.*?\]/g, '');
-  cleaned = cleaned.replace(/\[Command Execution:.*?\]/g, '');
-  cleaned = cleaned.replace(/\[Web Search Results:.*?\]/g, '');
-  
-  // Remove technical debugging messages
+  // Only remove specific technical debugging noise, NOT the actual response content
   cleaned = cleaned.replace(/🔧 UNIVERSAL TOOL:.*?\n/g, '');
   cleaned = cleaned.replace(/🔍 PATH VALIDATION:.*?\n/g, '');
   cleaned = cleaned.replace(/✅ VALID PATH ACCEPTED:.*?\n/g, '');
   cleaned = cleaned.replace(/✅ FILE OP SUCCESS:.*?\n/g, '');
   cleaned = cleaned.replace(/🎯 TOOL COMPLETION:.*?\n/g, '');
   
-  // Remove empty lines and excessive whitespace
+  // Clean up excessive whitespace but preserve content structure
   cleaned = cleaned.replace(/\n\s*\n\s*\n/g, '\n\n');
   cleaned = cleaned.trim();
   
+  // CRITICAL: Return the full response content - Sandra needs to see the detailed analysis!
   return cleaned || 'Agent response processed successfully.';
 };
 
@@ -600,13 +595,27 @@ export default function AdminConsultingAgents() {
         // Stream the actual response content progressively
         currentContent += `\n---\n\n`;
         const cleanResponse = cleanMessageContent(responseContent);
-        const words = cleanResponse.split(' ');
         
-        for (let i = 0; i < words.length; i += 3) {
-          const chunk = words.slice(i, i + 3).join(' ');
-          currentContent += chunk + ' ';
-          updateStreamingMessage(streamingMessageId, currentContent, fileOperations, toolsUsed);
-          await delay(100); // Fast but visible streaming
+        // For technical responses, stream more efficiently to show full analysis
+        if (cleanResponse.length > 100) {
+          // Stream in larger chunks for detailed technical content
+          const sentences = cleanResponse.split(/[.!?]\s+/);
+          for (const sentence of sentences) {
+            if (sentence.trim()) {
+              currentContent += sentence + '. ';
+              updateStreamingMessage(streamingMessageId, currentContent, fileOperations, toolsUsed);
+              await delay(200); // Slower for technical analysis readability
+            }
+          }
+        } else {
+          // Original word-by-word streaming for shorter responses
+          const words = cleanResponse.split(' ');
+          for (let i = 0; i < words.length; i += 3) {
+            const chunk = words.slice(i, i + 3).join(' ');
+            currentContent += chunk + ' ';
+            updateStreamingMessage(streamingMessageId, currentContent, fileOperations, toolsUsed);
+            await delay(100);
+          }
         }
 
         // Add completion summary
@@ -680,10 +689,23 @@ export default function AdminConsultingAgents() {
 
   const extractToolUsage = (content: string): string[] => {
     const tools: string[] = [];
-    if (content.includes('str_replace') || content.includes('File Operation')) tools.push('File Editor');
-    if (content.includes('search') || content.includes('Codebase Search')) tools.push('Code Search');
-    if (content.includes('bash') || content.includes('Command Execution')) tools.push('Terminal');
-    if (content.includes('web_search') || content.includes('Web Search')) tools.push('Web Search');
+    // Enhanced tool detection for Zara's technical responses
+    if (content.includes('str_replace') || content.includes('File Operation') || content.includes('file_text') || content.includes('command": "create"') || content.includes('command": "str_replace"')) {
+      tools.push('File Editor');
+    }
+    if (content.includes('search') || content.includes('Codebase Search') || content.includes('search_filesystem')) {
+      tools.push('Code Search');
+    }
+    if (content.includes('bash') || content.includes('Command Execution') || content.includes('npm') || content.includes('git')) {
+      tools.push('Terminal');
+    }
+    if (content.includes('web_search') || content.includes('Web Search')) {
+      tools.push('Web Search');
+    }
+    // If response is detailed technical analysis, assume analytical tools were used
+    if (content.length > 500 && !tools.length) {
+      tools.push('Technical Analysis');
+    }
     return tools;
   };
 
