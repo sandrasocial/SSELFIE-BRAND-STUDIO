@@ -63,14 +63,58 @@ export class UnifiedWorkspaceService {
    * Direct file access without API abstraction
    */
   async executeFileOperation(command: string, path: string, options: any = {}): Promise<WorkspaceOperation> {
-    console.log('🔧 UNIFIED WORKSPACE: Direct file operation (ZERO API COST)');
+    console.log(`🔧 UNIFIED WORKSPACE: Direct file operation (ZERO API COST) - ${command} on ${path}`);
     
     try {
-      const result = await str_replace_based_edit_tool({
-        command: command as any,
-        path,
-        ...options
-      });
+      // Import and use the str_replace_based_edit_tool directly
+      const fs = await import('fs/promises');
+      const nodePath = await import('path');
+      
+      let result: any = {};
+      
+      switch (command) {
+        case 'create':
+          // Ensure directory exists
+          const dir = nodePath.dirname(path);
+          await fs.mkdir(dir, { recursive: true });
+          
+          // Create the file
+          await fs.writeFile(path, options.file_text || '');
+          result = { success: true, message: `File created: ${path}` };
+          console.log(`✅ CREATED FILE: ${path}`);
+          break;
+          
+        case 'view':
+          try {
+            const content = await fs.readFile(path, 'utf-8');
+            result = { content, type: 'view', path };
+            console.log(`👀 VIEWED FILE: ${path} (${content.length} chars)`);
+          } catch (error) {
+            // If it's a directory, list contents
+            try {
+              const entries = await fs.readdir(path);
+              result = { entries, type: 'directory', path };
+              console.log(`📁 LISTED DIRECTORY: ${path} (${entries.length} entries)`);
+            } catch (dirError) {
+              throw new Error(`Cannot view ${path}: ${error}`);
+            }
+          }
+          break;
+          
+        case 'str_replace':
+          const originalContent = await fs.readFile(path, 'utf-8');
+          if (!originalContent.includes(options.old_str)) {
+            throw new Error(`String not found: ${options.old_str}`);
+          }
+          const newContent = originalContent.replace(options.old_str, options.new_str || '');
+          await fs.writeFile(path, newContent);
+          result = { success: true, message: `File modified: ${path}` };
+          console.log(`✏️ MODIFIED FILE: ${path}`);
+          break;
+          
+        default:
+          throw new Error(`Unknown command: ${command}`);
+      }
 
       return {
         type: 'file_write',
@@ -80,6 +124,7 @@ export class UnifiedWorkspaceService {
         costOptimized: true
       };
     } catch (error) {
+      console.error(`❌ UNIFIED WORKSPACE: ${command} failed on ${path}:`, error);
       return {
         type: 'file_write',
         path,

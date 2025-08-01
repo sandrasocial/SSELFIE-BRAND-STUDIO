@@ -136,12 +136,15 @@ export class IntelligentContextManager {
       });
 
       if (requestLower.includes('create') || requestLower.includes('new')) {
-        suggestions.push({
-          action: 'create',
-          files: this.suggestNewFileNames(request, relevantFiles),
-          reason: 'Create new files based on request',
-          confidence: 0.8
-        });
+        const newFileNames = this.suggestNewFileNames(request, relevantFiles);
+        if (newFileNames.length > 0) {
+          suggestions.push({
+            action: 'create',
+            files: newFileNames,
+            reason: 'Create new files based on request',
+            confidence: 0.8
+          });
+        }
       } else {
         suggestions.push({
           action: 'edit',
@@ -179,7 +182,8 @@ export class IntelligentContextManager {
       });
     }
 
-    return suggestions.filter(s => s.files.length > 0);
+    // Allow create actions without existing files, but filter other actions
+    return suggestions.filter(s => s.action === 'create' || s.files.length > 0);
   }
 
   /**
@@ -378,6 +382,21 @@ export class IntelligentContextManager {
     const suggestions: string[] = [];
     const requestLower = request.toLowerCase();
 
+    // Extract specific file names from the request
+    const fileNameMatch = request.match(/(?:file|component).*?(?:called|named)?\s*([A-Za-z0-9]+\.tsx?)/i);
+    if (fileNameMatch) {
+      const fileName = fileNameMatch[1];
+      if (requestLower.includes('admin')) {
+        suggestions.push(`client/src/components/admin/${fileName}`);
+      } else if (requestLower.includes('component')) {
+        suggestions.push(`client/src/components/${fileName}`);
+      } else {
+        suggestions.push(`client/src/components/${fileName}`);
+      }
+      return suggestions;
+    }
+
+    // Fallback patterns
     if (requestLower.includes('component')) {
       suggestions.push('client/src/components/NewComponent.tsx');
     }
