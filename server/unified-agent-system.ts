@@ -244,10 +244,20 @@ export class UnifiedAgentSystem {
    */
   private async postExecutionImplementationHook(request: AgentRequest, response: any): Promise<void> {
     try {
+      // Extract response content safely
+      const responseContent = typeof response === 'string' ? response : 
+                              response?.content || response?.message || response?.text || '';
+      
+      // Validate content before processing
+      if (!responseContent || typeof responseContent !== 'string') {
+        console.log('🔧 Implementation Hook: No valid content to analyze');
+        return;
+      }
+      
       // Detect if agent created files or services that need implementation
-      const createdFiles = this.extractCreatedFiles(response.content);
-      const hasBackendService = this.detectBackendService(response.content);
-      const hasUIComponent = this.detectUIComponent(response.content);
+      const createdFiles = this.extractCreatedFiles(responseContent);
+      const hasBackendService = this.detectBackendService(responseContent);
+      const hasUIComponent = this.detectUIComponent(responseContent);
 
       // If agent created implementation-worthy content, trigger the protocol
       if (createdFiles.length > 0 || hasBackendService || hasUIComponent) {
@@ -258,7 +268,7 @@ export class UnifiedAgentSystem {
           await agentIntegrationSystem.onAgentServiceCreation(
             request.agentId,
             request.conversationId,
-            this.extractServiceName(response.content),
+            this.extractServiceName(responseContent),
             createdFiles.find(f => f.includes('service')) || 'server/services/generated-service.ts'
           );
         }
@@ -267,7 +277,7 @@ export class UnifiedAgentSystem {
           await agentIntegrationSystem.onAgentComponentGeneration(
             request.agentId,
             request.conversationId,
-            this.extractComponentName(response.content),
+            this.extractComponentName(responseContent),
             createdFiles.find(f => f.includes('component') || f.endsWith('.tsx')) || 'client/src/components/generated-component.tsx'
           );
         }
@@ -319,6 +329,10 @@ export class UnifiedAgentSystem {
    * Detect if response indicates backend service creation
    */
   private detectBackendService(responseContent: string): boolean {
+    if (!responseContent || typeof responseContent !== 'string') {
+      return false;
+    }
+    
     const serviceKeywords = [
       'backend service', 'api endpoint', 'server route', 'service class',
       'setupEnhancementRoutes', 'BackendEnhancementServices', 'API routes'
