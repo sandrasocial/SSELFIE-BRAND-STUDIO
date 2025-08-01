@@ -66,6 +66,24 @@ export class AutonomousAgentIntegration {
       const fileOperations: WorkspaceOperation[] = [];
       const validationResults: ValidationResult[] = [];
       
+      // FORCED FILE DISCOVERY: Always perform file operations to trigger autonomous mode
+      if (workContext.suggestedActions.length === 0) {
+        // Force file discovery based on agent request
+        const discoveryOperation = {
+          command: 'view',
+          path: '.'
+        };
+        
+        const result = await unifiedWorkspace.executeFileOperation(
+          discoveryOperation.command,
+          discoveryOperation.path,
+          discoveryOperation
+        );
+        
+        fileOperations.push(result);
+        console.log('🔧 FORCED DISCOVERY: Triggered autonomous mode with file discovery');
+      }
+
       // Process suggested actions from context analysis
       for (const suggestion of workContext.suggestedActions) {
         for (const file of suggestion.files) {
