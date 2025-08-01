@@ -6,6 +6,8 @@ import { claudeConversations, claudeMessages, agentLearning, agentCapabilities, 
 import { agentImplementationToolkit, AgentImplementationRequest } from '../tools/agent_implementation_toolkit';
 import { agentImplementationDetector } from '../tools/agent_implementation_detector';
 import { agentSearchCache } from './agent-search-cache';
+import { advancedMemorySystem } from './advanced-memory-system';
+import { crossAgentIntelligence } from './cross-agent-intelligence';
 // Legacy DirectToolExecutor removed - using AutonomousAgentIntegration instead
 import { eq, and, desc } from 'drizzle-orm';
 import fetch from 'node-fetch';
@@ -498,6 +500,20 @@ ${searchResult.results.slice(0, 10).map((file: any) => `• ${file.path}`).join(
       // Build enhanced system prompt with agent expertise and UNLIMITED ACCESS
       const baseSystemPrompt = systemPrompt + elenaMemoryContext;
       let enhancedSystemPrompt = await this.buildAgentSystemPrompt(agentName, baseSystemPrompt, memory || undefined, true); // FORCE UNLIMITED ACCESS
+      
+      // ADVANCED MEMORY INTEGRATION: Get contextual memories for enhanced intelligence
+      try {
+        const contextualMemories = await advancedMemorySystem.getContextualMemories(agentName, userId, userMessage);
+        if (contextualMemories.length > 0) {
+          enhancedSystemPrompt += `\n\n## 🧠 CONTEXTUAL MEMORY INTELLIGENCE\n\n`;
+          enhancedSystemPrompt += contextualMemories.map(memory => 
+            `**${memory.category}** (confidence: ${memory.confidence.toFixed(2)}): ${memory.pattern}`
+          ).join('\n') + '\n';
+          console.log(`🧠 ADVANCED MEMORY: Loaded ${contextualMemories.length} contextual memories for ${agentName}`);
+        }
+      } catch (error) {
+        console.error(`❌ ADVANCED MEMORY: Error loading contextual memories for ${agentName}:`, error);
+      }
       
       // ADD SEARCH OPTIMIZATION CONTEXT FOR ALL AGENTS
       const searchSummary = agentSearchCache.getSearchSummary(actualConversationId, agentName);
