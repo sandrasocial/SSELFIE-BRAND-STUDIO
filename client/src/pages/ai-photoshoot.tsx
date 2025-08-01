@@ -843,7 +843,7 @@ export default function AIPhotoshootPage() {
         
         toast({
           title: "Generation Started",
-          description: "Creating your photos... This takes 30-45 seconds.",
+          description: "Creating your photos... This takes 2-3 minutes for best quality.",
         });
       } else {
         throw new Error('Invalid response from generation API');
@@ -864,7 +864,7 @@ export default function AIPhotoshootPage() {
   const pollForTrackerImages = async (trackerId: number) => {
     console.log(`AI-PHOTOSHOOT: 🚀 Starting enhanced polling for tracker ${trackerId}`);
     
-    const maxAttempts = 40; // 2 minutes total (3 second intervals)
+    const maxAttempts = 100; // 5 minutes total (3 second intervals) - allows full Replicate generation time
     let attempts = 0;
     
     // CRITICAL FIX: First check if tracker is already completed (common case)
@@ -911,7 +911,9 @@ export default function AIPhotoshootPage() {
     const poll = async () => {
       try {
         attempts++;
-        setGenerationProgress(Math.min(90, (attempts / maxAttempts) * 90));
+        // More realistic progress calculation - reaches 75% at 3 minutes, stays there until completion
+        const progressPercent = Math.min(75, (attempts / (maxAttempts * 0.6)) * 75);
+        setGenerationProgress(progressPercent);
         
         // Enhanced authentication retry logic (matching Maya's working system)
         let response;
