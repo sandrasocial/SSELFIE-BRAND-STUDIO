@@ -265,17 +265,17 @@ class APIOrchestrationLayer extends EventEmitter {
       }
 
       // Update service status
-      if (result.success) {
+      if (result && result.success) {
         service.status = 'connected';
         service.errorMessage = undefined;
       } else {
         service.status = 'error';
-        service.errorMessage = result.message;
+        service.errorMessage = result?.message || 'Unknown error';
       }
       service.lastHealthCheck = new Date();
 
       this.emit('serviceTested', { service, result });
-      return result;
+      return result || { success: false, message: 'Test failed' };
 
     } catch (error) {
       const errorMessage = error instanceof Error ? error.message : 'Unknown error';
@@ -342,7 +342,7 @@ class APIOrchestrationLayer extends EventEmitter {
   // Health Checks
   private startHealthChecks() {
     this.healthCheckInterval = setInterval(async () => {
-      for (const [id] of this.services) {
+      for (const [id] of Array.from(this.services.keys())) {
         await this.testService(id);
       }
     }, 5 * 60 * 1000); // Every 5 minutes

@@ -126,7 +126,7 @@ export class BackendEnhancementServices {
   }
 
   private updateTaskStatuses(): void {
-    for (const [taskId, task] of this.taskDependencies) {
+    for (const [taskId, task] of Array.from(this.taskDependencies.entries())) {
       if (task.status === 'pending') {
         const dependenciesCompleted = task.dependsOn.every(depId => {
           const dep = this.taskDependencies.get(depId);
