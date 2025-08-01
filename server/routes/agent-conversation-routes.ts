@@ -271,7 +271,8 @@ export function registerAgentRoutes(app: Express) {
       // Direct file operation handling (bypass removed for clean system)
       console.log(`💬 CONVERSATION: Processing message for ${agentId}`);
 
-      // For all agents, process the message through Claude API
+      // FORCE CLAUDE API USAGE - NEVER USE AUTONOMOUS WORKSPACE FOR CONTENT GENERATION
+    // Agents MUST use Claude API to generate actual code content
       let agentResponse = '';
       
       try {
@@ -300,7 +301,17 @@ export function registerAgentRoutes(app: Express) {
         let enhancedSystemPrompt = optimizedSystemPrompt;
         
         if (agent.canModifyFiles) {
-          enhancedSystemPrompt += `\n\nFULL ACCESS CAPABILITIES (COMPLETE CODEBASE ACCESS):
+          enhancedSystemPrompt += `\n\nCRITICAL: ACTUAL CODE GENERATION REQUIRED
+You MUST generate actual code content, not empty files. When creating files:
+
+1. ALWAYS include complete, functional code
+2. Use appropriate imports and dependencies
+3. Follow TypeScript/React best practices
+4. Include proper JSX structure for components
+5. Add proper interfaces and types
+6. Never create empty files - always include meaningful implementation
+
+FULL ACCESS CAPABILITIES (COMPLETE CODEBASE ACCESS):
 - Use str_replace_based_edit_tool to view, create, and modify files
 - Use search_filesystem to find specific files based on your priority search system
 - Focus on the routed pages listed in your search optimization guide
@@ -309,9 +320,17 @@ export function registerAgentRoutes(app: Express) {
 
 Available tool commands:
 - view: Show file contents (add view_range: [start, end] for specific lines)
-- create: Create new files 
+- create: Create new files WITH ACTUAL CODE CONTENT
 - str_replace: Modify existing files
-- search_filesystem: Find files using query_description, class_names, or function_names`;
+- search_filesystem: Find files using query_description, class_names, or function_names
+
+EXAMPLE: When creating a React component, include:
+import React from 'react';
+export function ComponentName() {
+  return (
+    <div>Actual component content</div>
+  );
+}`;
         }
         
         // Try Claude API first
@@ -329,7 +348,9 @@ Available tool commands:
             messages: [
               {
                 role: 'user',
-                content: message
+                content: `${message}
+
+CRITICAL INSTRUCTION: You must create actual functional code content. Do not create empty files. When using str_replace_based_edit_tool with 'create' command, always include complete, working code in the file_text parameter.`
               }
             ]
           }),
@@ -339,7 +360,12 @@ Available tool commands:
           const data = await claudeResponse.json();
           if (data.content && Array.isArray(data.content) && data.content.length > 0) {
             agentResponse = data.content[0].text || data.content[0].content;
+            console.log(`✅ CLAUDE API SUCCESS: ${agentId} received ${agentResponse.length} characters`);
+          } else {
+            console.log(`⚠️ CLAUDE API EMPTY RESPONSE: ${agentId}`);
           }
+        } else {
+          console.log(`❌ CLAUDE API HTTP ERROR: ${claudeResponse.status} ${claudeResponse.statusText}`);
         }
       } catch (apiError) {
         console.log('❌ Claude API Error:', apiError);
