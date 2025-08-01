@@ -1425,9 +1425,12 @@ I respond like your warm best friend who loves organization - simple, reassuring
               if (block.input?.command === 'create' && !block.input?.file_text) {
                 console.log(`🔧 AUTO-FIXING: Generating missing file_text for create command`);
                 
+                // Extract user message from messages array
+                const userMessage = currentMessages.find(msg => msg.role === 'user')?.content || '';
+                
                 // Import parameter injection system
                 const { ParameterInjectionSystem } = await import('../utils/parameter-injection-system');
-                const fix = ParameterInjectionSystem.fixMissingFileText(block, userMessage || '', agentName);
+                const fix = ParameterInjectionSystem.fixMissingFileText(block, userMessage, agentName);
                 
                 if (fix.injectedParameters.length > 0) {
                   console.log(`✅ PARAMETER INJECTION: ${fix.reason}`);
