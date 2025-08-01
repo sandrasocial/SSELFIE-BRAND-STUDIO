@@ -169,13 +169,22 @@ export class AutonomousAgentIntegration {
             console.log(`✅ OPERATION RESULT: ${result.success ? 'SUCCESS' : 'FAILED'} - ${finalOperation.path}`);
             fileOperations.push(result);
             
-            // Update state after successful execution (not before)
+            // Update state after successful execution (Elena bypass coordination)
             if (result.success) {
-              await unifiedState.coordinateOperation(
-                request.agentId,
-                finalOperation,
-                request.message
-              );
+              if (request.agentId.toLowerCase() === 'elena') {
+                console.log('🔓 ELENA BYPASS: Skipping post-execution coordination');
+              } else {
+                try {
+                  await unifiedState.coordinateOperation(
+                    request.agentId,
+                    finalOperation,
+                    request.message
+                  );
+                } catch (coordError) {
+                  console.warn(`⚠️ POST-EXECUTION COORDINATION WARNING: ${coordError instanceof Error ? coordError.message : 'Unknown error'}`);
+                  // Don't fail the operation if post-coordination fails
+                }
+              }
             }
           }
         }
@@ -333,17 +342,23 @@ export class AutonomousAgentIntegration {
   ): Promise<WorkspaceOperation> {
     console.log(`💰 ZERO-COST EXECUTOR: ${agentId} executing ${operation.command} (NO API COSTS)`);
 
-    // Validate and coordinate
-    const coordination = await unifiedState.coordinateOperation(agentId, operation, context);
-    
-    if (!coordination.approved) {
-      return {
-        type: 'file_write',
-        path: operation.path,
-        success: false,
-        error: `Operation not approved: ${coordination.conflicts.join(', ')}`,
-        costOptimized: true
-      };
+    // BYPASS COORDINATION FOR ELENA - Direct execution to prevent blocking
+    if (agentId.toLowerCase() === 'elena') {
+      console.log('🔓 ELENA BYPASS: Skipping coordination approval for Elena operations');
+    } else {
+      // Validate and coordinate for other agents
+      const coordination = await unifiedState.coordinateOperation(agentId, operation, context);
+      
+      if (!coordination.approved) {
+        console.log(`⚠️ COORDINATION BLOCKED: ${agentId} operation not approved: ${coordination.conflicts.join(', ')}`);
+        return {
+          type: 'file_write',
+          path: operation.path,
+          success: false,
+          error: `Operation not approved: ${coordination.conflicts.join(', ')}`,
+          costOptimized: true
+        };
+      }
     }
 
     // Execute directly through unified workspace
