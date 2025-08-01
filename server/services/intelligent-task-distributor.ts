@@ -210,8 +210,9 @@ class IntelligentTaskDistributor {
 
       visiting.add(task.id);
 
-      // Visit dependencies first
-      for (const depId of task.dependencies) {
+      // Visit dependencies first (handle undefined dependencies)
+      const dependencies = task.dependencies || [];
+      for (const depId of dependencies) {
         const depTask = tasks.find(t => t.id === depId);
         if (depTask) {
           visit(depTask);
