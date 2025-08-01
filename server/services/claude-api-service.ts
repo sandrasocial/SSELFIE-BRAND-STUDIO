@@ -1539,7 +1539,7 @@ I respond like your warm best friend who loves organization - simple, reassuring
       
       // AGENT TASK COMPLETION: Allow agents to complete their work naturally
       const recursiveDepth = (currentMessages.filter(m => m.role === 'assistant').length || 0);
-      const maxRecursiveDepth = 8; // RESTORED REASONABLE LIMIT FOR COMPLEX TASKS
+      const maxRecursiveDepth = 20; // INCREASED LIMIT FOR COMPLEX ANALYSIS TASKS
       
       if (continuationHasTools && recursiveDepth < maxRecursiveDepth) {
         console.log(`🔄 AGENT WORKING: Depth ${recursiveDepth}/${maxRecursiveDepth}, processing ${continuationResponse.content.filter((b: any) => b.type === 'tool_use').length} more tools`);
@@ -1586,7 +1586,7 @@ I respond like your warm best friend who loves organization - simple, reassuring
           console.log(`✅ AGENT TASK COMPLETED: Agent finished work naturally`);
         }
         
-      } else if (continuationHasTools && recursiveDepth < 8) {
+      } else if (continuationHasTools && recursiveDepth < maxRecursiveDepth) {
         console.log(`🔄 CONTINUING WORK: Processing remaining tools at depth ${recursiveDepth}`);
         
         // ADDITIONAL SAFETY: Check for problematic tool patterns
@@ -1726,10 +1726,10 @@ I respond like your warm best friend who loves organization - simple, reassuring
         
         const finalRes = await this.sendToClaudeWithRetry({
           model: DEFAULT_MODEL_STR,
-          max_tokens: 1000,
+          max_tokens: 2000, // INCREASED for complete responses
           system: systemPrompt,
           messages: currentMessages,
-          tools: []  // No more tools to prevent infinite loops
+          tools: tools  // Keep tools available for comprehensive analysis
         });
         
         for (const content of finalRes.content) {
