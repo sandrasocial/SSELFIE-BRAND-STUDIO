@@ -31,7 +31,7 @@ export function WebsiteWizard({ onComplete }: WebsiteWizardProps) {
   // Mutation to save onboarding data before generation
   const saveOnboardingMutation = useMutation({
     mutationFn: async (data: Partial<WebsiteGenerationRequest>) => {
-      return apiRequest('POST', '/api/build/onboarding', data);
+      return apiRequest('/api/build/onboarding', 'POST', data);
     },
     onError: (error) => {
       console.error('Failed to save onboarding data:', error);
