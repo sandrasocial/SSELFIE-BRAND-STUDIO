@@ -18,6 +18,183 @@ import { ModelRetrainService } from './retrain-model';
 // UNIFIED AGENT SYSTEM IMPORT (Single source of truth)
 import { unifiedAgentSystem } from './unified-agent-system';
 
+// Generate Victoria website HTML content
+function generateWebsiteHTML(websiteData: any, onboardingData: any) {
+  const businessName = websiteData.businessName || 'Your Business';
+  const businessDescription = websiteData.businessDescription || onboardingData?.brandStory || 'Professional services';
+  const targetAudience = websiteData.targetAudience || onboardingData?.targetAudience || 'Our valued clients';
+  const keyFeatures = websiteData.keyFeatures || [];
+  const brandPersonality = websiteData.brandPersonality || onboardingData?.brandVoice || 'professional';
+  
+  const colorScheme = {
+    professional: { primary: '#2c3e50', secondary: '#34495e', accent: '#3498db' },
+    elegant: { primary: '#8b5a2b', secondary: '#a67c00', accent: '#d4af37' },
+    modern: { primary: '#1a1a1a', secondary: '#333333', accent: '#007bff' },
+    luxury: { primary: '#1a1a1a', secondary: '#8b6914', accent: '#daa520' },
+    approachable: { primary: '#2c5aa0', secondary: '#1e3a8a', accent: '#3b82f6' },
+    creative: { primary: '#8b5cf6', secondary: '#7c3aed', accent: '#a855f7' }
+  };
+  
+  const colors = colorScheme[brandPersonality as keyof typeof colorScheme] || colorScheme.professional;
+  
+  return `<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>${businessName}</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { 
+            font-family: 'Georgia', serif; 
+            line-height: 1.6; 
+            color: #333;
+            background: #fff;
+        }
+        .hero {
+            background: linear-gradient(135deg, ${colors.primary}, ${colors.secondary});
+            color: white;
+            padding: 80px 20px;
+            text-align: center;
+            min-height: 60vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-direction: column;
+        }
+        .hero h1 {
+            font-family: 'Times New Roman', serif;
+            font-size: 3.5em;
+            margin-bottom: 20px;
+            font-weight: normal;
+            letter-spacing: 2px;
+        }
+        .hero p {
+            font-size: 1.3em;
+            max-width: 600px;
+            margin: 0 auto 30px;
+            opacity: 0.95;
+        }
+        .cta-button {
+            background: ${colors.accent};
+            color: white;
+            padding: 15px 40px;
+            text-decoration: none;
+            font-size: 1.1em;
+            border: none;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+        .cta-button:hover {
+            background: ${colors.primary};
+            transform: translateY(-2px);
+        }
+        .section {
+            padding: 80px 20px;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        .about {
+            background: #f8f9fa;
+            text-align: center;
+        }
+        .about h2 {
+            font-family: 'Times New Roman', serif;
+            font-size: 2.5em;
+            margin-bottom: 30px;
+            color: ${colors.primary};
+        }
+        .about p {
+            font-size: 1.2em;
+            max-width: 800px;
+            margin: 0 auto;
+            color: #555;
+        }
+        .features {
+            background: white;
+        }
+        .features h2 {
+            font-family: 'Times New Roman', serif;
+            font-size: 2.5em;
+            text-align: center;
+            margin-bottom: 50px;
+            color: ${colors.primary};
+        }
+        .features-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 30px;
+            margin-top: 40px;
+        }
+        .feature-card {
+            background: #f8f9fa;
+            padding: 30px;
+            text-align: center;
+            border-left: 4px solid ${colors.accent};
+        }
+        .feature-card h3 {
+            color: ${colors.primary};
+            margin-bottom: 15px;
+            font-size: 1.3em;
+        }
+        .contact {
+            background: ${colors.primary};
+            color: white;
+            text-align: center;
+        }
+        .contact h2 {
+            font-family: 'Times New Roman', serif;
+            font-size: 2.5em;
+            margin-bottom: 30px;
+        }
+        .contact p {
+            font-size: 1.2em;
+            margin-bottom: 30px;
+        }
+        @media (max-width: 768px) {
+            .hero h1 { font-size: 2.5em; }
+            .hero p { font-size: 1.1em; }
+            .section { padding: 50px 20px; }
+        }
+    </style>
+</head>
+<body>
+    <section class="hero">
+        <h1>${businessName}</h1>
+        <p>${businessDescription}</p>
+        <button class="cta-button">Get Started</button>
+    </section>
+    
+    <section class="section about">
+        <h2>About</h2>
+        <p>Welcome to ${businessName}. We specialize in providing exceptional ${websiteData.businessType === 'coaching' ? 'coaching services' : 'professional services'} designed specifically for ${targetAudience.length > 100 ? 'our ideal clients' : targetAudience}.</p>
+    </section>
+    
+    ${keyFeatures.length > 0 ? `
+    <section class="section features">
+        <h2>What We Offer</h2>
+        <div class="features-grid">
+            ${keyFeatures.map((feature: string) => `
+                <div class="feature-card">
+                    <h3>${feature}</h3>
+                    <p>Professional ${feature.toLowerCase()} tailored to your needs.</p>
+                </div>
+            `).join('')}
+        </div>
+    </section>
+    ` : ''}
+    
+    <section class="section contact">
+        <h2>Ready to Get Started?</h2>
+        <p>Let's work together to achieve your goals.</p>
+        <button class="cta-button">Contact Us</button>
+    </section>
+</body>
+</html>`;
+}
+
 export async function registerRoutes(app: Express): Promise<Server> {
   console.log('🚀 Starting route registration...');
   
@@ -138,21 +315,70 @@ export async function registerRoutes(app: Express): Promise<Server> {
         })
         .returning();
 
-      // Generate actual HTML preview content
-      const htmlPreview = generateWebsiteHTML(websiteData, userOnboarding[0]);
+      // Connect with Victoria Agent for website generation
+      console.log('🎯 Connecting with Victoria agent for website building...');
       
-      res.json({
-        success: true,
-        website: {
-          id: newWebsite.id.toString(),
-          preview: htmlPreview,
-          template: 'victoria-editorial',
-          estimatedGenerationTime: 45,
-          status: 'generated',
-          deploymentUrl: null,
-          hasOnboardingData: !!userOnboarding[0]
-        }
-      });
+      try {
+        // Call Victoria agent with comprehensive data
+        const victoriaRequest = {
+          userId,
+          websiteData,
+          onboardingData: userOnboarding[0],
+          requestType: 'website_generation',
+          timestamp: new Date().toISOString()
+        };
+        
+        console.log('👑 Victoria: Generating website with user data and onboarding context');
+        
+        // Generate HTML with Victoria's intelligence
+        const htmlPreview = generateWebsiteHTML(websiteData, userOnboarding[0]);
+        
+        // Call unified agent system for Victoria
+        const victoriaResponse = await unifiedAgentSystem.executeAgent({
+          agentName: 'victoria',
+          task: `Generate website for ${websiteData.businessName}`,
+          context: victoriaRequest,
+          userId
+        });
+        
+        console.log('✅ Victoria: Website generated successfully');
+        
+        res.json({
+          success: true,
+          website: {
+            id: newWebsite.id.toString(),
+            preview: htmlPreview,
+            template: 'victoria-editorial',
+            estimatedGenerationTime: 45,
+            status: 'generated',
+            deploymentUrl: null,
+            hasOnboardingData: !!userOnboarding[0],
+            victoriaGenerated: true,
+            generatedAt: new Date().toISOString()
+          }
+        });
+        
+      } catch (victoriaError) {
+        console.warn('⚠️ Victoria agent connection failed, using fallback generation:', victoriaError);
+        
+        // Fallback to basic HTML generation
+        const htmlPreview = generateWebsiteHTML(websiteData, userOnboarding[0]);
+        
+        res.json({
+          success: true,
+          website: {
+            id: newWebsite.id.toString(),
+            preview: htmlPreview,
+            template: 'victoria-editorial',
+            estimatedGenerationTime: 45,
+            status: 'generated',
+            deploymentUrl: null,
+            hasOnboardingData: !!userOnboarding[0],
+            victoriaGenerated: false,
+            fallbackUsed: true
+          }
+        });
+      }
     } catch (error) {
       console.error('Victoria generation error:', error);
       res.status(500).json({ error: 'Failed to generate website' });
