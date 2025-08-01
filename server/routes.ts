@@ -17,6 +17,7 @@ import { ModelRetrainService } from './retrain-model';
 
 // UNIFIED AGENT SYSTEM IMPORT (Single source of truth)
 import { unifiedAgentSystem } from './unified-agent-system';
+import { setupImplementationRoutes } from './agent-implementation-routes';
 
 // Generate Victoria website HTML content
 function generateWebsiteHTML(websiteData: any, onboardingData: any) {
@@ -336,9 +337,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
         // Call unified agent system for Victoria
         const victoriaResponse = await unifiedAgentSystem.executeAgent({
           agentId: 'victoria',
-          task: `Generate website for ${websiteData.businessName}`,
-          context: victoriaRequest,
-          userId
+          message: `Generate website for ${websiteData.businessName}`,
+          conversationId: `website-${Date.now()}`,
+          enforceTools: false
         });
         
         console.log('✅ Victoria: Website generated successfully');
@@ -1332,6 +1333,10 @@ Remember: You are the MEMBER experience Victoria - provide website building guid
   console.log('🎯 UNIFIED AGENT SYSTEM: Initializing single integration layer...');
   await unifiedAgentSystem.initialize(app, server);
   console.log('✅ UNIFIED AGENT SYSTEM: Single integration layer operational');
+  
+  // AGENT IMPLEMENTATION PROTOCOL - Autonomous implementation system
+  setupImplementationRoutes(app);
+  console.log('✅ IMPLEMENTATION PROTOCOL: Agent autonomous implementation system active');
   
   // Add essential API routes
   const { claudeApiService } = await import('./services/claude-api-service');

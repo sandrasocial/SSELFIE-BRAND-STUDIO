@@ -12,6 +12,7 @@ import { WebSocketServer } from 'ws';
 import type { Server } from 'http';
 import { db } from './db';
 import { storage } from './storage';
+import { agentIntegrationSystem } from './agent-integration-system';
 
 export interface AgentRequest {
   agentId: string;
@@ -168,6 +169,9 @@ export class UnifiedAgentSystem {
         request.enforceTools || false // fileEditMode
       );
 
+      // HOOK: Trigger implementation protocol after agent execution
+      await this.postExecutionImplementationHook(request, response);
+
       // Broadcast to WebSocket clients
       this.broadcastToClients({
         type: 'agent_execution_complete',
@@ -235,6 +239,127 @@ export class UnifiedAgentSystem {
   }
 
   /**
+   * POST-EXECUTION IMPLEMENTATION HOOK
+   * Triggers autonomous implementation after agent content generation
+   */
+  private async postExecutionImplementationHook(request: AgentRequest, response: any): Promise<void> {
+    try {
+      // Detect if agent created files or services that need implementation
+      const createdFiles = this.extractCreatedFiles(response.content);
+      const hasBackendService = this.detectBackendService(response.content);
+      const hasUIComponent = this.detectUIComponent(response.content);
+
+      // If agent created implementation-worthy content, trigger the protocol
+      if (createdFiles.length > 0 || hasBackendService || hasUIComponent) {
+        console.log(`🔧 IMPLEMENTATION HOOK: Triggering implementation for ${request.agentId}`);
+        
+        // Determine what was created
+        if (hasBackendService) {
+          await agentIntegrationSystem.onAgentServiceCreation(
+            request.agentId,
+            request.conversationId,
+            this.extractServiceName(response.content),
+            createdFiles.find(f => f.includes('service')) || 'server/services/generated-service.ts'
+          );
+        }
+
+        if (hasUIComponent) {
+          await agentIntegrationSystem.onAgentComponentGeneration(
+            request.agentId,
+            request.conversationId,
+            this.extractComponentName(response.content),
+            createdFiles.find(f => f.includes('component') || f.endsWith('.tsx')) || 'client/src/components/generated-component.tsx'
+          );
+        }
+
+        // For any other files
+        for (const filePath of createdFiles) {
+          await agentIntegrationSystem.onAgentFileCreation(
+            request.agentId,
+            request.conversationId,
+            filePath,
+            '' // Content will be read from file
+          );
+        }
+
+        console.log(`✅ IMPLEMENTATION HOOK: Triggered for ${createdFiles.length} files`);
+      }
+    } catch (error) {
+      console.error('❌ Implementation hook error:', error);
+      // Don't fail the main request if implementation hook fails
+    }
+  }
+
+  /**
+   * Extract file paths from agent response
+   */
+  private extractCreatedFiles(responseContent: string): string[] {
+    const filePaths: string[] = [];
+    
+    // Look for file creation patterns
+    const filePatterns = [
+      /create.*?file.*?[`'"](.*?)[`'"]/gi,
+      /created.*?[`'"](.*?\.tsx?)[`'"]/gi,
+      /file.*?[`'"](.*?\.tsx?)[`'"]/gi,
+      /component.*?[`'"](.*?\.tsx)[`'"]/gi,
+      /service.*?[`'"](.*?\.ts)[`'"]/gi
+    ];
+
+    for (const pattern of filePatterns) {
+      let match;
+      while ((match = pattern.exec(responseContent)) !== null) {
+        filePaths.push(match[1]);
+      }
+    }
+
+    return [...new Set(filePaths)]; // Remove duplicates
+  }
+
+  /**
+   * Detect if response indicates backend service creation
+   */
+  private detectBackendService(responseContent: string): boolean {
+    const serviceKeywords = [
+      'backend service', 'api endpoint', 'server route', 'service class',
+      'setupEnhancementRoutes', 'BackendEnhancementServices', 'API routes'
+    ];
+    
+    return serviceKeywords.some(keyword => 
+      responseContent.toLowerCase().includes(keyword.toLowerCase())
+    );
+  }
+
+  /**
+   * Detect if response indicates UI component creation
+   */
+  private detectUIComponent(responseContent: string): boolean {
+    const componentKeywords = [
+      'react component', 'ui component', 'tsx component', 'dashboard',
+      'wizard', 'template', 'interface', 'form component'
+    ];
+    
+    return componentKeywords.some(keyword => 
+      responseContent.toLowerCase().includes(keyword.toLowerCase())
+    );
+  }
+
+  /**
+   * Extract service name from response
+   */
+  private extractServiceName(responseContent: string): string {
+    const serviceMatch = responseContent.match(/service[:\s]+([A-Z][a-zA-Z]+)/i);
+    return serviceMatch ? serviceMatch[1] : 'GeneratedService';
+  }
+
+  /**
+   * Extract component name from response
+   */
+  private extractComponentName(responseContent: string): string {
+    const componentMatch = responseContent.match(/component[:\s]+([A-Z][a-zA-Z]+)/i);
+    return componentMatch ? componentMatch[1] : 'GeneratedComponent';
+  }
+
+  /**
    * Get system status
    */
   getSystemStatus() {
@@ -244,7 +369,9 @@ export class UnifiedAgentSystem {
       sessions: this.activeSessions.size,
       websocket_clients: this.wss?.clients.size || 0,
       competing_systems: 'deactivated',
-      decision_paralysis: 'resolved'
+      decision_paralysis: 'resolved',
+      implementation_protocol: 'active',
+      autonomous_implementation: 'enabled'
     };
   }
 }
