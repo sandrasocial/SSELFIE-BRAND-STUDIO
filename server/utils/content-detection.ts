@@ -57,27 +57,18 @@ export class ContentDetector {
     const hasFileDeletion = /(?:delete|remove|cleanup|clean).*\.(tsx|ts|js|jsx|css|html)/i.test(message);
     const hasDeleteCommand = /(?:delete|remove|cleanup|clean)/i.test(message);
     
-    // Specific file creation patterns (always use Claude)
-    const hasFileCreation = /create.*\.(tsx|ts|js|jsx|css|html)/i.test(message);
+    // DIRECT AGENT ACCESS: All file operations use autonomous system (not Claude API)
+    const hasFileCreation = /create.*\.(tsx|ts|js|jsx|css|html|md)/i.test(message);
     const hasComponentRequest = /component|interface|service/i.test(message);
     const hasImplementation = /implement|build|generate.*code/i.test(message);
 
-    // Decision logic - deletion/cleanup operations first (higher priority)
-    if (hasFileDeletion || hasDeleteCommand) {
+    // Decision logic - ALL file operations use autonomous system with direct tool access
+    if (hasFileDeletion || hasDeleteCommand || hasFileCreation || hasComponentRequest || hasImplementation) {
       return {
         needsClaudeGeneration: false,
         confidence: 0.9,
         detectedType: 'tool_operation',
-        reasoning: 'File deletion or cleanup operation detected'
-      };
-    }
-
-    if (hasFileCreation || hasComponentRequest || hasImplementation) {
-      return {
-        needsClaudeGeneration: true,
-        confidence: 0.9,
-        detectedType: 'content_generation',
-        reasoning: 'File creation or code implementation detected'
+        reasoning: 'Direct agent tool access - autonomous system handles all file operations'
       };
     }
 
