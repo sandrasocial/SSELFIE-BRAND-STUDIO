@@ -52,6 +52,7 @@ export class AutonomousAgentIntegration {
       
       // 2. Analyze the request with intelligent context
       const workContext = await intelligentContext.analyzeAgentRequest(request.message, request.agentId);
+      console.log(`🧠 WORK CONTEXT ANALYSIS:`, JSON.stringify(workContext, null, 2));
       
       // 3. Perform autonomous navigation if needed
       const navigationIntent: NavigationIntent = {
@@ -66,22 +67,73 @@ export class AutonomousAgentIntegration {
       const fileOperations: WorkspaceOperation[] = [];
       const validationResults: ValidationResult[] = [];
       
-      // FORCED FILE DISCOVERY: Always perform file operations to trigger autonomous mode
+      // ANALYZE REQUEST FOR ACTUAL FILE OPERATIONS
+      console.log(`🔍 SUGGESTED ACTIONS: ${workContext.suggestedActions.length} actions found`);
+      console.log('🔍 SUGGESTED ACTIONS:', JSON.stringify(workContext.suggestedActions, null, 2));
+      
       if (workContext.suggestedActions.length === 0) {
-        // Force file discovery based on agent request
-        const discoveryOperation = {
-          command: 'view',
-          path: '.'
-        };
+        // Parse agent message for file creation/modification intent
+        const fileCreationMatch = request.message.match(/create.*?(?:file|component).*?([A-Za-z0-9]+\.tsx?)/i);
+        const fileModificationMatch = request.message.match(/(?:modify|update|edit).*?([A-Za-z0-9/.-]+\.tsx?)/i);
         
-        const result = await unifiedWorkspace.executeFileOperation(
-          discoveryOperation.command,
-          discoveryOperation.path,
-          discoveryOperation
-        );
-        
-        fileOperations.push(result);
-        console.log('🔧 FORCED DISCOVERY: Triggered autonomous mode with file discovery');
+        if (fileCreationMatch) {
+          // Agent wants to create a file
+          const fileName = fileCreationMatch[1];
+          const filePath = `client/src/components/admin/${fileName}`;
+          
+          console.log(`🔨 CREATING FILE: ${filePath} based on agent request`);
+          
+          const createOperation = {
+            command: 'create',
+            path: filePath,
+            file_text: `import React from 'react';\n\nexport default function ${fileName.replace('.tsx', '')}() {\n  return (\n    <div>\n      <h1>${fileName.replace('.tsx', '')}</h1>\n      <p>Component created by ${request.agentId}</p>\n    </div>\n  );\n}`
+          };
+          
+          const result = await unifiedWorkspace.executeFileOperation(
+            createOperation.command,
+            createOperation.path,
+            createOperation
+          );
+          
+          fileOperations.push(result);
+          console.log(`✅ FILE CREATED: ${filePath} by ${request.agentId}`);
+          console.log(`✅ FILE OPERATION RESULT:`, JSON.stringify(result, null, 2));
+        } else if (fileModificationMatch) {
+          // Agent wants to modify a file
+          const filePath = fileModificationMatch[1];
+          
+          console.log(`📝 VIEWING FILE: ${filePath} for modification by ${request.agentId}`);
+          
+          const viewOperation = {
+            command: 'view',
+            path: filePath
+          };
+          
+          const result = await unifiedWorkspace.executeFileOperation(
+            viewOperation.command,
+            viewOperation.path,
+            viewOperation
+          );
+          
+          fileOperations.push(result);
+        } else {
+          // Fallback: Do targeted file discovery instead of root directory
+          console.log('🔍 SMART DISCOVERY: Looking for relevant files');
+          
+          const targetPath = 'client/src/components/admin';
+          const discoveryOperation = {
+            command: 'view',
+            path: targetPath
+          };
+          
+          const result = await unifiedWorkspace.executeFileOperation(
+            discoveryOperation.command,
+            discoveryOperation.path,
+            discoveryOperation
+          );
+          
+          fileOperations.push(result);
+        }
       }
 
       // Process suggested actions from context analysis
