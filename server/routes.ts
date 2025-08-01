@@ -138,11 +138,14 @@ export async function registerRoutes(app: Express): Promise<Server> {
         })
         .returning();
 
+      // Generate actual HTML preview content
+      const htmlPreview = generateWebsiteHTML(websiteData, userOnboarding[0]);
+      
       res.json({
         success: true,
         website: {
           id: newWebsite.id.toString(),
-          preview: `Preview of ${websiteData.businessName}`,
+          preview: htmlPreview,
           template: 'victoria-editorial',
           estimatedGenerationTime: 45,
           status: 'generated',
