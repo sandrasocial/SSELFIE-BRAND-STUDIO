@@ -102,6 +102,15 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
       console.log('🎯 Victoria Generation: Using saved onboarding data:', userOnboarding[0] ? 'Found' : 'Not found');
       
+      if (userOnboarding[0]) {
+        console.log('📋 Saved onboarding includes:', {
+          brandStory: !!userOnboarding[0].brandStory,
+          businessType: userOnboarding[0].businessType,
+          targetAudience: !!userOnboarding[0].targetAudience,
+          brandVoice: userOnboarding[0].brandVoice
+        });
+      }
+      
       // Combine form data with saved onboarding data for comprehensive website generation
       const enhancedWebsiteData = {
         ...websiteData,
@@ -233,6 +242,14 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
       const { businessName, businessDescription, businessType, brandPersonality, targetAudience, keyFeatures, contentStrategy } = req.body;
 
+      console.log('📝 BUILD Onboarding Save Request:', {
+        userId,
+        businessName,
+        businessType,
+        brandPersonality,
+        targetAudience
+      });
+
       if (!businessName || !businessType || !brandPersonality || !targetAudience) {
         return res.status(400).json({ 
           error: "Business name, type, brand personality, and target audience are required" 
@@ -250,47 +267,48 @@ export async function registerRoutes(app: Express): Promise<Server> {
         .where(eq(onboardingData.userId, userId))
         .limit(1);
 
+      // Map WebsiteWizard form data to correct database schema
+      const onboardingUpdate = {
+        brandStory: contentStrategy || businessDescription, // Map contentStrategy to brandStory
+        personalMission: keyFeatures?.join(', ') || businessDescription, // Map keyFeatures to personalMission
+        businessGoals: businessDescription, // Map businessDescription to businessGoals
+        businessType, // Direct mapping
+        brandVoice: brandPersonality, // Map brandPersonality to brandVoice
+        targetAudience, // Direct mapping
+        completed: true,
+        currentStep: 4,
+        updatedAt: new Date()
+      };
+
       let result;
       if (existingOnboarding.length > 0) {
+        console.log('🔄 Updating existing onboarding data for user:', userId);
         // Update existing onboarding data
         result = await db
           .update(onboardingData)
           .set({
-            businessGoals: businessDescription,
-            businessType,
-            brandVoice: brandPersonality,
-            targetAudience,
-            brandStory: contentStrategy,
-            personalMission: keyFeatures?.join(', '),
-            completed: true,
-            currentStep: 4,
-            completedAt: new Date(),
-            updatedAt: new Date()
+            ...onboardingUpdate,
+            completedAt: new Date()
           })
           .where(eq(onboardingData.userId, userId))
           .returning();
       } else {
+        console.log('➕ Creating new onboarding data for user:', userId);
         // Create new onboarding data
         result = await db
           .insert(onboardingData)
           .values({
             userId,
-            businessGoals: businessDescription,
-            businessType,
-            brandVoice: brandPersonality,
-            targetAudience,
-            brandStory: contentStrategy,
-            personalMission: keyFeatures?.join(', '),
-            completed: true,
-            currentStep: 4,
+            ...onboardingUpdate,
             completedAt: new Date()
           })
           .returning();
       }
 
+      console.log('✅ BUILD Onboarding saved successfully for user:', userId);
       res.json({ success: true, onboarding: result[0] });
     } catch (error) {
-      console.error("Build onboarding error:", error);
+      console.error("❌ Build onboarding error:", error);
       res.status(500).json({ error: "Failed to save onboarding data" });
     }
   });

@@ -29,11 +29,12 @@ Preferred communication style: Simple, everyday language.
 **Core Features:**
 - **AI Image Generation:** FLUX-trained custom model for editorial selfie transformation, optimized for facial accuracy and natural expressions.
 - **Studio Builder:** One-click business setup with luxury templates.
+- **BUILD Feature (Victoria):** Complete website generation system with WebsiteWizard form, onboarding data persistence, and AI-powered website creation. Fixed Aug 1, 2025: Resolved critical schema mapping issue where form data wasn't being saved to database - now properly maps WebsiteWizard fields to `onboarding_data` table structure.
 - **Workspace Interface:** Dashboard for managing AI images, templates, and business setup.
 - **Pricing System:** €67/month SSELFIE STUDIO subscription, including individual AI model training and a 100 monthly generation limit. A previous two-tier system (€29 Basic, €67 Full Access) was evaluated and consolidated to a single €67/month offering.
 - **Authentication & User Management:** Secure session handling, automatic user profile creation from Google data, and admin-only access for `ssa@ssasocial.com`.
 - **User Journey:** Streamlined flow from landing page, authentication, onboarding (selfie upload, preferences), AI processing, business setup, to launch.
-- **Data Architecture:** Structured data for users, projects, AI images, templates, and subscriptions.
+- **Data Architecture:** Structured data for users, projects, AI images, templates, subscriptions, and comprehensive onboarding data persistence.
 - **Agent Autonomy:** All 13 admin agents have direct file modification access (`str_replace_based_edit_tool`, `search_filesystem`, `bash`, `web_search`) and direct repository access, operating with zero Claude API costs for file operations.
 - **Unified Agent Architecture:** A central orchestrator (`/api/autonomous-orchestrator/deploy-all-agents`) manages multi-agent workflows, enabling task assignment, real-time monitoring, and cross-agent learning.
 - **Agent Communication:** Agents communicate with authentic personalities, leveraging a robust memory system for persistent context across conversations and sessions.
