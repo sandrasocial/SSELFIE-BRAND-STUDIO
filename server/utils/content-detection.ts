@@ -18,20 +18,20 @@ export class ContentDetector {
   static analyzeMessage(message: string): ContentAnalysis {
     const messageWords = message.toLowerCase();
     
-    // Content generation keywords (require Claude API)
+    // Content generation keywords (require Claude API) 
     const contentKeywords = [
-      'create', 'generate', 'implement', 'build', 'design', 'write',
+      'generate', 'implement', 'build', 'design', 'write',
       'component', 'interface', 'service', 'function', 'class',
-      '.tsx', '.ts', '.js', '.jsx', 'react', 'typescript',
-      'luxury', 'editorial', 'sophisticated', 'professional',
-      'code', 'implementation', 'complete', 'working'
+      'react', 'typescript', 'luxury', 'editorial', 'sophisticated', 
+      'professional', 'code', 'implementation', 'complete', 'working'
     ];
 
     // Tool operation keywords (can use autonomous system)
     const toolKeywords = [
       'view', 'check', 'list', 'find', 'search', 'debug', 
       'test', 'verify', 'validate', 'monitor', 'status',
-      'audit', 'analyze', 'review', 'inspect'
+      'audit', 'analyze', 'review', 'inspect', 'delete', 
+      'remove', 'cleanup', 'clear', 'clean'
     ];
 
     // File operation indicators
@@ -52,12 +52,25 @@ export class ContentDetector {
       messageWords.includes(keyword)
     ).length;
 
+    // Specific deletion patterns (always use autonomous system)
+    const hasFileDeletion = /(?:delete|remove|cleanup|clean).*\.(tsx|ts|js|jsx|css|html)/i.test(message);
+    const hasDeleteCommand = /(?:delete|remove|cleanup|clean)/i.test(message);
+    
     // Specific file creation patterns (always use Claude)
     const hasFileCreation = /create.*\.(tsx|ts|js|jsx|css|html)/i.test(message);
     const hasComponentRequest = /component|interface|service/i.test(message);
     const hasImplementation = /implement|build|generate.*code/i.test(message);
 
-    // Decision logic
+    // Decision logic - deletion/cleanup operations first (higher priority)
+    if (hasFileDeletion || hasDeleteCommand) {
+      return {
+        needsClaudeGeneration: false,
+        confidence: 0.9,
+        detectedType: 'tool_operation',
+        reasoning: 'File deletion or cleanup operation detected'
+      };
+    }
+
     if (hasFileCreation || hasComponentRequest || hasImplementation) {
       return {
         needsClaudeGeneration: true,

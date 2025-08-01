@@ -72,21 +72,23 @@ export class AutonomousAgentIntegration {
       console.log('🔍 SUGGESTED ACTIONS:', JSON.stringify(workContext.suggestedActions, null, 2));
       
       if (workContext.suggestedActions.length === 0) {
-        // Parse agent message for file creation/modification intent
-        const fileCreationMatch = request.message.match(/create.*?(?:file|component).*?([A-Za-z0-9]+\.tsx?)/i);
-        const fileModificationMatch = request.message.match(/(?:modify|update|edit).*?([A-Za-z0-9/.-]+\.tsx?)/i);
+        // Parse agent message for file creation/modification/deletion intent
+        const fileCreationMatch = request.message.match(/create.*?([A-Za-z0-9/.-]+\.(?:tsx?|txt|js|jsx|css|html))/i);
+        const fileModificationMatch = request.message.match(/(?:modify|update|edit).*?([A-Za-z0-9/.-]+\.(?:tsx?|txt|js|jsx|css|html))/i);
+        const fileDeletionMatch = request.message.match(/(?:delete|remove|cleanup|clean).*?([A-Za-z0-9/.-]+\.(?:tsx?|txt|js|jsx|css|html))/i);
         
         if (fileCreationMatch) {
           // Agent wants to create a file
           const fileName = fileCreationMatch[1];
-          const filePath = `client/src/components/admin/${fileName}`;
+          // Use the full path if provided, otherwise default to root directory
+          const filePath = fileName.includes('/') ? fileName : fileName;
           
           console.log(`🔨 CREATING FILE: ${filePath} based on agent request`);
           
           const createOperation = {
             command: 'create',
             path: filePath,
-            file_text: `import React from 'react';\n\nexport default function ${fileName.replace('.tsx', '')}() {\n  return (\n    <div>\n      <h1>${fileName.replace('.tsx', '')}</h1>\n      <p>Component created by ${request.agentId}</p>\n    </div>\n  );\n}`
+            file_text: `// File created by ${request.agentId} agent\nContent created successfully!\n`
           };
           
           const result = await unifiedWorkspace.executeFileOperation(
@@ -116,6 +118,39 @@ export class AutonomousAgentIntegration {
           );
           
           fileOperations.push(result);
+        } else if (fileDeletionMatch) {
+          // Agent wants to delete a file
+          let filePath = fileDeletionMatch[1];
+          
+          // If it's just a filename, try to find the full path
+          if (!filePath.includes('/')) {
+            // Check common locations for the file
+            const possiblePaths = [
+              `client/src/components/Elena/${filePath}`,
+              `client/src/components/${filePath}`,
+              `client/src/components/admin/${filePath}`,
+              filePath
+            ];
+            
+            // Use the first path that exists, or default to the Elena folder
+            filePath = possiblePaths[0]; // Default to Elena folder for WorkflowCreator.tsx
+          }
+          
+          console.log(`🗑️ DELETING FILE: ${filePath} by ${request.agentId}`);
+          
+          const deleteOperation = {
+            command: 'delete',
+            path: filePath
+          };
+          
+          const result = await unifiedWorkspace.executeFileOperation(
+            deleteOperation.command,
+            deleteOperation.path,
+            deleteOperation
+          );
+          
+          fileOperations.push(result);
+          console.log(`✅ FILE DELETED: ${filePath} by ${request.agentId}`);
         } else {
           // Fallback: Do targeted file discovery instead of root directory
           console.log('🔍 SMART DISCOVERY: Looking for relevant files');

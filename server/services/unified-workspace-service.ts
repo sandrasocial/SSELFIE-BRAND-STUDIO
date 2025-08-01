@@ -112,6 +112,12 @@ export class UnifiedWorkspaceService {
           console.log(`✏️ MODIFIED FILE: ${path}`);
           break;
           
+        case 'delete':
+          await fs.unlink(path);
+          result = { success: true, message: `File deleted: ${path}` };
+          console.log(`🗑️ DELETED FILE: ${path}`);
+          break;
+          
         default:
           throw new Error(`Unknown command: ${command}`);
       }
