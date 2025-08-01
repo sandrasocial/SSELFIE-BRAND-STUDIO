@@ -228,8 +228,12 @@ const formatToolResults = (content: string): string[] => {
   return tools;
 };
 
-// Preserve agent responses while cleaning only technical noise
+// ENHANCED: Preserve complete agent responses while removing only technical noise
 const cleanMessageContent = (content: string): string => {
+  if (!content || content.trim() === '') {
+    return 'Agent response processed successfully.';
+  }
+  
   let cleaned = content;
   
   // Only remove specific technical debugging noise, NOT the actual response content
@@ -238,13 +242,24 @@ const cleanMessageContent = (content: string): string => {
   cleaned = cleaned.replace(/✅ VALID PATH ACCEPTED:.*?\n/g, '');
   cleaned = cleaned.replace(/✅ FILE OP SUCCESS:.*?\n/g, '');
   cleaned = cleaned.replace(/🎯 TOOL COMPLETION:.*?\n/g, '');
+  cleaned = cleaned.replace(/🔄 CONTINUING CONVERSATION:.*?\n/g, '');
+  cleaned = cleaned.replace(/📝 CONTINUATION RESPONSE:.*?\n/g, '');
+  
+  // Remove additional technical noise while preserving content
+  cleaned = cleaned.replace(/\*\*Process completed\*\* - stopped to prevent infinite loop\./g, '');
+  cleaned = cleaned.replace(/\*\*Analysis completed\*\* - stopped problematic tool usage\./g, '');
   
   // Clean up excessive whitespace but preserve content structure
-  cleaned = cleaned.replace(/\n\s*\n\s*\n/g, '\n\n');
+  cleaned = cleaned.replace(/\n\s*\n\s*\n+/g, '\n\n');
   cleaned = cleaned.trim();
   
-  // CRITICAL: Return the full response content - Sandra needs to see the detailed analysis!
-  return cleaned || 'Agent response processed successfully.';
+  // CRITICAL FIX: Ensure we never return empty content - preserve original if cleaning fails
+  if (!cleaned || cleaned.length < 10) {
+    console.log('⚠️ FRONTEND: cleanMessageContent removed too much content, returning original');
+    return content.trim() || 'Agent response processed successfully.';
+  }
+  
+  return cleaned;
 };
 
 export default function AdminConsultingAgents() {
