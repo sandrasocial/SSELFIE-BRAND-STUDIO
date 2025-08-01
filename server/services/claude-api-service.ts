@@ -598,6 +598,9 @@ IMPORTANT: Use this context to inform your responses, but maintain your authenti
         content: userMessage
       });
 
+      // CRITICAL: Validate message structure before sending to Claude API
+      this.validateClaudeMessageSequence(messages);
+      
       // Debug: Log message array before sending to Claude
       console.log('🔍 Message array being sent to Claude:');
       messages.forEach((msg, index) => {
@@ -1378,11 +1381,12 @@ I respond like your warm best friend who loves organization - simple, reassuring
     let currentMessages = [...messages];
     let finalResponse = '';
     
-    // Add the assistant's message with tool calls to conversation
-    currentMessages.push({
-      role: 'assistant',
+    // CRITICAL FIX: Add the assistant's message with tool calls to conversation
+    // Only add this AFTER we process all tool results to maintain proper Claude API message order
+    const assistantMessage = {
+      role: 'assistant' as const,
       content: response.content
-    });
+    };
     
     // Process each tool call and build tool results
     const toolResults: any[] = [];
@@ -1419,13 +1423,7 @@ I respond like your warm best friend who loves organization - simple, reassuring
                 console.log(`❌ MISSING PARAMETER: file_text required for create command`);
                 toolResult = `Parameter Error: The 'create' command requires 'file_text' parameter. Please generate the complete file content and retry the create command with the file_text parameter included.`;
                 
-                // Continue the conversation to prompt the agent for file content
-                const promptMessage = {
-                  role: 'user' as const,
-                  content: `You attempted to create a file but didn't provide the file content. Please provide the complete file content for "${block.input.path}" and retry the create command with the file_text parameter.`
-                };
-                
-                currentMessages.push(promptMessage);
+                // Don't inject messages mid-tool-processing - let tool_result handle the error
                 break;
               }
               
@@ -1498,10 +1496,16 @@ I respond like your warm best friend who loves organization - simple, reassuring
     if (toolResults.length > 0) {
       console.log(`🎯 TOOL COMPLETION: ${agentName} used ${toolResults.length} tools - continuing with authentic personality response`);
       
-      // FIXED: Proper Claude API tool flow - add tool results as user message
+      // CRITICAL FIX: Add assistant message with tool_use blocks FIRST
+      currentMessages.push({
+        role: 'assistant',
+        content: response.content
+      });
+      
+      // CRITICAL FIX: ALL tool_result blocks must be in a SINGLE user message immediately after assistant
       currentMessages.push({
         role: 'user',
-        content: toolResults
+        content: toolResults // All tool_result blocks in one message
       });
       
       console.log(`🔄 CONTINUING CONVERSATION: Processing ${toolResults.length} tool results. Current response length: ${finalResponse.length}`);
