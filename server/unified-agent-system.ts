@@ -155,18 +155,78 @@ export class UnifiedAgentSystem {
     console.log(`🤖 EXECUTING: ${request.agentId} through unified system`);
 
     try {
+      // Get agent personality for enhanced execution
+      const { CONSULTING_AGENT_PERSONALITIES } = await import('./agent-personalities-consulting');
+      const agentConfig = CONSULTING_AGENT_PERSONALITIES[request.agentId as keyof typeof CONSULTING_AGENT_PERSONALITIES];
+      
+      if (!agentConfig) {
+        throw new Error(`Agent ${request.agentId} not found in consulting system`);
+      }
+
+      // Build comprehensive system prompt for autonomous operation
+      const systemPrompt = `You are ${agentConfig.name}, ${agentConfig.role}.
+
+${agentConfig.systemPrompt}
+
+UNIFIED SYSTEM AUTONOMOUS OPERATION:
+- Generate complete, functional code when creating files
+- ALWAYS use str_replace_based_edit_tool to actually create files - do not just describe what to create
+- Include all necessary imports, interfaces, and implementations
+- Never create empty files - always include meaningful content
+- For React components: include complete JSX structure and TypeScript types
+- Use luxury design system: Times New Roman, black/white/gray palette
+- Add proper error handling and production-ready code
+
+MANDATORY TOOL USAGE:
+When asked to create files, you MUST use the str_replace_based_edit_tool with:
+- command: "create" 
+- path: "filename.ext"
+- file_text: "complete file content"`;
+
+      // Define essential tools for autonomous operation
+      const tools = [
+        {
+          name: "str_replace_based_edit_tool",
+          description: "Create, view, and edit files with exact string replacement",
+          input_schema: {
+            type: "object",
+            properties: {
+              command: { type: "string", enum: ["view", "create", "str_replace", "insert"] },
+              path: { type: "string", description: "File path" },
+              file_text: { type: "string", description: "Complete file content for create command" },
+              old_str: { type: "string", description: "Text to replace" },
+              new_str: { type: "string", description: "Replacement text" },
+              view_range: { type: "array", items: { type: "number" }, description: "Line range for view" }
+            },
+            required: ["command", "path"]
+          }
+        },
+        {
+          name: "search_filesystem",
+          description: "Search for files and code",
+          input_schema: {
+            type: "object",
+            properties: {
+              query_description: { type: "string" },
+              function_names: { type: "array", items: { type: "string" } },
+              class_names: { type: "array", items: { type: "string" } }
+            }
+          }
+        }
+      ];
+
       // Import Claude API service for actual agent execution
       const { claudeApiService } = await import('./services/claude-api-service');
       
-      // Execute through the unified Claude API
+      // Execute through the unified Claude API with complete capabilities
       const response = await claudeApiService.sendMessage(
         '42585527', // userId - existing admin user ID
         request.agentId, // agentName 
         request.conversationId,
         request.message,
-        undefined, // systemPrompt
-        undefined, // tools  
-        request.enforceTools || false // fileEditMode
+        systemPrompt, // Enhanced system prompt
+        tools, // Full tool access
+        true // Always enable file edit mode for autonomous operation
       );
 
       // CONDITIONAL HOOK: Only trigger implementation for actual implementation tasks
