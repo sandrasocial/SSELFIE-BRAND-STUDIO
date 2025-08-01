@@ -6,6 +6,9 @@ import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Checkbox } from '@/components/ui/checkbox';
+import { useMutation } from '@tanstack/react-query';
+import { apiRequest } from '@/lib/queryClient';
+import { useToast } from '@/hooks/use-toast';
 
 interface WebsiteWizardProps {
   onComplete: (website: any) => void;
@@ -13,6 +16,7 @@ interface WebsiteWizardProps {
 
 export function WebsiteWizard({ onComplete }: WebsiteWizardProps) {
   const { currentStep, nextStep, prevStep, generateWebsite, isGenerating } = useWebsiteBuilder();
+  const { toast } = useToast();
   
   const [formData, setFormData] = useState<Partial<WebsiteGenerationRequest>>({
     businessName: '',
@@ -22,6 +26,21 @@ export function WebsiteWizard({ onComplete }: WebsiteWizardProps) {
     targetAudience: '',
     keyFeatures: [],
     contentStrategy: ''
+  });
+
+  // Mutation to save onboarding data before generation
+  const saveOnboardingMutation = useMutation({
+    mutationFn: async (data: Partial<WebsiteGenerationRequest>) => {
+      return apiRequest('POST', '/api/build/onboarding', data);
+    },
+    onError: (error) => {
+      console.error('Failed to save onboarding data:', error);
+      toast({
+        title: "Save Failed",
+        description: "Failed to save your information. Please try again.",
+        variant: "destructive",
+      });
+    },
   });
 
   const businessTypes = [
@@ -72,10 +91,23 @@ export function WebsiteWizard({ onComplete }: WebsiteWizardProps) {
   const handleSubmit = async () => {
     if (isFormValid()) {
       try {
+        console.log('💾 Saving onboarding data before website generation...');
+        
+        // First, save the onboarding data to the database
+        await saveOnboardingMutation.mutateAsync(formData as WebsiteGenerationRequest);
+        
+        console.log('✅ Onboarding data saved successfully, now generating website...');
+        
+        // Then generate the website with Victoria
         const result = await generateWebsite.mutateAsync(formData as WebsiteGenerationRequest);
         onComplete(result);
       } catch (error) {
         console.error('Generation failed:', error);
+        toast({
+          title: "Generation Failed",
+          description: "Failed to create your website. Please try again.",
+          variant: "destructive",
+        });
       }
     }
   };
