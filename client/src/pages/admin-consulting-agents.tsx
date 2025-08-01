@@ -712,24 +712,34 @@ export default function AdminConsultingAgents() {
   const extractFileOperations = (content: string): Array<{type: 'create' | 'modify' | 'delete' | 'search', path: string, description?: string}> => {
     const operations: Array<{type: 'create' | 'modify' | 'delete' | 'search', path: string, description?: string}> = [];
     
-    // Extract file paths from common patterns
+    // Enhanced file operation detection for Zara's technical work
     const filePatterns = [
-      /client\/src\/[^\s]+\.tsx?/g,
-      /server\/[^\s]+\.ts/g,
-      /shared\/[^\s]+\.ts/g,
-      /[^\s]+\.tsx?/g,
-      /[^\s]+\.css/g
+      /client\/src\/[^\s\)]+\.tsx?/g,
+      /server\/[^\s\)]+\.ts/g,
+      /shared\/[^\s\)]+\.ts/g,
+      /[^\s\)]+\.tsx?/g,
+      /[^\s\)]+\.css/g,
+      /[^\s\)]+\.json/g,
+      /[^\s\)]+\.md/g
     ];
 
     filePatterns.forEach(pattern => {
       const matches = content.match(pattern);
       if (matches) {
         matches.forEach(path => {
-          if (!operations.find(op => op.path === path)) {
+          // Clean up path (remove trailing punctuation)
+          const cleanPath = path.replace(/[^\w\/\-\.]/g, '');
+          if (cleanPath && !operations.find(op => op.path === cleanPath)) {
+            let operationType: 'create' | 'modify' | 'delete' | 'search' = 'search';
+            
+            if (content.includes('create') || content.includes('CREATE')) operationType = 'create';
+            else if (content.includes('modify') || content.includes('str_replace') || content.includes('update')) operationType = 'modify';
+            else if (content.includes('delete') || content.includes('remove')) operationType = 'delete';
+            
             operations.push({
-              type: content.includes('create') ? 'create' : 'modify',
-              path: path,
-              description: `Working on ${path}`
+              type: operationType,
+              path: cleanPath,
+              description: `${operationType.charAt(0).toUpperCase() + operationType.slice(1)} ${cleanPath}`
             });
           }
         });
