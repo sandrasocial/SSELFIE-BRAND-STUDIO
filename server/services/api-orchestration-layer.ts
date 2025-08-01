@@ -1,238 +1,435 @@
 /**
  * API Orchestration Layer
- * Unified management of external service integrations
- * SSELFIE Studio Enhancement Project - Backend Service Integration
+ * Simplified external service connection management
  */
 
-import { integrationManager } from './service-integration-templates';
+import { EventEmitter } from 'events';
 
-interface ServiceConnection {
+export interface ServiceConfig {
+  id: string;
   name: string;
-  status: 'connected' | 'disconnected' | 'error' | 'pending';
-  lastChecked: Date;
+  type: 'payment' | 'email' | 'storage' | 'ai' | 'analytics';
+  apiKey?: string;
+  baseUrl?: string;
   config: Record<string, any>;
+  status: 'connected' | 'disconnected' | 'error' | 'testing';
+  lastHealthCheck?: Date;
   errorMessage?: string;
 }
 
-interface OrchestratedRequest {
+export interface ServiceTemplate {
   id: string;
-  services: string[];
-  payload: Record<string, any>;
-  status: 'pending' | 'processing' | 'completed' | 'failed';
-  results: Record<string, any>;
-  createdAt: Date;
-  completedAt?: Date;
+  name: string;
+  type: ServiceConfig['type'];
+  description: string;
+  configFields: ServiceConfigField[];
+  setupInstructions: string[];
+  testEndpoint?: string;
 }
 
-export class ApiOrchestrationLayer {
-  private serviceConnections: Map<string, ServiceConnection> = new Map();
-  private activeRequests: Map<string, OrchestratedRequest> = new Map();
+export interface ServiceConfigField {
+  key: string;
+  label: string;
+  type: 'text' | 'password' | 'url' | 'number' | 'boolean' | 'select';
+  required: boolean;
+  description?: string;
+  options?: { value: string; label: string; }[];
+  placeholder?: string;
+  validation?: string;
+}
 
-  /**
-   * Initialize service connections
-   */
-  async initializeServices(): Promise<void> {
-    const availableServices = integrationManager.listAvailableServices();
-    
-    for (const serviceName of availableServices) {
-      const validation = integrationManager.validateServiceConfig(serviceName);
-      
-      this.serviceConnections.set(serviceName, {
-        name: serviceName,
-        status: validation.isValid ? 'connected' : 'disconnected',
-        lastChecked: new Date(),
-        config: integrationManager.initializeService(serviceName).config,
-        errorMessage: validation.isValid ? undefined : validation.missingVars.join(', ')
-      });
-    }
+class APIOrchestrationLayer extends EventEmitter {
+  private services: Map<string, ServiceConfig> = new Map();
+  private templates: Map<string, ServiceTemplate> = new Map();
+  private healthCheckInterval: NodeJS.Timeout | null = null;
+
+  constructor() {
+    super();
+    this.initializeDefaultTemplates();
+    this.startHealthChecks();
   }
 
-  /**
-   * Execute coordinated multi-service operation
-   */
-  async orchestrateRequest(
-    requestId: string,
-    services: string[],
-    payload: Record<string, any>
-  ): Promise<OrchestratedRequest> {
-    const request: OrchestratedRequest = {
-      id: requestId,
-      services,
-      payload,
-      status: 'pending',
-      results: {},
-      createdAt: new Date()
-    };
-
-    this.activeRequests.set(requestId, request);
-
-    try {
-      request.status = 'processing';
-      
-      // Execute service operations in parallel
-      const servicePromises = services.map(async (serviceName) => {
-        const connection = this.serviceConnections.get(serviceName);
-        
-        if (!connection || connection.status !== 'connected') {
-          throw new Error(`Service ${serviceName} not available`);
+  private initializeDefaultTemplates() {
+    // Stripe template
+    this.templates.set('stripe', {
+      id: 'stripe',
+      name: 'Stripe Payments',
+      type: 'payment',
+      description: 'Accept payments and manage subscriptions',
+      configFields: [
+        {
+          key: 'publishableKey',
+          label: 'Publishable Key',
+          type: 'text',
+          required: true,
+          description: 'Your Stripe publishable key (starts with pk_)',
+          placeholder: 'pk_test_...'
+        },
+        {
+          key: 'secretKey',
+          label: 'Secret Key',
+          type: 'password',
+          required: true,
+          description: 'Your Stripe secret key (starts with sk_)',
+          placeholder: 'sk_test_...'
+        },
+        {
+          key: 'webhookSecret',
+          label: 'Webhook Secret',
+          type: 'password',
+          required: false,
+          description: 'Webhook endpoint secret for event verification'
         }
-
-        return this.executeServiceOperation(serviceName, payload);
-      });
-
-      const results = await Promise.allSettled(servicePromises);
-      
-      // Process results
-      services.forEach((serviceName, index) => {
-        const result = results[index];
-        if (result.status === 'fulfilled') {
-          request.results[serviceName] = result.value;
-        } else {
-          request.results[serviceName] = { error: result.reason.message };
-        }
-      });
-
-      request.status = 'completed';
-      request.completedAt = new Date();
-
-    } catch (error) {
-      request.status = 'failed';
-      request.results.error = error instanceof Error ? error.message : 'Unknown error';
-      request.completedAt = new Date();
-    }
-
-    return request;
-  }
-
-  /**
-   * Execute operation for specific service
-   */
-  private async executeServiceOperation(
-    serviceName: string,
-    payload: Record<string, any>
-  ): Promise<any> {
-    switch (serviceName) {
-      case 'stripe':
-        return this.executeStripeOperation(payload);
-      case 'resend':
-        return this.executeResendOperation(payload);
-      case 'flodesk':
-        return this.executeFlodeskOperation(payload);
-      case 'manychat':
-        return this.executeManyChatOperation(payload);
-      default:
-        throw new Error(`Unknown service: ${serviceName}`);
-    }
-  }
-
-  /**
-   * Stripe payment operations
-   */
-  private async executeStripeOperation(payload: Record<string, any>): Promise<any> {
-    // Stripe integration logic would go here
-    // For now, return mock success for testing
-    return {
-      success: true,
-      operation: payload.operation || 'payment',
-      amount: payload.amount,
-      customer: payload.customer,
-      timestamp: new Date().toISOString()
-    };
-  }
-
-  /**
-   * Resend email operations
-   */
-  private async executeResendOperation(payload: Record<string, any>): Promise<any> {
-    // Resend integration logic would go here
-    return {
-      success: true,
-      operation: 'email_sent',
-      to: payload.to,
-      subject: payload.subject,
-      messageId: `resend_${Date.now()}`,
-      timestamp: new Date().toISOString()
-    };
-  }
-
-  /**
-   * Flodesk email marketing operations
-   */
-  private async executeFlodeskOperation(payload: Record<string, any>): Promise<any> {
-    // Flodesk integration logic would go here
-    return {
-      success: true,
-      operation: 'subscriber_added',
-      email: payload.email,
-      tags: payload.tags || [],
-      timestamp: new Date().toISOString()
-    };
-  }
-
-  /**
-   * ManyChat automation operations
-   */
-  private async executeManyChatOperation(payload: Record<string, any>): Promise<any> {
-    // ManyChat integration logic would go here
-    return {
-      success: true,
-      operation: 'automation_triggered',
-      userId: payload.userId,
-      flow: payload.flow,
-      timestamp: new Date().toISOString()
-    };
-  }
-
-  /**
-   * Get service status dashboard
-   */
-  getServiceStatus(): Record<string, ServiceConnection> {
-    const status: Record<string, ServiceConnection> = {};
-    
-    this.serviceConnections.forEach((connection, name) => {
-      status[name] = { ...connection };
+      ],
+      setupInstructions: [
+        'Sign up for a Stripe account at stripe.com',
+        'Navigate to API keys in your dashboard',
+        'Copy your publishable and secret keys',
+        'Set up webhook endpoints if needed'
+      ],
+      testEndpoint: '/api/services/stripe/test'
     });
 
-    return status;
-  }
-
-  /**
-   * Get request status
-   */
-  getRequestStatus(requestId: string): OrchestratedRequest | undefined {
-    return this.activeRequests.get(requestId);
-  }
-
-  /**
-   * Health check for all services
-   */
-  async performHealthCheck(): Promise<Record<string, boolean>> {
-    const healthStatus: Record<string, boolean> = {};
-    
-    for (const [serviceName, connection] of Array.from(this.serviceConnections)) {
-      try {
-        // Perform basic connectivity check
-        const validation = integrationManager.validateServiceConfig(serviceName);
-        healthStatus[serviceName] = validation.isValid;
-        
-        // Update connection status
-        connection.status = validation.isValid ? 'connected' : 'disconnected';
-        connection.lastChecked = new Date();
-        connection.errorMessage = validation.isValid ? undefined : 'Configuration invalid';
-        
-      } catch (error) {
-        healthStatus[serviceName] = false;
-        const connection = this.serviceConnections.get(serviceName);
-        if (connection) {
-          connection.status = 'error';
-          connection.errorMessage = error instanceof Error ? error.message : 'Unknown error';
-          connection.lastChecked = new Date();
+    // SendGrid template
+    this.templates.set('sendgrid', {
+      id: 'sendgrid',
+      name: 'SendGrid Email',
+      type: 'email',
+      description: 'Send transactional and marketing emails',
+      configFields: [
+        {
+          key: 'apiKey',
+          label: 'API Key',
+          type: 'password',
+          required: true,
+          description: 'Your SendGrid API key',
+          placeholder: 'SG.xxx'
+        },
+        {
+          key: 'fromEmail',
+          label: 'From Email',
+          type: 'text',
+          required: true,
+          description: 'Default sender email address',
+          placeholder: 'noreply@yourdomain.com'
+        },
+        {
+          key: 'fromName',
+          label: 'From Name',
+          type: 'text',
+          required: false,
+          description: 'Default sender name',
+          placeholder: 'Your Company'
         }
-      }
+      ],
+      setupInstructions: [
+        'Create a SendGrid account',
+        'Generate an API key with full access',
+        'Verify your sender identity',
+        'Configure domain authentication'
+      ],
+      testEndpoint: '/api/services/sendgrid/test'
+    });
+
+    // Anthropic Claude template
+    this.templates.set('anthropic', {
+      id: 'anthropic',
+      name: 'Anthropic Claude',
+      type: 'ai',
+      description: 'AI assistance and text generation',
+      configFields: [
+        {
+          key: 'apiKey',
+          label: 'API Key',
+          type: 'password',
+          required: true,
+          description: 'Your Anthropic API key',
+          placeholder: 'sk-ant-...'
+        },
+        {
+          key: 'model',
+          label: 'Default Model',
+          type: 'select',
+          required: true,
+          description: 'Choose the Claude model to use',
+          options: [
+            { value: 'claude-3-5-sonnet-20241022', label: 'Claude 3.5 Sonnet' },
+            { value: 'claude-3-haiku-20240307', label: 'Claude 3 Haiku' }
+          ]
+        }
+      ],
+      setupInstructions: [
+        'Sign up for Anthropic Console',
+        'Generate an API key',
+        'Configure usage limits',
+        'Test the connection'
+      ],
+      testEndpoint: '/api/services/anthropic/test'
+    });
+  }
+
+  // Service Management
+  async addService(config: Omit<ServiceConfig, 'status' | 'lastHealthCheck'>): Promise<ServiceConfig> {
+    const serviceConfig: ServiceConfig = {
+      ...config,
+      status: 'disconnected',
+      lastHealthCheck: new Date()
+    };
+
+    this.services.set(config.id, serviceConfig);
+    
+    // Test connection
+    await this.testService(config.id);
+    
+    this.emit('serviceAdded', serviceConfig);
+    return serviceConfig;
+  }
+
+  async updateService(id: string, updates: Partial<ServiceConfig>): Promise<ServiceConfig | null> {
+    const service = this.services.get(id);
+    if (!service) return null;
+
+    const updatedService = { ...service, ...updates };
+    this.services.set(id, updatedService);
+
+    // Re-test connection if config changed
+    if (updates.apiKey || updates.config) {
+      await this.testService(id);
     }
 
-    return healthStatus;
+    this.emit('serviceUpdated', updatedService);
+    return updatedService;
+  }
+
+  removeService(id: string): boolean {
+    const success = this.services.delete(id);
+    if (success) {
+      this.emit('serviceRemoved', id);
+    }
+    return success;
+  }
+
+  getService(id: string): ServiceConfig | null {
+    return this.services.get(id) || null;
+  }
+
+  getAllServices(): ServiceConfig[] {
+    return Array.from(this.services.values());
+  }
+
+  getServicesByType(type: ServiceConfig['type']): ServiceConfig[] {
+    return Array.from(this.services.values()).filter(service => service.type === type);
+  }
+
+  // Template Management
+  getTemplate(id: string): ServiceTemplate | null {
+    return this.templates.get(id) || null;
+  }
+
+  getAllTemplates(): ServiceTemplate[] {
+    return Array.from(this.templates.values());
+  }
+
+  getTemplatesByType(type: ServiceConfig['type']): ServiceTemplate[] {
+    return Array.from(this.templates.values()).filter(template => template.type === type);
+  }
+
+  // Service Testing
+  async testService(id: string): Promise<{ success: boolean; message: string; data?: any }> {
+    const service = this.services.get(id);
+    if (!service) {
+      return { success: false, message: 'Service not found' };
+    }
+
+    try {
+      let result;
+      
+      switch (service.type) {
+        case 'payment':
+          if (service.id === 'stripe') {
+            result = await this.testStripe(service);
+          }
+          break;
+        case 'email':
+          if (service.id === 'sendgrid') {
+            result = await this.testSendGrid(service);
+          }
+          break;
+        case 'ai':
+          if (service.id === 'anthropic') {
+            result = await this.testAnthropic(service);
+          }
+          break;
+        default:
+          result = { success: false, message: 'Unknown service type' };
+      }
+
+      // Update service status
+      if (result.success) {
+        service.status = 'connected';
+        service.errorMessage = undefined;
+      } else {
+        service.status = 'error';
+        service.errorMessage = result.message;
+      }
+      service.lastHealthCheck = new Date();
+
+      this.emit('serviceTested', { service, result });
+      return result;
+
+    } catch (error) {
+      const errorMessage = error instanceof Error ? error.message : 'Unknown error';
+      service.status = 'error';
+      service.errorMessage = errorMessage;
+      service.lastHealthCheck = new Date();
+
+      this.emit('serviceTestError', { service, error: errorMessage });
+      return { success: false, message: errorMessage };
+    }
+  }
+
+  private async testStripe(service: ServiceConfig): Promise<{ success: boolean; message: string; data?: any }> {
+    // Mock Stripe test - in real implementation, would test API connection
+    if (!service.config.secretKey) {
+      return { success: false, message: 'Secret key is required' };
+    }
+
+    if (!service.config.secretKey.startsWith('sk_')) {
+      return { success: false, message: 'Invalid secret key format' };
+    }
+
+    return { 
+      success: true, 
+      message: 'Stripe connection successful',
+      data: { mode: service.config.secretKey.includes('test') ? 'test' : 'live' }
+    };
+  }
+
+  private async testSendGrid(service: ServiceConfig): Promise<{ success: boolean; message: string; data?: any }> {
+    // Mock SendGrid test
+    if (!service.config.apiKey) {
+      return { success: false, message: 'API key is required' };
+    }
+
+    if (!service.config.apiKey.startsWith('SG.')) {
+      return { success: false, message: 'Invalid API key format' };
+    }
+
+    return { 
+      success: true, 
+      message: 'SendGrid connection successful',
+      data: { fromEmail: service.config.fromEmail }
+    };
+  }
+
+  private async testAnthropic(service: ServiceConfig): Promise<{ success: boolean; message: string; data?: any }> {
+    // Mock Anthropic test
+    if (!service.config.apiKey) {
+      return { success: false, message: 'API key is required' };
+    }
+
+    if (!service.config.apiKey.startsWith('sk-ant-')) {
+      return { success: false, message: 'Invalid API key format' };
+    }
+
+    return { 
+      success: true, 
+      message: 'Anthropic connection successful',
+      data: { model: service.config.model }
+    };
+  }
+
+  // Health Checks
+  private startHealthChecks() {
+    this.healthCheckInterval = setInterval(async () => {
+      for (const [id] of this.services) {
+        await this.testService(id);
+      }
+    }, 5 * 60 * 1000); // Every 5 minutes
+  }
+
+  stopHealthChecks() {
+    if (this.healthCheckInterval) {
+      clearInterval(this.healthCheckInterval);
+      this.healthCheckInterval = null;
+    }
+  }
+
+  // Service Operations
+  async executeServiceOperation(serviceId: string, operation: string, params: any = {}): Promise<any> {
+    const service = this.services.get(serviceId);
+    if (!service || service.status !== 'connected') {
+      throw new Error(`Service ${serviceId} is not available`);
+    }
+
+    this.emit('operationStarted', { serviceId, operation, params });
+
+    try {
+      let result;
+      
+      switch (service.type) {
+        case 'payment':
+          result = await this.executePaymentOperation(service, operation, params);
+          break;
+        case 'email':
+          result = await this.executeEmailOperation(service, operation, params);
+          break;
+        case 'ai':
+          result = await this.executeAIOperation(service, operation, params);
+          break;
+        default:
+          throw new Error(`Unknown service type: ${service.type}`);
+      }
+
+      this.emit('operationCompleted', { serviceId, operation, params, result });
+      return result;
+
+    } catch (error) {
+      this.emit('operationFailed', { serviceId, operation, params, error });
+      throw error;
+    }
+  }
+
+  private async executePaymentOperation(service: ServiceConfig, operation: string, params: any): Promise<any> {
+    // Implement payment operations (create payment, refund, etc.)
+    throw new Error('Payment operations not yet implemented');
+  }
+
+  private async executeEmailOperation(service: ServiceConfig, operation: string, params: any): Promise<any> {
+    // Implement email operations (send email, create template, etc.)
+    throw new Error('Email operations not yet implemented');
+  }
+
+  private async executeAIOperation(service: ServiceConfig, operation: string, params: any): Promise<any> {
+    // Implement AI operations (generate text, analyze content, etc.)
+    throw new Error('AI operations not yet implemented');
+  }
+
+  // Utility methods
+  getServiceHealth(): { total: number; connected: number; errors: number; } {
+    const services = Array.from(this.services.values());
+    return {
+      total: services.length,
+      connected: services.filter(s => s.status === 'connected').length,
+      errors: services.filter(s => s.status === 'error').length
+    };
+  }
+
+  exportConfiguration(): ServiceConfig[] {
+    return Array.from(this.services.values()).map(service => ({
+      ...service,
+      // Remove sensitive data
+      apiKey: service.apiKey ? '***' : undefined,
+      config: Object.fromEntries(
+        Object.entries(service.config).map(([key, value]) => [
+          key,
+          key.toLowerCase().includes('key') || key.toLowerCase().includes('secret') ? '***' : value
+        ])
+      )
+    }));
   }
 }
 
-export const orchestrationLayer = new ApiOrchestrationLayer();
+// Export singleton instance
+export const apiOrchestrator = new APIOrchestrationLayer();
+export default apiOrchestrator;
