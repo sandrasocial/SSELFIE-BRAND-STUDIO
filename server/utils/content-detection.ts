@@ -133,6 +133,8 @@ export class EnhancedContentDetector {
         needsClaudeGeneration: true,
         confidence: 0.9,
         detectedType: 'content_generation',
+        complexity,
+        contextualFactors,
         reasoning: `Complex ${complexity} level request requiring Claude API for quality code generation`
       };
     }
@@ -142,6 +144,8 @@ export class EnhancedContentDetector {
       needsClaudeGeneration: false,
       confidence: 0.5,
       detectedType: 'hybrid',
+      complexity,
+      contextualFactors,
       reasoning: 'Ambiguous request - defaulting to tool operation for efficiency'
     };
   }
@@ -150,8 +154,10 @@ export class EnhancedContentDetector {
    * Quick check for content generation need
    */
   static needsClaudeGeneration(message: string): boolean {
-    return this.analyzeMessage(message).needsClaudeGeneration;
+    return EnhancedContentDetector.analyzeMessage(message).needsClaudeGeneration;
   }
 }
 
-export default ContentDetector;
+// Export both for compatibility
+export default EnhancedContentDetector;
+export { EnhancedContentDetector as ContentDetector };
