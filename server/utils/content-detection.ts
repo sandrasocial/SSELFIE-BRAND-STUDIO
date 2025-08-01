@@ -53,22 +53,42 @@ export class ContentDetector {
       messageWords.includes(keyword)
     ).length;
 
-    // Specific deletion patterns (always use autonomous system)
+    // Simple file operations (always use autonomous system)
     const hasFileDeletion = /(?:delete|remove|cleanup|clean).*\.(tsx|ts|js|jsx|css|html)/i.test(message);
     const hasDeleteCommand = /(?:delete|remove|cleanup|clean)/i.test(message);
+    const hasSimpleFileCreation = /^create\s+[\w-]+\.(txt|md)$/i.test(message.trim());
     
-    // DIRECT AGENT ACCESS: All file operations use autonomous system (not Claude API)
-    const hasFileCreation = /create.*\.(tsx|ts|js|jsx|css|html|md)/i.test(message);
-    const hasComponentRequest = /component|interface|service/i.test(message);
-    const hasImplementation = /implement|build|generate.*code/i.test(message);
+    // Complex content generation (always use Claude API)
+    const hasComplexCodeRequest = /(?:write|implement|build|generate|design).*(?:complete|full|working|functional).*(?:code|component|typescript|react)/i.test(message);
+    const hasCodeWithStyling = /(?:component|interface|service).*(?:styling|design|luxury|editorial|professional)/i.test(message);
+    const hasReactTypeScript = /react.*typescript|typescript.*react|\.tsx.*(?:complete|working|functional)/i.test(message);
+    const hasComplexImplementation = /(?:implement|build|generate).*(?:complete|full|working|functional|proper|detailed)/i.test(message);
 
-    // Decision logic - ALL file operations use autonomous system with direct tool access
-    if (hasFileDeletion || hasDeleteCommand || hasFileCreation || hasComponentRequest || hasImplementation) {
+    // Priority routing decisions
+    if (hasFileDeletion || hasDeleteCommand) {
       return {
         needsClaudeGeneration: false,
-        confidence: 0.9,
+        confidence: 0.95,
         detectedType: 'tool_operation',
-        reasoning: 'Direct agent tool access - autonomous system handles all file operations'
+        reasoning: 'File deletion/cleanup - autonomous system handles direct file operations'
+      };
+    }
+
+    if (hasComplexCodeRequest || hasCodeWithStyling || hasReactTypeScript || hasComplexImplementation) {
+      return {
+        needsClaudeGeneration: true,
+        confidence: 0.9,
+        detectedType: 'content_generation',
+        reasoning: 'Complex code generation with styling/TypeScript - requires Claude API for quality'
+      };
+    }
+
+    if (hasSimpleFileCreation) {
+      return {
+        needsClaudeGeneration: false,
+        confidence: 0.85,
+        detectedType: 'tool_operation',
+        reasoning: 'Simple file creation - autonomous system can handle basic files'
       };
     }
 
