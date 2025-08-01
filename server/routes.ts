@@ -1729,8 +1729,40 @@ Remember: You are the MEMBER experience Victoria - provide website building guid
       // Generate conversation ID if not provided
       const finalConversationId = conversationId || `admin_${agentId}_${Date.now()}`;
       
-      // COST-EFFECTIVE ROUTING: Use DirectToolExecutor for zero-cost file operations
-      console.log('💰 COST OPTIMIZATION: Using DirectToolExecutor - zero API costs for file operations');
+      // AUTONOMOUS AGENT INTEGRATION: Use new autonomous capabilities for ZERO API costs
+      console.log('🤖 AUTONOMOUS INTEGRATION: Using autonomous agent system - ZERO API costs');
+      
+      const { autonomousAgent } = await import('./services/autonomous-agent-integration');
+      
+      // Process request through autonomous agent integration
+      const autonomousRequest = {
+        agentId,
+        message,
+        context: 'admin_consulting',
+        conversationId: finalConversationId
+      };
+      
+      const autonomousResult = await autonomousAgent.processAutonomousRequest(autonomousRequest);
+      
+      if (autonomousResult.success && autonomousResult.fileOperations.length > 0) {
+        console.log('🚀 AUTONOMOUS EXECUTION: File operations completed without API costs');
+        console.log(`🔧 Operations: ${autonomousResult.fileOperations.length} file operations`);
+        console.log(`🎯 Navigation: ${autonomousResult.navigationResults.discoveredFiles.length} files discovered`);
+        console.log(`💰 COST SAVED: Direct workspace access with autonomous intelligence`);
+        
+        return res.json({
+          success: true,
+          response: autonomousResult.response,
+          agentName: agentConfig.name,
+          conversationId: finalConversationId,
+          costOptimized: true,
+          fileOperations: autonomousResult.fileOperations,
+          autonomousCapabilities: true
+        });
+      }
+      
+      // FALLBACK: Use DirectToolExecutor for simpler operations
+      console.log('🔧 FALLBACK: Using DirectToolExecutor for simple operations');
       
       const { DirectToolExecutor } = await import('./services/direct-tool-executor');
       
