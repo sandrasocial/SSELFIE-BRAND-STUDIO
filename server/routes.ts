@@ -1537,8 +1537,21 @@ Remember: You are the MEMBER experience Victoria - provide website building guid
     }
   });
 
-  // AGENT ACTIVITY DASHBOARD - Autonomous orchestrator coordination metrics endpoints
-  app.get('/api/autonomous-orchestrator/coordination-metrics', async (req: any, res) => {
+  // AUTONOMOUS ORCHESTRATOR ENDPOINTS - Import and register the router
+  try {
+    const autonomousOrchestratorRoutes = await import('./api/autonomous-orchestrator/deploy-all-agents');
+    const coordinationMetricsRoutes = await import('./api/autonomous-orchestrator/coordination-metrics');
+    
+    app.use('/api/autonomous-orchestrator', autonomousOrchestratorRoutes.default);
+    app.use('/api/autonomous-orchestrator', coordinationMetricsRoutes.default);
+    
+    console.log('✅ AUTONOMOUS ORCHESTRATOR: Routes registered successfully');
+  } catch (error) {
+    console.error('❌ AUTONOMOUS ORCHESTRATOR: Failed to register routes:', error);
+  }
+
+  // AGENT ACTIVITY DASHBOARD - Legacy coordination metrics endpoint (deprecated)
+  app.get('/api/autonomous-orchestrator/coordination-metrics-legacy', async (req: any, res) => {
     try {
       // Admin authentication check
       const adminToken = req.headers['x-admin-token'];
@@ -1795,20 +1808,9 @@ Available tools:
               });
             }
           } catch (methodError) {
-            console.log(`❌ CLAUDE API METHOD ERROR: ${methodError.message}`);
+            console.log(`❌ CLAUDE API METHOD ERROR: ${(methodError as Error).message}`);
             throw methodError;
           }
-
-
-          
-          return res.json({
-            success: true,
-            response: response,
-            agentName: agentConfig.name,
-            conversationId: finalConversationId,
-            contentGenerated: true,
-            claudeApiUsed: true
-          });
         } catch (claudeError) {
           console.error('❌ Claude content generation failed:', claudeError);
           // Fall through to autonomous system as backup
