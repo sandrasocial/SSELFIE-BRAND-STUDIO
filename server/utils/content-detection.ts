@@ -7,7 +7,7 @@
 export interface ContentAnalysis {
   needsClaudeGeneration: boolean;
   confidence: number;
-  detectedType: 'content_generation' | 'tool_operation' | 'hybrid' | 'complex_analysis' | 'architectural_decision';
+  detectedType: 'content_generation' | 'tool_operation' | 'complex_analysis' | 'architectural_decision';
   reasoning: string;
   complexity: 'low' | 'medium' | 'high' | 'enterprise';
   contextualFactors: string[];
@@ -179,7 +179,7 @@ export class EnhancedContentDetector {
     return {
       needsClaudeGeneration: true,
       confidence: 0.7,
-      detectedType: 'hybrid',
+      detectedType: 'complex_analysis',
       complexity,
       contextualFactors: [...contextualFactors, 'Ambiguous request'],
       reasoning: 'Ambiguous request - defaulting to Claude for comprehensive response'

@@ -1873,38 +1873,6 @@ Available tools (USE THEM):
             error: importError instanceof Error ? importError.message : 'Unknown import error'
           });
         }
-      } else {
-        // FALLBACK: Use hybrid system for basic operations
-        console.log('🎯 AUTONOMOUS SYSTEM: Executing direct tool operations');
-        
-        try {
-          const { hybridAgentSystem } = await import('./services/hybrid-agent-system');
-          
-          const autonomousResult = await hybridAgentSystem.executeDirectToolOperation({
-            agentId,
-            message,
-            userId,
-            conversationId: finalConversationId
-          });
-
-          return res.json({
-            success: true,
-            response: autonomousResult.response,
-            contentGenerated: false,
-            claudeApiUsed: false,
-            toolsUsed: autonomousResult.toolsUsed,
-            fileOperations: autonomousResult.fileOperations,
-            agentId,
-            conversationId: finalConversationId
-          });
-        } catch (autonomousError) {
-          console.error('Autonomous system error:', autonomousError);
-          return res.status(500).json({
-            success: false,
-            message: 'Autonomous system execution failed',
-            error: autonomousError instanceof Error ? autonomousError.message : 'Unknown autonomous error'
-          });
-        }
       }
     } catch (error) {
       console.error('Admin agent chat error:', error);
